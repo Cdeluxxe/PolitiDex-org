@@ -352,25 +352,69 @@ across the 117th–119th under one new `ISSUE_MAP` key, `israel_support`: six Ho
 226-196; H.R. 7217 250-180; H.R. 8034 366-58; H.R. 8369 224-187), nine Senate discharge
 votes on arms-sale disapproval resolutions, and House roll 243/2026 on H.Amdt. 235, which
 was already live and is re-emitted as a no-op so the seed and the database agree. 415
-attributed member-votes, all through the bioguide → roster path. H.R. 8034 is created as a
+attributed member-votes at the time, all through the bioguide → roster path — **713 after
+the roster expansion below, on the same 16 rolls**. H.R. 8034 is created as a
 child of H.R. 815 under rule 10 and carries `israel_support` alone; the parent keeps its
 five existing keys and gains none, because the Israel money is Division A and nothing else.
 
-Coverage after this pass, measured rather than asserted: 60 of the 63 roster slugs are
-**scoreable** on the key (at least one yea/nay on a mapped measure), and **4** are
-rankable — schiff, fetterman, jayapal, tlaib. The binding constraint is not mapping work:
-of the 46 people holding a stated `israel_support` position, **42 have no bioguide → slug
-entry at all**, so no vote can ever attach to them no matter how many rolls are ingested.
+Coverage after that pass, measured rather than asserted: 60 of the 63 roster slugs were
+**scoreable** on the key (at least one yea/nay on a mapped measure), and **4** were
+rankable — schiff, fetterman, jayapal, tlaib. The binding constraint was not mapping work:
+of the 46 people holding a stated `israel_support` position, **42 had no bioguide → slug
+entry at all**, so no vote could ever attach to them no matter how many rolls were ingested.
+
+### The roster expansion — done, and what it taught
+
+Migration `20260813000000_vr_israel_roster_expansion_votes.sql` closed that gap for **37 of
+the 42**. All 37 are now attributable and all 37 are rankable on the key: `israel_support`
+rankable people went **4 → 41**, rankable (member, issue) pairs **693 → 731**, recorded
+yea/nay member-votes **6,840 → 7,132**, on the same 16 roll calls with no new curation.
+
+The five who cannot be attributed, on the record so nobody re-opens the question: hegseth,
+keith_kellogg, witkoff and zohran_mamdani have never served in Congress, so no Bioguide ID
+exists for them at all; **ratcliffe** does resolve (R000601) but his only service ended
+2020-05-22, entirely outside the 117th–119th window, so a roster entry could never carry a
+vote. An entry for appearances' sake is worse than the gap it papers over.
+
+13. **Roster admission is an explicit act, and drift in it is a real failure mode.**
+   `db/vr-member-map.json` had fallen **101 entries behind its own generator**: slug →
+   bioguide is read out of the congress-images portrait URLs in `BROWSE_PHOTOS`, portraits
+   kept being curated, and `scripts/vr-gen-member-map.mjs` was never re-run. That silence
+   *was* the 42-member gap. But a blind regenerate would have swept the roster 63 → ~164
+   and silently changed the Official Record for ~100 people no pass had reviewed. So the
+   ceiling is now stated in `db/vr-roster-admitted.json` and enforced both ways: a slug
+   admitted there with no readable Bioguide is a hard generator error, and a curated
+   portrait not admitted there is counted as `unadmittedPortraits` and attributes nothing.
+   `node scripts/vr-gen-member-map.mjs --check` exits 1 on drift — run it in any pass that
+   touches portraits. 73 admitted-eligible portraits remain as visible headroom.
+14. **A widening of the roster can LOSE a member.** Annotating former members out of
+   `legislators-historical.json` gave Rubio's roster row a state again, so he matched both
+   that row and the `SENATE_ALUMNI` stand-in, the (surname, state) resolver read two rows as
+   two people, and he was skipped as ambiguous on all three 118th arms-sale rolls — a
+   regression introduced by the same change that fixed 37 others. `senateLookup` is now
+   deduped by bioguide and ambiguity counts *distinct people*, not matching rows. Any pass
+   that widens the roster must re-check the members who were already attributed.
+15. **A Senate surname is not the last word of a name.** Senate roll-call XML carries no
+   bioguide, so a senator resolves on (surname, state) — and the Senate writes
+   `<last_name>Van Hollen</last_name>`. A last-word split yields "Hollen" and Chris Van
+   Hollen silently receives nothing on nine arms-sale rolls he actually voted on. The
+   builder keeps the roster's full name and compares it against the chamber's own surname
+   string, so multi-word and hyphenated surnames match whole.
+16. **De-duplicate an overlay at the grain of the table's unique index.**
+   `scripts/vr-coverage-report.mjs` skipped a whole seeded roll call the moment that roll
+   existed live, which is right for a new ingest and wrong for a re-attribution: every roll
+   in this pass was already deployed, so the 292 yea/nay votes it unlocked read as zero and
+   the pass looked inert. The overlay now keys on (roll call, member), matching
+   `vr_member_votes`' own unique index, and still stops double-counting after the deploy.
 
 Queued, in priority order:
 
-1. **Roster expansion, which is the whole ballgame for this issue.** The 42 vote-gap names
-   include both party leaderships and most of the Senate's Israel-vocal members —
-   schumer, sanders, kaine, thune, van_hollen, warnock, chris_murphy, risch, lankford,
-   mcconnell, shaheen, reed, tim_scott, britt, rosen, mark_kelly, andy_kim, gallego, and
-   House members jeffries, stefanik, omar, torres, mike_lawler, josh_gottheimer, slotkin,
-   brian_mast, summer_lee, dan_goldman and others. Each needs one `db/vr-member-map.json`
-   entry; the 16 rolls already ingested would then score them with no new curation.
+1. **Re-attribute the Phase A roll calls against the widened roster.** The 37 new members
+   also voted on the 29 Phase A rolls, so `db/vr-phase-a-vote-seed.json` is now
+   under-attributed by construction — it was built against a 63-slug roster. Re-running
+   `scripts/vr-build-phase-a-vote-seed.mjs` and emitting a forward-only migration is the
+   single highest-yield follow-up, and it is mechanical: no new curation, no new rolls.
+   Deliberately left out of the Israel pass, which was scoped to Israel roll calls.
 2. **A stance pass over the 56 stance gaps.** These members already have judged votes on
    the key and are one sourced sentence away from rankable. Highest-volume first: curtis
    (12 judged, 100% pro-support), then barrasso, booker, collins, cruz, durbin, ernst,
@@ -392,6 +436,11 @@ Queued, in priority order:
    Moving it would be non-additive and purely cosmetic — `is_primary` drives sort order,
    the "Primary" badge and the Legislation-library link, never scoring — so it waits for a
    pass that is allowed to rewrite existing rows.
+6. **The remaining 73 unadmitted portraits.** Every one has a readable Bioguide and would
+   widen attribution across every ingested issue at once. Admission is cheap to write and
+   expensive to get wrong, so it belongs in a pass that can re-measure the whole record —
+   and it must respect the photo gate in `scripts/test-photo-coverage.mjs`, which requires
+   a bundled face for every roster slug.
 
 One naming collision a reader of the coverage table will trip over: the slug `kennedy` is
 **Kimberlyn King-Hinds** (K000404, House, MP), not Senator John Kennedy (K000393), who has

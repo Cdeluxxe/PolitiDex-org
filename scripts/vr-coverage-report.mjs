@@ -132,8 +132,12 @@ function loadIssueSeed() {
 // reason the other two are, and every vote they contribute is marked `pending` so votes
 // that are not yet in the database are never counted as though they were.
 //
-// A seed vote is skipped when its roll call is already live, keyed the way the table's
-// own unique index is — so re-running after a deploy stops double-counting on its own.
+// De-duplication is per (roll call, member), keyed the way vr_member_votes' own unique
+// index is — NOT per roll call. Skipping a whole roll the moment it exists live was wrong
+// in a way that hid an entire pass: a roster expansion re-attributes the SAME roll calls
+// against more members, so every one of its rolls is already live and the 298 votes it
+// unlocked read as zero. Matching the table's actual grain means a seed can add members to
+// a deployed roll, and re-running after the deploy still stops double-counting on its own.
 function loadVoteSeeds() {
   const dir = path.join(ROOT, 'db');
   const out = [];
@@ -190,10 +194,16 @@ async function main() {
     if (!mapping.has(r.measure_id)) mapping.set(r.measure_id, new Set());
     mapping.get(r.measure_id).add(r.issue_key);
   }
-  // Keyed exactly like the vr_rollcalls unique index, so a seed vote already ingested is
-  // recognised as live rather than added a second time.
+  // Keyed exactly like the vr_member_votes unique index, so a seed attribution already
+  // ingested is recognised as live rather than added a second time — while an attribution
+  // the seed holds and the database does not still counts as pending, even on a roll call
+  // that deployed long ago.
   const liveRolls = new Set((await client.query(
     'SELECT chamber, congress, session, roll_number FROM vr_rollcalls')).rows.map(rollKey));
+  const liveMv = new Set((await client.query(`
+    SELECT r.chamber, r.congress, r.session, r.roll_number, v.politician_id
+      FROM vr_member_votes v JOIN vr_rollcalls r ON r.id = v.rollcall_id`))
+    .rows.map(r => rollKey(r) + '|' + r.politician_id));
   await client.end();
 
   // Overlay the committed issue seed for keys the live table does not carry yet.
@@ -209,16 +219,19 @@ async function main() {
     m.mappingPending = fresh;
   }
 
-  // Overlay the committed vote seeds for roll calls the database does not carry yet.
+  // Overlay the attributions the committed vote seeds hold and the database does not.
   // A seed measure that does not exist live yet is synthesized under a negative id so
   // its votes are counted somewhere, and given the seed's own mapping — the migration
   // creates the real row, and until it runs there is nothing live to attach them to.
   const measureByKey = new Map(measures.map(m => [measureKey(m), m]));
   const pendingVoteMv = new Map();   // measureId → pending member-votes
-  let pendingRollCount = 0;
+  let pendingRollCount = 0;          // roll calls not in the database at all
+  let reattributedRollCount = 0;     // deployed roll calls the seed adds members to
   let synthId = -1;
   for (const v of loadVoteSeeds()) {
-    if (liveRolls.has(rollKey(v))) continue;
+    const rk = rollKey(v);
+    const fresh = v.memberVotes.filter(mv => !liveMv.has(rk + '|' + mv.politicianId));
+    if (!fresh.length) continue;
     let m = measureByKey.get(measureKey(v.measure));
     if (!m) {
       m = { id: synthId--, number: v.measure.number, congress: v.measure.congress,
@@ -230,8 +243,8 @@ async function main() {
       measureById.set(m.id, m);
       measureByKey.set(measureKey(m), m);
     }
-    pendingRollCount++;
-    for (const mv of v.memberVotes) {
+    if (liveRolls.has(rk)) reattributedRollCount++; else pendingRollCount++;
+    for (const mv of fresh) {
       if (mv.position !== 'yea' && mv.position !== 'nay') continue;
       votes.push({ pid: mv.politicianId, mid: m.id, pending: true });
       pendingVoteMv.set(m.id, (pendingVoteMv.get(m.id) || 0) + 1);
@@ -351,11 +364,14 @@ async function main() {
     + (pendingPairs.length ? ` (${num(pendingPairs.length)} awaiting deploy)` : '') + '. '
     + `People with at least one rankable record: **${num(peopleAll.size)}**`
     + (pendingPeople.length ? ` (${num(pendingPeople.length)} awaiting deploy)` : '') + '.');
-  if (pendingRollCount) {
+  if (pendingRollCount || reattributedRollCount) {
     p('');
-    p(`${pendingRollCount} seeded roll call(s) carrying ${num(pendingVoteTotal)} yea/nay member-votes are`);
-    p('committed in a vote seed and not yet in the database. They are counted above and');
-    p('listed here so the difference between "ingested" and "deployed" stays visible.');
+    const parts = [];
+    if (pendingRollCount) parts.push(`${pendingRollCount} seeded roll call(s) not yet in the database`);
+    if (reattributedRollCount) parts.push(`${reattributedRollCount} deployed roll call(s) the seed attributes to more members than the database holds`);
+    p(`${parts.join(', and ')} carry ${num(pendingVoteTotal)} yea/nay member-votes`);
+    p('that are committed in a vote seed and not live. They are counted above and listed');
+    p('here so the difference between "ingested" and "deployed" stays visible.');
     p('');
     p('| pending member-votes | measure | title | mapped |');
     p('|---:|---|---|---|');

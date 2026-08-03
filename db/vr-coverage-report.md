@@ -12,38 +12,39 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 
 | | member-votes |
 |---|---|
-| Recorded yea/nay votes | 6,840 |
-| …of which the votes themselves are seeded but not yet deployed | 372 |
-| …on a measure with at least one issue mapping | 5,303 |
-| …of which the mapping is curated but not yet deployed | 407 |
-| …**and** the member holds a stated position on that key (rankable) | 2,643 |
-| …of which awaiting deploy | 62 |
+| Recorded yea/nay votes | 7,132 |
+| …of which the votes themselves are seeded but not yet deployed | 292 |
+| …on a measure with at least one issue mapping | 5,595 |
+| …of which the mapping is curated but not yet deployed | 0 |
+| …**and** the member holds a stated position on that key (rankable) | 2,936 |
+| …of which awaiting deploy | 293 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **693** (2 awaiting deploy). People with at least one rankable record: **186**.
+Rankable (member, issue) pairs: **731** (38 awaiting deploy). People with at least one rankable record: **193** (7 awaiting deploy).
 
-15 seeded roll call(s) carrying 372 yea/nay member-votes are
-committed in a vote seed and not yet in the database. They are counted above and
-listed here so the difference between "ingested" and "deployed" stays visible.
+16 deployed roll call(s) the seed attributes to more members than the database holds carry 292 yea/nay member-votes
+that are committed in a vote seed and not live. They are counted above and listed
+here so the difference between "ingested" and "deployed" stays visible.
 
 | pending member-votes | measure | title | mapped |
 |---:|---|---|---|
-| 37 | H.Amdt. 478 | H.Amdt. 478 (Tenney) to H.R. 4665 — prohibit funds to move t | 1 key(s) `new measure` |
-| 37 | H.R. 6126 | Israel Security Supplemental Appropriations Act, 2024 | 2 key(s) `new measure` |
-| 37 | H.R. 8034 | Israel Security Supplemental Appropriations Act, 2024 | 1 key(s) `new measure` |
-| 36 | H.R. 7217 | Israel Security Supplemental Appropriations Act, 2024 | 1 key(s) `new measure` |
-| 34 | H.R. 8369 | Israel Security Assistance Support Act | 1 key(s) `new measure` |
-| 32 | H.R. 5323 | Iron Dome Supplemental Appropriations Act, 2022 | 1 key(s) `new measure` |
-| 18 | S.J.Res. 33 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 18 | S.J.Res. 26 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 18 | S.J.Res. 41 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 18 | S.J.Res. 34 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 18 | S.J.Res. 32 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 18 | S.J.Res. 138 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 17 | S.J.Res. 111 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 17 | S.J.Res. 113 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
-| 17 | S.J.Res. 115 | A joint resolution providing for congressional disapproval o | 1 key(s) `new measure` |
+| 21 | H.R. 8034 | Israel Security Supplemental Appropriations Act, 2024 | 1 key(s) |
+| 21 | H.R. 8369 | Israel Security Assistance Support Act | 1 key(s) |
+| 20 | H.Amdt. 478 | H.Amdt. 478 (Tenney) to H.R. 4665 — prohibit funds to move t | 1 key(s) |
+| 20 | H.R. 6126 | Israel Security Supplemental Appropriations Act, 2024 | 2 key(s) |
+| 20 | H.R. 7217 | Israel Security Supplemental Appropriations Act, 2024 | 1 key(s) |
+| 19 | S.J.Res. 33 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 19 | S.J.Res. 26 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 19 | S.J.Res. 32 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 19 | S.J.Res. 138 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 17 | H.R. 5323 | Iron Dome Supplemental Appropriations Act, 2022 | 1 key(s) |
+| 17 | H.Amdt. 235 | H.Amdt. 235 (Massie) to H.R. 8595 — prohibit funds appropria | 3 key(s) |
+| 16 | S.J.Res. 111 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 16 | S.J.Res. 113 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 16 | S.J.Res. 115 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 16 | S.J.Res. 41 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 16 | S.J.Res. 34 | A joint resolution providing for congressional disapproval o | 1 key(s) |
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -57,30 +58,6 @@ No measure carrying a vote is left without a title.
 ## Gap 1 — measures with votes and no issue mapping
 
 36 measure(s), 1,537 member-votes at stake.
-
-16 measure(s) carrying 407 member-votes are not on this
-list: they are mapped in `db/vr-issue-seed.json` and awaiting deploy, so they are
-counted as mapped above rather than as a gap here. Rows marked `new measure` are
-created by the same migration that carries their votes, so they were never a gap.
-
-| member-votes | measure | keys awaiting deploy | |
-|---:|---|---|---|
-| 37 | H.Amdt. 478 | `israel_support` | `new measure` |
-| 37 | H.R. 6126 | `israel_support`, `cut_spending` | `new measure` |
-| 37 | H.R. 8034 | `israel_support` | `new measure` |
-| 36 | H.R. 7217 | `israel_support` | `new measure` |
-| 35 | H.Amdt. 235 | `israel_support` |  |
-| 34 | H.R. 8369 | `israel_support` | `new measure` |
-| 32 | H.R. 5323 | `israel_support` | `new measure` |
-| 18 | S.J.Res. 33 | `israel_support` | `new measure` |
-| 18 | S.J.Res. 26 | `israel_support` | `new measure` |
-| 18 | S.J.Res. 41 | `israel_support` | `new measure` |
-| 18 | S.J.Res. 34 | `israel_support` | `new measure` |
-| 18 | S.J.Res. 32 | `israel_support` | `new measure` |
-| 18 | S.J.Res. 138 | `israel_support` | `new measure` |
-| 17 | S.J.Res. 111 | `israel_support` | `new measure` |
-| 17 | S.J.Res. 113 | `israel_support` | `new measure` |
-| 17 | S.J.Res. 115 | `israel_support` | `new measure` |
 
 | member-votes | measure | title | |
 |---:|---|---|---|
@@ -132,8 +109,13 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 | 83 | Kennedy — HHS | healthcare |
 | 74 | H.R. 6955 | econ_smallbiz |
 | 73 | H.R. 8800 | strong_defense |
+| 58 | H.R. 8034 | israel_support |
+| 57 | H.Amdt. 478 | israel_support |
+| 56 | H.R. 7217 | israel_support |
+| 55 | H.R. 8369 | israel_support |
 | 54 | H.R. 2670 | strong_defense |
 | 49 | S. 1605 | strong_defense |
+| 49 | H.R. 5323 | israel_support |
 | 48 | H.R. 8404 | lgbtq_rights |
 | 40 | H.R. 276 | america_first |
 | 38 | H.Amdt. 87 | lgbtq_rights |
@@ -147,17 +129,12 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 | 37 | H.Amdt. 256 | lgbtq_rights |
 | 37 | H.Amdt. 258 | religious_liberty |
 | 37 | H.Con.Res. 113 | national_debt |
-| 37 | H.Amdt. 478 | israel_support |
-| 37 | H.R. 8034 | israel_support |
-| 36 | H.R. 1005 | gov_transparency |
-| 36 | H.Amdt. 247 | checks_balances |
-| 36 | H.Amdt. 249 | states_federal_power |
-| 36 | H.Amdt. 250 | states_federal_power |
+| 37 | S.J.Res. 33 | israel_support |
 | … | _20 more_ | |
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-6,373 (member, issue) pairs, 13,414 member-votes.
+6,394 (member, issue) pairs, 13,467 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
@@ -223,7 +200,7 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | don_davis | gov_regulation | yes |
 | 9 | scalise | gov_transparency | yes |
 | 9 | jim_jordan | gov_transparency | yes |
-| … | _6,313 more_ | | |
+| … | _6,334 more_ | | |
 
 ## Gap 2 rolled up by issue
 
@@ -236,11 +213,11 @@ real, verifiable position exists. Do not fill these in by inference.
 | 598 | energy_production | 174 |
 | 591 | national_debt | 129 |
 | 559 | cost_living | 210 |
+| 456 | cut_spending | 122 |
 | 442 | gov_transparency | 117 |
-| 419 | cut_spending | 117 |
+| 376 | america_first_fp | 117 |
 | 372 | israel_support | 56 |
 | 366 | gov_services | 123 |
-| 360 | america_first_fp | 101 |
 | 344 | foreign_balance | 116 |
 | 333 | lgbtq_rights | 95 |
 | 296 | healthcare | 128 |

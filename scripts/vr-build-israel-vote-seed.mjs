@@ -493,13 +493,35 @@ async function fetchHouse(sel, measure) {
 }
 
 // ── Senate ──────────────────────────────────────────────────────────────────
+// Senate XML carries no bioguide, so a senator resolves on (surname, state) — and the
+// surname cannot be taken as "the last word of the roster name": the Senate writes
+// <last_name>Van Hollen</last_name>, so a last-word split yields "Hollen" and Chris Van
+// Hollen silently receives no votes on nine arms-sale rolls he actually voted on. The
+// roster's full name is kept and compared against the chamber's own surname string, so a
+// multi-word or hyphenated surname matches whole.
 const senateRoster = ROSTER
   .filter((r) => r.chamber === "senate" && r.name && r.state)
-  .map((r) => ({ bioguide: r.bioguide, state: r.state, last: r.name.split(/\s+/).filter((w) => !/^[A-Z]\.$/.test(w)).slice(-1)[0] }));
+  .map((r) => ({ bioguide: r.bioguide, state: r.state, name: r.name }));
+const surnameMatches = (rosterName, xmlLast) => {
+  const a = String(rosterName).toLowerCase().replace(/\s+(jr|sr|ii|iii|iv)\.?$/, "");
+  const b = String(xmlLast).toLowerCase();
+  return a === b || a.endsWith(" " + b);
+};
 // Roster rows who sat in the Senate during part of this window but whose entry carries no
 // chamber/state because they have since left Congress for the executive branch.
-const SENATE_ALUMNI = [{ bioguide: "R000595", state: "FL", last: "Rubio" }];
-const senateLookup = [...senateRoster, ...SENATE_ALUMNI];
+//
+// An alumni entry is REDUNDANT once the roster row it stands in for carries a state again —
+// which is what happened when scripts/vr-gen-member-map.mjs started annotating former
+// members out of legislators-historical.json. Left un-deduped, Rubio then matched twice on
+// (last name, state), the resolver read two rows as two people, and he was skipped as
+// ambiguous on all three 118th arms-sale rolls: a member LOST to a widening of the roster.
+// So the lookup is keyed by bioguide, and ambiguity below counts distinct people rather
+// than matching rows.
+const SENATE_ALUMNI = [{ bioguide: "R000595", state: "FL", name: "Marco Rubio" }];
+const senateLookup = [];
+for (const r of [...senateRoster, ...SENATE_ALUMNI]) {
+  if (!senateLookup.some((x) => x.bioguide === r.bioguide)) senateLookup.push(r);
+}
 
 async function fetchSenate(sel, measure) {
   const base = `https://www.senate.gov/legislative/LIS/roll_call_votes/vote${sel.congress}${sel.session}/vote_${sel.congress}_${sel.session}_${String(sel.roll).padStart(5, "0")}`;
@@ -535,13 +557,14 @@ async function fetchSenate(sel, measure) {
     const f = m[1];
     const last = clean(tag(f, "last_name"));
     const state = clean(tag(f, "state"));
-    const hits = senateLookup.filter((r) => r.last === last && r.state === state);
-    if (hits.length > 1) {
+    const hits = senateLookup.filter((r) => surnameMatches(r.name, last) && r.state === state);
+    const people = [...new Set(hits.map((r) => r.bioguide))];
+    if (people.length > 1) {
       ambiguous++;
-      notes.push(`AMBIGUOUS ${at}: ${last} (${state}) matches ${hits.length} roster rows — skipped`);
+      notes.push(`AMBIGUOUS ${at}: ${last} (${state}) matches ${people.length} roster members — skipped`);
     }
     all.push({
-      bioguideId: hits.length === 1 ? hits[0].bioguide : null,
+      bioguideId: people.length === 1 ? people[0] : null,
       party: clean(tag(f, "party")), state,
       position: POS[clean(tag(f, "vote_cast"))] || null,
     });

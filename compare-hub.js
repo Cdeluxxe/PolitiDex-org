@@ -144,6 +144,7 @@
       // Federal members — official congressional portraits (public domain) via the
       // unitedstates/images project, keyed by Bioguide ID (authoritative dataset).
       aguilar: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000371.jpg',
+      adam_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000510.jpg', // WA-09 · S000510
       alsobrooks: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000382.jpg',
       andy_kim: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000394.jpg',
       angus_king: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000383.jpg',
@@ -154,6 +155,7 @@
       blackburn: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001243.jpg',
       blumenthal: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001277.jpg',
       brendan_boyle: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001296.jpg',
+      brian_mast: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001199.jpg', // FL-21 · M001199
       britt: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001319.jpg',
       chip_roy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000614.jpg',
       chris_murphy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001169.jpg',
@@ -176,6 +178,7 @@
       gillibrand: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000555.jpg',
       greg_landsman: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000601.jpg',
       hagerty: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H000601.jpg',
+      haley_stevens: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001215.jpg', // MI-11 · S001215
       hickenlooper: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H000273.jpg',
       hirono: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001042.jpg',
       hoeven: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001061.jpg',
@@ -202,9 +205,11 @@
       mcclain: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001136.jpg',
       mcconnell: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000355.jpg',
       mccormick: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001243.jpg',
+      meeks: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001137.jpg', // NY-05 · M001137
       merkley: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001176.jpg',
       mike_lawler: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000599.jpg',
       mike_rounds: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000605.jpg',
+      mike_waltz: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000823.jpg', // FL-06, 116th-119th · W000823
       moreno: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001242.jpg',
       mullin: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001190.jpg',
       nadler: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000002.jpg',
@@ -212,9 +217,11 @@
       omar: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000173.jpg',
       padilla: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000145.jpg',
       raja_krishnamoorthi: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000391.jpg',
+      reed: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000122.jpg', // RI Sen · R000122
       rick_larsen: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000560.jpg',
       rick_scott: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001217.jpg',
       ricketts: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000618.jpg',
+      risch: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000584.jpg', // ID Sen · R000584
       roger_marshall: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001198.jpg',
       ron_johnson: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000293.jpg',
       rosen: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000608.jpg',
@@ -225,6 +232,7 @@
       schmitt: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001227.jpg',
       schumer: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000148.jpg',
       seth_moulton: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001196.jpg',
+      shaheen: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001181.jpg', // NH Sen · S001181
       sheehy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001232.jpg',
       slotkin: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001208.jpg',
       stefanik: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001196.jpg',
@@ -235,6 +243,7 @@
       ted_lieu: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000582.jpg',
       thune: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000250.jpg',
       tillis: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000476.jpg',
+      tim_scott: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001184.jpg', // SC Sen · S001184
       tina_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001203.jpg',
       tlaib: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000481.jpg',
       todd_young: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/Y000064.jpg',
