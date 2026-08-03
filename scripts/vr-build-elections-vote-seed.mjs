@@ -26,7 +26,7 @@
 //
 // WHERE A FACET IS DECLINED ON A MEASURE THAT PLAINLY TOUCHES IT
 // -------------------------------------------------------------
-// Three of the seven measures contain an election-security title AND cut against it
+// Three of the eight measures contain an election-security title AND cut against it
 // inside the same bill. H.R. 1 and H.R. 5746 each mandate durable paper ballots,
 // risk-limiting audits and ballot chain-of-custody rules — squarely pro-safeguard —
 // while in the same text permitting a sworn statement in lieu of documentary ID and
@@ -78,13 +78,47 @@ const MAP = memberMap.map || {};
 const CG = (c, kind, n) => `https://www.congress.gov/bill/${c}th-congress/${kind}/${n}`;
 const BS = (c, t, n) => `https://www.govinfo.gov/bulkdata/BILLSTATUS/${c}/${t}/BILLSTATUS-${c}${t}${n}.xml`;
 
-// ── The seven roll calls ────────────────────────────────────────────────────
+// ── The eight roll calls ────────────────────────────────────────────────────
 // Priority order per the mission: enacted laws first, then contested passage votes,
 // then major directional amendments. There are NO enacted federal election-
 // administration laws in the 117th-119th window — see `enactedLawFinding` below — so
 // the inventory opens at contested passage. No amendment roll survived the near-
 // unanimity and mapping tests; the ones considered are in DECLINED.
 const SELECTIONS = [
+  {
+    // The vehicle case, and the reason this file checks <legis-num> rather than the
+    // title: the Clerk's roll 69 reads "S 1383 — Veterans Accessibility Advisory
+    // Committee Act", the Senate bill the House emptied out on the floor. What the House
+    // actually passed is the SAVE America Act substitute, whose short titles S. 1383
+    // carries from the engrossed House amendment onward. The mapping is made from the
+    // substitute's own text, not from the vehicle's surviving caption.
+    number: "S. 1383", measureType: "bill", congress: 119, chamber: "senate",
+    session: 2, roll: 69, actionType: "passage",
+    create: {
+      title: "SAVE America Act",
+      shortTitle: "SAVE America Act",
+      summary:
+        "The text the House substituted into S. 1383 — a Senate veterans-accessibility bill that "
+        + "passed the Senate by unanimous consent on 2025-12-18 — and passed 218-213 on 2026-02-11. "
+        + "Requires documentary proof of United States citizenship before a state may register an "
+        + "applicant for a federal election under any registration method, with mail-form applicants "
+        + "required to present their proof in person to an election official; requires a valid "
+        + "physical photo identification to receive an in-person ballot and a photo-ID copy or the "
+        + "last four Social Security digits with an affidavit to vote by mail; requires states to "
+        + "submit their voter lists to the Department of Homeland Security for comparison against the "
+        + "SAVE system and to remove non-citizens on verified information; and creates criminal "
+        + "penalties for an official who registers an applicant without the documentation. Carries "
+        + "an alternative-evidence pathway on a perjury attestation, a former-name process, a "
+        + "three-day cure for provisional ballots, and exemptions for uniformed-services and certain "
+        + "elderly and disabled voters. The Senate has not disposed of the House amendment: the "
+        + "motion to proceed to the House message carried 51-48 on 2026-03-17 and the chamber was "
+        + "still considering it in late March 2026.",
+      introducedAt: "2025-04-09", status: "passed_house",
+      sourceUrl: "https://www.govinfo.gov/content/pkg/BILLS-119s1383eah/html/BILLS-119s1383eah.htm",
+      sourceLabel: "GovInfo — engrossed House amendment",
+      externalIds: { congressGovId: "s1383-119", billStatus: BS(119, "s", 1383) },
+    },
+  },
   {
     number: "H.R. 22", measureType: "bill", congress: 119, chamber: "house",
     session: 1, roll: 102, actionType: "passage",
@@ -256,6 +290,8 @@ const DECLINED_FACETS = [
 // skip never reads as an oversight. Every tally below was read from the chamber's own
 // document, not from a summary.
 const DECLINED = [
+  { number: "S. 1383", chamber: "house", congress: 119, session: 2, roll: 68, totals: "214-217", why: "motion to commit the SAVE America Act substitute to the Committee on House Administration, offered by Mr. Morelle — a procedural disposition taken minutes before passage, not a vote on what the text does; roll 69 is the passage vote" },
+  { number: "H.Res. 1057", chamber: "house", congress: 119, session: 2, roll: null, totals: "—", why: "closed rule providing for consideration of S. 1383 and three unrelated bills — rules are not policy, and scripts/test-mapping-discipline.mjs refuses to let one be mapped at all. Its roll is also a four-measure package, so no single position is readable from it" },
   { number: "H.J.Res. 24", chamber: "house", congress: 118, session: 1, roll: 118, totals: "260-162", why: "disapproving the D.C. Council's Local Resident Voting Rights Amendment Act — the same substance as H.R. 192, voted in the same Congress, but through a disapproval resolution whose question mixes ballot eligibility with congressional override of a specific local enactment; ingesting both would double-weight one confounded question" },
   { number: "H.R. 8873", chamber: "house", congress: 117, session: 2, roll: 449, totals: "229-203", why: "Presidential Election Reform Act — its operative content is Title 3 certification process: the state legislature's role in appointing electors, the electoral-count objection threshold and expedited judicial review. Certification is who decides an outcome, not how ballots are verified or cast, and belongs to checks_balances; the election_security key's scope note excludes it explicitly" },
   { number: "H.R. 8314", chamber: "house", congress: 118, session: 2, roll: 418, totals: "218-181", why: "No Foreign Election Interference Act — bars tax-exempt organisations that accept foreign contributions from funding ballot-measure campaigns. That is campaign finance, not ballot administration, and belongs to campaign_finance. Failed under suspension besides" },
@@ -285,12 +321,19 @@ const DECLINED = [
 const SCAN_COVERAGE =
   "Clerk grouped indexes read in full for 2021, 2022, 2023, 2024, 2025 and 2026 — the whole "
   + "117th, 118th and 119th Congresses through House roll 283 of 2026 (July 23, 2026), the last "
-  + "roll the Clerk had published when this seed was built. The 119th's second session (2026) "
-  + "contains no election-administration measure of any kind: the only keyword hits are H.Res. 988, "
-  + "a rule naming a retirement-savings bill, and H.R. 2071, the Save Our Shrimpers Act. No "
-  + "successor to the SAVE Act reached a House vote in 2026, so nothing in that session is "
-  + "admitted or declined here. Senate roll-call indexes for both sessions of all three Congresses "
-  + "were read the same way and produced the two cloture motions named in declinedRollCalls.";
+  + "roll the Clerk had published when this seed was built. Senate roll-call indexes for both "
+  + "sessions of all three Congresses were read the same way and produced the two cloture motions "
+  + "named in declinedRollCalls. One correction to an earlier build of this seed, recorded because "
+  + "it shows the limit of a keyword scan: that build reported the 119th's second session as "
+  + "containing no election-administration measure of any kind, because the Clerk's caption for the "
+  + "only one there reads \"S 1383 — Veterans Accessibility Advisory Committee Act\". The House had "
+  + "emptied that Senate veterans bill and substituted the SAVE America Act, so no election keyword "
+  + "appears anywhere in the index row for roll 69 and the scan could not have found it. It was "
+  + "found instead in three members' own February 11, 2026 releases describing that day's vote as "
+  + "SAVE America Act passage, then confirmed against the bill's GovInfo BILLSTATUS record, which "
+  + "carries the short titles \"Safeguard American Voter Eligibility Act\" and \"SAVE America Act\" "
+  + "added by the engrossed House amendment. A title-only scan cannot see a vehicle; a citation "
+  + "check can, which is why every selection here is verified on <legis-num> and question.";
 
 // ── The enacted-law tier, and why it is empty ───────────────────────────────
 const ENACTED_LAW_FINDING =
@@ -301,8 +344,12 @@ const ENACTED_LAW_FINDING =
   + "ballot administration — and is out of scope by the election_security key's own scope note, "
   + "which assigns certification and Electoral Count Act questions to checks_balances. It was also "
   + "enacted inside a 1,653-page omnibus with no standalone roll call, so no member position on it "
-  + "is separable from a vote on the whole appropriations act. Every measure in this seed passed one "
-  + "chamber and died in the other. That is the shape of the record, not a gap in the search.";
+  + "is separable from a vote on the whole appropriations act. Six of the eight roll calls here are "
+  + "on measures that passed one chamber and died in the other. The seventh and eighth are the two "
+  + "SAVE Act votes whose text is still alive: H.R. 22 sits on the Senate calendar, and the SAVE "
+  + "America Act substitute the House put into S. 1383 is before the Senate as a House message the "
+  + "chamber has not disposed of. Neither is law, so the enacted tier stays empty. That is the shape "
+  + "of the record, not a gap in the search.";
 
 // ── XML helpers ─────────────────────────────────────────────────────────────
 // The tag pattern requires the name to be followed by '>' or whitespace, so a lookup for

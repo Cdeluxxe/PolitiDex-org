@@ -1968,6 +1968,29 @@
      "rationale": "Removes an existing casting pathway: non-citizen District residents who registered under the 2022 local law lose the ability to vote in municipal elections. A yea narrows who may cast a ballot. Same Home Rule Act confound as the election_security row above."
     }
    ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 1383",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1383eah/html/BILLS-119s1383eah.htm",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SAVE America Act, the text the House substituted into S. 1383 on 2026-02-11 and passed 218-213 on roll 69. Mapped on the substitute's own provisions, read from the engrossed House amendment: a state \"shall not accept and process an application to register to vote in an election for Federal office unless the applicant presents documentary proof\" of citizenship under any registration method; a new HAVA section bars an official from providing a ballot to an in-person voter who does not present \"a valid physical photo identification\" and requires mail voters to enclose a copy or the last four Social Security digits with an affidavit; states must submit their full voter lists to the Department of Homeland Security for comparison against the SAVE system and remove non-citizens on verified information; and new criminal penalties reach an official who registers an applicant without the documentation. Verification at registration, identification at casting, roll maintenance and fraud enforcement are the four things this facet covers, and the substitute does all four in the same direction, so a yea is a vote for tighter safeguards. The Clerk's record for roll 69 still shows the Senate short title \"Veterans Accessibility Advisory Committee Act\" because S. 1383 was the vehicle; the substituted text is what the House voted on and what this mapping is made from."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 80,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The substitute adds a barrier at both steps this facet measures. At registration, a mail-form applicant must present proof \"in person to the office of the appropriate election official\" by the registration deadline, which closes mail and online registration to anyone who cannot appear; at casting, photo identification becomes a precondition for receiving an in-person ballot, and an in-person voter without one may only cast a provisional ballot and must cure it within three days. The bill's easing provisions were read and weighed rather than ignored: an alternative-evidence pathway on a perjury attestation, a required process for applicants whose documents carry a former name, free public access to a copier or scanner in government buildings, and exemptions for uniformed-services and certain elderly and disabled voters. Each of those accommodates the new requirement rather than widening access on its own, so the yea does not point both ways here and the facet is not declined the way it is on H.R. 1 and H.R. 5746. Weighted above H.R. 8281's 70 because that bill reached only the registration step while this one also conditions casting."
+    }
+   ]
   }
  ],
  "_phase12_overlap_priority": {

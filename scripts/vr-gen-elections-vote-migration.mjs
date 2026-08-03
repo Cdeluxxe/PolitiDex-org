@@ -49,10 +49,47 @@ import url from "node:url";
 import { assertSeedPidsMatchMap } from "./vr-seed-pid-guard.mjs";
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const SEED_PATH = "db/vr-elections-vote-seed.json";
-const seed = JSON.parse(fs.readFileSync(path.join(ROOT, SEED_PATH), "utf8"));
+const seedFile = JSON.parse(fs.readFileSync(path.join(ROOT, SEED_PATH), "utf8"));
 const issueSeed = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-issue-seed.json"), "utf8"));
 const memberMap = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-member-map.json"), "utf8"));
 const ROSTER = [...new Set(Object.values(memberMap.map || {}))].sort();
+
+// ── This file emits ONE migration: the seven rolls of the original pass ──────
+// The seed is a living mirror and grows when a later roll is found — S. 1383's roll 69 of
+// February 2026 was added after this migration was applied. That roll is deliberately NOT
+// re-emitted here. A generator whose output silently widens over its own applied migration
+// invites exactly the mistake the runbook forbids: regenerating a file the database has
+// already run. Scope is therefore stated as data rather than inferred from a cutoff date,
+// so re-running this script always writes the same seven rolls, the same member votes and
+// the same issue rows it published. The seed's narrative fields — scanCoverage and
+// enactedLawFinding — do track the seed, so a re-run reflects a later correction to the
+// prose while the row scope stays frozen; the correction itself is published by the delta
+// migration rather than by re-applying this one.
+// The delta gets its own forward migration — see scripts/vr-gen-election-vehicle-migration.mjs.
+const PASS_ROLLS = new Set([
+  "house|117|1|62",   // H.R. 1
+  "house|117|1|260",  // H.R. 4
+  "house|117|2|9",    // H.R. 5746
+  "house|118|2|232",  // H.R. 192
+  "house|118|2|345",  // H.R. 8281
+  "house|119|1|102",  // H.R. 22 (inherited measure)
+  "house|119|1|163",  // H.R. 884
+]);
+const rkey = (v) => `${v.chamber}|${v.congress}|${v.session}|${v.rollNumber}`;
+const passVotes = (seedFile.votes || []).filter((v) => PASS_ROLLS.has(rkey(v)));
+const laterRolls = (seedFile.votes || []).filter((v) => !PASS_ROLLS.has(rkey(v)));
+const seed = {
+  ...seedFile,
+  votes: passVotes,
+  rollCallCount: passVotes.length,
+  memberVoteCount: passVotes.reduce((n, v) => n + (v.memberVotes || []).length, 0),
+};
+if (passVotes.length !== PASS_ROLLS.size) {
+  throw new Error(
+    `${SEED_PATH} no longer carries all ${PASS_ROLLS.size} rolls this migration published `
+    + `(found ${passVotes.length}) — the applied file cannot be reproduced from it.`
+  );
+}
 
 // The seed's politician_id is a cached map lookup, not a source. Refuse to generate
 // from a seed whose (bioguideId → politicianId) pairs the current map contradicts —
