@@ -209,11 +209,56 @@ so foreign-policy bills like H.R. 36 / H.R. 4423 stay unmapped rather than mis-k
    doesn't, map from the division short titles if they are specific enough to be sourceable
    — and say in the migration that the rows have no House roll to attach to.
 
+### Three more rules, from the 117th–118th roll-call ingest
+
+8. **One decisive vote per chamber per measure — never the procedural rolls that
+   surround it.** BILLSTATUS returns every recorded vote a measure ever drew, and for a
+   landmark that is a flood: the Inflation Reduction Act has 41 Senate rolls, the American
+   Rescue Plan 38, both almost entirely vote-a-rama amendments; the FY24 NDAA drew roughly
+   40 House rolls. Ingest only the roll that decided the substance — final passage, the
+   motion to concur, or the conference report — and match the question against that list
+   explicitly rather than taking whatever roll BILLSTATUS lists last. Cloture motions,
+   budget-point-of-order waivers and motions to table say nothing about whether a member
+   supports what a bill *does*; scoring them is the same error as mapping a "providing for
+   consideration" rule, and it is excluded for the same reason. Amendment rolls that
+   genuinely divided the chamber are worth ingesting, but they need their own mapping
+   first — an unmapped amendment roll attached to the vehicle's keys would score members on
+   a question they never answered.
+9. **Verify every roll against the chamber's own record before trusting a recorded roll
+   number.** A roll number that arrived from a summary, an inventory table or an earlier
+   pass is a claim, not a fact. This pass carried a bad one: the Phase A inventory recorded
+   House roll 120/2024 for H.R. 7888, and the Clerk shows roll 120 is "Table Motion to
+   Reconsider" (259-128) while roll 119 is "On Passage" (273-147). The check that caught it
+   was mechanical and cheap — fetch the roll, then fail closed unless `<legis-num>` matches
+   the expected citation *and* `<vote-question>` matches the decisive-question pattern.
+   Build that assertion into the fetch, not into a later review step. Note also that the
+   Clerk's `legis-num` spelling is `H R 1319`, with the periods replaced by spaces rather
+   than stripped, and that `evs` is organised by calendar year:
+   `year = 2 × congress + 1787 + (session − 1)`.
+10. **Ingest a division as a child measure with a strict subset of the parent's keys.**
+   Where rule 7 applies and only the divisions were voted, create the division under
+   `vr_measures.parent_id` and map it to the keys its own text supports — dropping every
+   parent key that lives in a different division. H.R. 8035 (Ukraine, roll 151/2024,
+   311-112 with Republicans 101-112 against their own majority) is a child of H.R. 815 and
+   carries `foreign_balance`, `america_first_fp` and `restraint`, but not the parent's
+   `tech_balance` or `immig_fentanyl`, which are Divisions D and E. Divisions that passed
+   near-unanimously are not worth ingesting at all — 366-58, 385-34 and 360-58 distinguish
+   nobody — and declining them belongs in a ledger in the migration, not in silence.
+
+Two attribution rules that apply to every pass, not just this one: **the roster is the
+ceiling, not the chamber.** `db/vr-member-map.json` holds 63 entries, so a 435-member House
+roll yields at most 38 attributed votes and a 100-member Senate roll at most 18. Store the
+*full* chamber tallies in `vr_rollcalls.totals` and compute `is_party` from the full
+recorded vote before filtering to the roster, or a 220-211 passage vote will read as 33-0.
+And **the Senate's XML carries no bioguide id** — only last name, state and an LIS id — so
+attribution there resolves on (last name, state) against the roster and accepts unique hits
+only. Ambiguous and unknown members are skipped and counted, never guessed.
+
 `scripts/test-mapping-discipline.mjs` enforces the mechanical half of all of this: no
 "providing for consideration" resolution may ever be mapped, in a migration or in the
 curated seed, and every curated mapping must carry a rationale and an `https` source.
 
-## Backfilling the 117th and 118th — Phase A done, what's queued
+## Backfilling the 117th and 118th — Phase A mapped and now scored, what's queued
 
 Until migration `20260810000000_vr_phase_a_117_118_landmarks.sql`, the Official Record
 held 128 measures in the 119th Congress, one in the 118th and none in the 117th. The
@@ -224,9 +269,22 @@ silent no-op. **Extending the window backwards requires a migration that creates
 measure rows first.** The seed is a mirror, not a source, for anything pre-119th.
 
 Phase A created and mapped 15 enacted landmarks (51 issue rows) and moved rankable
-coverage by zero, because there are no 117th/118th member votes in `vr_member_votes` to
-score against. That is the expected shape of this work: identity, topic-tagging and
-mapping-readiness now, scoring when the roll calls land.
+coverage by zero, because there were no 117th/118th member votes in `vr_member_votes` to
+score against. Migration `20260811000000_vr_phase_a_117_118_rollcalls.sql` closed that
+half: 29 decisive roll calls (each measure's House and Senate passage vote, plus the
+H.R. 8035 division), 731 attributed member-votes of which 722 are yea/nay, taking
+rankable member-votes from 2,286 to 2,644, rankable (member, issue) pairs from 666 to
+705, and people with at least one rankable record from 182 to 186. `cstewart`, `gaetz`,
+`rubio` and `zeldin` gained their first vote record of any kind.
+
+Two Phase A vehicles still have no House roll, for the reason rule 7 describes rather
+than any gap in the fetch: H.R. 7776's only House vote is roll 253/2022 on the
+rivers-and-harbors text the number carried before the NDAA replaced it, and the House
+never voted the H.R. 815 package at all. Both are scoreable on the Senate side.
+
+`scripts/vr-coverage-report.mjs` overlays `db/*-vote-seed.json` the same way it overlays
+the mapping and identity seeds, so a committed-but-undeployed ingest is counted and
+marked `pending` rather than reading as having changed nothing.
 
 Queued, in priority order:
 
@@ -239,19 +297,21 @@ Queued, in priority order:
    because its summary is short enough to read whole; the same is achievable here after a
    division-by-division read, and mapping them from reputation instead is exactly what
    rule 4 exists to prevent. Note rule 7 applies to at least CAA 2022.
-2. **117th/118th roll calls.** Every Phase A mapping is inert until member votes for
-   those congresses exist. The House path is the Clerk's `evs/<year>/roll<nnn>.xml`, which
-   is reachable (congress.gov and api.congress.gov both return 403 from this environment;
-   clerk.house.gov and govinfo bulkdata return 200). The roll numbers for the Phase A set
-   are recorded in the migration's inventory table.
-3. **Division-level records for the packages rule 7 describes** — H.R. 815's four House
-   division votes and CAA 2022's rolls 65 and 66. `vr_measures.parent_id` already models
-   parent/child (it is how amendments hang off bills), so divisions can be children of the
-   vehicle once there are votes to attach to them. Creating that structure before the
-   votes exist would be speculative, so Phase A did not.
+2. **Contested amendment rolls inside the Phase A set**, which rule 8 deliberately left
+   out because they need their own mappings first. The clearest candidate is House roll
+   114/2024 on H.R. 7888 — the warrant-requirement amendment that failed on a 212-212 tie,
+   a split no other vote in the set reproduces. Map the amendment, then ingest the roll.
+3. **The remaining divisions of the packages rule 7 and rule 10 describe** — H.R. 8034,
+   H.R. 8036 and H.R. 8038 under H.R. 815 (declined here for near-unanimity, so they need
+   a reason beyond completeness), and CAA 2022's rolls 65 and 66, which are still unmapped
+   and uningested.
 4. **Contested non-enacted measures of the 117th/118th.** Phase A took enacted landmarks
    and major packages only, per the priority order. Failed cloture votes, failed passage
    votes and contested amendments in those congresses are untouched.
+5. **The non-landmark backlog of both congresses.** Ordinary suspension-calendar bills,
+   committee-reported measures and the rest of the two congresses' recorded votes. Large,
+   and worth attempting only after the omnibuses, since those carry the most member-votes
+   per unit of curation.
 
 Declined outright, not queued: H.R. 3935, the FAA Reauthorization Act of 2024
 (P.L. 118-63). Its margin is fine — 351-69 on Clerk roll 364/2023 — but no `ISSUE_MAP`

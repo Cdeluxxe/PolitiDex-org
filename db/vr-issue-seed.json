@@ -1539,6 +1539,37 @@
         }
       ],
       "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr815.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 8035",
+      "_note": "Division B of H.R. 815 as a standalone bill. The House never voted the H.R. 815 package — it passed four division bills on 2024-04-20 and H.Res. 1160 combined them into the Senate amendment. Only this one divided the chamber (311-112, Republicans 101-112 against their own majority), so it is the House-side record of the Ukraine substance. Its keys are a strict subset of the parent's: no tech_balance and no immig_fentanyl, because the TikTok divestiture and the fentanyl sanctions are in Divisions D and E, which this bill does not contain.",
+      "issues": [
+        {
+          "issueKey": "foreign_balance",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "FY2024 supplemental appropriations for the Department of Defense, the State Department and USAID to respond to the conflict in Ukraine, including the Ukraine Security Assistance Initiative and replacement of defense articles already transferred. A yea funds an alliance commitment."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "This was the standalone Ukraine-aid vote, stripped of the Israel, Indo-Pacific and sanctions divisions that carried the rest of the package. A yea is a vote against the position that these resources belong at home rather than abroad."
+        },
+        {
+          "issueKey": "restraint",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The appropriation sustains U.S. military support to an active war and funds current U.S. operations in the region; a yea is a vote against military restraint."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8035.xml"
     }
   ],
   "_phase12_overlap_priority": {

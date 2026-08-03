@@ -647,6 +647,27 @@
         "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr815.xml"
       },
       "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/815"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 8035",
+      "title": "Ukraine Security Supplemental Appropriations Act, 2024",
+      "officialTitle": "Making emergency supplemental appropriations to respond to the situation in Ukraine and for related expenses for the fiscal year ending September 30, 2024, and for other purposes.",
+      "identityTitleType": "Display Title",
+      "shortTitle": "Ukraine Security Supplemental Appropriations Act, 2024",
+      "summary": "FY2024 emergency supplemental appropriations, designated as emergency spending exempt from discretionary limits, to respond to the conflict in Ukraine. Funds the Department of Defense, Department of Energy science programs, the National Nuclear Security Administration, the Administration for Children and Families, the Department of State and USAID, for purposes including current U.S. military operations in the region, the Ukraine Security Assistance Initiative and replacement of defense articles already provided to Ukraine. Passed the House 311-112 on 2024-04-20; never enacted as a standalone law because H.Res. 1160 folded this text into H.R. 815 as Division B, which became P.L. 118-50.",
+      "introducedAt": "2024-04-17",
+      "sponsorName": "Rep. Cole, Tom [R-OK-4]",
+      "policyArea": "Economics and Public Finance",
+      "summarySource": "Passed House summary",
+      "laws": [],
+      "parentNumber": "H.R. 815",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8035.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8035"
     }
   ]
 }
