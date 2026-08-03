@@ -13,38 +13,15 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 | | member-votes |
 |---|---|
 | Recorded yea/nay votes | 7,614 |
-| …of which the votes themselves are seeded but not yet deployed | 482 |
+| …of which the votes themselves are seeded but not yet deployed | 0 |
 | …on a measure with at least one issue mapping | 6,077 |
 | …of which the mapping is curated but not yet deployed | 0 |
-| …**and** the member holds a stated position on that key (rankable) | 3,084 |
-| …of which awaiting deploy | 148 |
+| …**and** the member holds a stated position on that key (rankable) | 3,441 |
+| …of which awaiting deploy | 0 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **765** (34 awaiting deploy). People with at least one rankable record: **193**.
-
-29 deployed roll call(s) the seed attributes to more members than the database holds carry 482 yea/nay member-votes
-that are committed in a vote seed and not live. They are counted above and listed
-here so the difference between "ingested" and "deployed" stays visible.
-
-| pending member-votes | measure | title | mapped |
-|---:|---|---|---|
-| 37 | H.R. 5009 | Servicemember Quality of Life Improvement and National Defen | 2 key(s) |
-| 36 | H.R. 3746 | Fiscal Responsibility Act of 2023 | 4 key(s) |
-| 36 | H.R. 2670 | National Defense Authorization Act for Fiscal Year 2024 | 1 key(s) |
-| 35 | H.R. 7888 | Reforming Intelligence and Securing America Act | 2 key(s) |
-| 32 | H.R. 1319 | American Rescue Plan Act of 2021 | 8 key(s) |
-| 32 | H.R. 3684 | Infrastructure Investment and Jobs Act | 7 key(s) |
-| 32 | S. 1605 | National Defense Authorization Act for Fiscal Year 2022 | 1 key(s) |
-| 32 | H.R. 3076 | Postal Service Reform Act of 2022 | 2 key(s) |
-| 32 | S. 2938 | Bipartisan Safer Communities Act | 4 key(s) |
-| 32 | S. 3373 | Sergeant First Class Heath Robinson Honoring our Promise to  | 2 key(s) |
-| 32 | H.R. 4346 | Chips and Science Act | 4 key(s) |
-| 32 | H.R. 5376 | Inflation Reduction Act of 2022 | 7 key(s) |
-| 31 | H.R. 8404 | Respect for Marriage Act | 1 key(s) |
-| 21 | H.R. 8035 | Ukraine Security Supplemental Appropriations Act, 2024 | 3 key(s) |
-| 15 | H.R. 7776 | James M. Inhofe National Defense Authorization Act for Fisca | 1 key(s) |
-| 15 | H.R. 815 | Making emergency supplemental appropriations for the fiscal  | 5 key(s) |
+Rankable (member, issue) pairs: **816**. People with at least one rankable record: **193**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -134,7 +111,7 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-7,081 (member, issue) pairs, 14,947 member-votes.
+7,030 (member, issue) pairs, 14,590 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
@@ -160,7 +137,6 @@ real, verifiable position exists. Do not fill these in by inference.
 | 12 | durbin | strong_defense | yes |
 | 12 | jon_ossoff | strong_defense | yes |
 | 12 | josh_brecheen | strong_defense | yes |
-| 12 | curtis | israel_support | yes |
 | 11 | thune | strong_defense | yes |
 | 11 | schumer | strong_defense | yes |
 | 11 | aoc | national_debt | yes |
@@ -200,7 +176,8 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | grassley | national_debt | yes |
 | 9 | warren | national_debt | yes |
 | 9 | lee | national_debt | yes |
-| … | _7,021 more_ | | |
+| 9 | cruz | national_debt | yes |
+| … | _6,970 more_ | | |
 
 ## Gap 2 rolled up by issue
 
@@ -219,7 +196,6 @@ real, verifiable position exists. Do not fill these in by inference.
 | 410 | america_first_fp | 120 |
 | 401 | lgbtq_rights | 119 |
 | 374 | foreign_balance | 134 |
-| 372 | israel_support | 56 |
 | 318 | healthcare | 135 |
 | 289 | public_schools | 161 |
 | 286 | tough_on_crime | 106 |
@@ -236,4 +212,5 @@ real, verifiable position exists. Do not fill these in by inference.
 | 182 | border_security | 93 |
 | 180 | lands_energy | 136 |
 | 171 | tech_balance | 133 |
+| 170 | tech_innovation | 132 |
 
