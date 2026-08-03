@@ -1047,6 +1047,498 @@
           "rationale": "Part A amendment No. 15 to H.R. 3838 (Mace, Tenney) inserts a new section barring the Superintendent of a Service Academy from allowing a cadet or midshipman who is male to participate in any athletic program or activity designated exclusively for females, with 'male' and 'female' defined by reproductive biology; a yea restricts transgender participation. Same instrument and same direction as H.Amdt. 255 (Mace, DoDEA schools) and H.Amdt. 85 (Norman, EFMP care), both already mapped at full weight. Purpose text taken from the Rules Committee report accompanying H.Res. 682, because no source we previously held carried it — see migration 20260727000000, which created this measure row deliberately without a mapping."
         }
       ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 1319",
+      "issues": [
+        {
+          "issueKey": "family_support",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title IX expands the child tax credit to $3,000 per child ($3,600 under age six), makes it fully refundable and advanceable, and provides the $1,400-per-person recovery rebates. Direct household support for families is the largest single line of the act."
+        },
+        {
+          "issueKey": "cost_living",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Recovery rebates, expanded earned income and child tax credits, and emergency rental and utility assistance are all directed at household costs during the pandemic."
+        },
+        {
+          "issueKey": "healthcare_costs",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title IX subtitle F expands Affordable Care Act premium tax credits for 2021 and 2022, removing the 400%-of-poverty eligibility cliff and subsidising COBRA continuation coverage."
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The act was enacted through budget reconciliation as unoffset emergency spending; a yea adds to the deficit rather than reducing it. Weighted below the primary because the fiscal effect is a consequence of the relief, not its stated purpose."
+        },
+        {
+          "issueKey": "child_care",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title II provides child care stabilization funding, supplemental Child Care and Development Block Grant appropriations, and Head Start funding."
+        },
+        {
+          "issueKey": "public_schools",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title II establishes the Elementary and Secondary School Emergency Relief Fund for reopening and learning-loss mitigation, the largest federal appropriation to K-12 schools in the period."
+        },
+        {
+          "issueKey": "econ_workers",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title IX extends pandemic unemployment compensation programs and exempts a portion of 2020 unemployment benefits from income tax."
+        },
+        {
+          "issueKey": "econ_smallbiz",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title V funds the Restaurant Revitalization Fund, additional Paycheck Protection Program and Economic Injury Disaster Loan support, and the Shuttered Venue Operators Grant program."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr1319.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 3684",
+      "issues": [
+        {
+          "issueKey": "infrastructure",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The act's opening paragraph enumerates roads, bridges, ports, airports, the electric grid and water systems as its subject; surface transportation reauthorization is Division A."
+        },
+        {
+          "issueKey": "transit",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division B reauthorizes federal public transportation programs and Division C funds passenger and freight rail, including the largest Amtrak investment since its creation."
+        },
+        {
+          "issueKey": "broadband",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division F establishes the Broadband Equity, Access, and Deployment program and the Affordable Connectivity Program to extend service to unserved and underserved areas."
+        },
+        {
+          "issueKey": "water",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division E funds drinking water and wastewater infrastructure, lead service line replacement, and Western water infrastructure including storage and drought resilience."
+        },
+        {
+          "issueKey": "disaster_resilience",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division D and Division J fund coastal resiliency, wildfire risk reduction, and grid hardening against extreme weather."
+        },
+        {
+          "issueKey": "climate_action",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The act funds clean school buses, electric vehicle charging networks, weatherization, and legacy pollution remediation. Weighted as a secondary because these are components of an infrastructure package rather than its organising purpose."
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The act's new spending was only partially offset; a yea increases the deficit. Weighted low for the same reason as the climate slice — it is a consequence, not the stated purpose."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr3684.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 4346",
+      "issues": [
+        {
+          "issueKey": "tech_innovation",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division A funds domestic semiconductor fabrication and Division B authorises the federal science agencies' research and innovation programs. Semiconductor competitiveness is the act's named subject."
+        },
+        {
+          "issueKey": "econ_growth",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Sec. 103 expands financial assistance to incentivise investment in U.S. facilities and equipment for semiconductor production, including a dedicated program for mature technology nodes."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Sec. 102 establishes the CHIPS for America Defense Fund for the National Network for Microelectronics Research and Development, and the International Technology Security and Innovation Fund for secure semiconductor supply chains."
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The act appropriates new unoffset funding for the CHIPS funds; a yea increases the deficit."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr4346.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 5376",
+      "issues": [
+        {
+          "issueKey": "climate_action",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Subtitle D, Part 1 modifies and extends the production and investment tax credits for wind, solar, geothermal, biomass and hydropower, and the act's energy security title is its largest spending component."
+        },
+        {
+          "issueKey": "health_drug_prices",
+          "weight": 90,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Sec. 11001 requires CMS to negotiate maximum prices for high-spend brand-name Medicare drugs beginning in 2026, scaling from 10 drugs to 20 by 2029. The act also caps insulin cost sharing and Medicare Part D out-of-pocket spending."
+        },
+        {
+          "issueKey": "healthcare_costs",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Sec. 12001 extends through 2025 the expanded premium tax credit, including eligibility for taxpayers above 400% of the federal poverty line."
+        },
+        {
+          "issueKey": "econ_corp_account",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Sec. 10101 imposes a 15% minimum tax on the adjusted financial statement income of corporations above $1 billion, and Sec. 10201 a 1% excise tax on publicly traded corporations' stock buybacks."
+        },
+        {
+          "issueKey": "lower_taxes",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The same two sections are, on their face, corporate tax increases. Mapping both directions is deliberate: a corporate minimum tax is simultaneously an accountability measure and a tax increase, and the record should show both rather than pick the flattering one."
+        },
+        {
+          "issueKey": "energy_production",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Part 6 raises offshore royalty rates but also directs Interior to accept the highest bid for Gulf of Mexico Lease Sale 257 and to hold Lease Sales 258, 259 and 261, and Sec. 50265 conditions new wind and solar rights-of-way on holding oil and gas lease sales."
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title I, Subtitle A is captioned \"Deficit Reduction\" and contains the corporate minimum tax, the buyback excise tax and IRS enforcement funding. Weighted low because the act's net fiscal effect is contested, but the subtitle heading and its contents are what the enacted text says."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr5376.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "senate",
+      "number": "S. 2938",
+      "issues": [
+        {
+          "issueKey": "gun_safety",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title II requires enhanced background check review for purchasers under 21, creates federal straw purchasing and trafficking offenses, and closes the dating-partner gap in the domestic violence prohibitor."
+        },
+        {
+          "issueKey": "health_mental",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division A, Title I is a children and family mental health title: CCBHC demonstration extension, pediatric mental health care access grants, and Medicaid telehealth and school-based services guidance."
+        },
+        {
+          "issueKey": "gun_rights",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The same Title II provisions restrict firearms acquisition for 18-to-20-year-old purchasers and extend a possession prohibitor to a new class of persons; a yea narrows firearms access."
+        },
+        {
+          "issueKey": "public_schools",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The act funds school safety programs and school-based mental health service capacity, including Medicaid guidance directed specifically at services delivered in schools."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s2938.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "senate",
+      "number": "S. 3373",
+      "issues": [
+        {
+          "issueKey": "veterans",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The entire act expands VA eligibility, presumptions of service connection and benefits for toxic-exposed veterans. Named subject, no ambiguity."
+        },
+        {
+          "issueKey": "healthcare",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The mechanism is an expansion of VA health care enrolment and treatment eligibility, not only cash benefits."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s3373.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 8404",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The act repeals DOMA's man/woman definitions and requires interstate recognition of same-sex marriages. Mapped as a single key deliberately: a religious_liberty contradiction row would be false, because the enacted text expressly states it does not affect religious liberties and does not require religious organizations to provide goods or services for a marriage."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr8404.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 3076",
+      "issues": [
+        {
+          "issueKey": "gov_services",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The act's purpose is to stabilise a universal public service: it removes the prepayment obligation that drove reported Postal Service losses, integrates postal retiree health coverage with Medicare, and requires six-day delivery."
+        },
+        {
+          "issueKey": "gov_transparency",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The act requires the Postal Service to publish an online public dashboard of service-performance data by delivery unit."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr3076.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "senate",
+      "number": "S. 1605",
+      "issues": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Annual defense authorization: end strengths, procurement, military construction and DOE national security programs. No national_debt row, because the BILLSTATUS summary lists programs without a topline figure and asserting one would be unsourced — the same reason H.R. 3838 carries a debt slice (its summary cites a topline) and this one does not."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s1605.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 7776",
+      "issues": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Annual defense authorization. Mapped on the enacted content only; the sole House roll BILLSTATUS attaches to this vehicle (roll 253/2022) is the suspension vote on the rivers-and-harbors bill the NDAA text later replaced, so no House margin is claimed for it."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr7776.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 3746",
+      "issues": [
+        {
+          "issueKey": "gov_regulation",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division C, Title III is a permitting-reform title: it narrows the scope of National Environmental Policy Act administrative review, sets page and time limits on environmental reviews, and designates a lead agency. A yea reduces the regulatory review burden."
+        },
+        {
+          "issueKey": "energy_production",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Sec. 324 ratifies every existing federal authorization for the Mountain Valley Pipeline, directs the issuance of any remaining ones, and removes them from judicial review."
+        },
+        {
+          "issueKey": "gov_services",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Division C tightens Temporary Assistance for Needy Families work requirements and raises the SNAP able-bodied-adults-without-dependents work-requirement age to 54 while reducing the discretionary exemption pool from 12% to 8%. A yea narrows safety-net eligibility, notwithstanding the new exemptions for homeless individuals, veterans and former foster youth."
+        },
+        {
+          "issueKey": "edu_college_cost",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Division B terminates the suspension of federal student loan payments and resumes interest accrual, and bars the Secretary from extending it further absent new statutory authority."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr3746.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 2670",
+      "issues": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Annual defense authorization. Mapped to a single key: the enacted summary contains no Foreign Intelligence Surveillance Act section 702 provision (a search of the Public Law summary returns zero hits), so no privacy_rights slice is asserted."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 5009",
+      "issues": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Annual defense authorization with an added servicemember quality-of-life title covering pay, housing and family support."
+        },
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Sec. 708 bars TRICARE from covering treatment for gender dysphoria that could result in sterilization for dependents under 18. This is the provision behind the vote's party inversion — Clerk roll 500/2024 split Republican 200-16 in favour and Democratic 81-124 against, the only NDAA in this window a majority of one party opposed."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr5009.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 7888",
+      "issues": [
+        {
+          "issueKey": "privacy_rights",
+          "weight": 85,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The act extends warrantless section 702 collection for two years and broadens the electronic communications service provider definition. Held at 85 rather than 100 because the same act repeals \"abouts\" collection authority, imposes supervisory and attorney approval for U.S.-person queries, bars political appointees from sensitive-query approval, adds penalties and requires 180-day audits — the direction is a net extension of surveillance authority, but calling it unmixed would misstate the text."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The act preserves a foreign intelligence collection authority the intelligence community identifies as a core counterterrorism and counterintelligence tool; a yea sustains it."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr7888.xml"
+    },
+    {
+      "measureType": "bill",
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 815",
+      "issues": [
+        {
+          "issueKey": "foreign_balance",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Divisions A, B and C are security assistance appropriations for Israel, Ukraine and the Indo-Pacific respectively. A yea funds alliance commitments across three theatres."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The package is the largest single foreign-aid appropriation of the 118th Congress, and Division B is Ukraine security assistance specifically. A yea is a vote against the position that resources should be redirected from foreign aid to domestic priorities."
+        },
+        {
+          "issueKey": "restraint",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The same three security-assistance divisions deepen U.S. involvement in two active conflicts and one deterrence posture; a yea is a vote against military restraint."
+        },
+        {
+          "issueKey": "tech_balance",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division D carries the Protecting Americans from Foreign Adversary Controlled Applications Act, requiring divestiture of foreign-adversary-controlled applications or prohibiting their distribution in the United States."
+        },
+        {
+          "issueKey": "immig_fentanyl",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Division E is the Fentanyl Eradication and Narcotics Deterrence Off Fentanyl Act: sanctions in response to the national emergency relating to fentanyl trafficking, plus anti-money-laundering measures against the transnational organizations involved."
+        }
+      ],
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr815.xml"
     }
   ],
   "_phase12_overlap_priority": {

@@ -14,7 +14,7 @@ counted, and every row it accounts for is marked `pending`.
 |---|---|
 | Recorded yea/nay votes | 5,746 |
 | …on a measure with at least one issue mapping | 4,209 |
-| …of which the mapping is curated but not yet deployed | 218 |
+| …of which the mapping is curated but not yet deployed | 0 |
 | …**and** the member holds a stated position on that key (rankable) | 2,286 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
@@ -33,19 +33,6 @@ No measure carrying a vote is left without a title.
 ## Gap 1 — measures with votes and no issue mapping
 
 36 measure(s), 1,537 member-votes at stake.
-
-6 measure(s) carrying 218 member-votes have just left this
-list: they are mapped in `db/vr-issue-seed.json` and awaiting deploy, so they are
-counted as mapped above rather than as a gap here.
-
-| member-votes | measure | keys awaiting deploy |
-|---:|---|---|
-| 38 | H.Amdt. 87 | `lgbtq_rights` |
-| 38 | H.Amdt. 261 | `privacy_rights` |
-| 37 | H.Amdt. 242 | `gov_transparency` |
-| 37 | H.Amdt. 266 | `gov_waste`, `cut_spending` |
-| 37 | H.Con.Res. 113 | `national_debt` |
-| 31 | H.R. 7757 | `tech_balance` |
 
 | member-votes | measure | title | |
 |---:|---|---|---|

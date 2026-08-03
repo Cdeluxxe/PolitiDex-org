@@ -175,9 +175,89 @@ so foreign-policy bills like H.R. 36 / H.R. 4423 stay unmapped rather than mis-k
    When the truncation only hides a number and not the direction — H.Amdt. 266 asks for a
    report on reducing DoD civilians "by…" — the mapping is safe at a low weight.
 
+### Three more rules, from the Phase A pass over the 117th–118th enacted landmarks
+
+5. **When opposition came from both flanks for opposite reasons, the headline key is
+   unreadable — map the provisions instead.** The Fiscal Responsibility Act (H.R. 3746)
+   passed 314-117 on Clerk roll 243/2023, and the party split was Republican 149-71,
+   Democratic 165-46. The nays were fiscal hawks who thought the caps too loose *and*
+   progressives objecting to the work requirements and the Mountain Valley Pipeline
+   ratification. A `national_debt` or `cut_spending` row set to `yea_supports` would score
+   the chamber's most debt-focused members as contradicting their own stance — precisely
+   inverted. The provision-level slices are unambiguous and are what the record gets:
+   `gov_regulation` (NEPA review limits), `energy_production` (Sec. 324), `gov_services`
+   (TANF/SNAP work requirements), `edu_college_cost` (student loan payment restart). The
+   test for this rule is not "was the vote close" but "did the two blocs of nays want
+   opposite things"; if they did, the headline key describes neither of them.
+6. **Take identity from the title as enacted, never the title as introduced.** Major
+   packages are routinely hung on unrelated shells. In this window alone: CHIPS rode
+   Legislative Branch appropriations, the FY22 NDAA rode a Pulse Memorial designation,
+   the Bipartisan Safer Communities Act rode a Tallahassee courthouse naming, the FY23
+   NDAA rode a rivers-and-harbors bill, the FY25 NDAA rode a wildlife habitat
+   reauthorization, and H.R. 815 rode a title 38 veterans reimbursement bill. Use BILLSTATUS
+   "Short Titles as Enacted", falling back to "Display Title", and record which in
+   `db/vr-measure-identity.json` under `identityTitleType`. The same care applies one step
+   further back, to *which bill* is the vehicle: the PACT Act is universally called
+   H.R. 3967, but H.R. 3967 has no `<laws>` entry and stops at "Passed Senate"; the enacted
+   text is S. 3373 (P.L. 117-168).
+7. **Some packages were never voted as packages.** The House built H.R. 815 out of four
+   separate division-level amendment votes under a special rule, and split CAA 2022
+   (H.R. 2471) across Clerk rolls 65 and 66 by groups of divisions. BILLSTATUS attributes
+   those rolls to the amendments and the rule, not to the vehicle, so H.R. 815's own
+   BILLSTATUS shows no House recorded vote at all. Before attaching a measure-level mapping
+   to a package, check whether a chamber-level vote on the whole thing exists. Where it
+   doesn't, map from the division short titles if they are specific enough to be sourceable
+   — and say in the migration that the rows have no House roll to attach to.
+
 `scripts/test-mapping-discipline.mjs` enforces the mechanical half of all of this: no
 "providing for consideration" resolution may ever be mapped, in a migration or in the
 curated seed, and every curated mapping must carry a rationale and an `https` source.
+
+## Backfilling the 117th and 118th — Phase A done, what's queued
+
+Until migration `20260810000000_vr_phase_a_117_118_landmarks.sql`, the Official Record
+held 128 measures in the 119th Congress, one in the 118th and none in the 117th. The
+"last six years" was, in the data, one Congress. Note the structural reason this could
+not be fixed with a seed edit: `applyCuratedIssueSeed()` matches existing rows and never
+creates a measure, so a seed entry for a 117th-Congress bill matches nothing and is a
+silent no-op. **Extending the window backwards requires a migration that creates the
+measure rows first.** The seed is a mirror, not a source, for anything pre-119th.
+
+Phase A created and mapped 15 enacted landmarks (51 issue rows) and moved rankable
+coverage by zero, because there are no 117th/118th member votes in `vr_member_votes` to
+score against. That is the expected shape of this work: identity, topic-tagging and
+mapping-readiness now, scoring when the roll calls land.
+
+Queued, in priority order:
+
+1. **The four appropriations omnibuses**, deferred on effort rather than declined on
+   merit: H.R. 2471 (P.L. 117-103), H.R. 2617 (P.L. 117-328), H.R. 4366 (P.L. 118-42),
+   H.R. 2882 (P.L. 118-47). Each bundles twelve appropriations divisions plus a tail of
+   authorizing divisions — CAA 2023 alone carries the Electoral Count Reform Act, the
+   Pregnant Workers Fairness Act, the PUMP Act and SECURE 2.0, and its Public Law summary
+   runs to 611,000 characters. H.R. 1968, the 119th full-year CR, was mapped to four keys
+   because its summary is short enough to read whole; the same is achievable here after a
+   division-by-division read, and mapping them from reputation instead is exactly what
+   rule 4 exists to prevent. Note rule 7 applies to at least CAA 2022.
+2. **117th/118th roll calls.** Every Phase A mapping is inert until member votes for
+   those congresses exist. The House path is the Clerk's `evs/<year>/roll<nnn>.xml`, which
+   is reachable (congress.gov and api.congress.gov both return 403 from this environment;
+   clerk.house.gov and govinfo bulkdata return 200). The roll numbers for the Phase A set
+   are recorded in the migration's inventory table.
+3. **Division-level records for the packages rule 7 describes** — H.R. 815's four House
+   division votes and CAA 2022's rolls 65 and 66. `vr_measures.parent_id` already models
+   parent/child (it is how amendments hang off bills), so divisions can be children of the
+   vehicle once there are votes to attach to them. Creating that structure before the
+   votes exist would be speculative, so Phase A did not.
+4. **Contested non-enacted measures of the 117th/118th.** Phase A took enacted landmarks
+   and major packages only, per the priority order. Failed cloture votes, failed passage
+   votes and contested amendments in those congresses are untouched.
+
+Declined outright, not queued: H.R. 3935, the FAA Reauthorization Act of 2024
+(P.L. 118-63). Its margin is fine — 351-69 on Clerk roll 364/2023 — but no `ISSUE_MAP`
+key expresses aviation policy, and attaching a 269,000-character programs bill to
+`infrastructure` (keywords: roads, bridges, grid, water systems) would be the stretch
+rule 2 forbids. Same reasoning as the S. 2503 ROTOR Act decline.
 
 ## Expected result — the ready-to-result comparisons
 

@@ -331,6 +331,322 @@
         "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s356.xml"
       },
       "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/356"
+    },
+    {
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 1319",
+      "title": "American Rescue Plan Act of 2021",
+      "officialTitle": "To provide for reconciliation pursuant to title II of S. Con. Res. 5.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Provides additional relief to address the continued impact of COVID-19 on the economy, public health, state and local governments, individuals, and businesses. Includes direct payments, an expanded child tax credit, extended unemployment compensation, emergency rental and homeowner assistance, child care and Head Start funding, elementary and secondary school emergency relief, expanded Affordable Care Act premium tax credits, and the Restaurant Revitalization Fund.",
+      "introducedAt": "2021-02-24",
+      "sponsorName": "Rep. Yarmuth, John A. [D-KY-3]",
+      "policyArea": "Economics and Public Finance",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-2"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr1319.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1319"
+    },
+    {
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 3684",
+      "title": "Infrastructure Investment and Jobs Act",
+      "officialTitle": "To authorize funds for Federal-aid highways, highway safety programs, and transit programs, and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Authorises and appropriates funds for roads and bridges, rail, public transit, broadband deployment, ports and waterways, airports, drinking water and wastewater infrastructure, the electric grid, coastal resiliency, weatherization, clean school buses, electric vehicle charging, legacy pollution remediation, and Western water infrastructure.",
+      "introducedAt": "2021-06-04",
+      "sponsorName": "Rep. DeFazio, Peter A. [D-OR-4]",
+      "policyArea": "Transportation and Public Works",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-58"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr3684.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/house-bill/3684"
+    },
+    {
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 4346",
+      "title": "Chips and Science Act",
+      "officialTitle": "Making appropriations for Legislative Branch for the fiscal year ending September 30, 2022, and for other purposes.",
+      "identityTitleType": "Display Title",
+      "summary": "Provides funds to support the domestic production of semiconductors and authorises programs and activities of the federal science agencies. Division A establishes the CHIPS for America Fund, Defense Fund, International Technology Security and Innovation Fund, and Workforce and Education Fund, and expands federal financial assistance for semiconductor fabrication, assembly, testing and packaging. Division B authorises research and innovation programs across NSF, NIST, DOE and NASA.",
+      "introducedAt": "2021-07-01",
+      "sponsorName": "Rep. Ryan, Tim [D-OH-13]",
+      "policyArea": "Science, Technology, Communications",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-167"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr4346.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/house-bill/4346"
+    },
+    {
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 5376",
+      "title": "Inflation Reduction Act of 2022",
+      "officialTitle": "To provide for reconciliation pursuant to title II of S. Con. Res. 14.",
+      "identityTitleType": "Display Title",
+      "summary": "Reconciliation act imposing a 15% corporate alternative minimum tax and a 1% excise tax on stock repurchases, funding the Internal Revenue Service, requiring Medicare to negotiate prescription drug prices, capping insulin and out-of-pocket costs, extending expanded Affordable Care Act premium tax credits through 2025, and providing clean energy tax credits alongside mandatory offshore oil and gas lease sales.",
+      "introducedAt": "2021-09-27",
+      "sponsorName": "Rep. Yarmuth, John A. [D-KY-3]",
+      "policyArea": "Economics and Public Finance",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-169"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr5376.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/house-bill/5376"
+    },
+    {
+      "congress": 117,
+      "chamber": "senate",
+      "number": "S. 2938",
+      "title": "Bipartisan Safer Communities Act",
+      "officialTitle": "A bill to designate the United States Courthouse and Federal Building located at 111 North Adams Street in Tallahassee, Florida, as the \"Joseph Woodrow Hatchett United States Courthouse and Federal Building\", and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Division A, Title I funds children and family mental health services, extends the Certified Community Behavioral Health Clinic demonstration, issues guidance on Medicaid telehealth and school-based Medicaid services, and funds pediatric mental health care access grants. Title II enhances National Instant Criminal Background Check System reviews for purchasers aged 18 to 20, creates federal straw purchasing and firearms trafficking offenses, and extends the domestic violence prohibitor to dating partners.",
+      "introducedAt": "2021-10-05",
+      "sponsorName": "Sen. Rubio, Marco [R-FL]",
+      "policyArea": "Crime and Law Enforcement",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-159"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s2938.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/senate-bill/2938"
+    },
+    {
+      "congress": 117,
+      "chamber": "senate",
+      "number": "S. 3373",
+      "title": "Sergeant First Class Heath Robinson Honoring our Promise to Address Comprehensive Toxics Act of 2022",
+      "officialTitle": "A bill to improve the Iraq and Afghanistan Service Grant and the Children of Fallen Heroes Grant.",
+      "identityTitleType": "Display Title",
+      "summary": "Expands Department of Veterans Affairs health care eligibility and benefits for veterans exposed to toxic substances, establishes presumptions of service connection for conditions associated with burn pit and Agent Orange exposure, and directs improvements to VA toxic exposure screening, research and claims processing.",
+      "introducedAt": "2021-12-09",
+      "sponsorName": "Sen. Kaine, Tim [D-VA]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-168"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s3373.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/senate-bill/3373",
+      "shortTitle": "Honoring our PACT Act of 2022"
+    },
+    {
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 8404",
+      "title": "Respect for Marriage Act",
+      "officialTitle": "To repeal the Defense of Marriage Act and ensure respect for State regulation of marriage, and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Repeals the Defense of Marriage Act provisions defining marriage as between one man and one woman and spouse as a person of the opposite sex, and requires states to give full faith and credit to out-of-state marriages regardless of the sex, race, ethnicity or national origin of the individuals. The act expressly provides that it does not affect religious liberties or conscience protections and does not require religious organizations to provide goods or services for the solemnization or celebration of a marriage.",
+      "introducedAt": "2022-07-18",
+      "sponsorName": "Rep. Nadler, Jerrold [D-NY-10]",
+      "policyArea": "Civil Rights and Liberties, Minority Issues",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-228"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr8404.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/house-bill/8404"
+    },
+    {
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 3076",
+      "title": "Postal Service Reform Act of 2022",
+      "officialTitle": "To provide stability to and enhance the services of the United States Postal Service, and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Establishes the Postal Service Health Benefits Program within the Federal Employees Health Benefits Program with Medicare coordination, repeals the requirement that the Postal Service annually prepay future retiree health benefits, authorises nonpostal service agreements with state and local governments, and requires a public performance dashboard for service standards.",
+      "introducedAt": "2021-05-11",
+      "sponsorName": "Rep. Maloney, Carolyn B. [D-NY-12]",
+      "policyArea": "Government Operations and Politics",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-108"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr3076.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/house-bill/3076"
+    },
+    {
+      "congress": 117,
+      "chamber": "senate",
+      "number": "S. 1605",
+      "title": "National Defense Authorization Act for Fiscal Year 2022",
+      "officialTitle": "A bill to designate the National Pulse Memorial located at 1912 South Orange Avenue in Orlando, Florida, and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Authorises appropriations and sets policy for Department of Defense programs and activities, military construction, Department of Energy national security programs, and intelligence activities for FY2022.",
+      "introducedAt": "2021-05-13",
+      "sponsorName": "Sen. Scott, Rick [R-FL]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-81"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s1605.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/senate-bill/1605"
+    },
+    {
+      "congress": 117,
+      "chamber": "house",
+      "number": "H.R. 7776",
+      "title": "James M. Inhofe National Defense Authorization Act for Fiscal Year 2023",
+      "officialTitle": "To provide for improvements to the rivers and harbors of the United States, to provide for the conservation and development of water and related resources, and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Authorises defense-related activities for FY2023. Division A establishes end strengths for the Armed Forces and authorises procurement, operation and maintenance, military personnel and other defense programs.",
+      "introducedAt": "2022-05-16",
+      "sponsorName": "Rep. DeFazio, Peter A. [D-OR-4]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "117-263"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr7776.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/117th-congress/house-bill/7776"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 3746",
+      "title": "Fiscal Responsibility Act of 2023",
+      "officialTitle": "To provide for a responsible increase to the debt ceiling.",
+      "identityTitleType": "Display Title",
+      "summary": "Division A sets discretionary spending caps for FY2024 and FY2025 enforced by sequestration. Division B rescinds unobligated balances including Internal Revenue Service funding and terminates the suspension of student loan payments and interest accrual. Division C modifies Temporary Assistance for Needy Families work requirements, raises the Supplemental Nutrition Assistance Program able-bodied-adults-without-dependents age limit to 54 while exempting homeless individuals, veterans and former foster youth, and enacts permitting reform limiting the scope of National Environmental Policy Act administrative review, with Sec. 324 ratifying all Mountain Valley Pipeline authorizations and exempting them from judicial review. Division D suspends the debt limit through January 1, 2025.",
+      "introducedAt": "2023-05-29",
+      "sponsorName": "Rep. McHenry, Patrick T. [R-NC-10]",
+      "policyArea": "Economics and Public Finance",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "118-5"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr3746.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/3746"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 2670",
+      "title": "National Defense Authorization Act for Fiscal Year 2024",
+      "officialTitle": "To authorize appropriations for fiscal year 2024 for military activities of the Department of Defense and for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Authorises appropriations and sets policy for Department of Defense procurement, research and development, operation and maintenance, military personnel, military construction, and Department of Energy national security programs for FY2024.",
+      "introducedAt": "2023-04-18",
+      "sponsorName": "Rep. Rogers, Mike D. [R-AL-3]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "118-31"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/2670"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 5009",
+      "title": "Servicemember Quality of Life Improvement and National Defense Authorization Act for Fiscal Year 2025",
+      "officialTitle": "To reauthorize wildlife habitat and conservation programs, and for other purposes.",
+      "identityTitleType": "Short Titles as Enacted",
+      "summary": "Authorises FY2025 appropriations and sets policy for Department of Defense programs, military construction, Department of Energy national security programs, the Maritime Administration and intelligence activities, with a servicemember quality-of-life title covering pay, housing, health care and family support. Sec. 708 prohibits TRICARE coverage of medical interventions for the treatment of gender dysphoria that could result in sterilization for a child under 18.",
+      "introducedAt": "2023-07-27",
+      "sponsorName": "Rep. Joyce, David P. [R-OH-14]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "118-159"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr5009.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/5009"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 7888",
+      "title": "Reforming Intelligence and Securing America Act",
+      "officialTitle": "To reform the Foreign Intelligence Surveillance Act of 1978.",
+      "identityTitleType": "Display Title",
+      "summary": "Reauthorises title VII of the Foreign Intelligence Surveillance Act, including section 702, for two years and expands the definition of electronic communications service provider. Also repeals authority for \"abouts\" collection, requires Federal Bureau of Investigation supervisory and attorney approval for U.S.-person queries, bars political appointees from approving sensitive queries, adds criminal and administrative penalties for query misuse, requires 180-day Department of Justice audits, and establishes a commission on FISA reform.",
+      "introducedAt": "2024-04-09",
+      "sponsorName": "Rep. Lee, Laurel M. [R-FL-15]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "118-49"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr7888.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/7888"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 815",
+      "title": "Making emergency supplemental appropriations for the fiscal year ending September 30, 2024, and for other purposes.",
+      "officialTitle": "To amend title 38, United States Code, to make certain improvements relating to the eligibility of veterans to receive reimbursement for emergency treatment furnished through the Veterans Community Care program, and for other purposes.",
+      "identityTitleType": "Display Title",
+      "summary": "Emergency supplemental appropriations in five divisions: Division A, Israel Security Supplemental Appropriations Act, 2024; Division B, Ukraine Security Supplemental Appropriations Act, 2024; Division C, Indo-Pacific Security Supplemental Appropriations Act, 2024; Division D, 21st Century Peace through Strength Act, including the Protecting Americans from Foreign Adversary Controlled Applications Act divest-or-ban requirement and Iran-related sanctions; and Division E, Fentanyl Eradication and Narcotics Deterrence Off Fentanyl Act, imposing sanctions and anti-money-laundering measures on fentanyl trafficking organizations.",
+      "introducedAt": "2023-02-02",
+      "sponsorName": "Rep. McMorris Rodgers, Cathy [R-WA-5]",
+      "policyArea": "Economics and Public Finance",
+      "summarySource": "Public Law summary",
+      "laws": [
+        "118-50"
+      ],
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr815.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/815"
     }
   ]
 }
