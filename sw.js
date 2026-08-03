@@ -11,9 +11,12 @@
                     we have it (repeat visits skip re-downloading the large HTML
                     document) and refresh it in the background so the next load is
                     fresh; fall back to the network on first visit, then to a tiny
-                    inline "you're offline" page. The page already reloads once when
-                    a new worker takes over (see the registration in index.html), so
-                    shipped shell updates still reach users promptly.
+                    inline "you're offline" page. A shipped shell update reaches
+                    users either on their next navigation (this cache was already
+                    refreshed in the background) or via the registration's
+                    reload-when-idle path in index.html — which, by design, never
+                    fires on a first install and never interrupts an open modal or
+                    a half-typed form.
      • STATIC     — stale-while-revalidate: serve instantly from cache and
                     refresh in the background, so repeat loads are fast and
                     self-healing.
@@ -31,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v38';
+const CACHE_VERSION = 'v39';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -63,6 +66,10 @@ const SHELL_ASSETS = [
   '/ballot-axes.css',
   // Additive mobile performance & flow polish layer.
   '/mobile-polish.css',
+  // App-shell layout-stability hardening. Precached because it is the first
+  // script in <body> and installs the shared scroll-lock seam that every modal
+  // in the app now routes through — an offline boot must not skip it.
+  '/pdx-stability.js',
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',

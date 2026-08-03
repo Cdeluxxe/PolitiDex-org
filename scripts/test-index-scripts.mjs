@@ -48,6 +48,7 @@ const ok = (cond, msg) => { cond ? passed++ : failures.push(msg); };
 const MAX_DOC_GZ = 620 * 1024;      // the whole document, gzipped
 const MAX_INLINE_BLOCK = 120 * 1024; // any single inline <script>, raw
 const MAX_BLOCKING_CSS = 6;          // render-blocking <link rel=stylesheet> count
+const MAX_PRELOADED_CSS = 10;        // rel=preload as=style swaps (non-blocking, high priority)
 
 // Paired match so a `<script>` written inside a JS comment or string is treated
 // as body text, not as a tag.
@@ -127,18 +128,43 @@ ok(/<div id="hero-receipt"[^>]*\bhidden\b/.test(html),
 }
 
 // ── 4. Render-blocking CSS is not silently added to ──────────────────────────
-// The async pattern in this document is `media="print" onload="this.media='all'"`
-// with a <noscript> copy. Only the stylesheets outside <noscript> and without the
-// media swap actually block first paint.
+// Two async patterns are in use in this document, and NEITHER blocks first paint:
+//   · `media="print" onload="this.media='all'"` — lowest fetch priority. For CSS
+//     that only dresses modal/overlay content the visitor has not opened yet.
+//   · `rel="preload" as="style" onload="this.rel='stylesheet'"` — high fetch
+//     priority, applied as soon as it lands. For CSS that styles content laid out
+//     IN THE PAGE FLOW, where arriving late means reflowing the page under the
+//     reader (see the note above the links in index.html).
+// So a link counts against the blocking budget only when its own `rel` attribute
+// is literally `stylesheet` and it carries no media swap. Event-handler
+// attributes are stripped before classifying, because the preload pattern's
+// onload body contains the text `rel='stylesheet'` and would otherwise be
+// misread as a render-blocking tag.
 {
-  const noNoscript = html.replace(/<noscript>[\s\S]*?<\/noscript>/gi, "");
-  const blocking = [...noNoscript.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi)]
-    .map((m) => m[0])
+  const noNoscript = html.replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, "");
+  const withoutHandlers = (tag) =>
+    tag.replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*')/gi, "");
+  const links = [...noNoscript.matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]);
+
+  const blocking = links
+    .map(withoutHandlers)
+    .filter((tag) => /rel\s*=\s*["']stylesheet["']/i.test(tag))
     .filter((tag) => !/media\s*=\s*["']print["']/i.test(tag));
   ok(blocking.length <= MAX_BLOCKING_CSS,
     `css: ${blocking.length} render-blocking stylesheets (budget ${MAX_BLOCKING_CSS}) — ` +
     `use the media="print" onload swap with a <noscript> fallback for anything below the fold`);
   console.log(`  render-blocking stylesheets: ${blocking.length}`);
+
+  // The high-priority preload swap is non-blocking, but it does compete for
+  // bandwidth on the critical path, so it gets its own tripwire rather than
+  // becoming an unbounded way around the budget above.
+  const preloaded = links
+    .map(withoutHandlers)
+    .filter((tag) => /rel\s*=\s*["']preload["']/i.test(tag) && /as\s*=\s*["']style["']/i.test(tag));
+  ok(preloaded.length <= MAX_PRELOADED_CSS,
+    `css: ${preloaded.length} high-priority preloaded stylesheets (budget ${MAX_PRELOADED_CSS}) — ` +
+    `only page-flow CSS earns the priority; modal-only CSS belongs on the media="print" swap`);
+  console.log(`  high-priority preloaded stylesheets: ${preloaded.length}`);
 
   // The hero receipt's styles must NOT be one of them: they have to be correct in
   // the first frame, so they live inline in the head.
