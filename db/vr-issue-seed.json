@@ -996,6 +996,29 @@
    "measureType": "amendment",
    "congress": 119,
    "chamber": "house",
+   "number": "H.Amdt. 243",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/243",
+   "issues": [
+    {
+     "issueKey": "america_first_fp",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Amendment to H.R. 8800 (FY2027 NDAA) striking section 521 and replacing it with a prohibition on foreign nationals attending the United States Military Academies, which ends a U.S.-funded training relationship with the officer corps of partner nations; a yea restricts the academies to Americans."
+    },
+    {
+     "issueKey": "foreign_balance",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Cadet places for partner-nation officers are one of the working mechanisms of long-run allied military relationships; a yea removes them, cutting against leading through allied commitments. Same framing as the H.Amdt. 251 mapping already in the record."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
    "number": "H.Amdt. 242",
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLS/119/2/hr/BILLS-119hr8800rh.xml",
    "issues": [
