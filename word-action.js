@@ -91,7 +91,12 @@
     icon: '⚖️',
     label: 'Word vs Action',
     question: 'Do they stand by what they said?',
-    metric: 'Stood by their word'
+    metric: 'Stood by their word',
+    // The hero ring has room for two short lines and no more, so the primary
+    // score gets a caption a voter can read at a glance. "Kept word" is the
+    // plain-English form of the metric above — deliberately NOT "Promises",
+    // which now names only the top tier inside this read.
+    caption: 'Kept word'
   };
 
   // ── The fail-closed floors ─────────────────────────────────────────────────
@@ -596,6 +601,78 @@
       '</details>';
   }
 
+  // ── WHAT FEEDS THIS SCORE ──────────────────────────────────────────────────
+  // The profile used to read as four independent score widgets that happened to
+  // share a page: a promise percentage, a Word vs Action percentage, an Official
+  // Record percentage and a Say-vs-Do integrity percentage. Nothing on screen
+  // said how they related, so a reader had to guess which one was "the" number.
+  // This panel is that missing sentence, made navigable: every layer is named,
+  // told what it contributes, counted, and linked. Word tiers feed the number,
+  // the Official Record is the test, and Say-vs-Do is context that is explicitly
+  // NOT in the arithmetic — said out loud rather than left to inference.
+  function jumpAttr(target) {
+    var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
+    return ' onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
+           'else{var e=document.getElementById(\'' + t + '\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}"';
+  }
+
+  function feedRowHtml(row) {
+    return '' +
+      '<li class="pdxwa-feed-li">' +
+        '<button type="button" class="pdxwa-feed' + (row.counted ? '' : ' pdxwa-feed-ctx') + '"' + jumpAttr(row.target) +
+          ' aria-label="' + esc(row.name + ' — ' + row.role) + '">' +
+          '<span class="pdxwa-feed-ico" aria-hidden="true">' + row.ico + '</span>' +
+          '<span class="pdxwa-feed-main">' +
+            '<span class="pdxwa-feed-name">' + esc(row.name) + '</span>' +
+            '<span class="pdxwa-feed-role">' + esc(row.role) + '</span>' +
+          '</span>' +
+          '<span class="pdxwa-feed-n">' + esc(row.n) + '<span class="pdxwa-feed-go" aria-hidden="true">→</span></span>' +
+        '</button>' +
+      '</li>';
+  }
+
+  function feedsHtml(pid, p, r) {
+    try {
+      r = r || read(pid, p);
+      // Nothing said on file: there is no score for anything to feed, so the panel
+      // says nothing rather than listing an Official Record row reading "0 of 0".
+      if (!r || !r.coverage || !r.coverage.word) return '';
+      var t = r.tiers, c = r.coverage, agg = r.pledgeAggregate;
+      var rows = [];
+      var pledgeN = (t.pledge && t.pledge.total) || 0;
+      if (pledgeN || (agg && agg.resolved)) {
+        rows.push({ ico: TIERS.pledge.ico, name: 'Promise Follow-Through', target: 'pdxsec-score', counted: true,
+          role: 'Explicit pledges — the top tier of this score, counting ' + TIERS.pledge.weight + '×',
+          n: pledgeN ? (pledgeN + ' itemized') : (agg.resolved + ' resolved') });
+      }
+      if (t.position && t.position.total) {
+        rows.push({ ico: TIERS.position.ico, name: 'Stated positions', target: 'pdxsec-positions', counted: true,
+          role: 'Sourced positions — counted ' + TIERS.position.weight + '× when they said it independently',
+          n: t.position.scorable + ' of ' + t.position.total + ' testable' });
+      }
+      if (t.branding && t.branding.total) {
+        rows.push({ ico: TIERS.branding.ico, name: 'Signature issues', target: 'pdxsec-positions', counted: true,
+          role: 'Issues they campaign on — counted ' + TIERS.branding.weight + '×, the lightest word there is',
+          n: t.branding.total + ' on file' });
+      }
+      rows.push({ ico: '🏛️', name: 'Official Record', target: 'pdxsec-official-record', counted: true,
+        role: 'The test — roll-call votes and formal acts, judged issue by issue',
+        n: c.tested + ' of ' + c.scorable + ' tested' });
+      if (window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') {
+        rows.push({ ico: '🧾', name: 'Say-vs-Do receipts', target: 'pdxsec-saydo', counted: false,
+          role: 'Supporting receipts and context — never folded into this percentage',
+          n: 'Detail' });
+      }
+      return '' +
+        '<div class="pdxwa-feeds">' +
+          '<div class="pdxwa-feeds-h">What feeds this score</div>' +
+          '<ul class="pdxwa-feeds-l">' + rows.map(feedRowHtml).join('') + '</ul>' +
+          '<p class="pdxwa-feeds-foot">One score, several layers of evidence. Each section below shows its own ' +
+            'working — counts, verdicts and sources — and this is the only place they are pooled into a percentage.</p>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
   // The primary accountability surface on a profile.
   var _seq = 0;
   function headlineHtml(pid, p) {
@@ -643,6 +720,7 @@
             : '') +
           '.' +
         '</div>' +
+        feedsHtml(pid, p, r) +
         methodHtml(r);
 
       return '' +
@@ -686,6 +764,119 @@
     var m = /data-pdxwa="([^"]+)"/.exec(html);
     if (m) { try { setTimeout(function () { bind(m[1], pid, p); }, 0); } catch (e) {} }
     return html;
+  }
+
+  // ── THE PROFILE HERO ───────────────────────────────────────────────────────
+  // One number leads a profile, and it is this one. The hero used to print the
+  // pledge-only rate captioned "Promises", which put a 73% at the top of a
+  // profile whose Word vs Action section read 82% and whose Official Record read
+  // something else again — three headline percentages for one question. The
+  // pledge rate is now the top TIER of this read, so the hero and the section
+  // cannot disagree: they call the same read() on the same ledger.
+  //
+  // The markup is emitted here rather than in the profile builder so the first
+  // paint and the post-warm re-render are the same code path — the ring could
+  // otherwise drift from the section it is a summary of.
+  function heroRead(pid, p) {
+    try {
+      if (!pid || !p) return null;
+      var r = read(pid, p);
+      var c = r.coverage, v = r.verdict;
+      var hasPct = r.pct !== null;
+      var sub;
+      if (hasPct) sub = c.tested + ' of ' + c.scorable + ' tested';
+      else if (c.warming) sub = 'Checking the record…';
+      else if (!c.word) sub = '';
+      else if (!c.scorable) sub = 'Nothing said independently on file';
+      else if (!c.tested) sub = c.scorable + ' on file, none tested yet';
+      else sub = c.tested + ' of ' + r.floors.items + ' tested needed';
+      return {
+        read: r,
+        word: c.word,
+        pct: r.pct,
+        // Fail closed in the hero too: below the floors there is a dash or a
+        // waiting mark, never a number borrowed from a narrower lane.
+        text: hasPct ? (r.pct + '%') : (c.warming ? '⏳' : '—'),
+        color: hasPct ? ((v && v.color) || '#9fb4d4') : '#9fb4d4',
+        caption: FRAME.caption,
+        verdict: v, token: r.token, publishable: r.publishable,
+        tested: c.tested, scorable: c.scorable, warming: c.warming,
+        sub: sub
+      };
+    } catch (e) { return null; }
+  }
+
+  function heroInner(pid, p, opts) {
+    opts = opts || {};
+    var h = heroRead(pid, p);
+    // No word on file at all: there is nothing to test, so there is no primary
+    // number — not a zero, and never the pledge rate standing in for one. The
+    // promise tracker's own honest states are used instead, passed in by the
+    // caller because they belong to that lane.
+    if (!h || !h.word) {
+      if (opts.trackingLabel) {
+        return '' +
+          '<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center profile-score-tracking">' +
+            '<div class="pdxwa-hero-wait" aria-hidden="true">⏳</div>' +
+            '<div class="pdxwa-hero-cap pdxwa-hero-cap-wait">' + esc(opts.trackingLabel) + '</div>' +
+          '</div>' +
+          (opts.trackingNote ? '<div class="profile-score-track-note">' + esc(opts.trackingNote) + '</div>' : '');
+      }
+      return '' +
+        '<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center pdxwa-hero-none">' +
+          '<div class="pdxwa-hero-v" style="color:#9fb4d4;">—</div>' +
+          '<div class="pdxwa-hero-cap">Monitoring</div>' +
+        '</div>';
+    }
+    var radius = 28, circ = 2 * Math.PI * radius;
+    var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
+    return '' +
+      '<button type="button" class="pdxwa-hero-jump"' + jumpAttr('pdxsec-wordaction') +
+        ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric + '. Open the full breakdown.') + '">' +
+        '<span class="score-ring w-20 h-20 flex-shrink-0">' +
+          '<svg width="80" height="80" viewBox="0 0 80 80" aria-hidden="true">' +
+            '<circle cx="40" cy="40" r="' + radius + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>' +
+            (dash > 0
+              ? '<circle cx="40" cy="40" r="' + radius + '" fill="none" stroke="' + h.color + '" stroke-width="6" ' +
+                'stroke-dasharray="' + dash.toFixed(1) + ' ' + circ.toFixed(1) + '" stroke-linecap="round" ' +
+                'style="transition:stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1);filter:drop-shadow(0 0 4px ' + h.color + '66)"/>'
+              : '') +
+          '</svg>' +
+          '<span class="pdxwa-hero-in">' +
+            '<span class="pdxwa-hero-v" style="color:' + h.color + ';">' + esc(h.text) + '</span>' +
+            '<span class="pdxwa-hero-cap">' + esc(h.caption) + '</span>' +
+          '</span>' +
+        '</span>' +
+      '</button>' +
+      '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>';
+  }
+
+  function bindHero(uid, pid, p, opts) {
+    if (!window.addEventListener) return;
+    var handler = function (ev) {
+      var host = document.querySelector('[data-pdxwa-hero="' + uid + '"]');
+      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
+      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+      try {
+        var fresh = heroInner(pid, p, opts);
+        if (fresh) host.innerHTML = fresh;
+      } catch (e) {}
+    };
+    window.addEventListener('pdx-consistency-warm', handler);
+  }
+
+  // Mountable hero: the stack markup plus its warm-refresh, so the ring turns
+  // from "⏳ Checking the record…" into the real read without a reload — and
+  // without the reflow that a differently-sized replacement would cause, since
+  // the sub-line reserves its height in CSS.
+  function heroMount(pid, p, opts) {
+    try {
+      var uid = (String(pid) + '-hero' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '');
+      var inner = heroInner(pid, p, opts);
+      if (!inner) return '';
+      try { setTimeout(function () { bindHero(uid, pid, p, opts); }, 0); } catch (e) {}
+      return '<div class="profile-score-stack pdxwa-hero" data-pdxwa-hero="' + uid + '">' + inner + '</div>';
+    } catch (e) { return ''; }
   }
 
   // ── the dots rows, as markup ───────────────────────────────────────────────
@@ -746,6 +937,7 @@
     wordLedger: wordLedger,
     read: read,
     issueRead: issueRead,
+    heroRead: heroRead,
     dots: dots,
     brandingIssueKey: brandingIssueKey,
     isIndependentWord: isIndependentWord,
@@ -754,6 +946,10 @@
     // pure string for anything that mounts it itself.
     sectionHtml: sectionHtml,
     headlineHtml: headlineHtml,
+    feedsHtml: feedsHtml,
+    // The profile hero. heroMount() is the one call sites want: markup + refresh.
+    heroMount: heroMount,
+    heroHtml: heroInner,
     dotsHtml: dotsHtml
   };
 })();

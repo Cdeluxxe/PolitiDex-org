@@ -25,7 +25,9 @@
      9. Connecting the Dots: word → named actions → outcome
     10. The surfaces: mount, demotion, async re-render, precache
     11. Massie as the reference profile
-    12. Mobile-first CSS
+    12. The hero ring carries the one primary read
+    13. "What feeds this score" — the layers name their own role
+    14. Mobile-first CSS
    ═══════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -93,14 +95,24 @@ const ISSUE_MAP = realIssueMap();
  */
 function build({ stances = [], record = {}, person = {}, items = null } = {}) {
   const win = {};
+  // Deferred work and warm listeners are captured rather than dropped, so a test
+  // can drive the async path (mount → record warms → re-render) the way a browser
+  // would. Nothing runs until a test asks: `flush()` for the setTimeout queue,
+  // `warm()` to fire the event the consistency engine dispatches.
+  const timers = [];
+  const listeners = {};
   const ctx = {
     window: win,
     document: { querySelector: () => null, createElement: () => ({ set innerHTML(_v) {}, querySelector: () => null }) },
-    setTimeout: () => 0,
+    setTimeout: (fn) => { timers.push(fn); return timers.length; },
     console
   };
   ctx.globalThis = ctx;
   vm.createContext(ctx);
+  win.addEventListener = (name, fn) => { (listeners[name] = listeners[name] || []).push(fn); };
+  win.removeEventListener = (name, fn) => {
+    listeners[name] = (listeners[name] || []).filter((f) => f !== fn);
+  };
 
   win.ISSUE_MAP = ISSUE_MAP;
   win._resolveStanceList = () => stances;
@@ -124,7 +136,11 @@ function build({ stances = [], record = {}, person = {}, items = null } = {}) {
 
   vm.runInContext(WA_SRC, ctx, { filename: 'word-action.js' });
   must(!!win.PDXWordAction, 'word-action.js did not define window.PDXWordAction');
-  return { WA: win.PDXWordAction, win, person };
+  return {
+    WA: win.PDXWordAction, win, person, ctx, listeners,
+    flush: () => { const q = timers.splice(0); q.forEach((fn) => fn()); return q.length; },
+    warm: (detail) => (listeners['pdx-consistency-warm'] || []).slice().forEach((fn) => fn({ detail }))
+  };
 }
 
 // Convenience stance builders. `quoted` is independent word; `voteNarration` is
@@ -538,6 +554,12 @@ const voteNarration = (issueKey, extra = {}) => ({
     'the demoted block never says where its number now sits, so it just looks smaller for no reason');
   ok(/pledge tier/i.test(ft),
     'the demoted block does not identify itself as the pledge tier of the unified read');
+  ok(/_pdxNavJump\(\\?'pdxsec-wordaction\\?'\)/.test(ft),
+    'the demoted pledge block has no way back to the score it feeds — the primary section lists it\n' +
+    '    as an input, so the trip has to work in both directions');
+  ok(/pdx-ft-primary/.test(WA_CSS) && /min-height:\s*2\.75rem/.test(
+       WA_CSS.slice(WA_CSS.indexOf('.pdx-ft-primary {'), WA_CSS.indexOf('.pdx-ft-primary:hover'))),
+    'the pledge block\'s link up to the primary score is unstyled or under 44px tall');
 }
 {
   // Async honesty: the section renders synchronously and re-renders on warm.
@@ -629,7 +651,165 @@ const voteNarration = (issueKey, extra = {}) => ({
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 12. Mobile-first CSS
+// 12. The hero ring carries the ONE primary read
+// ─────────────────────────────────────────────────────────────────────────────
+// The ring at the top of a profile used to print the pledge-only percentage, so
+// the profile opened on the narrowest number it had and then showed two or three
+// wider ones further down. It now renders from this module, which means (a) the
+// ring and the section it summarises are one read() on one ledger and cannot
+// disagree, and (b) the ring has to inherit the fail-closed behaviour instead of
+// borrowing a number from a lane that had enough data.
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const publishable = () => build({
+    stances: [quoted('gun_rights'), quoted('national_debt'), quoted('israel_support')],
+    record: { gun_rights: { score: 100, token: 'consistent', judged: 2 },
+              national_debt: { score: 0, token: 'contradicts', judged: 2 },
+              israel_support: { score: 50, token: 'mixed', judged: 2 } }
+  });
+
+  const { WA } = publishable();
+  must(typeof WA.heroRead === 'function', 'word-action.js no longer exports heroRead');
+  must(typeof WA.heroMount === 'function', 'word-action.js no longer exports heroMount');
+  must(typeof WA.heroHtml === 'function', 'word-action.js no longer exports heroHtml');
+
+  const h = WA.heroRead('p1', { name: 'Publishable' });
+  eq(h.text, '50%', 'the hero does not print the primary percentage the section publishes');
+  eq(h.pct, 50, 'the hero read and the section read disagree on the number');
+  eq(h.sub, '3 of 3 tested', 'the hero sub-line does not report the coverage behind the number');
+  ok(h.color !== '#9fb4d4', 'a published hero number is drawn in the neutral colour, so the verdict is invisible');
+  ok(/kept word/i.test(h.caption),
+    `the hero caption is "${h.caption}" — it has to say in plain words what the number measures`);
+  ok(!/promise/i.test(h.caption),
+    'the hero caption says "Promise" — that word names the pledge TIER inside this score, and reusing\n' +
+    '    it for the whole score rebuilds the ambiguity this collapse removed');
+
+  // Fail closed: one tested item is below the floors, so no number — and the ring
+  // must not fall back to the pledge rate, which the person record still carries.
+  const thin = build({
+    stances: [quoted('gun_rights')],
+    record: { gun_rights: { score: 100, token: 'consistent', judged: 90 } }
+  });
+  const ht = thin.WA.heroRead('p1', { name: 'One Item', kept: 27, broken: 8, pending: 2 });
+  eq(ht.text, '—', 'the hero prints a number below the fail-closed floors');
+  eq(ht.color, '#9fb4d4', 'a hero with no publishable number is still coloured by a verdict');
+  ok(/tested needed/.test(ht.sub),
+    `the hero sub-line "${ht.sub}" does not say what is missing, so a dash reads as an accusation`);
+  const htHtml = thin.WA.heroHtml('p1', { name: 'One Item', kept: 27, broken: 8, pending: 2 });
+  ok(!/\b\d+%/.test(htHtml),
+    'a below-floor hero rendered a percentage — with 27 kept and 8 broken on the record, the only\n' +
+    '    number it could have found is the pledge rate it is supposed to have stopped showing');
+
+  // Warming: the ring says it is checking, not that there is nothing there.
+  const warming = build({ stances: [quoted('gun_rights'), quoted('national_debt')],
+                          record: { gun_rights: 'pending', national_debt: 'pending' } });
+  const hw = warming.WA.heroRead('p1', { name: 'Warming' });
+  eq(hw.text, '⏳', 'a warming record shows a dash instead of a waiting mark');
+  ok(/checking/i.test(hw.sub), 'a warming hero does not say it is still checking the record');
+
+  // No word at all: no primary number exists, so the caller's own honest states
+  // are used rather than a zero.
+  const none = build();
+  eq(none.WA.heroRead('p1', { name: 'Empty' }).word, 0, 'an empty profile reports word on file');
+  const trackHtml = none.WA.heroHtml('p1', { name: 'Empty' }, { trackingLabel: 'Tracking 4', trackingNote: 'Early term' });
+  ok(/Tracking 4/.test(trackHtml) && /⏳/.test(trackHtml),
+    'with no word on file the hero drops the promise tracker\'s own tracking state instead of showing it');
+  ok(!/\d+%/.test(none.WA.heroHtml('p1', { name: 'Empty', kept: 9, broken: 1 })),
+    'a profile with promise counts but no documented word still printed a percentage in the hero');
+  ok(/Monitoring/.test(none.WA.heroHtml('p1', { name: 'Empty' })),
+    'with nothing to report the hero has no honest resting state');
+
+  // The mount: addressable, jumps into the section, and re-renders on warm.
+  const live = publishable();
+  const mounted = live.WA.heroMount('p1', { name: 'Publishable' });
+  ok(/data-pdxwa-hero="/.test(mounted),
+    'the mounted hero carries no instance id, so the warm re-render cannot find the node it owns');
+  ok(/class="profile-score-stack/.test(mounted),
+    'the mounted hero dropped the profile-score-stack class the header layout is built around');
+  ok(/_pdxNavJump\('pdxsec-wordaction'\)/.test(mounted),
+    'the hero ring does not jump into the Word vs Action section — the one score has to be one tap\n' +
+    '    from the working behind it');
+  ok(/scrollIntoView/.test(mounted),
+    'the hero jump has no fallback for a profile where the shared nav helper has not loaded');
+  ok(/aria-label="[^"]*Word vs Action[^"]*"/.test(mounted),
+    'the hero ring button has no accessible name saying which score it opens');
+  eq(live.listeners['pdx-consistency-warm'], undefined,
+    'the hero armed its warm listener during markup generation rather than after mount');
+  eq(live.flush(), 1, 'the hero did not defer exactly one bind step to mount time');
+  eq((live.listeners['pdx-consistency-warm'] || []).length, 1,
+    'the mounted hero does not listen for the record warming, so a ⏳ ring stays ⏳ until reload');
+  // Detached node → the listener removes itself (document.querySelector is stubbed null).
+  live.warm({ pid: 'p1' });
+  eq((live.listeners['pdx-consistency-warm'] || []).length, 0,
+    'the hero warm listener does not detach when its node is gone — every closed modal leaks one');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 13. "What feeds this score" — the layers name their own role
+// ─────────────────────────────────────────────────────────────────────────────
+// The collapse only works if a reader can see that the pledges, the positions,
+// the branding and the votes are all inputs to the one number. This panel is the
+// sentence that used to be missing, and it has to stay honest about the one layer
+// that is NOT an input.
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const b = build({
+    stances: [quoted('gun_rights'), quoted('national_debt'), quoted('israel_support')],
+    record: { gun_rights: { score: 100, token: 'consistent', judged: 2 },
+              national_debt: { score: 0, token: 'contradicts', judged: 2 },
+              israel_support: { score: 50, token: 'mixed', judged: 2 } }
+  });
+  must(typeof b.WA.feedsHtml === 'function', 'word-action.js no longer exports feedsHtml');
+  const person = { name: 'Publishable', kept: 27, broken: 8, pending: 2, issues: ['Border Security'] };
+  const html = b.WA.feedsHtml('p1', person);
+  ok(/What feeds this score/.test(html), 'the panel lost its heading');
+  for (const [label, target] of [
+    ['Promise Follow-Through', 'pdxsec-score'],
+    ['Stated positions', 'pdxsec-positions'],
+    ['Signature issues', 'pdxsec-positions'],
+    ['Official Record', 'pdxsec-official-record']
+  ]) {
+    ok(html.includes(label), `the panel does not list ${label} as an input to the score`);
+    ok(html.includes("_pdxNavJump('" + target + "')"),
+      `the ${label} row does not jump to #${target}, so the layer is named but not reachable`);
+  }
+  ok(/counting 3×/.test(html) && /counted 2×/.test(html) && /counted 1×/.test(html),
+    'the panel does not state each tier\'s weight — without it the rows read as equal inputs');
+  ok(/35 resolved/.test(html),
+    'the pledge row does not report the aggregate for a record with counts but no itemized pledges');
+  const cov = b.WA.read('p1', person).coverage;
+  ok(html.includes(cov.tested + ' of ' + cov.scorable + ' tested'),
+    `the Official Record row does not report the read's own coverage (${cov.tested} of ${cov.scorable}) —\n` +
+    '    the row that names the test has to agree with the number it is testing');
+  ok(/The test —/.test(html),
+    'the Official Record row does not identify itself as the test the word is measured against');
+
+  // Say-vs-Do is context, and the panel says so — but only when that section exists.
+  ok(!/Say-vs-Do/.test(html),
+    'the panel advertises the Say-vs-Do section on a build where it does not render');
+  b.win.PDXConsistency.saydoSectionHtml = () => '';
+  const withSaydo = b.WA.feedsHtml('p1', person);
+  ok(/Say-vs-Do receipts/.test(withSaydo), 'the panel does not list the Say-vs-Do receipts layer');
+  ok(/pdxwa-feed-ctx/.test(withSaydo),
+    'the Say-vs-Do row is not marked as context — it would read as part of the arithmetic');
+  ok(/never folded into this percentage/.test(withSaydo),
+    'the panel does not say out loud that Say-vs-Do is outside the score');
+  eq((withSaydo.match(/pdxwa-feed-ctx/g) || []).length, 1,
+    'more than one row is marked context-only — every other row is a real input');
+  ok(/only place they are pooled/.test(withSaydo),
+    'the panel footer no longer states that this is the only surface that pools a percentage');
+
+  // The panel travels with the section body, so warm re-renders refresh its counts.
+  const body = WA_SRC.slice(WA_SRC.indexOf('function headlineHtml'), WA_SRC.indexOf('function heroRead'));
+  ok(/feedsHtml\(pid, p, r\)/.test(body),
+    'the section body no longer includes the feeds panel, so its counts freeze at first paint while\n' +
+    '    the number above them updates');
+  // Fails closed like everything else here.
+  eq(build().WA.feedsHtml('p1', null), '', 'feedsHtml throws or invents rows for a missing person record');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 14. Mobile-first CSS
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // Base rules are the small-screen rules; the media query widens, never narrows.
@@ -651,6 +831,23 @@ const voteNarration = (issueKey, extra = {}) => ({
     'the method disclosure has no ≥44px tap target');
   ok(/min-height:\s*2\.75rem/.test(CONNECT_CSS.slice(CONNECT_CSS.indexOf('.pcd-dots-more'))),
     'the "see the full read" control has no ≥44px tap target');
+  // Every row of the feeds panel is a real jump control, so every row is a target.
+  const feedRule = base.slice(base.indexOf('.pdxwa-feed {'), base.indexOf('.pdxwa-feed-ico'));
+  must(feedRule.length > 40, 'word-action.css no longer styles .pdxwa-feed');
+  ok(/min-height:\s*2\.75rem/.test(feedRule),
+    'the feeds-panel rows are under 44px tall — they are buttons, and a five-row list of small\n' +
+    '    targets is the easiest thing to mis-tap on a phone');
+  ok(/min-width:\s*0/.test(base.slice(base.indexOf('.pdxwa-feed-main'), base.indexOf('.pdxwa-feeds-foot'))),
+    'the feeds row label track has no min-width:0, so a long role line forces horizontal overflow');
+  // The demoted pledge rate is a disclosure now, and disclosures get tap targets too.
+  ok(/min-height:\s*2\.75rem/.test(base.slice(base.indexOf('.pdx-ft-rate-sum'), base.indexOf('.pdx-ft-rate-b'))),
+    'the pledge-rate disclosure summary has no ≥44px tap target');
+  // The hero swaps ⏳ → 82% when the record warms. That must not move the page.
+  const heroSub = base.slice(base.indexOf('.pdxwa-hero-sub'), base.indexOf('.pdxwa-hero-sub') + 260);
+  must(heroSub.length > 40, 'word-action.css no longer styles .pdxwa-hero-sub');
+  ok(/min-height/.test(heroSub),
+    'the hero sub-line reserves no height, so "Checking the record…" → "7 of 9 tested" shifts the\n' +
+    '    whole profile header on hydration');
   // No fixed pixel heights that would clip wrapped text at small sizes.
   ok(!/\.pdxwa-[a-z-]+\s*{[^}]*\bheight:\s*\d+px/.test(WA_CSS),
     'a Word vs Action element has a hard pixel height — wrapped copy would be clipped on a phone');

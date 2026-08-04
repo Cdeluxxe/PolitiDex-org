@@ -3188,28 +3188,22 @@
     var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
     var brokenPct = m.resolved ? 100 - keptPct : 0;
     var rateTxt = m.rate === null ? '—' : m.rate + '%';
-    // The rate block opens the same Promise % explainer used by the cards.
-    var ftClick = ' role="button" tabindex="0"' +
-      ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
+    // The rate opens the same Promise % explainer used by the cards.
+    var ftClick = ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
       ' title="How is Promise Follow-Through calculated?"';
+    // DEMOTED, NOT DELETED. This block used to open with the rate set in 1.6rem
+    // type — larger than the profile's own headline ring — which is what made a
+    // profile read as rival scores. The pledge lane now leads with its VERDICT and
+    // its COUNTS, and the percentage sits one tap down inside a disclosure: still
+    // published, still reconciled against the raw ratio, still explainable, but no
+    // longer a second headline competing with the primary Word vs Action read.
     return '' +
       '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid ' + m.col + '33;border-left:3px solid ' + m.col + '99;border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
-        '<div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.7rem;">' +
-          '<div class="pdx-ft-rate-click"' + ftClick + ' style="cursor:pointer;flex-shrink:0;text-align:center;min-width:70px;background:rgba(10,15,30,0.5);border:1px solid ' + m.col + '44;border-radius:0.7rem;padding:0.4rem 0.5rem;">' +
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:' + m.col + ';line-height:1;">' + rateTxt + '</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.46rem;letter-spacing:0.09em;text-transform:uppercase;color:#9fb4d4;margin-top:0.12rem;">Promises Kept</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.44rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.1rem;">ⓘ How?</div>' +
-          '</div>' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · the pledge tier of Word vs Action</div>' +
-            '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
-            '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') +
-              // Same reconciliation the Deep Dive gives, stated where the number
-              // is, so the headline is never a figure the visible breakdown
-              // cannot produce.
-              (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the headline sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
-          '</div>' +
+        '<div style="margin-bottom:0.6rem;">' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · the pledge tier of Word vs Action</div>' +
+          '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
+          '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
         '</div>' +
         (m.resolved ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
           '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
@@ -3221,12 +3215,34 @@
           '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
         '</div>' +
         '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
+        // The pledge-only percentage, kept as supporting detail. Body-text size, one
+        // tap down, and explicitly scoped ("pledges only") so it cannot be mistaken
+        // for the profile's overall read.
+        '<details class="pdx-ft-rate">' +
+          '<summary class="pdx-ft-rate-sum">Pledge-only rate' + (m.rate === null ? '' : ' · ' + rateTxt) + '</summary>' +
+          '<div class="pdx-ft-rate-b">' +
+            '<p><b style="color:#cbd9ec;">Promises Kept</b> — ' + rateTxt +
+              (m.resolved ? ' across ' + m.resolved + ' resolved pledge' + (m.resolved === 1 ? '' : 's') : '') +
+              (m.pending ? '. ' + m.pending + ' still pending, counted in neither direction' : '') + '.' +
+              // Same reconciliation the Deep Dive gives, stated where the number is,
+              // so the figure is never one the visible breakdown cannot produce.
+              (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the published figure sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
+            '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this calculated?</button>' +
+          '</div>' +
+        '</details>' +
         // Says out loud where this number sits now. Without it the block just looks
         // smaller for no stated reason, and a reader who remembers it as the
-        // headline has no way to tell whether it was demoted or degraded.
+        // headline has no way to tell whether it was demoted or degraded. The link
+        // closes the loop the other way too: the primary section lists this block as
+        // an input, so this block has to be one tap from the score it feeds.
         '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.5rem;">' +
           'This covers explicit pledges only. The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above weighs these alongside their stated positions and the issues they campaign on — because they should be held to all of it, not just the part phrased as a promise.' +
         '</p>' +
+        '<button type="button" class="pdx-ft-primary" ' +
+          'onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'pdxsec-wordaction\');}' +
+          'else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+          '⚖️ See the one score this feeds <span aria-hidden="true">→</span>' +
+        '</button>' +
       '</div>';
   };
 
@@ -3568,30 +3584,31 @@
     window._pdxActiveFilter = 'all';
 
     // Promise Score only counts once a promise has resolved (kept/broken).
-    // With nothing resolved, treat the score as absent so the hero ring and the
+    // With nothing resolved, treat the score as absent so the block and the
     // "No record yet" framing read honestly rather than surfacing a misleading
     // percentage.
     //
     // NAMING: this number is the PROMISE lane and nothing else — Kept ÷ (Kept +
-    // Broken). It is deliberately never labelled a bare "Score" anywhere on the
-    // profile, because a profile carries three separate records and an unqualified
-    // "Score" reads as a verdict on all three:
-    //   🏛️ Official Record      — votes / formal actions        (consistency.js)
-    //   🧾 Say-vs-Do            — stance follow-through          (consistency.js)
-    //   🤝 Promise Follow-Through — kept vs broken promises      (this number)
+    // Broken). It is no longer a headline anywhere on the profile: the hero ring
+    // and the record stage lead with the ONE primary read (⚖️ Word vs Action),
+    // which weighs this lane as its top tier alongside stated positions and
+    // signature issues. What remains of the lanes below are supporting layers,
+    // each labelled for what it covers rather than competing to rate the person:
+    //   ⚖️ Word vs Action        — the primary score               (word-action.js)
+    //   🏛️ Official Record      — the test: votes / formal actions (consistency.js)
+    //   🧾 Say-vs-Do            — supporting receipts              (consistency.js)
+    //   🤝 Promise Follow-Through — explicit pledges only          (this number)
     const scoreNum = window._pdxDisplayScore(p);
     const scoreText = scoreNum === null ? '—' : scoreNum + '%';
     const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
     const pendingCount = typeof p.pending === 'number' ? p.pending : (p.promises ? p.promises.filter(r=>r.verdict==='pending').length : 0);
-    // The denominator behind the headline percentage, so "100%" can never be read
-    // as a broad record when it rests on a single resolved promise.
-    const scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(p) : '';
     // The unresolved side of the ledger. `promiseState` separates a profile that
     // is genuinely tracking promises (none resolved yet) from one with nothing on
-    // file — two cases the hero used to render identically.
+    // file — two cases the hero used to render identically. The pledge lane's own
+    // denominator and pending note now live in its block rather than under the
+    // hero ring, which reports the primary read's denominator instead.
     const promiseState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : (scoreNum === null ? 'empty' : 'resolved');
     const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
-    const pendingNote  = (typeof window._pdxPendingNote === 'function') ? window._pdxPendingNote(p) : '';
     const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
 
     // Top bar
@@ -3601,27 +3618,23 @@
     document.getElementById('modal-name-small').textContent = p.name;
     document.getElementById('modal-office-small').textContent = p.office + ' · ' + p.state;
 
-    // Score ring SVG
-    const radius = 28, circ = 2 * Math.PI * radius;
-    const pct = scoreNum === null ? 0 : scoreNum / 100;
-    const dash = pct * circ;
-    const scoreRing = scoreNum !== null ? `
-      <div class="profile-score-stack">
-      <div class="score-ring w-20 h-20 flex-shrink-0">
-        <svg width="80" height="80" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
-          <circle cx="40" cy="40" r="${radius}" fill="none" stroke="${scoreColor}" stroke-width="6"
-            stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"
-            style="transition:stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1);filter:drop-shadow(0 0 4px ${scoreColor}66)"/>
-        </svg>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${scoreColor};line-height:1;">${scoreText}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Promises</div>
-        </div>
-      </div>
-      ${scoreDenom ? `<div class="profile-score-denom">(${scoreDenom})</div>` : ''}
-      ${pendingNote ? `<div class="profile-score-pending">${pendingNote}</div>` : ''}
-      </div>` : (promiseState === 'tracking' ? `
+    // Score ring SVG — the PRIMARY read (⚖️ Word vs Action).
+    // ONE headline percentage per profile. This ring used to print the pledge-only
+    // rate captioned "Promises", which meant a profile could open with 73% while
+    // the Word vs Action section a screen below said 82% and the Official Record
+    // said something else again — three numbers competing to answer one question.
+    // The pledge rate is now the top TIER inside the primary read rather than a
+    // rival to it, so the hero and the section call the same read() and cannot
+    // diverge. `scoreNum` survives below for the pledge lane's own block, its
+    // formula and the roster card — none of which are headline scores any more.
+    //
+    // Fail-closed states are the engine's, not this file's: below the tested-item
+    // and weight floors the ring shows "—" or "⏳" with the reason underneath, and
+    // when no word at all is on file it falls back to the promise tracker's honest
+    // "tracking" / "monitoring" treatment. It never substitutes a narrower number.
+    const scoreRing = (window.PDXWordAction && typeof window.PDXWordAction.heroMount === 'function')
+      ? window.PDXWordAction.heroMount(id, p, { trackingLabel: (promiseState === 'tracking' ? trackedLabel : ''), trackingNote: trackingNote })
+      : (promiseState === 'tracking' ? `
       <div class="profile-score-stack">
         <div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center profile-score-tracking">
           <div style="font-size:1.5rem;line-height:1;">⏳</div>
@@ -3885,17 +3898,12 @@
         }
       }
     } catch (e) {}
-    // Promises — the published promise follow-through %, with a trend arrow when a
-    // delta is known. Named for its lane, not "Score": the rail also carries the
-    // Official Record and Enactments lanes, and a bare "Score" beside them reads as
-    // an overall rating this number is not.
-    if (scoreNum !== null) {
-      let _navTrend = '';
-      const _navDelta = (typeof p.scoreTrend === 'number') ? p.scoreTrend
-        : (typeof p.scoreDelta === 'number') ? p.scoreDelta : null;
-      if (_navDelta && _navDelta > 0) _navTrend = ' ↑';
-      else if (_navDelta && _navDelta < 0) _navTrend = ' ↓';
-      _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: scoreText + _navTrend, color: scoreColor });
+    // Promises — the pledge lane, reported as a COUNT. The rail carries exactly one
+    // percentage (the ⚖️ pill above it, the primary read) so two pills can never
+    // read as two competing verdicts; the pledge rate itself lives in its own block
+    // further down, where it is labelled as pledges-only.
+    if (scoreNum !== null || (keptCount + brokenCount) > 0) {
+      _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: keptCount + ' Kept', color: '#9fb4d4' });
     }
     // Record — the kept / broken / pending COUNTS behind that percentage. The rate
     // itself is deliberately not repeated here: it is the pill directly above, and

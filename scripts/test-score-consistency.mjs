@@ -29,15 +29,23 @@
 // the "Record" pill. A reader counting badges saw four findings where the data
 // held one, and the bare word "Score" read as a verdict on all three records.
 //
+// The second shape of the same failure was RIVAL numbers: each lane pooled itself
+// into its own headline rate, so a profile met a pledge %, an Official Record %, a
+// Say-vs-Do integrity % and a divergence pair, none of them wrong and none of them
+// the answer. Pooling is now the primary score's job alone (Contract 1c). Per-issue
+// and per-stance percentages are untouched — a gap is unreadable without both sides.
+//
 // So the contracts below are about NAMING and NON-DUPLICATION, checked against
 // the real source and the real arithmetic:
 //
 //   1. the promise number is computed one way, and pending never enters it
-//   2. no surface on a profile is labelled a bare, unqualified "Score"
+//  1b. every surface that publishes the pledge figure publishes the same one
+//  1c. exactly one POOLED percentage renders on a profile, and it is the primary score
+//   2. the hero ring carries the primary score; nothing is a bare "Score"
 //   3. the promise number is not printed twice in the same scroll
 //   4. the promise verdict does not make the Say-vs-Do lane's claim
 //   5. the three lanes are mounted, named, and separately addressable
-//   6. Say-vs-Do shows a verdict, never a percentage; EER shows counts, never a ratio
+//   6. the gateway cards show verdicts, never percentages; EER shows counts, never a ratio
 //   7. the retired composites stay retired
 //   8. no surviving copy points at a surface that no longer renders
 //   9. the promise lane has one canonical name everywhere
@@ -87,8 +95,21 @@ const INDEX = read("index.html");
 function extractFn(src, name, file) {
   const head = src.indexOf("window." + name + " = function");
   must(head !== -1, `${file} no longer defines window.${name}`);
+  return braceScan(src, head, `window.${name}`, file);
+}
+
+// The same, for a plain `function <name>(…) {}` declared inside a module's IIFE.
+// Several of the renderers a contract needs to read are never exported.
+function extractLocalFn(src, name, file) {
+  const re = new RegExp("function\\s+" + name + "\\s*\\(", "g");
+  const m = re.exec(src);
+  must(m !== null, `${file} no longer declares function ${name}()`);
+  return braceScan(src, m.index, name + "()", file);
+}
+
+function braceScan(src, head, label, file) {
   const open = src.indexOf("{", head);
-  must(open !== -1, `window.${name} in ${file} has no body`);
+  must(open !== -1, `${label} in ${file} has no body`);
   let depth = 0, i = open, inStr = null, esc = false;
   for (; i < src.length; i++) {
     const c = src[i];
@@ -102,7 +123,7 @@ function extractFn(src, name, file) {
     if (c === "{") depth++;
     else if (c === "}") { depth--; if (depth === 0) { i++; break; } }
   }
-  must(depth === 0, `could not brace-scan window.${name} in ${file}`);
+  must(depth === 0, `could not brace-scan ${label} in ${file}`);
   return src.slice(head, i);
 }
 
@@ -167,15 +188,17 @@ const displayScore = (() => {
 })();
 
 // ═════════════════════════════════════════════════════════════════════════════
-// Contract 1b — the hero ring and the Follow-Through block print the SAME number
+// Contract 1b — every surface that publishes the pledge figure publishes the SAME one
 // ─────────────────────────────────────────────────────────────────────────────
-// The site publishes an impact-weighted headline (the stored p.score, gated by
-// the honesty guard) and derives a raw ratio from the kept/broken ledger. Both
-// are legitimate and the Deep Dive has always reconciled them — but they differ
-// on most records with a resolved promise, so when the hero ring showed one and
-// the Follow-Through block computed the other, a profile printed two different
-// "promises kept" percentages a few hundred pixels apart. Checked against the
-// real roster, not a fixture, because the gap only exists in the data.
+// The site stores an impact-weighted pledge figure (p.score, gated by the honesty
+// guard) and can also derive a raw ratio from the kept/broken ledger. Both are
+// legitimate and the Deep Dive has always reconciled them — but they differ on
+// most records with a resolved promise, so any surface that recomputes instead of
+// taking the published figure prints a second, contradictory "promises kept" rate.
+// The hero ring no longer shows this figure at all (it carries the primary Word vs
+// Action score — see Contract 2), so the surfaces at stake are now the
+// Follow-Through block, its "ⓘ How?" explainer and the compare strip. Checked
+// against the real roster, not a fixture, because the gap only exists in the data.
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const ctx = { Math, String, Number, JSON, Array, Object, parseInt, isNaN, console };
@@ -191,14 +214,14 @@ const displayScore = (() => {
     const m = ftMeta(p.kept, p.broken, p.pending, pub);
     checked++;
     if (m.raw !== pub) diverge++;
-    if (m.rate !== pub && mismatched.length < 5) mismatched.push(`${p.name}: ring ${pub}% vs block ${m.rate}%`);
+    if (m.rate !== pub && mismatched.length < 5) mismatched.push(`${p.name}: published ${pub}% vs block ${m.rate}%`);
   }
   must(checked > 20, `only ${checked} roster records carry a published promise score — expected the full set`);
   must(diverge > 0,
     "no roster record diverges between the weighted headline and the raw ratio, so this\n" +
     "  contract can no longer detect the two-numbers bug it exists to prevent");
   eq(mismatched.length, 0,
-    "the hero ring and the Follow-Through block disagree on the promise percentage:\n" +
+    "the published pledge figure and the Follow-Through block disagree:\n" +
     "    " + mismatched.join("\n    "));
 
   // …and the raw ratio must still be reachable, so the headline is never a
@@ -241,9 +264,91 @@ const displayScore = (() => {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// Contract 2 — nothing on a profile is labelled a bare "Score"
-// A profile carries three records. An unqualified "Score" reads as a verdict on
-// all three when it only ever described one.
+// Contract 1c — exactly ONE pooled percentage renders on a profile
+// ─────────────────────────────────────────────────────────────────────────────
+// Every supporting lane can compute a rate, and for a long time every one of them
+// printed it: the record stage opened with a pooled Official Record %, Say-vs-Do
+// headed itself with a pooled integrity %, both gateway cards carried their own,
+// and the divergence summary printed two side by side. A reader met four or five
+// competing rates on one profile with no way to know which one was the finding.
+// The rule now: POOLED figures belong to the primary score only. Per-issue and
+// per-stance working percentages stay — a gap is unreadable without both sides —
+// but no lane may aggregate itself into a headline rate.
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const slice = (from, to, label) => {
+    const a = CONSISTENCY.indexOf(from);
+    must(a !== -1, `consistency.js no longer contains ${label}`);
+    const b = CONSISTENCY.indexOf(to, a);
+    must(b !== -1, `could not find the end of ${label}`);
+    const s = CONSISTENCY.slice(a, b);
+    must(s.length > 200, `could not isolate ${label}`);
+    return s;
+  };
+
+  // The Official Record head: composition + verdict chip, no pooled number.
+  const orHead = slice("var overallHtml =", "if (!scored.length)", "the Official Record head");
+  ok(!/pdxor-pct/.test(orHead),
+    "the Official Record section head prints its pooled percentage again — the record\n" +
+    "    stage is the evidence layer under the primary score, not a rival headline");
+
+  // Say-vs-Do's head: verdict chip only, and no pooled integrity block.
+  const sd = extractLocalFn(CONSISTENCY, "_sdInner", "consistency.js");
+  ok(!/pdxor-integrity/.test(sd),
+    "the Say-vs-Do head renders its pooled integrity percentage again — Say-vs-Do is\n" +
+    "    supporting receipts and publishes no score of its own");
+  ok(/never counted inside it|not a rating/i.test(sd),
+    "the Say-vs-Do section no longer states that it feeds nothing into the score");
+
+  // The divergence summary reports a gap in points, not two rival rates.
+  const dv = extractLocalFn(CONSISTENCY, "_dvInner", "consistency.js");
+  ok(!/_divNum\(/.test(dv),
+    "the divergence summary prints both pooled percentages again — it existed to\n" +
+    "    describe the RELATIONSHIP between them, and printing both made two more\n" +
+    "    headline rates out of a cross-check");
+  ok(/pdxdv-gap/.test(dv),
+    "the divergence summary no longer reports the gap itself");
+
+  // The retired gateway percentage stays retired. Matched on the emitted class
+  // attribute, not the bare token, so the comment recording the removal does not
+  // read as the removal being undone.
+  ok(CONSISTENCY.indexOf('class="pdxc-gate-pct') === -1,
+    "the gateway cards emit a pooled percentage again");
+
+  // Every supporting lane says, on the surface, which score it feeds.
+  eq(countOf(CONSISTENCY, "_feedsPrimaryHtml("), 4,
+    "expected one _feedsPrimaryHtml definition and one call from each of the three\n" +
+    "    supporting lanes (Official Record, Say-vs-Do, divergence) — a lane without\n" +
+    "    that line reads as an independent score widget again");
+  const feeds = extractLocalFn(CONSISTENCY, "_feedsPrimaryHtml", "consistency.js");
+  ok(/pdxsec-wordaction/.test(feeds),
+    "the feeds-the-primary line no longer links to the Word vs Action section");
+  ok(/PDXWordAction/.test(feeds) && /return ''/.test(feeds),
+    "the feeds-the-primary line no longer self-gates on the engine being present —\n" +
+    "    it would point at a section that never mounted");
+
+  // And the primary section itself shows what feeds it.
+  const wa = read("word-action.js");
+  const fh = extractLocalFn(wa, "feedsHtml", "word-action.js");
+  for (const target of ["pdxsec-score", "pdxsec-positions", "pdxsec-official-record"]) {
+    ok(fh.indexOf(target) !== -1,
+      `the "what feeds this score" panel no longer points at #${target} — the reader\n` +
+      "    cannot get from the one score back to the evidence under it");
+  }
+  ok(/counted:\s*false/.test(fh),
+    "the feeds panel no longer marks its context-only rows as uncounted — a supporting\n" +
+    "    layer would read as part of the arithmetic");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Contract 2 — the hero ring carries the PRIMARY score, and nothing on a profile
+// is labelled a bare "Score"
+// ─────────────────────────────────────────────────────────────────────────────
+// The ring used to render the pledge-only percentage inline, which made the
+// pledge lane look like the profile's headline finding. It now delegates to the
+// Word vs Action engine, so the ring and the section it summarises are one code
+// path and cannot drift. An unqualified "Score" is still forbidden: a profile
+// carries several records, so a bare label reads as a verdict on all of them.
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const ring = PROFILES.indexOf("const scoreRing =");
@@ -251,14 +356,37 @@ const displayScore = (() => {
   const ringBlock = PROFILES.slice(ring, PROFILES.indexOf("// Key issues pills", ring));
   must(ringBlock.length > 200, "could not isolate the hero score ring markup");
   ok(!/>Score<\/div>/.test(ringBlock),
-    "hero score ring is labelled a bare \"Score\" — name the lane it measures (it is the promise lane)");
-  ok(/>Promises<\/div>/.test(ringBlock),
-    "hero score ring no longer names the promise lane");
+    "hero score ring is labelled a bare \"Score\" — name what it measures");
+  ok(/PDXWordAction\.heroMount\(/.test(ringBlock),
+    "the hero ring no longer delegates to the Word vs Action engine — it is building\n" +
+    "    its own headline again, which is how the ring and the section it summarises\n" +
+    "    came to print different findings");
+  eq(countOf(PROFILES, "PDXWordAction.heroMount("), 1,
+    "expected exactly one heroMount call in profiles-full.js — a second mount would\n" +
+    "    print the primary score twice on one profile");
+  ok(!/\$\{scoreText\}/.test(ringBlock) && !/\$\{scoreColor\}/.test(ringBlock),
+    "the hero ring prints the pledge percentage again — the primary score is the only\n" +
+    "    major % on the profile header, and the pledge rate is a supporting detail");
+
+  // The primary read names itself in plain English on the ring, and the caption
+  // must not reuse "Promise", which now names only the top tier inside it.
+  const wa = read("word-action.js");
+  const frame = wa.slice(wa.indexOf("var FRAME = {"), wa.indexOf("var FRAME = {") + 900);
+  must(frame.length > 200, "word-action.js no longer defines FRAME");
+  ok(/caption:\s*'Kept word'/.test(frame),
+    "the Word vs Action FRAME no longer carries the 'Kept word' ring caption");
+  ok(!/caption:\s*'[^']*[Pp]romise/.test(frame),
+    "the ring caption says \"Promise\" — that word names the pledge tier inside this\n" +
+    "    score, so reusing it for the whole score rebuilds the ambiguity being removed");
 
   ok(!/label:\s*'Score'/.test(PROFILES),
     "the nav rail still carries a pill labelled a bare \"Score\"");
   ok(/label:\s*'Promises'/.test(PROFILES),
     "the nav rail no longer carries the Promises pill");
+  // …and that pill reports counts now, not a rival percentage.
+  ok(/label:\s*'Promises',\s*value:\s*keptCount\s*\+\s*' Kept'/.test(PROFILES),
+    "the nav rail's Promises pill prints a percentage again — the ⚖️ primary pill is\n" +
+    "    the rail's only %, so a second one puts two headline rates side by side");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -340,16 +468,27 @@ const displayScore = (() => {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// Contract 6 — Say-vs-Do is a verdict, never a %. EER is counts, never a ratio.
+// Contract 6 — the gateway cards are verdicts, never %. EER is counts, never a ratio.
+// ─────────────────────────────────────────────────────────────────────────────
+// _scopeSummaryHtml used to branch: the Official Record card printed its pooled
+// percentage and only the Say-vs-Do card was verdict-only. Both are verdict-only
+// now — the cards are doors into evidence, so they say what the evidence adds up
+// to in words and leave the arithmetic to the one primary score. The probe reads
+// the returned markup rather than the whole function, because the comment above
+// the return names the percentage that was removed.
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const summary = CONSISTENCY.slice(CONSISTENCY.indexOf("function _scopeSummaryHtml"),
-    CONSISTENCY.indexOf("function _gateCard"));
-  must(summary.length > 200, "consistency.js no longer defines _scopeSummaryHtml");
-  const saydoBranch = summary.slice(summary.indexOf("// Say-vs-Do"));
-  must(saydoBranch.length > 40, "the Say-vs-Do branch of _scopeSummaryHtml has moved");
-  ok(saydoBranch.indexOf("%") === -1,
-    "the Say-vs-Do gateway card now prints a percentage — it is a verdict chip by design");
+  const summary = extractLocalFn(CONSISTENCY, "_scopeSummaryHtml", "consistency.js");
+  const markup = summary.slice(summary.indexOf("return "));
+  must(markup.length > 40, "the return statement of _scopeSummaryHtml has moved");
+  ok(markup.indexOf("%") === -1,
+    "a Promise Tracker gateway card prints a percentage — both cards are verdict chips\n" +
+    "    by design, so the record stage does not open with a rate that competes with\n" +
+    "    the profile's one primary score");
+  ok(/pdxc-chip/.test(markup),
+    "the gateway cards no longer carry a verdict chip at all");
+  ok(!/class="pdxc-gate-pct/.test(summary),
+    "the pooled gateway percentage has been reinstated");
 
   // Bounded by the export block rather than a fixed character count: the pill grew a
   // coverage qualifier, and a fixed window would have reported that addition as the

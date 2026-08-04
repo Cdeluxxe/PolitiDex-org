@@ -314,6 +314,220 @@
   color: #7f97bb;
 }
 
+/* ── What feeds this score ───────────────────────────────────────────────────
+   The panel that stops the profile reading as independent score widgets: each
+   supporting layer named, counted and one tap away. Rows are buttons, so each
+   one clears the 44px tap floor on its own. */
+.pdxwa-feeds {
+  margin-top: 0.75rem;
+  border-top: 1px solid rgba(127, 151, 187, 0.18);
+  padding-top: 0.6rem;
+}
+.pdxwa-feeds-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #7f97bb;
+  margin-bottom: 0.4rem;
+}
+.pdxwa-feeds-l { list-style: none; margin: 0; padding: 0; }
+.pdxwa-feed-li + .pdxwa-feed-li { margin-top: 0.3rem; }
+.pdxwa-feed {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+  background: rgba(127, 151, 187, 0.07);
+  border: 1px solid rgba(127, 151, 187, 0.18);
+  border-left: 2px solid var(--pdxwa-col);
+  border-radius: 0.5rem;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+.pdxwa-feed-ctx { border-left-color: rgba(127, 151, 187, 0.4); }
+.pdxwa-feed-ico { font-size: 0.95rem; text-align: center; }
+.pdxwa-feed-main { min-width: 0; }
+.pdxwa-feed-name {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #dbe6f5;
+}
+.pdxwa-feed-role {
+  display: block;
+  font-size: 0.63rem;
+  line-height: 1.35;
+  color: #7f97bb;
+  overflow-wrap: break-word;
+}
+.pdxwa-feed-n {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  text-align: right;
+  max-width: 7.5rem;
+}
+.pdxwa-feed-go { color: #7fb4ff; }
+.pdxwa-feeds-foot {
+  margin: 0.45rem 0 0;
+  font-size: 0.63rem;
+  line-height: 1.45;
+  color: #7f97bb;
+}
+
+/* ── The demoted pledge rate ─────────────────────────────────────────────────
+   Promise Follow-Through keeps its percentage, one tap down. Set at body size
+   inside a disclosure so it reads as the pledge tier's own working rather than a
+   second headline beside the primary ring. Rendered by profiles-full.js. */
+.pdx-ft-rate {
+  margin-top: 0.55rem;
+  border-top: 1px solid rgba(159, 180, 212, 0.14);
+  padding-top: 0.4rem;
+}
+.pdx-ft-rate-sum {
+  min-height: 2.75rem;
+  line-height: 2.75rem;
+  list-style: none;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+}
+.pdx-ft-rate-sum::-webkit-details-marker { display: none; }
+.pdx-ft-rate-sum::before { content: '▸ '; color: #7596c0; }
+.pdx-ft-rate[open] > .pdx-ft-rate-sum::before { content: '▾ '; }
+.pdx-ft-rate-b p {
+  margin: 0 0 0.45rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #9fb4d4;
+}
+.pdx-ft-rate-how {
+  min-height: 2.75rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(127, 180, 255, 0.1);
+  border: 1px solid rgba(127, 180, 255, 0.3);
+  border-radius: 0.55rem;
+  color: #7fb4ff;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* The way back up to the score this block feeds. Full-width on a phone because
+   it is the last thing in the block and the thumb is already at the bottom. */
+.pdx-ft-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  min-height: 2.75rem;
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(159, 219, 208, 0.08);
+  border: 1px solid rgba(159, 219, 208, 0.28);
+  border-radius: 0.55rem;
+  color: #9fdbd0;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.pdx-ft-primary:hover,
+.pdx-ft-primary:focus-visible {
+  background: rgba(159, 219, 208, 0.16);
+  color: #c9f2ea;
+}
+
+/* ── The profile hero ring ───────────────────────────────────────────────────
+   The one primary number on a profile. The sub-line reserves its height so the
+   post-warm re-render ("Checking the record…" → "7 of 10 tested") swaps text
+   without moving the hero, per the no-shift-on-hydration rule above. */
+.pdxwa-hero-jump {
+  display: block;
+  padding: 0;
+  margin: 0 auto;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.pdxwa-hero-jump > .score-ring { position: relative; display: block; }
+.pdxwa-hero-in {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.pdxwa-hero-v {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.pdxwa-hero-cap {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7596c0;
+}
+.pdxwa-hero-cap-wait {
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: #f5c842;
+  margin-top: 0.22rem;
+  text-align: center;
+}
+.pdxwa-hero-wait { font-size: 1.5rem; line-height: 1; }
+.pdxwa-hero-none {
+  background: rgba(100, 116, 139, 0.15);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+.pdxwa-hero-none .pdxwa-hero-v { font-size: 1.6rem; }
+.pdxwa-hero-sub {
+  min-height: 1.7rem;
+  max-width: 7.5rem;
+  margin: 0.25rem auto 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-align: center;
+  color: #7596c0;
+  overflow-wrap: break-word;
+}
+
 /* ── Wider screens ──────────────────────────────────────────────────────── */
 @media (min-width: 620px) {
   .pdxwa-num { min-width: 6rem; }
@@ -323,4 +537,6 @@
   .pdxwa-tier { grid-template-columns: 1.7rem 1fr auto; padding: 0.6rem 0.75rem; }
   .pdxwa-dot-step { grid-template-columns: 4.6rem 1fr; }
   .pdxwa-dot-v { font-size: 0.78rem; }
+  .pdxwa-feed { grid-template-columns: 1.7rem 1fr auto; padding: 0.5rem 0.7rem; }
+  .pdxwa-feed-role { font-size: 0.68rem; }
 }
