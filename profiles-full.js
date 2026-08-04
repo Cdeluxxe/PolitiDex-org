@@ -3610,6 +3610,16 @@
     const promiseState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : (scoreNum === null ? 'empty' : 'resolved');
     const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
     const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
+    // The pledge ledger as COUNTS, for the supporting chip under the ring. The
+    // header keeps this information — how many promises actually closed, and
+    // which way — without restating it as a second percentage that would compete
+    // with the primary read. Counts, unlike a rate, also survive the pre-warm
+    // state, so the header always says something concrete about the pledges.
+    const pledgeLedger = {
+      kept: typeof p.kept === 'number' ? p.kept : (p.promises || []).filter(r => r.verdict === 'kept').length,
+      broken: typeof p.broken === 'number' ? p.broken : (p.promises || []).filter(r => r.verdict === 'broken').length,
+      pending: pendingCount
+    };
 
     // Top bar
     document.getElementById('modal-icon').textContent = p.icon;
@@ -3632,8 +3642,13 @@
     // and weight floors the ring shows "—" or "⏳" with the reason underneath, and
     // when no word at all is on file it falls back to the promise tracker's honest
     // "tracking" / "monitoring" treatment. It never substitutes a narrower number.
+    //
+    // `pledge` is the supporting layer: the kept/broken/pending counts render as a
+    // quiet chip under the ring and link into the promise block. Counts, not a
+    // rate — the pledge lane is a tier inside the ring's number, so printing its
+    // own percentage here would be the same evidence twice with two denominators.
     const scoreRing = (window.PDXWordAction && typeof window.PDXWordAction.heroMount === 'function')
-      ? window.PDXWordAction.heroMount(id, p, { trackingLabel: (promiseState === 'tracking' ? trackedLabel : ''), trackingNote: trackingNote })
+      ? window.PDXWordAction.heroMount(id, p, { trackingLabel: (promiseState === 'tracking' ? trackedLabel : ''), trackingNote: trackingNote, pledge: pledgeLedger })
       : (promiseState === 'tracking' ? `
       <div class="profile-score-stack">
         <div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center profile-score-tracking">

@@ -351,6 +351,7 @@ const displayScore = (() => {
 // carries several records, so a bare label reads as a verdict on all of them.
 // ═════════════════════════════════════════════════════════════════════════════
 {
+  const wa0 = read("word-action.js");
   const ring = PROFILES.indexOf("const scoreRing =");
   must(ring !== -1, "profiles-full.js no longer builds the hero scoreRing");
   const ringBlock = PROFILES.slice(ring, PROFILES.indexOf("// Key issues pills", ring));
@@ -367,10 +368,43 @@ const displayScore = (() => {
   ok(!/\$\{scoreText\}/.test(ringBlock) && !/\$\{scoreColor\}/.test(ringBlock),
     "the hero ring prints the pledge percentage again — the primary score is the only\n" +
     "    major % on the profile header, and the pledge rate is a supporting detail");
+  // Stronger than the interpolation check above: no literal percent sign may be
+  // built anywhere in the ring block, so a hand-assembled `scoreNum + '%'` or a
+  // reinstated legacy fallback ring cannot slip past by avoiding the two names.
+  ok(!/%/.test(ringBlock),
+    "the hero ring block builds a percentage of its own — every number in the header\n" +
+    "    has to come from PDXWordAction.heroMount() or the two frames can disagree");
+  const heroOpen = PROFILES.indexOf('<div class="profile-hero">');
+  must(heroOpen !== -1, "profiles-full.js no longer renders the .profile-hero header");
+  const heroMarkup = PROFILES.slice(heroOpen, PROFILES.indexOf("${scoreRing}", heroOpen) + 40);
+  must(heroMarkup.length > 400, "could not isolate the .profile-hero markup");
+  ok(!/%/.test(heroMarkup) && !/\$\{scoreText\}/.test(heroMarkup),
+    "the profile header prints a percentage outside the primary ring — the hero carries\n" +
+    "    one major number, and it is the ⚖️ Word vs Action read");
+  eq(countOf(PROFILES, "${scoreRing}"), 1,
+    "the hero score stack is inserted more than once — one header, one primary score");
+
+  // Promises stay in the header, as the supporting layer the mission allows: the
+  // kept/broken/pending counts, never a rival rate.
+  ok(/pledge:\s*pledgeLedger/.test(ringBlock),
+    "the hero no longer passes the pledge ledger — the header lost the kept/broken/\n" +
+    "    pending counts, which are the supporting layer under the primary score");
+  const chip = wa0.slice(wa0.indexOf("function pledgeChipHtml"), wa0.indexOf("function heroInner"));
+  must(chip.length > 200, "word-action.js no longer builds the hero pledge chip");
+  ok(!/%/.test(chip),
+    "the hero pledge chip prints a percentage — it reports counts, because the pledge\n" +
+    "    lane is a tier inside the ring's number and a rate here would rival it");
+  ok(/kept/.test(chip) && /broken/.test(chip) && /pending/.test(chip),
+    "the hero pledge chip no longer reports all three of kept / broken / pending");
+  ok(/jumpAttr\('pdxsec-score'\)/.test(chip),
+    "the hero pledge chip is not a route into the promise block — the supporting layer\n" +
+    "    has to stay reachable from the header that summarises it");
+  ok(/pledgeChipHtml\(opts\)/.test(wa0.slice(wa0.indexOf("function heroInner"), wa0.indexOf("function bindHero"))),
+    "heroInner no longer renders the pledge chip");
 
   // The primary read names itself in plain English on the ring, and the caption
   // must not reuse "Promise", which now names only the top tier inside it.
-  const wa = read("word-action.js");
+  const wa = wa0;
   const frame = wa.slice(wa.indexOf("var FRAME = {"), wa.indexOf("var FRAME = {") + 900);
   must(frame.length > 200, "word-action.js no longer defines FRAME");
   ok(/caption:\s*'Kept word'/.test(frame),

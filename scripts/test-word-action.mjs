@@ -719,6 +719,44 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/Monitoring/.test(none.WA.heroHtml('p1', { name: 'Empty' })),
     'with nothing to report the hero has no honest resting state');
 
+  // The supporting layer the header keeps: pledge COUNTS, never a pledge rate.
+  // A rate here would be the same evidence as the ring's top tier, rendered
+  // against a narrower denominator — two headline numbers for one question.
+  const ledger = { pledge: { kept: 27, broken: 8, pending: 2 } };
+  const chipCtx = publishable();
+  const withChip = chipCtx.WA.heroHtml('p1', { name: 'Publishable' }, ledger);
+  ok(/27 kept/.test(withChip) && /8 broken/.test(withChip) && /2 pending/.test(withChip),
+    'the hero pledge chip does not report kept / broken / pending — the header dropped the\n' +
+    '    promise ledger instead of demoting it');
+  const chipOnly = withChip.slice(withChip.indexOf('pdxwa-hero-pledge'));
+  must(chipOnly.length > 40, 'the hero pledge chip markup could not be isolated');
+  ok(!/%/.test(chipOnly),
+    'the hero pledge chip prints a percentage — the pledge lane is a tier inside the ring\'s\n' +
+    '    number, so a rate here is the same evidence twice against a narrower denominator');
+  eq(new Set(withChip.match(/\d+%/g) || []).size, 1,
+    'the hero renders more than one distinct percentage — the ring is the only major number\n' +
+    '    in the header, and everything under it is a count');
+  ok(/_pdxNavJump\('pdxsec-score'\)/.test(withChip),
+    'the hero pledge chip is not a route into the promise block, so the demoted layer became\n' +
+    '    unreachable from the header that summarises it');
+  ok(/aria-label="[^"]*27 kept[^"]*"/.test(withChip),
+    'the hero pledge chip has no accessible name, so a screen reader hears three bare numbers');
+  eq(withChip.indexOf('pdxwa-hero-pledge') !== -1, true,
+    'the hero pledge chip lost the class its 44px tap target is styled from');
+  ok(!/pdxwa-hero-pledge/.test(chipCtx.WA.heroHtml('p1', { name: 'Publishable' })),
+    'the hero renders an empty pledge chip when no ledger was passed — a profile with no promises\n' +
+    '    on file should not show a chip reading "0 kept"');
+  ok(!/pdxwa-hero-pledge/.test(chipCtx.WA.heroHtml('p1', { name: 'Publishable' },
+      { pledge: { kept: 0, broken: 0, pending: 0 } })),
+    'a zeroed pledge ledger still renders a chip — an empty ledger is not a finding');
+  // Below the floors and while warming, the counts survive: they are observed
+  // facts, not a derived rate, so they are not subject to the score's floors.
+  ok(/27 kept/.test(thin.WA.heroHtml('p1', { name: 'One Item' }, ledger)),
+    'a below-floor hero hides the pledge counts — the fail-closed rule applies to the derived\n' +
+    '    score, not to the counted ledger underneath it');
+  ok(/27 kept/.test(none.WA.heroHtml('p1', { name: 'Empty' }, ledger)),
+    'a profile with no documented word hides the pledge counts it does have');
+
   // The mount: addressable, jumps into the section, and re-renders on warm.
   const live = publishable();
   const mounted = live.WA.heroMount('p1', { name: 'Publishable' });
@@ -848,6 +886,15 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/min-height/.test(heroSub),
     'the hero sub-line reserves no height, so "Checking the record…" → "7 of 9 tested" shifts the\n' +
     '    whole profile header on hydration');
+  // The demoted pledge counts sit under the ring in the narrowest column on the
+  // page, and they are a jump control, so they need both a tap target and a wrap.
+  const heroPledge = base.slice(base.indexOf('.pdxwa-hero-pledge {'), base.indexOf('.pdxwa-hero-pledge:hover'));
+  must(heroPledge.length > 80, 'word-action.css no longer styles .pdxwa-hero-pledge');
+  ok(/min-height:\s*2\.75rem/.test(heroPledge),
+    'the hero pledge chip is under 44px tall — it is a button in the tightest column of the header');
+  ok(/min-width:\s*0/.test(heroPledge) && /overflow-wrap:\s*break-word/.test(heroPledge),
+    'the hero pledge chip cannot wrap, so "27 kept · 8 broken · 2 pending" widens the header column\n' +
+    '    and pushes the name off a small screen');
   // No fixed pixel heights that would clip wrapped text at small sizes.
   ok(!/\.pdxwa-[a-z-]+\s*{[^}]*\bheight:\s*\d+px/.test(WA_CSS),
     'a Word vs Action element has a hard pixel height — wrapped copy would be clipped on a phone');

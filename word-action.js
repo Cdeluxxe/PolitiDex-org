@@ -806,6 +806,28 @@
     } catch (e) { return null; }
   }
 
+  // Promises keep their place in the header as a COUNT, never as a second
+  // percentage. The pledge lane is the top tier INSIDE the number above, so a
+  // rate here would be the same evidence rendered twice against a narrower
+  // denominator — which is exactly the rivalry the one-score pass removed.
+  // Counts add what a rate cannot: how much of the ledger has actually closed.
+  function pledgeChipHtml(opts) {
+    var g = opts && opts.pledge;
+    if (!g) return '';
+    var k = Number(g.kept) || 0, b = Number(g.broken) || 0, pen = Number(g.pending) || 0;
+    if (k + b + pen <= 0) return '';
+    var parts = [];
+    if (k) parts.push(k + ' kept');
+    if (b) parts.push(b + ' broken');
+    if (pen) parts.push(pen + ' pending');
+    var txt = parts.join(' · ');
+    return '' +
+      '<button type="button" class="pdxwa-hero-pledge"' + jumpAttr('pdxsec-score') +
+        ' aria-label="' + esc('Promise ledger: ' + parts.join(', ') + '. Open the promise block.') + '">' +
+        '<span aria-hidden="true">🤝</span> ' + esc(txt) +
+      '</button>';
+  }
+
   function heroInner(pid, p, opts) {
     opts = opts || {};
     var h = heroRead(pid, p);
@@ -826,7 +848,8 @@
         '<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center pdxwa-hero-none">' +
           '<div class="pdxwa-hero-v" style="color:#9fb4d4;">—</div>' +
           '<div class="pdxwa-hero-cap">Monitoring</div>' +
-        '</div>';
+        '</div>' +
+        pledgeChipHtml(opts);
     }
     var radius = 28, circ = 2 * Math.PI * radius;
     var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
@@ -848,7 +871,8 @@
           '</span>' +
         '</span>' +
       '</button>' +
-      '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>';
+      '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>' +
+      pledgeChipHtml(opts);
   }
 
   function bindHero(uid, pid, p, opts) {
