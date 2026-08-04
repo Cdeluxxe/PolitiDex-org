@@ -61,10 +61,16 @@ function fakeSlot() {
 }
 function fakeHost(pid) {
   const slot = fakeSlot();
+  const wait = fakeSlot();
+  wait.hidden = false; // the cold-open placeholder ships visible in the markup
   return {
-    slot, classes: [],
+    slot, wait, classes: [],
     getAttribute(k) { return k === "data-pdx-vrhi-pid" ? pid : null; },
-    querySelector(sel) { return sel === ".pdx-vrhi-live" ? slot : null; },
+    querySelector(sel) {
+      if (sel === ".pdx-vrhi-live") return slot;
+      if (sel === ".pdx-vrhi-wait") return wait;
+      return null;
+    },
     classList: { add(c) { this.owner.classes.push(c); } },
   };
 }
@@ -86,6 +92,7 @@ function run(records, opts) {
   ctx.PROFILES = { massie: { name: "Thomas Massie" } };
   ctx.CMP_DATA = {};
   ctx.PDXVotingRecord = { memberRecords: () => records };
+  if (opts.noVR) delete ctx.PDXVotingRecord;
   ctx._issueLabel = (k) => ({ surveillance: "Surveillance", spending: "Spending" }[k] || k);
   if (!opts.noCounts) {
     ctx._pdxRecordMappedCounts = () => {
@@ -109,8 +116,8 @@ function run(records, opts) {
   // The one thing the slice closes over from its file rather than from window.
   vm.runInContext("function _pdxEyeEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}", sb);
   vm.runInContext(REGION, sb, { filename: "vrhi-region.js" });
-  ctx._pdxHydrateVoteHighlights();
-  return { ctx, host, slot: host && host.slot, events };
+  ctx._pdxHydrateVoteHighlights(opts.settled ? { settled: true } : undefined);
+  return { ctx, host, slot: host && host.slot, wait: host && host.wait, events };
 }
 
 const rec = (o) => Object.assign({
@@ -259,6 +266,59 @@ const rec = (o) => Object.assign({
      "there is no rule demoting the curated sample once the live record is present");
   ok(/@media \(max-width: 480px\) \{[^]*?\.pdx-vrhi-live \{/.test(CSS),
      "the live layer has no phone pass — this section sits mid-profile on the surface it was reported on");
+}
+
+// ── 9. The cold-open placeholder ─────────────────────────────────────────────
+// One quiet line while the record is in flight, gone the instant it lands, and
+// never a number. The failure this guards is a permanent "loading…" on a member
+// whose record simply does not exist — a status line that outlives its status.
+{
+  // Cold: the record has not arrived and no load has landed yet. The line stays.
+  const cold = run(null);
+  ok(cold.wait.hidden === false,
+     "the placeholder was retired on a cold open with nothing settled — the section opens on the curated\n" +
+     "    sample with no sign the real record is still coming");
+  eq(cold.slot.innerHTML, "", "harness sanity: the cold scenario painted a live panel");
+
+  // Warm: the record is there. The line must be gone in the same pass that paints.
+  const warm = run([rec({}), rec({ number: "H.R. 3" })]);
+  ok(warm.wait.hidden === true,
+     "the placeholder survived alongside a painted live panel — 'loading' sitting above loaded data");
+
+  // Settled and still nothing: the load landed, this member has no roll call.
+  const none = run([], { settled: true });
+  ok(none.wait.hidden === true,
+     "a load landed and produced no records, and the placeholder is still claiming to be loading — that is\n" +
+     "    the one state where the line becomes untrue and it is the state it must clear itself in");
+  ok(none.slot.innerHTML === "" && none.host.classes.indexOf("pdx-vrhi-haslive") === -1,
+     "clearing the placeholder on an empty settled record also painted or marked a live layer");
+
+  // A speculative re-check must NOT conclude the record is absent.
+  ok(run(null, { settled: false }).wait.hidden === false,
+     "an unsettled re-check cleared the placeholder — consistency.js can warm before the roll-call fetch\n" +
+     "    lands, and dropping the line there hides a load that is still in flight");
+
+  // No record module at all: nothing is ever coming.
+  ok(run(null, { noVR: true }).wait.hidden === true,
+     "PDXVotingRecord is absent entirely and the placeholder still promises a record that can never load");
+
+  // It never invents anything.
+  ok(/Loading the roll-call record/.test(PF),
+     "the cold-open placeholder copy is missing from the section markup");
+  const waitLine = PF.slice(PF.indexOf('class="pdx-vrhi-wait"'), PF.indexOf('class="pdx-vrhi-wait"') + 120);
+  ok(!/\d/.test(waitLine.replace(/pdx-vrhi-wait/g, "")),
+     "the placeholder carries a digit — with no warm record there is no count that is true yet");
+  ok(PF.indexOf('class="pdx-vrhi-live"') < PF.indexOf('class="pdx-vrhi-wait"'),
+     "the placeholder renders above the live slot, so the panel appears below the line it replaces");
+  // Only the voting warm may settle it.
+  const bind = PF.slice(PF.indexOf("__pdxVrhiBound"), PF.indexOf("__pdxVrhiBound") + 700);
+  ok(/'pdx-voting-warm', _vrhiSettled/.test(bind),
+     "the voting warm does not settle the placeholder, so a member with no record shows the line forever");
+  ok(/'pdx-consistency-warm', _vrhiWarm/.test(bind),
+     "the consistency warm was wired to the settling handler — it can fire while the roll call is still\n" +
+     "    loading, which would clear the line early");
+  ok(/\.pdx-vrhi-wait\[hidden\] \{ display: none; \}/.test(CSS),
+     "nothing hides the retired placeholder, so `hidden` leaves it on screen under the live panel");
 }
 
 if (fails.length) {

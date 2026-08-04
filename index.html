@@ -19748,49 +19748,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
     };
 
-    // ── MULTI-AI FULL PROFILE VERIFICATION SYSTEM ───────────────────
-    window.openFullProfileVerify = function(pid) {
-      var p = (typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
-      if (!p) { p = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null; }
-      if (!p) return;
-
-      var overlay = document.getElementById('profile-verify-overlay');
-      var loading = document.getElementById('profile-verify-loading');
-      var content = document.getElementById('profile-verify-content');
-      
-      document.getElementById('profile-verify-subtitle').textContent = "Analyzing " + p.name + " (" + (p.office || "") + ")";
-
-      // Show loading
-      loading.classList.remove('hidden');
-      content.classList.add('hidden');
-
-      // Open overlay
-      overlay.style.display = 'flex';
-      overlay.style.alignItems = 'center';
-      overlay.style.justifyContent = 'center';
-      overlay.style.opacity = '0';
-      document.body.style.overflow = 'hidden';
-      
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          overlay.style.transition = 'opacity 0.22s ease';
-          overlay.style.opacity = '1';
-        });
-      });
-
-      // Simulate multi-AI processing delay for premium feel
-      setTimeout(function() {
-        ProfileVerifier.verify(pid, p).then(function(data) {
-          window._activeProfileVerifyData = data;
-          window._activeProfileVerifyTabId = 'consensus';
-          
-          loading.classList.add('hidden');
-          content.classList.remove('hidden');
-          
-          renderProfileVerifyTabs(data, 'consensus');
-          renderProfileVerifyPanel(data, 'consensus');
-        });
-      }, 1500);
+    // ── RETIRED: MULTI-AI FULL PROFILE VERIFICATION ─────────────────
+    // This produced a fabricated "Trust Score": a weighted percentage assembled on
+    // the client out of hand-written prose, behind a 1500ms delay that imitated
+    // network latency. On a product whose premise is that every figure traces to a
+    // roll-call vote, an official filing or a dated public statement, that was a
+    // second primary score with no record behind it. The mobile correction pass
+    // removed the control that called it; this removes the ability to call it.
+    //
+    // The NAME is kept deliberately. Any surface still holding a reference — a
+    // cached page, an onclick attribute in someone's branch — degrades to a console
+    // warning instead of a TypeError that takes out the rest of its handler.
+    // ProfileVerifier below is now unreachable from here; it is left in place only
+    // so this diff stays surgical, and it should be deleted outright next time this
+    // area is opened.
+    window.openFullProfileVerify = function() {
+      console.warn('[PolitiDex] openFullProfileVerify was retired — it produced a fabricated Trust Score. Use PDXConsistency.openMethodology() instead.');
     };
 
     window.closeProfileVerifyModal = function() {

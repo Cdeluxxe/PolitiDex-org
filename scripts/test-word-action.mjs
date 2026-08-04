@@ -904,11 +904,60 @@ const voteNarration = (issueKey, extra = {}) => ({
 // 14. Mobile-first CSS
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // Base rules are the small-screen rules; the media query widens, never narrows.
+  // Base rules are the small-screen rules; the widening query is the main one.
   ok(/@media \(min-width: 620px\)/.test(WA_CSS),
     'word-action.css has no min-width breakpoint — it is not written mobile-first');
-  ok(!/@media \(max-width:/.test(WA_CSS),
-    'word-action.css narrows at a max-width breakpoint, which means the base rules are desktop rules');
+  // Two phone-only narrowings are allowed — the hero ring's sideways layout and the
+  // pledge-lane demotion — because both are rearrangements of a layout genuinely
+  // shared with the 481-619px range, and both style components this file owns. What
+  // is NOT allowed is a general max-width layout pass creeping back in: that would
+  // mean the base rules had drifted into being desktop rules again, and app.css is
+  // where this codebase keeps broad phone passes. So: allow-list by selector.
+  const ALLOWED_NARROW = /^(\.profile-hero-score \.pdxwa-hero\b|\.pdx-ft-)/;
+  const narrowBlocks = [];
+  for (let i = WA_CSS.indexOf('@media (max-width:'); i !== -1;
+       i = WA_CSS.indexOf('@media (max-width:', i + 1)) {
+    const open = WA_CSS.indexOf('{', i);
+    let depth = 0, end = open;
+    for (let j = open; j < WA_CSS.length; j++) {
+      if (WA_CSS[j] === '{') depth++;
+      else if (WA_CSS[j] === '}' && --depth === 0) { end = j; break; }
+    }
+    narrowBlocks.push({ at: i, body: WA_CSS.slice(open + 1, end) });
+  }
+  ok(narrowBlocks.length <= 2,
+    `word-action.css has ${narrowBlocks.length} max-width passes — the two allowed exceptions are the hero\n` +
+    '    ring layout and the pledge-lane demotion. A third means broad phone layout is being authored here\n' +
+    '    instead of in app.css, i.e. the base rules are drifting back to desktop-first');
+  narrowBlocks.forEach(({ at, body }) => {
+    // Every selector inside must belong to one of the two allowed families.
+    const strayed = body
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .split('}')
+      .map((chunk) => chunk.split('{')[0].trim())
+      .filter(Boolean)
+      .flatMap((sel) => sel.split(',').map((s) => s.trim()))
+      .filter((sel) => sel && !ALLOWED_NARROW.test(sel));
+    ok(strayed.length === 0,
+      'a max-width pass in word-action.css narrows selectors outside the two allowed families\n' +
+      `    (hero ring, pledge lane): ${strayed.slice(0, 4).join(' / ')}\n` +
+      '    Phone rules for anything else belong in app.css, which is linked after this file.');
+    // And they must sit AFTER the widening query, so the mobile-first base below is
+    // still the whole base — the checks in this section slice on that boundary.
+    ok(at > WA_CSS.indexOf('@media (min-width: 620px)'),
+      'a max-width pass sits above the min-width query, so it reads as part of the mobile-first base');
+  });
+  // The moved rules only work because they out-specify app.css, which is linked
+  // LATER (index.html: word-action.css ~1894, app.css ~1954). An equal-specificity
+  // rule moved into this file would silently lose. Hero ring: two classes. Pledge
+  // lane: !important. Losing either is how the phone hero quietly reverts.
+  const heroNarrow = narrowBlocks.map((b) => b.body).join('\n');
+  ok(!/(^|\n)\s*\.pdxwa-hero\s*[,{]/.test(heroNarrow),
+    'a max-width rule targets .pdxwa-hero on its own (one class), which ties with app.css and loses on\n' +
+    '    file order — it must stay scoped as `.profile-hero-score .pdxwa-hero`');
+  ok(/\.pdx-ft-block \.pdx-ft-verdict \{[^}]*!important/.test(heroNarrow),
+    'the pledge verdict size cap lost its !important, so app.css / mobile-polish.css can out-order it and\n' +
+    '    Promise Follow-Through goes back to being the loudest judgement on a phone');
   const mq = WA_CSS.indexOf('@media (min-width: 620px)');
   const base = WA_CSS.slice(0, mq);
   ok(/\.pdxwa-dot-step\s*{[^}]*grid-template-columns/.test(base),

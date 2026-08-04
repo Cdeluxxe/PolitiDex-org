@@ -3950,7 +3950,19 @@
         '<div class="pdx-vrhi-card-meta">' + pill + issue + '</div>' +
       '</div>';
   }
-  window._pdxHydrateVoteHighlights = function () {
+  // Retires the cold-open "loading" line. Called when the live panel paints, and
+  // when a load has landed and yielded nothing — either way the line has stopped
+  // being true, and a permanent "loading…" is its own small lie.
+  function _vrhiHideWait(host) {
+    try {
+      var w = host && host.querySelector('.pdx-vrhi-wait');
+      if (w) w.hidden = true;
+    } catch (e) {}
+  }
+  // opts.settled marks a call made because a voting-record load actually landed, as
+  // opposed to a speculative re-check. Only a settled call is allowed to conclude
+  // "there is no record here" and drop the placeholder.
+  window._pdxHydrateVoteHighlights = function (opts) {
     try {
       var host = document.querySelector('[data-pdx-vrhi-pid]');
       if (!host) return;
@@ -3958,9 +3970,13 @@
       var pid = host.getAttribute('data-pdx-vrhi-pid') || '';
       if (!slot || !pid) return;
       var VR = window.PDXVotingRecord;
-      if (!VR || typeof VR.memberRecords !== 'function') return;
+      // No record module at all: nothing is coming, so stop saying it is.
+      if (!VR || typeof VR.memberRecords !== 'function') { _vrhiHideWait(host); return; }
       var recs = VR.memberRecords(pid);
-      if (!recs || !recs.length) return;
+      if (!recs || !recs.length) {
+        if (opts && opts.settled) _vrhiHideWait(host);
+        return;
+      }
       // Idempotent, and re-renders when the record GROWS (a later page loaded).
       if (slot.getAttribute('data-vrhi-n') === String(recs.length)) return;
 
@@ -4005,6 +4021,7 @@
       slot.hidden = false;
       slot.setAttribute('data-vrhi-n', String(recs.length));
       host.classList.add('pdx-vrhi-haslive');
+      _vrhiHideWait(host);
     } catch (e) { /* the curated selection below is the fallback; never break it */ }
   };
   // Re-run whenever the sync record cache warms: consistency.js fires
@@ -4015,8 +4032,12 @@
   if (!window.__pdxVrhiBound) {
     window.__pdxVrhiBound = true;
     var _vrhiWarm = function () { window._pdxHydrateVoteHighlights(); };
+    // Only the voting warm means a record load actually landed, so only it may
+    // settle the placeholder. Consistency can warm first on a member whose roll
+    // call is still in flight, and hiding the line there would be premature.
+    var _vrhiSettled = function () { window._pdxHydrateVoteHighlights({ settled: true }); };
     window.addEventListener('pdx-consistency-warm', _vrhiWarm);
-    window.addEventListener('pdx-voting-warm', _vrhiWarm);
+    window.addEventListener('pdx-voting-warm', _vrhiSettled);
   }
 
   function openModal(id) {
@@ -5439,6 +5460,14 @@
           ? '<div class="modal-section" id="pdx-vrhi" data-pdx-vrhi-pid="' + id + '">' +
               '<div class="modal-section-title">\u{1F5F3}️ Voting Record Highlights</div>' +
               '<div class="pdx-vrhi-live" hidden></div>' +
+              // Cold-open placeholder. The roll-call record is fetched async, so on a
+              // first open this section would otherwise open on the curated sample
+              // alone with no hint that the real record is on its way. One quiet line,
+              // no count and no score — there is nothing true to put a number on yet.
+              // _pdxHydrateVoteHighlights drops it the moment the record paints, and
+              // also when a load has landed and produced nothing, so it can never sit
+              // there claiming to be loading something that already finished.
+              '<div class="pdx-vrhi-wait">Loading the roll-call record…</div>' +
               '<div class="pdx-vrhi-curated">' +
                 '<div class="pdx-vrhi-cur-hd">\u{1F4CE} Annotated selection · ' + vr.length + ' vote' + (vr.length === 1 ? '' : 's') + ' with a why-this-matters note</div>' +
                 '<div style="display:flex;gap:0.45rem;margin-bottom:0.7rem;">' +
