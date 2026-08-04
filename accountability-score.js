@@ -1068,6 +1068,14 @@
         if (sec) sec.scrollIntoView({ behavior:'smooth', block:'start' });
         return;
       }
+      // Spotlight write-ups now live behind a closed disclosure (the visible
+      // layer is a compact digest), so a jump has to open whatever drawer the
+      // target sits in before scrolling — otherwise the scroll lands on a
+      // collapsed box. _pdxNavJump already walks and opens that chain; use it
+      // when it is available and fall back to the direct scroll when it is not.
+      if (typeof window._pdxNavJump === 'function' && document.getElementById('modal-body')) {
+        try { window._pdxNavJump('sl-driver-' + safeId + '-' + i, null); window._slFlash(el); return; } catch (e) {}
+      }
       el.scrollIntoView({ behavior:'smooth', block:'center' });
       window._slFlash(el);
     };

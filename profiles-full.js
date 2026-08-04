@@ -4141,6 +4141,18 @@
            frame would imply the record should be here. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
+      <!-- Connecting the Dots — the SYNTHESIS layer, and deliberately placed
+           immediately beneath the score it synthesizes rather than above it. It
+           used to sit in the brief stage, on the first screen, which put a
+           summary of the Word vs Action read a full stage ABOVE the read itself:
+           two surfaces making the same argument, the derived one first. Read here
+           it is unambiguously an expansion — the same score, one issue at a time,
+           each issue followed through five links (what they said → what they did
+           → the receipts → the issue and its Spotlights → what it means for the
+           score). Self-gating: hidden unless there is a genuine join to show or at
+           least two links carry real data (profile-connect.js, PDXDossier). -->
+      ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
+
       <!-- Promise Follow-Through — the PLEDGE TIER's own number, kept intact and
            kept canonical (Kept ÷ (Kept + Broken), pending excluded) but no longer the
            loudest thing on the profile. Every count, chip and explainer survives; the
@@ -4254,12 +4266,12 @@
         ? (function(){ try { return window.PDXProfileSpine.briefHtml(id, p); } catch(e){ return ''; } })()
         : ''}
 
-      <!-- Connecting the Dots — a neutral synthesis spine that threads the
-           profile's accountability lenses in reading order (stances → votes →
-           who they affect → federal contracts → your own comparison), each with
-           a live signal and a jump link down to the full section. Self-gating:
-           hidden unless at least two lenses carry real data (profile-connect.js). -->
-      ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
+      <!-- Connecting the Dots used to render here, on the first screen. It moved
+           up into the record stage, directly beneath the ⚖️ Word vs Action score
+           it synthesizes — see the call site there. Nothing replaced it: the brief
+           above already answers "what should I look at first", and stacking a
+           second synthesis under it was one of the surfaces competing for the same
+           job. -->
 
       <!--PDXSP:signature-->
       <!-- View Full Stance Record — the prominent, impossible-to-miss jump to the
@@ -5051,7 +5063,13 @@
         var slDriverItems = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
         // The medium modal shows the TOP 2–4 highlights only — a tight, skimmable
         // synthesis. The complete set lives in the full Accountability analysis.
+        var slDriverMeta = [];
         var slDrivers = slDriverItems.slice(0, 4).map(function(it, i) {
+          slDriverMeta.push({
+            headline: it.headline, date: it.date, impact: it.impact,
+            issueKey: it.issueKey, badge: it.badge,
+            anchor: 'sl-driver-' + safeSlId + '-' + i
+          });
           return _slCard({
             badge: it.badge,
             accent: it.kind === 'spotlight' ? '167,139,250' : '96,165,250',
@@ -5066,18 +5084,25 @@
         //    not flagged as ▲/▼ drivers. Entries explicitly tagged impact:'neutral'
         //    are honored with a "no score impact" pill so a curator's intent reads
         //    clearly; untagged entries simply appear as news.
-        var slNews = [];
+        //    Each card is now anchored too (id = sl-news-<id>-<i>), because the
+        //    compact digest above the fold has to be able to jump to any item's
+        //    full write-up — that is what makes compressing this block cost the
+        //    reader no depth at all.
+        var slNews = [], slNewsMeta = [];
         // The official's own documented positions, keyed by ISSUE_MAP key, so a
         // curated Spotlight item tagged with an `issueKey` can be matched against
         // a stance they actually hold — turning a news card into "expands on
         // their position on X" (the Snapshot↔Spotlight bridge built in _slCard).
         var _slPosMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(id, p) || {}) : {};
         function _slTieReady(ik) { return !!(ik && typeof window._issueLabel === 'function' && window._issueLabel(ik)); }
+        function _slNewsAnchor() { return 'sl-news-' + safeSlId + '-' + slNewsMeta.length; }
         (spotlightData[id] || []).forEach(function(it) {
           var cls = _slClassifyNews(it.headline, it.facts);
           var ik = it.issueKey;
+          var anc = _slNewsAnchor();
+          slNewsMeta.push({ headline: it.headline, date: it.date, impact: null, issueKey: ik, badge: cls.badge, anchor: anc });
           slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why, source: it.source,
-            media: it.media, sourceType: it.sourceType,
+            media: it.media, sourceType: it.sourceType, anchorId: anc,
             issueKey: ik, heldPosition: (ik && _slPosMap[ik]) ? _slPosMap[ik] : null,
             topic: _slTieReady(ik) ? '' : _slIssueTag(it.headline, it.facts) }));
         });
@@ -5087,23 +5112,28 @@
           var _neutral = it.impact === 'neutral';
           var cls = _slClassifyNews(_h, _b);
           var ik2 = it.issueKey;
+          var anc2 = _slNewsAnchor();
+          slNewsMeta.push({ headline: _h, date: it.date, impact: null, issueKey: ik2, badge: it.badge || (_neutral ? 'Context' : cls.badge), anchor: anc2 });
           slNews.push(_slCard({ badge: it.badge || (_neutral ? 'Context' : cls.badge), accent: _neutral ? '120,140,170' : cls.accent, date: it.date,
             headline: _h, body: _b, why: it.why, source: it.source,
-            media: it.media, sourceType: it.sourceType,
+            media: it.media, sourceType: it.sourceType, anchorId: anc2,
             impact: (_neutral ? 'neutral' : undefined), category: it.category,
             issueKey: ik2, heldPosition: (ik2 && _slPosMap[ik2]) ? _slPosMap[ik2] : null,
             topic: _slTieReady(ik2) ? '' : _slIssueTag(_h, _b) }));
         });
 
         // Connective lead-in shown above any populated Spotlight. Frames the
-        // section as THIS official's real record — issues, public statements and
-        // notable actions — and names the two-way link to the scores above, so
-        // Spotlight reads as the evidence behind the numbers rather than a stray
-        // news feed.
+        // section as THIS official's real record and names its lane, in ONE
+        // sentence plus a legend. The long version this replaced ran four clauses
+        // and repeated what the section title, the theme banner and the pattern
+        // bar already say — three explanations of the same thing stacked above the
+        // content is a large part of why this block dominated the profile.
         function _slIntro() {
-          return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
-            'The personal-integrity record behind ' + _slLast + '’s accountability read — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane, deliberately separate from the 🏛️ Official Record (votes and formal actions) and from 🤝 Promise Follow-Through (discrete promises kept vs. broken). ' +
-            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the accountability analysis, and a <span style="color:#c4b5fd;font-weight:700;">🔗 issue link</span> ties an item to a position ' + _slLast + ' holds — tap it to see that stance in their record.' +
+          return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.7rem;">' +
+            'The <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane of ' + _slLast +
+            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and 🤝 Promise Follow-Through. ' +
+            '<span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> items feed the accountability read; ' +
+            '<span style="color:#c4b5fd;font-weight:700;">🔗</span> ties an item to a position ' + _slLast + ' holds.' +
           '</p>';
         }
 
@@ -5134,14 +5164,63 @@
         }
 
         if (slDrivers.length || slNews.length) {
-          var slBody = '';
           var slThemeHtml = (typeof window._slThemeBanner === 'function') ? window._slThemeBanner(p, id) : '';
           var slPatternHtml = (typeof window._slPatternBar === 'function') ? window._slPatternBar(slDriverItems, 'full') : '';
-          if (slDrivers.length) slBody += slThemeHtml + slPatternHtml + _slDriverHeader() + slDrivers.join('');
-          else slBody += slThemeHtml;
-          if (slNews.length) slBody += _slNewsHeader() + slNews.join('');
+
+          // ── SPOTLIGHT REAL ESTATE ──────────────────────────────────────────
+          // This block used to render up to four full driver cards followed by
+          // EVERY news card, in the page flow, above the money and you-and-them
+          // stages. Each card carries a badge, a headline, a body paragraph, a
+          // "why it matters" box, a source row, an issue bridge, chips and a
+          // like/comment widget — roughly 300px apiece. On a well-documented
+          // official that is several screens of Spotlight sitting on top of the
+          // accountability spine, which is exactly backwards: a Spotlight item is
+          // a receipt, and receipts belong under the claim they support.
+          //
+          // Nothing is deleted. The visible layer is now a compact digest — one
+          // ~44px row per item carrying its impact glyph, headline, date, issue
+          // and the same receipt chips the Connecting the Dots chain uses — and
+          // every row jumps to that item's own full card, which now lives one tap
+          // away in a closed drawer. Anchors, engagement widgets, sources, the
+          // Accountability cross-link and the index-for-index mapping to the
+          // score breakdown are all byte-identical to before; they moved, they
+          // did not change. Progressive disclosure, not truncation.
+          var slDigest = '';
+          try {
+            slDigest = (window.PDXDossier && typeof window.PDXDossier.digestHtml === 'function')
+              ? (window.PDXDossier.digestHtml(id, slDriverMeta.concat(slNewsMeta), { p: p }) || '')
+              : '';
+          } catch (e) { slDigest = ''; }
+
+          var slFull = '';
+          if (slDrivers.length) slFull += _slDriverHeader() + slDrivers.join('');
+          if (slNews.length) slFull += _slNewsHeader() + slNews.join('');
+
+          var slTotal = slDrivers.length + slNews.length;
+          var slDdId = 'sl-full-' + safeSlId;
+          var slBody = slThemeHtml + slPatternHtml;
+          if (slDigest) {
+            // Digest present: the compact ledger leads, the full write-ups sit in
+            // a labelled drawer beneath it.
+            slBody += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin:0.2rem 0 0;">🛡️ The record, most consequential first</div>' +
+              slDigest +
+              '<button class="dd-toggle-btn" onclick="toggleDD(\'' + slDdId + '\')" id="btn-' + slDdId + '" type="button" aria-controls="' + slDdId + '" aria-expanded="false" style="margin-top:0.6rem;">' +
+                '<span style="display:flex;align-items:center;gap:0.5rem;min-width:0;">' +
+                  '<span aria-hidden="true">🔦</span>' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#dbe6f5;">Read all ' + slTotal + ' item' + (slTotal === 1 ? '' : 's') + ' in full</span>' +
+                '</span>' +
+                '<svg class="dd-chevron w-4 h-4" fill="none" stroke="#7596c0" viewBox="0 0 24 24" aria-hidden="true">' +
+                  '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+              '</button>' +
+              '<div class="dd-body dd-free" id="' + slDdId + '"><div class="dd-inner">' + slFull + '</div></div>';
+          } else {
+            // No digest renderer available (profile-dossier.js absent): fall back
+            // to the full cards inline rather than losing the content.
+            slBody += slFull;
+          }
+
           return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + _slIntro() + slBody +
-            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the accountability read — tap one to see it in the breakdown, or open the full analysis. Sources linked inline.</p>' +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the accountability read — tap one to open it in full, or open the full analysis. Sources linked inline.</p>' +
             _slAlignFooter() +
           '</div>';
         }

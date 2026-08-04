@@ -663,12 +663,40 @@
           role: 'Supporting receipts and context — never folded into this percentage',
           n: 'Detail' });
       }
+      // The receipt layer, named as a feed rather than left to look like a
+      // separate vault. It is context, not arithmetic: the Locker documents the
+      // word and the actions above, and changes no number on this card. The count
+      // is read back through the Locker's own accessor so it always matches what
+      // the filtered library actually contains, and the row is dropped entirely
+      // while that library is still loading rather than guessing at a figure.
+      try {
+        var lockN = (typeof window._pdxLockerItemCount === 'function') ? window._pdxLockerItemCount(pid) : 0;
+        if (lockN) {
+          rows.push({ ico: '📂', name: 'Evidence Locker', target: 'pdxsec-evidence', counted: false,
+            role: 'The receipts behind the word and the record — documents, clips and citations',
+            n: lockN + ' item' + (lockN === 1 ? '' : 's') });
+        }
+      } catch (e) {}
+      // Where these same issues get argued out in public. Also context: a
+      // Spotlight can put a vote in its setting, but it never tests a statement,
+      // so it is listed and never counted.
+      try {
+        var slN = (window.PDXSpotlight && typeof window.PDXSpotlight.forPolitician === 'function')
+          ? (window.PDXSpotlight.forPolitician(pid) || []).length : 0;
+        if (slN) {
+          rows.push({ ico: '🔦', name: 'Issue Spotlights', target: 'spotlight-modal-section', counted: false,
+            role: 'The issues these statements land in, argued out in public — context, never a test',
+            n: slN + ' featured' });
+        }
+      } catch (e) {}
       return '' +
         '<div class="pdxwa-feeds">' +
           '<div class="pdxwa-feeds-h">What feeds this score</div>' +
           '<ul class="pdxwa-feeds-l">' + rows.map(feedRowHtml).join('') + '</ul>' +
-          '<p class="pdxwa-feeds-foot">One score, several layers of evidence. Each section below shows its own ' +
-            'working — counts, verdicts and sources — and this is the only place they are pooled into a percentage.</p>' +
+          '<p class="pdxwa-feeds-foot">One score, several layers of evidence. The solid rows are what the ' +
+            'percentage is made of; the faded ones are the receipt and context layers that document it and ' +
+            'change no number. Each section below shows its own working — counts, verdicts and sources — and ' +
+            'this is the only place any of it is pooled into a percentage.</p>' +
         '</div>';
     } catch (e) { return ''; }
   }

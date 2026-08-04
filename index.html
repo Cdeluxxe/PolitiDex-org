@@ -1843,6 +1843,13 @@ window.PDXLazy = (function () {
        layout even if the CSS arrives after the first paint. -->
   <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
+  <!-- 🧩 Dossier join layer — the five-link chain's visual grammar, the reusable
+       receipt chips, the compact Issue Spotlight rail that replaced three stacked
+       full-width callouts above the accountability spine, and the compact
+       Spotlight digest (profile-dossier.js). Modal-only and below the fold, so it
+       loads non-blocking like the rest of the profile CSS. -->
+  <link rel="stylesheet" href="/profile-dossier.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/profile-dossier.css" /></noscript>
   <!-- Journey — the guided spine (breadcrumb) + the shared next-action rail on
        every receipt (see journey.js). Non-blocking, but preloaded at high
        priority: the rail is injected into the page flow beneath receipt cards
@@ -18393,6 +18400,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        calls sectionHtml() and profile-connect.js calls dotsHtml(), and both only
        run when a visitor opens a profile, long after these defer scripts have. -->
   <script defer src="word-action.js"></script>
+  <!-- 🧩 The dossier join layer (window.PDXDossier) — the ONE place that threads a
+       single issue through all five links: what they said → what they formally did
+       → the receipts that document it → the issue and its Spotlights → what it
+       means for the ⚖️ Word vs Action score. Every consumer on a profile reads the
+       chain from here (Connecting the Dots, the compact Spotlight rail and digest),
+       which is what stops the next surface inventing a sixth retelling of the same
+       story. Derives everything from existing accessors — _issueEvidenceMap,
+       _pdxEvidenceDepthForPerson, _pdxRecordIssueItems, PDXSpotlight.forIssueKey,
+       PDXWordAction — adds no data and emits no second score. Loaded after
+       word-action.js because it augments its rows. -->
+  <script defer src="profile-dossier.js"></script>
   <!-- Connecting the Dots — additive profile synthesis spine (window._pdxConnectDots).
        Loaded after the feature modules it reads at render time (PDXStances,
        PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap,
@@ -25404,8 +25422,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       document.addEventListener('DOMContentLoaded', function () { bootDeepLink(0); });
     } else { bootDeepLink(0); }
 
-    // ── Cross-link: "Related Issue Spotlight" callout inside a profile modal ──
+    // ── Cross-link: compact "Issue Spotlight" rail inside a profile modal ────
     // Called at the end of openModal (see the showProfile/openModal render).
+    //
+    // This used to emit up to THREE full-width callout cards — icon, kicker,
+    // title, arrow, ~64px each — stacked directly between the profile hero and
+    // the accountability spine. On a phone that pushed the primary Word vs Action
+    // score most of a screen further down, which made a cross-link the loudest
+    // thing above the score it was cross-linking from.
+    //
+    // Same destinations, same cap, one line: a labelled rail of title chips
+    // (PDXDossier.railHtml). Each chip still opens the full Spotlight. The
+    // fallback below keeps the old callout markup for the case where the dossier
+    // module has not loaded, so the entry point never disappears entirely.
     window._pdxRelatedSpotlight = function (id) {
       try {
         var sps = window.PDXSpotlight.forPolitician(id);
@@ -25418,7 +25447,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (existing) existing.parentNode.removeChild(existing);
         var block = document.createElement('div');
         block.className = 'pdxis-callout-block';
-        block.innerHTML = sps.map(function (sp) {
+        var rail = '';
+        try {
+          rail = (window.PDXDossier && typeof window.PDXDossier.railHtml === 'function')
+            ? (window.PDXDossier.railHtml(id, sps) || '') : '';
+        } catch (e) { rail = ''; }
+        block.innerHTML = rail || sps.map(function (sp) {
           return '<button type="button" class="pdxis-callout" data-spotlight="' + esc(sp.slug) + '">' +
             '<span class="pdxis-callout-ico">🔦</span>' +
             '<span class="pdxis-callout-body">' +

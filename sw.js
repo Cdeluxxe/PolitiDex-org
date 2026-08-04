@@ -34,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v44';
+const CACHE_VERSION = 'v45';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -126,6 +126,16 @@ const SHELL_ASSETS = [
   // copy is useful on its own.
   '/word-action.js',
   '/word-action.css',
+  // 🧩 The dossier join layer (window.PDXDossier) and its stylesheet — the single
+  // place that threads one issue through word → action → evidence → issue and
+  // spotlight → outcome, and the source of the compact Spotlight rail and digest.
+  // Precached alongside word-action because they are two halves of one reading:
+  // without the script, Connecting the Dots falls back to three-step rows and the
+  // Spotlight block re-expands to its full-card layout, so a repeat visitor would
+  // get a materially different profile offline than online. Everything it reads is
+  // a guarded optional lookup, so a cached copy is useful on its own.
+  '/profile-dossier.js',
+  '/profile-dossier.css',
   '/coverage.js',
   '/manifest.json',
   '/assets/icon.svg',
