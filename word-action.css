@@ -435,6 +435,25 @@
   text-transform: uppercase;
 }
 
+/* ── The withheld pledge rate ────────────────────────────────────────────────
+   Same slot as .pdx-ft-rate above, for records whose kept / broken counts have
+   no itemized pledge list behind them. Not a disclosure: there is no number to
+   reveal, so nothing here opens. It reads as a stated omission — plain body copy
+   in the muted note colour, deliberately without the gold or red the rate colours
+   use, because an absent rate is neither a good nor a bad result. The ⓘ explainer
+   button stays so the lane is still learnable. Rendered by profiles-full.js. */
+.pdx-ft-noRate {
+  margin-top: 0.55rem;
+  border-top: 1px solid rgba(159, 180, 212, 0.14);
+  padding-top: 0.5rem;
+}
+.pdx-ft-noRate-p {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #9fb4d4;
+}
+
 /* The way back up to the score this block feeds. Full-width on a phone because
    it is the last thing in the block and the thumb is already at the bottom. */
 .pdx-ft-primary {

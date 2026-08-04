@@ -18,6 +18,27 @@
   // and dynamically populated from Firestore.
 
   // ════════════════════════════════════════════════════════════
+  // ONE ACCESSOR FOR A RECORD'S SIGNATURE ISSUES
+  // ────────────────────────────────────────────────────────────
+  // A roster record stores this list under `issues`; Firestore-backed and
+  // admin-authored records store it under `keyIssues`. Both spellings are real
+  // and both are in use, so every read has to accept either. Reading only one
+  // of them is why the profile's 🎯 Key Issues section rendered blank for the
+  // entire static roster: all 756 CMP_DATA records carry `issues`, none carry
+  // `keyIssues`, and the section gated on `p.keyIssues && p.keyIssues.length`.
+  //
+  // `issues` wins when both are present, matching the precedence the page shell
+  // already uses (`p.issues || p.keyIssues`). Always returns an array so callers
+  // can `.length` / `.map` / `.slice` without their own guard.
+  // ════════════════════════════════════════════════════════════
+  window._pdxKeyIssues = function (p) {
+    if (!p) return [];
+    if (Array.isArray(p.issues) && p.issues.length) return p.issues;
+    if (Array.isArray(p.keyIssues) && p.keyIssues.length) return p.keyIssues;
+    return [];
+  };
+
+  // ════════════════════════════════════════════════════════════
   // POPULATE DIR_DATA FROM PROFILES (dynamic — picks up all entries)
   // ════════════════════════════════════════════════════════════
   window._populateDirData = function() {
@@ -56,7 +77,7 @@
         rank: rank,
         tier: p.tier || 'gray',
         icon: p.icon || '🏛',
-        issues: p.keyIssues || [],
+        issues: window._pdxKeyIssues(p),
         bio: p.bio || '',
         photo: p.photo || ''
       };
@@ -700,7 +721,7 @@
       // Fall back to the politician's tracked key issues so the section is
       // still informative. For a sitting official the position is flagged as
       // not-yet-documented; for a candidate it is presented as a stated priority.
-      var ki = (p.keyIssues || []).slice(0, 6);
+      var ki = window._pdxKeyIssues(p).slice(0, 6);
       if (!ki.length) {
         // No documented stances AND no tagged issues. For a complete
         // officeholder record we still deliberately omit the section to avoid
@@ -2604,7 +2625,7 @@
       // priorities they are campaigning on.
       var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
       var keyed = stanceList.filter(function(s) { return s && s.issueKey; });
-      var keyIssues = (p.keyIssues || []);
+      var keyIssues = window._pdxKeyIssues(p);
       var statedCount = stanceList.length || keyIssues.length;
       var trackedIssueCount = keyed.length || keyIssues.length;
       // A position is "recorded" when it carries concrete evidence — a named
@@ -3051,7 +3072,18 @@
       }
       return null;
     }
-    var promiseScore = (typeof p.score === 'number') ? p.score : null;
+    // The 'Keeps Promises' principle below publishes this as a percentage, so it
+    // has to obey the same display guard as every other pledge surface — reading
+    // `p.score` raw here is how the mandate block ended up asserting a rate that
+    // the pledge lane on the same profile refuses to print. The principles list
+    // filters out null scores, so a withheld figure simply drops its row rather
+    // than showing a zero. An explicit admin override (`ov.promises`, applied at
+    // the pick() below) still wins: that is a human deliberately publishing a
+    // number.
+    var promiseScore = (typeof window._pdxDisplayScore === 'function')
+      ? window._pdxDisplayScore(p)
+      : ((typeof p.score === 'number') ? p.score : null);
+    if (promiseScore === undefined) promiseScore = null;
     // Prefer the live, transparent Constituents-First finance signal (computed
     // from itemized FEC / Utah-disclosure buckets, with its reasons shown below);
     // fall back to the curated FINANCE_INTEGRITY seed for anyone without a filing.
@@ -3144,23 +3176,40 @@
   // (as the browse-card strip does) and the raw ratio is the headline, exactly
   // as before.
   // ════════════════════════════════════════════════════════════
-  window._ftMeta = function(kept, broken, pending, published){
+  window._ftMeta = function(kept, broken, pending, published, itemized){
     kept = +kept || 0; broken = +broken || 0; pending = +pending || 0;
     var resolved = kept + broken;
-    var raw = resolved ? Math.round(kept / resolved * 100) : null;
+    // `itemized === false` is the caller stating positively that this record has
+    // summary counts with no inspectable pledge list. In that shape NO rate is
+    // computed — not the published one, and not the raw ratio either, because
+    // kept/resolved is the same unauditable percentage arrived at by division
+    // instead of by lookup. Left undefined (the browse-card strip, older callers)
+    // the behaviour is exactly as before.
+    var noRate = (itemized === false);
+    var raw = (resolved && !noRate) ? Math.round(kept / resolved * 100) : null;
     // A published figure only counts when there is something to publish about;
     // with nothing resolved the honesty guard has already returned null.
-    var pub = (published === null || published === undefined || published === '' || isNaN(+published))
+    var pub = (noRate || published === null || published === undefined || published === '' || isNaN(+published))
       ? null : Math.round(+published);
     var rate = (resolved && pub !== null) ? pub : raw;
     var col = rate === null ? '#9fb4d4' : rate >= 70 ? '#4ade80' : rate >= 50 ? '#f5c842' : '#f87171';
-    var verdict = rate === null ? 'Tracking' : rate >= 70 ? 'Keeps Their Promises' : rate >= 50 ? 'Mixed Promise Record' : 'Breaks Promises';
-    var sub = rate === null ? 'No promises have resolved yet — monitoring in progress.'
+    // The counts-only state gets its own verdict line rather than borrowing
+    // 'Tracking', which would misdescribe a record where 35 pledges have already
+    // closed. It names what is known and stops there.
+    var verdict = noRate && resolved ? 'Pledge Record on File'
+                : rate === null ? 'Tracking'
+                : rate >= 70 ? 'Keeps Their Promises'
+                : rate >= 50 ? 'Mixed Promise Record' : 'Breaks Promises';
+    var sub = noRate && resolved ? 'Kept and broken counts are on file. The individual pledges are not itemized yet, so no follow-through rate is published for them.'
+            : rate === null ? 'No promises have resolved yet — monitoring in progress.'
             : rate >= 70 ? 'Mostly follows through on the promises they make.'
             : rate >= 50 ? 'Follows through on about half of their promises.'
             : 'Frequently fails to follow through on the promises they make.';
-    var ico = rate === null ? '🔍' : rate >= 70 ? '🤝' : rate >= 50 ? '⚖️' : '⚠️';
+    var ico = noRate && resolved ? '📋'
+            : rate === null ? '🔍'
+            : rate >= 70 ? '🤝' : rate >= 50 ? '⚖️' : '⚠️';
     return { kept:kept, broken:broken, pending:pending, resolved:resolved, rate:rate, raw:raw,
+             itemized:!noRate, countsOnly:(noRate && resolved > 0),
              weighted:(rate !== null && raw !== null && rate !== raw), col:col, verdict:verdict, sub:sub, ico:ico };
   };
 
@@ -3182,16 +3231,33 @@
   // `published` is the profile's headline promise figure so this block and the
   // hero ring above it cannot disagree; the raw ratio it was weighted from is
   // stated inline rather than only inside the collapsed Deep Dive.
-  window._renderFollowThrough = function(kept, broken, pending, pid, published){
-    var m = window._ftMeta(kept, broken, pending, published);
+  //
+  // `itemized` is the second honesty guard. Pass `false` and this block renders
+  // its counts, its verdict line and its explainer but publishes NO rate at all:
+  // no percentage, no split bar (a 77/23 bar is the same percentage drawn instead
+  // of written), and no filter hint promising to filter a list that is empty. See
+  // _pdxHasItemizedPledges in index.html for why counts alone do not earn a rate.
+  window._renderFollowThrough = function(kept, broken, pending, pid, published, itemized){
+    var m = window._ftMeta(kept, broken, pending, published, itemized);
     if (m.resolved === 0 && m.pending === 0) return '';
     var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
     var brokenPct = m.resolved ? 100 - keptPct : 0;
     var rateTxt = m.rate === null ? '—' : m.rate + '%';
+    // With no itemized ledger there is nothing below to filter TO, so the counts
+    // stay as plain, readable counts rather than dead buttons.
+    var interactive = m.itemized;
     // The rate opens the same Promise % explainer used by the cards.
     var ftClick = ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
       ' title="How is Promise Follow-Through calculated?"';
+    function countChip(kind, ico, n, label) {
+      if (!interactive) {
+        return '<span class="vbadge vbadge-' + kind + '">' + ico + ' ' + n + ' ' + label + '</span>';
+      }
+      return '<span class="vbadge vbadge-' + kind + ' vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="' + kind + '"' +
+        ' onclick="window._pdxBadgeClick(\'' + kind + '\')" onkeydown="window._pdxBadgeKey(event,\'' + kind + '\')"' +
+        ' title="Show the ' + kind + ' promises">' + ico + ' ' + n + ' ' + label + '</span>';
+    }
     // DEMOTED, NOT DELETED. This block used to open with the rate set in 1.6rem
     // type — larger than the profile's own headline ring — which is what made a
     // profile read as rival scores. The pledge lane now leads with its VERDICT and
@@ -3205,20 +3271,25 @@
           '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
           '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
         '</div>' +
-        (m.resolved ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
+        ((m.resolved && m.itemized) ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
           '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
           '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
         '</div>' : '') +
         '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;">' +
-          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="kept" onclick="window._pdxBadgeClick(\'kept\')" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
-          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="broken" onclick="window._pdxBadgeClick(\'broken\')" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
-          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
+          countChip('kept', '✓', m.kept, 'Kept') +
+          countChip('broken', '✗', m.broken, 'Broken') +
+          countChip('pending', '⏳', m.pending, 'Pending') +
         '</div>' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
+        (interactive
+          ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>'
+          : '') +
         // The pledge-only percentage, kept as supporting detail. Body-text size, one
         // tap down, and explicitly scoped ("pledges only") so it cannot be mistaken
-        // for the profile's overall read.
-        '<details class="pdx-ft-rate">' +
+        // for the profile's overall read. Replaced outright — not merely emptied —
+        // when the ledger is not itemized, so no surface offers to disclose a rate
+        // it then cannot produce.
+        (m.itemized
+        ? '<details class="pdx-ft-rate">' +
           '<summary class="pdx-ft-rate-sum">Pledge-only rate' + (m.rate === null ? '' : ' · ' + rateTxt) + '</summary>' +
           '<div class="pdx-ft-rate-b">' +
             '<p><b style="color:#cbd9ec;">Promises Kept</b> — ' + rateTxt +
@@ -3229,7 +3300,18 @@
               (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the published figure sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
             '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this calculated?</button>' +
           '</div>' +
-        '</details>' +
+        '</details>'
+        // Counts-only: state plainly that no rate is published and why, and keep
+        // the ⓘ explainer reachable so a reader can still learn how the lane works.
+        // This is the substitute for the disclosure above, not an addition to it —
+        // the one thing that must never appear here is a number.
+        : '<div class="pdx-ft-noRate">' +
+            '<p class="pdx-ft-noRate-p">' +
+              'No follow-through rate is published for this pledge lane: the kept and broken counts above are on file, but the individual pledges behind them are not itemized yet, so the figure could not be checked against anything. ' +
+              'The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above is unaffected — it scores their stated positions and campaign issues against the official record.' +
+            '</p>' +
+            '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this lane calculated?</button>' +
+          '</div>') +
         // Says out loud where this number sits now. Without it the block just looks
         // smaller for no stated reason, and a reader who remembers it as the
         // headline has no way to tell whether it was demoted or degraded. The link
@@ -3610,6 +3692,15 @@
     const promiseState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : (scoreNum === null ? 'empty' : 'resolved');
     const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
     const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
+    // Does this record carry an inspectable pledge list, or only summary counts?
+    // The pledge lane publishes a rate in the first case and counts only in the
+    // second. Resolved once here and passed down so the hero chip, the header and
+    // the Follow-Through block cannot reach different conclusions about the same
+    // record. Defaults to `true` when the helper is absent so an older shell never
+    // silently suppresses a rate it used to publish.
+    const pledgeItemized = (typeof window._pdxHasItemizedPledges === 'function')
+      ? window._pdxHasItemizedPledges(p) : true;
+    const countsNote = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p) : '';
     // The pledge ledger as COUNTS, for the supporting chip under the ring. The
     // header keeps this information — how many promises actually closed, and
     // which way — without restating it as a second percentage that would compete
@@ -3662,7 +3753,8 @@
       </div>`);
 
     // Key issues pills
-    const issuePills = (p.keyIssues || []).map(i => `<span class="issue-pill">${i}</span>`).join('');
+    const _keyIssues = window._pdxKeyIssues(p);
+    const issuePills = _keyIssues.map(i => `<span class="issue-pill">${i}</span>`).join('');
 
     // Promise table rows
     const verdictMap = {
@@ -3785,7 +3877,7 @@
           '<p class="ptn-text">' + (_isChallenger
             ? ('This politician is running as a ' + (_is2026 ? '2026 challenger' : 'challenger') + ' and does not yet have a legislative voting record in this office, so there is nothing to score yet. We are tracking their stated positions now and will log kept-and-broken promises as the race develops.')
             : 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
-          '<div class="ptn-hint">↓ ' + ((p.keyIssues && p.keyIssues.length) ? 'Their key issues and stated positions are below' : 'Their stated positions are below') + '</div>' +
+          '<div class="ptn-hint">↓ ' + (window._pdxKeyIssues(p).length ? 'Their key issues and stated positions are below' : 'Their stated positions are below') + '</div>' +
           _thinNext +
         '</div>' +
       '</div>'
@@ -3892,7 +3984,7 @@
       const _ats = p.updatedAt || p.createdAt;
       if (_ats && typeof window._pdxRelTime === 'function') _navActivityRel = window._pdxRelTime(_ats);
     } catch (e) { _navActivityRel = ''; }
-    const _navActivityHas = !!(_navActivityRel || (p.promises && p.promises.length) || _navEvidenceCount || (p.keyIssues && p.keyIssues.length));
+    const _navActivityHas = !!(_navActivityRel || (p.promises && p.promises.length) || _navEvidenceCount || window._pdxKeyIssues(p).length);
     const _navActivityVal = _navActivityRel ? ('Updated ' + _navActivityRel)
       : ((p.promises && p.promises.length) ? (p.promises.length + ' tracked')
       : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
@@ -3934,8 +4026,8 @@
       }
     }
     // Positions — number of tracked key issues.
-    if (p.keyIssues && p.keyIssues.length) {
-      const _n = p.keyIssues.length;
+    if (window._pdxKeyIssues(p).length) {
+      const _n = window._pdxKeyIssues(p).length;
       _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
       // Full Report — a dedicated rail entry that OPENS the Full Stance Record
       // overlay (every issue + evidence depth + honest gaps) rather than scrolling
@@ -4059,7 +4151,14 @@
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
             ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
-            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (promiseState === 'tracking' ? '⏳ ' + trackingNote : '◷ No voting record yet') + '</span>' : ''}
+            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (
+              // 'counts' is a record with a real, closed pledge ledger that simply
+              // is not itemized. It must NOT wear "No voting record yet" — that chip
+              // was written for a profile with nothing on file, and on a member with
+              // 27 kept and 8 broken it is plainly false. Say what is actually known.
+              promiseState === 'counts' ? '🤝 ' + countsNote
+              : promiseState === 'tracking' ? '⏳ ' + trackingNote
+              : '◷ No voting record yet') + '</span>' : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>
@@ -4160,7 +4259,7 @@
            than as a separate scoring religion. The 🏛️ Official Record and 🧾 Say-vs-Do
            lanes have their own sections further down and are never folded into it. -->
       <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum) : ''}
+      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum, pledgeItemized) : ''}
 
       <!-- Accountability of Truth Score — retired as a headline number; the renderer
            returns '' (see accountability-score.js). The container stays so
@@ -4190,7 +4289,7 @@
            record below. Only rendered when there are issues, so a profile without
            tagged issues never shows an empty section. -->
       <span id="pdxsec-positions" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(p.keyIssues && p.keyIssues.length) ? `<div class="modal-section">
+      ${_keyIssues.length ? `<div class="modal-section">
         <div class="modal-section-title">🎯 Key Issues</div>
         <p class="modal-section-sub">The issues this official is most defined by — the lens for the record below.</p>
         <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">${issuePills}</div>
@@ -5261,10 +5360,10 @@
               topic:_slIssueTag(k, txt) });
           });
         }
-        if (derived.length < 3 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
+        if (derived.length < 3 && p && window._pdxKeyIssues(p).length) {
           _slPush({ badge:'🎯 Top Priorities', accent:'96,165,250',
             headline:'What ' + _slLast + ' is focused on',
-            body: p.keyIssues.slice(0, 6).join('&nbsp;·&nbsp;') });
+            body: window._pdxKeyIssues(p).slice(0, 6).join('&nbsp;·&nbsp;') });
         }
 
         if (derived.length) {
@@ -5382,7 +5481,7 @@
         if (_navActivityRel) chips += chip('Last updated', _navActivityRel);
         if (p.promises && p.promises.length) chips += chip('Promises tracked', p.promises.length);
         if (_navEvidenceCount) chips += chip('Evidence', _navEvidenceCount);
-        if (p.keyIssues && p.keyIssues.length) chips += chip('Key issues', p.keyIssues.length);
+        if (window._pdxKeyIssues(p).length) chips += chip('Key issues', window._pdxKeyIssues(p).length);
         if (!chips) return '';
         return '<div class="modal-section" id="pdxsec-activity">' +
             '<div class="modal-section-title">🕑 Activity</div>' +

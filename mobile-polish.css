@@ -35,7 +35,12 @@
 .sl-pol-act, .sl-search-clear, .sl-thread, .sl-rec-btn,
 .cmp-empty-cta, .cmp-issue-allev, .cmp-vs-link,
 .nav-link, .nav-mandate-btn, .btn-tap, .vh-cta-primary, .vh-step-cta,
-.li-card {
+.li-card,
+/* Politician profile: the drawer toggles, the jump rail's pills and the pledge
+   count chips are the controls a reader taps most on a phone, and none of them
+   had opted in — every tap paid the ~300ms double-tap-zoom wait, which reads as
+   the profile being slow rather than the browser being cautious. */
+.dd-toggle-btn, .pdx-pnav-pill, .vbadge-click, .pdx-ft-rate-how, .pdx-ft-rate-sum {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -66,6 +71,47 @@
     content-visibility: auto;
     contain-intrinsic-size: auto 150px;
   }
+  /* ── Profile modal sections ──────────────────────────────────────────────
+     The politician profile is the longest single view in the app — a dozen-plus
+     `.modal-section` blocks in one scroller — and it was the one long-list
+     surface this pass skipped, so the whole thing laid out and painted before
+     the first screen appeared. Lazy-painting the sections is the single biggest
+     win available here.
+
+     `content-visibility: auto` implies `contain: layout style paint`, which does
+     three things that can bite, so the exclusion list below is the "where safe"
+     part and each entry is there for a measured reason:
+
+       canvas             Chart.js sizes to its parent at draw time. A canvas in a
+                          skipped subtree measures 0×0 and stays broken after the
+                          section reveals.
+       .dd-body           _pdxNavJump reads getBoundingClientRect() on a jump
+                          target that can sit inside a drawer, and a skipped
+                          subtree reports zeros. Cheap to exclude: a closed
+                          .dd-body is not painted anyway, so little was saved.
+       #pdx-promise-filter,
+       .mandate-jump      position: sticky descendants — paint containment clips
+                          them to the section box, so a bar meant to stick to the
+                          scroller would scroll away with its section instead.
+       .pdx-sib-grid      its own horizontal scroller, with sticky header cells;
+                          same clipping problem, plus its width is not derivable
+                          from an intrinsic-size guess.
+       .pdxsp-dw          the spine's drawer-wrapper sections, per .dd-body above.
+
+     Scoped to #modal-body so nothing outside the profile is affected, and to
+     phones, where the paint cost actually hurts. `contain-intrinsic-size: auto`
+     keeps each section's real measured height once it has rendered, so the
+     scrollbar settles and the scroll-spy reads true positions after the first
+     pass; the 320px figure is only the first-paint placeholder. Sections keep
+     their own boxes while skipped, which is what the jump rail and the spy
+     measure, and find-in-page still reveals skipped content.
+
+     An engine without :has() support drops the whole rule, which is exactly the
+     pre-existing behaviour — so this degrades to a no-op rather than to a bug. */
+  #modal-body .modal-section:not(.pdxsp-dw):not(:has(canvas, .dd-body, #pdx-promise-filter, .mandate-jump, .pdx-sib-grid)) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 320px;
+  }
 }
 @media (max-width: 560px) {
   /* Local Issues collapses to one column at 560px — safe to lazy-paint here. */
@@ -88,6 +134,12 @@
 .ms-ov-panel {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+/* The profile's sticky jump rail is a horizontal scroller like .sl-chips above.
+   Without containment, swiping it past either end chains into the modal body — or
+   into the browser's back-swipe gesture, which closes the profile mid-read. */
+.pdx-pnav-track {
+  overscroll-behavior-x: contain;
 }
 
 /* Land smooth-scroll / anchor jumps just below the fixed top nav instead of

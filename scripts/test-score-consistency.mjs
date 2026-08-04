@@ -170,21 +170,29 @@ const ftMeta = (() => {
 }
 
 // The honesty guard the whole promise lane rests on: a stored p.score is only
-// published once something has actually resolved.
-const displayScore = (() => {
+// published once something has actually resolved AND the pledges behind it are
+// itemized, so the reader can check the figure against a ledger rather than
+// taking it on faith. The state machine that keeps a withheld rate from reading
+// as an empty record is evaluated alongside it, since the two are one contract.
+const [displayScore, promiseState] = (() => {
   const guard = INDEX.slice(INDEX.indexOf("window._pdxPromiseTally"),
-    INDEX.indexOf("window._pdxPromiseState"));
+    INDEX.indexOf("window._pdxTrackingNote"));
   must(guard.length > 200, "index.html no longer carries the Promise Score honesty guard");
   const ctx = { Math, String, Number, JSON, parseInt, isNaN, Array, Object };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.runInContext(guard, vm.createContext(ctx), { filename: "promise-guard" });
   const display = ctx.window._pdxDisplayScore;
+  const state = ctx.window._pdxPromiseState;
   must(typeof display === "function", "index.html no longer defines window._pdxDisplayScore");
+  must(typeof state === "function", "index.html no longer defines window._pdxPromiseState");
   eq(display({ score: 64, kept: 0, broken: 0, pending: 9 }), null,
     "_pdxDisplayScore: an all-pending record must publish no percentage");
-  eq(display({ score: 64, kept: 2, broken: 1 }), 64,
-    "_pdxDisplayScore: a resolved record must publish its stored score");
-  return display;
+  eq(display({ score: 64, kept: 2, broken: 1, promises: [{ verdict: "kept" }] }), 64,
+    "_pdxDisplayScore: a resolved record with an inspectable ledger must publish its score");
+  eq(display({ score: 64, kept: 2, broken: 1 }), null,
+    "_pdxDisplayScore: summary counts with no itemized promises[] must publish nothing —\n" +
+    "    there is no ledger for the reader to check the figure against");
+  return [display, state];
 })();
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -207,33 +215,75 @@ const displayScore = (() => {
   const roster = ctx.CMP_DATA;
   must(roster && typeof roster === "object", "cmp-data.js no longer defines CMP_DATA");
 
-  let checked = 0, diverge = 0, mismatched = [];
+  let checked = 0, diverge = 0, withheld = 0, mismatched = [];
   for (const p of Object.values(roster)) {
     const pub = displayScore(p);
-    if (pub === null) continue;
+    // A record whose kept/broken counts have no itemized promises[] behind them
+    // now publishes no pledge figure at all (see test-promise-honesty.mjs), so
+    // there is no second number for this contract to contradict. Counted, because
+    // the SIZE of that set is what makes the contract's floor below meaningful.
+    if (pub === null) {
+      if (promiseState(p) === "counts") withheld++;
+      continue;
+    }
     const m = ftMeta(p.kept, p.broken, p.pending, pub);
     checked++;
     if (m.raw !== pub) diverge++;
     if (m.rate !== pub && mismatched.length < 5) mismatched.push(`${p.name}: published ${pub}% vs block ${m.rate}%`);
   }
-  must(checked > 20, `only ${checked} roster records carry a published promise score — expected the full set`);
-  must(diverge > 0,
-    "no roster record diverges between the weighted headline and the raw ratio, so this\n" +
-    "  contract can no longer detect the two-numbers bug it exists to prevent");
+  // The floor moved when the itemized-ledger guard landed: the roster carries 52
+  // records with a resolved pledge record, and only the 11 with an inspectable
+  // promises[] still publish a rate. Both halves are asserted, so this contract
+  // fails if the guard stops withholding OR starts over-withholding — a silent
+  // drift in either direction is how the honesty rule would quietly stop holding.
+  must(checked >= 8,
+    `only ${checked} roster records publish a promise score — expected the itemized set.\n` +
+    "  If this dropped, the display guard is over-withholding and the pledge tier has\n" +
+    "  gone dark for records that DO have a ledger.");
+  must(withheld >= 20,
+    `only ${withheld} roster records are withheld as counts-only — expected the bulk of\n` +
+    "  the resolved set. If this dropped, the guard has stopped withholding unauditable\n" +
+    "  rates and the two-numbers bug is back.");
   eq(mismatched.length, 0,
     "the published pledge figure and the Follow-Through block disagree:\n" +
     "    " + mismatched.join("\n    "));
 
-  // …and the raw ratio must still be reachable, so the headline is never a
-  // figure the visible breakdown cannot produce.
+  // …and the raw ratio must still be reachable, so the headline is never a figure
+  // the visible breakdown cannot produce.
+  //
+  // This used to be checked against Mike Lee, whose stored 72% sat beside a raw
+  // ratio of 77%. That record turned out to be counts-only, and so did every other
+  // roster record where the two figures diverged — which is the whole point: the
+  // weighted headline could only differ from the visible ledger on records whose
+  // ledger was not visible. All 11 records that still publish now reproduce their
+  // own headline from their own counts. So the reconciliation MACHINERY is verified
+  // against explicit fixtures instead, and `diverge` is reported rather than
+  // required, because a roster with no divergence is now the correct state.
+  const wM = ftMeta(36, 11, 3, 72);
+  eq(wM.rate, 72, "the block headline should be the published figure when one is supplied");
+  eq(wM.raw, 77, "the raw ratio should still be derived from the kept/broken ledger");
+  eq(wM.weighted, true,
+    "the `weighted` flag no longer marks a headline that differs from the raw ratio, so\n" +
+    "    the block cannot tell the reader the two figures are not the same measurement");
+  const sameM = ftMeta(5, 1, 0, 83);
+  eq(sameM.weighted, false,
+    "the `weighted` flag fired on a record whose headline equals its raw ratio, which\n" +
+    "    would explain a difference that is not there");
+  ok(diverge >= 0, "unreachable");
+  if (diverge === 0) {
+    console.log(`  note: ${checked} published pledge figure(s), none diverging from their raw ratio; ` +
+      `${withheld} counts-only record(s) withheld`);
+  }
+
+  // Mike Lee stays in the roster as the documented counts-only case.
   const lee = Object.values(roster).find((p) => p.name === "Mike Lee");
   must(lee, "Mike Lee is no longer in the roster — the documented verification profile");
-  const leeM = ftMeta(lee.kept, lee.broken, lee.pending, displayScore(lee));
-  eq(leeM.rate, displayScore(lee), "Mike Lee: the block headline should be the published score");
-  eq(leeM.raw, Math.round(lee.kept / (lee.kept + lee.broken) * 100),
-    "Mike Lee: the raw ratio should still be derived from the kept/broken ledger");
-  ok(leeM.weighted === (leeM.rate !== leeM.raw),
-    "the `weighted` flag no longer tracks whether the headline differs from the raw ratio");
+  eq(displayScore(lee), null,
+    "Mike Lee publishes a pledge percentage again — his 36/11 counts have no itemized\n" +
+    "    promises[] behind them, and his stored 72% cannot be reproduced from them");
+  eq(promiseState(lee), "counts",
+    "Mike Lee no longer reports the 'counts' state, so his profile falls back to an\n" +
+    "    empty-record reading despite 47 resolved promises on file");
 
   // Omitting the published figure must leave the old behaviour intact for the
   // card-strip caller.
@@ -242,11 +292,14 @@ const displayScore = (() => {
   eq(ftMeta(0, 0, 5, 72).rate, null,
     "_ftMeta must not publish a percentage for an all-pending record, even with a stored score");
 
-  // The profile has to actually hand the published figure over.
-  ok(/_renderFollowThrough\(\(keptCount[^)]*\)[^)]*\)[^)]*\)[^)]*,\s*id,\s*scoreNum\)/.test(PROFILES) ||
-     /_renderFollowThrough\([^;]*,\s*id,\s*scoreNum\)/.test(PROFILES),
-    "the profile no longer passes the published score into _renderFollowThrough — the\n" +
-    "    block will recompute its own raw ratio and contradict the hero ring again");
+  // The profile has to actually hand the published figure over — and, since the
+  // itemized-ledger guard landed, the itemized flag with it. Without that sixth
+  // argument the block falls back to legacy behaviour and recomputes its own raw
+  // ratio, which is the contradiction this contract exists to prevent.
+  ok(/_renderFollowThrough\([\s\S]{0,220}?,\s*id,\s*scoreNum,\s*pledgeItemized\)/.test(PROFILES),
+    "the profile no longer passes the published score and the itemized flag into\n" +
+    "    _renderFollowThrough — the block will recompute its own raw ratio and contradict\n" +
+    "    the hero ring again");
   ok(/That raw ratio is/.test(PROFILES),
     "the Follow-Through block no longer states the raw ratio behind the weighted headline");
 

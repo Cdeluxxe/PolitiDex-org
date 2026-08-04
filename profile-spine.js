@@ -238,14 +238,28 @@
   // ── The brief ───────────────────────────────────────────────────────────────
 
   // Signature issues: the positions this person is most documented on, ranked by
-  // how much of their own record is tied to each. p.keyIssues is the curated
-  // answer and wins when present; otherwise the ranking is derived from the same
-  // stance list and evidence map the Stance at a Glance index renders, so the
-  // brief and the index can never disagree about what is on file.
+  // how much of their own record is tied to each. The curated issue list is the
+  // preferred answer and wins when present; otherwise the ranking is derived from
+  // the same stance list and evidence map the Stance at a Glance index renders,
+  // so the brief and the index can never disagree about what is on file.
+  //
+  // That list lives under `issues` on a roster record and under `keyIssues` on a
+  // Firestore/admin-authored one. Reading only `keyIssues` here meant the brief
+  // silently fell through to the derived ranking for every static roster record,
+  // discarding the curated answer it says it prefers. _pdxKeyIssues() is the one
+  // accessor for both spellings; the inline fallback keeps this module readable
+  // on its own if profiles-full.js has not run yet.
   function signatureIssues(pid, p, max) {
     max = max || 3;
     var out = [];
-    var curated = (p && Array.isArray(p.keyIssues)) ? p.keyIssues.filter(Boolean) : [];
+    var curated = [];
+    if (p) {
+      curated = (typeof window._pdxKeyIssues === 'function')
+        ? window._pdxKeyIssues(p)
+        : (Array.isArray(p.issues) && p.issues.length ? p.issues
+            : (Array.isArray(p.keyIssues) ? p.keyIssues : []));
+      curated = curated.filter(Boolean);
+    }
     if (curated.length) {
       curated.slice(0, max).forEach(function (k) {
         var lbl = k;

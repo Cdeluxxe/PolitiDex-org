@@ -102,6 +102,14 @@
         var kept = +p.kept || 0, broken = +p.broken || 0, pending = +p.pending || 0;
         var resolved = kept + broken;
         var promiseKeeping = resolved ? clamp(kept / resolved * 100, 0, 100) : clamp(base, 0, 100);
+        // Whether those counts have an inspectable pledge list behind them. When
+        // they don't, `promiseKeeping` is still used as an internal weight for the
+        // composite /100 rating (unchanged), but it must not be QUOTED to the
+        // reader as a keep rate — kept/resolved on unitemized counts is precisely
+        // the pledge percentage the profile withholds, and stating it in prose
+        // publishes it just as surely as printing it in a score tile. The counts
+        // themselves are attested and stay in every sentence below.
+        var pkQuotable = (typeof window._pdxHasItemizedPledges !== 'function') || window._pdxHasItemizedPledges(p);
 
         // Extract stated positions
         var stances = p.stances || {};
@@ -183,7 +191,7 @@
           var _sdNeg = _sdAll.filter(function(d){ return d.kind === 'spotlight' && d.impact === 'negative'; });
           _sdPos.slice(0, 2).forEach(function(d){ strengths.push("**" + d.headline + ":** " + (d.body || d.why || 'Consistent between word and action.')); });
           // The promise-keeping line only when there is a resolved ledger to cite.
-          if (resolved > 0) strengths.push("**Promise follow-through:** " + kept + " kept vs " + broken + " broken — a " + promiseKeeping + "% keep rate on resolved commitments.");
+          if (resolved > 0) strengths.push("**Promise follow-through:** " + kept + " kept vs " + broken + " broken" + (pkQuotable ? " — a " + promiseKeeping + "% keep rate on resolved commitments." : " on resolved commitments. The individual pledges are not itemized yet, so no keep rate is published."));
           keptStances.slice(0, 3).forEach(function(s){ strengths.push("**" + s.label + ":** " + s.text); });
           keptProm.slice(0, 2).forEach(function(r){ strengths.push("**Kept — " + r.title + ":** " + (r.detail || 'Delivered as pledged.')); });
           if (issues.length) strengths.push("**Issue focus:** Sustained legislative engagement on " + issues.slice(0, 3).join(', ') + ".");
@@ -215,7 +223,7 @@
         } else {
           tvm = [];
           if (resolved > 0) {
-            tvm.push({ myth: '"' + first + '\'s promises are just campaign talk."', truth: 'The verified ledger shows ' + kept + ' kept vs ' + broken + ' broken promises — a ' + promiseKeeping + '% keep rate once pending items are set aside.' });
+            tvm.push({ myth: '"' + first + '\'s promises are just campaign talk."', truth: 'The verified ledger shows ' + kept + ' kept vs ' + broken + ' broken promises' + (pkQuotable ? ' — a ' + promiseKeeping + '% keep rate once pending items are set aside.' : '. Those counts are on file; the pledges behind them are not itemized yet, so no keep rate is published.') });
           } else {
             var _tvmPos = (typeof window._slComputeDrivers === 'function')
               ? window._slComputeDrivers(p, id).filter(function(d){ return d.kind === 'spotlight' && d.impact === 'positive'; })[0] : null;
@@ -237,7 +245,7 @@
         var consensus = curated && curated.consensus ? curated.consensus
           : ("Across an advocacy-minded analyst read and a skeptical fact-checker read, " + name + " lands at an Accountability Score of " + overall + "/100 (" + acctRating(overall) + "). " + (overall >= 65 ? "The record shows dependable follow-through with a few areas worth watching." : overall >= 50 ? "The record is genuinely mixed: real deliverables sit alongside notable gaps between rhetoric and action." : "The analysis surfaces significant divergence between stated commitments and verified action."));
 
-        var justification = name + " scores " + overall + "/100 — a weighted blend of promise-keeping (" + promiseKeeping + "%), voting consistency, rhetoric-vs-reality, controversy load, and transparency.";
+        var justification = name + " scores " + overall + "/100 — a weighted blend of promise-keeping" + (pkQuotable ? " (" + promiseKeeping + "%)" : "") + ", voting consistency, rhetoric-vs-reality, controversy load, and transparency.";
 
         return {
           politicianId: id,

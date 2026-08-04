@@ -3959,6 +3959,17 @@
       color: #b08d2e; line-height: 1.2; margin-top: 0.12rem;
     }
     .cmp-score-note-tracking { color: #f5c842; }
+    /* Counts-on-file variant: pledges resolved but were never itemized, so the
+       cell carries the counts in place of a percentage. Slate rather than gold —
+       this is not a pending state, it is a closed record with an unpublishable
+       rate — and it gets a little more room because it wraps to two lines. */
+    .cmp-score-note-counts { color: #9fb4d4; text-transform: none; letter-spacing: 0.03em; font-size: 0.58rem; }
+    .cmp-score-note-why { color: #7596c0; font-size: 0.52rem; }
+    .cmp-ft-counts {
+      display: inline-block; max-width: 110px;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.58rem; line-height: 1.25; color: #9fb4d4;
+    }
     .cmp-stat-pill {
       display: inline-flex; align-items: center; gap: 0.3rem;
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
@@ -4664,9 +4675,11 @@
       .cmp-col-score-ring .cmp-score-val { font-size: 1rem; }
       /* Phone: keep the score cells tight. The tracking note earns its space —
          it is the only thing distinguishing "tracked, none resolved" from an
-         empty record — but the "+N pending" aside next to a real percentage is
-         context the Pending / In Progress row already carries, so it steps out. */
-      .cmp-score-note:not(.cmp-score-note-tracking) { display: none; }
+         empty record — and so does the counts note, which is the only thing
+         distinguishing "rate withheld" from "nothing on file". The "+N pending"
+         aside next to a real percentage is context the Pending / In Progress row
+         already carries, so it steps out. */
+      .cmp-score-note:not(.cmp-score-note-tracking):not(.cmp-score-note-counts) { display: none; }
     }
 
     /* Card highlight when checked */
@@ -7289,6 +7302,19 @@
     .pdx-snap-score-tracking .pdx-snap-score-lbl-tracking { color: #f5c842; }
     .pdx-snap-score-tracking .pdx-snap-score-na-tracking { color: #b08d2e; }
     .pdx-snap-score-tracking.pdx-snap-score-click:hover { border-color: rgba(245,200,66,0.62) !important; }
+    /* Counts-on-file variant of the score rail — the pledge lane resolved, but
+       without an itemized ledger there is no rate to publish. Slate rather than
+       tracking gold: nothing here is pending, the record is closed and simply not
+       inspectable. The slot shows a handshake and the kept/broken counts, so the
+       rail states what IS known instead of falling back to "No record yet". */
+    .pdx-snap-score-counts {
+      border-color: rgba(159,180,212,0.30) !important;
+      background: linear-gradient(160deg, rgba(24,33,54,0.66), rgba(10,13,27,0.66));
+    }
+    .pdx-snap-score-counts .pdx-snap-score-num-counts { color: #cfe0f7; font-size: 1.42rem; line-height: 1.15; }
+    .pdx-snap-score-counts .pdx-snap-score-lbl-counts { color: #9fb4d4; }
+    .pdx-snap-score-counts .pdx-snap-score-na-counts { color: #7596c0; text-transform: none; letter-spacing: 0.02em; }
+    .pdx-snap-score-counts.pdx-snap-score-click:hover { border-color: rgba(159,180,212,0.58) !important; }
     .pdx-snap-metrics { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.72rem; }
     .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.6rem; }
     .pdx-snap-issue {

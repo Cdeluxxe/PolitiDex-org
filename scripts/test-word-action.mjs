@@ -555,9 +555,23 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/Promises Kept/.test(ft), 'the pledge block lost its canonical big-number label');
   ok(/Promise Follow-Through/.test(ft), 'the pledge block lost its canonical lane name');
   ok(/_pdxPromiseInfo/.test(ft), 'the pledge block lost its ⓘ methodology explainer');
+  // The three count chips are now emitted by a shared countChip() helper rather
+  // than written out three times, so the jump attribute is built from `kind` and
+  // no literal data-jump="kept" survives in the source. Both halves are checked:
+  // the helper is still called for each kind, and it still emits the jump hook —
+  // otherwise a chip could be present as dead decoration with no filter behind it.
+  ok(/data-jump="' \+ kind \+ '"/.test(ft),
+    'the pledge block chips no longer carry a data-jump hook, so tapping a count filters\n' +
+    '    nothing');
   for (const chip of ['kept', 'broken', 'pending']) {
-    ok(new RegExp(`data-jump="${chip}"`).test(ft), `the pledge block lost its ${chip} filter chip`);
+    ok(new RegExp(`countChip\\('${chip}'`).test(ft), `the pledge block lost its ${chip} filter chip`);
   }
+  // …and the helper has to be able to render a NON-interactive chip, because a
+  // counts-only record has no itemized list below for a filter to jump to and a
+  // chip that filters nothing is a dead button.
+  ok(/interactive/.test(ft),
+    'the pledge block chips are unconditionally interactive again — on a record with no\n' +
+    '    itemized promises[] they become buttons that filter an empty list');
   ok(/m\.raw/.test(ft), 'the pledge block lost the raw-vs-weighted reconciliation line');
   ok(!/font-size:2\.5rem/.test(ft),
     'the pledge rate is still rendered at hero scale — under one standard it is a supporting\n' +
