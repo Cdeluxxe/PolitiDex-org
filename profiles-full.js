@@ -1491,17 +1491,28 @@
       if (totSpot) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">🔦</span>' + totSpot + ' on record</span>';
       if (totMedia) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">▶</span>' + totMedia + ' with video / post</span>';
 
-      // Show the connected issues by default; collapse any thin / stance-only
-      // tail behind a toggle so the panel stays scannable but the absence of
-      // evidence is still one tap away, never hidden.
+      // Cards are ranked by how much connected evidence they carry, so the first few
+      // are the ones worth reading. Those stay open; the rest of the connected cards
+      // fold, and the stance-only tail folds separately with its own honest label.
+      // Each card is a three-lane grid — stance, promises, on-record — so an official
+      // with a dozen documented issues used to put a dozen of them on screen before
+      // the next section started. Nothing is dropped and no count is rounded down:
+      // the summary chips above still tally every card behind both lids, and a chip
+      // anywhere on the profile still jumps straight into one (see _pdxJumpEvidence).
       var lead = entries.filter(function(e){ return e.promises.length || e.spotlight.length; });
       var tail = entries.filter(function(e){ return !(e.promises.length || e.spotlight.length); });
-      var leadHtml = lead.map(renderCard).join('');
-      var tailHtml = tail.map(renderCard).join('');
-      var domId = 'evd-tail-' + String(id).replace(/[^a-z0-9_-]/gi, '');
+      var EV_OPEN = 3;
+      var leadHtml = lead.slice(0, EV_OPEN).map(renderCard).join('');
+      var restLead = lead.slice(EV_OPEN);
+      if (restLead.length) {
+        leadHtml += '<!--PDXSP:lid id="ev-rest" label="Show ' + restLead.length +
+          ' more connected issue' + (restLead.length === 1 ? '' : 's') + '" defer-->' +
+          restLead.map(renderCard).join('') + '<!--PDXSP:/lid-->';
+      }
       var tailBlock = tail.length
-        ? '<div id="' + domId + '" style="display:none;margin-top:0.7rem;">' + tailHtml + '</div>' +
-          '<button type="button" class="evd-more-btn" onclick="(function(b){var t=document.getElementById(\'' + domId + '\');if(!t)return;var open=t.style.display!==\'none\';t.style.display=open?\'none\':\'block\';b.textContent=open?(\'Show ' + tail.length + ' stance' + (tail.length === 1 ? '' : 's') + ' with no connected record yet\'):\'Hide thin-record issues\';})(this)">Show ' + tail.length + ' stance' + (tail.length === 1 ? '' : 's') + ' with no connected record yet</button>'
+        ? '<!--PDXSP:lid id="ev-thin" label="Show ' + tail.length + ' stance' +
+            (tail.length === 1 ? '' : 's') + ' with no connected record yet" defer-->' +
+            tail.map(renderCard).join('') + '<!--PDXSP:/lid-->'
         : '';
 
       return '<div class="modal-section">' +
@@ -1540,8 +1551,14 @@
   // jump is obvious. No-ops cleanly when the anchor isn't on the page.
   window._pdxJumpEvidence = function(anchorId) {
     try {
+      // The card being aimed at may sit under a lid, and on a rich profile it may not
+      // be in the document at all yet. Mount it, then open whatever is shut above it,
+      // before asking where it is — otherwise a promise chip that has a perfectly good
+      // receipt behind it does nothing when tapped.
+      if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(anchorId);
       var el = document.getElementById(anchorId);
       if (!el) return;
+      _pdxOpenClosedChain(el);
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       var prev = el.style.boxShadow;
       el.style.transition = 'box-shadow 0.45s ease';
@@ -3548,14 +3565,32 @@
     } catch (e) { return ''; }
   };
 
-  // Smooth-scroll the modal body so the target section clears the sticky rail.
-  //
-  // Deep-record sections now live inside closed drawers, and scrolling to a node
-  // inside a collapsed (max-height:0) box lands the reader on a shut lid with
-  // nothing to read — a control that appears to do nothing. So any closed drawer
-  // between the target and the modal body is opened first, outermost last, and the
-  // scroll offset is measured after that so it reflects the expanded layout.
+  // Open every closed drawer or lid between an element and the modal body, innermost
+  // first. Opening an outer one does not change whether an inner one is still shut,
+  // and toggleDD only flips the id it is handed. Shared by the jump-rail and by the
+  // evidence anchors, because both can now aim at content sitting under a lid.
+  function _pdxOpenClosedChain(el) {
+    try {
+      var body = document.getElementById('modal-body');
+      if (!body || !el) return;
+      var chain = [], node = el.parentElement;
+      while (node && node !== body) {
+        if (node.classList && node.classList.contains('dd-body') && !node.classList.contains('dd-open') && node.id) chain.push(node.id);
+        node = node.parentElement;
+      }
+      if (typeof window.toggleDD === 'function') {
+        for (var i = 0; i < chain.length; i++) window.toggleDD(chain[i]);
+      }
+    } catch (e) {}
+  }
+
   window._pdxNavJump = function (targetId, btn) {
+    // Smooth-scroll the modal body so the target section clears the sticky rail.
+    //
+    // Deep-record sections now live inside closed drawers and lids, and scrolling to
+    // a node inside a collapsed (max-height:0) box lands the reader on a shut control
+    // with nothing to read. So the chain above the target is opened first, and the
+    // scroll offset is measured after that so it reflects the expanded layout.
     var body = document.getElementById('modal-body');
     // The deepest sections now live inside drawers whose inner markup is held
     // back as a string until first open, so the target may not exist yet. Mount
@@ -3564,18 +3599,7 @@
     if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(targetId);
     var el = document.getElementById(targetId);
     if (!body || !el) return;
-    try {
-      var chain = [], node = el.parentElement;
-      while (node && node !== body) {
-        if (node.classList && node.classList.contains('dd-body') && !node.classList.contains('dd-open') && node.id) chain.push(node.id);
-        node = node.parentElement;
-      }
-      // Inner drawers first: opening an outer one does not change whether an
-      // inner one is still shut, and toggleDD only flips the id it is handed.
-      if (typeof window.toggleDD === 'function') {
-        for (var i = 0; i < chain.length; i++) window.toggleDD(chain[i]);
-      }
-    } catch (e) {}
+    _pdxOpenClosedChain(el);
     var nav = document.getElementById('pdx-profile-nav');
     var navH = nav ? nav.offsetHeight : 0;
     var top = body.scrollTop + el.getBoundingClientRect().top - body.getBoundingClientRect().top - navH - 12;
@@ -5946,6 +5970,19 @@
     // function removes its own previous scroll listener, so this cannot stack.
     try {
       if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav();
+    } catch (e) {}
+    // Receipt-card and share controls are emitted in a pending state and switched on
+    // by a document-wide sweep that already ran while this content was still a
+    // string. Both sweeps only touch nodes that still carry their pending attribute,
+    // so running them again costs nothing and is the whole difference between a live
+    // share control and a dead one inside anything mounted late.
+    try {
+      var RC = window.PDXReceiptCards;
+      if (RC && typeof RC.hydrate === 'function') RC.hydrate(host || document);
+    } catch (e) {}
+    try {
+      var SA = window.PDXShareAnywhere;
+      if (SA && typeof SA.hydrateSoon === 'function') SA.hydrateSoon(host || document);
     } catch (e) {}
   };
 

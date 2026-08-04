@@ -170,6 +170,9 @@
     // last one is dead. Clearing here rather than on close means a profile can
     // never mount the previous profile's record, even if it was closed abruptly.
     resetDefer();
+    // Lids are resolved before the body is split, so a renderer can mark a
+    // digest/bulk seam without knowing which stage its output lands in.
+    body = applyLids(body);
     specs.forEach(function (s) { if (s && s.id) dw[s.id] = []; });
 
     var last = 0, cur = 'identity', m;
@@ -238,8 +241,9 @@
   //   inherit the previous profile's drawer bodies, and closing a profile without
   //   opening its drawers does not leak their markup.
   var DEFER = {};
+  var LIDS = {};
 
-  function resetDefer() { DEFER = {}; }
+  function resetDefer() { DEFER = {}; LIDS = {}; }
 
   // Which element ids live inside a stashed body. Built on demand and cached,
   // because the common case — the id is already in the document — never needs it,
@@ -262,6 +266,18 @@
     return '';
   }
 
+  // Which stashed body holds the CONTAINER of another stashed body — a lid inside a
+  // deferred drawer. Unlike deferredOwner it never answers with the id it was asked
+  // about, because "it is its own container" is not a mountable answer.
+  function outerOwner(elId) {
+    for (var id in DEFER) {
+      if (!DEFER.hasOwnProperty(id)) continue;
+      if (id === elId) continue;
+      if (idIndex(DEFER[id])[elId]) return id;
+    }
+    return '';
+  }
+
   // True when `elId` is either already in the document or is waiting inside a
   // deferred drawer. Callers use this to decide whether a destination is real
   // without forcing it to mount.
@@ -273,12 +289,20 @@
 
   // Mount one deferred drawer's body. Returns true only if markup was injected,
   // so callers can tell "I just mounted this" from "it was already there".
-  function materialize(drawerId) {
+  function materialize(drawerId, _depth) {
     var rec = DEFER[drawerId];
     if (!rec) return false;
     var body, host = null;
     try { body = document.getElementById(drawerId); } catch (e) { body = null; }
-    if (!body) return false;
+    if (!body) {
+      // The container is itself waiting inside another stashed body — a lid inside a
+      // deferred drawer. Mount the outer one first, then try again. Depth-bounded, so
+      // a cycle in the stash cannot spin.
+      var outer = (_depth || 0) < 4 ? outerOwner(drawerId) : '';
+      if (!outer || !materialize(outer, (_depth || 0) + 1)) return false;
+      try { body = document.getElementById(drawerId); } catch (e) { body = null; }
+      if (!body) return false;
+    }
     var kids = body.children || [];
     for (var i = 0; i < kids.length; i++) {
       if (kids[i].getAttribute && kids[i].getAttribute('data-pdxsp-defer') === drawerId) { host = kids[i]; break; }
@@ -304,6 +328,84 @@
     try { if (document.getElementById(elId)) return false; } catch (e) {}
     var owner = deferredOwner(elId);
     return owner ? materialize(owner) : false;
+  }
+
+  // ── Lids ────────────────────────────────────────────────────────────────────
+  // A drawer is a whole section behind one control. A LID is smaller and sits
+  // inside a section that stays open: the digest above it keeps reading, and the
+  // bulk below it folds away behind one line of copy that says what is in there.
+  //
+  // The reason it is a marker and not a function call is placement. The blocks that
+  // needed folding are rendered by six different modules, some of which also render
+  // into surfaces that are not a profile, and none of which knows which stage of the
+  // spine its output will land in. A renderer therefore marks its own seam —
+  //
+  //   ...digest...  <!--PDXSP:lid id="or-rows" label="Show all 12 issues" defer-->
+  //   ...bulk...    <!--PDXSP:/lid-->
+  //
+  // — and the spine builds the control while it assembles, using the same
+  // .dd-toggle-btn / .dd-body / toggleDD contract as the drawers, so nothing new
+  // opens or closes on this page. With `defer` the bulk goes into the same stash the
+  // drawers use, which means a folded block is not merely hidden but unmounted, and
+  // the whole reveal path — jump targets, promise filters, chart draining — already
+  // works on it.
+  //
+  // Three fail-open rules, because a lid is a presentation choice and substance is
+  // not. Unprocessed markers leave the content in place and fully visible; a region
+  // holding a stage sentinel is left alone rather than risk relocating a section; a
+  // duplicate id renders inline rather than mint a second element with the same id.
+  var LID_RE = /<!--PDXSP:lid\s+([^>]*?)-->([\s\S]*?)<!--PDXSP:\/lid-->/g;
+  var LID_ATTR_RE = /([a-z]+)="([^"]*)"/g;
+
+  function lidAttrs(raw) {
+    var a = { defer: /(^|\s)defer(\s|$)/.test(raw) }, m;
+    LID_ATTR_RE.lastIndex = 0;
+    while ((m = LID_ATTR_RE.exec(raw)) !== null) a[m[1]] = m[2];
+    return a;
+  }
+
+  function applyLids(html, reclaim) {
+    html = String(html == null ? '' : html);
+    if (html.indexOf('<!--PDXSP:lid') === -1) return html;
+    LID_RE.lastIndex = 0;
+    return html.replace(LID_RE, function (whole, raw, bulk) {
+      var a = lidAttrs(raw);
+      if (!bulk || !bulk.trim()) return '';
+      var key = String(a.id || '');
+      if (!key) return bulk;
+      // No lid over nothing, and none over a line or two either: a control that
+      // costs a tap to reveal less than it takes to describe is worse than the
+      // content it hides. Renderers already gate on their own counts; this is the
+      // backstop for the profile whose "bulk" turned out to be one row.
+      if (bulk.length < 240) return bulk;
+      // Relocating a section is a real failure; hiding a fold is not. If a stage or
+      // drawer sentinel — or a nested lid — is inside this region, leave it be.
+      if (bulk.indexOf('<!--PDXSP:') !== -1) return bulk;
+      var id = 'pdxsp-lid-' + key;
+      // Two lids claiming one id would produce two nodes that one control opens, so
+      // the second one renders inline instead. A caller that is REPLACING the section
+      // that owned the id — the warm-refresh repaint, which rebuilds a section in
+      // place once votes arrive — passes reclaim, because there the repeat is the
+      // same lid being rebuilt, not a collision.
+      if (LIDS[id] && !reclaim) return bulk;
+      LIDS[id] = 1;
+      var inner;
+      if (a.defer) {
+        DEFER[id] = { html: bulk, idx: null };
+        inner = '<div class="dd-inner pdxsp-lid-inner" data-pdxsp-defer="' + escAttr(id) + '"></div>';
+      } else {
+        inner = '<div class="dd-inner pdxsp-lid-inner">' + bulk + '</div>';
+      }
+      return '<div class="pdxsp-lid">' +
+          '<button class="dd-toggle-btn pdxsp-lid-btn" type="button" onclick="toggleDD(\'' + escAttr(id) + '\')" id="btn-' + escAttr(id) + '"' +
+            ' aria-controls="' + escAttr(id) + '" aria-expanded="false">' +
+            '<span class="pdxsp-lid-label">' + esc(a.label || 'Show the full detail') + '</span>' +
+            '<svg class="dd-chevron w-4 h-4" fill="none" stroke="#7596c0" viewBox="0 0 24 24" aria-hidden="true">' +
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+          '</button>' +
+          '<div class="dd-body dd-free" id="' + escAttr(id) + '">' + inner + '</div>' +
+        '</div>';
+    });
   }
 
   // ── Drawers ─────────────────────────────────────────────────────────────────
@@ -631,6 +733,11 @@
     drawer: drawer,
     briefHtml: briefHtml,
     hydrate: hydrate,
+    // Progressive disclosure inside an always-open section. Renderers mark a
+    // digest/bulk seam with a comment pair and stay out of the DOM; assembleTagged
+    // resolves them, and any surface that re-renders one section on its own —
+    // rather than reassembling the profile — has to run this itself.
+    applyLids: applyLids,
     // Deferred drawer inners. materialize() takes a drawer id, revealFor() takes
     // any element id inside one; hasTarget() answers "does this destination
     // exist" for both mounted and still-stashed content.

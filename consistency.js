@@ -1311,21 +1311,27 @@
       var secs = document.querySelectorAll('[data-pdxc-official-pid]');
       for (var j = 0; j < secs.length; j++) {
         if (secs[j].getAttribute('data-pdxc-official-pid') !== String(pid)) continue;
-        secs[j].innerHTML = _officialInner(pid);
+        var orOpen = _lidsOpenIn(secs[j]);
+        secs[j].innerHTML = _lidify(_officialInner(pid));
+        _lidsReopen(orOpen);
       }
       // …and the divergence section, so the comparison appears once the vote-based
       // side has a real % to line up against the public-record side.
       var dvs = document.querySelectorAll('[data-pdxc-divergence-pid]');
       for (var d = 0; d < dvs.length; d++) {
         if (dvs[d].getAttribute('data-pdxc-divergence-pid') !== String(pid)) continue;
-        dvs[d].innerHTML = _divergenceInner(pid);
+        var dvOpen = _lidsOpenIn(dvs[d]);
+        dvs[d].innerHTML = _lidify(_divergenceInner(pid));
+        _lidsReopen(dvOpen);
       }
       // …and the Say-vs-Do feed, so its "compare vs the record" cross-links resolve
       // once the vote-based side has a % to compare against (Phase 9).
       var sds = document.querySelectorAll('[data-pdxc-saydo-pid]');
       for (var q = 0; q < sds.length; q++) {
         if (sds[q].getAttribute('data-pdxc-saydo-pid') !== String(pid)) continue;
-        sds[q].innerHTML = _sdInner(pid);
+        var sdOpen = _lidsOpenIn(sds[q]);
+        sds[q].innerHTML = _lidify(_sdInner(pid));
+        _lidsReopen(sdOpen);
       }
       // The repaint above is the moment the vote record actually exists, so it is
       // also the moment a vote-derived share card can first be built. Re-run the
@@ -1333,6 +1339,41 @@
       _rcHydrateSoon();
       _saHydrateSoon();
     });
+  }
+
+  // ── Lids across a warm repaint ──────────────────────────────────────────────
+  // The three sections below are rebuilt in place when the vote record arrives, which
+  // means their HTML is assigned straight to innerHTML and never passes through the
+  // spine. Two things have to be done by hand there: resolve the lid markers, or the
+  // fold silently disappears and the section grows back to full height; and re-open
+  // any lid the reader had already opened, or their own tap is undone under them.
+  function _lidify(html) {
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.applyLids === 'function') return SP.applyLids(html, true);
+    } catch (e) {}
+    return html;
+  }
+  function _lidsOpenIn(host) {
+    var out = [];
+    try {
+      var els = host.querySelectorAll('.dd-body.dd-open[id^="pdxsp-lid-"]');
+      for (var i = 0; i < els.length; i++) if (els[i].id) out.push(els[i].id);
+    } catch (e) {}
+    return out;
+  }
+  function _lidsReopen(ids) {
+    if (!ids || !ids.length) return;
+    setTimeout(function () {
+      ids.forEach(function (id) {
+        try {
+          var b = document.getElementById(id);
+          if (!b || b.classList.contains('dd-open')) return;
+          // Through the same control the reader used, so a deferred body still mounts.
+          if (typeof window.toggleDD === 'function') window.toggleDD(id);
+        } catch (e) {}
+      });
+    }, 0);
   }
 
   // ── By-issue Official Record view (the organized dive-in) ───────────────────
@@ -2113,7 +2154,7 @@
       return byCat[a].label < byCat[b].label ? -1 : 1;
     });
 
-    var body = catKeys.map(function (ck) {
+    var bodyParts = catKeys.map(function (ck) {
       var grp = byCat[ck];
       grp.items.sort(function (a, b) { return (rank[a.ov.token] || 9) - (rank[b.ov.token] || 9); });
       var rows = grp.items.map(function (s) {
@@ -2148,7 +2189,22 @@
           '</details>';
       }).join('');
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
-    }).join('');
+    });
+
+    // Both sorts above run contradiction-first: the leading category is the sharpest
+    // thing the formal record has to say about this person, so it stays open. The
+    // remaining categories fold behind a lid that names what is inside it. A member
+    // with nine documented issue areas used to cost nine screens before the next
+    // section began, and a reader who wanted only the verdict had no way past it.
+    var lead = bodyParts.length ? bodyParts[0] : '';
+    var restHtml = bodyParts.slice(1).join('');
+    var leadCount = (byCat[catKeys[0]] && byCat[catKeys[0]].items.length) || 0;
+    var restCount = scored.length - leadCount;
+    var body = lead;
+    if (restHtml) {
+      body += '<!--PDXSP:lid id="or-rest" label="Show ' + restCount + ' more scored issue' +
+          (restCount === 1 ? '' : 's') + '" defer-->' + restHtml + '<!--PDXSP:/lid-->';
+    }
 
     // Stated positions with nothing mapped to them yet. Previously a bare count, which
     // left "which issues?" unanswerable without leaving the profile. Now the count
@@ -2330,7 +2386,7 @@
       return byCat[a].label < byCat[b].label ? -1 : 1;
     });
 
-    var body = catKeys.map(function (ck) {
+    var bodyParts = catKeys.map(function (ck) {
       var grp = byCat[ck];
       grp.items.sort(function (a, b) { return (rank[a.ov.token] || 9) - (rank[b.ov.token] || 9); });
       var rows = grp.items.map(function (s) {
@@ -2346,7 +2402,20 @@
           '</div>';
       }).join('');
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
-    }).join('');
+    });
+
+    // Same rule as the Official Record: the contradiction-first leading category is
+    // the part a reader has to see, and each row here carries its own quoted receipts,
+    // so the tail of the list is where most of the height lives.
+    var sdLead = bodyParts.length ? bodyParts[0] : '';
+    var sdRest = bodyParts.slice(1).join('');
+    var sdLeadCount = (byCat[catKeys[0]] && byCat[catKeys[0]].items.length) || 0;
+    var sdRestCount = scored.length - sdLeadCount;
+    var body = sdLead;
+    if (sdRest) {
+      body += '<!--PDXSP:lid id="sd-rest" label="Show ' + sdRestCount + ' more stance' +
+          (sdRestCount === 1 ? '' : 's') + ' with receipts" defer-->' + sdRest + '<!--PDXSP:/lid-->';
+    }
 
     var awaitingNote = awaiting > 0
       ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no public-record evidence yet.</div>'
@@ -2500,14 +2569,30 @@
       ? '<div class="pdxdv-tally">Across ' + d.both.length + ' issue' + (d.both.length === 1 ? '' : 's') + ' on both records: ' + chips.join(' · ') + '.</div>'
       : '';
 
-    var rows = d.both.map(function (p) { return _divRow(p, pid); }).join('');
+    // Rows arrive widest-gap-first, so the divergences and mixed rows — the only ones
+    // that are tappable, and the only ones that are a finding — are already at the
+    // front. Those stay open. The aligned rows are the ones that say nothing happened,
+    // and on a well-documented member they are most of the list, so they fold. The
+    // tally above still counts all three kinds, so the shape of the record is visible
+    // without opening anything.
+    var actionRows = [], alignedRows = [];
+    d.both.forEach(function (p) {
+      var rowHtml = _divRow(p, pid);
+      if (divRel(p.gap).key === 'aligned') alignedRows.push(rowHtml); else actionRows.push(rowHtml);
+    });
+    var rows = actionRows.length ? '<div class="pdxdv-rows">' + actionRows.join('') + '</div>' : '';
+    if (alignedRows.length) {
+      rows += '<!--PDXSP:lid id="dv-aligned" label="Show ' + alignedRows.length + ' issue' +
+        (alignedRows.length === 1 ? '' : 's') + ' where both records agree" defer-->' +
+        '<div class="pdxdv-rows">' + alignedRows.join('') + '</div><!--PDXSP:/lid-->';
+    }
     var covDv = '<div class="pdxcov" title="Only issues with a real score on BOTH sides can be compared head-to-head. The rest are one-sided so far and are summarised below.">' +
       '📊 Comparable on <b>' + d.both.length + '</b> of ~' + (d.both.length + d.oneSide) + ' issue' + ((d.both.length + d.oneSide) === 1 ? '' : 's') + ' with a score on either side.</div>';
     var note = d.oneSide > 0
       ? '<div class="pdxdv-note">➕ ' + d.oneSide + ' more issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a score on only one side — kept in their own feeds, not compared here.</div>'
       : '';
 
-    return head + covDv + tally + '<div class="pdxdv-rows">' + rows + '</div>' + note;
+    return head + covDv + tally + rows + note;
   }
   var _divergenceInner = _dvInner; // alias used by the warm-refresh listener
   function divergenceSectionHtml(pid) {

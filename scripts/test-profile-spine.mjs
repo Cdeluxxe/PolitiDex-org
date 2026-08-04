@@ -369,7 +369,7 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   // 6f. Deep sections live inside closed drawers, so the quick-jump rail has to
   //     open the lid before scrolling or the pill looks like it does nothing.
   const jump = PF.slice(PF.indexOf("window._pdxNavJump = function"), PF.indexOf("window._pdxInitProfileNav"));
-  ok(/dd-body/.test(jump) && /dd-open/.test(jump) && /toggleDD/.test(jump),
+  ok(/_pdxRevealTarget/.test(jump) && /_pdxOpenClosedChain\(el\)/.test(jump),
      "wiring: a jump to a target inside a closed drawer opens the drawer first");
   ok(jump.indexOf("toggleDD") < jump.indexOf("getBoundingClientRect"),
      "wiring: and it opens it BEFORE measuring, so the scroll offset reflects the expanded layout");
@@ -594,6 +594,158 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(!/document\.getElementById\('pdxsec-voting'\)\) return ''/.test(CJ) &&
      (CJ.match(/_vrSectionReachable\(\)/g) || []).length >= 3,
      "defer: and both of its gated links — the raw-record button and the mapped-count summary — go through that one check");
+}
+
+// ── 10. Lids: progressive disclosure inside a section that stays open ────────
+// A drawer moves a whole section out of the first read. A lid is finer: the digest
+// keeps reading and the bulk folds. Everything below is about the two ways that
+// goes wrong — a fold that hides a claim with no way back to its receipt, and a
+// marker that fails closed and eats the content it was supposed to reveal.
+{
+  ctx.window._pdxAfterDrawerReveal = () => {};
+  try { SP.assembleTagged(""); } catch (e) {}   // clears the per-render stores
+
+  const long = (tag) => "<p>" + tag.repeat(60) + "</p>";
+  const BULK = long("bulk ");
+
+  // 10a. The marker resolves into the drawer contract, and the bulk is stashed.
+  const lazy = SP.applyLids('<div>DIGEST</div><!--PDXSP:lid id="t-one" label="Show the rest" defer-->' +
+    BULK + "<!--PDXSP:/lid-->");
+  ok(lazy.includes("DIGEST") && !lazy.includes("bulk bulk"),
+     "lid: the digest stays in the emitted string and the bulk does not — the fold is the point");
+  ok(/<div class="dd-inner pdxsp-lid-inner" data-pdxsp-defer="pdxsp-lid-t-one"><\/div>/.test(lazy),
+     "lid: a deferred lid emits the same empty marked leaf a deferred drawer does, so one materialize() serves both");
+  ok(/toggleDD\('pdxsp-lid-t-one'\)/.test(lazy) && /id="btn-pdxsp-lid-t-one"/.test(lazy) &&
+     /aria-controls="pdxsp-lid-t-one"/.test(lazy) && /aria-expanded="false"/.test(lazy),
+     "lid: it reuses toggleDD and the full aria contract rather than inventing a second collapse mechanism");
+  ok(/<div class="dd-body dd-free" id="pdxsp-lid-t-one">/.test(lazy),
+     "lid: the body is .dd-free, so a long fold is not clipped by the drawer max-height cap");
+  ok(lazy.includes("Show the rest") && !/PDXSP:/.test(lazy),
+     "lid: the label survives and no marker is left in the output to leak into the page as a comment");
+  ok(SP._deferredIds().indexOf("pdxsp-lid-t-one") !== -1,
+     "lid: the held-back bulk is stashed under the lid id, in the same store the drawers use");
+
+  // 10b. Undeferred form: same control, content inline. This is what a caller gets
+  //      when the content has to be in the document at mount (anchors, hydration).
+  const inline = SP.applyLids('<!--PDXSP:lid id="t-two" label="Show the rest"-->' + BULK + "<!--PDXSP:/lid-->");
+  ok(inline.includes("bulk bulk") && /<div class="dd-inner pdxsp-lid-inner">/.test(inline) &&
+     !/data-pdxsp-defer/.test(inline),
+     "lid: without defer the bulk is emitted inline behind the same control, and nothing is stashed");
+
+  // 10c. Fail-open. Every one of these would be a silent content loss if it failed
+  //      the other way, so each returns the content rather than a control over it.
+  ok(SP.applyLids("<p>plain</p>") === "<p>plain</p>",
+     "lid: a string with no markers is returned untouched, not reparsed");
+  ok(SP.applyLids('<!--PDXSP:lid label="No id"-->' + BULK + "<!--PDXSP:/lid-->").includes("bulk bulk"),
+     "lid: a marker with no id renders its content inline — an unidentifiable fold is dropped, never its content");
+  ok(SP.applyLids('<!--PDXSP:lid id="t-tiny" label="x"-->' + "<p>one short row</p>" + "<!--PDXSP:/lid-->") ===
+     "<p>one short row</p>",
+     "lid: content too small to be worth a tap is emitted as-is, so a thin profile does not get a control that reveals one line");
+  ok(SP.applyLids('<!--PDXSP:lid id="t-empty" label="x"-->   <!--PDXSP:/lid-->') === "",
+     "lid: an empty region emits nothing at all rather than a control over nothing");
+  const straddle = SP.applyLids('<!--PDXSP:lid id="t-bad" label="x"-->' + BULK +
+    "<!--PDXSP:record-->" + BULK + "<!--PDXSP:/lid-->");
+  ok(straddle.includes("PDXSP:record") && !/pdxsp-lid-t-bad/.test(straddle),
+     "lid: a region containing a stage or drawer sentinel is left completely alone — folding one would silently relocate a section");
+  const dupe = SP.applyLids('<!--PDXSP:lid id="t-one" label="Again" defer-->' + BULK + "<!--PDXSP:/lid-->");
+  ok(dupe.includes("bulk bulk") && !/id="pdxsp-lid-t-one"/.test(dupe),
+     "lid: a second claim on an id already in use renders inline, so two nodes can never answer to one control");
+  const reclaimed = SP.applyLids('<!--PDXSP:lid id="t-one" label="Again" defer-->' + BULK + "<!--PDXSP:/lid-->", true);
+  ok(/id="pdxsp-lid-t-one"/.test(reclaimed) && !reclaimed.includes("bulk bulk"),
+     "lid: in reclaim mode it does rebuild that id — the case where a warm repaint is replacing the very section that owned it");
+
+  // 10d. The proof path still resolves into a folded region.
+  ok(SP.hasTarget("pdxsp-lid-t-one"),
+     "lid: the spine knows a stashed lid body exists, so a caller does not conclude the content was deleted");
+  const inner = SP.applyLids('<!--PDXSP:lid id="t-anchor" label="x" defer-->' +
+    '<div id="evd-issue-massie-guns">' + BULK + "</div><!--PDXSP:/lid-->");
+  ok(!inner.includes("evd-issue-massie-guns") && SP.hasTarget("evd-issue-massie-guns"),
+     "lid: an anchor inside a folded region is not in the document yet and hasTarget still finds it — which is what keeps a receipt chip live");
+
+  // 10e. A lid inside a deferred drawer: two levels of stash, one tap. Without the
+  //      outer-container walk this returns false and the reader taps a dead control.
+  const nestedLid = SP.applyLids('<!--PDXSP:lid id="nested" label="x" defer-->' + BULK + "<!--PDXSP:/lid-->");
+  const outerDrawer = SP.drawer({ id: "pdxsp-t-nest", ico: "📋", title: "Outer", html: nestedLid, defer: true });
+  ok(outerDrawer.includes('data-pdxsp-defer="pdxsp-t-nest"') && !outerDrawer.includes("pdxsp-lid-nested"),
+     "lid: nesting a lid inside a deferred drawer stashes both — the outer body holds the lid control, the lid body holds the bulk");
+  const lidHost = { _attrs: { "data-pdxsp-defer": "pdxsp-lid-nested" }, innerHTML: "",
+    getAttribute(k) { return k in this._attrs ? this._attrs[k] : null; },
+    removeAttribute(k) { delete this._attrs[k]; } };
+  const outerHost = {
+    _attrs: { "data-pdxsp-defer": "pdxsp-t-nest" }, _html: "",
+    get innerHTML() { return this._html; },
+    // The browser turns the injected string into nodes; this is that step.
+    set innerHTML(v) {
+      this._html = v;
+      if (v.includes('id="pdxsp-lid-nested"')) registry["pdxsp-lid-nested"] = { ...noopEl(), children: [lidHost] };
+    },
+    getAttribute(k) { return k in this._attrs ? this._attrs[k] : null; },
+    removeAttribute(k) { delete this._attrs[k]; },
+  };
+  registry["pdxsp-t-nest"] = { ...noopEl(), children: [outerHost] };
+  ok(SP.materialize("pdxsp-lid-nested") === true && lidHost.innerHTML.includes("bulk bulk"),
+     "lid: materialize on the inner lid mounts the drawer above it first, then itself — one tap reaches content two stashes deep");
+  ok(SP._deferredIds().indexOf("pdxsp-lid-nested") === -1 && SP._deferredIds().indexOf("pdxsp-t-nest") === -1,
+     "lid: and both stashes are cleared, so neither can be mounted twice");
+
+  // 10f. Wiring: assembly resolves lids before it splits, and clears them after.
+  const at = CODE.slice(CODE.indexOf("function assembleTagged"), CODE.indexOf("function briefHtml"));
+  ok(at.indexOf("body = applyLids(body)") !== -1 &&
+     at.indexOf("body = applyLids(body)") < at.indexOf("TAG_RE.exec(body)"),
+     "lid: assembleTagged resolves the markers before it splits the body, so a renderer never has to know which stage it lands in");
+  ok(/function resetDefer\(\)\s*\{\s*DEFER = \{\};\s*LIDS = \{\};/.test(CODE),
+     "lid: the per-render reset clears the lid registry too — profile B must not inherit profile A's claimed ids");
+  ok(typeof SP.applyLids === "function",
+     "lid: applyLids is exported, because the surfaces that repaint one section in place cannot go through assembleTagged");
+
+  // 10g. Which blocks actually carry a lid, and what stays above it. This is the
+  //      default-open contract, asserted rather than described.
+  const nc = (p) => read(p).replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const CJL = nc("consistency.js"), WAL = nc("word-action.js"), PFL = nc("profiles-full.js");
+  ok(/PDXSP:lid id="or-rest"/.test(CJL) && /PDXSP:lid id="sd-rest"/.test(CJL) &&
+     /PDXSP:lid id="dv-aligned"/.test(CJL),
+     "lid: the Official Record, Say-vs-Do and divergence sections each fold their bulk list");
+  ok(/PDXSP:lid id="wa-feeds"/.test(WAL) && !/pdxwa-feeds-h">What feeds/.test(WAL),
+     "lid: the What-feeds-this-score explainer folds, and its heading became the lid label rather than being printed twice");
+  ok(/PDXSP:lid id="ev-rest"/.test(PFL) && /PDXSP:lid id="ev-thin"/.test(PFL),
+     "lid: the Connected Evidence grid folds its tail of cards and its no-record stances separately");
+  ok(!/evd-more-btn/.test(PFL) && !/display:none;margin-top:0\.7rem/.test(PFL),
+     "lid: and the hand-rolled display:none toggle it used to use is gone, so that fold now has aria-expanded like every other one");
+
+  const or = CJL.slice(CJL.indexOf("function _orInner"), CJL.indexOf("function _orRawLink"));
+  ok(or.indexOf("var body = lead;") !== -1 && or.indexOf("var lead =") < or.indexOf('PDXSP:lid id="or-rest"'),
+     "lid: the Official Record keeps its leading category open — the sorts run contradiction-first, so the sharpest finding is never behind the lid");
+  ok(/return head \+ _orMappedSummaryHtml\(pid\) \+ _coverageLine\(/.test(or),
+     "lid: its heading, verdict chip, mapped-record summary and coverage line all stay above the fold");
+  const dv = CJL.slice(CJL.indexOf("function _dvInner"), CJL.indexOf("var _divergenceInner"));
+  ok(/return head \+ covDv \+ tally \+ rows \+ note;/.test(dv) && /actionRows\.join\(''\)/.test(dv) &&
+     dv.indexOf("actionRows.join('')") < dv.indexOf('PDXSP:lid id="dv-aligned"'),
+     "lid: divergence folds only the rows where both records agree — the diverging and mixed rows, the ones that are a finding, stay open");
+  const hl = WAL.slice(WAL.indexOf("function headlineHtml"), WAL.indexOf("function lidify"));
+  ok(hl.indexOf("pdxwa-num-v") < hl.indexOf("feedsHtml(pid, p, r)") &&
+     hl.indexOf("pdxwa-cov") < hl.indexOf("feedsHtml(pid, p, r)"),
+     "lid: the primary Word vs Action number, verdict and coverage line are all emitted before the fold, so the one score is still the first thing read");
+
+  // 10h. The repaint paths. Both of these hand HTML to innerHTML directly, so both
+  //      have to resolve markers themselves or the fold silently disappears.
+  ok(/function _lidify/.test(CJL) && /SP\.applyLids\(html, true\)/.test(CJL) &&
+     (CJL.match(/_lidify\(_/g) || []).length === 3,
+     "lid: all three warm-refresh repaints in consistency.js run the markers through the spine in reclaim mode");
+  ok(/_lidsOpenIn\(/.test(CJL) && /_lidsReopen\(/.test(CJL) && /window\.toggleDD\(id\)/.test(CJL),
+     "lid: and they re-open any lid the reader had already opened, so a background refresh does not undo their tap");
+  ok(/slot\.innerHTML = lidify\(fresh\)/.test(WAL) && /dd-body\.dd-open\[id\^="pdxsp-lid-"\]/.test(WAL),
+     "lid: the Word vs Action repaint does the same for its own explainer fold");
+
+  // 10i. Reach-ins. A fold is only safe if every route into it mounts it first.
+  const jump = PFL.slice(PFL.indexOf("window._pdxJumpEvidence = function"), PFL.indexOf("function _pdxEvCounts"));
+  ok(jump.indexOf("_pdxRevealTarget") < jump.indexOf("document.getElementById(anchorId)") &&
+     /_pdxOpenClosedChain\(el\)/.test(jump),
+     "lid: the evidence anchors mount their card and open the lid above it before looking for it — the chip that used to do nothing now works");
+  ok((PFL.match(/^\s+_pdxOpenClosedChain\(el\);/gm) || []).length === 2 &&
+     /function _pdxOpenClosedChain/.test(PFL),
+     "lid: the jump rail and the evidence anchors share one chain-opening walk rather than keeping two copies of it");
+  ok(/dd-body'\) && !node\.classList\.contains\('dd-open'\)/.test(PFL),
+     "lid: that walk keys off .dd-body without .dd-open, which is why it opens lids and drawers alike with no list to maintain");
 }
 
 // ── report ───────────────────────────────────────────────────────────────────
