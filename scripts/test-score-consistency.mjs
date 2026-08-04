@@ -9,6 +9,13 @@
 //   🧾 Say-vs-Do              — does the public record back their stances
 //   🤝 Promise Follow-Through — kept vs broken promises, Kept ÷ (Kept + Broken)
 //
+// Above them now sits ⚖️ Word vs Action (word-action.js): the primary read, which
+// pools all documented word — hard pledges, stated positions, and repeated
+// issue-linked branding — in three weights and tests it against the Official
+// Record. It is a POOLING AND WEIGHTING layer over the per-issue test that
+// already existed, not a fourth measurement, and Promise Follow-Through is its
+// top tier rather than a rival number. Contract 10 holds it to that.
+//
 // Plus two things that are deliberately NOT record scores: 🎯 Your Match (the
 // visitor's own issue picks) and ✒️ the Executive Enactment Record (counts only —
 // the set of orders a president may sign is self-chosen, so there is no honest
@@ -33,6 +40,9 @@
 //   6. Say-vs-Do shows a verdict, never a percentage; EER shows counts, never a ratio
 //   7. the retired composites stay retired
 //   8. no surviving copy points at a surface that no longer renders
+//   9. the promise lane has one canonical name everywhere
+//  10. the unified Word vs Action read leads, contains the promise lane, and does
+//      not become a fourth number saying the same thing
 //
 //   node scripts/test-score-consistency.mjs
 //
@@ -425,6 +435,75 @@ for (const name of ["_renderAccountabilityCard", "_acctCardBadge"]) {
     "the Follow-Through block no longer labels its big number");
   ok(/Promise % = Kept ÷ \(Kept \+ Broken\)/.test(PROFILES),
     "the Deep Dive no longer states the promise formula");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Contract 10 — the unified ⚖️ Word vs Action read leads, and does not become a
+// fourth number saying the same thing
+// ═════════════════════════════════════════════════════════════════════════════
+// The accountability standard is now one pool of documented word — hard pledges,
+// stated positions, and repeated issue-linked branding — tested against the
+// Official Record. That re-centering is exactly the kind of change that could
+// reintroduce the failure mode this harness exists to catch: a new headline
+// percentage printed beside the old one, in a new vocabulary, measuring the same
+// thing. So the unified read has to lead, has to CONTAIN the promise lane rather
+// than compete with it, and has to borrow the existing verdict words.
+{
+  const WA = read("word-action.js");
+
+  // Mounted once, and ahead of the promise block.
+  eq(countOf(PROFILES, "PDXWordAction.sectionHtml("), 1,
+    "the Word vs Action section is mounted more than once on a profile — one read, one place");
+  const waAt = PROFILES.indexOf("PDXWordAction.sectionHtml(");
+  const ftAt = PROFILES.indexOf('id="pdxsec-score"');
+  must(waAt !== -1, "profiles-full.js no longer mounts the Word vs Action section");
+  must(ftAt !== -1, "profiles-full.js no longer mounts the #pdxsec-score anchor");
+  ok(waAt < ftAt,
+    "the promise block is presented ahead of the unified Word vs Action read, so the profile\n" +
+    "    still opens on the pledge-only number rather than the standard that contains it");
+
+  // Separately addressable, like the other lanes.
+  ok(/id="pdxsec-wordaction"/.test(WA),
+    "the Word vs Action section has no stable anchor, so the quick-jump rail cannot address it");
+  ok(/target: 'pdxsec-wordaction'/.test(PROFILES),
+    "the quick-jump rail does not list the primary accountability read");
+
+  // It is NOT the promise number wearing a new hat: the percentage must come from
+  // tested word items, never from the roster's promise counts or display score.
+  const scoring = WA.slice(WA.indexOf("function read("), WA.indexOf("function dots("));
+  must(scoring.length > 400, "word-action.js no longer defines read()");
+  ok(!/_pdxDisplayScore|p\.score|p\.kept|p\.broken/.test(scoring),
+    "the Word vs Action percentage reads the roster promise counts or the display score — that\n" +
+    "    would make it the same number under a fourth name, which is the whole failure mode here");
+  ok(/appliedWeight|it\.weight/.test(scoring),
+    "the Word vs Action percentage is no longer a weighted average of tested word items");
+
+  // It borrows the shared verdict vocabulary instead of inventing a fourth one.
+  ok(/PDXConsistency/.test(WA) && /VERDICTS/.test(WA),
+    "word-action.js does not read the shared verdict vocabulary, so the profile would carry two\n" +
+    "    different sets of words for the same finding");
+  // …and it does not invent a rival name for itself. ("Truth Score" is not in this
+  // list: the retired Accountability of Truth Score is still named in explanatory
+  // comments, and contracts 7 and 8 already keep it retired as a surface.)
+  for (const invented of ["Keeps Their Word", "Word Score", "Integrity Score", "Honesty Score"]) {
+    ok(WA.indexOf(invented) === -1 && PROFILES.indexOf(invented) === -1,
+      `a surface introduces "${invented}" — the unified read is named "Word vs Action" and its\n` +
+      "    verdicts come from the shared consistency palette");
+  }
+
+  // The two ⚖️ surfaces stay distinguishable by name.
+  ok(/label: 'Say-vs-Do'|label: "Say-vs-Do"/.test(CONSISTENCY),
+    "the Say-vs-Do lane lost its own name, so two surfaces sharing the ⚖️ mark would be\n" +
+    "    indistinguishable in copy");
+  ok(/Word vs Action/.test(WA) && !/Say-vs-Do/.test(WA.slice(WA.indexOf("var FRAME"), WA.indexOf("var FRAME") + 300)),
+    "the Word vs Action frame borrows the Say-vs-Do name");
+
+  // The promise lane survives as a TIER of the unified read, in its own words.
+  ok(/pledge tier/i.test(PROFILES),
+    "nothing on the profile explains that Promise Follow-Through is the pledge tier of the\n" +
+    "    unified read — demoted without explanation reads as two rival scores");
+  ok(/Counts most/.test(WA) && /Counts least/.test(WA),
+    "the tier ladder no longer states its ranking in plain language");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

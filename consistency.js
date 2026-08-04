@@ -31,6 +31,32 @@
      Real, discrete PROMISES ("I will / I will not" pledges) are their OWN narrower
      system and are NOT blended into either percentage. This engine never scores them.
 
+   WHAT CHANGED ABOVE THIS ENGINE (⚖️ Word vs Action, word-action.js):
+
+     The profile no longer leads with a promise-only percentage. A politician's
+     documented word now counts whichever form it takes — an explicit pledge
+     (highest weight), a stated operational position (high), or an issue they
+     repeatedly and identifiably campaign on (lower, non-zero) — and their formal
+     record is the test of all of it. Word vs Action is that read.
+
+     None of the boundaries above moved. Word vs Action does NOT compute its own
+     separate percentage from raw evidence: it POOLS AND WEIGHTS the per-issue
+     verdicts this engine already produces via officialRecord(), copies their
+     tokens verbatim, and averages them by tier weight × capped evidence. It reads
+     this engine; this engine does not read it. Specifically:
+
+       • Official Record stays the vote-based number and the only thing that
+         judges an issue. Word vs Action never re-derives a verdict from a score.
+       • Say-vs-Do stays the separate public-record layer with its own name, its
+         own evidence and its own thin-data floor. It is not folded in.
+       • Discrete promises are still unscored HERE. They are scored where they
+         always were (Kept ÷ (Kept + Broken), in profiles-full.js), and that
+         number now presents itself as the pledge tier of Word vs Action rather
+         than as the loudest figure on the profile.
+       • Still no blended third percentage: pooling verdicts this engine issued is
+         not the same as mixing two evidence bases into one number, which remains
+         forbidden.
+
    THE DATA BOUNDARY (being drawn — see curatedFor / isSaydoReceipt):
      A formal vote or legislative action belongs to OFFICIAL RECORD; broader
      public-record items belong to SAY-VS-DO; one real-world event is never scored

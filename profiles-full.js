@@ -3164,7 +3164,21 @@
              weighted:(rate !== null && raw !== null && rate !== raw), col:col, verdict:verdict, sub:sub, ico:ico };
   };
 
-  // Prominent profile hero — the headline "Did they follow through?" block.
+  // The PLEDGE TIER of Word vs Action — no longer the profile's headline.
+  //
+  // DEMOTION, NOT DELETION. Under the unified Word-vs-Action standard an explicit
+  // pledge is the top tier of one pool of documented word, not a separate scoring
+  // religion. So this block keeps everything that made it trustworthy — the
+  // canonical name, the canonical formula (Kept ÷ (Kept + Broken), pending
+  // excluded), every count, the three filter chips, the raw-vs-weighted
+  // reconciliation and the ⓘ explainer — and gives up only its visual dominance:
+  // the 2.5rem hero rate becomes a 1.6rem supporting figure, the glowing gradient
+  // frame becomes a flat panel, and the eyebrow now says where this number sits in
+  // the ladder above rather than asking the profile's main question.
+  //
+  // Nothing about the arithmetic changed. A reader who trusted the old number gets
+  // the same number, in the same words, one level quieter.
+  //
   // `published` is the profile's headline promise figure so this block and the
   // hero ring above it cannot disagree; the raw ratio it was weighted from is
   // stated inline rather than only inside the collapsed Deep Dive.
@@ -3180,24 +3194,24 @@
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
       ' title="How is Promise Follow-Through calculated?"';
     return '' +
-      '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(192,21,42,0.1),rgba(30,53,96,0.45));border:1px solid ' + m.col + '4d;border-radius:0.95rem;padding:1rem 1.1rem;box-shadow:0 0 22px ' + m.col + '14, inset 0 1px 0 rgba(255,255,255,0.04);">' +
-        '<div style="display:flex;align-items:center;gap:0.95rem;margin-bottom:0.85rem;">' +
-          '<div class="pdx-ft-rate-click"' + ftClick + ' style="cursor:pointer;flex-shrink:0;text-align:center;min-width:86px;background:rgba(10,15,30,0.55);border:1px solid ' + m.col + '55;border-radius:0.8rem;padding:0.5rem 0.6rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">' +
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;color:' + m.col + ';line-height:1;text-shadow:0 0 16px ' + m.col + '40;">' + rateTxt + '</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-top:0.15rem;">Promises Kept</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.46rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.12rem;">ⓘ How?</div>' +
+      '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid ' + m.col + '33;border-left:3px solid ' + m.col + '99;border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
+        '<div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.7rem;">' +
+          '<div class="pdx-ft-rate-click"' + ftClick + ' style="cursor:pointer;flex-shrink:0;text-align:center;min-width:70px;background:rgba(10,15,30,0.5);border:1px solid ' + m.col + '44;border-radius:0.7rem;padding:0.4rem 0.5rem;">' +
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:' + m.col + ';line-height:1;">' + rateTxt + '</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.46rem;letter-spacing:0.09em;text-transform:uppercase;color:#9fb4d4;margin-top:0.12rem;">Promises Kept</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.44rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.1rem;">ⓘ How?</div>' +
           '</div>' +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · Did they keep what they promised?</div>' +
-            '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1;">' + m.ico + ' ' + m.verdict + '</div>' +
-            '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · the pledge tier of Word vs Action</div>' +
+            '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
+            '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') +
               // Same reconciliation the Deep Dive gives, stated where the number
               // is, so the headline is never a figure the visible breakdown
               // cannot produce.
               (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the headline sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
           '</div>' +
         '</div>' +
-        (m.resolved ? '<div style="display:flex;height:11px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.6rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
+        (m.resolved ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
           '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
           '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
         '</div>' : '') +
@@ -3207,6 +3221,12 @@
           '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
         '</div>' +
         '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
+        // Says out loud where this number sits now. Without it the block just looks
+        // smaller for no stated reason, and a reader who remembers it as the
+        // headline has no way to tell whether it was demoted or degraded.
+        '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.5rem;">' +
+          'This covers explicit pledges only. The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above weighs these alongside their stated positions and the issues they campaign on — because they should be held to all of it, not just the part phrased as a promise.' +
+        '</p>' +
       '</div>';
   };
 
@@ -3850,6 +3870,21 @@
       : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
 
     const _navItems = [];
+    // ⚖️ Word vs Action — the primary read, so it leads the rail. Value is the
+    // weighted percentage when the record clears the fail-closed floors, and the
+    // honest state ("Checking…" / "Thin record") when it does not — never a bare
+    // number standing in for one. Self-gating: no pill when no word is on file.
+    try {
+      if (window.PDXWordAction && typeof window.PDXWordAction.read === 'function') {
+        const _wa = window.PDXWordAction.read(id, p);
+        if (_wa && _wa.coverage.word) {
+          const _waVal = (_wa.pct !== null) ? (_wa.pct + '%')
+            : (_wa.coverage.warming ? 'Checking…' : (_wa.coverage.tested ? 'Thin record' : 'Untested'));
+          _navItems.push({ target: 'pdxsec-wordaction', icon: '⚖️', label: 'Word vs Action',
+            value: _waVal, color: (_wa.verdict && _wa.verdict.color) || '#9fb4d4' });
+        }
+      }
+    } catch (e) {}
     // Promises — the published promise follow-through %, with a trend arrow when a
     // delta is known. Named for its lane, not "Score": the rail also carries the
     // Official Record and Enactments lanes, and a bare "Score" beside them reads as
@@ -4069,10 +4104,26 @@
       ${candidateSnapshot || thinNotice}
 
       <!--PDXSP:record-->
-      <!-- Promise Follow-Through summary — the promise lane's one and only headline:
-           kept vs broken, the resolved-only percentage, and a plain-language verdict
-           scoped to promises. The 🏛️ Official Record and 🧾 Say-vs-Do lanes have their
-           own sections further down and are never folded into this number. -->
+      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the first thing
+           on the record stage. One question ("do they stand by what they said?") over
+           one pool of documented word in three weighted tiers: explicit pledges,
+           stated positions, and the issues they campaign on. Tested only against the
+           Official Record. See word-action.js for the model, its five rules and the
+           fail-closed floors.
+
+           Everything below it is now SUPPORTING detail rather than a competing
+           headline: the Promise Follow-Through block is the pledge tier's own
+           number, the Official Record and Say-vs-Do sections are the two scoped
+           lanes underneath. Renders '' when no word is on file at all — an empty
+           frame would imply the record should be here. -->
+      ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
+
+      <!-- Promise Follow-Through — the PLEDGE TIER's own number, kept intact and
+           kept canonical (Kept ÷ (Kept + Broken), pending excluded) but no longer the
+           loudest thing on the profile. Every count, chip and explainer survives; the
+           block reads as the top tier of the Word vs Action ladder above it rather
+           than as a separate scoring religion. The 🏛️ Official Record and 🧾 Say-vs-Do
+           lanes have their own sections further down and are never folded into it. -->
       <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum) : ''}
 

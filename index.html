@@ -1834,6 +1834,15 @@ window.PDXLazy = (function () {
        Deferred; only styles a block inside the profile modal. -->
   <link rel="stylesheet" href="/profile-connect.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/profile-connect.css" /></noscript>
+  <!-- ⚖️ Word vs Action — the primary accountability read on a profile, plus the
+       joined "they said / they did / so" rows it shares with the Connecting the
+       Dots card (word-action.js). Modal-only and below the fold, so it loads
+       non-blocking; the section renders synchronously from curated word and
+       re-renders in place when the voting record warms, and the stylesheet
+       reserves a fixed footprint for the number so that swap cannot shift
+       layout even if the CSS arrives after the first paint. -->
+  <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
   <!-- Journey — the guided spine (breadcrumb) + the shared next-action rail on
        every receipt (see journey.js). Non-blocking, but preloaded at high
        priority: the rail is injected into the page flow beneath receipt cards
@@ -18376,9 +18385,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        source. Loads after the data modules it reads (PDXSpotlight, PDXReceipts,
        PDXHR1, _pdxMandateItems). -->
   <script defer src="digital-library.js"></script>
+  <!-- ⚖️ Word vs Action (window.PDXWordAction) — the unified accountability model:
+       one pool of documented word in three weighted tiers (explicit pledge /
+       stated position / campaign branding), tested only against the Official
+       Record. Every read is guarded and optional, so load order cannot break it;
+       it sits here because both of its consumers are below — the profile body
+       calls sectionHtml() and profile-connect.js calls dotsHtml(), and both only
+       run when a visitor opens a profile, long after these defer scripts have. -->
+  <script defer src="word-action.js"></script>
   <!-- Connecting the Dots — additive profile synthesis spine (window._pdxConnectDots).
        Loaded after the feature modules it reads at render time (PDXStances,
-       PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap). -->
+       PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap,
+       PDXWordAction). -->
   <script defer src="profile-connect.js"></script>
   <!-- My Profile — the signed-in visitor's personal civic hub (window.PDXProfile).
        Read-only composition layer: loaded LAST so every personal + finance module

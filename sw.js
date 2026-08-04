@@ -34,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v41';
+const CACHE_VERSION = 'v42';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -116,6 +116,16 @@ const SHELL_ASSETS = [
   // has a dependency that needs caching alongside it.
   '/profile-spine.js',
   '/profile-spine.css',
+  // ⚖️ Word vs Action (window.PDXWordAction) and its stylesheet — the primary
+  // accountability read on every profile. Precached for the same reason as the
+  // spine: without the script the profile silently loses its main section and
+  // falls back to leading with the pledge-only number, and without the
+  // stylesheet the tier ladder and the joined word/action rows render as
+  // unstyled lists. Its dependencies (consistency.js, stance-helpers.js,
+  // voting-record.js) are read through guarded optional lookups, so a cached
+  // copy is useful on its own.
+  '/word-action.js',
+  '/word-action.css',
   '/coverage.js',
   '/manifest.json',
   '/assets/icon.svg',
