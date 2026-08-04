@@ -3610,45 +3610,214 @@
       btn.classList.add('is-active');
       try { btn.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}
     }
-    // Suppress the scroll-spy briefly so it doesn't fight the animated jump.
+    // Suppress the spy briefly so it does not fight the animated jump, then force
+    // one repaint when the suppression lifts. Without that repaint the rail can be
+    // left showing the pill this function lit rather than the section the scroll
+    // actually settled on — the observer only speaks when something CHANGES, and
+    // during the animation everything it had to say was thrown away.
     window._pdxNavUserJumping = true;
     clearTimeout(window._pdxNavJumpTimer);
-    window._pdxNavJumpTimer = setTimeout(function () { window._pdxNavUserJumping = false; }, 650);
+    window._pdxNavJumpTimer = setTimeout(function () {
+      window._pdxNavUserJumping = false;
+      try { if (typeof window._pdxNavRepaint === 'function') window._pdxNavRepaint(true); } catch (e) {}
+    }, 650);
   };
 
-  // Highlight the pill for whichever section is currently under the rail.
+  // Re-arm the rail after the DOM under it changed — a deferred drawer mounted, a
+  // pill was injected late. Coalesced into one animation frame so a burst of
+  // reveals costs one re-arm instead of one per reveal, and so the re-arm reads
+  // layout AFTER the browser has finished reacting to the mutation rather than in
+  // the middle of it.
+  window._pdxNavRearmSoon = function () {
+    if (window._pdxNavRearmPending) return;
+    window._pdxNavRearmPending = true;
+    var run = function () {
+      window._pdxNavRearmPending = false;
+      try { if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav(); } catch (e) {}
+    };
+    try { requestAnimationFrame(run); } catch (e) { setTimeout(run, 16); }
+  };
+
+  // Highlight the pill for whichever section is currently under the rail, and make
+  // the rail read in page order while doing it.
+  //
+  // ── Why this is an observer and not a scroll handler ──
+  // It used to be a rAF-throttled scroll listener that, on every frame of every
+  // scroll, called getBoundingClientRect() on the modal body, read nav.offsetHeight,
+  // then called getBoundingClientRect() on EVERY tracked anchor — a dozen forced
+  // layout flushes per frame across the largest subtree in the app, on the exact
+  // gesture where a phone has the least headroom. It also only recomputed on
+  // scroll, so opening a drawer moved every anchor beneath it and the rail went on
+  // pointing at the wrong section until the reader scrolled again.
+  //
+  // An IntersectionObserver inverts that. The root is clipped to start at the rail
+  // line, so each anchor produces a callback exactly when it crosses that line, and
+  // the callback arrives carrying boundingClientRect and rootBounds already
+  // measured by the compositor. Comparing those two is the same predicate the old
+  // spy computed by hand — is this anchor above the line — with no layout read in
+  // our code at all, on crossings rather than on frames. Because the observer
+  // recomputes on any layout change, opening a drawer or a lid now updates the rail
+  // by itself.
+  //
+  // ── Order comes from the document, not from the rail ──
+  // Two things can put the pills out of page order: a build-time list that drifts,
+  // and a pill appended after the fact (voting-record.js adds Votes once it knows
+  // there is a record). The spine sorts the build-time list, and this function
+  // sorts what it finds by real document position, then moves the pill nodes to
+  // match if — and only if — they disagree. So the rail is correct by measurement,
+  // not by assertion, and the active index can only ever move forwards as the
+  // reader scrolls down.
   window._pdxInitProfileNav = function () {
     var body = document.getElementById('modal-body');
     var nav = document.getElementById('pdx-profile-nav');
+    // Re-arming is how this function is used — on open, after a drawer mounts,
+    // after a late pill is added — so tearing the previous observer down is the
+    // first thing it does. Nothing here can stack.
+    _pdxNavTeardown();
     if (!body || !nav) return;
+    var track = nav.querySelector('.pdx-pnav-track') || nav;
     var pills = Array.prototype.slice.call(nav.querySelectorAll('.pdx-pnav-pill'));
     if (!pills.length) return;
-    var targets = pills.map(function (b) {
-      return { btn: b, el: document.getElementById(b.getAttribute('data-target')) };
-    }).filter(function (t) { return t.el; });
+
+    // Section pills that have a live destination. A pill aimed inside a drawer
+    // whose inner is still a string has no element yet: it stays clickable (the
+    // jump reveals it first) but there is nothing to spy on until it mounts, and
+    // the re-arm after that reveal picks it up.
+    var targets = [];
+    pills.forEach(function (b) {
+      var t = b.getAttribute('data-target');
+      if (!t) return;
+      var el = document.getElementById(t);
+      if (el) targets.push({ btn: b, el: el, target: t });
+    });
     if (!targets.length) return;
 
-    function spy() {
-      window._pdxNavRaf = 0;
-      if (window._pdxNavUserJumping) return;
-      var ref = body.getBoundingClientRect().top + nav.offsetHeight + 16;
-      var activeIdx = 0;
-      for (var i = 0; i < targets.length; i++) {
-        if (targets[i].el.getBoundingClientRect().top <= ref) activeIdx = i;
+    // Document order is the authority. compareDocumentPosition is a tree walk, not
+    // a geometry read, so this costs nothing in layout.
+    targets.sort(function (a, b) {
+      if (a.el === b.el) return 0;
+      // 4 is DOCUMENT_POSITION_FOLLOWING: b comes after a, so a sorts first.
+      return (a.el.compareDocumentPosition(b.el) & 4) ? -1 : 1;
+    });
+    _pdxNavSyncOrder(track, pills, targets);
+
+    // One layout read, once, at arm time — where the old code took one per frame.
+    // The rail is sticky at the top of the scroller, so its height is the offset
+    // between the top of the visible area and the first line a reader can read.
+    var line = (nav.offsetHeight || 0) + 16;
+    var above = [];
+    var atEnd = false;
+    var active = -1;
+
+    function paint(force) {
+      var idx = 0;
+      for (var i = 0; i < targets.length; i++) if (above[i]) idx = i;
+      // At the very bottom, force the last section active so the final pill is
+      // reachable even when the page cannot scroll far enough to push its anchor
+      // above the rail line.
+      if (atEnd) idx = targets.length - 1;
+      if (idx === active && !force) return;
+      active = idx;
+      for (var j = 0; j < targets.length; j++) {
+        targets[j].btn.classList.toggle('is-active', j === idx);
       }
-      // At the very bottom, force the last section active so it stays reachable.
-      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 4) activeIdx = targets.length - 1;
-      targets.forEach(function (t, i) { t.btn.classList.toggle('is-active', i === activeIdx); });
     }
-    function onScroll() {
-      if (window._pdxNavRaf) return;
-      window._pdxNavRaf = requestAnimationFrame(spy);
+    // Exposed so the jump can resync the rail once its animation is done, and so a
+    // forced repaint is possible after the class list was changed from outside.
+    window._pdxNavRepaint = paint;
+
+    if (typeof window.IntersectionObserver !== 'function') {
+      // No observer: light the first pill and leave it. Every pill still scrolls,
+      // which is the part that matters; a stale highlight is a cosmetic loss.
+      paint(true);
+      return;
     }
-    if (window._pdxNavScrollHandler) body.removeEventListener('scroll', window._pdxNavScrollHandler);
-    window._pdxNavScrollHandler = onScroll;
-    body.addEventListener('scroll', onScroll, { passive: true });
-    spy();
+
+    var obs = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        var k = -1;
+        for (var j = 0; j < targets.length; j++) if (targets[j].el === e.target) { k = j; break; }
+        if (k === -1) continue;
+        // rootBounds.top IS the rail line, because the root was clipped by exactly
+        // that much. Both rects arrive with the entry, already measured.
+        var ref = e.rootBounds ? e.rootBounds.top : null;
+        if (ref === null) { above[k] = !e.isIntersecting; continue; }
+        above[k] = e.boundingClientRect.top <= ref;
+      }
+      if (!window._pdxNavUserJumping) paint(false);
+    }, { root: body, rootMargin: (-line) + 'px 0px 0px 0px', threshold: 0 });
+    targets.forEach(function (t) { obs.observe(t.el); });
+    window._pdxNavObserver = obs;
+
+    // Bottom-of-scroll detection, without reading scrollHeight on every frame. A
+    // one-pixel marker parked at the end of the content is observed against the
+    // unclipped root, so it reports intersecting exactly when the reader has
+    // reached the last few pixels — the same condition the old spy computed with a
+    // scrollTop + clientHeight >= scrollHeight comparison, which forces a layout
+    // flush every time it is asked.
+    try {
+      var end = document.getElementById('pdxsp-nav-end');
+      if (!end) {
+        end = document.createElement('span');
+        end.id = 'pdxsp-nav-end';
+        end.setAttribute('aria-hidden', 'true');
+        end.style.cssText = 'display:block;height:1px;';
+      }
+      if (end.parentNode !== body || body.lastChild !== end) body.appendChild(end);
+      var endObs = new IntersectionObserver(function (entries) {
+        atEnd = !!(entries.length && entries[entries.length - 1].isIntersecting);
+        if (!window._pdxNavUserJumping) paint(false);
+      }, { root: body, rootMargin: '0px 0px -4px 0px', threshold: 0 });
+      endObs.observe(end);
+      window._pdxNavEndObserver = endObs;
+    } catch (e) {}
   };
+
+  // Move the pill nodes so the rail reads in the order the sections appear, but
+  // only when they are actually out of order — re-appending children that are
+  // already in place still moves them in the DOM, and the track is a horizontally
+  // scrolled flex row whose scroll offset would jump for no reason.
+  //
+  // Action pills carry no destination of their own (Full Report opens an overlay),
+  // so each one travels with the section pill it follows. That is the same rule the
+  // spine applies at build time, applied here to whatever is in the DOM.
+  function _pdxNavSyncOrder(track, pills, targets) {
+    try {
+      var rank = {}, i;
+      for (i = 0; i < targets.length; i++) rank[targets[i].target] = i;
+      // Group: each entry is a lead pill plus the action pills trailing it.
+      var groups = [], cur = null;
+      pills.forEach(function (b) {
+        var t = b.getAttribute('data-target');
+        if (t && rank[t] !== undefined) { cur = { r: rank[t], pills: [b] }; groups.push(cur); return; }
+        // A pill with a dead or not-yet-mounted destination keeps its place rather
+        // than being sorted on a rank it does not have.
+        if (!cur) { cur = { r: -1, pills: [b] }; groups.push(cur); return; }
+        cur.pills.push(b);
+      });
+      var sorted = groups.slice().sort(function (a, b) { return a.r - b.r; });
+      var want = [], k;
+      for (i = 0; i < sorted.length; i++) {
+        for (k = 0; k < sorted[i].pills.length; k++) want.push(sorted[i].pills[k]);
+      }
+      var same = want.length === pills.length;
+      if (same) for (i = 0; i < want.length; i++) if (want[i] !== pills[i]) { same = false; break; }
+      if (same) return;
+      for (i = 0; i < want.length; i++) track.appendChild(want[i]);
+    } catch (e) {}
+  }
+
+  // Drop every observer and the repaint hook. Called on re-arm and on close, so a
+  // closed profile leaves nothing observing a detached subtree.
+  function _pdxNavTeardown() {
+    try { if (window._pdxNavObserver) window._pdxNavObserver.disconnect(); } catch (e) {}
+    try { if (window._pdxNavEndObserver) window._pdxNavEndObserver.disconnect(); } catch (e) {}
+    window._pdxNavObserver = null;
+    window._pdxNavEndObserver = null;
+    window._pdxNavRepaint = null;
+  }
+  window._pdxNavTeardown = _pdxNavTeardown;
 
   function openModal(id) {
     // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
@@ -4025,14 +4194,17 @@
       : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
 
     const _navItems = [];
-    // The rail is the path's table of contents, so the pills are pushed in the
-    // order a reader now MEETS these sections: verdict → tension → signature →
-    // record → receipts → you → money → drawers. It used to be pushed in the order
-    // the pills were built, which was close enough while the spine put the verdict
-    // in the middle; with the verdict first and money last, a rail that disagreed
-    // with the page would send the scroll-spy's active state jumping backwards as
-    // you scrolled. Order only — the spy, the anchors and the pill markup are
-    // untouched.
+    // The pushes below are written in reading order, but that is a courtesy to the
+    // reviewer, not the source of truth any more. PDXProfileSpine.railOrder() sorts
+    // this list by the stage each destination lives in, and _pdxInitProfileNav then
+    // sorts what it finds by real document position — so the rail cannot disagree
+    // with the page even if a push is added in the wrong place, and the active pill
+    // can only move forwards as the reader scrolls down.
+    //
+    // Deriving it also settled an argument the hand-maintained order was getting
+    // wrong: the Record pill aims at pdxsec-record, which lives inside the promises
+    // drawer at the foot of the page, so it now sits with the full-record pills
+    // instead of fifth of ten. Where the pill sends you is where the pill goes.
     //
     // ⚖️ Word vs Action — the primary read, so it leads the rail, and now leads the
     // page too. Value is the weighted percentage when the record clears the
@@ -4080,8 +4252,10 @@
       _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: keptCount + ' Kept', color: '#9fb4d4' });
     }
     // Record — the kept / broken / pending COUNTS behind that percentage. The rate
-    // itself is deliberately not repeated here: it is the pill directly above, and
-    // showing it twice in one rail made one number look like two findings.
+    // itself is deliberately not repeated here: it is already on the Promises pill,
+    // and showing it twice in one rail made one number look like two findings. This
+    // pill lands with the full-record group rather than beside Promises, because its
+    // destination is inside the promises drawer; the jump reveals that drawer first.
     {
       const _resolved = keptCount + brokenCount;
       if (_resolved > 0 || (p.promises && p.promises.length)) {
@@ -4137,11 +4311,20 @@
       _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4' });
     }
 
+    // The rail order is the spine order. Sorting here rather than trusting the push
+    // sequence means the one place the profile records its top-to-bottom shape —
+    // STAGES, plus the anchor registry beside it — is also the place that decides
+    // the rail. A missing spine is not a reason to lose the rail, so an unsorted
+    // list is the fallback.
+    const _navOrdered = (window.PDXProfileSpine && typeof window.PDXProfileSpine.railOrder === 'function')
+      ? window.PDXProfileSpine.railOrder(_navItems)
+      : _navItems;
+
     // A single pill isn't a "map" — only render the rail when at least two exist.
-    const _navBar = (_navItems.length >= 2)
+    const _navBar = (_navOrdered.length >= 2)
       ? '<nav id="pdx-profile-nav" class="pdx-pnav" aria-label="Jump to a section of this profile">' +
           '<div class="pdx-pnav-track">' +
-            _navItems.map(function (n) {
+            _navOrdered.map(function (n) {
               // Action pill — opens an overlay (Full Stance Record) instead of
               // scrolling to an in-page anchor. It carries no data-target, so the
               // scroll-spy cleanly ignores it and it never steals the active state.
@@ -5911,12 +6094,12 @@
     // Close any open stance-evidence popover so it never lingers over the page.
     if (typeof window._pdxCloseStanceEvidence === 'function') window._pdxCloseStanceEvidence();
     window._sagCtx = null;
-    // Detach the quick-jump nav's scroll-spy listener from the body.
-    try {
-      var _mb = document.getElementById('modal-body');
-      if (_mb && window._pdxNavScrollHandler) { _mb.removeEventListener('scroll', window._pdxNavScrollHandler); }
-    } catch (e) {}
-    window._pdxNavScrollHandler = null; window._pdxNavUserJumping = false;
+    // Stop the jump rail observing a subtree that is about to be thrown away.
+    // There is no scroll listener to remove any more — the rail is driven by
+    // IntersectionObservers, and disconnecting them is the whole teardown.
+    try { _pdxNavTeardown(); } catch (e) {}
+    window._pdxNavUserJumping = false;
+    window._pdxNavRearmPending = false;
     const overlay = document.getElementById('modal-overlay');
     if (overlay) {
       overlay.style.removeProperty('display');
@@ -5990,11 +6173,12 @@
         if (fb) { fb.classList.add('ftm-following'); fb.innerHTML = '✅ Following Money Trail'; }
       }
     } catch (e) {}
-    // The scroll-spy built its target list from the ids that existed at mount, so
-    // a jump-rail pill aimed inside this drawer was skipped. Re-arm it: the
-    // function removes its own previous scroll listener, so this cannot stack.
+    // The rail spies on the ids that existed when it was armed, so a pill aimed
+    // inside this drawer was skipped and the anchors below it have all just moved.
+    // Re-arm — coalesced, so opening three drawers in a row costs one re-arm, and
+    // it runs on the next frame when the mutation has settled into layout.
     try {
-      if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav();
+      if (typeof window._pdxNavRearmSoon === 'function') window._pdxNavRearmSoon();
     } catch (e) {}
     // Receipt-card and share controls are emitted in a pending state and switched on
     // by a document-wide sweep that already ran while this content was still a

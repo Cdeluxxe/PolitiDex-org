@@ -125,6 +125,91 @@
     return null;
   }
 
+  function stageRank(key) {
+    var i = STAGE_KEYS.indexOf(key);
+    return i === -1 ? STAGES.length : i;
+  }
+
+  // ── Anchors → stages ────────────────────────────────────────────────────────
+  // Every id a jump-rail pill can aim at, and the stage that id lives in. This
+  // registry is what lets the rail DERIVE its order rather than declare it.
+  //
+  // Until now the rail order was the order the pill-pushing code happened to run
+  // in: a second, hand-maintained copy of a decision already recorded in STAGES,
+  // free to drift from it in silence. It had drifted. The Record pill sat fifth of
+  // ten while its destination lives inside the promises drawer at the foot of the
+  // page, so tapping the middle of the rail threw the reader to the bottom. A rail
+  // that disagrees with the page also makes the active pill walk BACKWARDS while
+  // scrolling, because the spy indexes pills but measures sections.
+  //
+  // Grouped by stage rather than alphabetically, so this reads as the answer to
+  // the question where does this pill send me. Four anchors are emitted by other
+  // modules and are noted as such; the rest are literals in the profile template.
+  // Anything absent resolves to the deep end, matching the unknown-stage rule in
+  // assemble() — an unrecognised destination is demoted, never promoted.
+  var TARGET_STAGE = {
+    // verdict — the one primary score. Anchor emitted by word-action.js.
+    'pdxsec-wordaction': 'verdict',
+    // tension — the adverse findings. Anchor emitted by controversies.js.
+    'pdxsec-controversies': 'tension',
+    'pdxsec-divergence': 'tension',
+    // signature — what they are known for
+    'pdxsec-positions': 'signature',
+    'pdxsec-glance': 'signature',
+    // record — the formal apparatus behind the verdict
+    'pdxsec-score': 'record',
+    'pdxsec-promise-tracker': 'record',
+    'pdxsec-exec-record': 'record',
+    'pdxsec-official-record': 'record',
+    'pdxsec-verify': 'record',
+    // receipts — say vs. do
+    'pdxsec-evidence': 'receipts',
+    'pdxsec-saydo': 'receipts',
+    // you — the reader’s own stake
+    'pdxsec-match': 'you',
+    'pdxsec-compare': 'you',
+    // money — funding and who the record touches. Funding anchor lives in index.html.
+    'pdxsec-funding': 'money',
+    'pdxsec-impact': 'money',
+    'pdxsec-contracts': 'money',
+    // drawers — destinations that really do sit inside the full-record drawers, and
+    // are therefore reached through a reveal rather than a plain scroll. Anchor for
+    // the voting record is emitted by voting-record.js into the votes drawer.
+    'pdxsec-record': 'drawers',
+    'pdxsec-voting': 'drawers',
+    'pdxsec-activity': 'drawers'
+  };
+
+  function stageOfTarget(t) {
+    return TARGET_STAGE[String(t == null ? '' : t)] || null;
+  }
+
+  // railOrder(items) — sort jump-rail pills into spine order.
+  //
+  // Stable within a stage, so the order the pushes run in still decides ties and
+  // the source keeps reading top to bottom. Two rules make it safe to hand this an
+  // arbitrary list:
+  //
+  //   An item with no target — the Full Report pill opens an overlay instead of
+  //   scrolling — has no stage of its own, so it INHERITS the rank of the item it
+  //   follows. That is what keeps it attached to Positions without Positions
+  //   needing to know it exists.
+  //
+  //   An item whose target is unregistered sorts to the deep end, so a new anchor
+  //   that nobody remembered to register lands beside the drawers instead of
+  //   ahead of the verdict.
+  function railOrder(items) {
+    var ranked = [], inherit = 0;
+    (items || []).forEach(function (it, i) {
+      if (!it) return;
+      var r = it.target ? stageRank(stageOfTarget(it.target)) : inherit;
+      if (it.target) inherit = r;
+      ranked.push({ it: it, r: r, i: i });
+    });
+    ranked.sort(function (a, b) { return (a.r - b.r) || (a.i - b.i); });
+    return ranked.map(function (x) { return x.it; });
+  }
+
   function railHtml(st, n) {
     return '<div class="pdxsp-rail" id="pdxsp-' + escAttr(st.key) + '">' +
         '<span class="pdxsp-rail-n" aria-hidden="true">' + n + '</span>' +
@@ -752,6 +837,13 @@
     STAGES: STAGES,
     STAGE_KEYS: STAGE_KEYS,
     stage: stageMeta,
+    // The rail derives its order from the stage each destination lives in, so the
+    // pill sequence and the page sequence cannot disagree. railOrder() sorts a list
+    // of pill descriptors; targetStage() answers the same question for one id, and
+    // is what the scroll-spy and the tests use to check themselves.
+    railOrder: railOrder,
+    targetStage: stageOfTarget,
+    stageRank: stageRank,
     assemble: assemble,
     assembleTagged: assembleTagged,
     drawer: drawer,

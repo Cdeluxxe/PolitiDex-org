@@ -34,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v49';
+const CACHE_VERSION = 'v50';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

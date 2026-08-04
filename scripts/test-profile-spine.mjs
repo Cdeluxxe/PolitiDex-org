@@ -9,9 +9,10 @@
 // now annotates each block with the stage it belongs to instead of relying on its
 // line number.
 //
-// Five properties carry that change, and every one of them fails QUIETLY — a
+// Six properties carry that change, and every one of them fails QUIETLY — a
 // mis-ordered profile still renders, a lost block still leaves a valid page, a
-// clipped drawer still opens. So they are tested rather than trusted:
+// clipped drawer still opens, a drifted rail still scrolls. So they are tested
+// rather than trusted:
 //
 //   1. THE ORDER IS THE PRODUCT. STAGES must match the spine the profile promises
 //      (identity → short version → verdict → tension → signature issues → record
@@ -36,6 +37,13 @@
 //
 //   5. IT DOES NOT MOVE THE PAGE. Chip pruning happens in the same task as the
 //      innerHTML write, and drawers reveal without animating an unbounded height.
+//
+//   6. THE RAIL DERIVES TOO, AND THE SPY DOES NOT MEASURE. The jump rail's order
+//      comes from an anchor→stage registry checked against the page itself, and at
+//      runtime from real document position — never from the order the pill-pushing
+//      code happens to run in. Its active pill comes from IntersectionObserver
+//      callbacks that arrive with their geometry already measured, not from a
+//      per-frame getBoundingClientRect sweep of the whole profile subtree.
 //
 // Section 6 uses Thomas Massie as the worked example, because he is the profile
 // this restaging was designed against: deep votes, deep money, deep promises.
@@ -593,10 +601,15 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(/getElementById\('ftmNwChart'\)/.test(ftm),
      "defer: and so does the net-worth chart in the money drawer");
 
-  // 9e. The one seam back into the profile.
+  // 9e. The one seam back into the profile. The re-arm goes through the coalescing
+  //      entry point rather than calling the arm directly: a reader who opens three
+  //      drawers in a row should pay for one re-arm, on the frame after the last
+  //      mutation, not three in the middle of them.
   const after = PFC.slice(PFC.indexOf("window._pdxAfterDrawerReveal = function"), PFC.indexOf("window._pdxRevealTarget = function"));
-  ok(/_pdxDrainCharts/.test(after) && /_pdxInitProfileNav/.test(after),
-     "defer: on reveal the profile drains its chart queue and re-reads the nav targets, so the new subtree joins the scroll-spy");
+  ok(/_pdxDrainCharts/.test(after) && /_pdxNavRearmSoon/.test(after),
+     "defer: on reveal the profile drains its chart queue and re-arms the nav, so the new subtree joins the jump rail");
+  ok(!/_pdxInitProfileNav/.test(after),
+     "defer: and it does not arm the rail synchronously mid-mutation — that is what the coalescer is for");
   ok(/ftm-follow-btn/.test(after) && /_pdxFollowMoneyOn/.test(after),
      "defer: and re-applies the Follow Money Trail state that was fetched while the button was still a string, so a following reader does not see an un-followed button");
 
@@ -859,6 +872,219 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ]), "keep: the five drawers are untouched and still land in the full-record stage");
   ok((PFL.match(/^\s+defer: true,$/gm) || []).length === 4,
      "keep: the same four drawers are still deferred — the reorder did not un-defer a heavy inner");
+}
+
+
+// ── 12. The rail derives, and the spy stopped measuring ──────────────────────
+// The jump rail had two independent fragilities. Its ORDER was the order the
+// pill-pushing code happened to run in — a hand-maintained second copy of STAGES,
+// free to drift, and it had drifted. Its ACTIVE STATE came from a rAF-throttled
+// scroll handler that called getBoundingClientRect() on the modal body and on every
+// tracked anchor, every frame, across the largest subtree in the app.
+//
+// Both are now derived. The order comes from an anchor→stage registry beside STAGES
+// and, at runtime, from real document position. The active state comes from
+// IntersectionObserver callbacks that arrive with their geometry already measured.
+// Neither derivation announces itself when it breaks — a drifted rail still renders
+// and a dead spy still scrolls — so both are pinned here.
+{
+  const PFR = read("profiles-full.js")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const SPS = read("profile-spine.js");
+
+  // 12a. The registry agrees with the template. This is the assertion that makes
+  //      the derivation trustworthy: the map is only a source of truth if it says
+  //      what the page actually does. Each anchor literal in the profile body is
+  //      resolved to the nearest preceding sentinel, with dw:<id> resolved through
+  //      the drawer specs (all five declare the full-record stage).
+  const bodySrc = PFR.slice(PFR.indexOf("const _profileBody = "));
+  const realStage = {};
+  {
+    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|id="(pdxsec-[a-z-]+)"/g;
+    let m, cur = "identity";
+    while ((m = re.exec(bodySrc)) !== null) {
+      if (m[1]) { cur = m[1]; continue; }
+      realStage[m[2]] = cur.startsWith("dw:") ? "drawers" : cur;
+    }
+  }
+  // Four anchors are emitted by other modules, so the template only shows the call.
+  // The stage of the call is the stage of the anchor.
+  const external = [
+    ["pdxsec-wordaction", "PDXWordAction.sectionHtml", "word-action.js"],
+    ["pdxsec-controversies", "_renderControversies", "controversies.js"],
+    ["pdxsec-funding", "_pdxFundingSection", "index.html"],
+  ];
+  {
+    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|_renderControversies|_pdxFundingSection)\(/g;
+    let m, cur = "identity";
+    while ((m = re.exec(bodySrc)) !== null) {
+      if (m[1]) { cur = m[1]; continue; }
+      const hit = external.find((x) => x[1] === m[2]);
+      if (hit) realStage[hit[0]] = cur.startsWith("dw:") ? "drawers" : cur;
+    }
+  }
+  // The voting anchor is emitted by voting-record.js into the votes drawer.
+  ok(/<span id="pdxsec-voting"/.test(read("voting-record.js")),
+     "rail: voting-record.js still emits the anchor its Votes pill aims at");
+  realStage["pdxsec-voting"] = "drawers";
+
+  const anchors = Object.keys(realStage);
+  ok(anchors.length >= 18,
+     "rail: the anchor scan found the profile's jump anchors (" + anchors.length + ")");
+  let wrong = [];
+  anchors.forEach((a) => {
+    const reg = SP.targetStage(a);
+    if (reg !== realStage[a]) wrong.push(a + ": registry " + reg + " vs. page " + realStage[a]);
+  });
+  ok(wrong.length === 0,
+     "rail: every registered anchor names the stage it really sits in — " + (wrong.join("; ") || "all agree"));
+  ok(SP.targetStage("pdxsec-record") === "drawers",
+     "rail: the Record pill is registered against the full-record stage, because its destination is inside the promises drawer — the pill goes where it sends you");
+  ok(SP.targetStage("pdxsec-wordaction") === "verdict",
+     "rail: and the primary read is registered against the verdict stage, so it leads the rail by derivation rather than by push position");
+
+  // 12b. Every target a pill can carry is registered, or it would silently sort to
+  //      the deep end. Collected from the rail block plus the two pills built
+  //      elsewhere (Enactments via PDXExecRecordUI, Votes via voting-record.js).
+  const railBlock = PFR.slice(PFR.indexOf("const _navItems = [];"), PFR.indexOf("const _navOrdered"));
+  const pillTargets = [...railBlock.matchAll(/target: '(pdxsec-[a-z-]+)'/g)].map((m) => m[1]);
+  ok(pillTargets.length >= 8, "rail: the pill block still declares its targets as literals");
+  const unregistered = pillTargets
+    .concat(["pdxsec-exec-record", "pdxsec-voting"])
+    .filter((t) => !SP.targetStage(t));
+  ok(unregistered.length === 0,
+     "rail: no pill aims at an unregistered anchor — " + (unregistered.join(", ") || "all registered"));
+
+  // 12c. railOrder's contract. Stable within a stage, action pills ride with the
+  //      pill they follow, an unknown target is demoted rather than promoted, and a
+  //      malformed list does not throw the rail away.
+  const keys = (l) => l.map((x) => x.k);
+  ok(JSON.stringify(keys(SP.railOrder([
+    { k: "money", target: "pdxsec-funding" },
+    { k: "verdict", target: "pdxsec-wordaction" },
+  ]))) === JSON.stringify(["verdict", "money"]),
+     "railOrder: a list pushed in the wrong order still comes out in spine order");
+  ok(JSON.stringify(keys(SP.railOrder([
+    { k: "score", target: "pdxsec-score" },
+    { k: "official", target: "pdxsec-official-record" },
+  ]))) === JSON.stringify(["score", "official"]),
+     "railOrder: two pills in one stage keep their push order — the sort is stable, so the source still reads top to bottom");
+  ok(JSON.stringify(keys(SP.railOrder([
+    { k: "money", target: "pdxsec-funding" },
+    { k: "positions", target: "pdxsec-positions" },
+    { k: "report" },
+    { k: "verdict", target: "pdxsec-wordaction" },
+  ]))) === JSON.stringify(["verdict", "positions", "report", "money"]),
+     "railOrder: the Full Report action pill has no anchor of its own, so it inherits the rank of the pill it follows and stays attached to Positions");
+  ok(JSON.stringify(keys(SP.railOrder([
+    { k: "mystery", target: "pdxsec-not-a-real-anchor" },
+    { k: "money", target: "pdxsec-funding" },
+  ]))) === JSON.stringify(["money", "mystery"]),
+     "railOrder: an unregistered target sorts to the deep end, never ahead of the verdict");
+  ok(SP.railOrder([]).length === 0 && SP.railOrder().length === 0 &&
+     SP.railOrder([null, { k: "x", target: "pdxsec-match" }]).length === 1,
+     "railOrder: an empty, absent or hole-punched list is survivable — the rail is a nicety and must never throw");
+
+  // Any one profile shows a SUBSET of the roster, because most pills self-gate. The
+  // sort key is the stage rank and the sort is stable, so every subset has to come
+  // out as a subsequence of the full order. Checked by exhaustion rather than
+  // asserted, which is what makes the claim cover Massie and every other profile.
+  {
+    const roster = ["pdxsec-wordaction", "pdxsec-controversies", "pdxsec-positions", null,
+      "pdxsec-score", "pdxsec-record", "pdxsec-exec-record", "pdxsec-evidence",
+      "pdxsec-match", "pdxsec-funding", "pdxsec-activity"]
+      .map((t, i) => (t ? { k: i, target: t } : { k: i }));
+    const full = SP.railOrder(roster);
+    let subsetOk = true;
+    for (let mask = 0; mask < (1 << roster.length); mask++) {
+      const sub = roster.filter((_, i) => mask & (1 << i));
+      const got = SP.railOrder(sub);
+      const want = full.filter((x) => sub.indexOf(x) !== -1);
+      if (got.length !== want.length || got.some((x, i) => x !== want[i])) { subsetOk = false; break; }
+    }
+    ok(subsetOk,
+       "railOrder: all " + (1 << roster.length) + " possible pill subsets come out as a subsequence of the full derived order, so a thin profile's rail is ordered too");
+  }
+
+  // 12d. The rail is BUILT through the derivation, not merely capable of it. A
+  //      railOrder that nothing calls is a comment.
+  ok(/PDXProfileSpine\.railOrder\(_navItems\)/.test(PFR),
+     "rail: the profile sorts its pill list through the spine instead of trusting the push order");
+  ok(/_navOrdered\.length >= 2/.test(PFR) && /_navOrdered\.map\(function/.test(PFR) &&
+     !/_navItems\.map\(function/.test(PFR),
+     "rail: and it renders the SORTED list — an unsorted render would make the derivation decorative");
+  ok(/typeof window\.PDXProfileSpine\.railOrder === 'function'[\s\S]{0,140}: _navItems/.test(PFR),
+     "rail: with the unsorted list as the fallback, so a missing spine costs the order and not the rail");
+
+  // 12e. The spy no longer measures. Every layout-forcing read that used to happen
+  //      per frame is gone from the callback path; the one that survives runs once
+  //      per arm, to find the height of the sticky rail.
+  const spy = PFR.slice(PFR.indexOf("window._pdxInitProfileNav = function"),
+                        PFR.indexOf("function _pdxNavSyncOrder"));
+  ok(spy.length > 400, "spy: the arm function is where this file says it is");
+  ok(/new IntersectionObserver\(/.test(spy),
+     "spy: the active pill is driven by IntersectionObserver");
+  ok(!/getBoundingClientRect\(/.test(spy),
+     "spy: and it never calls getBoundingClientRect — that was a forced layout flush per anchor per frame, on the one gesture where a phone has no headroom");
+  ok(!/addEventListener\(\s*'scroll'/.test(spy) && !/requestAnimationFrame/.test(spy),
+     "spy: the per-frame scroll listener is gone entirely, not merely throttled harder");
+  ok(!/\.scrollHeight/.test(spy) && !/\.clientHeight/.test(spy) && !/\.scrollTop/.test(spy),
+     "spy: and the bottom-of-page test no longer reads scrollHeight, which forces layout every time it is asked");
+  ok((spy.match(/\.offsetHeight/g) || []).length === 1,
+     "spy: exactly one layout read survives — the rail height, taken once per arm rather than once per frame");
+  ok(/root: body/.test(spy) && /rootMargin: \(-line\)/.test(spy),
+     "spy: the observer root is the modal body clipped by the rail height, so a callback fires exactly when an anchor crosses the line a reader reads from");
+  ok(/e\.rootBounds/.test(spy) && /e\.boundingClientRect\.top/.test(spy),
+     "spy: and the crossing test compares the two rects the entry already carries — the same predicate as before, measured by the compositor instead of by us");
+  ok(/rootBounds \? [\s\S]{0,80}: null/.test(spy) && /!e\.isIntersecting/.test(spy),
+     "spy: with a fallback for the case where rootBounds is null, so the rail degrades instead of inverting");
+  ok(/typeof window\.IntersectionObserver !== 'function'/.test(spy),
+     "spy: and a path for a browser without IntersectionObserver at all — every pill still scrolls, only the highlight is lost");
+
+  // 12f. Order at runtime comes from the document, which is the only authority that
+  //      cannot drift. This is what catches a pill appended after the build.
+  ok(/compareDocumentPosition/.test(spy),
+     "spy: the tracked anchors are sorted by real document position, so the active index can only move forwards as the reader scrolls down");
+  const sync = PFR.slice(PFR.indexOf("function _pdxNavSyncOrder"), PFR.indexOf("function _pdxNavTeardown"));
+  ok(/appendChild/.test(sync) && /if \(same\) return;/.test(sync),
+     "spy: pill nodes are moved to match that order, and only when they actually disagree — re-appending children that are already in place still moves them, and the track is a horizontally scrolled row");
+  ok(/rank\[t\] !== undefined/.test(sync) && /cur\.pills\.push\(b\)/.test(sync),
+     "spy: action pills travel with the section pill they follow, so sorting the rail cannot detach Full Report from Positions");
+  ok(/_pdxNavRearmSoon/.test(read("voting-record.js")),
+     "spy: the late-injected Votes pill re-arms the rail, which is what sorts it into place once its drawer has mounted");
+
+  // 12g. Reachability. The jump still reveals before it measures, in that order:
+  //      mount a deferred drawer, open every closed lid above the target, and only
+  //      then compute the offset, so it reflects the expanded layout.
+  const jumpFn = PFR.slice(PFR.indexOf("window._pdxNavJump = function"),
+                           PFR.indexOf("window._pdxNavRearmSoon = function"));
+  const iReveal = jumpFn.indexOf("_pdxRevealTarget(targetId)");
+  const iChain = jumpFn.indexOf("_pdxOpenClosedChain(el)");
+  const iMeasure = jumpFn.indexOf("getBoundingClientRect");
+  ok(iReveal !== -1 && iChain > iReveal && iMeasure > iChain,
+     "reach: the jump still mounts a deferred drawer, then opens every closed lid above the target, then measures — measuring first would scroll to a collapsed box");
+  ok(/_pdxNavRepaint\(true\)/.test(jumpFn),
+     "reach: and the jump forces one repaint when its suppression window lifts, so the rail resyncs to where the scroll actually settled instead of keeping the pill the tap lit");
+
+  // 12h. Coalescing. Three callers re-arm the rail; a burst of them must cost one.
+  const soon = PFR.slice(PFR.indexOf("window._pdxNavRearmSoon = function"),
+                         PFR.indexOf("window._pdxInitProfileNav = function"));
+  ok(/_pdxNavRearmPending/.test(soon) && /requestAnimationFrame/.test(soon),
+     "coalesce: re-arms collapse into one animation frame, so opening three drawers in a row costs one re-arm and it reads layout after the mutation settles");
+  ok(/_pdxNavTeardown\(\);/.test(spy),
+     "coalesce: arming tears the previous observers down first, so re-arming can never stack two observers on one profile");
+  const closeFn = PFR.slice(PFR.indexOf("function closeModal()"), PFR.indexOf("var _pdxPendingCharts"));
+  ok(/_pdxNavTeardown\(\)/.test(closeFn) && !/removeEventListener\('scroll'/.test(closeFn),
+     "coalesce: and closing the profile disconnects them, so nothing is left observing a detached subtree");
+  ok(/disconnect\(\)/.test(PFR.slice(PFR.indexOf("function _pdxNavTeardown"))),
+     "coalesce: teardown actually disconnects rather than dropping the reference and leaving the observer live");
+
+  // 12i. The spine still owns the decision. Phase 5 derives the rail FROM the
+  //      order; it must not have quietly restated it.
+  ok(!/var RAIL_ORDER|railSequence|PILL_ORDER/.test(SPS),
+     "keep: there is no second ordered list of pills anywhere in the spine — STAGES plus the anchor registry is the whole declaration");
+  ok(SP.STAGE_KEYS.join(">") === "identity>brief>verdict>tension>signature>record>receipts>you>money>drawers",
+     "keep: and the phase 4 stage order is untouched");
 }
 
 

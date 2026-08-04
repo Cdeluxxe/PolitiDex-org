@@ -1281,8 +1281,10 @@
   };
 
   // Add a "Votes" pill to the profile jump-nav once we know there's a record,
-  // then re-init the scroll-spy so it tracks the new anchor. Self-gating: no
-  // record → no pill.
+  // then re-arm the rail so it tracks the new anchor. The pill is appended here
+  // and SORTED there: _pdxInitProfileNav places it by real document position, so
+  // this function does not have to know where in the rail it belongs. Self-gating:
+  // no record → no pill.
   function injectNavPill(count) {
     try {
       var track = document.querySelector('#pdx-profile-nav .pdx-pnav-track');
@@ -1297,7 +1299,8 @@
         '<span class="pdx-pnav-txt"><span class="pdx-pnav-label">Votes</span>' +
         '<span class="pdx-pnav-val" style="color:#7fb4ff;">' + count + ' Record' + (count === 1 ? '' : 's') + '</span></span>';
       track.appendChild(btn);
-      if (window._pdxInitProfileNav) window._pdxInitProfileNav();
+      if (window._pdxNavRearmSoon) window._pdxNavRearmSoon();
+      else if (window._pdxInitProfileNav) window._pdxInitProfileNav();
     } catch (e) { /* nav is a nicety; never let it break the section */ }
   }
 
