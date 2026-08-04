@@ -79,15 +79,39 @@
   // it answers — which is why "Record vs. Public Picture" sits in `tension` and
   // not next to the record, and why personal-alignment blocks are collected into
   // one `you` stage instead of appearing at three different depths.
+  //
+  // The sequence below is an ACCOUNTABILITY PATH, not a catalogue of systems. Its
+  // shape is four claims, in this order:
+  //
+  //   THE JUDGMENT COMES FIRST. `verdict` holds one thing — the Word vs Action
+  //   read — and it is the first major surface after the letterhead and the brief.
+  //   It used to be the opening block of `record`, which meant the primary finding
+  //   arrived as the header of a system rather than as the site's answer. There is
+  //   still exactly one score; giving it its own stage is what makes that legible.
+  //
+  //   THE ADVERSE FINDING COMES SECOND. `tension` now precedes `signature`.
+  //   "Where does this person contradict themselves" is the question a reader came
+  //   with; "what are they known for" is context that frames it. Leading with the
+  //   flattering summary and burying the contradiction two stages down is how a
+  //   dossier turns into a brochure.
+  //
+  //   FINDINGS BEFORE METHODS. Everything from `record` down is the apparatus that
+  //   produced the verdict — the formal record, the receipts, the ledgers. It is
+  //   all still here, in full, and none of it is the first thing a reader meets.
+  //
+  //   THE READER'S OWN STAKE BEFORE THE FOLLOW-THE-MONEY TAIL. `you` moved above
+  //   `money`, so the profile ends on the deep record rather than on the reader,
+  //   but the reader is met before the widest-context material.
   var STAGES = [
     { key: 'identity',  label: 'Identity',           ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
-    { key: 'signature', label: 'Signature issues',    ask: 'What defines them?' },
+    { key: 'verdict',   label: 'The verdict',         ask: 'Do they stand by what they said?' },
     { key: 'tension',   label: 'Where it is contested', ask: 'Where is the tension?' },
+    { key: 'signature', label: 'Signature issues',    ask: 'What defines them?' },
     { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
-    { key: 'receipts',  label: 'Receipts · say vs. do', ask: 'Do their words match it?' },
-    { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
+    { key: 'receipts',  label: 'Receipts · say vs. do', ask: 'Where are the receipts?' },
     { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
+    { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
     { key: 'drawers',   label: 'The full record',     ask: 'Show me everything.' }
   ];
   var STAGE_KEYS = STAGES.map(function (s) { return s.key; });

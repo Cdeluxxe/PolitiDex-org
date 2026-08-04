@@ -4025,10 +4025,20 @@
       : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
 
     const _navItems = [];
-    // ⚖️ Word vs Action — the primary read, so it leads the rail. Value is the
-    // weighted percentage when the record clears the fail-closed floors, and the
-    // honest state ("Checking…" / "Thin record") when it does not — never a bare
-    // number standing in for one. Self-gating: no pill when no word is on file.
+    // The rail is the path's table of contents, so the pills are pushed in the
+    // order a reader now MEETS these sections: verdict → tension → signature →
+    // record → receipts → you → money → drawers. It used to be pushed in the order
+    // the pills were built, which was close enough while the spine put the verdict
+    // in the middle; with the verdict first and money last, a rail that disagreed
+    // with the page would send the scroll-spy's active state jumping backwards as
+    // you scrolled. Order only — the spy, the anchors and the pill markup are
+    // untouched.
+    //
+    // ⚖️ Word vs Action — the primary read, so it leads the rail, and now leads the
+    // page too. Value is the weighted percentage when the record clears the
+    // fail-closed floors, and the honest state ("Checking…" / "Thin record") when it
+    // does not — never a bare number standing in for one. Self-gating: no pill when
+    // no word is on file.
     try {
       if (window.PDXWordAction && typeof window.PDXWordAction.read === 'function') {
         const _wa = window.PDXWordAction.read(id, p);
@@ -4040,10 +4050,32 @@
         }
       }
     } catch (e) {}
+    // Controversies — the neutral flashpoints block, shown only when at least one
+    // sourced say-vs-do gap / broken promise / flagged event is on record. Second in
+    // the rail because the tension stage is second on the page: the adverse finding
+    // is what a reader came for, and the rail should not bury it either.
+    try {
+      if (typeof window._pdxControversyCount === 'function') {
+        const _navCtv = window._pdxControversyCount(id, p);
+        if (_navCtv > 0) {
+          _navItems.push({ target: 'pdxsec-controversies', icon: '⚠️', label: 'Controversies', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
+        }
+      }
+    } catch (e) {}
+    // Positions — number of tracked key issues.
+    if (window._pdxKeyIssues(p).length) {
+      const _n = window._pdxKeyIssues(p).length;
+      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
+      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
+      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
+      // to a section, so the deepest per-issue view is one tap from the map. Sits
+      // right after Positions since it is the "see everything" extension of it.
+      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
+    }
     // Promises — the pledge lane, reported as a COUNT. The rail carries exactly one
-    // percentage (the ⚖️ pill above it, the primary read) so two pills can never
+    // percentage (the ⚖️ pill leading it, the primary read) so two pills can never
     // read as two competing verdicts; the pledge rate itself lives in its own block
-    // further down, where it is labelled as pledges-only.
+    // in the record stage, where it is labelled as pledges-only.
     if (scoreNum !== null || (keptCount + brokenCount) > 0) {
       _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: keptCount + ' Kept', color: '#9fb4d4' });
     }
@@ -4060,16 +4092,6 @@
         _navItems.push({ target: 'pdxsec-record', icon: '📋', label: 'Record', value: keptCount + 'K · ' + brokenCount + 'B' + _pend, color: '#f5c842' });
       }
     }
-    // Positions — number of tracked key issues.
-    if (window._pdxKeyIssues(p).length) {
-      const _n = window._pdxKeyIssues(p).length;
-      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
-      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
-      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
-      // to a section, so the deepest per-issue view is one tap from the map. Sits
-      // right after Positions since it is the "see everything" extension of it.
-      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
-    }
     // ✒️ Enactments — the Executive Enactment Record, for figures who cast no
     // congressional floor votes. Self-gating exactly as the section is: navPill()
     // returns null unless sourced formal actions are on file, so this pill exists on
@@ -4080,28 +4102,6 @@
         const _navEer = window.PDXExecRecordUI.navPill(id);
         if (_navEer) {
           _navItems.push({ target: _navEer.target, icon: _navEer.icon, label: _navEer.label, value: _navEer.value, color: _navEer.color });
-        }
-      }
-    } catch (e) {}
-    // Controversies — the neutral flashpoints block, shown only when at least one
-    // sourced say-vs-do gap / broken promise / flagged event is on record.
-    try {
-      if (typeof window._pdxControversyCount === 'function') {
-        const _navCtv = window._pdxControversyCount(id, p);
-        if (_navCtv > 0) {
-          _navItems.push({ target: 'pdxsec-controversies', icon: '⚠️', label: 'Controversies', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
-        }
-      }
-    } catch (e) {}
-    // Funding — who bankrolls them, shown only when a filing record is on file.
-    try {
-      if (typeof window._pdxFunding === 'function') {
-        const _navFund = window._pdxFunding(id);
-        if (_navFund) {
-          const _fk = (_navFund.character && _navFund.character.kind) || 'unknown';
-          const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
-          const _fi = (_navFund.character && _navFund.character.icon) || '💰';
-          _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
         }
       }
     } catch (e) {}
@@ -4117,6 +4117,18 @@
         if (_navMatch !== null && _navMatch !== undefined) {
           const _mc = _navMatch >= 70 ? '#4ade80' : _navMatch >= 50 ? '#f5c842' : '#f87171';
           _navItems.push({ target: 'pdxsec-match', icon: '🤝', label: 'Match', value: _navMatch + '% Match', color: _mc });
+        }
+      }
+    } catch (e) {}
+    // Funding — who bankrolls them, shown only when a filing record is on file.
+    try {
+      if (typeof window._pdxFunding === 'function') {
+        const _navFund = window._pdxFunding(id);
+        if (_navFund) {
+          const _fk = (_navFund.character && _navFund.character.kind) || 'unknown';
+          const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
+          const _fi = (_navFund.character && _navFund.character.icon) || '💰';
+          _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
         }
       }
     } catch (e) {}
@@ -4163,11 +4175,16 @@
     // The body below is written in the order these sections were BUILT; it is
     // rendered in the order a reader needs them. Each block carries a one-line
     // <!--PDXSP:stage--> sentinel naming the stage of the profile spine it belongs
-    // to (identity → brief → signature issues → tension → official record →
-    // receipts → money → you → full-record drawers), and PDXProfileSpine
+    // to (identity → brief → verdict → tension → signature issues → official
+    // record → receipts → you → money → full-record drawers), and PDXProfileSpine
     // reorders and wraps them on the way to the DOM. Annotating in place rather
     // than physically moving hundred-line renderers keeps the diff reviewable and
     // makes the sequence a declaration instead of an accident of line numbers.
+    //
+    // That sequence is a path, not a table of contents: the verdict, then what
+    // contradicts it, then what the person is known for, then the apparatus that
+    // produced the verdict. See the STAGES block in profile-spine.js for why each
+    // stage sits where it does — it is the one place that decision is recorded.
     //
     // Blocks tagged dw:<name> are deep-record content: they are preserved in full
     // and collected behind one labelled, closed-by-default drawer per name.
@@ -4260,19 +4277,22 @@
            the plain thin notice if the snapshot can't render. -->
       ${candidateSnapshot || thinNotice}
 
-      <!--PDXSP:record-->
-      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the first thing
-           on the record stage. One question ("do they stand by what they said?") over
+      <!--PDXSP:verdict-->
+      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the whole of the
+           verdict stage. One question ("do they stand by what they said?") over
            one pool of documented word in three weighted tiers: explicit pledges,
            stated positions, and the issues they campaign on. Tested only against the
            Official Record. See word-action.js for the model, its five rules and the
            fail-closed floors.
 
-           Everything below it is now SUPPORTING detail rather than a competing
-           headline: the Promise Follow-Through block is the pledge tier's own
-           number, the Official Record and Say-vs-Do sections are the two scoped
-           lanes underneath. Renders '' when no word is on file at all — an empty
-           frame would imply the record should be here. -->
+           It used to open the record stage, which made the site's primary finding
+           read as the header of one system among several. It now has a stage of its
+           own, directly under the brief, and it is the only score there. The
+           supporting lanes did not move relative to each other: the Promise
+           Follow-Through block is still the pledge tier's own number, and the
+           Official Record and Say-vs-Do sections are still the two scoped feeds
+           underneath. Renders '' when no word is on file at all — an empty frame
+           would imply the record should be here. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
       <!-- Connecting the Dots — the SYNTHESIS layer, and deliberately placed
@@ -4283,10 +4303,15 @@
            it is unambiguously an expansion — the same score, one issue at a time,
            each issue followed through five links (what they said → what they did
            → the receipts → the issue and its Spotlights → what it means for the
-           score). Self-gating: hidden unless there is a genuine join to show or at
-           least two links carry real data (profile-connect.js, PDXDossier). -->
+           score). It is in the verdict stage for that reason and no other: a
+           synthesis belongs under the thing it synthesizes, so it follows Word vs
+           Action into its stage rather than being left behind at the top of the
+           record stage, two stages away from its own subject. Self-gating: hidden
+           unless there is a genuine join to show or at least two links carry real
+           data (profile-connect.js, PDXDossier). -->
       ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
 
+      <!--PDXSP:record-->
       <!-- Promise Follow-Through — the PLEDGE TIER's own number, kept intact and
            kept canonical (Kept ÷ (Kept + Broken), pending excluded) but no longer the
            loudest thing on the profile. Every count, chip and explainer survives; the

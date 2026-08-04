@@ -499,9 +499,11 @@ const [displayScore, promiseState] = (() => {
     "    derivation — it belongs to the hero ring and the Follow-Through block");
 
   // The nav rail's Record pill reports COUNTS. The rate is the pill directly
-  // above it; recomputing it here made one number look like two findings.
+  // above it; recomputing it here made one number look like two findings. The
+  // slice runs to the end of the pill list rather than to a named pill, because
+  // the pills are pushed in page order and page order changes when the spine does.
   const rail = PROFILES.slice(PROFILES.indexOf("const _navItems = []"),
-    PROFILES.indexOf("Controversies — the neutral flashpoints block"));
+    PROFILES.indexOf("A single pill isn't a"));
   must(rail.length > 400, "could not isolate the profile nav rail");
   ok(!/keptCount\s*\/\s*_resolved/.test(rail),
     "the nav rail's Record pill recomputes the follow-through rate — it sits beside\n" +

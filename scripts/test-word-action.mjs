@@ -524,7 +524,7 @@ const voteNarration = (issueKey, extra = {}) => ({
 // 10. The surfaces: mount, demotion, async re-render, precache
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // Mounted on the record stage, ahead of the pledge number.
+  // Mounted on its own verdict stage, ahead of the pledge number.
   const mount = PROFILES.indexOf('PDXWordAction.sectionHtml(id, p)');
   must(mount !== -1, 'profiles-full.js no longer mounts PDXWordAction.sectionHtml');
   const score = PROFILES.indexOf('id="pdxsec-score"');
@@ -532,9 +532,14 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(mount < score,
     'Word vs Action is mounted after the Promise Follow-Through block — the primary read has to\n' +
     '    come first, or the profile still opens on the pledge-only number');
-  const recordStage = PROFILES.lastIndexOf('<!--PDXSP:record-->', mount);
-  ok(recordStage !== -1 && PROFILES.lastIndexOf('<!--PDXSP:dw:', mount) < recordStage,
-    'Word vs Action was mounted inside a closed full-record drawer instead of on the record stage');
+  // It used to open the record stage. It now IS a stage: the primary read is the
+  // site's answer, not the header of one system among several. Either way it must
+  // not be inside a drawer, which is what the dw: check below is for.
+  const verdictStage = PROFILES.lastIndexOf('<!--PDXSP:verdict-->', mount);
+  ok(verdictStage !== -1 && PROFILES.lastIndexOf('<!--PDXSP:dw:', mount) < verdictStage,
+    'Word vs Action was mounted inside a closed full-record drawer instead of on the verdict stage');
+  ok(verdictStage < PROFILES.indexOf('<!--PDXSP:record-->', mount),
+    'the verdict stage no longer precedes the record stage — findings must arrive before the apparatus that produced them');
   ok(/pdxsec-wordaction/.test(WA_SRC), 'the section has no stable anchor to jump to');
   ok(/target: 'pdxsec-wordaction'/.test(PROFILES),
     'the quick-jump rail has no Word vs Action pill, so the primary read is not addressable');

@@ -537,9 +537,17 @@ const dot = (issueKey, over = {}) => ({
   must(scoreAt !== -1, "profiles-full.js no longer mounts the Word vs Action section");
   ok(scoreAt < dotsAt,
      "Connecting the Dots still renders BEFORE ⚖️ Word vs Action — a synthesis that arrives before its own score reads as a second, competing verdict");
-  const stage = PF.lastIndexOf("<!--PDXSP:", dotsAt);
-  ok(PF.slice(stage, stage + 24).indexOf("PDXSP:record") !== -1,
-     `Connecting the Dots is not on the record stage (found ${JSON.stringify(PF.slice(stage, stage + 24))}) — it belongs with the record it synthesises, not on the brief`);
+  // Adjacency is the real invariant, and it is stronger than naming a stage. The
+  // score moved out of `record` into its own `verdict` stage, and the synthesis had
+  // to move with it: separated by even one stage sentinel, the two would be read as
+  // two findings again. So assert they share whichever stage the score is in,
+  // whatever that stage is called next time.
+  const scoreStage = PF.lastIndexOf("<!--PDXSP:", scoreAt);
+  const dotsStage = PF.lastIndexOf("<!--PDXSP:", dotsAt);
+  ok(scoreStage !== -1 && scoreStage === dotsStage,
+     `Connecting the Dots is not in the same stage as the score it synthesises (score ${JSON.stringify(PF.slice(scoreStage, scoreStage + 24))}, synthesis ${JSON.stringify(PF.slice(dotsStage, dotsStage + 24))}) — a stage boundary between them makes them read as two findings`);
+  ok(PF.slice(scoreStage, scoreStage + 24).indexOf("PDXSP:brief") === -1,
+     "the score and its synthesis are back on the brief stage — the first screen is not where a scored verdict is argued in full");
 
   // And the spotlight rail sits above the spine as an entry point, not a block.
   ok(/PDXDossier\.railHtml/.test(INDEX),

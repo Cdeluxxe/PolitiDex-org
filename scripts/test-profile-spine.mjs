@@ -14,9 +14,12 @@
 // clipped drawer still opens. So they are tested rather than trusted:
 //
 //   1. THE ORDER IS THE PRODUCT. STAGES must match the spine the profile promises
-//      (identity → short version → signature issues → tension → record → receipts
-//      → money → you → full record), and the assembler must place chunks by stage
-//      no matter what order the template emits them in.
+//      (identity → short version → verdict → tension → signature issues → record
+//      → receipts → you → money → full record), and the assembler must place
+//      chunks by stage no matter what order the template emits them in. That
+//      sequence is an accountability path, so the assertions check its four claims
+//      — judgment first, contradiction before reputation, findings before methods,
+//      the reader before the money tail — not merely that the array parses.
 //
 //   2. NOTHING IS DELETED. This was a re-sequencing, not a cull. An unknown stage
 //      and a drawer tag with no spec must both survive to the deep end; every
@@ -94,19 +97,37 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 
 // ── 1. The order is the product ──────────────────────────────────────────────
 {
-  const want = ["identity", "brief", "signature", "tension", "record", "receipts", "money", "you", "drawers"];
+  const want = ["identity", "brief", "verdict", "tension", "signature", "record", "receipts", "you", "money", "drawers"];
   ok(JSON.stringify(SP.STAGES.map((s) => s.key)) === JSON.stringify(want),
-     "order: STAGES is exactly the promised spine — identity, short version, signature issues, tension, record, receipts, money, you, full record");
+     "order: STAGES is exactly the promised spine — identity, short version, verdict, tension, signature issues, record, receipts, you, money, full record");
   ok(SP.STAGES.every((s) => s.label && s.ask && /\?|\./.test(s.ask)),
      "order: every stage carries both a label and the reader question it answers");
+  // Two rails asking the same question is a rail that has stopped orienting
+  // anyone. The verdict asks whether they stand by what they said; the receipts
+  // stage asks where the proof of that is. They are not the same question.
+  ok(new Set(SP.STAGES.map((s) => s.ask)).size === SP.STAGES.length,
+     "order: no two stages ask the reader the same question");
+
+  // The four claims the path makes, asserted as order rather than as prose.
+  const kAt = (k) => SP.STAGES.findIndex((s) => s.key === k);
+  ok(kAt("verdict") < kAt("record") && kAt("verdict") < kAt("receipts") && kAt("verdict") < kAt("drawers"),
+     "path: the judgment comes before the apparatus that produced it — findings before methods");
+  ok(kAt("verdict") === kAt("brief") + 1,
+     "path: the verdict is the first major surface after the letterhead and the brief");
+  ok(kAt("tension") < kAt("signature"),
+     "path: the sharpest contradiction is met before what the person is known for — a dossier, not a brochure");
+  ok(kAt("you") < kAt("money") && kAt("money") < kAt("drawers"),
+     "path: the reader's own stake precedes the follow-the-money tail, and the deep record still closes the profile");
 
   // The whole point: source position must stop deciding reading position.
   const out = SP.assemble([
     ["drawers", "<i>D</i>"], ["money", "<i>M</i>"], ["identity", "<i>I</i>"],
-    ["record", "<i>R</i>"], ["signature", "<i>S</i>"],
+    ["record", "<i>R</i>"], ["signature", "<i>S</i>"], ["verdict", "<i>V</i>"],
+    ["tension", "<i>T</i>"],
   ]);
   const at = (s) => out.indexOf(s);
-  ok(at("<i>I</i>") < at("<i>S</i>") && at("<i>S</i>") < at("<i>R</i>") &&
+  ok(at("<i>I</i>") < at("<i>V</i>") && at("<i>V</i>") < at("<i>T</i>") &&
+     at("<i>T</i>") < at("<i>S</i>") && at("<i>S</i>") < at("<i>R</i>") &&
      at("<i>R</i>") < at("<i>M</i>") && at("<i>M</i>") < at("<i>D</i>"),
      "order: assemble() emits stages in spine order regardless of the order they were handed in");
 
@@ -118,12 +139,19 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   // are also the jump targets the brief's chips aim at, so their ids matter.
   ok(/id="pdxsp-money"/.test(out) && /id="pdxsp-record"/.test(out),
      "order: a stage with content emits a rail carrying the stable id its jump chips target");
+  ok(/id="pdxsp-verdict"/.test(out),
+     "order: the verdict stage emits its own rail, so the primary judgment is a nameable place on the page");
   ok(!/id="pdxsp-receipts"/.test(out),
      "order: a stage with nothing to say emits no rail — so a chip aimed at it can be detected as dead");
   ok(!/id="pdxsp-identity"/.test(out) && !/id="pdxsp-brief"/.test(out),
      "order: identity and the brief are silent stages — no heading is printed over the letterhead");
   ok(/pdxsp-rail-ask/.test(out) && /Who funds them/.test(out),
      "order: the rail prints the question, not just a label");
+  // Rail numbering is derived from which stages rendered, so a profile with no
+  // funding on file does not print a gap in the sequence.
+  ok(/pdxsp-rail-n" aria-hidden="true">1</.test(out) &&
+     out.indexOf('>1<') < out.indexOf('>2<'),
+     "order: rails are numbered over the stages that actually rendered, starting at 1");
 }
 
 // ── 2. Nothing is deleted ────────────────────────────────────────────────────
@@ -314,7 +342,7 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //     one block, or a stage of the promised spine is simply missing.
   const tags = [...PF.matchAll(/<!--PDXSP:([a-z0-9:_-]+)-->/g)].map((m) => m[1]);
   const stageTags = new Set(tags.filter((t) => !t.startsWith("dw:")));
-  ["identity", "brief", "signature", "tension", "record", "receipts", "money", "you"].forEach((k) => {
+  ["identity", "brief", "verdict", "tension", "signature", "record", "receipts", "money", "you"].forEach((k) => {
     ok(stageTags.has(k), `sentinels: at least one block claims the '${k}' stage`);
   });
   const dwTags = new Set(tags.filter((t) => t.startsWith("dw:")).map((t) => t.slice(3)));
@@ -748,7 +776,92 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "lid: that walk keys off .dd-body without .dd-open, which is why it opens lids and drawers alike with no list to maintain");
 }
 
-// ── report ───────────────────────────────────────────────────────────────────
+// ── 11. The verdict stage, and the rail that has to agree with it ────────────
+// Phase 4 moved the sequence, not the substance. These assertions are about
+// PLACEMENT: which stage each surface is tagged into, and whether the jump rail
+// still describes the page it is a map of. They are source-level on purpose —
+// the tags are what the assembler reads, so the tags are the product decision.
+{
+  const PFL = read("profiles-full.js");
+
+  // 11a. One score, one stage. The verdict stage holds the Word vs Action read and
+  //      the synthesis of that same read — and nothing else that carries a number.
+  const verdictAt = PFL.indexOf("<!--PDXSP:verdict-->");
+  ok(verdictAt !== -1, "verdict: the profile body declares a verdict stage");
+  const afterVerdict = PFL.slice(verdictAt);
+  const verdictBlock = afterVerdict.slice(0, afterVerdict.indexOf("<!--PDXSP:record-->"));
+  ok(/PDXWordAction\.sectionHtml\(id, p\)/.test(verdictBlock),
+     "verdict: Word vs Action is the verdict stage — the primary read is no longer the header of one system among several");
+  ok(/_pdxConnectDots\(id, p\)/.test(verdictBlock),
+     "verdict: Connecting the Dots follows it into the stage — synthesis sits under the score it synthesizes");
+  ok(verdictBlock.indexOf("PDXWordAction.sectionHtml") < verdictBlock.indexOf("_pdxConnectDots"),
+     "verdict: and it sits UNDER the score, not above it — a summary printed first would be a second headline");
+  ok(!/_renderFollowThrough\(/.test(verdictBlock),
+     "verdict: the pledge-tier percentage stays in the record stage — one score in one place, and the verdict stage is where the one score is");
+  ok(!/_renderAccountabilityCard\(/.test(verdictBlock),
+     "verdict: the retired accountability composite is not promoted into the verdict stage either");
+
+  // 11b. The verdict is met before the apparatus. Compared as tag positions in the
+  //      template only where the template's own order matters — the sentinel for
+  //      the verdict must be the FIRST stage sentinel in the body, because the text
+  //      ahead of it is the letterhead and defaults to identity. Searched from the
+  //      template literal onward: the doc comment above it prints a specimen
+  //      sentinel to explain the convention, and that specimen is not markup.
+  const bodyFrom = PFL.indexOf("const _profileBody = ");
+  ok(bodyFrom !== -1, "verdict: the profile body template is where this file says it is");
+  const firstTag = (PFL.slice(bodyFrom).match(/<!--PDXSP:([a-z0-9:_-]+)-->/) || [])[1];
+  ok(firstTag === "verdict",
+     "verdict: it is the first sentinel in the body, so the letterhead ahead of it still defaults to identity");
+
+  // 11c. The rail has to read in page order or the scroll-spy walks backwards.
+  //      Pills are pushed in one block; their push order IS the rail order.
+  const railFrom = PFL.indexOf("const _navItems = [];");
+  const railTo = PFL.indexOf("// A single pill isn't a \"map\"");
+  ok(railFrom !== -1 && railTo > railFrom, "rail: the pill list is built in one contiguous block");
+  const rail = PFL.slice(railFrom, railTo);
+  const pillAt = (t) => rail.indexOf("'" + t + "'");
+  const pills = [
+    ["pdxsec-wordaction", "verdict"],
+    ["pdxsec-controversies", "tension"],
+    ["pdxsec-positions", "signature"],
+    ["pdxsec-score", "record"],
+    ["pdxsec-evidence", "receipts"],
+    ["pdxsec-match", "you"],
+    ["pdxsec-funding", "money"],
+    ["pdxsec-activity", "drawers"],
+  ];
+  pills.forEach((pill) => {
+    ok(pillAt(pill[0]) !== -1, `rail: the ${pill[1]} stage has a pill (${pill[0]})`);
+  });
+  let monotonic = true;
+  for (let i = 1; i < pills.length; i++) {
+    if (pillAt(pills[i][0]) < pillAt(pills[i - 1][0])) monotonic = false;
+  }
+  ok(monotonic,
+     "rail: pills are pushed in the order a reader meets their sections — verdict, tension, signature, record, receipts, you, money, drawers");
+  ok(pillAt("pdxsec-wordaction") < pillAt("pdxsec-score"),
+     "rail: Word vs Action still leads the rail, and now leads the page too");
+  ok(pillAt("pdxsec-score") < pillAt("pdxsec-record"),
+     "rail: the pledge COUNT pill stays directly under the pledge lane it belongs to, so one number never reads as two findings");
+  ok(rail.indexOf("action: 'stance'") > pillAt("pdxsec-positions") &&
+     rail.indexOf("action: 'stance'") < pillAt("pdxsec-score"),
+     "rail: Full Report stays attached to Positions — it is the see-everything extension of that pill, not a stage of its own");
+  // Exactly one percentage in the rail, still. Reordering must not have smuggled
+  // the pledge rate back in beside the primary read.
+  ok((rail.match(/value: _waVal/g) || []).length === 1 && !/value: scoreNum \+ '%'/.test(rail),
+     "rail: exactly one pill reports a percentage — the reorder did not reintroduce a rival score");
+
+  // 11d. Nothing moved into or out of a drawer. Phase 4 is order-only, so every
+  //      drawer spec and every deferral flag must be exactly as Phase 2 left them.
+  const specs = [...PFL.matchAll(/\{ id: '([a-z]+)', stage: '([a-z]+)',/g)].map((m) => m[1] + ":" + m[2]);
+  ok(JSON.stringify(specs) === JSON.stringify([
+    "positions:drawers", "votes:drawers", "promises:drawers", "money:drawers", "activity:drawers",
+  ]), "keep: the five drawers are untouched and still land in the full-record stage");
+  ok((PFL.match(/^\s+defer: true,$/gm) || []).length === 4,
+     "keep: the same four drawers are still deferred — the reorder did not un-defer a heavy inner");
+}
+
+
 if (failures.length) {
   console.error("\n✗ profile spine: " + failures.length + " failure(s)\n");
   failures.forEach((f) => console.error("  · " + f));
