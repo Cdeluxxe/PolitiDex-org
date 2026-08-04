@@ -485,7 +485,7 @@
 
 /* ── The profile hero ring ───────────────────────────────────────────────────
    The one primary number on a profile. The sub-line reserves its height so the
-   post-warm re-render ("Checking the record…" → "7 of 10 tested") swaps text
+   post-warm re-render ("Loading the record…" → "7 of 10 tested") swaps text
    without moving the hero, per the no-shift-on-hydration rule above. */
 .pdxwa-hero-jump {
   display: block;

@@ -1725,7 +1725,9 @@
       overlay.style.opacity = '0';
       setTimeout(function(){
         overlay.style.display = 'none';
-        var others = ['modal-overlay', 'profile-verify-overlay', 'comment-overlay', 'auth-overlay', 'evidence-overlay', 'verify-overlay'];
+        // 'profile-verify-overlay' used to be in this list; that overlay and the
+        // fabricated Trust Score behind it were deleted, so the id no longer exists.
+        var others = ['modal-overlay', 'comment-overlay', 'auth-overlay', 'evidence-overlay', 'verify-overlay'];
         var anyOpen = others.some(function(oid){
           var el = document.getElementById(oid);
           return el && el.style.display !== 'none' && el.style.display !== '';

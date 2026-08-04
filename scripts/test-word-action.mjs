@@ -731,12 +731,17 @@ const voteNarration = (issueKey, extra = {}) => ({
     'a below-floor hero rendered a percentage — with 27 kept and 8 broken on the record, the only\n' +
     '    number it could have found is the pledge rate it is supposed to have stopped showing');
 
-  // Warming: the ring says it is checking, not that there is nothing there.
+  // Warming: the ring says the record is loading, not that there is nothing there.
+  // The exact phrase is shared with the Voting Record Highlights placeholder in
+  // profiles-full.js — same fetch, both on screen together on a cold open — so this
+  // asserts the string, not just the sentiment. See scripts/test-vote-highlights.mjs.
   const warming = build({ stances: [quoted('gun_rights'), quoted('national_debt')],
                           record: { gun_rights: 'pending', national_debt: 'pending' } });
   const hw = warming.WA.heroRead('p1', { name: 'Warming' });
   eq(hw.text, '⏳', 'a warming record shows a dash instead of a waiting mark');
-  ok(/checking/i.test(hw.sub), 'a warming hero does not say it is still checking the record');
+  eq(hw.sub, 'Loading the record…',
+     'a warming hero does not use the shared waiting phrase, so a cold profile open shows two voices for\n' +
+     '    one fetch (hero vs the highlights placeholder)');
 
   // No word at all: no primary number exists, so the caller's own honest states
   // are used rather than a zero.
@@ -987,7 +992,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   const heroSub = base.slice(base.indexOf('.pdxwa-hero-sub'), base.indexOf('.pdxwa-hero-sub') + 260);
   must(heroSub.length > 40, 'word-action.css no longer styles .pdxwa-hero-sub');
   ok(/min-height/.test(heroSub),
-    'the hero sub-line reserves no height, so "Checking the record…" → "7 of 9 tested" shifts the\n' +
+    'the hero sub-line reserves no height, so "Loading the record…" → "7 of 9 tested" shifts the\n' +
     '    whole profile header on hydration');
   // The demoted pledge counts sit under the ring in the narrowest column on the
   // page, and they are a jump control, so they need both a tap target and a wrap.

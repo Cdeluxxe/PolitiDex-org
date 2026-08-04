@@ -5467,7 +5467,10 @@
               // _pdxHydrateVoteHighlights drops it the moment the record paints, and
               // also when a load has landed and produced nothing, so it can never sit
               // there claiming to be loading something that already finished.
-              '<div class="pdx-vrhi-wait">Loading the roll-call record…</div>' +
+              // there claiming to be loading something that already finished. The
+              // wording matches the hero's warming sub-line in word-action.js — same
+              // fetch, and on a cold open both can be on screen at once.
+              '<div class="pdx-vrhi-wait">Loading the record…</div>' +
               '<div class="pdx-vrhi-curated">' +
                 '<div class="pdx-vrhi-cur-hd">\u{1F4CE} Annotated selection · ' + vr.length + ' vote' + (vr.length === 1 ? '' : 's') + ' with a why-this-matters note</div>' +
                 '<div style="display:flex;gap:0.45rem;margin-bottom:0.7rem;">' +

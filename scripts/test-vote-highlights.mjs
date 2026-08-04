@@ -40,6 +40,7 @@ const eq = (a, b, m) => ok(a === b, m + `\n    expected ${JSON.stringify(b)}, go
 
 const PF = read("profiles-full.js");
 const VR = read("voting-record.js");
+const WA = read("word-action.js");
 const CSS = read("app.css");
 
 // ── The hydrator, lifted out and run for real ────────────────────────────────
@@ -302,9 +303,13 @@ const rec = (o) => Object.assign({
   ok(run(null, { noVR: true }).wait.hidden === true,
      "PDXVotingRecord is absent entirely and the placeholder still promises a record that can never load");
 
-  // It never invents anything.
-  ok(/Loading the roll-call record/.test(PF),
-     "the cold-open placeholder copy is missing from the section markup");
+  // It never invents anything — and it speaks with the same voice as the hero, which
+  // is waiting on the same roll-call fetch and can be on screen at the same time.
+  ok(/class="pdx-vrhi-wait">Loading the record…</.test(PF),
+     "the cold-open placeholder copy is missing, or has drifted from the phrase the hero uses while the\n" +
+     "    same fetch is in flight — two wordings for one wait read as two jobs in progress");
+  ok(/sub = 'Loading the record…'/.test(WA),
+     "the hero's warming sub-line no longer uses the shared waiting phrase");
   const waitLine = PF.slice(PF.indexOf('class="pdx-vrhi-wait"'), PF.indexOf('class="pdx-vrhi-wait"') + 120);
   ok(!/\d/.test(waitLine.replace(/pdx-vrhi-wait/g, "")),
      "the placeholder carries a digit — with no warm record there is no count that is true yet");
