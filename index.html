@@ -2016,12 +2016,29 @@ window.PDXLazy = (function () {
     #hero-receipt { width: 100%; max-width: 34rem; margin: 0 auto; text-align: left; }
     .pdx-hr-rail {
       display: flex; align-items: center; justify-content: space-between;
-      gap: .75rem; margin-bottom: .4rem; padding: 0 .15rem;
+      gap: .75rem; margin-bottom: .3rem; padding: 0 .15rem;
     }
+    .pdx-hr-rail-l { display: inline-flex; align-items: baseline; gap: .5rem; min-width: 0; }
     .pdx-hr-eyebrow {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
       font-size: .65rem; letter-spacing: .22em; text-transform: uppercase;
       color: #94a3b8; font-weight: 700;
+    }
+    /* "3 of 47" — the single most important word of framing on this component.
+       Without it the card is one stranger being singled out; with it the card is
+       an item from a set, which is what it actually is. */
+    .pdx-hr-pos {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
+      color: #64748b; font-weight: 700; font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    /* One line saying what the reader is meant to do with the card. It sits
+       between the rail and the card so it is read before the verdict stamp. */
+    .pdx-hr-intro {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .74rem; line-height: 1.45; letter-spacing: .02em;
+      color: #94a3b8; margin: 0 0 .5rem; padding: 0 .15rem;
     }
     .pdx-hr-next {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
@@ -2135,6 +2152,8 @@ window.PDXLazy = (function () {
       #hero h1 > span:nth-child(2) { font-size: 2.35rem; margin-bottom: .1rem; }
       #hero h1 > span:nth-child(3) { font-size: 1.85rem; margin-bottom: .5rem; }
       #hero-receipt { margin-bottom: 1rem; }
+      .pdx-hr-intro { font-size: .7rem; margin-bottom: .4rem; }
+      .pdx-hr-next { font-size: .6rem; letter-spacing: .1em; padding: .3rem .55rem; }
       .pdx-hr-open { min-height: 34px; margin-top: .5rem; }
       /* The scroll cue is absolutely positioned at the hero's bottom; with the
          receipt in place it would sit on top of the card, so it steps aside on
@@ -2155,6 +2174,11 @@ window.PDXLazy = (function () {
       #hero h1 > span:nth-child(2) { font-size: 2.1rem; }
       #hero h1 > span:nth-child(3) { font-size: 1.65rem; margin-bottom: .35rem; }
       #hero h1 { margin-bottom: .6rem; }
+      /* The framing line is the one piece of the receipt band that a very short
+         phone can lose without the card becoming inexplicable: the "N of 47"
+         counter and the verdict stamp still say "one item from a set, checked".
+         Everything load-bearing stays. */
+      .pdx-hr-intro { display: none; }
     }
   </style>
 

@@ -1400,6 +1400,14 @@
       // Warm the sync record cache so the Alignment Tool (and its consistency line)
       // can read this member's votes without its own fetch.
       PDXVotingRecord.noteMember(job.id, _state.items);
+      // Announce that the sync record cache is now warm for this member, so
+      // surfaces built before the fetch landed can read real votes instead of
+      // guessing. Deliberately its own event rather than reusing
+      // 'pdx-consistency-warm': that one means "consistency's warm queue resolved"
+      // and already has several listeners tuned to it, and this is a different
+      // moment with a different owner. Listeners today: the profile's Voting Record
+      // Highlights live slot (_pdxHydrateVoteHighlights).
+      try { window.dispatchEvent(new CustomEvent('pdx-voting-warm', { detail: { pid: job.id } })); } catch (e) {}
 
       // Build stable facets from this unfiltered set.
       var issues = {}, chambers = {}, actions = {};
