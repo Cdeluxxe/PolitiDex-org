@@ -1269,12 +1269,25 @@
       '<button type="button" data-act="fb">📘 Share on Facebook</button>';
     document.body.appendChild(m);
     _menuEl = m;
-    // Position near the button, clamped to viewport.
-    var rect = btn.getBoundingClientRect();
+    // Position near the button, clamped to viewport. The anchor is optional: this
+    // menu is now also reached from surfaces that close themselves before sharing
+    // (the All-Seeing Eye's share action), so there may be no button left to measure
+    // — and a detached one measures as a 0×0 box in the top-left corner, which puts
+    // the menu somewhere the reader is not looking. With no usable anchor it is
+    // centred instead. Desktop behaviour with a live anchor is unchanged.
+    var rect = null;
+    try { if (btn && btn.getBoundingClientRect) rect = btn.getBoundingClientRect(); } catch (e) { rect = null; }
     var mw = 240;
-    var left = Math.min(Math.max(8, rect.left), window.innerWidth - mw - 8);
-    var top = rect.bottom + 8;
-    if (top + 230 > window.innerHeight) top = Math.max(8, rect.top - 238);
+    var anchored = !!(rect && (rect.width || rect.height) && btn.isConnected !== false);
+    var left, top;
+    if (anchored) {
+      left = Math.min(Math.max(8, rect.left), window.innerWidth - mw - 8);
+      top = rect.bottom + 8;
+      if (top + 230 > window.innerHeight) top = Math.max(8, rect.top - 238);
+    } else {
+      left = Math.max(8, Math.round((window.innerWidth - mw) / 2));
+      top = Math.max(8, Math.round((window.innerHeight - 230) / 2));
+    }
     m.style.left = left + 'px'; m.style.top = top + 'px';
     m.addEventListener('click', function (e) {
       var b = e.target.closest && e.target.closest('button'); if (!b) return;

@@ -22,14 +22,68 @@
           controversies, social posts and other verified NON-legislative evidence.
         • Verdict + receipts led. Phase 7 adds a stance-level PUBLIC-RECORD integrity
           % — supporting / (supporting + contradicting) receipts — plus a pooled
-          overall read in the section header. This % is derived ONLY from Say-vs-Do
+          overall read available to callers. This % is derived ONLY from Say-vs-Do
           evidence: it is never blended with, nor allowed to compete with, the
           vote-based Official Record %, and never touches vote-consistency surfaces.
           It stays honest under thin data (no number below MIN_SAYDO_EVIDENCE, so a
           lone item can't fake a 0% / 100%).
+        • The pooled figure is no longer PRINTED in the section header — see
+          "WHAT CHANGED ON THE SURFACE" below. It is still computed.
 
      Real, discrete PROMISES ("I will / I will not" pledges) are their OWN narrower
      system and are NOT blended into either percentage. This engine never scores them.
+
+   WHAT CHANGED ABOVE THIS ENGINE (⚖️ Word vs Action, word-action.js):
+
+     The profile no longer leads with a promise-only percentage. A politician's
+     documented word now counts whichever form it takes — an explicit pledge
+     (highest weight), a stated operational position (high), or an issue they
+     repeatedly and identifiably campaign on (lower, non-zero) — and their formal
+     record is the test of all of it. Word vs Action is that read.
+
+     None of the boundaries above moved. Word vs Action does NOT compute its own
+     separate percentage from raw evidence: it POOLS AND WEIGHTS the per-issue
+     verdicts this engine already produces via officialRecord(), copies their
+     tokens verbatim, and averages them by tier weight × capped evidence. It reads
+     this engine; this engine does not read it. Specifically:
+
+       • Official Record stays the vote-based number and the only thing that
+         judges an issue. Word vs Action never re-derives a verdict from a score.
+       • Say-vs-Do stays the separate public-record layer with its own name, its
+         own evidence and its own thin-data floor. It is not folded in.
+       • Discrete promises are still unscored HERE. They are scored where they
+         always were (Kept ÷ (Kept + Broken), in profiles-full.js), and that
+         number now presents itself as the pledge tier of Word vs Action rather
+         than as the loudest figure on the profile.
+       • Still no blended third percentage: pooling verdicts this engine issued is
+         not the same as mixing two evidence bases into one number, which remains
+         forbidden.
+
+   WHAT CHANGED ON THE SURFACE (one primary score, several supporting layers):
+
+     A profile now publishes exactly ONE headline percentage — the Word vs Action
+     read — and every layer in this file presents as evidence feeding it rather
+     than as a rival rating. Concretely, and only in the RENDERERS:
+
+       • The Official Record header prints its verdict chip and its coverage
+         disclosure, not its pooled %. Per-issue percentages are untouched: they
+         are the working detail a reader checks, not a headline.
+       • The Say-vs-Do header prints its verdict chip only. The pooled
+         "public-record integrity" number came out of the header; per-stance
+         percentages and every receipt stay exactly as they were.
+       • The two gateway cards carry verdict chips instead of a percentage.
+       • The divergence panel leads with the RELATIONSHIP and the size of the gap
+         instead of the two pooled percentages. Per-issue rows still show both
+         sides, because a gap is unreadable without them.
+       • Each of those surfaces carries a one-line statement of what it feeds,
+         linking to the primary read (_feedsPrimaryHtml), and drops the line
+         entirely when word-action.js is absent rather than pointing at nothing.
+
+     THE MEASUREMENTS DID NOT CHANGE. scopedOverall(), officialIssue(),
+     saydoIssue() and divergenceData() return exactly what they returned before;
+     this was a presentation collapse, not a scoring one. Anything that needs a
+     pooled figure — the primary read, the divergence gap, the compare surfaces —
+     still asks this engine for it and still gets the same answer.
 
    THE DATA BOUNDARY (being drawn — see curatedFor / isSaydoReceipt):
      A formal vote or legislative action belongs to OFFICIAL RECORD; broader
@@ -669,11 +723,12 @@
       '.pdxc-gate-card:active{transform:scale(0.995);}' +
       '.pdxc-gate-top{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
       '.pdxc-gate-name{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;font-size:0.82rem;color:#e8eefc;}' +
-      '.pdxc-gate-pct{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;line-height:0.9;}' +
+      // .pdxc-gate-pct is gone: the gateway cards used to print a pooled percentage
+      // beside the lane name, and both are verdict chips now. The rule is removed
+      // rather than left dormant so nothing can quietly start emitting it again.
       '.pdxc-gate-q{font-family:"Barlow Condensed",sans-serif;font-style:italic;font-size:0.74rem;color:#c6d4ec;line-height:1.3;}' +
       '.pdxc-gate-foot{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
       '.pdxc-gate-go{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;}' +
-      '@media (max-width:380px){.pdxc-gate-pct{font-size:1.3rem;}}' +
       // Phase 11 — gateway "How we score this" link.
       '.pdxc-gate-method{display:inline-block;margin-top:0.7rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.03em;text-transform:uppercase;color:#9fb4d4;cursor:pointer;background:none;border:none;padding:0.1rem 0;text-decoration:underline;text-underline-offset:2px;}' +
       '.pdxc-gate-method:hover{color:#c6d4ec;}' +
@@ -683,6 +738,14 @@
       // the two never collide when the pill is present (and the row collapses
       // harmlessly to just the one button when it is not).
       '.pdxc-gate-actions{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem 0.9rem;margin-top:0.7rem;}' +
+      // "This feeds the one score" line — every supporting layer states what it
+      // contributes to the primary read and links to it. Mobile-first: the button
+      // wraps under the sentence on a narrow screen and clears the 44px tap floor.
+      '.pdxc-feeds{display:flex;flex-wrap:wrap;align-items:center;gap:0.35rem 0.6rem;margin:0.5rem 0 0.15rem;padding:0.45rem 0.55rem;border-left:2px solid rgba(159,180,212,0.35);background:rgba(159,180,212,0.06);border-radius:0.5rem;}' +
+      '.pdxc-feeds-t{flex:1 1 12rem;min-width:0;font-family:"Barlow Condensed",sans-serif;font-size:0.7rem;line-height:1.35;color:#9fb4d4;}' +
+      '.pdxc-feeds-go{min-height:2.75rem;padding:0.2rem 0.6rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.05em;text-transform:uppercase;color:#7fb4ff;background:rgba(127,180,255,0.1);border:1px solid rgba(127,180,255,0.3);border-radius:0.55rem;cursor:pointer;white-space:nowrap;}' +
+      '.pdxc-feeds-go:hover{background:rgba(127,180,255,0.2);}' +
+      '.pdxc-feeds-go:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
       '.pdxc-gate-actions .pdxc-gate-method{margin-top:0;}' +
       // By-issue Official Record view (the organized dive-in).
       '.pdxor{font-family:"Barlow Condensed",sans-serif;}' +
@@ -941,6 +1004,9 @@
       '.pdxgap-rel-hero{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;font-size:0.8rem;letter-spacing:0.01em;padding:0.24rem 0.6rem;border-radius:999px;color:var(--c,#9fb4d4);border:1px solid var(--c,#9fb4d4);background:rgba(10,15,30,0.55);}' +
       '.pdxgap-relpct{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.9;letter-spacing:0.02em;}' +
       '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
+      // The header's person-level share row. Sits between the verdict chips and the
+      // explanatory note, which is where a reader's thumb already is on a phone.
+      '.pdxgap-hshare{margin-top:0.6rem;}' +
       '.pdxgap-note b{color:#f5d9a0;}' +
       '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.7rem;}' +
       // Official-Record-only arrivals do NOT get a mostly-empty second column: the
@@ -1109,13 +1175,11 @@
   function _scopeSummaryHtml(scope, pid) {
     var ov = scopedOverall(scope, pid);
     var m = ov.verdict;
-    if (scope === 'official') {
-      var pct = (typeof ov.score === 'number')
-        ? '<span class="pdxc-gate-pct" style="color:' + m.color + ';">' + ov.score + '%</span>'
-        : '<span class="pdxc-chip pdxc-' + m.cls + '">' + m.ico + ' ' + esc(m.label) + '</span>';
-      return pct;
-    }
-    // Say-vs-Do — verdict chip, never a percentage.
+    // BOTH cards carry a verdict chip and no percentage. The Official Record card used
+    // to print its pooled % here, which meant the record stage opened with a number
+    // that competed with the profile's one primary score a screen above. These cards
+    // are doors into the evidence, so they say what the evidence adds up to in words
+    // and leave the arithmetic to the sections they open.
     return '<span class="pdxc-chip pdxc-' + m.cls + '">' + (ov.token === 'pending' ? '<span class="pdxc-spin"></span>' : m.ico + ' ') + esc(m.label) + '</span>';
   }
   function _gateCard(scope, pid) {
@@ -1135,10 +1199,10 @@
         // Terms live in this line, not inside the two cards below: each card is a
         // <button>, and a definition button nested inside it would be invalid
         // markup and would swallow the card's own tap.
-        '<div class="pdxc-gate-sub">Two separate ways to check whether their word holds up — kept apart on purpose. ' +
-          '<b>🏛️ ' + LT('officialrecord', 'Official Record') + '</b> is the institutional score from their votes; ' +
-          '<b>🧾 ' + LT('saydo', 'Say-vs-Do') + '</b> is the broader public picture. ' +
-          'Discrete promises are tracked on their own.</div>' +
+        '<div class="pdxc-gate-sub">Two views of the same question, feeding the one score above — kept apart so each keeps its own boundary. ' +
+          '<b>🏛️ ' + LT('officialrecord', 'Official Record') + '</b> is the formal test: the votes and official acts. ' +
+          '<b>🧾 ' + LT('saydo', 'Say-vs-Do') + '</b> is the broader public picture, held as context rather than counted. ' +
+          'Discrete promises are tracked on their own, as the top tier of that score.</div>' +
         '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
         '<div class="pdxc-gate-actions">' +
           '<button type="button" class="pdxc-gate-method" data-pdxc-method aria-label="How we score this — methodology">ⓘ How we score this</button>' +
@@ -1267,6 +1331,7 @@
       // also the moment a vote-derived share card can first be built. Re-run the
       // reveal pass over the freshly painted rows.
       _rcHydrateSoon();
+      _saHydrateSoon();
     });
   }
 
@@ -1634,6 +1699,31 @@
       setTimeout(function () { try { RC.hydrate(document); } catch (e) {} }, 0);
     } catch (e) {}
   }
+
+  // ── Person-level share affordance (share-anywhere.js) ───────────────────────
+  // The complement to _rcShareHtml rather than a replacement for it. That one is
+  // about a VOTE and is right to vanish when no vote qualifies; this one is about a
+  // PERSON, so it always has something to offer and never leaves the reader with no
+  // control at all. It is also fail-open and fixed-size, which is why it can sit in
+  // the gap sheet header: hydrating it changes an icon and an accessible name, not
+  // the height of a bottom sheet the reader is already looking at.
+  function _saShareHtml(pid, issueKey) {
+    try {
+      var SA = window.PDXShareAnywhere;
+      if (!SA || typeof SA.buttonHtml !== 'function' || !pid) return '';
+      return '<div class="pdxgap-hshare">' +
+        SA.buttonHtml({ pid: pid, issueKey: issueKey || '', block: true, hint: true,
+                        text: 'Share this' }) +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+  function _saHydrateSoon() {
+    try {
+      var SA = window.PDXShareAnywhere;
+      if (!SA || typeof SA.hydrateSoon !== 'function') return;
+      SA.hydrateSoon(document);
+    } catch (e) {}
+  }
   // Jump into the full Voting Record, filtered to one issue when that section is live.
   // Falls back to a plain jump, then to a scroll — the link is never a dead end.
   // '' asks for the whole record, which also clears a filter an earlier row left set.
@@ -1722,8 +1812,11 @@
       var parts = ['weighted over ' + rated + ' issue' + (rated === 1 ? '' : 's')];
       if (thin) parts.push(thin + ' on 1–2 votes');
       if (omni) parts.push(omni + ' mostly multi-issue');
-      if (moved) parts.push('unweighted ' + unw + '%');
-      var tip = 'The Official Record % averages the per-issue percentages, weighted by how many ' +
+      // The unweighted figure is deliberately NOT in the visible pill any more: this
+      // section no longer prints a pooled percentage, and a lone "unweighted 71%"
+      // beside a verdict chip reads as that missing headline. It stays in the tooltip,
+      // where it is an audit note rather than a competing number.
+      var tip = 'The per-issue percentages here are pooled for the profile’s one score, weighted by how many ' +
         'judged votes sit behind each one — so an issue decided by a single vote counts less ' +
         'than one decided by ten. ' + rated + ' issue' + (rated === 1 ? '' : 's') +
         ' had a percentage to average' +
@@ -1948,11 +2041,18 @@
 
     var overall = scopedOverall('official', pid);
     var om = overall.verdict;
-    // Composition on the overall % — how many issues it averages and how many of them
-    // are thin or omnibus-driven. Annotation only; overall.score is untouched.
+    // Composition on the section's coverage — how many issues carry a percentage and
+    // how many of them are thin or omnibus-driven. Annotation only; overall.score is
+    // untouched and still feeds the primary read.
     var overallComp = _orOverallCompositionHtml(pid, scored, overall);
+    // THE POOLED PERCENTAGE IS NOT PRINTED HERE ANY MORE. This section is the TEST
+    // behind the profile's one primary score (⚖️ Word vs Action), not a second score
+    // of its own: printing "67%" beside a hero reading 82% asked a reader to work out
+    // which number was the verdict. The verdict CHIP stays — it is a different kind of
+    // statement, and scopedOverall() still computes the number for the primary read
+    // and for the per-issue rows below.
     var overallHtml = (typeof overall.score === 'number')
-      ? '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%</span>' + overallComp + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
+      ? overallComp + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
       : '<span class="pdxc-chip pdxc-' + om.cls + '">' + (overall.token === 'pending' ? '<span class="pdxc-spin"></span>' : om.ico + ' ') + esc(om.label) + '</span>';
 
     var head =
@@ -1962,7 +2062,8 @@
         // beside the title and the score stays pinned right.
         LHOWTO('voting-record', 'How to read this') +
         '<span class="pdxor-overall">' + overallHtml + '</span></div>' +
-      '<div class="pdxor-q">“When they had to vote, did they stand by what they said?”</div>';
+      '<div class="pdxor-q">“When they had to vote, did they stand by what they said?”</div>' +
+      _feedsPrimaryHtml('Every issue below tests something they said. These results are what the profile’s one score is built from — weighted by how firmly they said it and how deep the record behind it is.');
 
     if (!scored.length) {
       var emptyMsg = anyPending
@@ -2068,6 +2169,22 @@
     if (!document.getElementById || !document.getElementById('pdxsec-voting')) return '';
     return '<button type="button" class="pdxor-rawlink" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-voting\');else{var e=document.getElementById(\'pdxsec-voting\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See the full voting record →</button>';
   }
+  // ── "this feeds the one score" ───────────────────────────────────────────────
+  // Every layer on a profile used to open with a percentage of its own, which left a
+  // reader to guess how they related. Each layer now says what it contributes to the
+  // ONE primary read and links to it. Self-gating: no claim about a section that
+  // isn't there, so a page without the primary engine loses the line, not the layer.
+  function _feedsPrimaryHtml(text) {
+    try {
+      if (!window.PDXWordAction || !window.PDXWordAction.FRAME) return '';
+      var f = window.PDXWordAction.FRAME;
+      return '<div class="pdxc-feeds">' +
+        '<span class="pdxc-feeds-t">' + esc(text) + '</span>' +
+        '<button type="button" class="pdxc-feeds-go" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-wordaction\');else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+          f.icon + ' ' + esc(f.label) + ' <span aria-hidden="true">→</span></button>' +
+      '</div>';
+    } catch (e) { return ''; }
+  }
   var _officialInner = _orInner; // alias used by the warm-refresh listener
   function officialRecordSectionHtml(pid) {
     ensureStyles();
@@ -2160,30 +2277,23 @@
 
     var overall = scopedOverall('saydo', pid);
     var om = overall.verdict;
-    // Phase 7: Say-vs-Do now carries its OWN pooled public-record integrity % beside
-    // the verdict chip — NOT a blended score and never the vote-based Official Record
-    // number. When evidence is below the floor we simply keep the chip (no fake %),
-    // so divergence from the Official Record % stays honest and readable.
-    var headPct = '';
-    if (typeof overall.score === 'number') {
-      var sd = overall.saydoScore || {};
-      var htip = 'Public-record integrity across every stance: ' + sd.supporting + ' of ' + sd.judged
-        + ' checkable public-record items back up their word'
-        + (sd.contradicting ? ' · ' + sd.contradicting + ' run against' : '') + '.'
-        + (sd.thin ? ' Thin evidence — read with caution.' : '')
-        + ' Public-record integrity only — separate from the vote-based Official Record %.';
-      headPct = '<span class="pdxor-integrity" title="' + esc(htip) + '">' +
-          '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%' + (sd.thin ? '<sup class="pdxor-thin" aria-hidden="true">thin</sup>' : '') + '</span>' +
-          '<span class="pdxor-integrity-cap">public-record<br>integrity</span></span>';
-    }
+    // Say-vs-Do is SUPPORTING CONTEXT now, not a scoring frame. It used to print its
+    // own pooled "public-record integrity %" beside the verdict chip, which is how a
+    // profile ended up with three headline percentages arguing with each other. The
+    // pooled number is gone from the head; the verdict chip stays, the per-item and
+    // per-issue percentages below stay (they are working detail, not headlines), and
+    // scopedOverall('saydo') still computes the figure for anything that needs it —
+    // including the divergence read, which is the one place the relationship between
+    // the two records is stated on purpose.
     var head =
       '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> ' +
           LT('saydo', 'Say-vs-Do') + '</span>' +
         LHOWTO('say-vs-do', 'How to read this') +
-        '<span class="pdxor-overall">' + headPct + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
+        '<span class="pdxor-overall"><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
       '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>' +
-      '<div class="pdxor-method">Integrity&nbsp;% = public-record actions that back their words ÷ all checkable public-record evidence (backing&nbsp;+&nbsp;against). Shown only where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items — this is public-record integrity, <b>not</b> a formal voting score. ' +
-        LT('norecord', 'Why some of these show “—”') + '</div>';
+      '<div class="pdxor-method">Receipts, not a rating: each stance below shows what the public record — statements, coverage, filings, events — does and does not back up, with a per-stance percentage where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items. None of it is folded into the profile’s score, which is built from formal actions only. ' +
+        LT('norecord', 'Why some of these show “—”') + '</div>' +
+      _feedsPrimaryHtml('Supporting context for the one score, never counted inside it: the score is tested against formal actions, and these are the receipts around them.');
 
     if (!scored.length) {
       var msg = awaiting > 0
@@ -2239,14 +2349,16 @@
 
   // ── Official Record vs Say-vs-Do DIVERGENCE (Phase 8) ───────────────────────
   // The explicit accountability tell: do a member's formal voting record (🏛️
-  // Official Record %) and their broader public-record integrity (🧾 Say-vs-Do %)
+  // Official Record) and their broader public-record integrity (🧾 Say-vs-Do)
   // tell the SAME story, or different ones? We NEVER blend the two into a single
-  // "honesty" number — we place the two honest percentages side by side and label
-  // only the RELATIONSHIP between them. Each side keeps its own boundary and its own
-  // thin-data floor (a side with no real % simply isn't compared), so the contrast
-  // can never manufacture false certainty. Neutral labels describe agreement between
-  // the two records, not whether the politician is "good" — the raw numbers, always
-  // shown, carry that.
+  // "honesty" number, and since the profile collapsed onto one primary score this
+  // panel no longer headlines the two pooled percentages either — the finding was
+  // always the DISTANCE between them, so the whole-profile summary states the
+  // relationship and the size of the gap, and the per-issue rows below still show
+  // both sides so the gap can be checked. Each side keeps its own boundary and its
+  // own thin-data floor (a side with no real % simply isn't compared), so the
+  // contrast can never manufacture false certainty. Neutral labels describe
+  // agreement between the two records, not whether the politician is "good".
   //   |gap| ≤ 15            → Aligned   (same story)
   //   15 < |gap| ≤ 35       → Mixed     (mostly lines up, some daylight)
   //   |gap| > 35            → Diverges  (different stories — the tell)
@@ -2331,20 +2443,24 @@
     var oOv = scopedOverall('official', pid), sOv = scopedOverall('saydo', pid);
     var oNum = typeof oOv.score === 'number', sNum = typeof sOv.score === 'number';
 
-    // Whole-profile summary: the two overall numbers side by side + a relationship
-    // label. Explicitly NOT a blended score — both numbers stay visible and separate.
+    // Whole-profile summary: the RELATIONSHIP between the two records, not the two
+    // pooled percentages. Both numbers used to headline this panel, which added two
+    // more percentages to a profile that now publishes exactly one — and the
+    // finding here was never either number, it was the distance between them. The gap
+    // is still stated in points, the direction is still named, the per-issue rows below
+    // still show both sides, and nothing is blended.
     var sumInner;
     if (oNum && sNum) {
+      var gapPts = Math.abs(oOv.score - sOv.score);
+      var dirAll = _divDir(oOv.score - sOv.score);
       sumInner = '<span class="pdxdv-sum-nums">' +
-          _divNum('🏛️', oOv.score, oOv.verdict.color, 'Official Record overall — vote-based') +
-          // The whole-profile Official Record % is now a judged-vote-weighted mean, so
-          // the same disclosure that sits beside it on the Official Record panel belongs
-          // here too — otherwise the comparison invites a reader to weigh two numbers
-          // without knowing how much record is under either.
+          _divRelChip(divRel(oOv.score - sOv.score)) +
+          // The same disclosure that sits beside the Official Record's own coverage
+          // belongs here too: a reader weighing the two records should know how much
+          // record is under the vote-based side.
           _orOverallCompositionHtml(pid, d.offScored, oOv) +
-          '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
-          _divNum('🧾', sOv.score, sOv.verdict.color, 'Say-vs-Do overall — public-record integrity') +
-        '</span>' + _divRelChip(divRel(oOv.score - sOv.score));
+        '</span>' +
+        (gapPts > DIV_ALIGN_MAX ? '<span class="pdxdv-gap">' + gapPts + ' pt gap' + (dirAll ? ' · ' + dirAll : '') + '</span>' : '');
     } else {
       sumInner = '<span class="pdxdv-sum-na">Only one side has a percentage so far — no whole-profile comparison yet.</span>';
     }
@@ -2352,7 +2468,8 @@
     var head =
       '<div class="pdxdv-head"><span class="pdxdv-title"><span aria-hidden="true">⚖️</span> Record vs. Public Picture</span>' +
         '<span class="pdxdv-sum">' + sumInner + '</span></div>' +
-      '<div class="pdxdv-q">Do their <b>🏛️ Official Record</b> (votes) and their <b>🧾 Say-vs-Do</b> (public record) tell the same story? This only compares the two honest scores — it never blends them into one.</div>';
+      '<div class="pdxdv-q">Do their <b>🏛️ Official Record</b> (votes) and their <b>🧾 Say-vs-Do</b> (public record) tell the same story? This is a supporting read on the relationship between the two — it never blends them, and it publishes no score of its own.</div>' +
+      _feedsPrimaryHtml('A cross-check, not a score: where the votes and the public picture disagree, that is worth knowing before reading the one score above.');
 
     if (!d.both.length) {
       var msg = d.oneSide > 0
@@ -2569,6 +2686,18 @@
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.
         '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
+        // Person-level share, at the TOP of the sheet. This is the surface a shared
+        // card lands on and the surface a phone reader reaches from the profile, and
+        // until now its only share sat at the bottom of the 🏛️ column — below the
+        // fold, and deleted outright whenever no Official Record card cleared the
+        // guards. So a reader who wanted to pass this on either had to scroll for
+        // the control or found none at all. PDXShareAnywhere always has an answer
+        // (record card → Say-vs-Do receipt → profile link) and says which one it is
+        // in the hint, and it never appears or disappears, so adding it here does
+        // not make this bottom sheet resize after it opens. The 🏛️ column keeps its
+        // own button unchanged: that one promises one specific vote and must stay
+        // fail-closed and Official-Record-only.
+        _saShareHtml(pid, issueKey) +
         gapNote +
       '</div>';
 
@@ -2785,6 +2914,10 @@
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
     _rcHydrateSoon();
+    // Same reason for the header's person-level control: it is already visible, and
+    // this is what upgrades its icon and accessible name from "profile link" to the
+    // card it can actually send once the record lands.
+    _saHydrateSoon();
   }
   function closeGap() {
     var back = document.getElementById('pdxc-gap-back');

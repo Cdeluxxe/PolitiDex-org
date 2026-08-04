@@ -331,7 +331,43 @@ for (const m of seedMeasures) {
 }
 ok(seedRows > 0, `checked ${seedRows} curated mappings in db/vr-issue-seed.json`);
 
-// ── 3. negative self-tests ───────────────────────────────────────────────────
+// ── 3. plpgsql locals that hold a vr_* id are declared integer, not uuid ─────
+// Every primary key in the voting-record schema is a `serial` (see
+// 20260710184027_create_voting_record_tables), so `SELECT id INTO v` assigns an
+// integer. Declaring that local as `uuid` is accepted by every check we run
+// locally — nothing here executes SQL — and then fails at deploy time on the
+// assignment with `invalid input syntax for type uuid: "115" (22P02)`, which
+// aborts the ENTIRE migration run, not just the offending file. That makes a
+// one-word typo a full deploy outage, and it is invisible until then. Hence a
+// cheap textual guard on the DECLARE block.
+export function scanUuidLocals(src) {
+  const s = stripComments(src);
+  const lineAt = (pos) => s.slice(0, pos).split("\n").length;
+  const bad = [];
+  for (const blk of s.matchAll(/\bDO\s*\$(\w*)\$([\s\S]*?)\$\1\$/g)) {
+    const decl = blk[2].match(/\bDECLARE\b([\s\S]*?)\bBEGIN\b/i);
+    if (!decl) continue;
+    for (const v of decl[1].matchAll(/(\w+)\s+uuid\b/gi)) {
+      bad.push({ name: v[1], line: lineAt(blk.index + blk[0].indexOf(blk[2]) + decl.index + v.index) });
+    }
+  }
+  return bad;
+}
+{
+  const offenders = [];
+  for (const f of files) {
+    for (const b of scanUuidLocals(readFileSync(join(MIG, f), "utf8"))) {
+      offenders.push(`${f}:~${b.line}  DECLARE ${b.name} uuid`);
+    }
+  }
+  ok(offenders.length === 0,
+    `${offenders.length} plpgsql local(s) declared as uuid in a migration. Every vr_* id is a serial,\n` +
+    `    so SELECT id INTO <var> assigns an integer and a uuid local raises 22P02 at deploy time,\n` +
+    `    aborting the whole migration run. Declare these integer:\n` +
+    offenders.map((o) => "      " + o).join("\n"));
+}
+
+// ── 4. negative self-tests ───────────────────────────────────────────────────
 // Without these, a refactor that quietly broke the scanner would leave the harness
 // reporting all-green forever — which is the exact failure mode it exists to stop.
 {
@@ -404,6 +440,23 @@ ok(seedRows > 0, `checked ${seedRows} curated mappings in db/vr-issue-seed.json`
   `;
   ok(scanMappedMeasures(plantedCreateOnly, "<planted-create>").mapped.length === 0,
     "self-test: creating a rule resolution without mapping it is not flagged");
+
+  const plantedUuid = `
+    DO $$
+    DECLARE
+      m_ha243 uuid;
+      m_other integer;
+    BEGIN
+      SELECT id INTO m_ha243 FROM vr_measures WHERE number = 'H.Amdt. 243' LIMIT 1;
+    END $$;
+  `;
+  const u = scanUuidLocals(plantedUuid);
+  ok(u.length === 1 && u[0].name === "m_ha243",
+    `self-test: a uuid-declared local is detected (got ${JSON.stringify(u)})`);
+  ok(scanUuidLocals(plantedVar).length === 0,
+    "self-test: an integer-declared local is not flagged");
+  ok(scanUuidLocals(`DO $$ DECLARE v integer; BEGIN\n  -- m uuid; in a comment\n  NULL;\nEND $$;`).length === 0,
+    "self-test: the word uuid inside a comment does not create a phantom offender");
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

@@ -1763,25 +1763,45 @@ window.PDXLazy = (function () {
        crimson/gold/steel colors, display/condensed/body fonts, custom
        keyframes & animations) are baked into the output. -->
   <link rel="stylesheet" href="/css/tailwind.css" />
-  <!-- Feature stylesheets for below-the-fold, interaction-gated sections (Your
-       Ballot, Impact Tracker, Action Layer, Stance Library) are loaded
-       NON-render-blocking: media="print" lets the browser fetch them at low
-       priority without holding up first paint, then onload flips them to all.
-       The <noscript> copies keep them fully styled with JS disabled. Tailwind and
-       say-vs-do.css stay render-blocking because they style above-the-fold chrome. -->
+  <!-- Feature stylesheets for below-the-fold, interaction-gated sections are
+       loaded NON-render-blocking so they never hold up first paint. Two flavours,
+       and the difference matters for layout stability:
+
+       (a) `rel="preload" as="style"` + onload-swap — used for anything that
+           styles content laid out IN THE PAGE FLOW (Your Ballot, the Impact
+           Tracker, the Action Layer, Ballot Axes, the Journey rail, Issue View).
+           Still non-blocking, but fetched at HIGH priority, so in practice it
+           lands before or with first paint instead of seconds later. This is the
+           fix for a real mobile symptom: `media="print"` is fetched at the
+           LOWEST priority, so on a slow phone connection these arrived long
+           after the sections they style had already been painted unstyled — and
+           every one of them then reflowed the page under the reader.
+
+       (b) `media="print"` + onload-swap — kept for stylesheets that only dress
+           MODAL/overlay content the visitor has not opened yet (Impact Ledger,
+           Connecting the Dots, Controversies, My Profile, Issue Comparison, the
+           H.R.1 showcase, My Stances, Stance Library). Nothing in the page flow
+           depends on them, so they cannot shift anything, and leaving them at
+           low priority keeps bandwidth free for the critical path.
+
+       The noscript copies below keep everything fully styled with JS disabled.
+       Tailwind, app.css, say-vs-do.css and pdx-learn.css stay render-blocking
+       because they style above-the-fold chrome. -->
   <!-- Your Ballot — the unified, address-driven entry point (see your-ballot.js). -->
-  <link rel="stylesheet" href="/your-ballot.css" media="print" onload="this.media='all'" />
+  <link rel="preload" as="style" href="/your-ballot.css" onload="this.rel='stylesheet'" />
   <!-- Personal Impact Tracker — a private, opt-in "your civic footprint" widget. -->
-  <link rel="stylesheet" href="/impact-tracker.css" media="print" onload="this.media='all'" />
+  <link rel="preload" as="style" href="/impact-tracker.css" onload="this.rel='stylesheet'" />
   <!-- Your Ballot · Action Layer — contact-your-rep composer + location-based
        voting-deadline reminders (see ballot-actions.js). -->
-  <link rel="stylesheet" href="/ballot-actions.css" media="print" onload="this.media='all'" />
-  <!-- Stance Library — issue-first browse view (see stance-library.js). -->
+  <link rel="preload" as="style" href="/ballot-actions.css" onload="this.rel='stylesheet'" />
+  <!-- Stance Library — issue-first browse view (see stance-library.js). Renders on
+       demand into a hidden section, so it cannot shift the page: low priority. -->
   <link rel="stylesheet" href="/stance-library.css" media="print" onload="this.media='all'" />
   <!-- Ballot Axes — the two-axis elections read (see ballot-axes.js): profile
        section, Stance Library explainer, and the "other axis" companion line. -->
-  <link rel="stylesheet" href="/ballot-axes.css" media="print" onload="this.media='all'" />
-  <!-- My Stances — build & save your own positions on issues (see my-stances.js). -->
+  <link rel="preload" as="style" href="/ballot-axes.css" onload="this.rel='stylesheet'" />
+  <!-- My Stances — build & save your own positions on issues (see my-stances.js).
+       Also an on-demand mount into a hidden section: low priority. -->
   <link rel="stylesheet" href="/my-stances.css" media="print" onload="this.media='all'" />
   <noscript>
     <link rel="stylesheet" href="/your-ballot.css" />
@@ -1801,8 +1821,10 @@ window.PDXLazy = (function () {
        would see a flash of native grey buttons inside body copy. It is small. -->
   <link rel="stylesheet" href="/pdx-learn.css" />
   <!-- Issue View — the issue-first ranked view (see issue-view.js). Front door
-       for question-first voters; sits high on the page so keep it non-blocking. -->
-  <link rel="stylesheet" href="/issue-view.css" media="print" onload="this.media='all'" />
+       for question-first voters; it sits HIGH on the page and lays out in the
+       page flow, so it is preloaded at high priority (see the note above) rather
+       than left to arrive late and reflow the section. -->
+  <link rel="preload" as="style" href="/issue-view.css" onload="this.rel='stylesheet'" />
   <noscript><link rel="stylesheet" href="/issue-view.css" /></noscript>
   <!-- Distributional Impact Ledger styles (Who It Affects). Deferred: it only styles
        the Bill-detail modal, which is well below the fold. -->
@@ -1812,10 +1834,20 @@ window.PDXLazy = (function () {
        Deferred; only styles a block inside the profile modal. -->
   <link rel="stylesheet" href="/profile-connect.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/profile-connect.css" /></noscript>
+  <!-- ⚖️ Word vs Action — the primary accountability read on a profile, plus the
+       joined "they said / they did / so" rows it shares with the Connecting the
+       Dots card (word-action.js). Modal-only and below the fold, so it loads
+       non-blocking; the section renders synchronously from curated word and
+       re-renders in place when the voting record warms, and the stylesheet
+       reserves a fixed footprint for the number so that swap cannot shift
+       layout even if the CSS arrives after the first paint. -->
+  <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
   <!-- Journey — the guided spine (breadcrumb) + the shared next-action rail on
-       every receipt (see journey.js). Non-blocking; it only appears once the
-       voter starts moving. -->
-  <link rel="stylesheet" href="/journey.css" media="print" onload="this.media='all'" />
+       every receipt (see journey.js). Non-blocking, but preloaded at high
+       priority: the rail is injected into the page flow beneath receipt cards
+       across many surfaces, so a late arrival re-flowed each of them in turn. -->
+  <link rel="preload" as="style" href="/journey.css" onload="this.rel='stylesheet'" />
   <noscript><link rel="stylesheet" href="/journey.css" /></noscript>
   <!-- H.R.1 Showcase — the flagship contradiction-engine demo (see hr1-showcase.js). -->
   <link rel="stylesheet" href="/hr1-showcase.css" media="print" onload="this.media='all'" />
@@ -1825,6 +1857,11 @@ window.PDXLazy = (function () {
        loads non-blocking. -->
   <link rel="stylesheet" href="/controversies.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/controversies.css" /></noscript>
+  <!-- Profile spine — the stage rails, the first-screen brief and the full-record
+       drawers that give a politician profile one reading order (profile-spine.js).
+       Modal-only, so it loads non-blocking like the rest of the profile CSS. -->
+  <link rel="stylesheet" href="/profile-spine.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/profile-spine.css" /></noscript>
   <!-- My Profile — the signed-in visitor's personal civic hub (read-only view). -->
   <link rel="stylesheet" href="/my-profile.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/my-profile.css" /></noscript>
@@ -1844,10 +1881,15 @@ window.PDXLazy = (function () {
   <!-- www.gstatic.com hosts the (currently render-blocking) Firebase compat SDK;
        warming the connection shaves its handshake off the critical path. -->
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-  <!-- Google Fonts loaded NON-render-blocking (media-swap). display=swap already
-       paints text in a fallback immediately, so this only removes the stylesheet
-       request from the first-paint critical path; the fonts swap in when ready. -->
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <!-- Google Fonts loaded NON-render-blocking, but PRELOADED at high priority
+       rather than parked on the low-priority media="print" path. All three
+       families (Bebas Neue, Barlow Condensed, Barlow) have metrics well away
+       from the generic sans-serif fallback, and display=swap means every heading
+       and label on the page re-lays-out at the moment they finally arrive. The
+       swap still happens — but discovering the @font-face rules early shortens
+       the window in which it can land after the reader has started reading,
+       which is when it registers as the page "jumping". -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
   <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
   <!-- The former inline `tailwind.config` (custom colors, fonts, keyframes and
        animations) is now compiled directly into /css/tailwind.css above, so the
@@ -2061,6 +2103,13 @@ window.PDXLazy = (function () {
 
       </head>
 <body class="bg-navy-900 text-white font-body">
+
+  <!-- App-shell layout-stability hardening (pdx-stability.js). FIRST script in
+       <body> on purpose: it installs the shared scroll-lock coordinator on
+       document.body.style, and that seam has to exist before any feature module
+       can open a modal and set `body.style.overflow`. Tiny, no UI, no feature
+       behaviour — see the header comment in the file for what it fixes. -->
+  <script src="/pdx-stability.js"></script>
 
   <!-- ═══════════════════════════════════════════ NAV ══════ -->
   <nav class="fixed top-0 left-0 right-0 z-50 nav-blur bg-navy-900/80 border-b border-white/5" style="box-shadow:0 4px 24px rgba(0,0,0,0.3);">
@@ -16357,12 +16406,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
   <!-- ═══════════════════════ SHARE SHEET ═══════════════════════ -->
   <div id="pdx-share-overlay" class="pdx-share-overlay" style="display:none;" onclick="if(event.target===this)window._pdxCloseShareSheet()">
-    <div class="pdx-share-sheet" role="dialog" aria-modal="true" aria-label="Share politician profile">
+    <div class="pdx-share-sheet" role="dialog" aria-modal="true" aria-label="Share this politician">
       <div class="pdx-share-head">
-        <div class="pdx-share-title">Share Profile</div>
+        <div class="pdx-share-title">Share</div>
         <button class="pdx-share-x" onclick="window._pdxCloseShareSheet()" aria-label="Close share">✕</button>
       </div>
       <div id="pdx-share-name" class="pdx-share-name"></div>
+      <!-- The ARTIFACT row. Every compact card, every browse row and the profile
+           modal header all open this one sheet, so putting the card share here is
+           what makes the image reachable from all of them at once instead of one
+           wiring job per surface. window.pdxSharePolitician fills it (see
+           profiles-full.js): PDXShareAnywhere decides which of the two share
+           pipelines can serve this person, and when neither can it says so in the
+           hint and shares the link below instead of offering a control that fails.
+           The row is always present and its hint has a reserved height, so the
+           sheet is the same size before and after that decision lands. -->
+      <div id="pdx-share-artifact" class="pdx-share-artifact"></div>
       <div class="pdx-share-linkrow">
         <input id="pdx-share-link" class="pdx-share-link" type="text" readonly onclick="this.select()" aria-label="Direct link to profile" />
         <button id="pdx-share-copy" class="pdx-share-copy" onclick="window._pdxCopyShareLink()">Copy</button>
@@ -17903,20 +17962,37 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     pills.forEach(pill => {
       pill.addEventListener('click', () => {
         setActive(pill);
+        // Keep the scroll-spy's memo in step with a click-driven change, so the
+        // spy can never mistake the clicked pill for a state it already applied.
+        lastSpyPill = pill;
         jumpTo(pill.dataset.target);
       });
     });
 
     // Scroll-spy: the active pill is the last visible target whose top has
     // crossed the readable line just beneath the sticky bars.
+    var lastSpyPill = null;
     function syncActiveByScroll() {
       if (nav.hidden || !visiblePills.length) return;
+      // Cheap gate: one rect read tells us whether this rail is anywhere near the
+      // screen. When the Mandate section is scrolled away there is nothing to
+      // highlight, so we skip the per-pill rect reads below entirely instead of
+      // forcing a layout for every pill on every scroll frame.
+      var nr = nav.getBoundingClientRect();
+      var vh = window.innerHeight || 800;
+      if (nr.bottom < -240 || nr.top > vh + 240) return;
       const line = 140; // px from viewport top — just below global nav + jump bar
       let current = visiblePills[0];
       visiblePills.forEach(pill => {
         const el = document.getElementById(pill.dataset.target);
         if (el && el.getBoundingClientRect().top - line <= 0) current = pill;
       });
+      // Don't re-write class + aria on every pill every frame when nothing moved
+      // between them — those writes are what turn a read-only scroll frame into a
+      // style-recalc-then-layout frame. A rebuild hands us new pill nodes, so the
+      // identity check can never wrongly skip a genuine change.
+      if (current === lastSpyPill) return;
+      lastSpyPill = current;
       setActive(current);
     }
 
@@ -18014,20 +18090,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     pills.forEach(pill => {
       pill.addEventListener('click', () => {
         setActive(pill);
+        // Keep the scroll-spy's memo in step with a click-driven change, so the
+        // spy can never mistake the clicked pill for a state it already applied.
+        lastSpyPill = pill;
         jumpTo(pill.dataset.target);
       });
     });
 
     // Scroll-spy: the active pill is the last visible target whose top has crossed
     // the readable line just beneath the global nav + sticky jump bar.
+    var lastSpyPill = null;
     function syncActiveByScroll() {
       if (nav.hidden || !visiblePills.length) return;
+      // Same cheap gate as the Mandate rail: one rect read instead of one per
+      // pill, so scrolling anywhere outside the Evidence Locker costs nothing.
+      var nr = nav.getBoundingClientRect();
+      var vh = window.innerHeight || 800;
+      if (nr.bottom < -240 || nr.top > vh + 240) return;
       const line = 150; // px from viewport top — just below global nav + jump bar
       let current = visiblePills[0];
       visiblePills.forEach(pill => {
         const el = document.getElementById(pill.dataset.target);
         if (el && el.getBoundingClientRect().top - line <= 0) current = pill;
       });
+      // Skip the class/aria writes while the active pill is unchanged — see the
+      // Mandate rail above for why this matters on a document this large.
+      if (current === lastSpyPill) return;
+      lastSpyPill = current;
       setActive(current);
     }
 
@@ -18205,6 +18294,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
   <script defer src="receipt-cards.js"></script>
+  <!-- Share Anywhere (window.PDXShareAnywhere) — the one resolver that answers
+       "what is the strongest shareable artifact for this person?" for every
+       surface: the Official Record card (PDXReceiptCards), else the Say-vs-Do
+       receipt (PDXReceipts), else an honest profile link. It renders no image and
+       relaxes no guard — it only chooses between the two pipelines above, which is
+       why it loads AFTER both of them. Its control is fail-open and fixed-size, so
+       hydrating it cannot shift the layout on the mobile surfaces it appears on. -->
+  <script defer src="share-anywhere.js"></script>
+  <!-- Profile spine (window.PDXProfileSpine) — the ordering layer for the profile
+       modal. It owns the canonical stage sequence (identity → the short version →
+       signature issues → where it is contested → official record → receipts →
+       money → you and them → the full record), splits the modal body on its
+       <!==PDXSP:stage==> sentinels and emits the chunks in that order, collects
+       deep-record blocks behind labelled drawers, and renders the first-screen
+       brief. It derives everything it says from the accessors the sections below
+       already use (PDXConsistency.divergence, _pdxControversyItems,
+       _resolveStanceList, PDXShareAnywhere) and asserts nothing of its own, so it
+       cannot claim more than the record supports. Loads after share-anywhere.js
+       because the brief's "share or inspect next" row is that control; profiles
+       open on user interaction, long after this defer script has run, and the
+       modal falls back to its previous unordered body if it is ever missing. -->
+  <script defer src="profile-spine.js"></script>
   <!-- ✒️ Executive Enactment Record — the second record lane, for figures who cast
        no congressional floor votes (window.EXEC_ACTIONS → PDXExecRecord →
        PDXExecRecordUI). Three files, loaded in dependency order:
@@ -18274,9 +18385,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        source. Loads after the data modules it reads (PDXSpotlight, PDXReceipts,
        PDXHR1, _pdxMandateItems). -->
   <script defer src="digital-library.js"></script>
+  <!-- ⚖️ Word vs Action (window.PDXWordAction) — the unified accountability model:
+       one pool of documented word in three weighted tiers (explicit pledge /
+       stated position / campaign branding), tested only against the Official
+       Record. Every read is guarded and optional, so load order cannot break it;
+       it sits here because both of its consumers are below — the profile body
+       calls sectionHtml() and profile-connect.js calls dotsHtml(), and both only
+       run when a visitor opens a profile, long after these defer scripts have. -->
+  <script defer src="word-action.js"></script>
   <!-- Connecting the Dots — additive profile synthesis spine (window._pdxConnectDots).
        Loaded after the feature modules it reads at render time (PDXStances,
-       PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap). -->
+       PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap,
+       PDXWordAction). -->
   <script defer src="profile-connect.js"></script>
   <!-- My Profile — the signed-in visitor's personal civic hub (window.PDXProfile).
        Read-only composition layer: loaded LAST so every personal + finance module
@@ -20465,15 +20585,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window._updateTeamDockVisibility = function () {
       var dock = document.getElementById('team-dock');
       if (!dock) return;
+      // Only ever WRITE when the answer actually changed. This runs once per
+      // scroll frame, and an unconditional `style.display = …` — even to the
+      // value already there — dirties style on a very large document, which then
+      // forces a fresh layout for the getBoundingClientRect() reads on the next
+      // frame. Read-only frames are free; this makes almost every frame read-only.
+      var want;
       var st = window._teamDockState;
       var panel = document.getElementById('myteam-selected-panel');
       var rel = document.getElementById('relevant-section');
-      if (!st || !st.total || !panel || !rel) { dock.style.display = 'none'; return; }
-      var vh = window.innerHeight || 800;
-      var pr = panel.getBoundingClientRect();
-      var rr = rel.getBoundingClientRect();
-      var inZone = (pr.bottom < vh * 0.45) && (rr.bottom > vh * 0.3);
-      dock.style.display = inZone ? '' : 'none';
+      if (!st || !st.total || !panel || !rel) {
+        want = 'none';
+      } else {
+        var vh = window.innerHeight || 800;
+        var pr = panel.getBoundingClientRect();
+        var rr = rel.getBoundingClientRect();
+        want = ((pr.bottom < vh * 0.45) && (rr.bottom > vh * 0.3)) ? '' : 'none';
+      }
+      if (dock.style.display !== want) dock.style.display = want;
     };
 
     // Coalesce scroll events into one rAF-paced visibility check.
@@ -28063,15 +28192,49 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // ── Service worker registration ─────────────────────────────────────
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
+        // Was this page ALREADY under a worker's control before we registered?
+        // This is the only reliable way to tell a genuine shell update from a
+        // first install, and getting it wrong was a real bug: sw.js calls
+        // skipWaiting() on install and clients.claim() on activate, so on a
+        // visitor's FIRST ever load the brand-new worker claims this
+        // uncontrolled page, 'controllerchange' fires, and the old code below
+        // reloaded — every first visit rebooted itself mid-read, a few seconds
+        // in. The `refreshing` flag never guarded that; it only stopped a
+        // second reload within the same page.
+        var hadController = !!navigator.serviceWorker.controller;
         navigator.serviceWorker.register('/sw.js').then(function (reg) {
-          // When a new worker takes over, refresh once so the newest shell
-          // is used. Guarded so it only reloads on a genuine update, not the
-          // very first install.
           var refreshing = false;
-          navigator.serviceWorker.addEventListener('controllerchange', function () {
+
+          // A reload is never urgent, but it IS destructive: it throws away an
+          // open profile, a half-typed composer, and the reader's place on the
+          // page. So when a genuine update lands we only reload at a moment
+          // where that costs nothing — otherwise we wait until the tab is
+          // backgrounded and do it off-screen, or simply leave it for the next
+          // navigation (the worker has already refreshed the cached shell).
+          function busy() {
+            try {
+              if (window.PDXStability && window.PDXStability.isLocked()) return true;
+              var a = document.activeElement;
+              if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT' ||
+                        a.isContentEditable)) return true;
+            } catch (e) {}
+            return false;
+          }
+          function reloadWhenIdle() {
             if (refreshing) return;
-            refreshing = true;
-            location.reload();
+            if (!busy()) { refreshing = true; location.reload(); return; }
+            // Try again the moment the tab goes to the background.
+            document.addEventListener('visibilitychange', function onHide() {
+              if (document.visibilityState !== 'hidden' || refreshing) return;
+              document.removeEventListener('visibilitychange', onHide);
+              refreshing = true;
+              location.reload();
+            });
+          }
+
+          navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (!hadController) return;   // first install — nothing to refresh to
+            reloadWhenIdle();
           });
           reg.addEventListener('updatefound', function () {
             var nw = reg.installing;

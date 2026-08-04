@@ -3164,7 +3164,21 @@
              weighted:(rate !== null && raw !== null && rate !== raw), col:col, verdict:verdict, sub:sub, ico:ico };
   };
 
-  // Prominent profile hero — the headline "Did they follow through?" block.
+  // The PLEDGE TIER of Word vs Action — no longer the profile's headline.
+  //
+  // DEMOTION, NOT DELETION. Under the unified Word-vs-Action standard an explicit
+  // pledge is the top tier of one pool of documented word, not a separate scoring
+  // religion. So this block keeps everything that made it trustworthy — the
+  // canonical name, the canonical formula (Kept ÷ (Kept + Broken), pending
+  // excluded), every count, the three filter chips, the raw-vs-weighted
+  // reconciliation and the ⓘ explainer — and gives up only its visual dominance:
+  // the 2.5rem hero rate becomes a 1.6rem supporting figure, the glowing gradient
+  // frame becomes a flat panel, and the eyebrow now says where this number sits in
+  // the ladder above rather than asking the profile's main question.
+  //
+  // Nothing about the arithmetic changed. A reader who trusted the old number gets
+  // the same number, in the same words, one level quieter.
+  //
   // `published` is the profile's headline promise figure so this block and the
   // hero ring above it cannot disagree; the raw ratio it was weighted from is
   // stated inline rather than only inside the collapsed Deep Dive.
@@ -3174,30 +3188,24 @@
     var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
     var brokenPct = m.resolved ? 100 - keptPct : 0;
     var rateTxt = m.rate === null ? '—' : m.rate + '%';
-    // The rate block opens the same Promise % explainer used by the cards.
-    var ftClick = ' role="button" tabindex="0"' +
-      ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
+    // The rate opens the same Promise % explainer used by the cards.
+    var ftClick = ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
       ' title="How is Promise Follow-Through calculated?"';
+    // DEMOTED, NOT DELETED. This block used to open with the rate set in 1.6rem
+    // type — larger than the profile's own headline ring — which is what made a
+    // profile read as rival scores. The pledge lane now leads with its VERDICT and
+    // its COUNTS, and the percentage sits one tap down inside a disclosure: still
+    // published, still reconciled against the raw ratio, still explainable, but no
+    // longer a second headline competing with the primary Word vs Action read.
     return '' +
-      '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(192,21,42,0.1),rgba(30,53,96,0.45));border:1px solid ' + m.col + '4d;border-radius:0.95rem;padding:1rem 1.1rem;box-shadow:0 0 22px ' + m.col + '14, inset 0 1px 0 rgba(255,255,255,0.04);">' +
-        '<div style="display:flex;align-items:center;gap:0.95rem;margin-bottom:0.85rem;">' +
-          '<div class="pdx-ft-rate-click"' + ftClick + ' style="cursor:pointer;flex-shrink:0;text-align:center;min-width:86px;background:rgba(10,15,30,0.55);border:1px solid ' + m.col + '55;border-radius:0.8rem;padding:0.5rem 0.6rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">' +
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;color:' + m.col + ';line-height:1;text-shadow:0 0 16px ' + m.col + '40;">' + rateTxt + '</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-top:0.15rem;">Promises Kept</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.46rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.12rem;">ⓘ How?</div>' +
-          '</div>' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · Did they keep what they promised?</div>' +
-            '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1;">' + m.ico + ' ' + m.verdict + '</div>' +
-            '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') +
-              // Same reconciliation the Deep Dive gives, stated where the number
-              // is, so the headline is never a figure the visible breakdown
-              // cannot produce.
-              (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the headline sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
-          '</div>' +
+      '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid ' + m.col + '33;border-left:3px solid ' + m.col + '99;border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
+        '<div style="margin-bottom:0.6rem;">' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · the pledge tier of Word vs Action</div>' +
+          '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
+          '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
         '</div>' +
-        (m.resolved ? '<div style="display:flex;height:11px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.6rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
+        (m.resolved ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
           '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
           '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
         '</div>' : '') +
@@ -3207,6 +3215,34 @@
           '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
         '</div>' +
         '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
+        // The pledge-only percentage, kept as supporting detail. Body-text size, one
+        // tap down, and explicitly scoped ("pledges only") so it cannot be mistaken
+        // for the profile's overall read.
+        '<details class="pdx-ft-rate">' +
+          '<summary class="pdx-ft-rate-sum">Pledge-only rate' + (m.rate === null ? '' : ' · ' + rateTxt) + '</summary>' +
+          '<div class="pdx-ft-rate-b">' +
+            '<p><b style="color:#cbd9ec;">Promises Kept</b> — ' + rateTxt +
+              (m.resolved ? ' across ' + m.resolved + ' resolved pledge' + (m.resolved === 1 ? '' : 's') : '') +
+              (m.pending ? '. ' + m.pending + ' still pending, counted in neither direction' : '') + '.' +
+              // Same reconciliation the Deep Dive gives, stated where the number is,
+              // so the figure is never one the visible breakdown cannot produce.
+              (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the published figure sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
+            '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this calculated?</button>' +
+          '</div>' +
+        '</details>' +
+        // Says out loud where this number sits now. Without it the block just looks
+        // smaller for no stated reason, and a reader who remembers it as the
+        // headline has no way to tell whether it was demoted or degraded. The link
+        // closes the loop the other way too: the primary section lists this block as
+        // an input, so this block has to be one tap from the score it feeds.
+        '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.5rem;">' +
+          'This covers explicit pledges only. The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above weighs these alongside their stated positions and the issues they campaign on — because they should be held to all of it, not just the part phrased as a promise.' +
+        '</p>' +
+        '<button type="button" class="pdx-ft-primary" ' +
+          'onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'pdxsec-wordaction\');}' +
+          'else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+          '⚖️ See the one score this feeds <span aria-hidden="true">→</span>' +
+        '</button>' +
       '</div>';
   };
 
@@ -3267,8 +3303,16 @@
     }
 
     if (doScroll) {
-      var sec = document.getElementById('pdx-promise-section');
-      if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior:'smooth', block:'start' });
+      // Via _pdxNavJump rather than scrollIntoView: the promise ledger now lives
+      // inside a closed full-record drawer, and _pdxNavJump opens any drawer
+      // between the target and the modal body before it measures. A bare
+      // scrollIntoView would land the reader on a shut lid.
+      if (typeof window._pdxNavJump === 'function') {
+        window._pdxNavJump('pdx-promise-section');
+      } else {
+        var sec = document.getElementById('pdx-promise-section');
+        if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
     }
   };
 
@@ -3417,10 +3461,28 @@
   };
 
   // Smooth-scroll the modal body so the target section clears the sticky rail.
+  //
+  // Deep-record sections now live inside closed drawers, and scrolling to a node
+  // inside a collapsed (max-height:0) box lands the reader on a shut lid with
+  // nothing to read — a control that appears to do nothing. So any closed drawer
+  // between the target and the modal body is opened first, outermost last, and the
+  // scroll offset is measured after that so it reflects the expanded layout.
   window._pdxNavJump = function (targetId, btn) {
     var body = document.getElementById('modal-body');
     var el = document.getElementById(targetId);
     if (!body || !el) return;
+    try {
+      var chain = [], node = el.parentElement;
+      while (node && node !== body) {
+        if (node.classList && node.classList.contains('dd-body') && !node.classList.contains('dd-open') && node.id) chain.push(node.id);
+        node = node.parentElement;
+      }
+      // Inner drawers first: opening an outer one does not change whether an
+      // inner one is still shut, and toggleDD only flips the id it is handed.
+      if (typeof window.toggleDD === 'function') {
+        for (var i = 0; i < chain.length; i++) window.toggleDD(chain[i]);
+      }
+    } catch (e) {}
     var nav = document.getElementById('pdx-profile-nav');
     var navH = nav ? nav.offsetHeight : 0;
     var top = body.scrollTop + el.getBoundingClientRect().top - body.getBoundingClientRect().top - navH - 12;
@@ -3522,31 +3584,42 @@
     window._pdxActiveFilter = 'all';
 
     // Promise Score only counts once a promise has resolved (kept/broken).
-    // With nothing resolved, treat the score as absent so the hero ring and the
+    // With nothing resolved, treat the score as absent so the block and the
     // "No record yet" framing read honestly rather than surfacing a misleading
     // percentage.
     //
     // NAMING: this number is the PROMISE lane and nothing else — Kept ÷ (Kept +
-    // Broken). It is deliberately never labelled a bare "Score" anywhere on the
-    // profile, because a profile carries three separate records and an unqualified
-    // "Score" reads as a verdict on all three:
-    //   🏛️ Official Record      — votes / formal actions        (consistency.js)
-    //   🧾 Say-vs-Do            — stance follow-through          (consistency.js)
-    //   🤝 Promise Follow-Through — kept vs broken promises      (this number)
+    // Broken). It is no longer a headline anywhere on the profile: the hero ring
+    // and the record stage lead with the ONE primary read (⚖️ Word vs Action),
+    // which weighs this lane as its top tier alongside stated positions and
+    // signature issues. What remains of the lanes below are supporting layers,
+    // each labelled for what it covers rather than competing to rate the person:
+    //   ⚖️ Word vs Action        — the primary score               (word-action.js)
+    //   🏛️ Official Record      — the test: votes / formal actions (consistency.js)
+    //   🧾 Say-vs-Do            — supporting receipts              (consistency.js)
+    //   🤝 Promise Follow-Through — explicit pledges only          (this number)
     const scoreNum = window._pdxDisplayScore(p);
     const scoreText = scoreNum === null ? '—' : scoreNum + '%';
     const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
     const pendingCount = typeof p.pending === 'number' ? p.pending : (p.promises ? p.promises.filter(r=>r.verdict==='pending').length : 0);
-    // The denominator behind the headline percentage, so "100%" can never be read
-    // as a broad record when it rests on a single resolved promise.
-    const scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(p) : '';
     // The unresolved side of the ledger. `promiseState` separates a profile that
     // is genuinely tracking promises (none resolved yet) from one with nothing on
-    // file — two cases the hero used to render identically.
+    // file — two cases the hero used to render identically. The pledge lane's own
+    // denominator and pending note now live in its block rather than under the
+    // hero ring, which reports the primary read's denominator instead.
     const promiseState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : (scoreNum === null ? 'empty' : 'resolved');
     const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
-    const pendingNote  = (typeof window._pdxPendingNote === 'function') ? window._pdxPendingNote(p) : '';
     const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
+    // The pledge ledger as COUNTS, for the supporting chip under the ring. The
+    // header keeps this information — how many promises actually closed, and
+    // which way — without restating it as a second percentage that would compete
+    // with the primary read. Counts, unlike a rate, also survive the pre-warm
+    // state, so the header always says something concrete about the pledges.
+    const pledgeLedger = {
+      kept: typeof p.kept === 'number' ? p.kept : (p.promises || []).filter(r => r.verdict === 'kept').length,
+      broken: typeof p.broken === 'number' ? p.broken : (p.promises || []).filter(r => r.verdict === 'broken').length,
+      pending: pendingCount
+    };
 
     // Top bar
     document.getElementById('modal-icon').textContent = p.icon;
@@ -3555,27 +3628,28 @@
     document.getElementById('modal-name-small').textContent = p.name;
     document.getElementById('modal-office-small').textContent = p.office + ' · ' + p.state;
 
-    // Score ring SVG
-    const radius = 28, circ = 2 * Math.PI * radius;
-    const pct = scoreNum === null ? 0 : scoreNum / 100;
-    const dash = pct * circ;
-    const scoreRing = scoreNum !== null ? `
-      <div class="profile-score-stack">
-      <div class="score-ring w-20 h-20 flex-shrink-0">
-        <svg width="80" height="80" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
-          <circle cx="40" cy="40" r="${radius}" fill="none" stroke="${scoreColor}" stroke-width="6"
-            stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"
-            style="transition:stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1);filter:drop-shadow(0 0 4px ${scoreColor}66)"/>
-        </svg>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${scoreColor};line-height:1;">${scoreText}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Promises</div>
-        </div>
-      </div>
-      ${scoreDenom ? `<div class="profile-score-denom">(${scoreDenom})</div>` : ''}
-      ${pendingNote ? `<div class="profile-score-pending">${pendingNote}</div>` : ''}
-      </div>` : (promiseState === 'tracking' ? `
+    // Score ring SVG — the PRIMARY read (⚖️ Word vs Action).
+    // ONE headline percentage per profile. This ring used to print the pledge-only
+    // rate captioned "Promises", which meant a profile could open with 73% while
+    // the Word vs Action section a screen below said 82% and the Official Record
+    // said something else again — three numbers competing to answer one question.
+    // The pledge rate is now the top TIER inside the primary read rather than a
+    // rival to it, so the hero and the section call the same read() and cannot
+    // diverge. `scoreNum` survives below for the pledge lane's own block, its
+    // formula and the roster card — none of which are headline scores any more.
+    //
+    // Fail-closed states are the engine's, not this file's: below the tested-item
+    // and weight floors the ring shows "—" or "⏳" with the reason underneath, and
+    // when no word at all is on file it falls back to the promise tracker's honest
+    // "tracking" / "monitoring" treatment. It never substitutes a narrower number.
+    //
+    // `pledge` is the supporting layer: the kept/broken/pending counts render as a
+    // quiet chip under the ring and link into the promise block. Counts, not a
+    // rate — the pledge lane is a tier inside the ring's number, so printing its
+    // own percentage here would be the same evidence twice with two denominators.
+    const scoreRing = (window.PDXWordAction && typeof window.PDXWordAction.heroMount === 'function')
+      ? window.PDXWordAction.heroMount(id, p, { trackingLabel: (promiseState === 'tracking' ? trackedLabel : ''), trackingNote: trackingNote, pledge: pledgeLedger })
+      : (promiseState === 'tracking' ? `
       <div class="profile-score-stack">
         <div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center profile-score-tracking">
           <div style="font-size:1.5rem;line-height:1;">⏳</div>
@@ -3824,17 +3898,27 @@
       : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
 
     const _navItems = [];
-    // Promises — the published promise follow-through %, with a trend arrow when a
-    // delta is known. Named for its lane, not "Score": the rail also carries the
-    // Official Record and Enactments lanes, and a bare "Score" beside them reads as
-    // an overall rating this number is not.
-    if (scoreNum !== null) {
-      let _navTrend = '';
-      const _navDelta = (typeof p.scoreTrend === 'number') ? p.scoreTrend
-        : (typeof p.scoreDelta === 'number') ? p.scoreDelta : null;
-      if (_navDelta && _navDelta > 0) _navTrend = ' ↑';
-      else if (_navDelta && _navDelta < 0) _navTrend = ' ↓';
-      _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: scoreText + _navTrend, color: scoreColor });
+    // ⚖️ Word vs Action — the primary read, so it leads the rail. Value is the
+    // weighted percentage when the record clears the fail-closed floors, and the
+    // honest state ("Checking…" / "Thin record") when it does not — never a bare
+    // number standing in for one. Self-gating: no pill when no word is on file.
+    try {
+      if (window.PDXWordAction && typeof window.PDXWordAction.read === 'function') {
+        const _wa = window.PDXWordAction.read(id, p);
+        if (_wa && _wa.coverage.word) {
+          const _waVal = (_wa.pct !== null) ? (_wa.pct + '%')
+            : (_wa.coverage.warming ? 'Checking…' : (_wa.coverage.tested ? 'Thin record' : 'Untested'));
+          _navItems.push({ target: 'pdxsec-wordaction', icon: '⚖️', label: 'Word vs Action',
+            value: _waVal, color: (_wa.verdict && _wa.verdict.color) || '#9fb4d4' });
+        }
+      }
+    } catch (e) {}
+    // Promises — the pledge lane, reported as a COUNT. The rail carries exactly one
+    // percentage (the ⚖️ pill above it, the primary read) so two pills can never
+    // read as two competing verdicts; the pledge rate itself lives in its own block
+    // further down, where it is labelled as pledges-only.
+    if (scoreNum !== null || (keptCount + brokenCount) > 0) {
+      _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: keptCount + ' Kept', color: '#9fb4d4' });
     }
     // Record — the kept / broken / pending COUNTS behind that percentage. The rate
     // itself is deliberately not repeated here: it is the pill directly above, and
@@ -3947,8 +4031,20 @@
         '</nav>'
       : '';
 
-    // Assemble full modal content
-    document.getElementById('modal-content').innerHTML = `
+    // Assemble full modal content.
+    //
+    // The body below is written in the order these sections were BUILT; it is
+    // rendered in the order a reader needs them. Each block carries a one-line
+    // <!--PDXSP:stage--> sentinel naming the stage of the profile spine it belongs
+    // to (identity → brief → signature issues → tension → official record →
+    // receipts → money → you → full-record drawers), and PDXProfileSpine
+    // reorders and wraps them on the way to the DOM. Annotating in place rather
+    // than physically moving hundred-line renderers keeps the diff reviewable and
+    // makes the sequence a declaration instead of an accident of line numbers.
+    //
+    // Blocks tagged dw:<name> are deep-record content: they are preserved in full
+    // and collected behind one labelled, closed-by-default drawer per name.
+    const _profileBody = `
 
       <!-- Hero header — clean letterhead: photo, identity, status, score -->
       <div class="profile-hero">
@@ -4030,10 +4126,27 @@
            the plain thin notice if the snapshot can't render. -->
       ${candidateSnapshot || thinNotice}
 
-      <!-- Promise Follow-Through summary — the promise lane's one and only headline:
-           kept vs broken, the resolved-only percentage, and a plain-language verdict
-           scoped to promises. The 🏛️ Official Record and 🧾 Say-vs-Do lanes have their
-           own sections further down and are never folded into this number. -->
+      <!--PDXSP:record-->
+      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the first thing
+           on the record stage. One question ("do they stand by what they said?") over
+           one pool of documented word in three weighted tiers: explicit pledges,
+           stated positions, and the issues they campaign on. Tested only against the
+           Official Record. See word-action.js for the model, its five rules and the
+           fail-closed floors.
+
+           Everything below it is now SUPPORTING detail rather than a competing
+           headline: the Promise Follow-Through block is the pledge tier's own
+           number, the Official Record and Say-vs-Do sections are the two scoped
+           lanes underneath. Renders '' when no word is on file at all — an empty
+           frame would imply the record should be here. -->
+      ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
+
+      <!-- Promise Follow-Through — the PLEDGE TIER's own number, kept intact and
+           kept canonical (Kept ÷ (Kept + Broken), pending excluded) but no longer the
+           loudest thing on the profile. Every count, chip and explainer survives; the
+           block reads as the top tier of the Word vs Action ladder above it rather
+           than as a separate scoring religion. The 🏛️ Official Record and 🧾 Say-vs-Do
+           lanes have their own sections further down and are never folded into it. -->
       <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum) : ''}
 
@@ -4050,6 +4163,7 @@
            block above states the figure, its kept/broken denominator, and its
            methodology, so the bar added nothing but repetition. Removed. -->
 
+      <!--PDXSP:identity-->
       <!-- Biography & signature quote — who they are, read early so the
            profile opens like an honest dossier: identity → record → person. -->
       ${(p.bio || p.quote) ? `<div class="modal-section">
@@ -4058,6 +4172,7 @@
         ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p>${p.quoteSource ? `<cite class="profile-quote-cite">${p.quoteSource}</cite>` : ''}</blockquote>` : ''}
       </div>` : ''}
 
+      <!--PDXSP:signature-->
       <!-- Key Issues — a quick, at-a-glance read of what this official is most
            defined by, placed right after the biography so it frames the detailed
            record below. Only rendered when there are issues, so a profile without
@@ -4069,6 +4184,7 @@
         <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">${issuePills}</div>
       </div>` : ''}
 
+      <!--PDXSP:tension-->
       <!-- Biggest Controversies — a visually distinct, neutral block surfacing the
            2–4 most notable / divisive items already on this official's record
            (say-vs-do gaps, broken promises, flagged events). Each card carries a
@@ -4078,12 +4194,14 @@
            self-gates to '' when nothing checkable is on record. -->
       ${(typeof window._renderControversies === 'function') ? window._renderControversies(id, p) : ''}
 
+      <!--PDXSP:money-->
       <!-- Money & Funding — who bankrolls this official, surfaced right in the
            core profile (not only inside the Compare tool). Same window._pdxFunding
            lookup and 🌱/⚖️/🏦 language as Compare, with a calm "Not on file"
            state and one-tap paths to the filings and into a side-by-side. -->
       ${(typeof window._pdxFundingSection === 'function') ? window._pdxFundingSection(id, p) : ''}
 
+      <!--PDXSP:you-->
       <!-- Personalized Alignment Score — a first-class "Your Match" read on every
            profile. When the visitor has set up alignment it shows their match vs.
            THIS politician (values, not party); when they haven't, a compact CTA
@@ -4126,6 +4244,16 @@
           </div>`;
       })()}
 
+      <!--PDXSP:brief-->
+      <!-- The brief — the first screen. Answers "what defines them", "where is the
+           tension" and "what should I share or inspect next" from the same
+           accessors the full sections below use, so it can never claim something
+           the record does not support. Rendered by profile-spine.js; self-gates to
+           '' when there is neither a documented position nor a contested point. -->
+      ${(window.PDXProfileSpine && typeof window.PDXProfileSpine.briefHtml === 'function')
+        ? (function(){ try { return window.PDXProfileSpine.briefHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
       <!-- Connecting the Dots — a neutral synthesis spine that threads the
            profile's accountability lenses in reading order (stances → votes →
            who they affect → federal contracts → your own comparison), each with
@@ -4133,6 +4261,7 @@
            hidden unless at least two lenses carry real data (profile-connect.js). -->
       ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
 
+      <!--PDXSP:signature-->
       <!-- View Full Stance Record — the prominent, impossible-to-miss jump to the
            complete per-issue record (evidence depth + honest "No record yet"
            rows). Sits right under the alignment row and above every summarized
@@ -4140,6 +4269,7 @@
            on every profile. Cached sources only — no new network cost. -->
       ${(typeof window._pdxStanceRecordCta === 'function') ? window._pdxStanceRecordCta(id, p) : ''}
 
+      <!--PDXSP:money-->
       <!-- Top-level "Who It Affects" overview — a compact net read of who the
            measures on this official's record affect, by economic group. Reuses the
            cached member-impacts data (its cohortSummary); self-hydrating placeholder,
@@ -4169,6 +4299,7 @@
         return '';
       })()}
 
+      <!--PDXSP:you-->
       <!-- Related Proposals — community reforms from The People's Mandate that are
            linked to THIS politician. The container is filled asynchronously after
            render from /api/mandate-proposals?politician=<id>; it stays empty (and
@@ -4179,6 +4310,7 @@
       <!-- How You Compare: per-issue linkage to the visitor's Alignment Tool picks -->
       ${(typeof window._renderIssueComparison === 'function') ? window._renderIssueComparison(id, p) : ''}
 
+      <!--PDXSP:signature-->
       <!-- Stance at a Glance — collapsible, scannable index of documented
            positions with a per-issue evidence dot; taps open a small evidence
            popover. Sits just above the detailed Key Issue Stances cards. -->
@@ -4197,15 +4329,22 @@
         ? (function(){ try { return window.PDXBallotAxes.profileHtml(id, p); } catch(e){ return ''; } })()
         : ''}
 
-      <!-- Key Issue Stances -->
+      <!--PDXSP:dw:positions-->
+      <!-- Key Issue Stances — every documented position with its own evidence. The
+           complete set, preserved in full but moved behind the "Every documented
+           position" drawer: Stance at a Glance above is the scannable index into
+           exactly this material, and printing both at full depth in sequence is
+           what made the profile read as repetitive. -->
       ${(typeof window._renderIssueStances === 'function') ? window._renderIssueStances(id, p) : ''}
 
+      <!--PDXSP:receipts-->
       <!-- Connected Evidence — stance + promises + recorded words/actions per
            issue (current sitting Utah State Legislators; '' for everyone else) -->
       <span id="pdxsec-evidence" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._renderEvidenceSummary === 'function') ? window._renderEvidenceSummary(id, p) : ''}
       ${(typeof window._renderEvidenceConnections === 'function') ? window._renderEvidenceConnections(id, p) : ''}
 
+      <!--PDXSP:record-->
       <!-- Promise Tracker — gateway (section name only, no % on the name). Presents
            the two clearly-separated systems: 🏛️ Official Record (votes) and 🧾
            Say-vs-Do (broader public record). Each card dives into its deeper view.
@@ -4234,6 +4373,7 @@
       <span id="pdxsec-official-record" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXConsistency && typeof window.PDXConsistency.officialRecordSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.officialRecordSectionHtml(id) + '</div>') : ''}
 
+      <!--PDXSP:tension-->
       <!-- Record vs. Public Picture — the explicit divergence bridge (Phase 8). Sits
            BETWEEN the two sibling feeds and compares 🏛️ Official Record (votes) with
            🧾 Say-vs-Do (public record) issue-by-issue plus a whole-profile summary,
@@ -4242,6 +4382,7 @@
       <span id="pdxsec-divergence" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXConsistency && typeof window.PDXConsistency.divergenceSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.divergenceSectionHtml(id) + '</div>') : ''}
 
+      <!--PDXSP:receipts-->
       <!-- Say-vs-Do — the dedicated, stance-first public-record feed the gateway's
            Say-vs-Do card lands on. Sibling to the Official Record section: same
            organized shape, but broader public-record evidence ONLY (statements,
@@ -4251,6 +4392,7 @@
       <span id="pdxsec-saydo" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.saydoSectionHtml(id) + '</div>') : ''}
 
+      <!--PDXSP:dw:votes-->
       <!-- Voting Record — "what they actually did": roll-call votes + official
            actions from /api/voting-record, keyed to ISSUE_MAP and checked against
            their stated stances. Renders hidden and self-reveals only when a record
@@ -4258,6 +4400,7 @@
       <span id="pdxsec-voting" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._renderVotingRecord === 'function') ? window._renderVotingRecord(id, p) : ''}
 
+      <!--PDXSP:money-->
       <!-- Major Contracts in Their State/District — major federal contracts tied
            to this official's state (geographic context, not an implication of
            involvement). Rendered synchronously by gov-contracts.js from the
@@ -4267,6 +4410,7 @@
       <span id="pdxsec-contracts" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._renderMajorContracts === 'function') ? window._renderMajorContracts(id, p) : ''}
 
+      <!--PDXSP:you-->
       <!-- Your Stance vs Their Record — relocated to the end of the accountability
            chain so the profile closes on how the record maps to the visitor's own
            positions (the final "dot" the overview points to). Rendered by My Stances
@@ -4275,6 +4419,13 @@
       <span id="pdxsec-compare" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXStances && typeof window.PDXStances.vsRecordHtml === 'function') ? (function(){ try { var _vs = window.PDXStances.vsRecordHtml(id, { max: 8 }); return _vs ? ('<div class="modal-block pdx-vsrecord-block" style="margin-bottom:1.25rem;">' + _vs + '</div>') : ''; } catch(e){ return ''; } })() : ''}
 
+      <!--PDXSP:dw:promises-->
+      <!-- Everything from here to the next sentinel is the deep promise record: the
+           four-way breakdown with its formula, then the full per-promise tracker
+           table. Both are preserved verbatim and collected behind the "Every tracked
+           promise" drawer — the Promise Follow-Through headline and the Promise
+           Tracker gateway above already state the score and link here, so printing
+           the whole ledger inline is what made promises read three times over. -->
       <!-- Deep Dive: Full Promise Breakdown -->
       ${(function(){
         const pb = p.promiseBreakdown || {};
@@ -4363,13 +4514,25 @@
           <div id="pdx-promise-list">${promiseRows || '<div class="pdx-empty-state"><div class="pdx-empty-ico">📋</div><div class="pdx-empty-title">No promises tracked yet</div><div class="pdx-empty-sub">' + (_isChallenger ? 'Once this candidate takes office and acts on their pledges, kept and broken promises will be logged here.' : 'As this official acts on their pledges, kept and broken promises will be logged here — until then, see their stated positions above.') + '</div></div>'}</div>
           <div id="pdx-promise-empty" style="display:none;padding:1.1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No promises tracked yet.</div>
         </div>
-        <button onclick="openFullProfileVerify('${id}')" class="w-full mt-3 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#7c3aed);box-shadow:0 6px 20px rgba(192,21,42,0.3);">
+      </div>
+
+      <!--PDXSP:record-->
+      <!-- Verify Full Profile with AI — lifted OUT of the promise ledger and onto
+           the spine. It used to be the last element of the Promise Tracker card,
+           which meant restaging that ledger into a closed drawer would have made
+           the app's only entry point to the multi-AI verification report
+           unreachable without two taps. It is an action on the whole profile, not
+           on the promise table, so it now stands on its own in the official-record
+           stage. -->
+      <div class="modal-section" id="pdxsec-verify">
+        <button onclick="openFullProfileVerify('${id}')" class="w-full text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#7c3aed);box-shadow:0 6px 20px rgba(192,21,42,0.3);">
           <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0110.2 21a3.745 3.745 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.745 3.745 0 013.296-1.043A3.746 3.746 0 0113.8 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
           🛡️ Verify Full Profile with AI
         </button>
         <p style="font-size:0.62rem;color:#4e72a0;text-align:center;margin:0.45rem 0 0;letter-spacing:0.02em;">Comprehensive multi-AI report (Claude, Gemini, Grok &amp; GPT) verifying credentials, positions, controversy &amp; trust score.</p>
       </div>
 
+      <!--PDXSP:dw:money-->
       <!-- Financial Transparency — Wealth Over Time -->
       ${(function(){
         const wealthData = {
@@ -4398,6 +4561,7 @@
         '</div>';
       })()}
 
+      <!--PDXSP:record-->
       <!-- Key Voting Record -->
       ${(function(){
         const votingRecords = {
@@ -4664,7 +4828,13 @@
               '<p class="src-note">A few of the most significant votes. See the full record below for every tracked vote and why it matters.</p>' +
             '</div>'
           : '';
+        // One renderer, two stages. The highlights above are official-record
+        // headlines and belong on the spine; the full table below is deep record and
+        // belongs in the votes drawer. Emitting the spine sentinel between them lets
+        // PDXProfileSpine split this block where it should be split, without moving
+        // a line of the markup that builds either half.
         return _vrHighlightsSection +
+          '<!--PDXSP:dw:votes-->' +
           '<div class="modal-section">' +
           '<div class="modal-section-title">\u{1F5F3}️ Full Voting Record</div>' +
           '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;overflow:hidden;">' +
@@ -4678,9 +4848,11 @@
         '</div>';
       })()}
 
+      <!--PDXSP:tension-->
       <!-- Extra sections (alerts, info boxes) -->
       ${extraSections}
 
+      <!--PDXSP:receipts-->
       <!-- In the Spotlight — Current Events & Controversies -->
       ${(function(){
         const spotlightData = (window.SPOTLIGHT_DATA = window.SPOTLIGHT_DATA || {});
@@ -5038,6 +5210,7 @@
         '</div>';
       })()}
 
+      <!--PDXSP:dw:money-->
       <!-- Follow the Money — Campaign Finance in Modal -->
       ${(function(){
         var ftmModalData = {
@@ -5120,6 +5293,7 @@
         '</div>';
       })()}
 
+      <!--PDXSP:dw:activity-->
       <!-- Activity — a compact, honest "last touched / how much is tracked"
            footer so the profile closes with a sense of freshness rather than
            trailing off. Also the scroll target for the Activity quick-jump pill. -->
@@ -5137,7 +5311,10 @@
           '</div>';
       })()}
 
-      <!-- Spacer -->
+      <!--PDXSP:you-->
+      <!-- My Notes — private, per-visitor, and therefore part of the "you and them"
+           stage rather than the record. Hidden until a signed-in visitor is
+           detected (see the my-notes-section reveal below). -->
       <div class="modal-section" id="my-notes-section" style="display:none;">
         <div class="modal-section-title">📝 My Notes <span style="font-size:0.55rem;font-weight:400;color:#4e72a0;letter-spacing:0.06em;">(Private — saved to your account)</span></div>
         <textarea id="modal-my-notes" class="my-notes-area" placeholder="Write your private notes about this politician... These are saved to your account and visible only to you."></textarea>
@@ -5147,9 +5324,45 @@
         </div>
       </div>
 
-      <!-- Spacer -->
-      <div style="height:0.5rem;"></div>
     `;
+
+    // Order the body, then mount it.
+    //
+    // assembleTagged() splits _profileBody on its <!--PDXSP:*--> sentinels and emits
+    // the chunks in spine order, wrapping every dw:<id> chunk in one labelled,
+    // closed-by-default drawer. Nothing is dropped: an unknown stage and a drawer
+    // tag with no spec both fall through to the deep end. If profile-spine.js has
+    // not loaded, the raw body renders exactly as it did before — the spine is an
+    // ordering layer, never a prerequisite for the content.
+    const _mc = document.getElementById('modal-content');
+    const _spine = window.PDXProfileSpine;
+    _mc.innerHTML = (_spine && typeof _spine.assembleTagged === 'function')
+      ? _spine.assembleTagged(_profileBody, {
+          // Drawer order = how deep you are going, shallowest first. Every meta
+          // string is a count of what is actually inside, so a drawer never
+          // promises more than it holds.
+          drawers: [
+            { id: 'positions', stage: 'drawers', ico: '📋', title: 'Every documented position',
+              meta: (function(){ try { var n = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []).length : 0; return n ? n + ' on file' : ''; } catch (e) { return ''; } })(),
+              sub: 'Each position with its own evidence and sources. Stance at a Glance above is the index into exactly this material.' },
+            { id: 'votes', stage: 'drawers', ico: '🗳️', title: 'Full voting record',
+              sub: 'Every tracked vote and formal action, with why it matters. The highlights above are drawn from this list.' },
+            { id: 'promises', stage: 'drawers', ico: '🤝', title: 'Every tracked promise',
+              sub: 'The full ledger behind the Promise Follow-Through score, plus how the score is calculated.' },
+            { id: 'money', stage: 'drawers', ico: '💰', title: 'Full financial record',
+              sub: 'Net worth over time, campaign finance detail and donor breakdown from public disclosures.' },
+            { id: 'activity', stage: 'drawers', ico: '🕑', title: 'Tracking activity',
+              sub: 'How much is on file for this profile, and when it was last updated.' }
+          ]
+        }) + '<div style="height:0.5rem;"></div>'
+      : _profileBody;
+
+    // Same task as the innerHTML write, before paint. hydrate() removes any jump
+    // chip whose target stage did not render; doing that after paint would be a
+    // visible layout shift instead of an invisible one.
+    if (_spine && typeof _spine.hydrate === 'function') {
+      try { _spine.hydrate(_mc); } catch (e) {}
+    }
 
     // Related Issue Spotlight callout — a calm, light cross-link surfaced near the
     // top of the profile when this official is featured in an Issue Spotlight.
@@ -5162,7 +5375,7 @@
       const wd = window.__wealthChartData;
       const ctx = document.getElementById('wealthChart');
       delete window.__wealthChartData;
-      if (ctx) window.PDXLazy.chart().then(function () {
+      if (ctx) _pdxDrawerChart('wealthChart', function () { window.PDXLazy.chart().then(function () {
         if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); }
         window.__wealthChartInstance = new Chart(ctx, {
           type: 'line',
@@ -5217,12 +5430,12 @@
             }
           }
         });
-      }).catch(function () {});
+      }).catch(function () {}); });
     }
 
     // Render FTM net worth bar chart
     var _ftmNwCanvas = document.getElementById('ftmNwChart');
-    if (_ftmNwCanvas) {
+    if (_ftmNwCanvas) _pdxDrawerChart('ftmNwChart', function () {
       if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); }
       var _ftmNwData = {
         trump:    { labels:['Before','2019','2021','2023','Now'], values:[4.5,3.1,2.5,2.6,6.5], unit:'B' },
@@ -5275,7 +5488,7 @@
           }
         });
       }).catch(function () {});
-    }
+    });
 
     // Follow Money Trail button state
     var _ftmFollowBtn = document.getElementById('ftm-follow-btn');
@@ -5421,6 +5634,30 @@
   }
 
 
+  // Charts whose canvas is inside a closed drawer. A canvas in a max-height:0
+  // container measures zero, and a chart drawn into a zero-height box comes out
+  // blank — Chart.js does not reliably redraw when the box is later revealed. So
+  // any chart whose canvas is not laid out yet is parked here and drawn the first
+  // time its drawer opens, which is also the first time anyone can see it.
+  var _pdxPendingCharts = [];
+  function _pdxDrawerChart(canvasId, fn) {
+    var el = document.getElementById(canvasId);
+    if (!el) return;
+    if (el.offsetWidth > 0 && el.offsetHeight > 0) { try { fn(); } catch (e) {} return; }
+    _pdxPendingCharts.push({ id: canvasId, fn: fn });
+  }
+  function _pdxDrainCharts() {
+    if (!_pdxPendingCharts.length) return;
+    var keep = [];
+    _pdxPendingCharts.forEach(function (job) {
+      var el = document.getElementById(job.id);
+      if (!el) return;                        // its profile closed — drop the job
+      if (!el.offsetWidth || !el.offsetHeight) { keep.push(job); return; }
+      try { job.fn(); } catch (e) {}
+    });
+    _pdxPendingCharts = keep;
+  }
+
   function toggleDD(id) {
     const body = document.getElementById(id);
     const btn  = document.getElementById('btn-' + id);
@@ -5428,6 +5665,10 @@
     const isOpen = body.classList.contains('dd-open');
     body.classList.toggle('dd-open', !isOpen);
     btn.classList.toggle('dd-active', !isOpen);
+    // Keep the button's state readable to assistive tech, and draw anything that
+    // was waiting for this box to have a size.
+    try { btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true'); } catch (e) {}
+    if (!isOpen) _pdxDrainCharts();
   }
 
   // Close on Escape key
@@ -5498,6 +5739,24 @@
     if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '');
     if (linkEl)  linkEl.value = url;
     if (copyBtn) { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy'; }
+    // The share ARTIFACT — the image, not the link. Every compact card, browse
+    // row, comparison card and the profile modal header funnel into this one
+    // sheet, so this is the single place that makes the Official Record card /
+    // Say-vs-Do receipt reachable from all of them. PDXShareAnywhere resolves
+    // which pipeline can serve this person and prints an honest hint when neither
+    // can; the row is painted before the overlay is shown and its hint box has a
+    // reserved height, so the sheet does not resize when the record settles.
+    var artEl = document.getElementById('pdx-share-artifact');
+    if (artEl) {
+      var SA = window.PDXShareAnywhere;
+      if (SA && typeof SA.buttonHtml === 'function') {
+        artEl.innerHTML = SA.buttonHtml({ pid: id, block: true, hint: true, fallback: 'copy',
+                                          text: 'Share the card' });
+        try { SA.hydrateSoon(artEl); } catch (e) {}
+      } else {
+        artEl.innerHTML = '';
+      }
+    }
     // The native Web Share API ("More Options") is only offered where supported —
     // mostly mobile and some desktop browsers.
     if (nativeBtn) nativeBtn.style.display = (navigator.share) ? '' : 'none';

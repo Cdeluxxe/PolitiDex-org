@@ -6486,6 +6486,15 @@
     .pdx-share-x { background: none; border: none; color: #7596c0; font-size: 1.05rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
     .pdx-share-x:hover { color: #fff; }
     .pdx-share-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; color: #9fb4d4; margin-bottom: 1rem; }
+    /* The share ARTIFACT row — the image share, above the link. Every compact card
+       and the profile modal header open this sheet, so this row is what makes the
+       Official Record card / Say-vs-Do receipt reachable from all of them. It is
+       filled by window.pdxSharePolitician and its control is fixed-size (see
+       .pdxsa-share-btn in say-vs-do.css), so the sheet does not resize when the
+       record settles behind it. The row collapses only when share-anywhere.js is
+       absent, in which case the sheet is exactly what it was before. */
+    .pdx-share-artifact { margin-bottom: 1rem; }
+    .pdx-share-artifact:empty { display: none; margin: 0; }
     .pdx-share-linkrow { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
     .pdx-share-link {
       flex: 1; min-width: 0;

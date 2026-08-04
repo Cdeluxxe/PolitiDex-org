@@ -91,7 +91,10 @@
 }
 
 /* Land smooth-scroll / anchor jumps just below the fixed top nav instead of
-   underneath it — makes in-app navigation feel intentional, not clipped. */
+   underneath it — makes in-app navigation feel intentional, not clipped.
+   Superseded at every width by the --pdx-nav-h rule in section 7c below, which
+   derives the same offset from the nav's measured height; kept as the value a
+   phone falls back to if that custom property is ever unresolvable. */
 @media (max-width: 640px) {
   html { scroll-padding-top: 72px; }
 }
@@ -180,3 +183,134 @@ nav.nav-blur {
     animation: none !important;
   }
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   7 · LAYOUT STABILITY — app-shell hardening
+   --------------------------------------------------------------------------
+   Everything below targets site-wide "jumpiness": content that moves after you
+   have started reading it. It pairs with pdx-stability.js, which owns the
+   scroll-lock coordinator, the Safari scroll-anchoring fallback and the live
+   --pdx-nav-h measurement that these rules consume. Still purely additive: no
+   existing declaration is replaced, and every layout-affecting change is either
+   mobile-scoped or a no-op where the browser already behaves.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 7a · Reserve the scrollbar's space, permanently ──────────────────────
+   ~40 call sites across 15 feature files lock the page by setting
+   `overflow: hidden` on <body> when a modal opens. On any desktop/laptop with
+   classic (space-taking) scrollbars, that removes the scrollbar and the whole
+   document instantly re-lays-out ~15px wider — then snaps back on close. Every
+   modal open/close was a full-page horizontal reflow. Reserving the gutter for
+   good makes the lock free. Phones use overlay scrollbars, so this is inert
+   there; declared unscoped so the desktop case is fixed too. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* ── 7b · The scroll lock, done once and done properly ────────────────────
+   pdx-stability.js adds this class to <html> for the duration of any modal.
+   Two things the per-file `body { overflow: hidden }` could not do:
+     · iOS Safari ignores overflow on <body> for the document scroller but
+       honours it on <html>, so the page behind an open profile actually stays
+       put instead of drifting while you read the modal.
+     · `scroll-behavior: auto` keeps the position restore on close instant —
+       the global `html { scroll-behavior: smooth }` would otherwise animate a
+       correction that is meant to be invisible.
+   Modal internals are `position: fixed` with their own overflow, so their
+   scrolling is unaffected. */
+html.pdx-scroll-locked {
+  overflow: hidden;
+  scroll-behavior: auto;
+}
+/* Applied for the single frame around any internal scroll correction, so
+   engines that ignore `behavior: 'instant'` still land instantly. */
+html.pdx-instant-scroll {
+  scroll-behavior: auto !important;
+}
+
+/* ── 7c · One source of truth for the fixed nav's height ───────────────────
+   Sticky jump-bars and scroll padding hard-coded the nav height (62px, 80px,
+   108px) at a single breakpoint, so on phones the sticky bars tucked under the
+   nav and hash jumps landed with the target heading hidden behind it.
+   pdx-stability.js measures the nav (including after the late webfont swap,
+   which changes its text metrics) and overwrites --pdx-nav-h; the value here is
+   the correct fallback for the mobile bar if JS never runs. */
+:root {
+  --pdx-nav-h: 57px;
+}
+
+/* Land every hash jump / scrollIntoView clear of the nav, at every width.
+   Unscoped so desktop stops landing 108px low as well. */
+html {
+  scroll-padding-top: calc(var(--pdx-nav-h) + 16px);
+}
+
+/* Sections that never got an inline scroll-margin-top now get one. Inline
+   styles still win where a section already tuned its own value, so this only
+   fills the gaps (#hot-topics, #digital-library, #say-vs-do, #trending-reforms,
+   #compare-hub, #agenda, …). */
+section[id] {
+  scroll-margin-top: calc(var(--pdx-nav-h) + 16px);
+}
+
+/* The two sticky quick-jump rails both hard-coded `top: 62px`. Pin them to the
+   measured nav instead so they sit flush under it rather than overlapping it or
+   floating clear of it. */
+.el-jump,
+.mandate-jump {
+  top: calc(var(--pdx-nav-h) + 5px);
+}
+
+/* ── 7d · Stop the sticky chrome repainting the page behind it, per frame ──
+   `backdrop-filter: blur(…)` on a full-width fixed/sticky bar forces the
+   compositor to re-sample and re-blur everything underneath it on EVERY scroll
+   frame. On mid-range phones that is the single most expensive thing on the
+   page and it reads as stuttering, unstable scrolling. The bars are already
+   ~80–92% opaque, so on phones we drop the blur and top the background up to
+   fully opaque: near-identical appearance, none of the per-frame cost. Desktop
+   keeps the blur untouched. */
+@media (max-width: 640px) {
+  nav.nav-blur {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: #0a0f1e;
+  }
+  .el-jump,
+  .mandate-jump {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ── 7e · Hush the huge decorative blur loops on phones ───────────────────
+   The hero and several section backgrounds stack 900px-wide radial glows behind
+   a `blur(120–160px)` filter and animate them on infinite loops. Each frame
+   re-rasterises a very large blurred layer, which competes with scrolling on
+   exactly the devices that can least afford it. On phones the glows stay — they
+   are part of the look — but they stop animating, so they rasterise once.
+   Desktop is untouched. */
+@media (max-width: 640px) {
+  .animate-pulse2,
+  .animate-float {
+    animation: none !important;
+  }
+}
+
+/* ── 7f · Async-loaded sections must not collapse to zero ─────────────────
+   #say-vs-do, #issue-front-door and #hr1-showcase ship as empty, `hidden`
+   stubs and are filled in later by their feature modules; #local-issues and
+   the admin sections toggle `display` from JS. Each of those transitions moves
+   everything below it. pdx-stability.js absorbs the shift on engines without
+   native scroll anchoring; this reserves a floor for the fade-in so the growth
+   that remains is a small settle rather than a jump from nothing. Scoped to
+   phones and to the populated state — an empty stub still takes no space, so a
+   self-gating section that has no data to show never leaves a blank band. */
+@media (max-width: 640px) {
+  #say-vs-do:not(:empty):not([hidden]),
+  #issue-front-door:not(:empty):not([hidden]),
+  #hr1-showcase:not(:empty):not([hidden]) {
+    min-height: 320px;
+  }
+}
+

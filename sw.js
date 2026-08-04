@@ -11,9 +11,12 @@
                     we have it (repeat visits skip re-downloading the large HTML
                     document) and refresh it in the background so the next load is
                     fresh; fall back to the network on first visit, then to a tiny
-                    inline "you're offline" page. The page already reloads once when
-                    a new worker takes over (see the registration in index.html), so
-                    shipped shell updates still reach users promptly.
+                    inline "you're offline" page. A shipped shell update reaches
+                    users either on their next navigation (this cache was already
+                    refreshed in the background) or via the registration's
+                    reload-when-idle path in index.html — which, by design, never
+                    fires on a first install and never interrupts an open modal or
+                    a half-typed form.
      • STATIC     — stale-while-revalidate: serve instantly from cache and
                     refresh in the background, so repeat loads are fast and
                     self-healing.
@@ -31,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v38';
+const CACHE_VERSION = 'v44';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -63,6 +66,10 @@ const SHELL_ASSETS = [
   '/ballot-axes.css',
   // Additive mobile performance & flow polish layer.
   '/mobile-polish.css',
+  // App-shell layout-stability hardening. Precached because it is the first
+  // script in <body> and installs the shared scroll-lock seam that every modal
+  // in the app now routes through — an offline boot must not skip it.
+  '/pdx-stability.js',
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',
@@ -96,6 +103,29 @@ const SHELL_ASSETS = [
   '/consistency.js',
   '/issue-view.js',
   '/journey.js',
+  // The one share resolver every surface now asks (window.PDXShareAnywhere).
+  // Precached because it renders the share control on the mobile compact sheets,
+  // the share sheet and the search action strips; without it those controls fall
+  // back to a link-only share, which is a visible loss of function on a repeat
+  // visit. Tiny, and it depends on nothing being cached alongside it.
+  '/share-anywhere.js',
+  // The profile ordering layer (window.PDXProfileSpine) and its stylesheet.
+  // Precached together: without the script a repeat visitor gets the profile in
+  // its unordered build order, and without the stylesheet the stage rails,
+  // drawers and first-screen brief render unstyled. Both are small, and neither
+  // has a dependency that needs caching alongside it.
+  '/profile-spine.js',
+  '/profile-spine.css',
+  // ⚖️ Word vs Action (window.PDXWordAction) and its stylesheet — the primary
+  // accountability read on every profile. Precached for the same reason as the
+  // spine: without the script the profile silently loses its main section and
+  // falls back to leading with the pledge-only number, and without the
+  // stylesheet the tier ladder and the joined word/action rows render as
+  // unstyled lists. Its dependencies (consistency.js, stance-helpers.js,
+  // voting-record.js) are read through guarded optional lookups, so a cached
+  // copy is useful on its own.
+  '/word-action.js',
+  '/word-action.css',
   '/coverage.js',
   '/manifest.json',
   '/assets/icon.svg',

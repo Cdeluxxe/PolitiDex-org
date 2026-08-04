@@ -1,0 +1,387 @@
+/* ===========================================================================
+   profile-spine.css — the reading order of a politician profile, made visible.
+
+   Loaded non-blocking (media="print" onload="this.media='all'") because the
+   profile modal is never the first paint: six blocking stylesheets is the
+   budget the index test enforces, and this file is only needed once a profile
+   is opened.
+
+   Three things live here and nothing else:
+
+     1. .pdxsp-rail   — the numbered stage marker. It states the question the
+                        stage answers, so a reader scrolling on a phone always
+                        knows which of the seven questions they are inside.
+     2. .pdxsp-dw     — the full-record drawers, plus the .dd-free modifier that
+                        lifts app.css's 2400px max-height cap. That cap is right
+                        for a short deep-dive and silently clips a full voting
+                        record, which is a worse failure than no drawer at all.
+     3. .pdxbr        — the brief: the first screen under the letterhead.
+
+   Mobile-first throughout: the base rules ARE the phone layout, and the only
+   media query widens things for tablets and up. Every interactive element is
+   sized for a thumb at the narrowest width, and nothing here animates height
+   on a container that can hold thousands of pixels of record.
+   =========================================================================== */
+
+/* ── Stage rails ──────────────────────────────────────────────────────────── */
+
+/* The rail is a label, not a control — it carries no tap target and no shadow,
+   so it reads as a divider the eye can skip once it has been learned. */
+.pdxsp-rail {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  margin: 1.6rem 0 0.7rem;
+  padding: 0 0 0.45rem;
+  border-bottom: 1px solid rgba(245, 200, 66, 0.16);
+  scroll-margin-top: 4.5rem;
+}
+
+.pdxsp-rail-n {
+  flex-shrink: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: #0a0f1e;
+  background: rgba(245, 200, 66, 0.85);
+  border-radius: 999px;
+  min-width: 1.15rem;
+  padding: 0.15rem 0.35rem;
+  text-align: center;
+}
+
+.pdxsp-rail-lbl {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #f5c842;
+  line-height: 1.15;
+}
+
+/* The question is the point of the rail. On a phone it drops to its own line
+   rather than truncating — a half-shown question is worse than a wrapped one. */
+.pdxsp-rail-ask {
+  flex: 1 1 100%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #7596c0;
+  line-height: 1.35;
+  margin-top: 0.1rem;
+}
+
+/* A stage is a grouping box only. It deliberately has no background: the
+   sections inside already carry their own surfaces, and nesting a panel in a
+   panel is how the old profile started to read as visual noise. */
+.pdxsp-stage { display: block; }
+
+/* ── Full-record drawers ──────────────────────────────────────────────────── */
+
+/* Lifts app.css's `.dd-body.dd-open { max-height: 2400px }` cap for content
+   whose height is unbounded, and drops the transition with it. Animating a
+   multi-thousand-pixel reveal on a phone is exactly the kind of long layout
+   animation the stability pass removed elsewhere, so the reveal is instant. */
+.dd-body.dd-free { transition: none; }
+.dd-body.dd-free.dd-open { max-height: none; overflow: visible; }
+
+.modal-section.pdxsp-dw { margin-bottom: 0.7rem; }
+
+/* A slightly heavier lid than an ordinary deep-dive toggle, because these are
+   the "show me everything" doors and should read as the end of the profile
+   rather than as more sections. */
+.pdxsp-dw-btn {
+  border-color: rgba(159, 180, 212, 0.22) !important;
+  min-height: 3rem;
+}
+
+.pdxsp-dw-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  min-width: 0;
+  text-align: left;
+}
+
+.pdxsp-dw-ico { font-size: 0.95rem; line-height: 1; flex-shrink: 0; }
+
+.pdxsp-dw-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.07em;
+  color: #cbd9ec;
+  line-height: 1.2;
+}
+
+.pdxsp-dw-meta {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7596c0;
+  background: rgba(159, 180, 212, 0.12);
+  border: 1px solid rgba(159, 180, 212, 0.2);
+  border-radius: 999px;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+}
+
+/* Says what is inside before the reader commits to opening it. */
+.pdxsp-dw-sub {
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: #7596c0;
+  margin: 0 0 0.75rem;
+}
+
+.pdxsp-dw-inner { padding: 0.85rem 0.7rem 0.4rem; }
+
+/* ── The brief ────────────────────────────────────────────────────────────── */
+
+.pdxbr {
+  display: block;
+  background: linear-gradient(160deg, rgba(245, 200, 66, 0.06), rgba(10, 15, 30, 0.55));
+  border: 1px solid rgba(245, 200, 66, 0.2);
+  border-radius: 0.9rem;
+  padding: 0.9rem 0.8rem;
+  margin: 0 0 1.25rem;
+}
+
+/* One column on a phone: two 160px columns side by side would truncate both
+   the issue labels and the tension headline, which are the two things the
+   first screen exists to state. */
+.pdxbr-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+.pdxbr-col { min-width: 0; }
+
+.pdxbr-col-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9a8a55;
+  margin-bottom: 0.45rem;
+}
+
+/* Signature issues. Each is a tap into that issue's own view, so each is a
+   real button at a thumb-sized height even when its label is one short word. */
+.pdxbr-sigs { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.pdxbr-sig {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  min-height: 2.75rem;
+  text-align: left;
+  cursor: pointer;
+  background: rgba(10, 15, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid rgba(245, 200, 66, 0.55);
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.pdxbr-sig:hover,
+.pdxbr-sig:focus-visible {
+  border-color: rgba(245, 200, 66, 0.4);
+  background: rgba(245, 200, 66, 0.07);
+}
+
+.pdxbr-sig-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.pdxbr-sig-why {
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: #7596c0;
+}
+
+.pdxbr-none {
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: #7596c0;
+  margin: 0;
+}
+
+/* The tension card. Colour carries the KIND of tension, never a judgement of
+   the person: amber for a scored gap between the two feeds, red for a flagged
+   flashpoint, slate for "nothing contradicts itself", which is a finding and
+   is styled as calmly as it reads. */
+.pdxbr-tension {
+  background: rgba(10, 15, 30, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid rgba(159, 180, 212, 0.5);
+  border-radius: 0.65rem;
+  padding: 0.6rem 0.7rem;
+}
+
+.pdxbr-tension-gap { border-left-color: rgba(245, 200, 66, 0.7); }
+.pdxbr-tension-flag,
+.pdxbr-tension-receipt { border-left-color: rgba(248, 113, 113, 0.7); }
+.pdxbr-tension-clear { border-left-color: rgba(120, 140, 170, 0.55); }
+
+.pdxbr-t-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.pdxbr-t-ico {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: #9fb4d4;
+}
+
+.pdxbr-t-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e3c97a;
+  background: rgba(245, 200, 66, 0.12);
+  border: 1px solid rgba(245, 200, 66, 0.34);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  white-space: nowrap;
+}
+
+.pdxbr-tension-clear .pdxbr-t-badge {
+  color: #9fb4d4;
+  background: rgba(120, 140, 170, 0.12);
+  border-color: rgba(120, 140, 170, 0.34);
+}
+
+.pdxbr-t-issue {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #c4b5fd;
+}
+
+.pdxbr-t-head {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.3;
+  color: #ffffff;
+  margin: 0 0 0.3rem;
+}
+
+.pdxbr-t-line {
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: #c7d4e8;
+  margin: 0;
+}
+
+.pdxbr-t-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.5rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #f5c842;
+  background: rgba(245, 200, 66, 0.1);
+  border: 1px solid rgba(245, 200, 66, 0.34);
+  border-radius: 0.55rem;
+  padding: 0.35rem 0.7rem;
+}
+
+.pdxbr-t-act:hover,
+.pdxbr-t-act:focus-visible { background: rgba(245, 200, 66, 0.18); }
+
+/* "Share or inspect next" — the one row that answers the fourth question of
+   the first screen. The share control is share-anywhere.js's own, so nothing
+   here restyles it beyond giving it the full width of the row. */
+.pdxbr-next {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(245, 200, 66, 0.16);
+}
+
+.pdxbr-next-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9a8a55;
+  margin-bottom: 0.45rem;
+}
+
+.pdxbr-next-share { margin-bottom: 0.55rem; }
+
+.pdxbr-jumps { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.pdxbr-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.5rem;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9fc6e8;
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 0.55rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.pdxbr-jump:hover,
+.pdxbr-jump:focus-visible { background: rgba(96, 165, 250, 0.2); }
+
+/* ── Tablet and up ────────────────────────────────────────────────────────── */
+
+@media (min-width: 641px) {
+  /* The rail's question fits beside its label once there is room for it. */
+  .pdxsp-rail-ask { flex: 0 1 auto; margin-top: 0; }
+  .pdxsp-rail-ask::before { content: '— '; }
+
+  /* Two columns: "what defines them" next to "where the tension is", which is
+     how the two halves of the first screen are meant to be read together. */
+  .pdxbr-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 1.1rem; }
+  .pdxbr { padding: 1.1rem 1.05rem; }
+  .pdxsp-dw-inner { padding: 1rem 0.9rem 0.5rem; }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .pdxbr-sig,
+  .pdxbr-t-act,
+  .pdxbr-jump { transition: none; }
+}

@@ -195,3 +195,61 @@
   .pcd-step, .pcd-chev { transition: none; }
   .pcd-step:active { transform: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WORD-VS-ACTION JOIN  ·  added when this card stopped being a table of
+   contents and started leading with the actual connection.
+   The rows themselves are styled by word-action.css (.pdxwa-dot*) so they look
+   identical here and on the profile section. These rules only place them, and
+   demote the five-lens chain to a labelled tail underneath.
+   ══════════════════════════════════════════════════════════════════════════ */
+.pcd-dots-wrap:not(:empty) { margin-bottom: 0.9rem; }
+
+/* The waiting / honest-empty line. Same box as the rows it will replace, so the
+   swap on `pdx-consistency-warm` does not move anything below it. */
+.pcd-dots-wait {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.75rem;
+  border: 1px dashed rgba(148, 163, 184, 0.22);
+  background: rgba(10, 16, 30, 0.4);
+  font-size: 0.73rem;
+  line-height: 1.5;
+  color: #8ba2c4;
+}
+
+.pcd-dots-more {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;          /* ≥44px tap target */
+  margin-top: 0.55rem;
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(127, 180, 255, 0.28);
+  background: rgba(127, 180, 255, 0.07);
+  color: #a9c4e8;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.pcd-dots-more:hover,
+.pcd-dots-more:focus-visible { background: rgba(127, 180, 255, 0.14); color: #dbe9ff; }
+
+/* Names the chain for what it always was — navigation, not synthesis. Hidden by
+   hydrate() when fewer than two lenses survive, so the label never heads an
+   empty list. */
+.pcd-chain-head {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7596c0;
+  padding: 0.35rem 0 0.3rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+.pcd-chain-head[hidden] { display: none; }

@@ -3,22 +3,37 @@
    ----------------------------------------------------------------------------
    window._pdxConnectDots(id, p) -> HTML string (a self-hydrating overview card)
 
-   A neutral, at-a-glance spine that ties the profile's accountability features
-   into one logical thread, in the order a reader would follow them:
+   WHAT THIS USED TO BE, AND WHY IT CHANGED.
 
-       Stance at a Glance  →  Voting Record  →  Distributional Impact
-                           →  Government Contracting  →  Your Stance vs Record
+   This card used to be a table of contents wearing the name "Connecting the
+   Dots": five buttons — Stance at a Glance → Voting Record → Distributional
+   Impact → Government Contracting → Your Stance vs Record — each with a count
+   and a scroll target. Useful navigation, but it connected nothing. A reader
+   tapped through five sections and did the joining themselves.
 
-   Each step carries a live, factual signal (a count or "on record") pulled from
-   the same data the full sections use, and jumps down to that section. The card
-   is ADDITIVE and self-gating: steps only appear when their section has real
-   data, and the whole card hides itself unless at least two lenses are present,
-   so it never adds empty scaffolding to a thin profile.
+   Under the Word-vs-Action standard the card leads with the actual join, made
+   for them, three rows deep:
 
-   No editorializing: labels describe *what each lens shows*, never a judgment
-   of the official. Counts are neutral facts. The connective sentence explains
-   the method (say → do → who it affects → where money flows → how it maps to
-   you), not a verdict.
+       THEY SAID   the documented word, quoted, tiered and sourced
+       THEY DID    the formal actions on that same issue, NAMED
+                   ("H.R. 22 · On Passage · Voted Yea")
+       SO          the consistency outcome, in the app's shared vocabulary
+
+   The five-lens chain survives underneath as "Follow the whole thread" — it was
+   always good navigation, it was just never the connection. Now it is labelled
+   as what it is.
+
+   Neutrality is unchanged and non-negotiable. Every row comes from
+   PDXWordAction, which reads only curated word and tests it only against the
+   Official Record; it invents no stances and forces no contradictions. Rows are
+   ordered contradiction-first because a gap between word and action is the thing
+   a reader came to find — not because a contradiction is the preferred finding.
+   A profile with no gaps shows its agreements in exactly the same format.
+
+   Both halves are additive and self-gating. The rows appear only once the
+   voting record is warm and something is genuinely testable; the chain appears
+   only when at least two lenses have data; the card hides itself when neither
+   has anything to say.
    ========================================================================== */
 (function () {
   'use strict';
@@ -66,6 +81,41 @@
       var arr = d.records || d.votes || d.rollcalls || (Array.isArray(d) ? d : null);
       return arr && arr.length ? arr.length : 0;
     } catch (e) { return 0; }
+  }
+
+  // ── THE CONNECTION ─────────────────────────────────────────────────────────
+  // Delegated wholesale to PDXWordAction.dotsHtml so there is exactly one place
+  // in the app that decides what counts as word, what counts as action, and what
+  // the outcome is. This function only decides what to show while waiting, and
+  // what to say when the answer is "nothing testable yet".
+  function dotsInner(id, p) {
+    var WA = window.PDXWordAction;
+    if (!WA || typeof WA.dotsHtml !== 'function') return '';
+    var rows = '';
+    try { rows = WA.dotsHtml(id, p, { limit: 3 }) || ''; } catch (e) { rows = ''; }
+    if (rows) {
+      var r = null;
+      try { r = WA.read(id, p); } catch (e) { r = null; }
+      var more = r ? Math.max(0, r.tested.length - 3) : 0;
+      return rows + (more
+        ? '<button type="button" class="pcd-dots-more" onclick="window._pdxNavJump && window._pdxNavJump(\'pdxsec-wordaction\', null)">' +
+            'See the full Word vs Action read · ' + more + ' more tested statement' + (more === 1 ? '' : 's') +
+          '</button>'
+        : '');
+    }
+    // Not warm yet, or warm with nothing testable. Say which — a spinner that
+    // never resolves and an honest empty state look identical otherwise.
+    var read = null;
+    try { read = WA.read(id, p); } catch (e) { read = null; }
+    if (!read || !read.coverage.word) return '';
+    if (read.coverage.warming || !read.coverage.tested) {
+      return '<p class="pcd-dots-wait">' +
+        (read.coverage.warming
+          ? 'Lining up their documented word against the formal record…'
+          : 'Their documented word is on file, but no formal action has landed on those issues yet — so there is nothing honest to join up here.') +
+        '</p>';
+    }
+    return '';
   }
 
   // Fixed logical order. `lead` is the neutral "lens" (what question it answers);
@@ -137,34 +187,46 @@
       var syncVisible = steps.filter(function (s) { return s.sync === true; }).length;
       var asyncMaybe = steps.filter(function (s) { return s.sync === null; }).length;
 
-      // Nothing to synthesize and nothing that could load in — skip entirely.
-      if (syncVisible === 0 && asyncMaybe === 0) return '';
+      // Could this card ever have a word-vs-action join to show? Word is
+      // synchronous, so this is knowable now even though the actions are not.
+      var canJoin = false;
+      try {
+        canJoin = !!(window.PDXWordAction && window.PDXWordAction.read(id, p).coverage.scorable);
+      } catch (e) { canJoin = false; }
+
+      // Nothing to synthesize, nothing to join, and nothing that could load in.
+      if (syncVisible === 0 && asyncMaybe === 0 && !canJoin) return '';
 
       var uid = (String(id) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '');
       // Show immediately when two sync lenses already qualify; otherwise stay
-      // hidden and let hydration reveal the card once ≥2 lenses are confirmed.
+      // hidden and let hydration reveal the card once ≥2 lenses are confirmed
+      // or the first joined row lands.
       var startShown = syncVisible >= 2;
 
       var name = esc(p.name || 'this official');
-      var summary = 'One thread, start to finish — from what ' + name +
-        ' says, to how they vote, to who those votes affect, to where public dollars flow, ' +
-        'and finally how it all lines up with your own positions.';
+      var joined = dotsInner(id, p);
 
       var html = '' +
         '<div class="modal-block pcd-card" data-pcd-card="' + uid + '" data-pcd-id="' + esc(String(id)) + '"' +
           (startShown ? '' : ' hidden') + '>' +
           '<div class="pcd-head">' +
             '<span class="pcd-eyebrow">Connecting the Dots</span>' +
-            '<div class="pcd-title">How the record fits together</div>' +
-            '<p class="pcd-summary">' + summary + '</p>' +
+            '<div class="pcd-title">Where ' + name + '’s word met their record</div>' +
+            '<p class="pcd-summary">Each row below takes something ' + name +
+              ' is documented as saying, puts the formal actions on that same issue next to it, ' +
+              'and states the outcome. Gaps are listed first, because that is what a record is for.</p>' +
           '</div>' +
+          // The join. Filled on first paint when the record is already warm,
+          // re-rendered in place when it warms later.
+          '<div class="pcd-dots-wrap" data-pcd-dots="' + uid + '">' + joined + '</div>' +
+          '<div class="pcd-chain-head">Follow the whole thread</div>' +
           '<div class="pcd-chain">' +
             steps.map(stepHtml).join('') +
           '</div>' +
         '</div>';
 
       // Schedule hydration after the modal HTML is in the DOM.
-      setTimeout(function () { hydrate(uid, id); }, 0);
+      setTimeout(function () { hydrate(uid, id, p); }, 0);
 
       return html;
     } catch (e) {
@@ -172,7 +234,7 @@
     }
   };
 
-  function hydrate(uid, id) {
+  function hydrate(uid, id, p) {
     var card = document.querySelector('[data-pcd-card="' + uid + '"]');
     if (!card) return;
 
@@ -198,10 +260,31 @@
     }
     function finalize() {
       var visible = card.querySelectorAll('.pcd-step:not([hidden])').length;
-      if (visible < 2) { card.hidden = true; return; }
+      var wrap = card.querySelector('[data-pcd-dots="' + uid + '"]');
+      var hasJoin = !!(wrap && wrap.querySelector('.pdxwa-dot'));
+      // A single joined row is worth the card on its own — it IS the synthesis.
+      // The two-lens floor only ever applied to the navigation chain.
+      if (visible < 2 && !hasJoin) { card.hidden = true; return; }
+      // …and with no chain worth showing, the chain heading would label nothing.
+      var chainHead = card.querySelector('.pcd-chain-head');
+      if (chainHead) chainHead.hidden = visible < 2;
       renumberRail(card);
       card.hidden = false;
     }
+
+    // ── The join: re-render once the voting record warms ────────────────────
+    // The word side is synchronous and the action side is not, so first paint is
+    // either empty or a wait line. This is what turns it into real rows.
+    var refresh = function (ev) {
+      var wrap = document.querySelector('[data-pcd-dots="' + uid + '"]');
+      if (!wrap) { window.removeEventListener('pdx-consistency-warm', refresh); return; }
+      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(id)) return;
+      try {
+        wrap.innerHTML = dotsInner(id, p);
+        finalize();
+      } catch (e) {}
+    };
+    if (window.addEventListener) window.addEventListener('pdx-consistency-warm', refresh);
 
     // ── Voting Record: reveal when the member has a record on file ──────────
     if (votingStep) {

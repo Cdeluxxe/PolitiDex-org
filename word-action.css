@@ -1,0 +1,572 @@
+/* ============================================================================
+   word-action.css  ·  ⚖️ Word vs Action — the primary accountability read
+   ----------------------------------------------------------------------------
+   Styles for the surfaces rendered by word-action.js: the profile section
+   (.pdxwa) and the joined word → action → outcome rows (.pdxwa-dot), which also
+   appear inside the Connecting the Dots card.
+
+   MOBILE FIRST. Every rule here is written for a ~360px column and only widens
+   at 620px, because that is where this section is actually read. Three specific
+   things it must not do, all of them lessons the profile spine already paid for:
+
+     • NO LAYOUT SHIFT ON HYDRATION. The section renders synchronously from the
+       word ledger and re-renders in place when the voting record warms. Both
+       states use the same box, the same number slot and the same tier ladder,
+       so the reflow is a text swap and not a jump. .pdxwa-num has a fixed min
+       size for exactly this reason — "—" and "82%" occupy one footprint.
+     • NO HORIZONTAL OVERFLOW. Quoted word and named bills are long and
+       unpredictable. Every text cell is min-width:0 inside its grid track and
+       wraps; nothing relies on truncation to fit.
+     • ONE TAP TARGET PER ROW, ≥44px. The method disclosure and the "see the
+       full read" control are the only interactive elements, and both are full
+       width on mobile.
+
+   Colour is carried by --pdxwa-col, set inline from the shared PDXConsistency
+   verdict palette, so this file never hardcodes a verdict colour and can never
+   drift from the chips elsewhere in the app.
+   ========================================================================== */
+
+.pdxwa {
+  --pdxwa-col: #9fb4d4;
+  contain: layout style;
+}
+.pdxwa .pdxwa-q {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: none;
+  color: #7f97bb;
+  margin-top: 0.15rem;
+}
+
+/* ── The headline: number + verdict ───────────────────────────────────────── */
+.pdxwa-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+.pdxwa-num {
+  flex: 0 0 auto;
+  /* Fixed footprint so "Checking…" → "82%" is a text swap, not a reflow. */
+  min-width: 5.1rem;
+  text-align: center;
+  padding: 0.5rem 0.4rem 0.45rem;
+  border-radius: 0.8rem;
+  background: rgba(8, 13, 26, 0.6);
+  border: 1px solid color-mix(in srgb, var(--pdxwa-col) 42%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+/* Fallback for engines without color-mix(): a flat steel hairline reads fine and
+   the verdict colour still carries on the number itself. */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .pdxwa-num { border-color: rgba(148, 163, 184, 0.3); }
+}
+.pdxwa-num-v {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--pdxwa-col);
+}
+.pdxwa-num-l {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.46rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  margin-top: 0.2rem;
+  line-height: 1.25;
+}
+.pdxwa-say { flex: 1 1 auto; min-width: 0; }
+.pdxwa-verdict {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+.pdxwa-line {
+  margin: 0.25rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #9fb4d4;
+}
+
+/* ── The tier ladder ─────────────────────────────────────────────────────── */
+/* Weight is shown in words ("Counts most") rather than as a bare 3 / 2 / 1, so
+   the ranking is readable without a legend. The exact multipliers live in the
+   method disclosure, where they can be audited. */
+.pdxwa-tiers {
+  list-style: none;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(10, 16, 30, 0.42);
+}
+.pdxwa-tier {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+.pdxwa-tier:first-child { border-top: 0; }
+.pdxwa-tier-empty { opacity: 0.62; }
+.pdxwa-tier-ico { font-size: 0.9rem; line-height: 1.4; }
+.pdxwa-tier-main { min-width: 0; }
+.pdxwa-tier-name {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #dbe6f6;
+}
+.pdxwa-tier-w {
+  margin-left: 0.4rem;
+  font-weight: 400;
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  color: #7f97bb;
+  text-transform: none;
+}
+.pdxwa-tier-gloss {
+  display: block;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #8ba2c4;
+  margin-top: 0.1rem;
+}
+.pdxwa-tier-n {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.1;
+  color: #cbd9ec;
+  text-align: right;
+  white-space: nowrap;
+}
+.pdxwa-tier-of {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #7f97bb;
+}
+/* The "35 in the tracker, none itemized" bridge, and "N on file, none testable".
+   Both are sentences, not counts, so they drop the Bebas display face and wrap. */
+.pdxwa-tier-agg {
+  display: block;
+  max-width: 8.5rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: #9fb4d4;
+  white-space: normal;
+}
+
+/* ── Coverage line ──────────────────────────────────────────────────────── */
+.pdxwa-cov {
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #7f97bb;
+}
+.pdxwa-cov-n { color: #cbd9ec; font-weight: 700; }
+
+/* ── Method disclosure ──────────────────────────────────────────────────── */
+.pdxwa-method { margin-top: 0.6rem; }
+.pdxwa-method > summary {
+  cursor: pointer;
+  display: inline-block;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  line-height: 2.75rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7596c0;
+}
+.pdxwa-method > summary:hover,
+.pdxwa-method > summary:focus-visible { color: #a9c4e8; }
+.pdxwa-method-body {
+  border-left: 2px solid rgba(148, 163, 184, 0.24);
+  padding: 0.1rem 0 0.1rem 0.7rem;
+  margin-bottom: 0.2rem;
+}
+.pdxwa-method-body p {
+  margin: 0 0 0.55rem;
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: #8ba2c4;
+}
+.pdxwa-method-body p:last-child { margin-bottom: 0; }
+.pdxwa-method-body b { color: #cbd9ec; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE JOINED ROWS  ·  they said → they did → so
+   Rendered by dotsHtml(). Used on the profile and inside the Connecting the
+   Dots card, so these rules must stand alone in either container.
+   ══════════════════════════════════════════════════════════════════════════ */
+.pdxwa-dots { list-style: none; margin: 0; padding: 0; }
+.pdxwa-dot {
+  --pdxwa-col: #9fb4d4;
+  position: relative;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-left: 3px solid var(--pdxwa-col);
+  background: rgba(10, 16, 30, 0.5);
+  padding: 0.6rem 0.7rem;
+  margin-bottom: 0.55rem;
+}
+.pdxwa-dot:last-child { margin-bottom: 0; }
+.pdxwa-dot-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.45rem;
+}
+.pdxwa-dot-tier {
+  flex: 0 0 auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  background: rgba(148, 163, 184, 0.12);
+  border-radius: 999px;
+  padding: 0.1rem 0.4rem;
+}
+.pdxwa-dot-title {
+  flex: 1 1 8rem;
+  min-width: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: #eef4ff;
+}
+
+/* Each step is a labelled row. The label column is narrow and fixed so the three
+   steps line up as a visible sequence rather than three loose paragraphs. */
+.pdxwa-dot-step {
+  display: grid;
+  grid-template-columns: 3.9rem 1fr;
+  gap: 0.5rem;
+  padding: 0.28rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+.pdxwa-dot-step:first-of-type { border-top: 0; padding-top: 0; }
+.pdxwa-dot-k {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6f88ad;
+  padding-top: 0.15rem;
+}
+.pdxwa-dot-v {
+  min-width: 0;
+  font-size: 0.73rem;
+  line-height: 1.5;
+  color: #b9cae3;
+  overflow-wrap: break-word;
+}
+.pdxwa-dot-src {
+  color: #7fb4ff;
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+.pdxwa-dot-act-1 {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: #cbd9ec;
+}
+.pdxwa-dot-act-1 + .pdxwa-dot-act-1 { margin-top: 0.15rem; }
+.pdxwa-dot-none { color: #7f97bb; font-style: italic; }
+.pdxwa-dot-out .pdxwa-dot-v {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+}
+.pdxwa-dot-j {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7f97bb;
+}
+
+/* ── What feeds this score ───────────────────────────────────────────────────
+   The panel that stops the profile reading as independent score widgets: each
+   supporting layer named, counted and one tap away. Rows are buttons, so each
+   one clears the 44px tap floor on its own. */
+.pdxwa-feeds {
+  margin-top: 0.75rem;
+  border-top: 1px solid rgba(127, 151, 187, 0.18);
+  padding-top: 0.6rem;
+}
+.pdxwa-feeds-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #7f97bb;
+  margin-bottom: 0.4rem;
+}
+.pdxwa-feeds-l { list-style: none; margin: 0; padding: 0; }
+.pdxwa-feed-li + .pdxwa-feed-li { margin-top: 0.3rem; }
+.pdxwa-feed {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+  background: rgba(127, 151, 187, 0.07);
+  border: 1px solid rgba(127, 151, 187, 0.18);
+  border-left: 2px solid var(--pdxwa-col);
+  border-radius: 0.5rem;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+.pdxwa-feed-ctx { border-left-color: rgba(127, 151, 187, 0.4); }
+.pdxwa-feed-ico { font-size: 0.95rem; text-align: center; }
+.pdxwa-feed-main { min-width: 0; }
+.pdxwa-feed-name {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #dbe6f5;
+}
+.pdxwa-feed-role {
+  display: block;
+  font-size: 0.63rem;
+  line-height: 1.35;
+  color: #7f97bb;
+  overflow-wrap: break-word;
+}
+.pdxwa-feed-n {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  text-align: right;
+  max-width: 7.5rem;
+}
+.pdxwa-feed-go { color: #7fb4ff; }
+.pdxwa-feeds-foot {
+  margin: 0.45rem 0 0;
+  font-size: 0.63rem;
+  line-height: 1.45;
+  color: #7f97bb;
+}
+
+/* ── The demoted pledge rate ─────────────────────────────────────────────────
+   Promise Follow-Through keeps its percentage, one tap down. Set at body size
+   inside a disclosure so it reads as the pledge tier's own working rather than a
+   second headline beside the primary ring. Rendered by profiles-full.js. */
+.pdx-ft-rate {
+  margin-top: 0.55rem;
+  border-top: 1px solid rgba(159, 180, 212, 0.14);
+  padding-top: 0.4rem;
+}
+.pdx-ft-rate-sum {
+  min-height: 2.75rem;
+  line-height: 2.75rem;
+  list-style: none;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+}
+.pdx-ft-rate-sum::-webkit-details-marker { display: none; }
+.pdx-ft-rate-sum::before { content: '▸ '; color: #7596c0; }
+.pdx-ft-rate[open] > .pdx-ft-rate-sum::before { content: '▾ '; }
+.pdx-ft-rate-b p {
+  margin: 0 0 0.45rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #9fb4d4;
+}
+.pdx-ft-rate-how {
+  min-height: 2.75rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(127, 180, 255, 0.1);
+  border: 1px solid rgba(127, 180, 255, 0.3);
+  border-radius: 0.55rem;
+  color: #7fb4ff;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* The way back up to the score this block feeds. Full-width on a phone because
+   it is the last thing in the block and the thumb is already at the bottom. */
+.pdx-ft-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  min-height: 2.75rem;
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(159, 219, 208, 0.08);
+  border: 1px solid rgba(159, 219, 208, 0.28);
+  border-radius: 0.55rem;
+  color: #9fdbd0;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.pdx-ft-primary:hover,
+.pdx-ft-primary:focus-visible {
+  background: rgba(159, 219, 208, 0.16);
+  color: #c9f2ea;
+}
+
+/* ── The profile hero ring ───────────────────────────────────────────────────
+   The one primary number on a profile. The sub-line reserves its height so the
+   post-warm re-render ("Checking the record…" → "7 of 10 tested") swaps text
+   without moving the hero, per the no-shift-on-hydration rule above. */
+.pdxwa-hero-jump {
+  display: block;
+  padding: 0;
+  margin: 0 auto;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.pdxwa-hero-jump > .score-ring { position: relative; display: block; }
+.pdxwa-hero-in {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.pdxwa-hero-v {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.pdxwa-hero-cap {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7596c0;
+}
+.pdxwa-hero-cap-wait {
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: #f5c842;
+  margin-top: 0.22rem;
+  text-align: center;
+}
+.pdxwa-hero-wait { font-size: 1.5rem; line-height: 1; }
+.pdxwa-hero-none {
+  background: rgba(100, 116, 139, 0.15);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+.pdxwa-hero-none .pdxwa-hero-v { font-size: 1.6rem; }
+.pdxwa-hero-sub {
+  min-height: 1.7rem;
+  max-width: 7.5rem;
+  margin: 0.25rem auto 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-align: center;
+  color: #7596c0;
+  overflow-wrap: break-word;
+}
+/* The pledge ledger, kept in the header as a count. Deliberately smaller and
+   quieter than the ring: it reports what closed, it does not rate anyone. Full
+   44px tap height because it is a route into the promise block. */
+.pdxwa-hero-pledge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 7.5rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  margin: 0.3rem auto 0;
+  padding: 0.25rem 0.4rem;
+  background: rgba(159, 180, 212, 0.08);
+  border: 1px solid rgba(159, 180, 212, 0.24);
+  border-radius: 0.5rem;
+  color: #9fb4d4;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+.pdxwa-hero-pledge:hover,
+.pdxwa-hero-pledge:focus-visible { background: rgba(159, 180, 212, 0.16); color: #cfe0f5; }
+
+/* ── Wider screens ──────────────────────────────────────────────────────── */
+@media (min-width: 620px) {
+  .pdxwa-num { min-width: 6rem; }
+  .pdxwa-num-v { font-size: 2.5rem; }
+  .pdxwa-verdict { font-size: 1.45rem; }
+  .pdxwa-line { font-size: 0.78rem; }
+  .pdxwa-tier { grid-template-columns: 1.7rem 1fr auto; padding: 0.6rem 0.75rem; }
+  .pdxwa-dot-step { grid-template-columns: 4.6rem 1fr; }
+  .pdxwa-dot-v { font-size: 0.78rem; }
+  .pdxwa-feed { grid-template-columns: 1.7rem 1fr auto; padding: 0.5rem 0.7rem; }
+  .pdxwa-feed-role { font-size: 0.68rem; }
+}
