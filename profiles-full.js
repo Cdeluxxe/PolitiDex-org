@@ -377,11 +377,23 @@
           '</button>' +
           '<div class="dd-body" id="' + domId + '">' +
             '<div class="dd-inner" style="padding:0.875rem;">' +
+              // Says what this section IS, in one line, before the list. It is a
+              // summary index over the same stance system the full record and the
+              // "Every documented position" drawer render at depth — three levels of
+              // one thing, not three widgets. On a phone that framing has to be
+              // explicit: the deeper levels are off-screen, so without it the list
+              // reads as a standalone box that happens to mention issues.
+              '<p class="sag-summary-of">The summary layer of ' + esc(first) + '’s stance record — one line per position here, the whole position at depth one tap in.</p>' +
               '<p class="sag-lead">Where ' + esc(first) + ' stands on the issues — each with a <em>Say vs. Do</em> verdict showing whether ' + esc(first) + '’s own record backs the position up. Tap any issue to expand its evidence and recorded votes.</p>' +
               mandateCue +
               limited +
               '<div class="sag-list">' + rows + '</div>' +
               '<p class="sag-foot">Say vs. Do verdict: <b style="color:#6ee7a0;">✓ Backs it up</b> · <b style="color:#fca5a5;">✗ Contradicts</b> · <b style="color:#93c5fd;">~ Mixed</b> · <b style="color:#f5c842;">⏳ In progress</b>. Weighed from ' + esc(first) + '’s own promises, on-record statements and — where available — roll-call votes.</p>' +
+              // The way OUT of the summary and into the full record, at the bottom of
+              // the summary rather than only inside an expanded row. Without it the
+              // section is a dead end on a phone, which is the other half of reading
+              // as a broken separate widget.
+              ((typeof window._pdxStanceRecordMiniLink === 'function') ? '<div class="sag-more">' + window._pdxStanceRecordMiniLink(id, p) + '</div>' : '') +
             '</div>' +
           '</div>' +
         '</div>';
@@ -2176,7 +2188,24 @@
 
     // The headline count is itself a jump into the filtered Locker (only where the
     // Locker actually holds a file; a watch-only banner keeps it as plain text).
-    var label = itemN ? (itemN + ' piece' + (itemN === 1 ? '' : 's') + ' of evidence on record') : 'Video evidence on record';
+    //
+    // `opts.archive` reframes the same banner as the END of the evidence path
+    // rather than the top of the profile. Read at the top, "142 pieces of evidence
+    // on record" is a headline tally — a second big number competing with the one
+    // score, and one that says nothing about whether the person kept their word.
+    // Read in the receipts stage, after the stances and feeds that cite this
+    // material item by item, the honest framing is "here is the raw file those
+    // citations came out of". Same gate, same counts, same actions; only the two
+    // lines of framing copy change, and only where the caller asks for it.
+    var archive = !!opts.archive;
+    var label = itemN
+      ? (archive
+          ? ('The full file · ' + itemN + ' item' + (itemN === 1 ? '' : 's'))
+          : (itemN + ' piece' + (itemN === 1 ? '' : 's') + ' of evidence on record'))
+      : (archive ? 'The full video file' : 'Video evidence on record');
+    var kicker = archive
+      ? '📂 Everything cited above, in one place'
+      : '📹 Video &amp; evidence on record';
     var headline = showLocker
       ? '<button type="button" class="pdx-evb-headline-btn" onclick="event.stopPropagation();' + openLocker + '" ' +
           'title="Open the Evidence Locker filtered to this official" ' +
@@ -2194,7 +2223,7 @@
     return '<div class="pdx-evb">' +
         '<div class="pdx-evb-icon" aria-hidden="true">' + window._pdxEyeGlyph('pdx-evb-icon-eye') + '</div>' +
         '<div class="pdx-evb-main">' +
-          '<div class="pdx-evb-kicker">📹 Video &amp; evidence on record</div>' +
+          '<div class="pdx-evb-kicker">' + kicker + '</div>' +
           headline +
           (counts.length ? '<div class="pdx-evb-counts">' + counts.join('') + '</div>' : '') +
           vctx +
@@ -3284,9 +3313,9 @@
     return '' +
       '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid ' + m.col + '33;border-left:3px solid ' + m.col + '99;border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
         '<div style="margin-bottom:0.6rem;">' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · the pledge tier of Word vs Action</div>' +
-          '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
-          '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
+          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · the pledge tier of Word vs Action</div>' +
+          '<div class="pdx-ft-verdict" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
+          '<p class="pdx-ft-sub" style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
         '</div>' +
         ((m.resolved && m.itemized) ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
           '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
@@ -3818,6 +3847,198 @@
     window._pdxNavRepaint = null;
   }
   window._pdxNavTeardown = _pdxNavTeardown;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Voting Record Highlights → the REAL roll-call record
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WHY THIS EXISTS
+  // The highlights block is built synchronously from the `votingRecords` map in the
+  // profile template — a curated, hand-annotated selection of three to six votes.
+  // That selection earns its place: every row carries a "why this matters" line
+  // tying the vote to a promise and to who paid for the campaign, which no database
+  // writes by itself. What it cannot do is stand in for the record. Printed alone,
+  // five rows and a three-chip tally read as "this is what they have voted on",
+  // while the profile is at that same moment fetching /api/voting-record — hundreds
+  // of real roll calls per member, mapped to tracked issues, already feeding the
+  // Word vs Action score and the Official Record section.
+  //
+  // So the section carries two layers. This fills the live one from the real
+  // record: how much of it there is, how much of it is mapped to issues, and the
+  // most recent votes by name, with a jump into the full filterable section. The
+  // curated selection stays exactly as it was underneath, labelled as a selection.
+  //
+  // READS ONLY WHAT IS ALREADY WARM
+  // Nothing here fetches. It reads PDXVotingRecord's synchronous cache — the same
+  // one the comparison boards and the Alignment Tool read — which is warmed by
+  // consistency.js's queue and by the voting-record section's own load. No record
+  // warm (or no record at all: challengers, state officials, appointees) → the slot
+  // stays empty and the block is byte-for-byte what it was before.
+  //
+  // NO SECOND SCORE
+  // Counts, dates, positions and per-vote stance verdicts only — the same verdict
+  // vocabulary the full record uses, from the same shared engine. Deliberately no
+  // percentage and no aggregate kept/broken tally over the live set: Word vs Action
+  // is the one primary score, and this is a pointer into the evidence beneath it.
+  var _VRHI_POS = {
+    yea:        { cls: 'vr-vote-yea',       label: 'Voted Yea' },
+    nay:        { cls: 'vr-vote-nay',       label: 'Voted Nay' },
+    present:    { cls: 'vr-vote-notvoting', label: 'Present' },
+    not_voting: { cls: 'vr-vote-notvoting', label: 'Did Not Vote' }
+  };
+  function _vrhiTitleCase(s) {
+    return String(s == null ? '' : s).replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  function _vrhiDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso).slice(0, 10);
+    try { return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+    catch (e) { return String(iso).slice(0, 10); }
+  }
+  // Newest first; undated records sort last rather than being dropped.
+  function _vrhiByDateDesc(a, b) {
+    var ad = (a && a.date) || '', bd = (b && b.date) || '';
+    if (ad === bd) return 0;
+    if (!ad) return 1;
+    if (!bd) return -1;
+    return ad < bd ? 1 : -1;
+  }
+  var _VRHI_VERDICT = {
+    consistent:  { cls: 'vr-v-consistent',  label: '✓ Matches stance' },
+    contradicts: { cls: 'vr-v-contradicts', label: '⚠ Against stance' },
+    mixed:       { cls: 'vr-v-mixed',       label: 'Mixed stance' }
+  };
+  function _vrhiCard(it, posMap) {
+    var num = it.number ? '<span class="pdx-vrhi-num">' + _pdxEyeEsc(it.number) + '</span>' : '';
+    var when = it.date ? '<span class="pdx-vrhi-date">' + _pdxEyeEsc(_vrhiDate(it.date)) + '</span>' : '';
+    var pos = String(it.position || '').toLowerCase();
+    var pill = '';
+    if (it.kind === 'position') {
+      pill = '<span class="vr-vote-pill vr-vote-execorder">' + _pdxEyeEsc(_vrhiTitleCase(it.position)) + '</span>';
+    } else if (_VRHI_POS[pos]) {
+      pill = '<span class="vr-vote-pill ' + _VRHI_POS[pos].cls + '">' + _VRHI_POS[pos].label + '</span>';
+    } else if (pos) {
+      pill = '<span class="vr-vote-pill vr-vote-notvoting">' + _pdxEyeEsc(_vrhiTitleCase(pos)) + '</span>';
+    }
+    var primary = (it.issues && it.issues[0]) || null;
+    var issue = '';
+    if (primary && primary.issueKey) {
+      var lbl = (typeof window._issueLabel === 'function') ? (window._issueLabel(primary.issueKey) || primary.issueKey) : primary.issueKey;
+      issue = '<span class="pdx-vrhi-issue">' + _pdxEyeEsc(lbl) + '</span>';
+      // A single vote on an omnibus is a verdict on several issues at once; say so
+      // rather than letting the primary issue read as the whole of it.
+      if (it.issues.length > 1) {
+        issue += '<span class="pdx-vrhi-issue is-more">+' + (it.issues.length - 1) + ' more</span>';
+      }
+    }
+    // Per-vote stance verdict, from the SAME shared engine the full record card
+    // uses — so a highlight never disagrees with the row it links to. Absent when
+    // the member has no stated stance on the issue, which is the honest answer.
+    var verdict = '';
+    try {
+      if (primary && posMap[primary.issueKey] && window._voteEffectiveSupport && window._stanceVoteVerdict) {
+        var eff = window._voteEffectiveSupport(it, primary.supportMeaning);
+        var v = _VRHI_VERDICT[window._stanceVoteVerdict(posMap[primary.issueKey].stance, eff)];
+        if (v) verdict = '<span class="vr-verdict ' + v.cls + '">' + v.label + '</span>';
+      }
+    } catch (e) {}
+    return '<div class="pdx-vrhi-card">' +
+        '<div class="pdx-vrhi-card-top">' +
+          '<span class="pdx-vrhi-card-ref">' + num + when + '</span>' + verdict +
+        '</div>' +
+        (it.title ? '<div class="pdx-vrhi-card-title">' + _pdxEyeEsc(it.title) + '</div>' : '') +
+        '<div class="pdx-vrhi-card-meta">' + pill + issue + '</div>' +
+      '</div>';
+  }
+  // Retires the cold-open "loading" line. Called when the live panel paints, and
+  // when a load has landed and yielded nothing — either way the line has stopped
+  // being true, and a permanent "loading…" is its own small lie.
+  function _vrhiHideWait(host) {
+    try {
+      var w = host && host.querySelector('.pdx-vrhi-wait');
+      if (w) w.hidden = true;
+    } catch (e) {}
+  }
+  // opts.settled marks a call made because a voting-record load actually landed, as
+  // opposed to a speculative re-check. Only a settled call is allowed to conclude
+  // "there is no record here" and drop the placeholder.
+  window._pdxHydrateVoteHighlights = function (opts) {
+    try {
+      var host = document.querySelector('[data-pdx-vrhi-pid]');
+      if (!host) return;
+      var slot = host.querySelector('.pdx-vrhi-live');
+      var pid = host.getAttribute('data-pdx-vrhi-pid') || '';
+      if (!slot || !pid) return;
+      var VR = window.PDXVotingRecord;
+      // No record module at all: nothing is coming, so stop saying it is.
+      if (!VR || typeof VR.memberRecords !== 'function') { _vrhiHideWait(host); return; }
+      var recs = VR.memberRecords(pid);
+      if (!recs || !recs.length) {
+        if (opts && opts.settled) _vrhiHideWait(host);
+        return;
+      }
+      // Idempotent, and re-renders when the record GROWS (a later page loaded).
+      if (slot.getAttribute('data-vrhi-n') === String(recs.length)) return;
+
+      var counts = (typeof window._pdxRecordMappedCounts === 'function')
+        ? window._pdxRecordMappedCounts(pid) : null;
+      var total = (counts && counts.total) || recs.length;
+      var pdoc = (window.PROFILES && window.PROFILES[pid]) ||
+                 (window.CMP_DATA && window.CMP_DATA[pid]) || null;
+      var first = (pdoc && pdoc.name) ? String(pdoc.name).split(' ')[0] : 'they';
+      var posMap = {};
+      try {
+        if (typeof window._polPositionMap === 'function') posMap = window._polPositionMap(pid, pdoc) || {};
+      } catch (e) {}
+
+      // Prefer records that are mapped to a tracked issue — those are the ones a
+      // stated position can be checked against, which is what this profile is for.
+      // Nothing mapped yet → show the most recent records anyway rather than an
+      // empty slot, since "here is the file" is still true and still useful.
+      var mapped = recs.filter(function (it) {
+        return it && it.issues && it.issues.length && it.issues[0] && it.issues[0].issueKey;
+      });
+      var pick = (mapped.length ? mapped : recs.slice()).sort(_vrhiByDateDesc).slice(0, 3);
+
+      var line = counts && counts.votes
+        ? (counts.votes + ' of them ' + (counts.votes === 1 ? 'is' : 'are') + ' mapped to ' +
+           counts.issues + ' tracked issue' + (counts.issues === 1 ? '' : 's') +
+           ' and checked against what ' + _pdxEyeEsc(first === 'they' ? 'they' : first) +
+           ' said. Most recent first:')
+        : 'Most recent first:';
+
+      slot.innerHTML =
+        '<div class="pdx-vrhi-live-hd">' +
+          '<span class="pdx-vrhi-live-k">🗳️ From the roll-call record</span>' +
+          '<span class="pdx-vrhi-live-n">' + total + ' record' + (total === 1 ? '' : 's') + ' on file</span>' +
+        '</div>' +
+        '<p class="pdx-vrhi-live-sub">' + line + '</p>' +
+        '<div class="pdx-vrhi-cards">' + pick.map(function (it) { return _vrhiCard(it, posMap); }).join('') + '</div>' +
+        '<button type="button" class="pdx-vrhi-open" ' +
+          'onclick="if(window._pdxNavJump){window._pdxNavJump(\'pdxsec-voting\');}">' +
+          'Open the full voting record · ' + total + ' record' + (total === 1 ? '' : 's') + ' <span aria-hidden="true">→</span>' +
+        '</button>';
+      slot.hidden = false;
+      slot.setAttribute('data-vrhi-n', String(recs.length));
+      host.classList.add('pdx-vrhi-haslive');
+      _vrhiHideWait(host);
+    } catch (e) { /* the curated selection below is the fallback; never break it */ }
+  };
+  // Re-run whenever the sync record cache warms: consistency.js fires
+  // 'pdx-consistency-warm' when its own queue lands, and voting-record.js fires
+  // 'pdx-voting-warm' when the section's load does. Either is the moment this can
+  // stop guessing. The handler ignores the event's pid and re-reads the host's own,
+  // so a warm for some other member can never paint the wrong record here.
+  if (!window.__pdxVrhiBound) {
+    window.__pdxVrhiBound = true;
+    var _vrhiWarm = function () { window._pdxHydrateVoteHighlights(); };
+    // Only the voting warm means a record load actually landed, so only it may
+    // settle the placeholder. Consistency can warm first on a member whose roll
+    // call is still in flight, and hiding the line there would be premature.
+    var _vrhiSettled = function () { window._pdxHydrateVoteHighlights({ settled: true }); };
+    window.addEventListener('pdx-consistency-warm', _vrhiWarm);
+    window.addEventListener('pdx-voting-warm', _vrhiSettled);
+  }
 
   function openModal(id) {
     // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
@@ -4397,7 +4618,17 @@
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>
-        <div class="profile-hero-score">${scoreRing}</div>
+        <!-- The primary read, mounted inside the letterhead. On wide screens it is
+             the right-hand column beside the identity block; on a phone the hero
+             grid drops it to a full-width third row directly under the name, office
+             and party, where it is the first judgement a visitor sees (see
+             .profile-hero @480px in app.css and the .pdxwa-hero phone grid in
+             word-action.css). The caption below is phone-only: sideways, the ring's
+             own inner caption is too small to carry the name of the score. -->
+        <div class="profile-hero-score">
+          <div class="profile-hero-score-lbl">⚖️ Word vs Action — the one score</div>
+          ${scoreRing}
+        </div>
       </div>
 
       <!-- Quick-jump navigation — a sticky, glanceable map of the profile.
@@ -4413,12 +4644,17 @@
            flag, so it's never inferred from prose. -->
       ${(typeof window._pdxStatusBanner === 'function') ? window._pdxStatusBanner(p, { emphasis: 'high', showActive: true }) : ''}
 
-      <!-- Evidence banner — the gold All-Seeing Eye + a direct "Watch" jump to
-           the strongest clip + a one-tap "See Evidence" into the pre-filtered
-           Evidence Locker, surfaced high so video proof and the on-record file
-           are obvious the moment the profile opens. Self-gating: shows only when
-           there's a watchable clip or a lockable file. -->
-      ${(typeof window._pdxEvidenceBanner === 'function') ? window._pdxEvidenceBanner(id) : ''}
+      <!-- The evidence banner USED TO BE HERE, directly under the letterhead. It
+           was the loudest thing on the first screen of a phone: a gold eye and a
+           headline tally ("142 pieces of evidence on record") sitting above the
+           verdict, which made the profile open on the size of the archive rather
+           than on what the archive shows. Volume of material is not a finding.
+           It now renders at the end of the receipts stage, after the Say-vs-Do
+           feed, where it reads as the raw file behind the citations a reader has
+           just been through. The banner itself is
+           unchanged apart from that framing; the per-stance, per-issue and
+           per-spotlight evidence links, which are the paths that actually carry
+           evidence in support of a claim, are untouched and still fire first. -->
 
       <!-- Election Status Banner -->
       ${(function(){
@@ -4746,6 +4982,20 @@
       <span id="pdxsec-saydo" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.saydoSectionHtml(id) + '</div>') : ''}
 
+      <!-- Evidence banner — the gold All-Seeing Eye, a direct "Watch" jump to the
+           strongest clip, and a one-tap "See Evidence" into the pre-filtered
+           Evidence Locker. Relocated here from the top of the profile: it is the
+           archive endpoint of the receipts stage, not its headline. Every surface
+           above this point that rests on a piece of evidence links to that piece
+           directly — a stance row names the clip, an issue row names the bill, a
+           Spotlight names its source — so by the time a reader reaches a bare
+           count of the whole file, the count is an offer to browse rather than a
+           claim. The archive:true option swaps the two lines of framing copy
+           accordingly.
+           Self-gating: shows only when there's a watchable clip or a lockable
+           file. -->
+      ${(typeof window._pdxEvidenceBanner === 'function') ? window._pdxEvidenceBanner(id, { archive: true }) : ''}
+
       <!--PDXSP:dw:votes-->
       <!-- Voting Record — "what they actually did": roll-call votes + official
            actions from /api/voting-record, keyed to ISSUE_MAP and checked against
@@ -4878,12 +5128,38 @@
            unreachable without two taps. It is an action on the whole profile, not
            on the promise table, so it now stands on its own in the official-record
            stage. -->
+      <!-- ⓘ HOW THIS PROFILE WAS CHECKED
+           ────────────────────────────────────────────────────────────────────
+           This slot used to hold "🛡️ Verify Full Profile with AI", a gradient CTA
+           promising a "comprehensive multi-AI report (Claude, Gemini, Grok & GPT)
+           verifying credentials, positions, controversy & trust score". It was
+           retired here rather than wired, for two reasons:
+
+             1. It was not connected to anything. openFullProfileVerify() opened an
+                overlay, waited a hardcoded 1500ms "to simulate multi-AI processing
+                delay for premium feel", and then rendered hand-written prose from a
+                client-side table keyed by politician id. No request left the
+                browser. On any profile without a hand-written branch it produced
+                generic filler. There was no verification to wire up — there was a
+                mock of one.
+             2. What it printed was a "Trust Score" with a High/Medium/Low rating,
+                computed as a weighted average of four invented provider scores.
+                That is a second primary score, on the same profile as Word vs
+                Action, derived from nothing checkable. Wiring it would have meant
+                shipping a rival headline number sourced from a fabrication.
+
+           The honest control for "how do I know any of this is real?" already
+           exists and is now what this slot offers: the scoring methodology (what is
+           counted, what is weighted, what is deliberately excluded) and the profile's
+           own sourced record. Both open surfaces that are populated from real data
+           and cite it. The overlay's code is left in place and simply unreferenced
+           from the profile, so nothing else that may hold a link to it breaks. -->
       <div class="modal-section" id="pdxsec-verify">
-        <button onclick="openFullProfileVerify('${id}')" class="w-full text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#7c3aed);box-shadow:0 6px 20px rgba(192,21,42,0.3);">
-          <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0110.2 21a3.745 3.745 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.745 3.745 0 013.296-1.043A3.746 3.746 0 0113.8 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
-          🛡️ Verify Full Profile with AI
+        <button type="button" class="pdx-howchecked"
+          onclick="if(window.PDXConsistency&&window.PDXConsistency.openMethodology){window.PDXConsistency.openMethodology();}else{var _m=document.getElementById('methodology');if(_m){if(typeof closeModal==='function')closeModal();_m.scrollIntoView({behavior:'smooth',block:'start'});}}">
+          <span aria-hidden="true">ⓘ</span> How this profile was checked
         </button>
-        <p style="font-size:0.62rem;color:#4e72a0;text-align:center;margin:0.45rem 0 0;letter-spacing:0.02em;">Comprehensive multi-AI report (Claude, Gemini, Grok &amp; GPT) verifying credentials, positions, controversy &amp; trust score.</p>
+        <p class="pdx-howchecked-sub">Every figure here traces to a roll-call vote, an official filing or a dated public statement — each one linked in the section it appears in. This opens the scoring methodology: what is counted, how the tiers are weighted, and what is deliberately left out.</p>
       </div>
 
       <!--PDXSP:dw:money-->
@@ -5170,16 +5446,41 @@
             '<div style="margin-top:0.4rem;"><span class="vr-vote-pill vr-vote-' + v.voteClass + '">' + v.vote + '</span></div>' +
           '</div>';
         }).join('');
+        // Two layers, one section. The live slot is filled by
+        // _pdxHydrateVoteHighlights from the actual roll-call record the profile
+        // fetches (see that function's note); it renders as nothing until — and
+        // unless — that record is warm. The curated selection below it is the
+        // annotated sample it always was, and now says so: the tally counts the
+        // hand-picked rows, not the member's legislative history, and the label and
+        // source note both name it a selection. That relabelling is the point. A
+        // three-chip kept/partial/broken tally over five rows, sitting under the
+        // heading "Voting Record Highlights", was the closest thing on this page to
+        // a rival score built out of a sample.
         const _vrHighlightsSection = vr.length >= 2
-          ? '<div class="modal-section">' +
+          ? '<div class="modal-section" id="pdx-vrhi" data-pdx-vrhi-pid="' + id + '">' +
               '<div class="modal-section-title">\u{1F5F3}️ Voting Record Highlights</div>' +
-              '<div style="display:flex;gap:0.45rem;margin-bottom:0.7rem;">' +
-                _tallyChip(_vrTally.kept, 'Kept Word', '#4ade80') +
-                _tallyChip(_vrTally.partial, 'Partial', '#60a5fa') +
-                _tallyChip(_vrTally.broken, 'Broke Word', '#f87171') +
+              '<div class="pdx-vrhi-live" hidden></div>' +
+              // Cold-open placeholder. The roll-call record is fetched async, so on a
+              // first open this section would otherwise open on the curated sample
+              // alone with no hint that the real record is on its way. One quiet line,
+              // no count and no score — there is nothing true to put a number on yet.
+              // _pdxHydrateVoteHighlights drops it the moment the record paints, and
+              // also when a load has landed and produced nothing, so it can never sit
+              // there claiming to be loading something that already finished.
+              // there claiming to be loading something that already finished. The
+              // wording matches the hero's warming sub-line in word-action.js — same
+              // fetch, and on a cold open both can be on screen at once.
+              '<div class="pdx-vrhi-wait">Loading the record…</div>' +
+              '<div class="pdx-vrhi-curated">' +
+                '<div class="pdx-vrhi-cur-hd">\u{1F4CE} Annotated selection · ' + vr.length + ' vote' + (vr.length === 1 ? '' : 's') + ' with a why-this-matters note</div>' +
+                '<div style="display:flex;gap:0.45rem;margin-bottom:0.7rem;">' +
+                  _tallyChip(_vrTally.kept, 'Kept Word', '#4ade80') +
+                  _tallyChip(_vrTally.partial, 'Partial', '#60a5fa') +
+                  _tallyChip(_vrTally.broken, 'Broke Word', '#f87171') +
+                '</div>' +
+                _vrHiCards +
               '</div>' +
-              _vrHiCards +
-              '<p class="src-note">A few of the most significant votes. See the full record below for every tracked vote and why it matters.</p>' +
+              '<p class="src-note">These counts cover the ' + vr.length + ' annotated vote' + (vr.length === 1 ? '' : 's') + ' above — each picked for what it shows about a stated promise — not everything on the roll call. The full, filterable record is below.</p>' +
             '</div>'
           : '';
         // One renderer, two stages. The highlights above are official-record
@@ -6010,6 +6311,11 @@
     // Voting Record — lazily fetch /api/voting-record and reveal the section if
     // this member has any record (self-gating; no-ops quietly otherwise).
     if (typeof window._pdxInitVotingRecord === 'function') window._pdxInitVotingRecord();
+    // Voting Record Highlights — fill the live slot from the real roll-call record
+    // if it is ALREADY warm (a member opened earlier this session, or the offline
+    // pack is cached). Otherwise this no-ops and the 'pdx-voting-warm' /
+    // 'pdx-consistency-warm' listeners pick it up the moment the fetch above lands.
+    if (typeof window._pdxHydrateVoteHighlights === 'function') window._pdxHydrateVoteHighlights();
     // Like button setup — use live data from Firestore
     const _likeBtn = document.getElementById('modal-like-btn');
     if (_likeBtn) {

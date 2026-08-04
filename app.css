@@ -1940,10 +1940,40 @@
       color: #9fb4d4; line-height: 1.2; text-align: center;
       max-width: 92px;
     }
+    /* The phone-only caption above the ring. Hidden on wide screens, where the
+       ring sits beside the name and its own inner caption is enough context. */
+    .profile-hero-score-lbl { display: none; }
     @media (max-width: 480px) {
-      .profile-hero { gap: 0.9rem; }
-      .profile-hero-photo { width: 96px; height: 118px; border-radius: 0.7rem; }
-      .profile-hero-score { display: none; }
+      /* PHONES: the hero becomes a two-column grid with a full-width third row,
+         so the primary read sits INSIDE the letterhead — directly under the name,
+         office and party — instead of being dropped for lack of horizontal room.
+         It used to be `.profile-hero-score { display: none }`, which meant the one
+         number the whole product is built around was invisible on the devices most
+         people arrive on: the first thing a phone visitor could see was a promise
+         count or an evidence tally, i.e. a supporting lane standing in for the
+         verdict. Nothing is added to the page here that a desktop reader does not
+         already get — the same mounted Word vs Action hero is simply laid out
+         horizontally so it fits. */
+      .profile-hero {
+        display: grid;
+        grid-template-columns: 96px minmax(0, 1fr);
+        grid-template-areas: "photo id" "score score";
+        align-items: start;
+        gap: 0.9rem;
+      }
+      .profile-hero-photo { grid-area: photo; width: 96px; height: 118px; border-radius: 0.7rem; }
+      .profile-hero-id { grid-area: id; }
+      .profile-hero-score {
+        grid-area: score;
+        display: block;
+        margin-top: 0.1rem;
+      }
+      .profile-hero-score-lbl {
+        display: block;
+        font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+        font-size: 0.58rem; letter-spacing: 0.13em; text-transform: uppercase;
+        color: #9fb4d4; margin-bottom: 0.3rem;
+      }
     }
 
     /* ── Profile quick-jump navigation ─────────────────────────────
@@ -2229,6 +2259,16 @@
        with a single evidence dot — green when the record backs it, red when it
        cuts against, blue when mixed — and opens a small evidence popover on tap.
        Collapsed by default so it orients without dominating the profile. */
+    /* "The summary layer of X's stance record" — the one line that tells a reader
+       what level of the stance system they are looking at. Sits above the lead as
+       a quiet eyebrow, not a second heading. */
+    .sag-summary-of {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #7596c0; line-height: 1.45; margin: 0 0 0.4rem;
+    }
+    /* The way out of the summary and into the full per-issue record. */
+    .sag-more { margin-top: 0.55rem; }
     .sag-lead {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
       color: #8ba6cc; line-height: 1.5; margin: 0 0 0.55rem; letter-spacing: 0.01em;
@@ -2296,9 +2336,66 @@
       font-size: 0.66rem; color: #5f7da6; line-height: 1.5; margin: 0.7rem 0 0;
       font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.01em;
     }
-    @media (max-width: 480px) {
-      .sag-meta { flex-direction: row; align-items: center; gap: 0.45rem; flex-wrap: wrap; justify-content: flex-end; }
-      .sag-text { -webkit-line-clamp: 2; }
+    /* ── Stance at a Glance on a phone ──────────────────────────────────────
+       The row is a four-part flex line — icon · topic/summary · badge stack ·
+       chevron — which works while there is room for the badges to sit at the
+       right-hand end. Below ~560px there is not: the "Watch video" pill, the
+       Supports/Opposes badge and the Say-vs-Do verdict wrapped into a
+       right-justified ragged column, squeezing the topic and its summary into a
+       narrow strip beside them. Each row grew to three or four uneven lines and
+       the list stopped reading as a list — which is what made the summary layer
+       look broken and separate from the stance system it summarises.
+
+       Here the row becomes an explicit grid instead: topic and summary get the
+       full width of line one, the badges get their own left-aligned line
+       underneath, and the icon and chevron span both rows so the row still reads
+       as one tappable unit with a clear "there is more inside" affordance. No
+       markup change, no content dropped — the badges simply stop competing with
+       the text for the same 200px. */
+    @media (max-width: 560px) {
+      .sag-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas:
+          "ico main chev"
+          "ico meta chev";
+        align-items: center;
+        column-gap: 0.55rem;
+        row-gap: 0.34rem;
+        padding: 0.62rem 0.6rem 0.62rem 0.7rem;
+      }
+      .sag-ico { grid-area: ico; align-self: start; margin-top: 0.12rem; }
+      .sag-main { grid-area: main; }
+      .sag-meta {
+        grid-area: meta;
+        flex-direction: row; flex-wrap: wrap;
+        align-items: center; justify-content: flex-start;
+        gap: 0.3rem 0.35rem; width: 100%;
+      }
+      .sag-chev { grid-area: chev; align-self: center; font-size: 1.25rem; }
+      /* Two lines of the stance summary now that it has the row's full width. */
+      .sag-text { -webkit-line-clamp: 2; font-size: 0.72rem; }
+      .sag-topic { font-size: 0.88rem; }
+      /* The verdict pills were sized for a desktop right rail; on glass they are
+         the row's actual payload, so lift them to a readable size. The .sag-verdict
+         / .sag-detail-* base rules are declared further down this file, so these
+         carry an extra class to win on specificity rather than on order. */
+      .sag-badge { font-size: 0.6rem; padding: 0.18rem 0.5rem; }
+      .sag-meta .sag-verdict { font-size: 0.6rem; padding: 0.18rem 0.5rem; }
+      .sag-ev { font-size: 0.6rem; }
+      /* An expanded row's detail is the full stance record for that issue; give
+         it a visible left rail so it reads as belonging to the row above it. */
+      .sag-item .sag-detail-inner {
+        padding: 0.65rem 0.7rem;
+        border-left: 3px solid rgba(96,165,250,0.4);
+      }
+      .sag-item .sag-detail-cta {
+        align-self: stretch; text-align: center; min-height: 40px;
+      }
+      /* Full-width thumb target for the jump into the full stance record. */
+      .sag-more .pdx-fsr-mini {
+        display: block; width: 100%; min-height: 42px; text-align: center;
+      }
     }
 
     /* ── Say vs. Do — per-stance verdict pill + expandable evidence/record ──────
@@ -18344,3 +18441,240 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
   text-transform: uppercase; letter-spacing: 0.02em; line-height: 1;
   overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
 }
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   MOBILE EXPERIENCE — PROFILE FOOTER HEIGHT RECLAIM
+   The profile modal's sticky bottom deck had grown, one accessibility pass at a
+   time, into the tallest permanently-reserved chrome on the app: a 48px primary
+   CTA, a two-line explanatory paragraph under it, and a five-control engagement
+   strip that WRAPPED TO TWO ROWS of 44px buttons below 480px. Measured on a
+   360×640 phone that came to roughly 205px before the home-bar inset — call it a
+   third of the visible profile, spent on chrome, on every single scroll.
+
+   Nothing is removed here and no tap target shrinks below 44px. The deck simply
+   stops reserving space it does not need:
+     · the engagement strip goes back to ONE row (the controls fit; the wrap rule
+       was defensive, and it was costing a permanent 51px to defend against a
+       layout that does not occur once the horizontal padding is trimmed),
+     · the CTA hint clamps to one line — its informative half comes first ("🎯
+       Looks like a strong match — 78% of your issues…"), and the full sentence
+       is a nicety, not data, so two reserved lines of it in sticky chrome was
+       desktop copy left running on glass,
+     · an empty hint stops reserving its own margin,
+     · the row paddings and the scroll body's bottom inset come down a notch.
+   Net: ~205px → ~122px, so ~83px more profile is visible at all times.
+   Appended last so it wins the cascade over the earlier phone passes.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Row 1 — the primary CTA. Tighter frame, same 48px button. */
+  #modal-footer > div:first-child {
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.3rem !important;
+  }
+  /* One line, informative-half-first, and no reserved margin when the hint has
+     not been written yet (a profile opened before pdxSyncModalTeamBtn runs). */
+  #modal-addteam-hint {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.68rem !important;
+    line-height: 1.3 !important;
+    margin-top: 0.2rem !important;
+  }
+  #modal-addteam-hint:empty { display: none !important; }
+
+  /* Row 2 — the engagement strip, one row. The controls keep their 44px height
+     (see the ≤640px pass in index.html); only the horizontal padding gives, and
+     only by enough to make five of them fit a 320px screen without wrapping. */
+  #modal-action-strip {
+    flex-wrap: nowrap !important;
+    gap: 0.375rem !important;
+    padding-bottom: calc(0.4rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #modal-action-strip > button,
+  #modal-action-strip > a {
+    padding-left: 0.4rem !important;
+    padding-right: 0.4rem !important;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  #modal-action-strip > a.ml-auto {
+    margin-left: auto !important;
+    font-size: 0.6rem !important;
+    letter-spacing: 0.06em !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  #modal-action-strip .like-count,
+  #modal-action-strip .dislike-count { font-size: 0.72rem !important; }
+
+  /* The scroll body no longer needs a wide gutter above a deck this slim. */
+  #modal-content { padding-bottom: 0.9rem !important; }
+}
+
+
+/* ── "How this profile was checked" ──────────────────────────────────────────
+   Replaces the retired "🛡️ Verify Full Profile with AI" CTA (see the comment at
+   #pdxsec-verify in profiles-full.js). Deliberately styled DOWN from what it
+   replaced: the old control was a crimson→violet gradient with a pulsing shield
+   and a glow, which is the visual language of a premium feature, on top of a
+   simulation. This is a plain secondary control, because "here is our
+   methodology" is a footnote, not a product tier. */
+.pdx-howchecked {
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  width: 100%; min-height: 44px; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #b9cae3;
+  background: rgba(30,53,96,0.42);
+  border: 1px solid rgba(159,180,212,0.28);
+  border-radius: 0.7rem; padding: 0.5rem 0.8rem;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.pdx-howchecked:hover,
+.pdx-howchecked:focus-visible {
+  background: rgba(30,53,96,0.66);
+  border-color: rgba(159,180,212,0.5);
+  color: #eaf2ff;
+}
+.pdx-howchecked-sub {
+  font-size: 0.68rem; color: #7596c0; line-height: 1.5;
+  margin: 0.45rem 0 0; letter-spacing: 0.01em;
+}
+
+/* ── Voting Record Highlights: live roll-call layer ──────────────────────────
+   Two layers in one section (see _pdxHydrateVoteHighlights in profiles-full.js).
+   The live slot is the real record and reads as the primary layer here: teal
+   accent, real bill numbers, real dates. The curated annotated selection keeps
+   its existing chips and cards and gains a label that names it a selection —
+   when the live layer is present it is visually demoted to a sub-block, because
+   a five-row hand-picked tally must not outrank the record it samples from.
+   Neither layer carries a percentage: Word vs Action is the only score. */
+.pdx-vrhi-live[hidden] { display: none; }
+/* The cold-open placeholder. Deliberately the quietest thing in the section: it
+   is a status line, not content, so it must not read as a heading for the curated
+   block below it or as an empty panel waiting to be filled. Same top margin the
+   live panel would occupy, so the swap does not jump the page. */
+.pdx-vrhi-wait[hidden] { display: none; }
+.pdx-vrhi-wait {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+  font-size: 0.7rem; letter-spacing: 0.05em;
+  color: #7596c0; opacity: 0.85;
+  padding: 0.1rem 0 0.55rem;
+}
+.pdx-vrhi-live {
+  background: rgba(16,26,46,0.55);
+  border: 1px solid rgba(159,180,212,0.16);
+  border-left: 3px solid rgba(159,219,208,0.5);
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.pdx-vrhi-live-hd {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 0.5rem; flex-wrap: wrap;
+}
+.pdx-vrhi-live-k {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.68rem; letter-spacing: 0.11em; text-transform: uppercase;
+  color: #9fdbd0;
+}
+.pdx-vrhi-live-n {
+  font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem;
+  letter-spacing: 0.06em; color: #eaf2ff; white-space: nowrap;
+}
+.pdx-vrhi-live-sub {
+  font-size: 0.7rem; color: #7596c0; line-height: 1.5;
+  margin: 0.3rem 0 0.6rem;
+}
+.pdx-vrhi-cards { display: flex; flex-direction: column; gap: 0.45rem; }
+.pdx-vrhi-card {
+  background: rgba(10,15,30,0.55);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.65rem;
+}
+.pdx-vrhi-card-top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 0.4rem; flex-wrap: wrap;
+}
+.pdx-vrhi-card-ref {
+  display: inline-flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap;
+  min-width: 0;
+}
+.pdx-vrhi-num {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.04em; color: #7fb4ff;
+}
+.pdx-vrhi-date { font-size: 0.62rem; color: #4e72a0; white-space: nowrap; }
+.pdx-vrhi-card-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.8rem; line-height: 1.35; color: white;
+  margin-top: 0.3rem;
+}
+.pdx-vrhi-card-meta {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: 0.3rem 0.35rem; margin-top: 0.4rem;
+}
+.pdx-vrhi-issue {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #b0c4de; background: rgba(159,180,212,0.1);
+  border: 1px solid rgba(159,180,212,0.22);
+  border-radius: 999px; padding: 0.16rem 0.45rem; white-space: nowrap;
+}
+.pdx-vrhi-issue.is-more { color: #8ea4c6; letter-spacing: 0.06em; }
+.pdx-vrhi-open {
+  display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+  width: 100%; min-height: 42px; margin-top: 0.6rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #cfe3ff; background: rgba(96,165,250,0.12);
+  border: 1px solid rgba(96,165,250,0.3);
+  border-radius: 0.6rem; padding: 0.45rem 0.7rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pdx-vrhi-open:hover,
+.pdx-vrhi-open:focus-visible {
+  background: rgba(96,165,250,0.22); border-color: rgba(96,165,250,0.5);
+}
+.pdx-vrhi-cur-hd {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #7596c0; margin-bottom: 0.45rem;
+}
+/* Live layer present → the sample becomes a clearly nested sub-block. */
+.pdx-vrhi-haslive .pdx-vrhi-curated {
+  border-left: 2px solid rgba(159,180,212,0.18);
+  padding-left: 0.65rem;
+}
+@media (max-width: 480px) {
+  .pdx-vrhi-live { padding: 0.6rem 0.65rem; }
+  .pdx-vrhi-live-k { font-size: 0.62rem; letter-spacing: 0.09em; }
+  .pdx-vrhi-live-n { font-size: 0.78rem; }
+  .pdx-vrhi-live-sub { font-size: 0.66rem; }
+  .pdx-vrhi-card-title { font-size: 0.76rem; }
+  .pdx-vrhi-card-top { gap: 0.3rem; }
+  .pdx-vrhi-open { font-size: 0.64rem; letter-spacing: 0.08em; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Word vs Action on a phone — MOVED
+   ═══════════════════════════════════════════════════════════════════════════
+   The hero-ring sideways layout and the pledge-lane demotion that used to sit
+   here now live at the end of word-action.css, beside the base rules for the
+   components they narrow. They are safe there because both win on selector
+   specificity (`.profile-hero-score .pdxwa-hero`, and `!important` on the
+   .pdx-ft-block rules), which matters: word-action.css is linked BEFORE this
+   file, so an equal-specificity rule moved there would lose to whatever app.css
+   declares.
+
+   The .profile-hero letterhead grid that puts the score on its own full-width
+   row STAYS here (see the 480px pass up at .profile-hero-score-lbl). It styles
+   the profile shell — container, photo, id column — not the score component, and
+   its base rules are declared in this file immediately above it. Moved to
+   word-action.css it would be overridden by those very base rules on file order:
+   `display: grid` would lose to `.profile-hero { display: flex }`, and the score
+   row would silently disappear from phones again. */

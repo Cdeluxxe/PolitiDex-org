@@ -127,7 +127,12 @@
     limited:     { key: 'limited',     ico: '…', label: 'Limited record',              short: 'They\'ve stated a position, but there isn\'t enough record to check it yet.', tone: 'muted', color: '#9fb4d4', cls: 'limited' },
     no_record:   { key: 'no_record',   ico: '—', label: 'No record yet',               short: 'No record to check against yet.',                                   tone: 'muted', color: '#9fb4d4', cls: 'none' },
     no_stance:   { key: 'no_stance',   ico: '—', label: 'No stated stance',            short: 'No stated position to check against.',                              tone: 'muted', color: '#9fb4d4', cls: 'none' },
-    pending:     { key: 'pending',     ico: '⏳', label: 'Checking record…',            short: 'Checking their voting record…',                                     tone: 'muted', color: '#9fb4d4', cls: 'pending' }
+    // One phrase for one wait. The hero (word-action.js) and the Voting Record
+    // Highlights placeholder (profiles-full.js) already say exactly this, and on a
+    // cold profile open all three can be on screen at once, waiting on the same
+    // roll-call fetch. Only the copy moves here — key, tone, colour and cls are the
+    // taxonomy and stay as they are.
+    pending:     { key: 'pending',     ico: '⏳', label: 'Loading the record…',         short: 'Loading the record…',                                               tone: 'muted', color: '#9fb4d4', cls: 'pending' }
   };
   // token → coarse bucket used by the overall roll-up.
   function bucketOf(t) {
@@ -428,7 +433,7 @@
     var hasAnySignal = !!(rec && rec.total) || cur.total > 0;
 
     if (!hasAnySignal) {
-      // Nothing to judge yet. If the votes simply aren't loaded, say "checking"
+      // Nothing to judge yet. If the votes simply aren't loaded, say "loading"
       // (and warm them); otherwise it's an honest "no record" / "no stance".
       if (!warm && hasStance) { pending = true; token = 'pending'; queueWarm(pid); }
       else token = hasStance ? 'no_record' : 'no_stance';
@@ -1126,7 +1131,7 @@
     var m = v.verdict || VERDICTS.no_record;
     // Dense surfaces (profile rows, comparison cells) can drop the muted
     // "no record / no stance / limited" states to stay clean, while still showing
-    // every meaningful verdict and the live "checking…" state.
+    // every meaningful verdict and the live "loading…" state.
     if (opts.hideEmpty && (v.token === 'no_record' || v.token === 'no_stance' || v.token === 'limited')) return '';
     var frame = (opts.frame === false) ? '' : '<span class="pdxc-frame" aria-hidden="true">' + FRAME.icon + '</span>';
     var body = (v.token === 'pending')
@@ -1147,7 +1152,7 @@
     mixed:       { ch: '~', cls: 'vrdot-mixed',       tip: 'Mixed record on this issue' },
     flag:        { ch: '⚑', cls: 'vrdot-contradicts', tip: 'A documented red flag on their record' },
     limited:     { ch: '•', cls: 'vrdot-record',      tip: 'Has some record, not enough to judge yet' },
-    pending:     { ch: '·', cls: 'vrdot-record',      tip: 'Checking their record…' }
+    pending:     { ch: '·', cls: 'vrdot-record',      tip: 'Loading the record…' }
   };
   function dot(pid, issueKey) {
     var v = (pid && pid.verdict) ? pid : issueVerdict(pid, issueKey);
@@ -1215,7 +1220,7 @@
   // views the app already ships: Official Record → the profile's Voting Record
   // section; Say-vs-Do → the politician's receipts (lightbox, else the flashpoints
   // feed). We also re-render a mounted gateway's cards when that member's votes
-  // finish warming, so the Official Record summary resolves from "Checking…" to its
+  // finish warming, so the Official Record summary resolves from "Loading the record…" to its
   // real % in place.
   function _gateNav(scope, pid) {
     if (scope === 'official') {
@@ -1447,7 +1452,12 @@
     limited:     { ico: '…', label: 'Limited',        cls: 'limited' },
     no_record:   { ico: '—', label: 'No votes yet',   cls: 'none' },
     no_stance:   { ico: '—', label: 'No votes yet',   cls: 'none' },
-    pending:     { ico: '⏳', label: 'Checking record…', cls: 'pending' }
+    // The compressed form of the shared 'Loading the record…' — the same voice this
+    // map already uses for every other token ('Backed it up' for 'Backs it up',
+    // 'No votes yet' for 'No record yet'). It stays inside the row vocabulary's
+    // 16-character scan budget, which the full phrase does not; what matters for one
+    // voice across surfaces is that it loads rather than checks.
+    pending:     { ico: '⏳', label: 'Loading…', cls: 'pending' }
   };
   // Pure: an officialIssue() read → what the row's record chip should say, plus the
   // one-line reason when the verdict is a shrug. `why` is the piece that used to be
@@ -2122,7 +2132,7 @@
 
     if (!scored.length) {
       var emptyMsg = anyPending
-        ? 'Checking the voting record…'
+        ? 'Loading the record…'
         : (awaiting > 0
             ? 'No qualifying votes on record yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'is' : 'are') + ' still awaiting a formal record.'
             : 'No stated positions or formal record on file yet.');
@@ -2804,7 +2814,7 @@
     // renders as a scannable Advances / Opposes summary here rather than as the
     // inline sentence the profile feed uses — same facts, same source.
     var offItems = _orEvidenceItems(off, { omniBlock: true });
-    var offEmpty = off.token === 'pending' ? 'Checking the voting record…'
+    var offEmpty = off.token === 'pending' ? 'Loading the record…'
                  : (SCOPES.official.empty[off.token] || 'No qualifying votes on record yet');
     var offBody = offItems.length
       ? '<div class="pdxgap-acts">' + offItems.join('') + '</div>'

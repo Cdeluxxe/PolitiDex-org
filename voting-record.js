@@ -1285,19 +1285,46 @@
   // and SORTED there: _pdxInitProfileNav places it by real document position, so
   // this function does not have to know where in the rail it belongs. Self-gating:
   // no record → no pill.
-  function injectNavPill(count) {
+  //
+  // The figure comes from _pdxRecordMappedCounts (below) — the same helper the
+  // profile's live Voting Record Highlights panel reads for its "N records on file"
+  // headline — rather than from this load's own summary object. Two surfaces naming
+  // the same file from two independently derived numbers is a way to be wrong in
+  // public; one source cannot disagree with itself. `count`, which came off the
+  // response that just landed, is the fallback for the case where that helper is
+  // not on the page.
+  //
+  // With no number from either, the pill renders as a plain label. Never a 0 and
+  // never a placeholder digit: the pill's job is to say the record is there and
+  // where to find it, and it can do that without a figure. A fabricated one would
+  // be the same mistake, in miniature, as the Trust Score.
+  function navPillCount(count, pid) {
+    try {
+      if (pid && typeof window._pdxRecordMappedCounts === 'function') {
+        var mc = window._pdxRecordMappedCounts(pid);
+        if (mc && mc.total > 0) return mc.total;
+      }
+    } catch (e) {}
+    return (typeof count === 'number' && count > 0) ? count : null;
+  }
+  function injectNavPill(count, pid) {
     try {
       var track = document.querySelector('#pdx-profile-nav .pdx-pnav-track');
       if (!track || track.querySelector('[data-target="pdxsec-voting"]')) return;
+      var n = navPillCount(count, pid);
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'pdx-pnav-pill';
       btn.setAttribute('data-target', 'pdxsec-voting');
-      btn.setAttribute('aria-label', 'Voting Record: ' + count + ' records');
+      btn.setAttribute('aria-label', n === null
+        ? 'Voting Record'
+        : 'Voting Record: ' + n + ' record' + (n === 1 ? '' : 's'));
       btn.onclick = function () { if (window._pdxNavJump) window._pdxNavJump('pdxsec-voting', btn); };
       btn.innerHTML = '<span class="pdx-pnav-ico" aria-hidden="true">🗳️</span>' +
         '<span class="pdx-pnav-txt"><span class="pdx-pnav-label">Votes</span>' +
-        '<span class="pdx-pnav-val" style="color:#7fb4ff;">' + count + ' Record' + (count === 1 ? '' : 's') + '</span></span>';
+        (n === null ? ''
+          : '<span class="pdx-pnav-val" style="color:#7fb4ff;">' + n + ' Record' + (n === 1 ? '' : 's') + '</span>') +
+        '</span>';
       track.appendChild(btn);
       if (window._pdxNavRearmSoon) window._pdxNavRearmSoon();
       else if (window._pdxInitProfileNav) window._pdxInitProfileNav();
@@ -1400,6 +1427,14 @@
       // Warm the sync record cache so the Alignment Tool (and its consistency line)
       // can read this member's votes without its own fetch.
       PDXVotingRecord.noteMember(job.id, _state.items);
+      // Announce that the sync record cache is now warm for this member, so
+      // surfaces built before the fetch landed can read real votes instead of
+      // guessing. Deliberately its own event rather than reusing
+      // 'pdx-consistency-warm': that one means "consistency's warm queue resolved"
+      // and already has several listeners tuned to it, and this is a different
+      // moment with a different owner. Listeners today: the profile's Voting Record
+      // Highlights live slot (_pdxHydrateVoteHighlights).
+      try { window.dispatchEvent(new CustomEvent('pdx-voting-warm', { detail: { pid: job.id } })); } catch (e) {}
 
       // Build stable facets from this unfiltered set.
       var issues = {}, chambers = {}, actions = {};
@@ -1415,7 +1450,7 @@
       section.style.display = '';
       renderBody();
       bindEvents(section);
-      injectNavPill(data.summary.totalRecords || _state.items.length);
+      injectNavPill(data.summary.totalRecords || _state.items.length, job.id);
 
       // Deep-link: if a caller asked to land on a specific issue and this member
       // actually has a record on it, pre-filter and scroll the section into view,

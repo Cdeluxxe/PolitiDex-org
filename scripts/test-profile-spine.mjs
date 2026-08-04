@@ -412,14 +412,30 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(/window\._pdxNavJump\('pdx-promise-section'\)/.test(PF),
      "wiring: filtering promises from a hero badge routes through the drawer-aware jump, not a bare scrollIntoView");
 
-  // 6g. No control was buried by the restaging. The multi-AI verification report
-  //     has exactly one entry point in the whole app, and it used to be the last
-  //     element of the promise ledger — which is now inside a closed drawer.
+  // 6g. No control was buried by the restaging. The slot at #pdxsec-verify is the
+  //     profile's one "how do I know this is real?" action, and it used to be the
+  //     last element of the promise ledger — which is now inside a closed drawer.
+  //
+  //     What that slot HOLDS changed after the mobile pass: it used to open
+  //     openFullProfileVerify(), a simulated multi-AI report (hardcoded delay,
+  //     client-side prose, and a fabricated weighted "Trust Score" — a second
+  //     primary score on a page whose whole contract is that Word vs Action is the
+  //     only one). It was retired rather than wired, and the slot now opens the
+  //     real scoring methodology. So this checks placement, singleness AND that the
+  //     simulation has not crept back in.
   const verifyAt = PF.indexOf('id="pdxsec-verify"');
   ok(verifyAt !== -1 && PF.lastIndexOf("<!--PDXSP:record-->", verifyAt) > PF.lastIndexOf("<!--PDXSP:dw:", verifyAt),
-     "reach: the 'Verify Full Profile with AI' action sits on the official-record stage, not inside a full-record drawer");
-  ok((PF.match(/openFullProfileVerify\('\$\{id\}'\)/g) || []).length === 1,
+     "reach: the profile's how-was-this-checked action sits on the official-record stage, not inside a full-record drawer");
+  ok((PF.match(/class="pdx-howchecked"/g) || []).length === 1,
      "reach: and it is still mounted exactly once — lifting it out of the ledger did not duplicate it");
+  ok(!/openFullProfileVerify\('/.test(PF),
+     "reach: the retired multi-AI 'verification' simulation is CALLED again from the profile — it makes no\n" +
+     "    request and prints an invented Trust Score, which is a rival primary number sourced from nothing.\n" +
+     "    (Matching a call with an argument on purpose: the name is still named in the comment that records\n" +
+     "    why the control was retired, and that comment should stay.)");
+  ok(/openMethodology/.test(PF.slice(verifyAt, verifyAt + 900)),
+     "reach: the slot no longer opens anything real — a control that answers 'how do I know?' has to land on the\n" +
+     "    scoring methodology, not on a dead end");
 }
 
 // ── 7. Shipping ──────────────────────────────────────────────────────────────

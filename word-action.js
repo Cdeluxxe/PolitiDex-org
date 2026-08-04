@@ -844,7 +844,11 @@
       var hasPct = r.pct !== null;
       var sub;
       if (hasPct) sub = c.tested + ' of ' + c.scorable + ' tested';
-      else if (c.warming) sub = 'Checking the record…';
+      // One phrase for this wait, shared with the Voting Record Highlights
+      // placeholder in profiles-full.js. Both are waiting on the same roll-call
+      // fetch and can be on screen together on a cold open, so two wordings read
+      // as two different jobs in progress.
+      else if (c.warming) sub = 'Loading the record…';
       else if (!c.word) sub = '';
       else if (!c.scorable) sub = 'Nothing said independently on file';
       else if (!c.tested) sub = c.scorable + ' on file, none tested yet';
@@ -949,7 +953,7 @@
   }
 
   // Mountable hero: the stack markup plus its warm-refresh, so the ring turns
-  // from "⏳ Checking the record…" into the real read without a reload — and
+  // from "⏳ Loading the record…" into the real read without a reload — and
   // without the reflow that a differently-sized replacement would cause, since
   // the sub-line reserves its height in CSS.
   function heroMount(pid, p, opts) {

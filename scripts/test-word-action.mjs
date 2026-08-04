@@ -66,7 +66,7 @@ const VERDICTS = {
   limited:     { key: 'limited',     ico: '…', label: 'Limited record',               short: 'Not enough on record yet.',            tone: 'none', color: '#9fb4d4', cls: 'none' },
   no_record:   { key: 'no_record',   ico: '—', label: 'No record',                    short: 'Nothing on record.',                   tone: 'none', color: '#9fb4d4', cls: 'none' },
   no_stance:   { key: 'no_stance',   ico: '—', label: 'No stated position',           short: 'No position on file.',                 tone: 'none', color: '#9fb4d4', cls: 'none' },
-  pending:     { key: 'pending',     ico: '⏳', label: 'Checking the record',          short: 'Checking.',                            tone: 'none', color: '#9fb4d4', cls: 'none' }
+  pending:     { key: 'pending',     ico: '⏳', label: 'Loading the record…',          short: 'Loading the record…',                            tone: 'none', color: '#9fb4d4', cls: 'none' }
 };
 
 // The 110-key issue vocabulary, lifted from its real definition rather than
@@ -731,12 +731,17 @@ const voteNarration = (issueKey, extra = {}) => ({
     'a below-floor hero rendered a percentage — with 27 kept and 8 broken on the record, the only\n' +
     '    number it could have found is the pledge rate it is supposed to have stopped showing');
 
-  // Warming: the ring says it is checking, not that there is nothing there.
+  // Warming: the ring says the record is loading, not that there is nothing there.
+  // The exact phrase is shared with the Voting Record Highlights placeholder in
+  // profiles-full.js — same fetch, both on screen together on a cold open — so this
+  // asserts the string, not just the sentiment. See scripts/test-vote-highlights.mjs.
   const warming = build({ stances: [quoted('gun_rights'), quoted('national_debt')],
                           record: { gun_rights: 'pending', national_debt: 'pending' } });
   const hw = warming.WA.heroRead('p1', { name: 'Warming' });
   eq(hw.text, '⏳', 'a warming record shows a dash instead of a waiting mark');
-  ok(/checking/i.test(hw.sub), 'a warming hero does not say it is still checking the record');
+  eq(hw.sub, 'Loading the record…',
+     'a warming hero does not use the shared waiting phrase, so a cold profile open shows two voices for\n' +
+     '    one fetch (hero vs the highlights placeholder)');
 
   // No word at all: no primary number exists, so the caller's own honest states
   // are used rather than a zero.
@@ -904,11 +909,60 @@ const voteNarration = (issueKey, extra = {}) => ({
 // 14. Mobile-first CSS
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // Base rules are the small-screen rules; the media query widens, never narrows.
+  // Base rules are the small-screen rules; the widening query is the main one.
   ok(/@media \(min-width: 620px\)/.test(WA_CSS),
     'word-action.css has no min-width breakpoint — it is not written mobile-first');
-  ok(!/@media \(max-width:/.test(WA_CSS),
-    'word-action.css narrows at a max-width breakpoint, which means the base rules are desktop rules');
+  // Two phone-only narrowings are allowed — the hero ring's sideways layout and the
+  // pledge-lane demotion — because both are rearrangements of a layout genuinely
+  // shared with the 481-619px range, and both style components this file owns. What
+  // is NOT allowed is a general max-width layout pass creeping back in: that would
+  // mean the base rules had drifted into being desktop rules again, and app.css is
+  // where this codebase keeps broad phone passes. So: allow-list by selector.
+  const ALLOWED_NARROW = /^(\.profile-hero-score \.pdxwa-hero\b|\.pdx-ft-)/;
+  const narrowBlocks = [];
+  for (let i = WA_CSS.indexOf('@media (max-width:'); i !== -1;
+       i = WA_CSS.indexOf('@media (max-width:', i + 1)) {
+    const open = WA_CSS.indexOf('{', i);
+    let depth = 0, end = open;
+    for (let j = open; j < WA_CSS.length; j++) {
+      if (WA_CSS[j] === '{') depth++;
+      else if (WA_CSS[j] === '}' && --depth === 0) { end = j; break; }
+    }
+    narrowBlocks.push({ at: i, body: WA_CSS.slice(open + 1, end) });
+  }
+  ok(narrowBlocks.length <= 2,
+    `word-action.css has ${narrowBlocks.length} max-width passes — the two allowed exceptions are the hero\n` +
+    '    ring layout and the pledge-lane demotion. A third means broad phone layout is being authored here\n' +
+    '    instead of in app.css, i.e. the base rules are drifting back to desktop-first');
+  narrowBlocks.forEach(({ at, body }) => {
+    // Every selector inside must belong to one of the two allowed families.
+    const strayed = body
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .split('}')
+      .map((chunk) => chunk.split('{')[0].trim())
+      .filter(Boolean)
+      .flatMap((sel) => sel.split(',').map((s) => s.trim()))
+      .filter((sel) => sel && !ALLOWED_NARROW.test(sel));
+    ok(strayed.length === 0,
+      'a max-width pass in word-action.css narrows selectors outside the two allowed families\n' +
+      `    (hero ring, pledge lane): ${strayed.slice(0, 4).join(' / ')}\n` +
+      '    Phone rules for anything else belong in app.css, which is linked after this file.');
+    // And they must sit AFTER the widening query, so the mobile-first base below is
+    // still the whole base — the checks in this section slice on that boundary.
+    ok(at > WA_CSS.indexOf('@media (min-width: 620px)'),
+      'a max-width pass sits above the min-width query, so it reads as part of the mobile-first base');
+  });
+  // The moved rules only work because they out-specify app.css, which is linked
+  // LATER (index.html: word-action.css ~1894, app.css ~1954). An equal-specificity
+  // rule moved into this file would silently lose. Hero ring: two classes. Pledge
+  // lane: !important. Losing either is how the phone hero quietly reverts.
+  const heroNarrow = narrowBlocks.map((b) => b.body).join('\n');
+  ok(!/(^|\n)\s*\.pdxwa-hero\s*[,{]/.test(heroNarrow),
+    'a max-width rule targets .pdxwa-hero on its own (one class), which ties with app.css and loses on\n' +
+    '    file order — it must stay scoped as `.profile-hero-score .pdxwa-hero`');
+  ok(/\.pdx-ft-block \.pdx-ft-verdict \{[^}]*!important/.test(heroNarrow),
+    'the pledge verdict size cap lost its !important, so app.css / mobile-polish.css can out-order it and\n' +
+    '    Promise Follow-Through goes back to being the loudest judgement on a phone');
   const mq = WA_CSS.indexOf('@media (min-width: 620px)');
   const base = WA_CSS.slice(0, mq);
   ok(/\.pdxwa-dot-step\s*{[^}]*grid-template-columns/.test(base),
@@ -938,7 +992,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   const heroSub = base.slice(base.indexOf('.pdxwa-hero-sub'), base.indexOf('.pdxwa-hero-sub') + 260);
   must(heroSub.length > 40, 'word-action.css no longer styles .pdxwa-hero-sub');
   ok(/min-height/.test(heroSub),
-    'the hero sub-line reserves no height, so "Checking the record…" → "7 of 9 tested" shifts the\n' +
+    'the hero sub-line reserves no height, so "Loading the record…" → "7 of 9 tested" shifts the\n' +
     '    whole profile header on hydration');
   // The demoted pledge counts sit under the ring in the narrowest column on the
   // page, and they are a jump control, so they need both a tap target and a wrap.

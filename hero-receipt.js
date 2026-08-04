@@ -48,11 +48,24 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // Start on a different receipt each visit. This is a fairness measure, not a
-  // gimmick: with a fixed start index one person would be the permanent face of
-  // the front page, and — because the seed is party-interleaved — one party
-  // would be the permanent first impression.
-  var i = Math.floor(Math.random() * data.length);
+  // ENTRY BEHAVIOUR — stable within a visit, rotating between days.
+  //
+  // This used to be Math.random() on every load, for a good reason: with a fixed
+  // start index one person becomes the permanent face of the front page and —
+  // because the seed is party-interleaved — one party becomes the permanent first
+  // impression. That reason still holds. What it got wrong was the GRANULARITY:
+  // re-rolling per page load meant a reload dealt a different stranger, so the
+  // card read as arbitrary rather than as one item drawn from a set. A visitor
+  // cannot tell "sampled fairly" from "thrown in at random" if the sample changes
+  // while they are looking at it.
+  //
+  // Rotating on the day instead keeps the fairness property (nobody is the
+  // permanent face; the interleave means the party rotates too) and drops the
+  // arbitrariness: within a visit the card is a fixed thing the reader can go
+  // back to, and the "N of M" counter and the intro line below say out loud that
+  // it is one of a set — which is the actual fix for reading as dropped-in.
+  var day = Math.floor(Date.now() / 86400000);
+  var i = ((day % data.length) + data.length) % data.length;
 
   function card(r) {
     var vkey = (r.verdict.key || 'note').replace(/[^a-z]/gi, '');
@@ -94,15 +107,44 @@
 
   function draw() {
     var r = data[i % data.length];
+    var pos = (i % data.length) + 1;
+    // FRAMING — why a stranger is looking at a stamped card about a politician
+    // they may not know, before they have been told what this site is.
+    //
+    // The card was correct and completely unexplained: a verdict stamp, a name and
+    // a source link, dropped between "BUILD YOUR TEAM." and the paragraph that
+    // says what PolitiDex does. Read cold it looks like an ad for a grievance
+    // against one person. Two lines fix that without touching the card, the
+    // verdicts or the seed: the counter says it is one of a set rather than a
+    // singled-out target, and the intro says what the reader is meant to DO with
+    // it — check the source before believing anything else on the page. That is
+    // the argument the placement was already making silently.
     host.innerHTML =
       '<div class="pdx-hr-rail">' +
-        '<span class="pdx-hr-eyebrow">Receipt on record</span>' +
+        '<span class="pdx-hr-rail-l">' +
+          '<span class="pdx-hr-eyebrow">Receipt on record</span>' +
+          (data.length > 1
+            ? '<span class="pdx-hr-pos">' + pos + ' of ' + data.length + '</span>'
+            : '') +
+        '</span>' +
         (data.length > 1
-          ? '<button type="button" class="pdx-hr-next">Next <span class="pdx-hr-count">' +
-            ((i % data.length) + 1) + '/' + data.length + '</span></button>'
+          ? '<button type="button" class="pdx-hr-next">Next receipt <span aria-hidden="true">→</span></button>'
           : '') +
-      '</div>' + card(r);
+      '</div>' +
+      '<p class="pdx-hr-intro">' +
+        'Don’t take our word for it — take theirs. One documented promise or position, ' +
+        'checked against what they actually did, with the source attached. ' +
+        (data.length > 1 ? 'Every politician here carries the same record.' : '') +
+      '</p>' +
+      card(r);
     host.hidden = false;
+    // ANNOUNCEMENT — "Next receipt" swaps the whole card. A screen-reader user
+    // otherwise hears nothing: focus stays on a button whose label did not change.
+    // The attribute goes on the host because draw() replaces this element's
+    // contents, and a live region nested inside the replaced markup is destroyed
+    // and rebuilt with it — a region that did not exist before a mutation does not
+    // announce it. Armed AFTER the first paint, so page load stays silent.
+    host.setAttribute('aria-live', 'polite');
   }
 
   host.addEventListener('click', function (e) {

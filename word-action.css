@@ -485,7 +485,7 @@
 
 /* ── The profile hero ring ───────────────────────────────────────────────────
    The one primary number on a profile. The sub-line reserves its height so the
-   post-warm re-render ("Checking the record…" → "7 of 10 tested") swaps text
+   post-warm re-render ("Loading the record…" → "7 of 10 tested") swaps text
    without moving the hero, per the no-shift-on-hydration rule above. */
 .pdxwa-hero-jump {
   display: block;
@@ -588,4 +588,126 @@
   .pdxwa-dot-v { font-size: 0.78rem; }
   .pdxwa-feed { grid-template-columns: 1.7rem 1fr auto; padding: 0.5rem 0.7rem; }
   .pdxwa-feed-role { font-size: 0.68rem; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Phone-only narrowings — the two exceptions to mobile-first in this file
+   ═══════════════════════════════════════════════════════════════════════════
+   Everything above is authored mobile-first: base rules are the small-screen
+   rules and the one query above widens. These two passes narrow, which is why
+   they sit at the very bottom and why scripts/test-word-action.mjs section 14
+   allows max-width queries ONLY for these two component families. The base of
+   each layout below is genuinely shared with the 481-619px range, so there is
+   nothing to invert — the phone gets a different arrangement of the same parts,
+   not a smaller copy of a desktop one.
+
+   They live here rather than in app.css (which owns this codebase's other
+   max-width passes) because these are the components this file styles, and both
+   selector families beat app.css on specificity rather than on file order —
+   necessary, since word-action.css is linked BEFORE app.css. Nothing whose
+   specificity ties with an app.css rule may be moved into this file.
+
+   The .profile-hero letterhead grid that gives the score its own full-width row
+   stays in app.css for exactly that reason: it collides with
+   `.profile-hero { display: flex }` declared in that same file. */
+
+/* ── The hero ring on a phone ────────────────────────────────────────────────
+   Same markup, same number, laid out sideways. On a phone the hero header is a
+   grid whose third row is full width (see .profile-hero in app.css), so the
+   stack that reads top-to-bottom in a narrow desktop column reads left-to-right
+   here: the ring on the left, its denominator sub-line and the pledge COUNT
+   chip stacked beside it. That turns a ~150px-tall column that had to be hidden
+   for want of width into an ~86px-tall strip that fits under the name.
+
+   The strip is given a panel of its own — not for decoration, but so a reader
+   can tell at a glance that the ring, the "7 of 10 tested" line and the pledge
+   chip are one read rather than three loose figures floating under the office
+   line. The pledge chip stays a count and stays quieter than the ring: the
+   layout changes, the hierarchy does not. */
+@media (max-width: 480px) {
+  .profile-hero-score .pdxwa-hero {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.7rem;
+    row-gap: 0.25rem;
+    padding: 0.55rem 0.7rem;
+    background: rgba(16, 26, 46, 0.55);
+    border: 1px solid rgba(159, 180, 212, 0.18);
+    border-left: 3px solid rgba(159, 219, 208, 0.5);
+    border-radius: 0.75rem;
+  }
+  /* Whichever of the three possible left-hand tiles rendered — the real ring,
+     the "monitoring" dash, or the tracked-but-unresolved hourglass — occupies
+     column 1 and spans both rows. */
+  .profile-hero-score .pdxwa-hero > .pdxwa-hero-jump,
+  .profile-hero-score .pdxwa-hero > .pdxwa-hero-none,
+  .profile-hero-score .pdxwa-hero > .profile-score-tracking {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    margin: 0;
+  }
+  .profile-hero-score .pdxwa-hero > .pdxwa-hero-sub,
+  .profile-hero-score .pdxwa-hero > .profile-score-denom {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    max-width: none;
+    min-height: 0;
+    text-align: left;
+    align-self: end;
+  }
+  .profile-hero-score .pdxwa-hero > .pdxwa-hero-pledge,
+  .profile-hero-score .pdxwa-hero > .profile-score-pending,
+  .profile-hero-score .pdxwa-hero > .profile-score-track-note {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    align-self: start;
+  }
+  .profile-hero-score .pdxwa-hero > .pdxwa-hero-pledge {
+    min-height: 2.35rem;
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .profile-hero-score .pdxwa-hero > .profile-score-track-note { max-width: none; text-align: left; }
+}
+
+/* ── The pledge lane on a phone ──────────────────────────────────────────────
+   Promise Follow-Through was already demoted structurally: its rate lives one
+   tap down inside a disclosure, its eyebrow names it as the pledge tier of the
+   score above, and it closes with a link back to that score. But the demotion
+   was calibrated against a hero ring that a phone never drew — with the ring
+   hidden below 480px, this block's 1.1rem Bebas verdict WAS the largest
+   judgement on the profile, so the pledge lane read as the headline by default
+   rather than by design.
+
+   The ring is back in the letterhead now (see the .pdxwa-hero phone grid above),
+   and this pass keeps the hierarchy explicit rather than incidental: the pledge
+   verdict is capped a step below the ring's figure, its panel is quieter, and
+   nothing in it grows to fill the room the wider layout used to give it. No
+   count, chip, bar, disclosure or explainer is touched — the only thing that
+   changes is how loud the block is allowed to be. */
+@media (max-width: 480px) {
+  .pdx-ft-block { padding: 0.75rem 0.8rem !important; }
+  /* The eyebrow carries the "tier of Word vs Action" relationship, so it is the
+     one line here that gets slightly LOUDER on a small screen, not quieter. */
+  .pdx-ft-block .pdx-ft-eyebrow {
+    font-size: 0.6rem !important;
+    letter-spacing: 0.09em !important;
+    line-height: 1.4 !important;
+    color: #b0c4de !important;
+  }
+  /* Capped below the hero ring's percentage. A verdict word, not a headline. */
+  .pdx-ft-block .pdx-ft-verdict { font-size: 0.95rem !important; }
+  .pdx-ft-block .pdx-ft-sub { font-size: 0.72rem !important; }
+  /* The disclosure that holds the pledge-only rate stays a disclosure, and its
+     summary stays body-scale — a percentage in a 44px-tall summary row starts
+     looking like a control that reports a score. */
+  .pdx-ft-rate-sum { font-size: 0.7rem; }
+  /* Full-width thumb target for the route back to the one score. */
+  .pdx-ft-primary { width: 100%; justify-content: center; min-height: 42px; }
 }
