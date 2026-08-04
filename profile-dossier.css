@@ -1,0 +1,403 @@
+/* ============================================================================
+   profile-dossier.css  ·  the join layer's visual grammar
+   ----------------------------------------------------------------------------
+   Styles for profile-dossier.js — the five-link chain (word → action → evidence
+   → issue/spotlight → outcome), the reusable receipt chips, the compact Issue
+   Spotlight rail that replaced three full-width callout cards above the
+   accountability spine, and the compact spotlight digest.
+
+   ONE GRAMMAR, ON PURPOSE. The point of this file is that the same structure
+   looks the same everywhere it appears: a numbered step, a fixed-width label, a
+   value. When a reader meets step ③ on the fourth row of Connecting the Dots it
+   should be instantly recognisable as the same ③ they read on the first — that
+   repetition is what turns seven competing sections into one dossier.
+
+   Mobile-first. Every rule here starts at the phone layout (steps stack, labels
+   sit above values) and only widens at 641px, where the label column becomes a
+   fixed gutter. Tap targets are ≥2.5rem. Motion is opt-out via
+   prefers-reduced-motion.
+   ========================================================================== */
+
+/* ── ① THE CHAIN ─────────────────────────────────────────────────────────── */
+
+.pdxdo-chain {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.pdxdo-row {
+  position: relative;
+  background: rgba(10, 15, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid var(--pdxdo-col, #9fb4d4);
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.7rem 0.55rem;
+}
+
+.pdxdo-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.55rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pdxdo-row-tier {
+  font: 700 0.6rem/1.3 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8294b4;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0.3rem;
+  padding: 0.12rem 0.35rem;
+  white-space: nowrap;
+}
+
+.pdxdo-row-title {
+  font: 700 0.9rem/1.3 'Barlow', sans-serif;
+  color: #fff;
+  min-width: 0;
+}
+
+/* A step. Phone: number + label on one line, value beneath. */
+.pdxdo-step {
+  display: grid;
+  grid-template-columns: 1.15rem 1fr;
+  grid-template-areas: 'n k' '. v';
+  gap: 0.15rem 0.4rem;
+  padding: 0.34rem 0 0.34rem;
+}
+
+.pdxdo-step + .pdxdo-step { border-top: 1px dashed rgba(255, 255, 255, 0.055); }
+
+.pdxdo-step-n {
+  grid-area: n;
+  font: 700 0.62rem/1.15rem 'Barlow Condensed', sans-serif;
+  color: #7d8fae;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.pdxdo-step-k {
+  grid-area: k;
+  font: 700 0.62rem/1.2rem 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #90a4c4;
+}
+
+.pdxdo-step-v {
+  grid-area: v;
+  font: 400 0.78rem/1.5 'Barlow', sans-serif;
+  color: #cbd9ec;
+  min-width: 0;
+  display: block;
+}
+
+/* Thin steps are dimmed, never hidden — "nothing here yet" is information. */
+.pdxdo-step.pdxdo-thin .pdxdo-step-v { color: #8294b4; }
+.pdxdo-none { color: #7f90ad; font-style: italic; }
+
+.pdxdo-src {
+  font: 700 0.6rem/1.4 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+  color: #86b8e0;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pdxdo-src:hover { text-decoration: underline; }
+
+.pdxdo-act {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  color: #dbe6f5;
+}
+.pdxdo-act + .pdxdo-act { margin-top: 0.15rem; }
+
+.pdxdo-verd { font-weight: 700; }
+
+.pdxdo-judged {
+  margin-left: 0.4rem;
+  font: 600 0.65rem/1.4 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+  color: #8294b4;
+}
+
+/* The pointer at the ONE score. Deliberately quiet: it is a cross-reference,
+   not a competing call to action, and it never carries a number of its own. */
+.pdxdo-toscore {
+  display: block;
+  margin-top: 0.3rem;
+  min-height: 2.5rem;
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.45rem;
+  padding: 0.4rem 0.55rem;
+  font: 700 0.68rem/1.4 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #a9bfdd;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.pdxdo-toscore:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }
+
+/* ── ② RECEIPT CHIPS (reused everywhere an issue is named) ───────────────── */
+
+.pdxdo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.pdxdo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font: 700 0.63rem/1.25 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+  color: #b9cbe6;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.4rem;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdxdo-chip-sub { color: #8294b4; font-weight: 600; }
+.pdxdo-bars { letter-spacing: 0.1em; }
+
+/* Evidence blue — the app's existing "toward the curated library" direction. */
+button.pdxdo-chip-ev {
+  min-height: 2.5rem;
+  cursor: pointer;
+  color: #9fd0f5;
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.28);
+  transition: background 0.18s, border-color 0.18s;
+}
+button.pdxdo-chip-ev:hover { background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5); }
+
+.pdxdo-chip-rec { color: #cbd9ec; }
+.pdxdo-chip-pr { color: #c3b7f0; background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.24); }
+.pdxdo-chip-iss { color: #9fb4d4; }
+
+/* Spotlight amber — matches the 🔦 blocks it navigates to. */
+button.pdxdo-chip-sl {
+  min-height: 2.5rem;
+  cursor: pointer;
+  color: #f0d089;
+  background: rgba(245, 200, 66, 0.1);
+  border-color: rgba(245, 200, 66, 0.3);
+  transition: background 0.18s, border-color 0.18s;
+}
+button.pdxdo-chip-sl:hover { background: rgba(245, 200, 66, 0.2); border-color: rgba(245, 200, 66, 0.55); }
+
+.pdxdo-imp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.5rem;
+  margin-top: 0.25rem;
+  font: 700 0.62rem/1.3 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+}
+.pdxdo-imp-up { color: #4ade80; }
+.pdxdo-imp-dn { color: #f87171; }
+
+/* ── ③ THE LEGEND ────────────────────────────────────────────────────────── */
+/* Names the chain once so the repeated step labels below read as structure. */
+
+.pdxdo-legend {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0.45rem 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.35rem;
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+}
+
+.pdxdo-legend-i {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font: 700 0.6rem/1.2 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #93a7c6;
+}
+
+.pdxdo-legend-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #b9cbe6;
+  font-size: 0.55rem;
+}
+
+.pdxdo-legend-arrow { color: #5f708c; font-size: 0.65rem; }
+
+/* ── ④ COMPACT ISSUE SPOTLIGHT RAIL ─────────────────────────────────────── */
+/* Replaced three stacked full-width callout cards between the profile hero and
+   the accountability spine. One line on desktop, wrapping on a phone. Same
+   destinations, roughly a fifth of the vertical bulk. */
+
+.pdxis-rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.5rem;
+  margin: 0.55rem 0 0.2rem;
+  padding: 0.35rem 0.5rem;
+  background: rgba(245, 200, 66, 0.055);
+  border: 1px solid rgba(245, 200, 66, 0.2);
+  border-radius: 0.5rem;
+}
+
+.pdxis-rail-k {
+  font: 700 0.62rem/1.3 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #e2c477;
+  white-space: nowrap;
+}
+
+.pdxis-rail-c {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.pdxis-rail-b {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.5rem;
+  max-width: 100%;
+  padding: 0.25rem 0.45rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.4rem;
+  font: 600 0.74rem/1.3 'Barlow', sans-serif;
+  color: #f4e6bd;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.18s, border-color 0.18s;
+}
+.pdxis-rail-b:hover { background: rgba(245, 200, 66, 0.16); border-color: rgba(245, 200, 66, 0.45); color: #fff; }
+.pdxis-rail-go { color: #c9a94a; flex-shrink: 0; }
+
+/* ── ⑤ COMPACT SPOTLIGHT DIGEST ─────────────────────────────────────────── */
+/* Two lines per item instead of a ~300px card. Every row still jumps to the
+   item's own full write-up, which now lives behind a drawer rather than being
+   deleted — progressive disclosure, not truncation. */
+
+.pdxdo-digest {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.pdxdo-dg-b {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.5rem;
+  text-align: left;
+  background: rgba(10, 15, 30, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+button.pdxdo-dg-b { cursor: pointer; }
+button.pdxdo-dg-b:hover { background: rgba(255, 255, 255, 0.05); border-left-color: #a78bfa; }
+
+.pdxdo-dg-up .pdxdo-dg-b { border-left-color: rgba(74, 222, 128, 0.6); }
+.pdxdo-dg-dn .pdxdo-dg-b { border-left-color: rgba(248, 113, 113, 0.6); }
+
+.pdxdo-dg-sym { flex-shrink: 0; font: 700 0.7rem/1.5 'Barlow', sans-serif; color: #8294b4; }
+.pdxdo-dg-up .pdxdo-dg-sym { color: #4ade80; }
+.pdxdo-dg-dn .pdxdo-dg-sym { color: #f87171; }
+
+.pdxdo-dg-main { flex: 1; min-width: 0; display: grid; gap: 0.18rem; }
+
+.pdxdo-dg-h {
+  font: 600 0.8rem/1.35 'Barlow', sans-serif;
+  color: #e6eefb;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pdxdo-dg-m {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.4rem;
+  font: 700 0.6rem/1.3 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8294b4;
+}
+.pdxdo-dg-badge { color: #c3b7f0; }
+.pdxdo-dg-iss { color: #9fb4d4; }
+.pdxdo-dg-go { flex-shrink: 0; color: #7d8fae; font-size: 0.8rem; line-height: 1.5; }
+
+/* ── ⑥ DESKTOP ──────────────────────────────────────────────────────────── */
+/* The only structural change above 640px: the step label becomes a fixed left
+   gutter, so the five values line up into a readable column. */
+
+@media (min-width: 641px) {
+  .pdxdo-step {
+    grid-template-columns: 1.15rem 6.4rem 1fr;
+    grid-template-areas: 'n k v';
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .pdxdo-step-k { line-height: 1.5; }
+  .pdxdo-toscore { display: inline-block; width: auto; min-height: 0; padding: 0.28rem 0.5rem; }
+  .pdxdo-row { padding: 0.7rem 0.85rem 0.6rem; }
+  .pdxis-rail { margin: 0.6rem 0 0.25rem; }
+}
+
+/* ── ⑦ MOTION ───────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .pdxdo-toscore,
+  button.pdxdo-chip-ev,
+  button.pdxdo-chip-sl,
+  .pdxis-rail-b,
+  .pdxdo-dg-b {
+    transition: none;
+  }
+}

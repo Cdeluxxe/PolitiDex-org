@@ -663,12 +663,46 @@
           role: 'Supporting receipts and context — never folded into this percentage',
           n: 'Detail' });
       }
+      // The receipt layer, named as a feed rather than left to look like a
+      // separate vault. It is context, not arithmetic: the Locker documents the
+      // word and the actions above, and changes no number on this card. The count
+      // is read back through the Locker's own accessor so it always matches what
+      // the filtered library actually contains, and the row is dropped entirely
+      // while that library is still loading rather than guessing at a figure.
+      try {
+        var lockN = (typeof window._pdxLockerItemCount === 'function') ? window._pdxLockerItemCount(pid) : 0;
+        if (lockN) {
+          rows.push({ ico: '📂', name: 'Evidence Locker', target: 'pdxsec-evidence', counted: false,
+            role: 'The receipts behind the word and the record — documents, clips and citations',
+            n: lockN + ' item' + (lockN === 1 ? '' : 's') });
+        }
+      } catch (e) {}
+      // Where these same issues get argued out in public. Also context: a
+      // Spotlight can put a vote in its setting, but it never tests a statement,
+      // so it is listed and never counted.
+      try {
+        var slN = (window.PDXSpotlight && typeof window.PDXSpotlight.forPolitician === 'function')
+          ? (window.PDXSpotlight.forPolitician(pid) || []).length : 0;
+        if (slN) {
+          rows.push({ ico: '🔦', name: 'Issue Spotlights', target: 'spotlight-modal-section', counted: false,
+            role: 'The issues these statements land in, argued out in public — context, never a test',
+            n: slN + ' featured' });
+        }
+      } catch (e) {}
       return '' +
         '<div class="pdxwa-feeds">' +
-          '<div class="pdxwa-feeds-h">What feeds this score</div>' +
+          // The lid label IS the heading this panel used to print, so folding it costs
+          // no wording. What it does cost is a tap, and that is the right trade: the
+          // rows are a map of the profile, not the verdict, and the verdict has to be
+          // the first thing a reader meets. Every row here is also reachable from the
+          // jump rail, so nothing about the proof path depends on opening this.
+          '<!--PDXSP:lid id="wa-feeds" label="What feeds this score" defer-->' +
           '<ul class="pdxwa-feeds-l">' + rows.map(feedRowHtml).join('') + '</ul>' +
-          '<p class="pdxwa-feeds-foot">One score, several layers of evidence. Each section below shows its own ' +
-            'working — counts, verdicts and sources — and this is the only place they are pooled into a percentage.</p>' +
+          '<p class="pdxwa-feeds-foot">One score, several layers of evidence. The solid rows are what the ' +
+            'percentage is made of; the faded ones are the receipt and context layers that document it and ' +
+            'change no number. Each section below shows its own working — counts, verdicts and sources — and ' +
+            'this is the only place any of it is pooled into a percentage.</p>' +
+          '<!--PDXSP:/lid-->' +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -737,6 +771,17 @@
   // and the action test is not, so the first paint is honest-but-thin and this is
   // what turns it into the real read. Bound once per mount; the listener drops
   // itself when its node leaves the DOM (a closed modal).
+  // This repaint hands HTML straight to innerHTML, so the lid markers inside it never
+  // meet the spine that resolves them. Resolve them here, in reclaim mode — the id
+  // being re-registered belongs to the panel this repaint is replacing, not to a
+  // second panel — and re-open the lid if the reader had already opened it.
+  function lidify(html) {
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.applyLids === 'function') return SP.applyLids(html, true);
+    } catch (e) {}
+    return html;
+  }
   function bind(uid, pid, p) {
     if (!window.addEventListener) return;
     var handler = function (ev) {
@@ -747,10 +792,24 @@
         var fresh = headlineHtml(pid, p);
         if (!fresh) return;
         var slot = document.createElement('div');
-        slot.innerHTML = fresh;
+        slot.innerHTML = lidify(fresh);
         var freshBody = slot.querySelector('[data-pdxwa-body]');
         var liveBody = host.querySelector('[data-pdxwa-body]');
-        if (freshBody && liveBody) liveBody.innerHTML = freshBody.innerHTML;
+        if (!freshBody || !liveBody) return;
+        var wasOpen = [];
+        try {
+          var open = liveBody.querySelectorAll('.dd-body.dd-open[id^="pdxsp-lid-"]');
+          for (var i = 0; i < open.length; i++) if (open[i].id) wasOpen.push(open[i].id);
+        } catch (e2) {}
+        liveBody.innerHTML = freshBody.innerHTML;
+        if (wasOpen.length) setTimeout(function () {
+          wasOpen.forEach(function (id) {
+            try {
+              var b = document.getElementById(id);
+              if (b && !b.classList.contains('dd-open') && typeof window.toggleDD === 'function') window.toggleDD(id);
+            } catch (e3) {}
+          });
+        }, 0);
       } catch (e) {}
     };
     window.addEventListener('pdx-consistency-warm', handler);

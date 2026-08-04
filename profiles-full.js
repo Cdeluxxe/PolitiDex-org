@@ -18,6 +18,27 @@
   // and dynamically populated from Firestore.
 
   // ════════════════════════════════════════════════════════════
+  // ONE ACCESSOR FOR A RECORD'S SIGNATURE ISSUES
+  // ────────────────────────────────────────────────────────────
+  // A roster record stores this list under `issues`; Firestore-backed and
+  // admin-authored records store it under `keyIssues`. Both spellings are real
+  // and both are in use, so every read has to accept either. Reading only one
+  // of them is why the profile's 🎯 Key Issues section rendered blank for the
+  // entire static roster: all 756 CMP_DATA records carry `issues`, none carry
+  // `keyIssues`, and the section gated on `p.keyIssues && p.keyIssues.length`.
+  //
+  // `issues` wins when both are present, matching the precedence the page shell
+  // already uses (`p.issues || p.keyIssues`). Always returns an array so callers
+  // can `.length` / `.map` / `.slice` without their own guard.
+  // ════════════════════════════════════════════════════════════
+  window._pdxKeyIssues = function (p) {
+    if (!p) return [];
+    if (Array.isArray(p.issues) && p.issues.length) return p.issues;
+    if (Array.isArray(p.keyIssues) && p.keyIssues.length) return p.keyIssues;
+    return [];
+  };
+
+  // ════════════════════════════════════════════════════════════
   // POPULATE DIR_DATA FROM PROFILES (dynamic — picks up all entries)
   // ════════════════════════════════════════════════════════════
   window._populateDirData = function() {
@@ -56,7 +77,7 @@
         rank: rank,
         tier: p.tier || 'gray',
         icon: p.icon || '🏛',
-        issues: p.keyIssues || [],
+        issues: window._pdxKeyIssues(p),
         bio: p.bio || '',
         photo: p.photo || ''
       };
@@ -700,7 +721,7 @@
       // Fall back to the politician's tracked key issues so the section is
       // still informative. For a sitting official the position is flagged as
       // not-yet-documented; for a candidate it is presented as a stated priority.
-      var ki = (p.keyIssues || []).slice(0, 6);
+      var ki = window._pdxKeyIssues(p).slice(0, 6);
       if (!ki.length) {
         // No documented stances AND no tagged issues. For a complete
         // officeholder record we still deliberately omit the section to avoid
@@ -1470,17 +1491,28 @@
       if (totSpot) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">🔦</span>' + totSpot + ' on record</span>';
       if (totMedia) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">▶</span>' + totMedia + ' with video / post</span>';
 
-      // Show the connected issues by default; collapse any thin / stance-only
-      // tail behind a toggle so the panel stays scannable but the absence of
-      // evidence is still one tap away, never hidden.
+      // Cards are ranked by how much connected evidence they carry, so the first few
+      // are the ones worth reading. Those stay open; the rest of the connected cards
+      // fold, and the stance-only tail folds separately with its own honest label.
+      // Each card is a three-lane grid — stance, promises, on-record — so an official
+      // with a dozen documented issues used to put a dozen of them on screen before
+      // the next section started. Nothing is dropped and no count is rounded down:
+      // the summary chips above still tally every card behind both lids, and a chip
+      // anywhere on the profile still jumps straight into one (see _pdxJumpEvidence).
       var lead = entries.filter(function(e){ return e.promises.length || e.spotlight.length; });
       var tail = entries.filter(function(e){ return !(e.promises.length || e.spotlight.length); });
-      var leadHtml = lead.map(renderCard).join('');
-      var tailHtml = tail.map(renderCard).join('');
-      var domId = 'evd-tail-' + String(id).replace(/[^a-z0-9_-]/gi, '');
+      var EV_OPEN = 3;
+      var leadHtml = lead.slice(0, EV_OPEN).map(renderCard).join('');
+      var restLead = lead.slice(EV_OPEN);
+      if (restLead.length) {
+        leadHtml += '<!--PDXSP:lid id="ev-rest" label="Show ' + restLead.length +
+          ' more connected issue' + (restLead.length === 1 ? '' : 's') + '" defer-->' +
+          restLead.map(renderCard).join('') + '<!--PDXSP:/lid-->';
+      }
       var tailBlock = tail.length
-        ? '<div id="' + domId + '" style="display:none;margin-top:0.7rem;">' + tailHtml + '</div>' +
-          '<button type="button" class="evd-more-btn" onclick="(function(b){var t=document.getElementById(\'' + domId + '\');if(!t)return;var open=t.style.display!==\'none\';t.style.display=open?\'none\':\'block\';b.textContent=open?(\'Show ' + tail.length + ' stance' + (tail.length === 1 ? '' : 's') + ' with no connected record yet\'):\'Hide thin-record issues\';})(this)">Show ' + tail.length + ' stance' + (tail.length === 1 ? '' : 's') + ' with no connected record yet</button>'
+        ? '<!--PDXSP:lid id="ev-thin" label="Show ' + tail.length + ' stance' +
+            (tail.length === 1 ? '' : 's') + ' with no connected record yet" defer-->' +
+            tail.map(renderCard).join('') + '<!--PDXSP:/lid-->'
         : '';
 
       return '<div class="modal-section">' +
@@ -1519,8 +1551,14 @@
   // jump is obvious. No-ops cleanly when the anchor isn't on the page.
   window._pdxJumpEvidence = function(anchorId) {
     try {
+      // The card being aimed at may sit under a lid, and on a rich profile it may not
+      // be in the document at all yet. Mount it, then open whatever is shut above it,
+      // before asking where it is — otherwise a promise chip that has a perfectly good
+      // receipt behind it does nothing when tapped.
+      if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(anchorId);
       var el = document.getElementById(anchorId);
       if (!el) return;
+      _pdxOpenClosedChain(el);
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       var prev = el.style.boxShadow;
       el.style.transition = 'box-shadow 0.45s ease';
@@ -2604,7 +2642,7 @@
       // priorities they are campaigning on.
       var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
       var keyed = stanceList.filter(function(s) { return s && s.issueKey; });
-      var keyIssues = (p.keyIssues || []);
+      var keyIssues = window._pdxKeyIssues(p);
       var statedCount = stanceList.length || keyIssues.length;
       var trackedIssueCount = keyed.length || keyIssues.length;
       // A position is "recorded" when it carries concrete evidence — a named
@@ -3051,7 +3089,18 @@
       }
       return null;
     }
-    var promiseScore = (typeof p.score === 'number') ? p.score : null;
+    // The 'Keeps Promises' principle below publishes this as a percentage, so it
+    // has to obey the same display guard as every other pledge surface — reading
+    // `p.score` raw here is how the mandate block ended up asserting a rate that
+    // the pledge lane on the same profile refuses to print. The principles list
+    // filters out null scores, so a withheld figure simply drops its row rather
+    // than showing a zero. An explicit admin override (`ov.promises`, applied at
+    // the pick() below) still wins: that is a human deliberately publishing a
+    // number.
+    var promiseScore = (typeof window._pdxDisplayScore === 'function')
+      ? window._pdxDisplayScore(p)
+      : ((typeof p.score === 'number') ? p.score : null);
+    if (promiseScore === undefined) promiseScore = null;
     // Prefer the live, transparent Constituents-First finance signal (computed
     // from itemized FEC / Utah-disclosure buckets, with its reasons shown below);
     // fall back to the curated FINANCE_INTEGRITY seed for anyone without a filing.
@@ -3144,23 +3193,40 @@
   // (as the browse-card strip does) and the raw ratio is the headline, exactly
   // as before.
   // ════════════════════════════════════════════════════════════
-  window._ftMeta = function(kept, broken, pending, published){
+  window._ftMeta = function(kept, broken, pending, published, itemized){
     kept = +kept || 0; broken = +broken || 0; pending = +pending || 0;
     var resolved = kept + broken;
-    var raw = resolved ? Math.round(kept / resolved * 100) : null;
+    // `itemized === false` is the caller stating positively that this record has
+    // summary counts with no inspectable pledge list. In that shape NO rate is
+    // computed — not the published one, and not the raw ratio either, because
+    // kept/resolved is the same unauditable percentage arrived at by division
+    // instead of by lookup. Left undefined (the browse-card strip, older callers)
+    // the behaviour is exactly as before.
+    var noRate = (itemized === false);
+    var raw = (resolved && !noRate) ? Math.round(kept / resolved * 100) : null;
     // A published figure only counts when there is something to publish about;
     // with nothing resolved the honesty guard has already returned null.
-    var pub = (published === null || published === undefined || published === '' || isNaN(+published))
+    var pub = (noRate || published === null || published === undefined || published === '' || isNaN(+published))
       ? null : Math.round(+published);
     var rate = (resolved && pub !== null) ? pub : raw;
     var col = rate === null ? '#9fb4d4' : rate >= 70 ? '#4ade80' : rate >= 50 ? '#f5c842' : '#f87171';
-    var verdict = rate === null ? 'Tracking' : rate >= 70 ? 'Keeps Their Promises' : rate >= 50 ? 'Mixed Promise Record' : 'Breaks Promises';
-    var sub = rate === null ? 'No promises have resolved yet — monitoring in progress.'
+    // The counts-only state gets its own verdict line rather than borrowing
+    // 'Tracking', which would misdescribe a record where 35 pledges have already
+    // closed. It names what is known and stops there.
+    var verdict = noRate && resolved ? 'Pledge Record on File'
+                : rate === null ? 'Tracking'
+                : rate >= 70 ? 'Keeps Their Promises'
+                : rate >= 50 ? 'Mixed Promise Record' : 'Breaks Promises';
+    var sub = noRate && resolved ? 'Kept and broken counts are on file. The individual pledges are not itemized yet, so no follow-through rate is published for them.'
+            : rate === null ? 'No promises have resolved yet — monitoring in progress.'
             : rate >= 70 ? 'Mostly follows through on the promises they make.'
             : rate >= 50 ? 'Follows through on about half of their promises.'
             : 'Frequently fails to follow through on the promises they make.';
-    var ico = rate === null ? '🔍' : rate >= 70 ? '🤝' : rate >= 50 ? '⚖️' : '⚠️';
+    var ico = noRate && resolved ? '📋'
+            : rate === null ? '🔍'
+            : rate >= 70 ? '🤝' : rate >= 50 ? '⚖️' : '⚠️';
     return { kept:kept, broken:broken, pending:pending, resolved:resolved, rate:rate, raw:raw,
+             itemized:!noRate, countsOnly:(noRate && resolved > 0),
              weighted:(rate !== null && raw !== null && rate !== raw), col:col, verdict:verdict, sub:sub, ico:ico };
   };
 
@@ -3182,16 +3248,33 @@
   // `published` is the profile's headline promise figure so this block and the
   // hero ring above it cannot disagree; the raw ratio it was weighted from is
   // stated inline rather than only inside the collapsed Deep Dive.
-  window._renderFollowThrough = function(kept, broken, pending, pid, published){
-    var m = window._ftMeta(kept, broken, pending, published);
+  //
+  // `itemized` is the second honesty guard. Pass `false` and this block renders
+  // its counts, its verdict line and its explainer but publishes NO rate at all:
+  // no percentage, no split bar (a 77/23 bar is the same percentage drawn instead
+  // of written), and no filter hint promising to filter a list that is empty. See
+  // _pdxHasItemizedPledges in index.html for why counts alone do not earn a rate.
+  window._renderFollowThrough = function(kept, broken, pending, pid, published, itemized){
+    var m = window._ftMeta(kept, broken, pending, published, itemized);
     if (m.resolved === 0 && m.pending === 0) return '';
     var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
     var brokenPct = m.resolved ? 100 - keptPct : 0;
     var rateTxt = m.rate === null ? '—' : m.rate + '%';
+    // With no itemized ledger there is nothing below to filter TO, so the counts
+    // stay as plain, readable counts rather than dead buttons.
+    var interactive = m.itemized;
     // The rate opens the same Promise % explainer used by the cards.
     var ftClick = ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
       ' title="How is Promise Follow-Through calculated?"';
+    function countChip(kind, ico, n, label) {
+      if (!interactive) {
+        return '<span class="vbadge vbadge-' + kind + '">' + ico + ' ' + n + ' ' + label + '</span>';
+      }
+      return '<span class="vbadge vbadge-' + kind + ' vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="' + kind + '"' +
+        ' onclick="window._pdxBadgeClick(\'' + kind + '\')" onkeydown="window._pdxBadgeKey(event,\'' + kind + '\')"' +
+        ' title="Show the ' + kind + ' promises">' + ico + ' ' + n + ' ' + label + '</span>';
+    }
     // DEMOTED, NOT DELETED. This block used to open with the rate set in 1.6rem
     // type — larger than the profile's own headline ring — which is what made a
     // profile read as rival scores. The pledge lane now leads with its VERDICT and
@@ -3205,20 +3288,25 @@
           '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
           '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
         '</div>' +
-        (m.resolved ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
+        ((m.resolved && m.itemized) ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
           '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
           '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
         '</div>' : '') +
         '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;">' +
-          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="kept" onclick="window._pdxBadgeClick(\'kept\')" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
-          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="broken" onclick="window._pdxBadgeClick(\'broken\')" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
-          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
+          countChip('kept', '✓', m.kept, 'Kept') +
+          countChip('broken', '✗', m.broken, 'Broken') +
+          countChip('pending', '⏳', m.pending, 'Pending') +
         '</div>' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
+        (interactive
+          ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>'
+          : '') +
         // The pledge-only percentage, kept as supporting detail. Body-text size, one
         // tap down, and explicitly scoped ("pledges only") so it cannot be mistaken
-        // for the profile's overall read.
-        '<details class="pdx-ft-rate">' +
+        // for the profile's overall read. Replaced outright — not merely emptied —
+        // when the ledger is not itemized, so no surface offers to disclose a rate
+        // it then cannot produce.
+        (m.itemized
+        ? '<details class="pdx-ft-rate">' +
           '<summary class="pdx-ft-rate-sum">Pledge-only rate' + (m.rate === null ? '' : ' · ' + rateTxt) + '</summary>' +
           '<div class="pdx-ft-rate-b">' +
             '<p><b style="color:#cbd9ec;">Promises Kept</b> — ' + rateTxt +
@@ -3229,7 +3317,18 @@
               (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the published figure sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
             '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this calculated?</button>' +
           '</div>' +
-        '</details>' +
+        '</details>'
+        // Counts-only: state plainly that no rate is published and why, and keep
+        // the ⓘ explainer reachable so a reader can still learn how the lane works.
+        // This is the substitute for the disclosure above, not an addition to it —
+        // the one thing that must never appear here is a number.
+        : '<div class="pdx-ft-noRate">' +
+            '<p class="pdx-ft-noRate-p">' +
+              'No follow-through rate is published for this pledge lane: the kept and broken counts above are on file, but the individual pledges behind them are not itemized yet, so the figure could not be checked against anything. ' +
+              'The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above is unaffected — it scores their stated positions and campaign issues against the official record.' +
+            '</p>' +
+            '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this lane calculated?</button>' +
+          '</div>') +
         // Says out loud where this number sits now. Without it the block just looks
         // smaller for no stated reason, and a reader who remembers it as the
         // headline has no way to tell whether it was demoted or degraded. The link
@@ -3255,6 +3354,12 @@
   // ════════════════════════════════════════════════════════════
   window.pdxFilterPromises = function(verdict, doScroll){
     verdict = verdict || 'all';
+    // The promise ledger lives inside a deferred drawer, so on a profile whose
+    // drawer has never been opened none of the ids below exist yet. Mount it
+    // first — the old `if (!list) return` would otherwise swallow the filter AND
+    // the scroll, making every hero count chip a dead button until the reader
+    // happened to open the drawer by hand.
+    if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget('pdx-promise-list');
     var list = document.getElementById('pdx-promise-list');
     if (!list) return;
     var labels = { all:'promises', kept:'kept promises', broken:'broken promises', pending:'pending promises', partial:'partial promises' };
@@ -3460,29 +3565,41 @@
     } catch (e) { return ''; }
   };
 
-  // Smooth-scroll the modal body so the target section clears the sticky rail.
-  //
-  // Deep-record sections now live inside closed drawers, and scrolling to a node
-  // inside a collapsed (max-height:0) box lands the reader on a shut lid with
-  // nothing to read — a control that appears to do nothing. So any closed drawer
-  // between the target and the modal body is opened first, outermost last, and the
-  // scroll offset is measured after that so it reflects the expanded layout.
-  window._pdxNavJump = function (targetId, btn) {
-    var body = document.getElementById('modal-body');
-    var el = document.getElementById(targetId);
-    if (!body || !el) return;
+  // Open every closed drawer or lid between an element and the modal body, innermost
+  // first. Opening an outer one does not change whether an inner one is still shut,
+  // and toggleDD only flips the id it is handed. Shared by the jump-rail and by the
+  // evidence anchors, because both can now aim at content sitting under a lid.
+  function _pdxOpenClosedChain(el) {
     try {
+      var body = document.getElementById('modal-body');
+      if (!body || !el) return;
       var chain = [], node = el.parentElement;
       while (node && node !== body) {
         if (node.classList && node.classList.contains('dd-body') && !node.classList.contains('dd-open') && node.id) chain.push(node.id);
         node = node.parentElement;
       }
-      // Inner drawers first: opening an outer one does not change whether an
-      // inner one is still shut, and toggleDD only flips the id it is handed.
       if (typeof window.toggleDD === 'function') {
         for (var i = 0; i < chain.length; i++) window.toggleDD(chain[i]);
       }
     } catch (e) {}
+  }
+
+  window._pdxNavJump = function (targetId, btn) {
+    // Smooth-scroll the modal body so the target section clears the sticky rail.
+    //
+    // Deep-record sections now live inside closed drawers and lids, and scrolling to
+    // a node inside a collapsed (max-height:0) box lands the reader on a shut control
+    // with nothing to read. So the chain above the target is opened first, and the
+    // scroll offset is measured after that so it reflects the expanded layout.
+    var body = document.getElementById('modal-body');
+    // The deepest sections now live inside drawers whose inner markup is held
+    // back as a string until first open, so the target may not exist yet. Mount
+    // its drawer first: without this the function bails on `!el` and the pill
+    // reads as broken, which is exactly the failure deferral must not introduce.
+    if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(targetId);
+    var el = document.getElementById(targetId);
+    if (!body || !el) return;
+    _pdxOpenClosedChain(el);
     var nav = document.getElementById('pdx-profile-nav');
     var navH = nav ? nav.offsetHeight : 0;
     var top = body.scrollTop + el.getBoundingClientRect().top - body.getBoundingClientRect().top - navH - 12;
@@ -3493,45 +3610,214 @@
       btn.classList.add('is-active');
       try { btn.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}
     }
-    // Suppress the scroll-spy briefly so it doesn't fight the animated jump.
+    // Suppress the spy briefly so it does not fight the animated jump, then force
+    // one repaint when the suppression lifts. Without that repaint the rail can be
+    // left showing the pill this function lit rather than the section the scroll
+    // actually settled on — the observer only speaks when something CHANGES, and
+    // during the animation everything it had to say was thrown away.
     window._pdxNavUserJumping = true;
     clearTimeout(window._pdxNavJumpTimer);
-    window._pdxNavJumpTimer = setTimeout(function () { window._pdxNavUserJumping = false; }, 650);
+    window._pdxNavJumpTimer = setTimeout(function () {
+      window._pdxNavUserJumping = false;
+      try { if (typeof window._pdxNavRepaint === 'function') window._pdxNavRepaint(true); } catch (e) {}
+    }, 650);
   };
 
-  // Highlight the pill for whichever section is currently under the rail.
+  // Re-arm the rail after the DOM under it changed — a deferred drawer mounted, a
+  // pill was injected late. Coalesced into one animation frame so a burst of
+  // reveals costs one re-arm instead of one per reveal, and so the re-arm reads
+  // layout AFTER the browser has finished reacting to the mutation rather than in
+  // the middle of it.
+  window._pdxNavRearmSoon = function () {
+    if (window._pdxNavRearmPending) return;
+    window._pdxNavRearmPending = true;
+    var run = function () {
+      window._pdxNavRearmPending = false;
+      try { if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav(); } catch (e) {}
+    };
+    try { requestAnimationFrame(run); } catch (e) { setTimeout(run, 16); }
+  };
+
+  // Highlight the pill for whichever section is currently under the rail, and make
+  // the rail read in page order while doing it.
+  //
+  // ── Why this is an observer and not a scroll handler ──
+  // It used to be a rAF-throttled scroll listener that, on every frame of every
+  // scroll, called getBoundingClientRect() on the modal body, read nav.offsetHeight,
+  // then called getBoundingClientRect() on EVERY tracked anchor — a dozen forced
+  // layout flushes per frame across the largest subtree in the app, on the exact
+  // gesture where a phone has the least headroom. It also only recomputed on
+  // scroll, so opening a drawer moved every anchor beneath it and the rail went on
+  // pointing at the wrong section until the reader scrolled again.
+  //
+  // An IntersectionObserver inverts that. The root is clipped to start at the rail
+  // line, so each anchor produces a callback exactly when it crosses that line, and
+  // the callback arrives carrying boundingClientRect and rootBounds already
+  // measured by the compositor. Comparing those two is the same predicate the old
+  // spy computed by hand — is this anchor above the line — with no layout read in
+  // our code at all, on crossings rather than on frames. Because the observer
+  // recomputes on any layout change, opening a drawer or a lid now updates the rail
+  // by itself.
+  //
+  // ── Order comes from the document, not from the rail ──
+  // Two things can put the pills out of page order: a build-time list that drifts,
+  // and a pill appended after the fact (voting-record.js adds Votes once it knows
+  // there is a record). The spine sorts the build-time list, and this function
+  // sorts what it finds by real document position, then moves the pill nodes to
+  // match if — and only if — they disagree. So the rail is correct by measurement,
+  // not by assertion, and the active index can only ever move forwards as the
+  // reader scrolls down.
   window._pdxInitProfileNav = function () {
     var body = document.getElementById('modal-body');
     var nav = document.getElementById('pdx-profile-nav');
+    // Re-arming is how this function is used — on open, after a drawer mounts,
+    // after a late pill is added — so tearing the previous observer down is the
+    // first thing it does. Nothing here can stack.
+    _pdxNavTeardown();
     if (!body || !nav) return;
+    var track = nav.querySelector('.pdx-pnav-track') || nav;
     var pills = Array.prototype.slice.call(nav.querySelectorAll('.pdx-pnav-pill'));
     if (!pills.length) return;
-    var targets = pills.map(function (b) {
-      return { btn: b, el: document.getElementById(b.getAttribute('data-target')) };
-    }).filter(function (t) { return t.el; });
+
+    // Section pills that have a live destination. A pill aimed inside a drawer
+    // whose inner is still a string has no element yet: it stays clickable (the
+    // jump reveals it first) but there is nothing to spy on until it mounts, and
+    // the re-arm after that reveal picks it up.
+    var targets = [];
+    pills.forEach(function (b) {
+      var t = b.getAttribute('data-target');
+      if (!t) return;
+      var el = document.getElementById(t);
+      if (el) targets.push({ btn: b, el: el, target: t });
+    });
     if (!targets.length) return;
 
-    function spy() {
-      window._pdxNavRaf = 0;
-      if (window._pdxNavUserJumping) return;
-      var ref = body.getBoundingClientRect().top + nav.offsetHeight + 16;
-      var activeIdx = 0;
-      for (var i = 0; i < targets.length; i++) {
-        if (targets[i].el.getBoundingClientRect().top <= ref) activeIdx = i;
+    // Document order is the authority. compareDocumentPosition is a tree walk, not
+    // a geometry read, so this costs nothing in layout.
+    targets.sort(function (a, b) {
+      if (a.el === b.el) return 0;
+      // 4 is DOCUMENT_POSITION_FOLLOWING: b comes after a, so a sorts first.
+      return (a.el.compareDocumentPosition(b.el) & 4) ? -1 : 1;
+    });
+    _pdxNavSyncOrder(track, pills, targets);
+
+    // One layout read, once, at arm time — where the old code took one per frame.
+    // The rail is sticky at the top of the scroller, so its height is the offset
+    // between the top of the visible area and the first line a reader can read.
+    var line = (nav.offsetHeight || 0) + 16;
+    var above = [];
+    var atEnd = false;
+    var active = -1;
+
+    function paint(force) {
+      var idx = 0;
+      for (var i = 0; i < targets.length; i++) if (above[i]) idx = i;
+      // At the very bottom, force the last section active so the final pill is
+      // reachable even when the page cannot scroll far enough to push its anchor
+      // above the rail line.
+      if (atEnd) idx = targets.length - 1;
+      if (idx === active && !force) return;
+      active = idx;
+      for (var j = 0; j < targets.length; j++) {
+        targets[j].btn.classList.toggle('is-active', j === idx);
       }
-      // At the very bottom, force the last section active so it stays reachable.
-      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 4) activeIdx = targets.length - 1;
-      targets.forEach(function (t, i) { t.btn.classList.toggle('is-active', i === activeIdx); });
     }
-    function onScroll() {
-      if (window._pdxNavRaf) return;
-      window._pdxNavRaf = requestAnimationFrame(spy);
+    // Exposed so the jump can resync the rail once its animation is done, and so a
+    // forced repaint is possible after the class list was changed from outside.
+    window._pdxNavRepaint = paint;
+
+    if (typeof window.IntersectionObserver !== 'function') {
+      // No observer: light the first pill and leave it. Every pill still scrolls,
+      // which is the part that matters; a stale highlight is a cosmetic loss.
+      paint(true);
+      return;
     }
-    if (window._pdxNavScrollHandler) body.removeEventListener('scroll', window._pdxNavScrollHandler);
-    window._pdxNavScrollHandler = onScroll;
-    body.addEventListener('scroll', onScroll, { passive: true });
-    spy();
+
+    var obs = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        var k = -1;
+        for (var j = 0; j < targets.length; j++) if (targets[j].el === e.target) { k = j; break; }
+        if (k === -1) continue;
+        // rootBounds.top IS the rail line, because the root was clipped by exactly
+        // that much. Both rects arrive with the entry, already measured.
+        var ref = e.rootBounds ? e.rootBounds.top : null;
+        if (ref === null) { above[k] = !e.isIntersecting; continue; }
+        above[k] = e.boundingClientRect.top <= ref;
+      }
+      if (!window._pdxNavUserJumping) paint(false);
+    }, { root: body, rootMargin: (-line) + 'px 0px 0px 0px', threshold: 0 });
+    targets.forEach(function (t) { obs.observe(t.el); });
+    window._pdxNavObserver = obs;
+
+    // Bottom-of-scroll detection, without reading scrollHeight on every frame. A
+    // one-pixel marker parked at the end of the content is observed against the
+    // unclipped root, so it reports intersecting exactly when the reader has
+    // reached the last few pixels — the same condition the old spy computed with a
+    // scrollTop + clientHeight >= scrollHeight comparison, which forces a layout
+    // flush every time it is asked.
+    try {
+      var end = document.getElementById('pdxsp-nav-end');
+      if (!end) {
+        end = document.createElement('span');
+        end.id = 'pdxsp-nav-end';
+        end.setAttribute('aria-hidden', 'true');
+        end.style.cssText = 'display:block;height:1px;';
+      }
+      if (end.parentNode !== body || body.lastChild !== end) body.appendChild(end);
+      var endObs = new IntersectionObserver(function (entries) {
+        atEnd = !!(entries.length && entries[entries.length - 1].isIntersecting);
+        if (!window._pdxNavUserJumping) paint(false);
+      }, { root: body, rootMargin: '0px 0px -4px 0px', threshold: 0 });
+      endObs.observe(end);
+      window._pdxNavEndObserver = endObs;
+    } catch (e) {}
   };
+
+  // Move the pill nodes so the rail reads in the order the sections appear, but
+  // only when they are actually out of order — re-appending children that are
+  // already in place still moves them in the DOM, and the track is a horizontally
+  // scrolled flex row whose scroll offset would jump for no reason.
+  //
+  // Action pills carry no destination of their own (Full Report opens an overlay),
+  // so each one travels with the section pill it follows. That is the same rule the
+  // spine applies at build time, applied here to whatever is in the DOM.
+  function _pdxNavSyncOrder(track, pills, targets) {
+    try {
+      var rank = {}, i;
+      for (i = 0; i < targets.length; i++) rank[targets[i].target] = i;
+      // Group: each entry is a lead pill plus the action pills trailing it.
+      var groups = [], cur = null;
+      pills.forEach(function (b) {
+        var t = b.getAttribute('data-target');
+        if (t && rank[t] !== undefined) { cur = { r: rank[t], pills: [b] }; groups.push(cur); return; }
+        // A pill with a dead or not-yet-mounted destination keeps its place rather
+        // than being sorted on a rank it does not have.
+        if (!cur) { cur = { r: -1, pills: [b] }; groups.push(cur); return; }
+        cur.pills.push(b);
+      });
+      var sorted = groups.slice().sort(function (a, b) { return a.r - b.r; });
+      var want = [], k;
+      for (i = 0; i < sorted.length; i++) {
+        for (k = 0; k < sorted[i].pills.length; k++) want.push(sorted[i].pills[k]);
+      }
+      var same = want.length === pills.length;
+      if (same) for (i = 0; i < want.length; i++) if (want[i] !== pills[i]) { same = false; break; }
+      if (same) return;
+      for (i = 0; i < want.length; i++) track.appendChild(want[i]);
+    } catch (e) {}
+  }
+
+  // Drop every observer and the repaint hook. Called on re-arm and on close, so a
+  // closed profile leaves nothing observing a detached subtree.
+  function _pdxNavTeardown() {
+    try { if (window._pdxNavObserver) window._pdxNavObserver.disconnect(); } catch (e) {}
+    try { if (window._pdxNavEndObserver) window._pdxNavEndObserver.disconnect(); } catch (e) {}
+    window._pdxNavObserver = null;
+    window._pdxNavEndObserver = null;
+    window._pdxNavRepaint = null;
+  }
+  window._pdxNavTeardown = _pdxNavTeardown;
 
   function openModal(id) {
     // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
@@ -3610,6 +3896,15 @@
     const promiseState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : (scoreNum === null ? 'empty' : 'resolved');
     const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
     const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
+    // Does this record carry an inspectable pledge list, or only summary counts?
+    // The pledge lane publishes a rate in the first case and counts only in the
+    // second. Resolved once here and passed down so the hero chip, the header and
+    // the Follow-Through block cannot reach different conclusions about the same
+    // record. Defaults to `true` when the helper is absent so an older shell never
+    // silently suppresses a rate it used to publish.
+    const pledgeItemized = (typeof window._pdxHasItemizedPledges === 'function')
+      ? window._pdxHasItemizedPledges(p) : true;
+    const countsNote = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p) : '';
     // The pledge ledger as COUNTS, for the supporting chip under the ring. The
     // header keeps this information — how many promises actually closed, and
     // which way — without restating it as a second percentage that would compete
@@ -3662,7 +3957,8 @@
       </div>`);
 
     // Key issues pills
-    const issuePills = (p.keyIssues || []).map(i => `<span class="issue-pill">${i}</span>`).join('');
+    const _keyIssues = window._pdxKeyIssues(p);
+    const issuePills = _keyIssues.map(i => `<span class="issue-pill">${i}</span>`).join('');
 
     // Promise table rows
     const verdictMap = {
@@ -3785,7 +4081,7 @@
           '<p class="ptn-text">' + (_isChallenger
             ? ('This politician is running as a ' + (_is2026 ? '2026 challenger' : 'challenger') + ' and does not yet have a legislative voting record in this office, so there is nothing to score yet. We are tracking their stated positions now and will log kept-and-broken promises as the race develops.')
             : 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
-          '<div class="ptn-hint">↓ ' + ((p.keyIssues && p.keyIssues.length) ? 'Their key issues and stated positions are below' : 'Their stated positions are below') + '</div>' +
+          '<div class="ptn-hint">↓ ' + (window._pdxKeyIssues(p).length ? 'Their key issues and stated positions are below' : 'Their stated positions are below') + '</div>' +
           _thinNext +
         '</div>' +
       '</div>'
@@ -3892,16 +4188,29 @@
       const _ats = p.updatedAt || p.createdAt;
       if (_ats && typeof window._pdxRelTime === 'function') _navActivityRel = window._pdxRelTime(_ats);
     } catch (e) { _navActivityRel = ''; }
-    const _navActivityHas = !!(_navActivityRel || (p.promises && p.promises.length) || _navEvidenceCount || (p.keyIssues && p.keyIssues.length));
+    const _navActivityHas = !!(_navActivityRel || (p.promises && p.promises.length) || _navEvidenceCount || window._pdxKeyIssues(p).length);
     const _navActivityVal = _navActivityRel ? ('Updated ' + _navActivityRel)
       : ((p.promises && p.promises.length) ? (p.promises.length + ' tracked')
       : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
 
     const _navItems = [];
-    // ⚖️ Word vs Action — the primary read, so it leads the rail. Value is the
-    // weighted percentage when the record clears the fail-closed floors, and the
-    // honest state ("Checking…" / "Thin record") when it does not — never a bare
-    // number standing in for one. Self-gating: no pill when no word is on file.
+    // The pushes below are written in reading order, but that is a courtesy to the
+    // reviewer, not the source of truth any more. PDXProfileSpine.railOrder() sorts
+    // this list by the stage each destination lives in, and _pdxInitProfileNav then
+    // sorts what it finds by real document position — so the rail cannot disagree
+    // with the page even if a push is added in the wrong place, and the active pill
+    // can only move forwards as the reader scrolls down.
+    //
+    // Deriving it also settled an argument the hand-maintained order was getting
+    // wrong: the Record pill aims at pdxsec-record, which lives inside the promises
+    // drawer at the foot of the page, so it now sits with the full-record pills
+    // instead of fifth of ten. Where the pill sends you is where the pill goes.
+    //
+    // ⚖️ Word vs Action — the primary read, so it leads the rail, and now leads the
+    // page too. Value is the weighted percentage when the record clears the
+    // fail-closed floors, and the honest state ("Checking…" / "Thin record") when it
+    // does not — never a bare number standing in for one. Self-gating: no pill when
+    // no word is on file.
     try {
       if (window.PDXWordAction && typeof window.PDXWordAction.read === 'function') {
         const _wa = window.PDXWordAction.read(id, p);
@@ -3913,16 +4222,40 @@
         }
       }
     } catch (e) {}
+    // Controversies — the neutral flashpoints block, shown only when at least one
+    // sourced say-vs-do gap / broken promise / flagged event is on record. Second in
+    // the rail because the tension stage is second on the page: the adverse finding
+    // is what a reader came for, and the rail should not bury it either.
+    try {
+      if (typeof window._pdxControversyCount === 'function') {
+        const _navCtv = window._pdxControversyCount(id, p);
+        if (_navCtv > 0) {
+          _navItems.push({ target: 'pdxsec-controversies', icon: '⚠️', label: 'Controversies', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
+        }
+      }
+    } catch (e) {}
+    // Positions — number of tracked key issues.
+    if (window._pdxKeyIssues(p).length) {
+      const _n = window._pdxKeyIssues(p).length;
+      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
+      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
+      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
+      // to a section, so the deepest per-issue view is one tap from the map. Sits
+      // right after Positions since it is the "see everything" extension of it.
+      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
+    }
     // Promises — the pledge lane, reported as a COUNT. The rail carries exactly one
-    // percentage (the ⚖️ pill above it, the primary read) so two pills can never
+    // percentage (the ⚖️ pill leading it, the primary read) so two pills can never
     // read as two competing verdicts; the pledge rate itself lives in its own block
-    // further down, where it is labelled as pledges-only.
+    // in the record stage, where it is labelled as pledges-only.
     if (scoreNum !== null || (keptCount + brokenCount) > 0) {
       _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: keptCount + ' Kept', color: '#9fb4d4' });
     }
     // Record — the kept / broken / pending COUNTS behind that percentage. The rate
-    // itself is deliberately not repeated here: it is the pill directly above, and
-    // showing it twice in one rail made one number look like two findings.
+    // itself is deliberately not repeated here: it is already on the Promises pill,
+    // and showing it twice in one rail made one number look like two findings. This
+    // pill lands with the full-record group rather than beside Promises, because its
+    // destination is inside the promises drawer; the jump reveals that drawer first.
     {
       const _resolved = keptCount + brokenCount;
       if (_resolved > 0 || (p.promises && p.promises.length)) {
@@ -3932,16 +4265,6 @@
         const _pend = (pendingAct > 0) ? (' · ' + pendingAct + 'P') : '';
         _navItems.push({ target: 'pdxsec-record', icon: '📋', label: 'Record', value: keptCount + 'K · ' + brokenCount + 'B' + _pend, color: '#f5c842' });
       }
-    }
-    // Positions — number of tracked key issues.
-    if (p.keyIssues && p.keyIssues.length) {
-      const _n = p.keyIssues.length;
-      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
-      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
-      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
-      // to a section, so the deepest per-issue view is one tap from the map. Sits
-      // right after Positions since it is the "see everything" extension of it.
-      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
     }
     // ✒️ Enactments — the Executive Enactment Record, for figures who cast no
     // congressional floor votes. Self-gating exactly as the section is: navPill()
@@ -3953,28 +4276,6 @@
         const _navEer = window.PDXExecRecordUI.navPill(id);
         if (_navEer) {
           _navItems.push({ target: _navEer.target, icon: _navEer.icon, label: _navEer.label, value: _navEer.value, color: _navEer.color });
-        }
-      }
-    } catch (e) {}
-    // Controversies — the neutral flashpoints block, shown only when at least one
-    // sourced say-vs-do gap / broken promise / flagged event is on record.
-    try {
-      if (typeof window._pdxControversyCount === 'function') {
-        const _navCtv = window._pdxControversyCount(id, p);
-        if (_navCtv > 0) {
-          _navItems.push({ target: 'pdxsec-controversies', icon: '⚠️', label: 'Controversies', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
-        }
-      }
-    } catch (e) {}
-    // Funding — who bankrolls them, shown only when a filing record is on file.
-    try {
-      if (typeof window._pdxFunding === 'function') {
-        const _navFund = window._pdxFunding(id);
-        if (_navFund) {
-          const _fk = (_navFund.character && _navFund.character.kind) || 'unknown';
-          const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
-          const _fi = (_navFund.character && _navFund.character.icon) || '💰';
-          _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
         }
       }
     } catch (e) {}
@@ -3993,16 +4294,37 @@
         }
       }
     } catch (e) {}
+    // Funding — who bankrolls them, shown only when a filing record is on file.
+    try {
+      if (typeof window._pdxFunding === 'function') {
+        const _navFund = window._pdxFunding(id);
+        if (_navFund) {
+          const _fk = (_navFund.character && _navFund.character.kind) || 'unknown';
+          const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
+          const _fi = (_navFund.character && _navFund.character.icon) || '💰';
+          _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
+        }
+      }
+    } catch (e) {}
     // Activity — freshness / how much is tracked.
     if (_navActivityHas) {
       _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4' });
     }
 
+    // The rail order is the spine order. Sorting here rather than trusting the push
+    // sequence means the one place the profile records its top-to-bottom shape —
+    // STAGES, plus the anchor registry beside it — is also the place that decides
+    // the rail. A missing spine is not a reason to lose the rail, so an unsorted
+    // list is the fallback.
+    const _navOrdered = (window.PDXProfileSpine && typeof window.PDXProfileSpine.railOrder === 'function')
+      ? window.PDXProfileSpine.railOrder(_navItems)
+      : _navItems;
+
     // A single pill isn't a "map" — only render the rail when at least two exist.
-    const _navBar = (_navItems.length >= 2)
+    const _navBar = (_navOrdered.length >= 2)
       ? '<nav id="pdx-profile-nav" class="pdx-pnav" aria-label="Jump to a section of this profile">' +
           '<div class="pdx-pnav-track">' +
-            _navItems.map(function (n) {
+            _navOrdered.map(function (n) {
               // Action pill — opens an overlay (Full Stance Record) instead of
               // scrolling to an in-page anchor. It carries no data-target, so the
               // scroll-spy cleanly ignores it and it never steals the active state.
@@ -4036,11 +4358,16 @@
     // The body below is written in the order these sections were BUILT; it is
     // rendered in the order a reader needs them. Each block carries a one-line
     // <!--PDXSP:stage--> sentinel naming the stage of the profile spine it belongs
-    // to (identity → brief → signature issues → tension → official record →
-    // receipts → money → you → full-record drawers), and PDXProfileSpine
+    // to (identity → brief → verdict → tension → signature issues → official
+    // record → receipts → you → money → full-record drawers), and PDXProfileSpine
     // reorders and wraps them on the way to the DOM. Annotating in place rather
     // than physically moving hundred-line renderers keeps the diff reviewable and
     // makes the sequence a declaration instead of an accident of line numbers.
+    //
+    // That sequence is a path, not a table of contents: the verdict, then what
+    // contradicts it, then what the person is known for, then the apparatus that
+    // produced the verdict. See the STAGES block in profile-spine.js for why each
+    // stage sits where it does — it is the one place that decision is recorded.
     //
     // Blocks tagged dw:<name> are deep-record content: they are preserved in full
     // and collected behind one labelled, closed-by-default drawer per name.
@@ -4059,7 +4386,14 @@
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
             ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
-            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (promiseState === 'tracking' ? '⏳ ' + trackingNote : '◷ No voting record yet') + '</span>' : ''}
+            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (
+              // 'counts' is a record with a real, closed pledge ledger that simply
+              // is not itemized. It must NOT wear "No voting record yet" — that chip
+              // was written for a profile with nothing on file, and on a member with
+              // 27 kept and 8 broken it is plainly false. Say what is actually known.
+              promiseState === 'counts' ? '🤝 ' + countsNote
+              : promiseState === 'tracking' ? '⏳ ' + trackingNote
+              : '◷ No voting record yet') + '</span>' : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>
@@ -4126,21 +4460,41 @@
            the plain thin notice if the snapshot can't render. -->
       ${candidateSnapshot || thinNotice}
 
-      <!--PDXSP:record-->
-      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the first thing
-           on the record stage. One question ("do they stand by what they said?") over
+      <!--PDXSP:verdict-->
+      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the whole of the
+           verdict stage. One question ("do they stand by what they said?") over
            one pool of documented word in three weighted tiers: explicit pledges,
            stated positions, and the issues they campaign on. Tested only against the
            Official Record. See word-action.js for the model, its five rules and the
            fail-closed floors.
 
-           Everything below it is now SUPPORTING detail rather than a competing
-           headline: the Promise Follow-Through block is the pledge tier's own
-           number, the Official Record and Say-vs-Do sections are the two scoped
-           lanes underneath. Renders '' when no word is on file at all — an empty
-           frame would imply the record should be here. -->
+           It used to open the record stage, which made the site's primary finding
+           read as the header of one system among several. It now has a stage of its
+           own, directly under the brief, and it is the only score there. The
+           supporting lanes did not move relative to each other: the Promise
+           Follow-Through block is still the pledge tier's own number, and the
+           Official Record and Say-vs-Do sections are still the two scoped feeds
+           underneath. Renders '' when no word is on file at all — an empty frame
+           would imply the record should be here. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
+      <!-- Connecting the Dots — the SYNTHESIS layer, and deliberately placed
+           immediately beneath the score it synthesizes rather than above it. It
+           used to sit in the brief stage, on the first screen, which put a
+           summary of the Word vs Action read a full stage ABOVE the read itself:
+           two surfaces making the same argument, the derived one first. Read here
+           it is unambiguously an expansion — the same score, one issue at a time,
+           each issue followed through five links (what they said → what they did
+           → the receipts → the issue and its Spotlights → what it means for the
+           score). It is in the verdict stage for that reason and no other: a
+           synthesis belongs under the thing it synthesizes, so it follows Word vs
+           Action into its stage rather than being left behind at the top of the
+           record stage, two stages away from its own subject. Self-gating: hidden
+           unless there is a genuine join to show or at least two links carry real
+           data (profile-connect.js, PDXDossier). -->
+      ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
+
+      <!--PDXSP:record-->
       <!-- Promise Follow-Through — the PLEDGE TIER's own number, kept intact and
            kept canonical (Kept ÷ (Kept + Broken), pending excluded) but no longer the
            loudest thing on the profile. Every count, chip and explainer survives; the
@@ -4148,7 +4502,7 @@
            than as a separate scoring religion. The 🏛️ Official Record and 🧾 Say-vs-Do
            lanes have their own sections further down and are never folded into it. -->
       <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum) : ''}
+      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum, pledgeItemized) : ''}
 
       <!-- Accountability of Truth Score — retired as a headline number; the renderer
            returns '' (see accountability-score.js). The container stays so
@@ -4178,7 +4532,7 @@
            record below. Only rendered when there are issues, so a profile without
            tagged issues never shows an empty section. -->
       <span id="pdxsec-positions" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(p.keyIssues && p.keyIssues.length) ? `<div class="modal-section">
+      ${_keyIssues.length ? `<div class="modal-section">
         <div class="modal-section-title">🎯 Key Issues</div>
         <p class="modal-section-sub">The issues this official is most defined by — the lens for the record below.</p>
         <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">${issuePills}</div>
@@ -4254,12 +4608,12 @@
         ? (function(){ try { return window.PDXProfileSpine.briefHtml(id, p); } catch(e){ return ''; } })()
         : ''}
 
-      <!-- Connecting the Dots — a neutral synthesis spine that threads the
-           profile's accountability lenses in reading order (stances → votes →
-           who they affect → federal contracts → your own comparison), each with
-           a live signal and a jump link down to the full section. Self-gating:
-           hidden unless at least two lenses carry real data (profile-connect.js). -->
-      ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
+      <!-- Connecting the Dots used to render here, on the first screen. It moved
+           up into the record stage, directly beneath the ⚖️ Word vs Action score
+           it synthesizes — see the call site there. Nothing replaced it: the brief
+           above already answers "what should I look at first", and stacking a
+           second synthesis under it was one of the surfaces competing for the same
+           job. -->
 
       <!--PDXSP:signature-->
       <!-- View Full Stance Record — the prominent, impossible-to-miss jump to the
@@ -5051,7 +5405,13 @@
         var slDriverItems = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
         // The medium modal shows the TOP 2–4 highlights only — a tight, skimmable
         // synthesis. The complete set lives in the full Accountability analysis.
+        var slDriverMeta = [];
         var slDrivers = slDriverItems.slice(0, 4).map(function(it, i) {
+          slDriverMeta.push({
+            headline: it.headline, date: it.date, impact: it.impact,
+            issueKey: it.issueKey, badge: it.badge,
+            anchor: 'sl-driver-' + safeSlId + '-' + i
+          });
           return _slCard({
             badge: it.badge,
             accent: it.kind === 'spotlight' ? '167,139,250' : '96,165,250',
@@ -5066,18 +5426,25 @@
         //    not flagged as ▲/▼ drivers. Entries explicitly tagged impact:'neutral'
         //    are honored with a "no score impact" pill so a curator's intent reads
         //    clearly; untagged entries simply appear as news.
-        var slNews = [];
+        //    Each card is now anchored too (id = sl-news-<id>-<i>), because the
+        //    compact digest above the fold has to be able to jump to any item's
+        //    full write-up — that is what makes compressing this block cost the
+        //    reader no depth at all.
+        var slNews = [], slNewsMeta = [];
         // The official's own documented positions, keyed by ISSUE_MAP key, so a
         // curated Spotlight item tagged with an `issueKey` can be matched against
         // a stance they actually hold — turning a news card into "expands on
         // their position on X" (the Snapshot↔Spotlight bridge built in _slCard).
         var _slPosMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(id, p) || {}) : {};
         function _slTieReady(ik) { return !!(ik && typeof window._issueLabel === 'function' && window._issueLabel(ik)); }
+        function _slNewsAnchor() { return 'sl-news-' + safeSlId + '-' + slNewsMeta.length; }
         (spotlightData[id] || []).forEach(function(it) {
           var cls = _slClassifyNews(it.headline, it.facts);
           var ik = it.issueKey;
+          var anc = _slNewsAnchor();
+          slNewsMeta.push({ headline: it.headline, date: it.date, impact: null, issueKey: ik, badge: cls.badge, anchor: anc });
           slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why, source: it.source,
-            media: it.media, sourceType: it.sourceType,
+            media: it.media, sourceType: it.sourceType, anchorId: anc,
             issueKey: ik, heldPosition: (ik && _slPosMap[ik]) ? _slPosMap[ik] : null,
             topic: _slTieReady(ik) ? '' : _slIssueTag(it.headline, it.facts) }));
         });
@@ -5087,23 +5454,28 @@
           var _neutral = it.impact === 'neutral';
           var cls = _slClassifyNews(_h, _b);
           var ik2 = it.issueKey;
+          var anc2 = _slNewsAnchor();
+          slNewsMeta.push({ headline: _h, date: it.date, impact: null, issueKey: ik2, badge: it.badge || (_neutral ? 'Context' : cls.badge), anchor: anc2 });
           slNews.push(_slCard({ badge: it.badge || (_neutral ? 'Context' : cls.badge), accent: _neutral ? '120,140,170' : cls.accent, date: it.date,
             headline: _h, body: _b, why: it.why, source: it.source,
-            media: it.media, sourceType: it.sourceType,
+            media: it.media, sourceType: it.sourceType, anchorId: anc2,
             impact: (_neutral ? 'neutral' : undefined), category: it.category,
             issueKey: ik2, heldPosition: (ik2 && _slPosMap[ik2]) ? _slPosMap[ik2] : null,
             topic: _slTieReady(ik2) ? '' : _slIssueTag(_h, _b) }));
         });
 
         // Connective lead-in shown above any populated Spotlight. Frames the
-        // section as THIS official's real record — issues, public statements and
-        // notable actions — and names the two-way link to the scores above, so
-        // Spotlight reads as the evidence behind the numbers rather than a stray
-        // news feed.
+        // section as THIS official's real record and names its lane, in ONE
+        // sentence plus a legend. The long version this replaced ran four clauses
+        // and repeated what the section title, the theme banner and the pattern
+        // bar already say — three explanations of the same thing stacked above the
+        // content is a large part of why this block dominated the profile.
         function _slIntro() {
-          return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
-            'The personal-integrity record behind ' + _slLast + '’s accountability read — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane, deliberately separate from the 🏛️ Official Record (votes and formal actions) and from 🤝 Promise Follow-Through (discrete promises kept vs. broken). ' +
-            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the accountability analysis, and a <span style="color:#c4b5fd;font-weight:700;">🔗 issue link</span> ties an item to a position ' + _slLast + ' holds — tap it to see that stance in their record.' +
+          return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.7rem;">' +
+            'The <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane of ' + _slLast +
+            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and 🤝 Promise Follow-Through. ' +
+            '<span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> items feed the accountability read; ' +
+            '<span style="color:#c4b5fd;font-weight:700;">🔗</span> ties an item to a position ' + _slLast + ' holds.' +
           '</p>';
         }
 
@@ -5134,14 +5506,63 @@
         }
 
         if (slDrivers.length || slNews.length) {
-          var slBody = '';
           var slThemeHtml = (typeof window._slThemeBanner === 'function') ? window._slThemeBanner(p, id) : '';
           var slPatternHtml = (typeof window._slPatternBar === 'function') ? window._slPatternBar(slDriverItems, 'full') : '';
-          if (slDrivers.length) slBody += slThemeHtml + slPatternHtml + _slDriverHeader() + slDrivers.join('');
-          else slBody += slThemeHtml;
-          if (slNews.length) slBody += _slNewsHeader() + slNews.join('');
+
+          // ── SPOTLIGHT REAL ESTATE ──────────────────────────────────────────
+          // This block used to render up to four full driver cards followed by
+          // EVERY news card, in the page flow, above the money and you-and-them
+          // stages. Each card carries a badge, a headline, a body paragraph, a
+          // "why it matters" box, a source row, an issue bridge, chips and a
+          // like/comment widget — roughly 300px apiece. On a well-documented
+          // official that is several screens of Spotlight sitting on top of the
+          // accountability spine, which is exactly backwards: a Spotlight item is
+          // a receipt, and receipts belong under the claim they support.
+          //
+          // Nothing is deleted. The visible layer is now a compact digest — one
+          // ~44px row per item carrying its impact glyph, headline, date, issue
+          // and the same receipt chips the Connecting the Dots chain uses — and
+          // every row jumps to that item's own full card, which now lives one tap
+          // away in a closed drawer. Anchors, engagement widgets, sources, the
+          // Accountability cross-link and the index-for-index mapping to the
+          // score breakdown are all byte-identical to before; they moved, they
+          // did not change. Progressive disclosure, not truncation.
+          var slDigest = '';
+          try {
+            slDigest = (window.PDXDossier && typeof window.PDXDossier.digestHtml === 'function')
+              ? (window.PDXDossier.digestHtml(id, slDriverMeta.concat(slNewsMeta), { p: p }) || '')
+              : '';
+          } catch (e) { slDigest = ''; }
+
+          var slFull = '';
+          if (slDrivers.length) slFull += _slDriverHeader() + slDrivers.join('');
+          if (slNews.length) slFull += _slNewsHeader() + slNews.join('');
+
+          var slTotal = slDrivers.length + slNews.length;
+          var slDdId = 'sl-full-' + safeSlId;
+          var slBody = slThemeHtml + slPatternHtml;
+          if (slDigest) {
+            // Digest present: the compact ledger leads, the full write-ups sit in
+            // a labelled drawer beneath it.
+            slBody += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin:0.2rem 0 0;">🛡️ The record, most consequential first</div>' +
+              slDigest +
+              '<button class="dd-toggle-btn" onclick="toggleDD(\'' + slDdId + '\')" id="btn-' + slDdId + '" type="button" aria-controls="' + slDdId + '" aria-expanded="false" style="margin-top:0.6rem;">' +
+                '<span style="display:flex;align-items:center;gap:0.5rem;min-width:0;">' +
+                  '<span aria-hidden="true">🔦</span>' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#dbe6f5;">Read all ' + slTotal + ' item' + (slTotal === 1 ? '' : 's') + ' in full</span>' +
+                '</span>' +
+                '<svg class="dd-chevron w-4 h-4" fill="none" stroke="#7596c0" viewBox="0 0 24 24" aria-hidden="true">' +
+                  '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+              '</button>' +
+              '<div class="dd-body dd-free" id="' + slDdId + '"><div class="dd-inner">' + slFull + '</div></div>';
+          } else {
+            // No digest renderer available (profile-dossier.js absent): fall back
+            // to the full cards inline rather than losing the content.
+            slBody += slFull;
+          }
+
           return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + _slIntro() + slBody +
-            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the accountability read — tap one to see it in the breakdown, or open the full analysis. Sources linked inline.</p>' +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the accountability read — tap one to open it in full, or open the full analysis. Sources linked inline.</p>' +
             _slAlignFooter() +
           '</div>';
         }
@@ -5182,10 +5603,10 @@
               topic:_slIssueTag(k, txt) });
           });
         }
-        if (derived.length < 3 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
+        if (derived.length < 3 && p && window._pdxKeyIssues(p).length) {
           _slPush({ badge:'🎯 Top Priorities', accent:'96,165,250',
             headline:'What ' + _slLast + ' is focused on',
-            body: p.keyIssues.slice(0, 6).join('&nbsp;·&nbsp;') });
+            body: window._pdxKeyIssues(p).slice(0, 6).join('&nbsp;·&nbsp;') });
         }
 
         if (derived.length) {
@@ -5303,7 +5724,7 @@
         if (_navActivityRel) chips += chip('Last updated', _navActivityRel);
         if (p.promises && p.promises.length) chips += chip('Promises tracked', p.promises.length);
         if (_navEvidenceCount) chips += chip('Evidence', _navEvidenceCount);
-        if (p.keyIssues && p.keyIssues.length) chips += chip('Key issues', p.keyIssues.length);
+        if (window._pdxKeyIssues(p).length) chips += chip('Key issues', window._pdxKeyIssues(p).length);
         if (!chips) return '';
         return '<div class="modal-section" id="pdxsec-activity">' +
             '<div class="modal-section-title">🕑 Activity</div>' +
@@ -5334,8 +5755,20 @@
     // tag with no spec both fall through to the deep end. If profile-spine.js has
     // not loaded, the raw body renders exactly as it did before — the spine is an
     // ordering layer, never a prerequisite for the content.
+    //
+    // `defer: true` holds a drawer's inner markup back as a string and mounts it on
+    // first open (PDXProfileSpine.materialize, called from toggleDD). Collapsing
+    // alone never reduced mount cost: a closed .dd-body is still parsed, still
+    // becomes elements, still gets styled, and on the deepest profiles the drawers
+    // are most of the document — so the tap that opens a profile was paying for
+    // every record nobody had asked to see. The lid, its title and its count are
+    // identical either way; only the timing of the DOM changes.
     const _mc = document.getElementById('modal-content');
     const _spine = window.PDXProfileSpine;
+    // A new body is about to replace the old one, so any chart still waiting on a
+    // drawer from the previous profile is dead. Cleared here rather than inferred
+    // from a missing canvas, which now legitimately means "not mounted yet".
+    _pdxResetChartQueue();
     _mc.innerHTML = (_spine && typeof _spine.assembleTagged === 'function')
       ? _spine.assembleTagged(_profileBody, {
           // Drawer order = how deep you are going, shallowest first. Every meta
@@ -5343,15 +5776,44 @@
           // promises more than it holds.
           drawers: [
             { id: 'positions', stage: 'drawers', ico: '📋', title: 'Every documented position',
+              // Deferred: _renderIssueStances emits the largest single block on a
+              // deeply-documented profile — every position with its own evidence
+              // and sources — and it registers nothing post-render, holds no
+              // canvas and publishes no id, so nothing outside it can reach in
+              // before a reader asks for it.
+              defer: true,
               meta: (function(){ try { var n = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []).length : 0; return n ? n + ' on file' : ''; } catch (e) { return ''; } })(),
               sub: 'Each position with its own evidence and sources. Stance at a Glance above is the index into exactly this material.' },
             { id: 'votes', stage: 'drawers', ico: '🗳️', title: 'Full voting record',
+              // Deferred, and this one required a change in voting-record.js to be
+              // safe: _pdxInitVotingRecord used to demand #pdx-voting-record in
+              // the DOM before it would even fetch, which would have silently
+              // disabled the live record for every member. It now resolves the
+              // section after the fetch resolves, so a member with no record never
+              // mounts this drawer at all and a member with one mounts it off the
+              // opening frame instead of on it.
+              defer: true,
               sub: 'Every tracked vote and formal action, with why it matters. The highlights above are drawn from this list.' },
             { id: 'promises', stage: 'drawers', ico: '🤝', title: 'Every tracked promise',
+              // Deferred: the per-promise ledger plus the four-way breakdown and
+              // its formula. Its ids ARE reached from outside — the hero count
+              // chips call pdxFilterPromises, the nav rail has a Record pill, and
+              // controversies.js jumps to pdxsec-record — so all three routes go
+              // through a reveal first (see _pdxRevealTarget).
+              defer: true,
               sub: 'The full ledger behind the Promise Follow-Through score, plus how the score is calculated.' },
             { id: 'money', stage: 'drawers', ico: '💰', title: 'Full financial record',
+              // Deferred: two Chart.js canvases and the full finance report. The
+              // charts were already queued rather than drawn (a canvas in a closed
+              // drawer measures zero), so they only needed the queue to tolerate a
+              // canvas that does not exist yet as well as one that has no size.
+              defer: true,
               sub: 'Net worth over time, campaign finance detail and donor breakdown from public disclosures.' },
             { id: 'activity', stage: 'drawers', ico: '🕑', title: 'Tracking activity',
+              // NOT deferred, on purpose. It is a short freshness block — a few
+              // counts and a timestamp — so there is nothing to win, and it holds
+              // the pdxsec-activity anchor that the jump rail's Activity pill spies
+              // on. Deferring it would trade a real feature for no measurable gain.
               sub: 'How much is on file for this profile, and when it was last updated.' }
           ]
         }) + '<div style="height:0.5rem;"></div>'
@@ -5370,12 +5832,17 @@
       try { window._pdxRelatedSpotlight(id); } catch (e) {}
     }
 
-    // Render wealth chart if data is available
+    // Render wealth chart if data is available.
+    //
+    // The canvas is resolved when the chart is DRAWN, not when the job is queued:
+    // it sits inside the deferred money drawer, so at this point it is still part
+    // of a string. Capturing it here — and gating the whole job on `if (ctx)` —
+    // meant the net-worth chart was queued only for profiles whose drawer happened
+    // to be mounted already, i.e. never.
     if (window.__wealthChartData) {
       const wd = window.__wealthChartData;
-      const ctx = document.getElementById('wealthChart');
       delete window.__wealthChartData;
-      if (ctx) _pdxDrawerChart('wealthChart', function () { window.PDXLazy.chart().then(function () {
+      _pdxDrawerChart('wealthChart', function () { var ctx = document.getElementById('wealthChart'); if (!ctx) return; window.PDXLazy.chart().then(function () {
         if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); }
         window.__wealthChartInstance = new Chart(ctx, {
           type: 'line',
@@ -5433,9 +5900,12 @@
       }).catch(function () {}); });
     }
 
-    // Render FTM net worth bar chart
-    var _ftmNwCanvas = document.getElementById('ftmNwChart');
-    if (_ftmNwCanvas) _pdxDrawerChart('ftmNwChart', function () {
+    // Render FTM net worth bar chart. Same rule as the wealth chart above — the
+    // canvas is looked up at draw time, because it lives in the deferred money
+    // drawer and does not exist during this pass.
+    _pdxDrawerChart('ftmNwChart', function () {
+      var _ftmNwCanvas = document.getElementById('ftmNwChart');
+      if (!_ftmNwCanvas) return;
       if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); }
       var _ftmNwData = {
         trump:    { labels:['Before','2019','2021','2023','Now'], values:[4.5,3.1,2.5,2.6,6.5], unit:'B' },
@@ -5490,18 +5960,27 @@
       }).catch(function () {});
     });
 
-    // Follow Money Trail button state
-    var _ftmFollowBtn = document.getElementById('ftm-follow-btn');
-    if (_ftmFollowBtn) {
-      var _cu = auth.currentUser;
-      if (_cu && !_cu.isAnonymous) {
-        db.collection('followMoney').doc(_cu.uid).get().then(function(doc) {
-          if (doc.exists && doc.data().politicians && doc.data().politicians.indexOf(id) !== -1) {
-            _ftmFollowBtn.classList.add('ftm-following');
-            _ftmFollowBtn.innerHTML = '✅ Following Money Trail';
+    // Follow Money Trail button state.
+    //
+    // The button is resolved when the answer arrives rather than up front, and the
+    // answer is also recorded on _pdxFollowMoneyOn. The Firestore read is async and
+    // the button lives in the deferred money drawer, so it may be absent both now
+    // and when the promise settles; _pdxAfterDrawerReveal re-applies the state from
+    // that flag when the drawer finally mounts. Without it, a following user opened
+    // the money drawer to an un-followed button.
+    window._pdxFollowMoneyOn = false;
+    var _cu = auth.currentUser;
+    if (_cu && !_cu.isAnonymous) {
+      db.collection('followMoney').doc(_cu.uid).get().then(function(doc) {
+        if (doc.exists && doc.data().politicians && doc.data().politicians.indexOf(id) !== -1) {
+          window._pdxFollowMoneyOn = true;
+          var _fb = document.getElementById('ftm-follow-btn');
+          if (_fb) {
+            _fb.classList.add('ftm-following');
+            _fb.innerHTML = '✅ Following Money Trail';
           }
-        }).catch(function() {});
-      }
+        }
+      }).catch(function() {});
     }
 
     console.log('✅ openModal built content for', id);
@@ -5608,15 +6087,19 @@
   function closeModal() {
     if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); window.__wealthChartInstance = null; }
     if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); window.__ftmNwChartInstance = null; }
+    // Drop chart jobs still waiting on a drawer nobody opened. _pdxDrainCharts no
+    // longer treats a missing canvas as a dead job — it cannot tell "deferred" from
+    // "gone" — so the queue is emptied here, where the answer is unambiguous.
+    _pdxResetChartQueue();
     // Close any open stance-evidence popover so it never lingers over the page.
     if (typeof window._pdxCloseStanceEvidence === 'function') window._pdxCloseStanceEvidence();
     window._sagCtx = null;
-    // Detach the quick-jump nav's scroll-spy listener from the body.
-    try {
-      var _mb = document.getElementById('modal-body');
-      if (_mb && window._pdxNavScrollHandler) { _mb.removeEventListener('scroll', window._pdxNavScrollHandler); }
-    } catch (e) {}
-    window._pdxNavScrollHandler = null; window._pdxNavUserJumping = false;
+    // Stop the jump rail observing a subtree that is about to be thrown away.
+    // There is no scroll listener to remove any more — the rail is driven by
+    // IntersectionObservers, and disconnecting them is the whole teardown.
+    try { _pdxNavTeardown(); } catch (e) {}
+    window._pdxNavUserJumping = false;
+    window._pdxNavRearmPending = false;
     const overlay = document.getElementById('modal-overlay');
     if (overlay) {
       overlay.style.removeProperty('display');
@@ -5639,11 +6122,25 @@
   // blank — Chart.js does not reliably redraw when the box is later revealed. So
   // any chart whose canvas is not laid out yet is parked here and drawn the first
   // time its drawer opens, which is also the first time anyone can see it.
+  //
+  // With deferred drawer inners there is a third case: the canvas does not exist
+  // AT ALL yet, because the drawer holding it is still a string. That used to be
+  // indistinguishable from "the profile closed", and both were dropped — so
+  // deferring the money drawer would have silently thrown away the net-worth and
+  // campaign-finance charts instead of drawing them late. A missing element is now
+  // a reason to WAIT, and the queue is emptied explicitly at the two moments a
+  // pending job really is dead: a new profile rendering, and the modal closing.
+  //
+  // The cost of that is a job for a canvas this profile never renders at all
+  // sitting parked until close, retried with one getElementById each time a drawer
+  // opens. That is deliberately preferred to asking the spine whether the id
+  // exists somewhere in the deferred markup, which would mean regex-scanning every
+  // stashed drawer body at mount — paying back the exact cost deferral just saved.
   var _pdxPendingCharts = [];
+  function _pdxResetChartQueue() { _pdxPendingCharts = []; }
   function _pdxDrawerChart(canvasId, fn) {
     var el = document.getElementById(canvasId);
-    if (!el) return;
-    if (el.offsetWidth > 0 && el.offsetHeight > 0) { try { fn(); } catch (e) {} return; }
+    if (el && el.offsetWidth > 0 && el.offsetHeight > 0) { try { fn(); } catch (e) {} return; }
     _pdxPendingCharts.push({ id: canvasId, fn: fn });
   }
   function _pdxDrainCharts() {
@@ -5651,14 +6148,71 @@
     var keep = [];
     _pdxPendingCharts.forEach(function (job) {
       var el = document.getElementById(job.id);
-      if (!el) return;                        // its profile closed — drop the job
-      if (!el.offsetWidth || !el.offsetHeight) { keep.push(job); return; }
+      // Not mounted yet (deferred drawer) or mounted but not laid out (closed
+      // drawer) — either way it is not drawable now and must not be discarded.
+      if (!el || !el.offsetWidth || !el.offsetHeight) { keep.push(job); return; }
       try { job.fn(); } catch (e) {}
     });
     _pdxPendingCharts = keep;
   }
 
+  // Called by PDXProfileSpine.materialize() immediately after the markup of a
+  // deferred drawer is injected, in the same task, before the drawer is opened.
+  // Everything that needs freshly mounted nodes belongs here, and nothing here may
+  // assume the drawer is visible yet — the charts deliberately re-queue themselves
+  // if it is not, and get drained again by toggleDD once it is.
+  window._pdxAfterDrawerReveal = function (drawerId, host) {
+    // Charts parked because their canvas did not exist can now find it.
+    try { _pdxDrainCharts(); } catch (e) {}
+    // The stored state of the Follow Money Trail button was read from Firestore
+    // during the profile render, when this button was still a string. Re-apply it
+    // rather than leaving a following user looking at an un-followed button.
+    try {
+      if (window._pdxFollowMoneyOn && host && host.querySelector) {
+        var fb = host.querySelector('#ftm-follow-btn');
+        if (fb) { fb.classList.add('ftm-following'); fb.innerHTML = '✅ Following Money Trail'; }
+      }
+    } catch (e) {}
+    // The rail spies on the ids that existed when it was armed, so a pill aimed
+    // inside this drawer was skipped and the anchors below it have all just moved.
+    // Re-arm — coalesced, so opening three drawers in a row costs one re-arm, and
+    // it runs on the next frame when the mutation has settled into layout.
+    try {
+      if (typeof window._pdxNavRearmSoon === 'function') window._pdxNavRearmSoon();
+    } catch (e) {}
+    // Receipt-card and share controls are emitted in a pending state and switched on
+    // by a document-wide sweep that already ran while this content was still a
+    // string. Both sweeps only touch nodes that still carry their pending attribute,
+    // so running them again costs nothing and is the whole difference between a live
+    // share control and a dead one inside anything mounted late.
+    try {
+      var RC = window.PDXReceiptCards;
+      if (RC && typeof RC.hydrate === 'function') RC.hydrate(host || document);
+    } catch (e) {}
+    try {
+      var SA = window.PDXShareAnywhere;
+      if (SA && typeof SA.hydrateSoon === 'function') SA.hydrateSoon(host || document);
+    } catch (e) {}
+  };
+
+  // One entry point for "make sure the element with this id is mounted". Safe to
+  // call when the spine is absent or the id is already live — both are no-ops.
+  window._pdxRevealTarget = function (elId) {
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.revealFor === 'function') return SP.revealFor(elId);
+    } catch (e) {}
+    return false;
+  };
+
   function toggleDD(id) {
+    // Mount a deferred inner BEFORE the open class goes on, so the reveal and the
+    // content land in the same frame — the reader never sees an open, empty drawer
+    // — and so _pdxDrainCharts below runs against a subtree that exists.
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.materialize === 'function') SP.materialize(id);
+    } catch (e) {}
     const body = document.getElementById(id);
     const btn  = document.getElementById('btn-' + id);
     if (!body || !btn) return;

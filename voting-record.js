@@ -1281,8 +1281,10 @@
   };
 
   // Add a "Votes" pill to the profile jump-nav once we know there's a record,
-  // then re-init the scroll-spy so it tracks the new anchor. Self-gating: no
-  // record → no pill.
+  // then re-arm the rail so it tracks the new anchor. The pill is appended here
+  // and SORTED there: _pdxInitProfileNav places it by real document position, so
+  // this function does not have to know where in the rail it belongs. Self-gating:
+  // no record → no pill.
   function injectNavPill(count) {
     try {
       var track = document.querySelector('#pdx-profile-nav .pdx-pnav-track');
@@ -1297,7 +1299,8 @@
         '<span class="pdx-pnav-txt"><span class="pdx-pnav-label">Votes</span>' +
         '<span class="pdx-pnav-val" style="color:#7fb4ff;">' + count + ' Record' + (count === 1 ? '' : 's') + '</span></span>';
       track.appendChild(btn);
-      if (window._pdxInitProfileNav) window._pdxInitProfileNav();
+      if (window._pdxNavRearmSoon) window._pdxNavRearmSoon();
+      else if (window._pdxInitProfileNav) window._pdxInitProfileNav();
     } catch (e) { /* nav is a nicety; never let it break the section */ }
   }
 
@@ -1328,8 +1331,23 @@
     var job = window.__pdxVotingPending;
     window.__pdxVotingPending = null;
     if (!job) return;
-    var section = document.getElementById('pdx-voting-record');
-    if (!section) return;
+    // The section is only LOOKED UP here, not required here. It lives inside the
+    // profile's deferred "Full voting record" drawer, whose inner markup is held
+    // back as a string until something needs it — so on a freshly opened profile
+    // this returns null, and the old `if (!section) return` would have quietly
+    // switched the live voting record off for every member.
+    //
+    // What that guard was actually for is "is a profile rendered at all", and
+    // hasTarget() answers that without forcing the drawer to mount. The node is
+    // resolved after the fetch settles instead, which is strictly better than
+    // before: a member with no record on file never mounts this drawer, and a
+    // member with one mounts it off the opening frame rather than on it.
+    var SP = window.PDXProfileSpine;
+    var live = document.getElementById('pdx-voting-record');
+    if (!live) {
+      var deferred = !!(SP && typeof SP.hasTarget === 'function' && SP.hasTarget('pdx-voting-record'));
+      if (!deferred) return;
+    }
 
     var token = ++_openToken;
     // A caller (e.g. the Stance Library "View votes" action) can request the
@@ -1366,9 +1384,17 @@
     }).then(function (data) {
       if (token !== _openToken || !_state) return; // another profile opened
       if (!data || !data.summary || (data.summary.totalRecords || 0) === 0) {
-        // No record (or offline with nothing cached): stay hidden, add no pill.
+        // No record (or offline with nothing cached): stay hidden, add no pill —
+        // and leave the drawer unmounted, which is the whole point of asking the
+        // network before touching the DOM.
         return;
       }
+      // There IS a record, so the section has to exist now. Mount the drawer that
+      // holds it (no-op when it was never deferred) and resolve the node here
+      // rather than reusing one captured before the fetch.
+      if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget('pdx-voting-record');
+      var section = document.getElementById('pdx-voting-record');
+      if (!section) return;
       _state.data = data;
       _state.items = (data.items || []).slice();
       // Warm the sync record cache so the Alignment Tool (and its consistency line)

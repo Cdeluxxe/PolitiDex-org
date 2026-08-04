@@ -1894,6 +1894,11 @@
       var pState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(d) : (hasScore ? 'resolved' : 'empty');
       var trackNote  = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(d, 'short') : '';
       var trackLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(d) : '';
+      // 'counts' — kept/broken are on file but the pledges are not itemized, so no
+      // rate is published. Falling through to the "No record yet" tile below would
+      // report a member with a real closed ledger as having nothing on file, which
+      // is a worse error than the unpublishable percentage this replaced.
+      var countsNote = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(d, 'short') : '';
       var scoreBlock = hasScore
         ? '<div class="pdx-snap-score pdx-snap-score-click"' + scoreClick + ' style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
             '<div class="pdx-snap-score-num" style="color:' + scCol + ';text-shadow:0 0 12px ' + scCol + '40;">' + sc + '<span style="font-size:0.9rem;">%</span></div>' +
@@ -1910,6 +1915,16 @@
               '<div class="pdx-snap-score-na pdx-snap-score-na-cand">' + (pState === 'tracking' ? trackNote : 'Record begins in office') + '</div>' +
               infoHint +
             '</div>'
+          : (pState === 'counts'
+            // Counts-only. A handshake rather than a number, so the slot can never
+            // be misread as a rate, with the kept/broken counts themselves as the
+            // sub-line — the substance survives, only the percentage is withheld.
+            ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-counts pdx-snap-score-click"' + scoreClick + '>' +
+                '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-counts">🤝</div>' +
+                '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-counts">Pledge record</div>' +
+                '<div class="pdx-snap-score-na pdx-snap-score-na-counts">' + (countsNote || 'Counts on file') + '</div>' +
+                infoHint +
+              '</div>'
           : (pState === 'tracking'
             // Tracked-but-unresolved. Deliberately an hourglass rather than a
             // number in the score slot, so it can never be misread as a
@@ -1925,7 +1940,7 @@
                 '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
                 '<div class="pdx-snap-score-na">No record yet</div>' +
                 infoHint +
-              '</div>'));
+              '</div>')));
 
       var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')

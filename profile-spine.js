@@ -79,15 +79,39 @@
   // it answers — which is why "Record vs. Public Picture" sits in `tension` and
   // not next to the record, and why personal-alignment blocks are collected into
   // one `you` stage instead of appearing at three different depths.
+  //
+  // The sequence below is an ACCOUNTABILITY PATH, not a catalogue of systems. Its
+  // shape is four claims, in this order:
+  //
+  //   THE JUDGMENT COMES FIRST. `verdict` holds one thing — the Word vs Action
+  //   read — and it is the first major surface after the letterhead and the brief.
+  //   It used to be the opening block of `record`, which meant the primary finding
+  //   arrived as the header of a system rather than as the site's answer. There is
+  //   still exactly one score; giving it its own stage is what makes that legible.
+  //
+  //   THE ADVERSE FINDING COMES SECOND. `tension` now precedes `signature`.
+  //   "Where does this person contradict themselves" is the question a reader came
+  //   with; "what are they known for" is context that frames it. Leading with the
+  //   flattering summary and burying the contradiction two stages down is how a
+  //   dossier turns into a brochure.
+  //
+  //   FINDINGS BEFORE METHODS. Everything from `record` down is the apparatus that
+  //   produced the verdict — the formal record, the receipts, the ledgers. It is
+  //   all still here, in full, and none of it is the first thing a reader meets.
+  //
+  //   THE READER'S OWN STAKE BEFORE THE FOLLOW-THE-MONEY TAIL. `you` moved above
+  //   `money`, so the profile ends on the deep record rather than on the reader,
+  //   but the reader is met before the widest-context material.
   var STAGES = [
     { key: 'identity',  label: 'Identity',           ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
-    { key: 'signature', label: 'Signature issues',    ask: 'What defines them?' },
+    { key: 'verdict',   label: 'The verdict',         ask: 'Do they stand by what they said?' },
     { key: 'tension',   label: 'Where it is contested', ask: 'Where is the tension?' },
+    { key: 'signature', label: 'Signature issues',    ask: 'What defines them?' },
     { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
-    { key: 'receipts',  label: 'Receipts · say vs. do', ask: 'Do their words match it?' },
-    { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
+    { key: 'receipts',  label: 'Receipts · say vs. do', ask: 'Where are the receipts?' },
     { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
+    { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
     { key: 'drawers',   label: 'The full record',     ask: 'Show me everything.' }
   ];
   var STAGE_KEYS = STAGES.map(function (s) { return s.key; });
@@ -99,6 +123,91 @@
   function stageMeta(key) {
     for (var i = 0; i < STAGES.length; i++) if (STAGES[i].key === key) return STAGES[i];
     return null;
+  }
+
+  function stageRank(key) {
+    var i = STAGE_KEYS.indexOf(key);
+    return i === -1 ? STAGES.length : i;
+  }
+
+  // ── Anchors → stages ────────────────────────────────────────────────────────
+  // Every id a jump-rail pill can aim at, and the stage that id lives in. This
+  // registry is what lets the rail DERIVE its order rather than declare it.
+  //
+  // Until now the rail order was the order the pill-pushing code happened to run
+  // in: a second, hand-maintained copy of a decision already recorded in STAGES,
+  // free to drift from it in silence. It had drifted. The Record pill sat fifth of
+  // ten while its destination lives inside the promises drawer at the foot of the
+  // page, so tapping the middle of the rail threw the reader to the bottom. A rail
+  // that disagrees with the page also makes the active pill walk BACKWARDS while
+  // scrolling, because the spy indexes pills but measures sections.
+  //
+  // Grouped by stage rather than alphabetically, so this reads as the answer to
+  // the question where does this pill send me. Four anchors are emitted by other
+  // modules and are noted as such; the rest are literals in the profile template.
+  // Anything absent resolves to the deep end, matching the unknown-stage rule in
+  // assemble() — an unrecognised destination is demoted, never promoted.
+  var TARGET_STAGE = {
+    // verdict — the one primary score. Anchor emitted by word-action.js.
+    'pdxsec-wordaction': 'verdict',
+    // tension — the adverse findings. Anchor emitted by controversies.js.
+    'pdxsec-controversies': 'tension',
+    'pdxsec-divergence': 'tension',
+    // signature — what they are known for
+    'pdxsec-positions': 'signature',
+    'pdxsec-glance': 'signature',
+    // record — the formal apparatus behind the verdict
+    'pdxsec-score': 'record',
+    'pdxsec-promise-tracker': 'record',
+    'pdxsec-exec-record': 'record',
+    'pdxsec-official-record': 'record',
+    'pdxsec-verify': 'record',
+    // receipts — say vs. do
+    'pdxsec-evidence': 'receipts',
+    'pdxsec-saydo': 'receipts',
+    // you — the reader’s own stake
+    'pdxsec-match': 'you',
+    'pdxsec-compare': 'you',
+    // money — funding and who the record touches. Funding anchor lives in index.html.
+    'pdxsec-funding': 'money',
+    'pdxsec-impact': 'money',
+    'pdxsec-contracts': 'money',
+    // drawers — destinations that really do sit inside the full-record drawers, and
+    // are therefore reached through a reveal rather than a plain scroll. Anchor for
+    // the voting record is emitted by voting-record.js into the votes drawer.
+    'pdxsec-record': 'drawers',
+    'pdxsec-voting': 'drawers',
+    'pdxsec-activity': 'drawers'
+  };
+
+  function stageOfTarget(t) {
+    return TARGET_STAGE[String(t == null ? '' : t)] || null;
+  }
+
+  // railOrder(items) — sort jump-rail pills into spine order.
+  //
+  // Stable within a stage, so the order the pushes run in still decides ties and
+  // the source keeps reading top to bottom. Two rules make it safe to hand this an
+  // arbitrary list:
+  //
+  //   An item with no target — the Full Report pill opens an overlay instead of
+  //   scrolling — has no stage of its own, so it INHERITS the rank of the item it
+  //   follows. That is what keeps it attached to Positions without Positions
+  //   needing to know it exists.
+  //
+  //   An item whose target is unregistered sorts to the deep end, so a new anchor
+  //   that nobody remembered to register lands beside the drawers instead of
+  //   ahead of the verdict.
+  function railOrder(items) {
+    var ranked = [], inherit = 0;
+    (items || []).forEach(function (it, i) {
+      if (!it) return;
+      var r = it.target ? stageRank(stageOfTarget(it.target)) : inherit;
+      if (it.target) inherit = r;
+      ranked.push({ it: it, r: r, i: i });
+    });
+    ranked.sort(function (a, b) { return (a.r - b.r) || (a.i - b.i); });
+    return ranked.map(function (x) { return x.it; });
   }
 
   function railHtml(st, n) {
@@ -166,6 +275,13 @@
     var specs = opts.drawers || [];
     var parts = [];
     var dw = {};
+    // One profile is being assembled, so any drawer body still stashed from the
+    // last one is dead. Clearing here rather than on close means a profile can
+    // never mount the previous profile's record, even if it was closed abruptly.
+    resetDefer();
+    // Lids are resolved before the body is split, so a renderer can mark a
+    // digest/bulk seam without knowing which stage its output lands in.
+    body = applyLids(body);
     specs.forEach(function (s) { if (s && s.id) dw[s.id] = []; });
 
     var last = 0, cur = 'identity', m;
@@ -194,11 +310,211 @@
       if (!list.length) return;
       var html = drawer({
         id: 'pdxsp-dw-' + s.id, ico: s.ico, title: s.title, meta: s.meta, sub: s.sub,
+        defer: !!s.defer,
         html: list.join('\n')
       });
       parts.push([s.stage || 'drawers', html]);
     });
     return assemble(parts);
+  }
+
+  // ── Deferred drawer inners ──────────────────────────────────────────────────
+  // Collapsing a drawer hides its content; it does not stop the browser paying
+  // for it. A closed .dd-body is still parsed out of the innerHTML string, still
+  // becomes thousands of elements, still gets style resolved. On the deepest
+  // profiles the drawers are the majority of the document, and all of that cost
+  // lands on the tap that opens the profile — for material nobody has asked to
+  // see yet.
+  //
+  // Deferred mode keeps the drawer's markup as a STRING until the drawer is first
+  // needed, and emits an empty .dd-inner in its place. The lid, its title and its
+  // count are unchanged, so the reader is told exactly what is inside and how much
+  // of it there is before any of it exists as DOM.
+  //
+  // Three rules make that safe rather than merely faster:
+  //
+  //   ONE-SHOT AND SYNCHRONOUS. materialize() injects in the same task it is
+  //   called in, before toggleDD flips the open class, so anything that measures,
+  //   drains or hydrates after the open sees a fully mounted subtree. It is never
+  //   an animation frame or a microtask behind. Injecting twice is impossible: the
+  //   stash entry is removed as it is used.
+  //
+  //   NOTHING BECOMES UNREACHABLE. Deferred content still holds jump targets, and
+  //   code elsewhere still looks those up by id. revealFor(elementId) materializes
+  //   whichever drawer holds a given id, so a jump, a promise filter or a deep
+  //   link resolves against content that has not been mounted yet. hasTarget()
+  //   answers the same question without mounting, for callers that only need to
+  //   know whether a destination exists at all.
+  //
+  //   THE STORE IS PER-RENDER. assembleTagged() clears it, so a profile can never
+  //   inherit the previous profile's drawer bodies, and closing a profile without
+  //   opening its drawers does not leak their markup.
+  var DEFER = {};
+  var LIDS = {};
+
+  function resetDefer() { DEFER = {}; LIDS = {}; }
+
+  // Which element ids live inside a stashed body. Built on demand and cached,
+  // because the common case — the id is already in the document — never needs it,
+  // and scanning a megabyte of markup to answer a question nobody asked would
+  // hand back the cost this whole mechanism exists to avoid.
+  function idIndex(rec) {
+    if (rec.idx) return rec.idx;
+    var idx = {}, re = /\sid="([^"]+)"/g, m;
+    while ((m = re.exec(rec.html)) !== null) idx[m[1]] = 1;
+    rec.idx = idx;
+    return idx;
+  }
+
+  function deferredOwner(elId) {
+    for (var id in DEFER) {
+      if (!DEFER.hasOwnProperty(id)) continue;
+      if (id === elId) return id;
+      if (idIndex(DEFER[id])[elId]) return id;
+    }
+    return '';
+  }
+
+  // Which stashed body holds the CONTAINER of another stashed body — a lid inside a
+  // deferred drawer. Unlike deferredOwner it never answers with the id it was asked
+  // about, because "it is its own container" is not a mountable answer.
+  function outerOwner(elId) {
+    for (var id in DEFER) {
+      if (!DEFER.hasOwnProperty(id)) continue;
+      if (id === elId) continue;
+      if (idIndex(DEFER[id])[elId]) return id;
+    }
+    return '';
+  }
+
+  // True when `elId` is either already in the document or is waiting inside a
+  // deferred drawer. Callers use this to decide whether a destination is real
+  // without forcing it to mount.
+  function hasTarget(elId) {
+    if (!elId) return false;
+    try { if (document.getElementById(elId)) return true; } catch (e) {}
+    return !!deferredOwner(elId);
+  }
+
+  // Mount one deferred drawer's body. Returns true only if markup was injected,
+  // so callers can tell "I just mounted this" from "it was already there".
+  function materialize(drawerId, _depth) {
+    var rec = DEFER[drawerId];
+    if (!rec) return false;
+    var body, host = null;
+    try { body = document.getElementById(drawerId); } catch (e) { body = null; }
+    if (!body) {
+      // The container is itself waiting inside another stashed body — a lid inside a
+      // deferred drawer. Mount the outer one first, then try again. Depth-bounded, so
+      // a cycle in the stash cannot spin.
+      var outer = (_depth || 0) < 4 ? outerOwner(drawerId) : '';
+      if (!outer || !materialize(outer, (_depth || 0) + 1)) return false;
+      try { body = document.getElementById(drawerId); } catch (e) { body = null; }
+      if (!body) return false;
+    }
+    var kids = body.children || [];
+    for (var i = 0; i < kids.length; i++) {
+      if (kids[i].getAttribute && kids[i].getAttribute('data-pdxsp-defer') === drawerId) { host = kids[i]; break; }
+    }
+    if (!host) return false;
+    host.innerHTML = rec.html;
+    try { host.removeAttribute('data-pdxsp-defer'); } catch (e) {}
+    delete DEFER[drawerId];
+    // One seam back into the profile for everything that has to run against
+    // freshly mounted nodes — the chart queue, a button whose stored state was
+    // fetched while the canvas did not exist, the scroll-spy's target list. The
+    // spine does not know what those are and must not grow to know.
+    try {
+      if (typeof window._pdxAfterDrawerReveal === 'function') window._pdxAfterDrawerReveal(drawerId, host);
+    } catch (e) {}
+    return true;
+  }
+
+  // Mount whichever deferred drawer holds `elId`. No-op when the id is already
+  // live, which is the overwhelmingly common case and costs one getElementById.
+  function revealFor(elId) {
+    if (!elId) return false;
+    try { if (document.getElementById(elId)) return false; } catch (e) {}
+    var owner = deferredOwner(elId);
+    return owner ? materialize(owner) : false;
+  }
+
+  // ── Lids ────────────────────────────────────────────────────────────────────
+  // A drawer is a whole section behind one control. A LID is smaller and sits
+  // inside a section that stays open: the digest above it keeps reading, and the
+  // bulk below it folds away behind one line of copy that says what is in there.
+  //
+  // The reason it is a marker and not a function call is placement. The blocks that
+  // needed folding are rendered by six different modules, some of which also render
+  // into surfaces that are not a profile, and none of which knows which stage of the
+  // spine its output will land in. A renderer therefore marks its own seam —
+  //
+  //   ...digest...  <!--PDXSP:lid id="or-rows" label="Show all 12 issues" defer-->
+  //   ...bulk...    <!--PDXSP:/lid-->
+  //
+  // — and the spine builds the control while it assembles, using the same
+  // .dd-toggle-btn / .dd-body / toggleDD contract as the drawers, so nothing new
+  // opens or closes on this page. With `defer` the bulk goes into the same stash the
+  // drawers use, which means a folded block is not merely hidden but unmounted, and
+  // the whole reveal path — jump targets, promise filters, chart draining — already
+  // works on it.
+  //
+  // Three fail-open rules, because a lid is a presentation choice and substance is
+  // not. Unprocessed markers leave the content in place and fully visible; a region
+  // holding a stage sentinel is left alone rather than risk relocating a section; a
+  // duplicate id renders inline rather than mint a second element with the same id.
+  var LID_RE = /<!--PDXSP:lid\s+([^>]*?)-->([\s\S]*?)<!--PDXSP:\/lid-->/g;
+  var LID_ATTR_RE = /([a-z]+)="([^"]*)"/g;
+
+  function lidAttrs(raw) {
+    var a = { defer: /(^|\s)defer(\s|$)/.test(raw) }, m;
+    LID_ATTR_RE.lastIndex = 0;
+    while ((m = LID_ATTR_RE.exec(raw)) !== null) a[m[1]] = m[2];
+    return a;
+  }
+
+  function applyLids(html, reclaim) {
+    html = String(html == null ? '' : html);
+    if (html.indexOf('<!--PDXSP:lid') === -1) return html;
+    LID_RE.lastIndex = 0;
+    return html.replace(LID_RE, function (whole, raw, bulk) {
+      var a = lidAttrs(raw);
+      if (!bulk || !bulk.trim()) return '';
+      var key = String(a.id || '');
+      if (!key) return bulk;
+      // No lid over nothing, and none over a line or two either: a control that
+      // costs a tap to reveal less than it takes to describe is worse than the
+      // content it hides. Renderers already gate on their own counts; this is the
+      // backstop for the profile whose "bulk" turned out to be one row.
+      if (bulk.length < 240) return bulk;
+      // Relocating a section is a real failure; hiding a fold is not. If a stage or
+      // drawer sentinel — or a nested lid — is inside this region, leave it be.
+      if (bulk.indexOf('<!--PDXSP:') !== -1) return bulk;
+      var id = 'pdxsp-lid-' + key;
+      // Two lids claiming one id would produce two nodes that one control opens, so
+      // the second one renders inline instead. A caller that is REPLACING the section
+      // that owned the id — the warm-refresh repaint, which rebuilds a section in
+      // place once votes arrive — passes reclaim, because there the repeat is the
+      // same lid being rebuilt, not a collision.
+      if (LIDS[id] && !reclaim) return bulk;
+      LIDS[id] = 1;
+      var inner;
+      if (a.defer) {
+        DEFER[id] = { html: bulk, idx: null };
+        inner = '<div class="dd-inner pdxsp-lid-inner" data-pdxsp-defer="' + escAttr(id) + '"></div>';
+      } else {
+        inner = '<div class="dd-inner pdxsp-lid-inner">' + bulk + '</div>';
+      }
+      return '<div class="pdxsp-lid">' +
+          '<button class="dd-toggle-btn pdxsp-lid-btn" type="button" onclick="toggleDD(\'' + escAttr(id) + '\')" id="btn-' + escAttr(id) + '"' +
+            ' aria-controls="' + escAttr(id) + '" aria-expanded="false">' +
+            '<span class="pdxsp-lid-label">' + esc(a.label || 'Show the full detail') + '</span>' +
+            '<svg class="dd-chevron w-4 h-4" fill="none" stroke="#7596c0" viewBox="0 0 24 24" aria-hidden="true">' +
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+          '</button>' +
+          '<div class="dd-body dd-free" id="' + escAttr(id) + '">' + inner + '</div>' +
+        '</div>';
+    });
   }
 
   // ── Drawers ─────────────────────────────────────────────────────────────────
@@ -208,6 +524,10 @@
   // for short deep-dives; a full voting record or every documented position runs
   // well past it and would be silently clipped, which is a worse failure than no
   // drawer at all.
+  //
+  // opts.defer holds the inner markup back as a string (see above). The lid is
+  // byte-identical either way: the drawer must not advertise itself differently
+  // for being cheap.
   function drawer(opts) {
     opts = opts || {};
     var html = opts.html;
@@ -218,6 +538,17 @@
       ? '<span class="pdxsp-dw-meta">' + esc(opts.meta) + '</span>'
       : '';
     var sub = opts.sub ? '<p class="pdxsp-dw-sub">' + esc(opts.sub) + '</p>' : '';
+    // The subtitle rides along with the deferred payload rather than staying
+    // inline: it is one short paragraph, and keeping the .dd-inner an empty leaf
+    // node means the deferred and inline forms have identical element structure
+    // apart from what is inside that one box.
+    var inner;
+    if (opts.defer) {
+      DEFER[id] = { html: sub + html, idx: null };
+      inner = '<div class="dd-inner pdxsp-dw-inner" data-pdxsp-defer="' + escAttr(id) + '"></div>';
+    } else {
+      inner = '<div class="dd-inner pdxsp-dw-inner">' + sub + html + '</div>';
+    }
     return '<div class="modal-section pdxsp-dw">' +
         '<button class="dd-toggle-btn pdxsp-dw-btn" type="button" onclick="toggleDD(\'' + escAttr(id) + '\')" id="btn-' + escAttr(id) + '"' +
           ' aria-controls="' + escAttr(id) + '" aria-expanded="false">' +
@@ -230,7 +561,7 @@
             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
         '</button>' +
         '<div class="dd-body dd-free" id="' + escAttr(id) + '">' +
-          '<div class="dd-inner pdxsp-dw-inner">' + sub + html + '</div>' +
+          inner +
         '</div>' +
       '</div>';
   }
@@ -238,14 +569,28 @@
   // ── The brief ───────────────────────────────────────────────────────────────
 
   // Signature issues: the positions this person is most documented on, ranked by
-  // how much of their own record is tied to each. p.keyIssues is the curated
-  // answer and wins when present; otherwise the ranking is derived from the same
-  // stance list and evidence map the Stance at a Glance index renders, so the
-  // brief and the index can never disagree about what is on file.
+  // how much of their own record is tied to each. The curated issue list is the
+  // preferred answer and wins when present; otherwise the ranking is derived from
+  // the same stance list and evidence map the Stance at a Glance index renders,
+  // so the brief and the index can never disagree about what is on file.
+  //
+  // That list lives under `issues` on a roster record and under `keyIssues` on a
+  // Firestore/admin-authored one. Reading only `keyIssues` here meant the brief
+  // silently fell through to the derived ranking for every static roster record,
+  // discarding the curated answer it says it prefers. _pdxKeyIssues() is the one
+  // accessor for both spellings; the inline fallback keeps this module readable
+  // on its own if profiles-full.js has not run yet.
   function signatureIssues(pid, p, max) {
     max = max || 3;
     var out = [];
-    var curated = (p && Array.isArray(p.keyIssues)) ? p.keyIssues.filter(Boolean) : [];
+    var curated = [];
+    if (p) {
+      curated = (typeof window._pdxKeyIssues === 'function')
+        ? window._pdxKeyIssues(p)
+        : (Array.isArray(p.issues) && p.issues.length ? p.issues
+            : (Array.isArray(p.keyIssues) ? p.keyIssues : []));
+      curated = curated.filter(Boolean);
+    }
     if (curated.length) {
       curated.slice(0, max).forEach(function (k) {
         var lbl = k;
@@ -468,7 +813,13 @@
     try { chips = scope.querySelectorAll('.pdxbr-jump[data-pdxbr-to]'); } catch (e) { return; }
     for (var i = 0; i < chips.length; i++) {
       var to = chips[i].getAttribute('data-pdxbr-to');
-      if (to && !document.getElementById(to) && chips[i].parentNode) {
+      // hasTarget rather than getElementById: a chip aimed into a deferred drawer
+      // has a real destination that simply has not been mounted yet, and deleting
+      // it would turn a performance optimisation into a missing control. Today's
+      // chips all target stage rails, which are never deferred, so this costs one
+      // lookup per chip and changes nothing — it is here so that stops being a
+      // load-bearing coincidence.
+      if (to && !hasTarget(to) && chips[i].parentNode) {
         chips[i].parentNode.removeChild(chips[i]);
       }
     }
@@ -486,11 +837,30 @@
     STAGES: STAGES,
     STAGE_KEYS: STAGE_KEYS,
     stage: stageMeta,
+    // The rail derives its order from the stage each destination lives in, so the
+    // pill sequence and the page sequence cannot disagree. railOrder() sorts a list
+    // of pill descriptors; targetStage() answers the same question for one id, and
+    // is what the scroll-spy and the tests use to check themselves.
+    railOrder: railOrder,
+    targetStage: stageOfTarget,
+    stageRank: stageRank,
     assemble: assemble,
     assembleTagged: assembleTagged,
     drawer: drawer,
     briefHtml: briefHtml,
     hydrate: hydrate,
+    // Progressive disclosure inside an always-open section. Renderers mark a
+    // digest/bulk seam with a comment pair and stay out of the DOM; assembleTagged
+    // resolves them, and any surface that re-renders one section on its own —
+    // rather than reassembling the profile — has to run this itself.
+    applyLids: applyLids,
+    // Deferred drawer inners. materialize() takes a drawer id, revealFor() takes
+    // any element id inside one; hasTarget() answers "does this destination
+    // exist" for both mounted and still-stashed content.
+    materialize: materialize,
+    revealFor: revealFor,
+    hasTarget: hasTarget,
+    _deferredIds: function () { return Object.keys(DEFER); },
     // Exposed for tests and for any surface that wants the same reads without
     // the markup — never for a second, divergent rendering of the brief.
     _signatureIssues: signatureIssues,

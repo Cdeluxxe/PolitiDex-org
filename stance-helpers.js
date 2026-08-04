@@ -1697,7 +1697,14 @@
     documented.forEach(function (s) { if (s.issueKey) issueSet[s.issueKey] = 1; });
     Object.keys(evMap).forEach(function (k) { issueSet[k] = 1; });
     if (depth) Object.keys(depth).forEach(function (k) { issueSet[k] = 1; });
-    var tracked = documented.length || (p.keyIssues ? p.keyIssues.length : 0) || Object.keys(issueSet).length;
+    // The curated issue list is stored as `issues` on roster records and
+    // `keyIssues` on Firestore/admin ones — read both, or this fallback is dead
+    // for the entire static roster.
+    var curatedN = (typeof window._pdxKeyIssues === 'function')
+      ? window._pdxKeyIssues(p).length
+      : ((Array.isArray(p.issues) && p.issues.length) ? p.issues.length
+          : (Array.isArray(p.keyIssues) ? p.keyIssues.length : 0));
+    var tracked = documented.length || curatedN || Object.keys(issueSet).length;
     // Issues that appear in the full record but have no documented stance card —
     // the honest "gaps" surfaced only in the Full Stance Record overlay.
     var docKeys = Object.create(null);

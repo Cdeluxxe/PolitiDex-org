@@ -419,7 +419,18 @@
 
     // Derived accountability metric: how many of the resolved (kept+broken)
     // promises were actually kept. Candidates with no track record → null.
-    const followThrough = (p) => (p.kept + p.broken) > 0 ? Math.round(100 * p.kept / (p.kept + p.broken)) : null;
+    //
+    // Also null when the record has no itemized promises[] behind those counts.
+    // This division is the same unpublishable figure the profile withholds: it
+    // reads two summary integers and turns them into a percentage the reader has
+    // no ledger to check it against. Computing it here rather than looking it up
+    // in `score` does not make it auditable. The kept / broken counts still get
+    // their own rows below, so nothing attested is lost by dropping the ratio.
+    const followThrough = (p) => {
+      if ((p.kept + p.broken) <= 0) return null;
+      if (typeof window._pdxHasItemizedPledges === 'function' && !window._pdxHasItemizedPledges(p)) return null;
+      return Math.round(100 * p.kept / (p.kept + p.broken));
+    };
     // Officeholder vs candidate — inferred from the office/role label.
     const statusOf = (p) => /candidate|nominee/i.test(p.office || '') ? 'Candidate' : 'Officeholder';
     const statusBadge = (p, full) => statusOf(p) === 'Candidate'
@@ -511,8 +522,14 @@
       <th class="cmp-row-label" style="background:rgba(10,15,30,0.98);"></th>
       ${pids.map(pid => {
         const p = sc(pid);
-        const sc_val = p.score;
+        // The column header ring is the table's most prominent percentage, and it
+        // read `p.score` raw — bypassing the display guard the Promise Score row
+        // below it goes through, so the same record could show "77%" in the sticky
+        // header and a withheld cell three rows down. Route it through the guard.
+        const _rawScore = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(p) : p.score;
+        const sc_val = (_rawScore === null || _rawScore === undefined) ? null : _rawScore;
         const col = scoreColor(sc_val);
+        const headCounts = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p, 'short') : '';
         const photoUrl = _getPhoto(pid);
         const avatarHtml = photoUrl
           ? `<div class="cmp-col-avatar"><img loading="lazy" decoding="async" src="${photoUrl}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.5rem;\\'>${p.icon}</div>'"></div>`
@@ -524,13 +541,13 @@
             <div class="cmp-col-office">${p.office} · ${p.state}</div>
             <div>${statusBadge(p, false)}</div>
             <div class="cmp-col-score-ring" style="border-color:${col};">
-              <span class="cmp-score-val" style="color:${col};">${sc_val !== null && sc_val !== undefined ? sc_val + '%' : '—'}</span>
+              <span class="cmp-score-val" style="color:${col};">${sc_val !== null && sc_val !== undefined ? sc_val + '%' : (headCounts ? '🤝' : '—')}</span>
             </div>
-            <div style="width:100%;max-width:120px;margin-top:0.15rem;">
+            ${headCounts ? `<div class="cmp-score-note cmp-score-note-counts">${headCounts}<br><span class="cmp-score-note-why">not itemized</span></div>` : `<div style="width:100%;max-width:120px;margin-top:0.15rem;">
               <div style="height:4px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
                 <div style="height:100%;width:${sc_val !== null && sc_val !== undefined ? sc_val : 5}%;background:${barGrad(sc_val)};border-radius:999px;transition:width 0.8s ease;"></div>
               </div>
-            </div>
+            </div>`}
             ${_alignActive ? (() => { const aScore = _alignBy[pid]; if (aScore === null || aScore === undefined) return '<div style="margin-top:0.4rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.58rem;color:#7e8aa3;font-weight:600;letter-spacing:0.05em;border:1px dashed rgba(159,180,212,0.3);padding:0.12rem 0.5rem;border-radius:999px;">🎯 No match data yet</span></div>'; const aCol = aScore >= 70 ? '#4ade80' : aScore >= 50 ? '#f5c842' : '#f87171'; const isLeader = pid === _alignLeaderPid; const crown = isLeader ? '<div style="margin-top:0.3rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#0b1020;background:linear-gradient(135deg,#fde68a,#f5c842);padding:0.14rem 0.6rem;border-radius:999px;box-shadow:0 2px 10px rgba(245,200,66,0.35);">🏆 Best Match</span></div>' : ''; return '<div style="margin-top:0.4rem;display:flex;flex-direction:column;align-items:center;gap:0.15rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.62rem;color:' + aCol + ';font-weight:800;letter-spacing:0.06em;border:1px solid ' + aCol + (isLeader ? '99' : '55') + ';background:' + aCol + (isLeader ? '24' : '14') + ';padding:0.12rem 0.55rem;border-radius:999px;">🎯 ' + aScore + '% Aligned</span>' + crown + '</div>'; })() : ''}
           </div>
         </th>`;
@@ -570,16 +587,28 @@
         ? window._pdxTrackingNote(p) : '';
       const pendLine = (sVal !== null && sVal !== undefined && typeof window._pdxPendingNote === 'function')
         ? window._pdxPendingNote(p) : '';
-      const noteLine = trackLine
-        ? `<div class="cmp-score-note cmp-score-note-tracking">⏳ ${trackLine}</div>`
-        : (pendLine ? `<div class="cmp-score-note">${pendLine}</div>` : '');
+      // A pick whose pledges resolved but were never itemized has no publishable
+      // rate and is NOT "tracking" — it has a closed record on file. Name the
+      // counts in the cell so the empty score reads as withheld, not as absent.
+      const countsLine = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p, 'short') : '';
+      const noteLine = countsLine
+        ? `<div class="cmp-score-note cmp-score-note-counts">🤝 ${countsLine}<br><span class="cmp-score-note-why">on file · not itemized</span></div>`
+        : (trackLine
+          ? `<div class="cmp-score-note cmp-score-note-tracking">⏳ ${trackLine}</div>`
+          : (pendLine ? `<div class="cmp-score-note">${pendLine}</div>` : ''));
       return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${denomLine}${noteLine}${lead}`;
     }), '', _psLeader);
     const _ftVals = pids.map(pid => followThrough(sc(pid)));
     const _ftLeader = leaderClasses(_ftVals);
     promiseBlock += row('🤝 Promise Follow-Through', pids.map((pid, i) => {
       const v = _ftVals[i];
-      if (v === null) return na;
+      if (v === null) {
+        // Counts-only: the row's percentage is withheld, but this pick does have a
+        // resolved pledge record, so it must not sit under the same bare "—" as a
+        // pick with nothing on file.
+        const cn = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(sc(pid), 'short') : '';
+        return cn ? `<span class="cmp-ft-counts">🤝 ${cn}<br><span class="cmp-score-note-why">not itemized</span></span>` : na;
+      }
       const col = scoreColor(v);
       const lead = _ftLeader[i] ? '<div class="cmp-leader-badge">👑 Most reliable</div>' : '';
       return `<div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;">
@@ -1069,7 +1098,13 @@
   // tools add up to an actual call instead of three disconnected stats. Read-only
   // over the same data the table already shows; it never invents a score.
   function _cmpVerdictFollowThrough(p) {
-    return (p.kept + p.broken) > 0 ? Math.round(100 * p.kept / (p.kept + p.broken)) : null;
+    if ((p.kept + p.broken) <= 0) return null;
+    // Same itemized-ledger requirement as the table row above. The verdict states
+    // this figure in prose ("keeping 87% of the promises that are settled"), which
+    // is a published pledge percentage no matter how conversationally it is
+    // phrased. Null here simply drops that clause from the sentence.
+    if (typeof window._pdxHasItemizedPledges === 'function' && !window._pdxHasItemizedPledges(p)) return null;
+    return Math.round(100 * p.kept / (p.kept + p.broken));
   }
   function _cmpVerdictIsCandidate(p) {
     return /candidate|nominee/i.test(p.office || '');

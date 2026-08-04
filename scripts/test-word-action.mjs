@@ -496,8 +496,20 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/data-pcd-dots/.test(CONNECT), 'the Connecting the Dots card has no container for the joined rows');
   ok(CONNECT.indexOf('data-pcd-dots') < CONNECT.indexOf('pcd-chain-head'),
     'the five-lens navigation chain still comes before the actual word-vs-action join');
-  ok(/pcd-chain-head/.test(CONNECT) && /Follow the whole thread/.test(CONNECT),
-    'the lens chain is not labelled as navigation, so it still reads as the synthesis');
+  ok(/pcd-chain-head/.test(CONNECT) && /Follow the same five links/.test(CONNECT),
+    'the navigation chain is not labelled as navigation, so it still reads as the synthesis');
+  // Stronger than "it is labelled": the chain must name the SAME five links as
+  // the rows above it, in the same words. A reader meeting one vocabulary in the
+  // join and a different one two inches below is the section-rivalry bug itself.
+  ok(/1 · They said/.test(CONNECT) && /2 · They did/.test(CONNECT) &&
+     /3 · The receipts/.test(CONNECT) && /4 · The issue/.test(CONNECT) && /5 · So/.test(CONNECT),
+    'the navigation chain does not name the same five links as the joined rows');
+  // The lenses that are not links in the argument (impact, contracting, your
+  // stances) had to be demoted, not deleted — depth survives compression.
+  ok(/pcd-more/.test(CONNECT) && /Also on this profile/.test(CONNECT),
+    'the lenses that are not links in the argument were dropped rather than demoted');
+  ok(/pdxsec-impact/.test(CONNECT) && /pdxsec-contracts/.test(CONNECT) && /pdxsec-compare/.test(CONNECT),
+    'a demoted lens lost its destination — the chip row must keep every jump target');
   ok(/PDXWordAction/.test(CONNECT) && /dotsHtml/.test(CONNECT),
     'the card builds its own join instead of delegating to the one model');
   ok(/pdx-consistency-warm/.test(CONNECT),
@@ -512,7 +524,7 @@ const voteNarration = (issueKey, extra = {}) => ({
 // 10. The surfaces: mount, demotion, async re-render, precache
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // Mounted on the record stage, ahead of the pledge number.
+  // Mounted on its own verdict stage, ahead of the pledge number.
   const mount = PROFILES.indexOf('PDXWordAction.sectionHtml(id, p)');
   must(mount !== -1, 'profiles-full.js no longer mounts PDXWordAction.sectionHtml');
   const score = PROFILES.indexOf('id="pdxsec-score"');
@@ -520,9 +532,14 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(mount < score,
     'Word vs Action is mounted after the Promise Follow-Through block — the primary read has to\n' +
     '    come first, or the profile still opens on the pledge-only number');
-  const recordStage = PROFILES.lastIndexOf('<!--PDXSP:record-->', mount);
-  ok(recordStage !== -1 && PROFILES.lastIndexOf('<!--PDXSP:dw:', mount) < recordStage,
-    'Word vs Action was mounted inside a closed full-record drawer instead of on the record stage');
+  // It used to open the record stage. It now IS a stage: the primary read is the
+  // site's answer, not the header of one system among several. Either way it must
+  // not be inside a drawer, which is what the dw: check below is for.
+  const verdictStage = PROFILES.lastIndexOf('<!--PDXSP:verdict-->', mount);
+  ok(verdictStage !== -1 && PROFILES.lastIndexOf('<!--PDXSP:dw:', mount) < verdictStage,
+    'Word vs Action was mounted inside a closed full-record drawer instead of on the verdict stage');
+  ok(verdictStage < PROFILES.indexOf('<!--PDXSP:record-->', mount),
+    'the verdict stage no longer precedes the record stage — findings must arrive before the apparatus that produced them');
   ok(/pdxsec-wordaction/.test(WA_SRC), 'the section has no stable anchor to jump to');
   ok(/target: 'pdxsec-wordaction'/.test(PROFILES),
     'the quick-jump rail has no Word vs Action pill, so the primary read is not addressable');
@@ -543,9 +560,23 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/Promises Kept/.test(ft), 'the pledge block lost its canonical big-number label');
   ok(/Promise Follow-Through/.test(ft), 'the pledge block lost its canonical lane name');
   ok(/_pdxPromiseInfo/.test(ft), 'the pledge block lost its ⓘ methodology explainer');
+  // The three count chips are now emitted by a shared countChip() helper rather
+  // than written out three times, so the jump attribute is built from `kind` and
+  // no literal data-jump="kept" survives in the source. Both halves are checked:
+  // the helper is still called for each kind, and it still emits the jump hook —
+  // otherwise a chip could be present as dead decoration with no filter behind it.
+  ok(/data-jump="' \+ kind \+ '"/.test(ft),
+    'the pledge block chips no longer carry a data-jump hook, so tapping a count filters\n' +
+    '    nothing');
   for (const chip of ['kept', 'broken', 'pending']) {
-    ok(new RegExp(`data-jump="${chip}"`).test(ft), `the pledge block lost its ${chip} filter chip`);
+    ok(new RegExp(`countChip\\('${chip}'`).test(ft), `the pledge block lost its ${chip} filter chip`);
   }
+  // …and the helper has to be able to render a NON-interactive chip, because a
+  // counts-only record has no itemized list below for a filter to jump to and a
+  // chip that filters nothing is a dead button.
+  ok(/interactive/.test(ft),
+    'the pledge block chips are unconditionally interactive again — on a record with no\n' +
+    '    itemized promises[] they become buttons that filter an empty list');
   ok(/m\.raw/.test(ft), 'the pledge block lost the raw-vs-weighted reconciliation line');
   ok(!/font-size:2\.5rem/.test(ft),
     'the pledge rate is still rendered at hero scale — under one standard it is a supporting\n' +
@@ -834,8 +865,31 @@ const voteNarration = (issueKey, extra = {}) => ({
     'the panel does not say out loud that Say-vs-Do is outside the score');
   eq((withSaydo.match(/pdxwa-feed-ctx/g) || []).length, 1,
     'more than one row is marked context-only — every other row is a real input');
-  ok(/only place they are pooled/.test(withSaydo),
+  ok(/only place any of it is pooled/.test(withSaydo),
     'the panel footer no longer states that this is the only surface that pools a percentage');
+
+  // The receipt layer and the issue layer are named as feeds too — that is what
+  // stops the Evidence Locker reading as an isolated vault and the Spotlight as
+  // a separate feature. Both are CONTEXT: they document the word and the record
+  // and they change no number, so they must never be marked as counted inputs.
+  ok(!/Evidence Locker/.test(withSaydo) && !/Issue Spotlights/.test(withSaydo),
+    'the panel names the Locker or the Spotlights on a build where neither has anything on file —\n' +
+    '    a feed row for an empty library is a promise the section cannot keep');
+  b.win._pdxLockerItemCount = () => 12;
+  b.win.PDXSpotlight = { forPolitician: () => [{ slug: 'a' }, { slug: 'b' }] };
+  const withReceipts = b.WA.feedsHtml('p1', person);
+  ok(/Evidence Locker/.test(withReceipts) && /12 items/.test(withReceipts),
+    'the panel does not list the Evidence Locker with the count its own accessor reports');
+  ok(withReceipts.includes("_pdxNavJump('pdxsec-evidence')"),
+    'the Evidence Locker row is named but not reachable');
+  ok(/Issue Spotlights/.test(withReceipts) && /2 featured/.test(withReceipts),
+    'the panel does not list the Issue Spotlights that feature this official');
+  ok(withReceipts.includes("_pdxNavJump('spotlight-modal-section')"),
+    'the Issue Spotlights row is named but not reachable');
+  eq((withReceipts.match(/pdxwa-feed-ctx/g) || []).length, 3,
+    'the receipt and issue layers are not all marked context-only — they would read as arithmetic');
+  ok(!/%/.test(withReceipts.split('What feeds this score')[1] || ''),
+    'a feed row emits a percentage — there is exactly one score on a profile');
 
   // The panel travels with the section body, so warm re-renders refresh its counts.
   const body = WA_SRC.slice(WA_SRC.indexOf('function headlineHtml'), WA_SRC.indexOf('function heroRead'));

@@ -364,6 +364,59 @@
 .pdxbr-jump:hover,
 .pdxbr-jump:focus-visible { background: rgba(96, 165, 250, 0.2); }
 
+/* ── Lids: progressive disclosure inside an always-open section ───────────── */
+
+/* A lid is not a drawer. A drawer is a destination — a card you decide to enter.
+   A lid is a fold in a section you are already reading, so it borrows the drawer
+   plumbing (.dd-toggle-btn / .dd-body / .dd-inner, toggleDD, aria-expanded) and
+   then undoes the card: no filled panel, no boxed inner, just a rule across the
+   column with a label sitting on it. If these overrides ever fail to load, the
+   worst outcome is a lid that looks like a drawer, which still opens. */
+
+.pdxsp-lid { margin-top: 0.85rem; }
+
+.pdxsp-lid-btn {
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(30, 53, 96, 0.28);
+  border: 1px dashed rgba(159, 180, 212, 0.28);
+  border-radius: 0.6rem;
+}
+
+.pdxsp-lid-btn:hover,
+.pdxsp-lid-btn:focus-visible {
+  background: rgba(30, 53, 96, 0.5);
+  border-color: rgba(159, 180, 212, 0.45);
+}
+
+/* The drawer rule squares off the bottom corners to weld the button to the card
+   below it. There is no card below a lid, so keep it a standalone control. */
+.pdxsp-lid-btn.dd-active {
+  border-radius: 0.6rem;
+  border-style: dashed;
+  background: rgba(30, 53, 96, 0.45);
+}
+
+.pdxsp-lid-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9fc6e8;
+  text-align: center;
+}
+
+.pdxsp-lid-inner {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  padding-top: 0.7rem;
+}
+
 /* ── Tablet and up ────────────────────────────────────────────────────────── */
 
 @media (min-width: 641px) {
@@ -383,5 +436,6 @@
 @media (prefers-reduced-motion: reduce) {
   .pdxbr-sig,
   .pdxbr-t-act,
-  .pdxbr-jump { transition: none; }
+  .pdxbr-jump,
+  .pdxsp-lid-btn { transition: none; }
 }

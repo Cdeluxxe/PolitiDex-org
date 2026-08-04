@@ -1260,13 +1260,39 @@
   window._pdxHasPromiseRecord = function(p) {
     return window._pdxResolvedPromises(p) > 0;
   };
-  // The Promise Score to DISPLAY: the stored score when there is a real record,
-  // otherwise null (callers render this as "—" / "No record yet").
+  // ── Second honesty guard: a rate needs an INSPECTABLE ledger ──────────────
+  // The guard above asks "has anything resolved?". That is necessary but not
+  // sufficient. A record can carry summary `kept` / `broken` / `pending` counts
+  // with no itemized promises[] behind them — 41 of the 756 roster records do —
+  // and in that shape a published percentage is a number the reader cannot audit:
+  // the Promise Tracker below it renders from promises[] and has nothing to show,
+  // so the profile asserted "77%" while its own pledge list was empty.
+  //
+  // Under the one-score standard the pledge lane is a TIER of Word vs Action, not
+  // a rival headline, and a tier that cannot be inspected does not get to publish
+  // a rate. Counts still show — they are directly attested and useful. Only the
+  // percentage is withheld, and only until an itemized ledger exists.
+  //
+  // Deliberately synchronous and re-read per render: promises[] is populated at
+  // template time from the record (and merged in by the admin manager), never
+  // hydrated asynchronously, so there is no warm-up state to wait for here.
+  window._pdxHasItemizedPledges = function(p) {
+    if (!p || !Array.isArray(p.promises)) return false;
+    for (var i = 0; i < p.promises.length; i++) {
+      if (p.promises[i]) return true;
+    }
+    return false;
+  };
+  // The Promise Score to DISPLAY: the stored score when there is a real record
+  // AND that record is itemized enough to be checked, otherwise null (callers
+  // render this as "—" / counts-only). Both guards are required — see
+  // _pdxHasItemizedPledges above for why "something resolved" is not enough.
   window._pdxDisplayScore = function(p) {
     if (!p) return null;
     var s = p.score;
     if (s === null || s === undefined || s === '') return null;
-    return window._pdxHasPromiseRecord(p) ? s : null;
+    if (!window._pdxHasPromiseRecord(p)) return null;
+    return window._pdxHasItemizedPledges(p) ? s : null;
   };
   // The sample size behind that percentage — "3 of 4 resolved" (long) or
   // "3/4 resolved" (short, for tight rails and table cells). Reads only the
@@ -1281,20 +1307,44 @@
       ? t.kept + '/' + t.resolved + ' resolved'
       : t.kept + ' of ' + t.resolved + ' resolved';
   };
-  // ── Three honest promise states ──────────────────────────────────────────
-  // 'resolved' — something has been counted kept or broken, so a percentage is
-  //              earned and shown.
-  // 'tracking' — promises ARE on file but none has resolved. Still no
-  //              percentage (the honesty guard is untouched), but this must not
-  //              look like an empty record, which is what it did before.
+  // ── Four honest promise states ───────────────────────────────────────────
+  // 'resolved' — something resolved AND the pledges are itemized, so a
+  //              percentage is earned, checkable, and shown.
+  // 'counts'   — something resolved but only as summary counts, with no
+  //              inspectable promises[] behind them. Real, attested counts; no
+  //              percentage. Added because withholding the rate must not cost the
+  //              record its substance: a sitting member with 27 kept and 8 broken
+  //              on file was falling through to the 'empty' branch and rendering
+  //              "No record yet", which is a worse lie than the rate was.
+  // 'tracking' — promises ARE on file but none has resolved. No percentage, and
+  //              this must not look like an empty record either.
   // 'empty'    — nothing on file at all; the existing empty state stands.
   window._pdxPromiseState = function(p) {
     var t = window._pdxPromiseTally(p);
-    if (t.resolved > 0) return 'resolved';
+    if (t.resolved > 0) {
+      return window._pdxHasItemizedPledges(p) ? 'resolved' : 'counts';
+    }
     return t.unresolved > 0 ? 'tracking' : 'empty';
   };
+  // The 'counts' label — what IS known, stated as counts, for the slot a
+  // percentage would have filled: "27 kept · 8 broken" (short) or
+  // "27 kept · 8 broken of 35 resolved" (long). '' in the other three states, so
+  // a caller can render it unconditionally wherever it puts the rate.
+  window._pdxCountsNote = function(p, form) {
+    if (window._pdxPromiseState(p) !== 'counts') return '';
+    var t = window._pdxPromiseTally(p);
+    var base = t.kept + ' kept · ' + t.broken + ' broken';
+    return form === 'short' ? base : base + ' of ' + t.resolved + ' resolved';
+  };
+  // Why the 'counts' state shows no percentage, in one voter-readable clause.
+  // Kept next to the note above so no surface has to invent its own wording.
+  window._pdxCountsWhy = function(p) {
+    return window._pdxPromiseState(p) === 'counts'
+      ? 'Counts are on file; the individual pledges are not itemized yet, so no rate is published.'
+      : '';
+  };
   // The 'tracking' label — "3 tracked · none resolved yet" (long) or
-  // "3 tracked · none resolved" (short). '' in the other two states.
+  // "3 tracked · none resolved" (short). '' in the other three states.
   window._pdxTrackingNote = function(p, form) {
     var t = window._pdxPromiseTally(p);
     if (t.resolved > 0 || !t.unresolved) return '';
@@ -1843,6 +1893,13 @@ window.PDXLazy = (function () {
        layout even if the CSS arrives after the first paint. -->
   <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
+  <!-- 🧩 Dossier join layer — the five-link chain's visual grammar, the reusable
+       receipt chips, the compact Issue Spotlight rail that replaced three stacked
+       full-width callouts above the accountability spine, and the compact
+       Spotlight digest (profile-dossier.js). Modal-only and below the fold, so it
+       loads non-blocking like the rest of the profile CSS. -->
+  <link rel="stylesheet" href="/profile-dossier.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/profile-dossier.css" /></noscript>
   <!-- Journey — the guided spine (breadcrumb) + the shared next-action rail on
        every receipt (see journey.js). Non-blocking, but preloaded at high
        priority: the rail is injected into the page flow beneath receipt cards
@@ -18393,6 +18450,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        calls sectionHtml() and profile-connect.js calls dotsHtml(), and both only
        run when a visitor opens a profile, long after these defer scripts have. -->
   <script defer src="word-action.js"></script>
+  <!-- 🧩 The dossier join layer (window.PDXDossier) — the ONE place that threads a
+       single issue through all five links: what they said → what they formally did
+       → the receipts that document it → the issue and its Spotlights → what it
+       means for the ⚖️ Word vs Action score. Every consumer on a profile reads the
+       chain from here (Connecting the Dots, the compact Spotlight rail and digest),
+       which is what stops the next surface inventing a sixth retelling of the same
+       story. Derives everything from existing accessors — _issueEvidenceMap,
+       _pdxEvidenceDepthForPerson, _pdxRecordIssueItems, PDXSpotlight.forIssueKey,
+       PDXWordAction — adds no data and emits no second score. Loaded after
+       word-action.js because it augments its rows. -->
+  <script defer src="profile-dossier.js"></script>
   <!-- Connecting the Dots — additive profile synthesis spine (window._pdxConnectDots).
        Loaded after the feature modules it reads at render time (PDXStances,
        PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap,
@@ -25404,8 +25472,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       document.addEventListener('DOMContentLoaded', function () { bootDeepLink(0); });
     } else { bootDeepLink(0); }
 
-    // ── Cross-link: "Related Issue Spotlight" callout inside a profile modal ──
+    // ── Cross-link: compact "Issue Spotlight" rail inside a profile modal ────
     // Called at the end of openModal (see the showProfile/openModal render).
+    //
+    // This used to emit up to THREE full-width callout cards — icon, kicker,
+    // title, arrow, ~64px each — stacked directly between the profile hero and
+    // the accountability spine. On a phone that pushed the primary Word vs Action
+    // score most of a screen further down, which made a cross-link the loudest
+    // thing above the score it was cross-linking from.
+    //
+    // Same destinations, same cap, one line: a labelled rail of title chips
+    // (PDXDossier.railHtml). Each chip still opens the full Spotlight. The
+    // fallback below keeps the old callout markup for the case where the dossier
+    // module has not loaded, so the entry point never disappears entirely.
     window._pdxRelatedSpotlight = function (id) {
       try {
         var sps = window.PDXSpotlight.forPolitician(id);
@@ -25418,7 +25497,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (existing) existing.parentNode.removeChild(existing);
         var block = document.createElement('div');
         block.className = 'pdxis-callout-block';
-        block.innerHTML = sps.map(function (sp) {
+        var rail = '';
+        try {
+          rail = (window.PDXDossier && typeof window.PDXDossier.railHtml === 'function')
+            ? (window.PDXDossier.railHtml(id, sps) || '') : '';
+        } catch (e) { rail = ''; }
+        block.innerHTML = rail || sps.map(function (sp) {
           return '<button type="button" class="pdxis-callout" data-spotlight="' + esc(sp.slug) + '">' +
             '<span class="pdxis-callout-ico">🔦</span>' +
             '<span class="pdxis-callout-body">' +

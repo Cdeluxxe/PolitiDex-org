@@ -910,10 +910,26 @@
 
     // When we know which politician was tapped, show their own quick math so the
     // explanation is concrete rather than abstract.
+    //
+    // Except when the counts have no itemized pledge list behind them. This
+    // explainer is reachable from the counts-only pledge lane, which deliberately
+    // publishes no rate — and working the division out longhand here ("27 ÷ (27 +
+    // 8) = 77% raw") would publish it in the one place the reader went looking for
+    // a number. The general formula above still explains how the lane works; only
+    // this official's own unauditable figure is withheld.
     var calcLine = '';
     try {
       var p = (pid && typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
-      if (p && typeof p.kept === 'number' && typeof p.broken === 'number') {
+      var itemized = (typeof window._pdxHasItemizedPledges !== 'function') || !p || window._pdxHasItemizedPledges(p);
+      if (p && !itemized && typeof p.kept === 'number' && typeof p.broken === 'number' && (p.kept + p.broken) > 0) {
+        calcLine = '<div class="pdx-pinfo-calc">' +
+          (p.name ? String(p.name).split(' ').slice(-1)[0] : 'This official') + ': ' +
+          '<span style="color:#4ade80;font-weight:700;">' + (p.kept || 0) + ' kept</span> · ' +
+          '<span style="color:#f87171;font-weight:700;">' + (p.broken || 0) + ' broken</span>' +
+          ((typeof p.pending === 'number' && p.pending > 0) ? '<span style="color:#8aa3c4;font-weight:600;"> · ' + p.pending + ' pending (not counted)</span>' : '') +
+          '<div style="margin-top:0.35rem;color:#9fb4d4;font-weight:600;">Those counts are on file, but the individual pledges behind them are not itemized yet — so no percentage is published for them here or anywhere else on the profile.</div>' +
+          '</div>';
+      } else if (p && typeof p.kept === 'number' && typeof p.broken === 'number') {
         var k = p.kept || 0, b = p.broken || 0, res = k + b;
         if (res > 0) {
           var rate = Math.round(k / res * 100);
