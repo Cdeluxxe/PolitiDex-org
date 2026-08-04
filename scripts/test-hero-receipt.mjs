@@ -51,7 +51,19 @@ const eq = (a, b, msg) => ok(Object.is(a, b), `${msg} — got ${JSON.stringify(a
 const RENDERER = readFileSync(join(ROOT, "hero-receipt.js"), "utf8");
 
 function render(seed) {
-  const host = { hidden: true, innerHTML: "", addEventListener() {} };
+  const host = {
+    hidden: true, _html: "", attrs: {}, ops: [], onclick: null,
+    addEventListener(_type, fn) { this.onclick = fn; },
+    setAttribute(k, v) { this.attrs[k] = v; this.ops.push("attr:" + k); },
+    getAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs, k) ? this.attrs[k] : null; },
+  };
+  // A setter rather than a plain field, so the ORDER of paint vs. attribute is
+  // observable — see section 8, where that order is the whole contract.
+  Object.defineProperty(host, "innerHTML", {
+    get() { return this._html; },
+    set(v) { this._html = v; this.ops.push("html"); },
+    configurable: true, enumerable: true,
+  });
   const win = {
     console, Math, JSON,
     document: { getElementById: (id) => (id === "hero-receipt" ? host : null) },
@@ -61,6 +73,11 @@ function render(seed) {
   win.window = win;
   vm.runInContext(RENDERER, vm.createContext(win), { filename: "hero-receipt.js" });
   return host;
+}
+
+// Click "Next receipt" through the renderer's own delegated handler.
+function clickNext(host) {
+  host.onclick({ target: { closest: (sel) => (sel === ".pdx-hr-next" ? {} : null) } });
 }
 
 // ── 1. No drift ──────────────────────────────────────────────────────────────
@@ -205,6 +222,31 @@ for (const [label, s] of Object.entries(bad)) {
   ok(dataGz < 6 * 1024, `payload: seed is ${dataGz} B gzipped (budget 6 KB)`);
   ok(rendGz < 4 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 4 KB)`);
   console.log(`  critical path: ${dataGz} B + ${rendGz} B = ${dataGz + rendGz} B gzipped`);
+}
+
+// ── 8. The swap is announced ──────────────────────────────────────────────────
+// "Next receipt" replaces the entire card. A sighted reader sees that instantly;
+// without a live region a screen-reader user hears nothing at all, because focus
+// stays on a button whose label did not change. Two things have to hold:
+//   • the region is on the host — the only node that survives a draw. A live
+//     region nested inside the replaced markup is destroyed and rebuilt with it,
+//     and a region that did not exist before a mutation does not announce it.
+//   • it is armed AFTER the first paint, so loading the page does not read the
+//     band aloud over whatever the visitor was already being told.
+{
+  const host = render(seed);
+  eq(host.getAttribute("aria-live"), "polite",
+    "a11y: the receipt band is a polite live region once it has painted");
+  eq(host.ops.join(" → "), "html → attr:aria-live",
+    "a11y: the first paint happens BEFORE the region is armed, so page load is silent");
+
+  if (seed.length > 1) {
+    clickNext(host);
+    eq(host.ops.join(" → "), "html → attr:aria-live → html → attr:aria-live",
+      "a11y: the region is already live when the next receipt paints, so the swap is announced");
+    ok(host.innerHTML.indexOf("pdx-hr-pos") !== -1,
+      "a11y: the position counter is inside the announced region, so \"2 of 6\" is spoken with it");
+  }
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────

@@ -138,6 +138,13 @@
       '</p>' +
       card(r);
     host.hidden = false;
+    // ANNOUNCEMENT — "Next receipt" swaps the whole card. A screen-reader user
+    // otherwise hears nothing: focus stays on a button whose label did not change.
+    // The attribute goes on the host because draw() replaces this element's
+    // contents, and a live region nested inside the replaced markup is destroyed
+    // and rebuilt with it — a region that did not exist before a mutation does not
+    // announce it. Armed AFTER the first paint, so page load stays silent.
+    host.setAttribute('aria-live', 'polite');
   }
 
   host.addEventListener('click', function (e) {

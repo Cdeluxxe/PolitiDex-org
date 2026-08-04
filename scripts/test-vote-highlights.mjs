@@ -310,6 +310,18 @@ const rec = (o) => Object.assign({
      "    same fetch is in flight — two wordings for one wait read as two jobs in progress");
   ok(/sub = 'Loading the record…'/.test(WA),
      "the hero's warming sub-line no longer uses the shared waiting phrase");
+  // The third surface: consistency.js's `pending` verdict, which is what the hero's
+  // own verdict chip and every record line print while the same fetch is in flight.
+  // Copy only — the taxonomy around it (key, tone, colour, cls) is not this test's
+  // business, and the whole file must be free of the old voice, not just this entry.
+  const CJ = read("consistency.js");
+  const pend = CJ.slice(CJ.indexOf("pending:     { key: 'pending'"), CJ.indexOf("};", CJ.indexOf("pending:     { key: 'pending'")));
+  ok(/label: 'Loading the record…'/.test(pend) && /short: 'Loading the record…'/.test(pend),
+     "consistency.js's pending verdict speaks with a different voice than the hero and the highlights\n" +
+     "    placeholder — all three are one roll-call fetch, and a cold profile open shows them together");
+  ok(!/Checking (record|the record|their record|the voting record)…/.test(CJ),
+     "a 'Checking…' waiting phrase is back in consistency.js — the pending state has several render sites\n" +
+     "    (verdict chip, vote dot tooltip, record chip, empty summaries) and they must not diverge");
   const waitLine = PF.slice(PF.indexOf('class="pdx-vrhi-wait"'), PF.indexOf('class="pdx-vrhi-wait"') + 120);
   ok(!/\d/.test(waitLine.replace(/pdx-vrhi-wait/g, "")),
      "the placeholder carries a digit — with no warm record there is no count that is true yet");
@@ -324,6 +336,72 @@ const rec = (o) => Object.assign({
      "    loading, which would clear the line early");
   ok(/\.pdx-vrhi-wait\[hidden\] \{ display: none; \}/.test(CSS),
      "nothing hides the retired placeholder, so `hidden` leaves it on screen under the live panel");
+}
+
+// ── 10. The voting nav pill counts from the same source ──────────────────────
+// The pill in the profile's jump-rail and the live panel above both name the size
+// of one file. They are built in different files, so the only thing keeping them
+// from disagreeing in public is that both read _pdxRecordMappedCounts. The pill's
+// own load summary is a fallback for when that helper is absent, and with no number
+// from either the pill is a label — a fabricated 0 would be the Trust Score mistake
+// in miniature.
+{
+  const ps = VR.indexOf("  function navPillCount(");
+  const pe = VR.indexOf("  // ── Public: hydrate after the modal HTML is in the DOM");
+  ok(ps !== -1 && pe > ps, "harness: the nav-pill region moved — fix the slice bounds in this test");
+  const PILL = VR.slice(ps, pe);
+
+  const pill = (opts) => {
+    const track = {
+      children: [],
+      querySelector: () => null,
+      appendChild(el) { this.children.push(el); },
+    };
+    const el = () => ({
+      attrs: {}, innerHTML: "", type: "", className: "", onclick: null,
+      setAttribute(k, v) { this.attrs[k] = String(v); },
+      getAttribute(k) { return k in this.attrs ? this.attrs[k] : null; },
+    });
+    const ctx = vm.createContext({
+      console, JSON, String,
+      document: { querySelector: (s) => (s.indexOf(".pdx-pnav-track") !== -1 ? track : null), createElement: el },
+    });
+    ctx.window = ctx;
+    if (opts.counts !== undefined) ctx._pdxRecordMappedCounts = () => opts.counts;
+    vm.runInContext(PILL + `\ninjectNavPill(${JSON.stringify(opts.count)}, ${JSON.stringify(opts.pid)});`,
+      ctx, { filename: "voting-record.js#navpill" });
+    return track.children[0];
+  };
+
+  const shared = pill({ count: 999, pid: "p1", counts: { votes: 12, issues: 5, total: 47, issueKeys: [] } });
+  ok(/>47 Records</.test(shared.innerHTML),
+     "the pill prints its own load summary instead of the count the live panel reads — the rail and the\n" +
+     "    panel can now report two different sizes for one file");
+  ok(!/999/.test(shared.innerHTML), "the pill still carries the load's own figure alongside the shared one");
+  eq(shared.getAttribute("aria-label"), "Voting Record: 47 records",
+     "the pill's accessible name disagrees with the figure printed on it");
+
+  const one = pill({ count: 9, pid: "p1", counts: { votes: 1, issues: 1, total: 1, issueKeys: [] } });
+  ok(/>1 Record</.test(one.innerHTML), "a one-record file is pluralised");
+
+  const noHelper = pill({ count: 12, pid: "p1" });
+  ok(/>12 Records</.test(noHelper.innerHTML),
+     "with the shared helper absent the pill drops the figure it already has from the landed response");
+
+  // Cold: no helper reading, no load count. A label, and nothing invented.
+  const cold = pill({ count: 0, pid: "p1", counts: null });
+  ok(/pdx-pnav-label">Votes</.test(cold.innerHTML), "a cold pill loses its label as well as its figure");
+  ok(!/pdx-pnav-val/.test(cold.innerHTML),
+     "a cold pill still emits the figure span — an empty or zeroed value slot reads as a real count of none");
+  ok(!/\d/.test(cold.innerHTML), "a cold pill prints a digit it cannot source");
+  eq(cold.getAttribute("aria-label"), "Voting Record",
+     "a cold pill announces a count to assistive tech that it does not show on screen");
+
+  // The pill is injected AFTER noteMember warms the sync cache, which is what makes
+  // the shared reading available at that moment rather than one event later.
+  const hy = VR.slice(VR.indexOf("PDXVotingRecord.noteMember(job.id"), VR.indexOf("injectNavPill(data.summary"));
+  ok(hy.length > 0 && hy.indexOf("noteMember") !== -1,
+     "the pill is now injected before noteMember warms the cache, so its shared reading is always cold");
 }
 
 if (fails.length) {

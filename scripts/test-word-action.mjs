@@ -66,7 +66,7 @@ const VERDICTS = {
   limited:     { key: 'limited',     ico: '…', label: 'Limited record',               short: 'Not enough on record yet.',            tone: 'none', color: '#9fb4d4', cls: 'none' },
   no_record:   { key: 'no_record',   ico: '—', label: 'No record',                    short: 'Nothing on record.',                   tone: 'none', color: '#9fb4d4', cls: 'none' },
   no_stance:   { key: 'no_stance',   ico: '—', label: 'No stated position',           short: 'No position on file.',                 tone: 'none', color: '#9fb4d4', cls: 'none' },
-  pending:     { key: 'pending',     ico: '⏳', label: 'Checking the record',          short: 'Checking.',                            tone: 'none', color: '#9fb4d4', cls: 'none' }
+  pending:     { key: 'pending',     ico: '⏳', label: 'Loading the record…',          short: 'Loading the record…',                            tone: 'none', color: '#9fb4d4', cls: 'none' }
 };
 
 // The 110-key issue vocabulary, lifted from its real definition rather than
