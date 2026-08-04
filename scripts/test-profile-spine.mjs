@@ -414,6 +414,188 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "ship: the brief's transitions are dropped for readers who ask for less motion");
 }
 
+// ── 8. Deferred drawer inners ────────────────────────────────────────────────
+// Collapsing a drawer hides its cost from the reader, not from the browser: a
+// closed .dd-body is max-height:0, not display:none, so its markup is still
+// parsed, still becomes elements, still gets style resolved on the tap that
+// opens the profile. Deferred mode holds that markup back as a string. These
+// assertions are all about the ways that could quietly break something.
+{
+  const lid = { id: "pdxsp-t-money", ico: "💰", title: "Full financial record",
+                meta: "12 filings", sub: "Every filing, in full." };
+  const PAYLOAD = '<div id="pdxsp-t-guts">GUTS<canvas id="pdxsp-t-canvas"></canvas></div>';
+
+  const inline = SP.drawer({ ...lid, html: PAYLOAD });
+  const lazy = SP.drawer({ ...lid, html: PAYLOAD, defer: true });
+
+  // 8a. The payload is not in the emitted string at all — which is the entire
+  //     point. A placeholder marks where it goes back.
+  ok(inline.includes("GUTS") && !lazy.includes("GUTS"),
+     "defer: a deferred drawer emits none of its inner markup, so nothing is parsed or laid out for content nobody asked to see");
+  ok(!/pdxsp-t-canvas/.test(lazy),
+     "defer: not even the canvases — a zero-height Chart.js canvas was the expensive half of the money drawer");
+  ok(/<div class="dd-inner pdxsp-dw-inner" data-pdxsp-defer="pdxsp-t-money"><\/div>/.test(lazy),
+     "defer: the .dd-inner is emitted as an empty leaf carrying the marker materialize() looks for");
+  ok(SP._deferredIds().indexOf("pdxsp-t-money") !== -1,
+     "defer: the held-back body is stashed under the drawer id, keyed the same way toggleDD is called");
+
+  // 8b. The lid must not advertise itself differently for being cheap, or the
+  //     reader is choosing between two drawers that describe themselves unequally.
+  const upToBody = (s) => s.slice(0, s.indexOf('<div class="dd-body'));
+  ok(upToBody(inline) === upToBody(lazy) && /12 filings/.test(lazy) && /Full financial record/.test(lazy),
+     "defer: the lid is byte-identical to the inline form — same title, same count, same toggle contract");
+  ok(/aria-expanded="false"/.test(lazy) && /class="dd-body dd-free"/.test(lazy),
+     "defer: it is still a closed .dd-free drawer, so the open path and the uncapped height are unchanged");
+
+  // 8c. hasTarget answers "does this destination exist" without mounting it.
+  registry["pdxsp-t-live"] = noopEl();
+  ok(SP.hasTarget("pdxsp-t-guts") && SP.hasTarget("pdxsp-t-canvas"),
+     "defer: hasTarget finds an id that is waiting inside a deferred body, so a caller that needs one does not conclude it was deleted");
+  ok(SP.hasTarget("pdxsp-t-live") && !SP.hasTarget("pdxsp-t-absent") && !SP.hasTarget(""),
+     "defer: and it still answers plainly for ids that are live in the document, absent, or empty");
+  ok(SP._deferredIds().indexOf("pdxsp-t-money") !== -1,
+     "defer: asking the question does not mount the answer — hasTarget leaves the body stashed");
+
+  // 8d. materialize(): one-shot, synchronous, and it tells the profile.
+  const mkHost = (drawerId) => ({
+    innerHTML: "", _attrs: { "data-pdxsp-defer": drawerId },
+    getAttribute(k) { return k in this._attrs ? this._attrs[k] : null; },
+    removeAttribute(k) { delete this._attrs[k]; },
+  });
+  const host = mkHost("pdxsp-t-money");
+  registry["pdxsp-t-money"] = { ...noopEl(), children: [noopEl(), host] };
+  const revealed = [];
+  ctx.window._pdxAfterDrawerReveal = (id, h) => { revealed.push([id, h === host, host.innerHTML.length]); };
+
+  ok(SP.materialize("pdxsp-t-money") === true && host.innerHTML.includes("GUTS"),
+     "defer: materialize injects the stashed body into its placeholder, skipping siblings that are not the marked host");
+  ok(host.innerHTML.includes("Every filing, in full."),
+     "defer: the subtitle rides along with the payload, so no promise made on the lid goes missing on open");
+  ok(host.getAttribute("data-pdxsp-defer") === null,
+     "defer: the marker is cleared, so a second pass cannot target an already-filled host");
+  ok(SP._deferredIds().indexOf("pdxsp-t-money") === -1 && SP.materialize("pdxsp-t-money") === false,
+     "defer: injection is one-shot — the stash entry is consumed, so re-opening a drawer never re-writes its contents");
+  ok(revealed.length === 1 && revealed[0][0] === "pdxsp-t-money" && revealed[0][1] === true && revealed[0][2] > 0,
+     "defer: the profile is notified once, with the host, AFTER the markup is in it — the chart queue and the scroll-spy run against mounted nodes");
+  ok(SP.materialize("pdxsp-t-nosuch") === false,
+     "defer: materializing an unknown or non-deferred drawer is a no-op rather than a throw");
+
+  // 8e. revealFor(): the route every jump target takes.
+  const lazy2 = SP.drawer({ id: "pdxsp-t-promises", title: "Promise ledger", html: '<ul id="pdxsp-t-list">ROWS</ul>', defer: true });
+  ok(lazy2.includes("data-pdxsp-defer"), "defer: second drawer stashed");
+  const host2 = mkHost("pdxsp-t-promises");
+  registry["pdxsp-t-promises"] = { ...noopEl(), children: [host2] };
+  ok(SP.revealFor("pdxsp-t-list") === true && host2.innerHTML.includes("ROWS"),
+     "defer: revealFor mounts whichever drawer holds a given element id — a promise filter or a deep link resolves against content that was never in the document");
+  ok(SP.revealFor("pdxsp-t-live") === false && SP.revealFor("pdxsp-t-absent") === false && SP.revealFor("") === false,
+     "defer: and it does nothing for an id that is already live, one that does not exist, or none at all");
+
+  // 8f. The store is per-render. Two profiles in a row must not share a stash.
+  SP.drawer({ id: "pdxsp-t-stale", title: "T", html: '<b id="pdxsp-t-stalekid">X</b>', defer: true });
+  SP.assembleTagged("<!--PDXSP:record-->R", { drawers: [] });
+  ok(SP._deferredIds().length === 0 && !SP.hasTarget("pdxsp-t-stalekid"),
+     "defer: assembleTagged clears the stash, so opening one profile can never mount the previous profile's record");
+
+  // 8g. prune() must not delete a chip whose destination is deferred.
+  SP.drawer({ id: "pdxsp-t-dw", title: "T", html: '<div id="pdxsp-t-deep">D</div>', defer: true });
+  const chip = { getAttribute: (k) => (k === "data-pdxbr-to" ? "pdxsp-t-deep" : null), parentNode: null };
+  const dead = { getAttribute: (k) => (k === "data-pdxbr-to" ? "pdxsp-t-gone" : null), parentNode: null };
+  const gone = [];
+  const parent2 = { removeChild: (c) => gone.push(c.getAttribute("data-pdxbr-to")) };
+  chip.parentNode = parent2; dead.parentNode = parent2;
+  SP.hydrate({ querySelectorAll: () => [chip, dead] });
+  ok(gone.length === 1 && gone[0] === "pdxsp-t-gone",
+     "defer: a jump chip aimed inside a deferred drawer survives pruning, while one aimed at nothing is still removed");
+}
+
+// ── 9. Deferral is wired into the profile, and nothing was cut off by it ──────
+{
+  const PF = read("profiles-full.js");
+  // These assertions are about ORDER — reveal before lookup, mount before open —
+  // and the code is commented with prose that names the same functions, which
+  // would otherwise answer for it.
+  const PFC = PF.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+
+  // 9a. Which drawers pay up front. The heavy, self-contained ones are deferred;
+  //     activity is not, because it is short and owns a spied-on nav anchor.
+  const specs = PFC.slice(PFC.indexOf("drawers: ["), PFC.indexOf("_spine.hydrate(_mc)"));
+  const spec = (k) => {
+    const at = specs.indexOf("id: '" + k + "'");
+    if (at === -1) return "";
+    const next = specs.indexOf("{ id: '", at);
+    return specs.slice(at, next === -1 ? specs.length : next);
+  };
+  ["positions", "votes", "promises", "money"].forEach((k) => {
+    ok(/defer: true/.test(spec(k)), `defer: the '${k}' drawer is deferred — it is heavy and nothing outside it needs its nodes before it opens`);
+  });
+  ok(spec("activity") !== "" && !/defer: true/.test(spec("activity")),
+     "defer: the activity drawer is deliberately NOT deferred — it is a short freshness block holding the anchor the nav rail spies on");
+
+  // 9b. toggleDD mounts before it opens. If the order slipped, the reader would
+  //     see an open empty drawer, and the chart drain below would find no canvas.
+  const td = PFC.slice(PFC.indexOf("function toggleDD"), PFC.indexOf("function toggleDD") + 1600);
+  ok(/materialize/.test(td) && td.indexOf("materialize") < td.indexOf("dd-open"),
+     "defer: toggleDD materializes a deferred inner BEFORE the open class goes on, so the reveal and the content land in the same frame");
+  ok(td.indexOf("materialize") < td.indexOf("_pdxDrainCharts"),
+     "defer: and before the chart drain, so a queued chart finds a canvas that exists");
+
+  // 9c. Everything that reaches INTO a drawer by id reveals first. Each of these
+  //     was a live control that deferral would have turned into a dead button.
+  const jump = PFC.slice(PFC.indexOf("window._pdxNavJump = function"), PFC.indexOf("window._pdxInitProfileNav"));
+  ok(/_pdxRevealTarget/.test(jump) && jump.indexOf("_pdxRevealTarget") < jump.indexOf("getElementById(targetId)"),
+     "defer: the quick-jump rail reveals its target before looking it up, so a pill aimed into a deferred drawer still scrolls");
+  const filt = PFC.slice(PFC.indexOf("window.pdxFilterPromises = function"), PFC.indexOf("window.pdxFilterPromises = function") + 900);
+  ok(/_pdxRevealTarget\('pdx-promise-list'\)/.test(filt) && filt.indexOf("_pdxRevealTarget") < filt.indexOf("if (!list) return"),
+     "defer: the hero count chips reveal the promise list before the bail that would otherwise make every one of them do nothing");
+  ok(/window\._pdxRevealTarget = function/.test(PF) && /revealFor/.test(PF),
+     "defer: those callers go through one small wrapper, so the spine stays optional — no spine means no reveal, not a throw");
+
+  // 9d. The chart queue. A canvas that does not exist yet is indistinguishable
+  //     from one whose profile closed, and treating the first as the second is
+  //     how a deferred chart silently never draws.
+  const drain = PFC.slice(PFC.indexOf("function _pdxDrainCharts"), PFC.indexOf("function _pdxDrainCharts") + 700);
+  ok(/keep\.push\(job\)/.test(drain) && !/if \(!el\) return;/.test(drain),
+     "defer: _pdxDrainCharts keeps a job whose canvas is missing rather than discarding it — not mounted yet is not the same as gone");
+  ok(/function _pdxResetChartQueue/.test(PFC) && (PFC.match(/_pdxResetChartQueue\(\)/g) || []).length >= 3,
+     "defer: the queue is emptied at the two moments a parked job really is dead — a new profile render and modal close");
+  const wealth = PFC.slice(PFC.indexOf("_pdxDrawerChart('wealthChart'"), PFC.indexOf("_pdxDrawerChart('wealthChart'") + 400);
+  ok(/getElementById\('wealthChart'\)/.test(wealth),
+     "defer: the wealth chart resolves its canvas inside the job body, at draw time — capturing it at render time would queue nothing at all");
+  const ftm = PFC.slice(PFC.indexOf("_pdxDrawerChart('ftmNwChart'"), PFC.indexOf("_pdxDrawerChart('ftmNwChart'") + 400);
+  ok(/getElementById\('ftmNwChart'\)/.test(ftm),
+     "defer: and so does the net-worth chart in the money drawer");
+
+  // 9e. The one seam back into the profile.
+  const after = PFC.slice(PFC.indexOf("window._pdxAfterDrawerReveal = function"), PFC.indexOf("window._pdxRevealTarget = function"));
+  ok(/_pdxDrainCharts/.test(after) && /_pdxInitProfileNav/.test(after),
+     "defer: on reveal the profile drains its chart queue and re-reads the nav targets, so the new subtree joins the scroll-spy");
+  ok(/ftm-follow-btn/.test(after) && /_pdxFollowMoneyOn/.test(after),
+     "defer: and re-applies the Follow Money Trail state that was fetched while the button was still a string, so a following reader does not see an un-followed button");
+
+  // 9f. The voting record. It used to demand its container synchronously before it
+  //     would even fetch, so deferring the votes drawer would have switched the
+  //     live record off for every member.
+  const VR = read("voting-record.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const init = VR.slice(VR.indexOf("window._pdxInitVotingRecord = function"), VR.indexOf("window._pdxInitVotingRecord = function") + 1400);
+  ok(/hasTarget\('pdx-voting-record'\)/.test(init),
+     "defer: the voting record accepts a container that is waiting inside a deferred drawer instead of bailing out of the fetch");
+  ok(/_pdxRevealTarget\('pdx-voting-record'\)/.test(VR) &&
+     VR.indexOf("_pdxRevealTarget('pdx-voting-record')") < VR.indexOf("var section = document.getElementById('pdx-voting-record')"),
+     "defer: and it reveals the drawer only once the data has arrived, then resolves the node — a member with no record never mounts the drawer at all");
+
+  // 9g. The Official Record gates its two links to the voting record on whether
+  //     that section exists. The check always answered about the PREVIOUS render,
+  //     because it runs while the next profile is still a string — so once the
+  //     record moved into a deferred drawer the evidence moved into the stash, and
+  //     a DOM-only check would have hidden a live link from most readers.
+  const CJ = read("consistency.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(/function _vrSectionReachable/.test(CJ) && /hasTarget\('pdxsec-voting'\)/.test(CJ),
+     "defer: the Official Record asks the spine as well as the document whether a voting record section is reachable");
+  ok(!/document\.getElementById\('pdxsec-voting'\)\) return ''/.test(CJ) &&
+     (CJ.match(/_vrSectionReachable\(\)/g) || []).length >= 3,
+     "defer: and both of its gated links — the raw-record button and the mapped-count summary — go through that one check");
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error("\n✗ profile spine: " + failures.length + " failure(s)\n");

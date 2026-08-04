@@ -2005,6 +2005,20 @@
     }
     return tip;
   }
+  // Is there a Voting Record section to send a reader to? Asking the document is
+  // not enough. This runs while the next profile is still a string, so the only
+  // evidence ever available was the PREVIOUS render — and that record now waits
+  // inside a deferred drawer, which moves the evidence out of the document and
+  // into the spine stash. Ask both, or a perfectly live link vanishes for every
+  // reader who never happened to open a votes drawer.
+  function _vrSectionReachable() {
+    try { if (document.getElementById && document.getElementById('pdxsec-voting')) return true; } catch (e) {}
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.hasTarget === 'function') return !!SP.hasTarget('pdxsec-voting');
+    } catch (e) {}
+    return false;
+  }
   function _orMappedSummaryHtml(pid) {
     var counts = null;
     try {
@@ -2017,7 +2031,7 @@
       '<span class="pdxor-mapsum-txt">' + esc(txt) + '</span>';
     // No Voting Record section on the page → keep the count, drop the promise. A line
     // that cannot go anywhere should not look like a link.
-    var live = document.getElementById && document.getElementById('pdxsec-voting');
+    var live = _vrSectionReachable();
     if (!live) return '<div class="pdxor-mapsum pdxor-mapsum-flat" title="' + escAttr(tip) + '">' + body + '</div>';
     return '<button type="button" class="pdxor-mapsum" data-pdxc-vrall="1"' +
         ' title="' + escAttr(tip) + '">' + body +
@@ -2166,7 +2180,7 @@
   }
   function _orRawLink() {
     // Keep the raw Voting Record list one tap away (it still has value as a full list).
-    if (!document.getElementById || !document.getElementById('pdxsec-voting')) return '';
+    if (!_vrSectionReachable()) return '';
     return '<button type="button" class="pdxor-rawlink" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-voting\');else{var e=document.getElementById(\'pdxsec-voting\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See the full voting record →</button>';
   }
   // ── "this feeds the one score" ───────────────────────────────────────────────

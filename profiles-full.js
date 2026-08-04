@@ -3337,6 +3337,12 @@
   // ════════════════════════════════════════════════════════════
   window.pdxFilterPromises = function(verdict, doScroll){
     verdict = verdict || 'all';
+    // The promise ledger lives inside a deferred drawer, so on a profile whose
+    // drawer has never been opened none of the ids below exist yet. Mount it
+    // first — the old `if (!list) return` would otherwise swallow the filter AND
+    // the scroll, making every hero count chip a dead button until the reader
+    // happened to open the drawer by hand.
+    if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget('pdx-promise-list');
     var list = document.getElementById('pdx-promise-list');
     if (!list) return;
     var labels = { all:'promises', kept:'kept promises', broken:'broken promises', pending:'pending promises', partial:'partial promises' };
@@ -3551,6 +3557,11 @@
   // scroll offset is measured after that so it reflects the expanded layout.
   window._pdxNavJump = function (targetId, btn) {
     var body = document.getElementById('modal-body');
+    // The deepest sections now live inside drawers whose inner markup is held
+    // back as a string until first open, so the target may not exist yet. Mount
+    // its drawer first: without this the function bails on `!el` and the pill
+    // reads as broken, which is exactly the failure deferral must not introduce.
+    if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(targetId);
     var el = document.getElementById(targetId);
     if (!body || !el) return;
     try {
@@ -5512,8 +5523,20 @@
     // tag with no spec both fall through to the deep end. If profile-spine.js has
     // not loaded, the raw body renders exactly as it did before — the spine is an
     // ordering layer, never a prerequisite for the content.
+    //
+    // `defer: true` holds a drawer's inner markup back as a string and mounts it on
+    // first open (PDXProfileSpine.materialize, called from toggleDD). Collapsing
+    // alone never reduced mount cost: a closed .dd-body is still parsed, still
+    // becomes elements, still gets styled, and on the deepest profiles the drawers
+    // are most of the document — so the tap that opens a profile was paying for
+    // every record nobody had asked to see. The lid, its title and its count are
+    // identical either way; only the timing of the DOM changes.
     const _mc = document.getElementById('modal-content');
     const _spine = window.PDXProfileSpine;
+    // A new body is about to replace the old one, so any chart still waiting on a
+    // drawer from the previous profile is dead. Cleared here rather than inferred
+    // from a missing canvas, which now legitimately means "not mounted yet".
+    _pdxResetChartQueue();
     _mc.innerHTML = (_spine && typeof _spine.assembleTagged === 'function')
       ? _spine.assembleTagged(_profileBody, {
           // Drawer order = how deep you are going, shallowest first. Every meta
@@ -5521,15 +5544,44 @@
           // promises more than it holds.
           drawers: [
             { id: 'positions', stage: 'drawers', ico: '📋', title: 'Every documented position',
+              // Deferred: _renderIssueStances emits the largest single block on a
+              // deeply-documented profile — every position with its own evidence
+              // and sources — and it registers nothing post-render, holds no
+              // canvas and publishes no id, so nothing outside it can reach in
+              // before a reader asks for it.
+              defer: true,
               meta: (function(){ try { var n = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []).length : 0; return n ? n + ' on file' : ''; } catch (e) { return ''; } })(),
               sub: 'Each position with its own evidence and sources. Stance at a Glance above is the index into exactly this material.' },
             { id: 'votes', stage: 'drawers', ico: '🗳️', title: 'Full voting record',
+              // Deferred, and this one required a change in voting-record.js to be
+              // safe: _pdxInitVotingRecord used to demand #pdx-voting-record in
+              // the DOM before it would even fetch, which would have silently
+              // disabled the live record for every member. It now resolves the
+              // section after the fetch resolves, so a member with no record never
+              // mounts this drawer at all and a member with one mounts it off the
+              // opening frame instead of on it.
+              defer: true,
               sub: 'Every tracked vote and formal action, with why it matters. The highlights above are drawn from this list.' },
             { id: 'promises', stage: 'drawers', ico: '🤝', title: 'Every tracked promise',
+              // Deferred: the per-promise ledger plus the four-way breakdown and
+              // its formula. Its ids ARE reached from outside — the hero count
+              // chips call pdxFilterPromises, the nav rail has a Record pill, and
+              // controversies.js jumps to pdxsec-record — so all three routes go
+              // through a reveal first (see _pdxRevealTarget).
+              defer: true,
               sub: 'The full ledger behind the Promise Follow-Through score, plus how the score is calculated.' },
             { id: 'money', stage: 'drawers', ico: '💰', title: 'Full financial record',
+              // Deferred: two Chart.js canvases and the full finance report. The
+              // charts were already queued rather than drawn (a canvas in a closed
+              // drawer measures zero), so they only needed the queue to tolerate a
+              // canvas that does not exist yet as well as one that has no size.
+              defer: true,
               sub: 'Net worth over time, campaign finance detail and donor breakdown from public disclosures.' },
             { id: 'activity', stage: 'drawers', ico: '🕑', title: 'Tracking activity',
+              // NOT deferred, on purpose. It is a short freshness block — a few
+              // counts and a timestamp — so there is nothing to win, and it holds
+              // the pdxsec-activity anchor that the jump rail's Activity pill spies
+              // on. Deferring it would trade a real feature for no measurable gain.
               sub: 'How much is on file for this profile, and when it was last updated.' }
           ]
         }) + '<div style="height:0.5rem;"></div>'
@@ -5548,12 +5600,17 @@
       try { window._pdxRelatedSpotlight(id); } catch (e) {}
     }
 
-    // Render wealth chart if data is available
+    // Render wealth chart if data is available.
+    //
+    // The canvas is resolved when the chart is DRAWN, not when the job is queued:
+    // it sits inside the deferred money drawer, so at this point it is still part
+    // of a string. Capturing it here — and gating the whole job on `if (ctx)` —
+    // meant the net-worth chart was queued only for profiles whose drawer happened
+    // to be mounted already, i.e. never.
     if (window.__wealthChartData) {
       const wd = window.__wealthChartData;
-      const ctx = document.getElementById('wealthChart');
       delete window.__wealthChartData;
-      if (ctx) _pdxDrawerChart('wealthChart', function () { window.PDXLazy.chart().then(function () {
+      _pdxDrawerChart('wealthChart', function () { var ctx = document.getElementById('wealthChart'); if (!ctx) return; window.PDXLazy.chart().then(function () {
         if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); }
         window.__wealthChartInstance = new Chart(ctx, {
           type: 'line',
@@ -5611,9 +5668,12 @@
       }).catch(function () {}); });
     }
 
-    // Render FTM net worth bar chart
-    var _ftmNwCanvas = document.getElementById('ftmNwChart');
-    if (_ftmNwCanvas) _pdxDrawerChart('ftmNwChart', function () {
+    // Render FTM net worth bar chart. Same rule as the wealth chart above — the
+    // canvas is looked up at draw time, because it lives in the deferred money
+    // drawer and does not exist during this pass.
+    _pdxDrawerChart('ftmNwChart', function () {
+      var _ftmNwCanvas = document.getElementById('ftmNwChart');
+      if (!_ftmNwCanvas) return;
       if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); }
       var _ftmNwData = {
         trump:    { labels:['Before','2019','2021','2023','Now'], values:[4.5,3.1,2.5,2.6,6.5], unit:'B' },
@@ -5668,18 +5728,27 @@
       }).catch(function () {});
     });
 
-    // Follow Money Trail button state
-    var _ftmFollowBtn = document.getElementById('ftm-follow-btn');
-    if (_ftmFollowBtn) {
-      var _cu = auth.currentUser;
-      if (_cu && !_cu.isAnonymous) {
-        db.collection('followMoney').doc(_cu.uid).get().then(function(doc) {
-          if (doc.exists && doc.data().politicians && doc.data().politicians.indexOf(id) !== -1) {
-            _ftmFollowBtn.classList.add('ftm-following');
-            _ftmFollowBtn.innerHTML = '✅ Following Money Trail';
+    // Follow Money Trail button state.
+    //
+    // The button is resolved when the answer arrives rather than up front, and the
+    // answer is also recorded on _pdxFollowMoneyOn. The Firestore read is async and
+    // the button lives in the deferred money drawer, so it may be absent both now
+    // and when the promise settles; _pdxAfterDrawerReveal re-applies the state from
+    // that flag when the drawer finally mounts. Without it, a following user opened
+    // the money drawer to an un-followed button.
+    window._pdxFollowMoneyOn = false;
+    var _cu = auth.currentUser;
+    if (_cu && !_cu.isAnonymous) {
+      db.collection('followMoney').doc(_cu.uid).get().then(function(doc) {
+        if (doc.exists && doc.data().politicians && doc.data().politicians.indexOf(id) !== -1) {
+          window._pdxFollowMoneyOn = true;
+          var _fb = document.getElementById('ftm-follow-btn');
+          if (_fb) {
+            _fb.classList.add('ftm-following');
+            _fb.innerHTML = '✅ Following Money Trail';
           }
-        }).catch(function() {});
-      }
+        }
+      }).catch(function() {});
     }
 
     console.log('✅ openModal built content for', id);
@@ -5786,6 +5855,10 @@
   function closeModal() {
     if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); window.__wealthChartInstance = null; }
     if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); window.__ftmNwChartInstance = null; }
+    // Drop chart jobs still waiting on a drawer nobody opened. _pdxDrainCharts no
+    // longer treats a missing canvas as a dead job — it cannot tell "deferred" from
+    // "gone" — so the queue is emptied here, where the answer is unambiguous.
+    _pdxResetChartQueue();
     // Close any open stance-evidence popover so it never lingers over the page.
     if (typeof window._pdxCloseStanceEvidence === 'function') window._pdxCloseStanceEvidence();
     window._sagCtx = null;
@@ -5817,11 +5890,25 @@
   // blank — Chart.js does not reliably redraw when the box is later revealed. So
   // any chart whose canvas is not laid out yet is parked here and drawn the first
   // time its drawer opens, which is also the first time anyone can see it.
+  //
+  // With deferred drawer inners there is a third case: the canvas does not exist
+  // AT ALL yet, because the drawer holding it is still a string. That used to be
+  // indistinguishable from "the profile closed", and both were dropped — so
+  // deferring the money drawer would have silently thrown away the net-worth and
+  // campaign-finance charts instead of drawing them late. A missing element is now
+  // a reason to WAIT, and the queue is emptied explicitly at the two moments a
+  // pending job really is dead: a new profile rendering, and the modal closing.
+  //
+  // The cost of that is a job for a canvas this profile never renders at all
+  // sitting parked until close, retried with one getElementById each time a drawer
+  // opens. That is deliberately preferred to asking the spine whether the id
+  // exists somewhere in the deferred markup, which would mean regex-scanning every
+  // stashed drawer body at mount — paying back the exact cost deferral just saved.
   var _pdxPendingCharts = [];
+  function _pdxResetChartQueue() { _pdxPendingCharts = []; }
   function _pdxDrawerChart(canvasId, fn) {
     var el = document.getElementById(canvasId);
-    if (!el) return;
-    if (el.offsetWidth > 0 && el.offsetHeight > 0) { try { fn(); } catch (e) {} return; }
+    if (el && el.offsetWidth > 0 && el.offsetHeight > 0) { try { fn(); } catch (e) {} return; }
     _pdxPendingCharts.push({ id: canvasId, fn: fn });
   }
   function _pdxDrainCharts() {
@@ -5829,14 +5916,57 @@
     var keep = [];
     _pdxPendingCharts.forEach(function (job) {
       var el = document.getElementById(job.id);
-      if (!el) return;                        // its profile closed — drop the job
-      if (!el.offsetWidth || !el.offsetHeight) { keep.push(job); return; }
+      // Not mounted yet (deferred drawer) or mounted but not laid out (closed
+      // drawer) — either way it is not drawable now and must not be discarded.
+      if (!el || !el.offsetWidth || !el.offsetHeight) { keep.push(job); return; }
       try { job.fn(); } catch (e) {}
     });
     _pdxPendingCharts = keep;
   }
 
+  // Called by PDXProfileSpine.materialize() immediately after the markup of a
+  // deferred drawer is injected, in the same task, before the drawer is opened.
+  // Everything that needs freshly mounted nodes belongs here, and nothing here may
+  // assume the drawer is visible yet — the charts deliberately re-queue themselves
+  // if it is not, and get drained again by toggleDD once it is.
+  window._pdxAfterDrawerReveal = function (drawerId, host) {
+    // Charts parked because their canvas did not exist can now find it.
+    try { _pdxDrainCharts(); } catch (e) {}
+    // The stored state of the Follow Money Trail button was read from Firestore
+    // during the profile render, when this button was still a string. Re-apply it
+    // rather than leaving a following user looking at an un-followed button.
+    try {
+      if (window._pdxFollowMoneyOn && host && host.querySelector) {
+        var fb = host.querySelector('#ftm-follow-btn');
+        if (fb) { fb.classList.add('ftm-following'); fb.innerHTML = '✅ Following Money Trail'; }
+      }
+    } catch (e) {}
+    // The scroll-spy built its target list from the ids that existed at mount, so
+    // a jump-rail pill aimed inside this drawer was skipped. Re-arm it: the
+    // function removes its own previous scroll listener, so this cannot stack.
+    try {
+      if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav();
+    } catch (e) {}
+  };
+
+  // One entry point for "make sure the element with this id is mounted". Safe to
+  // call when the spine is absent or the id is already live — both are no-ops.
+  window._pdxRevealTarget = function (elId) {
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.revealFor === 'function') return SP.revealFor(elId);
+    } catch (e) {}
+    return false;
+  };
+
   function toggleDD(id) {
+    // Mount a deferred inner BEFORE the open class goes on, so the reveal and the
+    // content land in the same frame — the reader never sees an open, empty drawer
+    // — and so _pdxDrainCharts below runs against a subtree that exists.
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.materialize === 'function') SP.materialize(id);
+    } catch (e) {}
     const body = document.getElementById(id);
     const btn  = document.getElementById('btn-' + id);
     if (!body || !btn) return;

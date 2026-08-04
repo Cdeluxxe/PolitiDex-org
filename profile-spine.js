@@ -166,6 +166,10 @@
     var specs = opts.drawers || [];
     var parts = [];
     var dw = {};
+    // One profile is being assembled, so any drawer body still stashed from the
+    // last one is dead. Clearing here rather than on close means a profile can
+    // never mount the previous profile's record, even if it was closed abruptly.
+    resetDefer();
     specs.forEach(function (s) { if (s && s.id) dw[s.id] = []; });
 
     var last = 0, cur = 'identity', m;
@@ -194,11 +198,112 @@
       if (!list.length) return;
       var html = drawer({
         id: 'pdxsp-dw-' + s.id, ico: s.ico, title: s.title, meta: s.meta, sub: s.sub,
+        defer: !!s.defer,
         html: list.join('\n')
       });
       parts.push([s.stage || 'drawers', html]);
     });
     return assemble(parts);
+  }
+
+  // ── Deferred drawer inners ──────────────────────────────────────────────────
+  // Collapsing a drawer hides its content; it does not stop the browser paying
+  // for it. A closed .dd-body is still parsed out of the innerHTML string, still
+  // becomes thousands of elements, still gets style resolved. On the deepest
+  // profiles the drawers are the majority of the document, and all of that cost
+  // lands on the tap that opens the profile — for material nobody has asked to
+  // see yet.
+  //
+  // Deferred mode keeps the drawer's markup as a STRING until the drawer is first
+  // needed, and emits an empty .dd-inner in its place. The lid, its title and its
+  // count are unchanged, so the reader is told exactly what is inside and how much
+  // of it there is before any of it exists as DOM.
+  //
+  // Three rules make that safe rather than merely faster:
+  //
+  //   ONE-SHOT AND SYNCHRONOUS. materialize() injects in the same task it is
+  //   called in, before toggleDD flips the open class, so anything that measures,
+  //   drains or hydrates after the open sees a fully mounted subtree. It is never
+  //   an animation frame or a microtask behind. Injecting twice is impossible: the
+  //   stash entry is removed as it is used.
+  //
+  //   NOTHING BECOMES UNREACHABLE. Deferred content still holds jump targets, and
+  //   code elsewhere still looks those up by id. revealFor(elementId) materializes
+  //   whichever drawer holds a given id, so a jump, a promise filter or a deep
+  //   link resolves against content that has not been mounted yet. hasTarget()
+  //   answers the same question without mounting, for callers that only need to
+  //   know whether a destination exists at all.
+  //
+  //   THE STORE IS PER-RENDER. assembleTagged() clears it, so a profile can never
+  //   inherit the previous profile's drawer bodies, and closing a profile without
+  //   opening its drawers does not leak their markup.
+  var DEFER = {};
+
+  function resetDefer() { DEFER = {}; }
+
+  // Which element ids live inside a stashed body. Built on demand and cached,
+  // because the common case — the id is already in the document — never needs it,
+  // and scanning a megabyte of markup to answer a question nobody asked would
+  // hand back the cost this whole mechanism exists to avoid.
+  function idIndex(rec) {
+    if (rec.idx) return rec.idx;
+    var idx = {}, re = /\sid="([^"]+)"/g, m;
+    while ((m = re.exec(rec.html)) !== null) idx[m[1]] = 1;
+    rec.idx = idx;
+    return idx;
+  }
+
+  function deferredOwner(elId) {
+    for (var id in DEFER) {
+      if (!DEFER.hasOwnProperty(id)) continue;
+      if (id === elId) return id;
+      if (idIndex(DEFER[id])[elId]) return id;
+    }
+    return '';
+  }
+
+  // True when `elId` is either already in the document or is waiting inside a
+  // deferred drawer. Callers use this to decide whether a destination is real
+  // without forcing it to mount.
+  function hasTarget(elId) {
+    if (!elId) return false;
+    try { if (document.getElementById(elId)) return true; } catch (e) {}
+    return !!deferredOwner(elId);
+  }
+
+  // Mount one deferred drawer's body. Returns true only if markup was injected,
+  // so callers can tell "I just mounted this" from "it was already there".
+  function materialize(drawerId) {
+    var rec = DEFER[drawerId];
+    if (!rec) return false;
+    var body, host = null;
+    try { body = document.getElementById(drawerId); } catch (e) { body = null; }
+    if (!body) return false;
+    var kids = body.children || [];
+    for (var i = 0; i < kids.length; i++) {
+      if (kids[i].getAttribute && kids[i].getAttribute('data-pdxsp-defer') === drawerId) { host = kids[i]; break; }
+    }
+    if (!host) return false;
+    host.innerHTML = rec.html;
+    try { host.removeAttribute('data-pdxsp-defer'); } catch (e) {}
+    delete DEFER[drawerId];
+    // One seam back into the profile for everything that has to run against
+    // freshly mounted nodes — the chart queue, a button whose stored state was
+    // fetched while the canvas did not exist, the scroll-spy's target list. The
+    // spine does not know what those are and must not grow to know.
+    try {
+      if (typeof window._pdxAfterDrawerReveal === 'function') window._pdxAfterDrawerReveal(drawerId, host);
+    } catch (e) {}
+    return true;
+  }
+
+  // Mount whichever deferred drawer holds `elId`. No-op when the id is already
+  // live, which is the overwhelmingly common case and costs one getElementById.
+  function revealFor(elId) {
+    if (!elId) return false;
+    try { if (document.getElementById(elId)) return false; } catch (e) {}
+    var owner = deferredOwner(elId);
+    return owner ? materialize(owner) : false;
   }
 
   // ── Drawers ─────────────────────────────────────────────────────────────────
@@ -208,6 +313,10 @@
   // for short deep-dives; a full voting record or every documented position runs
   // well past it and would be silently clipped, which is a worse failure than no
   // drawer at all.
+  //
+  // opts.defer holds the inner markup back as a string (see above). The lid is
+  // byte-identical either way: the drawer must not advertise itself differently
+  // for being cheap.
   function drawer(opts) {
     opts = opts || {};
     var html = opts.html;
@@ -218,6 +327,17 @@
       ? '<span class="pdxsp-dw-meta">' + esc(opts.meta) + '</span>'
       : '';
     var sub = opts.sub ? '<p class="pdxsp-dw-sub">' + esc(opts.sub) + '</p>' : '';
+    // The subtitle rides along with the deferred payload rather than staying
+    // inline: it is one short paragraph, and keeping the .dd-inner an empty leaf
+    // node means the deferred and inline forms have identical element structure
+    // apart from what is inside that one box.
+    var inner;
+    if (opts.defer) {
+      DEFER[id] = { html: sub + html, idx: null };
+      inner = '<div class="dd-inner pdxsp-dw-inner" data-pdxsp-defer="' + escAttr(id) + '"></div>';
+    } else {
+      inner = '<div class="dd-inner pdxsp-dw-inner">' + sub + html + '</div>';
+    }
     return '<div class="modal-section pdxsp-dw">' +
         '<button class="dd-toggle-btn pdxsp-dw-btn" type="button" onclick="toggleDD(\'' + escAttr(id) + '\')" id="btn-' + escAttr(id) + '"' +
           ' aria-controls="' + escAttr(id) + '" aria-expanded="false">' +
@@ -230,7 +350,7 @@
             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
         '</button>' +
         '<div class="dd-body dd-free" id="' + escAttr(id) + '">' +
-          '<div class="dd-inner pdxsp-dw-inner">' + sub + html + '</div>' +
+          inner +
         '</div>' +
       '</div>';
   }
@@ -482,7 +602,13 @@
     try { chips = scope.querySelectorAll('.pdxbr-jump[data-pdxbr-to]'); } catch (e) { return; }
     for (var i = 0; i < chips.length; i++) {
       var to = chips[i].getAttribute('data-pdxbr-to');
-      if (to && !document.getElementById(to) && chips[i].parentNode) {
+      // hasTarget rather than getElementById: a chip aimed into a deferred drawer
+      // has a real destination that simply has not been mounted yet, and deleting
+      // it would turn a performance optimisation into a missing control. Today's
+      // chips all target stage rails, which are never deferred, so this costs one
+      // lookup per chip and changes nothing — it is here so that stops being a
+      // load-bearing coincidence.
+      if (to && !hasTarget(to) && chips[i].parentNode) {
         chips[i].parentNode.removeChild(chips[i]);
       }
     }
@@ -505,6 +631,13 @@
     drawer: drawer,
     briefHtml: briefHtml,
     hydrate: hydrate,
+    // Deferred drawer inners. materialize() takes a drawer id, revealFor() takes
+    // any element id inside one; hasTarget() answers "does this destination
+    // exist" for both mounted and still-stashed content.
+    materialize: materialize,
+    revealFor: revealFor,
+    hasTarget: hasTarget,
+    _deferredIds: function () { return Object.keys(DEFER); },
     // Exposed for tests and for any surface that wants the same reads without
     // the markup — never for a second, divergent rendering of the brief.
     _signatureIssues: signatureIssues,
