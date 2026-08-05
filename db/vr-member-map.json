@@ -1,9 +1,9 @@
 {
   "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `map`; `members` is for human review only. Roster scope is db/vr-roster-admitted.json.",
-  "count": 101,
-  "serving119": 93,
+  "count": 104,
+  "serving119": 96,
   "annotated": true,
-  "unadmittedPortraits": 72,
+  "unadmittedPortraits": 70,
   "map": {
     "A000148": "jake_auchincloss",
     "B000740": "stephanie_bice",
@@ -40,6 +40,7 @@
     "G000583": "josh_gottheimer",
     "G000591": "michael_guest",
     "G000596": "mtg",
+    "G000598": "robert_garcia",
     "G000599": "dan_goldman",
     "H000874": "steny_hoyer",
     "H001072": "french_hill",
@@ -61,11 +62,13 @@
     "L000599": "mike_lawler",
     "L000601": "greg_landsman",
     "L000602": "summer_lee",
+    "M000312": "jim_mcgovern",
     "M000355": "mcconnell",
     "M001137": "meeks",
     "M001153": "murkowski",
     "M001169": "chris_murphy",
     "M001184": "massie",
+    "M001196": "seth_moulton",
     "M001199": "brian_mast",
     "M001213": "bmoore",
     "M001215": "mariannette_miller_meeks",
@@ -451,6 +454,15 @@
       "serving119": true
     },
     {
+      "bioguide": "M000312",
+      "slug": "jim_mcgovern",
+      "name": "James P. McGovern",
+      "chamber": "house",
+      "state": "MA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "C001056",
       "slug": "john_cornyn",
       "name": "John Cornyn",
@@ -766,6 +778,15 @@
       "serving119": true
     },
     {
+      "bioguide": "G000598",
+      "slug": "robert_garcia",
+      "name": "Robert Garcia",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "R000608",
       "slug": "rosen",
       "name": "Jacky Rosen",
@@ -835,6 +856,15 @@
       "chamber": "house",
       "state": "PA",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001196",
+      "slug": "seth_moulton",
+      "name": "Seth Moulton",
+      "chamber": "house",
+      "state": "MA",
+      "party": "Democrat",
       "serving119": true
     },
     {
