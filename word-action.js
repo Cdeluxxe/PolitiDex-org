@@ -37,10 +37,11 @@
        lane, and blending the two would make the test unfalsifiable.
 
    Hard pledges are TOP TIER INSIDE THIS SYSTEM, not a separate product lane. The
-   old Promise Follow-Through percentage still exists, still uses its own formula,
-   and is still reachable — but it is now presented as the pledge tier of this
-   read rather than as a competing headline. See _renderFollowThrough in
-   profiles-full.js for the demoted presentation.
+   Promise Follow-Through percentage that used to rate them separately has been
+   RETIRED — no surface publishes it. What remains of that lane is its evidence:
+   individual pledges with kept / broken / pending verdicts and their counts, which
+   feed this read as the pledge tier. See _renderFollowThrough in profiles-full.js
+   for the receipts-only presentation.
 
    THE FIVE RULES THIS FILE WILL NOT BREAK
    ─────────────────────────────────────────────────────────────────────────────
@@ -641,8 +642,8 @@
       var rows = [];
       var pledgeN = (t.pledge && t.pledge.total) || 0;
       if (pledgeN || (agg && agg.resolved)) {
-        rows.push({ ico: TIERS.pledge.ico, name: 'Promise Follow-Through', target: 'pdxsec-score', counted: true,
-          role: 'Explicit pledges — the top tier of this score, counting ' + TIERS.pledge.weight + '×',
+        rows.push({ ico: TIERS.pledge.ico, name: 'Promise receipts', target: 'pdxsec-score', counted: true,
+          role: 'Explicit pledges kept and broken — the top tier of this score, counting ' + TIERS.pledge.weight + '×',
           n: pledgeN ? (pledgeN + ' itemized') : (agg.resolved + ' resolved') });
       }
       if (t.position && t.position.total) {

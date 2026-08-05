@@ -3145,7 +3145,7 @@
     var principles = [
       { label:'Keeps Promises', icon:'🤝',
         score: pick(ov.promises, promiseScore),
-        desc:'Share of tracked campaign promises kept versus broken (Promise %).' },
+        desc:'Tracked campaign promises kept versus broken — counts on file, no rate published.' },
       { label:'Accountability', icon:'🛡️',
         score: pick(ov.accountability, acctShowable ? acct.overallScore : null, acctCat(/account/i)),
         desc:'Independent Accountability of Truth score for honesty and consistency.' },
@@ -3176,7 +3176,7 @@
     }).join('');
     // SCORING CLEANUP: the 4-tile People's Mandate scorecard (Keeps Promises /
     // Accountability / Transparency / Constituents) re-presented signals shown
-    // elsewhere — Promise % has its own section, the retired Accountability
+    // elsewhere — the promise receipts have their own section, the retired Accountability
     // composite is gone, and the finance tiles duplicated the money lens. This
     // section now renders ONLY the Follow-the-Money / Constituents-First funding
     // lens, kept deliberately separate from the record scores. The scorecard
@@ -3193,34 +3193,34 @@
         '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.65rem;">A separate <strong style="color:#c8d8ea;">funding lens</strong> — not one of the record scores. Computed live from itemized public filings, it shows how much of their money comes from small-dollar donors versus large-individual and PAC money.</p>' +
         window._pdxFinanceSignalHTML(finSig) +
       '</div>' +
-      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match, Say-vs-Do, and Promise Follow-Through.</p>' +
+      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match, Say-vs-Do, and the promise receipts.</p>' +
     '</div>';
   };
 
   // ════════════════════════════════════════════════════════════
-  // PROMISE FOLLOW-THROUGH — the at-a-glance "did they keep the
-  // promises they made?" read. Built from kept / broken / pending
-  // promise counts. Promise Follow-Through = Kept ÷ (Kept + Broken);
-  // pending promises are deliberately excluded so no one is credited or
-  // blamed for a promise that hasn't played out yet (matches the
-  // Promise % methodology). Shared by the profile hero and the browse cards.
+  // PROMISE RECEIPTS — the kept / broken / pending pledge ledger.
   //
-  // The verdict wording is scoped to PROMISES on purpose. "Keeps their word"
-  // is the claim the 🧾 Say-vs-Do lane makes from the broader public record;
-  // this lane only knows about discrete tracked promises, so it says so.
+  // RETIRED AS A SCORE. This used to be "Promise Follow-Through", a rated
+  // track with its own published percentage (Kept ÷ (Kept + Broken), pending
+  // excluded) shown as a headline beside ⚖️ Word vs Action. Two percentages
+  // rating two different things is exactly the confusion PolitiDex is supposed
+  // to remove, so the percentage is no longer published ANYWHERE: not in the
+  // hero, not in this block, not in a disclosure, not as a bar (a 77/23 bar is
+  // the same percentage drawn instead of written).
   //
-  // ONE HEADLINE PER LANE: the optional `published` argument is the site's
-  // headline promise figure — window._pdxDisplayScore(p), the stored score with
-  // flagship promises weighted by real-world impact (see the Deep Dive, which
-  // has always said so). It differs from the raw ratio on most records with a
-  // resolved promise, so when the profile hero showed the published figure and
-  // this block computed its own raw one, a reader saw two different
-  // "promises kept" percentages side by side — Mike Lee 72% in the ring, 77%
-  // here — with the reconciliation buried in a collapsed panel. Pass
-  // `published` and every promise surface leads with the same number; `raw`
-  // stays on the object so the block can show the ratio it came from. Omit it
-  // (as the browse-card strip does) and the raw ratio is the headline, exactly
-  // as before.
+  // What survives is everything that was ever evidence: the individual pledges,
+  // their kept / broken / pending verdicts, and the counts. Those are receipts,
+  // and receipts belong on the page. They feed the one read — the pledge tier of
+  // ⚖️ Word vs Action — instead of being scored on their own.
+  //
+  // _ftMeta STILL COMPUTES the arithmetic. It is kept intact deliberately: the
+  // honesty guards, the counts-only detection (`itemized === false`) and the
+  // pending-excluded convention are all load-bearing, and several harnesses
+  // probe them behaviourally. Treat `rate` / `raw` / `col` / `verdict` as DATA
+  // ONLY — nothing may print them as a percentage or as a rate-derived rating.
+  // The `published` argument is likewise still accepted so callers need not
+  // change, but it now only affects whether `rate` is populated for internal
+  // callers; no display path reads it.
   // ════════════════════════════════════════════════════════════
   window._ftMeta = function(kept, broken, pending, published, itemized){
     kept = +kept || 0; broken = +broken || 0; pending = +pending || 0;
@@ -3259,43 +3259,37 @@
              weighted:(rate !== null && raw !== null && rate !== raw), col:col, verdict:verdict, sub:sub, ico:ico };
   };
 
-  // The PLEDGE TIER of Word vs Action — no longer the profile's headline.
+  // The PLEDGE TIER of Word vs Action — receipts, not a score.
   //
-  // DEMOTION, NOT DELETION. Under the unified Word-vs-Action standard an explicit
-  // pledge is the top tier of one pool of documented word, not a separate scoring
-  // religion. So this block keeps everything that made it trustworthy — the
-  // canonical name, the canonical formula (Kept ÷ (Kept + Broken), pending
-  // excluded), every count, the three filter chips, the raw-vs-weighted
-  // reconciliation and the ⓘ explainer — and gives up only its visual dominance:
-  // the 2.5rem hero rate becomes a 1.6rem supporting figure, the glowing gradient
-  // frame becomes a flat panel, and the eyebrow now says where this number sits in
-  // the ladder above rather than asking the profile's main question.
+  // WHAT CHANGED. This block used to be the profile's second scoreboard: a
+  // published percentage, a kept/broken split bar drawing that same percentage,
+  // a rate-derived verdict ("Keeps Their Promises" / "Breaks Promises") and a
+  // raw-vs-weighted reconciliation. All of that rated the same politician on a
+  // different axis, in a different colour, a few hundred pixels below the one
+  // read the site actually stands behind. It is gone.
   //
-  // Nothing about the arithmetic changed. A reader who trusted the old number gets
-  // the same number, in the same words, one level quieter.
+  // WHAT SURVIVES. Every receipt: the pledges themselves, their kept / broken /
+  // pending verdicts, the counts, the three filter chips that jump into the
+  // ledger, and the ⓘ explainer. A count is a fact about a countable list. A
+  // rate is a rating — and this site publishes exactly one.
   //
-  // `published` is the profile's headline promise figure so this block and the
-  // hero ring above it cannot disagree; the raw ratio it was weighted from is
-  // stated inline rather than only inside the collapsed Deep Dive.
+  // `published` is still accepted so no caller has to change shape, and so
+  // _ftMeta can still apply its counts-only guard, but nothing here reads it.
   //
-  // `itemized` is the second honesty guard. Pass `false` and this block renders
-  // its counts, its verdict line and its explainer but publishes NO rate at all:
-  // no percentage, no split bar (a 77/23 bar is the same percentage drawn instead
-  // of written), and no filter hint promising to filter a list that is empty. See
-  // _pdxHasItemizedPledges in index.html for why counts alone do not earn a rate.
+  // `itemized` remains the honesty guard, and it now controls one thing only:
+  // whether the counts are clickable. With no inspectable pledge list there is
+  // nothing below to filter TO, so the chips render as plain text instead of
+  // dead buttons, and the note says why.
   window._renderFollowThrough = function(kept, broken, pending, pid, published, itemized){
     var m = window._ftMeta(kept, broken, pending, published, itemized);
     if (m.resolved === 0 && m.pending === 0) return '';
-    var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
-    var brokenPct = m.resolved ? 100 - keptPct : 0;
-    var rateTxt = m.rate === null ? '—' : m.rate + '%';
     // With no itemized ledger there is nothing below to filter TO, so the counts
     // stay as plain, readable counts rather than dead buttons.
     var interactive = m.itemized;
-    // The rate opens the same Promise % explainer used by the cards.
+    // Opens the pledge-lane explainer used by the cards.
     var ftClick = ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
-      ' title="How is Promise Follow-Through calculated?"';
+      ' title="How do promise receipts work?"';
     function countChip(kind, ico, n, label) {
       if (!interactive) {
         return '<span class="vbadge vbadge-' + kind + '">' + ico + ' ' + n + ' ' + label + '</span>';
@@ -3304,23 +3298,27 @@
         ' onclick="window._pdxBadgeClick(\'' + kind + '\')" onkeydown="window._pdxBadgeKey(event,\'' + kind + '\')"' +
         ' title="Show the ' + kind + ' promises">' + ico + ' ' + n + ' ' + label + '</span>';
     }
-    // DEMOTED, NOT DELETED. This block used to open with the rate set in 1.6rem
-    // type — larger than the profile's own headline ring — which is what made a
-    // profile read as rival scores. The pledge lane now leads with its VERDICT and
-    // its COUNTS, and the percentage sits one tap down inside a disclosure: still
-    // published, still reconciled against the raw ratio, still explainable, but no
-    // longer a second headline competing with the primary Word vs Action read.
+    // The headline is now a COUNT SENTENCE, not a verdict. It states what is on
+    // file and stops — no adjective grading the politician, because the grading
+    // happens once, above, in ⚖️ Word vs Action. The panel is a flat neutral
+    // slate rather than the old green/amber/red frame, since a colour keyed to a
+    // rate is that rate published as paint.
+    var ACC = '#9fb4d4';
+    var head = m.resolved
+      ? m.resolved + ' pledge' + (m.resolved === 1 ? '' : 's') + ' settled' + (m.pending ? ' · ' + m.pending + ' still open' : '')
+      : m.pending + ' pledge' + (m.pending === 1 ? '' : 's') + ' being tracked';
+    var line = m.resolved
+      ? 'On file: <strong style="color:#4ade80;">' + m.kept + ' kept</strong> and <strong style="color:#f87171;">' + m.broken + ' broken</strong>' +
+        (m.pending ? ', with <strong style="color:#cbd9ec;">' + m.pending + '</strong> not yet resolved' : '') + '. ' +
+        'These are the receipts behind the pledge tier of their ⚖️ Word vs Action read — not a separate grade.'
+      : 'Nothing has resolved yet, so there is nothing to judge here — only pledges to watch.';
     return '' +
-      '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid ' + m.col + '33;border-left:3px solid ' + m.col + '99;border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
+      '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid rgba(159,180,212,0.2);border-left:3px solid rgba(159,180,212,0.55);border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
         '<div style="margin-bottom:0.6rem;">' +
-          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · the pledge tier of Word vs Action</div>' +
-          '<div class="pdx-ft-verdict" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1.1;">' + m.ico + ' ' + m.verdict + '</div>' +
-          '<p class="pdx-ft-sub" style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
+          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Receipts · evidence for the pledge tier of Word vs Action</div>' +
+          '<div class="pdx-ft-verdict" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + ACC + ';line-height:1.1;">🤝 ' + head + '</div>' +
+          '<p class="pdx-ft-sub" style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + line + '</p>' +
         '</div>' +
-        ((m.resolved && m.itemized) ? '<div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.55rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
-          '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
-          '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
-        '</div>' : '') +
         '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;">' +
           countChip('kept', '✓', m.kept, 'Kept') +
           countChip('broken', '✗', m.broken, 'Broken') +
@@ -3329,40 +3327,27 @@
         (interactive
           ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>'
           : '') +
-        // The pledge-only percentage, kept as supporting detail. Body-text size, one
-        // tap down, and explicitly scoped ("pledges only") so it cannot be mistaken
-        // for the profile's overall read. Replaced outright — not merely emptied —
-        // when the ledger is not itemized, so no surface offers to disclose a rate
-        // it then cannot produce.
-        (m.itemized
-        ? '<details class="pdx-ft-rate">' +
-          '<summary class="pdx-ft-rate-sum">Pledge-only rate' + (m.rate === null ? '' : ' · ' + rateTxt) + '</summary>' +
-          '<div class="pdx-ft-rate-b">' +
-            '<p><b style="color:#cbd9ec;">Promises Kept</b> — ' + rateTxt +
-              (m.resolved ? ' across ' + m.resolved + ' resolved pledge' + (m.resolved === 1 ? '' : 's') : '') +
-              (m.pending ? '. ' + m.pending + ' still pending, counted in neither direction' : '') + '.' +
-              // Same reconciliation the Deep Dive gives, stated where the number is,
-              // so the figure is never one the visible breakdown cannot produce.
-              (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the published figure sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
-            '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this calculated?</button>' +
-          '</div>' +
-        '</details>'
-        // Counts-only: state plainly that no rate is published and why, and keep
-        // the ⓘ explainer reachable so a reader can still learn how the lane works.
-        // This is the substitute for the disclosure above, not an addition to it —
-        // the one thing that must never appear here is a number.
-        : '<div class="pdx-ft-noRate">' +
-            '<p class="pdx-ft-noRate-p">' +
-              'No follow-through rate is published for this pledge lane: the kept and broken counts above are on file, but the individual pledges behind them are not itemized yet, so the figure could not be checked against anything. ' +
-              'The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above is unaffected — it scores their stated positions and campaign issues against the official record.' +
-            '</p>' +
-            '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How is this lane calculated?</button>' +
-          '</div>') +
-        // Says out loud where this number sits now. Without it the block just looks
-        // smaller for no stated reason, and a reader who remembers it as the
-        // headline has no way to tell whether it was demoted or degraded. The link
-        // closes the loop the other way too: the primary section lists this block as
-        // an input, so this block has to be one tap from the score it feeds.
+        // ONE explanation, on every record. The old code branched here: a
+        // disclosure holding the percentage when the ledger was itemized, and a
+        // "no rate is published" note when it wasn't. Now no record gets a rate,
+        // so both branches collapse into the honest one — which also means a
+        // counts-only record no longer looks like a degraded version of a scored
+        // one. It reads the same, because it now IS the same.
+        '<div class="pdx-ft-noRate">' +
+          '<p class="pdx-ft-noRate-p">' +
+            'No follow-through percentage is published for this lane, on any profile. ' +
+            (m.itemized
+              ? 'Each pledge below is listed with its own verdict and sources, so you can read the record instead of a number derived from it. '
+              : 'The counts above are on file, but the individual pledges behind them are not itemized yet, so there is nothing here to check a number against. ') +
+            'PolitiDex publishes one integrity read — ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> — and kept and broken pledges are part of what feeds it.' +
+          '</p>' +
+          '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How does this lane work?</button>' +
+        '</div>' +
+        // Says out loud where these receipts sit. Without it the block just looks
+        // quieter for no stated reason, and a reader who remembers a percentage
+        // here has no way to tell whether it was retired or broke. The link closes
+        // the loop the other way too: the primary section lists this block as an
+        // input, so this block has to be one tap from the read it feeds.
         '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.5rem;">' +
           'This covers explicit pledges only. The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above weighs these alongside their stated positions and the issues they campaign on — because they should be held to all of it, not just the part phrased as a promise.' +
         '</p>' +
@@ -3474,30 +3459,16 @@
     window.pdxFilterPromises(next);
   };
 
-  // Compact card strip — one-line kept/broken read + a thin split bar so a
-  // visitor can judge follow-through without opening the profile.
-  // Currently has no call sites. It reports the RAW ratio, not the published
-  // headline, so anything wiring it up beside a published figure should pass
-  // that figure through to _ftMeta as the fourth argument — otherwise the two
-  // surfaces print different percentages for the same lane.
+  // RETIRED — the compact card strip that printed "N% Follow-Through".
+  //
+  // It had no call sites, and what it existed to print no longer exists: the
+  // pledge lane publishes counts, not a rate. Kept as a stub rather than deleted
+  // so that anything still calling it (a cached bundle, a half-migrated card)
+  // gets nothing instead of an old percentage. If you want kept/broken pills on
+  // a card, use window._pdxStatPills(kept, broken, pending, { record: p }) —
+  // that renders the receipts without inventing a rating for them.
   window._ftStrip = function(kept, broken, pending){
-    var m = window._ftMeta(kept, broken, pending);
-    if (m.resolved === 0) return '';
-    var keptPct = Math.round(m.kept / m.resolved * 100);
-    return '<div style="margin:0.1rem 0 0.35rem;">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.35rem;flex-wrap:wrap;">' +
-        '<span class="pdx-statpills">' +
-          '<span class="pdx-statpill pdx-statpill-kept">✓ ' + m.kept + ' Kept</span>' +
-          '<span class="pdx-statpill pdx-statpill-broken">✗ ' + m.broken + ' Broken</span>' +
-          (m.pending > 0 ? '<span class="pdx-statpill pdx-statpill-pending">⏳ ' + m.pending + ' Pending</span>' : '') +
-        '</span>' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.03em;text-transform:uppercase;color:' + m.col + ';">' + m.rate + '% Follow-Through</span>' +
-      '</div>' +
-      '<div style="display:flex;height:5px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);">' +
-        '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);"></div>' +
-        '<div style="width:' + (100 - keptPct) + '%;background:linear-gradient(90deg,#f87171,#991b1b);"></div>' +
-      '</div>' +
-    '</div>';
+    return '';
   };
 
   // ════════════════════════════════════════════════════════════
@@ -4090,24 +4061,24 @@
     // Each profile opens with the promise list unfiltered ("All").
     window._pdxActiveFilter = 'all';
 
-    // Promise Score only counts once a promise has resolved (kept/broken).
-    // With nothing resolved, treat the score as absent so the block and the
-    // "No record yet" framing read honestly rather than surfacing a misleading
-    // percentage.
+    // The pledge ledger, as DATA. `_pdxDisplayScore` is still the guarded
+    // accessor for the stored promise figure, and it is still what decides
+    // whether a record counts as "resolved" vs "tracking" vs "nothing on file" —
+    // but the figure itself is no longer printed anywhere on this profile.
     //
-    // NAMING: this number is the PROMISE lane and nothing else — Kept ÷ (Kept +
-    // Broken). It is no longer a headline anywhere on the profile: the hero ring
-    // and the record stage lead with the ONE primary read (⚖️ Word vs Action),
-    // which weighs this lane as its top tier alongside stated positions and
-    // signature issues. What remains of the lanes below are supporting layers,
-    // each labelled for what it covers rather than competing to rate the person:
-    //   ⚖️ Word vs Action        — the primary score               (word-action.js)
+    // RETIRED AS A SCORE. There is ONE integrity read on a PolitiDex profile:
+    // ⚖️ Word vs Action, "does what they say match what they do?". Everything
+    // below is evidence feeding it, labelled for what it covers rather than
+    // competing to rate the person:
+    //   ⚖️ Word vs Action        — the primary read                 (word-action.js)
     //   🏛️ Official Record      — the test: votes / formal actions (consistency.js)
     //   🧾 Say-vs-Do            — supporting receipts              (consistency.js)
-    //   🤝 Promise Follow-Through — explicit pledges only          (this number)
+    //   🤝 Promise Receipts     — kept / broken / pending pledges   (counts only)
+    // `scoreNum` therefore survives as a STATE FLAG (null vs a number) and must
+    // not be interpolated into markup. There is no scoreText and no scoreColor
+    // any more: colour keyed to a percentage is that percentage published as
+    // paint, which is how the old second scoreboard kept leaking back in.
     const scoreNum = window._pdxDisplayScore(p);
-    const scoreText = scoreNum === null ? '—' : scoreNum + '%';
-    const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
     const pendingCount = typeof p.pending === 'number' ? p.pending : (p.promises ? p.promises.filter(r=>r.verdict==='pending').length : 0);
     // The unresolved side of the ledger. `promiseState` separates a profile that
     // is genuinely tracking promises (none resolved yet) from one with nothing on
@@ -4118,11 +4089,11 @@
     const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
     const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
     // Does this record carry an inspectable pledge list, or only summary counts?
-    // The pledge lane publishes a rate in the first case and counts only in the
-    // second. Resolved once here and passed down so the hero chip, the header and
-    // the Follow-Through block cannot reach different conclusions about the same
-    // record. Defaults to `true` when the helper is absent so an older shell never
-    // silently suppresses a rate it used to publish.
+    // No rate is published either way now — this decides whether the pledge
+    // counts are CLICKABLE (there is a ledger below to filter) and whether the
+    // block says "not itemized yet". Resolved once here and passed down so the
+    // hero chip, the header and the receipts block cannot reach different
+    // conclusions about the same record.
     const pledgeItemized = (typeof window._pdxHasItemizedPledges === 'function')
       ? window._pdxHasItemizedPledges(p) : true;
     const countsNote = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p) : '';
@@ -4467,14 +4438,13 @@
     }
     // Promises — the pledge lane, reported as a COUNT. The rail carries exactly one
     // percentage (the ⚖️ pill leading it, the primary read) so two pills can never
-    // read as two competing verdicts; the pledge rate itself lives in its own block
-    // in the record stage, where it is labelled as pledges-only.
+    // read as two competing verdicts. The pledge lane has no rate to show any more,
+    // so this pill carries its kept COUNT — a fact, not a rival rating.
     if (scoreNum !== null || (keptCount + brokenCount) > 0) {
       _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: keptCount + ' Kept', color: '#9fb4d4' });
     }
-    // Record — the kept / broken / pending COUNTS behind that percentage. The rate
-    // itself is deliberately not repeated here: it is already on the Promises pill,
-    // and showing it twice in one rail made one number look like two findings. This
+    // Record — the kept / broken / pending COUNTS. No rate is repeated here, or
+    // anywhere else: the pledge lane publishes receipts, not a percentage. This
     // pill lands with the full-record group rather than beside Promises, because its
     // destination is inside the promises drawer; the jump reveals that drawer first.
     {
@@ -4708,7 +4678,7 @@
            read as the header of one system among several. It now has a stage of its
            own, directly under the brief, and it is the only score there. The
            supporting lanes did not move relative to each other: the Promise
-           Follow-Through block is still the pledge tier's own number, and the
+           Receipts block is still the pledge tier's evidence, and the
            Official Record and Say-vs-Do sections are still the two scoped feeds
            underneath. Renders '' when no word is on file at all — an empty frame
            would imply the record should be here. -->
@@ -4731,14 +4701,15 @@
       ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
 
       <!--PDXSP:record-->
-      <!-- Promise Follow-Through — the PLEDGE TIER's own number, kept intact and
-           kept canonical (Kept ÷ (Kept + Broken), pending excluded) but no longer the
-           loudest thing on the profile. Every count, chip and explainer survives; the
-           block reads as the top tier of the Word vs Action ladder above it rather
-           than as a separate scoring religion. The 🏛️ Official Record and 🧾 Say-vs-Do
-           lanes have their own sections further down and are never folded into it. -->
+      <!-- Promise Receipts — the pledge ledger as EVIDENCE, not as a score.
+           The kept / broken / pending counts, the filter chips and the explainer all
+           survive; the published follow-through percentage, the split bar drawing it
+           and the rate-derived verdict do not. A null is passed where the published
+           figure used to go, and that is deliberate: this block has no number to
+           print, so it is handed none. The 🏛️ Official Record and 🧾 Say-vs-Do lanes
+           have their own sections further down and are never folded into it. -->
       <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum, pledgeItemized) : ''}
+      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, null, pledgeItemized) : ''}
 
       <!-- Accountability of Truth Score — retired as a headline number; the renderer
            returns '' (see accountability-score.js). The container stays so
@@ -4747,11 +4718,10 @@
       <div id="acct-inline-card">${(typeof window._renderAccountabilityCard === 'function') ? window._renderAccountabilityCard(id, p) : ''}</div>
 
       <!-- SCORING CLEANUP: the "🤝 Promise Follow-Through · In-office record" bar that
-           used to sit here rendered the SAME window._pdxDisplayScore() percentage that
-           the Follow-Through block above already shows — a third printing of one
-           number (hero ring, block, bar) that read as three separate findings. The
-           block above states the figure, its kept/broken denominator, and its
-           methodology, so the bar added nothing but repetition. Removed. -->
+           used to sit here rendered the same window._pdxDisplayScore() percentage as the
+           hero ring and the pledge block — one number printed three times, reading as
+           three separate findings. It was removed then; the percentage itself has since
+           been retired outright, so there is nothing left for it to have shown. -->
 
       <!--PDXSP:identity-->
       <!-- Biography & signature quote — who they are, read early so the
@@ -4870,7 +4840,7 @@
 
       <!-- Follow the Money — the campaign-finance Constituents-First lens. (The
            four-tile People's Mandate scorecard this renderer used to emit is
-           retired: it re-presented Promise % and the retired Accountability
+           retired: it re-presented the promise rate and the retired Accountability
            composite as if they were separate findings.) -->
       ${(typeof window._renderMandateAlignment === 'function') ? window._renderMandateAlignment(id, p) : ''}
 
@@ -5027,9 +4997,9 @@
       <!-- Everything from here to the next sentinel is the deep promise record: the
            four-way breakdown with its formula, then the full per-promise tracker
            table. Both are preserved verbatim and collected behind the "Every tracked
-           promise" drawer — the Promise Follow-Through headline and the Promise
-           Tracker gateway above already state the score and link here, so printing
-           the whole ledger inline is what made promises read three times over. -->
+           promise" drawer — the Promise Receipts block and the Promise Tracker
+           gateway above already state the counts and link here, so printing the
+           whole ledger inline is what made promises read three times over. -->
       <!-- Deep Dive: Full Promise Breakdown -->
       ${(function(){
         const pb = p.promiseBreakdown || {};
@@ -5040,8 +5010,12 @@
         const total = k + comp + b + pend;
         if (total === 0) return '';
         const resolved = k + comp + b;
-        const pctOf    = n => total ? Math.round(n / total * 100) : 0;
-        const rawScore = resolved ? Math.round(k / resolved * 100) : 0;
+        // COUNTS, NOT SHARES. These four tiles used to read "Kept · 62%" /
+        // "Broken · 21%" — percentages of the tracked total, which is a different
+        // denominator from the retired follow-through rate and read like yet
+        // another score. They now say "44 of 71", which is the same fact without
+        // a number pretending to be a rating.
+        const ofTotal = n => n + ' of ' + total;
         const src  = pb.source || { label: 'PolitiDex Methodology', url: '#methodology' };
         const note = pb.note || '';
         const isAnchor = (src.url || '').charAt(0) === '#';
@@ -5069,21 +5043,28 @@
 
             <!-- Four-way split -->
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;margin-bottom:0.85rem;">
-              ${card(k,    'Kept · '       + pctOf(k)    + '%', '#4ade80')}
-              ${card(comp, 'Compromise · ' + pctOf(comp) + '%', '#60a5fa')}
-              ${card(b,    'Broken · '     + pctOf(b)    + '%', '#f87171')}
-              ${card(pend, 'Pending · '    + pctOf(pend) + '%', '#f5c842')}
+              ${card(k,    'Kept · '       + ofTotal(k),    '#4ade80')}
+              ${card(comp, 'Compromise · ' + ofTotal(comp), '#60a5fa')}
+              ${card(b,    'Broken · '     + ofTotal(b),    '#f87171')}
+              ${card(pend, 'Pending · '    + ofTotal(pend), '#f5c842')}
             </div>
 
-            <!-- Formula -->
+            <!-- How these receipts are judged.
+                 THE FORMULA BOX IS GONE. It used to print "Promise % = Kept ÷
+                 (Kept + Broken)", the substitution with the raw ratio, and the
+                 published follow-through figure it was weighted into — three
+                 numbers whose only job was to justify a score this site no
+                 longer publishes. What a reader needs from a breakdown is what
+                 counts as kept, what counts as broken, and what happens to the
+                 ones still open. That is what this says now. -->
             <div style="background:rgba(10,15,30,0.6);border:1px solid rgba(245,200,66,0.18);border-radius:0.7rem;padding:0.75rem 0.85rem;margin-bottom:0.7rem;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#f5c842;margin-bottom:0.35rem;">How the score is calculated</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.03em;color:white;margin-bottom:0.3rem;">Promise % = Kept ÷ (Kept + Broken)</div>
-              <p style="font-size:0.74rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.5rem;"><strong style="color:#cbd9ec;">Pending items are ignored until they resolve</strong> — no one is credited or blamed for a promise that hasn't played out yet, so it stays out of the math.</p>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#f5c842;margin-bottom:0.35rem;">How each promise is judged</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.03em;color:white;margin-bottom:0.3rem;">One pledge at a time, against the record</div>
+              <p style="font-size:0.74rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.5rem;">Each promise is marked <strong style="color:#4ade80;">kept</strong>, <strong style="color:#60a5fa;">compromise</strong>, <strong style="color:#f87171;">broken</strong> or <strong style="color:#f5c842;">pending</strong> from sourced evidence, and every verdict is listed below with its receipt. <strong style="color:#cbd9ec;">Pending items are not held against anyone</strong> — a promise that hasn't played out yet is not evidence either way.</p>
               <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;color:#cbd9ec;background:rgba(0,0,0,0.25);border-radius:0.45rem;padding:0.45rem 0.6rem;">
-                ${k} ÷ (${k} + ${b}) = <span style="color:${scoreColor};font-weight:700;">${rawScore}% raw</span>${scoreNum !== null ? ` · Published Promise Follow-Through <span style="color:${scoreColor};font-weight:700;">${scoreText}</span>` : ''}
+                ${resolved} settled · ${pend} still open · no percentage is published for this lane
               </div>
-              ${(scoreNum !== null && rawScore !== scoreNum) ? `<p style="font-size:0.68rem;color:#7596c0;line-height:1.5;margin:0.45rem 0 0;">Flagship promises are weighted by real-world impact, so the headline score can sit ${scoreNum < rawScore ? 'below' : 'above'} the raw ratio.</p>` : ''}
+              <p style="font-size:0.68rem;color:#7596c0;line-height:1.5;margin:0.45rem 0 0;">Kept and broken pledges feed the one read this profile publishes — ⚖️ <strong style="color:#9fb4d4;">Word vs Action</strong> — alongside their stated positions and the issues they campaign on.</p>
             </div>
 
             ${note ? `<p style="font-size:0.76rem;color:#9fb4d4;line-height:1.6;margin:0 0 0.7rem;">${note}</p>` : ''}
@@ -5523,7 +5504,7 @@
         // and on-document entries without an impact are shown as context. Falls
         // back to a clean, honest empty state when there is nothing to show.
         var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight · Accountability</div>' +
-          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality. This is the stance-follow-through lane, separate from the 🏛️ Official Record (votes and formal actions) and the 🤝 Promise Follow-Through record above.</p>';
+          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality. This is the stance-follow-through lane, separate from the 🏛️ Official Record (votes and formal actions) and the 🤝 Promise Receipts above.</p>';
         var safeSlId = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '');
         var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
 
@@ -5774,7 +5755,7 @@
         function _slIntro() {
           return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.7rem;">' +
             'The <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane of ' + _slLast +
-            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and 🤝 Promise Follow-Through. ' +
+            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and 🤝 Promise Receipts. ' +
             '<span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> items feed the accountability read; ' +
             '<span style="color:#c4b5fd;font-weight:700;">🔗</span> ties an item to a position ' + _slLast + ' holds.' +
           '</p>';
@@ -6102,7 +6083,7 @@
               // controversies.js jumps to pdxsec-record — so all three routes go
               // through a reveal first (see _pdxRevealTarget).
               defer: true,
-              sub: 'The full ledger behind the Promise Follow-Through score, plus how the score is calculated.' },
+              sub: 'Every tracked pledge with its own verdict and receipt, plus how each one is judged.' },
             { id: 'money', stage: 'drawers', ico: '💰', title: 'Full financial record',
               // Deferred: two Chart.js canvases and the full finance report. The
               // charts were already queued rather than drawn (a canvas in a closed

@@ -60,6 +60,7 @@
 
   function RC() { return window.PDXReceiptCards || null; }
   function SVD() { return window.PDXReceipts || null; }
+  function PC() { return window.PDXProfileCard || null; }
 
   // The roster read every other surface uses, so the accessible name on this
   // button and the name on the card can never disagree.
@@ -104,11 +105,30 @@
     try { return s.forPolitician(pid) || null; } catch (e) { return null; }
   }
 
+  // The whole-person read, and the tier this control now prefers — but ONLY where
+  // the host is not already about one thing. A share button sitting in a row about
+  // immigration must still send the immigration card: swapping it for a summary
+  // would answer a question the reader did not ask, and quietly lose the vote they
+  // were looking at. So an issueKey suppresses this tier outright.
+  function summaryFor(pid, issueKey) {
+    if (issueKey) return null;
+    var pc = PC();
+    if (!pc || typeof pc.brief !== 'function' || typeof pc.share !== 'function') return null;
+    // brief(), not read(): the verdict and the counts, without the cited-example
+    // pass. Every row in a filtered list asks this question on every keystroke, and
+    // the module memoises the answer until a record settles.
+    try { return pc.brief(pid) || null; } catch (e) { return null; }
+  }
+
   // What each tier promises, in the words the reader sees. These are kept short on
   // purpose: they swap inside a box whose height is reserved in whole lines (see
   // .pdxsa-hint), and the reservation is only honest if the longest of them still
   // fits it at the narrowest phone width.
   var TIERS = {
+    summary: {
+      ico: '⚖️', cls: 'pdxsa-t-summary',
+      hint: 'Record card — the Word vs Action read, its coverage and the receipts under it.'
+    },
     record: {
       ico: '🏛️', cls: 'pdxsa-t-record',
       hint: 'Official Record card — bill, vote, date, source and how it was judged.'
@@ -141,12 +161,16 @@
     var k = key(pid, iss);
     if (_tier[k]) return _tier[k];
 
-    var st = { pid: pid, issueKey: iss, tier: 'link', card: null, receipt: null,
+    var st = { pid: pid, issueKey: iss, tier: 'link', card: null, receipt: null, summary: null,
                settled: !!_settled[pid], name: nameOf(pid), what: '' };
+    // Every artifact that exists is gathered, not just the winning one, so
+    // dispatch() can step DOWN a tier if the module that owns the top one is
+    // missing at tap time — rather than falling all the way to the link and
+    // throwing away a card that was on file the whole time.
     var card = recordCard(pid, iss);
     if (card) {
-      st.tier = 'record';
       st.card = card;
+      st.tier = 'record';
       st.what = [card.measureNumber, card.issue && card.issue.label].filter(Boolean).join(' · ');
     } else {
       var r = receiptFor(pid, iss);
@@ -156,19 +180,43 @@
         st.what = String((r.issue && (r.issue.label || r.issue)) || r.headline || '').slice(0, 90);
       }
     }
+    var sum = summaryFor(pid, iss);
+    if (sum) {
+      st.summary = sum;
+      st.tier = 'summary';
+      st.what = sum.verdict ? String(sum.verdict.label) : 'their record so far';
+    }
     var t = TIERS[st.tier];
     st.ico = t.ico; st.cls = t.cls; st.hint = t.hint;
     st.label = label(st);
     // Only cache an answer that cannot still improve. Before the record settles
     // a 'link' is provisional, and caching it would freeze the weakest tier in
-    // place for the rest of the session.
-    if (st.tier !== 'link' || _settled[pid]) _tier[k] = st;
+    // place for the rest of the session. A summary is never cached early either:
+    // its verdict is read from a record that may still be warming, and a frozen
+    // "no record to test yet" in the aria-label would outlive the votes arriving.
+    if ((st.tier !== 'link' && st.tier !== 'summary') || _settled[pid]) _tier[k] = st;
     return st;
   }
 
   // The accessible name. It names the artifact AND the person, because this
   // button appears in strips where "Share" alone could mean any of five rows.
   function label(st) {
+    if (st.tier === 'summary') {
+      var d = st.summary || {};
+      var b = d.breakdown || {};
+      var tested = (b.consistent || 0) + (b.mixed || 0) + (b.contradicts || 0);
+      // Spelled out rather than summarised: whoever hears this label is deciding
+      // whether to publish the image, so they are told what the image will say —
+      // including when the answer is that there is not much record yet.
+      return 'Share ' + st.name + '’s record card as an image — the ⚖️ Word vs Action read (' +
+        (d.verdict ? d.verdict.label : 'still building') + '), ' +
+        (tested
+          ? tested + ' tested statement' + (tested === 1 ? '' : 's') + ' broken out as ' +
+            (b.consistent || 0) + ' backed up, ' + (b.mixed || 0) + ' mixed and ' +
+            (b.contradicts || 0) + ' contradicted'
+          : 'an honest note that nothing they have said has been tested by a vote yet') +
+        ', its coverage, and the receipts under it. No percentage is printed on the card.';
+    }
     if (st.tier === 'record') {
       return 'Share ' + (st.what || 'this vote') + ' for ' + st.name +
         ' as an Official Record image — the card prints the bill, the vote, the date, the source and how it was judged.';
@@ -241,7 +289,7 @@
   // lives in a height-reserved box — never the DOM shape, never the label width.
   function apply(btn, st) {
     if (!btn || !st) return;
-    btn.classList.remove('pdxsa-t-record', 'pdxsa-t-receipt', 'pdxsa-t-link');
+    btn.classList.remove('pdxsa-t-summary', 'pdxsa-t-record', 'pdxsa-t-receipt', 'pdxsa-t-link');
     btn.classList.add(st.cls);
     btn.setAttribute('data-pdxsa-tier', st.tier);
     btn.setAttribute('title', st.label);
@@ -305,10 +353,14 @@
     return false;
   }
 
+  // Step down, never sideways: the preferred tier first, then any weaker artifact
+  // state() already found, then the link. A module that failed to load costs the
+  // reader the best card, not the whole gesture.
   function dispatch(st, btn) {
-    var rc = RC(), s = SVD();
-    if (st.tier === 'record' && rc && typeof rc.share === 'function') return rc.share(st.card, btn);
-    if (st.tier === 'receipt' && s && typeof s.share === 'function') return s.share(st.receipt, btn);
+    var rc = RC(), s = SVD(), pc = PC();
+    if (st.tier === 'summary' && pc && typeof pc.share === 'function') return pc.share(st.pid, btn);
+    if (st.card && rc && typeof rc.share === 'function') return rc.share(st.card, btn);
+    if (st.receipt && s && typeof s.share === 'function') return s.share(st.receipt, btn);
     return fallback(st, btn);
   }
 

@@ -1590,10 +1590,11 @@
     // anonymous auth / deferred init paths happen to fire.
     window._mypolUpdateCount = _mypolUpdateCount;
 
-    function _chubScoreColor(s) {
-      if (s === null || s === undefined) return '#9fb4d4';
-      return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
-    }
+    // _chubScoreColor was removed with the pledge percentage. A green/amber/red
+    // ramp over kept ÷ resolved is the percentage with the digits taken off: the
+    // reader still gets "70%+ = good" without a denominator to argue with. Pledge
+    // receipts now render through _pdxLedgerSlot, which carries counts and no
+    // colour. Word vs Action owns the only graded read on the site.
 
     // Subtle party tag — consistent across every compact card. Accepts either the
     // single-letter codes used in the seed data ('R'/'D'/'I'/'F') or full names
@@ -1672,6 +1673,36 @@
       return '<div class="pdx-statpills">' + openPills + pill('none', msg) + '</div>';
     };
 
+    // ── The slot a pledge percentage used to fill ────────────────────────────
+    // Every listing card, slot card, team card and modal header had its own copy
+    // of `sc + '%'`, its own colour ramp and its own "No record yet" fallback, so
+    // retiring the rate one site at a time is how one of them keeps it. This is
+    // the single answer they all render instead: a glyph, a label, and the
+    // receipts as counts. No colour is returned — colouring the slot by a rate is
+    // publishing the rate — and no branch of it can produce a percentage.
+    //
+    // PolitiDex publishes ONE rate, ⚖️ Word vs Action. The pledge lane feeds it
+    // and publishes its receipts; it does not publish a competing score.
+    window._pdxLedgerSlot = function(p, opts) {
+      opts = opts || {};
+      var state = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : 'empty';
+      var note = (typeof window._pdxPledgeNote === 'function') ? window._pdxPledgeNote(p, opts.form || 'short') : '';
+      // 'resolved' and 'counts' render identically. They differed by exactly one
+      // thing — whether a rate was published — so with the rate retired an
+      // itemized ledger and a summary ledger both say: here are the receipts.
+      if (state === 'resolved' || state === 'counts') {
+        return { state: 'ledger', glyph: '🤝', label: 'Pledge record', sub: note || 'Counts on file' };
+      }
+      if (state === 'tracking') {
+        var lbl = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
+        return { state: 'tracking', glyph: '⏳', label: lbl || 'Pledges tracked', sub: 'None resolved yet' };
+      }
+      if (opts.status === 'candidate') {
+        return { state: 'candidate', glyph: '🗳️', label: '2026 Ballot', sub: 'Record begins in office' };
+      }
+      return { state: 'empty', glyph: '—', label: opts.label || 'Pledges', sub: 'No record yet' };
+    };
+
     // Consistent "Office • District • State" line for every compact card. District
     // is trimmed to its short label (the part before any parenthetical) and skipped
     // when it is already implied by the office title, so the line stays clean.
@@ -1691,8 +1722,8 @@
 
     // ════════════════════════════════════════════════════════════════════════
     // UNIFIED COMPACT CARD BUILDER
-    // One canonical snapshot — photo, name, "Office • District • State", a
-    // prominent color-coded Promise Score, kept/broken/pending pills, a clear
+    // One canonical snapshot — photo, name, "Office • District • State", the
+    // pledge-receipt slot, kept/broken/pending pills, a clear
     // quick-status badge and an optional signature highlight. Every grid listing
     // (All Politicians, Relevant to Me, Search, Compare, Favorites, My
     // Politicians, Watching) renders this exact inner markup, so the site reads
@@ -1836,9 +1867,12 @@
       var d = CMP_DATA[pid];
       if (!d) return '';
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
-      var sc = window._pdxDisplayScore(d);
-      var hasScore = (sc !== null && sc !== undefined);
-      var scCol = _chubScoreColor(sc);
+      // `hasScore` is a DATA predicate — "this record has a closed, itemized
+      // pledge ledger" — and nothing more. Nothing below prints it, and no colour
+      // scale is derived from it: colouring a slot by a rate is publishing the
+      // rate. It survives only to gate the Accountability badge, which needs a
+      // record substantial enough to be worth a second read.
+      var hasScore = window._pdxDisplayScore(d) !== null && window._pdxDisplayScore(d) !== undefined;
 
       // Resolve this politician's real district / county so the office line can
       // state the seat clearly even where the card sits outside the browse tree
@@ -1879,16 +1913,12 @@
       // it shows a clean, muted "No record yet" pill in the same slot rather than
       // vanishing — which previously made cards look inconsistent and incomplete.
       var scoreLbl = opts.scoreLabel || 'Promise';
-      // The score pill is tappable everywhere — it opens the Promise % explainer.
+      // The tile is tappable everywhere — it opens the pledge-lane explainer.
       var scoreClick = ' role="button" tabindex="0"' +
         ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')"' +
         ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\');}"' +
-        ' title="How is the Promise % calculated?"';
+        ' title="How does the pledge lane work?"';
       var infoHint = '<div class="pdx-score-info">ⓘ How?</div>';
-      // Sample size behind the percentage, in the compact form the narrow rail
-      // can hold ("1/1 resolved"). Empty for a no-record card, which already
-      // shows no percentage at all.
-      var scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(d, 'short') : '';
       // Which of the three honest states this card is in. 'tracking' means real
       // promises are on file with none resolved — it must not wear the same
       // "No record yet" rail as a politician with nothing on file at all.
@@ -1900,11 +1930,23 @@
       // report a member with a real closed ledger as having nothing on file, which
       // is a worse error than the unpublishable percentage this replaced.
       var countsNote = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(d, 'short') : '';
-      var scoreBlock = hasScore
-        ? '<div class="pdx-snap-score pdx-snap-score-click"' + scoreClick + ' style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
-            '<div class="pdx-snap-score-num" style="color:' + scCol + ';text-shadow:0 0 12px ' + scCol + '40;">' + sc + '<span style="font-size:0.9rem;">%</span></div>' +
-            '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
-            (scoreDenom ? '<div class="pdx-snap-score-denom">' + scoreDenom + '</div>' : '') +
+      // The ledger note for ANY closed pledge record, itemized or not. This is
+      // what the score slot prints now: the pledge lane publishes receipts, and
+      // ⚖️ Word vs Action publishes the one rate. A card that printed a pledge
+      // percentage here put a second number beside the primary read with no way
+      // for the voter to tell which one was being rated.
+      var pledgeNote = (typeof window._pdxPledgeNote === 'function') ? window._pdxPledgeNote(d, 'short') : '';
+      // 'resolved' and 'counts' now render IDENTICALLY. They used to differ by
+      // exactly one thing — whether a rate was published — and with the rate
+      // retired an itemized ledger and a summary ledger say the same thing: here
+      // are the receipts. `hasScore` survives only as a data predicate for the
+      // Accountability badge below; nothing reads it as something to print.
+      var hasLedger = (pState === 'resolved' || pState === 'counts');
+      var scoreBlock = hasLedger
+        ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-counts pdx-snap-score-click"' + scoreClick + '>' +
+            '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-counts">🤝</div>' +
+            '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-counts">Pledge record</div>' +
+            '<div class="pdx-snap-score-na pdx-snap-score-na-counts">' + (pledgeNote || countsNote || 'Counts on file') + '</div>' +
             infoHint +
           '</div>'
         : (status === 'candidate'
@@ -1916,16 +1958,6 @@
               '<div class="pdx-snap-score-na pdx-snap-score-na-cand">' + (pState === 'tracking' ? trackNote : 'Record begins in office') + '</div>' +
               infoHint +
             '</div>'
-          : (pState === 'counts'
-            // Counts-only. A handshake rather than a number, so the slot can never
-            // be misread as a rate, with the kept/broken counts themselves as the
-            // sub-line — the substance survives, only the percentage is withheld.
-            ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-counts pdx-snap-score-click"' + scoreClick + '>' +
-                '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-counts">🤝</div>' +
-                '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-counts">Pledge record</div>' +
-                '<div class="pdx-snap-score-na pdx-snap-score-na-counts">' + (countsNote || 'Counts on file') + '</div>' +
-                infoHint +
-              '</div>'
           : (pState === 'tracking'
             // Tracked-but-unresolved. Deliberately an hourglass rather than a
             // number in the score slot, so it can never be misread as a
@@ -1941,7 +1973,7 @@
                 '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
                 '<div class="pdx-snap-score-na">No record yet</div>' +
                 infoHint +
-              '</div>')));
+              '</div>'));
 
       var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
@@ -2087,9 +2119,8 @@
     function _mypolRenderPrimaryCard(pid) {
       const d = CMP_DATA[pid];
       if (!d) return '';
-      const sc = window._pdxDisplayScore(d);
-      const scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      const scCol = _chubScoreColor(sc);
+      // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot.
+      const slot = window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
       const sel = _cmpSelected.has(pid);
       const meta = _getPrimaryRepMeta()[pid];
       if (!meta) return '';
@@ -2126,9 +2157,9 @@
             descHtml +
             '<div class="flex items-center gap-3">' +
               '<div style="flex-shrink:0;">' +
-                '<div class="chub-score" style="color:' + scCol + ';font-size:1.3rem;">' + scTxt + '</div>' +
-                '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.5rem;">Promise Score</div>' +
-                ((sc === null || sc === undefined) ? '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.46rem;color:#647a9c;margin-top:0.1rem;">No record yet</div>' : '') +
+                '<div class="chub-score" style="color:#9fb4d4;font-size:1.3rem;">' + slot.glyph + '</div>' +
+                '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.5rem;">' + slot.label + '</div>' +
+                '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.46rem;color:#647a9c;margin-top:0.1rem;">' + slot.sub + '</div>' +
               '</div>' +
               (typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '') +
               '<div class="flex flex-wrap gap-1">' +
@@ -2281,10 +2312,9 @@
     function _renderSlotCard(pos, pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sc = window._pdxDisplayScore(d);
-      var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      var scCol = _chubScoreColor(sc);
-      var barClass = (sc !== null && sc !== undefined) ? (sc >= 70 ? 'bar-high' : sc >= 40 ? 'bar-mid' : 'bar-low') : 'bar-na';
+      // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot. The
+      // progress bar went with the percentage: a bar IS a percentage, drawn.
+      var slot = window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
       var sel = _cmpSelected.has(pid);
       var photoUrl = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(pid) : (BROWSE_PHOTOS[pid] || '');
       var photoHtml = photoUrl
@@ -2326,11 +2356,11 @@
         (partyBadge ? '<div class="myteam-slot-party" style="margin-bottom:0.45rem;">' + partyBadge + '</div>' : '<div class="myteam-slot-party" style="margin-bottom:0.3rem;"></div>') +
         '<div class="myteam-slot-info-row">' +
           '<div style="display:flex;flex-direction:column;align-items:center;line-height:1;">' +
-            '<div class="chub-score" style="color:' + scCol + ';font-size:2rem;text-shadow:0 0 18px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;">' + scTxt + '</div>' +
-            '<div class="myteam-slot-score-label" style="color:' + (sc !== null && sc !== undefined ? scCol + 'cc' : '#7d97bd') + ';">' + (sc !== null && sc !== undefined ? 'Promise Kept' : 'No Record Yet') + '</div>' +
+            '<div class="chub-score" style="color:#c8d7ee;font-size:2rem;font-family:\'Bebas Neue\',sans-serif;">' + slot.glyph + '</div>' +
+            '<div class="myteam-slot-score-label" style="color:#9fb4d4;">' + slot.label + '</div>' +
+            '<div class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;color:#7d97bd;">' + slot.sub + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="myteam-slot-bar" style="width:88%;margin:0 auto 0.4rem;"><div style="height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
         acctBadgeHtml +
         matchBand +
         keptBrokenHtml +
@@ -2652,15 +2682,13 @@
     // ══════════════════════════════════════════════════════════════════════
     // MEDIUM MODAL — middle information layer (small card → MEDIUM → full
     // profile). Renders a focused, summarized read of one politician: office
-    // + district, Promise Score, Your Match % breakdown, key documented
+    // + district, pledge receipts, Your Match % breakdown, key documented
     // positions, a record-highlights strip and a short bio. Detail is kept
     // deliberately light; the full deep-dive is one tap away. Lives in this
     // scope so it can reuse the card/team helpers directly.
     // ══════════════════════════════════════════════════════════════════════
-    function _medScoreColor(s) {
-      if (s === null || s === undefined) return '#9fb4d4';
-      return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
-    }
+    // _medScoreColor was removed with the pledge percentage — see the tombstone
+    // above _chubScoreColor.
     function _medEsc(s) {
       return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
@@ -2780,9 +2808,10 @@
       // fall back to `d` until the lazy-load below swaps in the full document.
       var rec = (p && Object.keys(p).length) ? Object.assign({}, d, p) : d;
 
-      var sc = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(rec) : (typeof rec.score === 'number' ? rec.score : null);
-      var hasScore = (sc !== null && sc !== undefined);
-      var scCol = _medScoreColor(sc);
+      // The header used to lead with a Promise Follow-Through percentage. It now
+      // leads with the pledge receipts, because ⚖️ Word vs Action is the one read
+      // this modal is a preview of, and a second rate above it competed with it.
+      var slot = window._pdxLedgerSlot(rec, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(rec) : 'office' });
 
       // ── Header (photo · name · office+district · badges) ──
       var photoUrl = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : ((typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[id]) || '');
@@ -2872,14 +2901,14 @@
       var safeId = _medEsc(id);
       html += '<div class="pdx-med-scores" id="pdxmed-scores">' +
           '<button type="button" class="pdx-med-sc pdx-med-sc--promise" onclick="window._mediumViewFull()" ' +
-            'title="Promise Follow-Through — kept ÷ (kept + broken) of tracked campaign promises (pending excluded). Tap for the full record.">' +
-            '<span class="pdx-med-sc-tag">🤝 Keeps their word</span>' +
-            '<span class="pdx-med-sc-num" style="color:' + scCol + ';text-shadow:0 0 16px ' + scCol + '40;">' + (hasScore ? sc + '<span class="pdx-med-sc-pct">%</span>' : '<span class="pdx-med-sc-dash">—</span>') + '</span>' +
-            '<span class="pdx-med-sc-lab">Promise Follow-Through</span>' +
-            '<span class="pdx-med-sc-desc">' + (hasScore ? 'Promises kept vs. broken' : 'No promise record yet') + '</span>' +
+            'title="Pledge receipts — the kept and broken promises on file. No rate is published for this lane. Tap for the full record.">' +
+            '<span class="pdx-med-sc-tag">🤝 Pledge receipts</span>' +
+            '<span class="pdx-med-sc-num pdx-med-sc-num--glyph" style="color:#c8d7ee;">' + slot.glyph + '</span>' +
+            '<span class="pdx-med-sc-lab">' + slot.label + '</span>' +
+            '<span class="pdx-med-sc-desc">' + slot.sub + '</span>' +
           '</button>' +
         '</div>' +
-        '<p class="pdx-med-scores-note"><strong class="pdx-med-note-prom">Promise Follow-Through</strong> = kept ÷ (kept + broken) of tracked promises. See ⚖️ Say-vs-Do and 🎯 Your Match on their cards and in Compare.</p>';
+        '<p class="pdx-med-scores-note">PolitiDex publishes one integrity read — <strong class="pdx-med-note-prom">⚖️ Word vs Action</strong>. Kept and broken pledges are receipts that feed it, not a score of their own.</p>';
 
       // Evidence banner — the gold All-Seeing Eye + a direct "Watch" jump to the
       // strongest clip + a one-tap "See Evidence" into the pre-filtered Evidence
@@ -4408,6 +4437,11 @@
       }
       var filledPids = [];
       var filledCount = 0;
+      // `totalScore` counts RESOLVED PLEDGES across the team, not points. The stat
+      // tile above it used to average a pledge percentage over the slate, which is
+      // an average of rates with different denominators — a number with no meaning
+      // even before the rate itself was retired. Now the tile states how many
+      // pledge receipts the team's records rest on, which is a fact.
       var totalScore = 0;
       var scoredCount = 0;
 
@@ -4418,8 +4452,8 @@
         if (d) {
           filledCount++;
           filledPids.push(pid);
-          var _dsc = window._pdxDisplayScore(d);
-          if (_dsc !== null && _dsc !== undefined) { totalScore += _dsc; scoredCount++; }
+          var _t = window._pdxPromiseTally(d);
+          totalScore += _t.resolved; if (_t.resolved > 0) scoredCount++;
         }
         var g = (typeof _slotGroup === 'function') ? _slotGroup(pos.key) : 'statewide';
         if (!slotsByGroup[g]) slotsByGroup[g] = [];
@@ -4441,8 +4475,8 @@
       totalScore = 0; scoredCount = 0;
       filledPids.forEach(function(_p) {
         var _d = CMP_DATA[_p]; if (!_d) return;
-        var _s = window._pdxDisplayScore(_d);
-        if (_s !== null && _s !== undefined) { totalScore += _s; scoredCount++; }
+        var _t2 = window._pdxPromiseTally(_d);
+        totalScore += _t2.resolved; if (_t2.resolved > 0) scoredCount++;
       });
       // Publish the live seat total so the section-level trackers (the "next step"
       // guide and the Voter Hub "Your Path" spine) read the same number this paint
@@ -4539,14 +4573,13 @@
         var countEl = document.getElementById('myteam-stat-count');
         var officesEl = document.getElementById('myteam-stat-offices');
         var alignEl = document.getElementById('myteam-stat-align');
-        if (avgEl) avgEl.textContent = scoredCount > 0 ? Math.round(totalScore / scoredCount) + '%' : '—';
+        if (avgEl) avgEl.textContent = totalScore > 0 ? String(totalScore) : '—';
         if (countEl) countEl.textContent = filledCount;
         if (officesEl) officesEl.textContent = filledCount + '/' + _counts.total;
-        if (avgEl) {
-          var avgScore = scoredCount > 0 ? Math.round(totalScore / scoredCount) : null;
-          avgEl.style.color = avgScore !== null ? _chubScoreColor(avgScore) : '#9fb4d4';
-          avgEl.style.textShadow = avgScore !== null ? '0 0 16px ' + _chubScoreColor(avgScore) + '40' : 'none';
-        }
+        // Deliberately NOT colour-ramped. A count of receipts is neither good nor
+        // bad news, and grading it green would re-create the retired score in
+        // colour after removing it in text.
+        if (avgEl) { avgEl.style.color = '#c8d7ee'; avgEl.style.textShadow = 'none'; }
 
         if (typeof _calcAlignmentScore === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0) {
           var alignTotal = 0, alignCount = 0;
@@ -4800,11 +4833,9 @@
 
       function _bsEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-      function _bsScoreColor(sc) {
-        if (sc === null || sc === undefined) return '#9fb4d4';
-        if (typeof _chubScoreColor === 'function') return _chubScoreColor(sc);
-        return sc >= 70 ? '#4ade80' : sc >= 50 ? '#fbbf24' : '#f87171';
-      }
+      // _bsScoreColor was removed with the pledge percentage — see the tombstone
+      // above _chubScoreColor. The seat tile now carries the ledger slot, which
+      // is a count and has no colour to grade.
 
       // Plain-text rendering of the slate for the clipboard — the "share" path the
       // builder copy has long promised. Mirrors the on-screen grouping so what the
@@ -4826,8 +4857,10 @@
             var scope = (typeof _myteamSeatScope === 'function') ? _myteamSeatScope(p.key) : '';
             var lbl = p.label + (scope && scope.indexOf('District') === 0 ? ' (' + scope + ')' : '');
             if (d) {
-              var sc = window._pdxDisplayScore ? window._pdxDisplayScore(d) : null;
-              lines.push('  [x] ' + lbl + ' — ' + d.name + (d.party ? ' (' + d.party + ')' : '') + (sc != null ? ' · ' + sc + '% promise score' : ''));
+              // Receipts travel better than a rate in pasted text: "27 kept · 8
+              // broken" carries its own denominator, "77% promise score" does not.
+              var _pn = (typeof window._pdxPledgeNote === 'function') ? window._pdxPledgeNote(d, 'short') : '';
+              lines.push('  [x] ' + lbl + ' — ' + d.name + (d.party ? ' (' + d.party + ')' : '') + (_pn ? ' · ' + _pn : ''));
             } else {
               lines.push('  [ ] ' + lbl + ' — still open');
             }
@@ -4869,15 +4902,20 @@
           var scope = (typeof _myteamSeatScope === 'function') ? _myteamSeatScope(p.key) : '';
           var scopeHtml = scope ? '<span class="bs-seat-scope">· ' + _bsEsc(scope) + '</span>' : '';
           if (d) {
-            var sc = window._pdxDisplayScore ? window._pdxDisplayScore(d) : null;
             var photo = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(pid) : ((typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) ? BROWSE_PHOTOS[pid] : '');
             var photoHtml = photo
               ? '<span class="bs-seat-photo"><img loading="lazy" decoding="async" src="' + _bsEsc(photo) + '" alt="" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + (p.icon || '🏛') + '\'"></span>'
               : '<span class="bs-seat-photo">' + (p.icon || '🏛') + '</span>';
             var party = (window._pdxPartyChip && d.party) ? window._pdxPartyChip(d.party) : '';
-            var scoreHtml = (sc != null)
-              ? '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:' + _bsScoreColor(sc) + ';">' + sc + '%</span><span class="bs-seat-score-lbl">Promise</span></span>'
-              : '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:#647a9c;font-size:0.8rem;">No record</span></span>';
+            // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot. The
+            // seat tile is narrow, so the counts line carries the record and the
+            // label sits under it; with nothing resolved the slot says so itself.
+            var _slot = window._pdxLedgerSlot
+              ? window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' })
+              : { state: 'empty', glyph: '—', label: 'Pledges', sub: 'No record yet' };
+            var scoreHtml = (_slot.state === 'ledger')
+              ? '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:#c8d7ee;font-size:0.72rem;line-height:1.2;">' + _bsEsc(_slot.sub) + '</span><span class="bs-seat-score-lbl">' + _slot.glyph + ' Pledges</span></span>'
+              : '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:#647a9c;font-size:0.8rem;">' + _slot.glyph + '</span><span class="bs-seat-score-lbl">' + _bsEsc(_slot.sub) + '</span></span>';
             return '<div class="bs-seat is-filled">' + photoHtml +
               '<span class="bs-seat-body">' +
                 '<span class="bs-seat-office">✓ ' + _bsEsc(p.label) + ' ' + scopeHtml + '</span>' +
@@ -5022,9 +5060,8 @@
     function _renderMyTeamCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sc = window._pdxDisplayScore(d);
-      var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      var scCol = _chubScoreColor(sc);
+      // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot.
+      var slot = window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
       var sel = _cmpSelected.has(pid);
       var isPotential = _potentialPoliticians.has(pid);
       var isFav = _favoritePids.has(pid);
@@ -5064,9 +5101,9 @@
             (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
-                '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
-                '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.55rem;">Promise Score</div>' +
-                ((sc === null || sc === undefined) ? '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.5rem;color:#647a9c;margin-top:0.1rem;">No record yet</div>' : '') +
+                '<div class="chub-score" style="color:#c8d7ee;font-size:1.5rem;">' + slot.glyph + '</div>' +
+                '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.55rem;">' + slot.label + '</div>' +
+                '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.5rem;color:#647a9c;margin-top:0.1rem;">' + slot.sub + '</div>' +
               '</div>' +
               acctBadgeHtml +
               alignHtml +
@@ -6549,7 +6586,7 @@
     // Everything below turns the single browse search box into a semantic,
     // intent-aware finder. A voter can type a topic ("guns", "education"), an
     // office ("US House", "state senate"), a district ("district 2", "Davis
-    // County"), or a goal ("best match for me", "high promise score") and get
+    // County"), or a goal ("best match for me", "pledge receipts") and get
     // the right people — not just literal name matches. The pieces:
     //   • _SEARCH_SYNONYMS  — casual word → the family of related terms
     //   • _pdxTopicIndex    — token → expansion set, built from ISSUE_MAP + above
@@ -6797,11 +6834,14 @@
         if (officePats[i].re.test(q)) { out.office = officePats[i].key; out.notes.push(officePats[i].label); strip(officePats[i].re); break; }
       }
 
-      // Promise-score band.
-      if (/\b(high(est)?\s*(promise\s*)?score|high\s*accountability|most\s*accountable|keeps?\s*(their\s*)?promises|reliable|trustworthy)\b/.test(q)) {
-        out.score = 'high'; out.notes.push('High score'); strip(/\b(high(est)?\s*(promise\s*)?score|high\s*accountability|most\s*accountable|keeps?\s*(their\s*)?promises|reliable|trustworthy)\b/);
+      // Pledge-record intent. There is no longer a rate to sort "high" from
+      // "low", so both phrasings resolve to the same honest thing the lane can
+      // answer: this record has resolved pledges on file. The note says that
+      // rather than implying a band the filter cannot deliver.
+      if (/\b(high(est)?\s*(promise\s*)?score|high\s*accountability|most\s*accountable|keeps?\s*(their\s*)?promises|pledge\s*receipts?|promise\s*records?|reliable|trustworthy)\b/.test(q)) {
+        out.score = 'receipts'; out.notes.push('Has pledge receipts'); strip(/\b(high(est)?\s*(promise\s*)?score|high\s*accountability|most\s*accountable|keeps?\s*(their\s*)?promises|pledge\s*receipts?|promise\s*records?|reliable|trustworthy)\b/);
       } else if (/\b(low(est)?\s*(promise\s*)?score|broken\s*promises|least\s*accountable)\b/.test(q)) {
-        out.score = 'low'; out.notes.push('Low score'); strip(/\b(low(est)?\s*(promise\s*)?score|broken\s*promises|least\s*accountable)\b/);
+        out.score = 'receipts'; out.notes.push('Has pledge receipts'); strip(/\b(low(est)?\s*(promise\s*)?score|broken\s*promises|least\s*accountable)\b/);
       }
 
       // Officeholder vs candidate status (incl. "open seats" → races with candidates).
@@ -6923,7 +6963,8 @@
           'governor': 'Statewide Exec', 'state': 'State Legislator', 'local': 'Local / Mayor',
           'candidate': 'Candidate / Nominee', 'cabinet': 'Cabinet / Appointed'
         };
-        var scoreLabels = { 'high': 'High (70%+)', 'mid': 'Medium (40-69%)', 'low': 'Low (<40%)', 'na': 'No Score Yet' };
+        var scoreLabels = { 'receipts': 'Has pledge receipts', 'tracking': 'Pledges tracked, none resolved', 'none': 'No pledge record yet',
+                            'high': 'Has pledge receipts', 'mid': 'Has pledge receipts', 'low': 'Has pledge receipts', 'na': 'No pledge record yet' };
         var partyLabels = { 'R': 'Republican', 'D': 'Democrat', 'I': 'Independent / Other' };
         var statusLabels = { 'office': 'Current Officeholder', 'candidate': '2026 Candidate' };
         var showLabels = { 'not-on-team': 'Not on My Team', 'on-team': 'On My Team Only' };
@@ -7022,10 +7063,14 @@
         pids = pids.filter(function(pid) { var a = window._acctMatchScore(pid); return typeof a === 'number' && a >= 65; });
       }
 
+      // 'score-desc' now means MOST PLEDGE RECEIPTS first — deepest record at the
+      // top, which is what the option always meant to the voter reading it and is
+      // a count rather than a rate. The value is unchanged so saved sorts, the
+      // alignment fallbacks below and the browse-goal parser keep working.
       if (sort === 'score-desc') {
-        pids.sort(function(a, b) { return (CMP_DATA[b].score ?? -1) - (CMP_DATA[a].score ?? -1); });
+        pids.sort(function(a, b) { return _pledgeDepth(b) - _pledgeDepth(a); });
       } else if (sort === 'score-asc') {
-        pids.sort(function(a, b) { return (CMP_DATA[a].score ?? 999) - (CMP_DATA[b].score ?? 999); });
+        pids.sort(function(a, b) { return _pledgeDepth(a) - _pledgeDepth(b); });
       } else if (sort === 'alpha') {
         pids.sort(function(a, b) { return (CMP_DATA[a].name || '').localeCompare(CMP_DATA[b].name || ''); });
       } else if (sort === 'align-desc' && typeof _calcAlignmentScore === 'function') {
@@ -7245,7 +7290,7 @@
     ];
     var _PDX_GOAL_SUGGEST = [
       { ico: '🎯', label: 'Best match for me', q: 'best match for me' },
-      { ico: '📈', label: 'High promise score', q: 'high promise score' },
+      { ico: '🤝', label: 'Has pledge receipts', q: 'pledge receipts' },
       { ico: '🗳️', label: 'Open 2026 seats', q: 'open seats' },
       { ico: '📍', label: 'My district', q: 'my district' }
     ];
@@ -7489,7 +7534,7 @@
       var chips = [
         { cls: 'qc-match', on: !!window._alignBrowseSortActive, html: '🎯 Best match for me', act: 'match' },
         { cls: 'qc-loc', on: (typeof _browseScope !== 'undefined' && _browseScope === 'relevant'), html: hasLoc ? '📍 My district' : '📍 Set my location', act: 'loc' },
-        { cls: '', on: scoreV === 'high', html: '📈 High promise score', act: 'score-high' },
+        { cls: '', on: scoreV === 'receipts', html: '🤝 Has pledge receipts', act: 'score-receipts' },
         { cls: 'qc-acct', on: !!window._acctHighOnly, html: '🛡️ High accountability', act: 'acct-high' },
         { cls: '', on: statusV === 'candidate', html: '🗳️ 2026 candidates', act: 'candidates' },
         { cls: '', on: searchV === 'guns', html: '🔫 Guns', act: 'topic:guns' },
@@ -7524,8 +7569,8 @@
         setBrowseScope((typeof _browseScope !== 'undefined' && _browseScope === 'relevant') ? 'all' : 'relevant');
         return;
       }
-      if (act === 'score-high') {
-        if (scoreEl) scoreEl.value = (scoreEl.value === 'high' ? '' : 'high');
+      if (act === 'score-receipts') {
+        if (scoreEl) scoreEl.value = (scoreEl.value === 'receipts' ? '' : 'receipts');
         myteamBrowseFilter();
         return;
       }
@@ -7854,24 +7899,15 @@
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
       var isCand = (status === 'candidate');
 
-      // ── Promise side (formal in-office record) ──
-      var sc = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(d) : null;
-      var hasScore = (sc !== null && sc !== undefined);
-      var pCol = (typeof _chubScoreColor === 'function') ? _chubScoreColor(sc) : '#f5c842';
-      var promiseCell;
-      if (hasScore) {
-        promiseCell =
-          '<div class="rel-dual-num" style="color:' + pCol + ';text-shadow:0 0 12px ' + pCol + '40;">' + sc + '<span class="rel-dual-pct">%</span></div>' +
-          '<div class="rel-dual-rate" style="color:' + pCol + ';"><span class="rel-dual-dot" style="background:' + pCol + ';box-shadow:0 0 6px ' + pCol + ';"></span>Promises kept</div>';
-      } else if (isCand) {
-        promiseCell =
-          '<div class="rel-dual-num rel-dual-num-na" style="color:#93c5fd;">🗳️</div>' +
-          '<div class="rel-dual-rate" style="color:#93c5fd;">Record begins in office</div>';
-      } else {
-        promiseCell =
-          '<div class="rel-dual-num rel-dual-num-na">&mdash;</div>' +
-          '<div class="rel-dual-rate" style="color:#7d97bd;">No record yet</div>';
-      }
+      // ── Pledge side (the receipts, not a rate) ──
+      // This was the app's most literal dual percentage: a pledge rate printed at
+      // the same size, in the same row, as the Say-vs-Do read, with nothing telling
+      // the voter which of the two was the integrity signal. The pledge side now
+      // carries its receipts and the Say-vs-Do side carries the only rate.
+      var slot = window._pdxLedgerSlot(d, { status: status });
+      var promiseCell =
+        '<div class="rel-dual-num rel-dual-num-na" style="color:' + (slot.state === 'ledger' ? '#c8d7ee' : slot.state === 'candidate' ? '#93c5fd' : '#9fb4d4') + ';">' + slot.glyph + '</div>' +
+        '<div class="rel-dual-rate" style="color:#9fb4d4;">' + slot.sub + '</div>';
 
       // ── Say-vs-Do side (does their record back up their own words?) ──
       // SCORING CLEANUP: the retired Accountability composite is replaced here by
@@ -7905,13 +7941,13 @@
       var pid_ = pid;
       return '<div class="rel-dual">' +
           '<div class="rel-dual-head">' +
-            '<span class="rel-dual-head-txt">Do they keep their word?</span>' +
+            '<span class="rel-dual-head-txt">Does what they say match what they do?</span>' +
           '</div>' +
           '<div class="rel-dual-grid">' +
-            '<button type="button" class="rel-dual-cell rel-dual-promise" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid_ + '\')" title="Promise Follow-Through — kept ÷ (kept + broken) of tracked promises. Tap for how it’s calculated.">' +
-              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">🤝</span> Promise Follow-Through</div>' +
+            '<button type="button" class="rel-dual-cell rel-dual-promise" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid_ + '\')" title="Pledge receipts — the kept and broken promises on file. No rate is published for this lane. Tap for how it works.">' +
+              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">🤝</span> Pledge receipts</div>' +
               promiseCell +
-              '<div class="rel-dual-meaning">Promises kept vs. broken</div>' +
+              '<div class="rel-dual-meaning">Evidence, not a score</div>' +
             '</button>' +
             '<button type="button" class="rel-dual-cell rel-dual-acct" onclick="event.stopPropagation();' + svdClick + '" title="' + svdTitle + '">' +
               '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">⚖️</span> Say-vs-Do</div>' +
@@ -10124,15 +10160,35 @@
       }
     }
 
+    // The browse filter used to cut the field into 70%+ / 40-69% / <40% bands of
+    // the retired pledge rate. A filter is a use of a score: offering "High (70%+)"
+    // republishes the number the rest of the app stopped publishing, and ranks
+    // people by it. It now filters on what the pledge lane actually has on file.
+    // The old band values stay accepted — a saved filter, a shared URL or a parsed
+    // browse goal can still carry 'high' — and all three rate bands mean the same
+    // thing now: there is a closed ledger here.
     function _chubScoreMatch(pid, filter) {
-      const s = CMP_DATA[pid]?.score;
-      switch(filter) {
-        case 'high': return s !== null && s !== undefined && s >= 70;
-        case 'mid': return s !== null && s !== undefined && s >= 40 && s < 70;
-        case 'low': return s !== null && s !== undefined && s < 40;
-        case 'na': return s === null || s === undefined;
+      var d = CMP_DATA[pid];
+      if (!d) return false;
+      var state = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(d) : 'empty';
+      switch (filter) {
+        case 'receipts':
+        case 'high': case 'mid': case 'low':
+          return state === 'resolved' || state === 'counts';
+        case 'tracking': return state === 'tracking';
+        case 'none':
+        case 'na': return state === 'empty';
         default: return true;
       }
+    }
+
+    // How many pledges are RESOLVED on this record — the honest ordering key for
+    // the two "score" sorts. Not a rate, and never derived from one.
+    function _pledgeDepth(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return -1;
+      var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
+      return t ? t.resolved : -1;
     }
 
     function _chubStateMatch(pid, filter) {
@@ -10297,15 +10353,9 @@
       if (score) pids = pids.filter(function(pid) { return _chubScoreMatch(pid, score); });
 
       if (sort === 'score-desc') {
-        pids.sort(function(a,b) {
-          const sa = CMP_DATA[a].score ?? -1, sb = CMP_DATA[b].score ?? -1;
-          return sb - sa;
-        });
+        pids.sort(function(a,b) { return _pledgeDepth(b) - _pledgeDepth(a); });
       } else if (sort === 'score-asc') {
-        pids.sort(function(a,b) {
-          const sa = CMP_DATA[a].score ?? 999, sb = CMP_DATA[b].score ?? 999;
-          return sa - sb;
-        });
+        pids.sort(function(a,b) { return _pledgeDepth(a) - _pledgeDepth(b); });
       } else if (sort === 'align-desc' || sort === 'align-asc') {
         pids.sort(function(a,b) {
           var aA = (typeof _calcAlignmentScore === 'function') ? (_calcAlignmentScore(a) ?? -1) : -1;
@@ -10409,10 +10459,11 @@
         const pids = [..._cmpSelected];
         pills.innerHTML = pids.map(function(pid) {
           const d = CMP_DATA[pid];
-          const dsc = window._pdxDisplayScore(d);
-          const scCol = _chubScoreColor(dsc);
+          // The selection pill carries the name, not a rate. It used to lead with
+          // a pledge percentage, which put a number on a chip with no room for the
+          // coverage that would make it mean anything.
           return '<span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(30,53,96,0.6);border:1px solid rgba(96,165,250,0.3);color:white;font-family:\'Barlow Condensed\',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;padding:0.2rem 0.55rem;border-radius:999px;">' +
-            '<span style="color:' + scCol + ';font-size:0.65rem;">' + (dsc != null ? dsc+'%' : '—') + '</span> ' + (d?.name || pid) +
+            (d?.name || pid) +
             ' <button onclick="chubToggle(\'' + pid + '\')" style="background:none;border:none;color:#7596c0;cursor:pointer;padding:0;font-size:0.7rem;line-height:1;margin-left:0.1rem;" title="Remove">✕</button>' +
           '</span>';
         }).join('');

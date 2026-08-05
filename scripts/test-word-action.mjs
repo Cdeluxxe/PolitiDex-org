@@ -557,8 +557,13 @@ const voteNarration = (issueKey, extra = {}) => ({
   const ft = PROFILES.slice(PROFILES.indexOf('window._renderFollowThrough = function'),
                             PROFILES.indexOf('window.pdxFilterPromises = function'));
   must(ft.length > 1500, 'profiles-full.js no longer defines _renderFollowThrough');
-  ok(/Promises Kept/.test(ft), 'the pledge block lost its canonical big-number label');
-  ok(/Promise Follow-Through/.test(ft), 'the pledge block lost its canonical lane name');
+  // The block has no big number to label any more: the pledge PERCENTAGE is
+  // retired (PolitiDex publishes one integrity rate, and it is this section's).
+  // What must survive is the lane's identity and its counts.
+  ok(/Promise Receipts/.test(ft), 'the pledge block lost its canonical lane name');
+  ok(!/%'/.test(ft.replace(/width:\s*100%/g, '')) && !/m\.rate/.test(ft),
+    'the pledge block publishes a percentage again — the pledge lane is a tier of this\n' +
+    '    score, and a tier with its own rate is a rival score');
   ok(/_pdxPromiseInfo/.test(ft), 'the pledge block lost its ⓘ methodology explainer');
   // The three count chips are now emitted by a shared countChip() helper rather
   // than written out three times, so the jump attribute is built from `kind` and
@@ -577,7 +582,9 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/interactive/.test(ft),
     'the pledge block chips are unconditionally interactive again — on a record with no\n' +
     '    itemized promises[] they become buttons that filter an empty list');
-  ok(/m\.raw/.test(ft), 'the pledge block lost the raw-vs-weighted reconciliation line');
+  ok(/m\.kept/.test(ft) && /m\.broken/.test(ft) && /m\.pending/.test(ft),
+    'the pledge block lost the kept / broken / pending counts — with the rate retired they\n' +
+    '    are the entire finding');
   ok(!/font-size:2\.5rem/.test(ft),
     'the pledge rate is still rendered at hero scale — under one standard it is a supporting\n' +
     '    figure, and two hero numbers on one screen read as two competing scores');
@@ -838,7 +845,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   const html = b.WA.feedsHtml('p1', person);
   ok(/What feeds this score/.test(html), 'the panel lost its heading');
   for (const [label, target] of [
-    ['Promise Follow-Through', 'pdxsec-score'],
+    ['Promise receipts', 'pdxsec-score'],
     ['Stated positions', 'pdxsec-positions'],
     ['Signature issues', 'pdxsec-positions'],
     ['Official Record', 'pdxsec-official-record']

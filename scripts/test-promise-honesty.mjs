@@ -1,26 +1,31 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// Promise-honesty harness — no pledge percentage without an inspectable ledger
+// Promise-honesty harness — the pledge percentage is retired, the counts are not
 // ─────────────────────────────────────────────────────────────────────────────
 // PolitiDex publishes ONE primary accountability percentage: ⚖️ Word vs Action.
-// Promise Follow-Through is the top TIER of that read, not a rival headline, and
-// a tier the reader cannot inspect does not get to publish a rate.
+// The pledge lane is the top TIER of that read, not a rival headline, so it
+// publishes no percentage of its own — on any profile, for any record.
 //
-// The failure this harness exists to catch is a specific, real one. A large part
-// of the roster carries summary `kept` / `broken` / `pending` integers with NO
-// itemized `promises[]` behind them. On those records the profile printed a
-// follow-through percentage — in the hero, in the compare table's sticky header,
-// in the compare row, in the mandate principles, and worked out longhand inside
-// the ⓘ explainer — while the Promise Tracker directly below it rendered from
-// `promises[]` and had nothing at all to show. The number was unauditable by
-// construction: there was no ledger to check it against, and dividing two
-// summary integers does not create one.
+// This harness started from a narrower failure. A large part of the roster
+// carries summary `kept` / `broken` / `pending` integers with NO itemized
+// `promises[]` behind them. On those records the profile printed a follow-through
+// percentage — in the hero, in the compare table's sticky header, in the compare
+// row, in the mandate principles, and worked out longhand inside the ⓘ explainer
+// — while the Promise Tracker directly below it rendered from `promises[]` and had
+// nothing at all to show. The number was unauditable by construction: there was
+// no ledger to check it against, and dividing two summary integers does not
+// create one. The rule then was WITHHOLD THE RATE, KEEP THE COUNTS.
 //
-// The rule is: WITHHOLD THE RATE, KEEP THE COUNTS. Counts are directly attested
-// and useful. Only the percentage is withheld, and only until a ledger exists.
+// The rule now goes further: RETIRE THE RATE, KEEP THE COUNTS. Even a record with
+// a fully itemized ledger publishes no pledge percentage, because a second
+// percentage beside Word vs Action leaves a reader unsure which number rates
+// what. Contracts 5 and 7 were inverted for that — where they once required the
+// itemized lane to show its earned rate, they now forbid any pledge rate at all.
+// Nothing about the counts changed: they are directly attested receipts and every
+// surface still shows them.
 //
-// The second failure mode is the OVERCORRECTION, which is worse than the number
-// was. Suppressing the rate must not push a sitting member with 27 kept and 8
+// The failure mode that stays live is the OVERCORRECTION, which is worse than the
+// number was. Dropping the rate must not push a sitting member with 27 kept and 8
 // broken into the pre-existing empty state and report "No voting record yet".
 // That is why a fourth promise state ('counts') exists, and contracts 4–6 hold
 // every surface to using it.
@@ -30,9 +35,10 @@
 //   2. _pdxDisplayScore withholds the rate for a counts-only record
 //   3. _pdxPromiseState names four states, and 'counts' is one of them
 //   4. counts-only surfaces keep their counts and never read as empty
-//   5. _ftMeta / _renderFollowThrough publish no rate, no bar, no filter hint
-//   6. every surface that prints a pledge % routes through the guard
-//   7. the ⓘ explainer does not work the withheld figure out longhand
+//   5. _renderFollowThrough publishes no rate and no bar, on any record
+//   6. no surface prints a pledge % at all
+//  6b. the card score slots carry receipts through _pdxLedgerSlot, never a rate
+//   7. the ⓘ explainer does not work the retired figure out longhand
 //   8. _pdxKeyIssues resolves both roster spellings of the issue list
 //
 //   node scripts/test-promise-honesty.mjs
@@ -228,8 +234,9 @@ const EMPTY = { name: "Empty", score: null };
   ok(/=== 'counts'|== "counts"/.test(CMP_HUB),
     "compare-hub.js has no 'counts' branch — a withheld rate would show there as an\n" +
     "    empty score tile beside picks that have one");
-  ok(/_pdxCountsNote/.test(CMP_TABLE),
-    "compare-table.js never reads the counts note, so a withheld rate is a bare dash");
+  ok(/_pdxPledgeNote/.test(CMP_TABLE),
+    "compare-table.js never reads a pledge counts note, so a record with 27 kept and 8\n" +
+    "    broken shows as a bare dash where the retired percentage used to be");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -278,12 +285,28 @@ const EMPTY = { name: "Empty", score: null };
     "the ⓘ explainer is unreachable from the counts-only lane, so a reader cannot\n" +
     "    learn how the lane works at all");
 
-  // The itemized lane keeps everything it had.
+  // ── THE RETIREMENT, ENFORCED ────────────────────────────────────────────────
+  // The itemized lane used to be the branch that EARNED a percentage: it had an
+  // inspectable ledger, so it published 75% in a disclosure. That distinction is
+  // gone. The rate is retired for every record, so the itemized lane must now be
+  // as silent as the counts-only one — same absence, same explanation block. If
+  // this flips back, a profile has two integrity numbers again.
   const hi = W._renderFollowThrough(3, 1, 1, "someone", 75, true);
-  ok(/75%/.test(hi), "the itemized lane lost its earned percentage");
+  ok(hi.length > 0, "the pledge lane vanished entirely for an itemized record");
+  ok(!/%/.test(hi.replace(/width:\s*100%/g, "").replace(/max-width:\s*100%/g, "")),
+    "the itemized pledge lane printed a percentage — the follow-through rate is retired\n" +
+    "    for EVERY record, not just the ones whose counts could not be audited");
+  ok(!/linear-gradient\(90deg,#16a34a/.test(hi),
+    "the itemized lane still draws the split kept/broken bar — a 75/25 proportional bar\n" +
+    "    is the retired percentage rendered as geometry instead of as a number");
   ok(/_pdxBadgeClick/.test(hi), "the itemized lane lost its clickable count chips");
-  ok(/pdx-ft-rate/.test(hi) && !/pdx-ft-noRate/.test(hi),
-    "the itemized lane rendered the withheld-rate block instead of its disclosure");
+  ok(hi.indexOf("3") !== -1 && hi.indexOf("1") !== -1,
+    "the itemized lane dropped the counts it exists to show");
+  ok(/pdx-ft-noRate/.test(hi) && !/<details class="pdx-ft-rate"/.test(hi),
+    "the itemized lane still opens the pledge-only rate disclosure — both branches must\n" +
+    "    now land on the same 'no percentage is published' explanation");
+  ok(/Word vs Action/.test(hi),
+    "the pledge lane never names the one read it feeds, so its receipts look orphaned");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -303,23 +326,28 @@ const EMPTY = { name: "Empty", score: null };
     "    profile's own pledge lane refuses to print");
 
   // The compare table had three independent publishers: the sticky column header,
-  // the Promise Follow-Through row, and the Bottom Line verdict's prose.
-  const ftDef = CMP_TABLE.slice(CMP_TABLE.indexOf("const followThrough = "),
-                                CMP_TABLE.indexOf("const followThrough = ") + 700);
-  must(ftDef.length > 20, "compare-table.js no longer defines the followThrough helper");
-  ok(/_pdxHasItemizedPledges/.test(ftDef),
-    "compare-table.js's followThrough() still divides summary counts into a percentage\n" +
-    "    without checking for a ledger — computing the figure locally does not make it\n" +
-    "    auditable");
-  const verdictDef = CMP_TABLE.slice(CMP_TABLE.indexOf("function _cmpVerdictFollowThrough"),
-                                     CMP_TABLE.indexOf("function _cmpVerdictFollowThrough") + 700);
-  must(verdictDef.length > 20, "compare-table.js no longer defines _cmpVerdictFollowThrough");
-  ok(/_pdxHasItemizedPledges/.test(verdictDef),
-    "the Bottom Line verdict still states the withheld rate in prose — a percentage\n" +
-    "    phrased conversationally is still published");
-  ok(!/const sc_val = p\.score;/.test(CMP_TABLE),
-    "the compare table's sticky column header reads p.score raw, so the same record can\n" +
-    "    show a percentage in the header and a withheld cell three rows below it");
+  // the Promise Follow-Through row, and the Bottom Line verdict's prose. All three
+  // are retired rather than guarded — the table compares pledge COUNTS now, and
+  // its Bottom Line judges on ⚖️ Word vs Action, the one published read. So what
+  // this checks is that none of the three can come back: no local division of the
+  // kept / broken pair anywhere in the file, and no `p.score` read in the header.
+  const cmpNoComments = CMP_TABLE.split("\n").filter((l) => !l.trim().startsWith("//")).join("\n");
+  ok(CMP_TABLE.indexOf("const followThrough = ") === -1,
+    "compare-table.js defines followThrough() again — that helper existed only to\n" +
+    "    divide two summary integers into the retired pledge percentage");
+  ok(!/100\s*\*\s*p\.kept|p\.kept\s*\/\s*\(/.test(cmpNoComments),
+    "compare-table.js divides the kept / broken pair into a rate again — computing the\n" +
+    "    retired figure locally does not make it publishable");
+  const verdictDef = CMP_TABLE.slice(CMP_TABLE.indexOf("function _cmpVerdictWordAction"),
+                                     CMP_TABLE.indexOf("function _cmpVerdictIsCandidate"));
+  must(verdictDef.length > 20, "compare-table.js no longer defines _cmpVerdictWordAction");
+  ok(/PDXWordAction/.test(verdictDef) && !/p\.kept/.test(verdictDef),
+    "the Bottom Line verdict's record basis is not the published Word vs Action read —\n" +
+    "    a percentage phrased conversationally is still published, so it has to be the\n" +
+    "    same one the profile shows");
+  ok(!/const sc_val = p\.score;/.test(CMP_TABLE) && !/cmp-col-score-ring/.test(cmpNoComments),
+    "the compare table's sticky column header carries a score ring again — the header\n" +
+    "    was the table's loudest percentage and it reports pledge counts now");
 
   // The Accountability of Truth report quotes the keep rate in three sentences.
   ok(/pkQuotable/.test(ACCT),
@@ -332,16 +360,128 @@ const EMPTY = { name: "Empty", score: null };
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// Contract 7 — the explainer does not work the withheld figure out longhand
+// Contract 6b — the card score SLOTS carry receipts, and cannot hold a rate
+// ═════════════════════════════════════════════════════════════════════════════
+// Contract 6 covers the profile and the compare table. It missed the listing
+// cards, and they were the largest remaining publisher by reach: every card had
+// its own copy of `sc + '%'`, its own colour ramp and its own fallback, so the
+// pledge rate survived the profile's retirement on the browse grid, both My Team
+// views, the My Politicians card, the medium modal, the Relevant-to-Me dual
+// signal, the Key Races cell, the ballot summary and the Your Ballot chip.
+//
+// They all render window._pdxLedgerSlot now — one glyph, one label, the counts —
+// so this contract holds the slot honest and then checks that no caller has gone
+// back to formatting a number itself.
+{
+  const YB = read("your-ballot.js");
+  const BB = read("ballot-breakdown.js");
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "")
+                            .replace(/(^|[^:])\/\/.*$/gm, "$1");
+
+  // ── The slot itself ──
+  const slotDef = extractFn(CMP_HUB, "_pdxLedgerSlot", "compare-hub.js");
+  must(slotDef.length > 100, "compare-hub.js no longer defines window._pdxLedgerSlot");
+  ok(!/%/.test(slotDef),
+    "_pdxLedgerSlot can produce a percent sign — it is the one thing every card score\n" +
+    "    slot now routes through, so a rate here is a rate everywhere at once");
+  ok(!/\.score\b|_pdxDisplayScore/.test(slotDef),
+    "_pdxLedgerSlot reads the stored pledge score — the slot is built from the tally, so\n" +
+    "    the retired figure must not be in its hands at all");
+  ok(/_pdxPromiseState/.test(slotDef) && /_pdxPledgeNote/.test(slotDef),
+    "_pdxLedgerSlot no longer derives from the shared promise state + counts helpers, so\n" +
+    "    the cards can drift from the four honest states the profile uses");
+  // 'resolved' and 'counts' must be indistinguishable: the only thing that ever
+  // separated them was whether a rate was published.
+  const branch = slotDef.slice(slotDef.indexOf("resolved"), slotDef.indexOf("tracking"));
+  ok(/state === 'resolved' \|\| state === 'counts'/.test(slotDef),
+    "_pdxLedgerSlot no longer collapses 'resolved' and 'counts' into one rendering — with\n" +
+    "    the rate gone an itemized ledger and a summary ledger say the same thing");
+
+  // ── The callers ──
+  for (const [file, src] of [["compare-hub.js", CMP_HUB], ["ballot-breakdown.js", BB], ["your-ballot.js", YB]]) {
+    const code = strip(src);
+    ok(!/_pdxDisplayScore\([^)]*\)\s*(\+|\?)[\s\S]{0,80}?'%'/.test(code),
+      `${file} formats _pdxDisplayScore into a percent string again`);
+    ok(!/(sc|dsc|scTxt|dScore|avgScore)\s*\+\s*'%'/.test(code),
+      `${file} concatenates a pledge score with '%' again — that is the exact shape every\n` +
+      `    card slot used before it routed through _pdxLedgerSlot`);
+    ok(!/Promise Score|Avg Promise Score|% Promise/.test(code),
+      `${file} labels a slot "Promise Score" again — the label is what told the reader the\n` +
+      `    number beside it was a rating, and there is no rating in this lane`);
+    // The raw field, bypassing the guard entirely. A "(Promise 77%)" tacked onto a
+    // sentence is the same published rate as the one that used to sit in the ring,
+    // and _pdxDisplayScore's bans above do not see it.
+    ok(!/\b(d|p|cd|rec)\.score\s*\+\s*'%/.test(code),
+      `${file} interpolates the raw p.score field into a percent string — the stored number\n` +
+      `    stays in the data layer, but no surface may publish it`);
+  }
+  // The retired colour ramps are gone, not merely unused: a live ramp keyed on a
+  // score is the easiest way for the number to come back.
+  ok(!/function _scoreColor|function _krScoreColor/.test(BB),
+    "ballot-breakdown.js still defines a pledge-score colour ramp — colouring a slot by a\n" +
+    "    rate publishes the rate");
+  ok(!/function scoreColor/.test(YB),
+    "your-ballot.js still defines a pledge-score colour ramp");
+  // A progress bar IS a percentage, drawn. The My Team slot card had one.
+  ok(!/bar-high|bar-mid|bar-low/.test(strip(CMP_HUB)),
+    "compare-hub.js draws a pledge-score progress bar again — a bar is a percentage with\n" +
+    "    the digits taken off, not an alternative to one");
+  // Filtering, sorting and colouring are USES of a score. The three pledge-rate
+  // colour ramps (_chubScoreColor / _medScoreColor / _bsScoreColor) are gone, and
+  // the shape they shared — a threshold picking a hex colour — must not come back.
+  // Matched on that shape rather than on ">= 70" alone: compare-hub also thresholds
+  // the ALIGNMENT match at 70 and colours the average alignment on a ramp, which is
+  // a different score and a legitimate one — hence the pledge-score variable names.
+  ok(!/\b(s|sc|dsc|score|dScore|avgScore|promiseScore)\s*>=\s*(70|50|40)\s*\?\s*'#/.test(strip(CMP_HUB)),
+    "compare-hub.js grades a pledge score with a colour ramp again — green/amber/red over\n" +
+    "    kept ÷ resolved is the percentage with the digits taken off");
+  ok(!/function _(chub|med|bs)ScoreColor/.test(CMP_HUB),
+    "compare-hub.js redefines one of the retired pledge-rate colour ramps");
+  ok(!/70%\s*\+|40\s*[-–]\s*69|Under 40%/.test(strip(CMP_HUB)),
+    "compare-hub.js offers a pledge-rate band as a filter label again — '70%+' republishes\n" +
+    "    the number the app stopped publishing, and ranks people by it");
+  // The pasted-slate path is a share surface too: a rate with no denominator travels
+  // further in plain text than it does on screen.
+  ok(!/%\s*promise\s*score/i.test(strip(CMP_HUB)),
+    "the ballot-summary clipboard text carries a pledge percentage again — pasted text has\n" +
+    "    no methodology link to sit next to");
+  const depthHead = CMP_HUB.indexOf("function _pledgeDepth");
+  must(depthHead !== -1, "compare-hub.js no longer defines _pledgeDepth, the sorts' ordering key");
+  const depthDef = braceScan(CMP_HUB, depthHead, "_pledgeDepth", "compare-hub.js");
+  ok(/_pdxPromiseTally/.test(depthDef) && /\.resolved/.test(depthDef) && !/%/.test(depthDef),
+    "the browse sorts no longer order by a resolved-pledge COUNT — ranking by the rate is\n" +
+    "    publishing it, one row position at a time");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Contract 7 — the explainer explains receipts, and works no figure out longhand
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const info = LIKE.slice(LIKE.indexOf("window._pdxPromiseInfo = function"),
-                          LIKE.indexOf("window._pdxPromiseInfo = function") + 3000);
+                          LIKE.indexOf("window._pdxScoreCompareInfo = function"));
   must(info.length > 100, "like-dislike.js no longer defines _pdxPromiseInfo");
-  ok(/_pdxHasItemizedPledges/.test(info),
-    "the ⓘ Promise explainer is reachable from the counts-only lane and still computes\n" +
-    "    this official's own rate longhand — publishing it in the one place the reader\n" +
-    "    went looking for a number");
+  // Comments stripped first: the retirement is RECORDED here with a tombstone that
+  // quotes the formula it removed, and a probe that cannot tell the tombstone from
+  // the body would report the fix itself as the regression.
+  const body = info.split("\n").filter((l) => !l.trim().startsWith("//")).join("\n");
+  ok(/_pdxHasItemizedPledges/.test(body),
+    "the ⓘ promise explainer no longer distinguishes an itemized ledger from bare\n" +
+    "    summary counts, so it tells a reader to go and inspect a list that is not there");
+  // The retirement's most important single site. This popover is opened BY someone
+  // who wants a number, which makes it the last place a retired score survives —
+  // once as the general formula, once as this official's own division.
+  ok(!/%/.test(body),
+    "the promise explainer prints a percentage — it is opened by a reader looking for a\n" +
+    "    number, so a rate surviving here defeats the retirement everywhere else");
+  ok(!/÷/.test(body),
+    "the promise explainer still shows Kept ÷ (Kept + Broken) — a formula published in a\n" +
+    "    popover is the score published in a popover");
+  ok(!/_pdxDisplayScore/.test(body),
+    "the promise explainer reads the stored promise figure again; the counts are what it\n" +
+    "    is allowed to name");
+  ok(/Word vs Action/.test(body),
+    "the promise explainer never says where kept and broken pledges actually go, which is\n" +
+    "    the whole reason the separate grade was retired");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

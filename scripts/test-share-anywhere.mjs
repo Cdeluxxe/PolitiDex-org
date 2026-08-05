@@ -10,8 +10,11 @@
 // Three properties are load-bearing, and each of them fails silently, which is
 // why they are tested rather than trusted:
 //
-//   1. THE TIER ORDER AND THE GUARD BOUNDARY. The Official Record card wins, the
-//      curated Say-vs-Do receipt is next, a profile link is last. The record read
+//   1. THE TIER ORDER AND THE GUARD BOUNDARY. The whole-person record card wins
+//      (PDXProfileCard — the Word vs Action read, its coverage and its receipts),
+//      then the Official Record card, then the curated Say-vs-Do receipt, then a
+//      profile link. An issueKey on the host row suppresses the summary, because a
+//      button in a row about one bill must still send that bill. The record read
 //      must go through publicCardsFor — the guarded, wave-1-gated accessor — and
 //      never through cardsFor, or this module would become a second way out of
 //      the app that skips the trust guards.
@@ -330,6 +333,74 @@ const run = async () => {
      "dispatch: a button already inside the share sheet copies the link instead of reopening the sheet it stands in");
 }
 
+// ── 4b. The summary tier ─────────────────────────────────────────────────────
+// The whole-person record card (PDXProfileCard) sits ABOVE both pipelines: a
+// share from a person-level surface should send the whole read, not one receipt
+// of it. Two things make that safe rather than greedy — it is suppressed the
+// moment the host row is about one issue, and it is resolved through the card
+// module's cheap memoised brief() rather than a full build per keystroke.
+{
+  ctx.window.PDXProfileCard = {
+    brief(pid) {
+      if (pid !== "rep_record" && pid !== "rep_receipt") return null;
+      return { pid: pid, verdict: { ico: "◑", label: "Mixed record" },
+               breakdown: { consistent: 3, mixed: 1, contradicts: 1 } };
+    },
+    read(pid) { return this.brief(pid); },
+    share(pid, btn) { calls.push(["pc.share", pid, btn]); return "pc"; },
+  };
+  fire("pdx:data:acctSpotlight");   // drop the memo so the new module is seen
+
+  const s = SA.state("rep_record");
+  ok(s.tier === "summary", "summary: a member with a card resolves to the top 'summary' tier");
+  ok(s.card === CARD,
+     "summary: the record card is still resolved alongside it, so dispatch can step down if the card module is missing");
+  ok(s.ico === "⚖️", "summary: the tier is cued by the Word vs Action glyph — the read it comes from");
+  ok(/record card/i.test(s.hint) && !/%/.test(s.hint),
+     "summary: the visible hint promises a record card and no percentage");
+  ok(/Mixed record/.test(s.label) && /3 backed up/.test(s.label) && /1 contradicted/.test(s.label),
+     "summary: the accessible name states the verdict and the counts the image will carry");
+  ok(!/%/.test(s.label),
+     "summary: the accessible name prints no percentage either — the retired rate must not survive in an aria-label");
+
+  const iss = SA.state("rep_record", { issueKey: "healthcare" });
+  ok(iss.tier === "record" && iss.card === CARD_OTHER,
+     "summary: an issueKey SUPPRESSES the summary — a share button in a row about one bill still sends that bill");
+
+  calls.length = 0;
+  const r = SA.share("rep_record", null);
+  ok(calls.some((c) => c[0] === "pc.share" && c[1] === "rep_record") && r === "pc",
+     "summary: the tap is routed to PDXProfileCard.share with the pid");
+  ok(!calls.some((c) => c[0] === "rc.share"),
+     "summary: the single-receipt pipeline is not also fired — one tap, one artifact");
+
+  // Step-down, not fall-through: losing the card module must cost the reader the
+  // best image, not the whole gesture.
+  const keep = ctx.window.PDXProfileCard;
+  ctx.window.PDXProfileCard = { brief: keep.brief, read: keep.read };  // no share()
+  fire("pdx:data:acctSpotlight");
+  calls.length = 0;
+  SA.share("rep_record", null);
+  ok(calls.some((c) => c[0] === "rc.share" && c[1] === CARD),
+     "summary: with the card module half-loaded the tap falls back to the Official Record card rather than to a bare link");
+  ctx.window.PDXProfileCard = keep;
+  fire("pdx:data:acctSpotlight");
+
+  const { btn, ico, lbl, hint } = mkBtn("rep_record", "link");
+  const beforeLabel = lbl.textContent;
+  SA.apply(btn, SA.state("rep_record"));
+  ok(ico.textContent === "⚖️" && lbl.textContent === beforeLabel,
+     "summary: hydrating INTO the new tier still only swaps the glyph — the fixed-size contract covers the tier that was added last");
+  ok(btn.classList.contains("pdxsa-t-summary") && !btn.classList.contains("pdxsa-t-link"),
+     "summary: the tier class moves, so the accent follows the answer");
+  ok(/record card/i.test(hint.textContent), "summary: the hint box repaints to the new promise");
+
+  delete ctx.window.PDXProfileCard;
+  fire("pdx:data:acctSpotlight");
+  ok(SA.state("rep_record").tier === "record",
+     "summary: with the card module absent entirely the resolver behaves exactly as it did before it existed");
+}
+
 // ── 5. The wiring — the four surfaces the affordance was built for ───────────
 {
   const html = read("index.html");
@@ -350,6 +421,8 @@ const run = async () => {
   ok(/id === 'share'/.test(eye), "wiring: the search share action is handled rather than declared and ignored");
   ok(/Share the record card/.test(eye) && /Share the receipt/.test(eye) && /Share profile link/.test(eye),
      "wiring: the search action names the artifact it will send, so its label is a promise the tap keeps");
+  ok(/t === 'summary'/.test(eye) && /Share their record card/.test(eye),
+     "wiring: SEARCH knows about the summary tier — without its own branch a person row would offer to 'Share profile link' and then send an image, which is a label that lies");
   ok(/acts\.push\(shareAct\(e\.id, e\.issueKey \|\| ''\)\)/.test(eye),
      "wiring: a search RECEIPT row shares that row's issue, not some other issue of the same member");
 

@@ -7,14 +7,21 @@
 //
 //   🏛️ Official Record        — how they voted / acted formally   (consistency.js)
 //   🧾 Say-vs-Do              — does the public record back their stances
-//   🤝 Promise Follow-Through — kept vs broken promises, Kept ÷ (Kept + Broken)
+//   🤝 Promise receipts       — which explicit pledges were kept, broken, still open
 //
 // Above them now sits ⚖️ Word vs Action (word-action.js): the primary read, which
 // pools all documented word — hard pledges, stated positions, and repeated
 // issue-linked branding — in three weights and tests it against the Official
 // Record. It is a POOLING AND WEIGHTING layer over the per-issue test that
-// already existed, not a fourth measurement, and Promise Follow-Through is its
-// top tier rather than a rival number. Contract 10 holds it to that.
+// already existed, not a fourth measurement, and the pledge lane is its top tier
+// rather than a rival number. Contract 10 holds it to that.
+//
+// The Promise Follow-Through PERCENTAGE — Kept ÷ (Kept + Broken), once printed as
+// a hero ring, a compare column and a card pill — is RETIRED. Not withheld
+// pending a ledger: retired. Word vs Action is the one integrity percentage, and
+// the pledge lane publishes counts and verdicts only. Several contracts below
+// were inverted for that: they used to require the figure be threaded through
+// every surface consistently, and now require that no surface reaches it at all.
 //
 // Plus two things that are deliberately NOT record scores: 🎯 Your Match (the
 // visitor's own issue picks) and ✒️ the Executive Enactment Record (counts only —
@@ -292,28 +299,32 @@ const [displayScore, promiseState] = (() => {
   eq(ftMeta(0, 0, 5, 72).rate, null,
     "_ftMeta must not publish a percentage for an all-pending record, even with a stored score");
 
-  // The profile has to actually hand the published figure over — and, since the
-  // itemized-ledger guard landed, the itemized flag with it. Without that sixth
-  // argument the block falls back to legacy behaviour and recomputes its own raw
-  // ratio, which is the contradiction this contract exists to prevent.
-  ok(/_renderFollowThrough\([\s\S]{0,220}?,\s*id,\s*scoreNum,\s*pledgeItemized\)/.test(PROFILES),
-    "the profile no longer passes the published score and the itemized flag into\n" +
-    "    _renderFollowThrough — the block will recompute its own raw ratio and contradict\n" +
-    "    the hero ring again");
-  ok(/That raw ratio is/.test(PROFILES),
-    "the Follow-Through block no longer states the raw ratio behind the weighted headline");
+  // The pledge percentage is RETIRED as a published figure (see the file header).
+  // _ftMeta still computes `rate` because the object is shared plumbing, but the
+  // profile now hands `null` where the published figure used to go, and nothing
+  // downstream may print either number. So this contract flipped: it used to
+  // require the figure be threaded through, and now requires that it isn't.
+  ok(/_renderFollowThrough\([\s\S]{0,220}?,\s*id,\s*null,\s*pledgeItemized\)/.test(PROFILES),
+    "the profile passes a pledge percentage into _renderFollowThrough again — the\n" +
+    "    published figure is retired, so `null` belongs in that argument and the block\n" +
+    "    must render counts only");
+  ok(!/That raw ratio is/.test(PROFILES),
+    "the Follow-Through block states a raw ratio again — the pledge lane publishes no\n" +
+    "    percentage on any profile now, only kept / broken / pending counts");
 
-  // The "ⓘ How?" popover opens FROM the headline number, so it cannot answer
-  // with a different one.
+  // The "ⓘ How?" popover explains the pledge receipts. It must not quietly work
+  // the retired percentage out longhand — a rate reached by division in a popover
+  // is still a second score competing with ⚖️ Word vs Action.
   const info = read("like-dislike.js");
   const calc = info.slice(info.indexOf("window._pdxPromiseInfo"),
     info.indexOf("pdx-pinfo-formula-eq"));
   must(calc.length > 400, "like-dislike.js no longer builds the promise explainer's calc line");
-  ok(/_pdxDisplayScore/.test(calc),
-    "the promise explainer computes only the raw ratio — opened from the weighted\n" +
-    "    headline it then shows a different number than the one the visitor tapped");
-  ok(/% raw/.test(calc),
-    "the promise explainer no longer labels its ratio as the raw figure");
+  ok(!/_pdxDisplayScore/.test(calc),
+    "the promise explainer reads the display score again — it reports counts only, for\n" +
+    "    every record, so no popover can reintroduce the retired pledge rate");
+  ok(!/% raw/.test(calc.split("\n").filter((l) => !l.trim().startsWith("//")).join("\n")),
+    "the promise explainer labels a ratio as the raw figure again — there is no ratio\n" +
+    "    left to label");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -659,10 +670,17 @@ for (const name of ["_renderAccountabilityCard", "_acctCardBadge"]) {
     "    lane \"Promise Follow-Through\" / \"Promises Kept\" so one number has one name");
   ok(/Promise Follow-Through/.test(PROFILES),
     "the canonical promise-lane name is gone from profiles-full.js");
-  ok(/Promises Kept/.test(PROFILES),
-    "the Follow-Through block no longer labels its big number");
-  ok(/Promise % = Kept ÷ \(Kept \+ Broken\)/.test(PROFILES),
-    "the Deep Dive no longer states the promise formula");
+  // The lane's "big number" is retired: it has counts and a verdict phrase now,
+  // so what has to survive is the COUNT labelling, not a labelled percentage.
+  ok(/Kept · /.test(PROFILES) && /still open/.test(PROFILES),
+    "the pledge lane no longer labels its counts — with the percentage retired, the\n" +
+    "    kept / broken / open counts are the whole finding and must be named");
+  ok(!/Promise % = Kept ÷ \(Kept \+ Broken\)/.test(PROFILES),
+    "the Deep Dive states the retired Promise % formula again — there is no published\n" +
+    "    pledge percentage for it to explain");
+  ok(/no percentage is published for this lane/.test(PROFILES),
+    "the Deep Dive no longer says outright that this lane publishes no percentage —\n" +
+    "    silently dropping the number reads as missing data rather than a retired score");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
