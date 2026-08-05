@@ -7063,14 +7063,14 @@
         pids = pids.filter(function(pid) { var a = window._acctMatchScore(pid); return typeof a === 'number' && a >= 65; });
       }
 
-      // 'score-desc' now means MOST PLEDGE RECEIPTS first — deepest record at the
-      // top, which is what the option always meant to the voter reading it and is
-      // a count rather than a rate. The value is unchanged so saved sorts, the
-      // alignment fallbacks below and the browse-goal parser keep working.
+      // 'score-desc' means the strongest ⚖️ Word vs Action read first — the one
+      // published rating. It used to order by pledge receipts; see _waDepth(). The
+      // value is unchanged so saved sorts, the alignment fallbacks below and the
+      // browse-goal parser keep working.
       if (sort === 'score-desc') {
-        pids.sort(function(a, b) { return _pledgeDepth(b) - _pledgeDepth(a); });
+        pids.sort(function(a, b) { return _waDepth(b) - _waDepth(a); });
       } else if (sort === 'score-asc') {
-        pids.sort(function(a, b) { return _pledgeDepth(a) - _pledgeDepth(b); });
+        pids.sort(function(a, b) { return _waDepth(a) - _waDepth(b); });
       } else if (sort === 'alpha') {
         pids.sort(function(a, b) { return (CMP_DATA[a].name || '').localeCompare(CMP_DATA[b].name || ''); });
       } else if (sort === 'align-desc' && typeof _calcAlignmentScore === 'function') {
@@ -10182,13 +10182,32 @@
       }
     }
 
-    // How many pledges are RESOLVED on this record — the honest ordering key for
-    // the two "score" sorts. Not a rate, and never derived from one.
-    function _pledgeDepth(pid) {
+    // The ordering key for the two "score" sorts — the ⚖️ Word vs Action read, the
+    // one thing PolitiDex publishes as a rating.
+    //
+    // This was `_pledgeDepth()`, ordering the whole roster by how many PLEDGES had
+    // resolved. That option label read "🤝 Most Pledge Receipts", so the site's
+    // default ranking of every politician was a pledge tally — which is a separate
+    // ranking system for pledges no matter how carefully the option was worded, and
+    // it also rewarded whoever happened to have the most pledges transcribed rather
+    // than whoever's record backs their word.
+    //
+    // A pledge is one FORM OF "said" and word-action.js already tests it, so it is
+    // inside this number along with stances and issue branding. Records below the
+    // publishing floor sort to the bottom at -1 rather than being treated as 0:
+    // PDXWordAction owns when a read is sayable, and an unread record is not a bad
+    // one. The option VALUES are unchanged so saved sorts, the alignment fallbacks
+    // and the browse-goal parser keep working.
+    function _waDepth(pid) {
       var d = CMP_DATA[pid];
       if (!d) return -1;
-      var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
-      return t ? t.resolved : -1;
+      try {
+        var wa = window.PDXWordAction;
+        if (!wa || typeof wa.read !== 'function') return -1;
+        var r = wa.read(pid, d);
+        if (!r || !r.publishable || r.pct === null || r.pct === undefined) return -1;
+        return r.pct;
+      } catch (e) { return -1; }
     }
 
     function _chubStateMatch(pid, filter) {
@@ -10353,9 +10372,9 @@
       if (score) pids = pids.filter(function(pid) { return _chubScoreMatch(pid, score); });
 
       if (sort === 'score-desc') {
-        pids.sort(function(a,b) { return _pledgeDepth(b) - _pledgeDepth(a); });
+        pids.sort(function(a,b) { return _waDepth(b) - _waDepth(a); });
       } else if (sort === 'score-asc') {
-        pids.sort(function(a,b) { return _pledgeDepth(a) - _pledgeDepth(b); });
+        pids.sort(function(a,b) { return _waDepth(a) - _waDepth(b); });
       } else if (sort === 'align-desc' || sort === 'align-asc') {
         pids.sort(function(a,b) {
           var aA = (typeof _calcAlignmentScore === 'function') ? (_calcAlignmentScore(a) ?? -1) : -1;

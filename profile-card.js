@@ -28,17 +28,35 @@
 //   4. One or two highlights (clearest cases where the record backs the word)
 //      and one or two lowlights (clearest contradictions, or — where there are
 //      none — the real gaps).
-//   5. Promise receipts as kept / broken / open counts. NOT a percentage: the
-//      Promise Follow-Through rate is retired sitewide, and this card is not
-//      the place it comes back.
+//
+// And that is the whole hierarchy. There is no fifth thing.
+//
+// A CAMPAIGN PLEDGE IS NOT A SECOND SCORE. This card used to end on a band
+// reading "PLEDGE RECEIPTS: 27 KEPT · 8 BROKEN · 2 OPEN" — three counts, in three
+// colours, under their own heading, in the footer where a reader looks for the
+// bottom line. However carefully it was worded, it was a second ranking system
+// sharing a frame with the first one, and a reader cannot be asked to work out
+// which of two tallies is the finding.
+//
+// A pledge is one FORM OF "SAID", nothing more. PolitiDex has exactly one
+// integrity read — does what they say match what they do? — and a pledge enters
+// it the same way a floor stance does: word-action.js tests it against its
+// sourced resolution, the outcome lands in the same backed-up / mixed /
+// contradicted breakdown as everything else, and a resolved pledge competes for
+// the same highlight and lowlight slots on its merits. An unresolved one is named
+// in the gaps, held against no one. That is the whole treatment. The pledge data
+// and the kept/broken/pending logic are untouched and still published in the app
+// beside their own disclosure — what is gone is the parallel tally on the
+// artifact that leaves it.
 //
 // Three properties are load-bearing.
 //
 // · IT INVENTS NOTHING. Every number and every line of prose is read through a
 //   public accessor of the module that owns it — PDXWordAction.read/dots for the
-//   verdict, the tiers and the tested items; _pdxRecordMappedCounts for the vote
-//   coverage; _pdxPromiseTally for the pledge ledger; PDXConsistency.VERDICTS
-//   for the words. This file scores nothing and relaxes no guard.
+//   verdict, the tiers and the tested items (pledges included, on the same
+//   footing); _pdxRecordMappedCounts for the vote coverage;
+//   PDXConsistency.VERDICTS for the words. This file scores nothing, tallies
+//   nothing of its own, and relaxes no guard.
 // · IT DEGRADES OUT LOUD. There is no minimum-data gate that silently produces
 //   a worse card. A brand-new candidate with three stated positions and no votes
 //   gets a card that says, in the signal slot, that there is no record to test
@@ -111,13 +129,15 @@
     } catch (e) { return null; }
   }
 
-  function pledgeTally(p) {
-    try {
-      if (typeof window._pdxPromiseTally !== 'function') return null;
-      var t = window._pdxPromiseTally(p);
-      return (t && (t.resolved || t.unresolved)) ? t : null;
-    } catch (e) { return null; }
-  }
+  // NO pledgeTally() HERE, DELIBERATELY. There used to be one, wrapping
+  // _pdxPromiseTally so the footer could print kept / broken / open. The accessor
+  // and the data it reads are both still there and still published in the app —
+  // this card simply has no use for a tally, because a tally is a second score and
+  // this card publishes one. A pledge reaches the card the only way any stated
+  // position does: through PDXWordAction, tested, in the breakdown, and in the
+  // highlights or the gaps on its own merits. If a future change needs a
+  // kept/broken figure on this artifact, that is the thing to argue about — not
+  // the two lines it would take to add it back.
 
   // One tested word item, reduced to the two lines the card can print: what they
   // said, and the formal action that tested it. `actions` comes from
@@ -226,6 +246,10 @@
         contradicts: counts.contradicts || 0
       },
       // ── coverage ──
+      // How much word is on file and where it came from. `pledges` is a count of
+      // SAID material, alongside stances — not a verdict on any of it, and not a
+      // tally of outcomes. The outcomes live in `breakdown` above, pooled with
+      // everything else, which is the point.
       coverage: {
         word: r.coverage.word, tested: r.coverage.tested,
         scorable: r.coverage.scorable, untested: r.coverage.untested,
@@ -234,7 +258,6 @@
         voteIssues: vc ? vc.issues : null,
         warming: !!r.coverage.warming
       },
-      pledges: pledgeTally(p),
       _r: r
     };
   }
@@ -675,6 +698,14 @@
       // caption carries the same figures in full sentences. "mapped votes" rather
       // than "votes on record" because the mapped ones are the only votes that can
       // test anything anyone said — the total on file is a bigger, emptier number.
+      //
+      // Pledges appear here and nowhere else on the card. This is the one place
+      // they belong: a count of how much WORD is on file, in the same weight and
+      // the same colour as the stance count beside it, saying nothing about how any
+      // of it turned out. Dropping it would be its own dishonesty — it would shrink
+      // the coverage denominator and hide said-material the record was tested
+      // against. What must not come back is a count of pledge OUTCOMES; those are
+      // already in the breakdown above, pooled with every other tested statement.
       var cov = d.coverage;
       var covBits = [cov.stances + ' stance' + (cov.stances === 1 ? '' : 's')];
       if (cov.pledges) covBits.push(cov.pledges + ' pledge' + (cov.pledges === 1 ? '' : 's'));
@@ -686,7 +717,12 @@
       y = drawLines(ctx, wrapText(ctx, 'COVERAGE: ' + covBits.join('  ·  '), contentW, 2), x, y, 30) + 8;
 
       // ── Footer geometry, reserved before any proof is drawn ─────────────────
-      var footH = d.pledges ? 130 : 100;
+      // One height, for every card. It used to be 130 when there were pledge
+      // receipts to print and 100 when there were not; the 30px the receipts band
+      // occupied now belongs to the highlights and lowlights, which is a strictly
+      // better use of the bottom of the card — a named vote against a named
+      // position is the finding, and a tally never was.
+      var footH = 100;
       var footTop = IMG_H - PAD - footH;
 
       // ── Highlights / lowlights ─────────────────────────────────────────────
@@ -741,26 +777,13 @@
         block(LOWLIGHT_HEAD.gap, TONE.muted, d.gaps.slice(0, 2), '—');
       }
 
-      // ── Footer: pledge receipts · honesty note · branding ──────────────────
+      // ── Footer: honesty note · branding ────────────────────────────────────
+      // No tally lives here. The rule is up top; this is the only place the rule
+      // could be broken quietly, so it is worth a line where it would happen.
       var fy = footTop;
       ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(x, fy); ctx.lineTo(right, fy); ctx.stroke();
       fy += 18;
-      if (d.pledges) {
-        var t = d.pledges;
-        ctx.font = '800 24px "Barlow Condensed", sans-serif';
-        var plx = x;
-        ctx.fillStyle = '#9fb4d4'; ctx.fillText('PLEDGE RECEIPTS:', plx, fy);
-        plx += ctx.measureText('PLEDGE RECEIPTS:') .width + 12;
-        var plBits = [[t.kept + ' KEPT', TONE.good], [t.broken + ' BROKEN', TONE.bad]];
-        if (t.unresolved) plBits.push([t.unresolved + ' OPEN', '#f5c842']);
-        plBits.forEach(function (pb, i) {
-          if (i) { ctx.fillStyle = '#4a5a75'; ctx.fillText('·', plx, fy); plx += 16; }
-          ctx.fillStyle = pb[1]; ctx.fillText(pb[0], plx, fy);
-          plx += ctx.measureText(pb[0]).width + 12;
-        });
-        fy += 32;
-      }
       ctx.font = '600 21px "Barlow Condensed", sans-serif';
       ctx.fillStyle = '#7596c0';
       var note = 'Built only from sourced votes and documented positions. No score where the record is too thin to carry one. Check it yourself.';
@@ -808,11 +831,11 @@
       (cov.pledges ? ' · ' + cov.pledges + ' tracked pledge' + (cov.pledges === 1 ? '' : 's') : '') +
       (cov.votes === null ? '' : ' · ' + cov.votes + ' mapped vote' + (cov.votes === 1 ? '' : 's') + ' on record') +
       ' · ' + cov.tested + ' of ' + cov.scorable + ' testable');
-    if (d.pledges) {
-      L.push('Pledge receipts: ' + d.pledges.kept + ' kept · ' + d.pledges.broken + ' broken' +
-        (d.pledges.unresolved ? ' · ' + d.pledges.unresolved + ' still open' : '') +
-        ' (counts, not a percentage — PolitiDex publishes one integrity read, not two)');
-    }
+    // No pledge-receipts line. It was here, and it was the same mistake as the band
+    // on the image — a second tally, in text, travelling in the same gesture. The
+    // caption owes the reader exactly what the card shows, and the card shows one
+    // read. A pledge that has actually been tested is already in the breakdown
+    // counts above and can be the highlight or the lowlight below.
     if ((d.highlights || []).length) {
       L.push('');
       L.push('✓ Record backs them: ' + d.highlights[0].title + (d.highlights[0].action ? ' — ' + d.highlights[0].action : ''));

@@ -463,30 +463,59 @@
           ? [...sharedIssues].map(s => `<span class="cmp-common-tag">${s}</span>`).join('')
           : `<span class="cmp-insight-sub">No overlapping focus areas — these ${pids.length} prioritize different issues.</span>`;
 
-        // Pledge receipts, as counts. This card used to be "🏆 Promise Score
-        // Spread" and ranked the lineup by a pledge percentage — a rival score to
-        // ⚖️ Word vs Action, which is the one integrity read. What it reports now
-        // is how much settled pledge record each pick actually has, which is the
-        // honest version of the same usefulness: it tells the visitor who can be
-        // judged on their promises at all.
-        const ledgers = pids.map(pid => {
+        // ⚖️ WORD VS ACTION ACROSS THE LINEUP — the one read, and the only read.
+        //
+        // This card has been demoted twice. It began as "🏆 Promise Score Spread",
+        // ranking the lineup by a pledge percentage. That became "🤝 Promise
+        // Receipts", whose lead was `12 kept · 4 broken` pooled across picks plus a
+        // "deepest record" ranking. The second version was more honest about what it
+        // measured but no less of a parallel track: a tally, aggregated across
+        // several different people, in the lead slot of a comparison insight, sitting
+        // one card away from the read it was supposed to be subordinate to.
+        //
+        // A campaign pledge is one FORM OF "said". word-action.js already tests it
+        // against its sourced resolution exactly as it tests a floor stance, so the
+        // card now reports the DISTRIBUTION OF THAT ONE READ across the lineup, in
+        // the one vocabulary (PDXConsistency.VERDICTS) and the one palette. Picks
+        // below the publishing floor are named as unread, never as zero. The pledge
+        // data and the kept/broken/pending logic are untouched and still published on
+        // each profile beside their own disclosure.
+        const WA_PHRASE = {
+          consistent:  ['backs it up', 'back it up'],
+          contradicts: ['contradicts', 'contradict'],
+          mixed:       ['mixed record', 'mixed records'],
+          flag:        ['red flag on record', 'red flags on record']
+        };
+        const waReads = pids.map(pid => {
           const p = sc(pid);
-          const t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(p) : null;
-          return { name: p.name, resolved: t ? t.resolved : 0, kept: t ? t.kept : 0, broken: t ? t.broken : 0, open: t ? t.unresolved : 0 };
+          let r = null;
+          try {
+            const wa = window.PDXWordAction;
+            if (wa && typeof wa.read === 'function') r = wa.read(pid, p);
+          } catch (e) {}
+          return { name: p.name, r };
         });
-        const withLedger = ledgers.filter(l => l.resolved > 0);
+        const sayable = waReads.filter(x => x.r && x.r.publishable && x.r.verdict && WA_PHRASE[x.r.verdict.key]);
         let spreadHtml;
-        if (withLedger.length) {
-          const deepest = withLedger.reduce((a, b) => b.resolved > a.resolved ? b : a);
-          const totKept = withLedger.reduce((n, l) => n + l.kept, 0);
-          const totBroken = withLedger.reduce((n, l) => n + l.broken, 0);
-          spreadHtml = `<span class="cmp-insight-lead">${totKept} kept · ${totBroken} broken</span>`
-            + `<span class="cmp-insight-sub">Across ${withLedger.length} of ${pids.length} pick${pids.length !== 1 ? 's' : ''} with settled pledges — ${deepest.name.split(' ').pop()} has the deepest record (${deepest.resolved}). No pledge percentage is published; see each profile's ⚖️ Word vs Action read.</span>`;
+        if (sayable.length) {
+          const seen = new Map();
+          sayable.forEach(x => {
+            const k = x.r.verdict.key;
+            if (!seen.has(k)) seen.set(k, { v: x.r.verdict, n: 0 });
+            seen.get(k).n++;
+          });
+          const bits = ['consistent', 'mixed', 'contradicts', 'flag']
+            .filter(k => seen.has(k))
+            .map(k => {
+              const e = seen.get(k);
+              return `<span style="color:${e.v.color};">${e.n} ${WA_PHRASE[k][e.n === 1 ? 0 : 1]}</span>`;
+            })
+            .join(' · ');
+          const unread = pids.length - sayable.length;
+          spreadHtml = `<span class="cmp-insight-lead">${bits}</span>`
+            + `<span class="cmp-insight-sub">Read for ${sayable.length} of ${pids.length} pick${pids.length !== 1 ? 's' : ''}${unread ? ` — the other ${unread} ${unread === 1 ? 'does' : 'do'} not have enough record matched to their stated positions yet` : ''}. Campaign pledges are measured inside this read, not ranked on their own.</span>`;
         } else {
-          const anyOpen = ledgers.some(l => l.open > 0);
-          spreadHtml = anyOpen
-            ? `<span class="cmp-insight-sub">Pledges are being tracked but none have settled yet — nothing to judge here so far.</span>`
-            : `<span class="cmp-insight-sub">No settled pledge record for this lineup — compare their documented positions instead.</span>`;
+          spreadHtml = `<span class="cmp-insight-sub">No pick here has enough record matched to its stated positions for a ⚖️ Word vs Action read yet — compare their documented positions below.</span>`;
         }
 
         const candCount = pids.filter(pid => statusOf(sc(pid)) === 'Candidate').length;
@@ -516,8 +545,8 @@
 
         insEl.innerHTML =
           `<div class="cmp-insight-card"><div class="cmp-insight-title">🤝 Common Ground</div><div class="cmp-insight-body">${commonBody}</div></div>`
-          + `<div class="cmp-insight-card"><div class="cmp-insight-title">⚖️ Issue Agreement</div><div class="cmp-insight-body">${issueHtml}</div></div>`
-          + `<div class="cmp-insight-card"><div class="cmp-insight-title">🤝 Promise Receipts</div><div class="cmp-insight-body">${spreadHtml}</div></div>`
+          + `<div class="cmp-insight-card"><div class="cmp-insight-title">📊 Issue Agreement</div><div class="cmp-insight-body">${issueHtml}</div></div>`
+          + `<div class="cmp-insight-card"><div class="cmp-insight-title">⚖️ Word vs Action</div><div class="cmp-insight-body">${spreadHtml}</div></div>`
           + `<div class="cmp-insight-card"><div class="cmp-insight-title">📋 Lineup</div><div class="cmp-insight-body">${lineupHtml}</div></div>`;
       }
     }
@@ -1099,12 +1128,16 @@
       return { pct: r.pct, verdict: r.verdict, tested: (r.coverage && r.coverage.tested) || 0 };
     } catch (e) { return null; }
   }
-  // Depth of settled pledge record, as a count. Used only to break ties and to
-  // say what the receipts are — never divided.
-  function _cmpVerdictPledges(p) {
-    var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(p) : null;
-    return t && t.resolved > 0 ? t : null;
-  }
+  // NO _cmpVerdictPledges() HERE, DELIBERATELY. There used to be one, returning the
+  // settled pledge tally so the Bottom Line could append "…with 6 kept and 3 broken
+  // pledges on file" to the sentence that states the ⚖️ Word vs Action read. Its
+  // comment called it a tie-breaker; nothing ever broke a tie with it. All it did
+  // was put a second set of counts inside the one verdict sentence, which is the
+  // most expensive place on this surface for a reader to have to choose between two
+  // numbers. A pledge is one FORM OF "said": word-action.js already tested it, so
+  // it is inside `standout.score` and inside `standout.tested`, and saying it twice
+  // does not say it better. The pledge data and the kept/broken/pending logic are
+  // untouched and still published on each profile beside their own disclosure.
   function _cmpVerdictIsCandidate(p) {
     return /candidate|nominee/i.test(p.office || '');
   }
@@ -1120,7 +1153,6 @@
       const p = CMP_DATA[pid];
       const wa = _cmpVerdictWordAction(pid, p);
       const align = (hasAlignment && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
-      const pl = _cmpVerdictPledges(p);
       return {
         pid,
         short: (p.name || '').split(' ').pop() || p.name,
@@ -1128,7 +1160,6 @@
         score: wa ? wa.pct : null,
         waVerdict: (wa && wa.verdict && wa.verdict.label) ? wa.verdict.label : null,
         tested: wa ? wa.tested : 0,
-        pledges: pl,
         align: (align === null || align === undefined) ? null : align,
         isCand: _cmpVerdictIsCandidate(p),
         onTeam: (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(pid),
@@ -1189,13 +1220,11 @@
              (close ? ` The runner-up is right behind, so skim the policy rows before you commit.` : '');
     } else {
       kicker = 'The Bottom Line · Strongest record';
-      const pl = standout.pledges;
-      const plBit = pl ? `, with <strong>${pl.kept} kept</strong> and <strong>${pl.broken} broken</strong> pledges on file` : '';
       lead = close
         ? `It's close — <strong>${standout.short}</strong> has the slight edge on record`
         : `<strong>${standout.short}</strong> has the strongest track record`;
-      body = `${standout.short} leads on <strong>⚖️ Word vs Action</strong> at <strong>${standout.score}%</strong>${plBit}. ` +
-             `That's the one accountability read — how often the record backs up what they said, across ${standout.tested} tested position${standout.tested === 1 ? '' : 's'}. ` +
+      body = `${standout.short} leads on <strong>⚖️ Word vs Action</strong> at <strong>${standout.score}%</strong>. ` +
+             `That's the one accountability read — how often the record backs up what they said, across ${standout.tested} tested position${standout.tested === 1 ? '' : 's'}, campaign pledges included. ` +
              `<strong>Set the 🎯 Alignment Tool</strong> to also see who fits <em style="color:#93c5fd;font-style:normal;">your</em> values, not just who keeps their word.` +
              (close ? ` It's a tight race — the policy rows below break the tie.` : '');
     }
@@ -1975,21 +2004,33 @@
         var tid=m[0],sub=m[1],cty=m[2],dist=m[3],tc=TC[tid];
         var cont=getSub(tid,sub);if(!cont)continue;
         var iss=(p.keyIssues||[]).join(',');
-        // Pledge receipts pill — always rendered so every card reads as complete.
-        // This slot used to hold a colour-coded "Promise Score" percentage. That
-        // figure is retired: a card-sized rate beside ⚖️ Word vs Action on the
-        // profile made two numbers compete over what was being rated. What sits
-        // here now is a COUNT — how many pledges have actually settled — with the
-        // kept / broken / pending split in the stat pills directly below it.
+        // THE SCORE SLOT CARRIES THE ONE READ. This slot held a colour-coded
+        // "Promise Score" percentage, then a pledge COUNT under the label "Pledges
+        // settled". The count was honest about what it measured, but it was still
+        // pledge vocabulary occupying the position on the card that a reader treats
+        // as the finding — with the kept / broken / pending pills right underneath
+        // it, so the card's whole left rail was one lane.
+        //
+        // A campaign pledge is one FORM OF "said" and is already tested inside ⚖️
+        // Word vs Action, so the slot now shows that verdict, in the one vocabulary
+        // and the one palette (PDXConsistency.VERDICTS). Below the publishing floor
+        // it states coverage, never a conclusion — PDXWordAction owns when a read is
+        // sayable. The pledge receipts stay on the card as EVIDENCE in the stat pills
+        // below, which is where a supporting detail belongs; they are no longer the
+        // headline.
         var _plTally=(typeof window._pdxPromiseTally==='function')?window._pdxPromiseTally(p):null;
         var plRes=_plTally?_plTally.resolved:0;
         var plOpen=_plTally?_plTally.unresolved:0;
-        var scNull=(plRes<=0);
-        var pmScoreWrap=scNull
-          ? (plOpen
-            ? '<div class="pm-card-score-wrap"><div class="pm-card-score" style="color:#f5c842;">'+plOpen+'</div><div class="pm-card-score-label">Pledges tracked</div><div class="pm-card-score-norec">None settled yet</div></div>'
-            : '<div class="pm-card-score-wrap"><div class="pm-card-score pm-card-score-na">—</div><div class="pm-card-score-label">Pledges settled</div><div class="pm-card-score-norec">No pledge record yet</div></div>')
-          : '<div class="pm-card-score-wrap"><div class="pm-card-score" style="color:#9fb4d4;">'+plRes+'</div><div class="pm-card-score-label">Pledges settled</div></div>';
+        var _waR=null;
+        try{var _waM=window.PDXWordAction;if(_waM&&typeof _waM.read==='function')_waR=_waM.read(id,p);}catch(e){}
+        var pmScoreWrap;
+        if(_waR&&_waR.publishable&&_waR.verdict){
+          var _wv=_waR.verdict;
+          pmScoreWrap='<div class="pm-card-score-wrap"><div class="pm-card-score" style="color:'+(_wv.color||'#9fb4d4')+';">'+(_wv.ico||'⚖')+'</div><div class="pm-card-score-label">Word vs Action</div><div class="pm-card-score-norec" style="color:'+(_wv.color||'#647a9c')+';">'+_wv.label+'</div></div>';
+        } else {
+          var _waSub=(_waR&&_waR.coverage&&_waR.coverage.word>0)?'Not enough record yet':'No stated positions yet';
+          pmScoreWrap='<div class="pm-card-score-wrap"><div class="pm-card-score pm-card-score-na">—</div><div class="pm-card-score-label">Word vs Action</div><div class="pm-card-score-norec">'+_waSub+'</div></div>';
+        }
         var pmStatus=(typeof window._pdxStatusBadge==='function')?window._pdxStatusBadge(p,{size:'sm'}):'';
         // Secondary "Early in Term" / "Limited Record" chip for sparse officeholders,
         // matching the shared card shell so a thin sitting member reads as intentional.

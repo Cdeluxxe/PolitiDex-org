@@ -10215,7 +10215,7 @@ window.PDXLazy = (function () {
             </div>
           </div>
           <div class="chub-flow-foot">
-            <p class="chub-flow-foot-note">💡 <strong>Reading the records together:</strong> <strong style="color:#93c5fd;">🏛️ Official Record</strong> is how they voted, <strong style="color:#93c5fd;">🧾 Say-vs-Do</strong> is whether their public record backs their stances, and <strong style="color:#93c5fd;">🤝 Promise Follow-Through</strong> is kept vs. broken promises. The <strong style="color:#c4b5fd;">🎯 Alignment Tool</strong> shows how all of that lands on <em>your</em> issues.</p>
+            <p class="chub-flow-foot-note">💡 <strong>Reading the records together:</strong> <strong style="color:#93c5fd;">🏛️ Official Record</strong> is how they voted, and <strong style="color:#93c5fd;">⚖️ Word vs Action</strong> is whether that record backs what they said — including any campaign pledges, which are measured the same way as every other stated position rather than ranked on their own. The <strong style="color:#c4b5fd;">🎯 Alignment Tool</strong> shows how all of that lands on <em>your</em> issues.</p>
             <button onclick="openCompare()" class="flex-shrink-0 flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-500/90 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-3.5 py-2.5 rounded-lg transition-all" style="white-space:nowrap;cursor:pointer;">
               ⚖️ Open Compare
             </button>
@@ -10305,12 +10305,14 @@ window.PDXLazy = (function () {
               </select>
 
               <select id="myteam-browse-sort" onchange="myteamBrowseSortChanged()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <!-- "Promise Score: High → Low" ranked by the retired rate. The
-                     same option value now orders by how many pledges are RESOLVED
-                     on the record — deepest receipt trail first, which is what a
-                     voter scanning this list actually wanted, and a count rather
-                     than a rate. -->
-                <option value="score-desc">🤝 Most Pledge Receipts</option>
+                <!-- "Promise Score: High → Low" ranked by the retired rate; then
+                     the same value ranked by PLEDGE RECEIPTS, which was a separate
+                     ranking system for pledges wearing a count instead of a rate.
+                     It now orders by ⚖️ Word vs Action — the one published read,
+                     which already contains the pledges. See _waDepth() in
+                     compare-hub.js. The value is unchanged so saved sorts keep
+                     working. -->
+                <option value="score-desc">⚖️ Strongest Word vs Action</option>
                 <option value="align-desc">🎯 Best Match for You</option>
                 <option value="acct-desc">🛡️ Accountability: High → Low</option>
                 <option value="alpha">Name (A–Z)</option>

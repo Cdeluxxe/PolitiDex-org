@@ -445,12 +445,38 @@ const EMPTY = { name: "Empty", score: null };
   ok(!/%\s*promise\s*score/i.test(strip(CMP_HUB)),
     "the ballot-summary clipboard text carries a pledge percentage again — pasted text has\n" +
     "    no methodology link to sit next to");
-  const depthHead = CMP_HUB.indexOf("function _pledgeDepth");
-  must(depthHead !== -1, "compare-hub.js no longer defines _pledgeDepth, the sorts' ordering key");
-  const depthDef = braceScan(CMP_HUB, depthHead, "_pledgeDepth", "compare-hub.js");
-  ok(/_pdxPromiseTally/.test(depthDef) && /\.resolved/.test(depthDef) && !/%/.test(depthDef),
-    "the browse sorts no longer order by a resolved-pledge COUNT — ranking by the rate is\n" +
-    "    publishing it, one row position at a time");
+  // ONE RANKING SYSTEM. This contract used to require the two "score" sorts to
+  // order by a resolved-pledge COUNT — the honest replacement for the retired
+  // pledge RATE, and correct as far as the rate went. It was still a ranking of
+  // every politician in the app by their pledge tally, offered under the label
+  // "🤝 Most Pledge Receipts": a separate ranking system for pledges, wearing a
+  // count instead of a percentage. It also rewarded whoever had the most pledges
+  // transcribed rather than whoever's record backs their word.
+  //
+  // A pledge is one FORM OF "said" and word-action.js already tests it, so the
+  // ordering key is now the one published read and the pledges are inside it.
+  const depthHead = CMP_HUB.indexOf("function _waDepth");
+  must(depthHead !== -1, "compare-hub.js no longer defines _waDepth, the sorts' ordering key");
+  const depthDef = braceScan(CMP_HUB, depthHead, "_waDepth", "compare-hub.js");
+  ok(/PDXWordAction/.test(depthDef) && /\.pct/.test(depthDef),
+    "the browse sorts no longer order by the ⚖️ Word vs Action read — the ordering key IS a\n" +
+    "    ranking system, so it has to be the one PolitiDex publishes");
+  ok(/publishable/.test(depthDef) && /return\s+-1/.test(depthDef),
+    "the sort's ordering key ignores the publishing floor — a record too thin to read would\n" +
+    "    be ranked anyway, which is the floor defeated one row position at a time");
+  ok(!/_pdxPromiseTally|\.resolved|\.kept|\.broken/.test(depthDef),
+    "the browse sorts order by a pledge tally again — ranking the whole roster by kept /\n" +
+    "    broken / resolved is a second ranking system whatever the option label says");
+  // Stripped first: the retirement is RECORDED above _waDepth() with a tombstone
+  // naming the function it replaced, and a probe that cannot tell the tombstone
+  // from a live call would report the fix as the regression.
+  ok(!/_pledgeDepth\s*\(/.test(strip(CMP_HUB)),
+    "compare-hub.js still calls the retired pledge-tally ordering key");
+  // The option a visitor actually reads. Ranking by the one read but labelling the
+  // option "Most Pledge Receipts" would leave the second system standing in the UI.
+  ok(!/Most Pledge Receipts/.test(INDEX),
+    "the browse sort still offers '🤝 Most Pledge Receipts' — the label is the ranking system\n" +
+    "    as far as a visitor is concerned, whatever the comparator now does");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -482,6 +508,101 @@ const EMPTY = { name: "Empty", score: null };
   ok(/Word vs Action/.test(body),
     "the promise explainer never says where kept and broken pledges actually go, which is\n" +
     "    the whole reason the separate grade was retired");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Contract 7b — ONE INTEGRITY SYSTEM: no pledge tally in a summary/score slot
+// ═════════════════════════════════════════════════════════════════════════════
+// Contracts 1–7 retired the pledge RATE. They did not stop the app ranking and
+// summarising people by the pledge COUNT, which is the same second system with
+// the division taken out. Every offender had the same shape: a kept/broken tally
+// sitting in the slot on a card that a reader treats as the finding.
+//
+//   • Key Races cards       — a gold `kr-score-promise` cell, "PLEDGES ⓘ / ✓6 ✕3",
+//                             which (once the Truth Score cell was retired) was
+//                             the ONLY score-styled cell on the card.
+//   • My Team summary box   — a "Pledge Receipts" stat tile summing resolved
+//                             pledges across six different people.
+//   • Ballot pick cards     — "6 kept · 3 broken" as the card's only signal line.
+//   • Compare insights      — a "🤝 Promise Receipts" card whose lead was a pooled
+//                             `12 kept · 4 broken` plus a "deepest record" ranking.
+//   • Compare Bottom Line   — "…with 6 kept and 3 broken pledges on file" appended
+//                             to the sentence stating the Word vs Action read.
+//   • District-tree cards   — the `pm-card-score` slot, labelled "Pledges settled".
+//   • Browse sorts          — the roster ordered by pledge receipts (Contract 6).
+//
+// A pledge is one FORM OF "said". word-action.js tests a `pledge-tracked` item
+// against its sourced resolution exactly as it tests a floor stance, so all of
+// these now carry the ⚖️ Word vs Action verdict. The pledge data, the accessors
+// and the Kept/Broken/Pending logic are untouched and still published on each
+// profile beside their own disclosure — what is gone is the parallel tally in the
+// slot that reads as the score.
+//
+// These probes are SHAPE-based, not word-based. "kept" and "broken" are legitimate
+// ledger prose ("Resolved in the pledge ledger as broken") and legitimate evidence
+// pills; banning the words would forbid the very said-vs-action evidence the one
+// system is built on. What must not exist is a tally in a score slot.
+{
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "")
+                            .replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const BB2 = strip(read("ballot-breakdown.js"));
+  const CT2 = strip(CMP_TABLE);
+
+  // ── Key Races: one cell, and it is the one read ──────────────────────────
+  const krHead = BB2.indexOf("function _krScoreCells");
+  must(krHead !== -1, "ballot-breakdown.js no longer defines _krScoreCells");
+  const kr = braceScan(BB2, krHead, "_krScoreCells", "ballot-breakdown.js");
+  ok(/PDXWordAction/.test(kr) && /publishable/.test(kr),
+    "the Key Races score cell does not carry the ⚖️ Word vs Action read — with the Truth\n" +
+    "    Score cell retired this is the only score-styled cell on the card, so whatever it\n" +
+    "    shows IS the Key Races score");
+  ok(!/_pdxPromiseTally/.test(kr),
+    "the Key Races score cell reads the pledge tally again — a kept/broken count in the\n" +
+    "    card's one score cell is a second ranking system for pledges");
+  ok(!/✓'\s*\+|✕'\s*\+|kept\/broken/.test(kr),
+    "the Key Races cell paints ✓kept / ✕broken counts again");
+  ok(!/#4ade80|#f87171/.test(kr),
+    "the Key Races cell hard-codes the green/red pledge palette — the only good/bad colour\n" +
+    "    allowed here is the verdict's own, from PDXConsistency.VERDICTS");
+  ok(!/kr-score-promise/.test(kr) && !/kr-score-promise/.test(strip(read("app.css"))),
+    "the gold `kr-score-promise` treatment is back — a ready-made 'score' style is the\n" +
+    "    easiest thing on this surface to reach for the next time something wants to rank");
+
+  // ── My Team: the summary band, and the pick cards ────────────────────────
+  ok(!/Pledge Receipts<\/div>|myteam-stat-label">Pledge/.test(BB2),
+    "the My Team summary box shows a 'Pledge Receipts' tile again — a tally pooled across a\n" +
+    "    whole slate, in the summary band, reads as the slate's score");
+  const waLineHead = BB2.indexOf("function _bbWaLine");
+  must(waLineHead !== -1, "ballot-breakdown.js no longer defines _bbWaLine, the ballot cards' one line");
+  const waLine = braceScan(BB2, waLineHead, "_bbWaLine", "ballot-breakdown.js");
+  ok(/PDXWordAction/.test(waLine) && /publishable/.test(waLine),
+    "the ballot cards' signal line does not carry the ⚖️ Word vs Action read");
+  ok(!/_pdxPromiseTally|\.kept|\.broken/.test(waLine),
+    "the ballot cards' one signal line prints a kept/broken tally again — it is the only\n" +
+    "    thing on the card, so a voter comparing two picks would be comparing pledge counts");
+  ok(!/function _bbLedgerLine/.test(BB2),
+    "the retired `_bbLedgerLine` tally is back in ballot-breakdown.js");
+
+  // ── Compare: the insight panel, the Bottom Line, the roster card ─────────
+  ok(!/Promise Receipts<\/div>/.test(CT2),
+    "the compare insight panel offers a '🤝 Promise Receipts' card again — a tally pooled\n" +
+    "    across picks, in the lead slot of a comparison insight, one card from the read it\n" +
+    "    is supposed to be subordinate to");
+  ok(/cmp-insight-title">⚖️ Word vs Action/.test(CT2),
+    "the compare insight panel no longer reports the ⚖️ Word vs Action read across the\n" +
+    "    lineup — removing the pledge card without putting the one read in its place just\n" +
+    "    leaves the comparison with no integrity signal at all");
+  ok(!/function _cmpVerdictPledges/.test(CT2),
+    "`_cmpVerdictPledges` is back — its only caller appended a second set of counts to the\n" +
+    "    sentence that states the one verdict");
+  ok(!/kept<\/strong>/.test(CT2),
+    "the compare Bottom Line appends a kept/broken tally to the Word vs Action sentence\n" +
+    "    again — the most expensive place on this surface to make a reader choose between\n" +
+    "    two numbers");
+  ok(!/pm-card-score-label">Pledges/.test(CT2),
+    "the district-tree card's score slot is labelled with pledge vocabulary again");
+  ok(/pm-card-score-label">Word vs Action/.test(CT2),
+    "the district-tree card's score slot no longer carries the one read");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

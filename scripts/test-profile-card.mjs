@@ -11,20 +11,27 @@
 // Five contracts, each of which fails silently and each of which would be a lie
 // travelling under PolitiDex's name:
 //
-//   1. NO PERCENTAGE, ANYWHERE. The Promise Follow-Through rate is retired
+//   1. ONE READ, AND NO SECOND SCORE. The Promise Follow-Through rate is retired
 //      sitewide, and this card does not quietly reintroduce it — nor does it
 //      print ⚖️ Word vs Action's pooled figure, which is real but meaningless
 //      without the coverage line that sits beside it in the app. The card's
 //      signal is the VERDICT, in words, and its evidence is COUNTS. A '%' in the
 //      painted text is a failure, however it got there.
+//
+//      A rate was never the only shape the problem takes. The card also carried a
+//      "PLEDGE RECEIPTS: 27 KEPT · 8 BROKEN · 2 OPEN" band — no percentage in it
+//      at all, and still a rival tally under its own heading in the footer, where
+//      a reader looks for the bottom line. A pledge is one FORM OF "SAID": it is
+//      tested by the same machinery, pooled into the same breakdown, and competes
+//      for the same highlight and lowlight slots (§6c). It gets no tally, no
+//      colour system and no vocabulary of its own on this artifact.
 //   2. IT SAYS WHAT IT DOESN'T KNOW. Below PDXWordAction's publishing floor, the
 //      card prints that nothing has been tested yet — not a confident stamp on
 //      one item, and not an empty band that reads as clean. A thin profile
 //      produces a thin CARD, out loud.
-//   3. THE NUMBERS ARE THE OWNING MODULE'S. Coverage, the breakdown and the
-//      pledge ledger are read through PDXWordAction, _pdxRecordMappedCounts and
-//      _pdxPromiseTally. This module computes no rate, applies no floor of its
-//      own and rounds nothing.
+//   3. THE NUMBERS ARE THE OWNING MODULE'S. Coverage and the breakdown are read
+//      through PDXWordAction and _pdxRecordMappedCounts. This module computes no
+//      rate, keeps no tally, applies no floor of its own and rounds nothing.
 //   4. THE IMAGE AND THE CAPTION AGREE. They are shared in the same gesture. A
 //      caption that claimed more than the card would be a second, unsourced
 //      claim — so every finding in one is in the other.
@@ -185,7 +192,40 @@ function thinRead() {
   };
 }
 
-const READS = { thick: thickRead(), thin: thinRead() };
+const READS = { thick: thickRead(), thin: thinRead(), pledger: pledgerRead() };
+
+// A member whose sharpest finding IS a pledge: two stances the record backs, and
+// one campaign promise resolved as broken. Nothing else contradicts them. If a
+// pledge is really just one form of "said", this card's lowlight is that pledge —
+// in the same slot, with the same heading and the same glyph a broken-on-a-vote
+// contradiction would get, and with the ledger's own sourced outcome as the action
+// half of the pair.
+function pledgerRead() {
+  const item = (id, kind, label, token) => ({
+    id, kind, tier: kind === "pledge-tracked" ? "pledge" : "position", label,
+    text: label + " — as stated on the record.", issueKey: id, appliedWeight: 1,
+    resolution: kind === "pledge-tracked" ? (token === "consistent" ? "kept" : "broken") : null,
+    test: { state: "tested", token, reason: null, score: token === "consistent" ? 100 : 0 },
+  });
+  const tested = [
+    item("spending", "position", "Federal spending", "consistent"),
+    item("surveillance", "position", "Surveillance", "consistent"),
+    item("earmarks", "pledge-tracked", "Never request an earmark", "contradicts"),
+  ];
+  const untested = [
+    { id: "p1", kind: "pledge-tracked", label: "Term limits bill in year one",
+      test: { state: "untested", reason: "unresolved" } },
+  ];
+  return {
+    frame: "word-action", pct: 71, token: "mixed", outcomeToken: "mixed",
+    verdict: VERDICTS.mixed, publishable: true,
+    items: tested.concat(untested), tested, untested,
+    counts: { consistent: 2, contradicts: 1 },
+    tiers: {}, testedWeight: 3,
+    coverage: { word: 4, scorable: 4, tested: 3, untested: 1, issueLinked: 4, notIssueLinked: 0, recordDerived: 0, warming: false },
+    floors: { items: 3, weight: 2.5 },
+  };
+}
 
 // ── An <img> stub ────────────────────────────────────────────────────────────
 // The three behaviours the card has to hold up under, since all three happen
@@ -284,6 +324,10 @@ function mkCtx(opts) {
     // is taller than the avatar. Same record as Massie — only the name differs.
     longname: { name: "Bartholomew Fitzgerald-Wintergreen", office: "U.S. House", state: "CA",
                 district: "12", party: "Democrat", kept: 27, broken: 8, pending: 2 },
+    // Carries a tally too, so the demotion is asserted against a record that HAS
+    // one to print rather than against a record with nothing to say either way.
+    pledger: { name: "Corinne Ackerly", office: "U.S. Senate", state: "OR", party: "Democrat",
+               kept: 6, broken: 3, pending: 2 },
   };
   ctx.PDXConsistency = { VERDICTS, warm() {} };
   ctx.PDXWordAction = {
@@ -291,6 +335,7 @@ function mkCtx(opts) {
       if (pid === "massie") return READS.thick;
       if (pid === "longname") return READS.thick;
       if (pid === "thinguy") return READS.thin;
+      if (pid === "pledger") return READS.pledger;
       return { coverage: { word: 0, scorable: 0, tested: 0, untested: 0, warming: false },
                items: [], tested: [], untested: [], counts: {}, verdict: VERDICTS.no_stance,
                publishable: false, pct: null, token: "no_stance" };
@@ -302,7 +347,12 @@ function mkCtx(opts) {
       return rows.slice(0, (o && o.limit) || 3).map((it) => ({
         item: it, tier: {}, issueKey: it.issueKey, title: it.label, word: it.text,
         sources: [], outcome: it.test, verdict: VERDICTS[it.test.token] || null,
-        actions: [{ text: "H.R. 22 · On Passage · Voted Yea", kind: "vote" }],
+        // Mirrors word-action.js namedActions(): a tracked pledge's action half is
+        // its own sourced resolution in the ledger, not a roll call. The card must
+        // not care which of the two it got.
+        actions: it.kind === "pledge-tracked"
+          ? [{ text: "Resolved in the pledge ledger as " + it.resolution + ", against its own sources.", kind: "ledger" }]
+          : [{ text: "H.R. 22 · On Passage · Voted Yea", kind: "vote" }],
       }));
     },
   };
@@ -354,7 +404,7 @@ const thin = await paint("thinguy");
 const THICK = thick.lines.join("\n");
 const THIN = thin.lines.join("\n");
 
-// ── 1. No percentage, anywhere ───────────────────────────────────────────────
+// ── 1. No percentage, and no second score of any shape ───────────────────────
 {
   // The whole point of the pass. Not "no promise percentage" — no percentage.
   const pctLines = thick.lines.filter((t) => /%/.test(t)).concat(thin.lines.filter((t) => /%/.test(t)));
@@ -370,10 +420,32 @@ const THIN = thin.lines.join("\n");
   ok(!/\.pct\b/.test(CODE), "no-rate: the module reads PDXWordAction's pooled .pct at all — it must not have it in hand");
   ok(!/\bkept\s*\/|\/\s*\(\s*\w*kept|100\s*\*/.test(CODE),
      "no-rate: the module contains a rate calculation of its own, which is how a retired score comes back");
-  ok(/PLEDGE RECEIPTS/.test(THICK) && /27 KEPT/.test(THICK) && /8 BROKEN/.test(THICK),
-     "no-rate: the pledge ledger is printed as counts — retiring the rate must not have cost the receipts");
-  ok(/2 OPEN/.test(THICK),
-     "no-rate: pledges still open are printed, so 'settled' is not silently read as 'all of them'");
+
+  // A percentage was never the only way to publish a second ranking system. The
+  // card used to end on "PLEDGE RECEIPTS: 27 KEPT · 8 BROKEN · 2 OPEN" — no rate
+  // anywhere in it, and still a rival tally under its own heading, in its own
+  // three colours, in the footer slot where a reader looks for the bottom line.
+  //
+  // Asserted on the SHAPE of a tally, not on the words. "kept" and "broken" are
+  // legitimate prose the moment a pledge is real evidence — the ledger's own
+  // action text reads "Resolved in the pledge ledger as kept", and §6c requires
+  // it. What must not exist is a heading with counts under it.
+  const heading = thick.lines.filter((t) => /RECEIPTS/i.test(t));
+  ok(heading.length === 0,
+     "one-read: the card paints a pledge-receipts heading — " + JSON.stringify(heading) +
+     " — which frames a tally as a second bottom line");
+  const bits = thick.lines.concat(thin.lines).filter((t) => /^\d+\s+(KEPT|BROKEN|OPEN)$/i.test(t.trim()));
+  ok(bits.length === 0,
+     "one-read: the card paints tally bits — " + JSON.stringify(bits) +
+     " — counts in their own runs, in their own colours, competing with the breakdown above them");
+  // The fixture's tally is 27/8/2. 27 is used by nothing else on this card, so it
+  // is the cheapest proof the numbers are not reaching the canvas by another route.
+  ok(!/\b27\b/.test(THICK), "one-read: the pledge tally's kept count reaches the card some other way");
+  const cap1 = PC._caption(thick.d);
+  ok(!/receipts?\s*:/i.test(cap1) && !/\d+\s+kept\b/i.test(cap1) && !/\d+\s+broken\b/i.test(cap1),
+     "one-read: the caption carries the tally as text — it leaves in the same gesture as the image and owes the reader the same one read");
+  ok(!/_pdxPromiseTally/.test(CODE),
+     "one-read: the card still reads the promise tally accessor. The accessor and its data are fine and still published in the app — but a card holding a tally is two lines away from printing one");
 }
 
 // ── 2. It says what it doesn't know ──────────────────────────────────────────
@@ -436,8 +508,22 @@ const THIN = thin.lines.join("\n");
      "sources: a record with nothing tested shows honest zeroes rather than an absent breakdown");
   ok(!/MIN_TESTED|coverage\.tested\s*>=|tested\.length\s*>=/.test(CODE) && /publishable/.test(CODE),
      "sources: the card applies no publishing floor of its own — PDXWordAction owns that decision and the card obeys `publishable`");
-  ok(/_pdxPromiseTally/.test(CODE) && !/p\.kept\s*\+\s*p\.broken/.test(CODE),
-     "sources: the pledge ledger is read through the honesty guard rather than added up locally");
+  // The pledge ledger used to be read here, through the honesty guard, so the card
+  // could print it. It is not read at all now — but the pledges that HAVE been
+  // tested still have to be counted, and they are counted by the one module that
+  // counts everything: a tested pledge is in `counts`, indistinguishable from a
+  // tested stance, which is the whole demotion in one assertion.
+  ok(d.breakdown.consistent === 3 && READS.thick.tested.filter((it) => it.kind === "pledge-tracked").length === 1,
+     "sources: the fixture's resolved pledge is inside the breakdown's backed-up count, not beside it");
+  // The card's ONLY mention of a pledge is the coverage count. There is no second
+  // branch giving pledges their own outcome words, their own colour or their own
+  // heading — which is what "one consistency system" means in code rather than in
+  // a comment.
+  const pledgeRefs = (CODE.match(/pledge-tracked/g) || []).length;
+  ok(pledgeRefs === 1 && /nPledges\s*=\s*items\.filter/.test(CODE),
+     `sources: the card refers to pledge-tracked items ${pledgeRefs} times — it should be exactly once, to count them as coverage`);
+  ok(!/KEPT|BROKEN|resolution\s*===/.test(CODE),
+     "sources: pledge outcome language survives in the card — kept/broken is the ledger's vocabulary, and the card speaks the one consistency vocabulary");
 }
 
 // ── 4. The image and the caption agree ───────────────────────────────────────
@@ -449,8 +535,8 @@ const THIN = thin.lines.join("\n");
      "parity: the caption carries the same breakdown counts as the image");
   ok(/41 mapped vote/.test(cap) && /5 of 8 testable/.test(cap),
      "parity: the caption carries the same coverage as the image");
-  ok(/27 kept/.test(cap) && /8 broken/.test(cap) && /not a percentage/.test(cap),
-     "parity: the caption states the pledge counts AND that no percentage is published");
+  ok(/2 tracked pledges/.test(cap) && /6 stances/.test(cap),
+     "parity: the caption counts pledges as coverage beside stances — how much WORD is on file, with no claim about how it turned out");
   ok(/politidex\.fyi\/\?p=massie/.test(cap),
      "parity: the caption links the profile, so a reader can check every claim on the image");
   ok(/Check it yourself/.test(cap),
@@ -527,7 +613,7 @@ const THIN = thin.lines.join("\n");
     shot.lines.forEach((t, i) => {
       if (!isHead(t)) return;
       const next = shot.lines[i + 1];
-      ok(!!next && !isHead(next) && !/^PLEDGE RECEIPTS|^Built only from/.test(next),
+      ok(!!next && !isHead(next) && !/^Built only from/.test(next),
          `format: '${t}' is painted with nothing under it (next run: ${JSON.stringify(next)}) — ` +
          `the heading must be drawn with the first row that fits, not before measuring it`);
     });
@@ -556,6 +642,74 @@ const THIN = thin.lines.join("\n");
      "proof: no gap line smuggles a rate back in");
   ok(/held against no one|counts for or against/.test(gaps.map((g) => g.action).join(" ")),
      "proof: a gap says explicitly that it is not being counted against them — an unproven thing is not a mark");
+}
+
+// ── 6c. A pledge is one form of "said" ───────────────────────────────────────
+// The other half of contract 1. Removing the tally is worth nothing if pledges
+// then vanish from the card — the point of the demotion is that they compete on
+// the same terms as everything else, not that they are suppressed. So this uses a
+// fixture whose SHARPEST finding is a broken campaign promise, and requires that
+// finding to be indistinguishable in treatment from a contradiction found in a
+// roll call.
+{
+  const pl = await paint("pledger");
+  const PL = pl.lines.join("\n");
+
+  ok(pl.d.lowlightKind === "contradicts" && (pl.d.lowlights || []).length === 1,
+     "one-said: a broken pledge is a contradiction like any other, so it takes the lowlight slot on merit");
+  ok(pl.d.lowlights[0].title === "Never request an earmark",
+     `one-said: the lowlight is the pledge itself, named (got ${JSON.stringify(pl.d.lowlights[0].title)})`);
+  ok(/WHERE THE RECORD CONTRADICTS THEM/.test(PL),
+     "one-said: it sits under the same heading a contradiction found in a vote would get — not a pledge-specific one");
+  ok(/⚠\s+Never request an earmark/.test(PL),
+     "one-said: and the same glyph. A second symbol would be a second vocabulary");
+  // The said-vs-action pair, both halves, concrete. This is what the tally never
+  // gave a reader: "6 broken" names nothing, this names the promise and the source
+  // of its outcome.
+  ok(/Resolved in the pledge ledger as broken, against its own sources\./.test(PL),
+     "one-said: the action half of the pair is the ledger's own sourced outcome, printed under the title");
+
+  // Same colour as a vote-derived contradiction. Asserted against the OTHER
+  // fixture's heading rather than against a literal, so a palette change cannot
+  // split the two apart without failing here.
+  const headFill = (shot, text) => (shot.all.find((t) => t.t === text) || {}).fill;
+  ok(headFill(pl, "WHERE THE RECORD CONTRADICTS THEM") === headFill(thick, "WHERE THE RECORD CONTRADICTS THEM"),
+     "one-said: a pledge contradiction is painted in the same colour as a vote contradiction — no pledge palette");
+
+  // In the breakdown, pooled, indistinguishable.
+  const legendPair = (lines, label) => { const i = lines.indexOf(label); return i > 0 ? lines[i - 1] : null; };
+  ok(legendPair(pl.lines, "CONTRADICTED") === "1" && legendPair(pl.lines, "BACKED UP") === "2",
+     "one-said: the pledge is counted inside the one breakdown, not beside it");
+  ok(pl.d.breakdown.contradicts === 1,
+     "one-said: and brief() carries it there too, so the caption and the image cannot disagree about where it lives");
+
+  // No tally, on a record that has one to print (6 kept / 3 broken / 2 pending).
+  const tallyish = pl.lines.filter((t) => /RECEIPTS/i.test(t) || /^\d+\s+(KEPT|BROKEN|OPEN)$/i.test(t.trim()));
+  ok(tallyish.length === 0,
+     "one-said: the fixture has a kept/broken tally on file and none of it is painted — " + JSON.stringify(tallyish));
+  ok(!/\b6 \b/.test(PL) && !/\b3 broken\b/i.test(PL),
+     "one-said: the tally's numbers do not reach the card by another route");
+
+  // The unresolved pledge: named as a gap, held against no one. This is the
+  // "broader evidence layer" an untested pledge belongs to.
+  ok((pl.d.gaps || []).some((g) => /1 tracked pledge still open/.test(g.title)),
+     "one-said: an unresolved pledge is named as a gap rather than counted as an OPEN column");
+  ok(pl.d.gaps.some((g) => /held against no one/i.test(g.action || "")),
+     "one-said: and the gap says outright that it counts against no one");
+
+  // The caption tells the same story, in the same order.
+  const cap = PC._caption(pl.d);
+  ok(/Record contradicts them: Never request an earmark/.test(cap) &&
+     /Resolved in the pledge ledger as broken/.test(cap),
+     "one-said: the caption carries the pledge as the contradiction, with its sourced outcome");
+  ok(!/receipts?\s*:/i.test(cap) && !/\d+\s+kept\b/i.test(cap),
+     "one-said: and carries no tally");
+  ok(/2 stances · 2 tracked pledges/.test(cap),
+     "one-said: pledges are still counted as coverage — how much word is on file, which is the one place the word 'pledge' belongs");
+
+  // And the hierarchy is intact: one signal on top, everything else supporting it.
+  ok(/DOES WHAT THEY SAY MATCH WHAT THEY DO\?/.test(PL) && /MIXED RECORD/.test(PL.toUpperCase()),
+     "one-said: the card still leads with the one integrity read");
 }
 
 // ── 6b. The face ─────────────────────────────────────────────────────────────
