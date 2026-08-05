@@ -414,6 +414,307 @@
     return iss ? Object.keys(iss) : [];
   }
 
+  // ── ✒️ EXECUTIVE ACTIONS as record items — the presidential "did" side ───────
+  // A member of Congress has a clean action side: roll calls. A president casts
+  // none of those, so before this feeder existed the engine had nothing to test a
+  // president's word against and every presidential read came back "pending" — the
+  // most-watched office in the product, measured at zero.
+  //
+  // What a president does instead is sign or veto legislation, issue orders, and
+  // direct agencies. db/exec-action-seed.json already holds those actions, mapped
+  // to the SAME issue vocabulary as votes and stances, with per-issue directions
+  // and weights. This feeder converts them into the record-item shape the
+  // congressional lane already understands and hands them to the SAME summariser.
+  //
+  // WHY THAT IS THE WHOLE INTEGRATION. stance-helpers.js#_issueRecordSummary is
+  // generic over items shaped { kind:'position', supports, issues:[{issueKey,
+  // supportMeaning, weight}] }. Feeding it exec actions therefore reuses, verbatim:
+  // the weighting, the procedural down-weight, the netVerdict precedence, the
+  // topConsistent / topContradiction citation picking, and the label vocabulary.
+  // No new judgement logic exists in this file, and there is no second score — the
+  // result rides in officialIssue's `record` slot, so word-action.js#judgedOf,
+  // #testOf and this file's judgedCountOf read it without modification.
+  //
+  // 'advances' → the action pushed the issue forward → yea_supports.
+  // 'opposes'  → it cut against the issue → yea_opposes, which inverts the read
+  //              exactly as it does for a multi-issue bill in the 🏛️ lane.
+  var _EXEC_MEANING = { advances: 'yea_supports', opposes: 'yea_opposes' };
+  // A veto is the one class where the actor pushed the measure BACKWARD, so the
+  // per-issue direction has to be read against a blocked measure rather than an
+  // enacted one. Everything else advanced the document it is attached to.
+  var _EXEC_BLOCKS = { vetoed_law: true };
+
+  function execEligible(pid) {
+    try {
+      var E = window.PDXExecRecord;
+      return !!(E && typeof E.eligible === 'function' && E.eligible(pid));
+    } catch (e) { return false; }
+  }
+
+  // Every string that would identify this document if a sentence referred to it.
+  // Used by the circularity guard below, so it errs toward MORE identifiers: a
+  // missed identifier lets a card be tested by the document it was written from,
+  // which is the failure this whole mechanism exists to prevent.
+  function execIdentifiers(a) {
+    var out = [];
+    function add(s) {
+      s = String(s == null ? '' : s).trim().toLowerCase();
+      // Short needles match everything. Four characters is enough for "14257" and
+      // "119-1" and short enough to exclude "eo" or a bare chamber letter.
+      if (s.length >= 4) out.push(s);
+    }
+    var docId = String(a.documentId || '');
+    add(docId);
+    add(a.title);
+    add(a.measureNumber);
+    // "Executive Order 14257" is cited in prose as "EO 14257" and, in an evidence
+    // line, often as the bare number.
+    var eo = /(?:executive order|eo)\s*(?:no\.?\s*)?(\d{4,6})/i.exec(docId);
+    if (eo) { add('eo ' + eo[1]); add(eo[1]); }
+    // "Public Law 119-21" is cited as "119-21" and as "P.L. 119-21".
+    var pl = /public law\s*(\d+-\d+)/i.exec(docId);
+    if (pl) add(pl[1]);
+    return out;
+  }
+
+  // Does `hay` name any of `needles`? A needle ending in a digit must not run into
+  // more digits, so the identifier for Public Law 119-1 cannot match a sentence
+  // about Public Law 119-10.
+  function execNamesDocument(hay, needles) {
+    if (!hay) return false;
+    for (var i = 0; i < needles.length; i++) {
+      var n = needles[i];
+      if (!n) continue;
+      var at = hay.indexOf(n);
+      while (at !== -1) {
+        var endsDigit = /\d$/.test(n);
+        var after = hay.charAt(at + n.length);
+        if (!(endsDigit && /\d/.test(after))) return true;
+        at = hay.indexOf(n, at + 1);
+      }
+    }
+    return false;
+  }
+
+  // Everything this figure SAID about this issue, as one lowercased haystack: the
+  // card's topic, its text, its evidence line and its source. Two variants are
+  // returned because a card writes "H.R.1" where a seed writes "H.R. 1" — the
+  // squeezed pass catches that without loosening the matcher for everything else.
+  var _execSaidCache = null, _execSaidKey = '';
+  function execSaidText(pid, issueKey) {
+    var key = norm(pid);
+    if (!_execSaidCache || _execSaidKey !== key) {
+      _execSaidCache = {}; _execSaidKey = key;
+      try {
+        var p = (window.CMP_DATA || {})[pid] || (window.CMP_DATA || {})[key];
+        var list = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(pid, p) || []) : [];
+        for (var i = 0; i < list.length; i++) {
+          var s = list[i];
+          if (!s || !s.issueKey || _execSaidCache[s.issueKey]) continue;
+          var raw = [s.topic, s.text, s.evidence, s.source && s.source.label, s.source && s.source.url]
+            .filter(Boolean).join(' ').toLowerCase();
+          _execSaidCache[s.issueKey] = { plain: raw, squeezed: raw.replace(/[\s.]/g, '') };
+        }
+      } catch (e) {}
+    }
+    return _execSaidCache[issueKey] || null;
+  }
+
+  // THE CIRCULARITY GUARD, per action→issue pair. PDXWordAction's third rule is
+  // that a position is never its own test. isIndependentWord() already rejects the
+  // blatant form — a card that leads with a record verb and cites the clerk. It
+  // cannot catch a card that asserts a view in the figure's own voice and then
+  // cites the very document that would test it, which is the ordinary shape of a
+  // presidential stance card because these cards were largely written FROM this
+  // record. Unguarded, this feeder would have manufactured a dense agreement read
+  // that measured only the fact that a card agrees with its own source.
+  //
+  // Two independent signals, and EITHER one suppresses (fail closed):
+  //   1. the seed declares circularWithStance on the pair, with its reason; and
+  //   2. the card's own prose names the document.
+  // Declared flags survive a matcher that misses a phrasing; the matcher survives
+  // a new card nobody remembered to flag.
+  function execCircular(a, mapping, said) {
+    if (mapping && mapping.circularWithStance) {
+      return { circular: true, why: 'declared', note: mapping.circularNote || '' };
+    }
+    if (!said) return { circular: false };
+    var ids = execIdentifiers(a);
+    if (execNamesDocument(said.plain, ids)) return { circular: true, why: 'card_names_document' };
+    var squeezed = [];
+    for (var i = 0; i < ids.length; i++) squeezed.push(ids[i].replace(/[\s.]/g, ''));
+    if (execNamesDocument(said.squeezed, squeezed)) return { circular: true, why: 'card_names_document' };
+    return { circular: false };
+  }
+
+  // Every scorable exec action touching ONE issue, as record items — plus what was
+  // held back and why, because a filter that hides its own exclusions makes a
+  // partial record look complete.
+  function execRecordsFor(pid, issueKey) {
+    var out = { items: [], held: [], unstated: 0, circular: 0, touched: 0 };
+    if (!issueKey || !execEligible(pid)) return out;
+    var E = window.PDXExecRecord;
+    var pool;
+    try { pool = E.actionsFor(pid); } catch (e) { return out; }
+    var kept = (pool && pool.kept) || [];
+    var said = execSaidText(pid, issueKey);
+    for (var i = 0; i < kept.length; i++) {
+      var a = kept[i], mapping = null, all = a.issues || [];
+      for (var j = 0; j < all.length; j++) {
+        if (all[j] && all[j].issueKey === issueKey) { mapping = all[j]; break; }
+      }
+      if (!mapping) continue;
+      out.touched++;
+      // A held action is still real, sourced record — the surfaces list it with its
+      // reason so a thin row says why it is thin. Flattened to the same citation
+      // fields a scored item carries, so no caller has to reach back into `action`.
+      var held = function (reason, extra) {
+        var h = {
+          action: a, reason: reason,
+          actionClass: a.actionClass || '',
+          documentId: a.documentId || a.measureNumber || '',
+          title: a.title || '',
+          date: a.actedAt || '',
+          sourceUrl: a.sourceUrl || '',
+          sourceLabel: a.sourceLabel || ''
+        };
+        if (extra) for (var kx in extra) if (Object.prototype.hasOwnProperty.call(extra, kx)) h[kx] = extra[kx];
+        out.held.push(h);
+      };
+      var meaning = _EXEC_MEANING[mapping.direction];
+      // Fail closed on a direction this file does not understand. A mapping that
+      // cannot be read cleanly is coverage, never a guess.
+      if (!meaning) { held('unmapped_direction'); continue; }
+      // A standing is a citation, not a formality: "struck down" with no ruling is
+      // as unpublishable as an unsourced signing, and an action whose standing is
+      // unknown cannot carry a verdict. It still counts as coverage.
+      var standing = null;
+      try { standing = E.standingOf(a); } catch (e) { standing = null; }
+      if (!standing) { out.unstated++; held('no_standing'); continue; }
+      var circ = execCircular(a, mapping, said);
+      if (circ.circular) {
+        out.circular++;
+        held('circular', { why: circ.why, note: circ.note || '' });
+        continue;
+      }
+      // Carry EVERY mapping, not just this issue's: an omnibus signature reports
+      // both of its directions from one document, exactly as one vote on H.R. 1
+      // does in the 🏛️ lane, and the surfaces need that context to say so.
+      var issues = [];
+      for (var k = 0; k < all.length; k++) {
+        var m2 = all[k];
+        if (!m2 || !m2.issueKey) continue;
+        issues.push({
+          issueKey: m2.issueKey,
+          supportMeaning: _EXEC_MEANING[m2.direction] || 'yea_supports',
+          weight: (typeof m2.weight === 'number') ? m2.weight : 100,
+          isPrimary: !!m2.isPrimary,
+          rationale: m2.rationale || ''
+        });
+      }
+      out.items.push({
+        kind: 'position',
+        // The president advanced the document they signed or issued. A veto pushed
+        // it backward, and advanceInverted is the field the shared summariser
+        // already uses for exactly that measure-direction correction.
+        supports: true,
+        advanceInverted: !!_EXEC_BLOCKS[a.actionClass],
+        isProcedural: false,
+        issues: issues,
+        date: a.actedAt || '',
+        // Enough to cite the receipt on a surface without re-reading the seed.
+        execAction: true,
+        actionClass: a.actionClass,
+        documentId: a.documentId || a.measureNumber || '',
+        measureNumber: a.measureNumber || '',
+        title: a.title || '',
+        sourceUrl: a.sourceUrl || '',
+        sourceLabel: a.sourceLabel || '',
+        standing: standing
+      });
+    }
+    return out;
+  }
+
+  // ONE issue's exec summary, in the same shape recordSummary() returns, produced
+  // by the same function. Null when nothing scorable touches the issue.
+  function execIssueSummary(pid, issueKey) {
+    var pool = execRecordsFor(pid, issueKey);
+    if (!pool.items.length) return null;
+    if (typeof window._issueRecordSummary !== 'function') return null;
+    var stance = positionStance(pid, issueKey);
+    var sum;
+    try { sum = window._issueRecordSummary(issueKey, stance, pool.items); } catch (e) { return null; }
+    if (!sum) return null;
+    sum.execPool = pool;
+    return sum;
+  }
+
+  // Issues this figure has ANY exec action on — scorable or held. Held issues are
+  // included on purpose: they are coverage, and a coverage gap that does not appear
+  // in the roll-up is a gap nobody can see.
+  function execIssueKeys(pid) {
+    if (!execEligible(pid)) return [];
+    var E = window.PDXExecRecord, pool;
+    try { pool = E.actionsFor(pid); } catch (e) { return []; }
+    var set = {}, kept = (pool && pool.kept) || [];
+    for (var i = 0; i < kept.length; i++) {
+      var all = kept[i].issues || [];
+      for (var j = 0; j < all.length; j++) if (all[j] && all[j].issueKey) set[all[j].issueKey] = 1;
+    }
+    return Object.keys(set);
+  }
+
+  // ── One executive action → its printable proof line ─────────────────────────
+  // The 🏛️ lane's proof line names a roll call: "H.R. 22 · On Motion to Recommit ·
+  // Voted Yea". This lane's names a DOCUMENT, and it has to carry one field the
+  // congressional line does not need — where the action stands today. A roll call is
+  // final the moment it is gavelled; an executive order can be blocked, struck down,
+  // rescinded or superseded afterwards, and a proof line that read "Executive Order
+  // 14160 · Signed Executive Order" while that order sat under an injunction would be
+  // overclaiming by omission.
+  //   The class of power is named too, rather than flattened into "acted": signing a
+  // bill Congress wrote and issuing an order alone are different claims about
+  // authorship, and this is the line where that difference is cheapest to state.
+  //   A standing PDXExecRecord cannot cite prints nothing at all. That is the same
+  // fail-closed rule standingOf() applies — silence, never an assumed "in force".
+  function execProofText(item) {
+    if (!item) return '';
+    var E = window.PDXExecRecord;
+    var cls = (E && E.CLASSES && E.CLASSES[item.actionClass]) || null;
+    var st = (E && E.STANDING && E.STANDING[item.standing]) || null;
+    var parts = [];
+    var name = item.documentId || item.measureNumber || item.title || '';
+    if (name) parts.push(String(name));
+    if (cls) parts.push(cls.verb);
+    if (st) parts.push(st.label);
+    return parts.join(' · ');
+  }
+
+  // The proof lines behind one issue on this lane, in the shape word-action.js's dot
+  // rows already render. `kind` is 'exec-action' rather than 'vote' so no caller can
+  // mistake one for a roll call and offer a deep link into a voting record this
+  // figure does not have.
+  function execProofLines(pid, issueKey, limit) {
+    var out = [], pool;
+    try { pool = execRecordsFor(pid, issueKey); } catch (e) { return out; }
+    var max = limit || 2;
+    for (var i = 0; i < pool.items.length && out.length < max; i++) {
+      var it = pool.items[i], t = execProofText(it);
+      if (!t) continue;
+      out.push({
+        text: t, kind: 'exec-action',
+        documentId: it.documentId || '', actionClass: it.actionClass || '',
+        standing: it.standing || null,
+        url: it.sourceUrl || '', label: it.sourceLabel || '',
+        // The record item itself, so a caller that needs the issue mappings (the
+        // omnibus disclosure) does not have to re-derive the pool.
+        item: it
+      });
+    }
+    return out;
+  }
+
   // ── the core reconciler: ONE verdict for (pid, issueKey) ────────────────────
   function issueVerdict(pid, issueKey) {
     var rec = recordSummary(pid, issueKey);           // voting engine (null = none warm)
@@ -484,16 +785,44 @@
     return { key: base.key, ico: base.ico, label: over, short: base.short, tone: base.tone, color: base.color, cls: base.cls };
   }
 
+  // The official scope's empty copy is written for legislators, and on the executive
+  // lane it says the wrong thing: "No qualifying votes on record yet" reads as votes
+  // we failed to find, when the truth is that a president casts none at all and the
+  // gap is in the action mapping. Only the empty/thin tokens are re-worded — a real
+  // consistent/contradicts/mixed verdict is the same finding in either lane and keeps
+  // its shared label, because there is one integrity read, not two vocabularies.
+  var _EXEC_EMPTY = {
+    no_record: 'No qualifying executive action on record yet',
+    limited: 'Limited executive record'
+  };
+  function laneVerdict(scope, token, lane) {
+    var base = scopeVerdict(scope, token);
+    if (lane !== 'exec') return base;
+    var over = _EXEC_EMPTY[token];
+    if (!over) return base;
+    return { key: base.key, ico: base.ico, label: over, short: base.short, tone: base.tone, color: base.color, cls: base.cls };
+  }
+
   // ── OFFICIAL RECORD (scope 'official') — votes + formal actions ONLY ─────────
   // The institutional "when it counted" answer: a real % or an honest null, never a
-  // fabricated 0. Two feeders, in strict priority so nothing double-counts:
+  // fabricated 0. Three feeders, in strict priority so nothing double-counts:
   //   1. vr_* roll-call record — AUTHORITATIVE where it exists (used alone).
-  //   2. migrated curated formal actions — fill issues with no roll-call record yet.
+  //   2. ✒️ executive actions — the presidential "did" side, for figures who hold
+  //      the office and therefore cast no roll calls at all.
+  //   3. migrated curated formal actions — fill issues neither of the above reaches.
+  //
+  // WHY EXECUTIVE ACTIONS SIT BELOW THE ROLL CALL. A figure with a roll-call record
+  // on an issue was voting on it as a legislator; that is the stronger, systematic
+  // evidence and it is used alone. In practice the two never collide today — a
+  // president casts no votes and a member issues no orders — but the ordering is
+  // declared rather than left to chance, because the day a former member becomes
+  // president is the day an undeclared precedence starts double-counting.
   function officialIssue(pid, issueKey) {
     var rec = recordSummary(pid, issueKey);
     var warm = recordsWarm(pid);
     var stance = positionStance(pid, issueKey);
     var act = officialActionsFor(pid, issueKey);
+    var exPool = execRecordsFor(pid, issueKey);
     var hasStance = !!stance || (rec && rec.netVerdict && rec.netVerdict !== 'no_stance' && rec.netVerdict !== 'no_record') || act.total > 0;
 
     // 1. Systematic roll-call record is authoritative — use it alone, so a curated
@@ -506,13 +835,40 @@
         scope: 'official', token: t, verdict: scopeVerdict('official', t),
         score: scoreFromRecord(rec), record: rec, officialActions: null, curated: null,
         contradictions: rec.contradicts || 0, flags: 0,
-        hasStance: hasStance, pending: false, sources: ['record']
+        hasStance: hasStance, pending: false, lane: 'record', sources: ['record']
       };
     }
 
-    // 2. No roll-call on this issue → the migrated curated formal actions fill it
-    //    (the Phase 3 coverage win). Scored honestly: all-contradiction is a real 0%,
-    //    not a false one.
+    // 2. No roll call on this issue → the ✒️ executive record. Summarised by the
+    //    SAME function as the roll-call branch, so this returns in the `record`
+    //    slot and every downstream reader (judgedCountOf, word-action's judgedOf
+    //    and testOf) works on it unchanged. `sources` names the lane so a surface
+    //    can cite the document instead of a vote.
+    if (exPool.items.length) {
+      var exSum = execIssueSummary(pid, issueKey);
+      if (exSum) {
+        var xt = exSum.netVerdict === 'contradicts' ? 'contradicts'
+               : exSum.netVerdict === 'consistent' ? 'consistent'
+               : exSum.netVerdict === 'mixed' ? 'mixed'
+               // An action on an issue this figure has never spoken on is coverage,
+               // not an inconclusive test. 'limited' would claim there is word here
+               // with no clear direction; 'no_stance' says what is actually true.
+               : exSum.netVerdict === 'no_stance' ? 'no_stance'
+               : 'limited';
+        return {
+          scope: 'official', token: xt, verdict: laneVerdict('official', xt, 'exec'),
+          score: scoreFromRecord(exSum), record: exSum, officialActions: null, curated: null,
+          contradictions: exSum.contradicts || 0, flags: 0,
+          hasStance: hasStance, pending: false, lane: 'exec',
+          execPool: exPool, execTouched: exPool.touched,
+          execHeld: exPool.held.length ? exPool : null, sources: ['exec-actions']
+        };
+      }
+    }
+
+    // 3. No roll call and no scorable order → the migrated curated formal actions
+    //    fill it (the Phase 3 coverage win). Scored honestly: all-contradiction is
+    //    a real 0%, not a false one.
     if (act.total > 0) {
       var tok = (act.contradicts > 0 && act.consistent > 0) ? 'mixed'
               : act.contradicts > 0 ? 'contradicts' : 'consistent';
@@ -521,18 +877,38 @@
         score: Math.round(100 * act.consistent / (act.consistent + act.contradicts)),
         record: null, officialActions: act, curated: null,
         contradictions: act.contradicts, flags: 0,
-        hasStance: true, pending: false, sources: ['formal-actions']
+        hasStance: true, pending: false, lane: 'formal-actions', sources: ['formal-actions']
       };
     }
 
-    // 3. Nothing on either feeder — honest empty (never a false 0%).
+    // 4. Nothing on any feeder — honest empty (never a false 0%). An action that was
+    //    held back rides along as `execHeld` so the surface can say WHY this reads as
+    //    a coverage gap rather than leaving it blank: there is real, sourced record
+    //    here, it just cannot be scored.
     var token, pending = false;
-    if (!warm && hasStance) { pending = true; token = 'pending'; queueWarm(pid); }
-    else token = hasStance ? 'no_record' : 'no_stance';
+    // The lane is the OFFICE's, not the issue's. Reaching branch 4 already means no
+    // qualifying roll call was found, so an exec-eligible figure here is one for whom
+    // none is coming — and every string downstream must stop saying "votes". Keying
+    // this off exPool.touched alone was wrong: it left the dozen issues no action maps
+    // to on the congressional lane, where they would settle into "No votes yet" on a
+    // president's profile. Roll-call precedence is preserved by construction, since a
+    // real voting record would have returned from an earlier branch.
+    var emptyLane = (exPool.touched > 0 || execEligible(pid)) ? 'exec' : null;
+    if (exPool.touched > 0) {
+      // Real record on file, none of it scorable. That is a coverage gap with a
+      // reason, not a warming state — never queue a warm for it.
+      token = 'no_record';
+    } else if (!warm && hasStance) {
+      pending = true; token = 'pending'; queueWarm(pid);
+    } else {
+      token = hasStance ? 'no_record' : 'no_stance';
+    }
     return {
-      scope: 'official', token: token, verdict: scopeVerdict('official', token),
+      scope: 'official', token: token, verdict: laneVerdict('official', token, emptyLane),
       score: null, record: null, officialActions: null, curated: null,
-      contradictions: 0, flags: 0, hasStance: hasStance, pending: pending, sources: []
+      contradictions: 0, flags: 0, hasStance: hasStance, pending: pending,
+      lane: emptyLane, execTouched: exPool.touched,
+      execHeld: exPool.held.length ? exPool : null, sources: []
     };
   }
 
@@ -592,6 +968,10 @@
         if (recs) recs.forEach(function (it) { (it.issues || []).forEach(function (m) { if (m && m.issueKey) set[m.issueKey] = 1; }); });
       } catch (e) {}
       try { officialActionIssues(pid).forEach(function (k) { set[k] = 1; }); } catch (e) {}
+      // ✒️ executive actions — the presidential action side. Included whether or not
+      // the pair turned out to be scorable, so a held action still shows up as the
+      // coverage it is.
+      try { execIssueKeys(pid).forEach(function (k) { set[k] = 1; }); } catch (e) {}
     }
     return Object.keys(set);
   }
@@ -1445,11 +1825,58 @@
   // "Limited voting record" (which reads as a verdict on the member) becomes
   // "Record: Limited · 1 vote" (which reads as a fact about our data), and the reason
   // moves to the proof line underneath where there is room to state it.
+  // ── one lane, one set of nouns ───────────────────────────────────────────────
+  // Everything below this line renders the Official Record. Most of its wording is
+  // shared, but the countable noun is not: the 🏛️ lane counts roll calls and the ✒️
+  // lane counts documents. "No votes yet" on a president's profile is not a softer
+  // way of saying "no action on file" — it is a false statement about someone who
+  // casts none, and it appears on the row chip, the composition meter and the fold
+  // label, which is three chances to say it. So the noun is looked up once, from the
+  // lane the read itself declares, and every caller asks for it rather than inlining
+  // 'vote'. A read with no lane keeps the congressional wording, which is what every
+  // existing surface already renders.
+  var _LANE_NOUN = {
+    exec: { one: 'action', many: 'actions', multiOne: 'a multi-issue law or order', multiMany: 'multi-issue laws and orders',
+            none: 'No action on file yet', noWord: 'No stated position yet', unscorable: 'On file, not scorable',
+            qualifying: 'qualifying executive action', qualifyingMany: 'qualifying executive actions' },
+    record: { one: 'vote', many: 'votes', multiOne: 'a multi-issue bill', multiMany: 'multi-issue bills',
+              none: 'No votes yet', qualifying: 'qualifying vote', qualifyingMany: 'qualifying votes' }
+  };
+  function _orNoun(ov) {
+    return (ov && ov.lane === 'exec') ? _LANE_NOUN.exec : _LANE_NOUN.record;
+  }
+  // Whether any executive action reaches this issue at all — scorable or held. It is the
+  // difference between "we found nothing" and "we found something we cannot score", and
+  // only the second one has a reason worth printing.
+  function _orExecTouched(ov) {
+    if (!ov) return false;
+    if (typeof ov.execTouched === 'number') return ov.execTouched > 0;
+    return !!(ov.execHeld && ov.execHeld.held && ov.execHeld.held.length);
+  }
+  // Which lane's vocabulary a WHOLE section should speak. Only when every scored row
+  // is on the executive lane — a figure with both a roll-call record and executive
+  // actions gets the shared wording, because either lane's nouns would be wrong about
+  // some of their rows. With nothing scored yet it falls back to the office gate, so an
+  // empty section on a president's profile still does not ask about votes.
+  function _orSectionNoun(pid, scored) {
+    var anyOther = false, anyExec = false;
+    for (var i = 0; i < (scored || []).length; i++) {
+      var ln = scored[i] && scored[i].ov && scored[i].ov.lane;
+      if (ln === 'exec') anyExec = true; else anyOther = true;
+    }
+    if (anyExec && !anyOther) return _LANE_NOUN.exec;
+    if (anyOther) return _LANE_NOUN.record;
+    return execEligible(pid) ? _LANE_NOUN.exec : _LANE_NOUN.record;
+  }
   var _OR_ROW = {
     consistent:  { ico: '✓', label: 'Backed it up',   cls: 'consistent' },
     contradicts: { ico: '⚠', label: 'Contradicts',    cls: 'contradicts' },
     mixed:       { ico: '◑', label: 'Cuts both ways', cls: 'mixed' },
     limited:     { ico: '…', label: 'Limited',        cls: 'limited' },
+    // The 🏛️ wording, which is also the default. On the ✒️ lane _orRowVerdict swaps
+    // these two for _LANE_NOUN.exec.none — they are the only labels in this map that
+    // name the countable thing, so they are the only two that can be wrong about a
+    // figure who casts no roll calls.
     no_record:   { ico: '—', label: 'No votes yet',   cls: 'none' },
     no_stance:   { ico: '—', label: 'No votes yet',   cls: 'none' },
     // The compressed form of the shared 'Loading the record…' — the same voice this
@@ -1466,6 +1893,7 @@
   function _orRowVerdict(ov) {
     var token = (ov && ov.token) || 'no_record';
     var m = _OR_ROW[token] || _OR_ROW.no_record;
+    var n = _orNoun(ov);
     var rec = (ov && ov.record) || null;
     var acts = (ov && ov.officialActions) || null;
     var total = rec ? (rec.total || 0) : (acts ? (acts.total || 0) : 0);
@@ -1473,22 +1901,46 @@
     if (token === 'limited') {
       if (rec && !rec.hasStance) {
         why = total === 1
-          ? 'One vote is mapped to this issue, but they have not stated a position on it — so there is nothing to check the vote against.'
-          : total + ' votes are mapped to this issue, but they have not stated a position on it — so there is nothing to check them against.';
+          ? 'One ' + n.one + ' is mapped to this issue, but they have not stated a position on it — so there is nothing to check the ' + n.one + ' against.'
+          : total + ' ' + n.many + ' are mapped to this issue, but they have not stated a position on it — so there is nothing to check them against.';
       } else if (rec && rec.noPosition >= total && total > 0) {
         why = total === 1
-          ? 'The one vote mapped here took no clear position on this issue.'
-          : 'The ' + total + ' votes mapped here took no clear position on this issue.';
+          ? 'The one ' + n.one + ' mapped here took no clear position on this issue.'
+          : 'The ' + total + ' ' + n.many + ' mapped here took no clear position on this issue.';
       } else {
-        why = 'Not enough directional votes on this issue to call it either way yet.';
+        why = 'Not enough directional ' + n.many + ' on this issue to call it either way yet.';
       }
     } else if (token === 'no_record' || token === 'no_stance') {
-      why = 'They have stated a position, but no qualifying vote has been mapped to this issue yet. That is our coverage, not a verdict.';
+      // On the ✒️ lane this is the case the circularity guard produces most often, so
+      // the reason it gives has to be the one that is actually true: the record exists,
+      // and what is missing is independent word to check it against.
+      why = (ov && ov.execHeld && ov.execHeld.circular > 0)
+        ? 'Executive action on this issue is on file, but the stated position was written from that same document — so it cannot also be the test of it. That is our coverage, not a verdict.'
+        : token === 'no_stance'
+          ? (_orExecTouched(ov)
+              ? 'Executive action on this issue is on file, but they have not stated a position for it to be checked against. That is our coverage, not a verdict.'
+              : 'They have not stated a position on this issue, so there is nothing to check a record against.')
+          : 'They have stated a position, but no ' + n.qualifying + ' has been mapped to this issue yet. That is our coverage, not a verdict.';
+    }
+    // Keyed off the RESOLVED entry rather than the token, so an unrecognised token —
+    // which degrades to no_record — is re-worded on this lane too.
+    var label = m.label;
+    // WHICH empty string is true depends on which side is missing, and a single
+    // override got that wrong in both directions: a row whose evidence list is about
+    // to print "Executive Order 14151 / Signed Executive Order / In force" was
+    // captioned "No action on file yet", and so was a row where the action is on file
+    // and clean and it is the stated position that is absent. A caption that
+    // contradicts the evidence printed underneath it is worse than a vague one.
+    if (n === _LANE_NOUN.exec && (m === _OR_ROW.no_record || m === _OR_ROW.no_stance)) {
+      label = !_orExecTouched(ov) ? n.none
+        : (m === _OR_ROW.no_stance) ? n.noWord
+        : n.unscorable;
     }
     return {
-      key: token, ico: m.ico, label: m.label, cls: m.cls, why: why, total: total,
+      key: token, ico: m.ico, label: label,
+      cls: m.cls, why: why, total: total,
       // "1 vote" / "3 votes" beside a thin label turns a shrug into a fact.
-      count: total ? (total + (total === 1 ? ' vote' : ' votes')) : ''
+      count: total ? (total + ' ' + (total === 1 ? n.one : n.many)) : ''
     };
   }
   function _orRecordChipHtml(ov) {
@@ -1641,6 +2093,37 @@
   // same destination from real buttons in the expanded body (see _orRowEvidenceHtml),
   // so the shortcut is additive rather than the only way through.
   function _orProofHtml(pid, issueKey, ov, limit) {
+    // The ✒️ executive lane names a document, not a roll call — so it renders here
+    // rather than falling through to the vote line. Two differences carry the whole
+    // point of the branch: the standing is printed (an order under an injunction is
+    // not the same evidence as one in force), and the line is NOT a tap target,
+    // because the destination the congressional line offers — this figure's roll-call
+    // list — does not exist for a president. The primary source is one tap away in
+    // the expanded row instead, where it can be a real button.
+    if (ov && ov.lane === 'exec') {
+      var xl = execProofLines(pid, issueKey, limit || 1);
+      if (!xl.length) return '';
+      var xv = VERDICTS[ov.token] || VERDICTS.limited;
+      var E = window.PDXExecRecord;
+      return '<div class="pdxor-proofs">' + xl.map(function (l) {
+        var clsDef = (E && E.CLASSES && E.CLASSES[l.actionClass]) || null;
+        var stDef = (E && E.STANDING && E.STANDING[l.standing]) || null;
+        var doc = l.documentId ? '<b class="pdxor-proof-bill">' + esc(l.documentId) + '</b>' : '';
+        var bits = [];
+        if (clsDef) bits.push(esc(clsDef.verb));
+        if (stDef) bits.push('<b>' + esc(stDef.label) + '</b>');
+        var body = doc
+          ? doc + (bits.length ? ' · ' + bits.join(' · ') : '')
+          : esc(l.text);
+        var xMulti = _orExecOmniNote(l.item, issueKey);
+        return '<div class="pdxor-proof">' +
+            '<span class="pdxor-proof-ico" style="color:' + xv.color + '" aria-hidden="true">' + xv.ico + '</span>' +
+            '<span class="pdxor-proof-txt">' + body +
+              (xMulti ? '<span class="pdxor-proof-multi">🧩 ' + esc(xMulti) + '</span>' : '') +
+            '</span>' +
+          '</div>';
+      }).join('') + '</div>';
+    }
     var picks = _orProofPicks(pid, issueKey, ov, limit || 1);
     if (!picks.length) return '';
     return '<div class="pdxor-proofs">' + picks.map(function (p) {
@@ -1672,8 +2155,50 @@
   // lines here agree. Falls back to _orEvidenceItems when the raw records are not
   // reachable, so this can only ever add detail, never remove it.
   var _OR_ROW_EVIDENCE_MAX = 8;
+  // Why a real, sourced executive action is on file but not scored. Every one of these
+  // reads as a coverage gap, never as a grade: the action happened, the mapping is
+  // true, and what is missing is our ability to use it as evidence about THIS figure's
+  // consistency. Stated on the surface for the same reason the engine fails closed —
+  // an unexplained absence is indistinguishable from not having looked.
+  var _EXEC_HELD_REASON = {
+    circular: 'On file — but the stated position on this issue was written from this document, so it cannot also be the test of it',
+    no_standing: 'On file — no citable current standing yet, so it carries no verdict',
+    unmapped_direction: 'On file — its effect on this issue is not cleanly mapped yet'
+  };
   function _orRowEvidenceHtml(pid, issueKey, ov) {
     var lines = [], extra = '';
+    // ✒️ executive lane: the documents behind this row, each with its class of power,
+    // its date and where it stands, linking to the Federal Register / GPO page rather
+    // than to a roll call. Held actions (circular, unmapped direction, no citable
+    // standing) are listed underneath with the reason, so the row says WHY it reads
+    // thin instead of quietly showing less than is on file.
+    if (ov && ov.lane === 'exec') {
+      var E0 = window.PDXExecRecord, xPool = null;
+      try { xPool = execRecordsFor(pid, issueKey); } catch (e) { xPool = null; }
+      if (xPool) {
+        var stanceX = (ov.record && ov.record.stance) || positionStance(pid, issueKey) || null;
+        xPool.items.forEach(function (it) {
+          var clsD = (E0 && E0.CLASSES && E0.CLASSES[it.actionClass]) || null;
+          var stD = (E0 && E0.STANDING && E0.STANDING[it.standing]) || null;
+          var metaX = [clsD ? clsD.verb : '', stD ? stD.label : '', it.date || ''].filter(Boolean).join(' · ');
+          lines.push(_orActLine(_orItemVerdict(it, issueKey, stanceX),
+            it.documentId || it.title || 'Executive action',
+            metaX, it.sourceUrl, it.sourceLabel, _orExecOmniNote(it, issueKey)));
+        });
+        xPool.held.forEach(function (h) {
+          lines.push(_orActLine('limited',
+            h.documentId || h.title || 'Executive action',
+            _EXEC_HELD_REASON[h.reason] || 'On file; not usable as evidence here',
+            h.sourceUrl, h.sourceLabel, '', null,
+            // The declared note, if the seed carries one — passed as pre-rendered
+            // omniHtml rather than as an omniNote so it does not pick up the 🧩
+            // multi-issue icon, which would claim something different.
+            h.note ? '<span class="pdxor-omni">' + esc(h.note) + '</span>' : ''));
+        });
+      }
+      if (!lines.length) return '';
+      return '<div class="pdxor-acts-open">' + lines.join('') + '</div>';
+    }
     if (ov && ov.officialActions && ov.officialActions.items) {
       ov.officialActions.items.forEach(function (a) {
         lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
@@ -1706,6 +2231,11 @@
   // and means it: it carries that vote's key and lands on the card itself, so the copy
   // and the destination agree.
   function _orRowVrLinkHtml(pid, issueKey, ov) {
+    // The ✒️ lane has no destination for this button. Offering "Open this vote in the
+    // full record" on a president's row would send a reader to a roll-call list that
+    // is empty by definition; the primary Federal Register / Congress.gov link in the
+    // expanded evidence rows is the real receipt, and it is already there.
+    if (ov && ov.lane === 'exec') return '';
     var total = (ov && ov.record) ? (ov.record.total || 0) : 0;
     if (!total) return '';
     var one = '';
@@ -1831,7 +2361,7 @@
       if (!ov || typeof ov.score !== 'number' || !ov.record) return ''; // no % → nothing to qualify
       var stats = (typeof window._pdxRecordOmnibusStats === 'function')
         ? window._pdxRecordOmnibusStats(pid, issueKey) : null;
-      var comp = window._recordComposition(ov.record, stats);
+      var comp = window._recordComposition(ov.record, stats, { noun: _orNoun(ov) });
       if (!comp) return '';
       return _orCompMeterHtml(comp, 'How much record is behind this percentage:');
     } catch (e) { return ''; }
@@ -1844,12 +2374,13 @@
   function _orOverallCompositionHtml(pid, scored, overall) {
     try {
       if (typeof window._recordComposition !== 'function') return '';
+      var n = _orSectionNoun(pid, scored);
       var rated = 0, thin = 0, omni = 0, single = 0;
       (scored || []).forEach(function (s) {
         if (!s || !s.ov || typeof s.ov.score !== 'number' || !s.ov.record) return;
         var stats = (typeof window._pdxRecordOmnibusStats === 'function')
           ? window._pdxRecordOmnibusStats(pid, s.key) : null;
-        var c = window._recordComposition(s.ov.record, stats);
+        var c = window._recordComposition(s.ov.record, stats, { noun: _orNoun(s.ov) });
         if (!c) return;
         rated++;
         if (c.thin) thin++;
@@ -1861,20 +2392,20 @@
       var unw = overall && typeof overall.unweightedScore === 'number' ? overall.unweightedScore : null;
       var moved = (unw !== null && overall && typeof overall.score === 'number' && unw !== overall.score);
       var parts = ['weighted over ' + rated + ' issue' + (rated === 1 ? '' : 's')];
-      if (thin) parts.push(thin + ' on 1–2 votes');
+      if (thin) parts.push(thin + ' on 1–2 ' + n.many);
       if (omni) parts.push(omni + ' mostly multi-issue');
       // The unweighted figure is deliberately NOT in the visible pill any more: this
       // section no longer prints a pooled percentage, and a lone "unweighted 71%"
       // beside a verdict chip reads as that missing headline. It stays in the tooltip,
       // where it is an audit note rather than a competing number.
       var tip = 'The per-issue percentages here are pooled for the profile’s one score, weighted by how many ' +
-        'judged votes sit behind each one — so an issue decided by a single vote counts less ' +
+        'judged ' + n.many + ' sit behind each one — so an issue decided by a single ' + n.one + ' counts less ' +
         'than one decided by ten. ' + rated + ' issue' + (rated === 1 ? '' : 's') +
         ' had a percentage to average' +
-        (judged ? ', over ' + judged + ' judged vote' + (judged === 1 ? '' : 's') + ' in total' : '') +
-        (single ? '; ' + single + ' of those issues rest on a single judged vote' : '') +
+        (judged ? ', over ' + judged + ' judged ' + (judged === 1 ? n.one : n.many) + ' in total' : '') +
+        (single ? '; ' + single + ' of those issues rest on a single judged ' + n.one : '') +
         (thin ? '; ' + thin + ' rest on two or fewer' : '') +
-        (omni ? '; ' + omni + ' are driven mainly by multi-issue bills' : '') + '. ' +
+        (omni ? '; ' + omni + ' are driven mainly by ' + n.multiMany : '') + '. ' +
         (moved
           ? 'Counting every issue equally, regardless of depth, would give ' + unw + '% instead.'
           : 'Weighting does not change the figure here.');
@@ -1928,6 +2459,36 @@
       ? ' The same vote also ' + parts.join(' and ') + '.'
       : (ctx.otherLabels.length ? ' It also covered ' + names(ctx.others) + '.' : '');
     return 'Multi-issue bill — one vote, ' + ctx.count + ' issues.' + tail;
+  }
+  // The SAME disclosure for the ✒️ lane, in this lane's nouns. A reconciliation bill
+  // signed once lands on a dozen issues at different angles, exactly as one roll
+  // call on it does — so the disclosure is not optional here either. What changes is
+  // only the vocabulary: "one vote" would be false about a signature, and the class of
+  // power names itself ("one law", "one order") because that is the honest noun for
+  // what was signed.
+  var _EXEC_OMNI_NOUN = {
+    signed_law: 'law', vetoed_law: 'veto',
+    executive_order: 'order', directive: 'directive'
+  };
+  function _orExecOmniNote(item, issueKey) {
+    if (!item || typeof window._measureOmnibusContext !== 'function') return '';
+    var ctx;
+    try { ctx = window._measureOmnibusContext(item, issueKey, {}, { labelFn: _issueLabel }); }
+    catch (e) { return ''; }
+    if (!ctx) return ''; // single-issue action — nothing to disclose
+    var noun = _EXEC_OMNI_NOUN[item.actionClass] || 'action';
+    var names = function (list) {
+      var out = list.slice(0, 3).map(function (c) { return String(c.label); });
+      if (list.length > 3) out.push('+' + (list.length - 3) + ' more');
+      return out.join(', ');
+    };
+    var parts = [];
+    if (ctx.advances.length) parts.push('advanced ' + names(ctx.advances));
+    if (ctx.opposes.length) parts.push('cut against ' + names(ctx.opposes));
+    var tail = parts.length
+      ? ' The same ' + noun + ' also ' + parts.join(' and ') + '.'
+      : (ctx.otherLabels.length ? ' It also covered ' + names(ctx.others) + '.' : '');
+    return 'Multi-issue action — one ' + noun + ', ' + ctx.count + ' issues.' + tail;
   }
   // The SAME disclosure, laid out to be scanned instead of read — used by the gap
   // sheet, where this line is the arrival surface for a shared card and a paragraph
@@ -2110,6 +2671,9 @@
     // how many of them are thin or omnibus-driven. Annotation only; overall.score is
     // untouched and still feeds the primary read.
     var overallComp = _orOverallCompositionHtml(pid, scored, overall);
+    // Which lane's nouns this whole section speaks. Computed once, from the rows.
+    var secN = _orSectionNoun(pid, scored);
+    var isExecSection = (secN === _LANE_NOUN.exec);
     // THE POOLED PERCENTAGE IS NOT PRINTED HERE ANY MORE. This section is the TEST
     // behind the profile's one primary score (⚖️ Word vs Action), not a second score
     // of its own: printing "67%" beside a hero reading 82% asked a reader to work out
@@ -2127,21 +2691,33 @@
         // beside the title and the score stays pinned right.
         LHOWTO('voting-record', 'How to read this') +
         '<span class="pdxor-overall">' + overallHtml + '</span></div>' +
-      '<div class="pdxor-q">“When they had to vote, did they stand by what they said?”</div>' +
+      // The section's own question, in the lane's terms. "When they had to vote" is the
+      // right question for a legislator and a false premise for a president: the power
+      // they hold is the power to act without a vote, so the honest version asks what
+      // they did with it. Same question underneath — does the doing match the saying.
+      '<div class="pdxor-q">“' + (isExecSection
+        ? 'When they could act on their own, did they do what they said?'
+        : 'When they had to vote, did they stand by what they said?') + '”</div>' +
       _feedsPrimaryHtml('Every issue below tests something they said. These results are what the profile’s one score is built from — weighted by how firmly they said it and how deep the record behind it is.');
 
     if (!scored.length) {
       var emptyMsg = anyPending
         ? 'Loading the record…'
         : (awaiting > 0
-            ? 'No qualifying votes on record yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'is' : 'are') + ' still awaiting a formal record.'
+            ? 'No ' + secN.qualifyingMany + ' on record yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'is' : 'are') + ' still awaiting a formal record.'
             : 'No stated positions or formal record on file yet.');
       // "No record" is a coverage statement, not a finding. Say why it happens
-      // rather than leaving an empty panel to be read as an accusation.
+      // rather than leaving an empty panel to be read as an accusation. The two
+      // reasons are lane-specific: a legislator's record goes missing to a voice
+      // vote, a president's to an action whose effect on an issue we have not
+      // mapped from a primary document yet.
       var emptyWhy = anyPending ? '' :
         '<div class="pdxor-empty-why">' + LT('norecord', 'Why a record can be empty') +
-          ': the issue may have been handled by ' + LT('voicevote', 'voice vote') +
-          ' (no per-member record exists), or we have not documented that area yet.</div>';
+          (isExecSection
+            ? ': the action may not map cleanly to any issue we track, or we have not documented that area yet.'
+            : ': the issue may have been handled by ' + LT('voicevote', 'voice vote') +
+              ' (no per-member record exists), or we have not documented that area yet.') +
+        '</div>';
       return head + '<div class="pdxor-empty">' + esc(emptyMsg) + emptyWhy + '</div>' +
         // After the empty message, not before it: nothing here is checkable yet, so the
         // record that DOES exist reads as "and here is what we have" rather than as a
@@ -2234,7 +2810,7 @@
           '</div>';
       }).join('');
       var head2 = '➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' +
-        (awaiting === 1 ? 'has' : 'have') + ' no qualifying votes on record yet';
+        (awaiting === 1 ? 'has' : 'have') + ' no ' + secN.qualifyingMany + ' on record yet';
       awaitingNote = awaitRows
         ? '<details class="pdxor-awaiting-d"><summary class="pdxor-awaiting">' + esc(head2) + ' ▾</summary>' +
             '<div class="pdxor-await-body">' + awaitRows + '</div></details>'
@@ -3163,6 +3739,20 @@
       stats: function () { var i = buildOfficialActions(); return { count: i.count, politicians: i.politicians, backfilled: i.backfilled }; },
       forIssue: officialActionsFor,
       issues: officialActionIssues
+    },
+    // ✒️ The presidential action feeder. Exposed so the surfaces can cite the
+    // document behind a read, and so the tests can assert the circularity guard
+    // directly rather than inferring it from a percentage.
+    execActions: {
+      eligible: execEligible,
+      forIssue: execRecordsFor,
+      summary: execIssueSummary,
+      issues: execIssueKeys,
+      identifiers: execIdentifiers,
+      namesDocument: execNamesDocument,
+      saidText: execSaidText,
+      proofText: execProofText,
+      proofLines: execProofLines
     },
     chipHtml: chipHtml,
     dot: dot,
