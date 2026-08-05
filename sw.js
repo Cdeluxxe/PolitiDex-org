@@ -112,8 +112,9 @@ const SHELL_ASSETS = [
   // The whole-person record card (window.PDXProfileCard) — the top share tier.
   // Precached alongside the resolver above for exactly the same reason: without
   // it every share on a repeat visit silently drops to a single-receipt image,
-  // which is the anecdote the card was built to replace. It draws its own avatars
-  // and needs no network at all once cached.
+  // which is the anecdote the card was built to replace. Its portrait comes from
+  // /.netlify/images, which this worker never intercepts — so offline the card
+  // draws its monogram instead of a face, and everything else on it is unchanged.
   '/profile-card.js',
   // The profile ordering layer (window.PDXProfileSpine) and its stylesheet.
   // Precached together: without the script a repeat visitor gets the profile in

@@ -25,6 +25,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { browsePhotos, cmpData, arrivalSlugs, bundledPhoto, pageSource } from "./audit-photo-coverage.mjs";
+import { readFileSync } from "node:fs";
 
 let pass = 0;
 const fails = [];
@@ -97,6 +98,41 @@ for (const [k, v] of Object.entries(bp)) {
 ok(strayHosts.size === 0,
   `BROWSE_PHOTOS points at ${strayHosts.size} host(s) outside the trusted set: ` +
   [...strayHosts].map(([h, ks]) => `${h} (${ks.slice(0, 4).join(", ")})`).join("; "));
+
+// ── …and the Image CDN allowlist says the same thing ────────────────────────
+// The share card (profile-card.js) cannot hotlink a portrait: a cross-origin
+// bitmap taints its canvas and toBlob() then throws in the reader's share
+// gesture. So it fetches the face through /.netlify/images, which only resolves
+// hosts named in netlify.toml's remote_images.
+//
+// That makes the toml a SECOND copy of the list above, and the failure mode when
+// the two drift is silent in the worst way: the proxy 404s, the card draws a
+// monogram, and that is indistinguishable from "this person has no photo on
+// file". Nothing in the app or the test suite would report it. So the lists are
+// pinned to each other here — add a host in one place and this fails until it is
+// added in the other.
+const toml = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8");
+const imgBlock = /remote_images\s*=\s*\[([\s\S]*?)\n\s*\]/.exec(toml);
+ok(!!imgBlock, "netlify.toml declares no remote_images list, so the share card cannot proxy any portrait and every card loses its face");
+if (imgBlock) {
+  // TOML basic strings escape a backslash as \\, so the regex the CDN compiles is
+  // the unescaped form. Compare hosts, not patterns: the path part is deliberately
+  // loose in the toml and there is nothing here to check it against.
+  const patterns = [...imgBlock[1].matchAll(/"([^"]+)"/g)].map((m) => m[1].replace(/\\\\/g, "\\"));
+  const hostOf = (p) => p.replace(/\\/g, "").replace(/^\^?https?:\/\//i, "").split("/")[0].toLowerCase();
+  const proxied = new Set(patterns.map(hostOf).filter(Boolean));
+  const unproxied = [...ALLOWED].filter((h) => !proxied.has(h));
+  const unvetted = [...proxied].filter((h) => !ALLOWED.has(h));
+  ok(unproxied.length === 0,
+    `${unproxied.length} trusted portrait host(s) are missing from netlify.toml remote_images, so the share card will silently draw a monogram for anyone whose photo lives there: ${unproxied.join(", ")}`);
+  ok(unvetted.length === 0,
+    `netlify.toml lets the Image CDN fetch from ${unvetted.length} host(s) this test has not vetted — our origin should not proxy anything we would not point an <img> at: ${unvetted.join(", ")}`);
+  // The patterns are regexes, so an unescaped dot in one of them turns every
+  // separator into a wildcard and rawXgithubusercontent.com becomes proxyable.
+  const loose = patterns.filter((p) => /(^|[^\\])\.(?![*+])/.test(p.replace(/\/\.\*$/, "/")));
+  ok(loose.length === 0,
+    `${loose.length} remote_images pattern(s) leave a dot unescaped, so a look-alike host can be proxied through our origin: ${loose.join(", ")}`);
+}
 
 // ── Report ──────────────────────────────────────────────────────────────────
 if (fails.length) {

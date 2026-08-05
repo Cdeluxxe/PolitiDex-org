@@ -28,12 +28,15 @@
 //   4. THE IMAGE AND THE CAPTION AGREE. They are shared in the same gesture. A
 //      caption that claimed more than the card would be a second, unsourced
 //      claim — so every finding in one is in the other.
-//   5. IT IS SELF-CONTAINED. Drawn monogram avatars, never a hotlinked photo:
-//      a tainted canvas fails toBlob() at the moment of sharing, on a device the
-//      author cannot see. Branding, politidex.fyi and the honesty note are
-//      painted in, so the card survives being cropped out of the app.
+//   5. IT IS SELF-CONTAINED. The portrait is fetched through the same-origin
+//      image proxy and proved readable before it is composited, and a monogram is
+//      what the frame gets whenever there is no usable bitmap — because a tainted
+//      canvas fails toBlob() at the moment of sharing, on a device the author
+//      cannot see (§6b holds all four outcomes). Branding, politidex.fyi and the
+//      honesty note are painted in, so the card survives being cropped out of the
+//      app.
 //
-// Section 6 then gates the WIRING — the tier, its suppression on issue rows, and
+// Section 7 then gates the WIRING — the tier, its suppression on issue rows, and
 // the precache. A card nothing dispatches to is not a card.
 //
 //   node scripts/test-profile-card.mjs
@@ -66,10 +69,16 @@ const must = (cond, msg) => {
 // the TEXT THAT WOULD BE PAINTED rather than on the source that paints it. Widths
 // are derived from the font's px size, which is enough for wrapText to behave the
 // way it will in a browser (wrap, clamp, ellipsis) instead of never wrapping.
+//
+// CANVAS_MODE.taint makes getImageData throw the SecurityError a real browser
+// throws for a cross-origin bitmap. That is the failure the card's portrait path
+// exists to survive, and it is invisible to a stub that always succeeds.
+const CANVAS_MODE = { taint: false };
 function mkCanvas() {
   const texts = [];
   const rects = [];
   const corners = [];
+  const drawn = [];
   let seq = 0;
   const ctx = {
     font: "10px sans-serif", fillStyle: "", strokeStyle: "", lineWidth: 1,
@@ -95,10 +104,21 @@ function mkCanvas() {
     lineTo() {}, arc() {}, arcTo() {},
     quadraticCurveTo() {}, bezierCurveTo() {}, rect() {}, clip() {},
     fill() {}, stroke() {},
-    drawImage() { throw new Error("the card must not draw an external image — a tainted canvas breaks toBlob()"); },
+    // Composites are RECORDED, not refused. The card now draws a portrait, and
+    // the promise that made refusing right — "toBlob() cannot fail at the moment
+    // of sharing" — is kept somewhere the stub can actually check it: the address
+    // is same-origin and the bitmap is probed with getImageData first. §6b asserts
+    // both. What the stub still refuses is a probe it cannot answer for, so a
+    // draw that skipped one shows up as a missing entry here rather than as a
+    // silent pass.
+    drawImage(img, ...rest) { drawn.push({ src: (img && img.src) || "", args: rest, seq: seq++ }); },
+    getImageData() {
+      if (CANVAS_MODE.taint) { const e = new Error("Tainted canvases may not be exported"); e.name = "SecurityError"; throw e; }
+      return { data: [0, 0, 0, 0] };
+    },
   };
   return {
-    width: 0, height: 0, _texts: texts, _rects: rects, _corners: corners,
+    width: 0, height: 0, _texts: texts, _rects: rects, _corners: corners, _drawn: drawn,
     getContext() { return ctx; },
     toDataURL() { return "data:image/png;base64,AAAA"; },
     toBlob(cb) { cb({ size: 1024, type: "image/png" }); },
@@ -167,11 +187,39 @@ function thinRead() {
 
 const READS = { thick: thickRead(), thin: thinRead() };
 
-function mkCtx() {
+// ── An <img> stub ────────────────────────────────────────────────────────────
+// The three behaviours the card has to hold up under, since all three happen
+// inside a share gesture on someone else's phone: the portrait arrives, the
+// portrait 404s (an un-allowlisted host, a dead link), and the portrait never
+// answers at all (a stalled connection). `requested` is every address the card
+// asked for, which is how §6b proves nothing cross-origin was ever handed to the
+// canvas.
+const IMG_MODE = { how: "hang", w: 400, h: 500, requested: [] };
+function mkImageClass() {
+  return class StubImage {
+    constructor() { this.naturalWidth = 0; this.naturalHeight = 0; this.onload = null; this.onerror = null; this._src = ""; }
+    get src() { return this._src; }
+    set src(v) {
+      this._src = String(v);
+      IMG_MODE.requested.push(this._src);
+      if (IMG_MODE.how === "load") {
+        this.naturalWidth = IMG_MODE.w; this.naturalHeight = IMG_MODE.h;
+        if (this.onload) this.onload();
+      } else if (IMG_MODE.how === "error") {
+        if (this.onerror) this.onerror();
+      }
+      // "hang" leaves the promise open until the cap timer is fired by hand.
+    }
+  };
+}
+
+function mkCtx(opts) {
+  opts = opts || {};
   const canvases = [];
   const toasts = [];
   const opened = [];
   const listeners = {};
+  const timers = [];
   const noopEl = () => ({
     style: {}, textContent: "", innerHTML: "", value: "", children: [],
     classList: { add() {}, remove() {}, contains: () => false },
@@ -198,7 +246,15 @@ function mkCtx() {
     },
     navigator: {},
     location: { origin: "https://politidex.fyi", pathname: "/", hash: "" },
-    setTimeout: (fn) => { try { fn(); } catch (e) {} return 0; },
+    // Short waits fire straight away, as they always did. A LONG wait is a cap on
+    // something that may never answer — the portrait's 2.5s ceiling — so it is
+    // parked in `_timers` for a test to fire by hand instead of being either
+    // slept through or collapsed into "the cap always wins".
+    setTimeout: (fn, ms) => {
+      if (ms >= 1000) { timers.push(fn); return timers.length; }
+      try { fn(); } catch (e) {}
+      return 0;
+    },
     clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},
     requestAnimationFrame: (fn) => { try { fn(); } catch (e) {} return 0; },
     atob: (s) => Buffer.from(s, "base64").toString("binary"),
@@ -206,13 +262,18 @@ function mkCtx() {
     File: class { constructor(parts, name, o) { this.parts = parts; this.name = name; this.type = (o || {}).type; } },
     Uint8Array, JSON, Math, Date, Promise, Object, Array, String, Number, Boolean, Error, RegExp,
     encodeURIComponent, decodeURIComponent, isNaN, parseInt, parseFloat,
-    _canvases: canvases, _toasts: toasts, _opened: opened, _listeners: listeners,
+    _canvases: canvases, _toasts: toasts, _opened: opened, _listeners: listeners, _timers: timers,
   };
   ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
   ctx.addEventListener = (n, fn) => { (listeners[n] = listeners[n] || []).push(fn); };
   ctx.open = (u) => { opened.push(u); return null; };
   ctx.innerWidth = 420; ctx.innerHeight = 900;
   ctx._showToast = (m) => { toasts.push(String(m)); };
+  // Both are absent by default, which is the state the card was built for first:
+  // no Image constructor (a worker, an old browser) and no photo resolver loaded
+  // yet. Every assertion outside §5 therefore runs against the monogram card.
+  if (opts.image) ctx.Image = mkImageClass();
+  if (opts.photos) ctx._getPhotoUrl = (pid) => opts.photos[pid] || "";
 
   ctx.PROFILES = {
     massie: { name: "Thomas Massie", office: "U.S. House", state: "KY", district: "4", party: "Republican",
@@ -404,10 +465,13 @@ const THIN = thin.lines.join("\n");
 
 // ── 5. It is self-contained ──────────────────────────────────────────────────
 {
-  ok(!/new Image\(|\.src\s*=|drawImage/.test(CODE),
-     "offline: the card loads no external image — a tainted canvas fails toBlob() at the moment of sharing");
   ok(PC._initials("Thomas Massie") === "TM" && PC._initials("") === "★",
-     "offline: the avatar is a drawn monogram with a fallback, so there is always something in the frame");
+     "offline: the monogram has a fallback, so there is always something in the frame");
+  // With no Image constructor in scope — a worker, an old browser, a stripped
+  // environment — the whole portrait path is skipped and the card is the card it
+  // has always been. This is the context every other section runs in.
+  ok(thick.lines.indexOf("TM") !== -1 && thick.canvas._drawn.length === 0,
+     "offline: with no image loader available the frame gets the monogram and nothing is composited");
   ok(/POLITI/.test(THICK) && /DEX/.test(THICK), "branding: the wordmark is painted on");
   ok(thick.lines.some((t) => /B O U N D   B Y   T R U T H/.test(t)),
      "branding: 'Bound by Truth' is painted on");
@@ -492,6 +556,141 @@ const THIN = thin.lines.join("\n");
      "proof: no gap line smuggles a rate back in");
   ok(/held against no one|counts for or against/.test(gaps.map((g) => g.action).join(" ")),
      "proof: a gap says explicitly that it is not being counted against them — an unproven thing is not a mark");
+}
+
+// ── 6b. The face ─────────────────────────────────────────────────────────────
+// The one element on the card that is a bitmap rather than a drawing, and the one
+// that can take a share down with it. A cross-origin portrait taints the canvas
+// and toBlob() throws — not here, but on a stranger's phone, at the instant they
+// tap share, with no way for anyone to find out. So the contract is not "a photo
+// appears"; it is that a photo appears only when it CANNOT do that, and that the
+// monogram is what every other path lands on.
+{
+  const mkPhotoCtx = () => {
+    const c = mkCtx({
+      image: true,
+      photos: {
+        massie: "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg",
+        thinguy: "/img/local-portrait.jpg",
+        longname: "data:image/png;base64,AAAA",
+      },
+    });
+    vm.createContext(c);
+    new vm.Script(SRC, { filename: "profile-card.js" }).runInContext(c);
+    return c;
+  };
+  const shotOf = async (c, pid) => {
+    await c.window.PDXProfileCard.share(pid, null);
+    const cv = c._canvases[c._canvases.length - 1];
+    return { canvas: cv, lines: cv._texts.filter((t) => !t.warped).map((t) => t.t), drawn: cv._drawn };
+  };
+
+  // ── the address ──
+  // Asserted on the resolver rather than on a substring of the source, because
+  // what matters is the value that reaches img.src.
+  const pctx = mkPhotoCtx();
+  const A = pctx.window.PDXProfileCard._avatarSrc;
+  must(typeof A === "function" && typeof PC._loadAvatar === "function",
+       "PDXProfileCard no longer exposes _avatarSrc/_loadAvatar, so the portrait's address cannot be checked");
+  const remoteSrc = A("massie");
+  ok(remoteSrc.indexOf("/.netlify/images?url=") === 0,
+     `face: a remote portrait is fetched through the same-origin image proxy (got ${JSON.stringify(remoteSrc)})`);
+  ok(!/^https?:/i.test(remoteSrc) && remoteSrc.indexOf("://") === -1,
+     "face: the address handed to the canvas is same-origin — an absolute one would taint it and break toBlob() mid-share");
+  ok(remoteSrc.indexOf(encodeURIComponent("https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg")) !== -1,
+     "face: the original portrait is passed to the proxy URI-encoded, so a path with an & or a ? cannot truncate it");
+  ok(/[?&]fit=cover\b/.test(remoteSrc) && /[?&]w=\d+/.test(remoteSrc) && /[?&]h=\d+/.test(remoteSrc),
+     "face: the proxy is asked for a square crop rather than a full-resolution portrait to draw at 116px");
+  ok(A("thinguy") === "/img/local-portrait.jpg" && A("longname") === "data:image/png;base64,AAAA",
+     "face: an address that is already ours (root-relative or inline) is used as it is — proxying it would only add a hop");
+  ok(A("blank") === "" && A("nobody") === "",
+     "face: no photo on file resolves to no request at all");
+  ok(!/crossOrigin/i.test(CODE),
+     "face: the loader never sets crossOrigin — it does not need to, and a CORS-mode request to a host that sends no ACAO header fails where a proxied one succeeds");
+
+  // ── it arrives ──
+  IMG_MODE.how = "load"; IMG_MODE.requested.length = 0; CANVAS_MODE.taint = false;
+  const withFace = await shotOf(pctx, "massie");
+  ok(withFace.drawn.length === 1, "face: a portrait that loads is composited onto the card exactly once");
+  ok(withFace.lines.indexOf("TM") === -1,
+     "face: the monogram is not ALSO drawn — two faces in one frame is a bug the reader sees");
+  ok(withFace.lines.some((t) => /Thomas Massie/.test(t)) && /RECORD CARD/.test(withFace.lines.join("\n")),
+     "face: everything else on the card is unchanged by the portrait");
+  ok(IMG_MODE.requested.every((u) => u.indexOf("/.netlify/images?url=") === 0),
+     "face: every address the card actually requested was same-origin — " + JSON.stringify(IMG_MODE.requested.slice(0, 2)));
+  // Cover-fit, from a 400×500 source into a 116px circle: the drawn box must be at
+  // least as large as the circle in both axes, or the crop leaves a gap.
+  const box = withFace.drawn[0].args;
+  ok(box.length === 4 && box[2] >= 115.9 && box[3] >= 115.9 && Math.abs(box[2] / box[3] - 400 / 500) < 0.01,
+     `face: the portrait is cover-fitted at its own aspect ratio (drew ${box[2]}×${box[3]}) — a stretched face is worse than none`);
+
+  // ── it is unreadable ──
+  // The exact failure the monogram rule was written for: the bitmap loads, and
+  // the canvas it lands on cannot be exported. Caught by the probe, BEFORE the
+  // card is touched.
+  const tainted = mkPhotoCtx();
+  IMG_MODE.how = "load"; CANVAS_MODE.taint = true;
+  const noExport = await shotOf(tainted, "massie");
+  CANVAS_MODE.taint = false;
+  ok(noExport.drawn.length === 0 && noExport.lines.indexOf("TM") !== -1,
+     "face: a bitmap the canvas cannot export is rejected by the probe and the frame gets the monogram");
+  ok(noExport.lines.some((t) => /Thomas Massie/.test(t)),
+     "face: and the card is still a card — an unreadable portrait costs the face, never the record");
+
+  // ── it 404s ──
+  // An un-allowlisted host, a moved file, a dead link. Same landing place.
+  const gone = mkPhotoCtx();
+  IMG_MODE.how = "error";
+  const errored = await shotOf(gone, "massie");
+  ok(errored.drawn.length === 0 && errored.lines.indexOf("TM") !== -1,
+     "face: a portrait that 404s falls back to the monogram rather than leaving an empty ring");
+
+  // ── it never answers ──
+  // The one failure a browser will not report: a stalled connection. Without a cap
+  // the share hangs on a spinner forever, which is the worst of the four outcomes
+  // because the reader cannot tell it from slow.
+  const stalled = mkPhotoCtx();
+  const parkedBefore = stalled._timers.length;
+  IMG_MODE.how = "hang";
+  const pending = shotOf(stalled, "massie");
+  let settled = false;
+  pending.then(() => { settled = true; });
+  await new Promise((r) => setTimeout(r, 0));
+  ok(!settled, "face: a portrait that never answers leaves the render waiting — otherwise the cap below proves nothing");
+  must(stalled._timers.length > parkedBefore,
+       "the portrait's cap is no longer scheduled as a long timeout, so it cannot be fired here");
+  stalled._timers.slice(parkedBefore).forEach((fn) => { try { fn(); } catch (e) {} });
+  const capped = await pending;
+  ok(capped.drawn.length === 0 && capped.lines.indexOf("TM") !== -1,
+     "face: the cap fires, the monogram is drawn, and the share completes instead of hanging");
+  ok(/AVATAR_MS\s*=\s*(\d+)/.test(CODE) && Number(/AVATAR_MS\s*=\s*(\d+)/.exec(CODE)[1]) <= 4000,
+     "face: the cap is short enough to be inside a share gesture rather than a timeout a reader would abandon");
+  IMG_MODE.how = "hang"; IMG_MODE.requested.length = 0;
+
+  // ── the allowlist ──
+  // The proxy only resolves hosts named in netlify.toml. If that list and the
+  // curated portrait set drift apart, faces disappear from cards silently — the
+  // 404 path above is indistinguishable from "this person has no photo".
+  const toml = read("netlify.toml");
+  must(/\[images\]/.test(toml), "netlify.toml no longer declares an [images] block, so no portrait can be proxied");
+  const block = /remote_images = \[([\s\S]*?)\n\s*\]/.exec(toml);
+  must(!!block, "netlify.toml's remote_images list can no longer be read");
+  const pats = [...block[1].matchAll(/"([^"]+)"/g)].map((m) => m[1].replace(/\\\\/g, "\\"));
+  ok(pats.length >= 6, `face: the allowlist names ${pats.length} host patterns`);
+  const matches = (u) => pats.some((p) => new RegExp("^" + p + "$").test(u));
+  const HOSTS = [
+    "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/b/x.jpg",
+    "https://commons.wikimedia.org/wiki/Special:FilePath/x.jpg",
+    "https://bioguide.congress.gov/photo/M001184.jpg",
+    "https://le.utah.gov/images/legislator/x.jpg",
+    "https://insurance.utah.gov/x.jpg",
+  ];
+  const missing = HOSTS.filter((u) => !matches(u));
+  ok(missing.length === 0,
+     "face: every trusted portrait host is proxyable — " + JSON.stringify(missing.map((u) => u.split("/")[2])));
+  ok(!matches("https://evil.example.com/x.jpg") && !matches("https://rawXgithubusercontent.com/x.jpg"),
+     "face: the patterns anchor their dots, so a look-alike host cannot be proxied through our origin");
 }
 
 // ── 7. The wiring ────────────────────────────────────────────────────────────

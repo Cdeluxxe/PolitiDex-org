@@ -18,16 +18,20 @@
 //
 // HONESTY RULES, which are the whole reason this file is small:
 //
-//   • A preview is an ADDRESS LABEL. It says what the page is, never what the page
-//     concludes. No score, no verdict stamp, no kept/broken tally travels here —
-//     a cached judgment that has since been corrected is precisely the thing that
-//     must not end up as a PNG in someone's feed.
+//   • A preview carries FACTS, never CONCLUSIONS. A stated position and a recorded
+//     vote are immutable and sourced, so both may travel. The verdict computed
+//     from them is a revisable interpretation, so it never does — no score, no
+//     verdict stamp, no kept/broken tally. A cached judgment that has since been
+//     corrected is precisely the thing that must not end up as a PNG in someone's
+//     feed; a cached quote and a cached roll call cannot go stale that way.
+//     The card shows both halves and lets the reader do the arithmetic.
 //   • An Issue Spotlight is a sourced explainer about a subject, not a finding
 //     about a person. It gets its own eyebrow, its own accent and its own footer
 //     line, and it never borrows the Official Record's vocabulary.
 //   • If we cannot resolve a link, we say so (or fall back to the site card).
-//     We never invent a plausible title.
+//     We never invent a plausible title, quote, date or measure.
 import shareIndex from "../../db/share-index.json" with { type: "json" };
+import shareStances from "../../db/share-stances.json" with { type: "json" };
 
 // ── The generated index (see scripts/gen-share-index.mjs) ────────────────────
 type PersonRec = { n: string; o?: string; s?: string; p?: string };
@@ -40,6 +44,12 @@ type ShareIndex = {
   issues: Record<string, string>;
 };
 const INDEX = shareIndex as unknown as ShareIndex;
+
+// The SAID half, keyed "<rosterId>|<issueKey>" (see scripts/gen-share-index.mjs).
+// t=position text, w=support/oppose/mixed, h=topic headline, s=source label.
+// There is deliberately no date field: the stance data has none.
+type SaidRec = { t: string; w?: string; h?: string; s?: string };
+const SAID = (shareStances as unknown as { stances: Record<string, SaidRec> }).stances || {};
 
 export type TargetKind =
   | "profile"
@@ -59,6 +69,27 @@ export type Target =
   | { kind: "record"; pid: string; issue: string }
   | { kind: "vote"; congress: string; chamber: string; roll: string };
 
+// The two immutable halves of a Word-vs-Action comparison. Present only when both
+// (or at least one) could actually be resolved — never padded out with a guess.
+export type Said = {
+  // "Supports" / "Opposes" / "Mixed on" — the app's own stance word, not a reading
+  // of the prose. Empty when the stance carries no direction.
+  word: string;
+  text: string;
+  topic: string;
+  source: string;
+};
+export type Did = {
+  // "Voted Yea" / "Voted Nay" / "Co-sponsored" — read off the record, never derived.
+  action: string;
+  measure: string;
+  title: string;
+  // ISO yyyy-mm-dd. Unlike the said side, the record half genuinely carries a date.
+  date: string;
+  detail: string;
+};
+export type Comparison = { said?: Said; did?: Did };
+
 // What a resolved link is allowed to say about itself.
 export type Resolved = {
   kind: TargetKind;
@@ -77,6 +108,8 @@ export type Resolved = {
   // Query string for /share-og (ids only — never free text, so the card endpoint
   // can never be used to put arbitrary words on PolitiDex letterhead).
   ogQuery: string;
+  // Facts for the comparison layout. Absent on every other surface.
+  comparison?: Comparison;
 };
 
 // A link we positively know is wrong — as opposed to one we merely could not
@@ -217,6 +250,98 @@ function measureHeadline(m: any): { title: string; subtitle: string } {
   };
 }
 
+// ── The SAID half ────────────────────────────────────────────────────────────
+// A straight lookup. The generator already did the alias/name-slug resolution the
+// client does, so there is no precedence to re-implement (or get subtly wrong)
+// here — if the pair is not in the table, this person has no stated position on
+// that issue and the card says nothing about one.
+const SAID_WORD: Record<string, string> = {
+  support: "Supports",
+  oppose: "Opposes",
+  mixed: "Mixed on",
+};
+
+function saidFor(pid: string, issue: string): Said | undefined {
+  if (!pid || !issue) return undefined;
+  const rec = SAID[`${pid}|${issue}`];
+  if (!rec || !rec.t) return undefined;
+  return {
+    word: SAID_WORD[String(rec.w || "").toLowerCase()] || "",
+    text: rec.t,
+    topic: rec.h || "",
+    source: rec.s || "",
+  };
+}
+
+// ── The DID half ─────────────────────────────────────────────────────────────
+// The single most consequential thing this member did on this issue, read off the
+// record and never derived. Preference order is about which fact a reader can
+// actually check: a recorded yea/nay on the bill itself beats one on the procedural
+// motion that carried it, which beats a co-sponsorship with no roll call at all.
+// Ties break to the most recent, which is what the API already sorts by.
+const DID_POSITION: Record<string, string> = {
+  yea: "Voted Yea",
+  nay: "Voted Nay",
+  present: "Voted Present",
+  not_voting: "Did not vote",
+};
+
+function didRank(it: any): number {
+  if (it?.kind === "vote") return it.isProcedural ? 2 : 1;
+  return 3;
+}
+
+function didAction(it: any): string {
+  if (it?.kind === "vote") {
+    return DID_POSITION[String(it.position || "").toLowerCase()] || "";
+  }
+  // A position row's actionType IS the act — cosponsor, amicus, veto. Printed as
+  // the record labels it, with underscores unpicked.
+  const raw = String(it?.actionType || "").replace(/_/g, " ").trim();
+  if (!raw) return "";
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+async function didFor(pid: string, issue: string, origin: string): Promise<Did | undefined> {
+  if (!pid || !issue) return undefined;
+  const res = await apiGet(
+    origin,
+    `/api/voting-record/member/${encodeURIComponent(pid)}` +
+      `?issue=${encodeURIComponent(issue)}&sort=date&pageSize=50`
+  );
+  const items: any[] = Array.isArray(res.data?.items) ? res.data.items : [];
+  if (!items.length) return undefined;
+
+  // Only a row with a source is a citable fact. The API already drops sourceless
+  // rows, but a card is the last place to start trusting that implicitly.
+  const usable = items.filter((it) => didAction(it) && it?.source?.url);
+  if (!usable.length) return undefined;
+  usable.sort((a, b) => didRank(a) - didRank(b) || String(b.date || "").localeCompare(String(a.date || "")));
+  const it = usable[0];
+
+  const head = measureHeadline(it);
+  const chamber = it.chamber === "senate" ? "Senate" : it.chamber === "house" ? "House" : "";
+  const tally = it.result ? String(it.result).replace(/_/g, " ") : "";
+  return {
+    action: didAction(it),
+    measure: String(it.number || "").trim(),
+    title: squeeze(head.subtitle || head.title, 150),
+    date: String(it.date || "").slice(0, 10),
+    detail: [chamber, tally].filter(Boolean).join(" · "),
+  };
+}
+
+// A date a reader can read. ISO in, "12 Jun 2025" out — never reformatted into
+// anything ambiguous, and passed straight through if it is not a full ISO date.
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export function prettyDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  if (!m) return String(iso || "");
+  const mon = MONTHS[parseInt(m[2], 10) - 1];
+  if (!mon) return String(iso || "");
+  return `${parseInt(m[3], 10)} ${mon} ${m[1]}`;
+}
+
 // ── resolveTarget ────────────────────────────────────────────────────────────
 export async function resolveTarget(
   t: Target,
@@ -292,18 +417,60 @@ export async function resolveTarget(
     if (!rec) return null;
     const label = stripEmoji(issueLabel(t.issue));
     const surface = t.kind === "record" ? "official record" : "record";
+
+    // Both halves, resolved independently. Either may come back empty and the card
+    // degrades to whichever it has — a preview that shows one real fact still beats
+    // the boilerplate sentence this used to print, and one that can show neither
+    // falls back to exactly that sentence rather than inventing a comparison.
+    const said = saidFor(t.pid, t.issue);
+    const did = t.issue ? await didFor(t.pid, t.issue, origin) : undefined;
+
+    // The description is the half that travels as TEXT — into a paste, a
+    // quote-tweet, a chat where the image is collapsed — so it carries the same
+    // two facts the image does, in the same order, and stamps no verdict on them.
+    let description: string;
+    if (said && did) {
+      description = squeeze(
+        `Said: ${said.word ? `${said.word.toLowerCase()} — ` : ""}“${said.text}”. ` +
+          `Record: ${did.action} on ${[did.measure, did.title].filter(Boolean).join(" — ")}` +
+          `${did.date ? ` (${prettyDate(did.date)})` : ""}. Both sides sourced.`,
+        280
+      );
+    } else if (did) {
+      description = squeeze(
+        `${rec.n} — ${did.action} on ${[did.measure, did.title].filter(Boolean).join(" — ")}` +
+          `${did.date ? ` (${prettyDate(did.date)})` : ""}` +
+          `${label ? `, on ${label}` : ""}. The recorded action, with its source.`,
+        280
+      );
+    } else if (said) {
+      description = squeeze(
+        `${rec.n} on ${label || "this issue"} — ${said.word ? `${said.word.toLowerCase()}: ` : ""}` +
+          `“${said.text}”. The stated position, with its source, next to the record.`,
+        280
+      );
+    } else {
+      // Neither half resolved. Say what the page is and nothing more.
+      description = squeeze(
+        `What ${rec.n} said about ${label || "this issue"}, next to what they did — the ${surface}, with the source for each side.`,
+        200
+      );
+    }
+
     return {
       kind: t.kind,
       ...chrome,
       title: rec.n,
       subtitle: label ? `on ${label}` : personLine(rec),
-      // No verdict. The edge cannot compute one, and a preview that guessed at a
-      // conclusion would be the single most damaging thing on this page.
-      description: squeeze(
-        `What ${rec.n} said about ${label || "this issue"}, next to what they did — the ${surface}, with the source for each side.`,
-        200
-      ),
-      footnote: "Open the card to see the sourced comparison.",
+      description,
+      // Still no verdict, and now for a sharper reason than "the edge cannot
+      // compute one": the two facts are on the card, so the reader reaches the
+      // conclusion themselves and nothing cached here can be contradicted by a
+      // later correction to how we judge it.
+      footnote:
+        said && did
+          ? "Both sides sourced on PolitiDex. The comparison is the reader's to make."
+          : "Open the card to see the sourced comparison.",
       hash:
         "#" +
         (t.kind === "record" ? "record=" : "receipt=") +
@@ -312,6 +479,7 @@ export async function resolveTarget(
       ogQuery:
         `kind=${t.kind}&pid=${encodeURIComponent(t.pid)}` +
         (t.issue ? `&issue=${encodeURIComponent(t.issue)}` : ""),
+      comparison: said || did ? { said, did } : undefined,
     };
   }
 

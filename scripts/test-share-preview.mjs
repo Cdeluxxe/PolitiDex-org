@@ -154,26 +154,141 @@ ok(receipt.eyebrow !== record.eyebrow, "receipt vs record: different eyebrows");
 for (const u of ["/?p=not_a_real_person", "/issue/not-a-real-spotlight", "/?receipt=nobody~healthcare"])
   ok((await resolve(u)) === null, `unknown: '${u}' resolves to null, never to an invented title`);
 
+// ── 3b. The comparison — two facts, or none ──────────────────────────────────
+// A Say-vs-Do link used to unfurl as an address label: the same sentence for every
+// person, differing only by name and issue. It now carries the two halves of the
+// comparison, which is allowed for one specific reason — a stated position and a
+// recorded vote are IMMUTABLE and sourced, so a copy of them sitting in a platform
+// cache for a week cannot become wrong. The verdict drawn from them is revisable,
+// so it stays off the card. This section pins both halves of that bargain.
+const realFetch = globalThis.fetch;
+function stubFetch(reply) {
+  globalThis.fetch = async () => {
+    if (reply === "throw") throw new Error("network down");
+    if (typeof reply === "number") return new Response("", { status: reply });
+    return new Response(JSON.stringify(reply), { status: 200, headers: { "content-type": "application/json" } });
+  };
+}
+const stubMember = (items) => stubFetch({ items, total: items.length });
+
+const SAID = JSON.parse(readFileSync(join(ROOT, "db/share-stances.json"), "utf8")).stances;
+ok(Object.keys(SAID).length > 2000, "stance index: the said half is populated");
+
+// Every key must name someone the card can actually title, or the edge would hold a
+// quote it cannot attribute.
+{
+  const orphans = Object.keys(SAID).filter((k) => !INDEX.people[k.split("|")[0]]);
+  eq(orphans.slice(0, 5), [], "stance index: every stance belongs to a person in the index");
+  const empty = Object.entries(SAID).filter(([, v]) => !v.t || !String(v.t).trim());
+  eq(empty.map(([k]) => k).slice(0, 5), [], "stance index: no stance carries an empty quote");
+  const long = Object.entries(SAID).filter(([, v]) => String(v.t).length > 200);
+  eq(long.map(([k]) => k).slice(0, 5), [], "stance index: quotes stay inside the card's budget");
+  // The stance data has NO date field anywhere in it. The generator must not have
+  // invented one, and the card must not print one — a fabricated date on a real
+  // quote is exactly the kind of thing that cannot be taken back once cached.
+  const dated = Object.entries(SAID).filter(([, v]) => Object.keys(v).some((f) => /^(d|dt|date|when|year)$/i.test(f)));
+  eq(dated.map(([k]) => k).slice(0, 5), [], "stance index: carries no date, because the source data has none");
+  const scored = Object.entries(SAID).filter(([, v]) => Object.keys(v).some((f) => FORBIDDEN.test(f)));
+  eq(scored.map(([k]) => k).slice(0, 5), [], "stance index: carries no score/verdict field");
+}
+
+// The record half is ranked by what a reader can check: a recorded yea/nay on the
+// measure itself beats one on the procedural motion that carried it, which beats an
+// action with no roll call at all.
+const CMP_URL = "/?record=curtis~climate_action";
+stubMember([
+  { kind: "position", actionType: "cosponsor", number: "H.R. 9", title: "Clean Energy Act", date: "2025-03-04", chamber: "house", source: { url: "https://a" } },
+  { kind: "vote", position: "nay", isProcedural: true, number: "H.Res. 12", shortTitle: "Providing for consideration", date: "2025-07-01", chamber: "house", result: "passed", source: { url: "https://b" } },
+  { kind: "vote", position: "yea", isProcedural: false, number: "S. 5", shortTitle: "Laken Riley Act", date: "2025-01-20", chamber: "senate", result: "passed", source: { url: "https://c" } },
+]);
+const cmp = await resolve(CMP_URL);
+ok(cmp && cmp.comparison, "comparison: a record link resolves both halves");
+eq(cmp.comparison.said.text, SAID["curtis|climate_action"].t,
+  "comparison: the said half is the stored quote, character for character");
+eq(cmp.comparison.said.word, "Supports", "comparison: the direction word comes from the app's own stance field");
+eq(cmp.comparison.said.source, SAID["curtis|climate_action"].s, "comparison: the said half names its source");
+ok(!("date" in cmp.comparison.said), "comparison: the said half carries no date it does not have");
+eq(cmp.comparison.did.action, "Voted Yea", "comparison: the action is read off the record");
+eq(cmp.comparison.did.measure, "S. 5", "comparison: the real vote outranks the procedural motion and the cosponsorship");
+eq(cmp.comparison.did.date, "2025-01-20", "comparison: the record half keeps its real date");
+ok(/Laken Riley/.test(cmp.description) && /Conservative Climate/.test(cmp.description),
+  "comparison: the description carries both facts, not a description of them");
+ok(/20 Jan 2025/.test(cmp.description), "comparison: the vote's date travels with the vote");
+ok(!/undefined|NaN|null/.test(cmp.description), "comparison: no unresolved field leaks into the copy");
+
+// A row with no source is not a citable fact, whatever else it says.
+stubMember([{ kind: "vote", position: "yea", number: "S. 5", shortTitle: "Laken Riley Act", date: "2025-01-20", chamber: "senate", source: {} }]);
+{
+  const r = await resolve(CMP_URL);
+  ok(r.comparison && !r.comparison.did, "comparison: a sourceless record row is dropped, not printed");
+  ok(r.comparison.said, "comparison: the said half still travels on its own");
+  ok(/Conservative Climate/.test(r.description), "comparison: a one-sided card still carries its one fact");
+}
+
+// The database being slow or down must degrade to the half we hold, never to a
+// guess about the half we do not.
+for (const failure of [500, "throw", { items: [] }]) {
+  stubFetch(failure);
+  const r = await resolve(CMP_URL);
+  ok(r.comparison && r.comparison.said && !r.comparison.did,
+    `comparison: a ${typeof failure === "object" ? "empty" : failure} record reply leaves the said half alone`);
+  ok(!/Voted|roll call/i.test(r.description),
+    "comparison: with no record in hand the copy claims no vote");
+}
+
+// Neither half → the old address-label sentence, verbatim. No quote marks, because
+// there is no quote.
+stubFetch("throw");
+{
+  const r = await resolve("/?record=aaron_ford~healthcare");
+  ok(r && !r.comparison, "comparison: absent when neither half resolves");
+  ok(/next to what they did/.test(r.description), "comparison: falls back to the honest address label");
+  ok(!/[“”]/.test(r.description), "comparison: an unresolvable pair invents no quote");
+}
+globalThis.fetch = realFetch;
+
 // ── 4. No preview states a verdict ───────────────────────────────────────────
 // Every field that can reach a card or a <meta>, across every index-backed surface,
 // swept for judgment vocabulary and for score-shaped numbers.
+//
+// One refinement now that comparisons travel: a quoted stance is the SUBJECT's
+// words, not ours, and a bill's short title is Congress's. Those are stripped
+// before the sweep. Everything left is ours, and ours must state nothing.
 const VERDICT_WORDS = /\b(kept|broken|flip[- ]?flop|liar|lied|hypocri\w*|betrayed|failing|grade [A-F]\b)/i;
 const SCORE_SHAPE = /\b\d{1,3}\s?%|\b\d\/\d\b|\bscore\b/i;
+function ourWordsOnly(r) {
+  let desc = r.description;
+  if (r.comparison) {
+    desc = desc.replace(/“[^”]*”?/g, " "); // the quoted position, closed or truncated
+    const t = r.comparison.did?.title;
+    if (t) desc = desc.split(t).join(" ");
+  }
+  return [r.title, r.subtitle, desc, r.footnote, S.pageTitle(r)].join(" ¶ ");
+}
+stubMember([
+  { kind: "vote", position: "yea", isProcedural: false, number: "S. 5", shortTitle: "Laken Riley Act", date: "2025-01-20", chamber: "senate", result: "passed", source: { url: "https://c" } },
+]);
 const sampleUrls = [
   "/?p=aaron_ford", "/issue/ai-regulation-job-displacement-2026", "/?rank=healthcare",
   "/?rank=healthcare&key=drug_prices", "/?receipt=aaron_ford~healthcare", "/?record=aaron_ford~healthcare",
+  "/?record=curtis~climate_action", "/?receipt=curtis~healthcare",
 ];
 for (const u of sampleUrls) {
   const r = await resolve(u);
   if (!r) { failures.push(`sweep: '${u}' unexpectedly failed to resolve`); continue; }
-  const blob = [r.title, r.subtitle, r.description, r.footnote, S.pageTitle(r)].join(" ¶ ");
+  const blob = ourWordsOnly(r);
   ok(!VERDICT_WORDS.test(blob), `honesty: '${u}' preview states no verdict — got: ${blob}`);
   ok(!SCORE_SHAPE.test(blob), `honesty: '${u}' preview prints no score — got: ${blob}`);
   ok(/PolitiDex$/.test(S.pageTitle(r)), `title: '${u}' <title> is branded`);
   ok(S.pageTitle(r).length <= 110, `title: '${u}' <title> stays inside its budget`);
-  ok(r.description.length <= 200, `description: '${u}' fits an unfurl`);
+  // A comparison earns a longer description because it is carrying evidence; an
+  // address label does not.
+  const budget = r.comparison ? 280 : 200;
+  ok(r.description.length <= budget, `description: '${u}' fits an unfurl (${r.description.length}/${budget})`);
   ok(/^kind=/.test(r.ogQuery), `card: '${u}' addresses /share-og by kind + ids`);
 }
+globalThis.fetch = realFetch;
+
 
 // ── 5. A Spotlight is not a verdict card ─────────────────────────────────────
 // The single most damaging confusion this feature could create, so it is pinned
@@ -194,17 +309,10 @@ eq(new Set(eyebrows).size, eyebrows.length, "chrome: every surface has its own e
 eq(new Set(accents).size, accents.length, "chrome: every surface has its own accent");
 
 // ── 6. /vote/ — honest, or nothing ───────────────────────────────────────────
-// Stub the API so each reply shape can be pinned exactly. The rule under test:
-// only a definitive "no such roll call" may produce a 404; everything else falls
-// through to the page, because our outage is not the link's fault.
-const realFetch = globalThis.fetch;
-function stubFetch(reply) {
-  globalThis.fetch = async () => {
-    if (reply === "throw") throw new Error("network down");
-    if (typeof reply === "number") return new Response("", { status: reply });
-    return new Response(JSON.stringify(reply), { status: 200, headers: { "content-type": "application/json" } });
-  };
-}
+// Reusing the fetch stub from §3b so each reply shape can be pinned exactly. The
+// rule under test: only a definitive "no such roll call" may produce a 404;
+// everything else falls through to the page, because our outage is not the link's
+// fault.
 
 for (const bad of ["/vote/119/senat/190", "/vote/abc/house/190", "/vote/119/house/0"]) {
   stubFetch(500); // must not even matter — the address is wrong on its face
@@ -255,6 +363,68 @@ eq(freeText, [], "share-og: reads ids only — no free-text parameter reaches th
 ok(ogParams.includes("kind"), "share-og: dispatches on kind");
 ok(/catch\b/.test(OG_SRC) && /genericCard\(\)/.test(OG_SRC),
   "share-og: any throw still returns a card, never a 500 for a scraper to cache");
+
+// ── 7b. The rendered card, not just its source ───────────────────────────────
+// The card is the artifact that actually travels, so it is rendered here and read.
+// Bundling it also proves the Deno edge module has no Node-hostile import.
+const ogOut = join(mkdtempSync(join(tmpdir(), "share-og-")), "share-og.mjs");
+execFileSync(
+  join(ROOT, "node_modules/.bin/esbuild"),
+  [join(ROOT, "netlify/edge-functions/share-og.ts"), "--bundle", "--platform=node", "--format=esm", `--outfile=${ogOut}`],
+  { stdio: ["ignore", "ignore", "inherit"] }
+);
+const OG = await import(ogOut);
+const renderCard = async (query) =>
+  (await OG.default(new Request("https://politidex.fyi/share-og?" + query))).text();
+
+const REAL_VOTE = [
+  { kind: "vote", position: "yea", isProcedural: false, number: "S. 5", shortTitle: "Laken Riley Act", date: "2025-01-20", chamber: "senate", result: "passed", source: { url: "https://c" } },
+];
+{
+  stubMember(REAL_VOTE);
+  const svg = await renderCard("kind=record&pid=curtis&issue=climate_action");
+  ok(/^<svg /.test(svg.trim()) && /<\/svg>$/.test(svg.trim()), "card: renders one well-formed SVG");
+  ok(!/undefined|NaN|\[object/.test(svg), "card: no unresolved value reaches the image");
+  ok(/John Curtis/.test(svg), "card: the name is on it");
+  ok(/ON CLIMATE ACTION/.test(svg), "card: the issue is on it, readable at feed size");
+  ok(/SAID/.test(svg) && /ON THE RECORD/.test(svg), "card: both halves are labelled");
+  ok(/Conservative Climate/.test(svg), "card: the stated position is quoted, not summarised");
+  ok(/Voted Yea/.test(svg) && /S\. 5/.test(svg) && /20 Jan 2025/.test(svg),
+    "card: the recorded action, the measure and its date are all on it");
+  ok(/Source: Congress\.gov/.test(svg), "card: the said half names its source");
+  // The whole bargain in one assertion: facts yes, judgment no.
+  const CARD_VERDICT = /(backs it up|words match actions|says one thing|red flag|consistent|contradict|inconsist|mixed record|verdict|kept|broken|\d{1,3}\s?%)/i;
+  const cardText = [...svg.matchAll(/>([^<]+)</g)].map((m) => m[1]).join(" ¶ ");
+  ok(!CARD_VERDICT.test(cardText), `card: prints no verdict and no score — got: ${cardText}`);
+  ok(/politidex\.fyi/.test(svg), "card: is branded");
+}
+{
+  // Said-only: one full-width panel, and no empty box implying a missing vote.
+  stubFetch({ items: [] });
+  const svg = await renderCard("kind=receipt&pid=curtis&issue=climate_action");
+  ok(/Conservative Climate/.test(svg), "card: a said-only card still carries its fact");
+  ok(!/ON THE RECORD/.test(svg), "card: no record panel is drawn for a record we do not have");
+  ok(!/>vs</.test(svg), "card: no comparison divider when there is nothing to compare against");
+  ok(/width="1040"/.test(svg), "card: the surviving half takes the full width");
+}
+{
+  // Nothing at all → the generic site card, never a half-drawn comparison.
+  stubFetch("throw");
+  const svg = await renderCard("kind=record&pid=aaron_ford&issue=healthcare");
+  ok(!/SAID/.test(svg) && !/ON THE RECORD/.test(svg), "card: an unresolvable pair draws no panels");
+  ok(/Track promises, money and receipts|Aaron Ford/.test(svg), "card: falls back to a real card");
+  const svg2 = await renderCard("kind=record&pid=nobody_at_all&issue=healthcare");
+  ok(/Track promises/.test(svg2), "card: an unknown person gets the site card, not an invented one");
+}
+{
+  // Two different comparisons must not render as the same picture — the entire
+  // point of putting the facts on the card.
+  stubMember(REAL_VOTE);
+  const a = await renderCard("kind=record&pid=curtis&issue=climate_action");
+  const b = await renderCard("kind=record&pid=curtis&issue=healthcare");
+  ok(a !== b, "card: a different issue produces a visibly different card");
+}
+globalThis.fetch = realFetch;
 
 // ── 8. The meta rewriter fails open, and leaves ?views= alone ────────────────
 const PRE_SRC = readFileSync(join(ROOT, "netlify/edge-functions/share-preview.ts"), "utf8");

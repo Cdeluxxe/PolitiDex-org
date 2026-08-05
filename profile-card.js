@@ -44,10 +44,12 @@
 //   gets a card that says, in the signal slot, that there is no record to test
 //   yet — and prints the positions as coverage. The only refusal is a person
 //   with no documented word at all, which is not a report card, it is a blank.
-// · THE IMAGE IS SELF-CONTAINED. Avatars are drawn monograms, never hotlinked
-//   photos, so the canvas is never tainted and toBlob()/share() always succeed
-//   offline. Branding, the honesty note and politidex.fyi are all painted in, so
-//   the card survives being cropped out of the app.
+// · THE IMAGE IS SELF-CONTAINED. The portrait is fetched through the SAME-ORIGIN
+//   image proxy and proved readable before it is composited, and a monogram is
+//   what the frame gets whenever there is no usable bitmap — so the canvas is
+//   never tainted and toBlob()/share() always succeed, offline included (see THE
+//   FACE below). Branding, the honesty note and politidex.fyi are all painted in,
+//   so the card survives being cropped out of the app.
 //
 // Depends on nothing being loaded: read() returns null and the caller falls back.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -363,6 +365,108 @@
     return y + lines.length * lh;
   }
 
+  // ── THE FACE ────────────────────────────────────────────────────────────────
+  // Every other card PolitiDex draws puts a monogram in this frame, for one hard
+  // reason: a cross-origin bitmap TAINTS the canvas, and toBlob() then throws at
+  // the exact moment the reader taps share — on a device the author will never
+  // see. So "no hotlinked photos" was never an aesthetic choice.
+  //
+  // A face is worth having on THIS card, though. It is the one artifact built to
+  // leave the app and be recognised in a stranger's feed, and a monogram is the
+  // one element on it that says nothing. So the constraint is SATISFIED rather
+  // than relaxed: the portrait is fetched from /.netlify/images, which is our own
+  // origin, so the pixels arrive same-origin no matter which host holds the
+  // original and there is nothing to taint. The hosts are allowlisted in
+  // netlify.toml ([images] remote_images, the same six the photo-coverage test
+  // pins); an un-allowlisted host 404s, which lands in exactly the same place a
+  // dead network does — the monogram.
+  //
+  // Three properties still have to hold, and each has its own guard, because all
+  // three fail INSIDE a share gesture where there is no second chance:
+  //   · the share must not HANG on a slow portrait → AVATAR_MS cap, then draw
+  //   · the share must not FAIL on a tainted canvas → a 1×1 scratch probe runs
+  //     getImageData before the bitmap goes anywhere near the card
+  //   · the frame must not be EMPTY → the monogram is not a bolted-on fallback,
+  //     it is what this path draws whenever it has no usable bitmap
+  var AVATAR_MS = 2500;
+  // Twice the drawn box, so the face is sharp on the 1080px card without pulling
+  // a full-resolution portrait through a phone connection to draw it at 116px.
+  var AVATAR_PX = 232;
+
+  function photoUrl(pid) {
+    try {
+      if (typeof window._getPhotoUrl === 'function') return String(window._getPhotoUrl(pid) || '');
+    } catch (e) {}
+    return '';
+  }
+
+  // The address the canvas is allowed to load. Remote portraits go through the
+  // same-origin proxy; inline and root-relative ones are already ours and are
+  // passed straight through (the proxy cannot fetch a data: URL anyway).
+  function avatarSrc(pid) {
+    var raw = photoUrl(pid).trim();
+    if (!raw) return '';
+    if (/^data:image\//i.test(raw)) return raw;
+    if (/^\/\//.test(raw)) raw = 'https:' + raw;
+    if (/^https?:/i.test(raw)) {
+      return '/.netlify/images?url=' + encodeURIComponent(raw) +
+             '&w=' + AVATAR_PX + '&h=' + AVATAR_PX + '&fit=cover&fm=png';
+    }
+    if (raw.charAt(0) === '/') return raw;
+    return ''; // anything else is not an address we can vouch for
+  }
+
+  // Prove the bitmap is readable BEFORE it touches the card. getImageData is the
+  // same read toBlob() performs internally, so a pass here means the share cannot
+  // die of a SecurityError, and a throw here leaves us holding a card with a
+  // monogram in it rather than an exception mid-gesture.
+  function taintSafe(img) {
+    try {
+      var s = document.createElement('canvas');
+      s.width = 1; s.height = 1;
+      var sc = s.getContext && s.getContext('2d');
+      if (!sc || !sc.drawImage || !sc.getImageData) return false;
+      sc.drawImage(img, 0, 0, 1, 1);
+      sc.getImageData(0, 0, 1, 1);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // Resolves to a drawable, proven-readable image — or to null, which is not a
+  // failure state. Never rejects: a card is due either way.
+  function loadAvatar(src) {
+    return new Promise(function (resolve) {
+      var Img = window.Image;
+      if (!src || typeof Img !== 'function') { resolve(null); return; }
+      var settled = false;
+      var finish = function (v) { if (!settled) { settled = true; resolve(v); } };
+      var img;
+      try { img = new Img(); } catch (e) { finish(null); return; }
+      try { setTimeout(function () { finish(null); }, AVATAR_MS); } catch (e) {}
+      img.onload = function () {
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        finish((w && h && taintSafe(img)) ? img : null);
+      };
+      img.onerror = function () { finish(null); };
+      try { img.src = src; } catch (e) { finish(null); }
+    });
+  }
+
+  // Cover-fit inside the circle: the portrait keeps its aspect ratio and the
+  // overflow is clipped, so no one's head is squashed to fit a square. Returns
+  // false when it drew nothing, which is the caller's cue to draw the monogram.
+  function drawAvatar(ctx, img, cx, cy, r) {
+    var iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    if (!iw || !ih || !ctx.drawImage) return false;
+    var scale = Math.max((r * 2) / iw, (r * 2) / ih);
+    var dw = iw * scale, dh = ih * scale;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+    ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+    ctx.restore();
+    return true;
+  }
+
   function initials(name) {
     var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
     if (!parts.length) return '★';
@@ -388,7 +492,11 @@
   };
 
   function renderCanvas(d) {
-    return ensureFonts().then(function () {
+    // The fonts and the face are fetched together — two independent waits, each
+    // with its own cap, so the slower one is the only cost. Both resolve to
+    // "draw without it" rather than rejecting.
+    return Promise.all([ensureFonts(), loadAvatar(avatarSrc(d.pid))]).then(function (got) {
+      var photo = got[1];
       var c = document.createElement('canvas');
       c.width = IMG_W; c.height = IMG_H;
       var ctx = c.getContext('2d');
@@ -443,16 +551,24 @@
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(right, y); ctx.stroke();
       y += 30;
 
-      // ── Identity: drawn monogram + name + office + party ──
+      // ── Identity: portrait (monogram when there is none) + name + office + party ──
       var av = 116, avx = x, avy = y;
       var ringCol = d.party ? d.party.color : '#7596c0';
-      ctx.beginPath(); ctx.arc(avx + av / 2, avy + av / 2, av / 2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+      var acx = avx + av / 2, acy = avy + av / 2;
+      var drewFace = false;
+      if (photo) { try { drewFace = drawAvatar(ctx, photo, acx, acy, av / 2); } catch (e) { drewFace = false; } }
+      if (!drewFace) {
+        ctx.beginPath(); ctx.arc(acx, acy, av / 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+        ctx.fillStyle = '#eef4ff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = '700 48px "Bebas Neue", "Barlow Condensed", sans-serif';
+        ctx.fillText(initials(d.name), acx, acy + 3);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      }
+      // The party ring is drawn last either way, over the edge of a photo, so the
+      // frame reads the same whichever of the two is inside it.
+      ctx.beginPath(); ctx.arc(acx, acy, av / 2, 0, Math.PI * 2);
       ctx.lineWidth = 4; ctx.strokeStyle = ringCol; ctx.stroke();
-      ctx.fillStyle = '#eef4ff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = '700 48px "Bebas Neue", "Barlow Condensed", sans-serif';
-      ctx.fillText(initials(d.name), avx + av / 2, avy + av / 2 + 3);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
 
       var nx = avx + av + 26, nw = right - nx;
       ctx.font = '700 58px "Bebas Neue", "Barlow Condensed", sans-serif';
@@ -943,6 +1059,11 @@
     _gapsOf: gapsOf,
     _initials: initials,
     _verdictText: verdictText,
+    // The portrait path, exposed for the same reason: "the canvas is never
+    // tainted" is a promise about an address and a probe, and the test has to be
+    // able to check both without a browser.
+    _avatarSrc: avatarSrc,
+    _loadAvatar: loadAvatar,
     _bust: bust
   };
 })();
