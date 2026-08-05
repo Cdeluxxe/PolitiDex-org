@@ -65,6 +65,22 @@
      "isPrimary": false,
      "supportMeaning": "yea_supports",
      "rationale": "Tightens immigration enforcement."
+    },
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr29eh/html/BILLS-119hr29eh.htm",
+     "rationale": "Section 2 of the bill as passed the House adds a new INA 236(c)(1)(E) requiring the Secretary of Homeland Security to detain an inadmissible alien charged with, arrested for, convicted of, or who admits having committed burglary, theft, larceny or shoplifting, and to issue a detainer and take custody. A yea attaches a mandatory custodial consequence to those offences. Weighted 55, identical to S. 5's mapping, so the two Laken Riley vehicles score the same axis at the same strength. Note the House bill reaches ONLY those four property offences: assault of a law enforcement officer and crimes resulting in death or serious bodily injury entered the statute later, through the Senate's S.Amdt. 14 and S.Amdt. 8."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr29eh/html/BILLS-119hr29eh.htm",
+     "rationale": "Section 3, 'Enforcement by attorney general of a State', amends INA 235(b) (8 U.S.C. 1225(b)) to give the attorney general of a State, or another authorised State officer, standing to sue the Secretary of Homeland Security in federal district court over alleged violations of the detention and removal requirements that harm the State or its residents. A yea creates a state cause of action against the federal government. Weighted 40, identical to S. 5's mapping. The same section is what the Senate's S.Amdt. 23 tried and failed to strike."
     }
    ]
   },
@@ -2196,6 +2212,128 @@
      "supportMeaning": "yea_opposes",
      "rationale": "Removes a class of record from the background-check system permanently rather than for one fiscal year, so a yea loosens the screening instrument this facet measures. Weighted 75 for the same reason as its appropriations predecessor: the change reaches only Veterans Affairs fiduciary determinations, leaves every other mental-health prohibitor and reporting channel intact, and preserves reporting where a judicial authority has found the person dangerous.",
      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1041"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 14",
+   "_comment": "Cornyn second-degree amendment to S.Amdt. 8 to S. 5 (Laken Riley Act), agreed to 70-25 on 2025-01-15, roll call 119/1/3. Its text is in Public Law 119-1. Same two axes and the same directions as the parent bill S. 5, because the amendment does one thing the bill also does — widen the offence list behind the detention mandate — and does nothing else.",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00003.htm",
+   "issues": [
+    {
+     "issueKey": "deportations",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00003.htm",
+     "rationale": "Amendment to S. 5 (Laken Riley Act) whose stated purpose is 'To expand the list of criminal offenses that subject inadmissible aliens to mandatory detention.' A yea widens the set of people the Secretary of Homeland Security must take into custody and place in removal proceedings. Agreed to 70-25 and carried into Public Law 119-1, so this is enacted text and not a message vote."
+    },
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00003.htm",
+     "rationale": "The operative change is to the LIST OF CRIMINAL OFFENCES that triggers the detention mandate, so a yea attaches a mandatory custodial consequence to a broader set of crimes. Weighted above S. 5's own tough_on_crime mapping (55) rather than below it: the bill does many things and this amendment does only this one, so the crime-severity axis is a larger share of what a senator was voting on."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 8",
+   "_comment": "Ernst amendment to S. 5 (Laken Riley Act), agreed to AS AMENDED by S.Amdt. 14, 75-24 on 2025-01-20, roll call 119/1/6 — minutes before the Senate passed S. 5 64-35 on roll 119/1/7. Its text is in Public Law 119-1. This is the amendment that the descriptive measure row 'Senate Amendment to S. 5' was standing in for; that row carries no roll call and this one does.",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00006.htm",
+   "issues": [
+    {
+     "issueKey": "deportations",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00006.htm",
+     "rationale": "Amendment to S. 5 (Laken Riley Act) whose stated purpose is 'To include crimes resulting in death or serious bodily injury to the list of offenses that, if committed by an inadmissible alien, require mandatory detention.' A yea widens the set of people the Secretary of Homeland Security must take into custody and place in removal proceedings. Agreed to 75-24 and carried into Public Law 119-1."
+    },
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00006.htm",
+     "rationale": "The offences this amendment adds are defined by their RESULT — death or serious bodily injury — rather than by category, so it is the most direct crime-severity test in the bill's whole floor consideration. H.R. 29 as passed the House and S. 5 as introduced reached only burglary, theft, larceny and shoplifting; this is where the death-or-serious-injury trigger enters the statute. A yea attaches mandatory detention to the gravest offences on the list."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 23",
+   "_comment": "Coons amendment to S. 5 (Laken Riley Act), REJECTED 46-49 on 2025-01-15, roll call 119/1/4. Because it failed, the provision it targeted is in Public Law 119-1. This is the record's only roll call isolating that provision from the rest of the bill, which is what makes it worth a measure row of its own.",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00004.htm",
+   "issues": [
+    {
+     "issueKey": "states_federal_power",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00004.htm",
+     "rationale": "Amendment to S. 5 (Laken Riley Act) whose stated purpose is 'To strike the section that authorizes State attorneys general to sue Federal immigration authorities for alleged violations relating to the detention of aliens.' A YEA REMOVES a state cause of action against the federal government, so a yea cuts against keeping decisions and remedies with the states — the mirror of S. 5's own states_federal_power mapping, which is yea_supports because passing the bill is what created the standing. Rejected 46-49, so the section survived into Public Law 119-1."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 4405",
+   "_comment": "Epstein Files Transparency Act, Public Law 119-38 (signed 2025-11-19). One recorded vote in the entire legislative history: house 119/1/289, under suspension of the rules, 427-1 with 5 not voting. The Senate passed it the next day without amendment by unanimous consent, so no Senate roll exists to find. A 427-1 roll confirms a stated transparency position but distinguishes almost nobody — the sponsorship record (Khanna as sponsor, Massie as original cosponsor, four months before the floor caught up) is the part of this history that differentiates, and it is written to vr_positions rather than being forced into a second issue mapping here.",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405",
+     "rationale": "Requires the Department of Justice to publish, in a searchable and downloadable format, all unclassified records relating to the investigation and prosecution of Jeffrey Epstein — including materials relating to Ghislaine Maxwell, flight logs and travel records, and the individuals named or referenced, government officials among them — and to report to Congress within 15 days the categories released and withheld, a summary of redactions, and a list of the government officials and politically exposed individuals named. A yea compels disclosure the executive branch had withheld. This is the whole substance of the Act: it creates no offence and changes no penalty, so gov_transparency carries it alone."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 1071",
+   "_comment": "National Defense Authorization Act for Fiscal Year 2026, Public Law 119-60 (signed 2025-12-18). Easy to mis-identify three ways. S. 1071 was introduced 2025-03-14 as a bill to disinter the remains of Fernando V. Cota from Fort Sam Houston National Cemetery and passed the Senate by unanimous consent; the House struck the entire text, substituted the NDAA, and passed it 312-112 (house 119/1/320), after which the Senate agreed to the House amendment 77-20 (senate 119/1/648). The Clerk's vote-desc for House rolls 319 and 320 STILL PRINTS the disinterment title, so nothing here may be written from the roll-call page's description. S. 2296 (the Senate's own FY2026 NDAA, passed 77-20 on 2025-10-09) and H.R. 3838 (the House vehicle) are not the enacted law, and the H.R. 8800 already in the record is the FY2027 NDAA. Cornyn sponsored the shell vehicle and is NOT the NDAA's author. 'S. 1071' matches more than one row in vr_measures, so the migration applies this mapping to every row with that number. Three axes are mapped and six are declined with reasons — see declinedFacets in db/vr-landmark-vote-seed.json.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
+     "rationale": "The annual defence authorisation: Divisions A through H authorise Department of Defense military activities, military construction, Department of Energy national security programs, personnel strengths and the Intelligence Authorization Act for Fiscal Year 2026. A yea authorises and equips the armed forces. Weighted 80 rather than 100 for the same reason as the FY2027 NDAA (H.R. 8800): the enacted text folds in fourteen separately titled Acts, several unrelated to defence posture, so passage is not a pure defence-posture signal."
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
+     "rationale": "Division H, Title LXXXIII, Subtitle B (Secs. 8311-8314) is the Break Up Suspicious Transactions of Fentanyl Act — the BUST Fentanyl Act — enacted through this vehicle: it amends the Fentanyl Sanctions Act, adds fentanyl-trafficking reporting to the International Narcotics Control Strategy Report, and requires a study and report on fentanyl trafficking originating in the People's Republic of China. A yea enacts new sanctions authority and reporting aimed at fentanyl traffickers. Weighted 40 on purpose: it is one named subtitle inside an omnibus, and it works through sanctions and reporting rather than a direct enforcement change."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 25,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
+     "rationale": "Section 512 inserts a new 32 U.S.C. 328a: the chief executive of a State that has declared an emergency due to a disaster may order a member of that State's National Guard who is serving on Active Guard and Reserve duty to perform State disaster-response duty. A yea hands a governor direct authority over federally paid Guard personnel. Weighted 25 — the lowest mapping in this pass — because the authority is gated on the Secretary of Defense's consent, is reimbursable by the State, and is capped at 14 days per member per calendar year (extendable by 7 days, or by 46 for a catastrophic incident). It is a real Title 32 shift toward the states, but it is one narrow section of a 312-112 defence authorisation and must not be read as a federalism referendum."
     }
    ]
   }
