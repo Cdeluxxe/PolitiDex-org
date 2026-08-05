@@ -104,7 +104,8 @@
           "name": "Britt (R-AL)",
           "state": "AL",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "B001319"
         },
         {
           "name": "Budd (R-NC)",
@@ -231,7 +232,8 @@
           "name": "Gallego (D-AZ)",
           "state": "AZ",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "G000574"
         },
         {
           "name": "Gillibrand (D-NY)",
@@ -324,25 +326,29 @@
           "name": "Kaine (D-VA)",
           "state": "VA",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "K000384"
         },
         {
           "name": "Kelly (D-AZ)",
           "state": "AZ",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "K000377"
         },
         {
           "name": "Kennedy (R-LA)",
           "state": "LA",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "K000393"
         },
         {
           "name": "Kim (D-NJ)",
           "state": "NJ",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "K000394"
         },
         {
           "name": "King (I-ME)",
@@ -360,7 +366,8 @@
           "name": "Lankford (R-OK)",
           "state": "OK",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "L000575"
         },
         {
           "name": "Lee (R-UT)",
@@ -397,7 +404,8 @@
           "name": "McConnell (R-KY)",
           "state": "KY",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "M000355"
         },
         {
           "name": "McCormick (R-PA)",
@@ -446,7 +454,8 @@
           "name": "Murphy (D-CT)",
           "state": "CT",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "M001169"
         },
         {
           "name": "Murray (D-WA)",
@@ -484,7 +493,8 @@
           "name": "Reed (D-RI)",
           "state": "RI",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "R000122"
         },
         {
           "name": "Ricketts (R-NE)",
@@ -496,13 +506,15 @@
           "name": "Risch (R-ID)",
           "state": "ID",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "R000584"
         },
         {
           "name": "Rosen (D-NV)",
           "state": "NV",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "R000608"
         },
         {
           "name": "Rounds (R-SD)",
@@ -514,7 +526,8 @@
           "name": "Sanders (I-VT)",
           "state": "VT",
           "party": "I",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S000033"
         },
         {
           "name": "Schatz (D-HI)",
@@ -539,7 +552,8 @@
           "name": "Schumer (D-NY)",
           "state": "NY",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S000148"
         },
         {
           "name": "Scott (R-FL)",
@@ -551,13 +565,15 @@
           "name": "Scott (R-SC)",
           "state": "SC",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "S001184"
         },
         {
           "name": "Shaheen (D-NH)",
           "state": "NH",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S001181"
         },
         {
           "name": "Sheehy (R-MT)",
@@ -569,7 +585,8 @@
           "name": "Slotkin (D-MI)",
           "state": "MI",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S001208"
         },
         {
           "name": "Smith (D-MN)",
@@ -587,7 +604,8 @@
           "name": "Thune (R-SD)",
           "state": "SD",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "T000250"
         },
         {
           "name": "Tillis (R-NC)",
@@ -617,7 +635,8 @@
           "name": "Warnock (D-GA)",
           "state": "GA",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "W000790"
         },
         {
           "name": "Warren (D-MA)",
@@ -752,7 +771,8 @@
           "name": "Britt (R-AL)",
           "state": "AL",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "B001319"
         },
         {
           "name": "Budd (R-NC)",
@@ -879,7 +899,8 @@
           "name": "Gallego (D-AZ)",
           "state": "AZ",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "G000574"
         },
         {
           "name": "Gillibrand (D-NY)",
@@ -972,25 +993,29 @@
           "name": "Kaine (D-VA)",
           "state": "VA",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "K000384"
         },
         {
           "name": "Kelly (D-AZ)",
           "state": "AZ",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "K000377"
         },
         {
           "name": "Kennedy (R-LA)",
           "state": "LA",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "K000393"
         },
         {
           "name": "Kim (D-NJ)",
           "state": "NJ",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "K000394"
         },
         {
           "name": "King (I-ME)",
@@ -1008,7 +1033,8 @@
           "name": "Lankford (R-OK)",
           "state": "OK",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "L000575"
         },
         {
           "name": "Lee (R-UT)",
@@ -1045,7 +1071,8 @@
           "name": "McConnell (R-KY)",
           "state": "KY",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "M000355"
         },
         {
           "name": "McCormick (R-PA)",
@@ -1094,7 +1121,8 @@
           "name": "Murphy (D-CT)",
           "state": "CT",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "M001169"
         },
         {
           "name": "Murray (D-WA)",
@@ -1132,7 +1160,8 @@
           "name": "Reed (D-RI)",
           "state": "RI",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "R000122"
         },
         {
           "name": "Ricketts (R-NE)",
@@ -1144,13 +1173,15 @@
           "name": "Risch (R-ID)",
           "state": "ID",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "R000584"
         },
         {
           "name": "Rosen (D-NV)",
           "state": "NV",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "R000608"
         },
         {
           "name": "Rounds (R-SD)",
@@ -1162,7 +1193,8 @@
           "name": "Sanders (I-VT)",
           "state": "VT",
           "party": "I",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S000033"
         },
         {
           "name": "Schatz (D-HI)",
@@ -1187,7 +1219,8 @@
           "name": "Schumer (D-NY)",
           "state": "NY",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "S000148"
         },
         {
           "name": "Scott (R-FL)",
@@ -1199,13 +1232,15 @@
           "name": "Scott (R-SC)",
           "state": "SC",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "S001184"
         },
         {
           "name": "Shaheen (D-NH)",
           "state": "NH",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "S001181"
         },
         {
           "name": "Sheehy (R-MT)",
@@ -1217,7 +1252,8 @@
           "name": "Slotkin (D-MI)",
           "state": "MI",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "S001208"
         },
         {
           "name": "Smith (D-MN)",
@@ -1235,7 +1271,8 @@
           "name": "Thune (R-SD)",
           "state": "SD",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "T000250"
         },
         {
           "name": "Tillis (R-NC)",
@@ -1265,7 +1302,8 @@
           "name": "Warnock (D-GA)",
           "state": "GA",
           "party": "D",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "W000790"
         },
         {
           "name": "Warren (D-MA)",
@@ -1400,7 +1438,8 @@
           "name": "Britt (R-AL)",
           "state": "AL",
           "party": "R",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "B001319"
         },
         {
           "name": "Budd (R-NC)",
@@ -1527,7 +1566,8 @@
           "name": "Gallego (D-AZ)",
           "state": "AZ",
           "party": "D",
-          "position": "not_voting"
+          "position": "not_voting",
+          "bioguideId": "G000574"
         },
         {
           "name": "Gillibrand (D-NY)",
@@ -1620,25 +1660,29 @@
           "name": "Kaine (D-VA)",
           "state": "VA",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "K000384"
         },
         {
           "name": "Kelly (D-AZ)",
           "state": "AZ",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "K000377"
         },
         {
           "name": "Kennedy (R-LA)",
           "state": "LA",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "K000393"
         },
         {
           "name": "Kim (D-NJ)",
           "state": "NJ",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "K000394"
         },
         {
           "name": "King (I-ME)",
@@ -1656,7 +1700,8 @@
           "name": "Lankford (R-OK)",
           "state": "OK",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "L000575"
         },
         {
           "name": "Lee (R-UT)",
@@ -1693,7 +1738,8 @@
           "name": "McConnell (R-KY)",
           "state": "KY",
           "party": "R",
-          "position": "not_voting"
+          "position": "not_voting",
+          "bioguideId": "M000355"
         },
         {
           "name": "McCormick (R-PA)",
@@ -1742,7 +1788,8 @@
           "name": "Murphy (D-CT)",
           "state": "CT",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "M001169"
         },
         {
           "name": "Murray (D-WA)",
@@ -1780,7 +1827,8 @@
           "name": "Reed (D-RI)",
           "state": "RI",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "R000122"
         },
         {
           "name": "Ricketts (R-NE)",
@@ -1792,13 +1840,15 @@
           "name": "Risch (R-ID)",
           "state": "ID",
           "party": "R",
-          "position": "yea"
+          "position": "yea",
+          "bioguideId": "R000584"
         },
         {
           "name": "Rosen (D-NV)",
           "state": "NV",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "R000608"
         },
         {
           "name": "Rounds (R-SD)",
@@ -1810,7 +1860,8 @@
           "name": "Sanders (I-VT)",
           "state": "VT",
           "party": "I",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S000033"
         },
         {
           "name": "Schatz (D-HI)",
@@ -1835,7 +1886,8 @@
           "name": "Schumer (D-NY)",
           "state": "NY",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S000148"
         },
         {
           "name": "Scott (R-FL)",
@@ -1847,13 +1899,15 @@
           "name": "Scott (R-SC)",
           "state": "SC",
           "party": "R",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S001184"
         },
         {
           "name": "Shaheen (D-NH)",
           "state": "NH",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S001181"
         },
         {
           "name": "Sheehy (R-MT)",
@@ -1865,7 +1919,8 @@
           "name": "Slotkin (D-MI)",
           "state": "MI",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "S001208"
         },
         {
           "name": "Smith (D-MN)",
@@ -1883,7 +1938,8 @@
           "name": "Thune (R-SD)",
           "state": "SD",
           "party": "R",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "T000250"
         },
         {
           "name": "Tillis (R-NC)",
@@ -1913,7 +1969,8 @@
           "name": "Warnock (D-GA)",
           "state": "GA",
           "party": "D",
-          "position": "nay"
+          "position": "nay",
+          "bioguideId": "W000790"
         },
         {
           "name": "Warren (D-MA)",

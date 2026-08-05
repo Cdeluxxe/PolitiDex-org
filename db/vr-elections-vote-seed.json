@@ -12,7 +12,7 @@
  ],
  "parents": [],
  "rollCallCount": 8,
- "memberVoteCount": 441,
+ "memberVoteCount": 462,
  "scanCoverage": "Clerk grouped indexes read in full for 2021, 2022, 2023, 2024, 2025 and 2026 — the whole 117th, 118th and 119th Congresses through House roll 283 of 2026 (July 23, 2026), the last roll the Clerk had published when this seed was built. Senate roll-call indexes for both sessions of all three Congresses were read the same way and produced the two cloture motions named in declinedRollCalls. One correction to an earlier build of this seed, recorded because it shows the limit of a keyword scan: that build reported the 119th's second session as containing no election-administration measure of any kind, because the Clerk's caption for the only one there reads \"S 1383 — Veterans Accessibility Advisory Committee Act\". The House had emptied that Senate veterans bill and substituted the SAVE America Act, so no election keyword appears anywhere in the index row for roll 69 and the scan could not have found it. It was found instead in three members' own February 11, 2026 releases describing that day's vote as SAVE America Act passage, then confirmed against the bill's GovInfo BILLSTATUS record, which carries the short titles \"Safeguard American Voter Eligibility Act\" and \"SAVE America Act\" added by the engrossed House amendment. A title-only scan cannot see a vehicle; a citation check can, which is why every selection here is verified on <legis-num> and question.",
  "enactedLawFinding": "The mission's first priority is enacted laws, and in the 117th-119th Congress there are none for either facet. The only federal election statute enacted in the window is the Electoral Count Reform Act of 2022 (Division P of the Consolidated Appropriations Act, 2023, P.L. 117-328), which reforms how electoral votes are counted and objected to — certification, not ballot administration — and is out of scope by the election_security key's own scope note, which assigns certification and Electoral Count Act questions to checks_balances. It was also enacted inside a 1,653-page omnibus with no standalone roll call, so no member position on it is separable from a vote on the whole appropriations act. Six of the eight roll calls here are on measures that passed one chamber and died in the other. The seventh and eighth are the two SAVE Act votes whose text is still alive: H.R. 22 sits on the Senate calendar, and the SAVE America Act substitute the House put into S. 1383 is before the Senate as a House message the chamber has not disposed of. Neither is law, so the enacted tier stays empty. That is the shape of the record, not a gap in the search.",
  "declinedFacets": [
@@ -246,7 +246,7 @@
     }
    },
    "chamberVoting": 432,
-   "rosterSkipped": 381,
+   "rosterSkipped": 379,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -403,6 +403,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000583",
      "politicianId": "josh_gottheimer",
      "party": "D",
@@ -526,6 +533,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -660,7 +674,7 @@
     }
    },
    "chamberVoting": 432,
-   "rosterSkipped": 381,
+   "rosterSkipped": 379,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -817,6 +831,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000583",
      "politicianId": "josh_gottheimer",
      "party": "D",
@@ -940,6 +961,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -1074,7 +1102,7 @@
     }
    },
    "chamberVoting": 433,
-   "rosterSkipped": 382,
+   "rosterSkipped": 380,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -1231,6 +1259,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000583",
      "politicianId": "josh_gottheimer",
      "party": "D",
@@ -1354,6 +1389,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -1488,7 +1530,7 @@
     }
    },
    "chamberVoting": 430,
-   "rosterSkipped": 371,
+   "rosterSkipped": 368,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -1666,6 +1708,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B001317",
      "politicianId": "josh_brecheen",
      "party": "R",
@@ -1806,6 +1855,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -1825,6 +1881,13 @@
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "S001208",
@@ -1958,7 +2021,7 @@
     }
    },
    "chamberVoting": 433,
-   "rosterSkipped": 374,
+   "rosterSkipped": 371,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -2136,6 +2199,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B001317",
      "politicianId": "josh_brecheen",
      "party": "R",
@@ -2276,6 +2346,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -2294,6 +2371,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -2415,7 +2499,7 @@
     "mustExist": "already live as the SAVE Act, created by the 119th-Congress measure ingest"
    },
    "chamberVoting": 433,
-   "rosterSkipped": 376,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -2562,6 +2646,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -2719,6 +2810,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -2737,6 +2835,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -2871,7 +2976,7 @@
     }
    },
    "chamberVoting": 432,
-   "rosterSkipped": 375,
+   "rosterSkipped": 372,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -3018,6 +3123,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -3175,6 +3287,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -3193,6 +3312,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -3327,7 +3453,7 @@
     }
    },
    "chamberVoting": 432,
-   "rosterSkipped": 376,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -3474,6 +3600,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -3624,6 +3757,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -3642,6 +3782,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {

@@ -369,9 +369,19 @@ const EMPTY = { name: "Empty", score: null };
 // views, the My Politicians card, the medium modal, the Relevant-to-Me dual
 // signal, the Key Races cell, the ballot summary and the Your Ballot chip.
 //
-// They all render window._pdxLedgerSlot now — one glyph, one label, the counts —
-// so this contract holds the slot honest and then checks that no caller has gone
-// back to formatting a number itself.
+// They all render window._pdxLedgerSlot, so this contract holds the slot honest
+// and then checks that no caller has gone back to formatting a number itself.
+//
+// AMENDED. This contract used to REQUIRE the slot to derive from the pledge-lane
+// helpers (`_pdxPromiseState` + `_pdxPledgeNote`) and to collapse the ledger's
+// 'resolved'/'counts' states into one rendering. Both were the right rule while
+// the slot WAS the pledge lane: they stopped it publishing a rate. They are the
+// wrong rule now. A pledge is one form of "said" — word-action.js already tests
+// it against its sourced resolution — so a pledge ledger in the slot every card
+// treats as the finding is the one system's own evidence presented as a rival to
+// it. The slot now renders ⚖️ Word vs Action, and the assertions below enforce
+// the stronger version of the same honesty: it must read the shared engine, it
+// must fail closed on that engine's floor, and it must not touch the tally.
 {
   const YB = read("your-ballot.js");
   const BB = read("ballot-breakdown.js");
@@ -387,15 +397,21 @@ const EMPTY = { name: "Empty", score: null };
   ok(!/\.score\b|_pdxDisplayScore/.test(slotDef),
     "_pdxLedgerSlot reads the stored pledge score — the slot is built from the tally, so\n" +
     "    the retired figure must not be in its hands at all");
-  ok(/_pdxPromiseState/.test(slotDef) && /_pdxPledgeNote/.test(slotDef),
-    "_pdxLedgerSlot no longer derives from the shared promise state + counts helpers, so\n" +
-    "    the cards can drift from the four honest states the profile uses");
-  // 'resolved' and 'counts' must be indistinguishable: the only thing that ever
-  // separated them was whether a rate was published.
-  const branch = slotDef.slice(slotDef.indexOf("resolved"), slotDef.indexOf("tracking"));
-  ok(/state === 'resolved' \|\| state === 'counts'/.test(slotDef),
-    "_pdxLedgerSlot no longer collapses 'resolved' and 'counts' into one rendering — with\n" +
-    "    the rate gone an itemized ledger and a summary ledger say the same thing");
+  ok(/PDXWordAction/.test(slotDef) && /\.read\s*\(/.test(slotDef),
+    "_pdxLedgerSlot no longer reads PDXWordAction — every card score slot routes through\n" +
+    "    this function, so if it does not render the one read, the app's most-seen surface\n" +
+    "    is publishing something else");
+  ok(/publishable/.test(slotDef),
+    "_pdxLedgerSlot does not gate on `publishable` — PDXWordAction owns when a read is\n" +
+    "    sayable, and a card is the last place that should second-guess the floor");
+  ok(/Word vs Action/.test(slotDef) && !/'Pledge record'|Pledges tracked|label: 'Pledges'/.test(slotDef),
+    "_pdxLedgerSlot labels the slot with pledge vocabulary again — one slot, one\n" +
+    "    vocabulary; 'Pledge record' beside a profile that leads with Word vs Action is\n" +
+    "    two integrity languages in the same product");
+  ok(!/_pdxPromiseState|_pdxPledgeNote|_pdxCountsNote|_pdxTrackedCountLabel|_pdxPromiseTally/.test(slotDef),
+    "_pdxLedgerSlot reaches for the pledge-lane helpers again — those publish the ledger's\n" +
+    "    receipts, which belong on the profile beside their own disclosure, not in the slot\n" +
+    "    a reader treats as the finding");
 
   // ── The callers ──
   for (const [file, src] of [["compare-hub.js", CMP_HUB], ["ballot-breakdown.js", BB], ["your-ballot.js", YB]]) {
@@ -603,6 +619,186 @@ const EMPTY = { name: "Empty", score: null };
     "the district-tree card's score slot is labelled with pledge vocabulary again");
   ok(/pm-card-score-label">Word vs Action/.test(CT2),
     "the district-tree card's score slot no longer carries the one read");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Contract 7c — THE UNIFIED COMPACT CARD SHELL speaks the one language
+// ═════════════════════════════════════════════════════════════════════════════
+// `window._pdxCardInner` is the single most-rendered markup in the product: All
+// Politicians, Search results, Compare, Favorites, My Politicians, Watching,
+// Relevant to Me and every Related grid draw it verbatim. That makes it the app's
+// de-facto headline accountability signal regardless of what any profile page
+// says — and its score rail was a four-state pledge tile (🤝 "Pledge record" /
+// 🗳️ "2026 Ballot" / ⏳ "N pledges tracked" / — "Promise") with a kept/broken
+// pill row under it, tapping through to the pledge-lane explainer.
+//
+// Contract 7b swept the summary card and six other surfaces. This one holds the
+// shell, and it is the load-bearing case: a regression here reappears on every
+// listing in the app at once.
+//
+// Note the probes are SHAPE-based, not word-based. "kept" and "broken" are
+// legitimate ledger prose everywhere else in the codebase ("Resolved in the
+// pledge ledger as broken, against its own sources") — banning the words would
+// forbid the said-vs-action evidence the one system is built on. What is banned
+// is the tally SHAPE in the rail and the pill row: `'✓ ' + n + ' Kept'`.
+{
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "")
+                            .replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const CH = strip(CMP_HUB);
+  const CSS = strip(read("app.css"));
+  // Brace-scan the STRIPPED source, not the raw file. compare-hub.js has line
+  // comments containing bare apostrophes ("needs the user's stances"), and
+  // braceScan tracks string state without stripping comments — so one of those
+  // opens a phantom string literal that swallows the next `{` and the scan runs
+  // past the function's real end. On the raw file `_pdxStatPills` extracts as
+  // 38KB instead of 3KB, which would quietly weaken every ban probe below into a
+  // search of half the module. Stripping first is what makes the bodies exact.
+  const body = (name) => {
+    const head = CH.indexOf("window." + name + " = function");
+    must(head !== -1, `compare-hub.js no longer defines window.${name}`);
+    return braceScan(CH, head, "window." + name, "compare-hub.js");
+  };
+
+  // ── The rail ──
+  const inner = body("_pdxCardInner");
+  must(inner.length > 500, "window._pdxCardInner's body did not extract");
+  const innerCode = inner;
+
+  ok(/PDXWordAction/.test(innerCode) && /\.read\s*\(/.test(innerCode),
+    "the unified compact card shell no longer reads PDXWordAction — every dense listing in\n" +
+    "    the app renders this markup, so whatever fills its score rail IS the product's\n" +
+    "    headline integrity signal");
+  ok(/publishable/.test(innerCode),
+    "the compact card rail does not gate on `publishable` — PDXWordAction owns the floor,\n" +
+    "    and a 62px tile in a grid is the worst possible place to publish a verdict that\n" +
+    "    the engine has already judged unsayable");
+  ok(/pdx-snap-score-lbl[^>]*>Word vs Action|>Word vs Action</.test(inner),
+    "the compact card rail no longer labels itself 'Word vs Action' — one slot, one\n" +
+    "    vocabulary, on the surface a voter sees most");
+  ok(!/Pledge record|pledges tracked|>Pledges<|scoreLabel/i.test(innerCode),
+    "the compact card rail carries pledge vocabulary again ('Pledge record' / 'Pledges\n" +
+    "    tracked' / a `scoreLabel` override) — that is the retired pledge tile returning to\n" +
+    "    the slot the one read now occupies");
+  ok(!/🤝/.test(innerCode),
+    "the 🤝 pledge glyph is back in the compact card shell — the glyph in this slot is the\n" +
+    "    verdict's own, from PDXConsistency.VERDICTS, or a coverage state; a lane emoji here\n" +
+    "    tells the reader a lane is being rated");
+  ok(!/_pdxPromiseState|_pdxPledgeNote|_pdxCountsNote|_pdxTrackingNote|_pdxTrackedCountLabel/.test(innerCode),
+    "the compact card shell reaches for the pledge-lane note helpers again — they publish\n" +
+    "    the ledger's receipts, which belong on the profile beside their own disclosure");
+  ok(!/_pdxPromiseInfo/.test(innerCode),
+    "the compact card rail taps through to the pledge-lane explainer again — the ⓘ on this\n" +
+    "    tile must describe the read the tile is actually showing, or the affordance itself\n" +
+    "    is the second system");
+  ok(/_pdxScoreCompareInfo/.test(innerCode),
+    "the compact card rail has no explainer wired up — the one read is the thing that most\n" +
+    "    needs explaining, and this is where most readers meet it");
+
+  // Fail-closed coverage prose, not a hollow grade. These exact strings are what
+  // the request names as the honest below-floor language.
+  ok(/Not enough record yet/.test(inner),
+    "the compact card rail no longer states 'Not enough record yet' below the floor — the\n" +
+    "    alternative is a rail that looks like a grade on evidence the engine rejected");
+  ok(/Record begins in office/.test(inner),
+    "the compact card rail no longer preserves the candidate coverage line 'Record begins\n" +
+    "    in office' — a 2026 candidate has no governing record, and 'no record' reads as a\n" +
+    "    failing grade instead of a fact about the calendar");
+  ok(/No stated positions yet/.test(inner),
+    "the compact card rail has no honest state for a politician with nothing on file");
+
+  // ── The pill row: tally suppressed, status prose preserved ──
+  ok(/tally:\s*false/.test(innerCode),
+    "the compact card shell no longer suppresses the kept/broken pill row — those pills sat\n" +
+    "    one line under the rail, grading the same pledges the rail's read already measures");
+  const pills = body("_pdxStatPills");
+  must(pills.length > 200, "window._pdxStatPills' body did not extract");
+  ok(/tally\s*===\s*false/.test(pills),
+    "_pdxStatPills no longer honours `opts.tally: false` — the compact shell passes it, so\n" +
+    "    losing the mode silently restores the tally on every listing in the app");
+  // The status prose is NOT a score and must survive intact — the request is
+  // explicit that these lines stay.
+  for (const line of [
+    "Lost primary — not on the November ballot",
+    "Withdrew before taking office — no record",
+    "Did not advance — never took office",
+    "2026 candidate — record starts in office",
+    "Candidate — no voting record yet",
+    "Former office — record archived",
+    "Early in term — record being tracked",
+  ]) {
+    ok(pills.includes(line),
+      `_pdxStatPills dropped the status line "${line}" — it is coverage prose, not a tally,\n` +
+      "    and it is the only thing telling a reader why the record looks the way it does");
+  }
+  // The status-only branch must not fall through into ledger vocabulary.
+  const tallyOff = pills.slice(pills.indexOf("tally === false"), pills.indexOf("if (resolved > 0)"));
+  ok(!/Kept|Broken|None resolved yet/.test(tallyOff),
+    "_pdxStatPills' status-only mode emits ledger counts — the whole point of the mode is\n" +
+    "    that a caller can have the status prose WITHOUT the ratio");
+
+  // ── Coverage as supporting evidence, never a grade ──
+  const cov = body("_pdxCoveragePill");
+  must(cov.length > 80, "window._pdxCoveragePill' body did not extract");
+  ok(/publishable/.test(cov),
+    "_pdxCoveragePill publishes a coverage figure without checking `publishable` — below\n" +
+    "    the floor the rail already states the coverage gap, and a bare fraction beside it\n" +
+    "    reads as a score");
+  ok(!/%/.test(cov),
+    "_pdxCoveragePill can produce a percent sign — coverage is a fraction of what is KNOWN,\n" +
+    "    not of merit; rendered as a percentage it becomes a second rate");
+  ok(/pdx-statpill-cov/.test(cov) && /\.pdx-statpill-cov/.test(CSS),
+    "the coverage pill has no neutral class of its own — reusing kept/broken styling would\n" +
+    "    paint a coverage figure in a good/bad palette");
+  ok(!/#4ade80|#f87171|#22c55e/.test(cov),
+    "_pdxCoveragePill paints itself green or red — that is a grade, and coverage is not one");
+
+  // ── The other rails that render the same slot ──
+  // These are the _pdxLedgerSlot consumers. If any of them still branches on the
+  // retired 'ledger' state, it renders a pledge layout around a Word vs Action
+  // payload — worse than either system alone.
+  ok(!/state\s*===\s*'ledger'/.test(CH),
+    "a card still branches on `_pdxLedgerSlot`'s retired 'ledger' state — that branch was\n" +
+    "    the pledge-counts layout, and the slot no longer returns pledge counts to put in it");
+  ok(!/state\s*===\s*'ledger'/.test(strip(read("your-ballot.js"))),
+    "the Your Ballot chip still branches on the retired 'ledger' state");
+  // Every _pdxLedgerSlot call must pass a pid: without one there is no action
+  // half to test the word against, and the slot fails closed to "no read" — which
+  // would silently blank the rail on that surface rather than break loudly.
+  const calls = CH.match(/_pdxLedgerSlot\(([\s\S]*?)\)\s*(?:;|:|\n)/g) || [];
+  ok(calls.length >= 5,
+    `expected the shared slot to still have its callers (found ${calls.length}) — this probe\n` +
+    "    is how the pid requirement below is enforced across all of them");
+  for (const c of calls) {
+    if (/=\s*function/.test(c)) continue;            // the definition itself
+    ok(/pid\s*:/.test(c),
+      "a _pdxLedgerSlot caller omits `pid` — PDXConsistency.officialRecord(pid, issueKey) is\n" +
+      "    the action half of the read, so a pid-less call cannot test anything and the rail\n" +
+      "    silently degrades to 'no read' on that whole surface:\n    " + c.trim().slice(0, 120));
+  }
+
+  // ── The Relevant-to-Me dual signal ──
+  // Two equal-weight cells under "Does what they say match what they do?" — one
+  // of them was a pledge lane, which is the two-ranking-systems read in its most
+  // literal form.
+  const dualHead = CH.indexOf("function _relevantDualSignal");
+  must(dualHead !== -1, "compare-hub.js no longer defines _relevantDualSignal");
+  const dual = braceScan(CH, dualHead, "_relevantDualSignal", "compare-hub.js");
+  must(dual.length > 200, "_relevantDualSignal's body did not extract");
+  ok(!/Pledge receipts/.test(dual),
+    "the Relevant-to-Me dual signal offers a '🤝 Pledge receipts' cell again — equal weight,\n" +
+    "    equal size, directly beside the consistency read, under a header asking the one\n" +
+    "    question both cells now answer at different scopes");
+  ok(/rel-dual-ico">⚖️<\/span> Word vs Action/.test(dual),
+    "the Relevant-to-Me dual signal's left cell no longer carries the ⚖️ Word vs Action read");
+
+  // ── The CSS ──
+  ok(/\.pdx-snap-score-wa\b/.test(CSS),
+    "app.css has no `.pdx-snap-score-wa` rail variant — the shell references it, so the\n" +
+    "    most-rendered tile in the app would fall back to unstyled");
+  ok(!/\.pdx-snap-score-wa[^{]*\{[^}]*(#4ade80|#f87171|#22c55e|#facc15)/.test(CSS),
+    "the Word vs Action rail variant paints its own good/bad colour — the only verdict\n" +
+    "    colour on this tile must be the verdict's own, set inline from\n" +
+    "    PDXConsistency.VERDICTS; a ramp in the stylesheet is a second palette");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

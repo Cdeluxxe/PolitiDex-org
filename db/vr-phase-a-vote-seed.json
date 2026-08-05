@@ -7,7 +7,7 @@
   118
  ],
  "rollCallCount": 29,
- "memberVoteCount": 1217,
+ "memberVoteCount": 1279,
  "declinedRollCalls": [
   {
    "number": "H.R. 8034",
@@ -95,7 +95,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -187,6 +187,13 @@
      "politicianId": "kaine",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -354,7 +361,7 @@
     "phaseA": true
    },
    "chamberVoting": 432,
-   "rosterSkipped": 382,
+   "rosterSkipped": 379,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -382,6 +389,13 @@
      "politicianId": "bennie_thompson",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -501,6 +515,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -630,6 +651,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -750,7 +778,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -842,6 +870,13 @@
      "politicianId": "kaine",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -1009,7 +1044,7 @@
     "phaseA": true
    },
    "chamberVoting": 434,
-   "rosterSkipped": 384,
+   "rosterSkipped": 381,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -1037,6 +1072,13 @@
      "politicianId": "bennie_thompson",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -1156,6 +1198,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -1282,6 +1331,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -1400,7 +1456,7 @@
     "phaseA": true
    },
    "chamberVoting": 433,
-   "rosterSkipped": 383,
+   "rosterSkipped": 380,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -1427,6 +1483,13 @@
      "bioguideId": "T000193",
      "politicianId": "bennie_thompson",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -1548,6 +1611,13 @@
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "G000583",
@@ -1672,6 +1742,13 @@
      "bioguideId": "P000605",
      "politicianId": "scott_perry",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -1796,7 +1873,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -1887,6 +1964,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -2055,7 +2139,7 @@
     "phaseA": true
    },
    "chamberVoting": 434,
-   "rosterSkipped": 384,
+   "rosterSkipped": 381,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -2082,6 +2166,13 @@
      "bioguideId": "T000193",
      "politicianId": "bennie_thompson",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -2203,6 +2294,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "G000583",
@@ -2331,6 +2429,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -2451,7 +2556,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -2542,6 +2647,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -2715,7 +2827,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -2807,6 +2919,13 @@
      "politicianId": "kaine",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -2974,7 +3093,7 @@
     "phaseA": true
    },
    "chamberVoting": 430,
-   "rosterSkipped": 380,
+   "rosterSkipped": 377,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -3002,6 +3121,13 @@
      "politicianId": "bennie_thompson",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -3121,6 +3247,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -3250,6 +3383,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -3365,7 +3505,7 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 380,
+   "rosterSkipped": 377,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -3394,6 +3534,13 @@
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "B000825",
@@ -3513,6 +3660,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "G000583",
@@ -3648,6 +3802,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -3768,7 +3929,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -3860,6 +4021,13 @@
      "politicianId": "kaine",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -4027,7 +4195,7 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 380,
+   "rosterSkipped": 377,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -4055,6 +4223,13 @@
      "politicianId": "bennie_thompson",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -4174,6 +4349,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -4310,6 +4492,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -4430,7 +4619,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -4521,6 +4710,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -4694,7 +4890,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -4786,6 +4982,13 @@
      "politicianId": "kaine",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -4953,7 +5156,7 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 380,
+   "rosterSkipped": 377,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -4981,6 +5184,13 @@
      "politicianId": "bennie_thompson",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -5100,6 +5310,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -5236,6 +5453,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -5356,7 +5580,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -5448,6 +5672,13 @@
      "politicianId": "kaine",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -5615,7 +5846,7 @@
     "phaseA": true
    },
    "chamberVoting": 432,
-   "rosterSkipped": 381,
+   "rosterSkipped": 378,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -5644,6 +5875,13 @@
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "B000825",
@@ -5762,6 +6000,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -5898,6 +6143,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -6018,7 +6270,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 69,
+   "rosterSkipped": 68,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -6109,6 +6361,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -6277,7 +6536,7 @@
     "phaseA": true
    },
    "chamberVoting": 435,
-   "rosterSkipped": 377,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -6304,6 +6563,13 @@
      "bioguideId": "T000193",
      "politicianId": "bennie_thompson",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -6455,6 +6721,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "B001317",
      "politicianId": "josh_brecheen",
      "party": "R",
@@ -6595,6 +6868,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -6614,6 +6894,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "S001208",
@@ -6729,7 +7016,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 67,
+   "rosterSkipped": 66,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -6835,6 +7122,13 @@
      "politicianId": "kaine",
      "party": "D",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -7007,7 +7301,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 67,
+   "rosterSkipped": 66,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -7112,6 +7406,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -7280,7 +7581,7 @@
     "phaseA": true
    },
    "chamberVoting": 434,
-   "rosterSkipped": 377,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -7307,6 +7608,13 @@
      "bioguideId": "T000193",
      "politicianId": "bennie_thompson",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -7451,6 +7759,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "B001317",
      "politicianId": "josh_brecheen",
      "party": "R",
@@ -7591,6 +7906,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -7610,6 +7932,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "S001208",
@@ -7720,7 +8049,7 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 373,
+   "rosterSkipped": 369,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -7747,6 +8076,13 @@
      "bioguideId": "T000193",
      "politicianId": "bennie_thompson",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -7891,6 +8227,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "B001317",
      "politicianId": "josh_brecheen",
      "party": "R",
@@ -8031,6 +8374,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -8050,6 +8400,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "S001208",
@@ -8172,7 +8529,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 67,
+   "rosterSkipped": 66,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -8277,6 +8634,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -8452,7 +8816,7 @@
     "phaseA": false
    },
    "chamberVoting": 431,
-   "rosterSkipped": 373,
+   "rosterSkipped": 369,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -8481,6 +8845,13 @@
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "B000825",
@@ -8620,6 +8991,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -8763,6 +9141,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -8781,6 +9166,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -8904,7 +9296,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 67,
+   "rosterSkipped": 66,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -9009,6 +9401,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -9177,7 +9576,7 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 376,
+   "rosterSkipped": 372,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -9199,6 +9598,13 @@
      "party": "D",
      "position": "yea",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "B000825",
@@ -9332,6 +9738,13 @@
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
     },
     {
      "bioguideId": "B001317",
@@ -9474,6 +9887,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -9486,6 +9906,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "S001208",
@@ -9608,7 +10035,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 65,
+   "rosterSkipped": 64,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -9720,6 +10147,13 @@
      "bioguideId": "K000384",
      "politicianId": "kaine",
      "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
      "position": "yea",
      "isParty": "with_party"
     },
