@@ -48,9 +48,14 @@ const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 const SHELL_ASSETS = [
   '/',
   '/css/tailwind.css',
-  // The above-the-fold receipt. Parser-blocking in index.html, so on a repeat
-  // visit these two must come from the cache or they add latency to the very
-  // first paint they exist to improve. Both are tiny.
+  // The above-the-fold record card. Parser-blocking in index.html, so on a
+  // repeat visit these two must come from the cache or they add latency to the
+  // very first paint they exist to improve. Both are tiny.
+  '/hero-showcase-data.js',
+  '/hero-showcase.js',
+  // The single receipt, now deferred below the fold as a Say-vs-Do lead-in.
+  // Still precached: it is ~2.7 KB for the pair and the band it introduces is
+  // one of the first things a returning visitor scrolls to.
   '/hero-receipt-data.js',
   '/hero-receipt.js',
   // Main site CSS, externalized out of index.html (Run 1 perf pass) so it is
