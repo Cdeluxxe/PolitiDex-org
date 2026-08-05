@@ -546,10 +546,20 @@
     // Returns null when there is no percentage to qualify (judged === 0), else
     // { judged, total, unjudged, omnibus, single, maxCount, strength, level, thin,
     //   omnibusDriven, note, detail }.
-    function _recordComposition(rec, stats) {
+    // The noun a composition counts in. The 🏛️ lane counts roll calls; the ✒️ lane
+    // counts documents, and "1 judged vote sits behind this percentage" is simply
+    // false about a signature on a bill. Passed in by the caller rather than sniffed
+    // from the records, so this function stays pure and neither lane's wording is
+    // silently imposed on the other. Omit it and nothing changes.
+    var _COMP_NOUN = {
+      one: 'vote', many: 'votes',
+      multiOne: 'a multi-issue bill', multiMany: 'multi-issue bills'
+    };
+    function _recordComposition(rec, stats, opts) {
       if (!rec) return null;
       var judged = (rec.consistent || 0) + (rec.contradicts || 0);
       if (!judged) return null; // no % is displayed → nothing to annotate
+      var n = (opts && opts.noun) || _COMP_NOUN;
       var total = Math.max(rec.total || 0, judged);
       var unjudged = Math.max(0, total - judged);
       var omnibus = stats ? (stats.omnibus || 0) : 0;
@@ -558,20 +568,20 @@
       var level = judged >= 3 ? 'solid' : judged === 2 ? 'limited' : 'single';
       var omnibusDriven = omnibus > 0 && omnibus >= single;
       var note = '';
-      if (level === 'single') note = omnibus >= 1 ? '1 multi-issue vote' : '1 vote';
-      else if (level === 'limited') note = omnibusDriven ? '2 votes, multi-issue' : '2 votes';
+      if (level === 'single') note = omnibus >= 1 ? '1 multi-issue ' + n.one : '1 ' + n.one;
+      else if (level === 'limited') note = omnibusDriven ? '2 ' + n.many + ', multi-issue' : '2 ' + n.many;
       else if (omnibusDriven) note = 'mostly multi-issue';
       // Each bit is joined with '. ' below, so each one has to read as its own sentence.
-      var bits = [judged + (judged === 1 ? ' judged vote sits' : ' judged votes sit') + ' behind this percentage'];
+      var bits = [judged + ' judged ' + (judged === 1 ? n.one + ' sits' : n.many + ' sit') + ' behind this percentage'];
       if (unjudged) {
         bits.push(unjudged + ' further record' + (unjudged === 1 ? '' : 's') + ' on this issue took no position either way, so ' +
           (unjudged === 1 ? 'it is' : 'they are') + ' not counted in it');
       }
       if (omnibus) {
-        bits.push(omnibus + ' of ' + total + ' came from ' + (omnibus === 1 ? 'a multi-issue bill' : 'multi-issue bills') +
+        bits.push(omnibus + ' of ' + total + ' came from ' + (omnibus === 1 ? n.multiOne : n.multiMany) +
           (maxCount >= 2 ? ' (' + (omnibus === 1 ? 'it covered ' : 'one of them covered ') + maxCount + ' issues at once)' : ''));
       }
-      if (level !== 'solid') bits.push('A read this thin can swing a long way on one more vote');
+      if (level !== 'solid') bits.push('A read this thin can swing a long way on one more ' + n.one);
       return {
         judged: judged, total: total, unjudged: unjudged,
         omnibus: omnibus, single: single, maxCount: maxCount,

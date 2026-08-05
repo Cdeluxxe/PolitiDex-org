@@ -52,7 +52,9 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants."
+            "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue names this law as its own evidence — it reads \"signing his first law — the Laken Riley Act (Public Law 119-1)\" and cites the bill page as its source. A card written from this document cannot also be the word this document tests."
           },
           {
             "issueKey": "border_security",
@@ -126,14 +128,18 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 65,
-            "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years."
+            "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue is titled \"H.R.1: Deficit & Debt\" and exists to report this law's projected deficit effect. The card is downstream of this document, so this document cannot test it."
           },
           {
             "issueKey": "healthcare",
             "direction": "opposes",
             "isPrimary": false,
             "weight": 60,
-            "rationale": "Offsets part of its cost with Medicaid and SNAP reductions the CBO estimates leave millions more people uninsured."
+            "rationale": "Offsets part of its cost with Medicaid and SNAP reductions the CBO estimates leave millions more people uninsured.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue is titled \"H.R.1: Medicaid & SNAP\" and exists to report this law's projected coverage effect. The card is downstream of this document, so this document cannot test it."
           },
           {
             "issueKey": "border_security",
@@ -229,7 +235,9 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Directs agencies to expedite oil, gas and mineral permitting and leasing and to remove regulatory barriers to domestic energy production."
+            "rationale": "Directs agencies to expedite oil, gas and mineral permitting and leasing and to remove regulatory barriers to domestic energy production.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue cites this order by title — \"Signed the 'Unleashing American Energy' and 'National Energy Emergency' executive orders\". The issue is tested instead by Public Law 119-21, which that card does not name."
           },
           {
             "issueKey": "climate_action",
@@ -269,7 +277,9 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Declares a national energy emergency and directs agencies to use emergency authorities to expedite domestic energy production, transportation, refining and generation."
+            "rationale": "Declares a national energy emergency and directs agencies to use emergency authorities to expedite domestic energy production, transportation, refining and generation.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue cites this order by title and opens by narrating it — \"Declared a national energy emergency at the start of his second term\". The issue is tested instead by Public Law 119-21, which that card does not name."
           },
           {
             "issueKey": "lands_energy",
@@ -335,7 +345,9 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Directs the termination of federal diversity, equity and inclusion offices, positions, programs and related grants and contracts."
+            "rationale": "Directs the termination of federal diversity, equity and inclusion offices, positions, programs and related grants and contracts.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue cites this order's own subject — \"Signed executive orders ending federal DEI programs and preferencing\" — and links the order itself. No other action on file reaches this issue, so it stands as coverage rather than as a test."
           }
         ],
         "status": [
@@ -399,7 +411,9 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form."
+            "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue cites this order by number: \"Signed EO 14248, 'Preserving and Protecting the Integrity of American Elections'\". No other action on file reaches this issue, so it stands as coverage rather than as a test."
           },
           {
             "issueKey": "election_integrity",

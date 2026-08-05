@@ -505,6 +505,16 @@
                 kind: 'ledger' }];
     }
     if (!it.issueKey) return [];
+    // The ✒️ executive lane's "did" is a document, not a roll call — so it names the
+    // order or law and where that document stands today. Delegated to consistency.js,
+    // which owns the lane, so this file has one way of asking and no copy of the
+    // vocabulary to drift from.
+    if (it.test && it.test.basis === 'exec-actions') {
+      var csx = C();
+      var ex = csx && csx.execActions;
+      if (!ex || typeof ex.proofLines !== 'function') return [];
+      try { return ex.proofLines(pid, it.issueKey, 2) || []; } catch (e) { return []; }
+    }
     var items = null;
     try {
       items = (typeof window._pdxRecordIssueItems === 'function') ? window._pdxRecordIssueItems(pid, it.issueKey) : null;
@@ -975,6 +985,10 @@
     var quote = d.word ? String(d.word) : '';
     if (quote.length > 220) quote = quote.slice(0, 217).replace(/\s+\S*$/, '') + '…';
     var src = (d.sources && d.sources[0]) || null;
+    // What was counted, in the noun of the lane that counted it. "3 judged votes" is
+    // false about a president — they cast none — and this row is the flagship Word vs
+    // Action surface, so it is the last place a borrowed noun should survive.
+    var jn = (d.outcome && d.outcome.basis === 'exec-actions') ? 'judged action' : 'judged vote';
     return '' +
       '<li class="pdxwa-dot" style="--pdxwa-col:' + col + ';">' +
         '<div class="pdxwa-dot-head">' +
@@ -1001,7 +1015,7 @@
           '<span class="pdxwa-dot-v" style="color:' + col + ';">' +
             (v ? esc(v.ico + ' ' + v.label) : 'Not yet testable') +
             (typeof d.outcome.judged === 'number' && d.outcome.judged > 0
-              ? '<span class="pdxwa-dot-j">' + d.outcome.judged + ' judged vote' + (d.outcome.judged === 1 ? '' : 's') + '</span>' : '') +
+              ? '<span class="pdxwa-dot-j">' + d.outcome.judged + ' ' + jn + (d.outcome.judged === 1 ? '' : 's') + '</span>' : '') +
           '</span>' +
         '</div>' +
       '</li>';
