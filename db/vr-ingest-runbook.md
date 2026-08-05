@@ -599,3 +599,89 @@ To extend the seed: add roll-call numbers to `ROLLCALLS` in
 node scripts/vr-build-senate-seed.mjs
 node scripts/vr-gen-senate-migration.mjs > netlify/database/migrations/<ts>_seed_senate_voting_record.sql
 ```
+
+## The fiscal / enforcement pass — 119th Congress, done
+
+Aimed at the user's brief for "the next high-value 119th Congress bills," this pass ended up
+answering a different question than it was asked, and the reason is the finding worth keeping.
+The candidate list (appropriations packages, rescissions, immigration enforcement, fentanyl,
+DC crime) was scanned bill by bill against the Clerk's and the Senate's own roll-call records.
+What the scan showed is that the 119th's biggest measures were **already mapped and badly
+under-attributed**: H.R. 1 carried fourteen issue keys and nine attributed voters on its House
+passage roll; H.R. 4 carried eight keys and nine voters; S. 331 carried three keys and eight
+senators. The mapping work had been done. The vote rows had not.
+
+So the pass is 3 new roll calls, 5 topped-up roll calls, **414 attributed member-votes** and
+only **3 new issue mappings** — two of them on the single new measure. That ratio is the point,
+not an apology for it.
+
+`scripts/vr-build-fiscal-enforcement-vote-seed.mjs` → `db/vr-fiscal-enforcement-vote-seed.json`
+→ `scripts/vr-gen-fiscal-enforcement-migration.mjs` →
+`20260823000000_vr_fiscal_enforcement_rollcalls.sql`.
+
+| chamber | roll | measure | question | totals | attributed |
+|---|---:|---|---|---|---:|
+| senate | 119/1/127 | S. 331 | On Passage of the Bill | 84-16 | 38 (was 8) |
+| house | 119/1/145 | H.R. 1 | On Passage | 215-214 | 60 (new roll) |
+| house | 119/1/166 | S. 331 | On Passage | 321-104 | 60 (new roll) |
+| house | 119/1/168 | H.R. 4 | On Passage | 214-212 | 60 (was 9) |
+| senate | 119/1/372 | H.R. 1 | On Passage of the Bill | 50-50, VP breaks tie | 38 (was 8) |
+| house | 119/1/190 | H.R. 1 | On Motion to Concur in the Senate Amendment | 218-214 | 60 (was 39) |
+| senate | 119/1/411 | H.R. 4 | On Passage of the Bill | 51-48 | 38 (was 8) |
+| house | 119/1/264 | H.R. 3486 | On Passage | 226-197 | 60 (new measure) |
+
+One new measure: **H.R. 3486, Stop Illegal Entry Act of 2025** (`tough_on_crime` 100 primary,
+`border_security` 65), read from the engrossed text at `BILLS-119hr3486eh`. One new mapping on
+an existing measure: **`america_first_fp` 65 on H.R. 4**, from the enrolled text at
+`BILLS-119hr4enr`, where nineteen of the twenty rescission paragraphs are foreign assistance
+(~$7.9B). Sixteen roll-call classes and eight facets are declined in the seed's own
+`declinedRollCalls` and `declinedFacets`, with the reasoning attached to each.
+
+Coverage moved 9,588 → 9,889 recorded yea/nay member-votes, 4,347 → 4,775 rankable, and
+933 → **948** rankable (member, issue) pairs. The breadth number is small on purpose: almost
+every pair this pass touches was already rankable through some other measure. What changed is
+depth — 428 more judged votes standing behind positions that previously rested on one or two.
+
+### Three rules, from the fiscal / enforcement pass
+
+19. **A landmark that is already mapped is usually an attribution gap, not a mapping gap.**
+   Before hunting new bills, check the attributed-voter count on the rolls already live. A
+   measure with fourteen keys and nine voters out of 432 is producing a fourteenth of the
+   signal it could. Topping it up costs no new editorial judgement — the mapping argument was
+   already made and published — and it deepens every stated position that touches those keys
+   at once. Volume of *bills* is the wrong metric; volume of *judged (member, key) evidence*
+   is the right one.
+20. **Omitting a key from `db/vr-issue-seed.json` is not a removal.** `applyCuratedIssueSeed()`
+   upserts with `onConflictDoUpdate`, so it only ever touches the keys the seed carries — a
+   key left out is a live row left alone, not a live row deleted. Two consequences. First,
+   disagreeing with an earlier pass's mapping cannot be expressed by silently dropping the key;
+   that needs its own migration and its own argument, and until then the honest move is to say
+   so in `declinedFacets` and leave the row standing (this pass would not have added
+   `gov_services` to H.R. 4, and did not remove it). Second, any key the seed *does* mirror
+   must match the live rationale **byte for byte**, or the next `POST /seed-issues` silently
+   rewrites published text. Verify the mirror against the migration source, not against memory.
+21. **The live rationale is the first writer's, not the latest migration's.** Re-assertions use
+   `ON CONFLICT DO NOTHING`, so when several migrations map the same (measure, key) the text in
+   the database is the earliest one's — `20260807000000` re-states nine of H.R. 1's keys in its
+   own words and none of that wording is live. Mirror only the keys whose first writer you have
+   actually read. Corollary: grep **every** migration for a measure before adding a key to it.
+   H.R. 4 looked like a three-key measure in the migration that created it and is a seven-key
+   measure once `20260721140000` is counted.
+
+### Best remaining follow-ups after this pass
+
+1. **H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53). The strongest
+   remaining candidate and the one deliberately deferred here: real, decisive, heavily
+   attributable, and a genuine multi-axis omnibus that needs a division-by-division read before
+   any key is coded, exactly as rule 10 requires.
+2. **The twelve H.R. 1 Senate amendment rolls** (358, 360–370). Single-axis tests inside the
+   omnibus — wind and solar credits, rural hospitals, SNAP, Medicaid, the AI moratorium — each
+   of which would need its own amendment measure row with a strict subset of the parent's keys.
+   The cleanest signal in the 119th record that is not yet ingested.
+3. **The DC crime and policing package** (H.R. 2056 / 5103 / 5125 / 5140 / 5143 / 5214, rolls
+   171, 271, 274, 275, 298 and 119/2/101). Six separately-voted bills on one theme; declined
+   here on scope, not on merit.
+4. **H.R. 4016** (DoD Appropriations Act, 2026) and **S. 2296** (the Senate's own FY2026 NDAA
+   position, which the existing NDAA ingest does not cover).
+5. **H.R. 6409, FENCES Act** — border-barrier construction, the capacity axis H.R. 3486
+   explicitly does not carry.

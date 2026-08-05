@@ -522,6 +522,12 @@
   flex: none; width: 1.05rem; text-align: center; font-size: 0.9rem; line-height: 1;
 }
 .pdxsa-share-btn .pdxsa-lbl { white-space: nowrap; }
+/* The record card is the strongest tier, so it gets the brightest rim — and a
+   COLOURLESS one. Gold means curated receipt and steel means Official Record;
+   green, amber and red already mean backs-it-up, mixed and contradicted inside
+   the card itself. A tier accent that borrowed any of those would announce the
+   verdict on the button, before the reader has seen what it rests on. */
+.pdxsa-share-btn.pdxsa-t-summary { --pdxsa-c: rgba(226, 233, 246, 0.62); }
 .pdxsa-share-btn.pdxsa-t-record  { --pdxsa-c: rgba(127, 180, 255, 0.55); }
 .pdxsa-share-btn.pdxsa-t-receipt { --pdxsa-c: rgba(245, 200, 66, 0.5); }
 .pdxsa-share-btn.pdxsa-t-link    { --pdxsa-c: rgba(143, 165, 196, 0.4); }

@@ -412,25 +412,21 @@
     const tbody = document.getElementById('cmp-tbody');
 
     const sc = (pid) => CMP_DATA[pid];
-    const scoreColor = (s) => s === null || s === undefined ? '#9fb4d4' : s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
-    const barGrad = (s) => s === null ? 'linear-gradient(90deg,#334155,#64748b)' : s >= 70 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : s >= 50 ? 'linear-gradient(90deg,#b45309,#f5c842)' : 'linear-gradient(90deg,#991b1b,#f87171)';
+    // RETIRED with the Promise Score: `scoreColor()` / `barGrad()` coloured a
+    // pledge percentage green / amber / red and drew its bar. No cell in this
+    // table publishes a pledge rate any more, so both are gone. If a future row
+    // needs a colour ramp, take it from the surface that owns the number it is
+    // ramping — don't reintroduce a generic score ramp here.
     const na = `<span class="cmp-na">—</span>`;
     const colW = Math.max(180, Math.floor(700 / pids.length));
 
-    // Derived accountability metric: how many of the resolved (kept+broken)
-    // promises were actually kept. Candidates with no track record → null.
-    //
-    // Also null when the record has no itemized promises[] behind those counts.
-    // This division is the same unpublishable figure the profile withholds: it
-    // reads two summary integers and turns them into a percentage the reader has
-    // no ledger to check it against. Computing it here rather than looking it up
-    // in `score` does not make it auditable. The kept / broken counts still get
-    // their own rows below, so nothing attested is lost by dropping the ratio.
-    const followThrough = (p) => {
-      if ((p.kept + p.broken) <= 0) return null;
-      if (typeof window._pdxHasItemizedPledges === 'function' && !window._pdxHasItemizedPledges(p)) return null;
-      return Math.round(100 * p.kept / (p.kept + p.broken));
-    };
+    // RETIRED: `followThrough(p)` used to turn two summary integers into a
+    // percentage — Kept ÷ (Kept + Broken) — for its own compare row. That row is
+    // gone. PolitiDex publishes one integrity percentage, ⚖️ Word vs Action, and
+    // the pledge ledger feeds it as receipts rather than rating anyone in
+    // parallel. The kept / broken / pending COUNT rows below are untouched: they
+    // are the attested part, and they are what this table compares now. Read
+    // counts with `window._pdxPledgeNote(p)` — never divide them again.
     // Officeholder vs candidate — inferred from the office/role label.
     const statusOf = (p) => /candidate|nominee/i.test(p.office || '') ? 'Candidate' : 'Officeholder';
     const statusBadge = (p, full) => statusOf(p) === 'Candidate'
@@ -467,16 +463,30 @@
           ? [...sharedIssues].map(s => `<span class="cmp-common-tag">${s}</span>`).join('')
           : `<span class="cmp-insight-sub">No overlapping focus areas — these ${pids.length} prioritize different issues.</span>`;
 
-        const scored = pids.map(pid => ({ name: sc(pid).name, s: sc(pid).score })).filter(x => x.s !== null && x.s !== undefined);
+        // Pledge receipts, as counts. This card used to be "🏆 Promise Score
+        // Spread" and ranked the lineup by a pledge percentage — a rival score to
+        // ⚖️ Word vs Action, which is the one integrity read. What it reports now
+        // is how much settled pledge record each pick actually has, which is the
+        // honest version of the same usefulness: it tells the visitor who can be
+        // judged on their promises at all.
+        const ledgers = pids.map(pid => {
+          const p = sc(pid);
+          const t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(p) : null;
+          return { name: p.name, resolved: t ? t.resolved : 0, kept: t ? t.kept : 0, broken: t ? t.broken : 0, open: t ? t.unresolved : 0 };
+        });
+        const withLedger = ledgers.filter(l => l.resolved > 0);
         let spreadHtml;
-        if (scored.length >= 2) {
-          const top = scored.reduce((a, b) => b.s > a.s ? b : a);
-          const bot = scored.reduce((a, b) => b.s < a.s ? b : a);
-          const gap = top.s - bot.s;
-          spreadHtml = `<span class="cmp-insight-lead">${top.name.split(' ').pop()} leads · ${top.s}%</span>`
-            + `<span class="cmp-insight-sub">${gap === 0 ? 'Promise scores are even' : gap + '-pt gap to ' + bot.name.split(' ').pop() + ' (' + bot.s + '%)'}</span>`;
+        if (withLedger.length) {
+          const deepest = withLedger.reduce((a, b) => b.resolved > a.resolved ? b : a);
+          const totKept = withLedger.reduce((n, l) => n + l.kept, 0);
+          const totBroken = withLedger.reduce((n, l) => n + l.broken, 0);
+          spreadHtml = `<span class="cmp-insight-lead">${totKept} kept · ${totBroken} broken</span>`
+            + `<span class="cmp-insight-sub">Across ${withLedger.length} of ${pids.length} pick${pids.length !== 1 ? 's' : ''} with settled pledges — ${deepest.name.split(' ').pop()} has the deepest record (${deepest.resolved}). No pledge percentage is published; see each profile's ⚖️ Word vs Action read.</span>`;
         } else {
-          spreadHtml = `<span class="cmp-insight-sub">Not enough scored records — candidates have no track record yet.</span>`;
+          const anyOpen = ledgers.some(l => l.open > 0);
+          spreadHtml = anyOpen
+            ? `<span class="cmp-insight-sub">Pledges are being tracked but none have settled yet — nothing to judge here so far.</span>`
+            : `<span class="cmp-insight-sub">No settled pledge record for this lineup — compare their documented positions instead.</span>`;
         }
 
         const candCount = pids.filter(pid => statusOf(sc(pid)) === 'Candidate').length;
@@ -507,7 +517,7 @@
         insEl.innerHTML =
           `<div class="cmp-insight-card"><div class="cmp-insight-title">🤝 Common Ground</div><div class="cmp-insight-body">${commonBody}</div></div>`
           + `<div class="cmp-insight-card"><div class="cmp-insight-title">⚖️ Issue Agreement</div><div class="cmp-insight-body">${issueHtml}</div></div>`
-          + `<div class="cmp-insight-card"><div class="cmp-insight-title">🏆 Promise Score Spread</div><div class="cmp-insight-body">${spreadHtml}</div></div>`
+          + `<div class="cmp-insight-card"><div class="cmp-insight-title">🤝 Promise Receipts</div><div class="cmp-insight-body">${spreadHtml}</div></div>`
           + `<div class="cmp-insight-card"><div class="cmp-insight-title">📋 Lineup</div><div class="cmp-insight-body">${lineupHtml}</div></div>`;
       }
     }
@@ -522,14 +532,18 @@
       <th class="cmp-row-label" style="background:rgba(10,15,30,0.98);"></th>
       ${pids.map(pid => {
         const p = sc(pid);
-        // The column header ring is the table's most prominent percentage, and it
-        // read `p.score` raw — bypassing the display guard the Promise Score row
-        // below it goes through, so the same record could show "77%" in the sticky
-        // header and a withheld cell three rows down. Route it through the guard.
-        const _rawScore = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(p) : p.score;
-        const sc_val = (_rawScore === null || _rawScore === undefined) ? null : _rawScore;
-        const col = scoreColor(sc_val);
-        const headCounts = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p, 'short') : '';
+        // The column header used to carry the table's loudest percentage — a ring
+        // reading "77%" off the pledge ledger. That figure is retired: the header
+        // now reports the pledge RECEIPTS as counts, which is the attested part,
+        // and leaves rating to ⚖️ Word vs Action on the profile. `_pdxDisplayScore`
+        // survives here only as a has-a-closed-ledger flag, never as a figure.
+        const hasLedger = (typeof window._pdxDisplayScore === 'function')
+          ? (window._pdxDisplayScore(p) !== null && window._pdxDisplayScore(p) !== undefined)
+          : false;
+        const headCounts = (typeof window._pdxPledgeNote === 'function') ? window._pdxPledgeNote(p, 'short') : '';
+        const headTrack = (!headCounts && typeof window._pdxTrackingNote === 'function')
+          ? window._pdxTrackingNote(p, 'short') : '';
+        const col = headCounts ? '#9fb4d4' : (headTrack ? '#f5c842' : 'rgba(159,180,212,0.35)');
         const photoUrl = _getPhoto(pid);
         const avatarHtml = photoUrl
           ? `<div class="cmp-col-avatar"><img loading="lazy" decoding="async" src="${photoUrl}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.5rem;\\'>${p.icon}</div>'"></div>`
@@ -540,14 +554,11 @@
             <div class="cmp-col-name">${p.name}</div>
             <div class="cmp-col-office">${p.office} · ${p.state}</div>
             <div>${statusBadge(p, false)}</div>
-            <div class="cmp-col-score-ring" style="border-color:${col};">
-              <span class="cmp-score-val" style="color:${col};">${sc_val !== null && sc_val !== undefined ? sc_val + '%' : (headCounts ? '🤝' : '—')}</span>
-            </div>
-            ${headCounts ? `<div class="cmp-score-note cmp-score-note-counts">${headCounts}<br><span class="cmp-score-note-why">not itemized</span></div>` : `<div style="width:100%;max-width:120px;margin-top:0.15rem;">
-              <div style="height:4px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
-                <div style="height:100%;width:${sc_val !== null && sc_val !== undefined ? sc_val : 5}%;background:${barGrad(sc_val)};border-radius:999px;transition:width 0.8s ease;"></div>
-              </div>
-            </div>`}
+            ${headCounts
+              ? `<div class="cmp-score-note cmp-score-note-counts">🤝 ${headCounts}<br><span class="cmp-score-note-why">pledge receipts${hasLedger ? '' : ' · not itemized'}</span></div>`
+              : (headTrack
+                ? `<div class="cmp-score-note cmp-score-note-tracking">⏳ ${headTrack}</div>`
+                : `<div class="cmp-score-note" style="color:${col};">No pledge record yet</div>`)}
             ${_alignActive ? (() => { const aScore = _alignBy[pid]; if (aScore === null || aScore === undefined) return '<div style="margin-top:0.4rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.58rem;color:#7e8aa3;font-weight:600;letter-spacing:0.05em;border:1px dashed rgba(159,180,212,0.3);padding:0.12rem 0.5rem;border-radius:999px;">🎯 No match data yet</span></div>'; const aCol = aScore >= 70 ? '#4ade80' : aScore >= 50 ? '#f5c842' : '#f87171'; const isLeader = pid === _alignLeaderPid; const crown = isLeader ? '<div style="margin-top:0.3rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#0b1020;background:linear-gradient(135deg,#fde68a,#f5c842);padding:0.14rem 0.6rem;border-radius:999px;box-shadow:0 2px 10px rgba(245,200,66,0.35);">🏆 Best Match</span></div>' : ''; return '<div style="margin-top:0.4rem;display:flex;flex-direction:column;align-items:center;gap:0.15rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.62rem;color:' + aCol + ';font-weight:800;letter-spacing:0.06em;border:1px solid ' + aCol + (isLeader ? '99' : '55') + ';background:' + aCol + (isLeader ? '24' : '14') + ';padding:0.12rem 0.55rem;border-radius:999px;">🎯 ' + aScore + '% Aligned</span>' + crown + '</div>'; })() : ''}
           </div>
         </th>`;
@@ -569,55 +580,29 @@
     // "—" promise rows (see the `thinLineup` ordering below).
     let promiseBlock = '', alignBlock = '', focusBlock = '', standBlock = '';
 
-    promiseBlock += sectionRow('📊 Promise Scores');
+    promiseBlock += sectionRow('🤝 Promise Receipts');
+    // `_psVals` is a HAS-A-CLOSED-LEDGER flag, not a figure. Nothing below prints
+    // it: the retired Promise Score row it used to fill is gone, and the counts
+    // rows further down are the comparison now. It survives because the ordering
+    // logic (`thinLineup`) needs to know which picks have any pledge record.
     const _psVals = pids.map(pid => { const s = window._pdxDisplayScore(sc(pid)); return (s === null || s === undefined) ? null : s; });
-    const _psLeader = leaderClasses(_psVals);
-    promiseBlock += row('Promise Score', pids.map((pid, i) => {
-      const p = sc(pid); const sVal = _psVals[i]; const col = scoreColor(sVal);
-      const lead = _psLeader[i] ? '<div class="cmp-leader-badge">👑 Highest</div>' : '';
-      // Show what each percentage rests on, so two 100% picks that sit on 1 and
-      // 20 resolved promises don't read as an even match.
-      const denom = (sVal !== null && sVal !== undefined && typeof window._pdxScoreDenominator === 'function')
-        ? window._pdxScoreDenominator(p) : '';
-      const denomLine = denom ? `<div class="cmp-score-denom">(${denom})</div>` : '';
-      // No percentage? Say which kind of "no percentage" it is. A pick with real
-      // pending / partial promises reads as tracking; a blank record still reads
-      // as the bare "—" it always did.
-      const trackLine = (sVal === null || sVal === undefined) && typeof window._pdxTrackingNote === 'function'
-        ? window._pdxTrackingNote(p) : '';
-      const pendLine = (sVal !== null && sVal !== undefined && typeof window._pdxPendingNote === 'function')
-        ? window._pdxPendingNote(p) : '';
-      // A pick whose pledges resolved but were never itemized has no publishable
-      // rate and is NOT "tracking" — it has a closed record on file. Name the
-      // counts in the cell so the empty score reads as withheld, not as absent.
-      const countsLine = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p, 'short') : '';
-      const noteLine = countsLine
-        ? `<div class="cmp-score-note cmp-score-note-counts">🤝 ${countsLine}<br><span class="cmp-score-note-why">on file · not itemized</span></div>`
-        : (trackLine
-          ? `<div class="cmp-score-note cmp-score-note-tracking">⏳ ${trackLine}</div>`
-          : (pendLine ? `<div class="cmp-score-note">${pendLine}</div>` : ''));
-      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${denomLine}${noteLine}${lead}`;
-    }), '', _psLeader);
-    const _ftVals = pids.map(pid => followThrough(sc(pid)));
-    const _ftLeader = leaderClasses(_ftVals);
-    promiseBlock += row('🤝 Promise Follow-Through', pids.map((pid, i) => {
-      const v = _ftVals[i];
-      if (v === null) {
-        // Counts-only: the row's percentage is withheld, but this pick does have a
-        // resolved pledge record, so it must not sit under the same bare "—" as a
-        // pick with nothing on file.
-        const cn = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(sc(pid), 'short') : '';
-        return cn ? `<span class="cmp-ft-counts">🤝 ${cn}<br><span class="cmp-score-note-why">not itemized</span></span>` : na;
+    // One row, counts only: what each pick actually settled, and what is still
+    // open. A pick with a closed ledger reads as receipts; a pick with pledges
+    // still in flight reads as tracking; a blank record reads as blank — and none
+    // of the three gets rated here, because ⚖️ Word vs Action does the rating.
+    promiseBlock += row('Pledges settled', pids.map(pid => {
+      const p = sc(pid);
+      const cn = (typeof window._pdxPledgeNote === 'function') ? window._pdxPledgeNote(p, 'short') : '';
+      const pend = (typeof window._pdxPendingNote === 'function') ? window._pdxPendingNote(p) : '';
+      if (cn) {
+        const itemized = (typeof window._pdxHasItemizedPledges === 'function') ? window._pdxHasItemizedPledges(p) : false;
+        return `<span class="cmp-ft-counts">🤝 ${cn}</span>`
+          + (pend ? `<div class="cmp-score-note">${pend}</div>` : '')
+          + `<div class="cmp-score-note-why">${itemized ? 'each pledge itemized' : 'counts on file · not itemized'}</div>`;
       }
-      const col = scoreColor(v);
-      const lead = _ftLeader[i] ? '<div class="cmp-leader-badge">👑 Most reliable</div>' : '';
-      return `<div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;">
-          <span class="cmp-score-val" style="color:${col};font-size:1.2rem;">${v}%</span>
-          <div style="width:100%;max-width:90px;height:4px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
-            <div style="height:100%;width:${v}%;background:${barGrad(v)};border-radius:999px;transition:width 0.8s ease;"></div>
-          </div>
-        </div>${lead}`;
-    }), '', _ftLeader);
+      const track = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
+      return track ? `<div class="cmp-score-note cmp-score-note-tracking">⏳ ${track}</div>` : na;
+    }), '');
     promiseBlock += row('Promises Kept', pids.map(pid => {
       const p = sc(pid);
       return `<span class="cmp-stat-pill" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#4ade80;">✓ ${p.kept}</span>`;
@@ -783,8 +768,9 @@
     }
 
     // Is this a thin field? When 2+ picks are compared, at least one has a
-    // documented issue position, and NONE has a Promise Score, the traditional
-    // record rows are empty — so we lead with where they actually stand.
+    // documented issue position, and NONE has a settled pledge record, the
+    // traditional record rows are empty — so we lead with where they actually
+    // stand. (`_psVals` is the has-a-ledger flag here, not a score.)
     const _anyScore = pids.some((pid, i) => _psVals[i] !== null && _psVals[i] !== undefined);
     const thinLineup = pids.length >= 2 && issueCmp.anyDocumented && !_anyScore;
 
@@ -802,11 +788,11 @@
         ? `<strong><span class="cmp-issue-mine-ico">🎯 ${issueCmp.nMineShared} of your issue${issueCmp.nMineShared !== 1 ? 's' : ''}</span></strong> ${issueCmp.nMineShared !== 1 ? 'are' : 'is'} pulled to the top — the positions you flagged in the Alignment Tool, compared head-to-head. `
         : '';
       const thinLead = thinLineup
-        ? `<strong style="color:#cbd9ec;">These are new candidates with no Promise Score yet</strong>, so their documented positions are the clearest way to compare them. `
+        ? `<strong style="color:#cbd9ec;">These are new candidates with no record to test yet</strong>, so their documented positions are the clearest way to compare them. `
         : '';
       standBlock += `<tr class="cmp-issue-intro"><td colspan="${nCols}">`
         + thinLead + mineLead
-        + `Real positions from each one's public record — so even a new candidate with no Promise Score can still be compared on where they stand. `
+        + `Real positions from each one's public record — so even a new candidate with nothing settled can still be compared on where they stand. `
         + `<strong><span class="cmp-issue-agree-ico">✓ Agree</span></strong> and <strong><span class="cmp-issue-differ-ico">✗ Differ</span></strong> mark issues where two or more picks each have a documented position.`
         + `</td></tr>`;
 
@@ -1091,20 +1077,33 @@
   };
 
   // ── The Bottom Line ────────────────────────────────────────────────────
-  // The comparison table lays out Promise Score, accountability (Follow-Through)
-  // and personal Alignment in separate rows — but a first-time voter still has
-  // to combine those numbers in their head to reach a decision. This reads them
-  // together and states one honest, plain-language recommendation, so the three
-  // tools add up to an actual call instead of three disconnected stats. Read-only
-  // over the same data the table already shows; it never invents a score.
-  function _cmpVerdictFollowThrough(p) {
-    if ((p.kept + p.broken) <= 0) return null;
-    // Same itemized-ledger requirement as the table row above. The verdict states
-    // this figure in prose ("keeping 87% of the promises that are settled"), which
-    // is a published pledge percentage no matter how conversationally it is
-    // phrased. Null here simply drops that clause from the sentence.
-    if (typeof window._pdxHasItemizedPledges === 'function' && !window._pdxHasItemizedPledges(p)) return null;
-    return Math.round(100 * p.kept / (p.kept + p.broken));
+  // The comparison table lays out pledge receipts, accountability and personal
+  // Alignment in separate rows — but a first-time voter still has to combine those
+  // in their head to reach a decision. This reads them together and states one
+  // honest, plain-language recommendation, so the tools add up to an actual call
+  // instead of disconnected stats. Read-only over the same data the table already
+  // shows; it never invents a score.
+  //
+  // The record basis is now ⚖️ Word vs Action — the site's one integrity read —
+  // rather than the retired pledge percentage. That is a demotion of arithmetic,
+  // not of substance: Word vs Action pools the pledges this verdict used to divide
+  // together with stated positions and issue branding, and tests all of it against
+  // the roll-call record, so "strongest record" means the same thing it always
+  // claimed to and is now backed by the number the profile actually publishes.
+  function _cmpVerdictWordAction(pid, p) {
+    var WA = window.PDXWordAction;
+    if (!WA || typeof WA.read !== 'function') return null;
+    try {
+      var r = WA.read(pid, p);
+      if (!r || !r.publishable || r.pct === null || r.pct === undefined) return null;
+      return { pct: r.pct, verdict: r.verdict, tested: (r.coverage && r.coverage.tested) || 0 };
+    } catch (e) { return null; }
+  }
+  // Depth of settled pledge record, as a count. Used only to break ties and to
+  // say what the receipts are — never divided.
+  function _cmpVerdictPledges(p) {
+    var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(p) : null;
+    return t && t.resolved > 0 ? t : null;
   }
   function _cmpVerdictIsCandidate(p) {
     return /candidate|nominee/i.test(p.office || '');
@@ -1119,13 +1118,17 @@
     const hasAlignment = (typeof _alignIssues !== 'undefined' && _alignIssues.size > 0);
     const recs = pids.map(pid => {
       const p = CMP_DATA[pid];
-      const score = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(p) : p.score;
+      const wa = _cmpVerdictWordAction(pid, p);
       const align = (hasAlignment && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      const pl = _cmpVerdictPledges(p);
       return {
         pid,
         short: (p.name || '').split(' ').pop() || p.name,
-        score: (score === null || score === undefined) ? null : score,
-        ft: _cmpVerdictFollowThrough(p),
+        // `score` is the ⚖️ Word vs Action percentage — the one published read.
+        score: wa ? wa.pct : null,
+        waVerdict: (wa && wa.verdict && wa.verdict.label) ? wa.verdict.label : null,
+        tested: wa ? wa.tested : 0,
+        pledges: pl,
         align: (align === null || align === undefined) ? null : align,
         isCand: _cmpVerdictIsCandidate(p),
         onTeam: (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(pid),
@@ -1134,7 +1137,7 @@
 
     // Pick the strongest pick and the basis we judged on. Alignment leads when
     // the visitor has set it (it answers "fits ME?"); otherwise we fall back to
-    // the public record (Promise Score, broken ties by Follow-Through).
+    // the public record (Word vs Action, ties broken by how much was tested).
     const bestBy = (arr, key, tie) => arr.reduce((a, b) => {
       if (b[key] > a[key]) return b;
       if (b[key] === a[key] && tie && (b[tie] || 0) > (a[tie] || 0)) return b;
@@ -1153,7 +1156,7 @@
     if (!standout) {
       const withS = recs.filter(r => r.score !== null);
       if (withS.length) {
-        standout = bestBy(withS, 'score', 'ft');
+        standout = bestBy(withS, 'score', 'tested');
         basis = 'record';
         const others = withS.filter(r => r !== standout);
         close = others.length > 0 && (standout.score - Math.max(...others.map(r => r.score))) <= 4;
@@ -1162,36 +1165,37 @@
 
     let kicker, lead, body, neutral = false;
     if (!standout) {
-      // Nobody has a record or an alignment read yet — almost always an all-new
-      // field of 2026 candidates. Don't fake a winner; point at the tools that
-      // actually apply.
+      // Nobody has a testable record or an alignment read yet — almost always an
+      // all-new field of 2026 candidates. Don't fake a winner; point at the tools
+      // that actually apply.
       neutral = true;
       kicker = 'The Bottom Line';
-      lead = `These are new candidates with no track record yet`;
+      lead = `There's no testable record here yet`;
       body = hasAlignment
-        ? `There's nothing settled to score, so weigh them on the <strong>policy positions</strong> below. Their personal <strong>🎯 Alignment</strong> match is your best signal here.`
-        : `There's nothing settled to score yet. Weigh them on the <strong>policy positions</strong> below, or set the <strong>🎯 Alignment Tool</strong> to see which one fits your values.`;
+        ? `Nothing they've said has been put to a vote yet, so weigh them on the <strong>policy positions</strong> below. Their personal <strong>🎯 Alignment</strong> match is your best signal here.`
+        : `Nothing they've said has been put to a vote yet. Weigh them on the <strong>policy positions</strong> below, or set the <strong>🎯 Alignment Tool</strong> to see which one fits your values.`;
     } else if (basis === 'alignment') {
       kicker = 'The Bottom Line · Best fit for you';
       const hasScore = standout.score !== null;
-      const recordBit = hasScore ? ` and has kept <strong>${standout.score}%</strong> of their tracked promises` : '';
+      const recordBit = hasScore ? ` and their record backs their word <strong>${standout.score}%</strong> of the time it's been tested` : '';
       lead = close
         ? `It's close — <strong>${standout.short}</strong> edges ahead on your issues`
         : `<strong>${standout.short}</strong> is your strongest match`;
       const togetherBit = hasScore
-        ? `Alignment shows they're with you on <em style="color:#c4b5fd;font-style:normal;">your</em> issues; the Promise Score shows whether they follow through — ${standout.short} reads well on both.`
-        : `Alignment shows they're with you on <em style="color:#c4b5fd;font-style:normal;">your</em> issues. As a new candidate they have no track record yet, so weigh the policy positions below alongside that match.`;
+        ? `Alignment shows they're with you on <em style="color:#c4b5fd;font-style:normal;">your</em> issues; <strong>⚖️ Word vs Action</strong> shows whether they act on what they say — ${standout.short} reads well on both.`
+        : `Alignment shows they're with you on <em style="color:#c4b5fd;font-style:normal;">your</em> issues. Nothing they've said has been tested against a vote yet, so weigh the policy positions below alongside that match.`;
       body = `Based on the positions you set, ${standout.short} aligns with you most at <strong>${standout.align}%</strong>${recordBit}. ` +
              togetherBit +
              (close ? ` The runner-up is right behind, so skim the policy rows before you commit.` : '');
     } else {
       kicker = 'The Bottom Line · Strongest record';
-      const ftBit = standout.ft !== null ? `, keeping <strong>${standout.ft}%</strong> of the promises that are settled` : '';
+      const pl = standout.pledges;
+      const plBit = pl ? `, with <strong>${pl.kept} kept</strong> and <strong>${pl.broken} broken</strong> pledges on file` : '';
       lead = close
         ? `It's close — <strong>${standout.short}</strong> has the slight edge on record`
         : `<strong>${standout.short}</strong> has the strongest track record`;
-      body = `${standout.short} leads on Promise Score at <strong>${standout.score}%</strong>${ftBit}. ` +
-             `That's the accountability read — how much of what they pledged they've actually delivered. ` +
+      body = `${standout.short} leads on <strong>⚖️ Word vs Action</strong> at <strong>${standout.score}%</strong>${plBit}. ` +
+             `That's the one accountability read — how often the record backs up what they said, across ${standout.tested} tested position${standout.tested === 1 ? '' : 's'}. ` +
              `<strong>Set the 🎯 Alignment Tool</strong> to also see who fits <em style="color:#93c5fd;font-style:normal;">your</em> values, not just who keeps their word.` +
              (close ? ` It's a tight race — the policy rows below break the tie.` : '');
     }
@@ -1424,7 +1428,7 @@
 
     c.innerHTML =
       `<div class="cmp-coach-head"><span class="cmp-coach-ico">⚖️</span> Add one more to compare</div>`
-      + `<div class="cmp-coach-body">A side-by-side needs <strong>2 or more</strong> picks. Put <strong>${name}</strong> next to ${inlinePhrase} to weigh <strong>Promise Scores</strong>, <strong>accountability</strong> and policy positions together — the clearest way to decide a seat <em>before</em> you add anyone to your team.</div>`
+      + `<div class="cmp-coach-body">A side-by-side needs <strong>2 or more</strong> picks. Put <strong>${name}</strong> next to ${inlinePhrase} to weigh their <strong>records</strong>, <strong>accountability</strong> and policy positions together — the clearest way to decide a seat <em>before</em> you add anyone to your team.</div>`
       + `<div class="cmp-coach-actions">${rivalBtn}${browseBtn}</div>`;
     c.style.display = '';
   }
@@ -1971,25 +1975,28 @@
         var tid=m[0],sub=m[1],cty=m[2],dist=m[3],tc=TC[tid];
         var cont=getSub(tid,sub);if(!cont)continue;
         var iss=(p.keyIssues||[]).join(',');
-        // Only treat the score as real when a promise has actually resolved —
-        // a stored % with 0 kept + 0 broken reads as "No record yet" instead.
-        var scShow=window._pdxDisplayScore(p);
-        var scNull=(scShow===null||scShow===undefined);
-        var sc=scNull?'#9fb4d4':(scShow>=70?'#34d399':scShow>=50?'#f5c842':'#f87171');
-        var scTxt=scNull?'—':scShow+'%';
-        // Promise Score pill — always rendered so every card reads as complete. A
-        // scored politician shows the color-coded percentage; one with no record yet
-        // shows a clean "No record yet" line in the same slot instead of a bare dash.
+        // Pledge receipts pill — always rendered so every card reads as complete.
+        // This slot used to hold a colour-coded "Promise Score" percentage. That
+        // figure is retired: a card-sized rate beside ⚖️ Word vs Action on the
+        // profile made two numbers compete over what was being rated. What sits
+        // here now is a COUNT — how many pledges have actually settled — with the
+        // kept / broken / pending split in the stat pills directly below it.
+        var _plTally=(typeof window._pdxPromiseTally==='function')?window._pdxPromiseTally(p):null;
+        var plRes=_plTally?_plTally.resolved:0;
+        var plOpen=_plTally?_plTally.unresolved:0;
+        var scNull=(plRes<=0);
         var pmScoreWrap=scNull
-          ? '<div class="pm-card-score-wrap"><div class="pm-card-score pm-card-score-na">—</div><div class="pm-card-score-label">Promise Score</div><div class="pm-card-score-norec">No record yet</div></div>'
-          : '<div class="pm-card-score-wrap"><div class="pm-card-score" style="color:'+sc+';">'+scTxt+'</div><div class="pm-card-score-label">Promise Score</div></div>';
+          ? (plOpen
+            ? '<div class="pm-card-score-wrap"><div class="pm-card-score" style="color:#f5c842;">'+plOpen+'</div><div class="pm-card-score-label">Pledges tracked</div><div class="pm-card-score-norec">None settled yet</div></div>'
+            : '<div class="pm-card-score-wrap"><div class="pm-card-score pm-card-score-na">—</div><div class="pm-card-score-label">Pledges settled</div><div class="pm-card-score-norec">No pledge record yet</div></div>')
+          : '<div class="pm-card-score-wrap"><div class="pm-card-score" style="color:#9fb4d4;">'+plRes+'</div><div class="pm-card-score-label">Pledges settled</div></div>';
         var pmStatus=(typeof window._pdxStatusBadge==='function')?window._pdxStatusBadge(p,{size:'sm'}):'';
         // Secondary "Early in Term" / "Limited Record" chip for sparse officeholders,
         // matching the shared card shell so a thin sitting member reads as intentional.
         var pmDepth=(typeof window._pdxDepthBadge==='function')?window._pdxDepthBadge(p,{size:'sm'}):'';
         var pmParty=(typeof window._pdxPartyChip==='function')?window._pdxPartyChip(p.party):'';
         var pmOffice=(typeof window._pdxOfficeLine==='function')?window._pdxOfficeLine(p):(p.office||'');
-        var pmStats=(!scNull&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending,{record:p}):'';
+        var pmStats=((plRes>0||plOpen>0)&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending,{record:p}):'';
         // First sentence of the bio as a one-line "impact" blurb. Guard the empty
         // case (no bio) so the row never renders as a lone period, and avoid cutting
         // at an abbreviation such as "U.S." or "Sen." by falling back to a longer
@@ -2105,7 +2112,7 @@
         if (label.querySelector('.pm-info-tip')) return;
         var tip = document.createElement('span');
         tip.className = 'pm-info-tip';
-        tip.innerHTML = '<span class="pm-info-icon">ⓘ</span><span class="pm-tooltip">This is their <strong>Promise Score</strong> — the percentage of public promises they actually kept, based on verified, sourced records. Higher means more accountable. Scores update as the community submits new evidence.</span>';
+        tip.innerHTML = '<span class="pm-info-icon">ⓘ</span><span class="pm-tooltip">These are their <strong>promise receipts</strong> — how many public pledges have actually settled, and how many of those were kept or broken, from verified sourced records. PolitiDex publishes no promise percentage: pledges are one input to the single <strong>⚖️ Word vs Action</strong> read on their profile, which tests everything they have said against how they voted.</span>';
         label.appendChild(tip);
       });
     }

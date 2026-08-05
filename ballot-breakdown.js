@@ -436,12 +436,24 @@
     }
     window._getPhotoUrl = _getPhotoUrl;
 
-    function _scoreColor(score) {
-      if (score === null || score === undefined) return '#94a3b8';
-      if (score >= 70) return '#4ade80';
-      if (score >= 50) return '#f5c842';
-      return '#f87171';
+    // One line naming what the pledge lane has on this record — "27 kept · 8
+    // broken", "3 tracked · none resolved" or "No pledge record yet". This is what
+    // ballot cards print where a pledge percentage used to go: the receipts are
+    // real, the rate is retired, and ⚖️ Word vs Action is the one published read.
+    function _bbLedgerLine(d) {
+      if (!d) return 'No pledge record yet';
+      var slot = (typeof window._pdxLedgerSlot === 'function') ? window._pdxLedgerSlot(d) : null;
+      if (slot) return slot.state === 'ledger' ? slot.sub : (slot.state === 'tracking' ? slot.sub : 'No pledge record yet');
+      var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
+      if (!t || !t.resolved) return 'No pledge record yet';
+      return t.kept + ' kept · ' + t.broken + ' broken';
     }
+
+    // RETIRED with the pledge percentage: `_scoreColor()` graded a pledge rate
+    // green / amber / red. It is deleted rather than left unused because colouring
+    // a slot by a rate publishes the rate, and a dead ramp is the easiest thing in
+    // this file to reach for the next time someone needs "a colour for a score".
+    // Pledge state has no good or bad colour — use `_bbLedgerLine()` above.
 
     function _renderSummaryBox(selections) {
       var grid = document.getElementById('myteam-summary-grid');
@@ -461,9 +473,8 @@
         if (d) {
           filled++;
           var photo = _getPhotoUrl(pid);
-          var dsc = window._pdxDisplayScore(d);
-          var sc = _scoreColor(dsc);
-          if (dsc !== null && dsc !== undefined) { totalScore += dsc; scoredCount++; }
+          var _st = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
+          if (_st) { totalScore += _st.resolved; if (_st.resolved > 0) scoredCount++; }
           var photoHtml = photo
             ? '<div class="myteam-sum-photo"><img loading="lazy" decoding="async" src="' + photo + '" alt="' + d.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.4rem;color:#9fb4d4\\\'>' + (d.icon || '🏛') + '</div>\'"></div>'
             : '<div class="myteam-sum-photo" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#9fb4d4;">' + (d.icon || '🏛') + '</div>';
@@ -472,7 +483,7 @@
             '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.58rem;margin-bottom:1px;">' + race.label + '</div>' +
             '<div class="font-display tracking-wider text-white leading-tight" style="font-size:0.78rem;margin-bottom:2px;">' + d.name + '</div>' +
             '<div class="font-condensed" style="font-size:0.55rem;color:#7596c0;margin-bottom:2px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (d.office || '') + '</div>' +
-            (dsc !== null && dsc !== undefined ? '<div class="font-condensed" style="font-size:0.65rem;color:' + sc + ';font-weight:700;">' + dsc + '% Promise Score</div>' : '<div class="font-condensed" style="font-size:0.6rem;color:#647a9c;">No record yet</div>') +
+            '<div class="font-condensed" style="font-size:0.6rem;color:#9fb4d4;">' + _bbLedgerLine(d) + '</div>' +
             '<div class="myteam-card-btns">' +
               '<button class="myteam-profile-btn" onclick="event.stopPropagation();if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" title="View Full Profile">View Full Profile →</button>' +
               '<button class="ballot-clear-btn" onclick="event.stopPropagation();ballotClearRace(\'' + race.key + '\')" title="Remove pick" style="margin-top:0;font-size:0.6rem;">&times; Remove</button>' +
@@ -520,13 +531,15 @@
 
       if (statsEl) {
         if (filled > 0) {
-          var avgScore = scoredCount > 0 ? Math.round(totalScore / scoredCount) : null;
-          var avgColor = avgScore !== null ? _scoreColor(avgScore) : '#94a3b8';
+          // `totalScore` counts resolved pledges across the slate, not points —
+          // see the accumulator. Averaging pledge rates over a ballot averaged
+          // fractions with unrelated denominators; the tile now states how many
+          // receipts the slate rests on, and is not colour-graded.
           var teamPct = Math.round((filled / BALLOT_RACES.length) * 100);
           var statsHtml = '<div class="myteam-stats-row">' +
             '<div class="myteam-stat"><div class="myteam-stat-value" style="color:#4ade80;">' + filled + '<span style="font-size:0.7em;color:#7596c0;">/' + BALLOT_RACES.length + '</span></div><div class="myteam-stat-label">Races Filled</div></div>';
-          if (avgScore !== null) {
-            statsHtml += '<div class="myteam-stat"><div class="myteam-stat-value" style="color:' + avgColor + ';">' + avgScore + '%</div><div class="myteam-stat-label">Avg Promise Score</div></div>';
+          if (totalScore > 0) {
+            statsHtml += '<div class="myteam-stat"><div class="myteam-stat-value" style="color:#c8d7ee;">' + totalScore + '</div><div class="myteam-stat-label">Pledge Receipts</div></div>';
           }
           statsHtml += '</div>' +
             '<div class="myteam-progress-wrap">' +
@@ -586,7 +599,6 @@
         candidates.forEach(function(c) {
           var isSelected = c.pid === selectedPid;
           var photo = _getPhotoUrl(c.pid);
-          var sc = _scoreColor(c.score);
           var whyText = _getWhyText(c.pid);
           var photoHtml = photo
             ? '<div class="ballot-cand-photo"><img loading="lazy" decoding="async" src="' + photo + '" alt="' + c.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:0.9rem;color:#9fb4d4\\\'>' + (c.icon || '🏛') + '</div>\'"></div>'
@@ -595,7 +607,8 @@
             photoHtml +
             '<div class="flex-1 min-w-0">' +
               '<div class="font-condensed text-xs tracking-wider text-white" style="font-size:0.72rem;line-height:1.25;">' + c.name + '</div>' +
-              (c.score !== null && c.score !== undefined ? '<div class="font-condensed" style="font-size:0.6rem;color:' + sc + ';">' + c.score + '% score</div>' : '') +
+              // Receipts, never a rate — one integrity read, and this lane is not it.
+              '<div class="font-condensed" style="font-size:0.6rem;color:#9fb4d4;">' + _bbLedgerLine(typeof CMP_DATA !== 'undefined' ? CMP_DATA[c.pid] : null) + '</div>' +
               (whyText ? '<div class="font-condensed ballot-cand-why">' + whyText + '</div>' : '') +
             '</div>' +
             '<div class="ballot-cand-actions">' +
@@ -2544,10 +2557,7 @@
     // Tracked so the open/closed state survives a Key Races re-render.
     var _krAlignExpanded = new Set();
 
-    function _krScoreColor(s) {
-      if (s === null || s === undefined) return '#9fb4d4';
-      return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
-    }
+    // RETIRED with the pledge percentage — see the `_scoreColor` note above.
     function _krPartyMeta(p) {
       // Party arrives in two shapes across the data set: the original single-letter
       // codes ('R', 'D', 'I', 'F') in the bundled records, and the full party names
@@ -2617,27 +2627,30 @@
     //     Analysis). When no score exists yet it shows a clean "Tap to analyze"
     //     (incumbents) / "No record yet" (challengers) prompt instead of a number.
     function _krScoreCells(pid, d, isIncumbent) {
-      var dScore = window._pdxDisplayScore(d);
-      var hasScore = dScore !== null && dScore !== undefined;
+      // The cell used to lead with a pledge percentage and carry the kept/broken
+      // counts as its footnote. It now leads with the counts, because they are the
+      // evidence and the rate was a second score competing with ⚖️ Word vs Action.
+      var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
+      var slot = (typeof window._pdxLedgerSlot === 'function')
+        ? window._pdxLedgerSlot(d, { status: isIncumbent ? 'office' : 'candidate' })
+        : { glyph: '🤝', label: 'Pledges', sub: '' };
       var promiseHtml;
-      if (hasScore) {
-        var pCol = _krScoreColor(d.score);
+      if (t && t.resolved > 0) {
         promiseHtml =
-          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — ' + d.score + ' percent of campaign promises kept; tap to see how it is calculated">' +
-            '<span class="kr-score-ico">📊</span>' +
-            '<span class="kr-score-num" style="color:' + pCol + ';">' + d.score + '<span style="font-size:0.95rem;">%</span></span>' +
+          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Pledge receipts for ' + d.name + ' — ' + t.kept + ' kept, ' + t.broken + ' broken; tap for how this lane works">' +
+            '<span class="kr-score-ico">🤝</span>' +
             '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Promise ⓘ</span>' +
-              '<span class="kr-score-sub"><span style="color:#4ade80;">✓' + (d.kept || 0) + '</span> <span style="color:#f87171;">✕' + (d.broken || 0) + '</span> kept/broken</span>' +
+              '<span class="kr-score-label">Pledges ⓘ</span>' +
+              '<span class="kr-score-sub"><span style="color:#4ade80;">✓' + t.kept + '</span> <span style="color:#f87171;">✕' + t.broken + '</span> kept/broken</span>' +
             '</span>' +
           '</button>';
       } else {
         promiseHtml =
-          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — tap to see how the Promise % is calculated">' +
-            '<span class="kr-score-ico">📊</span>' +
+          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Pledge receipts for ' + d.name + ' — tap for how this lane works">' +
+            '<span class="kr-score-ico">🤝</span>' +
             '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Promise ⓘ</span>' +
-              '<span class="kr-score-sub">' + (isIncumbent ? 'Being compiled' : 'No record yet') + '</span>' +
+              '<span class="kr-score-label">Pledges ⓘ</span>' +
+              '<span class="kr-score-sub">' + (slot.state === 'tracking' ? slot.sub : (isIncumbent ? 'Being compiled' : 'No record yet')) + '</span>' +
             '</span>' +
           '</button>';
       }
@@ -4202,8 +4215,11 @@
           title: _krStanceIssueLabel(best.k),
           teaser: best.t,
           body: best.t,
+          // Receipts, not a rate. This line used to end "(Promise 77%)", which put
+          // the retired pledge percentage back in front of a voter mid-ballot —
+          // the counts already say more, and they carry their own denominator.
           why: hasScore
-            ? ('Track record so far: ' + (d.kept || 0) + ' promises kept · ' + (d.broken || 0) + ' broken (Promise ' + d.score + '%). Tap Profile for the receipts behind every one.')
+            ? ('Track record so far: ' + (d.kept || 0) + ' promises kept · ' + (d.broken || 0) + ' broken. Tap Profile for the receipts behind every one.')
             : 'PolitiDex is still compiling this official’s full voting record — more lands on their profile soon.',
           total: 0
         };
@@ -4996,16 +5012,18 @@
         if (d) {
           filled++;
           var entry = race.label + ': ' + d.name;
-          var dsc = window._pdxDisplayScore(d);
-          if (dsc !== null && dsc !== undefined) {
-            entry += ' (' + dsc + '% Promise Score)';
-            totalScore += dsc;
+          // Pasted text carries the receipts, not a rate — the same rule the share
+          // card follows: a bare percentage travels without its denominator.
+          var _t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
+          if (_t && _t.resolved > 0) {
+            entry += ' (' + _t.kept + ' kept · ' + _t.broken + ' broken)';
+            totalScore += _t.resolved;
             scoredCount++;
           }
           picks.push(entry);
         }
       });
-      var avgLine = scoredCount > 0 ? '\nAvg Promise Score: ' + Math.round(totalScore / scoredCount) + '%' : '';
+      var avgLine = totalScore > 0 ? '\nPledge receipts on file: ' + totalScore : '';
       var text = filled > 0
         ? '🗳️ My 2026 Voting Team (' + filled + '/6 picked):\n\n' + picks.join('\n') + avgLine + '\n\nBuild yours → https://politidex.fyi #PolitiDex #2026Ballot'
         : 'Build your 2026 Voting Team at https://politidex.fyi #PolitiDex';

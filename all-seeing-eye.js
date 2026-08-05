@@ -603,6 +603,7 @@
           if (st) t = st.tier;
         }
       } catch (e) {}
+      if (t === 'summary') return { id: 'share', ico: '⚖️', label: 'Share their record card' };
       if (t === 'record') return { id: 'share', ico: '🏛️', label: 'Share the record card' };
       if (t === 'receipt') return { id: 'share', ico: '🧾', label: 'Share the receipt' };
       return { id: 'share', ico: '🔗', label: 'Share profile link' };

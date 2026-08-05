@@ -34,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v50';
+const CACHE_VERSION = 'v51';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -109,6 +109,12 @@ const SHELL_ASSETS = [
   // back to a link-only share, which is a visible loss of function on a repeat
   // visit. Tiny, and it depends on nothing being cached alongside it.
   '/share-anywhere.js',
+  // The whole-person record card (window.PDXProfileCard) — the top share tier.
+  // Precached alongside the resolver above for exactly the same reason: without
+  // it every share on a repeat visit silently drops to a single-receipt image,
+  // which is the anecdote the card was built to replace. It draws its own avatars
+  // and needs no network at all once cached.
+  '/profile-card.js',
   // The profile ordering layer (window.PDXProfileSpine) and its stylesheet.
   // Precached together: without the script a repeat visitor gets the profile in
   // its unordered build order, and without the stylesheet the stage rails,

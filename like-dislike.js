@@ -876,11 +876,20 @@
   };
 
   // ════════════════════════════════════════════════════════════════════════
-  // PROMISE % EXPLAINER POPOVER
-  // A clean, non-overwhelming modal that demystifies the green Promise % /
-  // Follow-Through pill: how it's calculated, that pending promises are kept
-  // out of the math, that every promise is sourced from public records, and
-  // when scores refresh. Opened from any score pill (cards + profile hero).
+  // PROMISE RECEIPTS EXPLAINER POPOVER
+  //
+  // This used to explain a score. It explained "Promise % = Kept ÷ (Kept +
+  // Broken)", worked the division out with the tapped official's own numbers,
+  // and reconciled the raw ratio against the weighted published figure. That
+  // percentage has been RETIRED — PolitiDex publishes one integrity read
+  // (⚖️ Word vs Action), and a second rated track competing with it was the
+  // confusion the retirement removes.
+  //
+  // So this popover now explains the RECEIPTS: what makes a promise kept or
+  // broken, what happens to pending ones, where each verdict is sourced, and
+  // where those verdicts go (into the one read, as its heaviest tier). It still
+  // names the tapped official's own counts, because counts are facts about a
+  // list you can go and read. It computes no rate, for anyone, ever.
   // ════════════════════════════════════════════════════════════════════════
   window._pdxClosePromiseInfo = function() {
     var ov = document.getElementById('pdx-pinfo-overlay');
@@ -908,64 +917,45 @@
       document.body.appendChild(ov);
     }
 
-    // When we know which politician was tapped, show their own quick math so the
+    // When we know which politician was tapped, show their own counts so the
     // explanation is concrete rather than abstract.
     //
-    // Except when the counts have no itemized pledge list behind them. This
-    // explainer is reachable from the counts-only pledge lane, which deliberately
-    // publishes no rate — and working the division out longhand here ("27 ÷ (27 +
-    // 8) = 77% raw") would publish it in the one place the reader went looking for
-    // a number. The general formula above still explains how the lane works; only
-    // this official's own unauditable figure is withheld.
+    // COUNTS ONLY, FOR EVERY RECORD. This used to branch: a counts-only record got
+    // its counts, and an itemized one got the division worked out longhand ("27 ÷
+    // (27 + 8) = 77% raw") plus the weighted published figure underneath. Both of
+    // those printed the retired score in the one place a reader came looking for a
+    // number, which is the worst possible place for it to survive. There is now a
+    // single path, and it ends at the counts.
     var calcLine = '';
     try {
       var p = (pid && typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
       var itemized = (typeof window._pdxHasItemizedPledges !== 'function') || !p || window._pdxHasItemizedPledges(p);
-      if (p && !itemized && typeof p.kept === 'number' && typeof p.broken === 'number' && (p.kept + p.broken) > 0) {
+      if (p && typeof p.kept === 'number' && typeof p.broken === 'number' && (p.kept + p.broken) > 0) {
         calcLine = '<div class="pdx-pinfo-calc">' +
           (p.name ? String(p.name).split(' ').slice(-1)[0] : 'This official') + ': ' +
           '<span style="color:#4ade80;font-weight:700;">' + (p.kept || 0) + ' kept</span> · ' +
           '<span style="color:#f87171;font-weight:700;">' + (p.broken || 0) + ' broken</span>' +
-          ((typeof p.pending === 'number' && p.pending > 0) ? '<span style="color:#8aa3c4;font-weight:600;"> · ' + p.pending + ' pending (not counted)</span>' : '') +
-          '<div style="margin-top:0.35rem;color:#9fb4d4;font-weight:600;">Those counts are on file, but the individual pledges behind them are not itemized yet — so no percentage is published for them here or anywhere else on the profile.</div>' +
+          ((typeof p.pending === 'number' && p.pending > 0) ? '<span style="color:#8aa3c4;font-weight:600;"> · ' + p.pending + ' pending (held against no one)</span>' : '') +
+          '<div style="margin-top:0.35rem;color:#9fb4d4;font-weight:600;">' +
+            (itemized
+              ? 'Each of those pledges is listed on the profile with its own verdict and source, so you can read the record rather than a number derived from it.'
+              : 'Those counts are on file, but the individual pledges behind them are not itemized yet.') +
+          '</div>' +
           '</div>';
-      } else if (p && typeof p.kept === 'number' && typeof p.broken === 'number') {
-        var k = p.kept || 0, b = p.broken || 0, res = k + b;
-        if (res > 0) {
-          var rate = Math.round(k / res * 100);
-          var nm = (p.name ? String(p.name).split(' ').slice(-1)[0] : 'This official');
-          // Surface this official's own pending count so "shown separately, doesn't
-          // count" is concrete rather than abstract.
-          var pend = (typeof p.pending === 'number' && p.pending > 0) ? p.pending : 0;
-          var pendNote = pend ? '<span style="color:#8aa3c4;font-weight:600;"> · ' + pend +
-            ' pending (not counted)</span>' : '';
-          // The figure this popover was opened FROM is the published headline —
-          // the same ratio with flagship promises weighted by real-world impact.
-          // Showing only the raw ratio here made the explainer contradict the
-          // number the visitor just tapped, so name both when they differ.
-          var pubScore = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(p) : null;
-          var pubNote = (pubScore !== null && pubScore !== undefined && Math.round(pubScore) !== rate)
-            ? '<div class="pdx-pinfo-calc" style="margin-top:0.35rem;">Published follow-through: <span style="color:#f5c842;font-weight:700;">' +
-              Math.round(pubScore) + '%</span><span style="color:#8aa3c4;font-weight:600;"> · flagship promises are weighted by real-world impact, so the headline sits ' +
-              (Math.round(pubScore) < rate ? 'below' : 'above') + ' the raw ratio</span></div>'
-            : '';
-          calcLine = '<div class="pdx-pinfo-calc">' + nm + ': <span style="color:#4ade80;font-weight:700;">' + k +
-            '</span> ÷ (<span style="color:#4ade80;font-weight:700;">' + k + '</span> + <span style="color:#f87171;font-weight:700;">' +
-            b + '</span>) = <span style="color:#f5c842;font-weight:700;">' + rate + '% raw</span>' + pendNote + '</div>' + pubNote;
-        }
       }
     } catch (e) {}
 
     ov.innerHTML =
-      '<div class="pdx-pinfo-card" role="dialog" aria-modal="true" aria-label="How the Promise score is calculated">' +
+      '<div class="pdx-pinfo-card" role="dialog" aria-modal="true" aria-label="How promise receipts work">' +
         '<div class="pdx-pinfo-head">' +
-          '<div class="pdx-pinfo-title">🤝 How the <span>Promise %</span> works</div>' +
+          '<div class="pdx-pinfo-title">🤝 How <span>promise receipts</span> work</div>' +
           '<button class="pdx-pinfo-close" onclick="window._pdxClosePromiseInfo()" aria-label="Close">✕</button>' +
         '</div>' +
         '<div class="pdx-pinfo-formula">' +
-          '<div class="pdx-pinfo-formula-eq">Promise % = <span class="k">Kept</span> ÷ (<span class="k">Kept</span> + <span class="b">Broken</span>)</div>' +
-          '<p style="font-size:0.76rem;color:#9fb4d4;line-height:1.55;margin:0;">Only <strong style="color:#cbd9ec;">resolved</strong> promises count. ' +
-            '<strong style="color:#f5c842;">Pending</strong> promises are shown separately and never count for or against the score until they play out.</p>' +
+          '<div class="pdx-pinfo-formula-eq"><span class="k">Kept</span> · <span class="b">Broken</span> · Pending — counted, never averaged</div>' +
+          '<p style="font-size:0.76rem;color:#9fb4d4;line-height:1.55;margin:0;">Every promise is judged on its own and listed with its receipt. ' +
+            '<strong style="color:#f5c842;">Pending</strong> promises are shown separately and count for or against no one until they play out. ' +
+            '<strong style="color:#cbd9ec;">No follow-through percentage is published</strong> — not here, not on any profile.</p>' +
           calcLine +
         '</div>' +
         '<div class="pdx-pinfo-row">' +
@@ -974,21 +964,26 @@
         '</div>' +
         '<div class="pdx-pinfo-row">' +
           '<span class="pdx-pinfo-row-ico">⚖️</span>' +
-          '<p>A higher percentage means an official <strong>follows through</strong> on more of what they pledged. We only track <strong>verifiable public promises</strong>.</p>' +
+          '<p>Kept and broken pledges feed the one read PolitiDex publishes — <strong>Word vs Action</strong>, "does what they say match what they do?" — where explicit pledges are the heaviest kind of word. There is no separate promise grade to compare it against.</p>' +
         '</div>' +
-        '<p class="pdx-pinfo-note">Scores update after each legislative session as pending promises resolve. Estimates built from public records — not official government findings.</p>' +
+        '<p class="pdx-pinfo-note">Verdicts update after each legislative session as pending promises resolve. Judgements built from public records — not official government findings.</p>' +
       '</div>';
 
     document.body.style.overflow = 'hidden';
     requestAnimationFrame(function() { ov.classList.add('open'); });
   };
 
-  // Plain-language explainer contrasting the two signals a voter weighs in Relevant
-  // to Me: the Promise % (the formal record built IN OFFICE) vs the Accountability of
-  // Truth Score (the personal-consistency / integrity / public-behavior read). Opened
-  // from the "What's the difference?" link on the dual-signal scorecard. Reuses the
-  // same pinfo overlay/close machinery as the Promise explainer. When a politician is
-  // known, it names their two live numbers so the contrast is concrete, not abstract.
+  // Plain-language explainer for the ONE read: does what they say match what they
+  // do? Opened from the "What's the difference?" link on the dual-signal scorecard.
+  // Reuses the same pinfo overlay/close machinery as the receipts explainer.
+  //
+  // IT USED TO BE A SCORE COMPARISON. Two columns, two colour-coded percentages —
+  // 🤝 Promise Follow-Through on the left, ⚖️ Say-vs-Do on the right — with the
+  // official's two live figures printed above them. That framing is exactly what
+  // the retirement removes: a reader was being asked to hold two ratings of the
+  // same person in their head and work out which one to believe. The columns now
+  // explain the two SIDES of a single read — what counts as their word, and what
+  // counts as their action — and the live line names counts instead of rates.
   window._pdxScoreCompareInfo = function(ev, pid) {
     if (ev && ev.stopPropagation) ev.stopPropagation();
     var ov = document.getElementById('pdx-pinfo-overlay');
@@ -1000,49 +995,52 @@
       document.body.appendChild(ov);
     }
 
-    // Concrete current readings for this official, when we can resolve them.
+    // Concrete current readings for this official, when we can resolve them. The
+    // pledge side contributes COUNTS; the only percentage that may appear here is
+    // the one primary read, and only when its own floors let it publish.
     var liveLine = '';
     try {
       var d = (pid && typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
-      var sc = (d && typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(d) : null;
       var svd = (pid && typeof window._calcConsistencyScore === 'function') ? window._calcConsistencyScore(pid) : null;
-      var pTxt = (sc !== null && sc !== undefined)
-        ? '<b style="color:#f5c842;">' + sc + '%</b>'
-        : '<span style="color:#8aa3c4;">no record yet</span>';
+      var kc = (d && typeof d.kept === 'number') ? d.kept : 0;
+      var bc = (d && typeof d.broken === 'number') ? d.broken : 0;
+      var pTxt = (kc + bc) > 0
+        ? '<b style="color:#f5c842;">' + kc + ' kept · ' + bc + ' broken</b>'
+        : '<span style="color:#8aa3c4;">no pledges on file yet</span>';
       var aTxt = (svd && typeof svd.score === 'number')
         ? '<b style="color:#6ee7a0;">' + svd.score + '%</b>'
         : '<span style="color:#8aa3c4;">' + (svd && svd.pending ? 'checking record' : (svd && svd.stated > 0 ? 'limited record' : 'set your stances')) + '</span>';
       if (d) {
         var nm = (d.name ? String(d.name).split(' ').slice(-1)[0] : 'This official');
-        liveLine = '<div class="pdx-pinfo-calc">' + nm + ' today: 🤝 Promises ' + pTxt + ' · ⚖️ Say-vs-Do ' + aTxt + '</div>';
+        liveLine = '<div class="pdx-pinfo-calc">' + nm + ' today: 🤝 Pledges ' + pTxt + ' · ⚖️ Say-vs-Do ' + aTxt + '</div>';
       }
     } catch (e) {}
 
     ov.innerHTML =
-      '<div class="pdx-pinfo-card" role="dialog" aria-modal="true" aria-label="Promise Follow-Through vs Say-vs-Do">' +
+      '<div class="pdx-pinfo-card" role="dialog" aria-modal="true" aria-label="How the say-vs-do read works">' +
         '<div class="pdx-pinfo-head">' +
-          '<div class="pdx-pinfo-title">🤝 Do they <span>keep their word?</span></div>' +
+          '<div class="pdx-pinfo-title">⚖️ Do they <span>keep their word?</span></div>' +
           '<button class="pdx-pinfo-close" onclick="window._pdxClosePromiseInfo()" aria-label="Close">✕</button>' +
         '</div>' +
-        '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">Two concrete, checkable reads on whether they follow through — the promises they made, and whether their votes back up the positions they claim.</p>' +
+        '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">One read, built from two halves: everything they have said on the record, tested against everything they have actually done. There is no second score to weigh it against.</p>' +
         liveLine +
         '<div class="pdx-pinfo-cmp">' +
           '<div class="pdx-pinfo-cmp-col" style="border-color:rgba(245,200,66,0.3);">' +
-            '<div class="pdx-pinfo-cmp-h" style="color:#f5c842;">🤝 Promise Follow-Through</div>' +
-            '<div class="pdx-pinfo-cmp-sub">Kept ÷ (kept + broken)</div>' +
-            '<p>The share of tracked, public campaign promises they’ve actually <strong>kept vs. broken</strong> (pending promises excluded). It answers: <em>did they do what they promised?</em></p>' +
+            '<div class="pdx-pinfo-cmp-h" style="color:#f5c842;">🤝 What counts as their word</div>' +
+            '<div class="pdx-pinfo-cmp-sub">Pledges · positions · signature issues</div>' +
+            '<p>Explicit <strong>promises</strong> are the heaviest — each one listed with a kept, broken or pending verdict and its source. Sourced positions and the issues they campaign on count too, more lightly. <em>Counted, never averaged into a grade of their own.</em></p>' +
           '</div>' +
           '<div class="pdx-pinfo-cmp-col" style="border-color:rgba(110,231,160,0.32);">' +
-            '<div class="pdx-pinfo-cmp-h" style="color:#6ee7a0;">⚖️ Say-vs-Do</div>' +
-            '<div class="pdx-pinfo-cmp-sub">Votes vs. their own words</div>' +
-            '<p>Whether their <strong>actual voting record backs up the positions they state</strong> — agreement-neutral. It answers: <em>do their actions match their words?</em></p>' +
+            '<div class="pdx-pinfo-cmp-h" style="color:#6ee7a0;">⚖️ What counts as their action</div>' +
+            '<div class="pdx-pinfo-cmp-sub">Roll-call votes and formal acts</div>' +
+            '<p>Whether their <strong>actual record backs up what they claimed</strong> — agreement-neutral, judged issue by issue. This is the test the word above is put through.</p>' +
           '</div>' +
         '</div>' +
         '<div class="pdx-pinfo-row">' +
           '<span class="pdx-pinfo-row-ico">🎯</span>' +
-          '<p>Separately, <strong>Your&nbsp;Match&nbsp;%</strong> is purely how well their stated positions fit <em>your</em> issues — the personalized number, kept distinct from these two record scores.</p>' +
+          '<p>Separately, <strong>Your&nbsp;Match&nbsp;%</strong> is purely how well their stated positions fit <em>your</em> issues — a personal fit, not a judgement of their integrity.</p>' +
         '</div>' +
-        '<p class="pdx-pinfo-note">Where the public record is too thin to score fairly, Say-vs-Do shows <strong>Limited record</strong> and stays neutral — it is never guessed.</p>' +
+        '<p class="pdx-pinfo-note">Where the public record is too thin to judge fairly, the read shows <strong>Limited record</strong> and stays neutral — it is never guessed, and no narrower percentage is substituted for it.</p>' +
       '</div>';
 
     document.body.style.overflow = 'hidden';

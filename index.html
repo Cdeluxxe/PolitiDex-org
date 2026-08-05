@@ -1198,15 +1198,20 @@
   // Global cache for original states before they get overwritten by Firestore
   window._originalStates = {};
 
-  // ── Promise Score honesty guard ──────────────────────────────────────────
-  // A Promise Score (Follow-Through Rate) is only meaningful once at least one
-  // promise has actually resolved — i.e. been counted as kept or broken. With
-  // nothing resolved, any stored score is not a real follow-through record, so
-  // showing a percentage (e.g. "64%") is misleading, especially for 2026
-  // candidates and brand-new officeholders. These helpers let every display
-  // path treat the score as absent in that case and render "—" / "No record
-  // yet" instead, while leaving the underlying p.score untouched so sorting and
-  // the separate accountability model are unaffected.
+  // ── Promise ledger helpers (the Promise % score is RETIRED) ──────────────
+  // PolitiDex publishes ONE integrity percentage: the ⚖️ Word vs Action score
+  // (word-action.js). Promise Follow-Through used to be a second, rival rate —
+  // "X% Kept Word" — and it is now retired as a scored metric everywhere. The
+  // pledge ledger itself is untouched and is still shown, as COUNTS: kept,
+  // broken and pending are real receipts and they feed the pledge tier of
+  // Word vs Action.
+  // So these helpers exist to state what is known WITHOUT a percentage:
+  // `_pdxPledgeNote` / `_pdxCountsNote` / `_pdxTrackingNote` are the count
+  // labels every surface should print where the rate used to sit.
+  // `_pdxDisplayScore` survives only as a HAS-A-CLOSED-LEDGER state flag (a
+  // number means "this record has resolved pledges", null means it does not) —
+  // it must not be interpolated into markup as a figure, and `p.score` stays
+  // untouched so sorting and the separate accountability model are unaffected.
   // The kept / broken tally behind the score, read from whichever shape a record
   // carries, plus the pending / partial side of the same ledger. `resolved` is
   // still kept + broken and nothing else — pending and partial are reported
@@ -1333,6 +1338,19 @@
   window._pdxCountsNote = function(p, form) {
     if (window._pdxPromiseState(p) !== 'counts') return '';
     var t = window._pdxPromiseTally(p);
+    var base = t.kept + ' kept · ' + t.broken + ' broken';
+    return form === 'short' ? base : base + ' of ' + t.resolved + ' resolved';
+  };
+  // The same counts, ungated: "27 kept · 8 broken" (short) or "27 kept · 8
+  // broken of 35 resolved" (long) for ANY record with a closed pledge ledger,
+  // itemized or not. This is what surfaces print where the retired Promise %
+  // used to go — `_pdxCountsNote` above stays gated to the 'counts' state
+  // because it also carries the "not itemized yet" caveat, but a surface that
+  // simply wants the receipts, and would otherwise fall back to a percentage,
+  // wants this one. '' when nothing has resolved.
+  window._pdxPledgeNote = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.resolved) return '';
     var base = t.kept + ' kept · ' + t.broken + ' broken';
     return form === 'short' ? base : base + ' of ' + t.resolved + ' resolved';
   };
@@ -1739,8 +1757,8 @@ window.PDXLazy = (function () {
 
   <!-- ── Primary Meta ─────────────────────────────────────── -->
   <title>PolitiDex | Bound by Truth</title>
-  <meta name="description" content="We track every promise, vote, and claim politicians make — then hold them accountable with transparent Promise % scores. No spin. No sides. Just receipts." />
-  <meta name="keywords" content="PolitiDex, politician accountability, promise tracker, fact check, political promises, promise score, political reforms, national politics, state politics, term limits, campaign finance reform" />
+  <meta name="description" content="We check what politicians say against how they actually vote — one clear Word vs Action read, backed by sourced receipts. No spin. No sides. Just receipts." />
+  <meta name="keywords" content="PolitiDex, politician accountability, promise tracker, fact check, political promises, word vs action, voting record, political reforms, national politics, state politics, term limits, campaign finance reform" />
   <meta name="author" content="Colt Reber / PolitiDex" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://politidex.fyi/" />
@@ -1749,7 +1767,7 @@ window.PDXLazy = (function () {
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://politidex.fyi/" />
   <meta property="og:title" content="PolitiDex | Bound by Truth" />
-  <meta property="og:description" content="We track every promise, vote, and claim politicians make — then hold them accountable with transparent Promise % scores. No spin. No sides. Just receipts." />
+  <meta property="og:description" content="We check what politicians say against how they actually vote — one clear Word vs Action read, backed by sourced receipts. No spin. No sides. Just receipts." />
   <meta property="og:site_name" content="PolitiDex" />
   <meta property="og:locale" content="en_US" />
   <!-- Default share image (site-wide). A branded 1200×630 card, rasterized from
@@ -1766,7 +1784,7 @@ window.PDXLazy = (function () {
   <meta name="twitter:site" content="@politidex" />
   <meta name="twitter:image" content="https://politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
   <meta name="twitter:title" content="PolitiDex | Bound by Truth" />
-  <meta name="twitter:description" content="Transparent Promise % scores for every politician. No spin. No sides. Just receipts." />
+  <meta name="twitter:description" content="Does what they say match what they do? One clear Word vs Action read per politician, backed by sourced receipts." />
 
   <!-- ── Favicon (SVG + emoji fallback) ───────────────────── -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23c0152a'/><text y='46' x='5' font-size='42' font-family='Arial Black,sans-serif' font-weight='900' fill='white' letter-spacing='-2'>PX</text></svg>" />
@@ -1791,7 +1809,7 @@ window.PDXLazy = (function () {
     "@type": "WebSite",
     "name": "PolitiDex",
     "url": "https://politidex.fyi",
-    "description": "We track every promise, vote, and claim politicians make — then hold them accountable with transparent Promise % scores.",
+    "description": "We track every promise, vote, and claim politicians make, then check what they say against how they vote — one transparent Word vs Action read.",
     "publisher": {
       "@type": "Organization",
       "name": "PolitiDex",
@@ -3049,22 +3067,25 @@ window.PDXLazy = (function () {
         if (el && txt) el.textContent = txt;
       };
 
-      // Top promise score: the official with the highest follow-through rate
-      // among those who actually have a resolved promise record (so brand-new
-      // candidates with no record never get crowned).
+      // Deepest pledge ledger: the official with the most RESOLVED promises on
+      // file among those who actually have a record (so brand-new candidates with
+      // no record never get crowned). This used to crown the highest Promise %
+      // and print it as "Name · 92%" — a rate with no denominator, on the busiest
+      // surface on the site. It ranks by how much evidence exists now, not by how
+      // flattering the ratio is. (The #pulse-top-performer slot is currently
+      // absent from the markup, so setVal is a no-op; the path is kept honest
+      // rather than left holding a retired number for whenever it returns.)
       try {
-        if (typeof PROFILES !== 'undefined' && typeof window._pdxDisplayScore === 'function') {
-          var best = null, bestScore = -1;
+        if (typeof PROFILES !== 'undefined' && typeof window._pdxPromiseTally === 'function') {
+          var best = null, bestDepth = 0;
           Object.keys(PROFILES).forEach(function (id) {
             var p = PROFILES[id];
             if (!p || !p.name) return;
-            var s = window._pdxDisplayScore(p);
-            if (s === null || s === undefined || s === '') return;
-            var n = parseInt(s, 10);
-            if (isNaN(n)) return;
-            if (n > bestScore) { bestScore = n; best = p; }
+            var t = window._pdxPromiseTally(p);
+            if (!t || !t.resolved) return;
+            if (t.resolved > bestDepth) { bestDepth = t.resolved; best = p; }
           });
-          if (best) setVal('pulse-top-performer', best.name + ' · ' + bestScore + '%');
+          if (best) setVal('pulse-top-performer', best.name + ' · ' + bestDepth + ' promises resolved');
         }
       } catch (e) {}
 
@@ -5110,7 +5131,7 @@ window.PDXLazy = (function () {
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <div class="bg-navy-900/70 border border-green-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
                   <div id="myteam-stat-avg" class="font-display text-3xl text-green-400" style="text-shadow:0 0 16px rgba(74,222,128,0.25);">—</div>
-                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Avg Promise Score</div>
+                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Pledge Receipts</div>
                 </div>
                 <div class="bg-navy-900/70 border border-amber-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
                   <div id="myteam-stat-count" class="font-display text-3xl text-amber-400">0</div>
@@ -9966,7 +9987,7 @@ window.PDXLazy = (function () {
               <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-crimson-600 to-crimson-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(192,21,42,0.25);">📊</div>
               <div>
                 <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">PROMISE TRACKER <span id="myteam-browse-count" class="font-condensed text-sm font-bold tracking-wider text-steel-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
-                <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise % tracking. Tracked and verified on public record. <a href="#m-promise" class="text-gold-400 hover:text-gold-300 underline">How Promise % works →</a></p>
+                <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise receipts. Tracked and verified on public record. <a href="#m-promise" class="text-gold-400 hover:text-gold-300 underline">How the receipts are counted →</a></p>
                 <!-- Live "collection depth" line — the real totals behind the roster
                      (documented issue positions + tracked promises), computed from the
                      loaded data in _mypolUpdateCount(). Hidden until those totals are
@@ -10272,18 +10293,26 @@ window.PDXLazy = (function () {
               </select>
 
               <select id="myteam-browse-score" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <option value="">— Filter Score —</option>
-                <option value="high">70%+ (High)</option>
-                <option value="mid">40%-69% (Mid)</option>
-                <option value="low">&lt; 40% (Low)</option>
-                <option value="na">No Score Yet</option>
+                <!-- Bands of the retired pledge rate ("70%+ (High)") are gone.
+                     A filter is a use of a score: offering the bands would rank
+                     people by the number the app stopped publishing. These three
+                     options state what the pledge lane HAS, which is a fact about
+                     coverage rather than a rating. -->
+                <option value="">— Pledge Record —</option>
+                <option value="receipts">🤝 Has pledge receipts</option>
+                <option value="tracking">⏳ Tracked, none resolved</option>
+                <option value="none">— No pledge record yet</option>
               </select>
 
               <select id="myteam-browse-sort" onchange="myteamBrowseSortChanged()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <option value="score-desc">Promise Score: High → Low</option>
+                <!-- "Promise Score: High → Low" ranked by the retired rate. The
+                     same option value now orders by how many pledges are RESOLVED
+                     on the record — deepest receipt trail first, which is what a
+                     voter scanning this list actually wanted, and a count rather
+                     than a rate. -->
+                <option value="score-desc">🤝 Most Pledge Receipts</option>
                 <option value="align-desc">🎯 Best Match for You</option>
                 <option value="acct-desc">🛡️ Accountability: High → Low</option>
-                <option value="score-asc">Promise Score: Low → High</option>
                 <option value="alpha">Name (A–Z)</option>
               </select>
 
@@ -15099,7 +15128,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               <div class="va-sub"><h4>🔗 Find the source</h4><p>Real claims link to bills, budgets, or records. No source = treat it as opinion.</p></div>
               <div class="va-sub"><h4>🥊 Beware the strawman</h4><p>If they only attack "the other side," they may be dodging their own record.</p></div>
             </div>
-            <div class="va-callout"><span class="va-co-ico">✅</span><span><strong>Put it to work:</strong> PolitiDex tracks every claim with a transparent <strong>Promise %</strong> score and the receipts behind it — check it yourself instead of taking anyone's word.</span></div>
+            <div class="va-callout"><span class="va-co-ico">✅</span><span><strong>Put it to work:</strong> PolitiDex checks every claim against the record — one <strong>Word vs Action</strong> read with the receipts behind it — check it yourself instead of taking anyone's word.</span></div>
             <div class="va-takeaway"><span class="va-co-ico">🧾</span><span><strong>One-line test:</strong> "Did they vote for it, fund it, and sign it?" If you can't answer all three, the promise isn't kept — it's just a soundbite.</span></div>
             <div class="va-links">
               <a href="#voter-hub">📊 Open the Promise Tracker</a>
@@ -15351,7 +15380,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <div class="bg-navy-800/60 border border-white/5 rounded-2xl p-7 text-center animate-on-scroll" style="transition-delay:0.3s;box-shadow:0 8px 28px rgba(0,0,0,0.25);">
         <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/15 flex items-center justify-center text-4xl mb-5">📊</div>
         <h3 class="font-display text-2xl tracking-wider mb-3">3. SCORE</h3>
-        <p class="text-steel-300 text-sm leading-relaxed">Verified claims update each politician's Promise Score in real time. No rumors, no spin, no partisan weighting — just a clear, data-driven record of who keeps their word and who doesn't. The result: accountability you can measure.</p>
+        <p class="text-steel-300 text-sm leading-relaxed">Verified claims update each politician's Word vs Action read and pledge receipts in real time. No rumors, no spin, no partisan weighting — just a clear, data-driven record of who keeps their word and who doesn't. The result: accountability you can measure.</p>
       </div>
     </div>
   </section>
@@ -15661,7 +15690,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <nav class="bg-navy-800/60 border border-white/8 rounded-2xl p-4 sm:p-5 mb-6 animate-on-scroll" style="transition-delay:0.05s;" aria-label="Methodology contents">
         <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-3">On this page</div>
         <div class="flex flex-wrap gap-2">
-          <a href="#m-promise" class="text-xs font-condensed tracking-wider text-steel-300 hover:text-white bg-navy-900/60 hover:bg-navy-700 border border-white/8 rounded-lg px-3 py-1.5 transition-all">📐 Promise % &amp; Follow-Through</a>
+          <a href="#m-wordaction" class="text-xs font-condensed tracking-wider text-steel-300 hover:text-white bg-navy-900/60 hover:bg-navy-700 border border-white/8 rounded-lg px-3 py-1.5 transition-all">⚖️ Word vs Action <span class="text-gold-400/80">· the one read</span></a>
+          <a href="#m-promise" class="text-xs font-condensed tracking-wider text-steel-300 hover:text-white bg-navy-900/60 hover:bg-navy-700 border border-white/8 rounded-lg px-3 py-1.5 transition-all">🤝 Pledge Receipts</a>
           <a href="#m-sources" class="text-xs font-condensed tracking-wider text-steel-300 hover:text-white bg-navy-900/60 hover:bg-navy-700 border border-white/8 rounded-lg px-3 py-1.5 transition-all">📚 Source Tiers</a>
           <a href="#m-strength" class="text-xs font-condensed tracking-wider text-steel-300 hover:text-white bg-navy-900/60 hover:bg-navy-700 border border-white/8 rounded-lg px-3 py-1.5 transition-all">🎚 Evidence Strength</a>
           <a href="#m-verify" class="text-xs font-condensed tracking-wider text-steel-300 hover:text-white bg-navy-900/60 hover:bg-navy-700 border border-white/8 rounded-lg px-3 py-1.5 transition-all">⚖️ Verification Pipeline</a>
@@ -15675,20 +15705,90 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </div>
       </nav>
 
-      <!-- ①  How Promise % is Calculated -->
-      <div id="m-promise" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.1s;scroll-margin-top:90px;">
-        <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(245,200,66,0.07);">
-          <div class="w-9 h-9 rounded-xl bg-gold-400/15 border border-gold-400/25 flex items-center justify-center text-lg flex-shrink-0">📐</div>
-          <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">How Promise % is Calculated</h3>
+      <!-- ⓞ  ⚖️ Word vs Action — THE one graded read, documented first because it
+           is the one the profile leads with. Everything in the sections below it
+           is evidence that feeds this number, not a rival to it. Figures here
+           mirror word-action.js: tier weights, the two floors, and the fact that
+           a percentage exists only once both floors clear. -->
+      <div id="m-wordaction" class="bg-navy-800/70 border border-gold-400/20 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.08s;scroll-margin-top:90px;">
+        <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(245,200,66,0.10);">
+          <div class="w-9 h-9 rounded-xl bg-gold-400/15 border border-gold-400/25 flex items-center justify-center text-lg flex-shrink-0">⚖️</div>
+          <div>
+            <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Word vs Action</h3>
+            <div class="font-condensed text-xs tracking-widest uppercase text-gold-400/80">The one graded read on PolitiDex</div>
+          </div>
         </div>
         <div class="p-5 sm:p-6">
-          <!-- Formula box -->
           <div class="bg-navy-900/70 border border-gold-400/20 rounded-xl p-4 sm:p-5 mb-5 text-center">
-            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-3">The Formula</div>
+            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-3">The question, asked the same way on every profile</div>
+            <div class="font-display text-2xl sm:text-3xl tracking-wider text-white">Does what they say match what they do?</div>
+          </div>
+
+          <p class="text-sm text-steel-300 leading-relaxed mb-4"><strong class="text-white">WORD</strong> is everything they have documented and sourced — not only the sentences phrased as promises. It is pooled once, in three tiers, so a formal commitment outranks a campaign slogan without either being thrown away:</p>
+          <div class="grid sm:grid-cols-3 gap-3 mb-5">
+            <div class="bg-navy-900/50 border border-white/5 rounded-xl p-3">
+              <div class="font-display text-lg text-white">🤝 Pledge <span class="text-gold-400 text-sm">×3</span></div>
+              <p class="text-xs text-steel-400 leading-relaxed mt-1">An explicit commitment in their own words, or a tracked promise in the ledger. Highest confidence.</p>
+            </div>
+            <div class="bg-navy-900/50 border border-white/5 rounded-xl p-3">
+              <div class="font-display text-lg text-white">🧭 Position <span class="text-gold-400 text-sm">×2</span></div>
+              <p class="text-xs text-steel-400 leading-relaxed mt-1">A stated, sourced stance. Not a promise, but unambiguous about where they stand.</p>
+            </div>
+            <div class="bg-navy-900/50 border border-white/5 rounded-xl p-3">
+              <div class="font-display text-lg text-white">📣 Branding <span class="text-gold-400 text-sm">×1</span></div>
+              <p class="text-xs text-steel-400 leading-relaxed mt-1">A signature issue they campaign on. Low weight, deliberately not zero — running on an issue is a claim about yourself.</p>
+            </div>
+          </div>
+
+          <p class="text-sm text-steel-300 leading-relaxed mb-5"><strong class="text-white">ACTION</strong> is the formal record only — roll-call votes, sponsorships and official acts. Interviews, news coverage and social posts are never treated as action here; blending them in would make the test impossible to fail. Each tested item comes back <span class="text-green-400">✓ backs it up</span>, <span class="text-red-400">⚠ went against it</span>, <span class="text-blue-300">◑ mixed</span>, or <span class="text-steel-400">… limited evidence</span>, straight from the Official Record's own verdict for that issue — this read classifies nothing on its own.</p>
+
+          <div class="bg-navy-900/70 border border-white/8 rounded-xl p-4 mb-5">
+            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-2">The number</div>
+            <p class="text-sm text-steel-300 leading-relaxed">The percentage is the <strong class="text-white">weighted average of the tested items' outcomes</strong> — each item's outcome score times its tier weight, times up to <strong class="text-white">3×</strong> more for how many separate acts judged it, divided by that same total weight. So thirty votes on a hard pledge move it more than one vote on a slogan. Untested word is never scored as agreement or disagreement; it is listed as untested.</p>
+          </div>
+
+          <div class="bg-navy-900/50 border border-crimson-500/20 rounded-xl p-4 mb-5">
+            <div class="font-condensed text-xs tracking-widest uppercase text-crimson-300 mb-2">It fails closed</div>
+            <p class="text-sm text-steel-300 leading-relaxed">A read needs at least <strong class="text-white">3 tested items</strong> and <strong class="text-white">4 total weight</strong> before any percentage exists. Below that there is no number <em>and no verdict</em> — the profile says the coverage is too thin, rather than resting a confident "backs it up" on a single vote. A profile with three tested positions and one with thirty do not get the same confident-looking figure, and the coverage line says which you are reading.</p>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="bg-navy-900/50 border border-white/5 rounded-xl p-4">
+              <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-2">A position is never its own test</div>
+              <p class="text-xs text-steel-400 leading-relaxed">Many documented positions are written <em>from</em> the record ("Voted no on H.R. 8", cited to the House Clerk). Scoring those against the same roll call would return 100% for everyone, forever. They stay on the profile as positions and are excluded from the number.</p>
+            </div>
+            <div class="bg-navy-900/50 border border-white/5 rounded-xl p-4">
+              <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-2">Nothing is counted twice</div>
+              <p class="text-xs text-steel-400 leading-relaxed">At most one scored item per issue. Branding is dropped on any issue a stronger item already holds, and a promise promoted to the pledge tier still occupies exactly one slot. An issue with votes but no documented word produces nothing at all — silence is not a position.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ①  How Pledge Receipts Are Counted. The Promise % rate this section used
+           to document is RETIRED as a published metric; the section stays because
+           the counts are still real evidence and because a methodology page that
+           quietly drops a number it once published is worse than one that says it
+           retired it. The #m-promise anchor is linked from several surfaces. -->
+      <div id="m-promise" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.1s;scroll-margin-top:90px;">
+        <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(245,200,66,0.07);">
+          <div class="w-9 h-9 rounded-xl bg-gold-400/15 border border-gold-400/25 flex items-center justify-center text-lg flex-shrink-0">🤝</div>
+          <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">How Pledge Receipts Are Counted</h3>
+        </div>
+        <div class="p-5 sm:p-6">
+          <!-- Retirement notice — stated before the formula, so nobody reads the
+               formula as a description of something the site still shows. -->
+          <div class="bg-navy-900/70 border border-crimson-500/25 rounded-xl p-4 mb-5">
+            <div class="font-condensed text-xs tracking-widest uppercase text-crimson-300 mb-2">⚠ Retired metric</div>
+            <p class="text-sm text-steel-300 leading-relaxed">PolitiDex no longer publishes a <strong>Promise %</strong> anywhere — not on profiles, cards, comparisons, ballots or share images. Two percentages competing for the same reader made it unclear what was being rated. There is now <strong class="text-white">one graded read</strong>: <a href="#m-wordaction" class="text-gold-400 hover:text-gold-300 underline">⚖️ Word vs Action</a>, which checks each stated position against that politician's own roll-call votes. Promises still count — they appear as <strong class="text-green-400">Kept</strong> / <strong class="text-red-400">Broken</strong> / <span class="text-steel-300">Pending</span> receipts and feed the read above — but they are reported as <strong class="text-white">counts, not a rate</strong>. The formula below is kept on the record because it is what the retired number meant.</p>
+          </div>
+          <!-- Formula box (retired) -->
+          <div class="bg-navy-900/70 border border-gold-400/20 rounded-xl p-4 sm:p-5 mb-5 text-center" style="opacity:0.72;">
+            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-3">The retired formula</div>
             <div class="font-display text-2xl sm:text-3xl tracking-wider text-white mb-2">
               Promise % = <span class="text-green-400">Kept</span> ÷ (<span class="text-green-400">Kept</span> + <span class="text-red-400">Broken</span>)
             </div>
-            <div class="font-condensed text-xs text-steel-400 tracking-wider mt-2">× 100 · Pending promises are excluded from the calculation until resolved</div>
+            <div class="font-condensed text-xs text-steel-400 tracking-wider mt-2">× 100 · Pending promises were excluded until resolved · no longer displayed anywhere</div>
           </div>
 
           <!-- Example walkthrough -->
@@ -15741,8 +15841,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
           <!-- Promise Follow-Through honesty guard -->
           <div class="mt-5 bg-navy-900/60 border border-gold-400/20 rounded-xl p-4">
-            <div class="font-condensed text-xs tracking-widest uppercase text-gold-400 mb-2">Promise Follow-Through — the "No Record Yet" rule</div>
-            <p class="text-sm text-steel-300 leading-relaxed">A Promise % is only meaningful once at least one promise has actually <strong class="text-green-400">resolved</strong> — been counted Kept or Broken. Until then, a stored number would be misleading, so every display path treats the score as absent and shows <span class="font-display text-white">&ldquo;—&rdquo; / &ldquo;No record yet&rdquo;</span> instead. This matters most for 2026 candidates and brand-new officeholders: an all-pending record earns no percentage. The rule lives in <code class="text-gold-300/90 text-xs bg-black/30 px-1.5 py-0.5 rounded">_pdxHasPromiseRecord()</code>, applied everywhere a score is rendered so it can never be gamed by making many unresolvable pledges.</p>
+            <div class="font-condensed text-xs tracking-widest uppercase text-gold-400 mb-2">Pledge receipts — the "No Record Yet" rule</div>
+            <p class="text-sm text-steel-300 leading-relaxed">Receipts only exist once a promise has actually <strong class="text-green-400">resolved</strong> — been counted Kept or Broken. Until then there is nothing to report, so every display path shows <span class="font-display text-white">&ldquo;—&rdquo; / &ldquo;No record yet&rdquo;</span> (or &ldquo;tracked, none resolved yet&rdquo;) rather than a hollow figure. This matters most for 2026 candidates and brand-new officeholders: an all-pending record earns no read at all. The rule lives in <code class="text-gold-300/90 text-xs bg-black/30 px-1.5 py-0.5 rounded">_pdxHasPromiseRecord()</code>, applied everywhere the lane is rendered so it can never be gamed by making many unresolvable pledges.</p>
           </div>
 
           <!-- Provenance + cross-link to the live scoring surface -->
@@ -16268,7 +16368,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
           <div class="flex gap-3 items-start">
             <span class="font-condensed font-700 text-xs text-steel-400 tracking-widest uppercase mt-0.5 flex-shrink-0 w-20">Estimates</span>
-            <p class="text-sm text-steel-300 leading-relaxed">All Promise % scores are estimates based on publicly available information and editorial judgment. They are not legal findings, official government assessments, or definitive verdicts. Reasonable people may disagree on how to score any individual promise.</p>
+            <p class="text-sm text-steel-300 leading-relaxed">All Word vs Action reads, pledge verdicts and Accountability Scores are estimates based on publicly available information and editorial judgment. They are not legal findings, official government assessments, or definitive verdicts. Reasonable people may disagree on how to score any individual promise or position.</p>
           </div>
 
           <div class="border-t border-white/5 pt-4 flex gap-3 items-start">
@@ -16772,18 +16872,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
            steering the visitor toward an actual 2+ comparison (and, when we can
            identify the race, offering to pull in their rivals in one tap). -->
       <div id="cmp-coach" class="cmp-coach" style="display:none;"></div>
-      <!-- "How to read this" guidance — explains how the scores work together.
-           Dismissible; the choice is remembered in localStorage. -->
+      <!-- "How to read this" guidance — names the ONE graded read (Word vs Action)
+           and puts everything else underneath it as evidence. It used to open with
+           two pledge percentages, "Promise Score" and "Follow-Through", which were
+           the same ratio twice; both are retired. Dismissible; the choice is
+           remembered in localStorage. -->
       <div id="cmp-guide" class="cmp-guide" style="display:none;">
         <button class="cmp-guide-dismiss" onclick="cmpDismissGuide()" aria-label="Hide this guide" title="Hide">✕</button>
         <div class="cmp-guide-head"><span>🧭</span> How to read this comparison</div>
         <div class="cmp-guide-grid">
-          <div class="cmp-guide-item"><span class="cmp-guide-ico">📊</span><span><strong>Promise Score</strong> — how much of what they pledged they've actually delivered. Higher = a stronger track record.</span></div>
-          <div class="cmp-guide-item"><span class="cmp-guide-ico">⚖️</span><span><strong>Follow-Through</strong> — of the promises that are settled, the share they kept. This is the accountability read.</span></div>
+          <div class="cmp-guide-item"><span class="cmp-guide-ico">⚖️</span><span><strong>Word vs Action</strong> — does what they say match what they do? Each stated position is checked against their own roll-call votes. This is the one graded read on PolitiDex; everything else below feeds it.</span></div>
+          <div class="cmp-guide-item"><span class="cmp-guide-ico">🤝</span><span><strong>Pledge receipts</strong> — the promises counted <strong class="text-green-400">Kept</strong> or <strong class="text-red-400">Broken</strong>, as counts rather than a rate. Evidence for the read above, not a second score.</span></div>
           <div class="cmp-guide-item"><span class="cmp-guide-ico">🎯</span><span><strong>Your Alignment</strong> — how their record fits <em>your</em> values. Set your Support / Oppose / Mixed positions in <button type="button" onclick="if(window.closeCompare)closeCompare();if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash='#my-stances';" class="cmp-guide-link">🎯 My Stances</button> to unlock it.</span></div>
           <div class="cmp-guide-item"><span class="cmp-guide-ico">🏛</span><span><strong>Where They Stand</strong> — their real, documented positions lined up issue by issue, with a ✓ Agree / ✗ Differ flag where two or more picks both have a stance.</span></div>
         </div>
-        <div class="cmp-guide-tip">💡 <strong>Read them together:</strong> a high Promise Score shows they keep their word; Alignment shows they're keeping it on the issues you care about. New 2026 candidates have no record yet — compare them on <strong>Where They Stand</strong> and alignment instead.</div>
+        <div class="cmp-guide-tip">💡 <strong>Read them together:</strong> Word vs Action shows whether they keep their word; Alignment shows whether they're keeping it on the issues you care about. Coverage varies — a read built on three tested positions says less than one built on thirty, and the card tells you which you're looking at. New 2026 candidates have no voting record yet; compare them on <strong>Where They Stand</strong> and alignment instead.</div>
       </div>
       <!-- The Bottom Line — one synthesized recommendation that reads Promise
            Score, accountability and personal Alignment together so the visitor
@@ -17145,7 +17248,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <!-- Beyond left-vs-right framing — the core premise, stated plainly -->
       <div class="rounded-xl px-4 py-3 mb-6 text-center" style="background:linear-gradient(135deg, rgba(76,29,149,0.30) 0%, rgba(15,23,42,0.55) 100%); border:1px solid rgba(139,92,246,0.35);">
         <p class="font-condensed text-xs sm:text-sm text-purple-100 tracking-wide leading-relaxed">
-          Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/70">party</span>. Judge them by their <strong class="text-white">record</strong> and <strong class="text-purple-200">your values</strong>. Every politician earns a clear Accountability Score, a Promise % from sourced records, and a personal match to you.
+          Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/70">party</span>. Judge them by their <strong class="text-white">record</strong> and <strong class="text-purple-200">your values</strong>. Every politician earns a clear Accountability Score, one Word vs Action read from sourced records, and a personal match to you.
         </p>
       </div>
 
@@ -17170,7 +17273,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <span class="text-xl leading-none mt-0.5">🪪</span>
           <div>
             <div class="font-condensed text-xs tracking-wide uppercase text-white">Politician Profiles</div>
-            <p class="text-steel-400 text-xs font-body leading-snug mt-0.5">Open anyone for a transparent Promise % built from real, sourced records.</p>
+            <p class="text-steel-400 text-xs font-body leading-snug mt-0.5">Open anyone for a transparent Word vs Action read built from real, sourced records.</p>
           </div>
         </div>
         <div class="flex items-start gap-3 bg-navy-900/50 border border-white/5 rounded-xl px-3.5 py-3">
@@ -18327,13 +18430,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
   <script defer src="receipt-cards.js"></script>
+  <!-- Profile record card (window.PDXProfileCard) — the shareable REPORT CARD for a
+       person, as opposed to a single receipt. The two renderers above each print one
+       fact, and one fact leaving the app reads as an anecdote; this prints the whole
+       read in the site's own hierarchy: the ⚖️ Word vs Action verdict in plain
+       language (never a percentage on an image that travels without its
+       denominator), the tested statements broken out as counts, coverage stated
+       outright, one or two highlights and one or two lowlights, the pledge ledger as
+       kept / broken / open, and the honesty note. It scores nothing and relaxes no
+       guard — every figure is read through the public accessor of the module that
+       owns it, and PDXWordAction's own publishing floor decides whether there is a
+       verdict to print at all. Avatars are drawn monograms, so the canvas is never
+       tainted and the share works offline. -->
+  <script defer src="profile-card.js"></script>
   <!-- Share Anywhere (window.PDXShareAnywhere) — the one resolver that answers
        "what is the strongest shareable artifact for this person?" for every
-       surface: the Official Record card (PDXReceiptCards), else the Say-vs-Do
-       receipt (PDXReceipts), else an honest profile link. It renders no image and
-       relaxes no guard — it only chooses between the two pipelines above, which is
-       why it loads AFTER both of them. Its control is fail-open and fixed-size, so
-       hydrating it cannot shift the layout on the mobile surfaces it appears on. -->
+       surface: the whole-person record card (PDXProfileCard), else the Official
+       Record card (PDXReceiptCards), else the Say-vs-Do receipt (PDXReceipts), else
+       an honest profile link. It renders no image and relaxes no guard — it only
+       chooses between the pipelines above, which is why it loads AFTER all of them.
+       An issueKey on the host row suppresses the summary tier, so a share button in
+       a row about one bill still sends that bill. Its control is fail-open and
+       fixed-size, so hydrating it cannot shift the layout on the mobile surfaces it
+       appears on. -->
   <script defer src="share-anywhere.js"></script>
   <!-- Profile spine (window.PDXProfileSpine) — the ordering layer for the profile
        modal. It owns the canonical stage sequence (identity → the short version →
@@ -19017,7 +19136,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         sel: '#tracker',
         emoji: '📊',
         title: 'See Their Record',
-        body: 'Every politician gets a transparent Promise % built from real, sourced records. Search by name or issue, filter by office or score, and use Compare to put candidates side-by-side before you decide.'
+        body: 'Every politician gets one transparent Word vs Action read built from real, sourced records. Search by name or issue, filter by office or record, and use Compare to put candidates side-by-side before you decide.'
       }
     ];
 

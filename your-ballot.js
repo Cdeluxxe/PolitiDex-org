@@ -11,7 +11,7 @@
    vote" consolidated view a step further down the page:
 
         set your address  →  see EVERY contest on your real ballot
-        →  for each seat, weigh the candidates (Promise %, top stances,
+        →  for each seat, weigh the candidates (pledge receipts, top stances,
            funding at a glance)  →  save picks to your team (auto-synced)
 
    It is strictly ADDITIVE. Nothing is deleted. It reuses the app's own,
@@ -21,7 +21,7 @@
      • window._ballotCandidates(key)    – candidates for a seat, filtered by address
      • window.ballotPickCard(key, pid)  – toggle a pick (handles save + team sync + toast)
      • window._ballotLoad()             – current { raceKey: pid } selections
-     • window._pdxDisplayScore(d)       – honest Promise % (null when no record)
+     • window._pdxLedgerSlot(d, opts)    – the pledge lane's receipts for a card slot
      • window._pdxStanceChips(pid,…)    – top documented stances
      • window._pdxFundingChip(pid)      – "who funds them" at a glance
      • window._pdxPartyChip(party)      – neutral party tag
@@ -57,10 +57,9 @@
   }
   function el(id) { return document.getElementById(id); }
   function fn(name) { return typeof window[name] === 'function' ? window[name] : null; }
-  function scoreColor(s) {
-    if (s === null || s === undefined) return '#9fb4d4';
-    return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
-  }
+  // RETIRED with the pledge percentage: `scoreColor()` graded a pledge rate green /
+  // amber / red. Deleted rather than left unused — a colour ramp for "a score" is
+  // the easiest way for the retired number to come back.
   function hasLocation() { return !!window._hasUserLocation; }
   function positions() { return (window.TEAM_POSITIONS && window.TEAM_POSITIONS.length) ? window.TEAM_POSITIONS : []; }
   function candidatesFor(key) {
@@ -143,14 +142,17 @@
       ? '<span class="yb-cand-photo" style="background-image:url(&quot;' + esc(photoUrl) + '&quot;)"></span>'
       : '<span class="yb-cand-photo">' + esc(c.icon || rec.icon || '🏛') + '</span>';
 
-    // Promise % — the honest track-record read; "No record yet" when there's none.
-    var sc = (c.score === undefined) ? (fn('_pdxDisplayScore') ? window._pdxDisplayScore(rec) : null) : c.score;
-    var scoreHtml = (sc === null || sc === undefined)
-      ? '<span class="yb-score yb-noscore" title="No promise record on file yet — nothing to score">'
+    // Pledge receipts, not a pledge rate. This slot held a colour-graded "68%
+    // Promise" chip; PolitiDex publishes one integrity read — ⚖️ Word vs Action —
+    // and the kept/broken pledges are evidence that feeds it, not a rival score.
+    var slot = fn('_pdxLedgerSlot')
+      ? window._pdxLedgerSlot(rec, { status: (c.status || rec.status || '') === 'candidate' ? 'candidate' : 'office' })
+      : null;
+    var scoreHtml = (!slot || slot.state === 'empty')
+      ? '<span class="yb-score yb-noscore" title="No pledge record on file yet">'
           + '<b>No record yet</b></span>'
-      : '<span class="yb-score" style="color:' + scoreColor(sc) + ';border-color:' + scoreColor(sc) + '66;'
-          + 'background:' + scoreColor(sc) + '14;" title="Promise score — share of tracked promises kept">'
-          + '<b>' + sc + '%</b><span>Promise</span></span>';
+      : '<span class="yb-score yb-noscore" title="Kept and broken pledges on file. No rate is published for this lane.">'
+          + '<b>' + slot.glyph + '</b><span>' + esc(slot.sub) + '</span></span>';
 
     var party = fn('_pdxPartyChip') ? window._pdxPartyChip(rec.party) : '';
     var stances = fn('_pdxStanceChips') ? window._pdxStanceChips(pid, rec, { max: 3 }) : '';

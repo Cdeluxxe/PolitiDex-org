@@ -984,7 +984,7 @@
 
       var header = '<div style="margin-bottom:0.85rem;">' +
         '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;display:flex;align-items:center;gap:0.4rem;">🔦 In the Spotlight — Integrity &amp; Consistency</div>' +
-        '<p style="font-size:0.74rem;color:#9fb4d4;line-height:1.55;margin:0.35rem 0 0;">The personal-integrity record behind ' + last + '’s Accountability Score — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <strong style="color:#c4b5fd;">character &amp; consistency</strong> read, <strong style="color:#cdd9ec;">separate from the Promise %</strong> (which tracks formal in-office votes, bills and pledges).</p>' +
+        '<p style="font-size:0.74rem;color:#9fb4d4;line-height:1.55;margin:0.35rem 0 0;">The personal-integrity record behind ' + last + '’s Accountability Score — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <strong style="color:#c4b5fd;">character &amp; consistency</strong> read, <strong style="color:#cdd9ec;">separate from &#9878;&#65039; Word vs Action</strong> (which tests stated positions and pledges against the formal voting record).</p>' +
       '</div>';
 
       if (!items.length){

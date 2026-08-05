@@ -2414,6 +2414,103 @@
      "rationale": "The amendment's stated purpose is its entire substance: \"To make funds available for the timely adjudication of DACA renewal applications.\" A yea funds processing of renewals under the existing Deferred Action for Childhood Arrivals policy, whose recipients lose work authorisation and protection from removal when a renewal lapses in the backlog; a nay leaves the bill's $69.545 billion entirely with border and immigration enforcement. immigration_reform is the chip \"Create earned pathways to citizenship for long-settled immigrants\" and its keyword set names DACA and Dreamers directly. Primary at 100 because a single-purpose amendment has no second axis, with one honest qualification recorded here: the amendment funds ADJUDICATION of an existing deferred-action policy and creates no pathway of its own, so it tests support for protecting long-settled DACA recipients rather than support for a new status. Rejected 47-52, so no renewal-adjudication funding is in Public Law 119-98."
     }
    ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 4",
+   "_comment": "Rescissions Act of 2025, Public Law 119-28 (signed 2025-07-24) — the first rescission request under section 1012 of the Impoundment Control Act to be enacted since 1999. THIS ENTRY IS NOT THE WHOLE MAPPING. The measure carries SEVEN live rows in vr_measure_issues: cut_spending, gov_waste and national_debt from migration 20260719150000_seed_rescissions_voting_record.sql, and america_first 60, audit_spending 55, gov_services 45 yea_opposes and free_speech 30 yea_opposes from 20260721140000_seed_legislation_deepdive.sql. The first three are mirrored below byte-identically on purpose, because applyCuratedIssueSeed() upserts with onConflictDoUpdate and any drift here would silently overwrite the live rationale; only their measure-level sourceUrl is new (the 20260719150000 rows carry no source_url). The four from 20260721140000 are deliberately NOT mirrored and are left exactly as that pass wrote them — omitting a key from this file changes nothing about the live row, because the upsert only touches the keys the seed carries. america_first_fp is the one genuinely NEW mapping this pass adds, and it sits beside the already-live america_first: same substance, but america_first_fp is the chip whose text names foreign aid and the chip 22 rostered members hold a stance on, against 4 for america_first. Both are yea_supports, so they cannot contradict; the opposite-direction precedent is H.R. 815 (118th), mapped america_first_fp 70 yea_opposes by 20260810000000. NOT ADDED, and recorded so the reasoning is visible: foreign_balance ('lead through NATO and allied diplomacy') — two members can read the same yea in opposite directions there, and it is the general-posture chip the alignment-tool.js Israel comment warns against loading with specific votes; checks_balances — the direction of a congressional rescission of a presidential impoundment request is not stable (a yea both ratifies the President's proposal and exercises Congress's own power of the purse), and 20 rostered members hold stances on that key, so a wrong direction would be expensive. gov_services is a disagreement rather than a decline: this pass would not have mapped a public-broadcasting rescission to a Social-Security-and-Medicaid chip, but reversing another pass's published judgement needs its own migration and its own argument, not a silent omission.",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4",
+   "issues": [
+    {
+     "issueKey": "cut_spending",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Rescinds previously appropriated funds, cutting federal spending."
+    },
+    {
+     "issueKey": "gov_waste",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Framed by supporters as clawing back wasteful or low-priority spending."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Modestly reduces outlays against the federal deficit."
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4enr/xml/BILLS-119hr4enr.xml",
+     "rationale": "Nineteen of the enrolled Act's twenty rescission paragraphs strike unobligated foreign-assistance balances, roughly $7.9 billion in all: Development Assistance $2.5B, Economic Support Fund $1.65B, Migration and Refugee Assistance $800M, International Disaster Assistance $496M, Assistance for Europe, Eurasia and Central Asia $460M, International Organizations and Programs $436.9M, Global Health Programs $500M, the Clean Technology Fund $125M, USAID Operating Expenses $125M and the United States Institute of Peace $15M, among others. The america_first_fp chip reads \"Put U.S. interests first, end endless wars and rethink foreign aid commitments\" — rescinding appropriated foreign aid is that chip's own stated content, so a yea supports it. Weighted 65 and not primary because the measure's controlling axis is still spending, not foreign policy.",
+     "_comment": "NEW mapping in this pass. Rationale written from the enrolled text (BILLS-119hr4enr), not from a secondary description."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 331",
+   "_comment": "HALT Fentanyl Act, Public Law 119-26 — permanently places fentanyl-related substances in schedule I. All three mappings below are MIRRORS of rows already live in vr_measure_issues, first written by migration 20260721170000_seed_legislation_expansion.sql; weight, isPrimary, supportMeaning and rationale text are reproduced byte-identically because applyCuratedIssueSeed() upserts and drift would overwrite live values. Mirrored here so this pass's two roll calls (senate 119/1/127 and the House's 321-104 passage at house 119/1/166) satisfy the seed-discipline gate, which requires every measure a roll call attaches to be mapped in this file. No new keys added: the existing three already state the axes honestly, including health_mental as yea_opposes for the treatment-and-research objection raised on the floor.",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/331",
+   "issues": [
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Directly targets the fentanyl overdose crisis by making class-wide Schedule I placement of fentanyl-related substances permanent."
+    },
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Attaches mandatory-minimum penalties and quantity triggers to fentanyl-analogue offenses."
+    },
+    {
+     "issueKey": "health_mental",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Recorded neutrally: some public-health advocates argue permanent scheduling and mandatory minimums emphasize enforcement over treatment — a Yea is tagged as cutting against that concern."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 3486",
+   "_comment": "Stop Illegal Entry Act of 2025 — a two-section sentencing bill amending INA sections 275 and 276, passed the House 226-197 on 2025-09-11 (roll 119/1/264) and received in the Senate with no further action. NOT law. New measure in this pass; both mappings are new, and both are written from the engrossed text (BILLS-119hr3486eh) rather than a secondary description. DECLINED for this measure: deportations ('deport people here illegally') — the bill changes the sentence imposed AFTER a criminal conviction, and expands no removal authority, no detention capacity and no expedited-removal ground, so a yea is not a vote to remove more people; immigration_reform — the bill contains no pathway, status or adjudication provision in either direction; border_wall / lands_energy and the fentanyl keys — nothing in the text touches barriers, land or controlled substances, despite the 15-year enhancement for prior drug misdemeanours being about the offender's record and not about trafficking policy.",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3486",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3486eh/xml/BILLS-119hr3486eh.xml",
+     "rationale": "The bill's entire substance is sentence length. Section 2 raises the improper-entry maximum under 8 U.S.C. 1325 from 2 to 5 years and adds a 5-year mandatory minimum, up to life, for a person who entered unlawfully and is later convicted of any crime punishable by more than a year. Section 3 rewrites the reentry penalties of 8 U.S.C. 1326 with a 10-year general maximum, 15 years after three or more drug or person-crime misdemeanours, a non-concurrent 10 years after removal on terrorism grounds, and a 10-year mandatory minimum after an aggravated-felony or any-felony conviction. The tough_on_crime chip reads \"crack down on crime with strong policing and tougher sentences for offenders\"; a yea is a vote for tougher sentences, which is the chip's own text."
+    },
+    {
+     "issueKey": "border_security",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3486eh/xml/BILLS-119hr3486eh.xml",
+     "rationale": "Illegal entry and reentry are the two federal offences the immigration-enforcement system rests on, and this bill raises the penalty for both — the axis the border_security chip labels 'Strong Border & Enforcement'. Coded secondary at 65 rather than primary because the bill adds no barrier, no agent, no detention bed and no removal authority: it is enforcement severity, not enforcement capacity. The related deportations key is declined outright for the same reason."
+    }
+   ]
   }
  ],
  "_phase12_overlap_priority": {
