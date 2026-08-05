@@ -63,6 +63,31 @@
   to = "/index.html"
   status = 200
 
+# Portrait hosts the Image CDN may fetch from.
+#
+# This exists for ONE caller: the shareable record card (profile-card.js). Every
+# other surface renders a portrait in an <img>, where a cross-origin host costs
+# nothing. A canvas is different — a cross-origin bitmap taints it, and toBlob()
+# then throws at the moment the reader taps share, on a device we never see. So
+# the card loads its face through /.netlify/images, which is our own origin, and
+# these are the hosts that proxy is allowed to resolve on its behalf.
+#
+# The set is exactly the six trusted portrait hosts scripts/test-photo-coverage.mjs
+# already pins for BROWSE_PHOTOS, and for the same reason it gives: a new host is a
+# new availability and a new trust dependency for faces on an accountability app.
+# Widen it deliberately, in both places, or not at all. A host that is not here
+# 404s, which the card handles the same way it handles a dead network — it draws
+# the monogram.
+[images]
+  remote_images = [
+    "https://raw\\.githubusercontent\\.com/.*",   # unitedstates/images — official congressional portraits
+    "https://upload\\.wikimedia\\.org/.*",        # Wikimedia Commons, hashed thumb form (legacy)
+    "https://commons\\.wikimedia\\.org/.*",       # Wikimedia Commons, hash-independent Special:FilePath
+    "https://bioguide\\.congress\\.gov/.*",       # official Bioguide portraits
+    "https://le\\.utah\\.gov/.*",                 # official Utah legislature portraits
+    "https://insurance\\.utah\\.gov/.*"           # official Utah agency portrait
+  ]
+
 # PWA service worker must never be served stale, or clients get stuck on an
 # old worker and miss shell updates. Force revalidation on every request.
 # (The worker versions and prunes its own caches internally.)

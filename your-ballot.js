@@ -21,7 +21,7 @@
      • window._ballotCandidates(key)    – candidates for a seat, filtered by address
      • window.ballotPickCard(key, pid)  – toggle a pick (handles save + team sync + toast)
      • window._ballotLoad()             – current { raceKey: pid } selections
-     • window._pdxLedgerSlot(d, opts)    – the pledge lane's receipts for a card slot
+     • window._pdxLedgerSlot(d, opts)    – the one ⚖️ Word vs Action read for a card slot
      • window._pdxStanceChips(pid,…)    – top documented stances
      • window._pdxFundingChip(pid)      – "who funds them" at a glance
      • window._pdxPartyChip(party)      – neutral party tag
@@ -142,17 +142,18 @@
       ? '<span class="yb-cand-photo" style="background-image:url(&quot;' + esc(photoUrl) + '&quot;)"></span>'
       : '<span class="yb-cand-photo">' + esc(c.icon || rec.icon || '🏛') + '</span>';
 
-    // Pledge receipts, not a pledge rate. This slot held a colour-graded "68%
-    // Promise" chip; PolitiDex publishes one integrity read — ⚖️ Word vs Action —
-    // and the kept/broken pledges are evidence that feeds it, not a rival score.
+    // ⚖️ Word vs Action — the one integrity read, via window._pdxLedgerSlot. This
+    // slot held a colour-graded "68% Promise" chip, then the pledge receipts;
+    // PolitiDex publishes one read, and the kept/broken pledges are evidence
+    // measured inside it, not a rival score with its own slot on a ballot card.
+    // `pid` is required — without it there is no action half to test against.
     var slot = fn('_pdxLedgerSlot')
-      ? window._pdxLedgerSlot(rec, { status: (c.status || rec.status || '') === 'candidate' ? 'candidate' : 'office' })
+      ? window._pdxLedgerSlot(rec, { pid: pid, status: (c.status || rec.status || '') === 'candidate' ? 'candidate' : 'office' })
       : null;
-    var scoreHtml = (!slot || slot.state === 'empty')
-      ? '<span class="yb-score yb-noscore" title="No pledge record on file yet">'
-          + '<b>No record yet</b></span>'
-      : '<span class="yb-score yb-noscore" title="Kept and broken pledges on file. No rate is published for this lane.">'
-          + '<b>' + slot.glyph + '</b><span>' + esc(slot.sub) + '</span></span>';
+    var scoreHtml = !slot
+      ? '<span class="yb-score yb-noscore" title="No record on file yet"><b>No record yet</b></span>'
+      : '<span class="yb-score yb-noscore" title="⚖️ Word vs Action — how often their record backs up what they said. Campaign pledges are measured inside this read.">'
+          + '<b' + (slot.tint ? ' style="color:' + slot.tint + ';"' : '') + '>' + slot.glyph + '</b><span>' + esc(slot.sub) + '</span></span>';
 
     var party = fn('_pdxPartyChip') ? window._pdxPartyChip(rec.party) : '';
     var stances = fn('_pdxStanceChips') ? window._pdxStanceChips(pid, rec, { max: 3 }) : '';

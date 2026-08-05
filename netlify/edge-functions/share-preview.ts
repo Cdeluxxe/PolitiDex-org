@@ -66,7 +66,10 @@ function applyMeta(html: string, r: Resolved, origin: string, canonical: string)
   html = setMeta(html, "property", "og:description", dAttr);
   html = setMeta(html, "property", "og:url", attr(canonical));
   html = setMeta(html, "property", "og:image", attr(image));
-  html = setMeta(html, "property", "og:image:alt", tAttr);
+  // Alt text should describe the IMAGE. On a comparison card the image is the two
+  // facts, which is exactly what the description now carries — so a screen reader
+  // gets the comparison instead of just the name.
+  html = setMeta(html, "property", "og:image:alt", r.comparison ? dAttr : tAttr);
   html = setMeta(html, "name", "twitter:title", tAttr);
   html = setMeta(html, "name", "twitter:description", dAttr);
   html = setMeta(html, "name", "twitter:image", attr(image));

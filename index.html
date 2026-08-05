@@ -20,11 +20,12 @@
 <link rel="dns-prefetch" href="https://upload.wikimedia.org">
 <link rel="dns-prefetch" href="https://img.youtube.com">
 <link rel="preload" as="style" href="/app.css">
-<!-- The hero receipt is the only thing on the page that must be correct in the
-     first frame, so its two (small) scripts are fetched at the very top of the
-     head rather than discovered mid-document where they actually execute. -->
-<link rel="preload" as="script" href="/hero-receipt-data.js">
-<link rel="preload" as="script" href="/hero-receipt.js">
+<!-- The hero record card is the only thing on the page that must be correct in
+     the first frame, so its two (small) scripts are fetched at the very top of
+     the head rather than discovered mid-document where they actually execute.
+     Neither one touches the network or the lazy data bundles. -->
+<link rel="preload" as="script" href="/hero-showcase-data.js">
+<link rel="preload" as="script" href="/hero-showcase.js">
 <script defer src="/pdx-lazy-data.js"></script>
 <!-- Share deep links (share-links.js). Loaded ahead of every feature module so a
      server-visible share link (?bill=… / ?receipt=… / ?record=… / ?rank=…, or a
@@ -2149,14 +2150,263 @@ window.PDXLazy = (function () {
       .pdx-hr-sub, .pdx-hr-issue, .pdx-hr-src { font-size: .75rem; }
     }
 
+    /* ── Hero record card: the shareable artifact, above the fold ────────────
+       Styles for the summary card that hero-showcase.js paints into
+       #hero-showcase. Inline in the head for the same reason as the receipt
+       styles above: this is the component that must be correct at FIRST paint,
+       and an async stylesheet would mean a visible unstyled flash on the very
+       element meant to make a first impression.
+
+       Same restraint, same reason: a document, not a banner. The card is a report
+       card, so it reads like one. Exactly one element carries color — the ⚖️ Word
+       vs Action verdict, tinted with the verdict's own accent, and only once the
+       read is publishable. Party is a single neutral-framed letter. The breakdown
+       bar is the only other chromatic element and it is proportional to real
+       counts, so its color IS the data. Nothing glows, nothing gradients, nothing
+       animates on its own. */
+    #hero-showcase { width: 100%; max-width: 34rem; margin: 0 auto; text-align: left; }
+
+    /* Rail: what this is, where you are in the set, and how to move. */
+    .pdx-hs-rail {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .75rem; margin-bottom: .3rem; padding: 0 .15rem;
+    }
+    .pdx-hs-rail-l { display: inline-flex; align-items: baseline; gap: .5rem; min-width: 0; }
+    .pdx-hs-eyebrow {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .65rem; letter-spacing: .22em; text-transform: uppercase;
+      color: #94a3b8; font-weight: 700;
+    }
+    /* "3 of 6" — the framing that makes this an item from a set rather than one
+       stranger being singled out. Same rationale as .pdx-hr-pos. */
+    .pdx-hs-pos {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
+      color: #64748b; font-weight: 700; font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .pdx-hs-nav { display: inline-flex; gap: .3rem; flex: none; }
+    /* 34px hit targets, sized up on phones below. Arrows rather than a single
+       "next" because a reader who has just been shown a claim about a person
+       should be able to go back to it. */
+    .pdx-hs-arrow {
+      cursor: pointer; width: 34px; height: 34px; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .95rem; color: #cbd5e1;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.14);
+      border-radius: .5rem; padding: 0;
+    }
+    .pdx-hs-arrow:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .pdx-hs-intro {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .74rem; line-height: 1.45; color: #9fb4d4;
+      margin: 0 .15rem .45rem;
+    }
+
+    /* The card itself. Tappable in full — the whole surface opens the profile. */
+    .pdx-hs-card {
+      display: block; width: 100%; text-align: left; cursor: pointer;
+      background: rgba(10,15,30,.72);
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: .85rem;
+      padding: .85rem .9rem 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .pdx-hs-card:hover { border-color: rgba(255,255,255,.24); }
+    .pdx-hs-card:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+
+    /* Head: portrait, name, office, party. */
+    .pdx-hs-head { display: flex; align-items: center; gap: .7rem; }
+    .pdx-hs-face {
+      width: 56px; height: 56px; flex: none; border-radius: .6rem;
+      object-fit: cover; background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    /* The monogram is a real fallback, not a broken state — the same one the
+       shared image uses. A card with no portrait is still fully checkable. */
+    .pdx-hs-face-mono {
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: 1.35rem; font-weight: 700; letter-spacing: .04em; color: #9fb4d4;
+    }
+    .pdx-hs-face-gone { visibility: hidden; }
+    .pdx-hs-who { min-width: 0; flex: 1 1 auto; }
+    .pdx-hs-name {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: 1.35rem; font-weight: 700; line-height: 1.1; color: #fff;
+      margin: 0; text-transform: none; letter-spacing: -.01em;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .pdx-hs-office {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .72rem; letter-spacing: .04em; color: #94a3b8;
+      margin: .1rem 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    /* Party: one letter, neutral frame, party color on the text only. Never a
+       wash across the card — the record is the subject, not the team. */
+    .pdx-hs-party {
+      flex: none; font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      color: var(--p, #94a3b8); border: 1px solid rgba(255,255,255,.16);
+      border-radius: .35rem; padding: .1rem .4rem; background: rgba(255,255,255,.04);
+    }
+
+    /* THE SIGNAL — the one integrity read on the card, and the only place any
+       verdict language appears. There is no second score here and no pledge
+       tally; a pledge is one form of "said" and is already inside this read. */
+    .pdx-hs-signal {
+      margin-top: .75rem; padding: .6rem .65rem;
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.1); border-radius: .6rem;
+    }
+    .pdx-hs-sig-eyebrow {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
+      color: #7f92ad; font-weight: 700;
+    }
+    /* Uncolored until publishable — an unfilled read must not look like a finding.
+       The inline color comes from the verdict's own accent, set by the renderer. */
+    .pdx-hs-sig-read {
+      display: flex; align-items: baseline; gap: .4rem; margin-top: .2rem;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: 1.05rem; font-weight: 700; line-height: 1.2; color: #9fb4d4;
+    }
+    .pdx-hs-sig-ico { flex: none; font-size: .95rem; }
+    .pdx-hs-sig-label { min-width: 0; }
+    .pdx-hs-sig-line {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .74rem; line-height: 1.4; color: #b6c6de; margin: .25rem 0 0;
+    }
+
+    /* Breakdown: counts, plus a bar proportional to those counts. Never a
+       percentage — a rate needs its denominator beside it to be honest, and the
+       denominator is the coverage line directly below. */
+    .pdx-hs-bd { margin-top: .6rem; }
+    .pdx-hs-bar {
+      display: flex; height: 6px; border-radius: 999px; overflow: hidden;
+      background: rgba(255,255,255,.07); gap: 1px;
+    }
+    .pdx-hs-bar-seg { display: block; min-width: 3px; }
+    .pdx-hs-bar-seg.is-good { background: #6ee7a0; }
+    .pdx-hs-bar-seg.is-mixed { background: #93c5fd; }
+    .pdx-hs-bar-seg.is-bad { background: #f89b9b; }
+    .pdx-hs-bd-chips {
+      display: flex; flex-wrap: wrap; gap: .3rem .55rem; margin-top: .35rem;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .68rem; letter-spacing: .04em;
+    }
+    .pdx-hs-bd-chip { color: #8fa2bd; font-variant-numeric: tabular-nums; }
+    .pdx-hs-bd-chip b { font-weight: 700; }
+    .pdx-hs-bd-chip.is-good b { color: #6ee7a0; }
+    .pdx-hs-bd-chip.is-mixed b { color: #93c5fd; }
+    .pdx-hs-bd-chip.is-bad b { color: #f89b9b; }
+
+    /* Coverage, stated outright — the card says how much of the record it could
+       actually test, in the same words the shared image uses. */
+    .pdx-hs-cov {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .68rem; line-height: 1.45; color: #7f92ad;
+      margin: .5rem 0 0; letter-spacing: .03em;
+    }
+    .pdx-hs-cov-k {
+      color: #64748b; text-transform: uppercase; letter-spacing: .16em;
+      font-weight: 700; font-size: .6rem; margin-right: .4rem;
+    }
+    .pdx-hs-cov-wait { margin-top: .55rem; font-style: italic; }
+
+    /* Proof, both directions: what the record backs up and what it contradicts.
+       A card that only ever showed one side would be an argument. */
+    .pdx-hs-proof { list-style: none; margin: .6rem 0 0; padding: 0; }
+    .pdx-hs-proof-row {
+      display: flex; gap: .45rem; align-items: flex-start;
+      padding: .4rem 0; border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .pdx-hs-proof-ico { flex: none; font-size: .8rem; line-height: 1.3; }
+    .pdx-hs-proof-row.is-good .pdx-hs-proof-ico { color: #6ee7a0; }
+    .pdx-hs-proof-row.is-bad .pdx-hs-proof-ico { color: #f89b9b; }
+    .pdx-hs-proof-row.is-mixed .pdx-hs-proof-ico { color: #93c5fd; }
+    .pdx-hs-proof-row.is-gap .pdx-hs-proof-ico { color: #9fb4d4; }
+    .pdx-hs-proof-txt {
+      min-width: 0; font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .76rem; line-height: 1.35; color: #d3dcea;
+    }
+    .pdx-hs-proof-k {
+      display: block; font-size: .58rem; letter-spacing: .16em;
+      text-transform: uppercase; color: #64748b; font-weight: 700;
+      margin-bottom: .1rem;
+    }
+    .pdx-hs-proof-txt b { font-weight: 700; color: #fff; }
+    .pdx-hs-proof-act { display: block; color: #94a3b8; margin-top: .1rem; }
+
+    /* Foot: branding and the two actions. Matches the shared image's lockup so a
+       reader who sees both recognizes the same artifact. */
+    .pdx-hs-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .6rem; margin-top: .75rem; padding-top: .6rem;
+      border-top: 1px solid rgba(255,255,255,.1); flex-wrap: wrap;
+    }
+    .pdx-hs-brand {
+      display: inline-flex; align-items: baseline; gap: .4rem; min-width: 0;
+      font-family: 'Barlow Condensed', system-ui, sans-serif; font-size: .6rem;
+    }
+    .pdx-hs-brand b { color: #e2e8f0; letter-spacing: .18em; font-weight: 700; }
+    .pdx-hs-brand-tag { color: #f5c842; letter-spacing: .1em; }
+    .pdx-hs-brand-url { color: #64748b; letter-spacing: .06em; }
+    .pdx-hs-acts { display: inline-flex; gap: .35rem; flex: none; }
+    .pdx-hs-act {
+      cursor: pointer; font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .66rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: #e2e8f0;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+      border-radius: .45rem; padding: .35rem .6rem; min-height: 32px;
+    }
+    .pdx-hs-act:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+    /* Dots: a second way through the set, and a count of how big it is. */
+    .pdx-hs-dots {
+      display: flex; justify-content: center; gap: .45rem; margin-top: .55rem;
+    }
+    .pdx-hs-dot {
+      cursor: pointer; width: 18px; height: 18px; padding: 0; border: 0;
+      background: none; position: relative;
+    }
+    .pdx-hs-dot::after {
+      content: ''; position: absolute; inset: 6px; border-radius: 999px;
+      background: rgba(255,255,255,.22);
+    }
+    .pdx-hs-dot.is-on::after { background: #f5c842; inset: 5px; }
+    .pdx-hs-dot:focus-visible { outline: 2px solid #93c5fd; outline-offset: 0; border-radius: 999px; }
+
+    @media (min-width: 640px) {
+      .pdx-hs-card { padding: 1.1rem 1.25rem 1.25rem; }
+      .pdx-hs-face { width: 72px; height: 72px; }
+      .pdx-hs-face-mono { font-size: 1.7rem; }
+      .pdx-hs-name { font-size: 1.6rem; }
+      .pdx-hs-sig-read { font-size: 1.2rem; }
+      .pdx-hs-sig-line, .pdx-hs-proof-txt { font-size: .84rem; }
+      .pdx-hs-cov, .pdx-hs-bd-chip { font-size: .74rem; }
+      .pdx-hs-intro { font-size: .8rem; }
+    }
+
+    /* Motion is opt-out, and the opt-out is total: no transition anywhere. The
+       renderer independently refuses to auto-advance under this preference, so
+       the carousel only ever moves when a person moves it. */
+    @media (prefers-reduced-motion: reduce) {
+      #hero-showcase * { transition: none !important; animation: none !important; }
+    }
+
     /* ── Hero: fit the proof on a phone screen ──────────────────────────────
-       The receipt only counts as "above the fold" if it actually clears a phone
-       viewport, and the hero's stacked chrome (padding + logo + brand lockup +
-       three headline lines) consumed roughly 640px of a ~660–700px usable
-       screen before this. These rules trim that stack on small screens ONLY —
-       every value below is inside a max-width:639px query, so the desktop hero
-       is byte-for-byte what it was. Nothing is removed; the logo, the lockup and
-       all three headline lines still render, just at phone-appropriate scale. */
+       The record card only counts as "above the fold" if it actually clears a
+       phone viewport, and the hero's stacked chrome (padding + logo + brand
+       lockup + three headline lines) consumed roughly 640px of a ~660–700px
+       usable screen before this. These rules trim that stack on small screens
+       ONLY — every value below is inside a max-width:639px query, so the desktop
+       hero is byte-for-byte what it was. Nothing is removed; the logo, the lockup
+       and all three headline lines still render, just at phone-appropriate scale.
+       The card is taller than the receipt it replaced, so it will not fully clear
+       a short viewport — what must clear is the head, the signal and the
+       breakdown, i.e. the whole read. Coverage and proof rows sitting an inch
+       below the fold is the correct trade: they are the detail, not the claim. */
     @media (max-width: 639px) {
       #hero { padding-top: 5rem; padding-bottom: 2.5rem; }
       #hero > .relative.mb-8 { margin-bottom: .75rem; }
@@ -2169,21 +2419,30 @@ window.PDXLazy = (function () {
       #hero h1 > span:nth-child(1) { font-size: .78rem; margin-bottom: .55rem; letter-spacing: .18em; }
       #hero h1 > span:nth-child(2) { font-size: 2.35rem; margin-bottom: .1rem; }
       #hero h1 > span:nth-child(3) { font-size: 1.85rem; margin-bottom: .5rem; }
-      #hero-receipt { margin-bottom: 1rem; }
-      .pdx-hr-intro { font-size: .7rem; margin-bottom: .4rem; }
-      .pdx-hr-next { font-size: .6rem; letter-spacing: .1em; padding: .3rem .55rem; }
-      .pdx-hr-open { min-height: 34px; margin-top: .5rem; }
+      #hero-showcase { margin-bottom: 1rem; }
+      .pdx-hs-intro { font-size: .7rem; margin-bottom: .4rem; }
+      /* Hit targets grow on phones even as type shrinks — the arrows and dots are
+         the primary way through the set on a touch screen (swipe is the other),
+         and a 34px arrow that is comfortable with a mouse is not with a thumb. */
+      .pdx-hs-arrow { width: 40px; height: 40px; font-size: 1.05rem; }
+      .pdx-hs-dot { width: 22px; height: 22px; }
+      .pdx-hs-act { min-height: 36px; padding: .4rem .65rem; }
+      .pdx-hs-foot { margin-top: .65rem; }
+      /* Both actions must stay side by side rather than wrapping under the
+         branding, which on a 320px screen would push the card past the fold. */
+      .pdx-hs-brand { font-size: .55rem; gap: .3rem; }
+      .pdx-hs-brand-url { display: none; }
       /* The scroll cue is absolutely positioned at the hero's bottom; with the
-         receipt in place it would sit on top of the card, so it steps aside on
+         record card in place it would sit on top of the card, so it steps aside on
          phones. Scrolling is self-evident once there is a card to scroll past. */
       #hero > .absolute.bottom-8 { display: none; }
     }
 
     /* Short phones (SE-class, and anything in landscape) genuinely cannot fit the
-       logo badge, the brand lockup, three headline lines AND a receipt. Given the
-       choice, the proof stays and the decoration goes: the badge is hidden and
+       logo badge, the brand lockup, three headline lines AND a record card. Given
+       the choice, the proof stays and the decoration goes: the badge is hidden and
        the lockup shrinks to the wordmark's tagline rule. The headline is never
-       touched — the receipt is meant to support the claim, not replace it. */
+       touched — the card is meant to support the claim, not replace it. */
     @media (max-width: 639px) and (max-height: 720px) {
       #hero { padding-top: 4.25rem; }
       #hero > .relative.mb-8 { display: none; }
@@ -2192,10 +2451,11 @@ window.PDXLazy = (function () {
       #hero h1 > span:nth-child(2) { font-size: 2.1rem; }
       #hero h1 > span:nth-child(3) { font-size: 1.65rem; margin-bottom: .35rem; }
       #hero h1 { margin-bottom: .6rem; }
-      /* The framing line is the one piece of the receipt band that a very short
-         phone can lose without the card becoming inexplicable: the "N of 47"
-         counter and the verdict stamp still say "one item from a set, checked".
-         Everything load-bearing stays. */
+      /* The framing line is the one piece of the band that a very short phone can
+         lose without the card becoming inexplicable: the "N of 6" counter and the
+         ⚖️ verdict still say "one item from a set, checked". Everything
+         load-bearing stays. */
+      .pdx-hs-intro { display: none; }
       .pdx-hr-intro { display: none; }
     }
   </style>
@@ -2903,24 +3163,36 @@ window.PDXLazy = (function () {
     </h1>
 
     <!-- ── Proof above the fold ────────────────────────────────────────────
-         One real, sourced, verdict-stamped receipt, positioned between the
-         headline and the explainer copy: the claim, then the evidence for it,
-         then the description of what the site does. A first-time visitor should
-         be able to check something before being asked to believe anything.
+         A full politician RECORD CARD — the same artifact a visitor can share —
+         positioned between the headline and the explainer copy: the claim, then
+         the evidence for it, then the description of what the site does. A
+         first-time visitor should be able to check something before being asked
+         to believe anything.
 
-         The card is painted by hero-receipt.js from hero-receipt-data.js — a
-         small precomputed slice of the real Say-vs-Do engine's own output (see
-         scripts/gen-hero-receipt.mjs). It cannot read window.ACCT_SPOTLIGHT
-         directly: that file is ~154 KB gzipped and is intentionally lazy-loaded,
-         so anything depending on it is by definition not available at first
-         paint.
+         This slot used to hold a single "Says One Thing · Does Another" receipt
+         (hero-receipt.js). That card was true and sourced and had a structural
+         problem: one receipt about one person on one issue is an anecdote, and an
+         anecdote read cold looks like a gotcha rather than a system. The summary
+         card answers the question a visitor actually arrives with — "what is this
+         person's record?" — with the whole ⚖️ Word vs Action read, coverage, the
+         backed-up/mixed/contradicted breakdown and proof in both directions. The
+         receipt band still exists, demoted to a lead-in above the full Say-vs-Do
+         section where being one receipt among many is exactly what it is.
 
-         Starts `hidden` and is only revealed once a receipt with a checkable
-         source URL has actually been rendered. If the seed is missing, empty or
-         malformed, the hero looks exactly as it did before — no skeleton, no
-         placeholder, no example. An empty proof slot is honest; a fake one is
-         the one thing this product cannot ship. -->
-    <div id="hero-receipt" class="mb-6 px-2 sm:px-0" hidden></div>
+         Painted by hero-showcase.js. hero-showcase-data.js is an INVITATION LIST
+         — ranked pids with name, office and party, no verdicts — because the
+         action half of the comparison is the roll-call record behind
+         /api/voting-record and does not exist at build time. Identity paints in
+         the first frame; the read arrives when the engine warms on its own
+         existing lazy schedule; anyone whose settled read is not publishable is
+         dropped from the rotation.
+
+         Starts `hidden` and reveals itself only once a real card is painted. If
+         the seed is missing or every candidate is ruled out, the hero looks
+         exactly as it did before — no skeleton, no placeholder, no example. An
+         empty proof slot is honest; a fake one is the one thing this product
+         cannot ship. -->
+    <div id="hero-showcase" class="mb-6 px-2 sm:px-0" hidden></div>
 
     <!-- Plain-language explainer: what PolitiDex is, in one clear sentence -->
     <p class="hero-body max-w-3xl mx-auto mb-6 px-6 text-steel-100 text-xl sm:text-2xl md:text-[1.7rem] leading-relaxed font-body filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
@@ -2974,15 +3246,19 @@ window.PDXLazy = (function () {
     </div>
   </section>
 
-  <!-- Paint the hero receipt. These are parser-blocking on purpose: they run
-       before the first paint, so the card is present in the very first frame
-       rather than popping in and shifting the hero. Both are preloaded from the
-       head and precached by the service worker, and together they are ~2.7 KB
-       gzipped — a cost the "proof, not promises" first impression is worth.
-       Placed after </section> so the whole hero above them streams and lays out
-       first. -->
-  <script src="/hero-receipt-data.js"></script>
-  <script src="/hero-receipt.js"></script>
+  <!-- Paint the hero record card. These are parser-blocking on purpose: they run
+       before the first paint, so identity (photo, name, office, party) and the
+       ⚖️ signal slot are present in the very first frame rather than popping in
+       and shifting the hero. Both are preloaded from the head and precached by the
+       service worker. Together they are ~11.5 KB gzipped — more than the ~5.7 KB
+       receipt pair they replace, and the honest reason is that this component does
+       more: three lifecycle phases, a browsable carousel, and the settle/rule-out
+       logic that keeps an unpublishable read off the front page. No engine data is
+       pulled here; the read arrives later, off the critical path. The budget is
+       enforced by scripts/test-hero-showcase.mjs. Placed after </section> so the
+       whole hero above them streams and lays out first. -->
+  <script src="/hero-showcase-data.js"></script>
+  <script src="/hero-showcase.js"></script>
 
   <!-- ══════════════════ LIVE PULSE BAR (dynamic stats + quick jumps) ══════
        Replaces the old static marquee. Each chip is a clickable jump point to a
@@ -7163,6 +7439,21 @@ window.PDXLazy = (function () {
        receipt: what a politician said set against what they did, verdict stamped.
        Rendered by window.PDXReceipts (say-vs-do.js) entirely from data the app
        already ships (ACCT_SPOTLIGHT + ISSUE_STANCE_DATA). -->
+
+  <!-- ── The single receipt, demoted from the hero to a lead-in here ──────────
+       This band used to open the homepage. It was moved because one receipt about
+       one person on one issue reads as a gotcha when it is the first thing a
+       visitor sees — the hero now carries the full record card instead. Nothing
+       about hero-receipt.js changed: it still paints the same real, sourced,
+       verdict-stamped card from the same seed, and still self-gates to [hidden]
+       when no receipt with a checkable source URL survives. Here it works as
+       intended — a concrete example immediately above the section that explains
+       the format and shows the rest. Its scripts are deferred now that it is
+       below the fold. -->
+  <div id="hero-receipt" class="w-full px-2 sm:px-0 mb-4" hidden></div>
+  <script src="/hero-receipt-data.js" defer></script>
+  <script src="/hero-receipt.js" defer></script>
+
   <section id="say-vs-do" aria-label="Say vs. Do — sourced receipts" hidden></section>
 
   <!-- ═══════════════════════ ISSUE FRONT DOOR · the question-first entry ══════
@@ -10215,7 +10506,7 @@ window.PDXLazy = (function () {
             </div>
           </div>
           <div class="chub-flow-foot">
-            <p class="chub-flow-foot-note">💡 <strong>Reading the records together:</strong> <strong style="color:#93c5fd;">🏛️ Official Record</strong> is how they voted, <strong style="color:#93c5fd;">🧾 Say-vs-Do</strong> is whether their public record backs their stances, and <strong style="color:#93c5fd;">🤝 Promise Follow-Through</strong> is kept vs. broken promises. The <strong style="color:#c4b5fd;">🎯 Alignment Tool</strong> shows how all of that lands on <em>your</em> issues.</p>
+            <p class="chub-flow-foot-note">💡 <strong>Reading the records together:</strong> <strong style="color:#93c5fd;">🏛️ Official Record</strong> is how they voted, and <strong style="color:#93c5fd;">⚖️ Word vs Action</strong> is whether that record backs what they said — including any campaign pledges, which are measured the same way as every other stated position rather than ranked on their own. The <strong style="color:#c4b5fd;">🎯 Alignment Tool</strong> shows how all of that lands on <em>your</em> issues.</p>
             <button onclick="openCompare()" class="flex-shrink-0 flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-500/90 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-3.5 py-2.5 rounded-lg transition-all" style="white-space:nowrap;cursor:pointer;">
               ⚖️ Open Compare
             </button>
@@ -10305,12 +10596,14 @@ window.PDXLazy = (function () {
               </select>
 
               <select id="myteam-browse-sort" onchange="myteamBrowseSortChanged()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <!-- "Promise Score: High → Low" ranked by the retired rate. The
-                     same option value now orders by how many pledges are RESOLVED
-                     on the record — deepest receipt trail first, which is what a
-                     voter scanning this list actually wanted, and a count rather
-                     than a rate. -->
-                <option value="score-desc">🤝 Most Pledge Receipts</option>
+                <!-- "Promise Score: High → Low" ranked by the retired rate; then
+                     the same value ranked by PLEDGE RECEIPTS, which was a separate
+                     ranking system for pledges wearing a count instead of a rate.
+                     It now orders by ⚖️ Word vs Action — the one published read,
+                     which already contains the pledges. See _waDepth() in
+                     compare-hub.js. The value is unchanged so saved sorts keep
+                     working. -->
+                <option value="score-desc">⚖️ Strongest Word vs Action</option>
                 <option value="align-desc">🎯 Best Match for You</option>
                 <option value="acct-desc">🛡️ Accountability: High → Low</option>
                 <option value="alpha">Name (A–Z)</option>

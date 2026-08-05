@@ -17,7 +17,7 @@
   "S. 5"
  ],
  "rollCallCount": 9,
- "memberVoteCount": 423,
+ "memberVoteCount": 435,
  "scanCoverage": "This is a targeted pass, not a sweep: the three measures were named, and for each one the FULL legislative history was read from the chamber records rather than the roll calls being searched for. For S. 5 that is Senate rolls 119/1/1 through 119/1/7 (the complete floor consideration: two cloture motions, a motion to proceed, three amendment rolls and passage) plus the House's roll 119/1/23, and H.R. 29's roll 119/1/6. For H.R. 4405 the BILLSTATUS action list was read end to end and confirms exactly one recorded vote in either chamber — house 119/1/289 — with the Senate disposing of it 'without amendment by Unanimous Consent' on 2025-11-19, so the absence of a Senate roll is a fact about the record and not a gap in this seed. For S. 1071 the enacted identity was established from the BILLSTATUS action list and the enrolled text before any roll was fetched, which is what ruled out S. 2296 and H.R. 3838; its House rolls 319 and 320 and Senate rolls 646, 647 and 648 are the complete set. Every roll in each of those histories is either in this seed, already in the record, or in declinedRollCalls with a reason.",
  "enactedLawFinding": "All three measures are enacted law, which is the point of the pass: P.L. 119-1 (S. 5, Laken Riley Act, 2025-01-29), P.L. 119-38 (H.R. 4405, Epstein Files Transparency Act, 2025-11-19) and P.L. 119-60 (S. 1071, National Defense Authorization Act for Fiscal Year 2026, 2025-12-18). Two of the three had to be identified rather than looked up. The Laken Riley Act is S. 5 and not the House's H.R. 29, which passed the House and died there — the record filed both S. 5 rolls under H.R. 29 until migration 20260804000000 corrected it. The FY2026 NDAA is S. 1071 and not S. 2296 or H.R. 3838; S. 1071 was a VA-disinterment bill whose text the House struck and replaced, and the Clerk's vote description still shows the original title. Both traps are recorded in declinedFacets and declinedRollCalls so neither can be re-entered by a later pass.",
  "marginCaveats": [
@@ -182,7 +182,7 @@
     "mustExist": "Live as row id 2, status 'passed_house', carrying roll 119/1/6 and all four mappings (deportations primary, border_security, tough_on_crime, states_federal_power) — the last two of which were live in the database but absent from db/vr-issue-seed.json until this pass added them, so the ingest endpoint had nothing to re-assert them from. This pass adds member votes and closes that seed gap; it re-describes nothing."
    },
    "chamberVoting": 434,
-   "rosterSkipped": 376,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -329,6 +329,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -493,6 +500,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -511,6 +525,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -1968,7 +1989,7 @@
     "mustExist": "Created and re-pointed by migration 20260804000000_vr_repair_laken_riley_measure_identity.sql, which established that S. 5 and not H.R. 29 is Public Law 119-1. Live as row id 144, status 'enacted', publicLaw 119-1, carrying senate roll 119/1/7 and house roll 119/1/23 and all four curated mappings (deportations primary, border_security, tough_on_crime, states_federal_power). This pass adds member votes only; the mappings it re-emits from the curated seed are identical to the live rows and so are no-ops."
    },
    "chamberVoting": 433,
-   "rosterSkipped": 376,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -2115,6 +2136,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -2272,6 +2300,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -2290,6 +2325,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -2425,7 +2467,7 @@
     }
    },
    "chamberVoting": 433,
-   "rosterSkipped": 376,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -2571,6 +2613,13 @@
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -2729,6 +2778,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -2746,6 +2802,13 @@
      "bioguideId": "P000605",
      "politicianId": "scott_perry",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -2868,7 +2931,7 @@
     "mustExist": "Live as row id 75, title already correct ('National Defense Authorization Act for Fiscal Year 2026') but status still 'pending' with no publicLaw recorded, carrying house roll 119/1/319 only (On Motion to Commit, failed 209-216, correctly typed 'motion' by migration 20260809000000_vr_map_substantive_remainder.sql, which deliberately left the measure unmapped because a commit motion was then its only roll). This pass adds the two decisive rolls and the mapping, and brings status and external_ids up to Public Law 119-60 without touching the title. vr_measures has no unique index on (congress, number), so the migration resolves the roll-bearing row from roll 119/1/319 rather than assuming, and applies the mapping to every row carrying the number — one row today."
    },
    "chamberVoting": 433,
-   "rosterSkipped": 376,
+   "rosterSkipped": 373,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -3016,6 +3079,13 @@
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "B001317",
@@ -3172,6 +3242,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -3189,6 +3266,13 @@
      "bioguideId": "P000605",
      "politicianId": "scott_perry",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },

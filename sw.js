@@ -48,9 +48,14 @@ const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 const SHELL_ASSETS = [
   '/',
   '/css/tailwind.css',
-  // The above-the-fold receipt. Parser-blocking in index.html, so on a repeat
-  // visit these two must come from the cache or they add latency to the very
-  // first paint they exist to improve. Both are tiny.
+  // The above-the-fold record card. Parser-blocking in index.html, so on a
+  // repeat visit these two must come from the cache or they add latency to the
+  // very first paint they exist to improve. Both are tiny.
+  '/hero-showcase-data.js',
+  '/hero-showcase.js',
+  // The single receipt, now deferred below the fold as a Say-vs-Do lead-in.
+  // Still precached: it is ~2.7 KB for the pair and the band it introduces is
+  // one of the first things a returning visitor scrolls to.
   '/hero-receipt-data.js',
   '/hero-receipt.js',
   // Main site CSS, externalized out of index.html (Run 1 perf pass) so it is
@@ -112,8 +117,9 @@ const SHELL_ASSETS = [
   // The whole-person record card (window.PDXProfileCard) — the top share tier.
   // Precached alongside the resolver above for exactly the same reason: without
   // it every share on a repeat visit silently drops to a single-receipt image,
-  // which is the anecdote the card was built to replace. It draws its own avatars
-  // and needs no network at all once cached.
+  // which is the anecdote the card was built to replace. Its portrait comes from
+  // /.netlify/images, which this worker never intercepts — so offline the card
+  // draws its monogram instead of a face, and everything else on it is unchanged.
   '/profile-card.js',
   // The profile ordering layer (window.PDXProfileSpine) and its stylesheet.
   // Precached together: without the script a repeat visitor gets the profile in

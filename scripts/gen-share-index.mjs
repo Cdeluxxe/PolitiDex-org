@@ -22,7 +22,32 @@
 // verdict that has since moved is exactly the kind of thing that must never
 // travel as a PNG in someone's feed. The edge card says what the page IS.
 //
-// Run it whenever the roster, the Spotlights, or the issue vocabulary change:
+// ── The second output: db/share-stances.json ─────────────────────────────────
+// A Word-vs-Action link is ABOUT a comparison, and until now the edge could not
+// see either half of it, so every record preview unfurled as the same factless
+// template: "What X said about Y, next to what they did." That sentence describes
+// a comparison instead of showing one, which is why nobody clicked it.
+//
+// The DID half already lives in the database and the edge can fetch it. The SAID
+// half lives in the client stance bundle, which no edge function can load. So the
+// stated position is distilled here, into its own file rather than into the index
+// above, because it is ~8× the size of everything else combined and only the two
+// share functions ever read it — keeping it separate makes that cost explicit and
+// measurable rather than smuggled into a file four other things import.
+//
+// This does NOT break the honesty rule above. A stated position and a recorded
+// vote are both immutable facts with sources; the VERDICT computed from them is
+// the revisable interpretation, and that still never travels. The card shows the
+// two facts and lets the reader do the arithmetic.
+//
+// Entries are keyed by the ROSTER id a share link actually carries, not by the
+// stance block's own key, and are resolved with the same precedence the client
+// uses (`_resolveStanceList` in stance-helpers.js: direct id → STANCE_ALIASES →
+// display-name slug → alias of that slug). Resolving here rather than at the edge
+// means the preview can never disagree with the page it previews.
+//
+// Run it whenever the roster, the Spotlights, the stance data, or the issue
+// vocabulary change:
 //   node scripts/gen-share-index.mjs
 // Output is sorted and carries no timestamp, so re-running only changes the file
 // when the underlying content actually changed.
@@ -35,6 +60,18 @@ import vm from "node:vm";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const OUT = join(ROOT, "db", "share-index.json");
+const OUT_STANCES = join(ROOT, "db", "share-stances.json");
+
+// The stance bundle, in the exact set and order index.html loads it with `defer`.
+// politician-stances.js is deliberately ABSENT: it is the retired ~1.1 MB monolith
+// that scripts/split-stances.mjs divided into the two chunks below, and reading it
+// here would ship stale positions the app itself no longer serves.
+const STANCE_FILES = [
+  "politician-stances-core.js",
+  "politician-stances-ext.js",
+  "state-senate-stances.js",
+  ...Array.from({ length: 15 }, (_, i) => `state-senate-stances-w${i + 2}.js`),
+];
 
 // ── Reading the plain-data bundles ───────────────────────────────────────────
 // cmp-data.js and spotlights-data.js are pure `Object.assign(window.X, {…})`
@@ -116,7 +153,35 @@ function trim(s, max) {
 }
 
 // ── people ───────────────────────────────────────────────────────────────────
-const globals = loadDataGlobals(["cmp-data.js", "spotlights-data.js"]);
+const globals = loadDataGlobals(["cmp-data.js", "spotlights-data.js", ...STANCE_FILES]);
+
+// The stance wave files multiply (there are 16 already), and a wave that ships to
+// index.html but not to STANCE_FILES above would silently cost every one of its
+// people a rich preview — a gap nobody would notice, because the fallback is the
+// old factless card that looks fine. So the two lists are asserted equal here.
+{
+  const indexHtml = readFileSync(join(ROOT, "index.html"), "utf8");
+  const referenced = new Set(
+    Array.from(
+      indexHtml.matchAll(/<script[^>]+src="\/?((?:politician|state-senate)-stances[^"]*\.js)"/g),
+      (m) => m[1]
+    )
+  );
+  const missing = [...referenced].filter((f) => !STANCE_FILES.includes(f)).sort();
+  if (missing.length) {
+    throw new Error(
+      `index.html loads stance files this generator does not read: ${missing.join(", ")}. ` +
+        `Add them to STANCE_FILES or their people lose the "said" side of every share preview.`
+    );
+  }
+  const stale = STANCE_FILES.filter((f) => !referenced.has(f)).sort();
+  if (stale.length) {
+    throw new Error(
+      `STANCE_FILES reads files index.html no longer loads: ${stale.join(", ")}. ` +
+        `Remove them, or the preview will quote positions the app does not serve.`
+    );
+  }
+}
 
 const people = {};
 const roster = globals.CMP_DATA || {};
@@ -198,9 +263,96 @@ const payload = {
   issues,
 };
 
+// ── stated positions (the SAID half of a Word-vs-Action preview) ─────────────
+// Resolved with the client's own precedence so the preview and the page can never
+// quote different things. STANCE_ALIASES lives inside a DOM-coupled IIFE, so it is
+// read as a literal rather than executed.
+const stanceAliases = evalLiteral(
+  extractLiteral(
+    readFileSync(join(ROOT, "stance-helpers.js"), "utf8"),
+    /var\s+STANCE_ALIASES\s*=\s*/,
+    "{",
+    "}",
+    "`var STANCE_ALIASES =`"
+  ),
+  "the STANCE_ALIASES literal"
+);
+
+const STANCE_DATA = globals.ISSUE_STANCE_DATA || {};
+if (!Object.keys(STANCE_DATA).length) {
+  throw new Error("ISSUE_STANCE_DATA produced zero entries — refusing to write an empty stance index");
+}
+
+// Mirror of _stanceSlug / _resolveStanceList in stance-helpers.js. Kept literal
+// rather than clever: if that precedence changes, this must change with it.
+function stanceSlug(s) {
+  return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+function resolveStanceList(id, p) {
+  if (id && STANCE_DATA[id]) return STANCE_DATA[id];
+  if (id && stanceAliases[id] && STANCE_DATA[stanceAliases[id]]) return STANCE_DATA[stanceAliases[id]];
+  const nameSlug = p && p.name ? stanceSlug(p.name) : "";
+  if (nameSlug && STANCE_DATA[nameSlug]) return STANCE_DATA[nameSlug];
+  if (nameSlug && stanceAliases[nameSlug] && STANCE_DATA[stanceAliases[nameSlug]]) {
+    return STANCE_DATA[stanceAliases[nameSlug]];
+  }
+  return null;
+}
+
+// A card has room for about two lines of quote and og:description caps at ~200
+// characters, so a longer position is trimmed on a word boundary rather than
+// shipped and clipped mid-glyph by whichever platform renders it.
+const SAID_MAX = 180;
+
+const stances = {};
+let stancePeople = 0;
+for (const id of Object.keys(roster).sort()) {
+  const list = resolveStanceList(id, roster[id]);
+  if (!Array.isArray(list)) continue;
+  let got = 0;
+  for (const s of list) {
+    if (!s || !s.issueKey) continue;
+    // The quote itself. `topic` is the headline, not the position, so it is only a
+    // last resort — and an entry with neither is not a said side at all.
+    const text = trim(s.text || "", SAID_MAX) || trim(s.topic || "", SAID_MAX);
+    if (!text) continue;
+    const key = `${id}|${s.issueKey}`;
+    if (stances[key]) continue; // first stance on an issue wins, as in the app
+    const rec = { t: text };
+    // support / oppose / mixed — the word the app's own verdict is computed
+    // against. Carried so the card can print "Opposes: …" rather than implying a
+    // reading of the prose that the engine did not make.
+    const word = s.issueStance || s.pos || "";
+    if (word) rec.w = trim(word, 12);
+    if (s.topic) rec.h = trim(s.topic, 70);
+    // Source LABEL only. There is no date field anywhere in the stance data (all
+    // 5,180 entries lack one), so the card says who reported the position and does
+    // not invent when — a plausible guessed date is the exact failure this file's
+    // honesty rules exist to prevent.
+    if (s.source && s.source.label) rec.s = trim(s.source.label, 40);
+    stances[key] = rec;
+    got++;
+  }
+  if (got) stancePeople++;
+}
+
+const stancePayload = {
+  _generatedBy: `scripts/gen-share-index.mjs (from cmp-data.js and ${STANCE_FILES.length} stance bundles)`,
+  _note:
+    "The SAID half of a Word-vs-Action share preview: a politician's stated position on one issue, keyed '<rosterId>|<issueKey>'. Facts only — the sourced position and who reported it. No verdict, no score: the DID half is fetched live from the voting-record API at preview time and the reader draws the conclusion. Fields: t=position text, w=support/oppose/mixed, h=topic headline, s=source label. There is no date field because the stance data has none; do not synthesise one.",
+  counts: { people: stancePeople, pairs: Object.keys(stances).length },
+  stances,
+};
+
 writeFileSync(OUT, JSON.stringify(payload) + "\n", "utf8");
+writeFileSync(OUT_STANCES, JSON.stringify(stancePayload) + "\n", "utf8");
 console.log(
   `Wrote share index to ${OUT} — ` +
     `${payload.counts.people} people, ${payload.counts.spotlights} spotlights, ` +
     `${payload.counts.cores} core issues, ${payload.counts.issues} issue keys`
+);
+console.log(
+  `Wrote stated positions to ${OUT_STANCES} — ` +
+    `${stancePayload.counts.pairs} (person, issue) pairs across ${stancePayload.counts.people} people ` +
+    `(${(JSON.stringify(stancePayload).length / 1024).toFixed(0)} KB)`
 );

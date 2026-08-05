@@ -436,24 +436,38 @@
     }
     window._getPhotoUrl = _getPhotoUrl;
 
-    // One line naming what the pledge lane has on this record — "27 kept · 8
-    // broken", "3 tracked · none resolved" or "No pledge record yet". This is what
-    // ballot cards print where a pledge percentage used to go: the receipts are
-    // real, the rate is retired, and ⚖️ Word vs Action is the one published read.
-    function _bbLedgerLine(d) {
-      if (!d) return 'No pledge record yet';
-      var slot = (typeof window._pdxLedgerSlot === 'function') ? window._pdxLedgerSlot(d) : null;
-      if (slot) return slot.state === 'ledger' ? slot.sub : (slot.state === 'tracking' ? slot.sub : 'No pledge record yet');
-      var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
-      if (!t || !t.resolved) return 'No pledge record yet';
-      return t.kept + ' kept · ' + t.broken + ' broken';
+    // The one line every ballot card prints under a name — and it is the ONE READ.
+    //
+    // It used to be `_bbLedgerLine()`, printing "27 kept · 8 broken". On these cards
+    // that line is the only signal there is, so a pledge tally was functionally the
+    // card's summary metric: a voter comparing two picks side by side was comparing
+    // pledge counts, not integrity. A campaign pledge is one FORM OF "said" and it
+    // is already inside ⚖️ Word vs Action — word-action.js tests it against its
+    // sourced resolution exactly as it tests a floor stance — so what belongs here
+    // is that verdict and nothing else. No second tally, no parallel track.
+    //
+    // Below the publishing floor the line states COVERAGE, never a conclusion.
+    // PDXWordAction owns when a read is sayable; a card is the last place to
+    // second-guess it. The pledge data and the kept/broken/pending logic are
+    // untouched and still published on the profile beside their own disclosure.
+    function _bbWaLine(pid, d) {
+      if (!d) return 'No record yet';
+      var r = null;
+      try {
+        var wa = window.PDXWordAction;
+        if (wa && typeof wa.read === 'function') r = wa.read(pid, d);
+      } catch (e) {}
+      if (r && r.publishable && r.verdict && r.verdict.label) return '⚖️ ' + r.verdict.label;
+      if (r && r.coverage && r.coverage.word > 0) return 'Not enough record to check yet';
+      return 'No stated positions on file yet';
     }
 
     // RETIRED with the pledge percentage: `_scoreColor()` graded a pledge rate
     // green / amber / red. It is deleted rather than left unused because colouring
     // a slot by a rate publishes the rate, and a dead ramp is the easiest thing in
     // this file to reach for the next time someone needs "a colour for a score".
-    // Pledge state has no good or bad colour — use `_bbLedgerLine()` above.
+    // Word vs Action carries its own verdict colour from PDXConsistency.VERDICTS,
+    // which is the only good/bad palette on this surface.
 
     function _renderSummaryBox(selections) {
       var grid = document.getElementById('myteam-summary-grid');
@@ -463,8 +477,14 @@
       if (!grid) return;
 
       var filled = 0;
-      var totalScore = 0;
-      var scoredCount = 0;
+      // How many picks have a publishable ⚖️ Word vs Action read. This counter used
+      // to be `totalScore`, accumulating RESOLVED PLEDGES across the slate and
+      // printing the sum in a stat tile beside "Races Filled" — a tally, pooled
+      // across six different people, in the summary band of a summary box. It is
+      // replaced, not just relabelled: the honest slate-level figure is how much of
+      // the ballot has a testable integrity read at all, and that is coverage in the
+      // one system rather than a second score.
+      var waReads = 0;
       var html = '';
 
       BALLOT_RACES.forEach(function(race, idx) {
@@ -473,8 +493,12 @@
         if (d) {
           filled++;
           var photo = _getPhotoUrl(pid);
-          var _st = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
-          if (_st) { totalScore += _st.resolved; if (_st.resolved > 0) scoredCount++; }
+          var _wr = null;
+          try {
+            var _wa = window.PDXWordAction;
+            if (_wa && typeof _wa.read === 'function') _wr = _wa.read(pid, d);
+          } catch (e) {}
+          if (_wr && _wr.publishable) waReads++;
           var photoHtml = photo
             ? '<div class="myteam-sum-photo"><img loading="lazy" decoding="async" src="' + photo + '" alt="' + d.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.4rem;color:#9fb4d4\\\'>' + (d.icon || '🏛') + '</div>\'"></div>'
             : '<div class="myteam-sum-photo" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#9fb4d4;">' + (d.icon || '🏛') + '</div>';
@@ -483,7 +507,7 @@
             '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.58rem;margin-bottom:1px;">' + race.label + '</div>' +
             '<div class="font-display tracking-wider text-white leading-tight" style="font-size:0.78rem;margin-bottom:2px;">' + d.name + '</div>' +
             '<div class="font-condensed" style="font-size:0.55rem;color:#7596c0;margin-bottom:2px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (d.office || '') + '</div>' +
-            '<div class="font-condensed" style="font-size:0.6rem;color:#9fb4d4;">' + _bbLedgerLine(d) + '</div>' +
+            '<div class="font-condensed" style="font-size:0.6rem;color:#9fb4d4;">' + _bbWaLine(pid, d) + '</div>' +
             '<div class="myteam-card-btns">' +
               '<button class="myteam-profile-btn" onclick="event.stopPropagation();if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" title="View Full Profile">View Full Profile →</button>' +
               '<button class="ballot-clear-btn" onclick="event.stopPropagation();ballotClearRace(\'' + race.key + '\')" title="Remove pick" style="margin-top:0;font-size:0.6rem;">&times; Remove</button>' +
@@ -531,15 +555,17 @@
 
       if (statsEl) {
         if (filled > 0) {
-          // `totalScore` counts resolved pledges across the slate, not points —
-          // see the accumulator. Averaging pledge rates over a ballot averaged
-          // fractions with unrelated denominators; the tile now states how many
-          // receipts the slate rests on, and is not colour-graded.
+          // `waReads` counts picks with a publishable ⚖️ Word vs Action read — see
+          // the accumulator. The tile used to read "Pledge Receipts", summing
+          // resolved pledges across the slate: a pooled tally in the summary band,
+          // next to the only other number on the box, which made it read as the
+          // slate's score. It states coverage in the one system instead, and is not
+          // colour-graded, because coverage is neither good nor bad.
           var teamPct = Math.round((filled / BALLOT_RACES.length) * 100);
           var statsHtml = '<div class="myteam-stats-row">' +
             '<div class="myteam-stat"><div class="myteam-stat-value" style="color:#4ade80;">' + filled + '<span style="font-size:0.7em;color:#7596c0;">/' + BALLOT_RACES.length + '</span></div><div class="myteam-stat-label">Races Filled</div></div>';
-          if (totalScore > 0) {
-            statsHtml += '<div class="myteam-stat"><div class="myteam-stat-value" style="color:#c8d7ee;">' + totalScore + '</div><div class="myteam-stat-label">Pledge Receipts</div></div>';
+          if (waReads > 0) {
+            statsHtml += '<div class="myteam-stat"><div class="myteam-stat-value" style="color:#c8d7ee;">' + waReads + '<span style="font-size:0.7em;color:#7596c0;">/' + filled + '</span></div><div class="myteam-stat-label">Word vs Action Reads</div></div>';
           }
           statsHtml += '</div>' +
             '<div class="myteam-progress-wrap">' +
@@ -607,8 +633,9 @@
             photoHtml +
             '<div class="flex-1 min-w-0">' +
               '<div class="font-condensed text-xs tracking-wider text-white" style="font-size:0.72rem;line-height:1.25;">' + c.name + '</div>' +
-              // Receipts, never a rate — one integrity read, and this lane is not it.
-              '<div class="font-condensed" style="font-size:0.6rem;color:#9fb4d4;">' + _bbLedgerLine(typeof CMP_DATA !== 'undefined' ? CMP_DATA[c.pid] : null) + '</div>' +
+              // The one integrity read, and this lane IS it now. A pledge reaches
+              // this line only as part of that verdict, never as its own tally.
+              '<div class="font-condensed" style="font-size:0.6rem;color:#9fb4d4;">' + _bbWaLine(c.pid, typeof CMP_DATA !== 'undefined' ? CMP_DATA[c.pid] : null) + '</div>' +
               (whyText ? '<div class="font-condensed ballot-cand-why">' + whyText + '</div>' : '') +
             '</div>' +
             '<div class="ballot-cand-actions">' +
@@ -2617,47 +2644,56 @@
       return '📍 Showing key races for <strong style="color:#fff;">' + meta.label + '</strong>. Use the selector above to switch to any major Utah area.';
     }
 
-    // ── Shared Promise % + Accountability of Truth score cells ───────────────
-    // Builds the two objective score buttons used on EVERY Key Races politician
-    // — current officeholders and 2026 candidates alike — so the Truth Score is
-    // displayed and styled identically everywhere and is easy to compare at a
-    // glance. Returns { promise, acct } HTML strings.
-    //   • Promise %  → gold, taps through to the full profile.
-    //   • Truth Score → purple, taps through to the deep AI analysis (View Full
-    //     Analysis). When no score exists yet it shows a clean "Tap to analyze"
-    //     (incumbents) / "No record yet" (challengers) prompt instead of a number.
+    // ── Shared score cell for Key Races cards ────────────────────────────────
+    // Builds the objective signal cell used on EVERY Key Races politician —
+    // current officeholders and 2026 candidates alike — so it is displayed and
+    // styled identically everywhere and is easy to compare at a glance. Returns
+    // { promise, acct } HTML strings; `acct` is retired and empty.
+    //
+    // THERE IS ONE CELL BECAUSE THERE IS ONE READ. This slot used to be the pledge
+    // lane: a gold `kr-score-promise` button reading "PLEDGES ⓘ / ✓6 ✕3
+    // kept/broken", with its own icon, its own gold label colour and its own green /
+    // red count palette. With the Accountability of Truth composite retired it had
+    // become the ONLY score-styled cell on the card — which meant a tally of
+    // campaign pledges was, in practice, the Key Races score.
+    //
+    // A pledge is one FORM OF "said". It is already inside ⚖️ Word vs Action, which
+    // tests it against its sourced resolution exactly as it tests a floor stance,
+    // so the cell now carries that verdict and the cell's own colour is neutral
+    // steel. The only good/bad colour on it comes from PDXConsistency.VERDICTS via
+    // the read itself — one vocabulary, one palette. Below the publishing floor it
+    // states coverage rather than a conclusion, and the ⓘ tap still opens the
+    // receipts explainer, which is where the kept/broken/pending detail belongs.
     function _krScoreCells(pid, d, isIncumbent) {
-      // The cell used to lead with a pledge percentage and carry the kept/broken
-      // counts as its footnote. It now leads with the counts, because they are the
-      // evidence and the rate was a second score competing with ⚖️ Word vs Action.
-      var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
-      var slot = (typeof window._pdxLedgerSlot === 'function')
-        ? window._pdxLedgerSlot(d, { status: isIncumbent ? 'office' : 'candidate' })
-        : { glyph: '🤝', label: 'Pledges', sub: '' };
-      var promiseHtml;
-      if (t && t.resolved > 0) {
-        promiseHtml =
-          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Pledge receipts for ' + d.name + ' — ' + t.kept + ' kept, ' + t.broken + ' broken; tap for how this lane works">' +
-            '<span class="kr-score-ico">🤝</span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Pledges ⓘ</span>' +
-              '<span class="kr-score-sub"><span style="color:#4ade80;">✓' + t.kept + '</span> <span style="color:#f87171;">✕' + t.broken + '</span> kept/broken</span>' +
-            '</span>' +
-          '</button>';
+      var r = null;
+      try {
+        var wa = window.PDXWordAction;
+        if (wa && typeof wa.read === 'function') r = wa.read(pid, d);
+      } catch (e) {}
+
+      var sub, subStyle = '', aria;
+      if (r && r.publishable && r.verdict && r.verdict.label) {
+        sub = r.verdict.label;
+        subStyle = 'color:' + (r.verdict.color || '#cbd9ec') + ';';
+        aria = 'Word vs Action for ' + d.name + ' — ' + r.verdict.label + '; tap for how this read works';
       } else {
-        promiseHtml =
-          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Pledge receipts for ' + d.name + ' — tap for how this lane works">' +
-            '<span class="kr-score-ico">🤝</span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Pledges ⓘ</span>' +
-              '<span class="kr-score-sub">' + (slot.state === 'tracking' ? slot.sub : (isIncumbent ? 'Being compiled' : 'No record yet')) + '</span>' +
-            '</span>' +
-          '</button>';
+        sub = (r && r.coverage && r.coverage.word > 0)
+          ? 'Not enough record yet'
+          : (isIncumbent ? 'Being compiled' : 'No record yet');
+        aria = 'Word vs Action for ' + d.name + ' — ' + sub + '; tap for how this read works';
       }
+
+      var promiseHtml =
+        '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-wa" aria-label="' + aria + '">' +
+          '<span class="kr-score-ico">⚖️</span>' +
+          '<span class="kr-score-meta">' +
+            '<span class="kr-score-label">Word vs Action ⓘ</span>' +
+            '<span class="kr-score-sub" style="' + subStyle + '">' + sub + '</span>' +
+          '</span>' +
+        '</button>';
 
       // SCORING CLEANUP: the Accountability of Truth composite is retired as a
       // headline number, so Key Races cards no longer show a "Truth Score" cell.
-      // The promise follow-through and match/consistency signals remain.
       var acctHtml = '';
       return { promise: promiseHtml, acct: acctHtml };
     }
@@ -5004,28 +5040,32 @@
       var selections = _ballotLoad();
       var picks = [];
       var filled = 0;
-      var totalScore = 0;
-      var scoredCount = 0;
       BALLOT_RACES.forEach(function(race) {
         var pid = selections[race.key];
         var d = pid && typeof CMP_DATA !== 'undefined' ? CMP_DATA[pid] : null;
         if (d) {
           filled++;
           var entry = race.label + ': ' + d.name;
-          // Pasted text carries the receipts, not a rate — the same rule the share
-          // card follows: a bare percentage travels without its denominator.
-          var _t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
-          if (_t && _t.resolved > 0) {
-            entry += ' (' + _t.kept + ' kept · ' + _t.broken + ' broken)';
-            totalScore += _t.resolved;
-            scoredCount++;
-          }
+          // ONE READ, in the pasted text too. This used to append "(6 kept · 3
+          // broken)" per pick and then total them into "Pledge receipts on file:
+          // 41" — a tally, aggregated across six people, leaving the site as the
+          // headline of a share. A campaign pledge is one form of "said" and it is
+          // already inside ⚖️ Word vs Action, so what travels is that verdict and
+          // nothing else. Below the publishing floor nothing is appended at all:
+          // PDXWordAction owns when a read is sayable, and a share is the last
+          // place to second-guess it.
+          try {
+            var wa = window.PDXWordAction;
+            var r = (wa && typeof wa.read === 'function') ? wa.read(pid, d) : null;
+            if (r && r.publishable && r.verdict && r.verdict.label) {
+              entry += ' — ⚖️ ' + r.verdict.label;
+            }
+          } catch (e) {}
           picks.push(entry);
         }
       });
-      var avgLine = totalScore > 0 ? '\nPledge receipts on file: ' + totalScore : '';
       var text = filled > 0
-        ? '🗳️ My 2026 Voting Team (' + filled + '/6 picked):\n\n' + picks.join('\n') + avgLine + '\n\nBuild yours → https://politidex.fyi #PolitiDex #2026Ballot'
+        ? '🗳️ My 2026 Voting Team (' + filled + '/6 picked):\n\n' + picks.join('\n') + '\n\nBuild yours → https://politidex.fyi #PolitiDex #2026Ballot'
         : 'Build your 2026 Voting Team at https://politidex.fyi #PolitiDex';
 
       if (navigator.clipboard && navigator.clipboard.writeText) {

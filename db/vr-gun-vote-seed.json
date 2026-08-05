@@ -14,7 +14,7 @@
   "H.R. 4366"
  ],
  "rollCallCount": 9,
- "memberVoteCount": 439,
+ "memberVoteCount": 455,
  "scanCoverage": "The Clerk's grouped yearly roll-call indexes (ROLL_000 = rolls 1-99, ROLL_100 = 100-199, and so on) were read in full for 2021, 2022, 2023, 2024, 2025 and 2026 — 2,916 index rows, the whole 117th, 118th and 119th Congresses through the last roll the Clerk had published when this seed was built — and every row matching a firearms term was opened and judged. The Senate's vote_menu_{congress}_{session}.xml was read the same way for all six sessions (528, 421, 352, 339, 659 and 217 votes). Two limits of that method are recorded because they nearly cost this seed three of its nine rolls. First, a keyword scan cannot see a VEHICLE: the Clerk captions S. 2938 as \"To designate the United States Courthouse ... Joseph Woodrow Hatchett\" and H.R. 7910 as \"Protecting Our Kids Act\", and neither caption contains a firearms word. Both were found by a second pass on substantive phrases (\"safer communities\", \"protecting our kids\", \"extreme risk\") and by explicit citation grep, then confirmed against the chamber's own document. Second, HOUSE AMENDMENT ROLLS ARE NOT KEYWORD-SCANNABLE AT ALL: the Clerk's <vote-desc> for an amendment roll is empty and the index row reads only \"Sponsor of State Part A Amendment No. N\", so House amendment content is invisible to any index scan and House amendment coverage in this seed rests on following the amendment series of measures already identified. The Senate index does carry amendment_purpose, so Senate amendments are fully covered — which is how S.Amdt. 1354 and S.Amdt. 3447 were found.",
  "enactedLawFinding": "The mission's first priority is enacted laws, and unlike the elections pass the firearms window has two. The first is the Bipartisan Safer Communities Act, S. 2938, P.L. 117-159 — the only significant federal gun statute in three decades. Its two decisive rolls (senate 117-2/242 and house 117-2/299) are already ingested by db/vr-phase-a-vote-seed.json and it is already mapped to BOTH facets in opposite directions, so this pass reviewed that mapping and left it alone rather than duplicating it. The second is easy to miss and is why this seed contains an amendment roll: Section 413 of Division A of the Consolidated Appropriations Act, 2024 (P.L. 118-42, 138 Stat. 65) bars the use of Veterans Affairs funds to report to the Attorney General, for National Instant Criminal Background Check System purposes, that a person deemed mentally incapacitated or incompetent has been adjudicated a mental defective, absent a judicial finding of danger. An earlier draft of this pass nearly recorded that the provision died in conference, because a search of the enacted text for \"instant criminal\" returns only an unrelated Fast-and-Furious rider; the provision was found alive by searching for \"mentally incompetent\" and \"fiduciary\" instead. Its only clean standalone recorded vote is S.Amdt. 1354, agreed to 53-45, so that amendment is ingested and the omnibus passage vote is not. A third enacted change — P.L. 119-21 removing suppressors and short-barreled rifles from the National Firearms Act transfer tax — has NO separable vote at all and is declined for that reason.",
  "declinedFacets": [
@@ -325,7 +325,7 @@
     }
    },
    "chamberVoting": 431,
-   "rosterSkipped": 380,
+   "rosterSkipped": 378,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -482,6 +482,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000583",
      "politicianId": "josh_gottheimer",
      "party": "D",
@@ -605,6 +612,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -739,7 +753,7 @@
     }
    },
    "chamberVoting": 430,
-   "rosterSkipped": 379,
+   "rosterSkipped": 377,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -896,6 +910,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000583",
      "politicianId": "josh_gottheimer",
      "party": "D",
@@ -1019,6 +1040,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -1153,7 +1181,7 @@
     }
    },
    "chamberVoting": 428,
-   "rosterSkipped": 377,
+   "rosterSkipped": 375,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -1310,6 +1338,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000583",
      "politicianId": "josh_gottheimer",
      "party": "D",
@@ -1433,6 +1468,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -1567,6 +1609,434 @@
     }
    },
    "chamberVoting": 428,
+   "rosterSkipped": 375,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001192",
+     "politicianId": "cstewart",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000578",
+     "politicianId": "gaetz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "Z000017",
+     "politicianId": "zeldin",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 117,
+   "session": 2,
+   "rollNumber": 410,
+   "voteDate": "2022-07-29T18:25:00-04:00",
+   "question": "On Passage",
+   "voteDesc": "Assault Weapons Ban",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 217,
+    "nay": 213,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 215,
+     "nay": 5
+    },
+    "R": {
+     "yea": 2,
+     "nay": 208
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2022/roll410.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 117,
+    "chamber": "house",
+    "number": "H.R. 1808",
+    "parent": null,
+    "title": "Assault Weapons Ban of 2022",
+    "create": {
+     "title": "Assault Weapons Ban of 2022",
+     "shortTitle": "Assault Weapons Ban of 2022",
+     "summary": "Bans the import, sale, manufacture, transfer and possession of a \"semiautomatic assault weapon\", defined by a one-feature test: a semiautomatic rifle able to accept a detachable magazine plus any one of a pistol grip, a forward grip, a folding, telescoping or detachable stock, a barrel shroud or a threaded barrel, with parallel definitions for pistols and shotguns and an enumerated list of named models. Grandfathers firearms lawfully possessed on the date of enactment, requires secure storage of a grandfathered firearm when transferred, and exempts law enforcement and the armed forces. Passed the House 217-213 on 2022-07-29 with two Republicans voting yea and five Democrats voting nay; the Senate never voted on it. The first House passage of an assault-weapons ban since 1994.",
+     "introducedAt": "2021-03-11",
+     "status": "passed_house",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1808",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "hr1808-117",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr1808.xml"
+     }
+    }
+   },
+   "chamberVoting": 431,
    "rosterSkipped": 377,
    "memberVotes": [
     {
@@ -1724,417 +2194,10 @@
      "isParty": "with_party"
     },
     {
-     "bioguideId": "G000583",
-     "politicianId": "josh_gottheimer",
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
      "party": "D",
      "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "C001101",
-     "politicianId": "kclark",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "K000389",
-     "politicianId": "khanna",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "M001215",
-     "politicianId": "mariannette_miller_meeks",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "M001184",
-     "politicianId": "massie",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "W000187",
-     "politicianId": "maxine_waters",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "M001137",
-     "politicianId": "meeks",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "G000591",
-     "politicianId": "michael_guest",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "J000299",
-     "politicianId": "mike_johnson",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001148",
-     "politicianId": "mike_simpson",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "W000823",
-     "politicianId": "mike_waltz",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "G000596",
-     "politicianId": "mtg",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "O000173",
-     "politicianId": "omar",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "O000086",
-     "politicianId": "owens",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "C001087",
-     "politicianId": "rick_crawford",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001176",
-     "politicianId": "scalise",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001150",
-     "politicianId": "schiff",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "P000605",
-     "politicianId": "scott_perry",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001208",
-     "politicianId": "slotkin",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001196",
-     "politicianId": "stefanik",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "H000874",
-     "politicianId": "steny_hoyer",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "B000740",
-     "politicianId": "stephanie_bice",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "W000809",
-     "politicianId": "steve_womack",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "T000481",
-     "politicianId": "tlaib",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "C001053",
-     "politicianId": "tom_cole",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001201",
-     "politicianId": "tom_suozzi",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "T000486",
-     "politicianId": "torres",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "K000388",
-     "politicianId": "trent_kelly",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "Z000017",
-     "politicianId": "zeldin",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    }
-   ]
-  },
-  {
-   "chamber": "house",
-   "congress": 117,
-   "session": 2,
-   "rollNumber": 410,
-   "voteDate": "2022-07-29T18:25:00-04:00",
-   "question": "On Passage",
-   "voteDesc": "Assault Weapons Ban",
-   "actionType": "passage",
-   "result": "passed",
-   "requiredMajority": "simple",
-   "admittedAs": "decisive",
-   "decisiveWhy": null,
-   "totals": {
-    "yea": 217,
-    "nay": 213,
-    "present": 0,
-    "notVoting": 1
-   },
-   "partyTotals": {
-    "D": {
-     "yea": 215,
-     "nay": 5
-    },
-    "R": {
-     "yea": 2,
-     "nay": 208
-    }
-   },
-   "sourceUrl": "https://clerk.house.gov/evs/2022/roll410.xml",
-   "sourceLabel": "U.S. House Clerk",
-   "measure": {
-    "measureType": "bill",
-    "congress": 117,
-    "chamber": "house",
-    "number": "H.R. 1808",
-    "parent": null,
-    "title": "Assault Weapons Ban of 2022",
-    "create": {
-     "title": "Assault Weapons Ban of 2022",
-     "shortTitle": "Assault Weapons Ban of 2022",
-     "summary": "Bans the import, sale, manufacture, transfer and possession of a \"semiautomatic assault weapon\", defined by a one-feature test: a semiautomatic rifle able to accept a detachable magazine plus any one of a pistol grip, a forward grip, a folding, telescoping or detachable stock, a barrel shroud or a threaded barrel, with parallel definitions for pistols and shotguns and an enumerated list of named models. Grandfathers firearms lawfully possessed on the date of enactment, requires secure storage of a grandfathered firearm when transferred, and exempts law enforcement and the armed forces. Passed the House 217-213 on 2022-07-29 with two Republicans voting yea and five Democrats voting nay; the Senate never voted on it. The first House passage of an assault-weapons ban since 1994.",
-     "introducedAt": "2021-03-11",
-     "status": "passed_house",
-     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1808",
-     "sourceLabel": "Congress.gov",
-     "externalIds": {
-      "congressGovId": "hr1808-117",
-      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr1808.xml"
-     }
-    }
-   },
-   "chamberVoting": 431,
-   "rosterSkipped": 379,
-   "memberVotes": [
-    {
-     "bioguideId": "S000510",
-     "politicianId": "adam_smith",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "K000394",
-     "politicianId": "andy_kim",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "O000172",
-     "politicianId": "aoc",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "T000193",
-     "politicianId": "bennie_thompson",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "M001213",
-     "politicianId": "bmoore",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "B000825",
-     "politicianId": "boebert",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "M001199",
-     "politicianId": "brian_mast",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "W000821",
-     "politicianId": "bruce_westerman",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001192",
-     "politicianId": "cstewart",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "C001114",
-     "politicianId": "curtis",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "B001298",
-     "politicianId": "don_bacon",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "E000294",
-     "politicianId": "emmer",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "L000491",
-     "politicianId": "frank_lucas",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "H001072",
-     "politicianId": "french_hill",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "G000578",
-     "politicianId": "gaetz",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "G000574",
-     "politicianId": "gallego",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001215",
-     "politicianId": "haley_stevens",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "A000148",
-     "politicianId": "jake_auchincloss",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "S001195",
-     "politicianId": "jason_smith",
-     "party": "R",
-     "position": "nay",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "J000298",
-     "politicianId": "jayapal",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "J000294",
-     "politicianId": "jeffries",
-     "party": "D",
-     "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "J000289",
-     "politicianId": "jim_jordan",
-     "party": "R",
-     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -2271,6 +2334,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001208",
      "politicianId": "slotkin",
      "party": "D",
@@ -2402,7 +2472,7 @@
     }
    },
    "chamberVoting": 434,
-   "rosterSkipped": 375,
+   "rosterSkipped": 372,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -2587,6 +2657,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B001317",
      "politicianId": "josh_brecheen",
      "party": "R",
@@ -2727,6 +2804,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001176",
      "politicianId": "scalise",
      "party": "R",
@@ -2745,6 +2829,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -3498,7 +3589,7 @@
     }
    },
    "chamberVoting": 430,
-   "rosterSkipped": 374,
+   "rosterSkipped": 371,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -3645,6 +3736,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -3795,6 +3893,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -3813,6 +3918,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {

@@ -11,29 +11,39 @@
 // Five contracts, each of which fails silently and each of which would be a lie
 // travelling under PolitiDex's name:
 //
-//   1. NO PERCENTAGE, ANYWHERE. The Promise Follow-Through rate is retired
+//   1. ONE READ, AND NO SECOND SCORE. The Promise Follow-Through rate is retired
 //      sitewide, and this card does not quietly reintroduce it — nor does it
 //      print ⚖️ Word vs Action's pooled figure, which is real but meaningless
 //      without the coverage line that sits beside it in the app. The card's
 //      signal is the VERDICT, in words, and its evidence is COUNTS. A '%' in the
 //      painted text is a failure, however it got there.
+//
+//      A rate was never the only shape the problem takes. The card also carried a
+//      "PLEDGE RECEIPTS: 27 KEPT · 8 BROKEN · 2 OPEN" band — no percentage in it
+//      at all, and still a rival tally under its own heading in the footer, where
+//      a reader looks for the bottom line. A pledge is one FORM OF "SAID": it is
+//      tested by the same machinery, pooled into the same breakdown, and competes
+//      for the same highlight and lowlight slots (§6c). It gets no tally, no
+//      colour system and no vocabulary of its own on this artifact.
 //   2. IT SAYS WHAT IT DOESN'T KNOW. Below PDXWordAction's publishing floor, the
 //      card prints that nothing has been tested yet — not a confident stamp on
 //      one item, and not an empty band that reads as clean. A thin profile
 //      produces a thin CARD, out loud.
-//   3. THE NUMBERS ARE THE OWNING MODULE'S. Coverage, the breakdown and the
-//      pledge ledger are read through PDXWordAction, _pdxRecordMappedCounts and
-//      _pdxPromiseTally. This module computes no rate, applies no floor of its
-//      own and rounds nothing.
+//   3. THE NUMBERS ARE THE OWNING MODULE'S. Coverage and the breakdown are read
+//      through PDXWordAction and _pdxRecordMappedCounts. This module computes no
+//      rate, keeps no tally, applies no floor of its own and rounds nothing.
 //   4. THE IMAGE AND THE CAPTION AGREE. They are shared in the same gesture. A
 //      caption that claimed more than the card would be a second, unsourced
 //      claim — so every finding in one is in the other.
-//   5. IT IS SELF-CONTAINED. Drawn monogram avatars, never a hotlinked photo:
-//      a tainted canvas fails toBlob() at the moment of sharing, on a device the
-//      author cannot see. Branding, politidex.fyi and the honesty note are
-//      painted in, so the card survives being cropped out of the app.
+//   5. IT IS SELF-CONTAINED. The portrait is fetched through the same-origin
+//      image proxy and proved readable before it is composited, and a monogram is
+//      what the frame gets whenever there is no usable bitmap — because a tainted
+//      canvas fails toBlob() at the moment of sharing, on a device the author
+//      cannot see (§6b holds all four outcomes). Branding, politidex.fyi and the
+//      honesty note are painted in, so the card survives being cropped out of the
+//      app.
 //
-// Section 6 then gates the WIRING — the tier, its suppression on issue rows, and
+// Section 7 then gates the WIRING — the tier, its suppression on issue rows, and
 // the precache. A card nothing dispatches to is not a card.
 //
 //   node scripts/test-profile-card.mjs
@@ -66,10 +76,16 @@ const must = (cond, msg) => {
 // the TEXT THAT WOULD BE PAINTED rather than on the source that paints it. Widths
 // are derived from the font's px size, which is enough for wrapText to behave the
 // way it will in a browser (wrap, clamp, ellipsis) instead of never wrapping.
+//
+// CANVAS_MODE.taint makes getImageData throw the SecurityError a real browser
+// throws for a cross-origin bitmap. That is the failure the card's portrait path
+// exists to survive, and it is invisible to a stub that always succeeds.
+const CANVAS_MODE = { taint: false };
 function mkCanvas() {
   const texts = [];
   const rects = [];
   const corners = [];
+  const drawn = [];
   let seq = 0;
   const ctx = {
     font: "10px sans-serif", fillStyle: "", strokeStyle: "", lineWidth: 1,
@@ -95,10 +111,21 @@ function mkCanvas() {
     lineTo() {}, arc() {}, arcTo() {},
     quadraticCurveTo() {}, bezierCurveTo() {}, rect() {}, clip() {},
     fill() {}, stroke() {},
-    drawImage() { throw new Error("the card must not draw an external image — a tainted canvas breaks toBlob()"); },
+    // Composites are RECORDED, not refused. The card now draws a portrait, and
+    // the promise that made refusing right — "toBlob() cannot fail at the moment
+    // of sharing" — is kept somewhere the stub can actually check it: the address
+    // is same-origin and the bitmap is probed with getImageData first. §6b asserts
+    // both. What the stub still refuses is a probe it cannot answer for, so a
+    // draw that skipped one shows up as a missing entry here rather than as a
+    // silent pass.
+    drawImage(img, ...rest) { drawn.push({ src: (img && img.src) || "", args: rest, seq: seq++ }); },
+    getImageData() {
+      if (CANVAS_MODE.taint) { const e = new Error("Tainted canvases may not be exported"); e.name = "SecurityError"; throw e; }
+      return { data: [0, 0, 0, 0] };
+    },
   };
   return {
-    width: 0, height: 0, _texts: texts, _rects: rects, _corners: corners,
+    width: 0, height: 0, _texts: texts, _rects: rects, _corners: corners, _drawn: drawn,
     getContext() { return ctx; },
     toDataURL() { return "data:image/png;base64,AAAA"; },
     toBlob(cb) { cb({ size: 1024, type: "image/png" }); },
@@ -165,13 +192,74 @@ function thinRead() {
   };
 }
 
-const READS = { thick: thickRead(), thin: thinRead() };
+const READS = { thick: thickRead(), thin: thinRead(), pledger: pledgerRead() };
 
-function mkCtx() {
+// A member whose sharpest finding IS a pledge: two stances the record backs, and
+// one campaign promise resolved as broken. Nothing else contradicts them. If a
+// pledge is really just one form of "said", this card's lowlight is that pledge —
+// in the same slot, with the same heading and the same glyph a broken-on-a-vote
+// contradiction would get, and with the ledger's own sourced outcome as the action
+// half of the pair.
+function pledgerRead() {
+  const item = (id, kind, label, token) => ({
+    id, kind, tier: kind === "pledge-tracked" ? "pledge" : "position", label,
+    text: label + " — as stated on the record.", issueKey: id, appliedWeight: 1,
+    resolution: kind === "pledge-tracked" ? (token === "consistent" ? "kept" : "broken") : null,
+    test: { state: "tested", token, reason: null, score: token === "consistent" ? 100 : 0 },
+  });
+  const tested = [
+    item("spending", "position", "Federal spending", "consistent"),
+    item("surveillance", "position", "Surveillance", "consistent"),
+    item("earmarks", "pledge-tracked", "Never request an earmark", "contradicts"),
+  ];
+  const untested = [
+    { id: "p1", kind: "pledge-tracked", label: "Term limits bill in year one",
+      test: { state: "untested", reason: "unresolved" } },
+  ];
+  return {
+    frame: "word-action", pct: 71, token: "mixed", outcomeToken: "mixed",
+    verdict: VERDICTS.mixed, publishable: true,
+    items: tested.concat(untested), tested, untested,
+    counts: { consistent: 2, contradicts: 1 },
+    tiers: {}, testedWeight: 3,
+    coverage: { word: 4, scorable: 4, tested: 3, untested: 1, issueLinked: 4, notIssueLinked: 0, recordDerived: 0, warming: false },
+    floors: { items: 3, weight: 2.5 },
+  };
+}
+
+// ── An <img> stub ────────────────────────────────────────────────────────────
+// The three behaviours the card has to hold up under, since all three happen
+// inside a share gesture on someone else's phone: the portrait arrives, the
+// portrait 404s (an un-allowlisted host, a dead link), and the portrait never
+// answers at all (a stalled connection). `requested` is every address the card
+// asked for, which is how §6b proves nothing cross-origin was ever handed to the
+// canvas.
+const IMG_MODE = { how: "hang", w: 400, h: 500, requested: [] };
+function mkImageClass() {
+  return class StubImage {
+    constructor() { this.naturalWidth = 0; this.naturalHeight = 0; this.onload = null; this.onerror = null; this._src = ""; }
+    get src() { return this._src; }
+    set src(v) {
+      this._src = String(v);
+      IMG_MODE.requested.push(this._src);
+      if (IMG_MODE.how === "load") {
+        this.naturalWidth = IMG_MODE.w; this.naturalHeight = IMG_MODE.h;
+        if (this.onload) this.onload();
+      } else if (IMG_MODE.how === "error") {
+        if (this.onerror) this.onerror();
+      }
+      // "hang" leaves the promise open until the cap timer is fired by hand.
+    }
+  };
+}
+
+function mkCtx(opts) {
+  opts = opts || {};
   const canvases = [];
   const toasts = [];
   const opened = [];
   const listeners = {};
+  const timers = [];
   const noopEl = () => ({
     style: {}, textContent: "", innerHTML: "", value: "", children: [],
     classList: { add() {}, remove() {}, contains: () => false },
@@ -198,7 +286,15 @@ function mkCtx() {
     },
     navigator: {},
     location: { origin: "https://politidex.fyi", pathname: "/", hash: "" },
-    setTimeout: (fn) => { try { fn(); } catch (e) {} return 0; },
+    // Short waits fire straight away, as they always did. A LONG wait is a cap on
+    // something that may never answer — the portrait's 2.5s ceiling — so it is
+    // parked in `_timers` for a test to fire by hand instead of being either
+    // slept through or collapsed into "the cap always wins".
+    setTimeout: (fn, ms) => {
+      if (ms >= 1000) { timers.push(fn); return timers.length; }
+      try { fn(); } catch (e) {}
+      return 0;
+    },
     clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},
     requestAnimationFrame: (fn) => { try { fn(); } catch (e) {} return 0; },
     atob: (s) => Buffer.from(s, "base64").toString("binary"),
@@ -206,13 +302,18 @@ function mkCtx() {
     File: class { constructor(parts, name, o) { this.parts = parts; this.name = name; this.type = (o || {}).type; } },
     Uint8Array, JSON, Math, Date, Promise, Object, Array, String, Number, Boolean, Error, RegExp,
     encodeURIComponent, decodeURIComponent, isNaN, parseInt, parseFloat,
-    _canvases: canvases, _toasts: toasts, _opened: opened, _listeners: listeners,
+    _canvases: canvases, _toasts: toasts, _opened: opened, _listeners: listeners, _timers: timers,
   };
   ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
   ctx.addEventListener = (n, fn) => { (listeners[n] = listeners[n] || []).push(fn); };
   ctx.open = (u) => { opened.push(u); return null; };
   ctx.innerWidth = 420; ctx.innerHeight = 900;
   ctx._showToast = (m) => { toasts.push(String(m)); };
+  // Both are absent by default, which is the state the card was built for first:
+  // no Image constructor (a worker, an old browser) and no photo resolver loaded
+  // yet. Every assertion outside §5 therefore runs against the monogram card.
+  if (opts.image) ctx.Image = mkImageClass();
+  if (opts.photos) ctx._getPhotoUrl = (pid) => opts.photos[pid] || "";
 
   ctx.PROFILES = {
     massie: { name: "Thomas Massie", office: "U.S. House", state: "KY", district: "4", party: "Republican",
@@ -223,6 +324,10 @@ function mkCtx() {
     // is taller than the avatar. Same record as Massie — only the name differs.
     longname: { name: "Bartholomew Fitzgerald-Wintergreen", office: "U.S. House", state: "CA",
                 district: "12", party: "Democrat", kept: 27, broken: 8, pending: 2 },
+    // Carries a tally too, so the demotion is asserted against a record that HAS
+    // one to print rather than against a record with nothing to say either way.
+    pledger: { name: "Corinne Ackerly", office: "U.S. Senate", state: "OR", party: "Democrat",
+               kept: 6, broken: 3, pending: 2 },
   };
   ctx.PDXConsistency = { VERDICTS, warm() {} };
   ctx.PDXWordAction = {
@@ -230,6 +335,7 @@ function mkCtx() {
       if (pid === "massie") return READS.thick;
       if (pid === "longname") return READS.thick;
       if (pid === "thinguy") return READS.thin;
+      if (pid === "pledger") return READS.pledger;
       return { coverage: { word: 0, scorable: 0, tested: 0, untested: 0, warming: false },
                items: [], tested: [], untested: [], counts: {}, verdict: VERDICTS.no_stance,
                publishable: false, pct: null, token: "no_stance" };
@@ -241,7 +347,12 @@ function mkCtx() {
       return rows.slice(0, (o && o.limit) || 3).map((it) => ({
         item: it, tier: {}, issueKey: it.issueKey, title: it.label, word: it.text,
         sources: [], outcome: it.test, verdict: VERDICTS[it.test.token] || null,
-        actions: [{ text: "H.R. 22 · On Passage · Voted Yea", kind: "vote" }],
+        // Mirrors word-action.js namedActions(): a tracked pledge's action half is
+        // its own sourced resolution in the ledger, not a roll call. The card must
+        // not care which of the two it got.
+        actions: it.kind === "pledge-tracked"
+          ? [{ text: "Resolved in the pledge ledger as " + it.resolution + ", against its own sources.", kind: "ledger" }]
+          : [{ text: "H.R. 22 · On Passage · Voted Yea", kind: "vote" }],
       }));
     },
   };
@@ -293,7 +404,7 @@ const thin = await paint("thinguy");
 const THICK = thick.lines.join("\n");
 const THIN = thin.lines.join("\n");
 
-// ── 1. No percentage, anywhere ───────────────────────────────────────────────
+// ── 1. No percentage, and no second score of any shape ───────────────────────
 {
   // The whole point of the pass. Not "no promise percentage" — no percentage.
   const pctLines = thick.lines.filter((t) => /%/.test(t)).concat(thin.lines.filter((t) => /%/.test(t)));
@@ -309,10 +420,32 @@ const THIN = thin.lines.join("\n");
   ok(!/\.pct\b/.test(CODE), "no-rate: the module reads PDXWordAction's pooled .pct at all — it must not have it in hand");
   ok(!/\bkept\s*\/|\/\s*\(\s*\w*kept|100\s*\*/.test(CODE),
      "no-rate: the module contains a rate calculation of its own, which is how a retired score comes back");
-  ok(/PLEDGE RECEIPTS/.test(THICK) && /27 KEPT/.test(THICK) && /8 BROKEN/.test(THICK),
-     "no-rate: the pledge ledger is printed as counts — retiring the rate must not have cost the receipts");
-  ok(/2 OPEN/.test(THICK),
-     "no-rate: pledges still open are printed, so 'settled' is not silently read as 'all of them'");
+
+  // A percentage was never the only way to publish a second ranking system. The
+  // card used to end on "PLEDGE RECEIPTS: 27 KEPT · 8 BROKEN · 2 OPEN" — no rate
+  // anywhere in it, and still a rival tally under its own heading, in its own
+  // three colours, in the footer slot where a reader looks for the bottom line.
+  //
+  // Asserted on the SHAPE of a tally, not on the words. "kept" and "broken" are
+  // legitimate prose the moment a pledge is real evidence — the ledger's own
+  // action text reads "Resolved in the pledge ledger as kept", and §6c requires
+  // it. What must not exist is a heading with counts under it.
+  const heading = thick.lines.filter((t) => /RECEIPTS/i.test(t));
+  ok(heading.length === 0,
+     "one-read: the card paints a pledge-receipts heading — " + JSON.stringify(heading) +
+     " — which frames a tally as a second bottom line");
+  const bits = thick.lines.concat(thin.lines).filter((t) => /^\d+\s+(KEPT|BROKEN|OPEN)$/i.test(t.trim()));
+  ok(bits.length === 0,
+     "one-read: the card paints tally bits — " + JSON.stringify(bits) +
+     " — counts in their own runs, in their own colours, competing with the breakdown above them");
+  // The fixture's tally is 27/8/2. 27 is used by nothing else on this card, so it
+  // is the cheapest proof the numbers are not reaching the canvas by another route.
+  ok(!/\b27\b/.test(THICK), "one-read: the pledge tally's kept count reaches the card some other way");
+  const cap1 = PC._caption(thick.d);
+  ok(!/receipts?\s*:/i.test(cap1) && !/\d+\s+kept\b/i.test(cap1) && !/\d+\s+broken\b/i.test(cap1),
+     "one-read: the caption carries the tally as text — it leaves in the same gesture as the image and owes the reader the same one read");
+  ok(!/_pdxPromiseTally/.test(CODE),
+     "one-read: the card still reads the promise tally accessor. The accessor and its data are fine and still published in the app — but a card holding a tally is two lines away from printing one");
 }
 
 // ── 2. It says what it doesn't know ──────────────────────────────────────────
@@ -375,8 +508,22 @@ const THIN = thin.lines.join("\n");
      "sources: a record with nothing tested shows honest zeroes rather than an absent breakdown");
   ok(!/MIN_TESTED|coverage\.tested\s*>=|tested\.length\s*>=/.test(CODE) && /publishable/.test(CODE),
      "sources: the card applies no publishing floor of its own — PDXWordAction owns that decision and the card obeys `publishable`");
-  ok(/_pdxPromiseTally/.test(CODE) && !/p\.kept\s*\+\s*p\.broken/.test(CODE),
-     "sources: the pledge ledger is read through the honesty guard rather than added up locally");
+  // The pledge ledger used to be read here, through the honesty guard, so the card
+  // could print it. It is not read at all now — but the pledges that HAVE been
+  // tested still have to be counted, and they are counted by the one module that
+  // counts everything: a tested pledge is in `counts`, indistinguishable from a
+  // tested stance, which is the whole demotion in one assertion.
+  ok(d.breakdown.consistent === 3 && READS.thick.tested.filter((it) => it.kind === "pledge-tracked").length === 1,
+     "sources: the fixture's resolved pledge is inside the breakdown's backed-up count, not beside it");
+  // The card's ONLY mention of a pledge is the coverage count. There is no second
+  // branch giving pledges their own outcome words, their own colour or their own
+  // heading — which is what "one consistency system" means in code rather than in
+  // a comment.
+  const pledgeRefs = (CODE.match(/pledge-tracked/g) || []).length;
+  ok(pledgeRefs === 1 && /nPledges\s*=\s*items\.filter/.test(CODE),
+     `sources: the card refers to pledge-tracked items ${pledgeRefs} times — it should be exactly once, to count them as coverage`);
+  ok(!/KEPT|BROKEN|resolution\s*===/.test(CODE),
+     "sources: pledge outcome language survives in the card — kept/broken is the ledger's vocabulary, and the card speaks the one consistency vocabulary");
 }
 
 // ── 4. The image and the caption agree ───────────────────────────────────────
@@ -388,8 +535,8 @@ const THIN = thin.lines.join("\n");
      "parity: the caption carries the same breakdown counts as the image");
   ok(/41 mapped vote/.test(cap) && /5 of 8 testable/.test(cap),
      "parity: the caption carries the same coverage as the image");
-  ok(/27 kept/.test(cap) && /8 broken/.test(cap) && /not a percentage/.test(cap),
-     "parity: the caption states the pledge counts AND that no percentage is published");
+  ok(/2 tracked pledges/.test(cap) && /6 stances/.test(cap),
+     "parity: the caption counts pledges as coverage beside stances — how much WORD is on file, with no claim about how it turned out");
   ok(/politidex\.fyi\/\?p=massie/.test(cap),
      "parity: the caption links the profile, so a reader can check every claim on the image");
   ok(/Check it yourself/.test(cap),
@@ -404,10 +551,13 @@ const THIN = thin.lines.join("\n");
 
 // ── 5. It is self-contained ──────────────────────────────────────────────────
 {
-  ok(!/new Image\(|\.src\s*=|drawImage/.test(CODE),
-     "offline: the card loads no external image — a tainted canvas fails toBlob() at the moment of sharing");
   ok(PC._initials("Thomas Massie") === "TM" && PC._initials("") === "★",
-     "offline: the avatar is a drawn monogram with a fallback, so there is always something in the frame");
+     "offline: the monogram has a fallback, so there is always something in the frame");
+  // With no Image constructor in scope — a worker, an old browser, a stripped
+  // environment — the whole portrait path is skipped and the card is the card it
+  // has always been. This is the context every other section runs in.
+  ok(thick.lines.indexOf("TM") !== -1 && thick.canvas._drawn.length === 0,
+     "offline: with no image loader available the frame gets the monogram and nothing is composited");
   ok(/POLITI/.test(THICK) && /DEX/.test(THICK), "branding: the wordmark is painted on");
   ok(thick.lines.some((t) => /B O U N D   B Y   T R U T H/.test(t)),
      "branding: 'Bound by Truth' is painted on");
@@ -463,7 +613,7 @@ const THIN = thin.lines.join("\n");
     shot.lines.forEach((t, i) => {
       if (!isHead(t)) return;
       const next = shot.lines[i + 1];
-      ok(!!next && !isHead(next) && !/^PLEDGE RECEIPTS|^Built only from/.test(next),
+      ok(!!next && !isHead(next) && !/^Built only from/.test(next),
          `format: '${t}' is painted with nothing under it (next run: ${JSON.stringify(next)}) — ` +
          `the heading must be drawn with the first row that fits, not before measuring it`);
     });
@@ -492,6 +642,209 @@ const THIN = thin.lines.join("\n");
      "proof: no gap line smuggles a rate back in");
   ok(/held against no one|counts for or against/.test(gaps.map((g) => g.action).join(" ")),
      "proof: a gap says explicitly that it is not being counted against them — an unproven thing is not a mark");
+}
+
+// ── 6c. A pledge is one form of "said" ───────────────────────────────────────
+// The other half of contract 1. Removing the tally is worth nothing if pledges
+// then vanish from the card — the point of the demotion is that they compete on
+// the same terms as everything else, not that they are suppressed. So this uses a
+// fixture whose SHARPEST finding is a broken campaign promise, and requires that
+// finding to be indistinguishable in treatment from a contradiction found in a
+// roll call.
+{
+  const pl = await paint("pledger");
+  const PL = pl.lines.join("\n");
+
+  ok(pl.d.lowlightKind === "contradicts" && (pl.d.lowlights || []).length === 1,
+     "one-said: a broken pledge is a contradiction like any other, so it takes the lowlight slot on merit");
+  ok(pl.d.lowlights[0].title === "Never request an earmark",
+     `one-said: the lowlight is the pledge itself, named (got ${JSON.stringify(pl.d.lowlights[0].title)})`);
+  ok(/WHERE THE RECORD CONTRADICTS THEM/.test(PL),
+     "one-said: it sits under the same heading a contradiction found in a vote would get — not a pledge-specific one");
+  ok(/⚠\s+Never request an earmark/.test(PL),
+     "one-said: and the same glyph. A second symbol would be a second vocabulary");
+  // The said-vs-action pair, both halves, concrete. This is what the tally never
+  // gave a reader: "6 broken" names nothing, this names the promise and the source
+  // of its outcome.
+  ok(/Resolved in the pledge ledger as broken, against its own sources\./.test(PL),
+     "one-said: the action half of the pair is the ledger's own sourced outcome, printed under the title");
+
+  // Same colour as a vote-derived contradiction. Asserted against the OTHER
+  // fixture's heading rather than against a literal, so a palette change cannot
+  // split the two apart without failing here.
+  const headFill = (shot, text) => (shot.all.find((t) => t.t === text) || {}).fill;
+  ok(headFill(pl, "WHERE THE RECORD CONTRADICTS THEM") === headFill(thick, "WHERE THE RECORD CONTRADICTS THEM"),
+     "one-said: a pledge contradiction is painted in the same colour as a vote contradiction — no pledge palette");
+
+  // In the breakdown, pooled, indistinguishable.
+  const legendPair = (lines, label) => { const i = lines.indexOf(label); return i > 0 ? lines[i - 1] : null; };
+  ok(legendPair(pl.lines, "CONTRADICTED") === "1" && legendPair(pl.lines, "BACKED UP") === "2",
+     "one-said: the pledge is counted inside the one breakdown, not beside it");
+  ok(pl.d.breakdown.contradicts === 1,
+     "one-said: and brief() carries it there too, so the caption and the image cannot disagree about where it lives");
+
+  // No tally, on a record that has one to print (6 kept / 3 broken / 2 pending).
+  const tallyish = pl.lines.filter((t) => /RECEIPTS/i.test(t) || /^\d+\s+(KEPT|BROKEN|OPEN)$/i.test(t.trim()));
+  ok(tallyish.length === 0,
+     "one-said: the fixture has a kept/broken tally on file and none of it is painted — " + JSON.stringify(tallyish));
+  ok(!/\b6 \b/.test(PL) && !/\b3 broken\b/i.test(PL),
+     "one-said: the tally's numbers do not reach the card by another route");
+
+  // The unresolved pledge: named as a gap, held against no one. This is the
+  // "broader evidence layer" an untested pledge belongs to.
+  ok((pl.d.gaps || []).some((g) => /1 tracked pledge still open/.test(g.title)),
+     "one-said: an unresolved pledge is named as a gap rather than counted as an OPEN column");
+  ok(pl.d.gaps.some((g) => /held against no one/i.test(g.action || "")),
+     "one-said: and the gap says outright that it counts against no one");
+
+  // The caption tells the same story, in the same order.
+  const cap = PC._caption(pl.d);
+  ok(/Record contradicts them: Never request an earmark/.test(cap) &&
+     /Resolved in the pledge ledger as broken/.test(cap),
+     "one-said: the caption carries the pledge as the contradiction, with its sourced outcome");
+  ok(!/receipts?\s*:/i.test(cap) && !/\d+\s+kept\b/i.test(cap),
+     "one-said: and carries no tally");
+  ok(/2 stances · 2 tracked pledges/.test(cap),
+     "one-said: pledges are still counted as coverage — how much word is on file, which is the one place the word 'pledge' belongs");
+
+  // And the hierarchy is intact: one signal on top, everything else supporting it.
+  ok(/DOES WHAT THEY SAY MATCH WHAT THEY DO\?/.test(PL) && /MIXED RECORD/.test(PL.toUpperCase()),
+     "one-said: the card still leads with the one integrity read");
+}
+
+// ── 6b. The face ─────────────────────────────────────────────────────────────
+// The one element on the card that is a bitmap rather than a drawing, and the one
+// that can take a share down with it. A cross-origin portrait taints the canvas
+// and toBlob() throws — not here, but on a stranger's phone, at the instant they
+// tap share, with no way for anyone to find out. So the contract is not "a photo
+// appears"; it is that a photo appears only when it CANNOT do that, and that the
+// monogram is what every other path lands on.
+{
+  const mkPhotoCtx = () => {
+    const c = mkCtx({
+      image: true,
+      photos: {
+        massie: "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg",
+        thinguy: "/img/local-portrait.jpg",
+        longname: "data:image/png;base64,AAAA",
+      },
+    });
+    vm.createContext(c);
+    new vm.Script(SRC, { filename: "profile-card.js" }).runInContext(c);
+    return c;
+  };
+  const shotOf = async (c, pid) => {
+    await c.window.PDXProfileCard.share(pid, null);
+    const cv = c._canvases[c._canvases.length - 1];
+    return { canvas: cv, lines: cv._texts.filter((t) => !t.warped).map((t) => t.t), drawn: cv._drawn };
+  };
+
+  // ── the address ──
+  // Asserted on the resolver rather than on a substring of the source, because
+  // what matters is the value that reaches img.src.
+  const pctx = mkPhotoCtx();
+  const A = pctx.window.PDXProfileCard._avatarSrc;
+  must(typeof A === "function" && typeof PC._loadAvatar === "function",
+       "PDXProfileCard no longer exposes _avatarSrc/_loadAvatar, so the portrait's address cannot be checked");
+  const remoteSrc = A("massie");
+  ok(remoteSrc.indexOf("/.netlify/images?url=") === 0,
+     `face: a remote portrait is fetched through the same-origin image proxy (got ${JSON.stringify(remoteSrc)})`);
+  ok(!/^https?:/i.test(remoteSrc) && remoteSrc.indexOf("://") === -1,
+     "face: the address handed to the canvas is same-origin — an absolute one would taint it and break toBlob() mid-share");
+  ok(remoteSrc.indexOf(encodeURIComponent("https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg")) !== -1,
+     "face: the original portrait is passed to the proxy URI-encoded, so a path with an & or a ? cannot truncate it");
+  ok(/[?&]fit=cover\b/.test(remoteSrc) && /[?&]w=\d+/.test(remoteSrc) && /[?&]h=\d+/.test(remoteSrc),
+     "face: the proxy is asked for a square crop rather than a full-resolution portrait to draw at 116px");
+  ok(A("thinguy") === "/img/local-portrait.jpg" && A("longname") === "data:image/png;base64,AAAA",
+     "face: an address that is already ours (root-relative or inline) is used as it is — proxying it would only add a hop");
+  ok(A("blank") === "" && A("nobody") === "",
+     "face: no photo on file resolves to no request at all");
+  ok(!/crossOrigin/i.test(CODE),
+     "face: the loader never sets crossOrigin — it does not need to, and a CORS-mode request to a host that sends no ACAO header fails where a proxied one succeeds");
+
+  // ── it arrives ──
+  IMG_MODE.how = "load"; IMG_MODE.requested.length = 0; CANVAS_MODE.taint = false;
+  const withFace = await shotOf(pctx, "massie");
+  ok(withFace.drawn.length === 1, "face: a portrait that loads is composited onto the card exactly once");
+  ok(withFace.lines.indexOf("TM") === -1,
+     "face: the monogram is not ALSO drawn — two faces in one frame is a bug the reader sees");
+  ok(withFace.lines.some((t) => /Thomas Massie/.test(t)) && /RECORD CARD/.test(withFace.lines.join("\n")),
+     "face: everything else on the card is unchanged by the portrait");
+  ok(IMG_MODE.requested.every((u) => u.indexOf("/.netlify/images?url=") === 0),
+     "face: every address the card actually requested was same-origin — " + JSON.stringify(IMG_MODE.requested.slice(0, 2)));
+  // Cover-fit, from a 400×500 source into a 116px circle: the drawn box must be at
+  // least as large as the circle in both axes, or the crop leaves a gap.
+  const box = withFace.drawn[0].args;
+  ok(box.length === 4 && box[2] >= 115.9 && box[3] >= 115.9 && Math.abs(box[2] / box[3] - 400 / 500) < 0.01,
+     `face: the portrait is cover-fitted at its own aspect ratio (drew ${box[2]}×${box[3]}) — a stretched face is worse than none`);
+
+  // ── it is unreadable ──
+  // The exact failure the monogram rule was written for: the bitmap loads, and
+  // the canvas it lands on cannot be exported. Caught by the probe, BEFORE the
+  // card is touched.
+  const tainted = mkPhotoCtx();
+  IMG_MODE.how = "load"; CANVAS_MODE.taint = true;
+  const noExport = await shotOf(tainted, "massie");
+  CANVAS_MODE.taint = false;
+  ok(noExport.drawn.length === 0 && noExport.lines.indexOf("TM") !== -1,
+     "face: a bitmap the canvas cannot export is rejected by the probe and the frame gets the monogram");
+  ok(noExport.lines.some((t) => /Thomas Massie/.test(t)),
+     "face: and the card is still a card — an unreadable portrait costs the face, never the record");
+
+  // ── it 404s ──
+  // An un-allowlisted host, a moved file, a dead link. Same landing place.
+  const gone = mkPhotoCtx();
+  IMG_MODE.how = "error";
+  const errored = await shotOf(gone, "massie");
+  ok(errored.drawn.length === 0 && errored.lines.indexOf("TM") !== -1,
+     "face: a portrait that 404s falls back to the monogram rather than leaving an empty ring");
+
+  // ── it never answers ──
+  // The one failure a browser will not report: a stalled connection. Without a cap
+  // the share hangs on a spinner forever, which is the worst of the four outcomes
+  // because the reader cannot tell it from slow.
+  const stalled = mkPhotoCtx();
+  const parkedBefore = stalled._timers.length;
+  IMG_MODE.how = "hang";
+  const pending = shotOf(stalled, "massie");
+  let settled = false;
+  pending.then(() => { settled = true; });
+  await new Promise((r) => setTimeout(r, 0));
+  ok(!settled, "face: a portrait that never answers leaves the render waiting — otherwise the cap below proves nothing");
+  must(stalled._timers.length > parkedBefore,
+       "the portrait's cap is no longer scheduled as a long timeout, so it cannot be fired here");
+  stalled._timers.slice(parkedBefore).forEach((fn) => { try { fn(); } catch (e) {} });
+  const capped = await pending;
+  ok(capped.drawn.length === 0 && capped.lines.indexOf("TM") !== -1,
+     "face: the cap fires, the monogram is drawn, and the share completes instead of hanging");
+  ok(/AVATAR_MS\s*=\s*(\d+)/.test(CODE) && Number(/AVATAR_MS\s*=\s*(\d+)/.exec(CODE)[1]) <= 4000,
+     "face: the cap is short enough to be inside a share gesture rather than a timeout a reader would abandon");
+  IMG_MODE.how = "hang"; IMG_MODE.requested.length = 0;
+
+  // ── the allowlist ──
+  // The proxy only resolves hosts named in netlify.toml. If that list and the
+  // curated portrait set drift apart, faces disappear from cards silently — the
+  // 404 path above is indistinguishable from "this person has no photo".
+  const toml = read("netlify.toml");
+  must(/\[images\]/.test(toml), "netlify.toml no longer declares an [images] block, so no portrait can be proxied");
+  const block = /remote_images = \[([\s\S]*?)\n\s*\]/.exec(toml);
+  must(!!block, "netlify.toml's remote_images list can no longer be read");
+  const pats = [...block[1].matchAll(/"([^"]+)"/g)].map((m) => m[1].replace(/\\\\/g, "\\"));
+  ok(pats.length >= 6, `face: the allowlist names ${pats.length} host patterns`);
+  const matches = (u) => pats.some((p) => new RegExp("^" + p + "$").test(u));
+  const HOSTS = [
+    "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/b/x.jpg",
+    "https://commons.wikimedia.org/wiki/Special:FilePath/x.jpg",
+    "https://bioguide.congress.gov/photo/M001184.jpg",
+    "https://le.utah.gov/images/legislator/x.jpg",
+    "https://insurance.utah.gov/x.jpg",
+  ];
+  const missing = HOSTS.filter((u) => !matches(u));
+  ok(missing.length === 0,
+     "face: every trusted portrait host is proxyable — " + JSON.stringify(missing.map((u) => u.split("/")[2])));
+  ok(!matches("https://evil.example.com/x.jpg") && !matches("https://rawXgithubusercontent.com/x.jpg"),
+     "face: the patterns anchor their dots, so a look-alike host cannot be proxied through our origin");
 }
 
 // ── 7. The wiring ────────────────────────────────────────────────────────────

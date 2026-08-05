@@ -304,9 +304,10 @@
   // this shape — a resolved kept/broken tally inherited from the old tracker, with
   // nothing to name, source or issue-link. They cannot enter this read (a synthetic
   // "37 pledges" item would be exactly the invention Rule 1 forbids), and staying
-  // silent about them would be worse: the profile shows a pledge percentage right
-  // next to a pledge tier reading "none on file". So they are surfaced as their own
-  // fact, in the tier row, pointing at the number that does count them.
+  // silent about them would be worse: the pledge tier would read "none on file" for
+  // a record that plainly has something on file. So the count is surfaced in the
+  // tier row as a COVERAGE GAP — word we hold but cannot test — and not as an
+  // outcome, a tally band or a second read. Nothing downstream may score it.
   function pledgeAggregate(p) {
     if (!p) return null;
     if (Array.isArray(p.promises) && p.promises.length) return null;
@@ -546,7 +547,7 @@
         '<span class="pdxwa-tier-main">' +
           '<span class="pdxwa-tier-name">' + esc(def.label) + '<span class="pdxwa-tier-w">' + esc(def.counts) + '</span></span>' +
           '<span class="pdxwa-tier-gloss">' + esc(agg
-            ? 'A resolved kept/broken tally carried over from the promise tracker, with no individual pledges written up yet — so it is counted in the pledge follow-through number further down, not in this weighted read.'
+            ? 'A resolved kept/broken tally carried over from the promise tracker, with no individual pledges written up yet. Nothing here can be tested against an action until the pledges behind it are itemized and sourced, so it is reported as a gap in coverage rather than as a mark for or against them.'
             : def.gloss) + '</span>' +
         '</span>' +
         '<span class="pdxwa-tier-n">' + n + '</span>' +

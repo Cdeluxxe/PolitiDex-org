@@ -93,24 +93,42 @@ for (const t of TAGS) {
   ok(hasSrc || isData || t.body.trim().length > 0, "scripts: no empty <script> tags left behind");
 }
 
-// ── 2. The hero receipt's critical path is wired end to end ──────────────────
-for (const f of ["hero-receipt-data.js", "hero-receipt.js"]) {
+// ── 2. The hero showcase's critical path is wired end to end ─────────────────
+// The hero slot used to hold a single receipt. It now holds the summary card,
+// because one anecdote read cold looks like a gotcha and the summary card is the
+// artifact people actually share. The receipt was demoted, not deleted — the two
+// halves of this section encode both sides of that swap so a later edit cannot
+// quietly promote the receipt back or leave the showcase unwired.
+for (const f of ["hero-showcase-data.js", "hero-showcase.js"]) {
   ok(html.includes(`<script src="/${f}"></script>`), `hero: index.html loads /${f} as a parser-blocking script`);
   ok(new RegExp(`rel="preload"[^>]*href="/${f.replace(/\./g, "\\.")}"`).test(html),
     `hero: /${f} is preloaded from the head`);
   ok(sw.includes(`'/${f}'`), `hero: /${f} is in the service worker's shell precache`);
   ok(existsSync(join(ROOT, f)), `hero: /${f} exists`);
 }
-ok(/<div id="hero-receipt"[^>]*\bhidden\b/.test(html),
-  "hero: the receipt slot starts hidden, so a missing seed shows nothing rather than an empty frame");
-// The slot must sit inside the hero, above the explainer copy — that placement is
-// the entire point of the change, and it is easy to lose in a later edit.
+ok(/<div id="hero-showcase"[^>]*\bhidden\b/.test(html),
+  "hero: the showcase slot starts hidden, so a missing seed shows nothing rather than an empty frame");
 {
   const hero = html.slice(html.indexOf('<section id="hero"'), html.indexOf("</section>", html.indexOf('<section id="hero"')));
-  ok(hero.includes('id="hero-receipt"'), "hero: the receipt slot is inside #hero");
-  ok(hero.indexOf('id="hero-receipt"') > hero.indexOf("</h1>"), "hero: the receipt sits below the headline");
-  ok(hero.indexOf('id="hero-receipt"') < hero.indexOf("hero-body"), "hero: the receipt sits above the explainer copy");
+  ok(hero.includes('id="hero-showcase"'), "hero: the showcase slot is inside #hero");
+  ok(hero.indexOf('id="hero-showcase"') > hero.indexOf("</h1>"), "hero: the showcase sits below the headline");
+  ok(hero.indexOf('id="hero-showcase"') < hero.indexOf("hero-body"), "hero: the showcase sits above the explainer copy");
+  ok(!hero.includes('id="hero-receipt"'),
+    "hero: the single-receipt band is out of the hero — it is one receipt among many, not the lead artifact");
 }
+// The receipt still ships: same true, sourced card, now a lead-in to Say vs Do.
+// Deferred, so demoting it actually bought back critical-path bytes.
+for (const f of ["hero-receipt-data.js", "hero-receipt.js"]) {
+  ok(html.includes(`<script src="/${f}" defer></script>`), `hero: /${f} loads deferred, off the critical path`);
+  ok(!new RegExp(`rel="preload"[^>]*href="/${f.replace(/\./g, "\\.")}"`).test(html),
+    `hero: /${f} is no longer preloaded — a demoted band must not keep hero priority`);
+  ok(sw.includes(`'/${f}'`), `hero: /${f} is in the service worker's shell precache`);
+  ok(existsSync(join(ROOT, f)), `hero: /${f} exists`);
+}
+ok(/<div id="hero-receipt"[^>]*\bhidden\b/.test(html),
+  "hero: the receipt slot starts hidden, so a missing seed shows nothing rather than an empty frame");
+ok(html.indexOf('id="hero-receipt"') < html.indexOf('<section id="say-vs-do"'),
+  "hero: the demoted receipt sits directly above Say vs Do, where it reads as one example");
 
 // ── 3. The document stays split ──────────────────────────────────────────────
 {
@@ -166,8 +184,9 @@ ok(/<div id="hero-receipt"[^>]*\bhidden\b/.test(html),
     `only page-flow CSS earns the priority; modal-only CSS belongs on the media="print" swap`);
   console.log(`  high-priority preloaded stylesheets: ${preloaded.length}`);
 
-  // The hero receipt's styles must NOT be one of them: they have to be correct in
+  // The hero cards' styles must NOT be one of them: they have to be correct in
   // the first frame, so they live inline in the head.
+  ok(/#hero-showcase\s*\{/.test(html), "css: the hero showcase's styles are inlined in the document head");
   ok(/#hero-receipt\s*\{/.test(html), "css: the hero receipt's styles are inlined in the document head");
 }
 

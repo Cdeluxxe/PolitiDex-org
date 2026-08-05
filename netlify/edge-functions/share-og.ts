@@ -16,10 +16,17 @@
 // explainer, and carries a footer saying it is not a verdict on any politician —
 // it must never be mistaken for an Official Record judgment.
 //
+// Say-vs-Do and Official Record links get a second layout: the SAID half and the
+// RECORD half in two panels, side by side, both quoted and both sourced. There is
+// no verdict on it and there never will be — the two facts are immutable and a
+// judgment drawn from them is revisable, and this image will sit in a platform
+// cache long after we could correct it. The reader does the arithmetic; we just
+// have to make sure both numbers are on the card.
+//
 // Served as SVG; share-preview.ts points og:image at it through the Netlify Image
 // CDN (?fm=png) so scrapers that insist on a raster still get one.
 import type { Config } from "@netlify/edge-functions";
-import { parseTarget, resolveTarget, type Resolved } from "../lib/share-target.ts";
+import { parseTarget, resolveTarget, prettyDate, type Resolved } from "../lib/share-target.ts";
 
 function esc(s: string): string {
   return String(s == null ? "" : s)
@@ -108,6 +115,137 @@ function card(r: Resolved): string {
 </svg>`;
 }
 
+// ── The comparison layout ────────────────────────────────────────────────────
+// Two panels of plain fact. Everything on it came out of the resolver, which got
+// the SAID half from the generated stance index and the RECORD half from the
+// Voting Record API; nothing here is computed from the pair.
+const PANEL_Y = 278;
+const PANEL_H = 244;
+
+// wrap() assumes no letter-spacing; a tracked-out line needs its own budget or it
+// runs off the card. One line, truncated on a word boundary where possible.
+function fitSpaced(text: string, size: number, spacing: number, maxWidth: number): string {
+  const per = size * 0.46 + spacing;
+  const limit = Math.max(6, Math.floor(maxWidth / per));
+  const s = String(text || "");
+  if (s.length <= limit) return s;
+  return s.slice(0, limit - 1).replace(/[\s,;:.\-—]+$/, "") + "…";
+}
+
+function initials(name: string): string {
+  const parts = String(name || "").replace(/[^\p{L}\p{N}\s.'-]/gu, " ").split(/\s+/).filter(Boolean);
+  const letters = parts.filter((p) => /^\p{L}/u.test(p)).map((p) => p[0].toUpperCase());
+  if (!letters.length) return "?";
+  return letters.length === 1 ? letters[0] : letters[0] + letters[letters.length - 1];
+}
+
+function panelFrame(x: number, w: number, accent: string, tinted: boolean): string {
+  return (
+    `<rect x="${x}" y="${PANEL_Y}" width="${w}" height="${PANEL_H}" rx="18" fill="#111a2e" stroke="#1e2a44" stroke-width="2"/>` +
+    `<rect x="${x}" y="${PANEL_Y}" width="5" height="${PANEL_H}" rx="2.5" fill="${esc(tinted ? accent : "#3d4d6b")}"/>`
+  );
+}
+
+function panelLabel(x: number, text: string, fill: string): string {
+  return `<text x="${x + 30}" y="${PANEL_Y + 46}" font-family="'Barlow Condensed','Arial',sans-serif" font-size="26" letter-spacing="5" fill="${esc(fill)}">${esc(text.toUpperCase())}</text>`;
+}
+
+function textRows(
+  lines: string[],
+  x: number,
+  y: number,
+  lh: number,
+  size: number,
+  fill: string,
+  family = "'Barlow','Arial',sans-serif"
+): string {
+  return lines
+    .map(
+      (ln, i) =>
+        `<text x="${x}" y="${y + i * lh}" font-family="${family}" font-size="${size}" fill="${esc(fill)}">${esc(ln)}</text>`
+    )
+    .join("");
+}
+
+// The SAID panel. The stance data carries no date anywhere in it, so this side
+// names the source that reported the position and says nothing about when — an
+// invented date on a real quote would be the worst possible thing to cache.
+function saidPanel(said: NonNullable<Resolved["comparison"]>["said"], x: number, w: number, accent: string): string {
+  if (!said) return "";
+  // "Mixed on" reads as a sentence fragment in a tracked-out label; the panel wants
+  // the bare direction.
+  const label = "Said" + (said.word ? ` · ${said.word.replace(/\s+on$/i, "")}` : "");
+  const body = wrap(`“${said.text}”`, 25, w - 60, 4);
+  // "Source:" is true whether that is a news outlet or the member's own site;
+  // anything warmer would overclaim.
+  const source = said.source ? `Source: ${said.source}` : "Sourced on PolitiDex";
+  return (
+    panelFrame(x, w, accent, false) +
+    panelLabel(x, label, "#9fb4d4") +
+    textRows(body, x + 30, PANEL_Y + 96, 32, 25, "#e7ecf6") +
+    textRows([source], x + 30, PANEL_Y + PANEL_H - 20, 0, 22, "#7f93b6")
+  );
+}
+
+// The RECORD panel. The action is printed exactly as the record labels it, and the
+// measure it applies to sits directly beneath so the two cannot be read apart.
+function didPanel(did: NonNullable<Resolved["comparison"]>["did"], x: number, w: number, accent: string): string {
+  if (!did) return "";
+  const heading = did.action;
+  const body = wrap([did.measure, did.title].filter(Boolean).join(" — "), 26, w - 60, 2);
+  const foot = [did.date ? prettyDate(did.date) : "", did.detail].filter(Boolean).join(" · ");
+  return (
+    panelFrame(x, w, accent, true) +
+    panelLabel(x, "On the record", "#9fb4d4") +
+    textRows(wrap(heading, 44, w - 60, 1), x + 30, PANEL_Y + 108, 0, 44, accent, "'Bebas Neue','Arial Narrow',sans-serif") +
+    textRows(body, x + 30, PANEL_Y + 152, 34, 26, "#e7ecf6") +
+    (foot ? textRows([foot], x + 30, PANEL_Y + PANEL_H - 20, 0, 22, "#7f93b6") : "")
+  );
+}
+
+function comparisonCard(r: Resolved): string {
+  const cmp = r.comparison;
+  if (!cmp || (!cmp.said && !cmp.did)) return card(r);
+
+  // Name big enough to read in a feed at thumbnail size, and clear of the
+  // monogram badge on the right.
+  const nameSize = r.title.length > 40 ? 58 : r.title.length > 26 ? 68 : 80;
+  const nameLines = wrap(r.title, nameSize, 860, 1);
+  const issue = r.subtitle ? r.subtitle.replace(/^on\s+/i, "") : "";
+
+  // Both halves → two panels. One half → one full-width panel, because a lone
+  // fact next to an empty box reads as a missing fact rather than an honest one.
+  let panels: string;
+  if (cmp.said && cmp.did) {
+    panels =
+      saidPanel(cmp.said, 80, 496, r.accent) +
+      didPanel(cmp.did, 624, 496, r.accent) +
+      `<text x="600" y="${PANEL_Y + PANEL_H / 2 + 10}" text-anchor="middle" font-family="'Barlow Condensed','Arial',sans-serif" font-size="30" fill="#4a5b7c">vs</text>`;
+  } else {
+    panels = cmp.said ? saidPanel(cmp.said, 80, 1040, r.accent) : didPanel(cmp.did, 80, 1040, r.accent);
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f1e"/>
+      <stop offset="1" stop-color="#0d1526"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="8" fill="${esc(r.accent)}"/>
+  <rect x="80" y="86" width="6" height="44" fill="${esc(r.accent)}"/>
+  <text x="106" y="120" font-family="'Barlow Condensed','Arial',sans-serif" font-size="34" letter-spacing="6" fill="${esc(r.accent)}">${esc(r.eyebrow.toUpperCase())}</text>
+  <rect x="1024" y="72" width="96" height="96" rx="20" fill="#131c30" stroke="${esc(r.accent)}" stroke-width="2"/>
+  <text x="1072" y="140" text-anchor="middle" font-family="'Bebas Neue','Arial Narrow',sans-serif" font-size="52" fill="${esc(r.accent)}">${esc(initials(r.title))}</text>
+  ${textRows(nameLines, 80, 202, 0, nameSize, "#eef4ff", "'Bebas Neue','Arial Narrow',sans-serif")}
+  ${issue ? `<text x="82" y="248" font-family="'Barlow Condensed','Arial',sans-serif" font-size="32" letter-spacing="4" fill="#9fb4d4">ON ${esc(fitSpaced(issue.toUpperCase(), 32, 4, 940))}</text>` : ""}
+  ${panels}
+  <text x="80" y="580" font-family="'Barlow','Arial',sans-serif" font-size="24" fill="#7f93b6">${esc(r.footnote)}</text>
+  <text x="1120" y="580" text-anchor="end" font-family="'Barlow Condensed','Arial',sans-serif" font-size="30" letter-spacing="2" fill="#e7ecf6">politidex.fyi</text>
+</svg>`;
+}
+
 // /share-og is addressed by the same ids the resolver parses, so rebuild a URL it
 // understands from the card request and ask it the identical question.
 function targetUrlFor(url: URL): URL | null {
@@ -173,7 +311,7 @@ export default async (req: Request): Promise<Response> => {
       // slow to resolve, and we do not want that frozen at the edge for a week.
       return svgResponse(genericCard(), 300);
     }
-    return svgResponse(card(resolved), 86400);
+    return svgResponse(resolved.comparison ? comparisonCard(resolved) : card(resolved), 86400);
   } catch {
     return svgResponse(genericCard(), 300);
   }

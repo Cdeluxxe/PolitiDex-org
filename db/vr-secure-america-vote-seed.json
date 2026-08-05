@@ -16,7 +16,7 @@
   "S. 2"
  ],
  "rollCallCount": 4,
- "memberVoteCount": 170,
+ "memberVoteCount": 173,
  "scanCoverage": "One named measure, and its COMPLETE floor history in both chambers rather than a search for its roll calls. On the Senate side vote_menu_119_2.xml was read end to end: of the session's 218 recorded votes, S. 2 occupies exactly rolls 136 through 163, and all 28 are accounted for here — 3 in this seed, 25 in declinedRollCalls with their tallies. On the House side rolls 200 through 230 of clerk.house.gov/evs/2026 were each fetched and their <legis-num> read, which is what establishes that only rolls 213 and 214 are votes on S. 2 and that rolls 210 and 211 are the rule H. Res. 1345 that carried it; the BILLSTATUS action list agrees, recording one recorded vote in each chamber on the bill itself. The enrolled text (govinfo BILLS-119s2enr) was read in full — all seven operative sections — BEFORE any axis was chosen, which is what surfaced the Title I \"functions other than immigration enforcement\" carve-outs that the short title hides. Nothing in this pass rests on a description field: the Senate rolls are verified on amendment_number and amendment_to_document_number, the House roll on <legis-num>.",
  "enactedLawFinding": "S. 2 is Public Law 119-98, signed 2026-06-10, confirmed from the <laws> block of BILLSTATUS-119s2.xml and from two Library of Congress actions dated 2026-06-10 ('Signed by President', 'Became Public Law No: 119-98'). Its policy area is Immigration and its short title, carried on the enrolled text, is the Secure America Act. One identity trap worth recording: the first <title> element in BILLSTATUS-119s2.xml belongs to H. Res. 1345, the House rule, and runs to 700 characters about H.R. 8312, H.R. 8464 and H. Res. 1335 — a naive first-match parse produces that as the bill's title. The official title as introduced is \"An original bill to provide for reconciliation pursuant to title II of S. Con. Res. 33\", and the measure row uses the enrolled short title instead, which is what a reader will recognise.",
  "marginCaveats": [
@@ -1375,7 +1375,7 @@
     }
    },
    "chamberVoting": 430,
-   "rosterSkipped": 374,
+   "rosterSkipped": 371,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -1522,6 +1522,13 @@
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -1672,6 +1679,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "M001230",
      "politicianId": "ryan_mackenzie",
      "party": "R",
@@ -1690,6 +1704,13 @@
      "politicianId": "scott_perry",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {

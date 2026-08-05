@@ -1612,14 +1612,19 @@
       return '<span class="pdx-party-chip ' + cls + '">' + label + '</span>';
     };
 
-    // Clean kept / broken / pending / partial pill row — the at-a-glance
-    // accountability read shared by every listing card. It follows the same three
-    // states as the score rail above it (see `_pdxPromiseState`) so a card never
-    // reads "0 Kept · 0 Broken" beside a rail that already says the record is
-    // open:
-    //   resolved → the real kept / broken tally, plus any outstanding work
-    //   tracking → the outstanding counts and an explicit "none resolved yet"
-    //   empty    → one neutral, context-aware "no record yet" pill
+    // Clean kept / broken / pending / partial pill row, PLUS the honest status
+    // prose that stands in when nothing has resolved. Two different jobs share
+    // this helper, and only one of them belongs on a summary surface:
+    //   the TALLY   — ✓ N Kept / ✗ N Broken / ⏳ N Pending — a pledge ratio
+    //   the STATUS  — "Lost primary — not on the November ballot", "2026
+    //                 candidate — record starts in office", "Early in term",
+    //                 "Former office — record archived"
+    // Pass `opts.tally: false` for the status prose WITHOUT the ratio. The
+    // unified compact card shell does exactly that: ⚖️ Word vs Action is the one
+    // read it publishes, those same pledges are measured inside it, and a
+    // kept/broken row one line under the verdict is a second grade for the same
+    // evidence. The status prose is not a score and is kept everywhere.
+    //
     // Pass the whole record as `opts.record` to pick up partials and the
     // promises[] / promiseBreakdown shapes; the loose kept / broken / pending
     // arguments stay supported for callers that only hold the summary fields.
@@ -1641,6 +1646,34 @@
       var openPills = (pn > 0 ? pill('pending', '⏳ ' + pn + ' Pending') : '')
                     + (pt > 0 ? pill('partial', '~ ' + pt + ' Partial') : '');
 
+      // A candidate who lost at convention or withdrew never took office, so
+      // "record starts in office" would be misleading — say so plainly instead,
+      // matching the "Out of Race" badge and the profile's honest lede. This wins
+      // over every other line, tally or not: those promises can no longer resolve
+      // in office, which is true whatever the ledger holds.
+      var _cs = String(opts.candidacyStatus || '').toLowerCase();
+      var _lostPrimary = (_cs === 'eliminated_primary' || _cs === 'lost_primary');
+      var _outOfRace = (_lostPrimary || _cs === 'eliminated' || _cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended' || _cs === 'conceded');
+      var outMsg = '';
+      if (_outOfRace) outMsg = _lostPrimary ? '✖ Lost primary — not on the November ballot'
+        : (_cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record'
+        : '✖ Did not advance — never took office';
+
+      // ── Status-only mode ────────────────────────────────────────────────────
+      // No ratio, no open counts, no zeroes. Just the office-status line, and
+      // only when there is one worth printing. A politician with a real ledger
+      // gets nothing from this row — the rail above already carries the read —
+      // so it returns '' rather than inventing a substitute line for them.
+      if (opts.tally === false) {
+        if (outMsg) return '<div class="pdx-statpills">' + pill('none', outMsg) + '</div>';
+        if (resolved > 0 || unresolved > 0) return '';
+        var sMsg = '';
+        if (opts.status === 'candidate') sMsg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
+        else if (opts.status === 'former') sMsg = '⏳ Former office — record archived';
+        else if (opts.status === 'office') sMsg = '🌱 Early in term — record being tracked';
+        return sMsg ? '<div class="pdx-statpills">' + pill('none', sMsg) + '</div>' : '';
+      }
+
       if (resolved > 0) {
         // A resolved record: "0 Broken" is earned information here, so both sides
         // of the ratio stay put. Outstanding work is appended, not substituted.
@@ -1654,16 +1687,7 @@
       // Nothing has resolved. Either promises are on file and still open, or the
       // record is genuinely empty — one or the other, and never a row of zeroes.
       var msg = '⏳ No voting record yet';
-      // A candidate who lost at convention or withdrew never took office, so
-      // "record starts in office" would be misleading — say so plainly instead,
-      // matching the "Out of Race" badge and the profile's honest lede. This wins
-      // over the tracking wording: those promises can no longer resolve in office.
-      var _cs = String(opts.candidacyStatus || '').toLowerCase();
-      var _lostPrimary = (_cs === 'eliminated_primary' || _cs === 'lost_primary');
-      var _outOfRace = (_lostPrimary || _cs === 'eliminated' || _cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended' || _cs === 'conceded');
-      if (_outOfRace) msg = _lostPrimary ? '✖ Lost primary — not on the November ballot'
-        : (_cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record'
-        : '✖ Did not advance — never took office';
+      if (outMsg) msg = outMsg;
       // Tracked but unresolved: the counts carry the record, so the neutral pill
       // only has to state what is missing from it.
       else if (unresolved > 0) msg = '⊘ None resolved yet';
@@ -1673,34 +1697,70 @@
       return '<div class="pdx-statpills">' + openPills + pill('none', msg) + '</div>';
     };
 
-    // ── The slot a pledge percentage used to fill ────────────────────────────
+    // ── Coverage, as supporting evidence under the one read ──────────────────
+    // The sample the ⚖️ Word vs Action verdict rests on: how many of the stated
+    // positions on file actually have a recorded action to test them against.
+    // Deliberately NOT a grade — it is a fraction of coverage, not of merit, and
+    // it wears the neutral pill so nothing on the card reads as a second score.
+    // Only ever published beside a publishable read; below the floor the rail's
+    // own sub-line is the coverage statement and this would just repeat it.
+    window._pdxCoveragePill = function(r) {
+      if (!r || !r.publishable || !r.coverage) return '';
+      var tested = r.coverage.tested || 0;
+      var pool = r.coverage.scorable || r.coverage.word || 0;
+      if (!tested || !pool) return '';
+      if (pool < tested) pool = tested;
+      return '<span class="pdx-statpill pdx-statpill-cov" title="Stated positions with a recorded action to test them against">'
+        + '📊 ' + tested + '/' + pool + ' tested</span>';
+    };
+
+    // ── The one read, for every non-grid card that has a score slot ──────────
     // Every listing card, slot card, team card and modal header had its own copy
     // of `sc + '%'`, its own colour ramp and its own "No record yet" fallback, so
-    // retiring the rate one site at a time is how one of them keeps it. This is
-    // the single answer they all render instead: a glyph, a label, and the
-    // receipts as counts. No colour is returned — colouring the slot by a rate is
-    // publishing the rate — and no branch of it can produce a percentage.
+    // retiring the rate one site at a time was how one of them kept it. This is
+    // the single answer they all render instead — and it is now the SAME answer
+    // the unified compact card shell renders: ⚖️ Word vs Action.
     //
-    // PolitiDex publishes ONE rate, ⚖️ Word vs Action. The pledge lane feeds it
-    // and publishes its receipts; it does not publish a competing score.
+    // RETIRED, in two steps: first the pledge percentage, then the pledge lane
+    // itself. This used to return 🤝 "Pledge record" / ⏳ "N pledges tracked" /
+    // 🗳️ "2026 Ballot" / — "Pledges". Those were receipts sitting in the slot a
+    // reader treats as the finding, which made a kept/broken ledger the headline
+    // on the chub compare card, the My Team slot card and the My Home Team card
+    // while the profile page led with the consistency read. A pledge is one form
+    // of "said" and word-action.js already tests it against its sourced
+    // resolution; the receipts belong on the profile beside their own disclosure,
+    // not in a summary slot competing with the read that measures them.
+    //
+    // Fails closed: PDXWordAction owns `publishable`, and below that floor this
+    // returns COVERAGE prose — what is missing — never a verdict and never a
+    // number. Returns `tint` (the verdict's own colour) only when there is a
+    // verdict to colour; callers must not substitute a ramp of their own.
+    //
+    // Signature is unchanged except that `opts.pid` is now read — without a pid
+    // there is no action half to test the word against (PDXConsistency
+    // .officialRecord(pid, issueKey)), so a caller that omits it gets the honest
+    // "no read" shape rather than a wrong one.
     window._pdxLedgerSlot = function(p, opts) {
       opts = opts || {};
-      var state = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : 'empty';
-      var note = (typeof window._pdxPledgeNote === 'function') ? window._pdxPledgeNote(p, opts.form || 'short') : '';
-      // 'resolved' and 'counts' render identically. They differed by exactly one
-      // thing — whether a rate was published — so with the rate retired an
-      // itemized ledger and a summary ledger both say: here are the receipts.
-      if (state === 'resolved' || state === 'counts') {
-        return { state: 'ledger', glyph: '🤝', label: 'Pledge record', sub: note || 'Counts on file' };
+      var r = null;
+      try {
+        var wa = window.PDXWordAction;
+        if (opts.pid && wa && typeof wa.read === 'function') r = wa.read(opts.pid, p);
+      } catch (e) { r = null; }
+      if (r && r.publishable && r.verdict && r.verdict.label) {
+        return { state: 'wa', glyph: r.verdict.ico || '⚖', label: 'Word vs Action', sub: r.verdict.label, tint: r.verdict.color || '' };
       }
-      if (state === 'tracking') {
-        var lbl = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
-        return { state: 'tracking', glyph: '⏳', label: lbl || 'Pledges tracked', sub: 'None resolved yet' };
-      }
+      var cov = (r && r.coverage) || null;
       if (opts.status === 'candidate') {
-        return { state: 'candidate', glyph: '🗳️', label: '2026 Ballot', sub: 'Record begins in office' };
+        return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '' };
       }
-      return { state: 'empty', glyph: '—', label: opts.label || 'Pledges', sub: 'No record yet' };
+      if (cov && cov.tested > 0) {
+        return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '' };
+      }
+      if (cov && cov.word > 0) {
+        return { state: 'wa', glyph: '…', label: 'Word vs Action', sub: 'No matched votes yet', tint: '' };
+      }
+      return { state: 'empty', glyph: '—', label: 'Word vs Action', sub: (opts.status === 'former') ? 'Record archived' : 'No stated positions yet', tint: '' };
     };
 
     // Consistent "Office • District • State" line for every compact card. District
@@ -1730,6 +1790,16 @@
     // consistently. Section-specific badges, controls, extra slots (alignment /
     // accountability) and action buttons are supplied via opts. Rendered inside
     // the existing .chub-card shell so every card behaviour keeps working.
+    //
+    // AMENDED: the two items struck through above are gone. Because every dense
+    // listing draws this markup, whatever occupies the score slot IS the app's
+    // headline accountability signal — and it was a pledge tally, under a profile
+    // page that leads with ⚖️ Word vs Action. The slot now prints that one read
+    // (see the rail in `_pdxCardInner`), and the kept/broken/pending pills are
+    // suppressed here via `_pdxStatPills(..., {tally:false})`, which keeps all of
+    // that helper's non-score status prose. Coverage takes the pills' place as
+    // supporting evidence. No pledge data or ledger logic was removed — the
+    // receipts are still published on the profile beside their own disclosure.
     // ════════════════════════════════════════════════════════════════════════
     function _pdxSilhouette() {
       return '<span class="pdx-sil"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12.4c2.72 0 4.9-2.2 4.9-4.9S14.72 2.6 12 2.6 7.1 4.8 7.1 7.5 9.28 12.4 12 12.4zm0 2.3c-3.3 0-9.8 1.66-9.8 4.96V21.4h19.6v-1.74c0-3.3-6.5-4.96-9.8-4.96z"/></svg></span>';
@@ -1906,76 +1976,109 @@
       var unopposed = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
       var party = (typeof window._pdxPartyChip === 'function') ? window._pdxPartyChip(d.party) : '';
 
-      // Prominent, color-coded Promise score rail — rendered on EVERY compact card
-      // so the badge is in the same place whether or not a record grounds it. When a
-      // score exists it shows the color-coded percentage; when one does not (a
-      // challenger with no voting record, or an officeholder still being compiled)
-      // it shows a clean, muted "No record yet" pill in the same slot rather than
-      // vanishing — which previously made cards look inconsistent and incomplete.
-      var scoreLbl = opts.scoreLabel || 'Promise';
-      // The tile is tappable everywhere — it opens the pledge-lane explainer.
+      // ── The one rail. ⚖️ Word vs Action, on every compact card ──────────────
+      //
+      // RETIRED: the pledge-receipt rail. This slot used to be a four-state pledge
+      // tile — 🤝 "Pledge record" / 🗳️ "2026 Ballot" / ⏳ "N pledges tracked" /
+      // — "Promise · No record yet" — tapping through to the pledge-lane
+      // explainer. It was the single most-rendered signal in the product: All
+      // Politicians, Search, Compare, Favorites, My Politicians, Watching and
+      // every Related grid draw this exact markup. So whatever sat here WAS the
+      // app's headline accountability read, whatever the profile page said, and
+      // what sat here was a pledge tally.
+      //
+      // A campaign pledge is one FORM OF "said". word-action.js already tests it
+      // against its sourced resolution exactly as it tests a floor stance
+      // (`testOf`: kept→consistent, broken→contradicts, unresolved→untested), so
+      // the pledge lane was never a second system — it was a second PRESENTATION
+      // of the one system, competing with it. The rail now prints the read itself.
+      //
+      // Rules this slot obeys, in order:
+      //   1. The label is always "Word vs Action". One slot, one vocabulary.
+      //   2. Above the publishing floor: the verdict's own glyph, colour and
+      //      words, straight from PDXConsistency.VERDICTS via PDXWordAction.
+      //   3. Below it: fail closed to COVERAGE prose — what is missing and why —
+      //      never a hollow grade and never a zeroed pledge count dressed as one.
+      //      PDXWordAction owns `publishable`; the card applies no floor of its own.
+      //   4. No number. There is a percentage on the profile beside its own
+      //      disclosure; 62px of dense grid is not where a rate gets explained.
+      //
+      // The pledge data, `_pdxPromiseTally`, `_pdxPledgeNote`, `_pdxCountsNote`,
+      // `_pdxTrackingNote` and the whole kept/broken/pending ledger are untouched
+      // and still published on the profile. They just no longer occupy the slot a
+      // reader treats as the finding.
+      var _waRead = null;
+      try {
+        var _waMod = window.PDXWordAction;
+        if (_waMod && typeof _waMod.read === 'function') _waRead = _waMod.read(pid, d);
+      } catch (e) { _waRead = null; }
+      var _waSayable = !!(_waRead && _waRead.publishable && _waRead.verdict && _waRead.verdict.label);
+      var _waCov = (_waRead && _waRead.coverage) || null;
+      // The tile is tappable everywhere — it opens the explainer for the read it
+      // is actually showing. It used to open the pledge-lane explainer, which is
+      // now the wrong document for this slot.
       var scoreClick = ' role="button" tabindex="0"' +
-        ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')"' +
-        ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\');}"' +
-        ' title="How does the pledge lane work?"';
+        ' onclick="event.stopPropagation();window._pdxScoreCompareInfo(event,\'' + pid + '\')"' +
+        ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();window._pdxScoreCompareInfo(event,\'' + pid + '\');}"' +
+        ' title="How does ⚖️ Word vs Action work?"';
       var infoHint = '<div class="pdx-score-info">ⓘ How?</div>';
-      // Which of the three honest states this card is in. 'tracking' means real
-      // promises are on file with none resolved — it must not wear the same
-      // "No record yet" rail as a politician with nothing on file at all.
-      var pState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(d) : (hasScore ? 'resolved' : 'empty');
-      var trackNote  = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(d, 'short') : '';
-      var trackLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(d) : '';
-      // 'counts' — kept/broken are on file but the pledges are not itemized, so no
-      // rate is published. Falling through to the "No record yet" tile below would
-      // report a member with a real closed ledger as having nothing on file, which
-      // is a worse error than the unpublishable percentage this replaced.
-      var countsNote = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(d, 'short') : '';
-      // The ledger note for ANY closed pledge record, itemized or not. This is
-      // what the score slot prints now: the pledge lane publishes receipts, and
-      // ⚖️ Word vs Action publishes the one rate. A card that printed a pledge
-      // percentage here put a second number beside the primary read with no way
-      // for the voter to tell which one was being rated.
-      var pledgeNote = (typeof window._pdxPledgeNote === 'function') ? window._pdxPledgeNote(d, 'short') : '';
-      // 'resolved' and 'counts' now render IDENTICALLY. They used to differ by
-      // exactly one thing — whether a rate was published — and with the rate
-      // retired an itemized ledger and a summary ledger say the same thing: here
-      // are the receipts. `hasScore` survives only as a data predicate for the
-      // Accountability badge below; nothing reads it as something to print.
-      var hasLedger = (pState === 'resolved' || pState === 'counts');
-      var scoreBlock = hasLedger
-        ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-counts pdx-snap-score-click"' + scoreClick + '>' +
-            '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-counts">🤝</div>' +
-            '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-counts">Pledge record</div>' +
-            '<div class="pdx-snap-score-na pdx-snap-score-na-counts">' + (pledgeNote || countsNote || 'Counts on file') + '</div>' +
-            infoHint +
-          '</div>'
-        : (status === 'candidate'
-          // A candidate keeps the blue 2026 identity, but when promises ARE on file
-          // the sub-line names them instead of implying the slate is blank.
-          ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-cand pdx-snap-score-click"' + scoreClick + '>' +
-              '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-cand">🗳️</div>' +
-              '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-cand">2026 Ballot</div>' +
-              '<div class="pdx-snap-score-na pdx-snap-score-na-cand">' + (pState === 'tracking' ? trackNote : 'Record begins in office') + '</div>' +
-              infoHint +
-            '</div>'
-          : (pState === 'tracking'
-            // Tracked-but-unresolved. Deliberately an hourglass rather than a
-            // number in the score slot, so it can never be misread as a
-            // percentage — there still isn't one.
-            ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-tracking pdx-snap-score-click"' + scoreClick + '>' +
-                '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-tracking">⏳</div>' +
-                '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-tracking">' + trackLabel + '</div>' +
-                '<div class="pdx-snap-score-na pdx-snap-score-na-tracking">None resolved yet</div>' +
-                infoHint +
-              '</div>'
-            : '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-click"' + scoreClick + '>' +
-                '<div class="pdx-snap-score-num pdx-snap-score-num-empty">&mdash;</div>' +
-                '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
-                '<div class="pdx-snap-score-na">No record yet</div>' +
-                infoHint +
-              '</div>'));
+      var waGlyph, waSub, waVariant, waTint;
+      if (_waSayable) {
+        // The verdict speaks for itself, in its own palette. Nothing here invents
+        // a colour: a second ramp on this slot would be a second score.
+        waGlyph = _waRead.verdict.ico || '⚖';
+        waSub = _waRead.verdict.label;
+        waTint = _waRead.verdict.color || '#cbd9ec';
+        waVariant = 'wa';
+      } else if (status === 'candidate') {
+        // A candidate has no governing record to test yet, and saying so is the
+        // honest coverage line — not "no record", which reads as a failing grade.
+        // Keeps the blue 2026 identity the rail already carried.
+        waGlyph = '🗳️';
+        waSub = 'Record begins in office';
+        waTint = '';
+        waVariant = 'cand';
+      } else if (_waCov && _waCov.tested > 0) {
+        // Stated positions matched to real actions, but under the floor. The one
+        // thing that must not happen here is a verdict on too little evidence.
+        waGlyph = '⏳';
+        waSub = 'Not enough record yet';
+        waTint = '';
+        waVariant = 'tracking';
+      } else if (_waCov && _waCov.word > 0) {
+        // We have their word; we have not matched an action to it yet. Name the
+        // gap rather than implying the person has no positions.
+        waGlyph = '…';
+        waSub = 'No matched votes yet';
+        waTint = '';
+        waVariant = 'wa';
+      } else {
+        waGlyph = '—';
+        waSub = (status === 'former') ? 'Record archived' : 'No stated positions yet';
+        waTint = '';
+        waVariant = 'wa';
+      }
+      var _waTintStyle = waTint ? ' style="color:' + waTint + ';"' : '';
+      var scoreBlock =
+        '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-' + waVariant + ' pdx-snap-score-click"' + scoreClick + '>' +
+          '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-' + waVariant + '"' + _waTintStyle + '>' + waGlyph + '</div>' +
+          '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-' + waVariant + '">Word vs Action</div>' +
+          '<div class="pdx-snap-score-na pdx-snap-score-na-' + waVariant + '"' + _waTintStyle + '>' + waSub + '</div>' +
+          infoHint +
+        '</div>';
 
-      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
+      // `tally:false` — the kept/broken/pending pills are suppressed on this
+      // shell. They were the rail's echo: a reader who saw "✓ 27 Kept ✗ 8 Broken"
+      // under a card was reading a pledge ratio as the card's grade, one line
+      // below the read that already measures those same pledges. Every non-score
+      // status line the helper owns ("Lost primary — not on the November ballot",
+      // "2026 candidate — record starts in office", "Early in term", "Former
+      // office — record archived") is preserved verbatim; only the tally goes.
+      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus, tally: false }) : '';
+      // Coverage, as supporting evidence under the primary read — the sample the
+      // verdict rests on, never a grade. Only published when the read is, because
+      // below the floor the rail's own sub-line is already the coverage statement.
+      var covPill = (_waSayable && typeof window._pdxCoveragePill === 'function') ? window._pdxCoveragePill(_waRead) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
         ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
       var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
@@ -1985,7 +2088,9 @@
       // cue. Same reverse lookup as the profile, so the count always matches.
       var mandateChip = (opts.mandate !== false && typeof window._pdxMandateCardChip === 'function')
         ? window._pdxMandateCardChip(pid) : '';
-      var metrics = (pills || acct || commentChip || voteChip || mandateChip) ? '<div class="pdx-snap-metrics">' + pills + acct + commentChip + voteChip + mandateChip + '</div>' : '';
+      // Coverage leads the supporting row — it qualifies the rail directly above
+      // it, so it reads as the read's sample size rather than a separate metric.
+      var metrics = (covPill || pills || acct || commentChip || voteChip || mandateChip) ? '<div class="pdx-snap-metrics">' + covPill + pills + acct + commentChip + voteChip + mandateChip + '</div>' : '';
 
       var issues = '';
       // Prefer the politician's REAL documented positions (support / oppose /
@@ -2119,8 +2224,8 @@
     function _mypolRenderPrimaryCard(pid) {
       const d = CMP_DATA[pid];
       if (!d) return '';
-      // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot.
-      const slot = window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
+      // ⚖️ Word vs Action — the one read, via window._pdxLedgerSlot.
+      const slot = window._pdxLedgerSlot(d, { pid: pid, status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
       const sel = _cmpSelected.has(pid);
       const meta = _getPrimaryRepMeta()[pid];
       if (!meta) return '';
@@ -2157,9 +2262,9 @@
             descHtml +
             '<div class="flex items-center gap-3">' +
               '<div style="flex-shrink:0;">' +
-                '<div class="chub-score" style="color:#9fb4d4;font-size:1.3rem;">' + slot.glyph + '</div>' +
+                '<div class="chub-score" style="color:' + (slot.tint || '#9fb4d4') + ';font-size:1.3rem;">' + slot.glyph + '</div>' +
                 '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.5rem;">' + slot.label + '</div>' +
-                '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.46rem;color:#647a9c;margin-top:0.1rem;">' + slot.sub + '</div>' +
+                '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.46rem;color:' + (slot.tint || '#647a9c') + ';margin-top:0.1rem;">' + slot.sub + '</div>' +
               '</div>' +
               (typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '') +
               '<div class="flex flex-wrap gap-1">' +
@@ -2312,9 +2417,9 @@
     function _renderSlotCard(pos, pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot. The
-      // progress bar went with the percentage: a bar IS a percentage, drawn.
-      var slot = window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
+      // ⚖️ Word vs Action — the one read, via window._pdxLedgerSlot. `pid` is
+      // required: without it there is no action half to test the word against.
+      var slot = window._pdxLedgerSlot(d, { pid: pid, status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
       var sel = _cmpSelected.has(pid);
       var photoUrl = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(pid) : (BROWSE_PHOTOS[pid] || '');
       var photoHtml = photoUrl
@@ -2325,18 +2430,17 @@
       var partyColor = d.party === 'R' ? '#f87171' : d.party === 'D' ? '#60a5fa' : (d.party === 'F' || d.party === 'Forward') ? '#22d3ee' : '#a78bfa';
       var partyBadge = partyLabel ? '<span class="font-condensed" style="font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:' + partyColor + 'cc;background:' + partyColor + '10;border:1px solid ' + partyColor + '24;padding:0.08rem 0.4rem;border-radius:999px;font-weight:500;opacity:0.8;">' + partyLabel + '</span>' : '';
 
-      var keptCount = d.kept || 0;
-      var brokenCount = d.broken || 0;
-      var keptBrokenHtml = '';
-      if (sc !== null && sc !== undefined) {
-        keptBrokenHtml = '<div class="myteam-slot-kept-broken">' +
-          '<span style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.28);color:#4ade80;">✓ ' + keptCount + ' Kept</span>' +
-          '<span style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.28);color:#f87171;">✕ ' + brokenCount + ' Broken</span>' +
-        '</div>';
-      }
+      // RETIRED: `keptBrokenHtml` — a green "✓ N Kept" / red "✕ N Broken" pair
+      // painted directly under the slot's score rail. Those same pledges are
+      // measured inside ⚖️ Word vs Action, which the rail above now prints, so
+      // this was the one system's own evidence re-scored in a second palette.
+      // (It was also unreachable: it gated on `sc`, an undeclared identifier left
+      // behind when the pledge percentage was retired, so this whole function
+      // threw a ReferenceError before it could return. Removing the tally removes
+      // the last reader of `sc`.) The counts still live on the profile.
       // Accountability of Truth chip — the integrity signal for this teammate, shown
       // front-and-center on the slot so a voter can weigh how well they keep their word.
-      var acctBadgeHtml = (sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function')
+      var acctBadgeHtml = (typeof window._acctCardBadge === 'function')
         ? '<div class="myteam-slot-acct" style="display:flex;justify-content:center;margin:0.1rem 0 0.5rem;" onclick="event.stopPropagation();">' + window._acctCardBadge(pid) + '</div>' : '';
 
       // Keyboard + screen-reader access: the card is a clickable summary, so
@@ -2356,14 +2460,13 @@
         (partyBadge ? '<div class="myteam-slot-party" style="margin-bottom:0.45rem;">' + partyBadge + '</div>' : '<div class="myteam-slot-party" style="margin-bottom:0.3rem;"></div>') +
         '<div class="myteam-slot-info-row">' +
           '<div style="display:flex;flex-direction:column;align-items:center;line-height:1;">' +
-            '<div class="chub-score" style="color:#c8d7ee;font-size:2rem;font-family:\'Bebas Neue\',sans-serif;">' + slot.glyph + '</div>' +
+            '<div class="chub-score" style="color:' + (slot.tint || '#c8d7ee') + ';font-size:2rem;font-family:\'Bebas Neue\',sans-serif;">' + slot.glyph + '</div>' +
             '<div class="myteam-slot-score-label" style="color:#9fb4d4;">' + slot.label + '</div>' +
-            '<div class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;color:#7d97bd;">' + slot.sub + '</div>' +
+            '<div class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;color:' + (slot.tint || '#7d97bd') + ';">' + slot.sub + '</div>' +
           '</div>' +
         '</div>' +
         acctBadgeHtml +
         matchBand +
-        keptBrokenHtml +
         '<div class="myteam-slot-issues flex flex-wrap gap-1 justify-center mb-2" style="margin-top:0.4rem;">' +
           (d.issues && d.issues.length
             ? d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2.5 py-0.5 font-condensed text-steel-500" style="font-size:0.58rem;">' + i + '</span>'; }).join('')
@@ -2808,10 +2911,11 @@
       // fall back to `d` until the lazy-load below swaps in the full document.
       var rec = (p && Object.keys(p).length) ? Object.assign({}, d, p) : d;
 
-      // The header used to lead with a Promise Follow-Through percentage. It now
-      // leads with the pledge receipts, because ⚖️ Word vs Action is the one read
-      // this modal is a preview of, and a second rate above it competed with it.
-      var slot = window._pdxLedgerSlot(rec, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(rec) : 'office' });
+      // The header used to lead with a Promise Follow-Through percentage, then
+      // with the pledge receipts. It now leads with ⚖️ Word vs Action, because
+      // that is the one read this modal is a preview of — and receipts in the
+      // headline slot competed with it just as the rate did.
+      var slot = window._pdxLedgerSlot(rec, { pid: id, status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(rec) : 'office' });
 
       // ── Header (photo · name · office+district · badges) ──
       var photoUrl = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : ((typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[id]) || '');
@@ -2903,7 +3007,7 @@
           '<button type="button" class="pdx-med-sc pdx-med-sc--promise" onclick="window._mediumViewFull()" ' +
             'title="Pledge receipts — the kept and broken promises on file. No rate is published for this lane. Tap for the full record.">' +
             '<span class="pdx-med-sc-tag">🤝 Pledge receipts</span>' +
-            '<span class="pdx-med-sc-num pdx-med-sc-num--glyph" style="color:#c8d7ee;">' + slot.glyph + '</span>' +
+            '<span class="pdx-med-sc-num pdx-med-sc-num--glyph" style="color:' + (slot.tint || '#c8d7ee') + ';">' + slot.glyph + '</span>' +
             '<span class="pdx-med-sc-lab">' + slot.label + '</span>' +
             '<span class="pdx-med-sc-desc">' + slot.sub + '</span>' +
           '</button>' +
@@ -4907,15 +5011,16 @@
               ? '<span class="bs-seat-photo"><img loading="lazy" decoding="async" src="' + _bsEsc(photo) + '" alt="" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + (p.icon || '🏛') + '\'"></span>'
               : '<span class="bs-seat-photo">' + (p.icon || '🏛') + '</span>';
             var party = (window._pdxPartyChip && d.party) ? window._pdxPartyChip(d.party) : '';
-            // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot. The
-            // seat tile is narrow, so the counts line carries the record and the
-            // label sits under it; with nothing resolved the slot says so itself.
+            // ⚖️ Word vs Action — the one read, via window._pdxLedgerSlot. The seat
+            // tile is narrow, so the glyph carries the state and the sub-line
+            // carries the words: the verdict when there is one, the coverage gap
+            // when there is not. `state === 'ledger'` used to select a pledge-
+            // counts layout here; there is no pledge lane in this slot any more,
+            // so one layout serves every state.
             var _slot = window._pdxLedgerSlot
-              ? window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' })
-              : { state: 'empty', glyph: '—', label: 'Pledges', sub: 'No record yet' };
-            var scoreHtml = (_slot.state === 'ledger')
-              ? '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:#c8d7ee;font-size:0.72rem;line-height:1.2;">' + _bsEsc(_slot.sub) + '</span><span class="bs-seat-score-lbl">' + _slot.glyph + ' Pledges</span></span>'
-              : '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:#647a9c;font-size:0.8rem;">' + _slot.glyph + '</span><span class="bs-seat-score-lbl">' + _bsEsc(_slot.sub) + '</span></span>';
+              ? window._pdxLedgerSlot(d, { pid: pid, status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' })
+              : { state: 'empty', glyph: '—', label: 'Word vs Action', sub: 'No record yet', tint: '' };
+            var scoreHtml = '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:' + (_slot.tint || '#647a9c') + ';font-size:0.8rem;">' + _slot.glyph + '</span><span class="bs-seat-score-lbl">' + _bsEsc(_slot.sub) + '</span></span>';
             return '<div class="bs-seat is-filled">' + photoHtml +
               '<span class="bs-seat-body">' +
                 '<span class="bs-seat-office">✓ ' + _bsEsc(p.label) + ' ' + scopeHtml + '</span>' +
@@ -5060,8 +5165,8 @@
     function _renderMyTeamCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      // Pledge receipts, not a pledge rate — see window._pdxLedgerSlot.
-      var slot = window._pdxLedgerSlot(d, { status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
+      // ⚖️ Word vs Action — the one read, via window._pdxLedgerSlot.
+      var slot = window._pdxLedgerSlot(d, { pid: pid, status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' });
       var sel = _cmpSelected.has(pid);
       var isPotential = _potentialPoliticians.has(pid);
       var isFav = _favoritePids.has(pid);
@@ -5075,9 +5180,12 @@
       var localBadge = isLocal ? '<span class="chub-your-badge" style="font-size:0.6rem;">📍 Local Rep</span>' : '';
       var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:1.15rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
       var alignHtml = typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '';
-      // Accountability of Truth chip — shown right alongside the Promise Score so a
-      // voter sees how well each teammate keeps their word without opening the profile.
-      var acctBadgeHtml = (sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function')
+      // Accountability of Truth chip — shown right alongside the ⚖️ Word vs Action
+      // rail so a voter sees the integrity signal without opening the profile.
+      // (The `sc !== null` gate this used to carry read an undeclared identifier
+      // left behind when the pledge percentage was retired, which threw a
+      // ReferenceError before the card could render.)
+      var acctBadgeHtml = (typeof window._acctCardBadge === 'function')
         ? '<span style="display:inline-flex;flex-shrink:0;">' + window._acctCardBadge(pid) + '</span>' : '';
       // Documented positions for this teammate — replaces the bare topic tags
       // when present (same labels, plus where they stand) on their own row.
@@ -5098,12 +5206,16 @@
               heartHtml +
             '</div>' +
             '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
+            // `tally:false` — status prose only. The kept/broken ratio used to sit
+            // directly above the score rail; those pledges are measured inside the
+            // ⚖️ Word vs Action read the rail now prints, so the ratio was the same
+            // evidence graded twice. Every status line is preserved.
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus, tally: false }) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
-                '<div class="chub-score" style="color:#c8d7ee;font-size:1.5rem;">' + slot.glyph + '</div>' +
+                '<div class="chub-score" style="color:' + (slot.tint || '#c8d7ee') + ';font-size:1.5rem;">' + slot.glyph + '</div>' +
                 '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.55rem;">' + slot.label + '</div>' +
-                '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.5rem;color:#647a9c;margin-top:0.1rem;">' + slot.sub + '</div>' +
+                '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.5rem;color:' + (slot.tint || '#647a9c') + ';margin-top:0.1rem;">' + slot.sub + '</div>' +
               '</div>' +
               acctBadgeHtml +
               alignHtml +
@@ -7063,14 +7175,14 @@
         pids = pids.filter(function(pid) { var a = window._acctMatchScore(pid); return typeof a === 'number' && a >= 65; });
       }
 
-      // 'score-desc' now means MOST PLEDGE RECEIPTS first — deepest record at the
-      // top, which is what the option always meant to the voter reading it and is
-      // a count rather than a rate. The value is unchanged so saved sorts, the
-      // alignment fallbacks below and the browse-goal parser keep working.
+      // 'score-desc' means the strongest ⚖️ Word vs Action read first — the one
+      // published rating. It used to order by pledge receipts; see _waDepth(). The
+      // value is unchanged so saved sorts, the alignment fallbacks below and the
+      // browse-goal parser keep working.
       if (sort === 'score-desc') {
-        pids.sort(function(a, b) { return _pledgeDepth(b) - _pledgeDepth(a); });
+        pids.sort(function(a, b) { return _waDepth(b) - _waDepth(a); });
       } else if (sort === 'score-asc') {
-        pids.sort(function(a, b) { return _pledgeDepth(a) - _pledgeDepth(b); });
+        pids.sort(function(a, b) { return _waDepth(a) - _waDepth(b); });
       } else if (sort === 'alpha') {
         pids.sort(function(a, b) { return (CMP_DATA[a].name || '').localeCompare(CMP_DATA[b].name || ''); });
       } else if (sort === 'align-desc' && typeof _calcAlignmentScore === 'function') {
@@ -7884,30 +7996,37 @@
     // The matching #relevant-browse-grid CSS gives both tiers the full premium
     // chrome. My Team's _renderBrowseTeamCard is intentionally left untouched.
     // ── "Two ways to judge them" dual-signal scorecard (Relevant to Me) ──────────
-    // The Relevant section is where a voter weighs the field, so it pairs the two
-    // signals that matter — side by side, equal weight — instead of leaving Promise %
-    // big in the corner and the Accountability chip buried below (the old, lopsided
-    // read). The LEFT cell is the formal in-office record (Promise %, "what they've
-    // done"); the RIGHT cell is the character/consistency read (Accountability of
-    // Truth, "how they carry themselves"). Each cell is colour-coded, carries a plain
-    // sub-label, and taps through to its own explainer/analysis; a single ⓘ above them
-    // spells out the difference. Thin records degrade to honest neutral states
-    // ("No record yet" / "Limited data") rather than looking broken or missing.
+    // The Relevant section is where a voter weighs the field, so it answers one
+    // question — "does what they say match what they do?" — at two scopes, side by
+    // side. The LEFT cell is the OVERALL ⚖️ Word vs Action read, across every
+    // position the politician has stated. The RIGHT cell is that same read narrowed
+    // to the visitor's chosen issues (_calcConsistencyScore, sourced from the same
+    // PDXConsistency.officialRecord feed — a scope of the one system, not a rival).
+    // Both cells tap through to their own explainer; thin records degrade to honest
+    // neutral states ("Not enough record yet" / "Limited record") rather than
+    // looking broken. It used to pair a pledge lane against a consistency lane at
+    // equal weight, which is exactly the two-ranking-systems read this frame is
+    // supposed to resolve.
     function _relevantDualSignal(pid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return '';
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
       var isCand = (status === 'candidate');
 
-      // ── Pledge side (the receipts, not a rate) ──
-      // This was the app's most literal dual percentage: a pledge rate printed at
-      // the same size, in the same row, as the Say-vs-Do read, with nothing telling
-      // the voter which of the two was the integrity signal. The pledge side now
-      // carries its receipts and the Say-vs-Do side carries the only rate.
-      var slot = window._pdxLedgerSlot(d, { status: status });
+      // ── Left cell: the OVERALL ⚖️ Word vs Action read ──
+      // RETIRED: the pledge side. This cell was "🤝 Pledge receipts", and it made
+      // this the most literal two-systems surface in the app: a "Does what they
+      // say match what they do?" header over two equal-weight cells, one of them a
+      // pledge ledger. First the pledge rate went (a rate beside a rate, with
+      // nothing saying which was the integrity signal), then the receipts — but
+      // receipts at equal weight are still a second answer to the header's one
+      // question. Both cells now show the SAME read: this one across every stated
+      // position, the right one narrowed to the visitor's chosen issues. Campaign
+      // pledges are inside both, tested against their sourced resolution.
+      var slot = window._pdxLedgerSlot(d, { pid: pid, status: status });
       var promiseCell =
-        '<div class="rel-dual-num rel-dual-num-na" style="color:' + (slot.state === 'ledger' ? '#c8d7ee' : slot.state === 'candidate' ? '#93c5fd' : '#9fb4d4') + ';">' + slot.glyph + '</div>' +
-        '<div class="rel-dual-rate" style="color:#9fb4d4;">' + slot.sub + '</div>';
+        '<div class="rel-dual-num rel-dual-num-na" style="color:' + (slot.tint || (slot.state === 'candidate' ? '#93c5fd' : '#9fb4d4')) + ';">' + slot.glyph + '</div>' +
+        '<div class="rel-dual-rate" style="color:' + (slot.tint || '#9fb4d4') + ';">' + slot.sub + '</div>';
 
       // ── Say-vs-Do side (does their record back up their own words?) ──
       // SCORING CLEANUP: the retired Accountability composite is replaced here by
@@ -7944,15 +8063,15 @@
             '<span class="rel-dual-head-txt">Does what they say match what they do?</span>' +
           '</div>' +
           '<div class="rel-dual-grid">' +
-            '<button type="button" class="rel-dual-cell rel-dual-promise" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid_ + '\')" title="Pledge receipts — the kept and broken promises on file. No rate is published for this lane. Tap for how it works.">' +
-              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">🤝</span> Pledge receipts</div>' +
+            '<button type="button" class="rel-dual-cell rel-dual-promise" onclick="event.stopPropagation();window._pdxScoreCompareInfo(event,\'' + pid_ + '\')" title="⚖️ Word vs Action — across every position they have stated, how often the record backs it up. Campaign pledges are measured inside this read. Tap for how it works.">' +
+              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">⚖️</span> Word vs Action</div>' +
               promiseCell +
-              '<div class="rel-dual-meaning">Evidence, not a score</div>' +
+              '<div class="rel-dual-meaning">Across all their positions</div>' +
             '</button>' +
             '<button type="button" class="rel-dual-cell rel-dual-acct" onclick="event.stopPropagation();' + svdClick + '" title="' + svdTitle + '">' +
-              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">⚖️</span> Say-vs-Do</div>' +
+              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">🎯</span> On your issues</div>' +
               svdCell +
-              '<div class="rel-dual-meaning">Do votes match their words</div>' +
+              '<div class="rel-dual-meaning">The same read, your issues only</div>' +
             '</button>' +
           '</div>' +
         '</div>';
@@ -10182,13 +10301,32 @@
       }
     }
 
-    // How many pledges are RESOLVED on this record — the honest ordering key for
-    // the two "score" sorts. Not a rate, and never derived from one.
-    function _pledgeDepth(pid) {
+    // The ordering key for the two "score" sorts — the ⚖️ Word vs Action read, the
+    // one thing PolitiDex publishes as a rating.
+    //
+    // This was `_pledgeDepth()`, ordering the whole roster by how many PLEDGES had
+    // resolved. That option label read "🤝 Most Pledge Receipts", so the site's
+    // default ranking of every politician was a pledge tally — which is a separate
+    // ranking system for pledges no matter how carefully the option was worded, and
+    // it also rewarded whoever happened to have the most pledges transcribed rather
+    // than whoever's record backs their word.
+    //
+    // A pledge is one FORM OF "said" and word-action.js already tests it, so it is
+    // inside this number along with stances and issue branding. Records below the
+    // publishing floor sort to the bottom at -1 rather than being treated as 0:
+    // PDXWordAction owns when a read is sayable, and an unread record is not a bad
+    // one. The option VALUES are unchanged so saved sorts, the alignment fallbacks
+    // and the browse-goal parser keep working.
+    function _waDepth(pid) {
       var d = CMP_DATA[pid];
       if (!d) return -1;
-      var t = (typeof window._pdxPromiseTally === 'function') ? window._pdxPromiseTally(d) : null;
-      return t ? t.resolved : -1;
+      try {
+        var wa = window.PDXWordAction;
+        if (!wa || typeof wa.read !== 'function') return -1;
+        var r = wa.read(pid, d);
+        if (!r || !r.publishable || r.pct === null || r.pct === undefined) return -1;
+        return r.pct;
+      } catch (e) { return -1; }
     }
 
     function _chubStateMatch(pid, filter) {
@@ -10353,9 +10491,9 @@
       if (score) pids = pids.filter(function(pid) { return _chubScoreMatch(pid, score); });
 
       if (sort === 'score-desc') {
-        pids.sort(function(a,b) { return _pledgeDepth(b) - _pledgeDepth(a); });
+        pids.sort(function(a,b) { return _waDepth(b) - _waDepth(a); });
       } else if (sort === 'score-asc') {
-        pids.sort(function(a,b) { return _pledgeDepth(a) - _pledgeDepth(b); });
+        pids.sort(function(a,b) { return _waDepth(a) - _waDepth(b); });
       } else if (sort === 'align-desc' || sort === 'align-asc') {
         pids.sort(function(a,b) {
           var aA = (typeof _calcAlignmentScore === 'function') ? (_calcAlignmentScore(a) ?? -1) : -1;

@@ -7184,6 +7184,10 @@
        Deep Dive breakdown already use for this bucket. */
     .pdx-statpill-partial { color: #93c5fd; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.32); }
     .pdx-statpill-none { color: #8aa3c4; background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.22); font-weight: 600; }
+    /* Coverage — the sample the ⚖️ Word vs Action verdict rests on. Neutral steel
+       on purpose: this is a fraction of COVERAGE, not of merit, and colouring it
+       would turn a "how much do we know" figure into a second grade. */
+    .pdx-statpill-cov { color: #9fb4d4; background: rgba(148,178,214,0.09); border: 1px solid rgba(159,180,212,0.26); font-weight: 600; }
 
     /* ── Clickable follow-through badges (profile hero) ──────────────────
        The kept / broken / pending counts double as filters: tap one to jump
@@ -7412,6 +7416,26 @@
     .pdx-snap-score-counts .pdx-snap-score-lbl-counts { color: #9fb4d4; }
     .pdx-snap-score-counts .pdx-snap-score-na-counts { color: #7596c0; text-transform: none; letter-spacing: 0.02em; }
     .pdx-snap-score-counts.pdx-snap-score-click:hover { border-color: rgba(159,180,212,0.58) !important; }
+    /* ⚖️ Word vs Action variant of the score rail — the ONE read, on every
+       compact card. Deliberately neutral steel rather than a lane colour: the
+       only good/bad colour on this tile is the verdict's own, set inline from
+       PDXConsistency.VERDICTS. A palette of its own here would be a second score.
+       Sub-line keeps sentence case and wraps, because the verdicts are phrases
+       ("Says one thing, does another"), not two-word status codes. */
+    .pdx-snap-score-wa {
+      border-color: rgba(159,180,212,0.30) !important;
+      background: linear-gradient(160deg, rgba(24,33,54,0.66), rgba(10,13,27,0.66));
+    }
+    .pdx-snap-score-wa .pdx-snap-score-num-wa { color: #cfe0f7; font-size: 1.42rem; line-height: 1.15; }
+    .pdx-snap-score-wa .pdx-snap-score-lbl-wa { color: #9fb4d4; }
+    .pdx-snap-score-wa .pdx-snap-score-na-wa { color: #7596c0; text-transform: none; letter-spacing: 0.02em; }
+    .pdx-snap-score-wa.pdx-snap-score-click:hover { border-color: rgba(159,180,212,0.58) !important; }
+    /* The candidate and below-floor variants carry the same "Word vs Action" label
+       and the same sentence-case sub-line, so the coverage prose reads as prose in
+       whichever state the rail is in. Only the tint differs, and it is a status
+       tint (blue = on the ballot, gold = still compiling), never a grade. */
+    .pdx-snap-score-cand .pdx-snap-score-na-cand,
+    .pdx-snap-score-tracking .pdx-snap-score-na-tracking { text-transform: none; letter-spacing: 0.02em; }
     .pdx-snap-metrics { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.72rem; }
     .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.6rem; }
     .pdx-snap-issue {
@@ -11134,7 +11158,6 @@
     .kr-challenger-card.is-pick::before { background: linear-gradient(180deg, #4ade80, #22c55e); }
     /* Scores stay legible and comparable across challengers, but a notch smaller
        than the incumbent's so the hierarchy reads at a glance. */
-    .kr-challenger-card .kr-score-promise .kr-score-num,
     .kr-challenger-card .kr-score-acct .kr-score-num { font-size: 1.55rem; }
     .kr-challenger-card .kr-score-align .kr-score-num { font-size: 1.4rem; }
     /* Clean "no voting record yet" notice on a brand-new 2026 candidate card —
@@ -11249,9 +11272,20 @@
     .kr-score-align .kr-score-num { color: #5eead4; font-size: 1.7rem; text-shadow: 0 0 12px rgba(45,212,191,0.4); }
     .kr-score-align .kr-score-label { color: #5eead4; }
     /* Promise % — gold/amber, the prominent campaign-promise track record */
-    .kr-score-promise { background: linear-gradient(135deg, rgba(245,158,11,0.20), rgba(245,158,11,0.05)); border: 1px solid rgba(245,158,11,0.5); box-shadow: 0 4px 16px rgba(245,158,11,0.12), inset 0 1px 0 rgba(255,255,255,0.04); }
-    .kr-score-promise .kr-score-num { font-size: 1.95rem; }
-    .kr-score-promise .kr-score-label { color: #fbbf24; }
+    /* RETIRED: `.kr-score-promise` was the gold pledge-lane cell — its own label
+       colour, its own green/red count palette, and (once the Truth Score cell was
+       retired) the only score-styled cell on a Key Races card, which made a tally
+       of campaign pledges the card's de facto score. The rules are deleted rather
+       than left unused: a ready-made gold "score" treatment is the easiest thing
+       on this surface to reach for the next time something wants to look ranked.
+       Use `.kr-score-wa` below — one read, neutral cell, verdict colour inline. */
+    /* ⚖️ Word vs Action — the ONE read, so the cell itself is deliberately
+       neutral steel rather than a lane colour. The only good/bad colour on it is
+       the verdict's own, set inline from PDXConsistency.VERDICTS. Nothing here
+       grades anything; a second palette would be a second score. */
+    .kr-score-wa { background: linear-gradient(135deg, rgba(148,178,214,0.16), rgba(148,178,214,0.04)); border: 1px solid rgba(159,180,212,0.45); box-shadow: 0 4px 16px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.04); }
+    .kr-score-wa .kr-score-label { color: #cbd9ec; }
+    .kr-score-wa .kr-score-sub { color: #9fb4d4; text-transform: none; font-size: 0.56rem; letter-spacing: 0.02em; }
     /* Prompt cell shown in the alignment slot when no issues are chosen yet */
     .kr-score-setalign { background: rgba(20,184,166,0.07); border: 1px dashed rgba(45,212,191,0.42); justify-content: flex-start; }
     .kr-score-setalign .kr-score-label { color: #7ee7d8; }
@@ -11259,7 +11293,6 @@
     .kr-score-strip + .kr-score-strip { margin-top: 0.4rem; }
     @media (max-width: 380px) {
       .kr-score { padding: 0.45rem 0.5rem; gap: 0.4rem; }
-      .kr-score-promise .kr-score-num { font-size: 1.7rem; }
       .kr-score-acct .kr-score-num { font-size: 1.7rem; }
       .kr-score-align .kr-score-num { font-size: 1.5rem; }
     }
