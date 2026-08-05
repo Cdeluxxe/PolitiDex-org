@@ -2336,6 +2336,84 @@
      "rationale": "Section 512 inserts a new 32 U.S.C. 328a: the chief executive of a State that has declared an emergency due to a disaster may order a member of that State's National Guard who is serving on Active Guard and Reserve duty to perform State disaster-response duty. A yea hands a governor direct authority over federally paid Guard personnel. Weighted 25 — the lowest mapping in this pass — because the authority is gated on the Secretary of Defense's consent, is reimbursable by the State, and is capped at 14 days per member per calendar year (extendable by 7 days, or by 46 for a catastrophic incident). It is a real Title 32 shift toward the states, but it is one narrow section of a 312-112 defence authorisation and must not be read as a federalism referendum."
     }
    ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 2",
+   "_comment": "Secure America Act, Public Law 119-98 (signed 2026-06-10). A reconciliation bill under title II of S. Con. Res. 33 appropriating $69.545 billion to the Department of Homeland Security for FY2026, passed 52-47 in the Senate (roll 119/2/163) and 214-212 in the House (roll 119/2/214). Four axes are mapped and six are declined with reasons — see declinedFacets in db/vr-secure-america-vote-seed.json. The mapping is written from the ENROLLED TEXT, and the distinction that text forces is why tough_on_crime appears at all: every Title I appropriation (Secs. 101, 102, 103(a)(6)) is expressly limited to functions OTHER than immigration enforcement and customs functions, because Title I is the Homeland Security and Governmental Affairs Committee's reconciliation jurisdiction and cannot reach immigration enforcement, while Title II is the Judiciary Committee's and says in terms that its money is for immigration enforcement. Reading the bill off its short title would collapse that split and score all $69.5B as one undifferentiated enforcement vote. Note also that the axes are attached to the MEASURE and therefore apply at full strength to both passage rolls, which is the reason each weight below is argued from a dollar share rather than assigned by feel.",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2",
+   "issues": [
+    {
+     "issueKey": "deportations",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
+     "rationale": "Title II is the largest part of the Act and is interior immigration enforcement in terms: Sec. 201 appropriates $13.020 billion to CBP \"in order to carry out immigration enforcement activities\", and Sec. 202 appropriates $31.075 billion to ICE across nine purposes that name removal directly — transportation costs \"associated with alien departure or removal operations\" (2), information technology, facility and fleet sustainment each \"to support enforcement and removal operations\" (3)-(5), and attorneys in the Office of the Principal Legal Advisor \"to represent the Department in immigration enforcement and removal proceedings\" (7). Paragraph (9) sets aside not less than $350,000,000 for detainer management, custodial transfer and arrests of covered unlawful aliens, and (9)(C) forbids those funds from being used to release, parole, place on alternatives to detention or otherwise facilitate the release into the community of anyone encountered. A yea funds removal operations at $44.095 billion, 63 percent of the Act. Primary at 100: this is what the bill is."
+    },
+    {
+     "issueKey": "border_security",
+     "weight": 90,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
+     "rationale": "Sec. 101 appropriates $9.550 billion to hire, pay, train and equip Border Patrol agents and Border Patrol support personnel; Sec. 103 appropriates $3.450 billion for nonintrusive inspection equipment at ports of entry and along the southwest, northern and maritime borders, Air and Marine platforms for rapid response, border surveillance technology upgrades, and the biometric entry and exit system under 8 U.S.C. 1365b; and Secs. 104 and 203 add $5.000 billion for the purposes of their respective titles. A yea funds border personnel and border technology at $26.020 billion counting Sec. 201's CBP hiring. Weighted 90 rather than 100 only because deportations carries the larger share and is the primary; this is far more border-specific than the Laken Riley Act's border_security mapping (70), which rested on a detention mandate rather than on any border appropriation."
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
+     "rationale": "Two of Sec. 103(a)'s six enumerated purposes are narcotics interdiction, and the statute names the drug: paragraph (1) funds new nonintrusive inspection equipment \"including artificial intelligence, machine learning, and other innovative technologies … to combat the entry or exit of illicit narcotics at ports of entry and along the southwest, northern, and maritime borders\", and paragraph (5) funds \"[e]nhancing border security by combating drug trafficking, including fentanyl and its precursor chemicals\" at those same borders. A yea funds interdiction capability aimed at fentanyl and its precursors. Weighted 50: above the FY2026 NDAA's immig_fentanyl mapping (40), because that one worked through sanctions and reporting while this is direct detection and interdiction money, and well below the enforcement axes, because Sec. 103 is $3.450 billion — 5 percent of the Act — and fentanyl is two of its six purposes."
+    },
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
+     "rationale": "Sec. 102 appropriates $7.450 billion to hire, pay, train and equip Homeland Security Investigations agents and support personnel, and closes with an express carve-out: \"funds provided in this section shall be used for functions other than those related to Homeland Security Investigations' immigration enforcement and customs enforcement missions.\" That makes it, by the statute's own terms, $7.450 billion of federal CRIMINAL investigation capacity rather than immigration money, and it earmarks $108,500,000 of it for additional child exploitation investigators and forensics analysts at the Victim Identification Laboratory of the Child Exploitation Investigations Unit and at the Special Agent in Charge offices, plus training of State and local law enforcement, \"to support the identification and rescue of victims of child sexual exploitation and abuse\", within the HSI Cyber Crimes Center. A yea funds investigators for those crimes. Weighted 40 and not higher: Sec. 102 is 10.7 percent of the Act, the members who voted no did so on the enforcement titles rather than on this section, and it adds investigative staffing rather than changing any offence or sentence. The related criminal-alien definitions in Sec. 202(9)(D) are deliberately NOT counted here — they are already carried by deportations, and counting them twice would inflate this axis."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 5463",
+   "_comment": "Cortez Masto amendment to S.Amdt. 5453 to S. 2 (Secure America Act), REJECTED 45-53 on 2026-06-05, roll call 119/2/160. One key, because the amendment does one thing. It is in the record because it splits the chamber the opposite way from passage: the 52-47 and 214-212 party-line passage rolls make S. 2 a near-perfect party proxy, and this roll asks the same senators a different question — whether to fund local police hiring out of the same bill — and gets a different answer. tough_on_crime is declined for it; see declinedFacets in db/vr-secure-america-vote-seed.json.",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00160.htm",
+   "issues": [
+    {
+     "issueKey": "back_police",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00160.htm",
+     "rationale": "The amendment's stated purpose is its entire substance: \"To appropriate amounts for local law enforcement hiring programs.\" A yea adds funding for State and local police staffing to a bill whose $69.545 billion otherwise goes entirely to federal Customs and Border Protection and Immigration and Customs Enforcement; a nay leaves it out. back_police is the chip \"Fund police and impose tougher penalties for violent crime\", and this amendment is the funding half of it in isolation — no offence, penalty or sentence is touched. Primary at 100 because a single-purpose amendment has no second axis. Rejected, so no local hiring line is in Public Law 119-98."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 5813",
+   "_comment": "Gallego amendment to S.Amdt. 5453 to S. 2 (Secure America Act), REJECTED 47-52 on 2026-06-05, roll call 119/2/156. The record's only roll call isolating DACA from the enforcement bill it was offered to, and the only one in this pass that tests the immigration axis in the pathways direction rather than the enforcement direction. deportations is declined for it on the same reasoning that kept S.Amdt. 23 (Coons) off that key in the previous pass — see declinedFacets in db/vr-secure-america-vote-seed.json.",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00156.htm",
+   "issues": [
+    {
+     "issueKey": "immigration_reform",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00156.htm",
+     "rationale": "The amendment's stated purpose is its entire substance: \"To make funds available for the timely adjudication of DACA renewal applications.\" A yea funds processing of renewals under the existing Deferred Action for Childhood Arrivals policy, whose recipients lose work authorisation and protection from removal when a renewal lapses in the backlog; a nay leaves the bill's $69.545 billion entirely with border and immigration enforcement. immigration_reform is the chip \"Create earned pathways to citizenship for long-settled immigrants\" and its keyword set names DACA and Dreamers directly. Primary at 100 because a single-purpose amendment has no second axis, with one honest qualification recorded here: the amendment funds ADJUDICATION of an existing deferred-action policy and creates no pathway of its own, so it tests support for protecting long-settled DACA recipients rather than support for a new status. Rejected 47-52, so no renewal-adjudication funding is in Public Law 119-98."
+    }
+   ]
   }
  ],
  "_phase12_overlap_priority": {

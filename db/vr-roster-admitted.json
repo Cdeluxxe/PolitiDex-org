@@ -1,6 +1,6 @@
 {
   "_comment": "Slugs admitted to the Voting Record ingest roster. This file is the roster CEILING and the reason it exists: scripts/vr-gen-member-map.mjs reads a bioguide out of every curated congressional portrait in BROWSE_PHOTOS, and there are far more portraits than the ingest is scoped to attribute. Admission is therefore a curatorial act recorded here, not a side effect of someone adding a photo. A slug listed here MUST resolve to a bioguide (portrait or SEED_SLUGS) or the generator fails; a portrait with no listing here is reported as unadmitted and attributes nothing.",
-  "count": 101,
+  "count": 104,
   "waves": {
     "_note": "Each key is the pass that admitted the slugs under it. Never re-home a slug into a different wave — the wave is how it got here.",
     "phase7_12_overlap_first": [
@@ -109,6 +109,11 @@
     ],
     "kennedy_identity_aug2026": [
       "kennedy_john"
+    ],
+    "epstein_cosponsors_aug2026": [
+      "jim_mcgovern",
+      "robert_garcia",
+      "seth_moulton"
     ]
   }
 }

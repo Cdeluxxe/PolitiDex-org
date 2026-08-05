@@ -1,0 +1,1775 @@
+{
+ "_comment": "Roll calls for the Secure America Act — S. 2, 119th Congress, Public Law 119-98, signed 2026-06-10. Built by scripts/vr-build-secure-america-vote-seed.mjs from clerk.house.gov/evs and senate.gov roll_call_votes XML, with the axes chosen from the enrolled text (govinfo BILLS-119s2enr) read in full before any mapping was written. Discharges the deferral recorded in db/vr-landmark-vote-seed.json, whose declinedRollCalls entry for senate 119/2/163 said the bill needed a reading of its text on the scale that pass gave the FY2026 NDAA. Each selection is re-verified against the chamber's own citation fields: document_type plus document_number and question for the Senate bill roll, amendment_number plus amendment_to_amendment_number plus amendment_to_document_number for the two Senate amendment rolls, and <legis-num> plus <vote-question> for the House roll. All four measures and their parent link are NEW — S. 2 appears nowhere in the record today — so every row here is a create and none re-describes a row another migration owns. Four of the bill's 32 roll calls across both chambers are admitted and 28 are declined with their verified tallies in declinedRollCalls; the largest declined class is the seventeen 'Motion to Waive All Applicable Budgetary Discipline' rolls, which need SIXTY votes, so seven of them are recorded as rejected despite having more yeas than nays. memberVotes is already filtered to db/vr-member-map.json; unmapped members are counted in rosterSkipped, ambiguous Senate surname matches in rosterAmbiguous, and neither is ever guessed. isParty is computed from the full chamber tally, and totals is the full chamber tally, not the roster subset.",
+ "builtBy": "scripts/vr-build-secure-america-vote-seed.mjs",
+ "issueKeys": [
+  "deportations",
+  "border_security",
+  "immig_fentanyl",
+  "tough_on_crime",
+  "back_police",
+  "immigration_reform"
+ ],
+ "congresses": [
+  119
+ ],
+ "parents": [
+  "S. 2"
+ ],
+ "rollCallCount": 4,
+ "memberVoteCount": 170,
+ "scanCoverage": "One named measure, and its COMPLETE floor history in both chambers rather than a search for its roll calls. On the Senate side vote_menu_119_2.xml was read end to end: of the session's 218 recorded votes, S. 2 occupies exactly rolls 136 through 163, and all 28 are accounted for here — 3 in this seed, 25 in declinedRollCalls with their tallies. On the House side rolls 200 through 230 of clerk.house.gov/evs/2026 were each fetched and their <legis-num> read, which is what establishes that only rolls 213 and 214 are votes on S. 2 and that rolls 210 and 211 are the rule H. Res. 1345 that carried it; the BILLSTATUS action list agrees, recording one recorded vote in each chamber on the bill itself. The enrolled text (govinfo BILLS-119s2enr) was read in full — all seven operative sections — BEFORE any axis was chosen, which is what surfaced the Title I \"functions other than immigration enforcement\" carve-outs that the short title hides. Nothing in this pass rests on a description field: the Senate rolls are verified on amendment_number and amendment_to_document_number, the House roll on <legis-num>.",
+ "enactedLawFinding": "S. 2 is Public Law 119-98, signed 2026-06-10, confirmed from the <laws> block of BILLSTATUS-119s2.xml and from two Library of Congress actions dated 2026-06-10 ('Signed by President', 'Became Public Law No: 119-98'). Its policy area is Immigration and its short title, carried on the enrolled text, is the Secure America Act. One identity trap worth recording: the first <title> element in BILLSTATUS-119s2.xml belongs to H. Res. 1345, the House rule, and runs to 700 characters about H.R. 8312, H.R. 8464 and H. Res. 1335 — a naive first-match parse produces that as the bill's title. The official title as introduced is \"An original bill to provide for reconciliation pursuant to title II of S. Con. Res. 33\", and the measure row uses the enrolled short title instead, which is what a reader will recognise.",
+ "marginCaveats": [
+  {
+   "roll": "house 119/2/214 (S. 2)",
+   "caveat": "214-212 with 4 not voting — a two-vote margin, and the most separating roll this record has on immigration enforcement. The party split is total: R 214-0 with 3 not voting, D 0-211 with 1 not voting, I 0-1. Because not one member crossed, the roll is a perfect party proxy on this axis and a weak instrument for distinguishing members WITHIN a party — the four who did not vote are the only intra-party variation there is."
+  },
+  {
+   "roll": "senate 119/2/163 (S. 2)",
+   "caveat": "52-47 with 1 absent. Also close, and also near-total party discipline. The Senate rolls that actually separate members on this bill are the amendment votes, which is the argument for admitting rolls 160 and 156: roll 160 was rejected 45-53 with a PRESENT vote recorded, and roll 156's 47-52 does not line up with passage's 52-47."
+  },
+  {
+   "roll": "senate 119/2/160 (S.Amdt. 5463)",
+   "caveat": "Rejected 45-53 with 1 present and 1 absent. The 'present' position is preserved as-is rather than being read as a nay: vr_member_votes stores it, and scripts/vr-coverage-report.mjs counts only yea and nay toward a rankable pair, so a present vote correctly contributes evidence of participation and no directional signal."
+  }
+ ],
+ "declinedFacets": [
+  {
+   "measure": "S. 2 (119th, Secure America Act)",
+   "facet": "states_federal_power",
+   "why": "Sec. 202 contains both directions of this axis inside one section, so no single supportMeaning is honest. Paragraph (6) funds \"expanding, facilitating, and implementing\" agreements under section 287(g) of the Immigration and Nationality Act — a voluntary State and local opt-in that hands local officers federal immigration authority, which reads as ENLARGING the State role. Paragraph (9) then directs not less than $350,000,000 specifically at detainer management and arrests of covered unlawful aliens \"encountered in jurisdictions that are NOT qualified cooperating jurisdictions\", defined in (9)(B) as those without a 287(g) agreement or a filed certification of compliance with 8 U.S.C. 1373 and 1644, and forbids those funds from being used to release anyone encountered — federal money deployed precisely to work around a local non-cooperation policy, which reads as OVERRIDING the State role. A yea does both. Left unmapped rather than resolved by picking the half that scores more members."
+  },
+  {
+   "measure": "S. 2 (119th, Secure America Act)",
+   "facet": "privacy_rights",
+   "why": "Sec. 103(a) funds artificial-intelligence and machine-learning inspection systems (paragraph 1), border surveillance technology upgrades (paragraph 3) and the biometric entry and exit system under 8 U.S.C. 1365b (paragraph 4), and Sec. 202(3) funds body-worn cameras. Real surveillance capability, and still the wrong axis: the collection is perimeter screening of people crossing an international border, not a change to domestic data practice, and the section moves the other way where it acts at all — Sec. 103(b) BARS funds from procuring or deploying autonomous surveillance towers CBP has not tested and accepted, and body-worn cameras cut toward accountability. The enrolled text creates no surveillance authority: it contains no FISA provision and no section 702 provision, and 8 U.S.C. 1365b was enacted in 2004. Mapping it would score the 212 House members who voted no as pro-privacy on a bill that expands no domestic collection."
+  },
+  {
+   "measure": "S. 2 (119th, Secure America Act)",
+   "facet": "national_debt / cut_spending",
+   "why": "$69.545 billion in new budget authority is the largest single fact about this Act, and it is still not a fiscal-restraint signal. S. 2 is a reconciliation measure under title II of S. Con. Res. 33: its deficit effect is set against that resolution's instructions and against offsets that live outside this text, and no CBO score was obtained in this pass. Scoring the roll on a spending axis without the score would be an inference, and it would read every yea as pro-spending and every nay as fiscally conservative regardless of the reason either was given — the same test that kept the FY2026 NDAA off this axis. Left to the appropriations rolls, which do test it."
+  },
+  {
+   "measure": "S. 2 (119th, Secure America Act)",
+   "facet": "back_police",
+   "why": "Sec. 202(6) reimburses State and local agencies through 287(g) agreements and Sec. 102 funds training of State and local officers to identify victims of child sexual exploitation, so some money does reach local departments. But both are federal immigration and investigative programmes that local agencies participate in, not support for general policing, and the record already tests this axis directly and in isolation through S.Amdt. 5463 (roll 119/2/160), where the question was nothing but local law enforcement hiring. Mapping the bill too would put the same member on both sides of one key for reasons the two texts do not share."
+  },
+  {
+   "measure": "S. 2 (119th, Secure America Act)",
+   "facet": "gov_transparency",
+   "why": "Tempting only through roll 157, where Senator Padilla's S.Amdt. 5808 was captioned \"To make appropriations for transparency and accountability\" and was rejected 46-53. The caption names no object — transparency of what, accountable to whom — and the amendment text is not retrievable from an official source in this pass. Guessing that it meant ICE oversight would be exactly the fabrication the quality bar forbids. The enrolled text itself imposes no disclosure or reporting requirement of any kind, so the bill has nothing to map either."
+  },
+  {
+   "measure": "S.Amdt. 5463 (119th, Cortez Masto)",
+   "facet": "tough_on_crime",
+   "why": "The amendment appropriates money for local law enforcement hiring programmes and does nothing else: it creates no offence, changes no penalty and alters no sentence. back_police names its entire substance — \"Fund police\" — and carries it alone at weight 100. Adding tough_on_crime would double-count one appropriation across two keys, and it would collide with the tough_on_crime mapping S. 2 itself carries for Sec. 102's non-immigration criminal investigations, putting members on both sides of one key within a single night's voting on grounds the two texts do not share."
+  },
+  {
+   "measure": "S.Amdt. 5813 (119th, Gallego)",
+   "facet": "deportations",
+   "why": "A DACA recipient whose renewal lapses in the backlog loses protection from removal, so funding timely adjudication does reduce removals in practice. It is still one step removed from what the amendment says: it appropriates processing money and changes no removal standard, no detention rule and nobody's removability. This is the same test that kept S.Amdt. 23 (Coons) off deportations in the previous pass — an amendment that does not change who is removable is not a vote on removals. immigration_reform carries it, in the yea_supports direction."
+  }
+ ],
+ "declinedRollCalls": [
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 136,
+   "totals": "53-46",
+   "why": "On the Motion to Proceed — floor process, not the substance of the bill. Runbook rule 8."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 137,
+   "totals": "49-50",
+   "why": "On the Motion (Schumer's motion to commit S. 2 to the Committee on the Judiciary with instructions), rejected. A recommittal motion is procedure whose yea BLOCKS the measure — yeaBlocksMeasure() in netlify/lib/vr-pack.ts matches the bare 'to commit' form and would invert it to a 0.25-weight procedural record. Four near-identical minority motions on one bill, all rejected on party lines, would add four inverted procedural rows without isolating any provision, so none is ingested."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 141,
+   "totals": "47-50",
+   "why": "On the Motion (Ossoff's motion to commit S. 2 to the Committee on the Judiciary with instructions), rejected. A recommittal motion is procedure whose yea BLOCKS the measure — yeaBlocksMeasure() in netlify/lib/vr-pack.ts matches the bare 'to commit' form and would invert it to a 0.25-weight procedural record. Four near-identical minority motions on one bill, all rejected on party lines, would add four inverted procedural rows without isolating any provision, so none is ingested."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 147,
+   "totals": "46-52",
+   "why": "On the Motion (Warnock's motion to commit S. 2 to the Committee on the Judiciary with instructions), rejected. A recommittal motion is procedure whose yea BLOCKS the measure — yeaBlocksMeasure() in netlify/lib/vr-pack.ts matches the bare 'to commit' form and would invert it to a 0.25-weight procedural record. Four near-identical minority motions on one bill, all rejected on party lines, would add four inverted procedural rows without isolating any provision, so none is ingested."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 153,
+   "totals": "48-51",
+   "why": "On the Motion (Wyden's motion to commit S. 2 to the Committee on the Judiciary with instructions), rejected. A recommittal motion is procedure whose yea BLOCKS the measure — yeaBlocksMeasure() in netlify/lib/vr-pack.ts matches the bare 'to commit' form and would invert it to a 0.25-weight procedural record. Four near-identical minority motions on one bill, all rejected on party lines, would add four inverted procedural rows without isolating any provision, so none is ingested."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 138,
+   "totals": "15-84",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Tillis S.Amdt. 5452, rejected 15-84. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 139,
+   "totals": "53-46",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Merkley S.Amdt. 5512, rejected 53-46. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 140,
+   "totals": "46-53",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Reed S.Amdt. 5514, rejected 46-53. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 142,
+   "totals": "46-52",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Hassan S.Amdt. 5535, rejected 46-52. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 143,
+   "totals": "49-49",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Warner S.Amdt. 5556, rejected 49-49. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 144,
+   "totals": "48-50",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Graham S.Amdt. 5779, rejected 48-50. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 145,
+   "totals": "51-47",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Hickenlooper S.Amdt. 5501, rejected 51-47. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 146,
+   "totals": "46-53",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Kim S.Amdt. 5545, rejected 46-53. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 148,
+   "totals": "45-53",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Sanders S.Amdt. 5451, rejected 45-53. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 149,
+   "totals": "46-53",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Baldwin S.Amdt. 5485, rejected 46-53. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 150,
+   "totals": "46-53",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Booker S.Amdt. 5803, rejected 46-53. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 151,
+   "totals": "50-49",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Lee S.Amdt. 5804, rejected 50-49. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 152,
+   "totals": "48-51",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Durbin S.Amdt. 5806, rejected 48-51. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 158,
+   "totals": "54-45",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Coons S.Amdt. 5457, rejected 54-45. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 159,
+   "totals": "52-47",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Cassidy S.Amdt. 5812, rejected 52-47. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 161,
+   "totals": "53-46",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Van Hollen S.Amdt. 5632, rejected 53-46. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 162,
+   "totals": "51-48",
+   "why": "On the Motion to Waive All Applicable Budgetary Discipline Re: Schiff S.Amdt. 5740, rejected 51-48. THE THRESHOLD IS SIXTY VOTES, not a majority: this is a motion to waive a Byrd-rule point of order under the Congressional Budget Act, so 'Rejected' records that the amendment fell short of 60 and not that a majority opposed it. Seven of the seventeen rolls in this class had MORE yeas than nays and are all recorded as rejected — 139 (53-46), 145 (51-47), 151 (50-49), 158 (54-45), 159 (52-47), 161 (53-46) and 162 (51-48) — and roll 143 was a 49-49 tie. Ingesting the class would invert the record on those seven and misstate the other ten. Excluded as procedure, which is also what runbook rule 8 already says about budget-point-of-order waivers."
+  },
+  {
+   "number": "S.Amdt. 5763",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 155,
+   "totals": "46-53",
+   "why": "On the Amendment S.Amdt. 5763 (Peters), \"To rescind unobligated balances under the One Big Beautiful Bill Act\", rejected 46-53. A true amendment vote that would clear the exception gate, and declined anyway on evidence: the purpose line names no account, no section and no subject, so which unobligated balances it reaches is unknown, and congress.gov returns 403 to every client available in this pass, so the amendment text cannot be read from an official source. Mapping cut_spending from the caption alone would credit 46 senators with a fiscal-restraint record and mark 53 as opposing a spending cut, on a vote whose actual target is unverified — and if the balances are P.L. 119-21's immigration-enforcement accounts, the honest axis is deportations in the opposite direction. Recorded with its verified tally so a later pass that can read the text starts from facts."
+  },
+  {
+   "number": "S.Amdt. 5808",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 157,
+   "totals": "46-53",
+   "why": "On the Amendment S.Amdt. 5808 (Padilla), \"To make appropriations for transparency and accountability\", rejected 46-53. A true amendment vote, declined because the caption names no object: transparency of what, accountable to whom. In the context of an ICE and CBP appropriation the likely subject is enforcement oversight, but 'likely' is a guess, the amendment text is not retrievable (congress.gov 403), and gov_transparency in this record is the disclosure-and-ethics axis rather than an agency-oversight one. Fail closed."
+  },
+  {
+   "number": "S.Amdt. 5506",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "roll": 154,
+   "totals": "46-53",
+   "why": "On the Amendment S.Amdt. 5506 (Hirono), \"To transfer amounts for youth mentoring programs of the Department of Justice\", rejected 46-53. A true amendment vote, declined on two counts: it is a TRANSFER and the caption does not say what it transfers FROM, so half the substance of the vote is unstated; and no key in the 110-key allow-list names juvenile crime prevention — family_support is the child-tax-credit axis and justice_reform is the sentencing-and-incarceration axis, so either would be a category error. Left unmapped rather than approximated."
+  },
+  {
+   "number": "S. 2",
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 213,
+   "totals": "211-215",
+   "why": "On Motion to Commit (Boyle, to the Committee on the Budget), failed 211-215 at 5:10 PM on 2026-06-09, thirteen minutes before passage. Procedural, and its yea BLOCKS the measure, so it would enter as an inverted 0.25-weight record of the same party-line split the passage roll captures at full weight. Declined for the same reason the previous pass left the NDAA's house 119/1/319 where it was."
+  },
+  {
+   "number": "H.Res. 1345",
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 210,
+   "totals": "214-211",
+   "why": "On Ordering the Previous Question on the rule H. Res. 1345. Previous-question motions are explicitly outside the decisive set in scripts/test-vr-vote-seed.mjs and say nothing about what any of the four measures the rule carried actually does."
+  },
+  {
+   "number": "H.Res. 1345",
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 211,
+   "totals": "213-211",
+   "why": "On Agreeing to the Resolution — the rule itself, \"Providing for consideration of the bills H.R. 8312, H.R. 8464, and S. 2 and providing for consideration of the resolution H. Res. 1335\" under a closed rule with one hour of general debate on each. A special rule is floor process on four unrelated measures at once, and it is a different measure (H. Res. 1345) from S. 2, so a member's vote on it is not a position on the Secure America Act."
+  }
+ ],
+ "votes": [
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 156,
+   "voteDate": "2026-06-05T02:21:00-04:00",
+   "question": "On the Amendment S.Amdt. 5813 to S.Amdt. 5453 to S. 2 (No short title on file)",
+   "voteDesc": "Gallego Amdt. No. 5813",
+   "actionType": "amendment",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive_by_exception",
+   "decisiveWhy": "An amendment roll, admitted as decisive by exception. Its stated purpose is single-subject — \"To make funds available for the timely adjudication of DACA renewal applications\" — so a yea carries one meaning and only one: money to process renewals under the existing Deferred Action for Childhood Arrivals policy. Agreeing to it IS its disposition; an amendment never receives a passage vote. Rejected 47-52, so no renewal-adjudication funding is in Public Law 119-98. This is the record's only roll call isolating DACA from the enforcement bill it was offered to.",
+   "totals": {
+    "yea": 47,
+    "nay": 52,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 44,
+     "nay": 0
+    },
+    "R": {
+     "yea": 1,
+     "nay": 52
+    },
+    "I": {
+     "yea": 2,
+     "nay": 0
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00156.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00156.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "amendment",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.Amdt. 5813",
+    "title": "Gallego amendment funding timely adjudication of DACA renewal applications (S.Amdt. 5813)",
+    "create": {
+     "title": "Gallego amendment funding timely adjudication of DACA renewal applications (S.Amdt. 5813)",
+     "shortTitle": "Gallego DACA Renewal Adjudication Amendment (S.Amdt. 5813)",
+     "summary": "Amendment to S.Amdt. 5453 to S. 2 (Secure America Act) offered by Senator Ruben Gallego: \"To make funds available for the timely adjudication of DACA renewal applications.\" REJECTED 47-52 on 2026-06-05, roll call 119/2/156. A yea would have funded processing of renewal applications under the existing Deferred Action for Childhood Arrivals policy, whose recipients lose work authorisation and protection from removal when a renewal lapses in the backlog; a nay left the bill's $69.545 billion entirely with border and immigration enforcement. Not enacted.",
+     "introducedAt": "2026-06-05",
+     "status": "failed",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00156.htm",
+     "sourceLabel": "U.S. Senate — roll call 119/2/156",
+     "externalIds": {
+      "senateVote": "119-2-156"
+     }
+    },
+    "parentNumber": "S. 2",
+    "parentChamber": "senate",
+    "parentCongress": 119,
+    "parentCreatedByThisPass": true
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 62,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 160,
+   "voteDate": "2026-06-05T03:58:00-04:00",
+   "question": "On the Amendment S.Amdt. 5463 to S.Amdt. 5453 to S. 2 (No short title on file)",
+   "voteDesc": "Cortez Masto Amdt. No. 5463",
+   "actionType": "amendment",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive_by_exception",
+   "decisiveWhy": "An amendment roll, admitted as decisive by exception. Its stated purpose is single-subject — \"To appropriate amounts for local law enforcement hiring programs\" — so a yea carries one meaning and only one: money for State and local police staffing. Agreeing to it IS its disposition; an amendment never receives a passage vote. Rejected 45-53, so the Secure America Act's $69.545 billion went to federal border and immigration enforcement with no local law-enforcement hiring line. This is the record's only roll call isolating that question, and it splits the chamber the OPPOSITE way from passage — which is precisely what makes it worth having.",
+   "totals": {
+    "yea": 45,
+    "nay": 53,
+    "present": 1,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 43,
+     "nay": 0
+    },
+    "R": {
+     "yea": 0,
+     "nay": 53
+    },
+    "I": {
+     "yea": 2,
+     "nay": 0
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00160.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00160.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "amendment",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.Amdt. 5463",
+    "title": "Cortez Masto amendment appropriating funds for local law enforcement hiring (S.Amdt. 5463)",
+    "create": {
+     "title": "Cortez Masto amendment appropriating funds for local law enforcement hiring (S.Amdt. 5463)",
+     "shortTitle": "Cortez Masto Local Police Hiring Amendment (S.Amdt. 5463)",
+     "summary": "Amendment to S.Amdt. 5453 to S. 2 (Secure America Act) offered by Senator Catherine Cortez Masto: \"To appropriate amounts for local law enforcement hiring programs.\" REJECTED 45-53 on 2026-06-05, roll call 119/2/160, one of five true amendment votes in the bill's 28-roll vote-a-rama. A yea would have added funding for State and local police hiring to a bill whose $69.545 billion goes to federal Customs and Border Protection and Immigration and Customs Enforcement; a nay left it out. Not enacted.",
+     "introducedAt": "2026-06-05",
+     "status": "failed",
+     "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00160.htm",
+     "sourceLabel": "U.S. Senate — roll call 119/2/160",
+     "externalIds": {
+      "senateVote": "119-2-160"
+     }
+    },
+    "parentNumber": "S. 2",
+    "parentChamber": "senate",
+    "parentCongress": 119,
+    "parentCreatedByThisPass": true
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 62,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "present",
+     "isParty": null
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 163,
+   "voteDate": "2026-06-05T04:42:00-04:00",
+   "question": "On Passage of the Bill S. 2",
+   "voteDesc": "S. 2, As Amended",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 52,
+    "nay": 47,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 0,
+     "nay": 44
+    },
+    "R": {
+     "yea": 52,
+     "nay": 1
+    },
+    "I": {
+     "yea": 0,
+     "nay": 2
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00163.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00163.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "bill",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S. 2",
+    "parent": null,
+    "title": "Secure America Act",
+    "create": {
+     "title": "Secure America Act",
+     "shortTitle": "Secure America Act",
+     "summary": "Reconciliation bill under title II of S. Con. Res. 33, official title \"An original bill to provide for reconciliation pursuant to title II of S. Con. Res. 33\", reported as an original measure to the Senate by Senator Lindsey Graham for the Committee on the Budget on 2026-05-20 without written report. Appropriates $69.545 billion to the Department of Homeland Security for fiscal year 2026, available until 2029-09-30, across two titles reflecting the two committees' reconciliation jurisdictions. Title I (Homeland Security and Governmental Affairs): Sec. 101, $9.550B to hire, pay, train and equip Border Patrol agents and support personnel, barred after 2028-10-31 from recruiting processing coordinators; Sec. 102, $7.450B for Homeland Security Investigations, of which $108,500,000 for child-exploitation investigators and forensics analysts at the Victim Identification Laboratory and the Cyber Crimes Center; Sec. 103, $3.450B for nonintrusive inspection equipment using artificial intelligence and machine learning, Air and Marine platforms, border surveillance technology, the biometric entry-exit system under 8 U.S.C. 1365b, and combating drug trafficking including fentanyl and its precursor chemicals, with untested autonomous surveillance towers excluded; Sec. 104, $2.500B additional DHS. Each Title I appropriation is expressly limited to functions OTHER than immigration enforcement and customs functions. Title II (Judiciary): Sec. 201, $13.020B for CBP agents and support staff \"in order to carry out immigration enforcement activities\"; Sec. 202, $31.075B for ICE across nine purposes — hiring and training, removal transportation, information technology including body-worn cameras, facility and fleet sustainment, expanding 287(g) agreements with State and local authorities, Office of the Principal Legal Advisor attorneys for removal proceedings, operations and maintenance, and not less than $350,000,000 for arrests of \"covered unlawful aliens\" encountered in jurisdictions that are not \"qualified cooperating jurisdictions\", which those funds may not be used to release, parole or place on alternatives to detention; Sec. 203, $2.500B additional DHS. Passed the Senate 52-47 on 2026-06-05 (roll 119/2/163) after a 28-roll vote-a-rama, passed the House 214-212 on 2026-06-09 (roll 119/2/214), signed 2026-06-10 as Public Law 119-98.",
+     "introducedAt": "2026-05-20",
+     "status": "enacted",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
+     "sourceLabel": "GPO — enrolled text of S. 2 (119th)",
+     "externalIds": {
+      "congressGovId": "s2-119",
+      "publicLaw": "119-98",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s2.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 62,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 214,
+   "voteDate": "2026-06-09T17:23:00-04:00",
+   "question": "On Passage",
+   "voteDesc": "Secure America Act",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 214,
+    "nay": 212,
+    "present": 0,
+    "notVoting": 4
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 0,
+     "nay": 211
+    },
+    "R": {
+     "yea": 214,
+     "nay": 0
+    },
+    "I": {
+     "yea": 0,
+     "nay": 1
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2026/roll214.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S. 2",
+    "parent": null,
+    "title": "Secure America Act",
+    "create": {
+     "title": "Secure America Act",
+     "shortTitle": "Secure America Act",
+     "summary": "Reconciliation bill under title II of S. Con. Res. 33, official title \"An original bill to provide for reconciliation pursuant to title II of S. Con. Res. 33\", reported as an original measure to the Senate by Senator Lindsey Graham for the Committee on the Budget on 2026-05-20 without written report. Appropriates $69.545 billion to the Department of Homeland Security for fiscal year 2026, available until 2029-09-30, across two titles reflecting the two committees' reconciliation jurisdictions. Title I (Homeland Security and Governmental Affairs): Sec. 101, $9.550B to hire, pay, train and equip Border Patrol agents and support personnel, barred after 2028-10-31 from recruiting processing coordinators; Sec. 102, $7.450B for Homeland Security Investigations, of which $108,500,000 for child-exploitation investigators and forensics analysts at the Victim Identification Laboratory and the Cyber Crimes Center; Sec. 103, $3.450B for nonintrusive inspection equipment using artificial intelligence and machine learning, Air and Marine platforms, border surveillance technology, the biometric entry-exit system under 8 U.S.C. 1365b, and combating drug trafficking including fentanyl and its precursor chemicals, with untested autonomous surveillance towers excluded; Sec. 104, $2.500B additional DHS. Each Title I appropriation is expressly limited to functions OTHER than immigration enforcement and customs functions. Title II (Judiciary): Sec. 201, $13.020B for CBP agents and support staff \"in order to carry out immigration enforcement activities\"; Sec. 202, $31.075B for ICE across nine purposes — hiring and training, removal transportation, information technology including body-worn cameras, facility and fleet sustainment, expanding 287(g) agreements with State and local authorities, Office of the Principal Legal Advisor attorneys for removal proceedings, operations and maintenance, and not less than $350,000,000 for arrests of \"covered unlawful aliens\" encountered in jurisdictions that are not \"qualified cooperating jurisdictions\", which those funds may not be used to release, parole or place on alternatives to detention; Sec. 203, $2.500B additional DHS. Passed the Senate 52-47 on 2026-06-05 (roll 119/2/163) after a 28-roll vote-a-rama, passed the House 214-212 on 2026-06-09 (roll 119/2/214), signed 2026-06-10 as Public Law 119-98.",
+     "introducedAt": "2026-05-20",
+     "status": "enacted",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
+     "sourceLabel": "GPO — enrolled text of S. 2 (119th)",
+     "externalIds": {
+      "congressGovId": "s2-119",
+      "publicLaw": "119-98",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s2.xml"
+     }
+    }
+   },
+   "chamberVoting": 430,
+   "rosterSkipped": 374,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000482",
+     "politicianId": "julie_fedorchak",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000403",
+     "politicianId": "kennedy",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001327",
+     "politicianId": "rob_bresnahan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001230",
+     "politicianId": "ryan_mackenzie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000634",
+     "politicianId": "troy_downing",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  }
+ ]
+}

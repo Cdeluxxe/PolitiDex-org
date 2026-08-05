@@ -1,0 +1,1230 @@
+{
+ "_comment": "Epstein Files Transparency Act (H.R. 4405, 119th → P.L. 119-38) sponsorship record, plus the member votes unlocked by admitting three of its cosponsors to the roster. Built by scripts/vr-build-epstein-cosponsor-seed.mjs from the bill's own BILLSTATUS feed and the House Clerk's roll-call XML. This seed writes NO measure, roll call or issue row: both rolls were created by earlier migrations and are looked up, never re-described. Attribution is fail-closed — a cosponsor whose Bioguide does not reach a roster slug through db/vr-member-map.json is listed in unresolvedCosponsors with the reason and credited to nobody.",
+ "builtBy": "scripts/vr-build-epstein-cosponsor-seed.mjs",
+ "issueKeys": [
+  "gov_transparency",
+  "deportations",
+  "border_security",
+  "immig_fentanyl",
+  "tough_on_crime"
+ ],
+ "congresses": [
+  119
+ ],
+ "rosterWave": "epstein_cosponsors_aug2026",
+ "rosterSize": 104,
+ "admitted": [
+  {
+   "slug": "jim_mcgovern",
+   "bioguideId": "M000312",
+   "name": "Rep. James P. McGovern",
+   "seat": "D-MA-2",
+   "how": "Portrait already curated in BROWSE_PHOTOS (congress-images/M000312.jpg); admitted to db/vr-roster-admitted.json in wave epstein_cosponsors_aug2026."
+  },
+  {
+   "slug": "seth_moulton",
+   "bioguideId": "M001196",
+   "name": "Rep. Seth Moulton",
+   "seat": "D-MA-6",
+   "how": "Portrait already curated in BROWSE_PHOTOS (congress-images/M001196.jpg); admitted to db/vr-roster-admitted.json in wave epstein_cosponsors_aug2026."
+  },
+  {
+   "slug": "robert_garcia",
+   "bioguideId": "G000598",
+   "name": "Rep. Robert Garcia",
+   "seat": "D-CA-42",
+   "how": "Compare card and four stance cards already published; the portrait was the only missing link, so the congress-images portrait for G000598 (HTTP 200) was added to BROWSE_PHOTOS and the slug admitted in wave epstein_cosponsors_aug2026. The generator's own portrait identity cross-check confirms G000598 is the Robert Garcia the app profiles before the map is written."
+  }
+ ],
+ "rollCallCount": 2,
+ "memberVoteCount": 119,
+ "newlyAttributed": [
+  {
+   "roll": "house 119/1 roll 289",
+   "members": [
+    "jim_mcgovern yea",
+    "robert_garcia yea",
+    "seth_moulton yea"
+   ]
+  },
+  {
+   "roll": "house 119/2 roll 214",
+   "members": [
+    "jim_mcgovern nay",
+    "robert_garcia nay",
+    "seth_moulton nay"
+   ]
+  }
+ ],
+ "sponsorshipSourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+ "billStatusUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4405.xml",
+ "introducedDate": "2025-07-15",
+ "cosponsorTotals": {
+  "sponsor": 1,
+  "cosponsors": 24,
+  "resolved": 7,
+  "unresolved": 18,
+  "newlyResolvedThisPass": 3
+ },
+ "positions": [
+  {
+   "politicianId": "khanna",
+   "bioguideId": "K000389",
+   "fullName": "Rep. Khanna, Ro",
+   "seat": "D-CA-17",
+   "actionType": "sponsor",
+   "supports": true,
+   "actedAt": "2025-07-15",
+   "isOriginalCosponsor": null,
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+   "note": "Lead sponsor. Introduced H.R. 4405 on 2025-07-15, four months before the House voted on it."
+  },
+  {
+   "politicianId": "massie",
+   "bioguideId": "M001184",
+   "fullName": "Rep. Massie, Thomas",
+   "seat": "R-KY-4",
+   "actionType": "cosponsor",
+   "supports": true,
+   "actedAt": "2025-07-15",
+   "isOriginalCosponsor": true,
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+   "note": "ORIGINAL cosponsor (isOriginalCosponsor=True in the bill's own record), joining on the day of introduction, 2025-07-15."
+  },
+  {
+   "politicianId": "jim_mcgovern",
+   "bioguideId": "M000312",
+   "fullName": "Rep. McGovern, James P.",
+   "seat": "D-MA-2",
+   "actionType": "cosponsor",
+   "supports": true,
+   "actedAt": "2025-07-17",
+   "isOriginalCosponsor": false,
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+   "note": "Cosponsor, joined 2025-07-17."
+  },
+  {
+   "politicianId": "omar",
+   "bioguideId": "O000173",
+   "fullName": "Rep. Omar, Ilhan",
+   "seat": "D-MN-5",
+   "actionType": "cosponsor",
+   "supports": true,
+   "actedAt": "2025-07-17",
+   "isOriginalCosponsor": false,
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+   "note": "Cosponsor, joined 2025-07-17."
+  },
+  {
+   "politicianId": "seth_moulton",
+   "bioguideId": "M001196",
+   "fullName": "Rep. Moulton, Seth",
+   "seat": "D-MA-6",
+   "actionType": "cosponsor",
+   "supports": true,
+   "actedAt": "2025-07-22",
+   "isOriginalCosponsor": false,
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+   "note": "Cosponsor, joined 2025-07-22."
+  },
+  {
+   "politicianId": "adam_smith",
+   "bioguideId": "S000510",
+   "fullName": "Rep. Smith, Adam",
+   "seat": "D-WA-9",
+   "actionType": "cosponsor",
+   "supports": true,
+   "actedAt": "2025-07-23",
+   "isOriginalCosponsor": false,
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+   "note": "Cosponsor, joined 2025-07-23."
+  },
+  {
+   "politicianId": "robert_garcia",
+   "bioguideId": "G000598",
+   "fullName": "Rep. Garcia, Robert",
+   "seat": "D-CA-42",
+   "actionType": "cosponsor",
+   "supports": true,
+   "actedAt": "2025-08-22",
+   "isOriginalCosponsor": false,
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405/cosponsors",
+   "note": "Cosponsor, joined 2025-08-22."
+  }
+ ],
+ "unresolvedCosponsors": [
+  {
+   "bioguideId": "S001200",
+   "fullName": "Rep. Soto, Darren",
+   "seat": "D-FL-9",
+   "date": "2025-07-16",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "L000562",
+   "fullName": "Rep. Lynch, Stephen F.",
+   "seat": "D-MA-8",
+   "date": "2025-07-16",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "A000381",
+   "fullName": "Rep. Ansari, Yassamin",
+   "seat": "D-AZ-3",
+   "date": "2025-07-17",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "T000488",
+   "fullName": "Rep. Thanedar, Shri",
+   "seat": "D-MI-13",
+   "date": "2025-07-17",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "J000288",
+   "fullName": "Rep. Johnson, Henry C. \"Hank\"",
+   "seat": "D-GA-4",
+   "date": "2025-07-17",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "S000344",
+   "fullName": "Rep. Sherman, Brad",
+   "seat": "D-CA-32",
+   "date": "2025-07-17",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "B001324",
+   "fullName": "Rep. Bell, Wesley",
+   "seat": "D-MO-1",
+   "date": "2025-07-21",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "O000176",
+   "fullName": "Rep. Olszewski, Johnny",
+   "seat": "D-MD-2",
+   "date": "2025-07-21",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "P000197",
+   "fullName": "Rep. Pelosi, Nancy",
+   "seat": "D-CA-11",
+   "date": "2025-07-22",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "D000530",
+   "fullName": "Rep. Deluzio, Christopher R.",
+   "seat": "D-PA-17",
+   "date": "2025-07-22",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "N000147",
+   "fullName": "Del. Norton, Eleanor Holmes",
+   "seat": "D-DC-AL",
+   "date": "2025-07-23",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "M000687",
+   "fullName": "Rep. Mfume, Kweisi",
+   "seat": "D-MD-7",
+   "date": "2025-07-23",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "D000096",
+   "fullName": "Rep. Davis, Danny K.",
+   "seat": "D-IL-7",
+   "date": "2025-07-23",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "S001205",
+   "fullName": "Rep. Scanlon, Mary Gay",
+   "seat": "D-PA-5",
+   "date": "2025-07-29",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "F000481",
+   "fullName": "Rep. Figures, Shomari",
+   "seat": "D-AL-2",
+   "date": "2025-07-29",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "M001223",
+   "fullName": "Rep. Magaziner, Seth",
+   "seat": "D-RI-2",
+   "date": "2025-08-08",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "D000635",
+   "fullName": "Rep. Dexter, Maxine",
+   "seat": "D-OR-3",
+   "date": "2025-08-22",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  },
+  {
+   "bioguideId": "H001090",
+   "fullName": "Rep. Harder, Josh",
+   "seat": "D-CA-9",
+   "date": "2025-10-24",
+   "isOriginalCosponsor": false,
+   "why": "Not in db/vr-member-map.json, and not resolvable: the Bioguide appears in no curated portrait in BROWSE_PHOTOS under any URL form, and the slug appears in no compare card, spotlight or stance block, so the app does not profile this member and there is no roster slug to credit. Minting one would create a profile whose only content is a sponsorship row with no stated position to test it against — the guess the fail-closed rule exists to prevent. Left unattributed."
+  }
+ ],
+ "scanCoverage": "Every name in the bill's own record was checked: 1 sponsor and 24 cosponsors read from <sponsors> and <cosponsors> in https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4405.xml, with sponsorshipDate and isOriginalCosponsor taken from the feed rather than inferred. Each Bioguide was looked up in db/vr-member-map.json; each miss was then checked twice more before being declined — against every URL form in BROWSE_PHOTOS (the 450x550 congress-images form the map reads, and the bioguide.congress.gov and Wikimedia forms it does not), and against the slugs published in cmp-data.js, spotlights-data.js and the stance data. Three resolved on the second check and were admitted; 18 failed all three and are declined by name with the reason. Both roll calls were re-fetched from the Clerk and re-verified on <legis-num> plus <vote-question> before any vote was attributed, and the chamber tally was read from <totals-by-vote>, never from the first <yea-total> in the file.",
+ "declinedRollCalls": [],
+ "votes": [
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 1,
+   "rollNumber": 289,
+   "voteDate": "2025-11-18T14:43:00-05:00",
+   "question": "On Motion to Suspend the Rules and Pass",
+   "voteDesc": "Epstein Files Transparency Act",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "two_thirds",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "reattributedWhy": "The Epstein Files Transparency Act's own passage vote, and the gov_transparency roll the cosponsorship below is the early version of. 427-1 under suspension, so it confirms a position rather than distinguishing one — but a member who cosponsored in July and voted in November has both halves of the record, and the previous pass could attribute this roll to only part of the roster.",
+   "rollCallCreatedBy": "20260820000000_vr_landmark_enacted_law_rollcalls.sql",
+   "totals": {
+    "yea": 427,
+    "nay": 1,
+    "present": 0,
+    "notVoting": 5
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 211,
+     "nay": 0
+    },
+    "R": {
+     "yea": 216,
+     "nay": 1
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2025/roll289.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 119,
+    "chamber": "house",
+    "number": "H.R. 4405"
+   },
+   "chamberVoting": 433,
+   "rosterSkipped": 373,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000482",
+     "politicianId": "julie_fedorchak",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000403",
+     "politicianId": "kennedy",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001327",
+     "politicianId": "rob_bresnahan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001230",
+     "politicianId": "ryan_mackenzie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000634",
+     "politicianId": "troy_downing",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 214,
+   "voteDate": "2026-06-09T17:23:00-04:00",
+   "question": "On Passage",
+   "voteDesc": "Secure America Act",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "reattributedWhy": "The Secure America Act's House passage vote, 214-212 — the most separating immigration roll in the record and this pass's primary target. Included because the three members admitted here are House members who cast it, and leaving them off a roll this same pass created would be a gap opened by the pass that closed it.",
+   "rollCallCreatedBy": "20260821000000_vr_secure_america_act_rollcalls.sql",
+   "totals": {
+    "yea": 214,
+    "nay": 212,
+    "present": 0,
+    "notVoting": 4
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 0,
+     "nay": 211
+    },
+    "R": {
+     "yea": 214,
+     "nay": 0
+    },
+    "I": {
+     "yea": 0,
+     "nay": 1
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2026/roll214.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S. 2"
+   },
+   "chamberVoting": 430,
+   "rosterSkipped": 371,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000482",
+     "politicianId": "julie_fedorchak",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000403",
+     "politicianId": "kennedy",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001327",
+     "politicianId": "rob_bresnahan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001230",
+     "politicianId": "ryan_mackenzie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000634",
+     "politicianId": "troy_downing",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  }
+ ]
+}

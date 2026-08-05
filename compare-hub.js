@@ -62,6 +62,7 @@
       booker: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001288.jpg',
       crockett: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001130.jpg',
       khanna: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000389.jpg',
+      robert_garcia: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000598.jpg',
       jason_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001195.jpg',
       owens: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000086.jpg',
       maloy: 'https://bioguide.congress.gov/bioguide/photo/M/M001228.jpg',
