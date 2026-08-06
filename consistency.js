@@ -381,9 +381,26 @@
     try { if (window.ISSUE_MAP && !window.ISSUE_MAP[ik]) return null; } catch (e) {}
     return { key: ik, backfilled: viaBackfill };
   }
+  // The cache PROBE was the cost, not the build. Object.keys() on the 259-entry
+  // spotlight map allocates a fresh array every time, and officialActionsFor() /
+  // officialActionIssues() are asked once per (person × issue) — thousands of
+  // calls inside a single roster render. Nothing can mutate ACCT_SPOTLIGHT
+  // between two calls in the SAME synchronous pass, because its only writers are
+  // scripts that have already run, so the probe is taken once per turn of the
+  // event loop and released on the next microtask. A data module landing later
+  // still invalidates on its own turn, exactly as before.
+  var _oaProbe = -1;
+  function _acctSize() {
+    if (_oaProbe !== -1) return _oaProbe;
+    var n = 0;
+    try { n = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) { n = 0; }
+    _oaProbe = n;
+    var release = function () { _oaProbe = -1; };
+    try { Promise.resolve().then(release); } catch (e) { setTimeout(release, 0); }
+    return n;
+  }
   function buildOfficialActions() {
-    var key = 0;
-    try { key = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) { key = 0; }
+    var key = _acctSize();
     if (_oaCache && key === _oaKey) return _oaCache;
     _oaKey = key;
     var byPid = {}, byNorm = {}, count = 0, pols = 0, backfilled = 0;
@@ -1075,19 +1092,50 @@
     _tried[pid] = true; _queue.push(pid);
     if (!_timer) _timer = setTimeout(flushWarm, 150);
   }
+
+  // Every roster card that renders a pending verdict queues its member, so one
+  // homepage render queues the WHOLE roster — ~950 people. Firing that batch in a
+  // single pass opened ~950 concurrent requests of ~125 KB each, and the browser's
+  // per-host limit then served them strictly in the order they were asked: the
+  // handful of members the hero showcase actually needs sat behind hundreds of
+  // roster fetches, which is why those cards stayed on "Loading the record…"
+  // while the page ground through arrivals. Every arrival also dispatches a warm
+  // event, so the burst stacked ~950 responses, parses and listener passes into
+  // as few tasks as the network would allow.
+  //
+  // Draining a few at a time drops nothing — every queued member is still fetched,
+  // still noted, still announced — it only spreads the work across turns of the
+  // event loop instead of stacking it. Four in flight keeps the pipe busy while
+  // leaving room for the page's own requests.
+  var WARM_CONCURRENCY = 4;
+  var _inFlight = 0;
+  function pump() {
+    while (_inFlight < WARM_CONCURRENCY && _queue.length) warmOne(_queue.shift());
+  }
+  function warmOne(pid) {
+    _inFlight++;
+    var settled = false;
+    // Hand the next fetch to a fresh task. Starting it inline would put its parse
+    // in the same task as the listeners this one just woke.
+    var done = function () {
+      if (settled) return;
+      settled = true;
+      _inFlight--;
+      try { setTimeout(pump, 0); } catch (e) { pump(); }
+    };
+    try {
+      window.PDXVotingRecord.fetchMember(pid, { pageSize: 100 }).then(function (data) {
+        if (data && data.items && data.items.length && typeof window.PDXVotingRecord.noteMember === 'function') {
+          window.PDXVotingRecord.noteMember(pid, data.items);
+        }
+        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
+        done();
+      }).catch(function () { done(); });
+    } catch (e) { done(); }
+  }
   function flushWarm() {
     _timer = null;
-    var batch = _queue.splice(0, _queue.length);
-    batch.forEach(function (pid) {
-      try {
-        window.PDXVotingRecord.fetchMember(pid, { pageSize: 100 }).then(function (data) {
-          if (data && data.items && data.items.length && typeof window.PDXVotingRecord.noteMember === 'function') {
-            window.PDXVotingRecord.noteMember(pid, data.items);
-          }
-          try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
-        }).catch(function () {});
-      } catch (e) {}
-    });
+    pump();
   }
 
   // ── shared renderers — the SAME chip/dot/legend everywhere ──────────────────

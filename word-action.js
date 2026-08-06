@@ -164,26 +164,65 @@
   //     of an issue inverts every consistency verdict downstream.
   // Unresolved labels are reported as not-yet-issue-linked and left out of the
   // number. Nothing about that costs anyone a percentage point.
+  //
+  // ── On the cost of asking ──────────────────────────────────────────────────
+  // The answer is a pure function of (label, ISSUE_MAP), and ISSUE_MAP is a fixed
+  // 110-issue / 1265-keyword vocabulary. This used to compile one RegExp per
+  // keyword per call — 1265 constructions to resolve a single label — while the
+  // roster render asks once per signature issue per person. Across a 756-person
+  // homepage that is millions of RegExp compiles inside one task, which is what
+  // hung the page. So the vocabulary is compiled once and the answers are
+  // memoized. Both caches key on the ISSUE_MAP OBJECT, not a flag: the map is
+  // published by a separate script, so a later or swapped vocabulary must rebuild
+  // rather than answer from a stale index.
+  var _bimSrc = null;    // the ISSUE_MAP these caches were built from
+  var _bimRows = null;   // [{key, kw, re}] sorted longest keyword first
+  var _bimMemo = null;   // normalized label → resolved key (or null)
+
+  function brandingIndex(im) {
+    if (_bimSrc === im && _bimRows) return _bimRows;
+    var rows = [];
+    Object.keys(im).forEach(function (k) {
+      var kws = (im[k] && im[k].keywords) || [];
+      for (var i = 0; i < kws.length; i++) {
+        var kw = String(kws[i] == null ? '' : kws[i]).toLowerCase();
+        // Short keywords ('tax', 'debt', 'audit') identify a topic, not an issue.
+        if (kw.length < 5) continue;
+        rows.push({
+          key: k, kw: kw,
+          re: new RegExp('(?:^|[^a-z0-9])' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:[^a-z0-9]|$)')
+        });
+      }
+    });
+    // Longest first, so LONGEST KEYWORD WINS falls out of the scan order and the
+    // loop can stop the moment a shorter keyword could no longer tie the best.
+    rows.sort(function (a, b) { return b.kw.length - a.kw.length; });
+    _bimSrc = im; _bimRows = rows; _bimMemo = {};
+    return rows;
+  }
+
   function brandingIssueKey(label) {
     var norm = String(label == null ? '' : label).toLowerCase().trim();
     if (norm.length < 4) return null;
     var im = null;
     try { im = window.ISSUE_MAP || null; } catch (e) { im = null; }
     if (!im) return null;
+    var rows = brandingIndex(im);
+    if (Object.prototype.hasOwnProperty.call(_bimMemo, norm)) return _bimMemo[norm];
     var hits = {}, best = 0;
-    Object.keys(im).forEach(function (k) {
-      var kws = (im[k] && im[k].keywords) || [];
-      for (var i = 0; i < kws.length; i++) {
-        var kw = String(kws[i] == null ? '' : kws[i]).toLowerCase();
-        // Short keywords ('tax', 'debt', 'audit') identify a topic, not an issue.
-        if (kw.length < 5 || kw.length < best) continue;
-        var re = new RegExp('(?:^|[^a-z0-9])' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:[^a-z0-9]|$)');
-        if (norm === kw || re.test(norm)) {
-          if (kw.length > best) { best = kw.length; hits = {}; }
-          hits[k] = kw;
-        }
-      }
-    });
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      // Sorted longest-first, so once something has matched, every remaining row
+      // is too short to tie it. Same answer as testing them all, minus the work.
+      if (best && r.kw.length < best) break;
+      if (norm === r.kw || r.re.test(norm)) { best = r.kw.length; hits[r.key] = 1; }
+    }
+    var out = resolveBrandingHits(im, hits);
+    _bimMemo[norm] = out;
+    return out;
+  }
+
+  function resolveBrandingHits(im, hits) {
     var keys = Object.keys(hits);
     if (!keys.length) return null;
     if (keys.length === 1) return keys[0];
