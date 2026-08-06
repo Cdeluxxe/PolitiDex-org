@@ -428,9 +428,34 @@ has(sec, "On file, not scorable",
   "vocabulary: a row whose actions are all held says so — it does not claim there is no action");
 has(sec, "No stated position yet",
   "vocabulary: a row with a clean action and no stated position says THAT is what is missing");
-lacks(sec, "No action on file yet",
-  "vocabulary: and no row in this section falsely claims an empty file — every issue here has one");
-has(sec, "1 action", "vocabulary: the composition meter counts actions");
+// "No action on file yet" is now REACHABLE in this section, and it has to be. This
+// used to be a flat lacks() over the whole rendered section, and it passed for the
+// wrong reason: officialIssue() put every issue an exec-eligible figure had no order
+// mapped to into 'pending', so no row could reach the empty-file caption at all.
+// Thirteen of Trump's stated positions genuinely have no executive action on file
+// (the four tariff issues, cost of living, restraint and the rest), and for those
+// rows "No action on file yet" is the true caption — while 'pending' was a wait on a
+// roll call that was never coming. What must stay impossible is the caption
+// appearing on a row that DOES hold an action, which is the case the two has()
+// assertions above pin down. So the gate moves to the data: the caption's own
+// condition is `!execTouched`, so no touched issue can reach it.
+{
+  for (const k of XA.issues(PID)) {
+    const ovk = CS.officialRecord(PID, k);
+    ok((ovk.execTouched || 0) > 0,
+      `${k} carries an executive action but reports execTouched 0 — it would be captioned as an` +
+      `\n    empty file with the document sitting in its own evidence list`);
+  }
+  // …and the other half: an exec-eligible figure must never sit in a roll-call wait.
+  for (const k of ["tariffs_growth", "cost_living", "restraint", "crypto_cbdc"]) {
+    const ovk = CS.officialRecord(PID, k);
+    eq(ovk.execTouched || 0, 0,
+      `${k} now has an executive action on file — pick a different control issue here`);
+    eq(!!ovk.pending, false,
+      `${k} is still 'pending' on a president: that is a wait on a roll call that will never` +
+      `\n    arrive, it never clears, and issueRow() refuses the public-record basis while it stands`);
+  }
+}has(sec, "1 action", "vocabulary: the composition meter counts actions");
 // The row shortcut into a voting record is suppressed — there is no destination.
 lacks(sec, "Open this vote in the full record",
   "vocabulary: no row offers a link into a roll-call list this figure does not have");
