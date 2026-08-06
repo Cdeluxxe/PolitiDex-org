@@ -227,9 +227,12 @@
   // two as one is what put roll-call vocabulary — "No votes yet", "Recorded vote",
   // "Voted Signed Law", a 🏛️ legend — onto a president's Official Record the moment
   // their formal actions loaded. Every lane decision below asks what the items ARE.
+  // A ballot, not a kind. `kind` is what the wire said; the position is what the
+  // figure actually cast, and only a real ballot puts an item on the 🏛️ lane.
   function _anyBallot(items) {
     for (var i = 0; i < (items || []).length; i++) {
-      if (items[i] && items[i].kind !== 'position') return true;
+      var it = items[i];
+      if (it && it.kind !== 'position' && _BALLOTS[String(it.position || '').toLowerCase()] === 1) return true;
     }
     return false;
   }
@@ -1187,6 +1190,33 @@
     if (!_timer) _timer = setTimeout(flushWarm, 150);
   }
 
+  // ── has this member's record lane finished asking? ──────────────────────────
+  // A surface that publishes a score before the answer is in publishes a DIFFERENT
+  // score a moment later. The homepage record card did exactly that: the executive
+  // lane is bundled and available cold, so the card cleared the publishing floor on
+  // the first pass, painted a percentage and a headline, and then repainted both
+  // when the roll-call fetch landed — a summary that argues with itself while the
+  // reader is looking at it.
+  //
+  // `settled` is answered for the WHOLE lane, not per issue: true once this pid's
+  // fetch has come back (with rows or with nothing, succeeded or failed), true if
+  // the record was already noted from an earlier page, and true when there is no
+  // fetcher at all — nothing to wait for is not the same as waiting. False only
+  // while a request this page started is genuinely outstanding.
+  var _settled = {};
+  function recordSettled(pid) {
+    pid = String(pid || '');
+    if (!pid) return false;
+    if (_settled[pid]) return true;
+    var vr = null;
+    try { vr = window.PDXVotingRecord; } catch (e) { vr = null; }
+    if (!vr || typeof vr.fetchMember !== 'function') return true;
+    try {
+      if (typeof vr.memberRecords === 'function' && vr.memberRecords(pid)) return true;
+    } catch (e) {}
+    return false;
+  }
+
   // Every roster card that renders a pending verdict queues its member, so one
   // homepage render queues the WHOLE roster — ~950 people. Firing that batch in a
   // single pass opened ~950 concurrent requests of ~125 KB each, and the browser's
@@ -1215,6 +1245,10 @@
       if (settled) return;
       settled = true;
       _inFlight--;
+      // Asked and answered — whatever the answer was. A card waiting on this lane
+      // needs to know the wait is over even when the request came back empty or
+      // failed outright, or it sits on a skeleton until a backstop timer rescues it.
+      _settled[String(pid)] = true;
       try { setTimeout(pump, 0); } catch (e) { pump(); }
     };
     try {
@@ -1222,9 +1256,15 @@
         if (data && data.items && data.items.length && typeof window.PDXVotingRecord.noteMember === 'function') {
           window.PDXVotingRecord.noteMember(pid, data.items);
         }
-        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
         done();
-      }).catch(function () { done(); });
+        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
+      }).catch(function () {
+        // A failed fetch is still an answer. It used to announce nothing, so every
+        // surface waiting on this member stayed in its loading state until a
+        // grace-period sweep gave up on it.
+        done();
+        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid, failed: true } })); } catch (e) {}
+      });
     } catch (e) { done(); }
   }
   function flushWarm() {
@@ -2234,23 +2274,47 @@
   // vote vocabulary on an office that casts no votes, over a document nobody voted on.
   // A ballot gets the congressional verb; an executive action gets exec-record.js's
   // own words for its class, which is the only place those verbs are written down.
+  //   The `kind` field is not trusted to make that call on its own. It was, and the
+  // result was "H.R. 1 · Signed · Voted Signed" on the president's card: one row
+  // whose kind did not survive the trip still went through the congressional
+  // formatter, and a single mislabelled item is all it takes. The test is now the
+  // BALLOT itself — "Voted X" is printed only when X is something a member can
+  // actually vote, and anything else is an action phrase no matter what kind says.
+  var _BALLOTS = {
+    yea: 1, nay: 1, aye: 1, no: 1, yes: 1, present: 1,
+    not_voting: 1, notvoting: 1, 'not voting': 1, abstain: 1, absent: 1, excused: 1
+  };
+  // Executive slugs as the record actually spells them. exec-record.js keys its
+  // verbs on the long form ('signed_law'); vr_positions stores the short one
+  // ('signed'), so without this bridge a signed law printed as the bare word
+  // "Signed" — true, but not what the document says it is.
+  var _EXEC_SLUGS = {
+    signed: 'signed_law', signed_into_law: 'signed_law', sign: 'signed_law',
+    vetoed: 'vetoed_law', veto: 'vetoed_law',
+    eo: 'executive_order', order: 'executive_order', executive_order: 'executive_order',
+    directive: 'directive', memorandum: 'directive', proclamation: 'directive'
+  };
+  function _execVerb(key) {
+    var k = String(key || '').toLowerCase();
+    var cls = null;
+    try {
+      var xr = window.PDXExecRecord;
+      if (xr && xr.CLASSES) cls = xr.CLASSES[k] || xr.CLASSES[_EXEC_SLUGS[k] || ''] || null;
+    } catch (e) { cls = null; }
+    return (cls && cls.verb) ? cls.verb : '';
+  }
   function _orActionPhrase(item) {
     if (!item) return '';
-    if (item.kind === 'position') {
-      // `action` last: hydrateIssueRecords copies the actionType into all three,
-      // but a curated position may only carry `action` ("cosponsored"), and that
-      // slug is the only thing the row has to say about what was actually done.
-      var key = String(item.actionType || item.position || item.action || '');
-      if (!key) return '';
-      var cls = null;
-      try {
-        var xr = window.PDXExecRecord;
-        if (xr && xr.CLASSES) cls = xr.CLASSES[key] || null;
-      } catch (e) { cls = null; }
-      // Unknown class → the slug, title-cased and unprefixed. Still not a vote.
-      return cls && cls.verb ? cls.verb : _tc(key);
-    }
-    return item.position ? 'Voted ' + _tc(item.position) : '';
+    // `action` last: hydrateIssueRecords copies the actionType into all three, but a
+    // curated position may only carry `action` ("cosponsored"), and that slug is the
+    // only thing the row has to say about what was actually done.
+    var key = String(item.actionType || item.position || item.action || '');
+    if (!key) return '';
+    var lower = key.toLowerCase();
+    if (item.kind !== 'position' && _BALLOTS[lower] === 1) return 'Voted ' + _tc(key);
+    // Not a ballot → an action, whatever the wire called it. Known class → its own
+    // verb; unknown → the slug, title-cased and unprefixed. Still never a vote.
+    return _execVerb(lower) || _tc(key);
   }
   function _orProofBits(item) {
     if (!item) return null;
@@ -2259,15 +2323,18 @@
     var lbl = item.sourceLabel || (src && typeof src === 'object' ? src.label : '') ||
       (typeof src === 'string' ? src : '') || 'Congress.gov';
     var isPosition = item.kind === 'position';
+    // Is this a ballot at all? Same test the action phrase uses, so the two halves
+    // of one proof line cannot disagree about which lane the item is on.
+    var isBallot = !isPosition && _BALLOTS[String(item.position || '').toLowerCase()] === 1;
     return {
       bill: item.number ? String(item.number) : '',
       title: item.title ? String(item.title) : '',
-      // A position's `action` IS its actionType, so printing it here as well as in
+      // An action's `action` IS its actionType, so printing it here as well as in
       // `act` produced "Signed Law · Signed into law" on every executive proof line.
-      // The question belongs to the roll-call lane and stays there.
-      question: (!isPosition && item.action) ? String(item.action) : '',
+      // The question is a roll-call question and prints only for a roll call.
+      question: (isBallot && item.action) ? String(item.action) : '',
       act: _orActionPhrase(item),
-      isPosition: isPosition,
+      isPosition: !isBallot,
       date: item.date ? String(item.date) : '',
       url: url, label: lbl
     };
@@ -3050,6 +3117,19 @@
     } catch (e) { return empty; }
   }
 
+  // How many judged items point each way on the ACTION lane, and which way.
+  // judgedCountOf() answers "how many", which is enough for the shared gate but not
+  // enough to resolve a one-item row — that needs the direction too.
+  function _rowDirection(ov) {
+    var r = ov && ov.record;
+    if (r && ((r.consistent || 0) + (r.contradicts || 0)) > 0) {
+      return { c: r.consistent || 0, x: r.contradicts || 0 };
+    }
+    var a = ov && ov.officialActions;
+    if (a) return { c: a.consistent || 0, x: a.contradicts || 0 };
+    return { c: 0, x: 0 };
+  }
+
   function issueRow(pid, issueKey) {
     var ov = officialIssue(pid, issueKey);
     var stance = _rowStance(pid, issueKey);
@@ -3071,6 +3151,26 @@
     else if (tok !== 'pending' && pub.judged && pub.count >= MIN_SAYDO_EVIDENCE) {
       basis = 'public_record'; tok = pub.token; v = pub.verdict; score = pub.score;
     } else if (actionJudged) basis = 'action';
+
+    // ── the row's own Mixed floor ─────────────────────────────────────────────
+    // "Mixed record" is a claim about a DISAGREEMENT, and one item cannot disagree
+    // with itself. Every lane that mints Mixed runs the shared gate, but a row can
+    // still inherit a mixed token from a summary computed over a wider set than the
+    // one it is showing — National Debt and Healthcare both surfaced that way, each
+    // sitting on Mixed with a single thin action behind it. This is the last word
+    // before the row renders: below two directional items, resolve by direction and
+    // say the honest thing instead.
+    if (tok === 'mixed') {
+      var dir = (basis === 'public_record')
+        ? { c: pub.supporting || 0, x: pub.contradicting || 0 }
+        : _rowDirection(ov);
+      if ((dir.c + dir.x) < 2) {
+        if (dir.c > dir.x) { tok = 'consistent'; }
+        else if (dir.x > dir.c) { tok = 'contradicts'; }
+        else { tok = 'limited'; score = null; }
+        v = VERDICTS[tok];
+      }
+    }
 
     var judged = (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed' || tok === 'limited');
     var hasWord = !!stance.key || !!ov.hasStance || !!(ov.record && ov.record.hasStance);
@@ -4540,6 +4640,10 @@
     // record is under it in one voice.
     compositionMeterHtml: _orCompMeterHtml,
     warm: queueWarm,
+    // "Is the wait over for this member?" — the one question a surface has to be
+    // able to ask before it publishes a score, so it can show a skeleton instead of
+    // a guess it will have to take back. See recordSettled().
+    recordSettled: recordSettled,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
     meta: function (t) { return VERDICTS[t] || VERDICTS.no_record; }

@@ -1226,7 +1226,7 @@ function directionalItems(ov) {
   VRL._records = VRL._records || {};
   VRL._records[PRES] = [signed];
   try { if (typeof CS.bust === "function") CS.bust(); } catch (e) { /* not all builds memoise */ }
-  try { if (typeof win.PDXProfileCard.bust === "function") win.PDXProfileCard.bust(); } catch (e) {}
+  try { if (typeof win.PDXProfileCard._bust === "function") win.PDXProfileCard._bust(); } catch (e) {}
 
   // 17b. NO VOTE VOCABULARY ON A WARM PRESIDENTIAL RECORD.
   //      This is what shipped: 'Voted ' + the actionType, rendering "Voted Signed
@@ -1296,13 +1296,121 @@ function directionalItems(ov) {
     ok(nd.verdict.token !== "mixed",
       `warm: national_debt reads Mixed off ${directionalItems(nd.ov)} directional item(s). With H.R. 1 the\n` +
       "    only formal action in the lane, the row is a contradiction or a coverage gap — never a split");
+    // Healthcare is the other row that was reported sitting on Mixed with one thin
+    // path behind it. It is not in this fixture's issue list at all, which makes it
+    // the cleaner check: a row with no directional item cannot be a split of any kind.
+    const hc = (CS.issueRows(PRES) || []).find((r) => r.key === "healthcare");
+    if (hc) {
+      ok(hc.verdict.token !== "mixed",
+        `warm: healthcare reads Mixed off ${directionalItems(hc.ov)} directional item(s) — a row with nothing\n` +
+        "    pulling two ways is thin, and thin has its own honest word");
+    }
+  }
+
+  // 17f. THE CARD'S OWN PROOF LINE, WARM. 17b covers the profile's Official
+  //      Record; this is the string the homepage card prints under the score, built
+  //      on a different path (PDXWordAction.dots → namedActions → proofText). The
+  //      reported card read "H.R. 1 · Signed · Voted Signed" — a president's
+  //      actionType pushed through the congressional ballot formatter, twice over.
+  {
+    const card = win.PDXProfileCard.read(PRES);
+    must(card, "the president's card returned no read with the record warm");
+    const lines = []
+      .concat(card.highlights || [], card.lowlights || [])
+      .map((c) => String(c.action || ""))
+      .filter(Boolean);
+    must(lines.length > 0, "the president's warm card printed no proof line at all");
+    const voted = lines.filter((l) => /Voted/.test(l));
+    ok(voted.length === 0,
+      "the president's homepage card names a vote on an executive action:\n" +
+      "    " + voted.slice(0, 3).map((l) => JSON.stringify(l)).join(", ") + "\n" +
+      "    (the office casts no votes; a signed law is signed, an order is issued)");
+    ok(lines.some((l) => /Signed into law|Signed Executive Order|Issued a directive|Vetoed/.test(l)),
+      "the president's warm card prints no executive verb at all — the proof line has to say what the\n" +
+      "    document actually is, or the reader is looking at a bill number and a shrug:\n" +
+      "    " + lines.slice(0, 3).map((l) => JSON.stringify(l)).join(", "));
+
+    // The wire shape that actually shipped the bug: the SHORT slug the database
+    // stores, on a row whose `kind` did not survive the trip. Everything without a
+    // kind used to go through the congressional formatter, so one lost field was
+    // enough to print "Voted Signed" under a president's face. The test is the
+    // ballot now — 'signed' is not something anyone can vote, so it cannot be one.
+    must(CS.proof && typeof CS.proof.proofText === "function",
+      "consistency.js no longer publishes proof.proofText — the card builds its line elsewhere now");
+    const bare = {
+      number: "H.R. 1", title: "One Big Beautiful Bill Act",
+      position: "signed", actionType: "signed", action: "signed", date: "2025-07-04"
+    };
+    const bareLine = CS.proof.proofText(bare);
+    lacks(bareLine, "Voted",
+      "a signed law with no `kind` on the row still prints as a vote — this is the literal reported\n" +
+      "    string, \"H.R. 1 · Signed · Voted Signed\"");
+    has(bareLine, "Signed into law",
+      "the short database slug 'signed' does not resolve to the executive lane's own verb");
+  }
+
+  // 17g. THE CARD'S GATE READ IS THE PROFILE'S READ. brief() is what decides
+  //      whether the homepage publishes at all, and it must not be able to clear
+  //      the floor on a different number than the profile shows.
+  {
+    const wa = WA.read(PRES, PP);
+    const b = win.PDXProfileCard.brief(PRES);
+    must(b, "the president's card brief returned nothing with the record warm");
+    eq(b.pct, wa.pct, "warm: the card's eligibility read publishes a different percentage than the profile");
+    eq(b.verdict && b.verdict.key, wa.verdict && wa.verdict.key,
+      "warm: the card's eligibility read publishes a different label than the profile");
+    eq(b.publishable, typeof wa.pct === "number",
+      "warm: the card would publish without a score, or withhold one it has");
   }
 
   // Put the lane back the way it was, so nothing after this reads a fixture.
   if (before === undefined) delete VRL._records[PRES];
   else VRL._records[PRES] = before;
   try { if (typeof CS.bust === "function") CS.bust(); } catch (e) {}
-  try { if (typeof win.PDXProfileCard.bust === "function") win.PDXProfileCard.bust(); } catch (e) {}
+  try { if (typeof win.PDXProfileCard._bust === "function") win.PDXProfileCard._bust(); } catch (e) {}
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("18 · the record lane says when it has finished asking");
+// ═════════════════════════════════════════════════════════════════════════════
+// The homepage card publishes a score, a headline and a set of counts in one shot
+// and then must not change its mind. It can only honour that if it can ask whether
+// the record lane is still out — otherwise a president, whose executive record is
+// bundled and therefore judgeable the instant the page parses, clears the
+// publishing floor on the first pass and repaints when the roll call lands. This
+// predicate is the whole contract; hero-showcase.js gates settle() on it.
+{
+  const VRL = win.PDXVotingRecord;
+  must(typeof CS.recordSettled === "function",
+    "consistency.js no longer publishes recordSettled() — the card has no way to tell\n" +
+    "    \"still fetching\" from \"nothing to fetch\", which is how the flip-flop started");
+
+  ok(CS.recordSettled("") === false, "an empty pid is not a settled record");
+
+  const before = VRL._records ? VRL._records[PRES] : undefined;
+  if (VRL._records) delete VRL._records[PRES];
+  ok(CS.recordSettled(PRES) === false,
+    "a member with a fetcher available and no record in hand reports settled — the card would\n" +
+    "    publish an executive-only score and repaint the moment the roll call arrived");
+
+  // Rows in hand — the fetch is answered, whoever asked.
+  VRL._records = VRL._records || {};
+  VRL._records[PRES] = [{ kind: "position", number: "H.R. 1", position: "signed_law", issues: [] }];
+  ok(CS.recordSettled(PRES) === true, "a member whose record is already in hand still reads unsettled");
+
+  // No fetcher at all (an offline build, a page that never loaded voting-record.js):
+  // nothing to wait for is not the same as waiting, and a card that cannot tell the
+  // difference hangs on a skeleton forever.
+  const fm = VRL.fetchMember;
+  try {
+    delete VRL.fetchMember;
+    ok(CS.recordSettled("nobody-at-all") === true,
+      "with no fetcher on the page the card is still told to wait — there is nothing coming");
+  } finally { VRL.fetchMember = fm; }
+
+  if (before === undefined) delete VRL._records[PRES];
+  else VRL._records[PRES] = before;
+  try { if (typeof win.PDXProfileCard._bust === "function") win.PDXProfileCard._bust(); } catch (e) {}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
