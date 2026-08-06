@@ -4438,13 +4438,25 @@
         }
       }
     } catch (e) {}
+    // 🎯 Positions — number of tracked key issues, and the doorway to 🧭 Stances &
+    // Connections, which now opens that stage. Pushed SECOND, because the signature
+    // stage sits second on the page under the locked reading order: the verdict,
+    // then what they stand for, then the record that tests it. The push order here
+    // IS the rail order.
+    if (window._pdxKeyIssues(p).length) {
+      const _n = window._pdxKeyIssues(p).length;
+      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
+      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
+      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
+      // to a section, so the deepest per-issue view is one tap from the map. Sits
+      // right after Positions since it is the "see everything" extension of it.
+      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
+    }
     // 🏛️ / ✒️ Official Record — the one formal-record lane, and until this pass the
     // one section on the profile with no pill at all. The rail carried "Promises",
     // "Record" and "Enactments" instead: two pledge counts and an executive count,
     // three entries for what is now a single spine. Office-aware label, count only —
-    // the rail carries exactly one percentage (the ⚖️ pill leading it). Pushed
-    // second, directly behind the score, because the record stage now sits directly
-    // behind the verdict on the page — the push order here IS the rail order.
+    // the rail carries exactly one percentage (the ⚖️ pill leading it).
     try {
       const _orTested = (window.PDXWordAction && typeof window.PDXWordAction.read === 'function')
         ? (window.PDXWordAction.read(id, p) || {}).coverage : null;
@@ -4458,51 +4470,31 @@
         });
       }
     } catch (e) {}
-    // Controversies — the neutral flashpoints block, shown only when at least one
-    // sourced say-vs-do gap / broken promise / flagged event is on record. Third in
-    // the rail because the tension stage is third on the page, behind the verdict
-    // and the record it is contesting: the adverse finding is what a reader came
-    // for, and the rail should not bury it either.
+    // 🔥 Flashpoints — the heat-only block, shown only when at least one sourced
+    // contradiction / broken promise / flagged event is on record. Fourth in the
+    // rail because the tension stage is fourth on the page, behind the record it is
+    // contesting.
     try {
       if (typeof window._pdxControversyCount === 'function') {
         const _navCtv = window._pdxControversyCount(id, p);
         if (_navCtv > 0) {
-          _navItems.push({ target: 'pdxsec-controversies', icon: '⚠️', label: 'Controversies', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
+          _navItems.push({ target: 'pdxsec-controversies', icon: '🔥', label: 'Flashpoints', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
         }
       }
     } catch (e) {}
-    // Positions — number of tracked key issues.
-    if (window._pdxKeyIssues(p).length) {
-      const _n = window._pdxKeyIssues(p).length;
-      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
-      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
-      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
-      // to a section, so the deepest per-issue view is one tap from the map. Sits
-      // right after Positions since it is the "see everything" extension of it.
-      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
-    }
     // 🤝 PROMISES PILL RETIRED. The rail carried "Promises · 6K · 6B · 2P" here —
     // a second scoreboard in the header strip, sitting one pill away from the ⚖️
     // percentage and reading as a rival tally of the same politician. It had
     // already been cut from two pills to one; this pass cuts it to none. The
     // pledge ledger is reachable from the ⚖️ Word vs Action feeds list, which is
     // the honest doorway to it: an input to the score, opened from the score.
-    // Evidence — total receipts/sources/clips gathered.
+    // Evidence — total receipts/sources/clips gathered. The shared proof layer.
     if (_navEvidenceCount > 0) {
       _navItems.push({ target: 'pdxsec-evidence', icon: '🔗', label: 'Evidence', value: _navEvidenceCount + ' Evidence', color: '#f5c842' });
     }
-    // Match — the visitor's personal alignment %, when they've set it up.
-    try {
-      const _navHasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
-      if (_navHasIssues && typeof _calcAlignmentScore === 'function') {
-        const _navMatch = _calcAlignmentScore(id);
-        if (_navMatch !== null && _navMatch !== undefined) {
-          const _mc = _navMatch >= 70 ? '#4ade80' : _navMatch >= 50 ? '#f5c842' : '#f87171';
-          _navItems.push({ target: 'pdxsec-match', icon: '🤝', label: 'Match', value: _navMatch + '% Match', color: _mc });
-        }
-      }
-    } catch (e) {}
     // Funding — who bankrolls them, shown only when a filing record is on file.
+    // Pushed before Match: money is its own lens and sits above the alignment tail
+    // in the locked reading order, so the rail says the same thing the page does.
     try {
       if (typeof window._pdxFunding === 'function') {
         const _navFund = window._pdxFunding(id);
@@ -4511,6 +4503,17 @@
           const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
           const _fi = (_navFund.character && _navFund.character.icon) || '💰';
           _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
+        }
+      }
+    } catch (e) {}
+    // Match — the visitor's personal alignment %, when they've set it up.
+    try {
+      const _navHasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      if (_navHasIssues && typeof _calcAlignmentScore === 'function') {
+        const _navMatch = _calcAlignmentScore(id);
+        if (_navMatch !== null && _navMatch !== undefined) {
+          const _mc = _navMatch >= 70 ? '#4ade80' : _navMatch >= 50 ? '#f5c842' : '#f87171';
+          _navItems.push({ target: 'pdxsec-match', icon: '🤝', label: 'Match', value: _navMatch + '% Match', color: _mc });
         }
       }
     } catch (e) {}
@@ -4772,13 +4775,14 @@
       </div>` : ''}
 
       <!--PDXSP:tension-->
-      <!-- Biggest Controversies — a visually distinct, neutral block surfacing the
-           2–4 most notable / divisive items already on this official's record
-           (say-vs-do gaps, broken promises, flagged events). Each card carries a
-           sourced summary, a Say-vs-Do verdict where one applies, and one-tap
-           links to the related Issue Spotlight, full receipt, and voting record.
-           Rendered by controversies.js entirely from data the app already ships;
-           self-gates to '' when nothing checkable is on record. -->
+      <!-- 🔥 Flashpoints — the HIGH-HEAT section, and only that: the biggest
+           contradictions, red flags and public disputes already on this official's
+           record, capped at 3 cards. It is not a second scoring system and it is not
+           the home for all the evidence — each card is sourced and links out to the
+           surfaces that do carry a verdict or the proof: the ⚖️ Word vs Action row,
+           the 🏛️ Official Record, the Evidence drawer, and the related Issue
+           Spotlight. Rendered by controversies.js entirely from data the app already
+           ships; self-gates to '' when nothing checkable is on record. -->
       ${(typeof window._renderControversies === 'function') ? window._renderControversies(id, p) : ''}
 
       <!--PDXSP:money-->
@@ -4898,6 +4902,18 @@
       ${(typeof window._renderIssueComparison === 'function') ? window._renderIssueComparison(id, p) : ''}
 
       <!--PDXSP:signature-->
+      <!-- Stances & Connections — the "what they stand for" layer, and the entry
+           point to everything below it. Ranked issue rows off the shared
+           PDXConsistency row model: tested-and-contested first, then tested-and-
+           consistent, then stated-with-evidence, then stated-only, then record-only,
+           with "nothing on file" folded away. Each row carries its connections —
+           into ⚖️ Word vs Action where the score already reached a verdict, into
+           🏛️ Official Record where formal actions exist, into the Evidence drawer
+           where the public record is what backs it. It publishes no percentage: the
+           verdict on a row is the one the row model resolved, so this section and the
+           score can never disagree about the same issue. -->
+      ${(window.PDXConsistency && typeof window.PDXConsistency.stancesSectionHtml === 'function') ? (function(){ try { var _st = window.PDXConsistency.stancesSectionHtml(id); return _st ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _st + '</div>') : ''; } catch(e){ return ''; } })() : ''}
+
       <!-- Stance at a Glance — collapsible, scannable index of documented
            positions with a per-issue evidence dot; taps open a small evidence
            popover. Sits just above the detailed Key Issue Stances cards. -->
@@ -4960,24 +4976,40 @@
       ${(window.PDXConsistency && typeof window.PDXConsistency.officialRecordSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.officialRecordSectionHtml(id) + '</div>') : ''}
 
       <!--PDXSP:tension-->
-      <!-- Record vs. Public Picture — the explicit divergence bridge (Phase 8). Sits
-           BETWEEN the two sibling feeds and compares 🏛️ Official Record (votes) with
-           🧾 Say-vs-Do (public record) issue-by-issue plus a whole-profile summary,
-           labelling the relationship (Aligned / Mixed / Diverges). Never blends the
-           two into one score. Rendered by consistency.js; self-updates when votes warm. -->
-      <span id="pdxsec-divergence" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(window.PDXConsistency && typeof window.PDXConsistency.divergenceSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.divergenceSectionHtml(id) + '</div>') : ''}
+      <!-- RECORD VS. PUBLIC PICTURE NO LONGER MOUNTS HERE, AND SAY-VS-DO NO LONGER
+           MOUNTS BELOW IT. The two sections that used to sit at this point were:
+
+           "⚖️ Record vs. Public Picture — Do their 🏛️ Official Record (votes) and
+            their 🧾 Say-vs-Do (public record) tell the same story? … Across 7 issues
+            on both records: 3 aligned · 2 mixed · 2 diverging."
+
+           "🧾 Say-vs-Do — “Does the full public picture match what they claim?”
+            Receipts, not a rating: each stance below shows what the public record —
+            statements, coverage, filings, events — does and does not back up, with a
+            per-stance percentage where there are 2+ checkable items."
+
+           Say-vs-Do graded the same issues the Official Record had already graded, in
+           its own vocabulary, with its own coverage line and its own per-stance
+           percentages. Record vs. Public Picture existed only to referee the two when
+           they disagreed — a whole section whose subject was the seam between two
+           other sections. That is three per-issue verdict systems in one scroll.
+
+           There is one now. PDXConsistency.issueRow resolves a single verdict per
+           issue: the formal action decides wherever a formal action can, and the
+           public record decides only where none could — never both, so nothing is
+           left to arbitrate. The receipts Say-vs-Do used to print are on the row
+           (row.public, row.evidence.total) and in the Evidence drawer, and the
+           outcome list it used to headline is now the "Issue by issue — did the record
+           back the word?" block inside ⚖️ Word vs Action.
+
+           saydoSectionHtml() and divergenceSectionHtml() are still exported by
+           consistency.js — the gap sheet and the share card read their data — but
+           nothing mounts them on a profile. #pdxsec-saydo and #pdxsec-divergence are
+           deliberately NOT re-declared: every jump to them is guarded by a
+           getElementById check or an "||" fallback chain that now lands on the
+           Official Record instead. -->
 
       <!--PDXSP:receipts-->
-      <!-- Say-vs-Do — the dedicated, stance-first public-record feed the gateway's
-           Say-vs-Do card lands on. Sibling to the Official Record section: same
-           organized shape, but broader public-record evidence ONLY (statements,
-           interviews, news, controversies) — no formal votes, no percentage yet.
-           Rendered by consistency.js from sayVsDo(); the general receipts hero and
-           flashpoints surfaces are unchanged. -->
-      <span id="pdxsec-saydo" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.saydoSectionHtml(id) + '</div>') : ''}
-
       <!-- Evidence banner — the gold All-Seeing Eye, a direct "Watch" jump to the
            strongest clip, and a one-tap "See Evidence" into the pre-filtered
            Evidence Locker. Relocated here from the top of the profile: it is the

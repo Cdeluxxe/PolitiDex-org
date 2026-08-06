@@ -76,50 +76,50 @@
   // ── The spine ───────────────────────────────────────────────────────────────
   // Order is the product decision; everything else in this file serves it. Each
   // stage answers one question, and a section belongs to the stage whose question
-  // it answers — which is why "Record vs. Public Picture" sits in `tension` and
-  // not next to the record, and why personal-alignment blocks are collected into
-  // one `you` stage instead of appearing at three different depths.
+  // it answers — which is why personal-alignment blocks are collected into one
+  // `you` stage instead of appearing at three different depths.
   //
   // The sequence below is an ACCOUNTABILITY PATH, not a catalogue of systems. Its
-  // shape is four claims, in this order:
+  // shape is five claims, in this order:
   //
   //   THE JUDGMENT COMES FIRST. `verdict` holds one thing — the Word vs Action
   //   read — and it is the first major surface after the letterhead and the brief.
   //   It used to be the opening block of `record`, which meant the primary finding
   //   arrived as the header of a system rather than as the site's answer. There is
   //   still exactly one score; giving it its own stage is what makes that legible.
+  //   Word vs Action is also the ONLY integrity section: the say-vs-do read and the
+  //   record-vs-public-picture bridge that used to occupy stages of their own are
+  //   inputs to its rows now, not neighbours of it.
   //
-  //   THE ADVERSE FINDING COMES SECOND. `tension` now precedes `signature`.
-  //   "Where does this person contradict themselves" is the question a reader came
-  //   with; "what are they known for" is context that frames it. Leading with the
-  //   flattering summary and burying the contradiction two stages down is how a
-  //   dossier turns into a brochure.
+  //   WHAT THEY STAND FOR COMES SECOND. `signature` is 🧭 Stances & Connections —
+  //   the map of claims, ranked so the claims something can test come first. It sits
+  //   between the verdict and the record because it is the bridge: every row points
+  //   back at the score and forward at the actions.
   //
-  //   FINDINGS BEFORE METHODS. Everything from `record` down is the apparatus that
-  //   produced the verdict — the formal record, the receipts, the ledgers. It is
-  //   all still here, in full, and none of it is the first thing a reader meets.
+  //   THEN THE ACTIONS. `record` is one office-aware gateway — executive actions,
+  //   roll-call votes, or both lanes for someone who has served in both kinds of
+  //   office. One section, whatever the office.
   //
-  //   THE READER'S OWN STAKE BEFORE THE FOLLOW-THE-MONEY TAIL. `you` moved above
-  //   `money`, so the profile ends on the deep record rather than on the reader,
-  //   but the reader is met before the widest-context material.
+  //   THEN THE HEAT, THEN THE PROOF. `tension` is 🔥 Flashpoints and nothing else:
+  //   the biggest contradictions and disputes, short and sourced. It is not a second
+  //   scoring system and it is not the home for all the evidence — `receipts` is the
+  //   shared proof layer every surface above links into.
+  //
+  //   THE READER'S OWN STAKE, THEN THE DRAWERS. `money` is a lens of its own and
+  //   must not read as an integrity score, so it sits after the evidence and before
+  //   the alignment tail; the collapsed full tables close the profile.
   // The order below IS the profile's reading order, and it answers one question
-  // per stage. `record` sits directly under `verdict` because the score and the
-  // actions it was computed from are one argument: the reader meets the number,
-  // then the sharpest said→did rows inside it, then the full formal record that
-  // produced them. Everything adverse, contested or contextual follows. It used
-  // to sit fifth, with `tension` and `signature` wedged between the finding and
-  // its evidence, which meant the profile changed the subject twice before it
-  // showed its work.
+  // per stage.
   var STAGES = [
-    { key: 'identity',  label: 'Identity',           ask: 'Who is this?' },
+    { key: 'identity',  label: 'Identity',            ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
-    { key: 'verdict',   label: 'The verdict',         ask: 'Do they stand by what they said?' },
+    { key: 'verdict',   label: 'Word vs Action',      ask: 'Do they stand by what they said?' },
+    { key: 'signature', label: 'Stances & connections', ask: 'What do they stand for?' },
     { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
-    { key: 'tension',   label: 'Where it is contested', ask: 'Where is the tension?' },
-    { key: 'signature', label: 'Signature issues',    ask: 'What defines them?' },
-    { key: 'receipts',  label: 'Receipts · say vs. do', ask: 'Where are the receipts?' },
-    { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
+    { key: 'tension',   label: 'Flashpoints',         ask: 'Where is the heat?' },
+    { key: 'receipts',  label: 'Evidence',            ask: 'Where are the receipts?' },
     { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
+    { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
     { key: 'drawers',   label: 'The full record',     ask: 'Show me everything.' }
   ];
   var STAGE_KEYS = STAGES.map(function (s) { return s.key; });
@@ -156,28 +156,37 @@
   // Anything absent resolves to the deep end, matching the unknown-stage rule in
   // assemble() — an unrecognised destination is demoted, never promoted.
   var TARGET_STAGE = {
-    // verdict — the one primary score. Anchor emitted by word-action.js.
+    // verdict — the one primary score, and the only integrity section. Anchor
+    // emitted by word-action.js.
     'pdxsec-wordaction': 'verdict',
-    // tension — the adverse findings. Anchor emitted by controversies.js.
-    'pdxsec-controversies': 'tension',
-    'pdxsec-divergence': 'tension',
-    // signature — what they are known for
+    // signature — what they stand for. #pdxsec-stances is emitted by consistency.js
+    // (stancesSectionHtml) and is the stage's entry point; the glance and the full
+    // position set sit under it.
+    'pdxsec-stances': 'signature',
     'pdxsec-positions': 'signature',
     'pdxsec-glance': 'signature',
     // record — the formal apparatus behind the verdict
     'pdxsec-exec-record': 'record',
     'pdxsec-official-record': 'record',
     'pdxsec-verify': 'record',
-    // receipts — say vs. do
+    // tension — Flashpoints, and only Flashpoints. Anchor emitted by
+    // controversies.js. `pdxsec-divergence` used to live here; the section it
+    // pointed at compared two per-issue verdict systems that are now one, so it no
+    // longer mounts and no longer has a stage.
+    'pdxsec-controversies': 'tension',
+    // receipts — the shared proof layer every surface above links into.
+    // `pdxsec-saydo` used to live here; the public record is an input to the issue
+    // rows now rather than a section of its own.
     'pdxsec-evidence': 'receipts',
-    'pdxsec-saydo': 'receipts',
-    // you — the reader’s own stake
-    'pdxsec-match': 'you',
-    'pdxsec-compare': 'you',
     // money — funding and who the record touches. Funding anchor lives in index.html.
+    // A lens of its own, deliberately after the proof layer so it never reads as
+    // part of the integrity argument.
     'pdxsec-funding': 'money',
     'pdxsec-impact': 'money',
     'pdxsec-contracts': 'money',
+    // you — the reader’s own stake
+    'pdxsec-match': 'you',
+    'pdxsec-compare': 'you',
     // drawers — destinations that really do sit inside the full-record drawers, and
     // are therefore reached through a reveal rather than a plain scroll. Anchor for
     // the voting record is emitted by voting-record.js into the votes drawer. The

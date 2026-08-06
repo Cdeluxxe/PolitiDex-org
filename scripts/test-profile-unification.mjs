@@ -30,6 +30,18 @@
 //      no Connecting the Dots essay, and no third per-issue verdict vocabulary.
 //   9. AND IT IS MEASURABLY SHORTER — first-paint visible text, counted on the shipped
 //      renderers against real data, with a budget that fails if the page regrows.
+//  10. ONE VERDICT PER ISSUE — Say-vs-Do and the Record-vs-Public-Picture bridge are
+//      merged into the row. The public record contributes receipts always and the
+//      verdict only where no formal action could test the issue, so two surfaces
+//      cannot grade the same issue differently.
+//  11. OFFICE LANES — exec, vote, and both, under ONE Official Record gateway. The
+//      both-lanes case is driven with a stub, because no shipped figure reaches it yet.
+//  12. STANCES & CONNECTIONS — the "what they stand for" layer: ranked by the locked
+//      priority, publishing no number of its own, connecting out to the score, the
+//      record and the evidence.
+//  13. EVIDENCE IS SHARED — counted per surface. Word vs Action rows, Stances &
+//      Connections, the Official Record's source links and Flashpoints must each
+//      carry evidence, so Flashpoints is never the only proof surface.
 //
 // Subjects: `trump` (executive lane) and `mike_johnson` (congressional lane, and one
 // of the twelve figures whose ranked rows lead with a real contradiction).
@@ -62,11 +74,17 @@ const FILES = [
   "consistency.js",
   "voting-record.js",
   "word-action.js",
+  "controversies.js",
 ];
 
 const win = makeSandbox();
 const sandbox = vm.createContext(win);
+// say-vs-do.js and controversies.js read window.PROFILES, which the app fills from
+// Firestore at runtime. The bundled roster is the same shape, so point it there
+// before the modules initialise or the receipt layer collects nothing.
+win.PROFILES = win.CMP_DATA;
 for (const f of FILES) vm.runInContext(R(f), sandbox, { filename: f });
+win.PROFILES = win.CMP_DATA;
 
 const CS = win.PDXConsistency;
 const WA = win.PDXWordAction;
@@ -74,6 +92,8 @@ const EUI = win.PDXExecRecordUI;
 
 const PF = R("profiles-full.js");
 const VR = R("voting-record.js");
+const CS_SRC = R("consistency.js");
+const CTV_SRC = R("controversies.js");
 
 const PRES = "trump";
 const REP = "mike_johnson";
@@ -275,11 +295,15 @@ for (const [who, pid] of [["president", PRES], ["member", REP]]) {
   for (let i = 1; i < ranked.length; i++) if (ranked[i].tier < ranked[i - 1].tier) mono = false;
   ok(mono, `${who}: ranked rows are not in tier order`);
   // Within the top tier, the deeper receipt pile wins — "best evidence first".
+  // The pile is `evidence.total`: formal actions PLUS public-record receipts. It
+  // used to be actions only, which tied every stance-with-no-action row at zero
+  // and made the locked "stance with strong evidence" priority indistinguishable
+  // from "stance only".
   const tested = ranked.filter((r) => r.tier === 1);
   let evMono = true;
   for (let i = 1; i < tested.length; i++) {
     if (tested[i].verdict.token === tested[i - 1].verdict.token &&
-        tested[i].evidence.count > tested[i - 1].evidence.count) evMono = false;
+        tested[i].evidence.total > tested[i - 1].evidence.total) evMono = false;
   }
   ok(evMono, `${who}: inside one verdict, a thinner row outranks a better-evidenced one`);
 }
@@ -559,6 +583,215 @@ section("9 · and it is measurably shorter");
   // And nothing was quietly deleted to achieve any of this.
   const kept = win.PDXExecRecord.actionsFor(PRES).kept.length;
   eq(allCards, kept, "the folded ledger does not carry every action on file — folding is not dropping");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · one verdict per issue — the Say-vs-Do merge");
+// ═════════════════════════════════════════════════════════════════════════════
+// 🧾 Say-vs-Do used to be its own section with its own per-issue verdict, over the
+// same issues the 🏛️ Official Record had already judged. Two verdicts for one issue
+// in one scroll is why a THIRD surface (Record vs. Public Picture) existed at all —
+// its entire job was refereeing the disagreement. The public record is now an INPUT
+// resolved on the row: it always contributes receipts, and it contributes the
+// verdict only where no formal action could test the issue.
+{
+  // The resolution is mutually exclusive by construction, not by convention.
+  const rowFn = CS_SRC.slice(CS_SRC.indexOf("function issueRow(pid, issueKey)"),
+                             CS_SRC.indexOf("function issueRows(pid, keys)"));
+  must(rowFn.length > 400, "issueRow moved — this section cannot verify the resolution");
+  eq((rowFn.match(/basis = 'public_record'/g) || []).length, 1,
+    "the public record is promoted to the row verdict in more than one place — one branch\n" +
+    "    is what makes the two systems unable to disagree");
+  ok(/actionJudged && tok !== 'limited'/.test(rowFn),
+    "the action branch no longer wins outright where a formal action exists — a formal\n" +
+    "    action is the test wherever a formal action can be the test");
+  ok(/pub\.count >= MIN_SAYDO_EVIDENCE/.test(rowFn),
+    "the public record can decide a row on a single receipt — thin evidence must not\n" +
+    "    carry a verdict the formal record was never able to reach");
+  ok(/flag` is deliberately NOT judgeable|flag` is deliberately/.test(CS_SRC) ||
+     !/pub\.token === 'flag'/.test(rowFn),
+    "a red flag can resolve a row's verdict — heat is Flashpoints' job, and promoting it\n" +
+    "    here lets a controversy card and a consistency row grade the same issue differently");
+
+  // Rendered, on both offices: the verdict a row publishes is one of its two inputs,
+  // never a third thing, and the basis says which.
+  for (const [who, pid] of [["president", PRES], ["member", REP]]) {
+    const rows = CS.issueRows(pid);
+    let bad = [];
+    for (const r of rows) {
+      const b = r.verdict.basis;
+      if (b !== null && b !== "action" && b !== "public_record") bad.push(`${r.key}: basis ${b}`);
+      if (b === "action" && r.verdict.token !== r.ov.token) bad.push(`${r.key}: action basis but token drifted`);
+      if (b === "public_record" && r.verdict.token !== r.public.token) bad.push(`${r.key}: public basis but token drifted`);
+      if (b === "public_record" && (r.ov.token === "consistent" || r.ov.token === "contradicts" || r.ov.token === "mixed"))
+        bad.push(`${r.key}: the public record overruled a formal action`);
+    }
+    ok(bad.length === 0, `${who}: a row's verdict does not trace to exactly one input — ${bad.join("; ")}`);
+    // Receipts are additive even where the verdict is not: the public pile always counts.
+    let evBad = rows.filter((r) => r.evidence.total !== r.evidence.actions + r.evidence.public);
+    ok(evBad.length === 0,
+      `${who}: evidence.total is not the combined pile — the public record must contribute\n` +
+      "    receipts on every row, including the ones a formal action decided");
+    // `scored` still means the ACTION side only. The Official Record splits its rows on
+    // this flag, so widening it would list issues with no formal record as scored.
+    let scoredBad = rows.filter((r) => r.scored && !r.ov.record && !r.ov.officialActions);
+    ok(scoredBad.length === 0,
+      `${who}: a row is marked scored with nothing formal behind it — the Official Record\n` +
+      "    splits on this flag and would list it as part of the record");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · office lanes — exec, vote, and both under one gateway");
+// ═════════════════════════════════════════════════════════════════════════════
+// One Official Record section, three behaviours. The lane strip and the both-offices
+// question appear only for a figure who actually served in both kinds of role, so a
+// single-lane profile carries no chrome for a lane it does not have.
+{
+  must(typeof CS.recordLanes === "function", "consistency.js no longer exports recordLanes");
+  const pl = CS.recordLanes(PRES), rl = CS.recordLanes(REP);
+  ok(pl.exec && !pl.vote && !pl.both, `the president is not on the executive lane alone (${JSON.stringify(pl)})`);
+  ok(rl.vote && !rl.exec && !rl.both, `the member is not on the vote lane alone (${JSON.stringify(rl)})`);
+  eq(pl.keys.join(","), "exec", "the president's lane keys are wrong");
+  eq(rl.keys.join(","), "vote", "the member's lane keys are wrong");
+
+  const execOnly = CS.officialRecordSectionHtml(PRES, PP);
+  const voteOnly = CS.officialRecordSectionHtml(REP, RP);
+  ok(!/pdxor-lanes/.test(execOnly), "the president gets a two-lane strip for a second lane he does not have");
+  ok(!/pdxor-lanes/.test(voteOnly), "the member gets a two-lane strip for an office he has not held");
+  has(execOnly, "When they could act on their own", "the executive lane lost its own section question");
+  has(voteOnly, "When they had to vote", "the congressional lane lost its own section question");
+
+  // BOTH LANES. No figure in the shipped roster has served in both kinds of office, so
+  // the case is driven rather than waited for: executive eligibility is stubbed onto a
+  // member who has a real vote lane, then removed. This is the only way to gate a
+  // branch the data cannot reach yet — and the branch has to be right the first day
+  // someone with both records is added.
+  const origEligible = win.PDXExecRecord.eligible;
+  const origSpine = win.PDXProfileSpine;
+  win.PDXProfileSpine = { hasTarget: (t) => t === "pdxsec-voting" };
+  try {
+    win.PDXExecRecord.eligible = (id) => id === PRES || id === REP;
+    const both = CS.officialRecordSectionHtml(REP, RP);
+    ok(/pdxor-lanes/.test(both), "a figure with both records gets no lane strip — the two lanes read as one undifferentiated pile");
+    has(both, "In both offices they have held", "the both-lanes section does not ask a both-lanes question");
+    has(both, "Executive actions", "the both-lanes strip does not name the executive lane");
+    has(both, "Roll-call votes", "the both-lanes strip does not name the roll-call lane");
+    eq((both.match(/id="pdxsec-official-record"/g) || []).length,
+       (voteOnly.match(/id="pdxsec-official-record"/g) || []).length,
+      "mounting both lanes mounted a second Official Record — the lanes go under ONE gateway");
+    ok(/pdxor-rawlink/.test(both),
+      "the full voting record link is stripped from a dual-service figure — the gate is the\n" +
+      "    LANE, not the office, and this reader is exactly the one for whom the roll-call\n" +
+      "    list is a second record rather than a category error");
+    // And the executive-only profile still never offers it.
+    win.PDXExecRecord.eligible = origEligible;
+    ok(!/pdxor-rawlink/.test(CS.officialRecordSectionHtml(PRES, PP)),
+      "the president is offered a full voting record he will never have");
+    ok(/pdxor-rawlink/.test(CS.officialRecordSectionHtml(REP, RP)),
+      "the member loses the full voting record link once the stub is removed");
+  } finally {
+    win.PDXExecRecord.eligible = origEligible;
+    win.PDXProfileSpine = origSpine;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("12 · stances & connections — what they stand for, ranked and connected");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  must(typeof CS.stancesSectionHtml === "function", "consistency.js no longer exports stancesSectionHtml");
+  for (const [who, pid] of [["president", PRES], ["member", REP]]) {
+    const st = CS.stancesSectionHtml(pid);
+    ok(st.length > 500, `${who}: the stance layer renders nothing`);
+    eq((st.match(/id="pdxsec-stances"/g) || []).length, 1, `${who}: the stance anchor is missing or duplicated`);
+    const rows = (st.match(/class="pdxst-row"/g) || []).length;
+    const model = CS.issueRows(pid).length;
+    eq(rows, model, `${who}: the rendered stance rows do not match the row model`);
+    // It publishes NO number. It shows the verdict the score already reached.
+    lacks(text(st).replace(/\d+ of \d+/g, ""), "%", `${who}: the stance layer prints a percentage — there is one score on a profile`);
+    // Ranked: the locked priority is tension, then consistent, then word-only, then
+    // action-only, then empty, and the section renders in that order.
+    const tiers = [...st.matchAll(/data-pdxst-tier="(\d)"/g)].map((m) => Number(m[1]));
+    let mono = true;
+    for (let i = 1; i < tiers.length; i++) if (tiers[i] < tiers[i - 1]) mono = false;
+    ok(mono, `${who}: the stance rows are not in ranked order`);
+    // The fold is keyed on the TIER, not on position in the list of non-empty groups.
+    // Slicing "the first two live groups" opened tested + everything-untested on a
+    // figure with no contradictions — 24 of 32 rows on the president, which is the
+    // wall this layer was built to replace.
+    const lidAt = st.indexOf("PDXSP:lid");
+    const openRows = (lidAt === -1 ? st : st.slice(0, lidAt)).match(/class="pdxst-row"/g) || [];
+    const testedRows = CS.issueRows(pid).filter((r) => r.tier === 0 || r.tier === 1).length;
+    eq(openRows.length, testedRows,
+      `${who}: the open stance rows are not exactly the tested ones — an empty group above\n` +
+      "    must never promote a folded one into the reader's path");
+    if (rows > testedRows) ok(lidAt !== -1, `${who}: the untested positions do not fold`);
+  }
+  // The connection out. A stance row that has been tested points at the score; a row
+  // with formal record points at the Official Record; a row with public receipts points
+  // at the Evidence drawer. That is what makes this the "connections" layer and not a
+  // second list of positions.
+  const stP = CS.stancesSectionHtml(PRES);
+  has(stP, "pdxsec-wordaction", "no stance row connects into Word vs Action");
+  has(stP, "pdxsec-official-record", "no stance row connects into the Official Record");
+  has(stP, "pdxsec-evidence", "no stance row connects into the Evidence drawer");
+  // Office-aware wording travels with the connection. Matched on the LINK LABEL, not
+  // on the section text: "Voter ID & Election Integrity" is an issue name, and a
+  // blanket search for "vote" would fail on the president's own stance titles.
+  has(stP, "on record", "the stance layer's record link does not say what is on record");
+  ok(/\d+ action(s)? on record/.test(stP),
+    "the president's stance rows do not count his record in actions");
+  ok(!/\d+ vote(s)? on record/.test(stP),
+    "the president's stance layer offers to show him votes");
+  ok(/\d+ vote(s)? on record/.test(CS.stancesSectionHtml(REP)) ||
+     CS.issueRows(REP).every((r) => r.evidence.actions === 0),
+    "the member's stance rows do not count his record in votes");
+  // Mounted once, in the signature stage, above Stance at a Glance.
+  eq((BODY.match(/PDXConsistency\.stancesSectionHtml\(id\)/g) || []).length, 1,
+    "the stance layer is mounted zero or twice in the profile body");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("13 · evidence is the shared proof layer, not a Flashpoints exhibit");
+// ═════════════════════════════════════════════════════════════════════════════
+// The brief: "Do not make Flashpoints the only evidence surface." Evidence has to
+// feed Word vs Action rows, Stances & Connections, Flashpoints, Official Record
+// source links and the Evidence drawer. Counted per surface, on real data, for both
+// offices — an unfed surface fails here rather than being asserted in prose.
+{
+  const srcLinks = (h) => (String(h || "").match(/href="https?:/g) || []).length;
+  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP]]) {
+    const wa = WA.sectionHtml(pid, p);
+    const st = CS.stancesSectionHtml(pid);
+    const or = CS.officialRecordSectionHtml(pid, p);
+    const ctv = win._renderControversies ? win._renderControversies(pid, p) : "";
+    const fed = {
+      "Word vs Action rows": (wa.match(/pdxwa-oc-meta/g) || []).length,
+      "Stances & Connections": (st.match(/pdxst-ev/g) || []).length,
+      "Official Record sources": srcLinks(or),
+      "Flashpoints": srcLinks(ctv),
+    };
+    for (const [surface, n] of Object.entries(fed)) {
+      ok(n > 0, `${who}: ${surface} carries no evidence — evidence is infrastructure, and a\n` +
+        "    surface that shows none is one the proof layer does not actually reach");
+    }
+    // Flashpoints is not the only door: it links OUT to the shared layer rather than
+    // owning it, and every other surface reaches the drawer independently.
+    ok(/pdxsec-evidence/.test(ctv), `${who}: a Flashpoint card does not link to the Evidence drawer`);
+    ok(/pdxsec-evidence/.test(st), `${who}: the stance layer does not reach the Evidence drawer`);
+    // ...and Flashpoints scores nothing. Asserted at the source, because a card body
+    // legitimately quotes a person's own "4–6% growth" pledge — the ban is on the
+    // section COMPUTING a rate, not on evidence containing one.
+    ok(!/%/.test(CTV_SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1")),
+      "controversies.js emits a percentage — Flashpoints is heat, not a second scoring system");
+    ok(!/pdxc-chip|pdxwa-/.test(ctv),
+      `${who}: a Flashpoint borrows the verdict-chip chrome — it would read as a per-issue grade`);
+  }
+  // The drawer itself is mounted once, in the receipts stage.
+  eq((BODY.match(/id="pdxsec-evidence"/g) || []).length, 1,
+    "the Evidence anchor is missing or duplicated in the profile body");
+  ok(/<!--PDXSP:receipts-->/.test(BODY), "the receipts stage sentinel is gone from the profile body");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

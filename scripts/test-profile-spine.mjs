@@ -105,9 +105,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 
 // ── 1. The order is the product ──────────────────────────────────────────────
 {
-  const want = ["identity", "brief", "verdict", "record", "tension", "signature", "receipts", "you", "money", "drawers"];
+  const want = ["identity", "brief", "verdict", "signature", "record", "tension", "receipts", "money", "you", "drawers"];
   ok(JSON.stringify(SP.STAGES.map((s) => s.key)) === JSON.stringify(want),
-     "order: STAGES is exactly the promised spine — identity, short version, verdict, record, tension, signature issues, receipts, you, money, full record");
+     "order: STAGES is exactly the promised spine — identity, short version, Word vs Action, stances, official record, flashpoints, evidence, money, you, full record");
   ok(SP.STAGES.every((s) => s.label && s.ask && /\?|\./.test(s.ask)),
      "order: every stage carries both a label and the reader question it answers");
   // Two rails asking the same question is a rail that has stopped orienting
@@ -122,10 +122,14 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "path: the judgment comes before the apparatus that produced it — findings before methods");
   ok(kAt("verdict") === kAt("brief") + 1,
      "path: the verdict is the first major surface after the letterhead and the brief");
-  ok(kAt("tension") < kAt("signature"),
-     "path: the sharpest contradiction is met before what the person is known for — a dossier, not a brochure");
-  ok(kAt("you") < kAt("money") && kAt("money") < kAt("drawers"),
-     "path: the reader's own stake precedes the follow-the-money tail, and the deep record still closes the profile");
+  // What they stand for now sits between the score and the record: the stances
+  // layer is what the Official Record is a test OF, so it has to be read first,
+  // and the flashpoints that follow are heat about specific stances rather than
+  // the reader's introduction to the person.
+  ok(kAt("signature") < kAt("record") && kAt("record") < kAt("tension"),
+     "path: stances precede the record that tests them, and the heat comes after both");
+  ok(kAt("money") < kAt("you") && kAt("you") < kAt("drawers"),
+     "path: the follow-the-money lens precedes the reader's own stake, and the deep record still closes the profile");
 
   // The whole point: source position must stop deciding reading position.
   const out = SP.assemble([
@@ -134,9 +138,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ["tension", "<i>T</i>"],
   ]);
   const at = (s) => out.indexOf(s);
-  ok(at("<i>I</i>") < at("<i>V</i>") && at("<i>V</i>") < at("<i>R</i>") &&
-     at("<i>R</i>") < at("<i>T</i>") && at("<i>T</i>") < at("<i>S</i>") &&
-     at("<i>S</i>") < at("<i>M</i>") && at("<i>M</i>") < at("<i>D</i>"),
+  ok(at("<i>I</i>") < at("<i>V</i>") && at("<i>V</i>") < at("<i>S</i>") &&
+     at("<i>S</i>") < at("<i>R</i>") && at("<i>R</i>") < at("<i>T</i>") &&
+     at("<i>T</i>") < at("<i>M</i>") && at("<i>M</i>") < at("<i>D</i>"),
      "order: assemble() emits stages in spine order regardless of the order they were handed in");
 
   const two = SP.assemble([["money", "<i>first</i>"], ["money", "<i>second</i>"]]);
@@ -384,8 +388,19 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     "dedupe: the Promise Tracker gateway is mounted in the modal body again — that is a\n" +
     "    second integrity product competing with Word vs Action for the same reader");
   once("PDXConsistency.officialRecordSectionHtml(id)", "the Official Record feed");
-  once("PDXConsistency.saydoSectionHtml(id)", "the Say-vs-Do feed");
-  once("PDXConsistency.divergenceSectionHtml(id)", "the record-vs-public-picture bridge");
+  once("PDXConsistency.stancesSectionHtml(id)", "the Stances & Connections layer");
+  // Say-vs-Do and the record-vs-public-picture bridge are mounted ZERO times by
+  // design. Say-vs-Do was a second per-issue verdict for the same issue, and the
+  // bridge existed only to referee the disagreement between the two. The public
+  // record is now an input resolved ON the issue row (PDXConsistency.issueRow),
+  // so there is one verdict per issue and nothing left for a referee to settle.
+  // Both exporters survive on PDXConsistency; nothing on a profile calls them.
+  ok(!/PDXConsistency\.saydoSectionHtml\(id\)/.test(PF),
+    "dedupe: the Say-vs-Do section is mounted in the modal body again — that is a second\n" +
+    "    per-issue verdict that can disagree with Word vs Action about the same issue");
+  ok(!/PDXConsistency\.divergenceSectionHtml\(id\)/.test(PF),
+    "dedupe: the record-vs-public-picture bridge is mounted again — it only ever refereed a\n" +
+    "    disagreement between two verdict systems, and there is only one verdict system now");
 
   // 6d. Massie. The profile this was designed against — and the one whose depth
   //     is now behind drawers instead of in front of the reader.
@@ -862,12 +877,12 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const pillAt = (t) => rail.indexOf("'" + t + "'");
   const pills = [
     ["pdxsec-wordaction", "verdict"],
+    ["pdxsec-positions", "signature"],
     ["pdxsec-official-record", "record"],
     ["pdxsec-controversies", "tension"],
-    ["pdxsec-positions", "signature"],
     ["pdxsec-evidence", "receipts"],
-    ["pdxsec-match", "you"],
     ["pdxsec-funding", "money"],
+    ["pdxsec-match", "you"],
     ["pdxsec-activity", "drawers"],
   ];
   pills.forEach((pill) => {
@@ -878,7 +893,15 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     if (pillAt(pills[i][0]) < pillAt(pills[i - 1][0])) monotonic = false;
   }
   ok(monotonic,
-     "rail: pills are pushed in the order a reader meets their sections — verdict, record, tension, signature, receipts, you, money, drawers");
+     "rail: pills are pushed in the order a reader meets their sections — verdict, stances, record, flashpoints, receipts, money, you, drawers");
+  // The stances pill aims at #pdxsec-positions, not #pdxsec-stances. Stances &
+  // Connections renders only when the row model has something to say, while the
+  // positions anchor is always mounted in the same stage — and _pdxNavJump bails
+  // silently on a missing id, so a pill aimed at the conditional anchor would be
+  // a dead pill on exactly the profiles with the least to show.
+  ok(!/'pdxsec-stances'/.test(rail),
+     "rail: a pill aims at #pdxsec-stances, an anchor that does not render on every profile —\n" +
+     "    _pdxNavJump no-ops on a missing target, so that pill dead-ends silently");
   ok(pillAt("pdxsec-wordaction") < pillAt("pdxsec-official-record"),
      "rail: Word vs Action still leads the rail, and now leads the page too");
   // The record stage used to carry THREE pills — "Promises" (a rate), "Record" (a
@@ -952,15 +975,16 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
       realStage[m[2]] = cur.startsWith("dw:") ? "drawers" : cur;
     }
   }
-  // Four anchors are emitted by other modules, so the template only shows the call.
+  // Five anchors are emitted by other modules, so the template only shows the call.
   // The stage of the call is the stage of the anchor.
   const external = [
     ["pdxsec-wordaction", "PDXWordAction.sectionHtml", "word-action.js"],
+    ["pdxsec-stances", "PDXConsistency.stancesSectionHtml", "consistency.js"],
     ["pdxsec-controversies", "_renderControversies", "controversies.js"],
     ["pdxsec-funding", "_pdxFundingSection", "index.html"],
   ];
   {
-    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|_renderControversies|_pdxFundingSection)\(/g;
+    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|PDXConsistency\.stancesSectionHtml|_renderControversies|_pdxFundingSection)\(/g;
     let m, cur = "identity";
     while ((m = re.exec(bodySrc)) !== null) {
       if (m[1]) { cur = m[1]; continue; }
@@ -974,7 +998,7 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   realStage["pdxsec-voting"] = "drawers";
 
   const anchors = Object.keys(realStage);
-  ok(anchors.length >= 18,
+  ok(anchors.length >= 17,
      "rail: the anchor scan found the profile's jump anchors (" + anchors.length + ")");
   let wrong = [];
   anchors.forEach((a) => {
@@ -1155,9 +1179,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //      order; it must not have quietly restated it.
   ok(!/var RAIL_ORDER|railSequence|PILL_ORDER/.test(SPS),
      "keep: there is no second ordered list of pills anywhere in the spine — STAGES plus the anchor registry is the whole declaration");
-  ok(SP.STAGE_KEYS.join(">") === "identity>brief>verdict>record>tension>signature>receipts>you>money>drawers",
-     "keep: and the stage order is the one phase 6 settled on — the record answers \"what did they do?\" immediately\n" +
-     "    after the verdict, rather than three stages later behind the contested and signature material");
+  ok(SP.STAGE_KEYS.join(">") === "identity>brief>verdict>signature>record>tension>receipts>money>you>drawers",
+     "keep: and the stage order is the locked spine — the score, then what they stand for, then the\n" +
+     "    record that tests it, then the heat, then the proof, and money stays a lens of its own at the tail");
 }
 
 

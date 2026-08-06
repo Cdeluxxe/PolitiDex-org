@@ -633,10 +633,16 @@ for (const card of CARDS) {
   for (const marker of [
     'id="pdxsec-official-record"',
     "window.PDXConsistency.officialRecordSectionHtml(id)",
-    'id="pdxsec-divergence"',
-    'id="pdxsec-saydo"',
     'id="pdxsec-voting"'
   ]) has(page, marker, `a congressional Official Record surface was disturbed: ${marker}`);
+  // #pdxsec-divergence and #pdxsec-saydo used to be checked here as congressional
+  // surfaces the EER work must not disturb. They are gone from every profile now:
+  // the public record resolves ON the issue row, so there is one per-issue verdict
+  // instead of two and nothing left for a divergence bridge to referee. The EER
+  // lane must not resurrect either anchor as a president-only consolation surface.
+  for (const gone of ['id="pdxsec-divergence"', 'id="pdxsec-saydo"'])
+    ok(!page.includes(gone),
+      `${gone} is mounted again — that is a second per-issue verdict competing with Word vs Action`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

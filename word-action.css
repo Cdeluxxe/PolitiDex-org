@@ -266,6 +266,58 @@
 .pdxwa-rows-go:hover,
 .pdxwa-rows-go:focus-visible { background: rgba(159, 219, 208, 0.16); }
 
+/* ── Per-issue consistency outcomes (the merged Say-vs-Do) ───────────────── */
+/* One line per issue, four buckets, no percentage of its own. The old 🧾 Say-vs-Do
+   section reprinted every receipt inline under every stance, which is where its
+   height came from; the receipts live in the Official Record row and the Evidence
+   drawer, so this surface only has to say WHICH WAY each issue came out. */
+.pdxwa-oc { margin-top: 0.85rem; }
+.pdxwa-oc-t {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+}
+.pdxwa-oc-sub {
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: #7f97b8;
+  margin: 0.15rem 0 0.5rem;
+}
+.pdxwa-oc-grp {
+  border-left: 2px solid var(--pdxwa-col, #9fb4d4);
+  padding-left: 0.55rem;
+  margin-bottom: 0.55rem;
+}
+.pdxwa-oc-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pdxwa-col, #9fb4d4);
+}
+.pdxwa-oc-n {
+  display: inline-block;
+  min-width: 1.05rem;
+  text-align: center;
+  font-size: 0.78rem;
+}
+.pdxwa-oc-l { list-style: none; margin: 0.2rem 0 0; padding: 0; }
+.pdxwa-oc-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.4rem;
+  align-items: baseline;
+  padding: 0.16rem 0;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+.pdxwa-oc-issue { color: #dbe6f5; font-weight: 600; }
+.pdxwa-oc-meta { color: #6f88ab; font-size: 0.68rem; }
+
 /* ── Method disclosure ──────────────────────────────────────────────────── */
 .pdxwa-method { margin-top: 0.6rem; }
 .pdxwa-method > summary {

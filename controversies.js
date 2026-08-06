@@ -1,12 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   PolitiDex — Biggest Controversies  ·  window._renderControversies
+   PolitiDex — Flashpoints  ·  window._renderControversies
    ────────────────────────────────────────────────────────────────────────────
-   A visually distinct, neutral, sourced "flashpoints" block on every politician
-   profile. For each official it surfaces the 2–4 most notable or divisive items
-   already on record — a say-vs-do gap, a broken promise, or a flagged event —
-   each with a plain-language summary, a Say-vs-Do verdict where one applies, a
-   link to the primary source, and one-tap jumps to the related Issue Spotlight,
-   voting record, and full receipt.
+   The high-heat block on every politician profile: the biggest contradictions,
+   red flags and public disputes already on record — a say-vs-do gap, a broken
+   promise, or a flagged event — capped at 3 cards, each with a plain-language
+   summary, a link to the primary source, and one-tap jumps out to the surfaces
+   that carry the verdict and the proof (⚖️ Word vs Action, 🏛️ Official Record,
+   the Evidence drawer, the related Issue Spotlight).
+
+   IT SCORES NOTHING. The verdict chip on a card names the kind of item it is; the
+   consistency outcome for that issue is resolved once, in the row model, and shown
+   in ⚖️ Word vs Action. This section is short and sharp on purpose.
 
    NO NEW DATA. Every entry is assembled, entirely client-side, from layers the
    app already ships:
@@ -232,6 +236,21 @@
     acts.push('<button type="button" class="pdx-ctv-act" ' +
       'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-official-record&quot;);">' +
       '<span aria-hidden="true">' + (_ctvExec ? '✍️' : '\u{1F3DB}️') + '</span> Official record</button>');
+    // The consistency row this card belongs to, and the shared proof layer behind it.
+    // A Flashpoint is heat, not a verdict: it never grades an issue itself, so the two
+    // links out are how a reader gets from "this was a fight" to "here is what the
+    // record actually says" (⚖️ Word vs Action) and "here is everything behind it"
+    // (the Evidence drawer). Without them this section reads as a second scoring
+    // system, which is exactly what it must not be.
+    if (it.issueKey) {
+      acts.push('<button type="button" class="pdx-ctv-act" ' +
+        'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-wordaction&quot;);" ' +
+        'title="' + escAttr('How this issue came out in the one score') + '">' +
+        '<span aria-hidden="true">⚖️</span> Word vs Action</button>');
+    }
+    acts.push('<button type="button" class="pdx-ctv-act" ' +
+      'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-evidence&quot;);">' +
+      '<span aria-hidden="true">🔗</span> Evidence</button>');
     // Source of record.
     if (it.source && it.source.url) {
       acts.push('<a class="pdx-ctv-act pdx-ctv-src" href="' + escAttr(it.source.url) + '" ' +
@@ -278,14 +297,21 @@
 
     return '' +
       '<span id="pdxsec-controversies" class="pdx-nav-anchor" aria-hidden="true"></span>' +
-      '<section class="modal-section pdx-ctv" aria-label="Biggest controversies">' +
+      '<section class="modal-section pdx-ctv" aria-label="Flashpoints">' +
         '<div class="pdx-ctv-head">' +
-          '<div class="modal-section-title pdx-ctv-title">⚠️ Biggest Controversies</div>' +
+          // 🔥 FLASHPOINTS, NOT "BIGGEST CONTROVERSIES". The old title named a
+          // category of thing; this one names the job. The section is heat only —
+          // the biggest contradictions, red flags and public disputes — and it grades
+          // nothing: every card links out to the ⚖️ Word vs Action row, the 🏛️
+          // Official Record and the Evidence drawer, which are where the verdict and
+          // the proof live. Kept deliberately short (3 cards) for the same reason.
+          '<div class="modal-section-title pdx-ctv-title">🔥 Flashpoints</div>' +
           '<span class="pdx-ctv-count">' + items.length + ' flashpoint' + (plural ? 's' : '') + '</span>' +
         '</div>' +
         '<p class="modal-section-sub pdx-ctv-note">' +
           'The sharpest ' + (plural ? 'items' : 'item') + ' on ' + esc(first) +
-          '’s public record. Inclusion reflects a documented gap or public attention, not a judgment.' +
+          '’s public record. Inclusion reflects a documented gap or public attention, not a judgment — ' +
+          'nothing here is scored, and every card links to the record and the evidence behind it.' +
         '</p>' +
         '<div class="pdx-ctv-list">' + cards + '</div>' +
       '</section>';

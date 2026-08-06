@@ -33,8 +33,10 @@
      ACTION (what they did) ────────────────────────────────────────────────────
        Roll-call votes, sponsorships and formal acts — the Official Record, via
        PDXConsistency.officialRecord(). Nothing from the broader public record
-       (interviews, news, social posts) is ever an ACTION here: that is Say-vs-Do's
-       lane, and blending the two would make the test unfalsifiable.
+       (interviews, news, social posts) is ever an ACTION in this percentage:
+       blending the two would make the test unfalsifiable. The public record is
+       reachable only on an issue row that no formal action could test at all —
+       see the outcomes block below — and it never enters this arithmetic.
 
    Hard pledges are TOP TIER INSIDE THIS SYSTEM, not a separate product lane. The
    Promise Follow-Through percentage that used to rate them separately has been
@@ -661,7 +663,7 @@
           '<p><b>Action</b> is the Official Record only — ' +
             (ex ? 'the laws they signed or vetoed, the executive orders and the formal directives on file. '
                 : 'roll-call votes, sponsorships and formal acts. ') +
-            'Interviews, news coverage and social posts are never counted as action here; they are word, or they belong to Say-vs-Do.</p>' +
+            'Interviews, news coverage and social posts are never counted as action in this percentage; they are word, or they are public-record context — and the public record decides an issue below only where no formal action exists to test it.</p>' +
           '<p><b>A position cannot be its own test.</b> Many of our position write-ups are drawn from the formal record — ' +
             (ex ? '“Signed Executive Order 14156”, cited to the Federal Register. Scoring that against the same order would return 100% for '
                 : '“Voted no on H.R. 8”, cited to the House Clerk. Scoring that against the same roll call would return 100% for ') +
@@ -683,9 +685,11 @@
   // Record percentage and a Say-vs-Do integrity percentage. Nothing on screen
   // said how they related, so a reader had to guess which one was "the" number.
   // This panel is that missing sentence, made navigable: every layer is named,
-  // told what it contributes, counted, and linked. Word tiers feed the number,
-  // the Official Record is the test, and Say-vs-Do is context that is explicitly
-  // NOT in the arithmetic — said out loud rather than left to inference.
+  // told what it contributes, counted, and linked. Word tiers feed the number and
+  // the Official Record is the test. Say-vs-Do is not listed here because it is
+  // no longer anywhere to link TO — it was merged into the issue rows in this
+  // same section, and a feed row pointing at the card the reader is already
+  // reading is not a feed, it is a loop.
   function jumpAttr(target) {
     var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
     return ' onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
@@ -736,11 +740,11 @@
           ? 'The test — laws signed or vetoed, orders and directives, judged issue by issue'
           : 'The test — roll-call votes and formal acts, judged issue by issue',
         n: c.tested + ' of ' + c.scorable + ' tested' });
-      if (window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') {
-        rows.push({ ico: '🧾', name: 'Say-vs-Do receipts', target: 'pdxsec-saydo', counted: false,
-          role: 'Supporting receipts and context — never folded into this percentage',
-          n: 'Detail' });
-      }
+      // THE "🧾 SAY-VS-DO RECEIPTS → #pdxsec-saydo" ROW IS GONE. It pointed at a
+      // section that no longer exists: the public record is an input to the issue rows
+      // in THIS section now (PDXConsistency.issueRow resolves it), not a feed sitting
+      // somewhere else on the page. A feed row whose destination is the card the
+      // reader is already looking at is not a feed, it is a loop.
       // The receipt layer, named as a feed rather than left to look like a
       // separate vault. It is context, not arithmetic: the Locker documents the
       // word and the actions above, and changes no number on this card. The count
@@ -800,6 +804,19 @@
     var one = (row.lane === 'exec') ? 'executive action' : 'vote';
     return n + ' ' + one + (n === 1 ? '' : 's');
   }
+  // What tested this row, in the row's own terms. A row resolved on the formal record
+  // counts the formal record; a row the formal record could not test counts the public
+  // record instead and says so. Only one of the two is ever printed, because only one
+  // of them was ever resolved — see PDXConsistency.issueRow.
+  function _didLine(r) {
+    if (r.verdict.basis === 'public_record') {
+      var n = r.evidence.public;
+      return n + ' sourced item' + (n === 1 ? '' : 's') + ' in the public record — no formal action tests this one' +
+        (typeof r.verdict.score === 'number' ? ' · ' + r.verdict.score + '% of them back the position' : '');
+    }
+    return _laneNoun(r, r.evidence.actions) + ' on record' +
+      (typeof r.verdict.score === 'number' ? ' · ' + r.verdict.score + '% of them back the position' : '');
+  }
   function topRowsHtml(pid) {
     try {
       var C = window.PDXConsistency;
@@ -812,7 +829,7 @@
       // but no quotable position is the mirror problem: "Backs it up / No position
       // stated" is not a Said → Did → Verdict chain, it is two thirds of one.
       var top = ranked.filter(function (r) {
-        return r.scored && r.evidence.count > 0 && !!r.stance.label;
+        return r.tested && r.evidence.total > 0 && !!r.stance.label;
       }).slice(0, TOP_ROWS_MAX);
       if (!top.length) return '';
       var rows = top.map(function (r) {
@@ -830,15 +847,13 @@
             '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Said</span>' +
               '<span class="pdxwa-row-v">' + esc(said) + '</span></div>' +
             '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Did</span>' +
-              '<span class="pdxwa-row-v">' + esc(_laneNoun(r, r.evidence.count)) + ' on record' +
-                (typeof r.verdict.score === 'number' ? ' · ' + r.verdict.score + '% of them back the position' : '') +
-              '</span></div>' +
+              '<span class="pdxwa-row-v">' + esc(_didLine(r)) + '</span></div>' +
             '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Receipts</span>' +
-              '<span class="pdxwa-row-v">' + esc(r.evidence.count + ' sourced item' + (r.evidence.count === 1 ? '' : 's') +
+              '<span class="pdxwa-row-v">' + esc(r.evidence.total + ' sourced item' + (r.evidence.total === 1 ? '' : 's') +
                 ' · ' + r.evidence.strength + ' evidence') + '</span></div>' +
           '</li>';
       }).join('');
-      var more = ranked.filter(function (r) { return r.scored; }).length - top.length;
+      var more = ranked.filter(function (r) { return r.tested; }).length - top.length;
       return '' +
         '<div class="pdxwa-rows">' +
           '<div class="pdxwa-rows-h">Where this number comes from — sharpest first</div>' +
@@ -848,6 +863,85 @@
               ? 'See the full breakdown — ' + more + ' more tested issue' + (more === 1 ? '' : 's') + ' →'
               : 'See the full breakdown →') +
           '</button>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // ── PER-ISSUE CONSISTENCY OUTCOMES — the merged Say-vs-Do ────────────────────
+  // 🧾 Say-vs-Do was a separate section with its own head, its own coverage line and
+  // its own per-issue verdict on issues the 🏛️ Official Record had already judged. Two
+  // grading systems in one scroll, refereed by a third section. It is now THIS: the
+  // consistency half of the one score, reading one verdict per issue off the row model
+  // that resolves both records (PDXConsistency.issueRow). Four outcomes, no percentage
+  // of its own, one line per issue — the receipts stay one tap away in the Official
+  // Record row and the Evidence drawer rather than being reprinted here at full depth,
+  // which is where the old section's height came from.
+  var OUTCOMES = [
+    { token: 'contradicts', label: 'Says one thing, does another', col: '#f89b9b' },
+    { token: 'mixed',       label: 'Mixed',                        col: '#93c5fd' },
+    { token: 'consistent',  label: 'Backed it up',                 col: '#6ee7a0' },
+    { token: 'limited',     label: 'Not enough record yet',        col: '#9fb4d4' }
+  ];
+  // A TOKEN SET, not a count of groups. "The first two live groups" quietly promoted
+  // whatever survived: a figure with no contradictions and no mixed rows had both
+  // remaining buckets opened, including the "not enough record yet" pile that exists
+  // precisely to be folded. Keyed on the outcome instead, an empty bucket above can
+  // never promote a folded one — with one fallback, below, so the block is never
+  // nothing but a fold header.
+  var OUTCOME_OPEN = { contradicts: 1, mixed: 1 };
+  function _outcomeRow(r) {
+    var bits = [];
+    if (r.evidence.total) bits.push(r.evidence.total + ' receipt' + (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength);
+    if (r.verdict.basis === 'public_record') bits.push('public record');
+    else if (r.evidence.actions) bits.push(_laneNoun(r, r.evidence.actions));
+    if (r.stance.label) bits.unshift(r.stance.label);
+    return '<li class="pdxwa-oc-row">' +
+        '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
+        (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
+      '</li>';
+  }
+  function outcomesHtml(pid) {
+    try {
+      var C = window.PDXConsistency;
+      if (!C || typeof C.issueRows !== 'function' || typeof C.rankIssueRows !== 'function') return '';
+      var ranked = C.rankIssueRows(C.issueRows(pid));
+      var buckets = {}, any = 0;
+      ranked.forEach(function (r) {
+        if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
+        // A "not enough record yet" row with nothing stated is pure coverage — an
+        // issue we track and they have not spoken on. That is not a consistency
+        // outcome and printing it here would pad the section with silence.
+        if (!r.stance.label && r.verdict.token === 'limited') return;
+        (buckets[r.verdict.token] = buckets[r.verdict.token] || []).push(r);
+        any++;
+      });
+      if (!any) return '';
+      var live = OUTCOMES.filter(function (o) { return (buckets[o.token] || []).length; });
+      var blockOf = function (o) {
+        var list = buckets[o.token];
+        return '<div class="pdxwa-oc-grp" style="--pdxwa-col:' + o.col + ';">' +
+            '<div class="pdxwa-oc-h"><span class="pdxwa-oc-n">' + list.length + '</span> ' + esc(o.label) + '</div>' +
+            '<ul class="pdxwa-oc-l">' + list.map(_outcomeRow).join('') + '</ul>' +
+          '</div>';
+      };
+      var isOpen = function (o) { return !!OUTCOME_OPEN[o.token]; };
+      var openGrps = live.filter(isOpen);
+      // Nothing sharp on file — open the highest-ranked bucket anyway, or the block
+      // reduces to a lid the reader has to guess is worth opening.
+      if (!openGrps.length) openGrps = live.slice(0, 1);
+      var lead = openGrps.map(blockOf).join('');
+      var restGrps = live.filter(function (o) { return openGrps.indexOf(o) === -1; });
+      var rest = '';
+      if (restGrps.length) {
+        var restN = restGrps.reduce(function (n, o) { return n + buckets[o.token].length; }, 0);
+        rest = '<!--PDXSP:lid id="wa-outcomes" label="Show ' + restN + ' more issue' +
+          (restN === 1 ? '' : 's') + ' — ' + restGrps.map(function (o) { return o.label.toLowerCase(); }).join(', ') +
+          '" defer-->' + restGrps.map(blockOf).join('') + '<!--PDXSP:/lid-->';
+      }
+      return '<div class="pdxwa-oc">' +
+          '<div class="pdxwa-oc-t">Issue by issue — did the record back the word?</div>' +
+          '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.') + '</div>' +
+          lead + rest +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -900,6 +994,7 @@
           '.' +
         '</div>' +
         topRowsHtml(pid) +
+        outcomesHtml(pid) +
         feedsHtml(pid, p, r) +
         methodHtml(r, pid);
 

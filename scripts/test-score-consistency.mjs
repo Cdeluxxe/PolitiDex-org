@@ -404,10 +404,13 @@ const [displayScore, promiseState] = (() => {
   ok(CONSISTENCY.indexOf('class="pdxc-gate-pct') === -1,
     "the gateway cards emit a pooled percentage again");
 
-  // Every supporting lane says, on the surface, which score it feeds.
-  eq(countOf(CONSISTENCY, "_feedsPrimaryHtml("), 4,
-    "expected one _feedsPrimaryHtml definition and one call from each of the three\n" +
-    "    supporting lanes (Official Record, Say-vs-Do, divergence) — a lane without\n" +
+  // Every supporting lane says, on the surface, which score it feeds. Four lanes
+  // now: Official Record, Stances & Connections, and the two unmounted exporters
+  // (Say-vs-Do, divergence) that still carry the line so they cannot be remounted
+  // as independent score widgets.
+  eq(countOf(CONSISTENCY, "_feedsPrimaryHtml("), 5,
+    "expected one _feedsPrimaryHtml definition and one call from each supporting lane\n" +
+    "    (Official Record, Stances & Connections, Say-vs-Do, divergence) — a lane without\n" +
     "    that line reads as an independent score widget again");
   const feeds = extractLocalFn(CONSISTENCY, "_feedsPrimaryHtml", "consistency.js");
   ok(/pdxsec-wordaction/.test(feeds),
