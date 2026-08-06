@@ -140,6 +140,16 @@
     });
   }
   function C() { return window.PDXConsistency || null; }
+  // The shared Mixed rule, borrowed rather than restated. Same function the issue
+  // rows use, so the pooled read at the top of a profile and the per-issue rows
+  // under it apply one definition of "split".
+  function _mixedGate(consistentScore, contradictScore) {
+    var cs = C();
+    if (cs && typeof cs.mixedGate === 'function') return cs.mixedGate(consistentScore, contradictScore);
+    if (typeof window._pdxMixedGate === 'function') return window._pdxMixedGate(consistentScore, contradictScore);
+    return contradictScore > consistentScore ? 'contradicts'
+         : consistentScore > contradictScore ? 'consistent' : 'no_position';
+  }
   function issueLabel(key) {
     try {
       var im = window.ISSUE_MAP || {};
@@ -425,6 +435,10 @@
     var tested = [], untested = [];
     var counts = { consistent: 0, contradicts: 0, mixed: 0, limited: 0 };
     var wSum = 0, wN = 0, warming = false, issueLinked = 0, derived = 0, scorable = 0;
+    // Weight on each side of the ledger, kept apart from wSum so the overall
+    // outcome can be put through the shared Mixed gate rather than flipping to
+    // "Mixed record" the instant one contradiction appears next to seven backings.
+    var consW = 0, contraW = 0;
     var tiers = {};
     TIER_ORDER.forEach(function (t) { tiers[t] = { key: t, total: 0, scorable: 0, tested: 0, weight: 0 }; });
 
@@ -442,6 +456,8 @@
         var w = it.weight * (t.evidence || 1);
         it.appliedWeight = w;
         wSum += t.score * w; wN += w;
+        if (t.token === 'consistent') consW += w;
+        else if (t.token === 'contradicts') contraW += w;
         bucket.tested++; bucket.weight += w;
         if (counts[t.token] === undefined) counts[t.token] = 0;
         counts[t.token]++;
@@ -454,10 +470,18 @@
     // The overall token comes from the OUTCOMES, not from the percentage — same
     // precedence PDXConsistency.scopedOverall uses, so a profile cannot read
     // "backs it up" here and "says one thing, does another" one section down.
+    //
+    // Both directions present no longer means "Mixed record" on its own. That
+    // reading turned a lopsided ledger — seven items backed, one broken — into a
+    // shrug, and it is the same soft middle the issue rows were tightened out of.
+    // The split goes through the SHARED gate (consistency.js → _pdxMixedGate), so
+    // a dominant side resolves outright and Mixed is reserved for a record that is
+    // genuinely pulling two ways.
     var outcomeToken;
-    if (counts.contradicts > 0 && counts.consistent > 0) outcomeToken = 'mixed';
-    else if (counts.contradicts > 0) outcomeToken = 'contradicts';
-    else if (counts.consistent > 0) outcomeToken = 'consistent';
+    if (counts.contradicts > 0 || counts.consistent > 0) {
+      outcomeToken = _mixedGate(consW, contraW);
+      if (outcomeToken === 'no_position') outcomeToken = 'limited';
+    }
     else if (counts.mixed > 0) outcomeToken = 'mixed';
     else if (warming) outcomeToken = 'pending';
     else if (items.length) outcomeToken = 'limited';
@@ -721,7 +745,7 @@
       var rows = [];
       var pledgeN = (t.pledge && t.pledge.total) || 0;
       if (pledgeN || (agg && agg.resolved)) {
-        rows.push({ ico: TIERS.pledge.ico, name: 'Promise receipts', target: 'pdxsec-score', counted: true,
+        rows.push({ ico: TIERS.pledge.ico, name: 'Pledges kept and broken', target: 'pdxsec-score', counted: true,
           role: 'Explicit pledges kept and broken — the top tier of this score, counting ' + TIERS.pledge.weight + '×',
           n: pledgeN ? (pledgeN + ' itemized') : (agg.resolved + ' resolved') });
       }

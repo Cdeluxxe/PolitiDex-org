@@ -507,7 +507,8 @@ if (vsAgainst && baseline) {
     `an opposing action lands in against (${baseline.issues.against} → ${vsAgainst.issues.against})`);
   ok(vsAgainst.issues.noActionFound === baseline.issues.noActionFound - 1,
     "the issue leaves coverage when an action for it arrives");
-  ok(/acted against it on 1/.test(vsAgainst.label), "the label reports the opposing action in words");
+  ok(new RegExp("acted against it on " + vsAgainst.issues.against).test(vsAgainst.label),
+    "the label reports the opposing action in words");
   // No citable standing on this fixture, so it must be DISCLOSED rather than assumed.
   ok(vsAgainst.unstatedStanding === 1, "an action with no citable standing is disclosed, not assumed in force");
   ok(/no confirmed standing on file/.test(vsAgainst.label), "the label discloses the uncited standing");
@@ -527,7 +528,13 @@ if (vsBoth && baseline) {
 
 setActions(ACTIONS); // teardown — every later read is back on the real seed
 const restored = EX.summary("trump");
-ok(restored.unstatedStanding === 0 && restored.issues.against === 0 && restored.issues.bothWays === 0,
+// Compared against the baseline taken before the first fixture, not against hard
+// zeros. The real seed DOES carry an `against` issue now — H.R. 1 tested against the
+// stated commitment to reduce the debt — and pinning zero here would quietly demand
+// that the seed never contain a contradiction.
+ok(restored.unstatedStanding === baseline.unstatedStanding &&
+   restored.issues.against === baseline.issues.against &&
+   restored.issues.bothWays === baseline.issues.bothWays,
   "fixtures torn down; the real seed is unchanged");
 
 /* ─── result ──────────────────────────────────────────────────────────────── */

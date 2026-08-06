@@ -1573,7 +1573,11 @@
   // alias, or a receipt object; returns '' when there is no receipt on record so
   // callers can render nothing rather than an empty badge. The label is shortened
   // to fit a tight dropdown row; the full verdict stays in the tooltip.
-  var _shortVerdict = { contradicts: 'Contradiction', consistent: 'Kept word', flag: 'Red flag' };
+  // 'Kept word' used to sit in the consistent slot. It was the retired pledge
+  // metric's name wearing the receipt layer's clothes, and a reader who met it in
+  // a dropdown and then met ⚖️ Word vs Action on the profile had two names for one
+  // idea. These are the shared verdict names, shortened — nothing else.
+  var _shortVerdict = { contradicts: 'Contradiction', consistent: 'Backs it up', flag: 'Red flag' };
   function verdictBadge(idOrReceipt) {
     var r = (idOrReceipt && idOrReceipt.verdict) ? idOrReceipt : forPolitician(idOrReceipt);
     if (!r) return '';

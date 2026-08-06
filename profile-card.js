@@ -14,14 +14,21 @@
 // So this module renders the whole read, in the site's own hierarchy:
 //
 //   1. ONE signal, in plain language — ⚖️ Word vs Action's verdict: does what
-//      they say match what they do? Words, not a percentage. Word vs Action's
-//      pooled figure is real and is published in the app beside its own
-//      coverage disclosure, but a bare "68%" travelling alone on an image, with
-//      no denominator next to it, is precision the card cannot support. The
-//      verdict already fails closed (word-action.js Rule 4) and it survives
-//      being screenshotted.
+//      they say match what they do? On the SHARE IMAGE the verdict travels
+//      alone, in words: Word vs Action's pooled figure is real and is published
+//      in the app beside its own coverage disclosure, but a bare "68%" on an
+//      image with no denominator next to it is precision the canvas cannot
+//      support. The verdict already fails closed (word-action.js Rule 4) and it
+//      survives being screenshotted. The IN-APP hero card is the other case and
+//      carries the percentage: it prints the coverage line and the issue-row
+//      breakdown directly underneath, the number never leaves its denominator,
+//      and a homepage card that hid the score while the profile led with it was
+//      two different summaries of one person. `brief().pct` serves the app card;
+//      the canvas ignores it on purpose.
 //   2. The breakdown underneath it as COUNTS — backed up / mixed /
-//      contradicted — plus a proportional bar, so the verdict shows its work.
+//      contradicted — off the shared per-issue tally in consistency.js, so the
+//      card's split is the profile's split, plus a proportional bar so the
+//      verdict shows its work.
 //   3. Coverage, stated outright: how much word is on file, how much record it
 //      was tested against, how much of it is testable at all. A thin profile
 //      says it is thin on the card rather than shipping a confident stamp.
@@ -198,6 +205,26 @@
     return out;
   }
 
+  // The card's counts, read off the profile's own issue rows via the shared tally.
+  // One verdict engine, one set of numbers: whatever the profile marks Mixed is
+  // what this reports Mixed. Falls back to the Word vs Action item counts only if
+  // consistency.js is not loaded — and even then it will not fold thin coverage
+  // into mixed, because that is a reinterpretation and not a fallback.
+  function tallyBreakdown(pid, counts) {
+    var cs = CS();
+    if (cs && typeof cs.verdictTally === 'function') {
+      try {
+        var t = cs.verdictTally(pid);
+        if (t) return { consistent: t.consistent, mixed: t.mixed, contradicts: t.contradicts };
+      } catch (e) { /* fall through to the item counts */ }
+    }
+    return {
+      consistent: (counts && counts.consistent) || 0,
+      mixed: (counts && counts.mixed) || 0,
+      contradicts: (counts && counts.contradicts) || 0
+    };
+  }
+
   // The whole card, as data. Null only when there is no documented word at all —
   // a report card on nothing is not a thin card, it is a fabrication.
   //
@@ -226,6 +253,11 @@
     var nStances = items.length - nPledges - nBranding;
     var v = r.verdict || (CS() && CS().VERDICTS ? CS().VERDICTS.no_record : null);
     var tone = (v && v.tone) || 'muted';
+    // Read once, here, and never again in this module — the share canvas must not be
+    // able to reach the pooled rate even by accident (see the header, and the
+    // allowlist in scripts/test-profile-card.mjs that pins this to a single read).
+    var wPct = r.pct;
+    if (typeof wPct !== 'number') wPct = null;
 
     return {
       pid: pid,
@@ -239,12 +271,21 @@
       // still looking rather than stamping a verdict on one tested item.
       publishable: !!r.publishable,
       signal: signalLine(r, v),
+      // ── the score ──
+      // The same Word vs Action percentage the profile prints, from the same read.
+      // Null below the publishable floor, so a card never stamps a number on one
+      // tested item. The HTML card renders it next to the coverage line that gives
+      // it a denominator; the share canvas still does not (see the header note) —
+      // the number travels away from its denominator there, and here it does not.
+      pct: wPct,
       // ── the breakdown, as counts ──
-      breakdown: {
-        consistent: counts.consistent || 0,
-        mixed: (counts.mixed || 0) + (counts.limited || 0),
-        contradicts: counts.contradicts || 0
-      },
+      // Issue rows, straight off the shared tally in consistency.js — the exact
+      // objects the profile prints one line per. This used to count word ITEMS from
+      // the Word vs Action read, a different denominator entirely, which is how the
+      // card could say "0 mixed" over a profile showing two Mixed issues. It also
+      // used to fold `limited` into `mixed`, reporting thin coverage as a split
+      // record; thin is not Mixed and is no longer counted as it.
+      breakdown: tallyBreakdown(pid, counts),
       // ── coverage ──
       // How much word is on file and where it came from. `pledges` is a count of
       // SAID material, alongside stances — not a verdict on any of it, and not a

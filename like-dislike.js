@@ -946,9 +946,9 @@
     } catch (e) {}
 
     ov.innerHTML =
-      '<div class="pdx-pinfo-card" role="dialog" aria-modal="true" aria-label="How promise receipts work">' +
+      '<div class="pdx-pinfo-card" role="dialog" aria-modal="true" aria-label="How the pledge ledger works">' +
         '<div class="pdx-pinfo-head">' +
-          '<div class="pdx-pinfo-title">🤝 How <span>promise receipts</span> work</div>' +
+          '<div class="pdx-pinfo-title">🤝 How the <span>pledge ledger</span> works</div>' +
           '<button class="pdx-pinfo-close" onclick="window._pdxClosePromiseInfo()" aria-label="Close">✕</button>' +
         '</div>' +
         '<div class="pdx-pinfo-formula">' +

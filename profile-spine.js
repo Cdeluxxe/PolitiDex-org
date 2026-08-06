@@ -753,9 +753,12 @@
     // exactly when its stage has content, so a chip can be checked for a live
     // destination — see prune() — rather than silently scrolling nowhere the way
     // a chip aimed at a self-gating section's anchor would.
+    // Chip labels are the STAGE names, not the names of sections that used to sit
+    // in them. This middle chip read "Say vs. do" — a retired peer product, named
+    // above the fold, pointing at the shared evidence layer that replaced it.
     var jumps = [
       { t: 'pdxsp-record',   ico: '🏛️', l: 'Official record' },
-      { t: 'pdxsp-receipts', ico: '🧾', l: 'Say vs. do' },
+      { t: 'pdxsp-receipts', ico: '🧾', l: 'Evidence' },
       { t: 'pdxsp-money',    ico: '💰', l: 'Money' }
     ].map(function (j) {
       return '<button type="button" class="pdxbr-jump" data-pdxbr-to="' + escAttr(j.t) + '"' +

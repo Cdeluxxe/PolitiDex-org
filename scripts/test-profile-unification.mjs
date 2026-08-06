@@ -79,6 +79,10 @@ const FILES = [
   "voting-record.js",
   "word-action.js",
   "controversies.js",
+  // Sections 15–16 read the homepage card and the first screen through the shipped
+  // renderers, so the two surfaces that paint them load here too.
+  "profile-card.js",
+  "profile-spine.js",
 ];
 
 const win = makeSandbox();
@@ -101,8 +105,11 @@ const CTV_SRC = R("controversies.js");
 
 const PRES = "trump";
 const REP = "mike_johnson";
+const THIRD2 = "massie";
 const PP = win.CMP_DATA[PRES];
 const RP = win.CMP_DATA[REP];
+const MP2 = win.CMP_DATA[THIRD2];
+const SP2 = win.PDXProfileSpine;
 
 let pass = 0;
 const fails = [];
@@ -509,10 +516,15 @@ ok(!/pledge:\s*pledgeLedger/.test(PF),
     "    the controversies jump would both land nowhere");
   ok(/PROMISE RECEIPTS NO LONGER MOUNTS HERE/.test(PF),
     "the note recording where Promise Receipts went is gone, so it will be remounted");
-  // The score still names the lane as an input, and still routes to it.
+  // The score still names the lane as an input, and still routes to it — but by what
+  // the lane IS, not by the name of the retired peer product. "Promise receipts" in a
+  // methodology list is the product coming back through the back door of an input row.
   const feeds = WA.feedsHtml ? WA.feedsHtml(PRES, PP) : "";
-  has(feeds, "Promise receipts",
+  has(feeds, "Pledges kept and broken",
     "the score's feeds panel no longer names the pledge lane — demoting an input must not hide it");
+  lacks(feeds, "Promise receipts",
+    "the feeds panel names the retired 🤝 Promise Receipts product again — an input row is allowed\n" +
+    "    to name the pledge lane, but not to re-mint it as a second product on the way past");
 }
 
 // 8d. Connecting the Dots is unmounted. Its joined rows, its five-link chain and its
@@ -829,7 +841,7 @@ section("14 · one verdict VOCABULARY per issue — the Flashpoints boundary");
   // Flashpoints may not speak in this vocabulary at all.
   const WA_VOCAB = /says one thing|backs? it up|backed it up|words match actions|mixed record|not enough record/i;
 
-  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP], ["member2", THIRD, MP]]) {
+  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP], ["member2", THIRD2, MP2]]) {
     const items = win._pdxControversyItems(pid, p) || [];
     const rows = {};
     (CS.issueRows(pid) || []).forEach((r) => { rows[r.key] = r; });
@@ -894,7 +906,7 @@ section("14 · one verdict VOCABULARY per issue — the Flashpoints boundary");
   // ── folds, on all three ──
   // Budgets, not snapshots: they fail when a fold stops folding, not when the data
   // grows. A stance layer that opens most of its rows is the wall it exists to replace.
-  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP], ["member2", THIRD, MP]]) {
+  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP], ["member2", THIRD2, MP2]]) {
     const st = CS.stancesSectionHtml(pid);
     const total = (st.match(/data-pdxst-tier=/g) || []).length;
     const open = (st.split("<!--PDXSP:lid")[0].match(/data-pdxst-tier=/g) || []).length;
@@ -906,6 +918,205 @@ section("14 · one verdict VOCABULARY per issue — the Flashpoints boundary");
     ok(orTotal <= 6 || orOpen < orTotal,
       `${who}: the Official Record shows all ${orTotal} rows at once — the long list must fold after the top items`);
   }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("15 · one verdict engine, and a narrow Mixed");
+// ═════════════════════════════════════════════════════════════════════════════
+// The homepage card and the profile were reading the same record through two
+// different units: the card counted word ITEMS out of PDXWordAction, the profile
+// printed issue ROWS out of PDXConsistency. On Trump that produced a card reading
+// "0 mixed" over a profile showing Mixed rows, and a card that led with a label
+// where the profile led with a percentage. Both surfaces now read one tally over
+// one row set, and one gate decides when a record is allowed to read Mixed.
+
+// 15a. ONE TALLY. The card's breakdown is the profile's row tally — not a
+//      re-derivation of it, and not the word-item counts it used to be.
+{
+  const PC = win.PDXProfileCard;
+  must(PC && typeof PC.brief === "function", "profile-card.js no longer exposes brief()");
+  must(typeof CS.verdictTally === "function",
+    "consistency.js no longer exports verdictTally — the one tally the card and the profile share");
+  for (const [who, pid] of [["president", PRES], ["member", REP], ["member2", THIRD2]]) {
+    const b = PC.brief(pid);
+    const t = CS.verdictTally(pid);
+    must(b && b.breakdown && t, `${who}: the card brief or the row tally did not build`);
+    eq(b.breakdown.consistent, t.consistent, `${who}: card 'backed' count ≠ the profile's backed rows`);
+    eq(b.breakdown.mixed, t.mixed, `${who}: card 'mixed' count ≠ the profile's Mixed rows`);
+    eq(b.breakdown.contradicts, t.contradicts, `${who}: card 'contradicted' count ≠ the profile's contradicted rows`);
+    // …and the tally is really counting the rows the Official Record prints.
+    const rows = CS.issueRows(pid) || [];
+    const printed = { consistent: 0, mixed: 0, contradicts: 0 };
+    rows.forEach((r) => {
+      const tok = r && r.verdict && r.verdict.token;
+      if (tok === "consistent" || tok === "mixed" || tok === "contradicts") printed[tok]++;
+    });
+    eq(t.consistent, printed.consistent, `${who}: verdictTally invented backed rows the row model does not have`);
+    eq(t.mixed, printed.mixed, `${who}: verdictTally invented Mixed rows the row model does not have`);
+    eq(t.contradicts, printed.contradicts, `${who}: verdictTally invented contradicted rows the row model does not have`);
+  }
+  // The specific reinterpretation that caused the mismatch: thin coverage folded
+  // into the card's Mixed bucket, so a card said "Mixed" where the profile said
+  // "not enough record yet". A surface may not re-bucket a verdict it did not make.
+  const PC_SRC = R("profile-card.js");
+  ok(!/mixed:\s*\([^)]*counts\.mixed[^)]*\)\s*\+/.test(PC_SRC) &&
+     !/counts\.mixed[^\n]*counts\.limited/.test(PC_SRC),
+    "profile-card.js folds thin coverage into the card's Mixed count again — a homepage card that\n" +
+    "    calls a coverage gap 'Mixed' is a second verdict system wearing the first one's numbers");
+  ok(/verdictTally/.test(PC_SRC),
+    "profile-card.js stopped reading the shared tally, so the card is deriving its own counts again");
+}
+
+// 15b. THE CARD CARRIES THE SCORE. The homepage card led with a label over a mini
+//      breakdown and never showed the number the profile leads with, so the two
+//      read as different products. The percentage is the card's, from the same read.
+{
+  const PC = win.PDXProfileCard;
+  const b = PC.brief(PRES);
+  const r = WA.read(PRES, PP);
+  must(b && r, "the card brief or the word-vs-action read did not build for the president");
+  eq(typeof b.pct, "number", "the president's card brief carries no percentage — the card and the profile\n" +
+    "    summarise the same record and must lead with the same figure");
+  eq(b.pct, r.pct, "the card's percentage is not ⚖️ Word vs Action's — a second number computed a second way");
+  const HS = R("hero-showcase.js");
+  ok(/d\.pct/.test(HS) && /word matched by action/.test(HS),
+    "the homepage card no longer paints brief().pct under the ⚖️ Word vs Action eyebrow");
+  ok(/Word vs Action/.test(HS) && !/Kept word|Promise Receipts|Say vs\. ?Do/i.test(HS),
+    "a retired integrity product is named on the homepage card — Word vs Action is the only score language");
+}
+
+// 15c. MIXED IS NARROW. One gate, exported, and it will not mint Mixed for a clear
+//      break or for thin evidence. The dominance threshold is the contract: at or
+//      above it the dominant direction IS the verdict.
+{
+  must(typeof CS.mixedGate === "function", "consistency.js no longer exports the shared Mixed gate");
+  must(typeof win._pdxMixedGate === "function", "stance-helpers.js no longer publishes the shared Mixed gate");
+  eq(CS.mixedGate, win._pdxMixedGate === CS.mixedGate ? CS.mixedGate : CS.mixedGate,
+    "guard: the gate is callable");
+  const g = CS.mixedGate;
+  eq(g(0, 0), "no_position", "the gate mints a verdict from nothing");
+  eq(g(100, 0), "consistent", "an all-backing record does not read as backed");
+  eq(g(0, 100), "contradicts", "an all-breaking record does not read as broken");
+  eq(g(50, 50), "mixed", "a genuinely even split does not read as Mixed — Mixed must still be reachable");
+  // The soft middle: a clear break with a token amount of agreement beside it.
+  eq(g(10, 90), "contradicts",
+    "a record that breaks the claim 9 times out of 10 reads as Mixed — this is the soft landing the\n" +
+    "    tightened rule exists to close");
+  eq(g(90, 10), "consistent", "the same leniency in the other direction — a mostly-kept record hedged into Mixed");
+  // The threshold itself, pinned from both sides so it cannot drift silently.
+  const D = win._PDX_MIXED_DOMINANCE;
+  eq(D, 2 / 3, "the Mixed dominance threshold moved");
+  eq(g(0, 2), "contradicts", "exactly at the threshold the dominant direction must win outright");
+  eq(g(2, 1), "consistent", "exactly at the threshold the dominant direction must win outright");
+  eq(g(3, 2), "mixed", "just under the threshold the record is genuinely split and must say so");
+}
+
+// 15d. THE SOFT-MIDDLE PATHS ARE GONE FROM THE SOURCE. A gate only holds if nothing
+//      routes around it. These are the three branches that used to mint Mixed
+//      without ever weighing the two directions against each other.
+{
+  const SH = R("stance-helpers.js");
+  const sumAt = SH.indexOf("function _issueRecordSummary");
+  must(sumAt !== -1, "stance-helpers.js no longer defines _issueRecordSummary");
+  const ladder = SH.slice(SH.indexOf("var netVerdict", sumAt), SH.indexOf("var netVerdict", sumAt) + 500);
+  must(ladder.length > 60, "could not isolate the netVerdict ladder");
+  ok(/_pdxMixedGate\(/.test(ladder),
+    "the per-issue verdict ladder no longer routes through the shared Mixed gate");
+  ok(!/counts\.mixed\s*>\s*0\s*\?\s*'mixed'/.test(ladder),
+    "a record with no directional evidence can be called Mixed again — thin is not split");
+  ok(!/stance\s*===\s*'mixed'\s*\)?\s*netVerdict\s*=\s*'mixed'/.test(ladder.replace(/\s+/g, " ")),
+    "a non-directional stance short-circuits to Mixed again without ever reading the record — this is how\n" +
+    "    an unrelated shutdown card soft-pedalled a deficit-increasing law into Mixed");
+  const WSRC = R("word-action.js");
+  ok(/_mixedGate\(consW, contraW\)/.test(WSRC),
+    "the overall outcome no longer weighs the two directions through the shared gate");
+  ok(/mixedGate\(consW, contraW\)/.test(CS_SRC),
+    "consistency.js's scoped overall no longer weighs the two directions through the shared gate");
+}
+
+// 15e. AND ON REAL DATA: no subject carries a Mixed row that the gate would not
+//      have minted, and the president's clearest break reads as one.
+{
+  const nd = (CS.issueRows(PRES) || []).find((r) => r.key === "national_debt");
+  must(nd, "the president's national_debt row is gone — the re-judged row cannot be checked");
+  eq(nd.verdict.token, "contradicts",
+    "national_debt reads as something other than a contradiction. The tested formal action is a law\n" +
+    "    nonpartisan scorekeeping says adds trillions to the deficit, checked against a stated commitment\n" +
+    "    to reduce the debt, with no debt-reducing action of comparable weight beside it");
+  eq(nd.verdict.basis, "action", "the national_debt verdict is not resting on a formal action");
+  ok(nd.evidence && nd.evidence.count > 0, "the national_debt contradiction ships without a receipt");
+  for (const [who, pid] of [["president", PRES], ["member", REP], ["member2", THIRD2]]) {
+    (CS.issueRows(pid) || []).forEach((r) => {
+      if (!r || !r.verdict || r.verdict.token !== "mixed") return;
+      // A Mixed row must be able to point at both directions. A row whose score is
+      // 0 or 100 is not split — it is a clear verdict wearing a hedge.
+      const s = r.verdict.score;
+      ok(typeof s === "number" && s > 0 && s < 100,
+        `${who}: ${r.key} reads Mixed at ${s}% — a one-sided record labelled Mixed`);
+    });
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("16 · the residual copy is gone from the surfaces that render it");
+// ═════════════════════════════════════════════════════════════════════════════
+// Source greps miss copy assembled at render time and flag comments that exist to
+// record a removal. These run the shipped renderers and read the visible text.
+{
+  const RETIRED = [
+    ["kept word", "the retired pledge rate's name"],
+    ["promise receipts", "the retired peer product"],
+    ["say vs. do", "the retired peer product"],
+    ["say-vs-do integrity", "a second integrity percentage"],
+    ["record vs public picture", "the retired bridge"]
+  ];
+  const surfaces = (pid, p) => ({
+    "the brief": SP2 ? SP2.briefHtml(pid, p) : "",
+    "the score's feeds panel": WA.feedsHtml(pid, p),
+    "the Word vs Action section": WA.sectionHtml(pid, p),
+    "the Official Record": CS.officialRecordSectionHtml(pid, p),
+    "Stances & Connections": CS.stancesSectionHtml(pid, p),
+    "the methodology sheet": CS.methodologyHtml(pid)
+  });
+  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP], ["member2", THIRD2, MP2]]) {
+    for (const [name, html] of Object.entries(surfaces(pid, p))) {
+      const t = text(html).toLowerCase();
+      for (const [needle, why] of RETIRED) {
+        ok(t.indexOf(needle) === -1,
+          `${who}: ${name} prints “${needle}” — ${why}. ⚖️ Word vs Action is the only integrity score language`);
+      }
+    }
+  }
+  // The methodology sheet is shared, so both lanes are always described — but it is
+  // handed the pid and must lead with the lane the office actually produces.
+  const mExec = CS.methodologyHtml(PRES);
+  const mRep = CS.methodologyHtml(REP);
+  const mBare = CS.methodologyHtml();
+  ok(mExec.indexOf("White House") !== -1 && mExec.indexOf("White House") < mExec.indexOf("in Congress"),
+    "the president's methodology sheet still opens by telling them their score comes from roll-call votes");
+  has(mExec, "no roll-call votes", "the exec sheet dropped the row that says a president casts none");
+  ok(mRep.indexOf("Official Record %") !== -1 && mRep.indexOf("Presidents and the formal record") !== -1,
+    "a member's methodology sheet lost a lane — both are always described, only the order changes");
+  has(mBare, "roll-call votes and formal actions",
+    "the pid-less sheet (the hub, the showcase, a shared card's footer) lost the congressional lane");
+  for (const [nm, m] of [["exec", mExec], ["member", mRep], ["bare", mBare]]) {
+    lacks(m, "Promise Tracker", `${nm} methodology: the retired gateway is named as the sheet's own eyebrow`);
+    lacks(m, "Two separate reads", `${nm} methodology: the sheet still promises two integrity reads`);
+    lacks(m, "Why two separate scores", `${nm} methodology: the sheet still frames two scores side by side`);
+    has(m, "When a record reads Mixed", `${nm} methodology: the tightened Mixed rule is not written down`);
+  }
+  // The "How this profile was checked" line promises what every figure traces to.
+  // For a president that promise cannot include a roll call.
+  const verifyAt = PF.indexOf('id="pdxsec-verify"');
+  must(verifyAt !== -1, "the verify block moved");
+  const verify = PF.slice(verifyAt, verifyAt + 1600);
+  ok(/PDXExecRecord[\s\S]{0,200}eligible\(id\)/.test(verify),
+    "“How this profile was checked” is not office-aware — it promises a president that every figure on\n" +
+    "    their profile traces to a roll-call vote, which is the one thing the office does not produce");
+  has(verify, "a signed law, an executive order", "the exec branch of that promise names no executive lane");
+  // …and the sheet it opens is handed the pid, or the office-awareness stops at the button.
+  ok(/openMethodology\(null,'/.test(verify),
+    "the verify button opens the methodology sheet with no pid, so the sheet cannot lead with the right lane");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

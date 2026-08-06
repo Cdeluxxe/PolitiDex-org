@@ -149,11 +149,18 @@
            'onerror="this.classList.add(\'pdx-hs-face-gone\')">';
   }
 
-  // The one signal. Glyph, words and colour are the verdict's own, never re-picked
-  // here. The waiting state uses VERDICTS.pending for the same reason consistency.js
-  // keeps ONE phrase for one wait: this card, the profile's Voting Record Highlights
-  // and word-action.js can all be waiting on the same fetch, and three wordings for
-  // one fetch reads as three different states.
+  // The one signal — and the same number the profile leads with. The card and the
+  // profile are one product, so a reader who taps through from here must land on the
+  // figure they just read, not a second summary of the same person. The percentage
+  // is the Word vs Action score straight off PDXProfileCard.brief(); it is null
+  // below the publishable floor, and when it is null the card shows the verdict
+  // words alone rather than inventing a number.
+  //
+  // Glyph, words and colour are the verdict's own, never re-picked here. The waiting
+  // state uses VERDICTS.pending for the same reason consistency.js keeps ONE phrase
+  // for one wait: this card, the profile's Voting Record Highlights and
+  // word-action.js can all be waiting on the same fetch, and three wordings for one
+  // fetch reads as three different states.
   function signalHtml(d) {
     var CS = window.PDXConsistency;
     var pend = (CS && CS.VERDICTS && CS.VERDICTS.pending) || null;
@@ -161,9 +168,18 @@
     var ico = (v && v.ico) || '⏳';
     var label = (v && v.label) || 'Loading the record…';
     var tint = d && d.publishable && d.accent ? d.accent : '';
+    var pct = (d && typeof d.pct === 'number') ? d.pct : null;
+    // The score leads; the plain-language verdict sits directly under it so the
+    // number is never left to speak for itself.
+    var scoreHtml = (pct === null) ? '' :
+      '<div class="pdx-hs-sig-score"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
+        '<span class="pdx-hs-sig-pct">' + pct + '<span class="pdx-hs-sig-pct-u">%</span></span>' +
+        '<span class="pdx-hs-sig-pct-k">word matched by action</span>' +
+      '</div>';
     return '' +
-      '<div class="pdx-hs-signal' + (d && d.publishable ? ' is-pub' : '') + '">' +
+      '<div class="pdx-hs-signal' + (d && d.publishable ? ' is-pub' : '') + (pct === null ? '' : ' has-score') + '">' +
         '<div class="pdx-hs-sig-eyebrow">⚖️ Word vs Action</div>' +
+        scoreHtml +
         '<div class="pdx-hs-sig-read"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
           '<span class="pdx-hs-sig-ico" aria-hidden="true">' + esc(ico) + '</span>' +
           '<span class="pdx-hs-sig-label">' + esc(label) + '</span>' +
@@ -172,9 +188,10 @@
       '</div>';
   }
 
-  // Counts plus a proportional bar — the verdict showing its work. Never a
-  // percentage: a rate needs its denominator beside it, and the denominator is the
-  // coverage line directly below.
+  // Counts plus a proportional bar — the score showing its work. These are ISSUE
+  // rows from the shared tally in consistency.js, the same rows and the same
+  // verdicts the profile prints, so the card cannot report a different split than
+  // the page it links to.
   function breakdownHtml(d) {
     var b = d && d.breakdown;
     if (!b) return '';

@@ -3210,7 +3210,7 @@
         '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.65rem;">A separate <strong style="color:#c8d8ea;">funding lens</strong> — not one of the record scores. Computed live from itemized public filings, it shows how much of their money comes from small-dollar donors versus large-individual and PAC money.</p>' +
         window._pdxFinanceSignalHTML(finSig) +
       '</div>' +
-      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match, Say-vs-Do, and the promise receipts.</p>' +
+      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match and from the ⚖️ Word vs Action record entirely.</p>' +
     '</div>';
   };
 
@@ -3306,7 +3306,7 @@
     // Opens the pledge-lane explainer used by the cards.
     var ftClick = ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
-      ' title="How do promise receipts work?"';
+      ' title="How the pledge ledger works"';
     function countChip(kind, ico, n, label) {
       if (!interactive) {
         return '<span class="vbadge vbadge-' + kind + '">' + ico + ' ' + n + ' ' + label + '</span>';
@@ -3332,7 +3332,7 @@
     return '' +
       '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid rgba(159,180,212,0.2);border-left:3px solid rgba(159,180,212,0.55);border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
         '<div style="margin-bottom:0.6rem;">' +
-          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Receipts · evidence for the pledge tier of Word vs Action</div>' +
+          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Pledge ledger · evidence for the pledge tier of Word vs Action</div>' +
           '<div class="pdx-ft-verdict" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + ACC + ';line-height:1.1;">🤝 ' + head + '</div>' +
           '<p class="pdx-ft-sub" style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + line + '</p>' +
         '</div>' +
@@ -5201,10 +5201,21 @@
            from the profile, so nothing else that may hold a link to it breaks. -->
       <div class="modal-section" id="pdxsec-verify">
         <button type="button" class="pdx-howchecked"
-          onclick="if(window.PDXConsistency&&window.PDXConsistency.openMethodology){window.PDXConsistency.openMethodology();}else{var _m=document.getElementById('methodology');if(_m){if(typeof closeModal==='function')closeModal();_m.scrollIntoView({behavior:'smooth',block:'start'});}}">
+          onclick="if(window.PDXConsistency&&window.PDXConsistency.openMethodology){window.PDXConsistency.openMethodology(null,'${String(id || '').replace(/[^a-zA-Z0-9_-]/g, '')}');}else{var _m=document.getElementById('methodology');if(_m){if(typeof closeModal==='function')closeModal();_m.scrollIntoView({behavior:'smooth',block:'start'});}}">
           <span aria-hidden="true">ⓘ</span> How this profile was checked
         </button>
-        <p class="pdx-howchecked-sub">Every figure here traces to a roll-call vote, an official filing or a dated public statement — each one linked in the section it appears in. This opens the scoring methodology: what is counted, how the tiers are weighted, and what is deliberately left out.</p>
+        <!-- Office-aware, for the same reason every other record line on this page is:
+             a president casts no roll-call votes, so promising that "every figure traces
+             to a roll-call vote" is a claim this profile cannot keep. The methodology
+             sheet the button opens is handed the pid so it leads with the right lane. -->
+        <p class="pdx-howchecked-sub">Every figure here traces to ${(function(){
+            try {
+              return (window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function'
+                && window.PDXExecRecord.eligible(id))
+                ? 'a signed law, an executive order, an official filing or a dated public statement'
+                : 'a roll-call vote, an official filing or a dated public statement';
+            } catch (e) { return 'a formal action, an official filing or a dated public statement'; }
+          })()} — each one linked in the section it appears in. This opens the scoring methodology: what is counted, how the tiers are weighted, and what is deliberately left out.</p>
       </div>
 
       <!--PDXSP:dw:money-->
@@ -5601,7 +5612,7 @@
           (_slExecLane
             ? '\u{270D}\u{FE0F} Official Record (laws signed, vetoes and orders)'
             : '\u{1F3DB}\u{FE0F} Official Record (votes and formal actions)') +
-          ' and the 🤝 Promise Receipts above.</p>';
+          ' and the 🤝 pledge ledger that feeds it.</p>';
         var safeSlId = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '');
         var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
 

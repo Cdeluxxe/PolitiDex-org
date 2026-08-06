@@ -115,9 +115,21 @@ function build({ stances = [], record = {}, person = {}, items = null } = {}) {
   };
 
   win.ISSUE_MAP = ISSUE_MAP;
+  // The REAL shared Mixed gate, loaded rather than restated. word-action.js asks
+  // PDXConsistency for it so the pooled read at the top of a profile and the
+  // per-issue rows under it apply one definition of "split"; a hand-written copy in
+  // this stub would let the two drift and the harness would never notice. Loading
+  // stance-helpers.js here (it needs only window + a stub document, same as
+  // test-stance-helpers.mjs) is what keeps that contract honest. It runs first so
+  // the stubs below still win on the symbols this file owns.
+  vm.runInContext(read('stance-helpers.js'), ctx, { filename: 'stance-helpers.js' });
+  must(typeof win._pdxMixedGate === 'function', 'stance-helpers.js no longer publishes the shared Mixed gate');
+  const sharedMixedGate = win._pdxMixedGate;
+
   win._resolveStanceList = () => stances;
   win.PDXConsistency = {
     VERDICTS,
+    mixedGate: sharedMixedGate,
     proof: { proofText: (it) => it && it.proof },
     officialRecord: (_pid, key) => {
       const r = record[key];
@@ -604,7 +616,11 @@ const voteNarration = (issueKey, extra = {}) => ({
   // The block has no big number to label any more: the pledge PERCENTAGE is
   // retired (PolitiDex publishes one integrity rate, and it is this section's).
   // What must survive is the lane's identity and its counts.
-  ok(/Promise Receipts/.test(ft), 'the pledge block lost its canonical lane name');
+  // The lane's identity must survive the demotion — but as what the lane IS, not
+  // as the name of the retired 🤝 Promise Receipts product. A drawer eyebrow that
+  // re-mints the peer product is the product coming back one label at a time.
+  ok(/Pledge ledger/.test(ft), 'the pledge block lost its canonical lane name');
+  ok(!/Promise Receipts/.test(ft), 'the pledge block names the retired 🤝 Promise Receipts product again');
   ok(!/%'/.test(ft.replace(/width:\s*100%/g, '')) && !/m\.rate/.test(ft),
     'the pledge block publishes a percentage again — the pledge lane is a tier of this\n' +
     '    score, and a tier with its own rate is a rival score');
@@ -883,7 +899,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   const html = b.WA.feedsHtml('p1', person);
   ok(/What feeds this score/.test(html), 'the panel lost its heading');
   for (const [label, target] of [
-    ['Promise receipts', 'pdxsec-score'],
+    ['Pledges kept and broken', 'pdxsec-score'],
     ['Stated positions', 'pdxsec-positions'],
     ['Signature issues', 'pdxsec-positions'],
     ['Official Record', 'pdxsec-official-record']

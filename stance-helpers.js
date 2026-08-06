@@ -131,14 +131,28 @@
     }
     window._resolveStanceList = _resolveStanceList;
 
+    // COLLAPSE RULE — first directional card wins.
+    // An issueKey routinely carries more than one card: a stated-position card and a
+    // narration card describing something that happened. Two rules were in play and
+    // they disagreed: this map took LAST-wins while wordLedger (word-action.js) takes
+    // FIRST-wins, so the same list could name two different cards as one issue's word.
+    // Worse, last-wins let a non-directional ('mixed') narration card overwrite a
+    // stated direction — and a 'mixed' stance short-circuits _issueRecordSummary,
+    // minting "Mixed record" without the record ever being read. That is exactly the
+    // soft middle Mixed is not allowed to be. So: first card wins, except that a
+    // directional stance always outranks a non-directional one regardless of order.
     function _polPositionMap(id, p) {
       var out = {};
       var list = _resolveStanceList(id, p);
       if (!list) return out;
       list.forEach(function(s) {
         if (!s || !s.issueKey) return;
+        var stance = s.issueStance || s.pos || 'mixed';
+        var prev = out[s.issueKey];
+        // Keep the incumbent unless it is non-directional and this one is directional.
+        if (prev && !(prev.stance === 'mixed' && stance !== 'mixed')) return;
         out[s.issueKey] = {
-          stance: s.issueStance || s.pos || 'mixed',
+          stance: stance,
           topic: s.topic, text: s.text, icon: s.icon,
           evidence: s.evidence, source: s.source
         };
@@ -257,6 +271,37 @@
       return 'mixed'; // unknown stance value — defensive
     }
 
+    // ── THE MIXED GATE — one rule, every lane ─────────────────────────────────
+    // Mixed is a finding, not a shrug. It is only honest when the record itself
+    // points two ways on the same issue and neither direction dominates. Anything
+    // else has a truthful name already: a clear break is a contradiction, and a thin
+    // or directionless record is "not enough record yet".
+    //
+    // Given the weighted score each side of an issue carries, this returns the ONE
+    // net verdict every surface must use. consistency.js routes its curated
+    // formal-action and say-vs-do lanes through the same function (window
+    // ._pdxMixedGate) so a homepage tally and a profile issue row cannot reach
+    // different conclusions from the same evidence.
+    //
+    // Dominance is 2/3 of the combined weight. Below that the split is real and the
+    // row says so; at or above it the leading side is the record and Mixed would be
+    // hedging. A lone tested action therefore always resolves — 100% of the weight
+    // sits on one side — which is why a signature law that breaks the claim reads
+    // "Says one thing, does another" rather than sliding into the middle.
+    var _MIXED_DOMINANCE = 2 / 3;
+
+    function _pdxMixedGate(consistentScore, contradictScore) {
+      var cons = (typeof consistentScore === 'number' && consistentScore > 0) ? consistentScore : 0;
+      var contra = (typeof contradictScore === 'number' && contradictScore > 0) ? contradictScore : 0;
+      var total = cons + contra;
+      if (total <= 0) return 'no_position';            // nothing directional to weigh
+      if (contra >= total * _MIXED_DOMINANCE) return 'contradicts';
+      if (cons >= total * _MIXED_DOMINANCE) return 'consistent';
+      return 'mixed';                                  // materially split, no dominant side
+    }
+    window._pdxMixedGate = _pdxMixedGate;
+    window._PDX_MIXED_DOMINANCE = _MIXED_DOMINANCE;
+
     // Aggregate every record that pertains to ONE issue against the member's stance
     // on that issue. Weighted so high-weight, substantive contradictions outrank
     // peripheral or procedural ones. Returns counts + a single net verdict + a
@@ -290,14 +335,16 @@
         // 'no_stance' can't occur per-record here (stance is constant); handled below.
       });
 
+      // The ladder below never invents a middle. A stance with no direction is not a
+      // Mixed record, it is an issue with nothing testable stated; a record that
+      // produced no directional weight is not a Mixed record either. Both resolve to
+      // no_position, which the ⚖️ ladder reads out as "Not enough record yet".
+      // Everything that DID produce direction goes through the shared Mixed gate.
       var netVerdict;
       if (!stance) netVerdict = 'no_stance';
       else if (total === 0) netVerdict = 'no_record';
-      else if (stance === 'mixed') netVerdict = 'mixed';
-      else if (consistentScore === 0 && contradictScore === 0) netVerdict = (counts.mixed > 0 ? 'mixed' : 'no_position');
-      else if (contradictScore > consistentScore) netVerdict = 'contradicts';
-      else if (consistentScore > contradictScore) netVerdict = 'consistent';
-      else netVerdict = 'mixed'; // genuine tie, both sides non-zero
+      else if (stance === 'mixed') netVerdict = 'no_position';
+      else netVerdict = _pdxMixedGate(consistentScore, contradictScore);
 
       return {
         issueKey: issueKey,

@@ -743,6 +743,24 @@
     return out;
   }
 
+  // ── the shared Mixed gate ───────────────────────────────────────────────────
+  // Mixed is minted in exactly one place for the whole app: _pdxMixedGate in
+  // stance-helpers.js, which every lane below calls through this accessor. The rule
+  // is that a split is only Mixed when both directions are materially present and
+  // neither holds 2/3 of the weight; a dominant side resolves outright and a
+  // directionless record resolves to no_position, never to a soft middle.
+  //
+  // No local copy of the rule lives here on purpose — a second copy is how the
+  // homepage tally and the profile issue rows drifted apart in the first place. If
+  // the shared gate is somehow absent this degrades to "the heavier side wins" and
+  // simply cannot mint Mixed, which is the safe direction to fail in.
+  function mixedGate(consistentScore, contradictScore) {
+    var g = window._pdxMixedGate;
+    if (typeof g === 'function') return g(consistentScore, contradictScore);
+    return contradictScore > consistentScore ? 'contradicts'
+         : consistentScore > contradictScore ? 'consistent' : 'no_position';
+  }
+
   // ── the core reconciler: ONE verdict for (pid, issueKey) ────────────────────
   function issueVerdict(pid, issueKey) {
     var rec = recordSummary(pid, issueKey);           // voting engine (null = none warm)
@@ -767,7 +785,16 @@
       if (!warm && hasStance) { pending = true; token = 'pending'; queueWarm(pid); }
       else token = hasStance ? 'no_record' : 'no_stance';
     } else if (hasContra && hasConsist) {
-      token = 'mixed';                                 // both directions documented
+      // Both directions documented — but "both directions exist" is not the same
+      // claim as "neither direction wins". Put the weight through the shared gate:
+      // the roll-call/exec lane brings its own weighted scores, and each curated
+      // receipt counts as one action at the default mapping weight so the two feeds
+      // are compared in the same unit.
+      token = mixedGate(
+        (rec && rec.consistentScore ? rec.consistentScore : 0) + cur.consistent * 100,
+        (rec && rec.contradictScore ? rec.contradictScore : 0) + cur.contradicts * 100
+      );
+      if (token === 'no_position') token = 'limited';
     } else if (hasContra) {
       token = 'contradicts';
     } else if (hasConsist) {
@@ -898,11 +925,17 @@
     //    fill it (the Phase 3 coverage win). Scored honestly: all-contradiction is
     //    a real 0%, not a false one.
     if (act.total > 0) {
-      var tok = (act.contradicts > 0 && act.consistent > 0) ? 'mixed'
-              : act.contradicts > 0 ? 'contradicts' : 'consistent';
+      // Curated formal actions are unweighted, so each counts as one action at the
+      // default mapping weight and goes through the same Mixed gate as every other
+      // lane. A single action that breaks the claim resolves as a contradiction —
+      // it holds all of the weight — instead of being averaged into a middle.
+      var tok = mixedGate(act.consistent * 100, act.contradicts * 100);
+      if (tok === 'no_position') tok = 'limited';
       return {
         scope: 'official', token: tok, verdict: scopeVerdict('official', tok),
-        score: Math.round(100 * act.consistent / (act.consistent + act.contradicts)),
+        score: (act.consistent + act.contradicts)
+          ? Math.round(100 * act.consistent / (act.consistent + act.contradicts))
+          : null,
         record: null, officialActions: act, curated: null,
         contradictions: act.contradicts, flags: 0,
         hasStance: true, pending: false, lane: 'formal-actions', sources: ['formal-actions']
@@ -950,9 +983,12 @@
     var hasStance = !!stance || cur.total > 0;
     var token;
     if (cur.total === 0) token = hasStance ? 'no_record' : 'no_stance';
-    else if (cur.contradicts > 0 && cur.consistent > 0) token = 'mixed';
-    else if (cur.contradicts > 0) token = 'contradicts';
-    else if (cur.consistent > 0) token = 'consistent';
+    else if (cur.contradicts > 0 || cur.consistent > 0) {
+      // Same gate as every other lane — receipts pointing two ways only read Mixed
+      // when neither direction dominates.
+      token = mixedGate(cur.consistent * 100, cur.contradicts * 100);
+      if (token === 'no_position') token = cur.flag > 0 ? 'flag' : 'no_record';
+    }
     else if (cur.flag > 0) token = 'flag';
     else token = 'no_record';
     // Phase 7: a transparent, public-record-only support % (null under the thin-data
@@ -1031,11 +1067,16 @@
     var scoreSum = 0, scoreN = 0, contradictions = 0, anyPending = false;
     var wSum = 0, wN = 0;      // judged-vote-weighted numerator / denominator
     var sdSup = 0, sdCon = 0; // Say-vs-Do pooled directional evidence (Phase 7)
+    var consW = 0, contraW = 0; // per-side weight, for the shared Mixed gate below
     keys.forEach(function (k) {
       var v = per(pid, k);
       counts[bucketOf(v.token)]++;
       contradictions += v.contradictions || 0;
       if (v.pending) anyPending = true;
+      var iw = judgedCountOf(v);
+      if (!(typeof iw === 'number' && iw > 0)) iw = 1;
+      if (v.token === 'consistent') consW += iw;
+      else if (v.token === 'contradicts') contraW += iw;
       if (typeof v.score === 'number') {
         scoreSum += v.score; scoreN++;
         // An issue counts in proportion to the record behind it. Fall back to 1 (the
@@ -1048,9 +1089,14 @@
       if (scope === 'saydo' && v.curated) { sdSup += v.curated.consistent || 0; sdCon += v.curated.contradicts || 0; }
     });
     var token;
-    if (counts.contradicts > 0 && counts.consistent > 0) token = 'mixed';
-    else if (counts.contradicts > 0) token = 'contradicts';
-    else if (counts.consistent > 0) token = 'consistent';
+    // Roll-ups use the shared Mixed gate too. Issues weigh in proportion to the
+    // record behind them (judgedCountOf, same weight the % uses), so one broken
+    // issue beside seven backed ones reads as the record actually reads instead of
+    // collapsing the whole scope into "Mixed record".
+    if (counts.contradicts > 0 || counts.consistent > 0) {
+      token = mixedGate(consW, contraW);
+      if (token === 'no_position') token = counts.mixed > 0 ? 'mixed' : 'limited';
+    }
     else if (counts.mixed > 0) token = 'mixed';
     else if (counts.flag > 0) token = 'flag';
     else if (counts.limited > 0) token = 'limited';
@@ -2977,6 +3023,34 @@
   function issueRows(pid, keys) {
     return (keys || issuesWithSignal(pid, 'combined')).map(function (k) { return issueRow(pid, k); });
   }
+  // ── THE ONE TALLY ───────────────────────────────────────────────────────────
+  // Every surface that summarises a politician's record in counts reads this. The
+  // unit is the ISSUE ROW — the same object the profile prints one line per — so a
+  // homepage card saying "0 mixed" while the profile shows two Mixed issue rows is
+  // now impossible by construction rather than by convention.
+  //
+  // This is not a re-derivation of the verdicts: it is a count of the verdicts the
+  // rows already carry. `thin` is kept as its own bucket and never folded into
+  // `mixed`; a row the engine could not test is not a split record, and reporting it
+  // as one is the reinterpretation this pass exists to remove.
+  function verdictTally(pid, rows) {
+    var list = rows || issueRows(pid);
+    var out = { consistent: 0, mixed: 0, contradicts: 0, thin: 0, pending: 0,
+                tested: 0, judged: 0, total: 0 };
+    (list || []).forEach(function (r) {
+      var t = r && r.verdict && r.verdict.token;
+      out.total++;
+      if (t === 'consistent') out.consistent++;
+      else if (t === 'mixed') out.mixed++;
+      else if (t === 'contradicts') out.contradicts++;
+      else if (t === 'limited') out.thin++;
+      else if (t === 'pending') out.pending++;
+    });
+    out.tested = out.consistent + out.mixed + out.contradicts;
+    out.judged = out.tested + out.thin;
+    return out;
+  }
+
   // The one sort. Tier first (the contract above), then — inside a tier — the sharper
   // verdict, then the deeper receipt pile, then the declared weights if a caller has
   // set them, then the label so the order is stable across renders.
@@ -4130,36 +4204,47 @@
   }
 
   // ── Methodology & boundary explainer (Phase 11) ─────────────────────────────
-  // A short, plain-language "how we score this" surface, reachable from the Promise
-  // Tracker gateway. Reuses the same bottom-sheet as the gap view. Non-defensive:
-  // states what each number means, the thin-data rules, why the two systems stay
-  // separate, and exactly what the divergence labels do and don't claim.
-  function methodologyHtml() {
+  // A short, plain-language "how we score this" surface, reachable from the
+  // profile's "How this profile was checked" control. Reuses the same bottom-sheet
+  // as the gap view. Non-defensive: states what the number means, the thin-data
+  // rules, when a record is allowed to read Mixed, and what is deliberately left out.
+  //
+  // `pid` is OPTIONAL and is used for one thing only: ordering. The sheet is shared
+  // by every profile, so both lanes are always described — but a president opening it
+  // must not be told first that their score comes from roll-call votes, which is the
+  // one thing the office does not produce. With an exec-eligible pid the ✒️ row leads
+  // and the 🏛️ row is labelled as the other lane. Called with no pid (the hub, the
+  // showcase, the receipt-card footer) it renders the congressional order it always did.
+  function methodologyHtml(pid) {
     var row = function (icon, title, body, id) {
       return '<div class="pdxm-row"' + (id ? ' data-pdxm-row="' + esc(id) + '"' : '') + '>' +
         '<div class="pdxm-row-h"><span aria-hidden="true">' + icon + '</span> ' + esc(title) + '</div>' +
         '<div class="pdxm-row-b">' + body + '</div></div>';
     };
+    var isExec = false;
+    try { isExec = !!(pid && execEligible(pid)); } catch (e) {}
+    var voteRow = row('🏛️', isExec ? 'Official Record % — in Congress' : 'Official Record %',
+      'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.');
+    var execRow = row('✒️', isExec ? 'Official Record % — in the White House' : 'Presidents and the formal record',
+      'A president casts <b>no roll-call votes</b>, so the Official Record ' + (isExec ? 'on this profile' : 'above') + ' is built from what the office actually does: the <b>laws they signed or vetoed</b>, the <b>executive orders</b> and the formal directives on file, each mapped to the issues it touches and checked against the same stated positions. It is the <b>same score on the same scale</b> — there is no separate presidential rating. Two limits are worth knowing. Where an order was <b>blocked or narrowed by a court</b>, we record that standing beside the action rather than treating the signature as the end of the story. And where a stated position was <b>written from the very document that would test it</b>, we show the two side by side and leave the pair out of the number — a position quoting an order cannot also be the test of that order, and counting it would return 100% for reasons that mean nothing.');
     return '<div class="pdxm">' +
-      '<div class="pdxgap-eyebrow">📋 Promise Tracker</div>' +
+      '<div class="pdxgap-eyebrow">⚖️ Word vs Action</div>' +
       '<div class="pdxgap-title">How we score this</div>' +
-      '<div class="pdxm-lead">Two separate reads on whether someone\'s word holds up. We keep them apart on purpose and never blend them into a single “honesty” score.</div>' +
-      row('🏛️', 'Official Record %', 'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.') +
-      // The ✒️ lane, stated here because this sheet is opened from a president's
-      // gateway too and every other row on it describes a legislature. Without this
-      // row a reader on that profile is told the score comes from roll-call votes,
-      // which is the one thing the office does not produce. It is a separate row
-      // rather than a rewrite of the one above because both lanes are real and the
-      // congressional wording is correct for almost everyone the app covers.
-      row('✒️', 'Presidents and the formal record', 'A president casts <b>no roll-call votes</b>, so the Official Record above is built from what the office actually does: the <b>laws they signed or vetoed</b>, the <b>executive orders</b> and the formal directives on file, each mapped to the issues it touches and checked against the same stated positions. It is the <b>same score on the same scale</b> — there is no separate presidential rating. Two limits are worth knowing. Where an order was <b>blocked or narrowed by a court</b>, we record that standing beside the action rather than treating the signature as the end of the story. And where a stated position was <b>written from the very document that would test it</b>, we show the two side by side and leave the pair out of the number — a position quoting an order cannot also be the test of that order, and counting it would return 100% for reasons that mean nothing.') +
-      row('🧾', 'Say-vs-Do integrity %', 'What the <b>broader public record</b> shows: the share of checkable public-record items on an issue — statements, interviews, news, controversies — that <b>back up what they say</b>. Built only from public evidence — never from votes.') +
+      '<div class="pdxm-lead">One integrity read: does what they say match what they do? Everything below is either an input to that read or a boundary on it. There is no second percentage and no blended “honesty” score.</div>' +
+      // The ✒️ lane leads on a profile that has one; the 🏛️ wording is correct for
+      // almost everyone the app covers, so it is reordered rather than rewritten.
+      (isExec ? execRow + voteRow : voteRow + execRow) +
+      row('🧾', 'The broader public record', 'Statements, interviews, news and controversies are collected as <b>evidence</b> and shown beside the issue they touch. They are <b>not scored as a rival percentage</b>: they decide an issue\'s verdict only where no formal action exists that could test it, and everywhere else they are context sitting next to the action that did the testing.') +
       row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
+      // The Mixed rule is a real scoring decision and the one most likely to be read
+      // as a hedge, so it is written down where a reader can hold us to it.
+      row('◑', 'When a record reads Mixed', 'Mixed is <b>not</b> a shrug and it is not the middle of a scale. It is reserved for a record that genuinely points both ways: either <b>several formal actions on the same issue pull in different directions</b>, or <b>one omnibus action both advances and undercuts</b> the stated position in material ways, with neither side dominant. Where one direction carries roughly two thirds or more of the weight, that direction <b>is</b> the verdict — a law that clearly breaks a stated commitment reads as <b>Says one thing, does another</b>, not as Mixed. And where the record is simply <b>thin or uncertain</b>, it reads as <b>not enough record yet</b>. Mixed is never used to soften a clear break.') +
       // The overall % is a real scoring decision a reader can check us on, so it is
       // stated here and not only in the composition line's tooltip.
       row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes or actions sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
-      row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
+      row('⚖️', 'Why the lanes stay separate', 'Formal actions and public statements answer different questions, so pooling them into one figure would hide more than it reveals. The formal record is what <b>tests</b> a stated position; the public record is what <b>surrounds</b> it. Both appear on the issue, labelled for what they are — but one issue gets <b>one verdict</b>, from one engine, on every surface it appears on.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
-      row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +
+      row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Aligned</b> — the two tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b>, not whether the person is good or bad, and it is not a score.') +
       // The procedural down-weight is a real scoring decision a reader can check
       // us on, so it belongs in the methodology sheet rather than only in a
       // tooltip on the card that happens to carry the tag.
@@ -4184,20 +4269,22 @@
           '<li><b>We don\'t claim what came first.</b> The stated positions in PolitiDex are <b>undated</b>, so a card never asserts that someone said a thing and then voted the other way — only that the position and the vote point in different directions. The card says so on its face. We will not date a statement we can\'t source a date for.</li>' +
         '</ul>' +
         'Some things are held back on purpose: <b>confirmation votes</b>, because a vote about a <b>person</b> can\'t carry a policy claim once it leaves the app; issues whose wording means opposite things to different members; and any “they said” line that is <b>itself a vote</b>, which would leave the card arguing with its own evidence. ' +
-        'Sharing also never moves a number — 🏛️ Official Record cards stay out of the 🧾 Say-vs-Do scores completely, exactly as above.',
+        'Sharing also never moves a number — a shared 🏛️ Official Record card is a picture of a verdict this page already reached, and printing it changes nothing about how that verdict was reached.',
         'cards') +
       row('📖', 'If a term is unfamiliar', 'Anything with a dotted underline anywhere in PolitiDex opens a short, plain-language definition — ' +
         LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
         ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
         (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Open the full glossary →</button>' : '')) +
-      '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
+      '<div class="pdxgap-foot">One score. No formal action counted twice. Every item links to its source.</div>' +
       '</div>';
   }
-  function openMethodology(focus) {
+  // `pid` is optional and only decides which lane the sheet leads with — see
+  // methodologyHtml. Every existing caller passes focus alone and is unaffected.
+  function openMethodology(focus, pid) {
     if (!document.body) return;
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
-    if (body) body.innerHTML = methodologyHtml();
+    if (body) body.innerHTML = methodologyHtml(pid);
     // Same shared backdrop as the gap sheet, so the arrival class has to be decided
     // here too rather than inherited from whatever opened it last. A reader who
     // followed `#methodology` off a shared card is arriving; one who tapped
@@ -4292,6 +4379,8 @@
     // than a new row model.
     issueRow: issueRow,
     issueRows: issueRows,
+    verdictTally: verdictTally,
+    mixedGate: mixedGate,
     rankIssueRows: rankIssueRows,
     ROW_TIER: ROW_TIER,
     gatewayHtml: gatewayHtml,
