@@ -1771,7 +1771,9 @@
       for (var j = 0; j < secs.length; j++) {
         if (secs[j].getAttribute('data-pdxc-official-pid') !== String(pid)) continue;
         var orOpen = _lidsOpenIn(secs[j]);
-        secs[j].innerHTML = _lidify(_officialInner(pid));
+        // The ledger is re-rendered with the rows: it lives inside this section now,
+        // and re-rendering only the rows would silently delete it on the first warm.
+        secs[j].innerHTML = _lidify(_officialInner(pid)) + _orExecLedgerHtml(pid);
         _lidsReopen(orOpen);
       }
       // …and the divergence section, so the comparison appears once the vote-based
@@ -2025,15 +2027,21 @@
       rv.ico + ' Record: ' + esc(rv.label) + esc(tail) + '</span>';
   }
   // "What they say", with an honest fallback. When there is no stated position but
-  // votes ARE mapped, the absence is usually the reason the verdict reads "Limited",
-  // so name it instead of dropping the chip and leaving the reader to guess.
+  // record IS mapped, the absence is usually the reason the verdict reads "Limited",
+  // so name it instead of dropping the chip and leaving the reader to guess. Two
+  // things this used to get wrong on a president's row: it said "Votes are mapped to
+  // this issue" about someone who casts none, and it led with "Nothing stated yet" —
+  // an absence, where the row's actual content is a documented action. The chip now
+  // names the lane and says what IS there.
   function _orSaysChipHtml(pid, issueKey, ov) {
     var chip = _orStanceChip(pid, issueKey);
     if (chip) return chip;
-    if (!(ov && ov.record && ov.record.total)) return '';
+    var n = _orNoun(ov);
+    var has = !!(ov && ov.record && ov.record.total) || _orExecTouched(ov);
+    if (!has) return '';
     return '<span class="pdxor-stance pdxor-stance-none" style="--c:#9fb4d4"' +
-      ' title="Votes are mapped to this issue, but they have not stated a position we can check them against.">' +
-      '💬 Says: Nothing stated yet</span>';
+      ' title="' + escAttr('We have their ' + n.many + ' on this issue, but no stated position to check them against.') + '">' +
+      '💬 Says: no position on record</span>';
   }
 
   // ── One record → its printable proof fields ─────────────────────────────────
@@ -2724,18 +2732,146 @@
         '<span class="pdxor-mapsum-go">See full record →</span>' +
       '</button>';
   }
+  // ═══════════════════════════════════════════════════════════════════════════
+  // THE ISSUE ROW — one stable unit, everywhere
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Every surface that shows "what they said vs what they did on issue X" now reads
+  // the SAME object: the Official Record's rows, the Word vs Action top rows, and
+  // whatever ranks issues later. The point is that a future stance ranking should be
+  // a new sort over these fields, not another redesign of the row — so the row
+  // carries the inputs a ranking needs even where nothing consumes them yet
+  // (`weights.salience`, `weights.recency` are declared null placeholders, never
+  // invented numbers).
+  //
+  // Nothing here scores. officialIssue() remains the single verdict engine; this is a
+  // projection of one read plus the stance text and the counts that already exist.
+  var _EV_STRENGTH = function (n) {
+    return n >= 4 ? 'strong' : n >= 2 ? 'moderate' : n >= 1 ? 'thin' : 'none';
+  };
+  // How many pieces of record sit behind this row, counted from whichever lane the
+  // read came back on. Held executive actions count as evidence-on-file even though
+  // they carry no verdict — they are why a row can read thin with real receipts.
+  function _rowEvidenceCount(ov) {
+    if (!ov) return 0;
+    if (ov.lane === 'exec') {
+      var pool = ov.execPool || ov.execHeld;
+      if (pool) return ((pool.items || []).length) + ((pool.held || []).length);
+      return (typeof ov.execTouched === 'number') ? ov.execTouched : 0;
+    }
+    if (ov.record && ov.record.total) return ov.record.total;
+    if (ov.officialActions && ov.officialActions.total) return ov.officialActions.total;
+    return 0;
+  }
+  var _STANCE_DIR = { support: 1, oppose: -1, mixed: 0 };
+  function _rowStance(pid, issueKey) {
+    var key = positionStance(pid, issueKey);
+    var text = '', source = null;
+    try {
+      if (typeof window._polPositionMap === 'function' && window.CMP_DATA) {
+        var e = (window._polPositionMap(pid, window.CMP_DATA[pid]) || {})[issueKey];
+        if (e) { text = e.text || ''; source = e.source || null; }
+      }
+    } catch (e2) {}
+    var m = _OR_STANCE[key] || null;
+    return {
+      key: key || null,
+      label: m ? m.lb : '',
+      // +1 supports / −1 opposes / 0 explicitly mixed / null nothing stated. A number
+      // rather than a word because a ranking wants to compare directions, and the
+      // word is already available as `label`.
+      direction: (key && _STANCE_DIR.hasOwnProperty(key)) ? _STANCE_DIR[key] : null,
+      text: text, source: source
+    };
+  }
+  // Tiers are the profile's sort contract, stated once:
+  //   0  said + did, and they disagree      (contradiction / cuts both ways)
+  //   1  said + did, and they line up       (backed it up / too thin to call)
+  //   2  said only — nothing on file that can judge it yet
+  //   3  did only — record on file, nothing stated to test it against
+  //   4  neither: nothing to show
+  var ROW_TIER = { tension: 0, tested: 1, word_only: 2, action_only: 3, empty: 4 };
+  var _TIER_LABEL = ['Said + did — in tension', 'Said + did — consistent', 'Said, nothing to judge yet', 'Acted, nothing stated', 'Nothing on file'];
+  var _VERDICT_RANK = { contradicts: 0, mixed: 1, consistent: 2, limited: 3 };
+  function issueRow(pid, issueKey) {
+    var ov = officialIssue(pid, issueKey);
+    var stance = _rowStance(pid, issueKey);
+    var evCount = _rowEvidenceCount(ov);
+    var tok = ov.token;
+    var judged = (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed' || tok === 'limited');
+    var hasWord = !!stance.key || !!ov.hasStance || !!(ov.record && ov.record.hasStance);
+    var hasAction = evCount > 0 || judged;
+    var tier, testability;
+    if (tok === 'pending') { tier = ROW_TIER.word_only; testability = 'warming'; }
+    else if (judged && (tok === 'contradicts' || tok === 'mixed')) { tier = ROW_TIER.tension; testability = 'tested'; }
+    else if (judged) { tier = ROW_TIER.tested; testability = (tok === 'limited') ? 'thin' : 'tested'; }
+    // A stance wins the tie. A row can hold receipts that no verdict could use —
+    // executive actions held back as uncitable or circular are the common case — and
+    // filing that under "nothing on file" would bury a stated position behind a
+    // technicality the reader never sees. Word present ⇒ the row is waiting on a
+    // judgeable record, not empty.
+    else if (hasWord) { tier = ROW_TIER.word_only; testability = 'awaiting_record'; }
+    else if (hasAction) { tier = ROW_TIER.action_only; testability = 'awaiting_word'; }
+    else { tier = ROW_TIER.empty; testability = 'untestable'; }
+    var v = ov.verdict || VERDICTS.limited;
+    return {
+      pid: pid, key: issueKey,
+      label: _issueLabel(issueKey),
+      category: _catOf(issueKey), categoryLabel: _catLabel(issueKey),
+      // ── SAID ──
+      stance: stance,
+      // ── DID ──
+      lane: ov.lane || null,
+      actions: { count: evCount, lane: ov.lane || null, judged: judgedCountOf(ov) },
+      // ── VERDICT ──
+      verdict: { token: tok, label: v.label, cls: v.cls, ico: v.ico, color: v.color, score: ov.score },
+      // ── RECEIPTS ──
+      evidence: { count: evCount, strength: _EV_STRENGTH(evCount), sources: (ov.sources || []).slice() },
+      // ── ranking foundation ──
+      tier: tier, tierLabel: _TIER_LABEL[tier], testability: testability,
+      scored: judged,
+      // Declared, never guessed. A later ranking fills these in; until then a null
+      // weight is honest and every sort below treats it as "no opinion".
+      weights: { salience: null, recency: null },
+      ov: ov
+    };
+  }
+  function issueRows(pid, keys) {
+    return (keys || issuesWithSignal(pid, 'official')).map(function (k) { return issueRow(pid, k); });
+  }
+  // The one sort. Tier first (the contract above), then — inside a tier — the sharper
+  // verdict, then the deeper receipt pile, then the declared weights if a caller has
+  // set them, then the label so the order is stable across renders.
+  function rankIssueRows(rows) {
+    return (rows || []).slice().sort(function (a, b) {
+      if (a.tier !== b.tier) return a.tier - b.tier;
+      var av = _VERDICT_RANK.hasOwnProperty(a.verdict.token) ? _VERDICT_RANK[a.verdict.token] : 9;
+      var bv = _VERDICT_RANK.hasOwnProperty(b.verdict.token) ? _VERDICT_RANK[b.verdict.token] : 9;
+      if (av !== bv) return av - bv;
+      if (a.evidence.count !== b.evidence.count) return b.evidence.count - a.evidence.count;
+      var aw = (a.weights.salience == null ? -1 : a.weights.salience);
+      var bw = (b.weights.salience == null ? -1 : b.weights.salience);
+      if (aw !== bw) return bw - aw;
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    });
+  }
+
   function _orInner(pid) {
     var keys = issuesWithSignal(pid, 'official');
     var scored = [], awaiting = 0, anyPending = false, awaitingKeys = [];
-    keys.forEach(function (k) {
-      var ov = officialIssue(pid, k);
+    // Ranked once, up front — so the section's rows, its categories and its fold all
+    // agree about what the sharpest issue is instead of each re-deciding.
+    var ranked = rankIssueRows(issueRows(pid, keys));
+    var rowOf = {};
+    ranked.forEach(function (r) { rowOf[r.key] = r; });
+    ranked.forEach(function (r) {
+      var ov = r.ov;
       if (ov.token === 'pending') { anyPending = true; awaiting++; return; }
-      if (ov.token === 'consistent' || ov.token === 'contradicts' || ov.token === 'mixed' || ov.token === 'limited') {
-        scored.push({ key: k, ov: ov });
+      if (r.scored) {
+        scored.push({ key: r.key, ov: ov, row: r });
       } else {
         awaiting++; // no_record / no_stance — stated position with nothing to score yet
         // Kept so the count can name the issues instead of only tallying them.
-        awaitingKeys.push(k);
+        awaitingKeys.push(r.key);
       }
     });
 
@@ -2796,27 +2932,29 @@
         // After the empty message, not before it: nothing here is checkable yet, so the
         // record that DOES exist reads as "and here is what we have" rather than as a
         // contradiction of the line above it.
-        _orMappedSummaryHtml(pid) + _orRawLink();
+        _orMappedSummaryHtml(pid) + _orRawLink(pid);
     }
 
     // Group by broad issue category.
     var catOf = function (k) { try { return (typeof window._pdxCategoryOf === 'function' ? window._pdxCategoryOf(k) : '') || 'other'; } catch (e) { return 'other'; } };
     var catLabel = function (k) { try { return (typeof window._pdxCategoryLabelOf === 'function' ? window._pdxCategoryLabelOf(k) : '') || 'Other'; } catch (e) { return 'Other'; } };
     var issueLabel = function (k) { try { return (window.ISSUE_MAP && window.ISSUE_MAP[k] && window.ISSUE_MAP[k].label) || k; } catch (e) { return k; } };
-    var rank = { contradicts: 0, mixed: 1, limited: 2, consistent: 3 };
+    // `scored` arrives in rankIssueRows() order, so grouping only has to PRESERVE it:
+    // rows keep their ranked order inside a category, and a category inherits the
+    // position of its strongest row. The old local `rank` map put `limited` above
+    // `consistent`, which led the section with its thinnest evidence — exactly the
+    // rows a reader can do least with. The tier contract now decides instead.
     var byCat = {};
-    scored.forEach(function (s) { var c = catOf(s.key); (byCat[c] = byCat[c] || { label: catLabel(s.key), items: [] }).items.push(s); });
-    // Categories with a contradiction first; issues within a category contradiction-first.
-    var catKeys = Object.keys(byCat).sort(function (a, b) {
-      var ac = byCat[a].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
-      var bc = byCat[b].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
-      if (ac !== bc) return ac - bc;
-      return byCat[a].label < byCat[b].label ? -1 : 1;
+    scored.forEach(function (s, i) {
+      var c = catOf(s.key);
+      var g = (byCat[c] = byCat[c] || { label: catLabel(s.key), items: [], best: i });
+      g.items.push(s);
+      if (i < g.best) g.best = i;
     });
+    var catKeys = Object.keys(byCat).sort(function (a, b) { return byCat[a].best - byCat[b].best; });
 
     var bodyParts = catKeys.map(function (ck) {
       var grp = byCat[ck];
-      grp.items.sort(function (a, b) { return (rank[a.ov.token] || 9) - (rank[b.ov.token] || 9); });
       var rows = grp.items.map(function (s) {
         var v = s.ov.verdict;
         var pct = (typeof s.ov.score === 'number') ? '<span class="pdxor-pct" style="color:' + v.color + '">' + s.ov.score + '%</span>' : '';
@@ -2828,7 +2966,14 @@
         // away, so the list stays scannable.
         var total = (s.ov.record && s.ov.record.total) || 0;
         var inline = (total && total <= 2) ? 2 : 1;
-        return '<details class="pdxor-issue pdxor-row" data-pdxc-row="' + escAttr(s.key) + '">' +
+        return '<details class="pdxor-issue pdxor-row" data-pdxc-row="' + escAttr(s.key) + '"' +
+            // The ranking foundation, carried on the element itself: tier, testability
+            // and receipt depth. Nothing reads these yet — they are here so a later
+            // stance ranking can sort, filter or badge rows without re-deriving what
+            // the section already knows.
+            ' data-pdxc-tier="' + escAttr(String((s.row && s.row.tier) != null ? s.row.tier : '')) + '"' +
+            ' data-pdxc-test="' + escAttr((s.row && s.row.testability) || '') + '"' +
+            ' data-pdxc-ev="' + escAttr(String((s.row && s.row.evidence.count) || 0)) + '">' +
             '<summary class="pdxor-row-sum">' +
               '<div class="pdxor-issue-top">' +
                 '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
@@ -2851,11 +2996,12 @@
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
     });
 
-    // Both sorts above run contradiction-first: the leading category is the sharpest
-    // thing the formal record has to say about this person, so it stays open. The
-    // remaining categories fold behind a lid that names what is inside it. A member
-    // with nine documented issue areas used to cost nine screens before the next
-    // section began, and a reader who wanted only the verdict had no way past it.
+    // The ranking put the sharpest tested issue first, and the category that owns it
+    // leads — so the open part of the section is the best evidence and the realest
+    // tension, not whichever category sorts first alphabetically. The rest fold behind
+    // a lid that names what is inside. A member with nine documented issue areas used
+    // to cost nine screens before the next section began, and a reader who wanted only
+    // the verdict had no way past it.
     var lead = bodyParts.length ? bodyParts[0] : '';
     var restHtml = bodyParts.slice(1).join('');
     var leadCount = (byCat[catKeys[0]] && byCat[catKeys[0]].items.length) || 0;
@@ -2892,10 +3038,17 @@
     }
 
     return head + _orMappedSummaryHtml(pid) + _coverageLine(scored.length, awaiting, 'formal record') +
-      body + awaitingNote + _orRawLink();
+      body + awaitingNote + _orRawLink(pid);
   }
-  function _orRawLink() {
+  function _orRawLink(pid) {
     // Keep the raw Voting Record list one tap away (it still has value as a full list).
+    //   Not for a president. `_vrSectionReachable()` asks the DOM whether a Voting
+    // Record section exists, and the answer used to be yes on an executive profile —
+    // profiles-full.js mounts that section for everyone — so "See the full voting
+    // record →" printed under a president's Official Record, promising a roll-call
+    // list they will never have. The office decides first; the DOM only decides
+    // whether a live destination exists for the offices that do vote.
+    if (pid && execEligible(pid)) return '';
     if (!_vrSectionReachable()) return '';
     return '<button type="button" class="pdxor-rawlink" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-voting\');else{var e=document.getElementById(\'pdxsec-voting\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See the full voting record →</button>';
   }
@@ -2915,6 +3068,20 @@
       '</div>';
     } catch (e) { return ''; }
   }
+  // ── the ✒️ document ledger, inside the one record section ────────────────────
+  // A president's profile used to carry two record products: this section, speaking
+  // in issue rows, and a standalone Executive Enactment Record, speaking in documents.
+  // Both were true and neither was the record. The ledger now renders INSIDE this
+  // section, under the rows it is the evidence for — one lane, issue rows first,
+  // documents underneath. Returns '' for everyone else, so no congressional profile
+  // gains a block.
+  function _orExecLedgerHtml(pid) {
+    try {
+      var U = window.PDXExecRecordUI;
+      if (!U || typeof U.embedHtml !== 'function') return '';
+      return U.embedHtml(pid) || '';
+    } catch (e) { return ''; }
+  }
   var _officialInner = _orInner; // alias used by the warm-refresh listener
   function officialRecordSectionHtml(pid) {
     ensureStyles();
@@ -2923,7 +3090,8 @@
     // The rows carry hidden share controls; reveal the eligible ones once the caller
     // has mounted this string.
     _rcHydrateSoon();
-    return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' + _orInner(pid) + '</section>';
+    return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' +
+      _orInner(pid) + _orExecLedgerHtml(pid) + '</section>';
   }
 
   // ── Dedicated Say-vs-Do feed (the stance-first public-record dive-in) ────────
@@ -3032,7 +3200,7 @@
       return head + '<div class="pdxor-empty">' + esc(msg) +
         '<div class="pdxor-empty-why">' + LT('norecord', 'That is our coverage, not a verdict') +
           ' — and it is deliberately separate from their ' + LT('officialrecord', 'Official Record') +
-          ', which is built from votes only.</div>' +
+          ', which is built from ' + (execEligible(pid) ? 'signed laws, vetoes and orders' : 'votes') + ' only.</div>' +
         '</div>' + _sdRawLink();
     }
 
@@ -3162,7 +3330,8 @@
         '<div class="pdxdv-row-lbl">' + esc(_issueLabel(p.key)) + '</div>' +
         '<div class="pdxdv-row-body">' +
           '<span class="pdxdv-nums">' +
-            _divNum('🏛️', p.off.score, p.off.verdict.color, 'Official Record — vote-based') +
+            _divNum('🏛️', p.off.score, p.off.verdict.color,
+              'Official Record — ' + (p.off.lane === 'exec' ? 'built from signed laws and orders' : 'vote-based')) +
             // Same composition treatment the Official Record panel puts on this issue's
             // %, on the same helper, so a 100% built on one vote reads the same way in
             // both places. Only the 🏛️ side gets it: Say-vs-Do has its own evidence
@@ -3176,7 +3345,7 @@
         '</div>';
     if (actionable) {
       return '<button type="button" class="pdxdv-row pdxdv-row-tap" data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-          ' aria-label="' + esc('See the votes and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
+          ' aria-label="' + esc('See the ' + (p.off.lane === 'exec' ? 'actions' : 'votes') + ' and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
           body + '<span class="pdxdv-row-why">See what’s behind the gap <span aria-hidden="true">→</span></span></button>';
     }
     return '<div class="pdxdv-row">' + body + '</div>';
@@ -3419,10 +3588,14 @@
       relHtml = '<span class="pdxgap-rel-hero" style="--c:' + off.verdict.color + '">' +
         '<span class="pdxgap-relpct">' + off.score + '%</span> ' + esc(off.verdict.label) + '</span>';
       var _tot = (off.record && off.record.total) || (off.officialActions && off.officialActions.total) || 0;
-      var _depth = _tot ? _tot + ' judged ' + (_tot === 1 ? 'vote' : 'votes') + ' on this issue' : '';
+      // The countable noun is the lane's, not always "vote": a president is judged on
+      // signed laws and orders, and "3 judged votes" about someone who casts none is
+      // a false statement, not a loose one.
+      var _n = _orNoun(off);
+      var _depth = _tot ? _tot + ' judged ' + (_tot === 1 ? _n.one : _n.many) + ' on this issue' : '';
       gapNote = '<div class="pdxgap-note">' +
         esc([_depth, _rv && _rv.why ? _rv.why : ''].filter(Boolean).join(' · ') ||
-          'Their formal record on this issue, vote by vote, with every source.') +
+          ('Their formal record on this issue, ' + _n.one + ' by ' + _n.one + ', with every source.')) +
         '</div>';
     } else {
       relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
@@ -3845,6 +4018,16 @@
     chipHtml: chipHtml,
     dot: dot,
     legendHtml: legendHtml,
+    // ── the issue-row unit ──────────────────────────────────────────────────
+    // One stable projection of an issue: said (stance + direction), did (linked
+    // actions), the verdict, the receipt count/strength, how testable it is, and
+    // declared-null salience/recency weights. rankIssueRows() is the profile's one
+    // sort contract. Exported so a later stance ranking is a new consumer rather
+    // than a new row model.
+    issueRow: issueRow,
+    issueRows: issueRows,
+    rankIssueRows: rankIssueRows,
+    ROW_TIER: ROW_TIER,
     gatewayHtml: gatewayHtml,
     officialRecordSectionHtml: officialRecordSectionHtml,
     saydoSectionHtml: saydoSectionHtml,

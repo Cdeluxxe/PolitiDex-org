@@ -93,11 +93,13 @@
     label: 'Word vs Action',
     question: 'Do they stand by what they said?',
     metric: 'Stood by their word',
-    // The hero ring has room for two short lines and no more, so the primary
-    // score gets a caption a voter can read at a glance. "Kept word" is the
-    // plain-English form of the metric above — deliberately NOT "Promises",
-    // which now names only the top tier inside this read.
-    caption: 'Kept word'
+    // The hero ring has room for two short lines and no more, and this caption is
+    // the only text a reader gets beside the percentage. It used to read "Kept
+    // word" — plain English, but a SECOND NAME for the one number, printed in the
+    // header while "Word vs Action" named the same number in the rail and in the
+    // section title. One read cannot have two names without reading as two reads,
+    // so the caption now says what the score is called everywhere else.
+    caption: 'Word vs Action'
   };
 
   // ── The fail-closed floors ─────────────────────────────────────────────────
@@ -783,6 +785,73 @@
     } catch (e) { return ''; }
   }
 
+  // ── The spine, on the one score's own card ──────────────────────────────────
+  // Said → Did → Verdict → Receipts, for the two or three issues that carry the most
+  // weight. This card used to state a percentage and then hand the reader a list of
+  // section names; the actual content — which issue, what they said, what they did —
+  // was several taps away in a different section. The rows below are the same
+  // PDXConsistency issue-row unit the Official Record is built from, ranked by the
+  // same rankIssueRows() contract, so "top" here means exactly what "first" means
+  // there: real tension with real evidence, then well-evidenced agreement. Nothing is
+  // recomputed and no number is published — the row's verdict and the row's receipt
+  // count are read straight off the unit.
+  var TOP_ROWS_MAX = 3;
+  function _laneNoun(row, n) {
+    var one = (row.lane === 'exec') ? 'executive action' : 'vote';
+    return n + ' ' + one + (n === 1 ? '' : 's');
+  }
+  function topRowsHtml(pid) {
+    try {
+      var C = window.PDXConsistency;
+      if (!C || typeof C.issueRows !== 'function' || typeof C.rankIssueRows !== 'function') return '';
+      var ranked = C.rankIssueRows(C.issueRows(pid));
+      // Tested rows only, and only rows whose SAID side can actually be printed. A
+      // "said, no record yet" row is coverage, and leading the one score with a
+      // coverage gap is precisely the ordering this pass removed from the Official
+      // Record — it should not reappear one section higher up. A row with a verdict
+      // but no quotable position is the mirror problem: "Backs it up / No position
+      // stated" is not a Said → Did → Verdict chain, it is two thirds of one.
+      var top = ranked.filter(function (r) {
+        return r.scored && r.evidence.count > 0 && !!r.stance.label;
+      }).slice(0, TOP_ROWS_MAX);
+      if (!top.length) return '';
+      var rows = top.map(function (r) {
+        var col = r.verdict.color || '#9fb4d4';
+        var saidTxt = r.stance.text ? String(r.stance.text) : '';
+        if (saidTxt.length > 150) saidTxt = saidTxt.slice(0, 147).replace(/\s+\S*$/, '') + '…';
+        var said = r.stance.label + (saidTxt ? ' — ' + saidTxt : '');
+        return '' +
+          '<li class="pdxwa-row" style="--pdxwa-col:' + col + ';">' +
+            '<div class="pdxwa-row-h">' +
+              '<span class="pdxwa-row-issue">' + esc(r.label) + '</span>' +
+              '<span class="pdxwa-row-verdict" style="color:' + col + ';">' +
+                esc((r.verdict.ico || '') + ' ' + (r.verdict.label || '')) + '</span>' +
+            '</div>' +
+            '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Said</span>' +
+              '<span class="pdxwa-row-v">' + esc(said) + '</span></div>' +
+            '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Did</span>' +
+              '<span class="pdxwa-row-v">' + esc(_laneNoun(r, r.evidence.count)) + ' on record' +
+                (typeof r.verdict.score === 'number' ? ' · ' + r.verdict.score + '% of them back the position' : '') +
+              '</span></div>' +
+            '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Receipts</span>' +
+              '<span class="pdxwa-row-v">' + esc(r.evidence.count + ' sourced item' + (r.evidence.count === 1 ? '' : 's') +
+                ' · ' + r.evidence.strength + ' evidence') + '</span></div>' +
+          '</li>';
+      }).join('');
+      var more = ranked.filter(function (r) { return r.scored; }).length - top.length;
+      return '' +
+        '<div class="pdxwa-rows">' +
+          '<div class="pdxwa-rows-h">Where this number comes from — sharpest first</div>' +
+          '<ul class="pdxwa-rows-l">' + rows + '</ul>' +
+          '<button type="button" class="pdxwa-rows-go"' + jumpAttr('pdxsec-official-record') + '>' +
+            esc(more > 0
+              ? 'See the full breakdown — ' + more + ' more tested issue' + (more === 1 ? '' : 's') + ' →'
+              : 'See the full breakdown →') +
+          '</button>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
   // The primary accountability surface on a profile.
   var _seq = 0;
   function headlineHtml(pid, p) {
@@ -830,6 +899,7 @@
             : '') +
           '.' +
         '</div>' +
+        topRowsHtml(pid) +
         feedsHtml(pid, p, r) +
         methodHtml(r, pid);
 
@@ -945,27 +1015,15 @@
     } catch (e) { return null; }
   }
 
-  // Promises keep their place in the header as a COUNT, never as a second
-  // percentage. The pledge lane is the top tier INSIDE the number above, so a
-  // rate here would be the same evidence rendered twice against a narrower
-  // denominator — which is exactly the rivalry the one-score pass removed.
-  // Counts add what a rate cannot: how much of the ledger has actually closed.
-  function pledgeChipHtml(opts) {
-    var g = opts && opts.pledge;
-    if (!g) return '';
-    var k = Number(g.kept) || 0, b = Number(g.broken) || 0, pen = Number(g.pending) || 0;
-    if (k + b + pen <= 0) return '';
-    var parts = [];
-    if (k) parts.push(k + ' kept');
-    if (b) parts.push(b + ' broken');
-    if (pen) parts.push(pen + ' pending');
-    var txt = parts.join(' · ');
-    return '' +
-      '<button type="button" class="pdxwa-hero-pledge"' + jumpAttr('pdxsec-score') +
-        ' aria-label="' + esc('Promise ledger: ' + parts.join(', ') + '. Open the promise block.') + '">' +
-        '<span aria-hidden="true">🤝</span> ' + esc(txt) +
-      '</button>';
-  }
+  // THE HERO PLEDGE CHIP IS GONE. It rendered "🤝 6 kept · 6 broken · 2 pending"
+  // directly beneath the one percentage, in the header, above the fold — promise
+  // counts as the second thing a reader met on the profile. Counts are not a
+  // rate, but three numbers sitting under one number still read as two findings,
+  // and on a president that chip was the loudest promise chrome on the page.
+  // Pledges are the top tier INSIDE the score above; they are named in the feeds
+  // list, where an input belongs, and the ledger itself is in the drawers.
+  // `opts.pledge` is still accepted by heroInner so no caller has to change
+  // shape — nothing reads it any more.
 
   function heroInner(pid, p, opts) {
     opts = opts || {};
@@ -987,8 +1045,7 @@
         '<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center pdxwa-hero-none">' +
           '<div class="pdxwa-hero-v" style="color:#9fb4d4;">—</div>' +
           '<div class="pdxwa-hero-cap">Monitoring</div>' +
-        '</div>' +
-        pledgeChipHtml(opts);
+        '</div>';
     }
     var radius = 28, circ = 2 * Math.PI * radius;
     var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
@@ -1010,8 +1067,7 @@
           '</span>' +
         '</span>' +
       '</button>' +
-      '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>' +
-      pledgeChipHtml(opts);
+      '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>';
   }
 
   function bindHero(uid, pid, p, opts) {

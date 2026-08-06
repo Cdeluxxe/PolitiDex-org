@@ -1262,6 +1262,16 @@
 
   // ── Public: shell rendered synchronously into the modal (hidden until data) ────
   window._renderVotingRecord = function (id, p) {
+    // Not for an office that casts no roll calls. This shell used to mount for every
+    // profile — hidden, but present — and its presence was enough: consistency.js
+    // asked the document whether a Voting Record existed before offering "See the
+    // full voting record →", got a yes for the President, and printed a promise of a
+    // roll-call list that can never fill. The office decides here, once, before the
+    // anchor exists at all.
+    try {
+      var E = window.PDXExecRecord;
+      if (E && typeof E.eligible === 'function' && E.eligible(id)) return '';
+    } catch (e) {}
     injectStyles();
     // Register the pending hydrate job; _pdxInitVotingRecord picks it up post-render.
     window.__pdxVotingPending = { id: id, p: p };

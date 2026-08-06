@@ -205,7 +205,7 @@
       aka: ['say-vs-do', 'Say-vs-Do'],
       short: 'A comparison of what someone has publicly said they stand for against what the record shows they actually did.',
       long: 'It needs both halves. Without a stated position there is nothing to check a vote against; without a record there is nothing to check the statement against.',
-      why: 'PolitiDex keeps two separate reads and never blends them into one “honesty” score: the 🏛️ Official Record (votes and formal actions only) and the 🧾 Say-vs-Do picture (statements, interviews, news and controversies only). A tracked promise counts in neither — it has its own tracker, so a pledge is never quietly recycled as a second piece of evidence. Mixing any of these would hide more than it reveals.',
+      why: 'PolitiDex keeps two separate reads and never blends them into one “honesty” score: the 🏛️ Official Record (votes and formal actions only) and the 🧾 Say-vs-Do picture (statements, interviews, news and controversies only). A tracked promise counts in neither — pledges are weighed inside ⚖️ Word vs Action, so a pledge is never quietly recycled as a second piece of evidence here. Mixing any of these would hide more than it reveals.',
       see: ['contradiction', 'officialrecord', 'norecord']
     },
     contradiction: {

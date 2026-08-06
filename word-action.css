@@ -183,6 +183,89 @@
 }
 .pdxwa-cov-n { color: #cbd9ec; font-weight: 700; }
 
+/* ── Top issue rows — Said → Did → Verdict → Receipts ───────────────────────
+   The spine, on the card that carries the one score. Three rows at most: the
+   sharpest tested issues, in the same rank order the Official Record uses. */
+.pdxwa-rows { margin-top: 0.75rem; }
+.pdxwa-rows-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7596c0;
+  margin-bottom: 0.4rem;
+}
+.pdxwa-rows-l { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.pdxwa-row {
+  border-left: 2px solid var(--pdxwa-col, #9fb4d4);
+  background: rgba(10, 15, 30, 0.45);
+  border-radius: 0 0.55rem 0.55rem 0;
+  padding: 0.5rem 0.6rem;
+}
+.pdxwa-row-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+.pdxwa-row-issue {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #e8eefc;
+  letter-spacing: 0.01em;
+}
+.pdxwa-row-verdict {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.pdxwa-row-step {
+  display: flex;
+  gap: 0.45rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #9db6d6;
+}
+.pdxwa-row-step + .pdxwa-row-step { margin-top: 0.15rem; }
+.pdxwa-row-k {
+  /* Sized for the narrowest phone and left alone from there — "Receipts" is the
+     longest key and fits at 3rem, so this needs no width query of its own. */
+  flex: 0 0 3rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #5f7ea8;
+  padding-top: 0.12rem;
+}
+.pdxwa-row-v { min-width: 0; }
+.pdxwa-rows-go {
+  margin-top: 0.45rem;
+  cursor: pointer;
+  width: 100%;
+  min-height: 2.5rem;
+  background: rgba(159, 219, 208, 0.08);
+  border: 1px solid rgba(159, 219, 208, 0.28);
+  border-radius: 0.6rem;
+  color: #9fdbd0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.6rem;
+}
+.pdxwa-rows-go:hover,
+.pdxwa-rows-go:focus-visible { background: rgba(159, 219, 208, 0.16); }
+
 /* ── Method disclosure ──────────────────────────────────────────────────── */
 .pdxwa-method { margin-top: 0.6rem; }
 .pdxwa-method > summary {
@@ -513,9 +596,12 @@
 }
 .pdxwa-hero-cap {
   display: block;
+  max-width: 3.4rem;
+  margin: 0 auto;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.5rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
   text-transform: uppercase;
   color: #7596c0;
 }
@@ -546,36 +632,10 @@
   color: #7596c0;
   overflow-wrap: break-word;
 }
-/* The pledge ledger, kept in the header as a count. Deliberately smaller and
-   quieter than the ring: it reports what closed, it does not rate anyone. Full
-   44px tap height because it is a route into the promise block. */
-.pdxwa-hero-pledge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  width: 100%;
-  max-width: 7.5rem;
-  min-width: 0;
-  min-height: 2.75rem;
-  margin: 0.3rem auto 0;
-  padding: 0.25rem 0.4rem;
-  background: rgba(159, 180, 212, 0.08);
-  border: 1px solid rgba(159, 180, 212, 0.24);
-  border-radius: 0.5rem;
-  color: #9fb4d4;
-  cursor: pointer;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  line-height: 1.25;
-  text-align: center;
-  overflow-wrap: break-word;
-}
-.pdxwa-hero-pledge:hover,
-.pdxwa-hero-pledge:focus-visible { background: rgba(159, 180, 212, 0.16); color: #cfe0f5; }
+/* THE HERO PLEDGE CHIP IS GONE — see pledgeChipHtml's obituary in word-action.js.
+   "🤝 6 kept · 6 broken · 2 pending" no longer renders under the ring on any
+   screen, so the ~44px tap target it reserved in the letterhead, and the
+   ~2.35rem row it took in the phone grid below, are both returned to the page. */
 
 /* ── Wider screens ──────────────────────────────────────────────────────── */
 @media (min-width: 620px) {
@@ -616,15 +676,16 @@
    Same markup, same number, laid out sideways. On a phone the hero header is a
    grid whose third row is full width (see .profile-hero in app.css), so the
    stack that reads top-to-bottom in a narrow desktop column reads left-to-right
-   here: the ring on the left, its denominator sub-line and the pledge COUNT
-   chip stacked beside it. That turns a ~150px-tall column that had to be hidden
-   for want of width into an ~86px-tall strip that fits under the name.
+   here: the ring on the left, its denominator sub-line beside it. That turns a
+   ~150px-tall column that had to be hidden for want of width into a short strip
+   that fits under the name.
 
    The strip is given a panel of its own — not for decoration, but so a reader
-   can tell at a glance that the ring, the "7 of 10 tested" line and the pledge
-   chip are one read rather than three loose figures floating under the office
-   line. The pledge chip stays a count and stays quieter than the ring: the
-   layout changes, the hierarchy does not. */
+   can tell at a glance that the ring and the "7 of 10 tested" line are one read
+   rather than two loose figures floating under the office line. Row 2 of column
+   2 is still declared: the tracking/pending states render there on a profile
+   with no scorable record. The pledge count chip that used to occupy it is
+   gone. */
 @media (max-width: 480px) {
   .profile-hero-score .pdxwa-hero {
     display: grid;
@@ -658,7 +719,6 @@
     text-align: left;
     align-self: end;
   }
-  .profile-hero-score .pdxwa-hero > .pdxwa-hero-pledge,
   .profile-hero-score .pdxwa-hero > .profile-score-pending,
   .profile-hero-score .pdxwa-hero > .profile-score-track-note {
     grid-column: 2;
@@ -667,11 +727,6 @@
     width: 100%;
     max-width: none;
     align-self: start;
-  }
-  .profile-hero-score .pdxwa-hero > .pdxwa-hero-pledge {
-    min-height: 2.35rem;
-    justify-content: flex-start;
-    text-align: left;
   }
   .profile-hero-score .pdxwa-hero > .profile-score-track-note { max-width: none; text-align: left; }
 }

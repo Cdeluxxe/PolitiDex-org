@@ -102,13 +102,21 @@
   //   THE READER'S OWN STAKE BEFORE THE FOLLOW-THE-MONEY TAIL. `you` moved above
   //   `money`, so the profile ends on the deep record rather than on the reader,
   //   but the reader is met before the widest-context material.
+  // The order below IS the profile's reading order, and it answers one question
+  // per stage. `record` sits directly under `verdict` because the score and the
+  // actions it was computed from are one argument: the reader meets the number,
+  // then the sharpest said→did rows inside it, then the full formal record that
+  // produced them. Everything adverse, contested or contextual follows. It used
+  // to sit fifth, with `tension` and `signature` wedged between the finding and
+  // its evidence, which meant the profile changed the subject twice before it
+  // showed its work.
   var STAGES = [
     { key: 'identity',  label: 'Identity',           ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
     { key: 'verdict',   label: 'The verdict',         ask: 'Do they stand by what they said?' },
+    { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
     { key: 'tension',   label: 'Where it is contested', ask: 'Where is the tension?' },
     { key: 'signature', label: 'Signature issues',    ask: 'What defines them?' },
-    { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
     { key: 'receipts',  label: 'Receipts · say vs. do', ask: 'Where are the receipts?' },
     { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
     { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
@@ -157,8 +165,6 @@
     'pdxsec-positions': 'signature',
     'pdxsec-glance': 'signature',
     // record — the formal apparatus behind the verdict
-    'pdxsec-score': 'record',
-    'pdxsec-promise-tracker': 'record',
     'pdxsec-exec-record': 'record',
     'pdxsec-official-record': 'record',
     'pdxsec-verify': 'record',
@@ -174,7 +180,11 @@
     'pdxsec-contracts': 'money',
     // drawers — destinations that really do sit inside the full-record drawers, and
     // are therefore reached through a reveal rather than a plain scroll. Anchor for
-    // the voting record is emitted by voting-record.js into the votes drawer.
+    // the voting record is emitted by voting-record.js into the votes drawer. The
+    // two pledge anchors joined them when the promise ledger stopped being a
+    // section: promises feed the one score, so they are raw material, not a stage.
+    'pdxsec-score': 'drawers',
+    'pdxsec-promise-tracker': 'drawers',
     'pdxsec-record': 'drawers',
     'pdxsec-voting': 'drawers',
     'pdxsec-activity': 'drawers'
@@ -199,7 +209,13 @@
   //   that nobody remembered to register lands beside the drawers instead of
   //   ahead of the verdict.
   function railOrder(items) {
-    var ranked = [], inherit = 0;
+    // `inherit` starts at the deep end, not at 0. An action pill carries no anchor
+    // of its own and takes the rank of the last anchored pill ahead of it — but if
+    // there is no anchored pill ahead of it, it has declared no position at all, and
+    // a pill with no declared position must sink for the same reason an unregistered
+    // target does. Seeding at 0 floated it above the verdict instead, which is only
+    // invisible because the one action pill we ship always follows Positions.
+    var ranked = [], inherit = STAGES.length;
     (items || []).forEach(function (it, i) {
       if (!it) return;
       var r = it.target ? stageRank(stageOfTarget(it.target)) : inherit;

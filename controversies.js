@@ -35,7 +35,12 @@
   'use strict';
   if (window._renderControversies) return; // idempotent
 
-  var MAX_ITEMS = 4;
+  // Three, not four. This block is the adverse finding a reader came for, and it
+  // ranks hardest-first, so the fourth card was always the softest thing in a
+  // section whose whole job is to be sharp. Cutting it keeps the section a
+  // scannable list rather than a second essay, which is the only shape that
+  // survives sitting between the Official Record and the receipts.
+  var MAX_ITEMS = 3;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -215,10 +220,18 @@
         escAttr(it.issueKey) + '&quot;);" title="' + escAttr('See where everyone stands on ' + topic) + '">' +
         '<span aria-hidden="true">🔦</span> Issue Spotlight</button>');
     }
-    // Jump to the voting / promise record on this same profile.
+    // Jump to the formal record on this same profile. The label used to be
+    // "📋 Voting record" on every profile and aimed at pdxsec-record, a drawer
+    // anchor — wrong word on a president, and wrong destination on everyone. It
+    // now names the one action lane and lands on it.
+    var _ctvExec = false;
+    try {
+      _ctvExec = !!(window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function'
+        && window.PDXExecRecord.eligible(id));
+    } catch (e) { _ctvExec = false; }
     acts.push('<button type="button" class="pdx-ctv-act" ' +
-      'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-record&quot;);">' +
-      '<span aria-hidden="true">📋</span> Voting record</button>');
+      'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-official-record&quot;);">' +
+      '<span aria-hidden="true">' + (_ctvExec ? '✍️' : '\u{1F3DB}️') + '</span> Official record</button>');
     // Source of record.
     if (it.source && it.source.url) {
       acts.push('<a class="pdx-ctv-act pdx-ctv-src" href="' + escAttr(it.source.url) + '" ' +
@@ -271,9 +284,8 @@
           '<span class="pdx-ctv-count">' + items.length + ' flashpoint' + (plural ? 's' : '') + '</span>' +
         '</div>' +
         '<p class="modal-section-sub pdx-ctv-note">' +
-          'The most notable or divisive ' + (plural ? 'items' : 'item') + ' on ' + esc(first) +
-          '’s public record — each with a neutral summary, a say-vs-do read where one applies, ' +
-          'and a link to the source. Inclusion reflects a documented gap or public attention, not a judgment.' +
+          'The sharpest ' + (plural ? 'items' : 'item') + ' on ' + esc(first) +
+          '’s public record. Inclusion reflects a documented gap or public attention, not a judgment.' +
         '</p>' +
         '<div class="pdx-ctv-list">' + cards + '</div>' +
       '</section>';

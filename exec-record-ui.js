@@ -100,6 +100,11 @@
         '.pdxer-title{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.03em;color:#e8eefc;}' +
         '.pdxer-office{font-size:0.66rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;}' +
         '.pdxer-q{font-style:italic;font-size:0.76rem;color:#c6d4ec;margin:0.2rem 0 0.6rem;line-height:1.3;}' +
+        // The merged form: this lane sitting inside the Official Record. Indented and
+        // rule-led so it reads as the document ledger BELOW the issue rows, not as a
+        // second record section competing with them for the title.
+        '.pdxer-embed{margin:0.7rem 0 0.2rem;padding:0.6rem 0 0 0.65rem;border-left:2px solid rgba(159,219,208,0.35);}' +
+        '.pdxer-embed-h{display:flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:0.98rem;letter-spacing:0.04em;color:#9fdbd0;margin-bottom:0.35rem;}' +
         // The coverage gate. Amber and above the counts: it is a condition on them,
         // not a footnote to them. Full-width and wrapping freely so the whole
         // declaration is readable on a narrow phone rather than clipped to a chip.
@@ -175,6 +180,12 @@
         '.pdxer-cov b{color:#c6d4ec;font-weight:700;}' +
         '.pdxer-cov-body{margin-top:0.3rem;display:flex;flex-wrap:wrap;gap:0.25rem 0.35rem;}' +
         '.pdxer-why{font-size:0.64rem;color:#8fa2c0;line-height:1.45;margin-top:0.6rem;padding-top:0.45rem;border-top:1px solid rgba(255,255,255,0.07);}' +
+        '.pdxer-fold{margin:0 0 0.5rem;}' +
+        '.pdxer-fold-s{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center;min-height:2.5rem;padding:0.35rem 0.7rem;border:1px dashed rgba(159,180,212,0.32);border-radius:0.6rem;background:rgba(159,180,212,0.06);color:#9fb4d4;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;}' +
+        '.pdxer-fold-s::-webkit-details-marker{display:none;}' +
+        '.pdxer-fold-s:hover{color:#c6d4ec;border-color:rgba(159,180,212,0.5);}' +
+        '.pdxer-fold-s:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+        '.pdxer-fold[open] .pdxer-fold-s{margin-bottom:0.5rem;}' +
         '@media (max-width:380px){.pdxer-title{font-size:1.1rem;}.pdxer-sum{font-size:0.76rem;}.pdxer-issrow{flex-wrap:wrap;}}';
       var st = document.createElement('style');
       st.id = 'pdx-execrecord-css';
@@ -322,6 +333,11 @@
     executive_order: ['executive order', 'executive orders'],
     directive:       ['directive', 'directives']
   };
+
+  // How many action cards print inline before the ledger folds. Three is enough
+  // to show what the cards are and what the newest ones say; the count rows above
+  // already state the totals, so nothing is hidden that a reader has not been told.
+  var CARDS_OPEN = 3;
 
   function cardHtml(action) {
     var ex = EX();
@@ -486,54 +502,69 @@
     '</div>';
   }
 
-  function sectionHtml(pid) {
-    try {
-      var ex = EX();
-      if (!ex || !pid || !ex.eligible(pid)) return '';
-      var sum = ex.summary(pid);
-      var pool = ex.actionsFor(pid);
-      // Quiet by construction. No summary or nothing on file → no section, not a
-      // sentence about the absence. The empty string is the honest rendering: this
-      // lane knows nothing about most figures, and saying so on every profile would
-      // be noise that reads as a finding.
-      if (!sum || !pool.kept.length) return '';
-      ensureStyles();
+  // ── the lane's body, built once ─────────────────────────────────────────────
+  // Everything below the title: the coverage declaration, the generated summary
+  // label, the scope line, the two count rows, the cards and the why. Shared by the
+  // standalone section and by the embed that now lives inside the Official Record,
+  // so the merged lane cannot drift from the one it replaced. Returns null when this
+  // figure has nothing on file — the caller decides what to render for that, and both
+  // callers choose to render nothing.
+  function bodyParts(pid) {
+    var ex = EX();
+    if (!ex || !pid || !ex.eligible(pid)) return null;
+    var sum = ex.summary(pid);
+    var pool = ex.actionsFor(pid);
+    // Quiet by construction. No summary or nothing on file → no section, not a
+    // sentence about the absence. The empty string is the honest rendering: this
+    // lane knows nothing about most figures, and saying so on every profile would
+    // be noise that reads as a finding.
+    if (!sum || !pool.kept.length) return null;
+    ensureStyles();
 
-      var cards = pool.kept.slice().sort(function (a, b) {
-        return (Date.parse(b.actedAt || '') || 0) - (Date.parse(a.actedAt || '') || 0);
-      }).map(cardHtml).join('');
-      if (!cards) return '';
+    var sorted = pool.kept.slice().sort(function (a, b) {
+      return (Date.parse(b.actedAt || '') || 0) - (Date.parse(a.actedAt || '') || 0);
+    });
+    if (!sorted.length) return null;
+    // Newest few inline, the rest behind a native disclosure. Every document is
+    // still here and still in the same order — but this ledger was printing the
+    // entire term inline, which made the one section a reader is meant to keep
+    // the longest thing on the page by an order of magnitude. A <details> rather
+    // than a spine lid on purpose: this body is re-rendered outside the spine
+    // when the record warms, so it has to fold itself.
+    var cards = sorted.slice(0, CARDS_OPEN).map(cardHtml).join('');
+    var rest = sorted.slice(CARDS_OPEN);
+    if (rest.length) {
+      cards += '<details class="pdxer-fold">' +
+          '<summary class="pdxer-fold-s">Show ' + rest.length + ' earlier ' +
+            (rest.length === 1 ? 'action' : 'actions') + ' on file</summary>' +
+          rest.map(cardHtml).join('') +
+        '</details>';
+    }
+    if (!cards) return null;
 
-      var office = ex.office(pid);
-      var tip = ex.summaryTip(sum);
+    var scope = [];
+    if (sum.term) scope.push('Current term (' + sum.term + ')');
+    var shown = sum.actions.total + (sum.unstatedStanding || 0);
+    if (sum.allTimeTotal > shown) scope.push(sum.allTimeTotal + ' on file across all terms');
+    var byClass = [];
+    Object.keys(sum.byClass).forEach(function (k) {
+      var n = sum.byClass[k];
+      if (!n) return;
+      // Reported per class and never summed into one headline figure: signing a bill
+      // Congress wrote and issuing an order alone are different claims about power,
+      // and "5 actions" flattens shared authorship into sole authorship.
+      var noun = CLASS_NOUN[k] || [k, k];
+      byClass.push(n + ' ' + noun[n === 1 ? 0 : 1]);
+    });
+    if (byClass.length) scope.push(byClass.join(' · '));
 
-      var scope = [];
-      if (sum.term) scope.push('Current term (' + sum.term + ')');
-      var shown = sum.actions.total + (sum.unstatedStanding || 0);
-      if (sum.allTimeTotal > shown) scope.push(sum.allTimeTotal + ' on file across all terms');
-      var byClass = [];
-      Object.keys(sum.byClass).forEach(function (k) {
-        var n = sum.byClass[k];
-        if (!n) return;
-        // Reported per class and never summed into one headline figure: signing a bill
-        // Congress wrote and issuing an order alone are different claims about power,
-        // and "5 actions" flattens shared authorship into sole authorship.
-        var noun = CLASS_NOUN[k] || [k, k];
-        byClass.push(n + ' ' + noun[n === 1 ? 0 : 1]);
-      });
-      if (byClass.length) scope.push(byClass.join(' · '));
-
-      return '<section class="pdxer" data-pdxer-pid="' + esc(pid) + '" aria-label="Executive Enactment Record">' +
-        '<div class="pdxer-head">' +
-          '<span class="pdxer-title"><span aria-hidden="true">' + esc(ex.SCOPE.icon) + '</span> ' +
-            LT('execrecord', ex.SCOPE.label) + '</span>' +
-          (office ? '<span class="pdxer-office">' + esc(office) + '</span>' : '') +
-        '</div>' +
-        '<div class="pdxer-q">“' + esc(ex.SCOPE.question) + '”</div>' +
-        coverageGateHtml() +
+    return {
+      sum: sum,
+      office: ex.office(pid),
+      html: coverageGateHtml() +
         // The label is generated by the read path, not authored here, so the framing
         // clause and the counts cannot disagree with the cards below them.
-        '<p class="pdxer-sum" title="' + esc(tip) + '">' + esc(sum.label) + '</p>' +
+        '<p class="pdxer-sum" title="' + esc(ex.summaryTip(sum)) + '">' + esc(sum.label) + '</p>' +
         (scope.length ? '<div class="pdxer-scope">' + esc(scope.join(' · ')) + '</div>' : '') +
         alignmentRowHtml(sum) +
         standingRowHtml(sum) +
@@ -542,7 +573,44 @@
           'have several actions behind it.</div>' +
         cards +
         coverageHtml(pid, sum) +
-        '<div class="pdxer-why">' + esc(ex.SCOPE.blurb) + '</div>' +
+        '<div class="pdxer-why">' + esc(ex.SCOPE.blurb) + '</div>'
+    };
+  }
+
+  // ── the merged form: this lane INSIDE the Official Record ───────────────────
+  // The profile used to carry two record products for a president — an Official
+  // Record that spoke in issue rows and a separate Executive Enactment Record that
+  // spoke in documents — which asked a reader to work out which one was the record.
+  // There is one record section now, and this is its document ledger: same content,
+  // no section chrome, no second question, no second title claiming to be a record of
+  // its own. The anchor id rides along so existing deep links still land.
+  function embedHtml(pid) {
+    try {
+      var p = bodyParts(pid);
+      if (!p) return '';
+      var ex = EX();
+      return '<div class="pdxer pdxer-embed" id="pdxsec-exec-record" data-pdxer-pid="' + esc(pid) + '"' +
+          ' aria-label="Executive actions behind this record">' +
+        '<div class="pdxer-embed-h"><span aria-hidden="true">' + esc(ex.SCOPE.icon) + '</span> ' +
+          'The ' + LT('execrecord', 'executive actions') + ' behind this record</div>' +
+        p.html +
+      '</div>';
+    } catch (e) { return ''; }
+  }
+
+  function sectionHtml(pid) {
+    try {
+      var p = bodyParts(pid);
+      if (!p) return '';
+      var ex = EX();
+      return '<section class="pdxer" data-pdxer-pid="' + esc(pid) + '" aria-label="Executive Enactment Record">' +
+        '<div class="pdxer-head">' +
+          '<span class="pdxer-title"><span aria-hidden="true">' + esc(ex.SCOPE.icon) + '</span> ' +
+            LT('execrecord', ex.SCOPE.label) + '</span>' +
+          (p.office ? '<span class="pdxer-office">' + esc(p.office) + '</span>' : '') +
+        '</div>' +
+        '<div class="pdxer-q">“' + esc(ex.SCOPE.question) + '”</div>' +
+        p.html +
       '</section>';
     } catch (e) {
       // Fail closed: a renderer that throws must not take the profile with it, and an
@@ -588,6 +656,7 @@
 
   window.PDXExecRecordUI = {
     sectionHtml: sectionHtml,
+    embedHtml: embedHtml,
     navPill: navPill,
     ensureStyles: ensureStyles
   };

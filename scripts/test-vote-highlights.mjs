@@ -255,9 +255,20 @@ const rec = (o) => Object.assign({
      "the curated sample renders ABOVE the live record — the sample must not be the first thing read");
   ok(/Annotated selection/.test(PF),
      "the curated layer does not name itself a selection, so five hand-picked rows still read as the record");
-  ok(/These counts cover the ' \+ vr\.length \+ ' annotated vote/.test(PF),
-     "the curated tally does not scope itself to the annotated rows — an unscoped kept/broken tally over a\n" +
-     "    sample is a claim about the whole voting history");
+  // The curated block used to close with a kept/broken/partial tally — a second
+  // "kept word" percentage's worth of chrome, computed over five hand-picked rows,
+  // sitting a screen below the one integrity score. It is gone: the annotated rows
+  // are evidence for Word vs Action, not a scoreboard of their own. What survives
+  // is the scoping sentence, which now has to say the sample tallies nothing.
+  ok(!/_vrTally|_tallyChip/.test(PF),
+     "the curated kept/broken tally is back — an unscoped tally over a hand-picked sample is a\n" +
+     "    rival integrity product, and the profile carries exactly one");
+  ok(/These are ' \+ vr\.length \+ ' annotated vote/.test(PF),
+     "the curated sample does not scope itself to the annotated rows — five picked votes then\n" +
+     "    read as the whole voting history");
+  ok(/not a tally of anything/.test(PF),
+     "the curated sample no longer disclaims being a tally, which is exactly what a reader\n" +
+     "    coming off a percentage will assume it is");
   const open = PF.slice(PF.indexOf("function openModal(id) {"));
   ok(/_pdxHydrateVoteHighlights\(\)/.test(open),
      "opening a profile never calls the hydrator, so an already-warm record is ignored until something else warms");

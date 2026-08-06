@@ -617,11 +617,17 @@ for (const card of CARDS) {
   ok(at("exec-record.js") < at("exec-record-ui.js"), "exec-record-ui.js loads before exec-record.js");
 
   // Mounted once, into the profile, behind a guard.
+  // Mounted once — and now mounted INSIDE the Official Record rather than beside
+  // it. A president gets one record lane, not a 🏛️ section and a rival ✒️ section
+  // making separate claims about the same office. The anchor still exists exactly
+  // once so the rail and every deep link keep resolving.
   eq((page.match(/id="pdxsec-exec-record"/g) || []).length, 1,
     "the EER anchor is missing or duplicated in the profile template");
-  has(page, "window.PDXExecRecordUI.sectionHtml", "the profile never calls the EER renderer");
-  ok(/window\.PDXExecRecordUI && typeof window\.PDXExecRecordUI\.sectionHtml === 'function'/.test(page),
-    "the EER render call is not guarded — a failed script load would break the profile");
+  has(page, "window.PDXExecRecordUI", "nothing on the page renders the EER lane");
+  has(page, "U.embedHtml(pid)",
+    "the Official Record never embeds the EER lane — the executive record is orphaned");
+  ok(/typeof U\.embedHtml !== 'function'\) return ''/.test(page),
+    "the EER embed call is not guarded — a failed script load would break the profile");
 
   // Additive only: the 🏛️ surfaces are still mounted, unchanged.
   for (const marker of [

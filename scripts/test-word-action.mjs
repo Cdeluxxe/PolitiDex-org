@@ -580,11 +580,18 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/pdxsec-wordaction/.test(WA_SRC), 'the section has no stable anchor to jump to');
   ok(/target: 'pdxsec-wordaction'/.test(PROFILES),
     'the quick-jump rail has no Word vs Action pill, so the primary read is not addressable');
-  ok(/label: 'Word vs Action'/.test(PROFILES) && /label: 'Promises'/.test(PROFILES),
-    'the rail no longer names both the unified read and the pledge lane it contains');
+  ok(/label: 'Word vs Action'/.test(PROFILES),
+    'the rail no longer names the unified read');
+  // The pledge lane had a rail pill of its own until this pass. It does not now: a
+  // "Promises · 6K · 6B · 2P" entry sitting one pill from the ⚖️ percentage is a second
+  // scoreboard in the header strip. The lane is named INSIDE the score, in the feeds
+  // panel below, which is where an input to a number belongs.
+  ok(!/label: 'Promises'/.test(PROFILES),
+    'the rail names the pledge lane as a peer of the read that contains it');
   const railWA = PROFILES.indexOf("label: 'Word vs Action'");
-  const railProm = PROFILES.indexOf("label: 'Promises'");
-  ok(railWA < railProm, 'the rail lists the pledge lane ahead of the primary read');
+  const railRec = PROFILES.indexOf("target: 'pdxsec-official-record'");
+  ok(railWA !== -1 && railRec !== -1 && railWA < railRec,
+    'the rail lists the record ahead of the primary read');
   ok(/Checking…|Thin record|Untested/.test(PROFILES),
     'the rail pill shows a bare number even when the read has failed closed — the honest state\n' +
     '    has to reach the rail too, or a blank section sits behind a confident pill');
@@ -753,8 +760,12 @@ const voteNarration = (issueKey, extra = {}) => ({
   eq(h.pct, 50, 'the hero read and the section read disagree on the number');
   eq(h.sub, '3 of 3 tested', 'the hero sub-line does not report the coverage behind the number');
   ok(h.color !== '#9fb4d4', 'a published hero number is drawn in the neutral colour, so the verdict is invisible');
-  ok(/kept word/i.test(h.caption),
-    `the hero caption is "${h.caption}" — it has to say in plain words what the number measures`);
+  // One number, one name. The ring said "Kept word" while the section a screen down
+  // said "Word vs Action" — two labels for one figure, which a reader with no reason
+  // to know they were the same figure met as two integrity products.
+  eq(h.caption, 'Word vs Action',
+    `the hero caption is "${h.caption}" — it has to be the SAME name the section carries, or the\n` +
+    '    header and the section read as two scores');
   ok(!/promise/i.test(h.caption),
     'the hero caption says "Promise" — that word names the pledge TIER inside this score, and reusing\n' +
     '    it for the whole score rebuilds the ambiguity this collapse removed');
@@ -799,43 +810,33 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/Monitoring/.test(none.WA.heroHtml('p1', { name: 'Empty' })),
     'with nothing to report the hero has no honest resting state');
 
-  // The supporting layer the header keeps: pledge COUNTS, never a pledge rate.
-  // A rate here would be the same evidence as the ring's top tier, rendered
-  // against a narrower denominator — two headline numbers for one question.
+  // NO pledge layer in the header at all. Phase 5 demoted the pledge rate to pledge
+  // COUNTS in a chip under the ring, on the reasoning that counts cannot rival a
+  // percentage. They can: "🤝 27 kept · 8 broken · 2 pending" directly beneath one
+  // number is the second thing a reader meets on the profile, and it reads as a
+  // second finding about the same person. The pledge lane is the top TIER inside the
+  // ring's percentage — named in the feeds panel, ledgered in the drawers.
+  //
+  // Rendered with a ledger passed anyway, because the option is still accepted for
+  // callers' sake: what it must not do is draw anything.
   const ledger = { pledge: { kept: 27, broken: 8, pending: 2 } };
   const chipCtx = publishable();
   const withChip = chipCtx.WA.heroHtml('p1', { name: 'Publishable' }, ledger);
-  ok(/27 kept/.test(withChip) && /8 broken/.test(withChip) && /2 pending/.test(withChip),
-    'the hero pledge chip does not report kept / broken / pending — the header dropped the\n' +
-    '    promise ledger instead of demoting it');
-  const chipOnly = withChip.slice(withChip.indexOf('pdxwa-hero-pledge'));
-  must(chipOnly.length > 40, 'the hero pledge chip markup could not be isolated');
-  ok(!/%/.test(chipOnly),
-    'the hero pledge chip prints a percentage — the pledge lane is a tier inside the ring\'s\n' +
-    '    number, so a rate here is the same evidence twice against a narrower denominator');
+  ok(!/27 kept/.test(withChip) && !/8 broken/.test(withChip) && !/2 pending/.test(withChip),
+    'the hero prints the pledge ledger again — promise counts above the fold are a second\n' +
+    '    scoreboard, whatever units they are in');
+  ok(!/pdxwa-hero-pledge/.test(withChip),
+    'the hero pledge chip is back in the header markup');
   eq(new Set(withChip.match(/\d+%/g) || []).size, 1,
     'the hero renders more than one distinct percentage — the ring is the only major number\n' +
-    '    in the header, and everything under it is a count');
-  ok(/_pdxNavJump\('pdxsec-score'\)/.test(withChip),
-    'the hero pledge chip is not a route into the promise block, so the demoted layer became\n' +
-    '    unreachable from the header that summarises it');
-  ok(/aria-label="[^"]*27 kept[^"]*"/.test(withChip),
-    'the hero pledge chip has no accessible name, so a screen reader hears three bare numbers');
-  eq(withChip.indexOf('pdxwa-hero-pledge') !== -1, true,
-    'the hero pledge chip lost the class its 44px tap target is styled from');
-  ok(!/pdxwa-hero-pledge/.test(chipCtx.WA.heroHtml('p1', { name: 'Publishable' })),
-    'the hero renders an empty pledge chip when no ledger was passed — a profile with no promises\n' +
-    '    on file should not show a chip reading "0 kept"');
-  ok(!/pdxwa-hero-pledge/.test(chipCtx.WA.heroHtml('p1', { name: 'Publishable' },
-      { pledge: { kept: 0, broken: 0, pending: 0 } })),
-    'a zeroed pledge ledger still renders a chip — an empty ledger is not a finding');
-  // Below the floors and while warming, the counts survive: they are observed
-  // facts, not a derived rate, so they are not subject to the score's floors.
-  ok(/27 kept/.test(thin.WA.heroHtml('p1', { name: 'One Item' }, ledger)),
-    'a below-floor hero hides the pledge counts — the fail-closed rule applies to the derived\n' +
-    '    score, not to the counted ledger underneath it');
-  ok(/27 kept/.test(none.WA.heroHtml('p1', { name: 'Empty' }, ledger)),
-    'a profile with no documented word hides the pledge counts it does have');
+    '    in the header, and nothing sits under it');
+  ok(!/_pdxNavJump\('pdxsec-score'\)/.test(withChip),
+    'the hero jumps into the pledge ledger again — the route to that input is the score\'s own\n' +
+    '    feeds panel, not a chip in the letterhead');
+  ok(!/27 kept/.test(thin.WA.heroHtml('p1', { name: 'One Item' }, ledger)) &&
+     !/27 kept/.test(none.WA.heroHtml('p1', { name: 'Empty' }, ledger)),
+    'the thin and no-word heroes print pledge counts — a header with no score to show is the\n' +
+    '    last place the pledge tally should stand in for one');
 
   // The mount: addressable, jumps into the section, and re-renders on warm.
   const live = publishable();
@@ -1038,15 +1039,17 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/min-height/.test(heroSub),
     'the hero sub-line reserves no height, so "Loading the record…" → "7 of 9 tested" shifts the\n' +
     '    whole profile header on hydration');
-  // The demoted pledge counts sit under the ring in the narrowest column on the
-  // page, and they are a jump control, so they need both a tap target and a wrap.
-  const heroPledge = base.slice(base.indexOf('.pdxwa-hero-pledge {'), base.indexOf('.pdxwa-hero-pledge:hover'));
-  must(heroPledge.length > 80, 'word-action.css no longer styles .pdxwa-hero-pledge');
-  ok(/min-height:\s*2\.75rem/.test(heroPledge),
-    'the hero pledge chip is under 44px tall — it is a button in the tightest column of the header');
-  ok(/min-width:\s*0/.test(heroPledge) && /overflow-wrap:\s*break-word/.test(heroPledge),
-    'the hero pledge chip cannot wrap, so "27 kept · 8 broken · 2 pending" widens the header column\n' +
-    '    and pushes the name off a small screen');
+  // The pledge chip that used to sit under the ring is gone; nothing may restyle it.
+  ok(!/pdxwa-hero-pledge/.test(WA_CSS),
+    'word-action.css styles .pdxwa-hero-pledge again — the header carries one number and no\n' +
+    '    promise chrome under it');
+  // The caption inside the ring took the section\'s own name, which is more than twice
+  // as long as the "Kept word" it replaced and has to wrap inside an 80px circle.
+  const heroCap = base.slice(base.indexOf('.pdxwa-hero-cap {'), base.indexOf('.pdxwa-hero-cap {') + 400);
+  must(heroCap.length > 80, 'word-action.css no longer styles .pdxwa-hero-cap');
+  ok(/max-width/.test(heroCap) && /line-height/.test(heroCap),
+    'the ring caption is not constrained to wrap, so "WORD VS ACTION" runs past the 80px ring it\n' +
+    '    is centred in instead of breaking onto two lines');
   // No fixed pixel heights that would clip wrapped text at small sizes.
   ok(!/\.pdxwa-[a-z-]+\s*{[^}]*\bheight:\s*\d+px/.test(WA_CSS),
     'a Word vs Action element has a hard pixel height — wrapped copy would be clipped on a phone');
