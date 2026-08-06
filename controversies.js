@@ -58,6 +58,33 @@
     return s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…';
   }
 
+  // ── the chip names a KIND, never an outcome ─────────────────────────────────
+  // A Flashpoint card and a ⚖️ Word vs Action row can both be about
+  // `border_security` and honestly say different things: the card is one dated
+  // public dispute, the row is the whole issue weighed against formal action.
+  // That is fine right up until they say it in the SAME WORDS. The receipt engine
+  // stamps a contradiction "Says One Thing · Does Another", which is verbatim one
+  // of Word vs Action's four locked outcome names, so the president's profile read
+  // "Says One Thing · Does Another" here and "Backs it up" there — about the same
+  // issue, on the same scroll, in the same vocabulary. Two verdict systems
+  // disagreeing in public, which is the one thing this section must never be.
+  //
+  // The receipt engine's label is correct on the receipt engine's own surfaces
+  // (the hero card, the lightbox, the share card) and is untouched there. It is
+  // remapped only at this boundary, and only when it collides — the icon and the
+  // colour class carry through, so the heat signal survives and the rival verdict
+  // does not. "Red Flag On Record", "Flagged Event" and "Promise Broken" already
+  // name a kind of item rather than an outcome, and pass through unchanged.
+  var WA_OUTCOME_WORDS = /says one thing|backs? it up|backed it up|words match actions|mixed record|not enough record/i;
+  function heatChip(v) {
+    if (!v || !v.label) return { ico: '⚑', label: 'On Record', cls: 'v-flag' };
+    if (!WA_OUTCOME_WORDS.test(String(v.label))) return v;
+    // The colour class already says which kind of heat this is; name the chip
+    // after that rather than after the outcome vocabulary it collided with.
+    return { ico: v.ico, cls: v.cls,
+             label: (v.cls === 'v-contradicts') ? 'Contradiction On Record' : 'Disputed On Record' };
+  }
+
   // Resolve an ISSUE_MAP label into { icon, label } (matches say-vs-do.js).
   function issueMeta(key) {
     if (!key) return null;
@@ -188,6 +215,11 @@
       var k = sig(it);
       if (seen[k]) return;
       seen[k] = 1;
+      // Normalise here rather than in cardHTML, because the cards are not the only
+      // consumer: profile-spine.js reads items[0].verdict.label straight into the
+      // brief's tension badge, ABOVE THE FOLD. Doing it at the gather boundary
+      // means every surface fed by this module gets a kind, not an outcome.
+      it.verdict = heatChip(it.verdict);
       out.push(it);
     });
     return out.slice(0, MAX_ITEMS);
@@ -243,9 +275,25 @@
     // (the Evidence drawer). Without them this section reads as a second scoring
     // system, which is exactly what it must not be.
     if (it.issueKey) {
+      // Name the outcome the ONE verdict system already reached for this issue, in
+      // the tooltip on the way to it. A card that says "Contradiction On Record"
+      // beside a row that says "Backs it up" is not a conflict — the card is one
+      // dated dispute, the row is the whole issue weighed against formal action —
+      // but the reader has no way to know that unless the link says so. Read-only,
+      // guarded, and it prints the row's own label rather than deriving one.
+      var _rowOut = '';
+      try {
+        var _C = window.PDXConsistency;
+        if (_C && typeof _C.issueRow === 'function') {
+          var _r = _C.issueRow(id, it.issueKey);
+          if (_r && _r.verdict && _r.verdict.label) _rowOut = String(_r.verdict.label);
+        }
+      } catch (e) { _rowOut = ''; }
       acts.push('<button type="button" class="pdx-ctv-act" ' +
         'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-wordaction&quot;);" ' +
-        'title="' + escAttr('How this issue came out in the one score') + '">' +
+        'title="' + escAttr(_rowOut
+          ? ('Weighed across this whole issue, the one score says: ' + _rowOut)
+          : 'How this issue came out in the one score') + '">' +
         '<span aria-hidden="true">⚖️</span> Word vs Action</button>');
     }
     acts.push('<button type="button" class="pdx-ctv-act" ' +

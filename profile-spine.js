@@ -656,36 +656,26 @@
     return out;
   }
 
-  // The single sharpest tension, chosen in a fixed order of evidentiary strength:
-  // a measured Official-Record-vs-Say-vs-Do gap beats a flagged flashpoint,
-  // because a gap is two independently scored feeds disagreeing rather than one
-  // feed reporting something notable. Returns null when the record genuinely has
-  // no contested point, and the caller says exactly that.
+  // The single sharpest tension: the top-ranked 🔥 Flashpoint, which is the
+  // section this card is the trailer for. Returns null when the record genuinely
+  // has no contested point, and the caller says exactly that.
+  //
+  // THE RECORD-VS-PUBLIC-PICTURE BRANCH IS GONE. It ran first and outranked every
+  // flashpoint, on the theory that "two independently scored feeds disagreeing"
+  // is stronger evidence than one feed reporting something notable. That theory
+  // died when the public record became an INPUT to the issue row rather than a
+  // rival feed: there is no second score left for the first to disagree with.
+  // What survived was the display — 'Record and public picture disagree on X',
+  // badged '100 pt gap', detailed '🏛️ 100% vs 🧾 0%' — a two-percentage
+  // divergence panel mounted above the fold, on the one profile in the roster
+  // whose thin curated feed still produced a gap over the threshold. That is the
+  // exact surface the spine unmounted three sections lower down, and a reader met
+  // it before they met the score it was arguing with.
+  //
+  // divergence() itself is untouched and still exported: the gap sheet, the
+  // `#record=` deep link and the share card are legitimate callers. The brief is
+  // not one, because the brief is above the fold.
   function tension(pid, p) {
-    var C = window.PDXConsistency;
-    if (C && typeof C.divergence === 'function') {
-      var d = null;
-      try { d = C.divergence(pid); } catch (e) { d = null; }
-      var both = (d && d.both) || [];
-      // divergence() returns `both` sorted by absolute gap, biggest first.
-      if (both.length && Math.abs(both[0].gap) > 15) {
-        var t = both[0];
-        var lbl = t.key;
-        try { if (typeof window._issueLabel === 'function') lbl = window._issueLabel(t.key) || t.key; } catch (e) {}
-        var higher = t.gap > 0 ? 'Their votes read better than their public record here.'
-                               : 'Their public record reads better than their votes here.';
-        return {
-          kind: 'gap',
-          issueKey: t.key,
-          label: String(lbl),
-          badge: Math.abs(t.gap) + ' pt gap',
-          headline: 'Record and public picture disagree on ' + lbl,
-          detail: higher + ' 🏛️ ' + t.off.score + '% vs 🧾 ' + t.say.score + '%.',
-          cta: 'See what is behind the gap',
-          open: 'gap'
-        };
-      }
-    }
     var items = [];
     try {
       if (typeof window._pdxControversyItems === 'function') items = window._pdxControversyItems(pid, p) || [];
@@ -716,15 +706,14 @@
           '<div class="pdxbr-t-top"><span class="pdxbr-t-ico" aria-hidden="true">=</span>' +
             '<span class="pdxbr-t-badge">No documented gap</span></div>' +
           '<p class="pdxbr-t-line">Nothing on ' + esc(name) + '’s record currently contradicts itself: ' +
-            'no scored gap between their votes and their public record, and no flagged flashpoint on file. ' +
+            'no issue where what they said and what they did came out against them, and no flagged flashpoint on file. ' +
             'That is what the record shows today, not a guarantee about the future.</p>' +
         '</div>';
     }
     var act = '';
-    if (t.open === 'gap' && t.issueKey) {
-      act = '<button type="button" class="pdxbr-t-act" onclick="if(window.PDXConsistency&&window.PDXConsistency.openGap)window.PDXConsistency.openGap(\'' +
-        jsStr(pid) + '\',\'' + jsStr(t.issueKey) + '\');">' + esc(t.cta) + ' <span aria-hidden="true">→</span></button>';
-    } else if (t.open === 'receipt' && t.issueKey) {
+    // No 'gap' arm. The brief no longer produces one — see tension() above — and an
+    // unreachable route into the divergence sheet is how that surface comes back.
+    if (t.open === 'receipt' && t.issueKey) {
       act = '<button type="button" class="pdxbr-t-act" onclick="if(window.PDXReceipts&&window.PDXReceipts.open)window.PDXReceipts.open(\'' +
         jsStr(pid) + '\',\'' + jsStr(t.issueKey) + '\');">' + esc(t.cta) + ' <span aria-hidden="true">→</span></button>';
     } else {
@@ -733,7 +722,7 @@
     }
     return '<div class="pdxbr-tension pdxbr-tension-' + escAttr(t.kind) + '">' +
         '<div class="pdxbr-t-top">' +
-          '<span class="pdxbr-t-ico" aria-hidden="true">' + (t.kind === 'gap' ? '≠' : '⚠') + '</span>' +
+          '<span class="pdxbr-t-ico" aria-hidden="true">⚠</span>' +
           '<span class="pdxbr-t-badge">' + esc(t.badge) + '</span>' +
           (t.label ? '<span class="pdxbr-t-issue">' + esc(t.label) + '</span>' : '') +
         '</div>' +

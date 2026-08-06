@@ -42,9 +42,13 @@
 //  13. EVIDENCE IS SHARED — counted per surface. Word vs Action rows, Stances &
 //      Connections, the Official Record's source links and Flashpoints must each
 //      carry evidence, so Flashpoints is never the only proof surface.
+//  14. ONE VERDICT VOCABULARY — the row model cannot see a second surface describing
+//      the same issue in the same words. Flashpoints chips must name a KIND of item,
+//      never one of Word vs Action's four locked outcome names.
 //
-// Subjects: `trump` (executive lane) and `mike_johnson` (congressional lane, and one
-// of the twelve figures whose ranked rows lead with a real contradiction).
+// Subjects: `trump` (executive lane), `mike_johnson` and `massie` (congressional
+// lane; mike_johnson is one of the twelve figures whose ranked rows lead with a real
+// contradiction, massie is the second shape of member data section 14 checks against).
 //
 //   node scripts/test-profile-unification.mjs
 //
@@ -792,6 +796,116 @@ section("13 · evidence is the shared proof layer, not a Flashpoints exhibit");
   eq((BODY.match(/id="pdxsec-evidence"/g) || []).length, 1,
     "the Evidence anchor is missing or duplicated in the profile body");
   ok(/<!--PDXSP:receipts-->/.test(BODY), "the receipts stage sentinel is gone from the profile body");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("14 · one verdict VOCABULARY per issue — the Flashpoints boundary");
+// ═════════════════════════════════════════════════════════════════════════════
+// Sections 10–13 gate the row model: one verdict per issue, resolved once. This
+// section gates the thing that model cannot see — a second surface DESCRIBING the
+// same issue in the same words.
+//
+// The receipt engine stamps a contradiction "Says One Thing · Does Another",
+// which is verbatim one of Word vs Action's four locked outcome names. Flashpoints
+// passed that label straight through, so the president's profile read
+//
+//     🔥 Flashpoints        Strong Border & Enforcement — Says One Thing · Does Another
+//     ⚖️ Word vs Action     Strong Border & Enforcement — Backs it up
+//
+// about the same issue, on the same scroll. Both statements are true — the card is
+// one dated dispute, the row is the whole issue weighed against formal action — but
+// a reader has no way to see that, and two verdict systems disagreeing in public is
+// the one thing this section must never be.
+//
+// Three subjects here, not two: `massie` is a second member of Congress, added
+// because a contract that only ever sees one figure per office lane is a contract
+// that has only ever seen one shape of data.
+{
+  const THIRD = "massie";
+  const MP = win.CMP_DATA[THIRD];
+  must(MP, "massie is not in the roster — this section has lost its second member subject");
+
+  // The four locked outcome names, plus the receipt engine's phrasings of them.
+  // Flashpoints may not speak in this vocabulary at all.
+  const WA_VOCAB = /says one thing|backs? it up|backed it up|words match actions|mixed record|not enough record/i;
+
+  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP], ["member2", THIRD, MP]]) {
+    const items = win._pdxControversyItems(pid, p) || [];
+    const rows = {};
+    (CS.issueRows(pid) || []).forEach((r) => { rows[r.key] = r; });
+
+    ok(items.length <= 3, `${who}: Flashpoints is not capped short — ${items.length} cards`);
+
+    items.forEach((it) => {
+      const label = (it.verdict && it.verdict.label) || "";
+      ok(label !== "", `${who}: a Flashpoint card carries no chip at all`);
+      ok(!WA_VOCAB.test(label),
+        `${who}: a Flashpoint chip reads "${label}" — that is Word vs Action's outcome\n` +
+        "    vocabulary, and a card in those words competes with the row that owns them");
+      // The chip must name a KIND of item. Every kind this module can produce ends
+      // in the same shape, so a new one that grades an issue instead fails here.
+      ok(/On Record$|Flagged Event$|^Promise /.test(label),
+        `${who}: the chip "${label}" does not name a kind of item`);
+    });
+
+    // Where a card names an issue the row model has already resolved, the link out
+    // must carry that row's own outcome — the reconciliation, not a bare conflict.
+    const ctv = win._renderControversies(pid, p) || "";
+    items.forEach((it) => {
+      if (!it.issueKey) return;
+      const r = rows[it.issueKey];
+      if (!r || !r.verdict || !r.verdict.label) return;
+      ok(ctv.includes(r.verdict.label),
+        `${who}: the Flashpoint on ${it.issueKey} never names the one score's outcome\n` +
+        `    ("${r.verdict.label}") on the way to it — the reader is left with two readings and no bridge`);
+    });
+
+    // A card with no issue key cannot claim an issue verdict, so it must not offer
+    // the ⚖️ jump at all.
+    const untied = items.filter((it) => !it.issueKey).length;
+    const waBtns = (ctv.match(/pdxsec-wordaction/g) || []).length;
+    eq(waBtns, items.length - untied,
+      `${who}: the ⚖️ Word vs Action jump count does not match the cards that name an issue`);
+  }
+
+  // The remap happens at THIS boundary, not upstream: say-vs-do.js's own surfaces
+  // (the hero card, the lightbox, the share card) legitimately keep the full label,
+  // and rewriting it there would have been a rename campaign across six files.
+  const SVD = R("say-vs-do.js");
+  ok(/label: 'Says One Thing · Does Another'/.test(SVD),
+    "say-vs-do.js's own verdict vocabulary was rewritten — the fix belongs at the Flashpoints boundary,\n" +
+    "    because the receipt engine's other consumers are not on the profile scroll");
+  ok(/WA_OUTCOME_WORDS/.test(CTV_SRC),
+    "controversies.js no longer guards against Word vs Action's outcome vocabulary");
+  ok(/it\.verdict = heatChip\(it\.verdict\)/.test(CTV_SRC),
+    "the remap moved out of gather() — profile-spine.js reads items[0].verdict.label straight into\n" +
+    "    the brief's tension badge, ABOVE THE FOLD, so normalising in cardHTML alone leaks it");
+
+  // ── the third subject reads like the second: vote lane, no executive chrome ──
+  const l3 = CS.recordLanes(THIRD, CS.rankIssueRows(CS.issueRows(THIRD)).filter((r) => r.scored));
+  ok(l3.vote && !l3.exec && !l3.both, "massie does not resolve to the vote lane");
+  const or3 = CS.officialRecordSectionHtml(THIRD, MP);
+  ok(!/executive order|signed into law|\bveto/i.test(text(or3)),
+    "massie's Official Record carries executive-only vocabulary he has no office for");
+  ok(/\broll[- ]call\b|\bvoted\b|\bvotes\b/i.test(text(or3)),
+    "massie's Official Record does not speak in votes");
+  ok(!/pdxor-lanes/.test(or3), "a single-lane figure is shown the two-lane strip");
+
+  // ── folds, on all three ──
+  // Budgets, not snapshots: they fail when a fold stops folding, not when the data
+  // grows. A stance layer that opens most of its rows is the wall it exists to replace.
+  for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP], ["member2", THIRD, MP]]) {
+    const st = CS.stancesSectionHtml(pid);
+    const total = (st.match(/data-pdxst-tier=/g) || []).length;
+    const open = (st.split("<!--PDXSP:lid")[0].match(/data-pdxst-tier=/g) || []).length;
+    ok(total <= 4 || open <= Math.ceil(total / 2),
+      `${who}: Stances & Connections opens ${open} of ${total} rows — that is a wall, not a lead`);
+    const or = CS.officialRecordSectionHtml(pid, p);
+    const orTotal = (or.match(/pdxor-row/g) || []).length;
+    const orOpen = (or.split("<!--PDXSP:lid")[0].match(/pdxor-row/g) || []).length;
+    ok(orTotal <= 6 || orOpen < orTotal,
+      `${who}: the Official Record shows all ${orTotal} rows at once — the long list must fold after the top items`);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

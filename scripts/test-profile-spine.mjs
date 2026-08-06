@@ -257,22 +257,47 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(/linked item/.test(derived[0].why) && derived[1].why === "position on file",
      "brief: each issue says why it is listed, in counts it can show — never a claim it cannot back");
 
-  // 4c. Tension: a measured gap between the two feeds outranks a flagged item.
+  // 4c. Tension: the brief's tension card is the top FLASHPOINT, and nothing else.
+  //
+  //     This block used to assert the opposite. A measured Official-Record-vs-
+  //     Say-vs-Do gap ran first and outranked every flagged item, printing
+  //     "Record and public picture disagree on X", badged "28 pt gap", detailed
+  //     "🏛️ 55% vs 🧾 83%" — the Record vs Public Picture panel, with both of its
+  //     percentages, mounted ABOVE THE FOLD. The spine unmounted that section
+  //     three stages further down; the brief kept a trailer for it. On the shipped
+  //     roster the branch reached exactly one profile, which is precisely why it
+  //     survived a section-level audit.
+  //
+  //     Now a negative contract: feed the module a divergence big enough to have
+  //     won under the old rule and assert the flagged item wins anyway.
   ctx.window.PDXConsistency = {
     divergence: () => ({ both: [{ key: "gun_rights", gap: -28, off: { score: 55 }, say: { score: 83 } }] }),
   };
   ctx.window._pdxControversyItems = () => ([{ kind: "flag", title: "A flashpoint", summary: "s" }]);
   const t = SP._tension("massie", MASSIE);
-  ok(t && t.kind === "gap" && t.badge === "28 pt gap",
-     "brief: a scored Official-Record-vs-Say-vs-Do gap is the sharpest tension and wins over a flagged item");
-  ok(/🏛️ 55% vs 🧾 83%/.test(t.detail) && /public record reads better/.test(t.detail),
-     "brief: the gap is stated as the two feeds' own numbers, side by side, never blended into one");
+  ok(t && t.kind === "flag" && t.headline === "A flashpoint",
+     "brief: a divergence gap no longer outranks a flagged flashpoint — the retired section cannot lead the brief");
+  ok(t && t.kind !== "gap" && t.open !== "gap",
+     "brief: tension() cannot emit a 'gap' card at all, so nothing routes the reader into the divergence sheet from above the fold");
+  ok(!/pt gap/.test(JSON.stringify(t)) && !/disagree/i.test(JSON.stringify(t)),
+     "brief: no 'N pt gap' badge and no 'record and public picture disagree' headline survive anywhere in the card model");
+  ok(!/🏛️ .*% vs 🧾 .*%/.test(SP.briefHtml("massie", MASSIE)),
+     "brief: the two feeds' percentages are never printed side by side above the fold — one score, one owner");
 
-  // A gap inside the alignment band is not a tension — it must fall through.
+  // And the tombstone, so the branch cannot be reinstated quietly. divergence()
+  // itself stays exported — the gap sheet, the #record= deep link and the share
+  // card are legitimate callers; the brief is not one, because it is above the fold.
+  // Asserted against SRC, not CODE: CODE is comment-stripped, and a tombstone IS a comment.
+  ok(/RECORD-VS-PUBLIC-PICTURE BRANCH IS GONE/.test(SRC),
+     "brief: the removal is recorded in the source, next to the function that used to do it");
+  ok(!/C\.divergence|divergence\s*===\s*'function'|typeof C\.divergence/.test(CODE),
+     "brief: the spine does not call divergence() at all any more");
+
+  // A flagged item is still the tension when one is on file, gap or no gap.
   ctx.window.PDXConsistency = { divergence: () => ({ both: [{ key: "x", gap: 9, off: { score: 50 }, say: { score: 59 } }] }) };
   const t2 = SP._tension("massie", MASSIE);
   ok(t2 && t2.kind === "flag" && t2.headline === "A flashpoint",
-     "brief: a gap inside the aligned band is not called a disagreement — it falls through to the flagged flashpoint");
+     "brief: the flagged flashpoint is the tension card, and it is the only thing that can be");
 
   // 4d. Nothing contested is a FINDING. It must be said, not hidden.
   ctx.window.PDXConsistency = { divergence: () => ({ both: [] }) };
@@ -306,7 +331,7 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   // 4g. No new scoring. The brief may format the record's numbers; it may not
   //     invent one. A score computed here would drift from the sections below.
   ok(!/officialRecord\s*\(|sayVsDo\s*\(/.test(CODE),
-     "brief: the module never re-derives either feed — it reads the already-reconciled divergence view");
+     "brief: the module never re-derives either feed — with the divergence branch gone it reads no score at all, it only formats what the flashpoint layer already resolved");
   ok(!/\/\s*\(?\s*kept|Math\.round\([^)]*100\s*\/|\bscore\s*=/.test(CODE),
      "brief: no percentage or score is computed in the spine — every figure it prints came from an accessor");
 }

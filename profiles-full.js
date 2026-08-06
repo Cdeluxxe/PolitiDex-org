@@ -5852,7 +5852,7 @@
         function _slIntro() {
           return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.7rem;">' +
             'The <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane of ' + _slLast +
-            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and 🤝 Promise Receipts. ' +
+            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and the ⚖️ Word vs Action score. ' +
             '<span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> items feed the accountability read; ' +
             '<span style="color:#c4b5fd;font-weight:700;">🔗</span> ties an item to a position ' + _slLast + ' holds.' +
           '</p>';
@@ -5860,12 +5860,16 @@
 
         // Closing tie-in: a one-tap jump back up to whichever record surface this
         // modal actually mounted. The People's Mandate scorecard it used to point at
-        // is retired and its section only exists when a finance signal renders, so
-        // the fallbacks land on the Say-vs-Do feed, then the Promise Tracker gateway.
-        // A button that scrolls nowhere is worse than no button.
+        // is retired, and the two fallbacks ahead of it — the Say-vs-Do feed, then
+        // the Promise Tracker gateway — are unmounted too. Landing on the Official
+        // Record first is not just tidier: a live getElementById('pdxsec-saydo')
+        // check is a standing invitation for that section to come back as this
+        // button's preferred destination the moment anyone re-mounts it.
+        // A button that scrolls nowhere is worse than no button, so the alignment
+        // modal's own section stays as the last resort.
         function _slAlignFooter() {
           return '<div style="margin-top:0.85rem;display:flex;justify-content:center;">' +
-            '<button type="button" onclick="var el=document.getElementById(\'pdxsec-saydo\')||document.getElementById(\'pdxsec-official-record\')||document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🧾 How these fit ' + _slLast + '’s record ↑</button>' +
+            '<button type="button" onclick="var el=document.getElementById(\'pdxsec-official-record\')||document.getElementById(\'pdxsec-wordaction\')||document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🧾 How these fit ' + _slLast + '’s record ↑</button>' +
           '</div>';
         }
 
