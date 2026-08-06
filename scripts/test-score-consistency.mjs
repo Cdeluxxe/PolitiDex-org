@@ -114,6 +114,17 @@ function extractLocalFn(src, name, file) {
   return braceScan(src, m.index, name + "()", file);
 }
 
+// Brace-match a function body out of source text.
+//
+// COMMENTS ARE SKIPPED, and that is not a refinement — it is the difference between
+// this probe testing what it names and testing an arbitrary window of the file. An
+// apostrophe in a prose comment ("the profile's one primary score") looks exactly
+// like an opening quote to a naive scanner, which then swallows every brace until
+// the next apostrophe and runs clean past the closing brace it was looking for. The
+// extraction still returns a string, so nothing throws; the contract just silently
+// starts asserting over the wrong region, and passes or fails on what happens to be
+// nearby. This repo's comments are prose-heavy, so that is the normal case here, not
+// an edge case.
 function braceScan(src, head, label, file) {
   const open = src.indexOf("{", head);
   must(open !== -1, `${label} in ${file} has no body`);
@@ -124,6 +135,20 @@ function braceScan(src, head, label, file) {
       if (esc) { esc = false; continue; }
       if (c === "\\") { esc = true; continue; }
       if (c === inStr) inStr = null;
+      continue;
+    }
+    // Line and block comments, before any quote handling — their contents are prose
+    // and must not be read as code.
+    if (c === "/" && src[i + 1] === "/") {
+      const nl = src.indexOf("\n", i);
+      if (nl === -1) { i = src.length; break; }
+      i = nl;
+      continue;
+    }
+    if (c === "/" && src[i + 1] === "*") {
+      const end = src.indexOf("*/", i + 2);
+      must(end !== -1, `unterminated block comment while scanning ${label} in ${file}`);
+      i = end + 1;
       continue;
     }
     if (c === "'" || c === '"' || c === "`") { inStr = c; continue; }

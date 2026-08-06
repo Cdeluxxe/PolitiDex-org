@@ -427,6 +427,59 @@ has(sec, "Signed into law", "vocabulary: a signature is named as a signature");
 has(sec, "Multi-issue action", "vocabulary: an omnibus signature discloses its breadth");
 lacks(sec, "one vote, 14 issues", "vocabulary: and does not call that signature a vote");
 
+// ── the EXPLAINERS around the number, not just the number ────────────────────
+// The scoring path was president-correct while every sentence explaining it was
+// not: the ⚖️ card's own "How this is counted" told a reader the score came from
+// roll-call votes, and the 📋 gateway card asked "When they had to vote" directly
+// above a section asking "When they could act on their own". A reader cannot check
+// us on a method described in the wrong lane, so the prose is gated like the data.
+const waSec = WA.sectionHtml(PID, P);
+const waText = waSec.replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
+for (const word of ["roll-call", "roll call", "Voted no", "House Clerk", "a single vote"]) {
+  lacks(waText, word, `explainer: the president's Word vs Action card never says "${word}"`);
+}
+has(waText, "laws signed or vetoed, orders and directives",
+  "explainer: the feed row names what actually tested this president");
+has(waText, "the laws they signed or vetoed, the executive orders and the formal directives",
+  "explainer: and the method paragraph defines Action in the same lane");
+// The circularity example must be drawn from a document this figure really has, and
+// cited to the source of record its own class declares — otherwise the worked example
+// teaches a rule using evidence the reader cannot go and check.
+has(waText, "Signed Executive Order 14156",
+  "explainer: the circularity example uses a real seeded order");
+has(waText, "Federal Register",
+  "explainer: cited to the source of record for orders, not the House Clerk");
+ok(SEED.actions[PID].some((a) => a.documentId === "Executive Order 14156" &&
+     (a.issues || []).some((i) => i.circularWithStance)),
+  "explainer: and that order is genuinely circular-flagged in the seed, not invented");
+
+// The gateway card is the door into all of this, and it publishes the core question.
+const gate = CS.gatewayHtml(PID, P);
+const gateText = gate.replace(/<[^>]+>/g, " ");
+has(gateText, "When they could act on their own, did they do what they said?",
+  "explainer: the gateway asks the executive question");
+lacks(gateText, "When they had to vote", "explainer: and not the roll-call one");
+lacks(gateText, "the votes and official acts", "explainer: the boundary line drops the vote noun");
+has(gateText, "the laws they signed or vetoed and the orders they issued",
+  "explainer: and names the executive record instead");
+
+// The divergence panel labels the 🏛️ side it is comparing.
+const dvText = CS.divergenceSectionHtml(PID, P).replace(/<[^>]+>/g, " ");
+lacks(dvText, "(votes)", "explainer: the divergence panel does not mislabel the exec side as votes");
+lacks(dvText, "a voting record", "explainer: nor its empty state");
+
+// The global methodology sheet is shared by every profile, so the congressional
+// wording STAYS and the executive lane is added beside it.
+const meth = CS.methodologyHtml();
+has(meth, "roll-call votes and formal actions",
+  "explainer: the shared sheet keeps the congressional lane");
+has(meth, "Presidents and the formal record",
+  "explainer: and states the executive lane too");
+has(meth, "no separate presidential rating",
+  "explainer: declaring there is one score, not two");
+has(meth, "cannot also be the test of that order",
+  "explainer: and writing the circularity rule down where a reader can check it");
+
 // ═════════════════════════════════════════════════════════════════════════════
 section("7 · the congressional path, unchanged");
 // ═════════════════════════════════════════════════════════════════════════════
@@ -451,6 +504,32 @@ lacks(msec, "When they could act on their own",
   "control: and is not asked the executive one");
 lacks(msec, "No action on file yet", "control: empty member rows still say 'No votes yet'");
 lacks(msec, "judged action", "control: the member's composition still counts votes");
+
+// The member's EXPLAINERS are untouched too — the lane swap must be inert for
+// everyone off the executive gate, which is all but one figure in the app.
+const mWaText = WA.sectionHtml(MEMBER, MP).replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
+has(mWaText, "roll-call votes and formal acts, judged issue by issue",
+  "control: the member's feed row still names roll calls");
+has(mWaText, "Voted no on H.R. 8", "control: and keeps the congressional circularity example");
+has(mWaText, "House Clerk", "control: cited to the chamber, as before");
+lacks(mWaText, "Signed Executive Order", "control: with no executive wording leaking in");
+const mGate = CS.gatewayHtml(MEMBER, MP).replace(/<[^>]+>/g, " ");
+has(mGate, "When they had to vote, did they stand by what they said?",
+  "control: the member's gateway keeps the roll-call question");
+has(mGate, "the votes and official acts", "control: and its boundary line is unchanged");
+lacks(mGate, "the orders they issued", "control: no executive noun on a legislator's card");
+
+// The thin control: a genuinely sparse NON-president must still read as a coverage
+// gap in the congressional lane — the fix must not turn thin into executive. The
+// read itself is asserted in full further down, beside the office-lane checks.
+const tThinHtml = WA.sectionHtml(THIN, win.CMP_DATA[THIN]);
+const tThinText = tThinHtml.replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
+has(tThinText, "roll-call votes and formal acts", "thin: keeps the congressional explainer");
+lacks(tThinText, "orders and directives", "thin: and gains no executive wording");
+// The headline slot itself, not the prose around it: the explainer legitimately
+// contains "100%" while describing why a self-testing position would score one.
+has(tThinHtml, '<div class="pdxwa-num-v">—</div>',
+  "thin: the headline number is an em-dash, never a published percentage");
 // The shared row vocabulary is untouched for a lane-less read.
 eq(CS.proof.rowVerdict({ token: "no_record", record: null }).label, "No votes yet",
   "control: a read with no lane keeps the congressional empty label");
