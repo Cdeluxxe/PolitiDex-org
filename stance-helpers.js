@@ -290,17 +290,49 @@
     // "Says one thing, does another" rather than sliding into the middle.
     var _MIXED_DOMINANCE = 2 / 3;
 
-    function _pdxMixedGate(consistentScore, contradictScore) {
+    // …and weight alone was not enough. A single item can carry weight in BOTH
+    // directions — one omnibus law that advances an issue in section 2 and undercuts
+    // it in section 7, or one curated receipt scored both ways — and the dominance
+    // test read that as a genuine split, so a row with exactly one piece of evidence
+    // on it could still print "Mixed record". That is the soft middle wearing the
+    // gate's clothes: an argument about ONE document is not a record pulling two
+    // ways, it is one document that needs reading, and calling it Mixed launders a
+    // thin file into a finding.
+    //
+    // So Mixed now needs a headcount as well as a balance: at least this many
+    // separately judged directional items. Below it the leading side takes the row
+    // outright, and a genuine tie with nothing to break it falls through to
+    // no_position, which every lane reads out as "Not enough record yet".
+    var _MIXED_MIN_ITEMS = 2;
+
+    // `judgedItems` is the number of separately judged directional items behind the
+    // two scores — votes, formal actions, receipts, or issue rows, depending on the
+    // lane, but always countable things and never a weight. Omitting it is not a way
+    // to skip the floor: an unknown headcount is treated as one item, so a caller
+    // that has not been taught to count cannot mint Mixed by silence.
+    function _pdxMixedGate(consistentScore, contradictScore, judgedItems) {
       var cons = (typeof consistentScore === 'number' && consistentScore > 0) ? consistentScore : 0;
       var contra = (typeof contradictScore === 'number' && contradictScore > 0) ? contradictScore : 0;
       var total = cons + contra;
       if (total <= 0) return 'no_position';            // nothing directional to weigh
+      // Both directions must be materially present before "split" is even on the
+      // table. One-sided weight resolves here rather than falling through the
+      // dominance arithmetic, so the rule reads the way it is written.
+      if (contra <= 0) return 'consistent';
+      if (cons <= 0) return 'contradicts';
+      var n = (typeof judgedItems === 'number' && isFinite(judgedItems)) ? Math.floor(judgedItems) : 1;
+      if (n < _MIXED_MIN_ITEMS) {
+        if (contra > cons) return 'contradicts';
+        if (cons > contra) return 'consistent';
+        return 'no_position';                          // one item, dead even — thin, not Mixed
+      }
       if (contra >= total * _MIXED_DOMINANCE) return 'contradicts';
       if (cons >= total * _MIXED_DOMINANCE) return 'consistent';
       return 'mixed';                                  // materially split, no dominant side
     }
     window._pdxMixedGate = _pdxMixedGate;
     window._PDX_MIXED_DOMINANCE = _MIXED_DOMINANCE;
+    window._PDX_MIXED_MIN_ITEMS = _MIXED_MIN_ITEMS;
 
     // Aggregate every record that pertains to ONE issue against the member's stance
     // on that issue. Weighted so high-weight, substantive contradictions outrank
@@ -344,7 +376,8 @@
       if (!stance) netVerdict = 'no_stance';
       else if (total === 0) netVerdict = 'no_record';
       else if (stance === 'mixed') netVerdict = 'no_position';
-      else netVerdict = _pdxMixedGate(consistentScore, contradictScore);
+      else netVerdict = _pdxMixedGate(consistentScore, contradictScore,
+        counts.consistent + counts.contradicts);
 
       return {
         issueKey: issueKey,

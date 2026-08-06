@@ -986,34 +986,58 @@ section("15 · one verdict engine, and a narrow Mixed");
 }
 
 // 15c. MIXED IS NARROW. One gate, exported, and it will not mint Mixed for a clear
-//      break or for thin evidence. The dominance threshold is the contract: at or
-//      above it the dominant direction IS the verdict.
+//      break, for thin evidence, or for a single item argued both ways. Two contracts
+//      are pinned here: the dominance threshold (at or above it the dominant
+//      direction IS the verdict) and the headcount floor (below two separately judged
+//      directional items, Mixed is not reachable at any balance).
 {
   must(typeof CS.mixedGate === "function", "consistency.js no longer exports the shared Mixed gate");
   must(typeof win._pdxMixedGate === "function", "stance-helpers.js no longer publishes the shared Mixed gate");
   eq(CS.mixedGate, win._pdxMixedGate === CS.mixedGate ? CS.mixedGate : CS.mixedGate,
     "guard: the gate is callable");
   const g = CS.mixedGate;
-  eq(g(0, 0), "no_position", "the gate mints a verdict from nothing");
-  eq(g(100, 0), "consistent", "an all-backing record does not read as backed");
-  eq(g(0, 100), "contradicts", "an all-breaking record does not read as broken");
-  eq(g(50, 50), "mixed", "a genuinely even split does not read as Mixed — Mixed must still be reachable");
+  eq(g(0, 0, 0), "no_position", "the gate mints a verdict from nothing");
+  eq(g(100, 0, 4), "consistent", "an all-backing record does not read as backed");
+  eq(g(0, 100, 4), "contradicts", "an all-breaking record does not read as broken");
+  eq(g(50, 50, 2), "mixed", "a genuinely even split does not read as Mixed — Mixed must still be reachable");
   // The soft middle: a clear break with a token amount of agreement beside it.
-  eq(g(10, 90), "contradicts",
+  eq(g(10, 90, 4), "contradicts",
     "a record that breaks the claim 9 times out of 10 reads as Mixed — this is the soft landing the\n" +
     "    tightened rule exists to close");
-  eq(g(90, 10), "consistent", "the same leniency in the other direction — a mostly-kept record hedged into Mixed");
+  eq(g(90, 10, 4), "consistent", "the same leniency in the other direction — a mostly-kept record hedged into Mixed");
   // The threshold itself, pinned from both sides so it cannot drift silently.
   const D = win._PDX_MIXED_DOMINANCE;
   eq(D, 2 / 3, "the Mixed dominance threshold moved");
-  eq(g(0, 2), "contradicts", "exactly at the threshold the dominant direction must win outright");
-  eq(g(2, 1), "consistent", "exactly at the threshold the dominant direction must win outright");
-  eq(g(3, 2), "mixed", "just under the threshold the record is genuinely split and must say so");
+  eq(g(0, 2, 2), "contradicts", "exactly at the threshold the dominant direction must win outright");
+  eq(g(2, 1, 3), "consistent", "exactly at the threshold the dominant direction must win outright");
+  eq(g(3, 2, 5), "mixed", "just under the threshold the record is genuinely split and must say so");
+
+  // ── THE HEADCOUNT FLOOR ────────────────────────────────────────────────────
+  // One item can carry weight in both directions — an omnibus law that advances an
+  // issue in one section and undercuts it in another, or a receipt scored both ways.
+  // The dominance test alone read that as a split record, which is how a row with a
+  // single document on it printed "Mixed record".
+  const MIN = win._PDX_MIXED_MIN_ITEMS;
+  eq(MIN, 2, "the Mixed headcount floor moved");
+  eq(g(50, 50, 1), "no_position",
+    "ONE item argued evenly both ways still reads as Mixed — a single document is not a record pulling\n" +
+    "    two ways, and 'not enough record yet' is the honest name for it");
+  eq(g(40, 60, 1), "contradicts",
+    "one item that leans against the stance reads as Mixed instead of resolving");
+  eq(g(60, 40, 1), "consistent",
+    "one item that leans with the stance reads as Mixed instead of resolving");
+  eq(g(3, 2, 1), "consistent",
+    "a balance that IS Mixed at two items is still Mixed at one — the floor is not being applied");
+  // An unknown headcount must fail closed, not open: a caller that has not been
+  // taught to count cannot be allowed to mint Mixed by omission.
+  eq(g(50, 50), "no_position", "omitting the headcount reopens Mixed to uncounted callers");
+  eq(g(3, 2), "consistent", "omitting the headcount reopens Mixed to uncounted callers");
 }
 
 // 15d. THE SOFT-MIDDLE PATHS ARE GONE FROM THE SOURCE. A gate only holds if nothing
-//      routes around it. These are the three branches that used to mint Mixed
-//      without ever weighing the two directions against each other.
+//      routes around it. These are the branches that used to mint Mixed without ever
+//      weighing the two directions against each other — and, now, the ones that
+//      weigh them without ever counting them.
 {
   const SH = R("stance-helpers.js");
   const sumAt = SH.indexOf("function _issueRecordSummary");
@@ -1022,16 +1046,36 @@ section("15 · one verdict engine, and a narrow Mixed");
   must(ladder.length > 60, "could not isolate the netVerdict ladder");
   ok(/_pdxMixedGate\(/.test(ladder),
     "the per-issue verdict ladder no longer routes through the shared Mixed gate");
+  ok(/counts\.consistent \+ counts\.contradicts/.test(ladder),
+    "the per-issue verdict ladder weighs the two directions without counting them, so one both-ways\n" +
+    "    record can mint Mixed again");
   ok(!/counts\.mixed\s*>\s*0\s*\?\s*'mixed'/.test(ladder),
     "a record with no directional evidence can be called Mixed again — thin is not split");
   ok(!/stance\s*===\s*'mixed'\s*\)?\s*netVerdict\s*=\s*'mixed'/.test(ladder.replace(/\s+/g, " ")),
     "a non-directional stance short-circuits to Mixed again without ever reading the record — this is how\n" +
     "    an unrelated shutdown card soft-pedalled a deficit-increasing law into Mixed");
   const WSRC = R("word-action.js");
-  ok(/_mixedGate\(consW, contraW\)/.test(WSRC),
-    "the overall outcome no longer weighs the two directions through the shared gate");
-  ok(/mixedGate\(consW, contraW\)/.test(CS_SRC),
-    "consistency.js's scoped overall no longer weighs the two directions through the shared gate");
+  ok(/_mixedGate\(consW, contraW,/.test(WSRC),
+    "the overall outcome no longer weighs the two directions through the shared gate, with a headcount");
+  ok(/mixedGate\(consW, contraW, counts\.consistent \+ counts\.contradicts\)/.test(CS_SRC),
+    "consistency.js's scoped overall no longer weighs the two directions through the shared gate,\n" +
+    "    with a headcount");
+  // Every lane that reaches the gate must hand it a count. A two-argument call is a
+  // lane that fell back to "assume one item" — safe, but silently un-Mixable, which
+  // hides a wiring bug rather than surfacing it.
+  const bare = [];
+  [["consistency.js", CS_SRC], ["word-action.js", WSRC], ["stance-helpers.js", SH]].forEach(([f, src]) => {
+    const re = /(?:^|[^\w.])_?(?:pdx)?[Mm]ixedGate\(([^;]*?)\)\s*;/g;
+    let m;
+    while ((m = re.exec(src))) {
+      // Skip the definitions and the accessor forwards — they name their parameters.
+      if (/judgedItems/.test(m[1])) continue;
+      if (m[1].split(",").length < 3) bare.push(f + ": " + m[1].replace(/\s+/g, " ").slice(0, 70));
+    }
+  });
+  ok(bare.length === 0,
+    "a lane calls the Mixed gate without a headcount and would fall back to the one-item floor:\n    " +
+    bare.join("\n    "));
 }
 
 // 15e. AND ON REAL DATA: no subject carries a Mixed row that the gate would not
@@ -1117,6 +1161,148 @@ section("16 · the residual copy is gone from the surfaces that render it");
   // …and the sheet it opens is handed the pid, or the office-awareness stops at the button.
   ok(/openMethodology\(null,'/.test(verify),
     "the verify button opens the methodology sheet with no pid, so the sheet cannot lead with the right lane");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("17 · the same answer with the record WARM");
+// ═════════════════════════════════════════════════════════════════════════════
+// Everything above this line runs against a cold roll-call lane, because there is
+// no /api/voting-record here. That is exactly where three shipped bugs hid: the
+// executive lane's vocabulary, the card/profile score split, and Mixed minted off a
+// single both-ways document all need a record in hand before they can appear. So
+// this section puts one there — a president's vr_positions row in the shape
+// PDXVotingRecord.hydrateIssueRecords builds — and re-reads every surface.
+
+// A row is only allowed to read Mixed when at least two separately judged items
+// point in opposite directions. This counts them the way the lanes do.
+function directionalItems(ov) {
+  let n = 0;
+  if (!ov) return 0;
+  if (ov.record) n += (ov.record.consistent || 0) + (ov.record.contradicts || 0);
+  if (ov.curated) n += (ov.curated.consistent || 0) + (ov.curated.contradicts || 0);
+  if (ov.officialActions) n += (ov.officialActions.consistent || 0) + (ov.officialActions.contradicts || 0);
+  return n;
+}
+
+// 17a. COLD FIRST — the headcount floor holds on the data as shipped.
+{
+  for (const [who, pid] of [["president", PRES], ["member", REP], ["member2", THIRD2]]) {
+    (CS.issueRows(pid) || []).forEach((r) => {
+      if (!r || !r.verdict || r.verdict.token !== "mixed") return;
+      const n = directionalItems(r.ov);
+      ok(n >= 2,
+        `${who}: ${r.key} reads Mixed on ${n} directional item(s). One item is not a record pulling two\n` +
+        `    ways — it is one document, and Mixed there launders a thin file into a finding`);
+    });
+  }
+}
+
+{
+  const VRL = win.PDXVotingRecord;
+  must(VRL && typeof VRL.memberRecords === "function", "voting-record.js no longer exposes memberRecords");
+  const before = VRL._records ? VRL._records[PRES] : undefined;
+
+  // The exact wire shape for an executive action: hydrateIssueRecords copies the
+  // actionType into `position`, the same field a roll call puts 'yea' in, so both
+  // lanes share one item type. Every proof line downstream has to tell them apart.
+  const signed = {
+    kind: "position",
+    measureId: 990001, measureType: "bill", number: "H.R. 1",
+    title: "One Big Beautiful Bill Act",
+    chamber: "house", status: "enacted", date: "2025-07-04",
+    action: "signed_law", actionType: "signed_law", position: "signed_law",
+    result: null, isParty: null, supports: true,
+    isProcedural: false, advanceInverted: false, isAmendment: false, parentMeasureId: null,
+    rollcallId: null, congress: null, session: null, rollNumber: null,
+    issues: [
+      // The real mapping tokens: advancing H.R. 1 works AGAINST debt reduction and
+      // FOR lower taxes. One document, two issues, opposite directions — the exact
+      // shape that used to mint Mixed off a single action.
+      { issueKey: "national_debt", supportMeaning: "yea_opposes", weight: 100 },
+      { issueKey: "lower_taxes", supportMeaning: "yea_supports", weight: 100 }
+    ],
+    source: { url: "https://www.congress.gov/bill/119th-congress/house-bill/1", label: "Congress.gov" }
+  };
+  VRL._records = VRL._records || {};
+  VRL._records[PRES] = [signed];
+  try { if (typeof CS.bust === "function") CS.bust(); } catch (e) { /* not all builds memoise */ }
+  try { if (typeof win.PDXProfileCard.bust === "function") win.PDXProfileCard.bust(); } catch (e) {}
+
+  // 17b. NO VOTE VOCABULARY ON A WARM PRESIDENTIAL RECORD.
+  //      This is what shipped: 'Voted ' + the actionType, rendering "Voted Signed
+  //      Law" on the Official Record of an office that casts no votes.
+  {
+    const or = CS.officialRecordSectionHtml(PRES, PP);
+    const t = text(or);
+    must(t.length > 200, "the president's Official Record rendered empty with the record warm");
+    const hits = t.match(/Voted[^.·|]{0,30}/g) || [];
+    ok(hits.length === 0,
+      "the president's Official Record prints vote vocabulary over an executive action with the lane warm:\n" +
+      "    " + hits.slice(0, 4).map((h) => JSON.stringify(h.trim())).join(", ") + "\n" +
+      "    (this is the \"Voted Signed Law\" bug — a president's actionType printed through the\n" +
+      "    congressional ballot formatter)");
+    ok(/roll call|Roll call|Recorded vote/.test(t) === false,
+      "the president's Official Record names a roll call for a document nobody voted on");
+    has(t, "Signed into law",
+      "the president's warm formal action is not named in the executive lane's own verb — a signed law\n" +
+      "    must read as one, not as an untitled record");
+    // …and the retired copy stays gone with the record warm, not just cold.
+    lacks(t.toLowerCase(), "kept word", "the warm Official Record reintroduces the retired pledge rate's name");
+  }
+
+  // 17c. ONE SCORE, WARM. Header ring, section read and homepage card must be the
+  //      same number from the same read at the same moment — the reported symptom
+  //      was a profile at one percentage and a card at another.
+  {
+    const wa = WA.read(PRES, PP);
+    const hero = WA.heroRead(PRES, PP);
+    const card = win.PDXProfileCard.read(PRES);
+    must(wa && card && hero, "a surface returned no read at all with the record warm");
+    eq(card.pct, wa.pct,
+      "the homepage card's percentage disagrees with the Word vs Action read behind the profile —\n" +
+      "    one score, every surface, or the card is its own softer engine again");
+    eq(hero.pct, wa.pct, "the profile header ring disagrees with the Word vs Action section under it");
+    eq(card.verdict && card.verdict.key, wa.verdict && wa.verdict.key,
+      "the card's overall label disagrees with the profile's");
+
+    // 17d. ONE TALLY, WARM.
+    const tally = CS.verdictTally(PRES);
+    eq(card.breakdown.consistent, tally.consistent, "warm: card 'backed up' count ≠ the profile's issue rows");
+    eq(card.breakdown.mixed, tally.mixed, "warm: card 'mixed' count ≠ the profile's issue rows");
+    eq(card.breakdown.contradicts, tally.contradicts, "warm: card 'contradicted' count ≠ the profile's issue rows");
+    const hand = { consistent: 0, mixed: 0, contradicts: 0 };
+    (CS.issueRows(PRES) || []).forEach((r) => {
+      const t2 = r.verdict && r.verdict.token;
+      if (t2 === "consistent" || t2 === "mixed" || t2 === "contradicts") hand[t2]++;
+    });
+    eq(tally.consistent, hand.consistent, "warm: the shared tally miscounts backed rows");
+    eq(tally.mixed, hand.mixed, "warm: the shared tally miscounts mixed rows");
+    eq(tally.contradicts, hand.contradicts, "warm: the shared tally miscounts contradicted rows");
+  }
+
+  // 17e. AND THE HEADCOUNT FLOOR STILL HOLDS WITH ONE DOCUMENT IN HAND.
+  //      H.R. 1 lands on two issues at once, in opposite directions. That is the
+  //      exact shape that used to mint Mixed off a single action.
+  {
+    (CS.issueRows(PRES) || []).forEach((r) => {
+      if (!r || !r.verdict || r.verdict.token !== "mixed") return;
+      const n = directionalItems(r.ov);
+      ok(n >= 2,
+        `warm: ${r.key} reads Mixed on ${n} directional item(s) — one omnibus action argued both ways is\n` +
+        "    still one action, and the row must resolve or say there is not enough record yet");
+    });
+    const nd = (CS.issueRows(PRES) || []).find((r) => r.key === "national_debt");
+    must(nd, "the president's national_debt row vanished with the record warm");
+    ok(nd.verdict.token !== "mixed",
+      `warm: national_debt reads Mixed off ${directionalItems(nd.ov)} directional item(s). With H.R. 1 the\n` +
+      "    only formal action in the lane, the row is a contradiction or a coverage gap — never a split");
+  }
+
+  // Put the lane back the way it was, so nothing after this reads a fixture.
+  if (before === undefined) delete VRL._records[PRES];
+  else VRL._records[PRES] = before;
+  try { if (typeof CS.bust === "function") CS.bust(); } catch (e) {}
+  try { if (typeof win.PDXProfileCard.bust === "function") win.PDXProfileCard.bust(); } catch (e) {}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -217,6 +217,36 @@
     try { return (typeof window._pdxRecordIssueSummary === 'function') ? window._pdxRecordIssueSummary(pid, issueKey) : null; }
     catch (e) { return null; }
   }
+  // ── which lane a warm record actually belongs to ────────────────────────────
+  // The voting-record endpoint carries two different things in one item type. A roll
+  // call arrives as kind 'vote' with a ballot in `position`; a president's signed
+  // law, veto or executive order arrives as kind 'position' with its actionType in
+  // that same field, because the server (netlify/functions/voting-record.mts) serves
+  // vr_rollcalls and vr_positions through one shape. So "this member has records" has
+  // never been the same claim as "this member has a voting record", and treating the
+  // two as one is what put roll-call vocabulary — "No votes yet", "Recorded vote",
+  // "Voted Signed Law", a 🏛️ legend — onto a president's Official Record the moment
+  // their formal actions loaded. Every lane decision below asks what the items ARE.
+  function _anyBallot(items) {
+    for (var i = 0; i < (items || []).length; i++) {
+      if (items[i] && items[i].kind !== 'position') return true;
+    }
+    return false;
+  }
+  function recordItems(pid, issueKey) {
+    try {
+      return (typeof window._pdxRecordIssueItems === 'function')
+        ? (window._pdxRecordIssueItems(pid, issueKey) || []) : [];
+    } catch (e) { return []; }
+  }
+  // 'record' when a ballot is among the items on this issue, 'exec' when they are all
+  // executive actions. Falls back to the congressional lane, which is what every
+  // member surface already renders.
+  function recordLaneFor(pid, issueKey) {
+    var its = recordItems(pid, issueKey);
+    if (its.length && !_anyBallot(its)) return 'exec';
+    return 'record';
+  }
   function recordsWarm(pid) {
     try { return !!(window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function' && window.PDXVotingRecord.memberRecords(pid)); }
     catch (e) { return false; }
@@ -754,9 +784,14 @@
   // homepage tally and the profile issue rows drifted apart in the first place. If
   // the shared gate is somehow absent this degrades to "the heavier side wins" and
   // simply cannot mint Mixed, which is the safe direction to fail in.
-  function mixedGate(consistentScore, contradictScore) {
+  //
+  // `judgedItems` is the headcount behind the two scores, in whatever the lane
+  // counts: roll calls, formal actions, curated receipts, or issue rows. Below the
+  // shared floor of two the gate resolves the row outright instead of calling it
+  // split, so no lane can print "Mixed record" off one piece of evidence.
+  function mixedGate(consistentScore, contradictScore, judgedItems) {
     var g = window._pdxMixedGate;
-    if (typeof g === 'function') return g(consistentScore, contradictScore);
+    if (typeof g === 'function') return g(consistentScore, contradictScore, judgedItems);
     return contradictScore > consistentScore ? 'contradicts'
          : consistentScore > contradictScore ? 'consistent' : 'no_position';
   }
@@ -789,10 +824,14 @@
       // claim as "neither direction wins". Put the weight through the shared gate:
       // the roll-call/exec lane brings its own weighted scores, and each curated
       // receipt counts as one action at the default mapping weight so the two feeds
-      // are compared in the same unit.
+      // are compared in the same unit. The headcount travels with the weight, so a
+      // row standing on a single both-ways document resolves instead of reading as
+      // a split record.
       token = mixedGate(
         (rec && rec.consistentScore ? rec.consistentScore : 0) + cur.consistent * 100,
-        (rec && rec.contradictScore ? rec.contradictScore : 0) + cur.contradicts * 100
+        (rec && rec.contradictScore ? rec.contradictScore : 0) + cur.contradicts * 100,
+        (rec ? ((rec.consistent || 0) + (rec.contradicts || 0)) : 0) +
+          cur.consistent + cur.contradicts
       );
       if (token === 'no_position') token = 'limited';
     } else if (hasContra) {
@@ -881,16 +920,20 @@
     var hasStance = !!stance || (rec && rec.netVerdict && rec.netVerdict !== 'no_stance' && rec.netVerdict !== 'no_record') || act.total > 0;
 
     // 1. Systematic roll-call record is authoritative — use it alone, so a curated
-    //    echo of the same vote can never be counted twice.
+    //    echo of the same vote can never be counted twice. "Systematic" is about the
+    //    feed, not the office: the same feed carries a president's formal actions, so
+    //    the lane is read off the items rather than assumed to be congressional.
     if (rec && rec.total) {
       var t = rec.netVerdict === 'contradicts' ? 'contradicts'
             : rec.netVerdict === 'consistent' ? 'consistent'
             : rec.netVerdict === 'mixed' ? 'mixed' : 'limited';
+      var recLane = recordLaneFor(pid, issueKey);
       return {
-        scope: 'official', token: t, verdict: scopeVerdict('official', t),
+        scope: 'official', token: t, verdict: laneVerdict('official', t, recLane === 'exec' ? 'exec' : null),
         score: scoreFromRecord(rec), record: rec, officialActions: null, curated: null,
         contradictions: rec.contradicts || 0, flags: 0,
-        hasStance: hasStance, pending: false, lane: 'record', sources: ['record']
+        hasStance: hasStance, pending: false, lane: recLane,
+        sources: [recLane === 'exec' ? 'exec-actions' : 'record']
       };
     }
 
@@ -928,8 +971,10 @@
       // Curated formal actions are unweighted, so each counts as one action at the
       // default mapping weight and goes through the same Mixed gate as every other
       // lane. A single action that breaks the claim resolves as a contradiction —
-      // it holds all of the weight — instead of being averaged into a middle.
-      var tok = mixedGate(act.consistent * 100, act.contradicts * 100);
+      // it holds all of the weight, and it is one action rather than a record
+      // pulling two ways — instead of being averaged into a middle.
+      var tok = mixedGate(act.consistent * 100, act.contradicts * 100,
+        act.consistent + act.contradicts);
       if (tok === 'no_position') tok = 'limited';
       return {
         scope: 'official', token: tok, verdict: scopeVerdict('official', tok),
@@ -985,8 +1030,9 @@
     if (cur.total === 0) token = hasStance ? 'no_record' : 'no_stance';
     else if (cur.contradicts > 0 || cur.consistent > 0) {
       // Same gate as every other lane — receipts pointing two ways only read Mixed
-      // when neither direction dominates.
-      token = mixedGate(cur.consistent * 100, cur.contradicts * 100);
+      // when neither direction dominates AND there are at least two of them.
+      token = mixedGate(cur.consistent * 100, cur.contradicts * 100,
+        cur.consistent + cur.contradicts);
       if (token === 'no_position') token = cur.flag > 0 ? 'flag' : 'no_record';
     }
     else if (cur.flag > 0) token = 'flag';
@@ -1092,9 +1138,11 @@
     // Roll-ups use the shared Mixed gate too. Issues weigh in proportion to the
     // record behind them (judgedCountOf, same weight the % uses), so one broken
     // issue beside seven backed ones reads as the record actually reads instead of
-    // collapsing the whole scope into "Mixed record".
+    // collapsing the whole scope into "Mixed record". The headcount here is the
+    // number of directional ISSUE ROWS, so a whole scope cannot read Mixed off a
+    // single issue either.
     if (counts.contradicts > 0 || counts.consistent > 0) {
-      token = mixedGate(consW, contraW);
+      token = mixedGate(consW, contraW, counts.consistent + counts.contradicts);
       if (token === 'no_position') token = counts.mixed > 0 ? 'mixed' : 'limited';
     }
     else if (counts.mixed > 0) token = 'mixed';
@@ -2036,7 +2084,13 @@
     try {
       var recs = (window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function')
         ? window.PDXVotingRecord.memberRecords(pid) : null;
-      if (recs && recs.length) vote = true;
+      // Having rows in the voting-record store is NOT the same as having a
+      // legislative record. netlify/functions/voting-record.mts serves a president's
+      // vr_positions rows — signed laws, vetoes, orders — through the same endpoint
+      // as roll calls, so the store fills up for an office that casts no votes.
+      // Counting those toward the 🏛️ lane put a "Roll-call votes · Recorded votes"
+      // legend on a president's Official Record the moment their record warmed.
+      if (recs && recs.length && _anyBallot(recs)) vote = true;
     } catch (e) {}
     // Neither lane has produced anything yet: fall back to the office gate so an
     // empty section still speaks the right language instead of asking a president
@@ -2169,19 +2223,51 @@
   // ── One record → its printable proof fields ─────────────────────────────────
   // Pure; reads only fields the voting-record normalizer already sets. `question` is
   // the roll-call question a vote actually answered ("On Motion to Recommit"), which
-  // is the piece that decides how a Yea should be read — a position's `action` is a
-  // slug, so that one gets title-cased.
+  // is the piece that decides how a Yea should be read.
+  //
+  // `act` is the one printable phrase for what the figure DID, and it is lane-aware
+  // because the wire format is not. A roll call carries a ballot in `position`
+  // ('yea'), and a president's formal action carries its actionType in the SAME field
+  // ('signed_law') — netlify/functions/voting-record.mts sends both that way so the
+  // two lanes share one item shape. Every proof line here used to print that field as
+  // 'Voted ' + it, which on a president's Official Record rendered "Voted Signed Law":
+  // vote vocabulary on an office that casts no votes, over a document nobody voted on.
+  // A ballot gets the congressional verb; an executive action gets exec-record.js's
+  // own words for its class, which is the only place those verbs are written down.
+  function _orActionPhrase(item) {
+    if (!item) return '';
+    if (item.kind === 'position') {
+      // `action` last: hydrateIssueRecords copies the actionType into all three,
+      // but a curated position may only carry `action` ("cosponsored"), and that
+      // slug is the only thing the row has to say about what was actually done.
+      var key = String(item.actionType || item.position || item.action || '');
+      if (!key) return '';
+      var cls = null;
+      try {
+        var xr = window.PDXExecRecord;
+        if (xr && xr.CLASSES) cls = xr.CLASSES[key] || null;
+      } catch (e) { cls = null; }
+      // Unknown class → the slug, title-cased and unprefixed. Still not a vote.
+      return cls && cls.verb ? cls.verb : _tc(key);
+    }
+    return item.position ? 'Voted ' + _tc(item.position) : '';
+  }
   function _orProofBits(item) {
     if (!item) return null;
     var src = item.source;
     var url = item.sourceUrl || (src && typeof src === 'object' ? src.url : '') || '';
     var lbl = item.sourceLabel || (src && typeof src === 'object' ? src.label : '') ||
       (typeof src === 'string' ? src : '') || 'Congress.gov';
+    var isPosition = item.kind === 'position';
     return {
       bill: item.number ? String(item.number) : '',
       title: item.title ? String(item.title) : '',
-      question: item.action ? (item.kind === 'position' ? _tc(item.action) : String(item.action)) : '',
-      position: item.position ? _tc(item.position) : '',
+      // A position's `action` IS its actionType, so printing it here as well as in
+      // `act` produced "Signed Law · Signed into law" on every executive proof line.
+      // The question belongs to the roll-call lane and stays there.
+      question: (!isPosition && item.action) ? String(item.action) : '',
+      act: _orActionPhrase(item),
+      isPosition: isPosition,
       date: item.date ? String(item.date) : '',
       url: url, label: lbl
     };
@@ -2197,9 +2283,9 @@
       return window._pdxRecordKey(item) || '';
     } catch (e) { return ''; }
   }
-  // "H.R. 22 · On Motion to Recommit · Voted Yea" — the bill, the question, the vote.
-  // Falls back to the measure title when a record carries no number, so a row never
-  // prints an empty proof. Pure, no HTML.
+  // "H.R. 22 · On Motion to Recommit · Voted Yea" for a member; "H.R. 1 · Signed into
+  // law" for a president. Falls back to the measure title when a record carries no
+  // number, so a row never prints an empty proof. Pure, no HTML.
   function _orProofText(item) {
     var b = _orProofBits(item);
     if (!b) return '';
@@ -2207,13 +2293,18 @@
     if (b.bill) parts.push(b.bill);
     else if (b.title) parts.push(b.title);
     if (b.question) parts.push(b.question);
-    if (b.position) parts.push('Voted ' + b.position);
+    if (b.act) parts.push(b.act);
     return parts.join(' · ');
   }
   // The multi-issue disclosure, compressed to row scale: "Yea counted for Lower
   // Taxes / against Health Care". Reads the same _measureOmnibusContext primitive the
   // longer prose note uses, so a single roll call landing opposite ways on two issues
   // is stated the same wherever it appears. '' for single-issue votes.
+  //
+  // The noun follows the lane. An omnibus law a president signed lands on as many
+  // issues as one a member voted on, and this line is exactly where that shows up on
+  // a presidential profile — so it says "Signed into law counted for … / against …",
+  // not "Signed Law counted", and its empty case counts actions rather than votes.
   function _orRowMultiNote(item, issueKey) {
     if (!item || typeof window._measureOmnibusContext !== 'function') return '';
     var ctx;
@@ -2232,11 +2323,16 @@
       if (list.length > 2) out.push('+' + (list.length - 2) + ' more');
       return out.join(', ');
     };
+    var isPosition = item.kind === 'position';
     var parts = [];
     if (adv.length) parts.push('for ' + names(adv));
     if (opp.length) parts.push('against ' + names(opp));
-    if (!parts.length) return 'One vote, ' + ctx.count + ' issues — no clear position on any of them.';
-    var lead = item.position ? _tc(item.position) + ' counted' : 'This vote counted';
+    if (!parts.length) {
+      return 'One ' + (isPosition ? 'action' : 'vote') + ', ' + ctx.count +
+        ' issues — no clear position on any of them.';
+    }
+    var phrase = _orActionPhrase(item);
+    var lead = phrase ? phrase + ' counted' : (isPosition ? 'This action counted' : 'This vote counted');
     return lead + ' ' + parts.join(' / ');
   }
   // This record's verdict on THIS issue, via the same breakdown primitive the
@@ -2340,7 +2436,9 @@
       var restBits = [];
       if (!b.bill && b.title) restBits.push(esc(b.title));
       if (b.question) restBits.push(esc(b.question));
-      if (b.position) restBits.push('Voted <b>' + esc(b.position) + '</b>');
+      // Bolded as the payload of the line either way — the ballot on a roll call,
+      // the enactment verb on an executive action. Never 'Voted' + an action type.
+      if (b.act) restBits.push(b.isPosition ? '<b>' + esc(b.act) + '</b>' : 'Voted <b>' + esc(b.act.replace(/^Voted /, '')) + '</b>');
       var rest = restBits.length ? (bill ? ' · ' : '') + restBits.join(' · ') : '';
       return '<div class="pdxor-proof pdxor-proof-act"' +
           ' data-pdxc-vrvote="' + escAttr(_orVoteKey(p.item)) + '"' +
@@ -2409,16 +2507,20 @@
       });
     }
     var picks = _orProofPicks(pid, issueKey, ov, 0);
+    // The countable noun follows the lane, same as everywhere else on this surface —
+    // a president's overflow line offers more mapped ACTIONS, not more mapped votes.
+    var _n = _orNoun(ov);
     if (picks.length > _OR_ROW_EVIDENCE_MAX) {
+      var _over = picks.length - _OR_ROW_EVIDENCE_MAX;
       extra = '<div class="pdxor-act pdxor-act-more">' +
-        esc('+ ' + (picks.length - _OR_ROW_EVIDENCE_MAX) + ' more mapped ' +
-          (picks.length - _OR_ROW_EVIDENCE_MAX === 1 ? 'vote' : 'votes') + ' — open the full record below.') + '</div>';
+        esc('+ ' + _over + ' more mapped ' +
+          (_over === 1 ? _n.one : _n.many) + ' — open the full record below.') + '</div>';
       picks = picks.slice(0, _OR_ROW_EVIDENCE_MAX);
     }
     picks.forEach(function (p) {
       var b = _orProofBits(p.item);
-      var meta = [b.question, b.position ? 'Voted ' + b.position : '', b.date].filter(Boolean).join(' · ');
-      lines.push(_orActLine(p.verdict, b.bill || b.title || 'Recorded vote',
+      var meta = [b.question, b.act, b.date].filter(Boolean).join(' · ');
+      lines.push(_orActLine(p.verdict, b.bill || b.title || (b.isPosition ? 'Formal action' : 'Recorded vote'),
         meta, b.url, b.label, _orOmniNote(p.item, issueKey),
         // Every mapped vote in the open row is a button to that exact roll call —
         // the keyboard-reachable version of the collapsed row's proof-line shortcut.
@@ -2753,17 +2855,21 @@
         lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
       });
     }
-    // vr_* roll-call summary: the strongest consistent / contradicting measure. Each
+    // vr_* record summary: the strongest consistent / contradicting measure. Each
     // line discloses when it came from a multi-issue bill, so the reader can see that
-    // the same roll call was also a verdict on other issues.
+    // the same roll call — or the same omnibus law — was also a verdict on other
+    // issues. Titles and verbs both come from _orProofBits, so an executive action
+    // reaching this list is named as one instead of as an unrecorded vote.
     if (ov && ov.record) {
       var issueKey = ov.record.issueKey;
       var mk = function (item, verdict) {
         if (!item) return;
-        var url = item.sourceUrl || (item.source && item.source.url) || '';
-        var lbl = item.sourceLabel || (item.source && item.source.label) || 'Congress.gov';
-        var title = item.title || item.shortTitle || item.number || item.question || 'Recorded vote';
-        var pos = item.position ? ('Voted ' + item.position) : (item.actionType || '');
+        var b = _orProofBits(item);
+        var url = b.url;
+        var lbl = b.label || 'Congress.gov';
+        var title = item.title || item.shortTitle || item.number || b.question ||
+          (b.isPosition ? 'Formal action' : 'Recorded vote');
+        var pos = b.act;
         lines.push(opts.omniBlock
           ? _orActLine(verdict, title, pos, url, lbl, '', null, _orOmniBlockHtml(item, issueKey))
           : _orActLine(verdict, title, pos, url, lbl, _orOmniNote(item, issueKey)));

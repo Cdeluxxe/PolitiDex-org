@@ -142,11 +142,12 @@
   function C() { return window.PDXConsistency || null; }
   // The shared Mixed rule, borrowed rather than restated. Same function the issue
   // rows use, so the pooled read at the top of a profile and the per-issue rows
-  // under it apply one definition of "split".
-  function _mixedGate(consistentScore, contradictScore) {
+  // under it apply one definition of "split" — including its floor of two
+  // separately judged directional items, which `judgedItems` carries.
+  function _mixedGate(consistentScore, contradictScore, judgedItems) {
     var cs = C();
-    if (cs && typeof cs.mixedGate === 'function') return cs.mixedGate(consistentScore, contradictScore);
-    if (typeof window._pdxMixedGate === 'function') return window._pdxMixedGate(consistentScore, contradictScore);
+    if (cs && typeof cs.mixedGate === 'function') return cs.mixedGate(consistentScore, contradictScore, judgedItems);
+    if (typeof window._pdxMixedGate === 'function') return window._pdxMixedGate(consistentScore, contradictScore, judgedItems);
     return contradictScore > consistentScore ? 'contradicts'
          : consistentScore > contradictScore ? 'consistent' : 'no_position';
   }
@@ -479,7 +480,7 @@
     // genuinely pulling two ways.
     var outcomeToken;
     if (counts.contradicts > 0 || counts.consistent > 0) {
-      outcomeToken = _mixedGate(consW, contraW);
+      outcomeToken = _mixedGate(consW, contraW, (counts.consistent || 0) + (counts.contradicts || 0));
       if (outcomeToken === 'no_position') outcomeToken = 'limited';
     }
     else if (counts.mixed > 0) outcomeToken = 'mixed';

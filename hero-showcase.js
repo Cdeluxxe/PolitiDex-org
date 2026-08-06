@@ -5,9 +5,8 @@
 // Action read, coverage, the backed-up/mixed/contradicted breakdown, proof in both
 // directions, branding — rotating through the best-covered profiles. Replaced a
 // single "Says One Thing · Does Another" receipt, because one receipt about one
-// person on one issue is an anecdote, and an anecdote read cold looks like a gotcha
-// rather than a system. hero-receipt.js is unchanged and still runs, demoted to a
-// lead-in above the Say-vs-Do band.
+// person on one issue reads as a gotcha rather than a system. hero-receipt.js is
+// unchanged, demoted to a lead-in above the Say-vs-Do band.
 //
 // THIS FILE OWNS NO JUDGEMENT. Every word of the read comes from PDXProfileCard —
 // the same module that draws the shareable image — via brief()/read(). Verdict,
@@ -20,7 +19,7 @@
 // is the roll-call record, which lives in the database behind /api/voting-record
 // and is only warm in a live browser — asked at build time, every marquee profile
 // answers "Loading the record…", below the publishing floor with nothing tested. A
-// seed built from that would either paint a hero of loading states or freeze a thin
+// seed built from that would paint a hero of loading states, or freeze a thin
 // verdict into a static file and keep showing it after the record filled in.
 //
 // So: (1) identity paints immediately from the seed, with the signal slot in the
@@ -530,24 +529,34 @@
   // every arrival used to run the full pass below: flush every cached read, then
   // brief() all eight candidates — eight complete PDXWordAction reads — inside the
   // fetch's own callback. Eight arrivals therefore meant sixty-four reads plus
-  // eight full re-reads of the painted card, measured at ~350 ms of blocking work
-  // on a desktop CPU and several seconds on a phone, landing in the same frames as
-  // eight ~125 KB JSON parses and the roster render. The main thread never got a
-  // gap wide enough to answer a tap, which is what Chrome reports as an
-  // unresponsive page. One arrival can only change one member's answer, so this
-  // does one member's work: a single brief, a single cache entry dropped.
+  // eight full re-reads of the painted card, ~350 ms of blocking work on a desktop
+  // CPU and several seconds on a phone, landing in the same frames as eight ~125 KB
+  // JSON parses and the roster render. The main thread never got a gap wide enough
+  // to answer a tap, which is what Chrome reports as an unresponsive page. One
+  // arrival can only change one member's answer, so this does one member's work.
   //
   // Promotion only — ruling a candidate out is still the sweep's job, on the
   // grace-period backstops, so a member whose record simply has not arrived is
   // never burned by another member's event.
-  function settleOne(pid) {
-    var c = null;
-    for (var i = 0; i < warmSet.length; i++) {
-      if (warmSet[i].pid === String(pid)) { c = warmSet[i]; break; }
+  function byPid(list, pid) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].pid === String(pid)) return list[i];
     }
+    return null;
+  }
+  function settleOne(pid) {
+    var c = byPid(warmSet, pid);
     // Not one of ours. A profile modal elsewhere warms members too, and re-reading
-    // the whole hero because some unrelated member settled is pure waste.
-    if (!c) return;
+    // the whole hero because some unrelated member settled is pure waste. "Ours" is
+    // the warm set PLUS whoever is on screen: before the pool publishes, visible()
+    // falls back to candidates past WARM_MAX, and a card whose record lands while it
+    // is on screen must repaint or it keeps showing a percentage the profile behind
+    // the same link no longer agrees with.
+    if (!c) {
+      var v = byPid(visible(), pid);
+      if (v) { dropRead(v.pid); draw(); }
+      return;
+    }
     if (c.state === 'publishable') { dropRead(c.pid); draw(); return; }
     dropRead(c.pid);
     holdPlace(function () { settle(c, false); });
