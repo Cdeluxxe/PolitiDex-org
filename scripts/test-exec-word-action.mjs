@@ -186,7 +186,11 @@ for (const a of SEED.actions[PID]) {
     if (m.circularWithStance) declared.push([a.documentId, m.issueKey, m.circularNote]);
   }
 }
-ok(declared.length >= 7, `guard: the seed declares circular pairs (found ${declared.length})`);
+// The guard must still be load-bearing. One pair was retired on purpose — H.R. 1 →
+// national_debt, once the stance card on that issue stopped being a narration of
+// H.R. 1 itself — so the floor is 6, not 7. It stays a floor rather than an exact
+// count because the guard is a curation judgement and pairs will come and go.
+ok(declared.length >= 6, `guard: the seed declares circular pairs (found ${declared.length})`);
 for (const [doc, key, note] of declared) {
   ok(note && note.length > 40,
     `guard: the declared pair ${doc} → ${key} carries a prose reason, not a bare boolean`);
@@ -286,15 +290,28 @@ for (const k of XA.issues(PID)) {
     ok(h.documentId || h.title, "fail closed: a held entry names its document");
   }
 }
-ok(heldTotal >= 7, `fail closed: the held set is non-trivial (${heldTotal} pairs)`);
+ok(heldTotal >= 6, `fail closed: the held set is non-trivial (${heldTotal} pairs)`);
 
 // touched counts every pair the seed reaches, scored or not — so a gap can be told
-// apart from an absence.
+// apart from an absence. `healthcare` is the standing example: the only stance card
+// on that issue is a narration of H.R. 1's own coverage score, so the document
+// cannot test it and the row honestly scores nothing.
+const hc = XA.forIssue(PID, "healthcare");
+ok(hc.touched > 0, "fail closed: an issue the seed reaches is 'touched' even when nothing scores");
+eq(hc.items.length, 0, "fail closed: and scores nothing");
+ok(CS.officialRecord(PID, "healthcare").token !== "pending",
+  "fail closed: which reads as a coverage gap, not as pending");
+
+// …and the opposite case, which is the point of the circular guard rather than a
+// side effect of it. `national_debt` carries a stated commitment to reduce the debt
+// that is independent of H.R. 1 — it is sourced to the DOGE executive order and
+// names no reconciliation bill — so the law IS allowed to test it, and the CBO
+// deficit finding produces a contradiction. A held pair proves the guard fires; this
+// pair proves it is a guard and not a blanket.
 const dbt = XA.forIssue(PID, "national_debt");
-ok(dbt.touched > 0, "fail closed: an issue the seed reaches is 'touched' even when nothing scores");
-eq(dbt.items.length, 0, "fail closed: and scores nothing");
-eq(CS.officialRecord(PID, "national_debt").token, "no_record",
-  "fail closed: which reads as no record, not as pending");
+ok(dbt.items.length >= 1, "fail closed: a word the document did not write is testable by it");
+eq(CS.officialRecord(PID, "national_debt").token, "contradicts",
+  "fail closed: a deficit-increasing law tested against a debt-reduction claim contradicts it");
 
 // An issue with an action but NO stated position reads as 'no stance' — not 'limited'.
 // 'limited' would assert there is word here with no clear direction; the truth is that

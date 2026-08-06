@@ -404,10 +404,13 @@ const [displayScore, promiseState] = (() => {
   ok(CONSISTENCY.indexOf('class="pdxc-gate-pct') === -1,
     "the gateway cards emit a pooled percentage again");
 
-  // Every supporting lane says, on the surface, which score it feeds.
-  eq(countOf(CONSISTENCY, "_feedsPrimaryHtml("), 4,
-    "expected one _feedsPrimaryHtml definition and one call from each of the three\n" +
-    "    supporting lanes (Official Record, Say-vs-Do, divergence) — a lane without\n" +
+  // Every supporting lane says, on the surface, which score it feeds. Four lanes
+  // now: Official Record, Stances & Connections, and the two unmounted exporters
+  // (Say-vs-Do, divergence) that still carry the line so they cannot be remounted
+  // as independent score widgets.
+  eq(countOf(CONSISTENCY, "_feedsPrimaryHtml("), 5,
+    "expected one _feedsPrimaryHtml definition and one call from each supporting lane\n" +
+    "    (Official Record, Stances & Connections, Say-vs-Do, divergence) — a lane without\n" +
     "    that line reads as an independent score widget again");
   const feeds = extractLocalFn(CONSISTENCY, "_feedsPrimaryHtml", "consistency.js");
   ok(/pdxsec-wordaction/.test(feeds),
@@ -473,43 +476,55 @@ const [displayScore, promiseState] = (() => {
   eq(countOf(PROFILES, "${scoreRing}"), 1,
     "the hero score stack is inserted more than once — one header, one primary score");
 
-  // Promises stay in the header, as the supporting layer the mission allows: the
-  // kept/broken/pending counts, never a rival rate.
-  ok(/pledge:\s*pledgeLedger/.test(ringBlock),
-    "the hero no longer passes the pledge ledger — the header lost the kept/broken/\n" +
-    "    pending counts, which are the supporting layer under the primary score");
-  const chip = wa0.slice(wa0.indexOf("function pledgeChipHtml"), wa0.indexOf("function heroInner"));
-  must(chip.length > 200, "word-action.js no longer builds the hero pledge chip");
-  ok(!/%/.test(chip),
-    "the hero pledge chip prints a percentage — it reports counts, because the pledge\n" +
-    "    lane is a tier inside the ring's number and a rate here would rival it");
-  ok(/kept/.test(chip) && /broken/.test(chip) && /pending/.test(chip),
-    "the hero pledge chip no longer reports all three of kept / broken / pending");
-  ok(/jumpAttr\('pdxsec-score'\)/.test(chip),
-    "the hero pledge chip is not a route into the promise block — the supporting layer\n" +
-    "    has to stay reachable from the header that summarises it");
-  ok(/pledgeChipHtml\(opts\)/.test(wa0.slice(wa0.indexOf("function heroInner"), wa0.indexOf("function bindHero"))),
-    "heroInner no longer renders the pledge chip");
+  // Promises are OUT of the header entirely. Phase 5 allowed them there as counts —
+  // "🤝 6 kept · 6 broken · 2 pending" under the ring — on the reasoning that counts
+  // are not a rate and so cannot rival a percentage. In practice three numbers sitting
+  // directly beneath one number are still read as a second finding, and on a president
+  // that chip was the loudest promise chrome on the page. The pledge lane is the top
+  // TIER inside the ring's percentage; it is named in the score's feeds list and its
+  // ledger is in the drawers, which is where an input belongs.
+  ok(!/pledge:/.test(ringBlock),
+    "the hero is handed a pledge ledger again — promise counts above the fold are the\n" +
+    "    second headline this whole harness exists to prevent");
+  ok(!/pledgeChipHtml/.test(wa0),
+    "word-action.js builds a hero pledge chip again — the header carries ONE number");
+  ok(!/pdxwa-hero-pledge/.test(wa0) && !/pdxwa-hero-pledge/.test(read("word-action.css")),
+    "the hero pledge chip's markup or styling is back");
+  ok(/THE HERO PLEDGE CHIP IS GONE/.test(wa0),
+    "the note recording why the hero pledge chip was removed is gone, so it will be re-added");
+  const heroFn = wa0.slice(wa0.indexOf("function heroInner"), wa0.indexOf("function bindHero"));
+  ok(!/kept/.test(heroFn) && !/broken/.test(heroFn),
+    "the hero renders kept/broken counts again — the pledge lane is inside the percentage,\n" +
+    "    not printed beside it");
 
   // The primary read names itself in plain English on the ring, and the caption
   // must not reuse "Promise", which now names only the top tier inside it.
   const wa = wa0;
   const frame = wa.slice(wa.indexOf("var FRAME = {"), wa.indexOf("var FRAME = {") + 900);
   must(frame.length > 200, "word-action.js no longer defines FRAME");
-  ok(/caption:\s*'Kept word'/.test(frame),
-    "the Word vs Action FRAME no longer carries the 'Kept word' ring caption");
+  // One number, one name. "Kept word" on the ring and "Word vs Action" on the section
+  // a screen below were two labels for one figure, and a reader with no reason to know
+  // they were the same figure read them as two integrity products.
+  ok(/caption:\s*'Word vs Action'/.test(frame),
+    "the Word vs Action FRAME no longer captions the ring with the section's own name —\n" +
+    "    a second name for one number is a second read of it");
+  ok(!/caption:\s*'Kept word'/.test(frame),
+    "the 'Kept word' caption is back, so the header and the section name the same figure twice");
   ok(!/caption:\s*'[^']*[Pp]romise/.test(frame),
     "the ring caption says \"Promise\" — that word names the pledge tier inside this\n" +
     "    score, so reusing it for the whole score rebuilds the ambiguity being removed");
 
   ok(!/label:\s*'Score'/.test(PROFILES),
     "the nav rail still carries a pill labelled a bare \"Score\"");
-  ok(/label:\s*'Promises'/.test(PROFILES),
-    "the nav rail no longer carries the Promises pill");
-  // …and that pill reports counts now, not a rival percentage.
-  ok(/label:\s*'Promises',\s*value:\s*keptCount\s*\+\s*' Kept'/.test(PROFILES),
-    "the nav rail's Promises pill prints a percentage again — the ⚖️ primary pill is\n" +
-    "    the rail's only %, so a second one puts two headline rates side by side");
+  // The rail once ran "Promises — N Kept" AND "Record — 6K · 6B · 2P": two headline
+  // reads of one pledge table. Phase 5 cut it to one. Phase 6 cut it to none — a pill
+  // reading "6K · 6B · 2P" one entry away from the ⚖️ percentage is a second scoreboard
+  // in the header strip whatever it links to. The pledge ledger is reached from the
+  // score's own feeds list, which is the honest doorway: an input, opened from the score.
+  eq((PROFILES.match(/label:\s*'Promises'/g) || []).length, 0,
+    "the rail carries a pledge pill again — one pledge table, and it is not a rail entry");
+  ok(/PROMISES PILL RETIRED/.test(PROFILES),
+    "the note recording why the Promises pill was retired is gone, so it will be re-added");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -534,18 +549,24 @@ const [displayScore, promiseState] = (() => {
     "the profile body prints the raw promise percentage outside the Deep Dive\n" +
     "    derivation — it belongs to the hero ring and the Follow-Through block");
 
-  // The nav rail's Record pill reports COUNTS. The rate is the pill directly
-  // above it; recomputing it here made one number look like two findings. The
-  // slice runs to the end of the pill list rather than to a named pill, because
-  // the pills are pushed in page order and page order changes when the spine does.
+  // The rail's Record pill points at the Official Record and reports COVERAGE —
+  // "N of M tested" — not a rate and not a second pledge count. It used to do the
+  // latter, aimed into the pledge drawer, which made one number read as two
+  // findings. The slice runs to the end of the pill list rather than to a named
+  // pill, because the pills are pushed in page order and page order changes when
+  // the spine does.
   const rail = PROFILES.slice(PROFILES.indexOf("const _navItems = []"),
     PROFILES.indexOf("A single pill isn't a"));
   must(rail.length > 400, "could not isolate the profile nav rail");
   ok(!/keptCount\s*\/\s*_resolved/.test(rail),
     "the nav rail's Record pill recomputes the follow-through rate — it sits beside\n" +
     "    the Promises pill that already shows it");
-  ok(/label:\s*'Record',\s*value:\s*keptCount\s*\+\s*'K/.test(rail),
-    "the nav rail's Record pill no longer reports kept/broken counts");
+  ok(/label:\s*'Record',\s*\n?\s*value:\s*\(_orTested\.tested\s*\|\|\s*0\)\s*\+\s*' of '/.test(rail),
+    "the nav rail's Record pill no longer reports Official Record coverage — it is the\n" +
+    "    only pill for the formal-record lane, so it has to say how much of it was tested");
+  ok(/target:\s*'pdxsec-official-record',[\s\S]{0,200}label:\s*'Record'/.test(rail),
+    "the Record pill no longer points at the Official Record — a pill labelled Record has to\n" +
+    "    land on the record lane, not on a pledge drawer");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

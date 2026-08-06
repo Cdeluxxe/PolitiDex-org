@@ -2264,6 +2264,27 @@ window.PDXLazy = (function () {
       font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
       color: #7f92ad; font-weight: 700;
     }
+    /* The score. Same Word vs Action percentage the profile leads with, so the card
+       and the profile read as one product rather than two summaries of one person.
+       Hidden entirely below the publishable floor — the renderer omits it — and the
+       plain-language verdict below always carries it. */
+    .pdx-hs-sig-score {
+      display: flex; align-items: baseline; gap: .4rem; margin-top: .15rem;
+      color: #9fb4d4;
+    }
+    .pdx-hs-sig-pct {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -.01em;
+    }
+    .pdx-hs-sig-pct-u { font-size: 1.05rem; font-weight: 700; margin-left: .05em; }
+    .pdx-hs-sig-pct-k {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
+      color: #7f92ad; font-weight: 700; min-width: 0;
+    }
+    /* With a score above it the verdict line is the caption, not the headline. */
+    .pdx-hs-signal.has-score .pdx-hs-sig-read { font-size: .92rem; margin-top: .28rem; }
+
     /* Uncolored until publishable — an unfilled read must not look like a finding.
        The inline color comes from the verdict's own accent, set by the renderer. */
     .pdx-hs-sig-read {
@@ -2278,9 +2299,10 @@ window.PDXLazy = (function () {
       font-size: .74rem; line-height: 1.4; color: #b6c6de; margin: .25rem 0 0;
     }
 
-    /* Breakdown: counts, plus a bar proportional to those counts. Never a
-       percentage — a rate needs its denominator beside it to be honest, and the
-       denominator is the coverage line directly below. */
+    /* Breakdown: counts, plus a bar proportional to those counts. These are issue
+       rows from the shared tally in consistency.js — the same rows and the same
+       verdicts the profile prints — so the card's split and the profile's cannot
+       disagree. The rate itself lives above; this is its denominator, shown. */
     .pdx-hs-bd { margin-top: .6rem; }
     .pdx-hs-bar {
       display: flex; height: 6px; border-radius: 999px; overflow: hidden;

@@ -415,9 +415,19 @@ const THIN = thin.lines.join("\n");
      "no-rate: the caption prints a percentage, so the same claim leaves the app as text");
   ok(!/%/.test(PC._shortPost(thick.d)),
      "no-rate: the 280-character post prints a percentage");
-  // …and the figure is not merely unprinted, it is never read. r.pct existing and
-  // being ignored is one refactor away from being interpolated by accident.
-  ok(!/\.pct\b/.test(CODE), "no-rate: the module reads PDXWordAction's pooled .pct at all — it must not have it in hand");
+  // …and on the canvas the figure is not merely unprinted, it never reaches the
+  // paint path. `brief()` DOES carry it now — the in-app hero card prints the same
+  // Word vs Action percentage the profile leads with, because a homepage card that
+  // hid the score while the profile led with it was two summaries of one person, and
+  // in the app the number sits directly above its coverage line. The share image is
+  // the other case: it travels without that line, so nothing under paint()/caption()/
+  // shortPost() may read the field. Allowlisted to the one place it is set.
+  const pctHits = CODE.match(/\.pct\b/g) || [];
+  ok(pctHits.length === 1,
+     "no-rate: .pct appears " + pctHits.length + " times in the module — exactly one (brief()'s " +
+     "own field) is allowed, so the paint path cannot have picked it up");
+  ok(/var wPct = r\.pct;/.test(CODE),
+     "no-rate: the single .pct read is not brief()'s field assignment — something else is reading the rate");
   ok(!/\bkept\s*\/|\/\s*\(\s*\w*kept|100\s*\*/.test(CODE),
      "no-rate: the module contains a rate calculation of its own, which is how a retired score comes back");
 

@@ -617,20 +617,32 @@ for (const card of CARDS) {
   ok(at("exec-record.js") < at("exec-record-ui.js"), "exec-record-ui.js loads before exec-record.js");
 
   // Mounted once, into the profile, behind a guard.
+  // Mounted once — and now mounted INSIDE the Official Record rather than beside
+  // it. A president gets one record lane, not a 🏛️ section and a rival ✒️ section
+  // making separate claims about the same office. The anchor still exists exactly
+  // once so the rail and every deep link keep resolving.
   eq((page.match(/id="pdxsec-exec-record"/g) || []).length, 1,
     "the EER anchor is missing or duplicated in the profile template");
-  has(page, "window.PDXExecRecordUI.sectionHtml", "the profile never calls the EER renderer");
-  ok(/window\.PDXExecRecordUI && typeof window\.PDXExecRecordUI\.sectionHtml === 'function'/.test(page),
-    "the EER render call is not guarded — a failed script load would break the profile");
+  has(page, "window.PDXExecRecordUI", "nothing on the page renders the EER lane");
+  has(page, "U.embedHtml(pid)",
+    "the Official Record never embeds the EER lane — the executive record is orphaned");
+  ok(/typeof U\.embedHtml !== 'function'\) return ''/.test(page),
+    "the EER embed call is not guarded — a failed script load would break the profile");
 
   // Additive only: the 🏛️ surfaces are still mounted, unchanged.
   for (const marker of [
     'id="pdxsec-official-record"',
     "window.PDXConsistency.officialRecordSectionHtml(id)",
-    'id="pdxsec-divergence"',
-    'id="pdxsec-saydo"',
     'id="pdxsec-voting"'
   ]) has(page, marker, `a congressional Official Record surface was disturbed: ${marker}`);
+  // #pdxsec-divergence and #pdxsec-saydo used to be checked here as congressional
+  // surfaces the EER work must not disturb. They are gone from every profile now:
+  // the public record resolves ON the issue row, so there is one per-issue verdict
+  // instead of two and nothing left for a divergence bridge to referee. The EER
+  // lane must not resurrect either anchor as a president-only consolation surface.
+  for (const gone of ['id="pdxsec-divergence"', 'id="pdxsec-saydo"'])
+    ok(!page.includes(gone),
+      `${gone} is mounted again — that is a second per-issue verdict competing with Word vs Action`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

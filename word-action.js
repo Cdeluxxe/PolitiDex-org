@@ -33,8 +33,10 @@
      ACTION (what they did) ────────────────────────────────────────────────────
        Roll-call votes, sponsorships and formal acts — the Official Record, via
        PDXConsistency.officialRecord(). Nothing from the broader public record
-       (interviews, news, social posts) is ever an ACTION here: that is Say-vs-Do's
-       lane, and blending the two would make the test unfalsifiable.
+       (interviews, news, social posts) is ever an ACTION in this percentage:
+       blending the two would make the test unfalsifiable. The public record is
+       reachable only on an issue row that no formal action could test at all —
+       see the outcomes block below — and it never enters this arithmetic.
 
    Hard pledges are TOP TIER INSIDE THIS SYSTEM, not a separate product lane. The
    Promise Follow-Through percentage that used to rate them separately has been
@@ -93,11 +95,13 @@
     label: 'Word vs Action',
     question: 'Do they stand by what they said?',
     metric: 'Stood by their word',
-    // The hero ring has room for two short lines and no more, so the primary
-    // score gets a caption a voter can read at a glance. "Kept word" is the
-    // plain-English form of the metric above — deliberately NOT "Promises",
-    // which now names only the top tier inside this read.
-    caption: 'Kept word'
+    // The hero ring has room for two short lines and no more, and this caption is
+    // the only text a reader gets beside the percentage. It used to read "Kept
+    // word" — plain English, but a SECOND NAME for the one number, printed in the
+    // header while "Word vs Action" named the same number in the rail and in the
+    // section title. One read cannot have two names without reading as two reads,
+    // so the caption now says what the score is called everywhere else.
+    caption: 'Word vs Action'
   };
 
   // ── The fail-closed floors ─────────────────────────────────────────────────
@@ -136,6 +140,17 @@
     });
   }
   function C() { return window.PDXConsistency || null; }
+  // The shared Mixed rule, borrowed rather than restated. Same function the issue
+  // rows use, so the pooled read at the top of a profile and the per-issue rows
+  // under it apply one definition of "split" — including its floor of two
+  // separately judged directional items, which `judgedItems` carries.
+  function _mixedGate(consistentScore, contradictScore, judgedItems) {
+    var cs = C();
+    if (cs && typeof cs.mixedGate === 'function') return cs.mixedGate(consistentScore, contradictScore, judgedItems);
+    if (typeof window._pdxMixedGate === 'function') return window._pdxMixedGate(consistentScore, contradictScore, judgedItems);
+    return contradictScore > consistentScore ? 'contradicts'
+         : consistentScore > contradictScore ? 'consistent' : 'no_position';
+  }
   function issueLabel(key) {
     try {
       var im = window.ISSUE_MAP || {};
@@ -421,6 +436,10 @@
     var tested = [], untested = [];
     var counts = { consistent: 0, contradicts: 0, mixed: 0, limited: 0 };
     var wSum = 0, wN = 0, warming = false, issueLinked = 0, derived = 0, scorable = 0;
+    // Weight on each side of the ledger, kept apart from wSum so the overall
+    // outcome can be put through the shared Mixed gate rather than flipping to
+    // "Mixed record" the instant one contradiction appears next to seven backings.
+    var consW = 0, contraW = 0;
     var tiers = {};
     TIER_ORDER.forEach(function (t) { tiers[t] = { key: t, total: 0, scorable: 0, tested: 0, weight: 0 }; });
 
@@ -438,6 +457,8 @@
         var w = it.weight * (t.evidence || 1);
         it.appliedWeight = w;
         wSum += t.score * w; wN += w;
+        if (t.token === 'consistent') consW += w;
+        else if (t.token === 'contradicts') contraW += w;
         bucket.tested++; bucket.weight += w;
         if (counts[t.token] === undefined) counts[t.token] = 0;
         counts[t.token]++;
@@ -450,10 +471,18 @@
     // The overall token comes from the OUTCOMES, not from the percentage — same
     // precedence PDXConsistency.scopedOverall uses, so a profile cannot read
     // "backs it up" here and "says one thing, does another" one section down.
+    //
+    // Both directions present no longer means "Mixed record" on its own. That
+    // reading turned a lopsided ledger — seven items backed, one broken — into a
+    // shrug, and it is the same soft middle the issue rows were tightened out of.
+    // The split goes through the SHARED gate (consistency.js → _pdxMixedGate), so
+    // a dominant side resolves outright and Mixed is reserved for a record that is
+    // genuinely pulling two ways.
     var outcomeToken;
-    if (counts.contradicts > 0 && counts.consistent > 0) outcomeToken = 'mixed';
-    else if (counts.contradicts > 0) outcomeToken = 'contradicts';
-    else if (counts.consistent > 0) outcomeToken = 'consistent';
+    if (counts.contradicts > 0 || counts.consistent > 0) {
+      outcomeToken = _mixedGate(consW, contraW, (counts.consistent || 0) + (counts.contradicts || 0));
+      if (outcomeToken === 'no_position') outcomeToken = 'limited';
+    }
     else if (counts.mixed > 0) outcomeToken = 'mixed';
     else if (warming) outcomeToken = 'pending';
     else if (items.length) outcomeToken = 'limited';
@@ -659,7 +688,7 @@
           '<p><b>Action</b> is the Official Record only — ' +
             (ex ? 'the laws they signed or vetoed, the executive orders and the formal directives on file. '
                 : 'roll-call votes, sponsorships and formal acts. ') +
-            'Interviews, news coverage and social posts are never counted as action here; they are word, or they belong to Say-vs-Do.</p>' +
+            'Interviews, news coverage and social posts are never counted as action in this percentage; they are word, or they are public-record context — and the public record decides an issue below only where no formal action exists to test it.</p>' +
           '<p><b>A position cannot be its own test.</b> Many of our position write-ups are drawn from the formal record — ' +
             (ex ? '“Signed Executive Order 14156”, cited to the Federal Register. Scoring that against the same order would return 100% for '
                 : '“Voted no on H.R. 8”, cited to the House Clerk. Scoring that against the same roll call would return 100% for ') +
@@ -681,9 +710,11 @@
   // Record percentage and a Say-vs-Do integrity percentage. Nothing on screen
   // said how they related, so a reader had to guess which one was "the" number.
   // This panel is that missing sentence, made navigable: every layer is named,
-  // told what it contributes, counted, and linked. Word tiers feed the number,
-  // the Official Record is the test, and Say-vs-Do is context that is explicitly
-  // NOT in the arithmetic — said out loud rather than left to inference.
+  // told what it contributes, counted, and linked. Word tiers feed the number and
+  // the Official Record is the test. Say-vs-Do is not listed here because it is
+  // no longer anywhere to link TO — it was merged into the issue rows in this
+  // same section, and a feed row pointing at the card the reader is already
+  // reading is not a feed, it is a loop.
   function jumpAttr(target) {
     var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
     return ' onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
@@ -715,7 +746,7 @@
       var rows = [];
       var pledgeN = (t.pledge && t.pledge.total) || 0;
       if (pledgeN || (agg && agg.resolved)) {
-        rows.push({ ico: TIERS.pledge.ico, name: 'Promise receipts', target: 'pdxsec-score', counted: true,
+        rows.push({ ico: TIERS.pledge.ico, name: 'Pledges kept and broken', target: 'pdxsec-score', counted: true,
           role: 'Explicit pledges kept and broken — the top tier of this score, counting ' + TIERS.pledge.weight + '×',
           n: pledgeN ? (pledgeN + ' itemized') : (agg.resolved + ' resolved') });
       }
@@ -734,11 +765,11 @@
           ? 'The test — laws signed or vetoed, orders and directives, judged issue by issue'
           : 'The test — roll-call votes and formal acts, judged issue by issue',
         n: c.tested + ' of ' + c.scorable + ' tested' });
-      if (window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') {
-        rows.push({ ico: '🧾', name: 'Say-vs-Do receipts', target: 'pdxsec-saydo', counted: false,
-          role: 'Supporting receipts and context — never folded into this percentage',
-          n: 'Detail' });
-      }
+      // THE "🧾 SAY-VS-DO RECEIPTS → #pdxsec-saydo" ROW IS GONE. It pointed at a
+      // section that no longer exists: the public record is an input to the issue rows
+      // in THIS section now (PDXConsistency.issueRow resolves it), not a feed sitting
+      // somewhere else on the page. A feed row whose destination is the card the
+      // reader is already looking at is not a feed, it is a loop.
       // The receipt layer, named as a feed rather than left to look like a
       // separate vault. It is context, not arithmetic: the Locker documents the
       // word and the actions above, and changes no number on this card. The count
@@ -779,6 +810,163 @@
             'change no number. Each section below shows its own working — counts, verdicts and sources — and ' +
             'this is the only place any of it is pooled into a percentage.</p>' +
           '<!--PDXSP:/lid-->' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // ── The spine, on the one score's own card ──────────────────────────────────
+  // Said → Did → Verdict → Receipts, for the two or three issues that carry the most
+  // weight. This card used to state a percentage and then hand the reader a list of
+  // section names; the actual content — which issue, what they said, what they did —
+  // was several taps away in a different section. The rows below are the same
+  // PDXConsistency issue-row unit the Official Record is built from, ranked by the
+  // same rankIssueRows() contract, so "top" here means exactly what "first" means
+  // there: real tension with real evidence, then well-evidenced agreement. Nothing is
+  // recomputed and no number is published — the row's verdict and the row's receipt
+  // count are read straight off the unit.
+  var TOP_ROWS_MAX = 3;
+  function _laneNoun(row, n) {
+    var one = (row.lane === 'exec') ? 'executive action' : 'vote';
+    return n + ' ' + one + (n === 1 ? '' : 's');
+  }
+  // What tested this row, in the row's own terms. A row resolved on the formal record
+  // counts the formal record; a row the formal record could not test counts the public
+  // record instead and says so. Only one of the two is ever printed, because only one
+  // of them was ever resolved — see PDXConsistency.issueRow.
+  function _didLine(r) {
+    if (r.verdict.basis === 'public_record') {
+      var n = r.evidence.public;
+      return n + ' sourced item' + (n === 1 ? '' : 's') + ' in the public record — no formal action tests this one' +
+        (typeof r.verdict.score === 'number' ? ' · ' + r.verdict.score + '% of them back the position' : '');
+    }
+    return _laneNoun(r, r.evidence.actions) + ' on record' +
+      (typeof r.verdict.score === 'number' ? ' · ' + r.verdict.score + '% of them back the position' : '');
+  }
+  function topRowsHtml(pid) {
+    try {
+      var C = window.PDXConsistency;
+      if (!C || typeof C.issueRows !== 'function' || typeof C.rankIssueRows !== 'function') return '';
+      var ranked = C.rankIssueRows(C.issueRows(pid));
+      // Tested rows only, and only rows whose SAID side can actually be printed. A
+      // "said, no record yet" row is coverage, and leading the one score with a
+      // coverage gap is precisely the ordering this pass removed from the Official
+      // Record — it should not reappear one section higher up. A row with a verdict
+      // but no quotable position is the mirror problem: "Backs it up / No position
+      // stated" is not a Said → Did → Verdict chain, it is two thirds of one.
+      var top = ranked.filter(function (r) {
+        return r.tested && r.evidence.total > 0 && !!r.stance.label;
+      }).slice(0, TOP_ROWS_MAX);
+      if (!top.length) return '';
+      var rows = top.map(function (r) {
+        var col = r.verdict.color || '#9fb4d4';
+        var saidTxt = r.stance.text ? String(r.stance.text) : '';
+        if (saidTxt.length > 150) saidTxt = saidTxt.slice(0, 147).replace(/\s+\S*$/, '') + '…';
+        var said = r.stance.label + (saidTxt ? ' — ' + saidTxt : '');
+        return '' +
+          '<li class="pdxwa-row" style="--pdxwa-col:' + col + ';">' +
+            '<div class="pdxwa-row-h">' +
+              '<span class="pdxwa-row-issue">' + esc(r.label) + '</span>' +
+              '<span class="pdxwa-row-verdict" style="color:' + col + ';">' +
+                esc((r.verdict.ico || '') + ' ' + (r.verdict.label || '')) + '</span>' +
+            '</div>' +
+            '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Said</span>' +
+              '<span class="pdxwa-row-v">' + esc(said) + '</span></div>' +
+            '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Did</span>' +
+              '<span class="pdxwa-row-v">' + esc(_didLine(r)) + '</span></div>' +
+            '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Receipts</span>' +
+              '<span class="pdxwa-row-v">' + esc(r.evidence.total + ' sourced item' + (r.evidence.total === 1 ? '' : 's') +
+                ' · ' + r.evidence.strength + ' evidence') + '</span></div>' +
+          '</li>';
+      }).join('');
+      var more = ranked.filter(function (r) { return r.tested; }).length - top.length;
+      return '' +
+        '<div class="pdxwa-rows">' +
+          '<div class="pdxwa-rows-h">Where this number comes from — sharpest first</div>' +
+          '<ul class="pdxwa-rows-l">' + rows + '</ul>' +
+          '<button type="button" class="pdxwa-rows-go"' + jumpAttr('pdxsec-official-record') + '>' +
+            esc(more > 0
+              ? 'See the full breakdown — ' + more + ' more tested issue' + (more === 1 ? '' : 's') + ' →'
+              : 'See the full breakdown →') +
+          '</button>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // ── PER-ISSUE CONSISTENCY OUTCOMES — the merged Say-vs-Do ────────────────────
+  // 🧾 Say-vs-Do was a separate section with its own head, its own coverage line and
+  // its own per-issue verdict on issues the 🏛️ Official Record had already judged. Two
+  // grading systems in one scroll, refereed by a third section. It is now THIS: the
+  // consistency half of the one score, reading one verdict per issue off the row model
+  // that resolves both records (PDXConsistency.issueRow). Four outcomes, no percentage
+  // of its own, one line per issue — the receipts stay one tap away in the Official
+  // Record row and the Evidence drawer rather than being reprinted here at full depth,
+  // which is where the old section's height came from.
+  var OUTCOMES = [
+    { token: 'contradicts', label: 'Says one thing, does another', col: '#f89b9b' },
+    { token: 'mixed',       label: 'Mixed',                        col: '#93c5fd' },
+    { token: 'consistent',  label: 'Backed it up',                 col: '#6ee7a0' },
+    { token: 'limited',     label: 'Not enough record yet',        col: '#9fb4d4' }
+  ];
+  // A TOKEN SET, not a count of groups. "The first two live groups" quietly promoted
+  // whatever survived: a figure with no contradictions and no mixed rows had both
+  // remaining buckets opened, including the "not enough record yet" pile that exists
+  // precisely to be folded. Keyed on the outcome instead, an empty bucket above can
+  // never promote a folded one — with one fallback, below, so the block is never
+  // nothing but a fold header.
+  var OUTCOME_OPEN = { contradicts: 1, mixed: 1 };
+  function _outcomeRow(r) {
+    var bits = [];
+    if (r.evidence.total) bits.push(r.evidence.total + ' receipt' + (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength);
+    if (r.verdict.basis === 'public_record') bits.push('public record');
+    else if (r.evidence.actions) bits.push(_laneNoun(r, r.evidence.actions));
+    if (r.stance.label) bits.unshift(r.stance.label);
+    return '<li class="pdxwa-oc-row">' +
+        '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
+        (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
+      '</li>';
+  }
+  function outcomesHtml(pid) {
+    try {
+      var C = window.PDXConsistency;
+      if (!C || typeof C.issueRows !== 'function' || typeof C.rankIssueRows !== 'function') return '';
+      var ranked = C.rankIssueRows(C.issueRows(pid));
+      var buckets = {}, any = 0;
+      ranked.forEach(function (r) {
+        if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
+        // A "not enough record yet" row with nothing stated is pure coverage — an
+        // issue we track and they have not spoken on. That is not a consistency
+        // outcome and printing it here would pad the section with silence.
+        if (!r.stance.label && r.verdict.token === 'limited') return;
+        (buckets[r.verdict.token] = buckets[r.verdict.token] || []).push(r);
+        any++;
+      });
+      if (!any) return '';
+      var live = OUTCOMES.filter(function (o) { return (buckets[o.token] || []).length; });
+      var blockOf = function (o) {
+        var list = buckets[o.token];
+        return '<div class="pdxwa-oc-grp" style="--pdxwa-col:' + o.col + ';">' +
+            '<div class="pdxwa-oc-h"><span class="pdxwa-oc-n">' + list.length + '</span> ' + esc(o.label) + '</div>' +
+            '<ul class="pdxwa-oc-l">' + list.map(_outcomeRow).join('') + '</ul>' +
+          '</div>';
+      };
+      var isOpen = function (o) { return !!OUTCOME_OPEN[o.token]; };
+      var openGrps = live.filter(isOpen);
+      // Nothing sharp on file — open the highest-ranked bucket anyway, or the block
+      // reduces to a lid the reader has to guess is worth opening.
+      if (!openGrps.length) openGrps = live.slice(0, 1);
+      var lead = openGrps.map(blockOf).join('');
+      var restGrps = live.filter(function (o) { return openGrps.indexOf(o) === -1; });
+      var rest = '';
+      if (restGrps.length) {
+        var restN = restGrps.reduce(function (n, o) { return n + buckets[o.token].length; }, 0);
+        rest = '<!--PDXSP:lid id="wa-outcomes" label="Show ' + restN + ' more issue' +
+          (restN === 1 ? '' : 's') + ' — ' + restGrps.map(function (o) { return o.label.toLowerCase(); }).join(', ') +
+          '" defer-->' + restGrps.map(blockOf).join('') + '<!--PDXSP:/lid-->';
+      }
+      return '<div class="pdxwa-oc">' +
+          '<div class="pdxwa-oc-t">Issue by issue — did the record back the word?</div>' +
+          '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.') + '</div>' +
+          lead + rest +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -830,6 +1018,8 @@
             : '') +
           '.' +
         '</div>' +
+        topRowsHtml(pid) +
+        outcomesHtml(pid) +
         feedsHtml(pid, p, r) +
         methodHtml(r, pid);
 
@@ -945,27 +1135,15 @@
     } catch (e) { return null; }
   }
 
-  // Promises keep their place in the header as a COUNT, never as a second
-  // percentage. The pledge lane is the top tier INSIDE the number above, so a
-  // rate here would be the same evidence rendered twice against a narrower
-  // denominator — which is exactly the rivalry the one-score pass removed.
-  // Counts add what a rate cannot: how much of the ledger has actually closed.
-  function pledgeChipHtml(opts) {
-    var g = opts && opts.pledge;
-    if (!g) return '';
-    var k = Number(g.kept) || 0, b = Number(g.broken) || 0, pen = Number(g.pending) || 0;
-    if (k + b + pen <= 0) return '';
-    var parts = [];
-    if (k) parts.push(k + ' kept');
-    if (b) parts.push(b + ' broken');
-    if (pen) parts.push(pen + ' pending');
-    var txt = parts.join(' · ');
-    return '' +
-      '<button type="button" class="pdxwa-hero-pledge"' + jumpAttr('pdxsec-score') +
-        ' aria-label="' + esc('Promise ledger: ' + parts.join(', ') + '. Open the promise block.') + '">' +
-        '<span aria-hidden="true">🤝</span> ' + esc(txt) +
-      '</button>';
-  }
+  // THE HERO PLEDGE CHIP IS GONE. It rendered "🤝 6 kept · 6 broken · 2 pending"
+  // directly beneath the one percentage, in the header, above the fold — promise
+  // counts as the second thing a reader met on the profile. Counts are not a
+  // rate, but three numbers sitting under one number still read as two findings,
+  // and on a president that chip was the loudest promise chrome on the page.
+  // Pledges are the top tier INSIDE the score above; they are named in the feeds
+  // list, where an input belongs, and the ledger itself is in the drawers.
+  // `opts.pledge` is still accepted by heroInner so no caller has to change
+  // shape — nothing reads it any more.
 
   function heroInner(pid, p, opts) {
     opts = opts || {};
@@ -987,8 +1165,7 @@
         '<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center pdxwa-hero-none">' +
           '<div class="pdxwa-hero-v" style="color:#9fb4d4;">—</div>' +
           '<div class="pdxwa-hero-cap">Monitoring</div>' +
-        '</div>' +
-        pledgeChipHtml(opts);
+        '</div>';
     }
     var radius = 28, circ = 2 * Math.PI * radius;
     var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
@@ -1010,8 +1187,7 @@
           '</span>' +
         '</span>' +
       '</button>' +
-      '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>' +
-      pledgeChipHtml(opts);
+      '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>';
   }
 
   function bindHero(uid, pid, p, opts) {

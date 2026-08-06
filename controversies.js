@@ -1,12 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   PolitiDex — Biggest Controversies  ·  window._renderControversies
+   PolitiDex — Flashpoints  ·  window._renderControversies
    ────────────────────────────────────────────────────────────────────────────
-   A visually distinct, neutral, sourced "flashpoints" block on every politician
-   profile. For each official it surfaces the 2–4 most notable or divisive items
-   already on record — a say-vs-do gap, a broken promise, or a flagged event —
-   each with a plain-language summary, a Say-vs-Do verdict where one applies, a
-   link to the primary source, and one-tap jumps to the related Issue Spotlight,
-   voting record, and full receipt.
+   The high-heat block on every politician profile: the biggest contradictions,
+   red flags and public disputes already on record — a say-vs-do gap, a broken
+   promise, or a flagged event — capped at 3 cards, each with a plain-language
+   summary, a link to the primary source, and one-tap jumps out to the surfaces
+   that carry the verdict and the proof (⚖️ Word vs Action, 🏛️ Official Record,
+   the Evidence drawer, the related Issue Spotlight).
+
+   IT SCORES NOTHING. The verdict chip on a card names the kind of item it is; the
+   consistency outcome for that issue is resolved once, in the row model, and shown
+   in ⚖️ Word vs Action. This section is short and sharp on purpose.
 
    NO NEW DATA. Every entry is assembled, entirely client-side, from layers the
    app already ships:
@@ -35,7 +39,12 @@
   'use strict';
   if (window._renderControversies) return; // idempotent
 
-  var MAX_ITEMS = 4;
+  // Three, not four. This block is the adverse finding a reader came for, and it
+  // ranks hardest-first, so the fourth card was always the softest thing in a
+  // section whose whole job is to be sharp. Cutting it keeps the section a
+  // scannable list rather than a second essay, which is the only shape that
+  // survives sitting between the Official Record and the receipts.
+  var MAX_ITEMS = 3;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -47,6 +56,33 @@
     s = String(s == null ? '' : s).trim();
     if (s.length <= n) return s;
     return s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…';
+  }
+
+  // ── the chip names a KIND, never an outcome ─────────────────────────────────
+  // A Flashpoint card and a ⚖️ Word vs Action row can both be about
+  // `border_security` and honestly say different things: the card is one dated
+  // public dispute, the row is the whole issue weighed against formal action.
+  // That is fine right up until they say it in the SAME WORDS. The receipt engine
+  // stamps a contradiction "Says One Thing · Does Another", which is verbatim one
+  // of Word vs Action's four locked outcome names, so the president's profile read
+  // "Says One Thing · Does Another" here and "Backs it up" there — about the same
+  // issue, on the same scroll, in the same vocabulary. Two verdict systems
+  // disagreeing in public, which is the one thing this section must never be.
+  //
+  // The receipt engine's label is correct on the receipt engine's own surfaces
+  // (the hero card, the lightbox, the share card) and is untouched there. It is
+  // remapped only at this boundary, and only when it collides — the icon and the
+  // colour class carry through, so the heat signal survives and the rival verdict
+  // does not. "Red Flag On Record", "Flagged Event" and "Promise Broken" already
+  // name a kind of item rather than an outcome, and pass through unchanged.
+  var WA_OUTCOME_WORDS = /says one thing|backs? it up|backed it up|words match actions|mixed record|not enough record/i;
+  function heatChip(v) {
+    if (!v || !v.label) return { ico: '⚑', label: 'On Record', cls: 'v-flag' };
+    if (!WA_OUTCOME_WORDS.test(String(v.label))) return v;
+    // The colour class already says which kind of heat this is; name the chip
+    // after that rather than after the outcome vocabulary it collided with.
+    return { ico: v.ico, cls: v.cls,
+             label: (v.cls === 'v-contradicts') ? 'Contradiction On Record' : 'Disputed On Record' };
   }
 
   // Resolve an ISSUE_MAP label into { icon, label } (matches say-vs-do.js).
@@ -179,6 +215,11 @@
       var k = sig(it);
       if (seen[k]) return;
       seen[k] = 1;
+      // Normalise here rather than in cardHTML, because the cards are not the only
+      // consumer: profile-spine.js reads items[0].verdict.label straight into the
+      // brief's tension badge, ABOVE THE FOLD. Doing it at the gather boundary
+      // means every surface fed by this module gets a kind, not an outcome.
+      it.verdict = heatChip(it.verdict);
       out.push(it);
     });
     return out.slice(0, MAX_ITEMS);
@@ -215,10 +256,49 @@
         escAttr(it.issueKey) + '&quot;);" title="' + escAttr('See where everyone stands on ' + topic) + '">' +
         '<span aria-hidden="true">🔦</span> Issue Spotlight</button>');
     }
-    // Jump to the voting / promise record on this same profile.
+    // Jump to the formal record on this same profile. The label used to be
+    // "📋 Voting record" on every profile and aimed at pdxsec-record, a drawer
+    // anchor — wrong word on a president, and wrong destination on everyone. It
+    // now names the one action lane and lands on it.
+    var _ctvExec = false;
+    try {
+      _ctvExec = !!(window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function'
+        && window.PDXExecRecord.eligible(id));
+    } catch (e) { _ctvExec = false; }
     acts.push('<button type="button" class="pdx-ctv-act" ' +
-      'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-record&quot;);">' +
-      '<span aria-hidden="true">📋</span> Voting record</button>');
+      'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-official-record&quot;);">' +
+      '<span aria-hidden="true">' + (_ctvExec ? '✍️' : '\u{1F3DB}️') + '</span> Official record</button>');
+    // The consistency row this card belongs to, and the shared proof layer behind it.
+    // A Flashpoint is heat, not a verdict: it never grades an issue itself, so the two
+    // links out are how a reader gets from "this was a fight" to "here is what the
+    // record actually says" (⚖️ Word vs Action) and "here is everything behind it"
+    // (the Evidence drawer). Without them this section reads as a second scoring
+    // system, which is exactly what it must not be.
+    if (it.issueKey) {
+      // Name the outcome the ONE verdict system already reached for this issue, in
+      // the tooltip on the way to it. A card that says "Contradiction On Record"
+      // beside a row that says "Backs it up" is not a conflict — the card is one
+      // dated dispute, the row is the whole issue weighed against formal action —
+      // but the reader has no way to know that unless the link says so. Read-only,
+      // guarded, and it prints the row's own label rather than deriving one.
+      var _rowOut = '';
+      try {
+        var _C = window.PDXConsistency;
+        if (_C && typeof _C.issueRow === 'function') {
+          var _r = _C.issueRow(id, it.issueKey);
+          if (_r && _r.verdict && _r.verdict.label) _rowOut = String(_r.verdict.label);
+        }
+      } catch (e) { _rowOut = ''; }
+      acts.push('<button type="button" class="pdx-ctv-act" ' +
+        'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-wordaction&quot;);" ' +
+        'title="' + escAttr(_rowOut
+          ? ('Weighed across this whole issue, the one score says: ' + _rowOut)
+          : 'How this issue came out in the one score') + '">' +
+        '<span aria-hidden="true">⚖️</span> Word vs Action</button>');
+    }
+    acts.push('<button type="button" class="pdx-ctv-act" ' +
+      'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-evidence&quot;);">' +
+      '<span aria-hidden="true">🔗</span> Evidence</button>');
     // Source of record.
     if (it.source && it.source.url) {
       acts.push('<a class="pdx-ctv-act pdx-ctv-src" href="' + escAttr(it.source.url) + '" ' +
@@ -265,15 +345,21 @@
 
     return '' +
       '<span id="pdxsec-controversies" class="pdx-nav-anchor" aria-hidden="true"></span>' +
-      '<section class="modal-section pdx-ctv" aria-label="Biggest controversies">' +
+      '<section class="modal-section pdx-ctv" aria-label="Flashpoints">' +
         '<div class="pdx-ctv-head">' +
-          '<div class="modal-section-title pdx-ctv-title">⚠️ Biggest Controversies</div>' +
+          // 🔥 FLASHPOINTS, NOT "BIGGEST CONTROVERSIES". The old title named a
+          // category of thing; this one names the job. The section is heat only —
+          // the biggest contradictions, red flags and public disputes — and it grades
+          // nothing: every card links out to the ⚖️ Word vs Action row, the 🏛️
+          // Official Record and the Evidence drawer, which are where the verdict and
+          // the proof live. Kept deliberately short (3 cards) for the same reason.
+          '<div class="modal-section-title pdx-ctv-title">🔥 Flashpoints</div>' +
           '<span class="pdx-ctv-count">' + items.length + ' flashpoint' + (plural ? 's' : '') + '</span>' +
         '</div>' +
         '<p class="modal-section-sub pdx-ctv-note">' +
-          'The most notable or divisive ' + (plural ? 'items' : 'item') + ' on ' + esc(first) +
-          '’s public record — each with a neutral summary, a say-vs-do read where one applies, ' +
-          'and a link to the source. Inclusion reflects a documented gap or public attention, not a judgment.' +
+          'The sharpest ' + (plural ? 'items' : 'item') + ' on ' + esc(first) +
+          '’s public record. Inclusion reflects a documented gap or public attention, not a judgment — ' +
+          'nothing here is scored, and every card links to the record and the evidence behind it.' +
         '</p>' +
         '<div class="pdx-ctv-list">' + cards + '</div>' +
       '</section>';

@@ -523,31 +523,26 @@ const dot = (issueKey, over = {}) => ({
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 8. IA: the synthesis sits UNDER the score it derives from
+// 8. IA: the synthesis is gone, not merely moved
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // Connecting the Dots used to render on the `brief` stage, above the score. A
-  // derived summary that precedes the thing it derives reads as a competing
-  // verdict, which is most of why the section felt like a rival feature.
-  const dotsAt = PF.indexOf("_pdxConnectDots(id, p)");
-  must(dotsAt !== -1, "profiles-full.js no longer mounts _pdxConnectDots");
-  eq((PF.match(/_pdxConnectDots\(id, p\)/g) || []).length, 1,
-     "Connecting the Dots is mounted more than once, so the reader meets the synthesis twice");
+  // History: Connecting the Dots first rendered on the `brief` stage, above the
+  // score; phase 5 moved it under the score so a derived summary could not precede
+  // the thing it derives. That fixed the ordering and left the duplication. On
+  // Trump it was ~13,000 characters of markup — joined say→did rows, a five-link
+  // chain and a chip row — every one of which the score section now renders itself
+  // in its own vocabulary. So the mount is removed. The function survives in
+  // profile-connect.js; nothing on the profile calls it.
+  eq((PF.match(/_pdxConnectDots\(/g) || []).length, 0,
+     "profiles-full.js mounts Connecting the Dots again — its rows, chain and chips restate the score's own\n" +
+     "    say→did rows, so a reader meets the same synthesis twice in one scroll");
+  ok(/CONNECTING THE DOTS IS UNMOUNTED/.test(PF),
+     "the note recording WHY the synthesis was unmounted is gone, so the next reader will re-add it");
   const scoreAt = PF.indexOf("PDXWordAction.sectionHtml(id, p)");
   must(scoreAt !== -1, "profiles-full.js no longer mounts the Word vs Action section");
-  ok(scoreAt < dotsAt,
-     "Connecting the Dots still renders BEFORE ⚖️ Word vs Action — a synthesis that arrives before its own score reads as a second, competing verdict");
-  // Adjacency is the real invariant, and it is stronger than naming a stage. The
-  // score moved out of `record` into its own `verdict` stage, and the synthesis had
-  // to move with it: separated by even one stage sentinel, the two would be read as
-  // two findings again. So assert they share whichever stage the score is in,
-  // whatever that stage is called next time.
   const scoreStage = PF.lastIndexOf("<!--PDXSP:", scoreAt);
-  const dotsStage = PF.lastIndexOf("<!--PDXSP:", dotsAt);
-  ok(scoreStage !== -1 && scoreStage === dotsStage,
-     `Connecting the Dots is not in the same stage as the score it synthesises (score ${JSON.stringify(PF.slice(scoreStage, scoreStage + 24))}, synthesis ${JSON.stringify(PF.slice(dotsStage, dotsStage + 24))}) — a stage boundary between them makes them read as two findings`);
   ok(PF.slice(scoreStage, scoreStage + 24).indexOf("PDXSP:brief") === -1,
-     "the score and its synthesis are back on the brief stage — the first screen is not where a scored verdict is argued in full");
+     "the score is back on the brief stage — the first screen is not where a scored verdict is argued in full");
 
   // And the spotlight rail sits above the spine as an entry point, not a block.
   ok(/PDXDossier\.railHtml/.test(INDEX),

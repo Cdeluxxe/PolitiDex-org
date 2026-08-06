@@ -105,9 +105,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 
 // ── 1. The order is the product ──────────────────────────────────────────────
 {
-  const want = ["identity", "brief", "verdict", "tension", "signature", "record", "receipts", "you", "money", "drawers"];
+  const want = ["identity", "brief", "verdict", "signature", "record", "tension", "receipts", "money", "you", "drawers"];
   ok(JSON.stringify(SP.STAGES.map((s) => s.key)) === JSON.stringify(want),
-     "order: STAGES is exactly the promised spine — identity, short version, verdict, tension, signature issues, record, receipts, you, money, full record");
+     "order: STAGES is exactly the promised spine — identity, short version, Word vs Action, stances, official record, flashpoints, evidence, money, you, full record");
   ok(SP.STAGES.every((s) => s.label && s.ask && /\?|\./.test(s.ask)),
      "order: every stage carries both a label and the reader question it answers");
   // Two rails asking the same question is a rail that has stopped orienting
@@ -122,10 +122,14 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "path: the judgment comes before the apparatus that produced it — findings before methods");
   ok(kAt("verdict") === kAt("brief") + 1,
      "path: the verdict is the first major surface after the letterhead and the brief");
-  ok(kAt("tension") < kAt("signature"),
-     "path: the sharpest contradiction is met before what the person is known for — a dossier, not a brochure");
-  ok(kAt("you") < kAt("money") && kAt("money") < kAt("drawers"),
-     "path: the reader's own stake precedes the follow-the-money tail, and the deep record still closes the profile");
+  // What they stand for now sits between the score and the record: the stances
+  // layer is what the Official Record is a test OF, so it has to be read first,
+  // and the flashpoints that follow are heat about specific stances rather than
+  // the reader's introduction to the person.
+  ok(kAt("signature") < kAt("record") && kAt("record") < kAt("tension"),
+     "path: stances precede the record that tests them, and the heat comes after both");
+  ok(kAt("money") < kAt("you") && kAt("you") < kAt("drawers"),
+     "path: the follow-the-money lens precedes the reader's own stake, and the deep record still closes the profile");
 
   // The whole point: source position must stop deciding reading position.
   const out = SP.assemble([
@@ -134,9 +138,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ["tension", "<i>T</i>"],
   ]);
   const at = (s) => out.indexOf(s);
-  ok(at("<i>I</i>") < at("<i>V</i>") && at("<i>V</i>") < at("<i>T</i>") &&
-     at("<i>T</i>") < at("<i>S</i>") && at("<i>S</i>") < at("<i>R</i>") &&
-     at("<i>R</i>") < at("<i>M</i>") && at("<i>M</i>") < at("<i>D</i>"),
+  ok(at("<i>I</i>") < at("<i>V</i>") && at("<i>V</i>") < at("<i>S</i>") &&
+     at("<i>S</i>") < at("<i>R</i>") && at("<i>R</i>") < at("<i>T</i>") &&
+     at("<i>T</i>") < at("<i>M</i>") && at("<i>M</i>") < at("<i>D</i>"),
      "order: assemble() emits stages in spine order regardless of the order they were handed in");
 
   const two = SP.assemble([["money", "<i>first</i>"], ["money", "<i>second</i>"]]);
@@ -253,22 +257,47 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(/linked item/.test(derived[0].why) && derived[1].why === "position on file",
      "brief: each issue says why it is listed, in counts it can show — never a claim it cannot back");
 
-  // 4c. Tension: a measured gap between the two feeds outranks a flagged item.
+  // 4c. Tension: the brief's tension card is the top FLASHPOINT, and nothing else.
+  //
+  //     This block used to assert the opposite. A measured Official-Record-vs-
+  //     Say-vs-Do gap ran first and outranked every flagged item, printing
+  //     "Record and public picture disagree on X", badged "28 pt gap", detailed
+  //     "🏛️ 55% vs 🧾 83%" — the Record vs Public Picture panel, with both of its
+  //     percentages, mounted ABOVE THE FOLD. The spine unmounted that section
+  //     three stages further down; the brief kept a trailer for it. On the shipped
+  //     roster the branch reached exactly one profile, which is precisely why it
+  //     survived a section-level audit.
+  //
+  //     Now a negative contract: feed the module a divergence big enough to have
+  //     won under the old rule and assert the flagged item wins anyway.
   ctx.window.PDXConsistency = {
     divergence: () => ({ both: [{ key: "gun_rights", gap: -28, off: { score: 55 }, say: { score: 83 } }] }),
   };
   ctx.window._pdxControversyItems = () => ([{ kind: "flag", title: "A flashpoint", summary: "s" }]);
   const t = SP._tension("massie", MASSIE);
-  ok(t && t.kind === "gap" && t.badge === "28 pt gap",
-     "brief: a scored Official-Record-vs-Say-vs-Do gap is the sharpest tension and wins over a flagged item");
-  ok(/🏛️ 55% vs 🧾 83%/.test(t.detail) && /public record reads better/.test(t.detail),
-     "brief: the gap is stated as the two feeds' own numbers, side by side, never blended into one");
+  ok(t && t.kind === "flag" && t.headline === "A flashpoint",
+     "brief: a divergence gap no longer outranks a flagged flashpoint — the retired section cannot lead the brief");
+  ok(t && t.kind !== "gap" && t.open !== "gap",
+     "brief: tension() cannot emit a 'gap' card at all, so nothing routes the reader into the divergence sheet from above the fold");
+  ok(!/pt gap/.test(JSON.stringify(t)) && !/disagree/i.test(JSON.stringify(t)),
+     "brief: no 'N pt gap' badge and no 'record and public picture disagree' headline survive anywhere in the card model");
+  ok(!/🏛️ .*% vs 🧾 .*%/.test(SP.briefHtml("massie", MASSIE)),
+     "brief: the two feeds' percentages are never printed side by side above the fold — one score, one owner");
 
-  // A gap inside the alignment band is not a tension — it must fall through.
+  // And the tombstone, so the branch cannot be reinstated quietly. divergence()
+  // itself stays exported — the gap sheet, the #record= deep link and the share
+  // card are legitimate callers; the brief is not one, because it is above the fold.
+  // Asserted against SRC, not CODE: CODE is comment-stripped, and a tombstone IS a comment.
+  ok(/RECORD-VS-PUBLIC-PICTURE BRANCH IS GONE/.test(SRC),
+     "brief: the removal is recorded in the source, next to the function that used to do it");
+  ok(!/C\.divergence|divergence\s*===\s*'function'|typeof C\.divergence/.test(CODE),
+     "brief: the spine does not call divergence() at all any more");
+
+  // A flagged item is still the tension when one is on file, gap or no gap.
   ctx.window.PDXConsistency = { divergence: () => ({ both: [{ key: "x", gap: 9, off: { score: 50 }, say: { score: 59 } }] }) };
   const t2 = SP._tension("massie", MASSIE);
   ok(t2 && t2.kind === "flag" && t2.headline === "A flashpoint",
-     "brief: a gap inside the aligned band is not called a disagreement — it falls through to the flagged flashpoint");
+     "brief: the flagged flashpoint is the tension card, and it is the only thing that can be");
 
   // 4d. Nothing contested is a FINDING. It must be said, not hidden.
   ctx.window.PDXConsistency = { divergence: () => ({ both: [] }) };
@@ -302,7 +331,7 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   // 4g. No new scoring. The brief may format the record's numbers; it may not
   //     invent one. A score computed here would drift from the sections below.
   ok(!/officialRecord\s*\(|sayVsDo\s*\(/.test(CODE),
-     "brief: the module never re-derives either feed — it reads the already-reconciled divergence view");
+     "brief: the module never re-derives either feed — with the divergence branch gone it reads no score at all, it only formats what the flashpoint layer already resolved");
   ok(!/\/\s*\(?\s*kept|Math\.round\([^)]*100\s*\/|\bscore\s*=/.test(CODE),
      "brief: no percentage or score is computed in the spine — every figure it prints came from an accessor");
 }
@@ -376,10 +405,27 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   once("window._renderStanceGlance(id, p)", "Stance at a Glance");
   once("window._renderVotingRecord(id, p)", "the API voting record");
   once("window._renderMajorContracts(id, p)", "major contracts");
-  once("PDXConsistency.gatewayHtml(id)", "the Promise Tracker gateway");
+  // The Promise Tracker gateway is mounted ZERO times by design. Pledges are an
+  // input to Word vs Action, not a rival integrity product with its own section,
+  // so the gateway no longer gets profile chrome. Its delegated handlers are still
+  // bound from the Official Record; only the second front door is gone.
+  ok(!/PDXConsistency\.gatewayHtml\(id\)/.test(PF),
+    "dedupe: the Promise Tracker gateway is mounted in the modal body again — that is a\n" +
+    "    second integrity product competing with Word vs Action for the same reader");
   once("PDXConsistency.officialRecordSectionHtml(id)", "the Official Record feed");
-  once("PDXConsistency.saydoSectionHtml(id)", "the Say-vs-Do feed");
-  once("PDXConsistency.divergenceSectionHtml(id)", "the record-vs-public-picture bridge");
+  once("PDXConsistency.stancesSectionHtml(id)", "the Stances & Connections layer");
+  // Say-vs-Do and the record-vs-public-picture bridge are mounted ZERO times by
+  // design. Say-vs-Do was a second per-issue verdict for the same issue, and the
+  // bridge existed only to referee the disagreement between the two. The public
+  // record is now an input resolved ON the issue row (PDXConsistency.issueRow),
+  // so there is one verdict per issue and nothing left for a referee to settle.
+  // Both exporters survive on PDXConsistency; nothing on a profile calls them.
+  ok(!/PDXConsistency\.saydoSectionHtml\(id\)/.test(PF),
+    "dedupe: the Say-vs-Do section is mounted in the modal body again — that is a second\n" +
+    "    per-issue verdict that can disagree with Word vs Action about the same issue");
+  ok(!/PDXConsistency\.divergenceSectionHtml\(id\)/.test(PF),
+    "dedupe: the record-vs-public-picture bridge is mounted again — it only ever refereed a\n" +
+    "    disagreement between two verdict systems, and there is only one verdict system now");
 
   // 6d. Massie. The profile this was designed against — and the one whose depth
   //     is now behind drawers instead of in front of the reader.
@@ -821,12 +867,17 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const verdictBlock = afterVerdict.slice(0, afterVerdict.indexOf("<!--PDXSP:record-->"));
   ok(/PDXWordAction\.sectionHtml\(id, p\)/.test(verdictBlock),
      "verdict: Word vs Action is the verdict stage — the primary read is no longer the header of one system among several");
-  ok(/_pdxConnectDots\(id, p\)/.test(verdictBlock),
-     "verdict: Connecting the Dots follows it into the stage — synthesis sits under the score it synthesizes");
-  ok(verdictBlock.indexOf("PDXWordAction.sectionHtml") < verdictBlock.indexOf("_pdxConnectDots"),
-     "verdict: and it sits UNDER the score, not above it — a summary printed first would be a second headline");
+  // Phase 5 moved Connecting the Dots under the score so the synthesis could not
+  // precede the thing it derives. Phase 6 removed it: its joined say→did rows, its
+  // five-link chain and its chip row all restate what the score section renders in
+  // its own vocabulary, and on Trump that was ~13,000 characters of markup sitting
+  // directly under the number it duplicated.
+  ok(!/_pdxConnectDots\(/.test(verdictBlock),
+     "verdict: Connecting the Dots is mounted under the score again — the verdict stage carries ONE read,\n" +
+     "    and a synthesis printed beside the score it synthesises is a second read of the same evidence");
   ok(!/_renderFollowThrough\(/.test(verdictBlock),
-     "verdict: the pledge-tier percentage stays in the record stage — one score in one place, and the verdict stage is where the one score is");
+     "verdict: the pledge ledger is back beside the score — it is an INPUT to Word vs Action, and the\n" +
+     "    verdict stage is where the one score is, not where its inputs are argued");
   ok(!/_renderAccountabilityCard\(/.test(verdictBlock),
      "verdict: the retired accountability composite is not promoted into the verdict stage either");
 
@@ -851,12 +902,12 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const pillAt = (t) => rail.indexOf("'" + t + "'");
   const pills = [
     ["pdxsec-wordaction", "verdict"],
-    ["pdxsec-controversies", "tension"],
     ["pdxsec-positions", "signature"],
-    ["pdxsec-score", "record"],
+    ["pdxsec-official-record", "record"],
+    ["pdxsec-controversies", "tension"],
     ["pdxsec-evidence", "receipts"],
-    ["pdxsec-match", "you"],
     ["pdxsec-funding", "money"],
+    ["pdxsec-match", "you"],
     ["pdxsec-activity", "drawers"],
   ];
   pills.forEach((pill) => {
@@ -867,14 +918,40 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     if (pillAt(pills[i][0]) < pillAt(pills[i - 1][0])) monotonic = false;
   }
   ok(monotonic,
-     "rail: pills are pushed in the order a reader meets their sections — verdict, tension, signature, record, receipts, you, money, drawers");
-  ok(pillAt("pdxsec-wordaction") < pillAt("pdxsec-score"),
+     "rail: pills are pushed in the order a reader meets their sections — verdict, stances, record, flashpoints, receipts, money, you, drawers");
+  // The stances pill aims at #pdxsec-positions, not #pdxsec-stances. Stances &
+  // Connections renders only when the row model has something to say, while the
+  // positions anchor is always mounted in the same stage — and _pdxNavJump bails
+  // silently on a missing id, so a pill aimed at the conditional anchor would be
+  // a dead pill on exactly the profiles with the least to show.
+  ok(!/'pdxsec-stances'/.test(rail),
+     "rail: a pill aims at #pdxsec-stances, an anchor that does not render on every profile —\n" +
+     "    _pdxNavJump no-ops on a missing target, so that pill dead-ends silently");
+  ok(pillAt("pdxsec-wordaction") < pillAt("pdxsec-official-record"),
      "rail: Word vs Action still leads the rail, and now leads the page too");
-  ok(pillAt("pdxsec-score") < pillAt("pdxsec-record"),
-     "rail: the pledge COUNT pill stays directly under the pledge lane it belongs to, so one number never reads as two findings");
+  // The record stage used to carry THREE pills — "Promises" (a rate), "Record" (a
+  // second pledge count aimed into a drawer) and "Enactments" (an executive count).
+  // Phase 5 cut that to one. Phase 6 cut the surviving pledge pill too: a rail entry
+  // reading "Promises · 6K · 6B · 2P" one pill away from the ⚖️ percentage is a
+  // second scoreboard in the header strip, whatever it links to.
+  ok(pillAt("pdxsec-score") === -1,
+     "rail: the pledge pill is back in the header strip — a kept/broken tally beside the one\n" +
+     "    percentage reads as a rival tally of the same politician");
+  ok(pillAt("pdxsec-record") === -1,
+     "rail: the old drawer-bound Record pill is back — that is a second pledge count posing as a\n" +
+     "    record lane");
+  ok(!/PDXExecRecordUI\.navPill/.test(rail),
+     "rail: the Enactments pill is back — the executive lane lives inside the Official Record now,\n" +
+     "    so it must not also claim a rail entry of its own");
   ok(rail.indexOf("action: 'stance'") > pillAt("pdxsec-positions") &&
-     rail.indexOf("action: 'stance'") < pillAt("pdxsec-score"),
+     rail.indexOf("action: 'stance'") < pillAt("pdxsec-evidence"),
      "rail: Full Report stays attached to Positions — it is the see-everything extension of that pill, not a stage of its own");
+  // Full Report carries no anchor: railOrder ranks it by the pill ahead of it, so it
+  // is only ever correctly placed if it cannot ship without Positions. They are
+  // pushed under one gate, and that shared gate is the guarantee.
+  ok(rail.slice(pillAt("pdxsec-positions"), rail.indexOf("action: 'stance'")).indexOf("\n    }") === -1,
+     "rail: the Full Report pill has left the Positions gate — an anchorless pill that can ship without\n" +
+     "    the pill it inherits its rank from will land somewhere arbitrary in the rail");
   // Exactly one percentage in the rail, still. Reordering must not have smuggled
   // the pledge rate back in beside the primary read.
   ok((rail.match(/value: _waVal/g) || []).length === 1 && !/value: scoreNum \+ '%'/.test(rail),
@@ -923,15 +1000,16 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
       realStage[m[2]] = cur.startsWith("dw:") ? "drawers" : cur;
     }
   }
-  // Four anchors are emitted by other modules, so the template only shows the call.
+  // Five anchors are emitted by other modules, so the template only shows the call.
   // The stage of the call is the stage of the anchor.
   const external = [
     ["pdxsec-wordaction", "PDXWordAction.sectionHtml", "word-action.js"],
+    ["pdxsec-stances", "PDXConsistency.stancesSectionHtml", "consistency.js"],
     ["pdxsec-controversies", "_renderControversies", "controversies.js"],
     ["pdxsec-funding", "_pdxFundingSection", "index.html"],
   ];
   {
-    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|_renderControversies|_pdxFundingSection)\(/g;
+    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|PDXConsistency\.stancesSectionHtml|_renderControversies|_pdxFundingSection)\(/g;
     let m, cur = "identity";
     while ((m = re.exec(bodySrc)) !== null) {
       if (m[1]) { cur = m[1]; continue; }
@@ -945,7 +1023,7 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   realStage["pdxsec-voting"] = "drawers";
 
   const anchors = Object.keys(realStage);
-  ok(anchors.length >= 18,
+  ok(anchors.length >= 17,
      "rail: the anchor scan found the profile's jump anchors (" + anchors.length + ")");
   let wrong = [];
   anchors.forEach((a) => {
@@ -982,9 +1060,16 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "railOrder: a list pushed in the wrong order still comes out in spine order");
   ok(JSON.stringify(keys(SP.railOrder([
     { k: "score", target: "pdxsec-score" },
-    { k: "official", target: "pdxsec-official-record" },
-  ]))) === JSON.stringify(["score", "official"]),
+    { k: "record", target: "pdxsec-record" },
+  ]))) === JSON.stringify(["score", "record"]),
      "railOrder: two pills in one stage keep their push order — the sort is stable, so the source still reads top to bottom");
+  // A pill with no anchor and nothing anchored ahead of it has declared no position,
+  // so it sinks rather than floating above the verdict.
+  ok(JSON.stringify(keys(SP.railOrder([
+    { k: "orphan" },
+    { k: "verdict", target: "pdxsec-wordaction" },
+  ]))) === JSON.stringify(["verdict", "orphan"]),
+     "railOrder: a leading action pill with nothing to inherit from sinks to the deep end");
   ok(JSON.stringify(keys(SP.railOrder([
     { k: "money", target: "pdxsec-funding" },
     { k: "positions", target: "pdxsec-positions" },
@@ -1005,11 +1090,17 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   // sort key is the stage rank and the sort is stable, so every subset has to come
   // out as a subsequence of the full order. Checked by exhaustion rather than
   // asserted, which is what makes the claim cover Massie and every other profile.
+  //
+  // Anchored pills only. The one action pill has no anchor and is ranked RELATIVE to
+  // the pill ahead of it, so its position is not subset-invariant by construction —
+  // drop Positions and the Full Report pill genuinely has nowhere to be. That pill is
+  // covered by its own assertions above and by the paired-gating check below, which
+  // is the property that actually protects it: it never ships without Positions.
   {
-    const roster = ["pdxsec-wordaction", "pdxsec-controversies", "pdxsec-positions", null,
-      "pdxsec-score", "pdxsec-record", "pdxsec-exec-record", "pdxsec-evidence",
-      "pdxsec-match", "pdxsec-funding", "pdxsec-activity"]
-      .map((t, i) => (t ? { k: i, target: t } : { k: i }));
+    const roster = ["pdxsec-wordaction", "pdxsec-official-record", "pdxsec-controversies",
+      "pdxsec-positions", "pdxsec-evidence", "pdxsec-match", "pdxsec-funding",
+      "pdxsec-score", "pdxsec-record", "pdxsec-exec-record", "pdxsec-activity"]
+      .map((t, i) => ({ k: i, target: t }));
     const full = SP.railOrder(roster);
     let subsetOk = true;
     for (let mask = 0; mask < (1 << roster.length); mask++) {
@@ -1020,6 +1111,20 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     }
     ok(subsetOk,
        "railOrder: all " + (1 << roster.length) + " possible pill subsets come out as a subsequence of the full derived order, so a thin profile's rail is ordered too");
+    // And wherever Positions survives, the action pill it carries stays welded to it.
+    let weldedOk = true;
+    for (let mask = 0; mask < (1 << roster.length); mask++) {
+      const sub = roster.filter((_, i) => mask & (1 << i));
+      const pos = sub.filter((x) => x.target === "pdxsec-positions");
+      if (!pos.length) continue;
+      const withReport = sub.slice();
+      withReport.splice(withReport.indexOf(pos[0]) + 1, 0, { k: "report" });
+      const out = SP.railOrder(withReport).map((x) => x.k);
+      if (out[out.indexOf(pos[0].k) + 1] !== "report") { weldedOk = false; break; }
+    }
+    ok(weldedOk,
+       "railOrder: in every subset that shows Positions, the Full Report pill it carries lands directly\n" +
+       "    after it — an action pill rides with its host or it is a stray link");
   }
 
   // 12d. The rail is BUILT through the derivation, not merely capable of it. A
@@ -1099,8 +1204,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //      order; it must not have quietly restated it.
   ok(!/var RAIL_ORDER|railSequence|PILL_ORDER/.test(SPS),
      "keep: there is no second ordered list of pills anywhere in the spine — STAGES plus the anchor registry is the whole declaration");
-  ok(SP.STAGE_KEYS.join(">") === "identity>brief>verdict>tension>signature>record>receipts>you>money>drawers",
-     "keep: and the phase 4 stage order is untouched");
+  ok(SP.STAGE_KEYS.join(">") === "identity>brief>verdict>signature>record>tension>receipts>money>you>drawers",
+     "keep: and the stage order is the locked spine — the score, then what they stand for, then the\n" +
+     "    record that tests it, then the heat, then the proof, and money stays a lens of its own at the tail");
 }
 
 

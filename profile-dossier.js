@@ -286,11 +286,20 @@
     }
 
     // ⑤ outcome — the shared verdict vocabulary and a pointer at the ONE score.
-    // No percentage is emitted here, by design.
+    // No percentage is emitted here, by design. The judged count is named in the
+    // lane's own noun: a president signs and issues, they do not vote, so
+    // "3 judged votes" was a category error on every executive profile.
+    var _dossExec = false;
+    try {
+      _dossExec = !!(window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function'
+        && window.PDXExecRecord.eligible(pid));
+    } catch (e) { _dossExec = false; }
+    var _judgedNoun = _dossExec ? 'executive action' : 'vote';
     var outV = '<span class="pdxdo-verd" style="color:' + col + ';">' +
         (v ? esc(v.ico + ' ' + v.label) : 'Not yet testable') + '</span>' +
       (typeof d.outcome.judged === 'number' && d.outcome.judged > 0
-        ? '<span class="pdxdo-judged">' + d.outcome.judged + ' judged vote' + (d.outcome.judged === 1 ? '' : 's') + '</span>' : '') +
+        ? '<span class="pdxdo-judged">' + d.outcome.judged + ' judged ' + _judgedNoun +
+          (d.outcome.judged === 1 ? '' : 's') + '</span>' : '') +
       '<button type="button" class="pdxdo-toscore"' +
         ' onclick="window._pdxNavJump&&window._pdxNavJump(\'pdxsec-wordaction\',null)">' +
         'counted in ⚖️ Word vs Action →</button>';

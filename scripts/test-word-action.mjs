@@ -115,9 +115,21 @@ function build({ stances = [], record = {}, person = {}, items = null } = {}) {
   };
 
   win.ISSUE_MAP = ISSUE_MAP;
+  // The REAL shared Mixed gate, loaded rather than restated. word-action.js asks
+  // PDXConsistency for it so the pooled read at the top of a profile and the
+  // per-issue rows under it apply one definition of "split"; a hand-written copy in
+  // this stub would let the two drift and the harness would never notice. Loading
+  // stance-helpers.js here (it needs only window + a stub document, same as
+  // test-stance-helpers.mjs) is what keeps that contract honest. It runs first so
+  // the stubs below still win on the symbols this file owns.
+  vm.runInContext(read('stance-helpers.js'), ctx, { filename: 'stance-helpers.js' });
+  must(typeof win._pdxMixedGate === 'function', 'stance-helpers.js no longer publishes the shared Mixed gate');
+  const sharedMixedGate = win._pdxMixedGate;
+
   win._resolveStanceList = () => stances;
   win.PDXConsistency = {
     VERDICTS,
+    mixedGate: sharedMixedGate,
     proof: { proofText: (it) => it && it.proof },
     officialRecord: (_pid, key) => {
       const r = record[key];
@@ -580,11 +592,18 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/pdxsec-wordaction/.test(WA_SRC), 'the section has no stable anchor to jump to');
   ok(/target: 'pdxsec-wordaction'/.test(PROFILES),
     'the quick-jump rail has no Word vs Action pill, so the primary read is not addressable');
-  ok(/label: 'Word vs Action'/.test(PROFILES) && /label: 'Promises'/.test(PROFILES),
-    'the rail no longer names both the unified read and the pledge lane it contains');
+  ok(/label: 'Word vs Action'/.test(PROFILES),
+    'the rail no longer names the unified read');
+  // The pledge lane had a rail pill of its own until this pass. It does not now: a
+  // "Promises · 6K · 6B · 2P" entry sitting one pill from the ⚖️ percentage is a second
+  // scoreboard in the header strip. The lane is named INSIDE the score, in the feeds
+  // panel below, which is where an input to a number belongs.
+  ok(!/label: 'Promises'/.test(PROFILES),
+    'the rail names the pledge lane as a peer of the read that contains it');
   const railWA = PROFILES.indexOf("label: 'Word vs Action'");
-  const railProm = PROFILES.indexOf("label: 'Promises'");
-  ok(railWA < railProm, 'the rail lists the pledge lane ahead of the primary read');
+  const railRec = PROFILES.indexOf("target: 'pdxsec-official-record'");
+  ok(railWA !== -1 && railRec !== -1 && railWA < railRec,
+    'the rail lists the record ahead of the primary read');
   ok(/Checking…|Thin record|Untested/.test(PROFILES),
     'the rail pill shows a bare number even when the read has failed closed — the honest state\n' +
     '    has to reach the rail too, or a blank section sits behind a confident pill');
@@ -597,7 +616,11 @@ const voteNarration = (issueKey, extra = {}) => ({
   // The block has no big number to label any more: the pledge PERCENTAGE is
   // retired (PolitiDex publishes one integrity rate, and it is this section's).
   // What must survive is the lane's identity and its counts.
-  ok(/Promise Receipts/.test(ft), 'the pledge block lost its canonical lane name');
+  // The lane's identity must survive the demotion — but as what the lane IS, not
+  // as the name of the retired 🤝 Promise Receipts product. A drawer eyebrow that
+  // re-mints the peer product is the product coming back one label at a time.
+  ok(/Pledge ledger/.test(ft), 'the pledge block lost its canonical lane name');
+  ok(!/Promise Receipts/.test(ft), 'the pledge block names the retired 🤝 Promise Receipts product again');
   ok(!/%'/.test(ft.replace(/width:\s*100%/g, '')) && !/m\.rate/.test(ft),
     'the pledge block publishes a percentage again — the pledge lane is a tier of this\n' +
     '    score, and a tier with its own rate is a rival score');
@@ -753,8 +776,12 @@ const voteNarration = (issueKey, extra = {}) => ({
   eq(h.pct, 50, 'the hero read and the section read disagree on the number');
   eq(h.sub, '3 of 3 tested', 'the hero sub-line does not report the coverage behind the number');
   ok(h.color !== '#9fb4d4', 'a published hero number is drawn in the neutral colour, so the verdict is invisible');
-  ok(/kept word/i.test(h.caption),
-    `the hero caption is "${h.caption}" — it has to say in plain words what the number measures`);
+  // One number, one name. The ring said "Kept word" while the section a screen down
+  // said "Word vs Action" — two labels for one figure, which a reader with no reason
+  // to know they were the same figure met as two integrity products.
+  eq(h.caption, 'Word vs Action',
+    `the hero caption is "${h.caption}" — it has to be the SAME name the section carries, or the\n` +
+    '    header and the section read as two scores');
   ok(!/promise/i.test(h.caption),
     'the hero caption says "Promise" — that word names the pledge TIER inside this score, and reusing\n' +
     '    it for the whole score rebuilds the ambiguity this collapse removed');
@@ -799,43 +826,33 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/Monitoring/.test(none.WA.heroHtml('p1', { name: 'Empty' })),
     'with nothing to report the hero has no honest resting state');
 
-  // The supporting layer the header keeps: pledge COUNTS, never a pledge rate.
-  // A rate here would be the same evidence as the ring's top tier, rendered
-  // against a narrower denominator — two headline numbers for one question.
+  // NO pledge layer in the header at all. Phase 5 demoted the pledge rate to pledge
+  // COUNTS in a chip under the ring, on the reasoning that counts cannot rival a
+  // percentage. They can: "🤝 27 kept · 8 broken · 2 pending" directly beneath one
+  // number is the second thing a reader meets on the profile, and it reads as a
+  // second finding about the same person. The pledge lane is the top TIER inside the
+  // ring's percentage — named in the feeds panel, ledgered in the drawers.
+  //
+  // Rendered with a ledger passed anyway, because the option is still accepted for
+  // callers' sake: what it must not do is draw anything.
   const ledger = { pledge: { kept: 27, broken: 8, pending: 2 } };
   const chipCtx = publishable();
   const withChip = chipCtx.WA.heroHtml('p1', { name: 'Publishable' }, ledger);
-  ok(/27 kept/.test(withChip) && /8 broken/.test(withChip) && /2 pending/.test(withChip),
-    'the hero pledge chip does not report kept / broken / pending — the header dropped the\n' +
-    '    promise ledger instead of demoting it');
-  const chipOnly = withChip.slice(withChip.indexOf('pdxwa-hero-pledge'));
-  must(chipOnly.length > 40, 'the hero pledge chip markup could not be isolated');
-  ok(!/%/.test(chipOnly),
-    'the hero pledge chip prints a percentage — the pledge lane is a tier inside the ring\'s\n' +
-    '    number, so a rate here is the same evidence twice against a narrower denominator');
+  ok(!/27 kept/.test(withChip) && !/8 broken/.test(withChip) && !/2 pending/.test(withChip),
+    'the hero prints the pledge ledger again — promise counts above the fold are a second\n' +
+    '    scoreboard, whatever units they are in');
+  ok(!/pdxwa-hero-pledge/.test(withChip),
+    'the hero pledge chip is back in the header markup');
   eq(new Set(withChip.match(/\d+%/g) || []).size, 1,
     'the hero renders more than one distinct percentage — the ring is the only major number\n' +
-    '    in the header, and everything under it is a count');
-  ok(/_pdxNavJump\('pdxsec-score'\)/.test(withChip),
-    'the hero pledge chip is not a route into the promise block, so the demoted layer became\n' +
-    '    unreachable from the header that summarises it');
-  ok(/aria-label="[^"]*27 kept[^"]*"/.test(withChip),
-    'the hero pledge chip has no accessible name, so a screen reader hears three bare numbers');
-  eq(withChip.indexOf('pdxwa-hero-pledge') !== -1, true,
-    'the hero pledge chip lost the class its 44px tap target is styled from');
-  ok(!/pdxwa-hero-pledge/.test(chipCtx.WA.heroHtml('p1', { name: 'Publishable' })),
-    'the hero renders an empty pledge chip when no ledger was passed — a profile with no promises\n' +
-    '    on file should not show a chip reading "0 kept"');
-  ok(!/pdxwa-hero-pledge/.test(chipCtx.WA.heroHtml('p1', { name: 'Publishable' },
-      { pledge: { kept: 0, broken: 0, pending: 0 } })),
-    'a zeroed pledge ledger still renders a chip — an empty ledger is not a finding');
-  // Below the floors and while warming, the counts survive: they are observed
-  // facts, not a derived rate, so they are not subject to the score's floors.
-  ok(/27 kept/.test(thin.WA.heroHtml('p1', { name: 'One Item' }, ledger)),
-    'a below-floor hero hides the pledge counts — the fail-closed rule applies to the derived\n' +
-    '    score, not to the counted ledger underneath it');
-  ok(/27 kept/.test(none.WA.heroHtml('p1', { name: 'Empty' }, ledger)),
-    'a profile with no documented word hides the pledge counts it does have');
+    '    in the header, and nothing sits under it');
+  ok(!/_pdxNavJump\('pdxsec-score'\)/.test(withChip),
+    'the hero jumps into the pledge ledger again — the route to that input is the score\'s own\n' +
+    '    feeds panel, not a chip in the letterhead');
+  ok(!/27 kept/.test(thin.WA.heroHtml('p1', { name: 'One Item' }, ledger)) &&
+     !/27 kept/.test(none.WA.heroHtml('p1', { name: 'Empty' }, ledger)),
+    'the thin and no-word heroes print pledge counts — a header with no score to show is the\n' +
+    '    last place the pledge tally should stand in for one');
 
   // The mount: addressable, jumps into the section, and re-renders on warm.
   const live = publishable();
@@ -882,7 +899,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   const html = b.WA.feedsHtml('p1', person);
   ok(/What feeds this score/.test(html), 'the panel lost its heading');
   for (const [label, target] of [
-    ['Promise receipts', 'pdxsec-score'],
+    ['Pledges kept and broken', 'pdxsec-score'],
     ['Stated positions', 'pdxsec-positions'],
     ['Signature issues', 'pdxsec-positions'],
     ['Official Record', 'pdxsec-official-record']
@@ -902,18 +919,24 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/The test —/.test(html),
     'the Official Record row does not identify itself as the test the word is measured against');
 
-  // Say-vs-Do is context, and the panel says so — but only when that section exists.
+  // Say-vs-Do is GONE as a destination. It used to be listed here as a context
+  // feed pointing at #pdxsec-saydo; that section was merged into the per-issue
+  // outcomes block inside this same section, so the row now has nowhere to point
+  // and must not come back — a feed row aimed at the card the reader is already
+  // looking at is a loop, and a link to a missing anchor silently dead-ends.
   ok(!/Say-vs-Do/.test(html),
-    'the panel advertises the Say-vs-Do section on a build where it does not render');
+    'the panel advertises the Say-vs-Do section, which no longer renders anywhere');
   b.win.PDXConsistency.saydoSectionHtml = () => '';
   const withSaydo = b.WA.feedsHtml('p1', person);
-  ok(/Say-vs-Do receipts/.test(withSaydo), 'the panel does not list the Say-vs-Do receipts layer');
-  ok(/pdxwa-feed-ctx/.test(withSaydo),
-    'the Say-vs-Do row is not marked as context — it would read as part of the arithmetic');
-  ok(/never folded into this percentage/.test(withSaydo),
-    'the panel does not say out loud that Say-vs-Do is outside the score');
-  eq((withSaydo.match(/pdxwa-feed-ctx/g) || []).length, 1,
-    'more than one row is marked context-only — every other row is a real input');
+  ok(!/Say-vs-Do/.test(withSaydo),
+    'the panel names Say-vs-Do even when the (unmounted) exporter is present —\n' +
+    '    the row must be gone on the export, not merely on its absence');
+  ok(!/pdxsec-saydo/.test(withSaydo),
+    'the panel still jumps to #pdxsec-saydo, an anchor no profile mounts');
+  ok(/THE "🧾 SAY-VS-DO RECEIPTS → #pdxsec-saydo" ROW IS GONE/.test(WA_SRC),
+    'the removed Say-vs-Do feed row has no tombstone — the next reader will re-add it');
+  eq((withSaydo.match(/pdxwa-feed-ctx/g) || []).length, 0,
+    'a row is marked context-only before the receipt layers load — every listed row here is a real input');
   ok(/only place any of it is pooled/.test(withSaydo),
     'the panel footer no longer states that this is the only surface that pools a percentage');
 
@@ -935,7 +958,7 @@ const voteNarration = (issueKey, extra = {}) => ({
     'the panel does not list the Issue Spotlights that feature this official');
   ok(withReceipts.includes("_pdxNavJump('spotlight-modal-section')"),
     'the Issue Spotlights row is named but not reachable');
-  eq((withReceipts.match(/pdxwa-feed-ctx/g) || []).length, 3,
+  eq((withReceipts.match(/pdxwa-feed-ctx/g) || []).length, 2,
     'the receipt and issue layers are not all marked context-only — they would read as arithmetic');
   ok(!/%/.test(withReceipts.split('What feeds this score')[1] || ''),
     'a feed row emits a percentage — there is exactly one score on a profile');
@@ -1038,15 +1061,17 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/min-height/.test(heroSub),
     'the hero sub-line reserves no height, so "Loading the record…" → "7 of 9 tested" shifts the\n' +
     '    whole profile header on hydration');
-  // The demoted pledge counts sit under the ring in the narrowest column on the
-  // page, and they are a jump control, so they need both a tap target and a wrap.
-  const heroPledge = base.slice(base.indexOf('.pdxwa-hero-pledge {'), base.indexOf('.pdxwa-hero-pledge:hover'));
-  must(heroPledge.length > 80, 'word-action.css no longer styles .pdxwa-hero-pledge');
-  ok(/min-height:\s*2\.75rem/.test(heroPledge),
-    'the hero pledge chip is under 44px tall — it is a button in the tightest column of the header');
-  ok(/min-width:\s*0/.test(heroPledge) && /overflow-wrap:\s*break-word/.test(heroPledge),
-    'the hero pledge chip cannot wrap, so "27 kept · 8 broken · 2 pending" widens the header column\n' +
-    '    and pushes the name off a small screen');
+  // The pledge chip that used to sit under the ring is gone; nothing may restyle it.
+  ok(!/pdxwa-hero-pledge/.test(WA_CSS),
+    'word-action.css styles .pdxwa-hero-pledge again — the header carries one number and no\n' +
+    '    promise chrome under it');
+  // The caption inside the ring took the section\'s own name, which is more than twice
+  // as long as the "Kept word" it replaced and has to wrap inside an 80px circle.
+  const heroCap = base.slice(base.indexOf('.pdxwa-hero-cap {'), base.indexOf('.pdxwa-hero-cap {') + 400);
+  must(heroCap.length > 80, 'word-action.css no longer styles .pdxwa-hero-cap');
+  ok(/max-width/.test(heroCap) && /line-height/.test(heroCap),
+    'the ring caption is not constrained to wrap, so "WORD VS ACTION" runs past the 80px ring it\n' +
+    '    is centred in instead of breaking onto two lines');
   // No fixed pixel heights that would clip wrapped text at small sizes.
   ok(!/\.pdxwa-[a-z-]+\s*{[^}]*\bheight:\s*\d+px/.test(WA_CSS),
     'a Word vs Action element has a hard pixel height — wrapped copy would be clipped on a phone');
@@ -1058,6 +1083,93 @@ const voteNarration = (issueKey, extra = {}) => ({
     ok(!WA_CSS.includes(bad),
       `word-action.css hardcodes the verdict colour ${bad} — it must come from PDXConsistency.VERDICTS`);
   }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 15. Per-issue consistency outcomes — the merged Say-vs-Do
+// ─────────────────────────────────────────────────────────────────────────────
+// 🧾 Say-vs-Do was a section with its own head, its own coverage line and its own
+// per-issue verdict, over the same issues the Official Record had already judged.
+// It now lives here as four outcome buckets over the ONE resolved row verdict.
+// The buckets carry the locked outcome names; the VERDICTS labels are untouched,
+// because other surfaces (and three other harnesses) still read those.
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // Driven through a stubbed row model: outcomesHtml is internal, and the point of
+  // the merge is that it consumes PDXConsistency.issueRow's output rather than
+  // recomputing a verdict of its own.
+  const row = (key, token, over = {}) => ({
+    pid: 'p1', key, label: 'Issue ' + key, tier: token === 'consistent' ? 1 : 0,
+    stance: { label: 'Pledge', key, text: 'said a thing' },
+    lane: 'record', tested: true, scored: true,
+    actions: { count: 1, lane: 'record', judged: 1 },
+    verdict: { token, label: token, cls: 'x', ico: '•', color: '#fff', score: null, basis: 'action' },
+    public: { token: 'no_record', count: 0, judged: false },
+    evidence: { count: 1, actions: 1, public: 0, total: 1, strength: 'thin', sources: [] },
+    ...over
+  });
+  const withRows = (rows) => {
+    const b = build({
+      stances: [quoted('gun_rights')],
+      record: { gun_rights: { score: 100, token: 'consistent', judged: 2 } }
+    });
+    b.win.PDXConsistency.issueRows = () => rows;
+    b.win.PDXConsistency.rankIssueRows = (rs) => rs;
+    return b.WA.headlineHtml('p1', { name: 'Outcomes' });
+  };
+
+  const mixedBag = withRows([
+    row('a', 'contradicts'), row('b', 'mixed'),
+    row('c', 'consistent'), row('d', 'consistent'),
+    row('e', 'limited')
+  ]);
+  ok(/pdxwa-oc\b/.test(mixedBag), 'Word vs Action no longer renders the per-issue outcomes block');
+  for (const label of ['Says one thing, does another', 'Mixed', 'Backed it up', 'Not enough record yet']) {
+    ok(mixedBag.includes(label), `the outcomes block does not use the locked outcome name "${label}"`);
+  }
+  ok(/One verdict per issue/.test(mixedBag),
+    'the outcomes block does not say that each issue is decided once — the whole reason\n' +
+    '    Say-vs-Do stopped being a section is that two surfaces could disagree');
+  eq((mixedBag.match(/pdxwa-oc-row/g) || []).length, 5, 'the outcomes block dropped or duplicated a row');
+  // No second percentage. This block reports outcomes, never a rate of its own.
+  const ocBlock = mixedBag.slice(mixedBag.indexOf('pdxwa-oc'), mixedBag.indexOf('What feeds this score'));
+  ok(!/%/.test(ocBlock.replace(/<[^>]+>/g, ' ')),
+    'the outcomes block prints a percentage — there is exactly one score on a profile');
+
+  // The fold is keyed on the OUTCOME, not on position in the list of non-empty
+  // buckets. "The first two live buckets" opened the "not enough record yet" pile
+  // on anyone with no contradictions and no mixed rows — the pile that exists to fold.
+  const lead = (h) => h.slice(0, h.indexOf('PDXSP:lid') === -1 ? h.length : h.indexOf('PDXSP:lid'));
+  const sharp = lead(mixedBag);
+  ok(/Says one thing, does another/.test(sharp) && /Mixed/.test(sharp),
+    'the sharpest outcomes do not lead the block');
+  ok(!/Backed it up/.test(sharp) && !/Not enough record yet/.test(sharp),
+    'a bucket past the sharp two is open — the block reads as a wall again');
+  ok(/Show 3 more issues/.test(mixedBag), 'the folded buckets do not report how many they hide');
+
+  // ...with one fallback: nothing sharp on file must not leave a lid and no content.
+  const calm = withRows([row('c', 'consistent'), row('e', 'limited')]);
+  ok(/Backed it up/.test(lead(calm)),
+    'a figure with no contradictions gets an outcomes block that is nothing but a fold header');
+  ok(!/Not enough record yet/.test(lead(calm)),
+    'the coverage bucket is open on a calm record — it is the one bucket that is not a finding');
+
+  // A "not enough record yet" row with nothing stated is coverage, not an outcome.
+  const silent = withRows([row('z', 'limited', { stance: { label: null, key: 'z', text: '' } })]);
+  ok(!/pdxwa-oc\b/.test(silent),
+    'an issue they have never spoken on is listed as a consistency outcome — that pads the\n' +
+    '    section with silence and inflates the denominator a reader infers from it');
+
+  // The row line reports where the verdict came from when it was not a formal action.
+  const pub = withRows([row('p', 'contradicts', {
+    verdict: { token: 'contradicts', label: 'x', cls: 'x', ico: '•', color: '#fff', score: null, basis: 'public_record' },
+    public: { token: 'contradicts', count: 3, judged: true },
+    evidence: { count: 0, actions: 0, public: 3, total: 3, strength: 'documented', sources: [] }
+  })]);
+  ok(/public record/.test(pub),
+    'a row decided by the public record does not say so — the reader cannot tell which of the\n' +
+    '    two inputs resolved it, which is the honesty the merge is supposed to buy');
+  ok(/3 receipts/.test(pub), 'the outcome row does not report the receipts behind it');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -5,9 +5,7 @@
 // Action read, coverage, the backed-up/mixed/contradicted breakdown, proof in both
 // directions, branding — rotating through the best-covered profiles. Replaced a
 // single "Says One Thing · Does Another" receipt, because one receipt about one
-// person on one issue is an anecdote, and an anecdote read cold looks like a gotcha
-// rather than a system. hero-receipt.js is unchanged and still runs, demoted to a
-// lead-in above the Say-vs-Do band.
+// person on one issue reads as a gotcha rather than a system.
 //
 // THIS FILE OWNS NO JUDGEMENT. Every word of the read comes from PDXProfileCard —
 // the same module that draws the shareable image — via brief()/read(). Verdict,
@@ -17,17 +15,12 @@
 //
 // THE SEED CARRIES NO VERDICTS AND CANNOT. hero-showcase-data.js is an invitation
 // list: ranked pids with name, office, party. The ACTION half of most comparisons
-// is the roll-call record, which lives in the database behind /api/voting-record
-// and is only warm in a live browser — asked at build time, every marquee profile
-// answers "Loading the record…", below the publishing floor with nothing tested. A
-// seed built from that would either paint a hero of loading states or freeze a thin
-// verdict into a static file and keep showing it after the record filled in.
-//
-// So: (1) identity paints immediately from the seed, with the signal slot in the
-// app's own `pending` state — no data file, no network, no layout shift. (2) The
-// read arrives when the engine warms on its existing lazy schedule. (3) Anyone
-// whose settled read is not publishable is dropped from the rotation, having never
-// shown a hollow signal; if all are dropped the slot hides itself.
+// is the roll-call record, warm only in a live browser, so a seed built at build
+// time would freeze a thin verdict into a static file and keep showing it after
+// the record filled in. So: identity paints immediately from the seed with the
+// signal slot in the app's own `pending` state; the read arrives when the engine
+// warms; anyone whose settled read is not publishable leaves the rotation, having
+// never shown a hollow signal, and if all are dropped the slot hides itself.
 //
 // Guardrails: nothing on the critical path but the seed and this file; only the
 // featured pids are warmed, never the roster; brief() decides eligibility and the
@@ -80,6 +73,16 @@
   }
 
   function PC() { return window.PDXProfileCard || null; }
+
+  // "Has this member's record lane finished asking?" Owned by consistency.js, which
+  // runs the fetch; absent means nothing is being waited on.
+  function recordSettled(pid) {
+    try {
+      var CS = window.PDXConsistency;
+      if (!CS || typeof CS.recordSettled !== 'function') return true;
+      return !!CS.recordSettled(pid);
+    } catch (e) { return true; }
+  }
 
   // Day-based entry point, lifted from hero-receipt.js for its reason: a fixed
   // start index makes one person the permanent face of the front page, and since
@@ -149,11 +152,16 @@
            'onerror="this.classList.add(\'pdx-hs-face-gone\')">';
   }
 
-  // The one signal. Glyph, words and colour are the verdict's own, never re-picked
-  // here. The waiting state uses VERDICTS.pending for the same reason consistency.js
-  // keeps ONE phrase for one wait: this card, the profile's Voting Record Highlights
-  // and word-action.js can all be waiting on the same fetch, and three wordings for
-  // one fetch reads as three different states.
+  // The one signal — and the same number the profile leads with. The card and the
+  // profile are one product, so a reader who taps through from here must land on the
+  // figure they just read, not a second summary of the same person. The percentage
+  // is the Word vs Action score straight off PDXProfileCard.brief(); when it is null
+  // the card shows the verdict words alone rather than inventing a number.
+  //
+  // Glyph, words and colour are the verdict's own, never re-picked here. The waiting
+  // state uses VERDICTS.pending because consistency.js keeps ONE phrase for one
+  // wait: this card, Voting Record Highlights and word-action.js can all be waiting
+  // on the same fetch.
   function signalHtml(d) {
     var CS = window.PDXConsistency;
     var pend = (CS && CS.VERDICTS && CS.VERDICTS.pending) || null;
@@ -161,9 +169,18 @@
     var ico = (v && v.ico) || '⏳';
     var label = (v && v.label) || 'Loading the record…';
     var tint = d && d.publishable && d.accent ? d.accent : '';
+    var pct = (d && typeof d.pct === 'number') ? d.pct : null;
+    // The score leads; the plain-language verdict sits directly under it so the
+    // number is never left to speak for itself.
+    var scoreHtml = (pct === null) ? '' :
+      '<div class="pdx-hs-sig-score"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
+        '<span class="pdx-hs-sig-pct">' + pct + '<span class="pdx-hs-sig-pct-u">%</span></span>' +
+        '<span class="pdx-hs-sig-pct-k">word matched by action</span>' +
+      '</div>';
     return '' +
-      '<div class="pdx-hs-signal' + (d && d.publishable ? ' is-pub' : '') + '">' +
+      '<div class="pdx-hs-signal' + (d && d.publishable ? ' is-pub' : '') + (pct === null ? '' : ' has-score') + '">' +
         '<div class="pdx-hs-sig-eyebrow">⚖️ Word vs Action</div>' +
+        scoreHtml +
         '<div class="pdx-hs-sig-read"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
           '<span class="pdx-hs-sig-ico" aria-hidden="true">' + esc(ico) + '</span>' +
           '<span class="pdx-hs-sig-label">' + esc(label) + '</span>' +
@@ -172,9 +189,10 @@
       '</div>';
   }
 
-  // Counts plus a proportional bar — the verdict showing its work. Never a
-  // percentage: a rate needs its denominator beside it, and the denominator is the
-  // coverage line directly below.
+  // Counts plus a proportional bar — the score showing its work. These are ISSUE
+  // rows from the shared tally in consistency.js, the same rows and the same
+  // verdicts the profile prints, so the card cannot report a different split than
+  // the page it links to.
   function breakdownHtml(d) {
     var b = d && d.breakdown;
     if (!b) return '';
@@ -470,11 +488,10 @@
   // alone cannot tell "still arriving" from "never asked": PDXWordAction marks an
   // item warming only while a fetch is in flight (word-action.js, ov.pending), and
   // before it registers the item reports `no_action_yet`, indistinguishable from a
-  // genuinely empty record. warm() is debounced 150ms, so for a fraction of a second
-  // after beginEngine EVERY candidate looks empty — ruling out there would hide the
-  // hero one tick before the data arrived, on every cold load. Hence allowRuleOut,
-  // set only once the grace period has elapsed: until then a candidate can be
-  // promoted but never eliminated.
+  // genuinely empty record. warm() is debounced 150ms, so briefly after beginEngine
+  // EVERY candidate looks empty — ruling out there would hide the hero one tick
+  // before the data arrived. Hence allowRuleOut, set only once the grace period has
+  // elapsed: until then a candidate can be promoted but never eliminated.
   function settle(c, allowRuleOut) {
     // Already answered. brief() is a full PDXWordAction.read(), and a candidate
     // that cleared the publishing floor cannot be argued back below it by a later
@@ -484,6 +501,14 @@
     if (c.state === 'publishable') return;
     var pc = PC();
     if (!pc || typeof pc.brief !== 'function') return;
+    // PUBLISH ONCE, FROM THE FINAL NUMBERS. A president is judgeable cold — the
+    // executive record ships in the bundle — so brief() cleared the floor on the
+    // first pass and painted a score, a headline and counts built from half the
+    // evidence, then painted different ones when the roll call landed. Waiting
+    // costs a skeleton for the length of one request and buys a card that never
+    // argues with the profile behind it. allowRuleOut is also the deadline: grace
+    // period past, publish whatever is in hand.
+    if (!allowRuleOut && !recordSettled(c.pid)) return;
     var b = null;
     try { b = pc.brief(c.pid); } catch (e) { b = null; }
     if (b && b.publishable) { c.state = 'publishable'; return; }
@@ -512,25 +537,33 @@
   // This is the fix for the homepage lock-up. Records arrive one per request, and
   // every arrival used to run the full pass below: flush every cached read, then
   // brief() all eight candidates — eight complete PDXWordAction reads — inside the
-  // fetch's own callback. Eight arrivals therefore meant sixty-four reads plus
-  // eight full re-reads of the painted card, measured at ~350 ms of blocking work
-  // on a desktop CPU and several seconds on a phone, landing in the same frames as
-  // eight ~125 KB JSON parses and the roster render. The main thread never got a
-  // gap wide enough to answer a tap, which is what Chrome reports as an
-  // unresponsive page. One arrival can only change one member's answer, so this
-  // does one member's work: a single brief, a single cache entry dropped.
+  // fetch's own callback. Eight arrivals meant sixty-four reads landing in the same
+  // frames as eight ~125 KB JSON parses and the roster render, and the main thread
+  // never got a gap wide enough to answer a tap. One arrival can only change one
+  // member's answer, so this does one member's work.
   //
   // Promotion only — ruling a candidate out is still the sweep's job, on the
   // grace-period backstops, so a member whose record simply has not arrived is
   // never burned by another member's event.
-  function settleOne(pid) {
-    var c = null;
-    for (var i = 0; i < warmSet.length; i++) {
-      if (warmSet[i].pid === String(pid)) { c = warmSet[i]; break; }
+  function byPid(list, pid) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].pid === String(pid)) return list[i];
     }
+    return null;
+  }
+  function settleOne(pid) {
+    var c = byPid(warmSet, pid);
     // Not one of ours. A profile modal elsewhere warms members too, and re-reading
-    // the whole hero because some unrelated member settled is pure waste.
-    if (!c) return;
+    // the whole hero because some unrelated member settled is pure waste. "Ours" is
+    // the warm set PLUS whoever is on screen: before the pool publishes, visible()
+    // falls back to candidates past WARM_MAX, and a card whose record lands while it
+    // is on screen must repaint or it keeps showing a percentage the profile no
+    // longer agrees with.
+    if (!c) {
+      var v = byPid(visible(), pid);
+      if (v) { dropRead(v.pid); draw(); }
+      return;
+    }
     if (c.state === 'publishable') { dropRead(c.pid); draw(); return; }
     dropRead(c.pid);
     holdPlace(function () { settle(c, false); });
@@ -576,9 +609,8 @@
     // Records land one at a time; re-settling per event fills the hero in
     // progressively instead of waiting on the slowest request. Both dispatchers
     // name the member in detail.pid (consistency.js flushWarm, voting-record.js
-    // _openVoting), so the common path costs one brief. An event with no pid is
-    // not a shape either of them emits; it falls back to the full sweep rather
-    // than guessing, which is correct but is why the sweep must stay cheap.
+    // _openVoting), so the common path costs one brief. An event with no pid falls
+    // back to the full sweep, which is why the sweep must stay cheap.
     var onWarm = function (ev) {
       var pid = ev && ev.detail && ev.detail.pid;
       if (pid) { settleOne(pid); return; }
@@ -589,14 +621,15 @@
       window.addEventListener('pdx-voting-warm', onWarm);
     } catch (e) {}
 
-    // Publish-only pass — nothing has had time to fail. A returning visitor with a
-    // warm cache gets real cards right here.
+    // Publish-only pass. A returning visitor whose record is already cached gets a
+    // real card right here; everyone else holds the skeleton until their lane
+    // answers, rather than painting a score the arriving record will overrule.
     settleAll();
 
     // Backstops for when no warm event ever arrives (offline, failing endpoint, a
-    // member with no roll-call rows): promote whoever quietly became publishable and,
-    // grace period past, rule out whoever did not. Without these the hero would sit
-    // on "Loading the record…" forever instead of showing what it has or standing down.
+    // member with no roll-call rows): publish whoever became publishable and, grace
+    // period past, rule out whoever did not. Without these the hero would sit on
+    // "Loading the record…" forever instead of showing what it has or standing down.
     try { setTimeout(settleAll, GRACE_MS + 500); } catch (e) {}
     try { setTimeout(settleAll, 12000); } catch (e) {}
   }
@@ -612,12 +645,10 @@
   // hero would move all of it onto the critical path to buy a card that is one
   // interaction away from filling in by itself. So: deliberately NOT
   // PDXLazyData.whenReady(), which guarantees its callback by kicking off the load
-  // itself. Listening for the ready event directly gets the same callback with none
-  // of the pull, and it still always arrives — pdx-lazy-data.js's third trigger is
+  // itself. Listening for the ready event gets the same callback with none of the
+  // pull, and it still always arrives — pdx-lazy-data.js's third trigger is
   // an unconditional post-load idle fallback for every visitor, including one who
-  // never scrolls or taps. #hero-showcase is likewise absent from that file's
-  // SECTIONS list: an observer on an above-the-fold element fires instantly, which
-  // is an eager load with extra steps.
+  // never scrolls or taps.
   function armEngine() {
     var LD = window.PDXLazyData;
     if (LD && typeof LD.loaded === 'function' && LD.loaded('acctSpotlight')) {

@@ -985,11 +985,21 @@
       }).join('');
     }
 
+    // The one lane noun this section uses. A president does not have a "voting
+    // record" — they sign, veto, issue and direct — so the sentence that names
+    // what a stance is checked against has to know which office it is describing.
+    var _isExecOffice = false;
+    try {
+      _isExecOffice = !!(window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function'
+        && window.PDXExecRecord.eligible(id));
+    } catch (e) { _isExecOffice = false; }
+    var _recordNoun = _isExecOffice ? 'formal actions on the record' : 'voting records';
+
     var note = _derivedCand
-      ? ('As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a voting record to score. The priorities above are drawn from their public campaign — PolitiDex logs kept-and-broken promises once they take office.')
+      ? ('As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a record to score. The priorities above are drawn from their public campaign — PolitiDex logs kept-and-broken promises once they take office.')
       : (derived
-        ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and votes are verified.'
-        : 'Stances summarize public statements and voting records on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.');
+        ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and formal actions are verified.'
+        : 'Stances summarize public statements and ' + _recordNoun + ' on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.');
     var _countWord = _derivedCand
       ? (stances.length === 1 ? ' priority' : ' priorities')
       : (' issue' + (stances.length === 1 ? '' : 's'));
@@ -1035,10 +1045,10 @@
         '<div class="stance-limited-note">' +
           '<div class="lr-head">' +
             '<span class="stance-limited-pill">📋 Limited Record</span>' +
-            '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the promise score is thin. These <strong style="color:#cbd9ec;">' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + '</strong> are the clearest read on where ' + _firstName + ' stands today.' + _lrRef + '</span>' +
+            '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the pledge tier of ⚖️ Word vs Action is thin. These <strong style="color:#cbd9ec;">' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + '</strong> are the clearest read on where ' + _firstName + ' stands today.' + _lrRef + '</span>' +
           '</div>' +
           '<div class="lr-row"><span class="lr-row-label">On record now</span><div class="lr-chips">' + _lrChips.join('') + '</div></div>' +
-          '<div class="lr-row lr-row-building"><span class="lr-row-label">Still being built</span><span class="lr-building-text"><span aria-hidden="true">⏳</span> More of ' + _firstName + '\'s voting record, and kept-and-broken promises as commitments play out — added only as each is verified, never invented.</span></div>' +
+          '<div class="lr-row lr-row-building"><span class="lr-row-label">Still being built</span><span class="lr-building-text"><span aria-hidden="true">⏳</span> More of ' + _firstName + '\'s ' + (_isExecOffice ? 'formal actions' : 'voting record') + ', and kept-and-broken promises as commitments play out — added only as each is verified, never invented.</span></div>' +
         '</div>';
     }
     // ── Additional activity — inferred from evidence ──────────────────────────
@@ -1291,7 +1301,7 @@
             '<span style="flex:1;min-width:160px;">' +
               '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:#f5c842;">Evidence Locker</span>' +
               '<span style="display:block;font-family:\'Bebas Neue\',sans-serif;font-size:1.25rem;letter-spacing:0.02em;color:#fff;line-height:1.15;">' + headline + '</span>' +
-              '<span style="display:block;font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin-top:0.1rem;">Every recorded statement, vote and clip PolitiDex has gathered on ' + esc(first) + ' — open the full, filterable file.</span>' +
+              '<span style="display:block;font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin-top:0.1rem;">Every recorded statement, formal action and clip PolitiDex has gathered on ' + esc(first) + ' — open the full, filterable file.</span>' +
               chipRow +
             '</span>' +
             '<span style="flex-shrink:0;white-space:nowrap;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#0a0f1e;background:#f5c842;border-radius:0.6rem;padding:0.5rem 0.9rem;">Open ↗</span>' +
@@ -1343,20 +1353,24 @@
       // Each issue's overall "read": does the official's own record back the
       // stance, cut against it, or complicate it? Built only from kept/broken
       // promises and positive/negative recorded items on THIS issue.
+      // What this card HOLDS, not how it grades. This used to publish a per-issue
+      // verdict — "✓ Record backs the stance" / "✗ Record cuts against it" /
+      // "~ Record is mixed" / "… Action in progress" — computed from kept/broken
+      // promises and Spotlight impact markers. That was a THIRD verdict vocabulary
+      // on the profile, over a different evidence pool from the one ⚖️ Word vs
+      // Action and the 🏛️/✒️ Official Record judge, free to disagree with both on
+      // the same issue in the same scroll. Connected Evidence is the supporting
+      // layer; it documents, it does not rate. The two honest coverage states
+      // survive, because "nothing is written here yet" is a fact about the file
+      // rather than a judgement about the politician.
       function readFor(e) {
-        var c = e.counts;
-        var supports = c.promisesKept + c.spotlightPositive;
-        var against  = c.promisesBroken + c.spotlightNegative;
         var connected = e.promises.length + e.spotlight.length;
         if (!e.position) {
           // Evidence exists but no curated stance — an honest gap to surface.
           return { cls: 'evd-gap', label: '◆ Stance not yet written', kind: 'gap' };
         }
         if (!connected) return { cls: 'evd-thin', label: '○ No connected record yet', kind: 'thin' };
-        if (supports && against) return { cls: 'evd-mixed', label: '~ Record is mixed', kind: 'mixed' };
-        if (supports && !against) return { cls: 'evd-backs', label: '✓ Record backs the stance', kind: 'backs' };
-        if (against && !supports) return { cls: 'evd-cuts', label: '✗ Record cuts against it', kind: 'cuts' };
-        return { cls: 'evd-progress', label: '… Action in progress', kind: 'progress' };
+        return { cls: 'evd-has', label: '🧾 ' + connected + ' item' + (connected === 1 ? '' : 's') + ' on file', kind: 'has' };
       }
 
       var STANCE_META = {
@@ -1513,7 +1527,10 @@
       // anywhere on the profile still jumps straight into one (see _pdxJumpEvidence).
       var lead = entries.filter(function(e){ return e.promises.length || e.spotlight.length; });
       var tail = entries.filter(function(e){ return !(e.promises.length || e.spotlight.length); });
-      var EV_OPEN = 3;
+      // Two open, not three. This section is now explicitly the supporting layer
+      // under the Official Record, so it opens with a sample and keeps the rest
+      // one tap away rather than printing a third of the file inline.
+      var EV_OPEN = 2;
       var leadHtml = lead.slice(0, EV_OPEN).map(renderCard).join('');
       var restLead = lead.slice(EV_OPEN);
       if (restLead.length) {
@@ -1532,11 +1549,11 @@
             '<span style="display:inline-flex;align-items:center;gap:0.45rem;">🧩 Connected Evidence</span>' +
             '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.12rem 0.5rem;border-radius:999px;">' + entries.length + ' issue' + (entries.length === 1 ? '' : 's') + '</span>' +
           '</div>' +
-          '<p class="modal-section-sub">Each issue shows what ' + esc(first) + ' says, what ' + esc(first) + ' promised, and what ' + esc(first) + ' has said or done on record — side by side, so you can see whether the record backs, complicates, or cuts against the stance. Video and X posts link to the source, with timestamps where available.</p>' +
+          '<p class="modal-section-sub">What ' + esc(first) + ' said, promised and put on record, issue by issue — the documents behind the verdict above, not a second read of it.</p>' +
           (sumChips ? '<div class="evd-summary">' + sumChips + '</div>' : '') +
           leadHtml +
           tailBlock +
-          '<p class="evd-foot-note">Built only from ' + esc(first) + '\'s own documented positions, tracked promises, and Spotlight items on each issue — never their party\'s record. “On record” links open the original video, X post, or citation. This view grows as more of ' + esc(first) + '\'s positions, promises and recorded words are verified and tagged.</p>' +
+          '<p class="evd-foot-note">Built only from ' + esc(first) + '\'s own documented positions, tracked promises and recorded items — never their party\'s record. “On record” links open the original source.</p>' +
         '</div>';
     } catch (e) {
       if (window.console && console.warn) console.warn('evidence view failed', e);
@@ -3193,7 +3210,7 @@
         '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.65rem;">A separate <strong style="color:#c8d8ea;">funding lens</strong> — not one of the record scores. Computed live from itemized public filings, it shows how much of their money comes from small-dollar donors versus large-individual and PAC money.</p>' +
         window._pdxFinanceSignalHTML(finSig) +
       '</div>' +
-      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match, Say-vs-Do, and the promise receipts.</p>' +
+      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match and from the ⚖️ Word vs Action record entirely.</p>' +
     '</div>';
   };
 
@@ -3289,7 +3306,7 @@
     // Opens the pledge-lane explainer used by the cards.
     var ftClick = ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
-      ' title="How do promise receipts work?"';
+      ' title="How the pledge ledger works"';
     function countChip(kind, ico, n, label) {
       if (!interactive) {
         return '<span class="vbadge vbadge-' + kind + '">' + ico + ' ' + n + ' ' + label + '</span>';
@@ -3315,7 +3332,7 @@
     return '' +
       '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid rgba(159,180,212,0.2);border-left:3px solid rgba(159,180,212,0.55);border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
         '<div style="margin-bottom:0.6rem;">' +
-          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Receipts · evidence for the pledge tier of Word vs Action</div>' +
+          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Pledge ledger · evidence for the pledge tier of Word vs Action</div>' +
           '<div class="pdx-ft-verdict" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + ACC + ';line-height:1.1;">🤝 ' + head + '</div>' +
           '<p class="pdx-ft-sub" style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + line + '</p>' +
         '</div>' +
@@ -4107,16 +4124,11 @@
     const pledgeItemized = (typeof window._pdxHasItemizedPledges === 'function')
       ? window._pdxHasItemizedPledges(p) : true;
     const countsNote = (typeof window._pdxCountsNote === 'function') ? window._pdxCountsNote(p) : '';
-    // The pledge ledger as COUNTS, for the supporting chip under the ring. The
-    // header keeps this information — how many promises actually closed, and
-    // which way — without restating it as a second percentage that would compete
-    // with the primary read. Counts, unlike a rate, also survive the pre-warm
-    // state, so the header always says something concrete about the pledges.
-    const pledgeLedger = {
-      kept: typeof p.kept === 'number' ? p.kept : (p.promises || []).filter(r => r.verdict === 'kept').length,
-      broken: typeof p.broken === 'number' ? p.broken : (p.promises || []).filter(r => r.verdict === 'broken').length,
-      pending: pendingCount
-    };
+    // THE HEADER'S PLEDGE LEDGER IS GONE. It was built here purely to feed a chip
+    // under the score ring; the chip is retired, so the counts are not assembled for
+    // the header at all any more. The same figures are still computed where they are
+    // actually used — the ledger inside the drawers, and the pledge tier of the one
+    // score — and nothing above the fold restates them.
 
     // Top bar
     document.getElementById('modal-icon').textContent = p.icon;
@@ -4140,12 +4152,14 @@
     // when no word at all is on file it falls back to the promise tracker's honest
     // "tracking" / "monitoring" treatment. It never substitutes a narrower number.
     //
-    // `pledge` is the supporting layer: the kept/broken/pending counts render as a
-    // quiet chip under the ring and link into the promise block. Counts, not a
-    // rate — the pledge lane is a tier inside the ring's number, so printing its
-    // own percentage here would be the same evidence twice with two denominators.
+    // The pledge ledger is NO LONGER handed to the hero. It used to render as a
+    // quiet chip under the ring — "🤝 6 kept · 6 broken · 2 pending" — which put
+    // promise counts above the fold as the second thing a reader met. Three numbers
+    // under one number still read as two findings. The pledge lane is the top tier
+    // INSIDE the ring's percentage; it is named in the score's own feeds list and
+    // its ledger lives in the drawers, which is where an input belongs.
     const scoreRing = (window.PDXWordAction && typeof window.PDXWordAction.heroMount === 'function')
-      ? window.PDXWordAction.heroMount(id, p, { trackingLabel: (promiseState === 'tracking' ? trackedLabel : ''), trackingNote: trackingNote, pledge: pledgeLedger })
+      ? window.PDXWordAction.heroMount(id, p, { trackingLabel: (promiseState === 'tracking' ? trackedLabel : ''), trackingNote: trackingNote })
       : (promiseState === 'tracking' ? `
       <div class="profile-score-stack">
         <div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center profile-score-tracking">
@@ -4404,9 +4418,9 @@
     // can only move forwards as the reader scrolls down.
     //
     // Deriving it also settled an argument the hand-maintained order was getting
-    // wrong: the Record pill aims at pdxsec-record, which lives inside the promises
-    // drawer at the foot of the page, so it now sits with the full-record pills
-    // instead of fifth of ten. Where the pill sends you is where the pill goes.
+    // wrong: pills go where they SEND you, not where they were typed. That is why
+    // the Record pill now aims at pdxsec-official-record — the one formal-record
+    // lane — instead of at a pledge drawer at the foot of the page.
     //
     // ⚖️ Word vs Action — the primary read, so it leads the rail, and now leads the
     // page too. Value is the weighted percentage when the record clears the
@@ -4424,19 +4438,11 @@
         }
       }
     } catch (e) {}
-    // Controversies — the neutral flashpoints block, shown only when at least one
-    // sourced say-vs-do gap / broken promise / flagged event is on record. Second in
-    // the rail because the tension stage is second on the page: the adverse finding
-    // is what a reader came for, and the rail should not bury it either.
-    try {
-      if (typeof window._pdxControversyCount === 'function') {
-        const _navCtv = window._pdxControversyCount(id, p);
-        if (_navCtv > 0) {
-          _navItems.push({ target: 'pdxsec-controversies', icon: '⚠️', label: 'Controversies', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
-        }
-      }
-    } catch (e) {}
-    // Positions — number of tracked key issues.
+    // 🎯 Positions — number of tracked key issues, and the doorway to 🧭 Stances &
+    // Connections, which now opens that stage. Pushed SECOND, because the signature
+    // stage sits second on the page under the locked reading order: the verdict,
+    // then what they stand for, then the record that tests it. The push order here
+    // IS the rail order.
     if (window._pdxKeyIssues(p).length) {
       const _n = window._pdxKeyIssues(p).length;
       _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
@@ -4446,56 +4452,49 @@
       // right after Positions since it is the "see everything" extension of it.
       _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
     }
-    // Promises — the pledge lane, reported as a COUNT. The rail carries exactly one
-    // percentage (the ⚖️ pill leading it, the primary read) so two pills can never
-    // read as two competing verdicts. The pledge lane has no rate to show any more,
-    // so this pill carries its kept COUNT — a fact, not a rival rating.
-    if (scoreNum !== null || (keptCount + brokenCount) > 0) {
-      _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: keptCount + ' Kept', color: '#9fb4d4' });
-    }
-    // Record — the kept / broken / pending COUNTS. No rate is repeated here, or
-    // anywhere else: the pledge lane publishes receipts, not a percentage. This
-    // pill lands with the full-record group rather than beside Promises, because its
-    // destination is inside the promises drawer; the jump reveals that drawer first.
-    {
-      const _resolved = keptCount + brokenCount;
-      if (_resolved > 0 || (p.promises && p.promises.length)) {
-        // Pending only appears when there's something outstanding, so the pill stays
-        // compact (e.g. "6K · 6B") but still surfaces the full kept/broken/pending
-        // read (e.g. "6K · 6B · 2P") the way the record section reports it.
-        const _pend = (pendingAct > 0) ? (' · ' + pendingAct + 'P') : '';
-        _navItems.push({ target: 'pdxsec-record', icon: '📋', label: 'Record', value: keptCount + 'K · ' + brokenCount + 'B' + _pend, color: '#f5c842' });
-      }
-    }
-    // ✒️ Enactments — the Executive Enactment Record, for figures who cast no
-    // congressional floor votes. Self-gating exactly as the section is: navPill()
-    // returns null unless sourced formal actions are on file, so this pill exists on
-    // an executive profile and nowhere else. The value is a count with its qualifier
-    // attached ("5 On File") — never a bare number, and never a ratio.
+    // 🏛️ / ✒️ Official Record — the one formal-record lane, and until this pass the
+    // one section on the profile with no pill at all. The rail carried "Promises",
+    // "Record" and "Enactments" instead: two pledge counts and an executive count,
+    // three entries for what is now a single spine. Office-aware label, count only —
+    // the rail carries exactly one percentage (the ⚖️ pill leading it).
     try {
-      if (window.PDXExecRecordUI && typeof window.PDXExecRecordUI.navPill === 'function') {
-        const _navEer = window.PDXExecRecordUI.navPill(id);
-        if (_navEer) {
-          _navItems.push({ target: _navEer.target, icon: _navEer.icon, label: _navEer.label, value: _navEer.value, color: _navEer.color });
+      const _orTested = (window.PDXWordAction && typeof window.PDXWordAction.read === 'function')
+        ? (window.PDXWordAction.read(id, p) || {}).coverage : null;
+      const _isExecPid = !!(window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function' && window.PDXExecRecord.eligible(id));
+      if (_orTested && (_orTested.scorable || _orTested.tested)) {
+        _navItems.push({
+          target: 'pdxsec-official-record', icon: _isExecPid ? '✒️' : '🏛️',
+          label: 'Record',
+          value: (_orTested.tested || 0) + ' of ' + (_orTested.scorable || 0) + ' tested',
+          color: '#9fdbd0'
+        });
+      }
+    } catch (e) {}
+    // 🔥 Flashpoints — the heat-only block, shown only when at least one sourced
+    // contradiction / broken promise / flagged event is on record. Fourth in the
+    // rail because the tension stage is fourth on the page, behind the record it is
+    // contesting.
+    try {
+      if (typeof window._pdxControversyCount === 'function') {
+        const _navCtv = window._pdxControversyCount(id, p);
+        if (_navCtv > 0) {
+          _navItems.push({ target: 'pdxsec-controversies', icon: '🔥', label: 'Flashpoints', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
         }
       }
     } catch (e) {}
-    // Evidence — total receipts/sources/clips gathered.
+    // 🤝 PROMISES PILL RETIRED. The rail carried "Promises · 6K · 6B · 2P" here —
+    // a second scoreboard in the header strip, sitting one pill away from the ⚖️
+    // percentage and reading as a rival tally of the same politician. It had
+    // already been cut from two pills to one; this pass cuts it to none. The
+    // pledge ledger is reachable from the ⚖️ Word vs Action feeds list, which is
+    // the honest doorway to it: an input to the score, opened from the score.
+    // Evidence — total receipts/sources/clips gathered. The shared proof layer.
     if (_navEvidenceCount > 0) {
       _navItems.push({ target: 'pdxsec-evidence', icon: '🔗', label: 'Evidence', value: _navEvidenceCount + ' Evidence', color: '#f5c842' });
     }
-    // Match — the visitor's personal alignment %, when they've set it up.
-    try {
-      const _navHasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
-      if (_navHasIssues && typeof _calcAlignmentScore === 'function') {
-        const _navMatch = _calcAlignmentScore(id);
-        if (_navMatch !== null && _navMatch !== undefined) {
-          const _mc = _navMatch >= 70 ? '#4ade80' : _navMatch >= 50 ? '#f5c842' : '#f87171';
-          _navItems.push({ target: 'pdxsec-match', icon: '🤝', label: 'Match', value: _navMatch + '% Match', color: _mc });
-        }
-      }
-    } catch (e) {}
     // Funding — who bankrolls them, shown only when a filing record is on file.
+    // Pushed before Match: money is its own lens and sits above the alignment tail
+    // in the locked reading order, so the rail says the same thing the page does.
     try {
       if (typeof window._pdxFunding === 'function') {
         const _navFund = window._pdxFunding(id);
@@ -4504,6 +4503,17 @@
           const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
           const _fi = (_navFund.character && _navFund.character.icon) || '💰';
           _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
+        }
+      }
+    } catch (e) {}
+    // Match — the visitor's personal alignment %, when they've set it up.
+    try {
+      const _navHasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      if (_navHasIssues && typeof _calcAlignmentScore === 'function') {
+        const _navMatch = _calcAlignmentScore(id);
+        if (_navMatch !== null && _navMatch !== undefined) {
+          const _mc = _navMatch >= 70 ? '#4ade80' : _navMatch >= 50 ? '#f5c842' : '#f87171';
+          _navItems.push({ target: 'pdxsec-match', icon: '🤝', label: 'Match', value: _navMatch + '% Match', color: _mc });
         }
       }
     } catch (e) {}
@@ -4694,32 +4704,42 @@
            would imply the record should be here. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
-      <!-- Connecting the Dots — the SYNTHESIS layer, and deliberately placed
-           immediately beneath the score it synthesizes rather than above it. It
-           used to sit in the brief stage, on the first screen, which put a
-           summary of the Word vs Action read a full stage ABOVE the read itself:
-           two surfaces making the same argument, the derived one first. Read here
-           it is unambiguously an expansion — the same score, one issue at a time,
-           each issue followed through five links (what they said → what they did
-           → the receipts → the issue and its Spotlights → what it means for the
-           score). It is in the verdict stage for that reason and no other: a
-           synthesis belongs under the thing it synthesizes, so it follows Word vs
-           Action into its stage rather than being left behind at the top of the
-           record stage, two stages away from its own subject. Self-gating: hidden
-           unless there is a genuine join to show or at least two links carry real
-           data (profile-connect.js, PDXDossier). -->
-      ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
+      <!-- CONNECTING THE DOTS IS UNMOUNTED. It rendered a full-width card here —
+           the eyebrow "Connecting the Dots", the title "Where <name>'s word met
+           their record", a four-line summary paragraph ("Every row below follows
+           one issue through the same five links — what <name> said, what they
+           formally did, the receipts that document it, where it lands in the
+           issues and Spotlights, and what it means for their ⚖️ Word vs Action
+           score…"), up to three joined issue rows, a legend, a "Follow the same
+           five links through the profile" nav chain of five buttons, and an
+           "Also on this profile" chip row. ~13,000 characters of markup on
+           Trump, directly under the score.
+
+           Every part of it now exists somewhere better. The joined rows are the
+           same PDXDossier chain that ⚖️ Word vs Action prints as its "Where this
+           number comes from — sharpest first" rows, one section up. The five-link
+           chain is a second navigation strip under the jump rail that already
+           sits at the top of the modal. The chip row is a third. A synthesis that
+           restates the thing above it and re-navigates the page below it is not a
+           synthesis; it is the profile explaining itself twice.
+
+           window._pdxConnectDots is left defined and untouched in
+           profile-connect.js — nothing on the profile calls it. -->
 
       <!--PDXSP:record-->
-      <!-- Promise Receipts — the pledge ledger as EVIDENCE, not as a score.
-           The kept / broken / pending counts, the filter chips and the explainer all
-           survive; the published follow-through percentage, the split bar drawing it
-           and the rate-derived verdict do not. A null is passed where the published
-           figure used to go, and that is deliberate: this block has no number to
-           print, so it is handed none. The 🏛️ Official Record and 🧾 Say-vs-Do lanes
-           have their own sections further down and are never folded into it. -->
-      <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, null, pledgeItemized) : ''}
+      <!-- PROMISE RECEIPTS NO LONGER MOUNTS HERE. The block that stood at this
+           spot — "🤝 Promise Receipts · evidence for the pledge tier of Word vs
+           Action", its count sentence, its three filter chips, its "How does this
+           lane work?" disclosure and its "⚖️ See the one score this feeds →"
+           button — was a whole section, high on the page, arguing about pledges
+           immediately under the section that already weighs pledges. Two lanes,
+           one subject, stacked. Even reworded as evidence it read as a peer
+           product, because position on a page is an argument of its own.
+           Pledges still feed ⚖️ Word vs Action as its top tier, and the ledger
+           itself still exists in full — it moved down into the collapsed
+           "Every tracked promise" drawer with the rest of the raw tables, where
+           #pdxsec-score now lives. Nothing was deleted; it stopped being a
+           section. -->
 
       <!-- Accountability of Truth Score — retired as a headline number; the renderer
            returns '' (see accountability-score.js). The container stays so
@@ -4755,13 +4775,14 @@
       </div>` : ''}
 
       <!--PDXSP:tension-->
-      <!-- Biggest Controversies — a visually distinct, neutral block surfacing the
-           2–4 most notable / divisive items already on this official's record
-           (say-vs-do gaps, broken promises, flagged events). Each card carries a
-           sourced summary, a Say-vs-Do verdict where one applies, and one-tap
-           links to the related Issue Spotlight, full receipt, and voting record.
-           Rendered by controversies.js entirely from data the app already ships;
-           self-gates to '' when nothing checkable is on record. -->
+      <!-- 🔥 Flashpoints — the HIGH-HEAT section, and only that: the biggest
+           contradictions, red flags and public disputes already on this official's
+           record, capped at 3 cards. It is not a second scoring system and it is not
+           the home for all the evidence — each card is sourced and links out to the
+           surfaces that do carry a verdict or the proof: the ⚖️ Word vs Action row,
+           the 🏛️ Official Record, the Evidence drawer, and the related Issue
+           Spotlight. Rendered by controversies.js entirely from data the app already
+           ships; self-gates to '' when nothing checkable is on record. -->
       ${(typeof window._renderControversies === 'function') ? window._renderControversies(id, p) : ''}
 
       <!--PDXSP:money-->
@@ -4881,6 +4902,18 @@
       ${(typeof window._renderIssueComparison === 'function') ? window._renderIssueComparison(id, p) : ''}
 
       <!--PDXSP:signature-->
+      <!-- Stances & Connections — the "what they stand for" layer, and the entry
+           point to everything below it. Ranked issue rows off the shared
+           PDXConsistency row model: tested-and-contested first, then tested-and-
+           consistent, then stated-with-evidence, then stated-only, then record-only,
+           with "nothing on file" folded away. Each row carries its connections —
+           into ⚖️ Word vs Action where the score already reached a verdict, into
+           🏛️ Official Record where formal actions exist, into the Evidence drawer
+           where the public record is what backs it. It publishes no percentage: the
+           verdict on a row is the one the row model resolved, so this section and the
+           score can never disagree about the same issue. -->
+      ${(window.PDXConsistency && typeof window.PDXConsistency.stancesSectionHtml === 'function') ? (function(){ try { var _st = window.PDXConsistency.stancesSectionHtml(id); return _st ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _st + '</div>') : ''; } catch(e){ return ''; } })() : ''}
+
       <!-- Stance at a Glance — collapsible, scannable index of documented
            positions with a per-issue evidence dot; taps open a small evidence
            popover. Sits just above the detailed Key Issue Stances cards. -->
@@ -4915,53 +4948,68 @@
       ${(typeof window._renderEvidenceConnections === 'function') ? window._renderEvidenceConnections(id, p) : ''}
 
       <!--PDXSP:record-->
-      <!-- Promise Tracker — gateway (section name only, no % on the name). Presents
-           the two clearly-separated systems: 🏛️ Official Record (votes) and 🧾
-           Say-vs-Do (broader public record). Each card dives into its deeper view.
-           Rendered by consistency.js; self-updates when votes warm. -->
-      <span id="pdxsec-promise-tracker" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(window.PDXConsistency && typeof window.PDXConsistency.gatewayHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.gatewayHtml(id) + '</div>') : ''}
+      <!-- ONE record lane. Two things used to sit here and both have been folded in.
+           (1) The "📋 Promise Tracker" gateway: a titled two-card product whose cards
+               were doorways to the 🏛️ Official Record and 🧾 Say-vs-Do sections that
+               follow it on this same page. A named product, its own chrome, and a
+               second promise-shaped framing on a profile whose one score is ⚖️ Word
+               vs Action. Pledge outcomes are an INPUT to that score now — they feed it
+               through word-action.js and appear as Promise Receipts evidence — so the
+               gateway had nothing left to be except a rival heading. Its click
+               handlers live in consistency.js's delegated bindGateway(), which
+               officialRecordSectionHtml() still calls, so every deep link out of a
+               row still works.
+           (2) The standalone "✒️ Executive Enactment Record". It is now rendered
+               INSIDE the Official Record section below, under the issue rows it is
+               the evidence for — one lane, office-aware, keeping the #pdxsec-exec-record
+               anchor so existing links land. See PDXExecRecordUI.embedHtml. -->
 
-      <!-- ✒️ Executive Enactment Record — the formal-record lane for figures who
-           cast no congressional floor votes: signed legislation, vetoes, executive
-           orders and directives, each checked against what they say they stand for
-           (alignment) AND against what happened to it afterwards (standing), with
-           every action and every standing carrying its own primary citation. Counts
-           only — no score, because the set of orders a president could sign is
-           unbounded and self-chosen, so there is no honest denominator. Rendered by
-           exec-record-ui.js; self-gates to '' for everyone with nothing on file, so
-           it appears on an executive profile and nowhere else. Additive: the 🏛️
-           Official Record below is untouched and still renders its own empty state. -->
-      <span id="pdxsec-exec-record" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(window.PDXExecRecordUI && typeof window.PDXExecRecordUI.sectionHtml === 'function') ? (function(){ try { var _eer = window.PDXExecRecordUI.sectionHtml(id); return _eer ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _eer + '</div>') : ''; } catch(e){ return ''; } })() : ''}
-
-      <!-- Official Record — the organized, by-issue dive-in the Promise Tracker
-           gateway's Official Record card lands on. Groups formal votes/actions by
-           issue category with the stated stance, verdict/% and supporting receipts.
+      <!-- Official Record — the one office-aware formal-record lane. Congress: the
+           roll-call record, grouped by issue. President / executive: signed laws,
+           vetoes, orders and directives, with the document ledger underneath. Issue
+           rows are ranked by PDXConsistency.rankIssueRows, so the section opens on the
+           best-evidenced real tension rather than on a coverage gap.
            Rendered by consistency.js from officialRecord() only (no Say-vs-Do
-           content); the raw Voting Record list below stays available. -->
+           content); the raw Voting Record list below stays available to offices that
+           have one. -->
       <span id="pdxsec-official-record" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXConsistency && typeof window.PDXConsistency.officialRecordSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.officialRecordSectionHtml(id) + '</div>') : ''}
 
       <!--PDXSP:tension-->
-      <!-- Record vs. Public Picture — the explicit divergence bridge (Phase 8). Sits
-           BETWEEN the two sibling feeds and compares 🏛️ Official Record (votes) with
-           🧾 Say-vs-Do (public record) issue-by-issue plus a whole-profile summary,
-           labelling the relationship (Aligned / Mixed / Diverges). Never blends the
-           two into one score. Rendered by consistency.js; self-updates when votes warm. -->
-      <span id="pdxsec-divergence" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(window.PDXConsistency && typeof window.PDXConsistency.divergenceSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.divergenceSectionHtml(id) + '</div>') : ''}
+      <!-- RECORD VS. PUBLIC PICTURE NO LONGER MOUNTS HERE, AND SAY-VS-DO NO LONGER
+           MOUNTS BELOW IT. The two sections that used to sit at this point were:
+
+           "⚖️ Record vs. Public Picture — Do their 🏛️ Official Record (votes) and
+            their 🧾 Say-vs-Do (public record) tell the same story? … Across 7 issues
+            on both records: 3 aligned · 2 mixed · 2 diverging."
+
+           "🧾 Say-vs-Do — “Does the full public picture match what they claim?”
+            Receipts, not a rating: each stance below shows what the public record —
+            statements, coverage, filings, events — does and does not back up, with a
+            per-stance percentage where there are 2+ checkable items."
+
+           Say-vs-Do graded the same issues the Official Record had already graded, in
+           its own vocabulary, with its own coverage line and its own per-stance
+           percentages. Record vs. Public Picture existed only to referee the two when
+           they disagreed — a whole section whose subject was the seam between two
+           other sections. That is three per-issue verdict systems in one scroll.
+
+           There is one now. PDXConsistency.issueRow resolves a single verdict per
+           issue: the formal action decides wherever a formal action can, and the
+           public record decides only where none could — never both, so nothing is
+           left to arbitrate. The receipts Say-vs-Do used to print are on the row
+           (row.public, row.evidence.total) and in the Evidence drawer, and the
+           outcome list it used to headline is now the "Issue by issue — did the record
+           back the word?" block inside ⚖️ Word vs Action.
+
+           saydoSectionHtml() and divergenceSectionHtml() are still exported by
+           consistency.js — the gap sheet and the share card read their data — but
+           nothing mounts them on a profile. #pdxsec-saydo and #pdxsec-divergence are
+           deliberately NOT re-declared: every jump to them is guarded by a
+           getElementById check or an "||" fallback chain that now lands on the
+           Official Record instead. -->
 
       <!--PDXSP:receipts-->
-      <!-- Say-vs-Do — the dedicated, stance-first public-record feed the gateway's
-           Say-vs-Do card lands on. Sibling to the Official Record section: same
-           organized shape, but broader public-record evidence ONLY (statements,
-           interviews, news, controversies) — no formal votes, no percentage yet.
-           Rendered by consistency.js from sayVsDo(); the general receipts hero and
-           flashpoints surfaces are unchanged. -->
-      <span id="pdxsec-saydo" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.saydoSectionHtml(id) + '</div>') : ''}
-
       <!-- Evidence banner — the gold All-Seeing Eye, a direct "Watch" jump to the
            strongest clip, and a one-tap "See Evidence" into the pre-filtered
            Evidence Locker. Relocated here from the top of the profile: it is the
@@ -5005,11 +5053,17 @@
 
       <!--PDXSP:dw:promises-->
       <!-- Everything from here to the next sentinel is the deep promise record: the
-           four-way breakdown with its formula, then the full per-promise tracker
-           table. Both are preserved verbatim and collected behind the "Every tracked
-           promise" drawer — the Promise Receipts block and the Promise Tracker
-           gateway above already state the counts and link here, so printing the
-           whole ledger inline is what made promises read three times over. -->
+           receipts block that used to be a section near the top, then the four-way
+           breakdown with its formula, then the full per-promise tracker table. All
+           preserved verbatim and collected behind the "Every tracked promise"
+           drawer — promises are an input to ⚖️ Word vs Action, not a lane of their
+           own, so the whole pledge apparatus now lives at the depth of a raw table
+           rather than at the depth of a finding. #pdxsec-score rides down with it,
+           so every existing jump (the Word vs Action feeds list, the count chips)
+           lands on the ledger and reveals the drawer on the way. -->
+      <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, null, pledgeItemized) : ''}
+
       <!-- Deep Dive: Full Promise Breakdown -->
       ${(function(){
         const pb = p.promiseBreakdown || {};
@@ -5147,10 +5201,21 @@
            from the profile, so nothing else that may hold a link to it breaks. -->
       <div class="modal-section" id="pdxsec-verify">
         <button type="button" class="pdx-howchecked"
-          onclick="if(window.PDXConsistency&&window.PDXConsistency.openMethodology){window.PDXConsistency.openMethodology();}else{var _m=document.getElementById('methodology');if(_m){if(typeof closeModal==='function')closeModal();_m.scrollIntoView({behavior:'smooth',block:'start'});}}">
+          onclick="if(window.PDXConsistency&&window.PDXConsistency.openMethodology){window.PDXConsistency.openMethodology(null,'${String(id || '').replace(/[^a-zA-Z0-9_-]/g, '')}');}else{var _m=document.getElementById('methodology');if(_m){if(typeof closeModal==='function')closeModal();_m.scrollIntoView({behavior:'smooth',block:'start'});}}">
           <span aria-hidden="true">ⓘ</span> How this profile was checked
         </button>
-        <p class="pdx-howchecked-sub">Every figure here traces to a roll-call vote, an official filing or a dated public statement — each one linked in the section it appears in. This opens the scoring methodology: what is counted, how the tiers are weighted, and what is deliberately left out.</p>
+        <!-- Office-aware, for the same reason every other record line on this page is:
+             a president casts no roll-call votes, so promising that "every figure traces
+             to a roll-call vote" is a claim this profile cannot keep. The methodology
+             sheet the button opens is handed the pid so it leads with the right lane. -->
+        <p class="pdx-howchecked-sub">Every figure here traces to ${(function(){
+            try {
+              return (window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function'
+                && window.PDXExecRecord.eligible(id))
+                ? 'a signed law, an executive order, an official filing or a dated public statement'
+                : 'a roll-call vote, an official filing or a dated public statement';
+            } catch (e) { return 'a formal action, an official filing or a dated public statement'; }
+          })()} — each one linked in the section it appears in. This opens the scoring methodology: what is counted, how the tiers are weighted, and what is deliberately left out.</p>
       </div>
 
       <!--PDXSP:dw:money-->
@@ -5406,7 +5471,21 @@
         };
         const vr = votingRecords[id];
         if (!vr || !vr.length) return '';
-        const alignLabel = { kept:'✓ Kept', broken:'✗ Broken', partial:'~ Partial' };
+        // ── WHICH LANE IS THIS SELECTION ACTUALLY ABOUT? ────────────────────────
+        // Read from the rows, not from a list of names: an entry whose position is
+        // "Signed" or "Exec Order" is not a roll call, and everything this block used
+        // to print around such a row — "🗳️ Voting Record Highlights", "5 votes
+        // tracked", "LEGISLATIVE ACTIONS", a Congress.gov roll-call source note — was
+        // vote vocabulary on someone who casts no votes. Presidents, governors and
+        // mayors all landed here. The lane decides the wording once, and the rows
+        // themselves are untouched.
+        const _vrActionLane = vr.some(function(v){ return /^(signed|exec)/i.test(String(v.vote || '')); });
+        const alignLabel = _vrActionLane
+          // Record vocabulary, matching the Official Record's row chips — never the
+          // promise-grade "Kept / Broken" pair, which is the other product this pass
+          // retired.
+          ? { kept:'✓ Backs it up', broken:'⚠ Contradicts', partial:'◑ Cuts both ways' }
+          : { kept:'✓ Kept', broken:'✗ Broken', partial:'~ Partial' };
         const vrRows = vr.map(function(v) {
           return '<div class="vr-row">' +
             '<div style="display:flex;align-items:flex-start;gap:0.6rem;margin-bottom:0.35rem;">' +
@@ -5424,10 +5503,7 @@
           '</div>';
         }).join('');
         // Voting Record Highlights — a scannable lead-in surfacing the few most
-        // significant votes plus an at-a-glance tally, above the full record.
-        const _vrTally = { kept:0, broken:0, partial:0 };
-        vr.forEach(function(v){ if (_vrTally[v.alignment] !== undefined) _vrTally[v.alignment]++; });
-        const _tallyChip = function(n, label, col){ return n ? '<div style="flex:1;text-align:center;background:' + col + '14;border:1px solid ' + col + '33;border-radius:0.6rem;padding:0.4rem 0.3rem;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.25rem;color:' + col + ';line-height:1;">' + n + '</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-top:0.15rem;">' + label + '</div></div>' : ''; };
+        // significant votes, above the full record.
         const _vrHiCards = vr.slice(0, 3).map(function(v){
           return '<div style="background:rgba(10,15,30,0.55);border:1px solid rgba(255,255,255,0.06);border-radius:0.65rem;padding:0.6rem 0.7rem;margin-bottom:0.45rem;">' +
             '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">' +
@@ -5441,13 +5517,20 @@
         // _pdxHydrateVoteHighlights from the actual roll-call record the profile
         // fetches (see that function's note); it renders as nothing until — and
         // unless — that record is warm. The curated selection below it is the
-        // annotated sample it always was, and now says so: the tally counts the
-        // hand-picked rows, not the member's legislative history, and the label and
-        // source note both name it a selection. That relabelling is the point. A
-        // three-chip kept/partial/broken tally over five rows, sitting under the
-        // heading "Voting Record Highlights", was the closest thing on this page to
-        // a rival score built out of a sample.
-        const _vrHighlightsSection = vr.length >= 2
+        // annotated sample it always was, and says so: the label and the source note
+        // both name it a selection.
+        //   The kept / partial / broken tally that used to sit here is GONE. Three
+        // chips reading "Kept Word" and "Broke Word" over five hand-picked rows was a
+        // second integrity product on a page that is supposed to have exactly one, and
+        // scoping it to the sample only ever made it a smaller rival, not a smaller
+        // claim. What each row shows about a stated position is still on the row, in
+        // the record's own vocabulary; nothing counts it up into a rate here.
+        //   The whole section is congressional-only. Its live layer is roll-call
+        // highlights, which never warm for a president, and its curated layer led with
+        // "🗳️ Voting Record Highlights" over a list of signed orders. On the ✒️ lane
+        // the Official Record now carries the enactment ledger instead, so this block
+        // renders nothing rather than a second, vote-worded record.
+        const _vrHighlightsSection = (vr.length >= 2 && !_vrActionLane)
           ? '<div class="modal-section" id="pdx-vrhi" data-pdx-vrhi-pid="' + id + '">' +
               '<div class="modal-section-title">\u{1F5F3}️ Voting Record Highlights</div>' +
               '<div class="pdx-vrhi-live" hidden></div>' +
@@ -5457,21 +5540,15 @@
               // no count and no score — there is nothing true to put a number on yet.
               // _pdxHydrateVoteHighlights drops it the moment the record paints, and
               // also when a load has landed and produced nothing, so it can never sit
-              // there claiming to be loading something that already finished.
               // there claiming to be loading something that already finished. The
               // wording matches the hero's warming sub-line in word-action.js — same
               // fetch, and on a cold open both can be on screen at once.
               '<div class="pdx-vrhi-wait">Loading the record…</div>' +
               '<div class="pdx-vrhi-curated">' +
                 '<div class="pdx-vrhi-cur-hd">\u{1F4CE} Annotated selection · ' + vr.length + ' vote' + (vr.length === 1 ? '' : 's') + ' with a why-this-matters note</div>' +
-                '<div style="display:flex;gap:0.45rem;margin-bottom:0.7rem;">' +
-                  _tallyChip(_vrTally.kept, 'Kept Word', '#4ade80') +
-                  _tallyChip(_vrTally.partial, 'Partial', '#60a5fa') +
-                  _tallyChip(_vrTally.broken, 'Broke Word', '#f87171') +
-                '</div>' +
                 _vrHiCards +
               '</div>' +
-              '<p class="src-note">These counts cover the ' + vr.length + ' annotated vote' + (vr.length === 1 ? '' : 's') + ' above — each picked for what it shows about a stated promise — not everything on the roll call. The full, filterable record is below.</p>' +
+              '<p class="src-note">These are ' + vr.length + ' annotated vote' + (vr.length === 1 ? '' : 's') + ' — each picked for what it shows about a stated position — not everything on the roll call, and not a tally of anything. The full, filterable record is below.</p>' +
             '</div>'
           : '';
         // One renderer, two stages. The highlights above are official-record
@@ -5482,15 +5559,23 @@
         return _vrHighlightsSection +
           '<!--PDXSP:dw:votes-->' +
           '<div class="modal-section">' +
-          '<div class="modal-section-title">\u{1F5F3}️ Full Voting Record</div>' +
+          '<div class="modal-section-title">' + (_vrActionLane
+            ? '\u{270D}\u{FE0F} Full Record of Formal Actions'
+            : '\u{1F5F3}\u{FE0F} Full Voting Record') + '</div>' +
           '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;overflow:hidden;">' +
             '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.875rem;background:rgba(96,165,250,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">' +
-              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#60a5fa;">LEGISLATIVE ACTIONS</span>' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);color:#60a5fa;padding:0.1rem 0.4rem;border-radius:999px;">' + vr.length + ' votes tracked</span>' +
+              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#60a5fa;">' +
+                (_vrActionLane ? 'EXECUTIVE ACTIONS' : 'LEGISLATIVE ACTIONS') + '</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);color:#60a5fa;padding:0.1rem 0.4rem;border-radius:999px;">' +
+                vr.length + (_vrActionLane
+                  ? ' action' + (vr.length === 1 ? '' : 's') + ' on file'
+                  : ' vote' + (vr.length === 1 ? '' : 's') + ' tracked') + '</span>' +
             '</div>' +
             vrRows +
           '</div>' +
-          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Voting data from Congress.gov, Clerk.house.gov, Senate.gov roll calls, and state legislative records.</p>' +
+          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">' + (_vrActionLane
+            ? 'Executive actions from the Federal Register, GPO, White House and state executive records.'
+            : 'Voting data from Congress.gov, Clerk.house.gov, Senate.gov roll calls, and state legislative records.') + '</p>' +
         '</div>';
       })()}
 
@@ -5513,8 +5598,21 @@
         // accountability category key). Curated news from the SPOTLIGHT_DATA map
         // and on-document entries without an impact are shown as context. Falls
         // back to a clean, honest empty state when there is nothing to show.
+        // The parenthetical naming the OTHER lane has to be office-aware. A
+        // president is never told their Official Record is made of votes — that is
+        // the same claim the merged record section stopped making, and a sub-line is
+        // exactly where it survives unnoticed.
+        var _slExecLane = false;
+        try {
+          _slExecLane = !!(window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function'
+            && window.PDXExecRecord.eligible(id));
+        } catch (e) {}
         var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight · Accountability</div>' +
-          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality. This is the stance-follow-through lane, separate from the 🏛️ Official Record (votes and formal actions) and the 🤝 Promise Receipts above.</p>';
+          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality. This is the stance-follow-through lane, separate from the ' +
+          (_slExecLane
+            ? '\u{270D}\u{FE0F} Official Record (laws signed, vetoes and orders)'
+            : '\u{1F3DB}\u{FE0F} Official Record (votes and formal actions)') +
+          ' and the 🤝 pledge ledger that feeds it.</p>';
         var safeSlId = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '');
         var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
 
@@ -5765,7 +5863,7 @@
         function _slIntro() {
           return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.7rem;">' +
             'The <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane of ' + _slLast +
-            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and 🤝 Promise Receipts. ' +
+            '’s record — public statements and conduct, kept separate from the 🏛️ Official Record and the ⚖️ Word vs Action score. ' +
             '<span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> items feed the accountability read; ' +
             '<span style="color:#c4b5fd;font-weight:700;">🔗</span> ties an item to a position ' + _slLast + ' holds.' +
           '</p>';
@@ -5773,12 +5871,16 @@
 
         // Closing tie-in: a one-tap jump back up to whichever record surface this
         // modal actually mounted. The People's Mandate scorecard it used to point at
-        // is retired and its section only exists when a finance signal renders, so
-        // the fallbacks land on the Say-vs-Do feed, then the Promise Tracker gateway.
-        // A button that scrolls nowhere is worse than no button.
+        // is retired, and the two fallbacks ahead of it — the Say-vs-Do feed, then
+        // the Promise Tracker gateway — are unmounted too. Landing on the Official
+        // Record first is not just tidier: a live getElementById('pdxsec-saydo')
+        // check is a standing invitation for that section to come back as this
+        // button's preferred destination the moment anyone re-mounts it.
+        // A button that scrolls nowhere is worse than no button, so the alignment
+        // modal's own section stays as the last resort.
         function _slAlignFooter() {
           return '<div style="margin-top:0.85rem;display:flex;justify-content:center;">' +
-            '<button type="button" onclick="var el=document.getElementById(\'pdxsec-saydo\')||document.getElementById(\'pdxsec-promise-tracker\')||document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🧾 How these fit ' + _slLast + '’s record ↑</button>' +
+            '<button type="button" onclick="var el=document.getElementById(\'pdxsec-official-record\')||document.getElementById(\'pdxsec-wordaction\')||document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🧾 How these fit ' + _slLast + '’s record ↑</button>' +
           '</div>';
         }
 

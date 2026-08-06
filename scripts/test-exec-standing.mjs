@@ -250,12 +250,20 @@ must(typeof EX.comparable === "function", "PDXExecRecord.comparable() is missing
 // ═════════════════════════════════════════════════════════════════════════════
 {
   ok(/coverageGateHtml\(\)/.test(EXEC_UI), "exec-record-ui.js does not render a coverage gate");
-  const section = fnSrc(EXEC_UI, "sectionHtml", "exec-record-ui.js");
-  const iGate = section.indexOf("coverageGateHtml()");
-  const iSum = section.indexOf("pdxer-sum");
-  const iCards = section.indexOf("cards +");
-  must(iGate !== -1 && iSum !== -1 && iCards !== -1,
-    "sectionHtml no longer assembles the gate, the count summary and the cards in one expression");
+  // The body is assembled once, in bodyParts(), and shared by every rendering of
+  // the lane (its own section, and the block embedded in the Official Record).
+  // One assembly means the gate cannot be present in one and missing in the other.
+  const section = fnSrc(EXEC_UI, "bodyParts", "exec-record-ui.js");
+  // Probe the RETURNED expression, not the whole function body. The cards are now
+  // built in two steps above the return — the newest few inline, the rest appended
+  // behind a <details> — so `cards +` appears as an assignment long before the gate.
+  // The contract is about render order, which only the return expression states.
+  const iHtml = section.indexOf("html:");
+  const iGate = section.indexOf("coverageGateHtml()", iHtml);
+  const iSum = section.indexOf("pdxer-sum", iHtml);
+  const iCards = section.indexOf("cards +", iHtml);
+  must(iHtml !== -1 && iGate !== -1 && iSum !== -1 && iCards !== -1,
+    "bodyParts no longer assembles the gate, the count summary and the cards in one expression");
   ok(iGate < iSum,
     "the coverage gate renders BELOW the count summary. Under the counts it is a footnote to a\n" +
     "    claim the reader has already formed; above them it is a condition on all of it.");
@@ -286,6 +294,21 @@ must(typeof EX.comparable === "function", "PDXExecRecord.comparable() is missing
     "in the rendered section the gate comes after the counts");
   const cov = EX.coverage();
   ok(html.indexOf(cov.line) !== -1, "the rendered gate does not carry the checkable coverage sentence");
+
+  // The profile mounts the lane INSIDE the Official Record rather than as a rival
+  // section. That embedded rendering is the one a reader actually meets, so the
+  // gate has to survive the merge — not just the standalone section nobody sees.
+  const embed = uiCtx.window.PDXExecRecordUI.embedHtml("trump");
+  must(embed && embed.length > 500,
+    "embedHtml('trump') did not render — the Official Record has no executive lane to embed");
+  ok(/pdxer-gate/.test(embed), "the embedded executive lane carries no coverage gate");
+  ok(embed.indexOf("pdxer-gate") < embed.indexOf("pdxer-sum"),
+    "in the embedded lane the gate comes after the counts");
+  ok(embed.indexOf(cov.line) !== -1,
+    "the embedded lane drops the coverage declaration — merging the lane into the Official\n" +
+    "    Record must not launder away the condition on its counts");
+  ok(!/\bvoted\b|\broll ?call\b|\byea\b|\bnay\b/i.test(embed),
+    "the embedded executive lane uses vote vocabulary on a president");
   const pillOut = uiCtx.window.PDXExecRecordUI.navPill("trump");
   must(!!pillOut, "navPill('trump') returned nothing — the compact-rendering probe cannot run");
   eq(pillOut.comparable, false, "the rendered nav pill claims the lane is comparable");

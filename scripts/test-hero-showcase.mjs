@@ -167,7 +167,15 @@ function harness(opts = {}) {
       addEventListener(type, fn) { (docListeners[type] = docListeners[type] || []).push(fn); },
     },
     addEventListener(type, fn) { (winListeners[type] = winListeners[type] || []).push(fn); },
-    PDXConsistency: { VERDICTS },
+    PDXConsistency: {
+      VERDICTS,
+      // The record lane's own "have we finished asking?". opts.settled defaults to
+      // true so every pre-existing case keeps its original timing; a case that
+      // passes false is simulating the window where a fetch is still outstanding.
+      recordSettled: (pid) => (typeof opts.settled === "function"
+        ? !!opts.settled(pid)
+        : opts.settled !== false),
+    },
     // The laziness guardrail: loaded() is fair game, ensure()/whenReady() are not.
     PDXLazyData: {
       loaded: () => !!opts.dataLoaded,
@@ -351,8 +359,64 @@ for (const c of seed) {
     "phase 2: the branding lockup matches the shareable image");
 }
 
-// A mixed verdict with no contradiction falls back to the strongest real GAP,
-// because an empty lowlight slot reads as "clean".
+// ═════════════════════════════════════════════════════════════════════════════
+// 5b. No verdict before the record lane has answered
+// ═════════════════════════════════════════════════════════════════════════════
+// The flip-flop. A president is judgeable the moment the page parses — the
+// executive record ships in the bundle — so brief() cleared the publishing floor
+// on the very first pass and the card painted a score, a headline and a set of
+// counts drawn from half the evidence. Seconds later the roll-call fetch landed
+// and it painted different ones, in front of the reader. A skeleton for the
+// length of one request is the honest version of that moment.
+{
+  let settledNow = false;
+  const h = harness({
+    seed, dataLoaded: true,
+    settled: () => settledNow,
+    answer: (pid) => pubRead({ pid, pct: 61, verdict: VERDICTS.consistent, accent: "#6ee7a0" }),
+  });
+
+  const cold = h.html;
+  ok(/Loading the record…/.test(cold),
+    "freeze: an unsettled record lane paints the shared waiting phrase");
+  ok(!/Backs it up|Mixed record|Says one thing/.test(cold),
+    "freeze: no verdict headline is painted before the record lane answers");
+  ok(!/pdx-hs-sig-pct/.test(cold),
+    "freeze: no percentage is painted before the record lane answers");
+  ok(!/backed up/.test(cold),
+    "freeze: no breakdown counts are painted before the record lane answers");
+
+  // The lane answers. ONE repaint, into the final numbers.
+  settledNow = true;
+  h.warmEvent(h.calls.warm[0]);
+  const warm = h.html;
+  ok(/Backs it up/.test(warm), "freeze: the verdict appears once the lane has answered");
+  ok(/61<span class="pdx-hs-sig-pct-u">%/.test(warm),
+    "freeze: and the score it publishes is the settled one");
+
+  // Whatever it published, it published once — the label cannot change again on a
+  // later arrival for the same member, because a settled card is never re-briefed.
+  const before = h.calls.brief.length;
+  h.warmEvent(h.calls.warm[0]);
+  eq(h.calls.brief.length, before, "freeze: a published card is not re-judged by a later event");
+  ok(/Backs it up/.test(h.html), "freeze: and its headline does not flip");
+}
+
+// The deadline. If the lane never answers — offline, a hung endpoint — the grace
+// sweep publishes what is in hand rather than leaving the hero on a skeleton
+// forever. Holding out for a fetch that is never coming is its own failure.
+{
+  const h = harness({
+    seed, dataLoaded: true, settled: false,
+    answer: (pid) => pubRead({ pid }),
+  });
+  ok(/Loading the record…/.test(h.html), "freeze: still waiting before the grace period");
+  h.runTimers(4000);
+  ok(/Mixed record/.test(h.html),
+    "freeze: the grace-period sweep publishes when the lane never answers");
+}
+
+
 {
   const h = harness({
     seed, dataLoaded: true,

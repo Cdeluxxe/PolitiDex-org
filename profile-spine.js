@@ -76,42 +76,50 @@
   // ── The spine ───────────────────────────────────────────────────────────────
   // Order is the product decision; everything else in this file serves it. Each
   // stage answers one question, and a section belongs to the stage whose question
-  // it answers — which is why "Record vs. Public Picture" sits in `tension` and
-  // not next to the record, and why personal-alignment blocks are collected into
-  // one `you` stage instead of appearing at three different depths.
+  // it answers — which is why personal-alignment blocks are collected into one
+  // `you` stage instead of appearing at three different depths.
   //
   // The sequence below is an ACCOUNTABILITY PATH, not a catalogue of systems. Its
-  // shape is four claims, in this order:
+  // shape is five claims, in this order:
   //
   //   THE JUDGMENT COMES FIRST. `verdict` holds one thing — the Word vs Action
   //   read — and it is the first major surface after the letterhead and the brief.
   //   It used to be the opening block of `record`, which meant the primary finding
   //   arrived as the header of a system rather than as the site's answer. There is
   //   still exactly one score; giving it its own stage is what makes that legible.
+  //   Word vs Action is also the ONLY integrity section: the say-vs-do read and the
+  //   record-vs-public-picture bridge that used to occupy stages of their own are
+  //   inputs to its rows now, not neighbours of it.
   //
-  //   THE ADVERSE FINDING COMES SECOND. `tension` now precedes `signature`.
-  //   "Where does this person contradict themselves" is the question a reader came
-  //   with; "what are they known for" is context that frames it. Leading with the
-  //   flattering summary and burying the contradiction two stages down is how a
-  //   dossier turns into a brochure.
+  //   WHAT THEY STAND FOR COMES SECOND. `signature` is 🧭 Stances & Connections —
+  //   the map of claims, ranked so the claims something can test come first. It sits
+  //   between the verdict and the record because it is the bridge: every row points
+  //   back at the score and forward at the actions.
   //
-  //   FINDINGS BEFORE METHODS. Everything from `record` down is the apparatus that
-  //   produced the verdict — the formal record, the receipts, the ledgers. It is
-  //   all still here, in full, and none of it is the first thing a reader meets.
+  //   THEN THE ACTIONS. `record` is one office-aware gateway — executive actions,
+  //   roll-call votes, or both lanes for someone who has served in both kinds of
+  //   office. One section, whatever the office.
   //
-  //   THE READER'S OWN STAKE BEFORE THE FOLLOW-THE-MONEY TAIL. `you` moved above
-  //   `money`, so the profile ends on the deep record rather than on the reader,
-  //   but the reader is met before the widest-context material.
+  //   THEN THE HEAT, THEN THE PROOF. `tension` is 🔥 Flashpoints and nothing else:
+  //   the biggest contradictions and disputes, short and sourced. It is not a second
+  //   scoring system and it is not the home for all the evidence — `receipts` is the
+  //   shared proof layer every surface above links into.
+  //
+  //   THE READER'S OWN STAKE, THEN THE DRAWERS. `money` is a lens of its own and
+  //   must not read as an integrity score, so it sits after the evidence and before
+  //   the alignment tail; the collapsed full tables close the profile.
+  // The order below IS the profile's reading order, and it answers one question
+  // per stage.
   var STAGES = [
-    { key: 'identity',  label: 'Identity',           ask: 'Who is this?' },
+    { key: 'identity',  label: 'Identity',            ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
-    { key: 'verdict',   label: 'The verdict',         ask: 'Do they stand by what they said?' },
-    { key: 'tension',   label: 'Where it is contested', ask: 'Where is the tension?' },
-    { key: 'signature', label: 'Signature issues',    ask: 'What defines them?' },
+    { key: 'verdict',   label: 'Word vs Action',      ask: 'Do they stand by what they said?' },
+    { key: 'signature', label: 'Stances & connections', ask: 'What do they stand for?' },
     { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
-    { key: 'receipts',  label: 'Receipts · say vs. do', ask: 'Where are the receipts?' },
-    { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
+    { key: 'tension',   label: 'Flashpoints',         ask: 'Where is the heat?' },
+    { key: 'receipts',  label: 'Evidence',            ask: 'Where are the receipts?' },
     { key: 'money',     label: 'Money',               ask: 'Who funds them, and who does the record touch?' },
+    { key: 'you',       label: 'You and them',        ask: 'How does this map to my own positions?' },
     { key: 'drawers',   label: 'The full record',     ask: 'Show me everything.' }
   ];
   var STAGE_KEYS = STAGES.map(function (s) { return s.key; });
@@ -148,33 +156,44 @@
   // Anything absent resolves to the deep end, matching the unknown-stage rule in
   // assemble() — an unrecognised destination is demoted, never promoted.
   var TARGET_STAGE = {
-    // verdict — the one primary score. Anchor emitted by word-action.js.
+    // verdict — the one primary score, and the only integrity section. Anchor
+    // emitted by word-action.js.
     'pdxsec-wordaction': 'verdict',
-    // tension — the adverse findings. Anchor emitted by controversies.js.
-    'pdxsec-controversies': 'tension',
-    'pdxsec-divergence': 'tension',
-    // signature — what they are known for
+    // signature — what they stand for. #pdxsec-stances is emitted by consistency.js
+    // (stancesSectionHtml) and is the stage's entry point; the glance and the full
+    // position set sit under it.
+    'pdxsec-stances': 'signature',
     'pdxsec-positions': 'signature',
     'pdxsec-glance': 'signature',
     // record — the formal apparatus behind the verdict
-    'pdxsec-score': 'record',
-    'pdxsec-promise-tracker': 'record',
     'pdxsec-exec-record': 'record',
     'pdxsec-official-record': 'record',
     'pdxsec-verify': 'record',
-    // receipts — say vs. do
+    // tension — Flashpoints, and only Flashpoints. Anchor emitted by
+    // controversies.js. `pdxsec-divergence` used to live here; the section it
+    // pointed at compared two per-issue verdict systems that are now one, so it no
+    // longer mounts and no longer has a stage.
+    'pdxsec-controversies': 'tension',
+    // receipts — the shared proof layer every surface above links into.
+    // `pdxsec-saydo` used to live here; the public record is an input to the issue
+    // rows now rather than a section of its own.
     'pdxsec-evidence': 'receipts',
-    'pdxsec-saydo': 'receipts',
-    // you — the reader’s own stake
-    'pdxsec-match': 'you',
-    'pdxsec-compare': 'you',
     // money — funding and who the record touches. Funding anchor lives in index.html.
+    // A lens of its own, deliberately after the proof layer so it never reads as
+    // part of the integrity argument.
     'pdxsec-funding': 'money',
     'pdxsec-impact': 'money',
     'pdxsec-contracts': 'money',
+    // you — the reader’s own stake
+    'pdxsec-match': 'you',
+    'pdxsec-compare': 'you',
     // drawers — destinations that really do sit inside the full-record drawers, and
     // are therefore reached through a reveal rather than a plain scroll. Anchor for
-    // the voting record is emitted by voting-record.js into the votes drawer.
+    // the voting record is emitted by voting-record.js into the votes drawer. The
+    // two pledge anchors joined them when the promise ledger stopped being a
+    // section: promises feed the one score, so they are raw material, not a stage.
+    'pdxsec-score': 'drawers',
+    'pdxsec-promise-tracker': 'drawers',
     'pdxsec-record': 'drawers',
     'pdxsec-voting': 'drawers',
     'pdxsec-activity': 'drawers'
@@ -199,7 +218,13 @@
   //   that nobody remembered to register lands beside the drawers instead of
   //   ahead of the verdict.
   function railOrder(items) {
-    var ranked = [], inherit = 0;
+    // `inherit` starts at the deep end, not at 0. An action pill carries no anchor
+    // of its own and takes the rank of the last anchored pill ahead of it — but if
+    // there is no anchored pill ahead of it, it has declared no position at all, and
+    // a pill with no declared position must sink for the same reason an unregistered
+    // target does. Seeding at 0 floated it above the verdict instead, which is only
+    // invisible because the one action pill we ship always follows Positions.
+    var ranked = [], inherit = STAGES.length;
     (items || []).forEach(function (it, i) {
       if (!it) return;
       var r = it.target ? stageRank(stageOfTarget(it.target)) : inherit;
@@ -631,36 +656,26 @@
     return out;
   }
 
-  // The single sharpest tension, chosen in a fixed order of evidentiary strength:
-  // a measured Official-Record-vs-Say-vs-Do gap beats a flagged flashpoint,
-  // because a gap is two independently scored feeds disagreeing rather than one
-  // feed reporting something notable. Returns null when the record genuinely has
-  // no contested point, and the caller says exactly that.
+  // The single sharpest tension: the top-ranked 🔥 Flashpoint, which is the
+  // section this card is the trailer for. Returns null when the record genuinely
+  // has no contested point, and the caller says exactly that.
+  //
+  // THE RECORD-VS-PUBLIC-PICTURE BRANCH IS GONE. It ran first and outranked every
+  // flashpoint, on the theory that "two independently scored feeds disagreeing"
+  // is stronger evidence than one feed reporting something notable. That theory
+  // died when the public record became an INPUT to the issue row rather than a
+  // rival feed: there is no second score left for the first to disagree with.
+  // What survived was the display — 'Record and public picture disagree on X',
+  // badged '100 pt gap', detailed '🏛️ 100% vs 🧾 0%' — a two-percentage
+  // divergence panel mounted above the fold, on the one profile in the roster
+  // whose thin curated feed still produced a gap over the threshold. That is the
+  // exact surface the spine unmounted three sections lower down, and a reader met
+  // it before they met the score it was arguing with.
+  //
+  // divergence() itself is untouched and still exported: the gap sheet, the
+  // `#record=` deep link and the share card are legitimate callers. The brief is
+  // not one, because the brief is above the fold.
   function tension(pid, p) {
-    var C = window.PDXConsistency;
-    if (C && typeof C.divergence === 'function') {
-      var d = null;
-      try { d = C.divergence(pid); } catch (e) { d = null; }
-      var both = (d && d.both) || [];
-      // divergence() returns `both` sorted by absolute gap, biggest first.
-      if (both.length && Math.abs(both[0].gap) > 15) {
-        var t = both[0];
-        var lbl = t.key;
-        try { if (typeof window._issueLabel === 'function') lbl = window._issueLabel(t.key) || t.key; } catch (e) {}
-        var higher = t.gap > 0 ? 'Their votes read better than their public record here.'
-                               : 'Their public record reads better than their votes here.';
-        return {
-          kind: 'gap',
-          issueKey: t.key,
-          label: String(lbl),
-          badge: Math.abs(t.gap) + ' pt gap',
-          headline: 'Record and public picture disagree on ' + lbl,
-          detail: higher + ' 🏛️ ' + t.off.score + '% vs 🧾 ' + t.say.score + '%.',
-          cta: 'See what is behind the gap',
-          open: 'gap'
-        };
-      }
-    }
     var items = [];
     try {
       if (typeof window._pdxControversyItems === 'function') items = window._pdxControversyItems(pid, p) || [];
@@ -691,15 +706,14 @@
           '<div class="pdxbr-t-top"><span class="pdxbr-t-ico" aria-hidden="true">=</span>' +
             '<span class="pdxbr-t-badge">No documented gap</span></div>' +
           '<p class="pdxbr-t-line">Nothing on ' + esc(name) + '’s record currently contradicts itself: ' +
-            'no scored gap between their votes and their public record, and no flagged flashpoint on file. ' +
+            'no issue where what they said and what they did came out against them, and no flagged flashpoint on file. ' +
             'That is what the record shows today, not a guarantee about the future.</p>' +
         '</div>';
     }
     var act = '';
-    if (t.open === 'gap' && t.issueKey) {
-      act = '<button type="button" class="pdxbr-t-act" onclick="if(window.PDXConsistency&&window.PDXConsistency.openGap)window.PDXConsistency.openGap(\'' +
-        jsStr(pid) + '\',\'' + jsStr(t.issueKey) + '\');">' + esc(t.cta) + ' <span aria-hidden="true">→</span></button>';
-    } else if (t.open === 'receipt' && t.issueKey) {
+    // No 'gap' arm. The brief no longer produces one — see tension() above — and an
+    // unreachable route into the divergence sheet is how that surface comes back.
+    if (t.open === 'receipt' && t.issueKey) {
       act = '<button type="button" class="pdxbr-t-act" onclick="if(window.PDXReceipts&&window.PDXReceipts.open)window.PDXReceipts.open(\'' +
         jsStr(pid) + '\',\'' + jsStr(t.issueKey) + '\');">' + esc(t.cta) + ' <span aria-hidden="true">→</span></button>';
     } else {
@@ -708,7 +722,7 @@
     }
     return '<div class="pdxbr-tension pdxbr-tension-' + escAttr(t.kind) + '">' +
         '<div class="pdxbr-t-top">' +
-          '<span class="pdxbr-t-ico" aria-hidden="true">' + (t.kind === 'gap' ? '≠' : '⚠') + '</span>' +
+          '<span class="pdxbr-t-ico" aria-hidden="true">⚠</span>' +
           '<span class="pdxbr-t-badge">' + esc(t.badge) + '</span>' +
           (t.label ? '<span class="pdxbr-t-issue">' + esc(t.label) + '</span>' : '') +
         '</div>' +
@@ -739,9 +753,12 @@
     // exactly when its stage has content, so a chip can be checked for a live
     // destination — see prune() — rather than silently scrolling nowhere the way
     // a chip aimed at a self-gating section's anchor would.
+    // Chip labels are the STAGE names, not the names of sections that used to sit
+    // in them. This middle chip read "Say vs. do" — a retired peer product, named
+    // above the fold, pointing at the shared evidence layer that replaced it.
     var jumps = [
       { t: 'pdxsp-record',   ico: '🏛️', l: 'Official record' },
-      { t: 'pdxsp-receipts', ico: '🧾', l: 'Say vs. do' },
+      { t: 'pdxsp-receipts', ico: '🧾', l: 'Evidence' },
       { t: 'pdxsp-money',    ico: '💰', l: 'Money' }
     ].map(function (j) {
       return '<button type="button" class="pdxbr-jump" data-pdxbr-to="' + escAttr(j.t) + '"' +

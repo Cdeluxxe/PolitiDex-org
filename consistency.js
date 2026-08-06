@@ -217,6 +217,39 @@
     try { return (typeof window._pdxRecordIssueSummary === 'function') ? window._pdxRecordIssueSummary(pid, issueKey) : null; }
     catch (e) { return null; }
   }
+  // ── which lane a warm record actually belongs to ────────────────────────────
+  // The voting-record endpoint carries two different things in one item type. A roll
+  // call arrives as kind 'vote' with a ballot in `position`; a president's signed
+  // law, veto or executive order arrives as kind 'position' with its actionType in
+  // that same field, because the server (netlify/functions/voting-record.mts) serves
+  // vr_rollcalls and vr_positions through one shape. So "this member has records" has
+  // never been the same claim as "this member has a voting record", and treating the
+  // two as one is what put roll-call vocabulary — "No votes yet", "Recorded vote",
+  // "Voted Signed Law", a 🏛️ legend — onto a president's Official Record the moment
+  // their formal actions loaded. Every lane decision below asks what the items ARE.
+  // A ballot, not a kind. `kind` is what the wire said; the position is what the
+  // figure actually cast, and only a real ballot puts an item on the 🏛️ lane.
+  function _anyBallot(items) {
+    for (var i = 0; i < (items || []).length; i++) {
+      var it = items[i];
+      if (it && it.kind !== 'position' && _BALLOTS[String(it.position || '').toLowerCase()] === 1) return true;
+    }
+    return false;
+  }
+  function recordItems(pid, issueKey) {
+    try {
+      return (typeof window._pdxRecordIssueItems === 'function')
+        ? (window._pdxRecordIssueItems(pid, issueKey) || []) : [];
+    } catch (e) { return []; }
+  }
+  // 'record' when a ballot is among the items on this issue, 'exec' when they are all
+  // executive actions. Falls back to the congressional lane, which is what every
+  // member surface already renders.
+  function recordLaneFor(pid, issueKey) {
+    var its = recordItems(pid, issueKey);
+    if (its.length && !_anyBallot(its)) return 'exec';
+    return 'record';
+  }
   function recordsWarm(pid) {
     try { return !!(window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function' && window.PDXVotingRecord.memberRecords(pid)); }
     catch (e) { return false; }
@@ -743,6 +776,29 @@
     return out;
   }
 
+  // ── the shared Mixed gate ───────────────────────────────────────────────────
+  // Mixed is minted in exactly one place for the whole app: _pdxMixedGate in
+  // stance-helpers.js, which every lane below calls through this accessor. The rule
+  // is that a split is only Mixed when both directions are materially present and
+  // neither holds 2/3 of the weight; a dominant side resolves outright and a
+  // directionless record resolves to no_position, never to a soft middle.
+  //
+  // No local copy of the rule lives here on purpose — a second copy is how the
+  // homepage tally and the profile issue rows drifted apart in the first place. If
+  // the shared gate is somehow absent this degrades to "the heavier side wins" and
+  // simply cannot mint Mixed, which is the safe direction to fail in.
+  //
+  // `judgedItems` is the headcount behind the two scores, in whatever the lane
+  // counts: roll calls, formal actions, curated receipts, or issue rows. Below the
+  // shared floor of two the gate resolves the row outright instead of calling it
+  // split, so no lane can print "Mixed record" off one piece of evidence.
+  function mixedGate(consistentScore, contradictScore, judgedItems) {
+    var g = window._pdxMixedGate;
+    if (typeof g === 'function') return g(consistentScore, contradictScore, judgedItems);
+    return contradictScore > consistentScore ? 'contradicts'
+         : consistentScore > contradictScore ? 'consistent' : 'no_position';
+  }
+
   // ── the core reconciler: ONE verdict for (pid, issueKey) ────────────────────
   function issueVerdict(pid, issueKey) {
     var rec = recordSummary(pid, issueKey);           // voting engine (null = none warm)
@@ -767,7 +823,20 @@
       if (!warm && hasStance) { pending = true; token = 'pending'; queueWarm(pid); }
       else token = hasStance ? 'no_record' : 'no_stance';
     } else if (hasContra && hasConsist) {
-      token = 'mixed';                                 // both directions documented
+      // Both directions documented — but "both directions exist" is not the same
+      // claim as "neither direction wins". Put the weight through the shared gate:
+      // the roll-call/exec lane brings its own weighted scores, and each curated
+      // receipt counts as one action at the default mapping weight so the two feeds
+      // are compared in the same unit. The headcount travels with the weight, so a
+      // row standing on a single both-ways document resolves instead of reading as
+      // a split record.
+      token = mixedGate(
+        (rec && rec.consistentScore ? rec.consistentScore : 0) + cur.consistent * 100,
+        (rec && rec.contradictScore ? rec.contradictScore : 0) + cur.contradicts * 100,
+        (rec ? ((rec.consistent || 0) + (rec.contradicts || 0)) : 0) +
+          cur.consistent + cur.contradicts
+      );
+      if (token === 'no_position') token = 'limited';
     } else if (hasContra) {
       token = 'contradicts';
     } else if (hasConsist) {
@@ -854,16 +923,20 @@
     var hasStance = !!stance || (rec && rec.netVerdict && rec.netVerdict !== 'no_stance' && rec.netVerdict !== 'no_record') || act.total > 0;
 
     // 1. Systematic roll-call record is authoritative — use it alone, so a curated
-    //    echo of the same vote can never be counted twice.
+    //    echo of the same vote can never be counted twice. "Systematic" is about the
+    //    feed, not the office: the same feed carries a president's formal actions, so
+    //    the lane is read off the items rather than assumed to be congressional.
     if (rec && rec.total) {
       var t = rec.netVerdict === 'contradicts' ? 'contradicts'
             : rec.netVerdict === 'consistent' ? 'consistent'
             : rec.netVerdict === 'mixed' ? 'mixed' : 'limited';
+      var recLane = recordLaneFor(pid, issueKey);
       return {
-        scope: 'official', token: t, verdict: scopeVerdict('official', t),
+        scope: 'official', token: t, verdict: laneVerdict('official', t, recLane === 'exec' ? 'exec' : null),
         score: scoreFromRecord(rec), record: rec, officialActions: null, curated: null,
         contradictions: rec.contradicts || 0, flags: 0,
-        hasStance: hasStance, pending: false, lane: 'record', sources: ['record']
+        hasStance: hasStance, pending: false, lane: recLane,
+        sources: [recLane === 'exec' ? 'exec-actions' : 'record']
       };
     }
 
@@ -898,11 +971,19 @@
     //    fill it (the Phase 3 coverage win). Scored honestly: all-contradiction is
     //    a real 0%, not a false one.
     if (act.total > 0) {
-      var tok = (act.contradicts > 0 && act.consistent > 0) ? 'mixed'
-              : act.contradicts > 0 ? 'contradicts' : 'consistent';
+      // Curated formal actions are unweighted, so each counts as one action at the
+      // default mapping weight and goes through the same Mixed gate as every other
+      // lane. A single action that breaks the claim resolves as a contradiction —
+      // it holds all of the weight, and it is one action rather than a record
+      // pulling two ways — instead of being averaged into a middle.
+      var tok = mixedGate(act.consistent * 100, act.contradicts * 100,
+        act.consistent + act.contradicts);
+      if (tok === 'no_position') tok = 'limited';
       return {
         scope: 'official', token: tok, verdict: scopeVerdict('official', tok),
-        score: Math.round(100 * act.consistent / (act.consistent + act.contradicts)),
+        score: (act.consistent + act.contradicts)
+          ? Math.round(100 * act.consistent / (act.consistent + act.contradicts))
+          : null,
         record: null, officialActions: act, curated: null,
         contradictions: act.contradicts, flags: 0,
         hasStance: true, pending: false, lane: 'formal-actions', sources: ['formal-actions']
@@ -950,9 +1031,13 @@
     var hasStance = !!stance || cur.total > 0;
     var token;
     if (cur.total === 0) token = hasStance ? 'no_record' : 'no_stance';
-    else if (cur.contradicts > 0 && cur.consistent > 0) token = 'mixed';
-    else if (cur.contradicts > 0) token = 'contradicts';
-    else if (cur.consistent > 0) token = 'consistent';
+    else if (cur.contradicts > 0 || cur.consistent > 0) {
+      // Same gate as every other lane — receipts pointing two ways only read Mixed
+      // when neither direction dominates AND there are at least two of them.
+      token = mixedGate(cur.consistent * 100, cur.contradicts * 100,
+        cur.consistent + cur.contradicts);
+      if (token === 'no_position') token = cur.flag > 0 ? 'flag' : 'no_record';
+    }
     else if (cur.flag > 0) token = 'flag';
     else token = 'no_record';
     // Phase 7: a transparent, public-record-only support % (null under the thin-data
@@ -1031,11 +1116,16 @@
     var scoreSum = 0, scoreN = 0, contradictions = 0, anyPending = false;
     var wSum = 0, wN = 0;      // judged-vote-weighted numerator / denominator
     var sdSup = 0, sdCon = 0; // Say-vs-Do pooled directional evidence (Phase 7)
+    var consW = 0, contraW = 0; // per-side weight, for the shared Mixed gate below
     keys.forEach(function (k) {
       var v = per(pid, k);
       counts[bucketOf(v.token)]++;
       contradictions += v.contradictions || 0;
       if (v.pending) anyPending = true;
+      var iw = judgedCountOf(v);
+      if (!(typeof iw === 'number' && iw > 0)) iw = 1;
+      if (v.token === 'consistent') consW += iw;
+      else if (v.token === 'contradicts') contraW += iw;
       if (typeof v.score === 'number') {
         scoreSum += v.score; scoreN++;
         // An issue counts in proportion to the record behind it. Fall back to 1 (the
@@ -1048,9 +1138,16 @@
       if (scope === 'saydo' && v.curated) { sdSup += v.curated.consistent || 0; sdCon += v.curated.contradicts || 0; }
     });
     var token;
-    if (counts.contradicts > 0 && counts.consistent > 0) token = 'mixed';
-    else if (counts.contradicts > 0) token = 'contradicts';
-    else if (counts.consistent > 0) token = 'consistent';
+    // Roll-ups use the shared Mixed gate too. Issues weigh in proportion to the
+    // record behind them (judgedCountOf, same weight the % uses), so one broken
+    // issue beside seven backed ones reads as the record actually reads instead of
+    // collapsing the whole scope into "Mixed record". The headcount here is the
+    // number of directional ISSUE ROWS, so a whole scope cannot read Mixed off a
+    // single issue either.
+    if (counts.contradicts > 0 || counts.consistent > 0) {
+      token = mixedGate(consW, contraW, counts.consistent + counts.contradicts);
+      if (token === 'no_position') token = counts.mixed > 0 ? 'mixed' : 'limited';
+    }
     else if (counts.mixed > 0) token = 'mixed';
     else if (counts.flag > 0) token = 'flag';
     else if (counts.limited > 0) token = 'limited';
@@ -1093,6 +1190,33 @@
     if (!_timer) _timer = setTimeout(flushWarm, 150);
   }
 
+  // ── has this member's record lane finished asking? ──────────────────────────
+  // A surface that publishes a score before the answer is in publishes a DIFFERENT
+  // score a moment later. The homepage record card did exactly that: the executive
+  // lane is bundled and available cold, so the card cleared the publishing floor on
+  // the first pass, painted a percentage and a headline, and then repainted both
+  // when the roll-call fetch landed — a summary that argues with itself while the
+  // reader is looking at it.
+  //
+  // `settled` is answered for the WHOLE lane, not per issue: true once this pid's
+  // fetch has come back (with rows or with nothing, succeeded or failed), true if
+  // the record was already noted from an earlier page, and true when there is no
+  // fetcher at all — nothing to wait for is not the same as waiting. False only
+  // while a request this page started is genuinely outstanding.
+  var _settled = {};
+  function recordSettled(pid) {
+    pid = String(pid || '');
+    if (!pid) return false;
+    if (_settled[pid]) return true;
+    var vr = null;
+    try { vr = window.PDXVotingRecord; } catch (e) { vr = null; }
+    if (!vr || typeof vr.fetchMember !== 'function') return true;
+    try {
+      if (typeof vr.memberRecords === 'function' && vr.memberRecords(pid)) return true;
+    } catch (e) {}
+    return false;
+  }
+
   // Every roster card that renders a pending verdict queues its member, so one
   // homepage render queues the WHOLE roster — ~950 people. Firing that batch in a
   // single pass opened ~950 concurrent requests of ~125 KB each, and the browser's
@@ -1121,6 +1245,10 @@
       if (settled) return;
       settled = true;
       _inFlight--;
+      // Asked and answered — whatever the answer was. A card waiting on this lane
+      // needs to know the wait is over even when the request came back empty or
+      // failed outright, or it sits on a skeleton until a backstop timer rescues it.
+      _settled[String(pid)] = true;
       try { setTimeout(pump, 0); } catch (e) { pump(); }
     };
     try {
@@ -1128,9 +1256,15 @@
         if (data && data.items && data.items.length && typeof window.PDXVotingRecord.noteMember === 'function') {
           window.PDXVotingRecord.noteMember(pid, data.items);
         }
-        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
         done();
-      }).catch(function () { done(); });
+        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
+      }).catch(function () {
+        // A failed fetch is still an answer. It used to announce nothing, so every
+        // surface waiting on this member stayed in its loading state until a
+        // grace-period sweep gave up on it.
+        done();
+        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid, failed: true } })); } catch (e) {}
+      });
     } catch (e) { done(); }
   }
   function flushWarm() {
@@ -1554,7 +1688,31 @@
       // A reader who tapped "how this is judged" on a shared card arrives with one
       // question; the row that answers it is briefly ringed so it is findable.
       '.pdxm-row-focus{border-radius:0.5rem;box-shadow:0 0 0 2px rgba(127,180,255,0.55);background:rgba(127,180,255,0.07);}' +
-      '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
+      '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}' +
+      // ── the both-lanes strip, inside the one Official Record gateway ────────
+      '.pdxor-lanes{margin:0.4rem 0 0.55rem;padding:0.45rem 0.6rem;border:1px solid rgba(159,180,212,0.16);border-radius:0.55rem;background:rgba(10,15,30,0.4);}' +
+      '.pdxor-lanes-h{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;margin-bottom:0.3rem;}' +
+      '.pdxor-lane{display:flex;flex-direction:column;gap:0.05rem;padding:0.22rem 0;}' +
+      '.pdxor-lane-n{font-weight:700;font-size:0.78rem;color:#dbe6f5;}' +
+      '.pdxor-lane-b{font-size:0.7rem;line-height:1.4;color:#93a9c8;}' +
+      '.pdxor-lanes-f{font-size:0.66rem;line-height:1.4;color:#6f88ab;margin-top:0.3rem;}' +
+      // ── 🧭 Stances & Connections ──────────────────────────────────────────
+      // The "what they stand for" layer. Deliberately lighter chrome than the
+      // Official Record: this is a map, not a verdict engine, and the verdict it
+      // shows is read off the same row model rather than computed here.
+      '.pdxst-head{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.2rem;}' +
+      '.pdxst-title{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.95rem;letter-spacing:0.04em;text-transform:uppercase;color:#e8eefc;}' +
+      '.pdxst-q{font-size:0.74rem;color:#93a9c8;font-style:italic;margin-bottom:0.5rem;}' +
+      '.pdxst-grp{margin-bottom:0.6rem;}' +
+      '.pdxst-grp-h{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;padding-bottom:0.18rem;border-bottom:1px solid rgba(159,180,212,0.14);margin-bottom:0.3rem;}' +
+      '.pdxst-row{padding:0.35rem 0;border-bottom:1px solid rgba(159,180,212,0.07);}' +
+      '.pdxst-row-top{display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;}' +
+      '.pdxst-lbl{font-weight:700;font-size:0.82rem;color:#dbe6f5;}' +
+      '.pdxst-txt{font-size:0.74rem;line-height:1.4;color:#9fb4d4;margin-top:0.15rem;}' +
+      '.pdxst-links{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.28rem;}' +
+      '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
+      '.pdxst-go:hover,.pdxst-go:focus-visible{background:rgba(159,219,208,0.18);}' +
+      '.pdxst-ev{font-size:0.64rem;color:#6f88ab;white-space:nowrap;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
     st.textContent = css;
@@ -1771,7 +1929,9 @@
       for (var j = 0; j < secs.length; j++) {
         if (secs[j].getAttribute('data-pdxc-official-pid') !== String(pid)) continue;
         var orOpen = _lidsOpenIn(secs[j]);
-        secs[j].innerHTML = _lidify(_officialInner(pid));
+        // The ledger is re-rendered with the rows: it lives inside this section now,
+        // and re-rendering only the rows would silently delete it on the first warm.
+        secs[j].innerHTML = _lidify(_officialInner(pid)) + _orExecLedgerHtml(pid);
         _lidsReopen(orOpen);
       }
       // …and the divergence section, so the comparison appears once the vote-based
@@ -1942,6 +2102,64 @@
     if (anyOther) return _LANE_NOUN.record;
     return execEligible(pid) ? _LANE_NOUN.exec : _LANE_NOUN.record;
   }
+
+  // ── WHICH RECORD LANES THIS PERSON HAS ──────────────────────────────────────
+  // The Official Record is ONE gateway, and it is office-aware. There are two kinds
+  // of formal record a figure can have:
+  //   exec — laws signed or vetoed, executive orders, formal directives
+  //   vote — roll-call votes and formal legislative actions
+  // Most people have exactly one. Someone who has served in both kinds of office —
+  // a senator who became president, a governor who went to Congress — has both, and
+  // both belong under this one section rather than in two rival products. The lanes
+  // are DERIVED, never declared per-profile: the executive lane comes from the office
+  // gate, the legislative lane from whether a roll-call record actually exists. A
+  // member of Congress therefore picks up no executive chrome, which is the point.
+  function recordLanes(pid, scored) {
+    var exec = false, vote = false;
+    try { exec = !!execEligible(pid); } catch (e) {}
+    for (var i = 0; i < (scored || []).length; i++) {
+      var ln = scored[i] && scored[i].ov && scored[i].ov.lane;
+      if (ln === 'exec') exec = true; else if (ln) vote = true;
+    }
+    try {
+      var recs = (window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function')
+        ? window.PDXVotingRecord.memberRecords(pid) : null;
+      // Having rows in the voting-record store is NOT the same as having a
+      // legislative record. netlify/functions/voting-record.mts serves a president's
+      // vr_positions rows — signed laws, vetoes, orders — through the same endpoint
+      // as roll calls, so the store fills up for an office that casts no votes.
+      // Counting those toward the 🏛️ lane put a "Roll-call votes · Recorded votes"
+      // legend on a president's Official Record the moment their record warmed.
+      if (recs && recs.length && _anyBallot(recs)) vote = true;
+    } catch (e) {}
+    // Neither lane has produced anything yet: fall back to the office gate so an
+    // empty section still speaks the right language instead of asking a president
+    // about votes.
+    if (!exec && !vote) { if (execEligible(pid)) exec = true; else vote = true; }
+    var keys = [];
+    if (exec) keys.push('exec');
+    if (vote) keys.push('vote');
+    return { exec: exec, vote: vote, both: exec && vote, keys: keys };
+  }
+  var _LANE_META = {
+    exec: { ico: '✒️', label: 'Executive actions', blurb: 'Laws signed and vetoed, executive orders and formal directives — what they did with power they held alone.' },
+    vote: { ico: '🏛️', label: 'Roll-call votes',   blurb: 'Recorded votes and formal legislative actions — what they did when the question was put to them.' }
+  };
+  // The lane strip. Printed ONLY when a person has both kinds of service: with one
+  // lane there is nothing to distinguish, and a header announcing "this section has
+  // one lane" is chrome for its own sake.
+  function _orLaneStripHtml(lanes) {
+    if (!lanes || !lanes.both) return '';
+    return '<div class="pdxor-lanes">' +
+        '<div class="pdxor-lanes-h">Two kinds of formal record, one gateway</div>' +
+        lanes.keys.map(function (k) {
+          var m = _LANE_META[k];
+          return '<div class="pdxor-lane"><span class="pdxor-lane-n">' + m.ico + ' ' + esc(m.label) + '</span>' +
+            '<span class="pdxor-lane-b">' + esc(m.blurb) + '</span></div>';
+        }).join('') +
+        '<div class="pdxor-lanes-f">Every issue row below is judged on the lane the action came from and says which one it was — the two records are never pooled into one figure.</div>' +
+      '</div>';
+  }
   var _OR_ROW = {
     consistent:  { ico: '✓', label: 'Backed it up',   cls: 'consistent' },
     contradicts: { ico: '⚠', label: 'Contradicts',    cls: 'contradicts' },
@@ -2025,33 +2243,98 @@
       rv.ico + ' Record: ' + esc(rv.label) + esc(tail) + '</span>';
   }
   // "What they say", with an honest fallback. When there is no stated position but
-  // votes ARE mapped, the absence is usually the reason the verdict reads "Limited",
-  // so name it instead of dropping the chip and leaving the reader to guess.
+  // record IS mapped, the absence is usually the reason the verdict reads "Limited",
+  // so name it instead of dropping the chip and leaving the reader to guess. Two
+  // things this used to get wrong on a president's row: it said "Votes are mapped to
+  // this issue" about someone who casts none, and it led with "Nothing stated yet" —
+  // an absence, where the row's actual content is a documented action. The chip now
+  // names the lane and says what IS there.
   function _orSaysChipHtml(pid, issueKey, ov) {
     var chip = _orStanceChip(pid, issueKey);
     if (chip) return chip;
-    if (!(ov && ov.record && ov.record.total)) return '';
+    var n = _orNoun(ov);
+    var has = !!(ov && ov.record && ov.record.total) || _orExecTouched(ov);
+    if (!has) return '';
     return '<span class="pdxor-stance pdxor-stance-none" style="--c:#9fb4d4"' +
-      ' title="Votes are mapped to this issue, but they have not stated a position we can check them against.">' +
-      '💬 Says: Nothing stated yet</span>';
+      ' title="' + escAttr('We have their ' + n.many + ' on this issue, but no stated position to check them against.') + '">' +
+      '💬 Says: no position on record</span>';
   }
 
   // ── One record → its printable proof fields ─────────────────────────────────
   // Pure; reads only fields the voting-record normalizer already sets. `question` is
   // the roll-call question a vote actually answered ("On Motion to Recommit"), which
-  // is the piece that decides how a Yea should be read — a position's `action` is a
-  // slug, so that one gets title-cased.
+  // is the piece that decides how a Yea should be read.
+  //
+  // `act` is the one printable phrase for what the figure DID, and it is lane-aware
+  // because the wire format is not. A roll call carries a ballot in `position`
+  // ('yea'), and a president's formal action carries its actionType in the SAME field
+  // ('signed_law') — netlify/functions/voting-record.mts sends both that way so the
+  // two lanes share one item shape. Every proof line here used to print that field as
+  // 'Voted ' + it, which on a president's Official Record rendered "Voted Signed Law":
+  // vote vocabulary on an office that casts no votes, over a document nobody voted on.
+  // A ballot gets the congressional verb; an executive action gets exec-record.js's
+  // own words for its class, which is the only place those verbs are written down.
+  //   The `kind` field is not trusted to make that call on its own. It was, and the
+  // result was "H.R. 1 · Signed · Voted Signed" on the president's card: one row
+  // whose kind did not survive the trip still went through the congressional
+  // formatter, and a single mislabelled item is all it takes. The test is now the
+  // BALLOT itself — "Voted X" is printed only when X is something a member can
+  // actually vote, and anything else is an action phrase no matter what kind says.
+  var _BALLOTS = {
+    yea: 1, nay: 1, aye: 1, no: 1, yes: 1, present: 1,
+    not_voting: 1, notvoting: 1, 'not voting': 1, abstain: 1, absent: 1, excused: 1
+  };
+  // Executive slugs as the record actually spells them. exec-record.js keys its
+  // verbs on the long form ('signed_law'); vr_positions stores the short one
+  // ('signed'), so without this bridge a signed law printed as the bare word
+  // "Signed" — true, but not what the document says it is.
+  var _EXEC_SLUGS = {
+    signed: 'signed_law', signed_into_law: 'signed_law', sign: 'signed_law',
+    vetoed: 'vetoed_law', veto: 'vetoed_law',
+    eo: 'executive_order', order: 'executive_order', executive_order: 'executive_order',
+    directive: 'directive', memorandum: 'directive', proclamation: 'directive'
+  };
+  function _execVerb(key) {
+    var k = String(key || '').toLowerCase();
+    var cls = null;
+    try {
+      var xr = window.PDXExecRecord;
+      if (xr && xr.CLASSES) cls = xr.CLASSES[k] || xr.CLASSES[_EXEC_SLUGS[k] || ''] || null;
+    } catch (e) { cls = null; }
+    return (cls && cls.verb) ? cls.verb : '';
+  }
+  function _orActionPhrase(item) {
+    if (!item) return '';
+    // `action` last: hydrateIssueRecords copies the actionType into all three, but a
+    // curated position may only carry `action` ("cosponsored"), and that slug is the
+    // only thing the row has to say about what was actually done.
+    var key = String(item.actionType || item.position || item.action || '');
+    if (!key) return '';
+    var lower = key.toLowerCase();
+    if (item.kind !== 'position' && _BALLOTS[lower] === 1) return 'Voted ' + _tc(key);
+    // Not a ballot → an action, whatever the wire called it. Known class → its own
+    // verb; unknown → the slug, title-cased and unprefixed. Still never a vote.
+    return _execVerb(lower) || _tc(key);
+  }
   function _orProofBits(item) {
     if (!item) return null;
     var src = item.source;
     var url = item.sourceUrl || (src && typeof src === 'object' ? src.url : '') || '';
     var lbl = item.sourceLabel || (src && typeof src === 'object' ? src.label : '') ||
       (typeof src === 'string' ? src : '') || 'Congress.gov';
+    var isPosition = item.kind === 'position';
+    // Is this a ballot at all? Same test the action phrase uses, so the two halves
+    // of one proof line cannot disagree about which lane the item is on.
+    var isBallot = !isPosition && _BALLOTS[String(item.position || '').toLowerCase()] === 1;
     return {
       bill: item.number ? String(item.number) : '',
       title: item.title ? String(item.title) : '',
-      question: item.action ? (item.kind === 'position' ? _tc(item.action) : String(item.action)) : '',
-      position: item.position ? _tc(item.position) : '',
+      // An action's `action` IS its actionType, so printing it here as well as in
+      // `act` produced "Signed Law · Signed into law" on every executive proof line.
+      // The question is a roll-call question and prints only for a roll call.
+      question: (isBallot && item.action) ? String(item.action) : '',
+      act: _orActionPhrase(item),
+      isPosition: !isBallot,
       date: item.date ? String(item.date) : '',
       url: url, label: lbl
     };
@@ -2067,9 +2350,9 @@
       return window._pdxRecordKey(item) || '';
     } catch (e) { return ''; }
   }
-  // "H.R. 22 · On Motion to Recommit · Voted Yea" — the bill, the question, the vote.
-  // Falls back to the measure title when a record carries no number, so a row never
-  // prints an empty proof. Pure, no HTML.
+  // "H.R. 22 · On Motion to Recommit · Voted Yea" for a member; "H.R. 1 · Signed into
+  // law" for a president. Falls back to the measure title when a record carries no
+  // number, so a row never prints an empty proof. Pure, no HTML.
   function _orProofText(item) {
     var b = _orProofBits(item);
     if (!b) return '';
@@ -2077,13 +2360,18 @@
     if (b.bill) parts.push(b.bill);
     else if (b.title) parts.push(b.title);
     if (b.question) parts.push(b.question);
-    if (b.position) parts.push('Voted ' + b.position);
+    if (b.act) parts.push(b.act);
     return parts.join(' · ');
   }
   // The multi-issue disclosure, compressed to row scale: "Yea counted for Lower
   // Taxes / against Health Care". Reads the same _measureOmnibusContext primitive the
   // longer prose note uses, so a single roll call landing opposite ways on two issues
   // is stated the same wherever it appears. '' for single-issue votes.
+  //
+  // The noun follows the lane. An omnibus law a president signed lands on as many
+  // issues as one a member voted on, and this line is exactly where that shows up on
+  // a presidential profile — so it says "Signed into law counted for … / against …",
+  // not "Signed Law counted", and its empty case counts actions rather than votes.
   function _orRowMultiNote(item, issueKey) {
     if (!item || typeof window._measureOmnibusContext !== 'function') return '';
     var ctx;
@@ -2102,11 +2390,16 @@
       if (list.length > 2) out.push('+' + (list.length - 2) + ' more');
       return out.join(', ');
     };
+    var isPosition = item.kind === 'position';
     var parts = [];
     if (adv.length) parts.push('for ' + names(adv));
     if (opp.length) parts.push('against ' + names(opp));
-    if (!parts.length) return 'One vote, ' + ctx.count + ' issues — no clear position on any of them.';
-    var lead = item.position ? _tc(item.position) + ' counted' : 'This vote counted';
+    if (!parts.length) {
+      return 'One ' + (isPosition ? 'action' : 'vote') + ', ' + ctx.count +
+        ' issues — no clear position on any of them.';
+    }
+    var phrase = _orActionPhrase(item);
+    var lead = phrase ? phrase + ' counted' : (isPosition ? 'This action counted' : 'This vote counted');
     return lead + ' ' + parts.join(' / ');
   }
   // This record's verdict on THIS issue, via the same breakdown primitive the
@@ -2210,7 +2503,9 @@
       var restBits = [];
       if (!b.bill && b.title) restBits.push(esc(b.title));
       if (b.question) restBits.push(esc(b.question));
-      if (b.position) restBits.push('Voted <b>' + esc(b.position) + '</b>');
+      // Bolded as the payload of the line either way — the ballot on a roll call,
+      // the enactment verb on an executive action. Never 'Voted' + an action type.
+      if (b.act) restBits.push(b.isPosition ? '<b>' + esc(b.act) + '</b>' : 'Voted <b>' + esc(b.act.replace(/^Voted /, '')) + '</b>');
       var rest = restBits.length ? (bill ? ' · ' : '') + restBits.join(' · ') : '';
       return '<div class="pdxor-proof pdxor-proof-act"' +
           ' data-pdxc-vrvote="' + escAttr(_orVoteKey(p.item)) + '"' +
@@ -2279,16 +2574,20 @@
       });
     }
     var picks = _orProofPicks(pid, issueKey, ov, 0);
+    // The countable noun follows the lane, same as everywhere else on this surface —
+    // a president's overflow line offers more mapped ACTIONS, not more mapped votes.
+    var _n = _orNoun(ov);
     if (picks.length > _OR_ROW_EVIDENCE_MAX) {
+      var _over = picks.length - _OR_ROW_EVIDENCE_MAX;
       extra = '<div class="pdxor-act pdxor-act-more">' +
-        esc('+ ' + (picks.length - _OR_ROW_EVIDENCE_MAX) + ' more mapped ' +
-          (picks.length - _OR_ROW_EVIDENCE_MAX === 1 ? 'vote' : 'votes') + ' — open the full record below.') + '</div>';
+        esc('+ ' + _over + ' more mapped ' +
+          (_over === 1 ? _n.one : _n.many) + ' — open the full record below.') + '</div>';
       picks = picks.slice(0, _OR_ROW_EVIDENCE_MAX);
     }
     picks.forEach(function (p) {
       var b = _orProofBits(p.item);
-      var meta = [b.question, b.position ? 'Voted ' + b.position : '', b.date].filter(Boolean).join(' · ');
-      lines.push(_orActLine(p.verdict, b.bill || b.title || 'Recorded vote',
+      var meta = [b.question, b.act, b.date].filter(Boolean).join(' · ');
+      lines.push(_orActLine(p.verdict, b.bill || b.title || (b.isPosition ? 'Formal action' : 'Recorded vote'),
         meta, b.url, b.label, _orOmniNote(p.item, issueKey),
         // Every mapped vote in the open row is a button to that exact roll call —
         // the keyboard-reachable version of the collapsed row's proof-line shortcut.
@@ -2623,17 +2922,21 @@
         lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
       });
     }
-    // vr_* roll-call summary: the strongest consistent / contradicting measure. Each
+    // vr_* record summary: the strongest consistent / contradicting measure. Each
     // line discloses when it came from a multi-issue bill, so the reader can see that
-    // the same roll call was also a verdict on other issues.
+    // the same roll call — or the same omnibus law — was also a verdict on other
+    // issues. Titles and verbs both come from _orProofBits, so an executive action
+    // reaching this list is named as one instead of as an unrecorded vote.
     if (ov && ov.record) {
       var issueKey = ov.record.issueKey;
       var mk = function (item, verdict) {
         if (!item) return;
-        var url = item.sourceUrl || (item.source && item.source.url) || '';
-        var lbl = item.sourceLabel || (item.source && item.source.label) || 'Congress.gov';
-        var title = item.title || item.shortTitle || item.number || item.question || 'Recorded vote';
-        var pos = item.position ? ('Voted ' + item.position) : (item.actionType || '');
+        var b = _orProofBits(item);
+        var url = b.url;
+        var lbl = b.label || 'Congress.gov';
+        var title = item.title || item.shortTitle || item.number || b.question ||
+          (b.isPosition ? 'Formal action' : 'Recorded vote');
+        var pos = b.act;
         lines.push(opts.omniBlock
           ? _orActLine(verdict, title, pos, url, lbl, '', null, _orOmniBlockHtml(item, issueKey))
           : _orActLine(verdict, title, pos, url, lbl, _orOmniNote(item, issueKey)));
@@ -2724,18 +3027,275 @@
         '<span class="pdxor-mapsum-go">See full record →</span>' +
       '</button>';
   }
+  // ═══════════════════════════════════════════════════════════════════════════
+  // THE ISSUE ROW — one stable unit, everywhere
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Every surface that shows "what they said vs what they did on issue X" now reads
+  // the SAME object: the Official Record's rows, the Word vs Action top rows, and
+  // whatever ranks issues later. The point is that a future stance ranking should be
+  // a new sort over these fields, not another redesign of the row — so the row
+  // carries the inputs a ranking needs even where nothing consumes them yet
+  // (`weights.salience`, `weights.recency` are declared null placeholders, never
+  // invented numbers).
+  //
+  // Nothing here scores. officialIssue() remains the single verdict engine; this is a
+  // projection of one read plus the stance text and the counts that already exist.
+  var _EV_STRENGTH = function (n) {
+    return n >= 4 ? 'strong' : n >= 2 ? 'moderate' : n >= 1 ? 'thin' : 'none';
+  };
+  // How many pieces of record sit behind this row, counted from whichever lane the
+  // read came back on. Held executive actions count as evidence-on-file even though
+  // they carry no verdict — they are why a row can read thin with real receipts.
+  function _rowEvidenceCount(ov) {
+    if (!ov) return 0;
+    if (ov.lane === 'exec') {
+      var pool = ov.execPool || ov.execHeld;
+      if (pool) return ((pool.items || []).length) + ((pool.held || []).length);
+      return (typeof ov.execTouched === 'number') ? ov.execTouched : 0;
+    }
+    if (ov.record && ov.record.total) return ov.record.total;
+    if (ov.officialActions && ov.officialActions.total) return ov.officialActions.total;
+    return 0;
+  }
+  var _STANCE_DIR = { support: 1, oppose: -1, mixed: 0 };
+  function _rowStance(pid, issueKey) {
+    var key = positionStance(pid, issueKey);
+    var text = '', source = null;
+    try {
+      if (typeof window._polPositionMap === 'function' && window.CMP_DATA) {
+        var e = (window._polPositionMap(pid, window.CMP_DATA[pid]) || {})[issueKey];
+        if (e) { text = e.text || ''; source = e.source || null; }
+      }
+    } catch (e2) {}
+    var m = _OR_STANCE[key] || null;
+    return {
+      key: key || null,
+      label: m ? m.lb : '',
+      // +1 supports / −1 opposes / 0 explicitly mixed / null nothing stated. A number
+      // rather than a word because a ranking wants to compare directions, and the
+      // word is already available as `label`.
+      direction: (key && _STANCE_DIR.hasOwnProperty(key)) ? _STANCE_DIR[key] : null,
+      text: text, source: source
+    };
+  }
+  // Tiers are the profile's sort contract, stated once:
+  //   0  said + did, and they disagree      (contradiction / cuts both ways)
+  //   1  said + did, and they line up       (backed it up / too thin to call)
+  //   2  said only — nothing on file that can judge it yet
+  //   3  did only — record on file, nothing stated to test it against
+  //   4  neither: nothing to show
+  var ROW_TIER = { tension: 0, tested: 1, word_only: 2, action_only: 3, empty: 4 };
+  var _TIER_LABEL = ['Said + did — in tension', 'Said + did — consistent', 'Said, nothing to judge yet', 'Acted, nothing stated', 'Nothing on file'];
+  var _VERDICT_RANK = { contradicts: 0, mixed: 1, consistent: 2, limited: 3 };
+
+  // ── the public record, ON the row ───────────────────────────────────────────
+  // 🧾 Say-vs-Do used to be a SECTION. It had its own head, its own coverage line and
+  // its own per-issue verdict — for the same issues the 🏛️ Official Record had already
+  // judged. Two verdict systems in one scroll, which is why yet another section (Record
+  // vs. Public Picture) existed at all: its entire job was to referee the disagreement
+  // between the other two. All of that is gone. The public record is an INPUT to this
+  // row now: it always contributes receipts, and it contributes the VERDICT only where
+  // no formal action was able to test the issue. One issue, one verdict, resolved in
+  // exactly one place — so there is nothing left for a divergence panel to arbitrate.
+  function _rowPublic(pid, issueKey) {
+    var empty = { token: 'no_record', verdict: VERDICTS.no_record, score: null, count: 0,
+                  supporting: 0, contradicting: 0, flags: 0, judged: false };
+    try {
+      var sd = saydoIssue(pid, issueKey);
+      var cur = sd.curated || {};
+      return {
+        token: sd.token, verdict: sd.verdict, score: sd.score,
+        count: cur.total || 0,
+        supporting: cur.consistent || 0,
+        contradicting: cur.contradicts || 0,
+        flags: cur.flag || 0,
+        // `flag` is deliberately NOT judgeable here. A red flag is heat, and heat is
+        // Flashpoints' job — promoting it to this row's verdict would let a
+        // controversy card and a consistency row grade the same issue differently.
+        judged: (sd.token === 'consistent' || sd.token === 'contradicts' || sd.token === 'mixed')
+      };
+    } catch (e) { return empty; }
+  }
+
+  // How many judged items point each way on the ACTION lane, and which way.
+  // judgedCountOf() answers "how many", which is enough for the shared gate but not
+  // enough to resolve a one-item row — that needs the direction too.
+  function _rowDirection(ov) {
+    var r = ov && ov.record;
+    if (r && ((r.consistent || 0) + (r.contradicts || 0)) > 0) {
+      return { c: r.consistent || 0, x: r.contradicts || 0 };
+    }
+    var a = ov && ov.officialActions;
+    if (a) return { c: a.consistent || 0, x: a.contradicts || 0 };
+    return { c: 0, x: 0 };
+  }
+
+  function issueRow(pid, issueKey) {
+    var ov = officialIssue(pid, issueKey);
+    var stance = _rowStance(pid, issueKey);
+    var pub = _rowPublic(pid, issueKey);
+    var evCount = _rowEvidenceCount(ov);
+    var tok = ov.token;
+    // The ACTION side's own answer, kept under its original name so the Official
+    // Record — which is the action lane and nothing else — keeps sorting and filtering
+    // on exactly what it did before this merge.
+    var actionJudged = (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed' || tok === 'limited');
+    var v = ov.verdict || VERDICTS.limited;
+    var score = ov.score;
+    // ONE verdict, resolved once. A formal action is the test wherever a formal action
+    // can be the test. `limited` is the engine saying it could not be — a stance with
+    // too little record behind it — and that is the only opening the public record
+    // gets. It is never blended with the action read and never overrides it.
+    var basis = null;
+    if (actionJudged && tok !== 'limited') basis = 'action';
+    else if (tok !== 'pending' && pub.judged && pub.count >= MIN_SAYDO_EVIDENCE) {
+      basis = 'public_record'; tok = pub.token; v = pub.verdict; score = pub.score;
+    } else if (actionJudged) basis = 'action';
+
+    // ── the row's own Mixed floor ─────────────────────────────────────────────
+    // "Mixed record" is a claim about a DISAGREEMENT, and one item cannot disagree
+    // with itself. Every lane that mints Mixed runs the shared gate, but a row can
+    // still inherit a mixed token from a summary computed over a wider set than the
+    // one it is showing — National Debt and Healthcare both surfaced that way, each
+    // sitting on Mixed with a single thin action behind it. This is the last word
+    // before the row renders: below two directional items, resolve by direction and
+    // say the honest thing instead.
+    if (tok === 'mixed') {
+      var dir = (basis === 'public_record')
+        ? { c: pub.supporting || 0, x: pub.contradicting || 0 }
+        : _rowDirection(ov);
+      if ((dir.c + dir.x) < 2) {
+        if (dir.c > dir.x) { tok = 'consistent'; }
+        else if (dir.x > dir.c) { tok = 'contradicts'; }
+        else { tok = 'limited'; score = null; }
+        v = VERDICTS[tok];
+      }
+    }
+
+    var judged = (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed' || tok === 'limited');
+    var hasWord = !!stance.key || !!ov.hasStance || !!(ov.record && ov.record.hasStance);
+    var hasAction = evCount > 0 || actionJudged;
+    var tier, testability;
+    if (ov.token === 'pending') { tier = ROW_TIER.word_only; testability = 'warming'; }
+    else if (judged && (tok === 'contradicts' || tok === 'mixed')) { tier = ROW_TIER.tension; testability = 'tested'; }
+    else if (judged) { tier = ROW_TIER.tested; testability = (tok === 'limited') ? 'thin' : 'tested'; }
+    // A stance wins the tie. A row can hold receipts that no verdict could use —
+    // executive actions held back as uncitable or circular are the common case — and
+    // filing that under "nothing on file" would bury a stated position behind a
+    // technicality the reader never sees. Word present ⇒ the row is waiting on a
+    // judgeable record, not empty.
+    else if (hasWord) { tier = ROW_TIER.word_only; testability = 'awaiting_record'; }
+    else if (hasAction) { tier = ROW_TIER.action_only; testability = 'awaiting_word'; }
+    else { tier = ROW_TIER.empty; testability = 'untestable'; }
+    return {
+      pid: pid, key: issueKey,
+      label: _issueLabel(issueKey),
+      category: _catOf(issueKey), categoryLabel: _catLabel(issueKey),
+      // ── SAID ──
+      stance: stance,
+      // ── DID ──
+      lane: ov.lane || null,
+      actions: { count: evCount, lane: ov.lane || null, judged: judgedCountOf(ov) },
+      // ── VERDICT ── one per issue, and `basis` names which record produced it, so a
+      // surface can say "tested by the formal record" or "tested by the public record"
+      // instead of leaving a reader to guess which engine spoke.
+      verdict: { token: tok, label: v.label, cls: v.cls, ico: v.ico, color: v.color, score: score, basis: basis },
+      // ── the public record, as an input ──
+      public: pub,
+      // ── RECEIPTS ── `count` stays the ACTION count (the Official Record's own
+      // depth signal, unchanged), `total` is every sourced item behind the row from
+      // either record, and `strength` reads off the total because that is what a
+      // reader is being asked to weigh.
+      evidence: { count: evCount, actions: evCount, public: pub.count, total: evCount + pub.count,
+                  strength: _EV_STRENGTH(evCount + pub.count), sources: (ov.sources || []).slice() },
+      // ── ranking foundation ──
+      tier: tier, tierLabel: _TIER_LABEL[tier], testability: testability,
+      // `scored` = the ACTION side returned a verdict. Unchanged on purpose: the
+      // Official Record splits its rows on this, and that section is the action lane.
+      scored: actionJudged,
+      // `tested` = this row has a real consistency outcome from either record.
+      tested: (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed'),
+      // Declared, never guessed. A later ranking fills these in; until then a null
+      // weight is honest and every sort below treats it as "no opinion".
+      weights: { salience: null, recency: null },
+      ov: ov
+    };
+  }
+  // Default scope is `combined`, not `official`. The row IS the merge now — an issue
+  // whose only test is a public-record one has a verdict here, so scoping the default
+  // to the action lane would drop exactly the rows that used to be Say-vs-Do's reason
+  // to exist. Callers that mean the action lane (the Official Record) still pass their
+  // own keys and are unaffected.
+  function issueRows(pid, keys) {
+    return (keys || issuesWithSignal(pid, 'combined')).map(function (k) { return issueRow(pid, k); });
+  }
+  // ── THE ONE TALLY ───────────────────────────────────────────────────────────
+  // Every surface that summarises a politician's record in counts reads this. The
+  // unit is the ISSUE ROW — the same object the profile prints one line per — so a
+  // homepage card saying "0 mixed" while the profile shows two Mixed issue rows is
+  // now impossible by construction rather than by convention.
+  //
+  // This is not a re-derivation of the verdicts: it is a count of the verdicts the
+  // rows already carry. `thin` is kept as its own bucket and never folded into
+  // `mixed`; a row the engine could not test is not a split record, and reporting it
+  // as one is the reinterpretation this pass exists to remove.
+  function verdictTally(pid, rows) {
+    var list = rows || issueRows(pid);
+    var out = { consistent: 0, mixed: 0, contradicts: 0, thin: 0, pending: 0,
+                tested: 0, judged: 0, total: 0 };
+    (list || []).forEach(function (r) {
+      var t = r && r.verdict && r.verdict.token;
+      out.total++;
+      if (t === 'consistent') out.consistent++;
+      else if (t === 'mixed') out.mixed++;
+      else if (t === 'contradicts') out.contradicts++;
+      else if (t === 'limited') out.thin++;
+      else if (t === 'pending') out.pending++;
+    });
+    out.tested = out.consistent + out.mixed + out.contradicts;
+    out.judged = out.tested + out.thin;
+    return out;
+  }
+
+  // The one sort. Tier first (the contract above), then — inside a tier — the sharper
+  // verdict, then the deeper receipt pile, then the declared weights if a caller has
+  // set them, then the label so the order is stable across renders.
+  function rankIssueRows(rows) {
+    return (rows || []).slice().sort(function (a, b) {
+      if (a.tier !== b.tier) return a.tier - b.tier;
+      var av = _VERDICT_RANK.hasOwnProperty(a.verdict.token) ? _VERDICT_RANK[a.verdict.token] : 9;
+      var bv = _VERDICT_RANK.hasOwnProperty(b.verdict.token) ? _VERDICT_RANK[b.verdict.token] : 9;
+      if (av !== bv) return av - bv;
+      // Total receipts, not action receipts. This is what separates locked priority
+      // (c) "stance with strong evidence" from (d) "stance only": both are tier 2, and
+      // before the merge every tier-2 row carried 0 action receipts, so they tied and
+      // fell through to alphabetical order. The public record is what distinguishes
+      // them, and now it is on the row.
+      if (a.evidence.total !== b.evidence.total) return b.evidence.total - a.evidence.total;
+      var aw = (a.weights.salience == null ? -1 : a.weights.salience);
+      var bw = (b.weights.salience == null ? -1 : b.weights.salience);
+      if (aw !== bw) return bw - aw;
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    });
+  }
+
   function _orInner(pid) {
     var keys = issuesWithSignal(pid, 'official');
     var scored = [], awaiting = 0, anyPending = false, awaitingKeys = [];
-    keys.forEach(function (k) {
-      var ov = officialIssue(pid, k);
+    // Ranked once, up front — so the section's rows, its categories and its fold all
+    // agree about what the sharpest issue is instead of each re-deciding.
+    var ranked = rankIssueRows(issueRows(pid, keys));
+    var rowOf = {};
+    ranked.forEach(function (r) { rowOf[r.key] = r; });
+    ranked.forEach(function (r) {
+      var ov = r.ov;
       if (ov.token === 'pending') { anyPending = true; awaiting++; return; }
-      if (ov.token === 'consistent' || ov.token === 'contradicts' || ov.token === 'mixed' || ov.token === 'limited') {
-        scored.push({ key: k, ov: ov });
+      if (r.scored) {
+        scored.push({ key: r.key, ov: ov, row: r });
       } else {
         awaiting++; // no_record / no_stance — stated position with nothing to score yet
         // Kept so the count can name the issues instead of only tallying them.
-        awaitingKeys.push(k);
+        awaitingKeys.push(r.key);
       }
     });
 
@@ -2748,6 +3308,7 @@
     // Which lane's nouns this whole section speaks. Computed once, from the rows.
     var secN = _orSectionNoun(pid, scored);
     var isExecSection = (secN === _LANE_NOUN.exec);
+    var lanes = recordLanes(pid, scored);
     // THE POOLED PERCENTAGE IS NOT PRINTED HERE ANY MORE. This section is the TEST
     // behind the profile's one primary score (⚖️ Word vs Action), not a second score
     // of its own: printing "67%" beside a hero reading 82% asked a reader to work out
@@ -2769,9 +3330,12 @@
       // right question for a legislator and a false premise for a president: the power
       // they hold is the power to act without a vote, so the honest version asks what
       // they did with it. Same question underneath — does the doing match the saying.
-      '<div class="pdxor-q">“' + (isExecSection
+      '<div class="pdxor-q">“' + (lanes.both
+        ? 'In both offices they have held, did they do what they said?'
+        : isExecSection
         ? 'When they could act on their own, did they do what they said?'
         : 'When they had to vote, did they stand by what they said?') + '”</div>' +
+      _orLaneStripHtml(lanes) +
       _feedsPrimaryHtml('Every issue below tests something they said. These results are what the profile’s one score is built from — weighted by how firmly they said it and how deep the record behind it is.');
 
     if (!scored.length) {
@@ -2796,27 +3360,29 @@
         // After the empty message, not before it: nothing here is checkable yet, so the
         // record that DOES exist reads as "and here is what we have" rather than as a
         // contradiction of the line above it.
-        _orMappedSummaryHtml(pid) + _orRawLink();
+        _orMappedSummaryHtml(pid) + _orRawLink(pid, lanes);
     }
 
     // Group by broad issue category.
     var catOf = function (k) { try { return (typeof window._pdxCategoryOf === 'function' ? window._pdxCategoryOf(k) : '') || 'other'; } catch (e) { return 'other'; } };
     var catLabel = function (k) { try { return (typeof window._pdxCategoryLabelOf === 'function' ? window._pdxCategoryLabelOf(k) : '') || 'Other'; } catch (e) { return 'Other'; } };
     var issueLabel = function (k) { try { return (window.ISSUE_MAP && window.ISSUE_MAP[k] && window.ISSUE_MAP[k].label) || k; } catch (e) { return k; } };
-    var rank = { contradicts: 0, mixed: 1, limited: 2, consistent: 3 };
+    // `scored` arrives in rankIssueRows() order, so grouping only has to PRESERVE it:
+    // rows keep their ranked order inside a category, and a category inherits the
+    // position of its strongest row. The old local `rank` map put `limited` above
+    // `consistent`, which led the section with its thinnest evidence — exactly the
+    // rows a reader can do least with. The tier contract now decides instead.
     var byCat = {};
-    scored.forEach(function (s) { var c = catOf(s.key); (byCat[c] = byCat[c] || { label: catLabel(s.key), items: [] }).items.push(s); });
-    // Categories with a contradiction first; issues within a category contradiction-first.
-    var catKeys = Object.keys(byCat).sort(function (a, b) {
-      var ac = byCat[a].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
-      var bc = byCat[b].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
-      if (ac !== bc) return ac - bc;
-      return byCat[a].label < byCat[b].label ? -1 : 1;
+    scored.forEach(function (s, i) {
+      var c = catOf(s.key);
+      var g = (byCat[c] = byCat[c] || { label: catLabel(s.key), items: [], best: i });
+      g.items.push(s);
+      if (i < g.best) g.best = i;
     });
+    var catKeys = Object.keys(byCat).sort(function (a, b) { return byCat[a].best - byCat[b].best; });
 
     var bodyParts = catKeys.map(function (ck) {
       var grp = byCat[ck];
-      grp.items.sort(function (a, b) { return (rank[a.ov.token] || 9) - (rank[b.ov.token] || 9); });
       var rows = grp.items.map(function (s) {
         var v = s.ov.verdict;
         var pct = (typeof s.ov.score === 'number') ? '<span class="pdxor-pct" style="color:' + v.color + '">' + s.ov.score + '%</span>' : '';
@@ -2828,7 +3394,14 @@
         // away, so the list stays scannable.
         var total = (s.ov.record && s.ov.record.total) || 0;
         var inline = (total && total <= 2) ? 2 : 1;
-        return '<details class="pdxor-issue pdxor-row" data-pdxc-row="' + escAttr(s.key) + '">' +
+        return '<details class="pdxor-issue pdxor-row" data-pdxc-row="' + escAttr(s.key) + '"' +
+            // The ranking foundation, carried on the element itself: tier, testability
+            // and receipt depth. Nothing reads these yet — they are here so a later
+            // stance ranking can sort, filter or badge rows without re-deriving what
+            // the section already knows.
+            ' data-pdxc-tier="' + escAttr(String((s.row && s.row.tier) != null ? s.row.tier : '')) + '"' +
+            ' data-pdxc-test="' + escAttr((s.row && s.row.testability) || '') + '"' +
+            ' data-pdxc-ev="' + escAttr(String((s.row && s.row.evidence.count) || 0)) + '">' +
             '<summary class="pdxor-row-sum">' +
               '<div class="pdxor-issue-top">' +
                 '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
@@ -2851,11 +3424,12 @@
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
     });
 
-    // Both sorts above run contradiction-first: the leading category is the sharpest
-    // thing the formal record has to say about this person, so it stays open. The
-    // remaining categories fold behind a lid that names what is inside it. A member
-    // with nine documented issue areas used to cost nine screens before the next
-    // section began, and a reader who wanted only the verdict had no way past it.
+    // The ranking put the sharpest tested issue first, and the category that owns it
+    // leads — so the open part of the section is the best evidence and the realest
+    // tension, not whichever category sorts first alphabetically. The rest fold behind
+    // a lid that names what is inside. A member with nine documented issue areas used
+    // to cost nine screens before the next section began, and a reader who wanted only
+    // the verdict had no way past it.
     var lead = bodyParts.length ? bodyParts[0] : '';
     var restHtml = bodyParts.slice(1).join('');
     var leadCount = (byCat[catKeys[0]] && byCat[catKeys[0]].items.length) || 0;
@@ -2892,10 +3466,27 @@
     }
 
     return head + _orMappedSummaryHtml(pid) + _coverageLine(scored.length, awaiting, 'formal record') +
-      body + awaitingNote + _orRawLink();
+      body + awaitingNote + _orRawLink(pid, lanes);
   }
-  function _orRawLink() {
+  function _orRawLink(pid, lanes) {
     // Keep the raw Voting Record list one tap away (it still has value as a full list).
+    //   Not for a president. `_vrSectionReachable()` asks the DOM whether a Voting
+    // Record section exists, and the answer used to be yes on an executive profile —
+    // profiles-full.js mounts that section for everyone — so "See the full voting
+    // record →" printed under a president's Official Record, promising a roll-call
+    // list they will never have. The office decides first; the DOM only decides
+    // whether a live destination exists for the offices that do vote.
+    //   The gate is the LANE, not the office. `execEligible` alone would also strip
+    // the link from someone who holds executive office now and served in a chamber
+    // before — exactly the both-lanes case this section is built to mount, and the
+    // one reader for whom the roll-call list is a second record rather than a
+    // category error.
+    //   `lanes` is threaded in from _orInner because the caller has already read the
+    // scored rows, and those rows are the only place the vote lane shows up before the
+    // roll-call cache is warm. Recomputing it here from a cold cache would answer
+    // "exec only" for a dual-service figure and strip the link the section just earned.
+    if (!lanes && pid) lanes = recordLanes(pid);
+    if (pid && lanes && !lanes.vote) return '';
     if (!_vrSectionReachable()) return '';
     return '<button type="button" class="pdxor-rawlink" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-voting\');else{var e=document.getElementById(\'pdxsec-voting\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See the full voting record →</button>';
   }
@@ -2915,6 +3506,20 @@
       '</div>';
     } catch (e) { return ''; }
   }
+  // ── the ✒️ document ledger, inside the one record section ────────────────────
+  // A president's profile used to carry two record products: this section, speaking
+  // in issue rows, and a standalone Executive Enactment Record, speaking in documents.
+  // Both were true and neither was the record. The ledger now renders INSIDE this
+  // section, under the rows it is the evidence for — one lane, issue rows first,
+  // documents underneath. Returns '' for everyone else, so no congressional profile
+  // gains a block.
+  function _orExecLedgerHtml(pid) {
+    try {
+      var U = window.PDXExecRecordUI;
+      if (!U || typeof U.embedHtml !== 'function') return '';
+      return U.embedHtml(pid) || '';
+    } catch (e) { return ''; }
+  }
   var _officialInner = _orInner; // alias used by the warm-refresh listener
   function officialRecordSectionHtml(pid) {
     ensureStyles();
@@ -2923,7 +3528,116 @@
     // The rows carry hidden share controls; reveal the eligible ones once the caller
     // has mounted this string.
     _rcHydrateSoon();
-    return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' + _orInner(pid) + '</section>';
+    return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' +
+      _orInner(pid) + _orExecLedgerHtml(pid) + '</section>';
+  }
+
+  // ── 🧭 STANCES & CONNECTIONS ─────────────────────────────────────────────────
+  // The "what they stand for" layer, and the one place the profile answers that
+  // question as a MAP rather than as a verdict. It scores nothing: every row is the
+  // shared PDXConsistency issue-row unit, ranked by the shared rankIssueRows()
+  // contract, so a stance shown here and the same stance shown in ⚖️ Word vs Action
+  // or 🏛️ Official Record can never carry different outcomes — there is one row model
+  // and it is resolved once.
+  //
+  // The locked ranking priority maps onto the row tiers exactly:
+  //   (a) stance + action, contradiction/mixed   → ROW_TIER.tension
+  //   (b) stance + action, consistent            → ROW_TIER.tested
+  //   (c) stance with strong evidence            → ROW_TIER.word_only, ranked by
+  //   (d) stance only                              evidence.total inside the tier
+  //   (e) action only                            → ROW_TIER.action_only
+  //   (f) empty                                  → ROW_TIER.empty, folded away
+  // Tiers (a) and (b) are open; everything from (c) down folds, because "testable +
+  // evidenced first" is a statement about what a reader meets, not only about sort
+  // order.
+  var _ST_GRP = [
+    { tiers: [0], label: 'Tested — and the record pushes back' },
+    { tiers: [1], label: 'Tested — and the record backs it up' },
+    { tiers: [2], label: 'Stated, nothing formal has tested it yet' },
+    { tiers: [3], label: 'On the record, nothing stated' },
+    { tiers: [4], label: 'Nothing on file yet' }
+  ];
+  // A TIER SET, not a count of groups. Slicing the first two LIVE groups was wrong:
+  // on a figure with no contradictions the tension group is empty and drops out of
+  // `live`, so "the first two" silently became tested + everything-untested — 24 of
+  // 32 rows open on a president, which is the wall this layer exists to replace.
+  // Keying on the tier means an empty group above can never promote a folded one.
+  var _ST_OPEN_TIERS = { 0: 1, 1: 1 }; // (a) tension and (b) tested stay open
+  function _stOpen(g) { return g.tiers.some(function (t) { return _ST_OPEN_TIERS[t]; }); }
+  function _stGo(target, label) {
+    var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
+    return '<button type="button" class="pdxst-go" onclick="if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
+      'else{var e=document.getElementById(\'' + t + '\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+      esc(label) + '</button>';
+  }
+  function _stRowHtml(r) {
+    var txt = r.stance.text ? String(r.stance.text) : '';
+    if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, '') + '…';
+    // The CONNECTIONS. Each one is offered only when there is something on the other
+    // end: a row with no tested outcome does not advertise the score, and a row with
+    // no formal action does not advertise the Official Record. A connection that
+    // lands on an empty section is worse than no connection.
+    var links = [];
+    if (r.tested) links.push(_stGo('pdxsec-wordaction', '⚖️ Where this lands in the score'));
+    if (r.evidence.actions > 0) links.push(_stGo('pdxsec-official-record',
+      (r.lane === 'exec' ? '🏛️ ' + r.evidence.actions + ' action' : '🏛️ ' + r.evidence.actions + ' vote') +
+      (r.evidence.actions === 1 ? '' : 's') + ' on record'));
+    if (r.evidence.public > 0) links.push(_stGo('pdxsec-evidence', '🧾 ' + r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's')));
+    var v = r.verdict;
+    return '<div class="pdxst-row" data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '">' +
+        '<div class="pdxst-row-top">' +
+          '<span class="pdxst-lbl">' + esc(r.label) + '</span>' +
+          (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
+          (v && v.token !== 'no_stance' && v.token !== 'no_record'
+            ? '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' : '') +
+          (r.evidence.total ? '<span class="pdxst-ev">' + r.evidence.total + ' receipt' +
+            (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength + '</span>' : '') +
+        '</div>' +
+        (txt ? '<div class="pdxst-txt">' + esc(txt) + '</div>' : '') +
+        (links.length ? '<div class="pdxst-links">' + links.join('') + '</div>' : '') +
+      '</div>';
+  }
+  function _stInner(pid) {
+    var ranked = rankIssueRows(issueRows(pid));
+    if (!ranked.length) return '';
+    var byTier = {};
+    ranked.forEach(function (r) { (byTier[r.tier] = byTier[r.tier] || []).push(r); });
+    var live = _ST_GRP.filter(function (g) { return g.tiers.some(function (t) { return (byTier[t] || []).length; }); });
+    if (!live.length) return '';
+    var blockOf = function (g) {
+      var rows = [];
+      g.tiers.forEach(function (t) { (byTier[t] || []).forEach(function (r) { rows.push(_stRowHtml(r)); }); });
+      return '<div class="pdxst-grp"><div class="pdxst-grp-h">' + esc(g.label) + ' · ' + rows.length + '</div>' + rows.join('') + '</div>';
+    };
+    var tested = ((byTier[0] || []).length) + ((byTier[1] || []).length);
+    var head =
+      '<div class="pdxst-head"><span class="pdxst-title"><span aria-hidden="true">🧭</span> Stances &amp; Connections</span>' +
+        LHOWTO('say-vs-do', 'How to read this') + '</div>' +
+      '<div class="pdxst-q">“What do they stand for — and does anything actually test it?”</div>' +
+      _feedsPrimaryHtml('The map of what they claim, ranked so the claims something can check come first. It publishes no number: each row shows the one verdict the score already reached for that issue.');
+    var lead = live.filter(_stOpen).map(blockOf).join('');
+    var restGrps = live.filter(function (g) { return !_stOpen(g); });
+    var rest = '';
+    if (restGrps.length) {
+      var restN = restGrps.reduce(function (n, g) {
+        return n + g.tiers.reduce(function (m, t) { return m + ((byTier[t] || []).length); }, 0);
+      }, 0);
+      rest = '<!--PDXSP:lid id="st-rest" label="Show ' + restN + ' more position' + (restN === 1 ? '' : 's') +
+        ' with nothing to test them yet" defer-->' + restGrps.map(blockOf).join('') + '<!--PDXSP:/lid-->';
+    }
+    var cov = '<div class="pdxcov">📊 <b>' + tested + '</b> of <b>' + ranked.length + '</b> tracked position' +
+      (ranked.length === 1 ? '' : 's') + ' ' + (tested === 1 ? 'has' : 'have') + ' a formal or public record behind ' +
+      (tested === 1 ? 'it' : 'them') + '.</div>';
+    return head + cov + lead + rest;
+  }
+  function stancesSectionHtml(pid) {
+    ensureStyles();
+    if (!pid) return '';
+    var inner = _stInner(pid);
+    if (!inner) return '';
+    return '<span id="pdxsec-stances" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+      '<section class="pdxst" data-pdxc-stances-pid="' + esc(pid) + '" aria-label="Stances and connections">' +
+      inner + '</section>';
   }
 
   // ── Dedicated Say-vs-Do feed (the stance-first public-record dive-in) ────────
@@ -3032,7 +3746,7 @@
       return head + '<div class="pdxor-empty">' + esc(msg) +
         '<div class="pdxor-empty-why">' + LT('norecord', 'That is our coverage, not a verdict') +
           ' — and it is deliberately separate from their ' + LT('officialrecord', 'Official Record') +
-          ', which is built from votes only.</div>' +
+          ', which is built from ' + (execEligible(pid) ? 'signed laws, vetoes and orders' : 'votes') + ' only.</div>' +
         '</div>' + _sdRawLink();
     }
 
@@ -3162,7 +3876,8 @@
         '<div class="pdxdv-row-lbl">' + esc(_issueLabel(p.key)) + '</div>' +
         '<div class="pdxdv-row-body">' +
           '<span class="pdxdv-nums">' +
-            _divNum('🏛️', p.off.score, p.off.verdict.color, 'Official Record — vote-based') +
+            _divNum('🏛️', p.off.score, p.off.verdict.color,
+              'Official Record — ' + (p.off.lane === 'exec' ? 'built from signed laws and orders' : 'vote-based')) +
             // Same composition treatment the Official Record panel puts on this issue's
             // %, on the same helper, so a 100% built on one vote reads the same way in
             // both places. Only the 🏛️ side gets it: Say-vs-Do has its own evidence
@@ -3176,7 +3891,7 @@
         '</div>';
     if (actionable) {
       return '<button type="button" class="pdxdv-row pdxdv-row-tap" data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-          ' aria-label="' + esc('See the votes and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
+          ' aria-label="' + esc('See the ' + (p.off.lane === 'exec' ? 'actions' : 'votes') + ' and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
           body + '<span class="pdxdv-row-why">See what’s behind the gap <span aria-hidden="true">→</span></span></button>';
     }
     return '<div class="pdxdv-row">' + body + '</div>';
@@ -3419,10 +4134,14 @@
       relHtml = '<span class="pdxgap-rel-hero" style="--c:' + off.verdict.color + '">' +
         '<span class="pdxgap-relpct">' + off.score + '%</span> ' + esc(off.verdict.label) + '</span>';
       var _tot = (off.record && off.record.total) || (off.officialActions && off.officialActions.total) || 0;
-      var _depth = _tot ? _tot + ' judged ' + (_tot === 1 ? 'vote' : 'votes') + ' on this issue' : '';
+      // The countable noun is the lane's, not always "vote": a president is judged on
+      // signed laws and orders, and "3 judged votes" about someone who casts none is
+      // a false statement, not a loose one.
+      var _n = _orNoun(off);
+      var _depth = _tot ? _tot + ' judged ' + (_tot === 1 ? _n.one : _n.many) + ' on this issue' : '';
       gapNote = '<div class="pdxgap-note">' +
         esc([_depth, _rv && _rv.why ? _rv.why : ''].filter(Boolean).join(' · ') ||
-          'Their formal record on this issue, vote by vote, with every source.') +
+          ('Their formal record on this issue, ' + _n.one + ' by ' + _n.one + ', with every source.')) +
         '</div>';
     } else {
       relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
@@ -3691,36 +4410,47 @@
   }
 
   // ── Methodology & boundary explainer (Phase 11) ─────────────────────────────
-  // A short, plain-language "how we score this" surface, reachable from the Promise
-  // Tracker gateway. Reuses the same bottom-sheet as the gap view. Non-defensive:
-  // states what each number means, the thin-data rules, why the two systems stay
-  // separate, and exactly what the divergence labels do and don't claim.
-  function methodologyHtml() {
+  // A short, plain-language "how we score this" surface, reachable from the
+  // profile's "How this profile was checked" control. Reuses the same bottom-sheet
+  // as the gap view. Non-defensive: states what the number means, the thin-data
+  // rules, when a record is allowed to read Mixed, and what is deliberately left out.
+  //
+  // `pid` is OPTIONAL and is used for one thing only: ordering. The sheet is shared
+  // by every profile, so both lanes are always described — but a president opening it
+  // must not be told first that their score comes from roll-call votes, which is the
+  // one thing the office does not produce. With an exec-eligible pid the ✒️ row leads
+  // and the 🏛️ row is labelled as the other lane. Called with no pid (the hub, the
+  // showcase, the receipt-card footer) it renders the congressional order it always did.
+  function methodologyHtml(pid) {
     var row = function (icon, title, body, id) {
       return '<div class="pdxm-row"' + (id ? ' data-pdxm-row="' + esc(id) + '"' : '') + '>' +
         '<div class="pdxm-row-h"><span aria-hidden="true">' + icon + '</span> ' + esc(title) + '</div>' +
         '<div class="pdxm-row-b">' + body + '</div></div>';
     };
+    var isExec = false;
+    try { isExec = !!(pid && execEligible(pid)); } catch (e) {}
+    var voteRow = row('🏛️', isExec ? 'Official Record % — in Congress' : 'Official Record %',
+      'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.');
+    var execRow = row('✒️', isExec ? 'Official Record % — in the White House' : 'Presidents and the formal record',
+      'A president casts <b>no roll-call votes</b>, so the Official Record ' + (isExec ? 'on this profile' : 'above') + ' is built from what the office actually does: the <b>laws they signed or vetoed</b>, the <b>executive orders</b> and the formal directives on file, each mapped to the issues it touches and checked against the same stated positions. It is the <b>same score on the same scale</b> — there is no separate presidential rating. Two limits are worth knowing. Where an order was <b>blocked or narrowed by a court</b>, we record that standing beside the action rather than treating the signature as the end of the story. And where a stated position was <b>written from the very document that would test it</b>, we show the two side by side and leave the pair out of the number — a position quoting an order cannot also be the test of that order, and counting it would return 100% for reasons that mean nothing.');
     return '<div class="pdxm">' +
-      '<div class="pdxgap-eyebrow">📋 Promise Tracker</div>' +
+      '<div class="pdxgap-eyebrow">⚖️ Word vs Action</div>' +
       '<div class="pdxgap-title">How we score this</div>' +
-      '<div class="pdxm-lead">Two separate reads on whether someone\'s word holds up. We keep them apart on purpose and never blend them into a single “honesty” score.</div>' +
-      row('🏛️', 'Official Record %', 'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.') +
-      // The ✒️ lane, stated here because this sheet is opened from a president's
-      // gateway too and every other row on it describes a legislature. Without this
-      // row a reader on that profile is told the score comes from roll-call votes,
-      // which is the one thing the office does not produce. It is a separate row
-      // rather than a rewrite of the one above because both lanes are real and the
-      // congressional wording is correct for almost everyone the app covers.
-      row('✒️', 'Presidents and the formal record', 'A president casts <b>no roll-call votes</b>, so the Official Record above is built from what the office actually does: the <b>laws they signed or vetoed</b>, the <b>executive orders</b> and the formal directives on file, each mapped to the issues it touches and checked against the same stated positions. It is the <b>same score on the same scale</b> — there is no separate presidential rating. Two limits are worth knowing. Where an order was <b>blocked or narrowed by a court</b>, we record that standing beside the action rather than treating the signature as the end of the story. And where a stated position was <b>written from the very document that would test it</b>, we show the two side by side and leave the pair out of the number — a position quoting an order cannot also be the test of that order, and counting it would return 100% for reasons that mean nothing.') +
-      row('🧾', 'Say-vs-Do integrity %', 'What the <b>broader public record</b> shows: the share of checkable public-record items on an issue — statements, interviews, news, controversies — that <b>back up what they say</b>. Built only from public evidence — never from votes.') +
+      '<div class="pdxm-lead">One integrity read: does what they say match what they do? Everything below is either an input to that read or a boundary on it. There is no second percentage and no blended “honesty” score.</div>' +
+      // The ✒️ lane leads on a profile that has one; the 🏛️ wording is correct for
+      // almost everyone the app covers, so it is reordered rather than rewritten.
+      (isExec ? execRow + voteRow : voteRow + execRow) +
+      row('🧾', 'The broader public record', 'Statements, interviews, news and controversies are collected as <b>evidence</b> and shown beside the issue they touch. They are <b>not scored as a rival percentage</b>: they decide an issue\'s verdict only where no formal action exists that could test it, and everywhere else they are context sitting next to the action that did the testing.') +
       row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
+      // The Mixed rule is a real scoring decision and the one most likely to be read
+      // as a hedge, so it is written down where a reader can hold us to it.
+      row('◑', 'When a record reads Mixed', 'Mixed is <b>not</b> a shrug and it is not the middle of a scale. It is reserved for a record that genuinely points both ways: either <b>several formal actions on the same issue pull in different directions</b>, or <b>one omnibus action both advances and undercuts</b> the stated position in material ways, with neither side dominant. Where one direction carries roughly two thirds or more of the weight, that direction <b>is</b> the verdict — a law that clearly breaks a stated commitment reads as <b>Says one thing, does another</b>, not as Mixed. And where the record is simply <b>thin or uncertain</b>, it reads as <b>not enough record yet</b>. Mixed is never used to soften a clear break.') +
       // The overall % is a real scoring decision a reader can check us on, so it is
       // stated here and not only in the composition line's tooltip.
       row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes or actions sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
-      row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
+      row('⚖️', 'Why the lanes stay separate', 'Formal actions and public statements answer different questions, so pooling them into one figure would hide more than it reveals. The formal record is what <b>tests</b> a stated position; the public record is what <b>surrounds</b> it. Both appear on the issue, labelled for what they are — but one issue gets <b>one verdict</b>, from one engine, on every surface it appears on.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
-      row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +
+      row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Aligned</b> — the two tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b>, not whether the person is good or bad, and it is not a score.') +
       // The procedural down-weight is a real scoring decision a reader can check
       // us on, so it belongs in the methodology sheet rather than only in a
       // tooltip on the card that happens to carry the tag.
@@ -3745,20 +4475,22 @@
           '<li><b>We don\'t claim what came first.</b> The stated positions in PolitiDex are <b>undated</b>, so a card never asserts that someone said a thing and then voted the other way — only that the position and the vote point in different directions. The card says so on its face. We will not date a statement we can\'t source a date for.</li>' +
         '</ul>' +
         'Some things are held back on purpose: <b>confirmation votes</b>, because a vote about a <b>person</b> can\'t carry a policy claim once it leaves the app; issues whose wording means opposite things to different members; and any “they said” line that is <b>itself a vote</b>, which would leave the card arguing with its own evidence. ' +
-        'Sharing also never moves a number — 🏛️ Official Record cards stay out of the 🧾 Say-vs-Do scores completely, exactly as above.',
+        'Sharing also never moves a number — a shared 🏛️ Official Record card is a picture of a verdict this page already reached, and printing it changes nothing about how that verdict was reached.',
         'cards') +
       row('📖', 'If a term is unfamiliar', 'Anything with a dotted underline anywhere in PolitiDex opens a short, plain-language definition — ' +
         LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
         ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
         (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Open the full glossary →</button>' : '')) +
-      '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
+      '<div class="pdxgap-foot">One score. No formal action counted twice. Every item links to its source.</div>' +
       '</div>';
   }
-  function openMethodology(focus) {
+  // `pid` is optional and only decides which lane the sheet leads with — see
+  // methodologyHtml. Every existing caller passes focus alone and is unaffected.
+  function openMethodology(focus, pid) {
     if (!document.body) return;
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
-    if (body) body.innerHTML = methodologyHtml();
+    if (body) body.innerHTML = methodologyHtml(pid);
     // Same shared backdrop as the gap sheet, so the arrival class has to be decided
     // here too rather than inherited from whatever opened it last. A reader who
     // followed `#methodology` off a shared card is arriving; one who tapped
@@ -3845,8 +4577,35 @@
     chipHtml: chipHtml,
     dot: dot,
     legendHtml: legendHtml,
+    // ── the issue-row unit ──────────────────────────────────────────────────
+    // One stable projection of an issue: said (stance + direction), did (linked
+    // actions), the verdict, the receipt count/strength, how testable it is, and
+    // declared-null salience/recency weights. rankIssueRows() is the profile's one
+    // sort contract. Exported so a later stance ranking is a new consumer rather
+    // than a new row model.
+    issueRow: issueRow,
+    issueRows: issueRows,
+    verdictTally: verdictTally,
+    mixedGate: mixedGate,
+    rankIssueRows: rankIssueRows,
+    ROW_TIER: ROW_TIER,
     gatewayHtml: gatewayHtml,
     officialRecordSectionHtml: officialRecordSectionHtml,
+    // Which formal-record lanes a figure actually has: { exec, vote, both, keys }.
+    // The Official Record is one gateway for all of them — exported so the rail, the
+    // harnesses and any future surface can ask the same question the section asks
+    // instead of re-deriving "is this a president?" from the office gate.
+    recordLanes: recordLanes,
+    // 🧭 Stances & Connections — the "what they stand for" layer. A consumer of the
+    // row model above, not a second one: it ranks with rankIssueRows() and prints the
+    // verdict the row already resolved.
+    stancesSectionHtml: stancesSectionHtml,
+    // UNMOUNTED, STILL EXPORTED. Nothing on a profile renders saydoSectionHtml() or
+    // divergenceSectionHtml() any more — the public record is an input to issueRow()
+    // and the divergence they used to argue about cannot occur when one row resolves
+    // one verdict. The data accessors (sayVsDo, divergence) still back the gap sheet
+    // and the share card, and the two section renderers are kept so those callers,
+    // and anything embedding a single feed outside a profile, do not break.
     saydoSectionHtml: saydoSectionHtml,
     // Phase 8: the explicit Official Record vs Say-vs-Do divergence. divergence()
     // returns the raw comparison data; divergenceSectionHtml() the mountable view.
@@ -3881,6 +4640,10 @@
     // record is under it in one voice.
     compositionMeterHtml: _orCompMeterHtml,
     warm: queueWarm,
+    // "Is the wait over for this member?" — the one question a surface has to be
+    // able to ask before it publishes a score, so it can show a skeleton instead of
+    // a guess it will have to take back. See recordSettled().
+    recordSettled: recordSettled,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
     meta: function (t) { return VERDICTS[t] || VERDICTS.no_record; }

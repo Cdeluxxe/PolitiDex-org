@@ -128,9 +128,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 65,
-            "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue is titled \"H.R.1: Deficit & Debt\" and exists to report this law's projected deficit effect. The card is downstream of this document, so this document cannot test it."
+            "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years."
           },
           {
             "issueKey": "healthcare",
