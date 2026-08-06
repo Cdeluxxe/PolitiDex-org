@@ -164,26 +164,65 @@
   //     of an issue inverts every consistency verdict downstream.
   // Unresolved labels are reported as not-yet-issue-linked and left out of the
   // number. Nothing about that costs anyone a percentage point.
+  //
+  // ── On the cost of asking ──────────────────────────────────────────────────
+  // The answer is a pure function of (label, ISSUE_MAP), and ISSUE_MAP is a fixed
+  // 110-issue / 1265-keyword vocabulary. This used to compile one RegExp per
+  // keyword per call — 1265 constructions to resolve a single label — while the
+  // roster render asks once per signature issue per person. Across a 756-person
+  // homepage that is millions of RegExp compiles inside one task, which is what
+  // hung the page. So the vocabulary is compiled once and the answers are
+  // memoized. Both caches key on the ISSUE_MAP OBJECT, not a flag: the map is
+  // published by a separate script, so a later or swapped vocabulary must rebuild
+  // rather than answer from a stale index.
+  var _bimSrc = null;    // the ISSUE_MAP these caches were built from
+  var _bimRows = null;   // [{key, kw, re}] sorted longest keyword first
+  var _bimMemo = null;   // normalized label → resolved key (or null)
+
+  function brandingIndex(im) {
+    if (_bimSrc === im && _bimRows) return _bimRows;
+    var rows = [];
+    Object.keys(im).forEach(function (k) {
+      var kws = (im[k] && im[k].keywords) || [];
+      for (var i = 0; i < kws.length; i++) {
+        var kw = String(kws[i] == null ? '' : kws[i]).toLowerCase();
+        // Short keywords ('tax', 'debt', 'audit') identify a topic, not an issue.
+        if (kw.length < 5) continue;
+        rows.push({
+          key: k, kw: kw,
+          re: new RegExp('(?:^|[^a-z0-9])' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:[^a-z0-9]|$)')
+        });
+      }
+    });
+    // Longest first, so LONGEST KEYWORD WINS falls out of the scan order and the
+    // loop can stop the moment a shorter keyword could no longer tie the best.
+    rows.sort(function (a, b) { return b.kw.length - a.kw.length; });
+    _bimSrc = im; _bimRows = rows; _bimMemo = {};
+    return rows;
+  }
+
   function brandingIssueKey(label) {
     var norm = String(label == null ? '' : label).toLowerCase().trim();
     if (norm.length < 4) return null;
     var im = null;
     try { im = window.ISSUE_MAP || null; } catch (e) { im = null; }
     if (!im) return null;
+    var rows = brandingIndex(im);
+    if (Object.prototype.hasOwnProperty.call(_bimMemo, norm)) return _bimMemo[norm];
     var hits = {}, best = 0;
-    Object.keys(im).forEach(function (k) {
-      var kws = (im[k] && im[k].keywords) || [];
-      for (var i = 0; i < kws.length; i++) {
-        var kw = String(kws[i] == null ? '' : kws[i]).toLowerCase();
-        // Short keywords ('tax', 'debt', 'audit') identify a topic, not an issue.
-        if (kw.length < 5 || kw.length < best) continue;
-        var re = new RegExp('(?:^|[^a-z0-9])' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:[^a-z0-9]|$)');
-        if (norm === kw || re.test(norm)) {
-          if (kw.length > best) { best = kw.length; hits = {}; }
-          hits[k] = kw;
-        }
-      }
-    });
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      // Sorted longest-first, so once something has matched, every remaining row
+      // is too short to tie it. Same answer as testing them all, minus the work.
+      if (best && r.kw.length < best) break;
+      if (norm === r.kw || r.re.test(norm)) { best = r.kw.length; hits[r.key] = 1; }
+    }
+    var out = resolveBrandingHits(im, hits);
+    _bimMemo[norm] = out;
+    return out;
+  }
+
+  function resolveBrandingHits(im, hits) {
     var keys = Object.keys(hits);
     if (!keys.length) return null;
     if (keys.length === 1) return keys[0];
@@ -588,7 +627,27 @@
            'The tested items are shown below; the number waits until the record is deep enough to carry it.';
   }
 
-  function methodHtml(r) {
+  // Whether this figure's "did" side is the ✒️ executive record rather than roll
+  // calls. Asked of consistency.js, which owns the office gate, so this file never
+  // keeps a second list of who is a president. Guarded: a page that loads
+  // word-action.js without the executive lane simply reads as congressional.
+  function isExecLane(pid) {
+    try {
+      var cs = C();
+      return !!(cs && cs.execActions && typeof cs.execActions.eligible === 'function' && cs.execActions.eligible(pid));
+    } catch (e) { return false; }
+  }
+
+  // The explainer, in the vocabulary of the lane that produced the number. The
+  // arithmetic is identical for a president and a member — same weights, same
+  // floors, same circularity rule — so only the nouns and the worked example
+  // change. Getting this wrong is not cosmetic: a reader on a president's profile
+  // was being told the score came from roll-call votes, which is the one thing a
+  // president has none of, and the "cannot be its own test" paragraph is the whole
+  // reason 7 of Trump's pairs are held as coverage. An explanation that describes
+  // the wrong lane cannot be checked by the reader against what they can see.
+  function methodHtml(r, pid) {
+    var ex = isExecLane(pid);
     return '' +
       '<details class="pdxwa-method">' +
         '<summary>How this is counted</summary>' +
@@ -596,18 +655,21 @@
           '<p><b>Word</b> is weighted by how firmly it was said: a pledge counts ' + TIERS.pledge.weight +
             ', a stated position ' + TIERS.position.weight + ', a signature issue they campaign on ' + TIERS.branding.weight +
             '. An issue also earns up to ' + r.floors.evidenceCap + '× for the depth of formal record behind it, ' +
-            'so an issue decided by one vote does not count as much as one decided by ten.</p>' +
-          '<p><b>Action</b> is the Official Record only — roll-call votes, sponsorships and formal acts. ' +
+            'so an issue decided by ' + (ex ? 'one action' : 'one vote') + ' does not count as much as one decided by ten.</p>' +
+          '<p><b>Action</b> is the Official Record only — ' +
+            (ex ? 'the laws they signed or vetoed, the executive orders and the formal directives on file. '
+                : 'roll-call votes, sponsorships and formal acts. ') +
             'Interviews, news coverage and social posts are never counted as action here; they are word, or they belong to Say-vs-Do.</p>' +
           '<p><b>A position cannot be its own test.</b> Many of our position write-ups are drawn from the formal record — ' +
-            '“Voted no on H.R. 8”, cited to the House Clerk. Scoring that against the same roll call would return 100% for ' +
+            (ex ? '“Signed Executive Order 14156”, cited to the Federal Register. Scoring that against the same order would return 100% for '
+                : '“Voted no on H.R. 8”, cited to the House Clerk. Scoring that against the same roll call would return 100% for ') +
             'everyone and mean nothing, so those items are listed as positions and left out of the number. Only word with ' +
             'something of their own in it — a quotation, a stated view, a platform or campaign claim — is tested.</p>' +
           '<p><b>The percentage</b> is the weighted share of tested word their record backs up. It appears only once at least ' +
             r.floors.items + ' items are tested and their combined weight reaches ' + r.floors.weight +
-            ', so a whole-profile read never rests on a single vote. Unresolved pledges and untested positions are excluded ' +
+            ', so a whole-profile read never rests on ' + (ex ? 'a single action' : 'a single vote') + '. Unresolved pledges and untested positions are excluded ' +
             'from the number and reported as coverage instead — they are not counted against anyone.</p>' +
-          '<p><b>Nothing is inferred.</b> An issue with votes but no documented word produces no item, and an item counts as ' +
+          '<p><b>Nothing is inferred.</b> An issue with ' + (ex ? 'actions' : 'votes') + ' but no documented word produces no item, and an item counts as ' +
             'going against their word only when the Official Record’s own verdict for that issue says so.</p>' +
         '</div>' +
       '</details>';
@@ -668,7 +730,9 @@
           n: t.branding.total + ' on file' });
       }
       rows.push({ ico: '🏛️', name: 'Official Record', target: 'pdxsec-official-record', counted: true,
-        role: 'The test — roll-call votes and formal acts, judged issue by issue',
+        role: isExecLane(pid)
+          ? 'The test — laws signed or vetoed, orders and directives, judged issue by issue'
+          : 'The test — roll-call votes and formal acts, judged issue by issue',
         n: c.tested + ' of ' + c.scorable + ' tested' });
       if (window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') {
         rows.push({ ico: '🧾', name: 'Say-vs-Do receipts', target: 'pdxsec-saydo', counted: false,
@@ -767,7 +831,7 @@
           '.' +
         '</div>' +
         feedsHtml(pid, p, r) +
-        methodHtml(r);
+        methodHtml(r, pid);
 
       return '' +
         '<span id="pdxsec-wordaction" class="pdx-nav-anchor" aria-hidden="true"></span>' +

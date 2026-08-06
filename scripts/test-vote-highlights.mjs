@@ -65,8 +65,9 @@ function fakeHost(pid) {
   const wait = fakeSlot();
   wait.hidden = false; // the cold-open placeholder ships visible in the markup
   return {
-    slot, wait, classes: [],
+    slot, wait, classes: [], id: "pdx-vrhi",
     getAttribute(k) { return k === "data-pdx-vrhi-pid" ? pid : null; },
+    hasAttribute(k) { return this.getAttribute(k) != null; },
     querySelector(sel) {
       if (sel === ".pdx-vrhi-live") return slot;
       if (sel === ".pdx-vrhi-wait") return wait;
@@ -86,7 +87,14 @@ function run(records, opts) {
   const ctx = {
     console, JSON, Math, Date, String, Array, Object, RegExp, Number, isNaN,
     parseInt, parseFloat, setTimeout, clearTimeout,
-    document: { querySelector: (sel) => (sel === "[data-pdx-vrhi-pid]" ? host : null) },
+    // The hydrator reaches the host through the id index — #pdx-vrhi is the only
+    // element that carries data-pdx-vrhi-pid, and an unindexed attribute scan of
+    // the whole document on every warm event was the homepage's biggest block.
+    // The attribute is still what qualifies it, so both are modelled here.
+    document: {
+      getElementById: (id) => (id === "pdx-vrhi" ? host : null),
+      querySelector: (sel) => (sel === "[data-pdx-vrhi-pid]" ? host : null),
+    },
     addEventListener: (t) => events.push(t),
   };
   ctx.window = ctx; ctx.globalThis = ctx;
@@ -225,6 +233,16 @@ const rec = (o) => Object.assign({
      "the hydrator does not read PDXVotingRecord's sync cache, which is the one source it is allowed");
   ok(/try \{/.test(region) && /catch \(e\) \{/.test(region),
      "the hydrator is not wrapped — a throw here would take out the curated selection below it too");
+  // This handler is bound globally to pdx-consistency-warm / pdx-voting-warm, and a
+  // homepage load fires ~950 of those. An unindexed attribute selector meant ~950
+  // walks of a 2 MB document that contain no such element — measured at 7 s of
+  // blocked main thread, the single largest remaining block on homepage load.
+  ok(!/querySelector\(\s*['"]\[data-pdx-vrhi-pid\]/.test(region),
+     "the hydrator finds its host by scanning the whole document for an unindexed attribute, once per warm event");
+  ok(/getElementById\(\s*['"]pdx-vrhi['"]\s*\)/.test(region),
+     "the hydrator does not use the id index to find #pdx-vrhi, which is the only element that carries the attribute");
+  ok(/hasAttribute\(\s*['"]data-pdx-vrhi-pid['"]\s*\)/.test(region),
+     "the hydrator stopped checking the attribute, so a stray #pdx-vrhi would be treated as the record host");
 }
 
 // ── 7. Wiring: the section, the hook and the warm signal ─────────────────────

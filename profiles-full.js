@@ -3935,7 +3935,17 @@
   // "there is no record here" and drop the placeholder.
   window._pdxHydrateVoteHighlights = function (opts) {
     try {
-      var host = document.querySelector('[data-pdx-vrhi-pid]');
+      // #pdx-vrhi is the one and only element that carries this attribute (it is
+      // written a few hundred lines below, in the profile modal's markup), so ask
+      // the id index rather than scanning. The attribute selector had no index
+      // behind it: every warm event walked the whole document, and on the homepage
+      // — 2 MB of DOM, no profile open, this handler bound globally to
+      // pdx-consistency-warm / pdx-voting-warm — every one of those walks ran to
+      // the end and returned null. That was the single largest remaining block on
+      // homepage load. The attribute is still read, so a stray #pdx-vrhi without
+      // it is still correctly ignored.
+      var host = document.getElementById('pdx-vrhi');
+      if (host && !host.hasAttribute('data-pdx-vrhi-pid')) host = null;
       if (!host) return;
       var slot = host.querySelector('.pdx-vrhi-live');
       var pid = host.getAttribute('data-pdx-vrhi-pid') || '';

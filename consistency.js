@@ -155,7 +155,18 @@
       key: 'official', icon: '🏛️', label: 'Official Record',
       question: 'When they had to vote, did they stand by what they said?',
       blurb: 'The hard, institutional score — their votes and formal legislative actions checked against what they say they stand for.',
-      empty: { no_record: 'No qualifying votes on record yet', no_stance: 'No stated stance to check', limited: 'Limited voting record' }
+      empty: { no_record: 'No qualifying votes on record yet', no_stance: 'No stated stance to check', limited: 'Limited voting record' },
+      // The ✒️ lane's wording for the same card. A president casts no votes, so every
+      // noun above is false on their profile — and the Official Record SECTION below
+      // the gateway already asks the executive question (see _orSectionNoun), which
+      // left the gateway card contradicting the section it links to. Same scope, same
+      // score, same boundary; only the noun changes. Chosen by office, via _scopeFor.
+      // The empty/thin states are NOT re-stated here: _EXEC_EMPTY / laneVerdict already
+      // own that swap, and a second copy of it would be one more thing to drift.
+      exec: {
+        question: 'When they could act on their own, did they do what they said?',
+        blurb: 'The hard, institutional score — the laws they signed or vetoed and the orders they issued, checked against what they say they stand for.'
+      }
     },
     saydo: {
       key: 'saydo', icon: '🧾', label: 'Say-vs-Do',
@@ -370,9 +381,26 @@
     try { if (window.ISSUE_MAP && !window.ISSUE_MAP[ik]) return null; } catch (e) {}
     return { key: ik, backfilled: viaBackfill };
   }
+  // The cache PROBE was the cost, not the build. Object.keys() on the 259-entry
+  // spotlight map allocates a fresh array every time, and officialActionsFor() /
+  // officialActionIssues() are asked once per (person × issue) — thousands of
+  // calls inside a single roster render. Nothing can mutate ACCT_SPOTLIGHT
+  // between two calls in the SAME synchronous pass, because its only writers are
+  // scripts that have already run, so the probe is taken once per turn of the
+  // event loop and released on the next microtask. A data module landing later
+  // still invalidates on its own turn, exactly as before.
+  var _oaProbe = -1;
+  function _acctSize() {
+    if (_oaProbe !== -1) return _oaProbe;
+    var n = 0;
+    try { n = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) { n = 0; }
+    _oaProbe = n;
+    var release = function () { _oaProbe = -1; };
+    try { Promise.resolve().then(release); } catch (e) { setTimeout(release, 0); }
+    return n;
+  }
   function buildOfficialActions() {
-    var key = 0;
-    try { key = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) { key = 0; }
+    var key = _acctSize();
     if (_oaCache && key === _oaKey) return _oaCache;
     _oaKey = key;
     var byPid = {}, byNorm = {}, count = 0, pols = 0, backfilled = 0;
@@ -1064,19 +1092,50 @@
     _tried[pid] = true; _queue.push(pid);
     if (!_timer) _timer = setTimeout(flushWarm, 150);
   }
+
+  // Every roster card that renders a pending verdict queues its member, so one
+  // homepage render queues the WHOLE roster — ~950 people. Firing that batch in a
+  // single pass opened ~950 concurrent requests of ~125 KB each, and the browser's
+  // per-host limit then served them strictly in the order they were asked: the
+  // handful of members the hero showcase actually needs sat behind hundreds of
+  // roster fetches, which is why those cards stayed on "Loading the record…"
+  // while the page ground through arrivals. Every arrival also dispatches a warm
+  // event, so the burst stacked ~950 responses, parses and listener passes into
+  // as few tasks as the network would allow.
+  //
+  // Draining a few at a time drops nothing — every queued member is still fetched,
+  // still noted, still announced — it only spreads the work across turns of the
+  // event loop instead of stacking it. Four in flight keeps the pipe busy while
+  // leaving room for the page's own requests.
+  var WARM_CONCURRENCY = 4;
+  var _inFlight = 0;
+  function pump() {
+    while (_inFlight < WARM_CONCURRENCY && _queue.length) warmOne(_queue.shift());
+  }
+  function warmOne(pid) {
+    _inFlight++;
+    var settled = false;
+    // Hand the next fetch to a fresh task. Starting it inline would put its parse
+    // in the same task as the listeners this one just woke.
+    var done = function () {
+      if (settled) return;
+      settled = true;
+      _inFlight--;
+      try { setTimeout(pump, 0); } catch (e) { pump(); }
+    };
+    try {
+      window.PDXVotingRecord.fetchMember(pid, { pageSize: 100 }).then(function (data) {
+        if (data && data.items && data.items.length && typeof window.PDXVotingRecord.noteMember === 'function') {
+          window.PDXVotingRecord.noteMember(pid, data.items);
+        }
+        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
+        done();
+      }).catch(function () { done(); });
+    } catch (e) { done(); }
+  }
   function flushWarm() {
     _timer = null;
-    var batch = _queue.splice(0, _queue.length);
-    batch.forEach(function (pid) {
-      try {
-        window.PDXVotingRecord.fetchMember(pid, { pageSize: 100 }).then(function (data) {
-          if (data && data.items && data.items.length && typeof window.PDXVotingRecord.noteMember === 'function') {
-            window.PDXVotingRecord.noteMember(pid, data.items);
-          }
-          try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
-        }).catch(function () {});
-      } catch (e) {}
-    });
+    pump();
   }
 
   // ── shared renderers — the SAME chip/dot/legend everywhere ──────────────────
@@ -1567,8 +1626,22 @@
     // and leave the arithmetic to the sections they open.
     return '<span class="pdxc-chip pdxc-' + m.cls + '">' + (ov.token === 'pending' ? '<span class="pdxc-spin"></span>' : m.ico + ' ') + esc(m.label) + '</span>';
   }
-  function _gateCard(scope, pid) {
+  // One scope's copy, in the vocabulary of the lane the figure actually acts in.
+  // Falls back to the legislative wording for everyone off the executive gate, so
+  // this is a no-op on every congressional profile. Only `question` and `blurb` are
+  // overridable — the key, icon and label are the same scope either way, because
+  // this swaps a noun and not a scoring system.
+  function _scopeFor(scope, pid) {
     var sc = SCOPES[scope];
+    if (!sc || !sc.exec || !execEligible(pid)) return sc;
+    return {
+      key: sc.key, icon: sc.icon, label: sc.label, empty: sc.empty,
+      question: sc.exec.question || sc.question,
+      blurb: sc.exec.blurb || sc.blurb
+    };
+  }
+  function _gateCard(scope, pid) {
+    var sc = _scopeFor(scope, pid);
     return '<button type="button" class="pdxc-gate-card" data-pdxc-open="' + scope + '" data-pdxc-pid="' + esc(pid) + '" aria-label="' + esc(sc.label + ' — ' + sc.question) + '">' +
         '<div class="pdxc-gate-top"><span class="pdxc-gate-name"><span aria-hidden="true">' + sc.icon + '</span>' + esc(sc.label) + '</span>' + _scopeSummaryHtml(scope, pid) + '</div>' +
         '<div class="pdxc-gate-q">“' + esc(sc.question) + '”</div>' +
@@ -1585,7 +1658,8 @@
         // <button>, and a definition button nested inside it would be invalid
         // markup and would swallow the card's own tap.
         '<div class="pdxc-gate-sub">Two views of the same question, feeding the one score above — kept apart so each keeps its own boundary. ' +
-          '<b>🏛️ ' + LT('officialrecord', 'Official Record') + '</b> is the formal test: the votes and official acts. ' +
+          '<b>🏛️ ' + LT('officialrecord', 'Official Record') + '</b> is the formal test: ' +
+          (execEligible(pid) ? 'the laws they signed or vetoed and the orders they issued.' : 'the votes and official acts.') + ' ' +
           '<b>🧾 ' + LT('saydo', 'Say-vs-Do') + '</b> is the broader public picture, held as context rather than counted. ' +
           'Discrete promises are tracked on their own, as the top tier of that score.</div>' +
         '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
@@ -3134,16 +3208,21 @@
       sumInner = '<span class="pdxdv-sum-na">Only one side has a percentage so far — no whole-profile comparison yet.</span>';
     }
 
+    // The 🏛️ side's noun, in the lane this figure actually acts in. A president's
+    // Official Record is built from signed laws and orders, so "(votes)" here would
+    // mislabel the very side this panel is comparing.
+    var _dvExec = execEligible(pid);
+    var _dvSideNoun = _dvExec ? 'signed laws and orders' : 'votes';
     var head =
       '<div class="pdxdv-head"><span class="pdxdv-title"><span aria-hidden="true">⚖️</span> Record vs. Public Picture</span>' +
         '<span class="pdxdv-sum">' + sumInner + '</span></div>' +
-      '<div class="pdxdv-q">Do their <b>🏛️ Official Record</b> (votes) and their <b>🧾 Say-vs-Do</b> (public record) tell the same story? This is a supporting read on the relationship between the two — it never blends them, and it publishes no score of its own.</div>' +
-      _feedsPrimaryHtml('A cross-check, not a score: where the votes and the public picture disagree, that is worth knowing before reading the one score above.');
+      '<div class="pdxdv-q">Do their <b>🏛️ Official Record</b> (' + _dvSideNoun + ') and their <b>🧾 Say-vs-Do</b> (public record) tell the same story? This is a supporting read on the relationship between the two — it never blends them, and it publishes no score of its own.</div>' +
+      _feedsPrimaryHtml('A cross-check, not a score: where the ' + (_dvExec ? 'formal record' : 'votes') + ' and the public picture disagree, that is worth knowing before reading the one score above.');
 
     if (!d.both.length) {
       var msg = d.oneSide > 0
         ? 'Not enough overlap yet — ' + d.oneSide + ' issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a percentage on only one side so far, so there\'s nothing to line up head-to-head.'
-        : 'No issues carry both a voting record and a public-record integrity score yet.';
+        : 'No issues carry both ' + (_dvExec ? 'an executive-action record' : 'a voting record') + ' and a public-record integrity score yet.';
       return head + '<div class="pdxdv-empty">' + esc(msg) + '</div>';
     }
 
@@ -3391,7 +3470,9 @@
     // inline sentence the profile feed uses — same facts, same source.
     var offItems = _orEvidenceItems(off, { omniBlock: true });
     var offEmpty = off.token === 'pending' ? 'Loading the record…'
-                 : (SCOPES.official.empty[off.token] || 'No qualifying votes on record yet');
+                 : ((off.lane === 'exec' && _EXEC_EMPTY[off.token]) ||
+                    SCOPES.official.empty[off.token] ||
+                    (off.lane === 'exec' ? 'No qualifying executive action on record yet' : 'No qualifying votes on record yet'));
     var offBody = offItems.length
       ? '<div class="pdxgap-acts">' + offItems.join('') + '</div>'
       : '<div class="pdxgap-side-empty">' + esc(offEmpty) + '</div>';
@@ -3625,11 +3706,18 @@
       '<div class="pdxgap-title">How we score this</div>' +
       '<div class="pdxm-lead">Two separate reads on whether someone\'s word holds up. We keep them apart on purpose and never blend them into a single “honesty” score.</div>' +
       row('🏛️', 'Official Record %', 'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.') +
+      // The ✒️ lane, stated here because this sheet is opened from a president's
+      // gateway too and every other row on it describes a legislature. Without this
+      // row a reader on that profile is told the score comes from roll-call votes,
+      // which is the one thing the office does not produce. It is a separate row
+      // rather than a rewrite of the one above because both lanes are real and the
+      // congressional wording is correct for almost everyone the app covers.
+      row('✒️', 'Presidents and the formal record', 'A president casts <b>no roll-call votes</b>, so the Official Record above is built from what the office actually does: the <b>laws they signed or vetoed</b>, the <b>executive orders</b> and the formal directives on file, each mapped to the issues it touches and checked against the same stated positions. It is the <b>same score on the same scale</b> — there is no separate presidential rating. Two limits are worth knowing. Where an order was <b>blocked or narrowed by a court</b>, we record that standing beside the action rather than treating the signature as the end of the story. And where a stated position was <b>written from the very document that would test it</b>, we show the two side by side and leave the pair out of the number — a position quoting an order cannot also be the test of that order, and counting it would return 100% for reasons that mean nothing.') +
       row('🧾', 'Say-vs-Do integrity %', 'What the <b>broader public record</b> shows: the share of checkable public-record items on an issue — statements, interviews, news, controversies — that <b>back up what they say</b>. Built only from public evidence — never from votes.') +
       row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
       // The overall % is a real scoring decision a reader can check us on, so it is
       // stated here and not only in the composition line's tooltip.
-      row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
+      row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes or actions sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
       row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
       row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +

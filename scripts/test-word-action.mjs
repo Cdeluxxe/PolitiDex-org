@@ -459,6 +459,43 @@ const voteNarration = (issueKey, extra = {}) => ({
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// 8b. Branding → issue key: the vocabulary is compiled once, not per call
+// ═════════════════════════════════════════════════════════════════════════════
+// This answer is a pure function of (label, ISSUE_MAP), and the map is a fixed
+// 110-issue / 1265-keyword vocabulary. Compiling one RegExp per keyword per call
+// meant 1265 constructions to resolve a single label, and the roster render asks
+// once per signature issue per person — measured at 36.5 s of blocked main thread
+// on a homepage load, which is what raised Chrome's "Page Unresponsive" dialog.
+{
+  const { WA } = build();
+  const labels = [];
+  for (const k of Object.keys(ISSUE_MAP)) {
+    for (const kw of (ISSUE_MAP[k].keywords || []).slice(0, 4)) labels.push(kw, kw + ' reform', 'pro-' + kw);
+  }
+  // Warm the index, then time only the answering.
+  labels.forEach((l) => WA.brandingIssueKey(l));
+  const t0 = process.hrtime.bigint();
+  for (let i = 0; i < 20; i++) labels.forEach((l) => WA.brandingIssueKey(l));
+  const ms = Number(process.hrtime.bigint() - t0) / 1e6;
+  const calls = labels.length * 20;
+  ok(ms < 150,
+    `perf: ${calls} branding lookups took ${ms.toFixed(0)} ms — the vocabulary is being recompiled per call\n` +
+    '    (this is the homepage freeze; the budget is generous, the un-memoized version needs ~12 s)');
+
+  // Memoizing must not outlive the vocabulary it was built from. ISSUE_MAP is
+  // published by a separate script, so a later or swapped map has to rebuild.
+  const swap = build();
+  eq(swap.WA.brandingIssueKey('Anti-Surveillance'), 'privacy_rights', 'sanity: the real map answers');
+  swap.win.ISSUE_MAP = {
+    made_up: { cat: 'x', lean: null, keywords: ['anti-surveillance'] },
+  };
+  eq(swap.WA.brandingIssueKey('Anti-Surveillance'), 'made_up',
+    'the keyword index is cached across a change of ISSUE_MAP, so a swapped vocabulary answers stale');
+  ok(swap.WA.brandingIssueKey('Zqx') === null,
+    'a meaningless label resolved to an issue after the vocabulary changed');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // 9. Connecting the Dots: word → named actions → outcome
 // ═════════════════════════════════════════════════════════════════════════════
 {

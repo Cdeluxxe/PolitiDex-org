@@ -114,6 +114,11 @@
     return d;
   }
   function bustReads() { readCache = {}; }
+  // A warm event names ONE member, and a read is per-pid, so only that member's
+  // answer can have changed. Throwing the whole cache away on every arrival made
+  // the painted card pay for a full PDXProfileCard.read() eight times over a cold
+  // load — seven of them recomputing an answer nothing had touched.
+  function dropRead(pid) { if (pid) delete readCache[pid]; else bustReads(); }
 
   // ── CARD · PDXProfileCard's output, in HTML instead of on a canvas ──────────
 
@@ -471,6 +476,12 @@
   // set only once the grace period has elapsed: until then a candidate can be
   // promoted but never eliminated.
   function settle(c, allowRuleOut) {
+    // Already answered. brief() is a full PDXWordAction.read(), and a candidate
+    // that cleared the publishing floor cannot be argued back below it by a later
+    // arrival — re-asking buys nothing and costs one whole read per candidate per
+    // pass. The card's CONTENT still refreshes: paint() re-reads through
+    // liveRead(), whose entry dropRead() clears when that member's record lands.
+    if (c.state === 'publishable') return;
     var pc = PC();
     if (!pc || typeof pc.brief !== 'function') return;
     var b = null;
@@ -483,6 +494,50 @@
     c.state = 'ruled-out';
   }
 
+  // Hold the reader's place across a state change: stay on their card if it
+  // survived, else land on the first survivor, not wherever idx points.
+  function holdPlace(mutate) {
+    var wasPid = null;
+    var list = visible();
+    if (list.length) wasPid = list[idx] && list[idx].pid;
+    mutate();
+    var now = visible();
+    var keep = -1;
+    for (var n = 0; n < now.length; n++) { if (now[n].pid === wasPid) { keep = n; break; } }
+    idx = keep === -1 ? 0 : keep;
+  }
+
+  // ONE member's record landed. Settle that member and nobody else.
+  //
+  // This is the fix for the homepage lock-up. Records arrive one per request, and
+  // every arrival used to run the full pass below: flush every cached read, then
+  // brief() all eight candidates — eight complete PDXWordAction reads — inside the
+  // fetch's own callback. Eight arrivals therefore meant sixty-four reads plus
+  // eight full re-reads of the painted card, measured at ~350 ms of blocking work
+  // on a desktop CPU and several seconds on a phone, landing in the same frames as
+  // eight ~125 KB JSON parses and the roster render. The main thread never got a
+  // gap wide enough to answer a tap, which is what Chrome reports as an
+  // unresponsive page. One arrival can only change one member's answer, so this
+  // does one member's work: a single brief, a single cache entry dropped.
+  //
+  // Promotion only — ruling a candidate out is still the sweep's job, on the
+  // grace-period backstops, so a member whose record simply has not arrived is
+  // never burned by another member's event.
+  function settleOne(pid) {
+    var c = null;
+    for (var i = 0; i < warmSet.length; i++) {
+      if (warmSet[i].pid === String(pid)) { c = warmSet[i]; break; }
+    }
+    // Not one of ours. A profile modal elsewhere warms members too, and re-reading
+    // the whole hero because some unrelated member settled is pure waste.
+    if (!c) return;
+    if (c.state === 'publishable') { dropRead(c.pid); draw(); return; }
+    dropRead(c.pid);
+    holdPlace(function () { settle(c, false); });
+    draw();
+    startAuto();
+  }
+
   function settleAll() {
     bustReads();
     // Gate on `started`, not on the timestamp — a clock reading is not a flag.
@@ -491,23 +546,14 @@
       try { allowRuleOut = (Date.now() - engineStart) >= GRACE_MS; } catch (e) { allowRuleOut = true; }
     }
 
-    var wasPid = null;
-    var list = visible();
-    if (list.length) wasPid = list[idx] && list[idx].pid;
-
-    warmSet.forEach(function (c) { settle(c, allowRuleOut); });
-    // Past the warm cap they were never fetched, so they can never publish. Ruling
-    // them out keeps visible() honest, and is safe even on the first pass.
-    pool.forEach(function (c) {
-      if (warmSet.indexOf(c) === -1 && c.state === 'unknown') c.state = 'ruled-out';
+    holdPlace(function () {
+      warmSet.forEach(function (c) { settle(c, allowRuleOut); });
+      // Past the warm cap they were never fetched, so they can never publish. Ruling
+      // them out keeps visible() honest, and is safe even on the first pass.
+      pool.forEach(function (c) {
+        if (warmSet.indexOf(c) === -1 && c.state === 'unknown') c.state = 'ruled-out';
+      });
     });
-
-    // Hold the reader's place across the pending→real transition: stay on their card
-    // if it survived, else land on the first survivor, not wherever idx points.
-    var now = visible();
-    var keep = -1;
-    for (var n = 0; n < now.length; n++) { if (now[n].pid === wasPid) { keep = n; break; } }
-    idx = keep === -1 ? 0 : keep;
 
     draw();
     startAuto();
@@ -528,8 +574,16 @@
     });
 
     // Records land one at a time; re-settling per event fills the hero in
-    // progressively instead of waiting on the slowest request.
-    var onWarm = function () { settleAll(); };
+    // progressively instead of waiting on the slowest request. Both dispatchers
+    // name the member in detail.pid (consistency.js flushWarm, voting-record.js
+    // _openVoting), so the common path costs one brief. An event with no pid is
+    // not a shape either of them emits; it falls back to the full sweep rather
+    // than guessing, which is correct but is why the sweep must stay cheap.
+    var onWarm = function (ev) {
+      var pid = ev && ev.detail && ev.detail.pid;
+      if (pid) { settleOne(pid); return; }
+      settleAll();
+    };
     try {
       window.addEventListener('pdx-consistency-warm', onWarm);
       window.addEventListener('pdx-voting-warm', onWarm);

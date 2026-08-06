@@ -193,8 +193,17 @@ function harness(opts = {}) {
     get html() { return host.innerHTML; },
     advance(ms) { clock += ms; },
     nextPass() { pass++; },
-    // Fire a warm event, as consistency.js / voting-record.js do.
-    warmEvent() { (winListeners["pdx-consistency-warm"] || []).forEach((fn) => fn({})); },
+    // Fire a warm event, as consistency.js / voting-record.js do. Both real
+    // dispatchers name the member that settled in detail.pid; passing no pid
+    // exercises the detail-less fallback, which nothing in the app emits.
+    warmEvent(pid) {
+      const ev = pid ? { detail: { pid } } : {};
+      (winListeners["pdx-consistency-warm"] || []).forEach((fn) => fn(ev));
+    },
+    votingWarmEvent(pid) {
+      const ev = pid ? { detail: { pid } } : {};
+      (winListeners["pdx-voting-warm"] || []).forEach((fn) => fn(ev));
+    },
     dataEvent() { (docListeners["pdx:data:acctSpotlight"] || []).forEach((fn) => fn({})); },
     // Run every pending timeout whose deadline has passed, once.
     runTimers(ms) {
@@ -644,6 +653,98 @@ for (const c of seed) {
   ok(dataGz + rendGz < 13 * 1024,
     `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 13 KB)`);
   console.log(`  critical path: ${dataGz} B + ${rendGz} B = ${dataGz + rendGz} B gzipped`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 11b. One arrival, one member's work  (the homepage lock-up)
+// ═════════════════════════════════════════════════════════════════════════════
+// Records land one request at a time, and every arrival used to run a full sweep:
+// flush every cached read, then brief() all eight candidates — eight complete
+// PDXWordAction reads — inside the fetch's own callback. Eight arrivals meant
+// sixty-four briefs plus eight full re-reads of the painted card, landing in the
+// same frames as eight ~125 KB JSON parses and the roster render. The main thread
+// never got a gap wide enough to answer a tap, which is what Chrome reports as an
+// unresponsive page. One arrival can only change one member's answer.
+{
+  const arrived = new Set();
+  const h = harness({
+    seed, dataLoaded: true,
+    answer: (pid) => (arrived.has(pid) ? pubRead({ pid }) : warmingRead({ pid })),
+  });
+  const warmed = h.calls.warm.slice();
+  ok(warmed.length > 1, "incremental: more than one member is warmed, so a sweep is measurably wasteful");
+
+  // A named arrival costs ONE brief, not one per candidate.
+  let b = h.calls.brief.length;
+  arrived.add(warmed[0]);
+  h.warmEvent(warmed[0]);
+  eq(h.calls.brief.length - b, 1,
+    `incremental: one member's record landing costs exactly one brief() — got ${h.calls.brief.length - b}`);
+  ok(/Mixed record/.test(h.html), "incremental: and that member's card publishes as soon as its own record lands");
+
+  // A member the hero never warmed — a profile modal elsewhere warms members too —
+  // must not drag the whole showcase through a re-read.
+  b = h.calls.brief.length;
+  let r = h.calls.read.length;
+  h.warmEvent("someone-else-entirely");
+  eq(h.calls.brief.length, b, "incremental: a warm event for a member outside the warm set costs no brief");
+  eq(h.calls.read.length, r, "incremental: and forces no repaint");
+
+  // Already published. The floor it cleared cannot un-clear, so re-asking buys
+  // nothing — but its CONTENT must still refresh, which means dropping its read.
+  b = h.calls.brief.length;
+  r = h.calls.read.length;
+  h.warmEvent(warmed[0]);
+  eq(h.calls.brief.length, b, "incremental: a settled card is not re-briefed on every later arrival");
+  ok(h.calls.read.length > r, "incremental: but its cached read is dropped, so the card still picks up new findings");
+
+  // pdx-voting-warm is the same shape from voting-record.js and takes the same path.
+  arrived.add(warmed[1]);
+  b = h.calls.brief.length;
+  h.votingWarmEvent(warmed[1]);
+  eq(h.calls.brief.length - b, 1, "incremental: pdx-voting-warm settles one member too");
+
+  // An event with no pid is not a shape either dispatcher emits, but it must stay
+  // correct: fall back to the full sweep rather than guessing.
+  b = h.calls.brief.length;
+  h.warmEvent();
+  ok(h.calls.brief.length - b > 1, "incremental: a detail-less event still runs the full sweep");
+}
+{
+  // The whole cold load, counted end to end: eight records arriving one at a time,
+  // each publishable only once its own record has landed. The sweep-per-arrival
+  // build spent 88 briefs and 10 full reads here.
+  const arrived = new Set();
+  const h = harness({
+    seed, dataLoaded: true,
+    answer: (pid) => (arrived.has(pid) ? pubRead({ pid }) : warmingRead({ pid })),
+  });
+  const warmed = h.calls.warm.slice();
+  for (const pid of warmed) { arrived.add(pid); h.warmEvent(pid); }
+  ok(h.calls.brief.length <= warmed.length * 2,
+    `incremental: a full cold load stays near one brief per arrival — got ${h.calls.brief.length} for ${warmed.length} records`);
+  ok(h.calls.read.length <= 5,
+    `incremental: and repaints the visible card a handful of times, not once per arrival — got ${h.calls.read.length}`);
+  ok(/Mixed record/.test(h.html), "incremental: the showcase is populated once the records are in");
+}
+{
+  // A member whose record simply has not arrived must not be burned by ANOTHER
+  // member's event. Ruling out stays the sweep's job, on the grace-period backstop.
+  const arrived = new Set();
+  const h = harness({
+    seed, dataLoaded: true,
+    answer: (pid) => (arrived.has(pid) ? pubRead({ pid }) : warmingRead({ pid })),
+  });
+  const warmed = h.calls.warm.slice();
+  arrived.add(warmed[0]);
+  h.warmEvent(warmed[0]);
+  const laggard = warmed[warmed.length - 1];
+  arrived.add(laggard);
+  const b = h.calls.brief.length;
+  h.warmEvent(laggard);
+  eq(h.calls.brief.length - b, 1, "incremental: a late record is still asked, not written off");
+  ok(new RegExp(laggard).test(h.html) || /Mixed record/.test(h.html),
+    "incremental: and it joins the rotation rather than being ruled out by an earlier arrival");
 }
 {
   // The portrait is requested at the size it is displayed, through the same-origin
