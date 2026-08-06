@@ -313,10 +313,31 @@
     try {
       list = (typeof window._resolveStanceList === 'function') ? window._resolveStanceList(pid, p) : null;
     } catch (e) { list = null; }
-    var seenIssue = {};
+    // WHICH card speaks for an issue, when several do. This used to be simply the
+    // first one in the list order, which quietly threw the whole issue away
+    // whenever the first card happened to be written from the record: a second,
+    // independent card on the same subject never got a turn, and the issue left
+    // the scorable set entirely — a record-derived card silencing real word, which
+    // is the opposite of what the circularity rule is for. Rank instead: an
+    // independently-worded card with a citation beats an unsourced one, and both
+    // beat a card that only narrates the record. List order is the tie-break, so
+    // the pick is deterministic and the emitted ids and ordering do not move.
+    function cardRank(s) {
+      var ind = isIndependentWord(s.text, s.source);
+      var srcd = !!(s.source && (s.source.url || s.source.label));
+      return (ind && srcd) ? 0 : (ind ? 1 : 2);
+    }
+    var byIssue = {};
     (list || []).forEach(function (s, i) {
-      if (!s || !s.issueKey || seenIssue[s.issueKey]) return;
-      seenIssue[s.issueKey] = 1;
+      if (!s || !s.issueKey) return;
+      var rk = cardRank(s);
+      var cur = byIssue[s.issueKey];
+      if (!cur || rk < cur.rank) byIssue[s.issueKey] = { s: s, i: i, rank: rk };
+    });
+    Object.keys(byIssue).map(function (k) { return byIssue[k]; })
+      .sort(function (a, b) { return a.i - b.i; })
+      .forEach(function (rec) {
+      var s = rec.s, i = rec.i;
       var independent = isIndependentWord(s.text, s.source);
       var sourced = !!(s.source && (s.source.url || s.source.label));
       var promoted = independent && sourced && PLEDGE_RE.test(String(s.text || ''));
@@ -370,6 +391,22 @@
     return { kept: k, broken: b, pending: pd, resolved: k + b, total: k + b + pd };
   }
 
+  // …and the same disclosure has to survive the moment pledges ARE itemized.
+  // pledgeAggregate() stands down as soon as p.promises has anything in it, so the
+  // same commitments are never reported twice — but standing down SILENTLY was its
+  // own dishonesty. A record with four written-up pledges and 176 resolved in the
+  // tracker rendered "2/4 tested" and said nothing at all about the other 172,
+  // which reads as full coverage of a complete pledge set. This is the remainder,
+  // reported in the tier row as a coverage gap. It is never scored, never an
+  // outcome, and never a second tally: it is the count of resolved pledges this
+  // read cannot see inside.
+  function pledgeRemainder(p, itemized) {
+    if (!p) return 0;
+    var resolved = (+p.kept || 0) + (+p.broken || 0);
+    var n = resolved - (+itemized || 0);
+    return n > 0 ? n : 0;
+  }
+
   // How much judged record sits behind one issue's official-record score. Read off
   // the object officialRecord() already returns, so the weight can never disagree
   // with the percentage it is weighting.
@@ -384,6 +421,39 @@
       if (a > 0) return a;
     }
     return 0;
+  }
+
+  // ── EVIDENCE: how much record, not how many rows of it ─────────────────────
+  // The multiplier used to be judgedOf() alone — a HEAD COUNT of judged items,
+  // capped at 3. That rewards density over significance, and on an executive
+  // record the difference is not academic. climate_action is touched by three
+  // orders whose own mapping tables call it a weight-55 side effect, so it earned
+  // the full 3×; the national_debt contradiction, carried by the largest law of
+  // the term at weight 65, earned 1×. Three incidental mentions outweighed the
+  // single most consequential document on file, three to one — and because the
+  // three pointed the same way as the stance and the one did not, the density
+  // bonus landed entirely on the agreeing side of the ledger.
+  //
+  // The record summary already carries the weight it actually scored with
+  // (consistentScore + contradictScore, in the same 0-100 units the issue mapping
+  // tables use), so evidence is now the SMALLER of the head count and that weight
+  // expressed in full-weight mappings. It can only ever REDUCE: a lane whose
+  // mappings are full weight — every roll call mapped at 100 — is untouched, and a
+  // figure credited three times over for side mappings is not. A summary that
+  // carries no weight at all (curated formal actions, which are unweighted by
+  // design) falls back to the head count rather than being penalised for it.
+  function mappedUnits(sum) {
+    if (!sum) return null;
+    var w = (+sum.consistentScore || 0) + (+sum.contradictScore || 0);
+    return w > 0 ? (w / 100) : null;
+  }
+  function evidenceOf(ov) {
+    var n = judgedOf(ov);
+    if (!n) return 1;
+    var units = mappedUnits(ov && ov.record);
+    if (units === null) units = mappedUnits(ov && ov.officialActions);
+    var capped = (units === null) ? n : Math.min(n, Math.max(1, Math.round(units)));
+    return Math.max(1, Math.min(capped, EVIDENCE_CAP));
   }
 
   // ── THE ACTION TEST ────────────────────────────────────────────────────────
@@ -422,7 +492,7 @@
         token: ov.token === 'contradicts' ? 'contradicts'
              : ov.token === 'consistent' ? 'consistent'
              : ov.token === 'mixed' ? 'mixed' : 'limited',
-        evidence: Math.max(1, Math.min(j || 1, EVIDENCE_CAP)),
+        evidence: evidenceOf(ov),
         judged: j, basis: (ov.sources && ov.sources[0]) || 'record'
       };
     }
@@ -436,6 +506,7 @@
     var tested = [], untested = [];
     var counts = { consistent: 0, contradicts: 0, mixed: 0, limited: 0 };
     var wSum = 0, wN = 0, warming = false, issueLinked = 0, derived = 0, scorable = 0;
+    var trackedPledges = 0;
     // Weight on each side of the ledger, kept apart from wSum so the overall
     // outcome can be put through the shared Mixed gate rather than flipping to
     // "Mixed record" the instant one contradiction appears next to seven backings.
@@ -448,6 +519,7 @@
       it.test = t;
       if (it.issueKey) issueLinked++;
       if (it.kind === 'position-derived') derived++;
+      if (it.kind === 'pledge-tracked') trackedPledges++;
       if (it.scored !== false) scorable++;
       var bucket = tiers[it.tier] || (tiers[it.tier] = { key: it.tier, total: 0, scorable: 0, tested: 0, weight: 0 });
       bucket.total++;
@@ -511,6 +583,7 @@
       counts: counts, tiers: tiers,
       testedWeight: wN,
       pledgeAggregate: pledgeAggregate(p),
+      pledgeRemainder: pledgeRemainder(p, trackedPledges),
       // What is missing, stated as data rather than hidden: a reader can see how
       // much of this person's word has an action to test it against, and why the
       // rest does not.
@@ -613,12 +686,18 @@
     // The untestable ones are named on their own, right after.
     var can = bucket && bucket.scorable ? bucket.scorable : 0;
     var off = have - can;
+    // Resolved pledges in the tracker that no itemized pledge accounts for. Shown
+    // only on the pledge tier, and only once itemizing has begun — before that the
+    // aggregate bridge above is already saying it, and saying it twice would read
+    // as two different sets of pledges.
+    var rest = (t === 'pledge' && !agg) ? (r.pledgeRemainder || 0) : 0;
     var n;
     if (agg) n = '<span class="pdxwa-tier-agg">' + agg.resolved + ' in the tracker, none itemized</span>';
     else if (!have) n = 'none on file';
     else if (!can) n = '<span class="pdxwa-tier-agg">' + have + ' on file, none testable</span>';
     else n = got + '<span class="pdxwa-tier-of">/' + can + ' tested' +
-             (off ? '<br>+' + off + ' not testable' : '') + '</span>';
+             (off ? '<br>+' + off + ' not testable' : '') +
+             (rest ? '<br>+' + rest + ' in the tracker, not itemized' : '') + '</span>';
     return '' +
       '<li class="pdxwa-tier pdxwa-tier-' + t + ((have || agg) ? '' : ' pdxwa-tier-empty') + '">' +
         '<span class="pdxwa-tier-ico" aria-hidden="true">' + def.ico + '</span>' +
@@ -842,6 +921,20 @@
     return _laneNoun(r, r.evidence.actions) + ' on record' +
       (typeof r.verdict.score === 'number' ? ' · ' + r.verdict.score + '% of them back the position' : '');
   }
+  // The counter-evidence the deciding record set aside, printed on the row that set
+  // it aside. Only one record resolves a row — but a row that resolved "backs it up"
+  // off two signed laws while a sourced item on the same issue says the opposite was
+  // reporting the agreement and quietly binning the disagreement. Named, counted, and
+  // pointed at the section that holds it; never folded into the verdict.
+  function _setAsideLine(r) {
+    var sa = r.setAside;
+    if (!sa || !sa.count) return '';
+    var what = (sa.lane === 'public_record')
+      ? (sa.count + ' sourced item' + (sa.count === 1 ? '' : 's') + ' in the public record')
+      : (_laneNoun(r, sa.count) + ' on the formal record');
+    var dir = (sa.direction === 'contradicts') ? 'cut against this position' : 'back this position';
+    return what + ' ' + dir + ' and did not decide this row.';
+  }
   function topRowsHtml(pid) {
     try {
       var C = window.PDXConsistency;
@@ -876,6 +969,10 @@
             '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Receipts</span>' +
               '<span class="pdxwa-row-v">' + esc(r.evidence.total + ' sourced item' + (r.evidence.total === 1 ? '' : 's') +
                 ' · ' + r.evidence.strength + ' evidence') + '</span></div>' +
+            (_setAsideLine(r)
+              ? '<div class="pdxwa-row-step pdxwa-row-aside"><span class="pdxwa-row-k">Counter</span>' +
+                  '<span class="pdxwa-row-v">' + esc(_setAsideLine(r)) + '</span></div>'
+              : '') +
           '</li>';
       }).join('');
       var more = ranked.filter(function (r) { return r.tested; }).length - top.length;
@@ -919,6 +1016,9 @@
     if (r.evidence.total) bits.push(r.evidence.total + ' receipt' + (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength);
     if (r.verdict.basis === 'public_record') bits.push('public record');
     else if (r.evidence.actions) bits.push(_laneNoun(r, r.evidence.actions));
+    if (r.setAside && r.setAside.count) {
+      bits.push(r.setAside.count + ' ' + (r.setAside.direction === 'contradicts' ? 'against' : 'for') + ', set aside');
+    }
     if (r.stance.label) bits.unshift(r.stance.label);
     return '<li class="pdxwa-oc-row">' +
         '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +

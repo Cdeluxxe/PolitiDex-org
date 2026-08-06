@@ -247,6 +247,11 @@
   padding-top: 0.12rem;
 }
 .pdxwa-row-v { min-width: 0; }
+/* Counter-evidence the deciding record set aside. Tinted, not coloured like a
+   verdict: it is disclosure on the row, never a second opinion competing with the
+   one verdict the row resolved. "Counter" is shorter than "Receipts", so the key
+   column above still sizes the whole block and nothing shifts. */
+.pdxwa-row-aside .pdxwa-row-v { color: #d8bd85; }
 .pdxwa-rows-go {
   margin-top: 0.45rem;
   cursor: pointer;
