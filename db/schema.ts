@@ -48,6 +48,23 @@ export const ceePosts = pgTable(
     categoryKey: text("category_key"),
     // Zero or more ISSUE_MAP issue keys (reuses the existing issue tagging system).
     issueKeys: jsonb("issue_keys").$type<string[]>().default([]),
+    // ── Coverage-gap context (Suggest-a-Lead) ─────────────────────────────
+    // Which politician profile(s) the post is about, validated against the
+    // roster before write. Lets a profile ask "what leads exist for me?".
+    linkedPoliticianIds: jsonb("linked_politician_ids").$type<string[]>().notNull().default([]),
+    // The specific derived coverage gap this lead answers, e.g.
+    // "gap:booker:no-action-yet-climate-action", plus its taxonomy type. Gaps
+    // themselves are never stored — they are recomputed from the record on every
+    // render, so these are a pointer to a question, not a copy of it.
+    gapKey: text("gap_key"),
+    gapType: text("gap_type"),
+    // "needs_source" | "has_source" (null for evidence posts). Says only whether
+    // the submitter cited anything. NOT a verification status: nothing in Word vs
+    // Action, the Official Record, promise scoring or the strength badges reads
+    // this. Promotion stays the moderator-only cee_promoted path.
+    leadState: text("lead_state").default("needs_source"),
+    // Moderator-set: the post this one duplicates.
+    dupOf: integer("dup_of"),
     // active = visible; removed = hidden by a moderator; imported = a moderator
     // has promoted it into the curated Evidence Locker (see cee_promoted).
     status: text().notNull().default("active"),
@@ -70,6 +87,8 @@ export const ceePosts = pgTable(
   (t) => ({
     statusIdx: index("cee_posts_status_idx").on(t.status),
     createdIdx: index("cee_posts_created_idx").on(t.createdAt),
+    gapTypeIdx: index("cee_posts_gap_type_idx").on(t.gapType),
+    leadStateIdx: index("cee_posts_lead_state_idx").on(t.leadState),
   })
 );
 

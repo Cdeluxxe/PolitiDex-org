@@ -791,6 +791,22 @@
       '</details>';
   }
 
+  // ── WHAT WE DO NOT HAVE YET ────────────────────────────────────────────────
+  // The coverage sentence above says how much of the word has an action behind
+  // it. This is the other half of the same honesty: the specific holes in OUR
+  // documentation, named, with one clean way for a reader to hand us a lead.
+  // Delegated entirely to gaps.js — this module owns the read, not the ask — and
+  // fully guarded, because the panel must render identically if gaps.js is
+  // absent. `r` is passed through so the gap list never recomputes the read.
+  function gapsHtml(pid, p, r) {
+    try {
+      if (window.PDXGaps && typeof window.PDXGaps.panelHtml === 'function') {
+        return window.PDXGaps.panelHtml(pid, p, r) || '';
+      }
+    } catch (e) {}
+    return '';
+  }
+
   // ── WHAT FEEDS THIS SCORE ──────────────────────────────────────────────────
   // The profile used to read as four independent score widgets that happened to
   // share a page: a promise percentage, a Word vs Action percentage, an Official
@@ -1126,6 +1142,11 @@
             : '') +
           '.' +
         '</div>' +
+        // What we do NOT have yet, named out loud, directly under the sentence that
+        // says how much we do have. Derived at render time from this same read, so it
+        // can never claim a hole that has already been filled. Guarded: no gaps
+        // module, or a well-documented record, means no extra furniture at all.
+        gapsHtml(pid, p, r) +
         topRowsHtml(pid) +
         outcomesHtml(pid) +
         feedsHtml(pid, p, r) +

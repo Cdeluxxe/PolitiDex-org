@@ -149,6 +149,10 @@ const SHELL_ASSETS = [
   '/profile-dossier.js',
   '/profile-dossier.css',
   '/coverage.js',
+  // Coverage gaps. Cached alongside coverage.js for the same reason: without it a
+  // repeat visitor offline sees a Word vs Action panel that quietly stops saying
+  // what we have not documented, which reads as fuller coverage than we have.
+  '/gaps.js',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'

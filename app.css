@@ -18710,3 +18710,17 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
    word-action.css it would be overridden by those very base rules on file order:
    `display: grid` would lose to `.profile-hero { display: flex }`, and the score
    row would silently disappear from phones again. */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Coverage gaps on a narrow phone
+   ═══════════════════════════════════════════════════════════════════════════
+   Base rules for .pdxg* live in word-action.css, beside the panel they sit in.
+   This broad phone pass belongs here per the note below: word-action.css is
+   linked BEFORE this file, so these equal-specificity rules win on file order.
+   Below ~420px the collapsed line's call-to-action and the Suggest-a-lead button
+   each take their own full-width row rather than being squeezed beside a label —
+   one control per line, still a ≥44px target. */
+@media (max-width: 420px) {
+  .pdxg-toggle-cta { flex: 1 1 100%; }
+  .pdxg-ask-btn { flex: 1 1 100%; text-align: center; }
+}

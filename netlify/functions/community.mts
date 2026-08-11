@@ -48,6 +48,13 @@ import {
   ceeSuggestions,
   ceePromoted,
 } from "../../db/schema.js";
+// The roster, used as the allow-list for `linked_politician_ids`. This file is
+// generated from cmp-data.js by scripts/gen-share-index.mjs, so it is exactly the
+// set of profiles the site can render — a lead pinned to an id that has no
+// profile could never be answered. NOTE: regenerate it when profiles are added,
+// or leads for the new people will be rejected.
+import shareIndex from "../../db/share-index.json" with { type: "json" };
+
 
 // The site's Firebase project — the audience every valid ID token must carry.
 const FIREBASE_PROJECT_ID = "politidex-979bd";
@@ -77,6 +84,49 @@ const POST_KINDS = new Set(["lead", "evidence"]);
 const SOURCE_TYPES = new Set(["official", "interview", "statement", "social", "other"]);
 // Moderator-assigned strength grade at promotion time (EVIDENCE_STRENGTH.md).
 const STRENGTHS = new Set(["strong", "moderate", "limited"]);
+
+// ── Coverage-gap context (Suggest-a-Lead) ───────────────────────────────────
+// The taxonomy a lead may be pinned to, mirroring window.PDXGaps.TYPES in
+// gaps.js. Only the ASKABLE types appear here: circular_hold, spoken_for and
+// below_floor are our own scoring rules working as designed, are presented to
+// readers as explanations rather than requests, and must not be able to collect
+// submissions no moderator could ever action.
+const GAP_TYPES = new Set([
+  "no_record",
+  "thin_record",
+  "thin_formal_action",
+  "no_action_yet",
+  "pending_pledge",
+  "unitemized_pledges",
+  "not_issue_linked",
+]);
+// Whether a lead arrived with a citation. Not a verification status — see the
+// column comment in db/schema.ts.
+const LEAD_STATES = new Set(["needs_source", "has_source"]);
+// Shape of a derived gap key, e.g. "gap:booker:no-action-yet-climate-action".
+// Same contract the item-thread API enforces on target ids, so one key addresses
+// both the gap's discussion thread and its leads.
+const GAP_KEY_RE = /^gap:[^\s,:]{1,90}:[a-z0-9][a-z0-9-]{0,90}$/;
+// Profile ids we will accept on a lead.
+const ROSTER: Set<string> = new Set(
+  Object.keys((shareIndex as { people?: Record<string, unknown> }).people || {})
+);
+
+// Politician ids a lead is about. Anything not on the roster is dropped rather
+// than rejected outright: the lead itself is still worth having, it just loses a
+// link we could not resolve.
+function cleanPoliticianIds(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  const out: string[] = [];
+  for (const raw of v) {
+    if (typeof raw !== "string") continue;
+    const id = raw.trim();
+    if (id && ROSTER.has(id) && !out.includes(id)) out.push(id);
+    if (out.length >= 8) break;
+  }
+  return out;
+}
+
 
 // Reaction weights used for the trending / momentum score. Quality signals
 // ("strong evidence", "important / should review") count most; "disputed" gently
@@ -324,6 +374,13 @@ function shapePost(
     sourceType: p.sourceType || null,
     categoryKey: p.categoryKey,
     issueKeys: p.issueKeys || [],
+    // Coverage-gap context. Present only on leads suggested from a gap row; a
+    // post submitted from the Exchange itself carries nulls here.
+    linkedPoliticianIds: p.linkedPoliticianIds || [],
+    gapKey: p.gapKey || null,
+    gapType: p.gapType || null,
+    leadState: p.leadState || null,
+    dupOf: p.dupOf || null,
     authorName: p.authorName,
     status: p.status,
     suggestedForReview: p.suggestedForReview,
@@ -343,10 +400,28 @@ async function listPosts(req: Request, viewer: AuthUser | null): Promise<Respons
   const sort = url.searchParams.get("sort") || "trending";
   const category = url.searchParams.get("category");
   const issue = url.searchParams.get("issue");
+  // Gap-scoped reads: the Word vs Action panel asks for "every lead about this
+  // politician" in one request and buckets them by gap key on the client.
+  const kind = url.searchParams.get("kind");
+  const pol = url.searchParams.get("pol");
+  const gap = url.searchParams.get("gap");
 
   // Public listing shows active posts only.
   const where = [eq(ceePosts.status, "active")];
+  // An unrecognised filter value must narrow to nothing, never widen to
+  // everything — silently ignoring it would answer "leads about this person"
+  // with the whole board.
+  if ((pol && !ROSTER.has(pol)) || (gap && !GAP_TYPES.has(gap)) || (kind && !POST_KINDS.has(kind))) {
+    return ok({ posts: [], viewer: publicViewer(viewer) });
+  }
   if (category) where.push(eq(ceePosts.categoryKey, category));
+  if (kind && POST_KINDS.has(kind)) where.push(eq(ceePosts.kind, kind));
+  if (gap && GAP_TYPES.has(gap)) where.push(eq(ceePosts.gapType, gap));
+  // jsonb containment, so the index-friendly form stays in SQL rather than
+  // pulling every post back to filter in JS.
+  if (pol && ROSTER.has(pol)) {
+    where.push(sql`${ceePosts.linkedPoliticianIds} @> ${JSON.stringify([pol])}::jsonb`);
+  }
 
   let rows = await db
     .select()
@@ -417,6 +492,29 @@ async function createPost(req: Request, viewer: AuthUser | null): Promise<Respon
         .slice(0, 12)
     : [];
 
+  // ── Coverage-gap context ──────────────────────────────────────────────────
+  // Only a lead can carry it: evidence is offered for the curated record and
+  // goes through the Locker path, not the research queue. Both the gap key and
+  // the gap type must be recognised or neither is stored — a half-linked lead
+  // would show up on a profile without a gap to sit under.
+  const linkedPoliticianIds = kind === "lead" ? cleanPoliticianIds(body.linkedPoliticianIds) : [];
+  const rawGapKey = clampStr(body.gapKey, 200) || "";
+  const rawGapType = clampStr(body.gapType, 40) || "";
+  const gapOk = kind === "lead" && GAP_KEY_RE.test(rawGapKey) && GAP_TYPES.has(rawGapType);
+  const gapKey = gapOk ? rawGapKey : null;
+  const gapType = gapOk ? rawGapType : null;
+  // Derived, never taken from the client: a lead that cites something is
+  // "has_source", one that does not is "needs_source". Evidence has no lead
+  // state at all. A client-supplied value is honoured only when it agrees with
+  // what was actually submitted.
+  let leadState: string | null = null;
+  if (kind === "lead") {
+    leadState = sourceUrl ? "has_source" : "needs_source";
+    if (LEAD_STATES.has(body.leadState) && body.leadState === leadState) {
+      leadState = body.leadState;
+    }
+  }
+
   const [row] = await db
     .insert(ceePosts)
     .values({
@@ -429,6 +527,10 @@ async function createPost(req: Request, viewer: AuthUser | null): Promise<Respon
       sourceType,
       categoryKey,
       issueKeys,
+      linkedPoliticianIds,
+      gapKey,
+      gapType,
+      leadState,
     })
     .returning();
 
