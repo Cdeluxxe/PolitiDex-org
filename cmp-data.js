@@ -8521,6 +8521,142 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Trade Policy",
    "Tax Reform",
    "National Debt"
+  ],
+  // ITEMIZED PLEDGES. The kept/broken/pending counts above are an aggregate carried
+  // over from the old promise tracker: 176 resolved, none of them named, sourced or
+  // issue-linked. PDXWordAction's top tier scores explicit pledges at 3× — the
+  // heaviest word in the whole read — and it could not see inside that number, so
+  // the president's score rested entirely on the middle tier while the largest
+  // documented broken pledges of his career sat in a total that nothing could test.
+  //
+  // These eleven are not the tracker's 176 boiled down. They are the pledges that
+  // (a) were stated as an explicit, checkable commitment, (b) have a FORMAL outcome
+  // — an enacted law, a signed order, or an official series — and (c) could be
+  // sourced to a document this pass opened and read. Everything asserted below came
+  // from GPO's enrolled texts, the Federal Register, Treasury's Debt to the Penny,
+  // or the BLS consumer price index; nothing came from a summary of them.
+  // word-action.js#pledgeRemainder reports the 165 resolved pledges these eleven do
+  // not account for as a coverage gap, so itemizing a subset never reads as a
+  // complete set.
+  //
+  // A pledge with verdict "partial" resolves to `pending` in testOf() and is NOT
+  // scored — deliberately. Half-delivered is not kept and not broken, and the honest
+  // place for it is the untested column with its reason on the row.
+  "promises": [
+   {
+    "title": "Eliminate the national debt in eight years",
+    "detail": "Total public debt outstanding stood at $19.95 trillion when he took office on January 20, 2017 and $27.75 trillion when the first term ended on January 19, 2021. It was $39.77 trillion on July 31, 2026. The only law he has signed that addresses the debt directly moved it the other way: section 72001 of Public Law 119-21 raised the statutory limit on the public debt by $5 trillion.",
+    "verdict": "broken",
+    "issueKey": "national_debt",
+    "date": "2016-04-02",
+    "sources": [
+     { "label": "U.S. Treasury — Debt to the Penny", "url": "https://fiscaldata.treasury.gov/datasets/debt-to-the-penny/debt-to-the-penny" },
+     { "label": "GPO — Public Law 119-21, sec. 72001", "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm" }
+    ]
+   },
+   {
+    "title": "Mexico will pay for the border wall",
+    "detail": "Barrier construction was paid for by the United States. Section 230(a)(1) of the Consolidated Appropriations Act, 2019 set aside $1,375,000,000 of Customs and Border Protection construction money for primary pedestrian fencing in the Rio Grande Valley Sector, and further construction was funded by redirecting U.S. military construction accounts under the national emergency he declared himself in Proclamation 9844. No payment from Mexico appears in either instrument.",
+    "verdict": "broken",
+    "issueKey": "border_security",
+    "date": "2015-06-16",
+    "sources": [
+     { "label": "GPO — Public Law 116-6, sec. 230", "url": "https://www.govinfo.gov/content/pkg/PLAW-116publ6/html/PLAW-116publ6.htm" },
+     { "label": "Federal Register — Proclamation 9844, 84 FR 4949", "url": "https://www.federalregister.gov/documents/2019/02/20/2019-03011/declaring-a-national-emergency-concerning-the-southern-border-of-the-united-states" }
+    ]
+   },
+   {
+    "title": "Repeal and replace the Affordable Care Act",
+    "detail": "No law repealing or replacing the Act has been signed in either term. Public Law 111-148 remains on the books as enacted, and the one health title of the second term — subtitle B of Public Law 119-21 — reduced Medicaid spending and added eligibility conditions rather than replacing the Act.",
+    "verdict": "broken",
+    "issueKey": "healthcare",
+    "date": "2016-02-20",
+    "sources": [
+     { "label": "GPO — Public Law 111-148, as enacted", "url": "https://www.govinfo.gov/content/pkg/PLAW-111publ148/html/PLAW-111publ148.htm" },
+     { "label": "GPO — Public Law 119-21, subtitle B", "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm" }
+    ]
+   },
+   {
+    "title": "Bring prices down starting on day one",
+    "detail": "The consumer price index for all urban consumers stood at 317.671 in January 2025 and 333.952 in June 2026 — everyday prices rose about 5% over the period rather than coming down. The day-one memorandum directing agencies to pursue emergency price relief is on the record; the series it was meant to move is not.",
+    "verdict": "broken",
+    "issueKey": "cost_living",
+    "date": "2024-08-15",
+    "sources": [
+     { "label": "BLS — CPI, all urban consumers (CUUR0000SA0)", "url": "https://data.bls.gov/timeseries/CUUR0000SA0" }
+    ]
+   },
+   {
+    "title": "Make the 2017 individual tax cuts permanent",
+    "detail": "Signed into law on July 4, 2025. Chapter 1 of Public Law 119-21 is titled \"Providing Permanent Tax Relief for Middle-class Families and Workers\", and section 70101 makes the reduced individual rates permanent rather than letting them expire at the end of 2025.",
+    "verdict": "kept",
+    "issueKey": "lower_taxes",
+    "date": "2024-09-05",
+    "sources": [
+     { "label": "GPO — Public Law 119-21, sec. 70101", "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm" }
+    ]
+   },
+   {
+    "title": "No tax on tips",
+    "detail": "Signed into law on July 4, 2025. Section 70201 of Public Law 119-21 adds a new section 224 to the Internal Revenue Code allowing a deduction for qualified tips received during the taxable year; the companion section 70202 does the same for overtime.",
+    "verdict": "kept",
+    "issueKey": "tax_middle_class",
+    "date": "2024-06-09",
+    "sources": [
+     { "label": "GPO — Public Law 119-21, sec. 70201", "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm" }
+    ]
+   },
+   {
+    "title": "Create a federal school-choice scholarship",
+    "detail": "Signed into law on July 4, 2025. Section 70411 of Public Law 119-21 creates a federal tax credit for individual contributions to scholarship granting organizations — the first nationwide school-choice mechanism in the tax code.",
+    "verdict": "kept",
+    "issueKey": "school_choice",
+    "date": "2023-01-26",
+    "sources": [
+     { "label": "GPO — Public Law 119-21, sec. 70411", "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm" }
+    ]
+   },
+   {
+    "title": "Expand the child tax credit",
+    "detail": "Signed into law on July 4, 2025. Section 70104 of Public Law 119-21 extends and enhances the increased child tax credit, which had been scheduled to fall back to its pre-2017 level at the end of 2025.",
+    "verdict": "kept",
+    "issueKey": "family_support",
+    "date": "2024-08-18",
+    "sources": [
+     { "label": "GPO — Public Law 119-21, sec. 70104", "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm" }
+    ]
+   },
+   {
+    "title": "End federal DEI programs on day one",
+    "detail": "Signed Executive Order 14151 on January 20, 2025 — the first day of the term — terminating federal diversity, equity and inclusion offices, positions and programs and directing agencies to close them out. Published at 90 FR 8339.",
+    "verdict": "kept",
+    "issueKey": "end_dei",
+    "date": "2023-07-14",
+    "sources": [
+     { "label": "Federal Register — Executive Order 14151, 90 FR 8339", "url": "https://www.federalregister.gov/documents/2025/01/29/2025-01953/ending-radical-and-wasteful-government-dei-programs-and-preferencing" }
+    ]
+   },
+   {
+    "title": "Never allow a central bank digital currency, and sign a stablecoin framework",
+    "detail": "Both halves are on the formal record. Executive Order 14178, signed January 23, 2025, prohibits agencies from establishing, issuing or promoting a U.S. central bank digital currency and revokes the prior order that had directed work on one. Public Law 119-27, signed July 18, 2025, establishes the federal regulatory framework for payment stablecoins.",
+    "verdict": "kept",
+    "issueKey": "crypto_cbdc",
+    "date": "2024-07-27",
+    "sources": [
+     { "label": "Federal Register — Executive Order 14178, 90 FR 8647", "url": "https://www.federalregister.gov/documents/2025/01/31/2025-02123/strengthening-american-leadership-in-digital-financial-technology" },
+     { "label": "GPO — Public Law 119-27 (GENIUS Act)", "url": "https://www.govinfo.gov/content/pkg/PLAW-119publ27/html/PLAW-119publ27.htm" }
+    ]
+   },
+   {
+    "title": "Require documentary proof of citizenship to register to vote",
+    "detail": "Signed Executive Order 14248 on March 25, 2025, directing the Election Assistance Commission to require documentary proof of citizenship on the federal registration form. Parts of the order were enjoined before they took effect and the requirement is not in force nationwide, so the commitment is neither delivered nor abandoned.",
+    "verdict": "partial",
+    "issueKey": "voter_id",
+    "date": "2024-03-13",
+    "sources": [
+     { "label": "Federal Register — Executive Order 14248, 90 FR 14005", "url": "https://www.federalregister.gov/documents/2025/03/28/2025-05523/preserving-and-protecting-the-integrity-of-american-elections" }
+    ]
+   }
   ]
  },
  "bilzerian": {

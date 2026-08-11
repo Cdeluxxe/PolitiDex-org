@@ -236,12 +236,16 @@ ok(!EX.eligible("not_a_real_pid"), "eligible() accepted an unknown pid — the g
 // ─────────────────────────────────────────────────────────────────────────────
 // 6 · The source rule fails closed
 // ─────────────────────────────────────────────────────────────────────────────
-// Every rejected example below is in the app's LIVE curated data today, which is why
-// the rule exists at all rather than being a theoretical nicety.
+// Most rejected examples below are in the app's LIVE curated data today, which is why
+// the rule exists at all rather than being a theoretical nicety. The parentheses name
+// the live offender and are re-checked when cards move: the circular-stance cleanup
+// re-sourced cut_spending and tariffs_growth to the 2024 platform and healthcare_costs
+// to the Public Papers, so the fact-sheet shape now has no live instance — it stays in
+// the list because a fact sheet is what a presidential stance card reaches for first.
 const BAD = [
-  ["https://www.congress.gov/", "bare host root (the judicial-appointments item)"],
-  ["https://www.whitehouse.gov/presidential-actions/", "directory index (cut_spending, tariffs_growth)"],
-  ["https://www.whitehouse.gov/fact-sheets/2025/02/fact-sheet-president-donald-j-trump", "fact sheet (healthcare_costs)"],
+  ["https://www.congress.gov/", "bare host root (the lower_taxes item)"],
+  ["https://www.whitehouse.gov/presidential-actions/", "directory index (tariffs_prices)"],
+  ["https://www.whitehouse.gov/fact-sheets/2025/02/fact-sheet-president-donald-j-trump", "fact sheet (no live instance since the cleanup)"],
   ["http://www.federalregister.gov/documents/2025/01/01/x", "plain http"],
   ["//www.federalregister.gov/documents/2025/01/01/x", "protocol-relative"],
   ["", "empty"],

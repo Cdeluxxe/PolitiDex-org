@@ -1007,6 +1007,18 @@
       // Real record on file, none of it scorable. That is a coverage gap with a
       // reason, not a warming state — never queue a warm for it.
       token = 'no_record';
+    } else if (emptyLane === 'exec') {
+      // …and neither is an exec-eligible figure on an issue no order maps to. The
+      // warm this branch queues fetches a ROLL-CALL record, and a president has
+      // none coming: the wait could never end, so the issue sat in 'pending'
+      // permanently, re-queueing the same fetch on every read. Two things followed
+      // from that, both worse than the wasted request. coverage.warming stayed true
+      // forever, so the hero and the thin copy could say "Loading the record…" about
+      // a record that had already fully arrived. And issueRow() refuses the
+      // public-record basis while a row reads 'pending' — so every issue no
+      // executive action happens to map to was blocked from falling through to the
+      // broader public record, which is exactly the lane built to cover it.
+      token = hasStance ? 'no_record' : 'no_stance';
     } else if (!warm && hasStance) {
       pending = true; token = 'pending'; queueWarm(pid);
     } else {
@@ -3173,6 +3185,28 @@
     }
 
     var judged = (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed' || tok === 'limited');
+    // ── counter-evidence the deciding lane set aside ──────────────────────────
+    // "Never both" is a rule about not BLENDING two records into one verdict. It was
+    // never meant to make the losing lane invisible. Border Security is the case that
+    // exposed the difference: the formal-action lane reads consistent off two signed
+    // laws, while a sourced GAO finding on the same issue contradicts a different
+    // border claim outright — and the row printed "Backs it up" with nothing to
+    // indicate the counter-receipt was there at all. This changes no verdict, no
+    // score and no tally. It names, as data, that the record that did not decide
+    // points the other way, so a surface can disclose it instead of dropping it.
+    var setAside = null;
+    if (judged && tok !== 'mixed') {
+      var pubX = pub.contradicting || 0, pubC = pub.supporting || 0;
+      if (basis === 'action' && tok === 'consistent' && pubX > 0) {
+        setAside = { lane: 'public_record', direction: 'contradicts', count: pubX };
+      } else if (basis === 'action' && tok === 'contradicts' && pubC > 0) {
+        setAside = { lane: 'public_record', direction: 'consistent', count: pubC };
+      } else if (basis === 'public_record') {
+        var adir = _rowDirection(ov);
+        if (tok === 'consistent' && adir.x > 0) setAside = { lane: 'action', direction: 'contradicts', count: adir.x };
+        else if (tok === 'contradicts' && adir.c > 0) setAside = { lane: 'action', direction: 'consistent', count: adir.c };
+      }
+    }
     var hasWord = !!stance.key || !!ov.hasStance || !!(ov.record && ov.record.hasStance);
     var hasAction = evCount > 0 || actionJudged;
     var tier, testability;
@@ -3202,6 +3236,9 @@
       verdict: { token: tok, label: v.label, cls: v.cls, ico: v.ico, color: v.color, score: score, basis: basis },
       // ── the public record, as an input ──
       public: pub,
+      // Counter-evidence the deciding lane set aside, or null. Never folded into the
+      // verdict — a disclosure, not a second opinion.
+      setAside: setAside,
       // ── RECEIPTS ── `count` stays the ACTION count (the Official Record's own
       // depth signal, unchanged), `total` is every sourced item behind the row from
       // either record, and `strength` reads off the total because that is what a

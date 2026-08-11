@@ -226,14 +226,33 @@ ok(!/declined to act/.test(HTML.split("not that the figure declined to act").joi
     ok(!chips.some((c) => c === escHtml(lbl)),
       `held issue ${k} was named in the coverage list as ${JSON.stringify(lbl)}`);
   }
-  ok(expectHeld > 0,
-    "fixture drift: no held key is currently in the no-action-found bucket, so decision 11 is untested here");
 
-  // The list is now shorter than the count above it. That gap must be visible.
-  hasText(HTML, "counted above but not named here",
-    "issues were withheld from the coverage list without disclosing it");
-  has(HTML, `>${expectHeld} of them `,
-    `the withheld-issue disclosure does not report ${expectHeld} withheld ${expectHeld === 1 ? "issue" : "issues"}`);
+  // The hold has a documented END CONDITION, and the seed has now reached it for the
+  // only key on the list. HELD_ISSUE_KEYS suppresses naming an issue that is named
+  // PURELY because a stance exists under an ambiguous key; the comment above it says
+  // in terms that a sourced action mapping the key would still render, "because hiding
+  // a real mapping is the worse error". EO 14257 maps tariffs_authority, so the key
+  // left the no-action-found bucket entirely and there is nothing left for the hold to
+  // withhold. Both branches are therefore asserted, and the arithmetic — which is what
+  // actually protects the reader from a chip list quietly shorter than its own count —
+  // is asserted unconditionally in either.
+  if (expectHeld > 0) {
+    hasText(HTML, "counted above but not named here",
+      "issues were withheld from the coverage list without disclosing it");
+    has(HTML, `>${expectHeld} of them `,
+      `the withheld-issue disclosure does not report ${expectHeld} withheld ${expectHeld === 1 ? "issue" : "issues"}`);
+  } else {
+    ok(!String(HTML).includes(escHtml("counted above but not named here")),
+      "nothing is being withheld, yet the disclosure line claims something is");
+    for (const k of heldKeys) {
+      const tok = EX.issue("trump", k).token;
+      ok(tok !== "said_not_done",
+        `${k} is back in the no-action-found bucket but the disclosure branch went untested`);
+      ok(EX.issue("trump", k).actions.length > 0,
+        `${k} left the coverage bucket without a sourced action to explain why — the hold` +
+        `\n    stopped applying for a reason other than the one its own comment names`);
+    }
+  }
   eq(chips.length + expectHeld, SUM.issues.noActionFound,
     "named coverage chips plus withheld issues do not add back up to the count in the summary line");
 }

@@ -190,6 +190,12 @@
         action: 'Campaign branding we cannot point at a specific vote.'
       });
     }
+    if (byReason.spoken_for) {
+      out.push({
+        title: byReason.spoken_for + ' position' + (byReason.spoken_for === 1 ? '' : 's') + ' already spoken for by a stronger claim',
+        action: 'A tracked pledge on the same issue is carrying the score, so this is not counted twice.'
+      });
+    }
     if (byReason.record_derived) {
       out.push({
         title: byReason.record_derived + ' position' + (byReason.record_derived === 1 ? '' : 's') + ' drawn from the record itself',

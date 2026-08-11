@@ -409,9 +409,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue cites this order by number: \"Signed EO 14248, 'Preserving and Protecting the Integrity of American Elections'\". No other action on file reaches this issue, so it stands as coverage rather than as a test."
+            "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form."
           },
           {
             "issueKey": "election_integrity",
@@ -451,6 +449,426 @@
             "sourceUrl": "https://storage.courtlistener.com/pdf/2026/01/30/league_of_united_latin_american_citizens_v._executive_office_of_the.pdf",
             "caseUrl": "https://www.courtlistener.com/opinion/10782009/league-of-united-latin-american-citizens-v-executive-office-of-the/",
             "note": "The current standing. The court DECLARED that Sections 2(d) and 3(d) cannot lawfully be implemented and PERMANENTLY ENJOINED them; dismissed the claims directed at Sections 4(a), 7(a) and 7(b) for want of standing or final agency action; and left claims touching Sections 2(b) and 3(a) for further proceedings, subject to strict Privacy Act compliance. Parts of the order are permanently enjoined and parts are still operative — which is what 'partly blocked' means, and why one word for the whole order would be false either way."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14257",
+        "executiveOrderNumber": 14257,
+        "title": "Regulating Imports With a Reciprocal Tariff To Rectify Trade Practices That Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+        "actedAt": "2025-04-02",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/04/07/2025-06063/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and",
+        "sourceLabel": "Federal Register — Executive Order 14257, 90 FR 15041",
+        "frCitation": "90 FR 15041",
+        "frDocumentNumber": "2025-06063",
+        "publishedAt": "2025-04-07",
+        "issues": [
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Imposes a baseline ad valorem duty on imports from nearly all trading partners plus higher country-specific rates, on the stated ground that persistent goods trade deficits have hollowed out the domestic manufacturing base."
+          },
+          {
+            "issueKey": "tariffs_authority",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Sets tariff rates by executive order under the International Emergency Economic Powers Act rather than under a rate schedule enacted by Congress."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "The duties apply across nearly the whole import base and the order pairs them with no offsetting relief for household purchasers."
+          },
+          {
+            "issueKey": "tariffs_china",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Assigns China one of the higher country-specific rates in the annexed schedule, on the stated ground of non-reciprocal trade practices."
+          },
+          {
+            "issueKey": "econ_trade",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Uses import duties as the instrument for reshoring domestic manufacturing and rebuilding supply chains."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-04-07",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14257 document record, 90 FR 15041",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/04/07/2025-06063/regulating-imports-with-a-reciprocal-tariff-to-rectify-trade-practices-that-contribute-to-large-and",
+            "note": "Issued April 2, 2025 and published April 7, 2025. The register's disposition record for this order carries cross-references to a long series of later tariff actions but no entry revoking or superseding it, so it stood as published by later presidential action. This is not a statement about any challenge to it — the standing below is."
+          },
+          {
+            "status": "struck_down",
+            "effectiveAt": "2026-02-20",
+            "authority": "Supreme Court of the United States (opinion of the Court delivered by the Chief Justice)",
+            "basis": "court_ruling",
+            "sourceLabel": "U.S. Supreme Court — Learning Resources, Inc. v. Trump, No. 24-1287, slip opinion of Feb. 20, 2026",
+            "sourceUrl": "https://www.supremecourt.gov/opinions/25pdf/24-1287_4gcj.pdf",
+            "note": "Held: the International Emergency Economic Powers Act does not authorize the President to impose tariffs. The opinion names this order among the challenged actions by number and citation. The Court affirmed the judgment of the Federal Circuit in No. 25-250, which had concluded that IEEPA's grant of authority to regulate importation did not authorize the challenged duties, and vacated the judgment in No. 24-1287 with instructions to dismiss for want of jurisdiction. Read from the Court's own syllabus holding and judgment paragraph. The Court decided nothing about refunds of duties already collected, and this row asserts nothing about them."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14273",
+        "executiveOrderNumber": 14273,
+        "title": "Lowering Drug Prices by Once Again Putting Americans First",
+        "actedAt": "2025-04-15",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/04/18/2025-06837/lowering-drug-prices-by-once-again-putting-americans-first",
+        "sourceLabel": "Federal Register — Executive Order 14273, 90 FR 16441",
+        "frCitation": "90 FR 16441",
+        "frDocumentNumber": "2025-06837",
+        "publishedAt": "2025-04-18",
+        "issues": [
+          {
+            "issueKey": "health_drug_prices",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Secretary of Health and Human Services to improve the Medicare drug-price negotiation program, to align payment for prescription medicines more closely with acquisition cost, and to pursue measures aimed at lowering what patients pay at the pharmacy counter."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-04-18",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14273 document record, 90 FR 16441",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/04/18/2025-06837/lowering-drug-prices-by-once-again-putting-americans-first",
+            "note": "Issued April 15, 2025 and published April 18, 2025. The register's disposition record for this order carries a single cross-reference to Executive Order 14297 and no revocation or supersession entry, so it stands as published. A cross-reference is not a repeal. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14297",
+        "executiveOrderNumber": 14297,
+        "title": "Delivering Most-Favored-Nation Prescription Drug Pricing to American Patients",
+        "actedAt": "2025-05-12",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/05/15/2025-08876/delivering-most-favored-nation-prescription-drug-pricing-to-american-patients",
+        "sourceLabel": "Federal Register — Executive Order 14297, 90 FR 20749",
+        "frCitation": "90 FR 20749",
+        "frDocumentNumber": "2025-08876",
+        "publishedAt": "2025-05-15",
+        "issues": [
+          {
+            "issueKey": "health_drug_prices",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Directs the Secretary of Health and Human Services to set price targets for prescription medicines benchmarked to the lower prices paid by comparably developed nations, and to open a direct-to-patient purchasing channel at those prices.",
+            "circularWithStance": true,
+            "circularNote": "This order IS the stance card's source: the card's own citation is the presidential-actions page for this document, and its text restates the order's two operative directives. No identifier matches mechanically because the card writes the benchmark policy in prose while the row carries the order's formal title, so the declared flag is what holds the pair."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-05-15",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14297 document record, 90 FR 20749",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/05/15/2025-08876/delivering-most-favored-nation-prescription-drug-pricing-to-american-patients",
+            "note": "Issued May 12, 2025 and published May 15, 2025. The register's disposition record carries a single cross-reference to Executive Order 14273 and no revocation or supersession entry, so it stands as published. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14233",
+        "executiveOrderNumber": 14233,
+        "title": "Establishment of the Strategic Bitcoin Reserve and United States Digital Asset Stockpile",
+        "actedAt": "2025-03-06",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/03/11/2025-03992/establishment-of-the-strategic-bitcoin-reserve-and-united-states-digital-asset-stockpile",
+        "sourceLabel": "Federal Register — Executive Order 14233, 90 FR 11789",
+        "frCitation": "90 FR 11789",
+        "frDocumentNumber": "2025-03992",
+        "publishedAt": "2025-03-11",
+        "issues": [
+          {
+            "issueKey": "crypto_cbdc",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 60,
+            "rationale": "Establishes a federal framework for digital assets already held by the government — a Strategic Bitcoin Reserve and a United States Digital Asset Stockpile under Treasury custody — and sets rules for how those holdings are accounted for and disposed of. Weighted below the two orders that regulate the asset class itself, because custody policy for government holdings answers only part of what this issue asks."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-03-11",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14233 document record, 90 FR 11789",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/03/11/2025-03992/establishment-of-the-strategic-bitcoin-reserve-and-united-states-digital-asset-stockpile",
+            "note": "Issued March 6, 2025 and published March 11, 2025. The register's disposition record for this order is empty — no revocation, supersession or cross-reference entry of any kind — so it stands as published by later presidential action. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14178",
+        "executiveOrderNumber": 14178,
+        "title": "Strengthening American Leadership in Digital Financial Technology",
+        "actedAt": "2025-01-23",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/31/2025-02123/strengthening-american-leadership-in-digital-financial-technology",
+        "sourceLabel": "Federal Register — Executive Order 14178, 90 FR 8647",
+        "frCitation": "90 FR 8647",
+        "frDocumentNumber": "2025-02123",
+        "publishedAt": "2025-01-31",
+        "issues": [
+          {
+            "issueKey": "crypto_cbdc",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs agencies to protect access to public blockchain networks and to develop a federal regulatory framework for digital assets, and prohibits agencies from establishing, issuing or promoting a United States central bank digital currency."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-31",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14178 document record, 90 FR 8647",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/31/2025-02123/strengthening-american-leadership-in-digital-financial-technology",
+            "note": "Issued January 23, 2025 and published January 31, 2025. The register's disposition record shows this order revoking Executive Order 14067 of March 9, 2022, and carries no entry revoking or superseding this order in turn, so it stands as published. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14221",
+        "executiveOrderNumber": 14221,
+        "title": "Making America Healthy Again by Empowering Patients With Clear, Accurate, and Actionable Healthcare Pricing Information",
+        "actedAt": "2025-02-25",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/28/2025-03440/making-america-healthy-again-by-empowering-patients-with-clear-accurate-and-actionable-healthcare",
+        "sourceLabel": "Federal Register — Executive Order 14221, 90 FR 11005",
+        "frCitation": "90 FR 11005",
+        "frDocumentNumber": "2025-03440",
+        "publishedAt": "2025-02-28",
+        "issues": [
+          {
+            "issueKey": "healthcare_costs",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Departments of the Treasury, Labor and Health and Human Services to enforce the hospital and health-plan price-disclosure requirements, to require disclosure of actual prices rather than estimates, and to standardize pricing data so it can be compared across providers."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-28",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14221 document record, 90 FR 11005",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/28/2025-03440/making-america-healthy-again-by-empowering-patients-with-clear-accurate-and-actionable-healthcare",
+            "note": "Issued February 25, 2025 and published February 28, 2025. The register's disposition record carries a single cross-reference to Executive Order 14158 and no revocation or supersession entry, so it stands as published. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14165",
+        "executiveOrderNumber": 14165,
+        "title": "Securing Our Borders",
+        "actedAt": "2025-01-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/30/2025-02015/securing-our-borders",
+        "sourceLabel": "Federal Register — Executive Order 14165, 90 FR 8467",
+        "frCitation": "90 FR 8467",
+        "frDocumentNumber": "2025-02015",
+        "publishedAt": "2025-01-30",
+        "issues": [
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs resumption of physical barrier construction along the southern border, deployment of personnel and detection technology to maintain operational control of it, and detention rather than release of those apprehended crossing it."
+          },
+          {
+            "issueKey": "deportations",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Directs removal of apprehended entrants and termination of practices that released them into the interior pending proceedings."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-30",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14165 document record, 90 FR 8467",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/30/2025-02015/securing-our-borders",
+            "note": "Issued January 20, 2025 and published January 30, 2025. The register's disposition record for this order is empty — no revocation, supersession or cross-reference entry of any kind — so it stands as published by later presidential action. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14159",
+        "executiveOrderNumber": 14159,
+        "title": "Protecting the American People Against Invasion",
+        "actedAt": "2025-01-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-02006/protecting-the-american-people-against-invasion",
+        "sourceLabel": "Federal Register — Executive Order 14159, 90 FR 8443",
+        "frCitation": "90 FR 8443",
+        "frDocumentNumber": "2025-02006",
+        "publishedAt": "2025-01-29",
+        "issues": [
+          {
+            "issueKey": "deportations",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Department of Homeland Security to prioritize removal of those present without authorization, to restore programs enlisting State and local officers in interior enforcement, and to expand detention capacity pending removal."
+          },
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Directs the enforcement machinery behind the border regime, including expanded detention and the use of expedited removal to the extent the statute allows."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-29",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14159 document record, 90 FR 8443",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-02006/protecting-the-american-people-against-invasion",
+            "note": "Issued January 20, 2025 and published January 29, 2025. The register's disposition record shows this order revoking Executive Orders 13993, 14010, 14011 and 14012, and carries cross-references to two later orders but no entry revoking or superseding this one, so it stands as published. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 119-26",
+        "measureNumber": "S. 331",
+        "congress": 119,
+        "chamber": "senate",
+        "title": "Halt All Lethal Trafficking of Fentanyl Act",
+        "actedAt": "2025-07-16",
+        "term": "47",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/331",
+        "sourceLabel": "Congress.gov — S. 331, 119th Congress",
+        "issues": [
+          {
+            "issueKey": "immig_fentanyl",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Section 2 amends section 202(c) of the Controlled Substances Act to place fentanyl-related substances, including their salts and isomers, on schedule I as a class rather than one compound at a time."
+          },
+          {
+            "issueKey": "tough_on_crime",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Class scheduling brings the offences and penalties attached to schedule I to bear on a whole family of related substances."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-07-16",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-26, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ26/html/PLAW-119publ26.htm",
+            "note": "Enacted and published as Public Law 119-26, approved July 16, 2025, at 139 Stat. 409. Nothing on file repeals or amends it. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 119-27",
+        "measureNumber": "S. 1582",
+        "congress": 119,
+        "chamber": "senate",
+        "title": "Guiding and Establishing National Innovation for U.S. Stablecoins Act",
+        "actedAt": "2025-07-18",
+        "term": "47",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/1582",
+        "sourceLabel": "Congress.gov — S. 1582, 119th Congress",
+        "issues": [
+          {
+            "issueKey": "crypto_cbdc",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Creates the federal regulatory regime for payment stablecoins — who may issue them, which federal banking agency supervises each class of issuer, and what reserve and disclosure obligations attach."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-07-18",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-27, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ27/html/PLAW-119publ27.htm",
+            "note": "Enacted and published as Public Law 119-27, approved July 18, 2025, at 139 Stat. 419. Nothing on file repeals or amends it. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 119-28",
+        "measureNumber": "H.R. 4",
+        "congress": 119,
+        "chamber": "house",
+        "title": "Rescissions Act of 2025",
+        "actedAt": "2025-07-24",
+        "term": "47",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4",
+        "sourceLabel": "Congress.gov — H.R. 4, 119th Congress",
+        "issues": [
+          {
+            "issueKey": "cut_spending",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Cancels unobligated balances of budget authority already appropriated, item by item, on the President's own rescission request — foreign assistance and public-broadcasting accounts among them."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-07-24",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-28, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ28/html/PLAW-119publ28.htm",
+            "note": "Enacted and published as Public Law 119-28, approved July 24, 2025, at 139 Stat. 467. Nothing on file repeals or amends it. This states that the law exists and stands as published; it is not a statement about any challenge to it."
           }
         ]
       }
