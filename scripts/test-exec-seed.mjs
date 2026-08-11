@@ -2,8 +2,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    ✒️ EXECUTIVE ENACTMENT RECORD — seed gate
    ═══════════════════════════════════════════════════════════════════════════
-   Gates the curated action data in db/exec-action-seed.json — wave 1 (Phase 3) and
-   wave 2 — on three things the lane's honesty actually depends on:
+   Gates the curated action data in db/exec-action-seed.json — wave 1 (Phase 3),
+   wave 2 and wave 3 — on three things the lane's honesty actually depends on:
 
      1. SOURCE QUALITY. Every action and every standing must cite a document a
         reader can open. This is not a style rule: "partly blocked in court" is a
@@ -64,7 +64,8 @@ const ISSUE_KEYS = J("db/issue-keys.json").keys;
 // choose between editing an applied migration and failing this suite.
 const MIGRATION_RELS = [
   "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql",
-  "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql"
+  "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql",
+  "netlify/database/migrations/20260824000000_seed_exec_actions_wave3.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -108,7 +109,9 @@ console.log("── ✒️ exec seed: curated actions ────────�
    open by showing an action with no class rather than closed by refusing it.
    ═══════════════════════════════════════════════════════════════════════════ */
 section("1 · shape and vocabulary");
-ok(ACTIONS.length === 6, `the seed carries six actions — five from wave 1, EO 14156 from wave 2 (got ${ACTIONS.length})`);
+// Pinned, because the point of the count is to notice a wave that silently half
+// landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3.
+ok(ACTIONS.length === 17, `the seed carries seventeen actions — 5 from wave 1, 1 from wave 2, 11 from wave 3 (got ${ACTIONS.length})`);
 
 const seenDocIds = new Set(), seenTitles = new Set(), seenFrDocs = new Set();
 for (const a of ACTIONS) {
@@ -421,12 +424,12 @@ if (sum) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 2 && C.executive_order === 4, `class split is 2 laws + 4 orders (got ${C.signed_law}+${C.executive_order})`);
+  ok(C.signed_law === 5 && C.executive_order === 12, `class split is 5 laws + 12 orders (got ${C.signed_law}+${C.executive_order})`);
 
-  // "Upgrade or hold" — verified as an outcome, not a promise. Every wave-1 item
-  // cleared the source gate, and every one carries a citable standing.
-  ok(sum.dropped === 0, `no wave-1 action was held back for a weak source (dropped ${sum.dropped})`);
-  ok(sum.unstatedStanding === 0, `every wave-1 action has a cited standing (uncited ${sum.unstatedStanding})`);
+  // "Upgrade or hold" — verified as an outcome, not a promise. Every item in every
+  // wave cleared the source gate, and every one carries a citable standing.
+  ok(sum.dropped === 0, `no action was held back for a weak source (dropped ${sum.dropped})`);
+  ok(sum.unstatedStanding === 0, `every action has a cited standing (uncited ${sum.unstatedStanding})`);
 
   // Axis B is doing real work: EO 14248 is partly blocked, so the standing clause is
   // sticky and `contested` must be true.
@@ -495,16 +498,23 @@ const fixture = (issueKey, direction, status) => ({
   status: status || []
 });
 
-// (a) `against`. crypto_cbdc is a stated 'support' with no wave-1 action, so it sits
-// in noActionFound today. One opposing action must move it to `against` — and must
-// NOT be folded into coverage, which is the failure mode decision 5 forbids in the
-// other direction.
-setActions([...ACTIONS, fixture("crypto_cbdc", "opposes")]);
+// (a) `against`. The issue is CHOSEN FROM THE DATA rather than named. This check was
+// originally written against crypto_cbdc, which was a stated 'support' with nothing
+// on file; wave 3 gave that issue two real advancing actions, which would have turned
+// the fixture into a `bothWays` case while the assertion still said `against`. A
+// hardcoded key does not fail when the data moves under it — it quietly starts
+// proving something else. So the key is found by asking the shipped read path which
+// stated positions currently have no action on file.
+const positionMap = ctx.window._polPositionMap("trump", ctx.window.CMP_DATA.trump) || {};
+const noActionKey = Object.keys(positionMap).sort().find((k) =>
+  positionMap[k].stance === "support" && EX.issue("trump", k).token === "said_not_done");
+ok(!!noActionKey, "a stated 'support' position with no action on file exists to drive the against fixture");
+setActions([...ACTIONS, fixture(noActionKey, "opposes")]);
 const vsAgainst = EX.summary("trump");
 ok(!!vsAgainst, "the summary survives an action that cuts against a stated position");
 if (vsAgainst && baseline) {
   ok(vsAgainst.issues.against === baseline.issues.against + 1,
-    `an opposing action lands in against (${baseline.issues.against} → ${vsAgainst.issues.against})`);
+    `an opposing action lands in against (${noActionKey}: ${baseline.issues.against} → ${vsAgainst.issues.against})`);
   ok(vsAgainst.issues.noActionFound === baseline.issues.noActionFound - 1,
     "the issue leaves coverage when an action for it arrives");
   ok(new RegExp("acted against it on " + vsAgainst.issues.against).test(vsAgainst.label),

@@ -461,11 +461,19 @@
   // came from the Official Record itself — this function classifies nothing.
   function testOf(it, pid) {
     // Word that cannot carry a number, decided in the ledger: a position written
-    // from the record itself, or a signature issue with no issue key. Reported as
-    // coverage, never as a mark against anyone.
+    // from the record itself, a signature issue with no issue key, or an issue
+    // whose one scored slot is already taken. Reported as coverage, never as a
+    // mark against anyone.
+    //
+    // The third case only started firing once pledges were itemized. Rule 4 gives
+    // each issue exactly one scored item and the pledge tier claims it first, so a
+    // perfectly well-mapped position card can now come back unscored — and it was
+    // being reported as "no issue mapping", which is not true of it and reads to a
+    // gap list as sloppy data rather than as the deduplication it is.
     if (it.scored === false) {
       return { state: 'untested', token: 'no_record',
-               reason: it.kind === 'position-derived' ? 'record_derived' : 'not_issue_linked' };
+               reason: it.kind === 'position-derived' ? 'record_derived'
+                     : (it.issueKey ? 'spoken_for' : 'not_issue_linked') };
     }
     // A tracked pledge is tested by its own resolution: the ledger records kept /
     // broken against sourced outcomes, and an unresolved pledge is not a failure.

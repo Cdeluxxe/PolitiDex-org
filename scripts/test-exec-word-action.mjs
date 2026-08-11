@@ -346,15 +346,29 @@ ok(r.testedWeight >= WA.MIN_TESTED_WEIGHT,
 ok(r.coverage.scorable > r.tested.length,
   "read: coverage still reports the untested remainder rather than hiding it");
 
-// Every tested row is basis 'exec-actions' — the lane names itself, so a surface can
-// cite the document instead of a vote, and nothing silently borrowed a roll call.
+// Every tested row names the lane that tested it, and there are exactly two lanes a
+// president can be tested by: the executive record, and their own itemized pledges
+// resolved against their own sources. Both are checked here rather than pinning one,
+// because the thing this assertion exists to catch is a borrowed roll call — a
+// president scored on a vote they could not cast. 'pledge-ledger' is not that: it
+// never consults the record at all, which is why an itemized pledge can be tested on
+// an issue whose stance card is circular against the only document on file.
+const PRESIDENTIAL_BASES = ["exec-actions", "pledge-ledger"];
 for (const t of r.tested) {
-  eq(t.test.basis, "exec-actions", `read: ${t.issueKey} is tested by the executive record`);
+  ok(PRESIDENTIAL_BASES.indexOf(t.test.basis) !== -1,
+    `read: ${t.issueKey} is tested by the executive record or the pledge ledger (got "${t.test.basis}")`);
   eq(t.test.state, "tested", `read: ${t.issueKey} is a real test, not a placeholder`);
   ok(typeof t.test.score === "number", `read: ${t.issueKey} carries a numeric score`);
   ok(t.test.evidence >= 1 && t.test.evidence <= WA.EVIDENCE_CAP,
     `read: ${t.issueKey}'s evidence weight respects EVIDENCE_CAP`);
 }
+// Neither lane may go quiet. If every tested row came from the pledge ledger the exec
+// adapter could be broken and this file would still pass; if every row came from the
+// record, the pledge tier would be decorative. Both must be carrying rows.
+ok(r.tested.some((t) => t.test.basis === "exec-actions"),
+  "read: the executive record is testing at least one row — the adapter is not idle");
+ok(r.tested.some((t) => t.test.basis === "pledge-ledger"),
+  "read: the pledge ledger is testing at least one row — the tier is not decorative");
 
 // ONE percentage. Not two, not a presidential variant, not a pledge tally.
 eq(ER.issue(PID, "border_security").score, null,
@@ -365,9 +379,14 @@ const heroR = WA.heroRead ? WA.heroRead(PID, P) : null;
 if (heroR) {
   eq(heroR.pct, r.pct, "one read: the hero and the section report the same number");
 }
-// The pledge tier is a form of "said", not a parallel track.
-eq(r.tiers.pledge && r.tiers.pledge.total, 0,
-  "one read: trump has no itemised pledges on file — and none were invented to fill the gap");
+// The pledge tier is a form of "said", not a parallel track. It now carries eleven
+// itemized pledges, and the assertion that matters is not how many — it is that they
+// feed the SAME percentage and produce no second one. The count is derived from the
+// data so itemizing more pledges never has to touch this line.
+eq(r.tiers.pledge && r.tiers.pledge.total, (P.promises || []).length,
+  "one read: every itemized pledge on file reaches the tier — none silently dropped");
+ok((P.promises || []).length > 0,
+  "one read: the itemized pledges are actually present (a zero here makes the tier assertions vacuous)");
 ok(!("pledgePct" in r) && !("promiseScore" in r),
   "one read: the read exposes no second percentage under any name");
 
@@ -395,14 +414,29 @@ lacks(XA.proofText({ documentId: "Executive Order 99999", actionClass: "executiv
 has(XA.proofText({ documentId: "Executive Order 99999", actionClass: "executive_order" }),
   "Executive Order 99999", "vocabulary: but the document is still named");
 
-// The flagship dot rows: "They did" must name the action, and the count must be in
-// this lane's noun.
+// The flagship dot rows: "They did" must name the action, and it must be named in the
+// noun of whichever lane resolved it. A president's dot rows now come from two places
+// — an executive document, or a pledge resolved in the ledger — and the failure this
+// guards against is the same for both: a row that says "They did" and then shows a
+// count of votes, or nothing at all.
+const DOT_KIND_FOR = { "exec-actions": "exec-action", "pledge-ledger": "ledger" };
 const dots = WA.dots(PID, P, { limit: 5 });
 ok(dots.length >= 3, "vocabulary: the president has dot rows to render");
 for (const d of dots) {
-  eq(d.outcome.basis, "exec-actions", `vocabulary: dot row ${d.issueKey} is on the executive lane`);
+  const want = DOT_KIND_FOR[d.outcome.basis];
+  ok(!!want, `vocabulary: dot row ${d.issueKey} is on a presidential lane (got "${d.outcome.basis}")`);
   ok(d.actions.length >= 1, `vocabulary: dot row ${d.issueKey} names what they DID`);
-  for (const a of d.actions) eq(a.kind, "exec-action", "vocabulary: dot-row actions are exec actions");
+  for (const a of d.actions) eq(a.kind, want, `vocabulary: dot-row action on ${d.issueKey} is a ${want}`);
+}
+// The "judged N" count renders only when the outcome carries a judged tally, and only
+// the record lane does. A pledge row therefore shows no count rather than a count of
+// one — which is the honest rendering: its evidence is its own sourced outcome, not a
+// tally of documents. What must never appear is the vote noun.
+for (const d of dots) {
+  if (d.outcome.basis !== "exec-actions") {
+    eq(typeof d.outcome.judged === "number" && d.outcome.judged > 0, false,
+      `vocabulary: pledge dot row ${d.issueKey} claims no tally of judged records`);
+  }
 }
 const dotsHtml = WA.dotsHtml(PID, P, { limit: 5 });
 lacks(dotsHtml, "judged vote", "vocabulary: no dot row calls a signature a judged vote");
@@ -447,11 +481,17 @@ has(sec, "No stated position yet",
       `\n    empty file with the document sitting in its own evidence list`);
   }
   // …and the other half: an exec-eligible figure must never sit in a roll-call wait.
-  for (const k of ["tariffs_growth", "cost_living", "restraint", "crypto_cbdc"]) {
-    const ovk = CS.officialRecord(PID, k);
-    eq(ovk.execTouched || 0, 0,
-      `${k} now has an executive action on file — pick a different control issue here`);
-    eq(!!ovk.pending, false,
+  // The control issues are DISCOVERED, not named. This list used to read
+  // ["tariffs_growth", "cost_living", "restraint", "crypto_cbdc"], and wave 3 put real
+  // documents behind two of them — a hardcoded list does not fail when the seed grows
+  // under it, it just starts asserting the opposite of what it was written to assert.
+  // So the untouched issues are taken from the data and every one of them is checked.
+  const stated = Object.keys(win._polPositionMap(PID, P) || {});
+  const controls = stated.filter((k) => (CS.officialRecord(PID, k).execTouched || 0) === 0);
+  ok(controls.length >= 1,
+    "there is still at least one stated position with no executive action on file — the roll-call-wait control");
+  for (const k of controls) {
+    eq(!!CS.officialRecord(PID, k).pending, false,
       `${k} is still 'pending' on a president: that is a wait on a roll call that will never` +
       `\n    arrive, it never clears, and issueRow() refuses the public-record basis while it stands`);
   }
