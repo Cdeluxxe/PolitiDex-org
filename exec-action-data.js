@@ -409,9 +409,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue cites this order by number: \"Signed EO 14248, 'Preserving and Protecting the Integrity of American Elections'\". No other action on file reaches this issue, so it stands as coverage rather than as a test."
+            "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form."
           },
           {
             "issueKey": "election_integrity",
@@ -472,18 +470,14 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Imposes a baseline ad valorem duty on imports from nearly all trading partners plus higher country-specific rates, on the stated ground that persistent goods trade deficits have hollowed out the domestic manufacturing base.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue names this order by number and by date — it reads \"he signed Executive Order 14257 on April 2, 2025\" — so the card was written from this document and cannot be the word this document tests. The mechanical guard in consistency.js#execCircular would catch this pair on its own; the flag is declared as well so the pair stays held if that card is ever reworded."
+            "rationale": "Imposes a baseline ad valorem duty on imports from nearly all trading partners plus higher country-specific rates, on the stated ground that persistent goods trade deficits have hollowed out the domestic manufacturing base."
           },
           {
             "issueKey": "tariffs_authority",
             "direction": "opposes",
             "isPrimary": false,
             "weight": 75,
-            "rationale": "Sets tariff rates by executive order under the International Emergency Economic Powers Act rather than under a rate schedule enacted by Congress.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue is written about the litigation over this very order: it describes the first presidential invocation of IEEPA to set tariffs and cites the Supreme Court's opinion in the case challenging it. A card written from the case about a document cannot serve as independent word about that document. No identifier in the card matches this row mechanically, so the flag is the only thing holding the pair — which is what declared flags are for."
+            "rationale": "Sets tariff rates by executive order under the International Emergency Economic Powers Act rather than under a rate schedule enacted by Congress."
           },
           {
             "issueKey": "tariffs_prices",
@@ -647,9 +641,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Directs agencies to protect access to public blockchain networks and to develop a federal regulatory framework for digital assets, and prohibits agencies from establishing, issuing or promoting a United States central bank digital currency.",
-            "circularWithStance": true,
-            "circularNote": "This order IS the stance card's source: the card cites the presidential-actions page for this document, and its closing clause — that he directed agencies not to establish or promote a United States central bank digital currency — is this order's operative prohibition restated. Declared because the card's prose names no number or title, so nothing would match mechanically."
+            "rationale": "Directs agencies to protect access to public blockchain networks and to develop a federal regulatory framework for digital assets, and prohibits agencies from establishing, issuing or promoting a United States central bank digital currency."
           }
         ],
         "status": [
@@ -682,9 +674,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Directs the Departments of the Treasury, Labor and Health and Human Services to enforce the hospital and health-plan price-disclosure requirements, to require disclosure of actual prices rather than estimates, and to standardize pricing data so it can be compared across providers.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue is a description of this order: it recites the three departments this order names, the actual-prices-not-estimates requirement this order imposes, and the earlier transparency order this one builds on. It cites the administration's fact sheet about the order rather than the order itself, which is why nothing matches mechanically — the identifier is not in the card even though the whole card came from the document. Declared, so the pair stays held."
+            "rationale": "Directs the Departments of the Treasury, Labor and Health and Human Services to enforce the hospital and health-plan price-disclosure requirements, to require disclosure of actual prices rather than estimates, and to standardize pricing data so it can be compared across providers."
           }
         ],
         "status": [
@@ -835,9 +825,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Creates the federal regulatory regime for payment stablecoins — who may issue them, which federal banking agency supervises each class of issuer, and what reserve and disclosure obligations attach.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue says he 'signed the GENIUS Act stablecoin framework', naming this law by its short title. A card that names the law cannot be the word the law tests."
+            "rationale": "Creates the federal regulatory regime for payment stablecoins — who may issue them, which federal banking agency supervises each class of issuer, and what reserve and disclosure obligations attach."
           }
         ],
         "status": [
@@ -869,9 +857,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
-            "rationale": "Cancels unobligated balances of budget authority already appropriated, item by item, on the President's own rescission request — foreign assistance and public-broadcasting accounts among them.",
-            "circularWithStance": true,
-            "circularNote": "The stance card on this issue names this law by its short title and recites its size: it says he 'sent Congress a rescissions request that became the Rescissions Act of 2025'. Both the declared flag and the mechanical identifier match fire on this pair."
+            "rationale": "Cancels unobligated balances of budget authority already appropriated, item by item, on the President's own rescission request — foreign assistance and public-broadcasting accounts among them."
           }
         ],
         "status": [

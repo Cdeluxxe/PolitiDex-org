@@ -406,10 +406,18 @@ for (const re of PRES_FORBIDDEN) {
 }
 has(presSweep, "executive action", "the president's record never names what they actually did");
 // The lane noun reaches the derivation rows too — this is the newest surface and the
-// easiest place for "vote" to creep back in.
+// easiest place for "vote" to creep back in. Word-bounded for the same reason the
+// sweep above is: the rows are titled with ISSUE_MAP labels, and "Voter ID & Election
+// Integrity" contains the substring "vote" while saying nothing about a roll call. A
+// bare substring check here reported a vocabulary breach the moment an executive
+// action reached that issue, which is a row this lane is supposed to be able to show.
 const presRows = WA.sectionHtml(PRES, PP);
 const presRowsText = text(presRows.slice(presRows.indexOf("pdxwa-rows")));
-lacks(presRowsText, "vote", "the president's Said → Did rows count votes");
+for (const re of PRES_FORBIDDEN) {
+  const m = presRowsText.match(re);
+  ok(!m, `the president's Said → Did rows count votes: ${re} matched ${JSON.stringify(
+    m ? presRowsText.slice(Math.max(0, m.index - 60), m.index + 40) : "")}`);
+}
 has(presRowsText, "executive action", "the president's Said → Did rows do not count executive actions");
 
 // The congressional lane keeps its vocabulary — this consolidation is not a rename.
