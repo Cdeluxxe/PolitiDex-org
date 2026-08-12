@@ -434,7 +434,14 @@ const SOFT = {
     ['gaps.js',           'word-action.css',    /\.pdxg-row\b/,    'coverage gap rows'],
     ['stance-library.js', 'stance-library.css', /\.sl-chip--core/, 'Stance Library chips and cards'],
     ['spotlight-hub.js',  null,                 null,              'Issue Spotlight cards'],
-    ['profiles-full.js',  'app.css',            /\.pdx-issue-tie/, 'the issue-tie chip']
+    ['profiles-full.js',  'app.css',            /\.pdx-issue-tie/, 'the issue-tie chip'],
+    // consistency.js renders the Official Record rows, the awaiting rows, the
+    // Stances & Connections rows, the Say-vs-Do rows and the divergence rows —
+    // more issue-named rows than any other file in the app, and for a long time
+    // the only issue surface that never asked the colour module at all. Its CSS
+    // is injected from a string inside the same file, so both halves are checked
+    // against that one path.
+    ['consistency.js',    'consistency.js',     /\.pdxc-ic\b/,     'Official Record and stance rows']
   ];
   surfaces.forEach(([js, css, probe, name]) => {
     const src = read(js);
@@ -442,8 +449,13 @@ const SOFT = {
     ok(/styleFor/.test(src), `${name}: ${js} must use styleFor rather than reading hexes off the map`);
     // Every call site must be guarded — issue-colors.js is deferred like
     // everything else and a surface that assumes it is present will throw and
-    // take its whole panel down.
-    ok(/window\.PDXIssueColors && typeof window\.PDXIssueColors\.styleFor === 'function'|IC && typeof IC\.styleFor === 'function'/.test(src),
+    // take its whole panel down. Both spellings of the same guard count: the
+    // positive `IC && typeof IC.styleFor === 'function'` and the early-return
+    // `if (!IC || typeof IC.styleFor !== 'function')`. What is being tested is
+    // that the presence of the module is checked, not how it is phrased.
+    ok(/(window\.)?PDXIssueColors && typeof (window\.)?PDXIssueColors\.styleFor === 'function'/.test(src) ||
+       /IC && typeof IC\.styleFor === 'function'/.test(src) ||
+       /!IC \|\| typeof IC\.styleFor !== 'function'/.test(src),
       `${name}: ${js} must guard the PDXIssueColors call`);
     if (css && probe) {
       const c = read(css);
@@ -463,8 +475,40 @@ const SOFT = {
   ok(/pdxwa-row-verdict" style="color:' \+ col/.test(WA),
     'the verdict must keep its own colour on the row label');
   const WACSS = read('word-action.css');
-  ok(/border-left: 2px solid var\(--pdx-ic, var\(--pdxwa-col/.test(WACSS),
-    'the row spine must prefer the issue colour and keep the verdict colour as last-resort fallback');
+  // The spine is the ISSUE and nothing else. `--pdxwa-col` — the verdict colour —
+  // must not appear in its fallback chain: a row that failed to resolve its issue
+  // used to come back verdict-green, which is indistinguishable from a deliberate
+  // colour and quietly turns "no colour system" into "the wrong colour system".
+  // The steel hex is the honest fallback; it reads as absence.
+  const spine = WACSS.match(/\.pdxwa-row \{[^}]*\}/);
+  ok(spine, '.pdxwa-row must still declare its own block');
+  ok(/border-left: \d+px solid var\(--pdx-ic, #/.test(spine ? spine[0] : ''),
+    'the row spine must take the issue colour and fall back to neutral, never to the verdict colour');
+  ok(!/var\(--pdx-ic,\s*var\(--pdxwa-col/.test(WACSS),
+    'the verdict colour must never be a fallback for the issue spine');
+  // A resolved issue gets the louder treatment; an unresolved one keeps the thin
+  // neutral edge. The class is what tells them apart, so it has to exist on both
+  // sides — emitted by the renderer, consumed by the stylesheet.
+  ok(/pdxwa-ic/.test(WA), 'word-action.js must mark resolved rows with .pdxwa-ic');
+  ok(/\.pdxwa-row\.pdxwa-ic/.test(WACSS), 'word-action.css must give .pdxwa-ic its own stronger treatment');
+  ok(/var\(--pdx-ic-wash/.test(WACSS), 'the row tint must use the wash token, not the chip-strength soft token');
+
+  // consistency.js: same contract, its own class. The Official Record row is a
+  // <details>, so its open state needs the colour too or the row loses its
+  // identity at exactly the moment the reader is deepest in it.
+  const CJS = read('consistency.js');
+  ok(/\.pdxor-issue\.pdxc-ic\{border-left:\d+px solid var\(--pdx-ic\)/.test(CJS),
+    'Official Record rows must take the issue colour on the spine');
+  ok(/\.pdxor-row\.pdxc-ic\[open\]/.test(CJS),
+    'an opened Official Record row must keep its issue colour');
+  ok(/\.pdxsd \.pdxor-issue\.pdxc-ic/.test(CJS),
+    'the Say-vs-Do gold accent must yield to a resolved issue colour');
+  ok(/\.pdxst-row\.pdxc-ic/.test(CJS) && /\.pdxdv-row\.pdxc-ic/.test(CJS),
+    'stance rows and divergence rows must take the issue colour too');
+  // Guarded, and honest about a miss: no key or no module means no class, which
+  // means the row renders exactly as it did before the colour system existed.
+  ok(/on \? ' pdxc-ic' : ''/.test(CJS),
+    'consistency.js must only apply .pdxc-ic when the key resolved to a core issue');
 
   // Non-issue elements must NOT be forced into the issue palette.
   ok(/\.sl-chip--hot/.test(read('stance-library.css')),

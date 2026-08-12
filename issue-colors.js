@@ -28,11 +28,14 @@
    them give on the dark navy background, so each entry also carries `ink`: the
    same hue lightened just far enough to clear 4.5:1 against #0a0f1e, computed
    at load rather than hand-tuned so it cannot drift from `color`. Use `color`
-   for borders and fills, `ink` for text, `soft` for backgrounds.
+   for borders and fills, `ink` for text, `soft` for a flat background, and
+   `wash` — the same hue at a higher alpha — for a full-width row that has to
+   read as belonging to its issue from across the page.
 
    API:
-     PDXIssueColors.CORE_ISSUE_COLORS       → { coreKey: {label,color,soft,…} }
+     PDXIssueColors.CORE_ISSUE_COLORS       → { coreKey: {label,color,soft,wash,…} }
      PDXIssueColors.getIssueColor(k [, lu]) → token for a core OR leaf key
+     PDXIssueColors.isCore(k [, lu])        → did this key hit a real core issue?
      PDXIssueColors.FALLBACK                → the neutral slate token
      PDXIssueColors.styleFor(k [, lu])      → inline "--pdx-ic:…" style string
      PDXIssueColors.cssText() / injectVars()→ :root custom properties
@@ -47,6 +50,14 @@
   var SOFT_ALPHA = 0.14;
   var FALLBACK_SOFT_ALPHA = 0.12;
   var MIN_TEXT_CONTRAST = 4.5;
+  // `soft` is the flat-fill alpha every chip and pill was tuned against, and it
+  // stays exactly where it is. `wash` is its louder sibling, for the one job the
+  // flat fill was never strong enough to do: a full-width row in a stack of rows,
+  // where the tint has to survive being read at a glance next to a coloured edge.
+  // Used as the near stop of a horizontal gradient, so the colour concentrates
+  // against the spine and fades out before it reaches the text.
+  var WASH_ALPHA = 0.26;
+  var FALLBACK_WASH_ALPHA = 0.10;
 
   // ── The palette ────────────────────────────────────────────────────────────
   // Keyed by the CORE_NATIONAL_ISSUES key exactly as alignment-tool.js declares
@@ -132,7 +143,7 @@
   }
 
   // ── Token construction ─────────────────────────────────────────────────────
-  function makeToken(key, label, hex, softAlpha, mapped) {
+  function makeToken(key, label, hex, softAlpha, mapped, washAlpha) {
     var rgb = toRgb(hex);
     var triplet = rgb.join(', ');
     return {
@@ -141,17 +152,18 @@
       color: hex,                                        // borders, spines, fills
       colorRgb: triplet,                                 // compose your own alpha
       soft: 'rgba(' + triplet + ', ' + softAlpha + ')',  // backgrounds
+      wash: 'rgba(' + triplet + ', ' + (washAlpha == null ? WASH_ALPHA : washAlpha) + ')',
       ink: toHex(inkFor(rgb)),                           // small text on navy
       mapped: !!mapped                                   // false = fell back
     };
   }
 
-  var FALLBACK = makeToken('', 'Other issue', '#94A3B8', FALLBACK_SOFT_ALPHA, false);
+  var FALLBACK = makeToken('', 'Other issue', '#94A3B8', FALLBACK_SOFT_ALPHA, false, FALLBACK_WASH_ALPHA);
 
   var CORE_ISSUE_COLORS = {};
   var ORDER = [];
   PALETTE.forEach(function (row) {
-    CORE_ISSUE_COLORS[row[0]] = makeToken(row[0], row[1], row[2], SOFT_ALPHA, true);
+    CORE_ISSUE_COLORS[row[0]] = makeToken(row[0], row[1], row[2], SOFT_ALPHA, true, WASH_ALPHA);
     ORDER.push(row[0]);
   });
 
@@ -238,7 +250,17 @@
   // got, which is what keeps the CSS free of any per-issue rules.
   function styleFor(coreOrIssueKey, coreLookup) {
     var t = getIssueColor(coreOrIssueKey, coreLookup);
-    return '--pdx-ic:' + t.color + ';--pdx-ic-soft:' + t.soft + ';--pdx-ic-ink:' + t.ink + ';';
+    return '--pdx-ic:' + t.color + ';--pdx-ic-soft:' + t.soft + ';--pdx-ic-wash:' + t.wash +
+           ';--pdx-ic-ink:' + t.ink + ';';
+  }
+
+  // "Did this key land on a real Core National Issue?" — the question a row asks
+  // before it decides whether the colour treatment is meaningful or whether it is
+  // about to paint everything the same neutral slate. Callers that want the token
+  // itself still use getIssueColor().mapped; this is the readable one-liner for a
+  // renderer that only needs the boolean to pick a class name.
+  function isCore(coreOrIssueKey, coreLookup) {
+    return !!getIssueColor(coreOrIssueKey, coreLookup).mapped;
   }
 
   // :root properties for the static case — a stylesheet that knows its issue at
@@ -248,10 +270,12 @@
       var t = CORE_ISSUE_COLORS[k];
       return '  --pdx-issue-' + k + ': ' + t.color + ';\n' +
              '  --pdx-issue-' + k + '-soft: ' + t.soft + ';\n' +
+             '  --pdx-issue-' + k + '-wash: ' + t.wash + ';\n' +
              '  --pdx-issue-' + k + '-ink: ' + t.ink + ';';
     });
     lines.push('  --pdx-issue-fallback: ' + FALLBACK.color + ';\n' +
                '  --pdx-issue-fallback-soft: ' + FALLBACK.soft + ';\n' +
+               '  --pdx-issue-fallback-wash: ' + FALLBACK.wash + ';\n' +
                '  --pdx-issue-fallback-ink: ' + FALLBACK.ink + ';');
     return ':root {\n' + lines.join('\n') + '\n}\n';
   }
@@ -276,6 +300,7 @@
     ALIASES: ALIASES,
     getIssueColor: getIssueColor,
     coreKeyFor: coreKeyFor,
+    isCore: isCore,
     styleFor: styleFor,
     cssText: cssText,
     injectVars: injectVars,

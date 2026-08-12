@@ -42,11 +42,14 @@
 }
 
 /* ── The headline: number + verdict ───────────────────────────────────────── */
+/* The first screen has one job: number, verdict, one line, then real issues. The
+   spacing below is deliberately tighter than a normal card's — every extra
+   sixteenth of an inch here is a row of the reader's screen spent on nothing. */
 .pdxwa-top {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.6rem;
 }
 .pdxwa-num {
   flex: 0 0 auto;
@@ -66,7 +69,9 @@
 }
 .pdxwa-num-v {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.1rem;
+  /* The single loudest thing on the card. It was competing with the section
+     title and the verdict word for first place; now it wins outright. */
+  font-size: 2.5rem;
   line-height: 1;
   color: var(--pdxwa-col);
 }
@@ -83,14 +88,14 @@
 .pdxwa-say { flex: 1 1 auto; min-width: 0; }
 .pdxwa-verdict {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   letter-spacing: 0.03em;
   line-height: 1.1;
 }
 .pdxwa-line {
-  margin: 0.25rem 0 0;
+  margin: 0.22rem 0 0;
   font-size: 0.74rem;
-  line-height: 1.5;
+  line-height: 1.45;
   color: #9fb4d4;
 }
 
@@ -192,13 +197,13 @@
    Wraps rather than scrolls: three short items fit one line on a phone at the
    common counts and fold to two when they don't. A horizontal scroller here
    would be a nested scroll trap inside an already-scrolling modal. */
-.pdxwa-basis { margin: 0 0 0.7rem; }
+.pdxwa-basis { margin: 0 0 0.55rem; }
 .pdxwa-basis-d {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.3rem 0.85rem;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
   font-size: 0.68rem;
   line-height: 1.5;
   color: #7f97bb;
@@ -274,16 +279,21 @@
    hold, an unitemized-pledge row — keeps the neutral slate spine, which is the
    same slate issue-colors.js falls back to, so the two never disagree. */
 .pdxg-row {
-  border-left: 2px solid var(--pdx-ic, rgba(148, 163, 184, 0.4));
+  border-left: 3px solid var(--pdx-ic, rgba(148, 163, 184, 0.4));
   background:
-    linear-gradient(var(--pdx-ic-soft, transparent), var(--pdx-ic-soft, transparent)),
+    linear-gradient(90deg, var(--pdx-ic-wash, var(--pdx-ic-soft, transparent)), transparent 62%),
     rgba(10, 15, 30, 0.45);
   border-radius: 0 0.55rem 0.55rem 0;
   padding: 0.55rem 0.6rem;
 }
 /* A held row is explaining the method, not naming a research target, so it stays
    deliberately uncoloured even when it carries an issue key. */
-.pdxg-row-hold { --pdx-ic: rgba(148, 163, 184, 0.4); --pdx-ic-soft: transparent; }
+.pdxg-row-hold {
+  --pdx-ic: rgba(148, 163, 184, 0.4);
+  --pdx-ic-soft: transparent;
+  --pdx-ic-wash: transparent;
+  border-left-width: 2px;
+}
 .pdxg-row-h {
   display: flex;
   flex-wrap: wrap;
@@ -468,7 +478,7 @@
 /* ── Top issue rows — Said → Did → Verdict → Receipts ───────────────────────
    The spine, on the card that carries the one score. Three rows at most: the
    sharpest tested issues, in the same rank order the Official Record uses. */
-.pdxwa-rows { margin-top: 0.75rem; }
+.pdxwa-rows { margin-top: 0.55rem; }
 .pdxwa-rows-h {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
@@ -480,22 +490,45 @@
 }
 .pdxwa-rows-l { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
 /* The spine is the ISSUE colour (issue-colors.js), so the same issue reads the
-   same here, in the Stance Library, on a Spotlight card and on a coverage gap.
-   An issue outside the core set resolves to neutral slate rather than borrowing
-   a colour that means something else. `--pdxwa-col` — the verdict colour — is
-   kept only as the last-resort fallback for a render that happens before
-   issue-colors.js loads, so a row can never be left without a spine. The verdict
-   keeps its own colour on its own label, so nothing about the judgement is lost:
-   two colour vocabularies, side by side, meaning different things. The tint is
-   layered over the existing panel background rather than replacing it, so the
-   row keeps its depth on the dark navy. */
+   same here, in the Official Record, in the Stance Library, on a Spotlight card
+   and on a coverage gap. `--pdxwa-col` — the verdict colour — is NOT in the
+   spine's fallback chain: a row that failed to resolve its issue used to come
+   back verdict-green, which is indistinguishable from a deliberate colour and
+   made a broken row look like a working one. An unresolved row gets neutral
+   slate and says so by omitting .pdxwa-ic.
+
+   4px, not 2px. At 2px on a dark navy panel with a 14% tint the treatment was
+   technically present and practically invisible — the reported symptom. The
+   tint is now a horizontal wash that concentrates against the spine and clears
+   the text well before it gets there, so the colour is legible at a glance
+   without costing any contrast on the copy. The verdict keeps its own colour on
+   its own label: two colour vocabularies, side by side, meaning different
+   things. */
 .pdxwa-row {
-  border-left: 2px solid var(--pdx-ic, var(--pdxwa-col, #9fb4d4));
-  background:
-    linear-gradient(var(--pdx-ic-soft, transparent), var(--pdx-ic-soft, transparent)),
-    rgba(10, 15, 30, 0.45);
+  border-left: 2px solid var(--pdx-ic, #9fb4d4);
+  background: rgba(10, 15, 30, 0.45);
   border-radius: 0 0.55rem 0.55rem 0;
   padding: 0.5rem 0.6rem;
+}
+.pdxwa-row.pdxwa-ic {
+  border-left-width: 4px;
+  border-left-color: var(--pdx-ic);
+  background:
+    linear-gradient(90deg, var(--pdx-ic-wash, var(--pdx-ic-soft, transparent)), transparent 62%),
+    rgba(10, 15, 30, 0.45);
+}
+/* The issue's colour, said once more where the eye actually lands — on the issue
+   name. A 4px edge answers "which issue is this row" while scanning the stack;
+   the dot answers it while reading the row itself. */
+.pdxwa-row-dot {
+  display: inline-block;
+  width: 0.44rem;
+  height: 0.44rem;
+  border-radius: 999px;
+  margin-right: 0.34rem;
+  vertical-align: 0.06em;
+  background: var(--pdx-ic, #9fb4d4);
+  box-shadow: 0 0 0 2px var(--pdx-ic-soft, transparent);
 }
 .pdxwa-row-h {
   display: flex;
@@ -613,6 +646,17 @@
   padding: 0.16rem 0;
   font-size: 0.76rem;
   line-height: 1.35;
+}
+/* The outcome list is grouped by verdict, so the group heading is already the
+   verdict colour. The row inside it is an ISSUE, and gets the issue's colour —
+   otherwise the same issue is one colour in the "backed it up" group and another
+   in the "mixed" group, which is the opposite of what a shared palette is for. */
+.pdxwa-oc-row.pdxwa-ic {
+  border-left: 3px solid var(--pdx-ic);
+  border-radius: 0 0.3rem 0.3rem 0;
+  padding: 0.2rem 0.35rem 0.2rem 0.45rem;
+  margin: 0.12rem 0;
+  background: linear-gradient(90deg, var(--pdx-ic-wash, transparent), transparent 58%);
 }
 .pdxwa-oc-issue { color: #dbe6f5; font-weight: 600; }
 .pdxwa-oc-meta { color: #6f88ab; font-size: 0.68rem; }
