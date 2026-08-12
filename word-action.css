@@ -183,6 +183,288 @@
 }
 .pdxwa-cov-n { color: #cbd9ec; font-weight: 700; }
 
+/* ── The basis digest ──────────────────────────────────────────────────────
+   One line where the tier table and the coverage sentence used to sit, so the
+   eye travels from the percentage to the first issue row without crossing two
+   dense blocks. The table and the sentence are unchanged; they are now inside
+   the wa-basis lid, which sits immediately below this line.
+
+   Wraps rather than scrolls: three short items fit one line on a phone at the
+   common counts and fold to two when they don't. A horizontal scroller here
+   would be a nested scroll trap inside an already-scrolling modal. */
+.pdxwa-basis { margin: 0 0 0.7rem; }
+.pdxwa-basis-d {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.85rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #7f97bb;
+}
+.pdxwa-basis-i { display: inline-flex; align-items: baseline; gap: 0.28rem; }
+.pdxwa-basis-ico { font-size: 0.78rem; line-height: 1; }
+.pdxwa-basis-n { color: #cbd9ec; font-weight: 700; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COVERAGE GAPS  ·  rendered by gaps.js (window.PDXGaps.panelHtml)
+   ────────────────────────────────────────────────────────────────────────────
+   Sits directly under the coverage line: one collapsed row by default, so a
+   profile never grows a wall of "missing" before the reader asks for it. The
+   whole block is deliberately cooler and quieter than a score surface — a gap
+   is our homework, not a finding, and must never read as a verdict colour.
+   Mobile first: one control per line, ≥44px tap targets, no horizontal scroll.
+   ══════════════════════════════════════════════════════════════════════════ */
+.pdxg { margin-top: 0.5rem; }
+
+/* The collapsed line */
+.pdxg-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  width: 100%;
+  min-height: 2.75rem;              /* ≥44px tap target */
+  padding: 0.45rem 0.6rem;
+  border: 1px dashed rgba(148, 163, 184, 0.32);
+  border-radius: 0.55rem;
+  background: rgba(10, 15, 30, 0.35);
+  color: #9fb4d4;
+  font: inherit;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pdxg-toggle:hover,
+.pdxg-toggle:focus-visible {
+  border-color: rgba(148, 163, 184, 0.55);
+  background: rgba(14, 21, 40, 0.6);
+  color: #cbd9ec;
+}
+.pdxg-toggle-ico { color: #7596c0; flex: 0 0 auto; }
+.pdxg-toggle-t { flex: 1 1 8rem; min-width: 0; }
+.pdxg-toggle-t b { color: #dbe6f5; font-weight: 700; }
+.pdxg-toggle-cta {
+  flex: 0 0 auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #7596c0;
+}
+
+/* The expanded body */
+.pdxg-body { padding-top: 0.5rem; }
+.pdxg-note {
+  margin: 0 0 0.5rem;
+  font-size: 0.68rem;
+  line-height: 1.55;
+  color: #7f97bb;
+}
+.pdxg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+
+/* One gap. Issue-linked gaps wear their issue's colour on the spine so a reader
+   scanning the list can tell "the healthcare hole" from "the immigration hole"
+   at a glance, and so the row matches the Word vs Action row above it and the
+   Stance Library card it points at. A gap with no issue behind it — a below-floor
+   hold, an unitemized-pledge row — keeps the neutral slate spine, which is the
+   same slate issue-colors.js falls back to, so the two never disagree. */
+.pdxg-row {
+  border-left: 2px solid var(--pdx-ic, rgba(148, 163, 184, 0.4));
+  background:
+    linear-gradient(var(--pdx-ic-soft, transparent), var(--pdx-ic-soft, transparent)),
+    rgba(10, 15, 30, 0.45);
+  border-radius: 0 0.55rem 0.55rem 0;
+  padding: 0.55rem 0.6rem;
+}
+/* A held row is explaining the method, not naming a research target, so it stays
+   deliberately uncoloured even when it carries an issue key. */
+.pdxg-row-hold { --pdx-ic: rgba(148, 163, 184, 0.4); --pdx-ic-soft: transparent; }
+.pdxg-row-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.3rem;
+}
+.pdxg-row-label {
+  flex: 1 1 10rem;
+  min-width: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #dbe6f5;
+}
+.pdxg-row-tag {
+  flex: 0 0 auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8fb0dc;
+  border: 1px solid rgba(143, 176, 220, 0.4);
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.3rem;
+}
+.pdxg-row-tag-hold { color: #8ba2c4; border-color: rgba(139, 162, 196, 0.3); }
+.pdxg-row-detail {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: #8ba2c4;
+}
+.pdxg-row-ask {
+  margin: 0.35rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #7f97bb;
+}
+.pdxg-row-ask-k {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #7596c0;
+  margin-right: 0.25rem;
+}
+
+/* Engagement + ask. The engagement row is the shared item-thread control, so we
+   only own the layout around it. */
+.pdxg-row-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  margin-top: 0.5rem;
+}
+.pdxg-row-bar .pdx-engage { flex: 1 1 auto; min-width: 0; }
+.pdxg-ask-btn {
+  flex: 0 0 auto;
+  min-height: 2.75rem;              /* ≥44px tap target */
+  padding: 0.3rem 0.7rem;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  border-radius: 0.45rem;
+  background: rgba(37, 99, 235, 0.16);
+  color: #bfdbfe;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.pdxg-ask-btn:hover,
+.pdxg-ask-btn:focus-visible {
+  background: rgba(37, 99, 235, 0.3);
+  border-color: rgba(147, 197, 253, 0.7);
+  color: #eff6ff;
+}
+
+/* Explain-only rows: no ask, one link into the method they came from. */
+.pdxg-row-hold { border-left-style: dotted; opacity: 0.92; }
+.pdxg-method-link {
+  margin-top: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #7596c0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.pdxg-method-link:hover,
+.pdxg-method-link:focus-visible { color: #a9c4e8; }
+
+.pdxg-more,
+.pdxg-leads-more {
+  margin: 0.45rem 0 0;
+  font-size: 0.66rem;
+  color: #6f88ab;
+}
+.pdxg-holds { margin-top: 0.6rem; }
+.pdxg-holds-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7596c0;
+  margin-bottom: 0.4rem;
+}
+
+/* ── Suggested leads under a gap ─────────────────────────────────────────────
+   A lead is a research question, not a receipt. No verdict colour, no strength
+   badge, no percentage — an amber, explicitly community-labelled card that can
+   never be mistaken for something the Evidence Locker verified. */
+.pdxg-leads { margin-top: 0.55rem; display: grid; gap: 0.4rem; }
+.pdxg-leads-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b08a4a;
+}
+.pdxg-lead {
+  border: 1px dashed rgba(217, 164, 74, 0.4);
+  border-radius: 0.5rem;
+  background: rgba(60, 44, 16, 0.28);
+  padding: 0.45rem 0.55rem;
+}
+.pdxg-lead-top { display: flex; flex-wrap: wrap; gap: 0.25rem 0.3rem; margin-bottom: 0.25rem; }
+.pdxg-lead-pill,
+.pdxg-lead-state {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.3rem;
+  border: 1px solid rgba(217, 164, 74, 0.45);
+  color: #e8c07d;
+}
+.pdxg-lead-community { border-color: rgba(148, 163, 184, 0.4); color: #a8bad2; }
+.pdxg-lead-state { border-color: rgba(148, 163, 184, 0.35); color: #93a7c2; }
+.pdxg-lead-sourced { border-color: rgba(74, 222, 128, 0.4); color: #86efac; }
+.pdxg-lead-head {
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #e6d7bb;
+}
+.pdxg-lead-meta { margin-top: 0.15rem; font-size: 0.62rem; color: #9d8a68; }
+.pdxg-lead-open {
+  margin-top: 0.3rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #d9a44a;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: left;
+}
+.pdxg-lead-open:hover,
+.pdxg-lead-open:focus-visible { color: #f0c583; }
+/* The narrow-phone pass for these controls lives in app.css, where this codebase
+   keeps broad phone layout — see the note at the end of that file. */
+
+
 /* ── Top issue rows — Said → Did → Verdict → Receipts ───────────────────────
    The spine, on the card that carries the one score. Three rows at most: the
    sharpest tested issues, in the same rank order the Official Record uses. */
@@ -197,9 +479,21 @@
   margin-bottom: 0.4rem;
 }
 .pdxwa-rows-l { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+/* The spine is the ISSUE colour (issue-colors.js), so the same issue reads the
+   same here, in the Stance Library, on a Spotlight card and on a coverage gap.
+   An issue outside the core set resolves to neutral slate rather than borrowing
+   a colour that means something else. `--pdxwa-col` — the verdict colour — is
+   kept only as the last-resort fallback for a render that happens before
+   issue-colors.js loads, so a row can never be left without a spine. The verdict
+   keeps its own colour on its own label, so nothing about the judgement is lost:
+   two colour vocabularies, side by side, meaning different things. The tint is
+   layered over the existing panel background rather than replacing it, so the
+   row keeps its depth on the dark navy. */
 .pdxwa-row {
-  border-left: 2px solid var(--pdxwa-col, #9fb4d4);
-  background: rgba(10, 15, 30, 0.45);
+  border-left: 2px solid var(--pdx-ic, var(--pdxwa-col, #9fb4d4));
+  background:
+    linear-gradient(var(--pdx-ic-soft, transparent), var(--pdx-ic-soft, transparent)),
+    rgba(10, 15, 30, 0.45);
   border-radius: 0 0.55rem 0.55rem 0;
   padding: 0.5rem 0.6rem;
 }

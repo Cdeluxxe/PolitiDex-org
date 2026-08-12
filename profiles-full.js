@@ -2640,7 +2640,12 @@
       if (!issueKey || typeof ISSUE_MAP === 'undefined' || !ISSUE_MAP || !ISSUE_MAP[issueKey]) return '';
       var lbl = ISSUE_MAP[issueKey].label || 'this issue';
       var lead = prefix || 'On the issue:';
-      return '<span class="pdx-issue-tie" title="This Spotlight item connects to the &quot;' + lbl +
+      // The chip wears the issue's own colour (issue-colors.js), so the tie reads
+      // as the same issue the reader just saw in the Stance Library or on a Word
+      // vs Action row rather than as a generic "related" badge.
+      var ic = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
+        ? ' style="' + window.PDXIssueColors.styleFor(issueKey) + '"' : '';
+      return '<span class="pdx-issue-tie"' + ic + ' title="This Spotlight item connects to the &quot;' + lbl +
         '&quot; position — compare it in the Alignment Tool.">🔗 ' + lead + ' ' + lbl + '</span>';
     } catch (e) { return ''; }
   };
@@ -6604,7 +6609,53 @@
     return false;
   };
 
+  // ── Per-profile memory of which folds the reader opened ─────────────────────
+  // The coverage-gaps panel has kept this for its own toggle since it shipped, and
+  // for a good reason: Word vs Action repaints itself in place when the voting
+  // record warms, and a repaint that forgets is a repaint that closes the section
+  // under the reader's hands mid-sentence. Every lid on the profile has exactly
+  // that problem, so the memory moves down here, to the one toggle they all share.
+  //
+  // Keyed by profile, not just by element id — the ids are stable across people
+  // ('pdxsp-lid-wa-basis' is the same string on every profile), so a global map
+  // would open Massie's basis because you once opened Trump's.
+  var _ddOpen = Object.create(null);
+  function _ddKey(id) {
+    return String(window._pdxCurrentProfileId || '') + ' ' + String(id);
+  }
+
+  // Re-open, inside `root`, every fold this reader had open on this profile.
+  // Called after an in-place repaint. It only ever OPENS: a fold the reader closed
+  // is already closed in the fresh markup, and re-closing it would fight a section
+  // that legitimately renders something open by default.
+  window._pdxRestoreDD = function (root) {
+    var reopened = 0;
+    try {
+      var nodes = (root || document).querySelectorAll('.dd-body[id]');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (el.classList.contains('dd-open')) continue;
+        if (!_ddOpen[_ddKey(el.id)]) continue;
+        toggleDD(el.id);
+        reopened++;
+      }
+    } catch (e) {}
+    return reopened;
+  };
+
   function toggleDD(id) {
+    const body = document.getElementById(id);
+    const btn  = document.getElementById('btn-' + id);
+    if (!body || !btn) return;
+    // Where the control sits on screen right now. Everything below happens in one
+    // synchronous block — materialising a deferred inner can insert real DOM above
+    // this button, and a reader who taps a fold and finds the button they aimed at
+    // somewhere else has lost their place in a page whose whole point is scanning.
+    // Measured before materialize(), corrected after the class flip.
+    const scroller = document.getElementById('modal-body');
+    const beforeTop = (scroller && typeof btn.getBoundingClientRect === 'function')
+      ? btn.getBoundingClientRect().top : null;
+
     // Mount a deferred inner BEFORE the open class goes on, so the reveal and the
     // content land in the same frame — the reader never sees an open, empty drawer
     // — and so _pdxDrainCharts below runs against a subtree that exists.
@@ -6612,15 +6663,20 @@
       var SP = window.PDXProfileSpine;
       if (SP && typeof SP.materialize === 'function') SP.materialize(id);
     } catch (e) {}
-    const body = document.getElementById(id);
-    const btn  = document.getElementById('btn-' + id);
-    if (!body || !btn) return;
     const isOpen = body.classList.contains('dd-open');
     body.classList.toggle('dd-open', !isOpen);
     btn.classList.toggle('dd-active', !isOpen);
     // Keep the button's state readable to assistive tech, and draw anything that
     // was waiting for this box to have a size.
     try { btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true'); } catch (e) {}
+    _ddOpen[_ddKey(id)] = !isOpen;
+    if (beforeTop !== null) {
+      try {
+        var drift = btn.getBoundingClientRect().top - beforeTop;
+        // Sub-pixel drift is layout rounding, not movement worth chasing.
+        if (drift > 1 || drift < -1) scroller.scrollTop += drift;
+      } catch (e) {}
+    }
     if (!isOpen) _pdxDrainCharts();
   }
 

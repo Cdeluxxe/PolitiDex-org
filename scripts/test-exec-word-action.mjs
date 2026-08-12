@@ -454,8 +454,11 @@ const sweep = secText.split(/\s{2,}/).filter((s) => s.indexOf("cites the bill pa
 for (const word of ["voted ", "roll call", " yea", " nay", "no votes yet", "qualifying votes"]) {
   lacks(sweep, word, `vocabulary: the president's Official Record section never says "${word.trim()}"`);
 }
-has(sec, "When they could act on their own, did they do what they said?",
-  "vocabulary: the section asks the question that is actually true of the office");
+// The section's question moved into the "How to read this" sheet when the header was
+// compressed to two lines. The office-awareness did not move with it: the header
+// digest names what these rows were tested against, in the lane's own nouns.
+has(sec, "orders, signings and vetoes",
+  "vocabulary: the section names the record that is actually true of the office");
 // Empty rows must never be captioned with a claim their own evidence list refutes.
 // Three different things can be missing here and each gets its own true caption.
 has(sec, "On file, not scorable",
@@ -580,10 +583,10 @@ for (const k of CS.issuesWithSignal(MEMBER, "official")) {
 }
 // The member's section keeps the congressional wording, verbatim.
 const msec = CS.officialRecordSectionHtml(MEMBER, MP);
-has(msec, "When they had to vote, did they stand by what they said?",
-  "control: the member is still asked the roll-call question");
-lacks(msec, "When they could act on their own",
-  "control: and is not asked the executive one");
+has(msec, "tested against roll-call votes",
+  "control: the member's section stopped naming the roll-call record");
+lacks(msec, "orders, signings and vetoes",
+  "control: and is not told its rows were tested against an executive record");
 lacks(msec, "No action on file yet", "control: empty member rows still say 'No votes yet'");
 lacks(msec, "judged action", "control: the member's composition still counts votes");
 

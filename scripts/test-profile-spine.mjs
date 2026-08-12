@@ -445,8 +445,24 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "charts: both drawer charts are deferred rather than drawn into a zero-height canvas");
   ok(/function _pdxDrainCharts/.test(PF) && /if \(!isOpen\) _pdxDrainCharts\(\);/.test(PF),
      "charts: toggleDD draws any pending chart on the open that first gives its canvas a size");
-  ok(/aria-expanded/.test(PF.slice(PF.indexOf("function toggleDD"), PF.indexOf("function toggleDD") + 900)),
+  // The toggle's own body, sliced at its closing brace rather than by a character
+  // budget — the function grew a scroll-anchor and an open-memory, and a fixed
+  // window silently stops covering the end of it.
+  const ddStart = PF.indexOf("function toggleDD");
+  const ddBody = PF.slice(ddStart, PF.indexOf("\n  }", ddStart));
+  ok(/aria-expanded/.test(ddBody),
      "charts: toggleDD also keeps aria-expanded honest, since drawers are now a primary navigation surface");
+  // The reader's place on the page survives a fold. Measured before materialize()
+  // (which can insert real DOM above the button) and corrected after the flip.
+  ok(/getBoundingClientRect/.test(ddBody) && /scrollTop \+=/.test(ddBody),
+     "toggleDD no longer pins the control the reader tapped — opening a fold moves the page\n" +
+     "    under them, which is the failure the summary-first trim exists to remove");
+  // Per-profile open memory, so an in-place repaint does not close a fold mid-read.
+  ok(/_ddOpen\[_ddKey\(id\)\] = !isOpen;/.test(ddBody),
+     "toggleDD stopped remembering what the reader opened — a warm re-render closes it");
+  ok(/window\._pdxRestoreDD = function/.test(PF) && /_pdxCurrentProfileId/.test(PF.slice(PF.indexOf("function _ddKey"), PF.indexOf("function _ddKey") + 300)),
+     "the shared open-memory is missing or not keyed by profile — lid ids repeat across\n" +
+     "    people, so a global map opens one profile's folds because you opened another's");
 
   // 6f. Deep sections live inside closed drawers, so the quick-jump rail has to
   //     open the lid before scrolling or the pill looks like it does nothing.
@@ -825,9 +841,33 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      dv.indexOf("actionRows.join('')") < dv.indexOf('PDXSP:lid id="dv-aligned"'),
      "lid: divergence folds only the rows where both records agree — the diverging and mixed rows, the ones that are a finding, stay open");
   const hl = WAL.slice(WAL.indexOf("function headlineHtml"), WAL.indexOf("function lidify"));
-  ok(hl.indexOf("pdxwa-num-v") < hl.indexOf("feedsHtml(pid, p, r)") &&
-     hl.indexOf("pdxwa-cov") < hl.indexOf("feedsHtml(pid, p, r)"),
-     "lid: the primary Word vs Action number, verdict and coverage line are all emitted before the fold, so the one score is still the first thing read");
+  // The coverage line is no longer emitted here — it moved inside basisHtml's lid,
+  // which is the point of the trim. The order assertion moves with it, or it passes
+  // for the wrong reason: indexOf("pdxwa-cov") is -1 now, and -1 is less than
+  // everything.
+  ok(hl.indexOf("pdxwa-cov") === -1,
+     "the coverage line is back in headlineHtml — this assertion was rewritten on the\n" +
+     "    premise that it lives inside the wa-basis lid, and would now pass for the wrong\n" +
+     "    reason (indexOf returns -1, and -1 is less than everything)");
+  ok(hl.indexOf("pdxwa-num-v") < hl.indexOf("basisHtml(r)") &&
+     hl.indexOf("basisHtml(r)") < hl.indexOf("feedsHtml(pid, p, r)"),
+     "lid: the primary Word vs Action number and verdict are still emitted before the basis,\n" +
+     "    and the basis before the feeds, so the one score is the first thing read");
+  const bh = WAL.slice(WAL.indexOf("function basisHtml"), WAL.indexOf("function basisHtml") + 2600);
+  ok(bh.indexOf("pdxwa-basis-d") < bh.indexOf('PDXSP:lid id="wa-basis"'),
+     "lid: the basis digest fell behind its own lid — the one-line summary has to stay\n" +
+     "    visible or the fold removes information instead of deferring it");
+  ok(bh.indexOf('PDXSP:lid id="wa-basis"') < bh.indexOf("pdxwa-tiers") &&
+     bh.indexOf("pdxwa-tiers") < bh.indexOf("pdxwa-cov") &&
+     bh.indexOf("pdxwa-cov") < bh.indexOf("PDXSP:/lid"),
+     "lid: the tier table and the coverage sentence are not both inside the wa-basis lid");
+  ok(/defer-->/.test(bh.slice(bh.indexOf('PDXSP:lid id="wa-basis"'), bh.indexOf("pdxwa-tiers"))),
+     "lid: wa-basis stopped deferring — the tier rows are the longest prose on the card and\n" +
+     "    should not be built on a paint nobody asked for");
+  ok(/var label = 'What this score is built from · ' \+\s*\n\s*r\.coverage\.tested \+ ' of ' \+ r\.coverage\.scorable \+ ' tested';/.test(bh) &&
+     /label="' \+ label \+ '"/.test(bh),
+     "lid: the wa-basis label stopped naming its payload — a lid label must say what opening\n" +
+     "    it shows, with a count, never a bare 'See more'");
 
   // 10h. The repaint paths. Both of these hand HTML to innerHTML directly, so both
   //      have to resolve markers themselves or the fold silently disappears.

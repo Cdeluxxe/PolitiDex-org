@@ -1139,8 +1139,23 @@ const voteNarration = (issueKey, extra = {}) => ({
   // The fold is keyed on the OUTCOME, not on position in the list of non-empty
   // buckets. "The first two live buckets" opened the "not enough record yet" pile
   // on anyone with no contradictions and no mixed rows — the pile that exists to fold.
-  const lead = (h) => h.slice(0, h.indexOf('PDXSP:lid') === -1 ? h.length : h.indexOf('PDXSP:lid'));
+  //
+  // Scoped to the outcomes block rather than to the whole card. This used to slice
+  // at the card's FIRST lid, which was wa-outcomes only for as long as the outcomes
+  // block happened to hold the earliest lid on the card. The wa-basis lid now folds
+  // the tier table further up, so an unscoped slice cuts before the outcomes block
+  // even starts and every assertion below it passes or fails on the wrong string.
+  const ocOnly = (h) => {
+    const i = h.indexOf('pdxwa-oc');
+    return i === -1 ? '' : h.slice(i);
+  };
+  const lead = (h) => {
+    const b = ocOnly(h);
+    const i = b.indexOf('PDXSP:lid');
+    return i === -1 ? b : b.slice(0, i);
+  };
   const sharp = lead(mixedBag);
+  ok(sharp.length > 0, 'the outcomes block is missing entirely — every assertion below is vacuous');
   ok(/Says one thing, does another/.test(sharp) && /Mixed/.test(sharp),
     'the sharpest outcomes do not lead the block');
   ok(!/Backed it up/.test(sharp) && !/Not enough record yet/.test(sharp),
@@ -1170,6 +1185,76 @@ const voteNarration = (issueKey, extra = {}) => ({
     'a row decided by the public record does not say so — the reader cannot tell which of the\n' +
     '    two inputs resolved it, which is the honesty the merge is supposed to buy');
   ok(/3 receipts/.test(pub), 'the outcome row does not report the receipts behind it');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 15. The basis lid, driven through the REAL spine
+// ═════════════════════════════════════════════════════════════════════════════
+// The tier table and the coverage sentence are the densest thing between the
+// number and the first issue row, and they now fold. Everything about that fold
+// is a promise made in a comment string — `<!--PDXSP:lid …-->` — which means a
+// typo in the sentinel, a bulk that falls under the 240-char floor, or a stray
+// second sentinel inside the region does not throw. It renders the block inline
+// and looks exactly like a change that never landed. So the marker is resolved
+// here by the actual applyLids(), not asserted against source text.
+{
+  const SPINE_SRC = read('profile-spine.js');
+  const b = build({
+    stances: [quoted('gun_rights'), quoted('healthcare'), quoted('immigration')],
+    record: {
+      gun_rights: { score: 100, token: 'consistent', judged: 2 },
+      healthcare: { score: 0, token: 'contradicts', judged: 2 }
+    }
+  });
+  vm.runInContext(SPINE_SRC, b.ctx, { filename: 'profile-spine.js' });
+  const SP = b.win.PDXProfileSpine;
+  must(SP && typeof SP.applyLids === 'function',
+    'profile-spine.js no longer publishes applyLids on window.PDXProfileSpine');
+
+  const raw = b.WA.headlineHtml('p1', { name: 'Basis' });
+  must(/PDXSP:lid id="wa-basis"/.test(raw), 'headlineHtml no longer emits the wa-basis sentinel');
+
+  // The digest survives, the bulk does not, and the fold is a real control.
+  const out = SP.applyLids(raw);
+  ok(!/PDXSP:/.test(out),
+    'a PDXSP sentinel survived into the output — it would sit in the page as an HTML\n' +
+    '    comment, which is what an unresolved marker looks like from the outside');
+  ok(/pdxwa-basis-d/.test(out) && !/pdxwa-tiers/.test(out) && !/pdxwa-cov\b/.test(out),
+    'the wa-basis lid rendered inline: the tier table and coverage sentence are still in the\n' +
+    '    first paint, so the trim did not happen');
+  ok(/id="pdxsp-lid-wa-basis"/.test(out) && /toggleDD\('pdxsp-lid-wa-basis'\)/.test(out) &&
+     /aria-expanded="false"/.test(out),
+    'the basis fold does not use the shared toggle contract');
+  ok(/data-pdxsp-defer="pdxsp-lid-wa-basis"/.test(out) &&
+     SP._deferredIds().indexOf('pdxsp-lid-wa-basis') !== -1,
+    'wa-basis is not deferred — the tier rows are built into the DOM on a paint nobody asked for');
+  ok(SP.hasTarget('pdxsp-lid-wa-basis'),
+    'the spine cannot see the stashed basis body, so anything jumping to it concludes the\n' +
+    '    content was deleted');
+
+  // The label names its payload with counts, per the lid rule. Never "See more".
+  const label = (out.match(/pdxsp-lid-label">([^<]*)</) || [])[1] || '';
+  ok(/What this score is built from/.test(label) && /\d+ of \d+ tested/.test(label),
+    `the wa-basis label does not state its payload with a count — got ${JSON.stringify(label)}`);
+
+  // It lives inside the body the warm re-render swaps. If it drifted outside,
+  // the repaint would drop the fold and the reader would get the dense block back
+  // the moment the voting record warmed.
+  const bodyAt = out.indexOf('data-pdxwa-body');
+  ok(bodyAt !== -1 && bodyAt < out.indexOf('id="pdxsp-lid-wa-basis"'),
+    'the wa-basis lid is outside [data-pdxwa-body] — the warm re-render replaces that\n' +
+    '    subtree, so the fold would not survive the record arriving');
+
+  // And it rebuilds under reclaim, which is the mode lidify() uses on that repaint.
+  // Without this the second render hits the duplicate-id guard and falls back to
+  // inline — the fold would work exactly once per profile.
+  const warmOut = SP.applyLids(raw, true);
+  ok(/id="pdxsp-lid-wa-basis"/.test(warmOut) && !/pdxwa-tiers/.test(warmOut),
+    'wa-basis does not survive a reclaim repaint — the fold opens once and then the dense\n' +
+    '    block comes back for the rest of the session');
+  const plain = SP.applyLids(raw);
+  ok(!/id="pdxsp-lid-wa-basis"/.test(plain) && /pdxwa-tiers/.test(plain),
+    'a second non-reclaim render claimed the same id — two nodes answering to one control');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

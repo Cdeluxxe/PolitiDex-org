@@ -1701,13 +1701,6 @@
       // question; the row that answers it is briefly ringed so it is findable.
       '.pdxm-row-focus{border-radius:0.5rem;box-shadow:0 0 0 2px rgba(127,180,255,0.55);background:rgba(127,180,255,0.07);}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}' +
-      // ── the both-lanes strip, inside the one Official Record gateway ────────
-      '.pdxor-lanes{margin:0.4rem 0 0.55rem;padding:0.45rem 0.6rem;border:1px solid rgba(159,180,212,0.16);border-radius:0.55rem;background:rgba(10,15,30,0.4);}' +
-      '.pdxor-lanes-h{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;margin-bottom:0.3rem;}' +
-      '.pdxor-lane{display:flex;flex-direction:column;gap:0.05rem;padding:0.22rem 0;}' +
-      '.pdxor-lane-n{font-weight:700;font-size:0.78rem;color:#dbe6f5;}' +
-      '.pdxor-lane-b{font-size:0.7rem;line-height:1.4;color:#93a9c8;}' +
-      '.pdxor-lanes-f{font-size:0.66rem;line-height:1.4;color:#6f88ab;margin-top:0.3rem;}' +
       // ── 🧭 Stances & Connections ──────────────────────────────────────────
       // The "what they stand for" layer. Deliberately lighter chrome than the
       // Official Record: this is a map, not a verdict engine, and the verdict it
@@ -2153,25 +2146,18 @@
     if (vote) keys.push('vote');
     return { exec: exec, vote: vote, both: exec && vote, keys: keys };
   }
-  var _LANE_META = {
-    exec: { ico: '✒️', label: 'Executive actions', blurb: 'Laws signed and vetoed, executive orders and formal directives — what they did with power they held alone.' },
-    vote: { ico: '🏛️', label: 'Roll-call votes',   blurb: 'Recorded votes and formal legislative actions — what they did when the question was put to them.' }
-  };
-  // The lane strip. Printed ONLY when a person has both kinds of service: with one
-  // lane there is nothing to distinguish, and a header announcing "this section has
-  // one lane" is chrome for its own sake.
-  function _orLaneStripHtml(lanes) {
-    if (!lanes || !lanes.both) return '';
-    return '<div class="pdxor-lanes">' +
-        '<div class="pdxor-lanes-h">Two kinds of formal record, one gateway</div>' +
-        lanes.keys.map(function (k) {
-          var m = _LANE_META[k];
-          return '<div class="pdxor-lane"><span class="pdxor-lane-n">' + m.ico + ' ' + esc(m.label) + '</span>' +
-            '<span class="pdxor-lane-b">' + esc(m.blurb) + '</span></div>';
-        }).join('') +
-        '<div class="pdxor-lanes-f">Every issue row below is judged on the lane the action came from and says which one it was — the two records are never pooled into one figure.</div>' +
-      '</div>';
-  }
+  // THE LANE STRIP IS GONE FROM THE HEADER. It printed a titled box with one row
+  // per lane and a footer, only for the handful of figures who have served in both
+  // kinds of office — and it printed it above the first issue row, where it was the
+  // third of six stacked blocks a reader had to cross to reach the record.
+  //
+  // Nothing it asserted was lost. The rule a reader cannot infer from the rows
+  // themselves — there are two records here and they are never pooled — is now a
+  // clause in the header digest, printed on exactly the same condition (lanes.both).
+  // The per-lane descriptions moved into the 'voting-record' How-to-read sheet,
+  // which this header already links, under "Two kinds of formal record". Every issue
+  // row still names its own lane, which is what made the strip redundant prose
+  // rather than load-bearing markup.
   var _OR_ROW = {
     consistent:  { ico: '✓', label: 'Backed it up',   cls: 'consistent' },
     contradicts: { ico: '⚠', label: 'Contradicts',    cls: 'contradicts' },
@@ -3356,6 +3342,32 @@
       ? overallComp + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
       : '<span class="pdxc-chip pdxc-' + om.cls + '">' + (overall.token === 'pending' ? '<span class="pdxc-spin"></span>' : om.ico + ' ') + esc(om.label) + '</span>';
 
+    // ── The header, in two lines ───────────────────────────────────────────
+    // It used to be six stacked blocks before the first issue row: title, overall
+    // chip, the section's question in quotes, the two-lane explainer with its own
+    // header and footer, and a two-sentence note about what the results feed. All
+    // of it true, none of it the answer a reader opened the section for — and on a
+    // dual-lane profile it ran most of a phone screen before the record began.
+    //
+    // What survives is what cannot be looked up: the title, the overall verdict,
+    // and a digest counting what is actually below. The prose moved into the
+    // "How to read this" sheet that was already wired into this header — so it is
+    // one tap away in the place a reader already goes for it, rather than deleted.
+    // The section's question used to sit on its own line, in quotes, in two office-
+    // aware wordings. The wording is now in the sheet — but the OFFICE-AWARENESS is
+    // not prose and does not move: the digest names what these rows were actually
+    // tested against, in the lane's own nouns, so a president's Official Record still
+    // never frames itself around a vote he never cast.
+    var digest = [];
+    digest.push(scored.length + ' issue' + (scored.length === 1 ? '' : 's') + ' tested against ' +
+      (isExecSection ? 'orders, signings and vetoes' : 'roll-call votes'));
+    if (awaiting > 0) {
+      digest.push(awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' awaiting one');
+    }
+    // The one lane fact a reader cannot infer from the rows: there are two records
+    // here and they are never pooled. The full explainer is in the sheet.
+    if (lanes.both) digest.push('two kinds of record, never pooled');
+
     var head =
       '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🏛️</span> ' +
           LT('officialrecord', 'Official Record') + '</span>' +
@@ -3363,17 +3375,7 @@
         // beside the title and the score stays pinned right.
         LHOWTO('voting-record', 'How to read this') +
         '<span class="pdxor-overall">' + overallHtml + '</span></div>' +
-      // The section's own question, in the lane's terms. "When they had to vote" is the
-      // right question for a legislator and a false premise for a president: the power
-      // they hold is the power to act without a vote, so the honest version asks what
-      // they did with it. Same question underneath — does the doing match the saying.
-      '<div class="pdxor-q">“' + (lanes.both
-        ? 'In both offices they have held, did they do what they said?'
-        : isExecSection
-        ? 'When they could act on their own, did they do what they said?'
-        : 'When they had to vote, did they stand by what they said?') + '”</div>' +
-      _orLaneStripHtml(lanes) +
-      _feedsPrimaryHtml('Every issue below tests something they said. These results are what the profile’s one score is built from — weighted by how firmly they said it and how deep the record behind it is.');
+      _feedsPrimaryHtml(digest.join(' · '));
 
     if (!scored.length) {
       var emptyMsg = anyPending
@@ -3534,12 +3536,21 @@
   // isn't there, so a page without the primary engine loses the line, not the layer.
   function _feedsPrimaryHtml(text) {
     try {
-      if (!window.PDXWordAction || !window.PDXWordAction.FRAME) return '';
-      var f = window.PDXWordAction.FRAME;
+      // The text is the header's whole second line now, not a footnote under three
+      // other blocks, so it renders whether or not the Word vs Action module is
+      // loaded. Only the jump button depends on that module — it is the thing that
+      // would have nowhere to go.
+      var go = '';
+      try {
+        if (window.PDXWordAction && window.PDXWordAction.FRAME) {
+          var f = window.PDXWordAction.FRAME;
+          go = '<button type="button" class="pdxc-feeds-go" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-wordaction\');else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+            f.icon + ' ' + esc(f.label) + ' <span aria-hidden="true">→</span></button>';
+        }
+      } catch (e2) { go = ''; }
+      if (!text && !go) return '';
       return '<div class="pdxc-feeds">' +
-        '<span class="pdxc-feeds-t">' + esc(text) + '</span>' +
-        '<button type="button" class="pdxc-feeds-go" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-wordaction\');else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
-          f.icon + ' ' + esc(f.label) + ' <span aria-hidden="true">→</span></button>' +
+        '<span class="pdxc-feeds-t">' + esc(text) + '</span>' + go +
       '</div>';
     } catch (e) { return ''; }
   }

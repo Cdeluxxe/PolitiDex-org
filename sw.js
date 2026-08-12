@@ -98,6 +98,10 @@ const SHELL_ASSETS = [
   '/cmp-data.js',
   '/stance-helpers.js',
   '/alignment-tool.js',
+  // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
+  // repeat visit keeps issues colour-coded instead of falling back to slate
+  // everywhere, which would read as "nothing is a core issue".
+  '/issue-colors.js',
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',
@@ -149,6 +153,10 @@ const SHELL_ASSETS = [
   '/profile-dossier.js',
   '/profile-dossier.css',
   '/coverage.js',
+  // Coverage gaps. Cached alongside coverage.js for the same reason: without it a
+  // repeat visitor offline sees a Word vs Action panel that quietly stops saying
+  // what we have not documented, which reads as fuller coverage than we have.
+  '/gaps.js',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'

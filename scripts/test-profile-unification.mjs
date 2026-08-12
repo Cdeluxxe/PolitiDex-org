@@ -425,8 +425,11 @@ const repRows = WA.sectionHtml(REP, RP);
 const repRowsText = text(repRows.slice(repRows.indexOf("pdxwa-rows")));
 has(repRowsText, "vote", "the member's Said → Did rows stopped counting votes");
 lacks(repRowsText, "executive action", "executive vocabulary leaked onto a member of Congress");
-has(text(CS.officialRecordSectionHtml(REP, RP)), "When they had to vote",
-  "the member's Official Record no longer asks the roll-call question");
+// The section's question moved into the "How to read this" sheet when the header was
+// compressed to two lines. The office-awareness it carried did NOT move: the header
+// digest still names, in the lane's own nouns, what these rows were tested against.
+has(text(CS.officialRecordSectionHtml(REP, RP)), "tested against roll-call votes",
+  "the member's Official Record no longer says what its rows were tested against");
 
 // The last place vote vocabulary survives a merge is a cross-reference: a sub-line
 // on some OTHER section describing what the Official Record is made of. Those have
@@ -668,9 +671,15 @@ section("10 · one verdict per issue — the Say-vs-Do merge");
 // ═════════════════════════════════════════════════════════════════════════════
 section("11 · office lanes — exec, vote, and both under one gateway");
 // ═════════════════════════════════════════════════════════════════════════════
-// One Official Record section, three behaviours. The lane strip and the both-offices
-// question appear only for a figure who actually served in both kinds of role, so a
-// single-lane profile carries no chrome for a lane it does not have.
+// One Official Record section, three behaviours. The both-offices caveat appears only
+// for a figure who actually served in both kinds of role, so a single-lane profile
+// carries no chrome for a lane it does not have.
+//
+// The header used to carry this as a titled two-row strip above the first issue row.
+// It is now one clause in the header digest, printed on the same condition, with the
+// per-lane descriptions in the "How to read this" sheet the header already links. The
+// guarantee under test is unchanged: a dual-lane reader is told the two records are
+// never pooled, and a single-lane reader is not told about a lane they do not have.
 {
   must(typeof CS.recordLanes === "function", "consistency.js no longer exports recordLanes");
   const pl = CS.recordLanes(PRES), rl = CS.recordLanes(REP);
@@ -681,10 +690,13 @@ section("11 · office lanes — exec, vote, and both under one gateway");
 
   const execOnly = CS.officialRecordSectionHtml(PRES, PP);
   const voteOnly = CS.officialRecordSectionHtml(REP, RP);
-  ok(!/pdxor-lanes/.test(execOnly), "the president gets a two-lane strip for a second lane he does not have");
-  ok(!/pdxor-lanes/.test(voteOnly), "the member gets a two-lane strip for an office he has not held");
-  has(execOnly, "When they could act on their own", "the executive lane lost its own section question");
-  has(voteOnly, "When they had to vote", "the congressional lane lost its own section question");
+  const POOLED = "two kinds of record, never pooled";
+  lacks(text(execOnly), POOLED, "the president is warned about pooling a second lane he does not have");
+  lacks(text(voteOnly), POOLED, "the member is warned about pooling an office he has not held");
+  has(text(execOnly), "orders, signings and vetoes",
+    "the executive section stopped naming what its rows were tested against");
+  has(text(voteOnly), "roll-call votes",
+    "the congressional section stopped naming what its rows were tested against");
 
   // BOTH LANES. No figure in the shipped roster has served in both kinds of office, so
   // the case is driven rather than waited for: executive eligibility is stubbed onto a
@@ -697,10 +709,9 @@ section("11 · office lanes — exec, vote, and both under one gateway");
   try {
     win.PDXExecRecord.eligible = (id) => id === PRES || id === REP;
     const both = CS.officialRecordSectionHtml(REP, RP);
-    ok(/pdxor-lanes/.test(both), "a figure with both records gets no lane strip — the two lanes read as one undifferentiated pile");
-    has(both, "In both offices they have held", "the both-lanes section does not ask a both-lanes question");
-    has(both, "Executive actions", "the both-lanes strip does not name the executive lane");
-    has(both, "Roll-call votes", "the both-lanes strip does not name the roll-call lane");
+    has(text(both), POOLED,
+      "a figure with both records is not told the records are separate — the two lanes read\n" +
+      "    as one undifferentiated pile");
     eq((both.match(/id="pdxsec-official-record"/g) || []).length,
        (voteOnly.match(/id="pdxsec-official-record"/g) || []).length,
       "mounting both lanes mounted a second Official Record — the lanes go under ONE gateway");
@@ -909,7 +920,8 @@ section("14 · one verdict VOCABULARY per issue — the Flashpoints boundary");
     "massie's Official Record carries executive-only vocabulary he has no office for");
   ok(/\broll[- ]call\b|\bvoted\b|\bvotes\b/i.test(text(or3)),
     "massie's Official Record does not speak in votes");
-  ok(!/pdxor-lanes/.test(or3), "a single-lane figure is shown the two-lane strip");
+  ok(!/two kinds of record, never pooled/.test(text(or3)),
+    "a single-lane figure is warned about pooling two records they do not have");
 
   // ── folds, on all three ──
   // Budgets, not snapshots: they fail when a fold stops folding, not when the data

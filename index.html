@@ -7924,6 +7924,33 @@ window.PDXLazy = (function () {
     .cee-pill-kind-evidence { background: rgba(96,165,250,0.14); color: #93c5fd; border: 1px solid rgba(96,165,250,0.34); }
     .cee-pill-kind-lead { background: rgba(148,163,184,0.14); color: #cbd5e1; border: 1px solid rgba(148,163,184,0.3); }
 
+    /* ── Coverage-gap context (Suggest-a-Lead) ──────────────────────────────
+       A lead's source state and the gap it answers. Neither is a verification
+       badge: "has source" only means the submitter attached a link for a curator
+       to check. Kept visually quieter than the imported/locker pills so a lead
+       can never be mistaken for curated evidence. */
+    .cee-pill-lead-sourced { background: rgba(74,222,128,0.1); color: #86efac; border: 1px solid rgba(74,222,128,0.3); }
+    .cee-pill-lead-needs { background: rgba(148,163,184,0.1); color: #9fb1cd; border: 1px dashed rgba(148,163,184,0.35); }
+    .cee-pill-gap { background: rgba(245,200,66,0.08); color: #d9a44a; border: 1px dashed rgba(217,164,74,0.4); }
+
+    /* The locked context block at the top of a gap-scoped compose. Read-only by
+       design — the submitter chooses the claim, never which record it lands on. */
+    .cee-gap-lock {
+      border: 1px dashed rgba(217,164,74,0.4); background: rgba(60,44,16,0.22);
+      border-radius: 0.6rem; padding: 0.6rem 0.7rem; margin-bottom: 1rem;
+    }
+    .cee-gap-lock-h {
+      font-family: 'Barlow Condensed',sans-serif; font-weight: 700; font-size: 0.68rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #d9a44a; margin-bottom: 0.4rem;
+    }
+    .cee-gap-chips { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+    .cee-chip-lock { border-style: dashed; color: #e6d7bb; }
+    .cee-gap-lock-detail, .cee-gap-lock-ask {
+      margin: 0.45rem 0 0; font-size: 0.78rem; line-height: 1.5; color: #b9c6dc;
+    }
+    .cee-gap-lock-ask strong { color: #e8c07d; }
+    .cee-issue-banner-gap { border-color: rgba(217,164,74,0.35); }
+
     /* Stored AI triage, shown automatically in the moderation queue. */
     .cee-ai-triage { margin-top: 0.55rem; font-size: 0.78rem; border-radius: 0.5rem; padding: 0.5rem 0.65rem; line-height: 1.5; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; }
     .cee-ai-triage .cee-ai-rec { font-weight: 700; letter-spacing: 0.04em; }
@@ -8043,7 +8070,7 @@ window.PDXLazy = (function () {
   (function () {
     var API = '/api/community';
     var initialized = false;
-    var state = { sort: 'trending', category: '', issue: '', issueLabel: '', polContext: '', posts: [], viewer: null };
+    var state = { sort: 'trending', category: '', issue: '', issueLabel: '', polContext: '', gap: null, posts: [], viewer: null };
 
     // The five custom reactions. "Off Topic / Low Quality" is rendered as a small,
     // low-visibility control (a soft flag), per the spec.
@@ -8086,6 +8113,23 @@ window.PDXLazy = (function () {
       if (kind === 'evidence') return '<span class="cee-pill cee-pill-kind-evidence">🧾 Evidence</span>';
       if (kind === 'lead') return '<span class="cee-pill cee-pill-kind-lead">💡 Lead</span>';
       return '';
+    }
+    // Whether a lead cited anything. Deliberately NOT a verification badge: it
+    // says what the submitter attached, nothing about whether we believe it. Only
+    // a curator moving it into the Evidence Locker makes it part of the record.
+    function leadStatePill(post) {
+      if (!post || post.kind !== 'lead' || !post.leadState) return '';
+      if (post.leadState === 'has_source') {
+        return '<span class="cee-pill cee-pill-lead-sourced" title="This lead came with a source link for a curator to check">🔗 Has source</span>';
+      }
+      return '<span class="cee-pill cee-pill-lead-needs" title="This lead has no source yet — it stays a research question until one is found">◌ Needs source</span>';
+    }
+    // The coverage gap a lead was suggested for, shown as read-only context.
+    function gapPillHtml(post) {
+      if (!post || !post.gapType) return '';
+      var g = window.PDXGaps && window.PDXGaps.TYPES && window.PDXGaps.TYPES[post.gapType];
+      var label = (g && g.label) || String(post.gapType).replace(/_/g, ' ');
+      return '<span class="cee-pill cee-pill-gap" title="Suggested for a gap in our documentation">◷ ' + esc(label) + '</span>';
     }
 
     function esc(s) {
@@ -8195,6 +8239,8 @@ window.PDXLazy = (function () {
           '<div class="cee-card-top">' +
             '<span class="cee-pill cee-pill-community">Community Submitted</span>' +
             kindPill(post.kind) +
+            leadStatePill(post) +
+            gapPillHtml(post) +
             (post.categoryKey ? '<span class="cee-pill cee-pill-cat">' + esc(catLabel(post.categoryKey)) + '</span>' : '') +
             statusPill +
             (post.suggestedForReview ? '<span class="cee-pill cee-pill-cat" title="A member suggested this for the Evidence Locker">⭐ Suggested</span>' : '') +
@@ -8243,9 +8289,20 @@ window.PDXLazy = (function () {
     // links, so it adds no new data dependency and stays quiet when there's
     // nothing curated to return to.
     function issueBannerHtml() {
-      if (!state.issue && !state.polContext) return '';
+      if (!state.issue && !state.polContext && !state.gap) return '';
       var lbl = state.issueLabel || issueLabel(state.issue);
       var key = esc(state.issue);
+      // When a coverage gap was carried in from the Word vs Action panel, the
+      // banner names the gap and says plainly what this list is: suggestions for
+      // us to check, not part of the record.
+      if (state.gap) {
+        return '<div class="cee-issue-banner cee-issue-banner-gap">' +
+          '<span class="cee-issue-banner-label">◷ Leads suggested for <strong>' + esc(state.gap.label) + '</strong>' +
+            (state.gap.polName ? ' on <strong>' + esc(state.gap.polName) + '</strong>' : '') +
+            ' — things for us to check. Nothing here is part of the record until a curator verifies and sources it.</span>' +
+          '<button type="button" data-clear-issue class="cee-issue-banner-clear">Clear ✕</button>' +
+        '</div>';
+      }
       // When a politician was carried in (the "Suggest a receipt" on-ramp from a
       // gap row / thin profile / Evidence Locker), the banner reframes as a gentle
       // suggest prompt naming them; otherwise it's the plain issue-discussion
@@ -8266,11 +8323,13 @@ window.PDXLazy = (function () {
       var list = document.getElementById('cee-list');
       var banner = issueBannerHtml();
       if (!state.posts.length) {
-        list.innerHTML = banner + '<div class="cee-empty">' + (state.polContext
+        list.innerHTML = banner + '<div class="cee-empty">' + (state.gap
+          ? ('No leads suggested for this gap yet — be the first to point us at something we can check.')
+          : (state.polContext
           ? ('No community posts yet for ' + esc(state.polContext) + (state.issue ? ' on this issue' : '') + ' — be the first to suggest a receipt.')
           : (state.issue
             ? 'No community discussion on this issue yet — be the first to start one.'
-            : 'No community posts yet — be the first to surface something the Evidence Locker may have missed.')) + '</div>';
+            : 'No community posts yet — be the first to surface something the Evidence Locker may have missed.'))) + '</div>';
         enhanceLockerLinks(list);
         return;
       }
@@ -8283,10 +8342,21 @@ window.PDXLazy = (function () {
       list.innerHTML = '<div class="cee-skel"></div><div class="cee-skel"></div><div class="cee-skel"></div>';
       var qs = '?sort=' + encodeURIComponent(state.sort) +
         (state.category ? '&category=' + encodeURIComponent(state.category) : '') +
-        (state.issue ? '&issue=' + encodeURIComponent(state.issue) : '');
+        (state.issue ? '&issue=' + encodeURIComponent(state.issue) : '') +
+        // Gap context narrows the list to the leads suggested for that exact hole
+        // in our documentation, so the reader lands on the conversation they came
+        // from rather than the whole board.
+        (state.gap ? '&kind=lead&pol=' + encodeURIComponent(state.gap.pid) +
+          '&gap=' + encodeURIComponent(state.gap.type) : '');
       return api('/posts' + qs).then(function (res) {
         if (!res.ok) { list.innerHTML = '<div class="cee-empty">Could not load posts. Please try again.</div>'; return; }
         state.posts = res.data.posts || [];
+        // The server narrows to this politician + gap TYPE (both indexed); the
+        // exact gap key is matched here so a per-issue gap shows only its own
+        // leads rather than every gap of the same kind on the profile.
+        if (state.gap && state.gap.key) {
+          state.posts = state.posts.filter(function (p) { return p.gapKey === state.gap.key; });
+        }
         state.viewer = res.data.viewer || null;
         renderList();
       }).catch(function () {
@@ -8313,10 +8383,17 @@ window.PDXLazy = (function () {
     // ── Compose ────────────────────────────────────────────────────────────
     var composeTags = [];
     var composeKind = 'lead';
+    // The coverage gap a compose was opened from, or null for a normal
+    // contribution. When set, the form is LOCKED to a lead about that gap: the
+    // kind cannot be changed and the politician + gap travel with the submission
+    // as read-only chips, so a lead can never arrive claiming to be evidence, and
+    // can never be silently re-pointed at a different record.
+    var composeGap = null;
     function openCompose() {
       if (!requireSignIn()) return;
       composeTags = [];
       composeKind = 'lead';
+      var g = composeGap;
       var catOpts = '<option value="">— Select a category —</option>' + coreIssues().map(function (c) {
         return '<option value="' + esc(c.key) + '">' + esc(c.label) + '</option>';
       }).join('');
@@ -8329,31 +8406,58 @@ window.PDXLazy = (function () {
           '<span class="cee-kind-desc">' + esc(k.desc) + '</span></div>';
       }).join('');
       var modal = document.getElementById('cee-modal');
+      // Gap-locked mode: a different title, the framing sentence that draws the
+      // line between a suggestion and the record, and read-only context chips.
+      var gapBlock = !g ? '' : (
+        '<div class="cee-gap-lock">' +
+          '<div class="cee-gap-lock-h">◷ Suggesting a lead for a gap in our documentation</div>' +
+          '<div class="cee-gap-chips">' +
+            '<span class="cee-chip cee-chip-lock" title="Locked to this record">👤 ' + esc(g.polName || g.pid) + '</span>' +
+            '<span class="cee-chip cee-chip-lock" title="Locked to this gap">◷ ' + esc(g.label) + '</span>' +
+            (g.issueLabel ? '<span class="cee-chip cee-chip-lock">🏷 ' + esc(g.issueLabel) + '</span>' : '') +
+            '<span class="cee-pill cee-pill-kind-lead">💡 Lead</span>' +
+          '</div>' +
+          (g.detail ? '<p class="cee-gap-lock-detail">' + esc(g.detail) + '</p>' : '') +
+          (g.ask ? '<p class="cee-gap-lock-ask"><strong>What would fill it:</strong> ' + esc(g.ask) + '</p>' : '') +
+        '</div>');
       modal.innerHTML = '' +
-        '<div class="cee-modal-head"><div class="cee-modal-title">＋ Contribute to PolitiDex</div>' +
+        '<div class="cee-modal-head"><div class="cee-modal-title">' +
+          (g ? '＋ Suggest a lead' : '＋ Contribute to PolitiDex') + '</div>' +
           '<button class="cee-close" data-close>×</button></div>' +
-        '<p class="cee-sub" style="text-align:left;margin:-0.4rem 0 1rem;">Surface something the Evidence Locker may have missed. A moderator reviews every contribution against our writing standard before anything is added — and credits you when it graduates.</p>' +
+        '<p class="cee-sub" style="text-align:left;margin:-0.4rem 0 1rem;">' + (g
+          ? 'You are suggesting something for us to check — not adding to the record. A curator verifies and sources anything that becomes part of it.'
+          : 'Surface something the Evidence Locker may have missed. A moderator reviews every contribution against our writing standard before anything is added — and credits you when it graduates.') +
+        '</p>' +
+        gapBlock +
+        (g ? '' :
         '<div class="cee-field"><label>What are you contributing?</label>' +
-          '<div class="cee-kind-toggle" id="cee-f-kind">' + kindOpts + '</div></div>' +
-        '<div class="cee-field"><label>Headline *</label>' +
-          '<input class="cee-input" id="cee-f-headline" maxlength="200" placeholder="What did you find? Keep it factual and about the person’s own record."></div>' +
-        '<div class="cee-field"><label>Summary / Context</label>' +
-          '<textarea class="cee-textarea" id="cee-f-summary" maxlength="5000" placeholder="Explain what this is and why it matters. Stick to verifiable facts — describe what the individual said or did, not their party."></textarea></div>' +
-        '<div class="cee-field"><label id="cee-f-source-label">Source link <span class="cee-hint" style="display:inline;">(encouraged)</span></label>' +
+          '<div class="cee-kind-toggle" id="cee-f-kind">' + kindOpts + '</div></div>') +
+        '<div class="cee-field"><label>' + (g ? 'Claim to check <span class="cee-req">*</span>' : 'Headline *') + '</label>' +
+          '<input class="cee-input" id="cee-f-headline" maxlength="200" placeholder="' + (g
+            ? 'What should we check? One factual claim, in their own record’s terms.'
+            : 'What did you find? Keep it factual and about the person’s own record.') + '"></div>' +
+        '<div class="cee-field"><label>' + (g ? 'Notes for the curator' : 'Summary / Context') + '</label>' +
+          '<textarea class="cee-textarea" id="cee-f-summary" maxlength="5000" placeholder="' + (g
+            ? 'Where should we look, and what should we expect to find? Stick to verifiable facts about what they said or did.'
+            : 'Explain what this is and why it matters. Stick to verifiable facts — describe what the individual said or did, not their party.') + '"></textarea></div>' +
+        '<div class="cee-field"><label id="cee-f-source-label">Source link <span class="cee-hint" style="display:inline;">(' +
+          (g ? 'strongly encouraged' : 'encouraged') + ')</span></label>' +
           '<input class="cee-input" id="cee-f-source" maxlength="500" placeholder="https://…">' +
-          '<div class="cee-hint" id="cee-f-source-hint">A direct link lets others verify it. Required for evidence.</div>' +
+          '<div class="cee-hint" id="cee-f-source-hint">' + (g
+            ? 'A lead with a link can be checked. Without one it sits in the queue marked “needs source”.'
+            : 'A direct link lets others verify it. Required for evidence.') + '</div>' +
           '<div class="cee-yt-verify" id="cee-f-yt-verify" style="display:none;font-size:0.76rem;margin-top:0.35rem;"></div></div>' +
         '<div class="cee-field" id="cee-f-srctype-field" style="display:none;"><label>Source type</label>' +
           '<select class="cee-select" id="cee-f-srctype">' + srcTypeOpts + '</select>' +
           '<div class="cee-hint">Helps the moderator grade evidence strength. Official records and long-form interviews carry the most weight.</div></div>' +
         '<div class="cee-field"><label>Category</label>' +
           '<select class="cee-select" id="cee-f-cat">' + catOpts + '</select></div>' +
-        '<div class="cee-field"><label>Issue tags (optional)</label>' +
+        '<div class="cee-field"><label>' + (g ? 'Issue <span class="cee-hint" style="display:inline;">(strongly encouraged)</span>' : 'Issue tags (optional)') + '</label>' +
           '<div class="cee-tag-grid" id="cee-f-tags"><span style="font-size:0.76rem;color:#7e93b4;">Pick a category to see related issue tags.</span></div></div>' +
         '<div style="display:flex;gap:0.6rem;justify-content:flex-end;align-items:center;">' +
           '<div class="cee-form-msg" id="cee-f-msg" style="margin-right:auto;"></div>' +
           '<button class="cee-btn cee-btn-ghost" data-close>Cancel</button>' +
-          '<button class="cee-btn cee-btn-primary" id="cee-f-submit">Submit for Review</button>' +
+          '<button class="cee-btn cee-btn-primary" id="cee-f-submit">' + (g ? 'Submit Lead for Review' : 'Submit for Review') + '</button>' +
         '</div>';
       document.getElementById('cee-f-cat').addEventListener('change', renderComposeTags);
       document.getElementById('cee-f-submit').addEventListener('click', submitCompose);
@@ -8367,17 +8471,38 @@ window.PDXLazy = (function () {
         if (srcEl) srcEl.addEventListener('change', function () { verifyComposeYt(srcEl.value); });
       })();
       // Kind toggle: clicking a card selects it and flips the source requirement.
-      document.getElementById('cee-f-kind').addEventListener('click', function (e) {
+      // Absent in gap-locked mode — the kind is not the submitter's to change.
+      var kindEl = document.getElementById('cee-f-kind');
+      if (kindEl) kindEl.addEventListener('click', function (e) {
         var opt = e.target.closest('[data-kind]'); if (opt) setComposeKind(opt.getAttribute('data-kind'));
       });
       setComposeKind('lead');
+      // Carry the gap's issue into the category + issue tag, so a lead arrives
+      // filed where the gap lives instead of unsorted.
+      if (g && g.issueKey) prefillComposeIssue(g.issueKey);
       detailOpenId = null;
       openOverlay();
     }
+    // Select the category that owns an issue key and pre-tag that issue.
+    function prefillComposeIssue(issueKey) {
+      try {
+        var core = coreIssues().filter(function (c) { return (c.keys || []).indexOf(issueKey) >= 0; })[0];
+        if (!core) return;
+        var sel = document.getElementById('cee-f-cat');
+        if (!sel) return;
+        sel.value = core.key;
+        renderComposeTags();
+        composeTags = [issueKey];
+        var chip = document.querySelector('#cee-f-tags [data-tag="' + issueKey.replace(/"/g, '') + '"]');
+        if (chip) chip.classList.add('on');
+      } catch (e) {}
+    }
+
     // Reflect the chosen contribution kind: highlight the card, toggle the source
     // requirement marker + the source-type field so evidence clearly needs a source.
     function setComposeKind(kind) {
-      composeKind = (kind === 'evidence') ? 'evidence' : 'lead';
+      // A gap-locked compose is a lead by construction — nothing may change it.
+      composeKind = composeGap ? 'lead' : ((kind === 'evidence') ? 'evidence' : 'lead');
       Array.prototype.forEach.call(document.querySelectorAll('#cee-f-kind .cee-kind-opt'), function (el) {
         el.classList.toggle('on', el.getAttribute('data-kind') === composeKind);
       });
@@ -8454,6 +8579,15 @@ window.PDXLazy = (function () {
         categoryKey: document.getElementById('cee-f-cat').value || null,
         issueKeys: composeTags.slice()
       };
+      // Gap context travels with the submission. The server re-validates every
+      // field of it (roster, gap type, key shape) and derives lead_state itself,
+      // so nothing here is trusted on the way in.
+      if (composeGap) {
+        body.linkedPoliticianIds = [composeGap.pid];
+        body.gapKey = composeGap.key;
+        body.gapType = composeGap.type;
+      }
+      var gapAtSubmit = composeGap;
       var btn = document.getElementById('cee-f-submit');
       btn.disabled = true; msg.className = 'cee-form-msg'; msg.textContent = 'Submitting…';
       api('/posts', { method: 'POST', body: body }).then(function (res) {
@@ -8463,6 +8597,16 @@ window.PDXLazy = (function () {
         try { if (window.PDXImpact) window.PDXImpact.record('shared'); } catch (e) {}
         closeOverlay();
         _issueIndexP = null; // a new post may add discussion for a fresh issue
+        // A lead suggested from a gap row should appear under that row without a
+        // reload — the gap panel listens for this and re-reads its leads.
+        if (gapAtSubmit) {
+          composeGap = null;
+          try {
+            window.dispatchEvent(new CustomEvent('pdx-gap-lead-added', {
+              detail: { pid: gapAtSubmit.pid, gapKey: gapAtSubmit.key }
+            }));
+          } catch (e) {}
+        }
         state.sort = 'newest'; syncTabs(); loadList();
         if (isModerator()) loadModeration();
       });
@@ -8488,7 +8632,7 @@ window.PDXLazy = (function () {
       modal.innerHTML = '' +
         '<div class="cee-modal-head"><div>' +
           '<div style="margin-bottom:0.5rem;"><span class="cee-pill cee-pill-community">Community Submitted</span> ' +
-            kindPill(p.kind) + ' ' +
+            kindPill(p.kind) + ' ' + leadStatePill(p) + ' ' + gapPillHtml(p) + ' ' +
             (p.categoryKey ? '<span class="cee-pill cee-pill-cat">' + esc(catLabel(p.categoryKey)) + '</span>' : '') + '</div>' +
           '<div class="cee-modal-title">' + esc(p.headline) + '</div>' +
           '<div class="cee-meta" style="margin-top:0.4rem;"><span>by ' + esc(p.authorName) + '</span><span>· ' + ago(p.createdAt) + '</span></div>' +
@@ -8795,7 +8939,7 @@ window.PDXLazy = (function () {
 
     // ── Overlay plumbing ───────────────────────────────────────────────────
     function openOverlay() { document.getElementById('cee-overlay').classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeOverlay() { document.getElementById('cee-overlay').classList.remove('open'); document.body.style.overflow = ''; detailOpenId = null; replyTo = null; }
+    function closeOverlay() { document.getElementById('cee-overlay').classList.remove('open'); document.body.style.overflow = ''; detailOpenId = null; replyTo = null; composeGap = null; }
 
     function syncTabs() {
       document.querySelectorAll('#cee-tabs .cee-tab').forEach(function (t) {
@@ -8828,7 +8972,7 @@ window.PDXLazy = (function () {
         var sug = t.closest('[data-suggest]'); if (sug) { suggestPost(+sug.getAttribute('data-suggest'), sug); return; }
         var reply = t.closest('[data-reply]'); if (reply) { setReply(+reply.getAttribute('data-reply'), reply.getAttribute('data-name')); return; }
         if (t.closest('[data-close]')) { closeOverlay(); return; }
-        if (t.closest('[data-clear-issue]')) { state.issue = ''; state.issueLabel = ''; state.polContext = ''; loadList(); return; }
+        if (t.closest('[data-clear-issue]')) { state.issue = ''; state.issueLabel = ''; state.polContext = ''; state.gap = null; loadList(); return; }
         var mod = t.closest('[data-mod]'); if (mod) { doModerate(+mod.getAttribute('data-id'), mod.getAttribute('data-mod')); return; }
         var promote = t.closest('[data-promote]'); if (promote) { openPromote(+promote.getAttribute('data-promote')); return; }
         var promoteOk = t.closest('[data-promote-confirm]'); if (promoteOk) { doPromote(+promoteOk.getAttribute('data-promote-confirm')); return; }
@@ -8980,6 +9124,42 @@ window.PDXLazy = (function () {
         try { if (location.hash !== '#community-exchange') location.hash = '#community-exchange'; } catch (e) {}
         var section = document.getElementById('community-exchange');
         if (section && section.scrollIntoView) { try { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+      },
+      // Sibling of openForIssue, for a derived coverage gap (see gaps.js). Opens
+      // the Suggest-a-lead composer locked to this politician + gap, and narrows
+      // the list behind it to the leads already suggested for the same gap so the
+      // submitter can see what has been said before adding to it.
+      //   gap  — a PDXGaps gap object: { key, type, pid, polName, label, detail,
+      //          ask, issueKey, issueLabel, askable }
+      //   opts — { compose:false } to jump to the list without the form,
+      //          { openPostId } to open one lead's detail.
+      openForGap: function (gap, opts) {
+        if (!gap || !gap.pid || !gap.type || !gap.key) return;
+        // Explain-only gaps are our own method working as designed. They are never
+        // an ask, so they can never open a composer.
+        if (gap.askable === false) return;
+        opts = opts || {};
+        var wasInit = initialized;
+        state.gap = gap;
+        state.issue = gap.issueKey || '';
+        state.issueLabel = gap.issueLabel || '';
+        state.polContext = gap.polName || '';
+        state.category = '';
+        state.sort = 'newest';
+        var sel = document.getElementById('cee-cat-filter'); if (sel) sel.value = '';
+        if (!wasInit) { init(); }
+        syncTabs();
+        if (wasInit) loadList();
+        try { if (location.hash !== '#community-exchange') location.hash = '#community-exchange'; } catch (e) {}
+        var sec = document.getElementById('community-exchange');
+        if (sec && sec.scrollIntoView) { try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+        if (opts.openPostId) { openDetail(+opts.openPostId); return; }
+        if (opts.compose === false) return;
+        composeGap = gap;
+        openCompose();
+        // requireSignIn() sends a signed-out visitor to the auth modal instead of
+        // the form; drop the lock so a later unrelated compose is not gap-bound.
+        if (!document.getElementById('cee-f-headline')) composeGap = null;
       }
     };
 
@@ -18690,6 +18870,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        exactly as it did before the education layer existed. -->
   <script defer src="pdx-learn.js"></script>
   <script defer src="alignment-tool.js"></script>
+  <!-- Core National Issue colors (window.PDXIssueColors). One source of truth for
+       "what color is this issue", so a stance chip, a Word vs Action row, a
+       Spotlight card and a coverage gap that all name healthcare are all the same
+       blue. Purely visual — it reads no data and touches no score. Loaded straight
+       after alignment-tool.js because it resolves a leaf ISSUE_MAP key to its core
+       bundle through that file's CORE_NATIONAL_ISSUES / coreIssueForKey, though it
+       looks them up lazily at call time and every consumer is guarded, so the
+       ordering is a convenience rather than a requirement. -->
+  <script defer src="issue-colors.js"></script>
   <!-- Your Ballot — unified, address-driven flow. `defer` guarantees it runs
        after every inline script has defined the ballot/team/location primitives it
        builds on and the onboarding functions it consolidates, so its overrides win. -->
@@ -18819,6 +19008,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   <!-- Coverage honesty — turns thin/undocumented areas into an explicit
        "not yet documented" signal (window.PDXCoverage) instead of silence. -->
   <script defer src="coverage.js"></script>
+  <!-- Coverage gaps (window.PDXGaps) — names what WE have not documented yet on
+       a record, derived at render time from PDXWordAction.read() + PDXCoverage,
+       never stored. Renders the collapsed "open gaps" line inside the Word vs
+       Action panel and the Suggest-a-lead entry point. Loads after coverage.js
+       and before word-action.js's first paint; fully guarded either way. -->
+  <script defer src="gaps.js"></script>
   <!-- Spotlight Hub — the "browse every Issue Spotlight" directory
        (window.PDXSpotlightHub). Renders the full PDXSpotlight registry into the
        filterable/searchable grid in #all-spotlights, so newly added Spotlights

@@ -719,6 +719,86 @@
       '</li>';
   }
 
+  // ── The basis: one line visible, the table one tap away ────────────────────
+  // The percentage above is the read. What the percentage is MADE of — three tier
+  // rows with their glosses and their tested/not-testable arithmetic, then a
+  // coverage sentence carrying up to three clauses — is the working. Both used to
+  // sit between the number and the first issue row, which is the worst place on
+  // the card for them: a reader travelling from the verdict to the evidence had to
+  // cross two dense blocks that answer a question they had not asked yet.
+  //
+  // So the working folds, and what stays is the one line that is genuinely
+  // scannable: how many of each kind of statement went in. The tested count moves
+  // to the lid label, where it doubles as the promise of what opening will show.
+  // Neither number is recomputed here — both are read straight off the same `r`
+  // the table itself renders from, so the digest cannot disagree with the detail
+  // it hides.
+  function _basisCount(t, r) {
+    var b = r.tiers[t];
+    var have = (b && b.total) || 0;
+    // A pledge tier with nothing itemized still has a real count behind it in the
+    // promise tracker. Reporting 0 there would understate the record; the tier row
+    // inside says the same thing at length.
+    if (t === 'pledge' && !have && r.pledgeAggregate) have = r.pledgeAggregate.resolved || 0;
+    return have;
+  }
+  // Plural nouns for the digest. 'branding' is called Branding in the tier table,
+  // where the weight column explains what that means; on a bare one-liner with no
+  // such column "signature issues" is the phrase that survives without it.
+  var BASIS_NOUN = { pledge: 'pledge', position: 'position', branding: 'signature issue' };
+  function basisHtml(r) {
+    var digest = TIER_ORDER.map(function (t) {
+      var n = _basisCount(t, r);
+      return { t: t, n: n };
+    }).filter(function (x) { return x.n > 0; });
+
+    var digestHtml = digest.length
+      ? '<div class="pdxwa-basis-d">' + digest.map(function (x) {
+          return '<span class="pdxwa-basis-i">' +
+              '<span class="pdxwa-basis-ico" aria-hidden="true">' + TIERS[x.t].ico + '</span>' +
+              '<span class="pdxwa-basis-n">' + x.n + '</span> ' +
+              esc(BASIS_NOUN[x.t] + (x.n === 1 ? '' : 's')) +
+            '</span>';
+        }).join('') + '</div>'
+      // Nothing on file in any tier. The tier table still renders (three empty
+      // rows saying so), but a digest of three zeroes is furniture, not a summary.
+      : '';
+
+    // Numbers and ASCII only, like every other lid label in this codebase — the
+    // sentinel is parsed out of a comment by applyLids(), which escapes the label
+    // when it emits it, so pre-escaping here would double-encode.
+    var label = 'What this score is built from · ' +
+      r.coverage.tested + ' of ' + r.coverage.scorable + ' tested';
+
+    return '<div class="pdxwa-basis">' +
+        digestHtml +
+        // defer: the three tier rows carry the longest prose on the card outside the
+        // method note, and nothing outside this block reaches into it — no ids, no
+        // canvas, no post-render registration — so it is safe to hold as a string
+        // until a reader asks for it.
+        '<!--PDXSP:lid id="wa-basis" label="' + label + '" defer-->' +
+        '<ul class="pdxwa-tiers">' + TIER_ORDER.map(function (t) { return tierRowHtml(t, r.tiers[t], r); }).join('') + '</ul>' +
+        '<div class="pdxwa-cov">' +
+          '<span class="pdxwa-cov-n">' + r.coverage.tested + ' of ' + r.coverage.scorable + '</span> testable statement' +
+          (r.coverage.scorable === 1 ? '' : 's') + ' have a formal action behind them' +
+          (r.coverage.recordDerived
+            ? ' · ' + r.coverage.recordDerived + ' more position' + (r.coverage.recordDerived === 1 ? '' : 's') +
+              ' on file came from the record itself, so ' + (r.coverage.recordDerived === 1 ? 'it cannot' : 'they cannot') + ' test it'
+            : '') +
+          (r.coverage.notIssueLinked
+            ? ' · ' + r.coverage.notIssueLinked + ' not yet tied to an issue'
+            : '') +
+          '.' +
+        '</div>' +
+        // Closed HERE, before the coverage panel the caller appends after this
+        // block. applyLids() refuses to fold any region containing another PDXSP
+        // sentinel, and that panel is a sibling with its own control — a lid left
+        // open across it would silently render inline and look like this change
+        // never landed.
+        '<!--PDXSP:/lid-->' +
+      '</div>';
+  }
+
   // The honest empty / thin state. It says which of the two things is missing —
   // word or action — because those are different gaps with different fixes, and a
   // single "no data" message hides which one a reader is looking at.
@@ -789,6 +869,22 @@
             'going against their word only when the Official Record’s own verdict for that issue says so.</p>' +
         '</div>' +
       '</details>';
+  }
+
+  // ── WHAT WE DO NOT HAVE YET ────────────────────────────────────────────────
+  // The coverage sentence above says how much of the word has an action behind
+  // it. This is the other half of the same honesty: the specific holes in OUR
+  // documentation, named, with one clean way for a reader to hand us a lead.
+  // Delegated entirely to gaps.js — this module owns the read, not the ask — and
+  // fully guarded, because the panel must render identically if gaps.js is
+  // absent. `r` is passed through so the gap list never recomputes the read.
+  function gapsHtml(pid, p, r) {
+    try {
+      if (window.PDXGaps && typeof window.PDXGaps.panelHtml === 'function') {
+        return window.PDXGaps.panelHtml(pid, p, r) || '';
+      }
+    } catch (e) {}
+    return '';
   }
 
   // ── WHAT FEEDS THIS SCORE ──────────────────────────────────────────────────
@@ -960,11 +1056,18 @@
       if (!top.length) return '';
       var rows = top.map(function (r) {
         var col = r.verdict.color || '#9fb4d4';
+        // The row's spine and tint carry the ISSUE, not the verdict: scanning a
+        // stack of rows, the first thing a reader should be able to do is find
+        // the healthcare one. The verdict keeps its own colour on its own label
+        // to the right, so nothing about the judgement is lost — the two colour
+        // vocabularies sit side by side and mean different things.
+        var ic = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
+          ? window.PDXIssueColors.styleFor(r.key) : '';
         var saidTxt = r.stance.text ? String(r.stance.text) : '';
         if (saidTxt.length > 150) saidTxt = saidTxt.slice(0, 147).replace(/\s+\S*$/, '') + '…';
         var said = r.stance.label + (saidTxt ? ' — ' + saidTxt : '');
         return '' +
-          '<li class="pdxwa-row" style="--pdxwa-col:' + col + ';">' +
+          '<li class="pdxwa-row" style="--pdxwa-col:' + col + ';' + ic + '">' +
             '<div class="pdxwa-row-h">' +
               '<span class="pdxwa-row-issue">' + esc(r.label) + '</span>' +
               '<span class="pdxwa-row-verdict" style="color:' + col + ';">' +
@@ -1113,19 +1216,12 @@
             '</p>' +
           '</div>' +
         '</div>' +
-        '<ul class="pdxwa-tiers">' + TIER_ORDER.map(function (t) { return tierRowHtml(t, r.tiers[t], r); }).join('') + '</ul>' +
-        '<div class="pdxwa-cov">' +
-          '<span class="pdxwa-cov-n">' + r.coverage.tested + ' of ' + r.coverage.scorable + '</span> testable statement' +
-          (r.coverage.scorable === 1 ? '' : 's') + ' have a formal action behind them' +
-          (r.coverage.recordDerived
-            ? ' · ' + r.coverage.recordDerived + ' more position' + (r.coverage.recordDerived === 1 ? '' : 's') +
-              ' on file came from the record itself, so ' + (r.coverage.recordDerived === 1 ? 'it cannot' : 'they cannot') + ' test it'
-            : '') +
-          (r.coverage.notIssueLinked
-            ? ' · ' + r.coverage.notIssueLinked + ' not yet tied to an issue'
-            : '') +
-          '.' +
-        '</div>' +
+        basisHtml(r) +
+        // What we do NOT have yet, named out loud, directly under the sentence that
+        // says how much we do have. Derived at render time from this same read, so it
+        // can never claim a hole that has already been filled. Guarded: no gaps
+        // module, or a well-documented record, means no extra furniture at all.
+        gapsHtml(pid, p, r) +
         topRowsHtml(pid) +
         outcomesHtml(pid) +
         feedsHtml(pid, p, r) +
@@ -1170,13 +1266,23 @@
         var freshBody = slot.querySelector('[data-pdxwa-body]');
         var liveBody = host.querySelector('[data-pdxwa-body]');
         if (!freshBody || !liveBody) return;
+        // WHAT THE READER HAD OPEN SURVIVES THE REPAINT. The shared toggle now
+        // remembers this per profile (window._pdxRestoreDD), which is the version
+        // that works for every fold on the page rather than only the ones that
+        // happen to be inside this section when the record warms. The DOM scrape
+        // stays as the fallback for the case where profiles-full.js has not
+        // defined the helper — an in-place repaint that silently closes the basis
+        // a reader is mid-way through is the exact failure this guards.
         var wasOpen = [];
         try {
           var open = liveBody.querySelectorAll('.dd-body.dd-open[id^="pdxsp-lid-"]');
           for (var i = 0; i < open.length; i++) if (open[i].id) wasOpen.push(open[i].id);
         } catch (e2) {}
         liveBody.innerHTML = freshBody.innerHTML;
-        if (wasOpen.length) setTimeout(function () {
+        setTimeout(function () {
+          try {
+            if (typeof window._pdxRestoreDD === 'function') { window._pdxRestoreDD(liveBody); return; }
+          } catch (e4) {}
           wasOpen.forEach(function (id) {
             try {
               var b = document.getElementById(id);

@@ -162,6 +162,56 @@
   margin: 0 0 0.65rem;
 }
 
+/* ── card body disclosure ─────────────────────────────────────────────────────
+   The quote and the summary fold behind one control per card so the collapsed
+   section reads as three headlines with verdicts, not three paragraphs. Native
+   <details>, styled to match the Official Record's issue rows (.pdxor-row >
+   summary) — same marker suppression, same caret, same rotation — so the profile
+   keeps one disclosure vocabulary rather than gaining a third.
+
+   The last child inside the body drops its bottom margin: .pdx-ctv-said and
+   .pdx-ctv-summary both carry one for the flow they used to sit in, and keeping
+   it here would open a gap between the body and the action rail below it. */
+.pdx-ctv-more { margin: 0 0 0.55rem; }
+.pdx-ctv-more > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.3rem 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.pdx-ctv-more > summary::-webkit-details-marker { display: none; }
+.pdx-ctv-more > summary::marker { content: ""; }
+.pdx-ctv-more > summary:focus-visible {
+  outline: 2px solid #7fb4ff;
+  outline-offset: 3px;
+  border-radius: 0.4rem;
+}
+.pdx-ctv-more-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.64rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9fc6e8;
+}
+.pdx-ctv-caret {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: #7e93b3;
+  transition: transform 0.15s ease;
+}
+.pdx-ctv-more[open] .pdx-ctv-caret { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .pdx-ctv-caret { transition: none; }
+}
+.pdx-ctv-more-body > :last-child { margin-bottom: 0; }
+
 /* ── action rail: source + jumps to spotlight / receipt / record ────────────── */
 .pdx-ctv-acts {
   display: flex;
