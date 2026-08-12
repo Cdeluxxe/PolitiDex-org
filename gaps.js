@@ -60,9 +60,12 @@
   };
 
   // How many askable rows a profile shows before the rest are summarised. The
-  // panel lives inside an already-long profile section on a phone.
+  // panel lives inside an already-long profile section on a phone. This is the
+  // ONLY cap on askable gaps, and it is a display cap: derivation keeps every row
+  // it found, the header states the real total, and the list says what it is
+  // holding back. There used to be a second, silent cap inside derivation, which
+  // meant a record with 14 gaps could honestly-but-wrongly announce 8.
   var MAX_ASK_ROWS = 6;
-  var MAX_ISSUE_ROWS = 4;   // per issue-scoped type
   var MAX_LEAD_CARDS = 3;
 
   function esc(s) {
@@ -174,11 +177,19 @@
 
     function push(type, opts) { var g = make(pid, p, type, opts); if (g) out.push(g); }
 
-    // 1 · Nothing on file at all. Said once, and nothing else — a profile with no
-    // documented word has no positions to be missing actions for. Note this fires
-    // only when we ACTUALLY assessed the record and found it empty: if the
-    // coverage module is absent we do not know, and "not yet documented" is a
-    // claim, not a default.
+    // 1 · Nothing on file that this read can test. Said once, and nothing else — a
+    // profile with no documented word has no positions to be missing actions for.
+    // Note this fires only when we ACTUALLY assessed the record: if the coverage
+    // module is absent we do not know, and "not yet documented" is a claim, not a
+    // default.
+    //
+    // The two branches exist because our two counters do not count the same
+    // things. PDXCoverage.assess() counts everything we hold on a record,
+    // including spotlight items; wordLedger only reads sourced positions and
+    // pledges. So a spotlight-only profile lands here with word === 0 while
+    // assess() reports "thin" rather than "none". That combination used to return
+    // an empty list, which hid the panel on exactly the profiles with the least
+    // documentation — the thinnest records looked as settled as the fullest ones.
     var noWord = !r || !r.coverage || !r.coverage.word;
     if (noWord) {
       if (cov && cov.key === 'none') {
@@ -186,6 +197,17 @@
           detail: 'We have no sourced position, pledge or on-record item for ' + nameOf(pid, p) + ' yet. ' +
                   'Rather than leave the space blank, we mark it: this record is on our research queue.',
           ask: 'A speech, interview, candidate questionnaire, voter guide or official page where they state a position in their own words.'
+        });
+      } else if (cov) {
+        var held = cov.records || 0;
+        push('no_record', {
+          count: held,
+          detail: (held
+                    ? 'We hold ' + held + ' ' + plural(held, 'item') + ' on this record, but nothing yet that states a position in ' +
+                      nameOf(pid, p) + '’s own words — so there is no documented word here for a formal action to be tested against. '
+                    : 'We hold nothing yet that states a position in ' + nameOf(pid, p) + '’s own words. ') +
+                  'That is our documentation, not their record.',
+          ask: 'A speech, interview, candidate questionnaire, voter guide or official page where they state a position in their own words — with a link.'
         });
       }
       return out;
@@ -222,10 +244,12 @@
     }
 
     // 4 · Said it, and we hold no formal action to test it against. One row per
-    // issue, because that is the unit a useful lead can actually answer.
+    // issue, because that is the unit a useful lead can actually answer. Every
+    // one is derived — the display cap lives in panelHtml, which discloses what
+    // it held back. Truncating here would make count() report a number smaller
+    // than the real hole, which is the one thing this panel must never do.
     issueRows.no_action_yet
       .sort(function (a, b) { return (b.weight || 0) - (a.weight || 0); })
-      .slice(0, MAX_ISSUE_ROWS)
       .forEach(function (it) {
         var lbl = it.issueKey ? issueLabel(it.issueKey) : (it.label || 'this position');
         push('no_action_yet', {
@@ -240,7 +264,6 @@
 
     // 5 · Tracked pledges with no sourced outcome yet. Never counted either way.
     issueRows.pending_pledge
-      .slice(0, MAX_ISSUE_ROWS)
       .forEach(function (it) {
         var lbl = it.label || 'a tracked pledge';
         push('pending_pledge', {
@@ -425,10 +448,14 @@
           '<div class="pdxg-body"' + (isOpen ? '' : ' hidden') + '>' +
             '<p class="pdxg-note">Here is what we do not have on file yet for this record, and why. ' +
               'Nothing below counts for or against anyone — it is a list of our own homework.</p>' +
+            (hidden
+              ? '<p class="pdxg-showing">Showing ' + shown.length + ' of ' + ask.length + ' — the rest are ' +
+                'the same kinds of gap on this record.</p>'
+              : '') +
             '<ul class="pdxg-list">' + rows + '</ul>' +
             (hidden
               ? '<p class="pdxg-more">+ ' + hidden + ' further ' + plural(hidden, 'gap') +
-                ' of the same kinds on this record.</p>'
+                ' not shown here. Every one of them is counted in the ' + ask.length + ' above.</p>'
               : '') +
             (holdRows
               ? '<div class="pdxg-holds">' +
@@ -500,13 +527,38 @@
   // fired only once the reader opens the list. Leads are rendered in a
   // deliberately quiet treatment: never a strength badge, never a verdict colour,
   // never a percentage — a lead is a research question, not a receipt.
+  // Where a lead stands, as the reader sees it. Two vocabularies: what the
+  // submitter attached (source states) and what a curator did about it (review
+  // states, set only from the moderation queue). Neither is a verdict, a strength
+  // grade or a score, and the titles say so — "answered" in particular must never
+  // read as "this is now part of the record", because the record is the other side
+  // of this panel and it got there a different way.
+  var LEAD_STATES = {
+    has_source:   { cls: 'pdxg-lead-sourced',  ico: '🔗', label: 'Has source',
+                    tip: 'The submitter attached a source for us to check. Not a verification.' },
+    needs_source: { cls: '',                   ico: '◌', label: 'Needs source',
+                    tip: 'No source yet — this stays a research question until one is found.' },
+    checking:     { cls: 'pdxg-lead-checking', ico: '◍', label: 'We’re checking this',
+                    tip: 'A curator has picked this lead up.' },
+    answered:     { cls: 'pdxg-lead-answered', ico: '✓', label: 'Answered',
+                    tip: 'A curator followed this lead and got an answer. A research note — nothing here is scored, and anything that belongs in the record enters it through the Evidence Locker.' },
+    dead_end:     { cls: 'pdxg-lead-dead',     ico: '⌀', label: 'Dead end',
+                    tip: 'A curator followed this lead and found nothing to document. Kept so the same ground is not covered twice.' }
+  };
   function leadStatePill(state) {
-    if (state === 'has_source') return '<span class="pdxg-lead-state pdxg-lead-sourced">🔗 Has source</span>';
-    return '<span class="pdxg-lead-state">◌ Needs source</span>';
+    var d = LEAD_STATES[state] || LEAD_STATES.needs_source;
+    return '<span class="pdxg-lead-state ' + d.cls + '" title="' + esc(d.tip) + '">' +
+      d.ico + ' ' + esc(d.label) + '</span>';
+  }
+  var LEAD_RANK = { checking: 0, has_source: 1, needs_source: 2, answered: 3, dead_end: 4 };
+  function leadRank(state) {
+    var r = LEAD_RANK[state];
+    return typeof r === 'number' ? r : LEAD_RANK.needs_source;
   }
   function leadCard(lead, gap) {
+    var st = LEAD_STATES[lead.leadState] ? lead.leadState : 'needs_source';
     return '' +
-      '<div class="pdxg-lead">' +
+      '<div class="pdxg-lead pdxg-leadst-' + esc(st.replace(/_/g, '-')) + '">' +
         '<div class="pdxg-lead-top">' +
           '<span class="pdxg-lead-pill">💡 Lead</span>' +
           '<span class="pdxg-lead-pill pdxg-lead-community">Community Submitted</span>' +
@@ -541,11 +593,13 @@
           var gap = _reg[key];
           var list = (byGap && byGap[key]) || [];
           if (!gap || !list.length) { slot.setAttribute('hidden', ''); slot.innerHTML = ''; return; }
-          // Sourced leads first, then newest — a citation is worth more than
-          // recency, and neither is a ranking of importance (Phase 1 has none).
+          // Open leads first, settled ones last, then newest inside each band. A
+          // curator who has already answered or closed a lead has removed it from
+          // the work, so it should stop competing for the reader's attention —
+          // this is the lead list ordering only, not gap severity ordering.
           var sorted = list.slice().sort(function (a, b) {
-            var as = a.leadState === 'has_source' ? 0 : 1;
-            var bs = b.leadState === 'has_source' ? 0 : 1;
+            var as = leadRank(a.leadState);
+            var bs = leadRank(b.leadState);
             if (as !== bs) return as - bs;
             return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
           });
@@ -584,8 +638,11 @@
     } catch (e) { delete _leadFetching[pid]; }
   }
 
-  // A newly submitted lead should appear without a reload.
-  window.addEventListener('pdx-gap-lead-added', function (ev) {
+  // A newly submitted lead should appear without a reload, and a curator's
+  // decision should land on the profile the same way — both events bust the
+  // per-politician cache and re-fetch, so the card shows the state the server
+  // actually holds rather than one this page guessed.
+  function refreshLeadsFor(ev) {
     try {
       var pid = ev && ev.detail && ev.detail.pid;
       if (!pid) return;
@@ -593,7 +650,9 @@
       var wrap = document.querySelector('.pdxg[data-pdx-gaps-pid="' + String(pid).replace(/"/g, '') + '"]');
       if (wrap) hydrateLeads(pid, wrap);
     } catch (e) {}
-  });
+  }
+  window.addEventListener('pdx-gap-lead-added', refreshLeadsFor);
+  window.addEventListener('pdx-gap-lead-updated', refreshLeadsFor);
 
   window.PDXGaps = {
     TYPES: TYPES,

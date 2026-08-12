@@ -58,12 +58,18 @@ export const ceePosts = pgTable(
     // render, so these are a pointer to a question, not a copy of it.
     gapKey: text("gap_key"),
     gapType: text("gap_type"),
-    // "needs_source" | "has_source" (null for evidence posts). Says only whether
-    // the submitter cited anything. NOT a verification status: nothing in Word vs
-    // Action, the Official Record, promise scoring or the strength badges reads
-    // this. Promotion stays the moderator-only cee_promoted path.
+    // Where a lead stands. Two vocabularies in one column, split by who writes it:
+    //   submitter (derived server-side) — "needs_source" | "has_source"
+    //   moderator (via /moderate)       — "checking" | "answered" | "dead_end"
+    // Null for evidence posts. NOT a verification status and NOT a promotion
+    // path: nothing in Word vs Action, the Official Record, promise scoring or
+    // the strength badges reads this. "answered" means a human looked, not that
+    // anything entered the record — graduation stays the moderator-only
+    // cee_promoted path, which still requires a source.
     leadState: text("lead_state").default("needs_source"),
-    // Moderator-set: the post this one duplicates.
+    // Moderator-set: the post this one duplicates. Written by the mark_duplicate
+    // action (which also hides this post) and cleared by restore. Distinct from
+    // aiDuplicateOf, which is the triage's advisory guess and binds nothing.
     dupOf: integer("dup_of"),
     // active = visible; removed = hidden by a moderator; imported = a moderator
     // has promoted it into the curated Evidence Locker (see cee_promoted).

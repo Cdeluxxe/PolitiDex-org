@@ -33,6 +33,10 @@
     11. /api/community validates gap context and derives lead_state
     12. The composer is locked to the gap it was opened from
     13. Wiring: script tag, panel hook, mobile-first CSS
+    14. The moderator loop: a submitted lead is visible, actionable and inert
+    15. Honest counts — the header may not undercount the hole
+    16. A spotlight-only record is the thinnest record, not a documented one
+    17. A moderator decision reaches the profile — and still is not a receipt
    ═══════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -399,8 +403,13 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
   [/strength/i, /verified/i, /%/, /score/i].forEach((re) => {
     ok(!re.test(leadRegion), `a lead card must not carry ${re} — it is a research question, not a receipt`);
   });
-  // Sourced above unsourced, newest first, capped — but no numeric priority.
-  ok(/has_source' \? 0 : 1/.test(GAPS_SRC), 'sourced leads must be pinned above unsourced ones');
+  // Open leads above settled ones, newest first, capped — but no numeric priority.
+  ok(/LEAD_RANK\s*=\s*\{[^}]*checking:\s*0/.test(GAPS_SRC),
+    'a lead a curator is actively checking must sort above the rest of the pile');
+  ok(/LEAD_RANK\s*=\s*\{[^}]*has_source:\s*1[^}]*needs_source:\s*2/.test(GAPS_SRC),
+    'sourced leads must be pinned above unsourced ones');
+  ok(/LEAD_RANK\s*=\s*\{[^}]*answered:\s*3[^}]*dead_end:\s*4/.test(GAPS_SRC),
+    'a lead a curator has closed must sink below the leads still open');
   ok(/MAX_LEAD_CARDS/.test(GAPS_SRC), 'the lead list must be capped for mobile');
   ok(!/momentum|priority|rank/i.test(leadRegion), 'Phase 1 has no lead ranking');
   // Read-only, public, and lazy: one GET per profile, fired on expand.
@@ -623,6 +632,238 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
   if (/coverage\.js/.test(SW)) {
     ok(/gaps\.js/.test(SW), 'sw.js precaches coverage.js but not gaps.js');
   } else { passed++; }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 14 · The moderator loop: a submitted lead is visible, actionable and inert
+// ═════════════════════════════════════════════════════════════════════════════
+// A lead nobody can see is the same as no lead. Phase 1 accepted submissions and
+// then filtered them out of the only queue a moderator reads (`kind = 'evidence'`),
+// so every contribution died silently. These assertions cover the loop that closes
+// that — and, just as importantly, that closing it did not build a back door into
+// the record: a research state is not a verdict and must reach nothing that scores.
+{
+  const modQ = COMMUNITY.slice(COMMUNITY.indexOf('async function moderationQueue'),
+                               COMMUNITY.indexOf('async function moderatePost'));
+  must(modQ.length > 400, 'community.mts no longer defines moderationQueue — section 14 is testing nothing');
+
+  // A lead must actually be SELECTED. The evidence-only Incoming query stays as
+  // it is (evidence is graded, leads are chased — different jobs), so the leads
+  // arrive as their own list rather than by loosening that filter.
+  ok(/eq\(ceePosts\.kind, "lead"\)/.test(modQ),
+    'the moderation queue must select leads — with only kind = "evidence" a submitted lead is invisible');
+  ok(/leadRows/.test(modQ) && /leads = leadRows\.map/.test(modQ),
+    'gap leads must come back as their own queue list');
+  ok(/ok\(\{ incoming, leads, flagged, suggested \}\)/.test(modQ),
+    'the moderation payload must carry the leads list alongside the existing three');
+  // Settled and duplicate leads drop out: the queue is the work, not an archive.
+  ok(/isNull\(ceePosts\.dupOf\)/.test(modQ), 'a lead already marked a duplicate must not sit in the queue');
+  ok(/not in \('answered', 'dead_end'\)/.test(modQ),
+    'an answered or dead-ended lead must drop out of the queue');
+
+  // The four fields that make a lead actionable. Without WHO and WHICH QUESTION,
+  // a gap lead reads as an unattributed tip.
+  const itemFn = modQ.slice(modQ.indexOf('const item = '), modQ.indexOf('const item = ') + 1400);
+  must(itemFn.length > 200, 'moderationQueue no longer shapes rows through item() — section 14 is testing nothing');
+  ['linkedPoliticianIds', 'gapKey', 'gapType', 'leadState', 'dupOf'].forEach((f) => {
+    ok(new RegExp('\\b' + f + ':').test(itemFn), `the moderation queue payload must include ${f}`);
+  });
+
+  // Lifecycle. The wire action names ARE the stored values, so the two vocabularies
+  // cannot drift, and each transition is persisted.
+  const modP = COMMUNITY.slice(COMMUNITY.indexOf('async function moderatePost'));
+  must(modP.length > 400, 'community.mts no longer defines moderatePost');
+  ['checking', 'answered', 'dead_end'].forEach((s) => {
+    ok(new RegExp('case "' + s + '":').test(modP), `a moderator must be able to move a lead to ${s}`);
+  });
+  ok(/set\(\{ leadState: action, updatedAt: new Date\(\) \}\)/.test(modP),
+    'a lead state change must be persisted, not just acknowledged');
+  // Fail closed: not a lead, unknown state, or a bad duplicate target → refuse.
+  ok(/\(post\.kind \|\| "lead"\) !== "lead"[\s\S]{0,160}return bad\(/.test(modP),
+    'a research state on an evidence post must be refused, not silently applied');
+  ok(/LEAD_REVIEW_STATES\.has\(action\)/.test(modP),
+    'the lifecycle cases must validate against the moderator-set state vocabulary');
+  // The split vocabulary is the safety property: a submitter cannot post "answered".
+  ok(/LEAD_SOURCE_STATES = new Set\(\["needs_source", "has_source"\]\)/.test(COMMUNITY),
+    'the submitter-set lead states must be their own closed set');
+  ok(/LEAD_REVIEW_STATES = new Set\(\["checking", "answered", "dead_end"\]\)/.test(COMMUNITY),
+    'the moderator-set lead states must be their own closed set');
+  ok(/LEAD_SOURCE_STATES\.has\(body\.leadState\)/.test(COMMUNITY),
+    'createPost must validate a client lead state against the SUBMITTER set only — otherwise a\n' +
+    '    submission could arrive pre-marked "answered"');
+
+  // mark_duplicate writes dupOf for real, and refuses everything ambiguous.
+  const dup = modP.slice(modP.indexOf('case "mark_duplicate"'), modP.indexOf('case "mark_duplicate"') + 1600);
+  must(dup.length > 300, 'moderatePost has no mark_duplicate case');
+  ok(/set\(\{ dupOf, status: "removed"/.test(dup),
+    'mark_duplicate must write dupOf — a duplicate left visible on the gap has not been de-duplicated');
+  ok(/dupOf === id[\s\S]{0,120}return bad\(/.test(dup), 'a post must not be markable as a duplicate of itself');
+  ok(/!target[\s\S]{0,120}return bad\(/.test(dup), 'mark_duplicate must refuse a target that does not exist');
+  ok(/target\.dupOf[\s\S]{0,200}return bad\(/.test(dup), 'mark_duplicate must refuse to build a duplicate chain');
+  ok(/Number\.isInteger\(dupOf\) \|\| dupOf <= 0[\s\S]{0,120}return bad\(/.test(dup),
+    'mark_duplicate must refuse a missing or non-numeric target id');
+  // Restore is the undo of both halves, or dupOf becomes a stale claim about a
+  // post the reader can now see.
+  ok(/case "restore":[\s\S]{0,400}dupOf: null/.test(modP), 'restore must clear dupOf');
+
+  // Duplicate candidates are scoped to the question being answered.
+  const cand = COMMUNITY.slice(COMMUNITY.indexOf('async function recentCandidates'),
+                               COMMUNITY.indexOf('async function recentCandidates') + 2200);
+  must(cand.length > 400, 'community.mts no longer defines recentCandidates');
+  ok(/eq\(ceePosts\.gapKey, post\.gapKey\)/.test(cand),
+    'duplicate detection must look at the same gap first — an unscoped recent list compares\n' +
+    '    a climate lead against yesterday\'s unrelated posts');
+  ok(/linkedPoliticianIds[\s\S]{0,300}@>/.test(cand),
+    'duplicate detection must fall back to the same politician before going global');
+  ok(/!post\.gapKey && !pols\.length/.test(cand),
+    'the flat recent pool must be the last resort, for posts with neither a gap nor a politician');
+  ok(/isNull\(ceePosts\.dupOf\)/.test(cand), 'an already-duplicate post must not be offered as a duplicate target');
+
+  // THE WALL. None of the above may reach anything that scores.
+  // The three lifecycle states share one fall-through body; mark_duplicate has its
+  // own. Slice each to the next label that actually starts a new body — a fixed
+  // window would run past the end of the case and test a neighbour instead.
+  const caseBody = (label) => {
+    const at = modP.indexOf('case "' + label + '"');
+    if (at === -1) return '';
+    const parts = modP.slice(at).split(/\n\s{4}(?=case "|default:)/);
+    let body = '';
+    for (let i = 0; i < parts.length; i++) {
+      body += (i ? '\n' : '') + parts[i];
+      // A bare label is a fall-through into the next part; keep going until the
+      // part that actually carries the body.
+      if (!/^case "[a-z_]+":\s*$/.test(parts[i].trim())) break;
+    }
+    return body;
+  };
+  [['checking', 'the lead lifecycle'], ['mark_duplicate', 'mark_duplicate']].forEach(([label, name]) => {
+    const block = caseBody(label);
+    must(block.length > 120, `moderatePost has no ${label} case — the wall test would pass vacuously`);
+    ok(!/ceePromoted|cee_promoted|verdict|score/i.test(block),
+      `${name} must not touch the curated record or anything scored`);
+  });
+  ok(/answered" means a human looked/.test(SCHEMA),
+    'db/schema.ts must say what "answered" does and does not mean');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 15 · Honest counts — the header may not undercount the hole
+// ═════════════════════════════════════════════════════════════════════════════
+// The panel used to truncate twice: derivation capped issue-scoped rows at four
+// per type, then the renderer capped the survivors at six and reported "+ N
+// further" against the already-shortened list. A record with fourteen gaps could
+// announce eight. Derivation is now uncapped (as its own contract always said)
+// and the single remaining cap discloses itself.
+{
+  const many = [];
+  for (let i = 0; i < 9; i++) many.push(untestedItem('no_action_yet', { issueKey: 'climate_action', label: 'Issue ' + i, weight: 9 - i }));
+  for (let i = 0; i < 5; i++) many.push(untestedItem('unresolved', { label: 'Pledge ' + i }));
+  const { G } = build({ untested: many, coverage: { word: 14, scorable: 14, untested: 14, issueLinked: 14 } });
+  const gaps = G.forPolitician('booker', { name: 'Cory Booker' });
+  eq(gaps.filter((g) => g.type === 'no_action_yet').length, 9,
+    'derivation must keep every issue gap it found — a silent cap here makes the count a lie');
+  eq(gaps.filter((g) => g.type === 'pending_pledge').length, 5,
+    'derivation must keep every open pledge it found');
+  const askable = gaps.filter((g) => g.askable).length;
+  eq(G.count('booker', { name: 'Cory Booker' }), askable,
+    'count() must report every askable gap, not the number that happens to fit on screen');
+  eq(askable, 14, 'the harness world should produce 14 askable gaps');
+
+  const html = G.panelHtml('booker', { name: 'Cory Booker' });
+  ok(/<b>14 open gaps<\/b>/.test(html), 'the header must state the real total');
+  ok(/Showing 6 of 14/.test(html), 'a truncated list must disclose how much of it is shown');
+  ok(/\+ 8 further gaps not shown here/.test(html), 'the remainder must be stated as a number, not implied');
+  ok(/counted in the 14 above/.test(html),
+    'the remainder line must tie back to the header count so the two can never read as separate totals');
+  // The rows themselves are still capped — this is a display cap, not a licence to
+  // print 14 rows into a phone-sized panel.
+  eq((html.match(/class="pdxg-row"/g) || []).length, 6, 'the visible row count must still respect MAX_ASK_ROWS');
+  ok(!/MAX_ISSUE_ROWS/.test(GAPS_SRC),
+    'the second, silent cap inside derivation must be gone — not renamed');
+  // A short list says nothing at all: no "Showing 3 of 3" furniture.
+  const { G: G2 } = build({ coverage: { notIssueLinked: 2 } });
+  const short = G2.panelHtml('booker', { name: 'Cory Booker' });
+  ok(!/Showing/.test(short), 'a list that shows everything must not announce that it is partial');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 16 · A spotlight-only record is the thinnest record, not a documented one
+// ═════════════════════════════════════════════════════════════════════════════
+// Our two counters do not count the same things: PDXCoverage.assess() counts
+// spotlight items, PDXWordAction's ledger does not. So a spotlight-only profile
+// arrives with word === 0 AND assess().key === 'thin' — a combination that used to
+// fall through both branches and return an empty list, hiding the panel on exactly
+// the records with the least documentation.
+{
+  const { G } = build({
+    coverage: { word: 0, scorable: 0, tested: 0, untested: 0, issueLinked: 0 },
+    assess: { key: 'thin', records: 3, stances: 0, spotlight: 3, promises: 0 }
+  });
+  const gaps = G.forPolitician('booker', { name: 'Cory Booker' });
+  eq(gaps.length, 1, 'a spotlight-only record should produce exactly one honest gap');
+  eq(gaps[0].type, 'no_record', 'a record with no documented word must surface the not-yet-documented gap');
+  ok(gaps[0].askable === true, 'the spotlight-only gap must be askable — a lead is exactly what would fill it');
+  ok(/own words/.test(gaps[0].ask), 'the ask must be for word in their own words, which is what we are missing');
+  ok(/we hold 3 items/i.test(gaps[0].detail),
+    'the copy should acknowledge what we DO hold, or it contradicts the coverage line beside it');
+  ok(!/incomplete|failed|refus/i.test(gaps[0].detail), 'the copy must stay about our documentation');
+  ok(G.panelHtml('booker', { name: 'Cory Booker' }).length > 0,
+    'the gaps panel must render for a spotlight-only record');
+  // A genuinely empty record keeps its own, different wording.
+  const { G: G0 } = build({
+    coverage: { word: 0, scorable: 0, tested: 0, untested: 0, issueLinked: 0 },
+    assess: { key: 'none', records: 0 }
+  });
+  ok(/research queue/.test(G0.forPolitician('booker', {})[0].detail),
+    'a record with nothing at all must keep the research-queue wording');
+  // Still fails closed when we did not actually assess: "not yet documented" is a
+  // claim about our coverage, and without the coverage module we do not have one.
+  const { win, G: G1 } = build({ coverage: { word: 0, scorable: 0, tested: 0, untested: 0, issueLinked: 0 } });
+  win.PDXCoverage = { assess: () => null };
+  eq(G1.forPolitician('booker', {}).length, 0,
+    'with no coverage assessment there is nothing we can honestly claim is missing');
+
+  // And the panel has somewhere to mount: word-action.js used to return '' for the
+  // whole section, so fixing derivation alone would have changed nothing on screen.
+  const hl = WA_SRC.slice(WA_SRC.indexOf('function headlineHtml'), WA_SRC.indexOf('function bind'));
+  must(hl.length > 500, 'word-action.js no longer defines headlineHtml — section 16 is testing nothing');
+  const stub = hl.slice(hl.indexOf('if (!r.coverage.word)'), hl.indexOf('var uid ='));
+  must(stub.length > 200, 'headlineHtml no longer branches on a wordless record');
+  ok(/gapsHtml\(pid, p, r\)/.test(stub), 'the wordless branch must mount the gap panel');
+  ok(/if \(!stub\) return '';/.test(stub),
+    'with nothing honest to say the section must still render nothing at all');
+  ok(!/pdxwa-num|r\.pct|verdict/.test(stub),
+    'the wordless section must carry no number and no verdict — there is no read to print');
+  ok(/data-pdxwa-body/.test(stub),
+    'the wordless section must use the same body wrapper so the warm-refresh can repaint it into the real read');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 17 · A moderator decision reaches the profile — and still is not a receipt
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // All five states render, and the two vocabularies agree across the two files.
+  ['has_source', 'needs_source', 'checking', 'answered', 'dead_end'].forEach((s) => {
+    ok(new RegExp('\\b' + s + ':').test(GAPS_SRC), `the profile lead card cannot render the ${s} state`);
+    ok(new RegExp('\\b' + s + ':').test(INDEX), `the moderator UI cannot render the ${s} state`);
+  });
+  // The moderator's change must actually reach an open profile.
+  ok(/pdx-gap-lead-updated/.test(INDEX), 'the moderator UI must announce a lead state change');
+  ok(/addEventListener\('pdx-gap-lead-updated'/.test(GAPS_SRC),
+    'the profile must listen for a moderator lead state change');
+  ok(/delete _leadCache\[pid\]/.test(GAPS_SRC),
+    'a state change must bust the per-politician lead cache or the card shows the old state');
+  // "Answered" is the dangerous word in this vocabulary. It may not borrow the
+  // verdict palette, and it may not claim anything entered the record.
+  const answered = GAPS_SRC.slice(GAPS_SRC.indexOf('answered:'), GAPS_SRC.indexOf('dead_end:'));
+  must(answered.length > 60, 'gaps.js no longer describes the answered state');
+  ok(/a human looked|nothing here is scored/i.test(answered),
+    'the answered state must say plainly that it is not a score');
+  ok(!/verified|confirmed|proven/i.test(answered), 'the answered state must not claim verification');
+  ok(!/pdxg-lead-answered[\s\S]{0,120}(#4ade80|#86efac|#22c55e)/.test(WA_CSS),
+    'the answered pill must not use the kept-promise green');
+  ok(/pdxg-lead-checking|pdxg-lead-answered|pdxg-lead-dead/.test(WA_CSS),
+    'the curator-set lead states have no styling');
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -98,6 +98,9 @@
   line-height: 1.45;
   color: #9fb4d4;
 }
+/* The spotlight-only section: gap list, no read. It carries no number and no
+   verdict, so it must not look like a scored panel that failed to load. */
+.pdxwa-nowork-line { margin: 0 0 0.5rem; }
 
 /* ── The tier ladder ─────────────────────────────────────────────────────── */
 /* Weight is shown in words ("Counts most") rather than as a bare 3 / 2 / 1, so
@@ -401,6 +404,17 @@
   font-size: 0.66rem;
   color: #6f88ab;
 }
+/* "Showing 6 of 14" — sits above the list so the reader learns the list is
+   partial before reading it, not after. */
+.pdxg-showing {
+  margin: 0.35rem 0 0.15rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8aa3c6;
+}
 .pdxg-holds { margin-top: 0.6rem; }
 .pdxg-holds-h {
   font-family: 'Barlow Condensed', sans-serif;
@@ -447,6 +461,15 @@
 .pdxg-lead-community { border-color: rgba(148, 163, 184, 0.4); color: #a8bad2; }
 .pdxg-lead-state { border-color: rgba(148, 163, 184, 0.35); color: #93a7c2; }
 .pdxg-lead-sourced { border-color: rgba(74, 222, 128, 0.4); color: #86efac; }
+/* Curator-set research states. Deliberately blue/slate rather than the verdict
+   palette: "Answered" means a human looked, not that anything was graded, so it
+   must not borrow the green a kept promise uses two panels away. */
+.pdxg-lead-checking { border-color: rgba(96, 165, 250, 0.45); color: #93c5fd; }
+.pdxg-lead-answered { border-color: rgba(148, 163, 184, 0.5); color: #cbd5e1; }
+.pdxg-lead-dead { border-color: rgba(120, 113, 108, 0.45); color: #9a938c; }
+/* A settled lead recedes — the open questions above it are the point. */
+.pdxg-leadst-answered,
+.pdxg-leadst-dead-end { opacity: 0.82; }
 .pdxg-lead-head {
   font-size: 0.74rem;
   font-weight: 600;

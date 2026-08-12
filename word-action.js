@@ -1218,9 +1218,32 @@
     try {
       if (!pid || !p) return '';
       var r = read(pid, p);
-      // Nothing said and nothing tracked — no surface at all rather than an empty
-      // frame implying the record should be here.
-      if (!r.coverage.word) return '';
+      // Nothing said and nothing tracked. There is no read to print — a number and
+      // a verdict over zero documented word would be an empty frame implying the
+      // record should be here. But "we hold no word" is itself a fact about OUR
+      // documentation, and on a spotlight-only profile it is the single most
+      // useful thing this section can say. So the read disappears and the gap list
+      // does not: if gaps.js has something honest to name, mount it alone, with no
+      // metric, no verdict and no percentage anywhere near it. Same wrapper and
+      // same data-pdxwa-body as the full section, so the warm-refresh below can
+      // repaint this stub straight into the real read the day word lands.
+      if (!r.coverage.word) {
+        var stub = gapsHtml(pid, p, r);
+        if (!stub) return '';
+        return '' +
+          '<span id="pdxsec-wordaction" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+          '<div class="modal-section pdxwa pdxwa-nowork" data-pdxwa="' +
+            (String(pid) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '') +
+            '" data-pdxwa-pid="' + esc(String(pid)) + '">' +
+            '<div class="modal-section-title">' + FRAME.icon + ' ' + esc(FRAME.label) +
+              '<span class="pdxwa-q">' + esc(FRAME.question) + '</span></div>' +
+            '<div class="pdxwa-body" data-pdxwa-body>' +
+              '<p class="pdxwa-line pdxwa-nowork-line">We do not yet hold documented word for this record, so there is ' +
+                'nothing here to test against their formal actions. Here is what we are missing.</p>' +
+              stub +
+            '</div>' +
+          '</div>';
+      }
 
       var uid = (String(pid) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '');
       var name = (p.name || 'this official').split(' ').slice(-1)[0] || p.name || 'they';
