@@ -112,16 +112,29 @@
     var cm = catMeta(cat);
     var col = catColor(cat);
     var tags = tagsFor(sp).map(function (k) {
-      return '<span class="shub-tag">' + esc(issueLabel(k)) + '</span>';
+      // Each tag names an issue, so each tag wears that issue's colour
+      // (issue-colors.js) — the same colour the issue carries in the Stance
+      // Library and on a Word vs Action row.
+      var ts = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
+        ? ' style="' + window.PDXIssueColors.styleFor(k) + '"' : '';
+      return '<span class="shub-tag"' + ts + '>' + esc(issueLabel(k)) + '</span>';
     }).join('');
     var hay = (sp.title + ' ' + sp.place + ' ' + (sp.searchKeywords || '') + ' ' +
       blurb + ' ' + cm.label).toLowerCase();
     var scopeChip = scope === 'national'
       ? '<span class="shub-scope shub-scope-national">🇺🇸 National</span>'
       : '<span class="shub-scope shub-scope-local">📍 Local</span>';
+    // The card's spine is the ISSUE colour of its primary issue, not the broad
+    // category colour, so a Spotlight sits in the same colour as the issue's
+    // Stance Library card and Word vs Action row. `--cat` stays on the card for
+    // the category pill and the hover/focus edge, which belong to the coarser
+    // category taxonomy the filter chips use — two different groupings, kept
+    // visibly distinct rather than blurred into one.
+    var ics = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
+      ? window.PDXIssueColors.styleFor(sp.primaryIssueKey || '') : '';
     return '<button type="button" class="shub-card" data-slug="' + esc(sp.slug) + '" ' +
         'data-scope="' + scope + '" data-cat="' + esc(cat) + '" data-hay="' + esc(hay) + '" ' +
-        'style="--cat:' + col + '" ' +
+        'style="--cat:' + col + ';' + ics + '" ' +
         'aria-label="Open the ' + esc(sp.title) + ' Issue Spotlight">' +
       '<span class="shub-card-top">' + scopeChip +
         '<span class="shub-doc shub-doc-' + esc(s.level) + '" title="' +
@@ -273,7 +286,9 @@
       '.shub-grid{display:grid;gap:.85rem;grid-template-columns:repeat(auto-fill,minmax(16.5rem,1fr));}' +
       '.shub-card{display:flex;flex-direction:column;gap:.4rem;text-align:left;width:100%;cursor:pointer;height:100%;' +
         'background:linear-gradient(160deg,rgba(19,29,52,.85),rgba(13,21,38,.9));border:1px solid rgba(159,180,212,.16);' +
-        'border-left:4px solid var(--cat,rgba(245,200,66,.5));' +
+        // Issue colour on the spine (issue-colors.js), category colour still the
+        // fallback so a Spotlight with no primary issue key keeps the edge it had.
+        'border-left:4px solid var(--pdx-ic, var(--cat,rgba(245,200,66,.5)));' +
         'border-radius:.9rem;padding:.95rem 1rem;color:inherit;' +
         'transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;}' +
       '.shub-card:hover{transform:translateY(-3px);border-color:var(--cat,rgba(245,200,66,.45));box-shadow:0 10px 28px rgba(0,0,0,.35);}' +
@@ -294,8 +309,12 @@
       '.shub-blurb{font:500 .8rem/1.45 "Barlow",sans-serif;color:#9fb4d4;' +
         'display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}' +
       '.shub-tags{display:flex;flex-wrap:wrap;gap:.3rem;}' +
+      // Each tag names an issue, so each tag carries that issue's colour. Text
+      // uses the `ink` variant (lightened only as far as legibility on the navy
+      // requires) rather than the raw brand colour.
       '.shub-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;' +
-        'color:#8aa0c4;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .45rem;}' +
+        'color:var(--pdx-ic-ink,#8aa0c4);background:var(--pdx-ic-soft,rgba(159,180,212,.08));' +
+        'border:1px solid var(--pdx-ic,rgba(159,180,212,.16));border-radius:999px;padding:.2rem .45rem;}' +
       '.shub-foot{margin-top:auto;display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding-top:.5rem;}' +
       // Prominent top category chip (moved up from the footer for stronger hierarchy,
       // mirroring the Legislation bill cards); the old footer .shub-cat style is kept

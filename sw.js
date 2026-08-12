@@ -98,6 +98,10 @@ const SHELL_ASSETS = [
   '/cmp-data.js',
   '/stance-helpers.js',
   '/alignment-tool.js',
+  // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
+  // repeat visit keeps issues colour-coded instead of falling back to slate
+  // everywhere, which would read as "nothing is a core issue".
+  '/issue-colors.js',
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',

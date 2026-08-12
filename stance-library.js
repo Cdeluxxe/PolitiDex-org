@@ -244,8 +244,17 @@
   function chip(kind, key, label, hot) {
     var active = state.fkind === kind && (kind === 'all' || state.fkey === key);
     var n = kind === 'all' ? 0 : chipCount(kind, key);
-    return '<button type="button" class="sl-chip' + (hot ? ' sl-chip--hot' : '') + (active ? ' is-active' : '') +
-      '" data-fkind="' + esc(kind) + '" data-fkey="' + esc(key) + '">' + esc(label) +
+    // Core National Issue chips wear their issue's colour, so the filter rail is
+    // the legend for every issue-coloured surface underneath it: tap the amber
+    // chip, get the amber cards. Hot Topics and broad category chips are NOT
+    // issues and keep their existing treatment — colouring them would say
+    // "same issue" about two things that are not the same issue.
+    var IC = G('PDXIssueColors');
+    var ic = (kind === 'core' && IC && typeof IC.styleFor === 'function') ? IC.styleFor(key) : '';
+    return '<button type="button" class="sl-chip' + (hot ? ' sl-chip--hot' : '') +
+      (ic ? ' sl-chip--core' : '') + (active ? ' is-active' : '') +
+      '" data-fkind="' + esc(kind) + '" data-fkey="' + esc(key) + '"' +
+      (ic ? ' style="' + esc(ic) + '"' : '') + '>' + esc(label) +
       (n ? '<span class="sl-chip-n">' + n + '</span>' : '') + '</button>';
   }
   function toolbarHtml() {
@@ -276,7 +285,14 @@
   }
   function cardHtml(o) {
     var m = o.meta, c = o.agg.counts, hot = hotTopicsFor(o.key).length;
-    return '<button type="button" class="sl-card" data-issue="' + esc(o.key) + '" aria-label="Open ' + esc(m.title) + '">' +
+    // One issue, one colour, everywhere (issue-colors.js). The card is keyed by
+    // its leaf ISSUE_MAP key and the module resolves that to its Core National
+    // Issue, so 'health_rural' and 'health_drug_prices' both read as healthcare
+    // blue — the same blue their Word vs Action rows and coverage gaps carry.
+    var IC = G('PDXIssueColors');
+    var ic = (IC && typeof IC.styleFor === 'function') ? IC.styleFor(o.key) : '';
+    return '<button type="button" class="sl-card" data-issue="' + esc(o.key) + '"' +
+        (ic ? ' style="' + esc(ic) + '"' : '') + ' aria-label="Open ' + esc(m.title) + '">' +
       '<div class="sl-card-top">' +
         '<span class="sl-card-ico" aria-hidden="true">' + esc(m.icon) + '</span>' +
         '<div class="sl-card-titles">' +

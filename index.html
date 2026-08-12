@@ -18870,6 +18870,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        exactly as it did before the education layer existed. -->
   <script defer src="pdx-learn.js"></script>
   <script defer src="alignment-tool.js"></script>
+  <!-- Core National Issue colors (window.PDXIssueColors). One source of truth for
+       "what color is this issue", so a stance chip, a Word vs Action row, a
+       Spotlight card and a coverage gap that all name healthcare are all the same
+       blue. Purely visual — it reads no data and touches no score. Loaded straight
+       after alignment-tool.js because it resolves a leaf ISSUE_MAP key to its core
+       bundle through that file's CORE_NATIONAL_ISSUES / coreIssueForKey, though it
+       looks them up lazily at call time and every consumer is guarded, so the
+       ordering is a convenience rather than a requirement. -->
+  <script defer src="issue-colors.js"></script>
   <!-- Your Ballot — unified, address-driven flow. `defer` guarantees it runs
        after every inline script has defined the ballot/team/location primitives it
        builds on and the onboarding functions it consolidates, so its overrides win. -->

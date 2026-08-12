@@ -976,11 +976,18 @@
       if (!top.length) return '';
       var rows = top.map(function (r) {
         var col = r.verdict.color || '#9fb4d4';
+        // The row's spine and tint carry the ISSUE, not the verdict: scanning a
+        // stack of rows, the first thing a reader should be able to do is find
+        // the healthcare one. The verdict keeps its own colour on its own label
+        // to the right, so nothing about the judgement is lost — the two colour
+        // vocabularies sit side by side and mean different things.
+        var ic = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
+          ? window.PDXIssueColors.styleFor(r.key) : '';
         var saidTxt = r.stance.text ? String(r.stance.text) : '';
         if (saidTxt.length > 150) saidTxt = saidTxt.slice(0, 147).replace(/\s+\S*$/, '') + '…';
         var said = r.stance.label + (saidTxt ? ' — ' + saidTxt : '');
         return '' +
-          '<li class="pdxwa-row" style="--pdxwa-col:' + col + ';">' +
+          '<li class="pdxwa-row" style="--pdxwa-col:' + col + ';' + ic + '">' +
             '<div class="pdxwa-row-h">' +
               '<span class="pdxwa-row-issue">' + esc(r.label) + '</span>' +
               '<span class="pdxwa-row-verdict" style="color:' + col + ';">' +

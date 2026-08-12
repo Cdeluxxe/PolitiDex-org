@@ -347,6 +347,12 @@
     opts = opts || {};
     _reg[gap.key] = gap;
     var k = esc(gap.key);
+    // Issue-linked gaps wear their issue's colour, so "the healthcare hole" is
+    // recognisable next to the healthcare row in Word vs Action and the
+    // healthcare card in the Stance Library. A gap with no issue behind it — or
+    // one keyed to an issue outside the core set — resolves to neutral slate.
+    var ic = (gap.issueKey && window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
+      ? ' style="' + window.PDXIssueColors.styleFor(gap.issueKey) + '"' : '';
     if (!gap.askable) {
       return '' +
         '<li class="pdxg-row pdxg-row-hold" data-pdx-gap="' + k + '">' +
@@ -360,7 +366,7 @@
         '</li>';
     }
     return '' +
-      '<li class="pdxg-row" data-pdx-gap="' + k + '">' +
+      '<li class="pdxg-row" data-pdx-gap="' + k + '"' + ic + '>' +
         '<div class="pdxg-row-h">' +
           '<span class="pdxg-row-label">' + esc(gap.label) + '</span>' +
           '<span class="pdxg-row-tag">Open gap</span>' +

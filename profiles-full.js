@@ -2640,7 +2640,12 @@
       if (!issueKey || typeof ISSUE_MAP === 'undefined' || !ISSUE_MAP || !ISSUE_MAP[issueKey]) return '';
       var lbl = ISSUE_MAP[issueKey].label || 'this issue';
       var lead = prefix || 'On the issue:';
-      return '<span class="pdx-issue-tie" title="This Spotlight item connects to the &quot;' + lbl +
+      // The chip wears the issue's own colour (issue-colors.js), so the tie reads
+      // as the same issue the reader just saw in the Stance Library or on a Word
+      // vs Action row rather than as a generic "related" badge.
+      var ic = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
+        ? ' style="' + window.PDXIssueColors.styleFor(issueKey) + '"' : '';
+      return '<span class="pdx-issue-tie"' + ic + ' title="This Spotlight item connects to the &quot;' + lbl +
         '&quot; position — compare it in the Alignment Tool.">🔗 ' + lead + ' ' + lbl + '</span>';
     } catch (e) { return ''; }
   };
