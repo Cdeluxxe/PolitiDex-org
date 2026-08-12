@@ -1008,6 +1008,23 @@
   // recomputed and no number is published — the row's verdict and the row's receipt
   // count are read straight off the unit.
   var TOP_ROWS_MAX = 3;
+  // ── The one place this file asks for an issue colour ────────────────────────
+  // Every row on this card that names an issue goes through here, so there is one
+  // guard, one fallback and one class name rather than three near-copies.
+  //
+  // The `mapped` flag is the part that matters. styleFor() never fails — an
+  // unrecognised key comes back as neutral slate — which means a row that silently
+  // stopped resolving looks identical to a row that resolved to slate on purpose,
+  // and a whole card of grey rows reads as "the colour system is off" rather than
+  // "these are not core issues". Splitting the two lets the CSS paint a resolved
+  // row properly and leave an unresolved one alone.
+  function issueSkin(key) {
+    var IC = window.PDXIssueColors;
+    if (!IC || typeof IC.styleFor !== 'function') return { style: '', cls: '', on: false };
+    var on = false;
+    try { on = (typeof IC.isCore === 'function') ? IC.isCore(key) : !!IC.getIssueColor(key).mapped; } catch (e) { on = false; }
+    return { style: IC.styleFor(key), cls: on ? ' pdxwa-ic' : '', on: on };
+  }
   function _laneNoun(row, n) {
     var one = (row.lane === 'exec') ? 'executive action' : 'vote';
     return n + ' ' + one + (n === 1 ? '' : 's');
@@ -1061,15 +1078,22 @@
         // the healthcare one. The verdict keeps its own colour on its own label
         // to the right, so nothing about the judgement is lost — the two colour
         // vocabularies sit side by side and mean different things.
-        var ic = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
-          ? window.PDXIssueColors.styleFor(r.key) : '';
+        //
+        // When the key resolves, the .pdxwa-ic class hands the spine to the issue
+        // outright. It used to be a CSS fallback chain (issue colour, else verdict
+        // colour), which meant a resolved row and an unresolved one were one typo
+        // apart and the unresolved one came back green — the exact confusion this
+        // whole colour vocabulary exists to prevent.
+        var skin = issueSkin(r.key);
         var saidTxt = r.stance.text ? String(r.stance.text) : '';
         if (saidTxt.length > 150) saidTxt = saidTxt.slice(0, 147).replace(/\s+\S*$/, '') + '…';
         var said = r.stance.label + (saidTxt ? ' — ' + saidTxt : '');
         return '' +
-          '<li class="pdxwa-row" style="--pdxwa-col:' + col + ';' + ic + '">' +
+          '<li class="pdxwa-row' + skin.cls + '" style="--pdxwa-col:' + col + ';' + skin.style + '">' +
             '<div class="pdxwa-row-h">' +
-              '<span class="pdxwa-row-issue">' + esc(r.label) + '</span>' +
+              '<span class="pdxwa-row-issue">' +
+                (skin.on ? '<span class="pdxwa-row-dot" aria-hidden="true"></span>' : '') +
+                esc(r.label) + '</span>' +
               '<span class="pdxwa-row-verdict" style="color:' + col + ';">' +
                 esc((r.verdict.ico || '') + ' ' + (r.verdict.label || '')) + '</span>' +
             '</div>' +
@@ -1131,7 +1155,13 @@
       bits.push(r.setAside.count + ' ' + (r.setAside.direction === 'contradicts' ? 'against' : 'for') + ', set aside');
     }
     if (r.stance.label) bits.unshift(r.stance.label);
-    return '<li class="pdxwa-oc-row">' +
+    // Same issue, same colour, one section down. These rows sit inside a group
+    // whose heading already carries the outcome colour, so without this the only
+    // colour on the line belonged to the bucket it happened to fall into — and
+    // healthcare in one bucket looked like nothing to do with healthcare in the
+    // next. The spine is the issue; the group heading keeps the outcome.
+    var skin = issueSkin(r.key);
+    return '<li class="pdxwa-oc-row' + skin.cls + '" style="' + skin.style + '">' +
         '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
         (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
       '</li>';
@@ -1188,9 +1218,32 @@
     try {
       if (!pid || !p) return '';
       var r = read(pid, p);
-      // Nothing said and nothing tracked — no surface at all rather than an empty
-      // frame implying the record should be here.
-      if (!r.coverage.word) return '';
+      // Nothing said and nothing tracked. There is no read to print — a number and
+      // a verdict over zero documented word would be an empty frame implying the
+      // record should be here. But "we hold no word" is itself a fact about OUR
+      // documentation, and on a spotlight-only profile it is the single most
+      // useful thing this section can say. So the read disappears and the gap list
+      // does not: if gaps.js has something honest to name, mount it alone, with no
+      // metric, no verdict and no percentage anywhere near it. Same wrapper and
+      // same data-pdxwa-body as the full section, so the warm-refresh below can
+      // repaint this stub straight into the real read the day word lands.
+      if (!r.coverage.word) {
+        var stub = gapsHtml(pid, p, r);
+        if (!stub) return '';
+        return '' +
+          '<span id="pdxsec-wordaction" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+          '<div class="modal-section pdxwa pdxwa-nowork" data-pdxwa="' +
+            (String(pid) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '') +
+            '" data-pdxwa-pid="' + esc(String(pid)) + '">' +
+            '<div class="modal-section-title">' + FRAME.icon + ' ' + esc(FRAME.label) +
+              '<span class="pdxwa-q">' + esc(FRAME.question) + '</span></div>' +
+            '<div class="pdxwa-body" data-pdxwa-body>' +
+              '<p class="pdxwa-line pdxwa-nowork-line">We do not yet hold documented word for this record, so there is ' +
+                'nothing here to test against their formal actions. Here is what we are missing.</p>' +
+              stub +
+            '</div>' +
+          '</div>';
+      }
 
       var uid = (String(pid) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '');
       var name = (p.name || 'this official').split(' ').slice(-1)[0] || p.name || 'they';
@@ -1209,21 +1262,31 @@
             '<div class="pdxwa-verdict" style="color:' + col + ';">' +
               (v ? esc(v.ico + ' ' + v.label) : 'Building the record') + '</div>' +
             '<p class="pdxwa-line">' +
+              // ONE clause. This line sits directly under the big number, and the
+              // count it used to open with ("Weighed across 14 documented statements
+              // that a formal action can test") is now said twice below it anyway —
+              // once on the basis lid's own label, once in the coverage sentence
+              // behind it. Two sentences here is what made the top of the card read
+              // as a paragraph instead of a verdict.
               (hasPct
-                ? esc('Weighed across ' + r.coverage.tested + ' documented statement' + (r.coverage.tested === 1 ? '' : 's') +
-                      ' that a formal action can test. ' + (v ? v.short : ''))
+                ? esc((v && v.short) || '')
                 : esc(thinCopy(r, name))) +
             '</p>' +
           '</div>' +
         '</div>' +
         basisHtml(r) +
-        // What we do NOT have yet, named out loud, directly under the sentence that
-        // says how much we do have. Derived at render time from this same read, so it
-        // can never claim a hole that has already been filled. Guarded: no gaps
-        // module, or a well-documented record, means no extra furniture at all.
-        gapsHtml(pid, p, r) +
+        // The three rows that carry the read, immediately under the digest. Nothing
+        // else is allowed between the big % and these: the eye should reach a
+        // concrete issue in one hop, not after a coverage panel.
         topRowsHtml(pid) +
         outcomesHtml(pid) +
+        // What we do NOT have yet, named out loud. It used to sit directly under the
+        // digest, which put a second block of coverage furniture in front of the
+        // first issue row — the exact thing the trim was supposed to remove. It is
+        // still said in full, one screen lower, where a reader who has taken the
+        // read is ready to ask what is missing from it. Guarded: no gaps module, or
+        // a well-documented record, means no extra furniture at all.
+        gapsHtml(pid, p, r) +
         feedsHtml(pid, p, r) +
         methodHtml(r, pid);
 

@@ -2016,7 +2016,11 @@ window.PDXLazy = (function () {
       .pdx-eye-conn-body, .pdx-eye-conn-detail { animation: none; }
     }
     @media (hover: none) and (pointer: coarse) {
-      .pdx-eye-field { height: 2.75rem; }
+      /* min-height, not height — a fixed height here would clip a pasted claim
+         on the one platform where pasting is most likely. The padding shrinks so
+         the 2.2rem clear button (now the tallest item, and the thing that sets
+         the ≥44px tap target) still lands the resting field at exactly 2.75rem. */
+      .pdx-eye-field { min-height: 2.75rem; padding-top: 0.275rem; padding-bottom: 0.275rem; }
       .pdx-eye-clear { width: 2.2rem; height: 2.2rem; }
     }
 
@@ -2644,10 +2648,20 @@ window.PDXLazy = (function () {
       .pdx-eye-shell{padding-top:0.5rem;padding-bottom:0.5rem;}
       .pdx-eye-box{position:relative;max-width:40rem;margin:0 auto;display:block;}
       /* ── The search field ─────────────────────────────────────────── */
-      .pdx-eye-field{display:flex;align-items:center;gap:0.55rem;height:2.5rem;padding:0 0.5rem 0 0.85rem;border-radius:9999px;background:rgba(13,21,38,0.72);border:1px solid rgba(148,163,184,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 2px 14px rgba(0,0,0,0.28);transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;}
+      /* min-height, not height: the field is one line at rest and grows with a
+         pasted claim (growField() in all-seeing-eye.js caps it at ~4 lines).
+         The padding it gained is exactly the padding the fixed height used to
+         supply, so one line still measures 2.5rem and the resting shape of the
+         eye is unchanged. */
+      .pdx-eye-field{display:flex;align-items:center;gap:0.55rem;min-height:2.5rem;padding:0.55rem 0.5rem 0.55rem 0.85rem;border-radius:9999px;background:rgba(13,21,38,0.72);border:1px solid rgba(148,163,184,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 2px 14px rgba(0,0,0,0.28);transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;}
       .pdx-eye-field:hover{border-color:rgba(148,163,184,0.35);}
       .pdx-eye-box.is-focus .pdx-eye-field{background:rgba(13,21,38,0.9);border-color:rgba(245,200,66,0.55);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06),0 0 0 3px rgba(245,200,66,0.12),0 6px 26px rgba(0,0,0,0.4);}
-      .pdx-eye-input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#e7eefb;font-family:'Barlow',sans-serif;font-size:0.92rem;letter-spacing:0.01em;}
+      /* A textarea styled to be indistinguishable from the old input at one line:
+         no resize grip, no scrollbar until the 4-line cap, zero padding (the
+         field owns the padding), and an explicit line-height so growField() can
+         do exact arithmetic instead of guessing at scrollHeight. */
+      .pdx-eye-input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#e7eefb;font-family:'Barlow',sans-serif;font-size:0.92rem;letter-spacing:0.01em;display:block;margin:0;padding:0;resize:none;overflow-y:hidden;line-height:1.4rem;height:1.4rem;max-height:5.6rem;}
+      .pdx-eye-input.is-multiline{overflow-y:auto;}
       .pdx-eye-input::placeholder{color:#7f93b3;opacity:1;}
       .pdx-eye-input::-webkit-search-cancel-button{display:none;}
       /* ── The eye glyph — its own iris that opens on focus ─────────── */
@@ -2933,12 +2947,20 @@ window.PDXLazy = (function () {
                 <circle class="pdx-eye-pupil" cx="12" cy="12" r="1.5"/>
               </svg>
             </span>
-            <input id="pdx-eye-input" class="pdx-eye-input" type="text" role="combobox"
+            <!-- A one-line-tall TEXTAREA, not an <input>. The field has always
+                 accepted a pasted sentence (there was never a maxlength) but it
+                 showed only the tail of one, so pasting a claim looked like the
+                 box had eaten it. A textarea that starts at exactly one line and
+                 grows to at most four (see growField() in all-seeing-eye.js)
+                 keeps the resting shape identical while making a paste visible.
+                 Enter never inserts a newline — the keydown handler owns that
+                 key — so it still behaves as a search field, not a composer. -->
+            <textarea id="pdx-eye-input" class="pdx-eye-input" rows="1" role="combobox"
                    aria-expanded="false" aria-controls="pdx-eye-panel" aria-autocomplete="list"
-                   aria-label="Search politicians, issues and hot topics"
+                   aria-label="Search politicians and issues, or paste a claim to check"
                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                    inputmode="search" enterkeyhint="search"
-                   placeholder="Search politicians, issues &amp; hot topics…" />
+                   placeholder="Search politicians &amp; issues — or paste a claim to check…"></textarea>
             <button id="pdx-eye-clear" class="pdx-eye-clear" type="button" aria-label="Clear search" tabindex="-1">&times;</button>
             <kbd class="pdx-eye-key" aria-hidden="true">/</kbd>
           </div>
@@ -7931,6 +7953,13 @@ window.PDXLazy = (function () {
        can never be mistaken for curated evidence. */
     .cee-pill-lead-sourced { background: rgba(74,222,128,0.1); color: #86efac; border: 1px solid rgba(74,222,128,0.3); }
     .cee-pill-lead-needs { background: rgba(148,163,184,0.1); color: #9fb1cd; border: 1px dashed rgba(148,163,184,0.35); }
+    /* The moderator-set review states. Blue-grey rather than green: "answered"
+       means a curator looked, and must not read as a verdict or a strength grade.
+       Dashed borders throughout keep every lead state quieter than the solid
+       imported/locker pills. */
+    .cee-pill-lead-checking { background: rgba(96,165,250,0.1); color: #93c5fd; border: 1px dashed rgba(96,165,250,0.4); }
+    .cee-pill-lead-answered { background: rgba(148,163,184,0.12); color: #cbd5e1; border: 1px dashed rgba(203,213,225,0.4); }
+    .cee-pill-lead-dead { background: rgba(148,163,184,0.06); color: #8496b0; border: 1px dashed rgba(132,150,176,0.3); }
     .cee-pill-gap { background: rgba(245,200,66,0.08); color: #d9a44a; border: 1px dashed rgba(217,164,74,0.4); }
 
     /* The locked context block at the top of a gap-scoped compose. Read-only by
@@ -7968,6 +7997,33 @@ window.PDXLazy = (function () {
     .cee-promote label { display: block; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: #8aa0c0; font-weight: 700; margin-bottom: 0.3rem; }
     .cee-promote-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: flex-end; }
     .cee-promote-row .cee-field { flex: 1; min-width: 8rem; margin-bottom: 0; }
+
+    /* ── Gap context + lead lifecycle in the moderation queue ──────────────────
+       The queue's job for a gap lead is different from its job for evidence: not
+       "is this good enough to publish" but "who is this about and what question
+       does it answer". This strip is that context, and the state row below it is
+       research bookkeeping only — slate/blue throughout, never the gold of the
+       Locker or the green of a verdict, so a research note can never be misread
+       as a graded receipt. */
+    .cee-mod-gap { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0 0 0.4rem;
+      padding: 0.4rem 0.5rem; border-left: 2px dashed rgba(217,164,74,0.45);
+      background: rgba(245,200,66,0.05); border-radius: 0 0.4rem 0.4rem 0; }
+    .cee-mod-gap-none { border-left-color: rgba(148,163,184,0.35); background: rgba(148,163,184,0.05);
+      font-size: 0.74rem; color: #8fa2bf; }
+    .cee-mod-gap-pol { font-size: 0.76rem; font-weight: 700; color: #cbd5e1; text-decoration: none;
+      border-bottom: 1px dotted rgba(203,213,225,0.5); }
+    .cee-mod-gap-pol:hover { color: #eaf1fb; }
+    .cee-mod-gap-key { flex: 1 0 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.64rem; color: #7e93b4; word-break: break-all; }
+    .cee-lead-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0.5rem 0 0;
+      padding-top: 0.5rem; border-top: 1px dashed rgba(148,163,184,0.2); }
+    .cee-lead-actions-k { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #7e93b4; font-weight: 700; margin-right: 0.15rem; }
+    .cee-lead-actions-note { flex: 1 0 100%; font-size: 0.68rem; color: #7e93b4; font-style: italic; }
+    .cee-lead-state.on { border-color: rgba(96,165,250,0.55); color: #bfdbfe; background: rgba(96,165,250,0.14); }
+    .cee-mod-dup { font-size: 0.74rem; color: #9fb1cd; margin-top: 0.4rem; }
+    .cee-dup-panel { border-color: rgba(148,163,184,0.35); background: rgba(14,20,34,0.6); }
+    .cee-dup-msg { font-size: 0.72rem; color: #fca5a5; margin: 0.4rem 0 0; min-height: 1em; }
 
     /* Graduated credit wall — the public, transparent end of the pipeline. */
     .cee-grad { margin-top: 2.5rem; }
@@ -8046,6 +8102,7 @@ window.PDXLazy = (function () {
           <span class="cee-mod-tag">🛡 Moderation Queue</span>
           <div class="cee-tabs" style="margin-left:auto;">
             <button class="cee-tab active" id="cee-mod-tab-incoming" data-modtab="incoming">🆕 Incoming</button>
+            <button class="cee-tab" id="cee-mod-tab-leads" data-modtab="leads">💡 Leads</button>
             <button class="cee-tab" id="cee-mod-tab-flagged" data-modtab="flagged">🚩 Flagged</button>
             <button class="cee-tab" id="cee-mod-tab-suggested" data-modtab="suggested">⭐ Suggested</button>
             <button class="cee-btn cee-btn-ghost" id="cee-mod-refresh">↻ Refresh</button>
@@ -8114,15 +8171,28 @@ window.PDXLazy = (function () {
       if (kind === 'lead') return '<span class="cee-pill cee-pill-kind-lead">💡 Lead</span>';
       return '';
     }
-    // Whether a lead cited anything. Deliberately NOT a verification badge: it
-    // says what the submitter attached, nothing about whether we believe it. Only
-    // a curator moving it into the Evidence Locker makes it part of the record.
+    // Where a lead stands. Two different things wearing one pill, and the copy
+    // keeps them apart: the SUBMIT states say what the contributor attached, the
+    // REVIEW states say what a moderator did about it. Neither is a verification
+    // badge and neither puts anything into the record — only a curator moving it
+    // into the Evidence Locker does that.
+    var LEAD_STATE_PILLS = {
+      has_source:  { cls: 'cee-pill-lead-sourced', ico: '🔗', label: 'Has source',
+                     tip: 'This lead came with a source link for a curator to check' },
+      needs_source:{ cls: 'cee-pill-lead-needs',   ico: '◌', label: 'Needs source',
+                     tip: 'This lead has no source yet — it stays a research question until one is found' },
+      checking:    { cls: 'cee-pill-lead-checking', ico: '◍', label: 'Being checked',
+                     tip: 'A curator has picked this lead up and is chasing it down' },
+      answered:    { cls: 'cee-pill-lead-answered', ico: '✓', label: 'Answered',
+                     tip: 'A curator followed this lead and got an answer. That is a research note, not a score — nothing here changes a verdict.' },
+      dead_end:    { cls: 'cee-pill-lead-dead',     ico: '⌀', label: 'Dead end',
+                     tip: 'A curator followed this lead and found nothing to document. Kept on the record so the same ground is not covered twice.' }
+    };
     function leadStatePill(post) {
       if (!post || post.kind !== 'lead' || !post.leadState) return '';
-      if (post.leadState === 'has_source') {
-        return '<span class="cee-pill cee-pill-lead-sourced" title="This lead came with a source link for a curator to check">🔗 Has source</span>';
-      }
-      return '<span class="cee-pill cee-pill-lead-needs" title="This lead has no source yet — it stays a research question until one is found">◌ Needs source</span>';
+      var d = LEAD_STATE_PILLS[post.leadState] || LEAD_STATE_PILLS.needs_source;
+      return '<span class="cee-pill ' + d.cls + '" title="' + esc(d.tip) + '">' +
+        d.ico + ' ' + esc(d.label) + '</span>';
     }
     // The coverage gap a lead was suggested for, shown as read-only context.
     function gapPillHtml(post) {
@@ -8784,7 +8854,7 @@ window.PDXLazy = (function () {
         renderModeration(res.data);
       });
     }
-    var modData = { incoming: [], flagged: [], suggested: [] };
+    var modData = { incoming: [], leads: [], flagged: [], suggested: [] };
     function srcTypeLabel(key) {
       var s = SOURCE_TYPES.filter(function (x) { return x.key === key; })[0];
       return s ? s.label : key;
@@ -8808,6 +8878,59 @@ window.PDXLazy = (function () {
         '<div class="cee-ai-note">Advisory only — not binding. A human moderator makes the call.</div>' +
       '</div>';
     }
+    // ── Gap context for the moderator queue ─────────────────────────────────
+    // A gap lead is only actionable if the moderator can see the two things the
+    // reader saw: WHO it is about, and WHICH question it answers. Without them a
+    // lead reads as an unattributed tip and gets skipped. Resolved the same way
+    // gaps.js resolves a profile, so one missing roster entry degrades to the id
+    // rather than throwing.
+    function polNameFor(pid) {
+      try { if (window.PROFILES && window.PROFILES[pid] && window.PROFILES[pid].name) return String(window.PROFILES[pid].name); } catch (e) {}
+      try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA[pid] && CMP_DATA[pid].name) return String(CMP_DATA[pid].name); } catch (e) {}
+      return String(pid || '');
+    }
+    function gapContextHtml(p) {
+      if (!p || p.kind !== 'lead') return '';
+      var pols = (p.linkedPoliticianIds || []).map(function (id) {
+        return '<a class="cee-mod-gap-pol" href="#profile-' + esc(id) + '" title="Open this profile">👤 ' + esc(polNameFor(id)) + '</a>';
+      }).join(' ');
+      // No gap key means an Exchange-floor lead rather than a gap answer — say so
+      // instead of printing an empty context strip.
+      if (!p.gapKey && !pols) {
+        return '<div class="cee-mod-gap cee-mod-gap-none">💡 General lead — not pinned to a coverage gap.</div>';
+      }
+      var g = (window.PDXGaps && window.PDXGaps.TYPES && window.PDXGaps.TYPES[p.gapType]) || null;
+      return '<div class="cee-mod-gap">' +
+        (pols || '') +
+        (p.gapType ? ' <span class="cee-pill cee-pill-gap">◷ ' + esc((g && g.label) || String(p.gapType).replace(/_/g, ' ')) + '</span>' : '') +
+        (p.gapKey ? '<div class="cee-mod-gap-key" title="The derived gap this lead answers">' + esc(p.gapKey) + '</div>' : '') +
+      '</div>';
+    }
+    // The lead lifecycle controls. Research states only — none of them promotes,
+    // grades or scores anything, and the copy under them says so, because the one
+    // dangerous misreading of this row is "answered" meaning "now part of the
+    // record". Promotion is still the separate, source-requiring button.
+    var LEAD_ACTIONS = [
+      { action: 'checking', label: '◍ Checking', title: 'You have picked this lead up and are chasing it down' },
+      { action: 'answered', label: '✓ Answered', title: 'You followed it and got an answer. A research note — it does not enter the record or change any score.' },
+      { action: 'dead_end', label: '⌀ Dead end', title: 'You followed it and there is nothing to document' }
+    ];
+    function leadActionsHtml(p) {
+      if (!p || p.kind !== 'lead') return '';
+      var btns = LEAD_ACTIONS.map(function (a) {
+        var on = p.leadState === a.action;
+        return '<button class="cee-btn cee-btn-ghost cee-lead-state' + (on ? ' on' : '') + '" ' +
+          'data-mod="' + a.action + '" data-id="' + p.id + '" title="' + esc(a.title) + '"' +
+          (on ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>' + a.label + '</button>';
+      }).join('');
+      return '<div class="cee-lead-actions">' +
+        '<span class="cee-lead-actions-k">Research state</span>' + btns +
+        '<button class="cee-btn cee-btn-ghost" data-dup="' + p.id + '" ' +
+          'title="Mark this lead a duplicate of another post. It is hidden from the gap; Restore undoes it.">⧉ Duplicate of…</button>' +
+        '<span class="cee-lead-actions-note">Research states only — none of these scores anything or adds to the record.</span>' +
+      '</div>' +
+      (p.dupOf ? '<div class="cee-mod-dup">⧉ Marked a duplicate of post #' + esc(p.dupOf) + '</div>' : '');
+    }
     // The inline "Promote to Locker" panel: set the verified strength grade + a note,
     // then graduate the contribution with credit to its author.
     function promotePanel(p) {
@@ -8824,13 +8947,33 @@ window.PDXLazy = (function () {
         '</div>' +
       '</div>';
     }
+    // The inline "Duplicate of…" panel. Same open/confirm/cancel shape as the
+    // promote panel so the queue has one interaction model. The AI's advisory guess
+    // pre-fills the field when it has one — a starting point, never the decision.
+    function dupPanel(p) {
+      var pre = (p.ai && p.ai.duplicateOfId) ? String(p.ai.duplicateOfId) : '';
+      return '<div class="cee-promote cee-dup-panel" id="cee-dup-' + p.id + '">' +
+        '<div style="font-size:0.78rem;color:#cbd5e1;margin-bottom:0.5rem;">Mark this a duplicate of an existing post. It is hidden from the gap and the public list; <b>Restore</b> undoes both.</div>' +
+        '<div class="cee-promote-row">' +
+          '<div class="cee-field"><label>Duplicate of post #</label>' +
+            '<input class="cee-input" id="cee-dup-of-' + p.id + '" inputmode="numeric" maxlength="12" placeholder="e.g. 214" value="' + esc(pre) + '"></div>' +
+        '</div>' +
+        '<div class="cee-mod-actions" style="margin-top:0.6rem;">' +
+          '<button class="cee-btn cee-btn-ghost" data-dup-confirm="' + p.id + '">⧉ Mark duplicate</button>' +
+          '<button class="cee-btn cee-btn-ghost" data-dup-cancel="' + p.id + '">Cancel</button>' +
+        '</div>' +
+        '<p class="cee-dup-msg" id="cee-dup-msg-' + p.id + '"></p>' +
+      '</div>';
+    }
     function renderModeration(d) {
       modData = d;
       var items = modData[modTab] || [];
       var body = document.getElementById('cee-mod-body');
       var emptyMsg = modTab === 'incoming'
         ? 'No new evidence awaiting review. 🎉'
-        : 'Nothing in the ' + modTab + ' queue.';
+        : (modTab === 'leads'
+        ? 'No open research leads. Every gap lead has been answered, marked a dead end or filed as a duplicate. 🎉'
+        : 'Nothing in the ' + modTab + ' queue.');
       if (!items.length) { body.innerHTML = '<p class="cee-empty">' + emptyMsg + '</p>'; return; }
       body.innerHTML = items.map(function (it) {
         var p = it.post;
@@ -8858,23 +9001,59 @@ window.PDXLazy = (function () {
           : '<span style="color:#fca5a5;font-size:0.76rem;">No source link</span>';
         return '<div class="cee-mod-item">' +
           '<div class="cee-card-top" style="margin-bottom:0.35rem;">' + kindPill(p.kind) +
+            leadStatePill(p) +
             (p.categoryKey ? '<span class="cee-pill cee-pill-cat">' + esc(catLabel(p.categoryKey)) + '</span>' : '') + '</div>' +
+          gapContextHtml(p) +
           '<div style="font-weight:700;color:#eaf1fb;">' + esc(p.headline) + '</div>' +
           '<div class="cee-meta">by ' + esc(p.authorName) + ' · ' + ago(p.createdAt) + ' · status: ' + esc(p.status) + '</div>' +
           (p.summary ? '<div class="cee-summary" style="font-size:0.82rem;">' + esc(truncate(p.summary, 220)) + '</div>' : '') +
           '<div style="margin:0.35rem 0;">' + srcLine + '</div>' +
           detail +
           triageHtml(p.ai) +
+          leadActionsHtml(p) +
           '<div class="cee-mod-actions">' + promoteBtn + removeBtn + extraBtns +
             '<button class="cee-btn cee-btn-ghost" data-ai="' + p.id + '">🤖 Re-run AI triage</button></div>' +
           promotePanel(p) +
+          dupPanel(p) +
           '<div class="cee-ai-box" id="cee-ai-' + p.id + '"></div>' +
         '</div>';
       }).join('');
     }
+    // A moderation call that changed a lead has to reach the profile too, or the
+    // gap panel keeps serving its cached copy and the moderator's decision is
+    // invisible where readers actually see it. gaps.js busts _leadCache on this
+    // event and re-fetches.
+    function announceLeadChange(post) {
+      try {
+        var ids = (post && post.linkedPoliticianIds) || [];
+        for (var i = 0; i < ids.length; i++) {
+          window.dispatchEvent(new CustomEvent('pdx-gap-lead-updated', {
+            detail: { pid: ids[i], gapKey: (post && post.gapKey) || null }
+          }));
+        }
+      } catch (e) {}
+    }
+    // Find the queue item a moderation action was fired from, so the follow-up
+    // knows which profile to refresh without a second round trip.
+    function modPostById(id) {
+      var lists = ['incoming', 'leads', 'flagged', 'suggested'];
+      for (var i = 0; i < lists.length; i++) {
+        var arr = modData[lists[i]] || [];
+        for (var j = 0; j < arr.length; j++) {
+          if (arr[j] && arr[j].post && arr[j].post.id === id) return arr[j].post;
+        }
+      }
+      return null;
+    }
     function doModerate(id, action) {
+      var post = modPostById(id);
       api('/posts/' + id + '/moderate', { method: 'POST', body: { action: action } }).then(function (res) {
-        if (res.ok) { loadModeration(); loadList(); }
+        // Surface a refusal instead of swallowing it: the lead-state and duplicate
+        // actions fail closed with a reason, and a silently ignored click reads as
+        // a broken button.
+        if (!res.ok) { alert((res.data && res.data.error) || 'Could not apply that action.'); return; }
+        announceLeadChange(post);
+        loadModeration(); loadList();
       });
     }
     function openPromote(id) {
@@ -8893,6 +9072,40 @@ window.PDXLazy = (function () {
         if (res.ok) { loadModeration(); loadList(); loadGraduated(); }
         else { alert((res.data && res.data.error) || 'Could not promote.'); }
       });
+    }
+    function openDup(id) {
+      var el = document.getElementById('cee-dup-' + id);
+      if (el) el.classList.add('open');
+    }
+    function closeDup(id) {
+      var el = document.getElementById('cee-dup-' + id);
+      if (el) el.classList.remove('open');
+    }
+    function doMarkDuplicate(id) {
+      var inp = document.getElementById('cee-dup-of-' + id);
+      var msg = document.getElementById('cee-dup-msg-' + id);
+      var raw = inp ? inp.value.trim() : '';
+      var n = parseInt(raw, 10);
+      // Client-side check purely so a typo does not need a round trip. The server
+      // re-validates everything and is the one that decides.
+      if (!raw || !isFinite(n) || n <= 0) {
+        if (msg) msg.textContent = 'Enter the post number this duplicates.';
+        return;
+      }
+      if (n === id) {
+        if (msg) msg.textContent = 'A post cannot duplicate itself.';
+        return;
+      }
+      var post = modPostById(id);
+      api('/posts/' + id + '/moderate', { method: 'POST', body: { action: 'mark_duplicate', dupOf: n } })
+        .then(function (res) {
+          if (!res.ok) {
+            if (msg) msg.textContent = (res.data && res.data.error) || 'Could not mark that duplicate.';
+            return;
+          }
+          announceLeadChange(post);
+          closeDup(id); loadModeration(); loadList();
+        });
     }
     function doAiReview(id) {
       var box = document.getElementById('cee-ai-' + id);
@@ -8977,10 +9190,13 @@ window.PDXLazy = (function () {
         var promote = t.closest('[data-promote]'); if (promote) { openPromote(+promote.getAttribute('data-promote')); return; }
         var promoteOk = t.closest('[data-promote-confirm]'); if (promoteOk) { doPromote(+promoteOk.getAttribute('data-promote-confirm')); return; }
         var promoteNo = t.closest('[data-promote-cancel]'); if (promoteNo) { closePromote(+promoteNo.getAttribute('data-promote-cancel')); return; }
+        var dup = t.closest('[data-dup]'); if (dup) { openDup(+dup.getAttribute('data-dup')); return; }
+        var dupOk = t.closest('[data-dup-confirm]'); if (dupOk) { doMarkDuplicate(+dupOk.getAttribute('data-dup-confirm')); return; }
+        var dupNo = t.closest('[data-dup-cancel]'); if (dupNo) { closeDup(+dupNo.getAttribute('data-dup-cancel')); return; }
         var ai = t.closest('[data-ai]'); if (ai) { doAiReview(+ai.getAttribute('data-ai')); return; }
         var mt = t.closest('[data-modtab]'); if (mt) {
           modTab = mt.getAttribute('data-modtab');
-          ['incoming', 'flagged', 'suggested'].forEach(function (tab) {
+          ['incoming', 'leads', 'flagged', 'suggested'].forEach(function (tab) {
             var el = document.getElementById('cee-mod-tab-' + tab);
             if (el) el.classList.toggle('active', modTab === tab);
           });
@@ -18934,6 +19150,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
   <script defer src="receipt-cards.js"></script>
+  <!-- Claim check (window.PDXClaimCheck) — the paste-a-claim adapter. It owns no
+       verdict logic and no renderer of its own: it POSTs a pasted claim to
+       /api/claim-resolve, which returns only an ADDRESS ({ pid, issueKey,
+       direction }) or nothing, then hands that address to
+       PDXReceiptCards.find() and prints the result through the existing
+       PDXReceipts.cardHTML(). Everything a reader sees still comes from the
+       Official Record engine behind receipt-cards.js's guards.
+       Must load AFTER say-vs-do.js (the renderer) and receipt-cards.js (find /
+       warm / buttonHtml / hydrate); all-seeing-eye.js calls into it defensively
+       and works unchanged if this file is absent. -->
+  <script defer src="claim-check.js"></script>
   <!-- Profile record card (window.PDXProfileCard) — the shareable REPORT CARD for a
        person, as opposed to a single receipt. The two renderers above each print one
        fact, and one fact leaving the app reads as an anecdote; this prints the whole

@@ -1717,7 +1717,48 @@
       '.pdxst-links{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.28rem;}' +
       '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
       '.pdxst-go:hover,.pdxst-go:focus-visible{background:rgba(159,219,208,0.18);}' +
-      '.pdxst-ev{font-size:0.64rem;color:#6f88ab;white-space:nowrap;}';
+      '.pdxst-ev{font-size:0.64rem;color:#6f88ab;white-space:nowrap;}' +
+      // ── Core National Issue colours (issue-colors.js) ────────────────────────
+      // Every row in this file that names an issue carries `--pdx-ic*` inline via
+      // _icSkin(), and gets `.pdxc-ic` when the key resolved to a real core issue.
+      // This section is the only place those properties are consumed, so the rules
+      // stay free of any per-issue colour: the row supplies the hue, the CSS
+      // supplies the treatment.
+      //
+      // The Official Record used to have none of this. It is the section that
+      // prints one row per issue, one after another, for a dozen issues — the
+      // single surface where "which issue am I looking at" is hardest and colour
+      // helps most — and it was the only issue surface in the app still rendering
+      // every row in the same grey. The spine is the issue and nothing else: a
+      // verdict has its own chip on the same row, in its own palette, and letting
+      // the two share an edge would collapse two vocabularies into one.
+      '.pdxor-issue.pdxc-ic{border-left:4px solid var(--pdx-ic);border-top-left-radius:0;border-bottom-left-radius:0;' +
+        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 62%),rgba(10,15,30,0.35);}' +
+      '.pdxor-row.pdxc-ic[open]{background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 62%),rgba(10,15,30,0.5);}' +
+      // The Say-vs-Do feed's gold accent bar was doing the job an issue colour does
+      // better. It keeps its gold title and its own section furniture; the row edge
+      // now says which issue the row is about, exactly as it does one section up.
+      '.pdxsd .pdxor-issue.pdxc-ic{border-left:4px solid var(--pdx-ic);}' +
+      // Awaiting rows are deliberately quieter than scored ones — they keep the
+      // colour so the issue is still identifiable, over their own lighter fill.
+      '.pdxor-issue-await.pdxc-ic{background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 62%),rgba(10,15,30,0.25);}' +
+      // The same colour said once more where the eye lands — on the issue name.
+      '.pdxc-icdot{display:inline-block;width:0.44rem;height:0.44rem;border-radius:999px;margin-right:0.34rem;' +
+        'vertical-align:0.06em;background:var(--pdx-ic,#9fb4d4);box-shadow:0 0 0 2px var(--pdx-ic-soft,transparent);}' +
+      // Stances & Connections rows and the divergence rows are flat lists and
+      // cards respectively, so they take a lighter version of the same treatment.
+      // The divergence card keeps its own fill under the wash — the wash is a
+      // layer on top of the card, not a replacement for it.
+      '.pdxst-row.pdxc-ic{border-left:3px solid var(--pdx-ic);padding-left:0.5rem;' +
+        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 55%);}' +
+      '.pdxdv-row.pdxc-ic{border-left:3px solid var(--pdx-ic);border-top-left-radius:0;border-bottom-left-radius:0;' +
+        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 55%),rgba(10,15,30,0.35);}' +
+      '.pdxdv-row-tap.pdxc-ic:hover{border-color:rgba(255,255,255,0.22);border-left-color:var(--pdx-ic);' +
+        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 55%),rgba(10,15,30,0.55);}' +
+      '@media (max-width:480px){' +
+        '.pdxor-issue.pdxc-ic{border-left-width:4px;}' +
+        '.pdxst-row.pdxc-ic,.pdxdv-row.pdxc-ic{padding-left:0.45rem;}' +
+      '}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
     st.textContent = css;
@@ -2053,6 +2094,27 @@
   // _measureComponentBreakdown, _measureOmnibusContext). Each helper returns '' when
   // its source is unavailable, so a row degrades to exactly what it rendered before.
   function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
+
+  // Core National Issue colour for a row, from the one module that owns colour.
+  // Returns the inline custom properties to hang on the element, plus the class
+  // that turns the treatment on — and `on:false` with an EMPTY class when the key
+  // does not resolve to a core issue. That distinction is the whole point: an
+  // unresolved key must render as the plain grey row it always was, never as a
+  // borrowed colour from some other vocabulary, because a spine the reader can't
+  // trust to mean one thing is worse than no spine at all.
+  function _icSkin(key) {
+    var IC = window.PDXIssueColors;
+    if (!IC || typeof IC.styleFor !== 'function' || !key) return { style: '', cls: '', on: false };
+    var on = false;
+    try {
+      on = (typeof IC.isCore === 'function') ? IC.isCore(key) : !!IC.getIssueColor(key).mapped;
+    } catch (e) { on = false; }
+    return { style: IC.styleFor(key), cls: on ? ' pdxc-ic' : '', on: on };
+  }
+  // The dot repeats the row's colour next to the issue name, where the eye
+  // actually lands. Only ever emitted when the colour is real.
+  function _icDot(skin) { return skin && skin.on ? '<span class="pdxc-icdot" aria-hidden="true"></span>' : ''; }
+
   function _tc(s) {
     return String(s == null ? '' : s).replace(/[_-]+/g, ' ').trim()
       .replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); });
@@ -3433,7 +3495,9 @@
         // away, so the list stays scannable.
         var total = (s.ov.record && s.ov.record.total) || 0;
         var inline = (total && total <= 2) ? 2 : 1;
-        return '<details class="pdxor-issue pdxor-row" data-pdxc-row="' + escAttr(s.key) + '"' +
+        var skin = _icSkin(s.key);
+        return '<details class="pdxor-issue pdxor-row' + skin.cls + '" style="' + skin.style + '"' +
+            ' data-pdxc-row="' + escAttr(s.key) + '"' +
             // The ranking foundation, carried on the element itself: tier, testability
             // and receipt depth. Nothing reads these yet — they are here so a later
             // stance ranking can sort, filter or badge rows without re-deriving what
@@ -3443,7 +3507,7 @@
             ' data-pdxc-ev="' + escAttr(String((s.row && s.row.evidence.count) || 0)) + '">' +
             '<summary class="pdxor-row-sum">' +
               '<div class="pdxor-issue-top">' +
-                '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
+                '<span class="pdxor-issue-lbl">' + _icDot(skin) + esc(issueLabel(s.key)) + '</span>' +
                 _orSaysChipHtml(pid, s.key, s.ov) +
                 _orRecordChipHtml(s.ov) + pct + comp +
                 _orOmniChip(pid, s.key) +
@@ -3488,9 +3552,10 @@
     if (awaiting > 0) {
       var awaitRows = awaitingKeys.map(function (k) {
         var ov = officialIssue(pid, k);
-        return '<div class="pdxor-issue pdxor-issue-await">' +
+        var askin = _icSkin(k);
+        return '<div class="pdxor-issue pdxor-issue-await' + askin.cls + '" style="' + askin.style + '">' +
             '<div class="pdxor-issue-top">' +
-              '<span class="pdxor-issue-lbl">' + esc(issueLabel(k)) + '</span>' +
+              '<span class="pdxor-issue-lbl">' + _icDot(askin) + esc(issueLabel(k)) + '</span>' +
               _orStanceChip(pid, k) +
               _orRecordChipHtml(ov) +
             '</div>' +
@@ -3632,9 +3697,11 @@
       (r.evidence.actions === 1 ? '' : 's') + ' on record'));
     if (r.evidence.public > 0) links.push(_stGo('pdxsec-evidence', '🧾 ' + r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's')));
     var v = r.verdict;
-    return '<div class="pdxst-row" data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '">' +
+    var skin = _icSkin(r.key);
+    return '<div class="pdxst-row' + skin.cls + '" style="' + skin.style + '"' +
+        ' data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '">' +
         '<div class="pdxst-row-top">' +
-          '<span class="pdxst-lbl">' + esc(r.label) + '</span>' +
+          '<span class="pdxst-lbl">' + _icDot(skin) + esc(r.label) + '</span>' +
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
           (v && v.token !== 'no_stance' && v.token !== 'no_record'
             ? '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' : '') +
@@ -3813,9 +3880,10 @@
       grp.items.sort(function (a, b) { return (rank[a.ov.token] || 9) - (rank[b.ov.token] || 9); });
       var rows = grp.items.map(function (s) {
         var v = s.ov.verdict;
-        return '<div class="pdxor-issue">' +
+        var skin = _icSkin(s.key);
+        return '<div class="pdxor-issue' + skin.cls + '" style="' + skin.style + '">' +
             '<div class="pdxor-issue-top">' +
-              '<span class="pdxor-issue-lbl">' + esc(_issueLabel(s.key)) + '</span>' +
+              '<span class="pdxor-issue-lbl">' + _icDot(skin) + esc(_issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
               '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' +
               _sdPctHtml(s.ov.scoreMeta, v.color, { showDash: true }) +
@@ -3920,8 +3988,9 @@
     // Diverging & mixed rows are the tell — make them tappable to open the focused
     // gap view. Aligned rows have no gap to explain, so they stay static.
     var actionable = (rel.key === 'diverges' || rel.key === 'mixed');
+    var skin = _icSkin(p.key);
     var body =
-        '<div class="pdxdv-row-lbl">' + esc(_issueLabel(p.key)) + '</div>' +
+        '<div class="pdxdv-row-lbl">' + _icDot(skin) + esc(_issueLabel(p.key)) + '</div>' +
         '<div class="pdxdv-row-body">' +
           '<span class="pdxdv-nums">' +
             _divNum('🏛️', p.off.score, p.off.verdict.color,
@@ -3938,11 +4007,12 @@
           (g > DIV_ALIGN_MAX ? '<span class="pdxdv-gap">' + g + ' pt gap' + (dir ? ' · ' + dir : '') + '</span>' : '') +
         '</div>';
     if (actionable) {
-      return '<button type="button" class="pdxdv-row pdxdv-row-tap" data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+      return '<button type="button" class="pdxdv-row pdxdv-row-tap' + skin.cls + '" style="' + skin.style + '"' +
+          ' data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
           ' aria-label="' + esc('See the ' + (p.off.lane === 'exec' ? 'actions' : 'votes') + ' and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
           body + '<span class="pdxdv-row-why">See what’s behind the gap <span aria-hidden="true">→</span></span></button>';
     }
-    return '<div class="pdxdv-row">' + body + '</div>';
+    return '<div class="pdxdv-row' + skin.cls + '" style="' + skin.style + '">' + body + '</div>';
   }
   function _dvInner(pid) {
     var d = divergenceData(pid);

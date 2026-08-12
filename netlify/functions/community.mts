@@ -20,8 +20,10 @@
 //   POST /posts/:id/react       toggle a custom reaction
 //   POST /posts/:id/flag        flag a post for review
 //   POST /posts/:id/suggest     suggest a post for the Evidence Locker
-//   GET  /moderation            (moderator) incoming + flagged + suggested queue
-//   POST /posts/:id/moderate    (moderator) remove/restore/resolve/promote/dismiss
+//   GET  /moderation            (moderator) incoming + leads + flagged + suggested
+//   POST /posts/:id/moderate    (moderator) remove/restore/resolve/promote/dismiss,
+//                               lead lifecycle (checking/answered/dead_end) and
+//                               mark_duplicate
 //   POST /posts/:id/ai-review   (moderator) re-run AI triage of a post
 //   GET  /promoted              public credit wall of graduated contributions
 //
@@ -37,7 +39,7 @@
 
 import type { Config } from "@netlify/functions";
 import crypto from "node:crypto";
-import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import Anthropic from "@anthropic-ai/sdk";
 import { db } from "../../db/index.js";
 import {
@@ -100,9 +102,21 @@ const GAP_TYPES = new Set([
   "unitemized_pledges",
   "not_issue_linked",
 ]);
-// Whether a lead arrived with a citation. Not a verification status — see the
-// column comment in db/schema.ts.
-const LEAD_STATES = new Set(["needs_source", "has_source"]);
+// A lead's state, split by WHO is allowed to set it. This split is the whole
+// safety property: a submitter may only ever describe what they attached, and a
+// moderator may only ever describe what they did about it. Neither value is a
+// verification status and nothing in Word vs Action, the Official Record or
+// promise scoring reads either one — see the column comment in db/schema.ts.
+//
+//   SUBMIT states — derived on the server from the submission itself.
+const LEAD_SOURCE_STATES = new Set(["needs_source", "has_source"]);
+//   REVIEW states — reachable only through a moderator action on an existing
+//   lead. A client can never send one: createPost validates against
+//   LEAD_SOURCE_STATES, so "answered" is unreachable from a submission by
+//   construction rather than by a check someone could later forget.
+const LEAD_REVIEW_STATES = new Set(["checking", "answered", "dead_end"]);
+// The union, for reads and for shaping.
+const LEAD_STATES = new Set([...LEAD_SOURCE_STATES, ...LEAD_REVIEW_STATES]);
 // Shape of a derived gap key, e.g. "gap:booker:no-action-yet-climate-action".
 // Same contract the item-thread API enforces on target ids, so one key addresses
 // both the gap's discussion thread and its leads.
@@ -510,7 +524,7 @@ async function createPost(req: Request, viewer: AuthUser | null): Promise<Respon
   let leadState: string | null = null;
   if (kind === "lead") {
     leadState = sourceUrl ? "has_source" : "needs_source";
-    if (LEAD_STATES.has(body.leadState) && body.leadState === leadState) {
+    if (LEAD_SOURCE_STATES.has(body.leadState) && body.leadState === leadState) {
       leadState = body.leadState;
     }
   }
@@ -539,7 +553,7 @@ async function createPost(req: Request, viewer: AuthUser | null): Promise<Respon
   // never block the submission, so any error just leaves the AI fields empty and a
   // moderator can re-run it from the queue.
   try {
-    const candidates = await recentCandidates(row.id);
+    const candidates = await recentCandidates(row);
     const parsed = await runTriage(row, [], candidates);
     if (parsed) await persistTriage(row.id, parsed);
   } catch (e) {
@@ -786,12 +800,36 @@ async function moderationQueue(viewer: AuthUser | null): Promise<Response> {
     .where(eq(ceeSuggestions.status, "open"))
     .orderBy(desc(ceeSuggestions.createdAt));
 
-  // Incoming: active EVIDENCE submissions awaiting a first verification decision —
-  // the front of the pipeline. Carries its AI triage so nothing gets lost.
+  // Incoming: active submissions awaiting a first decision — the front of the
+  // pipeline. Carries its AI triage so nothing gets lost.
+  //
+  // This used to be `kind = 'evidence'` only, which quietly made the whole
+  // Suggest-a-Lead loop a dead end: a reader was invited to answer a coverage
+  // gap, the lead was validated and stored correctly, and then no moderator ever
+  // saw it — a gap lead could only reach a human if somebody else happened to
+  // flag or suggest it. Leads belong in the queue too; they are just a different
+  // job (chase it down) from evidence (verify and grade it), so they are
+  // returned as their own list rather than mixed into one.
   const incomingRows = await db
     .select()
     .from(ceePosts)
     .where(and(eq(ceePosts.status, "active"), eq(ceePosts.kind, "evidence")))
+    .orderBy(desc(ceePosts.createdAt))
+    .limit(100);
+
+  // Gap leads awaiting research. Already-answered and already-duplicate leads
+  // drop out: the queue is what still needs a human, not an archive.
+  const leadRows = await db
+    .select()
+    .from(ceePosts)
+    .where(
+      and(
+        eq(ceePosts.status, "active"),
+        eq(ceePosts.kind, "lead"),
+        isNull(ceePosts.dupOf),
+        sql`coalesce(${ceePosts.leadState}, '') not in ('answered', 'dead_end')`
+      )
+    )
     .orderBy(desc(ceePosts.createdAt))
     .limit(100);
 
@@ -819,6 +857,14 @@ async function moderationQueue(viewer: AuthUser | null): Promise<Response> {
     status: p.status,
     categoryKey: p.categoryKey,
     issueKeys: p.issueKeys || [],
+    // Coverage-gap context. Without these four the queue cannot tell a moderator
+    // the two things that make a lead actionable — WHO it is about and WHICH
+    // question it answers — so a gap lead read as an unattributed tip.
+    linkedPoliticianIds: p.linkedPoliticianIds || [],
+    gapKey: p.gapKey || null,
+    gapType: p.gapType || null,
+    leadState: p.leadState || null,
+    dupOf: p.dupOf || null,
     suggestedForReview: p.suggestedForReview,
     createdAt: p.createdAt,
     ai: shapeTriage(p),
@@ -835,8 +881,9 @@ async function moderationQueue(viewer: AuthUser | null): Promise<Response> {
     .map((id) => ({ post: item(byId.get(id)), suggestions: suggByPost[id] }));
 
   const incoming = incomingRows.map((p) => ({ post: item(p) }));
+  const leads = leadRows.map((p) => ({ post: item(p) }));
 
-  return ok({ incoming, flagged, suggested });
+  return ok({ incoming, leads, flagged, suggested });
 }
 
 async function moderatePost(
@@ -856,11 +903,73 @@ async function moderatePost(
       await db.update(ceePosts).set({ status: "removed", updatedAt: new Date() }).where(eq(ceePosts.id, id));
       break;
     case "restore":
-      await db.update(ceePosts).set({ status: "active", updatedAt: new Date() }).where(eq(ceePosts.id, id));
+      // Restoring makes a post publicly visible again, so it can no longer be
+      // being suppressed as a duplicate — clearing the pointer here is what stops
+      // `dupOf` becoming a stale claim about a post the reader can see.
+      await db
+        .update(ceePosts)
+        .set({ status: "active", dupOf: null, updatedAt: new Date() })
+        .where(eq(ceePosts.id, id));
       break;
     case "resolve_flags":
       await db.update(ceeFlags).set({ status: "resolved" }).where(eq(ceeFlags.postId, id));
       break;
+    // ── Lead lifecycle ──────────────────────────────────────────────────────
+    // Where a moderator has taken a research lead. Three states, named as the
+    // actions themselves so the wire vocabulary and the stored vocabulary are the
+    // same string and cannot drift:
+    //   checking  — picked up, being chased down
+    //   answered  — the question behind the gap got an answer
+    //   dead_end  — chased and there is nothing there
+    // They are freely re-settable, so "answered" by mistake is one click from
+    // "checking" again and nothing needs a separate reopen action.
+    //
+    // Deliberately NOT a promotion path and deliberately NOT scored: marking a
+    // lead "answered" records that a human looked, and nothing else. Anything that
+    // belongs in the curated record still has to go through `promote`, which needs
+    // a source. Word vs Action, the Official Record and promise scoring never read
+    // this column.
+    case "checking":
+    case "answered":
+    case "dead_end": {
+      // Fail closed on the shape rather than writing a lead state onto something
+      // that is not a lead: evidence has no research lifecycle, and a leadState on
+      // an evidence post would render a pill the Exchange never means to show.
+      if ((post.kind || "lead") !== "lead") {
+        return bad("Only a lead has a research state. This post is evidence.");
+      }
+      if (!LEAD_REVIEW_STATES.has(action)) return bad("Unknown lead state.");
+      await db
+        .update(ceePosts)
+        .set({ leadState: action, updatedAt: new Date() })
+        .where(eq(ceePosts.id, id));
+      return ok({ done: true, action, leadState: action });
+    }
+    // ── Duplicate ───────────────────────────────────────────────────────────
+    // The moderator's own duplicate call, as opposed to the AI's advisory
+    // `aiDuplicateOf`. Writing `dupOf` also hides the duplicate, because a
+    // duplicate that stays on the gap has not actually been de-duplicated — the
+    // reader still sees the same lead twice. `restore` undoes both halves.
+    case "mark_duplicate": {
+      const dupOf = Number.parseInt(String(body.dupOf ?? ""), 10);
+      if (!Number.isInteger(dupOf) || dupOf <= 0) {
+        return bad("Give the id of the post this duplicates.");
+      }
+      if (dupOf === id) return bad("A post cannot duplicate itself.");
+      const [target] = await db.select().from(ceePosts).where(eq(ceePosts.id, dupOf));
+      if (!target) return bad("That post does not exist.");
+      // No chains. If the target is itself a duplicate then the original is
+      // somewhere else, and a pointer to a pointer would send the next moderator
+      // in a circle rather than at the post that actually holds the answer.
+      if (target.dupOf) {
+        return bad(`Post #${dupOf} is already marked a duplicate of #${target.dupOf}.`);
+      }
+      await db
+        .update(ceePosts)
+        .set({ dupOf, status: "removed", updatedAt: new Date() })
+        .where(eq(ceePosts.id, id));
+      return ok({ done: true, action, dupOf });
+    }
     case "promote": {
       // Graduate a verified post into the curated Evidence Locker WITH attribution.
       // A source is required — the curated record never carries an unsourced claim.
@@ -925,18 +1034,90 @@ interface TriageResult {
   duplicateOfId: number | null;
 }
 
-// Recent active posts (excluding `excludeId`) offered to the triage as the pool it
-// may flag a submission as duplicating. Small + headline-only to keep the prompt cheap.
+// The pool of existing posts the triage may flag a submission as duplicating,
+// SCOPED so the question it is asked is answerable.
+//
+// This was a flat 25 most-recent active posts across the whole board. On the one
+// job that matters — "is this the tenth lead saying the same thing about the same
+// gap?" — that pool is close to useless: the nine it should be compared against
+// are exactly the ones a site-wide recency window pushes out. So narrow first and
+// widen only if there is room:
+//
+//   1. same gap key      — the other answers to this same question
+//   2. same politician   — other leads about this person
+//   3. recent board      — only when the post has neither, i.e. an ordinary
+//                          Exchange submission with nothing to scope to
+//
+// Posts already marked duplicates are excluded at every step; offering one as a
+// candidate is how you get a chain of pointers instead of an original.
+const CANDIDATE_LIMIT = 25;
+
 async function recentCandidates(
-  excludeId: number
+  post: typeof ceePosts.$inferSelect
 ): Promise<{ id: number; headline: string }[]> {
-  const rows = await db
-    .select({ id: ceePosts.id, headline: ceePosts.headline })
-    .from(ceePosts)
-    .where(and(eq(ceePosts.status, "active"), ne(ceePosts.id, excludeId)))
-    .orderBy(desc(ceePosts.createdAt))
-    .limit(25);
-  return rows;
+  const cols = { id: ceePosts.id, headline: ceePosts.headline };
+  const live = [eq(ceePosts.status, "active"), isNull(ceePosts.dupOf), ne(ceePosts.id, post.id)];
+  const out: { id: number; headline: string }[] = [];
+  const seen = new Set<number>([post.id]);
+  const take = (rows: { id: number; headline: string }[]) => {
+    for (const r of rows) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      out.push(r);
+      if (out.length >= CANDIDATE_LIMIT) break;
+    }
+  };
+
+  // 1 · The other leads on this exact gap.
+  if (post.gapKey) {
+    take(
+      await db
+        .select(cols)
+        .from(ceePosts)
+        .where(and(...live, eq(ceePosts.gapKey, post.gapKey)))
+        .orderBy(desc(ceePosts.createdAt))
+        .limit(CANDIDATE_LIMIT)
+    );
+  }
+
+  // 2 · Still room → widen to everything linked to the same politician, so a lead
+  //     re-filed under a different gap on the same person is still caught.
+  const pols = (post.linkedPoliticianIds || []).filter((p) => typeof p === "string" && p);
+  if (out.length < CANDIDATE_LIMIT && pols.length) {
+    take(
+      await db
+        .select(cols)
+        .from(ceePosts)
+        .where(
+          and(
+            ...live,
+            or(
+              ...pols.map(
+                (p) =>
+                  sql`${ceePosts.linkedPoliticianIds} @> ${JSON.stringify([p])}::jsonb`
+              )
+            )
+          )
+        )
+        .orderBy(desc(ceePosts.createdAt))
+        .limit(CANDIDATE_LIMIT)
+    );
+  }
+
+  // 3 · No gap and no politician — an ordinary Exchange post. Recency is the only
+  //     pool there is, and it is the right one: there is no narrower question.
+  if (!post.gapKey && !pols.length) {
+    take(
+      await db
+        .select(cols)
+        .from(ceePosts)
+        .where(and(...live))
+        .orderBy(desc(ceePosts.createdAt))
+        .limit(CANDIDATE_LIMIT)
+    );
+  }
+
+  return out;
 }
 
 async function runTriage(
@@ -1052,14 +1233,15 @@ async function aiReview(id: number, viewer: AuthUser | null): Promise<Response> 
   const [post] = await db.select().from(ceePosts).where(eq(ceePosts.id, id));
   if (!post) return notFound();
 
-  // Pull the open flag reasons + recent posts for quality/duplicate context.
+  // Pull the open flag reasons + the scoped candidate pool for quality/duplicate
+  // context.
   const flags = await db
     .select({ reason: ceeFlags.reason, note: ceeFlags.note })
     .from(ceeFlags)
     .where(and(eq(ceeFlags.postId, id), eq(ceeFlags.status, "open")));
 
   try {
-    const candidates = await recentCandidates(id);
+    const candidates = await recentCandidates(post);
     const parsed = await runTriage(post, flags, candidates);
     if (parsed) await persistTriage(id, parsed);
     return ok({ ai: parsed });
