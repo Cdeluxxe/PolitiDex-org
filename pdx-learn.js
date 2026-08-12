@@ -420,6 +420,14 @@
       title: 'How to read a voting-record card',
       lead: 'Every card is one recorded vote or formal action, straight from the official source. Here is what each part is telling you.',
       steps: [
+        // The three steps below carried the Official Record section's header prose
+        // until that header was compressed to a title line and a digest. They are
+        // here rather than deleted: the section's framing question, the two-lane
+        // rule and what the rows feed are all real, and this sheet is where a
+        // reader already comes for "how do I read this".
+        { b: 'The question the section asks', t: 'For a legislator: when they had to vote, did they stand by what they said? For an executive, who can act without a vote, the honest version is what they did with that power. Same question underneath — does the doing match the saying.', keys: ['officialrecord', 'saydo'] },
+        { b: 'Two kinds of formal record', t: 'Someone who has served in both kinds of office has roll-call votes on one lane and orders and directives on the other. Every issue row is judged on the lane its action came from and says which one it was — the two records are never pooled into one figure.', keys: ['officialrecord', 'rollcall'] },
+        { b: 'What these rows feed', t: 'Every issue row tests something they said, and those results are what the profile’s one score is built from — weighted by how firmly they said it and how deep the record behind it is.', keys: ['saydo'] },
         { b: 'The number and date', t: 'Which measure this was — H.R. for a House bill, S. for a Senate one — and when the vote happened.', keys: ['hr', 's', 'congress'] },
         { b: 'How they voted', t: 'Yea is yes, Nay is no. What that Yea actually accomplished depends on the question being asked, so we read the question first.', keys: ['yea', 'rollcall'] },
         { b: 'The tags', t: 'Chamber, the roll-call question, whether it passed, and whether it was an amendment or a procedural vote.', keys: ['procedural', 'amendment', 'house', 'senate'] },

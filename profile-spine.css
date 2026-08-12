@@ -378,7 +378,9 @@
 .pdxsp-lid-btn {
   justify-content: center;
   gap: 0.45rem;
-  min-height: 2.5rem;
+  /* 44px, not 40. A lid is a full-width control a reader hits repeatedly while
+     scanning, and 2.5rem left it a hair under every published minimum. */
+  min-height: 2.75rem;
   padding: 0.5rem 0.75rem;
   background: rgba(30, 53, 96, 0.28);
   border: 1px dashed rgba(159, 180, 212, 0.28);

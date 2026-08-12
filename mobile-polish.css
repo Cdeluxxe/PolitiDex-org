@@ -39,8 +39,15 @@
 /* Politician profile: the drawer toggles, the jump rail's pills and the pledge
    count chips are the controls a reader taps most on a phone, and none of them
    had opted in — every tap paid the ~300ms double-tap-zoom wait, which reads as
-   the profile being slow rather than the browser being cautious. */
-.dd-toggle-btn, .pdx-pnav-pill, .vbadge-click, .pdx-ft-rate-how, .pdx-ft-rate-sum {
+   the profile being slow rather than the browser being cautious.
+
+   The profile's other two disclosure mechanisms are here for the same reason:
+   .pdxg-toggle folds the coverage gaps, and the <summary> elements open an
+   Official Record issue row, an awaiting-position list and a Flashpoint card
+   body. Same job as .dd-toggle-btn, same tap, so the same treatment — a reader
+   opening three sections in a row should not feel one of them lag. */
+.dd-toggle-btn, .pdx-pnav-pill, .vbadge-click, .pdx-ft-rate-how, .pdx-ft-rate-sum,
+.pdxg-toggle, .pdxor-row-sum, .pdxor-awaiting-d > summary, .pdx-ctv-more > summary {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }

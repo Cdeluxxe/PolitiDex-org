@@ -319,6 +319,33 @@
           esc(it.said.word || 'On') + ': "' + esc(clip(it.said.text, 150)) + '"</div>'
       : '';
     var date = it.date ? '<span class="pdx-ctv-date">' + esc(it.date) + '</span>' : '';
+    var summary = it.summary ? '<p class="pdx-ctv-summary">' + esc(clip(it.summary, 260)) + '</p>' : '';
+
+    // ── What stays, and what folds ──────────────────────────────────────────
+    // Visible: the verdict, the issue, the date and the headline — the four things
+    // that let a reader decide whether this flashpoint is the one they care about.
+    // Folded: the quote and the summary, which together are the tallest part of the
+    // card and answer a question nobody has asked until they have picked a card.
+    //
+    // Native <details>, styled to match the Official Record's issue rows rather than
+    // introducing a third disclosure vocabulary. The section holds three cards and
+    // is re-rendered by no one, so the lid machinery's deferral and reclaim buy
+    // nothing here — and a lid cannot fold three non-contiguous card bodies anyway.
+    // Native disclosure also brings keyboard, screen-reader and find-in-page support
+    // with no JS, which matters more on a card whose text is the evidence.
+    var detail = said + summary;
+    // Nothing worth a control: a card with no quote and no summary is already just
+    // its headline. Matches the lid system's refusal to fold trivial content — a
+    // tap that reveals less than the control describes is worse than no control.
+    var body = (detail && detail.length >= 240)
+      ? '<details class="pdx-ctv-more">' +
+          '<summary class="pdx-ctv-more-sum">' +
+            '<span class="pdx-ctv-more-lbl">' + (said ? 'What they said, and what happened' : 'What happened') + '</span>' +
+            '<span class="pdx-ctv-caret" aria-hidden="true">▾</span>' +
+          '</summary>' +
+          '<div class="pdx-ctv-more-body">' + detail + '</div>' +
+        '</details>'
+      : detail;
 
     return '<article class="pdx-ctv-card ' + v.cls + '">' +
         '<div class="pdx-ctv-top">' +
@@ -327,9 +354,8 @@
             '</span>' + esc(v.label) + '</span>' +
           issue + date +
         '</div>' +
-        said +
         '<h4 class="pdx-ctv-headline">' + esc(it.title) + '</h4>' +
-        (it.summary ? '<p class="pdx-ctv-summary">' + esc(clip(it.summary, 260)) + '</p>' : '') +
+        body +
         actionsHTML(id, it) +
       '</article>';
   }

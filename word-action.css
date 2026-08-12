@@ -183,6 +183,30 @@
 }
 .pdxwa-cov-n { color: #cbd9ec; font-weight: 700; }
 
+/* ── The basis digest ──────────────────────────────────────────────────────
+   One line where the tier table and the coverage sentence used to sit, so the
+   eye travels from the percentage to the first issue row without crossing two
+   dense blocks. The table and the sentence are unchanged; they are now inside
+   the wa-basis lid, which sits immediately below this line.
+
+   Wraps rather than scrolls: three short items fit one line on a phone at the
+   common counts and fold to two when they don't. A horizontal scroller here
+   would be a nested scroll trap inside an already-scrolling modal. */
+.pdxwa-basis { margin: 0 0 0.7rem; }
+.pdxwa-basis-d {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.85rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #7f97bb;
+}
+.pdxwa-basis-i { display: inline-flex; align-items: baseline; gap: 0.28rem; }
+.pdxwa-basis-ico { font-size: 0.78rem; line-height: 1; }
+.pdxwa-basis-n { color: #cbd9ec; font-weight: 700; }
+
 /* ══════════════════════════════════════════════════════════════════════════
    COVERAGE GAPS  ·  rendered by gaps.js (window.PDXGaps.panelHtml)
    ────────────────────────────────────────────────────────────────────────────
