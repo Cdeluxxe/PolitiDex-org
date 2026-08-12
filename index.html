@@ -2506,17 +2506,38 @@ window.PDXLazy = (function () {
           <div class="w-8 h-8 rounded-lg bg-crimson-600 flex items-center justify-center text-sm shadow-lg shadow-crimson-600/20 transition-transform duration-200 group-hover:scale-110">🏠</div>
           <span class="font-display text-xl tracking-wider text-white">POLITI<span class="text-crimson-400">DEX</span></span>
         </a>
-        <!-- Order follows the onboarding flow: Voter Hub (learn) → My Voting Team
-             (build) → Your Ballot (decide) → Mandate (act, on the right cluster).
-             Voter Hub leads as the primary educational entry; Your Ballot sits
-             right before the Mandate button so the bar reads left→right as the
-             journey a voter actually takes. The former "My Home Team" and "My
-             Team" buttons were consolidated into the single "My Voting Team"
-             entry (destination: #my-politicians). -->
+        <!-- TWO PILLS, TWO DOORS. The bar used to carry exactly one emphasised
+             control — the gold ⭐ My Voting Team — which made the seasonal door the
+             only thing in the chrome with any weight, on every page and in every
+             month of the year. It now carries a matched pair, in the order the
+             homepage states them:
+
+               👁️ CHECK A CLAIM   · blue-filled, the record door. Wakes the
+                                     All-Seeing Eye sitting directly below this bar.
+               ⭐ MY VOTING TEAM  · gold-filled, unchanged, the ballot door.
+
+             Same geometry, same border weight, same glow budget; different hue, so
+             they read as peers rather than as a primary and its shadow. Voting lost
+             nothing: the pill, Voter Hub, Your Ballot, My Profile and Local Issues
+             are all still here.
+
+             The bar did not grow to make room. "🎯 My Stances" came out of the
+             DESKTOP row only — it is still in the mobile menu, and still one hover
+             away on desktop as "My Views" in the account chip — because a seven-item
+             row plus three dropdowns is how a nav stops being usable at 1280px.
+
+             Order still follows the flow, with the record now in front of it:
+             Check a Claim (verify) → Voter Hub (learn) → My Voting Team (build) →
+             Your Ballot (decide) → Mandate (act, on the right cluster). -->
         <div class="hidden lg:flex items-center gap-2.5 lg:gap-4 font-condensed font-600 text-xs lg:text-sm tracking-widest uppercase text-steel-300">
+          <!-- href is a real destination, not a decoration: if the helper has not
+               loaded yet the click is left alone and lands on the receipts band, so
+               the control is never dead. When the helper is there it takes over and
+               focuses the eye in place — no scroll, because the eye is already on
+               screen at every scroll position. -->
+          <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye checks it against the voting record" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Check a Claim</a>
           <a href="#voter-hub" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">Voter Hub</a>
           <a href="#my-politicians" title="Your voting team — the slate of politicians you're building and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Voting Team</a>
-          <a href="#my-stances" title="What you stand for — set your positions, and the Alignment Tool shows who matches" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🎯 My Stances</a>
           <a href="#your-ballot" title="Enter your address and see every contest on your real ballot" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🗳️ Your Ballot</a>
           <a href="#my-profile" title="Your personal hub — stances, team, footprint and the money that follows your officials" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">👤 My Profile</a>
           <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🔦 Local Issues</a>
@@ -2992,10 +3013,21 @@ window.PDXLazy = (function () {
           <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
         </button>
       </div>
+      <!-- The record door leads on mobile too, above "Your Vote", because the menu
+           is read top-down and whatever sits first is what the product looks like it
+           is for. One item, not a group: everything else behind this door already
+           has a home under "Track & Compare" below, and a menu that repeats itself
+           is a menu nobody finishes reading.
+           The eye lives in the bar this menu drops out of, so closing the menu and
+           focusing it puts the cursor exactly where the label promised. -->
+      <div class="mnav-group-label">The Record</div>
+      <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye checks it against the voting record" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Check a Claim</a>
       <!-- Core voter tools — same onboarding flow as the desktop bar:
            Voter Hub (learn) → My Voting Team (build) → Your Ballot (decide).
            Voter Hub leads as the primary educational entry on mobile; Local
-           Issues follows, and only resolves once a location is confirmed. -->
+           Issues follows, and only resolves once a location is confirmed.
+           🎯 My Stances stays listed here even though it came off the desktop row —
+           this menu has the vertical room the bar does not. -->
       <div class="mnav-group-label">Your Vote</div>
       <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Voting Team</a>

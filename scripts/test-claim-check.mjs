@@ -274,6 +274,46 @@ const CCcode = CC.split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join(
   ok(/\.pdxcc-card \.svd-share-btn[^}]*display: ?none/.test(CC),
      "client: the card's own Say-vs-Do share is suppressed so Share cannot send a different artifact");
 
+  // ── The success state is the shareable one, and the ONLY shareable one ─────
+  // A share offered beside "we could not read that claim", "we hold no receipt"
+  // or "our side is down" would be an artifact with nothing behind it. The gate
+  // is structural rather than conditional: buttonHtml() is called from exactly
+  // one renderer, and that renderer is the one that has a card in hand.
+  {
+    // From the IIFE down, so the file's own header comment — which names
+    // buttonHtml() while explaining the reuse policy — is not read as a call site.
+    const body = CC.slice(CC.indexOf("(function ()"));
+    const renderers = body.split(/\n  function (?=\w+Html\()/);
+    const withShare = renderers
+      .filter((b) => /PDXReceiptCards\.buttonHtml\(/.test(b))
+      .map((b) => (b.match(/^(\w+Html)\(/) || [])[1] || "(outside any renderer)");
+    eq(withShare.join(","), "resultHtml",
+       "client: only the resolved-receipt renderer offers a share — every failure state is quiet");
+  }
+
+  // What is shared must be what is shown. Both the card and the button are asked
+  // for by the same (pid, issueKey), and cardsFor() keeps one card per pair — so
+  // the button either resolves to the card on screen or hydrate() removes it.
+  ok(/buttonHtml\(\{[\s\S]{0,120}?pid: ?card\.pid, ?issueKey: ?card\.issueKey/.test(CC),
+     "client: the share button is addressed with the same (pid, issueKey) that built the card");
+
+  // Share leads the row; "Open the full record" follows.
+  {
+    const acts = (CC.match(/'<div class="pdxcc-acts">'[\s\S]*?'<\/div>'/) || [""])[0];
+    ok(acts.indexOf("pdxcc-share") > -1 && acts.indexOf("pdxcc-share") < acts.indexOf("pdxcc-open"),
+       "client: the share affordance is the first control in the success row");
+  }
+
+  // Prose about the share must not outlive the share. The note ships hidden and
+  // is revealed only from a button hydrate() actually left in the DOM.
+  ok(/class="pdxcc-sharenote" hidden/.test(CC),
+     "client: the share explainer ships hidden — fail closed, like the button it describes");
+  ok(/function syncShareNote/.test(CC) &&
+     /\.pdxcc-share \.pdxrc-share-btn:not\(\[data-pdxrc-pending\]\)/.test(CC),
+     "client: the explainer is revealed from a surviving, hydrated button — not from a promised one");
+  ok(/\.pdxcc-share:empty\{display:none/.test(CC),
+     "client: the share slot collapses when hydrate() removes the button");
+
   // Honesty: the interpretation is printed, never implied.
   ok(/function readingHtml/.test(CC), "client: every result prints how the claim was read");
 

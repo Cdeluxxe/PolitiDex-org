@@ -243,10 +243,15 @@
       }
     } catch (e) { cardHtml = ''; }
 
-    // The sanctioned share affordance. buttonHtml() renders hidden and pending;
-    // PDXReceiptCards.hydrate() reveals it only if the card clears the public
-    // allowlist, so a card that is true but not cleared for publication simply
-    // has no share button. We do not decide that here.
+    // The sanctioned share affordance, and the whole point of the success state.
+    // buttonHtml() renders hidden and pending; PDXReceiptCards.hydrate() reveals it
+    // only if the card clears the public allowlist, so a card that is true but not
+    // cleared for publication simply has no share button. We do not decide that here.
+    //
+    // It is asked for by (pid, issueKey) — the same pair PDXReceiptCards.find()
+    // was given to build the card above — and cardsFor() keeps exactly one card per
+    // (member, issue). So the button cannot resolve to a different receipt than the
+    // one on screen: it is either this card, or it is removed.
     var shareHtml = '';
     try {
       if (window.PDXReceiptCards && typeof window.PDXReceiptCards.buttonHtml === 'function') {
@@ -256,13 +261,28 @@
       }
     } catch (e) { shareHtml = ''; }
 
+    // Share leads and "Open the full record" follows. A reader who has just watched
+    // a claim resolve is holding the one thing worth passing on, and the action that
+    // passes it on should not be the second-quietest control in the row.
+    //
+    // The share sits in its own wrapper so this surface can give it primary weight
+    // (see .pdxcc-share in the stylesheet below) without repainting a component
+    // receipt-cards.js owns — and so that when hydrate() REMOVES the button, the
+    // wrapper collapses to :empty and the row closes up behind it.
+    //
+    // The note describing what a share sends ships `hidden` and is revealed by
+    // paint(), and only when a button actually survived hydration. Prose that
+    // outlived its control would be this surface promising a share it cannot give.
     return head('') + readingHtml(reading) + banner +
       '<div class="pdxcc-card">' + cardHtml + '</div>' +
       '<div class="pdxcc-acts">' +
+        '<span class="pdxcc-share">' + shareHtml + '</span>' +
         '<button type="button" class="pdxcc-open" data-pdxcc-pid="' + esc(card.pid) + '">' +
           'Open the full record →</button>' +
-        shareHtml +
       '</div>' +
+      '<p class="pdxcc-sharenote" hidden>Share sends the Official Record card as an image — the bill, ' +
+        'the question, the vote, the date and the source URL — with a link that opens this exact vote ' +
+        'on PolitiDex.</p>' +
       '<p class="pdxcc-fine">One receipt, not a whole record. It cites one vote on one issue — ' +
       'open the profile for everything else we hold.</p>';
   }
@@ -290,6 +310,17 @@
     return '<div class="pdxcc" id="pdx-claim-check">' + innerHtml(_state) + '</div>';
   }
 
+  // The share note is revealed from the DOM the hydrator actually left behind,
+  // not from the count it resolves with — the count is for the whole root, and
+  // only a button still parented under this block is one this surface can honour.
+  function syncShareNote(host) {
+    if (!host) return;
+    var note = host.querySelector('.pdxcc-sharenote');
+    if (!note) return;
+    var btn = host.querySelector('.pdxcc-share .pdxrc-share-btn:not([data-pdxrc-pending])');
+    if (btn) note.removeAttribute('hidden'); else note.setAttribute('hidden', '');
+  }
+
   // Redraw in place. Patching the block rather than asking the eye to re-render
   // keeps the input focused, the caret where it was, and the panel from
   // scrolling — which on a phone is the difference between a result appearing
@@ -301,7 +332,14 @@
     if (_state && _state.phase === 'result') {
       try {
         if (window.PDXReceiptCards && typeof window.PDXReceiptCards.hydrate === 'function') {
-          window.PDXReceiptCards.hydrate(host);
+          var p = window.PDXReceiptCards.hydrate(host);
+          if (p && typeof p.then === 'function') {
+            // Re-read the id rather than closing over `host`: a repaint between
+            // the call and the resolve replaces the node, and revealing the note
+            // on a detached block would leave the live one silently wrong.
+            p.then(function () { syncShareNote(document.getElementById('pdx-claim-check')); },
+                   function () {});
+          }
         }
       } catch (e) {}
     }
@@ -484,6 +522,25 @@
       '.pdxcc-na{color:#9fb4d4;background:rgba(159,180,212,0.08);}' +
       '.pdxcc-card{margin:0.15rem 0 0.5rem;}' +
       '.pdxcc-acts{display:flex;flex-wrap:wrap;gap:0.4rem;align-items:center;}' +
+      // The share is the primary action of the success state, so it is sized like
+      // one: taller, wider, filled, and first in the row. What is NOT overridden is
+      // the button's border colour — receipt-cards.js paints that from the verdict
+      // (--pdxrc-c), and it is thickened here rather than replaced, so the control
+      // still carries the colour of the finding it is about to send.
+      // :empty is the fail-closed half. hydrate() removes the button outright when
+      // no card clears the public allowlist, and an empty wrapper would otherwise
+      // hold a gap in the row where a share used to look like it belonged.
+      '.pdxcc-share:empty{display:none;}' +
+      '.pdxcc-acts .pdxcc-share{display:inline-flex;}' +
+      '.pdxcc-acts .pdxcc-share .pdxrc-share-btn{min-height:2.75rem;padding:0.6rem 1.15rem;' +
+        'font-size:0.84rem;letter-spacing:0.06em;border-width:2px;color:#ffffff;' +
+        'background:rgba(37,71,133,0.95);box-shadow:0 6px 18px rgba(0,0,0,0.35),' +
+        'inset 0 1px 0 rgba(255,255,255,0.08);}' +
+      '.pdxcc-acts .pdxcc-share .pdxrc-share-btn:hover{background:rgba(48,90,166,0.98);color:#fff;}' +
+      // Secondary by contrast, not by shrinking: "Open the full record" keeps its
+      // full tap target and simply stops competing for the eye.
+      '.pdxcc-sharenote{margin:0.5rem 0 0;font-size:0.72rem;line-height:1.4;color:#9fb4d4;}' +
+      '.pdxcc-sharenote[hidden]{display:none;}' +
       // The card's own foot offers a Say-vs-Do share and a "Profile →" hint that
       // belong to the surface it was written for. On this one the share must be
       // the Official Record button (guarded by the public allowlist) and the
@@ -494,6 +551,8 @@
         '.pdxcc{padding:0.65rem 0.6rem;}' +
         '.pdxcc-go,.pdxcc-open{width:100%;}' +
         '.pdxcc-acts{flex-direction:column;align-items:stretch;}' +
+        '.pdxcc-acts .pdxcc-share{display:flex;}' +
+        '.pdxcc-acts .pdxcc-share .pdxrc-share-btn{width:100%;}' +
       '}';
     var el = document.createElement('style');
     el.id = 'pdx-claim-check-css';
