@@ -112,7 +112,7 @@ function load({ withTaxonomy = true } = {}) {
 // ═════════════════════════════════════════════════════════════════════════════
 // 2. The palette is exactly the published palette
 // ═════════════════════════════════════════════════════════════════════════════
-// These twelve values are the design contract. They are restated here on
+// These thirteen values are the design contract. They are restated here on
 // purpose: this is the one place duplication is the point, because the test's
 // whole job is to fail when someone edits a hex in the module.
 const PUBLISHED = {
@@ -125,7 +125,8 @@ const PUBLISHED = {
   climate_energy:         '#2ECC71',
   crime_safety:           '#E74C3C',
   election_integrity:     '#6C5CE7',
-  education_parental:     '#A29BFE',
+  checks_and_balances:    '#64748B',
+  education_parental:     '#FB923C',
   civil_rights_culture:   '#FD79A8',
   foreign_policy_defense: '#0984E3'
 };
@@ -139,13 +140,14 @@ const SOFT = {
   climate_energy:         'rgba(46, 204, 113, 0.14)',
   crime_safety:           'rgba(231, 76, 60, 0.14)',
   election_integrity:     'rgba(108, 92, 231, 0.14)',
-  education_parental:     'rgba(162, 155, 254, 0.14)',
+  checks_and_balances:    'rgba(100, 116, 139, 0.14)',
+  education_parental:     'rgba(251, 146, 60, 0.14)',
   civil_rights_culture:   'rgba(253, 121, 168, 0.14)',
   foreign_policy_defense: 'rgba(9, 132, 227, 0.14)'
 };
 {
   const { IC } = load();
-  eq(Object.keys(IC.CORE_ISSUE_COLORS).length, 12, 'the palette must carry exactly the 12 Core National Issues');
+  eq(Object.keys(IC.CORE_ISSUE_COLORS).length, 13, 'the palette must carry exactly the 13 Core National Issues');
   Object.keys(PUBLISHED).forEach((k) => {
     const t = IC.CORE_ISSUE_COLORS[k];
     ok(!!t, `${k} must be in CORE_ISSUE_COLORS`);
@@ -158,8 +160,62 @@ const SOFT = {
   // getIssueColor and the map must be the same object, not a copy that can drift.
   ok(IC.getIssueColor('healthcare') === IC.CORE_ISSUE_COLORS.healthcare,
     'getIssueColor must return the map entry itself, not a rebuilt copy');
-  eq(IC.all().length, 12, 'all() must list the 12 core issues');
+  eq(IC.all().length, 13, 'all() must list the 13 core issues');
   eq(IC.all()[0].key, 'economy_cost_of_living', 'all() must preserve the published salience order');
+
+  // Two tokens named explicitly in the change request, pinned so a future edit
+  // to one cannot quietly drag the other with it.
+  eq(IC.CORE_ISSUE_COLORS.election_integrity.ink, '#7D6FEA',
+    'election_integrity ink must stay #7D6FEA — its color was not part of this change');
+  eq(IC.CORE_ISSUE_COLORS.education_parental.colorRgb, '251, 146, 60',
+    'education_parental must publish the orange triplet');
+  eq(IC.CORE_ISSUE_COLORS.checks_and_balances.colorRgb, '100, 116, 139',
+    'checks_and_balances must publish the slate triplet');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 2b. No two core issues collide perceptually
+// ═════════════════════════════════════════════════════════════════════════════
+// The palette's job is to make an issue recognisable at a glance. Two hexes that
+// differ on paper but read as the same swatch on a dark row defeat that, and a
+// hex diff review will not catch it. CIE76 ΔE in Lab is the cheap standard check.
+{
+  const { IC } = load();
+  const lab = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    const lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    const r = lin(n >> 16 & 255), g = lin(n >> 8 & 255), b = lin(n & 255);
+    // sRGB → XYZ (D65), then XYZ → Lab.
+    const xyz = [
+      (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047,
+      (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.00000,
+      (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883
+    ].map((v) => v > 0.008856 ? Math.cbrt(v) : (7.787 * v + 16 / 116));
+    return [116 * xyz[1] - 16, 500 * (xyz[0] - xyz[1]), 200 * (xyz[1] - xyz[2])];
+  };
+  const dE = (a, b) => Math.hypot(...lab(a).map((v, i) => v - lab(b)[i]));
+
+  const keys = Object.keys(IC.CORE_ISSUE_COLORS);
+  let worst = { d: Infinity, pair: '' };
+  for (let i = 0; i < keys.length; i++) {
+    for (let j = i + 1; j < keys.length; j++) {
+      const d = dE(IC.CORE_ISSUE_COLORS[keys[i]].color, IC.CORE_ISSUE_COLORS[keys[j]].color);
+      if (d < worst.d) worst = { d, pair: `${keys[i]} / ${keys[j]}` };
+    }
+  }
+  // 10 is a hair under the tightest pair that already shipped (spending_debt_waste
+  // vs crime_safety, ΔE 10.7). The floor is deliberately snug: it exists to reject
+  // a NEW near-duplicate, not to relitigate the palette that is already live.
+  ok(worst.d >= 10, `closest core-issue pair must stay ΔE ≥ 10 (got ${worst.d.toFixed(1)} for ${worst.pair})`);
+
+  // The two colors this change introduced are held to a wider margin, because a
+  // brand-new color has no installed-base excuse for sitting close to a neighbour.
+  ['education_parental', 'checks_and_balances'].forEach((nk) => {
+    keys.filter((k) => k !== nk).forEach((k) => {
+      const d = dE(IC.CORE_ISSUE_COLORS[nk].color, IC.CORE_ISSUE_COLORS[k].color);
+      ok(d >= 15, `${nk} must stay ΔE ≥ 15 from ${k} (got ${d.toFixed(1)})`);
+    });
+  });
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -245,18 +301,25 @@ const SOFT = {
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const { IC } = load();
-  const junk = ['', null, undefined, 0, {}, [], 'not_a_real_issue', 'great_salt_lake', 'checks_and_balances'];
+  const junk = ['', null, undefined, 0, {}, [], 'not_a_real_issue', 'great_salt_lake'];
   junk.forEach((k) => {
     const t = IC.getIssueColor(k);
     eq(t.color, '#94A3B8', `unmapped key ${JSON.stringify(k)} must fall back to slate`);
     eq(t.soft, 'rgba(148, 163, 184, 0.12)', `unmapped key ${JSON.stringify(k)} must use the 0.12 fallback tint`);
     eq(t.mapped, false, `unmapped key ${JSON.stringify(k)} must report mapped:false`);
   });
-  // `checks_and_balances` is a REAL 13th core issue in alignment-tool.js with no
-  // published color. It must fall back cleanly rather than borrow one — and this
-  // assertion is the reminder that it is deliberately uncolored, not forgotten.
-  ok(IC.getIssueColor('checks_and_balances') === IC.FALLBACK,
-    'checks_and_balances has no published color and must return the shared fallback token');
+  // `checks_and_balances` USED to land here — it was the one core issue in
+  // alignment-tool.js with no published color, so it rendered as "unknown". It
+  // now has its own slate, and its leaf keys must reach that slate too, not the
+  // near-identical fallback slate. The distinction is the whole point of these
+  // three assertions: the two greys are close, so only `mapped` proves which
+  // path ran.
+  ['checks_and_balances', 'checks_balances', 'states_federal_power'].forEach((k) => {
+    const t = IC.getIssueColor(k);
+    eq(t.color, '#64748B', `"${k}" must resolve to the Checks & Balances slate`);
+    eq(t.mapped, true, `"${k}" must report mapped:true — it is a real core issue now, not a fallback`);
+    ok(t !== IC.FALLBACK, `"${k}" must not return the shared fallback token`);
+  });
   // Falling back must be indistinguishable from asking for nothing, so a caller
   // cannot accidentally treat "unknown" as a thirteenth color.
   ok(IC.getIssueColor('zzz') === IC.getIssueColor('qqq'),

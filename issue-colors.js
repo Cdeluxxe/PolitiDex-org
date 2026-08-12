@@ -50,22 +50,30 @@
 
   // ── The palette ────────────────────────────────────────────────────────────
   // Keyed by the CORE_NATIONAL_ISSUES key exactly as alignment-tool.js declares
-  // it. `label` is the short display name for a swatch or legend — the full
-  // labels (with their emoji) still live in CORE_NATIONAL_ISSUES and are not
-  // duplicated here, because a label is content and this file is tokens.
+  // it, and in that file's order, so `all()` and the taxonomy read the same way
+  // down the page. `label` is the short display name for a swatch or legend —
+  // the full labels (with their emoji) still live in CORE_NATIONAL_ISSUES and
+  // are not duplicated here, because a label is content and this file is tokens.
   var PALETTE = [
-    ['economy_cost_of_living', 'Economy & Cost of Living', '#F5A623'],
-    ['immigration_border',     'Immigration & Border',     '#2EC4B6'],
-    ['healthcare',             'Healthcare Costs & Access','#4EA8DE'],
-    ['spending_debt_waste',    'Spending, Debt & Waste',   '#FF6B4A'],
-    ['abortion_repro',         'Abortion / Repro. Rights', '#E83E8C'],
-    ['guns',                   'Gun Rights & Control',     '#8B9BB4'],
-    ['climate_energy',         'Climate & Energy',         '#2ECC71'],
-    ['crime_safety',           'Crime & Public Safety',    '#E74C3C'],
-    ['election_integrity',     'Election Integrity',       '#6C5CE7'],
-    ['education_parental',     'Education & Parents',      '#A29BFE'],
-    ['civil_rights_culture',   'Civil Rights & Culture',   '#FD79A8'],
-    ['foreign_policy_defense', 'Foreign Policy & Security','#0984E3']
+    ['economy_cost_of_living', 'Economy & Cost of Living',  '#F5A623'],
+    ['immigration_border',     'Immigration & Border',      '#2EC4B6'],
+    ['healthcare',             'Healthcare Costs & Access', '#4EA8DE'],
+    ['spending_debt_waste',    'Spending, Debt & Waste',    '#FF6B4A'],
+    ['abortion_repro',         'Abortion / Repro. Rights',  '#E83E8C'],
+    ['guns',                   'Gun Rights & Control',      '#8B9BB4'],
+    ['climate_energy',         'Climate & Energy',          '#2ECC71'],
+    ['crime_safety',           'Crime & Public Safety',     '#E74C3C'],
+    ['election_integrity',     'Election Integrity',        '#6C5CE7'],
+    // The thirteenth core issue. It sat on the neutral fallback until now, which
+    // made the one core issue about who holds power look like an uncategorised
+    // leaf key. Its slate is deliberately close in family to the neutral — this
+    // is the structural, procedural issue, not a topic with a flag — but far
+    // enough off it (ΔE ≈ 18) to read as a deliberate colour rather than a
+    // fallback.
+    ['checks_and_balances',    'Checks, Balances & Who Decides', '#64748B'],
+    ['education_parental',     'Education & Parents',       '#FB923C'],
+    ['civil_rights_culture',   'Civil Rights & Culture',    '#FD79A8'],
+    ['foreign_policy_defense', 'Foreign Policy & Security', '#0984E3']
   ];
 
   // Spec-sheet spellings that differ from the shipped CORE_NATIONAL_ISSUES keys.
@@ -107,11 +115,17 @@
   }
   // Lighten toward white in small steps until the text contrast target is met.
   // Most entries already clear it and come back untouched; the deep blues and
-  // purples ('#0984E3', '#6C5CE7') are the ones that actually move.
+  // purples ('#0984E3', '#6C5CE7') and the Checks & Balances slate ('#64748B')
+  // are the ones that actually move.
+  //
+  // Each step accumulates in floats, but the loop's exit test runs on the
+  // rounded channels, because rounded channels are what `toHex` ships.
+  // Measuring the float would let a color leave the loop at 4.501:1 and then
+  // land at 4.499:1 once quantised — passing the check and failing reality.
   function inkFor(rgb) {
     var bg = toRgb(DARK_BG);
     var out = rgb.slice();
-    for (var i = 0; i < 16 && contrast(out, bg) < MIN_TEXT_CONTRAST; i++) {
+    for (var i = 0; i < 16 && contrast(out.map(Math.round), bg) < MIN_TEXT_CONTRAST; i++) {
       out = out.map(function (v) { return v + (255 - v) * 0.06; });
     }
     return out;
