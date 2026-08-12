@@ -1427,6 +1427,26 @@
     // Question starters for the resting state — the eye teaching that it answers
     // questions, not just names. Built from the issues that actually have the most
     // documentation, so a starter never lands on an empty ranking.
+    // ── Claim check ───────────────────────────────────────────────────────
+    // The eye has always accepted a pasted sentence — there is no maxlength on
+    // the field — but it scores one as a name/keyword query, so a claim lands
+    // only via whoever it happens to name. This hands paste-shaped input to
+    // window.PDXClaimCheck (claim-check.js), which resolves it to a
+    // (politician, issue) address and renders the receipt receipt-cards.js
+    // already builds.
+    //
+    // Two properties are load-bearing and both are structural rather than
+    // conventional: it returns '' for anything that is not paste-shaped, so a
+    // short name or issue search is byte-for-byte what it was; and the whole
+    // call is guarded, so the eye behaves exactly as before if claim-check.js
+    // is absent or throws.
+    function claimBlock(q) {
+      try {
+        if (!window.PDXClaimCheck || typeof window.PDXClaimCheck.blockHtml !== 'function') return '';
+        return window.PDXClaimCheck.blockHtml(q) || '';
+      } catch (e) { return ''; }
+    }
+
     function askBlock() {
       if (!window.PDXIssueView || typeof window.PDXIssueView.coverage !== 'function') return '';
       var list = [];
@@ -1496,6 +1516,11 @@
       curCtx = personalContext();   // who this eye belongs to, refreshed each render
       flat = [];
       var html = '';
+      // The claim check gets the text AS TYPED. Everything below runs on the
+      // lowercased form, which is right for matching and wrong for a claim: a
+      // resolver reads "Mike Lee" better than "mike lee", and the block prints
+      // the reader's own words back to them.
+      var rawQ = String(q == null ? '' : q).trim();
       q = norm(q).trim();
       if (q !== curQ) { expand = { pol: false, stance: false, iss: false, bill: false, saved: false, team: false }; curQ = q; }
 
@@ -1529,13 +1554,25 @@
       // named after ("who actually backs housing?") can answer even when the
       // name/stance/bill ranking finds nothing at all.
       var ansHtml = answerBlock(q);
+      // The claim block goes ABOVE both, and is also the reason the no-match
+      // branch is no longer a dead end: a pasted claim frequently ranks nothing
+      // (every term-in-hay check fails on a sentence) while still being the one
+      // input this surface can now actually answer.
+      var claimHtml = claimBlock(rawQ);
+      var nothingElse = !ansHtml && !pols.length && !sts.length && !bls.length && !iss.length;
 
-      if (!ansHtml && !pols.length && !sts.length && !bls.length && !iss.length) {
+      if (!claimHtml && nothingElse) {
         panel.innerHTML = '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
         wire();
         return 0;
       }
 
+      html += claimHtml;
+      // A claim that ranked nothing still gets the honest note under its block,
+      // so the reader is not left wondering whether the search silently failed.
+      if (nothingElse) {
+        html += '<div class="pdx-eye-empty">Nothing else matched “<b>' + esc(q) + '</b>” as a search.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
+      }
       html += ansHtml;
       html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
       html += catBlock('stance', 'Positions &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
@@ -1723,16 +1760,55 @@
     function open() { eye.classList.add('is-open'); input.setAttribute('aria-expanded', 'true'); }
     function close() { eye.classList.remove('is-open'); input.setAttribute('aria-expanded', 'false'); active = -1; actIdx = -1; }
 
+    // ── the field grows for a paste ────────────────────────────────────
+    // The field is a one-line-tall <textarea> so a pasted claim is visible
+    // instead of scrolled off to the right. It has always ACCEPTED long text;
+    // it just used to hide it, which read as "the box ate my paste".
+    //
+    // At rest the height is exactly one line, so the resting shape of the eye is
+    // unchanged. It grows to at most GROW_MAX_LINES and then scrolls — a cap
+    // rather than unbounded growth, because this is a search field that tolerates
+    // a paste, not a composer.
+    var GROW_MAX_LINES = 4;
+    function growField() {
+      try {
+        if (!input || input.tagName !== 'TEXTAREA') return;
+        input.style.height = 'auto';
+        var line = parseFloat(window.getComputedStyle(input).lineHeight) || 22;
+        var want = Math.max(line, input.scrollHeight);
+        var cap = line * GROW_MAX_LINES;
+        input.style.height = Math.min(want, cap) + 'px';
+        // Only past the cap does a scrollbar appear; below it the textarea is
+        // exactly as tall as its text and nothing can scroll.
+        input.classList.toggle('is-multiline', want > cap + 1);
+      } catch (e) {}
+    }
+
+    // Enter must never insert a newline in a textarea that is really a search
+    // field. When a paste-shaped claim is sitting in the offer state, Enter runs
+    // the check — that is what the visitor came to do. Otherwise it falls through
+    // to the row/action behaviour Enter has always had.
+    function claimOffered() {
+      try {
+        if (!document.getElementById('pdx-claim-check')) return false;
+        if (!window.PDXClaimCheck || typeof window.PDXClaimCheck.check !== 'function') return false;
+        var st = window.PDXClaimCheck.state && window.PDXClaimCheck.state();
+        return !!(st && st.phase === 'offer');
+      } catch (e) { return false; }
+    }
+
     // ── events ────────────────────────────────────────────────────────
     var t = null;
     input.addEventListener('input', function () {
       var has = input.value.length > 0;
       eye.classList.toggle('has-text', has);
+      growField(); // immediate, not debounced — the box must track the paste
       clearTimeout(t);
       t = setTimeout(function () { render(input.value); setActive(input.value.trim() ? 0 : -1); open(); }, 60);
     });
     input.addEventListener('focus', function () {
       eye.classList.add('is-focus');
+      growField();
       render(input.value); open();
       setActive(input.value.trim() ? 0 : -1);
     });
@@ -1750,19 +1826,26 @@
         // users can still tab out of the search.
         if (actIdx >= 0) { ev.preventDefault(); setActFocus(ev.shiftKey ? actIdx - 1 : actIdx + 1); }
       } else if (ev.key === 'Enter') {
+        // preventDefault first and unconditionally: the field is a <textarea>,
+        // so an unhandled Enter would insert a newline into a search box.
+        ev.preventDefault();
         if (actIdx >= 0) {
           var res = activeRes(), btns = actBtns(res);
-          if (res && btns[actIdx]) { ev.preventDefault(); runAction(flat[parseInt(res.getAttribute('data-i'), 10)], btns[actIdx].getAttribute('data-act')); }
-        } else if (active >= 0 && flat[active]) { ev.preventDefault(); activateEntry(flat[active]); }
+          if (res && btns[actIdx]) { runAction(flat[parseInt(res.getAttribute('data-i'), 10)], btns[actIdx].getAttribute('data-act')); }
+        } else if (claimOffered()) {
+          // A 40-character, six-word paste is not somebody trying to open a
+          // profile. Checking it takes precedence over the auto-highlighted row.
+          try { window.PDXClaimCheck.check(input.value); } catch (e) {}
+        } else if (active >= 0 && flat[active]) { activateEntry(flat[active]); }
       } else if (ev.key === 'Escape') {
         if (actIdx >= 0) { setActFocus(-1); }
-        else if (input.value) { input.value = ''; eye.classList.remove('has-text'); render(''); }
+        else if (input.value) { input.value = ''; eye.classList.remove('has-text'); growField(); render(''); }
         else { close(); input.blur(); }
       }
     });
     clear.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
     clear.addEventListener('click', function () {
-      input.value = ''; eye.classList.remove('has-text'); input.focus(); render(''); open();
+      input.value = ''; eye.classList.remove('has-text'); growField(); input.focus(); render(''); open();
     });
 
     // click / focus outside closes
@@ -1810,6 +1893,8 @@
       search: function (q) {
         try {
           input.value = q == null ? '' : String(q);
+          eye.classList.toggle('has-text', input.value.length > 0);
+          growField();
           open();
           eye.classList.add('is-focus');
           render(input.value);

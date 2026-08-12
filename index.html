@@ -2016,7 +2016,11 @@ window.PDXLazy = (function () {
       .pdx-eye-conn-body, .pdx-eye-conn-detail { animation: none; }
     }
     @media (hover: none) and (pointer: coarse) {
-      .pdx-eye-field { height: 2.75rem; }
+      /* min-height, not height — a fixed height here would clip a pasted claim
+         on the one platform where pasting is most likely. The padding shrinks so
+         the 2.2rem clear button (now the tallest item, and the thing that sets
+         the ≥44px tap target) still lands the resting field at exactly 2.75rem. */
+      .pdx-eye-field { min-height: 2.75rem; padding-top: 0.275rem; padding-bottom: 0.275rem; }
       .pdx-eye-clear { width: 2.2rem; height: 2.2rem; }
     }
 
@@ -2644,10 +2648,20 @@ window.PDXLazy = (function () {
       .pdx-eye-shell{padding-top:0.5rem;padding-bottom:0.5rem;}
       .pdx-eye-box{position:relative;max-width:40rem;margin:0 auto;display:block;}
       /* ── The search field ─────────────────────────────────────────── */
-      .pdx-eye-field{display:flex;align-items:center;gap:0.55rem;height:2.5rem;padding:0 0.5rem 0 0.85rem;border-radius:9999px;background:rgba(13,21,38,0.72);border:1px solid rgba(148,163,184,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 2px 14px rgba(0,0,0,0.28);transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;}
+      /* min-height, not height: the field is one line at rest and grows with a
+         pasted claim (growField() in all-seeing-eye.js caps it at ~4 lines).
+         The padding it gained is exactly the padding the fixed height used to
+         supply, so one line still measures 2.5rem and the resting shape of the
+         eye is unchanged. */
+      .pdx-eye-field{display:flex;align-items:center;gap:0.55rem;min-height:2.5rem;padding:0.55rem 0.5rem 0.55rem 0.85rem;border-radius:9999px;background:rgba(13,21,38,0.72);border:1px solid rgba(148,163,184,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 2px 14px rgba(0,0,0,0.28);transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;}
       .pdx-eye-field:hover{border-color:rgba(148,163,184,0.35);}
       .pdx-eye-box.is-focus .pdx-eye-field{background:rgba(13,21,38,0.9);border-color:rgba(245,200,66,0.55);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06),0 0 0 3px rgba(245,200,66,0.12),0 6px 26px rgba(0,0,0,0.4);}
-      .pdx-eye-input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#e7eefb;font-family:'Barlow',sans-serif;font-size:0.92rem;letter-spacing:0.01em;}
+      /* A textarea styled to be indistinguishable from the old input at one line:
+         no resize grip, no scrollbar until the 4-line cap, zero padding (the
+         field owns the padding), and an explicit line-height so growField() can
+         do exact arithmetic instead of guessing at scrollHeight. */
+      .pdx-eye-input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#e7eefb;font-family:'Barlow',sans-serif;font-size:0.92rem;letter-spacing:0.01em;display:block;margin:0;padding:0;resize:none;overflow-y:hidden;line-height:1.4rem;height:1.4rem;max-height:5.6rem;}
+      .pdx-eye-input.is-multiline{overflow-y:auto;}
       .pdx-eye-input::placeholder{color:#7f93b3;opacity:1;}
       .pdx-eye-input::-webkit-search-cancel-button{display:none;}
       /* ── The eye glyph — its own iris that opens on focus ─────────── */
@@ -2933,12 +2947,20 @@ window.PDXLazy = (function () {
                 <circle class="pdx-eye-pupil" cx="12" cy="12" r="1.5"/>
               </svg>
             </span>
-            <input id="pdx-eye-input" class="pdx-eye-input" type="text" role="combobox"
+            <!-- A one-line-tall TEXTAREA, not an <input>. The field has always
+                 accepted a pasted sentence (there was never a maxlength) but it
+                 showed only the tail of one, so pasting a claim looked like the
+                 box had eaten it. A textarea that starts at exactly one line and
+                 grows to at most four (see growField() in all-seeing-eye.js)
+                 keeps the resting shape identical while making a paste visible.
+                 Enter never inserts a newline — the keydown handler owns that
+                 key — so it still behaves as a search field, not a composer. -->
+            <textarea id="pdx-eye-input" class="pdx-eye-input" rows="1" role="combobox"
                    aria-expanded="false" aria-controls="pdx-eye-panel" aria-autocomplete="list"
-                   aria-label="Search politicians, issues and hot topics"
+                   aria-label="Search politicians and issues, or paste a claim to check"
                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                    inputmode="search" enterkeyhint="search"
-                   placeholder="Search politicians, issues &amp; hot topics…" />
+                   placeholder="Search politicians &amp; issues — or paste a claim to check…"></textarea>
             <button id="pdx-eye-clear" class="pdx-eye-clear" type="button" aria-label="Clear search" tabindex="-1">&times;</button>
             <kbd class="pdx-eye-key" aria-hidden="true">/</kbd>
           </div>
@@ -18934,6 +18956,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
   <script defer src="receipt-cards.js"></script>
+  <!-- Claim check (window.PDXClaimCheck) — the paste-a-claim adapter. It owns no
+       verdict logic and no renderer of its own: it POSTs a pasted claim to
+       /api/claim-resolve, which returns only an ADDRESS ({ pid, issueKey,
+       direction }) or nothing, then hands that address to
+       PDXReceiptCards.find() and prints the result through the existing
+       PDXReceipts.cardHTML(). Everything a reader sees still comes from the
+       Official Record engine behind receipt-cards.js's guards.
+       Must load AFTER say-vs-do.js (the renderer) and receipt-cards.js (find /
+       warm / buttonHtml / hydrate); all-seeing-eye.js calls into it defensively
+       and works unchanged if this file is absent. -->
+  <script defer src="claim-check.js"></script>
   <!-- Profile record card (window.PDXProfileCard) — the shareable REPORT CARD for a
        person, as opposed to a single receipt. The two renderers above each print one
        fact, and one fact leaving the app reads as an anecdote; this prints the whole
