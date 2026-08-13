@@ -69,7 +69,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260826000000_seed_exec_actions_wave4.sql",
   "netlify/database/migrations/20260828000000_seed_exec_actions_wave5.sql",
   "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql",
-  "netlify/database/migrations/20260830000000_seed_exec_actions_wave7.sql"
+  "netlify/database/migrations/20260830000000_seed_exec_actions_wave7.sql",
+  "netlify/database/migrations/20260831000000_seed_exec_actions_wave8.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -116,7 +117,7 @@ section("1 · shape and vocabulary");
 // Pinned, because the point of the count is to notice a wave that silently half
 // landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3, ten from wave 4,
 // nine from wave 5, four from wave 6.
-ok(ACTIONS.length === 48, `the seed carries forty-eight actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7 (got ${ACTIONS.length})`);
+ok(ACTIONS.length === 56, `the seed carries fifty-six actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8 (got ${ACTIONS.length})`);
 
 /* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
    This line used to read `a.term === EX.currentTerm("trump")`, which was true of
@@ -487,8 +488,8 @@ if (sum && sumAll) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 7 && C.executive_order === 31 && C.directive === 7 && C.vetoed_law === 3,
-    `class split is 7 laws + 31 orders + 7 directives + 3 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  ok(C.signed_law === 7 && C.executive_order === 36 && C.directive === 10 && C.vetoed_law === 3,
+    `class split is 7 laws + 36 orders + 10 directives + 3 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
   // The veto class existed in the vocabulary for six waves with no row using it.
   // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
   // pipeline nobody has proven works.
@@ -631,19 +632,40 @@ const fixture = (issueKey, direction, status) => ({
 // on file; wave 3 gave that issue two real advancing actions, which would have turned
 // the fixture into a `bothWays` case while the assertion still said `against`. A
 // hardcoded key does not fail when the data moves under it — it quietly starts
-// proving something else. So the key is found by asking the shipped read path which
-// stated positions currently have no action on file.
+// proving something else.
+//
+// Wave 8 moved the data again, and further than that: it filled the LAST stated
+// `support` position that had nothing on file (immigration_reform), so the pool this
+// check used to draw from is now empty. That is the milestone, not a defect — every
+// position this figure states in support is now testable against a document. But it
+// means the fixture can no longer be built by APPENDING to the real seed, because
+// there is no longer an issue for which appending is the first action.
+//
+// So the fixture now STRIPS instead. It picks a stated `support` issue, removes every
+// real action touching it, confirms the issue falls to `said_not_done` in that
+// stripped pool, and then adds the opposing fixture to the same pool. The proof is
+// unchanged and its force is unchanged — an opposing action on a stated support
+// position must land in `against` and must leave `noActionFound` — and the baseline it
+// is measured against is the stripped pool rather than the shipped one. `baseline`
+// above stays on the real seed, because (b) and the teardown check still need it.
 const positionMap = ctx.window._polPositionMap("trump", ctx.window.CMP_DATA.trump) || {};
-const noActionKey = Object.keys(positionMap).sort().find((k) =>
-  positionMap[k].stance === "support" && EX.issue("trump", k).token === "said_not_done");
-ok(!!noActionKey, "a stated 'support' position with no action on file exists to drive the against fixture");
-setActions([...ACTIONS, fixture(noActionKey, "opposes")]);
+const strippedPool = (key) => ACTIONS.filter((a) => !(a.issues || []).some((m) => m.issueKey === key));
+const noActionKey = Object.keys(positionMap).sort().find((k) => {
+  if (positionMap[k].stance !== "support") return false;
+  setActions(strippedPool(k));
+  return EX.issue("trump", k).token === "said_not_done";
+});
+ok(!!noActionKey, "a stated 'support' position reads said_not_done once its actions are stripped, to drive the against fixture");
+const POOL = noActionKey ? strippedPool(noActionKey) : ACTIONS;
+setActions(POOL);
+const strippedBase = EX.summary("trump");
+setActions([...POOL, fixture(noActionKey, "opposes")]);
 const vsAgainst = EX.summary("trump");
 ok(!!vsAgainst, "the summary survives an action that cuts against a stated position");
-if (vsAgainst && baseline) {
-  ok(vsAgainst.issues.against === baseline.issues.against + 1,
-    `an opposing action lands in against (${noActionKey}: ${baseline.issues.against} → ${vsAgainst.issues.against})`);
-  ok(vsAgainst.issues.noActionFound === baseline.issues.noActionFound - 1,
+if (vsAgainst && strippedBase) {
+  ok(vsAgainst.issues.against === strippedBase.issues.against + 1,
+    `an opposing action lands in against (${noActionKey}: ${strippedBase.issues.against} → ${vsAgainst.issues.against})`);
+  ok(vsAgainst.issues.noActionFound === strippedBase.issues.noActionFound - 1,
     "the issue leaves coverage when an action for it arrives");
   ok(new RegExp("acted against it on " + vsAgainst.issues.against).test(vsAgainst.label),
     "the label reports the opposing action in words");

@@ -521,10 +521,10 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260830000000_seed_exec_actions_wave7',
+  eq(versions[versions.length - 1], '20260831000000_seed_exec_actions_wave8',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by wave 7 of the executive
+  // whenever a later migration lands — updated here by wave 8 of the executive
   // record. What it guards does not move: whatever was added most recently has to
   // sort after everything already applied, or the deploy is rejected. The check
   // below is the one that pins THIS test's migration, and it stays put.
