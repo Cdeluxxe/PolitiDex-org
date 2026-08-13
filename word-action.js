@@ -157,6 +157,9 @@
     });
   }
   function C() { return window.PDXConsistency || null; }
+  // The id-safe half of a per-issue DOM id. Kept next to esc() because both ends of
+  // a cross-section jump have to sanitise identically or the link points at nothing.
+  function _idPart(v) { return String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, ''); }
   // The shared Mixed rule, borrowed rather than restated. Same function the issue
   // rows use, so the pooled read at the top of a profile and the per-issue rows
   // under it apply one definition of "split" — including its floor of two
@@ -1403,28 +1406,45 @@
   // of its own, one line per issue — the receipts stay one tap away in the Official
   // Record row and the Evidence drawer rather than being reprinted here at full depth,
   // which is where the old section's height came from.
-  // `short` exists for the composition strip only. The full labels are sentences
-  // because they head a group a reader has stopped to read; the strip is four chips
-  // beside a number and has to survive a 360px screen, so each outcome also carries
-  // the shortest noun that still means the same thing. Same tokens, same colours —
-  // one vocabulary, printed at two lengths, so the strip can never name a bucket
-  // the section below it does not have.
+  // ONE VOCABULARY, PRINTED AT THREE LENGTHS. `label` is a sentence, because it heads
+  // a bucket a reader has stopped to read. `short` is the shortest noun that still
+  // means the same thing — it is what the composition strip, the bucket switcher and
+  // the row-level result cue all print, and it is what the issue dossier repeats in
+  // its own header when a row is tapped. `sub` says what the bucket means in one
+  // clause, under the heading, for a reader who has never seen this card before.
+  // Same tokens, same colours, everywhere: the strip can never name a bucket the
+  // index below it does not have, and the dossier can never open under a word the
+  // index did not use to get there.
+  //
+  // `secondary` marks the one bucket that is not a finding. "Not enough record yet"
+  // is coverage — an issue we track, a position they stated, and nothing on file
+  // able to test it. It is listed, counted and reachable like every other bucket,
+  // and it is drawn quieter and ordered last, because a reader scanning results
+  // should not have to work out which pile is a result.
   var OUTCOMES = [
-    { token: 'contradicts', label: 'Says one thing, does another', short: 'Contradicted', col: '#f89b9b' },
-    { token: 'mixed',       label: 'Mixed',                        short: 'Mixed',        col: '#93c5fd' },
-    { token: 'consistent',  label: 'Backed it up',                 short: 'Backed up',    col: '#6ee7a0' },
-    { token: 'limited',     label: 'Not enough record yet',        short: 'Thin record',  col: '#9fb4d4' }
+    { token: 'contradicts', label: 'Says one thing, does another', short: 'Contradicted', col: '#f89b9b',
+      sub: 'The record pushes back on what they said.' },
+    { token: 'mixed',       label: 'Mixed',                        short: 'Mixed',        col: '#93c5fd',
+      sub: 'The record goes both ways on this one.' },
+    { token: 'consistent',  label: 'Backed it up',                 short: 'Backed up',    col: '#6ee7a0',
+      sub: 'The record points the same way as the word.' },
+    { token: 'limited',     label: 'Not enough record yet',        short: 'Thin record',  col: '#9fb4d4',
+      secondary: true, sub: 'Stated, but nothing on file yet can test it. Coverage, not a result.' }
   ];
+  function outcomeFor(token) {
+    for (var i = 0; i < OUTCOMES.length; i++) if (OUTCOMES[i].token === token) return OUTCOMES[i];
+    return null;
+  }
   // The strip reads worst-first for the same reason the rows do: a reader who stops
   // after the first chip should have stopped on the sharpest thing on file, not on
   // the largest. OUTCOMES is already in that order and the strip follows it.
   var COMP_ORDER = ['contradicts', 'mixed', 'consistent', 'limited'];
-  // A TOKEN SET, not a count of groups. "The first two live groups" quietly promoted
-  // whatever survived: a figure with no contradictions and no mixed rows had both
-  // remaining buckets opened, including the "not enough record yet" pile that exists
-  // precisely to be folded. Keyed on the outcome instead, an empty bucket above can
-  // never promote a folded one — with one fallback, below, so the block is never
-  // nothing but a fold header.
+  // WHICH BUCKET IS SELECTED WHEN THE INDEX FIRST PAINTS. A TOKEN SET, not a count
+  // of live buckets: "the first live bucket" quietly promoted whatever survived, so
+  // a figure with no contradictions and no mixed rows opened on the "not enough
+  // record yet" pile. Keyed on the outcome instead, an empty bucket above can never
+  // promote the coverage pile — with one fallback, below, so the index never opens
+  // on nothing.
   var OUTCOME_OPEN = { contradicts: 1, mixed: 1 };
 
   // ── ONE BUCKETING, TWO SURFACES ────────────────────────────────────────────
@@ -1532,66 +1552,214 @@
     } catch (e) { return ''; }
   }
 
+  // ── THE ROW IS THE TAP TARGET ──────────────────────────────────────────────
+  // Every row in the index opens the issue dossier for that politician and that
+  // issue — the same assembled sheet the stance rows open, built once in
+  // consistency.js and reused whole. The BUTTON is the row, not a chevron inside
+  // it: a one-line row with a small affordance at the end is a row a reader has to
+  // aim at, and this list is read on a phone.
+  //
+  // `origin` is the row's own id, and it is what makes the trip reversible. The
+  // dossier keeps it, prints a return control, and puts the reader back on this
+  // line in this bucket rather than at the top of the section they came from.
+  //
+  // WHAT STAYS ON THE ROW. Issue, what they said, how it came out, and the two
+  // qualifications that change how the result should be read. Everything else —
+  // which instruments, which way each one pointed, what the deciding record set
+  // aside, where the issue lands in the score — is one tap down. A row carrying
+  // its own explanation is a row nobody taps, and then the dossier exists for
+  // nothing.
   function _outcomeRow(r) {
+    var o = outcomeFor(r.verdict.token);
     var bits = [];
-    if (r.evidence.total) bits.push(r.evidence.total + ' receipt' + (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength);
+    // The count and the lane, so the depth behind the cue is legible without
+    // opening anything. Not the strength word — that is what the Thin evidence
+    // flag says, and saying it twice on one line is how a row grows.
+    if (r.evidence.total) bits.push(r.evidence.total + ' receipt' + (r.evidence.total === 1 ? '' : 's'));
     if (r.verdict.basis === 'public_record') bits.push('public record');
     else if (r.evidence.actions) bits.push(_laneNoun(r, r.evidence.actions));
-    if (r.setAside && r.setAside.count) {
-      bits.push(r.setAside.count + ' ' + (r.setAside.direction === 'contradicts' ? 'against' : 'for') + ', set aside');
-    }
-    if (r.stance.label) bits.unshift(r.stance.label);
-    // Same issue, same colour, one section down. These rows sit inside a group
+    // Same issue, same colour, one section down. These rows sit inside a bucket
     // whose heading already carries the outcome colour, so without this the only
     // colour on the line belonged to the bucket it happened to fall into — and
     // healthcare in one bucket looked like nothing to do with healthcare in the
-    // next. The spine is the issue; the group heading keeps the outcome.
+    // next. The spine is the issue; the bucket heading keeps the outcome. Both
+    // travel into the dossier header on the tap.
     var skin = issueSkin(r.key);
     // The same two flags the top rows carry, at one-line scale. Without them a
     // struck-down row and an in-force row are the same line in the same green
-    // group, and the fold below the lead bucket is exactly where a reader stops
-    // reading closely — which is the wrong place to keep the qualification.
+    // bucket — and the whole point of a bucket is that a reader can stop reading
+    // closely inside it.
     var flags = flagsHtml(r, 'pdxwa-oc-flag');
     var friction = (isContested(r) ? ' pdxwa-oc-row-x' : '') + (isThin(r) ? ' pdxwa-oc-row-thin' : '');
-    return '<li class="pdxwa-oc-row' + skin.cls + friction + '" style="' + skin.style + '">' +
-        '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
-        (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
-        flags +
+    // A stable per-issue id, so another surface can land a reader on THIS issue's
+    // line in the score rather than on the top of the section. Built from the same
+    // (pid, key) pair every surface already agrees on; see wordActionRowId() in
+    // consistency.js, which must build the same string.
+    var rid = 'pdxwa-oc-' + _idPart(r.pid) + '-' + _idPart(r.key);
+    var aria = 'Open the issue dossier: ' + r.label +
+      (o ? ' — ' + o.short : '') + (r.stance.label ? ' · they said: ' + r.stance.label : '');
+    return '<li class="pdxwa-oc-li" id="' + esc(rid) + '" data-pdxwa-issue="' + esc(r.key) + '">' +
+        '<button type="button" class="pdxwa-oc-row' + skin.cls + friction + '" style="' + skin.style + '"' +
+          ' data-pdxwa-dos="' + esc(r.key) + '" data-pdxwa-dos-pid="' + esc(String(r.pid)) + '"' +
+          ' data-pdxwa-dos-origin="' + esc(rid) + '"' +
+          ' aria-label="' + esc(aria) + '">' +
+          '<span class="pdxwa-oc-main">' +
+            '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
+            (r.stance.label ? '<span class="pdxwa-oc-said">' + esc(r.stance.label) + '</span>' : '') +
+            (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
+            flags +
+          '</span>' +
+          // The result, on the row, in the same word the bucket switcher used. It is
+          // redundant beside its own bucket heading and deliberately kept: on a phone
+          // one bucket is on screen at a time, and a reader arriving on this row from
+          // a deep link has no heading above them at all.
+          (o ? '<span class="pdxwa-oc-cue" style="color:' + o.col + ';border-color:' + o.col + '55;">' +
+                 esc(o.short) + '</span>' : '') +
+          '<span class="pdxwa-oc-go" aria-hidden="true">›</span>' +
+        '</button>' +
       '</li>';
   }
+
+  // ── THE ISSUE INDEX — FOUR BUCKETS, ONE SWITCHER ───────────────────────────
+  // This block used to be one stack: the two sharp buckets open, everything else
+  // behind a single "Show 3 more issues" fold. Two things were wrong with that.
+  // The fold named its contents but not their shape, so a reader could not tell a
+  // record with nine clean issues from one with three clean and six untested
+  // without opening it — the other outcomes were only partially revealed. And a
+  // fold is where reading stops, so the buckets that reached it were, in practice,
+  // buckets nobody saw.
+  //
+  // It is now an index. Every bucket that has rows gets a chip in the switcher
+  // with its own count and its own colour, so the SHAPE of the record is on the
+  // face whether or not anything is opened; and every bucket is one tap from
+  // there. Nothing is behind a fold.
+  //
+  // TWO PRESENTATIONS, ONE MARKUP. The switcher sets `.is-on` on exactly one
+  // panel. On a phone that is the whole layout — one bucket on screen, a
+  // full-width segmented control above it that cannot be mistaken for chrome. From
+  // 620px up the stylesheet shows every panel side by side as distinct lists and
+  // the selection becomes emphasis rather than filtering, which is the desktop
+  // reading the requirement asks for. No second render path, no width sniffing in
+  // JS, and the same DOM in both — so a resize cannot lose a reader's place.
+  //
+  // WHAT THIS IS NOT. It is not a second scoreboard. No bucket prints a
+  // percentage, and the denominator is stated once, in words, at the foot. The one
+  // number on this profile is the Direction Match above.
   function outcomesHtml(pid) {
     try {
       var b = outcomeBuckets(pid);
       if (!b) return '';
+      armIndex();
       var buckets = b.buckets;
       var live = OUTCOMES.filter(function (o) { return (buckets[o.token] || []).length; });
-      var blockOf = function (o) {
+      if (!live.length) return '';
+      // Which bucket the index opens on. The sharpest live outcome, never the
+      // coverage pile unless it is the only thing on file.
+      var sel = live.filter(function (o) { return !!OUTCOME_OPEN[o.token]; })[0] || live[0];
+      var uid = 'pdxwa-ocb-' + _idPart(pid);
+      var panelId = function (o) { return uid + '-p-' + _idPart(o.token); };
+      var tabId = function (o) { return uid + '-t-' + _idPart(o.token); };
+
+      var tabs = live.map(function (o) {
+        var on = (o === sel);
+        return '<button type="button" role="tab" id="' + esc(tabId(o)) + '"' +
+            ' class="pdxwa-oc-tab' + (on ? ' is-on' : '') + (o.secondary ? ' pdxwa-oc-tab-2nd' : '') + '"' +
+            ' style="--pdxwa-col:' + o.col + ';"' +
+            ' data-pdxwa-seg="' + esc(o.token) + '" data-pdxwa-seg-uid="' + esc(uid) + '"' +
+            ' aria-selected="' + (on ? 'true' : 'false') + '" aria-controls="' + esc(panelId(o)) + '">' +
+            '<span class="pdxwa-oc-tab-n">' + buckets[o.token].length + '</span>' +
+            '<span class="pdxwa-oc-tab-l">' + esc(o.short) + '</span>' +
+          '</button>';
+      }).join('');
+
+      var panels = live.map(function (o) {
         var list = buckets[o.token];
-        return '<div class="pdxwa-oc-grp" style="--pdxwa-col:' + o.col + ';">' +
+        return '<section class="pdxwa-oc-grp' + (o === sel ? ' is-on' : '') +
+            (o.secondary ? ' pdxwa-oc-grp-2nd' : '') + '" role="tabpanel"' +
+            ' id="' + esc(panelId(o)) + '" aria-labelledby="' + esc(tabId(o)) + '"' +
+            ' data-pdxwa-oc-panel="' + esc(o.token) + '" style="--pdxwa-col:' + o.col + ';">' +
             '<div class="pdxwa-oc-h"><span class="pdxwa-oc-n">' + list.length + '</span> ' + esc(o.label) + '</div>' +
+            '<div class="pdxwa-oc-hsub">' + esc(o.sub) + '</div>' +
             '<ul class="pdxwa-oc-l">' + list.map(_outcomeRow).join('') + '</ul>' +
-          '</div>';
-      };
-      var isOpen = function (o) { return !!OUTCOME_OPEN[o.token]; };
-      var openGrps = live.filter(isOpen);
-      // Nothing sharp on file — open the highest-ranked bucket anyway, or the block
-      // reduces to a lid the reader has to guess is worth opening.
-      if (!openGrps.length) openGrps = live.slice(0, 1);
-      var lead = openGrps.map(blockOf).join('');
-      var restGrps = live.filter(function (o) { return openGrps.indexOf(o) === -1; });
-      var rest = '';
-      if (restGrps.length) {
-        var restN = restGrps.reduce(function (n, o) { return n + buckets[o.token].length; }, 0);
-        rest = '<!--PDXSP:lid id="wa-outcomes" label="Show ' + restN + ' more issue' +
-          (restN === 1 ? '' : 's') + ' — ' + restGrps.map(function (o) { return o.label.toLowerCase(); }).join(', ') +
-          '" defer-->' + restGrps.map(blockOf).join('') + '<!--PDXSP:/lid-->';
-      }
+          '</section>';
+      }).join('');
+
+      // The denominator, in words, once. A reader who wants to know what "3 backed
+      // up" is 3 OF should not have to add the chips up, and the answer is not the
+      // number above — the score weighs statements by testability and this counts
+      // issues. Judged and untested are separated here for the same reason the
+      // coverage bucket is drawn quieter: they are not the same claim.
+      var judged = b.total - ((buckets.limited || []).length);
+      var foot = b.total + ' issue' + (b.total === 1 ? '' : 's') + ' in this index — ' +
+        judged + ' with a result on the record' +
+        ((buckets.limited || []).length
+          ? ', ' + buckets.limited.length + ' stated but not testable yet' : '') +
+        '. Tap any issue for its full record.';
+
       return '<div class="pdxwa-oc">' +
           '<div class="pdxwa-oc-t">Issue by issue — did the record back the word?</div>' +
           '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.') + '</div>' +
-          lead + rest +
+          '<div class="pdxwa-oc-seg" role="tablist" aria-label="Results by issue — pick a result">' + tabs + '</div>' +
+          '<div class="pdxwa-oc-panels">' + panels + '</div>' +
+          '<p class="pdxwa-oc-foot">' + esc(foot) + '</p>' +
         '</div>';
     } catch (e) { return ''; }
+  }
+
+  // ── THE SWITCHER, AND THE TAP INTO THE DOSSIER ─────────────────────────────
+  // One delegated listener on the document, bound once for the life of the page.
+  // The index is re-rendered whole whenever the voting record warms — a listener
+  // bound to the block would be a listener on a node that no longer exists, and
+  // per-render binding on a surface that repaints is how duplicate handlers
+  // accumulate. Delegation costs one listener and survives every repaint.
+  var _ocArmed = false;
+  function armIndex() {
+    try {
+      if (_ocArmed || typeof document === 'undefined' || !document.addEventListener) return;
+    } catch (e0) { return; }
+    _ocArmed = true;
+    document.addEventListener('click', function (e) {
+      if (!e.target || !e.target.closest) return;
+      // The bucket switcher. Selection is presentational — it moves `.is-on` and
+      // the aria state and nothing else — so it can never disagree with what the
+      // record says, only with which part of it is on screen.
+      var seg = e.target.closest('[data-pdxwa-seg]');
+      if (seg) {
+        e.preventDefault();
+        try {
+          var uid = seg.getAttribute('data-pdxwa-seg-uid') || '';
+          var tok = seg.getAttribute('data-pdxwa-seg') || '';
+          var root = seg.closest('.pdxwa-oc');
+          if (!root) return;
+          var tabs = root.querySelectorAll('[data-pdxwa-seg-uid="' + uid + '"]');
+          for (var i = 0; i < tabs.length; i++) {
+            var on = tabs[i].getAttribute('data-pdxwa-seg') === tok;
+            tabs[i].classList.toggle('is-on', on);
+            tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+          }
+          var panes = root.querySelectorAll('[data-pdxwa-oc-panel]');
+          for (var j = 0; j < panes.length; j++) {
+            panes[j].classList.toggle('is-on', panes[j].getAttribute('data-pdxwa-oc-panel') === tok);
+          }
+        } catch (e2) {}
+        return;
+      }
+      // The row. openGap() is PDXConsistency's own entry point to the issue
+      // dossier — the same one the stance rows use — so there is exactly one
+      // assembled sheet in the app and this surface only decides which issue it
+      // opens on. Fails closed: no consistency module, no navigation, and the row
+      // is left as inert text rather than a control that swallows the tap.
+      var row = e.target.closest('[data-pdxwa-dos]');
+      if (row) {
+        var CS = window.PDXConsistency;
+        if (!CS || typeof CS.openGap !== 'function') return;
+        e.preventDefault();
+        try {
+          CS.openGap(row.getAttribute('data-pdxwa-dos-pid') || '', row.getAttribute('data-pdxwa-dos') || '',
+            { arrival: false, origin: row.getAttribute('data-pdxwa-dos-origin') || '' });
+        } catch (e3) {}
+      }
+    });
   }
 
   // ── THE SLICE, UNDER THE RECORD ────────────────────────────────────────────
@@ -2055,6 +2223,13 @@
     MIN_TESTED_ITEMS: MIN_TESTED_ITEMS,
     MIN_TESTED_WEIGHT: MIN_TESTED_WEIGHT,
     EVIDENCE_CAP: EVIDENCE_CAP,
+    // The issue index's result buckets: token, heading, short name, colour. Published
+    // so the issue dossier can open under the SAME word and the SAME colour the row a
+    // reader tapped was filed under. One vocabulary, one source; a bucket renamed here
+    // is renamed in the dossier header on the next paint, and neither surface can
+    // invent a result the other does not have.
+    OUTCOMES: OUTCOMES,
+    outcomeFor: outcomeFor,
     // Pure reads — no DOM, no fetch, safe to call from anywhere.
     wordLedger: wordLedger,
     read: read,

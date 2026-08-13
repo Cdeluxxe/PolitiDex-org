@@ -1645,6 +1645,12 @@
       '.pdxdv-open{display:inline-flex;align-items:center;gap:0.25rem;margin-top:0.5rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.03em;text-transform:uppercase;color:var(--c,#9fdbd0);cursor:pointer;background:rgba(10,15,30,0.4);border:1px solid var(--c,#9fdbd0);border-radius:999px;padding:0.16rem 0.55rem;}' +
       '.pdxdv-open:hover{filter:brightness(1.15);}' +
       '.pdxdv-open:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      // The shared dossier door, wherever it sits inside a record row. Same pill as the
+      // link it replaced, but sentence-cased and given a real tap target: the bucket
+      // word is the readable part and SHOUTING IT WITH THE WHOLE SENTENCE was not.
+      '.pdxdos-door{text-transform:none;letter-spacing:0.01em;font-size:0.7rem;min-height:2.15rem;padding:0.3rem 0.7rem;}' +
+      '.pdxdos-door .pdxdos-door-b{font-weight:800;}' +
+      '.pdxdos-door .pdxdos-door-r{color:#c6d4ec;font-weight:600;}' +
       '.pdxgap-back{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,16,0.72);backdrop-filter:blur(2px);}' +
       '.pdxgap-back[hidden]{display:none;}' +
       // Top padding is deliberately tight (0.65rem, not 1rem): this sheet is the
@@ -1686,6 +1692,11 @@
       '.pdxgap-who-sub{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-weight:600;font-size:0.7rem;color:#8fa5c4;line-height:1.3;margin-top:0.1rem;}' +
       '.pdxgap-party{font-weight:700;font-size:0.62rem;letter-spacing:0.04em;padding:0.05rem 0.34rem;border-radius:999px;color:var(--c,#8fa5c4);border:1px solid var(--c,#8fa5c4);background:rgba(10,15,30,0.5);}' +
       '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.55rem 0 0.4rem;}' +
+      // The issue's own colour, carried in from the row that was tapped. Only ever
+      // painted when the key resolved to a real core issue — an unmapped key gets no
+      // spine rather than a neutral one that looks like a colour that failed.
+      '.pdxgap-title.pdxc-ic{border-left:4px solid var(--pdx-ic);padding-left:0.5rem;' +
+        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 58%);}' +
       '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:2.75rem;height:2.75rem;}}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
       // The verdict, sized so it is the thing the eye lands on. Same colour and
@@ -1786,6 +1797,97 @@
         'transition:background 0.15s,border-color 0.15s;}' +
       '.pdxgap-nx:hover,.pdxgap-nx:focus-visible{background:rgba(30,58,138,0.34);border-color:rgba(127,180,255,0.5);}' +
       '.pdxgap-nx-ico{flex:none;}' +
+      // ── The issue dossier ───────────────────────────────────────────────────
+      // Four levels, each adding a different KIND of information rather than more
+      // of the same: the assembled answer (open), the list of instruments behind it
+      // (closed), one instrument's mechanism (closed), and the raw provenance
+      // (closed, inside that). Every closed level is a real <details>, so the
+      // browser owns the toggle and a reader who opens nothing pays for nothing.
+      '.pdxdos{margin-top:0.7rem;border:1px solid rgba(127,180,255,0.18);border-radius:0.7rem;' +
+        'background:rgba(10,15,30,0.42);padding:0.55rem 0.7rem 0.6rem;}' +
+      '.pdxdos-h{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.08em;' +
+        'font-size:0.66rem;color:#8fa2c0;margin-bottom:0.35rem;}' +
+      '.pdxdos-line{display:flex;gap:0.45rem;align-items:baseline;font-size:0.75rem;line-height:1.45;' +
+        'color:#c6d4ec;padding:0.2rem 0;border-top:1px solid rgba(255,255,255,0.05);}' +
+      '.pdxdos-line:first-of-type{border-top:none;}' +
+      '.pdxdos-k{flex:none;min-width:5.2rem;font-size:0.61rem;text-transform:uppercase;' +
+        'letter-spacing:0.05em;color:#7e93b3;}' +
+      '.pdxdos-v{color:#e8eefc;}' +
+      '.pdxdos-vd{font-weight:700;}' +
+      '.pdxdos-lane{display:block;font-size:0.66rem;color:#8fa2c0;margin-top:0.08rem;font-weight:400;}' +
+      // The row's own composition and depth lines, borrowed verbatim from the
+      // stance row so the sheet cannot describe the same record differently.
+      '.pdxdos .pdxst-comp,.pdxdos .pdxst-ev{margin-top:0.3rem;}' +
+      '.pdxdos-caveat{margin-top:0.35rem;font-size:0.69rem;color:#f0cd8c;line-height:1.45;}' +
+      '.pdxdos-score{margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.07);' +
+        'font-size:0.69rem;color:#8fa2c0;line-height:1.45;}' +
+      '.pdxdos-score .pdxst-go{margin-top:0.35rem;}' +
+      // L2 — every instrument on THIS issue, closed. The count is in the summary,
+      // so the depth is readable without opening anything.
+      '.pdxdos-recs{margin-top:0.55rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:0.15rem;}' +
+      '.pdxdos-recs>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:0.35rem;' +
+        'min-height:2.2rem;font-family:"Barlow Condensed",sans-serif;font-size:0.78rem;' +
+        'letter-spacing:0.03em;color:#dbe6f7;}' +
+      '.pdxdos-recs>summary::-webkit-details-marker{display:none;}' +
+      '.pdxdos-recs[open]>summary{color:#9fdbff;}' +
+      '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
+      // ── The continuity line, directly under the issue title ────────────────
+      // Named in the index's colour, in the index's word, so the header the tap
+      // lands on repeats the header the tap left. Deliberately quieter than the
+      // verdict chip below it: this says WHERE the finding was filed, not what it
+      // is — the verdict is still the thing being read.
+      '.pdxdos-bucket{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.3rem 0.45rem;' +
+        'margin:-0.15rem 0 0.45rem;padding-left:0.55rem;border-left:3px solid var(--c,#9fb4d4);}' +
+      '.pdxdos-bucket-k{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.58rem;' +
+        'letter-spacing:0.09em;text-transform:uppercase;color:#8fa2c0;}' +
+      '.pdxdos-bucket-v{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.74rem;' +
+        'letter-spacing:0.06em;text-transform:uppercase;color:var(--c,#9fb4d4);}' +
+      '.pdxdos-bucket-s{flex:1 1 100%;min-width:0;font-size:0.68rem;line-height:1.45;color:#8fa2c0;' +
+        'overflow-wrap:break-word;}' +
+      // The lane-asymmetry note. Set apart from the rows so it reads as a statement
+      // about the record's shape rather than as another row.
+      '.pdxdos-note{font-size:0.68rem;color:#8fa2c0;line-height:1.5;padding:0.4rem 0 0.1rem;' +
+        'border-top:1px solid #ffffff10;margin-top:0.35rem;}' +
+      '.pdxdos-rec{border-top:1px solid rgba(255,255,255,0.06);}' +
+      '.pdxdos-rec>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;' +
+        'gap:0.3rem;padding:0.4rem 0;min-height:2.2rem;}' +
+      '.pdxdos-rec>summary::-webkit-details-marker{display:none;}' +
+      '.pdxdos-rec-ico{flex:none;}' +
+      '.pdxdos-rec-id{font-weight:700;font-size:0.76rem;color:#e8eefc;}' +
+      '.pdxdos-rec-act{font-size:0.72rem;color:#c6d4ec;}' +
+      '.pdxdos-rec-vd{font-size:0.68rem;}' +
+      '.pdxdos-rec-st{font-size:0.66rem;color:#9fb4d4;}' +
+      '.pdxdos-rec-tag{font-size:0.61rem;color:#8fa2c0;border:1px solid rgba(255,255,255,0.14);' +
+        'border-radius:999px;padding:0.02rem 0.36rem;}' +
+      '.pdxdos-rec-why{flex:1 0 100%;font-size:0.68rem;color:#8fa2c0;line-height:1.4;}' +
+      '.pdxdos-rec-hold{color:#f0cd8c;}' +
+      '.pdxdos-rec-b{padding:0 0 0.5rem;}' +
+      // L3 — one instrument's mechanism, mounted on first open.
+      '.pdxdos-d{font-size:0.71rem;color:#c6d4ec;line-height:1.5;padding:0.14rem 0;}' +
+      '.pdxdos-d b{color:#e8eefc;}' +
+      '.pdxdos-tags{display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.3rem 0 0.1rem;}' +
+      '.pdxdos-tag{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.04em;border-radius:999px;' +
+        'padding:0.04rem 0.42rem;border:1px solid rgba(255,255,255,0.16);color:#c6d4ec;}' +
+      '.pdxdos-tag-p{border-color:rgba(110,231,160,0.45);color:#a9e9c6;}' +
+      '.pdxdos-tag-n{border-color:rgba(240,205,140,0.45);color:#f0cd8c;}' +
+      '.pdxdos-src{display:inline-block;margin-top:0.3rem;font-size:0.68rem;color:#7fb4ff;}' +
+      '.pdxdos-rel{margin-top:0.35rem;}' +
+      // L4 — the receipt itself. Never opened for the reader.
+      '.pdxdos-fine{margin-top:0.35rem;border-top:1px solid rgba(255,255,255,0.06);}' +
+      '.pdxdos-fine>summary{cursor:pointer;list-style:none;display:flex;align-items:center;min-height:2.2rem;' +
+        'font-size:0.62rem;text-transform:uppercase;letter-spacing:0.06em;color:#7f97b8;}' +
+      '.pdxdos-fine>summary::-webkit-details-marker{display:none;}' +
+      '.pdxdos-fine-b{font-size:0.69rem;color:#9fb4d4;line-height:1.5;padding-bottom:0.4rem;}' +
+      '.pdxdos-fine-b p{margin:0 0 0.35rem;}' +
+      // Step to the next issue WITHOUT leaving the dossier — the reason a reader
+      // opened one issue is usually that they want to check a second.
+      '.pdxdos-step{display:flex;gap:0.4rem;margin-top:0.85rem;}' +
+      '.pdxdos-stepb{flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;' +
+        'min-height:2.4rem;cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-size:0.76rem;' +
+        'line-height:1.2;color:#dbe6f7;background:rgba(30,58,138,0.16);' +
+        'border:1px solid rgba(127,180,255,0.24);border-radius:0.55rem;padding:0.4rem 0.5rem;}' +
+      '.pdxdos-stepb:hover,.pdxdos-stepb:focus-visible{background:rgba(30,58,138,0.32);}' +
+      '.pdxdos-stepn{font-size:0.62rem;color:#8fa2c0;text-transform:uppercase;letter-spacing:0.05em;}' +
       // Phase 11 — methodology explainer content (rendered inside the shared sheet).
       '.pdxm-lead{font-size:0.8rem;color:#c6d4ec;line-height:1.45;margin:0.5rem 0 0.8rem;}' +
       '.pdxm-row{border-top:1px solid rgba(255,255,255,0.08);padding:0.6rem 0;}' +
@@ -1809,14 +1911,60 @@
       '.pdxst-q{font-size:0.74rem;color:#93a9c8;font-style:italic;margin-bottom:0.5rem;}' +
       '.pdxst-grp{margin-bottom:0.6rem;}' +
       '.pdxst-grp-h{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;padding-bottom:0.18rem;border-bottom:1px solid rgba(159,180,212,0.14);margin-bottom:0.3rem;}' +
-      '.pdxst-row{padding:0.35rem 0;border-bottom:1px solid rgba(159,180,212,0.07);}' +
+      '.pdxst-row{padding:0.45rem 0;border-bottom:1px solid rgba(159,180,212,0.07);}' +
       '.pdxst-row-top{display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;}' +
       '.pdxst-lbl{font-weight:700;font-size:0.82rem;color:#dbe6f5;}' +
+      // The issue name IS the way in. It was a label; it is now the row's primary
+      // tap, and it has to look like one without growing the row — so it keeps the
+      // label's own type and colour and adds a single chevron.
+      '.pdxst-open{display:inline-flex;align-items:center;gap:0.3rem;font-family:inherit;text-align:left;' +
+        'background:none;border:none;padding:0;margin:0;cursor:pointer;}' +
+      '.pdxst-open:hover,.pdxst-open:focus-visible{color:#9fdbff;}' +
+      '.pdxst-lbl-go{color:#7fb4ff;font-size:0.86rem;line-height:1;}' +
       '.pdxst-txt{font-size:0.74rem;line-height:1.4;color:#9fb4d4;margin-top:0.15rem;}' +
       '.pdxst-links{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.28rem;}' +
       '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
       '.pdxst-go:hover,.pdxst-go:focus-visible{background:rgba(159,219,208,0.18);}' +
-      '.pdxst-ev{font-size:0.64rem;color:#6f88ab;white-space:nowrap;}' +
+      '.pdxst-ev{font-size:0.64rem;color:#6f88ab;}' +
+      // ── THE RESULT LINE ────────────────────────────────────────────────────
+      // The row used to end its top line at a pastel verdict chip and a receipt
+      // count, which is a label, not a finding: a reader scanning six rows could
+      // tell that one said "Mixed record" and not what mixed MEANT or how much was
+      // behind it. This line is the answer, and it is deliberately louder than the
+      // chip it replaces — the number and the outcome word sit on their own line,
+      // in the verdict's own colour, above the evidence that produced them.
+      '.pdxst-result{display:flex;align-items:baseline;gap:0.3rem;flex-wrap:wrap;margin-top:0.22rem;}' +
+      '.pdxst-metric{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;}' +
+      // THE SCOPE TAG IS NOT DECORATION. A percentage on a profile means the
+      // profile's score unless something on the same line says otherwise, and this
+      // number is one issue's. The tag says so in two words, next to every one of
+      // them, so a row can never be mistaken for a second headline.
+      '.pdxst-scope{font-size:0.55rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8fa6c6;background:rgba(159,180,212,0.12);border-radius:999px;padding:0.06rem 0.34rem;}' +
+      // Sized well below the hero ring on purpose — big enough to scan, small
+      // enough that it never competes with the one profile score.
+      '.pdxst-pct{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.95;}' +
+      '.pdxst-pct-na{font-family:"Bebas Neue",sans-serif;font-size:0.95rem;line-height:0.95;color:#7e93b3;}' +
+      '.pdxst-vd{font-weight:800;font-size:0.72rem;letter-spacing:0.01em;}' +
+      '.pdxst-vd-none{font-weight:700;font-size:0.68rem;color:#8fa6c6;}' +
+      '.pdxst-why{font-size:0.64rem;color:#7e93b3;}' +
+      // Composition: what "mixed" actually meant, in counts, under the row that
+      // said it. Never rendered on a row with nothing to break down.
+      '.pdxst-comp{display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;font-size:0.64rem;color:#8fa6c6;margin-top:0.16rem;}' +
+      '.pdxst-comp b{font-weight:800;}' +
+      '.pdxst-comp-for{color:#6ee7a0;}' +
+      '.pdxst-comp-against{color:#f89b9b;}' +
+      '.pdxst-comp-x{color:#f5c842;}' +
+      // The sub-divider inside the "record backs it up" group: the rows the engine
+      // could not judge sit in the same tier as the ones it could, and a thin row
+      // under a "backs it up" heading is a claim nobody made.
+      '.pdxst-sub{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;color:#7e93b3;margin:0.35rem 0 0.1rem;}' +
+      // The way back. A jump out of a stance row used to be one-way: the reader
+      // landed in the Official Record and had to scroll back up past everything.
+      '.pdxst-back{position:fixed;left:50%;transform:translateX(-50%);bottom:1.1rem;z-index:12050;cursor:pointer;' +
+        'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.05em;text-transform:uppercase;' +
+        'color:#0b1020;background:#9fdbd0;border:none;border-radius:999px;padding:0.5rem 0.9rem;min-height:2.2rem;box-shadow:0 6px 18px rgba(0,0,0,0.45);}' +
+      '.pdxst-back:hover,.pdxst-back:focus-visible{background:#bdeae1;}' +
+      '.pdxst-focus{border-radius:0.5rem;box-shadow:0 0 0 2px rgba(159,219,208,0.6);background:rgba(159,219,208,0.07);}' +
       // ── Core National Issue colours (issue-colors.js) ────────────────────────
       // Every row in this file that names an issue carries `--pdx-ic*` inline via
       // _icSkin(), and gets `.pdxc-ic` when the key resolved to a real core issue.
@@ -1857,6 +2005,28 @@
       '@media (max-width:480px){' +
         '.pdxor-issue.pdxc-ic{border-left-width:4px;}' +
         '.pdxst-row.pdxc-ic,.pdxdv-row.pdxc-ic{padding-left:0.45rem;}' +
+        // MOBILE: the result must survive the narrow column. The metric caption and
+        // its scope tag are allowed to wrap onto their own line, but the number and
+        // the outcome word stay together — those two are the answer, and splitting
+        // them across a wrap is what turns a result back into a label.
+        '.pdxst-result{gap:0.24rem 0.3rem;}' +
+        '.pdxst-pct{font-size:1.15rem;}' +
+        '.pdxst-vd{font-size:0.74rem;}' +
+        // Every jump is a thumb target, not a hover target.
+        '.pdxst-go{min-height:2.3rem;padding:0.4rem 0.7rem;font-size:0.62rem;}' +
+        '.pdxst-links{gap:0.34rem;}' +
+        '.pdxst-back{bottom:0.8rem;min-height:2.4rem;}' +
+        // THE DOSSIER ON A PHONE. Every level's control is a thumb target, the
+        // key/value summary stacks rather than squeezing the value into a column
+        // two words wide, and the issue stepper wraps instead of scrolling.
+        '.pdxst-open{min-height:2.2rem;}' +
+        '.pdxdos{padding:0.5rem 0.55rem 0.55rem;}' +
+        '.pdxdos-line{flex-direction:column;gap:0.1rem;}' +
+        '.pdxdos-k{min-width:0;}' +
+        '.pdxdos-recs>summary,.pdxdos-rec>summary,.pdxdos-fine>summary{min-height:2.6rem;}' +
+        '.pdxdos-rec-why{margin-top:0.1rem;}' +
+        '.pdxdos-step{flex-wrap:wrap;}' +
+        '.pdxdos-stepb{flex:1 1 9rem;min-height:2.6rem;}' +
       '}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -2006,6 +2176,29 @@
     if (_gateBound || !document.addEventListener) return;
     _gateBound = true;
     document.addEventListener('click', function (e) {
+      // The return pill is the one thing here that lives OUTSIDE the profile it
+      // belongs to (it is fixed to the viewport), so it is also the one thing that
+      // can outlive it. Any click is a cheap moment to notice that the row it points
+      // back to is gone — the modal closed, or a different profile was opened — and
+      // take it down before it becomes a button to nowhere.
+      _stBackSweep();
+      // ── L3, mounted on demand ─────────────────────────────────────────────
+      // Deliberately no preventDefault and no return: the <details> keeps its own
+      // native toggle, and every branch below still gets the click. All this does is
+      // fill the body the first time it is asked for, which is why L3 and L4 cost
+      // nothing on a dossier whose rows are never opened.
+      var dos = e.target.closest && e.target.closest('[data-pdxdos-i]');
+      if (dos) _dosMount(dos);
+      // The stance row's primary tap: the issue name opens that issue's dossier and
+      // remembers the row it came from, so closing puts the reader back where they
+      // were reading rather than at the top of the section.
+      var sdos = e.target.closest && e.target.closest('[data-pdxst-dos]');
+      if (sdos) {
+        e.preventDefault();
+        openGap(sdos.getAttribute('data-pdxst-pid') || '', sdos.getAttribute('data-pdxst-dos') || '',
+          { arrival: false, origin: sdos.getAttribute('data-pdxst-origin') || '' });
+        return;
+      }
       // Deep link from a named proof line to that ONE roll call. Checked before the
       // issue link because a proof line carries both: the vote it names, and the issue
       // to fall back to. preventDefault also stops the <summary> it sits in from
@@ -2028,10 +2221,21 @@
       // The section's own entry point: the whole record, no issue filter.
       var vra = e.target.closest && e.target.closest('[data-pdxc-vrall]');
       if (vra) { e.preventDefault(); _openVotingIssue(''); return; }
+      // The shared route into the dossier. Every entry surface that is not a stance row
+      // or an index row arrives here — the Official Record row's door, a divergence row,
+      // and the sheet's own sideways steps.
+      //   ORIGIN IS OPTIONAL, AND THAT IS DELIBERATE. A door supplies the id of the row
+      // it was drawn on, so closing the sheet returns the reader to it. The in-sheet
+      // steppers supply none, and passing no options at all is not the same as passing
+      // `{arrival:false}`: it leaves _gapIsArrival() free to read the hash, so a reader
+      // who landed on a shared #record= link keeps the arrival presentation when they
+      // step sideways instead of being dropped into the profile-reader layout.
       var gap = e.target.closest && e.target.closest('[data-pdxc-gap]');
       if (gap) {
         e.preventDefault();
-        openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '');
+        var gorg = gap.getAttribute('data-pdxc-gap-origin') || '';
+        openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '',
+          gorg ? { arrival: false, origin: gorg } : undefined);
         return;
       }
       // ── Next-step row inside the gap sheet ────────────────────────────────
@@ -2055,6 +2259,26 @@
       if (away) { closeGap(); return; }
       var method = e.target.closest && e.target.closest('[data-pdxc-method]');
       if (method) { e.preventDefault(); openMethodology(); return; }
+      // Stance-row jumps. Resolved at click time rather than baked into an href,
+      // because the row this points at may live inside a fold that has not been
+      // mounted yet — the exact target only exists once the destination section has
+      // been revealed, and _stNav() falls back to the section when it does not.
+      var sgo = e.target.closest && e.target.closest('[data-pdxst-go]');
+      if (sgo) {
+        e.preventDefault();
+        // A jump fired from INSIDE the dossier has to take the modal down with it —
+        // a sheet left sitting over the section it just scrolled to looks like the
+        // tap did nothing. The return-to-row trip is dropped on the way out: this
+        // reader asked for the score section, not for the row they arrived from.
+        if (sgo.closest && sgo.closest('#pdxc-gap-back')) { _gapOpen = null; closeGap(); }
+        _stNav(sgo.getAttribute('data-pdxst-go') || '',
+               sgo.getAttribute('data-pdxst-target') || '',
+               sgo.getAttribute('data-pdxst-pid') || '',
+               sgo.getAttribute('data-pdxst-key') || '');
+        return;
+      }
+      var sback = e.target.closest && e.target.closest('[data-pdxst-back]');
+      if (sback) { e.preventDefault(); _stBack(sback.getAttribute('data-pdxst-back') || ''); return; }
       var card = e.target.closest && e.target.closest('[data-pdxc-open]');
       if (!card) return;
       e.preventDefault();
@@ -2097,11 +2321,39 @@
         sds[q].innerHTML = _lidify(_sdInner(pid));
         _lidsReopen(sdOpen);
       }
+      // …and the stance rows. This was the gap that made the whole section unable to
+      // keep its promise on a congressional profile: a member's votes arrive
+      // asynchronously, every row is built at mount time, and nothing ever repainted
+      // them — so "⏳ Loading the record…" was not a transient state, it was the
+      // permanent answer to "what did the record conclude?". The rows now resolve
+      // with everything else on the profile.
+      var sts = document.querySelectorAll('[data-pdxc-stances-pid]');
+      for (var s = 0; s < sts.length; s++) {
+        if (sts[s].getAttribute('data-pdxc-stances-pid') !== String(pid)) continue;
+        var stOpen = _lidsOpenIn(sts[s]);
+        sts[s].innerHTML = _lidify(_stInner(pid));
+        _lidsReopen(stOpen);
+      }
       // The repaint above is the moment the vote record actually exists, so it is
       // also the moment a vote-derived share card can first be built. Re-run the
       // reveal pass over the freshly painted rows.
       _rcHydrateSoon();
       _saHydrateSoon();
+      // ── THE OPEN DOSSIER ──────────────────────────────────────────────────
+      // A member's votes arrive AFTER the profile does, and a reader can open a
+      // stance row's dossier inside that window — on a president they never can,
+      // which is exactly why this path is easy to forget. The sheet paints its
+      // honest "⏳ Loading the record…" state, and this is where that state is
+      // redeemed. Only the sheet currently showing THIS member is repainted, and
+      // only when it is actually on screen; the whole block is guarded because an
+      // environment without a live DOM must not turn a warm event into an error.
+      try {
+        var gb = document.getElementById && document.getElementById('pdxc-gap-back');
+        if (_gapOpen && String(_gapOpen.pid) === String(pid) && gb && !gb.hidden) {
+          var gbody = gb.querySelector && gb.querySelector('.pdxgap-body');
+          if (gbody) gbody.innerHTML = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
+        }
+      } catch (eDos) {}
     });
   }
 
@@ -3047,13 +3299,20 @@
   // Nothing is dropped — the full detail is one tap away — and nothing is added.
   // Returns '' for a single-issue vote or an unloaded engine, exactly like the
   // sentence version, so a row degrades to what it rendered before.
-  function _orOmniBlockHtml(item, issueKey) {
+  //
+  // `opts` names the lane's nouns and nothing else. A president signs one law that
+  // lands on nine issues exactly as one roll call on it does, so the ✒️ lane needs
+  // this disclosure just as much — but "one vote" is a false sentence about a
+  // signature. Omitted → the congressional wording, unchanged to the byte.
+  function _orOmniBlockHtml(item, issueKey, opts) {
     if (!item || typeof window._measureOmnibusContext !== 'function') return '';
     var ctx;
     try {
       ctx = window._measureOmnibusContext(item, issueKey, {}, { labelFn: _issueLabel });
     } catch (e) { return ''; }
     if (!ctx) return ''; // single-issue vote — nothing to disclose
+    var kind = (opts && opts.kind) || 'bill';
+    var noun = (opts && opts.noun) || 'vote';
     var row = function (cls, ico, verb, list) {
       if (!list || !list.length) return '';
       return '<span class="pdxgap-om-row ' + cls + '">' +
@@ -3070,12 +3329,12 @@
     }).join('');
     var det = chips
       ? '<details class="pdxgap-om-all"><summary>The other ' + ctx.others.length +
-          ' issue' + (ctx.others.length === 1 ? '' : 's') + ' this one vote touched</summary>' +
+          ' issue' + (ctx.others.length === 1 ? '' : 's') + ' this one ' + noun + ' touched</summary>' +
           '<div class="pdxgap-om-chips">' + chips + '</div></details>'
       : '';
     return '<div class="pdxgap-om">' +
-      '<div class="pdxgap-om-h"><span aria-hidden="true">🧩</span> <span>Multi-issue bill — one vote, ' +
-        ctx.count + ' issues</span>' +
+      '<div class="pdxgap-om-h"><span aria-hidden="true">🧩</span> <span>Multi-issue ' + kind +
+        ' — one ' + noun + ', ' + ctx.count + ' issues</span>' +
         (ctx.splits ? '<span class="pdxgap-om-split">cuts both ways</span>' : '') + '</div>' +
       (rows ? '<div class="pdxgap-om-rows">' + rows + '</div>' : '') +
       det +
@@ -3611,6 +3870,7 @@
         var inline = (total && total <= 2) ? 2 : 1;
         var skin = _icSkin(s.key);
         return '<details class="pdxor-issue pdxor-row' + skin.cls + '" style="' + skin.style + '"' +
+            ' id="' + escAttr(orRowId(pid, s.key)) + '"' +
             ' data-pdxc-row="' + escAttr(s.key) + '"' +
             // The ranking foundation, carried on the element itself: tier, testability
             // and receipt depth. Nothing reads these yet — they are here so a later
@@ -3796,37 +4056,383 @@
   // thing on the page. The tension group is exempt — see blockOf.
   var _ST_LEAD_CAP = 6;
   function _stOpen(g) { return g.tiers.some(function (t) { return _ST_OPEN_TIERS[t]; }); }
-  function _stGo(target, label) {
-    var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
-    return '<button type="button" class="pdxst-go" onclick="if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
-      'else{var e=document.getElementById(\'' + t + '\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+
+  // ── WHAT THE RECORD CONCLUDED, ON THE ROW ───────────────────────────────────
+  // A stance row's job is to answer four questions in one glance: what they said,
+  // what the record concluded, how strong that conclusion is, and where to go next.
+  // Before this pass it answered the first and gestured at the second with a pastel
+  // chip — "◑ Mixed record · 7 receipts · strong" — which names a bucket without
+  // ever saying what was in it. Everything below turns the row's ALREADY-RESOLVED
+  // verdict into a stated result.
+  //
+  // NOTHING HERE SCORES. Every number is read off the row model:
+  //   • the percentage is r.verdict.score, which officialIssue() computed as
+  //     consistent ÷ (consistent + contradicts) over the judged items in whichever
+  //     lane decided the row — i.e. how often the formal record pointed the SAME
+  //     DIRECTION as the stated position. That is the same arithmetic and the same
+  //     name (⚖️ Word vs Action's FRAME.metric) as the profile's one score, applied
+  //     to one issue instead of pooled across all of them.
+  //   • the composition counts are the same consistent/contradicts pair the
+  //     percentage is a ratio of, printed rather than divided.
+  //   • the strength word is r.evidence.strength (_EV_STRENGTH), not a second
+  //     definition of thin.
+  //
+  // IT FAILS CLOSED. A percentage is printed only where the deciding lane returned
+  // one. `limited` — the engine saying it could not test the claim — prints an
+  // explicit "—" and the reason; an untested row prints "Not tested yet" and why.
+  // No row is ever given a result the engine did not reach.
+
+  // The countable noun for the record behind THIS row. A president signs actions
+  // and casts no votes; a member does the reverse. The row knows its own lane, so
+  // the executive-only vocabulary can never reach a member's surface.
+  function _stNoun(r) {
+    return (r && r.lane === 'exec')
+      ? { one: 'action', many: 'actions' }
+      : { one: 'vote', many: 'votes' };
+  }
+  // How many judged items pointed each way, from the lane that actually decided the
+  // row. Returns null when nothing directional was judged — the caller must not
+  // print a breakdown of a verdict no lane produced.
+  function _stSplit(r) {
+    if (!r || !r.verdict) return null;
+    var d = (r.verdict.basis === 'public_record')
+      ? { c: (r.public && r.public.supporting) || 0, x: (r.public && r.public.contradicting) || 0 }
+      : _rowDirection(r.ov);
+    if (!d || (d.c + d.x) <= 0) return null;
+    return { aligned: d.c, against: d.x, judged: d.c + d.x, basis: r.verdict.basis };
+  }
+  // The most contested standing among the executive actions behind this row, or
+  // null. Read off the row's own pool and rendered from PDXExecRecord.STANDING, so
+  // this surface cannot disagree with the Executive Enactment Record about where an
+  // order stands — and it is exec-only, because "blocked by a court" is not a thing
+  // that happens to a roll-call vote.
+  var _ST_STANDING_ORDER = ['struck_down', 'overridden', 'blocked', 'partly_blocked', 'rescinded',
+                            'challenged_unverified', 'superseded', 'expired'];
+  function _stStanding(r) {
+    try {
+      if (!r || r.lane !== 'exec') return null;
+      var E = window.PDXExecRecord;
+      if (!E || !E.STANDING) return null;
+      var pool = r.ov && (r.ov.execPool || r.ov.execHeld);
+      var items = (pool && pool.items) || [];
+      if (!items.length) return null;
+      for (var i = 0; i < _ST_STANDING_ORDER.length; i++) {
+        var key = _ST_STANDING_ORDER[i], n = 0;
+        for (var j = 0; j < items.length; j++) if (items[j].standing === key) n++;
+        if (n) {
+          var meta = E.STANDING[key];
+          if (meta && meta.contested) return { key: key, label: meta.label, ico: meta.ico, count: n };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  // The row's result, as data. One place decides what a row concluded, so the
+  // markup below and the tests both read the same answer.
+  function _stResult(r) {
+    var v = (r && r.verdict) || {};
+    var tok = v.token;
+    var pubBasis = (v.basis === 'public_record');
+    // ONE RESULT VOCABULARY. The word on this row is the word the issue index filed
+    // it under — Backed up, Mixed, Contradicted, Thin record — read from the module
+    // that publishes those four, not restated here. The row used to print the engine's
+    // long verdict label instead ("Backs it up" against the index's "Backed up"), which
+    // is two names for one finding on one profile. Falls back to the engine label if
+    // the vocabulary is unreachable, so the row still states a result either way.
+    var bucket = _dosBucket(r);
+    var word = (bucket && bucket.short) ? bucket.short : v.label;
+    // The metric's NAME travels with the lane that produced it. "Direction match"
+    // is ⚖️ Word vs Action's name for formal-record agreement and it is reserved for
+    // exactly that; a row the public record decided says so instead of borrowing a
+    // name for arithmetic it did not do.
+    var metric = pubBasis ? 'Public-record match' : 'Direction match';
+    if (r && r.tested && typeof v.score === 'number') {
+      return { state: 'tested', pct: v.score, metric: metric, label: word, ico: v.ico,
+               color: v.color, cls: v.cls, why: '', bucket: bucket };
+    }
+    if (tok === 'limited') {
+      // WHY it is thin, not just that it is. "Limited" covers two different
+      // situations and a reader can tell them apart instantly once they are named:
+      // a record that exists but never takes a side on this claim (the president's
+      // healthcare row — four actions, none of them for or against what he said),
+      // and a record with almost nothing in it. Printing "not enough record" over
+      // four actions reads as a contradiction of the line right below it.
+      var lim = _stSplit(r), lnoun = _stNoun(r);
+      var lwhy;
+      if (!lim) {
+        lwhy = (r.evidence.total > 0)
+          ? 'There is a record here, but none of it takes a clear side on this claim.'
+          : 'Nothing on record yet takes a side on this one.';
+      } else if (lim.judged === 1) {
+        lwhy = 'One ' + lnoun.one + ' is not enough to judge this one yet.';
+      } else {
+        lwhy = 'Not enough record to judge this one yet.';
+      }
+      return { state: 'thin', pct: null, metric: metric, label: word, ico: v.ico,
+               color: v.color, cls: v.cls, why: lwhy, bucket: bucket };
+    }
+    if (tok === 'pending') {
+      return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '⏳',
+               color: '#9fb4d4', cls: 'pending', why: 'Loading the record…', bucket: null };
+    }
+    var why = (tok === 'no_stance')
+      ? 'They have a record here, but no stated position to test it against.'
+      : 'Nothing formal on record for this issue yet.';
+    return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '—',
+             color: '#9fb4d4', cls: 'none', why: why, bucket: null };
+  }
+  // The result line: the number, what it is a percentage OF, and the outcome word.
+  function _stResultHtml(r, res) {
+    var n = _stNoun(r);
+    if (res.state === 'untested') {
+      return '<div class="pdxst-result pdxst-r-untested">' +
+          '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico + ' ' + res.label) + '</span>' +
+          '<span class="pdxst-why">' + esc(res.why) + '</span>' +
+        '</div>';
+    }
+    var split = _stSplit(r);
+    var scopeWord = (res.metric === 'Public-record match') ? 'public-record item' : n.one;
+    var tip = (res.state === 'tested')
+      ? res.metric + ' on this issue only: ' + res.pct + '% — ' +
+        (split ? split.aligned + ' of ' + split.judged + ' judged ' +
+          (split.judged === 1 ? scopeWord : scopeWord + 's') + ' pointed the same way as the position they state. '
+                : '') +
+        'Verdict: ' + res.label + '. This is one issue, not the profile score — that one is in Word vs Action.'
+      : res.why + ' No percentage is shown, because the record behind this row is too thin to divide.';
+    var num = (res.state === 'tested')
+      ? '<span class="pdxst-pct" style="color:' + res.color + '">' + res.pct + '%</span>'
+      : '<span class="pdxst-pct pdxst-pct-na" aria-label="No percentage — not enough record">—</span>';
+    return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
+        '<span class="pdxst-metric">' + esc(res.metric) + '</span>' +
+        '<span class="pdxst-scope">this issue</span>' +
+        num +
+        '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
+      '</div>' +
+      (res.state === 'thin' ? '<div class="pdxst-why">' + esc(res.why) + '</div>' : '');
+  }
+  // WHAT "MIXED" MEANT. Printed where the row actually carries tension — a split
+  // verdict, counter-evidence the deciding lane set aside, or an action whose
+  // standing is contested — and nowhere else, because a breakdown under a clean
+  // row is furniture.
+  function _stCompHtml(r, res) {
+    if (res.state === 'untested') return '';
+    var split = _stSplit(r);
+    var st = _stStanding(r);
+    var aside = r.setAside;
+    var tense = (r.verdict.token === 'mixed') || !!aside || !!st;
+    if (!tense || !split) return '';
+    var n = _stNoun(r);
+    var unit = (split.basis === 'public_record') ? 'public-record item' : n.one;
+    var parts = [
+      '<span class="pdxst-comp-for"><b>' + split.aligned + '</b> aligned</span>',
+      '<span class="pdxst-comp-against"><b>' + split.against + '</b> against</span>'
+    ];
+    if (aside && aside.count) {
+      var asideUnit = (aside.lane === 'public_record')
+        ? 'public receipt' + (aside.count === 1 ? '' : 's')
+        : (aside.count === 1 ? n.one : n.many);
+      parts.push('<span class="pdxst-comp-x"><b>' + aside.count + '</b> ' + esc(asideUnit) + ' the other way, set aside</span>');
+    }
+    if (st) {
+      parts.push('<span class="pdxst-comp-x">' + esc(st.ico + ' ' + st.count + ' ' +
+        (st.count === 1 ? n.one : n.many) + ' ' + st.label.toLowerCase()) + '</span>');
+    }
+    var tip = split.aligned + ' of ' + split.judged + ' judged ' +
+      (split.judged === 1 ? unit : unit + 's') + ' pointed the same way as their stated position; ' +
+      split.against + ' ran against it.' +
+      (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
+        aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
+      (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '');
+    return '<div class="pdxst-comp" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
+      parts.join('<span aria-hidden="true">·</span>') + '</div>';
+  }
+  // HOW MUCH IS BEHIND IT, in the row's own nouns. Kept on its own line rather than
+  // trailing the issue name, so the depth of a record is scannable down a column
+  // instead of hiding at the end of whatever the longest label happened to be.
+  function _stEvidenceHtml(r) {
+    var n = _stNoun(r), bits = [];
+    if (r.evidence.actions > 0) {
+      bits.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+    }
+    if (r.evidence.public > 0) {
+      bits.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
+    }
+    if (!bits.length) return '';
+    bits.push(r.evidence.strength + ' evidence');
+    return '<div class="pdxst-ev">' + esc(bits.join(' · ')) + '</div>';
+  }
+
+  // ── THE CONNECTIONS ─────────────────────────────────────────────────────────
+  // Each jump is offered only when there is something on the other end, and each
+  // one aims at THIS ISSUE rather than at the top of a section: a reader who taps
+  // "the record behind this" from Tariffs should land on the tariffs row, not on a
+  // heading with eleven rows under it. The precise target is a data attribute the
+  // delegated handler resolves at click time; `data-pdxst-target` is the section it
+  // falls back to when the exact row has not been painted (or exists only inside a
+  // fold that was never mounted).
+  function _stGo(kind, target, r, label) {
+    return '<button type="button" class="pdxst-go" data-pdxst-go="' + escAttr(kind) + '"' +
+      ' data-pdxst-target="' + escAttr(target) + '"' +
+      ' data-pdxst-pid="' + escAttr(r.pid) + '" data-pdxst-key="' + escAttr(r.key) + '">' +
       esc(label) + '</button>';
   }
+  // Stable ids for the rows this section points AT. Both are emitted by the section
+  // that owns the row (see _orInner and word-action.js), and both are built here so
+  // the two ends of a jump can never drift apart.
+  function _stSlug(v) { return String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, ''); }
+  function orRowId(pid, issueKey) { return 'pdxor-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+  function dvRowId(pid, issueKey) { return 'pdxdv-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+  function wordActionRowId(pid, issueKey) { return 'pdxwa-oc-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+  function stanceRowId(pid, issueKey) { return 'pdxst-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+
+  // Where each jump actually lands. The exact row first, the section it lives in as
+  // the fallback — a link that lands one screen off is still a link; a link that
+  // lands nowhere is a broken promise.
+  function _stTargets(kind, pid, key) {
+    if (kind === 'or') return [orRowId(pid, key)];
+    if (kind === 'wa') return [wordActionRowId(pid, key)];
+    if (kind === 'ev') {
+      var a = null;
+      try { if (typeof window._pdxEvAnchor === 'function') a = window._pdxEvAnchor(pid, key); } catch (e) {}
+      return a ? [a] : [];
+    }
+    return [];
+  }
+  function _stFocus(el) {
+    if (!el || !el.classList) return;
+    el.classList.add('pdxst-focus');
+    setTimeout(function () { try { el.classList.remove('pdxst-focus'); } catch (e) {} }, 1800);
+  }
+  function _stNav(kind, section, pid, key) {
+    // 🔍 leaves the profile entirely, for the same issue across everyone. The Issue
+    // View is an overlay that returns the reader to exactly where they were, so it
+    // needs no breadcrumb of ours.
+    if (kind === 'issue') {
+      try {
+        var IV = window.PDXIssueView;
+        if (IV && typeof IV.open === 'function') { IV.open(key); return; }
+      } catch (e) {}
+    }
+    var list = _stTargets(kind, pid, key);
+    var landed = '';
+    for (var i = 0; i < list.length && !landed; i++) {
+      // Mount first, ask second: the destination row may still be a deferred string
+      // inside a fold nobody has opened. Without the reveal, the exact-row link would
+      // silently degrade to the section link on every profile whose deep sections are
+      // still folded — which is all of them, on first read.
+      try { if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(list[i]); } catch (e) {}
+      if (document.getElementById(list[i])) landed = list[i];
+    }
+    var target = landed || section;
+    if (!target) return;
+    if (typeof window._pdxNavJump === 'function') window._pdxNavJump(target);
+    else { var el = document.getElementById(target); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    if (landed) setTimeout(function () { _stFocus(document.getElementById(landed)); }, 420);
+    // THE WAY BACK. Cross-navigation that only goes one way turns into scrolling by
+    // another name: a reader who follows three issues down into the Official Record
+    // has to find their place in the stance list three times. The pill offers the
+    // return trip explicitly, and takes itself down once they are home.
+    _stShowBack(pid, key);
+  }
+  var _stBackEl = null, _stBackWatch = false;
+  function _stShowBack(pid, key) {
+    try {
+      var origin = stanceRowId(pid, key);
+      if (!document.getElementById(origin) || !document.body) return;
+      if (!_stBackEl) {
+        _stBackEl = document.createElement('button');
+        _stBackEl.type = 'button';
+        _stBackEl.className = 'pdxst-back';
+        document.body.appendChild(_stBackEl);
+      }
+      _stBackEl.setAttribute('data-pdxst-back', origin);
+      _stBackEl.innerHTML = '↩ Back to ' + esc(_issueLabel(key));
+      _stBackEl.style.display = '';
+      if (!_stBackWatch) {
+        var body = document.getElementById('modal-body');
+        if (body && body.addEventListener) {
+          // Only latched once the listener is genuinely attached — the profile body
+          // is the scroller, and marking this done before it exists would leave the
+          // pill with no way to notice the reader had come back on their own.
+          _stBackWatch = true;
+          body.addEventListener('scroll', function () {
+            // Once the row they left is back on screen, the offer is noise.
+            if (!_stBackEl || _stBackEl.style.display === 'none') return;
+            var el = document.getElementById(_stBackEl.getAttribute('data-pdxst-back') || '');
+            if (!el || !el.getBoundingClientRect) return;
+            var r = el.getBoundingClientRect();
+            if (r.top < window.innerHeight && r.bottom > 0) _stHideBack();
+          }, { passive: true });
+        }
+      }
+    } catch (e) {}
+  }
+  function _stHideBack() { try { if (_stBackEl) _stBackEl.style.display = 'none'; } catch (e) {} }
+  // Down it goes if the row it offers to return to is no longer on the page.
+  function _stBackSweep() {
+    try {
+      if (!_stBackEl || _stBackEl.style.display === 'none') return;
+      if (!document.getElementById(_stBackEl.getAttribute('data-pdxst-back') || '')) _stHideBack();
+    } catch (e) {}
+  }
+  function _stBack(originId) {
+    _stHideBack();
+    if (!originId) return;
+    try { if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(originId); } catch (e) {}
+    if (typeof window._pdxNavJump === 'function') window._pdxNavJump(originId);
+    else { var el = document.getElementById(originId); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    setTimeout(function () { _stFocus(document.getElementById(originId)); }, 420);
+  }
+
   function _stRowHtml(r) {
     var txt = r.stance.text ? String(r.stance.text) : '';
     if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, '') + '…';
-    // The CONNECTIONS. Each one is offered only when there is something on the other
-    // end: a row with no tested outcome does not advertise the score, and a row with
-    // no formal action does not advertise the Official Record. A connection that
-    // lands on an empty section is worse than no connection.
+    var res = _stResult(r);
+    var n = _stNoun(r);
     var links = [];
-    if (r.tested) links.push(_stGo('pdxsec-wordaction', '⚖️ Where this lands in the score'));
-    if (r.evidence.actions > 0) links.push(_stGo('pdxsec-official-record',
-      (r.lane === 'exec' ? '🏛️ ' + r.evidence.actions + ' action' : '🏛️ ' + r.evidence.actions + ' vote') +
-      (r.evidence.actions === 1 ? '' : 's') + ' on record'));
-    if (r.evidence.public > 0) links.push(_stGo('pdxsec-evidence', '🧾 ' + r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's')));
-    var v = r.verdict;
+    // ⚖️ where this issue lands inside the one score. Offered on any row the score
+    // could see — tested rows and the thin ones it had to set aside — because "why
+    // is this issue not in the number" is the same question as "where is it".
+    if (r.tested || r.verdict.token === 'limited') {
+      links.push(_stGo('wa', 'pdxsec-wordaction', r, '⚖️ Where this lands in the score'));
+    }
+    // 🏛️ the SAME issue in the Official Record, not the top of it.
+    if (r.evidence.actions > 0 || r.scored) {
+      links.push(_stGo('or', 'pdxsec-official-record', r,
+        '🏛️ ' + r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record'));
+    }
+    if (r.evidence.public > 0) {
+      links.push(_stGo('ev', 'pdxsec-evidence', r,
+        '🧾 ' + r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's')));
+    }
     var skin = _icSkin(r.key);
+    // 🔍 the issue itself, across everyone — offered only for a key that resolves to
+    // a Core National Issue, because that is the only vocabulary the Issue View can
+    // rank, and a link into an empty ranking is worse than no link.
+    if (skin.on) links.push(_stGo('issue', '', r, '🔍 Everyone on this issue'));
     return '<div class="pdxst-row' + skin.cls + '" style="' + skin.style + '"' +
-        ' data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '">' +
+        ' id="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+        ' data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '"' +
+        ' data-pdxst-state="' + escAttr(res.state) + '">' +
         '<div class="pdxst-row-top">' +
-          '<span class="pdxst-lbl">' + _icDot(skin) + esc(r.label) + '</span>' +
+          // THE ISSUE NAME IS THE WAY IN. It was a label; it is now the row's primary
+          // tap, and it opens this issue's dossier — one panel holding everything
+          // known about this politician on this issue. The row keeps every link it
+          // had underneath: this adds the assembled view, it does not replace the
+          // jumps into the sections. The row id travels with the tap so closing the
+          // dossier returns the reader to this exact row.
+          '<button type="button" class="pdxst-lbl pdxst-open"' +
+            ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
+            ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+            ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance.label)) + '">' +
+            _icDot(skin) + esc(r.label) +
+            '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
+          '</button>' +
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
-          (v && v.token !== 'no_stance' && v.token !== 'no_record'
-            ? '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' : '') +
-          (r.evidence.total ? '<span class="pdxst-ev">' + r.evidence.total + ' receipt' +
-            (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength + '</span>' : '') +
         '</div>' +
+        _stResultHtml(r, res) +
+        _stCompHtml(r, res) +
+        _stEvidenceHtml(r) +
         (txt ? '<div class="pdxst-txt">' + esc(txt) + '</div>' : '') +
         (links.length ? '<div class="pdxst-links">' + links.join('') + '</div>' : '') +
       '</div>';
@@ -3840,7 +4446,22 @@
     if (!live.length) return '';
     var blockOf = function (g, cap) {
       var rows = [];
-      g.tiers.forEach(function (t) { (byTier[t] || []).forEach(function (r) { rows.push(_stRowHtml(r)); }); });
+      // "Tested — and the record backs it up" is the right heading for a row the
+      // record backed up. It was also, until now, the heading over every `limited`
+      // row: same tier, sorted to the end, no visible line between a verdict and a
+      // shrug. The divider draws that line without moving a row, so the fold maths
+      // below — and the lead cap it feeds — count exactly what they counted before.
+      var thinShown = false;
+      g.tiers.forEach(function (t) {
+        (byTier[t] || []).forEach(function (r) {
+          var html = _stRowHtml(r);
+          if (!thinShown && r.verdict && r.verdict.token === 'limited') {
+            thinShown = true;
+            html = '<div class="pdxst-sub">Too thin to judge yet</div>' + html;
+          }
+          rows.push(html);
+        });
+      });
       var body = rows.join('');
       // A LEAD IS A LEAD, NOT A LIST. The open groups are tension first, then the
       // issues the record backs up, and on a densely-seeded figure the second one
@@ -3865,7 +4486,9 @@
       '<div class="pdxst-head"><span class="pdxst-title"><span aria-hidden="true">🧭</span> Stances &amp; Connections</span>' +
         LHOWTO('say-vs-do', 'How to read this') + '</div>' +
       '<div class="pdxst-q">“What do they stand for — and does anything actually test it?”</div>' +
-      _feedsPrimaryHtml('The map of what they claim, ranked so the claims something can check come first. It publishes no number: each row shows the one verdict the score already reached for that issue.');
+      _feedsPrimaryHtml('The map of what they claim, ranked so the claims something can check come first. ' +
+        'Each row states what the record concluded on THAT issue, and how much of that issue\'s record pointed the same way as the position. ' +
+        'These are issue-level results, one issue at a time — the profile\'s single score is the pooled one in ⚖️ Word vs Action.');
     // Explicit wrappers, not .map(blockOf): Array#map passes the index as the second
     // argument, which would arrive as `cap` and fold whichever group happened to sit
     // at a non-zero position.
@@ -3889,6 +4512,9 @@
   }
   function stancesSectionHtml(pid) {
     ensureStyles();
+    // The rows carry delegated jump buttons now, so the section has to arm the one
+    // click listener the same way every other interactive section here does.
+    bindGateway();
     if (!pid) return '';
     var inner = _stInner(pid);
     if (!inner) return '';
@@ -4078,10 +4704,17 @@
   //   15 < |gap| ≤ 35       → Mixed     (mostly lines up, some daylight)
   //   |gap| > 35            → Diverges  (different stories — the tell)
   var DIV_ALIGN_MAX = 15, DIV_MIXED_MAX = 35;
+  // THE TWO RECORDS' RELATIONSHIP TO EACH OTHER — a different question from any issue
+  // result, and now worded so it cannot be mistaken for one. The middle band was
+  // labelled "Mixed", which is one of the four words the issue index uses for a
+  // RESULT; on a divergence row that sits beside a door reading "Backed up", the same
+  // reader met one word meaning two things. These three say what they measure — how
+  // far apart the vote record and the public record sit — and nothing about whether
+  // either backed the word. Keys, thresholds and colours are untouched.
   var DIV_REL = {
-    aligned:  { key: 'aligned',  label: 'Aligned',  ico: '=', color: '#6ee7a0', blurb: 'Their votes and their public record tell the same story here.' },
-    mixed:    { key: 'mixed',    label: 'Mixed',    ico: '≈', color: '#93c5fd', blurb: 'Their votes and public record mostly line up, with some daylight.' },
-    diverges: { key: 'diverges', label: 'Diverges', ico: '≠', color: '#f5c842', blurb: 'Their votes and their public record tell different stories here.' }
+    aligned:  { key: 'aligned',  label: 'Same story',   ico: '=', color: '#6ee7a0', blurb: 'Their votes and their public record tell the same story here.' },
+    mixed:    { key: 'mixed',    label: 'Some daylight', ico: '≈', color: '#93c5fd', blurb: 'Their votes and public record mostly line up, with some daylight.' },
+    diverges: { key: 'diverges', label: 'Different stories', ico: '≠', color: '#f5c842', blurb: 'Their votes and their public record tell different stories here.' }
   };
   function divRel(gap) {
     var g = Math.abs(gap);
@@ -4127,9 +4760,16 @@
   }
   function _divRow(p, pid) {
     var rel = divRel(p.gap), dir = _divDir(p.gap), g = Math.abs(p.gap);
-    // Diverging & mixed rows are the tell — make them tappable to open the focused
-    // gap view. Aligned rows have no gap to explain, so they stay static.
-    var actionable = (rel.key === 'diverges' || rel.key === 'mixed');
+    // EVERY ROW IS THE SAME DOOR. Only diverging and mixed rows used to be tappable —
+    // "aligned rows have no gap to explain" — but the destination is not an explanation
+    // of the gap, it is the issue's assembled record, and a reader who wants that on an
+    // aligned issue was the one reader this list refused. The gate is now the only
+    // honest one: does a dossier resolve for this issue at all.
+    //   The relationship chip stays in ITS own vocabulary. Aligned / Mixed / Diverges
+    // answers "do the two records agree with each other", which is a different question
+    // from "did the record back the word" — the bucket word is carried on the door
+    // instead, so the two never sit side by side pretending to be the same claim.
+    var o = _bucketAt(pid, p.key);
     var skin = _icSkin(p.key);
     var body =
         '<div class="pdxdv-row-lbl">' + _icDot(skin) + esc(_issueLabel(p.key)) + '</div>' +
@@ -4148,13 +4788,17 @@
           _divRelChip(rel) +
           (g > DIV_ALIGN_MAX ? '<span class="pdxdv-gap">' + g + ' pt gap' + (dir ? ' · ' + dir : '') + '</span>' : '') +
         '</div>';
-    if (actionable) {
+    if (o) {
       return '<button type="button" class="pdxdv-row pdxdv-row-tap' + skin.cls + '" style="' + skin.style + '"' +
+          ' id="' + escAttr(dvRowId(pid, p.key)) + '"' +
           ' data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-          ' aria-label="' + esc('See the ' + (p.off.lane === 'exec' ? 'actions' : 'votes') + ' and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
-          body + '<span class="pdxdv-row-why">See what’s behind the gap <span aria-hidden="true">→</span></span></button>';
+          ' data-pdxc-gap-origin="' + escAttr(dvRowId(pid, p.key)) + '"' +
+          ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(p.key), o, '')) + '">' +
+          body + '<span class="pdxdv-row-why">' + esc(o.short) +
+          ' — open the issue dossier <span aria-hidden="true">→</span></span></button>';
     }
-    return '<div class="pdxdv-row' + skin.cls + '" style="' + skin.style + '">' + body + '</div>';
+    return '<div class="pdxdv-row' + skin.cls + '" style="' + skin.style + '"' +
+      ' id="' + escAttr(dvRowId(pid, p.key)) + '">' + body + '</div>';
   }
   function _dvInner(pid) {
     var d = divergenceData(pid);
@@ -4202,9 +4846,11 @@
     }
 
     var c = d.counts, chips = [];
-    if (c.aligned) chips.push('<b style="color:' + DIV_REL.aligned.color + '">' + c.aligned + '</b> aligned');
-    if (c.mixed) chips.push('<b style="color:' + DIV_REL.mixed.color + '">' + c.mixed + '</b> mixed');
-    if (c.diverges) chips.push('<b style="color:' + DIV_REL.diverges.color + '">' + c.diverges + '</b> diverging');
+    // Counted in the same words the row chips use, so the tally and the rows below it
+    // cannot read as two different classifications of the same issues.
+    if (c.aligned) chips.push('<b style="color:' + DIV_REL.aligned.color + '">' + c.aligned + '</b> telling the same story');
+    if (c.mixed) chips.push('<b style="color:' + DIV_REL.mixed.color + '">' + c.mixed + '</b> with some daylight');
+    if (c.diverges) chips.push('<b style="color:' + DIV_REL.diverges.color + '">' + c.diverges + '</b> telling different stories');
     var tally = chips.length
       ? '<div class="pdxdv-tally">Across ' + d.both.length + ' issue' + (d.both.length === 1 ? '' : 's') + ' on both records: ' + chips.join(' · ') + '.</div>'
       : '';
@@ -4338,12 +4984,509 @@
       (bits.length ? '<span>' + bits.join(' · ') + '</span>' : '') + party + '</div>';
   }
 
+  // ══ THE ISSUE DOSSIER ═══════════════════════════════════════════════════════
+  // One issue, one assembled place. A reader who taps a stance row lands here and
+  // everything PolitiDex knows about THIS politician on THAT issue is in this one
+  // panel — but arranged so they meet it a level at a time, in the direction they
+  // choose, instead of as a wall.
+  //
+  //   L1  The assembled answer, open.       What they said · what the record
+  //       concluded · which lane decided it · how much is behind it · what was
+  //       set aside · where it lands in the profile score.
+  //   L2  The instruments, closed.          Every vote or action on this issue —
+  //       identity, direction, standing, one line of why it counts.
+  //   L3  One instrument, closed.           Its mechanism, its primary source, how
+  //       much of the document the link rests on, and what else it touched.
+  //   L4  The receipt, closed inside L3.    The curation rationale, in full.
+  //
+  // Each level answers a DIFFERENT question. L2 is not "L1 again with more rows":
+  // L1 is a conclusion and L2 is an enumeration. L3 is not "L2 with longer text":
+  // L2 says which instrument, L3 says how it works. That is the test a new line has
+  // to pass before it earns a place at any level.
+  //
+  // Two things this deliberately does NOT do. It mints no second score — every
+  // verdict, percentage, tally and standing shown here is read off the row model
+  // and the lane engines that already produced them. And it does not pretend the
+  // two lanes are the same depth: an executive document carries a curated
+  // per-issue explanation, a standing and a rationale, and a roll call carries the
+  // question and the vote. The congressional lane is reported thin, not padded.
+
+  // Why a held executive action is not scored, in the reader's language. Held record
+  // is real, sourced record — listing it with its reason is how a thin issue explains
+  // itself instead of merely looking empty.
+  var _DOS_HOLD = {
+    unmapped_direction: 'Not scored: which way this document cuts on this issue could not be read cleanly, and a mapping that cannot be read is coverage, never a guess.',
+    no_standing: 'Not scored: where this stands today is not verified. An action whose standing is unknown cannot carry a verdict — it can still be listed.',
+    circular: 'Not scored: this document is the same statement the stated position was taken from, so scoring it would check a claim against itself.'
+  };
+  function _dosMapping(item, issueKey) {
+    var all = (item && item.issues) || [];
+    for (var i = 0; i < all.length; i++) if (all[i] && all[i].issueKey === issueKey) return all[i];
+    return null;
+  }
+  // The narrow-link threshold is the ✒️ section's, read from it rather than copied,
+  // so the two surfaces cannot disagree about how much of a document a claim rests on.
+  function _dosNarrowAt() {
+    try {
+      var U = window.PDXExecRecordUI;
+      if (U && typeof U.NARROW_AT === 'number') return U.NARROW_AT;
+    } catch (e) {}
+    return 45;
+  }
+  function _dosStanding(key) {
+    try {
+      var S = window.PDXExecRecord && window.PDXExecRecord.STANDING, d = S && S[key];
+      if (d) return { key: key, label: d.label || '', ico: d.ico || '', contested: !!d.contested, why: d.short || '' };
+    } catch (e) {}
+    return null;
+  }
+  function _dosPower(actionClass) {
+    try {
+      var C = window.PDXExecRecord && window.PDXExecRecord.CLASSES, d = C && C[actionClass];
+      if (d) return { verb: d.verb || '', label: d.label || '', sole: d.authorship === 'sole' };
+    } catch (e) {}
+    return null;
+  }
+  function _dosMulti(d) {
+    try { return !!(d && d.item && d.item.issues && d.item.issues.length > 1); } catch (e) { return false; }
+  }
+
+  // ── L2's data ───────────────────────────────────────────────────────────────
+  // One normalised entry per instrument behind this issue — DATA, no markup — so the
+  // summary rows, the lazily-mounted detail and the tests all read one list. Lane
+  // precedence matches officialIssue()'s: a scorable executive pool answers for the
+  // ✒️ lane, otherwise the roll-call record, otherwise migrated curated actions.
+  // Held executive record is appended in every case, because a filter that hides its
+  // own exclusions makes a partial record look complete.
+  function _dosItems(pid, issueKey, ov) {
+    ov = ov || officialIssue(pid, issueKey);
+    var out = [], narrowAt = _dosNarrowAt();
+    var pool = ov.execPool || ov.execHeld || null;
+    var withMapping = function (item, base) {
+      var m = _dosMapping(item, issueKey);
+      base.primary = m ? !!m.isPrimary : null;
+      base.narrow = !!(m && typeof m.weight === 'number' && m.weight <= narrowAt);
+      base.item = item;
+      base.multi = !!(item && item.issues && item.issues.length > 1);
+      return base;
+    };
+    if (pool && pool.items && pool.items.length) {
+      var xStance = positionStance(pid, issueKey);
+      pool.items.forEach(function (it) {
+        var m = _dosMapping(it, issueKey);
+        // Which way the DOCUMENT cuts on this issue. The mapping describes the
+        // measure and `advanceInverted` is the correction a blocking class (a veto)
+        // needs — the same field the shared summariser applies, read here rather
+        // than re-derived, so a veto cannot read one way in the ledger and the
+        // other way in the dossier.
+        var adv = m ? (m.supportMeaning !== 'yea_opposes') : null;
+        if (adv !== null && it.advanceInverted) adv = !adv;
+        out.push(withMapping(it, {
+          lane: 'exec',
+          verdict: _orItemVerdict(it, issueKey, xStance),
+          held: '', heldWhy: '',
+          ident: it.documentId || it.measureNumber || it.title || 'Executive action',
+          title: it.title || '',
+          act: (_dosPower(it.actionClass) || {}).verb || '',
+          question: '',
+          date: it.date || '',
+          standing: _dosStanding(it.standing),
+          power: _dosPower(it.actionClass),
+          effect: (adv === null) ? '' : (adv ? 'advances' : 'opposes'),
+          plain: it.plain || '',
+          rationale: (m && m.rationale) || '',
+          url: it.sourceUrl || '', srcLabel: it.sourceLabel || 'Primary source'
+        }));
+      });
+    } else if (ov.record) {
+      _orProofPicks(pid, issueKey, ov).forEach(function (p) {
+        var b = _orProofBits(p.item) || {};
+        out.push(withMapping(p.item, {
+          lane: 'record',
+          verdict: p.verdict,
+          held: '', heldWhy: '',
+          ident: b.bill || b.title || (b.isPosition ? 'Formal action' : 'Recorded vote'),
+          title: p.item.title || p.item.shortTitle || '',
+          act: b.act || '', question: b.question || '',
+          date: b.date || '',
+          standing: null, power: null, effect: '',
+          plain: '', rationale: '',
+          url: b.url || '', srcLabel: b.label || 'Congress.gov',
+          voteKey: _orVoteKey(p.item)
+        }));
+      });
+    } else if (ov.officialActions && ov.officialActions.items) {
+      ov.officialActions.items.forEach(function (a) {
+        out.push(withMapping(a, {
+          lane: 'formal',
+          verdict: a.verdict || 'limited',
+          held: '', heldWhy: '',
+          ident: a.headline || 'Formal action',
+          title: '', act: '', question: '',
+          date: a.date || '',
+          standing: null, power: null, effect: '',
+          plain: '', rationale: '',
+          url: a.sourceUrl || '', srcLabel: a.sourceLabel || 'Source'
+        }));
+      });
+    }
+    if (pool && pool.held && pool.held.length) {
+      pool.held.forEach(function (h) {
+        out.push({
+          lane: 'exec',
+          verdict: '', held: h.reason || 'held',
+          heldWhy: _DOS_HOLD[h.reason] ||
+            'Not scored: this document could not be judged against the stated position.',
+          ident: h.documentId || h.title || 'Executive action',
+          title: h.title || '',
+          act: (_dosPower(h.actionClass) || {}).verb || '',
+          question: '', date: h.date || '',
+          standing: null, power: _dosPower(h.actionClass), effect: '',
+          plain: h.plain || '', rationale: '',
+          url: h.sourceUrl || '', srcLabel: h.sourceLabel || 'Primary source',
+          primary: null, narrow: false, multi: false, item: h.action || null
+        });
+      });
+    }
+    return out;
+  }
+
+  // ── L2 — one summary row per instrument ─────────────────────────────────────
+  // Identity, what they did, which way that landed on this issue, where it stands,
+  // and one line of why it counts. No percentage: a per-item weight printed as a
+  // number reads as a second score, and "primary / supporting / narrow link" is the
+  // same fact in the vocabulary the ✒️ section already uses.
+  function _dosRowHtml(d, i, pid, issueKey) {
+    var v = d.held ? null : (VERDICTS[d.verdict] || VERDICTS.limited);
+    var head =
+      (v ? '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>'
+         : '<span class="pdxdos-rec-ico pdxdos-rec-hold" aria-hidden="true">⊘</span>') +
+      '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
+      (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
+      (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
+      (v ? '<span class="pdxdos-rec-vd" style="color:' + v.color + '">' + esc(v.label) + '</span>'
+         : '<span class="pdxdos-rec-vd pdxdos-rec-hold">Not scored</span>') +
+      (d.standing ? '<span class="pdxdos-rec-st">' + esc(d.standing.ico + ' ' + d.standing.label) + '</span>' : '') +
+      (d.multi ? '<span class="pdxdos-rec-tag">🧩 ' + d.item.issues.length + ' issues</span>' : '') +
+      (d.date ? '<span class="pdxdos-rec-st">' + esc(d.date) + '</span>' : '');
+    // WHY IT COUNTS, in one plain line. Fails closed: the ✒️ lane curates this
+    // sentence per (document, issue) pair and the 🏛️ lane does not, so a roll call
+    // shows no sentence rather than a manufactured one.
+    var why = d.held
+      ? '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>'
+      : (d.plain ? '<span class="pdxdos-rec-why">' + esc(d.plain) + '</span>' : '');
+    return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
+        ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
+        '<summary>' + head + why + '</summary>' +
+        // Empty on purpose. The body is built the first time this row is opened —
+        // see _dosMount. Nothing below L2 costs anything until it is asked for.
+        '<div class="pdxdos-rec-b" data-pdxdos-body="1"></div>' +
+      '</details>';
+  }
+
+  // ── L3 (+ L4) — one instrument, expanded ────────────────────────────────────
+  // Built on demand from the same normalised list, so this is a pure function of
+  // (pid, issue, index) and can be re-derived after a warm repaint without holding
+  // any state. Returns '' for an index that no longer exists.
+  function _dosDetailHtml(pid, issueKey, idx, items) {
+    items = items || _dosItems(pid, issueKey);
+    var d = items[idx];
+    if (!d) return '';
+    var lbl = _issueLabel(issueKey);
+    var out = [];
+    if (d.title && d.title !== d.ident) out.push('<div class="pdxdos-d"><b>' + esc(d.title) + '</b></div>');
+    if (d.held) {
+      out.push('<div class="pdxdos-d pdxdos-rec-hold">' + esc(d.heldWhy) + '</div>');
+    }
+    // ── the mechanism, in this lane's own terms ──────────────────────────────
+    if (d.lane === 'exec') {
+      if (d.power && d.power.verb) {
+        out.push('<div class="pdxdos-d">' + esc(d.power.verb) +
+          (d.power.sole
+            ? ' — an instrument this office issues on its own authority.'
+            : ' — an instrument that needed Congress as well as this office.') +
+          '</div>');
+      }
+      if (d.effect) {
+        out.push('<div class="pdxdos-d">On <b>' + esc(lbl) + '</b> this document <b>' +
+          (d.effect === 'advances' ? 'advances' : 'cuts against') + '</b> the issue.</div>');
+      }
+      if (d.standing) {
+        out.push('<div class="pdxdos-d">Where it stands today: <b>' +
+          esc(d.standing.ico + ' ' + d.standing.label) + '</b>. ' +
+          esc(d.standing.why || 'Standing is a separate question from direction — it says whether the action held, not which way it went.') +
+          '</div>');
+      }
+      if (d.plain) out.push('<div class="pdxdos-d">' + esc(d.plain) + '</div>');
+    } else if (d.lane === 'record') {
+      // A roll call carries the question and the ballot, and no curated per-issue
+      // sentence — so it gets the question and the ballot. Padding this to match the
+      // ✒️ lane's depth would be inventing detail the record does not have.
+      var recBits = [];
+      if (d.question) {
+        recBits.push('The question on the floor: <b>' + esc(d.question) + '</b>');
+        if (d.act) recBits.push('They ' + esc(String(d.act).toLowerCase()));
+      } else if (d.act) {
+        recBits.push(esc(d.act));
+      }
+      if (recBits.length) out.push('<div class="pdxdos-d">' + recBits.join('. ') + '.</div>');
+    }
+    // How much of the document this issue's link actually rests on. Words, not a
+    // weight — see _dosRowHtml.
+    var tags = [];
+    if (d.primary === true) tags.push('<span class="pdxdos-tag pdxdos-tag-p">primary link</span>');
+    else if (d.primary === false) tags.push('<span class="pdxdos-tag">supporting link</span>');
+    if (d.narrow) tags.push('<span class="pdxdos-tag pdxdos-tag-n">narrow link</span>');
+    if (tags.length) out.push('<div class="pdxdos-tags">' + tags.join('') + '</div>');
+    // The primary source, always, whenever there is one.
+    if (d.url) {
+      out.push('<a class="pdxdos-src" href="' + esc(d.url) + '" target="_blank" rel="noopener">' +
+        esc(d.srcLabel || 'Source') + ' ↗</a>');
+    }
+    // The same roll call inside the full Voting Record — the congressional lane's
+    // own deeper surface, reached the way every other proof line reaches it.
+    if (d.lane === 'record' && d.voteKey) {
+      out.push('<div><button type="button" class="pdxdos-src"' +
+        ' data-pdxc-vrvote="' + escAttr(d.voteKey) + '"' +
+        ' data-pdxc-vrissue="' + escAttr(issueKey) + '">Open this vote in the full record →</button></div>');
+    }
+    // What else the same instrument touched. Same measurement as everywhere else,
+    // in this lane's nouns.
+    var rel = d.item
+      ? (d.lane === 'exec'
+          ? _orOmniBlockHtml(d.item, issueKey, { kind: 'action', noun: _EXEC_OMNI_NOUN[d.item.actionClass] || 'action' })
+          : _orOmniBlockHtml(d.item, issueKey))
+      : '';
+    if (rel) out.push('<div class="pdxdos-rel">' + rel + '</div>');
+    // ── L4 — the receipt itself ──────────────────────────────────────────────
+    // The curation rationale quotes the sections the mapping rests on. It is a
+    // paragraph written for whoever audits the mapping, and it belongs exactly
+    // here: available to anyone who wants it, in front of nobody who does not.
+    if (d.rationale && d.rationale !== d.plain) {
+      out.push('<details class="pdxdos-fine"><summary>What the document actually says ▾</summary>' +
+        '<div class="pdxdos-fine-b">' + esc(d.rationale) + '</div></details>');
+    }
+    return out.join('');
+  }
+
+  // Fill one L2 row's body the first time it is opened. Called from the delegated
+  // click listener WITHOUT preventDefault, so the browser still owns the toggle.
+  function _dosMount(el) {
+    try {
+      if (!el || !el.querySelector) return;
+      var body = el.querySelector('[data-pdxdos-body]');
+      if (!body || body.innerHTML) return;
+      var pid = el.getAttribute('data-pdxdos-pid') || '';
+      var key = el.getAttribute('data-pdxdos-key') || '';
+      var idx = parseInt(el.getAttribute('data-pdxdos-i') || '', 10);
+      if (!pid || !key || isNaN(idx)) return;
+      body.innerHTML = _dosDetailHtml(pid, key, idx) ||
+        '<div class="pdxdos-note">This record has nothing further on file.</div>';
+    } catch (e) {}
+  }
+
+  // ── L2 — the group ──────────────────────────────────────────────────────────
+  // Closed by default, with the count in the summary: the depth of the record is
+  // readable without opening anything, which is the one thing this level owes a
+  // reader who does not open it.
+  function _dosRecordsHtml(pid, issueKey, r, ov) {
+    var n = _stNoun(r), items = _dosItems(pid, issueKey, ov);
+    if (!items.length) {
+      var empty = (ov.token === 'pending')
+        ? '⏳ Loading the record… this member\'s votes arrive after the profile does, and this list fills in when they land.'
+        : (ov.lane === 'exec'
+            ? 'No qualifying executive action on this issue is on file yet.'
+            : 'No qualifying ' + n.many + ' on this issue are on file yet.');
+      return '<div class="pdxdos-recs" data-pdxdos-empty="1">' +
+        '<div class="pdxdos-empty">' + esc(empty) + '</div></div>';
+    }
+    var scored = 0, held = 0;
+    items.forEach(function (d) { if (d.held) held++; else scored++; });
+    var sum = items.length + ' ' + (items.length === 1 ? n.one : n.many) + ' on this issue' +
+      (held ? ' — ' + held + ' of them not scorable' : '');
+    // The lane asymmetry, stated once rather than papered over row by row.
+    var note = (items[0] && items[0].lane === 'record')
+      ? '<div class="pdxdos-note">A roll call carries its question, its ballot and its source. It does not ' +
+        'carry a written explanation the way an executive document does — so these rows are shorter, ' +
+        'and nothing has been added to make them look the same.</div>'
+      : '';
+    return '<details class="pdxdos-recs">' +
+        '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
+          ' <span aria-hidden="true">▾</span></summary>' +
+        items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey); }).join('') +
+        note +
+      '</details>';
+  }
+
+  // Is the profile actually on the page behind this sheet? A dossier opened from a
+  // stance row can offer the jump into ⚖️ Word vs Action; one opened from a shared
+  // #record= link is floating over whatever page the app happened to be on, and a
+  // button that scrolls to a section that is not there is a broken promise.
+  function _dosTargetLive(id) {
+    try { if (document.getElementById && document.getElementById(id)) return true; } catch (e) {}
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.hasTarget === 'function') return !!SP.hasTarget(id);
+    } catch (e) {}
+    return false;
+  }
+
+  // ── THE BUCKET THE INDEX FILED THIS ROW UNDER ───────────────────────────────
+  // The issue index in ⚖️ Word vs Action sorts every issue into one of four result
+  // buckets and names each one in a short, fixed vocabulary — Contradicted, Mixed,
+  // Backed up, Thin record. A reader who tapped a row got here from inside one of
+  // those buckets, and this line is what tells them the sheet they landed on is the
+  // same finding at greater depth rather than a different reading of it.
+  //
+  // FAIL CLOSED, TWO WAYS. The vocabulary is read from PDXWordAction, which owns it;
+  // if that module is not loaded this prints nothing rather than inventing a second
+  // set of words for the same four outcomes. And a verdict with no bucket — pending,
+  // no record, nothing stated — prints nothing either, because it was never in the
+  // index to be filed anywhere. No percentage: the bucket is a name, not a score.
+  function _dosBucket(r) {
+    var tok = r && r.verdict && r.verdict.token;
+    if (!tok) return null;
+    try {
+      var WA = window.PDXWordAction;
+      if (!WA) return null;
+      if (typeof WA.outcomeFor === 'function') return WA.outcomeFor(tok) || null;
+      var list = WA.OUTCOMES || [];
+      for (var i = 0; i < list.length; i++) if (list[i].token === tok) return list[i];
+    } catch (e) {}
+    return null;
+  }
+  function _dosBucketHtml(r) {
+    var o = _dosBucket(r);
+    if (!o) return '';
+    return '<div class="pdxdos-bucket" style="--c:' + o.col + ';">' +
+        '<span class="pdxdos-bucket-k">In the issue index</span>' +
+        '<span class="pdxdos-bucket-v">' + esc(o.short) + '</span>' +
+        (o.sub ? '<span class="pdxdos-bucket-s">' + esc(o.sub) + '</span>' : '') +
+      '</div>';
+  }
+  // The same lookup from OUTSIDE the sheet. Every surface on the profile that shows a
+  // reader an issue result asks exactly this question — which of the four buckets is
+  // this — so no surface has to keep its own copy of the four words, and none of them
+  // can drift from the index. A key that resolves to no bucket returns null in all of
+  // them, which is what stops a door being drawn over nothing.
+  function _bucketAt(pid, issueKey) {
+    if (!pid || !issueKey) return null;
+    try { return _dosBucket(issueRow(pid, issueKey)); } catch (e) { return null; }
+  }
+  // ONE ACCESSIBLE NAME FOR ONE DOOR. Read aloud identically in the issue index, on a
+  // stance row, inside an Official Record row and in the divergence list, because in
+  // all four places it is the same destination carrying the same finding.
+  function _dosDoorLabel(label, o, said) {
+    return 'Open the issue dossier: ' + String(label == null ? '' : label) +
+      (o ? ' — ' + o.short : '') + (said ? ' · they said: ' + said : '');
+  }
+
+  // ── L1 — the assembled answer ───────────────────────────────────────────────
+  // Open by default, and the only level that is. Everything here is read off the
+  // row model: no arithmetic happens in this function. It prints NO percentage —
+  // the sheet's one number lives in the header hero, and a second copy of it here
+  // would read as a second score.
+  function _dosSummaryHtml(pid, issueKey, r) {
+    r = r || issueRow(pid, issueKey);
+    var res = _stResult(r), n = _stNoun(r), lines = [];
+    // WHAT THEY SAID. The chip in the header carries the position; this carries
+    // their own words, which is the thing the record is about to be checked against.
+    var said = r.stance.text ? String(r.stance.text) : '';
+    if (said.length > 320) said = said.slice(0, 317).replace(/\s+\S*$/, '') + '…';
+    if (said || r.stance.label) {
+      lines.push('<div class="pdxdos-line"><span class="pdxdos-k">They said</span>' +
+        '<span class="pdxdos-v">' + esc(said || r.stance.label) + '</span></div>');
+    }
+    // WHAT THE RECORD CONCLUDED, and WHICH LANE concluded it. One verdict per
+    // issue, resolved once — this reprints it, it does not re-decide it.
+    var lane = (r.verdict.basis === 'public_record')
+      ? 'Decided by the public record — statements, news and controversies — because no formal ' +
+        n.one + ' on this issue could settle it.'
+      : (r.verdict.basis === 'action')
+        ? 'Decided by the formal record: ' + (r.actions.judged || r.evidence.actions) + ' judged ' +
+          ((r.actions.judged || r.evidence.actions) === 1 ? n.one : n.many) + ' on this issue.'
+        : 'No lane has been able to decide this one yet.';
+    lines.push('<div class="pdxdos-line"><span class="pdxdos-k">The record</span>' +
+      '<span class="pdxdos-v pdxdos-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
+      '</div>' +
+      '<div class="pdxdos-lane">' + esc(lane) + '</div>');
+    // COMPOSITION and DEPTH, borrowed verbatim from the stance row. Composition
+    // prints only where the row genuinely carries tension — a split verdict,
+    // counter-evidence the deciding lane set aside, or a contested standing.
+    var comp = _stCompHtml(r, res);
+    var ev = _stEvidenceHtml(r);
+    // THE COVERAGE CAVEAT, when there is one to make. Thin and untested rows say
+    // why; a tested row resting on one or two items says that the direction is real
+    // and the pattern is not established. Nothing here softens a verdict — it says
+    // how far the verdict reaches.
+    var caveat = '';
+    if (res.state !== 'tested' && res.why) caveat = res.why;
+    else if (res.state === 'tested' && r.evidence.total <= 2) {
+      caveat = 'This rests on ' + r.evidence.total + ' item' + (r.evidence.total === 1 ? '' : 's') +
+        '. The direction is real; a pattern is not established at that depth.';
+    }
+    // WHERE THIS LANDS IN THE SCORE. The profile's headline figure is the pooled
+    // ⚖️ Direction match and this issue is one input to it — said outright, so a
+    // reader never reads an issue result as the profile's.
+    var score;
+    if (res.state === 'tested') {
+      score = 'This issue is one input to the profile’s pooled ⚖️ ' + res.metric +
+        ', weighted by how many judged ' + n.many + ' sit behind it. The headline figure on the ' +
+        'profile is that pooled number, never this one issue.';
+    } else if (res.state === 'thin') {
+      score = 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
+        ' rather than counted as agreement — a row too thin to divide is disclosed, not scored.';
+    } else {
+      score = 'Not in the profile’s pooled score: there is nothing here to test yet.';
+    }
+    var jump = _dosTargetLive('pdxsec-wordaction')
+      ? _stGo('wa', 'pdxsec-wordaction', r, '⚖️ Where this lands in the score')
+      : '';
+    return '<div class="pdxdos">' +
+        '<div class="pdxdos-h">The short version</div>' +
+        lines.join('') +
+        comp + ev +
+        (caveat ? '<div class="pdxdos-caveat">⚠ ' + esc(caveat) + '</div>' : '') +
+        '<div class="pdxdos-score">' + esc(score) + (jump ? '<br>' + jump : '') + '</div>' +
+      '</div>';
+  }
+
+  // Step to the next / previous issue WITHOUT leaving the dossier. Ranked by the
+  // same ordering the stance list uses, so "next" here means the same thing it
+  // means there. Reuses the sheet's own [data-pdxc-gap] route, so a step is just
+  // another dossier open — no second navigation path to keep in sync.
+  function _dosStepHtml(pid, issueKey) {
+    var ranked = [];
+    try { ranked = rankIssueRows(issueRows(pid)) || []; } catch (e) { ranked = []; }
+    if (ranked.length < 2) return '';
+    var at = -1;
+    for (var i = 0; i < ranked.length; i++) if (ranked[i].key === issueKey) { at = i; break; }
+    if (at < 0) return '';
+    var btn = function (row, dir) {
+      if (!row) return '';
+      return '<button type="button" class="pdxdos-stepb" data-pdxc-gap="' + escAttr(row.key) + '"' +
+        ' data-pdxc-gap-pid="' + escAttr(pid) + '">' +
+        '<span aria-hidden="true">' + (dir < 0 ? '←' : '') + '</span>' +
+        '<span><span class="pdxdos-stepn">' + (dir < 0 ? 'Previous issue' : 'Next issue') + '</span><br>' +
+          esc(row.label) + '</span>' +
+        '<span aria-hidden="true">' + (dir > 0 ? '→' : '') + '</span></button>';
+    };
+    var prev = btn(at > 0 ? ranked[at - 1] : null, -1);
+    var next = btn(at < ranked.length - 1 ? ranked[at + 1] : null, 1);
+    if (!prev && !next) return '';
+    return '<div class="pdxdos-step">' + prev + next + '</div>';
+  }
+
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
     var oNum = typeof off.score === 'number', sNum = typeof say.score === 'number';
     var lbl = _issueLabel(issueKey);
     var stance = _orStanceChip(pid, issueKey);
+    // The row model, resolved once for this whole sheet. Everything the dossier says
+    // about the verdict, the depth, the composition and where the issue lands in the
+    // profile score is read off this — the sheet computes no opinion of its own.
+    var _dosRow = issueRow(pid, issueKey);
 
     // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
     //
@@ -4404,8 +5547,19 @@
           ('Their formal record on this issue, ' + _n.one + ' by ' + _n.one + ', with every source.')) +
         '</div>';
     } else {
-      relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
-      gapNote = '<div class="pdxgap-note">Only one side has a score on this issue so far — there\'s nothing to line up head-to-head yet.</div>';
+      // NEITHER side carries a number — which does not mean nothing is known. The
+      // sheet used to open on "— One side only… there's nothing to line up head-to-
+      // head yet", a sentence about our comparison machinery rather than about the
+      // politician, on the exact rows where a reader most needs the honest answer.
+      // The row model already resolved one verdict for this issue; print THAT, in
+      // words, and let the caveat line inside the summary below say how far it
+      // reaches. No percentage: a row with no lane score has no number to show, and
+      // inventing a shape for one is how a thin row starts looking tested.
+      var _dv = _stResult(_dosRow);
+      relHtml = '<span class="pdxdv-rel" style="color:' + _dv.color + ';border-color:' + _dv.color +
+        '55;background:' + _dv.color + '1f;">' + esc(_dv.ico + ' ' + _dv.label) + '</span>';
+      gapNote = '<div class="pdxgap-note">' + esc(_dv.why ||
+        'Everything on file for this issue is assembled below, in one place.') + '</div>';
     }
 
     // ── The identity block ────────────────────────────────────────────────────
@@ -4416,6 +5570,18 @@
     // eyebrow and a name in body text before anything confirmed they were in the
     // right place. Recognition is faster than reading, so the photo goes first.
     var _id = _gapIdentity(pid);
+    // ── The path in, made visible ─────────────────────────────────────────────
+    // A reader arrives here by tapping a row in the issue index — a coloured line
+    // filed under a named result. If the sheet then opens on a different colour and
+    // a different word for the same finding, the tap reads as a jump to somewhere
+    // else rather than as a zoom into the row. So the two cues the index used come
+    // with it: the ISSUE's colour, on the title, and the BUCKET's word, under it.
+    // Both are read from the surfaces that own them — PDXIssueColors and
+    // PDXWordAction.OUTCOMES — never restated here, so neither can drift.
+    var _tskin = _icSkin(issueKey);
+    var _titleAttr = _tskin.on
+      ? ' class="pdxgap-title pdxc-ic" style="' + _tskin.style + '"'
+      : ' class="pdxgap-title"';
     var head =
       '<div class="pdxgap-h">' +
         '<div class="pdxgap-id">' + _gapFaceHtml(_id) +
@@ -4425,7 +5591,8 @@
             _gapSubHtml(_id) +
           '</div>' +
         '</div>' +
-        '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
+        '<div' + _titleAttr + '>' + esc(lbl) + '</div>' +
+        _dosBucketHtml(_dosRow) +
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.
         '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
@@ -4533,7 +5700,19 @@
     }
 
     return head +
+      // ── L1 ── the assembled answer, open. Directly under the identity block,
+      // because the question a reader arrives with is "so what did they do about
+      // this", not "which panels exist".
+      _dosSummaryHtml(pid, issueKey, _dosRow) +
       '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
+      // ── L2 ── every instrument on this issue, closed. It sits below the two
+      // record panels rather than above them because those panels quote the
+      // DECISIVE items; this is the complete enumeration they were drawn from, and
+      // a list is only legible once you know what it is a list of.
+      _dosRecordsHtml(pid, issueKey, _dosRow, off) +
+      // Sideways, not backwards: the next issue's dossier without a trip through
+      // the profile and back.
+      _dosStepHtml(pid, issueKey) +
       _gapNextHtml(pid, issueKey) +
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
@@ -4595,14 +5774,27 @@
       '<div class="pdxgap-next-row">' + items.join('') + '</div></div>';
   }
 
-  // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
-  // issue has a real % on BOTH sides (so the sheet always has something to compare).
+  // THE SAME DOOR, INSIDE AN OFFICIAL RECORD ROW. This was a "⚖️ Diverges — compare →"
+  // link: one more set of words for a result the rest of the profile already names, and
+  // one that only appeared when the issue happened to carry a real % on BOTH the vote
+  // side and the public-record side, so most rows had no way into the dossier at all.
+  // It is now the shared door — the bucket the index filed this issue under, in the
+  // index's own word and colour, opening the same assembled sheet as every other entry
+  // row, and carrying this row's id so closing returns the reader to it.
+  //   FAIL CLOSED. No bucket, no door: an issue the index never filed — pending, no
+  // record, nothing stated — gets no link rather than a link to an empty sheet.
   function _gapLinkHtml(pid, issueKey) {
-    var o = officialIssue(pid, issueKey), s = saydoIssue(pid, issueKey);
-    if (typeof o.score !== 'number' || typeof s.score !== 'number') return '';
-    var rel = divRel(o.score - s.score);
-    return '<button type="button" class="pdxdv-open" data-pdxc-gap="' + esc(issueKey) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-      ' style="--c:' + rel.color + '" title="Compare the votes and the public record behind this issue">⚖️ ' + rel.label + ' — compare →</button>';
+    var o = _bucketAt(pid, issueKey);
+    if (!o) return '';
+    return '<button type="button" class="pdxdv-open pdxdos-door" data-pdxc-gap="' + esc(issueKey) +
+      '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+      ' data-pdxc-gap-origin="' + escAttr(orRowId(pid, issueKey)) + '"' +
+      ' style="--c:' + o.col + '"' +
+      ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(issueKey), o, '')) + '"' +
+      ' title="Everything on the record for this issue, in one place">' +
+      '<span class="pdxdos-door-b">' + esc(o.short) + '</span>' +
+      '<span class="pdxdos-door-r">— open the issue dossier <span aria-hidden="true">→</span></span>' +
+      '</button>';
   }
 
   // ── gap sheet: a single lazily-built bottom-sheet, reused for every issue ────
@@ -4645,14 +5837,39 @@
       if (on) back.classList.add('pdxgap-arrive'); else back.classList.remove('pdxgap-arrive');
     } catch (e) {}
   }
+  // What is open right now, and where the reader came from. Two jobs:
+  //   · the warm listener needs to know which dossier to repaint when a member's
+  //     votes land after the sheet is already on screen;
+  //   · closeGap needs to put a reader who came from a stance row back ON that row,
+  //     not at the top of whatever section happens to be under the backdrop.
+  var _gapOpen = null;
   function openGap(pid, issueKey, opts) {
     if (!pid || !issueKey || !document.body) return;
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
     if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
+    var arrival = _gapIsArrival(opts);
+    // This sheet is one politician on one issue. PDXIssueView is everyone on one
+    // issue, and the two used to announce themselves with the same generic label.
+    // Naming the person and the issue is what tells a screen-reader user which of
+    // the two they just opened.
+    try {
+      var _who = (_gapIdentity(pid) || {}).name || '';
+      sheet.setAttribute('aria-label',
+        'Issue dossier: ' + _issueLabel(issueKey) + (_who ? ' — ' + _who : ''));
+    } catch (e) {}
+    // An arrival has no profile behind it, so it has no row to go back to. Stepping
+    // sideways to the next issue INHERITS the origin: the reader still came from one
+    // stance row, and that is still where closing should return them.
+    _gapOpen = {
+      pid: pid, key: issueKey,
+      origin: arrival ? ''
+        : ((opts && opts.origin) ? String(opts.origin)
+          : ((_gapOpen && _gapOpen.pid === pid) ? _gapOpen.origin : ''))
+    };
     var back = sheet.parentNode;
     if (back) {
-      _gapArrive(back, _gapIsArrival(opts));
+      _gapArrive(back, arrival);
       back.hidden = false;
     }
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
@@ -4667,6 +5884,15 @@
   function closeGap() {
     var back = document.getElementById('pdxc-gap-back');
     if (back) back.hidden = true;
+    // THE RETURN PATH. The stance row is where the reader was reading; a dossier
+    // that dumps them at the top of the page on close costs them the place they had
+    // scrolled to, which is the whole reason they can be reluctant to open one.
+    // Guarded on the row still being in the document: after a warm repaint or a
+    // profile switch it may not be, and _stBack already fails closed on that.
+    var o = _gapOpen; _gapOpen = null;
+    if (o && o.origin) {
+      try { if (document.getElementById(o.origin)) _stBack(o.origin); } catch (e) {}
+    }
   }
 
   // ── Methodology & boundary explainer (Phase 11) ─────────────────────────────
@@ -4710,7 +5936,7 @@
       row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes or actions sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
       row('⚖️', 'Why the lanes stay separate', 'Formal actions and public statements answer different questions, so pooling them into one figure would hide more than it reveals. The formal record is what <b>tests</b> a stated position; the public record is what <b>surrounds</b> it. Both appear on the issue, labelled for what they are — but one issue gets <b>one verdict</b>, from one engine, on every surface it appears on.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
-      row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Aligned</b> — the two tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b>, not whether the person is good or bad, and it is not a score.') +
+      row('↔️', 'What the divergence labels mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Same story</b> — the two agree. <b>Some daylight</b> — mostly, with a gap. <b>Different stories</b> — they disagree. These deliberately avoid the words the issue index uses for a result (Backed up · Mixed · Contradicted · Thin record): those say whether the record backed what was <b>said</b>, which is a different question from whether the two records agree with <b>each other</b>. Neither of these is a score.') +
       // The procedural down-weight is a real scoring decision a reader can check
       // us on, so it belongs in the methodology sheet rather than only in a
       // tooltip on the card that happens to carry the tag.
@@ -4900,6 +6126,16 @@
     // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
     // rather than assert on the source text of the function that writes it.
     gapViewHtml: _gapViewHtml,
+    // The issue dossier's own pieces, exported so each level can be checked on its
+    // own terms rather than only through the assembled sheet: the normalised item
+    // list (L2's data), one item's expanded detail (L3+L4), and the L1 summary.
+    dossierItems: _dosItems,
+    dossierSummaryHtml: _dosSummaryHtml,
+    dossierRecordsHtml: function (pid, issueKey) {
+      return _dosRecordsHtml(pid, issueKey, issueRow(pid, issueKey), officialIssue(pid, issueKey));
+    },
+    dossierDetailHtml: _dosDetailHtml,
+    dossierStepHtml: _dosStepHtml,
     // Phase 11: the plain-language methodology / boundary explainer (opened from the
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,

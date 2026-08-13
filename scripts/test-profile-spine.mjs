@@ -872,8 +872,8 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   // 10h. The repaint paths. Both of these hand HTML to innerHTML directly, so both
   //      have to resolve markers themselves or the fold silently disappears.
   ok(/function _lidify/.test(CJL) && /SP\.applyLids\(html, true\)/.test(CJL) &&
-     (CJL.match(/_lidify\(_/g) || []).length === 3,
-     "lid: all three warm-refresh repaints in consistency.js run the markers through the spine in reclaim mode");
+     (CJL.match(/_lidify\(_/g) || []).length === 4,
+     "lid: all four warm-refresh repaints in consistency.js run the markers through the spine in reclaim mode");
   ok(/_lidsOpenIn\(/.test(CJL) && /_lidsReopen\(/.test(CJL) && /window\.toggleDD\(id\)/.test(CJL),
      "lid: and they re-open any lid the reader had already opened, so a background refresh does not undo their tap");
   ok(/slot\.innerHTML = lidify\(fresh\)/.test(WAL) && /dd-body\.dd-open\[id\^="pdxsp-lid-"\]/.test(WAL),

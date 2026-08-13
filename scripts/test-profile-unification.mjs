@@ -784,8 +784,74 @@ section("12 · stances & connections — what they stand for, ranked and connect
     const rows = (st.match(/class="pdxst-row"/g) || []).length;
     const model = CS.issueRows(pid).length;
     eq(rows, model, `${who}: the rendered stance rows do not match the row model`);
-    // It publishes NO number. It shows the verdict the score already reached.
-    lacks(text(st).replace(/\d+ of \d+/g, ""), "%", `${who}: the stance layer prints a percentage — there is one score on a profile`);
+    // ── WHAT THE RECORD CONCLUDED ────────────────────────────────────────────
+    // This layer used to publish no number at all, and the check here was a flat ban
+    // on "%". The ban was aimed at the right thing — a profile has ONE score, and a
+    // second pooled figure on the same page is a rival to it — but it also forbade
+    // the row from stating its own result, which left "◑ Mixed record" doing a
+    // verdict's job with a pastel chip. The rule that replaces it is narrower and
+    // strictly stronger: a percentage may appear ONLY inside a row's own result
+    // line, and it must equal that row's issue-level score. Nothing pooled, nothing
+    // invented, nothing free-floating.
+    const rowChunks = st.split(/<div class="pdxst-row["\s]/).slice(1);
+    eq(rowChunks.length, model, `${who}: the stance rows do not split cleanly by row`);
+    const byKey = {};
+    for (const chunk of rowChunks) {
+      const k = (chunk.match(/data-pdxst-issue="([^"]*)"/) || [])[1];
+      if (k) byKey[k] = chunk;
+    }
+    const pctSpans = [...st.matchAll(/<span class="pdxst-pct"[^>]*>(\d+)%<\/span>/g)].map((m) => Number(m[1]));
+    const looseP = (text(st).replace(/\d+ of \d+/g, "").match(/\d+\s*%/g) || []).length;
+    eq(looseP, pctSpans.length,
+      `${who}: a percentage appears in the stance layer outside a row's result line — the\n` +
+      "    only number this section may print is one issue's own result");
+    for (const r of CS.issueRows(pid)) {
+      const chunk = byKey[r.key];
+      ok(!!chunk, `${who}: no rendered stance row for ${r.key}`);
+      if (!chunk) continue;
+      const mine = [...chunk.matchAll(/<span class="pdxst-pct"[^>]*>(\d+)%<\/span>/g)].map((m) => Number(m[1]));
+      if (r.tested) {
+        // Every tested row answers the question. Not a chip — a stated result, with
+        // the verdict the engine already reached printed beside it.
+        eq(mine.length, 1, `${who}/${r.key}: a tested stance row prints no result percentage`);
+        eq(mine[0], r.verdict.score,
+          `${who}/${r.key}: the row's percentage is not the row model's own issue score —\n` +
+          "    this surface must never compute a second answer");
+        // ONE RESULT VOCABULARY. The verdict beside the % is the word the ⚖️ Word vs
+        // Action issue index filed this row under, read from the module that publishes
+        // those four names. It was the engine's long label until the entry points were
+        // unified, which meant one finding wore two names on one profile depending on
+        // which surface the reader happened to meet it on.
+        const stBucket = WA.outcomeFor(r.verdict.token);
+        ok(!!stBucket, `${who}/${r.key}: a tested verdict resolves to no published bucket`);
+        has(chunk, stBucket ? stBucket.short : r.verdict.label,
+          `${who}/${r.key}: the tested row states a % with no verdict beside it`);
+        has(chunk, 'class="pdxst-vd"', `${who}/${r.key}: the verdict is not carried on the result line`);
+        eq((chunk.match(/data-pdxst-state="tested"/g) || []).length, 1,
+          `${who}/${r.key}: a tested row is not marked tested`);
+      } else {
+        // FAIL CLOSED. Untested and too-thin rows say so, in words, and never carry
+        // a number the record did not produce.
+        eq(mine.length, 0,
+          `${who}/${r.key}: an untested stance row prints a percentage — results may not be invented`);
+        const st8 = (chunk.match(/data-pdxst-state="(\w+)"/) || [])[1];
+        ok(st8 === "thin" || st8 === "untested",
+          `${who}/${r.key}: an untested row is marked "${st8}"`);
+        if (st8 === "thin") {
+          ok(/class="pdxst-why">[^<]+</.test(chunk),
+            `${who}/${r.key}: a too-thin row does not say why it has no result`);
+        } else {
+          has(chunk, "Not tested yet", `${who}/${r.key}: an untested row does not say it is untested`);
+        }
+      }
+    }
+    // The hierarchy stays honest: the issue-level number is labelled as one issue,
+    // and the section says out loud where the profile's single score lives.
+    has(st, 'class="pdxst-scope"', `${who}: the issue-level result carries no scope tag`);
+    has(text(st), "issue-level results, one issue at a time",
+      `${who}: the section does not scope its numbers to a single issue`);
+    has(text(st), "Word vs Action",
+      `${who}: the section prints issue-level numbers without pointing at the one profile score`);
     // Ranked: the locked priority is tension, then consistent, then word-only, then
     // action-only, then empty, and the section renders in that order.
     const tiers = [...st.matchAll(/data-pdxst-tier="(\d)"/g)].map((m) => Number(m[1]));
