@@ -886,6 +886,36 @@ for (const k of Object.keys(XA.SCOPES)) {
     "card: the current-term strip is rendered before the number it is secondary to");
   // …and the two are never presented as the same measurement.
   has(card, "The record counted", "card: the method drawer does not state which record the number is over");
+
+  // ── THE CLARITY CONTRACT ────────────────────────────────────────────────────
+  // A first-time reader has to get three things off this header without opening a
+  // drawer: which record the big number is over, that the second figure is a slice
+  // of that record, and why the two can differ. The first two are pinned above. The
+  // third is a question a second number ASKS, and leaving it to the layout to answer
+  // is how a slice gets read as a rival score. It is asked only where the two figures
+  // actually came out apart — see scopeStripHtml's `why`.
+  has(card, "the whole record, every term — this one counted inside it",
+    "card: the slice no longer says it is counted inside the score above");
+  if (typeof sr.current.pct === "number" && sr.delta !== 0) {
+    has(card, "which is why the two can differ",
+      "card: the slice never says why the two figures can differ — the question a second number asks");
+  }
+  // The difference is stated against the number it is a difference from, by value, so
+  // a reader does not have to scroll back up and subtract.
+  if (sr.differs && typeof sr.main.pct === "number" && typeof sr.current.pct === "number") {
+    has(card, `${sr.main.pct}% above`,
+      "card: the slice reports a difference without naming the figure it differs from");
+  }
+  // And it is stated in words. "3 points lower than the full record" is accurate and
+  // is exactly the register a first-time reader's eye slides off.
+  for (const stat of ["point lower", "points lower", "point higher", "points higher"]) {
+    lacks(card, stat,
+      `card: the slice reports the gap as "${stat}" — dense stats phrasing where plain words were asked for`);
+  }
+  // The glyph that hangs the strip off the number above it is decoration: the same
+  // relationship is in the copy, so a screen reader must not be read a stray arrow.
+  has(card, 'class="pdxwa-slice-tie" aria-hidden="true"',
+    "card: the slice's hang-off marker is gone, or is exposed to a screen reader as content");
   // A member's card says nothing about scope, because nothing about their record is
   // term-scoped and a label naming a distinction that does not exist is noise.
   const mcard = WA.headlineHtml(MEMBER, win.CMP_DATA[MEMBER]);
@@ -898,6 +928,12 @@ for (const k of Object.keys(XA.SCOPES)) {
   const h = WA.heroRead(PID, P);
   eq(h.pct, WA.read(PID, P).pct, "hero: the ring disagrees with the section beneath it");
   has(h.sub, "all time", "hero: the ring's caption does not say which record the number is over");
+  // …in the scope's OWN words. The ring and the card sit one scroll apart and name
+  // the same span; typing that span twice is how they end up naming it differently.
+  has(h.sub, ` · ${XA.SCOPES.all_time.label.toLowerCase()}`,
+    "hero: the ring's scope wording is not taken from the scope's label, so it can drift from the card's");
+  eq(h.scopeLabel, XA.SCOPES.all_time.label,
+    "hero: the exposed scope label is not the scope model's own");
   const hm = WA.heroRead(MEMBER, win.CMP_DATA[MEMBER]);
   if (hm && hm.sub) lacks(hm.sub, "all time", "hero: a member's ring claims an executive-lane scope");
 }

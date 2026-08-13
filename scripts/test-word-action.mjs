@@ -1079,6 +1079,43 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/max-width/.test(heroCap) && /line-height/.test(heroCap),
     'the ring caption is not constrained to wrap, so "WORD VS ACTION" runs past the 80px ring it\n' +
     '    is centred in instead of breaking onto two lines');
+  // ── The two-scope header has to survive a phone ─────────────────────────────
+  // An executive profile prints two figures: the all-time score and the current-term
+  // slice under it. What makes that legible is not the numbers — it is the small copy
+  // around them: the tag naming which record the big number is over, and the sentence
+  // saying the second figure is a slice of it. Both of those were set below 0.5rem in
+  // a low-contrast grey, i.e. the text carrying the whole relationship was the least
+  // readable text in the panel on the screen most readers use.
+  const remOf = (block, prop = 'font-size') => {
+    const m = new RegExp(prop + ':\\s*([\\d.]+)rem').exec(block || '');
+    return m ? parseFloat(m[1]) : null;
+  };
+  const cssRule = (name) => {
+    const at = base.indexOf(name + ' {');
+    return at === -1 ? '' : base.slice(at, base.indexOf('}', at));
+  };
+  for (const [sel, floor] of [
+    ['.pdxwa-num-scope', 0.5],   // "ALL TIME" — which record the headline covers
+    ['.pdxwa-slice-k', 0.58],    // "CURRENT TERM (47)"
+    ['.pdxwa-slice-n', 0.68],    // how it compares to the score above
+    ['.pdxwa-slice-note', 0.66], // that it is contained in that score, and why they differ
+  ]) {
+    const size = remOf(cssRule(sel));
+    must(size !== null, `word-action.css no longer sets a base font-size on ${sel}`);
+    ok(size >= floor,
+      `${sel} is set at ${size}rem on a phone — below ${floor}rem the copy that explains the\n` +
+      '    all-time / current-term relationship reads as chrome rather than as text');
+  }
+  // …and the slice's own figure stays well under the headline numeral. Secondary is a
+  // size relationship as much as a position one: two percentages of comparable weight
+  // read as two scores no matter what the labels say.
+  const sliceV = remOf(cssRule('.pdxwa-slice-v'));
+  const numV = remOf(cssRule('.pdxwa-num-v'));
+  must(sliceV !== null && numV !== null,
+    'word-action.css no longer sizes the headline numeral or the current-term figure');
+  ok(sliceV <= numV / 2,
+    `the current-term figure (${sliceV}rem) is more than half the headline numeral (${numV}rem) —\n` +
+    '    at that size the slice stops being an annotation and starts reading as a peer score');
   // No fixed pixel heights that would clip wrapped text at small sizes.
   ok(!/\.pdxwa-[a-z-]+\s*{[^}]*\bheight:\s*\d+px/.test(WA_CSS),
     'a Word vs Action element has a hard pixel height — wrapped copy would be clipped on a phone');

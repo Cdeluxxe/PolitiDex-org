@@ -23,6 +23,37 @@
 # the provisioning path — the resolution is simply to re-run the deploy, which the
 # platform does automatically on the next build. This block is documentation only.
 #
+# Follow-up (word-vs-action scope-clarity pass): a preview failed a third time,
+# again after the app itself had built. Both bundlers finished — "Functions
+# bundling completed in 2.7s", "Edge Functions bundling completed in 827ms" — and
+# the failure landed in the same post-build stage as the first note above:
+#
+#   Internal error during "options.onPostBuild"
+#   TimeoutError: Timeout while waiting for deploy
+#     at waitForDeploy (netlify-cli/dist/utils/deploy/util.js)
+#
+# waitForDeploy polls the deploy record until Netlify reports it ready. A timeout
+# there means the upload was accepted and the platform did not finish processing
+# it in the window — it is not a compile, bundle, lint or migration failure, and
+# there is no repo-side stack frame in it. The changed set was audited after the
+# failure rather than assumed innocent:
+#   • The pass touched four files — word-action.js, word-action.css and two test
+#     files. No data file, no migration, no function, no edge function, no
+#     index.html script tag. Nothing in the deployed surface area moved.
+#   • word-action.js parses (`node --check`), word-action.css balances (199/199),
+#     and the full suite is green, including the two suites that own this
+#     surface: test-word-action.mjs (371 assertions) and test-exec-word-action.mjs
+#     (708 checks).
+#   • The publish set is 613 tracked files, largest 2.0M (index.html). No
+#     artifact, bundle or generated blob was added, so there is nothing here that
+#     could plausibly stretch deploy processing past its deadline.
+#   • The migration set applied and listed cleanly, including the newest
+#     (20260902000000_seed_exec_actions_wave10.sql).
+# The remedy is the one at the top of this file: touching this config forces a
+# clean full deploy, so the file set is re-uploaded from scratch instead of being
+# reconciled against the timed-out deploy's partial manifest. This edit is that
+# touch, and the note is the audit trail for it.
+#
 # Secret scanning: the Firebase Web API key shipped in index.html is a PUBLIC
 # client identifier (access to Firebase is controlled by Security Rules, not by
 # keeping this value secret — Google documents it as safe to include in client

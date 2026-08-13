@@ -930,11 +930,16 @@
     // choice used to be made silently, in favour of the term now being served. It
     // is stated here, in the same drawer that states every other rule, because a
     // percentage whose scope is unstated is a percentage a reader cannot check.
+    // The wording matches the card: "the whole record, every term" is the phrase
+    // the slice above uses too, so a reader who opens this drawer to check the
+    // strip they just read meets the same sentence rather than a second theory.
     var scopeP = ex
       ? '<p><b>The record counted</b> is the whole one: every formal action on file, across every term in ' +
         'office. A president who signed something in one term and undid it in the next has both on this ' +
-        'card, and the number weighs both. For someone serving now, the current term is shown separately ' +
-        'above as a slice of that record — a narrower read of the same word, never a second score.</p>'
+        'card, and the number weighs both. For someone serving now, the term being served is also shown on ' +
+        'its own, just under the score — the same word, tested against that one term’s actions. It is part of ' +
+        'the whole record, not a rival to it, and the two can read differently because the whole record has ' +
+        'more action behind it to test the same word against.</p>'
       : '';
     return '' +
       '<details class="pdxwa-method">' +
@@ -1316,6 +1321,14 @@
   // It renders even when the two reads agree. A slice that vanishes when it matches
   // is a slice that only ever appears as bad news, and a reader who saw it last
   // month and not today cannot tell "the same" from "not shown".
+  //
+  // THE DIFFERENCE IS SAID IN WORDS, NOT IN STATISTICS. This strip used to report the
+  // gap as "3 points lower than the full record" — accurate, and exactly the register
+  // a first-time reader skips. It now names the number it is being compared against
+  // ("lower than the 84% above") and says in the same breath why the two can differ:
+  // the score above also weighs the terms before this one. A reader who reads nothing
+  // else on this strip should still come away knowing which number is the record and
+  // which is the slice of it.
   function scopeStripHtml(sr) {
     if (!sr || !sr.applicable || !sr.current) return '';
     var c = sr.current;
@@ -1324,32 +1337,51 @@
     var has = c.pct !== null;
     var termLabel = sr.term ? 'Current term (' + sr.term + ')' : 'Current term';
     var mainPct = sr.main.pct;
+    var hasMain = typeof mainPct === 'number';
 
-    // The comparison, in one clause, always relative to the main number so the
-    // main number stays the thing being talked about.
+    // The comparison, in one clause, always relative to the main number so the main
+    // number stays the thing being talked about. "Slightly" and "far" carry the size
+    // of the gap without asking a reader to hold two percentages in their head — and
+    // the clause stops there. WHY the two can differ is said once, in the note below,
+    // rather than twice on a line a phone would wrap to three.
     var rel;
     if (!has) {
-      rel = 'not enough of their word has been tested inside this term alone to publish a separate figure';
-    } else if (typeof mainPct !== 'number' || sr.delta === null) {
-      rel = 'a narrower read of the same word';
+      rel = 'Too little of their word has been tested inside this term alone to give it a figure of its own';
+    } else if (!hasMain || sr.delta === null) {
+      rel = 'A narrower read of the same word';
     } else if (sr.delta === 0) {
-      rel = 'the same figure as the full record';
+      rel = 'The same as the ' + mainPct + '% above';
     } else {
-      rel = Math.abs(sr.delta) + (Math.abs(sr.delta) === 1 ? ' point ' : ' points ') +
-            (sr.delta > 0 ? 'higher' : 'lower') + ' than the full record';
+      var mag = Math.abs(sr.delta);
+      rel = (mag <= 3 ? 'slightly ' : mag >= 15 ? 'far ' : '') +
+            (sr.delta > 0 ? 'higher' : 'lower') + ' than the ' + mainPct + '% above';
+      rel = rel.charAt(0).toUpperCase() + rel.slice(1);
     }
 
     var counted = c.coverage.tested + ' of ' + c.coverage.scorable + ' tested';
 
+    // The containment sentence — the one line that stops the two figures being read
+    // as rival systems. Its tail is the "why they can differ" answer, and it is only
+    // asked when there ARE two figures that came out apart: promising a difference on
+    // a strip showing the same number twice sends a reader hunting for one.
+    var why = '.';
+    if (has && hasMain) {
+      why = sr.delta === 0 ? ', and here the two come out the same.' : ', which is why the two can differ.';
+    }
+    var note = 'Only the formal actions taken in this term. The score above is the whole record, ' +
+               'every term — this one counted inside it' + why;
+
     return '' +
       '<div class="pdxwa-slice" style="--pdxwa-col:' + col + ';">' +
+        // One glyph doing what a paragraph would otherwise have to: this row hangs
+        // off the number above it. Decorative, so it is hidden from a screen reader,
+        // which gets the same relationship spelled out in the note below.
+        '<span class="pdxwa-slice-tie" aria-hidden="true">↳</span>' +
         '<span class="pdxwa-slice-k">' + esc(termLabel) + '</span>' +
         '<span class="pdxwa-slice-v">' + (has ? c.pct + '%' : '—') + '</span>' +
         '<span class="pdxwa-slice-n">' +
           esc(rel + ' · ' + counted) +
-          '<span class="pdxwa-slice-note">' +
-            esc('Only the formal actions taken in this term. The score above is the whole record, every term.') +
-          '</span>' +
+          '<span class="pdxwa-slice-note">' + esc(note) + '</span>' +
         '</span>' +
       '</div>';
   }
@@ -1558,7 +1590,11 @@
       // current-term slice itself is NOT printed here: the hero has one number by
       // design, and a second percentage above the fold is the exact thing the
       // pledge chip was removed for.
-      if (hasPct && sr.lane === 'exec' && sr.scope) sub += ' · all time';
+      // The wording is TAKEN FROM the scope's own label rather than typed here, so
+      // the ring and the card under it cannot drift into two names for one span.
+      if (hasPct && sr.lane === 'exec' && sr.scope && sr.scope.label) {
+        sub += ' · ' + sr.scope.label.toLowerCase();
+      }
       return {
         read: r,
         scoped: sr,

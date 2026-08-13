@@ -87,56 +87,83 @@
 }
 .pdxwa-say { flex: 1 1 auto; min-width: 0; }
 
-/* Which record the big number is over. Third line of the number block, smaller
-   and quieter than the metric caption above it — it qualifies that caption, it
-   does not compete with it. Executive lane only; nothing else here is
-   term-scoped, so nothing else prints a scope. */
+/* Which record the big number is over. Last line of the number block, on its own
+   hairline row: it qualifies the metric caption above it rather than continuing
+   it, and the rule is what makes that legible without a second colour.
+
+   It used to be set at 0.42rem in #6f86a8 — the qualifier that decides what the
+   loudest number on the page even MEANS, printed at a size a phone renders as
+   texture. It is now the same size and colour as the metric caption it qualifies,
+   because on a profile carrying two scopes the span is not a footnote.
+
+   Executive lane only; nothing else here is term-scoped, so nothing else prints a
+   scope. */
 .pdxwa-num-scope {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.42rem;
+  font-size: 0.5rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #6f86a8;
-  margin-top: 0.18rem;
+  color: #9fb4d4;
+  margin-top: 0.3rem;
+  padding-top: 0.26rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
   line-height: 1.2;
 }
 
 /* ── The current-term slice ──────────────────────────────────────────────── */
 /* SECONDARY IS A LAYOUT DECISION, NOT A DISCLAIMER. This strip is one line tall,
    sits below the verdict block rather than beside it, and prints its percentage
-   at roughly a third of the main numeral's size in the body face — not the
-   display face the headline number uses. A reader scanning the card meets the
-   all-time number, the verdict and one sentence before this exists. The colour
-   bar on the left is the slice's own verdict colour, which is the only thing
-   here allowed to differ loudly from the score above. */
+   at well under half the main numeral's size in the body face — not the display
+   face the headline number uses. A reader scanning the card meets the all-time
+   number, the verdict and one sentence before this exists. The colour bar on the
+   left is the slice's own verdict colour, which is the only thing here allowed to
+   differ loudly from the score above.
+
+   SECONDARY IS NOT THE SAME AS SMALL, though, and this strip had drifted into the
+   second thing: 0.66rem of relation text over a 0.62rem note in #6f86a8, i.e. the
+   two lines that explain why there are two numbers were the quietest text in the
+   panel. Everything here is a step up now — and the strip still cannot be mistaken
+   for the score, because the thing that makes it secondary is where it sits and
+   what face it is set in, not whether a reader can read it. */
 .pdxwa-slice {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0.3rem 0.45rem;
   margin: 0 0 0.6rem;
-  padding: 0.38rem 0.5rem 0.4rem 0.55rem;
+  padding: 0.45rem 0.55rem 0.5rem 0.6rem;
   border-radius: 0.55rem;
   background: rgba(8, 13, 26, 0.45);
   border: 1px solid rgba(148, 163, 184, 0.14);
-  border-left: 2px solid color-mix(in srgb, var(--pdxwa-col) 55%, transparent);
+  border-left: 3px solid color-mix(in srgb, var(--pdxwa-col) 55%, transparent);
 }
 @supports not (color: color-mix(in srgb, red 50%, blue)) {
   .pdxwa-slice { border-left-color: rgba(148, 163, 184, 0.45); }
+  .pdxwa-slice-tie { color: rgba(148, 163, 184, 0.7); }
+}
+/* The hang-off glyph. It carries the containment relationship at a glance — this
+   row belongs to the number above it — which is why it is centred on the strip's
+   own figure rather than sitting on the shared baseline. */
+.pdxwa-slice-tie {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 0.72rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--pdxwa-col) 72%, transparent);
 }
 .pdxwa-slice-k {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.56rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #9fb4d4;
+  color: #b0c4de;
   flex: 0 0 auto;
 }
 .pdxwa-slice-v {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 700;
   line-height: 1;
   color: var(--pdxwa-col);
@@ -145,16 +172,18 @@
 .pdxwa-slice-n {
   flex: 1 1 12rem;
   min-width: 0;
-  font-size: 0.66rem;
+  font-size: 0.7rem;
   line-height: 1.4;
-  color: #8ea4c4;
+  color: #a4b8d6;
 }
 /* The sentence that stops the two numbers being read as rivals. Its own line so
    it survives the wrap on a narrow card instead of trailing off the count. */
 .pdxwa-slice-note {
   display: block;
-  font-size: 0.62rem;
-  color: #6f86a8;
+  margin-top: 0.1rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #8ea4c4;
 }
 .pdxwa-verdict {
   font-family: 'Bebas Neue', sans-serif;
@@ -1129,8 +1158,15 @@
 @media (min-width: 620px) {
   .pdxwa-num { min-width: 6rem; }
   .pdxwa-num-v { font-size: 2.5rem; }
+  .pdxwa-num-scope { font-size: 0.52rem; }
   .pdxwa-verdict { font-size: 1.45rem; }
   .pdxwa-line { font-size: 0.78rem; }
+  /* Room to breathe, not a size jump: the phone already reads this strip at a
+     legible size, so the wide layout gains padding and a little leading rather
+     than a bigger figure the small screen went without. */
+  .pdxwa-slice { padding: 0.5rem 0.65rem 0.55rem 0.7rem; }
+  .pdxwa-slice-n { font-size: 0.72rem; }
+  .pdxwa-slice-note { font-size: 0.7rem; }
   .pdxwa-tier { grid-template-columns: 1.7rem 1fr auto; padding: 0.6rem 0.75rem; }
   .pdxwa-dot-step { grid-template-columns: 4.6rem 1fr; }
   .pdxwa-dot-v { font-size: 0.78rem; }
