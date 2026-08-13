@@ -720,11 +720,17 @@
 .pdxwa-rows-go:hover,
 .pdxwa-rows-go:focus-visible { background: rgba(159, 219, 208, 0.16); }
 
-/* ── Per-issue consistency outcomes (the merged Say-vs-Do) ───────────────── */
+/* ── The issue index — four result buckets, one switcher ─────────────────── */
 /* One line per issue, four buckets, no percentage of its own. The old 🧾 Say-vs-Do
    section reprinted every receipt inline under every stance, which is where its
-   height came from; the receipts live in the Official Record row and the Evidence
-   drawer, so this surface only has to say WHICH WAY each issue came out. */
+   height came from; the receipts live in the issue dossier one tap below each row,
+   so this surface only has to say WHICH WAY each issue came out.
+
+   MOBILE IS THE BASE. On a phone the switcher is the layout: a full-width row of
+   counted chips, and exactly one bucket panel on screen under it. The widening
+   query at 620px shows every panel at once as distinct lists, and the selection
+   stops filtering and becomes emphasis. Same markup either way — the JS only ever
+   moves `.is-on`, so a resize cannot lose a reader's place. */
 .pdxwa-oc { margin-top: 0.85rem; }
 .pdxwa-oc-t {
   font-family: 'Barlow Condensed', sans-serif;
@@ -740,11 +746,80 @@
   color: #7f97b8;
   margin: 0.15rem 0 0.5rem;
 }
+
+/* The bucket switcher. Deliberately NOT a select: a dropdown hides three of the
+   four counts behind a tap, which is the same partial reveal the old fold did.
+   Chips wrap rather than scroll sideways — a horizontally scrolling strip on a
+   360px screen puts the fourth bucket off-screen with nothing saying it is
+   there, and the fourth bucket is the coverage pile a reader most needs to see
+   the size of. */
+.pdxwa-oc-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.6rem;
+}
+.pdxwa-oc-tab {
+  flex: 1 1 8.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--pdxwa-col, #9fb4d4);
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #b7c9e2;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.pdxwa-oc-tab-n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--pdxwa-col, #9fb4d4);
+  min-width: 1.1rem;
+  text-align: center;
+}
+.pdxwa-oc-tab-l {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+/* The selected bucket is filled, not merely outlined. An outline-only selected
+   state on a row of outlined chips is a difference a reader has to look for. */
+.pdxwa-oc-tab.is-on {
+  background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 18%, transparent);
+  box-shadow: inset 0 0 0 1px var(--pdxwa-col, #9fb4d4);
+  color: #eaf2ff;
+}
+.pdxwa-oc-tab:hover,
+.pdxwa-oc-tab:focus-visible {
+  background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 26%, transparent);
+}
+/* Coverage is not a result. The thin bucket keeps its count, its chip and its
+   tap target, and gives up the border weight — it should never be the loudest
+   thing in a row of findings. */
+.pdxwa-oc-tab-2nd { border-style: dashed; opacity: 0.82; }
+
+.pdxwa-oc-panels { display: block; }
+/* Phone: one bucket at a time. */
 .pdxwa-oc-grp {
+  display: none;
   border-left: 2px solid var(--pdxwa-col, #9fb4d4);
   padding-left: 0.55rem;
   margin-bottom: 0.55rem;
+  min-width: 0;
 }
+.pdxwa-oc-grp.is-on { display: block; }
+.pdxwa-oc-grp-2nd { border-left-style: dashed; }
 .pdxwa-oc-h {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
@@ -753,34 +828,87 @@
   text-transform: uppercase;
   color: var(--pdxwa-col, #9fb4d4);
 }
+.pdxwa-oc-hsub {
+  font-size: 0.66rem;
+  line-height: 1.45;
+  color: #7f97b8;
+  margin: 0.05rem 0 0.15rem;
+  overflow-wrap: break-word;
+}
 .pdxwa-oc-n {
   display: inline-block;
   min-width: 1.05rem;
   text-align: center;
   font-size: 0.78rem;
 }
+/* The denominator, once, at the foot — never as a second percentage. */
+.pdxwa-oc-foot {
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: #6f88ab;
+  margin: 0.35rem 0 0;
+}
 .pdxwa-oc-l { list-style: none; margin: 0.2rem 0 0; padding: 0; }
+.pdxwa-oc-li { margin: 0; }
+/* THE ROW IS THE BUTTON. Full width, ≥44px tall, and the whole line is the tap
+   target — not the chevron at the end of it. */
 .pdxwa-oc-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.4rem;
-  align-items: baseline;
-  padding: 0.16rem 0;
+  align-items: center;
+  width: 100%;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  padding: 0.3rem 0.35rem;
+  font: inherit;
   font-size: 0.76rem;
   line-height: 1.35;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 0.3rem;
+  text-align: left;
+  cursor: pointer;
 }
-/* The outcome list is grouped by verdict, so the group heading is already the
+.pdxwa-oc-row:hover,
+.pdxwa-oc-row:focus-visible { background: rgba(255, 255, 255, 0.05); }
+.pdxwa-oc-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.4rem;
+}
+/* The outcome list is grouped by verdict, so the bucket heading is already the
    verdict colour. The row inside it is an ISSUE, and gets the issue's colour —
-   otherwise the same issue is one colour in the "backed it up" group and another
-   in the "mixed" group, which is the opposite of what a shared palette is for. */
+   otherwise the same issue is one colour in the "backed it up" bucket and another
+   in the "mixed" bucket, which is the opposite of what a shared palette is for.
+   This same colour is what the dossier header repeats when the row is tapped. */
 .pdxwa-oc-row.pdxwa-ic {
   border-left: 3px solid var(--pdx-ic);
   border-radius: 0 0.3rem 0.3rem 0;
-  padding: 0.2rem 0.35rem 0.2rem 0.45rem;
+  padding: 0.3rem 0.35rem 0.3rem 0.45rem;
   margin: 0.12rem 0;
   background: linear-gradient(90deg, var(--pdx-ic-wash, transparent), transparent 58%);
 }
-.pdxwa-oc-issue { color: #dbe6f5; font-weight: 600; }
+/* The result, in the bucket's own word, on the row. Small and outlined: it is a
+   restatement of the panel the row sits in, not a second judgement of it. */
+.pdxwa-oc-cue {
+  flex: 0 0 auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.34rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pdxwa-oc-go { flex: 0 0 auto; color: #6f88ab; font-size: 0.9rem; line-height: 1; }
+.pdxwa-oc-said { color: #a9bdd8; overflow-wrap: break-word; min-width: 0; }
+.pdxwa-oc-issue { color: #dbe6f5; font-weight: 600; overflow-wrap: break-word; min-width: 0; }
 .pdxwa-oc-meta { color: #6f88ab; font-size: 0.68rem; }
 
 /* ── Method disclosure ──────────────────────────────────────────────────── */
@@ -1353,6 +1481,28 @@
   .pdxwa-dot-v { font-size: 0.78rem; }
   .pdxwa-feed { grid-template-columns: 1.7rem 1fr auto; padding: 0.5rem 0.7rem; }
   .pdxwa-feed-role { font-size: 0.68rem; }
+  /* THE INDEX, WIDE. There is room for every bucket at once here, so nothing is
+     filtered: the four result lists sit side by side as distinct panels, which is
+     the fastest way to read the SHAPE of a record. The switcher stays — it is
+     still the legend that names and counts the buckets, and the selected chip
+     still marks a bucket, it just marks it by emphasis instead of by hiding the
+     other three. */
+  .pdxwa-oc-panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem 0.9rem;
+    align-items: start;
+  }
+  .pdxwa-oc-grp { display: block; margin-bottom: 0; }
+  .pdxwa-oc-grp.is-on {
+    border-left-width: 3px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.045), transparent 62%);
+  }
+  /* Coverage is the one bucket that is not a finding, so it never shares a row
+     with the results: it drops to the full width below them, under the same
+     dashed stroke its chip carries. */
+  .pdxwa-oc-grp-2nd { grid-column: 1 / -1; }
+  .pdxwa-oc-tab { flex: 0 1 auto; min-height: 2.4rem; }
 }
 
 

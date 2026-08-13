@@ -1184,38 +1184,90 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(!/%/.test(ocBlock.replace(/<[^>]+>/g, ' ')),
     'the outcomes block prints a percentage — there is exactly one score on a profile');
 
-  // The fold is keyed on the OUTCOME, not on position in the list of non-empty
-  // buckets. "The first two live buckets" opened the "not enough record yet" pile
-  // on anyone with no contradictions and no mixed rows — the pile that exists to fold.
+  // ── Four buckets, all of them on the face ───────────────────────────────────
+  // The block used to be ONE stack: the two sharp buckets open, everything else
+  // behind a single "Show N more issues" fold. Two outcomes were therefore only
+  // partially revealed — a reader could not tell nine clean issues from three clean
+  // and six untested without opening the fold, and a fold is where reading stops.
+  // It is now an index: every live bucket gets a counted chip in a switcher, and
+  // every bucket is a panel one tap away. Nothing is behind a lid.
   //
-  // Scoped to the outcomes block rather than to the whole card. This used to slice
-  // at the card's FIRST lid, which was wa-outcomes only for as long as the outcomes
-  // block happened to hold the earliest lid on the card. The wa-basis lid now folds
-  // the tier table further up, so an unscoped slice cuts before the outcomes block
+  // Scoped to the outcomes block rather than to the whole card: the wa-basis lid
+  // folds the tier table further up, so an unscoped slice cuts before this block
   // even starts and every assertion below it passes or fails on the wrong string.
   const ocOnly = (h) => {
     const i = h.indexOf('pdxwa-oc');
     return i === -1 ? '' : h.slice(i);
   };
-  const lead = (h) => {
-    const b = ocOnly(h);
-    const i = b.indexOf('PDXSP:lid');
-    return i === -1 ? b : b.slice(0, i);
-  };
-  const sharp = lead(mixedBag);
-  ok(sharp.length > 0, 'the outcomes block is missing entirely — every assertion below is vacuous');
-  ok(/Says one thing, does another/.test(sharp) && /Mixed/.test(sharp),
-    'the sharpest outcomes do not lead the block');
-  ok(!/Backed it up/.test(sharp) && !/Not enough record yet/.test(sharp),
-    'a bucket past the sharp two is open — the block reads as a wall again');
-  ok(/Show 3 more issues/.test(mixedBag), 'the folded buckets do not report how many they hide');
+  const ocIdx = ocOnly(mixedBag);
+  ok(ocIdx.length > 0, 'the outcomes block is missing entirely — every assertion below is vacuous');
+  ok(!/PDXSP:lid id="wa-outcomes"/.test(mixedBag),
+    'the outcomes block still hides buckets behind a lid — a folded bucket is a bucket\n' +
+    '    whose size a reader has to open something to learn, which is the partial reveal this\n' +
+    '    index replaced');
 
-  // ...with one fallback: nothing sharp on file must not leave a lid and no content.
+  // Every live bucket has a chip, and every chip carries its own count. This is the
+  // whole claim of the switcher: the SHAPE of the record is on the face whether or
+  // not anything is opened.
+  const tabs = ocIdx.match(/data-pdxwa-seg="([a-z_]+)"/g) || [];
+  eq(tabs.length, 4, 'the bucket switcher does not offer one chip per live bucket');
+  for (const t of ['contradicts', 'mixed', 'consistent', 'limited']) {
+    ok(ocIdx.includes(`data-pdxwa-seg="${t}"`), `the switcher has no chip for the "${t}" bucket`);
+  }
+  for (const s of ['Contradicted', 'Mixed', 'Backed up', 'Thin record']) {
+    ok(ocIdx.includes(s), `the switcher does not print the short bucket name "${s}"`);
+  }
+  eq((ocIdx.match(/data-pdxwa-oc-panel="/g) || []).length, 4,
+    'the four buckets are not four distinct panels — one combined stack is what this replaced');
+  // Exactly one selected, and it is the sharpest live bucket, never the coverage pile.
+  eq((ocIdx.match(/aria-selected="true"/g) || []).length, 1,
+    'the switcher has no single selected bucket, or has more than one');
+  ok(/data-pdxwa-seg="contradicts" [^>]*aria-selected="true"|aria-selected="true"[^>]*data-pdxwa-seg="contradicts"/
+     .test(ocIdx.replace(/\n/g, ' ')) ||
+     /class="pdxwa-oc-tab is-on"[^>]*data-pdxwa-seg="contradicts"/.test(ocIdx) ||
+     /data-pdxwa-seg="contradicts"[\s\S]{0,200}?aria-selected="true"/.test(ocIdx),
+    'the index does not open on the sharpest bucket on file');
+  eq((ocIdx.match(/class="pdxwa-oc-grp is-on/g) || []).length, 1,
+    'more or fewer than one bucket panel is selected on first paint');
+
+  // The coverage pile is listed, counted and reachable — and never the selection,
+  // and never styled as a finding.
+  ok(/data-pdxwa-seg="limited"[\s\S]{0,240}?aria-selected="false"/.test(ocIdx),
+    'the coverage bucket is selected on a record that has real results — "not enough record\n' +
+    '    yet" is the one bucket that is not a finding');
+  ok(/pdxwa-oc-tab-2nd/.test(ocIdx) && /pdxwa-oc-grp-2nd/.test(ocIdx),
+    'the coverage bucket is not marked secondary, so it draws as loud as the judged results');
+
+  // ...with the fallback: a record with nothing sharp on file still opens on
+  // something, and still not on the coverage pile.
   const calm = withRows([row('c', 'consistent'), row('e', 'limited')]);
-  ok(/Backed it up/.test(lead(calm)),
-    'a figure with no contradictions gets an outcomes block that is nothing but a fold header');
-  ok(!/Not enough record yet/.test(lead(calm)),
-    'the coverage bucket is open on a calm record — it is the one bucket that is not a finding');
+  ok(/data-pdxwa-seg="consistent"[\s\S]{0,240}?aria-selected="true"/.test(ocOnly(calm)),
+    'a figure with no contradictions gets an index that opens on nothing');
+  ok(/data-pdxwa-seg="limited"[\s\S]{0,240}?aria-selected="false"/.test(ocOnly(calm)),
+    'the coverage bucket is opened on a calm record — it is the one bucket that is not a finding');
+
+  // The denominator survives, in words, once. Without it "3 backed up" is a count
+  // of nothing in particular.
+  ok(/5 issues in this index/.test(ocIdx) && /4 with a result on the record/.test(ocIdx) &&
+     /1 stated but not testable yet/.test(ocIdx),
+    'the index does not state its own denominator, so a reader cannot tell what the bucket\n' +
+    '    counts are counts OF');
+
+  // ── Every row is the tap target ─────────────────────────────────────────────
+  // Not a chevron inside the row, not the issue name only: the button IS the row.
+  // And it carries the origin it was tapped from, which is the whole return path.
+  eq((ocIdx.match(/<button type="button" class="pdxwa-oc-row/g) || []).length, 5,
+    'the issue rows are not buttons — the row is the primary tap target into the dossier');
+  eq((ocIdx.match(/data-pdxwa-dos="/g) || []).length, 5,
+    'a row does not carry the issue it opens');
+  eq((ocIdx.match(/data-pdxwa-dos-origin="pdxwa-oc-/g) || []).length, 5,
+    'a row does not carry its own id as the dossier origin, so closing the sheet cannot put\n' +
+    '    the reader back on the line they came from');
+  ok(/aria-label="Open the issue dossier: Issue a — Contradicted/.test(ocIdx),
+    'the row control does not name what it opens, or drops the bucket word from the label');
+  // The row also carries the bucket's own word, because on a phone one panel is on
+  // screen at a time and a deep link lands with no heading above it.
+  ok(/class="pdxwa-oc-cue"/.test(ocIdx), 'the rows carry no result cue of their own');
 
   // A "not enough record yet" row with nothing stated is coverage, not an outcome.
   const silent = withRows([row('z', 'limited', { stance: { label: null, key: 'z', text: '' } })]);

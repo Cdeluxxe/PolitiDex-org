@@ -1,0 +1,516 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// The issue index — four result buckets, every row a door into the dossier
+// ─────────────────────────────────────────────────────────────────────────────
+// ⚖️ Word vs Action's issue-by-issue breakdown used to be one stack: the two sharp
+// buckets open, everything else behind a single "Show N more issues" fold. That
+// revealed the other outcomes only partially — a reader could not tell nine clean
+// issues from three clean and six untested without opening something — and a fold
+// is where reading stops, so the buckets that reached it were, in practice, the
+// buckets nobody saw. And the rows went nowhere: they were text.
+//
+// It is now an index. What that has to mean, and what is pinned here:
+//
+//   · FOUR DISTINCT BUCKETS, all of them on the face. Every live outcome gets a
+//     counted chip in the switcher and a panel of its own. Nothing behind a lid.
+//   · THE COVERAGE PILE IS NOT A RESULT. "Not enough record yet" is listed,
+//     counted and reachable like the others, drawn quieter, ordered last, and
+//     never the bucket the index opens on while real results exist.
+//   · EVERY ROW IS THE TAP TARGET — the button IS the row, not a chevron inside
+//     it — and it opens the SAME assembled dossier the stance rows open, carrying
+//     its own id as the origin so the trip back lands on the line it left.
+//   · THE PATH IS CONTINUOUS. The dossier header repeats the bucket's word, in
+//     the bucket's colour, under a title carrying the issue's colour. One
+//     vocabulary, owned by PDXWordAction, read by consistency.js — never restated.
+//   · NO SECOND SCOREBOARD. Not one percentage anywhere in the index; the
+//     denominator is said once, in words, at the foot.
+//   · FAIL CLOSED. No consistency module, no navigation. No bucket for a verdict,
+//     no bucket line — rather than a fifth word invented for the same four
+//     outcomes.
+//
+//   node scripts/test-issue-index.mjs
+//
+// Loads the real modules into one node:vm sandbox with a fake DOM. The row model
+// is stubbed for the presentation checks — the index is presentation, and stubbing
+// it is what lets all four buckets exist at once — and left real for the lane and
+// dossier-continuity checks. No database, no network, no browser.
+
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const read = (f) => readFileSync(join(ROOT, f), "utf8");
+
+// ── Fake DOM ────────────────────────────────────────────────────────────────
+// Enough for the gap sheet to mount, plus a capturable document click listener:
+// the switcher and the row tap are delegated, so the only way to test them as
+// BEHAVIOUR rather than as source text is to hold the handler and call it.
+const byId = new Map();
+const docClick = [];
+const mkEl = () => {
+  const cls = new Set();
+  const el = {
+    style: {}, textContent: "", innerHTML: "", hidden: false, className: "", id: "",
+    parentNode: null,
+    classList: {
+      add: (c) => cls.add(c), remove: (c) => cls.delete(c),
+      toggle: (c, on) => { if (on) cls.add(c); else cls.delete(c); },
+      contains: (c) => cls.has(c),
+    },
+    _classes: cls, _attrs: {},
+    setAttribute(k, v) { el._attrs[k] = v; }, getAttribute: (k) => (k in el._attrs ? el._attrs[k] : null),
+    focus() {}, scrollIntoView() {},
+    addEventListener() {}, removeEventListener() {}, remove() {},
+    appendChild(c) { if (c) c.parentNode = el; return c; },
+    querySelector: (sel) => el._kids[sel] || null,
+    querySelectorAll: () => [],
+    _kids: {},
+  };
+  return el;
+};
+const newEl = () => {
+  const back = mkEl(), sheet = mkEl(), body = mkEl();
+  sheet.parentNode = back;
+  back._kids[".pdxgap-sheet"] = sheet;
+  sheet._kids[".pdxgap-body"] = body;
+  return back;
+};
+const ctx = {
+  console, JSON, Math, Date, setTimeout, clearTimeout,
+  setInterval: () => 0, clearInterval() {},
+  Promise, String, Array, Object, RegExp, parseInt, parseFloat, isNaN,
+  encodeURIComponent, decodeURIComponent,
+  requestAnimationFrame: (f) => setTimeout(f, 0), fetch: () => new Promise(() => {}),
+  location: { href: "/", search: "", hash: "" }, history: { replaceState() {} },
+  localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+  document: {
+    readyState: "complete", head: mkEl(), body: mkEl(), documentElement: mkEl(),
+    createElement: newEl, createTextNode: mkEl,
+    getElementById: (id) => byId.get(id) || null,
+    querySelector: () => null, querySelectorAll: () => [],
+    addEventListener: (type, fn) => { if (type === "click") docClick.push(fn); },
+  },
+};
+ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx; ctx.addEventListener = () => {};
+ctx.window._pdxNavJump = () => {};
+ctx.window._pdxRevealTarget = () => {};
+
+// ── The palette, stubbed ────────────────────────────────────────────────────
+// Real enough to answer the two questions both surfaces ask it: is this a core
+// issue, and what does it paint. `healthcare` is deliberately NOT core, so the
+// "an unmapped key gets no spine rather than a neutral one" rule is exercised.
+const CORE = { lower_taxes: "#7fd4c1", border_security: "#e2a06a" };
+ctx.window.PDXIssueColors = {
+  isCore: (k) => Object.prototype.hasOwnProperty.call(CORE, k),
+  getIssueColor: (k) => ({ mapped: Object.prototype.hasOwnProperty.call(CORE, k), color: CORE[k] || "#9fb4d4" }),
+  styleFor: (k) => (CORE[k] ? `--pdx-ic:${CORE[k]};--pdx-ic-wash:${CORE[k]}22;` : ""),
+};
+
+// ── Roster ──────────────────────────────────────────────────────────────────
+const MEMBER = "rep_index", PREZ = "trump";
+const ISSUE = "lower_taxes";
+ctx.ISSUE_MAP = {
+  lower_taxes: { label: "Lower Taxes" },
+  healthcare: { label: "Health Care" },
+  border_security: { label: "Border Security" },
+};
+const stances = [
+  { issueKey: ISSUE, issueStance: "support" },
+  { issueKey: "healthcare", issueStance: "support" },
+  { issueKey: "border_security", issueStance: "support" },
+];
+ctx.ISSUE_STANCE_DATA = { [MEMBER]: stances, [PREZ]: stances };
+ctx.PROFILES = {
+  [MEMBER]: { name: "Marta Solano", office: "U.S. Representative", district: "ID-02", state: "Idaho", party: "R" },
+  [PREZ]: { name: "The President", office: "President of the United States", party: "R" },
+};
+ctx.CMP_DATA = { [MEMBER]: {}, [PREZ]: {} };
+ctx.window._getPhotoUrl = () => "";
+
+const sandbox = vm.createContext(ctx);
+for (const file of ["stance-helpers.js", "voting-record.js", "exec-record.js", "pdx-learn.js",
+                    "consistency.js", "word-action.js"]) {
+  vm.runInContext(read(file), sandbox, { filename: file });
+}
+
+let passed = 0;
+const failures = [];
+const ok = (c, m) => { if (c) passed++; else failures.push(m); };
+const eq = (a, b, m) => ok(a === b, `${m} (got ${JSON.stringify(a)}, want ${JSON.stringify(b)})`);
+const has = (s, sub, m) => ok(String(s).includes(sub), `${m} — missing ${JSON.stringify(sub)}`);
+const hasnt = (s, sub, m) => ok(!String(s).includes(sub), `${m} — should not contain ${JSON.stringify(sub)}`);
+
+const C = ctx.window.PDXConsistency;
+const WA = ctx.window.PDXWordAction;
+
+// ── Seeds ───────────────────────────────────────────────────────────────────
+// A congressional record with two bills on the tax issue, so the 🏛️ lane's noun
+// ("votes") is real rather than asserted off a stub.
+const SRC_C = { url: "https://www.congress.gov/roll-call-vote/11", label: "Congress.gov" };
+ctx.PDXVotingRecord._records[MEMBER] = [
+  {
+    kind: "vote", rollcallId: 11, measureId: 101, number: "H.R. 1", date: "2025-07-03",
+    action: "On Passage", position: "yea", isProcedural: false,
+    title: "One Big Beautiful Bill Act", source: SRC_C,
+    issues: [{ issueKey: ISSUE, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+  },
+  {
+    kind: "vote", rollcallId: 9, measureId: 109, number: "H.R. 9", date: "2025-03-11",
+    action: "On Passage", position: "yea", isProcedural: false,
+    title: "Taxpayer Relief Act", source: SRC_C,
+    issues: [{ issueKey: ISSUE, weight: 90, isPrimary: true, supportMeaning: "yea_supports" }],
+  },
+];
+// An executive record on the same issue, so the ✒️ lane's noun ("executive
+// actions") is real too.
+const SRC_X = "https://www.federalregister.gov/documents/2025/1";
+const inForce = [{ status: "in_force", effectiveAt: "2025-02-01", sourceUrl: SRC_X, sourceLabel: "Federal Register" }];
+ctx.EXEC_ACTIONS = {
+  [PREZ]: [
+    {
+      actionClass: "executive_order", term: "47", documentId: "EO 14001",
+      title: "Order on Federal Tax Withholding", actedAt: "2025-01-30",
+      sourceUrl: SRC_X, sourceLabel: "Federal Register", status: inForce,
+      issues: [{
+        issueKey: ISSUE, direction: "advances", weight: 100, isPrimary: true,
+        plain: "The order lowered federal withholding rates for the current year.",
+      }],
+    },
+    {
+      actionClass: "signed_law", term: "47", documentId: "Pub. L. 119-2",
+      title: "Broad Reconciliation Act", actedAt: "2025-04-12",
+      sourceUrl: SRC_X, sourceLabel: "Federal Register", status: inForce,
+      issues: [{ issueKey: ISSUE, direction: "advances", weight: 80, isPrimary: true,
+                 plain: "One title of the act trimmed a bracket." }],
+    },
+  ],
+};
+
+// ── A driveable index ───────────────────────────────────────────────────────
+// The row model, stubbed, so all four buckets exist at once on one figure —
+// which no single real seed produces and which is exactly the case the switcher
+// is for. Everything the index reads off a row is present; nothing is invented.
+const stubRow = (key, label, token, over = {}) => ({
+  pid: MEMBER, key, label, tier: 1, category: "econ", categoryLabel: "Economy",
+  stance: { key, label: "Cut taxes", direction: "support", text: "said a thing", source: "" },
+  lane: "record", tested: true, scored: true, testability: "high",
+  actions: { count: 2, lane: "record", judged: 2 },
+  verdict: { token, label: token, cls: "x", ico: "•", color: "#fff", score: null, basis: "action" },
+  public: { token: "no_record", count: 0, judged: false },
+  evidence: { count: 2, actions: 2, public: 0, total: 2, strength: "documented", sources: [] },
+  setAside: null, weights: {}, ov: {},
+  ...over,
+});
+const ROWS = [
+  stubRow("lower_taxes", "Lower Taxes", "contradicts"),
+  stubRow("healthcare", "Health Care", "mixed"),
+  stubRow("border_security", "Border Security", "consistent"),
+  stubRow("guns", "Gun Rights", "consistent"),
+  stubRow("energy", "Energy", "limited"),
+];
+const realIssueRows = C.issueRows, realRank = C.rankIssueRows;
+const withRows = (rows) => {
+  C.issueRows = () => rows;
+  C.rankIssueRows = (rs) => rs;
+  try { return WA.headlineHtml(MEMBER, ctx.PROFILES[MEMBER]); }
+  finally { C.issueRows = realIssueRows; C.rankIssueRows = realRank; }
+};
+// The index block only. Bounded at BOTH ends: the panels that follow it on the
+// card carry the score's own percentage, and an unbounded slice would quietly
+// hand every "no second scoreboard" assertion below a string that contains the
+// first scoreboard.
+const ocOf = (html) => {
+  const s = String(html);
+  const i = s.indexOf('<div class="pdxwa-oc"');
+  if (i === -1) return "";
+  const f = s.indexOf('class="pdxwa-oc-foot"', i);
+  if (f === -1) return "";
+  const e = s.indexOf("</div>", s.indexOf("</p>", f));
+  return s.slice(i, e === -1 ? s.length : e + 6);
+};
+const IDX = ocOf(withRows(ROWS));
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 0. One vocabulary, published once
+// ═════════════════════════════════════════════════════════════════════════════
+// The dossier header has to name the bucket a row was filed under. It reads that
+// name from here. If this stops being published, the header silently drops the
+// continuity line — which looks exactly like a design choice rather than a break.
+ok(Array.isArray(WA.OUTCOMES) && WA.OUTCOMES.length === 4,
+  "vocabulary: PDXWordAction no longer publishes the four result buckets");
+ok(typeof WA.outcomeFor === "function", "vocabulary: outcomeFor() is not published");
+for (const [tok, short] of [["contradicts", "Contradicted"], ["mixed", "Mixed"],
+                            ["consistent", "Backed up"], ["limited", "Thin record"]]) {
+  const o = WA.outcomeFor(tok);
+  ok(o && o.short === short, `vocabulary: "${tok}" no longer resolves to the short name "${short}"`);
+  ok(o && /^#[0-9a-f]{6}$/i.test(o.col), `vocabulary: "${tok}" has no colour for the index and the dossier to share`);
+  ok(o && typeof o.sub === "string" && o.sub.length > 15,
+     `vocabulary: "${tok}" has no one-clause explanation, so the bucket heading is a label with no meaning`);
+}
+eq(WA.outcomeFor("pending"), null,
+  "vocabulary: a verdict that was never in the index resolves to a bucket anyway — that is how a\n" +
+  "    loading row acquires a result");
+ok(WA.outcomeFor("limited").secondary === true,
+  "vocabulary: the coverage bucket is not marked secondary, so nothing downstream can draw it quieter");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 1. Four distinct buckets, nothing behind a fold
+// ═════════════════════════════════════════════════════════════════════════════
+ok(IDX.length > 0, "index: the issue index did not render — every assertion below is vacuous");
+hasnt(IDX, "PDXSP:lid", "index: a bucket is still behind a spine lid");
+hasnt(IDX, "<select", "index: the bucket switcher is a dropdown — three of the four counts would be\n" +
+  "    hidden behind a tap, which is the partial reveal this replaced");
+eq((IDX.match(/data-pdxwa-oc-panel="/g) || []).length, 4,
+  "index: the four outcomes are not four distinct panels");
+eq((IDX.match(/data-pdxwa-seg="/g) || []).length, 4,
+  "index: the switcher does not offer one chip per live bucket");
+has(IDX, 'role="tablist"', "index: the switcher is not announced as a set of choices");
+eq((IDX.match(/role="tabpanel"/g) || []).length, 4, "index: the bucket panels are not announced as panels");
+// Counts are on the chips, so the shape of the record is legible without opening
+// anything — which is the entire reason the fold went.
+has(IDX, '<span class="pdxwa-oc-tab-n">2</span>', "index: a chip does not carry its own count");
+for (const label of ["Says one thing, does another", "Mixed", "Backed it up", "Not enough record yet"]) {
+  has(IDX, label, `index: the bucket heading "${label}" is missing`);
+}
+for (const short of ["Contradicted", "Mixed", "Backed up", "Thin record"]) {
+  has(IDX, short, `index: the switcher does not print the short bucket name "${short}"`);
+}
+// Each panel says what its bucket MEANS, once, under the heading.
+has(IDX, "The record pushes back on what they said.", "index: the contradicted bucket does not say what it means");
+has(IDX, "Coverage, not a result.", "index: the thin bucket does not say that it is not a finding");
+
+// One selection, and it is the sharpest live outcome.
+eq((IDX.match(/aria-selected="true"/g) || []).length, 1, "index: not exactly one bucket is selected");
+eq((IDX.match(/class="pdxwa-oc-grp is-on/g) || []).length, 1, "index: not exactly one panel is open on first paint");
+ok(/data-pdxwa-seg="contradicts"[\s\S]{0,240}?aria-selected="true"/.test(IDX),
+  "index: the index does not open on the sharpest bucket on file");
+
+// The coverage pile: present, counted, reachable, quieter, last, never selected.
+ok(/data-pdxwa-seg="limited"[\s\S]{0,240}?aria-selected="false"/.test(IDX),
+  "index: the coverage bucket is selected while real results exist");
+has(IDX, "pdxwa-oc-tab-2nd", "index: the coverage chip is not marked secondary");
+has(IDX, "pdxwa-oc-grp-2nd", "index: the coverage panel is not marked secondary");
+ok(IDX.lastIndexOf('data-pdxwa-oc-panel="limited"') > IDX.lastIndexOf('data-pdxwa-oc-panel="consistent"'),
+  "index: the coverage bucket is not ordered last, so it sits between two sets of findings");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 2. Not a second scoreboard
+// ═════════════════════════════════════════════════════════════════════════════
+// The profile has ONE number and it is the Direction Match above this block. The
+// index reports counts and names; a percentage here would be subtracted from that
+// one by every reader who saw both.
+eq((IDX.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
+  "index: the issue index prints a percentage — there is exactly one score on a profile");
+// ...and the denominator is still recoverable, in words, once.
+has(IDX, "5 issues in this index", "index: the index does not state how many issues it covers");
+has(IDX, "4 with a result on the record", "index: the index does not separate judged issues from coverage");
+has(IDX, "1 stated but not testable yet", "index: the untestable rows are folded into the judged count");
+// The headline is still the headline: the section's own metric name appears above
+// the index, and the index never repeats it.
+const head = String(withRows(ROWS));
+ok(head.indexOf("Direction match") !== -1 || head.indexOf("Direction Match") !== -1,
+  "hierarchy: the profile-level metric no longer names itself above the index");
+hasnt(IDX, "Direction match", "hierarchy: the index restates the profile-level metric, which makes it read\n" +
+  "    as a second scoreboard rather than as a breakdown of the first");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 3. The row is the door
+// ═════════════════════════════════════════════════════════════════════════════
+eq((IDX.match(/<button type="button" class="pdxwa-oc-row/g) || []).length, 5,
+  "rows: the rows are not buttons — the row itself is the primary tap target");
+eq((IDX.match(/data-pdxwa-dos="/g) || []).length, 5, "rows: a row does not name the issue it opens");
+eq((IDX.match(/data-pdxwa-dos-pid="/g) || []).length, 5, "rows: a row does not name whose dossier it opens");
+eq((IDX.match(/data-pdxwa-dos-origin="pdxwa-oc-/g) || []).length, 5,
+  "rows: a row does not carry its own id as the origin, so closing the dossier cannot return the\n" +
+  "    reader to the line they left");
+has(IDX, 'aria-label="Open the issue dossier: Lower Taxes — Contradicted · they said: Cut taxes"',
+  "rows: the control does not say what it opens, in the index's own words");
+// Compact: issue, said direction, result cue, markers. The deep explanation is one
+// tap down, and a row that explains itself is a row nobody taps.
+has(IDX, '<span class="pdxwa-oc-issue">Lower Taxes</span>', "rows: the issue name is not on the row");
+has(IDX, '<span class="pdxwa-oc-said">Cut taxes</span>', "rows: the stated direction is not on the row");
+has(IDX, 'class="pdxwa-oc-cue"', "rows: the row carries no short result cue of its own");
+has(IDX, "2 receipts", "rows: the row does not report the depth behind its result");
+hasnt(IDX, "set aside", "rows: the counter-evidence prose is back on the row — that is dossier depth, and it\n" +
+  "    is what made these rows wrap to three lines");
+// The issue's own colour rides the row, and it is the colour the dossier will
+// repeat. `healthcare` is not a core issue in this fixture and must get no spine.
+ok(/data-pdxwa-dos="lower_taxes"[\s\S]{0,400}?--pdx-ic:#7fd4c1/.test(IDX) ||
+   /--pdx-ic:#7fd4c1[\s\S]{0,400}?data-pdxwa-dos="lower_taxes"/.test(IDX),
+  "rows: the issue colour is not on the row, so nothing carries into the dossier header");
+ok(!/data-pdxwa-dos="healthcare"[^>]*pdxwa-ic/.test(IDX),
+  "rows: an unmapped issue is painted as if it resolved to a colour");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 4. The switcher actually switches
+// ═════════════════════════════════════════════════════════════════════════════
+// Behaviour, not source text: the handler is delegated on the document, so it is
+// held and called with a synthetic event. Selection is presentational — it moves
+// `.is-on` and the aria state and touches nothing else — so it can never disagree
+// with what the record says, only with which part of it is on screen.
+ok(docClick.length > 0, "switcher: nothing bound a delegated click handler, so no row and no chip is live");
+const fire = (target) => { docClick.forEach((h) => h({ target, preventDefault() {} })); };
+
+const mkTab = (tok, on) => {
+  const el = mkEl();
+  el._attrs = { "data-pdxwa-seg": tok, "data-pdxwa-seg-uid": "u1" };
+  if (on) el._classes.add("is-on");
+  el.setAttribute("aria-selected", on ? "true" : "false");
+  return el;
+};
+const mkPane = (tok, on) => {
+  const el = mkEl();
+  el._attrs = { "data-pdxwa-oc-panel": tok };
+  if (on) el._classes.add("is-on");
+  return el;
+};
+const TABS = [mkTab("contradicts", true), mkTab("mixed", false), mkTab("consistent", false), mkTab("limited", false)];
+const PANES = [mkPane("contradicts", true), mkPane("mixed", false), mkPane("consistent", false), mkPane("limited", false)];
+const root = mkEl();
+root.querySelectorAll = (sel) => (sel.indexOf("data-pdxwa-seg-uid") !== -1 ? TABS : PANES);
+TABS.forEach((t) => { t.closest = (sel) => (sel === ".pdxwa-oc" ? root : (sel === "[data-pdxwa-seg]" ? t : null)); });
+
+fire({ closest: (sel) => (sel === "[data-pdxwa-seg]" ? TABS[2] : null) });
+eq(TABS.filter((t) => t._classes.has("is-on")).map((t) => t.getAttribute("data-pdxwa-seg")).join(","), "consistent",
+  "switcher: tapping a chip does not move the selection to it");
+eq(TABS.filter((t) => t.getAttribute("aria-selected") === "true").length, 1,
+  "switcher: more or fewer than one chip reports itself selected after a tap");
+eq(PANES.filter((p) => p._classes.has("is-on")).map((p) => p.getAttribute("data-pdxwa-oc-panel")).join(","), "consistent",
+  "switcher: the panels did not follow the chip");
+// And it is reversible — a switcher you can only move forwards is a filter.
+fire({ closest: (sel) => (sel === "[data-pdxwa-seg]" ? TABS[3] : null) });
+eq(PANES.filter((p) => p._classes.has("is-on")).map((p) => p.getAttribute("data-pdxwa-oc-panel")).join(","), "limited",
+  "switcher: the coverage bucket cannot be reached from the switcher");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 5. The tap opens the assembled dossier, and remembers where it came from
+// ═════════════════════════════════════════════════════════════════════════════
+const opened = [];
+const realOpen = C.openGap;
+C.openGap = (pid, key, opts) => { opened.push({ pid, key, opts }); };
+const mkRow = (key) => {
+  const el = mkEl();
+  el._attrs = {
+    "data-pdxwa-dos": key,
+    "data-pdxwa-dos-pid": MEMBER,
+    "data-pdxwa-dos-origin": "pdxwa-oc-" + MEMBER + "-" + key,
+  };
+  return el;
+};
+fire({ closest: (sel) => (sel === "[data-pdxwa-dos]" ? mkRow("border_security") : null) });
+eq(opened.length, 1, "tap: the row did not open anything");
+eq(opened[0].pid, MEMBER, "tap: the dossier opened on the wrong politician");
+eq(opened[0].key, "border_security", "tap: the dossier opened on the wrong issue");
+eq(opened[0].opts.arrival, false,
+  "tap: the sheet opened in arrival mode — that is the shared-card landing state, and it suppresses\n" +
+  "    the return path a reader coming from the index needs");
+eq(opened[0].opts.origin, "pdxwa-oc-" + MEMBER + "-border_security",
+  "tap: the origin row was not handed to the dossier, so closing it cannot return the reader");
+// That origin has to be the id the index actually printed, or the return lands nowhere.
+has(IDX, 'id="pdxwa-oc-' + MEMBER + '-border_security"',
+  "tap: the id the row hands over as its origin is not the id the row was given");
+
+// Fail closed: no consistency module, no navigation — and no thrown error that
+// would take the rest of the page's click handling down with it.
+C.openGap = undefined;
+const before = opened.length;
+let threw = null;
+try { fire({ closest: (sel) => (sel === "[data-pdxwa-dos]" ? mkRow("healthcare") : null) }); }
+catch (e) { threw = e; }
+eq(threw, null, "tap: a missing dossier entry point throws out of the delegated handler");
+eq(opened.length, before, "tap: something navigated without an entry point to navigate with");
+C.openGap = realOpen;
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 6. Index bucket → issue dossier: the colour and the word travel
+// ═════════════════════════════════════════════════════════════════════════════
+// The claim being tested is continuity, so it is checked at the seam: the sheet
+// consistency.js builds for the same (pid, issue) the index row points at.
+const sheet = C.gapViewHtml(MEMBER, ISSUE);
+has(sheet, 'class="pdxdos-bucket"', "continuity: the dossier header does not say which bucket this row was filed under");
+has(sheet, ">In the issue index<", "continuity: the header names a bucket without saying where that bucket is");
+// The word and the colour are the index's, read from the index's own module.
+const bucket = WA.outcomeFor(C.issueRow(MEMBER, ISSUE).verdict.token);
+ok(bucket, "continuity: this fixture's row has no bucket, so the assertions below are vacuous");
+has(sheet, ">" + bucket.short + "<", "continuity: the header does not repeat the index's word for this result");
+has(sheet, "--c:" + bucket.col, "continuity: the header does not repeat the index's colour for this result");
+has(sheet, bucket.sub, "continuity: the header names the bucket without saying what the bucket means");
+// The issue's colour is on the title, which is the other cue the row carried.
+has(sheet, 'class="pdxgap-title pdxc-ic"', "continuity: the issue colour does not reach the dossier title");
+has(sheet, "--pdx-ic:#7fd4c1", "continuity: the title carries the wrong issue colour, or none");
+// An unmapped issue gets NO spine rather than a neutral one that looks like a
+// colour that failed.
+const plainSheet = C.gapViewHtml(MEMBER, "healthcare");
+has(plainSheet, 'class="pdxgap-title"', "continuity: an unmapped issue's title lost its plain form");
+hasnt(plainSheet, 'class="pdxgap-title pdxc-ic"', "continuity: an unmapped issue is painted as if it resolved");
+// The bucket line is a NAME, not a number. The sheet's one number is in its header
+// hero and nowhere else.
+const bLine = sheet.slice(sheet.indexOf('class="pdxdos-bucket"'), sheet.indexOf('class="pdxgap-meta"'));
+eq((bLine.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
+  "continuity: the bucket line prints a percentage — it says where a finding was filed, not how big it is");
+
+// Fail closed: with the index module absent there is no vocabulary to borrow, and
+// the header prints nothing rather than inventing a fifth word for four outcomes.
+const savedWA = ctx.window.PDXWordAction;
+ctx.window.PDXWordAction = undefined;
+const orphan = C.gapViewHtml(MEMBER, ISSUE);
+hasnt(orphan, "pdxdos-bucket", "continuity: the header invents bucket language with no index module to read it from");
+has(orphan, 'class="pdxgap-title pdxc-ic"', "continuity: the issue colour is lost when the index module is absent —\n" +
+  "    the palette is not the index's to take away");
+ctx.window.PDXWordAction = savedWA;
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 7. Both lanes reach the index, in their own nouns
+// ═════════════════════════════════════════════════════════════════════════════
+// The row prints what tested it, and a president casts no votes. Driven through
+// the REAL row model on both sides, because the lane is the one thing a stub
+// cannot honestly assert.
+const memberIdx = ocOf(WA.headlineHtml(MEMBER, ctx.PROFILES[MEMBER]));
+ok(memberIdx.length > 0, "lanes: the congressional index did not render");
+has(memberIdx, "votes", "lanes: a member's rows do not count votes");
+hasnt(memberIdx, "executive action", "lanes: a member's rows count executive actions");
+has(memberIdx, 'data-pdxwa-dos="' + ISSUE + '"', "lanes: the congressional rows are not clickable");
+
+const prezIdx = ocOf(WA.headlineHtml(PREZ, ctx.PROFILES[PREZ]));
+ok(prezIdx.length > 0, "lanes: the executive index did not render");
+has(prezIdx, "executive action", "lanes: a president's rows do not count executive actions");
+ok(!/\b\d+ votes?\b/.test(prezIdx), "lanes: a president's rows count votes — they cast none");
+has(prezIdx, 'data-pdxwa-dos="' + ISSUE + '"', "lanes: the executive rows are not clickable");
+eq((prezIdx.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
+  "lanes: the executive index prints a percentage of its own");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8. Thin and untested rows fail closed
+// ═════════════════════════════════════════════════════════════════════════════
+// A row with nothing stated is coverage of OUR map, not a finding about them, and
+// it must not enter the index at all — it would inflate the denominator the foot
+// line reports.
+const silent = ocOf(withRows([stubRow("energy", "Energy", "limited", { stance: { key: "energy", label: null, text: "" } })]));
+eq(silent, "", "thin: an issue they have never spoken on is listed as a result, which pads the index\n" +
+  "    with silence and inflates its stated denominator");
+// A row whose verdict is still loading has no bucket, so it is not filed under one.
+const loading = ocOf(withRows([
+  stubRow("lower_taxes", "Lower Taxes", "consistent"),
+  stubRow("healthcare", "Health Care", "pending", { tested: false, scored: false }),
+]));
+has(loading, "1 issues in this index".replace("1 issues", "1 issue"),
+  "thin: a row still waiting on its record is counted as a result");
+hasnt(loading, 'data-pdxwa-dos="healthcare"', "thin: a row with no verdict yet is given a door into a dossier\n" +
+  "    that has nothing to show");
+// A single-item row is listed under its result and marked, never quietly promoted.
+const thinRow = ocOf(withRows([stubRow("lower_taxes", "Lower Taxes", "consistent", {
+  actions: { count: 1, lane: "record", judged: 1 },
+  evidence: { count: 1, actions: 1, public: 0, total: 1, strength: "thin", sources: [] },
+})]));
+has(thinRow, "Thin evidence", "thin: a row resting on one sourced item is not marked as thin");
+has(thinRow, "pdxwa-oc-row-thin", "thin: the thin row is not drawn differently from a documented one");
+
+// ── Report ──────────────────────────────────────────────────────────────────
+if (failures.length) {
+  console.error(`\n✗ issue index: ${failures.length} failed, ${passed} passed\n`);
+  failures.forEach((f, i) => console.error(`  ${i + 1}. ${f}\n`));
+  process.exit(1);
+}
+console.log(`✓ issue index: all ${passed} assertions passed — four buckets, every row a door, one vocabulary`);

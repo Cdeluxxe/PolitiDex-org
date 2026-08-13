@@ -1686,6 +1686,11 @@
       '.pdxgap-who-sub{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-weight:600;font-size:0.7rem;color:#8fa5c4;line-height:1.3;margin-top:0.1rem;}' +
       '.pdxgap-party{font-weight:700;font-size:0.62rem;letter-spacing:0.04em;padding:0.05rem 0.34rem;border-radius:999px;color:var(--c,#8fa5c4);border:1px solid var(--c,#8fa5c4);background:rgba(10,15,30,0.5);}' +
       '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.55rem 0 0.4rem;}' +
+      // The issue's own colour, carried in from the row that was tapped. Only ever
+      // painted when the key resolved to a real core issue — an unmapped key gets no
+      // spine rather than a neutral one that looks like a colour that failed.
+      '.pdxgap-title.pdxc-ic{border-left:4px solid var(--pdx-ic);padding-left:0.5rem;' +
+        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 58%);}' +
       '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:2.75rem;height:2.75rem;}}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
       // The verdict, sized so it is the thing the eye lands on. Same colour and
@@ -1820,6 +1825,19 @@
       '.pdxdos-recs>summary::-webkit-details-marker{display:none;}' +
       '.pdxdos-recs[open]>summary{color:#9fdbff;}' +
       '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
+      // ── The continuity line, directly under the issue title ────────────────
+      // Named in the index's colour, in the index's word, so the header the tap
+      // lands on repeats the header the tap left. Deliberately quieter than the
+      // verdict chip below it: this says WHERE the finding was filed, not what it
+      // is — the verdict is still the thing being read.
+      '.pdxdos-bucket{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.3rem 0.45rem;' +
+        'margin:-0.15rem 0 0.45rem;padding-left:0.55rem;border-left:3px solid var(--c,#9fb4d4);}' +
+      '.pdxdos-bucket-k{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.58rem;' +
+        'letter-spacing:0.09em;text-transform:uppercase;color:#8fa2c0;}' +
+      '.pdxdos-bucket-v{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.74rem;' +
+        'letter-spacing:0.06em;text-transform:uppercase;color:var(--c,#9fb4d4);}' +
+      '.pdxdos-bucket-s{flex:1 1 100%;min-width:0;font-size:0.68rem;line-height:1.45;color:#8fa2c0;' +
+        'overflow-wrap:break-word;}' +
       // The lane-asymmetry note. Set apart from the rows so it reads as a statement
       // about the record's shape rather than as another row.
       '.pdxdos-note{font-size:0.68rem;color:#8fa2c0;line-height:1.5;padding:0.4rem 0 0.1rem;' +
@@ -5267,6 +5285,40 @@
     return false;
   }
 
+  // ── THE BUCKET THE INDEX FILED THIS ROW UNDER ───────────────────────────────
+  // The issue index in ⚖️ Word vs Action sorts every issue into one of four result
+  // buckets and names each one in a short, fixed vocabulary — Contradicted, Mixed,
+  // Backed up, Thin record. A reader who tapped a row got here from inside one of
+  // those buckets, and this line is what tells them the sheet they landed on is the
+  // same finding at greater depth rather than a different reading of it.
+  //
+  // FAIL CLOSED, TWO WAYS. The vocabulary is read from PDXWordAction, which owns it;
+  // if that module is not loaded this prints nothing rather than inventing a second
+  // set of words for the same four outcomes. And a verdict with no bucket — pending,
+  // no record, nothing stated — prints nothing either, because it was never in the
+  // index to be filed anywhere. No percentage: the bucket is a name, not a score.
+  function _dosBucket(r) {
+    var tok = r && r.verdict && r.verdict.token;
+    if (!tok) return null;
+    try {
+      var WA = window.PDXWordAction;
+      if (!WA) return null;
+      if (typeof WA.outcomeFor === 'function') return WA.outcomeFor(tok) || null;
+      var list = WA.OUTCOMES || [];
+      for (var i = 0; i < list.length; i++) if (list[i].token === tok) return list[i];
+    } catch (e) {}
+    return null;
+  }
+  function _dosBucketHtml(r) {
+    var o = _dosBucket(r);
+    if (!o) return '';
+    return '<div class="pdxdos-bucket" style="--c:' + o.col + ';">' +
+        '<span class="pdxdos-bucket-k">In the issue index</span>' +
+        '<span class="pdxdos-bucket-v">' + esc(o.short) + '</span>' +
+        (o.sub ? '<span class="pdxdos-bucket-s">' + esc(o.sub) + '</span>' : '') +
+      '</div>';
+  }
+
   // ── L1 — the assembled answer ───────────────────────────────────────────────
   // Open by default, and the only level that is. Everything here is read off the
   // row model: no arithmetic happens in this function. It prints NO percentage —
@@ -5456,6 +5508,18 @@
     // eyebrow and a name in body text before anything confirmed they were in the
     // right place. Recognition is faster than reading, so the photo goes first.
     var _id = _gapIdentity(pid);
+    // ── The path in, made visible ─────────────────────────────────────────────
+    // A reader arrives here by tapping a row in the issue index — a coloured line
+    // filed under a named result. If the sheet then opens on a different colour and
+    // a different word for the same finding, the tap reads as a jump to somewhere
+    // else rather than as a zoom into the row. So the two cues the index used come
+    // with it: the ISSUE's colour, on the title, and the BUCKET's word, under it.
+    // Both are read from the surfaces that own them — PDXIssueColors and
+    // PDXWordAction.OUTCOMES — never restated here, so neither can drift.
+    var _tskin = _icSkin(issueKey);
+    var _titleAttr = _tskin.on
+      ? ' class="pdxgap-title pdxc-ic" style="' + _tskin.style + '"'
+      : ' class="pdxgap-title"';
     var head =
       '<div class="pdxgap-h">' +
         '<div class="pdxgap-id">' + _gapFaceHtml(_id) +
@@ -5465,7 +5529,8 @@
             _gapSubHtml(_id) +
           '</div>' +
         '</div>' +
-        '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
+        '<div' + _titleAttr + '>' + esc(lbl) + '</div>' +
+        _dosBucketHtml(_dosRow) +
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.
         '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
