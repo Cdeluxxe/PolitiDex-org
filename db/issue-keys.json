@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 110,
+  "count": 111,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -12,6 +12,7 @@
     "cannabis_reform",
     "checks_balances",
     "child_care",
+    "civil_service_control",
     "climate_action",
     "cost_living",
     "crypto_cbdc",
@@ -251,6 +252,28 @@
       "head start",
       "working parents",
       "family"
+    ],
+    "civil_service_control": [
+      "civil service",
+      "civil service protections",
+      "civil service rules",
+      "schedule f",
+      "schedule policy/career",
+      "schedule g",
+      "excepted service",
+      "competitive service",
+      "merit system principles",
+      "career civil service",
+      "career employee",
+      "policy-influencing",
+      "at-will",
+      "adverse action",
+      "removal procedures",
+      "chapter 75",
+      "office of personnel management",
+      "opm",
+      "tenure",
+      "federal employee"
     ],
     "climate_action": [
       "climate",

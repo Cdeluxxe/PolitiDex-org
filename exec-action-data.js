@@ -169,6 +169,48 @@
         ]
       },
       {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13839",
+        "executiveOrderNumber": 13839,
+        "title": "Promoting Accountability and Streamlining Removal Procedures Consistent With Merit System Principles",
+        "actedAt": "2018-05-25",
+        "publishedAt": "2018-06-01",
+        "term": "45",
+        "frCitation": "83 FR 25343",
+        "frDocumentNumber": "2018-11939",
+        "sourceUrl": "https://www.federalregister.gov/documents/2018/06/01/2018-11939/promoting-accountability-and-streamlining-removal-procedures-consistent-with-merit-system-principles",
+        "sourceLabel": "Federal Register — Executive Order 13839, 83 FR 25343",
+        "issues": [
+          {
+            "issueKey": "civil_service_control",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 75,
+            "rationale": "Section 2 sets the principles: agencies should limit the opportunity period to demonstrate acceptable performance under 5 U.S.C. 4302(c)(6) to the time that provides sufficient opportunity, supervisors and deciding officials should not be required to use progressive discipline, and agencies should not require suspension of an employee before proposing to remove that employee. Section 4 then makes those principles binding: no agency shall make an agreement, including a collective bargaining agreement, that limits its discretion to employ chapter 75 procedures to address unacceptable performance, that requires chapter 43 procedures before removing an employee for unacceptable performance, or that limits its discretion to remove an employee from Federal service without first engaging in progressive discipline, and section 4(c) holds the demonstration period to 30 days except where the agency determines in its sole and exclusive discretion that longer is necessary. Section 3 directs agency heads to endeavor to exclude from grievance procedures negotiated under 5 U.S.C. 7121 any dispute concerning decisions to remove an employee from Federal service. The instrument narrows the adverse-action protections attached to career executive-branch employees, which is what this key records."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2018-06-01",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13839 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2018/06/01/2018-11939/promoting-accountability-and-streamlining-removal-procedures-consistent-with-merit-system-principles",
+            "note": "Signed May 25, 2018 and published June 1, 2018 at 83 FR 25343. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-22",
+            "authority": "Executive Order 14003 of January 22, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13839 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2018/06/01/2018-11939/promoting-accountability-and-streamlining-removal-procedures-consistent-with-merit-system-principles",
+            "note": "The disposition note on the register's own record for this document reads, in full: 'Revoked by: EO 14003 of January 22, 2021'. The order no longer stands, and the register records no later reinstatement of it — which is the whole difference between this document and Executive Order 13957, whose record carries one, and the reason the two first-term orders in this wave are filed with opposite current standings. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
         "actionClass": "vetoed_law",
         "documentId": "H.J. Res. 46 (116th Congress)",
         "measureNumber": "H.J. Res. 46",
@@ -349,6 +391,57 @@
             "sourceLabel": "Federal Register — Executive Order 13950 document record, disposition notes",
             "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
             "note": "The disposition note on the register's own record for this document reads: 'See: EO 11246, September 24, 1965; EO 14185, January 27, 2025' and 'Revoked by: EO 13985, January 20, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13957",
+        "executiveOrderNumber": 13957,
+        "title": "Creating Schedule F in the Excepted Service",
+        "actedAt": "2020-10-21",
+        "publishedAt": "2020-10-26",
+        "term": "45",
+        "frCitation": "85 FR 67631",
+        "frDocumentNumber": "2020-23780",
+        "sourceUrl": "https://www.federalregister.gov/documents/2020/10/26/2020-23780/creating-schedule-f-in-the-excepted-service",
+        "sourceLabel": "Federal Register — Executive Order 13957, 85 FR 67631",
+        "issues": [
+          {
+            "issueKey": "civil_service_control",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 95,
+            "rationale": "Section 3 directs that appointments to positions of a confidential, policy-determining, policy-making or policy-advocating character that are not normally subject to change as a result of a Presidential transition shall be made under Schedule F of the excepted service. Section 4(a)(i) amends 5 CFR 6.2 to add that schedule to the list of positions OPM excepts from the competitive service, defining it as 'Positions of a confidential, policy-determining, policy-making, or policy-advocating character not normally subject to change as a result of a Presidential transition'. Section 4(a)(ii) amends 5 CFR 6.4 to read that, except as required by statute, 'the Civil Service Rules and Regulations shall not apply to removals from positions listed in Schedules A, C, D, E, or F'. Section 1 states the finding it rests on: that conditions of good administration make necessary an exception to the competitive hiring rules and examinations for career positions of that character, and similarly make necessary excepting such positions from the adverse action procedures set forth in chapter 75 of title 5. Creating an excepted category for career policy-influencing positions and detaching the removal rules from it is the mechanism this key exists to record."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-10-26",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13957 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/10/26/2020-23780/creating-schedule-f-in-the-excepted-service",
+            "note": "Signed October 21, 2020 and published October 26, 2020 at 85 FR 67631. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-22",
+            "authority": "Executive Order 14003 of January 22, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13957 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/10/26/2020-23780/creating-schedule-f-in-the-excepted-service",
+            "note": "The first line of the disposition note on the register's own record for this document reads: 'Revoked by: EO 14003, January 22, 2021'. Ninety-three days after it was published the order no longer stood, and for the four years that followed this was where its history ended. It is filed as its own row rather than folded into the row after it because a standing that was later undone still happened, and the append-only log is what makes that visible. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-20",
+            "authority": "Executive Order 14171 of January 20, 2025, which reinstated it with full force and effect",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13957 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/10/26/2020-23780/creating-schedule-f-in-the-excepted-service",
+            "note": "THE CURRENT STANDING. The disposition note on the register's own record for this document carries three lines: 'Revoked by: EO 14003, January 22, 2021', 'Reinstated by: EO 14171, January 20, 2025' and 'Amended by: EO 14171, January 21, 2025; EO 14410, June 3, 2026'. Section 2 of Executive Order 14171 reads that this order 'is hereby immediately reinstated with full force and effect, subject to the amendments described in section 3 of this order; provided that the date of this order shall be treated as the date of Executive Order 13957'. A first-term order struck out by the succeeding President and restored on the first day of the next term is the reason the term filter exists, and it is the reason this document was worth an issue key. READ THE LIMIT: reinstatement by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it. There is litigation over this policy and it is disclosed where it belongs — the union's amended complaint names the 2025 order and the 2026 order as the instruments it asks the court to hold unlawful, and it recites this document as history, so the challenged standing sits on those two rows and not on this one."
           }
         ]
       },
@@ -837,6 +930,49 @@
             "sourceLabel": "Federal Register — Executive Order 14169 document record, 90 FR 8619",
             "sourceUrl": "https://www.federalregister.gov/documents/2025/01/30/2025-02091/reevaluating-and-realigning-united-states-foreign-aid",
             "note": "Published at 90 FR 8619. The disposition record for this document carries a cross-reference to a later presidential memorandum and no entry revoking or superseding the order, so it stands as published by later presidential action. This order has been litigated over the funds it paused, and this row deliberately reports only the register: it is not a statement about any challenge to it, and no ruling is claimed here."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14171",
+        "executiveOrderNumber": 14171,
+        "title": "Restoring Accountability to Policy-Influencing Positions Within the Federal Workforce",
+        "actedAt": "2025-01-20",
+        "publishedAt": "2025-01-31",
+        "term": "47",
+        "frCitation": "90 FR 8625",
+        "frDocumentNumber": "2025-02095",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/31/2025-02095/restoring-accountability-to-policy-influencing-positions-within-the-federal-workforce",
+        "sourceLabel": "Federal Register — Executive Order 14171, 90 FR 8625",
+        "issues": [
+          {
+            "issueKey": "civil_service_control",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Section 2 reinstates Executive Order 13957 'immediately ... with full force and effect' and provides that the date of this order shall be treated as the date of that one. Section 3 amends it: subsection (a) replaces the letter 'F' throughout, where used to designate an excepted service schedule, with the words 'Policy/Career'; subsection (b)(ii) inserts the words 'competitive service and the' immediately before the words 'adverse action procedures', so the finding of necessity reaches both; subsection (c) narrows the schedule's definition to 'Career positions'; and subsection (f)(ii) adds a new section 6(b) providing that employees in or applicants for Schedule Policy/Career positions 'are required to faithfully implement administration policies to the best of their ability' and that 'Failure to do so is grounds for dismissal'. Section 4 directs the Director of the Office of Personnel Management to amend the Civil Service Regulations to rescind the changes made by the final rule of April 9, 2024, 89 Fed. Reg. 24982, that impede the purposes of Executive Order 13957, and holds 5 CFR part 302 subpart F and 5 CFR 210.102(b)(3) and (4) inoperative until that is done. Section 6 revokes Executive Order 14003, the order that had revoked Executive Order 13957. It carries the heaviest weight under this key because it is the instrument that put the category back."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-31",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14171 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/31/2025-02095/restoring-accountability-to-policy-influencing-positions-within-the-federal-workforce",
+            "note": "Signed January 20, 2025 and published January 31, 2025 at 90 FR 8625. The disposition note on the register's own record for this document reads 'Reinstates: EO 13957, October 21, 2020', 'Revokes: EO 14003, January 22, 2021' and 'Amended by: EO 14410, June 3, 2026' — it has not been revoked or superseded by any later presidential action. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "challenged_unverified",
+            "effectiveAt": "2026-06-17",
+            "authority": "Challenge pending — U.S. District Court for the District of Columbia (National Treasury Employees Union v. Trump, No. 1:25-cv-00170-JMC)",
+            "basis": "pending_litigation",
+            "sourceLabel": "D.D.C. — National Treasury Employees Union v. Trump, No. 1:25-cv-00170-JMC, Amended Complaint for Declaratory and Injunctive Relief (ECF 30, filed June 17, 2026)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.dcd.276604/gov.uscourts.dcd.276604.30.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69560537/national-treasury-employees-union-v-trump/",
+            "note": "THE CURRENT STANDING, and it is a statement about this file rather than about the order. The amended complaint was read in full in this pass. Its opening paragraph names this document — 'Exec. Order No. 14, 171, Restoring Accountability to Policy-Influencing Positions Within the Federal Workforce (Policy/Career Order) (90 Fed. Reg. 8625) (Jan. 31, 2025)' — and Counts 1 and 2 ask the court to hold that 'the initial Policy/Career Order and the Implementing Policy/Career Order' unlawful and ultra vires, on the grounds that they exceed the authority 5 U.S.C. 3302 gives the President and that they strip accrued and vested rights. The docket was opened on January 20, 2025, the day the order was signed; it is not terminated; its newest entry when read here was dated August 6, 2026; and it carries no ruling on this order — no preliminary injunction, no judgment, nothing beyond the pleadings and scheduling. A search of published opinions for this order and for Schedule Policy/Career returned no ruling either. So no court has stopped this order and no court has upheld it, and 'in force' would assert the second of those. Dated to the operative amended complaint, the document actually read, rather than to the docket's opening date. The absence of a ruling is what this pass searched for and did not find, which is not a guarantee that none exists."
           }
         ]
       },
@@ -1812,6 +1948,39 @@
         ]
       },
       {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14317",
+        "executiveOrderNumber": 14317,
+        "title": "Creating Schedule G in the Excepted Service",
+        "actedAt": "2025-07-17",
+        "publishedAt": "2025-07-23",
+        "term": "47",
+        "frCitation": "90 FR 34753",
+        "frDocumentNumber": "2025-13925",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/07/23/2025-13925/creating-schedule-g-in-the-excepted-service",
+        "sourceLabel": "Federal Register — Executive Order 14317, 90 FR 34753",
+        "issues": [
+          {
+            "issueKey": "civil_service_control",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 70,
+            "rationale": "Section 1 states the gap: Schedule C covers noncareer excepted service positions of a confidential or policy-determining character and Schedule Policy/Career covers career positions of that character, but 'there is, however, no excepted service schedule for noncareer positions of a policy-making or policy-advocating character'. Section 3 directs that appointments to such positions, where they are normally subject to change as a result of a Presidential transition, shall be made under Schedule G. Section 4(a) amends 5 CFR 6.2 to add Schedule G to the schedules OPM excepts from the competitive service, and section 4(b) amends 5 CFR 6.4 so that the Civil Service Rules and Regulations shall not apply to removals from positions listed in Schedule G alongside Schedules A, C, D, E and Policy/Career. Section 5(b) directs the Secretary of Veterans Affairs, in making Schedule G appointments, to consider whether prospective appointees 'would be suitable exponents of the President's policies' while not taking political affiliation or political activity into account. Creating an excepted personnel category and detaching the removal rules from it is the mechanism this key records."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-07-23",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14317 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/07/23/2025-13925/creating-schedule-g-in-the-excepted-service",
+            "note": "Signed July 17, 2025 and published July 23, 2025 at 90 FR 34753. The register's own record for this document carries no disposition note at all: no later presidential action has revoked, amended, reinstated or superseded it. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
         "actionClass": "signed_law",
         "documentId": "Public Law 119-27",
         "measureNumber": "S. 1582",
@@ -2246,6 +2415,49 @@
             "sourceLabel": "Federal Register — Executive Order 14406 document record, 91 FR 30479",
             "sourceUrl": "https://www.federalregister.gov/documents/2026/05/22/2026-10400/restoring-integrity-to-americas-financial-system",
             "note": "The register's disposition record for this order carries no revocation, amendment or supersession, so it stands as published. The order directs proposed regulatory changes on 60-, 90- and 180-day clocks; whether any of those proposals has been adopted is a separate question this row does not reach. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14410",
+        "executiveOrderNumber": 14410,
+        "title": "Implementing Schedule Policy/Career in the Excepted Service",
+        "actedAt": "2026-06-03",
+        "publishedAt": "2026-06-10",
+        "term": "47",
+        "frCitation": "91 FR 34893",
+        "frDocumentNumber": "2026-11594",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/06/10/2026-11594/implementing-schedule-policycareer-in-the-excepted-service",
+        "sourceLabel": "Federal Register — Executive Order 14410, 91 FR 34893",
+        "issues": [
+          {
+            "issueKey": "civil_service_control",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 95,
+            "rationale": "Section 5 is the operative part. Subsection (a) determines that the positions set forth in the Appendix have a confidential, policy-determining, policy-making or policy-advocating character and that it is necessary and warranted by conditions of good administration to except them from the competitive service; subsection (b) places those positions in Schedule Policy/Career; subsection (c) gives each agency head seven days to notify the officers and employees encumbering them and to conform agency records and practices. The Appendix runs from page 34895 to page 35124 of the published document. Section 2 amends the Civil Service Rules to carry the transfer: Rule I, so that an employee in the competitive service with competitive status when the position is first listed under Schedule Policy/Career is in the excepted service but retains that status; Rule XI, so that individuals appointed to positions in Schedule C, Schedule E, Schedule Policy/Career and Schedule G are not subject to trial periods; and 5 CFR 550.704(b), by adding a new subparagraph (6) reaching an employee who occupies a Schedule Policy/Career position where the agency identifies unacceptable performance or misconduct as the basis for separation in a written notice. Section 3(a) further amends Executive Order 13957 as amended by Executive Order 14171. Section 4 directs each agency with Schedule Policy/Career employees to set aside a separate bonus pool."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-06-10",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14410 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/06/10/2026-11594/implementing-schedule-policycareer-in-the-excepted-service",
+            "note": "Signed June 3, 2026 and published June 10, 2026 at 91 FR 34893. The disposition note on the register's own record for this document reads 'Amends: EO 13562, December 27, 2010; EO 13957, October 21, 2020; EO 14171, January 20, 2025; EO 14217, February 19, 2025' — it names what this order changed and records nothing done to it in return. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "challenged_unverified",
+            "effectiveAt": "2026-06-17",
+            "authority": "Challenge pending — U.S. District Court for the District of Columbia (National Treasury Employees Union v. Trump, No. 1:25-cv-00170-JMC)",
+            "basis": "pending_litigation",
+            "sourceLabel": "D.D.C. — National Treasury Employees Union v. Trump, No. 1:25-cv-00170-JMC, Amended Complaint for Declaratory and Injunctive Relief (ECF 30, filed June 17, 2026)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.dcd.276604/gov.uscourts.dcd.276604.30.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69560537/national-treasury-employees-union-v-trump/",
+            "note": "THE CURRENT STANDING, fourteen days after the order was signed. The amended complaint, read in full in this pass, was filed two weeks after this document issued and exists in its amended form because of it: paragraph 3 reads 'The President issued another Executive Order on June 3, 2026, which immediately placed thousands of positions (affecting approximately 8000 employees) into Schedule Policy/Career and directed agencies to notify affected employees within seven days. Exec. Order No. 14,410, Implementing Schedule Policy/Career in the Excepted Service (Implementing Policy/Career Order) (91 Fed. Reg. 34893) (June 3, 2026)'. Counts 1 and 2 name 'the Implementing Policy/Career Order' alongside the 2025 order and ask the court to hold both unlawful and ultra vires. The docket, No. 1:25-cv-00170-JMC in the District of Columbia, is not terminated and its newest entry when read here was dated August 6, 2026; it carries no ruling on this order, and a search of published opinions for Schedule Policy/Career returned no ruling either. So no court has stopped this order and no court has upheld it. Filing it as in force would have been the easier call and the wrong one: the challenge was already on file when this pass read the register. The absence of a ruling is what this pass searched for and did not find, which is not a guarantee that none exists."
           }
         ]
       },

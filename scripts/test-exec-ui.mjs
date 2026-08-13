@@ -484,8 +484,13 @@ for (const card of CARDS) {
   }
 
   // Axis B counts it as its own bucket, after the rulings and ahead of in force.
-  eq(SUM.actions.challengedUnverified, 1,
-    "fixture drift: the summary no longer counts exactly one challenged-unverified document");
+  /* Three from wave 10 on, and they are three documents rather than three
+     challenges: EO 14156 carries its own case, and EO 14171 and EO 14410 are both
+     named in one amended complaint that asks for relief against the pair. The count
+     is of ACTIONS whose current standing is contested, not of dockets, which is why
+     one filing can move two rows. */
+  eq(SUM.actions.challengedUnverified, 3,
+    "fixture drift: the summary no longer counts exactly three challenged-unverified documents");
   const row = (HTML.match(/<div class="pdxer-axis"><span class="pdxer-axis-lbl">Standing ·[\s\S]*?<\/div>/) || [])[0] || "";
   ok(row, "the standing axis row could not be isolated");
   has(row, "pdxer-challenged", "the challenged bucket is missing from the standing axis row");

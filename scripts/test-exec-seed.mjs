@@ -71,7 +71,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql",
   "netlify/database/migrations/20260830000000_seed_exec_actions_wave7.sql",
   "netlify/database/migrations/20260831000000_seed_exec_actions_wave8.sql",
-  "netlify/database/migrations/20260901000000_seed_exec_actions_wave9.sql"
+  "netlify/database/migrations/20260901000000_seed_exec_actions_wave9.sql",
+  "netlify/database/migrations/20260902000000_seed_exec_actions_wave10.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -119,8 +120,12 @@ section("1 · shape and vocabulary");
 // landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3, ten from wave 4,
 // nine from wave 5, four from wave 6. Wave 9 adds ONE, and one is the whole finding
 // rather than a small wave: it is the only measure of this presidency enacted over a
-// veto, so it is the only row the `overridden` token can have.
-ok(ACTIONS.length === 57, `the seed carries fifty-seven actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9 (got ${ACTIONS.length})`);
+// veto, so it is the only row the `overridden` token can have. Wave 10 adds five,
+// and they are the first rows in the file under an issue key that did not exist
+// before them: EO 13839, EO 13957, EO 14171, EO 14317 and EO 14410, all on
+// civil_service_control. If that count slips, a Schedule F order has gone missing
+// from the only key that can hold one.
+ok(ACTIONS.length === 62, `the seed carries sixty-two actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10 (got ${ACTIONS.length})`);
 
 /* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
    This line used to read `a.term === EX.currentTerm("trump")`, which was true of
@@ -531,8 +536,8 @@ if (sum && sumAll) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 7 && C.executive_order === 36 && C.directive === 10 && C.vetoed_law === 4,
-    `class split is 7 laws + 36 orders + 10 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  ok(C.signed_law === 7 && C.executive_order === 41 && C.directive === 10 && C.vetoed_law === 4,
+    `class split is 7 laws + 41 orders + 10 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
   // The veto class existed in the vocabulary for six waves with no row using it.
   // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
   // pipeline nobody has proven works.
@@ -573,8 +578,15 @@ if (sum && sumAll) {
      contributes must be visible in the wider scope and only there. */
   ok(sumAll.actions.total - B.total === priorTerm.length,
     `the all-terms scope sees every prior-term action and the current-term scope sees none of them (${sumAll.actions.total} vs ${B.total}, ${priorTerm.length} prior-term rows)`);
-  ok(sumAll.actions.rescinded === 4 && B.rescinded === 0,
-    `the four revoked orders are reachable in the all-terms scope only (all ${sumAll.actions.rescinded}, current ${B.rescinded})`);
+  /* Five, not four, from wave 10 on: EO 13839 was revoked by the succeeding
+     President and stayed revoked. EO 13957 was revoked by the same order on the same
+     day and is NOT the fifth — it was reinstated in 2025, standingOf() takes the
+     latest row, and it therefore reads in force. That the two orders share a
+     revocation date and diverge here is the whole reason the append-only log exists,
+     so the number is pinned at the count that can only be right if the reinstatement
+     row is being read. */
+  ok(sumAll.actions.rescinded === 5 && B.rescinded === 0,
+    `the five revoked orders are reachable in the all-terms scope only (all ${sumAll.actions.rescinded}, current ${B.rescinded})`);
   ok(sum.allTimeTotal === ACTIONS.length, "the all-time total counts every sourced action");
   ok(sum.allTimeTotal > B.total,
     "the current-term summary discloses a larger all-time figure rather than presenting its own total as the whole record");
