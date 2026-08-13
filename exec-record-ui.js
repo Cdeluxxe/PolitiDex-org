@@ -436,11 +436,18 @@
     var out = '';
     if (sum.issues.noActionFound) {
       var keys = [], heldReasons = [], held = 0;
+      // THE CHIPS MUST BE READ OVER THE SAME SPAN AS THE COUNT ABOVE THEM. The count
+      // comes from `sum`; the chips are recomputed here issue by issue, and if that
+      // recomputation uses a different term scope the list and its own headline
+      // disagree — a panel whose whole job is to explain a discrepancy becomes one.
+      // Taken from the summary rather than assumed, so this follows whatever scope
+      // the caller asked for.
+      var scopeOpts = { allTerms: sum.termScope === 'all_time' };
       try {
         var pm = (typeof window._polPositionMap === 'function' && window.CMP_DATA)
           ? (window._polPositionMap(pid, window.CMP_DATA[pid]) || {}) : {};
         Object.keys(pm).sort().forEach(function (k) {
-          if (ex.issue(pid, k).token !== 'said_not_done') return;
+          if (ex.issue(pid, k, scopeOpts).token !== 'said_not_done') return;
           if (HELD_ISSUE_KEYS[k]) {
             held++;
             if (heldReasons.indexOf(HELD_ISSUE_KEYS[k]) < 0) heldReasons.push(HELD_ISSUE_KEYS[k]);
@@ -512,8 +519,16 @@
   function bodyParts(pid) {
     var ex = EX();
     if (!ex || !pid || !ex.eligible(pid)) return null;
-    var sum = ex.summary(pid);
-    var pool = ex.actionsFor(pid);
+    // THE LEDGER IS OVER THE SAME RECORD AS THE SCORE. It used to show the current
+    // term only, which was defensible while the score did too. The score is now the
+    // whole formal record, and a receipts panel narrower than the number it backs is
+    // the worst kind of mismatch: a reader who counts the cards to check the maths
+    // finds fewer documents than were counted and no way to see the rest. The term
+    // breakdown does not disappear — it moves to the scope line below, where it is a
+    // disclosed sub-fact of a complete ledger instead of a silent filter on it.
+    var ALL = { allTerms: true };
+    var sum = ex.summary(pid, ALL);
+    var pool = ex.actionsFor(pid, ALL);
     // Quiet by construction. No summary or nothing on file → no section, not a
     // sentence about the absence. The empty string is the honest rendering: this
     // lane knows nothing about most figures, and saying so on every profile would
@@ -543,9 +558,19 @@
     if (!cards) return null;
 
     var scope = [];
-    if (sum.term) scope.push('Current term (' + sum.term + ')');
-    var shown = sum.actions.total + (sum.unstatedStanding || 0);
-    if (sum.allTimeTotal > shown) scope.push(sum.allTimeTotal + ' on file across all terms');
+    // What span this ledger covers, first, because every count after it is over
+    // that span. Then the current term as a share of it — for someone still
+    // serving, that is the live part of the record and a reader looking for it
+    // should not have to count cards to find out how much of this is recent.
+    scope.push('All terms on file');
+    var serving = typeof ex.serving === 'function' && ex.serving(pid);
+    var term = typeof ex.currentTerm === 'function' ? ex.currentTerm(pid) : '';
+    if (serving && term) {
+      var curN = ex.actionsFor(pid).kept.length;
+      if (curN && curN < pool.kept.length) {
+        scope.push(curN + ' of ' + pool.kept.length + ' in the current term (' + term + ')');
+      }
+    }
     var byClass = [];
     Object.keys(sum.byClass).forEach(function (k) {
       var n = sum.byClass[k];
@@ -628,7 +653,10 @@
     try {
       var ex = EX();
       if (!ex || !pid || !ex.eligible(pid)) return null;
-      var sum = ex.summary(pid);
+      // Same span as the section it jumps to. A pill reading "47 on file" over a
+      // ledger of 56 is a wrong count in the one place a reader cannot open to
+      // check it.
+      var sum = ex.summary(pid, { allTerms: true });
       if (!sum) return null;
       var docs = sum.actions.total + (sum.unstatedStanding || 0);
       if (!docs) return null;

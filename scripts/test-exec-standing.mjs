@@ -189,12 +189,12 @@ must(typeof EX.comparable === "function", "PDXExecRecord.comparable() is missing
   // only way to simulate a built-out lane, since it is what bounds the numerator.
   const threePids =
     "var EXEC_PIDS = {\n" +
-    "    trump: { office: 'President of the United States', currentTerm: '47' },\n" +
-    "    gov_a: { office: 'Governor', currentTerm: '1' },\n" +
-    "    gov_b: { office: 'Governor', currentTerm: '1' }\n" +
+    "    trump: { office: 'President of the United States', currentTerm: '47', serving: true },\n" +
+    "    gov_a: { office: 'Governor', currentTerm: '1', serving: true },\n" +
+    "    gov_b: { office: 'Governor', currentTerm: '1', serving: true }\n" +
     "  };";
   const patched = EXEC_RECORD.replace(
-    /var EXEC_PIDS = \{\s*trump: \{ office: 'President of the United States', currentTerm: '47' \}\s*\};/,
+    /var EXEC_PIDS = \{\s*trump: \{ office: 'President of the United States', currentTerm: '47', serving: true \}\s*\};/,
     threePids
   );
   must(patched !== EXEC_RECORD, "could not patch EXEC_PIDS — the reachability probe for 'broad' cannot run");

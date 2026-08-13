@@ -78,8 +78,32 @@
   // ingest could attribute a roll call to them and manufacture exactly the fake
   // "Voted Yea/Nay" framing this lane exists to prevent.
   var EXEC_PIDS = {
-    trump: { office: 'President of the United States', currentTerm: '47' }
+    trump: { office: 'President of the United States', currentTerm: '47', serving: true }
   };
+
+  // ── Serving now, or formerly ───────────────────────────────────────────────
+  // `serving` is DECLARED rather than inferred, and it is declared because the
+  // integrity read's two-scope model turns on it. The main Word vs Action number is
+  // the ALL-TIME formal record; the current-term number is a secondary slice, and a
+  // slice is only meaningful for someone still cutting it. For a former officeholder
+  // "this term" is not a live scope — it is the last term, which is a fact about
+  // history that the all-time read already contains, and printing it beside the main
+  // number would present the same record twice under two labels.
+  //
+  // The alternative was to infer incumbency from the data — "there are actions dated
+  // in the current term, so they must be serving." That inference breaks in both
+  // directions. A president three days into a term has no actions on file and would
+  // read as former; a president who left office last month still has last term's
+  // actions and would read as serving until the roster was edited anyway. So the
+  // roster carries the fact, and the fact is what the surfaces read.
+  //
+  // Absent means false: a roster entry that forgets to say it is serving gets the
+  // secondary score hidden, which is the fail-closed direction — a missing slice is a
+  // smaller claim than a wrong one.
+  function serving(pid) {
+    var e = EXEC_PIDS[norm(pid)];
+    return !!(e && e.serving === true && e.currentTerm);
+  }
 
   // ── Coverage gate ──────────────────────────────────────────────────────────
   // THE PROBLEM THIS SOLVES. The office allow-list above holds one pid, and the
@@ -716,6 +740,9 @@
     eligible: eligible,
     office: officeOf,
     currentTerm: currentTerm,
+    // Whether this figure is serving NOW. Read by the integrity surfaces to decide
+    // whether a current-term slice is a live scope or last term wearing a live label.
+    serving: serving,
     // Per-issue read (Axis A + Axis B). score is always null.
     issue: executiveIssue,
     // Exposed so the inversion a blocking class applies is testable on its own rather

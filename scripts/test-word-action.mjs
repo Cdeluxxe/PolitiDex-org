@@ -207,7 +207,14 @@ const voteNarration = (issueKey, extra = {}) => ({
     ok(WA.TIERS[t].gloss && WA.TIERS[t].gloss.length > 20,
       `tier "${t}" has no gloss explaining what that tier of word actually is`);
   }
-  const method = WA_SRC.slice(WA_SRC.indexOf('function methodHtml'), WA_SRC.indexOf('function methodHtml') + 2600);
+  // The whole function, not a fixed-length window off the front of it. The window
+  // used to be 2600 characters, which silently became a partial read the first time
+  // methodHtml grew a paragraph — the disclosure it was checking for was still
+  // there, just past the cut, and the failure pointed at the copy rather than at
+  // the ruler measuring it.
+  const mStart = WA_SRC.indexOf('function methodHtml');
+  const mEnd = WA_SRC.indexOf('\n  }\n', mStart);
+  const method = WA_SRC.slice(mStart, mEnd > mStart ? mEnd : mStart + 2600);
   must(method.length > 500, 'word-action.js no longer defines methodHtml');
   ok(/TIERS\.pledge\.weight/.test(method) && /TIERS\.branding\.weight/.test(method),
     'the method disclosure hardcodes the weights instead of reading them, so it can drift from the maths');

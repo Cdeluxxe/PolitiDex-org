@@ -328,16 +328,34 @@ for (const [who, pid] of [["president", PRES], ["member", REP]]) {
 }
 
 // And the Official Record renders in that order rather than re-sorting behind it.
-// Only SCORED rows are rendered as issue rows (the rest are the coverage list), so
-// what this checks is that the rendered sequence never runs backwards through the
-// tiers and that its first row is the ranking's first scored row.
+// Only SCORED rows are rendered as issue rows (the rest are the coverage list).
+//
+// THE ORDERING CONTRACT IS PER CATEGORY, and this used to be checked across the
+// whole section — which passed for six waves for the wrong reason. The renderer
+// groups rows under category headings (Taxes & Economy, Immigration, …) and ranks
+// WITHIN each group; a flat scan only stayed monotonic while every tension row
+// happened to fall in an early category. It stopped being true the moment the
+// integrity read moved to all terms and two more issues went mixed: the section is
+// ordered exactly as it always was, and the flat assertion broke anyway. So the
+// scan is now per group, which is the promise the renderer actually makes, plus
+// the two whole-section facts that do hold — tension leads the section, and the
+// first rendered row is the tier the ranking put first.
 for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP]]) {
   const sec = CS.officialRecordSectionHtml(pid, p);
   const tiers = [...sec.matchAll(/data-pdxc-tier="(\d)"/g)].map((m) => Number(m[1]));
   must(tiers.length >= 1, `${who}: the Official Record no longer stamps ranking tiers onto its rows`);
-  let mono = true;
-  for (let i = 1; i < tiers.length; i++) if (tiers[i] < tiers[i - 1]) mono = false;
-  ok(mono, `${who}: the Official Record re-sorts its rows away from the ranked order`);
+  const cats = sec.split('<div class="pdxor-cat">').slice(1);
+  must(cats.length >= 1, `${who}: the Official Record no longer groups its rows into categories`);
+  let grouped = 0;
+  for (const cat of cats) {
+    const name = (cat.match(/pdxor-cat-h">([^<]*)/) || [])[1] || "?";
+    const ct = [...cat.matchAll(/data-pdxc-tier="(\d)"/g)].map((m) => Number(m[1]));
+    grouped += ct.length;
+    let mono = true;
+    for (let i = 1; i < ct.length; i++) if (ct[i] < ct[i - 1]) mono = false;
+    ok(mono, `${who}: "${name}" re-sorts its rows away from the ranked order (${ct.join(",")})`);
+  }
+  eq(grouped, tiers.length, `${who}: a ranked row rendered outside every category group`);
   const firstScored = CS.rankIssueRows(CS.issueRows(pid)).filter((r) => r.scored)[0];
   eq(tiers[0], firstScored.tier,
     `${who}: the section does not lead with the row the ranking put first`);
@@ -618,8 +636,9 @@ section("9 · and it is measurably shorter");
   ok(allCards > shownCards,
     "the fold hides nothing, so either the data shrank or the ledger is not actually folded");
 
-  // And nothing was quietly deleted to achieve any of this.
-  const kept = win.PDXExecRecord.actionsFor(PRES).kept.length;
+  // And nothing was quietly deleted to achieve any of this. All terms, because the
+  // embedded ledger now covers the same span as the integrity score above it.
+  const kept = win.PDXExecRecord.actionsFor(PRES, { allTerms: true }).kept.length;
   eq(allCards, kept, "the folded ledger does not carry every action on file — folding is not dropping");
 }
 

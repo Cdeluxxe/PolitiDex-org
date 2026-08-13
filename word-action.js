@@ -509,7 +509,42 @@
   }
 
   // ── THE READ ───────────────────────────────────────────────────────────────
-  function read(pid, p) {
+  // SCOPE. `opts.termScope` selects which slice of the ✒️ executive lane the ACTION
+  // side is drawn from — 'all_time' (the default, and the number every headline
+  // surface prints) or 'current_term'. It changes nothing about the arithmetic: the
+  // tiers, the weights, the evidence cap, the Mixed gate and both floors are the same
+  // function of whatever record is in scope. The ONLY thing it selects is which formal
+  // actions exist to be tested against.
+  //
+  // For every figure outside the executive lane the two scopes are the same read —
+  // roll-call records carry no term scope — so this parameter is inert on the vast
+  // majority of profiles and is not worth a second call there. `scopedRead()` below is
+  // the one place that decides whether a second scope is worth computing.
+  function read(pid, p, opts) {
+    var want = (opts && opts.termScope) || null;
+    var cs = C();
+    var runner = cs && cs.execActions && typeof cs.execActions.withScope === 'function'
+      ? cs.execActions.withScope : null;
+    // No engine, or no scope asked for: run against whatever the engine's own default
+    // is. That default is 'all_time' — see consistency.js EXEC_SCOPE_DEFAULT — so the
+    // unscoped call and the explicitly-all-time call are the same read, and a caller
+    // that never heard of scopes still gets the full formal record.
+    if (!want || !runner) return _read(pid, p, want);
+    return runner(want, function () { return _read(pid, p, want); });
+  }
+
+  // What scope a read was actually taken at, as the descriptor object the surfaces
+  // label with. Asked of the engine rather than assumed, so the label can never claim
+  // a scope the read did not use.
+  function scopeOf(want) {
+    var cs = C();
+    var S = cs && cs.execActions && cs.execActions.SCOPES;
+    if (!S) return null;
+    if (want && S[want]) return S[want];
+    try { return cs.execActions.scope(); } catch (e) { return null; }
+  }
+
+  function _read(pid, p, want) {
     var items = wordLedger(pid, p);
     var tested = [], untested = [];
     var counts = { consistent: 0, contradicts: 0, mixed: 0, limited: 0 };
@@ -587,6 +622,10 @@
       frame: FRAME,
       pct: pct, token: token, outcomeToken: outcomeToken, verdict: verdict,
       publishable: publishable,
+      // Which slice of the formal record this number was taken from. Always present,
+      // so no surface has to infer it and none can print a percentage without being
+      // able to say what it counts.
+      termScope: scopeOf(want),
       items: items, tested: tested, untested: untested,
       counts: counts, tiers: tiers,
       testedWeight: wN,
@@ -610,6 +649,48 @@
     var hit = null;
     all.items.forEach(function (it) { if (!hit && it.issueKey === issueKey) hit = it; });
     return hit;
+  }
+
+  // ── BOTH SCOPES, ONE CALL ──────────────────────────────────────────────────
+  // The main read plus — for a figure who is SERVING NOW — the current-term slice of
+  // it. Two rules decide whether the slice exists, and both are about not printing a
+  // second number that means nothing:
+  //
+  //   · Not an executive lane → there is no term scope to slice by. A member's
+  //     roll-call record is not filtered by term here, so a "current term" read would
+  //     be the identical number under a different label: two figures, one fact, and a
+  //     reader invited to look for the difference between them.
+  //   · Not serving → "current term" is last term. The all-time read already contains
+  //     it in full, and labelling history as the live slice is the specific dishonesty
+  //     requirement 3 exists to prevent. The slice collapses; the main number, which
+  //     is the whole record, is unaffected.
+  //
+  // `differs` is computed rather than assumed. A sitting president in their first term
+  // has an identical all-time and current-term record, and a secondary number sitting
+  // under the main one showing the same figure implies a comparison the data does not
+  // support. Surfaces use this to decide whether to print the slice as a contrast or
+  // as a confirmation — never to hide it, which would leave a reader unable to tell
+  // "the same" from "not shown".
+  function scopedRead(pid, p) {
+    var main = read(pid, p, { termScope: 'all_time' });
+    var out = {
+      main: main, current: null,
+      scope: main.termScope,
+      lane: isExecLane(pid) ? 'exec' : 'record',
+      serving: false, applicable: false, term: null, differs: false, delta: null
+    };
+    if (out.lane !== 'exec') return out;
+    var cs = C();
+    try { out.serving = !!(cs && cs.execActions && cs.execActions.serving(pid)); } catch (e) { out.serving = false; }
+    if (!out.serving) return out;
+    out.applicable = true;
+    try { out.term = (cs.execActions.currentTerm && cs.execActions.currentTerm(pid)) || null; } catch (e) { out.term = null; }
+    out.current = read(pid, p, { termScope: 'current_term' });
+    var a = main.pct, b = out.current.pct;
+    out.differs = (a !== b) || (main.token !== out.current.token) ||
+                  (main.tested.length !== out.current.tested.length);
+    if (typeof a === 'number' && typeof b === 'number') out.delta = b - a;
+    return out;
   }
 
   // ── CONNECTING THE DOTS ────────────────────────────────────────────────────
@@ -844,6 +925,17 @@
   // the wrong lane cannot be checked by the reader against what they can see.
   function methodHtml(r, pid) {
     var ex = isExecLane(pid);
+    // WHICH RECORD THE NUMBER IS OVER. On the executive lane this is a real choice
+    // — a president has more than one term of formal actions on file — and the
+    // choice used to be made silently, in favour of the term now being served. It
+    // is stated here, in the same drawer that states every other rule, because a
+    // percentage whose scope is unstated is a percentage a reader cannot check.
+    var scopeP = ex
+      ? '<p><b>The record counted</b> is the whole one: every formal action on file, across every term in ' +
+        'office. A president who signed something in one term and undid it in the next has both on this ' +
+        'card, and the number weighs both. For someone serving now, the current term is shown separately ' +
+        'above as a slice of that record — a narrower read of the same word, never a second score.</p>'
+      : '';
     return '' +
       '<details class="pdxwa-method">' +
         '<summary>How this is counted</summary>' +
@@ -867,6 +959,7 @@
             'from the number and reported as coverage instead — they are not counted against anyone.</p>' +
           '<p><b>Nothing is inferred.</b> An issue with ' + (ex ? 'actions' : 'votes') + ' but no documented word produces no item, and an item counts as ' +
             'going against their word only when the Official Record’s own verdict for that issue says so.</p>' +
+          scopeP +
         '</div>' +
       '</details>';
   }
@@ -1212,12 +1305,65 @@
     } catch (e) { return ''; }
   }
 
+  // ── THE SLICE, UNDER THE RECORD ────────────────────────────────────────────
+  // One narrow strip beneath the main number, for a figure serving right now. It
+  // is deliberately NOT a second card, a second ring or a second big numeral:
+  // "secondary" here means the reader's eye reaches the all-time number first and
+  // arrives at this one already knowing what it is a slice of. Everything it
+  // prints is scoped in words a reader can check — the term it covers, how much of
+  // the same word it tested, and the fact that it is contained in the score above.
+  //
+  // It renders even when the two reads agree. A slice that vanishes when it matches
+  // is a slice that only ever appears as bad news, and a reader who saw it last
+  // month and not today cannot tell "the same" from "not shown".
+  function scopeStripHtml(sr) {
+    if (!sr || !sr.applicable || !sr.current) return '';
+    var c = sr.current;
+    var v = c.verdict;
+    var col = (v && v.color) || '#9fb4d4';
+    var has = c.pct !== null;
+    var termLabel = sr.term ? 'Current term (' + sr.term + ')' : 'Current term';
+    var mainPct = sr.main.pct;
+
+    // The comparison, in one clause, always relative to the main number so the
+    // main number stays the thing being talked about.
+    var rel;
+    if (!has) {
+      rel = 'not enough of their word has been tested inside this term alone to publish a separate figure';
+    } else if (typeof mainPct !== 'number' || sr.delta === null) {
+      rel = 'a narrower read of the same word';
+    } else if (sr.delta === 0) {
+      rel = 'the same figure as the full record';
+    } else {
+      rel = Math.abs(sr.delta) + (Math.abs(sr.delta) === 1 ? ' point ' : ' points ') +
+            (sr.delta > 0 ? 'higher' : 'lower') + ' than the full record';
+    }
+
+    var counted = c.coverage.tested + ' of ' + c.coverage.scorable + ' tested';
+
+    return '' +
+      '<div class="pdxwa-slice" style="--pdxwa-col:' + col + ';">' +
+        '<span class="pdxwa-slice-k">' + esc(termLabel) + '</span>' +
+        '<span class="pdxwa-slice-v">' + (has ? c.pct + '%' : '—') + '</span>' +
+        '<span class="pdxwa-slice-n">' +
+          esc(rel + ' · ' + counted) +
+          '<span class="pdxwa-slice-note">' +
+            esc('Only the formal actions taken in this term. The score above is the whole record, every term.') +
+          '</span>' +
+        '</span>' +
+      '</div>';
+  }
+
   // The primary accountability surface on a profile.
   var _seq = 0;
   function headlineHtml(pid, p) {
     try {
       if (!pid || !p) return '';
-      var r = read(pid, p);
+      // Both scopes, one call. `sr.main` is the all-time read and it is what every
+      // line below prints; `sr.current` is the slice, and it is null for anyone the
+      // slice would not mean anything for.
+      var sr = scopedRead(pid, p);
+      var r = sr.main;
       // Nothing said and nothing tracked. There is no read to print — a number and
       // a verdict over zero documented word would be an empty frame implying the
       // record should be here. But "we hold no word" is itself a fact about OUR
@@ -1251,12 +1397,19 @@
       var col = (v && v.color) || '#9fb4d4';
       var cls = (v && v.cls) || 'none';
       var hasPct = r.pct !== null;
+      // The scope tag under the metric caption. Executive lane only: a member's
+      // roll-call record is not term-scoped anywhere in this engine, so tagging it
+      // "all time" would name a distinction that does not exist for them.
+      var scopeTag = sr.lane === 'exec'
+        ? '<div class="pdxwa-num-scope">' + esc(sr.scope ? sr.scope.label : 'All time') + '</div>'
+        : '';
 
       var body = '' +
         '<div class="pdxwa-top">' +
           '<div class="pdxwa-num pdxwa-num-' + cls + '" style="--pdxwa-col:' + col + ';">' +
             '<div class="pdxwa-num-v">' + (hasPct ? r.pct + '%' : '—') + '</div>' +
             '<div class="pdxwa-num-l">' + esc(FRAME.metric) + '</div>' +
+            scopeTag +
           '</div>' +
           '<div class="pdxwa-say">' +
             '<div class="pdxwa-verdict" style="color:' + col + ';">' +
@@ -1274,6 +1427,7 @@
             '</p>' +
           '</div>' +
         '</div>' +
+        scopeStripHtml(sr) +
         basisHtml(r) +
         // The three rows that carry the read, immediately under the digest. Nothing
         // else is allowed between the big % and these: the eye should reach a
@@ -1382,7 +1536,8 @@
   function heroRead(pid, p) {
     try {
       if (!pid || !p) return null;
-      var r = read(pid, p);
+      var sr = scopedRead(pid, p);
+      var r = sr.main;
       var c = r.coverage, v = r.verdict;
       var hasPct = r.pct !== null;
       var sub;
@@ -1396,8 +1551,17 @@
       else if (!c.scorable) sub = 'Nothing said independently on file';
       else if (!c.tested) sub = c.scorable + ' on file, none tested yet';
       else sub = c.tested + ' of ' + r.floors.items + ' tested needed';
+      // THE ONE PLACE THE HERO SAYS WHICH RECORD. There is room for two short
+      // lines under the ring and no more, so the scope is appended to the count
+      // rather than given a line of its own — three words that stop the profile's
+      // loudest number from being a number over an unstated span of time. The
+      // current-term slice itself is NOT printed here: the hero has one number by
+      // design, and a second percentage above the fold is the exact thing the
+      // pledge chip was removed for.
+      if (hasPct && sr.lane === 'exec' && sr.scope) sub += ' · all time';
       return {
         read: r,
+        scoped: sr,
         word: c.word,
         pct: r.pct,
         // Fail closed in the hero too: below the floors there is a dash or a
@@ -1405,6 +1569,7 @@
         text: hasPct ? (r.pct + '%') : (c.warming ? '⏳' : '—'),
         color: hasPct ? ((v && v.color) || '#9fb4d4') : '#9fb4d4',
         caption: FRAME.caption,
+        scopeLabel: (sr.lane === 'exec' && sr.scope) ? sr.scope.label : '',
         verdict: v, token: r.token, publishable: r.publishable,
         tested: c.tested, scorable: c.scorable, warming: c.warming,
         sub: sub
@@ -1448,7 +1613,8 @@
     var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
     return '' +
       '<button type="button" class="pdxwa-hero-jump"' + jumpAttr('pdxsec-wordaction') +
-        ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric + '. Open the full breakdown.') + '">' +
+        ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric +
+          (h.scopeLabel ? ', ' + h.scopeLabel.toLowerCase() : '') + '. Open the full breakdown.') + '">' +
         '<span class="score-ring w-20 h-20 flex-shrink-0">' +
           '<svg width="80" height="80" viewBox="0 0 80 80" aria-hidden="true">' +
             '<circle cx="40" cy="40" r="' + radius + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>' +
@@ -1556,6 +1722,9 @@
     // Pure reads — no DOM, no fetch, safe to call from anywhere.
     wordLedger: wordLedger,
     read: read,
+    // Both scopes in one call: the all-time read every headline prints, plus the
+    // current-term slice for a figure who is serving. See scopedRead().
+    scopedRead: scopedRead,
     issueRead: issueRead,
     heroRead: heroRead,
     dots: dots,

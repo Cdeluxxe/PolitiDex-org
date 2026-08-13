@@ -107,15 +107,39 @@ ok(CS && WA && ER && XA, "fixture: every module under test loaded and exported")
    this month means the assertion moves every wave and silently stops asserting
    anything the wave it survives.
 
-   So the example is constructed instead of curated: the real pool minus the two
-   orders wave 5 added to healthcare, which is exactly the pool that produced the
-   state before it. Nothing here is invented — the pair that holds, Public Law
-   119-21 → healthcare, and its circularWithStance flag are the seed's own, and the
-   real pool is restored the moment the block ends. */
-const WAVE5_HEALTHCARE = ["Executive Order 14212", "Executive Order 14293"];
+   So the example is constructed instead of curated: the real pool minus every
+   healthcare document whose mapping is not already circular against the card that
+   states the position — which is exactly the pool that produced the state before
+   those waves. The list is DERIVED rather than named, because a hardcoded pair
+   ["Executive Order 14212", "Executive Order 14293"] stopped being the whole set
+   the moment wave 7 put a Term 45 healthcare order on file and the read path
+   started counting every term. Nothing here is invented — the pair that holds,
+   Public Law 119-21 → healthcare, and its circularWithStance flag are the seed's
+   own, and the real pool is restored the moment the block ends. */
+function mapsCleanly(a, key) {
+  return (a.issues || []).some((m) => m.issueKey === key && !m.circularWithStance);
+}
 function withHealthcareFullyHeld(fn) {
   const real = win.EXEC_ACTIONS[PID];
-  win.EXEC_ACTIONS[PID] = real.filter((a) => WAVE5_HEALTHCARE.indexOf(a.documentId) === -1);
+  win.EXEC_ACTIONS[PID] = real.filter((a) => !mapsCleanly(a, "healthcare"));
+  try { return fn(); } finally { win.EXEC_ACTIONS[PID] = real; }
+}
+/* …and the same trick for the other constructed state this file needs: an issue the
+   figure has STATED a position on and no action touches at all. That used to be a
+   fact about the seed too — the list in the comment below once read tariffs_growth,
+   cost_living, restraint, crypto_cbdc — and it is now a fact about nothing: read
+   over all terms, every stated position on this profile has at least one document
+   behind it. That is the point of the last three waves and it must not quietly
+   disable the assertions that depend on the empty state, so the empty state is
+   built rather than found. */
+function withIssueUnmapped(key, fn) {
+  const real = win.EXEC_ACTIONS[PID];
+  win.EXEC_ACTIONS[PID] = real
+    .map((a) => {
+      const issues = (a.issues || []).filter((m) => m.issueKey !== key);
+      return issues.length ? Object.assign({}, a, { issues }) : null;
+    })
+    .filter(Boolean);
   try { return fn(); } finally { win.EXEC_ACTIONS[PID] = real; }
 }
 // The swap has to actually change something, or every assertion made inside it is
@@ -545,19 +569,29 @@ has(sec, "No stated position yet",
       `\n    empty file with the document sitting in its own evidence list`);
   }
   // …and the other half: an exec-eligible figure must never sit in a roll-call wait.
-  // The control issues are DISCOVERED, not named. This list used to read
-  // ["tariffs_growth", "cost_living", "restraint", "crypto_cbdc"], and wave 3 put real
-  // documents behind two of them — a hardcoded list does not fail when the seed grows
-  // under it, it just starts asserting the opposite of what it was written to assert.
-  // So the untouched issues are taken from the data and every one of them is checked.
+  // The control issues used to be DISCOVERED from the data — the stated positions
+  // with no document behind them — because a hardcoded list does not fail when the
+  // seed grows under it, it just starts asserting the opposite of what it was
+  // written to assert. Discovery has now hit the same wall from the other side:
+  // read over all terms there are no such issues left, so a discovered list is
+  // empty and the assertion runs zero times. Both facts are pinned. The milestone
+  // is asserted directly, and then the state is CONSTRUCTED for every stated
+  // position in turn — which tests more than the old discovery ever did, since it
+  // no longer depends on which issues happen to be thin this month.
   const stated = Object.keys(win._polPositionMap(PID, P) || {});
+  ok(stated.length >= 1, "fixture: the president has stated positions to test");
   const controls = stated.filter((k) => (CS.officialRecord(PID, k).execTouched || 0) === 0);
-  ok(controls.length >= 1,
-    "there is still at least one stated position with no executive action on file — the roll-call-wait control");
-  for (const k of controls) {
-    eq(!!CS.officialRecord(PID, k).pending, false,
-      `${k} is still 'pending' on a president: that is a wait on a roll call that will never` +
-      `\n    arrive, it never clears, and issueRow() refuses the public-record basis while it stands`);
+  eq(controls.length, 0,
+    `a stated position has no executive action on file across any term (${controls.join(", ")}) —` +
+    `\n    the discovered control is live again, so assert on it rather than only on the constructed one`);
+  for (const k of stated) {
+    withIssueUnmapped(k, () => {
+      const ov = CS.officialRecord(PID, k);
+      eq(ov.execTouched || 0, 0, `fixture: unmapping ${k} did not actually empty its executive file`);
+      eq(!!ov.pending, false,
+        `${k} is still 'pending' on a president: that is a wait on a roll call that will never` +
+        `\n    arrive, it never clears, and issueRow() refuses the public-record basis while it stands`);
+    });
   }
 }has(sec, "1 action", "vocabulary: the composition meter counts actions");
 // The row shortcut into a voting record is suppressed — there is no destination.
@@ -706,10 +740,17 @@ eq(CS.proof.rowVerdict({ token: "no_record", lane: "exec", execHeld: { held: [{}
 
 // The lane belongs to the OFFICE, so an issue no action maps to is still not asked
 // about votes — this is the case that used to leak the congressional wording.
+// The lane belongs to the OFFICE, so an issue no action maps to is still not asked
+// about votes — this is the case that used to leak the congressional wording. The
+// empty file is constructed, for the same reason as above: read over all terms,
+// "restraint" now has a document on it and no stated position on this profile is
+// untouched any more.
 const untouched = "restraint";
-eq(XA.forIssue(PID, untouched).touched, 0, "office lane: the probe issue really has no action mapped");
-eq(CS.officialRecord(PID, untouched).lane, "exec",
-  "office lane: an issue with no exec action on it is STILL on the president's lane");
+withIssueUnmapped(untouched, () => {
+  eq(XA.forIssue(PID, untouched).touched, 0, "office lane: the probe issue really has no action mapped");
+  eq(CS.officialRecord(PID, untouched).lane, "exec",
+    "office lane: an issue with no exec action on it is STILL on the president's lane");
+});
 eq(CS.officialRecord(MEMBER, "gun_rights") && CS.officialRecord(MEMBER, "gun_rights").lane === "exec", false,
   "office lane: and a member is never pulled onto it by the same path");
 
@@ -728,6 +769,138 @@ for (const k of CS.issuesWithSignal(THIN, "official")) {
 }
 // A thin read reads as a coverage gap, not as a grade of zero.
 ok(tr.pct === null, "thin control: thin is null, never 0%");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · two scopes: all time is the score, this term is the slice");
+// ═════════════════════════════════════════════════════════════════════════════
+/* The scoring scope used to be current-term and nothing said so — not the number,
+   not the caption, not the method drawer. It is all-time now, which is the whole
+   formal record of the person, and the current term is a labelled slice underneath
+   it. What has to stay true is that these are ONE engine under two settings, that
+   the setting cannot leak out of the read that asked for it, and that the slice
+   only exists where it means something. */
+
+// The default is the whole record, and it is declared rather than implied.
+eq(XA.DEFAULT_SCOPE, "all_time", "scope: the declared default is not the whole record");
+eq(XA.scope().key, "all_time", "scope: the live default is not the whole record");
+eq(WA.read(PID, P).termScope.key, "all_time",
+  "scope: the headline read is not over the whole record");
+ok(XA.SCOPES.all_time && XA.SCOPES.current_term,
+  "scope: both scopes are not published for a surface to label");
+for (const k of Object.keys(XA.SCOPES)) {
+  ok(XA.SCOPES[k].label && XA.SCOPES[k].note,
+    `scope: ${k} carries no label or note, so a surface would have to invent its own wording`);
+}
+
+// The runner is the only way in, and it restores what it found — including on a throw.
+{
+  const inner = XA.withScope("current_term", () => XA.scope().key);
+  eq(inner, "current_term", "scope: withScope did not apply the scope it was given");
+  eq(XA.scope().key, "all_time", "scope: withScope leaked the scope past its own callback");
+  let threw = false;
+  try { XA.withScope("current_term", () => { throw new Error("boom"); }); }
+  catch (e) { threw = true; }
+  ok(threw, "scope: withScope swallowed an exception from its callback");
+  eq(XA.scope().key, "all_time", "scope: a throwing read left the scope changed behind it");
+  // An unknown scope falls back to the default rather than to an undefined setting.
+  eq(XA.withScope("no_such_scope", () => XA.scope().key), "all_time",
+    "scope: an unknown scope name did not fail closed to the default");
+}
+
+// Both reads, one call — and the slice really is a slice.
+{
+  const sr = WA.scopedRead(PID, P);
+  eq(sr.lane, "exec", "scoped: the president is not on the executive lane");
+  eq(sr.serving, true, "scoped: the sitting president does not read as serving");
+  eq(sr.applicable, true, "scoped: the current-term slice was withheld from a sitting president");
+  eq(sr.term, ER.currentTerm(PID), "scoped: the slice does not name the term it covers");
+  eq(sr.main.termScope.key, "all_time", "scoped: the main read is not the whole record");
+  eq(sr.current.termScope.key, "current_term", "scoped: the slice is not the current term");
+  eq(sr.main.pct, WA.read(PID, P).pct, "scoped: the main read disagrees with the default read");
+
+  // The slice is computed by the same engine under the other setting — not by a
+  // second scorer. If these ever diverge there are two scoring paths, which is the
+  // one thing this design exists to avoid.
+  const viaRunner = XA.withScope("current_term", () => WA.read(PID, P));
+  eq(sr.current.pct, viaRunner.pct, "scoped: the slice is not what the shared engine produces");
+  eq(sr.current.token, viaRunner.token, "scoped: the slice's verdict is not the engine's");
+  eq(sr.current.testedWeight, viaRunner.testedWeight, "scoped: the slice's weight is not the engine's");
+
+  // Same floors, both scopes. Scope selection is not permission to publish a number
+  // a narrower record could not support.
+  eq(sr.current.floors.items, sr.main.floors.items, "scoped: the slice uses a different count floor");
+  eq(sr.current.floors.weight, sr.main.floors.weight, "scoped: the slice uses a different weight floor");
+
+  // The slice is a subset of the record, so it can never rest on more evidence.
+  ok(sr.current.testedWeight <= sr.main.testedWeight,
+    "scoped: the current-term slice carries MORE tested weight than the whole record it is drawn from");
+
+  // The contrast is reported rather than assumed, so a surface can say "the same"
+  // without a reader having to compare two numbers to find out.
+  eq(typeof sr.differs, "boolean", "scoped: the slice does not report whether it differs at all");
+  if (typeof sr.main.pct === "number" && typeof sr.current.pct === "number") {
+    eq(sr.delta, sr.current.pct - sr.main.pct, "scoped: the reported delta is not the actual difference");
+  }
+}
+
+// Off the lane, and off the roster: the slice collapses, the main number does not.
+{
+  const sm = WA.scopedRead(MEMBER, win.CMP_DATA[MEMBER]);
+  eq(sm.lane, "record", "scoped: a member was put on the executive lane");
+  eq(sm.applicable, false, "scoped: a member was offered a current-term slice");
+  eq(sm.current, null, "scoped: a member's slice was computed anyway");
+  ok(sm.main && sm.main.coverage, "scoped: a member lost their main read to the scope change");
+
+  // A FORMER officeholder. Incumbency is declared on the roster, so this is exactly
+  // what a president who has left office looks like to this code — and the required
+  // behaviour is that the slice disappears while the all-time score, which is the
+  // whole point of the change, is untouched.
+  const realServing = ER.serving;
+  ER.serving = () => false;
+  try {
+    const sf = WA.scopedRead(PID, P);
+    eq(sf.serving, false, "scoped: a former officeholder still reads as serving");
+    eq(sf.applicable, false, "scoped: a former officeholder was offered a current-term slice");
+    eq(sf.current, null, "scoped: a former officeholder's slice was computed anyway");
+    eq(sf.main.pct, WA.read(PID, P).pct,
+      "scoped: leaving office changed the all-time score, which spans every term including that one");
+    lacks(WA.headlineHtml(PID, P), "pdxwa-slice",
+      "scoped: the card still prints a current-term strip for someone not serving");
+  } finally { ER.serving = realServing; }
+}
+
+// What actually reaches the card: the main number labelled as all-time, and the
+// slice labelled as this term with the containment said in words.
+{
+  const card = WA.headlineHtml(PID, P);
+  const sr = WA.scopedRead(PID, P);
+  has(card, "pdxwa-num-scope", "card: the main number carries no scope tag");
+  has(card, XA.SCOPES.all_time.label, "card: the main number does not say which record it is over");
+  has(card, `Current term (${sr.term})`, "card: the slice is not labelled with the term it covers");
+  has(card, "The score above is the whole record, every term",
+    "card: the slice does not say it is contained in the score above");
+  has(card, `${sr.main.pct}%`, "card: the all-time percentage is not the one printed");
+  // Secondary means the reader meets the main number first. The DOM order is the
+  // only guarantee of that which survives a stylesheet not loading.
+  ok(card.indexOf('class="pdxwa-num-v"') < card.indexOf('class="pdxwa-slice"'),
+    "card: the current-term strip is rendered before the number it is secondary to");
+  // …and the two are never presented as the same measurement.
+  has(card, "The record counted", "card: the method drawer does not state which record the number is over");
+  // A member's card says nothing about scope, because nothing about their record is
+  // term-scoped and a label naming a distinction that does not exist is noise.
+  const mcard = WA.headlineHtml(MEMBER, win.CMP_DATA[MEMBER]);
+  lacks(mcard, "pdxwa-num-scope", "card: a member's number carries an executive-lane scope tag");
+  lacks(mcard, "pdxwa-slice", "card: a member's card carries a current-term strip");
+}
+
+// The hero says it too — one number, and the span it covers.
+{
+  const h = WA.heroRead(PID, P);
+  eq(h.pct, WA.read(PID, P).pct, "hero: the ring disagrees with the section beneath it");
+  has(h.sub, "all time", "hero: the ring's caption does not say which record the number is over");
+  const hm = WA.heroRead(MEMBER, win.CMP_DATA[MEMBER]);
+  if (hm && hm.sub) lacks(hm.sub, "all time", "hero: a member's ring claims an executive-lane scope");
+}
 
 // ── report ──
 console.log("");

@@ -151,7 +151,12 @@ eq(UI.sectionHtml("trump").length > 0, true, "the real render came back empty");
 // 2 · The real render
 // ─────────────────────────────────────────────────────────────────────────────
 const HTML = UI.sectionHtml("trump");
-const SUM = EX.summary("trump");
+// ALL TERMS, because that is now what the section renders. The ledger follows the
+// integrity score's scope (word-action.js reads all_time by default since the
+// two-scope change), and a receipts panel narrower than the number it backs is a
+// reader counting cards that do not add up. Passing the option here rather than
+// relying on the default keeps this pin explicit about which record it is over.
+const SUM = EX.summary("trump", { allTerms: true });
 
 ok(/^<section class="pdxer"/.test(HTML), "the section does not open with the scoped .pdxer wrapper");
 has(HTML, 'aria-label="Executive Enactment Record"', "the section carries no accessible name");
@@ -195,7 +200,17 @@ has(HTML, "Partly blocked in court", "a contested standing did not surface in th
 has(HTML, "In force", "the in-force standing did not surface in the rendering");
 
 // Decision 5 — coverage is stated as coverage.
-has(HTML, "coverage, not a finding", "the no-action-found bucket is not labelled as coverage");
+// THE REAL SEED NO LONGER HAS A NO-ACTION-FOUND BUCKET TO LABEL. Read over all
+// terms, every issue with a stated position on this profile now has at least one
+// formal action behind it, so the coverage panel has nothing to name and correctly
+// prints nothing. That is a milestone in the data, not a regression in the code —
+// but it also means decisions 5 and 11 would go silently untested from here on. So
+// the empty state is asserted here on the real render, and both decisions are
+// exercised below against a fixture that puts the bucket back.
+eq(SUM.issues.noActionFound, 0,
+  "the all-time record has a no-action-found bucket again — assert decision 5 on the real render, not only the fixture");
+ok(!/coverage, not a finding/.test(HTML),
+  "the coverage copy rendered with nothing in the bucket to cover");
 ok(!/declined to act/.test(HTML.split("not that the figure declined to act").join("")),
   "the coverage copy reads as an accusation rather than as coverage");
 
@@ -203,7 +218,35 @@ ok(!/declined to act/.test(HTML.split("not that the figure declined to act").joi
 // The count in the summary line comes from the gated Phase-2 read path and is not
 // touched here; what is withheld is the NAMING of the issue, which is the thing the
 // stance filing cannot support. See the HELD_ISSUE_KEYS comment in exec-record-ui.js.
+//
+// Run against a fixture built by REMOVING TWO ISSUE MAPPINGS from the real seed —
+// the held key and one ordinary key — rather than by inventing actions. Everything
+// else about the record is the real thing, so the chip list, the withheld-issue
+// disclosure and the arithmetic between them are exercised on real copy, real
+// labels and the real hold list. Mappings are stripped rather than whole actions so
+// nothing else on those documents cascades out with them.
 {
+  const HOLD_KEY = "tariffs_authority";   // on HELD_ISSUE_KEYS: counted, never named
+  const NAMED_KEY = "voter_id";           // not held: must appear as a chip
+  const dropMappings = (a) => {
+    const issues = (a.issues || []).filter((m) => m.issueKey !== HOLD_KEY && m.issueKey !== NAMED_KEY);
+    return issues.length ? Object.assign({}, a, { issues: issues }) : null;
+  };
+  const { ctx: cCov } = makeSandbox();
+  cCov.window.EXEC_ACTIONS = {
+    trump: ctx.window.EXEC_ACTIONS.trump.map(dropMappings).filter(Boolean)
+  };
+  const EXC = cCov.window.PDXExecRecord;
+  for (const k of [HOLD_KEY, NAMED_KEY]) {
+    eq(EXC.issue("trump", k, { allTerms: true }).token, "said_not_done",
+      `fixture drift: stripping ${k}'s mappings did not put it back in the no-action-found bucket`);
+  }
+  const covHtml = cCov.window.PDXExecRecordUI.sectionHtml("trump");
+  const covSum = EXC.summary("trump", { allTerms: true });
+  has(covHtml, "coverage, not a finding", "the no-action-found bucket is not labelled as coverage");
+  ok(!/declined to act/.test(covHtml.split("not that the figure declined to act").join("")),
+    "the coverage copy reads as an accusation rather than as coverage");
+
   const uiSrc = R("exec-record-ui.js");
   const held = (uiSrc.match(/var HELD_ISSUE_KEYS = \{([\s\S]*?)\n  \};/) || [])[1] || "";
   ok(/\btariffs_authority\s*:/.test(held),
@@ -212,81 +255,86 @@ ok(!/declined to act/.test(HTML.split("not that the figure declined to act").joi
   ok(heldKeys.length > 0, "HELD_ISSUE_KEYS could not be parsed out of exec-record-ui.js");
 
   // The chip list is the only place an issue is named on the strength of a stance alone.
-  const body = (HTML.match(/<div class="pdxer-cov-body">([\s\S]*?)<\/div>/) || [])[1] || "";
+  const body = (covHtml.match(/<div class="pdxer-cov-body">([\s\S]*?)<\/div>/) || [])[1] || "";
   const chips = (body.match(/<span class="pdxer-chip pdxer-none">([\s\S]*?)<\/span>/g) || [])
     .map((s) => s.replace(/<[^>]+>/g, ""));
   ok(chips.length > 0, "the coverage chip list rendered no issues, so the hold rule is untested");
 
   let expectHeld = 0;
   for (const k of heldKeys) {
-    const tok = EX.issue("trump", k).token;
+    const tok = EXC.issue("trump", k, { allTerms: true }).token;
     if (tok !== "said_not_done") continue; // not in this bucket for this figure; nothing to hide
     expectHeld++;
     const lbl = ISSUE_MAP[k] ? ISSUE_MAP[k].label : k.replace(/_/g, " ");
     ok(!chips.some((c) => c === escHtml(lbl)),
       `held issue ${k} was named in the coverage list as ${JSON.stringify(lbl)}`);
   }
+  ok(expectHeld > 0, "the fixture did not put a held key in the bucket, so the withholding branch is untested");
 
-  // The hold has a documented END CONDITION, and the seed has now reached it for the
-  // only key on the list. HELD_ISSUE_KEYS suppresses naming an issue that is named
-  // PURELY because a stance exists under an ambiguous key; the comment above it says
-  // in terms that a sourced action mapping the key would still render, "because hiding
-  // a real mapping is the worse error". EO 14257 maps tariffs_authority, so the key
-  // left the no-action-found bucket entirely and there is nothing left for the hold to
-  // withhold. Both branches are therefore asserted, and the arithmetic — which is what
-  // actually protects the reader from a chip list quietly shorter than its own count —
-  // is asserted unconditionally in either.
-  if (expectHeld > 0) {
-    hasText(HTML, "counted above but not named here",
-      "issues were withheld from the coverage list without disclosing it");
-    has(HTML, `>${expectHeld} of them `,
-      `the withheld-issue disclosure does not report ${expectHeld} withheld ${expectHeld === 1 ? "issue" : "issues"}`);
-  } else {
-    ok(!String(HTML).includes(escHtml("counted above but not named here")),
-      "nothing is being withheld, yet the disclosure line claims something is");
-    for (const k of heldKeys) {
-      const tok = EX.issue("trump", k).token;
-      ok(tok !== "said_not_done",
-        `${k} is back in the no-action-found bucket but the disclosure branch went untested`);
-      ok(EX.issue("trump", k).actions.length > 0,
-        `${k} left the coverage bucket without a sourced action to explain why — the hold` +
-        `\n    stopped applying for a reason other than the one its own comment names`);
-    }
-  }
-  eq(chips.length + expectHeld, SUM.issues.noActionFound,
+  // The hold has a documented END CONDITION, and the disclosure branch is what a
+  // reader gets while it still applies: an issue counted in the summary line above
+  // and deliberately not named below, said out loud rather than quietly dropped.
+  hasText(covHtml, "counted above but not named here",
+    "issues were withheld from the coverage list without disclosing it");
+  has(covHtml, `>${expectHeld} of them `,
+    `the withheld-issue disclosure does not report ${expectHeld} withheld ${expectHeld === 1 ? "issue" : "issues"}`);
+
+  // The arithmetic is what actually protects the reader from a chip list quietly
+  // shorter than its own count.
+  eq(chips.length + expectHeld, covSum.issues.noActionFound,
     "named coverage chips plus withheld issues do not add back up to the count in the summary line");
+
+  // …and on the real seed the hold is a no-op, for the reason its own comment gives:
+  // a sourced action mapping the key still renders, "because hiding a real mapping is
+  // the worse error". EO 14257 maps tariffs_authority, so the key is out of the bucket
+  // entirely and there is nothing left to withhold.
+  ok(!String(HTML).includes(escHtml("counted above but not named here")),
+    "nothing is being withheld on the real seed, yet the disclosure line claims something is");
+  for (const k of heldKeys) {
+    ok(EX.issue("trump", k, { allTerms: true }).token !== "said_not_done",
+      `${k} is back in the no-action-found bucket on the real seed but the disclosure branch went untested there`);
+    ok(EX.issue("trump", k, { allTerms: true }).actions.length > 0,
+      `${k} left the coverage bucket without a sourced action to explain why — the hold` +
+      `\n    stopped applying for a reason other than the one its own comment names`);
+  }
 }
 
-/* WHAT REACHES THE SCREEN IS THE CURRENT TERM, AND THAT IS NOW A REAL SUBSET.
-   This loop used to iterate SEED.actions.trump and require every row to render,
-   which was correct only because every row was term 47. bodyParts() calls
-   ex.actionsFor(pid) with no options, so the served surface has always been the
-   current-term scope; there was simply nothing for it to exclude. Wave 7 put eight
-   Term 45 documents on file, so the loop now splits: current-term rows must render,
-   prior-term rows must NOT, and the render must say out loud that it is showing one
-   term and that more is on file. A section that silently dropped eight documents
-   would be the exact failure the tip exists to prevent. */
+/* WHAT REACHES THE SCREEN IS THE WHOLE RECORD, AND THE TERM SPLIT IS DISCLOSED.
+   This loop has been rewritten twice for the same reason and it is worth stating
+   plainly. Before wave 7 every row was term 47, so "render everything" and "render
+   the current term" were the same assertion and nobody could tell which one was
+   being tested. Wave 7 put eight Term 45 documents on file and the split became
+   real: current-term rows rendered, prior-term rows did not. The two-scope change
+   moves the integrity score to all terms, and the ledger follows it — a receipts
+   panel that shows 48 documents under a number computed from 56 is the failure that
+   matters now. So: EVERY seeded row must render, in newest-first order, and the
+   scope line must say both what span this is and how much of it is the live term. */
 const CUR_TERM = EX.currentTerm("trump");
-const RENDERED = SEED.actions.trump.filter((a) => String(a.term) === CUR_TERM);
+const RENDERED = SEED.actions.trump;
 const PRIOR = SEED.actions.trump.filter((a) => String(a.term) !== CUR_TERM);
-ok(PRIOR.length > 0, "no prior-term action is on file, so the scope exclusion below is untested");
+const CURRENT = SEED.actions.trump.filter((a) => String(a.term) === CUR_TERM);
+ok(PRIOR.length > 0, "no prior-term action is on file, so the all-terms rendering below is untested");
 for (const a of RENDERED) {
   hasText(HTML, a.documentId, `action ${a.documentId} is missing from the rendering`);
   hasText(HTML, a.title, `the title of ${a.documentId} is missing from the rendering`);
 }
-for (const a of PRIOR) {
-  ok(!String(HTML).includes(escHtml(a.documentId)),
-    `${a.documentId} is a Term ${a.term} document and leaked into the current-term rendering`);
-}
 {
-  // The exclusion is disclosed, not silent. Both halves: the scope is named, and the
-  // larger all-time figure is printed next to it. This branch of execSummaryTip was
-  // unreachable for six waves — allTimeTotal could never exceed the rendered total —
-  // and this is the assertion that keeps it reachable.
+  // The span is named, and the live term is named as a share of it. A ledger over
+  // several terms that does not say which part is current invites a reader to date
+  // the whole thing from its newest card.
+  hasText(HTML, "All terms on file", "the scope line does not name the span the ledger covers");
+  hasText(HTML, `${CURRENT.length} of ${RENDERED.length} in the current term (${CUR_TERM})`,
+    "the scope line does not report how much of the ledger is the current term");
   const tip = EX.summaryTip(SUM);
-  has(tip, `Showing the current term (${CUR_TERM})`, "the tip does not name the term scope it is showing");
-  has(tip, `${SEED.actions.trump.length} on file across all terms`,
-    "the tip hides that more actions are on file than the current term renders");
+  has(tip, "Showing all terms on file", "the tip does not name the term scope it is showing");
+  // …and the narrower scope still exists in the engine, still discloses itself, and
+  // is still what the secondary integrity read is computed over. Asserted here so the
+  // current_term branch of execSummaryTip does not rot now that no surface defaults
+  // to it.
+  const curTip = EX.summaryTip(EX.summary("trump"));
+  has(curTip, `Showing the current term (${CUR_TERM})`, "the current-term tip no longer names its own scope");
+  has(curTip, `${SEED.actions.trump.length} on file across all terms`,
+    "the current-term tip hides that more actions are on file than that term holds");
 }
 {
   const order = (HTML.match(/data-pdxer-doc="([^"]+)"/g) || []).map((s) => s.replace(/.*="|"$/g, ""));
