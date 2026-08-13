@@ -120,7 +120,14 @@ section("1 · every tested row states a result; every untested row says it is un
         // a surface that can disagree with the score.
         has(chunk, `>${r.verdict.score}%</span>`,
           `${who}/${r.key}: the tested row does not print its issue-level result`);
-        has(chunk, r.verdict.label, `${who}/${r.key}: the tested row prints no verdict`);
+        // ONE RESULT VOCABULARY ACROSS THE PROFILE. The word on this row is the word
+        // the ⚖️ Word vs Action issue index filed it under — Backed up, Mixed,
+        // Contradicted — read from the module that publishes those four rather than
+        // restated here. It used to be the engine's long label ("Backs it up"), which
+        // meant one finding wore two names depending on which surface you met it on.
+        const bucket = WA.outcomeFor(r.verdict.token);
+        ok(!!bucket, `${who}/${r.key}: a tested row's verdict has no published bucket`);
+        has(chunk, bucket.short, `${who}/${r.key}: the tested row prints no verdict`);
         // …and the metric is NAMED. A bare percentage on a row is a number without
         // a question attached to it.
         ok(/class="pdxst-metric">(Direction match|Public-record match)</.test(chunk),

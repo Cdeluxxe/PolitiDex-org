@@ -1645,6 +1645,12 @@
       '.pdxdv-open{display:inline-flex;align-items:center;gap:0.25rem;margin-top:0.5rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.03em;text-transform:uppercase;color:var(--c,#9fdbd0);cursor:pointer;background:rgba(10,15,30,0.4);border:1px solid var(--c,#9fdbd0);border-radius:999px;padding:0.16rem 0.55rem;}' +
       '.pdxdv-open:hover{filter:brightness(1.15);}' +
       '.pdxdv-open:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      // The shared dossier door, wherever it sits inside a record row. Same pill as the
+      // link it replaced, but sentence-cased and given a real tap target: the bucket
+      // word is the readable part and SHOUTING IT WITH THE WHOLE SENTENCE was not.
+      '.pdxdos-door{text-transform:none;letter-spacing:0.01em;font-size:0.7rem;min-height:2.15rem;padding:0.3rem 0.7rem;}' +
+      '.pdxdos-door .pdxdos-door-b{font-weight:800;}' +
+      '.pdxdos-door .pdxdos-door-r{color:#c6d4ec;font-weight:600;}' +
       '.pdxgap-back{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,16,0.72);backdrop-filter:blur(2px);}' +
       '.pdxgap-back[hidden]{display:none;}' +
       // Top padding is deliberately tight (0.65rem, not 1rem): this sheet is the
@@ -2215,10 +2221,21 @@
       // The section's own entry point: the whole record, no issue filter.
       var vra = e.target.closest && e.target.closest('[data-pdxc-vrall]');
       if (vra) { e.preventDefault(); _openVotingIssue(''); return; }
+      // The shared route into the dossier. Every entry surface that is not a stance row
+      // or an index row arrives here — the Official Record row's door, a divergence row,
+      // and the sheet's own sideways steps.
+      //   ORIGIN IS OPTIONAL, AND THAT IS DELIBERATE. A door supplies the id of the row
+      // it was drawn on, so closing the sheet returns the reader to it. The in-sheet
+      // steppers supply none, and passing no options at all is not the same as passing
+      // `{arrival:false}`: it leaves _gapIsArrival() free to read the hash, so a reader
+      // who landed on a shared #record= link keeps the arrival presentation when they
+      // step sideways instead of being dropped into the profile-reader layout.
       var gap = e.target.closest && e.target.closest('[data-pdxc-gap]');
       if (gap) {
         e.preventDefault();
-        openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '');
+        var gorg = gap.getAttribute('data-pdxc-gap-origin') || '';
+        openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '',
+          gorg ? { arrival: false, origin: gorg } : undefined);
         return;
       }
       // ── Next-step row inside the gap sheet ────────────────────────────────
@@ -4116,14 +4133,22 @@
     var v = (r && r.verdict) || {};
     var tok = v.token;
     var pubBasis = (v.basis === 'public_record');
+    // ONE RESULT VOCABULARY. The word on this row is the word the issue index filed
+    // it under — Backed up, Mixed, Contradicted, Thin record — read from the module
+    // that publishes those four, not restated here. The row used to print the engine's
+    // long verdict label instead ("Backs it up" against the index's "Backed up"), which
+    // is two names for one finding on one profile. Falls back to the engine label if
+    // the vocabulary is unreachable, so the row still states a result either way.
+    var bucket = _dosBucket(r);
+    var word = (bucket && bucket.short) ? bucket.short : v.label;
     // The metric's NAME travels with the lane that produced it. "Direction match"
     // is ⚖️ Word vs Action's name for formal-record agreement and it is reserved for
     // exactly that; a row the public record decided says so instead of borrowing a
     // name for arithmetic it did not do.
     var metric = pubBasis ? 'Public-record match' : 'Direction match';
     if (r && r.tested && typeof v.score === 'number') {
-      return { state: 'tested', pct: v.score, metric: metric, label: v.label, ico: v.ico,
-               color: v.color, cls: v.cls, why: '' };
+      return { state: 'tested', pct: v.score, metric: metric, label: word, ico: v.ico,
+               color: v.color, cls: v.cls, why: '', bucket: bucket };
     }
     if (tok === 'limited') {
       // WHY it is thin, not just that it is. "Limited" covers two different
@@ -4143,18 +4168,18 @@
       } else {
         lwhy = 'Not enough record to judge this one yet.';
       }
-      return { state: 'thin', pct: null, metric: metric, label: v.label, ico: v.ico,
-               color: v.color, cls: v.cls, why: lwhy };
+      return { state: 'thin', pct: null, metric: metric, label: word, ico: v.ico,
+               color: v.color, cls: v.cls, why: lwhy, bucket: bucket };
     }
     if (tok === 'pending') {
       return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '⏳',
-               color: '#9fb4d4', cls: 'pending', why: 'Loading the record…' };
+               color: '#9fb4d4', cls: 'pending', why: 'Loading the record…', bucket: null };
     }
     var why = (tok === 'no_stance')
       ? 'They have a record here, but no stated position to test it against.'
       : 'Nothing formal on record for this issue yet.';
     return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '—',
-             color: '#9fb4d4', cls: 'none', why: why };
+             color: '#9fb4d4', cls: 'none', why: why, bucket: null };
   }
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
@@ -4256,6 +4281,7 @@
   // the two ends of a jump can never drift apart.
   function _stSlug(v) { return String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, ''); }
   function orRowId(pid, issueKey) { return 'pdxor-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+  function dvRowId(pid, issueKey) { return 'pdxdv-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
   function wordActionRowId(pid, issueKey) { return 'pdxwa-oc-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
   function stanceRowId(pid, issueKey) { return 'pdxst-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
 
@@ -4398,7 +4424,7 @@
           '<button type="button" class="pdxst-lbl pdxst-open"' +
             ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
             ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
-            ' aria-label="' + escAttr('Open the issue dossier: ' + r.label) + '">' +
+            ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance.label)) + '">' +
             _icDot(skin) + esc(r.label) +
             '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
           '</button>' +
@@ -4678,10 +4704,17 @@
   //   15 < |gap| ≤ 35       → Mixed     (mostly lines up, some daylight)
   //   |gap| > 35            → Diverges  (different stories — the tell)
   var DIV_ALIGN_MAX = 15, DIV_MIXED_MAX = 35;
+  // THE TWO RECORDS' RELATIONSHIP TO EACH OTHER — a different question from any issue
+  // result, and now worded so it cannot be mistaken for one. The middle band was
+  // labelled "Mixed", which is one of the four words the issue index uses for a
+  // RESULT; on a divergence row that sits beside a door reading "Backed up", the same
+  // reader met one word meaning two things. These three say what they measure — how
+  // far apart the vote record and the public record sit — and nothing about whether
+  // either backed the word. Keys, thresholds and colours are untouched.
   var DIV_REL = {
-    aligned:  { key: 'aligned',  label: 'Aligned',  ico: '=', color: '#6ee7a0', blurb: 'Their votes and their public record tell the same story here.' },
-    mixed:    { key: 'mixed',    label: 'Mixed',    ico: '≈', color: '#93c5fd', blurb: 'Their votes and public record mostly line up, with some daylight.' },
-    diverges: { key: 'diverges', label: 'Diverges', ico: '≠', color: '#f5c842', blurb: 'Their votes and their public record tell different stories here.' }
+    aligned:  { key: 'aligned',  label: 'Same story',   ico: '=', color: '#6ee7a0', blurb: 'Their votes and their public record tell the same story here.' },
+    mixed:    { key: 'mixed',    label: 'Some daylight', ico: '≈', color: '#93c5fd', blurb: 'Their votes and public record mostly line up, with some daylight.' },
+    diverges: { key: 'diverges', label: 'Different stories', ico: '≠', color: '#f5c842', blurb: 'Their votes and their public record tell different stories here.' }
   };
   function divRel(gap) {
     var g = Math.abs(gap);
@@ -4727,9 +4760,16 @@
   }
   function _divRow(p, pid) {
     var rel = divRel(p.gap), dir = _divDir(p.gap), g = Math.abs(p.gap);
-    // Diverging & mixed rows are the tell — make them tappable to open the focused
-    // gap view. Aligned rows have no gap to explain, so they stay static.
-    var actionable = (rel.key === 'diverges' || rel.key === 'mixed');
+    // EVERY ROW IS THE SAME DOOR. Only diverging and mixed rows used to be tappable —
+    // "aligned rows have no gap to explain" — but the destination is not an explanation
+    // of the gap, it is the issue's assembled record, and a reader who wants that on an
+    // aligned issue was the one reader this list refused. The gate is now the only
+    // honest one: does a dossier resolve for this issue at all.
+    //   The relationship chip stays in ITS own vocabulary. Aligned / Mixed / Diverges
+    // answers "do the two records agree with each other", which is a different question
+    // from "did the record back the word" — the bucket word is carried on the door
+    // instead, so the two never sit side by side pretending to be the same claim.
+    var o = _bucketAt(pid, p.key);
     var skin = _icSkin(p.key);
     var body =
         '<div class="pdxdv-row-lbl">' + _icDot(skin) + esc(_issueLabel(p.key)) + '</div>' +
@@ -4748,13 +4788,17 @@
           _divRelChip(rel) +
           (g > DIV_ALIGN_MAX ? '<span class="pdxdv-gap">' + g + ' pt gap' + (dir ? ' · ' + dir : '') + '</span>' : '') +
         '</div>';
-    if (actionable) {
+    if (o) {
       return '<button type="button" class="pdxdv-row pdxdv-row-tap' + skin.cls + '" style="' + skin.style + '"' +
+          ' id="' + escAttr(dvRowId(pid, p.key)) + '"' +
           ' data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-          ' aria-label="' + esc('See the ' + (p.off.lane === 'exec' ? 'actions' : 'votes') + ' and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
-          body + '<span class="pdxdv-row-why">See what’s behind the gap <span aria-hidden="true">→</span></span></button>';
+          ' data-pdxc-gap-origin="' + escAttr(dvRowId(pid, p.key)) + '"' +
+          ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(p.key), o, '')) + '">' +
+          body + '<span class="pdxdv-row-why">' + esc(o.short) +
+          ' — open the issue dossier <span aria-hidden="true">→</span></span></button>';
     }
-    return '<div class="pdxdv-row' + skin.cls + '" style="' + skin.style + '">' + body + '</div>';
+    return '<div class="pdxdv-row' + skin.cls + '" style="' + skin.style + '"' +
+      ' id="' + escAttr(dvRowId(pid, p.key)) + '">' + body + '</div>';
   }
   function _dvInner(pid) {
     var d = divergenceData(pid);
@@ -4802,9 +4846,11 @@
     }
 
     var c = d.counts, chips = [];
-    if (c.aligned) chips.push('<b style="color:' + DIV_REL.aligned.color + '">' + c.aligned + '</b> aligned');
-    if (c.mixed) chips.push('<b style="color:' + DIV_REL.mixed.color + '">' + c.mixed + '</b> mixed');
-    if (c.diverges) chips.push('<b style="color:' + DIV_REL.diverges.color + '">' + c.diverges + '</b> diverging');
+    // Counted in the same words the row chips use, so the tally and the rows below it
+    // cannot read as two different classifications of the same issues.
+    if (c.aligned) chips.push('<b style="color:' + DIV_REL.aligned.color + '">' + c.aligned + '</b> telling the same story');
+    if (c.mixed) chips.push('<b style="color:' + DIV_REL.mixed.color + '">' + c.mixed + '</b> with some daylight');
+    if (c.diverges) chips.push('<b style="color:' + DIV_REL.diverges.color + '">' + c.diverges + '</b> telling different stories');
     var tally = chips.length
       ? '<div class="pdxdv-tally">Across ' + d.both.length + ' issue' + (d.both.length === 1 ? '' : 's') + ' on both records: ' + chips.join(' · ') + '.</div>'
       : '';
@@ -5318,6 +5364,22 @@
         (o.sub ? '<span class="pdxdos-bucket-s">' + esc(o.sub) + '</span>' : '') +
       '</div>';
   }
+  // The same lookup from OUTSIDE the sheet. Every surface on the profile that shows a
+  // reader an issue result asks exactly this question — which of the four buckets is
+  // this — so no surface has to keep its own copy of the four words, and none of them
+  // can drift from the index. A key that resolves to no bucket returns null in all of
+  // them, which is what stops a door being drawn over nothing.
+  function _bucketAt(pid, issueKey) {
+    if (!pid || !issueKey) return null;
+    try { return _dosBucket(issueRow(pid, issueKey)); } catch (e) { return null; }
+  }
+  // ONE ACCESSIBLE NAME FOR ONE DOOR. Read aloud identically in the issue index, on a
+  // stance row, inside an Official Record row and in the divergence list, because in
+  // all four places it is the same destination carrying the same finding.
+  function _dosDoorLabel(label, o, said) {
+    return 'Open the issue dossier: ' + String(label == null ? '' : label) +
+      (o ? ' — ' + o.short : '') + (said ? ' · they said: ' + said : '');
+  }
 
   // ── L1 — the assembled answer ───────────────────────────────────────────────
   // Open by default, and the only level that is. Everything here is read off the
@@ -5712,14 +5774,27 @@
       '<div class="pdxgap-next-row">' + items.join('') + '</div></div>';
   }
 
-  // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
-  // issue has a real % on BOTH sides (so the sheet always has something to compare).
+  // THE SAME DOOR, INSIDE AN OFFICIAL RECORD ROW. This was a "⚖️ Diverges — compare →"
+  // link: one more set of words for a result the rest of the profile already names, and
+  // one that only appeared when the issue happened to carry a real % on BOTH the vote
+  // side and the public-record side, so most rows had no way into the dossier at all.
+  // It is now the shared door — the bucket the index filed this issue under, in the
+  // index's own word and colour, opening the same assembled sheet as every other entry
+  // row, and carrying this row's id so closing returns the reader to it.
+  //   FAIL CLOSED. No bucket, no door: an issue the index never filed — pending, no
+  // record, nothing stated — gets no link rather than a link to an empty sheet.
   function _gapLinkHtml(pid, issueKey) {
-    var o = officialIssue(pid, issueKey), s = saydoIssue(pid, issueKey);
-    if (typeof o.score !== 'number' || typeof s.score !== 'number') return '';
-    var rel = divRel(o.score - s.score);
-    return '<button type="button" class="pdxdv-open" data-pdxc-gap="' + esc(issueKey) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
-      ' style="--c:' + rel.color + '" title="Compare the votes and the public record behind this issue">⚖️ ' + rel.label + ' — compare →</button>';
+    var o = _bucketAt(pid, issueKey);
+    if (!o) return '';
+    return '<button type="button" class="pdxdv-open pdxdos-door" data-pdxc-gap="' + esc(issueKey) +
+      '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+      ' data-pdxc-gap-origin="' + escAttr(orRowId(pid, issueKey)) + '"' +
+      ' style="--c:' + o.col + '"' +
+      ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(issueKey), o, '')) + '"' +
+      ' title="Everything on the record for this issue, in one place">' +
+      '<span class="pdxdos-door-b">' + esc(o.short) + '</span>' +
+      '<span class="pdxdos-door-r">— open the issue dossier <span aria-hidden="true">→</span></span>' +
+      '</button>';
   }
 
   // ── gap sheet: a single lazily-built bottom-sheet, reused for every issue ────
@@ -5861,7 +5936,7 @@
       row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes or actions sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
       row('⚖️', 'Why the lanes stay separate', 'Formal actions and public statements answer different questions, so pooling them into one figure would hide more than it reveals. The formal record is what <b>tests</b> a stated position; the public record is what <b>surrounds</b> it. Both appear on the issue, labelled for what they are — but one issue gets <b>one verdict</b>, from one engine, on every surface it appears on.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
-      row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Aligned</b> — the two tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b>, not whether the person is good or bad, and it is not a score.') +
+      row('↔️', 'What the divergence labels mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Same story</b> — the two agree. <b>Some daylight</b> — mostly, with a gap. <b>Different stories</b> — they disagree. These deliberately avoid the words the issue index uses for a result (Backed up · Mixed · Contradicted · Thin record): those say whether the record backed what was <b>said</b>, which is a different question from whether the two records agree with <b>each other</b>. Neither of these is a score.') +
       // The procedural down-weight is a real scoring decision a reader can check
       // us on, so it belongs in the methodology sheet rather than only in a
       // tooltip on the card that happens to carry the tag.

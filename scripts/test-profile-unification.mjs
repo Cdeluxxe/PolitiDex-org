@@ -817,7 +817,15 @@ section("12 · stances & connections — what they stand for, ranked and connect
         eq(mine[0], r.verdict.score,
           `${who}/${r.key}: the row's percentage is not the row model's own issue score —\n` +
           "    this surface must never compute a second answer");
-        has(chunk, r.verdict.label, `${who}/${r.key}: the tested row states a % with no verdict beside it`);
+        // ONE RESULT VOCABULARY. The verdict beside the % is the word the ⚖️ Word vs
+        // Action issue index filed this row under, read from the module that publishes
+        // those four names. It was the engine's long label until the entry points were
+        // unified, which meant one finding wore two names on one profile depending on
+        // which surface the reader happened to meet it on.
+        const stBucket = WA.outcomeFor(r.verdict.token);
+        ok(!!stBucket, `${who}/${r.key}: a tested verdict resolves to no published bucket`);
+        has(chunk, stBucket ? stBucket.short : r.verdict.label,
+          `${who}/${r.key}: the tested row states a % with no verdict beside it`);
         has(chunk, 'class="pdxst-vd"', `${who}/${r.key}: the verdict is not carried on the result line`);
         eq((chunk.match(/data-pdxst-state="tested"/g) || []).length, 1,
           `${who}/${r.key}: a tested row is not marked tested`);
