@@ -157,6 +157,9 @@
     });
   }
   function C() { return window.PDXConsistency || null; }
+  // The id-safe half of a per-issue DOM id. Kept next to esc() because both ends of
+  // a cross-section jump have to sanitise identically or the link points at nothing.
+  function _idPart(v) { return String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, ''); }
   // The shared Mixed rule, borrowed rather than restated. Same function the issue
   // rows use, so the pooled read at the top of a profile and the per-issue rows
   // under it apply one definition of "split" — including its floor of two
@@ -1553,7 +1556,13 @@
     // reading closely — which is the wrong place to keep the qualification.
     var flags = flagsHtml(r, 'pdxwa-oc-flag');
     var friction = (isContested(r) ? ' pdxwa-oc-row-x' : '') + (isThin(r) ? ' pdxwa-oc-row-thin' : '');
-    return '<li class="pdxwa-oc-row' + skin.cls + friction + '" style="' + skin.style + '">' +
+    // A stable per-issue id, so another surface can land a reader on THIS issue's
+    // line in the score rather than on the top of the section. Built from the same
+    // (pid, key) pair every surface already agrees on; see wordActionRowId() in
+    // consistency.js, which is the only caller and which must build the same string.
+    var rid = 'pdxwa-oc-' + _idPart(r.pid) + '-' + _idPart(r.key);
+    return '<li class="pdxwa-oc-row' + skin.cls + friction + '" style="' + skin.style + '"' +
+        ' id="' + esc(rid) + '" data-pdxwa-issue="' + esc(r.key) + '">' +
         '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
         (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
         flags +

@@ -1809,14 +1809,53 @@
       '.pdxst-q{font-size:0.74rem;color:#93a9c8;font-style:italic;margin-bottom:0.5rem;}' +
       '.pdxst-grp{margin-bottom:0.6rem;}' +
       '.pdxst-grp-h{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;padding-bottom:0.18rem;border-bottom:1px solid rgba(159,180,212,0.14);margin-bottom:0.3rem;}' +
-      '.pdxst-row{padding:0.35rem 0;border-bottom:1px solid rgba(159,180,212,0.07);}' +
+      '.pdxst-row{padding:0.45rem 0;border-bottom:1px solid rgba(159,180,212,0.07);}' +
       '.pdxst-row-top{display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;}' +
       '.pdxst-lbl{font-weight:700;font-size:0.82rem;color:#dbe6f5;}' +
       '.pdxst-txt{font-size:0.74rem;line-height:1.4;color:#9fb4d4;margin-top:0.15rem;}' +
       '.pdxst-links{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.28rem;}' +
       '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
       '.pdxst-go:hover,.pdxst-go:focus-visible{background:rgba(159,219,208,0.18);}' +
-      '.pdxst-ev{font-size:0.64rem;color:#6f88ab;white-space:nowrap;}' +
+      '.pdxst-ev{font-size:0.64rem;color:#6f88ab;}' +
+      // ── THE RESULT LINE ────────────────────────────────────────────────────
+      // The row used to end its top line at a pastel verdict chip and a receipt
+      // count, which is a label, not a finding: a reader scanning six rows could
+      // tell that one said "Mixed record" and not what mixed MEANT or how much was
+      // behind it. This line is the answer, and it is deliberately louder than the
+      // chip it replaces — the number and the outcome word sit on their own line,
+      // in the verdict's own colour, above the evidence that produced them.
+      '.pdxst-result{display:flex;align-items:baseline;gap:0.3rem;flex-wrap:wrap;margin-top:0.22rem;}' +
+      '.pdxst-metric{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;}' +
+      // THE SCOPE TAG IS NOT DECORATION. A percentage on a profile means the
+      // profile's score unless something on the same line says otherwise, and this
+      // number is one issue's. The tag says so in two words, next to every one of
+      // them, so a row can never be mistaken for a second headline.
+      '.pdxst-scope{font-size:0.55rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8fa6c6;background:rgba(159,180,212,0.12);border-radius:999px;padding:0.06rem 0.34rem;}' +
+      // Sized well below the hero ring on purpose — big enough to scan, small
+      // enough that it never competes with the one profile score.
+      '.pdxst-pct{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.95;}' +
+      '.pdxst-pct-na{font-family:"Bebas Neue",sans-serif;font-size:0.95rem;line-height:0.95;color:#7e93b3;}' +
+      '.pdxst-vd{font-weight:800;font-size:0.72rem;letter-spacing:0.01em;}' +
+      '.pdxst-vd-none{font-weight:700;font-size:0.68rem;color:#8fa6c6;}' +
+      '.pdxst-why{font-size:0.64rem;color:#7e93b3;}' +
+      // Composition: what "mixed" actually meant, in counts, under the row that
+      // said it. Never rendered on a row with nothing to break down.
+      '.pdxst-comp{display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;font-size:0.64rem;color:#8fa6c6;margin-top:0.16rem;}' +
+      '.pdxst-comp b{font-weight:800;}' +
+      '.pdxst-comp-for{color:#6ee7a0;}' +
+      '.pdxst-comp-against{color:#f89b9b;}' +
+      '.pdxst-comp-x{color:#f5c842;}' +
+      // The sub-divider inside the "record backs it up" group: the rows the engine
+      // could not judge sit in the same tier as the ones it could, and a thin row
+      // under a "backs it up" heading is a claim nobody made.
+      '.pdxst-sub{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;color:#7e93b3;margin:0.35rem 0 0.1rem;}' +
+      // The way back. A jump out of a stance row used to be one-way: the reader
+      // landed in the Official Record and had to scroll back up past everything.
+      '.pdxst-back{position:fixed;left:50%;transform:translateX(-50%);bottom:1.1rem;z-index:12050;cursor:pointer;' +
+        'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.05em;text-transform:uppercase;' +
+        'color:#0b1020;background:#9fdbd0;border:none;border-radius:999px;padding:0.5rem 0.9rem;min-height:2.2rem;box-shadow:0 6px 18px rgba(0,0,0,0.45);}' +
+      '.pdxst-back:hover,.pdxst-back:focus-visible{background:#bdeae1;}' +
+      '.pdxst-focus{border-radius:0.5rem;box-shadow:0 0 0 2px rgba(159,219,208,0.6);background:rgba(159,219,208,0.07);}' +
       // ── Core National Issue colours (issue-colors.js) ────────────────────────
       // Every row in this file that names an issue carries `--pdx-ic*` inline via
       // _icSkin(), and gets `.pdxc-ic` when the key resolved to a real core issue.
@@ -1857,6 +1896,17 @@
       '@media (max-width:480px){' +
         '.pdxor-issue.pdxc-ic{border-left-width:4px;}' +
         '.pdxst-row.pdxc-ic,.pdxdv-row.pdxc-ic{padding-left:0.45rem;}' +
+        // MOBILE: the result must survive the narrow column. The metric caption and
+        // its scope tag are allowed to wrap onto their own line, but the number and
+        // the outcome word stay together — those two are the answer, and splitting
+        // them across a wrap is what turns a result back into a label.
+        '.pdxst-result{gap:0.24rem 0.3rem;}' +
+        '.pdxst-pct{font-size:1.15rem;}' +
+        '.pdxst-vd{font-size:0.74rem;}' +
+        // Every jump is a thumb target, not a hover target.
+        '.pdxst-go{min-height:2.3rem;padding:0.4rem 0.7rem;font-size:0.62rem;}' +
+        '.pdxst-links{gap:0.34rem;}' +
+        '.pdxst-back{bottom:0.8rem;min-height:2.4rem;}' +
       '}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -2006,6 +2056,12 @@
     if (_gateBound || !document.addEventListener) return;
     _gateBound = true;
     document.addEventListener('click', function (e) {
+      // The return pill is the one thing here that lives OUTSIDE the profile it
+      // belongs to (it is fixed to the viewport), so it is also the one thing that
+      // can outlive it. Any click is a cheap moment to notice that the row it points
+      // back to is gone — the modal closed, or a different profile was opened — and
+      // take it down before it becomes a button to nowhere.
+      _stBackSweep();
       // Deep link from a named proof line to that ONE roll call. Checked before the
       // issue link because a proof line carries both: the vote it names, and the issue
       // to fall back to. preventDefault also stops the <summary> it sits in from
@@ -2055,6 +2111,21 @@
       if (away) { closeGap(); return; }
       var method = e.target.closest && e.target.closest('[data-pdxc-method]');
       if (method) { e.preventDefault(); openMethodology(); return; }
+      // Stance-row jumps. Resolved at click time rather than baked into an href,
+      // because the row this points at may live inside a fold that has not been
+      // mounted yet — the exact target only exists once the destination section has
+      // been revealed, and _stNav() falls back to the section when it does not.
+      var sgo = e.target.closest && e.target.closest('[data-pdxst-go]');
+      if (sgo) {
+        e.preventDefault();
+        _stNav(sgo.getAttribute('data-pdxst-go') || '',
+               sgo.getAttribute('data-pdxst-target') || '',
+               sgo.getAttribute('data-pdxst-pid') || '',
+               sgo.getAttribute('data-pdxst-key') || '');
+        return;
+      }
+      var sback = e.target.closest && e.target.closest('[data-pdxst-back]');
+      if (sback) { e.preventDefault(); _stBack(sback.getAttribute('data-pdxst-back') || ''); return; }
       var card = e.target.closest && e.target.closest('[data-pdxc-open]');
       if (!card) return;
       e.preventDefault();
@@ -2096,6 +2167,19 @@
         var sdOpen = _lidsOpenIn(sds[q]);
         sds[q].innerHTML = _lidify(_sdInner(pid));
         _lidsReopen(sdOpen);
+      }
+      // …and the stance rows. This was the gap that made the whole section unable to
+      // keep its promise on a congressional profile: a member's votes arrive
+      // asynchronously, every row is built at mount time, and nothing ever repainted
+      // them — so "⏳ Loading the record…" was not a transient state, it was the
+      // permanent answer to "what did the record conclude?". The rows now resolve
+      // with everything else on the profile.
+      var sts = document.querySelectorAll('[data-pdxc-stances-pid]');
+      for (var s = 0; s < sts.length; s++) {
+        if (sts[s].getAttribute('data-pdxc-stances-pid') !== String(pid)) continue;
+        var stOpen = _lidsOpenIn(sts[s]);
+        sts[s].innerHTML = _lidify(_stInner(pid));
+        _lidsReopen(stOpen);
       }
       // The repaint above is the moment the vote record actually exists, so it is
       // also the moment a vote-derived share card can first be built. Re-run the
@@ -3611,6 +3695,7 @@
         var inline = (total && total <= 2) ? 2 : 1;
         var skin = _icSkin(s.key);
         return '<details class="pdxor-issue pdxor-row' + skin.cls + '" style="' + skin.style + '"' +
+            ' id="' + escAttr(orRowId(pid, s.key)) + '"' +
             ' data-pdxc-row="' + escAttr(s.key) + '"' +
             // The ranking foundation, carried on the element itself: tier, testability
             // and receipt depth. Nothing reads these yet — they are here so a later
@@ -3796,37 +3881,362 @@
   // thing on the page. The tension group is exempt — see blockOf.
   var _ST_LEAD_CAP = 6;
   function _stOpen(g) { return g.tiers.some(function (t) { return _ST_OPEN_TIERS[t]; }); }
-  function _stGo(target, label) {
-    var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
-    return '<button type="button" class="pdxst-go" onclick="if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
-      'else{var e=document.getElementById(\'' + t + '\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+
+  // ── WHAT THE RECORD CONCLUDED, ON THE ROW ───────────────────────────────────
+  // A stance row's job is to answer four questions in one glance: what they said,
+  // what the record concluded, how strong that conclusion is, and where to go next.
+  // Before this pass it answered the first and gestured at the second with a pastel
+  // chip — "◑ Mixed record · 7 receipts · strong" — which names a bucket without
+  // ever saying what was in it. Everything below turns the row's ALREADY-RESOLVED
+  // verdict into a stated result.
+  //
+  // NOTHING HERE SCORES. Every number is read off the row model:
+  //   • the percentage is r.verdict.score, which officialIssue() computed as
+  //     consistent ÷ (consistent + contradicts) over the judged items in whichever
+  //     lane decided the row — i.e. how often the formal record pointed the SAME
+  //     DIRECTION as the stated position. That is the same arithmetic and the same
+  //     name (⚖️ Word vs Action's FRAME.metric) as the profile's one score, applied
+  //     to one issue instead of pooled across all of them.
+  //   • the composition counts are the same consistent/contradicts pair the
+  //     percentage is a ratio of, printed rather than divided.
+  //   • the strength word is r.evidence.strength (_EV_STRENGTH), not a second
+  //     definition of thin.
+  //
+  // IT FAILS CLOSED. A percentage is printed only where the deciding lane returned
+  // one. `limited` — the engine saying it could not test the claim — prints an
+  // explicit "—" and the reason; an untested row prints "Not tested yet" and why.
+  // No row is ever given a result the engine did not reach.
+
+  // The countable noun for the record behind THIS row. A president signs actions
+  // and casts no votes; a member does the reverse. The row knows its own lane, so
+  // the executive-only vocabulary can never reach a member's surface.
+  function _stNoun(r) {
+    return (r && r.lane === 'exec')
+      ? { one: 'action', many: 'actions' }
+      : { one: 'vote', many: 'votes' };
+  }
+  // How many judged items pointed each way, from the lane that actually decided the
+  // row. Returns null when nothing directional was judged — the caller must not
+  // print a breakdown of a verdict no lane produced.
+  function _stSplit(r) {
+    if (!r || !r.verdict) return null;
+    var d = (r.verdict.basis === 'public_record')
+      ? { c: (r.public && r.public.supporting) || 0, x: (r.public && r.public.contradicting) || 0 }
+      : _rowDirection(r.ov);
+    if (!d || (d.c + d.x) <= 0) return null;
+    return { aligned: d.c, against: d.x, judged: d.c + d.x, basis: r.verdict.basis };
+  }
+  // The most contested standing among the executive actions behind this row, or
+  // null. Read off the row's own pool and rendered from PDXExecRecord.STANDING, so
+  // this surface cannot disagree with the Executive Enactment Record about where an
+  // order stands — and it is exec-only, because "blocked by a court" is not a thing
+  // that happens to a roll-call vote.
+  var _ST_STANDING_ORDER = ['struck_down', 'overridden', 'blocked', 'partly_blocked', 'rescinded',
+                            'challenged_unverified', 'superseded', 'expired'];
+  function _stStanding(r) {
+    try {
+      if (!r || r.lane !== 'exec') return null;
+      var E = window.PDXExecRecord;
+      if (!E || !E.STANDING) return null;
+      var pool = r.ov && (r.ov.execPool || r.ov.execHeld);
+      var items = (pool && pool.items) || [];
+      if (!items.length) return null;
+      for (var i = 0; i < _ST_STANDING_ORDER.length; i++) {
+        var key = _ST_STANDING_ORDER[i], n = 0;
+        for (var j = 0; j < items.length; j++) if (items[j].standing === key) n++;
+        if (n) {
+          var meta = E.STANDING[key];
+          if (meta && meta.contested) return { key: key, label: meta.label, ico: meta.ico, count: n };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  // The row's result, as data. One place decides what a row concluded, so the
+  // markup below and the tests both read the same answer.
+  function _stResult(r) {
+    var v = (r && r.verdict) || {};
+    var tok = v.token;
+    var pubBasis = (v.basis === 'public_record');
+    // The metric's NAME travels with the lane that produced it. "Direction match"
+    // is ⚖️ Word vs Action's name for formal-record agreement and it is reserved for
+    // exactly that; a row the public record decided says so instead of borrowing a
+    // name for arithmetic it did not do.
+    var metric = pubBasis ? 'Public-record match' : 'Direction match';
+    if (r && r.tested && typeof v.score === 'number') {
+      return { state: 'tested', pct: v.score, metric: metric, label: v.label, ico: v.ico,
+               color: v.color, cls: v.cls, why: '' };
+    }
+    if (tok === 'limited') {
+      // WHY it is thin, not just that it is. "Limited" covers two different
+      // situations and a reader can tell them apart instantly once they are named:
+      // a record that exists but never takes a side on this claim (the president's
+      // healthcare row — four actions, none of them for or against what he said),
+      // and a record with almost nothing in it. Printing "not enough record" over
+      // four actions reads as a contradiction of the line right below it.
+      var lim = _stSplit(r), lnoun = _stNoun(r);
+      var lwhy;
+      if (!lim) {
+        lwhy = (r.evidence.total > 0)
+          ? 'There is a record here, but none of it takes a clear side on this claim.'
+          : 'Nothing on record yet takes a side on this one.';
+      } else if (lim.judged === 1) {
+        lwhy = 'One ' + lnoun.one + ' is not enough to judge this one yet.';
+      } else {
+        lwhy = 'Not enough record to judge this one yet.';
+      }
+      return { state: 'thin', pct: null, metric: metric, label: v.label, ico: v.ico,
+               color: v.color, cls: v.cls, why: lwhy };
+    }
+    if (tok === 'pending') {
+      return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '⏳',
+               color: '#9fb4d4', cls: 'pending', why: 'Loading the record…' };
+    }
+    var why = (tok === 'no_stance')
+      ? 'They have a record here, but no stated position to test it against.'
+      : 'Nothing formal on record for this issue yet.';
+    return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '—',
+             color: '#9fb4d4', cls: 'none', why: why };
+  }
+  // The result line: the number, what it is a percentage OF, and the outcome word.
+  function _stResultHtml(r, res) {
+    var n = _stNoun(r);
+    if (res.state === 'untested') {
+      return '<div class="pdxst-result pdxst-r-untested">' +
+          '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico + ' ' + res.label) + '</span>' +
+          '<span class="pdxst-why">' + esc(res.why) + '</span>' +
+        '</div>';
+    }
+    var split = _stSplit(r);
+    var scopeWord = (res.metric === 'Public-record match') ? 'public-record item' : n.one;
+    var tip = (res.state === 'tested')
+      ? res.metric + ' on this issue only: ' + res.pct + '% — ' +
+        (split ? split.aligned + ' of ' + split.judged + ' judged ' +
+          (split.judged === 1 ? scopeWord : scopeWord + 's') + ' pointed the same way as the position they state. '
+                : '') +
+        'Verdict: ' + res.label + '. This is one issue, not the profile score — that one is in Word vs Action.'
+      : res.why + ' No percentage is shown, because the record behind this row is too thin to divide.';
+    var num = (res.state === 'tested')
+      ? '<span class="pdxst-pct" style="color:' + res.color + '">' + res.pct + '%</span>'
+      : '<span class="pdxst-pct pdxst-pct-na" aria-label="No percentage — not enough record">—</span>';
+    return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
+        '<span class="pdxst-metric">' + esc(res.metric) + '</span>' +
+        '<span class="pdxst-scope">this issue</span>' +
+        num +
+        '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
+      '</div>' +
+      (res.state === 'thin' ? '<div class="pdxst-why">' + esc(res.why) + '</div>' : '');
+  }
+  // WHAT "MIXED" MEANT. Printed where the row actually carries tension — a split
+  // verdict, counter-evidence the deciding lane set aside, or an action whose
+  // standing is contested — and nowhere else, because a breakdown under a clean
+  // row is furniture.
+  function _stCompHtml(r, res) {
+    if (res.state === 'untested') return '';
+    var split = _stSplit(r);
+    var st = _stStanding(r);
+    var aside = r.setAside;
+    var tense = (r.verdict.token === 'mixed') || !!aside || !!st;
+    if (!tense || !split) return '';
+    var n = _stNoun(r);
+    var unit = (split.basis === 'public_record') ? 'public-record item' : n.one;
+    var parts = [
+      '<span class="pdxst-comp-for"><b>' + split.aligned + '</b> aligned</span>',
+      '<span class="pdxst-comp-against"><b>' + split.against + '</b> against</span>'
+    ];
+    if (aside && aside.count) {
+      var asideUnit = (aside.lane === 'public_record')
+        ? 'public receipt' + (aside.count === 1 ? '' : 's')
+        : (aside.count === 1 ? n.one : n.many);
+      parts.push('<span class="pdxst-comp-x"><b>' + aside.count + '</b> ' + esc(asideUnit) + ' the other way, set aside</span>');
+    }
+    if (st) {
+      parts.push('<span class="pdxst-comp-x">' + esc(st.ico + ' ' + st.count + ' ' +
+        (st.count === 1 ? n.one : n.many) + ' ' + st.label.toLowerCase()) + '</span>');
+    }
+    var tip = split.aligned + ' of ' + split.judged + ' judged ' +
+      (split.judged === 1 ? unit : unit + 's') + ' pointed the same way as their stated position; ' +
+      split.against + ' ran against it.' +
+      (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
+        aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
+      (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '');
+    return '<div class="pdxst-comp" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
+      parts.join('<span aria-hidden="true">·</span>') + '</div>';
+  }
+  // HOW MUCH IS BEHIND IT, in the row's own nouns. Kept on its own line rather than
+  // trailing the issue name, so the depth of a record is scannable down a column
+  // instead of hiding at the end of whatever the longest label happened to be.
+  function _stEvidenceHtml(r) {
+    var n = _stNoun(r), bits = [];
+    if (r.evidence.actions > 0) {
+      bits.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+    }
+    if (r.evidence.public > 0) {
+      bits.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
+    }
+    if (!bits.length) return '';
+    bits.push(r.evidence.strength + ' evidence');
+    return '<div class="pdxst-ev">' + esc(bits.join(' · ')) + '</div>';
+  }
+
+  // ── THE CONNECTIONS ─────────────────────────────────────────────────────────
+  // Each jump is offered only when there is something on the other end, and each
+  // one aims at THIS ISSUE rather than at the top of a section: a reader who taps
+  // "the record behind this" from Tariffs should land on the tariffs row, not on a
+  // heading with eleven rows under it. The precise target is a data attribute the
+  // delegated handler resolves at click time; `data-pdxst-target` is the section it
+  // falls back to when the exact row has not been painted (or exists only inside a
+  // fold that was never mounted).
+  function _stGo(kind, target, r, label) {
+    return '<button type="button" class="pdxst-go" data-pdxst-go="' + escAttr(kind) + '"' +
+      ' data-pdxst-target="' + escAttr(target) + '"' +
+      ' data-pdxst-pid="' + escAttr(r.pid) + '" data-pdxst-key="' + escAttr(r.key) + '">' +
       esc(label) + '</button>';
   }
+  // Stable ids for the rows this section points AT. Both are emitted by the section
+  // that owns the row (see _orInner and word-action.js), and both are built here so
+  // the two ends of a jump can never drift apart.
+  function _stSlug(v) { return String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, ''); }
+  function orRowId(pid, issueKey) { return 'pdxor-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+  function wordActionRowId(pid, issueKey) { return 'pdxwa-oc-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+  function stanceRowId(pid, issueKey) { return 'pdxst-row-' + _stSlug(pid) + '-' + _stSlug(issueKey); }
+
+  // Where each jump actually lands. The exact row first, the section it lives in as
+  // the fallback — a link that lands one screen off is still a link; a link that
+  // lands nowhere is a broken promise.
+  function _stTargets(kind, pid, key) {
+    if (kind === 'or') return [orRowId(pid, key)];
+    if (kind === 'wa') return [wordActionRowId(pid, key)];
+    if (kind === 'ev') {
+      var a = null;
+      try { if (typeof window._pdxEvAnchor === 'function') a = window._pdxEvAnchor(pid, key); } catch (e) {}
+      return a ? [a] : [];
+    }
+    return [];
+  }
+  function _stFocus(el) {
+    if (!el || !el.classList) return;
+    el.classList.add('pdxst-focus');
+    setTimeout(function () { try { el.classList.remove('pdxst-focus'); } catch (e) {} }, 1800);
+  }
+  function _stNav(kind, section, pid, key) {
+    // 🔍 leaves the profile entirely, for the same issue across everyone. The Issue
+    // View is an overlay that returns the reader to exactly where they were, so it
+    // needs no breadcrumb of ours.
+    if (kind === 'issue') {
+      try {
+        var IV = window.PDXIssueView;
+        if (IV && typeof IV.open === 'function') { IV.open(key); return; }
+      } catch (e) {}
+    }
+    var list = _stTargets(kind, pid, key);
+    var landed = '';
+    for (var i = 0; i < list.length && !landed; i++) {
+      // Mount first, ask second: the destination row may still be a deferred string
+      // inside a fold nobody has opened. Without the reveal, the exact-row link would
+      // silently degrade to the section link on every profile whose deep sections are
+      // still folded — which is all of them, on first read.
+      try { if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(list[i]); } catch (e) {}
+      if (document.getElementById(list[i])) landed = list[i];
+    }
+    var target = landed || section;
+    if (!target) return;
+    if (typeof window._pdxNavJump === 'function') window._pdxNavJump(target);
+    else { var el = document.getElementById(target); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    if (landed) setTimeout(function () { _stFocus(document.getElementById(landed)); }, 420);
+    // THE WAY BACK. Cross-navigation that only goes one way turns into scrolling by
+    // another name: a reader who follows three issues down into the Official Record
+    // has to find their place in the stance list three times. The pill offers the
+    // return trip explicitly, and takes itself down once they are home.
+    _stShowBack(pid, key);
+  }
+  var _stBackEl = null, _stBackWatch = false;
+  function _stShowBack(pid, key) {
+    try {
+      var origin = stanceRowId(pid, key);
+      if (!document.getElementById(origin) || !document.body) return;
+      if (!_stBackEl) {
+        _stBackEl = document.createElement('button');
+        _stBackEl.type = 'button';
+        _stBackEl.className = 'pdxst-back';
+        document.body.appendChild(_stBackEl);
+      }
+      _stBackEl.setAttribute('data-pdxst-back', origin);
+      _stBackEl.innerHTML = '↩ Back to ' + esc(_issueLabel(key));
+      _stBackEl.style.display = '';
+      if (!_stBackWatch) {
+        var body = document.getElementById('modal-body');
+        if (body && body.addEventListener) {
+          // Only latched once the listener is genuinely attached — the profile body
+          // is the scroller, and marking this done before it exists would leave the
+          // pill with no way to notice the reader had come back on their own.
+          _stBackWatch = true;
+          body.addEventListener('scroll', function () {
+            // Once the row they left is back on screen, the offer is noise.
+            if (!_stBackEl || _stBackEl.style.display === 'none') return;
+            var el = document.getElementById(_stBackEl.getAttribute('data-pdxst-back') || '');
+            if (!el || !el.getBoundingClientRect) return;
+            var r = el.getBoundingClientRect();
+            if (r.top < window.innerHeight && r.bottom > 0) _stHideBack();
+          }, { passive: true });
+        }
+      }
+    } catch (e) {}
+  }
+  function _stHideBack() { try { if (_stBackEl) _stBackEl.style.display = 'none'; } catch (e) {} }
+  // Down it goes if the row it offers to return to is no longer on the page.
+  function _stBackSweep() {
+    try {
+      if (!_stBackEl || _stBackEl.style.display === 'none') return;
+      if (!document.getElementById(_stBackEl.getAttribute('data-pdxst-back') || '')) _stHideBack();
+    } catch (e) {}
+  }
+  function _stBack(originId) {
+    _stHideBack();
+    if (!originId) return;
+    try { if (typeof window._pdxRevealTarget === 'function') window._pdxRevealTarget(originId); } catch (e) {}
+    if (typeof window._pdxNavJump === 'function') window._pdxNavJump(originId);
+    else { var el = document.getElementById(originId); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    setTimeout(function () { _stFocus(document.getElementById(originId)); }, 420);
+  }
+
   function _stRowHtml(r) {
     var txt = r.stance.text ? String(r.stance.text) : '';
     if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, '') + '…';
-    // The CONNECTIONS. Each one is offered only when there is something on the other
-    // end: a row with no tested outcome does not advertise the score, and a row with
-    // no formal action does not advertise the Official Record. A connection that
-    // lands on an empty section is worse than no connection.
+    var res = _stResult(r);
+    var n = _stNoun(r);
     var links = [];
-    if (r.tested) links.push(_stGo('pdxsec-wordaction', '⚖️ Where this lands in the score'));
-    if (r.evidence.actions > 0) links.push(_stGo('pdxsec-official-record',
-      (r.lane === 'exec' ? '🏛️ ' + r.evidence.actions + ' action' : '🏛️ ' + r.evidence.actions + ' vote') +
-      (r.evidence.actions === 1 ? '' : 's') + ' on record'));
-    if (r.evidence.public > 0) links.push(_stGo('pdxsec-evidence', '🧾 ' + r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's')));
-    var v = r.verdict;
+    // ⚖️ where this issue lands inside the one score. Offered on any row the score
+    // could see — tested rows and the thin ones it had to set aside — because "why
+    // is this issue not in the number" is the same question as "where is it".
+    if (r.tested || r.verdict.token === 'limited') {
+      links.push(_stGo('wa', 'pdxsec-wordaction', r, '⚖️ Where this lands in the score'));
+    }
+    // 🏛️ the SAME issue in the Official Record, not the top of it.
+    if (r.evidence.actions > 0 || r.scored) {
+      links.push(_stGo('or', 'pdxsec-official-record', r,
+        '🏛️ ' + r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record'));
+    }
+    if (r.evidence.public > 0) {
+      links.push(_stGo('ev', 'pdxsec-evidence', r,
+        '🧾 ' + r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's')));
+    }
     var skin = _icSkin(r.key);
+    // 🔍 the issue itself, across everyone — offered only for a key that resolves to
+    // a Core National Issue, because that is the only vocabulary the Issue View can
+    // rank, and a link into an empty ranking is worse than no link.
+    if (skin.on) links.push(_stGo('issue', '', r, '🔍 Everyone on this issue'));
     return '<div class="pdxst-row' + skin.cls + '" style="' + skin.style + '"' +
-        ' data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '">' +
+        ' id="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+        ' data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '"' +
+        ' data-pdxst-state="' + escAttr(res.state) + '">' +
         '<div class="pdxst-row-top">' +
           '<span class="pdxst-lbl">' + _icDot(skin) + esc(r.label) + '</span>' +
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
-          (v && v.token !== 'no_stance' && v.token !== 'no_record'
-            ? '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' : '') +
-          (r.evidence.total ? '<span class="pdxst-ev">' + r.evidence.total + ' receipt' +
-            (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength + '</span>' : '') +
         '</div>' +
+        _stResultHtml(r, res) +
+        _stCompHtml(r, res) +
+        _stEvidenceHtml(r) +
         (txt ? '<div class="pdxst-txt">' + esc(txt) + '</div>' : '') +
         (links.length ? '<div class="pdxst-links">' + links.join('') + '</div>' : '') +
       '</div>';
@@ -3840,7 +4250,22 @@
     if (!live.length) return '';
     var blockOf = function (g, cap) {
       var rows = [];
-      g.tiers.forEach(function (t) { (byTier[t] || []).forEach(function (r) { rows.push(_stRowHtml(r)); }); });
+      // "Tested — and the record backs it up" is the right heading for a row the
+      // record backed up. It was also, until now, the heading over every `limited`
+      // row: same tier, sorted to the end, no visible line between a verdict and a
+      // shrug. The divider draws that line without moving a row, so the fold maths
+      // below — and the lead cap it feeds — count exactly what they counted before.
+      var thinShown = false;
+      g.tiers.forEach(function (t) {
+        (byTier[t] || []).forEach(function (r) {
+          var html = _stRowHtml(r);
+          if (!thinShown && r.verdict && r.verdict.token === 'limited') {
+            thinShown = true;
+            html = '<div class="pdxst-sub">Too thin to judge yet</div>' + html;
+          }
+          rows.push(html);
+        });
+      });
       var body = rows.join('');
       // A LEAD IS A LEAD, NOT A LIST. The open groups are tension first, then the
       // issues the record backs up, and on a densely-seeded figure the second one
@@ -3865,7 +4290,9 @@
       '<div class="pdxst-head"><span class="pdxst-title"><span aria-hidden="true">🧭</span> Stances &amp; Connections</span>' +
         LHOWTO('say-vs-do', 'How to read this') + '</div>' +
       '<div class="pdxst-q">“What do they stand for — and does anything actually test it?”</div>' +
-      _feedsPrimaryHtml('The map of what they claim, ranked so the claims something can check come first. It publishes no number: each row shows the one verdict the score already reached for that issue.');
+      _feedsPrimaryHtml('The map of what they claim, ranked so the claims something can check come first. ' +
+        'Each row states what the record concluded on THAT issue, and how much of that issue\'s record pointed the same way as the position. ' +
+        'These are issue-level results, one issue at a time — the profile\'s single score is the pooled one in ⚖️ Word vs Action.');
     // Explicit wrappers, not .map(blockOf): Array#map passes the index as the second
     // argument, which would arrive as `cap` and fold whichever group happened to sit
     // at a non-zero position.
@@ -3889,6 +4316,9 @@
   }
   function stancesSectionHtml(pid) {
     ensureStyles();
+    // The rows carry delegated jump buttons now, so the section has to arm the one
+    // click listener the same way every other interactive section here does.
+    bindGateway();
     if (!pid) return '';
     var inner = _stInner(pid);
     if (!inner) return '';
