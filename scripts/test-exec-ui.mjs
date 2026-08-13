@@ -257,14 +257,40 @@ ok(!/declined to act/.test(HTML.split("not that the figure declined to act").joi
     "named coverage chips plus withheld issues do not add back up to the count in the summary line");
 }
 
-// Every seeded action reaches the screen, newest first.
-for (const a of SEED.actions.trump) {
+/* WHAT REACHES THE SCREEN IS THE CURRENT TERM, AND THAT IS NOW A REAL SUBSET.
+   This loop used to iterate SEED.actions.trump and require every row to render,
+   which was correct only because every row was term 47. bodyParts() calls
+   ex.actionsFor(pid) with no options, so the served surface has always been the
+   current-term scope; there was simply nothing for it to exclude. Wave 7 put eight
+   Term 45 documents on file, so the loop now splits: current-term rows must render,
+   prior-term rows must NOT, and the render must say out loud that it is showing one
+   term and that more is on file. A section that silently dropped eight documents
+   would be the exact failure the tip exists to prevent. */
+const CUR_TERM = EX.currentTerm("trump");
+const RENDERED = SEED.actions.trump.filter((a) => String(a.term) === CUR_TERM);
+const PRIOR = SEED.actions.trump.filter((a) => String(a.term) !== CUR_TERM);
+ok(PRIOR.length > 0, "no prior-term action is on file, so the scope exclusion below is untested");
+for (const a of RENDERED) {
   hasText(HTML, a.documentId, `action ${a.documentId} is missing from the rendering`);
   hasText(HTML, a.title, `the title of ${a.documentId} is missing from the rendering`);
 }
+for (const a of PRIOR) {
+  ok(!String(HTML).includes(escHtml(a.documentId)),
+    `${a.documentId} is a Term ${a.term} document and leaked into the current-term rendering`);
+}
+{
+  // The exclusion is disclosed, not silent. Both halves: the scope is named, and the
+  // larger all-time figure is printed next to it. This branch of execSummaryTip was
+  // unreachable for six waves — allTimeTotal could never exceed the rendered total —
+  // and this is the assertion that keeps it reachable.
+  const tip = EX.summaryTip(SUM);
+  has(tip, `Showing the current term (${CUR_TERM})`, "the tip does not name the term scope it is showing");
+  has(tip, `${SEED.actions.trump.length} on file across all terms`,
+    "the tip hides that more actions are on file than the current term renders");
+}
 {
   const order = (HTML.match(/data-pdxer-doc="([^"]+)"/g) || []).map((s) => s.replace(/.*="|"$/g, ""));
-  eq(order.length, SEED.actions.trump.length, "wrong number of action cards rendered");
+  eq(order.length, RENDERED.length, "wrong number of action cards rendered");
   const dates = order.map((d) => (SEED.actions.trump.find((a) => a.documentId === d) || {}).actedAt);
   const sorted = dates.slice().sort().reverse();
   eq(dates.join(","), sorted.join(","), "action cards are not in newest-first order");
@@ -274,7 +300,7 @@ for (const a of SEED.actions.trump) {
 // 3 · Standing chips carry their citations, in the same card
 // ─────────────────────────────────────────────────────────────────────────────
 const CARDS = HTML.split('<article class="pdxer-card"').slice(1);
-eq(CARDS.length, SEED.actions.trump.length, "card split did not find every action card");
+eq(CARDS.length, RENDERED.length, "card split did not find every action card");
 const STANDING_LABELS = Object.values(EX.STANDING).map((s) => s.label);
 for (const card of CARDS) {
   const doc = (card.match(/data-pdxer-doc="([^"]+)"/) || [])[1] || "?";

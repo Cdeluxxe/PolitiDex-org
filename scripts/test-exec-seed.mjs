@@ -68,7 +68,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260824000000_seed_exec_actions_wave3.sql",
   "netlify/database/migrations/20260826000000_seed_exec_actions_wave4.sql",
   "netlify/database/migrations/20260828000000_seed_exec_actions_wave5.sql",
-  "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql"
+  "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql",
+  "netlify/database/migrations/20260830000000_seed_exec_actions_wave7.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -115,7 +116,30 @@ section("1 · shape and vocabulary");
 // Pinned, because the point of the count is to notice a wave that silently half
 // landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3, ten from wave 4,
 // nine from wave 5, four from wave 6.
-ok(ACTIONS.length === 40, `the seed carries forty actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6 (got ${ACTIONS.length})`);
+ok(ACTIONS.length === 48, `the seed carries forty-eight actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7 (got ${ACTIONS.length})`);
+
+/* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
+   This line used to read `a.term === EX.currentTerm("trump")`, which was true of
+   every row for six waves and was therefore enforcing the defect wave 7 exists to
+   fix: while every action carried the current term, actionsFor(pid, 'all_time') and
+   actionsFor(pid, '47') returned the same set, the term filter separated nothing,
+   and the profile placed second-term effort next to first-term results. So the rule
+   is inverted. A term must be a term — a bare numeral this lane can filter on — and
+   the file must contain BOTH the current term and at least one earlier one, or the
+   filter is untested by the data it filters. */
+const TERMS = new Set(ACTIONS.map((a) => String(a.term || "")));
+for (const a of ACTIONS) ok(/^\d{2}$/.test(String(a.term || "")), `${a.documentId || "(no documentId)"}: term "${a.term}" is an ordinal term number`);
+ok(TERMS.has(EX.currentTerm("trump")), `the seed carries actions from the current term (${EX.currentTerm("trump")})`);
+ok(TERMS.size > 1, `the seed carries more than one term, or the term filter is dead data (terms: ${[...TERMS].join(", ")})`);
+const priorTerm = ACTIONS.filter((a) => String(a.term) !== EX.currentTerm("trump"));
+ok(priorTerm.length >= 8, `at least eight actions predate the current term (got ${priorTerm.length})`);
+// And the filter is exercised, not merely fed: the two scopes must disagree.
+const SCOPE_ALL = EX.actionsFor("trump", { allTerms: true });
+const SCOPE_CUR = EX.actionsFor("trump", {});
+ok(SCOPE_ALL.kept.length > SCOPE_CUR.kept.length,
+  `all_time keeps more actions than the current term — the term scope separates the record (${SCOPE_ALL.kept.length} vs ${SCOPE_CUR.kept.length})`);
+ok(SCOPE_ALL.kept.length - SCOPE_CUR.kept.length === priorTerm.length,
+  `every prior-term action survives the source gate and is reachable in the all-time scope (gap ${SCOPE_ALL.kept.length - SCOPE_CUR.kept.length}, prior-term rows ${priorTerm.length})`);
 
 const seenDocIds = new Set(), seenTitles = new Set(), seenFrDocs = new Set();
 for (const a of ACTIONS) {
@@ -128,7 +152,6 @@ for (const a of ACTIONS) {
 
   ok(!!TYPES.actionClasses[a.actionClass], `${id}: actionClass "${a.actionClass}" is in exec-action-types.json`);
   ok(!!EX.CLASSES[a.actionClass], `${id}: actionClass is renderable by the shipped lane`);
-  ok(a.term === EX.currentTerm("trump"), `${id}: term "${a.term}" is the current term`);
   ok(/^\d{4}-\d{2}-\d{2}$/.test(a.actedAt || ""), `${id}: actedAt is an ISO date`);
 
   // Class-specific identity. An order without its Federal Register citation, or a
@@ -261,15 +284,39 @@ for (const a of ACTIONS) {
       ok(s.status === "challenged_unverified",
         `${at}: pending_litigation supports only challenged_unverified, never a ruling token`);
     }
-    // A contested standing is exactly the claim that needs a ruling behind it —
-    // EXCEPT the one contested token that claims no ruling happened. Splitting the
-    // rule rather than loosening it: everything that says a court ACTED still needs
-    // a court_ruling, and the one token that says a court has NOT acted needs the
-    // basis that reports exactly that, so neither can be reached from the other.
+    // A contested standing is exactly the claim that needs a source behind it, and
+    // the source depends on WHO acted. Three-way rather than two-way, because two
+    // ways was wrong: it required a court_ruling for every contested token except
+    // challenged_unverified, and `rescinded` is contested but is never a court's
+    // doing — it is a later President revoking an earlier President's order, which
+    // the Federal Register's disposition record is the authoritative register of.
+    // Under the old rule a real revocation could only be filed by naming a court
+    // that never ruled, so wave 7 could not have filed one at all. The split keeps
+    // each claim tied to the record that can establish it: a court ACTED needs the
+    // court's own ruling; a court has NOT acted needs the filing that shows the
+    // challenge is live; an order was REVOKED needs the register entry, and must
+    // name the revoking instrument rather than a court.
     if (CONTESTED_TOKENS.includes(s.status)) {
-      const wantBasis = s.status === "challenged_unverified" ? "pending_litigation" : "court_ruling";
+      const wantBasis = s.status === "challenged_unverified" ? "pending_litigation"
+        : s.status === "rescinded" ? "register_disposition"
+        : "court_ruling";
       ok(s.basis === wantBasis, `${at}: a ${s.status} standing rests on ${wantBasis}`);
-      ok(/court|circuit|justice|judge/i.test(s.authority), `${at}: a contested standing names a court`);
+      if (s.status === "rescinded") {
+        // The revoking instrument, by number and date. "Revoked" with no named
+        // revoker is the same unfalsifiable claim as "a court" with no named court.
+        ok(/executive order \d+|proclamation \d+|public law \d+-\d+/i.test(s.authority),
+          `${at}: a rescinded standing names the instrument that revoked it`);
+        ok(!/court|circuit|justice|judge/i.test(s.authority),
+          `${at}: a rescinded standing does not name a court — revocation is a presidential act`);
+        ok(/federalregister\.gov/i.test(hostOf(s.sourceUrl)),
+          `${at}: a rescinded standing cites the register's disposition record (${hostOf(s.sourceUrl)})`);
+        // Quoted, not paraphrased. The disposition note is one line and the whole
+        // claim rests on it, so it goes in the note where a reader can check it.
+        ok(/revoked by:/i.test(s.note),
+          `${at}: a rescinded standing quotes the register's own 'Revoked by:' disposition note`);
+      } else {
+        ok(/court|circuit|justice|judge/i.test(s.authority), `${at}: a contested standing names a court`);
+      }
     }
     // The human-readable case page, where one is carried alongside the opinion PDF.
     if (s.caseUrl) {
@@ -408,9 +455,19 @@ for (const u of new Set(SQL_CODE.match(/https:\/\/[^\s')]+/g) || [])) {
    ═══════════════════════════════════════════════════════════════════════════ */
 section("6 · read-path invariants on the real seed");
 const sum = EX.summary("trump");
+/* TWO SUMMARIES, AND THE DIFFERENCE IS THE POINT. `sum` is the default scope, which
+   is the current term — it is what the profile renders, so the label, the tip and
+   the standing clause are checked against it. `sumAll` is the all-terms scope, and
+   from wave 7 on it is the only one whose arithmetic can be reconciled against the
+   whole file: eight of the forty-eight rows are Term 45 and the current-term scope
+   is supposed to exclude them. Before wave 7 these two objects were identical and
+   the distinction below would have been untestable. */
+const sumAll = EX.summary("trump", { allTerms: true });
 ok(!!sum, "execSummary returns a summary (a null here means an invariant failed)");
-if (sum) {
-  const A = sum.issues, B = sum.actions, C = sum.byClass;
+ok(!!sumAll, "execSummary returns an all-terms summary");
+if (sum && sumAll) {
+  const A = sum.issues, B = sum.actions, C = sumAll.byClass;
+  const BA = sumAll.actions;
   ok(A.aligned + A.against + A.bothWays + A.noActionFound + A.noStance === A.total,
     "Axis A buckets sum to the issue total");
   // Summed from the vocabulary's own bucket keys rather than a hand-written list, so
@@ -418,9 +475,11 @@ if (sum) {
   const bKeys = Object.keys(SUMKEYS.buckets.actions.keys);
   ok(bKeys.reduce((n, k) => n + (B[k] || 0), 0) === B.total,
     `Axis B buckets sum to the action total (${bKeys.length} buckets)`);
+  ok(bKeys.reduce((n, k) => n + (BA[k] || 0), 0) === BA.total,
+    `Axis B buckets sum to the action total in the all-terms scope too (${bKeys.length} buckets)`);
   ok(C.signed_law + C.vetoed_law + C.executive_order + C.directive === ACTIONS.length,
     "class counts sum to the actions on file");
-  ok(B.total + sum.unstatedStanding === ACTIONS.length, "every action is either given a standing or disclosed as lacking one");
+  ok(BA.total + sumAll.unstatedStanding === ACTIONS.length, "every action is either given a standing or disclosed as lacking one");
   // The two totals are different units. Asserting they are unequal here is not a
   // style point: it means any renderer that reads one for the other produces a
   // visibly wrong number rather than a plausible one.
@@ -428,13 +487,19 @@ if (sum) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 6 && C.executive_order === 27 && C.directive === 7,
-    `class split is 6 laws + 27 orders + 7 directives (got ${C.signed_law}+${C.executive_order}+${C.directive})`);
+  ok(C.signed_law === 7 && C.executive_order === 31 && C.directive === 7 && C.vetoed_law === 3,
+    `class split is 7 laws + 31 orders + 7 directives + 3 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  // The veto class existed in the vocabulary for six waves with no row using it.
+  // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
+  // pipeline nobody has proven works.
+  ok(C.vetoed_law > 0, "the vetoed_law class is exercised by real data, not only declared in the vocabulary");
 
   // "Upgrade or hold" — verified as an outcome, not a promise. Every item in every
   // wave cleared the source gate, and every one carries a citable standing.
   ok(sum.dropped === 0, `no action was held back for a weak source (dropped ${sum.dropped})`);
   ok(sum.unstatedStanding === 0, `every action has a cited standing (uncited ${sum.unstatedStanding})`);
+  ok(sumAll.dropped === 0, `no prior-term action was held back for a weak source either (dropped ${sumAll.dropped})`);
+  ok(sumAll.unstatedStanding === 0, `every prior-term action has a cited standing (uncited ${sumAll.unstatedStanding})`);
 
   // Axis B is doing real work: EO 14248 is partly blocked, so the standing clause is
   // sticky and `contested` must be true.
@@ -457,22 +522,80 @@ if (sum) {
   ok(A.noActionFound > 0, "issues with a stated position and no action on file are counted");
   ok(/coverage, not a finding/.test(tip), "the tip says in words that no-action-found is coverage");
 
-  // All-terms scope. Everything in wave 1 is term 47, so the two scopes agree — and
-  // the tip must not then claim a larger all-time figure.
-  const all = EX.summary("trump", { allTerms: true });
-  ok(!!all && all.actions.total === B.total, "the all-terms scope sees the same five actions");
+  /* ALL-TERMS SCOPE. This assertion used to read `all.actions.total === B.total`,
+     with a comment explaining that everything on file was term 47 so the two scopes
+     agreed. That agreement was the defect. The scopes must now disagree by exactly
+     the number of prior-term rows, and the rescinded standings the first term
+     contributes must be visible in the wider scope and only there. */
+  ok(sumAll.actions.total - B.total === priorTerm.length,
+    `the all-terms scope sees every prior-term action and the current-term scope sees none of them (${sumAll.actions.total} vs ${B.total}, ${priorTerm.length} prior-term rows)`);
+  ok(sumAll.actions.rescinded === 4 && B.rescinded === 0,
+    `the four revoked orders are reachable in the all-terms scope only (all ${sumAll.actions.rescinded}, current ${B.rescinded})`);
   ok(sum.allTimeTotal === ACTIONS.length, "the all-time total counts every sourced action");
+  ok(sum.allTimeTotal > B.total,
+    "the current-term summary discloses a larger all-time figure rather than presenting its own total as the whole record");
 }
 
 // Per-issue reads: score is null on every one, and the primary issue of each action
-// resolves to a verdict token with the action attached.
+// resolves to a verdict token with the action attached. The scope is chosen per row —
+// a Term 45 document is by design NOT reachable in the current-term scope, so asking
+// for it there and calling the absence a failure would be testing the filter backwards.
 for (const a of ACTIONS) {
   const primary = (a.issues || []).find((m) => m.isPrimary);
-  const res = EX.issue("trump", primary.issueKey);
+  const scope = String(a.term) === EX.currentTerm("trump") ? {} : { allTerms: true };
+  const res = EX.issue("trump", primary.issueKey, scope);
   ok(res.score === null, `${primary.issueKey}: per-issue score is null`);
   ok(res.actions.some((x) => x.documentId === a.documentId), `${primary.issueKey}: ${a.documentId} is attached to its primary issue`);
   ok(res.token !== "no_record", `${primary.issueKey}: resolves to a verdict, not an empty record`);
+  if (scope.allTerms) {
+    ok(!EX.issue("trump", primary.issueKey, {}).actions.some((x) => x.documentId === a.documentId),
+      `${primary.issueKey}: ${a.documentId} is a prior-term document and does not leak into the current-term scope`);
+  }
 }
+/* A VETO INVERTS, AND THIS IS THE ASSERTION THAT SAYS SO IN BOTH DIRECTIONS.
+   The mapping on a veto row states what the VETOED MEASURE would have done, because
+   that is what the column means in the congressional lane it shares. The lane must
+   report the opposite — the act blocked the measure. Getting this backwards is not a
+   loud failure: it silently files a veto of a resolution terminating the border
+   emergency as an action AGAINST border security, which reads as balance and is the
+   flattering error, not the obvious one. Both readings are therefore pinned: the
+   mapping the seed carries, and the direction the lane reports off it. */
+{
+  const vetoes = ACTIONS.filter((a) => a.actionClass === "vetoed_law");
+  ok(vetoes.length === 3, `three vetoes are on file to check the inversion against (got ${vetoes.length})`);
+  for (const v of vetoes) {
+    for (const m of v.issues || []) {
+      const flipped = EX.issueDirection(v, m);
+      ok(flipped && flipped !== m.direction,
+        `${v.documentId}/${m.issueKey}: a blocking class must invert its mapping (mapped ${m.direction}, reported ${flipped})`);
+    }
+  }
+  // A non-blocking class must NOT invert, or the fix would be a new bug pointing the
+  // other way.
+  for (const a of ACTIONS.filter((x) => x.actionClass !== "vetoed_law")) {
+    for (const m of a.issues || []) {
+      ok(EX.issueDirection(a, m) === m.direction,
+        `${a.documentId}/${m.issueKey}: a non-blocking class reports its mapping unchanged`);
+    }
+  }
+  // The worked example, end to end. H.J. Res. 46 would have terminated the border
+  // emergency — mapped 'opposes' — and the veto kept it, so the lane reads it as
+  // advancing border_security, the same way EO 13767 does. Two documents, one
+  // direction: the issue must NOT read "both ways" off them.
+  const hj = ACTIONS.find((a) => a.documentId === "H.J. Res. 46 (116th Congress)");
+  const hjMap = hj.issues.find((m) => m.issueKey === "border_security");
+  ok(hjMap.direction === "opposes", "H.J. Res. 46's mapping describes the resolution, which cut against border_security");
+  ok(EX.issueDirection(hj, hjMap) === "advances", "the veto of it is read as advancing border_security");
+  const bsAll = EX.issue("trump", "border_security", { allTerms: true });
+  ok(bsAll.actions.every((x) => x.direction === "advances"),
+    `every border_security action across all terms runs one way (got ${bsAll.actions.map((x) => x.direction).join(",")})`);
+  ok(bsAll.token === "acted_on_it",
+    `border_security does not read as acted-both-ways off documents pointing the same way (got ${bsAll.token})`);
+  const shown = bsAll.actions.find((x) => x.documentId === "H.J. Res. 46 (116th Congress)");
+  ok(shown.inverted === true && shown.mappedDirection === "opposes",
+    "the per-issue read shows its work: the mapped direction and the inversion are both carried");
+}
+
 // EO 14248 is the worked example: three rulings, and the current standing is the
 // latest of them — which is the whole reason the log is append-only.
 const eo14248 = ACTIONS.find((a) => a.executiveOrderNumber === 14248);

@@ -1,5 +1,5 @@
 {
-  "_purpose": "✒️ Executive Enactment Record — the formal actions, curated from primary sources. Wave 1 (Phase 3) seeded five actions; wave 2 added EO 14156 as its own row and backfilled EO 14151's standing history; wave 3 added eleven actions that closed the largest holes in the record — the tariff program, the drug-pricing orders, the two day-one immigration orders, the digital-asset orders and law, the rescissions law and the fentanyl-scheduling law. Waves 4 and 5 closed the remaining stated-position holes and the two fully-held issues. Wave 6 is the first wave whose purpose is BALANCE rather than coverage: it adds documents that push against readings the file could only agree with, and it declines several that would only have agreed harder. This file is the single source of truth for the lane's action data: the seed_exec_actions_wave*.sql migrations write the same rows into the vr_* spine, and exec-action-data.js is generated from this file by scripts/gen-exec-action-data.mjs. scripts/test-exec-seed.mjs asserts they all agree, so the SQL and the client data cannot drift apart.",
+  "_purpose": "✒️ Executive Enactment Record — the formal actions, curated from primary sources. Wave 1 (Phase 3) seeded five actions; wave 2 added EO 14156 as its own row and backfilled EO 14151's standing history; wave 3 added eleven actions that closed the largest holes in the record — the tariff program, the drug-pricing orders, the two day-one immigration orders, the digital-asset orders and law, the rescissions law and the fentanyl-scheduling law. Waves 4 and 5 closed the remaining stated-position holes and the two fully-held issues. Wave 6 is the first wave whose purpose is BALANCE rather than coverage: it adds documents that push against readings the file could only agree with, and it declines several that would only have agreed harder. Wave 7 is the first wave whose purpose is TERM SCOPE: every action before it was term 47, so the lane's term filter separated nothing, and it adds eight Term 45 documents — three vetoes, four revoked orders and one law. This file is the single source of truth for the lane's action data: the seed_exec_actions_wave*.sql migrations write the same rows into the vr_* spine, and exec-action-data.js is generated from this file by scripts/gen-exec-action-data.mjs. scripts/test-exec-seed.mjs asserts they all agree, so the SQL and the client data cannot drift apart.",
   "_readBy": [
     "scripts/gen-exec-action-data.mjs (generates exec-action-data.js — regenerate after every edit)",
     "scripts/test-exec-seed.mjs",
@@ -7,10 +7,10 @@
     "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql (hand-derived; the test asserts they match)",
     "netlify/database/migrations/20260824000000_seed_exec_actions_wave3.sql (hand-derived; the test asserts they match)",
     "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql (hand-derived; the test asserts they match)",
+    "netlify/database/migrations/20260830000000_seed_exec_actions_wave7.sql (hand-derived; the test asserts they match)",
     "exec-record.js (via window.EXEC_ACTIONS)"
   ],
   "_shape": "Exactly the shape actionsFor() / standingOf() in exec-record.js already read: actionClass, documentId, title, actedAt, term, sourceUrl, sourceLabel, issues[{issueKey, direction, isPrimary, weight, rationale}], status[{status, effectiveAt, authority, sourceLabel, sourceUrl, basis, note}]. Nothing here is a new vocabulary — every actionClass is a key of db/exec-action-types.json#actionClasses, every direction is a key of #issueDirections, every status is a token of db/exec-summary-keys.json#buckets.actions, and every issueKey is in db/issue-keys.json.",
-
   "_sourcingRules": {
     "sourceOfRecord": "Per db/exec-action-types.json: congress.gov for signed legislation, federalregister.gov for orders. whitehouse.gov appears nowhere in this file, not even as a secondary link — every action here had a primary citation available, so no secondary was needed.",
     "standingCitation": "Every status entry carries its own source_url and source_label, and a `basis` naming what kind of document establishes it. An action with no citable standing gets NO status entry rather than an assumed one; exec-record.js routes it to unstatedStanding and discloses it as 'with no confirmed standing on file'.",
@@ -19,12 +19,11 @@
       "court_ruling": "The standing is established by a ruling this pass read in full from the court's own opinion. The strongest basis, and the only one that can support 'blocked', 'partly blocked' or 'struck down'.",
       "register_disposition": "The standing is established by the Federal Register document record, whose disposition notes are the authoritative register of revocation and supersession BY LATER PRESIDENTIAL ACTION. Deliberately narrower than court_ruling: it says the order stands as published and unrevoked, and says nothing about any challenge to it. Every entry using this basis states that limit in its note.",
       "register_continuation": "Wave 2. The standing is established by a Federal Register notice continuing a time-limited authority — specifically a National Emergencies Act declaration, which expires one year after it is declared unless the President continues it (50 U.S.C. 1622(d)). Separated from register_disposition because it answers a different question: not 'has this been revoked' but 'has this lapsed'. It carries the same limit — a continuation is a presidential act and says nothing about any challenge to the order.",
-      "pending_litigation": "Wave 2, and the ONLY basis that may support challenged_unverified. The row is established by a primary court filing showing a live challenge — a complaint or docket document read in this pass — and by the absence of any ruling resolving it in the same docket. It is strictly weaker than court_ruling and can never support blocked, partly blocked or struck down: a complaint is an allegation, and this basis reports that the allegation is on file and unresolved, not that it is correct. Every entry using this basis names the case, the court, and what the docket did and did not contain when it was read."
+      "pending_litigation": "Wave 2, and the ONLY basis that may support challenged_unverified. The row is established by a primary court filing showing a live challenge — a complaint or docket document read in this pass — and by the absence of any ruling resolving it in the same docket. It is strictly weaker than court_ruling and can never support blocked, partly blocked or struck down: a complaint is an allegation, and this basis reports that the allegation is on file and unresolved, not that it is correct. Every entry using this basis names the case, the court, and what the docket did and did not contain when it was read.",
+      "congressional_action_record": "Wave 7, and the basis that exists because a veto's standing is a question no other basis answers. The four existing bases all ask what happened to a document AFTER it took effect — was it revoked, did it lapse, did a court reach it. A veto is the opposite kind of object: the question is whether the measure it blocked ever took effect at all, and the only record that settles that is the chamber's own subsequent action on the same measure under Article I, section 7. The row is established by the legislative action history for that measure as published by Congress, naming the date the veto was received, the chamber that attempted the override and the result of that attempt. It is narrow in exactly the way register_disposition is narrow: it says the measure did not become law and says nothing about any challenge to the veto or to anything the veto preserved."
     }
   },
-
   "_whyNoScore": "There is no score field anywhere in this file and no count that could become one. See exec-record.js's header: the set of orders a president could have signed is unbounded and self-chosen, so any ratio computed over these rows would divide by a number we picked.",
-
   "_verificationPass": {
     "date": "2026-08-02",
     "method": "Every citation below was fetched and read in this pass, not carried over from curated text. Federal Register facts come from the FR API document records (title, signing date, publication date, FR citation, document number, disposition notes). Public Law facts come from GPO's published PLAW packages. Standing facts come from the courts' own opinions and orders, downloaded as PDF and read — the operative disposition, not a summary of it.",
@@ -54,16 +53,27 @@
       "sourcesRead": "Federal Register API document records, one document at a time, for title, signing date, publication date, citation, document number and disposition notes: EO 14360 (signed 2025-11-14, published 2025-11-25, 90 FR 54091, doc 2025-21203), Proclamation 11012 (signed 2026-02-20, published 2026-02-25, 91 FR 9339, doc 2026-03824) and Proclamation 11038 (signed 2026-06-29, published 2026-07-02, 91 FR 40855, doc 2026-13588); the full text of all three was read from the register's own raw-text URLs. EO 14360's forward cross-reference to the notice of March 24, 2026 (91 FR 15517) was opened and read: it continues the national emergency declared in EO 14257 and revokes nothing. For the law, GPO's PLAW-119publ37 package was downloaded and read — section 120 and section 106(3) verbatim. GPO's PLAW-119publ98 package was also read in full and then declined, for the reason below. The full listing of all 102 public laws of the 119th Congress was enumerated from GPO bulkdata to choose among the spending vehicles rather than take the first one found. whitehouse.gov appears nowhere in this wave.",
       "theSharedIssueRowConstraint": "A STRUCTURAL LIMIT THIS WAVE RAN INTO AND THE NEXT ONE NEEDS TO KNOW ABOUT. The 🏛️ and ✒️ lanes do not have separate issue tables. vr_measure_issues is keyed on (measure_id, issue_key), and an executive action on a signed law reuses the SAME vr_measures row the roll-call lane created for the bill. So an issue mapping written for the executive lane is also read by the roll-call lane, and lands on every member who voted on that measure. That is fine where the two lanes agree and it is a silent contradiction where they do not. It is why Public Law 119-98 is not in this wave: see below.",
       "whatWasLeftOut": "Seven candidates were reviewed and rejected. (1) EO 14389 — see above; compelled compliance, kept on Axis B. (2) PUBLIC LAW 119-98, THE SECURE AMERICA ACT, and this is the rejection that cost the most. It is the second-largest signed law of the term, it appropriates $69,545,000,000 out of the Treasury with no offset, rescission or revenue provision anywhere in its two titles, and on its face it grows the federal workforce — a real counter-directional fact against cut_spending, drafted and ready to file. It is not filed because S. 2 already exists in vr_measures with four roll calls and hundreds of attributed member votes, and 20260821000000_vr_secure_america_act_rollcalls.sql declined cut_spending and national_debt on that measure deliberately and in writing: 'Scoring the roll on a spending axis without the score would be an inference, and it would read every yea as pro-spending and every nay as fiscally conservative regardless of the reason either was given.' Because the two lanes share vr_measure_issues, writing the executive mapping would have re-scored every one of those members on an axis the roll-call pass refused. The executive-lane case is stronger than the roll-call case — there is one signer, not five hundred voters — but it cannot be filed on a shared row, and inventing a second measure row for the same law to get around it would put a duplicate S. 2 in the spine. Filing this honestly needs a per-lane issue mapping, which is a schema change and not this wave's job. (3) tariffs_authority was left one-directional. Proclamation 11012's move from an open-ended emergency claim to section 122, which caps the rate at 15 percent, caps the term at 150 days and lets only an Act of Congress extend it, is the closest thing to a counter-directional fact available on that issue — and it was rejected because a change of statutory vehicle made on the day the previous authority was struck down, keeping every decision in the President's hands, is not evidence of deference to Congress. That issue is reported as still one-directional rather than balanced by inference. (4) tariffs_china was left one-directional. Neither barrier-lowering document is country-specific and the surcharge is not either; nothing on file cuts the other way on that key. (5) The three fiscal-year appropriations Acts — PL 119-74, PL 119-75 and PL 119-86 — were read and not filed. Their counter-directional content would have to be an aggregate spending level characterized from thousands of pages, and characterizing a total is not the same as quoting a provision; PL 119-37 section 120 does the same work with text that can be quoted. (6) national_debt was left with its single row. An appropriation's deficit effect depends on offsets and outlay timing that are not in any enrolled text read here, and the lane does not carry contested economic inference — the same rule that keeps EO 14257 off cost_living and the Rescissions Act off national_debt. (7) EO 14345, EO 14346, EO 14358 and Proclamation 10999 — the trade-agreement implementation documents — were seen in the register listing and not pursued in this pass. Each lowers rates pursuant to a negotiated arrangement, which is the tariff being used as leverage rather than abandoned, and reading them as retreats would have been the easy wrong answer. They are named here so the next pass knows they were seen and why they were passed over."
+    },
+    "wave7": {
+      "date": "2026-08-13",
+      "purpose": "TERM SCOPE. Every one of the 40 actions this file carried before this wave was signed or issued in 2025 or 2026 and every one was tagged term 47. The lane therefore had a term filter that could not filter anything: all_time and current_term returned the same set, and the profile was placing second-term effort next to first-term results — four of the eleven tracked promises are marked broken, and the evidence behind all four is from the first term, where the file held nothing. This wave puts eight real Term 45 documents on file. It is the first wave in which the term field means something.",
+      "added": "Eight actions, all term 45. Three vetoes — H.J. Res. 46 (termination of the border emergency, vetoed March 15, 2019), S.J. Res. 7 (Yemen hostilities war-powers direction, vetoed April 16, 2019) and S.J. Res. 68 (Iran hostilities war-powers direction, vetoed May 6, 2020). Four executive orders that were later revoked and are filed with rescinded standings — EO 13765 (ACA burden minimization), EO 13767 (border wall and immigration enforcement), EO 13783 (energy independence and the Clean Power Plan review) and EO 13950 (race and sex stereotyping in federal training and contracting). One signed law — Public Law 116-136, the CARES Act.",
+      "whyVetoesFirst": "The vetoed_law action class has existed in db/exec-action-types.json since the vocabulary was written and no row had ever used it. A veto is the cleanest instrument in the executive vocabulary: one actor, one decision, a dated document and a recorded congressional answer to it. It is also the only class whose Axis B question is not 'what happened to this afterwards' but 'did the thing it blocked ever take effect', which is why this wave had to add a basis value rather than reuse one.",
+      "vetoDirectionConvention": "READ THIS BEFORE EDITING ANY VETO ROW. The direction on a veto's issue mapping describes what the VETOED MEASURE would have done to the issue, not what the veto did. This is not a stylistic choice: consistency.js#_EXEC_BLOCKS marks vetoed_law as a blocking class and sets advanceInverted on the item, and stance-helpers.js flips the direction on that flag. The column being mirrored is vr_measure_issues.support_meaning, which describes the measure. Writing 'advances' here to mean 'the veto advanced the issue' would invert every veto in the file. Each veto row below states the inversion in its own rationale so the mistake cannot be made silently from the data alone.",
+      "theInversionBugTheseVetoesExposed": "FOUND AND FIXED WHILE SEEDING, and recorded because the next blocking class will hit it again. consistency.js had handled the inversion since the vocabulary was written (_EXEC_BLOCKS -> advanceInverted -> stance-helpers), but exec-record.js#executiveIssue counted the mapping direction raw. For six waves that was harmless: no row used a blocking class, so the document's direction and the act's direction could never disagree. The first three vetoes made them disagree, and the failure was the flattering kind rather than the loud kind — the veto of H.J. Res. 46 was counted as an action AGAINST border_security, sitting next to Executive Order 13767, so an issue with seven documents all pointing one way read 'Acted both ways' off two of them. The fix is a 'blocks: true' flag on the vetoed_law class and one issueDirection() helper that every direction read goes through; the per-issue result now also carries mappedDirection and inverted so a surface can show its work. No formula changed and no percentage moved — exec-record.js has never had a score. The seed test pins both halves: a blocking class must invert, and a non-blocking class must not.",
+      "sourcesRead": "For the three vetoes: GPO's BILLSTATUS bulkdata for the 116th Congress (BILLSTATUS-116-hjres and BILLSTATUS-116-sjres), downloaded and parsed in this pass. All eight joint resolutions vetoed in the 116th Congress were enumerated from that data before three were chosen, and the veto date, the override attempt, the chamber and the recorded result were read from the legislative action history of each. congress.gov itself still returns HTTP 403 to this environment; the bill pages are cited as the source of record because db/exec-action-types.json names them as such, and the facts were verified against GPO, which is the same discipline waves 1 and 3 used for public laws. For the four orders: the Federal Register API document record of each, one at a time — EO 13765 (signed 2017-01-20, published 2017-01-24, 82 FR 8351, doc 2017-01799), EO 13767 (signed 2017-01-25, published 2017-01-30, 82 FR 8793, doc 2017-02095), EO 13783 (signed 2017-03-28, published 2017-03-31, 82 FR 16093, doc 2017-06576) and EO 13950 (signed 2020-09-22, published 2020-09-28, 85 FR 60683, doc 2020-21534) — plus the full text of each from the register's own raw-text URLs. Every rescinded standing below quotes the disposition note verbatim. For the law: GPO's PLAW-116publ136 package, downloaded and read; section 5001 and section 4003 were read in full. whitehouse.gov appears nowhere in this wave.",
+      "whyTheseFourOrdersAndNotMore": "Two hundred twenty-nine executive orders were signed in the first term. This wave files four. The filter was not importance, it was whether the document's disposition is unambiguous and whether the issue it lands on is already in the lane: each of the four carries a plain 'Revoked by' entry in the register's own disposition record, and each lands on an issue that already holds second-term action. Three of the four sit on issues that read as fully aligned — border_security, end_dei, energy_production and climate_action — and they do not change that alignment. They change the other axis: those issues now hold a document that no longer stands, which is the contrast the term filter exists to show and which no amount of second-term density could produce.",
+      "theOverrideGap": "A STRUCTURAL FINDING THIS WAVE COULD NOT FIX, stated the way wave 6 stated the shared-row constraint. Of the eight joint resolutions vetoed in the 116th Congress, seven vetoes were sustained and one was overridden: H.R. 6395, the National Defense Authorization Act for Fiscal Year 2021, vetoed December 23, 2020 and enacted over the veto on January 1, 2021. That is the single most consequential veto of the term and it is not in this file, because Axis B has no token for it. The vocabulary in db/exec-summary-keys.json#buckets.actions offers in_force, partly_blocked, blocked, struck_down, rescinded, challenged_unverified, superseded and expired. Filing an override as blocked or struck_down would name a court as the actor when the actor was Congress. Filing it as superseded would be the worse error, because superseded is marked contested:false — the most contested outcome available to an executive action would be counted as an uncontested one. Filing it as in_force would be false. The honest token is 'overridden', contested:true, and adding it is not a data change: exec-record.js hardcodes the standing order and exec-record-ui.js hardcodes the chip and its CSS, so it is read-path and UI work. Recorded here so the next pass does not rediscover it.",
+      "whatWasLeftOut": "Nine candidates were reviewed and rejected. (1) H.R. 6395 — see theOverrideGap; the only overridden veto, and unfileable without a new Axis B token. (2) S.J. Res. 54, the second border-emergency termination of 2019, vetoed October 15 and sustained October 17. It is the same fight as H.J. Res. 46 on the same issue in the same direction; filing both would put two same-direction rows on an issue that already reads fully aligned, which is the volume this pass was told not to add. (3), (4) and (5) S.J. Res. 36, S.J. Res. 37 and S.J. Res. 38 — three arms-sale disapproval resolutions vetoed the same day, July 24, 2019, all sustained July 29. There is no honest axis for them: the issue they turn on is whether Congress controls arms exports, which is checks_balances, and this figure has no stated position on that key. They are also three near-identical documents, and filing three rows for one decision would inflate the count without adding a fact. (6) H.J. Res. 76, the disapproval of the borrower-defense rule, vetoed May 29, 2020 and sustained June 26. Its only honest issue is edu_college_cost, which carries no stated position, so the row would test nothing. (7) EO 13957, Creating Schedule F in the Excepted Service, and this is the rejection that cost the most in this wave. Its register disposition is the single best term-contrast fact available anywhere in the corpus — 'Revoked by: EO 14003, January 22, 2021 / Reinstated by: EO 14171, January 20, 2025' — a first-term order struck out by the successor and restored on the first day of the current term, which is exactly what a term filter is for. It is not filed because db/issue-keys.json has no key for civil-service or executive-branch personnel control. The available near-misses are wrong in specific ways: cut_spending is a claim about money and this order changes an employment classification, and mapping it there would put a spending direction on a document whose text does not contain one; gov_waste carries no stated position for this figure, so the row would be coverage with nothing to test. Fail closed. The fix is an issue key, not a mapping. (8) The rescission of DACA — signed by the Acting Secretary of Homeland Security, not by the President. This file records what the figure did, and an agency memorandum is not his document. (9) Proclamation 9645, the entry restrictions. immigration_reform's stated position is about earned status for long-settled immigrants; entry restrictions are a different question, and mapping one onto the other to fill an empty issue would be the inference this lane refuses.",
+      "whatDidNotChange": "border_security, end_dei, energy_production and climate_action still read as fully aligned after this wave and are reported that way. This wave was not a balance pass — wave 6 was — and the two contradictions it does produce (S.J. Res. 7 and S.J. Res. 68 against america_first_fp, and the CARES Act against cut_spending) are the consequence of what the documents say, not the purpose of selecting them. Four of the five stated positions those documents were checked against were written from 2024 platform material and 2025 second-term orders; none of the eight documents here is named or cited by any stance card, so no circularWithStance flag was needed anywhere in this wave. That was checked against the card text and source URL of every issue touched, not assumed."
     }
   },
-
   "_circularityRule": {
     "why": "WHY SOME MAPPINGS CARRY circularWithStance. PDXWordAction's third rule is that a position is never its own test. word-action.js#isIndependentWord already catches the blatant form of the violation — a card that leads with a record verb AND cites the clerk or congress.gov. What it cannot catch is a card that asserts a view in the figure's own voice and then cites the very document that would test it, which is the NORMAL shape of a presidential stance card: these cards were largely written FROM this record. Left alone, feeding these actions into the consistency engine would have produced a dense, near-total agreement read that measured nothing except the fact that a card and its own source agree.",
     "howItIsApplied": "The flag sits on an action→issue PAIR, not on an action and not on an issue. That is the whole point: a stance stays testable by a DIFFERENT document. energy_production is flagged against Executive Order 14154 and Executive Order 14156, whose titles its card quotes, and is scored against Public Law 119-21, which its card does not mention. consistency.js pairs this declared flag with a mechanical identifier match over the card's own text and evidence (order number, public-law number, measure number, exact title) and suppresses scoring when EITHER signal fires, so a later card rewrite that starts naming a document is caught without anyone remembering to edit this file.",
     "whatAFlagDoesNotDo": "A flagged pair still ships and still counts as coverage — it is real, sourced record, and the lane renders it. It simply cannot be scored. The reader sees the action and the position side by side and is told the position was written from that action, which is more honest than either hiding the action or counting it as a match.",
     "whyNotJustDeleteThoseMappings": "Because the mapping is true. Public Law 119-1 really does advance deportations; the flag records why that true mapping cannot serve as evidence about this particular figure's consistency, which is a different claim. Deleting it would lose real record to protect a score."
   },
-
   "actions": {
     "trump": [
       {
@@ -79,10 +89,36 @@
         "sourceLabel": "Congress.gov — S. 5, 119th Congress",
         "_citationNote": "S. 5, not H.R. 29, is the vehicle that became Public Law 119-1. The two bills shared the name; the House-numbered one never left the Senate calendar. The repo already had this wrong once and repaired it in 20260804000000 — this seed attaches to the corrected identity, and GPO's PLAW-119publ1 enrolled text carries '[S. 5]' on its face.",
         "issues": [
-          { "issueKey": "deportations", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants.", "circularWithStance": true, "circularNote": "The stance card on this issue names this law as its own evidence — it reads \"signing his first law — the Laken Riley Act (Public Law 119-1)\" and cites the bill page as its source. A card written from this document cannot also be the word this document tests." },
-          { "issueKey": "border_security", "direction": "advances", "isPrimary": false, "weight": 70, "rationale": "Tightens immigration enforcement." },
-          { "issueKey": "tough_on_crime", "direction": "advances", "isPrimary": false, "weight": 55, "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury." },
-          { "issueKey": "states_federal_power", "direction": "advances", "isPrimary": false, "weight": 40, "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions." }
+          {
+            "issueKey": "deportations",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue names this law as its own evidence — it reads \"signing his first law — the Laken Riley Act (Public Law 119-1)\" and cites the bill page as its source. A card written from this document cannot also be the word this document tests."
+          },
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Tightens immigration enforcement."
+          },
+          {
+            "issueKey": "tough_on_crime",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury."
+          },
+          {
+            "issueKey": "states_federal_power",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 40,
+            "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions."
+          }
         ],
         "_issuesNote": "Not re-authored here. These are the four vr_measure_issues rows S. 5 already carries, read straight across with supportMeaning yea_supports rendered as direction 'advances'. The EER and the 🏛️ lane therefore cannot disagree about what this law does.",
         "status": [
@@ -97,7 +133,6 @@
           }
         ]
       },
-
       {
         "actionClass": "signed_law",
         "documentId": "Public Law 119-21",
@@ -111,20 +146,107 @@
         "sourceLabel": "Congress.gov — H.R. 1, 119th Congress",
         "_titleNote": "The official title, taken from GPO's PLAW-119publ21. The enacted law carries NO act-wide short title: 'One Big Beautiful Bill Act' does not appear as the name of the Act in the enrolled text, only as a section-level short title deep inside it. The app's congressional-lane data calls the measure by the popular name, which is how readers will search for it, so this row keeps the official title and the popular name is left where it already is rather than being propagated into a second lane. Flagged in the Phase 3 notes; not changed here, because renaming a measure the 🏛️ lane renders is not a seed's business.",
         "issues": [
-          { "issueKey": "lower_taxes", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Extends and makes permanent the 2017 individual income-tax rates." },
-          { "issueKey": "tax_middle_class", "direction": "advances", "isPrimary": false, "weight": 60, "rationale": "Makes the 2017 individual income-tax rates permanent and adds temporary deductions for tips and overtime pay." },
-          { "issueKey": "cut_spending", "direction": "advances", "isPrimary": false, "weight": 70, "rationale": "Reduces federal spending across several mandatory programs." },
-          { "issueKey": "national_debt", "direction": "opposes", "isPrimary": false, "weight": 65, "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years.", "_circularNote": "The circular hold on this mapping was lifted. It was held because the only national_debt stance card on file (\"H.R.1: Deficit & Debt\") was a narration of THIS law's deficit score sitting in the word slot — the card was downstream of the document, so the document could not test it. That card has been re-encoded as the stated commitment it was always standing in for (\"Reducing the National Debt\", support, sourced to the DOGE executive order), and the CBO finding now lives here, in the action lane, where it belongs. The word is independent of this document again, so this document can test it." },
-          { "issueKey": "healthcare", "direction": "opposes", "isPrimary": false, "weight": 60, "rationale": "Offsets part of its cost with Medicaid and SNAP reductions the CBO estimates leave millions more people uninsured.", "circularWithStance": true, "circularNote": "The stance card on this issue is titled \"H.R.1: Medicaid & SNAP\" and exists to report this law's projected coverage effect. The card is downstream of this document, so this document cannot test it." },
-          { "issueKey": "border_security", "direction": "advances", "isPrimary": false, "weight": 55, "rationale": "Funds border-barrier construction and border enforcement personnel." },
-          { "issueKey": "climate_action", "direction": "opposes", "isPrimary": false, "weight": 55, "rationale": "Phases out and repeals clean-energy and electric-vehicle tax credits enacted in 2022." },
-          { "issueKey": "deportations", "direction": "advances", "isPrimary": false, "weight": 50, "rationale": "Appropriates tens of billions of dollars for immigration detention and removal operations." },
-          { "issueKey": "family_support", "direction": "advances", "isPrimary": false, "weight": 45, "rationale": "Raises the child tax credit to $2,200 per child and makes it permanent." },
-          { "issueKey": "energy_production", "direction": "advances", "isPrimary": false, "weight": 45, "rationale": "Expands onshore and offshore oil, gas, and coal leasing and speeds fossil-fuel permitting." },
-          { "issueKey": "strong_defense", "direction": "advances", "isPrimary": false, "weight": 45, "rationale": "Adds a large increase in defense and military spending." },
-          { "issueKey": "lands_energy", "direction": "advances", "isPrimary": false, "weight": 40, "rationale": "Opens additional federal lands and waters to energy leasing." },
-          { "issueKey": "edu_college_cost", "direction": "opposes", "isPrimary": false, "weight": 40, "rationale": "Restricts graduate and parent student-loan borrowing and repayment options." },
-          { "issueKey": "school_choice", "direction": "advances", "isPrimary": false, "weight": 35, "rationale": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations." }
+          {
+            "issueKey": "lower_taxes",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Extends and makes permanent the 2017 individual income-tax rates."
+          },
+          {
+            "issueKey": "tax_middle_class",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Makes the 2017 individual income-tax rates permanent and adds temporary deductions for tips and overtime pay."
+          },
+          {
+            "issueKey": "cut_spending",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Reduces federal spending across several mandatory programs."
+          },
+          {
+            "issueKey": "national_debt",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 65,
+            "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because the only national_debt stance card on file (\"H.R.1: Deficit & Debt\") was a narration of THIS law's deficit score sitting in the word slot — the card was downstream of the document, so the document could not test it. That card has been re-encoded as the stated commitment it was always standing in for (\"Reducing the National Debt\", support, sourced to the DOGE executive order), and the CBO finding now lives here, in the action lane, where it belongs. The word is independent of this document again, so this document can test it."
+          },
+          {
+            "issueKey": "healthcare",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Offsets part of its cost with Medicaid and SNAP reductions the CBO estimates leave millions more people uninsured.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue is titled \"H.R.1: Medicaid & SNAP\" and exists to report this law's projected coverage effect. The card is downstream of this document, so this document cannot test it."
+          },
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Funds border-barrier construction and border enforcement personnel."
+          },
+          {
+            "issueKey": "climate_action",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Phases out and repeals clean-energy and electric-vehicle tax credits enacted in 2022."
+          },
+          {
+            "issueKey": "deportations",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 50,
+            "rationale": "Appropriates tens of billions of dollars for immigration detention and removal operations."
+          },
+          {
+            "issueKey": "family_support",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 45,
+            "rationale": "Raises the child tax credit to $2,200 per child and makes it permanent."
+          },
+          {
+            "issueKey": "energy_production",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 45,
+            "rationale": "Expands onshore and offshore oil, gas, and coal leasing and speeds fossil-fuel permitting."
+          },
+          {
+            "issueKey": "strong_defense",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 45,
+            "rationale": "Adds a large increase in defense and military spending."
+          },
+          {
+            "issueKey": "lands_energy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 40,
+            "rationale": "Opens additional federal lands and waters to energy leasing."
+          },
+          {
+            "issueKey": "edu_college_cost",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 40,
+            "rationale": "Restricts graduate and parent student-loan borrowing and repayment options."
+          },
+          {
+            "issueKey": "school_choice",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 35,
+            "rationale": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations."
+          }
         ],
         "_issuesNote": "THE OMNIBUS SPLIT, and the reason this lane is not a scoreboard. Fourteen issue mappings, four of them 'opposes' — read across from the vr_measure_issues rows H.R. 1 already carries (five from db/vr-issue-seed.json, nine from 20260720000000_hr1_omnibus_component_issues.sql), with supportMeaning yea_supports/yea_opposes rendered as advances/opposes. One signature therefore reports in both directions, exactly as one roll call on H.R. 1 does in the 🏛️ lane. Curating only the headline issue would have let a signed omnibus look like a single clean win.",
         "status": [
@@ -139,7 +261,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14154",
@@ -154,8 +275,22 @@
         "publishedAt": "2025-01-29",
         "_dedupeNote": "ONE energy action, not two. The app's curated spotlight data carried this order twice for Trump under one headline that also folded in a second, separate order — 'Declared a national energy emergency to expand production' described BOTH 'Unleashing American Energy' and 'Declaring a National Energy Emergency' (EO 14156, 90 FR 8433, doc 2025-02003, signed the same day). Two documents inside one card cannot be given a standing each, which is precisely what the Standing axis needs. This seed carries EO 14154 alone; EO 14156 arrived in wave 2 as its own row below, with its own citation and its own standing — and the two standings are now different, which is the evidence that splitting them was not pedantry.",
         "issues": [
-          { "issueKey": "energy_production", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs agencies to expedite oil, gas and mineral permitting and leasing and to remove regulatory barriers to domestic energy production.", "circularWithStance": true, "circularNote": "The stance card on this issue cites this order by title — \"Signed the 'Unleashing American Energy' and 'National Energy Emergency' executive orders\". The issue is tested instead by Public Law 119-21, which that card does not name." },
-          { "issueKey": "climate_action", "direction": "opposes", "isPrimary": false, "weight": 55, "rationale": "Revokes the previous administration's climate executive orders. The Federal Register disposition record for this document lists the revocations by number, including EO 13990 and EO 14008." }
+          {
+            "issueKey": "energy_production",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs agencies to expedite oil, gas and mineral permitting and leasing and to remove regulatory barriers to domestic energy production.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue cites this order by title — \"Signed the 'Unleashing American Energy' and 'National Energy Emergency' executive orders\". The issue is tested instead by Public Law 119-21, which that card does not name."
+          },
+          {
+            "issueKey": "climate_action",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Revokes the previous administration's climate executive orders. The Federal Register disposition record for this document lists the revocations by number, including EO 13990 and EO 14008."
+          }
         ],
         "_issuesNote": "The 'opposes' mapping is not an inference about intent — it is read off the Federal Register's own disposition notes for this document, which enumerate the orders it revokes. That is why a sole-authored order can also report in both directions.",
         "status": [
@@ -170,7 +305,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14156",
@@ -185,9 +319,29 @@
         "publishedAt": "2025-01-29",
         "_splitNote": "The other half of the folded card described in EO 14154's _dedupeNote above, now standing on its own. Signed the same day as EO 14154 and about the same subject, and still a different document: a different FR citation (90 FR 8433, pp. 8433–8437, doc 2025-02003), a different legal mechanism (a National Emergencies Act declaration that unlocks emergency permitting authorities, rather than a set of policy directives), and — the point of the split — a different standing. EO 14154 stands unchallenged in this file; this one is in active litigation. Folded together, one card would have had to pick one of those two answers and would have been wrong about the other document.",
         "issues": [
-          { "issueKey": "energy_production", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Declares a national energy emergency and directs agencies to use emergency authorities to expedite domestic energy production, transportation, refining and generation.", "circularWithStance": true, "circularNote": "The stance card on this issue cites this order by title and opens by narrating it — \"Declared a national energy emergency at the start of his second term\". The issue is tested instead by Public Law 119-21, which that card does not name." },
-          { "issueKey": "lands_energy", "direction": "advances", "isPrimary": false, "weight": 60, "rationale": "Sections 4 and 5 direct emergency Clean Water Act and Rivers and Harbors Act permitting by the Army Corps of Engineers and emergency Endangered Species Act consultation procedures for energy projects on federal land and water." },
-          { "issueKey": "climate_action", "direction": "opposes", "isPrimary": false, "weight": 55, "rationale": "Section 8(a) defines the 'energy' the emergency covers as crude oil, natural gas, lease condensates, natural gas liquids, refined petroleum products, uranium, coal, biofuels, geothermal heat, the kinetic movement of flowing water and critical minerals — wind and solar are absent from the definition, so the emergency's expedited procedures are unavailable to them." }
+          {
+            "issueKey": "energy_production",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Declares a national energy emergency and directs agencies to use emergency authorities to expedite domestic energy production, transportation, refining and generation.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue cites this order by title and opens by narrating it — \"Declared a national energy emergency at the start of his second term\". The issue is tested instead by Public Law 119-21, which that card does not name."
+          },
+          {
+            "issueKey": "lands_energy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Sections 4 and 5 direct emergency Clean Water Act and Rivers and Harbors Act permitting by the Army Corps of Engineers and emergency Endangered Species Act consultation procedures for energy projects on federal land and water."
+          },
+          {
+            "issueKey": "climate_action",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Section 8(a) defines the 'energy' the emergency covers as crude oil, natural gas, lease condensates, natural gas liquids, refined petroleum products, uranium, coal, biofuels, geothermal heat, the kinetic movement of flowing water and critical minerals — wind and solar are absent from the definition, so the emergency's expedited procedures are unavailable to them."
+          }
         ],
         "_issuesNote": "The 'opposes' mapping on climate_action is read off the order's own text, not inferred from its subject: Section 8(a) is an enumerated definition, and what it leaves out is as operative as what it includes, because the emergency authorities in Sections 3 through 6 reach only the listed resources. Weighted below the primary mapping because the order does not repeal any climate measure — it routes around them for one set of resources.",
         "status": [
@@ -222,7 +376,6 @@
         ],
         "_standingNote": "Why the challenge row is last and not the continuation row: current standing is the latest row by effective_at, and a presidential continuation does not resolve a lawsuit. Had the continuation been filed after the challenge it would still have carried challenged_unverified, for the same reason — the President continuing his own emergency is not a court answering the question that is open."
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14151",
@@ -236,7 +389,15 @@
         "frDocumentNumber": "2025-01953",
         "publishedAt": "2025-01-29",
         "issues": [
-          { "issueKey": "end_dei", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs the termination of federal diversity, equity and inclusion offices, positions, programs and related grants and contracts.", "circularWithStance": true, "circularNote": "The stance card on this issue cites this order's own subject — \"Signed executive orders ending federal DEI programs and preferencing\" — and links the order itself. No other action on file reaches this issue, so it stands as coverage rather than as a test." }
+          {
+            "issueKey": "end_dei",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the termination of federal diversity, equity and inclusion offices, positions, programs and related grants and contracts.",
+            "circularWithStance": true,
+            "circularNote": "The stance card on this issue cites this order's own subject — \"Signed executive orders ending federal DEI programs and preferencing\" — and links the order itself. No other action on file reaches this issue, so it stands as coverage rather than as a test."
+          }
         ],
         "status": [
           {
@@ -283,7 +444,6 @@
         ],
         "_standingBackfill": "DONE in wave 2, additively. The two rows wave 1 held back — the District of Maryland's February 21, 2025 preliminary injunction and the Fourth Circuit's March 14, 2025 stay of it — are now on file above, each read from the court's own document and each carrying its own citation and basis. The February 6, 2026 row that was here first was not rewritten or moved; the whole point of an append-only log is that history can be filled in behind the current standing without disturbing what was already published. A fourth row, the June 30, 2026 dismissal, was found while verifying the docket for this backfill and appended in the same way. Array position is not meaning here: current standing is the latest row by effective_at, computed in exec-record.js's standingOf(), so these rows sit at the end of the array in the order they were appended while reading as history in the UI."
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14248",
@@ -297,8 +457,21 @@
         "frDocumentNumber": "2025-05523",
         "publishedAt": "2025-03-28",
         "issues": [
-          { "issueKey": "voter_id", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form.", "_circularNote": "The circular hold on this mapping was lifted. It was held because the voter_id stance card cited this order by number — \"Signed EO 14248, 'Preserving and Protecting the Integrity of American Elections'\" — so the card was downstream of this document. That card has been re-authored from the 2024 Republican Party Platform he campaigned on, which commits to Voter ID and proof of citizenship and names no order, so this document can test it. Note that the issue still yields no scored verdict for a different and unrelated reason: a tracked pledge on voter_id occupies the issue's single scored slot under PDXWordAction's one-item-per-issue rule and has not resolved." },
-          { "issueKey": "election_integrity", "direction": "advances", "isPrimary": false, "weight": 60, "rationale": "Directs federal agencies to share data to identify ineligible registrants and directs enforcement of ballot-receipt deadlines against States that count late-arriving ballots." }
+          {
+            "issueKey": "voter_id",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because the voter_id stance card cited this order by number — \"Signed EO 14248, 'Preserving and Protecting the Integrity of American Elections'\" — so the card was downstream of this document. That card has been re-authored from the 2024 Republican Party Platform he campaigned on, which commits to Voter ID and proof of citizenship and names no order, so this document can test it. Note that the issue still yields no scored verdict for a different and unrelated reason: a tracked pledge on voter_id occupies the issue's single scored slot under PDXWordAction's one-item-per-issue rule and has not resolved."
+          },
+          {
+            "issueKey": "election_integrity",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Directs federal agencies to share data to identify ineligible registrants and directs enforcement of ballot-receipt deadlines against States that count late-arriving ballots."
+          }
         ],
         "_axisBNote": "THE WORKED EXAMPLE FOR THE WHOLE LANE, and the reason the standing log is append-only. Three rulings, three citations, one row each — a mutable status column would have kept only the last and lost the other two. Every entry stays 'partly blocked': parts of this order are permanently enjoined and other parts are not, and neither 'in force' nor 'blocked' would be a true one-word answer at any point in this sequence.",
         "status": [
@@ -334,7 +507,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14257",
@@ -349,11 +521,43 @@
         "publishedAt": "2025-04-07",
         "_whyThisOneMattersMost": "The largest single gap the audit found. Five of this president's stated positions are about tariffs — two of them written in the protective direction, so a tariff order tests them by opposing them — and before this row the lane had no tariff document at all and reported 'no action on file yet' on every one of them. One of those cards names this order by its number, which is exactly why the circularity guard has to run per pair rather than per document: the card that names it cannot be tested by it, and the four that do not name it can.",
         "issues": [
-          { "issueKey": "tariffs_growth", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Imposes a baseline ad valorem duty on imports from nearly all trading partners plus higher country-specific rates, on the stated ground that persistent goods trade deficits have hollowed out the domestic manufacturing base.", "_circularNote": "The circular hold on this mapping was lifted. It was held because the tariffs_growth stance card named this order by number and by date — \"he signed Executive Order 14257 on April 2, 2025\" — which both the declared flag and the mechanical guard in consistency.js#execCircular caught. That card has been re-authored from the 2024 Republican Party Platform he campaigned on, whose trade chapter states the baseline-tariff position without reference to any order, so neither signal fires and this document can test it." },
-          { "issueKey": "tariffs_authority", "direction": "opposes", "isPrimary": false, "weight": 75, "rationale": "Sets tariff rates by executive order under the International Emergency Economic Powers Act rather than under a rate schedule enacted by Congress.", "_circularNote": "The circular hold on this mapping was lifted. It was held because the tariffs_authority stance card was written about the litigation over this very order — it described the first presidential invocation of IEEPA to set tariffs and cited the Supreme Court opinion in the case challenging it — and, no identifier matching mechanically, the declared flag was the only thing holding the pair. That card has been re-authored from his own September 2024 campaign remarks that he does not need Congress to impose tariffs, a statement that predates this order and does not depend on it, so this document can test it." },
-          { "issueKey": "tariffs_prices", "direction": "opposes", "isPrimary": false, "weight": 70, "rationale": "The duties apply across nearly the whole import base and the order pairs them with no offsetting relief for household purchasers." },
-          { "issueKey": "tariffs_china", "direction": "advances", "isPrimary": false, "weight": 60, "rationale": "Assigns China one of the higher country-specific rates in the annexed schedule, on the stated ground of non-reciprocal trade practices." },
-          { "issueKey": "econ_trade", "direction": "advances", "isPrimary": false, "weight": 55, "rationale": "Uses import duties as the instrument for reshoring domestic manufacturing and rebuilding supply chains." }
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Imposes a baseline ad valorem duty on imports from nearly all trading partners plus higher country-specific rates, on the stated ground that persistent goods trade deficits have hollowed out the domestic manufacturing base.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because the tariffs_growth stance card named this order by number and by date — \"he signed Executive Order 14257 on April 2, 2025\" — which both the declared flag and the mechanical guard in consistency.js#execCircular caught. That card has been re-authored from the 2024 Republican Party Platform he campaigned on, whose trade chapter states the baseline-tariff position without reference to any order, so neither signal fires and this document can test it."
+          },
+          {
+            "issueKey": "tariffs_authority",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Sets tariff rates by executive order under the International Emergency Economic Powers Act rather than under a rate schedule enacted by Congress.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because the tariffs_authority stance card was written about the litigation over this very order — it described the first presidential invocation of IEEPA to set tariffs and cited the Supreme Court opinion in the case challenging it — and, no identifier matching mechanically, the declared flag was the only thing holding the pair. That card has been re-authored from his own September 2024 campaign remarks that he does not need Congress to impose tariffs, a statement that predates this order and does not depend on it, so this document can test it."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "The duties apply across nearly the whole import base and the order pairs them with no offsetting relief for household purchasers."
+          },
+          {
+            "issueKey": "tariffs_china",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Assigns China one of the higher country-specific rates in the annexed schedule, on the stated ground of non-reciprocal trade practices."
+          },
+          {
+            "issueKey": "econ_trade",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Uses import duties as the instrument for reshoring domestic manufacturing and rebuilding supply chains."
+          }
         ],
         "_axisBNote": "Two rows, and the sequence is the point: an order can be validly issued, operate for ten months, and then be held unauthorized. Collapsing that into one word would either hide the ruling or hide the period the tariffs were actually collected under.",
         "status": [
@@ -377,7 +581,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14273",
@@ -392,7 +595,13 @@
         "publishedAt": "2025-04-18",
         "_whyBothOrders": "Two drug-pricing orders, five weeks apart, and they are not interchangeable. The stance card on this issue was written from the SECOND one and cites it as its own source, so that pair is circular and held. This first order is a different document the card does not cite — which is the only reason the issue is testable at all. Deleting either row to tidy the file would either lose real record or lose the one test on the issue.",
         "issues": [
-          { "issueKey": "health_drug_prices", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs the Secretary of Health and Human Services to improve the Medicare drug-price negotiation program, to align payment for prescription medicines more closely with acquisition cost, and to pursue measures aimed at lowering what patients pay at the pharmacy counter." }
+          {
+            "issueKey": "health_drug_prices",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Secretary of Health and Human Services to improve the Medicare drug-price negotiation program, to align payment for prescription medicines more closely with acquisition cost, and to pursue measures aimed at lowering what patients pay at the pharmacy counter."
+          }
         ],
         "status": [
           {
@@ -406,7 +615,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14297",
@@ -420,7 +628,15 @@
         "frDocumentNumber": "2025-08876",
         "publishedAt": "2025-05-15",
         "issues": [
-          { "issueKey": "health_drug_prices", "direction": "advances", "isPrimary": true, "weight": 90, "rationale": "Directs the Secretary of Health and Human Services to set price targets for prescription medicines benchmarked to the lower prices paid by comparably developed nations, and to open a direct-to-patient purchasing channel at those prices.", "circularWithStance": true, "circularNote": "This order IS the stance card's source: the card's own citation is the presidential-actions page for this document, and its text restates the order's two operative directives. No identifier matches mechanically because the card writes the benchmark policy in prose while the row carries the order's formal title, so the declared flag is what holds the pair." }
+          {
+            "issueKey": "health_drug_prices",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Directs the Secretary of Health and Human Services to set price targets for prescription medicines benchmarked to the lower prices paid by comparably developed nations, and to open a direct-to-patient purchasing channel at those prices.",
+            "circularWithStance": true,
+            "circularNote": "This order IS the stance card's source: the card's own citation is the presidential-actions page for this document, and its text restates the order's two operative directives. No identifier matches mechanically because the card writes the benchmark policy in prose while the row carries the order's formal title, so the declared flag is what holds the pair."
+          }
         ],
         "status": [
           {
@@ -434,7 +650,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14233",
@@ -448,7 +663,13 @@
         "frDocumentNumber": "2025-03992",
         "publishedAt": "2025-03-11",
         "issues": [
-          { "issueKey": "crypto_cbdc", "direction": "advances", "isPrimary": true, "weight": 60, "rationale": "Establishes a federal framework for digital assets already held by the government — a Strategic Bitcoin Reserve and a United States Digital Asset Stockpile under Treasury custody — and sets rules for how those holdings are accounted for and disposed of. Weighted below the two orders that regulate the asset class itself, because custody policy for government holdings answers only part of what this issue asks." }
+          {
+            "issueKey": "crypto_cbdc",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 60,
+            "rationale": "Establishes a federal framework for digital assets already held by the government — a Strategic Bitcoin Reserve and a United States Digital Asset Stockpile under Treasury custody — and sets rules for how those holdings are accounted for and disposed of. Weighted below the two orders that regulate the asset class itself, because custody policy for government holdings answers only part of what this issue asks."
+          }
         ],
         "status": [
           {
@@ -462,7 +683,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14178",
@@ -476,7 +696,14 @@
         "frDocumentNumber": "2025-02123",
         "publishedAt": "2025-01-31",
         "issues": [
-          { "issueKey": "crypto_cbdc", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs agencies to protect access to public blockchain networks and to develop a federal regulatory framework for digital assets, and prohibits agencies from establishing, issuing or promoting a United States central bank digital currency.", "_circularNote": "The circular hold on this mapping was lifted. It was held because this order WAS the crypto_cbdc stance card's source: the card cited the presidential-actions page for this document and restated its central-bank-digital-currency prohibition. That card has been re-authored from the 2024 Republican Party Platform he campaigned on, which opposes a CBDC in its own words and cites no order, so this document can test it. Note that the issue's single scored slot is held by a tracked pledge, so this row corroborates rather than decides." }
+          {
+            "issueKey": "crypto_cbdc",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs agencies to protect access to public blockchain networks and to develop a federal regulatory framework for digital assets, and prohibits agencies from establishing, issuing or promoting a United States central bank digital currency.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because this order WAS the crypto_cbdc stance card's source: the card cited the presidential-actions page for this document and restated its central-bank-digital-currency prohibition. That card has been re-authored from the 2024 Republican Party Platform he campaigned on, which opposes a CBDC in its own words and cites no order, so this document can test it. Note that the issue's single scored slot is held by a tracked pledge, so this row corroborates rather than decides."
+          }
         ],
         "status": [
           {
@@ -490,7 +717,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14221",
@@ -505,7 +731,14 @@
         "publishedAt": "2025-02-28",
         "_citationNote": "exec-record.js#REJECT_SRC names this issue's stance card as one of the live examples of a bad citation: it cites a fact sheet about the order rather than the order. This row is the document the fact sheet was describing, cited to the register. The card's citation is not repaired here — that is a stance-authoring change, not a seed change — but the record now holds the order itself.",
         "issues": [
-          { "issueKey": "healthcare_costs", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs the Departments of the Treasury, Labor and Health and Human Services to enforce the hospital and health-plan price-disclosure requirements, to require disclosure of actual prices rather than estimates, and to standardize pricing data so it can be compared across providers.", "_circularNote": "The circular hold on this mapping was lifted. It was held because the healthcare_costs stance card was a description of this order — it recited the three departments this order names and the actual-prices-not-estimates requirement it imposes — and cited the administration's fact sheet about the order, which is why nothing matched mechanically and the declared flag carried the pair. That card has been re-authored from his own June 24, 2019 remarks on health-care price transparency, which state the position six years before this order existed, so this document can test it." }
+          {
+            "issueKey": "healthcare_costs",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Departments of the Treasury, Labor and Health and Human Services to enforce the hospital and health-plan price-disclosure requirements, to require disclosure of actual prices rather than estimates, and to standardize pricing data so it can be compared across providers.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because the healthcare_costs stance card was a description of this order — it recited the three departments this order names and the actual-prices-not-estimates requirement it imposes — and cited the administration's fact sheet about the order, which is why nothing matched mechanically and the declared flag carried the pair. That card has been re-authored from his own June 24, 2019 remarks on health-care price transparency, which state the position six years before this order existed, so this document can test it."
+          }
         ],
         "status": [
           {
@@ -519,7 +752,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14165",
@@ -533,8 +765,20 @@
         "frDocumentNumber": "2025-02015",
         "publishedAt": "2025-01-30",
         "issues": [
-          { "issueKey": "border_security", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs resumption of physical barrier construction along the southern border, deployment of personnel and detection technology to maintain operational control of it, and detention rather than release of those apprehended crossing it." },
-          { "issueKey": "deportations", "direction": "advances", "isPrimary": false, "weight": 60, "rationale": "Directs removal of apprehended entrants and termination of practices that released them into the interior pending proceedings." }
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs resumption of physical barrier construction along the southern border, deployment of personnel and detection technology to maintain operational control of it, and detention rather than release of those apprehended crossing it."
+          },
+          {
+            "issueKey": "deportations",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Directs removal of apprehended entrants and termination of practices that released them into the interior pending proceedings."
+          }
         ],
         "status": [
           {
@@ -548,7 +792,6 @@
           }
         ]
       },
-
       {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14159",
@@ -563,8 +806,20 @@
         "publishedAt": "2025-01-29",
         "_noImmigrationReformMapping": "DELIBERATELY NOT MAPPED to immigration_reform, and the reason is a data defect this seed cannot fix. The issue is defined in alignment-tool.js as 'Pathways to Citizenship' with a D lean, so an interior-enforcement order opposes it — but this president's card on that issue is recorded as SUPPORT while its text describes ending birthright citizenship, which is the opposite of the issue as defined. Adding the true 'opposes' mapping here would have produced a contradiction against a stance whose polarity is mis-signed, which is manufacturing a result rather than measuring one. The mapping is left out and the stance is flagged for re-authoring instead.",
         "issues": [
-          { "issueKey": "deportations", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs the Department of Homeland Security to prioritize removal of those present without authorization, to restore programs enlisting State and local officers in interior enforcement, and to expand detention capacity pending removal." },
-          { "issueKey": "border_security", "direction": "advances", "isPrimary": false, "weight": 70, "rationale": "Directs the enforcement machinery behind the border regime, including expanded detention and the use of expedited removal to the extent the statute allows." }
+          {
+            "issueKey": "deportations",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Department of Homeland Security to prioritize removal of those present without authorization, to restore programs enlisting State and local officers in interior enforcement, and to expand detention capacity pending removal."
+          },
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Directs the enforcement machinery behind the border regime, including expanded detention and the use of expedited removal to the extent the statute allows."
+          }
         ],
         "status": [
           {
@@ -578,7 +833,6 @@
           }
         ]
       },
-
       {
         "actionClass": "signed_law",
         "documentId": "Public Law 119-26",
@@ -592,11 +846,24 @@
         "sourceLabel": "Congress.gov — S. 331, 119th Congress",
         "_citationNote": "Cited to congress.gov because db/exec-action-types.json makes it the source of record for a signed law. congress.gov returns HTTP 403 to this environment, so the facts here were verified against GPO's PLAW-119publ26 package, which carries 'Public Law 119-26', the approval date of July 16, 2025, the vehicle '[S. 331]', and the short titles 'Halt All Lethal Trafficking of Fentanyl Act' and 'HALT Fentanyl Act' on its face.",
         "issues": [
-          { "issueKey": "immig_fentanyl", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Section 2 amends section 202(c) of the Controlled Substances Act to place fentanyl-related substances, including their salts and isomers, on schedule I as a class rather than one compound at a time." },
-          { "issueKey": "tough_on_crime", "direction": "advances", "isPrimary": false, "weight": 75, "rationale": "Class scheduling brings the offences and penalties attached to schedule I to bear on a whole family of related substances." }
+          {
+            "issueKey": "immig_fentanyl",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Section 2 amends section 202(c) of the Controlled Substances Act to place fentanyl-related substances, including their salts and isomers, on schedule I as a class rather than one compound at a time."
+          },
+          {
+            "issueKey": "tough_on_crime",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Class scheduling brings the offences and penalties attached to schedule I to bear on a whole family of related substances."
+          }
         ],
         "_coverageNote": "immig_fentanyl is the law's actual subject and is carried as the primary mapping, but this president has no stance card on that issue — so the mapping is real record and coverage, and it tests nothing. tough_on_crime is the mapping with a stated position behind it.",
-        "_weightsMatchTheSpine": "S. 331 already carries vr_measure_issues rows from 20260721170000_seed_legislation_expansion.sql at immig_fentanyl 100 / primary and tough_on_crime 75. These weights are read straight across from those rows rather than re-chosen, so the ✒️ lane and the 🏛️ lane cannot disagree about what this law does. That migration also carries a third row, health_mental at 45 in the opposing direction, whose own rationale rests on what public-health advocates argue rather than on anything the enrolled text says. It is deliberately not carried here: this lane's sourcing rule is that a mapping reports what the document does, and an argument about a document is not that. The row stays where it was written, in the congressional lane, which is scoped to hold it.",        "status": [
+        "_weightsMatchTheSpine": "S. 331 already carries vr_measure_issues rows from 20260721170000_seed_legislation_expansion.sql at immig_fentanyl 100 / primary and tough_on_crime 75. These weights are read straight across from those rows rather than re-chosen, so the ✒️ lane and the 🏛️ lane cannot disagree about what this law does. That migration also carries a third row, health_mental at 45 in the opposing direction, whose own rationale rests on what public-health advocates argue rather than on anything the enrolled text says. It is deliberately not carried here: this lane's sourcing rule is that a mapping reports what the document does, and an argument about a document is not that. The row stays where it was written, in the congressional lane, which is scoped to hold it.",
+        "status": [
           {
             "status": "in_force",
             "effectiveAt": "2025-07-16",
@@ -608,7 +875,6 @@
           }
         ]
       },
-
       {
         "actionClass": "signed_law",
         "documentId": "Public Law 119-27",
@@ -622,7 +888,14 @@
         "sourceLabel": "Congress.gov — S. 1582, 119th Congress",
         "_citationNote": "Cited to congress.gov as the source of record for a signed law; the facts were verified against GPO's PLAW-119publ27 package, which carries 'Public Law 119-27', the approval date of July 18, 2025, the vehicle '[S. 1582]', 139 Stat. 419, and the short titles 'Guiding and Establishing National Innovation for U.S. Stablecoins Act' and 'GENIUS Act'.",
         "issues": [
-          { "issueKey": "crypto_cbdc", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Creates the federal regulatory regime for payment stablecoins — who may issue them, which federal banking agency supervises each class of issuer, and what reserve and disclosure obligations attach.", "_circularNote": "The circular hold on this mapping was lifted. It was held because the crypto_cbdc stance card named this law by its short title, saying he \"signed the GENIUS Act stablecoin framework\". That card has been re-authored from the 2024 Republican Party Platform and names no law, so this document can test it. As with Executive Order 14178, the issue's scored slot is held by a tracked pledge, so this row is corroboration." }
+          {
+            "issueKey": "crypto_cbdc",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Creates the federal regulatory regime for payment stablecoins — who may issue them, which federal banking agency supervises each class of issuer, and what reserve and disclosure obligations attach.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because the crypto_cbdc stance card named this law by its short title, saying he \"signed the GENIUS Act stablecoin framework\". That card has been re-authored from the 2024 Republican Party Platform and names no law, so this document can test it. As with Executive Order 14178, the issue's scored slot is held by a tracked pledge, so this row is corroboration."
+          }
         ],
         "_newPairNote": "S. 1582's existing vr_measure_issues rows, written by 20260719210000_seed_landmark_measures_wave4.sql, use tech_innovation, crypto and econ_corp_account — a vocabulary chosen before crypto_cbdc existed as a key. This row adds the crypto_cbdc pair rather than restating those three, because crypto_cbdc is the key the president's own stated position is filed under and therefore the only one that can test it. The three older rows are untouched.",
         "status": [
@@ -637,7 +910,6 @@
           }
         ]
       },
-
       {
         "actionClass": "signed_law",
         "documentId": "Public Law 119-28",
@@ -651,7 +923,14 @@
         "sourceLabel": "Congress.gov — H.R. 4, 119th Congress",
         "_citationNote": "Cited to congress.gov as the source of record for a signed law; the facts were verified against GPO's PLAW-119publ28 package, which carries 'Public Law 119-28', the approval date of July 24, 2025, the vehicle '[H.R. 4]', 139 Stat. 467, and the short title 'Rescissions Act of 2025'. Section 2(a) makes the rescissions effective on enactment, pursuant to the special message the President transmitted on June 3, 2025 under section 1012 of the Congressional Budget and Impoundment Control Act of 1974.",
         "issues": [
-          { "issueKey": "cut_spending", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Cancels unobligated balances of budget authority already appropriated, item by item, on the President's own rescission request — foreign assistance and public-broadcasting accounts among them.", "_circularNote": "The circular hold on this mapping was lifted. It was held because the cut_spending stance card named this law by its short title and recited its size — it said he \"sent Congress a rescissions request that became the Rescissions Act of 2025\" — so both the declared flag and the mechanical identifier match fired. That card has been re-authored from the 2024 Republican Party Platform's economy chapter, which states the spending-cut position and names no law, so this document can test it. The issue was already tested by Public Law 119-21, which the card also does not name; this row now corroborates it." }
+          {
+            "issueKey": "cut_spending",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Cancels unobligated balances of budget authority already appropriated, item by item, on the President's own rescission request — foreign assistance and public-broadcasting accounts among them.",
+            "_circularNote": "The circular hold on this mapping was lifted. It was held because the cut_spending stance card named this law by its short title and recited its size — it said he \"sent Congress a rescissions request that became the Rescissions Act of 2025\" — so both the declared flag and the mechanical identifier match fired. That card has been re-authored from the 2024 Republican Party Platform's economy chapter, which states the spending-cut position and names no law, so this document can test it. The issue was already tested by Public Law 119-21, which the card also does not name; this row now corroborates it."
+          }
         ],
         "_omittedNationalDebtNote": "H.R. 4 already carries a national_debt row at weight 40 in the congressional lane, written by 20260719150000_seed_rescissions_voting_record.sql, and it is deliberately NOT carried here. The reason is arithmetic rather than editorial: on this president's record the other national_debt action on file is Public Law 119-21, whose section 72001 raised the statutory debt limit by five trillion dollars. Placing a rescission of roughly nine billion dollars beside that at comparable weight would render an issue row as though the two pulled against each other with comparable force. cut_spending is the issue this law genuinely speaks to and is kept at full weight.",
         "status": [
@@ -1579,6 +1858,335 @@
             "sourceLabel": "GovInfo — Public Law 119-37, section 106(3), enrolled text as published by GPO",
             "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ37/html/PLAW-119publ37.htm",
             "note": "Section 106 of division A provides that the appropriations, funds and authority granted by the Act are available until the first of three events, the last of which is the expiration date of January 30, 2026; section 120(a)'s prohibition on reductions in force runs \"during the period between the date of enactment of this Act and the date specified in section 106(3)\", so it lapsed on that date. Section 120(e) is different in kind and is not what expired: it voided the reductions in force already taken, rescinded the notices and directed back pay, and it had done so before the date above. This row is read from the Act's own text and is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "vetoed_law",
+        "documentId": "H.J. Res. 46 (116th Congress)",
+        "measureNumber": "H.J. Res. 46",
+        "congress": 116,
+        "chamber": "house",
+        "title": "Relating to a national emergency declared by the President on February 15, 2019",
+        "actedAt": "2019-03-15",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/house-joint-resolution/46",
+        "sourceLabel": "Congress.gov — H.J. Res. 46, 116th Congress",
+        "_citationNote": "congress.gov is the source of record for this class per db/exec-action-types.json#actionClasses.vetoed_law and still returns HTTP 403 to this environment, so every fact asserted here — the official title, the date the resolution was returned with objections, and the outcome of the override attempt — was read from GPO's BILLSTATUS bulkdata package for the 116th Congress House joint resolutions (BILLSTATUS-116-hjres), which is the same legislative action history congress.gov publishes. Same discipline waves 1 and 3 used for public laws.",
+        "issues": [
+          {
+            "issueKey": "border_security",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it: H.J. Res. 46 would have terminated the national emergency related to the U.S.-Mexico border declared on February 15, 2019, which cuts against this issue. The record engine inverts a blocking action, so the veto itself reads the other way — it kept that emergency in place."
+          }
+        ],
+        "_issuesNote": "One mapping, deliberately. The resolution's own subject is the emergency declaration and nothing else; its official title is 'Relating to a national emergency declared by the President on February 15, 2019' and the published summary says it 'terminates the national emergency related to the U.S.-Mexico border'. Reading a funding direction into it — the diversion of military construction money that the declaration was being used to support — would be an inference about consequences rather than a reading of the text, and the lane does not carry those. NOT mapped to checks_balances, which is the issue a reader might expect: this figure has no stated position on that key, so the row would test nothing, and the same reasoning kept the three arms-sale resolutions out of this wave entirely.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2019-03-26",
+            "authority": "The House of Representatives, on the question of passage notwithstanding the objections of the President",
+            "basis": "congressional_action_record",
+            "sourceLabel": "Congress.gov — H.J. Res. 46, 116th Congress, legislative action history",
+            "sourceUrl": "https://www.congress.gov/bill/116th-congress/house-joint-resolution/46/all-actions",
+            "note": "The resolution was returned to the House with the President's objections on March 15, 2019. On March 26, 2019 the House took up passage notwithstanding those objections and did not reach the two-thirds Article I, section 7 requires; the tally was 248 to 181. The resolution therefore never became law and the emergency it would have terminated stayed in place. This states what Congress did with the returned resolution and says nothing about any challenge to the veto or to anything the veto preserved."
+          }
+        ]
+      },
+      {
+        "actionClass": "vetoed_law",
+        "documentId": "S.J. Res. 7 (116th Congress)",
+        "measureNumber": "S.J. Res. 7",
+        "congress": 116,
+        "chamber": "senate",
+        "title": "A joint resolution to direct the removal of United States Armed Forces from hostilities in the Republic of Yemen that have not been authorized by Congress",
+        "actedAt": "2019-04-16",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/7",
+        "sourceLabel": "Congress.gov — S.J. Res. 7, 116th Congress",
+        "_citationNote": "Facts read from GPO's BILLSTATUS-116-sjres bulkdata package in this pass; congress.gov itself returns HTTP 403 to this environment and is cited because db/exec-action-types.json names it as the source of record for this class.",
+        "issues": [
+          {
+            "issueKey": "restraint",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 7 would have directed the removal of United States Armed Forces from hostilities in the Republic of Yemen that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
+          },
+          {
+            "issueKey": "america_first_fp",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Same inversion applies: the direction is the resolution's. Withdrawing forces from an unauthorized foreign conflict is the ending of an open-ended commitment abroad, which is what the stated position on this issue is about, so the resolution advances it and the veto is read against it."
+          }
+        ],
+        "_issuesNote": "The restraint mapping is primary because a war-powers direction is that issue and nothing else. It is worth knowing what it does and does not do to the reading: the stated position on restraint is not directional, so this row lands in the 'action on file, no stated position' bucket and cannot be scored — but it takes that issue off 'no record at all', which is where it sat with the file holding no first-term action. The america_first_fp mapping is the one that can be checked, and it checks against a stated position written from second-term material that names none of these documents.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2019-05-02",
+            "authority": "The Senate, on the question of passage notwithstanding the objections of the President",
+            "basis": "congressional_action_record",
+            "sourceLabel": "Congress.gov — S.J. Res. 7, 116th Congress, legislative action history",
+            "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/7/all-actions",
+            "note": "The resolution was returned to the Senate with the President's objections on April 16, 2019. On May 2, 2019 the Senate failed of passage over the veto, 53 to 45, short of the two-thirds Article I, section 7 requires. The resolution never became law. This states what Congress did with the returned resolution and says nothing about any challenge to the veto."
+          }
+        ]
+      },
+      {
+        "actionClass": "vetoed_law",
+        "documentId": "S.J. Res. 68 (116th Congress)",
+        "measureNumber": "S.J. Res. 68",
+        "congress": 116,
+        "chamber": "senate",
+        "title": "A joint resolution to direct the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that have not been authorized by Congress",
+        "actedAt": "2020-05-06",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68",
+        "sourceLabel": "Congress.gov — S.J. Res. 68, 116th Congress",
+        "_citationNote": "Facts read from GPO's BILLSTATUS-116-sjres bulkdata package in this pass; congress.gov itself returns HTTP 403 to this environment and is cited because db/exec-action-types.json names it as the source of record for this class.",
+        "issues": [
+          {
+            "issueKey": "restraint",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 68 would have directed the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
+          },
+          {
+            "issueKey": "america_first_fp",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Same inversion applies: the direction is the resolution's. This is the second document on this issue that would have closed off an unauthorized foreign engagement, thirteen months after the first, which is why it is filed rather than treated as the same decision restated."
+          }
+        ],
+        "_issuesNote": "Filed alongside S.J. Res. 7 rather than folded into it because they are a year apart, they concern different countries and each has its own returned-resolution history. The three arms-sale resolutions of July 2019 were treated the opposite way and left out — those were three near-identical documents on one day, and filing three rows for one decision would have inflated the count without adding a fact.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-05-07",
+            "authority": "The Senate, on the question of passage notwithstanding the objections of the President",
+            "basis": "congressional_action_record",
+            "sourceLabel": "Congress.gov — S.J. Res. 68, 116th Congress, legislative action history",
+            "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68/all-actions",
+            "note": "The resolution was returned to the Senate with the President's objections on May 6, 2020. On May 7, 2020 the Senate failed of passage over the veto, 49 to 44, short of the two-thirds Article I, section 7 requires. The resolution never became law. This states what Congress did with the returned resolution and says nothing about any challenge to the veto."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13765",
+        "executiveOrderNumber": 13765,
+        "title": "Minimizing the Economic Burden of the Patient Protection and Affordable Care Act Pending Repeal",
+        "actedAt": "2017-01-20",
+        "publishedAt": "2017-01-24",
+        "term": "45",
+        "frCitation": "82 FR 8351",
+        "frDocumentNumber": "2017-01799",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/01/24/2017-01799/minimizing-the-economic-burden-of-the-patient-protection-and-affordable-care-act-pending-repeal",
+        "sourceLabel": "Federal Register — Executive Order 13765, 82 FR 8351",
+        "issues": [
+          {
+            "issueKey": "healthcare",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 1 states the policy of seeking the prompt repeal of the Patient Protection and Affordable Care Act, and section 2 directs the Secretary of Health and Human Services and every other agency with authority under the Act to 'waive, defer, grant exemptions from, or delay the implementation of' any provision imposing a cost, fee, tax, penalty or regulatory burden. Narrowing the reach of the coverage law is what this direction means on this issue."
+          }
+        ],
+        "_issuesNote": "This is the first-term document behind the promise the roster records as broken — repeal and replace the Affordable Care Act. It is filed for that reason and it does not move the score: the stated position on healthcare is not directional, so the row lands in 'action on file, no stated position', exactly as the second-term healthcare actions do. What it changes is the standing column. Before this wave every healthcare document on file stood; now the issue holds one that was revoked outright, and that is visible in the term contrast rather than in the percentage. NOT mapped to healthcare_costs or health_drug_prices: the order directs relief from the Act's burdens on insurers, providers and device makers, and reading a household-price direction out of that would be the contested economic inference the lane refuses.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-01-24",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13765 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/24/2017-01799/minimizing-the-economic-burden-of-the-patient-protection-and-affordable-care-act-pending-repeal",
+            "note": "Signed January 20, 2017 and published January 24, 2017 at 82 FR 8351. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-28",
+            "authority": "Executive Order 14009 of January 28, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13765 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/24/2017-01799/minimizing-the-economic-burden-of-the-patient-protection-and-affordable-care-act-pending-repeal",
+            "note": "The disposition note on the register's own record for this document reads, in full: 'Revoked by: EO 14009, January 28, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13767",
+        "executiveOrderNumber": 13767,
+        "title": "Border Security and Immigration Enforcement Improvements",
+        "actedAt": "2017-01-25",
+        "publishedAt": "2017-01-30",
+        "term": "45",
+        "frCitation": "82 FR 8793",
+        "frDocumentNumber": "2017-02095",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/01/30/2017-02095/border-security-and-immigration-enforcement-improvements",
+        "sourceLabel": "Federal Register — Executive Order 13767, 82 FR 8793",
+        "issues": [
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 95,
+            "rationale": "Section 2(a) sets as the policy of the executive branch to secure the southern border 'through the immediate construction of a physical wall on the southern border, monitored and supported by adequate personnel', and section 3(e) defines that wall as a contiguous, impassable physical barrier."
+          }
+        ],
+        "_issuesNote": "The same-direction cost is accepted knowingly. This does not make border_security any less one-sided on Axis A — it was fully aligned before and it is fully aligned after. It is here for the other axis and for the term contrast: this is the document the broken promise about who would pay for the wall attaches to, it is the first-term original of the second-term order that resumed barrier construction, and the register records it as revoked. An issue whose every document stands reads differently from an issue holding one that was struck out by the next administration, and that difference is only visible once a Term 45 row exists. NOT also mapped to deportations, which sections 2(b) and 2(d) would support: that issue is already fully aligned with four documents and a fifth same-direction row would be weight for its own sake.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-01-30",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13767 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/30/2017-02095/border-security-and-immigration-enforcement-improvements",
+            "note": "Signed January 25, 2017 and published January 30, 2017 at 82 FR 8793. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-02-02",
+            "authority": "Executive Order 14010 of February 2, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13767 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/30/2017-02095/border-security-and-immigration-enforcement-improvements",
+            "note": "The disposition note on the register's own record for this document reads, in full: 'Revoked by: EO 14010, February 2, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13783",
+        "executiveOrderNumber": 13783,
+        "title": "Promoting Energy Independence and Economic Growth",
+        "actedAt": "2017-03-28",
+        "publishedAt": "2017-03-31",
+        "term": "45",
+        "frCitation": "82 FR 16093",
+        "frDocumentNumber": "2017-06576",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/03/31/2017-06576/promoting-energy-independence-and-economic-growth",
+        "sourceLabel": "Federal Register — Executive Order 13783, 82 FR 16093",
+        "issues": [
+          {
+            "issueKey": "energy_production",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 1(c) makes it the policy of the United States that agencies immediately review existing regulations that potentially burden the development or use of domestically produced energy resources and 'appropriately suspend, revise, or rescind those that unduly burden' that development."
+          },
+          {
+            "issueKey": "climate_action",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 85,
+            "rationale": "Section 4 directs the Administrator of the Environmental Protection Agency to take all steps necessary to review the Clean Power Plan and its related rules and guidance for consistency with section 1, and as soon as practicable to suspend, revise or rescind them if appropriate."
+          }
+        ],
+        "_issuesNote": "Both directions here are the same ones the second-term energy documents already carry, and this row does not change either issue's alignment. It is filed because energy and climate are the densest cluster in the file — nine documents between them before this wave, every one of them from the current term and every one of them standing — and a cluster that dense with no Term 45 row is where the mismatch this pass exists to fix was widest. The register records this order as revoked by the succeeding President, so the all-time view of those two issues now holds a document that no longer stands and the current-term view does not.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-03-31",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13783 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/03/31/2017-06576/promoting-energy-independence-and-economic-growth",
+            "note": "Signed March 28, 2017 and published March 31, 2017 at 82 FR 16093. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-20",
+            "authority": "Executive Order 13990 of January 20, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13783 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/03/31/2017-06576/promoting-energy-independence-and-economic-growth",
+            "note": "The disposition note on the register's own record for this document ends: 'Revoked by: EO 13990, January 20, 2021'. The same note records that this order itself revoked Executive Order 13653 of November 1, 2013, which is the shape of the whole exchange and is why it is quoted rather than summarized. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13950",
+        "executiveOrderNumber": 13950,
+        "title": "Combating Race and Sex Stereotyping",
+        "actedAt": "2020-09-22",
+        "publishedAt": "2020-09-28",
+        "term": "45",
+        "frCitation": "85 FR 60683",
+        "frDocumentNumber": "2020-21534",
+        "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
+        "sourceLabel": "Federal Register — Executive Order 13950, 85 FR 60683",
+        "issues": [
+          {
+            "issueKey": "end_dei",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 4 requires every Government contracting agency to write into each new contract a clause providing that 'the contractor shall not use any workplace training that inculcates in its employees any form of race or sex stereotyping or any form of race or sex scapegoating', and then enumerates the concepts that clause covers."
+          }
+        ],
+        "_issuesNote": "This is the third document on this issue and the first from the first term. It is the same direction as the other two and does not change the alignment; what it adds is that the issue's earliest document is one the register records as revoked, and that the contractor-clause mechanism the second-term order uses has a first-term original. NOT filed with a court standing. The order was the subject of a preliminary injunction in the Northern District of California in December 2020, and this pass did not download and read that opinion from a court host — under the rule that only a ruling read in full can support a court token, an unread injunction is not filed at all rather than filed weakly. That is a gap in this row and it is stated rather than papered over.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-09-28",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13950 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
+            "note": "Signed September 22, 2020 and published September 28, 2020 at 85 FR 60683. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-20",
+            "authority": "Executive Order 13985 of January 20, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13950 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
+            "note": "The disposition note on the register's own record for this document reads: 'See: EO 11246, September 24, 1965; EO 14185, January 27, 2025' and 'Revoked by: EO 13985, January 20, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 116-136",
+        "measureNumber": "H.R. 748",
+        "congress": 116,
+        "chamber": "house",
+        "title": "Coronavirus Aid, Relief, and Economic Security Act",
+        "actedAt": "2020-03-27",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/house-bill/748",
+        "sourceLabel": "Congress.gov — H.R. 748, 116th Congress",
+        "_citationNote": "congress.gov is the source of record for a signed law per db/exec-action-types.json and returns HTTP 403 to this environment, so the facts were verified against GPO's PLAW-116publ136 package, downloaded and read in this pass. That package carries '[H.R. 748]' and 'Mar. 27, 2020' on its face and begins at 134 Stat. 281. Section 5001 and section 4003 were read in full.",
+        "issues": [
+          {
+            "issueKey": "cut_spending",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 95,
+            "rationale": "Section 5001 adds a new title VI to the Social Security Act whose section 601(a)(1) provides that 'Out of any money in the Treasury of the United States not otherwise appropriated, there are appropriated for making payments to States, Tribal governments, and units of local government under this section, $150,000,000,000 for fiscal year 2020.' A direct appropriation of new federal money, quoted from the enrolled text rather than characterized from a topline."
+          }
+        ],
+        "_issuesNote": "ONE mapping, and the choice of provision is the whole point. The obvious anchor would have been section 4003(a)'s authority for loans, loan guarantees and other investments that 'do not, in the aggregate, exceed $500,000,000,000' — and it was rejected, because a lending authority is not an outlay and reading one as spending would be the inference this lane refuses. Section 601(a)(1) is an appropriation in the enrolled text's own words, so the direction can be quoted instead of argued. NOT mapped to national_debt, for the reason wave 3 gave for the Rescissions Act and wave 6 gave for the continuing appropriations Act: an appropriation's effect on the debt depends on offsets and outlay timing that appear nowhere in the enrolled text. NOT mapped to healthcare or cost_living either, although divisions of the Act reach both — this pass files the one direction the text states plainly and declines the ones that would need a characterization of the whole Act. NO SHARED-ROW HAZARD: vr_measures held no 116th Congress row before this wave, which was checked before the mapping was written, so nothing here can re-score a member of the roll-call lane through a shared measure.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-03-27",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 116-136, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-116publ136/html/PLAW-116publ136.htm",
+            "note": "Enacted and published as Public Law 116-136, approved March 27, 2020, at 134 Stat. 281. Nothing on file repeals it. Individual time-limited authorities inside the Act ran on their own terms; this row is about the Act, not about any one of them, and the appropriation the mapping quotes was made on enactment. This states that the law exists and stands as published; it is not a statement about any challenge to it."
           }
         ]
       }

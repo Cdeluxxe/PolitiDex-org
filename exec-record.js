@@ -276,10 +276,33 @@
   // authorship, and the summary is the likeliest place that flattening would happen.
   var EXEC_CLASSES = {
     signed_law:      { key: 'signed_law',      verb: 'Signed into law',       authorship: 'shared', label: 'signed into law' },
-    vetoed_law:      { key: 'vetoed_law',      verb: 'Vetoed',                authorship: 'shared', label: 'vetoed' },
+    vetoed_law:      { key: 'vetoed_law',      verb: 'Vetoed',                authorship: 'shared', label: 'vetoed', blocks: true },
     executive_order: { key: 'executive_order', verb: 'Signed Executive Order', authorship: 'sole',  label: 'executive order' },
     directive:       { key: 'directive',       verb: 'Issued a directive',    authorship: 'sole',   label: 'directive' }
   };
+
+  // A BLOCKING CLASS INVERTS ITS MAPPING, and this flag is why. An issue mapping
+  // states what the DOCUMENT does to the issue, because that is what the column means
+  // in the congressional lane it is shared with: vr_measure_issues.support_meaning has
+  // always described the measure. For a signature or an order, the document and the
+  // act point the same way and the distinction never surfaced. For a veto they point
+  // opposite ways — the resolution advances an issue and blocking it does not — so the
+  // direction the mapping carries is the resolution's and the direction this lane
+  // reports has to be the other one. consistency.js has drawn exactly this distinction
+  // since the vocabulary was written (_EXEC_BLOCKS / advanceInverted, applied before
+  // stance-helpers reads the item). This function did not, because for six waves no
+  // row used a blocking class and the two readings could not disagree. The first three
+  // vetoes on file made them disagree: a veto of a resolution terminating a border
+  // emergency was being counted as an action AGAINST border security, next to an order
+  // building the wall, and the issue read "acted both ways" off two documents pointing
+  // the same way. Read the direction through here, not off the mapping.
+  function issueDirection(action, mapping) {
+    var d = mapping && mapping.direction;
+    if (d !== 'advances' && d !== 'opposes') return null;
+    var cls = action && EXEC_CLASSES[action.actionClass];
+    if (!cls || !cls.blocks) return d;
+    return d === 'advances' ? 'opposes' : 'advances';
+  }
 
   var EXEC_SCOPE = {
     key: 'executive', icon: '✒️', label: 'Executive Enactment Record',
@@ -411,7 +434,10 @@
   // Reads the same supportMeaning logic the congressional lane uses, renamed for this
   // lane's vocabulary: a mapping that 'advances' an issue supports it, one that
   // 'opposes' it cuts against it. An omnibus therefore reports both directions from a
-  // single signature, exactly as one vote on H.R. 1 does in the 🏛️ lane.
+  // single signature, exactly as one vote on H.R. 1 does in the 🏛️ lane. The one
+  // departure is a blocking class, where the mapping describes the document and the
+  // act runs the other way — issueDirection() above is where that is resolved, and
+  // res.actions carries both readings so a caller can show its work.
   function executiveIssue(pid, issueKey, opts) {
     var res = {
       scope: 'executive', issueKey: issueKey,
@@ -431,13 +457,17 @@
       for (var j = 0; j < maps.length; j++) {
         var m = maps[j];
         if (!m || m.issueKey !== issueKey) continue;
-        if (m.direction === 'advances') adv++;
-        else if (m.direction === 'opposes') opp++;
+        // The ACT's direction, which for a blocking class is not the mapping's. See
+        // issueDirection() above.
+        var eff = issueDirection(a, m);
+        if (eff === 'advances') adv++;
+        else if (eff === 'opposes') opp++;
         else continue;
         res.actions.push({
           actionClass: a.actionClass, verb: EXEC_CLASSES[a.actionClass].verb,
           documentId: a.documentId || '', title: a.title || '', actedAt: a.actedAt || '',
-          term: a.term || '', direction: m.direction, isPrimary: !!m.isPrimary,
+          term: a.term || '', direction: eff, mappedDirection: m.direction,
+          inverted: eff !== m.direction, isPrimary: !!m.isPrimary,
           sourceUrl: a.sourceUrl, sourceLabel: a.sourceLabel,
           standing: standingOf(a)
         });
@@ -688,6 +718,9 @@
     currentTerm: currentTerm,
     // Per-issue read (Axis A + Axis B). score is always null.
     issue: executiveIssue,
+    // Exposed so the inversion a blocking class applies is testable on its own rather
+    // than only through the token it produces three layers up.
+    issueDirection: issueDirection,
     // Politician-level count summary, or null when nothing is on file / an invariant
     // fails. Never a percentage.
     summary: execSummary,

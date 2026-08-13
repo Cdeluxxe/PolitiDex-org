@@ -1749,6 +1749,323 @@
             "note": "Section 106 of division A provides that the appropriations, funds and authority granted by the Act are available until the first of three events, the last of which is the expiration date of January 30, 2026; section 120(a)'s prohibition on reductions in force runs \"during the period between the date of enactment of this Act and the date specified in section 106(3)\", so it lapsed on that date. Section 120(e) is different in kind and is not what expired: it voided the reductions in force already taken, rescinded the notices and directed back pay, and it had done so before the date above. This row is read from the Act's own text and is not a statement about any challenge to it."
           }
         ]
+      },
+      {
+        "actionClass": "vetoed_law",
+        "documentId": "H.J. Res. 46 (116th Congress)",
+        "measureNumber": "H.J. Res. 46",
+        "congress": 116,
+        "chamber": "house",
+        "title": "Relating to a national emergency declared by the President on February 15, 2019",
+        "actedAt": "2019-03-15",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/house-joint-resolution/46",
+        "sourceLabel": "Congress.gov — H.J. Res. 46, 116th Congress",
+        "issues": [
+          {
+            "issueKey": "border_security",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it: H.J. Res. 46 would have terminated the national emergency related to the U.S.-Mexico border declared on February 15, 2019, which cuts against this issue. The record engine inverts a blocking action, so the veto itself reads the other way — it kept that emergency in place."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2019-03-26",
+            "authority": "The House of Representatives, on the question of passage notwithstanding the objections of the President",
+            "basis": "congressional_action_record",
+            "sourceLabel": "Congress.gov — H.J. Res. 46, 116th Congress, legislative action history",
+            "sourceUrl": "https://www.congress.gov/bill/116th-congress/house-joint-resolution/46/all-actions",
+            "note": "The resolution was returned to the House with the President's objections on March 15, 2019. On March 26, 2019 the House took up passage notwithstanding those objections and did not reach the two-thirds Article I, section 7 requires; the tally was 248 to 181. The resolution therefore never became law and the emergency it would have terminated stayed in place. This states what Congress did with the returned resolution and says nothing about any challenge to the veto or to anything the veto preserved."
+          }
+        ]
+      },
+      {
+        "actionClass": "vetoed_law",
+        "documentId": "S.J. Res. 7 (116th Congress)",
+        "measureNumber": "S.J. Res. 7",
+        "congress": 116,
+        "chamber": "senate",
+        "title": "A joint resolution to direct the removal of United States Armed Forces from hostilities in the Republic of Yemen that have not been authorized by Congress",
+        "actedAt": "2019-04-16",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/7",
+        "sourceLabel": "Congress.gov — S.J. Res. 7, 116th Congress",
+        "issues": [
+          {
+            "issueKey": "restraint",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 7 would have directed the removal of United States Armed Forces from hostilities in the Republic of Yemen that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
+          },
+          {
+            "issueKey": "america_first_fp",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Same inversion applies: the direction is the resolution's. Withdrawing forces from an unauthorized foreign conflict is the ending of an open-ended commitment abroad, which is what the stated position on this issue is about, so the resolution advances it and the veto is read against it."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2019-05-02",
+            "authority": "The Senate, on the question of passage notwithstanding the objections of the President",
+            "basis": "congressional_action_record",
+            "sourceLabel": "Congress.gov — S.J. Res. 7, 116th Congress, legislative action history",
+            "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/7/all-actions",
+            "note": "The resolution was returned to the Senate with the President's objections on April 16, 2019. On May 2, 2019 the Senate failed of passage over the veto, 53 to 45, short of the two-thirds Article I, section 7 requires. The resolution never became law. This states what Congress did with the returned resolution and says nothing about any challenge to the veto."
+          }
+        ]
+      },
+      {
+        "actionClass": "vetoed_law",
+        "documentId": "S.J. Res. 68 (116th Congress)",
+        "measureNumber": "S.J. Res. 68",
+        "congress": 116,
+        "chamber": "senate",
+        "title": "A joint resolution to direct the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that have not been authorized by Congress",
+        "actedAt": "2020-05-06",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68",
+        "sourceLabel": "Congress.gov — S.J. Res. 68, 116th Congress",
+        "issues": [
+          {
+            "issueKey": "restraint",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 68 would have directed the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
+          },
+          {
+            "issueKey": "america_first_fp",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Same inversion applies: the direction is the resolution's. This is the second document on this issue that would have closed off an unauthorized foreign engagement, thirteen months after the first, which is why it is filed rather than treated as the same decision restated."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-05-07",
+            "authority": "The Senate, on the question of passage notwithstanding the objections of the President",
+            "basis": "congressional_action_record",
+            "sourceLabel": "Congress.gov — S.J. Res. 68, 116th Congress, legislative action history",
+            "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68/all-actions",
+            "note": "The resolution was returned to the Senate with the President's objections on May 6, 2020. On May 7, 2020 the Senate failed of passage over the veto, 49 to 44, short of the two-thirds Article I, section 7 requires. The resolution never became law. This states what Congress did with the returned resolution and says nothing about any challenge to the veto."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13765",
+        "executiveOrderNumber": 13765,
+        "title": "Minimizing the Economic Burden of the Patient Protection and Affordable Care Act Pending Repeal",
+        "actedAt": "2017-01-20",
+        "publishedAt": "2017-01-24",
+        "term": "45",
+        "frCitation": "82 FR 8351",
+        "frDocumentNumber": "2017-01799",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/01/24/2017-01799/minimizing-the-economic-burden-of-the-patient-protection-and-affordable-care-act-pending-repeal",
+        "sourceLabel": "Federal Register — Executive Order 13765, 82 FR 8351",
+        "issues": [
+          {
+            "issueKey": "healthcare",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 1 states the policy of seeking the prompt repeal of the Patient Protection and Affordable Care Act, and section 2 directs the Secretary of Health and Human Services and every other agency with authority under the Act to 'waive, defer, grant exemptions from, or delay the implementation of' any provision imposing a cost, fee, tax, penalty or regulatory burden. Narrowing the reach of the coverage law is what this direction means on this issue."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-01-24",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13765 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/24/2017-01799/minimizing-the-economic-burden-of-the-patient-protection-and-affordable-care-act-pending-repeal",
+            "note": "Signed January 20, 2017 and published January 24, 2017 at 82 FR 8351. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-28",
+            "authority": "Executive Order 14009 of January 28, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13765 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/24/2017-01799/minimizing-the-economic-burden-of-the-patient-protection-and-affordable-care-act-pending-repeal",
+            "note": "The disposition note on the register's own record for this document reads, in full: 'Revoked by: EO 14009, January 28, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13767",
+        "executiveOrderNumber": 13767,
+        "title": "Border Security and Immigration Enforcement Improvements",
+        "actedAt": "2017-01-25",
+        "publishedAt": "2017-01-30",
+        "term": "45",
+        "frCitation": "82 FR 8793",
+        "frDocumentNumber": "2017-02095",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/01/30/2017-02095/border-security-and-immigration-enforcement-improvements",
+        "sourceLabel": "Federal Register — Executive Order 13767, 82 FR 8793",
+        "issues": [
+          {
+            "issueKey": "border_security",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 95,
+            "rationale": "Section 2(a) sets as the policy of the executive branch to secure the southern border 'through the immediate construction of a physical wall on the southern border, monitored and supported by adequate personnel', and section 3(e) defines that wall as a contiguous, impassable physical barrier."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-01-30",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13767 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/30/2017-02095/border-security-and-immigration-enforcement-improvements",
+            "note": "Signed January 25, 2017 and published January 30, 2017 at 82 FR 8793. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-02-02",
+            "authority": "Executive Order 14010 of February 2, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13767 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/01/30/2017-02095/border-security-and-immigration-enforcement-improvements",
+            "note": "The disposition note on the register's own record for this document reads, in full: 'Revoked by: EO 14010, February 2, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13783",
+        "executiveOrderNumber": 13783,
+        "title": "Promoting Energy Independence and Economic Growth",
+        "actedAt": "2017-03-28",
+        "publishedAt": "2017-03-31",
+        "term": "45",
+        "frCitation": "82 FR 16093",
+        "frDocumentNumber": "2017-06576",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/03/31/2017-06576/promoting-energy-independence-and-economic-growth",
+        "sourceLabel": "Federal Register — Executive Order 13783, 82 FR 16093",
+        "issues": [
+          {
+            "issueKey": "energy_production",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 1(c) makes it the policy of the United States that agencies immediately review existing regulations that potentially burden the development or use of domestically produced energy resources and 'appropriately suspend, revise, or rescind those that unduly burden' that development."
+          },
+          {
+            "issueKey": "climate_action",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 85,
+            "rationale": "Section 4 directs the Administrator of the Environmental Protection Agency to take all steps necessary to review the Clean Power Plan and its related rules and guidance for consistency with section 1, and as soon as practicable to suspend, revise or rescind them if appropriate."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-03-31",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13783 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/03/31/2017-06576/promoting-energy-independence-and-economic-growth",
+            "note": "Signed March 28, 2017 and published March 31, 2017 at 82 FR 16093. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-20",
+            "authority": "Executive Order 13990 of January 20, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13783 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/03/31/2017-06576/promoting-energy-independence-and-economic-growth",
+            "note": "The disposition note on the register's own record for this document ends: 'Revoked by: EO 13990, January 20, 2021'. The same note records that this order itself revoked Executive Order 13653 of November 1, 2013, which is the shape of the whole exchange and is why it is quoted rather than summarized. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13950",
+        "executiveOrderNumber": 13950,
+        "title": "Combating Race and Sex Stereotyping",
+        "actedAt": "2020-09-22",
+        "publishedAt": "2020-09-28",
+        "term": "45",
+        "frCitation": "85 FR 60683",
+        "frDocumentNumber": "2020-21534",
+        "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
+        "sourceLabel": "Federal Register — Executive Order 13950, 85 FR 60683",
+        "issues": [
+          {
+            "issueKey": "end_dei",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 4 requires every Government contracting agency to write into each new contract a clause providing that 'the contractor shall not use any workplace training that inculcates in its employees any form of race or sex stereotyping or any form of race or sex scapegoating', and then enumerates the concepts that clause covers."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-09-28",
+            "authority": "Signed by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13950 document record",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
+            "note": "Signed September 22, 2020 and published September 28, 2020 at 85 FR 60683. Unrevoked as of that date on the register's own disposition record. This is a statement about the register's record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-20",
+            "authority": "Executive Order 13985 of January 20, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13950 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
+            "note": "The disposition note on the register's own record for this document reads: 'See: EO 11246, September 24, 1965; EO 14185, January 27, 2025' and 'Revoked by: EO 13985, January 20, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 116-136",
+        "measureNumber": "H.R. 748",
+        "congress": 116,
+        "chamber": "house",
+        "title": "Coronavirus Aid, Relief, and Economic Security Act",
+        "actedAt": "2020-03-27",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/house-bill/748",
+        "sourceLabel": "Congress.gov — H.R. 748, 116th Congress",
+        "issues": [
+          {
+            "issueKey": "cut_spending",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 95,
+            "rationale": "Section 5001 adds a new title VI to the Social Security Act whose section 601(a)(1) provides that 'Out of any money in the Treasury of the United States not otherwise appropriated, there are appropriated for making payments to States, Tribal governments, and units of local government under this section, $150,000,000,000 for fiscal year 2020.' A direct appropriation of new federal money, quoted from the enrolled text rather than characterized from a topline."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-03-27",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 116-136, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-116publ136/html/PLAW-116publ136.htm",
+            "note": "Enacted and published as Public Law 116-136, approved March 27, 2020, at 134 Stat. 281. Nothing on file repeals it. Individual time-limited authorities inside the Act ran on their own terms; this row is about the Act, not about any one of them, and the appropriation the mapping quotes was made on enactment. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          }
+        ]
       }
     ]
   };
