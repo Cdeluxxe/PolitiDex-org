@@ -40,6 +40,13 @@
         "partlyBlocked": { "label": "partly blocked in court", "token": "partly_blocked", "contested": true },
         "blocked": { "label": "blocked by court order", "token": "blocked", "contested": true },
         "struckDown": { "label": "struck down", "token": "struck_down", "contested": true },
+        "overridden": {
+          "label": "overridden by Congress",
+          "token": "overridden",
+          "contested": true,
+          "_why": "The standing a veto gets when the veto did not hold. A veto is a blocking action, so its standing answers one question — did the measure it blocked ever become law — and before this token the only filing available was `in_force`, which for a veto asserts that the veto held. When both chambers pass the measure over the objections of the President under Article I, section 7, that assertion is false and the measure is law. No other token can carry it: `blocked` and `struckDown` name a court, `rescinded` names the President reversing himself, `superseded` names a later presidential action. The actor is part of the claim, which is why the label names Congress rather than reading a bare 'overridden'.",
+          "_useRule": "Only for a blocking-class action (vetoed_law) where the chamber records show the measure was passed over the objections of the President in BOTH chambers and the enrolled text was published as law. Basis: congressional_action_record. It is never a statement about whether the measure was good policy and never a win or a loss on the measure's subject — Axis A already reports the direction of the act; this axis reports only what became of it."
+        },
         "rescinded": { "label": "rescinded", "token": "rescinded", "contested": true },
         "challengedUnverified": {
           "label": "challenged in court — no ruling on file",
@@ -70,7 +77,7 @@
   "thinRecordMax": 2,
   "_thinRecordWhy": "One or two actions cannot carry a pattern. Adopted from _orMappedSummaryText, which already appends 'so far — still a thin record' at low N so a count does not read as depth it does not have.",
 
-  "standingAlwaysVisibleWhen": ["partlyBlocked", "blocked", "struckDown", "rescinded", "challengedUnverified"],
+  "standingAlwaysVisibleWhen": ["partlyBlocked", "blocked", "struckDown", "overridden", "rescinded", "challengedUnverified"],
   "_standingAlwaysVisibleWhy": "If any action is contested, the standing clause survives into EVERY rendering including the most compact chip. A summary showing only alignment implies the whole record is operative — the exact failure the second axis exists to prevent, reintroduced at the aggregate level after being solved at the card level. challengedUnverified is on this list for the same reason it is `contested`: dropping it would leave the compact rendering saying 'in force' about a record with a live unresolved challenge in it.",
 
   "defaultTermScope": "current_term",

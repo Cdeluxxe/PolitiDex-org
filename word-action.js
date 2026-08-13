@@ -94,7 +94,24 @@
     icon: '⚖️',
     label: 'Word vs Action',
     question: 'Do they stand by what they said?',
-    metric: 'Stood by their word',
+    // WHAT THE NUMBER IS CALLED, AND WHAT IT IS NOT ────────────────────────────
+    // The caption under the numeral used to read "Stood by their word". Read fast,
+    // beside a large green percentage, that is a report card: a reader takes it as
+    // "most of what they did was good", and nothing on the card contradicts them.
+    // What the arithmetic actually measures is narrower and stranger than that —
+    // whether their formal actions pointed the SAME DIRECTION as the positions they
+    // stated. An action can point the right way and be struck down a week later; a
+    // policy can match its promise exactly and be a disaster. Both of those score
+    // the same here, and they should, because direction is the only thing a
+    // stated position can be checked against.
+    //   So the metric is named for what it is, and the two lines under it exist to
+    // close the gap a percentage always opens: what it means, and what it does not
+    // claim. `notClaim` is not a disclaimer bolted on for safety — it is the
+    // shortest way to stop a high number being read as three other findings the
+    // app never made.
+    metric: 'Direction match',
+    means: 'How often their formal record pointed the same way as the positions they stated.',
+    notClaim: 'It is not an approval rating, not an outcome score, and not a measure of whether any of it worked or held up.',
     // The hero ring has room for two short lines and no more, and this caption is
     // the only text a reader gets beside the percentage. It used to read "Kept
     // word" — plain English, but a SECOND NAME for the one number, printed in the
@@ -509,7 +526,42 @@
   }
 
   // ── THE READ ───────────────────────────────────────────────────────────────
-  function read(pid, p) {
+  // SCOPE. `opts.termScope` selects which slice of the ✒️ executive lane the ACTION
+  // side is drawn from — 'all_time' (the default, and the number every headline
+  // surface prints) or 'current_term'. It changes nothing about the arithmetic: the
+  // tiers, the weights, the evidence cap, the Mixed gate and both floors are the same
+  // function of whatever record is in scope. The ONLY thing it selects is which formal
+  // actions exist to be tested against.
+  //
+  // For every figure outside the executive lane the two scopes are the same read —
+  // roll-call records carry no term scope — so this parameter is inert on the vast
+  // majority of profiles and is not worth a second call there. `scopedRead()` below is
+  // the one place that decides whether a second scope is worth computing.
+  function read(pid, p, opts) {
+    var want = (opts && opts.termScope) || null;
+    var cs = C();
+    var runner = cs && cs.execActions && typeof cs.execActions.withScope === 'function'
+      ? cs.execActions.withScope : null;
+    // No engine, or no scope asked for: run against whatever the engine's own default
+    // is. That default is 'all_time' — see consistency.js EXEC_SCOPE_DEFAULT — so the
+    // unscoped call and the explicitly-all-time call are the same read, and a caller
+    // that never heard of scopes still gets the full formal record.
+    if (!want || !runner) return _read(pid, p, want);
+    return runner(want, function () { return _read(pid, p, want); });
+  }
+
+  // What scope a read was actually taken at, as the descriptor object the surfaces
+  // label with. Asked of the engine rather than assumed, so the label can never claim
+  // a scope the read did not use.
+  function scopeOf(want) {
+    var cs = C();
+    var S = cs && cs.execActions && cs.execActions.SCOPES;
+    if (!S) return null;
+    if (want && S[want]) return S[want];
+    try { return cs.execActions.scope(); } catch (e) { return null; }
+  }
+
+  function _read(pid, p, want) {
     var items = wordLedger(pid, p);
     var tested = [], untested = [];
     var counts = { consistent: 0, contradicts: 0, mixed: 0, limited: 0 };
@@ -587,6 +639,10 @@
       frame: FRAME,
       pct: pct, token: token, outcomeToken: outcomeToken, verdict: verdict,
       publishable: publishable,
+      // Which slice of the formal record this number was taken from. Always present,
+      // so no surface has to infer it and none can print a percentage without being
+      // able to say what it counts.
+      termScope: scopeOf(want),
       items: items, tested: tested, untested: untested,
       counts: counts, tiers: tiers,
       testedWeight: wN,
@@ -610,6 +666,48 @@
     var hit = null;
     all.items.forEach(function (it) { if (!hit && it.issueKey === issueKey) hit = it; });
     return hit;
+  }
+
+  // ── BOTH SCOPES, ONE CALL ──────────────────────────────────────────────────
+  // The main read plus — for a figure who is SERVING NOW — the current-term slice of
+  // it. Two rules decide whether the slice exists, and both are about not printing a
+  // second number that means nothing:
+  //
+  //   · Not an executive lane → there is no term scope to slice by. A member's
+  //     roll-call record is not filtered by term here, so a "current term" read would
+  //     be the identical number under a different label: two figures, one fact, and a
+  //     reader invited to look for the difference between them.
+  //   · Not serving → "current term" is last term. The all-time read already contains
+  //     it in full, and labelling history as the live slice is the specific dishonesty
+  //     requirement 3 exists to prevent. The slice collapses; the main number, which
+  //     is the whole record, is unaffected.
+  //
+  // `differs` is computed rather than assumed. A sitting president in their first term
+  // has an identical all-time and current-term record, and a secondary number sitting
+  // under the main one showing the same figure implies a comparison the data does not
+  // support. Surfaces use this to decide whether to print the slice as a contrast or
+  // as a confirmation — never to hide it, which would leave a reader unable to tell
+  // "the same" from "not shown".
+  function scopedRead(pid, p) {
+    var main = read(pid, p, { termScope: 'all_time' });
+    var out = {
+      main: main, current: null,
+      scope: main.termScope,
+      lane: isExecLane(pid) ? 'exec' : 'record',
+      serving: false, applicable: false, term: null, differs: false, delta: null
+    };
+    if (out.lane !== 'exec') return out;
+    var cs = C();
+    try { out.serving = !!(cs && cs.execActions && cs.execActions.serving(pid)); } catch (e) { out.serving = false; }
+    if (!out.serving) return out;
+    out.applicable = true;
+    try { out.term = (cs.execActions.currentTerm && cs.execActions.currentTerm(pid)) || null; } catch (e) { out.term = null; }
+    out.current = read(pid, p, { termScope: 'current_term' });
+    var a = main.pct, b = out.current.pct;
+    out.differs = (a !== b) || (main.token !== out.current.token) ||
+                  (main.tested.length !== out.current.tested.length);
+    if (typeof a === 'number' && typeof b === 'number') out.delta = b - a;
+    return out;
   }
 
   // ── CONNECTING THE DOTS ────────────────────────────────────────────────────
@@ -823,6 +921,24 @@
            'The tested items are shown below; the number waits until the record is deep enough to carry it.';
   }
 
+  // ── WHAT THE PERCENTAGE MEANS, AND WHAT IT DOES NOT CLAIM ──────────────────
+  // Two sentences, full width, directly under the number they qualify. It is
+  // deliberately NOT inside the drawer with the rest of the method: a reader who
+  // never opens a drawer is exactly the reader who over-reads a large green
+  // figure, and the sentence that stops them has to be on the same screen as the
+  // figure. It renders only where a percentage rendered — below the floors there
+  // is no number to over-read, and thinCopy already says what is missing.
+  function meansHtml(hasPct) {
+    if (!hasPct) return '';
+    return '' +
+      '<p class="pdxwa-means">' +
+        '<span class="pdxwa-means-k">What this measures</span>' +
+        '<span class="pdxwa-means-v">' + esc(FRAME.means) +
+          '<span class="pdxwa-means-not">' + esc(FRAME.notClaim) + '</span>' +
+        '</span>' +
+      '</p>';
+  }
+
   // Whether this figure's "did" side is the ✒️ executive record rather than roll
   // calls. Asked of consistency.js, which owns the office gate, so this file never
   // keeps a second list of who is a president. Guarded: a page that loads
@@ -844,6 +960,22 @@
   // the wrong lane cannot be checked by the reader against what they can see.
   function methodHtml(r, pid) {
     var ex = isExecLane(pid);
+    // WHICH RECORD THE NUMBER IS OVER. On the executive lane this is a real choice
+    // — a president has more than one term of formal actions on file — and the
+    // choice used to be made silently, in favour of the term now being served. It
+    // is stated here, in the same drawer that states every other rule, because a
+    // percentage whose scope is unstated is a percentage a reader cannot check.
+    // The wording matches the card: "the whole record, every term" is the phrase
+    // the slice above uses too, so a reader who opens this drawer to check the
+    // strip they just read meets the same sentence rather than a second theory.
+    var scopeP = ex
+      ? '<p><b>The record counted</b> is the whole one: every formal action on file, across every term in ' +
+        'office. A president who signed something in one term and undid it in the next has both on this ' +
+        'card, and the number weighs both. For someone serving now, the term being served is also shown on ' +
+        'its own, just under the score — the same word, tested against that one term’s actions. It is part of ' +
+        'the whole record, not a rival to it, and the two can read differently because the whole record has ' +
+        'more action behind it to test the same word against.</p>'
+      : '';
     return '' +
       '<details class="pdxwa-method">' +
         '<summary>How this is counted</summary>' +
@@ -867,6 +999,21 @@
             'from the number and reported as coverage instead — they are not counted against anyone.</p>' +
           '<p><b>Nothing is inferred.</b> An issue with ' + (ex ? 'actions' : 'votes') + ' but no documented word produces no item, and an item counts as ' +
             'going against their word only when the Official Record’s own verdict for that issue says so.</p>' +
+          // THE NON-CLAIM, AT LENGTH. The card states it in one line; this is the
+          // same statement with the reasoning attached, because "not an outcome
+          // score" is the kind of sentence a reader believes only once they can see
+          // WHY the two come apart. The two examples are the two directions the
+          // mistake runs in: a matched action that did not survive, and a matched
+          // action nobody thinks worked.
+          '<p><b>What this is not.</b> It is a direction match and nothing more. It does not say a policy was ' +
+            'popular, that it achieved what it set out to, or that it is still standing today — ' +
+            (ex ? 'an order can be signed exactly as promised and struck down the month after, and the direction it pointed in does not change either way. '
+                : 'a position can be backed exactly as stated and go nowhere afterwards, and the direction it pointed in does not change either way. ') +
+            (ex ? 'Where the standing of a supporting action is contested — blocked, struck down, overridden, rescinded or under an unresolved challenge — the issue row below says so beside its verdict rather than in place of it. '
+                : '') +
+            'A record that reads as one long agreement is a fact about the record, not a grade for it: the ' +
+            'issue-by-issue composition above the rows is there so the shape behind the average is visible.</p>' +
+          scopeP +
         '</div>' +
       '</details>';
   }
@@ -1029,6 +1176,100 @@
     var one = (row.lane === 'exec') ? 'executive action' : 'vote';
     return n + ' ' + one + (n === 1 ? '' : 's');
   }
+
+  // ── ONE RANKED ROW SET, THREE SURFACES ─────────────────────────────────────
+  // The composition strip, the top rows and the outcomes block all describe the
+  // same set of issues. Each used to fetch and rank it separately, which is three
+  // chances for the strip to count an issue the rows below it do not show. Guarded
+  // exactly as the callers were: no row model, no block.
+  function rankedRows(pid) {
+    var CS = window.PDXConsistency;
+    if (!CS || typeof CS.issueRows !== 'function' || typeof CS.rankIssueRows !== 'function') return null;
+    try { return CS.rankIssueRows(CS.issueRows(pid)); } catch (e) { return null; }
+  }
+
+  // ── AXIS B ON THE ROW — where the supporting action STANDS ─────────────────
+  // The ✒️ executive lane resolves two independent questions about one document,
+  // and this file was printing only the first. Axis A is direction: did the action
+  // point the same way as the word? Axis B is standing: is that action in force,
+  // blocked, struck down, overridden, rescinded, superseded, expired, or under a
+  // challenge nobody has resolved? A row that says "Backed it up" off an order a
+  // court enjoined last spring is answering A honestly and saying nothing about B —
+  // and a reader who cannot see B reads the row as an unqualified win.
+  //
+  // The precedence is COPIED FROM exec-record.js's executiveIssue(), deliberately
+  // and with the same comment attached to it there: the most contested standing
+  // among the actions behind an issue is the one the issue is presented at, so an
+  // issue is never shown as settled while one of its orders is enjoined. It is
+  // read off the row's own pool rather than recomputed, so this surface cannot
+  // disagree with the Executive Enactment Record about where an order stands.
+  var STANDING_ORDER = ['struck_down', 'overridden', 'blocked', 'partly_blocked', 'rescinded',
+                        'challenged_unverified', 'superseded', 'expired', 'in_force'];
+  function rowStanding(r) {
+    try {
+      if (!r || r.lane !== 'exec') return null;
+      var E = window.PDXExecRecord;
+      if (!E || !E.STANDING) return null;
+      var pool = r.ov && (r.ov.execPool || r.ov.execHeld);
+      var items = (pool && pool.items) || [];
+      if (!items.length) return null;
+      for (var i = 0; i < STANDING_ORDER.length; i++) {
+        for (var j = 0; j < items.length; j++) {
+          if (items[j].standing === STANDING_ORDER[i]) return E.STANDING[STANDING_ORDER[i]] || null;
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  // What the standing means, said once per token so no surface has to paraphrase
+  // it. Note what these sentences do NOT say: nothing about direction. Direction is
+  // the verdict chip's job and it is already on the row — a standing line that also
+  // asserted "the direction matched" would be false on a contradicting row and
+  // would be printing the same claim twice on an agreeing one.
+  var STANDING_SAY = {
+    struck_down:           'A court struck down an action behind this row.',
+    overridden:            'Congress overrode an action behind this row.',
+    blocked:               'A court has blocked an action behind this row.',
+    partly_blocked:        'A court has blocked part of an action behind this row.',
+    rescinded:             'An action behind this row was later rescinded.',
+    challenged_unverified: 'An action behind this row is under a challenge that is not resolved.',
+    superseded:            'A later action has superseded one of the actions behind this row.',
+    expired:               'An action behind this row has lapsed or expired.',
+    in_force:              'The actions behind this row are on file and in force.'
+  };
+  // THE PAIRED SIGNAL, IN ONE CLAUSE. Requirement: stop forcing one chip to carry
+  // both meanings. This is the sentence that separates them — and it is appended
+  // only where the two answers actually come apart, because telling a reader that
+  // "what was done and whether it held are different questions" under a row where
+  // both are clean is furniture.
+  function standingLine(st) {
+    if (!st) return '';
+    var say = STANDING_SAY[st.key] || st.label;
+    return (st.ico ? st.ico + ' ' : '') + say +
+      (st.contested ? ' What they did and whether it held are two different questions; the verdict beside this row answers the first only.' : '');
+  }
+  function isContested(r) { var st = rowStanding(r); return !!(st && st.contested); }
+  // A row resting on ONE sourced item. `strength` is the row model's own word for
+  // it (PDXConsistency._EV_STRENGTH), so this file adds no second definition of
+  // thin — it only makes the existing one impossible to scroll past.
+  function isThin(r) { return !!(r && r.evidence && r.evidence.strength === 'thin'); }
+  // Tension is not only disagreement. A row that agrees with the word on the
+  // strength of an action a court has since struck down is not a clean win either,
+  // and ranking it behind three uncontested agreements is how a contested record
+  // ends up reading as a calm one.
+  function isTension(r) {
+    var t = r && r.verdict && r.verdict.token;
+    return t === 'contradicts' || t === 'mixed' || isContested(r);
+  }
+  // The two friction chips a row can carry, beside its verdict rather than instead
+  // of it. Short and uniform on purpose: the detail is one line down, and a chip
+  // long enough to need its own line stops being a chip.
+  function flagsHtml(r, cls) {
+    var out = '';
+    if (isContested(r)) out += '<span class="' + cls + ' ' + cls + '-x">Standing contested</span>';
+    if (isThin(r)) out += '<span class="' + cls + ' ' + cls + '-thin">Thin evidence</span>';
+    return out;
+  }
   // What tested this row, in the row's own terms. A row resolved on the formal record
   // counts the formal record; a row the formal record could not test counts the public
   // record instead and says so. Only one of the two is ever printed, because only one
@@ -1058,18 +1299,26 @@
   }
   function topRowsHtml(pid) {
     try {
-      var C = window.PDXConsistency;
-      if (!C || typeof C.issueRows !== 'function' || typeof C.rankIssueRows !== 'function') return '';
-      var ranked = C.rankIssueRows(C.issueRows(pid));
+      var ranked = rankedRows(pid);
+      if (!ranked) return '';
       // Tested rows only, and only rows whose SAID side can actually be printed. A
       // "said, no record yet" row is coverage, and leading the one score with a
       // coverage gap is precisely the ordering this pass removed from the Official
       // Record — it should not reappear one section higher up. A row with a verdict
       // but no quotable position is the mirror problem: "Backs it up / No position
       // stated" is not a Said → Did → Verdict chain, it is two thirds of one.
-      var top = ranked.filter(function (r) {
+      var elig = ranked.filter(function (r) {
         return r.tested && r.evidence.total > 0 && !!r.stance.label;
-      }).slice(0, TOP_ROWS_MAX);
+      });
+      // TENSION FIRST, INCLUDING CONTESTED TENSION. rankIssueRows already floats
+      // contradictions and mixed results into tier 0, so half of this was true
+      // before. What it could not know about is Axis B: a row that agrees with the
+      // word on the strength of an order a court struck down ranks as a clean win
+      // and, with three green rows above it, never appears at all. This is a stable
+      // partition rather than a re-sort — inside each half the existing rank order
+      // is untouched, so nothing is reordered except across the tension boundary.
+      var top = elig.filter(isTension).concat(elig.filter(function (r) { return !isTension(r); }))
+                    .slice(0, TOP_ROWS_MAX);
       if (!top.length) return '';
       var rows = top.map(function (r) {
         var col = r.verdict.color || '#9fb4d4';
@@ -1088,8 +1337,16 @@
         var saidTxt = r.stance.text ? String(r.stance.text) : '';
         if (saidTxt.length > 150) saidTxt = saidTxt.slice(0, 147).replace(/\s+\S*$/, '') + '…';
         var said = r.stance.label + (saidTxt ? ' — ' + saidTxt : '');
+        // FRICTION IS A CHANGE OF LINE, NOT A CHANGE OF COLOUR. The spine keeps the
+        // issue's colour — that vocabulary is load-bearing everywhere else on the
+        // card and recolouring it here would break the one thing it promises. What
+        // changes is the stroke: solid for a settled row, dotted where the standing
+        // is contested, dashed where the whole row rests on one item. A reader
+        // scanning a stack sees the unbroken ones as unbroken.
+        var friction = (isContested(r) ? ' pdxwa-row-x' : '') + (isThin(r) ? ' pdxwa-row-thin' : '');
+        var st = rowStanding(r);
         return '' +
-          '<li class="pdxwa-row' + skin.cls + '" style="--pdxwa-col:' + col + ';' + skin.style + '">' +
+          '<li class="pdxwa-row' + skin.cls + friction + '" style="--pdxwa-col:' + col + ';' + skin.style + '">' +
             '<div class="pdxwa-row-h">' +
               '<span class="pdxwa-row-issue">' +
                 (skin.on ? '<span class="pdxwa-row-dot" aria-hidden="true"></span>' : '') +
@@ -1097,13 +1354,26 @@
               '<span class="pdxwa-row-verdict" style="color:' + col + ';">' +
                 esc((r.verdict.ico || '') + ' ' + (r.verdict.label || '')) + '</span>' +
             '</div>' +
+            // The flags sit under the verdict, not inside it. The verdict answers
+            // "which direction"; these answer "how much weight will it carry" —
+            // one chip trying to say both is what made a struck-down order read
+            // as an unqualified win.
+            (flagsHtml(r, 'pdxwa-row-flag') ? '<div class="pdxwa-row-flags">' + flagsHtml(r, 'pdxwa-row-flag') + '</div>' : '') +
             '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Said</span>' +
               '<span class="pdxwa-row-v">' + esc(said) + '</span></div>' +
             '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Did</span>' +
               '<span class="pdxwa-row-v">' + esc(_didLine(r)) + '</span></div>' +
+            // Axis B, said in words, on the row it qualifies. Only where there is a
+            // standing to report — a member's row has no such axis and inherits
+            // nothing from this.
+            (st
+              ? '<div class="pdxwa-row-step pdxwa-row-standing"><span class="pdxwa-row-k">Standing</span>' +
+                  '<span class="pdxwa-row-v">' + esc(standingLine(st)) + '</span></div>'
+              : '') +
             '<div class="pdxwa-row-step"><span class="pdxwa-row-k">Receipts</span>' +
               '<span class="pdxwa-row-v">' + esc(r.evidence.total + ' sourced item' + (r.evidence.total === 1 ? '' : 's') +
-                ' · ' + r.evidence.strength + ' evidence') + '</span></div>' +
+                ' · ' + r.evidence.strength + ' evidence' +
+                (isThin(r) ? ' — this row rests on one item' : '')) + '</span></div>' +
             (_setAsideLine(r)
               ? '<div class="pdxwa-row-step pdxwa-row-aside"><span class="pdxwa-row-k">Counter</span>' +
                   '<span class="pdxwa-row-v">' + esc(_setAsideLine(r)) + '</span></div>'
@@ -1133,12 +1403,22 @@
   // of its own, one line per issue — the receipts stay one tap away in the Official
   // Record row and the Evidence drawer rather than being reprinted here at full depth,
   // which is where the old section's height came from.
+  // `short` exists for the composition strip only. The full labels are sentences
+  // because they head a group a reader has stopped to read; the strip is four chips
+  // beside a number and has to survive a 360px screen, so each outcome also carries
+  // the shortest noun that still means the same thing. Same tokens, same colours —
+  // one vocabulary, printed at two lengths, so the strip can never name a bucket
+  // the section below it does not have.
   var OUTCOMES = [
-    { token: 'contradicts', label: 'Says one thing, does another', col: '#f89b9b' },
-    { token: 'mixed',       label: 'Mixed',                        col: '#93c5fd' },
-    { token: 'consistent',  label: 'Backed it up',                 col: '#6ee7a0' },
-    { token: 'limited',     label: 'Not enough record yet',        col: '#9fb4d4' }
+    { token: 'contradicts', label: 'Says one thing, does another', short: 'Contradicted', col: '#f89b9b' },
+    { token: 'mixed',       label: 'Mixed',                        short: 'Mixed',        col: '#93c5fd' },
+    { token: 'consistent',  label: 'Backed it up',                 short: 'Backed up',    col: '#6ee7a0' },
+    { token: 'limited',     label: 'Not enough record yet',        short: 'Thin record',  col: '#9fb4d4' }
   ];
+  // The strip reads worst-first for the same reason the rows do: a reader who stops
+  // after the first chip should have stopped on the sharpest thing on file, not on
+  // the largest. OUTCOMES is already in that order and the strip follows it.
+  var COMP_ORDER = ['contradicts', 'mixed', 'consistent', 'limited'];
   // A TOKEN SET, not a count of groups. "The first two live groups" quietly promoted
   // whatever survived: a figure with no contradictions and no mixed rows had both
   // remaining buckets opened, including the "not enough record yet" pile that exists
@@ -1146,6 +1426,112 @@
   // never promote a folded one — with one fallback, below, so the block is never
   // nothing but a fold header.
   var OUTCOME_OPEN = { contradicts: 1, mixed: 1 };
+
+  // ── ONE BUCKETING, TWO SURFACES ────────────────────────────────────────────
+  // The composition strip and the outcomes section must agree about what counts,
+  // or the strip becomes a fifth opinion on the record. Both now read this. The two
+  // exclusions are the ones outcomesHtml has always applied, moved rather than
+  // rewritten: an outcome we do not name is not counted, and a "not enough record
+  // yet" row with nothing stated is coverage — an issue we track and they have not
+  // spoken on — which is a gap in the map, not a shape in the record.
+  function outcomeBuckets(pid) {
+    var ranked = rankedRows(pid);
+    if (!ranked) return null;
+    var b = { buckets: {}, total: 0, contested: 0, contestedClean: 0, thin: 0, tension: 0, ranked: ranked };
+    ranked.forEach(function (r) {
+      if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
+      if (!r.stance.label && r.verdict.token === 'limited') return;
+      (b.buckets[r.verdict.token] = b.buckets[r.verdict.token] || []).push(r);
+      b.total++;
+      if (isThin(r)) b.thin++;
+      if (isContested(r)) {
+        b.contested++;
+        // The row this whole pass exists for: the word and the action pointed the
+        // same way, and the action did not survive. Counted separately because it
+        // is invisible in every other tally on the card — it lands in the green
+        // bucket, it raises the mean, and nothing about it is disputed except
+        // whether it still stands.
+        if (r.verdict.token === 'consistent') b.contestedClean++;
+      }
+      if (isTension(r)) b.tension++;
+    });
+    return b.total ? b : null;
+  }
+
+  // ── THE SHAPE BEHIND THE AVERAGE ───────────────────────────────────────────
+  // A mean is a single number standing in for a distribution, and the distributions
+  // it hides are not equally interesting. "82%" off eleven issues that all agree is
+  // a different finding from "82%" off eleven issues where two flatly contradict —
+  // and on this card, until now, they printed identically. This strip is the whole
+  // fix: the same issues the section below judges, counted by outcome, next to the
+  // number they produced.
+  //
+  // WHY COUNTS AND NOT PERCENTAGES. A second percentage beside the first is a second
+  // score, and a reader will subtract them. These are counts, and the bar is drawn
+  // with flex-grow off those counts, so the strip is a picture of a set rather than
+  // a rival measurement of it.
+  //
+  // WHY IT CAN DISAGREE WITH THE PERCENTAGE, AND SAYS SO. The score weighs statements
+  // by testability; the strip counts issues. Six thin issues and one dense one are
+  // seven chips and nothing like seven equal contributions to the mean. The
+  // clarifier line is not hedging — without it the two numbers look like an
+  // arithmetic error, and a reader who spots one stops believing both.
+  function compositionHtml(pid) {
+    try {
+      var b = outcomeBuckets(pid);
+      // Below two issues there is no composition to show — one chip under a
+      // percentage is not a distribution, it is the percentage again.
+      if (!b || b.total < 2) return '';
+      var live = COMP_ORDER.map(function (t) {
+        var o = OUTCOMES.filter(function (x) { return x.token === t; })[0];
+        return { o: o, n: (b.buckets[t] || []).length };
+      }).filter(function (x) { return x.n > 0; });
+      if (!live.length) return '';
+      var bar = live.map(function (x) {
+        return '<span class="pdxwa-comp-seg" style="flex-grow:' + x.n + ';background:' + x.o.col + ';"' +
+          ' title="' + esc(x.n + ' ' + x.o.short.toLowerCase()) + '"></span>';
+      }).join('');
+      var chips = live.map(function (x) {
+        return '<li class="pdxwa-comp-i">' +
+            '<span class="pdxwa-comp-n" style="color:' + x.o.col + ';">' + x.n + '</span>' +
+            '<span class="pdxwa-comp-lbl">' + esc(x.o.short) + '</span>' +
+          '</li>';
+      }).join('');
+      // The one sentence a high, calm-looking record most needs printed on it.
+      // Worst-first: a contested-but-matching row is the subtlest of these and the
+      // easiest to lose, so it is said in its own clause rather than folded into a
+      // count of "issues with something wrong".
+      var notes = [];
+      if (b.tension) {
+        notes.push(b.tension + ' of these ' + b.total + ' issue' + (b.total === 1 ? '' : 's') +
+          ' carr' + (b.tension === 1 ? 'ies' : 'y') + ' tension — a contradiction, a mixed result, or an action whose standing is contested. ' +
+          'Tension leads the rows below, ahead of the agreement.');
+      } else {
+        notes.push('No contradictions, no mixed results and no contested standings on the tested issues. That is what the record shows, not a verdict on it.');
+      }
+      if (b.contestedClean) {
+        notes.push(b.contestedClean + ' issue' + (b.contestedClean === 1 ? '' : 's') +
+          ' counted as backed up rest' + (b.contestedClean === 1 ? 's' : '') +
+          ' on an action that has since been blocked, struck down, overridden, rescinded, or left under a challenge with no ruling on file.');
+      }
+      if (b.thin) {
+        notes.push(b.thin + ' rest' + (b.thin === 1 ? 's' : '') + ' on a single sourced item.');
+      }
+      return '' +
+        '<div class="pdxwa-comp">' +
+          '<div class="pdxwa-comp-h">The shape behind the average' +
+            '<span class="pdxwa-comp-sub">' + esc(b.total + ' issue' + (b.total === 1 ? '' : 's') + ' with a verdict') + '</span>' +
+          '</div>' +
+          '<div class="pdxwa-comp-bar" aria-hidden="true">' + bar + '</div>' +
+          '<ul class="pdxwa-comp-l">' + chips + '</ul>' +
+          '<p class="pdxwa-comp-note">' + esc(notes.join(' ')) + '</p>' +
+          '<p class="pdxwa-comp-note pdxwa-comp-fine">' +
+            esc('The score above weighs statements by how testable they are; this counts issues. The two do not have to line up.') +
+          '</p>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
   function _outcomeRow(r) {
     var bits = [];
     if (r.evidence.total) bits.push(r.evidence.total + ' receipt' + (r.evidence.total === 1 ? '' : 's') + ' · ' + r.evidence.strength);
@@ -1161,27 +1547,23 @@
     // healthcare in one bucket looked like nothing to do with healthcare in the
     // next. The spine is the issue; the group heading keeps the outcome.
     var skin = issueSkin(r.key);
-    return '<li class="pdxwa-oc-row' + skin.cls + '" style="' + skin.style + '">' +
+    // The same two flags the top rows carry, at one-line scale. Without them a
+    // struck-down row and an in-force row are the same line in the same green
+    // group, and the fold below the lead bucket is exactly where a reader stops
+    // reading closely — which is the wrong place to keep the qualification.
+    var flags = flagsHtml(r, 'pdxwa-oc-flag');
+    var friction = (isContested(r) ? ' pdxwa-oc-row-x' : '') + (isThin(r) ? ' pdxwa-oc-row-thin' : '');
+    return '<li class="pdxwa-oc-row' + skin.cls + friction + '" style="' + skin.style + '">' +
         '<span class="pdxwa-oc-issue">' + esc(r.label) + '</span>' +
         (bits.length ? '<span class="pdxwa-oc-meta">' + esc(bits.join(' · ')) + '</span>' : '') +
+        flags +
       '</li>';
   }
   function outcomesHtml(pid) {
     try {
-      var C = window.PDXConsistency;
-      if (!C || typeof C.issueRows !== 'function' || typeof C.rankIssueRows !== 'function') return '';
-      var ranked = C.rankIssueRows(C.issueRows(pid));
-      var buckets = {}, any = 0;
-      ranked.forEach(function (r) {
-        if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
-        // A "not enough record yet" row with nothing stated is pure coverage — an
-        // issue we track and they have not spoken on. That is not a consistency
-        // outcome and printing it here would pad the section with silence.
-        if (!r.stance.label && r.verdict.token === 'limited') return;
-        (buckets[r.verdict.token] = buckets[r.verdict.token] || []).push(r);
-        any++;
-      });
-      if (!any) return '';
+      var b = outcomeBuckets(pid);
+      if (!b) return '';
+      var buckets = b.buckets;
       var live = OUTCOMES.filter(function (o) { return (buckets[o.token] || []).length; });
       var blockOf = function (o) {
         var list = buckets[o.token];
@@ -1212,12 +1594,92 @@
     } catch (e) { return ''; }
   }
 
+  // ── THE SLICE, UNDER THE RECORD ────────────────────────────────────────────
+  // One narrow strip beneath the main number, for a figure serving right now. It
+  // is deliberately NOT a second card, a second ring or a second big numeral:
+  // "secondary" here means the reader's eye reaches the all-time number first and
+  // arrives at this one already knowing what it is a slice of. Everything it
+  // prints is scoped in words a reader can check — the term it covers, how much of
+  // the same word it tested, and the fact that it is contained in the score above.
+  //
+  // It renders even when the two reads agree. A slice that vanishes when it matches
+  // is a slice that only ever appears as bad news, and a reader who saw it last
+  // month and not today cannot tell "the same" from "not shown".
+  //
+  // THE DIFFERENCE IS SAID IN WORDS, NOT IN STATISTICS. This strip used to report the
+  // gap as "3 points lower than the full record" — accurate, and exactly the register
+  // a first-time reader skips. It now names the number it is being compared against
+  // ("lower than the 84% above") and says in the same breath why the two can differ:
+  // the score above also weighs the terms before this one. A reader who reads nothing
+  // else on this strip should still come away knowing which number is the record and
+  // which is the slice of it.
+  function scopeStripHtml(sr) {
+    if (!sr || !sr.applicable || !sr.current) return '';
+    var c = sr.current;
+    var v = c.verdict;
+    var col = (v && v.color) || '#9fb4d4';
+    var has = c.pct !== null;
+    var termLabel = sr.term ? 'Current term (' + sr.term + ')' : 'Current term';
+    var mainPct = sr.main.pct;
+    var hasMain = typeof mainPct === 'number';
+
+    // The comparison, in one clause, always relative to the main number so the main
+    // number stays the thing being talked about. "Slightly" and "far" carry the size
+    // of the gap without asking a reader to hold two percentages in their head — and
+    // the clause stops there. WHY the two can differ is said once, in the note below,
+    // rather than twice on a line a phone would wrap to three.
+    var rel;
+    if (!has) {
+      rel = 'Too little of their word has been tested inside this term alone to give it a figure of its own';
+    } else if (!hasMain || sr.delta === null) {
+      rel = 'A narrower read of the same word';
+    } else if (sr.delta === 0) {
+      rel = 'The same as the ' + mainPct + '% above';
+    } else {
+      var mag = Math.abs(sr.delta);
+      rel = (mag <= 3 ? 'slightly ' : mag >= 15 ? 'far ' : '') +
+            (sr.delta > 0 ? 'higher' : 'lower') + ' than the ' + mainPct + '% above';
+      rel = rel.charAt(0).toUpperCase() + rel.slice(1);
+    }
+
+    var counted = c.coverage.tested + ' of ' + c.coverage.scorable + ' tested';
+
+    // The containment sentence — the one line that stops the two figures being read
+    // as rival systems. Its tail is the "why they can differ" answer, and it is only
+    // asked when there ARE two figures that came out apart: promising a difference on
+    // a strip showing the same number twice sends a reader hunting for one.
+    var why = '.';
+    if (has && hasMain) {
+      why = sr.delta === 0 ? ', and here the two come out the same.' : ', which is why the two can differ.';
+    }
+    var note = 'Only the formal actions taken in this term. The score above is the whole record, ' +
+               'every term — this one counted inside it' + why;
+
+    return '' +
+      '<div class="pdxwa-slice" style="--pdxwa-col:' + col + ';">' +
+        // One glyph doing what a paragraph would otherwise have to: this row hangs
+        // off the number above it. Decorative, so it is hidden from a screen reader,
+        // which gets the same relationship spelled out in the note below.
+        '<span class="pdxwa-slice-tie" aria-hidden="true">↳</span>' +
+        '<span class="pdxwa-slice-k">' + esc(termLabel) + '</span>' +
+        '<span class="pdxwa-slice-v">' + (has ? c.pct + '%' : '—') + '</span>' +
+        '<span class="pdxwa-slice-n">' +
+          esc(rel + ' · ' + counted) +
+          '<span class="pdxwa-slice-note">' + esc(note) + '</span>' +
+        '</span>' +
+      '</div>';
+  }
+
   // The primary accountability surface on a profile.
   var _seq = 0;
   function headlineHtml(pid, p) {
     try {
       if (!pid || !p) return '';
-      var r = read(pid, p);
+      // Both scopes, one call. `sr.main` is the all-time read and it is what every
+      // line below prints; `sr.current` is the slice, and it is null for anyone the
+      // slice would not mean anything for.
+      var sr = scopedRead(pid, p);
+      var r = sr.main;
       // Nothing said and nothing tracked. There is no read to print — a number and
       // a verdict over zero documented word would be an empty frame implying the
       // record should be here. But "we hold no word" is itself a fact about OUR
@@ -1251,12 +1713,19 @@
       var col = (v && v.color) || '#9fb4d4';
       var cls = (v && v.cls) || 'none';
       var hasPct = r.pct !== null;
+      // The scope tag under the metric caption. Executive lane only: a member's
+      // roll-call record is not term-scoped anywhere in this engine, so tagging it
+      // "all time" would name a distinction that does not exist for them.
+      var scopeTag = sr.lane === 'exec'
+        ? '<div class="pdxwa-num-scope">' + esc(sr.scope ? sr.scope.label : 'All time') + '</div>'
+        : '';
 
       var body = '' +
         '<div class="pdxwa-top">' +
           '<div class="pdxwa-num pdxwa-num-' + cls + '" style="--pdxwa-col:' + col + ';">' +
             '<div class="pdxwa-num-v">' + (hasPct ? r.pct + '%' : '—') + '</div>' +
             '<div class="pdxwa-num-l">' + esc(FRAME.metric) + '</div>' +
+            scopeTag +
           '</div>' +
           '<div class="pdxwa-say">' +
             '<div class="pdxwa-verdict" style="color:' + col + ';">' +
@@ -1274,6 +1743,14 @@
             '</p>' +
           '</div>' +
         '</div>' +
+        // What the number means and what it does not claim, before anything else
+        // has a chance to be read as a second finding.
+        meansHtml(hasPct) +
+        scopeStripHtml(sr) +
+        // The shape behind the average. A single mean cannot say whether it came
+        // from a record that agrees with itself everywhere or one pulling apart,
+        // and the composition strip is the cheapest place to make that visible.
+        compositionHtml(pid) +
         basisHtml(r) +
         // The three rows that carry the read, immediately under the digest. Nothing
         // else is allowed between the big % and these: the eye should reach a
@@ -1382,7 +1859,8 @@
   function heroRead(pid, p) {
     try {
       if (!pid || !p) return null;
-      var r = read(pid, p);
+      var sr = scopedRead(pid, p);
+      var r = sr.main;
       var c = r.coverage, v = r.verdict;
       var hasPct = r.pct !== null;
       var sub;
@@ -1396,8 +1874,21 @@
       else if (!c.scorable) sub = 'Nothing said independently on file';
       else if (!c.tested) sub = c.scorable + ' on file, none tested yet';
       else sub = c.tested + ' of ' + r.floors.items + ' tested needed';
+      // THE ONE PLACE THE HERO SAYS WHICH RECORD. There is room for two short
+      // lines under the ring and no more, so the scope is appended to the count
+      // rather than given a line of its own — three words that stop the profile's
+      // loudest number from being a number over an unstated span of time. The
+      // current-term slice itself is NOT printed here: the hero has one number by
+      // design, and a second percentage above the fold is the exact thing the
+      // pledge chip was removed for.
+      // The wording is TAKEN FROM the scope's own label rather than typed here, so
+      // the ring and the card under it cannot drift into two names for one span.
+      if (hasPct && sr.lane === 'exec' && sr.scope && sr.scope.label) {
+        sub += ' · ' + sr.scope.label.toLowerCase();
+      }
       return {
         read: r,
+        scoped: sr,
         word: c.word,
         pct: r.pct,
         // Fail closed in the hero too: below the floors there is a dash or a
@@ -1405,6 +1896,7 @@
         text: hasPct ? (r.pct + '%') : (c.warming ? '⏳' : '—'),
         color: hasPct ? ((v && v.color) || '#9fb4d4') : '#9fb4d4',
         caption: FRAME.caption,
+        scopeLabel: (sr.lane === 'exec' && sr.scope) ? sr.scope.label : '',
         verdict: v, token: r.token, publishable: r.publishable,
         tested: c.tested, scorable: c.scorable, warming: c.warming,
         sub: sub
@@ -1448,7 +1940,8 @@
     var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
     return '' +
       '<button type="button" class="pdxwa-hero-jump"' + jumpAttr('pdxsec-wordaction') +
-        ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric + '. Open the full breakdown.') + '">' +
+        ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric +
+          (h.scopeLabel ? ', ' + h.scopeLabel.toLowerCase() : '') + '. Open the full breakdown.') + '">' +
         '<span class="score-ring w-20 h-20 flex-shrink-0">' +
           '<svg width="80" height="80" viewBox="0 0 80 80" aria-hidden="true">' +
             '<circle cx="40" cy="40" r="' + radius + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>' +
@@ -1523,7 +2016,16 @@
           '<span class="pdxwa-dot-k">They did</span>' +
           '<span class="pdxwa-dot-v">' +
             (d.actions.length
-              ? d.actions.map(function (a) { return '<span class="pdxwa-dot-act-1">' + esc(a.text) + '</span>'; }).join('')
+              // `a.text` is the citation — document · class of power · standing. `a.plain`
+              // is the one sentence saying what the instrument did and how that touches
+              // THIS issue, curated per (action, issue) pair in the executive seed. It
+              // fails closed: a proof line with no sentence prints the citation alone
+              // rather than borrowing prose from somewhere it does not belong.
+              ? d.actions.map(function (a) {
+                  return '<span class="pdxwa-dot-act-1">' + esc(a.text) +
+                    (a.plain ? '<span class="pdxwa-dot-why">' + esc(a.plain) + '</span>' : '') +
+                    '</span>';
+                }).join('')
               : '<span class="pdxwa-dot-none">No formal action on this issue is on record yet.</span>') +
           '</span>' +
         '</div>' +
@@ -1556,6 +2058,9 @@
     // Pure reads — no DOM, no fetch, safe to call from anywhere.
     wordLedger: wordLedger,
     read: read,
+    // Both scopes in one call: the all-time read every headline prints, plus the
+    // current-term slice for a figure who is serving. See scopedRead().
+    scopedRead: scopedRead,
     issueRead: issueRead,
     heroRead: heroRead,
     dots: dots,

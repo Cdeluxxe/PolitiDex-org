@@ -512,6 +512,86 @@
     } catch (e) { return false; }
   }
 
+  // ── TERM SCOPE: one read path, two scopes, all-time by default ──────────────
+  // THE DEFAULT IS THE WHOLE RECORD. Every executive feeder below used to call
+  // PDXExecRecord.actionsFor(pid) with no options, which is the CURRENT-TERM scope —
+  // not by decision but by default, back when every seeded action was current-term and
+  // the two scopes returned the same set. Once Term 45 landed the default stopped
+  // being harmless: the word side of this comparison holds first-term pledges and
+  // first-term outcome evidence, so a current-term action scope was testing what
+  // someone said across two terms against what they did in one. That is not a narrower
+  // read, it is a mismatched one, and it flattered the newer term by construction —
+  // every first-term instrument that cut against a stated position was scoped out of
+  // the number while the position it cut against stayed in.
+  //
+  // So: 'all_time' is the default, and it is the number the profile leads with. The
+  // current-term slice is still computed, still real, and still shown for figures who
+  // are serving — as a SECONDARY read with its own label, never as the headline and
+  // never presented as the same quantity.
+  //
+  // WHY A SCOPE SETTING AND NOT A THREADED PARAMETER. The chain from a rendered
+  // percentage down to actionsFor() runs read → testOf → officialRecord →
+  // officialIssue → execRecordsFor, and three of those five are shared with the
+  // congressional lane, which has no term scope at all. Threading an options bag
+  // through all of them would put an exec-only concept into every congressional
+  // signature and give every future caller a chance to forget it — and a caller who
+  // forgets it silently gets the old behaviour back, which is the exact defect this
+  // change exists to remove. One setting, read at the bottom, set only by
+  // withExecTermScope() around a complete read, cannot be applied to part of one:
+  // either the whole read is one scope or it is the other.
+  //
+  // It is deliberately NOT a public setter. Callers get a runner that restores the
+  // previous scope in a finally block, so a scope can never leak out of the read that
+  // asked for it — including when that read throws.
+  var EXEC_TERM_SCOPES = {
+    all_time: {
+      key: 'all_time', allTerms: true,
+      label: 'All time', short: 'the full formal record',
+      note: 'Every formal action on file, across every term in office.'
+    },
+    current_term: {
+      key: 'current_term', allTerms: false,
+      label: 'Current term', short: 'this term only',
+      note: 'A slice of the record above — only the formal actions taken in the term now being served.'
+    }
+  };
+  var EXEC_SCOPE_DEFAULT = 'all_time';
+  var _execTermScope = EXEC_SCOPE_DEFAULT;
+
+  function execTermScope() { return EXEC_TERM_SCOPES[_execTermScope] || EXEC_TERM_SCOPES[EXEC_SCOPE_DEFAULT]; }
+  function execScopeOpts() { return { allTerms: execTermScope().allTerms }; }
+
+  // Run `fn` with the exec lane read at `scope`, then put the scope back. The finally
+  // is the point: a read that throws must not leave the next reader on a scope they
+  // never asked for.
+  function withExecTermScope(scope, fn) {
+    var want = EXEC_TERM_SCOPES[scope] ? scope : EXEC_SCOPE_DEFAULT;
+    var prev = _execTermScope;
+    _execTermScope = want;
+    try { return fn(); } finally { _execTermScope = prev; }
+  }
+
+  // Is a current-term slice a live scope for this figure? Only for someone serving
+  // now — see PDXExecRecord.serving(). A former officeholder's "current term" is last
+  // term under a label that says otherwise.
+  function execServing(pid) {
+    try {
+      var E = window.PDXExecRecord;
+      return !!(E && typeof E.serving === 'function' && E.serving(pid));
+    } catch (e) { return false; }
+  }
+
+  // The term label the current-term slice is a slice OF. Surfaced so a caller can
+  // say "Term 47" rather than the bare word "current", which is the one word that
+  // stops being true the day the roster changes.
+  function execCurrentTerm(pid) {
+    try {
+      var E = window.PDXExecRecord;
+      return (E && typeof E.currentTerm === 'function' && E.currentTerm(pid)) || null;
+    } catch (e) { return null; }
+  }
+
+
   // Every string that would identify this document if a sentence referred to it.
   // Used by the circularity guard below, so it errs toward MORE identifiers: a
   // missed identifier lets a card be tested by the document it was written from,
@@ -616,7 +696,7 @@
     if (!issueKey || !execEligible(pid)) return out;
     var E = window.PDXExecRecord;
     var pool;
-    try { pool = E.actionsFor(pid); } catch (e) { return out; }
+    try { pool = E.actionsFor(pid, execScopeOpts()); } catch (e) { return out; }
     var kept = (pool && pool.kept) || [];
     var said = execSaidText(pid, issueKey);
     for (var i = 0; i < kept.length; i++) {
@@ -637,7 +717,11 @@
           title: a.title || '',
           date: a.actedAt || '',
           sourceUrl: a.sourceUrl || '',
-          sourceLabel: a.sourceLabel || ''
+          sourceLabel: a.sourceLabel || '',
+          // The display-facing explanation for THIS issue. A held action still has to
+          // answer "why is this document under this issue at all" — the reason line
+          // says why it is not scored, which is a different question.
+          plain: (mapping && mapping.plain) || ''
         };
         if (extra) for (var kx in extra) if (Object.prototype.hasOwnProperty.call(extra, kx)) h[kx] = extra[kx];
         out.held.push(h);
@@ -670,6 +754,7 @@
           supportMeaning: _EXEC_MEANING[m2.direction] || 'yea_supports',
           weight: (typeof m2.weight === 'number') ? m2.weight : 100,
           isPrimary: !!m2.isPrimary,
+          plain: m2.plain || '',
           rationale: m2.rationale || ''
         });
       }
@@ -691,6 +776,12 @@
         title: a.title || '',
         sourceUrl: a.sourceUrl || '',
         sourceLabel: a.sourceLabel || '',
+        // The one-sentence, display-facing explanation of what this document did and
+        // how that touches THIS issue — curated per (action, issue) pair in the seed.
+        // Empty when the seed carries none, and every surface fails closed on that:
+        // no sentence rather than the curation rationale, which is a paragraph of
+        // quoted subsections written for whoever audits the mapping.
+        plain: mapping.plain || '',
         standing: standing
       });
     }
@@ -717,7 +808,7 @@
   function execIssueKeys(pid) {
     if (!execEligible(pid)) return [];
     var E = window.PDXExecRecord, pool;
-    try { pool = E.actionsFor(pid); } catch (e) { return []; }
+    try { pool = E.actionsFor(pid, execScopeOpts()); } catch (e) { return []; }
     var set = {}, kept = (pool && pool.kept) || [];
     for (var i = 0; i < kept.length; i++) {
       var all = kept[i].issues || [];
@@ -767,6 +858,10 @@
         text: t, kind: 'exec-action',
         documentId: it.documentId || '', actionClass: it.actionClass || '',
         standing: it.standing || null,
+        // What the instrument did and how it touches this issue, in one sentence.
+        // Carried alongside `text` rather than folded into it: `text` is the citation
+        // line (document · class of power · standing) and callers align on it.
+        plain: it.plain || '',
         url: it.sourceUrl || '', label: it.sourceLabel || '',
         // The record item itself, so a caller that needs the issue mappings (the
         // omnibus disclosure) does not have to re-derive the pool.
@@ -1365,6 +1460,10 @@
       // verdict above came from a bill that also did other things. Muted on purpose —
       // it qualifies the receipt, it does not compete with it.
       '.pdxor-omni{display:block;font-size:0.64rem;color:#93a6c4;line-height:1.4;margin-top:0.2rem;}' +
+      // The action's explanation line inside an opened issue row: what the instrument
+      // did and how that touches THIS issue. Set brighter than the 🧩 disclosure under
+      // it, because it is the part the row is meant to be read from.
+      '.pdxor-why-act{display:block;font-size:0.68rem;color:#c6d4ec;line-height:1.5;margin-top:0.25rem;}' +
       '.pdxor-omni b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-omnichip{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.6rem;font-weight:700;color:#93a6c4;border:1px dashed rgba(147,166,196,0.4);border-radius:999px;padding:0.05rem 0.4rem;white-space:nowrap;cursor:help;}' +
       // ── Stance-row proof (Says · Record · which vote) ────────────────────────
@@ -2612,7 +2711,8 @@
           var metaX = [clsD ? clsD.verb : '', stD ? stD.label : '', it.date || ''].filter(Boolean).join(' · ');
           lines.push(_orActLine(_orItemVerdict(it, issueKey, stanceX),
             it.documentId || it.title || 'Executive action',
-            metaX, it.sourceUrl, it.sourceLabel, _orExecOmniNote(it, issueKey)));
+            metaX, it.sourceUrl, it.sourceLabel, '', null,
+            _orExecWhyHtml(it, issueKey)));
         });
         xPool.held.forEach(function (h) {
           lines.push(_orActLine('limited',
@@ -2622,7 +2722,8 @@
             // The declared note, if the seed carries one — passed as pre-rendered
             // omniHtml rather than as an omniNote so it does not pick up the 🧩
             // multi-issue icon, which would claim something different.
-            h.note ? '<span class="pdxor-omni">' + esc(h.note) + '</span>' : ''));
+            (h.plain ? '<span class="pdxor-why-act">' + esc(h.plain) + '</span>' : '') +
+            (h.note ? '<span class="pdxor-omni">' + esc(h.note) + '</span>' : '')));
         });
       }
       if (!lines.length) return '';
@@ -2903,6 +3004,19 @@
     signed_law: 'law', vetoed_law: 'veto',
     executive_order: 'order', directive: 'directive'
   };
+  // WHY THIS DOCUMENT BELONGS UNDER THIS ISSUE, in the one sentence the seed curates
+  // per (action, issue) pair. Fails closed: no `plain` on the mapping → no sentence.
+  // It never falls back to the mapping's `rationale`, which quotes the sections the
+  // curation rests on and is a paragraph long — that text stays on the ledger card,
+  // one tap down, where a reader who wants the receipt goes looking for it.
+  //   The 🧩 multi-issue disclosure, when there is one, follows underneath: the plain
+  // sentence explains THIS issue, and the disclosure says the same document also
+  // reached others. Two different claims, so two different lines.
+  function _orExecWhyHtml(item, issueKey) {
+    var why = (item && item.plain) ? '<span class="pdxor-why-act">' + esc(item.plain) + '</span>' : '';
+    var omni = _orExecOmniNote(item, issueKey);
+    return why + (omni ? '<span class="pdxor-omni">🧩 ' + omni + '</span>' : '');
+  }
   function _orExecOmniNote(item, issueKey) {
     if (!item || typeof window._measureOmnibusContext !== 'function') return '';
     var ctx;
@@ -4718,7 +4832,18 @@
       namesDocument: execNamesDocument,
       saidText: execSaidText,
       proofText: execProofText,
-      proofLines: execProofLines
+      proofLines: execProofLines,
+      // ── term scope ────────────────────────────────────────────────────────
+      // The default is all_time and it is stated here rather than left implicit,
+      // because the previous default was current_term and nothing said so out loud.
+      // `withScope` is the only way to change it: there is no setter, so a scope
+      // cannot outlive the read that asked for it.
+      SCOPES: EXEC_TERM_SCOPES,
+      DEFAULT_SCOPE: EXEC_SCOPE_DEFAULT,
+      scope: execTermScope,
+      withScope: withExecTermScope,
+      serving: execServing,
+      currentTerm: execCurrentTerm
     },
     chipHtml: chipHtml,
     dot: dot,

@@ -328,16 +328,34 @@ for (const [who, pid] of [["president", PRES], ["member", REP]]) {
 }
 
 // And the Official Record renders in that order rather than re-sorting behind it.
-// Only SCORED rows are rendered as issue rows (the rest are the coverage list), so
-// what this checks is that the rendered sequence never runs backwards through the
-// tiers and that its first row is the ranking's first scored row.
+// Only SCORED rows are rendered as issue rows (the rest are the coverage list).
+//
+// THE ORDERING CONTRACT IS PER CATEGORY, and this used to be checked across the
+// whole section — which passed for six waves for the wrong reason. The renderer
+// groups rows under category headings (Taxes & Economy, Immigration, …) and ranks
+// WITHIN each group; a flat scan only stayed monotonic while every tension row
+// happened to fall in an early category. It stopped being true the moment the
+// integrity read moved to all terms and two more issues went mixed: the section is
+// ordered exactly as it always was, and the flat assertion broke anyway. So the
+// scan is now per group, which is the promise the renderer actually makes, plus
+// the two whole-section facts that do hold — tension leads the section, and the
+// first rendered row is the tier the ranking put first.
 for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP]]) {
   const sec = CS.officialRecordSectionHtml(pid, p);
   const tiers = [...sec.matchAll(/data-pdxc-tier="(\d)"/g)].map((m) => Number(m[1]));
   must(tiers.length >= 1, `${who}: the Official Record no longer stamps ranking tiers onto its rows`);
-  let mono = true;
-  for (let i = 1; i < tiers.length; i++) if (tiers[i] < tiers[i - 1]) mono = false;
-  ok(mono, `${who}: the Official Record re-sorts its rows away from the ranked order`);
+  const cats = sec.split('<div class="pdxor-cat">').slice(1);
+  must(cats.length >= 1, `${who}: the Official Record no longer groups its rows into categories`);
+  let grouped = 0;
+  for (const cat of cats) {
+    const name = (cat.match(/pdxor-cat-h">([^<]*)/) || [])[1] || "?";
+    const ct = [...cat.matchAll(/data-pdxc-tier="(\d)"/g)].map((m) => Number(m[1]));
+    grouped += ct.length;
+    let mono = true;
+    for (let i = 1; i < ct.length; i++) if (ct[i] < ct[i - 1]) mono = false;
+    ok(mono, `${who}: "${name}" re-sorts its rows away from the ranked order (${ct.join(",")})`);
+  }
+  eq(grouped, tiers.length, `${who}: a ranked row rendered outside every category group`);
   const firstScored = CS.rankIssueRows(CS.issueRows(pid)).filter((r) => r.scored)[0];
   eq(tiers[0], firstScored.tier,
     `${who}: the section does not lead with the row the ranking put first`);
@@ -374,7 +392,13 @@ for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP]]) {
   has(waHtml, "pdxsec-official-record",
     `${who}: the rows offer no way into the full breakdown`);
   // Only the sharpest few. This is a summary of a section, not the section.
-  const n = (waHtml.match(/class="pdxwa-row"/g) || []).length;
+  // Matched on the class PREFIX, not on the whole attribute: a row's <li> carries
+  // pdxwa-row plus whatever it has earned — pdxwa-ic for a resolved issue colour,
+  // pdxwa-row-x for a contested standing, pdxwa-row-thin for a single-item record.
+  // Pinned to the exact string `class="pdxwa-row"` this counted only the rows that
+  // had earned nothing, which quietly stopped being an upper bound on how many rows
+  // render the moment any of those classes existed.
+  const n = (waHtml.match(/class="pdxwa-row[ "]/g) || []).length;
   ok(n >= 1 && n <= 3, `${who}: ${n} top rows rendered — this block summarises, it does not duplicate`);
   // Each rendered row shows a verdict beside the issue, so the chain terminates.
   eq((waHtml.match(/class="pdxwa-row-verdict"/g) || []).length, n,
@@ -481,7 +505,12 @@ section("8 · the condensation: removed, not relocated");
 const WA_SRC = R("word-action.js");
 const FRAME_AT = WA_SRC.indexOf("var FRAME = {");
 must(FRAME_AT !== -1, "word-action.js no longer defines FRAME");
-const FRAME = WA_SRC.slice(FRAME_AT, FRAME_AT + 900);
+// The literal, not a fixed-width window off the front of it. A 900-character slice
+// read whatever happened to sit near the top of the object, so the assertion below
+// silently stopped covering `caption` as soon as the block above it grew.
+const FRAME_END = WA_SRC.indexOf("\n  };", FRAME_AT);
+must(FRAME_END !== -1, "word-action.js's FRAME literal is not closed where this test can find it");
+const FRAME = WA_SRC.slice(FRAME_AT, FRAME_END);
 ok(/caption:\s*'Word vs Action'/.test(FRAME),
   "the ring caption is not the section's own name — a second name for one number is read as a\n" +
   "    second number, which is the whole failure mode this spine exists to close");
@@ -618,8 +647,9 @@ section("9 · and it is measurably shorter");
   ok(allCards > shownCards,
     "the fold hides nothing, so either the data shrank or the ledger is not actually folded");
 
-  // And nothing was quietly deleted to achieve any of this.
-  const kept = win.PDXExecRecord.actionsFor(PRES).kept.length;
+  // And nothing was quietly deleted to achieve any of this. All terms, because the
+  // embedded ledger now covers the same span as the integrity score above it.
+  const kept = win.PDXExecRecord.actionsFor(PRES, { allTerms: true }).kept.length;
   eq(allCards, kept, "the folded ledger does not carry every action on file — folding is not dropping");
 }
 

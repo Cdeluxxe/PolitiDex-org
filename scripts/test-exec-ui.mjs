@@ -151,7 +151,12 @@ eq(UI.sectionHtml("trump").length > 0, true, "the real render came back empty");
 // 2 · The real render
 // ─────────────────────────────────────────────────────────────────────────────
 const HTML = UI.sectionHtml("trump");
-const SUM = EX.summary("trump");
+// ALL TERMS, because that is now what the section renders. The ledger follows the
+// integrity score's scope (word-action.js reads all_time by default since the
+// two-scope change), and a receipts panel narrower than the number it backs is a
+// reader counting cards that do not add up. Passing the option here rather than
+// relying on the default keeps this pin explicit about which record it is over.
+const SUM = EX.summary("trump", { allTerms: true });
 
 ok(/^<section class="pdxer"/.test(HTML), "the section does not open with the scoped .pdxer wrapper");
 has(HTML, 'aria-label="Executive Enactment Record"', "the section carries no accessible name");
@@ -195,7 +200,17 @@ has(HTML, "Partly blocked in court", "a contested standing did not surface in th
 has(HTML, "In force", "the in-force standing did not surface in the rendering");
 
 // Decision 5 — coverage is stated as coverage.
-has(HTML, "coverage, not a finding", "the no-action-found bucket is not labelled as coverage");
+// THE REAL SEED NO LONGER HAS A NO-ACTION-FOUND BUCKET TO LABEL. Read over all
+// terms, every issue with a stated position on this profile now has at least one
+// formal action behind it, so the coverage panel has nothing to name and correctly
+// prints nothing. That is a milestone in the data, not a regression in the code —
+// but it also means decisions 5 and 11 would go silently untested from here on. So
+// the empty state is asserted here on the real render, and both decisions are
+// exercised below against a fixture that puts the bucket back.
+eq(SUM.issues.noActionFound, 0,
+  "the all-time record has a no-action-found bucket again — assert decision 5 on the real render, not only the fixture");
+ok(!/coverage, not a finding/.test(HTML),
+  "the coverage copy rendered with nothing in the bucket to cover");
 ok(!/declined to act/.test(HTML.split("not that the figure declined to act").join("")),
   "the coverage copy reads as an accusation rather than as coverage");
 
@@ -203,7 +218,35 @@ ok(!/declined to act/.test(HTML.split("not that the figure declined to act").joi
 // The count in the summary line comes from the gated Phase-2 read path and is not
 // touched here; what is withheld is the NAMING of the issue, which is the thing the
 // stance filing cannot support. See the HELD_ISSUE_KEYS comment in exec-record-ui.js.
+//
+// Run against a fixture built by REMOVING TWO ISSUE MAPPINGS from the real seed —
+// the held key and one ordinary key — rather than by inventing actions. Everything
+// else about the record is the real thing, so the chip list, the withheld-issue
+// disclosure and the arithmetic between them are exercised on real copy, real
+// labels and the real hold list. Mappings are stripped rather than whole actions so
+// nothing else on those documents cascades out with them.
 {
+  const HOLD_KEY = "tariffs_authority";   // on HELD_ISSUE_KEYS: counted, never named
+  const NAMED_KEY = "voter_id";           // not held: must appear as a chip
+  const dropMappings = (a) => {
+    const issues = (a.issues || []).filter((m) => m.issueKey !== HOLD_KEY && m.issueKey !== NAMED_KEY);
+    return issues.length ? Object.assign({}, a, { issues: issues }) : null;
+  };
+  const { ctx: cCov } = makeSandbox();
+  cCov.window.EXEC_ACTIONS = {
+    trump: ctx.window.EXEC_ACTIONS.trump.map(dropMappings).filter(Boolean)
+  };
+  const EXC = cCov.window.PDXExecRecord;
+  for (const k of [HOLD_KEY, NAMED_KEY]) {
+    eq(EXC.issue("trump", k, { allTerms: true }).token, "said_not_done",
+      `fixture drift: stripping ${k}'s mappings did not put it back in the no-action-found bucket`);
+  }
+  const covHtml = cCov.window.PDXExecRecordUI.sectionHtml("trump");
+  const covSum = EXC.summary("trump", { allTerms: true });
+  has(covHtml, "coverage, not a finding", "the no-action-found bucket is not labelled as coverage");
+  ok(!/declined to act/.test(covHtml.split("not that the figure declined to act").join("")),
+    "the coverage copy reads as an accusation rather than as coverage");
+
   const uiSrc = R("exec-record-ui.js");
   const held = (uiSrc.match(/var HELD_ISSUE_KEYS = \{([\s\S]*?)\n  \};/) || [])[1] || "";
   ok(/\btariffs_authority\s*:/.test(held),
@@ -212,59 +255,90 @@ ok(!/declined to act/.test(HTML.split("not that the figure declined to act").joi
   ok(heldKeys.length > 0, "HELD_ISSUE_KEYS could not be parsed out of exec-record-ui.js");
 
   // The chip list is the only place an issue is named on the strength of a stance alone.
-  const body = (HTML.match(/<div class="pdxer-cov-body">([\s\S]*?)<\/div>/) || [])[1] || "";
+  const body = (covHtml.match(/<div class="pdxer-cov-body">([\s\S]*?)<\/div>/) || [])[1] || "";
   const chips = (body.match(/<span class="pdxer-chip pdxer-none">([\s\S]*?)<\/span>/g) || [])
     .map((s) => s.replace(/<[^>]+>/g, ""));
   ok(chips.length > 0, "the coverage chip list rendered no issues, so the hold rule is untested");
 
   let expectHeld = 0;
   for (const k of heldKeys) {
-    const tok = EX.issue("trump", k).token;
+    const tok = EXC.issue("trump", k, { allTerms: true }).token;
     if (tok !== "said_not_done") continue; // not in this bucket for this figure; nothing to hide
     expectHeld++;
     const lbl = ISSUE_MAP[k] ? ISSUE_MAP[k].label : k.replace(/_/g, " ");
     ok(!chips.some((c) => c === escHtml(lbl)),
       `held issue ${k} was named in the coverage list as ${JSON.stringify(lbl)}`);
   }
+  ok(expectHeld > 0, "the fixture did not put a held key in the bucket, so the withholding branch is untested");
 
-  // The hold has a documented END CONDITION, and the seed has now reached it for the
-  // only key on the list. HELD_ISSUE_KEYS suppresses naming an issue that is named
-  // PURELY because a stance exists under an ambiguous key; the comment above it says
-  // in terms that a sourced action mapping the key would still render, "because hiding
-  // a real mapping is the worse error". EO 14257 maps tariffs_authority, so the key
-  // left the no-action-found bucket entirely and there is nothing left for the hold to
-  // withhold. Both branches are therefore asserted, and the arithmetic — which is what
-  // actually protects the reader from a chip list quietly shorter than its own count —
-  // is asserted unconditionally in either.
-  if (expectHeld > 0) {
-    hasText(HTML, "counted above but not named here",
-      "issues were withheld from the coverage list without disclosing it");
-    has(HTML, `>${expectHeld} of them `,
-      `the withheld-issue disclosure does not report ${expectHeld} withheld ${expectHeld === 1 ? "issue" : "issues"}`);
-  } else {
-    ok(!String(HTML).includes(escHtml("counted above but not named here")),
-      "nothing is being withheld, yet the disclosure line claims something is");
-    for (const k of heldKeys) {
-      const tok = EX.issue("trump", k).token;
-      ok(tok !== "said_not_done",
-        `${k} is back in the no-action-found bucket but the disclosure branch went untested`);
-      ok(EX.issue("trump", k).actions.length > 0,
-        `${k} left the coverage bucket without a sourced action to explain why — the hold` +
-        `\n    stopped applying for a reason other than the one its own comment names`);
-    }
-  }
-  eq(chips.length + expectHeld, SUM.issues.noActionFound,
+  // The hold has a documented END CONDITION, and the disclosure branch is what a
+  // reader gets while it still applies: an issue counted in the summary line above
+  // and deliberately not named below, said out loud rather than quietly dropped.
+  hasText(covHtml, "counted above but not named here",
+    "issues were withheld from the coverage list without disclosing it");
+  has(covHtml, `>${expectHeld} of them `,
+    `the withheld-issue disclosure does not report ${expectHeld} withheld ${expectHeld === 1 ? "issue" : "issues"}`);
+
+  // The arithmetic is what actually protects the reader from a chip list quietly
+  // shorter than its own count.
+  eq(chips.length + expectHeld, covSum.issues.noActionFound,
     "named coverage chips plus withheld issues do not add back up to the count in the summary line");
+
+  // …and on the real seed the hold is a no-op, for the reason its own comment gives:
+  // a sourced action mapping the key still renders, "because hiding a real mapping is
+  // the worse error". EO 14257 maps tariffs_authority, so the key is out of the bucket
+  // entirely and there is nothing left to withhold.
+  ok(!String(HTML).includes(escHtml("counted above but not named here")),
+    "nothing is being withheld on the real seed, yet the disclosure line claims something is");
+  for (const k of heldKeys) {
+    ok(EX.issue("trump", k, { allTerms: true }).token !== "said_not_done",
+      `${k} is back in the no-action-found bucket on the real seed but the disclosure branch went untested there`);
+    ok(EX.issue("trump", k, { allTerms: true }).actions.length > 0,
+      `${k} left the coverage bucket without a sourced action to explain why — the hold` +
+      `\n    stopped applying for a reason other than the one its own comment names`);
+  }
 }
 
-// Every seeded action reaches the screen, newest first.
-for (const a of SEED.actions.trump) {
+/* WHAT REACHES THE SCREEN IS THE WHOLE RECORD, AND THE TERM SPLIT IS DISCLOSED.
+   This loop has been rewritten twice for the same reason and it is worth stating
+   plainly. Before wave 7 every row was term 47, so "render everything" and "render
+   the current term" were the same assertion and nobody could tell which one was
+   being tested. Wave 7 put eight Term 45 documents on file and the split became
+   real: current-term rows rendered, prior-term rows did not. The two-scope change
+   moves the integrity score to all terms, and the ledger follows it — a receipts
+   panel that shows 48 documents under a number computed from 56 is the failure that
+   matters now. So: EVERY seeded row must render, in newest-first order, and the
+   scope line must say both what span this is and how much of it is the live term. */
+const CUR_TERM = EX.currentTerm("trump");
+const RENDERED = SEED.actions.trump;
+const PRIOR = SEED.actions.trump.filter((a) => String(a.term) !== CUR_TERM);
+const CURRENT = SEED.actions.trump.filter((a) => String(a.term) === CUR_TERM);
+ok(PRIOR.length > 0, "no prior-term action is on file, so the all-terms rendering below is untested");
+for (const a of RENDERED) {
   hasText(HTML, a.documentId, `action ${a.documentId} is missing from the rendering`);
   hasText(HTML, a.title, `the title of ${a.documentId} is missing from the rendering`);
 }
 {
+  // The span is named, and the live term is named as a share of it. A ledger over
+  // several terms that does not say which part is current invites a reader to date
+  // the whole thing from its newest card.
+  hasText(HTML, "All terms on file", "the scope line does not name the span the ledger covers");
+  hasText(HTML, `${CURRENT.length} of ${RENDERED.length} in the current term (${CUR_TERM})`,
+    "the scope line does not report how much of the ledger is the current term");
+  const tip = EX.summaryTip(SUM);
+  has(tip, "Showing all terms on file", "the tip does not name the term scope it is showing");
+  // …and the narrower scope still exists in the engine, still discloses itself, and
+  // is still what the secondary integrity read is computed over. Asserted here so the
+  // current_term branch of execSummaryTip does not rot now that no surface defaults
+  // to it.
+  const curTip = EX.summaryTip(EX.summary("trump"));
+  has(curTip, `Showing the current term (${CUR_TERM})`, "the current-term tip no longer names its own scope");
+  has(curTip, `${SEED.actions.trump.length} on file across all terms`,
+    "the current-term tip hides that more actions are on file than that term holds");
+}
+{
   const order = (HTML.match(/data-pdxer-doc="([^"]+)"/g) || []).map((s) => s.replace(/.*="|"$/g, ""));
-  eq(order.length, SEED.actions.trump.length, "wrong number of action cards rendered");
+  eq(order.length, RENDERED.length, "wrong number of action cards rendered");
   const dates = order.map((d) => (SEED.actions.trump.find((a) => a.documentId === d) || {}).actedAt);
   const sorted = dates.slice().sort().reverse();
   eq(dates.join(","), sorted.join(","), "action cards are not in newest-first order");
@@ -274,7 +348,7 @@ for (const a of SEED.actions.trump) {
 // 3 · Standing chips carry their citations, in the same card
 // ─────────────────────────────────────────────────────────────────────────────
 const CARDS = HTML.split('<article class="pdxer-card"').slice(1);
-eq(CARDS.length, SEED.actions.trump.length, "card split did not find every action card");
+eq(CARDS.length, RENDERED.length, "card split did not find every action card");
 const STANDING_LABELS = Object.values(EX.STANDING).map((s) => s.label);
 for (const card of CARDS) {
   const doc = (card.match(/data-pdxer-doc="([^"]+)"/) || [])[1] || "?";
@@ -350,14 +424,17 @@ for (const card of CARDS) {
   }
 }
 
-// The append-only standing log: three rulings, three citations, one row each.
+// The append-only standing log: four rulings, four citations, one row each. It was
+// three until wave 9 appended the final judgment, and the growth is the behaviour
+// under test rather than incidental fixture churn — a corrected standing has to
+// arrive as a new row with the superseded one still legible underneath it.
 {
   const eo = CARDS.find((c) => c.includes("Executive Order 14248"));
   ok(!!eo, "the EO 14248 card is missing");
   const seeded = SEED.actions.trump.find((a) => a.documentId === "Executive Order 14248");
-  eq(seeded.status.length, 3, "fixture drift: EO 14248 no longer carries three standing entries");
+  eq(seeded.status.length, 4, "fixture drift: EO 14248 no longer carries four standing entries");
   if (eo) {
-    has(eo, "2 earlier recorded changes", "the earlier standing history is not offered");
+    has(eo, "3 earlier recorded changes", "the earlier standing history is not offered");
     for (const s of seeded.status) hasText(eo, s.note, `the standing note of ${s.effectiveAt} is not rendered`);
     // Current standing first: the latest entry by effectiveAt leads the card.
     const idx = seeded.status.map((s) => eo.indexOf(s.sourceUrl));
@@ -376,7 +453,12 @@ for (const card of CARDS) {
   ok(!!eo, "the EO 14156 card is missing — the new standing token is unexercised in the UI");
   const seeded = SEED.actions.trump.find((a) => a.documentId === "Executive Order 14156");
   ok(!!seeded, "fixture drift: EO 14156 is no longer seeded");
-  const live = (seeded.status || []).find((s) => s.status === "challenged_unverified");
+  // The LATEST challenged_unverified row, not the first. Wave 9 appended a second
+  // one — the token did not move, the date it was last checked did — and a test that
+  // reached for the first would go on asserting that the card renders a citation the
+  // card has since superseded.
+  const live = (seeded.status || []).filter((s) => s.status === "challenged_unverified")
+    .sort((a, b) => Date.parse(b.effectiveAt) - Date.parse(a.effectiveAt))[0];
   ok(!!live, "fixture drift: EO 14156 no longer carries a challenged_unverified entry");
   if (eo && live) {
     // Its own chip class. Reusing the in-force green or the blocked red would assert
@@ -398,12 +480,17 @@ for (const card of CARDS) {
     eq(rows[0].status, "challenged_unverified", "fixture drift: the challenge is no longer EO 14156's current standing");
     ok(eo.indexOf(live.sourceUrl) < eo.indexOf("pdxer-more"),
       "the live challenge is filed behind the earlier-changes fold instead of leading the card");
-    has(eo, "2 earlier recorded changes", "EO 14156's two earlier standing rows are not offered");
+    has(eo, "3 earlier recorded changes", "EO 14156's three earlier standing rows are not offered");
   }
 
   // Axis B counts it as its own bucket, after the rulings and ahead of in force.
-  eq(SUM.actions.challengedUnverified, 1,
-    "fixture drift: the summary no longer counts exactly one challenged-unverified document");
+  /* Three from wave 10 on, and they are three documents rather than three
+     challenges: EO 14156 carries its own case, and EO 14171 and EO 14410 are both
+     named in one amended complaint that asks for relief against the pair. The count
+     is of ACTIONS whose current standing is contested, not of dockets, which is why
+     one filing can move two rows. */
+  eq(SUM.actions.challengedUnverified, 3,
+    "fixture drift: the summary no longer counts exactly three challenged-unverified documents");
   const row = (HTML.match(/<div class="pdxer-axis"><span class="pdxer-axis-lbl">Standing ·[\s\S]*?<\/div>/) || [])[0] || "";
   ok(row, "the standing axis row could not be isolated");
   has(row, "pdxer-challenged", "the challenged bucket is missing from the standing axis row");
@@ -447,6 +534,76 @@ for (const card of CARDS) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 4b · The explanation line — every visible action↔issue pair says WHY
+// ─────────────────────────────────────────────────────────────────────────────
+// A citation is not an explanation. "Executive Order 14418 · In force" tells a reader
+// who already knows the order what it is; it tells everyone else nothing. Each row
+// carries one curated sentence of mechanism, the direction the SCORING ENGINE reads
+// (not the raw mapping — a veto inverts), an honest marker when the link is
+// secondary or narrow, and the audit rationale one tap down rather than in the way.
+{
+  const byDoc = {};
+  for (const c of CARDS) {
+    const id = (c.match(/pdxer-doc">([^<]+)/) || [])[1];
+    if (id) byDoc[id.replace(/&#39;/g, "'").replace(/&amp;/g, "&")] = c;
+  }
+  const mapped = SEED.actions.trump.flatMap((a) => (a.issues || []).map((m) => ({ a, m })));
+  let withPlain = 0, secondary = 0, narrow = 0, invert = 0, ratBehindTap = 0;
+  for (const { a, m } of mapped) {
+    const card = byDoc[a.documentId];
+    ok(!!card, `${a.documentId} has no card to explain itself on`);
+    if (!card) continue;
+    if (m.plain) { withPlain++; hasText(card, m.plain, `${a.documentId} · ${m.issueKey}: the explanation line is not rendered`); }
+    if (!m.isPrimary) secondary++;
+    if (typeof m.weight === "number" && m.weight <= 45) narrow++;
+    // The direction on the row is the one the engine scores, so a card can never
+    // disagree with the number it feeds. For a blocking class the two differ.
+    const eff = EX.issueDirection(a, m);
+    if (eff !== m.direction) invert++;
+    if (m.rationale && m.rationale !== m.plain) ratBehindTap++;
+  }
+  eq((HTML.match(/pdxer-iss-why/g) || []).length, withPlain,
+    "the number of rendered explanation lines does not match the number of curated ones");
+  ok(withPlain === mapped.length,
+    `${mapped.length - withPlain} of ${mapped.length} rendered action-issue pairs carry no explanation`);
+  eq((HTML.match(/pdxer-second/g) || []).length, secondary,
+    "supporting-link markers do not match the non-primary mappings");
+  eq((HTML.match(/pdxer-narrow/g) || []).length, narrow,
+    "narrow-link markers do not match the low-weight mappings");
+  ok(invert > 0, "fixture drift: no blocking action remains, so the inversion path is untested");
+  eq((HTML.match(/pdxer-iss-inv/g) || []).length, invert,
+    "a row whose scored direction differs from its mapping does not disclose the inversion");
+  // The rationale is still on the card — nothing was deleted — but it is behind a
+  // summary rather than sitting on the line a reader has to get past.
+  eq((HTML.match(/pdxer-rat-d/g) || []).length, ratBehindTap,
+    "the curation rationale is not behind exactly one tap per mapping that has a distinct one");
+  ok(!/<span class="pdxer-rat">[^]*?<\/span>[^]*?<summary>/.test(HTML.split("pdxer-issrow")[1] || ""),
+    "a rationale is rendered ahead of its own summary");
+
+  // The veto, end to end: H.J. Res. 46 blocked a measure that would have ENDED the
+  // border emergency. The mapping records what the resolution did; the row has to
+  // report what the president did, and say that they are not the same thing.
+  const veto = SEED.actions.trump.find((a) => a.actionClass === "vetoed_law" && a.documentId.startsWith("H.J. Res. 46"));
+  ok(!!veto, "the H.J. Res. 46 veto is gone from the seed");
+  if (veto) {
+    const card = byDoc[veto.documentId];
+    const m0 = veto.issues[0];
+    const eff = EX.issueDirection(veto, m0);
+    ok(eff !== m0.direction, "the blocking class no longer inverts the mapped direction");
+    has(card, `${eff === "advances" ? "Advances" : "Cuts against"} — 1 issue`,
+      "the veto's group header reports the mapping direction rather than the scored one");
+    ok(!card.includes(m0.direction === "advances" ? "Advances —" : "Cuts against —"),
+      "the veto card renders a group header contradicting its own row");
+    has(card, "The measure it blocked pointed the other way",
+      "the veto row does not say whose direction is being shown");
+    hasText(card, m0.plain, "the veto's explanation line is missing");
+    // Written from the ACT. A veto row that reads like the resolution's own summary
+    // is the failure this whole surface exists to prevent.
+    ok(/^Vetoed /.test(m0.plain), "the veto's explanation is written from the document, not from the act");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 5 · Fail closed — an uncitable standing is never rendered as operative
 // ─────────────────────────────────────────────────────────────────────────────
 {
@@ -474,6 +631,12 @@ for (const card of CARDS) {
   ok(!/Struck down/.test(out), "a standing citing a fact sheet was rendered as 'Struck down'");
   ok(!/whitehouse\.gov/.test(out), "a rejected fact-sheet citation still reached the markup");
   has(out, "not presented as being in force", "the unconfirmed-standing disclosure does not say what it means");
+  // The fixture mapping carries a rationale and no `plain`. The explanation line
+  // fails closed: no sentence, and no falling back to printing the audit paragraph
+  // where the plain-English sentence was supposed to be.
+  ok(!/pdxer-iss-why/.test(out), "a mapping with no curated explanation still rendered an explanation line");
+  ok(!/<span class="pdxer-iss-why">Fixture rationale\./.test(out), "the rationale was promoted into the explanation slot");
+  has(out, "Fixture rationale.", "the rationale disappeared instead of staying behind the tap");
 }
 
 // Escaping: curated data is trusted, but a renderer that interpolates it raw is one

@@ -86,6 +86,105 @@
   line-height: 1.25;
 }
 .pdxwa-say { flex: 1 1 auto; min-width: 0; }
+
+/* Which record the big number is over. Last line of the number block, on its own
+   hairline row: it qualifies the metric caption above it rather than continuing
+   it, and the rule is what makes that legible without a second colour.
+
+   It used to be set at 0.42rem in #6f86a8 — the qualifier that decides what the
+   loudest number on the page even MEANS, printed at a size a phone renders as
+   texture. It is now the same size and colour as the metric caption it qualifies,
+   because on a profile carrying two scopes the span is not a footnote.
+
+   Executive lane only; nothing else here is term-scoped, so nothing else prints a
+   scope. */
+.pdxwa-num-scope {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  margin-top: 0.3rem;
+  padding-top: 0.26rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  line-height: 1.2;
+}
+
+/* ── The current-term slice ──────────────────────────────────────────────── */
+/* SECONDARY IS A LAYOUT DECISION, NOT A DISCLAIMER. This strip is one line tall,
+   sits below the verdict block rather than beside it, and prints its percentage
+   at well under half the main numeral's size in the body face — not the display
+   face the headline number uses. A reader scanning the card meets the all-time
+   number, the verdict and one sentence before this exists. The colour bar on the
+   left is the slice's own verdict colour, which is the only thing here allowed to
+   differ loudly from the score above.
+
+   SECONDARY IS NOT THE SAME AS SMALL, though, and this strip had drifted into the
+   second thing: 0.66rem of relation text over a 0.62rem note in #6f86a8, i.e. the
+   two lines that explain why there are two numbers were the quietest text in the
+   panel. Everything here is a step up now — and the strip still cannot be mistaken
+   for the score, because the thing that makes it secondary is where it sits and
+   what face it is set in, not whether a reader can read it. */
+.pdxwa-slice {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.45rem;
+  margin: 0 0 0.6rem;
+  padding: 0.45rem 0.55rem 0.5rem 0.6rem;
+  border-radius: 0.55rem;
+  background: rgba(8, 13, 26, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-left: 3px solid color-mix(in srgb, var(--pdxwa-col) 55%, transparent);
+}
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .pdxwa-slice { border-left-color: rgba(148, 163, 184, 0.45); }
+  .pdxwa-slice-tie { color: rgba(148, 163, 184, 0.7); }
+}
+/* The hang-off glyph. It carries the containment relationship at a glance — this
+   row belongs to the number above it — which is why it is centred on the strip's
+   own figure rather than sitting on the shared baseline. */
+.pdxwa-slice-tie {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 0.72rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--pdxwa-col) 72%, transparent);
+}
+.pdxwa-slice-k {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b0c4de;
+  flex: 0 0 auto;
+}
+.pdxwa-slice-v {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--pdxwa-col);
+  flex: 0 0 auto;
+}
+.pdxwa-slice-n {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: #a4b8d6;
+}
+/* The sentence that stops the two numbers being read as rivals. Its own line so
+   it survives the wrap on a narrow card instead of trailing off the count. */
+.pdxwa-slice-note {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #8ea4c4;
+}
 .pdxwa-verdict {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1.4rem;
@@ -798,7 +897,19 @@
   letter-spacing: 0.02em;
   color: #cbd9ec;
 }
-.pdxwa-dot-act-1 + .pdxwa-dot-act-1 { margin-top: 0.15rem; }
+.pdxwa-dot-act-1 + .pdxwa-dot-act-1 { margin-top: 0.4rem; }
+/* Why the document belongs under this issue, in normal English, under the citation
+   that names it. Body type rather than the condensed face the citation uses — this is
+   a sentence to read, not a label to scan. */
+.pdxwa-dot-why {
+  display: block;
+  font-family: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0;
+  line-height: 1.5;
+  color: #9db2d2;
+  margin-top: 0.1rem;
+}
 .pdxwa-dot-none { color: #7f97bb; font-style: italic; }
 .pdxwa-dot-out .pdxwa-dot-v {
   font-family: 'Bebas Neue', sans-serif;
@@ -1055,12 +1166,188 @@
    screen, so the ~44px tap target it reserved in the letterhead, and the
    ~2.35rem row it took in the phone grid below, are both returned to the page. */
 
+/* ── What the percentage means, and what it does not claim ────────────────── */
+/* Full width, directly under the number, above everything else on the card. The
+   placement is the whole point: this text exists for the reader who never opens
+   a drawer, and that reader is exactly the one who reads a large green figure as
+   a report card. Sized between the number and the body copy — big enough that it
+   is not read as a footnote, small enough that it never competes with the numeral
+   it qualifies. */
+.pdxwa-means {
+  margin: 0.55rem 0 0;
+  padding: 0.5rem 0.6rem;
+  border-left: 2px solid rgba(159, 219, 208, 0.45);
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: rgba(10, 15, 30, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+.pdxwa-means-k {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #5f7ea8;
+}
+.pdxwa-means-v {
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #cfdcf0;
+}
+/* The non-claim on its own line, dimmer than the claim above it. Dimmer, not
+   hidden: it is the sentence that stops three wrong readings, and a reader who
+   skims the first line and stops should still catch its shape. */
+.pdxwa-means-not {
+  display: block;
+  margin-top: 0.22rem;
+  color: #8fa8c8;
+}
+
+/* ── The shape behind the average ─────────────────────────────────────────── */
+/* A mean cannot say whether it came from a record that agrees with itself
+   everywhere or one pulling apart. This strip says it in counts — never in a
+   second percentage, which a reader would subtract from the first. */
+.pdxwa-comp {
+  margin-top: 0.6rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid rgba(120, 150, 190, 0.2);
+  border-radius: 0.55rem;
+  background: rgba(10, 15, 30, 0.4);
+}
+.pdxwa-comp-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #a9c2e2;
+}
+.pdxwa-comp-sub {
+  margin-left: auto;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  color: #6f88ab;
+}
+/* Segments are sized by flex-grow off the counts, so the bar is drawn from the
+   same integers printed beneath it and cannot drift from them. No fixed height
+   anywhere in this file — the rule is em-based so it scales with the reader's
+   text size rather than pinning a pixel row. */
+.pdxwa-comp-bar {
+  display: flex;
+  gap: 2px;
+  margin: 0.4rem 0 0.35rem;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pdxwa-comp-seg {
+  display: block;
+  min-width: 0.5rem;
+  padding-block: 0.18rem;
+  opacity: 0.85;
+}
+.pdxwa-comp-l {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.75rem;
+}
+.pdxwa-comp-i {
+  display: flex;
+  align-items: baseline;
+  gap: 0.28rem;
+}
+.pdxwa-comp-n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1;
+}
+.pdxwa-comp-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8fa8c8;
+}
+.pdxwa-comp-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #9db6d6;
+}
+/* The clarifier that stops the strip and the percentage looking like an
+   arithmetic error. Quieter than the finding above it, and never hidden. */
+.pdxwa-comp-fine { color: #6f88ab; font-size: 0.64rem; }
+
+/* ── Friction: contested standing, thin evidence ──────────────────────────── */
+/* The spine keeps the ISSUE's colour — that vocabulary is load-bearing across
+   the whole card and recolouring it here would break the one thing it promises.
+   What changes is the stroke. A row whose supporting action is blocked, struck
+   down, overridden or under an unresolved challenge is drawn dotted; a row
+   resting on a single sourced item is drawn dashed. Scanning a stack, the
+   unbroken lines are the unbroken records. */
+.pdxwa-row-x { border-left-style: dotted; }
+.pdxwa-row-thin { border-left-style: dashed; }
+.pdxwa-row-x.pdxwa-row-thin { border-left-style: dotted; }
+.pdxwa-row-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: -0.1rem 0 0.3rem;
+}
+.pdxwa-row-flag,
+.pdxwa-oc-flag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.34rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+/* Amber, the tint this card already uses for set-aside counter-evidence, and
+   a warmer stroke for contested standing. Neither competes with the verdict
+   palette: these are qualifications on a verdict, not verdicts. */
+.pdxwa-row-flag-thin,
+.pdxwa-oc-flag-thin { color: #d8bd85; }
+.pdxwa-row-flag-x,
+.pdxwa-oc-flag-x { color: #e3a08a; }
+/* Axis B in words, on the row it qualifies. Tinted like the counter line for
+   the same reason: disclosure on the row, never a second verdict. */
+.pdxwa-row-standing .pdxwa-row-v { color: #e3a08a; }
+/* One-line scale, inside the outcome groups. The flag sits after the meta so a
+   long issue label wraps before the qualification does. The stroke change is
+   scoped to rows that actually carry an issue spine — an unresolved key has no
+   border to restyle, and there the chip is the whole signal. */
+.pdxwa-oc-flag { margin-left: 0.34rem; }
+.pdxwa-oc-row.pdxwa-ic.pdxwa-oc-row-x { border-left-style: dotted; }
+.pdxwa-oc-row.pdxwa-ic.pdxwa-oc-row-thin { border-left-style: dashed; }
+.pdxwa-oc-row.pdxwa-ic.pdxwa-oc-row-x.pdxwa-oc-row-thin { border-left-style: dotted; }
+
 /* ── Wider screens ──────────────────────────────────────────────────────── */
 @media (min-width: 620px) {
   .pdxwa-num { min-width: 6rem; }
   .pdxwa-num-v { font-size: 2.5rem; }
+  .pdxwa-num-scope { font-size: 0.52rem; }
   .pdxwa-verdict { font-size: 1.45rem; }
   .pdxwa-line { font-size: 0.78rem; }
+  /* Room to breathe, not a size jump: the phone already reads this strip at a
+     legible size, so the wide layout gains padding and a little leading rather
+     than a bigger figure the small screen went without. */
+  .pdxwa-slice { padding: 0.5rem 0.65rem 0.55rem 0.7rem; }
+  .pdxwa-slice-n { font-size: 0.72rem; }
+  .pdxwa-slice-note { font-size: 0.7rem; }
   .pdxwa-tier { grid-template-columns: 1.7rem 1fr auto; padding: 0.6rem 0.75rem; }
   .pdxwa-dot-step { grid-template-columns: 4.6rem 1fr; }
   .pdxwa-dot-v { font-size: 0.78rem; }

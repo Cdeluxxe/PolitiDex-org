@@ -139,6 +139,11 @@
         '.pdxer-partly{color:#f5c842;border-color:rgba(245,200,66,.42);background:rgba(245,200,66,.14);}' +
         '.pdxer-blocked,.pdxer-struck{color:#f89b9b;border-color:rgba(248,113,113,.42);background:rgba(248,113,113,.12);}' +
         '.pdxer-rescinded,.pdxer-superseded,.pdxer-expired{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.1);}' +
+        // Its own colour for the same reason challenged has one. Sharing the blocked red
+        // would say a court reached this action; sharing the rescinded blue would say
+        // the President reversed himself. Congress overriding a veto is neither, and a
+        // borrowed colour would quietly name the wrong actor.
+        '.pdxer-overridden{color:#c4a6f5;border-color:rgba(196,166,245,.44);background:rgba(196,166,245,.12);}' +
         // Its own colour, not a borrowed one. Sharing the in-force green would say a
         // court has left the action alone and sharing the blocked red would say a court
         // has stopped it; the whole point of the token is that neither has happened yet.
@@ -155,14 +160,35 @@
         '.pdxer-src:hover{text-decoration:underline;text-underline-offset:2px;}' +
         // Per-issue rows, grouped by direction.
         '.pdxer-grp{font-size:0.62rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7e93b3;border-top:1px solid rgba(255,255,255,0.07);padding-top:0.35rem;margin-top:0.45rem;}' +
-        '.pdxer-issrow{display:flex;align-items:baseline;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;padding:0.25rem 0 0.25rem 0.1rem;line-height:1.4;}' +
-        '.pdxer-iss-ico{flex-shrink:0;}' +
+        // The row is now a two-line block, not a sentence: identity and direction on the
+        // first line, the plain-English mechanism on its own line under it. A wrapped
+        // baseline-aligned run put the explanation in the middle of the label on a phone.
+        '.pdxer-issrow{display:flex;align-items:flex-start;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;padding:0.3rem 0 0.35rem 0.1rem;line-height:1.4;}' +
+        '.pdxer-iss-ico{flex-shrink:0;line-height:1.5;}' +
+        '.pdxer-iss-body{display:block;min-width:0;}' +
+        '.pdxer-iss-hd{display:block;line-height:1.5;}' +
         '.pdxer-iss-lbl{font-weight:700;color:#e8eefc;}' +
         '.pdxer-iss-dir{font-size:0.62rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;}' +
         '.pdxer-dir-adv{color:#6ee7a0;}' +
         '.pdxer-dir-opp{color:#f89b9b;}' +
         '.pdxer-primary{font-size:0.58rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;}' +
-        '.pdxer-rat{color:#9fb4d4;}' +
+        // Its own muted colour, and always printed. Marking only the primary link left
+        // "no badge" doing the work of "this is a side effect of a large law", which is
+        // a thing a reader has to already know to notice.
+        '.pdxer-second{font-size:0.58rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8fa2c0;}' +
+        '.pdxer-narrow{font-size:0.58rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#d8bd85;}' +
+        // The explanation line. Full-width, own line, normal sentence case — this is the
+        // part a first-time reader is meant to learn the row from.
+        '.pdxer-iss-why{display:block;color:#c6d4ec;font-size:0.7rem;line-height:1.5;margin-top:0.1rem;}' +
+        '.pdxer-iss-inv{display:block;color:#d8bd85;font-size:0.64rem;line-height:1.45;margin-top:0.15rem;}' +
+        // The curation rationale, one tap down. It quotes the sections the mapping rests
+        // on and can run to a paragraph; it is the receipt, not the explanation.
+        '.pdxer-rat-d{margin-top:0.2rem;}' +
+        '.pdxer-rat-d>summary{cursor:pointer;list-style:none;font-size:0.62rem;font-weight:700;letter-spacing:0.03em;color:#8fa2c0;}' +
+        '.pdxer-rat-d>summary::-webkit-details-marker{display:none;}' +
+        '.pdxer-rat-d>summary:hover{color:#c6d4ec;}' +
+        '.pdxer-rat-d>summary:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
+        '.pdxer-rat{display:block;color:#9fb4d4;font-size:0.66rem;line-height:1.5;margin-top:0.2rem;padding-left:0.5rem;border-left:2px solid rgba(159,180,212,0.28);}' +
         // Standing block.
         '.pdxer-stand{border-top:1px solid rgba(255,255,255,0.07);margin-top:0.45rem;padding-top:0.4rem;}' +
         '.pdxer-stand-row{font-size:0.68rem;color:#c6d4ec;line-height:1.45;}' +
@@ -186,7 +212,7 @@
         '.pdxer-fold-s:hover{color:#c6d4ec;border-color:rgba(159,180,212,0.5);}' +
         '.pdxer-fold-s:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
         '.pdxer-fold[open] .pdxer-fold-s{margin-bottom:0.5rem;}' +
-        '@media (max-width:380px){.pdxer-title{font-size:1.1rem;}.pdxer-sum{font-size:0.76rem;}.pdxer-issrow{flex-wrap:wrap;}}';
+        '@media (max-width:380px){.pdxer-title{font-size:1.1rem;}.pdxer-sum{font-size:0.76rem;}.pdxer-iss-hd{line-height:1.6;}}';
       var st = document.createElement('style');
       st.id = 'pdx-execrecord-css';
       st.textContent = css;
@@ -271,29 +297,77 @@
   }
 
   // ── Per-issue rows, grouped by direction ───────────────────────────────────
-  function issueRowHtml(m) {
-    var adv = m.direction === 'advances';
+  // THE DIRECTION SHOWN IS THE ACT'S, NOT THE DOCUMENT'S. A mapping's `direction`
+  // states what the DOCUMENT does to the issue; for a blocking class — a veto — the
+  // document and the act point opposite ways, and exec-record.js's issueDirection()
+  // is the one place that distinction is drawn. Reading `m.direction` here printed
+  // a veto of a resolution ending the border emergency as an action AGAINST border
+  // security, which is the opposite of what the figure did and the opposite of what
+  // every other surface in the lane reports. Route through the helper, and fall back
+  // to the raw mapping only if an older exec-record.js is on the page.
+  function effDir(action, m) {
+    var ex = EX();
+    if (ex && typeof ex.issueDirection === 'function') {
+      try { return ex.issueDirection(action, m) || m.direction; } catch (e) { /* fall through */ }
+    }
+    return m.direction;
+  }
+
+  // True when the act and the document disagree — the reader is looking at a row whose
+  // arrow cannot be checked against the document's title, so the row says why.
+  function inverted(action, m) { return effDir(action, m) !== m.direction; }
+
+  // Below this weight a mapping is a real link but a narrow one — a single title of a
+  // reconciliation law, a report requirement, a delegated authority. Saying so is
+  // cheaper than letting a reader read a 35-weight row with the same force as a 100.
+  var NARROW_AT = 45;
+
+  // What the reader gets per row: the issue, the direction on THIS issue, how much of
+  // this document the link rests on, one plain sentence of mechanism, and the curation
+  // rationale one tap down. The plain sentence FAILS CLOSED — a mapping with no `plain`
+  // renders with no explanation line rather than falling back to dumping the rationale,
+  // which is a paragraph of quoted subsections and belongs behind the tap.
+  function issueRowHtml(action, m) {
+    var adv = effDir(action, m) === 'advances';
+    var dcls = adv ? 'pdxer-dir-adv' : 'pdxer-dir-opp';
+    var narrow = typeof m.weight === 'number' && m.weight <= NARROW_AT;
     return '<div class="pdxer-issrow">' +
-      '<span class="pdxer-iss-ico ' + (adv ? 'pdxer-dir-adv' : 'pdxer-dir-opp') + '" aria-hidden="true">' +
-        (adv ? '↑' : '↓') + '</span>' +
-      '<span><span class="pdxer-iss-lbl">' + esc(issueLabel(m.issueKey)) + '</span> ' +
-        '<span class="pdxer-iss-dir ' + (adv ? 'pdxer-dir-adv' : 'pdxer-dir-opp') + '">' +
-          (adv ? 'advances' : 'cuts against') + '</span>' +
-        (m.isPrimary ? ' <span class="pdxer-primary">primary</span>' : '') +
-        (m.rationale ? ' <span class="pdxer-rat">— ' + esc(m.rationale) + '</span>' : '') +
+      '<span class="pdxer-iss-ico ' + dcls + '" aria-hidden="true">' + (adv ? '↑' : '↓') + '</span>' +
+      '<span class="pdxer-iss-body">' +
+        '<span class="pdxer-iss-hd">' +
+          '<span class="pdxer-iss-lbl">' + esc(issueLabel(m.issueKey)) + '</span> ' +
+          '<span class="pdxer-iss-dir ' + dcls + '">' +
+            (adv ? 'advances' : 'cuts against') + '</span>' +
+          (m.isPrimary
+            ? ' <span class="pdxer-primary">primary</span>'
+            : ' <span class="pdxer-second">supporting</span>') +
+          (narrow ? ' <span class="pdxer-narrow">narrow link</span>' : '') +
+        '</span>' +
+        (m.plain ? '<span class="pdxer-iss-why">' + esc(m.plain) + '</span>' : '') +
+        (inverted(action, m)
+          ? '<span class="pdxer-iss-inv">Direction shown is the action’s. The measure it blocked pointed the other way.</span>'
+          : '') +
+        // …unless the rationale IS the explanation. Where a mapping rests on one
+        // short sentence, curation record and display line converge, and offering a
+        // tap that reveals the sentence already on screen is a fake receipt.
+        (m.rationale && m.rationale !== m.plain
+          ? '<details class="pdxer-rat-d"><summary>What the document says ▾</summary>' +
+              '<span class="pdxer-rat">' + esc(m.rationale) + '</span></details>'
+          : '') +
       '</span></div>';
   }
 
-  function issueGroupHtml(label, rows, cap) {
+  function issueGroupHtml(action, label, rows, cap) {
     if (!rows.length) return '';
+    var one = function (m) { return issueRowHtml(action, m); };
     var head = '<div class="pdxer-grp">' + esc(label) + ' — ' + rows.length + ' ' +
       plural(rows.length, 'issue', 'issues') + '</div>';
-    if (rows.length <= cap) return head + rows.map(issueRowHtml).join('');
-    var shown = rows.slice(0, cap).map(issueRowHtml).join('');
+    if (rows.length <= cap) return head + rows.map(one).join('');
+    var shown = rows.slice(0, cap).map(one).join('');
     var rest = rows.slice(cap);
     return head + shown + '<details class="pdxer-more"><summary>➕ ' + rest.length +
       ' more ' + plural(rest.length, 'issue', 'issues') + ' in this direction ▾</summary>' +
-      rest.map(issueRowHtml).join('') + '</details>';
+      rest.map(one).join('') + '</details>';
   }
 
   // Every issue this document touches, in BOTH directions, each named. The group
@@ -305,8 +379,12 @@
     for (var i = 0; i < maps.length; i++) {
       var m = maps[i];
       if (!m || !m.issueKey) continue;
-      if (m.direction === 'advances') adv.push(m);
-      else if (m.direction === 'opposes') opp.push(m);
+      // Grouped by the same direction the row's own arrow shows. Grouping by the raw
+      // mapping while labelling by the act would put a row reading "advances" under
+      // the "Cuts against" header.
+      var d = effDir(action, m);
+      if (d === 'advances') adv.push(m);
+      else if (d === 'opposes') opp.push(m);
     }
     var byWeight = function (a, b) {
       if (!!b.isPrimary !== !!a.isPrimary) return b.isPrimary ? 1 : -1;
@@ -320,7 +398,8 @@
     var cap = (adv.length + opp.length) <= 6 ? 99 : 4;
     // Against first when present: the direction a reader is least likely to expect from
     // a figure's own signature is the one that must not be buried.
-    return issueGroupHtml('Cuts against', opp, cap) + issueGroupHtml('Advances', adv, cap);
+    return issueGroupHtml(action, 'Cuts against', opp, cap) +
+           issueGroupHtml(action, 'Advances', adv, cap);
   }
 
   // ── One action card ────────────────────────────────────────────────────────
@@ -394,6 +473,9 @@
     // Contested standings lead. If anything is enjoined, that is the first thing the
     // row says, however compact it gets.
     add(sum.actions.struckDown, 'struck_down');
+    // A veto Congress overrode leads with the injunctions: the action did not hold,
+    // and which branch ended it is carried by the chip's own label.
+    add(sum.actions.overridden, 'overridden');
     add(sum.actions.blocked, 'blocked');
     add(sum.actions.partlyBlocked, 'partly_blocked');
     add(sum.actions.rescinded, 'rescinded');
@@ -436,11 +518,18 @@
     var out = '';
     if (sum.issues.noActionFound) {
       var keys = [], heldReasons = [], held = 0;
+      // THE CHIPS MUST BE READ OVER THE SAME SPAN AS THE COUNT ABOVE THEM. The count
+      // comes from `sum`; the chips are recomputed here issue by issue, and if that
+      // recomputation uses a different term scope the list and its own headline
+      // disagree — a panel whose whole job is to explain a discrepancy becomes one.
+      // Taken from the summary rather than assumed, so this follows whatever scope
+      // the caller asked for.
+      var scopeOpts = { allTerms: sum.termScope === 'all_time' };
       try {
         var pm = (typeof window._polPositionMap === 'function' && window.CMP_DATA)
           ? (window._polPositionMap(pid, window.CMP_DATA[pid]) || {}) : {};
         Object.keys(pm).sort().forEach(function (k) {
-          if (ex.issue(pid, k).token !== 'said_not_done') return;
+          if (ex.issue(pid, k, scopeOpts).token !== 'said_not_done') return;
           if (HELD_ISSUE_KEYS[k]) {
             held++;
             if (heldReasons.indexOf(HELD_ISSUE_KEYS[k]) < 0) heldReasons.push(HELD_ISSUE_KEYS[k]);
@@ -512,8 +601,16 @@
   function bodyParts(pid) {
     var ex = EX();
     if (!ex || !pid || !ex.eligible(pid)) return null;
-    var sum = ex.summary(pid);
-    var pool = ex.actionsFor(pid);
+    // THE LEDGER IS OVER THE SAME RECORD AS THE SCORE. It used to show the current
+    // term only, which was defensible while the score did too. The score is now the
+    // whole formal record, and a receipts panel narrower than the number it backs is
+    // the worst kind of mismatch: a reader who counts the cards to check the maths
+    // finds fewer documents than were counted and no way to see the rest. The term
+    // breakdown does not disappear — it moves to the scope line below, where it is a
+    // disclosed sub-fact of a complete ledger instead of a silent filter on it.
+    var ALL = { allTerms: true };
+    var sum = ex.summary(pid, ALL);
+    var pool = ex.actionsFor(pid, ALL);
     // Quiet by construction. No summary or nothing on file → no section, not a
     // sentence about the absence. The empty string is the honest rendering: this
     // lane knows nothing about most figures, and saying so on every profile would
@@ -543,9 +640,19 @@
     if (!cards) return null;
 
     var scope = [];
-    if (sum.term) scope.push('Current term (' + sum.term + ')');
-    var shown = sum.actions.total + (sum.unstatedStanding || 0);
-    if (sum.allTimeTotal > shown) scope.push(sum.allTimeTotal + ' on file across all terms');
+    // What span this ledger covers, first, because every count after it is over
+    // that span. Then the current term as a share of it — for someone still
+    // serving, that is the live part of the record and a reader looking for it
+    // should not have to count cards to find out how much of this is recent.
+    scope.push('All terms on file');
+    var serving = typeof ex.serving === 'function' && ex.serving(pid);
+    var term = typeof ex.currentTerm === 'function' ? ex.currentTerm(pid) : '';
+    if (serving && term) {
+      var curN = ex.actionsFor(pid).kept.length;
+      if (curN && curN < pool.kept.length) {
+        scope.push(curN + ' of ' + pool.kept.length + ' in the current term (' + term + ')');
+      }
+    }
     var byClass = [];
     Object.keys(sum.byClass).forEach(function (k) {
       var n = sum.byClass[k];
@@ -628,7 +735,10 @@
     try {
       var ex = EX();
       if (!ex || !pid || !ex.eligible(pid)) return null;
-      var sum = ex.summary(pid);
+      // Same span as the section it jumps to. A pill reading "47 on file" over a
+      // ledger of 56 is a wrong count in the one place a reader cannot open to
+      // check it.
+      var sum = ex.summary(pid, { allTerms: true });
       if (!sum) return null;
       var docs = sum.actions.total + (sum.unstatedStanding || 0);
       if (!docs) return null;

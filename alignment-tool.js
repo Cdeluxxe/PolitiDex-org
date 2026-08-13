@@ -430,7 +430,38 @@
       // agreement with a *process* both preemption hawks and federalism absolutists
       // endorse, so "80%" would look like "80% agreement with drawing a clear line" when
       // the number actually means "80% of their judged votes favoured state authority".
-      states_federal_power: { label: '🗺 State vs. Federal Power', chip: 'Keep decisions with the states unless there’s a clear national reason for Washington to override them', cat: 'reform', stanceKeys: [], keywords: ['federalism','states rights','state authority','tenth amendment','preemption','federal preemption','national guard','title 32','state standing','sovereignty','state sovereignty','commandeering','unfunded mandate','local control','dual sovereignty','governor','state law','federal mandate'] }
+      states_federal_power: { label: '🗺 State vs. Federal Power', chip: 'Keep decisions with the states unless there’s a clear national reason for Washington to override them', cat: 'reform', stanceKeys: [], keywords: ['federalism','states rights','state authority','tenth amendment','preemption','federal preemption','national guard','title 32','state standing','sovereignty','state sovereignty','commandeering','unfunded mandate','local control','dual sovereignty','governor','state law','federal mandate'] },
+      // SCOPE, deliberately narrow. This key is about ONE mechanism: the legal
+      // classification of executive-branch employees — which positions sit in the
+      // competitive service, which are excepted from it, and what removal and
+      // adverse-action protections attach to them. Schedule F / Schedule
+      // Policy/Career, Schedule G, chapter 75 adverse-action procedures, at-will
+      // status.
+      //   IN:  an instrument that creates, restores, expands or restricts an
+      //        at-will / excepted / policy-influencing personnel CATEGORY, or that
+      //        changes the civil-service protections attached to one.
+      //   OUT: agency reorganisations with no classification core; headcount cuts
+      //        and reductions in force, which are about how many people work there,
+      //        not what protections the ones who remain hold; hiring-process reform,
+      //        including probationary periods and when an appointment becomes final,
+      //        which EO 13839 sec. 2(i) itself calls the last step of hiring;
+      //        federal-sector collective bargaining and union time, which are labour
+      //        relations under a different chapter of title 5; and "drain the swamp"
+      //        rhetoric with no formal mechanism behind it.
+      // It exists because those actions had NOWHERE honest to land. cut_spending is
+      // a claim about money and a reclassification order contains no spending
+      // direction; gov_waste and reform_balance are broad enough to absorb anything
+      // and would have made the key a synonym for "government reform". The keyword
+      // list below is mechanism-only for the same reason — a key discovered by
+      // slogan becomes a key filled by slogan.
+      // POLARITY: the chip states the direction that EXPANDS presidential control —
+      // issueStance 'support' = backs reclassifying career policy jobs out of the
+      // competitive service and its removal procedures, 'oppose' = backs keeping
+      // those civil-service protections in place, 'mixed' = backs some of each.
+      // Carries no `lean`, on the checks_balances precedent directly above: _alignApplyLean
+      // multiplies into every Alignment score, so adding one is a scoring change and
+      // does not belong in a taxonomy pass.
+      civil_service_control: { label: '🗂 Control of the Civil Service', chip: 'Let the President reclassify policy-influencing career jobs so those employees can be hired and removed without the usual civil-service procedures', cat: 'reform', stanceKeys: [], keywords: ['civil service','civil service protections','civil service rules','schedule f','schedule policy/career','schedule g','excepted service','competitive service','merit system principles','career civil service','career employee','policy-influencing','at-will','adverse action','removal procedures','chapter 75','office of personnel management','opm','tenure','federal employee'] }
     };
 
     // Publish ISSUE_MAP on window so the many helper functions that live in OTHER
@@ -488,8 +519,8 @@
         blurb: 'Election security, voter ID, ballot access, and the integrity of the vote.',
         keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id'] },
       { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Who Decides',
-        blurb: 'War powers, the power of the purse, congressional oversight, court orders, and the line between federal and state authority.',
-        keys: ['checks_balances','states_federal_power'] },
+        blurb: 'War powers, the power of the purse, congressional oversight, court orders, the line between federal and state authority, and control of the career civil service.',
+        keys: ['checks_balances','states_federal_power','civil_service_control'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
         keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },

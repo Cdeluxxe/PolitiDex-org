@@ -31,7 +31,7 @@ lookup). Validated by `scripts/define-core-national-issues-jun2026.mjs`.
 | 10 | **Education & Parental Rights** | `school_choice`, `edu_balance`, `public_schools`, `edu_college_cost`, `edu_parental` |
 | 11 | **Civil Rights, Culture & DEI** | `religious_liberty`, `rights_balance`, `lgbtq_rights`, `free_speech`, `end_dei` |
 | 12 | **Foreign Policy & National Security** | `strong_defense`, `foreign_balance`, `restraint`, `america_first`, `america_first_fp`, `veterans` |
-| 13 | **Checks, Balances & Who Decides** | `checks_balances`, `states_federal_power` |
+| 13 | **Checks, Balances & Who Decides** | `checks_balances`, `states_federal_power`, `civil_service_control` |
 
 Added July 2026: the institutional-power pair. These votes — war powers, the power
 of the purse, congressional oversight, nationwide injunctions, National Guard and
@@ -39,6 +39,16 @@ state-standing fights — are about *who decides*, not about ballot access or th
 deficit, so they need their own core issue rather than being folded into Election
 Integrity or Government Spending. Deliberately carries no partisan lean: both
 parties invoke institutional limits when they are out of power.
+
+Added August 2026: `civil_service_control`, joining the same core issue. Orders
+that reclassify career federal positions out of the competitive service — Schedule
+F, Schedule Policy/Career, Schedule G — are a *who decides* question about the
+executive branch's own workforce, and they had no honest key at all: they are not
+spending, and filing them under a broad government-reform key would have made that
+key mean nothing in particular. The scope is one mechanism (personnel
+classification and the protections attached to it), written out in the `ISSUE_MAP`
+comment so it does not drift into "federal workforce" generally. Also carries no
+lean.
 
 ## How it surfaces
 

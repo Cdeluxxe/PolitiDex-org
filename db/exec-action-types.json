@@ -6,61 +6,88 @@
     "netlify/functions/voting-record.mts (query filter allow-lists)"
   ],
   "_whyClassesNeverMerge": "Signing a bill Congress passed and issuing an order alone are different claims about power. A combined 'N actions' figure would flatten shared authorship into sole authorship, so counts are always reported per class and never summed into one headline number.",
-
   "actionClasses": {
     "signed_law": {
       "label": "Signed into law",
       "verb": "Signed into law",
       "authorship": "shared",
       "authorshipNote": "Congress wrote and passed it; the signature endorsed it. Provisions are not individually endorsed — a multi-issue measure must show its per-issue directions.",
-      "measureTypes": ["bill", "resolution"],
+      "measureTypes": [
+        "bill",
+        "resolution"
+      ],
       "sourceOfRecord": "congress.gov bill page, carrying the Public Law number and the presidential action date",
-      "sourceHosts": ["www.congress.gov", "congress.gov"]
+      "sourceHosts": [
+        "www.congress.gov",
+        "congress.gov"
+      ]
     },
     "vetoed_law": {
       "label": "Vetoed",
       "verb": "Vetoed",
       "authorship": "shared",
       "authorshipNote": "Blocked something Congress passed. The veto message is the statement of reasons and is part of the record.",
-      "measureTypes": ["bill", "resolution"],
+      "measureTypes": [
+        "bill",
+        "resolution"
+      ],
       "sourceOfRecord": "congress.gov bill page plus the veto message",
-      "sourceHosts": ["www.congress.gov", "congress.gov"]
+      "sourceHosts": [
+        "www.congress.gov",
+        "congress.gov"
+      ]
     },
     "executive_order": {
       "label": "Executive order",
       "verb": "Signed Executive Order",
       "authorship": "sole",
       "authorshipNote": "Acted alone under claimed executive authority. Sole authorship, and therefore the class where the Standing axis carries the greatest weight.",
-      "measureTypes": ["executive_order"],
+      "measureTypes": [
+        "executive_order"
+      ],
       "sourceOfRecord": "federalregister.gov document page — the permanent legal citation of record",
-      "sourceHosts": ["www.federalregister.gov", "federalregister.gov"]
+      "sourceHosts": [
+        "www.federalregister.gov",
+        "federalregister.gov"
+      ]
     },
     "directive": {
       "label": "Directive",
       "verb": "Issued a directive",
       "authorship": "sole",
       "authorshipNote": "Presidential memorandum, proclamation or agency direction — acting alone with a lesser instrument than an executive order.",
-      "measureTypes": ["proclamation", "memorandum"],
+      "measureTypes": [
+        "proclamation",
+        "memorandum"
+      ],
       "sourceOfRecord": "federalregister.gov document page",
-      "sourceHosts": ["www.federalregister.gov", "federalregister.gov"]
+      "sourceHosts": [
+        "www.federalregister.gov",
+        "federalregister.gov"
+      ]
     }
   },
-
-  "measureTypes": ["executive_order", "proclamation", "memorandum"],
+  "measureTypes": [
+    "executive_order",
+    "proclamation",
+    "memorandum"
+  ],
   "_measureTypesNote": "Additive to the existing bill | resolution | amendment | nomination | litigation set on vr_measures.measure_type. Precedent: measureType='litigation' with chamber='court' already lets a non-roll-call actor share the issue spine.",
-
-  "chambers": ["executive"],
+  "chambers": [
+    "executive"
+  ],
   "_chambersNote": "Additive to house | senate | joint | court.",
-
-  "positionActionTypes": ["signed", "vetoed", "issued"],
+  "positionActionTypes": [
+    "signed",
+    "vetoed",
+    "issued"
+  ],
   "_positionActionTypesNote": "Additive to vr_positions.action_type (sponsor | cosponsor | amicus | plaintiff | committee_vote | statement). vr_positions is already documented as 'non-roll-call actions that still count as doing', which is exactly what an executive action is.",
-
   "issueDirections": {
     "advances": "This action advances the issue.",
     "opposes": "This action cuts against the issue."
   },
   "_issueDirectionsNote": "Reads vr_measure_issues.supportMeaning without renaming the column: yea_supports → advances, yea_opposes → opposes. Same data as the congressional lane, no vote word in the rendered vocabulary.",
-
   "sourceRule": {
     "_why": "Fail closed. An action whose primary source is a directory index or a press summary cannot be verified by the reader, so it is not publishable — the same discipline every vr_* table applies with its NOT NULL source_url.",
     "primaryHosts": [
@@ -73,6 +100,7 @@
       "www.courtlistener.com",
       "courtlistener.com",
       "storage.courtlistener.com",
+      "clerk.house.gov",
       "www.govinfo.gov",
       "govinfo.gov",
       "www.uscourts.gov",
@@ -94,6 +122,7 @@
       "/fact-sheet": "A fact sheet is the administration describing its own order. Allowed as a labelled secondary link, never as the source of record. Found in live curated data on healthcare_costs."
     },
     "secondaryAllowed": true,
-    "secondaryMustBeLabelled": true
+    "secondaryMustBeLabelled": true,
+    "_chamberHostsWhy": "Wave 9. `overridden` is the first standing whose actor is a chamber of Congress rather than a court or the President, and the list had no host that could carry a chamber's own record of what it did. congress.gov summarises the action in one line of a bill history; the Clerk of the House publishes the electronic record of the question itself — its text, the date and the result — which is the document the claim actually rests on, and it is as primary as a source gets. Added narrowly: one host, for the one thing congress.gov states less precisely than the chamber does. The Senate's equivalent record is not on this list because no row cites it as its source of record — the enrolled text published by GPO establishes both the Senate's reconsideration and the enactment in one document, so that is what the row cites, and the Senate's own record is named in _verificationPass.wave9 where the chain is proved rather than asserted."
   }
 }

@@ -78,8 +78,32 @@
   // ingest could attribute a roll call to them and manufacture exactly the fake
   // "Voted Yea/Nay" framing this lane exists to prevent.
   var EXEC_PIDS = {
-    trump: { office: 'President of the United States', currentTerm: '47' }
+    trump: { office: 'President of the United States', currentTerm: '47', serving: true }
   };
+
+  // ── Serving now, or formerly ───────────────────────────────────────────────
+  // `serving` is DECLARED rather than inferred, and it is declared because the
+  // integrity read's two-scope model turns on it. The main Word vs Action number is
+  // the ALL-TIME formal record; the current-term number is a secondary slice, and a
+  // slice is only meaningful for someone still cutting it. For a former officeholder
+  // "this term" is not a live scope — it is the last term, which is a fact about
+  // history that the all-time read already contains, and printing it beside the main
+  // number would present the same record twice under two labels.
+  //
+  // The alternative was to infer incumbency from the data — "there are actions dated
+  // in the current term, so they must be serving." That inference breaks in both
+  // directions. A president three days into a term has no actions on file and would
+  // read as former; a president who left office last month still has last term's
+  // actions and would read as serving until the roster was edited anyway. So the
+  // roster carries the fact, and the fact is what the surfaces read.
+  //
+  // Absent means false: a roster entry that forgets to say it is serving gets the
+  // secondary score hidden, which is the fail-closed direction — a missing slice is a
+  // smaller claim than a wrong one.
+  function serving(pid) {
+    var e = EXEC_PIDS[norm(pid)];
+    return !!(e && e.serving === true && e.currentTerm);
+  }
 
   // ── Coverage gate ──────────────────────────────────────────────────────────
   // THE PROBLEM THIS SOLVES. The office allow-list above holds one pid, and the
@@ -250,11 +274,30 @@
   // that, so filing it there would state something the sources do not support. It is
   // contested for the same reason — a reader shown only in-force counts is told the
   // record is settled when part of it is still open.
+  //
+  // `overridden` is the same kind of gap, one branch over. A veto is a blocking action,
+  // so the question its standing answers is whether the measure it blocked ever became
+  // law — and until this token existed the answer could only be filed as `in_force`,
+  // which for a veto means "the veto held". When Congress musters two-thirds in both
+  // chambers under Article I, section 7, the veto did NOT hold and the measure became
+  // law anyway. None of the other tokens can say that: `blocked` and `struck_down` name
+  // a court, `rescinded` names the President reversing himself, and `superseded` is a
+  // later presidential action, not a coordinate branch overriding this one. The actor
+  // matters as much as the outcome, which is why this is a token and not a note.
   var EXEC_STANDING = {
     in_force:       { key: 'in_force',       ico: '●', label: 'In force',               contested: false, cls: 'exec-inforce' },
     partly_blocked: { key: 'partly_blocked', ico: '◐', label: 'Partly blocked in court', contested: true,  cls: 'exec-partly' },
     blocked:        { key: 'blocked',        ico: '⊘', label: 'Blocked by court order',  contested: true,  cls: 'exec-blocked' },
     struck_down:    { key: 'struck_down',    ico: '✕', label: 'Struck down',             contested: true,  cls: 'exec-struck' },
+    overridden:     {
+      key: 'overridden', ico: '⇈', label: 'Overridden by Congress',
+      contested: true, cls: 'exec-overridden',
+      // Read it exactly this narrowly: the veto did not hold, Congress passed the
+      // measure over it under Article I, section 7, and the measure became law. It is
+      // NOT a court holding the action unlawful and it is NOT a win or a loss on the
+      // subject of the measure — it is what happened to this action, by whose hand.
+      short: 'The veto did not hold: Congress passed the measure over it and the measure became law. The actor was Congress, not a court.'
+    },
     rescinded:      { key: 'rescinded',      ico: '↩', label: 'Rescinded',               contested: true,  cls: 'exec-rescinded' },
     challenged_unverified: {
       key: 'challenged_unverified', ico: '⚖', label: 'Challenged in court — no ruling on file',
@@ -276,10 +319,33 @@
   // authorship, and the summary is the likeliest place that flattening would happen.
   var EXEC_CLASSES = {
     signed_law:      { key: 'signed_law',      verb: 'Signed into law',       authorship: 'shared', label: 'signed into law' },
-    vetoed_law:      { key: 'vetoed_law',      verb: 'Vetoed',                authorship: 'shared', label: 'vetoed' },
+    vetoed_law:      { key: 'vetoed_law',      verb: 'Vetoed',                authorship: 'shared', label: 'vetoed', blocks: true },
     executive_order: { key: 'executive_order', verb: 'Signed Executive Order', authorship: 'sole',  label: 'executive order' },
     directive:       { key: 'directive',       verb: 'Issued a directive',    authorship: 'sole',   label: 'directive' }
   };
+
+  // A BLOCKING CLASS INVERTS ITS MAPPING, and this flag is why. An issue mapping
+  // states what the DOCUMENT does to the issue, because that is what the column means
+  // in the congressional lane it is shared with: vr_measure_issues.support_meaning has
+  // always described the measure. For a signature or an order, the document and the
+  // act point the same way and the distinction never surfaced. For a veto they point
+  // opposite ways — the resolution advances an issue and blocking it does not — so the
+  // direction the mapping carries is the resolution's and the direction this lane
+  // reports has to be the other one. consistency.js has drawn exactly this distinction
+  // since the vocabulary was written (_EXEC_BLOCKS / advanceInverted, applied before
+  // stance-helpers reads the item). This function did not, because for six waves no
+  // row used a blocking class and the two readings could not disagree. The first three
+  // vetoes on file made them disagree: a veto of a resolution terminating a border
+  // emergency was being counted as an action AGAINST border security, next to an order
+  // building the wall, and the issue read "acted both ways" off two documents pointing
+  // the same way. Read the direction through here, not off the mapping.
+  function issueDirection(action, mapping) {
+    var d = mapping && mapping.direction;
+    if (d !== 'advances' && d !== 'opposes') return null;
+    var cls = action && EXEC_CLASSES[action.actionClass];
+    if (!cls || !cls.blocks) return d;
+    return d === 'advances' ? 'opposes' : 'advances';
+  }
 
   var EXEC_SCOPE = {
     key: 'executive', icon: '✒️', label: 'Executive Enactment Record',
@@ -306,7 +372,8 @@
   // Standings that keep the standing clause in EVERY rendering, however compact. A
   // summary showing only alignment implies the whole record is operative — the exact
   // failure Axis B exists to prevent, reintroduced one level up.
-  var STANDING_STICKY = { partly_blocked: 1, blocked: 1, struck_down: 1, rescinded: 1, challenged_unverified: 1 };
+  var STANDING_STICKY = { partly_blocked: 1, blocked: 1, struck_down: 1, overridden: 1,
+                          rescinded: 1, challenged_unverified: 1 };
 
   // One or two actions cannot carry a pattern. Adopted from consistency.js's
   // _orMappedSummaryText, which already appends a thinness caveat at low N so a count
@@ -411,7 +478,10 @@
   // Reads the same supportMeaning logic the congressional lane uses, renamed for this
   // lane's vocabulary: a mapping that 'advances' an issue supports it, one that
   // 'opposes' it cuts against it. An omnibus therefore reports both directions from a
-  // single signature, exactly as one vote on H.R. 1 does in the 🏛️ lane.
+  // single signature, exactly as one vote on H.R. 1 does in the 🏛️ lane. The one
+  // departure is a blocking class, where the mapping describes the document and the
+  // act runs the other way — issueDirection() above is where that is resolved, and
+  // res.actions carries both readings so a caller can show its work.
   function executiveIssue(pid, issueKey, opts) {
     var res = {
       scope: 'executive', issueKey: issueKey,
@@ -431,13 +501,17 @@
       for (var j = 0; j < maps.length; j++) {
         var m = maps[j];
         if (!m || m.issueKey !== issueKey) continue;
-        if (m.direction === 'advances') adv++;
-        else if (m.direction === 'opposes') opp++;
+        // The ACT's direction, which for a blocking class is not the mapping's. See
+        // issueDirection() above.
+        var eff = issueDirection(a, m);
+        if (eff === 'advances') adv++;
+        else if (eff === 'opposes') opp++;
         else continue;
         res.actions.push({
           actionClass: a.actionClass, verb: EXEC_CLASSES[a.actionClass].verb,
           documentId: a.documentId || '', title: a.title || '', actedAt: a.actedAt || '',
-          term: a.term || '', direction: m.direction, isPrimary: !!m.isPrimary,
+          term: a.term || '', direction: eff, mappedDirection: m.direction,
+          inverted: eff !== m.direction, isPrimary: !!m.isPrimary,
           sourceUrl: a.sourceUrl, sourceLabel: a.sourceLabel,
           standing: standingOf(a)
         });
@@ -465,7 +539,10 @@
     // it must outrank in_force (an unresolved challenge cannot be summarised away as
     // operative) but must not outrank an actual injunction, because "a court stopped
     // part of this" is the stronger and better-sourced claim of the two.
-    var order = ['struck_down', 'blocked', 'partly_blocked', 'rescinded',
+    // `overridden` sits with the total defeats at the top. Its position relative to
+    // struck_down is not a severity ranking — no action can hold both, since one names
+    // a court reaching an order and the other names Congress reaching a veto.
+    var order = ['struck_down', 'overridden', 'blocked', 'partly_blocked', 'rescinded',
                  'challenged_unverified', 'superseded', 'expired', 'in_force'];
     for (var k = 0; k < order.length && !res.standing; k++) {
       for (var n = 0; n < res.actions.length; n++) {
@@ -520,12 +597,12 @@
     }
 
     var actions = {
-      inForce: 0, partlyBlocked: 0, blocked: 0, struckDown: 0,
+      inForce: 0, partlyBlocked: 0, blocked: 0, struckDown: 0, overridden: 0,
       rescinded: 0, challengedUnverified: 0, superseded: 0, expired: 0, total: 0
     };
     var STATUS_BUCKET = {
       in_force: 'inForce', partly_blocked: 'partlyBlocked', blocked: 'blocked',
-      struck_down: 'struckDown', rescinded: 'rescinded',
+      struck_down: 'struckDown', overridden: 'overridden', rescinded: 'rescinded',
       challenged_unverified: 'challengedUnverified',
       superseded: 'superseded', expired: 'expired'
     };
@@ -549,7 +626,7 @@
       dropped: pool.dropped, allTimeTotal: pool.allTime, droppedAllTime: pool.droppedAllTime,
       thin: pool.kept.length <= THIN_MAX,
       contested: !!(actions.partlyBlocked || actions.blocked || actions.struckDown ||
-                    actions.rescinded || actions.challengedUnverified),
+                    actions.overridden || actions.rescinded || actions.challengedUnverified),
       label: '',
       score: null // structurally null — asserted by scripts/test-exec-summary.mjs
     };
@@ -562,7 +639,8 @@
     // A missing summary is a rendering gap; a wrong one is a false claim.
     var aSum = issues.aligned + issues.against + issues.bothWays + issues.noActionFound + issues.noStance;
     var bSum = actions.inForce + actions.partlyBlocked + actions.blocked + actions.struckDown +
-               actions.rescinded + actions.challengedUnverified + actions.superseded + actions.expired;
+               actions.overridden + actions.rescinded + actions.challengedUnverified +
+               actions.superseded + actions.expired;
     var cSum = byClass.signed_law + byClass.vetoed_law + byClass.executive_order + byClass.directive;
     if (aSum !== issues.total) return null;
     if (bSum !== actions.total) return null;
@@ -605,6 +683,10 @@
     if (sum.actions.partlyBlocked) st.push(sum.actions.partlyBlocked + ' partly blocked in court');
     if (sum.actions.blocked)       st.push(sum.actions.blocked + ' blocked by court order');
     if (sum.actions.struckDown)    st.push(sum.actions.struckDown + ' struck down');
+    // Named for the actor, not just the outcome. "1 overridden" alone would leave the
+    // reader to guess whether a court or Congress did it, and the whole reason this
+    // token exists is that the two are different claims.
+    if (sum.actions.overridden)    st.push(sum.actions.overridden + ' overridden by Congress');
     if (sum.actions.rescinded)     st.push(sum.actions.rescinded + ' rescinded');
     if (sum.actions.challengedUnverified) {
       st.push(sum.actions.challengedUnverified + ' challenged in court — no ruling on file');
@@ -686,8 +768,14 @@
     eligible: eligible,
     office: officeOf,
     currentTerm: currentTerm,
+    // Whether this figure is serving NOW. Read by the integrity surfaces to decide
+    // whether a current-term slice is a live scope or last term wearing a live label.
+    serving: serving,
     // Per-issue read (Axis A + Axis B). score is always null.
     issue: executiveIssue,
+    // Exposed so the inversion a blocking class applies is testable on its own rather
+    // than only through the token it produces three layers up.
+    issueDirection: issueDirection,
     // Politician-level count summary, or null when nothing is on file / an invariant
     // fails. Never a percentage.
     summary: execSummary,
