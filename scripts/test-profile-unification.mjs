@@ -755,12 +755,31 @@ section("12 · stances & connections — what they stand for, ranked and connect
     // Slicing "the first two live groups" opened tested + everything-untested on a
     // figure with no contradictions — 24 of 32 rows on the president, which is the
     // wall this layer was built to replace.
+    //
+    // The open set is the TESTED rows, capped. It was exactly the tested rows until
+    // the executive record grew dense enough that "tested" alone was nineteen of the
+    // president's thirty-three — a lead that long is the same wall by another route,
+    // so blockOf folds an open group past _ST_LEAD_CAP rows. Two things are asserted
+    // rather than one, and together they are strictly stronger than the equality they
+    // replace: nothing untested may appear above the fold (which is the bug the
+    // original check existed to catch), and the count is the capped tested count
+    // exactly (so the cap cannot quietly become a truncation of something else).
+    const LEAD_CAP = Number((CS_SRC.match(/_ST_LEAD_CAP = (\d+)/) || [])[1]);
+    ok(LEAD_CAP > 0, `${who}: _ST_LEAD_CAP is readable from consistency.js`);
     const lidAt = st.indexOf("PDXSP:lid");
-    const openRows = (lidAt === -1 ? st : st.slice(0, lidAt)).match(/class="pdxst-row"/g) || [];
-    const testedRows = CS.issueRows(pid).filter((r) => r.tier === 0 || r.tier === 1).length;
-    eq(openRows.length, testedRows,
-      `${who}: the open stance rows are not exactly the tested ones — an empty group above\n` +
+    const openHtml = lidAt === -1 ? st : st.slice(0, lidAt);
+    const openRows = openHtml.match(/class="pdxst-row"/g) || [];
+    const openTiers = [...openHtml.matchAll(/data-pdxst-tier="(\d)"/g)].map((m) => Number(m[1]));
+    ok(openTiers.every((t) => t === 0 || t === 1),
+      `${who}: an untested stance row is above the fold — an empty group above\n` +
       "    must never promote a folded one into the reader's path");
+    const tensionRows = CS.issueRows(pid).filter((r) => r.tier === 0).length;
+    const testedRows = CS.issueRows(pid).filter((r) => r.tier === 0 || r.tier === 1).length;
+    const backedRows = testedRows - tensionRows;
+    // +1 mirrors blockOf's "do not fold a single row" guard.
+    const openBacked = backedRows > LEAD_CAP + 1 ? LEAD_CAP : backedRows;
+    eq(openRows.length, tensionRows + openBacked,
+      `${who}: the open stance rows are not the tested ones capped at ${LEAD_CAP}`);
     if (rows > testedRows) ok(lidAt !== -1, `${who}: the untested positions do not fold`);
   }
   // The connection out. A stance row that has been tested points at the score; a row

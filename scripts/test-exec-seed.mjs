@@ -65,7 +65,8 @@ const ISSUE_KEYS = J("db/issue-keys.json").keys;
 const MIGRATION_RELS = [
   "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql",
   "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql",
-  "netlify/database/migrations/20260824000000_seed_exec_actions_wave3.sql"
+  "netlify/database/migrations/20260824000000_seed_exec_actions_wave3.sql",
+  "netlify/database/migrations/20260826000000_seed_exec_actions_wave4.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -110,8 +111,8 @@ console.log("── ✒️ exec seed: curated actions ────────�
    ═══════════════════════════════════════════════════════════════════════════ */
 section("1 · shape and vocabulary");
 // Pinned, because the point of the count is to notice a wave that silently half
-// landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3.
-ok(ACTIONS.length === 17, `the seed carries seventeen actions — 5 from wave 1, 1 from wave 2, 11 from wave 3 (got ${ACTIONS.length})`);
+// landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3, ten from wave 4.
+ok(ACTIONS.length === 27, `the seed carries twenty-seven actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4 (got ${ACTIONS.length})`);
 
 const seenDocIds = new Set(), seenTitles = new Set(), seenFrDocs = new Set();
 for (const a of ACTIONS) {
@@ -424,7 +425,8 @@ if (sum) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 5 && C.executive_order === 12, `class split is 5 laws + 12 orders (got ${C.signed_law}+${C.executive_order})`);
+  ok(C.signed_law === 5 && C.executive_order === 20 && C.directive === 2,
+    `class split is 5 laws + 20 orders + 2 directives (got ${C.signed_law}+${C.executive_order}+${C.directive})`);
 
   // "Upgrade or hold" — verified as an outcome, not a promise. Every item in every
   // wave cleared the source gate, and every one carries a citable standing.

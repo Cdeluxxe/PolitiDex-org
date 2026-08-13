@@ -166,7 +166,7 @@ ok(sum && sum.execPool, "adapter: the summary carries the pool it was built from
 // coverage, and issuesWithSignal must list it so the row can explain itself.
 const keys = XA.issues(PID);
 ok(keys.length >= 15, "adapter: issues() spans the seeded mappings");
-ok(keys.indexOf("end_dei") !== -1, "adapter: issues() includes a key whose only action is held");
+ok(keys.indexOf("healthcare") !== -1, "adapter: issues() includes a key whose only action is held");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the circularity guard (the central design of this pass)");
@@ -256,13 +256,19 @@ const epOv = CS.officialRecord(PID, "energy_production");
 eq(epOv.token, "consistent", "granularity: a partly-held issue still produces a verdict");
 eq(epOv.lane, "exec", "granularity: and it produces it on the executive lane");
 // The same action is held on one issue and scored on another — per pair, not per action.
+// end_dei is the standing proof that the guard is a HOLD and not a deletion: EO 14151 is
+// still held here, and the issue is nonetheless scored, because wave 4 put a second
+// document on it (EO 14173) that no card in the app names. Before that wave this issue
+// was fully held and read as no_record — which is what the block below now checks on
+// `healthcare`, whose only mapped action really is the one its card was written from.
 const dei = XA.forIssue(PID, "end_dei");
 ok(dei.held.some((h) => h.documentId === "Executive Order 14151"),
-  "granularity: EO 14151 is held on end_dei");
-ok(dei.items.length === 0, "granularity: end_dei has nothing left to score");
+  "granularity: EO 14151 is still held on end_dei");
+ok(dei.items.some((it) => it.documentId === "Executive Order 14173"),
+  "granularity: end_dei is scored by a second document its card does not name");
 
 // ── 3d. a held pair is a COVERAGE GAP, never a grade ──
-const deiOv = CS.officialRecord(PID, "end_dei");
+const deiOv = CS.officialRecord(PID, "healthcare");
 eq(deiOv.token, "no_record", "coverage: a fully-held issue reads as no record");
 eq(deiOv.score, null, "coverage: and carries no percentage — never a false 0%");
 eq(deiOv.pending, false, "coverage: a held issue is NOT a warming state");

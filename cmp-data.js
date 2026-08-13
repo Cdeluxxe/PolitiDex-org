@@ -8578,12 +8578,13 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    },
    {
     "title": "Bring prices down starting on day one",
-    "detail": "The consumer price index for all urban consumers stood at 317.671 in January 2025 and 333.952 in June 2026 — everyday prices rose about 5% over the period rather than coming down. The day-one memorandum directing agencies to pursue emergency price relief is on the record; the series it was meant to move is not.",
+    "detail": "The consumer price index for all urban consumers stood at 317.671 in January 2025 and 333.952 in June 2026 — everyday prices rose about 5% over the period rather than coming down. The day-one instrument is on the record and cited below: the presidential memorandum of January 20, 2025, published at 90 FR 8245, directs every agency to pursue emergency price relief. The series it was meant to move is the test, and it moved the other way.",
     "verdict": "broken",
     "issueKey": "cost_living",
     "date": "2024-08-15",
     "sources": [
-     { "label": "BLS — CPI, all urban consumers (CUUR0000SA0)", "url": "https://data.bls.gov/timeseries/CUUR0000SA0" }
+     { "label": "BLS — CPI, all urban consumers (CUUR0000SA0)", "url": "https://data.bls.gov/timeseries/CUUR0000SA0" },
+     { "label": "Federal Register — Presidential Memorandum of January 20, 2025, 90 FR 8245", "url": "https://www.federalregister.gov/documents/2025/01/28/2025-01904/delivering-emergency-price-relief-for-american-families-and-defeating-the-cost-of-living-crisis" }
     ]
    },
    {
@@ -8598,7 +8599,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    },
    {
     "title": "No tax on tips",
-    "detail": "Signed into law on July 4, 2025. Section 70201 of Public Law 119-21 adds a new section 224 to the Internal Revenue Code allowing a deduction for qualified tips received during the taxable year; the companion section 70202 does the same for overtime.",
+    "detail": "Signed into law on July 4, 2025. Section 70201 of Public Law 119-21 adds a new section 224 to the Internal Revenue Code allowing a deduction for qualified tips received during the taxable year. That section alone is what this row tests. The companion section 70202 does the same for overtime, which is context rather than evidence here — no separate overtime commitment is itemized because this pass found no sourced statement of one to test it against.",
     "verdict": "kept",
     "issueKey": "tax_middle_class",
     "date": "2024-06-09",
@@ -8638,7 +8639,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    },
    {
     "title": "Never allow a central bank digital currency, and sign a stablecoin framework",
-    "detail": "Both halves are on the formal record. Executive Order 14178, signed January 23, 2025, prohibits agencies from establishing, issuing or promoting a U.S. central bank digital currency and revokes the prior order that had directed work on one. Public Law 119-27, signed July 18, 2025, establishes the federal regulatory framework for payment stablecoins.",
+    "detail": "Both halves are on the formal record. Executive Order 14178, signed January 23, 2025, prohibits agencies from establishing, issuing or promoting a U.S. central bank digital currency and revokes the prior order that had directed work on one. Public Law 119-27, signed July 18, 2025, establishes the federal regulatory framework for payment stablecoins. The two instruments stay on one row because the record files both under the same issue — splitting them would count that issue twice rather than test anything new.",
     "verdict": "kept",
     "issueKey": "crypto_cbdc",
     "date": "2024-07-27",
