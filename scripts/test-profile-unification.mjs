@@ -586,9 +586,20 @@ section("9 · and it is measurably shorter");
   const seen = (html) => text(firstPaint(html)).trim().length;
 
   // Budgets are ceilings with headroom, not snapshots of today's byte count: they
-  // fail on a regrowth, not on an edit. Measured at the time of writing: 7193 / 1451.
+  // fail on a regrowth, not on an edit. Measured when the fold landed: 7193 / 1451.
+  //
+  // The record ceiling moved once, from 9000 to 11000, and what moved it is worth
+  // writing down because the next move should not be a raise. The section's first
+  // paint is 9630 characters at wave 5 of the executive record and was 7353 at wave 4:
+  // the +2277 is the ✒️ embed's per-document issue rows and standing notes, one set
+  // per seeded document, so it grows with the RECORD and not with the layout. The
+  // ceiling stays under the 12471 the section measured before the ledger folded —
+  // that number is the wall this whole layer exists to stay behind, and it is not a
+  // number to creep up on. Roughly five more documents of headroom is left. The wave
+  // that exhausts it should fold the embed's issue rows the way the ledger's own
+  // cards are already folded, rather than raise this line again.
   const rec = seen(CS.officialRecordSectionHtml(PRES, PP));
-  ok(rec > 1500 && rec < 9000,
+  ok(rec > 1500 && rec < 11000,
     `the Official Record's first paint is ${rec} characters — it was 12471 before the ledger folded,\n` +
     "    and it is the one section a reader is meant to keep, so it must not be the longest thing\n" +
     "    on the page by an order of magnitude again");

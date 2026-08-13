@@ -1015,6 +1015,371 @@
             "note": "Published at 90 FR 8245. The disposition record for this document is empty — no later presidential action revokes or supersedes it — so the direction to agencies stands as published. Standing describes the instrument, not its effect: this row asserts that the memorandum is on foot and asserts nothing about prices, and it is not a statement about any challenge to it."
           }
         ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14212",
+        "executiveOrderNumber": 14212,
+        "title": "Establishing the President's Make America Healthy Again Commission",
+        "actedAt": "2025-02-13",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/19/2025-02871/establishing-the-presidents-make-america-healthy-again-commission",
+        "sourceLabel": "Federal Register — Executive Order 14212, 90 FR 9833",
+        "frCitation": "90 FR 9833",
+        "frDocumentNumber": "2025-02871",
+        "publishedAt": "2025-02-19",
+        "_whyThisRow": "healthcare was one of the two issues on this profile that were still FULLY held after wave 4: its only mapped document was Public Law 119-21, and the stance card on the issue — \"H.R.1: Medicaid & SNAP\" — exists to report that law's projected coverage effect, so the pair cannot test itself. The circularity rule's own prescribed remedy is a different document, not a lifted flag. This is that different document, and no card in the app names it.",
+        "issues": [
+          {
+            "issueKey": "healthcare",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Establishes the President's Make America Healthy Again Commission, chaired by the Secretary of Health and Human Services, and directs it to study the childhood chronic disease crisis and its contributing causes and to submit the Make Our Children Healthy Again Assessment to the President within 100 days. Section 2 sets the policy that agencies addressing health or healthcare focus on reversing chronic disease and ensure the availability of expanded treatment options."
+          }
+        ],
+        "_issuesNote": "NOT mapped to health_drug_prices or healthcare_costs. The order is about chronic disease and the research agenda behind it; it sets no price and directs no pricing action, and mapping it to a pricing issue would be reading the word \"health\" rather than the document.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-19",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14212 document record, 90 FR 9833",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/19/2025-02871/establishing-the-presidents-make-america-healthy-again-commission",
+            "note": "The register's disposition record for this order carries two forward cross-references — Executive Order 14355 of September 30, 2025 and Executive Order 14414 of June 25, 2026 — and neither revokes or supersedes it; both were read and are later health and agriculture orders that cite the Commission rather than end it. So the order stands as published. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14293",
+        "executiveOrderNumber": 14293,
+        "title": "Regulatory Relief To Promote Domestic Production of Critical Medicines",
+        "actedAt": "2025-05-05",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/05/08/2025-08267/regulatory-relief-to-promote-domestic-production-of-critical-medicines",
+        "sourceLabel": "Federal Register — Executive Order 14293, 90 FR 19615",
+        "frCitation": "90 FR 19615",
+        "frDocumentNumber": "2025-08267",
+        "publishedAt": "2025-05-08",
+        "_whyThisRow": "A hold broken by exactly one document is broken by a coin flip. This is the second independent healthcare document, and it also gives health_drug_prices a third — that issue had two documents and one of them was held circular against its own card, so it was resting on a single testable row too.",
+        "issues": [
+          {
+            "issueKey": "healthcare",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 80,
+            "rationale": "Directs the Commissioner of Food and Drugs, within 180 days, to review and eliminate duplicative or unnecessary regulations and guidance governing domestic pharmaceutical manufacturing, and to improve the timeliness and predictability of agency review of new and expanded manufacturing capacity."
+          },
+          {
+            "issueKey": "health_drug_prices",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Sets as policy the restoration of a domestic pharmaceutical manufacturing base on the stated ground that the barriers it removes stand in the way of an affordable pharmaceutical supply chain for American patients."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-05-08",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14293 document record, 90 FR 19615",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/05/08/2025-08267/regulatory-relief-to-promote-domestic-production-of-critical-medicines",
+            "note": "The register's disposition record for this order carries one cross-reference, back to Executive Order 13944 of August 6, 2020, which the order itself cites as the first-term predecessor it builds on. There is no entry revoking or superseding it, so it stands as published. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 11010",
+        "title": "Ensuring Affordable Beef for the American Consumer",
+        "actedAt": "2026-02-06",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/13/2026-03050/ensuring-affordable-beef-for-the-american-consumer",
+        "sourceLabel": "Federal Register — Proclamation 11010, 91 FR 7107",
+        "frCitation": "91 FR 7107",
+        "frDocumentNumber": "2026-03050",
+        "publishedAt": "2026-02-13",
+        "_whyThisRow": "cost_living was the other fully-held issue. Its only document was the day-one memorandum, and the stance card on the issue quotes that memorandum by title, so the pair is circular and the issue read as no record. The memorandum names four cost categories — housing, health care, food and energy. This is a formal action inside one of them, signed thirteen months later, that no card names.",
+        "issues": [
+          {
+            "issueKey": "cost_living",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Increases the calendar-year 2026 in-quota quantity of the beef tariff-rate quota by 80,000 metric tons of lean beef trimmings, released in four quarterly tranches and allocated in its entirety to Argentina, on the determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
+          }
+        ],
+        "_issuesNote": "NOT mapped to econ_trade or any tariffs_* issue, although the instrument is a tariff-rate quota. The proclamation lowers a trade barrier to bring a consumer price down, which is the opposite direction from every tariff document on this profile; filing it under a tariff issue would make the trade record read as though it pointed both ways on the strength of one grocery measure.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-13",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 11010 document record, 91 FR 7107",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/13/2026-03050/ensuring-affordable-beef-for-the-american-consumer",
+            "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing has revoked, amended or superseded it and it stands as published. Standing describes the instrument, not its effect: this row asserts that the quota increase is on foot and asserts nothing about the price of beef. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14394",
+        "executiveOrderNumber": 14394,
+        "title": "Removing Regulatory Barriers to Affordable Home Construction",
+        "actedAt": "2026-03-13",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/03/18/2026-05388/removing-regulatory-barriers-to-affordable-home-construction",
+        "sourceLabel": "Federal Register — Executive Order 14394, 91 FR 13207",
+        "frCitation": "91 FR 13207",
+        "frDocumentNumber": "2026-05388",
+        "publishedAt": "2026-03-18",
+        "_whyThisRow": "The second independent document on cost_living, in a second one of the memorandum's four named cost categories. It is also the first document on this profile filed under housing_build.",
+        "issues": [
+          {
+            "issueKey": "housing_build",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Army Corps of Engineers and the Environmental Protection Agency to revise stormwater, wetlands and Clean Water Act section 404 permitting requirements to reduce housing construction costs, and directs Commerce, HUD, Transportation and the Federal Housing Finance Agency to consider eliminating rules that constrain residential development."
+          },
+          {
+            "issueKey": "cost_living",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 80,
+            "rationale": "Sets as administration policy the reduction of regulatory barriers to building homes on the stated ground that permitting delays and mandates have driven up the cost of new housing and made it less affordable."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-03-18",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14394 document record, 91 FR 13207",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/03/18/2026-05388/removing-regulatory-barriers-to-affordable-home-construction",
+            "note": "The register's disposition record for this order carries no cross-references, so nothing has revoked or superseded it and it stands as published. The order directs rulemaking rather than performing it, so this row asserts that the direction is on foot and asserts nothing about any rule that follows from it. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 10896",
+        "title": "Adjusting Imports of Steel Into the United States",
+        "actedAt": "2025-02-10",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/18/2025-02833/adjusting-imports-of-steel-into-the-united-states",
+        "sourceLabel": "Federal Register — Proclamation 10896, 90 FR 9817",
+        "frCitation": "90 FR 9817",
+        "frDocumentNumber": "2025-02833",
+        "publishedAt": "2025-02-18",
+        "_whyThisOneMattersMost": "Five of this profile's tariff issues rested on ONE document, Executive Order 14257 — and on February 20, 2026 the Supreme Court held that the statute that order was issued under does not authorise tariffs at all. A whole quadrant of the record was one ruling away from having nothing testable in it. This proclamation is issued under section 232 of the Trade Expansion Act of 1962, a delegation Congress wrote, and it is untouched by that ruling and by Executive Order 14389, which ended the duties imposed under the emergency statute. The tariff record now has a second leg that does not depend on the first.",
+        "issues": [
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Terminates every country arrangement, exemption and quota that had displaced the section 232 steel tariff — for South Korea, Argentina, Australia, Brazil, Canada, Mexico, the European Union, Japan, the United Kingdom and Ukraine — effective March 12, 2025, restoring the ad valorem duty across steel imports."
+          },
+          {
+            "issueKey": "econ_trade",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Uses import duties on a single industrial input as the instrument for rebuilding domestic steel capacity, and removes the alternative arrangements that had let named partners ship outside the duty."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Restores the duty across the steel import base with no offsetting relief for downstream purchasers."
+          }
+        ],
+        "_issuesNote": "NOT mapped to tariffs_authority, and the omission is the point of the row. That issue is about setting tariffs without Congress; this proclamation acts under section 232 of the Trade Expansion Act of 1962, which is a delegation Congress enacted. Carrying it there would file a use of congressional authority as evidence of bypassing Congress.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-18",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 10896 document record, 90 FR 9817",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/18/2025-02833/adjusting-imports-of-steel-into-the-united-states",
+            "note": "The register's disposition record for this proclamation carries no revoking or superseding entry, so it stands as published. It is not among the documents whose duties Executive Order 14389 of February 20, 2026 ended: that order reaches only the additional ad valorem duties imposed under the International Emergency Economic Powers Act, and this proclamation was issued under section 232 of the Trade Expansion Act of 1962. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Presidential Memorandum, 90 FR 8471",
+        "title": "America First Trade Policy",
+        "actedAt": "2025-01-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/30/2025-02032/america-first-trade-policy",
+        "sourceLabel": "Federal Register — Presidential Memorandum of January 20, 2025, 90 FR 8471",
+        "frCitation": "90 FR 8471",
+        "frDocumentNumber": "2025-02032",
+        "publishedAt": "2025-01-30",
+        "_whyThisRow": "The day-one trade instrument, and the document the later tariff orders grow out of. It is a memorandum, which is why it belongs to the lesser-instrument class rather than the order class — the distinction the directive class exists to preserve.",
+        "issues": [
+          {
+            "issueKey": "econ_trade",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the Secretary of Commerce, with the Treasury and the Trade Representative, to investigate the causes of persistent annual goods trade deficits and to recommend remedies including a global supplemental tariff, and directs the Treasury to report on the feasibility of an external revenue service to collect duties."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-30",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — America First Trade Policy document record, 90 FR 8471",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/30/2025-02032/america-first-trade-policy",
+            "note": "The register's disposition record for this memorandum carries no revoking or superseding entry, so the direction to agencies stands as published. The later tariff actions it asked agencies to recommend have their own standing rows on their own documents; this row asserts only that the direction is on foot. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14195",
+        "executiveOrderNumber": 14195,
+        "title": "Imposing Duties To Address the Synthetic Opioid Supply Chain in the People's Republic of China",
+        "actedAt": "2025-02-01",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02408/imposing-duties-to-address-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of-china",
+        "sourceLabel": "Federal Register — Executive Order 14195, 90 FR 9121",
+        "frCitation": "90 FR 9121",
+        "frDocumentNumber": "2025-02408",
+        "publishedAt": "2025-02-07",
+        "_whyThisRow": "Two thin issues at once — tariffs_china and immig_fentanyl each had exactly one document — and the file's first use of the `superseded` standing, which has been renderable since Phase 1 with nothing in it. The sequence is the whole value of the row: duties imposed under an emergency statute in February 2025, and ended by the President's own later order in February 2026.",
+        "issues": [
+          {
+            "issueKey": "tariffs_china",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Imposes an additional ad valorem duty on all articles that are products of the People's Republic of China, invoking section 1702(a)(1)(B) of the International Emergency Economic Powers Act on the finding that other tariff authority was inadequate."
+          },
+          {
+            "issueKey": "immig_fentanyl",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Expands the national emergency declared in Proclamation 10886 to cover the failure of the PRC government to intercept chemical precursor suppliers, money launderers and transnational criminal organisations, and imposes the duties as the measure against that supply chain."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-07",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14195 document record, 90 FR 9121",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02408/imposing-duties-to-address-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of-china",
+            "note": "Issued February 1, 2025 and published February 7, 2025. The duties were collected under this order, as amended by Executive Order 14228 of March 3, 2025, for just over a year. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is not a statement about any challenge to it."
+          },
+          {
+            "status": "superseded",
+            "effectiveAt": "2026-02-20",
+            "authority": "President of the United States, by later executive order",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
+            "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency and every other action taken under it are unaffected, so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14399",
+        "executiveOrderNumber": 14399,
+        "title": "Ensuring Citizenship Verification and Integrity in Federal Elections",
+        "actedAt": "2026-03-31",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/04/03/2026-06601/ensuring-citizenship-verification-and-integrity-in-federal-elections",
+        "sourceLabel": "Federal Register — Executive Order 14399, 91 FR 17125",
+        "frCitation": "91 FR 17125",
+        "frDocumentNumber": "2026-06601",
+        "publishedAt": "2026-04-03",
+        "_whyThisRow": "election_integrity and voter_id both rested on Executive Order 14248 alone, and parts of that order were enjoined before they took effect — which is exactly why the itemized pledge on the issue is recorded as partial. A second, later order on the same subject is the difference between a record with one contested document in it and a record.",
+        "issues": [
+          {
+            "issueKey": "election_integrity",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Directs the transmission of State Citizenship Lists built from Social Security Administration records and the Department of Homeland Security's SAVE program, directs the Attorney General to prioritise investigation and prosecution of officials who issue federal ballots to ineligible individuals, and directs the Postmaster General to begin a rulemaking within 60 days on uniform standards for mail-in and absentee ballot envelopes."
+          },
+          {
+            "issueKey": "voter_id",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Builds federal citizenship verification for election eligibility on existing SSA and SAVE records, and requires unique Intelligent Mail barcode identifiers on outbound ballot mail so that ballots can be traced to an identified recipient."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-04-03",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14399 document record, 91 FR 17125",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/04/03/2026-06601/ensuring-citizenship-verification-and-integrity-in-federal-elections",
+            "note": "The register's disposition record for this order carries no revoking or superseding entry, so it stands as published. The order itself states that appearing on a State Citizenship List does not by itself place anyone on the rolls and that State and Federal registration law still applies, so this row asserts that the order is on foot and asserts nothing about any registration outcome. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14150",
+        "executiveOrderNumber": 14150,
+        "title": "America First Policy Directive to the Secretary of State",
+        "actedAt": "2025-01-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-01952/america-first-policy-directive-to-the-secretary-of-state",
+        "sourceLabel": "Federal Register — Executive Order 14150, 90 FR 8337",
+        "frCitation": "90 FR 8337",
+        "frDocumentNumber": "2025-01952",
+        "publishedAt": "2025-01-29",
+        "_whyThisRow": "america_first carried a stated position — \"Defense & Foreign Policy\" — and ZERO documents, so the lane reported no action on file at all against a stance the profile leads with. This is the formal instrument of that posture: not a slogan that happens to appear in a title, but an order whose entire operative content is a direction to the Secretary of State to bring the Department's policies, programs, personnel and operations into line with it.",
+        "issues": [
+          {
+            "issueKey": "america_first",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Section 1 provides that from that day forward the foreign policy of the United States shall champion core American interests and always put America and American citizens first; section 2 directs the Secretary of State to issue guidance bringing the Department's policies, programs, personnel and operations in line with it."
+          },
+          {
+            "issueKey": "america_first_fp",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Sets the doctrine that the foreign-aid realignment order signed the same day carries out, at the level of the Department of State as a whole rather than of one program."
+          }
+        ],
+        "_issuesNote": "NOT mapped to strong_defense. The order reaches the Department of State and nothing else; the defense half of the stance it tests is carried by the two documents already on that issue.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-29",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14150 document record, 90 FR 8337",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-01952/america-first-policy-directive-to-the-secretary-of-state",
+            "note": "The register's disposition record for this order carries two cross-references — back to Executive Order 13985 of January 20, 2021, which it displaces, and forward to a memorandum of July 15, 2025 — and no entry revoking or superseding it, so it stands as published. This is not a statement about any challenge to it."
+          }
+        ]
       }
     ]
   }

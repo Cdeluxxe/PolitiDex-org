@@ -97,6 +97,34 @@ function section(n) { console.log(`\n${n}\n`); }
 ok(P, "fixture: trump is in CMP_DATA");
 ok(CS && WA && ER && XA, "fixture: every module under test loaded and exported");
 
+/* ─── a fully-held issue, on demand ──────────────────────────────────────────
+   A FULLY held issue — every document on it circular against the card that states
+   the position — is a distinct engine state with its own token, its own reason and
+   its own caption, and all three have to stay covered. What it is not any more is a
+   fact about the seed: wave 4 broke the hold on end_dei and wave 5 broke it on
+   healthcare and cost_living by putting independent documents on them, which is what
+   those waves existed to do. Pinning the state to whichever issue happens to be held
+   this month means the assertion moves every wave and silently stops asserting
+   anything the wave it survives.
+
+   So the example is constructed instead of curated: the real pool minus the two
+   orders wave 5 added to healthcare, which is exactly the pool that produced the
+   state before it. Nothing here is invented — the pair that holds, Public Law
+   119-21 → healthcare, and its circularWithStance flag are the seed's own, and the
+   real pool is restored the moment the block ends. */
+const WAVE5_HEALTHCARE = ["Executive Order 14212", "Executive Order 14293"];
+function withHealthcareFullyHeld(fn) {
+  const real = win.EXEC_ACTIONS[PID];
+  win.EXEC_ACTIONS[PID] = real.filter((a) => WAVE5_HEALTHCARE.indexOf(a.documentId) === -1);
+  try { return fn(); } finally { win.EXEC_ACTIONS[PID] = real; }
+}
+// The swap has to actually change something, or every assertion made inside it is
+// being made about the ordinary pool and proves nothing.
+eq(withHealthcareFullyHeld(() => XA.forIssue(PID, "healthcare").items.length), 0,
+  "fixture: the withheld pool really does leave healthcare with nothing scorable");
+ok(XA.forIssue(PID, "healthcare").items.length > 0,
+  "fixture: and the real pool — the one every other assertion reads — does score it");
+
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · the office gate");
 // ═════════════════════════════════════════════════════════════════════════════
@@ -163,10 +191,13 @@ ok(sum && typeof sum.netVerdict === "string", "adapter: the summary carries a ne
 ok(sum && sum.execPool, "adapter: the summary carries the pool it was built from");
 
 // issues() is the union over KEPT actions, held pairs included — a held pair is still
-// coverage, and issuesWithSignal must list it so the row can explain itself.
+// coverage, and issuesWithSignal must list it so the row can explain itself. The key
+// is discovered rather than named: which issues carry a held pair is a curation fact
+// that moves with every wave, and a pinned key would quietly stop testing the union.
 const keys = XA.issues(PID);
 ok(keys.length >= 15, "adapter: issues() spans the seeded mappings");
-ok(keys.indexOf("healthcare") !== -1, "adapter: issues() includes a key whose only action is held");
+const heldKey = keys.filter((k) => XA.forIssue(PID, k).held.length > 0)[0];
+ok(heldKey, "adapter: issues() includes a key that carries a held pair — a hold is coverage, not a deletion");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the circularity guard (the central design of this pass)");
@@ -258,17 +289,31 @@ eq(epOv.lane, "exec", "granularity: and it produces it on the executive lane");
 // The same action is held on one issue and scored on another — per pair, not per action.
 // end_dei is the standing proof that the guard is a HOLD and not a deletion: EO 14151 is
 // still held here, and the issue is nonetheless scored, because wave 4 put a second
-// document on it (EO 14173) that no card in the app names. Before that wave this issue
-// was fully held and read as no_record — which is what the block below now checks on
-// `healthcare`, whose only mapped action really is the one its card was written from.
+// document on it (EO 14173) that no card in the app names. Wave 5 did the same for
+// healthcare and cost_living, so the fully-held state below is reached through the
+// withheld pool rather than through whichever issue is still stuck.
 const dei = XA.forIssue(PID, "end_dei");
 ok(dei.held.some((h) => h.documentId === "Executive Order 14151"),
   "granularity: EO 14151 is still held on end_dei");
 ok(dei.items.some((it) => it.documentId === "Executive Order 14173"),
   "granularity: end_dei is scored by a second document its card does not name");
+// Wave 5's own unlocks, asserted from the other side: the pair that used to hold each
+// issue outright is STILL held, and the issue is scored anyway. That is the rule's
+// prescribed fix — a different document — as opposed to a lifted flag, and it is the
+// one thing about these waves worth pinning permanently.
+for (const [key, heldDoc, freeDoc] of [
+  ["healthcare", "Public Law 119-21", "Executive Order 14212"],
+  ["cost_living", "Presidential Memorandum, 90 FR 8245", "Proclamation 11010"]
+]) {
+  const pool = XA.forIssue(PID, key);
+  ok(pool.held.some((h) => h.documentId === heldDoc),
+    `granularity: ${heldDoc} is still held on ${key} — the flag was not lifted`);
+  ok(pool.items.some((it) => it.documentId === freeDoc),
+    `granularity: ${key} is scored by ${freeDoc}, a document no card names`);
+}
 
 // ── 3d. a held pair is a COVERAGE GAP, never a grade ──
-const deiOv = CS.officialRecord(PID, "healthcare");
+const deiOv = withHealthcareFullyHeld(() => CS.officialRecord(PID, "healthcare"));
 eq(deiOv.token, "no_record", "coverage: a fully-held issue reads as no record");
 eq(deiOv.score, null, "coverage: and carries no percentage — never a false 0%");
 eq(deiOv.pending, false, "coverage: a held issue is NOT a warming state");
@@ -299,13 +344,21 @@ for (const k of XA.issues(PID)) {
 ok(heldTotal >= 6, `fail closed: the held set is non-trivial (${heldTotal} pairs)`);
 
 // touched counts every pair the seed reaches, scored or not — so a gap can be told
-// apart from an absence. `healthcare` is the standing example: the only stance card
-// on that issue is a narration of H.R. 1's own coverage score, so the document
-// cannot test it and the row honestly scores nothing.
-const hc = XA.forIssue(PID, "healthcare");
+// apart from an absence. On the real pool the invariant is that a held pair still
+// counts as coverage: touched runs ahead of the scored items rather than the hold
+// erasing the document from the issue's file.
+for (const k of XA.issues(PID)) {
+  const pool = XA.forIssue(PID, k);
+  if (!pool.held.length) continue;
+  eq(pool.touched, pool.items.length + pool.held.length,
+    `fail closed: ${k}'s touched count carries its held pairs as coverage`);
+}
+// And the limiting case, on the withheld pool: when EVERY pair on an issue is held,
+// the issue is still touched and still scores nothing at all.
+const hc = withHealthcareFullyHeld(() => XA.forIssue(PID, "healthcare"));
 ok(hc.touched > 0, "fail closed: an issue the seed reaches is 'touched' even when nothing scores");
 eq(hc.items.length, 0, "fail closed: and scores nothing");
-ok(CS.officialRecord(PID, "healthcare").token !== "pending",
+eq(withHealthcareFullyHeld(() => CS.officialRecord(PID, "healthcare").token) !== "pending", true,
   "fail closed: which reads as a coverage gap, not as pending");
 
 // …and the opposite case, which is the point of the circular guard rather than a
@@ -466,8 +519,10 @@ for (const word of ["voted ", "roll call", " yea", " nay", "no votes yet", "qual
 has(sec, "orders, signings and vetoes",
   "vocabulary: the section names the record that is actually true of the office");
 // Empty rows must never be captioned with a claim their own evidence list refutes.
-// Three different things can be missing here and each gets its own true caption.
-has(sec, "On file, not scorable",
+// Three different things can be missing here and each gets its own true caption. The
+// first is rendered from the withheld pool: no seeded issue is fully held any more,
+// and the caption for that state still has to be reachable and still has to be true.
+has(withHealthcareFullyHeld(() => CS.officialRecordSectionHtml(PID, P)), "On file, not scorable",
   "vocabulary: a row whose actions are all held says so — it does not claim there is no action");
 has(sec, "No stated position yet",
   "vocabulary: a row with a clean action and no stated position says THAT is what is missing");
