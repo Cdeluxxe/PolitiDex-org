@@ -1309,6 +1309,13 @@
             "isPrimary": true,
             "weight": 100,
             "rationale": "Increases the calendar-year 2026 in-quota quantity of the beef tariff-rate quota by 80,000 metric tons of lean beef trimmings, released in four quarterly tranches and allocated in its entirety to Argentina, on the determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 85,
+            "rationale": "Lowers a tariff barrier for the stated purpose of holding a consumer price down: the proclamation enlarges the in-quota quantity so that beef entering under the quota pays the low in-quota rate rather than the over-quota rate, on the President's determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
           }
         ],
         "status": [
@@ -1567,6 +1574,179 @@
             "sourceLabel": "Federal Register — Executive Order 14150 document record, 90 FR 8337",
             "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-01952/america-first-policy-directive-to-the-secretary-of-state",
             "note": "The register's disposition record for this order carries two cross-references — back to Executive Order 13985 of January 20, 2021, which it displaces, and forward to a memorandum of July 15, 2025 — and no entry revoking or superseding it, so it stands as published. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14360",
+        "executiveOrderNumber": 14360,
+        "title": "Modifying the Scope of the Reciprocal Tariffs With Respect to Certain Agricultural Products",
+        "actedAt": "2025-11-14",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/11/25/2025-21203/modifying-the-scope-of-the-reciprocal-tariffs-with-respect-to-certain-agricultural-products",
+        "sourceLabel": "Federal Register — Executive Order 14360, 90 FR 54091",
+        "frCitation": "90 FR 54091",
+        "frDocumentNumber": "2025-21203",
+        "publishedAt": "2025-11-25",
+        "issues": [
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Section 1 determines that certain agricultural products shall not be subject to the reciprocal tariff imposed under Executive Order 14257, as amended, and issues updated versions of that order's Annex II; section 2 modifies the Harmonized Tariff Schedule accordingly effective for goods entered on or after 12:01 a.m. eastern standard time on November 13, 2025 — a day before signature — and provides that to the extent implementation requires a refund of duties collected, refunds shall be processed through U.S. Customs and Border Protection's standard procedures."
+          },
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 65,
+            "rationale": "Removes a class of goods from the reciprocal tariff's coverage, and gives as the grounds for doing so the President's consideration of \"current domestic demand for certain products, and current domestic capacity to produce certain products\" alongside the status of negotiations — a narrowing of the instrument driven in part by domestic supply conditions rather than by anything a trading partner conceded."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-11-25",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14360 document record, 90 FR 54091",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/11/25/2025-21203/modifying-the-scope-of-the-reciprocal-tariffs-with-respect-to-certain-agricultural-products",
+            "note": "The register's disposition record for this order carries three cross-references — back to Executive Order 14257 of April 2, 2025 and Executive Order 14346 of September 5, 2025, the orders whose annexes it updates, and forward to the notice of March 24, 2026 at 91 FR 15517, which continued the national emergency declared in Executive Order 14257 — and no entry revoking or superseding it, so it stands as published. Read the limit of that carefully: the duties this order carved products out of were themselves ended on February 20, 2026 by Executive Order 14389, and the order that imposed them was held unauthorized the same day. This row does not assert a standing beyond what the register shows, and it is not a statement about any challenge to this order."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 11038",
+        "title": "Declaration of Emergency and Authorization for Temporary Duty-Free Importation of Phosphate Fertilizer From Morocco",
+        "actedAt": "2026-06-29",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/07/02/2026-13588/declaration-of-emergency-and-authorization-for-temporary-duty-free-importation-of-phosphate",
+        "sourceLabel": "Federal Register — Proclamation 11038, 91 FR 40855",
+        "frCitation": "91 FR 40855",
+        "frDocumentNumber": "2026-13588",
+        "publishedAt": "2026-07-02",
+        "issues": [
+          {
+            "issueKey": "econ_trade",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 85,
+            "rationale": "Directs the Secretary of the Treasury and the Secretary of Commerce, under section 318 of the Tariff Act of 1930 (19 U.S.C. 1318(a)), to permit importation of phosphate fertilizers of the Kingdom of Morocco free of the collection of duties and of deposits of estimated duties under sections 1671, 1675 and 1677j of title 19 — the countervailing-duty provisions — for up to eight months or until the declared emergency terminates."
+          },
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Paragraph 4 states that United States production of phosphate fertilizer is insufficient to support domestic agricultural food production after accounting for exports, and that although the Federal Government is working with the private sector to expand domestic fertilizer manufacturing capacity, \"those efforts will take time to increase the supply materially\" — so the interim answer chosen is duty-free foreign supply rather than the tariff."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Paragraph 3 gives as the reason for the action persistent threats to the global fertilizer supply chain \"which create rapid price increases and procurement challenges\", and paragraph 2 ties the timing to the spring and summer application window, when the year's phosphate fertilizer goes onto the fields — relief from a duty, granted to keep an input cost down."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-07-02",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 11038 document record, 91 FR 40855",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/07/02/2026-13588/declaration-of-emergency-and-authorization-for-temporary-duty-free-importation-of-phosphate",
+            "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing has revoked, amended or superseded it and it stands as published. It is time-limited by its own paragraph (2), which runs the authorization until the earlier of eight months after June 29, 2026 or termination of the emergency it declares; that window had not closed when this row was written, and this row asserts nothing about what happens at its end. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 11012",
+        "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
+        "actedAt": "2026-02-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
+        "sourceLabel": "Federal Register — Proclamation 11012, 91 FR 9339",
+        "frCitation": "91 FR 9339",
+        "frDocumentNumber": "2026-03824",
+        "publishedAt": "2026-02-25",
+        "issues": [
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Imposes an additional 10 percent ad valorem surcharge on articles imported into the United States, effective for goods entered on or after 12:01 a.m. eastern standard time on February 24, 2026, under section 122 of the Trade Act of 1974 (19 U.S.C. 2132), which permits an import surcharge of up to 15 percent for up to 150 days to deal with large and serious United States balance-of-payments deficits."
+          },
+          {
+            "issueKey": "econ_trade",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 85,
+            "rationale": "Re-imposes broad-based import duties across nearly the whole tariff schedule on the day the previous, differently-authorized program ended, so the trade-barrier posture continues without interruption under a statute the President selected for that purpose."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Applies a surcharge to nearly all imported articles. Paragraph 14 exempts a list of goods — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics, vehicles, aerospace articles, goods already covered by section 232 actions, USMCA-qualifying duty-free Canadian and Mexican goods and CAFTA-DR textiles — and those carve-outs are recorded here rather than filed as relief, because a broad surcharge with a list of exceptions raises import costs on net and the chip on this issue is about everyday costs not rising."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-25",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 11012 document record, 91 FR 9339",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
+            "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing on the register has revoked, amended or superseded it and it stands as published. It is time-limited on its own face: section 122 of the Trade Act of 1974 permits a surcharge for a period of no more than 150 days from February 24, 2026 unless that period is extended by Act of Congress. NO STANDING IS ASSERTED FOR WHAT HAPPENED AT THE END OF THAT PERIOD. Nothing on the register discloses it, and no public law of the 119th Congress read in this pass extends the surcharge — but the absence of an extension among the laws published so far is not a citable disposition, and this lane files no standing it cannot cite. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 119-37",
+        "measureNumber": "H.R. 5371",
+        "congress": 119,
+        "chamber": "house",
+        "title": "Continuing Appropriations, Agriculture, Legislative Branch, Military Construction and Veterans Affairs, and Extensions Act, 2026",
+        "actedAt": "2025-11-12",
+        "term": "47",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5371",
+        "sourceLabel": "Congress.gov — H.R. 5371, 119th Congress",
+        "issues": [
+          {
+            "issueKey": "cut_spending",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 120(a) provides that no federal funds may be used to initiate, carry out, implement or otherwise notice a reduction in force to reduce the number of employees within any department, agency or office of the Federal Government, and section 120(b) applies that to all civilian positions without regard to the source of their funding. Section 120(e) provides that any reduction in force taken by an Executive Agency between October 1, 2025 and enactment \"shall have no force or effect\", requires each notice to be rescinded, returns the employee to employment status as of September 30, 2025 without interruption, and directs back pay."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-11-12",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-37, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ37/html/PLAW-119publ37.htm",
+            "note": "Enacted and published as Public Law 119-37, approved November 12, 2025, at 139 Stat. 495. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          },
+          {
+            "status": "expired",
+            "effectiveAt": "2026-01-30",
+            "authority": "By the terms of the Act itself",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-37, section 106(3), enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ37/html/PLAW-119publ37.htm",
+            "note": "Section 106 of division A provides that the appropriations, funds and authority granted by the Act are available until the first of three events, the last of which is the expiration date of January 30, 2026; section 120(a)'s prohibition on reductions in force runs \"during the period between the date of enactment of this Act and the date specified in section 106(3)\", so it lapsed on that date. Section 120(e) is different in kind and is not what expired: it voided the reductions in force already taken, rescinded the notices and directed back pay, and it had done so before the date above. This row is read from the Act's own text and is not a statement about any challenge to it."
           }
         ]
       }

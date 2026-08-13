@@ -1,11 +1,12 @@
 {
-  "_purpose": "✒️ Executive Enactment Record — the formal actions, curated from primary sources. Wave 1 (Phase 3) seeded five actions; wave 2 added EO 14156 as its own row and backfilled EO 14151's standing history; wave 3 added eleven actions that closed the largest holes in the record — the tariff program, the drug-pricing orders, the two day-one immigration orders, the digital-asset orders and law, the rescissions law and the fentanyl-scheduling law. This file is the single source of truth for the lane's action data: netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql, 20260808000000_seed_exec_actions_wave2.sql and 20260824000000_seed_exec_actions_wave3.sql write the same rows into the vr_* spine, and exec-action-data.js is generated from this file by scripts/gen-exec-action-data.mjs. scripts/test-exec-seed.mjs asserts they all agree, so the SQL and the client data cannot drift apart.",
+  "_purpose": "✒️ Executive Enactment Record — the formal actions, curated from primary sources. Wave 1 (Phase 3) seeded five actions; wave 2 added EO 14156 as its own row and backfilled EO 14151's standing history; wave 3 added eleven actions that closed the largest holes in the record — the tariff program, the drug-pricing orders, the two day-one immigration orders, the digital-asset orders and law, the rescissions law and the fentanyl-scheduling law. Waves 4 and 5 closed the remaining stated-position holes and the two fully-held issues. Wave 6 is the first wave whose purpose is BALANCE rather than coverage: it adds documents that push against readings the file could only agree with, and it declines several that would only have agreed harder. This file is the single source of truth for the lane's action data: the seed_exec_actions_wave*.sql migrations write the same rows into the vr_* spine, and exec-action-data.js is generated from this file by scripts/gen-exec-action-data.mjs. scripts/test-exec-seed.mjs asserts they all agree, so the SQL and the client data cannot drift apart.",
   "_readBy": [
     "scripts/gen-exec-action-data.mjs (generates exec-action-data.js — regenerate after every edit)",
     "scripts/test-exec-seed.mjs",
     "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql (hand-derived; the test asserts they match)",
     "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql (hand-derived; the test asserts they match)",
     "netlify/database/migrations/20260824000000_seed_exec_actions_wave3.sql (hand-derived; the test asserts they match)",
+    "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql (hand-derived; the test asserts they match)",
     "exec-record.js (via window.EXEC_ACTIONS)"
   ],
   "_shape": "Exactly the shape actionsFor() / standingOf() in exec-record.js already read: actionClass, documentId, title, actedAt, term, sourceUrl, sourceLabel, issues[{issueKey, direction, isPrimary, weight, rationale}], status[{status, effectiveAt, authority, sourceLabel, sourceUrl, basis, note}]. Nothing here is a new vocabulary — every actionClass is a key of db/exec-action-types.json#actionClasses, every direction is a key of #issueDirections, every status is a token of db/exec-summary-keys.json#buckets.actions, and every issueKey is in db/issue-keys.json.",
@@ -42,6 +43,17 @@
       "lawCitations": "The three public laws are cited to congress.gov because db/exec-action-types.json#actionClasses.signed_law names congress.gov as the source of record for enacted legislation, and every existing law row in this file follows that rule. congress.gov still returns HTTP 403 to this environment, so — exactly as in wave 1 — the FACTS asserted about each law (its short title, its approval date, its bill vehicle, the section relied on) were verified against GPO's published PLAW package, and each row records which package was read.",
       "courtSource": "The EO 14257 struck_down standing was read from the Supreme Court's own slip opinion in Learning Resources, Inc. v. Trump, No. 24-1287, downloaded from supremecourt.gov and read in full — the syllabus holding and the judgment paragraph of the opinion of the Court, not a summary of either. The prior pass could not read this PDF and the order would otherwise have shipped with no standing at all, which under consistency.js#execRecordsFor holds every one of its mappings back as no_standing: the largest action in the file would have entered as coverage and scored nothing.",
       "whatWasLeftOut": "Two mappings that would have been easy and are not honest. EO 14257 is NOT mapped to cost_living: whether a tariff raises household prices in the aggregate is a contested economic claim, not something the order's text establishes, and the lane only carries what a document says. Public Law 119-28 is NOT mapped to national_debt: a rescission of roughly nine billion dollars in budget authority and a five-trillion-dollar increase in the statutory debt limit are not commensurable, and carrying both on that issue at comparable weights would have read as a balanced record where the record is not balanced. Its cut_spending mapping is the true one and is kept."
+    },
+    "wave6": {
+      "date": "2026-08-13",
+      "purpose": "BALANCE, NOT VOLUME. Waves 3 through 5 densified the record and the density made a defect visible: of the 32 issue keys in the lane, 31 held mappings that all pointed the same way, and 20 of the 21 issues the audit could test read exactly 100. That is not a finding about a presidency, it is a finding about a collection. Every action added or amended here was selected because it can push an issue off a one-direction reading, and several documents that would have been easy to add were left out precisely because they could not.",
+      "added": "Four actions and one amendment. EO 14360 (agricultural products taken out of the reciprocal tariff, with refunds); Proclamation 11038 (countervailing-duty collection suspended on Moroccan phosphate fertilizer); Proclamation 11012 (the section 122 import surcharge — same-direction, and see below); Public Law 119-37 (the continuing appropriations Act whose section 120 bars reductions in force and voids those already taken). The amendment adds a tariffs_prices mapping to Proclamation 11010, which wave 5 declined to write.",
+      "whyProclamation11010Changed": "Wave 5's refusal was not overridden, its stated condition was met. It declined to map the beef tariff-rate quota to any tariffs_* issue on the ground that 'filing it under a tariff issue would make the trade record read as though it pointed both ways on the strength of one grocery measure.' Wave 6 adds two further barrier-lowering documents, so the direction no longer rests on one measure. Had those two documents not existed, the refusal would have stood.",
+      "whyASameDirectionRowIsHere": "Proclamation 11012 advances the tariff issues that were already one-directional, which is exactly what this wave otherwise refuses to do. It is here because omitting it would have made this wave dishonest in the other direction. On February 20, 2026 the Supreme Court held the emergency statute does not authorize tariffs, EO 14389 ended the duties nine orders had imposed under it, and this proclamation imposed a new 10 percent surcharge under section 122 of the Trade Act of 1974. A file that recorded the ending and not the replacement would have published a retreat that did not happen. Its weight cost to the balance of the trade cluster is real and was accepted.",
+      "whyEO14389IsStillNotAnAction": "Executive Order 14389 was reviewed in full in this pass for exactly this question and is deliberately still carried only as an Axis B standing, on EO 14195's superseded row. It ends the ad valorem duties imposed under the emergency statute by nine orders, and it is the direct consequence of losing Learning Resources, Inc. v. Trump the same day. Filing a compelled compliance document as an issue mapping would tell a reader that the President acted against his own stated tariff position, when what happened is that the Court held he lacked the authority and he re-imposed a surcharge under another statute within hours. Axis B is where an outcome imposed on an action belongs; Axis A is for what the figure chose. The two barrier-lowering documents that ARE filed here — EO 14360 and Proclamation 11038 — were chosen because nothing compelled either of them.",
+      "sourcesRead": "Federal Register API document records, one document at a time, for title, signing date, publication date, citation, document number and disposition notes: EO 14360 (signed 2025-11-14, published 2025-11-25, 90 FR 54091, doc 2025-21203), Proclamation 11012 (signed 2026-02-20, published 2026-02-25, 91 FR 9339, doc 2026-03824) and Proclamation 11038 (signed 2026-06-29, published 2026-07-02, 91 FR 40855, doc 2026-13588); the full text of all three was read from the register's own raw-text URLs. EO 14360's forward cross-reference to the notice of March 24, 2026 (91 FR 15517) was opened and read: it continues the national emergency declared in EO 14257 and revokes nothing. For the law, GPO's PLAW-119publ37 package was downloaded and read — section 120 and section 106(3) verbatim. GPO's PLAW-119publ98 package was also read in full and then declined, for the reason below. The full listing of all 102 public laws of the 119th Congress was enumerated from GPO bulkdata to choose among the spending vehicles rather than take the first one found. whitehouse.gov appears nowhere in this wave.",
+      "theSharedIssueRowConstraint": "A STRUCTURAL LIMIT THIS WAVE RAN INTO AND THE NEXT ONE NEEDS TO KNOW ABOUT. The 🏛️ and ✒️ lanes do not have separate issue tables. vr_measure_issues is keyed on (measure_id, issue_key), and an executive action on a signed law reuses the SAME vr_measures row the roll-call lane created for the bill. So an issue mapping written for the executive lane is also read by the roll-call lane, and lands on every member who voted on that measure. That is fine where the two lanes agree and it is a silent contradiction where they do not. It is why Public Law 119-98 is not in this wave: see below.",
+      "whatWasLeftOut": "Seven candidates were reviewed and rejected. (1) EO 14389 — see above; compelled compliance, kept on Axis B. (2) PUBLIC LAW 119-98, THE SECURE AMERICA ACT, and this is the rejection that cost the most. It is the second-largest signed law of the term, it appropriates $69,545,000,000 out of the Treasury with no offset, rescission or revenue provision anywhere in its two titles, and on its face it grows the federal workforce — a real counter-directional fact against cut_spending, drafted and ready to file. It is not filed because S. 2 already exists in vr_measures with four roll calls and hundreds of attributed member votes, and 20260821000000_vr_secure_america_act_rollcalls.sql declined cut_spending and national_debt on that measure deliberately and in writing: 'Scoring the roll on a spending axis without the score would be an inference, and it would read every yea as pro-spending and every nay as fiscally conservative regardless of the reason either was given.' Because the two lanes share vr_measure_issues, writing the executive mapping would have re-scored every one of those members on an axis the roll-call pass refused. The executive-lane case is stronger than the roll-call case — there is one signer, not five hundred voters — but it cannot be filed on a shared row, and inventing a second measure row for the same law to get around it would put a duplicate S. 2 in the spine. Filing this honestly needs a per-lane issue mapping, which is a schema change and not this wave's job. (3) tariffs_authority was left one-directional. Proclamation 11012's move from an open-ended emergency claim to section 122, which caps the rate at 15 percent, caps the term at 150 days and lets only an Act of Congress extend it, is the closest thing to a counter-directional fact available on that issue — and it was rejected because a change of statutory vehicle made on the day the previous authority was struck down, keeping every decision in the President's hands, is not evidence of deference to Congress. That issue is reported as still one-directional rather than balanced by inference. (4) tariffs_china was left one-directional. Neither barrier-lowering document is country-specific and the surcharge is not either; nothing on file cuts the other way on that key. (5) The three fiscal-year appropriations Acts — PL 119-74, PL 119-75 and PL 119-86 — were read and not filed. Their counter-directional content would have to be an aggregate spending level characterized from thousands of pages, and characterizing a total is not the same as quoting a provision; PL 119-37 section 120 does the same work with text that can be quoted. (6) national_debt was left with its single row. An appropriation's deficit effect depends on offsets and outlay timing that are not in any enrolled text read here, and the lane does not carry contested economic inference — the same rule that keeps EO 14257 off cost_living and the Rescissions Act off national_debt. (7) EO 14345, EO 14346, EO 14358 and Proclamation 10999 — the trade-agreement implementation documents — were seen in the register listing and not pursued in this pass. Each lowers rates pursuant to a negotiated arrangement, which is the tariff being used as leverage rather than abandoned, and reading them as retreats would have been the easy wrong answer. They are named here so the next pass knows they were seen and why they were passed over."
     }
   },
 
@@ -1111,9 +1123,16 @@
             "isPrimary": true,
             "weight": 100,
             "rationale": "Increases the calendar-year 2026 in-quota quantity of the beef tariff-rate quota by 80,000 metric tons of lean beef trimmings, released in four quarterly tranches and allocated in its entirety to Argentina, on the determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 85,
+            "rationale": "Lowers a tariff barrier for the stated purpose of holding a consumer price down: the proclamation enlarges the in-quota quantity so that beef entering under the quota pays the low in-quota rate rather than the over-quota rate, on the President's determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
           }
         ],
-        "_issuesNote": "NOT mapped to econ_trade or any tariffs_* issue, although the instrument is a tariff-rate quota. The proclamation lowers a trade barrier to bring a consumer price down, which is the opposite direction from every tariff document on this profile; filing it under a tariff issue would make the trade record read as though it pointed both ways on the strength of one grocery measure.",
+        "_issuesNote": "WAVE 6 ADDS THE tariffs_prices MAPPING THAT WAVE 5 DECLINED TO WRITE. Wave 5's note read: 'NOT mapped to econ_trade or any tariffs_* issue, although the instrument is a tariff-rate quota. The proclamation lowers a trade barrier to bring a consumer price down, which is the opposite direction from every tariff document on this profile; filing it under a tariff issue would make the trade record read as though it pointed both ways on the strength of one grocery measure.' That refusal was correct on wave 5's evidence and its stated condition is now met, not waived. Wave 6 adds two further barrier-lowering documents — Executive Order 14360, which took agricultural products out of the reciprocal tariff outright with refunds, and Proclamation 11038, which suspends collection of countervailing duties on Moroccan phosphate fertilizer — so the direction is no longer carried by one grocery measure. The tariffs_prices chip states the PROTECTIVE position (pair tariffs with exemptions or relief so everyday costs do not rise), and lowering a barrier to hold a price down is what that chip describes. STILL not mapped to econ_trade or tariffs_growth: those chips are about defending American manufacturing and reshoring it, and cattle ranching is not what either names.",
         "status": [
           {
             "status": "in_force",
@@ -1378,6 +1397,188 @@
             "sourceLabel": "Federal Register — Executive Order 14150 document record, 90 FR 8337",
             "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-01952/america-first-policy-directive-to-the-secretary-of-state",
             "note": "The register's disposition record for this order carries two cross-references — back to Executive Order 13985 of January 20, 2021, which it displaces, and forward to a memorandum of July 15, 2025 — and no entry revoking or superseding it, so it stands as published. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14360",
+        "executiveOrderNumber": 14360,
+        "title": "Modifying the Scope of the Reciprocal Tariffs With Respect to Certain Agricultural Products",
+        "actedAt": "2025-11-14",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/11/25/2025-21203/modifying-the-scope-of-the-reciprocal-tariffs-with-respect-to-certain-agricultural-products",
+        "sourceLabel": "Federal Register — Executive Order 14360, 90 FR 54091",
+        "frCitation": "90 FR 54091",
+        "frDocumentNumber": "2025-21203",
+        "publishedAt": "2025-11-25",
+        "_whyThisRow": "WAVE 6 — COUNTER-DIRECTIONAL. Every tariff issue on this profile pointed one way. econ_trade, tariffs_china and tariffs_growth held only documents that impose tariffs; tariffs_prices held only documents that push against its protective chip. A record in which a president never once narrowed his own signature tariff is not a record of tariff policy, it is a record of the documents that were collected. This is the president narrowing it, on his own initiative, four months before the Supreme Court reached the statute: he took agricultural products out of the Executive Order 14257 reciprocal tariff outright, backdated the exclusion by a day, and ordered refunds of duties already collected. Nothing compelled it.",
+        "issues": [
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Section 1 determines that certain agricultural products shall not be subject to the reciprocal tariff imposed under Executive Order 14257, as amended, and issues updated versions of that order's Annex II; section 2 modifies the Harmonized Tariff Schedule accordingly effective for goods entered on or after 12:01 a.m. eastern standard time on November 13, 2025 — a day before signature — and provides that to the extent implementation requires a refund of duties collected, refunds shall be processed through U.S. Customs and Border Protection's standard procedures."
+          },
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 65,
+            "rationale": "Removes a class of goods from the reciprocal tariff's coverage, and gives as the grounds for doing so the President's consideration of \"current domestic demand for certain products, and current domestic capacity to produce certain products\" alongside the status of negotiations — a narrowing of the instrument driven in part by domestic supply conditions rather than by anything a trading partner conceded."
+          }
+        ],
+        "_issuesNote": "NOT mapped to econ_trade. That chip is about using tariffs and trade rules to defend American manufacturing, and the order's own stated reason for the carve-out is domestic capacity to produce the goods — it reaches products the United States does not make in quantity, so reading it as a retreat from defending American manufacturing would be reading the direction of the instrument rather than the document. NOT mapped to tariffs_authority: the order acts under the same emergency statute as the tariff it narrows, so it is not evidence about Congress's role either way. NOT mapped to cost_living: that issue already holds three same-direction documents and a fourth would add weight without adding a test, which is what this wave exists to avoid.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-11-25",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14360 document record, 90 FR 54091",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/11/25/2025-21203/modifying-the-scope-of-the-reciprocal-tariffs-with-respect-to-certain-agricultural-products",
+            "note": "The register's disposition record for this order carries three cross-references — back to Executive Order 14257 of April 2, 2025 and Executive Order 14346 of September 5, 2025, the orders whose annexes it updates, and forward to the notice of March 24, 2026 at 91 FR 15517, which continued the national emergency declared in Executive Order 14257 — and no entry revoking or superseding it, so it stands as published. Read the limit of that carefully: the duties this order carved products out of were themselves ended on February 20, 2026 by Executive Order 14389, and the order that imposed them was held unauthorized the same day. This row does not assert a standing beyond what the register shows, and it is not a statement about any challenge to this order."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 11038",
+        "title": "Declaration of Emergency and Authorization for Temporary Duty-Free Importation of Phosphate Fertilizer From Morocco",
+        "actedAt": "2026-06-29",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/07/02/2026-13588/declaration-of-emergency-and-authorization-for-temporary-duty-free-importation-of-phosphate",
+        "sourceLabel": "Federal Register — Proclamation 11038, 91 FR 40855",
+        "frCitation": "91 FR 40855",
+        "frDocumentNumber": "2026-13588",
+        "publishedAt": "2026-07-02",
+        "_whyThisRow": "WAVE 6 — COUNTER-DIRECTIONAL, AND THE STRONGEST ONE IN THE FILE. Executive Order 14360 narrows a tariff the President imposed. This stands down a trade-defense duty that exists to protect a domestic industry from a foreign competitor: it directs Treasury and Commerce to permit importation of Moroccan phosphate fertilizer free of the collection of duties and deposits under 19 U.S.C. 1671, 1675 and 1677j — the countervailing-duty machinery — on the ground that United States production is insufficient. Every other trade document on this profile raises a barrier. This one suspends the instrument the barrier is made of.",
+        "issues": [
+          {
+            "issueKey": "econ_trade",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 85,
+            "rationale": "Directs the Secretary of the Treasury and the Secretary of Commerce, under section 318 of the Tariff Act of 1930 (19 U.S.C. 1318(a)), to permit importation of phosphate fertilizers of the Kingdom of Morocco free of the collection of duties and of deposits of estimated duties under sections 1671, 1675 and 1677j of title 19 — the countervailing-duty provisions — for up to eight months or until the declared emergency terminates."
+          },
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Paragraph 4 states that United States production of phosphate fertilizer is insufficient to support domestic agricultural food production after accounting for exports, and that although the Federal Government is working with the private sector to expand domestic fertilizer manufacturing capacity, \"those efforts will take time to increase the supply materially\" — so the interim answer chosen is duty-free foreign supply rather than the tariff."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "rationale": "Paragraph 3 gives as the reason for the action persistent threats to the global fertilizer supply chain \"which create rapid price increases and procurement challenges\", and paragraph 2 ties the timing to the spring and summer application window, when the year's phosphate fertilizer goes onto the fields — relief from a duty, granted to keep an input cost down."
+          }
+        ],
+        "_issuesNote": "NOT mapped to cost_living or family_support. The proclamation is about an agricultural input in a planting season; whether it reaches a household grocery bill is a chain of inference the document does not make, and this lane carries what a document says. NOT mapped to tariffs_authority: section 318 of the Tariff Act of 1930 is a delegation Congress enacted, so using it is no more evidence about Congress's role than the section 232 proclamations already on file, which wave 5 left off that issue for the same reason.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-07-02",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 11038 document record, 91 FR 40855",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/07/02/2026-13588/declaration-of-emergency-and-authorization-for-temporary-duty-free-importation-of-phosphate",
+            "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing has revoked, amended or superseded it and it stands as published. It is time-limited by its own paragraph (2), which runs the authorization until the earlier of eight months after June 29, 2026 or termination of the emergency it declares; that window had not closed when this row was written, and this row asserts nothing about what happens at its end. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 11012",
+        "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
+        "actedAt": "2026-02-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
+        "sourceLabel": "Federal Register — Proclamation 11012, 91 FR 9339",
+        "frCitation": "91 FR 9339",
+        "frDocumentNumber": "2026-03824",
+        "publishedAt": "2026-02-25",
+        "_whyThisRow": "THIS ROW POINTS THE SAME WAY AS THE TARIFF DOCUMENTS ALREADY ON FILE, AND IT IS HERE ANYWAY. Wave 6 exists to make one-direction issues falsifiable, not to add weight to consistent ones, and on its own this document would fail that test. It is here because leaving it out would let this wave manufacture the opposite falsehood. Three things happened on February 20, 2026: the Supreme Court held in Learning Resources, Inc. v. Trump that the emergency statute does not authorize tariffs; Executive Order 14389 ended the duties imposed under it by nine orders; and this proclamation imposed a fresh 10 percent surcharge on nearly all imports under a different statute. A reader who saw only the struck_down and superseded rows would conclude the tariff program ended that day. It did not — the vehicle changed. Filing the two halves of the day and only one of them would be a curation choice with a conclusion built into it.",
+        "issues": [
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Imposes an additional 10 percent ad valorem surcharge on articles imported into the United States, effective for goods entered on or after 12:01 a.m. eastern standard time on February 24, 2026, under section 122 of the Trade Act of 1974 (19 U.S.C. 2132), which permits an import surcharge of up to 15 percent for up to 150 days to deal with large and serious United States balance-of-payments deficits."
+          },
+          {
+            "issueKey": "econ_trade",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 85,
+            "rationale": "Re-imposes broad-based import duties across nearly the whole tariff schedule on the day the previous, differently-authorized program ended, so the trade-barrier posture continues without interruption under a statute the President selected for that purpose."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 75,
+            "rationale": "Applies a surcharge to nearly all imported articles. Paragraph 14 exempts a list of goods — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics, vehicles, aerospace articles, goods already covered by section 232 actions, USMCA-qualifying duty-free Canadian and Mexican goods and CAFTA-DR textiles — and those carve-outs are recorded here rather than filed as relief, because a broad surcharge with a list of exceptions raises import costs on net and the chip on this issue is about everyday costs not rising."
+          }
+        ],
+        "_issuesNote": "NOT mapped to tariffs_authority, and this is the closest call in the wave. The argument for an `advances` mapping is real: section 122 is a delegation Congress wrote, it caps the rate at 15 percent, it caps the term at 150 days, and it lets only an Act of Congress extend it — so moving to it from an open-ended emergency claim moves toward the congressional-role position the chip states. The argument was rejected because the move was not offered as a concession about who decides. It was made on the day the Supreme Court held the previous authority did not exist, and it kept the decision, the rate and the scope entirely in the President's hands. Filing a change of statutory vehicle as evidence of deference to Congress would read intent into the record that the record does not contain, which is the failure this lane is built to avoid. NOT mapped to tariffs_china: the surcharge is not country-specific.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-25",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 11012 document record, 91 FR 9339",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
+            "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing on the register has revoked, amended or superseded it and it stands as published. It is time-limited on its own face: section 122 of the Trade Act of 1974 permits a surcharge for a period of no more than 150 days from February 24, 2026 unless that period is extended by Act of Congress. NO STANDING IS ASSERTED FOR WHAT HAPPENED AT THE END OF THAT PERIOD. Nothing on the register discloses it, and no public law of the 119th Congress read in this pass extends the surcharge — but the absence of an extension among the laws published so far is not a citable disposition, and this lane files no standing it cannot cite. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 119-37",
+        "measureNumber": "H.R. 5371",
+        "congress": 119,
+        "chamber": "house",
+        "title": "Continuing Appropriations, Agriculture, Legislative Branch, Military Construction and Veterans Affairs, and Extensions Act, 2026",
+        "actedAt": "2025-11-12",
+        "term": "47",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5371",
+        "sourceLabel": "Congress.gov — H.R. 5371, 119th Congress",
+        "_citationNote": "Cited to congress.gov as the source of record for a signed law, per db/exec-action-types.json#actionClasses.signed_law. congress.gov still returns HTTP 403 to this environment, so — as in every prior wave — the FACTS asserted here were verified against GPO's PLAW-119publ37 package, read in full in this pass: 'Public Law 119-37', approved November 12, 2025, vehicle '[H.R. 5371]', 139 Stat. 495, short title 'Continuing Appropriations, Agriculture, Legislative Branch, Military Construction and Veterans Affairs, and Extensions Act, 2026'. Section 120 and section 106(3) were read from that package verbatim.",
+        "_whyThisRow": "WAVE 6 — COUNTER-DIRECTIONAL. cut_spending held three documents and all three advanced it: the reconciliation law, the Rescissions Act, and the DOGE cost-efficiency order. The issue read as a clean row because the file contained the cuts he signed and none of the spending he signed. This is the sharpest available correction, and it is sharper than an appropriations total: section 120 of this Act is a signed statutory prohibition on the workforce reductions his own executive order pursued. Choosing it over the three larger fiscal-year appropriations acts is deliberate — its counter-directional content is a specific operative provision that can be quoted, not an aggregate that would need to be characterized.",
+        "issues": [
+          {
+            "issueKey": "cut_spending",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "Section 120(a) provides that no federal funds may be used to initiate, carry out, implement or otherwise notice a reduction in force to reduce the number of employees within any department, agency or office of the Federal Government, and section 120(b) applies that to all civilian positions without regard to the source of their funding. Section 120(e) provides that any reduction in force taken by an Executive Agency between October 1, 2025 and enactment \"shall have no force or effect\", requires each notice to be rescinded, returns the employee to employment status as of September 30, 2025 without interruption, and directs back pay."
+          }
+        ],
+        "_issuesNote": "NOT mapped to national_debt. A continuing resolution funding activities at existing rates is not an act of borrowing, and reading a deficit direction out of it would require a budget projection the enrolled text does not contain — the same reason wave 3 kept the Rescissions Act off that issue. NOT mapped to cost_living or healthcare, although divisions E and F extend agricultural programs and health extenders: extending an expiring authority at its existing level is continuity, and this wave is not in the business of adding same-direction rows. The one thing this Act is here to say, it says in section 120.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-11-12",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-37, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ37/html/PLAW-119publ37.htm",
+            "note": "Enacted and published as Public Law 119-37, approved November 12, 2025, at 139 Stat. 495. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          },
+          {
+            "status": "expired",
+            "effectiveAt": "2026-01-30",
+            "authority": "By the terms of the Act itself",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 119-37, section 106(3), enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ37/html/PLAW-119publ37.htm",
+            "note": "Section 106 of division A provides that the appropriations, funds and authority granted by the Act are available until the first of three events, the last of which is the expiration date of January 30, 2026; section 120(a)'s prohibition on reductions in force runs \"during the period between the date of enactment of this Act and the date specified in section 106(3)\", so it lapsed on that date. Section 120(e) is different in kind and is not what expired: it voided the reductions in force already taken, rescinded the notices and directed back pay, and it had done so before the date above. This row is read from the Act's own text and is not a statement about any challenge to it."
           }
         ]
       }

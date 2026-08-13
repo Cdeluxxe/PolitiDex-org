@@ -67,7 +67,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql",
   "netlify/database/migrations/20260824000000_seed_exec_actions_wave3.sql",
   "netlify/database/migrations/20260826000000_seed_exec_actions_wave4.sql",
-  "netlify/database/migrations/20260828000000_seed_exec_actions_wave5.sql"
+  "netlify/database/migrations/20260828000000_seed_exec_actions_wave5.sql",
+  "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -113,8 +114,8 @@ console.log("── ✒️ exec seed: curated actions ────────�
 section("1 · shape and vocabulary");
 // Pinned, because the point of the count is to notice a wave that silently half
 // landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3, ten from wave 4,
-// nine from wave 5.
-ok(ACTIONS.length === 36, `the seed carries thirty-six actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5 (got ${ACTIONS.length})`);
+// nine from wave 5, four from wave 6.
+ok(ACTIONS.length === 40, `the seed carries forty actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6 (got ${ACTIONS.length})`);
 
 const seenDocIds = new Set(), seenTitles = new Set(), seenFrDocs = new Set();
 for (const a of ACTIONS) {
@@ -427,8 +428,8 @@ if (sum) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 5 && C.executive_order === 26 && C.directive === 5,
-    `class split is 5 laws + 26 orders + 5 directives (got ${C.signed_law}+${C.executive_order}+${C.directive})`);
+  ok(C.signed_law === 6 && C.executive_order === 27 && C.directive === 7,
+    `class split is 6 laws + 27 orders + 7 directives (got ${C.signed_law}+${C.executive_order}+${C.directive})`);
 
   // "Upgrade or hold" — verified as an outcome, not a promise. Every item in every
   // wave cleared the source gate, and every one carries a citable standing.
