@@ -1786,6 +1786,84 @@
         'transition:background 0.15s,border-color 0.15s;}' +
       '.pdxgap-nx:hover,.pdxgap-nx:focus-visible{background:rgba(30,58,138,0.34);border-color:rgba(127,180,255,0.5);}' +
       '.pdxgap-nx-ico{flex:none;}' +
+      // ── The issue dossier ───────────────────────────────────────────────────
+      // Four levels, each adding a different KIND of information rather than more
+      // of the same: the assembled answer (open), the list of instruments behind it
+      // (closed), one instrument's mechanism (closed), and the raw provenance
+      // (closed, inside that). Every closed level is a real <details>, so the
+      // browser owns the toggle and a reader who opens nothing pays for nothing.
+      '.pdxdos{margin-top:0.7rem;border:1px solid rgba(127,180,255,0.18);border-radius:0.7rem;' +
+        'background:rgba(10,15,30,0.42);padding:0.55rem 0.7rem 0.6rem;}' +
+      '.pdxdos-h{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.08em;' +
+        'font-size:0.66rem;color:#8fa2c0;margin-bottom:0.35rem;}' +
+      '.pdxdos-line{display:flex;gap:0.45rem;align-items:baseline;font-size:0.75rem;line-height:1.45;' +
+        'color:#c6d4ec;padding:0.2rem 0;border-top:1px solid rgba(255,255,255,0.05);}' +
+      '.pdxdos-line:first-of-type{border-top:none;}' +
+      '.pdxdos-k{flex:none;min-width:5.2rem;font-size:0.61rem;text-transform:uppercase;' +
+        'letter-spacing:0.05em;color:#7e93b3;}' +
+      '.pdxdos-v{color:#e8eefc;}' +
+      '.pdxdos-vd{font-weight:700;}' +
+      '.pdxdos-lane{display:block;font-size:0.66rem;color:#8fa2c0;margin-top:0.08rem;font-weight:400;}' +
+      // The row's own composition and depth lines, borrowed verbatim from the
+      // stance row so the sheet cannot describe the same record differently.
+      '.pdxdos .pdxst-comp,.pdxdos .pdxst-ev{margin-top:0.3rem;}' +
+      '.pdxdos-caveat{margin-top:0.35rem;font-size:0.69rem;color:#f0cd8c;line-height:1.45;}' +
+      '.pdxdos-score{margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.07);' +
+        'font-size:0.69rem;color:#8fa2c0;line-height:1.45;}' +
+      '.pdxdos-score .pdxst-go{margin-top:0.35rem;}' +
+      // L2 — every instrument on THIS issue, closed. The count is in the summary,
+      // so the depth is readable without opening anything.
+      '.pdxdos-recs{margin-top:0.55rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:0.15rem;}' +
+      '.pdxdos-recs>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:0.35rem;' +
+        'min-height:2.2rem;font-family:"Barlow Condensed",sans-serif;font-size:0.78rem;' +
+        'letter-spacing:0.03em;color:#dbe6f7;}' +
+      '.pdxdos-recs>summary::-webkit-details-marker{display:none;}' +
+      '.pdxdos-recs[open]>summary{color:#9fdbff;}' +
+      '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
+      // The lane-asymmetry note. Set apart from the rows so it reads as a statement
+      // about the record's shape rather than as another row.
+      '.pdxdos-note{font-size:0.68rem;color:#8fa2c0;line-height:1.5;padding:0.4rem 0 0.1rem;' +
+        'border-top:1px solid #ffffff10;margin-top:0.35rem;}' +
+      '.pdxdos-rec{border-top:1px solid rgba(255,255,255,0.06);}' +
+      '.pdxdos-rec>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;' +
+        'gap:0.3rem;padding:0.4rem 0;min-height:2.2rem;}' +
+      '.pdxdos-rec>summary::-webkit-details-marker{display:none;}' +
+      '.pdxdos-rec-ico{flex:none;}' +
+      '.pdxdos-rec-id{font-weight:700;font-size:0.76rem;color:#e8eefc;}' +
+      '.pdxdos-rec-act{font-size:0.72rem;color:#c6d4ec;}' +
+      '.pdxdos-rec-vd{font-size:0.68rem;}' +
+      '.pdxdos-rec-st{font-size:0.66rem;color:#9fb4d4;}' +
+      '.pdxdos-rec-tag{font-size:0.61rem;color:#8fa2c0;border:1px solid rgba(255,255,255,0.14);' +
+        'border-radius:999px;padding:0.02rem 0.36rem;}' +
+      '.pdxdos-rec-why{flex:1 0 100%;font-size:0.68rem;color:#8fa2c0;line-height:1.4;}' +
+      '.pdxdos-rec-hold{color:#f0cd8c;}' +
+      '.pdxdos-rec-b{padding:0 0 0.5rem;}' +
+      // L3 — one instrument's mechanism, mounted on first open.
+      '.pdxdos-d{font-size:0.71rem;color:#c6d4ec;line-height:1.5;padding:0.14rem 0;}' +
+      '.pdxdos-d b{color:#e8eefc;}' +
+      '.pdxdos-tags{display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.3rem 0 0.1rem;}' +
+      '.pdxdos-tag{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.04em;border-radius:999px;' +
+        'padding:0.04rem 0.42rem;border:1px solid rgba(255,255,255,0.16);color:#c6d4ec;}' +
+      '.pdxdos-tag-p{border-color:rgba(110,231,160,0.45);color:#a9e9c6;}' +
+      '.pdxdos-tag-n{border-color:rgba(240,205,140,0.45);color:#f0cd8c;}' +
+      '.pdxdos-src{display:inline-block;margin-top:0.3rem;font-size:0.68rem;color:#7fb4ff;}' +
+      '.pdxdos-rel{margin-top:0.35rem;}' +
+      // L4 — the receipt itself. Never opened for the reader.
+      '.pdxdos-fine{margin-top:0.35rem;border-top:1px solid rgba(255,255,255,0.06);}' +
+      '.pdxdos-fine>summary{cursor:pointer;list-style:none;display:flex;align-items:center;min-height:2.2rem;' +
+        'font-size:0.62rem;text-transform:uppercase;letter-spacing:0.06em;color:#7f97b8;}' +
+      '.pdxdos-fine>summary::-webkit-details-marker{display:none;}' +
+      '.pdxdos-fine-b{font-size:0.69rem;color:#9fb4d4;line-height:1.5;padding-bottom:0.4rem;}' +
+      '.pdxdos-fine-b p{margin:0 0 0.35rem;}' +
+      // Step to the next issue WITHOUT leaving the dossier — the reason a reader
+      // opened one issue is usually that they want to check a second.
+      '.pdxdos-step{display:flex;gap:0.4rem;margin-top:0.85rem;}' +
+      '.pdxdos-stepb{flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;' +
+        'min-height:2.4rem;cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-size:0.76rem;' +
+        'line-height:1.2;color:#dbe6f7;background:rgba(30,58,138,0.16);' +
+        'border:1px solid rgba(127,180,255,0.24);border-radius:0.55rem;padding:0.4rem 0.5rem;}' +
+      '.pdxdos-stepb:hover,.pdxdos-stepb:focus-visible{background:rgba(30,58,138,0.32);}' +
+      '.pdxdos-stepn{font-size:0.62rem;color:#8fa2c0;text-transform:uppercase;letter-spacing:0.05em;}' +
       // Phase 11 — methodology explainer content (rendered inside the shared sheet).
       '.pdxm-lead{font-size:0.8rem;color:#c6d4ec;line-height:1.45;margin:0.5rem 0 0.8rem;}' +
       '.pdxm-row{border-top:1px solid rgba(255,255,255,0.08);padding:0.6rem 0;}' +
@@ -1812,6 +1890,13 @@
       '.pdxst-row{padding:0.45rem 0;border-bottom:1px solid rgba(159,180,212,0.07);}' +
       '.pdxst-row-top{display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;}' +
       '.pdxst-lbl{font-weight:700;font-size:0.82rem;color:#dbe6f5;}' +
+      // The issue name IS the way in. It was a label; it is now the row's primary
+      // tap, and it has to look like one without growing the row — so it keeps the
+      // label's own type and colour and adds a single chevron.
+      '.pdxst-open{display:inline-flex;align-items:center;gap:0.3rem;font-family:inherit;text-align:left;' +
+        'background:none;border:none;padding:0;margin:0;cursor:pointer;}' +
+      '.pdxst-open:hover,.pdxst-open:focus-visible{color:#9fdbff;}' +
+      '.pdxst-lbl-go{color:#7fb4ff;font-size:0.86rem;line-height:1;}' +
       '.pdxst-txt{font-size:0.74rem;line-height:1.4;color:#9fb4d4;margin-top:0.15rem;}' +
       '.pdxst-links{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.28rem;}' +
       '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
@@ -1907,6 +1992,17 @@
         '.pdxst-go{min-height:2.3rem;padding:0.4rem 0.7rem;font-size:0.62rem;}' +
         '.pdxst-links{gap:0.34rem;}' +
         '.pdxst-back{bottom:0.8rem;min-height:2.4rem;}' +
+        // THE DOSSIER ON A PHONE. Every level's control is a thumb target, the
+        // key/value summary stacks rather than squeezing the value into a column
+        // two words wide, and the issue stepper wraps instead of scrolling.
+        '.pdxst-open{min-height:2.2rem;}' +
+        '.pdxdos{padding:0.5rem 0.55rem 0.55rem;}' +
+        '.pdxdos-line{flex-direction:column;gap:0.1rem;}' +
+        '.pdxdos-k{min-width:0;}' +
+        '.pdxdos-recs>summary,.pdxdos-rec>summary,.pdxdos-fine>summary{min-height:2.6rem;}' +
+        '.pdxdos-rec-why{margin-top:0.1rem;}' +
+        '.pdxdos-step{flex-wrap:wrap;}' +
+        '.pdxdos-stepb{flex:1 1 9rem;min-height:2.6rem;}' +
       '}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -2062,6 +2158,23 @@
       // back to is gone — the modal closed, or a different profile was opened — and
       // take it down before it becomes a button to nowhere.
       _stBackSweep();
+      // ── L3, mounted on demand ─────────────────────────────────────────────
+      // Deliberately no preventDefault and no return: the <details> keeps its own
+      // native toggle, and every branch below still gets the click. All this does is
+      // fill the body the first time it is asked for, which is why L3 and L4 cost
+      // nothing on a dossier whose rows are never opened.
+      var dos = e.target.closest && e.target.closest('[data-pdxdos-i]');
+      if (dos) _dosMount(dos);
+      // The stance row's primary tap: the issue name opens that issue's dossier and
+      // remembers the row it came from, so closing puts the reader back where they
+      // were reading rather than at the top of the section.
+      var sdos = e.target.closest && e.target.closest('[data-pdxst-dos]');
+      if (sdos) {
+        e.preventDefault();
+        openGap(sdos.getAttribute('data-pdxst-pid') || '', sdos.getAttribute('data-pdxst-dos') || '',
+          { arrival: false, origin: sdos.getAttribute('data-pdxst-origin') || '' });
+        return;
+      }
       // Deep link from a named proof line to that ONE roll call. Checked before the
       // issue link because a proof line carries both: the vote it names, and the issue
       // to fall back to. preventDefault also stops the <summary> it sits in from
@@ -2118,6 +2231,11 @@
       var sgo = e.target.closest && e.target.closest('[data-pdxst-go]');
       if (sgo) {
         e.preventDefault();
+        // A jump fired from INSIDE the dossier has to take the modal down with it —
+        // a sheet left sitting over the section it just scrolled to looks like the
+        // tap did nothing. The return-to-row trip is dropped on the way out: this
+        // reader asked for the score section, not for the row they arrived from.
+        if (sgo.closest && sgo.closest('#pdxc-gap-back')) { _gapOpen = null; closeGap(); }
         _stNav(sgo.getAttribute('data-pdxst-go') || '',
                sgo.getAttribute('data-pdxst-target') || '',
                sgo.getAttribute('data-pdxst-pid') || '',
@@ -2186,6 +2304,21 @@
       // reveal pass over the freshly painted rows.
       _rcHydrateSoon();
       _saHydrateSoon();
+      // ── THE OPEN DOSSIER ──────────────────────────────────────────────────
+      // A member's votes arrive AFTER the profile does, and a reader can open a
+      // stance row's dossier inside that window — on a president they never can,
+      // which is exactly why this path is easy to forget. The sheet paints its
+      // honest "⏳ Loading the record…" state, and this is where that state is
+      // redeemed. Only the sheet currently showing THIS member is repainted, and
+      // only when it is actually on screen; the whole block is guarded because an
+      // environment without a live DOM must not turn a warm event into an error.
+      try {
+        var gb = document.getElementById && document.getElementById('pdxc-gap-back');
+        if (_gapOpen && String(_gapOpen.pid) === String(pid) && gb && !gb.hidden) {
+          var gbody = gb.querySelector && gb.querySelector('.pdxgap-body');
+          if (gbody) gbody.innerHTML = _gapViewHtml(_gapOpen.pid, _gapOpen.key);
+        }
+      } catch (eDos) {}
     });
   }
 
@@ -3131,13 +3264,20 @@
   // Nothing is dropped — the full detail is one tap away — and nothing is added.
   // Returns '' for a single-issue vote or an unloaded engine, exactly like the
   // sentence version, so a row degrades to what it rendered before.
-  function _orOmniBlockHtml(item, issueKey) {
+  //
+  // `opts` names the lane's nouns and nothing else. A president signs one law that
+  // lands on nine issues exactly as one roll call on it does, so the ✒️ lane needs
+  // this disclosure just as much — but "one vote" is a false sentence about a
+  // signature. Omitted → the congressional wording, unchanged to the byte.
+  function _orOmniBlockHtml(item, issueKey, opts) {
     if (!item || typeof window._measureOmnibusContext !== 'function') return '';
     var ctx;
     try {
       ctx = window._measureOmnibusContext(item, issueKey, {}, { labelFn: _issueLabel });
     } catch (e) { return ''; }
     if (!ctx) return ''; // single-issue vote — nothing to disclose
+    var kind = (opts && opts.kind) || 'bill';
+    var noun = (opts && opts.noun) || 'vote';
     var row = function (cls, ico, verb, list) {
       if (!list || !list.length) return '';
       return '<span class="pdxgap-om-row ' + cls + '">' +
@@ -3154,12 +3294,12 @@
     }).join('');
     var det = chips
       ? '<details class="pdxgap-om-all"><summary>The other ' + ctx.others.length +
-          ' issue' + (ctx.others.length === 1 ? '' : 's') + ' this one vote touched</summary>' +
+          ' issue' + (ctx.others.length === 1 ? '' : 's') + ' this one ' + noun + ' touched</summary>' +
           '<div class="pdxgap-om-chips">' + chips + '</div></details>'
       : '';
     return '<div class="pdxgap-om">' +
-      '<div class="pdxgap-om-h"><span aria-hidden="true">🧩</span> <span>Multi-issue bill — one vote, ' +
-        ctx.count + ' issues</span>' +
+      '<div class="pdxgap-om-h"><span aria-hidden="true">🧩</span> <span>Multi-issue ' + kind +
+        ' — one ' + noun + ', ' + ctx.count + ' issues</span>' +
         (ctx.splits ? '<span class="pdxgap-om-split">cuts both ways</span>' : '') + '</div>' +
       (rows ? '<div class="pdxgap-om-rows">' + rows + '</div>' : '') +
       det +
@@ -4231,7 +4371,19 @@
         ' data-pdxst-issue="' + escAttr(r.key) + '" data-pdxst-tier="' + escAttr(String(r.tier)) + '"' +
         ' data-pdxst-state="' + escAttr(res.state) + '">' +
         '<div class="pdxst-row-top">' +
-          '<span class="pdxst-lbl">' + _icDot(skin) + esc(r.label) + '</span>' +
+          // THE ISSUE NAME IS THE WAY IN. It was a label; it is now the row's primary
+          // tap, and it opens this issue's dossier — one panel holding everything
+          // known about this politician on this issue. The row keeps every link it
+          // had underneath: this adds the assembled view, it does not replace the
+          // jumps into the sections. The row id travels with the tap so closing the
+          // dossier returns the reader to this exact row.
+          '<button type="button" class="pdxst-lbl pdxst-open"' +
+            ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
+            ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+            ' aria-label="' + escAttr('Open the issue dossier: ' + r.label) + '">' +
+            _icDot(skin) + esc(r.label) +
+            '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
+          '</button>' +
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
         '</div>' +
         _stResultHtml(r, res) +
@@ -4768,12 +4920,459 @@
       (bits.length ? '<span>' + bits.join(' · ') + '</span>' : '') + party + '</div>';
   }
 
+  // ══ THE ISSUE DOSSIER ═══════════════════════════════════════════════════════
+  // One issue, one assembled place. A reader who taps a stance row lands here and
+  // everything PolitiDex knows about THIS politician on THAT issue is in this one
+  // panel — but arranged so they meet it a level at a time, in the direction they
+  // choose, instead of as a wall.
+  //
+  //   L1  The assembled answer, open.       What they said · what the record
+  //       concluded · which lane decided it · how much is behind it · what was
+  //       set aside · where it lands in the profile score.
+  //   L2  The instruments, closed.          Every vote or action on this issue —
+  //       identity, direction, standing, one line of why it counts.
+  //   L3  One instrument, closed.           Its mechanism, its primary source, how
+  //       much of the document the link rests on, and what else it touched.
+  //   L4  The receipt, closed inside L3.    The curation rationale, in full.
+  //
+  // Each level answers a DIFFERENT question. L2 is not "L1 again with more rows":
+  // L1 is a conclusion and L2 is an enumeration. L3 is not "L2 with longer text":
+  // L2 says which instrument, L3 says how it works. That is the test a new line has
+  // to pass before it earns a place at any level.
+  //
+  // Two things this deliberately does NOT do. It mints no second score — every
+  // verdict, percentage, tally and standing shown here is read off the row model
+  // and the lane engines that already produced them. And it does not pretend the
+  // two lanes are the same depth: an executive document carries a curated
+  // per-issue explanation, a standing and a rationale, and a roll call carries the
+  // question and the vote. The congressional lane is reported thin, not padded.
+
+  // Why a held executive action is not scored, in the reader's language. Held record
+  // is real, sourced record — listing it with its reason is how a thin issue explains
+  // itself instead of merely looking empty.
+  var _DOS_HOLD = {
+    unmapped_direction: 'Not scored: which way this document cuts on this issue could not be read cleanly, and a mapping that cannot be read is coverage, never a guess.',
+    no_standing: 'Not scored: where this stands today is not verified. An action whose standing is unknown cannot carry a verdict — it can still be listed.',
+    circular: 'Not scored: this document is the same statement the stated position was taken from, so scoring it would check a claim against itself.'
+  };
+  function _dosMapping(item, issueKey) {
+    var all = (item && item.issues) || [];
+    for (var i = 0; i < all.length; i++) if (all[i] && all[i].issueKey === issueKey) return all[i];
+    return null;
+  }
+  // The narrow-link threshold is the ✒️ section's, read from it rather than copied,
+  // so the two surfaces cannot disagree about how much of a document a claim rests on.
+  function _dosNarrowAt() {
+    try {
+      var U = window.PDXExecRecordUI;
+      if (U && typeof U.NARROW_AT === 'number') return U.NARROW_AT;
+    } catch (e) {}
+    return 45;
+  }
+  function _dosStanding(key) {
+    try {
+      var S = window.PDXExecRecord && window.PDXExecRecord.STANDING, d = S && S[key];
+      if (d) return { key: key, label: d.label || '', ico: d.ico || '', contested: !!d.contested, why: d.short || '' };
+    } catch (e) {}
+    return null;
+  }
+  function _dosPower(actionClass) {
+    try {
+      var C = window.PDXExecRecord && window.PDXExecRecord.CLASSES, d = C && C[actionClass];
+      if (d) return { verb: d.verb || '', label: d.label || '', sole: d.authorship === 'sole' };
+    } catch (e) {}
+    return null;
+  }
+  function _dosMulti(d) {
+    try { return !!(d && d.item && d.item.issues && d.item.issues.length > 1); } catch (e) { return false; }
+  }
+
+  // ── L2's data ───────────────────────────────────────────────────────────────
+  // One normalised entry per instrument behind this issue — DATA, no markup — so the
+  // summary rows, the lazily-mounted detail and the tests all read one list. Lane
+  // precedence matches officialIssue()'s: a scorable executive pool answers for the
+  // ✒️ lane, otherwise the roll-call record, otherwise migrated curated actions.
+  // Held executive record is appended in every case, because a filter that hides its
+  // own exclusions makes a partial record look complete.
+  function _dosItems(pid, issueKey, ov) {
+    ov = ov || officialIssue(pid, issueKey);
+    var out = [], narrowAt = _dosNarrowAt();
+    var pool = ov.execPool || ov.execHeld || null;
+    var withMapping = function (item, base) {
+      var m = _dosMapping(item, issueKey);
+      base.primary = m ? !!m.isPrimary : null;
+      base.narrow = !!(m && typeof m.weight === 'number' && m.weight <= narrowAt);
+      base.item = item;
+      base.multi = !!(item && item.issues && item.issues.length > 1);
+      return base;
+    };
+    if (pool && pool.items && pool.items.length) {
+      var xStance = positionStance(pid, issueKey);
+      pool.items.forEach(function (it) {
+        var m = _dosMapping(it, issueKey);
+        // Which way the DOCUMENT cuts on this issue. The mapping describes the
+        // measure and `advanceInverted` is the correction a blocking class (a veto)
+        // needs — the same field the shared summariser applies, read here rather
+        // than re-derived, so a veto cannot read one way in the ledger and the
+        // other way in the dossier.
+        var adv = m ? (m.supportMeaning !== 'yea_opposes') : null;
+        if (adv !== null && it.advanceInverted) adv = !adv;
+        out.push(withMapping(it, {
+          lane: 'exec',
+          verdict: _orItemVerdict(it, issueKey, xStance),
+          held: '', heldWhy: '',
+          ident: it.documentId || it.measureNumber || it.title || 'Executive action',
+          title: it.title || '',
+          act: (_dosPower(it.actionClass) || {}).verb || '',
+          question: '',
+          date: it.date || '',
+          standing: _dosStanding(it.standing),
+          power: _dosPower(it.actionClass),
+          effect: (adv === null) ? '' : (adv ? 'advances' : 'opposes'),
+          plain: it.plain || '',
+          rationale: (m && m.rationale) || '',
+          url: it.sourceUrl || '', srcLabel: it.sourceLabel || 'Primary source'
+        }));
+      });
+    } else if (ov.record) {
+      _orProofPicks(pid, issueKey, ov).forEach(function (p) {
+        var b = _orProofBits(p.item) || {};
+        out.push(withMapping(p.item, {
+          lane: 'record',
+          verdict: p.verdict,
+          held: '', heldWhy: '',
+          ident: b.bill || b.title || (b.isPosition ? 'Formal action' : 'Recorded vote'),
+          title: p.item.title || p.item.shortTitle || '',
+          act: b.act || '', question: b.question || '',
+          date: b.date || '',
+          standing: null, power: null, effect: '',
+          plain: '', rationale: '',
+          url: b.url || '', srcLabel: b.label || 'Congress.gov',
+          voteKey: _orVoteKey(p.item)
+        }));
+      });
+    } else if (ov.officialActions && ov.officialActions.items) {
+      ov.officialActions.items.forEach(function (a) {
+        out.push(withMapping(a, {
+          lane: 'formal',
+          verdict: a.verdict || 'limited',
+          held: '', heldWhy: '',
+          ident: a.headline || 'Formal action',
+          title: '', act: '', question: '',
+          date: a.date || '',
+          standing: null, power: null, effect: '',
+          plain: '', rationale: '',
+          url: a.sourceUrl || '', srcLabel: a.sourceLabel || 'Source'
+        }));
+      });
+    }
+    if (pool && pool.held && pool.held.length) {
+      pool.held.forEach(function (h) {
+        out.push({
+          lane: 'exec',
+          verdict: '', held: h.reason || 'held',
+          heldWhy: _DOS_HOLD[h.reason] ||
+            'Not scored: this document could not be judged against the stated position.',
+          ident: h.documentId || h.title || 'Executive action',
+          title: h.title || '',
+          act: (_dosPower(h.actionClass) || {}).verb || '',
+          question: '', date: h.date || '',
+          standing: null, power: _dosPower(h.actionClass), effect: '',
+          plain: h.plain || '', rationale: '',
+          url: h.sourceUrl || '', srcLabel: h.sourceLabel || 'Primary source',
+          primary: null, narrow: false, multi: false, item: h.action || null
+        });
+      });
+    }
+    return out;
+  }
+
+  // ── L2 — one summary row per instrument ─────────────────────────────────────
+  // Identity, what they did, which way that landed on this issue, where it stands,
+  // and one line of why it counts. No percentage: a per-item weight printed as a
+  // number reads as a second score, and "primary / supporting / narrow link" is the
+  // same fact in the vocabulary the ✒️ section already uses.
+  function _dosRowHtml(d, i, pid, issueKey) {
+    var v = d.held ? null : (VERDICTS[d.verdict] || VERDICTS.limited);
+    var head =
+      (v ? '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>'
+         : '<span class="pdxdos-rec-ico pdxdos-rec-hold" aria-hidden="true">⊘</span>') +
+      '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
+      (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
+      (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
+      (v ? '<span class="pdxdos-rec-vd" style="color:' + v.color + '">' + esc(v.label) + '</span>'
+         : '<span class="pdxdos-rec-vd pdxdos-rec-hold">Not scored</span>') +
+      (d.standing ? '<span class="pdxdos-rec-st">' + esc(d.standing.ico + ' ' + d.standing.label) + '</span>' : '') +
+      (d.multi ? '<span class="pdxdos-rec-tag">🧩 ' + d.item.issues.length + ' issues</span>' : '') +
+      (d.date ? '<span class="pdxdos-rec-st">' + esc(d.date) + '</span>' : '');
+    // WHY IT COUNTS, in one plain line. Fails closed: the ✒️ lane curates this
+    // sentence per (document, issue) pair and the 🏛️ lane does not, so a roll call
+    // shows no sentence rather than a manufactured one.
+    var why = d.held
+      ? '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>'
+      : (d.plain ? '<span class="pdxdos-rec-why">' + esc(d.plain) + '</span>' : '');
+    return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
+        ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
+        '<summary>' + head + why + '</summary>' +
+        // Empty on purpose. The body is built the first time this row is opened —
+        // see _dosMount. Nothing below L2 costs anything until it is asked for.
+        '<div class="pdxdos-rec-b" data-pdxdos-body="1"></div>' +
+      '</details>';
+  }
+
+  // ── L3 (+ L4) — one instrument, expanded ────────────────────────────────────
+  // Built on demand from the same normalised list, so this is a pure function of
+  // (pid, issue, index) and can be re-derived after a warm repaint without holding
+  // any state. Returns '' for an index that no longer exists.
+  function _dosDetailHtml(pid, issueKey, idx, items) {
+    items = items || _dosItems(pid, issueKey);
+    var d = items[idx];
+    if (!d) return '';
+    var lbl = _issueLabel(issueKey);
+    var out = [];
+    if (d.title && d.title !== d.ident) out.push('<div class="pdxdos-d"><b>' + esc(d.title) + '</b></div>');
+    if (d.held) {
+      out.push('<div class="pdxdos-d pdxdos-rec-hold">' + esc(d.heldWhy) + '</div>');
+    }
+    // ── the mechanism, in this lane's own terms ──────────────────────────────
+    if (d.lane === 'exec') {
+      if (d.power && d.power.verb) {
+        out.push('<div class="pdxdos-d">' + esc(d.power.verb) +
+          (d.power.sole
+            ? ' — an instrument this office issues on its own authority.'
+            : ' — an instrument that needed Congress as well as this office.') +
+          '</div>');
+      }
+      if (d.effect) {
+        out.push('<div class="pdxdos-d">On <b>' + esc(lbl) + '</b> this document <b>' +
+          (d.effect === 'advances' ? 'advances' : 'cuts against') + '</b> the issue.</div>');
+      }
+      if (d.standing) {
+        out.push('<div class="pdxdos-d">Where it stands today: <b>' +
+          esc(d.standing.ico + ' ' + d.standing.label) + '</b>. ' +
+          esc(d.standing.why || 'Standing is a separate question from direction — it says whether the action held, not which way it went.') +
+          '</div>');
+      }
+      if (d.plain) out.push('<div class="pdxdos-d">' + esc(d.plain) + '</div>');
+    } else if (d.lane === 'record') {
+      // A roll call carries the question and the ballot, and no curated per-issue
+      // sentence — so it gets the question and the ballot. Padding this to match the
+      // ✒️ lane's depth would be inventing detail the record does not have.
+      var recBits = [];
+      if (d.question) {
+        recBits.push('The question on the floor: <b>' + esc(d.question) + '</b>');
+        if (d.act) recBits.push('They ' + esc(String(d.act).toLowerCase()));
+      } else if (d.act) {
+        recBits.push(esc(d.act));
+      }
+      if (recBits.length) out.push('<div class="pdxdos-d">' + recBits.join('. ') + '.</div>');
+    }
+    // How much of the document this issue's link actually rests on. Words, not a
+    // weight — see _dosRowHtml.
+    var tags = [];
+    if (d.primary === true) tags.push('<span class="pdxdos-tag pdxdos-tag-p">primary link</span>');
+    else if (d.primary === false) tags.push('<span class="pdxdos-tag">supporting link</span>');
+    if (d.narrow) tags.push('<span class="pdxdos-tag pdxdos-tag-n">narrow link</span>');
+    if (tags.length) out.push('<div class="pdxdos-tags">' + tags.join('') + '</div>');
+    // The primary source, always, whenever there is one.
+    if (d.url) {
+      out.push('<a class="pdxdos-src" href="' + esc(d.url) + '" target="_blank" rel="noopener">' +
+        esc(d.srcLabel || 'Source') + ' ↗</a>');
+    }
+    // The same roll call inside the full Voting Record — the congressional lane's
+    // own deeper surface, reached the way every other proof line reaches it.
+    if (d.lane === 'record' && d.voteKey) {
+      out.push('<div><button type="button" class="pdxdos-src"' +
+        ' data-pdxc-vrvote="' + escAttr(d.voteKey) + '"' +
+        ' data-pdxc-vrissue="' + escAttr(issueKey) + '">Open this vote in the full record →</button></div>');
+    }
+    // What else the same instrument touched. Same measurement as everywhere else,
+    // in this lane's nouns.
+    var rel = d.item
+      ? (d.lane === 'exec'
+          ? _orOmniBlockHtml(d.item, issueKey, { kind: 'action', noun: _EXEC_OMNI_NOUN[d.item.actionClass] || 'action' })
+          : _orOmniBlockHtml(d.item, issueKey))
+      : '';
+    if (rel) out.push('<div class="pdxdos-rel">' + rel + '</div>');
+    // ── L4 — the receipt itself ──────────────────────────────────────────────
+    // The curation rationale quotes the sections the mapping rests on. It is a
+    // paragraph written for whoever audits the mapping, and it belongs exactly
+    // here: available to anyone who wants it, in front of nobody who does not.
+    if (d.rationale && d.rationale !== d.plain) {
+      out.push('<details class="pdxdos-fine"><summary>What the document actually says ▾</summary>' +
+        '<div class="pdxdos-fine-b">' + esc(d.rationale) + '</div></details>');
+    }
+    return out.join('');
+  }
+
+  // Fill one L2 row's body the first time it is opened. Called from the delegated
+  // click listener WITHOUT preventDefault, so the browser still owns the toggle.
+  function _dosMount(el) {
+    try {
+      if (!el || !el.querySelector) return;
+      var body = el.querySelector('[data-pdxdos-body]');
+      if (!body || body.innerHTML) return;
+      var pid = el.getAttribute('data-pdxdos-pid') || '';
+      var key = el.getAttribute('data-pdxdos-key') || '';
+      var idx = parseInt(el.getAttribute('data-pdxdos-i') || '', 10);
+      if (!pid || !key || isNaN(idx)) return;
+      body.innerHTML = _dosDetailHtml(pid, key, idx) ||
+        '<div class="pdxdos-note">This record has nothing further on file.</div>';
+    } catch (e) {}
+  }
+
+  // ── L2 — the group ──────────────────────────────────────────────────────────
+  // Closed by default, with the count in the summary: the depth of the record is
+  // readable without opening anything, which is the one thing this level owes a
+  // reader who does not open it.
+  function _dosRecordsHtml(pid, issueKey, r, ov) {
+    var n = _stNoun(r), items = _dosItems(pid, issueKey, ov);
+    if (!items.length) {
+      var empty = (ov.token === 'pending')
+        ? '⏳ Loading the record… this member\'s votes arrive after the profile does, and this list fills in when they land.'
+        : (ov.lane === 'exec'
+            ? 'No qualifying executive action on this issue is on file yet.'
+            : 'No qualifying ' + n.many + ' on this issue are on file yet.');
+      return '<div class="pdxdos-recs" data-pdxdos-empty="1">' +
+        '<div class="pdxdos-empty">' + esc(empty) + '</div></div>';
+    }
+    var scored = 0, held = 0;
+    items.forEach(function (d) { if (d.held) held++; else scored++; });
+    var sum = items.length + ' ' + (items.length === 1 ? n.one : n.many) + ' on this issue' +
+      (held ? ' — ' + held + ' of them not scorable' : '');
+    // The lane asymmetry, stated once rather than papered over row by row.
+    var note = (items[0] && items[0].lane === 'record')
+      ? '<div class="pdxdos-note">A roll call carries its question, its ballot and its source. It does not ' +
+        'carry a written explanation the way an executive document does — so these rows are shorter, ' +
+        'and nothing has been added to make them look the same.</div>'
+      : '';
+    return '<details class="pdxdos-recs">' +
+        '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
+          ' <span aria-hidden="true">▾</span></summary>' +
+        items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey); }).join('') +
+        note +
+      '</details>';
+  }
+
+  // Is the profile actually on the page behind this sheet? A dossier opened from a
+  // stance row can offer the jump into ⚖️ Word vs Action; one opened from a shared
+  // #record= link is floating over whatever page the app happened to be on, and a
+  // button that scrolls to a section that is not there is a broken promise.
+  function _dosTargetLive(id) {
+    try { if (document.getElementById && document.getElementById(id)) return true; } catch (e) {}
+    try {
+      var SP = window.PDXProfileSpine;
+      if (SP && typeof SP.hasTarget === 'function') return !!SP.hasTarget(id);
+    } catch (e) {}
+    return false;
+  }
+
+  // ── L1 — the assembled answer ───────────────────────────────────────────────
+  // Open by default, and the only level that is. Everything here is read off the
+  // row model: no arithmetic happens in this function. It prints NO percentage —
+  // the sheet's one number lives in the header hero, and a second copy of it here
+  // would read as a second score.
+  function _dosSummaryHtml(pid, issueKey, r) {
+    r = r || issueRow(pid, issueKey);
+    var res = _stResult(r), n = _stNoun(r), lines = [];
+    // WHAT THEY SAID. The chip in the header carries the position; this carries
+    // their own words, which is the thing the record is about to be checked against.
+    var said = r.stance.text ? String(r.stance.text) : '';
+    if (said.length > 320) said = said.slice(0, 317).replace(/\s+\S*$/, '') + '…';
+    if (said || r.stance.label) {
+      lines.push('<div class="pdxdos-line"><span class="pdxdos-k">They said</span>' +
+        '<span class="pdxdos-v">' + esc(said || r.stance.label) + '</span></div>');
+    }
+    // WHAT THE RECORD CONCLUDED, and WHICH LANE concluded it. One verdict per
+    // issue, resolved once — this reprints it, it does not re-decide it.
+    var lane = (r.verdict.basis === 'public_record')
+      ? 'Decided by the public record — statements, news and controversies — because no formal ' +
+        n.one + ' on this issue could settle it.'
+      : (r.verdict.basis === 'action')
+        ? 'Decided by the formal record: ' + (r.actions.judged || r.evidence.actions) + ' judged ' +
+          ((r.actions.judged || r.evidence.actions) === 1 ? n.one : n.many) + ' on this issue.'
+        : 'No lane has been able to decide this one yet.';
+    lines.push('<div class="pdxdos-line"><span class="pdxdos-k">The record</span>' +
+      '<span class="pdxdos-v pdxdos-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
+      '</div>' +
+      '<div class="pdxdos-lane">' + esc(lane) + '</div>');
+    // COMPOSITION and DEPTH, borrowed verbatim from the stance row. Composition
+    // prints only where the row genuinely carries tension — a split verdict,
+    // counter-evidence the deciding lane set aside, or a contested standing.
+    var comp = _stCompHtml(r, res);
+    var ev = _stEvidenceHtml(r);
+    // THE COVERAGE CAVEAT, when there is one to make. Thin and untested rows say
+    // why; a tested row resting on one or two items says that the direction is real
+    // and the pattern is not established. Nothing here softens a verdict — it says
+    // how far the verdict reaches.
+    var caveat = '';
+    if (res.state !== 'tested' && res.why) caveat = res.why;
+    else if (res.state === 'tested' && r.evidence.total <= 2) {
+      caveat = 'This rests on ' + r.evidence.total + ' item' + (r.evidence.total === 1 ? '' : 's') +
+        '. The direction is real; a pattern is not established at that depth.';
+    }
+    // WHERE THIS LANDS IN THE SCORE. The profile's headline figure is the pooled
+    // ⚖️ Direction match and this issue is one input to it — said outright, so a
+    // reader never reads an issue result as the profile's.
+    var score;
+    if (res.state === 'tested') {
+      score = 'This issue is one input to the profile’s pooled ⚖️ ' + res.metric +
+        ', weighted by how many judged ' + n.many + ' sit behind it. The headline figure on the ' +
+        'profile is that pooled number, never this one issue.';
+    } else if (res.state === 'thin') {
+      score = 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
+        ' rather than counted as agreement — a row too thin to divide is disclosed, not scored.';
+    } else {
+      score = 'Not in the profile’s pooled score: there is nothing here to test yet.';
+    }
+    var jump = _dosTargetLive('pdxsec-wordaction')
+      ? _stGo('wa', 'pdxsec-wordaction', r, '⚖️ Where this lands in the score')
+      : '';
+    return '<div class="pdxdos">' +
+        '<div class="pdxdos-h">The short version</div>' +
+        lines.join('') +
+        comp + ev +
+        (caveat ? '<div class="pdxdos-caveat">⚠ ' + esc(caveat) + '</div>' : '') +
+        '<div class="pdxdos-score">' + esc(score) + (jump ? '<br>' + jump : '') + '</div>' +
+      '</div>';
+  }
+
+  // Step to the next / previous issue WITHOUT leaving the dossier. Ranked by the
+  // same ordering the stance list uses, so "next" here means the same thing it
+  // means there. Reuses the sheet's own [data-pdxc-gap] route, so a step is just
+  // another dossier open — no second navigation path to keep in sync.
+  function _dosStepHtml(pid, issueKey) {
+    var ranked = [];
+    try { ranked = rankIssueRows(issueRows(pid)) || []; } catch (e) { ranked = []; }
+    if (ranked.length < 2) return '';
+    var at = -1;
+    for (var i = 0; i < ranked.length; i++) if (ranked[i].key === issueKey) { at = i; break; }
+    if (at < 0) return '';
+    var btn = function (row, dir) {
+      if (!row) return '';
+      return '<button type="button" class="pdxdos-stepb" data-pdxc-gap="' + escAttr(row.key) + '"' +
+        ' data-pdxc-gap-pid="' + escAttr(pid) + '">' +
+        '<span aria-hidden="true">' + (dir < 0 ? '←' : '') + '</span>' +
+        '<span><span class="pdxdos-stepn">' + (dir < 0 ? 'Previous issue' : 'Next issue') + '</span><br>' +
+          esc(row.label) + '</span>' +
+        '<span aria-hidden="true">' + (dir > 0 ? '→' : '') + '</span></button>';
+    };
+    var prev = btn(at > 0 ? ranked[at - 1] : null, -1);
+    var next = btn(at < ranked.length - 1 ? ranked[at + 1] : null, 1);
+    if (!prev && !next) return '';
+    return '<div class="pdxdos-step">' + prev + next + '</div>';
+  }
+
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
     var oNum = typeof off.score === 'number', sNum = typeof say.score === 'number';
     var lbl = _issueLabel(issueKey);
     var stance = _orStanceChip(pid, issueKey);
+    // The row model, resolved once for this whole sheet. Everything the dossier says
+    // about the verdict, the depth, the composition and where the issue lands in the
+    // profile score is read off this — the sheet computes no opinion of its own.
+    var _dosRow = issueRow(pid, issueKey);
 
     // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
     //
@@ -4834,8 +5433,19 @@
           ('Their formal record on this issue, ' + _n.one + ' by ' + _n.one + ', with every source.')) +
         '</div>';
     } else {
-      relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
-      gapNote = '<div class="pdxgap-note">Only one side has a score on this issue so far — there\'s nothing to line up head-to-head yet.</div>';
+      // NEITHER side carries a number — which does not mean nothing is known. The
+      // sheet used to open on "— One side only… there's nothing to line up head-to-
+      // head yet", a sentence about our comparison machinery rather than about the
+      // politician, on the exact rows where a reader most needs the honest answer.
+      // The row model already resolved one verdict for this issue; print THAT, in
+      // words, and let the caveat line inside the summary below say how far it
+      // reaches. No percentage: a row with no lane score has no number to show, and
+      // inventing a shape for one is how a thin row starts looking tested.
+      var _dv = _stResult(_dosRow);
+      relHtml = '<span class="pdxdv-rel" style="color:' + _dv.color + ';border-color:' + _dv.color +
+        '55;background:' + _dv.color + '1f;">' + esc(_dv.ico + ' ' + _dv.label) + '</span>';
+      gapNote = '<div class="pdxgap-note">' + esc(_dv.why ||
+        'Everything on file for this issue is assembled below, in one place.') + '</div>';
     }
 
     // ── The identity block ────────────────────────────────────────────────────
@@ -4963,7 +5573,19 @@
     }
 
     return head +
+      // ── L1 ── the assembled answer, open. Directly under the identity block,
+      // because the question a reader arrives with is "so what did they do about
+      // this", not "which panels exist".
+      _dosSummaryHtml(pid, issueKey, _dosRow) +
       '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
+      // ── L2 ── every instrument on this issue, closed. It sits below the two
+      // record panels rather than above them because those panels quote the
+      // DECISIVE items; this is the complete enumeration they were drawn from, and
+      // a list is only legible once you know what it is a list of.
+      _dosRecordsHtml(pid, issueKey, _dosRow, off) +
+      // Sideways, not backwards: the next issue's dossier without a trip through
+      // the profile and back.
+      _dosStepHtml(pid, issueKey) +
       _gapNextHtml(pid, issueKey) +
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
@@ -5075,14 +5697,39 @@
       if (on) back.classList.add('pdxgap-arrive'); else back.classList.remove('pdxgap-arrive');
     } catch (e) {}
   }
+  // What is open right now, and where the reader came from. Two jobs:
+  //   · the warm listener needs to know which dossier to repaint when a member's
+  //     votes land after the sheet is already on screen;
+  //   · closeGap needs to put a reader who came from a stance row back ON that row,
+  //     not at the top of whatever section happens to be under the backdrop.
+  var _gapOpen = null;
   function openGap(pid, issueKey, opts) {
     if (!pid || !issueKey || !document.body) return;
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
     if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
+    var arrival = _gapIsArrival(opts);
+    // This sheet is one politician on one issue. PDXIssueView is everyone on one
+    // issue, and the two used to announce themselves with the same generic label.
+    // Naming the person and the issue is what tells a screen-reader user which of
+    // the two they just opened.
+    try {
+      var _who = (_gapIdentity(pid) || {}).name || '';
+      sheet.setAttribute('aria-label',
+        'Issue dossier: ' + _issueLabel(issueKey) + (_who ? ' — ' + _who : ''));
+    } catch (e) {}
+    // An arrival has no profile behind it, so it has no row to go back to. Stepping
+    // sideways to the next issue INHERITS the origin: the reader still came from one
+    // stance row, and that is still where closing should return them.
+    _gapOpen = {
+      pid: pid, key: issueKey,
+      origin: arrival ? ''
+        : ((opts && opts.origin) ? String(opts.origin)
+          : ((_gapOpen && _gapOpen.pid === pid) ? _gapOpen.origin : ''))
+    };
     var back = sheet.parentNode;
     if (back) {
-      _gapArrive(back, _gapIsArrival(opts));
+      _gapArrive(back, arrival);
       back.hidden = false;
     }
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
@@ -5097,6 +5744,15 @@
   function closeGap() {
     var back = document.getElementById('pdxc-gap-back');
     if (back) back.hidden = true;
+    // THE RETURN PATH. The stance row is where the reader was reading; a dossier
+    // that dumps them at the top of the page on close costs them the place they had
+    // scrolled to, which is the whole reason they can be reluctant to open one.
+    // Guarded on the row still being in the document: after a warm repaint or a
+    // profile switch it may not be, and _stBack already fails closed on that.
+    var o = _gapOpen; _gapOpen = null;
+    if (o && o.origin) {
+      try { if (document.getElementById(o.origin)) _stBack(o.origin); } catch (e) {}
+    }
   }
 
   // ── Methodology & boundary explainer (Phase 11) ─────────────────────────────
@@ -5330,6 +5986,16 @@
     // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
     // rather than assert on the source text of the function that writes it.
     gapViewHtml: _gapViewHtml,
+    // The issue dossier's own pieces, exported so each level can be checked on its
+    // own terms rather than only through the assembled sheet: the normalised item
+    // list (L2's data), one item's expanded detail (L3+L4), and the L1 summary.
+    dossierItems: _dosItems,
+    dossierSummaryHtml: _dosSummaryHtml,
+    dossierRecordsHtml: function (pid, issueKey) {
+      return _dosRecordsHtml(pid, issueKey, issueRow(pid, issueKey), officialIssue(pid, issueKey));
+    },
+    dossierDetailHtml: _dosDetailHtml,
+    dossierStepHtml: _dosStepHtml,
     // Phase 11: the plain-language methodology / boundary explainer (opened from the
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,

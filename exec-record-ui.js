@@ -40,7 +40,7 @@
    in-context education pill. Every one of them absent degrades to plain text or to
    nothing, so this renders correctly on a cold, offline, data-less first paint.
 
-   Exposes: window.PDXExecRecordUI = { sectionHtml, navPill, ensureStyles }
+   Exposes: window.PDXExecRecordUI = { sectionHtml, navPill, NARROW_AT, ensureStyles }
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -768,6 +768,11 @@
     sectionHtml: sectionHtml,
     embedHtml: embedHtml,
     navPill: navPill,
+    // The narrow-link threshold, published so the issue dossier can say "narrow
+    // link" about exactly the mappings this section says it about. A second copy
+    // of the number in another file is how two surfaces start disagreeing about
+    // how much of a document a claim rests on.
+    NARROW_AT: NARROW_AT,
     ensureStyles: ensureStyles
   };
 })();
