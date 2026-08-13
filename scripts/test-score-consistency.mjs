@@ -500,8 +500,13 @@ const [displayScore, promiseState] = (() => {
   // The primary read names itself in plain English on the ring, and the caption
   // must not reuse "Promise", which now names only the top tier inside it.
   const wa = wa0;
-  const frame = wa.slice(wa.indexOf("var FRAME = {"), wa.indexOf("var FRAME = {") + 900);
-  must(frame.length > 200, "word-action.js no longer defines FRAME");
+  // The literal, not a fixed window off the front of it. A 900-character slice read
+  // whatever happened to sit near the top of the object, so this assertion silently
+  // stopped covering `caption` the moment the block above it grew.
+  const frameAt = wa.indexOf("var FRAME = {");
+  const frameEnd = wa.indexOf("\n  };", frameAt);
+  must(frameAt !== -1 && frameEnd > frameAt, "word-action.js no longer defines FRAME");
+  const frame = wa.slice(frameAt, frameEnd);
   // One number, one name. "Kept word" on the ring and "Word vs Action" on the section
   // a screen below were two labels for one figure, and a reader with no reason to know
   // they were the same figure read them as two integrity products.

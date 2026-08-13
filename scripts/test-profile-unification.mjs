@@ -392,7 +392,13 @@ for (const [who, pid, p] of [["president", PRES, PP], ["member", REP, RP]]) {
   has(waHtml, "pdxsec-official-record",
     `${who}: the rows offer no way into the full breakdown`);
   // Only the sharpest few. This is a summary of a section, not the section.
-  const n = (waHtml.match(/class="pdxwa-row"/g) || []).length;
+  // Matched on the class PREFIX, not on the whole attribute: a row's <li> carries
+  // pdxwa-row plus whatever it has earned — pdxwa-ic for a resolved issue colour,
+  // pdxwa-row-x for a contested standing, pdxwa-row-thin for a single-item record.
+  // Pinned to the exact string `class="pdxwa-row"` this counted only the rows that
+  // had earned nothing, which quietly stopped being an upper bound on how many rows
+  // render the moment any of those classes existed.
+  const n = (waHtml.match(/class="pdxwa-row[ "]/g) || []).length;
   ok(n >= 1 && n <= 3, `${who}: ${n} top rows rendered — this block summarises, it does not duplicate`);
   // Each rendered row shows a verdict beside the issue, so the chain terminates.
   eq((waHtml.match(/class="pdxwa-row-verdict"/g) || []).length, n,
@@ -499,7 +505,12 @@ section("8 · the condensation: removed, not relocated");
 const WA_SRC = R("word-action.js");
 const FRAME_AT = WA_SRC.indexOf("var FRAME = {");
 must(FRAME_AT !== -1, "word-action.js no longer defines FRAME");
-const FRAME = WA_SRC.slice(FRAME_AT, FRAME_AT + 900);
+// The literal, not a fixed-width window off the front of it. A 900-character slice
+// read whatever happened to sit near the top of the object, so the assertion below
+// silently stopped covering `caption` as soon as the block above it grew.
+const FRAME_END = WA_SRC.indexOf("\n  };", FRAME_AT);
+must(FRAME_END !== -1, "word-action.js's FRAME literal is not closed where this test can find it");
+const FRAME = WA_SRC.slice(FRAME_AT, FRAME_END);
 ok(/caption:\s*'Word vs Action'/.test(FRAME),
   "the ring caption is not the section's own name — a second name for one number is read as a\n" +
   "    second number, which is the whole failure mode this spine exists to close");

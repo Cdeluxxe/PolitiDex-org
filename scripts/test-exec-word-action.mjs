@@ -938,6 +938,86 @@ for (const k of Object.keys(XA.SCOPES)) {
   if (hm && hm.sub) lacks(hm.sub, "all time", "hero: a member's ring claims an executive-lane scope");
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("9 · Axis B reaches the reader — a matched action that did not survive");
+// ═════════════════════════════════════════════════════════════════════════════
+// The executive lane resolves TWO questions about one document and this card used
+// to print only the first. Axis A is direction: did the action point the same way
+// as the word? Axis B is standing: is it in force, blocked, struck down,
+// overridden, rescinded, superseded, expired, or under a challenge nobody has
+// resolved? An order signed exactly as promised and enjoined a month later scores
+// the same on Axis A as one still standing — correctly, because direction is the
+// only thing a stated position can be checked against — and a reader who cannot
+// see Axis B reads the row as an unqualified win. This section pins the fix:
+// contested standing changes how the issue is PRESENTED, never what it scored.
+{
+  const card = WA.sectionHtml(PID, P);
+  const plain = (h) => h.replace(/<[^>]+>/g, " ").replace(/&#39;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const rowsHtml = card.slice(card.indexOf("pdxwa-rows"));
+  const rowsText = plain(rowsHtml);
+
+  // Sanity: this sandbox's seed genuinely holds contested standings, or every
+  // assertion below is vacuously true and this section silently stops testing.
+  const contestedRows = CS.rankIssueRows(CS.issueRows(PID)).filter((r) => {
+    const pool = r.ov && (r.ov.execPool || r.ov.execHeld);
+    return ((pool && pool.items) || []).some((it) => {
+      const st = ER.STANDING[it.standing];
+      return st && st.contested;
+    });
+  });
+  ok(contestedRows.length > 0,
+    "no issue in this sandbox rests on a contested action — section 9 is testing nothing");
+
+  has(rowsText, "Standing",
+    "the top rows never name Axis B — a struck-down order and one still in force read identically");
+  has(rowsText, "Standing contested",
+    "no row is flagged as contested, so a court order against a supporting action costs the\n" +
+    "    presentation nothing");
+  // The paired signal, in one clause: stop making one chip carry both meanings.
+  has(rowsText, "two different questions",
+    "the row does not separate what was done from whether it held — one chip is still\n" +
+    "    being asked to answer both");
+  // The friction is a change of STROKE, not of colour. The spine carries the issue
+  // palette everywhere else on this card; recolouring it here to mean "contested"
+  // would break the one thing that palette promises.
+  ok(/pdxwa-row-x/.test(rowsHtml),
+    "a contested row carries no visual friction — the flag is text a scanning reader skips");
+
+  // …and Axis A is UNMOVED by it. This is the line the whole design rests on: the
+  // direction match is what it was, and the qualification sits beside the verdict
+  // rather than in place of it.
+  const before = WA.read(PID, P).pct;
+  eq(WA.read(PID, P).pct, before, "the read is not stable across calls");
+  ok(/class="pdxwa-row-verdict" style="color:/.test(rowsHtml),
+    "the verdict chip lost its own colour to the standing treatment — the qualification\n" +
+    "    must sit beside the verdict, never replace it");
+
+  // The composition strip counts the invisible case: a row in the green bucket that
+  // rests on an action nobody can rely on. It is invisible in every other tally on
+  // the card — it raises the mean and nothing about it is disputed except whether
+  // it still stands.
+  const comp = card.slice(card.indexOf('class="pdxwa-comp"'), card.indexOf("pdxwa-tiers"));
+  ok(comp, "the president's card shows no composition — the mean stands alone");
+  has(plain(comp), "issue", "the composition strip counts nothing");
+  ok(!/%/.test(plain(comp)),
+    "the composition strip prints a percentage — one score per profile, and it is above it");
+  has(plain(comp), "carry tension",
+    "the strip does not count tension against the whole record");
+
+  // A MEMBER INHERITS NONE OF THIS. Axis B is an executive-lane fact; a roll-call
+  // record has no standing to report and must not be given a hole where one would go.
+  const memberCard = WA.sectionHtml(MEMBER, win.CMP_DATA[MEMBER]);
+  const memberRows = memberCard.slice(memberCard.indexOf("pdxwa-rows"));
+  lacks(plain(memberRows), "Standing contested",
+    "a member's rows carry executive standing language — they have no Axis B");
+  lacks(memberRows, "pdxwa-row-standing",
+    "a member's rows render an Axis B step, which their lane cannot answer");
+
+  // And the main number is still the whole record. Everything above is presentation.
+  eq(WA.scopedRead(PID, P).scope.key, XA.SCOPES.all_time.key,
+    "the main presidential read stopped being all-time");
+}
+
 // ── report ──
 console.log("");
 if (fails.length) {

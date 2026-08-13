@@ -1174,7 +1174,11 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(/One verdict per issue/.test(mixedBag),
     'the outcomes block does not say that each issue is decided once — the whole reason\n' +
     '    Say-vs-Do stopped being a section is that two surfaces could disagree');
-  eq((mixedBag.match(/pdxwa-oc-row/g) || []).length, 5, 'the outcomes block dropped or duplicated a row');
+  // Class PREFIX, not substring: an outcome row now carries pdxwa-oc-row plus any
+  // friction it has earned (pdxwa-oc-row-x for a contested standing,
+  // pdxwa-oc-row-thin for a single-item record), and a bare substring count reads
+  // each of those as a second row.
+  eq((mixedBag.match(/pdxwa-oc-row[ "]/g) || []).length, 5, 'the outcomes block dropped or duplicated a row');
   // No second percentage. This block reports outcomes, never a rate of its own.
   const ocBlock = mixedBag.slice(mixedBag.indexOf('pdxwa-oc'), mixedBag.indexOf('What feeds this score'));
   ok(!/%/.test(ocBlock.replace(/<[^>]+>/g, ' ')),
@@ -1299,6 +1303,134 @@ const voteNarration = (issueKey, extra = {}) => ({
   const plain = SP.applyLids(raw);
   ok(!/id="pdxsp-lid-wa-basis"/.test(plain) && /pdxwa-tiers/.test(plain),
     'a second non-reclaim render claimed the same id — two nodes answering to one control');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 17. The number says what it measures, and what it does not claim
+// ─────────────────────────────────────────────────────────────────────────────
+// A large green percentage is read as a report card. It is not one: it is a
+// direction match between stated positions and formal actions, and it is silent
+// on approval, on outcomes, and on whether any of it survived. Three surfaces
+// carry that now — the metric's name, a two-sentence block under the number, and
+// a paragraph in the method drawer — and this section pins all three, because the
+// failure they prevent is invisible (nothing breaks when the sentence goes away;
+// the card just starts lying by omission again).
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const b = build({
+    stances: [quoted('gun_rights'), quoted('healthcare'), quoted('immigration')],
+    record: {
+      gun_rights: { score: 100, token: 'consistent', judged: 3 },
+      healthcare: { score: 100, token: 'consistent', judged: 2 },
+      immigration: { score: 100, token: 'consistent', judged: 2 }
+    }
+  });
+  const card = b.WA.headlineHtml('p1', { name: 'Meaning' });
+  const t = card.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/\s+/g, ' ');
+
+  ok(/class="pdxwa-means"/.test(card),
+    'the card no longer says what the percentage measures — the reader who never opens\n' +
+    '    a drawer is exactly the reader who reads a large green figure as a general grade');
+  ok(/Direction match/.test(card),
+    'the metric is not named for what it measures — "stood by their word" reads as a\n' +
+    '    verdict on the person, not as a direction match between word and formal record');
+  ok(t.includes('pointed the same way as the positions they stated'),
+    'the card does not say the number is a direction match');
+  // The three readings a percentage invites and this one does not support. Pinned
+  // individually: dropping any one of them leaves the sentence looking complete.
+  for (const notClaim of ['not an approval rating', 'not an outcome score', 'worked or held up']) {
+    ok(t.includes(notClaim), `the card no longer disclaims "${notClaim}" — a high number reclaims that meaning`);
+  }
+  // Said ABOVE the fold, not inside the method drawer. The drawer says it too, at
+  // length, but a disclosure only a curious reader sees is not a disclosure.
+  ok(card.indexOf('class="pdxwa-means"') < card.indexOf('pdxwa-method'),
+    'the non-claim moved below the method fold — it has to share a screen with the number');
+  ok(t.includes('What this is not'),
+    'the method drawer no longer explains why a direction match and an outcome come apart');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 18. The shape behind the average
+// ─────────────────────────────────────────────────────────────────────────────
+// One mean stands in for a distribution, and the distributions it hides are not
+// equally interesting: 82% off eleven issues that all agree is a different finding
+// from 82% off eleven where two flatly contradict. The composition strip is the
+// whole fix. It counts issues — never a second percentage, which a reader would
+// subtract from the first — and it reads off the SAME buckets the outcomes block
+// below it groups by, so the strip can never name a bucket the section lacks.
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const row = (key, token, over = {}) => ({
+    pid: 'p1', key, label: 'Issue ' + key, tier: token === 'consistent' ? 1 : 0,
+    stance: { label: 'Pledge', key, text: 'said a thing' },
+    lane: 'record', tested: true, scored: true,
+    actions: { count: 1, lane: 'record', judged: 1 },
+    verdict: { token, label: token, cls: 'x', ico: '•', color: '#fff', score: null, basis: 'action' },
+    public: { token: 'no_record', count: 0, judged: false },
+    evidence: { count: 4, actions: 4, public: 0, total: 4, strength: 'strong', sources: [] },
+    ...over
+  });
+  const withRows = (rows) => {
+    const b = build({
+      stances: [quoted('gun_rights')],
+      record: { gun_rights: { score: 100, token: 'consistent', judged: 2 } }
+    });
+    b.win.PDXConsistency.issueRows = () => rows;
+    b.win.PDXConsistency.rankIssueRows = (rs) => rs;
+    return b.WA.headlineHtml('p1', { name: 'Composition' });
+  };
+  const strip = (h) => {
+    const i = h.indexOf('class="pdxwa-comp"');
+    if (i === -1) return '';
+    const j = h.indexOf('class="pdxwa-tiers"', i);
+    return h.slice(i, j === -1 ? h.length : j);
+  };
+  const txt = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/\s+/g, ' ');
+
+  // A record that agrees with itself everywhere. The percentage says 100; the strip
+  // has to say WHY that is a fact about a small, uniform record.
+  const calm = withRows([row('a', 'consistent'), row('b', 'consistent'), row('c', 'consistent')]);
+  const calmS = strip(calm);
+  ok(calmS, 'the composition strip does not render — the mean stands alone again');
+  ok(txt(calmS).includes('3 issues with a verdict'), 'the strip does not say how many issues it counted');
+  ok(txt(calmS).includes('3 Backed up'), 'the strip does not count the backed-up bucket');
+  ok(txt(calmS).includes('No contradictions, no mixed results and no contested standings'),
+    'a record with no internal tension is not named as such — "high average, low tension"\n' +
+    '    is the shape this strip exists to make visible');
+  // NEVER a second percentage. Two rates on one card get subtracted from each other.
+  ok(!/%/.test(txt(calmS)), 'the composition strip prints a percentage — it counts issues, it does not score them');
+  // And it says out loud that it cannot be reconciled with the number above by
+  // arithmetic, because it weighs nothing and the score weighs testability.
+  ok(txt(calmS).includes('The two do not have to line up'),
+    'the strip does not warn that its counts and the weighted score are different arithmetic');
+
+  const tense = withRows([
+    row('a', 'contradicts'), row('b', 'mixed'), row('c', 'consistent'),
+    row('d', 'consistent'), row('e', 'limited')
+  ]);
+  const tenseS = strip(tense);
+  ok(txt(tenseS).includes('2 of these 5 issues carry tension'),
+    'the strip does not count tension against the whole — the one line that stops a\n' +
+    '    green bar being read as a clean record');
+  ok(txt(tenseS).includes('1 Contradicted'), 'the strip does not count contradictions');
+  ok(txt(tenseS).includes('1 Mixed'), 'the strip does not count mixed results');
+  // Worst first, same order as the rows and the outcome groups below.
+  const iC = txt(tenseS).indexOf('Contradicted'), iB = txt(tenseS).indexOf('Backed up');
+  ok(iC !== -1 && iB > iC, 'the strip leads with agreement — the sharpest count comes first');
+  // Thin rows are counted as thin even inside a bucket that is not "thin record".
+  const thin = withRows([
+    row('a', 'consistent', { evidence: { count: 1, actions: 1, public: 0, total: 1, strength: 'thin', sources: [] } }),
+    row('b', 'consistent'), row('c', 'consistent')
+  ]);
+  ok(txt(strip(thin)).includes('1 rests on a single sourced item'),
+    'a thin row inside the backed-up bucket is invisible — thin evidence must not look\n' +
+    '    like a dense still-in-force record just because it agreed');
+  ok(/pdxwa-row-thin/.test(thin) && /Thin evidence/.test(thin),
+    'the top rows do not mark a single-item record as thin');
+
+  // One issue is not a distribution. Below the floor the strip is the percentage again.
+  ok(!strip(withRows([row('a', 'consistent')])),
+    'the strip renders for a single issue — one chip under a percentage says nothing new');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
