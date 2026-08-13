@@ -219,6 +219,68 @@ if (CHU) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 4c · overridden — the token for a veto Congress passed the measure over
+// ─────────────────────────────────────────────────────────────────────────────
+// Same shape of check as 4b, for the same reason: parity proves it is wired in and
+// proves nothing about whether it means what it was added to mean. This one is
+// unusual in the vocabulary because THE ACTOR IS PART OF THE CLAIM. Every other
+// Axis B token can be read as an outcome — the action survived, the action was
+// stopped, the action lapsed. This one is only true if Congress did it, under
+// Article I, section 7. A court holding a vetoed measure enacted would not be an
+// override; it would be a different and much stranger fact. So the checks below are
+// as much about who the token names as about what it says.
+const OVR = EX.STANDING.overridden;
+ok(!!OVR, "overridden is missing from EXEC_STANDING — a veto Congress overrode has nowhere honest to go");
+if (OVR) {
+  ok(OVR.contested === true,
+    "overridden is not contested — the single most contested outcome available to an executive action would drop out of the compact rendering");
+  // NOT coverage. challenged_unverified is coverage because it reports the state of
+  // our file; this reports the state of the world, and a settled one. Marking it
+  // coverage would file a completed constitutional event as a gap in our reading.
+  ok(!OVR.isCoverage,
+    "overridden is marked isCoverage — it is a finished fact about the action, not a gap in what we have read");
+  ok(!!EX.STANDING_STICKY.overridden, "overridden is not sticky");
+  // A borrowed colour is a borrowed actor. The blocked red says a court reached the
+  // action and the rescinded blue says the President reversed himself; neither
+  // happened, and a shared class would quietly assert one of them.
+  const otherCls = Object.values(EX.STANDING).filter((s) => s.key !== OVR.key).map((s) => s.cls);
+  ok(!otherCls.includes(OVR.cls), `overridden shares its class "${OVR.cls}" with another standing`);
+  ok(new RegExp("\\." + OVR.cls.replace(/^exec-/, "pdxer-") + "\\{").test(readText("exec-record-ui.js")),
+    `exec-record-ui.js has no style rule for ${OVR.cls.replace(/^exec-/, "pdxer-")} — the chip would render unstyled`);
+  // THE LABEL MUST NAME CONGRESS. A bare "Overridden" leaves the reader to guess
+  // which branch ended the action, and the entire reason this token exists rather
+  // than a note on `blocked` is that the two answers are different claims.
+  ok(/overridden/i.test(OVR.label), "overridden's label does not say the action was overridden");
+  ok(/congress/i.test(OVR.label),
+    `overridden's label does not name Congress ("${OVR.label}") — a reader cannot tell it from a court ruling`);
+  ok(!FORBIDDEN.test(OVR.label), `overridden's label uses forbidden vocabulary ("${OVR.label}")`);
+  ok(!FORBIDDEN.test(OVR.short || ""), `overridden's short text uses forbidden vocabulary ("${OVR.short}")`);
+  eq(OVR.label.toLowerCase(), SUMKEYS.buckets.actions.keys.overridden.label.toLowerCase(),
+    "the shipped label and the summary-key label for overridden have drifted apart");
+  // The explanatory text has to carry both halves — what happened, and by whose
+  // hand — because the token is rendered as a chip and the chip is all most readers
+  // will see. It must also not be a verdict on the measure.
+  ok(/congress/i.test(OVR.short || ""), "overridden's short text does not name Congress as the actor");
+  ok(/\bnot a court\b|\bnot by a court\b/i.test(OVR.short || ""),
+    "overridden's short text does not rule out a court — the one confusion the token exists to prevent");
+  // Ranked with the total defeats, and above in_force. If it sorted below in_force
+  // an issue carrying an overridden veto could summarise as operative, which is the
+  // precise falsehood the token was added to stop.
+  const ovrRank = readText("exec-record.js").match(/var order = \[([\s\S]*?)\];/);
+  const ovrOrdered = ovrRank ? [...ovrRank[1].matchAll(/'([a-z_]+)'/g)].map((m) => m[1]) : [];
+  ok(ovrOrdered.indexOf("overridden") >= 0, "overridden is absent from the issue-level standing ranking");
+  ok(ovrOrdered.indexOf("overridden") < ovrOrdered.indexOf("in_force"),
+    "overridden ranks below in_force — an issue whose veto was overridden could present as operative");
+  ok(ovrOrdered.indexOf("overridden") < ovrOrdered.indexOf("challenged_unverified"),
+    "overridden ranks below challenged_unverified — a settled outcome would be hidden behind an unresolved one");
+  // The summary sentence names the actor too. "1 overridden" on its own is the same
+  // failure as a bare label, one layer up.
+  const summaryText = readText("exec-record.js");
+  ok(/overridden by Congress/.test(summaryText),
+    "the summary sentence says only 'overridden' — the count would not say which branch ended the action");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 5 · No executive pid may be roll-call attributable
 // ─────────────────────────────────────────────────────────────────────────────
 const memberMap = readJson("db/vr-member-map.json");

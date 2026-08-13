@@ -353,6 +353,47 @@
         ]
       },
       {
+        "actionClass": "vetoed_law",
+        "documentId": "H.R. 6395 (116th Congress)",
+        "measureNumber": "H.R. 6395",
+        "congress": 116,
+        "chamber": "house",
+        "title": "William M. (Mac) Thornberry National Defense Authorization Act for Fiscal Year 2021",
+        "actedAt": "2020-12-23",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/116th-congress/house-bill/6395",
+        "sourceLabel": "Congress.gov — H.R. 6395, 116th Congress",
+        "issues": [
+          {
+            "issueKey": "america_first",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "rationale": "The direction recorded here describes the MEASURE, not the action taken against it. H.R. 6395 is the annual defense authorization: its long title is 'An Act to authorize appropriations for fiscal year 2021 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes'. Funding and manning the armed forces at the level the Department asked for is what the stated position's commitment to the military is about, so the measure advances this issue. The record engine inverts a blocking action, so the veto itself reads the other way — it returned that authorization to the House without approval."
+          }
+        ],
+        "status": [
+          {
+            "status": "overridden",
+            "effectiveAt": "2020-12-28",
+            "authority": "The House of Representatives, on the question of passage, the objections of the President to the contrary notwithstanding",
+            "basis": "congressional_action_record",
+            "sourceLabel": "Clerk of the House — electronic record for Roll No. 253 of 2020, 116th Congress, 2nd session",
+            "sourceUrl": "https://clerk.house.gov/evs/2020/roll253.xml",
+            "note": "THE FIRST OF THE TWO CHAMBERS, filed as its own row so the override is not presented as a single event. The Clerk's record for December 28, 2020 gives the question as 'On Passage, Objections of the President to the Contrary Notwithstanding', the measure as H R 6395 and the result as 'Passed', with 322 in favour and 87 against — past the two-thirds threshold Article I, section 7 sets. On its own this makes no law: a measure returned without approval needs both chambers, and the row after it is where the second one acts. This states what the House did with the returned bill and says nothing about any challenge to the veto or to the measure."
+          },
+          {
+            "status": "overridden",
+            "effectiveAt": "2021-01-01",
+            "authority": "The Senate, completing reconsideration under Article I, section 7, and the measure's approval as Public Law 116-283",
+            "basis": "congressional_action_record",
+            "sourceLabel": "GovInfo — Public Law 116-283, enrolled text as published by GPO, 134 Stat. 3388 (reconsideration resolutions at 134 Stat. 4868)",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-116publ283/html/PLAW-116publ283.htm",
+            "note": "THE CURRENT STANDING, AND THE WHOLE POINT OF THE TOKEN: THE VETO DID NOT HOLD. The bill was returned to the House without approval on December 23, 2020; the House reconsidered it on December 28 and the Senate on January 1, and the enrolled text prints both resolutions — 'Resolved, That the said bill do pass, two-thirds of the House of Representatives agreeing to pass the same' and 'Resolved, That the said bill do pass, two-thirds of the Senators present having agreed to pass the same'. Its LEGISLATIVE HISTORY block names the December 23 veto message, the December 28 House reconsideration and the January 1 Senate reconsideration. The measure became Public Law 116-283, approved January 1, 2021, at 134 Stat. 3388. One document is cited here rather than two because this one establishes both facts the standing rests on — that the Senate acted and that the measure became law; the Senate's own record of the question is named in _verificationPass.wave9. READ THIS EXACTLY AS NARROWLY AS IT IS WRITTEN. It states what Congress did with the returned bill and what became of the measure. It is not a court holding anything unlawful, it is not a judgment about the Act or about the reasons the veto gave, and it is not a win or a loss on the subject of the Act — Axis A already reports the direction of the act, and this axis reports only what became of it. It says nothing about any challenge to the measure."
+          }
+        ]
+      },
+      {
         "actionClass": "executive_order",
         "documentId": "Executive Order 14150",
         "executiveOrderNumber": 14150,
@@ -605,6 +646,16 @@
             "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.wawd.348016/gov.uscourts.wawd.348016.55.0.pdf",
             "caseUrl": "https://www.courtlistener.com/docket/70238539/state-of-washington-v-trump/",
             "note": "THE CURRENT STANDING, and it is a statement about this file rather than about the order. Seventeen States are suing over this order; its paragraph 1 reads 'This case concerns an Executive Order issued on January 20, 2025, EO 14156, 90 Fed. Reg. 8433 (January 29, 2025)', and the prayer for relief asks the court to declare EO 14156 unlawful and to enjoin the agencies implementing it. The docket was filed May 9, 2025 and is not terminated; as read in this pass it carries no preliminary-injunction ruling and no ruling on the pending motion to dismiss. So no court has stopped this order and no court has upheld it — 'in force' would assert the second of those, which is why this row does not say it. Dated to the operative amended complaint, the document actually read, rather than to the docket's filing date."
+          },
+          {
+            "status": "challenged_unverified",
+            "effectiveAt": "2026-06-04",
+            "authority": "Challenge pending — U.S. District Court for the Western District of Washington (State of Washington v. Trump, No. 2:25-cv-00869-JNW)",
+            "basis": "pending_litigation",
+            "sourceLabel": "W.D. Wash. — State of Washington v. Trump, No. 2:25-cv-00869-JNW, Defendants' Reply in Support of Their Motion to Dismiss (ECF 101, filed June 4, 2026)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.wawd.348016/gov.uscourts.wawd.348016.101.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/70238539/state-of-washington-v-trump/",
+            "note": "THE CURRENT STANDING. The token does not move; what moves is the date on which it was last checked, and for a coverage token that date IS the substantive claim — the row asserts the state of our file, so a file checked in January cannot speak for July. Re-read in this pass: the case is live and the dispositive motion is fully briefed and undecided. The document cited here is the defendants' reply in support of their own motion to dismiss under Rules 12(b)(1) and 12(b)(6), noted for June 4, 2026, arguing that the plaintiff States lack standing, that their claims could only be ripe in a challenge to a particular project, and that no final agency action exists. Every signed order on the docket through ECF 123 of July 30, 2026 is procedural — leave to appear, amicus leave, deadline stipulations, and a stay during a lapse of appropriations. So the position is unchanged and stated the same way: no court has stopped this order and no court has upheld it. The absence of a ruling is what this pass searched for and did not find, which is not a guarantee that none exists."
           }
         ]
       },
@@ -917,6 +968,46 @@
             "sourceLabel": "Federal Register — Executive Order 14173 document record, 90 FR 8633",
             "sourceUrl": "https://www.federalregister.gov/documents/2025/01/31/2025-02097/ending-illegal-discrimination-and-restoring-merit-based-opportunity",
             "note": "Published at 90 FR 8633. The disposition record for this document lists the orders it revokes and carries no entry revoking or superseding it in turn, so it stands as published by later presidential action. That is the whole of the claim and it says nothing about any challenge to it."
+          },
+          {
+            "status": "partly_blocked",
+            "effectiveAt": "2025-02-21",
+            "authority": "U.S. District Court for the District of Maryland (Judge Adam B. Abelson)",
+            "basis": "court_ruling",
+            "sourceLabel": "D. Md. — National Association of Diversity Officers in Higher Education v. Trump, No. 1:25-cv-00333-ABA, Preliminary Injunction of Feb. 21, 2025 (ECF 45)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.45.0_5.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "BACKFILL — the first standing this order held, appended behind the current one. 'The Motion is GRANTED IN PART and DENIED IN PART.' Two provisions of this order were reached: Section 3(b)(iv), which the court calls the Certification Provision and which requires every contract and grant award to carry a term certifying that the counterparty operates no programs promoting DEI that violate Federal anti-discrimination law, and Section 4(b)(iii), the Enforcement Threat Provision, which directs a strategic enforcement plan under which each agency identifies up to nine potential civil compliance investigations. The Enjoined Parties — 'Defendants other than the President' and those in active concert with them — were ordered not to require any certification under the first or bring any enforcement action under the second. Partly blocked and not blocked: two provisions were enjoined and the rest of the order was not, and the President himself was not enjoined. Read from the injunction order itself (ECF 45), not from the accompanying memorandum opinion. The same order also enjoined a provision of EO 14151, which is that order's row and not this one's."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-03-14",
+            "authority": "U.S. Court of Appeals for the Fourth Circuit",
+            "basis": "court_ruling",
+            "sourceLabel": "Fourth Circuit — National Association of Diversity Officers in Higher Education v. Trump, No. 25-1189, Order of Mar. 14, 2025 granting a stay pending appeal (D. Md. ECF 73)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.73.0_2.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "BACKFILL — 'we grant the government's motion for a stay of the preliminary injunction'. The injunction stopped operating as to this order's two provisions along with everything else it covered, so the order was operative again. A STAY IS NOT A MERITS RULING and this row claims nothing beyond the operation of the order: the same order set an expedited briefing schedule and the appeal stayed pending until February 6, 2026."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-06",
+            "authority": "U.S. Court of Appeals for the Fourth Circuit",
+            "basis": "court_ruling",
+            "sourceLabel": "Fourth Circuit — National Association of Diversity Officers in Higher Education v. Trump, No. 25-1189 (published opinion, Feb. 6, 2026)",
+            "sourceUrl": "https://storage.courtlistener.com/pdf/2026/02/06/natl._assoc._of_diversity_officers_in_higher_edu._v._donald_trump.pdf",
+            "caseUrl": "https://www.courtlistener.com/opinion/10785644/natl-assoc-of-diversity-officers-in-higher-edu-v-donald-trump/",
+            "note": "BACKFILL — the appeal reached judgment: 'we vacate the district court's order granting plaintiffs' motion for a preliminary injunction, and remand for further proceedings. VACATED AND REMANDED'. The injunction that had reached this order's Certification and Enforcement Threat Provisions no longer exists, so no injunction against this order is in effect. Vacated on appeal is not upheld on the merits, and this row does not say it was."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-06-30",
+            "authority": "U.S. District Court for the District of Maryland (Judge Adam B. Abelson)",
+            "basis": "court_ruling",
+            "sourceLabel": "D. Md. — National Association of Diversity Officers in Higher Education v. Trump, No. 1:25-cv-00333-ABA, Order of June 30, 2026 dismissing the case (ECF 107)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.107.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "THE CURRENT STANDING. On remand the plaintiffs filed a notice of voluntary dismissal without prejudice and the court accepted it: 'it is hereby ORDERED that the notice is ACCEPTED. The Clerk is directed to CLOSE this case.' The case is closed and no injunction against this order is in effect. WITHOUT PREJUDICE and by the plaintiffs' own choice — no court held this order lawful, and this row does not say one did."
           }
         ]
       },
@@ -1326,6 +1417,15 @@
             "sourceUrl": "https://storage.courtlistener.com/pdf/2026/01/30/league_of_united_latin_american_citizens_v._executive_office_of_the.pdf",
             "caseUrl": "https://www.courtlistener.com/opinion/10782009/league-of-united-latin-american-citizens-v-executive-office-of-the/",
             "note": "The current standing. The court DECLARED that Sections 2(d) and 3(d) cannot lawfully be implemented and PERMANENTLY ENJOINED them; dismissed the claims directed at Sections 4(a), 7(a) and 7(b) for want of standing or final agency action; and left claims touching Sections 2(b) and 3(a) for further proceedings, subject to strict Privacy Act compliance. Parts of the order are permanently enjoined and parts are still operative — which is what 'partly blocked' means, and why one word for the whole order would be false either way."
+          },
+          {
+            "status": "partly_blocked",
+            "effectiveAt": "2026-03-31",
+            "authority": "U.S. District Court for the District of Columbia (Judge Colleen Kollar-Kotelly)",
+            "basis": "court_ruling",
+            "sourceLabel": "D.D.C. — LULAC v. Executive Office of the President, Nos. 25-0946 / 25-0952 / 25-0955 (CKK), Final Judgment of Mar. 31, 2026 (ECF 256)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.dcd.279032/gov.uscourts.dcd.279032.256.0.pdf",
+            "note": "THE CURRENT STANDING, and the row that closes the January 30, 2026 row's “left for further proceedings” clause — which is why it was written: that clause had gone stale and a reader was being told the case was still open on those sections when it is not. The parties told the court they no longer wished to litigate the remaining issues, and judgment was entered under Rule 58(d). Its own terms: Sections 2(d) and 3(d) are DECLARED to violate the separation of powers and the named agencies are PERMANENTLY ENJOINED from taking any action to implement or give effect to either; the earlier permanent injunction against Section 2(a) is restated and is already on appeal; in implementing Sections 2(b) and 3(a) the named agencies are DECLARED bound by the Privacy Act, including its requirement of at least thirty days' notice and opportunity for comment for a new or intended routine use; and judgment is entered FOR the defendants on everything else, with the challenges to Sections 4(a), 7(a) and 7(b) and the Administrative Procedure Act claims dismissed without prejudice. THE TOKEN DOES NOT MOVE, and that is the finding rather than a failure to look: parts of this order are permanently enjoined and parts are operative, which is what 'partly blocked' means. What changed is that the disposition is final rather than interim. The court retains jurisdiction to enforce the judgment, and notices of appeal were entered the same day and again on May 28, 2026; an appellate ruling would arrive as a further row rather than as an edit to this one."
           }
         ]
       },
@@ -2018,6 +2118,15 @@
             "sourceLabel": "Federal Register — Executive Order 14399 document record, 91 FR 17125",
             "sourceUrl": "https://www.federalregister.gov/documents/2026/04/03/2026-06601/ensuring-citizenship-verification-and-integrity-in-federal-elections",
             "note": "The register's disposition record for this order carries no revoking or superseding entry, so it stands as published. The order itself states that appearing on a State Citizenship List does not by itself place anyone on the rolls and that State and Federal registration law still applies, so this row asserts that the order is on foot and asserts nothing about any registration outcome. This is not a statement about any challenge to it."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-05-28",
+            "authority": "U.S. District Court for the District of Columbia (Judge Carl J. Nichols)",
+            "basis": "court_ruling",
+            "sourceLabel": "D.D.C. — Democratic Senatorial Campaign Committee v. Trump, No. 1:26-cv-01114 (CJN) (consolidated), Memorandum Opinion of May 28, 2026 (ECF 143)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.dcd.291053/gov.uscourts.dcd.291053.143.0_1.pdf",
+            "note": "THE CURRENT STANDING, and a row that exists because the register alone can no longer describe this order. It is under challenge: LULAC v. Executive Office of the President, No. 1:26-cv-01132, was filed in the District of Columbia on April 2, 2026 naming this order by title and asking that Sections 2(a), 3(b)(iii) and 3(b)(iv) be enjoined, and on April 14, 2026 it was consolidated with NAACP v. Trump, No. 1:26-cv-01151, into the lead case above. On May 28, 2026 the court DENIED the motions for a preliminary injunction. Read what that denial is and is not. The claims against Section 3 were held unripe because the Postal Service has issued neither a proposed nor a final rule; the claims against Section 2(a) failed for want of a showing of likely standing and imminent irreparable harm because no State Citizenship List has been created or transmitted and no State has acted on one; and the opinion states that plaintiffs may renew their motions if and when those actions occur. NO COURT HAS UPHELD THIS ORDER. Nothing enjoins it — that is what this row says and the whole of what it says. Notices of appeal were entered June 1, 2026 and the appeal was transmitted to the Court of Appeals on June 2, 2026."
           }
         ]
       },

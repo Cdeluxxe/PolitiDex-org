@@ -424,14 +424,17 @@ for (const card of CARDS) {
   }
 }
 
-// The append-only standing log: three rulings, three citations, one row each.
+// The append-only standing log: four rulings, four citations, one row each. It was
+// three until wave 9 appended the final judgment, and the growth is the behaviour
+// under test rather than incidental fixture churn — a corrected standing has to
+// arrive as a new row with the superseded one still legible underneath it.
 {
   const eo = CARDS.find((c) => c.includes("Executive Order 14248"));
   ok(!!eo, "the EO 14248 card is missing");
   const seeded = SEED.actions.trump.find((a) => a.documentId === "Executive Order 14248");
-  eq(seeded.status.length, 3, "fixture drift: EO 14248 no longer carries three standing entries");
+  eq(seeded.status.length, 4, "fixture drift: EO 14248 no longer carries four standing entries");
   if (eo) {
-    has(eo, "2 earlier recorded changes", "the earlier standing history is not offered");
+    has(eo, "3 earlier recorded changes", "the earlier standing history is not offered");
     for (const s of seeded.status) hasText(eo, s.note, `the standing note of ${s.effectiveAt} is not rendered`);
     // Current standing first: the latest entry by effectiveAt leads the card.
     const idx = seeded.status.map((s) => eo.indexOf(s.sourceUrl));
@@ -450,7 +453,12 @@ for (const card of CARDS) {
   ok(!!eo, "the EO 14156 card is missing — the new standing token is unexercised in the UI");
   const seeded = SEED.actions.trump.find((a) => a.documentId === "Executive Order 14156");
   ok(!!seeded, "fixture drift: EO 14156 is no longer seeded");
-  const live = (seeded.status || []).find((s) => s.status === "challenged_unverified");
+  // The LATEST challenged_unverified row, not the first. Wave 9 appended a second
+  // one — the token did not move, the date it was last checked did — and a test that
+  // reached for the first would go on asserting that the card renders a citation the
+  // card has since superseded.
+  const live = (seeded.status || []).filter((s) => s.status === "challenged_unverified")
+    .sort((a, b) => Date.parse(b.effectiveAt) - Date.parse(a.effectiveAt))[0];
   ok(!!live, "fixture drift: EO 14156 no longer carries a challenged_unverified entry");
   if (eo && live) {
     // Its own chip class. Reusing the in-force green or the blocked red would assert
@@ -472,7 +480,7 @@ for (const card of CARDS) {
     eq(rows[0].status, "challenged_unverified", "fixture drift: the challenge is no longer EO 14156's current standing");
     ok(eo.indexOf(live.sourceUrl) < eo.indexOf("pdxer-more"),
       "the live challenge is filed behind the earlier-changes fold instead of leading the card");
-    has(eo, "2 earlier recorded changes", "EO 14156's two earlier standing rows are not offered");
+    has(eo, "3 earlier recorded changes", "EO 14156's three earlier standing rows are not offered");
   }
 
   // Axis B counts it as its own bucket, after the rulings and ahead of in force.

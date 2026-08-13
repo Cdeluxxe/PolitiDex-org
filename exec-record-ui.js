@@ -139,6 +139,11 @@
         '.pdxer-partly{color:#f5c842;border-color:rgba(245,200,66,.42);background:rgba(245,200,66,.14);}' +
         '.pdxer-blocked,.pdxer-struck{color:#f89b9b;border-color:rgba(248,113,113,.42);background:rgba(248,113,113,.12);}' +
         '.pdxer-rescinded,.pdxer-superseded,.pdxer-expired{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.1);}' +
+        // Its own colour for the same reason challenged has one. Sharing the blocked red
+        // would say a court reached this action; sharing the rescinded blue would say
+        // the President reversed himself. Congress overriding a veto is neither, and a
+        // borrowed colour would quietly name the wrong actor.
+        '.pdxer-overridden{color:#c4a6f5;border-color:rgba(196,166,245,.44);background:rgba(196,166,245,.12);}' +
         // Its own colour, not a borrowed one. Sharing the in-force green would say a
         // court has left the action alone and sharing the blocked red would say a court
         // has stopped it; the whole point of the token is that neither has happened yet.
@@ -394,6 +399,9 @@
     // Contested standings lead. If anything is enjoined, that is the first thing the
     // row says, however compact it gets.
     add(sum.actions.struckDown, 'struck_down');
+    // A veto Congress overrode leads with the injunctions: the action did not hold,
+    // and which branch ended it is carried by the chip's own label.
+    add(sum.actions.overridden, 'overridden');
     add(sum.actions.blocked, 'blocked');
     add(sum.actions.partlyBlocked, 'partly_blocked');
     add(sum.actions.rescinded, 'rescinded');

@@ -64,6 +64,7 @@ const setActions = (list) => { ctx.window.EXEC_ACTIONS = { trump: list }; };
 const FR = (n) => `https://www.federalregister.gov/documents/2025/01/0${n}/x-${n}`;
 const CG = (n) => `https://www.congress.gov/bill/119th-congress/house-bill/${n}`;
 const RULING = "https://www.supremecourt.gov/opinions/25pdf/24-1287_4gcj.pdf";
+const PL = "https://www.govinfo.gov/content/pkg/PLAW-116publ283/html/PLAW-116publ283.htm";
 const st = (status, effectiveAt, url = RULING) =>
   ({ status, effectiveAt, sourceUrl: url, sourceLabel: "Court", authority: "A named court" });
 
@@ -152,9 +153,20 @@ eq(SUMKEYS.buckets.issues.unit === SUMKEYS.buckets.actions.unit, false,
 // ── 3 · invariants ───────────────────────────────────────────────────────────
 eq(A.issues.aligned + A.issues.against + A.issues.bothWays + A.issues.noActionFound + A.issues.noStance,
   A.issues.total, "invariant 1: issue buckets do not sum to the issue total");
+// Every Axis B bucket is named here on purpose. If a new standing token is added and
+// its bucket is left out of this sum, the omission has to show up as a failure here
+// rather than as a total that quietly stops counting some of the record.
 eq(A.actions.inForce + A.actions.partlyBlocked + A.actions.blocked + A.actions.struckDown +
-   A.actions.rescinded + A.actions.superseded + A.actions.expired,
+   A.actions.overridden + A.actions.rescinded + A.actions.challengedUnverified +
+   A.actions.superseded + A.actions.expired,
   A.actions.total, "invariant 2: standing buckets do not sum to the action total");
+// …and the list above is the WHOLE vocabulary, checked against the data file rather
+// than against itself, so a token added to exec-summary-keys.json cannot be missed.
+for (const k of Object.keys(SUMKEYS.buckets.actions.keys)) {
+  ok(typeof A.actions[k] === "number", `Axis B bucket ${k} is declared in the keys file but absent from the summary`);
+}
+eq(Object.keys(SUMKEYS.buckets.actions.keys).length, 9,
+  "the Axis B vocabulary changed size — invariant 2's explicit sum must be updated with it");
 eq(A.byClass.signed_law + A.byClass.vetoed_law + A.byClass.executive_order + A.byClass.directive,
   A.actions.total + A.unstatedStanding, "invariant 3: class counts do not sum to the actions on file");
 
@@ -252,6 +264,58 @@ eq(EX.summary("trump").actions.partlyBlocked, 1,
   "a later ruling did not supersede the pending-challenge row — the log must yield to evidence");
 eq(EX.summary("trump").actions.challengedUnverified, 0,
   "the superseded pending-challenge row was still counted");
+
+// ── 6c · overridden names Congress, and does not launder the veto ────────────
+// A veto is a blocking act, so its standing answers one question: did the measure it
+// blocked become law anyway. `overridden` is the answer "yes, over the objections of
+// the President" — and every part of that has to survive into the counts and the copy.
+setStances({ lower_taxes: "support" });
+const OVR = { status: "overridden", effectiveAt: "2021-01-01", sourceUrl: PL,
+  sourceLabel: "GovInfo — enrolled text as published by GPO",
+  authority: "The Senate, completing reconsideration under Article I, section 7" };
+setActions([
+  // Vetoed, then passed over the veto in both chambers.
+  { actionClass: "vetoed_law", documentId: "H.R. 6395", title: "NDAA", actedAt: "2020-12-23", term: "45",
+    sourceUrl: CG(2), sourceLabel: "congress.gov",
+    issues: [{ issueKey: "lower_taxes", direction: "advances", isPrimary: true }],
+    status: [st("in_force", "2020-12-23", CG(2)), OVR] },
+  // Vetoed and never taken up again — the token is per document, not per class.
+  { actionClass: "vetoed_law", documentId: "H.R. 7120", title: "Held", actedAt: "2020-11-01", term: "45",
+    sourceUrl: CG(3), sourceLabel: "congress.gov",
+    issues: [{ issueKey: "lower_taxes", direction: "advances" }],
+    status: [st("in_force", "2020-11-01", CG(3))] },
+]);
+const OV = EX.summary("trump", { allTerms: true });
+ok(!!OV, "the override fixture yielded no summary — the overridden bucket is missing from an invariant");
+eq(OV.actions.overridden, 1, "an overridden veto did not reach its own bucket");
+eq(OV.actions.inForce, 1, "the veto that held and the veto that did not were counted together");
+eq(OV.actions.blocked + OV.actions.partlyBlocked + OV.actions.struckDown, 0,
+  "a congressional override was counted as a court having acted");
+eq(OV.actions.challengedUnverified + OV.actions.rescinded + OV.actions.superseded, 0,
+  "an override was filed under a token belonging to a different actor");
+eq(OV.actions.total, 2, "Axis B total does not include the overridden veto");
+ok(OV.contested === true, "an overridden veto did not mark the record contested");
+// The copy names the actor. A bare "overridden" leaves the reader to guess at a court.
+ok(/overridden by Congress/.test(OV.label),
+  `the label reports the override without naming Congress: ${OV.label}`);
+ok(/overridden by Congress/.test(EX.summaryText(OV)),
+  `summaryText reports the override without naming Congress: ${EX.summaryText(OV)}`);
+ok(!/\boverridden\b(?! by Congress)/.test(OV.label),
+  `the label renders a bare "overridden" somewhere — the actor is part of the claim: ${OV.label}`);
+ok(!/court|judge|struck/i.test(OV.label),
+  `the label describes a congressional override in the language of a court: ${OV.label}`);
+// THE LAUNDERING CHECK. Congress passed the measure; the President did not. The veto
+// is still a veto, so the act still reads against a position the measure advances —
+// the standing says what became of the document, never who won on its subject.
+eq(EX.issue("trump", "lower_taxes", { allTerms: true }).token, "acted_against",
+  "an overridden veto was scored as though the President had acted for the measure");
+eq(EX.issue("trump", "lower_taxes", { allTerms: true }).standing.key, "overridden",
+  "the issue's standing did not carry the override");
+// And the override outranks in_force in the precedence order, so a mixed issue cannot
+// present as operative on the strength of the veto that held.
+ok(EX.STANDING.overridden.contested === true, "overridden is not flagged contested");
+ok(EX.STANDING.overridden.key === SUMKEYS.buckets.actions.keys.overridden.token,
+  "the engine's overridden token and the keys file disagree");
 
 // ── 7 · latest status wins, and an uncitable status is not a standing ────────
 setActions([{ actionClass: "executive_order", documentId: "EO Y", title: "T", actedAt: "2025-01-01",

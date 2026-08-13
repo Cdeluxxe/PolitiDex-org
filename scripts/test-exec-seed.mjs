@@ -70,7 +70,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260828000000_seed_exec_actions_wave5.sql",
   "netlify/database/migrations/20260829000000_seed_exec_actions_wave6.sql",
   "netlify/database/migrations/20260830000000_seed_exec_actions_wave7.sql",
-  "netlify/database/migrations/20260831000000_seed_exec_actions_wave8.sql"
+  "netlify/database/migrations/20260831000000_seed_exec_actions_wave8.sql",
+  "netlify/database/migrations/20260901000000_seed_exec_actions_wave9.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -116,8 +117,10 @@ console.log("── ✒️ exec seed: curated actions ────────�
 section("1 · shape and vocabulary");
 // Pinned, because the point of the count is to notice a wave that silently half
 // landed: five from wave 1, EO 14156 from wave 2, eleven from wave 3, ten from wave 4,
-// nine from wave 5, four from wave 6.
-ok(ACTIONS.length === 56, `the seed carries fifty-six actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8 (got ${ACTIONS.length})`);
+// nine from wave 5, four from wave 6. Wave 9 adds ONE, and one is the whole finding
+// rather than a small wave: it is the only measure of this presidency enacted over a
+// veto, so it is the only row the `overridden` token can have.
+ok(ACTIONS.length === 57, `the seed carries fifty-seven actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9 (got ${ACTIONS.length})`);
 
 /* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
    This line used to read `a.term === EX.currentTerm("trump")`, which was true of
@@ -286,20 +289,27 @@ for (const a of ACTIONS) {
         `${at}: pending_litigation supports only challenged_unverified, never a ruling token`);
     }
     // A contested standing is exactly the claim that needs a source behind it, and
-    // the source depends on WHO acted. Three-way rather than two-way, because two
-    // ways was wrong: it required a court_ruling for every contested token except
-    // challenged_unverified, and `rescinded` is contested but is never a court's
-    // doing — it is a later President revoking an earlier President's order, which
-    // the Federal Register's disposition record is the authoritative register of.
-    // Under the old rule a real revocation could only be filed by naming a court
-    // that never ruled, so wave 7 could not have filed one at all. The split keeps
-    // each claim tied to the record that can establish it: a court ACTED needs the
-    // court's own ruling; a court has NOT acted needs the filing that shows the
-    // challenge is live; an order was REVOKED needs the register entry, and must
-    // name the revoking instrument rather than a court.
+    // the source depends on WHO acted. Four-way now, and each widening happened for
+    // the same reason: the rule kept assuming a court. Two ways was wrong because it
+    // required a court_ruling for every contested token except challenged_unverified,
+    // and `rescinded` is contested but is never a court's doing — it is a later
+    // President revoking an earlier President's order, which the Federal Register's
+    // disposition record is the authoritative register of. Under that rule a real
+    // revocation could only be filed by naming a court that never ruled, so wave 7
+    // could not have filed one at all. `overridden` is the third actor and the same
+    // trap one branch further out: Congress passing a measure over a veto is neither
+    // a court nor the President, and a rule that demanded a named court here would
+    // have forced the only successful override of this presidency to be filed as
+    // something it is not — which is exactly how it stayed off the file through wave
+    // 8. The split keeps each claim tied to the record that can establish it: a court
+    // ACTED needs the court's own ruling; a court has NOT acted needs the filing that
+    // shows the challenge is live; an order was REVOKED needs the register entry; a
+    // veto was OVERRIDDEN needs the chambers' own record of what they did with the
+    // returned measure.
     if (CONTESTED_TOKENS.includes(s.status)) {
       const wantBasis = s.status === "challenged_unverified" ? "pending_litigation"
         : s.status === "rescinded" ? "register_disposition"
+        : s.status === "overridden" ? "congressional_action_record"
         : "court_ruling";
       ok(s.basis === wantBasis, `${at}: a ${s.status} standing rests on ${wantBasis}`);
       if (s.status === "rescinded") {
@@ -315,6 +325,25 @@ for (const a of ACTIONS) {
         // claim rests on it, so it goes in the note where a reader can check it.
         ok(/revoked by:/i.test(s.note),
           `${at}: a rescinded standing quotes the register's own 'Revoked by:' disposition note`);
+      } else if (s.status === "overridden") {
+        // THE ACTOR IS THE CLAIM. `overridden` exists because in_force, blocked and
+        // struck_down all name the wrong actor, so a row that failed to name the
+        // right one would give the token away for nothing. The authority must name a
+        // chamber, and must NOT name a court — the mirror of the rescinded pair
+        // above, and the assertion that stops this from becoming a soft synonym for
+        // "the action lost".
+        ok(/\b(house of representatives|senate|congress)\b/i.test(s.authority),
+          `${at}: an overridden standing names the chamber that acted`);
+        ok(!/court|circuit|justice|judge/i.test(s.authority),
+          `${at}: an overridden standing does not name a court — an override is an act of Congress`);
+        // Only a class the SHIPPED ENGINE treats as BLOCKING can be overridden. A
+        // veto is the only such class, and this is what keeps the token from
+        // drifting onto an executive order, where "Congress overrode it" would be a
+        // constitutional claim the file cannot support. Read from EX.CLASSES rather
+        // than from the types JSON, because the engine's table is the one that
+        // actually inverts the direction.
+        ok(EX.CLASSES[a.actionClass] && EX.CLASSES[a.actionClass].blocks === true,
+          `${at}: an overridden standing sits on a blocking class (${a.actionClass})`);
       } else {
         ok(/court|circuit|justice|judge/i.test(s.authority), `${at}: a contested standing names a court`);
       }
@@ -324,6 +353,20 @@ for (const a of ACTIONS) {
       ok(EX.sourceOk(s.caseUrl), `${at}: caseUrl passes the shipped gate`);
       ok(PRIMARY_HOSTS.includes(hostOf(s.caseUrl)), `${at}: caseUrl is on a primary host`);
     }
+  }
+
+  // THE ENACTMENT, ASSERTED ONCE PER ACTION RATHER THAN ONCE PER ROW. `overridden`
+  // means the measure became law, and an override runs through two chambers on two
+  // dates, so the first chamber's row correctly says the opposite — that its step
+  // alone makes no law. Holding every row to the claim would have forced that row
+  // to overstate what the House did. Holding the ACTION to it is the check that
+  // matters: somewhere in the log the enactment has to be named, or the token has
+  // been filed on an override ATTEMPT, which is exactly what the three wave-7
+  // vetoes record and correctly record as in_force.
+  const overrides = (a.status || []).filter((s) => s.status === "overridden");
+  if (overrides.length) {
+    ok(overrides.some((s) => /public law \d+-\d+/i.test(s.note)),
+      `${id}: an overridden action names the public law the measure became`);
   }
 }
 
@@ -488,8 +531,8 @@ if (sum && sumAll) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 7 && C.executive_order === 36 && C.directive === 10 && C.vetoed_law === 3,
-    `class split is 7 laws + 36 orders + 10 directives + 3 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  ok(C.signed_law === 7 && C.executive_order === 36 && C.directive === 10 && C.vetoed_law === 4,
+    `class split is 7 laws + 36 orders + 10 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
   // The veto class existed in the vocabulary for six waves with no row using it.
   // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
   // pipeline nobody has proven works.
@@ -563,7 +606,7 @@ for (const a of ACTIONS) {
    mapping the seed carries, and the direction the lane reports off it. */
 {
   const vetoes = ACTIONS.filter((a) => a.actionClass === "vetoed_law");
-  ok(vetoes.length === 3, `three vetoes are on file to check the inversion against (got ${vetoes.length})`);
+  ok(vetoes.length === 4, `four vetoes are on file to check the inversion against (got ${vetoes.length})`);
   for (const v of vetoes) {
     for (const m of v.issues || []) {
       const flipped = EX.issueDirection(v, m);
@@ -597,12 +640,42 @@ for (const a of ACTIONS) {
     "the per-issue read shows its work: the mapped direction and the inversion are both carried");
 }
 
-// EO 14248 is the worked example: three rulings, and the current standing is the
-// latest of them — which is the whole reason the log is append-only.
+// EO 14248 is the worked example: four rulings, and the current standing is the
+// latest of them — which is the whole reason the log is append-only. It became four
+// in wave 9, and the fourth is the case for append-only stated as data rather than
+// as a principle. The third row told readers that claims touching Sections 2(b) and
+// 3(a) were left for further proceedings; those proceedings ended in a final
+// judgment three months later. Editing that row would have left no trace that the
+// app ever said it. The token is unchanged across all four, which is the second half
+// of the point: a standing can be corrected without the headline moving.
 const eo14248 = ACTIONS.find((a) => a.executiveOrderNumber === 14248);
-ok(eo14248.status.length === 3, `EO 14248 carries three standing rows (got ${eo14248.status.length})`);
+ok(eo14248.status.length === 4, `EO 14248 carries four standing rows (got ${eo14248.status.length})`);
 ok(EX.standingOf(eo14248) === "partly_blocked", "EO 14248's current standing is the latest ruling on file");
-ok(new Set(eo14248.status.map((s) => s.sourceUrl)).size === 3, "each of the three rulings carries its own citation");
+ok(new Set(eo14248.status.map((s) => s.sourceUrl)).size === 4, "each of the four rulings carries its own citation");
+ok(eo14248.status[eo14248.status.length - 1].effectiveAt === "2026-03-31",
+  "EO 14248's latest row is the final judgment, appended rather than substituted");
+
+/* THE OVERRIDE, PINNED END TO END. Wave 7 recorded this gap in its own header and
+   could not close it: the vocabulary had no token for a veto Congress overrode, so
+   the most consequential veto of the term stayed off the file rather than being
+   filed as something it was not. These lines are what stop it going back. */
+{
+  const ndaa = ACTIONS.find((a) => a.documentId === "H.R. 6395 (116th Congress)");
+  ok(!!ndaa, "the FY2021 defense authorization is on file — the one measure enacted over a veto");
+  ok(ndaa.actionClass === "vetoed_law", "it is filed as a veto, not laundered into a generic action");
+  ok(EX.standingOf(ndaa) === "overridden", `its current standing is overridden (got ${EX.standingOf(ndaa)})`);
+  // The three wave-7 vetoes are the control. Every one of them held, and every one
+  // is in_force — so `overridden` is not simply what a veto row gets, and in_force
+  // on a veto still means what it always meant.
+  const held = ACTIONS.filter((a) => a.actionClass === "vetoed_law" && a.documentId !== ndaa.documentId);
+  ok(held.length === 3 && held.every((a) => EX.standingOf(a) === "in_force"),
+    "the three vetoes that held are still in_force — the token distinguishes, it does not relabel");
+  // Exactly one, and that is a finding rather than a limit: every Senate roll-call
+  // menu covering this presidency was read, and one override succeeded. If a second
+  // ever appears this line is the place the decision gets made deliberately.
+  const overridden = ACTIONS.filter((a) => EX.standingOf(a) === "overridden");
+  ok(overridden.length === 1, `exactly one action on file was overridden (got ${overridden.length})`);
+}
 
 /* ═════════════════════════════════════════════════════════════════════════════
    7 · THE NEGATIVE BUCKETS ARE REACHABLE
