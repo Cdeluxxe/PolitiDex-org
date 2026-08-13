@@ -534,6 +534,76 @@ for (const card of CARDS) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 4b · The explanation line — every visible action↔issue pair says WHY
+// ─────────────────────────────────────────────────────────────────────────────
+// A citation is not an explanation. "Executive Order 14418 · In force" tells a reader
+// who already knows the order what it is; it tells everyone else nothing. Each row
+// carries one curated sentence of mechanism, the direction the SCORING ENGINE reads
+// (not the raw mapping — a veto inverts), an honest marker when the link is
+// secondary or narrow, and the audit rationale one tap down rather than in the way.
+{
+  const byDoc = {};
+  for (const c of CARDS) {
+    const id = (c.match(/pdxer-doc">([^<]+)/) || [])[1];
+    if (id) byDoc[id.replace(/&#39;/g, "'").replace(/&amp;/g, "&")] = c;
+  }
+  const mapped = SEED.actions.trump.flatMap((a) => (a.issues || []).map((m) => ({ a, m })));
+  let withPlain = 0, secondary = 0, narrow = 0, invert = 0, ratBehindTap = 0;
+  for (const { a, m } of mapped) {
+    const card = byDoc[a.documentId];
+    ok(!!card, `${a.documentId} has no card to explain itself on`);
+    if (!card) continue;
+    if (m.plain) { withPlain++; hasText(card, m.plain, `${a.documentId} · ${m.issueKey}: the explanation line is not rendered`); }
+    if (!m.isPrimary) secondary++;
+    if (typeof m.weight === "number" && m.weight <= 45) narrow++;
+    // The direction on the row is the one the engine scores, so a card can never
+    // disagree with the number it feeds. For a blocking class the two differ.
+    const eff = EX.issueDirection(a, m);
+    if (eff !== m.direction) invert++;
+    if (m.rationale && m.rationale !== m.plain) ratBehindTap++;
+  }
+  eq((HTML.match(/pdxer-iss-why/g) || []).length, withPlain,
+    "the number of rendered explanation lines does not match the number of curated ones");
+  ok(withPlain === mapped.length,
+    `${mapped.length - withPlain} of ${mapped.length} rendered action-issue pairs carry no explanation`);
+  eq((HTML.match(/pdxer-second/g) || []).length, secondary,
+    "supporting-link markers do not match the non-primary mappings");
+  eq((HTML.match(/pdxer-narrow/g) || []).length, narrow,
+    "narrow-link markers do not match the low-weight mappings");
+  ok(invert > 0, "fixture drift: no blocking action remains, so the inversion path is untested");
+  eq((HTML.match(/pdxer-iss-inv/g) || []).length, invert,
+    "a row whose scored direction differs from its mapping does not disclose the inversion");
+  // The rationale is still on the card — nothing was deleted — but it is behind a
+  // summary rather than sitting on the line a reader has to get past.
+  eq((HTML.match(/pdxer-rat-d/g) || []).length, ratBehindTap,
+    "the curation rationale is not behind exactly one tap per mapping that has a distinct one");
+  ok(!/<span class="pdxer-rat">[^]*?<\/span>[^]*?<summary>/.test(HTML.split("pdxer-issrow")[1] || ""),
+    "a rationale is rendered ahead of its own summary");
+
+  // The veto, end to end: H.J. Res. 46 blocked a measure that would have ENDED the
+  // border emergency. The mapping records what the resolution did; the row has to
+  // report what the president did, and say that they are not the same thing.
+  const veto = SEED.actions.trump.find((a) => a.actionClass === "vetoed_law" && a.documentId.startsWith("H.J. Res. 46"));
+  ok(!!veto, "the H.J. Res. 46 veto is gone from the seed");
+  if (veto) {
+    const card = byDoc[veto.documentId];
+    const m0 = veto.issues[0];
+    const eff = EX.issueDirection(veto, m0);
+    ok(eff !== m0.direction, "the blocking class no longer inverts the mapped direction");
+    has(card, `${eff === "advances" ? "Advances" : "Cuts against"} — 1 issue`,
+      "the veto's group header reports the mapping direction rather than the scored one");
+    ok(!card.includes(m0.direction === "advances" ? "Advances —" : "Cuts against —"),
+      "the veto card renders a group header contradicting its own row");
+    has(card, "The measure it blocked pointed the other way",
+      "the veto row does not say whose direction is being shown");
+    hasText(card, m0.plain, "the veto's explanation line is missing");
+    // Written from the ACT. A veto row that reads like the resolution's own summary
+    // is the failure this whole surface exists to prevent.
+    ok(/^Vetoed /.test(m0.plain), "the veto's explanation is written from the document, not from the act");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 5 · Fail closed — an uncitable standing is never rendered as operative
 // ─────────────────────────────────────────────────────────────────────────────
 {
@@ -561,6 +631,12 @@ for (const card of CARDS) {
   ok(!/Struck down/.test(out), "a standing citing a fact sheet was rendered as 'Struck down'");
   ok(!/whitehouse\.gov/.test(out), "a rejected fact-sheet citation still reached the markup");
   has(out, "not presented as being in force", "the unconfirmed-standing disclosure does not say what it means");
+  // The fixture mapping carries a rationale and no `plain`. The explanation line
+  // fails closed: no sentence, and no falling back to printing the audit paragraph
+  // where the plain-English sentence was supposed to be.
+  ok(!/pdxer-iss-why/.test(out), "a mapping with no curated explanation still rendered an explanation line");
+  ok(!/<span class="pdxer-iss-why">Fixture rationale\./.test(out), "the rationale was promoted into the explanation slot");
+  has(out, "Fixture rationale.", "the rationale disappeared instead of staying behind the tap");
 }
 
 // Escaping: curated data is trusted, but a renderer that interpolates it raw is one

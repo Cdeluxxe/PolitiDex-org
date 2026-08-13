@@ -717,7 +717,11 @@
           title: a.title || '',
           date: a.actedAt || '',
           sourceUrl: a.sourceUrl || '',
-          sourceLabel: a.sourceLabel || ''
+          sourceLabel: a.sourceLabel || '',
+          // The display-facing explanation for THIS issue. A held action still has to
+          // answer "why is this document under this issue at all" — the reason line
+          // says why it is not scored, which is a different question.
+          plain: (mapping && mapping.plain) || ''
         };
         if (extra) for (var kx in extra) if (Object.prototype.hasOwnProperty.call(extra, kx)) h[kx] = extra[kx];
         out.held.push(h);
@@ -750,6 +754,7 @@
           supportMeaning: _EXEC_MEANING[m2.direction] || 'yea_supports',
           weight: (typeof m2.weight === 'number') ? m2.weight : 100,
           isPrimary: !!m2.isPrimary,
+          plain: m2.plain || '',
           rationale: m2.rationale || ''
         });
       }
@@ -771,6 +776,12 @@
         title: a.title || '',
         sourceUrl: a.sourceUrl || '',
         sourceLabel: a.sourceLabel || '',
+        // The one-sentence, display-facing explanation of what this document did and
+        // how that touches THIS issue — curated per (action, issue) pair in the seed.
+        // Empty when the seed carries none, and every surface fails closed on that:
+        // no sentence rather than the curation rationale, which is a paragraph of
+        // quoted subsections written for whoever audits the mapping.
+        plain: mapping.plain || '',
         standing: standing
       });
     }
@@ -847,6 +858,10 @@
         text: t, kind: 'exec-action',
         documentId: it.documentId || '', actionClass: it.actionClass || '',
         standing: it.standing || null,
+        // What the instrument did and how it touches this issue, in one sentence.
+        // Carried alongside `text` rather than folded into it: `text` is the citation
+        // line (document · class of power · standing) and callers align on it.
+        plain: it.plain || '',
         url: it.sourceUrl || '', label: it.sourceLabel || '',
         // The record item itself, so a caller that needs the issue mappings (the
         // omnibus disclosure) does not have to re-derive the pool.
@@ -1445,6 +1460,10 @@
       // verdict above came from a bill that also did other things. Muted on purpose —
       // it qualifies the receipt, it does not compete with it.
       '.pdxor-omni{display:block;font-size:0.64rem;color:#93a6c4;line-height:1.4;margin-top:0.2rem;}' +
+      // The action's explanation line inside an opened issue row: what the instrument
+      // did and how that touches THIS issue. Set brighter than the 🧩 disclosure under
+      // it, because it is the part the row is meant to be read from.
+      '.pdxor-why-act{display:block;font-size:0.68rem;color:#c6d4ec;line-height:1.5;margin-top:0.25rem;}' +
       '.pdxor-omni b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-omnichip{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.6rem;font-weight:700;color:#93a6c4;border:1px dashed rgba(147,166,196,0.4);border-radius:999px;padding:0.05rem 0.4rem;white-space:nowrap;cursor:help;}' +
       // ── Stance-row proof (Says · Record · which vote) ────────────────────────
@@ -2692,7 +2711,8 @@
           var metaX = [clsD ? clsD.verb : '', stD ? stD.label : '', it.date || ''].filter(Boolean).join(' · ');
           lines.push(_orActLine(_orItemVerdict(it, issueKey, stanceX),
             it.documentId || it.title || 'Executive action',
-            metaX, it.sourceUrl, it.sourceLabel, _orExecOmniNote(it, issueKey)));
+            metaX, it.sourceUrl, it.sourceLabel, '', null,
+            _orExecWhyHtml(it, issueKey)));
         });
         xPool.held.forEach(function (h) {
           lines.push(_orActLine('limited',
@@ -2702,7 +2722,8 @@
             // The declared note, if the seed carries one — passed as pre-rendered
             // omniHtml rather than as an omniNote so it does not pick up the 🧩
             // multi-issue icon, which would claim something different.
-            h.note ? '<span class="pdxor-omni">' + esc(h.note) + '</span>' : ''));
+            (h.plain ? '<span class="pdxor-why-act">' + esc(h.plain) + '</span>' : '') +
+            (h.note ? '<span class="pdxor-omni">' + esc(h.note) + '</span>' : '')));
         });
       }
       if (!lines.length) return '';
@@ -2983,6 +3004,19 @@
     signed_law: 'law', vetoed_law: 'veto',
     executive_order: 'order', directive: 'directive'
   };
+  // WHY THIS DOCUMENT BELONGS UNDER THIS ISSUE, in the one sentence the seed curates
+  // per (action, issue) pair. Fails closed: no `plain` on the mapping → no sentence.
+  // It never falls back to the mapping's `rationale`, which quotes the sections the
+  // curation rests on and is a paragraph long — that text stays on the ledger card,
+  // one tap down, where a reader who wants the receipt goes looking for it.
+  //   The 🧩 multi-issue disclosure, when there is one, follows underneath: the plain
+  // sentence explains THIS issue, and the disclosure says the same document also
+  // reached others. Two different claims, so two different lines.
+  function _orExecWhyHtml(item, issueKey) {
+    var why = (item && item.plain) ? '<span class="pdxor-why-act">' + esc(item.plain) + '</span>' : '';
+    var omni = _orExecOmniNote(item, issueKey);
+    return why + (omni ? '<span class="pdxor-omni">🧩 ' + omni + '</span>' : '');
+  }
   function _orExecOmniNote(item, issueKey) {
     if (!item || typeof window._measureOmnibusContext !== 'function') return '';
     var ctx;

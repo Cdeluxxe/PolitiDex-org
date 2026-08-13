@@ -2016,7 +2016,16 @@
           '<span class="pdxwa-dot-k">They did</span>' +
           '<span class="pdxwa-dot-v">' +
             (d.actions.length
-              ? d.actions.map(function (a) { return '<span class="pdxwa-dot-act-1">' + esc(a.text) + '</span>'; }).join('')
+              // `a.text` is the citation — document · class of power · standing. `a.plain`
+              // is the one sentence saying what the instrument did and how that touches
+              // THIS issue, curated per (action, issue) pair in the executive seed. It
+              // fails closed: a proof line with no sentence prints the citation alone
+              // rather than borrowing prose from somewhere it does not belong.
+              ? d.actions.map(function (a) {
+                  return '<span class="pdxwa-dot-act-1">' + esc(a.text) +
+                    (a.plain ? '<span class="pdxwa-dot-why">' + esc(a.plain) + '</span>' : '') +
+                    '</span>';
+                }).join('')
               : '<span class="pdxwa-dot-none">No formal action on this issue is on record yet.</span>') +
           '</span>' +
         '</div>' +

@@ -384,11 +384,40 @@ section("3 · no vote language, no grades on rendered seed prose");
 for (const a of ACTIONS) {
   const prose = [
     ...(a.issues || []).map((m) => [`${a.documentId}/${m.issueKey} rationale`, m.rationale]),
+    ...(a.issues || []).filter((m) => m.plain).map((m) => [`${a.documentId}/${m.issueKey} plain`, m.plain]),
     ...(a.status || []).map((s) => [`${a.documentId}@${s.effectiveAt} note`, s.note])
   ];
   for (const [where, text] of prose) {
     const hit = String(text).match(FORBIDDEN);
     ok(!hit, `${where}: no forbidden vocabulary${hit ? ` (matched "${hit[0]}")` : ""}`);
+  }
+}
+
+/* THE EXPLANATION LINE. `rationale` is the curation record — it quotes the sections
+   the mapping rests on and its reader is whoever audits it. `plain` is what a
+   first-time reader sees on the row: what the instrument did, and how that touches
+   THIS issue. The renderer fails closed on a missing one, so nothing breaks if a
+   mapping has none — but a visible action↔issue pair with no sentence is a citation
+   without an explanation, which is the exact thing this field exists to end. */
+section("3b · every mapping explains its own link, in a display-shaped sentence");
+for (const a of ACTIONS) {
+  for (const m of a.issues || []) {
+    const at = `${a.documentId}/${m.issueKey}`;
+    ok(typeof m.plain === "string" && m.plain.trim().length > 0,
+      `${at}: no plain-language explanation — a reader sees the citation and no mechanism`);
+    if (typeof m.plain !== "string" || !m.plain.trim()) continue;
+    ok(m.plain.length <= 320, `${at}: the explanation runs ${m.plain.length} chars — one tight sentence, two at most`);
+    // Sentence count, split on a terminator followed by a capital, so "U.S. forces"
+    // and "Pub. L." do not read as two sentences.
+    const sentences = m.plain.trim().split(/(?<=[.!?])\s+(?=[A-Z“"'(])/).length;
+    ok(sentences <= 2, `${at}: the explanation runs ${sentences} sentences — two is the ceiling`);
+    ok(m.plain.trim() === m.plain, `${at}: the explanation has leading or trailing whitespace`);
+    ok(/[.!?]$/.test(m.plain.trim()), `${at}: the explanation is not a finished sentence`);
+    // No legal wall. Section numbers, U.S.C. cites and public-law numbers are the
+    // rationale's job; a display line that opens with one loses the reader it was
+    // written for.
+    ok(!/§|U\.S\.C\.|C\.F\.R\./.test(m.plain),
+      `${at}: the explanation carries a code citation — that belongs in the rationale`);
   }
 }
 

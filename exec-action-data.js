@@ -53,6 +53,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Told every agency with authority under the Affordable Care Act to waive, delay or grant exemptions from any of its requirements that impose a cost or a penalty, while repeal was pursued. That loosens the coverage law's reach without Congress changing it.",
             "rationale": "Section 1 states the policy of seeking the prompt repeal of the Patient Protection and Affordable Care Act, and section 2 directs the Secretary of Health and Human Services and every other agency with authority under the Act to 'waive, defer, grant exemptions from, or delay the implementation of' any provision imposing a cost, fee, tax, penalty or regulatory burden. Narrowing the reach of the coverage law is what this direction means on this issue."
           }
         ],
@@ -95,6 +96,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 95,
+            "plain": "Ordered the immediate construction of a continuous, impassable physical wall along the southern border, staffed and monitored. Building that barrier is the commitment this issue tracks.",
             "rationale": "Section 2(a) sets as the policy of the executive branch to secure the southern border 'through the immediate construction of a physical wall on the southern border, monitored and supported by adequate personnel', and section 3(e) defines that wall as a contiguous, impassable physical barrier."
           }
         ],
@@ -137,6 +139,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Ordered agencies to go back through existing rules and suspend, revise or rescind any that burden domestic energy development. Clearing regulatory obstacles is the mechanism it uses to raise output.",
             "rationale": "Section 1(c) makes it the policy of the United States that agencies immediately review existing regulations that potentially burden the development or use of domestically produced energy resources and 'appropriately suspend, revise, or rescind those that unduly burden' that development."
           },
           {
@@ -144,6 +147,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 85,
+            "plain": "Directed the EPA to review the Clean Power Plan — the rule limiting power-plant carbon emissions — and suspend, revise or rescind it. Pulling back the main federal carbon rule cuts against this issue.",
             "rationale": "Section 4 directs the Administrator of the Environmental Protection Agency to take all steps necessary to review the Clean Power Plan and its related rules and guidance for consistency with section 1, and as soon as practicable to suspend, revise or rescind them if appropriate."
           }
         ],
@@ -186,6 +190,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 75,
+            "plain": "Barred agencies from agreeing to progressive-discipline steps or grievance rights before removing a career employee, and held the period to fix performance to 30 days. It moves control over firings from negotiated procedure to the agency head.",
             "rationale": "Section 2 sets the principles: agencies should limit the opportunity period to demonstrate acceptable performance under 5 U.S.C. 4302(c)(6) to the time that provides sufficient opportunity, supervisors and deciding officials should not be required to use progressive discipline, and agencies should not require suspension of an employee before proposing to remove that employee. Section 4 then makes those principles binding: no agency shall make an agreement, including a collective bargaining agreement, that limits its discretion to employ chapter 75 procedures to address unacceptable performance, that requires chapter 43 procedures before removing an employee for unacceptable performance, or that limits its discretion to remove an employee from Federal service without first engaging in progressive discipline, and section 4(c) holds the demonstration period to 30 days except where the agency determines in its sole and exclusive discretion that longer is necessary. Section 3 directs agency heads to endeavor to exclude from grievance procedures negotiated under 5 U.S.C. 7121 any dispute concerning decisions to remove an employee from Federal service. The instrument narrows the adverse-action protections attached to career executive-branch employees, which is what this key records."
           }
         ],
@@ -227,6 +232,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Vetoed the resolution that would have terminated the February 2019 border national emergency, keeping the emergency — and the authorities it opened for barrier construction — in place.",
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it: H.J. Res. 46 would have terminated the national emergency related to the U.S.-Mexico border declared on February 15, 2019, which cuts against this issue. The record engine inverts a blocking action, so the veto itself reads the other way — it kept that emergency in place."
           }
         ],
@@ -259,6 +265,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Vetoed the resolution directing the withdrawal of U.S. forces from the Yemen conflict, which Congress had never authorized. Blocking it kept those forces committed.",
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 7 would have directed the removal of United States Armed Forces from hostilities in the Republic of Yemen that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
@@ -266,6 +273,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
+            "plain": "The blocked resolution would have closed an open-ended military commitment abroad that Congress never approved; the veto kept it running.",
             "rationale": "Same inversion applies: the direction is the resolution's. Withdrawing forces from an unauthorized foreign conflict is the ending of an open-ended commitment abroad, which is what the stated position on this issue is about, so the resolution advances it and the veto is read against it."
           }
         ],
@@ -298,6 +306,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 95,
+            "plain": "Signed the CARES Act, whose section 601 appropriates $150 billion in new federal money for state, tribal and local governments alone. Enacting an appropriation of that size runs against a record of cutting spending.",
             "rationale": "Section 5001 adds a new title VI to the Social Security Act whose section 601(a)(1) provides that 'Out of any money in the Treasury of the United States not otherwise appropriated, there are appropriated for making payments to States, Tribal governments, and units of local government under this section, $150,000,000,000 for fiscal year 2020.' A direct appropriation of new federal money, quoted from the enrolled text rather than characterized from a topline."
           }
         ],
@@ -330,6 +339,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Vetoed the resolution directing withdrawal of U.S. forces from hostilities with Iran that Congress had not authorized, leaving that engagement in place.",
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 68 would have directed the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
@@ -337,6 +347,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
+            "plain": "Blocking a second such resolution thirteen months after the first kept another unauthorized foreign engagement open rather than winding it down.",
             "rationale": "Same inversion applies: the direction is the resolution's. This is the second document on this issue that would have closed off an unauthorized foreign engagement, thirteen months after the first, which is why it is filed rather than treated as the same decision restated."
           }
         ],
@@ -370,6 +381,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Required a clause in every new federal contract barring workplace training that teaches race or sex stereotyping, and listed the concepts that clause covers. It uses contracting terms to reach training inside private employers.",
             "rationale": "Section 4 requires every Government contracting agency to write into each new contract a clause providing that 'the contractor shall not use any workplace training that inculcates in its employees any form of race or sex stereotyping or any form of race or sex scapegoating', and then enumerates the concepts that clause covers."
           }
         ],
@@ -412,6 +424,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 95,
+            "plain": "Created Schedule F, moving career federal jobs that shape policy into the excepted service and switching off the civil-service hiring and removal rules for them. Making those posts removable at will is what this issue is about.",
             "rationale": "Section 3 directs that appointments to positions of a confidential, policy-determining, policy-making or policy-advocating character that are not normally subject to change as a result of a Presidential transition shall be made under Schedule F of the excepted service. Section 4(a)(i) amends 5 CFR 6.2 to add that schedule to the list of positions OPM excepts from the competitive service, defining it as 'Positions of a confidential, policy-determining, policy-making, or policy-advocating character not normally subject to change as a result of a Presidential transition'. Section 4(a)(ii) amends 5 CFR 6.4 to read that, except as required by statute, 'the Civil Service Rules and Regulations shall not apply to removals from positions listed in Schedules A, C, D, E, or F'. Section 1 states the finding it rests on: that conditions of good administration make necessary an exception to the competitive hiring rules and examinations for career positions of that character, and similarly make necessary excepting such positions from the adverse action procedures set forth in chapter 75 of title 5. Creating an excepted category for career policy-influencing positions and detaching the removal rules from it is the mechanism this key exists to record."
           }
         ],
@@ -462,6 +475,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Vetoed the annual defense authorization, returning the Pentagon's funding levels and troop strengths to the House unsigned rather than enacting them.",
             "rationale": "The direction recorded here describes the MEASURE, not the action taken against it. H.R. 6395 is the annual defense authorization: its long title is 'An Act to authorize appropriations for fiscal year 2021 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes'. Funding and manning the armed forces at the level the Department asked for is what the stated position's commitment to the military is about, so the measure advances this issue. The record engine inverts a blocking action, so the veto itself reads the other way — it returned that authorization to the House without approval."
           }
         ],
@@ -504,6 +518,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed the Secretary of State to bring the Department's policies, programs, personnel and operations into line with putting American interests first. It sets the doctrine as an operating instruction, not a statement.",
             "rationale": "Section 1 provides that from that day forward the foreign policy of the United States shall champion core American interests and always put America and American citizens first; section 2 directs the Secretary of State to issue guidance bringing the Department's policies, programs, personnel and operations in line with it."
           },
           {
@@ -511,6 +526,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Applies the America-First test to the State Department as a whole — the frame the same-day foreign-aid order then carries out on one program.",
             "rationale": "Sets the doctrine that the foreign-aid realignment order signed the same day carries out, at the level of the Department of State as a whole rather than of one program."
           }
         ],
@@ -544,6 +560,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Ordered federal diversity, equity and inclusion offices, positions, programs, grants and contracts shut down across the executive branch.",
             "rationale": "Directs the termination of federal diversity, equity and inclusion offices, positions, programs and related grants and contracts.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue cites this order's own subject — \"Signed executive orders ending federal DEI programs and preferencing\" — and links the order itself. No other action on file reaches this issue, so it stands as coverage rather than as a test."
@@ -610,6 +627,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed Interior, Agriculture, Energy and Commerce to speed permitting and leasing in Alaska and reopen federal acreage there to resource development.",
             "rationale": "Directs the Secretaries of the Interior, Agriculture, Energy and Commerce to expedite permitting and leasing for energy and natural-resource projects in Alaska and to reopen federal acreage there to development."
           },
           {
@@ -617,6 +635,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Tells agencies to prioritize developing Alaska's liquefied natural gas, including moving it to other states and to allied nations — added supply is the point.",
             "rationale": "Section 3 directs agencies to prioritise the development of Alaska's liquefied natural gas potential, including the transport of that gas to other regions of the United States and to allied nations."
           }
         ],
@@ -650,6 +669,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed agencies to expedite oil, gas and mineral permitting and leasing and to strip out rules that slow domestic production.",
             "rationale": "Directs agencies to expedite oil, gas and mineral permitting and leasing and to remove regulatory barriers to domestic energy production.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue cites this order by title — \"Signed the 'Unleashing American Energy' and 'National Energy Emergency' executive orders\". The issue is tested instead by Public Law 119-21, which that card does not name."
@@ -659,6 +679,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 55,
+            "plain": "Revoked the previous administration's climate executive orders, including the ones setting federal emissions and clean-energy direction.",
             "rationale": "Revokes the previous administration's climate executive orders. The Federal Register disposition record for this document lists the revocations by number, including EO 13990 and EO 14008."
           }
         ],
@@ -692,6 +713,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Declared a national energy emergency so agencies can use emergency powers to fast-track production, transport, refining and generation.",
             "rationale": "Declares a national energy emergency and directs agencies to use emergency authorities to expedite domestic energy production, transportation, refining and generation.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue cites this order by title and opens by narrating it — \"Declared a national energy emergency at the start of his second term\". The issue is tested instead by Public Law 119-21, which that card does not name."
@@ -701,6 +723,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Puts Clean Water Act and Endangered Species Act reviews for energy projects on federal land and water onto emergency timelines.",
             "rationale": "Sections 4 and 5 direct emergency Clean Water Act and Rivers and Harbors Act permitting by the Army Corps of Engineers and emergency Endangered Species Act consultation procedures for energy projects on federal land and water."
           },
           {
@@ -708,6 +731,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 55,
+            "plain": "The emergency's own definition of energy lists oil, gas, coal, uranium, hydropower and critical minerals but leaves out wind and solar, so the fast-track procedures are unavailable to them.",
             "rationale": "Section 8(a) defines the 'energy' the emergency covers as crude oil, natural gas, lease condensates, natural gas liquids, refined petroleum products, uranium, coal, biofuels, geothermal heat, the kinetic movement of flowing water and critical minerals — wind and solar are absent from the definition, so the emergency's expedited procedures are unavailable to them."
           }
         ],
@@ -770,6 +794,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed Homeland Security to prioritize removals, restore the programs that deputize state and local officers for interior enforcement, and expand detention while removals are pending.",
             "rationale": "Directs the Department of Homeland Security to prioritize removal of those present without authorization, to restore programs enlisting State and local officers in interior enforcement, and to expand detention capacity pending removal."
           },
           {
@@ -777,6 +802,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Builds out the detention and expedited-removal machinery behind the border regime, so people apprehended are held rather than released inland.",
             "rationale": "Directs the enforcement machinery behind the border regime, including expanded detention and the use of expedited removal to the extent the statute allows."
           }
         ],
@@ -810,6 +836,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Ordered immediate written notice of U.S. withdrawal from the Paris Agreement and from other commitments made under the UN climate convention.",
             "rationale": "Section 3 directs the United States Ambassador to the United Nations to submit immediate written notice of withdrawal from the Paris Agreement and from any other commitment made under the United Nations Framework Convention on Climate Change.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue gives its evidence as \"Executive Order withdrawing from the Paris Agreement\", which is a description of this document and nothing else. The issue keeps two independent tests it does not name — Executive Order 14261 and Public Law 119-21."
@@ -845,6 +872,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed the Attorney General to seek the federal death penalty for capital crimes, and specifically for the murder of a law-enforcement officer and for capital crimes by people in the country unlawfully.",
             "rationale": "Directs the Attorney General to pursue the death penalty for federal capital crimes and to seek it in particular for the murder of a law-enforcement officer and for capital crimes committed by people unlawfully present in the United States."
           }
         ],
@@ -878,6 +906,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Ordered barrier construction restarted, personnel and detection technology deployed to hold operational control of the southern border, and apprehended crossers detained rather than released.",
             "rationale": "Directs resumption of physical barrier construction along the southern border, deployment of personnel and detection technology to maintain operational control of it, and detention rather than release of those apprehended crossing it."
           },
           {
@@ -885,6 +914,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Directs removal of apprehended entrants and ends the practices that released them into the interior while their cases were pending.",
             "rationale": "Directs removal of apprehended entrants and termination of practices that released them into the interior pending proceedings."
           }
         ],
@@ -918,6 +948,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Froze new foreign-aid obligations and payments pending review, and set the rule that no assistance goes out unless it is fully aligned with the President's foreign policy.",
             "rationale": "Section 2 states as policy that no further United States foreign assistance shall be disbursed in a manner that is not fully aligned with the foreign policy of the President, and section 3 imposes an immediate pause on new obligations and disbursements pending review."
           }
         ],
@@ -951,6 +982,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Reinstated Schedule F under the name Schedule Policy/Career and added that employees in those jobs must faithfully implement administration policy, with failure to do so grounds for dismissal. This is the order that put the category back.",
             "rationale": "Section 2 reinstates Executive Order 13957 'immediately ... with full force and effect' and provides that the date of this order shall be treated as the date of that one. Section 3 amends it: subsection (a) replaces the letter 'F' throughout, where used to designate an excepted service schedule, with the words 'Policy/Career'; subsection (b)(ii) inserts the words 'competitive service and the' immediately before the words 'adverse action procedures', so the finding of necessity reaches both; subsection (c) narrows the schedule's definition to 'Career positions'; and subsection (f)(ii) adds a new section 6(b) providing that employees in or applicants for Schedule Policy/Career positions 'are required to faithfully implement administration policies to the best of their ability' and that 'Failure to do so is grounds for dismissal'. Section 4 directs the Director of the Office of Personnel Management to amend the Civil Service Regulations to rescind the changes made by the final rule of April 9, 2024, 89 Fed. Reg. 24982, that impede the purposes of Executive Order 13957, and holds 5 CFR part 302 subpart F and 5 CFR 210.102(b)(3) and (4) inoperative until that is done. Section 6 revokes Executive Order 14003, the order that had revoked Executive Order 13957. It carries the heaviest weight under this key because it is the instrument that put the category back."
           }
         ],
@@ -993,6 +1025,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed every agency head to pursue actions lowering the cost of housing, health care, food and energy, and to report progress to the President's economic adviser every thirty days.",
             "rationale": "Directs the heads of all executive departments and agencies to deliver emergency price relief and to pursue appropriate actions to lower the cost of housing, health care, food and energy, and to report to the Assistant to the President for Economic Policy every thirty days.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue quotes this document by title as its evidence — \"Signed the 'Delivering Emergency Price Relief for American Families' memorandum\" — so the pair cannot test itself. The issue is separately tested by the itemized pledge on it, which is scored against the Bureau of Labor Statistics consumer price index rather than against any document signed by the figure."
@@ -1027,6 +1060,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed Commerce, Treasury and the Trade Representative to investigate persistent goods trade deficits and recommend remedies, including a global supplemental tariff and a new service to collect duties.",
             "rationale": "Directs the Secretary of Commerce, with the Treasury and the Trade Representative, to investigate the causes of persistent annual goods trade deficits and to recommend remedies including a global supplemental tariff, and directs the Treasury to report on the feasibility of an external revenue service to collect duties."
           }
         ],
@@ -1059,6 +1093,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Declared a national emergency at the southern border and ordered armed-forces units there to support the Homeland Security mission.",
             "rationale": "Declares a national emergency at the southern border under the National Emergencies Act and directs the Secretaries of Defense and Homeland Security to order units of the armed forces to the border in support of the Department of Homeland Security's mission there."
           }
         ],
@@ -1092,6 +1127,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Revoked the 1965 order requiring affirmative action by federal contractors and directed agencies to end federal preference programs.",
             "rationale": "Revokes the executive order that imposed affirmative-action obligations on federal contractors and directs agencies to end federal preference programs. The Federal Register disposition record for this document enumerates the revocations by number, including EO 11246 of September 24, 1965 and EO 13672 of July 21, 2014."
           }
         ],
@@ -1165,6 +1201,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Protected access to public blockchain networks, started work on a federal rulebook for digital assets, and barred agencies from creating or promoting a U.S. central bank digital currency.",
             "rationale": "Directs agencies to protect access to public blockchain networks and to develop a federal regulatory framework for digital assets, and prohibits agencies from establishing, issuing or promoting a United States central bank digital currency."
           }
         ],
@@ -1198,6 +1235,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Ordered the Secretary of Defense to deliver an architecture and build plan for a homeland missile-defense shield covering ballistic, hypersonic and cruise missile attack.",
             "rationale": "Directs the Secretary of Defense to submit an architecture and implementation plan for a next-generation missile defense shield for the United States, including the capability to defeat ballistic, hypersonic and cruise missile attacks."
           }
         ],
@@ -1230,6 +1268,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Signed the law requiring federal detention and removal proceedings for unauthorized immigrants arrested for the listed offenses. Detention becomes mandatory rather than a discretionary call.",
             "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue names this law as its own evidence — it reads \"signing his first law — the Laken Riley Act (Public Law 119-1)\" and cites the bill page as its source. A card written from this document cannot also be the word this document tests."
@@ -1239,6 +1278,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Removes enforcement discretion at the point of arrest, so covered people are held for immigration proceedings instead of released.",
             "rationale": "Tightens immigration enforcement."
           },
           {
@@ -1246,6 +1286,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 55,
+            "plain": "The trigger list is criminal: burglary, theft, larceny, shoplifting, assault of a police officer, or any offense causing death or serious bodily injury.",
             "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury."
           },
           {
@@ -1253,6 +1294,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 40,
+            "plain": "Gives state attorneys general standing to sue the federal government over certain immigration detention and enforcement decisions — a narrow grant inside an immigration law, not a general shift of power.",
             "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions."
           }
         ],
@@ -1286,6 +1328,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Imposed an extra across-the-board duty on goods from China, using emergency economic powers after finding ordinary tariff authority inadequate.",
             "rationale": "Imposes an additional ad valorem duty on all articles that are products of the People's Republic of China, invoking section 1702(a)(1)(B) of the International Emergency Economic Powers Act on the finding that other tariff authority was inadequate."
           },
           {
@@ -1293,6 +1336,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Extends the border emergency to China's failure to stop precursor-chemical suppliers and cartel money laundering, and uses the new duties as the lever against that supply chain.",
             "rationale": "Expands the national emergency declared in Proclamation 10886 to cover the failure of the PRC government to intercept chemical precursor suppliers, money launderers and transnational criminal organisations, and imposes the duties as the measure against that supply chain."
           }
         ],
@@ -1334,6 +1378,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Terminated every country arrangement, exemption and quota that had displaced the steel tariff — Canada, Mexico, the EU, Japan, the UK, Brazil and others — restoring the duty across steel imports.",
             "rationale": "Terminates every country arrangement, exemption and quota that had displaced the section 232 steel tariff — for South Korea, Argentina, Australia, Brazil, Canada, Mexico, the European Union, Japan, the United Kingdom and Ukraine — effective March 12, 2025, restoring the ad valorem duty across steel imports."
           },
           {
@@ -1341,6 +1386,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Uses a duty on one industrial input to rebuild domestic steel capacity, and closes the side doors named partners had been shipping through.",
             "rationale": "Uses import duties on a single industrial input as the instrument for rebuilding domestic steel capacity, and removes the alternative arrangements that had let named partners ship outside the duty."
           },
           {
@@ -1348,6 +1394,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Restores the duty across the steel import base with no offsetting relief for the American manufacturers and builders who buy steel.",
             "rationale": "Restores the duty across the steel import base with no offsetting relief for downstream purchasers."
           }
         ],
@@ -1381,6 +1428,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Created the Make America Healthy Again Commission under the HHS Secretary and gave it 100 days to report on childhood chronic disease and its causes. It is a study-and-report body; it changes no coverage or payment rule by itself.",
             "rationale": "Establishes the President's Make America Healthy Again Commission, chaired by the Secretary of Health and Human Services, and directs it to study the childhood chronic disease crisis and its contributing causes and to submit the Make Our Children Healthy Again Assessment to the President within 100 days. Section 2 sets the policy that agencies addressing health or healthcare focus on reversing chronic disease and ensure the availability of expanded treatment options."
           }
         ],
@@ -1414,6 +1462,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed Treasury, Labor and HHS to enforce hospital and health-plan price disclosure, require actual prices instead of estimates, and standardize the data so patients can compare across providers.",
             "rationale": "Directs the Departments of the Treasury, Labor and Health and Human Services to enforce the hospital and health-plan price-disclosure requirements, to require disclosure of actual prices rather than estimates, and to standardize pricing data so it can be compared across providers."
           }
         ],
@@ -1447,6 +1496,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Ordered agencies to route contract, grant and loan payments through a centralized review with the DOGE team lead before the money goes out the door.",
             "rationale": "Section 1 commences what the order calls a transformation in federal spending on contracts, grants and loans, and directs agency heads to build a centralised review of covered payments with the DOGE team lead before they are made."
           }
         ],
@@ -1480,6 +1530,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 60,
+            "plain": "Set up a Strategic Bitcoin Reserve and a digital-asset stockpile under Treasury custody, with rules for accounting and disposal. It governs what the government already holds rather than the rules the asset class trades under, which is why it sits below the orders that do.",
             "rationale": "Establishes a federal framework for digital assets already held by the government — a Strategic Bitcoin Reserve and a United States Digital Asset Stockpile under Treasury custody — and sets rules for how those holdings are accounted for and disposed of. Weighted below the two orders that regulate the asset class itself, because custody policy for government holdings answers only part of what this issue asks."
           }
         ],
@@ -1513,6 +1564,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed the Election Assistance Commission to require documentary proof of U.S. citizenship on the federal voter-registration form.",
             "rationale": "Section 2(a) directs the Election Assistance Commission to require documentary proof of United States citizenship on the federal voter-registration form."
           },
           {
@@ -1520,6 +1572,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Directs federal agencies to share data to identify ineligible registrants and to enforce ballot-receipt deadlines against states that count late-arriving ballots.",
             "rationale": "Directs federal agencies to share data to identify ineligible registrants and directs enforcement of ballot-receipt deadlines against States that count late-arriving ballots."
           }
         ],
@@ -1583,6 +1636,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Imposed a baseline duty on imports from nearly every trading partner plus higher country-specific rates, on the finding that persistent goods deficits hollowed out domestic manufacturing.",
             "rationale": "Imposes a baseline ad valorem duty on imports from nearly all trading partners plus higher country-specific rates, on the stated ground that persistent goods trade deficits have hollowed out the domestic manufacturing base."
           },
           {
@@ -1590,6 +1644,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 75,
+            "plain": "Sets the rates by executive order under emergency economic powers rather than under a rate schedule enacted by Congress.",
             "rationale": "Sets tariff rates by executive order under the International Emergency Economic Powers Act rather than under a rate schedule enacted by Congress."
           },
           {
@@ -1597,6 +1652,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 70,
+            "plain": "The duties reach nearly the whole import base and the order pairs them with no offsetting relief for household purchasers.",
             "rationale": "The duties apply across nearly the whole import base and the order pairs them with no offsetting relief for household purchasers."
           },
           {
@@ -1604,6 +1660,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Assigns China one of the higher country-specific rates in the annexed schedule, on the stated ground of non-reciprocal trade practices.",
             "rationale": "Assigns China one of the higher country-specific rates in the annexed schedule, on the stated ground of non-reciprocal trade practices."
           },
           {
@@ -1611,6 +1668,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 55,
+            "plain": "Uses import duties as the instrument for reshoring manufacturing and rebuilding supply chains.",
             "rationale": "Uses import duties as the instrument for reshoring domestic manufacturing and rebuilding supply chains."
           }
         ],
@@ -1653,6 +1711,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Designated coal as a mineral under the critical-minerals order so coal projects receive its expedited treatment, with raising domestic production as the stated purpose.",
             "rationale": "Section 1 states that increasing domestic energy production including coal is the purpose of the order, and section 3 designates coal as a mineral under EO 14241 so that it receives that order's expedited treatment."
           },
           {
@@ -1660,6 +1719,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Directs Interior, Agriculture and Energy to report on coal resources on federal lands and on the obstacles to leasing and mining them.",
             "rationale": "Section 4 directs the Secretaries of the Interior, Agriculture and Energy to report on coal resources and reserves on federal lands and on obstacles to leasing and mining them."
           }
         ],
@@ -1693,6 +1753,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Directed HHS to improve Medicare drug-price negotiation, align payment more closely with what medicines cost to acquire, and pursue lower prices at the pharmacy counter.",
             "rationale": "Directs the Secretary of Health and Human Services to improve the Medicare drug-price negotiation program, to align payment for prescription medicines more closely with acquisition cost, and to pursue measures aimed at lowering what patients pay at the pharmacy counter."
           }
         ],
@@ -1726,6 +1787,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 80,
+            "plain": "Gave the FDA 180 days to eliminate duplicative rules on domestic drug manufacturing and to make review of new and expanded plants faster and more predictable.",
             "rationale": "Directs the Commissioner of Food and Drugs, within 180 days, to review and eliminate duplicative or unnecessary regulations and guidance governing domestic pharmaceutical manufacturing, and to improve the timeliness and predictability of agency review of new and expanded manufacturing capacity."
           },
           {
@@ -1733,6 +1795,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Treats the manufacturing rules it removes as obstacles to an affordable drug supply chain; any price effect is indirect, through supply.",
             "rationale": "Sets as policy the restoration of a domestic pharmaceutical manufacturing base on the stated ground that the barriers it removes stand in the way of an affordable pharmaceutical supply chain for American patients."
           }
         ],
@@ -1766,6 +1829,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Directed HHS to set U.S. price targets benchmarked to the lower prices comparably developed nations pay, and to open a direct-to-patient channel selling at those prices.",
             "rationale": "Directs the Secretary of Health and Human Services to set price targets for prescription medicines benchmarked to the lower prices paid by comparably developed nations, and to open a direct-to-patient purchasing channel at those prices.",
             "circularWithStance": true,
             "circularNote": "This order IS the stance card's source: the card's own citation is the presidential-actions page for this document, and its text restates the order's two operative directives. No identifier matches mechanically because the card writes the benchmark policy in prose while the row carries the order's formal title, so the declared flag is what holds the pair."
@@ -1800,6 +1864,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Signed the law extending the 2017 individual income-tax rates and making them permanent instead of letting them expire.",
             "rationale": "Extends and makes permanent the 2017 individual income-tax rates."
           },
           {
@@ -1807,6 +1872,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Locks in the 2017 rate schedule and adds temporary deductions for tip and overtime income.",
             "rationale": "Makes the 2017 individual income-tax rates permanent and adds temporary deductions for tips and overtime pay."
           },
           {
@@ -1814,6 +1880,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Reduces federal spending across several mandatory programs to offset part of its tax provisions.",
             "rationale": "Reduces federal spending across several mandatory programs."
           },
           {
@@ -1821,6 +1888,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 65,
+            "plain": "Nonpartisan Congressional Budget Office analysis projects the law adds trillions of dollars to federal deficits over a ten-year window.",
             "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years."
           },
           {
@@ -1828,6 +1896,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Pays for part of its cost with Medicaid and SNAP reductions that CBO estimates leave millions more people without insurance.",
             "rationale": "Offsets part of its cost with Medicaid and SNAP reductions the CBO estimates leave millions more people uninsured.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue is titled \"H.R.1: Medicaid & SNAP\" and exists to report this law's projected coverage effect. The card is downstream of this document, so this document cannot test it."
@@ -1837,6 +1906,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 55,
+            "plain": "Appropriates money for border-barrier construction and for border enforcement personnel.",
             "rationale": "Funds border-barrier construction and border enforcement personnel."
           },
           {
@@ -1844,6 +1914,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 55,
+            "plain": "Phases out and repeals the clean-energy and electric-vehicle tax credits enacted in 2022.",
             "rationale": "Phases out and repeals clean-energy and electric-vehicle tax credits enacted in 2022."
           },
           {
@@ -1851,6 +1922,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 50,
+            "plain": "Appropriates tens of billions of dollars for immigration detention and removal operations.",
             "rationale": "Appropriates tens of billions of dollars for immigration detention and removal operations."
           },
           {
@@ -1858,6 +1930,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 45,
+            "plain": "Raises the child tax credit to $2,200 per child and makes that level permanent — one provision inside a broad reconciliation law, not a family-policy bill.",
             "rationale": "Raises the child tax credit to $2,200 per child and makes it permanent."
           },
           {
@@ -1865,6 +1938,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 45,
+            "plain": "Expands onshore and offshore oil, gas and coal leasing and speeds fossil-fuel permitting — a section of a broad law rather than its purpose.",
             "rationale": "Expands onshore and offshore oil, gas, and coal leasing and speeds fossil-fuel permitting."
           },
           {
@@ -1872,6 +1946,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 45,
+            "plain": "Adds a large increase in defense and military spending.",
             "rationale": "Adds a large increase in defense and military spending."
           },
           {
@@ -1879,6 +1954,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 40,
+            "plain": "Opens additional federal lands and waters to energy leasing — one title of a broad law, not its subject.",
             "rationale": "Opens additional federal lands and waters to energy leasing."
           },
           {
@@ -1886,6 +1962,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 40,
+            "plain": "Restricts graduate and parent student-loan borrowing and narrows the repayment options attached to it.",
             "rationale": "Restricts graduate and parent student-loan borrowing and repayment options."
           },
           {
@@ -1893,6 +1970,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 35,
+            "plain": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations — a single provision, and an indirect route to the goal.",
             "rationale": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations."
           }
         ],
@@ -1925,6 +2003,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Signed the law placing fentanyl-related substances on schedule I as an entire class, so a chemist cannot stay ahead of it by altering one molecule at a time.",
             "rationale": "Section 2 amends section 202(c) of the Controlled Substances Act to place fentanyl-related substances, including their salts and isomers, on schedule I as a class rather than one compound at a time."
           },
           {
@@ -1932,6 +2011,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
+            "plain": "Class scheduling brings schedule I offenses and penalties to bear on a whole family of related compounds at once.",
             "rationale": "Class scheduling brings the offences and penalties attached to schedule I to bear on a whole family of related substances."
           }
         ],
@@ -1965,6 +2045,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 70,
+            "plain": "Created Schedule G for noncareer policy-making jobs that turn over with a new President, and switched off the civil-service removal rules for them.",
             "rationale": "Section 1 states the gap: Schedule C covers noncareer excepted service positions of a confidential or policy-determining character and Schedule Policy/Career covers career positions of that character, but 'there is, however, no excepted service schedule for noncareer positions of a policy-making or policy-advocating character'. Section 3 directs that appointments to such positions, where they are normally subject to change as a result of a Presidential transition, shall be made under Schedule G. Section 4(a) amends 5 CFR 6.2 to add Schedule G to the schedules OPM excepts from the competitive service, and section 4(b) amends 5 CFR 6.4 so that the Civil Service Rules and Regulations shall not apply to removals from positions listed in Schedule G alongside Schedules A, C, D, E and Policy/Career. Section 5(b) directs the Secretary of Veterans Affairs, in making Schedule G appointments, to consider whether prospective appointees 'would be suitable exponents of the President's policies' while not taking political affiliation or political activity into account. Creating an excepted personnel category and detaching the removal rules from it is the mechanism this key records."
           }
         ],
@@ -1997,6 +2078,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Signed the law setting the federal rules for payment stablecoins: who may issue them, which banking regulator supervises each class of issuer, and what reserves and disclosures they must carry.",
             "rationale": "Creates the federal regulatory regime for payment stablecoins — who may issue them, which federal banking agency supervises each class of issuer, and what reserve and disclosure obligations attach."
           }
         ],
@@ -2029,6 +2111,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Signed the law cancelling appropriated money that had not yet been obligated, account by account, on the President's own rescission request — foreign assistance and public broadcasting among them.",
             "rationale": "Cancels unobligated balances of budget authority already appropriated, item by item, on the President's own rescission request — foreign assistance and public-broadcasting accounts among them."
           }
         ],
@@ -2061,6 +2144,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Signed the funding law that bars federal funds from being used for any reduction in force, voids the reductions taken since October 1, 2025, and orders those employees reinstated with back pay. Signing it stopped workforce cuts rather than making them.",
             "rationale": "Section 120(a) provides that no federal funds may be used to initiate, carry out, implement or otherwise notice a reduction in force to reduce the number of employees within any department, agency or office of the Federal Government, and section 120(b) applies that to all civilian positions without regard to the source of their funding. Section 120(e) provides that any reduction in force taken by an Executive Agency between October 1, 2025 and enactment \"shall have no force or effect\", requires each notice to be rescinded, returns the employee to employment status as of September 30, 2025 without interruption, and directs back pay."
           }
         ],
@@ -2103,6 +2187,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Pulled a list of agricultural products out of the reciprocal tariff and ordered refunds of duties already collected on them.",
             "rationale": "Section 1 determines that certain agricultural products shall not be subject to the reciprocal tariff imposed under Executive Order 14257, as amended, and issues updated versions of that order's Annex II; section 2 modifies the Harmonized Tariff Schedule accordingly effective for goods entered on or after 12:01 a.m. eastern standard time on November 13, 2025 — a day before signature — and provides that to the extent implementation requires a refund of duties collected, refunds shall be processed through U.S. Customs and Border Protection's standard procedures."
           },
           {
@@ -2110,6 +2195,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 65,
+            "plain": "Narrows the reciprocal tariff's coverage, giving domestic demand and domestic production capacity — not a concession from a trading partner — as part of the reason.",
             "rationale": "Removes a class of goods from the reciprocal tariff's coverage, and gives as the grounds for doing so the President's consideration of \"current domestic demand for certain products, and current domestic capacity to produce certain products\" alongside the status of negotiations — a narrowing of the instrument driven in part by domestic supply conditions rather than by anything a trading partner conceded."
           }
         ],
@@ -2142,6 +2228,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Raised the 2026 beef import quota by 80,000 metric tons of lean trimmings, released quarterly and allocated to Argentina, on a determination that domestic supply would not meet demand at reasonable prices.",
             "rationale": "Increases the calendar-year 2026 in-quota quantity of the beef tariff-rate quota by 80,000 metric tons of lean beef trimmings, released in four quarterly tranches and allocated in its entirety to Argentina, on the determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
           },
           {
@@ -2149,6 +2236,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 85,
+            "plain": "Enlarging the quota lets that beef enter at the low in-quota tariff rate instead of the high over-quota rate — a trade barrier lowered to hold a grocery price down.",
             "rationale": "Lowers a tariff barrier for the stated purpose of holding a consumer price down: the proclamation enlarges the in-quota quantity so that beef entering under the quota pays the low in-quota rate rather than the over-quota rate, on the President's determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
           }
         ],
@@ -2181,6 +2269,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Imposed a temporary 10 percent surcharge on imported articles under the balance-of-payments provision of the Trade Act, which allows up to 15 percent for up to 150 days.",
             "rationale": "Imposes an additional 10 percent ad valorem surcharge on articles imported into the United States, effective for goods entered on or after 12:01 a.m. eastern standard time on February 24, 2026, under section 122 of the Trade Act of 1974 (19 U.S.C. 2132), which permits an import surcharge of up to 15 percent for up to 150 days to deal with large and serious United States balance-of-payments deficits."
           },
           {
@@ -2188,6 +2277,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 85,
+            "plain": "Re-imposed broad import duties on the day the previous, differently authorized program ended, under a statute chosen for that purpose, so the trade-barrier posture continued without a gap.",
             "rationale": "Re-imposes broad-based import duties across nearly the whole tariff schedule on the day the previous, differently-authorized program ended, so the trade-barrier posture continues without interruption under a statute the President selected for that purpose."
           },
           {
@@ -2195,6 +2285,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 75,
+            "plain": "Applies to nearly all imported articles. The carve-out list — critical minerals, energy, fertilizers, medicines, some food and electronics — narrows it, but a broad surcharge still raises import costs on net.",
             "rationale": "Applies a surcharge to nearly all imported articles. Paragraph 14 exempts a list of goods — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics, vehicles, aerospace articles, goods already covered by section 232 actions, USMCA-qualifying duty-free Canadian and Mexican goods and CAFTA-DR textiles — and those carve-outs are recorded here rather than filed as relief, because a broad surcharge with a list of exceptions raises import costs on net and the chip on this issue is about everyday costs not rising."
           }
         ],
@@ -2228,6 +2319,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Ordered the Army Corps and the EPA to rewrite stormwater, wetlands and Clean Water Act permitting to cut housing construction costs, and told HUD, Commerce, Transportation and the housing finance regulator to identify rules to eliminate.",
             "rationale": "Directs the Army Corps of Engineers and the Environmental Protection Agency to revise stormwater, wetlands and Clean Water Act section 404 permitting requirements to reduce housing construction costs, and directs Commerce, HUD, Transportation and the Federal Housing Finance Agency to consider eliminating rules that constrain residential development."
           },
           {
@@ -2235,6 +2327,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 80,
+            "plain": "Treats permitting delays and building mandates as a cause of high housing prices, and makes removing them administration policy.",
             "rationale": "Sets as administration policy the reduction of regulatory barriers to building homes on the stated ground that permitting delays and mandates have driven up the cost of new housing and made it less affordable."
           }
         ],
@@ -2268,6 +2361,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 100,
+            "plain": "Ordered state citizenship lists built from Social Security and Homeland Security records, told the Attorney General to prioritize prosecuting officials who issue federal ballots to ineligible people, and started a rulemaking on uniform mail-ballot envelopes.",
             "rationale": "Directs the transmission of State Citizenship Lists built from Social Security Administration records and the Department of Homeland Security's SAVE program, directs the Attorney General to prioritise investigation and prosecution of officials who issue federal ballots to ineligible individuals, and directs the Postmaster General to begin a rulemaking within 60 days on uniform standards for mail-in and absentee ballot envelopes."
           },
           {
@@ -2275,6 +2369,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Checks eligibility against existing federal citizenship records and puts a unique tracking barcode on outbound ballot mail so a ballot can be traced to the person it was sent to.",
             "rationale": "Builds federal citizenship verification for election eligibility on existing SSA and SAVE records, and requires unique Intelligent Mail barcode identifiers on outbound ballot mail so that ballots can be traced to an identified recipient."
           }
         ],
@@ -2316,6 +2411,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 80,
+            "plain": "Put a 100 percent border duty on imported patented medicines and their listed ingredients, with lower rates for named countries and for firms whose onshoring plans are approved. Generics, biosimilars and a list of specialty therapies are exempt, but the charge lands on patented drugs at the border.",
             "rationale": "Clause (3)(a) subjects imports of patented pharmaceuticals and associated pharmaceutical ingredients listed in Annex I to a 100 percent ad valorem duty rate. Clause (3)(b) sets that rate at 20 percent for products of companies whose onshoring plans the Secretary has approved, rising to 100 percent on April 2, 2030; clause (3)(c) sets 15 percent for products of Japan, the European Union, the Republic of Korea, and Switzerland and Liechtenstein jointly, and 10 percent for the United Kingdom. Paragraph 11 records that generic and biosimilar products are not subject to section 232 duties at this time, and clause (3)(d) sets a zero rate for orphan drugs, nuclear medicines, plasma derived therapies, fertility treatments, cell and gene therapies and antibody drug conjugates. The charge therefore falls on the patented medicines the proclamation names, and it is collected at the border on the imported article."
           },
           {
@@ -2323,6 +2419,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 75,
+            "plain": "A 100 percent duty is the steepest rate on any product line in this record, and the proclamation's own findings place the bulk of covered supply outside the country.",
             "rationale": "A duty of 100 percent ad valorem on an imported article is the largest single rate on any product line in this file. Paragraph 2 states that approximately 53 percent of patented pharmaceutical products distributed domestically are produced outside the country and that only 15 percent of patented active pharmaceutical ingredients by volume are domestically produced for the United States market, so the proclamation's own findings place the bulk of the covered supply on the dutiable side of the border."
           },
           {
@@ -2330,6 +2427,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Rests on a national-security finding about foreign dependence for medicines and directs continued negotiation of agreements to address it.",
             "rationale": "The action rests on the Secretary of Commerce's section 232 finding, recited in paragraph 1, that pharmaceuticals and associated active pharmaceutical ingredients are being imported in such quantities and under such circumstances as to threaten to impair the national security of the United States, and clause (1) directs continued negotiation of agreements under 19 U.S.C. 1862(c)(3)(A)(i) to address that threatened impairment."
           }
         ],
@@ -2363,6 +2461,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 75,
+            "plain": "Made fixed-price contracts the default across federal procurement, and required written justification — plus the agency head's approval above set dollar thresholds — for anything else.",
             "rationale": "Section 2(a) directs executive branch departments and agencies, so far as applicable law allows, to utilize fixed-price contracts in procurement, making them the default rather than the exception. Section 2(b)(i) requires a contracting officer to justify any non-fixed-price contract in writing to the agency head, and section 2(b)(ii) requires the agency head's written approval where the non-fixed-price value exceeds 100 million dollars for a Department of War contract, 35 million for the National Aeronautics and Space Administration, 25 million for the Department of Homeland Security and 10 million for any other agency. Section 1 gives as the reason a review of Fiscal Year 2024 spending that identified approximately 120 billion dollars obligated on cost-reimbursement consulting contracts alone."
           }
         ],
@@ -2396,6 +2495,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 70,
+            "plain": "Ordered Treasury to issue a formal advisory telling banks what to watch for when accounts or credit are obtained without lawful status or work authorization, and to change Bank Secrecy Act rules so institutions may ask.",
             "rationale": "Section 3(a) directs the Secretary of the Treasury, within 60 days, to issue a formal Advisory to financial institutions describing red flags associated with exploitation of the United States financial system by non-work authorized populations and their employers, including payroll tax evasion and the use of an individual taxpayer identification number to obtain credit products or open depository accounts where the applicant lacks verified lawful immigration status. Section 3(b)(ii) directs proposed changes to Bank Secrecy Act implementing regulations so that institutions retain authority to obtain information relevant to whether account holders possess lawful immigration status and employment authorization."
           },
           {
@@ -2403,6 +2503,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 65,
+            "plain": "Aims the same advisory at small cross-border transfers tied to cartel fentanyl money and at the financial signatures of labor trafficking.",
             "rationale": "Section 1 gives as a reason for the order that low-dollar cross-border funds transfers have been used to facilitate or commit terrorist financing, narcotics trafficking and human trafficking, and that financial trend analyses have uncovered hubs of fentanyl-related financial activity in the United States related to Mexico-based cartels. Section 3(a)(v) directs the Advisory to describe financial activity indicative of labor trafficking or forced labor as defined in 18 U.S.C. 1589."
           }
         ],
@@ -2436,6 +2537,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 95,
+            "plain": "Moved the career positions named in its appendix into Schedule Policy/Career, gave agencies seven days to notify the employees, and removed the trial-period and pay-protection rules attached to those posts. This is the order that carried the reclassification out.",
             "rationale": "Section 5 is the operative part. Subsection (a) determines that the positions set forth in the Appendix have a confidential, policy-determining, policy-making or policy-advocating character and that it is necessary and warranted by conditions of good administration to except them from the competitive service; subsection (b) places those positions in Schedule Policy/Career; subsection (c) gives each agency head seven days to notify the officers and employees encumbering them and to conform agency records and practices. The Appendix runs from page 34895 to page 35124 of the published document. Section 2 amends the Civil Service Rules to carry the transfer: Rule I, so that an employee in the competitive service with competitive status when the position is first listed under Schedule Policy/Career is in the excepted service but retains that status; Rule XI, so that individuals appointed to positions in Schedule C, Schedule E, Schedule Policy/Career and Schedule G are not subject to trial periods; and 5 CFR 550.704(b), by adding a new subparagraph (6) reaching an employee who occupies a Schedule Policy/Career position where the agency identifies unacceptable performance or misconduct as the basis for separation in a written notice. Section 3(a) further amends Executive Order 13957 as amended by Executive Order 14171. Section 4 directs each agency with Schedule Policy/Career employees to set aside a separate bonus pool."
           }
         ],
@@ -2479,6 +2581,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 70,
+            "plain": "Ordered Homeland Security to require importers of record to hold domestic assets or larger bonds and disclose beneficial ownership, and to bar foreign importers from filing informal entries.",
             "rationale": "Section 2(a) directs the Secretary of Homeland Security, within 180 days, to revise importer eligibility regulations to require that an importer of record maintain a minimum level of tangible domestic assets or bonding as determined by U.S. Customs and Border Protection, to increase the minimum required bond coverage, and to require additional identification data including ownership and beneficial ownership disclosures. Section 2(b)(i) directs the Secretary to prohibit a foreign importer of record from filing informal entry under regulations promulgated pursuant to 19 U.S.C. 1498."
           },
           {
@@ -2486,6 +2589,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Tightens who may act as an importer of record so duties owed are actually collected — collection is what makes a tariff schedule bite.",
             "rationale": "Section 1 gives as the purpose of the order that effective customs enforcement ensures importers of record are correctly identified and accountable for duties owed, and identifies undervaluing imports and avoiding payment of duties through various arrangements and schemes as forms of noncompliance that disadvantage domestic businesses."
           }
         ],
@@ -2518,6 +2622,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 85,
+            "plain": "Declared an emergency and let Moroccan phosphate fertilizer enter duty-free for up to eight months, waiving the countervailing duties that otherwise applied.",
             "rationale": "Directs the Secretary of the Treasury and the Secretary of Commerce, under section 318 of the Tariff Act of 1930 (19 U.S.C. 1318(a)), to permit importation of phosphate fertilizers of the Kingdom of Morocco free of the collection of duties and of deposits of estimated duties under sections 1671, 1675 and 1677j of title 19 — the countervailing-duty provisions — for up to eight months or until the declared emergency terminates."
           },
           {
@@ -2525,6 +2630,7 @@
             "direction": "opposes",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Chose duty-free foreign supply as the answer to a fertilizer shortfall, on the finding that building domestic capacity would take time.",
             "rationale": "Paragraph 4 states that United States production of phosphate fertilizer is insufficient to support domestic agricultural food production after accounting for exports, and that although the Federal Government is working with the private sector to expand domestic fertilizer manufacturing capacity, \"those efforts will take time to increase the supply materially\" — so the interim answer chosen is duty-free foreign supply rather than the tariff."
           },
           {
@@ -2532,6 +2638,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Waived a duty on a farm input during the spring application window, on the stated ground that supply-chain disruption was driving rapid price increases.",
             "rationale": "Paragraph 3 gives as the reason for the action persistent threats to the global fertilizer supply chain \"which create rapid price increases and procurement challenges\", and paragraph 2 ties the timing to the spring and summer application window, when the year's phosphate fertilizer goes onto the fields — relief from a duty, granted to keep an input cost down."
           }
         ],
@@ -2564,6 +2671,7 @@
             "direction": "opposes",
             "isPrimary": true,
             "weight": 75,
+            "plain": "Exempted the chemical plants named in its annex from the 2024 hazardous air pollutant standards for an additional two-year period past their compliance dates, leaving the older, looser limits in force for them.",
             "rationale": "The proclamation exempts stationary sources identified in Annex I from compliance with those aspects of the 2024 rule at 89 FR 42932 that were promulgated under section 112 of the Clean Air Act, 42 U.S.C. 7412, for a period of two years beyond the rule's relevant compliance dates, using the exemption power in section 112(i)(4). Its stated effect is that during each such two-year period those sources remain subject to the emissions and compliance obligations that applied under the standard as it existed before that rule."
           }
         ],
@@ -2596,6 +2704,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 65,
+            "plain": "Cut roughly 1.24 million acres from Bears Ears National Monument, citing the need to reduce reliance on foreign sources of resources found inside the old boundary.",
             "rationale": "Among the findings recited before the operative clause is that the need to reduce the Nation's reliance on foreign sources of several resources vital to economic and national security, including resources located within the historic and current boundaries of the Monument, is greater than it was in 2017, and that this further necessitates the exclusion of lands retained within the Monument by Proclamation 9681. The operative clause then excludes approximately 1,238,904 acres and leaves reserved federal lands of approximately 121,096 acres in the Indian Creek Unit and the Shash Jaa Unit."
           },
           {
@@ -2603,6 +2712,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 60,
+            "plain": "Shrinking the monument returns that federal acreage to the general land rules, subject to valid existing rights, rather than monument protection.",
             "rationale": "The proclamation acts under section 320301 of title 54, United States Code, to modify the boundaries of the Bears Ears National Monument, and provides that any lands reserved by Proclamations 9558, 9681 or 10285 that fall outside the boundaries on the accompanying map are excluded from the Monument, with the exclusion taking effect at 9:00 a.m. eastern daylight time on the date 60 days after the proclamation, subject to valid existing rights and the provisions of existing withdrawals."
           }
         ],
@@ -2636,6 +2746,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 90,
+            "plain": "Directs federal agencies to stop issuing or accepting documents recognizing citizenship for a person born here to two noncitizen parents in four listed situations, among them a parent who is an alien enemy or a foreign government employee. It narrows who is treated as a citizen at birth.",
             "rationale": "Section 2 sets the policy that no executive department or agency shall issue documents recognizing United States citizenship to, or accept documents purporting to recognize it regarding, persons neither of whose parents is a citizen where any of four conditions applies: a parent is an alien enemy as defined in the order; a parent is a foreign government employee as defined in the order; a parent engaged in a commercial transaction to purchase or access birthright citizenship, including a transaction to ensure the mother is present in the United States to give birth or a transaction with a surrogate so present; or the person is born in a territory or territorial waters where citizenship is not conferred by federal statute. Section 3(a) directs the Secretary of State, the Attorney General, the Secretary of Homeland Security and the Commissioner of Social Security to ensure their regulations and policies align with the order, and section 3(b) directs all agency heads to issue public implementation guidance within 30 days."
           }
         ],
@@ -2669,6 +2780,7 @@
             "direction": "advances",
             "isPrimary": true,
             "weight": 80,
+            "plain": "Defines birth tourism — entering on a temporary visa in order to give birth on U.S. soil — and sets preventing it as the policy governing those visa classifications.",
             "rationale": "Section 3 defines birth tourism as the entry of a foreign national into the United States via a nonimmigrant visa for the purpose of giving birth on American soil, or any effort by a foreign national to facilitate such entry. Section 1 states the policy of preventing the exploitation of nonimmigrant visa classifications by persons engaging in birth tourism, on the ground that it enables foreign nationals to exploit temporary admission to obtain permanent immigration-related benefits."
           },
           {
@@ -2676,6 +2788,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 70,
+            "plain": "Delegates the President's entry-control power so State and Homeland Security can refuse or revoke visas, bar entry and act against the people and entities that arrange such travel.",
             "rationale": "Section 2 delegates to the Secretary of State and the Secretary of Homeland Security the President's authority under section 215(a) of the Immigration and Nationality Act, 8 U.S.C. 1185(a), to the extent necessary to implement the order. Section 4(a) provides that action may include preventing entry or the granting of any visa or travel authorization to an alien entering or attempting to enter for the purpose of engaging in birth tourism, revoking the visa or travel authorization and permanently barring entry of such an alien, denial of entry to or removal of an alien who previously engaged or plans to engage in birth tourism, and action against entities or individuals inside or outside the United States responsible for facilitating it."
           },
           {
@@ -2683,6 +2796,7 @@
             "direction": "advances",
             "isPrimary": false,
             "weight": 65,
+            "plain": "Names removal among the tools available against a foreign national who engaged or plans to engage in birth tourism, with humanitarian and national-interest exemptions.",
             "rationale": "Section 4(a) names removal among the actions the Secretaries may take within their respective discretion and authority, applying it to any alien who previously engaged or plans to engage in birth tourism. Section 5 provides that the Secretary of State or the Secretary of Homeland Security may exempt a foreign national from actions taken pursuant to the order on humanitarian grounds or where entry is in the national interest."
           }
         ],

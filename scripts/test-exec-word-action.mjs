@@ -661,6 +661,59 @@ has(meth, "cannot also be the test of that order",
   "explainer: and writing the circularity rule down where a reader can check it");
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("6b · the explanation travels with the citation");
+// ═════════════════════════════════════════════════════════════════════════════
+// The same (action, issue) sentence curated in the seed has to reach every surface
+// that shows the pair — the Official Record drawer and the Word-vs-Action dot rows,
+// not just the ledger card. A citation that explains itself on one screen and goes
+// silent on the next teaches the reader that the explanation is decoration.
+
+const SEED_PLAIN = {};
+// Curated prose reaches the markup escaped — apostrophes and ampersands are ordinary
+// in these sentences — so expectations are escaped the same way.
+const escH = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+for (const a of (SEED.actions && SEED.actions[PID]) || []) {
+  for (const m of a.issues || []) SEED_PLAIN[a.documentId + "|" + m.issueKey] = m.plain || "";
+}
+
+for (const l of lines) {
+  const want = SEED_PLAIN[l.documentId + "|border_security"];
+  ok(typeof l.plain === "string", `explanation: proof line for ${l.documentId} carries a plain field`);
+  eq(l.plain, want, `explanation: proof line for ${l.documentId} carries ITS OWN curated sentence`);
+  // The mechanism, not the citation again.
+  ok(!l.plain || l.plain !== l.text, `explanation: ${l.documentId}'s sentence is not a copy of its citation line`);
+}
+
+// The drill-in. Every explained action under an opened issue row prints its sentence
+// under the citation, and the sentence is the one curated for THAT issue.
+{
+  const drawers = sec.split('<div class="pdxor-acts-open">').slice(1);
+  ok(drawers.length >= 1, "explanation: the president's Official Record has an opened action drawer");
+  const whys = (sec.match(/pdxor-why-act/g) || []).length;
+  ok(whys >= 1, "explanation: no action in the Official Record drawer explains its link");
+  // Fail closed, not fabricate: the count of rendered sentences never exceeds the
+  // count of rendered actions.
+  const acts = (sec.match(/class="pdxor-act"/g) || []).length;
+  ok(whys <= acts, `explanation: ${whys} sentences rendered against ${acts} actions — one is invented`);
+}
+
+// The dot rows. `a.text` is the citation; `a.plain` is why it belongs.
+{
+  const withPlain = dots.filter((d) => d.outcome.basis === "exec-actions")
+    .flatMap((d) => d.actions).filter((a) => a.plain);
+  ok(withPlain.length >= 1, "explanation: no exec dot-row action carries its sentence");
+  eq((dotsHtml.match(/pdxwa-dot-why/g) || []).length, withPlain.length,
+    "explanation: the dot rows do not render one sentence per explained action");
+  for (const a of withPlain) has(dotsHtml, escH(a.plain), "explanation: a dot-row sentence is not on screen");
+  // Ledger rows have no document and therefore no mechanism sentence to borrow.
+  for (const d of dots) {
+    if (d.outcome.basis === "exec-actions") continue;
+    for (const a of d.actions) ok(!a.plain, `explanation: pledge row ${d.issueKey} borrowed a document's sentence`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("7 · the congressional path, unchanged");
 // ═════════════════════════════════════════════════════════════════════════════
 

@@ -897,7 +897,19 @@
   letter-spacing: 0.02em;
   color: #cbd9ec;
 }
-.pdxwa-dot-act-1 + .pdxwa-dot-act-1 { margin-top: 0.15rem; }
+.pdxwa-dot-act-1 + .pdxwa-dot-act-1 { margin-top: 0.4rem; }
+/* Why the document belongs under this issue, in normal English, under the citation
+   that names it. Body type rather than the condensed face the citation uses — this is
+   a sentence to read, not a label to scan. */
+.pdxwa-dot-why {
+  display: block;
+  font-family: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0;
+  line-height: 1.5;
+  color: #9db2d2;
+  margin-top: 0.1rem;
+}
 .pdxwa-dot-none { color: #7f97bb; font-style: italic; }
 .pdxwa-dot-out .pdxwa-dot-v {
   font-family: 'Bebas Neue', sans-serif;
