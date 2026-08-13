@@ -3374,7 +3374,7 @@ window.PDXLazy = (function () {
             Judge them by <span class="bg-gradient-to-r from-purple-300 to-purple-400 bg-clip-text text-transparent">your values</span>.
           </p>
           <p class="font-condensed text-sm sm:text-base text-steel-200 tracking-wide leading-relaxed max-w-xl">
-            Tell PolitiDex the positions you actually believe in — that's your <strong class="text-purple-200">True North</strong>. Every politician then gets a personal <strong class="text-purple-200">Your Match&nbsp;%</strong>: a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue. A team built on your compass beats one built on a party label.
+            Tell PolitiDex the positions you actually believe in — that's your <strong class="text-purple-200">True North</strong>. Every politician then gets a personal <strong class="text-purple-200">Your Match&nbsp;%</strong>: a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue. It is read off the same receipts as everything else here — their votes, against your positions.
           </p>
           <button type="button" onclick="if(window.openAlignBoard){window.openAlignBoard('all');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-xs sm:text-sm tracking-widest uppercase px-7 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 24px rgba(139,92,246,0.35), inset 0 2px 0 rgba(255,255,255,0.25);">
             🎯 Find Your Matches
@@ -3607,6 +3607,25 @@ window.PDXLazy = (function () {
     <p class="pcb-sub">Sourced receipts, all year — no election required. Every card below sets a politician's own words next to their own recorded vote, with the source one tap away.</p>
   </div>
 
+  <!-- ── LIVE PROOF · the record as this browser actually has it ──────────────
+       A three-chip strip naming the newest publishable Official Record cards the
+       page genuinely built, newest vote first. Its job is to answer the one thing
+       a static homepage cannot — "is any of this actually live?" — and it does it
+       with the engine's own output rather than with a badge.
+
+       No seed, no editorial list, no verdict logic: every chip is a card
+       PDXReceiptCards built from the roll-call record which then cleared the same
+       public share gate a share button clears. It costs nothing to fetch, because
+       it never calls warm() — hero-showcase.js already warms a capped set for the
+       hero card, and this reads what that left behind.
+
+       Fail closed, like everything else under this bridge: no engine, no warm
+       records, or fewer than two publishable 'core' cards and it stays [hidden]
+       with nothing painted. Deferred and styleless on the wire — it injects its
+       own CSS — so an empty strip costs the page nothing at all. -->
+  <div id="live-proof" hidden></div>
+  <script src="/live-proof.js" defer></script>
+
   <!-- ═══════════════════════ SAY vs. DO — THE RECEIPTS ════════════════════
        Bet 1: the contradiction is the hero — a rotating, sourced "say vs. do"
        receipt: what a politician said set against what they did, verdict stamped.
@@ -3648,10 +3667,12 @@ window.PDXLazy = (function () {
     // ── Door 1's header fails closed with the door ──────────────────────────
     // Every surface under this bridge self-gates: say-vs-do, the issue front door
     // and the H.R.1 showcase each stay [hidden] when they have nothing sourced to
-    // show, and hero-receipt hides itself when no receipt survives with a checkable
-    // source URL. A promotional header that outlived all four would be the one
-    // thing the house style forbids — a promise of receipts with no receipts under
-    // it — so the header inherits their gate rather than asserting anything.
+    // show, hero-receipt hides itself when no receipt survives with a checkable
+    // source URL, and the live-proof strip hides itself when the browser has not
+    // built at least two publishable record cards. A promotional header that
+    // outlived all five would be the one thing the house style forbids — a promise
+    // of receipts with no receipts under it — so the header inherits their gate
+    // rather than asserting anything.
     //
     // It therefore starts at display:none (fail closed) and is revealed only once a
     // real surface is up. The modules paint at different times — some on their own
@@ -3661,7 +3682,7 @@ window.PDXLazy = (function () {
     (function () {
       var bridge = document.getElementById('pdx-door-truth');
       if (!bridge) return;
-      var IDS = ['hero-receipt', 'say-vs-do', 'issue-front-door', 'hr1-showcase'];
+      var IDS = ['live-proof', 'hero-receipt', 'say-vs-do', 'issue-front-door', 'hr1-showcase'];
       function live(el) {
         return !!el && !el.hidden && (el.style ? el.style.display !== 'none' : true);
       }
@@ -3734,9 +3755,9 @@ window.PDXLazy = (function () {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <div class="relative max-w-3xl mx-auto z-10 text-center">
-      <div class="sh-eyebrow"><span>👋 New here? 30 seconds to start</span></div>
+      <div class="sh-eyebrow"><span>🗳️ Election tools · 30 seconds to set up</span></div>
       <h2 class="sh-title">BUILD YOUR <span class="sh-accent">VOTING TEAM</span></h2>
-      <p class="sh-lead">Build your personal voting team based on your <strong>real districts and values</strong> &mdash; not party lines. See who actually represents you and build the team you want to vote for.</p>
+      <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex shows the seats you actually decide, so you can pick a team on <strong>receipts rather than party lines</strong> &mdash; saved for election day.</p>
 
       <div class="sh-cta-row">
         <button type="button" class="sh-cta-primary btn-tap" onclick="pdxStartHereGo()">📍 Set my location &amp; start building my team</button>
@@ -17345,6 +17366,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div>
               <div class="text-white font-700 mb-3 text-xs flex items-center gap-1.5"><span class="text-crimson-400">&#9670;</span> Platform</div>
               <div class="flex flex-col gap-2.5 text-steel-400">
+                <a href="#say-vs-do" class="hover:text-white transition-colors">Say vs. Do · Receipts</a>
                 <a href="#tracker" class="hover:text-white transition-colors">Promise Tracker</a>
                 <a href="#my-politicians" class="hover:text-white transition-colors">Browse Politicians</a>
                 <a href="#submit" class="hover:text-white transition-colors">Submit Evidence</a>
@@ -17374,8 +17396,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div>
               <div class="text-white font-700 mb-3 text-xs flex items-center gap-1.5"><span class="text-steel-300">&#9670;</span> Share</div>
               <div class="flex flex-col gap-2.5 text-steel-400">
-                <button onclick="if(navigator.share){navigator.share({title:'PolitiDex',text:'Track every promise politicians make — no spin, no sides, just receipts.',url:window.location.href})}else{navigator.clipboard.writeText(window.location.href);this.textContent='Link Copied!';setTimeout(()=>{this.textContent='Share with Friends'},2000)}" class="hover:text-white transition-colors text-left cursor-pointer bg-transparent border-none font-condensed text-sm tracking-widest uppercase p-0 text-steel-400" style="min-height:unset;">Share with Friends</button>
-                <a href="https://twitter.com/intent/tweet?text=Track%20every%20promise%20politicians%20make%20%E2%80%94%20no%20spin%2C%20no%20sides%2C%20just%20receipts.&url=https://politidex.fyi" target="_blank" rel="noopener" class="hover:text-white transition-colors">Share on X</a>
+                <button onclick="if(navigator.share){navigator.share({title:'PolitiDex',text:'What politicians said, against how they actually voted — no spin, no sides, just receipts.',url:window.location.href})}else{navigator.clipboard.writeText(window.location.href);this.textContent='Link Copied!';setTimeout(()=>{this.textContent='Share with Friends'},2000)}" class="hover:text-white transition-colors text-left cursor-pointer bg-transparent border-none font-condensed text-sm tracking-widest uppercase p-0 text-steel-400" style="min-height:unset;">Share with Friends</button>
+                <a href="https://twitter.com/intent/tweet?text=What%20politicians%20said%2C%20against%20how%20they%20actually%20voted%20%E2%80%94%20no%20spin%2C%20no%20sides%2C%20just%20receipts.&url=https://politidex.fyi" target="_blank" rel="noopener" class="hover:text-white transition-colors">Share on X</a>
                 <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
                 <a href="#" class="hover:text-white transition-colors">Privacy</a>
               </div>
