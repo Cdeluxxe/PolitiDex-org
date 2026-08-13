@@ -2506,17 +2506,38 @@ window.PDXLazy = (function () {
           <div class="w-8 h-8 rounded-lg bg-crimson-600 flex items-center justify-center text-sm shadow-lg shadow-crimson-600/20 transition-transform duration-200 group-hover:scale-110">🏠</div>
           <span class="font-display text-xl tracking-wider text-white">POLITI<span class="text-crimson-400">DEX</span></span>
         </a>
-        <!-- Order follows the onboarding flow: Voter Hub (learn) → My Voting Team
-             (build) → Your Ballot (decide) → Mandate (act, on the right cluster).
-             Voter Hub leads as the primary educational entry; Your Ballot sits
-             right before the Mandate button so the bar reads left→right as the
-             journey a voter actually takes. The former "My Home Team" and "My
-             Team" buttons were consolidated into the single "My Voting Team"
-             entry (destination: #my-politicians). -->
+        <!-- TWO PILLS, TWO DOORS. The bar used to carry exactly one emphasised
+             control — the gold ⭐ My Voting Team — which made the seasonal door the
+             only thing in the chrome with any weight, on every page and in every
+             month of the year. It now carries a matched pair, in the order the
+             homepage states them:
+
+               👁️ CHECK A CLAIM   · blue-filled, the record door. Wakes the
+                                     All-Seeing Eye sitting directly below this bar.
+               ⭐ MY VOTING TEAM  · gold-filled, unchanged, the ballot door.
+
+             Same geometry, same border weight, same glow budget; different hue, so
+             they read as peers rather than as a primary and its shadow. Voting lost
+             nothing: the pill, Voter Hub, Your Ballot, My Profile and Local Issues
+             are all still here.
+
+             The bar did not grow to make room. "🎯 My Stances" came out of the
+             DESKTOP row only — it is still in the mobile menu, and still one hover
+             away on desktop as "My Views" in the account chip — because a seven-item
+             row plus three dropdowns is how a nav stops being usable at 1280px.
+
+             Order still follows the flow, with the record now in front of it:
+             Check a Claim (verify) → Voter Hub (learn) → My Voting Team (build) →
+             Your Ballot (decide) → Mandate (act, on the right cluster). -->
         <div class="hidden lg:flex items-center gap-2.5 lg:gap-4 font-condensed font-600 text-xs lg:text-sm tracking-widest uppercase text-steel-300">
+          <!-- href is a real destination, not a decoration: if the helper has not
+               loaded yet the click is left alone and lands on the receipts band, so
+               the control is never dead. When the helper is there it takes over and
+               focuses the eye in place — no scroll, because the eye is already on
+               screen at every scroll position. -->
+          <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye checks it against the voting record" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Check a Claim</a>
           <a href="#voter-hub" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">Voter Hub</a>
           <a href="#my-politicians" title="Your voting team — the slate of politicians you're building and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Voting Team</a>
-          <a href="#my-stances" title="What you stand for — set your positions, and the Alignment Tool shows who matches" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🎯 My Stances</a>
           <a href="#your-ballot" title="Enter your address and see every contest on your real ballot" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🗳️ Your Ballot</a>
           <a href="#my-profile" title="Your personal hub — stances, team, footprint and the money that follows your officials" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">👤 My Profile</a>
           <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🔦 Local Issues</a>
@@ -2992,10 +3013,21 @@ window.PDXLazy = (function () {
           <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
         </button>
       </div>
+      <!-- The record door leads on mobile too, above "Your Vote", because the menu
+           is read top-down and whatever sits first is what the product looks like it
+           is for. One item, not a group: everything else behind this door already
+           has a home under "Track & Compare" below, and a menu that repeats itself
+           is a menu nobody finishes reading.
+           The eye lives in the bar this menu drops out of, so closing the menu and
+           focusing it puts the cursor exactly where the label promised. -->
+      <div class="mnav-group-label">The Record</div>
+      <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye checks it against the voting record" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Check a Claim</a>
       <!-- Core voter tools — same onboarding flow as the desktop bar:
            Voter Hub (learn) → My Voting Team (build) → Your Ballot (decide).
            Voter Hub leads as the primary educational entry on mobile; Local
-           Issues follows, and only resolves once a location is confirmed. -->
+           Issues follows, and only resolves once a location is confirmed.
+           🎯 My Stances stays listed here even though it came off the desktop row —
+           this menu has the vertical room the bar does not. -->
       <div class="mnav-group-label">Your Vote</div>
       <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Voting Team</a>
@@ -3173,11 +3205,15 @@ window.PDXLazy = (function () {
       <div class="absolute bottom-28 right-[11%] text-3xl text-gold-300 opacity-20 animate-float" style="animation-delay:1.2s">★</div>
     </div>
 
-    <!-- Logo badge with high visual polish -->
-    <div class="relative mb-8 animate-float">
-      <div class="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-2xl bg-gradient-to-br from-crimson-600 via-navy-800 to-blue-900 border-2 border-gold-400/60 shadow-[0_20px_50px_rgba(192,21,42,0.4),0_0_35px_rgba(245,200,66,0.2)] flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:scale-105 hover:border-gold-400">
-        <span class="font-display text-4xl md:text-5xl tracking-widest leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">PX</span>
-        <span class="font-condensed text-[10px] md:text-xs tracking-widest text-gold-300 uppercase font-bold">BETA</span>
+    <!-- Logo badge with high visual polish.
+         Sized down on phones (16 → 24 → 32) as part of the fold budget: the ⚖️ Word
+         vs Action verdict on the record card below has to clear the first screen on
+         a handset, and every pixel spent on chrome above it is a pixel the proof
+         does not get. Unchanged from md: up, where the fold was never in question. -->
+    <div class="relative mb-5 md:mb-8 animate-float">
+      <div class="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto rounded-2xl bg-gradient-to-br from-crimson-600 via-navy-800 to-blue-900 border-2 border-gold-400/60 shadow-[0_20px_50px_rgba(192,21,42,0.4),0_0_35px_rgba(245,200,66,0.2)] flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:scale-105 hover:border-gold-400">
+        <span class="font-display text-2xl sm:text-4xl md:text-5xl tracking-widest leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">PX</span>
+        <span class="font-condensed text-[8px] sm:text-[10px] md:text-xs tracking-widest text-gold-300 uppercase font-bold">BETA</span>
       </div>
       <!-- Live badge with improved glowing pulse -->
       <div class="absolute -top-2 -right-2 bg-gradient-to-r from-crimson-600 to-crimson-500 text-white text-[10px] md:text-xs font-condensed font-900 px-3 py-1 rounded-full tracking-widest uppercase badge-live shadow-[0_0_14px_rgba(217,26,49,0.85)]">LIVE</div>
@@ -3186,23 +3222,31 @@ window.PDXLazy = (function () {
     <!-- Brand lockup — wordmark + tagline. The standing PolitiDex tagline:
          "Bound by Truth." Kept compact and prominent so it reads as the brand
          signature directly under the badge, with the marketing headline below. -->
-    <div class="mb-8 animate-fadeUp select-none">
-      <div class="font-display text-3xl sm:text-4xl md:text-5xl tracking-[0.18em] text-white leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">POLITI<span class="text-crimson-400">DEX</span></div>
-      <div class="mt-3 flex items-center justify-center gap-3" aria-hidden="true">
+    <div class="mb-5 md:mb-8 animate-fadeUp select-none">
+      <div class="font-display text-2xl sm:text-4xl md:text-5xl tracking-[0.18em] text-white leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">POLITI<span class="text-crimson-400">DEX</span></div>
+      <div class="mt-2 md:mt-3 flex items-center justify-center gap-3" aria-hidden="true">
         <span class="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold-400/70"></span>
         <span class="font-condensed text-sm sm:text-base md:text-lg tracking-[0.3em] uppercase font-700" style="background:linear-gradient(90deg,#f5c842,#ffffff,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Bound by Truth</span>
         <span class="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-blue-400/70"></span>
       </div>
     </div>
 
-    <!-- Headline — bold and patriotic, but grounded: leads with what you do here -->
-    <h1 class="font-display tracking-tight leading-none mb-6 uppercase text-center px-4 select-none animate-fadeUp">
-      <span class="block text-xl sm:text-2xl md:text-3xl text-crimson-500 font-condensed font-900 tracking-[0.25em] mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">KNOW WHO YOU'RE REALLY VOTING FOR</span>
-      <span class="block text-5xl sm:text-7xl md:text-8xl lg:text-[8.5rem] text-white font-black leading-[0.85] mb-2 drop-shadow-[0_12px_30px_rgba(192,21,42,0.7)] tracking-tighter">
-        YOUR VOTE. <span class="bg-gradient-to-r from-crimson-500 via-crimson-400 to-crimson-600 bg-clip-text text-transparent filter saturate-150 font-black">YOUR VALUES.</span>
+    <!-- Headline — the TRUTH door is the climax.
+         This stack used to end on a gold "BUILD YOUR TEAM." — the largest, last
+         and warmest thing on the page — which made ballot-building the visual
+         answer to "what is this for?" all year round. The order and the sizing are
+         now inverted: the white line states the comparison the engine actually
+         performs, and the gold terminal line (the biggest type in the document) is
+         the invitation to look. Team-building has not been deleted, it has been
+         moved to where it belongs — the secondary CTA below and the Voter Hub door
+         it opens. -->
+    <h1 class="font-display tracking-tight leading-none mb-5 md:mb-6 uppercase text-center px-4 select-none animate-fadeUp">
+      <span class="block text-base sm:text-2xl md:text-3xl text-crimson-500 font-condensed font-900 tracking-[0.22em] mb-3 md:mb-5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">WE CHECK WHAT THEY SAY AGAINST HOW THEY VOTE</span>
+      <span class="block text-4xl sm:text-6xl md:text-7xl lg:text-[7rem] text-white font-black leading-[0.85] mb-2 drop-shadow-[0_12px_30px_rgba(192,21,42,0.7)] tracking-tighter">
+        WHAT THEY SAID. <span class="bg-gradient-to-r from-crimson-500 via-crimson-400 to-crimson-600 bg-clip-text text-transparent filter saturate-150 font-black">WHAT THEY DID.</span>
       </span>
-      <span class="block text-4xl sm:text-6xl md:text-7.5xl lg:text-[7.5rem] text-gold-400 font-black leading-[0.9] mb-3 drop-shadow-[0_12px_30px_rgba(245,200,66,0.5)] tracking-tight">
-        BUILD YOUR TEAM.
+      <span class="block text-5xl sm:text-7xl md:text-8xl lg:text-[8.5rem] text-gold-400 font-black leading-[0.9] mb-3 drop-shadow-[0_12px_30px_rgba(245,200,66,0.5)] tracking-tight">
+        SEE THE RECORD.
       </span>
     </h1>
 
@@ -3238,31 +3282,88 @@ window.PDXLazy = (function () {
          cannot ship. -->
     <div id="hero-showcase" class="mb-6 px-2 sm:px-0" hidden></div>
 
+    <!-- ── THE TWO DOORS ────────────────────────────────────────────────────
+         The hero had no call to action at all: the old START / BALLOT / TOUR
+         cluster was deleted for being a five-button pile-up, and nothing replaced
+         it, which left the purple "Find Your Matches" banner further down as the
+         only primary-styled button in the hero — a third surface answering a
+         question neither door had asked yet.
+
+         Two buttons, ranked, and nothing else:
+
+           PRIMARY (gold, filled, the same gold as the headline climax and the
+           eye's iris) opens the All-Seeing Eye. The eye lives in the fixed nav
+           and is therefore already on screen, so this does not scroll anywhere —
+           it wakes the field the visitor was going to have to notice on their own.
+
+           SECONDARY (outlined, cool) is the Voting Hub door. Same destination the
+           gold "BUILD YOUR TEAM." headline used to promise, at the weight a
+           second door should carry.
+
+         Deliberately NOT restored: the tour button, the browse row, the "no
+         account needed" reassurance line. Every one of those is still reachable
+         from the nav and from the hub's own onboarding. -->
+    <div class="w-full max-w-3xl mx-auto px-4 sm:px-0 mb-7 animate-fadeUp">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+        <button type="button" onclick="window.pdxOpenEye && window.pdxOpenEye()"
+                class="btn-tap inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 hover:from-gold-300 hover:via-gold-400 hover:to-gold-300 font-condensed font-900 text-base sm:text-lg tracking-widest uppercase px-8 py-4 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+                style="color:#0a0f1e;border:1.5px solid rgba(255,255,255,0.35);box-shadow:0 0 34px rgba(245,200,66,0.45),inset 0 2px 0 rgba(255,255,255,0.4);text-shadow:0 1px 1px rgba(255,255,255,0.25);">
+          <span aria-hidden="true">👁️</span> Check a claim or look up anyone
+        </button>
+        <a href="#voter-hub"
+           class="btn-tap inline-flex items-center justify-center gap-2.5 font-condensed font-700 text-sm sm:text-base tracking-widest uppercase px-7 py-4 rounded-2xl transition-all duration-300 hover:scale-105 no-underline"
+           style="color:#cfe0f5;background:rgba(255,255,255,0.05);border:1.5px solid rgba(148,163,184,0.4);">
+          <span aria-hidden="true">🗳️</span> Build my voting team
+        </a>
+      </div>
+
+      <!-- Claim → Receipt, said out loud. The adapter (claim-check.js) has shipped
+           and been tested for a while, and the only place the product admitted it
+           existed was the search field's placeholder text — which nobody reads
+           until they have already decided to type. The example is illustrative and
+           deliberately NAMES NO ONE: a made-up quote attributed to a real person is
+           exactly the thing this site exists to catch, and it is not clickable for
+           the same reason — a claim with no person in it cannot resolve to a
+           receipt, and a demo that fails on purpose teaches the wrong lesson. -->
+      <p class="mt-4 px-2 text-steel-300 text-sm sm:text-base leading-relaxed font-body">
+        Paste something a politician said and PolitiDex looks for the vote behind it — the receipt, or the contradiction.
+        <span class="block mt-1 text-steel-500 text-xs sm:text-sm italic">e.g. “They voted to protect Social Security.”</span>
+      </p>
+    </div>
+
     <!-- Plain-language explainer: what PolitiDex is, in one clear sentence -->
-    <p class="hero-body max-w-3xl mx-auto mb-6 px-6 text-steel-100 text-xl sm:text-2xl md:text-[1.7rem] leading-relaxed font-body filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-      <strong class="text-white font-extrabold">PolitiDex is a free, nonpartisan scorecard for everyone on your ballot.</strong>
-      Look up any politician, see their real record, promises kept, and who funds them — then build a personal <span class="text-gold-300 font-extrabold">voting team</span> of the people who actually share your values.
+    <p class="hero-body max-w-3xl mx-auto mb-5 px-6 text-steel-100 text-lg sm:text-2xl md:text-[1.7rem] leading-relaxed font-body filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+      <strong class="text-white font-extrabold">PolitiDex is a free, nonpartisan record of what politicians say and how they actually vote.</strong>
+      Look up anyone, check a claim against the roll call behind it, and see the <span class="text-gold-300 font-extrabold">sourced receipts</span> either way.
     </p>
 
-    <!-- Why it matters — short, empowering, not preachy -->
+    <!-- Why it matters — short, empowering, not preachy. Ends on the second door,
+         which is where the election-season half of the product now lives. -->
     <p class="hero-body max-w-2xl mx-auto mb-9 px-6 text-steel-300 text-base sm:text-lg leading-relaxed font-body">
-      Most of us vote by party or gut feeling because checking the receipts takes hours. PolitiDex does that homework for you — so your vote goes to people who earn it, not just the letter after their name.
+      Checking the receipts yourself takes hours, so most of us end up voting on party or gut feeling. PolitiDex does that homework year-round — and when an election comes, it turns the record into a <span class="text-white font-700">voting team</span> of the people who earned it.
     </p>
 
-    <!-- Hero CTA cluster removed per product direction — the new-voter "start with
-         one small step" card, the START / SEE YOUR FULL BALLOT / 2-MIN TOUR button
-         row, the "Free · No account needed…" reassurance line and the Browse /
-         Share secondary row were cluttering the space under the hero and duplicate
-         the top navigation and the Voter Hub's own onboarding. Every destination
-         they linked to (My Voting Team, Your Ballot, Browse All Politicians, the
-         tour, location picker) remains reachable from the nav and the Voter Hub. -->
+    <!-- Historical note: the ORIGINAL hero CTA cluster — a new-voter "start with
+         one small step" card, a START / SEE YOUR FULL BALLOT / 2-MIN TOUR button
+         row, a "Free · No account needed…" reassurance line and a Browse / Share
+         secondary row — was deleted for cluttering the space under the hero and
+         duplicating both the top navigation and the Voter Hub's own onboarding.
+         That deletion stands: what sits above is two buttons, not a cluster, and
+         none of the removed destinations came back (they remain reachable from the
+         nav and the Voter Hub). The lesson kept is "one ranked pair, not a pile",
+         not "no call to action at all" — an empty hero simply handed the primary
+         slot to whatever banner happened to be styled loudest. -->
 
     <!-- ── Beyond-Party Alignment Banner ──────────────────────────────
          Positions the Alignment Match % as PolitiDex's answer to party-line
          voting: judge a politician by how their record matches your values,
          not by the letter after their name. Purple "match" accent inside the
          patriotic gold frame keeps it on-brand while standing apart from the
-         red/gold CTAs above. Taps straight into the live Alignment Tool. -->
+         red/gold CTAs above. Taps straight into the live Alignment Tool.
+
+         Its button is deliberately a size and weight BELOW the gold primary door
+         above, so the hero reads eye → hub → alignment rather than presenting
+         three peers. -->
     <div class="mt-10 w-full max-w-2xl mx-auto px-2 sm:px-0 animate-fadeUp">
       <div class="relative overflow-hidden rounded-3xl border-2 border-gold-400/45 px-6 py-6 sm:px-8 backdrop-blur-lg" style="background:linear-gradient(135deg, rgba(76,29,149,0.42) 0%, rgba(10,15,30,0.6) 55%, rgba(192,21,42,0.18) 100%); box-shadow:0 0 38px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.05);">
         <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] pointer-events-none" style="background:rgba(139,92,246,0.35);"></div>
@@ -3273,9 +3374,9 @@ window.PDXLazy = (function () {
             Judge them by <span class="bg-gradient-to-r from-purple-300 to-purple-400 bg-clip-text text-transparent">your values</span>.
           </p>
           <p class="font-condensed text-sm sm:text-base text-steel-200 tracking-wide leading-relaxed max-w-xl">
-            Tell PolitiDex the positions you actually believe in — that's your <strong class="text-purple-200">True North</strong>. Every politician then gets a personal <strong class="text-purple-200">Your Match&nbsp;%</strong>: a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue. A team built on your compass beats one built on a party label.
+            Tell PolitiDex the positions you actually believe in — that's your <strong class="text-purple-200">True North</strong>. Every politician then gets a personal <strong class="text-purple-200">Your Match&nbsp;%</strong>: a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue. It is read off the same receipts as everything else here — their votes, against your positions.
           </p>
-          <button type="button" onclick="if(window.openAlignBoard){window.openAlignBoard('all');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-sm sm:text-base tracking-widest uppercase px-9 py-4 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 30px rgba(139,92,246,0.45), inset 0 2px 0 rgba(255,255,255,0.25);">
+          <button type="button" onclick="if(window.openAlignBoard){window.openAlignBoard('all');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-xs sm:text-sm tracking-widest uppercase px-7 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 24px rgba(139,92,246,0.35), inset 0 2px 0 rgba(255,255,255,0.25);">
             🎯 Find Your Matches
           </button>
           <p class="font-condensed text-[0.65rem] sm:text-xs tracking-[0.18em] uppercase text-steel-500">Free · Nonpartisan · Takes about a minute</p>
@@ -3303,6 +3404,30 @@ window.PDXLazy = (function () {
        whole hero above them streams and lays out first. -->
   <script src="/hero-showcase-data.js"></script>
   <script src="/hero-showcase.js"></script>
+
+  <script>
+    // ── One shared way into the All-Seeing Eye ──────────────────────────────
+    // The eye lives inside the FIXED nav, so it is already on screen at every
+    // scroll position — waking it is a focus, not a journey, and this helper
+    // deliberately does not scroll the page out from under the visitor.
+    //
+    // Three call sites already re-implemented this by hand (the hero's primary
+    // door, Evidence for My Vote's "focus-eye" action, My Saved's empty states).
+    // This is the one they can all defer to. Every path is guarded: before
+    // all-seeing-eye.js boots, PDXEye is undefined and we focus the field
+    // directly; if the field itself is absent the call is a silent no-op rather
+    // than a thrown error on a button press.
+    window.pdxOpenEye = function (q) {
+      try {
+        if (window.PDXEye) {
+          if (q) window.PDXEye.search(q); else window.PDXEye.focus();
+          return;
+        }
+        var i = document.getElementById('pdx-eye-input');
+        if (i) { if (q) i.value = q; i.focus(); }
+      } catch (e) { /* a dead button beats a dead page */ }
+    };
+  </script>
 
   <!-- ══════════════════ LIVE PULSE BAR (dynamic stats + quick jumps) ══════
        Replaces the old static marquee. Each chip is a clickable jump point to a
@@ -3441,14 +3566,144 @@ window.PDXLazy = (function () {
     }
   </script>
 
-  <!-- ── Say vs. Do · Issue Front Door · H.R.1 Showcase ────────────────────────
-       These three national marketing / demo sections are the FIRST content the
-       Voter Hub must outrank, so their placeholder <section>s now live in their
-       FINAL resting place — below the hub / ballot / local-issues flow, just
-       before #hot-topics (search "MOVED-BELOW national demo sections"). They used
-       to sit here, above the hub, and get relocated by JS after first paint, which
-       made them flash at the top and then jump down on load. Rendering them in
-       place from the start removes that reflow. -->
+  <!-- ══════════════════════ DOOR 1 · THE RECORD (year-round) ═══════════════
+       The national truth surfaces — Say vs. Do, the Issue Front Door and the H.R.1
+       Showcase — used to sit BELOW the Voter Hub, the ballot flow and Local Issues,
+       behind a bridge that told the visitor their ballot was already built. That
+       put the product's year-round job permanently in second place behind a
+       seasonal one, and it made the receipts read as footnotes to a decision
+       instead of the reason to trust it. They are now the FIRST content section
+       under the hero, matching the hero's own climax ("SEE THE RECORD.") and the
+       promise in the page title, the tagline and the meta description.
+
+       This is a move, not a rewrite: every element below is byte-for-byte what sat
+       lower on the page, in the same order, with the same ids, the same modules and
+       the same self-gating. Nothing was un-deferred and nothing joined the critical
+       path — hero-receipt's two scripts keep their `defer` because this block is
+       still below the fold, under the hero and the pulse bar.
+
+       They are placed STATICALLY here rather than moved by JS after first paint,
+       which is the whole reason they were relocated in the first place: a section
+       that paints at the top and then jumps somewhere else is worse than either
+       position. Nothing observes or re-parents them at runtime. -->
+  <div id="pdx-door-truth" class="pdx-chapter-bridge" role="separator" style="display:none;"
+       aria-label="Door 1 — the record: what they said against what they did">
+    <style>
+      .pdx-chapter-bridge{max-width:64rem;margin:0 auto;padding:2.4rem 1.25rem 0.4rem;text-align:center;}
+      .pdx-chapter-bridge .pcb-eyebrow{display:flex;align-items:center;gap:0.9rem;justify-content:center;margin-bottom:0.9rem;}
+      .pdx-chapter-bridge .pcb-eyebrow span.pcb-line{flex:1 1 auto;height:1px;max-width:6rem;}
+      .pdx-chapter-bridge .pcb-eyebrow span.pcb-line.l{background:linear-gradient(90deg,transparent,rgba(148,163,184,0.35));}
+      .pdx-chapter-bridge .pcb-eyebrow span.pcb-line.r{background:linear-gradient(90deg,rgba(148,163,184,0.35),transparent);}
+      .pdx-chapter-bridge .pcb-kicker{font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;font-size:0.68rem;color:#8aa0c4;white-space:nowrap;}
+      .pdx-chapter-bridge .pcb-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.55rem,4vw,2.35rem);letter-spacing:0.03em;color:#fff;line-height:1.06;margin:0 0 0.5rem;}
+      .pdx-chapter-bridge .pcb-title .pcb-accent{background:linear-gradient(90deg,#f87171,#fbbf24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+      .pdx-chapter-bridge .pcb-title .pcb-accent-cool{background:linear-gradient(90deg,#60a5fa,#f5c842);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+      .pdx-chapter-bridge .pcb-sub{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.55;color:#9fb4d4;max-width:40rem;margin:0 auto;}
+      .pdx-chapter-bridge .pcb-sub strong{color:#e6eefb;font-weight:700;}
+      @media (max-width:480px){.pdx-chapter-bridge{padding-top:1.9rem;}.pdx-chapter-bridge .pcb-eyebrow span.pcb-line{max-width:2.5rem;}}
+    </style>
+    <div class="pcb-eyebrow"><span class="pcb-line l"></span><span class="pcb-kicker">Door 1 · The Record</span><span class="pcb-line r"></span></div>
+    <h2 class="pcb-title">What they said, against what they <span class="pcb-accent">actually did</span>.</h2>
+    <p class="pcb-sub">Sourced receipts, all year — no election required. Every card below sets a politician's own words next to their own recorded vote, with the source one tap away.</p>
+  </div>
+
+  <!-- ── LIVE PROOF · the record as this browser actually has it ──────────────
+       A three-chip strip naming the newest publishable Official Record cards the
+       page genuinely built, newest vote first. Its job is to answer the one thing
+       a static homepage cannot — "is any of this actually live?" — and it does it
+       with the engine's own output rather than with a badge.
+
+       No seed, no editorial list, no verdict logic: every chip is a card
+       PDXReceiptCards built from the roll-call record which then cleared the same
+       public share gate a share button clears. It costs nothing to fetch, because
+       it never calls warm() — hero-showcase.js already warms a capped set for the
+       hero card, and this reads what that left behind.
+
+       Fail closed, like everything else under this bridge: no engine, no warm
+       records, or fewer than two publishable 'core' cards and it stays [hidden]
+       with nothing painted. Deferred and styleless on the wire — it injects its
+       own CSS — so an empty strip costs the page nothing at all. -->
+  <div id="live-proof" hidden></div>
+  <script src="/live-proof.js" defer></script>
+
+  <!-- ═══════════════════════ SAY vs. DO — THE RECEIPTS ════════════════════
+       Bet 1: the contradiction is the hero — a rotating, sourced "say vs. do"
+       receipt: what a politician said set against what they did, verdict stamped.
+       Rendered by window.PDXReceipts (say-vs-do.js) entirely from data the app
+       already ships (ACCT_SPOTLIGHT + ISSUE_STANCE_DATA). -->
+
+  <!-- ── The single receipt, as the lead-in to the section that explains it ────
+       This band opened the homepage once, and was demoted because one receipt
+       about one person on one issue reads as a gotcha when it is the first thing a
+       visitor sees — the hero carries the full record card instead. That reasoning
+       is untouched by the door reordering: the card a first-time visitor meets in
+       the hero is still the whole-record summary, and this single receipt still
+       arrives afterwards, as a concrete example immediately above the section that
+       explains the format and shows the rest. Nothing about hero-receipt.js
+       changed: same real, sourced, verdict-stamped card from the same seed, still
+       self-gating to [hidden] when no receipt with a checkable source URL
+       survives, scripts still deferred because it is still below the fold. -->
+  <div id="hero-receipt" class="w-full px-2 sm:px-0 mb-4" hidden></div>
+  <script src="/hero-receipt-data.js" defer></script>
+  <script src="/hero-receipt.js" defer></script>
+
+  <section id="say-vs-do" aria-label="Say vs. Do — sourced receipts" hidden></section>
+
+  <!-- ═══════════════════════ ISSUE FRONT DOOR · the question-first entry ══════
+       The issue-first ranked view. A voter who starts with a QUESTION ("who's
+       actually consistent on guns?") picks an issue here and gets every tracked
+       politician ranked on that issue by consistency, with the exact say-vs-do
+       receipt one tap away. Rendered by window.PDXIssueView (issue-view.js). -->
+  <section id="issue-front-door" aria-label="Start with an issue — politicians ranked by consistency" hidden></section>
+
+  <!-- ═══════════════════════ H.R.1 SHOWCASE · the flagship demo ════════
+       Takes ONE real, high-salience vote (H.R.1, the 2025 reconciliation & tax
+       law) and turns it into a visual, sourced story. Rendered by window.PDXHR1
+       (hr1-showcase.js). Self-gating: the receipts block only appears when sourced
+       H.R.1 votes exist, so it never renders empty. -->
+  <section id="hr1-showcase" aria-label="H.R.1 Showcase — the contradiction engine" hidden></section>
+
+  <script>
+    // ── Door 1's header fails closed with the door ──────────────────────────
+    // Every surface under this bridge self-gates: say-vs-do, the issue front door
+    // and the H.R.1 showcase each stay [hidden] when they have nothing sourced to
+    // show, hero-receipt hides itself when no receipt survives with a checkable
+    // source URL, and the live-proof strip hides itself when the browser has not
+    // built at least two publishable record cards. A promotional header that
+    // outlived all five would be the one thing the house style forbids — a promise
+    // of receipts with no receipts under it — so the header inherits their gate
+    // rather than asserting anything.
+    //
+    // It therefore starts at display:none (fail closed) and is revealed only once a
+    // real surface is up. The modules paint at different times — some on their own
+    // deferred scripts, some when the voting-record engine warms — so the state is
+    // tracked with a MutationObserver on exactly the attributes they flip, plus a
+    // few cheap re-checks for anything that lands outside an attribute change.
+    (function () {
+      var bridge = document.getElementById('pdx-door-truth');
+      if (!bridge) return;
+      var IDS = ['live-proof', 'hero-receipt', 'say-vs-do', 'issue-front-door', 'hr1-showcase'];
+      function live(el) {
+        return !!el && !el.hidden && (el.style ? el.style.display !== 'none' : true);
+      }
+      function sync() {
+        var any = IDS.some(function (id) { return live(document.getElementById(id)); });
+        bridge.style.display = any ? '' : 'none';
+      }
+      try {
+        var obs = new MutationObserver(sync);
+        IDS.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) obs.observe(el, { attributes: true, attributeFilter: ['hidden', 'style'] });
+        });
+      } catch (e) { /* no observer: the timed re-checks below still cover it */ }
+      sync();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+      window.addEventListener('load', sync);
+      [400, 1500, 4000, 9000].forEach(function (ms) { setTimeout(sync, ms); });
+    })();
+  </script>
+
 
   <!-- ═══════════════════════ START HERE · NEW VOTER WELCOME ════════ -->
   <!-- Compact, optional welcome strip. Deliberately small (a slim banner, not a
@@ -3500,9 +3755,9 @@ window.PDXLazy = (function () {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <div class="relative max-w-3xl mx-auto z-10 text-center">
-      <div class="sh-eyebrow"><span>👋 New here? 30 seconds to start</span></div>
+      <div class="sh-eyebrow"><span>🗳️ Election tools · 30 seconds to set up</span></div>
       <h2 class="sh-title">BUILD YOUR <span class="sh-accent">VOTING TEAM</span></h2>
-      <p class="sh-lead">Build your personal voting team based on your <strong>real districts and values</strong> &mdash; not party lines. See who actually represents you and build the team you want to vote for.</p>
+      <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex shows the seats you actually decide, so you can pick a team on <strong>receipts rather than party lines</strong> &mdash; saved for election day.</p>
 
       <div class="sh-cta-row">
         <button type="button" class="sh-cta-primary btn-tap" onclick="pdxStartHereGo()">📍 Set my location &amp; start building my team</button>
@@ -3554,26 +3809,30 @@ window.PDXLazy = (function () {
   </script>
 
   <script>
-    // ── Homepage section order: Hub first, welcome banner below the builder ──
-    // The Voter Hub (which contains the My Voting Team builder) is the primary,
-    // educational surface, so it must be the FIRST content section under the hero
-    // on EVERY screen size. The national marketing / demo sections — Say vs. Do,
-    // the issue front door, and the H.R.1 Showcase — now live statically in their
-    // final position (just before #hot-topics), so they no longer flash at the top
-    // and jump down on load. The only element still relocated here is the "Start
-    // Here" welcome banner, which is authored above the hub (so its dismiss script
-    // sits with the hero intro) but belongs below the builder. Moving just this one
-    // node keeps the reflow imperceptible. Applies on desktop and mobile alike.
+    // ── Homepage section order: welcome banner below both doors ──────────────
+    // Nothing about the two doors is arranged here — Door 1 (the record) and
+    // Door 2 (the ballot) are both static markup in their final order, as are the
+    // national truth sections behind Door 1. The only element still relocated at
+    // runtime is the "Start Here" welcome banner, which is authored above them (so
+    // its dismiss script sits with the hero intro) but belongs after both doors,
+    // as an offer to the visitor who wants a guided path rather than the front of
+    // the page. Moving just this one node keeps the reflow imperceptible. Applies
+    // on desktop and mobile alike.
     (function () {
-      // Inserted before #hot-topics so the welcome banner settles below the builder.
+      // Settles the banner at the end of the two-door run: just above the Library
+      // bridge if it is there, otherwise directly above #hot-topics. Anchoring on
+      // the bridge keeps that heading welded to the sections it introduces instead
+      // of having a welcome banner wedged between them.
       var BELOW_IDS = ['start-here'];
       function apply() {
         var hot = document.getElementById('hot-topics');
         if (!hot || !hot.parentNode) return;
+        var bridge = document.getElementById('pdx-bridge-library');
+        var anchor = (bridge && bridge.parentNode === hot.parentNode) ? bridge : hot;
         BELOW_IDS.forEach(function (id) {
           var el = document.getElementById(id);
-          if (el && el.parentNode === hot.parentNode && el !== hot) {
-            hot.parentNode.insertBefore(el, hot);
+          if (el && el.parentNode === anchor.parentNode && el !== anchor) {
+            anchor.parentNode.insertBefore(el, anchor);
           }
         });
       }
@@ -3893,6 +4152,18 @@ window.PDXLazy = (function () {
   </script>
   <!-- /LOCAL ISSUES -->
 
+  <!-- ══════════════════════ DOOR 2 · YOUR BALLOT (election utility) ════════
+       The second door, and explicitly a door rather than "the point of the site".
+       Everything below — the Voter Hub, the team builder, Your Ballot, Local
+       Issues — is the seasonal half of the product: it takes the record from Door 1
+       and turns it into a decision. It is unchanged in function and one scroll from
+       the top; only its billing has moved, from the single core of the product to
+       the strong second entrance. -->
+  <div class="pdx-chapter-bridge" role="separator" aria-label="Door 2 — your ballot: turn the record into a voting team">
+    <div class="pcb-eyebrow"><span class="pcb-line l"></span><span class="pcb-kicker">Door 2 · Your Ballot</span><span class="pcb-line r"></span></div>
+    <h2 class="pcb-title">There's an election coming. Turn the record into a <span class="pcb-accent-cool">ballot</span>.</h2>
+    <p class="pcb-sub">Set your location, see the seats you actually decide, and build a <strong>voting team</strong> — one office at a time, on record rather than party. Saved for election day.</p>
+  </div>
 
   <!-- ═══════════════════════ VOTER EMPOWERMENT HUB ════════ -->
   <!-- scroll-margin-top clears the fixed top navbar so jumping here from the nav
@@ -4049,11 +4320,18 @@ window.PDXLazy = (function () {
       <div class="text-center mb-10 animate-on-scroll vh-intro">
         <div class="inline-flex items-center gap-2 bg-crimson-600/15 border border-crimson-600/30 rounded-full px-4 py-1.5 mb-4">
           <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
-          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ The Main Event · Build Your Team</span>
+          <!-- Billing, not function. This badge read "🗳️ The Main Event · Build Your
+               Team" and the paragraph under it opened "This is the heart of
+               PolitiDex" — two claims that made the seasonal half of the product the
+               whole of it, and left the year-round record engine as an accessory to
+               a ballot. The hub does exactly what it always did; it is simply named
+               for what it is, the election-time door, the place the record turns
+               into a decision. Nothing below this paragraph changed. -->
+          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ Election Tools · Build Your Team</span>
         </div>
         <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD YOUR VOTING <span class="text-crimson-400">TEAM</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          This is the heart of PolitiDex. Your ballot has more than one seat — <strong class="text-white">U.S. Senate, U.S. House, Governor, your statehouse, and local offices</strong>. PolitiDex helps you fill each one with the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> — then saves your team so it's ready on election day.
+          This is where the record becomes a ballot. Your ballot has more than one seat — <strong class="text-white">U.S. Senate, U.S. House, Governor, your statehouse, and local offices</strong>. PolitiDex helps you fill each one with the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> — then saves your team so it's ready on election day.
         </p>
 
         <!-- The difference: party-first voting vs. person-first voting.
@@ -7443,76 +7721,23 @@ window.PDXLazy = (function () {
     </div>
   </section>
 
-  <!-- ── Chapter transition: your ballot → the evidence behind it ───────────────
-       A calm "you've done the ballot; here's what the rest of the page is for"
-       bridge between the Voter Hub (build-your-team) and the national reference
-       sections below (receipts, issues, money). It gives the long homepage a clear
-       SECOND ACT so everything that follows reads as purposeful depth to explore at
-       will — not clutter. Purely presentational and always accurate, so it needs no
-       gating and can't regress: it simply frames whatever renders below it. -->
-  <div class="pdx-chapter-bridge" role="separator" aria-label="Part 2 — go deeper: the evidence behind your ballot">
-    <style>
-      .pdx-chapter-bridge{max-width:64rem;margin:0 auto;padding:2.4rem 1.25rem 0.4rem;text-align:center;}
-      .pdx-chapter-bridge .pcb-eyebrow{display:flex;align-items:center;gap:0.9rem;justify-content:center;margin-bottom:0.9rem;}
-      .pdx-chapter-bridge .pcb-eyebrow span.pcb-line{flex:1 1 auto;height:1px;max-width:6rem;}
-      .pdx-chapter-bridge .pcb-eyebrow span.pcb-line.l{background:linear-gradient(90deg,transparent,rgba(148,163,184,0.35));}
-      .pdx-chapter-bridge .pcb-eyebrow span.pcb-line.r{background:linear-gradient(90deg,rgba(148,163,184,0.35),transparent);}
-      .pdx-chapter-bridge .pcb-kicker{font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;font-size:0.68rem;color:#8aa0c4;white-space:nowrap;}
-      .pdx-chapter-bridge .pcb-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.55rem,4vw,2.35rem);letter-spacing:0.03em;color:#fff;line-height:1.06;margin:0 0 0.5rem;}
-      .pdx-chapter-bridge .pcb-title .pcb-accent{background:linear-gradient(90deg,#f87171,#fbbf24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-      .pdx-chapter-bridge .pcb-sub{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.55;color:#9fb4d4;max-width:40rem;margin:0 auto;}
-      .pdx-chapter-bridge .pcb-sub strong{color:#e6eefb;font-weight:700;}
-      @media (max-width:480px){.pdx-chapter-bridge{padding-top:1.9rem;}.pdx-chapter-bridge .pcb-eyebrow span.pcb-line{max-width:2.5rem;}}
-    </style>
-    <div class="pcb-eyebrow"><span class="pcb-line l"></span><span class="pcb-kicker">Part 2 · Go Deeper</span><span class="pcb-line r"></span></div>
-    <h2 class="pcb-title">Your ballot is built. Now see the <span class="pcb-accent">receipts</span>.</h2>
-    <p class="pcb-sub">Everything below backs up your picks with evidence — what they <strong>said vs.&nbsp;what they did</strong>, where they stand on the issues you care about, and <strong>who funds them</strong>. Dig in as much or as little as you like.</p>
+  <!-- ── Chapter transition: the two doors are behind you; this is the library ──
+       This bridge used to say "Your ballot is built. Now see the receipts." — a
+       sentence that did two things at once, and the second one quietly. It framed
+       what followed (which included every truth surface on the page) as an
+       appendix to a ballot the visitor was ASSUMED to have already built, so the
+       receipts could only ever be read as supporting material for a decision
+       already made. That premise is gone along with the ordering that produced it:
+       the record now opens the page as Door 1 and the ballot tools follow as Door
+       2, so this transition no longer has two acts to rank — it introduces the
+       reference half (topics, library, evidence, money) that supports BOTH doors.
+       Purely presentational and always accurate, so it needs no gating and can't
+       regress: it simply frames whatever renders below it. -->
+  <div id="pdx-bridge-library" class="pdx-chapter-bridge" role="separator" aria-label="Explore the full library behind both doors">
+    <div class="pcb-eyebrow"><span class="pcb-line l"></span><span class="pcb-kicker">The Library</span><span class="pcb-line r"></span></div>
+    <h2 class="pcb-title">Everything behind both doors, in the <span class="pcb-accent">open</span>.</h2>
+    <p class="pcb-sub">The sourced material both doors draw on — <strong>issue spotlights</strong>, the searchable <strong>Digital Library</strong>, the <strong>Evidence Locker</strong>, and <strong>who funds whom</strong>. Dig in as much or as little as you like.</p>
   </div>
-
-  <!-- ═══════════════════ MOVED-BELOW national demo sections ═══════════════════
-       Say vs. Do · Issue Front Door · H.R.1 Showcase. These placeholder <section>s
-       intentionally live HERE — below the Voter Hub / Your Ballot / Local Issues
-       flow and just above Hot Topics — instead of above the hub. Rendering them in
-       their final position (rather than moving them with JS after first paint)
-       stops the "flash at the top, then jump down" reflow on load. Their modules
-       (say-vs-do.js / issue-view.js / hr1-showcase.js) self-gate to [hidden] when
-       there's nothing to show, so they never render an empty band. -->
-
-  <!-- ═══════════════════════ SAY vs. DO — THE RECEIPTS ════════════════════
-       Bet 1: the contradiction is the hero — a rotating, sourced "say vs. do"
-       receipt: what a politician said set against what they did, verdict stamped.
-       Rendered by window.PDXReceipts (say-vs-do.js) entirely from data the app
-       already ships (ACCT_SPOTLIGHT + ISSUE_STANCE_DATA). -->
-
-  <!-- ── The single receipt, demoted from the hero to a lead-in here ──────────
-       This band used to open the homepage. It was moved because one receipt about
-       one person on one issue reads as a gotcha when it is the first thing a
-       visitor sees — the hero now carries the full record card instead. Nothing
-       about hero-receipt.js changed: it still paints the same real, sourced,
-       verdict-stamped card from the same seed, and still self-gates to [hidden]
-       when no receipt with a checkable source URL survives. Here it works as
-       intended — a concrete example immediately above the section that explains
-       the format and shows the rest. Its scripts are deferred now that it is
-       below the fold. -->
-  <div id="hero-receipt" class="w-full px-2 sm:px-0 mb-4" hidden></div>
-  <script src="/hero-receipt-data.js" defer></script>
-  <script src="/hero-receipt.js" defer></script>
-
-  <section id="say-vs-do" aria-label="Say vs. Do — sourced receipts" hidden></section>
-
-  <!-- ═══════════════════════ ISSUE FRONT DOOR · the question-first entry ══════
-       The issue-first ranked view. A voter who starts with a QUESTION ("who's
-       actually consistent on guns?") picks an issue here and gets every tracked
-       politician ranked on that issue by consistency, with the exact say-vs-do
-       receipt one tap away. Rendered by window.PDXIssueView (issue-view.js). -->
-  <section id="issue-front-door" aria-label="Start with an issue — politicians ranked by consistency" hidden></section>
-
-  <!-- ═══════════════════════ H.R.1 SHOWCASE · the flagship demo ════════
-       Takes ONE real, high-salience vote (H.R.1, the 2025 reconciliation & tax
-       law) and turns it into a visual, sourced story. Rendered by window.PDXHR1
-       (hr1-showcase.js). Self-gating: the receipts block only appears when sourced
-       H.R.1 votes exist, so it never renders empty. -->
-  <section id="hr1-showcase" aria-label="H.R.1 Showcase — the contradiction engine" hidden></section>
 
   <!-- ═══════════════════════ HOT TOPICS CAROUSEL ══════ -->
   <section id="hot-topics" class="relative py-12 md:py-16 px-4 overflow-hidden" style="background:linear-gradient(180deg,rgba(10,15,30,0.95) 0%,rgba(13,21,38,0.9) 100%);">
@@ -17141,6 +17366,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div>
               <div class="text-white font-700 mb-3 text-xs flex items-center gap-1.5"><span class="text-crimson-400">&#9670;</span> Platform</div>
               <div class="flex flex-col gap-2.5 text-steel-400">
+                <a href="#say-vs-do" class="hover:text-white transition-colors">Say vs. Do · Receipts</a>
                 <a href="#tracker" class="hover:text-white transition-colors">Promise Tracker</a>
                 <a href="#my-politicians" class="hover:text-white transition-colors">Browse Politicians</a>
                 <a href="#submit" class="hover:text-white transition-colors">Submit Evidence</a>
@@ -17170,8 +17396,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div>
               <div class="text-white font-700 mb-3 text-xs flex items-center gap-1.5"><span class="text-steel-300">&#9670;</span> Share</div>
               <div class="flex flex-col gap-2.5 text-steel-400">
-                <button onclick="if(navigator.share){navigator.share({title:'PolitiDex',text:'Track every promise politicians make — no spin, no sides, just receipts.',url:window.location.href})}else{navigator.clipboard.writeText(window.location.href);this.textContent='Link Copied!';setTimeout(()=>{this.textContent='Share with Friends'},2000)}" class="hover:text-white transition-colors text-left cursor-pointer bg-transparent border-none font-condensed text-sm tracking-widest uppercase p-0 text-steel-400" style="min-height:unset;">Share with Friends</button>
-                <a href="https://twitter.com/intent/tweet?text=Track%20every%20promise%20politicians%20make%20%E2%80%94%20no%20spin%2C%20no%20sides%2C%20just%20receipts.&url=https://politidex.fyi" target="_blank" rel="noopener" class="hover:text-white transition-colors">Share on X</a>
+                <button onclick="if(navigator.share){navigator.share({title:'PolitiDex',text:'What politicians said, against how they actually voted — no spin, no sides, just receipts.',url:window.location.href})}else{navigator.clipboard.writeText(window.location.href);this.textContent='Link Copied!';setTimeout(()=>{this.textContent='Share with Friends'},2000)}" class="hover:text-white transition-colors text-left cursor-pointer bg-transparent border-none font-condensed text-sm tracking-widest uppercase p-0 text-steel-400" style="min-height:unset;">Share with Friends</button>
+                <a href="https://twitter.com/intent/tweet?text=What%20politicians%20said%2C%20against%20how%20they%20actually%20voted%20%E2%80%94%20no%20spin%2C%20no%20sides%2C%20just%20receipts.&url=https://politidex.fyi" target="_blank" rel="noopener" class="hover:text-white transition-colors">Share on X</a>
                 <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
                 <a href="#" class="hover:text-white transition-colors">Privacy</a>
               </div>

@@ -586,9 +586,20 @@ section("9 · and it is measurably shorter");
   const seen = (html) => text(firstPaint(html)).trim().length;
 
   // Budgets are ceilings with headroom, not snapshots of today's byte count: they
-  // fail on a regrowth, not on an edit. Measured at the time of writing: 7193 / 1451.
+  // fail on a regrowth, not on an edit. Measured when the fold landed: 7193 / 1451.
+  //
+  // The record ceiling moved once, from 9000 to 11000, and what moved it is worth
+  // writing down because the next move should not be a raise. The section's first
+  // paint is 9630 characters at wave 5 of the executive record and was 7353 at wave 4:
+  // the +2277 is the ✒️ embed's per-document issue rows and standing notes, one set
+  // per seeded document, so it grows with the RECORD and not with the layout. The
+  // ceiling stays under the 12471 the section measured before the ledger folded —
+  // that number is the wall this whole layer exists to stay behind, and it is not a
+  // number to creep up on. Roughly five more documents of headroom is left. The wave
+  // that exhausts it should fold the embed's issue rows the way the ledger's own
+  // cards are already folded, rather than raise this line again.
   const rec = seen(CS.officialRecordSectionHtml(PRES, PP));
-  ok(rec > 1500 && rec < 9000,
+  ok(rec > 1500 && rec < 11000,
     `the Official Record's first paint is ${rec} characters — it was 12471 before the ledger folded,\n` +
     "    and it is the one section a reader is meant to keep, so it must not be the longest thing\n" +
     "    on the page by an order of magnitude again");
@@ -755,12 +766,31 @@ section("12 · stances & connections — what they stand for, ranked and connect
     // Slicing "the first two live groups" opened tested + everything-untested on a
     // figure with no contradictions — 24 of 32 rows on the president, which is the
     // wall this layer was built to replace.
+    //
+    // The open set is the TESTED rows, capped. It was exactly the tested rows until
+    // the executive record grew dense enough that "tested" alone was nineteen of the
+    // president's thirty-three — a lead that long is the same wall by another route,
+    // so blockOf folds an open group past _ST_LEAD_CAP rows. Two things are asserted
+    // rather than one, and together they are strictly stronger than the equality they
+    // replace: nothing untested may appear above the fold (which is the bug the
+    // original check existed to catch), and the count is the capped tested count
+    // exactly (so the cap cannot quietly become a truncation of something else).
+    const LEAD_CAP = Number((CS_SRC.match(/_ST_LEAD_CAP = (\d+)/) || [])[1]);
+    ok(LEAD_CAP > 0, `${who}: _ST_LEAD_CAP is readable from consistency.js`);
     const lidAt = st.indexOf("PDXSP:lid");
-    const openRows = (lidAt === -1 ? st : st.slice(0, lidAt)).match(/class="pdxst-row"/g) || [];
-    const testedRows = CS.issueRows(pid).filter((r) => r.tier === 0 || r.tier === 1).length;
-    eq(openRows.length, testedRows,
-      `${who}: the open stance rows are not exactly the tested ones — an empty group above\n` +
+    const openHtml = lidAt === -1 ? st : st.slice(0, lidAt);
+    const openRows = openHtml.match(/class="pdxst-row"/g) || [];
+    const openTiers = [...openHtml.matchAll(/data-pdxst-tier="(\d)"/g)].map((m) => Number(m[1]));
+    ok(openTiers.every((t) => t === 0 || t === 1),
+      `${who}: an untested stance row is above the fold — an empty group above\n` +
       "    must never promote a folded one into the reader's path");
+    const tensionRows = CS.issueRows(pid).filter((r) => r.tier === 0).length;
+    const testedRows = CS.issueRows(pid).filter((r) => r.tier === 0 || r.tier === 1).length;
+    const backedRows = testedRows - tensionRows;
+    // +1 mirrors blockOf's "do not fold a single row" guard.
+    const openBacked = backedRows > LEAD_CAP + 1 ? LEAD_CAP : backedRows;
+    eq(openRows.length, tensionRows + openBacked,
+      `${who}: the open stance rows are not the tested ones capped at ${LEAD_CAP}`);
     if (rows > testedRows) ok(lidAt !== -1, `${who}: the untested positions do not fold`);
   }
   // The connection out. A stance row that has been tested points at the score; a row

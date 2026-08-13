@@ -3676,6 +3676,11 @@
   // 32 rows open on a president, which is the wall this layer exists to replace.
   // Keying on the tier means an empty group above can never promote a folded one.
   var _ST_OPEN_TIERS = { 0: 1, 1: 1 }; // (a) tension and (b) tested stay open
+  // How many rows an OPEN group may show before the remainder folds. Six, because the
+  // lead has to stay readable on a phone without scrolling past it, and because the
+  // rows below the sixth in a "the record backs it up" group are the least surprising
+  // thing on the page. The tension group is exempt — see blockOf.
+  var _ST_LEAD_CAP = 6;
   function _stOpen(g) { return g.tiers.some(function (t) { return _ST_OPEN_TIERS[t]; }); }
   function _stGo(target, label) {
     var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
@@ -3719,10 +3724,27 @@
     ranked.forEach(function (r) { (byTier[r.tier] = byTier[r.tier] || []).push(r); });
     var live = _ST_GRP.filter(function (g) { return g.tiers.some(function (t) { return (byTier[t] || []).length; }); });
     if (!live.length) return '';
-    var blockOf = function (g) {
+    var blockOf = function (g, cap) {
       var rows = [];
       g.tiers.forEach(function (t) { (byTier[t] || []).forEach(function (r) { rows.push(_stRowHtml(r)); }); });
-      return '<div class="pdxst-grp"><div class="pdxst-grp-h">' + esc(g.label) + ' · ' + rows.length + '</div>' + rows.join('') + '</div>';
+      var body = rows.join('');
+      // A LEAD IS A LEAD, NOT A LIST. The open groups are tension first, then the
+      // issues the record backs up, and on a densely-seeded figure the second one
+      // grows without bound: wave 4 of the executive record took the president's
+      // tested tier to eighteen rows, and nineteen open rows is the wall this layer
+      // exists to replace. So an open group shows its first few and folds the
+      // remainder behind the same lid the closed groups already use — the rows are
+      // one tap away, and the group header still counts all of them, so nothing is
+      // hidden about how much there is. Only the backs-it-up group is capped: the
+      // tension group is the reason to read the section at all.
+      if (cap && rows.length > cap + 1) {
+        var over = rows.length - cap;
+        body = rows.slice(0, cap).join('') +
+          '<!--PDXSP:lid id="st-open-' + g.tiers.join('-') + '" label="Show ' + over +
+          ' more issue' + (over === 1 ? '' : 's') + ' the record backs up" defer-->' +
+          rows.slice(cap).join('') + '<!--PDXSP:/lid-->';
+      }
+      return '<div class="pdxst-grp"><div class="pdxst-grp-h">' + esc(g.label) + ' · ' + rows.length + '</div>' + body + '</div>';
     };
     var tested = ((byTier[0] || []).length) + ((byTier[1] || []).length);
     var head =
@@ -3730,7 +3752,12 @@
         LHOWTO('say-vs-do', 'How to read this') + '</div>' +
       '<div class="pdxst-q">“What do they stand for — and does anything actually test it?”</div>' +
       _feedsPrimaryHtml('The map of what they claim, ranked so the claims something can check come first. It publishes no number: each row shows the one verdict the score already reached for that issue.');
-    var lead = live.filter(_stOpen).map(blockOf).join('');
+    // Explicit wrappers, not .map(blockOf): Array#map passes the index as the second
+    // argument, which would arrive as `cap` and fold whichever group happened to sit
+    // at a non-zero position.
+    var lead = live.filter(_stOpen).map(function (g) {
+      return blockOf(g, g.tiers.indexOf(0) === -1 ? _ST_LEAD_CAP : 0);
+    }).join('');
     var restGrps = live.filter(function (g) { return !_stOpen(g); });
     var rest = '';
     if (restGrps.length) {
@@ -3738,7 +3765,8 @@
         return n + g.tiers.reduce(function (m, t) { return m + ((byTier[t] || []).length); }, 0);
       }, 0);
       rest = '<!--PDXSP:lid id="st-rest" label="Show ' + restN + ' more position' + (restN === 1 ? '' : 's') +
-        ' with nothing to test them yet" defer-->' + restGrps.map(blockOf).join('') + '<!--PDXSP:/lid-->';
+        ' with nothing to test them yet" defer-->' +
+        restGrps.map(function (g) { return blockOf(g, 0); }).join('') + '<!--PDXSP:/lid-->';
     }
     var cov = '<div class="pdxcov">📊 <b>' + tested + '</b> of <b>' + ranked.length + '</b> tracked position' +
       (ranked.length === 1 ? '' : 's') + ' ' + (tested === 1 ? 'has' : 'have') + ' a formal or public record behind ' +
