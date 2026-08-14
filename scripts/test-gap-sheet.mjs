@@ -153,7 +153,7 @@ const html = C.gapViewHtml(PHOTO, ISSUE);
 
 // ── 1. The identity block ───────────────────────────────────────────────────
 // The arrival used to open on an issue label and never name the member.
-has(html, 'class="pdxgap-id"', "identity: the sheet opens with an identity row");
+has(html, 'class="pdxgap-id"', "identity: the sheet carries an identity row");
 has(html, 'class="pdxgap-face"', "identity: with a face");
 has(html, '<img src="https://example.test/solano.jpg"', "identity: the roster headshot is used");
 has(html, 'loading="lazy"', "identity: the headshot is lazy — it is above the fold but not blocking");
@@ -162,9 +162,15 @@ has(html, '>Marta Solano<', "identity: the member is named");
 has(html, "U.S. Representative · ID-02 · Idaho", "identity: office, district and state on one line");
 has(html, 'class="pdxgap-party"', "identity: party is its own tinted chip");
 has(html, "#f87171", "identity: tinted with the app's existing party colour");
-// Order matters for recognition: face and name before the issue title.
-ok(html.indexOf("Marta Solano") < html.indexOf("Lower Taxes"),
-  "identity: the member is named before the issue, which is the order the card leads with");
+// Order matters, and the order is issue first. Recognition is not the scarce thing:
+// almost every open comes from a stance row or an index row inside a profile, where
+// the reader already knows whose record this is and is waiting on what it said. The
+// identity is still here in full — face, name, office line, party chip — it just sits
+// under the finding rather than above it.
+ok(html.indexOf("Lower Taxes") < html.indexOf("Marta Solano"),
+  "identity: the issue leads and the member is named under it, not above it");
+ok(html.indexOf('class="pdxgap-title') < html.indexOf('class="pdxgap-id"'),
+  "identity: the title element itself precedes the identity strip");
 has(html, 'class="pdxgap-title">Lower Taxes<', "identity: the issue is the sheet's title");
 
 // Fail-closed on the photo slot: an emoji is not a URL.

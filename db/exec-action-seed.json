@@ -1142,6 +1142,8 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Directed every agency head to pursue actions lowering the cost of housing, health care, food and energy, and to report progress to the President's economic adviser every thirty days.",
+            "counts": "A standing instruction to every agency aimed at the four categories this issue is about — housing, health care, food and energy.",
+            "_countsNote": "`counts` answers the reader's second question — why does this document count on THIS issue — in one sentence on the row face, where `plain` answers the first. Absent it, the dossier derives a sentence from the mapping itself (which issue, primary or supporting, how narrow, which way it cut), which is precise but says nothing about subject matter. Curate it where the subject-matter link is the interesting part. It states an AIM, never an outcome: a formal action can be aimed at a price without this file claiming the price moved.",
             "rationale": "Directs the heads of all executive departments and agencies to deliver emergency price relief and to pursue appropriate actions to lower the cost of housing, health care, food and energy, and to report to the Assistant to the President for Economic Policy every thirty days.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue quotes this document by title as its evidence — \"Signed the 'Delivering Emergency Price Relief for American Families' memorandum\" — so the pair cannot test itself. The issue is separately tested by the itemized pledge on it, which is scored against the Bureau of Labor Statistics consumer price index rather than against any document signed by the figure."
@@ -2394,6 +2396,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Raised the 2026 beef import quota by 80,000 metric tons of lean trimmings, released quarterly and allocated to Argentina, on a determination that domestic supply would not meet demand at reasonable prices.",
+            "counts": "A formal supply action aimed at making a staple consumer food more affordable.",
             "rationale": "Increases the calendar-year 2026 in-quota quantity of the beef tariff-rate quota by 80,000 metric tons of lean beef trimmings, released in four quarterly tranches and allocated in its entirety to Argentina, on the determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
           },
           {
@@ -2402,6 +2405,7 @@
             "isPrimary": false,
             "weight": 85,
             "plain": "Enlarging the quota lets that beef enter at the low in-quota tariff rate instead of the high over-quota rate — a trade barrier lowered to hold a grocery price down.",
+            "counts": "A tariff barrier lowered for the stated purpose of holding a consumer price down — the exact trade-off this issue is about.",
             "rationale": "Lowers a tariff barrier for the stated purpose of holding a consumer price down: the proclamation enlarges the in-quota quantity so that beef entering under the quota pays the low in-quota rate rather than the over-quota rate, on the President's determination that domestic supply would otherwise be inadequate to meet domestic demand at reasonable prices."
           }
         ],
@@ -2497,6 +2501,7 @@
             "isPrimary": false,
             "weight": 80,
             "plain": "Treats permitting delays and building mandates as a cause of high housing prices, and makes removing them administration policy.",
+            "counts": "Housing is the largest fixed line in most household budgets, and this order goes at the permitting cost of building more of it.",
             "rationale": "Sets as administration policy the reduction of regulatory barriers to building homes on the stated ground that permitting delays and mandates have driven up the cost of new housing and made it less affordable."
           }
         ],

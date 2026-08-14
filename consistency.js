@@ -454,7 +454,15 @@
           var iss = (byPid[pid] = byPid[pid] || {});
           var slot = (iss[res.key] = iss[res.key] || { consistent: 0, contradicts: 0, total: 0, items: [] });
           slot[verdict]++; slot.total++;
-          slot.items.push({ headline: it.headline || '', date: it.date || '', sourceUrl: it.source.url, sourceLabel: (it.source.label || 'Source'), verdict: verdict });
+          // `facts` and `why` travel with the item. The spotlight entry has always
+          // carried both — a paragraph of what the action actually did, and a
+          // sentence on why it matters — and this index used to keep only the
+          // headline, which is why a migrated formal action rendered as a bare title
+          // with no mechanism behind it. Nothing is rewritten here; the display layer
+          // decides how much of `facts` fits on a row face and keeps the rest one tap
+          // deeper (see _dosItems' formal branch).
+          slot.items.push({ headline: it.headline || '', date: it.date || '', sourceUrl: it.source.url, sourceLabel: (it.source.label || 'Source'), verdict: verdict,
+                            facts: it.facts || '', why: it.why || '' });
           count++; had = true;
         });
         if (had) { byNorm[norm(pid)] = byPid[pid]; pols++; }
@@ -755,6 +763,13 @@
           weight: (typeof m2.weight === 'number') ? m2.weight : 100,
           isPrimary: !!m2.isPrimary,
           plain: m2.plain || '',
+          // The curated "why this document counts on THIS issue" sentence, when the
+          // seed carries one. It travels per mapping for the same reason `plain`
+          // does: one document reaches two issues for two different reasons, and a
+          // sentence hoisted to the document would be right about one of them at
+          // most. Empty is normal — the dossier derives a line from the mapping's
+          // own fields when nobody has written a better one.
+          counts: m2.counts || '',
           rationale: m2.rationale || ''
         });
       }
@@ -1656,7 +1671,8 @@
       // Top padding is deliberately tight (0.65rem, not 1rem): this sheet is the
       // LANDING PAGE for every shared card, and the first thing a reader saw used to
       // be a band of empty gradient above a 0.62rem eyebrow. The close button is
-      // pulled in to match so the identity row starts as high as it can.
+      // pulled in to match so the first line — the issue itself — starts as high as
+      // it can.
       '.pdxgap-sheet{position:relative;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#141a2c,#0c111e);border:1px solid rgba(255,255,255,0.12);border-radius:1rem 1rem 0 0;padding:0.65rem 0.85rem 1.3rem;box-shadow:0 -12px 40px rgba(0,0,0,0.5);font-family:"Barlow Condensed",sans-serif;animation:pdxgapUp .18s ease;}' +
       '@keyframes pdxgapUp{from{transform:translateY(14px);opacity:0.6;}to{transform:translateY(0);opacity:1;}}' +
       '@media (prefers-reduced-motion:reduce){.pdxgap-sheet{animation:none;}}' +
@@ -1674,30 +1690,38 @@
       '.pdxgap-x{position:absolute;top:0.45rem;right:0.5rem;width:1.85rem;height:1.85rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.15rem;line-height:1;cursor:pointer;z-index:2;}' +
       '.pdxgap-x:hover{background:rgba(10,15,30,0.9);}' +
       '.pdxgap-eyebrow{font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;}' +
-      // ── Header identity block ───────────────────────────────────────────────
-      // Face, then name, then office/state/party — the same three cues the shared
-      // image leads with, in the same order, so a reader who tapped a card can see
-      // in one glance that this is the same person. The photo is the only genuinely
-      // new element: it comes from _getPhotoUrl (the app's single headshot source)
-      // and degrades to party-tinted initials, never to a broken image frame.
-      '.pdxgap-id{display:flex;align-items:center;gap:0.6rem;padding-right:2.1rem;}' +
-      '.pdxgap-face{flex:none;position:relative;width:3.1rem;height:3.1rem;border-radius:0.7rem;overflow:hidden;background:#0a0f1e;border:1px solid var(--c,#8fa5c4);box-shadow:0 0 0 1px rgba(0,0,0,0.4);}' +
+      // ── Header identity strip ───────────────────────────────────────────────
+      // Compact, and BELOW the issue and the result. It used to be a slab at the
+      // very top — a 3.1rem face, an eyebrow, the name at 1.02rem and a sub-line —
+      // which on a 360px phone pushed the issue title and the verdict chip off the
+      // first screen on the one surface whose whole job is to answer "what did the
+      // record say about this issue". Same facts, one row, far less height. The
+      // photo still comes from _getPhotoUrl (the app's single headshot source) and
+      // still degrades to party-tinted initials, never to a broken image frame.
+      '.pdxgap-id{display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;}' +
+      '.pdxgap-face{flex:none;position:relative;width:1.85rem;height:1.85rem;border-radius:0.45rem;overflow:hidden;background:#0a0f1e;border:1px solid var(--c,#8fa5c4);box-shadow:0 0 0 1px rgba(0,0,0,0.4);}' +
       '.pdxgap-face img{width:100%;height:100%;object-fit:cover;display:block;}' +
-      '.pdxgap-face-ph::after{content:attr(data-fb);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.02em;color:var(--c,#8fa5c4);background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(0,0,0,0.25));}' +
-      '.pdxgap-idmain{min-width:0;}' +
-      // The member's name leads the block. Wraps rather than truncates — a clipped
-      // name on a page whose whole job is identifying someone is worse than a
-      // second line.
-      '.pdxgap-who{font-weight:700;font-size:1.02rem;color:#e8eefc;line-height:1.15;}' +
-      '.pdxgap-who-sub{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-weight:600;font-size:0.7rem;color:#8fa5c4;line-height:1.3;margin-top:0.1rem;}' +
+      '.pdxgap-face-ph::after{content:attr(data-fb);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Bebas Neue",sans-serif;font-size:0.72rem;letter-spacing:0.02em;color:var(--c,#8fa5c4);background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(0,0,0,0.25));}' +
+      '.pdxgap-idmain{min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:0.2rem 0.45rem;}' +
+      // The member's name. Wraps rather than truncates — a clipped name on a page
+      // that has to identify someone is worse than a second line — but it is no
+      // longer the largest thing in the header; the issue title is.
+      '.pdxgap-who{font-weight:700;font-size:0.84rem;color:#e8eefc;line-height:1.2;}' +
+      '.pdxgap-who-sub{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-weight:600;font-size:0.66rem;color:#8fa5c4;line-height:1.3;margin-top:0;}' +
+      // The lane cue, pushed to the end of the strip. It is chrome that names which
+      // record is speaking, so it reads last rather than first.
+      '.pdxgap-id .pdxgap-eyebrow{margin-left:auto;flex:none;font-size:0.58rem;text-align:right;}' +
+      '@media (max-width:420px){.pdxgap-id .pdxgap-eyebrow{display:none;}}' +
       '.pdxgap-party{font-weight:700;font-size:0.62rem;letter-spacing:0.04em;padding:0.05rem 0.34rem;border-radius:999px;color:var(--c,#8fa5c4);border:1px solid var(--c,#8fa5c4);background:rgba(10,15,30,0.5);}' +
-      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.55rem 0 0.4rem;}' +
+      // The issue leads the sheet, so it starts at the top of the header with no
+      // margin above it — the tight sheet padding is the only gap.
+      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0 2.1rem 0.4rem 0;}' +
       // The issue's own colour, carried in from the row that was tapped. Only ever
       // painted when the key resolved to a real core issue — an unmapped key gets no
       // spine rather than a neutral one that looks like a colour that failed.
       '.pdxgap-title.pdxc-ic{border-left:4px solid var(--pdx-ic);padding-left:0.5rem;' +
         'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 58%);}' +
-      '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:2.75rem;height:2.75rem;}}' +
+      '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:1.65rem;height:1.65rem;}}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
       // The verdict, sized so it is the thing the eye lands on. Same colour and
       // wording as the chip everywhere else; only the scale changes.
@@ -1825,10 +1849,17 @@
       // L2 — every instrument on THIS issue, closed. The count is in the summary,
       // so the depth is readable without opening anything.
       '.pdxdos-recs{margin-top:0.55rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:0.15rem;}' +
-      '.pdxdos-recs>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:0.35rem;' +
+      '.pdxdos-recs>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:0.35rem;' +
         'min-height:2.2rem;font-family:"Barlow Condensed",sans-serif;font-size:0.78rem;' +
         'letter-spacing:0.03em;color:#dbe6f7;}' +
       '.pdxdos-recs>summary::-webkit-details-marker{display:none;}' +
+      // The enumeration under the count. It wraps to its own full-width line so the
+      // count stays scannable, and it is quieter than the count because it is the
+      // AUDIT of that number rather than a competing headline — a reader who wants to
+      // know how many looks up, a reader who wants to know which ones reads across.
+      '.pdxdos-recs-list{flex:1 0 100%;min-width:0;font-family:system-ui,sans-serif;' +
+        'font-size:0.66rem;letter-spacing:0;color:#8fa2c0;line-height:1.45;' +
+        'overflow-wrap:break-word;padding-bottom:0.2rem;}' +
       '.pdxdos-recs[open]>summary{color:#9fdbff;}' +
       '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
       // ── The continuity line, directly under the issue title ────────────────
@@ -1848,6 +1879,14 @@
       // about the record's shape rather than as another row.
       '.pdxdos-note{font-size:0.68rem;color:#8fa2c0;line-height:1.5;padding:0.4rem 0 0.1rem;' +
         'border-top:1px solid #ffffff10;margin-top:0.35rem;}' +
+      // THE COVERAGE GAP, when the list cannot yet show everything the verdict
+      // counted. It goes ABOVE the rows, not below them, because it changes how the
+      // rows should be read — and it is amber rather than grey, because "some of the
+      // receipts are missing" is the one thing on this level a reader must not skim
+      // past. It appears only when the gap is real (see _dosCoverage).
+      '.pdxdos-gap{font-size:0.68rem;color:#f0cd8c;line-height:1.5;padding:0.35rem 0.5rem;' +
+        'border:1px solid rgba(240,205,140,0.3);border-radius:0.4rem;background:rgba(240,205,140,0.06);' +
+        'margin:0.35rem 0 0.15rem;}' +
       '.pdxdos-rec{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxdos-rec>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;' +
         'gap:0.3rem;padding:0.4rem 0;min-height:2.2rem;}' +
@@ -1860,6 +1899,21 @@
       '.pdxdos-rec-tag{font-size:0.61rem;color:#8fa2c0;border:1px solid rgba(255,255,255,0.14);' +
         'border-radius:999px;padding:0.02rem 0.36rem;}' +
       '.pdxdos-rec-why{flex:1 0 100%;font-size:0.68rem;color:#8fa2c0;line-height:1.4;}' +
+      // The mechanism labels. Brighter than the sentence they introduce, so "What it
+      // did" and "Why it counts here" read as the two fixed slots they are rather
+      // than as the opening words of a paragraph — a reader scanning six rows for
+      // one of the two answers finds the same label in the same place every time.
+      '.pdxdos-rec-wk{color:#c6d4ec;font-weight:700;}' +
+      // The multi-issue disclosure sits under both, dimmer and italic: it is about
+      // the SCOPE of the row rather than about this issue, and it should not compete
+      // with the two sentences that are.
+      '.pdxdos-rec-multi{color:#7f97b8;font-style:italic;}' +
+      // The veto path. Tinted rather than dimmed, because unlike the multi-issue
+      // caveat it is not context around the row — it is the only sentence that
+      // explains why a bill Congress passed is filed as an action against the
+      // President, and a reader who skims it cannot make sense of the chip above it.
+      '.pdxdos-rec-veto{color:#c9b6e8;border-left:2px solid rgba(201,182,232,0.35);' +
+        'padding-left:0.45rem;}' +
       '.pdxdos-rec-hold{color:#f0cd8c;}' +
       '.pdxdos-rec-b{padding:0 0 0.5rem;}' +
       // L3 — one instrument's mechanism, mounted on first open.
@@ -4234,8 +4288,12 @@
       parts.push('<span class="pdxst-comp-x"><b>' + aside.count + '</b> ' + esc(asideUnit) + ' the other way, set aside</span>');
     }
     if (st) {
+      // Lowercase the FIRST LETTER, not the label. `toLowerCase()` on the whole
+      // string turned "Overridden by Congress" into "overridden by congress", which
+      // reads as a typo and quietly demotes the branch that did the overriding.
+      var stLbl = st.label.charAt(0).toLowerCase() + st.label.slice(1);
       parts.push('<span class="pdxst-comp-x">' + esc(st.ico + ' ' + st.count + ' ' +
-        (st.count === 1 ? n.one : n.many) + ' ' + st.label.toLowerCase()) + '</span>');
+        (st.count === 1 ? n.one : n.many) + ' ' + stLbl) + '</span>');
     }
     var tip = split.aligned + ' of ' + split.judged + ' judged ' +
       (split.judged === 1 ? unit : unit + 's') + ' pointed the same way as their stated position; ' +
@@ -5040,15 +5098,61 @@
     } catch (e) {}
     return null;
   }
+  // WHAT "IN FORCE" MEANS DEPENDS ON WHAT THE ACTION WAS. The standing vocabulary is
+  // shared with the ✒️ section and is written from the action's point of view: for a
+  // veto, `in_force` means THE VETO held, so the measure never became law. On a row
+  // whose identity is the bill number and whose title is the bill's title, the words
+  // "● In force" underneath read as a claim about the BILL — the exact opposite of
+  // what the token says. So a blocking class gets the same fact in its own terms.
+  // This is a relabel at the display layer only: the token, the contested flag and
+  // everything the score reads are untouched, and every other class passes through.
+  function _dosStandingFor(actionClass, key) {
+    var s = _dosStanding(key);
+    var p = _dosPower(actionClass);
+    if (!s || !p || !p.blocks) return s;
+    if (s.key === 'in_force') {
+      return { key: s.key, label: 'Veto held', ico: s.ico, contested: false,
+        why: 'The veto held: Congress did not override it, so the measure did not become law.' };
+    }
+    return s;
+  }
   function _dosPower(actionClass) {
     try {
       var C = window.PDXExecRecord && window.PDXExecRecord.CLASSES, d = C && C[actionClass];
-      if (d) return { verb: d.verb || '', label: d.label || '', sole: d.authorship === 'sole' };
+      if (d) {
+        return { key: d.key || actionClass, verb: d.verb || '', label: d.label || '',
+                 sole: d.authorship === 'sole', blocks: !!d.blocks };
+      }
     } catch (e) {}
     return null;
   }
   function _dosMulti(d) {
     try { return !!(d && d.item && d.item.issues && d.item.issues.length > 1); } catch (e) { return false; }
+  }
+
+  // ── the row face's sentence budget ──────────────────────────────────────────
+  // Curated prose arrives in two very different lengths. The ✒️ lane's per-issue
+  // `plain` is already written to fit a row (the seed gate caps it at 320 chars and
+  // bans code citations). The migrated formal lane's `facts` is not — it is a full
+  // paragraph, often with dates, section numbers and quoted findings in it, written
+  // for the accountability feed rather than for a summary row.
+  //   So the face takes the FIRST SENTENCE and the tap takes the rest. This is a
+  // truncation, never a rewrite: the sentence is lifted verbatim, and when it is cut
+  // for length it is cut at a word boundary with an ellipsis, so a reader can always
+  // tell that more text exists. The untouched paragraph is still rendered in full one
+  // level down, so nothing curated is lost — it is only deferred.
+  function _dosLead(text, cap) {
+    var s = String(text == null ? '' : text).trim();
+    if (!s) return '';
+    cap = cap || 240;
+    // Sentence break: a terminator followed by whitespace and a capital / quote /
+    // bracket. Abbreviations ("U.S.", "No. 14") do not match, because the character
+    // after the space has to open a new sentence.
+    var m = s.match(/^[\s\S]*?[.!?](?=\s+["“(\[]?[A-Z0-9])/);
+    var lead = m ? m[0] : s;
+    if (lead.length <= cap) return lead;
+    lead = lead.slice(0, cap).replace(/\s+\S*$/, '');
+    return lead + '…';
   }
 
   // ── L2's data ───────────────────────────────────────────────────────────────
@@ -5066,6 +5170,10 @@
       var m = _dosMapping(item, issueKey);
       base.primary = m ? !!m.isPrimary : null;
       base.narrow = !!(m && typeof m.weight === 'number' && m.weight <= narrowAt);
+      // The raw support meaning, carried rather than re-derived. It is what turns a
+      // ballot into a direction on THIS issue ("a Yea here counts as support"), and
+      // the mechanism line below has to be able to say that in words.
+      base.support = (m && m.supportMeaning) || '';
       base.item = item;
       base.multi = !!(item && item.issues && item.issues.length > 1);
       return base;
@@ -5090,15 +5198,24 @@
           act: (_dosPower(it.actionClass) || {}).verb || '',
           question: '',
           date: it.date || '',
-          standing: _dosStanding(it.standing),
+          standing: _dosStandingFor(it.actionClass, it.standing),
           power: _dosPower(it.actionClass),
           effect: (adv === null) ? '' : (adv ? 'advances' : 'opposes'),
+          // Which way the STATED POSITION points on this issue. Carried because the
+          // direction line has to say how the document's direction and the stated
+          // direction combine into the verdict on the chip — and `effect` alone
+          // cannot: it is measured against the issue, not against what they said, so
+          // a row could truthfully say "cuts against the issue" beside a chip reading
+          // "Backs it up" whenever the stated position was against the issue too.
+          stance: xStance || '',
           plain: it.plain || '',
+          counts: (m && m.counts) || '',
           rationale: (m && m.rationale) || '',
           url: it.sourceUrl || '', srcLabel: it.sourceLabel || 'Primary source'
         }));
       });
     } else if (ov.record) {
+      var _recStance = positionStance(pid, issueKey) || '';
       _orProofPicks(pid, issueKey, ov).forEach(function (p) {
         var b = _orProofBits(p.item) || {};
         out.push(withMapping(p.item, {
@@ -5109,14 +5226,23 @@
           title: p.item.title || p.item.shortTitle || '',
           act: b.act || '', question: b.question || '',
           date: b.date || '',
-          standing: null, power: null, effect: '',
-          plain: '', rationale: '',
+          standing: null, power: null, effect: '', stance: _recStance,
+          // A roll call carries no curated prose, so both mechanism lines are
+          // DERIVED — see _dosMechanism. What it did is the question and the ballot,
+          // which the record does carry; why it counts here is a restatement of the
+          // issue mapping. Neither invents anything the record does not record.
+          plain: '', counts: '', rationale: '',
           url: b.url || '', srcLabel: b.label || 'Congress.gov',
           voteKey: _orVoteKey(p.item)
         }));
       });
     } else if (ov.officialActions && ov.officialActions.items) {
       ov.officialActions.items.forEach(function (a) {
+        // The migrated formal action's curated prose, split by length rather than by
+        // rewriting: the opening sentence of `facts` is what it did, `why` is why it
+        // counts, and the full paragraph stays available at L4 whenever the face is
+        // showing less than all of it.
+        var lead = _dosLead(a.facts, 240);
         out.push(withMapping(a, {
           lane: 'formal',
           verdict: a.verdict || 'limited',
@@ -5124,8 +5250,10 @@
           ident: a.headline || 'Formal action',
           title: '', act: '', question: '',
           date: a.date || '',
-          standing: null, power: null, effect: '',
-          plain: '', rationale: '',
+          standing: null, power: null, effect: '', stance: '',
+          plain: lead,
+          counts: a.why || '',
+          rationale: (a.facts && a.facts !== lead) ? a.facts : '',
           url: a.sourceUrl || '', srcLabel: a.sourceLabel || 'Source'
         }));
       });
@@ -5141,21 +5269,191 @@
           title: h.title || '',
           act: (_dosPower(h.actionClass) || {}).verb || '',
           question: '', date: h.date || '',
-          standing: null, power: _dosPower(h.actionClass), effect: '',
-          plain: h.plain || '', rationale: '',
+          standing: null, power: _dosPower(h.actionClass), effect: '', stance: '',
+          plain: h.plain || '', counts: '', rationale: '',
           url: h.sourceUrl || '', srcLabel: h.sourceLabel || 'Primary source',
-          primary: null, narrow: false, multi: false, item: h.action || null
+          primary: null, narrow: false, multi: false, support: '', item: h.action || null
         });
       });
     }
     return out;
   }
 
+  // ── THE MECHANISM LINES — what it did, and why it counts HERE ───────────────
+  // Two sentences per instrument, on the face of the row, in the same two slots for
+  // every lane. Before this existed a reader got a document number, a verdict chip
+  // and — on the ✒️ lane only — one unlabelled sentence that had to serve as both
+  // answers at once; on the 🏛️ and migrated-formal lanes they got the title and
+  // nothing else. A title is not a mechanism, and "why does this count on THIS
+  // issue" was never stated anywhere a reader would look.
+  //
+  // WHERE EACH SENTENCE COMES FROM, and what is never done to it:
+  //   what it did   ✒️ the curated per-(document, issue) `plain` sentence, verbatim
+  //                 📄 the first sentence of the curated `facts` paragraph, verbatim
+  //                 🏛️ the roll-call question and the ballot — the two things a
+  //                    recorded vote actually carries — assembled, not authored
+  //   why it counts ✒️/📄 a curated sentence when the seed supplies one
+  //                 otherwise a restatement of the MAPPING: which issue, primary or
+  //                 supporting subject, how narrow the recorded link is, and which
+  //                 way it cut. Every clause is a field that already exists.
+  //
+  // NOTHING HERE CLAIMS AN OUTCOME. "Advances the position they stated" is a
+  // direction match and says so; it is not "prices fell", and no sentence built here
+  // asserts an effect in the world. That wall is the whole point of the lane, and a
+  // mechanism line is exactly where it would be easiest to cross by accident.
+  var _DOS_NOUN_FALLBACK = { exec: 'action', record: 'measure', formal: 'action' };
+  // The instrument's noun, in the vocabulary the ✒️ multi-issue block already uses —
+  // "law", "veto", "order", "directive". Read from that map rather than from the
+  // class LABEL, which is a past-participle phrase written for a different slot:
+  // lowercasing it produced "the primary subject of this vetoed" and "of this signed
+  // into law", which is the kind of sentence that tells a reader nobody read it.
+  function _dosNoun(d) {
+    if (d.lane === 'exec' && d.item && d.item.actionClass && _EXEC_OMNI_NOUN[d.item.actionClass]) {
+      return _EXEC_OMNI_NOUN[d.item.actionClass];
+    }
+    if (d.lane === 'exec' && d.power && d.power.key && _EXEC_OMNI_NOUN[d.power.key]) {
+      return _EXEC_OMNI_NOUN[d.power.key];
+    }
+    return _DOS_NOUN_FALLBACK[d.lane] || 'action';
+  }
+  function _dosDidLine(d) {
+    if (d.plain) return d.plain;
+    if (d.lane === 'record') {
+      // The record's own two facts. Assembled in the order a reader asks them in:
+      // what was the House voting on, and what did this member do about it.
+      var q = d.question ? String(d.question) : '';
+      var ballot = d.act ? String(d.act) : '';
+      if (q && ballot) return ballot + ' on the question “' + q + '”.';
+      if (q) return 'The question on the floor was “' + q + '”.';
+      if (ballot) return ballot + '.';
+    }
+    if (d.act && d.title) return d.act + ' — ' + d.title + '.';
+    if (d.title) return d.title + '.';
+    if (d.act) return d.act + '.';
+    return '';
+  }
+  function _dosCountsLine(d, issueKey) {
+    if (d.held) return '';
+    // A curated sentence answers "why this issue" better than any restatement of the
+    // mapping can, so it wins the slot outright when the seed carries one.
+    if (d.counts) return d.counts;
+    var lbl = _issueLabel(issueKey) || 'this issue';
+    var noun = _dosNoun(d);
+    var link = (d.primary === true) ? 'the primary subject of this ' + noun
+             : (d.primary === false) ? 'one of the subjects this ' + noun + ' was mapped to'
+             : 'mapped to this ' + noun;
+    return 'Counted on ' + lbl + ' because that is ' + link +
+      (d.narrow ? ', on a link the curation records as a narrow one' : '') + '.';
+  }
+  // ── WHICH WAY IT CUT, AND WHY THAT PRODUCES THE CHIP ────────────────────────
+  // Its own line, and always printed — including when a curated "why it counts here"
+  // sentence exists, because that sentence explains the SUBJECT and never the
+  // direction. Proclamation 11010 is the case that made this a rule: its curated
+  // sentence describes lowering a trade barrier to hold a grocery price down, which
+  // sounds like an alignment, and it sits beside a chip reading "Says one thing, does
+  // another" with nothing on the face bridging the two.
+  //
+  // THE BUG THIS REPLACES. The direction clause used to read "on this issue it
+  // advances / cuts against THE POSITION THEY STATED", built from `effect`. But
+  // `effect` is measured against the ISSUE, not against what they said. Where the
+  // stated position runs against the issue's own direction — a tariff record on
+  // 💵 Tariffs & Household Prices, say — a document that cuts against the issue is
+  // exactly what they said they would do, so the row printed "cuts against the
+  // position they stated" directly underneath a chip reading "Backs it up". Two
+  // contradictory claims, one row, no way to tell which to believe.
+  //
+  // So the line now states the two facts separately and names the chip they produce.
+  // The chip's own label is quoted verbatim rather than paraphrased, which is what
+  // makes it structurally impossible for this sentence and that chip to disagree.
+  function _dosDirLine(d, issueKey) {
+    if (d.held) return '';
+    var lbl = _issueLabel(issueKey) || 'this issue';
+    var v = VERDICTS[d.verdict];
+    var tail = (v && v.label) ? ' — which is why this row reads “' + v.label + '”.' : '.';
+    // A ballot needs the support meaning spelled out. "A Yea here counts as support"
+    // is not obvious, and it is the single step where a reader most often assumes the
+    // opposite of what the mapping says.
+    if (d.lane === 'record' && d.support) {
+      var meaning = (d.support === 'yea_opposes') ? 'opposition to' : 'support for';
+      var cast = d.act ? String(d.act).toLowerCase() : '';
+      return 'On ' + lbl + ' a Yea counts as ' + meaning + ' the issue’s direction' +
+        (cast ? ', and they ' + cast : '') + tail;
+    }
+    if (!d.effect) return '';
+    var dir = (d.effect === 'advances') ? 'advances' : 'cuts against';
+    var s = 'On ' + lbl + ' this ' + _dosNoun(d) + ' ' + dir + ' the issue’s direction';
+    if (d.stance === 'support' || d.stance === 'oppose') {
+      s += ', and the position they stated runs ' +
+        (d.stance === 'oppose' ? 'against' : 'with') + ' that direction';
+    }
+    return s + tail;
+  }
+  // ── THE VETO PATH ───────────────────────────────────────────────────────────
+  // A veto is the one instrument on this lane where the row's identity and the row's
+  // direction belong to two different actors. The identity is a bill Congress wrote
+  // and passed; the direction is what the President did to it; and the issue mapping
+  // on file describes the BILL, so the reading recorded against the President is the
+  // inverse of it. Every part of that was true before this line existed and none of
+  // it was on the face: a reader saw a bill number, the word "Vetoed", a verdict chip
+  // and — for an overridden veto — a standing token naming yet another actor, with no
+  // sentence anywhere joining them. This says all four beats in order.
+  function _dosVetoLine(d, issueKey) {
+    if (d.held || !d.power || !d.power.blocks) return '';
+    var lbl = _issueLabel(issueKey) || 'this issue';
+    var who = d.ident ? String(d.ident) : 'the measure';
+    var s = 'Veto path: Congress passed ' + who + ' and sent it to the desk, and the President ' +
+      'vetoed it rather than signing it. ';
+    // What happened next, when the file records it. `overridden` is the only token
+    // that changes the answer to "did the measure become law", so it is the only one
+    // that gets its own sentence; the rest keep the standing chip's own words.
+    var key = d.standing && d.standing.key;
+    if (key === 'overridden') {
+      s += 'Congress then passed it over the veto and it became law anyway. ';
+    } else if (key === 'in_force') {
+      s += 'The veto held, so the measure did not become law. ';
+    }
+    // The inversion, stated rather than assumed. `effect` is already the ACT's
+    // direction, so the measure's is its opposite — read off the same field the
+    // ledger used rather than re-derived, so the two cannot drift apart.
+    if (d.effect) {
+      var billDir = (d.effect === 'advances') ? 'cut against' : 'advanced';
+      var actDir = (d.effect === 'advances') ? 'advances' : 'cuts against';
+      s += 'The mapping on file describes the bill, which ' + billDir + ' ' + lbl +
+        ' — so blocking it is the opposite, and this row is filed as an action that ' +
+        actDir + ' the issue.';
+    }
+    return s.trim();
+  }
+  // THE MULTI-ISSUE DISCLOSURE, on the face rather than one tap down. The 🧩 chip
+  // already says "2 issues"; a count is not a disclosure. This says the thing the
+  // count implies and the chip does not: the same document is judged separately on
+  // each issue it touched, so nothing here should be read as "this whole measure was
+  // about this one issue".
+  function _dosMultiLine(d, issueKey) {
+    if (!d.multi || d.held) return '';
+    var n = 0;
+    try { n = d.item.issues.length; } catch (e) { return ''; }
+    if (n < 2) return '';
+    var lbl = _issueLabel(issueKey) || 'this issue';
+    var noun = (d.lane === 'record') ? 'bill' : 'document';
+    return 'Multi-issue ' + noun + ': it was mapped to ' + n + ' issues and is judged separately on each. ' +
+      'This row is only its reading on ' + lbl + '.';
+  }
+  function _dosMechanism(d, issueKey) {
+    return {
+      did: _dosDidLine(d),
+      counts: _dosCountsLine(d, issueKey),
+      dir: _dosDirLine(d, issueKey),
+      veto: _dosVetoLine(d, issueKey),
+      multi: _dosMultiLine(d, issueKey)
+    };
+  }
+
   // ── L2 — one summary row per instrument ─────────────────────────────────────
   // Identity, what they did, which way that landed on this issue, where it stands,
-  // and one line of why it counts. No percentage: a per-item weight printed as a
-  // number reads as a second score, and "primary / supporting / narrow link" is the
-  // same fact in the vocabulary the ✒️ section already uses.
+  // and the mechanism lines. No percentage: a per-item weight printed as a number
+  // reads as a second score, and "primary / supporting / narrow link" is the same
+  // fact in the vocabulary the ✒️ section already uses.
   function _dosRowHtml(d, i, pid, issueKey) {
     var v = d.held ? null : (VERDICTS[d.verdict] || VERDICTS.limited);
     var head =
@@ -5169,12 +5467,33 @@
       (d.standing ? '<span class="pdxdos-rec-st">' + esc(d.standing.ico + ' ' + d.standing.label) + '</span>' : '') +
       (d.multi ? '<span class="pdxdos-rec-tag">🧩 ' + d.item.issues.length + ' issues</span>' : '') +
       (d.date ? '<span class="pdxdos-rec-st">' + esc(d.date) + '</span>' : '');
-    // WHY IT COUNTS, in one plain line. Fails closed: the ✒️ lane curates this
-    // sentence per (document, issue) pair and the 🏛️ lane does not, so a roll call
-    // shows no sentence rather than a manufactured one.
+    // A held item answers a different second question — not "why does this count"
+    // but "why is it NOT being counted" — so it keeps the hold reason in that slot.
+    // It still gets a "What it did" line: a document on file with its mechanism
+    // withheld is exactly the title-only row this pass exists to remove, and the
+    // reason it was held is easier to judge when a reader can see what was held.
+    var m = _dosMechanism(d, issueKey);
+    var wk = function (label, text, cls) {
+      return text
+        ? '<span class="pdxdos-rec-why' + (cls ? ' ' + cls : '') + '">' +
+            (label ? '<b class="pdxdos-rec-wk">' + label + '</b> ' : '') + esc(text) + '</span>'
+        : '';
+    };
+    // ORDER IS THE ARGUMENT. What it did, then — for a veto only — how a bill
+    // Congress passed becomes an action recorded against the President, then why the
+    // issue is the right file for it, then which way it cut and what chip that
+    // produces, then the multi-issue caveat. The veto path sits above the direction
+    // line on purpose: it is the sentence that explains the inversion the direction
+    // line is about to assert, and a reader who meets them the other way round has to
+    // hold an apparent contradiction in mind for a sentence before it resolves.
     var why = d.held
-      ? '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>'
-      : (d.plain ? '<span class="pdxdos-rec-why">' + esc(d.plain) + '</span>' : '');
+      ? (wk('What it did:', m.did) +
+         '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
+      : (wk('What it did:', m.did) +
+         wk('', m.veto, 'pdxdos-rec-veto') +
+         wk('Why it counts here:', m.counts) +
+         wk('Which way it cut:', m.dir) +
+         wk('', m.multi, 'pdxdos-rec-multi'));
     return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
         '<summary>' + head + why + '</summary>' +
@@ -5208,7 +5527,10 @@
           '</div>');
       }
       if (d.effect) {
-        out.push('<div class="pdxdos-d">On <b>' + esc(lbl) + '</b> this document <b>' +
+        // The instrument's own noun, not "document". On a veto row the identity is a
+        // bill and the direction belongs to the act taken against it, so "this
+        // document cuts against the issue" points at the wrong one of the two.
+        out.push('<div class="pdxdos-d">On <b>' + esc(lbl) + '</b> this ' + esc(_dosNoun(d)) + ' <b>' +
           (d.effect === 'advances' ? 'advances' : 'cuts against') + '</b> the issue.</div>');
       }
       if (d.standing) {
@@ -5217,7 +5539,9 @@
           esc(d.standing.why || 'Standing is a separate question from direction — it says whether the action held, not which way it went.') +
           '</div>');
       }
-      if (d.plain) out.push('<div class="pdxdos-d">' + esc(d.plain) + '</div>');
+      // `plain` is not repeated here — it is the "What it did" line on the row face,
+      // one level up, and printing it twice made the expanded body read as if it had
+      // found something new to say.
     } else if (d.lane === 'record') {
       // A roll call carries the question and the ballot, and no curated per-issue
       // sentence — so it gets the question and the ballot. Padding this to match the
@@ -5262,8 +5586,16 @@
     // The curation rationale quotes the sections the mapping rests on. It is a
     // paragraph written for whoever audits the mapping, and it belongs exactly
     // here: available to anyone who wants it, in front of nobody who does not.
+    //   The migrated formal lane lands here for a second reason: its row face shows
+    // the FIRST SENTENCE of the curated account, and the rest of that paragraph has
+    // to be reachable or the truncation would be a quiet edit. Same fold, different
+    // label, because "what the document says" is the wrong promise for an account
+    // assembled from council minutes or a press record.
     if (d.rationale && d.rationale !== d.plain) {
-      out.push('<details class="pdxdos-fine"><summary>What the document actually says ▾</summary>' +
+      var fineLabel = (d.lane === 'formal')
+        ? 'The full account on file ▾'
+        : 'What the document actually says ▾';
+      out.push('<details class="pdxdos-fine"><summary>' + esc(fineLabel) + '</summary>' +
         '<div class="pdxdos-fine-b">' + esc(d.rationale) + '</div></details>');
     }
     return out.join('');
@@ -5285,6 +5617,41 @@
     } catch (e) {}
   }
 
+  // ── DOES THE LIST ADD UP TO THE CLAIM? ──────────────────────────────────────
+  // The dossier makes two statements about the same set of instruments, in two
+  // places: L1 says how many judged items decided the issue, and L2 enumerates the
+  // rows a reader can actually open. Those came from different readers of the same
+  // record and were never checked against each other, so they could disagree —
+  // and they did, in one specific and entirely invisible way.
+  //
+  // THE CASE THAT BROKE. A member's roll-call detail arrives after their profile
+  // does. The engine SUMMARY (counts, verdict) is warm early; the raw per-issue
+  // ITEMS are not. When only the summary was warm, _orProofPicks fell back to the
+  // two representative votes the summary keeps — the strongest each way — and the
+  // list rendered two rows. L1 went on saying "6 judged votes on this issue". Four
+  // votes were counted in the verdict, absent from the list, and nothing on the
+  // card said so. That is precisely a hidden action count.
+  //
+  // This is the reconciliation, computed once and read by both levels. It does not
+  // fix the gap — nothing here can conjure a vote that has not loaded — it MEASURES
+  // it, so the surface can say "3 of 6 are listed; the rest are still loading"
+  // instead of quietly showing three and claiming six. `judged` is read from
+  // judgedCountOf, the same count the score divides by, so the number a reader is
+  // told to expect is the number the verdict actually rests on.
+  function _dosCoverage(pid, issueKey, ov, items) {
+    ov = ov || officialIssue(pid, issueKey);
+    items = items || _dosItems(pid, issueKey, ov);
+    var scored = 0, held = 0;
+    items.forEach(function (d) { if (d.held) held++; else scored++; });
+    var judged = judgedCountOf(ov);
+    if (typeof judged !== 'number' || judged < 0) judged = null;
+    // A row can be listed and still not be judged — an executive document that takes
+    // no side on the stated position is scored `limited` and counts in neither. So
+    // the gap is only ever "judged items with no row", never the reverse.
+    var missing = (judged === null) ? 0 : Math.max(0, judged - scored);
+    return { listed: items.length, scored: scored, held: held, judged: judged, missing: missing };
+  }
+
   // ── L2 — the group ──────────────────────────────────────────────────────────
   // Closed by default, with the count in the summary: the depth of the record is
   // readable without opening anything, which is the one thing this level owes a
@@ -5300,19 +5667,42 @@
       return '<div class="pdxdos-recs" data-pdxdos-empty="1">' +
         '<div class="pdxdos-empty">' + esc(empty) + '</div></div>';
     }
-    var scored = 0, held = 0;
-    items.forEach(function (d) { if (d.held) held++; else scored++; });
-    var sum = items.length + ' ' + (items.length === 1 ? n.one : n.many) + ' on this issue' +
-      (held ? ' — ' + held + ' of them not scorable' : '');
+    var cov = _dosCoverage(pid, issueKey, ov, items);
+    // THE HEADLINE COUNT IS THE ROW COUNT. Whatever else this line says, the number
+    // in front of the noun is the number of rows underneath it — so the expander can
+    // never open onto fewer than it advertised.
+    var sum = cov.listed + ' ' + (cov.listed === 1 ? n.one : n.many) + ' listed here' +
+      (cov.held ? ' — ' + cov.held + ' of them not scorable' : '');
+    // AND THE COUNT IS ENUMERATED, not merely asserted. A collapsed "9 actions listed
+    // here" is a number a reader has to take on trust and then open a drawer to
+    // audit; naming every instrument on the closed face turns it into something they
+    // can count. Every row is named — no "and 4 more", because a truncated
+    // enumeration is the same hiding problem wearing a different label. Executive
+    // identities are document numbers and stay short on their own; the migrated
+    // formal lane's identity is a headline sentence, so it is clipped at a word
+    // boundary with an ellipsis, which shortens a label without dropping an item.
+    var enumTxt = items.map(function (d) {
+      var s = String(d.ident || '').trim() || 'Unnamed action';
+      if (s.length > 44) s = s.slice(0, 44).replace(/\s+\S*$/, '') + '…';
+      return s;
+    }).join(' · ');
+    var gap = cov.missing
+      ? '<div class="pdxdos-gap">⏳ ' + esc(cov.judged + ' ' + (cov.judged === 1 ? n.one : n.many) +
+          ' were judged on this issue and ' + cov.scored + ' of them can be listed right now. The other ' +
+          cov.missing + ' are counted in the verdict; their detail arrives with this member’s full ' +
+          'roll-call record and this list fills in when it lands. Nothing has been dropped.') + '</div>'
+      : '';
     // The lane asymmetry, stated once rather than papered over row by row.
     var note = (items[0] && items[0].lane === 'record')
       ? '<div class="pdxdos-note">A roll call carries its question, its ballot and its source. It does not ' +
-        'carry a written explanation the way an executive document does — so these rows are shorter, ' +
-        'and nothing has been added to make them look the same.</div>'
+        'carry a written explanation the way an executive document does — so its two lines are assembled ' +
+        'from the record itself rather than written, and nothing has been added to make them look the same.</div>'
       : '';
     return '<details class="pdxdos-recs">' +
         '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
-          ' <span aria-hidden="true">▾</span></summary>' +
+          ' <span aria-hidden="true">▾</span>' +
+          '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
+        gap +
         items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey); }).join('') +
         note +
       '</details>';
@@ -5399,13 +5789,39 @@
     }
     // WHAT THE RECORD CONCLUDED, and WHICH LANE concluded it. One verdict per
     // issue, resolved once — this reprints it, it does not re-decide it.
-    var lane = (r.verdict.basis === 'public_record')
-      ? 'Decided by the public record — statements, news and controversies — because no formal ' +
-        n.one + ' on this issue could settle it.'
-      : (r.verdict.basis === 'action')
-        ? 'Decided by the formal record: ' + (r.actions.judged || r.evidence.actions) + ' judged ' +
-          ((r.actions.judged || r.evidence.actions) === 1 ? n.one : n.many) + ' on this issue.'
-        : 'No lane has been able to decide this one yet.';
+    //
+    // THE COUNT HAS TO BE THE JUDGED COUNT. This line used to read
+    // `r.actions.judged || r.evidence.actions`, and that fallback is the bug: the
+    // evidence count includes items on file that were explicitly NOT scored — a
+    // memorandum held back for circularity, say — so a row with two judged actions
+    // and one held one announced "3 judged actions" and then listed two verdicts.
+    // When no judged count exists the sentence now simply does not name a number,
+    // because there is no honest number to name.
+    var jn = (typeof r.actions.judged === 'number' && r.actions.judged > 0) ? r.actions.judged : null;
+    var cov = _dosCoverage(pid, issueKey, r.ov);
+    var lane;
+    if (r.verdict.basis === 'public_record') {
+      lane = 'Decided by the public record — statements, news and controversies — because no formal ' +
+        n.one + ' on this issue could settle it.';
+    } else if (r.verdict.basis === 'action') {
+      lane = jn
+        ? 'Decided by the formal record: ' + jn + ' judged ' + (jn === 1 ? n.one : n.many) + ' on this issue.'
+        : 'Decided by the formal record.';
+      // WHERE TO FIND THEM. A count with no route to the items is the thing this
+      // whole level is meant to stop being, so the sentence that names the number
+      // also says whether the list below can show all of them.
+      if (jn && !cov.missing) {
+        lane += ' All ' + jn + ' are listed below' +
+          (cov.held ? ', with ' + cov.held + ' further on file that could not be scored' : '') + '.';
+      } else if (jn && cov.missing) {
+        lane += ' ' + cov.scored + ' of them are listed below; the other ' + cov.missing +
+          ' arrive with this member’s full roll-call record.';
+      } else if (cov.listed) {
+        lane += ' ' + cov.listed + ' item' + (cov.listed === 1 ? ' is' : 's are') + ' listed below.';
+      }
+    } else {
+      lane = 'No lane has been able to decide this one yet.';
+    }
     lines.push('<div class="pdxdos-line"><span class="pdxdos-k">The record</span>' +
       '<span class="pdxdos-v pdxdos-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
       '</div>' +
@@ -5417,13 +5833,35 @@
     var ev = _stEvidenceHtml(r);
     // THE COVERAGE CAVEAT, when there is one to make. Thin and untested rows say
     // why; a tested row resting on one or two items says that the direction is real
-    // and the pattern is not established. Nothing here softens a verdict — it says
-    // how far the verdict reaches.
+    // and the pattern is not established.
+    //
+    // IT MUST NEVER FIRE AT ZERO. The old form printed "This rests on 0 items"
+    // straight from `evidence.total`, and a row can be tested with that total at
+    // zero — the deciding lane's own counts are elsewhere. Beside a line reading
+    // "backed up with 3 judged actions" that is not a caveat, it is a contradiction,
+    // and a reader has no way to tell which of the two numbers to believe. So the
+    // warning now requires something real to warn about, and it names WHAT the
+    // items are rather than leaving "item" to mean whichever of the two the reader
+    // guesses at.
     var caveat = '';
     if (res.state !== 'tested' && res.why) caveat = res.why;
-    else if (res.state === 'tested' && r.evidence.total <= 2) {
-      caveat = 'This rests on ' + r.evidence.total + ' item' + (r.evidence.total === 1 ? '' : 's') +
-        '. The direction is real; a pattern is not established at that depth.';
+    else if (res.state === 'tested' && r.evidence.total > 0 && r.evidence.total <= 2) {
+      var depth = [];
+      if (r.evidence.actions > 0) {
+        depth.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+      }
+      if (r.evidence.public > 0) {
+        depth.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
+      }
+      caveat = 'This rests on ' + (depth.length ? depth.join(' and ') :
+          r.evidence.total + ' item' + (r.evidence.total === 1 ? '' : 's')) +
+        // A Mixed row has no single direction, so "the direction is real" is the one
+        // thing this caveat must not say there — it would read as a verdict the
+        // bucket explicitly declined to reach. What is real on a Mixed row is the
+        // split: the record genuinely went both ways, on very few items.
+        '. ' + (r.verdict.token === 'mixed'
+          ? 'The split is real; a pattern is not established at that depth.'
+          : 'The direction is real; a pattern is not established at that depth.');
     }
     // WHERE THIS LANDS IN THE SCORE. The profile's headline figure is the pooled
     // ⚖️ Direction match and this issue is one input to it — said outright, so a
@@ -5563,12 +6001,11 @@
     }
 
     // ── The identity block ────────────────────────────────────────────────────
-    // Face, name, office/state/party, issue, verdict — in that order, which is the
-    // order the shared image itself leads with. The face is the cue the sheet was
-    // missing entirely: a reader who tapped a card about Mike Simpson used to land
-    // on a page whose first pixels were empty gradient, and had to read a 0.62rem
-    // eyebrow and a name in body text before anything confirmed they were in the
-    // right place. Recognition is faster than reading, so the photo goes first.
+    // Issue, verdict, then face + name + office/state/party. The face is still the
+    // fastest cue for a reader arriving from a shared card — recognition beats
+    // reading — but it no longer costs the issue and the result their place at the
+    // top of the sheet. It sits one line down, much smaller, on the same
+    // row as the name and the lane eyebrow.
     var _id = _gapIdentity(pid);
     // ── The path in, made visible ─────────────────────────────────────────────
     // A reader arrives here by tapping a row in the issue index — a coloured line
@@ -5582,20 +6019,40 @@
     var _titleAttr = _tskin.on
       ? ' class="pdxgap-title pdxc-ic" style="' + _tskin.style + '"'
       : ' class="pdxgap-title"';
+    // ── The header, issue-first ───────────────────────────────────────────────
+    // WHAT CHANGED AND WHY. This header used to open with an identity slab: a
+    // 3.1rem face beside a 0.62rem eyebrow, the member's name at 1.02rem and an
+    // office/district/state/party sub-line — a large share of a phone's first
+    // screen — before the issue was named and before the result was stated. That
+    // ordering was chosen for the shared-card arrival, where recognition matters;
+    // but the overwhelming majority of opens come from a stance row or an issue
+    // index row INSIDE a profile, where the reader already knows exactly whose
+    // record they are reading and is waiting on the one thing the slab pushed
+    // below the fold: what the record said about this issue.
+    //
+    // So the sheet now leads with the issue and its result, and the identity moves
+    // to a compact strip directly beneath them. Nothing is dropped — the face, the
+    // name, the office line and the party chip are all still here, still first in
+    // reading order among the person facts, and the arrival reader still gets
+    // "same person, same card" within the first two lines. It is a re-ordering and
+    // a re-sizing, not a removal.
     var head =
       '<div class="pdxgap-h">' +
-        '<div class="pdxgap-id">' + _gapFaceHtml(_id) +
-          '<div class="pdxgap-idmain">' +
-            '<div class="pdxgap-eyebrow">' + esc(eyebrow) + '</div>' +
-            '<div class="pdxgap-who">' + esc(_id.name) + '</div>' +
-            _gapSubHtml(_id) +
-          '</div>' +
-        '</div>' +
         '<div' + _titleAttr + '>' + esc(lbl) + '</div>' +
         _dosBucketHtml(_dosRow) +
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.
         '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
+        // Whose record this is, on one line, under the finding. The eyebrow that
+        // used to sit above the name is folded in here as the lane cue it always
+        // was, so the header carries the same facts in fewer rows.
+        '<div class="pdxgap-id">' + _gapFaceHtml(_id) +
+          '<div class="pdxgap-idmain">' +
+            '<div class="pdxgap-who">' + esc(_id.name) + '</div>' +
+            _gapSubHtml(_id) +
+          '</div>' +
+          '<span class="pdxgap-eyebrow">' + esc(eyebrow) + '</span>' +
+        '</div>' +
         // Person-level share, at the TOP of the sheet. This is the surface a shared
         // card lands on and the surface a phone reader reaches from the profile, and
         // until now its only share sat at the bottom of the 🏛️ column — below the
@@ -6136,6 +6593,13 @@
     },
     dossierDetailHtml: _dosDetailHtml,
     dossierStepHtml: _dosStepHtml,
+    // The two derivations the levels have to agree on, exported so a test can hold
+    // them to each other directly: the mechanism sentences one row shows, and the
+    // reconciliation between the count L1 claims and the rows L2 can enumerate.
+    dossierMechanism: _dosMechanism,
+    dossierCoverage: function (pid, issueKey) {
+      return _dosCoverage(pid, issueKey, officialIssue(pid, issueKey));
+    },
     // Phase 11: the plain-language methodology / boundary explainer (opened from the
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,

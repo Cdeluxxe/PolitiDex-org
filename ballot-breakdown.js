@@ -138,6 +138,30 @@
       return '';
     }
 
+    // ── ONE LIVE SCORE FOR EVERY CARD THIS FILE DRAWS ─────────────────────────
+    // The all-time Direction Match, computed now, from the same read the profile
+    // hero renders — never the stored `p.score`. `p.score` is the retired Promise
+    // percentage: it is a value written into the record at some point in the past
+    // and never recomputed, which is exactly how a preview card came to advertise
+    // 85% over a profile that read 73%.
+    //
+    // Routed through window._pdxLedgerSlot (compare-hub.js) rather than calling
+    // PDXWordAction directly, so this file cannot become a second opinion on when
+    // a number is publishable: the slot owns the fail-closed floor and returns
+    // `pct: null` on every branch that has no live figure, along with the prose
+    // saying why. If compare-hub has not loaded, this returns the same null shape
+    // — a missing number, not an old one.
+    function _liveDirectionMatch(pid, d) {
+      try {
+        if (typeof window._pdxLedgerSlot === 'function') {
+          var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+          var s = window._pdxLedgerSlot(d, { pid: pid, status: status });
+          if (s) return { pct: (typeof s.pct === 'number') ? s.pct : null, sub: s.sub || '' };
+        }
+      } catch (e) {}
+      return { pct: null, sub: '' };
+    }
+
     function _ballotCandidates(raceKey) {
       if (typeof CMP_DATA === 'undefined') return [];
       var userState = (window._hasUserLocation && window._currentVoterLocation && window._currentVoterLocation.state) || '';
@@ -276,7 +300,8 @@
         }
 
         if (match) {
-          results.push({ pid: pid, name: d.name, office: d.office, score: window._pdxDisplayScore(d), icon: d.icon });
+          results.push({ pid: pid, name: d.name, office: d.office,
+                         score: _liveDirectionMatch(pid, d).pct, icon: d.icon });
         }
       });
       results.sort(function(a, b) {
@@ -894,6 +919,17 @@
     // new voter sees exactly who their representatives are before committing.
     // Resolves the same seats homeBuildFromLocation() does, then decorates each
     // with the display fields the cards need (name, office, party, photo, score).
+    //
+    // THE SCORE IS THE PROFILE'S SCORE. It used to be window._pdxDisplayScore(d) —
+    // the stored `p.score`, which is the retired Promise percentage and is frozen
+    // at whatever was last written to the record. A preview card could therefore
+    // advertise 85% for someone whose profile, computed live from the same data
+    // the moment it opened, read 73%. Both numbers now come from one place:
+    // _pdxLedgerSlot → PDXWordAction.read(), the all-time Direction Match the
+    // profile hero prints. It is null below the publishable floor and null when
+    // the module has not loaded, and the card renders a dash for null — a
+    // non-number is the correct answer when there is no live number, and it is a
+    // better answer than an old one.
     window._homePreview = function () {
       var resolved = {};
       try { resolved = _homeResolveSlots() || {}; } catch (e) { resolved = {}; }
@@ -909,9 +945,7 @@
         var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
         if (!d) return;
         var pos = posByKey[key] || { key: key, label: key, icon: '🏛', color: '#4ade80' };
-        var sc = (typeof window._pdxDisplayScore === 'function')
-          ? window._pdxDisplayScore(d)
-          : (typeof d.score === 'number' ? d.score : null);
+        var slot = _liveDirectionMatch(pid, d);
         reps.push({
           key: key,
           seat: pos.label || (d.office || 'Seat'),
@@ -922,7 +956,10 @@
           office: d.office || '',
           party: d.party || '',
           photoUrl: (typeof window._getPhotoUrl === 'function') ? (window._getPhotoUrl(pid) || '') : '',
-          score: (sc === null || sc === undefined) ? null : sc
+          score: slot.pct,
+          // What to say when there is no number. Straight from the ledger slot, so
+          // the card never has to invent a reason of its own.
+          scoreNote: slot.sub
         });
       });
       var loc = _homeSnapshotLoc();

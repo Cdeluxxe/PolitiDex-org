@@ -18376,10 +18376,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       color:#fff; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .pdx-ob-rep-meta { font-family:'Barlow Condensed',sans-serif; font-size:0.74rem; letter-spacing:0.02em; color:#7e93b4;
       line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .pdx-ob-rep-score { flex:none; text-align:center; min-width:3.1rem; }
+    .pdx-ob-rep-score { flex:none; text-align:center; min-width:3.1rem; max-width:5.6rem; }
     .pdx-ob-rep-score b { display:block; font-family:'Bebas Neue',sans-serif; font-size:1.25rem; line-height:1; }
+    /* The caption is a figure's label when there is a figure ("Direction match")
+       and the ledger's own reason when there is not ("Not enough record yet"), so
+       it has to be able to wrap. Two lines, clamped — the reason is worth the
+       height, a third line is not. */
     .pdx-ob-rep-score span { font-family:'Barlow Condensed',sans-serif; font-size:0.54rem; letter-spacing:0.1em;
-      text-transform:uppercase; color:#6b82a8; }
+      text-transform:uppercase; color:#6b82a8; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+      overflow:hidden; line-height:1.25; }
     .pdx-ob-explain { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:1.2rem; }
     .pdx-ob-explain-card { border-radius:0.85rem; padding:0.7rem 0.8rem; }
     .pdx-ob-explain-card.is-home { background:linear-gradient(135deg,rgba(22,163,74,0.18),rgba(15,23,42,0.4));
@@ -20282,6 +20287,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return p === 'R' ? 'Republican' : p === 'D' ? 'Democrat' : p === 'I' ? 'Independent'
         : (p === 'F' || p === 'Forward') ? 'Forward Party' : '';
     }
+    // The colour ramp for the Direction Match figure. Applied only when there IS a
+    // figure — a null score is drawn steel-grey with a dash, never tinted, because
+    // a colour on "—" is a verdict on a record we have not published one for.
     function scoreColor(sc){
       if (sc === null || sc === undefined) return '#7e93b4';
       if (sc >= 70) return '#4ade80';
@@ -20293,8 +20301,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? '<img loading="lazy" decoding="async" src="' + esc(r.photoUrl) + '" alt="' + esc(r.name) + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<span class=&quot;pdx-ob-rep-fallback&quot;>' + (r.icon || '🏛') + '</span>\'">'
         : '<span class="pdx-ob-rep-fallback">' + (r.icon || '🏛') + '</span>';
       var meta = [esc(r.office || r.seat), partyLabel(r.party)].filter(Boolean).join(' · ');
-      var hasScore = (r.score !== null && r.score !== undefined);
+      // The figure and its caption both come from _homePreview, which reads the
+      // live all-time Direction Match through _pdxLedgerSlot — the same number and
+      // the same fail-closed floor the profile uses. This card used to print
+      // `r.score + '%'` under the caption "Promise": the stored, stale Promise
+      // percentage, which is how the preview and the profile came to disagree.
+      // Below the floor there is no number, so the card prints a dash and the
+      // ledger's own reason ("Not enough record yet") instead of an old figure.
+      var hasScore = (typeof r.score === 'number');
       var scTxt = hasScore ? (r.score + '%') : '—';
+      var scLbl = hasScore ? 'Direction match' : (r.scoreNote || 'No record yet');
       return '<div class="pdx-ob-rep" style="--c:' + (r.color || '#4ade80') + ';">' +
         '<div class="pdx-ob-rep-photo">' + photo + '</div>' +
         '<div class="pdx-ob-rep-main">' +
@@ -20303,8 +20319,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           (meta ? '<div class="pdx-ob-rep-meta">' + meta + '</div>' : '') +
         '</div>' +
         '<div class="pdx-ob-rep-score">' +
-          '<b style="color:' + scoreColor(r.score) + ';">' + scTxt + '</b>' +
-          '<span>' + (hasScore ? 'Promise' : 'No record') + '</span>' +
+          '<b style="color:' + scoreColor(hasScore ? r.score : null) + ';">' + scTxt + '</b>' +
+          '<span>' + esc(scLbl) + '</span>' +
         '</div>' +
       '</div>';
     }

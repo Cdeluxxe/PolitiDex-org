@@ -1736,10 +1736,19 @@
     // number. Returns `tint` (the verdict's own colour) only when there is a
     // verdict to colour; callers must not substitute a ramp of their own.
     //
-    // Signature is unchanged except that `opts.pid` is now read — without a pid
-    // there is no action half to test the word against (PDXConsistency
-    // .officialRecord(pid, issueKey)), so a caller that omits it gets the honest
-    // "no read" shape rather than a wrong one.
+    // `pct` IS THE PROFILE'S NUMBER, OR NOTHING. Most callers render the prose and
+    // ignore this; the few surfaces that are supposed to print a figure (the Home
+    // Team onboarding preview) used to reach for the stored `p.score` instead —
+    // the retired Promise percentage, frozen at whatever it was when it was last
+    // written, so a card could advertise 85% over a profile reading 73%. It is the
+    // same all-time PDXWordAction.read() the profile hero prints, off the same
+    // read as the prose beside it, and it is null on every unpublishable branch:
+    // there is no branch of this function that can return a stale number, because
+    // there is no branch that reads a stored one.
+    //
+    // `opts.pid` is required — without a pid there is no action half to test the
+    // word against (PDXConsistency.officialRecord(pid, issueKey)), so a caller that
+    // omits it gets the honest "no read" shape rather than a wrong one.
     window._pdxLedgerSlot = function(p, opts) {
       opts = opts || {};
       var r = null;
@@ -1748,19 +1757,20 @@
         if (opts.pid && wa && typeof wa.read === 'function') r = wa.read(opts.pid, p);
       } catch (e) { r = null; }
       if (r && r.publishable && r.verdict && r.verdict.label) {
-        return { state: 'wa', glyph: r.verdict.ico || '⚖', label: 'Word vs Action', sub: r.verdict.label, tint: r.verdict.color || '' };
+        return { state: 'wa', glyph: r.verdict.ico || '⚖', label: 'Word vs Action', sub: r.verdict.label,
+                 tint: r.verdict.color || '', pct: (typeof r.pct === 'number') ? r.pct : null };
       }
       var cov = (r && r.coverage) || null;
       if (opts.status === 'candidate') {
-        return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '' };
+        return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '', pct: null };
       }
       if (cov && cov.tested > 0) {
-        return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '' };
+        return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '', pct: null };
       }
       if (cov && cov.word > 0) {
-        return { state: 'wa', glyph: '…', label: 'Word vs Action', sub: 'No matched votes yet', tint: '' };
+        return { state: 'wa', glyph: '…', label: 'Word vs Action', sub: 'No matched votes yet', tint: '', pct: null };
       }
-      return { state: 'empty', glyph: '—', label: 'Word vs Action', sub: (opts.status === 'former') ? 'Record archived' : 'No stated positions yet', tint: '' };
+      return { state: 'empty', glyph: '—', label: 'Word vs Action', sub: (opts.status === 'former') ? 'Record archived' : 'No stated positions yet', tint: '', pct: null };
     };
 
     // Consistent "Office • District • State" line for every compact card. District

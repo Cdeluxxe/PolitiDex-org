@@ -256,8 +256,17 @@ eq(pcts(xl1), 0, "L1: no percentage on the executive lane either");
 const recs = C.dossierRecordsHtml(MEMBER, ISSUE);
 has(recs, '<details class="pdxdos-recs">', "L2: the group is a <details>…");
 hasnt(recs, '<details class="pdxdos-recs" open', "L2: …and it is closed by default");
-has(recs, "on this issue", "L2: the summary says how many instruments are behind the issue");
-has(recs, "votes on this issue", "L2: in the member lane's noun");
+// THE NUMBER ON THE FACE IS THE NUMBER OF ROWS. The summary used to read "N votes
+// on this issue", which is a claim about the record; the rows under it are a claim
+// about what loaded. Those two can differ, and when they did the expander opened
+// onto fewer rows than it advertised with nothing saying so. "listed here" is a
+// claim only about the list, and the assertion below holds it to that literally.
+has(recs, "votes listed here", "L2: the summary counts what the list actually contains");
+{
+  const head = Number((recs.match(/🏛️<\/span> (\d+) /) || [])[1]);
+  const nRows = (recs.match(/class="pdxdos-rec" data-pdxdos-i=/g) || []).length;
+  eq(head, nRows, "L2: the count on the closed summary equals the rows the expander opens onto");
+}
 has(recs, '<details class="pdxdos-rec" data-pdxdos-i="0"', "L2: one row per instrument, indexed");
 has(recs, "H.R. 1", "L2: naming the bill");
 has(recs, "H.R. 9", "L2: including the one the panel above never quotes");
@@ -361,8 +370,13 @@ const sheet = C.gapViewHtml(MEMBER, ISSUE);
 has(sheet, 'class="pdxdos"', "sheet: L1 is in the sheet");
 has(sheet, "pdxdos-recs", "sheet: L2 is in the sheet");
 has(sheet, "pdxdos-step", "sheet: so is the issue stepper");
+// The header leads with the issue and its result; the identity strip sits under
+// them, above the assembled answer. A reader arriving from a stance row already
+// knows who this is — what they are waiting on is what the record said.
+ok(sheet.indexOf('class="pdxgap-title') < sheet.indexOf('class="pdxgap-id"'),
+  "sheet: issue first — the title leads, not the identity slab");
 ok(sheet.indexOf('class="pdxgap-id"') < sheet.indexOf('class="pdxdos"'),
-  "sheet: identity first — a reader has to know who this is before what they did");
+  "sheet: identity is still in the header, above the assembled answer — moved, not dropped");
 const sidesAt = sheet.indexOf('class="pdxgap-sides');
 ok(sidesAt > 0 && sheet.indexOf('class="pdxdos"') < sidesAt,
   "sheet: then the assembled answer, above the two record panels");
@@ -415,6 +429,259 @@ ok(/data-pdxdos-i\]'\);\s*\n\s*if \(dos\) _dosMount\(dos\);/.test(cs),
 // The warm repaint reaches an open dossier.
 ok(/_gapOpen && String\(_gapOpen\.pid\) === String\(pid\)/.test(cs),
   "cold: a warm event repaints the dossier that is open for that member");
+
+// ── 12. RECEIPT COMPLETENESS ───────────────────────────────────────────────
+// A reader who opens a dossier should be able to answer four questions without
+// leaving it: which formal actions are counted, what each one did, why it counts on
+// THIS issue, and how much record is behind the verdict. The sections above check
+// that the levels exist and stay in the right order; this one checks that they say
+// enough to be worth opening.
+ok(typeof C.dossierMechanism === "function", "api: the mechanism lines are derivable on their own");
+ok(typeof C.dossierCoverage === "function", "api: so is the count reconciliation");
+
+// ── 12a. Every row carries BOTH sentences, in both lanes ───────────────────
+// Coverage, not spot-checks: iterate the whole list and require both slots on every
+// single row. A lane that fails closed on the second sentence — which is what the
+// 🏛️ lane used to do — passes a spot-check on the ✒️ lane and ships title-only rows.
+for (const [lane, pid, items] of [["🏛️", MEMBER, mItems], ["✒️", PREZ, xItems]]) {
+  for (const d of items) {
+    const m = C.dossierMechanism(d, ISSUE);
+    ok(!!m.did && /[.!?]$/.test(m.did.trim()),
+      `${lane} ${d.ident}: has a finished "what it did" sentence (got ${JSON.stringify(m.did)})`);
+    // A held row answers "why is this NOT counted" instead, and says so in its own
+    // slot — so it is exempt from the why-it-counts sentence and from nothing else.
+    if (d.held) {
+      ok(!!d.heldWhy, `${lane} ${d.ident}: a held row still states why it was held`);
+    } else {
+      ok(!!m.counts && /[.!?]$/.test(m.counts.trim()),
+        `${lane} ${d.ident}: has a finished "why it counts here" sentence (got ${JSON.stringify(m.counts)})`);
+      ok(m.counts !== m.did, `${lane} ${d.ident}: the two sentences answer different questions`);
+      // WHICH WAY IT CUT is a third slot, not a clause tacked onto the second. It has
+      // to be there on every scored row, and it has to name the verdict the chip on
+      // the same row is showing — that quotation is what makes it impossible for the
+      // sentence and the chip to drift into disagreeing.
+      ok(!!m.dir && /[.!?]”?$/.test(m.dir.trim()),
+        `${lane} ${d.ident}: has a finished "which way it cut" sentence (got ${JSON.stringify(m.dir)})`);
+      const vLabel = (C.VERDICTS[d.verdict] || {}).label;
+      if (vLabel) {
+        has(m.dir, vLabel, `${lane} ${d.ident}: the direction line quotes the verdict on its own chip`);
+      }
+    }
+  }
+}
+// THE CONTRADICTION THIS SLOT EXISTS TO KILL. The direction clause used to be built
+// from `effect` and captioned "the position they stated" — but `effect` is measured
+// against the ISSUE. Where a stated position runs against the issue's own direction,
+// that printed "cuts against the position they stated" underneath a chip reading
+// "Backs it up". No row may phrase it that way again, on any lane.
+for (const [lane, items] of [["🏛️", mItems], ["✒️", xItems]]) {
+  for (const d of items) {
+    if (d.held) continue;
+    const m = C.dossierMechanism(d, ISSUE);
+    hasnt(m.dir, "the position they stated.",
+      `${lane} ${d.ident}: direction is stated against the issue, never asserted of the stated position`);
+    hasnt(m.counts, "advances the position",
+      `${lane} ${d.ident}: and the why-it-counts slot does not smuggle a direction claim back in`);
+  }
+}
+// And they reach the row face, labelled, on both lanes.
+for (const [lane, html] of [["🏛️", recs], ["✒️", C.dossierRecordsHtml(PREZ, ISSUE)]]) {
+  has(html, "What it did:", `${lane} face: the mechanism is on the row, not one tap down`);
+  has(html, "Why it counts here:", `${lane} face: so is the reason it counts on this issue`);
+  has(html, "Which way it cut:", `${lane} face: and so is the direction that produced the chip`);
+  has(html, 'class="pdxdos-rec-wk"', `${lane} face: all three slots are labelled rather than run together`);
+}
+// The 🏛️ lane's sentences are ASSEMBLED FROM THE RECORD, not invented: the question
+// and the ballot are the two things a roll call actually carries.
+const hr9Row = mItems.find((d) => d.ident === "H.R. 9");
+const hr9 = C.dossierMechanism(hr9Row, ISSUE);
+has(hr9.did, "On Passage", "🏛️: what it did names the question that was on the floor");
+has(hr9.did, "Voted Nay", "🏛️: and the ballot this member cast on it");
+has(hr9.dir, "a Yea counts as support",
+  "🏛️: the direction line spells out the support meaning — the step a reader most often reads backwards");
+// The ✒️ lane prefers curated prose over the derivation whenever the seed has it.
+const eoRow = xItems.find((d) => d.ident === "EO 14001");
+eq(C.dossierMechanism(eoRow, ISSUE).did, eoRow.plain,
+  "✒️: the curated per-issue sentence is used verbatim as what-it-did");
+// No legal wall on the face: the rationale is L4's, and it stays there.
+hasnt(recs, "Section 3(b)", "face: the curation rationale is not on the row face");
+has(C.dossierDetailHtml(PREZ, ISSUE, 0), "Section 3(b)", "L4: it is still one tap deeper, in full");
+
+// ── 12b. Multi-issue rows say so, and say what they are judged on here ─────
+const multiRow = mItems.find((d) => d.multi);
+ok(!!multiRow, "multi: the fixture has a multi-issue bill to disclose");
+const multi = C.dossierMechanism(multiRow, ISSUE);
+has(multi.multi, "3 issues", "multi: the row states how many issues the bill was mapped to");
+has(multi.multi, "judged separately on each",
+  "multi: and that each one is judged on its own, so this is not a verdict on the whole bill");
+has(multi.multi, "Lower Taxes", "multi: naming the one issue this row is a reading of");
+eq(C.dossierMechanism(hr9Row, ISSUE).multi, "",
+  "multi: a single-issue bill carries no disclosure, because there is nothing to disclose");
+has(recs, "pdxdos-rec-multi", "multi: and it renders on the face beside the 🧩 chip");
+
+// ── 12c. The count on the face is the count in the list ────────────────────
+// The reconciliation, checked against the enumeration rather than against itself.
+const cov = C.dossierCoverage(MEMBER, ISSUE);
+eq(cov.listed, mItems.length, "coverage: `listed` is the number of rows the expander opens onto");
+eq(cov.missing, 0, "coverage: a warm record has no gap between what is judged and what is listed");
+has(l1, "All " + cov.judged + " are listed below",
+  "L1: a warm dossier says outright that every judged item is reachable");
+
+// ── 12d. THE GAP CASE — the summary is warm and the items are not ──────────
+// This is the failure this section exists for. A member's per-issue vote detail
+// arrives after the engine summary does; while it is missing, the list falls back to
+// the two representative votes the summary keeps and L1 goes on naming the full
+// count. Two rows, a claim of five, and nothing saying so. The gap cannot be closed
+// here — the votes have not loaded — so the contract is that it is DISCLOSED.
+//
+// It takes its own member because the gap only opens when the record is DEEPER than
+// the two votes the summary holds on to, and MEMBER's is exactly two votes deep.
+{
+  const DEEP = "rep_deep_record";
+  ctx.PROFILES[DEEP] = { name: "Ada Ferreira", office: "U.S. Representative", state: "Maine", party: "D" };
+  ctx.CMP_DATA[DEEP] = {};
+  ctx.ISSUE_STANCE_DATA[DEEP] = stances;
+  ctx.PDXVotingRecord._records[DEEP] = [1, 2, 3, 4, 5].map((i) => ({
+    kind: "vote", rollcallId: 500 + i, measureId: 600 + i, number: "H.R. " + (100 + i),
+    date: "2025-0" + i + "-14", action: "On Passage", position: i === 3 ? "nay" : "yea",
+    isProcedural: false, title: "Rate Act " + i,
+    source: { url: "https://www.congress.gov/roll-call-vote/" + (500 + i), label: "Congress.gov" },
+    issues: [{ issueKey: ISSUE, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+  }));
+  const warmCov = C.dossierCoverage(DEEP, ISSUE);
+  eq(warmCov.missing, 0, "gap: warm, the deep record lists everything it judged");
+  eq(warmCov.listed, 5, "gap: all five rows, not the two the summary keeps");
+
+  const realItems = ctx.window._pdxRecordIssueItems;
+  ctx.window._pdxRecordIssueItems = () => null;
+  const gapItems = C.dossierItems(DEEP, ISSUE);
+  const gapCov = C.dossierCoverage(DEEP, ISSUE);
+  const gapRecs = C.dossierRecordsHtml(DEEP, ISSUE);
+  const gapL1 = C.dossierSummaryHtml(DEEP, ISSUE);
+  ok(gapItems.length < warmCov.judged,
+    `gap: the fixture actually reproduces a short list (${gapItems.length} of ${warmCov.judged})`);
+  eq(gapCov.missing, warmCov.judged - gapItems.length, "gap: the reconciliation measures it exactly");
+  has(gapRecs, 'class="pdxdos-gap"', "gap: L2 carries a disclosure rather than a shorter list");
+  has(gapRecs, "are counted in the verdict", "gap: saying the missing items still count…");
+  has(gapRecs, "Nothing has been dropped", "gap: …and that they were not filtered out");
+  has(gapL1, "arrive with this member", "gap: L1 says where the rest of them are, beside the count it claims");
+  {
+    const head = Number((gapRecs.match(/🏛️<\/span> (\d+) /) || [])[1]);
+    const rows = (gapRecs.match(/class="pdxdos-rec" data-pdxdos-i=/g) || []).length;
+    eq(head, rows, "gap: even mid-gap, the number on the summary is the number of rows below it");
+    ok(head < warmCov.judged, "gap: and it is honest about being smaller than the judged count");
+  }
+  ctx.window._pdxRecordIssueItems = realItems;
+}
+
+// ── 12e. No depth warning that contradicts the count beside it ─────────────
+// "Backed up with N judged actions" and "this rests on 0 items" cannot both be true,
+// and the old caveat printed the second straight from a total that can legitimately
+// be zero. It now requires something real to warn about and names what the items
+// ARE, so the two lines can be read against each other.
+ok(/r\.evidence\.total > 0 && r\.evidence\.total <= 2/.test(cs),
+  "caveat: the depth warning is gated on there being any depth to warn about");
+hasnt(l1, "rests on 0", "L1: no dossier claims a verdict rests on nothing");
+hasnt(xl1, "rests on 0", "L1 ✒️: nor on the executive lane");
+// Where it does fire, it counts in the row's own nouns rather than a bare "item".
+{
+  const thin = C.dossierSummaryHtml(MEMBER, "border_security");
+  if (thin.includes("This rests on")) {
+    ok(/This rests on \d+ (vote|action|public receipt)/.test(thin),
+      "caveat: it says what the items are, not just how many");
+  }
+}
+// The lane line never launders the evidence count into a judged count.
+hasnt(cs, "+ (r.actions.judged || r.evidence.actions) + ' judged '",
+  "L1: the judged count has no fallback to the evidence count — held items are not judged");
+
+// ── 13. THE VETO ROW ───────────────────────────────────────────────────────
+// A veto is the only instrument on this lane where the row's identity and the row's
+// direction belong to different actors: Congress wrote and passed the bill, the
+// President blocked it, and the issue mapping on file describes the bill. Before this
+// section existed the face showed a bill number, the word "Vetoed", a verdict chip
+// and — when the veto had been overridden — a standing token naming a third actor,
+// with no sentence joining any of them. Two vetoes here: one Congress overrode, one
+// that held, because "did the measure become law" has opposite answers in those two
+// cases and the row has to say which.
+// They hang off the president already seeded, on a second issue key, so the
+// lower_taxes counts every section above this one asserts are left alone.
+{
+  const VP = PREZ, VISSUE = "border_security";
+  ctx.EXEC_ACTIONS[VP].push(
+    {
+      actionClass: "vetoed_law", term: "47", documentId: "H.R. 700",
+      title: "Rate Reduction Act", actedAt: "2025-02-14",
+      sourceUrl: SRC, sourceLabel: "Congress.gov",
+      status: [{ status: "overridden", effectiveAt: "2025-03-01", sourceUrl: SRC, sourceLabel: "Congress.gov" }],
+      // The mapping describes the BILL — it advanced the issue — so the act of
+      // blocking it is the opposite, and the row must be filed the other way.
+      issues: [{ issueKey: VISSUE, direction: "advances", weight: 100, isPrimary: true }],
+    },
+    {
+      actionClass: "vetoed_law", term: "47", documentId: "H.R. 800",
+      title: "Second Rate Reduction Act", actedAt: "2025-06-14",
+      sourceUrl: SRC, sourceLabel: "Congress.gov", status: inForce,
+      issues: [{ issueKey: VISSUE, direction: "advances", weight: 100, isPrimary: true }],
+    },
+  );
+  const vItems = C.dossierItems(VP, VISSUE);
+  const over = vItems.find((d) => d.ident === "H.R. 700");
+  const held = vItems.find((d) => d.ident === "H.R. 800");
+  ok(!!over && !!held, "veto: both veto rows are enumerated");
+
+  const mo = C.dossierMechanism(over, VISSUE);
+  has(mo.veto, "Congress passed H.R. 700", "veto: the face says Congress passed the measure and sent it up");
+  has(mo.veto, "vetoed it rather than signing it", "veto: and that the President vetoed rather than signed");
+  has(mo.veto, "passed it over the veto", "veto: an overridden veto says the measure became law anyway");
+  has(mo.veto, "describes the bill", "veto: the inversion is stated, not left for the reader to infer");
+  has(mo.veto, "blocking it is the opposite",
+    "veto: naming why blocking a bill that advanced the issue is filed as cutting against it");
+  const mh = C.dossierMechanism(held, VISSUE);
+  has(mh.veto, "The veto held", "veto: a veto that was not overridden says so…");
+  has(mh.veto, "did not become law", "veto: …and says what that meant for the measure");
+  hasnt(mh.veto, "passed it over the veto", "veto: the two dispositions are not confused for one another");
+
+  // "In force" is written from the ACTION's point of view: for a veto it means the
+  // veto held. Printed under a bill number and a bill title it reads as a claim about
+  // the BILL, which is the exact opposite of what the token says.
+  eq(held.standing && held.standing.label, "Veto held",
+    "veto: standing is relabelled in the action's own terms rather than left as 'In force'");
+  eq(over.standing && over.standing.label, "Overridden by Congress",
+    "veto: and every other standing token passes through untouched");
+  // The relabel is display-only — the token the score reads is unchanged.
+  eq(held.standing && held.standing.key, "in_force", "veto: the underlying standing token is not rewritten");
+
+  const vRecs = C.dossierRecordsHtml(VP, VISSUE);
+  has(vRecs, "pdxdos-rec-veto", "veto: the path renders on the row face, not one tap down");
+  // A veto row is never a bare label plus a chip.
+  has(vRecs, "What it did:", "veto: with the mechanism slots the other rows get");
+  has(vRecs, "Which way it cut:", "veto: including the one that produces the chip");
+  // The derived why-it-counts sentence uses the instrument's noun. Lowercasing the
+  // class label produced "the primary subject of this vetoed".
+  has(mo.counts, "this veto", "veto: the derived sentence calls it a veto");
+  hasnt(mo.counts, "this vetoed", "veto: not 'this vetoed' — the class label is not a noun");
+  hasnt(C.dossierRecordsHtml(PREZ, ISSUE), "this signed into law",
+    "noun: nor 'this signed into law' on the signed-law rows");
+}
+
+// ── 14. THE COUNT IS ENUMERATED ON THE FACE, not just asserted ─────────────
+// A collapsed "N actions listed here" is a number a reader has to trust and then open
+// a drawer to check. The closed summary now names every instrument, so the count can
+// be audited from the face — and the enumeration is complete, because a truncated one
+// ("and 4 more") is the same hiding problem with a friendlier label.
+{
+  const xRecs = C.dossierRecordsHtml(PREZ, ISSUE);
+  has(xRecs, 'class="pdxdos-recs-list"', "face: the closed summary carries an enumeration");
+  for (const d of xItems) {
+    const stub = String(d.ident).slice(0, 30);
+    has(xRecs.split('class="pdxdos-rec" data-pdxdos-i="0"')[0], stub,
+      `face: ${d.ident} is named in the summary above the collapse, not only inside it`);
+  }
+  const listed = (xRecs.match(/class="pdxdos-recs-list">([^<]*)</) || [])[1] || "";
+  eq(listed.split(" · ").length, xItems.length,
+    "face: the enumeration has exactly one entry per row the expander opens onto");
+}
 
 if (failures.length) {
   console.error("✗ issue dossier: " + failures.length + " failure(s)");
