@@ -1686,6 +1686,55 @@
   // aside, where the issue lands in the score — is one tap down. A row carrying
   // its own explanation is a row nobody taps, and then the dossier exists for
   // nothing.
+  // ── THE PUBLIC LANE, ON THE INDEX ROW ──────────────────────────────────────
+  // The formal result on these rows has always been the whole row: the bucket cue,
+  // the receipt count, the lane noun. The public record was reachable only by
+  // opening the dossier, which means at the layer where readers actually skim, a
+  // record with two sourced items cutting against a stated position looked exactly
+  // like a record with nothing on file at all.
+  //
+  // So the tally ships beside the formal result — counts only, in the same words
+  // the stance rows use, read from the same row model, through
+  // PDXConsistency.publicTally so the two surfaces cannot drift.
+  //
+  // FOUR THINGS THIS DELIBERATELY DOES NOT DO:
+  //   · No percentage. Not the public lane's, and not the formal one's either: this
+  //     index has never printed a number and that is not a gap to fill. The one
+  //     score on a profile is the Direction Match above it, and the issue-level %
+  //     lives on the stance row that carries it. Counts here, numbers there.
+  //   · No merge into the result cue. The cue is the formal verdict's word; a
+  //     public item has never moved it and must not look like it could.
+  //   · No nesting inside the row button. A <button> inside a <button> is invalid
+  //     markup that browsers repair unpredictably — the public tap is a SIBLING
+  //     inside the same <li>, with its own attribute names so the row's own
+  //     handler, its counts and its origin-id contract are untouched.
+  //   · No silence when empty. "Nothing on file yet" is the answer for most issues
+  //     on most profiles, it is true, and it is the state a reader can do something
+  //     about — the tap still opens the dossier, on the coverage gap and its lead
+  //     composer rather than on a column of receipts.
+  function _outcomePub(r, rid) {
+    var t = null;
+    try {
+      var CS = window.PDXConsistency;
+      if (CS && typeof CS.publicTally === 'function') t = CS.publicTally(r);
+    } catch (e) { t = null; }
+    // Fail closed: no model, no line. An index that invents its own tally when the
+    // shared one is unavailable is an index that can disagree with the stance row.
+    if (!t) return '';
+    var tip = t.text + ' — ' + t.note;
+    return '<button type="button" class="pdxwa-oc-pub' + (t.empty ? ' pdxwa-oc-pub-0' : '') + '"' +
+        ' data-pdxwa-pub="' + esc(r.key) + '" data-pdxwa-pub-pid="' + esc(String(r.pid)) + '"' +
+        ' data-pdxwa-pub-origin="' + esc(rid) + '"' +
+        ' data-pdxwa-pub-state="' + (t.empty ? 'empty' : 'tally') + '"' +
+        ' aria-label="' + esc(t.cta + ' — ' + r.label + ': ' + tip) + '"' +
+        ' title="' + esc(tip) + '">' +
+        '<span class="pdxwa-oc-pub-k">' + esc(t.lane) + '</span>' +
+        '<span class="pdxwa-oc-pub-t">' + esc(t.text) + '</span>' +
+        '<span class="pdxwa-oc-pub-tag">' + esc(t.tag) + '</span>' +
+        '<span class="pdxwa-oc-pub-go" aria-hidden="true">›</span>' +
+      '</button>';
+  }
+
   function _outcomeRow(r) {
     var o = outcomeFor(r.verdict.token);
     var bits = [];
@@ -1734,6 +1783,7 @@
                  esc(o.short) + '</span>' : '') +
           '<span class="pdxwa-oc-go" aria-hidden="true">›</span>' +
         '</button>' +
+        _outcomePub(r, rid) +
       '</li>';
   }
 
@@ -1839,6 +1889,30 @@
         ((buckets.limited || []).length
           ? ', ' + buckets.limited.length + ' stated but not testable yet' : '') +
         '. Tap any issue for its full record.';
+      // THE PUBLIC LANE'S DENOMINATOR, once, in words. The rows say what is on file
+      // per issue; this says how much of the index the public record reaches at all,
+      // which is the question a reader who has just skimmed twelve "nothing on file
+      // yet" lines is actually asking. It is a coverage count and it says so — no
+      // percentage, no share, and the sentence that follows it is the wall.
+      var pubFoot = '';
+      try {
+        var CS = window.PDXConsistency;
+        if (CS && typeof CS.publicCoverage === 'function') {
+          // Counted over the rows this index actually lists, not over every issue the
+          // row model knows: the sentence sits under a stated denominator and two
+          // denominators in one foot is worse than none.
+          var idxRows = [];
+          for (var pi = 0; pi < live.length; pi++) {
+            idxRows = idxRows.concat(buckets[live[pi].token] || []);
+          }
+          var pc = CS.publicCoverage(pid, idxRows);
+          pubFoot = '<p class="pdxwa-oc-pubfoot"><b>' + esc('Public record on file for ' + pc.issues +
+            ' of ' + pc.total + ' issue' + (pc.total === 1 ? '' : 's') + '.') + '</b> ' +
+            esc('That is a separate test of the same stances — sourced items, statements and ' +
+                'controversies. It is a count, not a score, and none of it is inside the ' +
+                'Direction Match above.') + '</p>';
+        }
+      } catch (e) { pubFoot = ''; }
 
       return '<div class="pdxwa-oc">' +
           '<div class="pdxwa-oc-t">Issue by issue — did the record back the word?</div>' +
@@ -1846,6 +1920,7 @@
           '<div class="pdxwa-oc-seg" role="tablist" aria-label="Results by issue — pick a result">' + tabs + '</div>' +
           '<div class="pdxwa-oc-panels">' + panels + '</div>' +
           '<p class="pdxwa-oc-foot">' + esc(foot) + '</p>' +
+          pubFoot +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -1904,6 +1979,25 @@
       // So the default is now consumed only once openGap has confirmed a sheet is
       // up. openGap returns true for that; a module too old to return anything is
       // read as a success, which is the behaviour this had before.
+      // The 🧾 tally beside the row. Same sheet, same entry point, same fail-closed
+      // contract as the row above — it differs in one option: the sheet is asked to
+      // stop on the public column rather than at the top. Read BEFORE the row branch
+      // because the tally lives inside the same <li>, and a reader who aimed at the
+      // public line should get the public column even if a future layout ever nests
+      // the two.
+      var pub = e.target.closest('[data-pdxwa-pub]');
+      if (pub) {
+        var CSP = window.PDXConsistency;
+        if (!CSP || typeof CSP.openGap !== 'function') return;
+        var pOpened = false;
+        try {
+          var pRes = CSP.openGap(pub.getAttribute('data-pdxwa-pub-pid') || '', pub.getAttribute('data-pdxwa-pub') || '',
+            { arrival: false, origin: pub.getAttribute('data-pdxwa-pub-origin') || '', focus: 'public' });
+          pOpened = (pRes !== false);
+        } catch (e4) { pOpened = false; }
+        if (pOpened) e.preventDefault();
+        return;
+      }
       var row = e.target.closest('[data-pdxwa-dos]');
       if (row) {
         var CS = window.PDXConsistency;

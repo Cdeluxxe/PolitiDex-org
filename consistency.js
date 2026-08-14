@@ -1874,6 +1874,15 @@
       '.pdxgap-side-wall{font-size:0.63rem;color:#8fa2c0;line-height:1.4;margin:-0.2rem 0 0.5rem;' +
         'padding:0.28rem 0.4rem;border-radius:0.4rem;background:rgba(147,166,196,0.08);' +
         'border:1px solid rgba(147,166,196,0.16);}' +
+      // THE LANDING FLASH. Set for ~2s on whichever public panel a 🧾 row tap asked
+      // the sheet to stop at, then removed. Outline rather than a border or padding
+      // change so nothing reflows under a reader mid-scroll, and reduced-motion gets
+      // the same outline without the fade — the highlight IS the information here,
+      // so it is the animation that is optional, not the marking.
+      '.pdxgap-lit{outline:2px solid rgba(147,166,196,0.75);outline-offset:2px;' +
+        'animation:pdxgapLit 1.9s ease-out 1;}' +
+      '@keyframes pdxgapLit{0%{outline-color:rgba(147,166,196,0.95);}70%{outline-color:rgba(147,166,196,0.6);}100%{outline-color:rgba(147,166,196,0);}}' +
+      '@media (prefers-reduced-motion:reduce){.pdxgap-lit{animation:none;}}' +
       // ── the 🧾 item's teachable face ──────────────────────────────────────────
       // The labelled slots are the 🏛️ side's (.pdxdos-rec-why / -wk, reused rather
       // than re-declared so the two lanes can never drift apart typographically);
@@ -2095,6 +2104,30 @@
       '.pdxst-comp-for{color:#6ee7a0;}' +
       '.pdxst-comp-against{color:#f89b9b;}' +
       '.pdxst-comp-x{color:#f5c842;}' +
+      // ── THE PUBLIC LANE, BESIDE THE FORMAL ONE AND NOT DRESSED AS IT ──────────
+      // Related, distinct, and cheap to skip. The formal result line owns the
+      // verdict colour, the percentage type and the pill-shaped scope tag; this line
+      // gets none of the three. What it gets instead is a dotted left rule and a
+      // single muted weight, so a reader scanning a column can tell at a glance that
+      // it is the same row's second lane rather than a second grade. A coloured chip
+      // here would out-shout the number above it within one screen.
+      '.pdxst-lane{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#8fa6c6;min-width:2.6rem;}' +
+      '.pdxst-pub{display:flex;align-items:baseline;gap:0.3rem;flex-wrap:wrap;margin-top:0.18rem;' +
+        'padding-left:0.4rem;border-left:2px dotted rgba(159,180,212,0.34);font-size:0.66rem;color:#9fb4d4;}' +
+      '.pdxst-pub-k{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#8fa6c6;min-width:2.6rem;}' +
+      '.pdxst-pub-t{font-weight:700;color:#c3d3ea;}' +
+      '.pdxst-pub-0 .pdxst-pub-t{font-weight:600;color:#7e93b3;font-style:italic;}' +
+      // The standing disclosure, on every row. Small, unmissable, and never coloured
+      // like a verdict — it is a boundary, not a finding.
+      '.pdxst-pub-tag{font-size:0.55rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#8fa6c6;' +
+        'border:1px dashed rgba(159,180,212,0.34);border-radius:0.3rem;padding:0.04rem 0.3rem;}' +
+      '.pdxst-pub-go{cursor:pointer;font-family:inherit;font-size:0.62rem;font-weight:700;color:#9fdbd0;' +
+        'background:none;border:0;padding:0.12rem 0.1rem;min-height:1.6rem;text-align:left;}' +
+      '.pdxst-pub-go:hover,.pdxst-pub-go:focus-visible{color:#bdeae1;text-decoration:underline;}' +
+      // The whole sentence, once per section, with the lane's own coverage count.
+      '.pdxst-wall{font-size:0.64rem;line-height:1.45;color:#8fa6c6;margin:0.1rem 0 0.5rem;' +
+        'padding:0.32rem 0.45rem;border-left:2px dotted rgba(159,180,212,0.34);background:rgba(159,180,212,0.05);border-radius:0 0.3rem 0.3rem 0;}' +
+      '.pdxst-wall b{color:#c3d3ea;}' +
       // The sub-divider inside the "record backs it up" group: the rows the engine
       // could not judge sit in the same tier as the ones it could, and a thin row
       // under a "backs it up" heading is a claim nobody made.
@@ -2156,6 +2189,13 @@
         // Every jump is a thumb target, not a hover target.
         '.pdxst-go{min-height:2.3rem;padding:0.4rem 0.7rem;font-size:0.62rem;}' +
         '.pdxst-links{gap:0.34rem;}' +
+        // MOBILE: the public line stays ONE extra line, not four. The tally and the
+        // disclosure tag sit together on the first wrap and the tap drops below them
+        // at thumb height — the alternative was a fixed two-column key/value layout
+        // that turned every row into a small table.
+        '.pdxst-pub{gap:0.18rem 0.3rem;}' +
+        '.pdxst-pub-k{min-width:0;}' +
+        '.pdxst-pub-go{min-height:2.2rem;padding:0.3rem 0.1rem;font-size:0.66rem;}' +
         '.pdxst-back{bottom:0.8rem;min-height:2.4rem;}' +
         // THE DOSSIER ON A PHONE. Every level's control is a thumb target, the
         // key/value summary stacks rather than squeezing the value into a column
@@ -2336,10 +2376,17 @@
       //   The default is consumed only if a sheet actually went up — see the note on
       // openGap(). Consuming it first and finding out afterwards is how a row that
       // looks like a control becomes a row that eats taps in silence.
+      //   data-pdxst-focus is what makes the public tally a way in rather than a
+      // dead-end summary. The row's name opens the dossier at the top as it always
+      // has; the 🧾 control on the public line opens the same dossier and asks it to
+      // land on the public column. Same sheet, same data, one attribute of
+      // difference — which is the whole reason the tally does not need its own
+      // expander.
       var sdos = e.target.closest && e.target.closest('[data-pdxst-dos]');
       if (sdos) {
         if (openGap(sdos.getAttribute('data-pdxst-pid') || '', sdos.getAttribute('data-pdxst-dos') || '',
-              { arrival: false, origin: sdos.getAttribute('data-pdxst-origin') || '' }) !== false) {
+              { arrival: false, origin: sdos.getAttribute('data-pdxst-origin') || '',
+                focus: sdos.getAttribute('data-pdxst-focus') || '' }) !== false) {
           e.preventDefault();
         }
         return;
@@ -4370,8 +4417,18 @@
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
     var n = _stNoun(r);
+    // WHICH RECORD IS TALKING. The row now states both lanes, one under the other,
+    // so each line names the record it came from — otherwise the reader is left to
+    // infer the pairing from a metric name and a chip colour. The key follows the
+    // basis rather than the surface: a row no formal instrument could test carries a
+    // public-record result, and calling that line "Formal" would be a lie told in one
+    // word. The public line below keys itself the same way, so a row where both read
+    // "Public" is a row where the public record both decided the result and is still
+    // outside Direction Match — which is exactly what its note says.
+    var laneKey = (res.metric === 'Public-record match') ? PUB_LANE : 'Formal';
+    var lane = '<span class="pdxst-lane">' + esc(laneKey) + '</span>';
     if (res.state === 'untested') {
-      return '<div class="pdxst-result pdxst-r-untested">' +
+      return '<div class="pdxst-result pdxst-r-untested">' + lane +
           '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico + ' ' + res.label) + '</span>' +
           '<span class="pdxst-why">' + esc(res.why) + '</span>' +
         '</div>';
@@ -4389,6 +4446,7 @@
       ? '<span class="pdxst-pct" style="color:' + res.color + '">' + res.pct + '%</span>'
       : '<span class="pdxst-pct pdxst-pct-na" aria-label="No percentage — not enough record">—</span>';
     return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
+        lane +
         '<span class="pdxst-metric">' + esc(res.metric) + '</span>' +
         '<span class="pdxst-scope">this issue</span>' +
         num +
@@ -4450,6 +4508,123 @@
     if (!bits.length) return '';
     bits.push(r.evidence.strength + ' evidence');
     return '<div class="pdxst-ev">' + esc(bits.join(' · ')) + '</div>';
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // THE PUBLIC LANE, AT A GLANCE, WITHOUT A SCORE
+  // ═══════════════════════════════════════════════════════════════════════════
+  // The two records are separate systems and stay that way: the formal record
+  // decides the issue result and feeds the profile's Direction Match; the public
+  // record is context, confirmation or tension and is never in that number. That
+  // separation was enforced everywhere in the engine and nowhere in the reader's
+  // path — public evidence lived behind a dossier tap, so at the glance layer a row
+  // with three sourced items cutting against a stance looked exactly like a row
+  // with nothing on file. "Kept out of the score" was being delivered as "kept out
+  // of sight", which is a different promise and a worse one.
+  //
+  // So both lanes are stated on the row, and this is the one place that words the
+  // public side. WHAT IT MAY NOT DO, in order of how badly it would break the wall:
+  //
+  //   · NO PERCENTAGE. A second number on the row is a second score, whatever the
+  //     caption says, and a reader comparing 57% to 40% will not care which lane
+  //     each came from. The formal % stays the only numeric result on a row.
+  //   · NO ARITHMETIC. Counts are copied from the row model's own public block —
+  //     the same block issueRow() built and the same one the dossier reads. This
+  //     function derives nothing, so it cannot disagree with either.
+  //   · FLAGS ARE NOT DIRECTION. A red flag is heat: it is counted in its own slot
+  //     and never added to "cut against", exactly as saydoScore keeps it out of its
+  //     denominator. Two flags and no directional item is a row with nothing to
+  //     back or contradict the stance, and it says so.
+  //
+  // The disclosure ships in two lengths on purpose. `tag` is what fits on a row and
+  // is repeated on every one of them; `note` is the full sentence, carried on the
+  // row's own title/aria-label and printed once per surface. A sentence that long
+  // repeated down thirty-five rows is a sentence readers learn to skip, which is how
+  // a disclosure stops disclosing.
+  var PUB_LANE  = 'Public';
+  var PUB_EMPTY = 'Nothing on file yet';
+  var PUB_TAG   = 'Not in Direction Match';
+  var PUB_NOTE  = 'The public record is a separate test of the same stance — sourced items, ' +
+                  'statements and controversies. It is never counted in Direction Match.';
+  // The one case where the public lane DID decide the row: no formal instrument
+  // could test the stance at all. Even then it is outside the profile figure, and
+  // saying so is the difference between "this is the result" and "this is the score".
+  var PUB_NOTE_DECIDED = 'No formal instrument could test this stance, so the public record ' +
+                  'decided this row. It is still never counted in Direction Match.';
+  function _pubCta(t) {
+    if (!t.empty) return '🧾 Public receipts';
+    // "Nothing on file" is a coverage gap, and the dossier's public column already
+    // holds the composer for exactly this — PDXGaps' ＋ Suggest a lead. The row
+    // offers that door only when the module that answers it is actually loaded;
+    // otherwise it offers the panel, which is honest about the gap either way.
+    var G = null;
+    try { G = window.PDXGaps; } catch (e) {}
+    return (G && typeof G.publicRecordGap === 'function') ? '＋ Suggest a lead' : '🧾 The public side';
+  }
+  function publicTally(r) {
+    var p = (r && r.public) || {};
+    var against = p.contradicting || 0, backs = p.supporting || 0, flags = p.flags || 0;
+    var count = p.count || 0;
+    var decided = !!(r && r.verdict && r.verdict.basis === 'public_record');
+    var bits;
+    if (!count) bits = [PUB_EMPTY];
+    else {
+      // Tension first. A reader scanning a column of these is looking for the rows
+      // where the public record disagrees, and putting the agreements first buries
+      // exactly the thing this line was added to surface.
+      bits = [against + (against === 1 ? ' cuts against' : ' cut against'),
+              backs + (backs === 1 ? ' backs it up' : ' back it up')];
+      if (flags) bits.push(flags + ' red flag' + (flags === 1 ? '' : 's'));
+    }
+    var t = {
+      lane: PUB_LANE, count: count, against: against, backs: backs, flags: flags,
+      directional: against + backs,
+      empty: count === 0, decided: decided,
+      text: bits.join(' · '),
+      tag: PUB_TAG,
+      note: decided ? PUB_NOTE_DECIDED : PUB_NOTE
+    };
+    t.cta = _pubCta(t);
+    return t;
+  }
+  // How many of a profile's issues have any public record behind them at all. A
+  // count, deliberately, and never a ratio dressed as a result: it answers "does
+  // this lane reach this profile" — the question a reader asks the first time they
+  // meet a row reading "Nothing on file yet" and cannot tell whether that is this
+  // issue or the whole feed. Takes an already-ranked row list where the caller has
+  // one, because issueRows() is memoised per profile per epoch and there is no
+  // reason for a section to pay for the same array twice.
+  function publicCoverage(pid, rows) {
+    var list = rows || issueRows(pid) || [];
+    var n = 0;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].public && list[i].public.count > 0) n++;
+    }
+    return { issues: n, total: list.length };
+  }
+  // The row's public line: the lane, the tally, the standing disclosure, and one tap
+  // that lands on the public column of this issue's dossier rather than the top of
+  // it. Deliberately built from different chrome than the verdict above it — no
+  // verdict colour, no percentage slot, its own left rule — because "related but not
+  // the same kind of thing" is the entire point and a matching chip would read as a
+  // second grade.
+  function _stPublicHtml(r) {
+    var t = publicTally(r);
+    var tip = t.text + ' — ' + t.note;
+    return '<div class="pdxst-pub' + (t.empty ? ' pdxst-pub-0' : '') + '"' +
+        ' data-pdxst-pub="' + (t.empty ? 'empty' : 'tally') + '"' +
+        ' title="' + escAttr(tip) + '">' +
+        '<span class="pdxst-pub-k">' + esc(t.lane) + '</span>' +
+        '<span class="pdxst-pub-t">' + esc(t.text) + '</span>' +
+        '<span class="pdxst-pub-tag">' + esc(t.tag) + '</span>' +
+        '<button type="button" class="pdxst-pub-go"' +
+          ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
+          ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+          ' data-pdxst-focus="public"' +
+          ' aria-label="' + escAttr(t.cta + ': ' + r.label + ' — ' + tip) + '">' +
+          esc(t.cta) + '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
+        '</button>' +
+      '</div>';
   }
 
   // ── THE CONNECTIONS ─────────────────────────────────────────────────────────
@@ -4622,6 +4797,10 @@
         '</div>' +
         _stResultHtml(r, res) +
         _stCompHtml(r, res) +
+        // BOTH LANES, ONE GLANCE. The formal result above, the public tally here —
+        // always, including when there is nothing on file, because an absent line and
+        // an empty lane are indistinguishable and only one of them is true.
+        _stPublicHtml(r) +
         _stEvidenceHtml(r) +
         (txt ? '<div class="pdxst-txt">' + esc(txt) + '</div>' : '') +
         (links.length ? '<div class="pdxst-links">' + links.join('') + '</div>' : '') +
@@ -4698,7 +4877,17 @@
     var cov = '<div class="pdxcov">📊 <b>' + tested + '</b> of <b>' + ranked.length + '</b> tracked position' +
       (ranked.length === 1 ? '' : 's') + ' ' + (tested === 1 ? 'has' : 'have') + ' a formal or public record behind ' +
       (tested === 1 ? 'it' : 'them') + '.</div>';
-    return head + cov + lead + rest;
+    // THE WALL, IN FULL, ONCE. Every row carries the short form of this ("Not in
+    // Direction Match") because a reader can land on any single row from a deep link
+    // and must not have to scroll for the caveat. The whole sentence is stated here,
+    // where it is read once instead of thirty-five times, together with how much
+    // public record this profile actually has — a count is the honest way to say
+    // "this lane exists and is uneven" without implying it is a score.
+    var pc = publicCoverage(pid, ranked);
+    var wall = '<div class="pdxst-wall"><b>' + esc(PUB_LANE) + ' · ' + pc.issues + ' of ' + pc.total +
+      ' issue' + (pc.total === 1 ? '' : 's') + '</b> ' + esc(PUB_NOTE) +
+      ' The formal percentage is the only scored figure on a row.</div>';
+    return head + cov + wall + lead + rest;
   }
   function stancesSectionHtml(pid) {
     ensureStyles();
@@ -6388,9 +6577,17 @@
     var sayCounts = _sdCounts(say.curated);
     var sayHas = sayItems.length > 0 || sNum;
     var saySide, sidesCls = '';
+    // THE LANDING PAD. A tally on an issue row promises "the public receipts are in
+    // here"; the promise is only kept if the sheet can be asked to stop at them.
+    // Both branches carry the same hook so the focus lands either way — on the
+    // column when there are receipts, and on the coverage gap when there are none,
+    // because "nothing on file yet" is precisely the answer a reader who tapped an
+    // empty tally came for. The hook is an attribute rather than an id: dossiers are
+    // rendered as whole HTML strings and an id that turns out to exist twice is a
+    // silent scroll to the wrong panel.
     if (sayHas) {
       saySide =
-        '<div class="pdxgap-side">' +
+        '<div class="pdxgap-side" data-pdxgap-public="tally">' +
           '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> ' +
             LT('saydo', 'Say-vs-Do') + '</span>' +
             _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
@@ -6406,7 +6603,7 @@
     } else {
       sidesCls = ' pdxgap-sides-solo';
       saySide =
-        '<div class="pdxgap-solo">' +
+        '<div class="pdxgap-solo" data-pdxgap-public="empty">' +
           '<div class="pdxgap-solo-h"><span aria-hidden="true">🧾</span> ' +
             LT('saydo', 'Say-vs-Do') + ' — nothing on file for this issue yet</div>' +
           '<div class="pdxgap-solo-b">This is an <b>Official Record</b> read: it is built from ' +
@@ -6629,6 +6826,35 @@
       next;
   }
 
+  // LANDING ON THE PUBLIC COLUMN. The 🧾 tally on an issue row opens this same
+  // sheet, so the only thing that has to be new is where it stops. The panel is
+  // found by the hook both branches of _gapViewHtml write — the receipts column
+  // when there are receipts, the coverage gap with its ＋ Suggest a lead composer
+  // when there are not — and it is lit for a moment on arrival, because a sheet
+  // that silently opens mid-scroll reads as a sheet that opened wrong.
+  //   Measured against the sheet rather than the viewport: .pdxgap-sheet is the
+  // scroll container, and scrollIntoView on a node inside a fixed bottom sheet can
+  // take the page behind it along for the ride. The viewport call is kept only as
+  // the fallback for a layout where the offset walk does not reach the sheet.
+  function _gapFocusPublic(sheet, body) {
+    var el = null;
+    try { el = body.querySelector && body.querySelector('[data-pdxgap-public]'); } catch (e) {}
+    if (!el) return false;
+    try {
+      var top = 0, n = el, hops = 0;
+      while (n && n !== sheet && hops < 40) { top += n.offsetTop || 0; n = n.offsetParent; hops++; }
+      if (n === sheet) sheet.scrollTop = Math.max(0, top - 14);
+      else if (el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+    } catch (e) {}
+    try {
+      if (el.classList) {
+        el.classList.add('pdxgap-lit');
+        setTimeout(function () { try { el.classList.remove('pdxgap-lit'); } catch (e2) {} }, 1900);
+      }
+    } catch (e) {}
+    return true;
+  }
+
   function openGap(pid, issueKey, opts) {
     if (!pid || !issueKey || !document.body) return false;
     var sheet = _ensureGapSheet();
@@ -6664,6 +6890,10 @@
     _gapArrive(back, arrival);
     back.hidden = false;
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+    // …unless the tap asked for the public side. The sheet still opens the same way
+    // and the focus still lands on the dialog for a keyboard reader; only the scroll
+    // position differs, and only when a caller asked.
+    if (opts && opts.focus === 'public') _gapFocusPublic(sheet, body);
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
     _rcHydrateSoon();
@@ -6876,6 +7106,12 @@
     // than a new row model.
     issueRow: issueRow,
     issueRows: issueRows,
+    // The public lane's words, in one place. Both surfaces render from these and the
+    // tests assert against them, so the tally on an index row and the tally on a
+    // stance row cannot say the same thing in two different ways — and neither can
+    // hand-count what the row model already counted.
+    publicTally: publicTally,
+    publicCoverage: publicCoverage,
     verdictTally: verdictTally,
     mixedGate: mixedGate,
     rankIssueRows: rankIssueRows,
