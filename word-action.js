@@ -1499,6 +1499,30 @@
   // on nothing.
   var OUTCOME_OPEN = { contradicts: 1, mixed: 1 };
 
+  // ── ONE OPEN BUCKET, DECIDED ONCE ──────────────────────────────────────────
+  // Two surfaces now have to agree about which bucket is open: the shape strip,
+  // which is the gateway a reader taps, and the index below it, which holds the
+  // list. If each worked it out for itself the strip could highlight Contradicted
+  // over a panel showing Backed up — the gateway pointing at the wrong door.
+  //
+  // The rule, unchanged from the index's own: the sharpest outcome that actually
+  // HAS rows; then any bucket with rows; and only as a last resort the first chip,
+  // so an index can never open on nothing. Keyed on OUTCOME_OPEN rather than on
+  // "the first live bucket", so an empty Contradicted above can never promote the
+  // coverage pile — "not enough record yet" is not a result and is never what a
+  // profile opens on while real results exist.
+  function openOutcome(b) {
+    if (!b) return null;
+    var buckets = b.buckets || {};
+    var withRows = OUTCOMES.filter(function (o) { return (buckets[o.token] || []).length > 0; });
+    return withRows.filter(function (o) { return !!OUTCOME_OPEN[o.token]; })[0] ||
+           withRows[0] || OUTCOMES[0];
+  }
+  // The index's element-id namespace, derived from the politician alone so the
+  // strip can address the panels of an index it never sees rendered. Two cards for
+  // two people on one page get two namespaces; the same card repainted keeps its.
+  function ocUid(pid) { return 'pdxwa-ocb-' + _idPart(pid); }
+
   // ── ONE BUCKETING, TWO SURFACES ────────────────────────────────────────────
   // The composition strip and the outcomes section must agree about what counts,
   // or the strip becomes a fifth opinion on the record. Both now read this. The two
@@ -1607,6 +1631,32 @@
   // seven chips and nothing like seven equal contributions to the mean. The
   // clarifier line is not hedging — without it the two numbers look like an
   // arithmetic error, and a reader who spots one stops believing both.
+  //
+  // ── AND IT IS THE WAY IN ───────────────────────────────────────────────────
+  // The strip used to be a picture and nothing more: it named four buckets and
+  // counted them, and a reader who wanted the Contradicted issues had to scroll
+  // past it, find the switcher inside the index below, and tap the chip with the
+  // same word on it. Two vocabularies of one thing, one of them inert — and on a
+  // wide screen the index answered by opening all four lists side by side, so the
+  // summary led to a board rather than to a list.
+  //
+  // Every count here is now a control, and so is every segment of the bar: tapping
+  // one selects that bucket in the index below and brings the index to the top of
+  // the viewport. Nothing about the record moves — the strip switches WHICH list is
+  // on screen, and the selected chip is the same bucket the panel shows, because
+  // both read openOutcome() rather than each deciding for themselves.
+  //
+  // THE ZEROES ARE DOORS TOO. A "0 Contradicted" chip opens the Contradicted panel
+  // on its honest empty state ("None. No issue in this index landed here — 11
+  // issues checked"), which is a stronger statement than a chip that cannot be
+  // tapped: the reader gets to check the pile they were told was empty.
+  //
+  // THE BAR IS A DUPLICATE, AND IS TREATED AS ONE. Its segments are pointer
+  // affordances over the chips below them — the same four buckets, in the same
+  // order, addressed by the same tokens. They stay out of the tab order and out of
+  // the accessibility tree (the bar is aria-hidden either way, being a picture of
+  // integers printed underneath it), so a keyboard or screen-reader user meets one
+  // set of four labelled controls instead of eight.
   function compositionHtml(pid) {
     try {
       var b = outcomeBuckets(pid);
@@ -1619,19 +1669,42 @@
       });
       var drawn = live.filter(function (x) { return x.n > 0; });
       if (!drawn.length) return '';
+      // The strip's controls are live from the moment it paints, not from the
+      // moment the index below it does: the same delegated listener runs both, and
+      // an index that failed to render must not take the gateway down with it.
+      armIndex();
+      var uid = ocUid(pid);
+      var openTok = (openOutcome(b) || {}).token || '';
+      // Shared by every control in the strip: which bucket it opens, which index it
+      // opens it in, and the marker that says "this one also has to scroll the index
+      // into view" — the index is a screen below the strip on a phone.
+      var gate = function (o, kind) {
+        return ' data-pdxwa-seg="' + esc(o.token) + '" data-pdxwa-seg-uid="' + esc(uid) + '"' +
+               ' data-pdxwa-gate="' + kind + '"';
+      };
       // The BAR is drawn from the buckets that have width — a zero-flex segment is
       // an invisible segment either way. The CHIPS below it name all four, zeroes
       // included, so the strip and the index it sits above use the same vocabulary
       // on every profile. A "0 contradicted" chip is a result; a missing chip is a
       // reader wondering whether we checked.
       var bar = drawn.map(function (x) {
-        return '<span class="pdxwa-comp-seg" style="flex-grow:' + x.n + ';background:' + x.o.col + ';"' +
-          ' title="' + esc(x.n + ' ' + x.o.short.toLowerCase()) + '"></span>';
+        return '<button type="button" class="pdxwa-comp-seg' + (x.o.token === openTok ? ' is-on' : '') + '"' +
+          ' style="flex-grow:' + x.n + ';background:' + x.o.col + ';"' +
+          ' tabindex="-1" aria-hidden="true"' + gate(x.o, 'bar') +
+          ' title="' + esc(x.n + ' ' + x.o.short.toLowerCase() + ' — open this list') + '"></button>';
       }).join('');
       var chips = live.map(function (x) {
-        return '<li class="pdxwa-comp-i' + (x.n ? '' : ' is-zero') + '">' +
-            '<span class="pdxwa-comp-n" style="color:' + x.o.col + ';">' + x.n + '</span>' +
-            '<span class="pdxwa-comp-lbl">' + esc(x.o.short) + '</span>' +
+        var on = x.o.token === openTok;
+        var issues = x.n + ' issue' + (x.n === 1 ? '' : 's');
+        return '<li class="pdxwa-comp-i' + (x.n ? '' : ' is-zero') + '" style="--pdxwa-col:' + x.o.col + ';">' +
+            '<button type="button" class="pdxwa-comp-b' + (on ? ' is-on' : '') + '"' + gate(x.o, 'count') +
+              ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+              ' aria-controls="' + esc(uid + '-p-' + _idPart(x.o.token)) + '"' +
+              ' aria-label="' + esc(x.o.short + ': ' + issues + ' of ' + b.total +
+                '. Opens that list of issues below.') + '">' +
+              '<span class="pdxwa-comp-n">' + x.n + '</span>' +
+              '<span class="pdxwa-comp-lbl">' + esc(x.o.short) + '</span>' +
+            '</button>' +
           '</li>';
       }).join('');
       // The one sentence a high, calm-looking record most needs printed on it.
@@ -1661,6 +1734,12 @@
           '</div>' +
           '<div class="pdxwa-comp-bar" aria-hidden="true">' + bar + '</div>' +
           '<ul class="pdxwa-comp-l">' + chips + '</ul>' +
+          // The one line that turns a picture into a control. It is printed rather
+          // than implied: a count that looks like a number and behaves like a button
+          // is only discovered by readers who happen to tap it.
+          '<p class="pdxwa-comp-hint">' +
+            esc('Tap a count — or a segment of the bar — to open that bucket’s issues below.') +
+          '</p>' +
           '<p class="pdxwa-comp-note">' + esc(notes.join(' ')) + '</p>' +
           '<p class="pdxwa-comp-note pdxwa-comp-fine">' +
             esc('The score above weighs statements by how testable they are; this counts issues. The two do not have to line up.') +
@@ -1801,13 +1880,14 @@
   // face whether or not anything is opened; and every bucket is one tap from
   // there. Nothing is behind a fold.
   //
-  // TWO PRESENTATIONS, ONE MARKUP. The switcher sets `.is-on` on exactly one
-  // panel. On a phone that is the whole layout — one bucket on screen, a
-  // full-width segmented control above it that cannot be mistaken for chrome. From
-  // 620px up the stylesheet shows every panel side by side as distinct lists and
-  // the selection becomes emphasis rather than filtering, which is the desktop
-  // reading the requirement asks for. No second render path, no width sniffing in
-  // JS, and the same DOM in both — so a resize cannot lose a reader's place.
+  // TWO SURFACES, ONE SELECTION. The switcher sets `.is-on` on exactly one panel,
+  // and so does the shape strip above it — the counts and the bar segments in that
+  // strip are the same control set pointed at these panels, which is why both are
+  // built from openOutcome() and ocUid(). One bucket is on screen at a time at
+  // every width: the strip is the map, this is the list it opens. A reader who
+  // wants all four at once has the flat mode at the foot. No second render path,
+  // no width sniffing in JS, and the same DOM on both screens — so a resize cannot
+  // lose a reader's place.
   //
   // WHAT THIS IS NOT. It is not a second scoreboard. No bucket prints a
   // percentage, and the denominator is stated once, in words, at the foot. The one
@@ -1830,14 +1910,10 @@
       var countOf = function (o) { return (buckets[o.token] || []).length; };
       // The full, fixed vocabulary — not a filtered subset of it.
       var live = OUTCOMES.slice();
-      // Which bucket the index opens on. The sharpest outcome that actually has
-      // rows; then any bucket with rows; and only as a last resort the first chip,
-      // so a zero-everywhere index (which outcomeBuckets cannot produce) still
-      // opens on something rather than on nothing.
-      var withRows = live.filter(function (o) { return countOf(o) > 0; });
-      var sel = withRows.filter(function (o) { return !!OUTCOME_OPEN[o.token]; })[0] ||
-                withRows[0] || live[0];
-      var uid = 'pdxwa-ocb-' + _idPart(pid);
+      // Which bucket the index opens on — decided in openOutcome() rather than here,
+      // because the shape strip above has to highlight the SAME one. See openOutcome.
+      var sel = openOutcome(b) || live[0];
+      var uid = ocUid(pid);
       var panelId = function (o) { return uid + '-p-' + _idPart(o.token); };
       var tabId = function (o) { return uid + '-t-' + _idPart(o.token); };
 
@@ -1914,15 +1990,69 @@
         }
       } catch (e) { pubFoot = ''; }
 
-      return '<div class="pdxwa-oc">' +
+      return '<div class="pdxwa-oc" id="' + esc(uid) + '">' +
           '<div class="pdxwa-oc-t">Issue by issue — did the record back the word?</div>' +
           '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.') + '</div>' +
           '<div class="pdxwa-oc-seg" role="tablist" aria-label="Results by issue — pick a result">' + tabs + '</div>' +
           '<div class="pdxwa-oc-panels">' + panels + '</div>' +
+          // FLAT MODE, KEPT AND DEMOTED. One bucket at a time is the reading order
+          // this index is built for, and it is what both screens now do. But a reader
+          // comparing two buckets, or checking that the four add up to the
+          // denominator, wants the whole thing in one stack — so the old all-lists
+          // view survives as an explicit mode behind one control, rather than as the
+          // desktop's default layout. It reveals the panels that are already on the
+          // page; nothing is re-rendered and the selection is not disturbed, so
+          // leaving flat mode puts the reader back on the bucket they came in on.
+          '<div class="pdxwa-oc-allw">' +
+            '<button type="button" class="pdxwa-oc-all" data-pdxwa-oc-all="' + esc(uid) + '"' +
+              ' aria-pressed="false" aria-controls="' + esc(uid) + '">' +
+              '<span class="pdxwa-oc-all-a">' + esc('See the full breakdown — all ' + b.total +
+                ' issue' + (b.total === 1 ? '' : 's') + ' in one list') + '</span>' +
+              '<span class="pdxwa-oc-all-b">' + esc('Back to one bucket at a time') + '</span>' +
+            '</button>' +
+          '</div>' +
           '<p class="pdxwa-oc-foot">' + esc(foot) + '</p>' +
           pubFoot +
         '</div>';
     } catch (e) { return ''; }
+  }
+
+  // ── SELECTION, IN ONE PLACE ────────────────────────────────────────────────
+  // Moving the selection is three loops over the same section: the strip's counts
+  // and bar segments, the index's chips, and the panels. Two callers need it — a
+  // reader's tap, and the warm repaint that has to put back the bucket the reader
+  // had chosen — and two copies of it is how the strip and the panel drift apart.
+  // Presentational only: `.is-on` and the aria state, never a word of the record.
+  function selectBucket(root, uid, tok) {
+    if (!root || !uid || !tok || !root.querySelectorAll) return false;
+    var panes = root.querySelectorAll('[data-pdxwa-oc-panel]');
+    // A token with no panel in this root is not a selection. Switching to it would
+    // turn every panel off and leave the index showing nothing — which is how a
+    // stale bucket name, restored across a repaint, blanks the whole list.
+    var exists = false;
+    for (var k = 0; k < panes.length; k++) {
+      if (panes[k].getAttribute('data-pdxwa-oc-panel') === tok) exists = true;
+    }
+    if (!exists) return false;
+    var tabs = root.querySelectorAll('[data-pdxwa-seg-uid="' + uid + '"]');
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].getAttribute('data-pdxwa-seg') === tok;
+      tabs[i].classList.toggle('is-on', on);
+      // Two kinds of control, two correct words for "selected". The index's chips
+      // are tabs and own their panels; the strip's counts are toggle buttons that
+      // point at them. aria-selected on a plain button says nothing to a screen
+      // reader, and aria-pressed on a tab fights its role — so each control is
+      // told in its own vocabulary.
+      if (tabs[i].getAttribute('role') === 'tab' || tabs[i].getAttribute('aria-selected') !== null) {
+        tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+      } else {
+        tabs[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+    }
+    for (var j = 0; j < panes.length; j++) {
+      panes[j].classList.toggle('is-on', panes[j].getAttribute('data-pdxwa-oc-panel') === tok);
+    }
+    return true;
   }
 
   // ── THE SWITCHER, AND THE TAP INTO THE DOSSIER ─────────────────────────────
@@ -1939,28 +2069,57 @@
     _ocArmed = true;
     document.addEventListener('click', function (e) {
       if (!e.target || !e.target.closest) return;
-      // The bucket switcher. Selection is presentational — it moves `.is-on` and
-      // the aria state and nothing else — so it can never disagree with what the
-      // record says, only with which part of it is on screen.
+      // The bucket switcher — and, since the shape strip's counts and bar segments
+      // carry the same three attributes, the gateway above it. Selection is
+      // presentational: it moves `.is-on` and the aria state and nothing else, so it
+      // can never disagree with what the record says, only with which part of it is
+      // on screen.
+      //
+      // ONE SCOPE FOR BOTH CONTROL SETS. This used to resolve `.pdxwa-oc` — the index
+      // itself — which is the one ancestor the strip's controls do not share with the
+      // chips they mirror. It now resolves the whole ⚖️ section, so a tap on a count
+      // moves the strip chip, the bar segment, the index chip and the panel together;
+      // the old selector is kept as the fallback, so a control mounted outside the
+      // section wrapper still switches its own index rather than doing nothing.
       var seg = e.target.closest('[data-pdxwa-seg]');
       if (seg) {
         e.preventDefault();
         try {
           var uid = seg.getAttribute('data-pdxwa-seg-uid') || '';
           var tok = seg.getAttribute('data-pdxwa-seg') || '';
-          var root = seg.closest('.pdxwa-oc');
-          if (!root) return;
-          var tabs = root.querySelectorAll('[data-pdxwa-seg-uid="' + uid + '"]');
-          for (var i = 0; i < tabs.length; i++) {
-            var on = tabs[i].getAttribute('data-pdxwa-seg') === tok;
-            tabs[i].classList.toggle('is-on', on);
-            tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
-          }
-          var panes = root.querySelectorAll('[data-pdxwa-oc-panel]');
-          for (var j = 0; j < panes.length; j++) {
-            panes[j].classList.toggle('is-on', panes[j].getAttribute('data-pdxwa-oc-panel') === tok);
+          var gate = seg.getAttribute('data-pdxwa-gate');
+          var root = seg.closest('[data-pdxwa]') || seg.closest('.pdxwa-oc');
+          if (!root || !uid) return;
+          selectBucket(root, uid, tok);
+          // Picking a bucket means picking ONE bucket, so the all-in-one-stack mode
+          // ends here rather than staying on and showing four lists under a chip
+          // that names one.
+          var idx = (root.querySelector && root.querySelector('.pdxwa-oc')) ||
+                    ((root.classList && root.classList.contains('pdxwa-oc')) ? root : null);
+          if (idx && idx.classList) idx.classList.remove('is-flat');
+          // Tapped from the summary — a screen above the list on a phone — so bring
+          // the index to the top of the viewport. The reader lands on the bucket
+          // heading with its rows under it, rather than wherever the strip left them.
+          if (gate && idx && idx.scrollIntoView) {
+            idx.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         } catch (e2) {}
+        return;
+      }
+      // Flat mode — the old all-lists-at-once view, now behind one control. A class
+      // on the index root and nothing more: the panels it reveals are already
+      // rendered and already carry the selection, so the mode is reversible without
+      // a repaint and cannot lose the reader's bucket.
+      var all = e.target.closest('[data-pdxwa-oc-all]');
+      if (all) {
+        e.preventDefault();
+        try {
+          var aroot = all.closest('.pdxwa-oc');
+          if (!aroot || !aroot.classList) return;
+          var flat = !aroot.classList.contains('is-flat');
+          aroot.classList.toggle('is-flat', flat);
+          all.setAttribute('aria-pressed', flat ? 'true' : 'false');
+        } catch (e5) {}
         return;
       }
       // The row. openGap() is PDXConsistency's own entry point to the issue
@@ -2237,7 +2396,29 @@
           var open = liveBody.querySelectorAll('.dd-body.dd-open[id^="pdxsp-lid-"]');
           for (var i = 0; i < open.length; i++) if (open[i].id) wasOpen.push(open[i].id);
         } catch (e2) {}
+        // THE BUCKET THE READER PICKED SURVIVES IT TOO. The strip is a navigator,
+        // so the open bucket is a place in the section, not decoration: a record
+        // that warms while someone is reading the contradicted list should not
+        // silently drop them back on whichever bucket the fresh markup opens with.
+        // Flat mode is part of the same choice and comes back with it.
+        var wasBucket = '';
+        var wasFlat = false;
+        try {
+          var onPane = liveBody.querySelector('[data-pdxwa-oc-panel].is-on');
+          if (onPane) wasBucket = onPane.getAttribute('data-pdxwa-oc-panel') || '';
+          var liveOc = liveBody.querySelector('.pdxwa-oc');
+          wasFlat = !!(liveOc && liveOc.classList && liveOc.classList.contains('is-flat'));
+        } catch (e5) {}
         liveBody.innerHTML = freshBody.innerHTML;
+        try {
+          if (wasBucket) selectBucket(liveBody, ocUid(pid), wasBucket);
+          if (wasFlat) {
+            var newOc = liveBody.querySelector('.pdxwa-oc');
+            if (newOc && newOc.classList) newOc.classList.add('is-flat');
+            var allBtn = liveBody.querySelector('[data-pdxwa-oc-all]');
+            if (allBtn) allBtn.setAttribute('aria-pressed', 'true');
+          }
+        } catch (e6) {}
         setTimeout(function () {
           try {
             if (typeof window._pdxRestoreDD === 'function') { window._pdxRestoreDD(liveBody); return; }

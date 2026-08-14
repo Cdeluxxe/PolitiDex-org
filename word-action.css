@@ -823,7 +823,9 @@
 .pdxwa-oc-tab.is-zero.is-on .pdxwa-oc-tab-n { color: var(--pdxwa-col, #9fb4d4); }
 
 .pdxwa-oc-panels { display: block; }
-/* Phone: one bucket at a time. */
+/* ONE BUCKET AT A TIME, AT EVERY WIDTH. The strip above is the navigator, so the
+   index shows the list the reader asked for and nothing else — four stacked
+   lists under a control that names one is the split-panel noise this replaced. */
 .pdxwa-oc-grp {
   display: none;
   border-left: 2px solid var(--pdxwa-col, #9fb4d4);
@@ -832,6 +834,11 @@
   min-width: 0;
 }
 .pdxwa-oc-grp.is-on { display: block; }
+/* The opt-in flat view: every bucket in one stack, for a reader who wants the
+   whole record in one scroll. Off by default, reversible by the same control,
+   and it never hides the selection — the chip a reader picked stays marked, so
+   leaving flat mode returns them to the bucket they were in. */
+.pdxwa-oc.is-flat .pdxwa-oc-grp { display: block; }
 .pdxwa-oc-grp-2nd { border-left-style: dashed; }
 /* An empty bucket's panel. Drawn quieter than a list of rows, because it is the
    absence of rows — but present, and phrased, because "none" is the answer. */
@@ -864,6 +871,30 @@
   text-align: center;
   font-size: 0.78rem;
 }
+/* The flat-view switch, under the list it changes. One control, two sentences:
+   the label always says what the next tap DOES, rather than naming a mode and
+   leaving a reader to work out which one they are in. */
+.pdxwa-oc-allw { margin: 0.5rem 0 0; }
+.pdxwa-oc-all {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  padding: 0.3rem 0.6rem;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  border-radius: 0.45rem;
+  background: none;
+  color: #7596c0;
+  font: inherit;
+  font-size: 0.66rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+.pdxwa-oc-all:hover,
+.pdxwa-oc-all:focus-visible { color: #a9c4e8; border-color: rgba(148, 163, 184, 0.6); }
+.pdxwa-oc-all-b { display: none; }
+.pdxwa-oc.is-flat .pdxwa-oc-all-a { display: none; }
+.pdxwa-oc.is-flat .pdxwa-oc-all-b { display: inline; }
 /* The denominator, once, at the foot — never as a second percentage. */
 .pdxwa-oc-foot {
   font-size: 0.66rem;
@@ -1489,7 +1520,11 @@
 /* Segments are sized by flex-grow off the counts, so the bar is drawn from the
    same integers printed beneath it and cannot drift from them. No fixed height
    anywhere in this file — the rule is em-based so it scales with the reader's
-   text size rather than pinning a pixel row. */
+   text size rather than pinning a pixel row.
+   Each segment is now a button into its bucket's list. The bar itself stays out
+   of the accessibility tree: the counts below are the same four controls, named
+   and reachable by keyboard, so exposing both would make a reader tab through
+   the same four destinations twice. */
 .pdxwa-comp-bar {
   display: flex;
   gap: 2px;
@@ -1500,31 +1535,81 @@
 .pdxwa-comp-seg {
   display: block;
   min-width: 0.5rem;
-  padding-block: 0.18rem;
-  opacity: 0.85;
+  padding: 0.3rem 0;        /* a pointer-sized band, not a hairline — and no
+                               inline padding, or a button's default side padding
+                               would widen every slice off its own count */
+  border: 0;
+  font: inherit;
+  opacity: 0.72;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
 }
+.pdxwa-comp-seg:hover { opacity: 0.95; }
+/* The open bucket's slice, lit. This is the only thing in the picture that says
+   which list is below it, so it is a brightness difference rather than a border
+   a 6px-tall slice could not show. */
+.pdxwa-comp-seg.is-on { opacity: 1; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55); }
 .pdxwa-comp-l {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem 0.75rem;
+  gap: 0.15rem 0.2rem;
 }
 .pdxwa-comp-i {
   display: flex;
-  align-items: baseline;
-  gap: 0.28rem;
+  min-width: 0;
 }
 /* Zero is listed, not hidden — see .pdxwa-oc-tab.is-zero. Dimmed so the legend
-   still reads as a picture of what IS on file. */
-.pdxwa-comp-i.is-zero { opacity: 0.55; }
+   still reads as a picture of what IS on file, and still tappable, because the
+   list behind a zero says "none" and that is an answer. */
+.pdxwa-comp-i.is-zero { opacity: 0.6; }
+.pdxwa-comp-i.is-zero:focus-within,
+.pdxwa-comp-i.is-zero:hover { opacity: 1; }
+/* THE COUNT IS THE DOOR. Each total is a real button with a real tap target —
+   the strip stopped being a picture of the record the moment it became the way
+   into it. */
+.pdxwa-comp-b {
+  display: flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  padding: 0.2rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.pdxwa-comp-b:hover,
+.pdxwa-comp-b:focus-visible {
+  background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 14%, transparent);
+  border-color: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 45%, transparent);
+}
+.pdxwa-comp-b.is-on {
+  background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 18%, transparent);
+  border-color: var(--pdxwa-col, #9fb4d4);
+}
+.pdxwa-comp-b.is-on .pdxwa-comp-lbl { color: #eaf2ff; }
+/* Without color-mix() the selected count keeps its border and loses only the
+   tint — which state is open is still legible. */
+@supports not (background: color-mix(in srgb, #000 14%, transparent)) {
+  .pdxwa-comp-b:hover,
+  .pdxwa-comp-b:focus-visible { background: rgba(255, 255, 255, 0.06); border-color: rgba(159, 180, 212, 0.5); }
+  .pdxwa-comp-b.is-on { background: rgba(255, 255, 255, 0.09); }
+}
 .pdxwa-comp-n {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 0.92rem;
   line-height: 1;
+  color: var(--pdxwa-col, #9fb4d4);
 }
+.pdxwa-comp-i.is-zero .pdxwa-comp-n { color: #7f97b8; }
 .pdxwa-comp-lbl {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
@@ -1532,6 +1617,14 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #8fa8c8;
+}
+/* The instruction, once, under the controls it describes. Quiet: a reader who
+   has already tapped one does not need it repeated at finding weight. */
+.pdxwa-comp-hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.45;
+  color: #6f88ab;
 }
 .pdxwa-comp-note {
   margin: 0.4rem 0 0;
@@ -1615,28 +1708,29 @@
   .pdxwa-dot-v { font-size: 0.78rem; }
   .pdxwa-feed { grid-template-columns: 1.7rem 1fr auto; padding: 0.5rem 0.7rem; }
   .pdxwa-feed-role { font-size: 0.68rem; }
-  /* THE INDEX, WIDE. There is room for every bucket at once here, so nothing is
-     filtered: the four result lists sit side by side as distinct panels, which is
-     the fastest way to read the SHAPE of a record. The switcher stays — it is
-     still the legend that names and counts the buckets, and the selected chip
-     still marks a bucket, it just marks it by emphasis instead of by hiding the
-     other three. */
-  .pdxwa-oc-panels {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem 0.9rem;
-    align-items: start;
-  }
-  .pdxwa-oc-grp { display: block; margin-bottom: 0; }
+  /* THE INDEX, WIDE. Width buys a calmer read, not more lists. This used to
+     become a two-column board of four panels, which made a reader compare
+     columns to find one issue and turned the selected chip into a hint rather
+     than a filter. The wide layout now shows the same single focused list the
+     phone shows — capped to a reading measure so a 1400px window does not
+     stretch one issue title across the whole screen — and spends the extra room
+     on alignment instead: the result cue in a column of its own, so a stack of
+     rows reads down the verdicts as cleanly as it reads across one row. */
+  .pdxwa-oc-panels { display: block; max-width: 46rem; }
+  .pdxwa-oc-grp { margin-bottom: 0; }
   .pdxwa-oc-grp.is-on {
     border-left-width: 3px;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.045), transparent 62%);
   }
-  /* Coverage is the one bucket that is not a finding, so it never shares a row
-     with the results: it drops to the full width below them, under the same
-     dashed stroke its chip carries. */
-  .pdxwa-oc-grp-2nd { grid-column: 1 / -1; }
+  /* Flat mode still stacks, and each bucket keeps a gap so the four lists do
+     not read as one long list with headings in it. */
+  .pdxwa-oc.is-flat .pdxwa-oc-grp { margin-bottom: 0.7rem; }
+  .pdxwa-oc-row { flex-wrap: nowrap; gap: 0 0.6rem; }
+  .pdxwa-oc-cue { min-width: 5.6rem; text-align: center; }
   .pdxwa-oc-tab { flex: 0 1 auto; min-height: 2.4rem; }
+  /* The strip is the navigator on desktop too, so its counts stay full-size tap
+     targets and gain the room to sit on one line. */
+  .pdxwa-comp-l { gap: 0.15rem 0.35rem; }
 }
 
 

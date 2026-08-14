@@ -1180,7 +1180,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   // each of those as a second row.
   eq((mixedBag.match(/pdxwa-oc-row[ "]/g) || []).length, 5, 'the outcomes block dropped or duplicated a row');
   // No second percentage. This block reports outcomes, never a rate of its own.
-  const ocBlock = mixedBag.slice(mixedBag.indexOf('pdxwa-oc'), mixedBag.indexOf('What feeds this score'));
+  const ocBlock = mixedBag.slice(mixedBag.indexOf('<div class="pdxwa-oc"'), mixedBag.indexOf('What feeds this score'));
   ok(!/%/.test(ocBlock.replace(/<[^>]+>/g, ' ')),
     'the outcomes block prints a percentage — there is exactly one score on a profile');
 
@@ -1195,8 +1195,13 @@ const voteNarration = (issueKey, extra = {}) => ({
   // Scoped to the outcomes block rather than to the whole card: the wa-basis lid
   // folds the tier table further up, so an unscoped slice cuts before this block
   // even starts and every assertion below it passes or fails on the wrong string.
+  // Sliced on the index's own opening tag, not on the substring "pdxwa-oc": the
+  // shape strip above now carries the index's id in its data-pdxwa-seg-uid
+  // attributes (it is a control set aimed at these panels), so a substring slice
+  // starts inside the strip and counts its four counts and four bar segments as
+  // switcher chips.
   const ocOnly = (h) => {
-    const i = h.indexOf('pdxwa-oc');
+    const i = h.indexOf('<div class="pdxwa-oc"');
     return i === -1 ? '' : h.slice(i);
   };
   const ocIdx = ocOnly(mixedBag);

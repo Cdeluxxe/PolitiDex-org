@@ -435,6 +435,261 @@ eq(PANES.filter((p) => p._classes.has("is-on")).map((p) => p.getAttribute("data-
   "switcher: the coverage bucket cannot be reached from the switcher");
 
 // ═════════════════════════════════════════════════════════════════════════════
+// 4b. The shape strip is the way IN — not a picture above the lists
+// ═════════════════════════════════════════════════════════════════════════════
+// "The shape behind the average" used to be a read-only bar with four counts
+// under it, sitting a screen above four competing bucket lists. A reader who saw
+// "3 contradicted" and wanted those three had to scroll past the basis, the top
+// rows and the switcher, then find the right chip. The counts and the bar
+// segments are now the same control set as the switcher chips, pointed at the
+// same panels: the summary is the navigator and the index is the one list it
+// opens. This section holds that contract — in the markup, and in the handler.
+const compOf = (html) => {
+  const s = String(html);
+  const i = s.indexOf('<div class="pdxwa-comp"');
+  if (i === -1) return "";
+  const f = s.indexOf("pdxwa-comp-fine", i);
+  if (f === -1) return "";
+  const e = s.indexOf("</div>", s.indexOf("</p>", f));
+  return s.slice(i, e === -1 ? s.length : e + 6);
+};
+const CLEAN_ROWS = [
+  stubRow("border_security", "Border Security", "consistent"),
+  stubRow("guns", "Gun Rights", "consistent"),
+  stubRow("energy", "Energy", "limited"),
+];
+const STRIP = compOf(withRows(ROWS));
+const CLEAN_STRIP = compOf(withRows(CLEAN_ROWS));
+ok(STRIP.length > 0, "gateway: the shape strip did not render — every assertion below is vacuous");
+
+// ── The uid contract ────────────────────────────────────────────────────────
+// The strip is rendered by one function and the index by another. They agree on
+// which index the strip drives through ocUid(pid) alone — no plumbing, no state,
+// no lookup that can come back empty. If that derivation ever drifts, the counts
+// become buttons that address an element which is not on the page, which is a
+// dead control that looks alive.
+const UID = (/<div class="pdxwa-oc" id="([^"]+)"/.exec(IDX) || [])[1] || "";
+ok(UID.length > 0, "gateway: the index has no id, so nothing above it can address its panels");
+eq((STRIP.match(new RegExp('data-pdxwa-seg-uid="' + UID + '"', "g")) || []).length,
+   (STRIP.match(/data-pdxwa-seg-uid="/g) || []).length,
+   "gateway: a control in the strip points at an index id that is not the index below it");
+for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
+  has(STRIP, 'data-pdxwa-seg="' + tok + '"', `gateway: the strip has no control for the "${tok}" bucket`);
+  has(STRIP, 'aria-controls="' + UID + "-p-" + tok + '"',
+    `gateway: the "${tok}" count does not name the panel it opens`);
+  has(IDX, 'id="' + UID + "-p-" + tok + '"',
+    `gateway: the panel the "${tok}" count points at does not exist in the index`);
+}
+
+// ── Every count is a button, including the zeroes ───────────────────────────
+eq((STRIP.match(/<button type="button" class="pdxwa-comp-b/g) || []).length, 4,
+  "gateway: the four totals are not four controls — a count a reader cannot tap is the picture\n" +
+  "    this replaced");
+eq((CLEAN_STRIP.match(/<button type="button" class="pdxwa-comp-b/g) || []).length, 4,
+  "gateway: a clean record drops the empty buckets from the strip, so a reader cannot open\n" +
+  "    \"Contradicted: 0\" and read the honest empty state behind it");
+ok(!/disabled/.test(CLEAN_STRIP),
+  "gateway: an empty bucket's count is disabled — the panel behind it says \"None. No issue in\n" +
+  "    this index landed here\", and that sentence is the answer a reader came for");
+has(CLEAN_STRIP, "pdxwa-comp-i is-zero", "gateway: a bucket at zero is not drawn any quieter than a finding");
+has(STRIP, "Opens that list of issues below.",
+  "gateway: the counts do not say what tapping them does, so a screen reader meets four bare numbers");
+has(STRIP, "Tap a count", "gateway: nothing on the strip tells a reader the counts are controls");
+// The bar is a second, pointer-only route to the same four lists — it must not be
+// a second set of stops on the keyboard, or a reader tabs the same four
+// destinations twice.
+eq((STRIP.match(/class="pdxwa-comp-seg/g) || []).length, 4,
+  "gateway: the bar does not draw one segment per populated bucket");
+eq((STRIP.match(/class="pdxwa-comp-seg[^>]*tabindex="-1"[^>]*aria-hidden="true"/g) || []).length, 4,
+  "gateway: a bar segment is in the tab order or the accessibility tree — the counts below are the\n" +
+  "    same four destinations, named");
+eq((CLEAN_STRIP.match(/class="pdxwa-comp-seg/g) || []).length, 2,
+  "gateway: the bar draws a segment for a bucket with no width, which is an invisible control");
+// Still not a scoreboard: the gateway prints counts, never a rate.
+eq((STRIP.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
+  "gateway: the shape strip prints a percentage — there is exactly one score on a profile");
+
+// ── One bucket open, and both surfaces say the same one ─────────────────────
+eq((STRIP.match(/aria-pressed="true"/g) || []).length, 1,
+  "gateway: the strip has no single open bucket, or claims more than one");
+ok(/data-pdxwa-seg="contradicts"[^>]*data-pdxwa-gate="count"[^>]*aria-pressed="true"/.test(STRIP),
+  "gateway: the strip does not open on the same bucket the index below it opened on");
+ok(/data-pdxwa-seg="consistent"[^>]*data-pdxwa-gate="count"[^>]*aria-pressed="true"/.test(CLEAN_STRIP),
+  "gateway: on a clean record the strip and the index disagree about which bucket is open");
+ok(!/data-pdxwa-seg="limited"[^>]*data-pdxwa-gate="count"[^>]*aria-pressed="true"/.test(CLEAN_STRIP),
+  "gateway: the strip opens on the coverage pile while real results exist — coverage is not a finding");
+
+// ── The flat view: kept, and demoted to one control ─────────────────────────
+has(IDX, 'data-pdxwa-oc-all="' + UID + '"',
+  "gateway: the all-in-one-list view has no control of its own, so the only way back to it would be\n" +
+  "    a layout that shows every bucket at once — which is what the gateway replaced");
+has(IDX, "See the full breakdown", "gateway: the flat view does not say what it offers");
+has(IDX, "Back to one bucket at a time", "gateway: the flat view cannot be left by the control that entered it");
+
+// ── Behaviour: a tap on a count moves the strip, the chips and the panels ───
+// The whole gateway is one delegated handler and one shared mover, so it is
+// driven here rather than read: three control sets that agree in the markup and
+// drift the moment anything is tapped would be the worst version of this.
+const gTab = (tok, on) => {
+  const el = mkEl();
+  el._attrs = { "data-pdxwa-seg": tok, "data-pdxwa-seg-uid": UID };
+  if (on) el._classes.add("is-on");
+  el.setAttribute("aria-selected", on ? "true" : "false");
+  return el;
+};
+const gCount = (tok, on, gate = "count") => {
+  const el = mkEl();
+  el._attrs = { "data-pdxwa-seg": tok, "data-pdxwa-seg-uid": UID, "data-pdxwa-gate": gate };
+  if (on) el._classes.add("is-on");
+  el.setAttribute("aria-pressed", on ? "true" : "false");
+  return el;
+};
+const gPane = (tok, on) => {
+  const el = mkEl();
+  el._attrs = { "data-pdxwa-oc-panel": tok };
+  if (on) el._classes.add("is-on");
+  return el;
+};
+const G_TOKENS = ["contradicts", "mixed", "consistent", "limited"];
+const G_CHIPS = G_TOKENS.map((t) => gTab(t, t === "contradicts"));
+const G_COUNTS = G_TOKENS.map((t) => gCount(t, t === "contradicts"));
+const G_SEGS = G_TOKENS.map((t) => gCount(t, t === "contradicts", "bar"));
+const G_PANES = G_TOKENS.map((t) => gPane(t, t === "contradicts"));
+let scrolled = 0;
+const gIdx = mkEl();
+gIdx.scrollIntoView = () => { scrolled += 1; };
+gIdx._classes.add("pdxwa-oc");
+// The section wrapper, which is the ONE ancestor the strip and the index share.
+const gSection = mkEl();
+gSection._kids[".pdxwa-oc"] = gIdx;
+gSection.querySelectorAll = (sel) =>
+  (sel.indexOf("data-pdxwa-seg-uid") !== -1 ? G_CHIPS.concat(G_COUNTS, G_SEGS) : G_PANES);
+[...G_CHIPS, ...G_COUNTS, ...G_SEGS].forEach((el) => {
+  el.closest = (sel) => (sel === "[data-pdxwa]" ? gSection : (sel === "[data-pdxwa-seg]" ? el : null));
+});
+const openTok = () => G_PANES.filter((p) => p._classes.has("is-on"))
+  .map((p) => p.getAttribute("data-pdxwa-oc-panel")).join(",");
+const tapSeg = (el) => fire({ closest: (sel) => (sel === "[data-pdxwa-seg]" ? el : null) });
+
+tapSeg(G_COUNTS[1]);
+eq(openTok(), "mixed", "gateway: tapping a total in the summary does not open that bucket's list");
+eq(G_COUNTS.filter((c) => c.getAttribute("aria-pressed") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "mixed", "gateway: the strip does not mark the bucket it just opened, or marks two");
+eq(G_CHIPS.filter((c) => c.getAttribute("aria-selected") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "mixed", "gateway: the index's own chips did not follow the summary, so the two surfaces now\n" +
+   "    disagree about which bucket the reader is in");
+eq(G_CHIPS.filter((c) => c.getAttribute("aria-pressed") !== null).length, 0,
+  "gateway: a tab was told it is \"pressed\" — a tab reports aria-selected, and mixing the two\n" +
+  "    breaks the role it was given");
+eq(G_COUNTS.filter((c) => c.getAttribute("aria-selected") !== null).length, 0,
+  "gateway: a plain toggle button was told it is \"selected\", which says nothing to a screen reader");
+eq(scrolled, 1, "gateway: a tap in the summary does not bring the list it opened into view — on a phone\n" +
+  "    the index is a screen below the strip, so the reader is left looking at the bar");
+
+// The bar is the same gateway by another route.
+tapSeg(G_SEGS[3]);
+eq(openTok(), "limited", "gateway: tapping a segment of the bar does not open that bucket's list");
+eq(G_COUNTS.filter((c) => c._classes.has("is-on")).map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "limited", "gateway: the bar and the counts do not move together");
+eq(scrolled, 2, "gateway: a tap on the bar does not scroll the list into view");
+
+// One bucket is ALWAYS open — re-tapping the open one re-focuses it rather than
+// collapsing the section into nothing. Chosen deliberately for the phone: a
+// collapse leaves a reader on a bare strip with no list under it and no
+// indication that anything is meant to be there.
+tapSeg(G_COUNTS[3]);
+eq(openTok(), "limited", "gateway: re-tapping the open bucket closed it — the index is never empty, one bucket\n" +
+  "    is always on screen");
+eq(scrolled, 3, "gateway: re-tapping the open bucket does not return the reader to its list");
+
+// An empty bucket opens too, onto the sentence that says it is empty.
+tapSeg(G_COUNTS[0]);
+eq(openTok(), "contradicts", "gateway: an empty bucket cannot be opened from the summary");
+const cleanIdx = ocOf(withRows(CLEAN_ROWS));
+const cPanel = cleanIdx.slice(cleanIdx.indexOf('data-pdxwa-oc-panel="contradicts"'),
+                              cleanIdx.indexOf('data-pdxwa-oc-panel="mixed"'));
+has(cPanel, "None. No issue in this index landed here",
+  "gateway: opening a bucket at zero lands on a blank panel rather than on the honest empty state");
+
+// A chip inside the index switches without scrolling — it is already on screen,
+// and yanking the page under a reader who tapped a control they can see is worse
+// than not moving at all.
+const scrollMark = scrolled;
+tapSeg(G_CHIPS[2]);
+eq(openTok(), "consistent", "gateway: the index's own chips stopped switching once the strip could");
+eq(scrolled, scrollMark, "gateway: tapping a chip inside the index scrolls the index — only the summary above\n" +
+  "    it has a distance to close");
+
+// ── Flat mode is a mode, and picking a bucket leaves it ─────────────────────
+const allBtn = mkEl();
+allBtn._attrs = { "data-pdxwa-oc-all": UID };
+allBtn.setAttribute("aria-pressed", "false");
+allBtn.closest = (sel) => (sel === "[data-pdxwa-oc-all]" ? allBtn : (sel === ".pdxwa-oc" ? gIdx : null));
+const tapAll = () => fire({ closest: (sel) => (sel === "[data-pdxwa-oc-all]" ? allBtn : null) });
+tapAll();
+ok(gIdx._classes.has("is-flat"), "gateway: the full-breakdown control does not open the all-in-one-list view");
+eq(allBtn.getAttribute("aria-pressed"), "true", "gateway: the flat-view control does not report that it is on");
+eq(openTok(), "consistent", "gateway: entering the flat view threw away the bucket the reader had open, so\n" +
+  "    leaving it again cannot put them back");
+tapAll();
+ok(!gIdx._classes.has("is-flat"), "gateway: the flat view cannot be left — a mode with no way out is a trap");
+eq(allBtn.getAttribute("aria-pressed"), "false", "gateway: the flat-view control still reports itself on after being turned off");
+tapAll();
+tapSeg(G_COUNTS[1]);
+ok(!gIdx._classes.has("is-flat"), "gateway: picking one bucket left four lists on screen under a control that names\n" +
+  "    one — picking a bucket means picking a bucket");
+eq(openTok(), "mixed", "gateway: leaving the flat view by picking a bucket did not open that bucket");
+
+// ── And the focused list is still a set of doors ────────────────────────────
+// The point of the gateway is what it lands on. A reader who taps "Backed up" in
+// the summary must be able to tap an issue in the list that appears and get the
+// same assembled dossier every other surface opens.
+const gwOpened = [];
+const gwRealOpen = C.openGap;
+C.openGap = (pid, key, opts) => { gwOpened.push({ pid, key, opts }); return true; };
+tapSeg(G_COUNTS[2]);
+const gwRow = mkEl();
+gwRow._attrs = {
+  "data-pdxwa-dos": "border_security",
+  "data-pdxwa-dos-pid": MEMBER,
+  "data-pdxwa-dos-origin": "pdxwa-oc-" + MEMBER + "-border_security",
+};
+fire({ closest: (sel) => (sel === "[data-pdxwa-dos]" ? gwRow : null) });
+eq(gwOpened.length, 1, "gateway: a row in the bucket the summary opened does not open the dossier");
+eq(gwOpened[0].key, "border_security", "gateway: the row in the focused list opened the wrong issue");
+eq(gwOpened[0].opts.origin, "pdxwa-oc-" + MEMBER + "-border_security",
+  "gateway: the row in the focused list does not hand over its own id, so closing the dossier\n" +
+  "    cannot return the reader to the bucket they were browsing");
+C.openGap = gwRealOpen;
+// ...and the rows that list is made of are the ones filed under that bucket.
+const consPanel = IDX.slice(IDX.indexOf('data-pdxwa-oc-panel="consistent"'),
+                            IDX.indexOf('data-pdxwa-oc-panel="limited"'));
+has(consPanel, 'data-pdxwa-dos="border_security"', "gateway: the backed-up bucket does not contain its own rows");
+has(consPanel, 'data-pdxwa-dos="guns"', "gateway: a row filed under backed up is missing from that bucket's list");
+hasnt(consPanel, 'data-pdxwa-dos="lower_taxes"', "gateway: a contradicted row is listed under backed up");
+
+// ── One list at every width ─────────────────────────────────────────────────
+// The old desktop layout turned the four panels into a two-column board, which
+// made the selection an emphasis rather than a filter and left a reader comparing
+// columns to find one issue. The stylesheet is asserted directly because there is
+// no width in this DOM to render at.
+const CSS = read("word-action.css");
+ok(!/\.pdxwa-oc-panels\s*\{[^}]*grid/.test(CSS),
+  "gateway: the bucket panels are still laid out as a grid at some width — the summary opens ONE\n" +
+  "    list, and a board of four is what it replaced");
+ok(!/\.pdxwa-oc-grp-2nd\s*\{[^}]*grid-column/.test(CSS),
+  "gateway: the coverage panel still claims a row of its own in a panel grid that no longer exists");
+ok(/\.pdxwa-oc-grp\s*\{[^}]*display:\s*none/.test(CSS) && /\.pdxwa-oc-grp\.is-on\s*\{[^}]*display:\s*block/.test(CSS),
+  "gateway: the panels are not hidden-except-one by default, so every width shows every bucket");
+ok(/\.pdxwa-oc\.is-flat\s+\.pdxwa-oc-grp\s*\{[^}]*display:\s*block/.test(CSS),
+  "gateway: the flat class reveals nothing, so the full-breakdown control is a no-op");
+ok(/\.pdxwa-comp-b\s*\{[^}]*min-height:\s*2\.75rem/.test(CSS),
+  "gateway: the counts are controls without a 44px tap target, on the surface most likely to be read\n" +
+  "    on a phone");
+ok(/\.pdxwa-oc-all\s*\{[^}]*min-height:\s*2\.75rem/.test(CSS),
+  "gateway: the full-breakdown control has no 44px tap target");
+
+// ═════════════════════════════════════════════════════════════════════════════
 // 5. The tap opens the assembled dossier, and remembers where it came from
 // ═════════════════════════════════════════════════════════════════════════════
 const opened = [];
