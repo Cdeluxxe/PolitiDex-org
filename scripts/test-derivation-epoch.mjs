@@ -9,16 +9,17 @@
 // row model five times over — all to produce byte-identical output.
 //
 // So each derived read is memoized against a shared counter, and the counter is
-// bumped at the only two places the data underneath can actually change: a full
-// profile document merging in from Firestore, and a member's roll-call record
-// landing. A missed bump costs a stale read; a spurious bump costs one
-// recomputation. This file holds both ends of that trade to the wall:
+// bumped at the only places the data underneath can actually change: a full profile
+// document merging in from Firestore, a member's roll-call record landing, and a
+// lazy detail bundle merging into the roster. A missed bump costs a stale read; a
+// spurious bump costs one recomputation. This file holds both ends of that trade to
+// the wall:
 //
 //   · the cache is REAL — a second read inside one epoch is the same object, not
 //     an equal one, because an equal one means the work was done again;
 //   · the cache is HONEST — what it hands back is exactly what a cold derivation
 //     produces, so no surface can be showing a figure the data no longer supports;
-//   · the boundaries are WIRED — the two events that change the data bump it.
+//   · the boundaries are WIRED — every event that changes the data bumps it.
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -237,6 +238,19 @@ ok(/_pdxEnsureFullProfile[\s\S]{0,4000}PDXDataChanged/.test(boot),
   "boundary: a full profile document merging in from Firestore does not announce a data change, so a\n" +
   "    profile opened before its own document arrives keeps the bundled answer forever");
 
+// The third boundary: a lazy bundle landing. Most of the roster's detail — stances,
+// spotlights, executive actions — is not in the initial payload, so a read taken
+// before the bundle for a politician merges is computed from a strictly smaller set
+// of inputs than the same read taken after. Nothing about that read is wrong at the
+// time; it simply stops being the answer the app would now give. Without a bump the
+// two coexist, and the surface that asked first keeps its figure — which is how a
+// homepage card and the profile it links to end up publishing different percentages
+// for the same politician.
+const lazy = read("pdx-lazy-data.js");
+ok(/s\.onload = function[\s\S]{0,1200}PDXDataChanged/.test(lazy),
+  "boundary: a lazy bundle merging into the roster does not announce a data change, so every figure\n" +
+  "    derived before it landed survives it — including ones already painted on screen");
+
 // ═════════════════════════════════════════════════════════════════════════════
 // 5 · The second signal — data replaced without an announcement
 // ═════════════════════════════════════════════════════════════════════════════
@@ -323,4 +337,4 @@ if (failures.length) {
   failures.forEach((f, i) => console.error(`  ${i + 1}. ${f}\n`));
   process.exit(1);
 }
-console.log(`✓ derivation epoch: all ${passed} assertions passed — one counter, two boundaries, no stale reads`);
+console.log(`✓ derivation epoch: all ${passed} assertions passed — one counter, three boundaries, no stale reads`);

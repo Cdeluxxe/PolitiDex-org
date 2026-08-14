@@ -33,8 +33,8 @@
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 33,
-        "word": 49,
+        "scorable": 34,
+        "word": 50,
         "actionIssues": 0
       }
     },

@@ -2406,7 +2406,37 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
           headline:'Called affordability "a con job by the Democrats"',
           facts:'At a Dec. 2, 2025 Cabinet meeting, Trump said "the word affordability is a con job by the Democrats," arguing prices were already coming down — eleven months after signing a day-one memorandum directing every agency to pursue emergency measures against the cost-of-living crisis.',
           why:'Dismissing the framing of the problem he opened his term by declaring an emergency over is a direct words-vs-words gap on his own signature promise.',
-          source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/watch-trump-says-the-word-affordability-is-a-con-job-by-the-democrats' } }
+          source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/watch-trump-says-the-word-affordability-is-a-con-job-by-the-democrats' } },
+
+        // War powers — the follow-through record. These three sit in the 🧾 Say-vs-Do
+        // lane on purpose, and they are keyed to war_powers rather than to restraint
+        // for two reasons. The honest one: each turns on who authorized the use of
+        // force, which is what this chip is about, and both wave-12 formal instruments
+        // carry war_powers as their PRIMARY mapping — so the two lanes describe the
+        // same key from their own sides. The structural one: the restraint row's stated
+        // position is filed non-directional, so no formal action can be judged against
+        // it, and Direction Match therefore falls through to the public lane on that
+        // row. Filing these there would have let public items produce a Direction Match
+        // verdict. They must not. war_powers has no stated position at all, so it is
+        // outside the Direction Match universe and these stay in their own lane.
+        // The Senate roll calls on the war-powers resolutions belong to the senators
+        // who cast them, not here, so what is filed here is only this figure's own
+        // decisions and his own words about them.
+        { impact:'negative', category:'legal', date:'June 21–23, 2025', tags:['Rhetoric vs Reality','Notable Actions'], issueKey:'war_powers',
+          headline:'Bombed three Iranian nuclear sites, then told Congress afterward',
+          facts:'U.S. aircraft struck the Fordow, Natanz and Isfahan nuclear sites on June 21–22, 2025 without prior congressional authorization. The War Powers Resolution notification went to Congress on June 23 — after the fact — and rested on his authority "as Commander in Chief and Chief Executive," citing no statute and no authorization for the use of military force, while reserving the possibility of further strikes.',
+          why:'Opening strikes on a third country and notifying Congress afterward is the hardest test there is of a promise to end wars rather than start them.',
+          source:{ label:'Lawfare — the White House letter notifying Congress', url:'https://www.lawfaremedia.org/article/white-house-releases-letter-notifying-congress-of-iran-strikes' } },
+        { impact:'negative', category:'legal', date:'October 2, 2025', tags:['Notable Actions','Rhetoric vs Reality'], issueKey:'war_powers',
+          headline:'Told Congress the U.S. is in an "armed conflict" with cartels',
+          facts:'After the September 2025 strikes on alleged drug boats, the administration notified Congress that it considers the United States to be in a "non-international armed conflict" with cartels it has designated as terrorist organizations, and described the men killed in the September 15 strike as "unlawful combatants." Congress has authorized force against the organizations responsible for the September 11 attacks; it has never authorized force against drug cartels.',
+          why:'Declaring the country already at war — in a conflict Congress never authorized — is the opposite of a record built on staying out of new ones.',
+          source:{ label:'CBS News', url:'https://www.cbsnews.com/news/trump-tells-congress-armed-conflict-drug-cartels-venezuela-boat-strikes/' } },
+        { impact:'negative', category:'rhetoric', date:'Oct. 31, 2025 → Jan. 3, 2026', tags:['Rhetoric vs Reality','Consistency'], issueKey:'war_powers',
+          headline:'Said strikes inside Venezuela were "not true," then ordered them',
+          facts:'Asked on Oct. 31, 2025 whether he was considering strikes inside Venezuela, he answered "no," and pressed on whether a decision had been made, "no, it\'s not true." Nine weeks later, on Jan. 3, 2026, he announced the U.S. "has successfully carried out a large scale strike against Venezuela," and that Nicolás Maduro had been captured and flown out of the country. The operation went ahead without congressional approval.',
+          why:'A denial and the decision it denied, nine weeks apart, is a words-vs-actions gap on his own record — and it is his own statement on both ends.',
+          source:{ label:'PBS News', url:'https://www.pbs.org/newshour/world/us-strikes-venezuela-and-says-its-leader-maduro-has-been-captured-and-flown-out-of-the-country' } }
       ],
       vance: [
         { impact:'neutral', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'lower_taxes',

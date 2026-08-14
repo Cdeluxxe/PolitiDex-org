@@ -673,9 +673,17 @@ section("10 · one verdict per issue — the Say-vs-Do merge");
   ok(/actionJudged && tok !== 'limited'/.test(rowFn),
     "the action branch no longer wins outright where a formal action exists — a formal\n" +
     "    action is the test wherever a formal action can be the test");
-  ok(/pub\.count >= MIN_SAYDO_EVIDENCE/.test(rowFn),
+  // THIN MEANS DIRECTIONAL-THIN. The gate used to read MIN_SAYDO_EVIDENCE against the
+  // item TOTAL, which let one judged receipt plus a red flag or two clear a bar named
+  // for directional evidence — and a row so decided printed "Says one thing, does
+  // another" with no percentage beside it, because one item does not divide. The count
+  // that opens the lane must be the same count the percentage is divided by.
+  ok(/pubDirectional >= MIN_SAYDO_EVIDENCE/.test(rowFn),
     "the public record can decide a row on a single receipt — thin evidence must not\n" +
     "    carry a verdict the formal record was never able to reach");
+  ok(/pubDirectional\s*=\s*\(pub\.supporting \|\| 0\) \+ \(pub\.contradicting \|\| 0\)/.test(rowFn),
+    "the public lane's evidence bar is counted over something other than supporting +\n" +
+    "    contradicting — flags are heat, and a bar that counts them is not a bar");
   ok(/flag` is deliberately NOT judgeable|flag` is deliberately/.test(CS_SRC) ||
      !/pub\.token === 'flag'/.test(rowFn),
     "a red flag can resolve a row's verdict — heat is Flashpoints' job, and promoting it\n" +
@@ -1124,9 +1132,15 @@ section("15 · one verdict engine, and a narrow Mixed");
   eq(typeof b.pct, "number", "the president's card brief carries no percentage — the card and the profile\n" +
     "    summarise the same record and must lead with the same figure");
   eq(b.pct, r.pct, "the card's percentage is not ⚖️ Word vs Action's — a second number computed a second way");
+  // …and it is labelled with the engine's name for it, carried through the brief.
+  // The card used to caption the figure "word matched by action" in its own words
+  // while the profile called the same number "Direction match", which is how one
+  // read came to look like two products to anyone comparing them.
+  eq(b.metric, (r.frame && r.frame.metric) || "",
+    "the card brief drops the metric name, so the card has to invent a caption for a number it did not name");
   const HS = R("hero-showcase.js");
-  ok(/d\.pct/.test(HS) && /word matched by action/.test(HS),
-    "the homepage card no longer paints brief().pct under the ⚖️ Word vs Action eyebrow");
+  ok(/d\.pct/.test(HS) && /d\.metric/.test(HS),
+    "the homepage card no longer paints brief().pct under the metric name the engine publishes for it");
   ok(/Word vs Action/.test(HS) && !/Kept word|Promise Receipts|Say vs\. ?Do/i.test(HS),
     "a retired integrity product is named on the homepage card — Word vs Action is the only score language");
 }

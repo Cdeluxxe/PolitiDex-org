@@ -934,6 +934,79 @@
 .pdxwa-oc-issue { color: #dbe6f5; font-weight: 600; overflow-wrap: break-word; min-width: 0; }
 .pdxwa-oc-meta { color: #6f88ab; font-size: 0.68rem; }
 
+/* ── The public lane, beside the formal result ─────────────────────────────
+   A SECOND CONTROL, NOT A SECOND ROW. It sits under the row it belongs to, in
+   the same <li>, indented to the issue's own colour rule and drawn in the
+   quieter of the two weights — related to the formal row, distinct from it, and
+   never mistakable for the verdict chrome above it. The dotted left edge is the
+   whole visual argument: the formal row's rule is solid because it carries the
+   result, this one is dotted because it carries context.
+   No colour from the verdict palette reaches it. A public tally that turned red
+   under a Contradicted row would be read as part of that verdict — which is
+   exactly the merge the two lanes exist to prevent. */
+.pdxwa-oc-pub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.1rem 0.34rem;
+  width: 100%;
+  min-height: 2.2rem;          /* still a real tap target, quieter than the row */
+  margin: -0.1rem 0 0.22rem;
+  padding: 0.26rem 0.3rem 0.26rem 0.4rem;
+  font: inherit;
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: #8fa2c0;
+  background: none;
+  border: 0;
+  border-left: 2px dotted rgba(147, 166, 196, 0.45);
+  border-radius: 0 0.3rem 0.3rem 0;
+  text-align: left;
+  cursor: pointer;
+}
+.pdxwa-oc-pub:hover,
+.pdxwa-oc-pub:focus-visible {
+  background: rgba(147, 166, 196, 0.09);
+  border-left-color: rgba(147, 166, 196, 0.8);
+}
+.pdxwa-oc-pub-k {
+  flex: 0 0 auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b9c9e4;
+}
+.pdxwa-oc-pub-t { flex: 1 1 100%; min-width: 0; color: #c6d4ec; overflow-wrap: break-word; }
+/* Nothing on file yet is a real answer and it is drawn as one: italic and quiet,
+   so it reads as an absence rather than as a finding, and still legible enough
+   that a reader knows the line loaded. */
+.pdxwa-oc-pub-0 .pdxwa-oc-pub-t { font-style: italic; color: #8fa2c0; }
+/* The wall, on every row. Short here because the sentence is at the foot; a row
+   is allowed to be deep-linked to on its own, so the disclosure cannot live
+   only in the paragraph a reader may never scroll to. */
+.pdxwa-oc-pub-tag {
+  flex: 0 0 auto;
+  font-size: 0.56rem;
+  letter-spacing: 0.02em;
+  color: #7f93b4;
+  padding: 0.02rem 0.28rem;
+  border: 1px dashed rgba(147, 166, 196, 0.4);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pdxwa-oc-pub-go { flex: 0 0 auto; color: #6f88ab; font-size: 0.8rem; line-height: 1; }
+/* The coverage count, once, under the denominator it shares. Same size as the
+   foot it follows, because it is the same kind of sentence. */
+.pdxwa-oc-pubfoot {
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: #6f88ab;
+  margin: 0.3rem 0 0;
+}
+.pdxwa-oc-pubfoot b { color: #a9bdd8; font-weight: 600; }
+
 /* ── Method disclosure ──────────────────────────────────────────────────── */
 .pdxwa-method { margin-top: 0.6rem; }
 .pdxwa-method > summary {
@@ -1531,6 +1604,13 @@
   .pdxwa-slice-n { font-size: 0.72rem; }
   .pdxwa-slice-note { font-size: 0.7rem; }
   .pdxwa-tier { grid-template-columns: 1.7rem 1fr auto; padding: 0.6rem 0.75rem; }
+  /* The public tally, given room rather than a size jump. On a phone the counts
+     take their own line so the lane key and the disclosure tag are not squeezed
+     into two words each; with width to spare all three sit on one line, which is
+     the compact shape this treatment was drawn for. */
+  .pdxwa-oc-pub { font-size: 0.68rem; padding: 0.24rem 0.35rem 0.24rem 0.45rem; }
+  .pdxwa-oc-pub-t { flex: 1 1 auto; }
+  .pdxwa-oc-pub-tag { font-size: 0.58rem; }
   .pdxwa-dot-step { grid-template-columns: 4.6rem 1fr; }
   .pdxwa-dot-v { font-size: 0.78rem; }
   .pdxwa-feed { grid-template-columns: 1.7rem 1fr auto; padding: 0.5rem 0.7rem; }

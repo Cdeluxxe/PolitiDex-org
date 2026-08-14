@@ -92,6 +92,9 @@ function pubRead(over = {}) {
     party: { label: "R", color: "#f87171" },
     verdict: { key: "mixed", ico: "◑", label: "Mixed record", tone: "warn", color: "#93c5fd" },
     accent: "#93c5fd", publishable: true,
+    // The engine's own name for the figure, carried through so the card labels the
+    // percentage with the same words the profile does.
+    metric: "Direction match",
     signal: "Their record cuts both ways on what they have said.",
     breakdown: { consistent: 5, mixed: 2, contradicts: 3 },
     coverage: {
@@ -135,6 +138,9 @@ function harness(opts = {}) {
   // pid → read object (or null). A function gets (pid, passNumber) so a test can
   // change the answer between passes, which is how warming→settled is simulated.
   const answer = opts.answer || (() => null);
+  // read() may answer differently from brief() — that split is the whole point of
+  // the fail-closed case, where a candidate qualifies and then its live read fails.
+  const readAnswer = opts.readAnswer || answer;
 
   const host = makeHost();
   const calls = {
@@ -146,6 +152,10 @@ function harness(opts = {}) {
   const winListeners = {};
   let clock = EPOCH;
   let pass = 0;
+  // The derivation epoch. Every cache keyed on a live read is keyed on this too,
+  // so bumping it is how the app says "the inputs changed; what you computed
+  // earlier is no longer what the profile would publish".
+  let derivEpoch = 1;
 
   const win = {
     console, Math, JSON, String, Number, Array, Object, Boolean, RegExp, Error,
@@ -182,9 +192,10 @@ function harness(opts = {}) {
       ensure: (k) => { calls.ensure.push(k); },
       whenReady: (k) => { calls.whenReady.push(k); },
     },
+    PDXDataEpoch: () => derivEpoch,
     PDXProfileCard: opts.noEngine ? undefined : {
       brief: (pid) => { calls.brief.push(pid); return answer(pid, pass); },
-      read: (pid) => { calls.read.push(pid); return answer(pid, pass); },
+      read: (pid) => { calls.read.push(pid); return readAnswer(pid, pass); },
       warm: (pid) => { calls.warm.push(pid); },
       share: (pid, btn) => { calls.share.push([pid, btn]); },
     },
@@ -201,6 +212,9 @@ function harness(opts = {}) {
     get html() { return host.innerHTML; },
     advance(ms) { clock += ms; },
     nextPass() { pass++; },
+    // A new bundle merged into the roster, a record cache cleared — anything that
+    // changes what a live read would return.
+    bumpEpoch() { derivEpoch++; },
     // Fire a warm event, as consistency.js / voting-record.js do. Both real
     // dispatchers name the member that settled in detail.pid; passing no pid
     // exercises the detail-less fallback, which nothing in the app emits.
@@ -394,6 +408,16 @@ for (const c of seed) {
   ok(/61<span class="pdx-hs-sig-pct-u">%/.test(warm),
     "freeze: and the score it publishes is the settled one");
 
+  // The figure is labelled with the engine's own name for it. A card that shows a
+  // bare percentage, or names it something the profile does not, reads as a second
+  // score — and a reader who compares the two has no way to know it is one figure.
+  ok(/Direction match/.test(warm),
+    "vocabulary: the percentage is labelled with the metric name the engine publishes");
+  ok(!/word matched by action/i.test(RENDERER),
+    "vocabulary: the card hard-codes its own name for the figure, so it can drift from the profile's");
+  ok(!/\bPromise\b|promiseScore|kept_pct/.test(RENDERER),
+    "vocabulary: retired promise-score language is back on the card");
+
   // Whatever it published, it published once — the label cannot change again on a
   // later arrival for the same member, because a settled card is never re-briefed.
   const before = h.calls.brief.length;
@@ -491,6 +515,73 @@ for (const c of seed) {
   eq(h.host.hidden, false,
     "grace: a candidate whose fetch is genuinely still in flight is not ruled out on a timer");
   ok(h.html.includes("Loading the record…"), "grace: it keeps showing the app's one waiting phrase");
+}
+
+// …but "still fetching" is not an unlimited exemption. `warming` is self-reported
+// by the record lane, and a lane that has lost track of a request reports warming
+// for the rest of the visit. That is the permanent spinner: the card is waiting
+// correctly, on a promise nobody is going to keep. There is a last sweep that
+// takes no for an answer.
+{
+  const h = harness({ seed, dataLoaded: true, answer: () => warmingRead() });
+  h.runTimers(30000);
+  eq(h.host.hidden, true,
+    "spinner: a candidate that reports 'still fetching' forever is never ruled out, so the hero holds a\n" +
+    "    skeleton for the whole visit — 'loading' has to expire eventually");
+  eq(h.html, "", "spinner: and having nothing publishable, the slot paints nothing rather than a spinner");
+}
+
+// The mixed carousel. A candidate can be judged publishable and then have its live
+// read come back empty — a bundle that has not merged, a cache dropped between the
+// two calls. Painting the pending card for it puts a skeleton inside a rotation of
+// finished cards, which reads as one member's record being unavailable when the
+// truth is that the page could not complete a read.
+{
+  const h = harness({
+    seed, dataLoaded: true,
+    answer: () => pubRead(),        // qualifies
+    readAnswer: () => null,         // …but the live read cannot complete
+  });
+  h.runTimers(3000);
+  ok(!/Loading the record…/.test(h.html),
+    "mixed: a publishable candidate whose live read fails is painted as a skeleton, so the carousel shows\n" +
+    "    a permanent spinner among finished cards");
+  eq(h.host.hidden, true, "mixed: with no completed read to show, the slot fails closed instead");
+}
+
+// Rotation waits for the set. Advancing through cards that have not resolved is
+// how a reader ends up watching a slideshow of skeletons.
+{
+  const h = harness({ seed, dataLoaded: true, answer: () => warmingRead() });
+  eq(h.intervals.filter(Boolean).length, 0,
+    "rotation: auto-advance is armed over a set of unresolved cards");
+}
+
+// Epoch invalidation. The card read is memoised — it has to be, or every repaint
+// re-derives the whole set. But the memo is only honest while its inputs are: when
+// a lazy bundle merges or the record cache is cleared, a figure computed earlier is
+// no longer the figure the profile would publish for the same member. That is the
+// divergence a reader sees as the homepage and the profile disagreeing.
+{
+  const h = harness({ seed, dataLoaded: true, answer: () => pubRead() });
+  ok(h.calls.read.length > 0, "epoch: the card is painted from a live read");
+
+  // Walk to the next card and back, so both are in the memo.
+  h.click(".pdx-hs-next");
+  h.click(".pdx-hs-prev");
+  const warmed = h.calls.read.length;
+
+  h.click(".pdx-hs-next");
+  h.click(".pdx-hs-prev");
+  eq(h.calls.read.length, warmed,
+    "epoch: returning to a card re-derives it from scratch on every repaint — the memo is doing nothing");
+
+  h.bumpEpoch();
+  h.click(".pdx-hs-next");
+  h.click(".pdx-hs-prev");
+  ok(h.calls.read.length > warmed,
+    "epoch: the memo survived a change to the data it was computed from, so the card keeps publishing a\n" +
+    "    figure the profile no longer agrees with");
 }
 
 // Malformed and missing seeds.
@@ -712,10 +803,16 @@ for (const c of seed) {
   // Honest budgets set just above the measured size, so any real growth trips them.
   // This pair is heavier than the receipt band it replaced (~5.7 KB); see the note
   // beside the script tags in index.html for why that is the accepted trade.
+  //
+  // The renderer budget was raised from 11 KB when the card was wired to the live
+  // Direction Match: an epoch-keyed read cache, a final rule-out sweep, and a paint
+  // that drops candidates whose read cannot complete. That is ~900 B gzipped, over
+  // half of it the comments explaining why each of the three exists — the cost of a
+  // card that cannot show a figure the profile disagrees with, or spin forever.
   ok(dataGz < 3 * 1024, `payload: seed is ${dataGz} B gzipped (budget 3 KB)`);
-  ok(rendGz < 11 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 11 KB)`);
-  ok(dataGz + rendGz < 13 * 1024,
-    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 13 KB)`);
+  ok(rendGz < 12.5 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 12.5 KB)`);
+  ok(dataGz + rendGz < 14 * 1024,
+    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 14 KB)`);
   console.log(`  critical path: ${dataGz} B + ${rendGz} B = ${dataGz + rendGz} B gzipped`);
 }
 

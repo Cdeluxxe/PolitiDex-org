@@ -284,6 +284,12 @@
       // it a denominator; the share canvas still does not (see the header note) —
       // the number travels away from its denominator there, and here it does not.
       pct: wPct,
+      // The engine's own name for that number ("Direction match"), carried so a
+      // surface that prints the figure can label it with the same words the
+      // profile headline uses instead of inventing a caption of its own. One
+      // source for the name means a rename can never leave two vocabularies
+      // live on the same page.
+      metric: (r.frame && r.frame.metric) ? String(r.frame.metric) : '',
       // ── the breakdown, as counts ──
       // Issue rows, straight off the shared tally in consistency.js — the exact
       // objects the profile prints one line per. This used to count word ITEMS from
@@ -314,10 +320,24 @@
   // memo is dropped whenever the answer can have changed (a record settling is the
   // only thing that changes it), and drawing a card never reads it: share() always
   // recomputes against the record it just warmed.
+  //
+  // Keyed on the derivation epoch as well as the pid. Listening for the three
+  // events below is necessary but not sufficient: a lazy data bundle merging new
+  // stances into the roster changes the answer too, and enumerating every future
+  // source of change is a losing game. The epoch is the one number that moves
+  // whenever an input to the read moves, so keying on it means a stale brief
+  // cannot outlive its inputs even via a path nobody thought to subscribe to.
   var _briefMemo = {};
+  var _briefEpoch = -1;
+  function epoch() {
+    try { if (typeof window.PDXDataEpoch === 'function') return window.PDXDataEpoch(); } catch (e) {}
+    return 0;
+  }
   function briefCached(pid, p) {
     pid = String(pid || '');
     if (!pid) return null;
+    var ep = epoch();
+    if (ep !== _briefEpoch) { _briefMemo = {}; _briefEpoch = ep; }
     if (Object.prototype.hasOwnProperty.call(_briefMemo, pid)) return _briefMemo[pid];
     var v = null;
     try { v = brief(pid, p); } catch (e) { v = null; }
