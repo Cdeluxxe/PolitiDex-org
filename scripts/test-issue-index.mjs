@@ -63,7 +63,18 @@ const mkEl = () => {
     setAttribute(k, v) { el._attrs[k] = v; }, getAttribute: (k) => (k in el._attrs ? el._attrs[k] : null),
     focus() {}, scrollIntoView() {},
     addEventListener() {}, removeEventListener() {}, remove() {},
-    appendChild(c) { if (c) c.parentNode = el; return c; },
+    // Registering the id here is what makes document.getElementById() real, and it
+    // has to be: the gap sheet finds its own backdrop by id, and a lookup that
+    // always answers null hides both a sheet that never mounted and one that
+    // mounted twice.
+    appendChild(c) {
+      if (c) { c.parentNode = el; if (c.id) byId.set(c.id, c); }
+      return c;
+    },
+    removeChild(c) {
+      if (c) { c.parentNode = null; if (c.id && byId.get(c.id) === c) byId.delete(c.id); }
+      return c;
+    },
     querySelector: (sel) => el._kids[sel] || null,
     querySelectorAll: () => [],
     _kids: {},
@@ -460,6 +471,105 @@ try { fire({ closest: (sel) => (sel === "[data-pdxwa-dos]" ? mkRow("healthcare")
 catch (e) { threw = e; }
 eq(threw, null, "tap: a missing dossier entry point throws out of the delegated handler");
 eq(opened.length, before, "tap: something navigated without an entry point to navigate with");
+
+// ── FAIL CLOSED IS NOT THE SAME AS SWALLOW ──────────────────────────────────
+// The regression this guards: the handler called preventDefault() and THEN tried
+// to open. When the open could not happen — module half-loaded, sheet detached,
+// assembly throwing — the tap was consumed and nothing at all happened. A row
+// that looks like a control and eats taps in silence is the worst of both. The
+// default may only be consumed once a sheet is confirmed up.
+const fireP = (target) => {
+  let prevented = false;
+  docClick.forEach((h) => h({ target, preventDefault() { prevented = true; } }));
+  return prevented;
+};
+const rowTarget = (key) => ({ closest: (sel) => (sel === "[data-pdxwa-dos]" ? mkRow(key) : null) });
+
+C.openGap = undefined;
+eq(fireP(rowTarget("healthcare")), false,
+  "tap: the row consumed the tap with no dossier entry point to open — the reader gets neither a\n" +
+  "    sheet nor the browser's own default, which is a dead control");
+
+C.openGap = () => { throw new Error("assembly blew up"); };
+let threw2 = null;
+let preventedOnThrow = null;
+try { preventedOnThrow = fireP(rowTarget("healthcare")); } catch (e) { threw2 = e; }
+eq(threw2, null, "tap: a dossier that throws takes the delegated handler down with it");
+eq(preventedOnThrow, false, "tap: the tap was consumed by an open that threw");
+
+C.openGap = () => false;
+eq(fireP(rowTarget("healthcare")), false,
+  "tap: openGap reported that no sheet went up and the tap was consumed anyway");
+
+C.openGap = () => true;
+eq(fireP(rowTarget("healthcare")), true,
+  "tap: a confirmed open did not consume the default, so the row's own click still runs after it");
+
+// A module too old to report anything is read as a success — that is what this
+// path did before, and a silent downgrade to "never opened" would be worse than
+// the bug being fixed.
+C.openGap = () => undefined;
+eq(fireP(rowTarget("healthcare")), true,
+  "tap: an entry point that reports nothing is treated as a failure, so every older build of the\n" +
+  "    consistency module stops consuming its own taps");
+C.openGap = realOpen;
+
+// ── AND THE REAL ONE OPENS, ON EVERY BUCKET ─────────────────────────────────
+// Not a stub: PDXConsistency's own openGap, against the real seeded record. Both
+// of the buckets the live report named — Mixed and Backed up — plus the sharp one,
+// because the failure being guarded was per-row and not per-bucket.
+for (const [key, why] of [["lower_taxes", "Contradicted"], ["healthcare", "Mixed"], ["border_security", "Backed up"]]) {
+  const wentUp = C.openGap(MEMBER, key, { arrival: false, origin: "pdxwa-oc-" + MEMBER + "-" + key });
+  ok(wentUp === true, `tap: openGap did not put a sheet on screen for a ${why} row`);
+  const backEl = ctx.document.getElementById("pdxc-gap-back") || null;
+  const bodyEl = backEl && backEl.querySelector(".pdxgap-sheet") &&
+    backEl.querySelector(".pdxgap-sheet").querySelector(".pdxgap-body");
+  ok(bodyEl && String(bodyEl.innerHTML).length > 50,
+    `tap: the ${why} row's sheet opened empty, which on screen is indistinguishable from a dead tap`);
+  C.closeGap();
+}
+
+// THE DOSSIER MAY FAIL; THE DOOR MAY NOT. The sheet is assembled out of a dozen
+// independent readers, and on live data any one of them can throw where it never
+// does on the bundled seed. When one does, the sheet still opens and says so in
+// words — naming the person and the issue, and putting the failure on us rather
+// than on their record — instead of opening blank or not opening at all.
+const realOmni = ctx.window._pdxRecordOmnibusStats;
+ctx.window._pdxRecordOmnibusStats = () => { throw new Error("provenance reader unavailable"); };
+let fellBack = null;
+try { fellBack = C.openGap(MEMBER, "border_security", { arrival: false }); }
+catch (e) { fellBack = e; }
+finally { ctx.window._pdxRecordOmnibusStats = realOmni; }
+ok(fellBack === true, "tap: a dossier whose assembly throws does not open at all — the tap is consumed and\n" +
+  "    the reader is given nothing and no reason");
+const fbBack = ctx.document.getElementById("pdxc-gap-back");
+const fbBody = fbBack && fbBack.querySelector(".pdxgap-sheet").querySelector(".pdxgap-body");
+const fbHtml = String((fbBody && fbBody.innerHTML) || "");
+has(fbHtml, "could not assemble",
+  "tap: the fallback sheet does not say plainly that the dossier could not be built");
+has(fbHtml, "Border Security",
+  "tap: the fallback sheet does not name the issue the reader tapped, so the tap looks unheard");
+has(fbHtml, "fault on our side",
+  "tap: the fallback sheet lets our own failure read as a finding about their record");
+has(fbHtml, "pdxgap-next",
+  "tap: the fallback sheet is a dead end — it drops the exits every other dossier carries");
+C.closeGap();
+
+// ── THE SHEET SURVIVES ITS OWN BACKDROP BEING REMOVED ───────────────────────
+// The sheet is cached on first build and lives on <body>, so it survives the warm
+// repaint of the section that opened it. It does NOT survive the body being
+// rebuilt — and a detached node accepts innerHTML and `hidden = false` in perfect
+// silence, so the failure is invisible at the point of use and reads as a dead tap.
+const liveBack = ctx.document.getElementById("pdxc-gap-back");
+if (liveBack) liveBack.parentNode = null;      // detached, exactly as a rebuild leaves it
+const afterDetach = C.openGap(MEMBER, "healthcare", { arrival: false });
+ok(afterDetach === true, "tap: with the backdrop detached the dossier reports success anyway, which is how a\n" +
+  "    dead tap survives every test that only checks the return value");
+const rebuilt = ctx.document.getElementById("pdxc-gap-back");
+ok(rebuilt && rebuilt.parentNode,
+  "tap: a detached sheet was reused instead of rebuilt, so nothing the reader tapped appears on screen");
+C.closeGap();
+
 C.openGap = realOpen;
 
 // ═════════════════════════════════════════════════════════════════════════════

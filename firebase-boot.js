@@ -240,6 +240,11 @@
       // Newly arrived depth invalidates memoized search text & accountability.
       if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache();
       if (typeof window._acctMatchCacheBust === 'function') window._acctMatchCacheBust(id);
+      // …and every derived read of this profile. One of the two places the data
+      // under the scoring lanes can actually change; see THE DERIVATION EPOCH in
+      // stance-helpers.js. Bumped even when the doc did not exist, because
+      // _pdxFullIds just changed and a caller may branch on it.
+      if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged();
       return PROFILES[id] || null;
     }).catch(function (e) {
       delete window._pdxFullPending[id];

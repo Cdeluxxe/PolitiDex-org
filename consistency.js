@@ -625,6 +625,34 @@
     if (pl) add(pl[1]);
     return out;
   }
+  // The identifier set for one action is a property of the DOCUMENT, not of the
+  // issue being tested against it — but the circularity guard runs per (action,
+  // issue) pair, so it was rebuilding the same four-or-five-string list, and
+  // re-running two regexes over the same document id, once for every issue on the
+  // profile. Keyed by the action object itself: the seed's action objects are
+  // stable for the life of the page, and a rebuilt pool simply gets fresh entries.
+  var _execIdCache = (typeof Map === 'function') ? new Map() : null;
+  var _execIdSquashed = (typeof Map === 'function') ? new Map() : null;
+  function execIdentifiersCached(a) {
+    if (!_execIdCache) return execIdentifiers(a);
+    var hit = _execIdCache.get(a);
+    if (hit) return hit;
+    var v = execIdentifiers(a);
+    _execIdCache.set(a, v);
+    return v;
+  }
+  // Same list with whitespace and dots squeezed out — the second pass execCircular
+  // runs so a card writing "H.R.1" still matches a seed writing "H.R. 1".
+  function execIdentifiersSquashed(a) {
+    if (!_execIdSquashed) {
+      return execIdentifiersCached(a).map(function (s) { return s.replace(/[\s.]/g, ''); });
+    }
+    var hit = _execIdSquashed.get(a);
+    if (hit) return hit;
+    var v = execIdentifiersCached(a).map(function (s) { return s.replace(/[\s.]/g, ''); });
+    _execIdSquashed.set(a, v);
+    return v;
+  }
 
   // Does `hay` name any of `needles`? A needle ending in a digit must not run into
   // more digits, so the identifier for Public Law 119-1 cannot match a sentence
@@ -688,11 +716,11 @@
       return { circular: true, why: 'declared', note: mapping.circularNote || '' };
     }
     if (!said) return { circular: false };
-    var ids = execIdentifiers(a);
+    var ids = execIdentifiersCached(a);
     if (execNamesDocument(said.plain, ids)) return { circular: true, why: 'card_names_document' };
-    var squeezed = [];
-    for (var i = 0; i < ids.length; i++) squeezed.push(ids[i].replace(/[\s.]/g, ''));
-    if (execNamesDocument(said.squeezed, squeezed)) return { circular: true, why: 'card_names_document' };
+    if (execNamesDocument(said.squeezed, execIdentifiersSquashed(a))) {
+      return { circular: true, why: 'card_names_document' };
+    }
     return { circular: false };
   }
 
@@ -702,8 +730,7 @@
   function execRecordsFor(pid, issueKey) {
     var out = { items: [], held: [], unstated: 0, circular: 0, touched: 0 };
     if (!issueKey || !execEligible(pid)) return out;
-    var E = window.PDXExecRecord;
-    var pool;
+    var E = window.PDXExecRecord;    var pool;
     try { pool = E.actionsFor(pid, execScopeOpts()); } catch (e) { return out; }
     var kept = (pool && pool.kept) || [];
     var said = execSaidText(pid, issueKey);
@@ -803,10 +830,46 @@
     return out;
   }
 
+  // MEMOIZED — see THE DERIVATION EPOCH in stance-helpers.js.
+  //
+  // Pure per (pid, issue) given the epoch, and read by the summary, the row model,
+  // the dossier and the lane panels — four surfaces asking the same question about
+  // the same issue while the reader waits. Assembling it walks the whole kept pool
+  // and runs the circularity guard per action, so the repeats were the single most
+  // expensive thing this file did on a presidential profile.
+  //
+  // Returned by reference. `items` / `held` are read-only to every caller here and
+  // in exec-record-ui.js — nothing pushes into them after assembly.
+  //
+  // Invalidated on the epoch AND on the seeded action list for this pid being
+  // replaced, for the same reason PDXExecRecord.actionsFor is — see the note there.
+  //
+  // AND KEYED ON THE ACTIVE TERM SCOPE. execRecordsFor() reads execScopeOpts() at
+  // the bottom of its own chain, so "this pid, this issue, this epoch" is not a
+  // complete question: asked inside withExecTermScope('current_term', …) it is a
+  // different question with a different answer, and the current-term slice sits
+  // directly beside the all-time figure it is compared against. A cache blind to
+  // the scope publishes the all-time number under the current-term heading.
+  var _erfCache = {}, _erfEpoch = 0;
+  function _erfRaw(pid) {
+    try { return (window.EXEC_ACTIONS || {})[norm(pid)] || null; } catch (e) { return null; }
+  }
+  function execRecordsForMemo(pid, issueKey) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_erfEpoch !== ep) { _erfCache = {}; _erfEpoch = ep; }
+    var raw = _erfRaw(pid);
+    var k = norm(pid) + '||' + String(issueKey || '') + '||' + execTermScope().key;
+    var hit = _erfCache[k];
+    if (hit && hit.raw === raw && hit.len === (raw ? raw.length : -1)) return hit.val;
+    var v = execRecordsFor(pid, issueKey);
+    _erfCache[k] = { raw: raw, len: (raw ? raw.length : -1), val: v };
+    return v;
+  }
+
   // ONE issue's exec summary, in the same shape recordSummary() returns, produced
   // by the same function. Null when nothing scorable touches the issue.
   function execIssueSummary(pid, issueKey) {
-    var pool = execRecordsFor(pid, issueKey);
+    var pool = execRecordsForMemo(pid, issueKey);
     if (!pool.items.length) return null;
     if (typeof window._issueRecordSummary !== 'function') return null;
     var stance = positionStance(pid, issueKey);
@@ -864,7 +927,7 @@
   // figure does not have.
   function execProofLines(pid, issueKey, limit) {
     var out = [], pool;
-    try { pool = execRecordsFor(pid, issueKey); } catch (e) { return out; }
+    try { pool = execRecordsForMemo(pid, issueKey); } catch (e) { return out; }
     var max = limit || 2;
     for (var i = 0; i < pool.items.length && out.length < max; i++) {
       var it = pool.items[i], t = execProofText(it);
@@ -1029,7 +1092,7 @@
     var warm = recordsWarm(pid);
     var stance = positionStance(pid, issueKey);
     var act = officialActionsFor(pid, issueKey);
-    var exPool = execRecordsFor(pid, issueKey);
+    var exPool = execRecordsForMemo(pid, issueKey);
     var hasStance = !!stance || (rec && rec.netVerdict && rec.netVerdict !== 'no_stance' && rec.netVerdict !== 'no_record') || act.total > 0;
 
     // 1. Systematic roll-call record is authoritative — use it alone, so a curated
@@ -2246,11 +2309,15 @@
       // The stance row's primary tap: the issue name opens that issue's dossier and
       // remembers the row it came from, so closing puts the reader back where they
       // were reading rather than at the top of the section.
+      //   The default is consumed only if a sheet actually went up — see the note on
+      // openGap(). Consuming it first and finding out afterwards is how a row that
+      // looks like a control becomes a row that eats taps in silence.
       var sdos = e.target.closest && e.target.closest('[data-pdxst-dos]');
       if (sdos) {
-        e.preventDefault();
-        openGap(sdos.getAttribute('data-pdxst-pid') || '', sdos.getAttribute('data-pdxst-dos') || '',
-          { arrival: false, origin: sdos.getAttribute('data-pdxst-origin') || '' });
+        if (openGap(sdos.getAttribute('data-pdxst-pid') || '', sdos.getAttribute('data-pdxst-dos') || '',
+              { arrival: false, origin: sdos.getAttribute('data-pdxst-origin') || '' }) !== false) {
+          e.preventDefault();
+        }
         return;
       }
       // Deep link from a named proof line to that ONE roll call. Checked before the
@@ -2286,10 +2353,11 @@
       // step sideways instead of being dropped into the profile-reader layout.
       var gap = e.target.closest && e.target.closest('[data-pdxc-gap]');
       if (gap) {
-        e.preventDefault();
         var gorg = gap.getAttribute('data-pdxc-gap-origin') || '';
-        openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '',
-          gorg ? { arrival: false, origin: gorg } : undefined);
+        if (openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '',
+              gorg ? { arrival: false, origin: gorg } : undefined) !== false) {
+          e.preventDefault();
+        }
         return;
       }
       // ── Next-step row inside the gap sheet ────────────────────────────────
@@ -3008,7 +3076,7 @@
     // thin instead of quietly showing less than is on file.
     if (ov && ov.lane === 'exec') {
       var E0 = window.PDXExecRecord, xPool = null;
-      try { xPool = execRecordsFor(pid, issueKey); } catch (e) { xPool = null; }
+      try { xPool = execRecordsForMemo(pid, issueKey); } catch (e) { xPool = null; }
       if (xPool) {
         var stanceX = (ov.record && ov.record.stance) || positionStance(pid, issueKey) || null;
         xPool.items.forEach(function (it) {
@@ -3739,8 +3807,37 @@
   // to exist. Callers that mean the action lane (the Official Record) still pass their
   // own keys and are unaffected.
   function issueRows(pid, keys) {
-    return (keys || issuesWithSignal(pid, 'combined')).map(function (k) { return issueRow(pid, k); });
+    if (keys) return keys.map(function (k) { return issueRow(pid, k); });
+    // MEMOIZED — see THE DERIVATION EPOCH in stance-helpers.js.
+    //
+    // THE MULTIPLIER. This is the profile's whole row model, and the default
+    // (no-keys) form is what every summary surface asks for: the score strip, the
+    // composition bar, the issue index, the tally, the gateway and the warm
+    // repaint each rebuilt all ~35 rows from scratch, and each row re-derives both
+    // lanes for its issue. Caching the default set is what turns the caches below
+    // it from a saving into a change of order — the rows are built once per
+    // politician per epoch and everything else reads that one array.
+    //
+    // Explicit `keys` are NOT cached: those callers mean a specific slice (the
+    // Official Record's action lane), they are not on the open path, and keying a
+    // cache on a caller-supplied list is where a subtle wrong answer would come
+    // from. The rows themselves are treated as read-only by every caller — the
+    // ranking below copies before it sorts, for exactly this reason.
+    //
+    // Keyed on the active term scope as well as the politician. The scope is a
+    // module setting read far below this line, not an argument passed down it, so
+    // `pid` alone does not identify the answer: the same politician read inside
+    // withExecTermScope('current_term', …) has a different row model, and it is
+    // rendered next to the all-time one for comparison.
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_rowsEpoch !== ep) { _rowsCache = {}; _rowsEpoch = ep; }
+    var k = norm(pid) + '||' + execTermScope().key;
+    if (Object.prototype.hasOwnProperty.call(_rowsCache, k)) return _rowsCache[k];
+    var v = issuesWithSignal(pid, 'combined').map(function (x) { return issueRow(pid, x); });
+    _rowsCache[k] = v;
+    return v;
   }
+  var _rowsCache = {}, _rowsEpoch = 0;
   // ── THE ONE TALLY ───────────────────────────────────────────────────────────
   // Every surface that summarises a politician's record in counts reads this. The
   // unit is the ISSUE ROW — the same object the profile prints one line per — so a
@@ -6255,9 +6352,40 @@
   }
 
   // ── gap sheet: a single lazily-built bottom-sheet, reused for every issue ────
+  //
+  // REVALIDATED, NOT JUST CACHED. `_gapSheet` used to be a permanent reference
+  // taken on first build. It survives a warm repaint of the section that opened
+  // it — the sheet lives on <body>, not inside the section — but it does not
+  // survive anything that replaces the body's children, and a detached node is
+  // indistinguishable from a working one at the point of use: innerHTML is set,
+  // hidden is cleared, and nothing appears on screen. That is a dead tap that
+  // reports success. So the cached node is only reused while it is still in the
+  // live document; otherwise it is rebuilt.
   var _gapSheet = null;
+  function _gapSheetLive(node) {
+    try {
+      if (!node || !node.parentNode) return false;
+      var root = document.body || document.documentElement;
+      if (!root) return false;
+      if (root.contains) return root.contains(node);
+      // No contains(): walk up the parent chain instead. The question is the same
+      // one — is this node still reachable from the document — and answering it by
+      // hand is what keeps a rebuilt page from being served a node it has dropped.
+      for (var n = node, hops = 0; n && hops < 200; n = n.parentNode, hops++) {
+        if (n === root) return true;
+      }
+      return false;
+    } catch (e) { return false; }
+  }
   function _ensureGapSheet() {
-    if (_gapSheet) return _gapSheet;
+    if (_gapSheet && _gapSheetLive(_gapSheet)) return _gapSheet;
+    _gapSheet = null;
+    // A rebuild leaves the old backdrop's id behind, and closeGap() finds the
+    // sheet by id. Clear any stale one out first so there is exactly one.
+    try {
+      var old = document.getElementById('pdxc-gap-back');
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+    } catch (e) {}
     ensureStyles();
     var back = document.createElement('div');
     back.className = 'pdxgap-back'; back.id = 'pdxc-gap-back'; back.hidden = true;
@@ -6300,11 +6428,46 @@
   //   · closeGap needs to put a reader who came from a stance row back ON that row,
   //     not at the top of whatever section happens to be under the backdrop.
   var _gapOpen = null;
+  // THE HONEST EMPTY DOSSIER. `_gapViewHtml` assembles this sheet out of a dozen
+  // independent readers — the row model, both lanes, the receipts, the veto and
+  // standing lines. On bundled data every one of them holds for every issue we
+  // ship. On a live profile the shape underneath can differ, and a single reader
+  // throwing used to take the whole tap with it: the click was consumed, the
+  // sheet was never filled, and the reader got nothing and no reason.
+  //
+  // Failing closed means the door still opens and says what happened. It names
+  // the person and the issue so the reader can see the tap was heard, states
+  // plainly that this one dossier could not be assembled — not that there is no
+  // record — and keeps the exits, so the sheet is never a dead end.
+  function _gapFallbackHtml(pid, issueKey) {
+    var lbl = '', who = '';
+    try { lbl = _issueLabel(issueKey) || String(issueKey || ''); } catch (e) { lbl = String(issueKey || ''); }
+    try { who = (_gapIdentity(pid) || {}).name || ''; } catch (e) {}
+    var next = '';
+    try { next = _gapNextHtml(pid, issueKey) || ''; } catch (e) {}
+    return '<div class="pdxgap-head">' +
+        '<div class="pdxgap-eyebrow">⚖️ Word vs Action</div>' +
+        '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
+        (who ? '<div class="pdxgap-sub">' + esc(who) + '</div>' : '') +
+      '</div>' +
+      '<div class="pdxgap-lead">We could not assemble this issue’s dossier just now. ' +
+      'That is a fault on our side, not a statement about ' + (who ? esc(who) + '’s' : 'the') +
+      ' record on ' + esc(lbl) + ' — the record is still there, and the profile’s own ' +
+      'figures for this issue are unchanged. Try it again, or take one of the routes below.</div>' +
+      next;
+  }
+
   function openGap(pid, issueKey, opts) {
-    if (!pid || !issueKey || !document.body) return;
+    if (!pid || !issueKey || !document.body) return false;
     var sheet = _ensureGapSheet();
+    if (!sheet) return false;
     var body = sheet.querySelector('.pdxgap-body');
-    if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
+    if (!body) return false;
+    // The assembly is allowed to fail; the tap is not. See _gapFallbackHtml.
+    var html = '';
+    try { html = _gapViewHtml(pid, issueKey) || ''; } catch (e) { html = ''; }
+    if (!html) { try { html = _gapFallbackHtml(pid, issueKey); } catch (e2) { html = ''; } }
+    body.innerHTML = html;
     var arrival = _gapIsArrival(opts);
     // This sheet is one politician on one issue. PDXIssueView is everyone on one
     // issue, and the two used to announce themselves with the same generic label.
@@ -6325,10 +6488,9 @@
           : ((_gapOpen && _gapOpen.pid === pid) ? _gapOpen.origin : ''))
     };
     var back = sheet.parentNode;
-    if (back) {
-      _gapArrive(back, arrival);
-      back.hidden = false;
-    }
+    if (!back) return false;
+    _gapArrive(back, arrival);
+    back.hidden = false;
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
@@ -6337,6 +6499,9 @@
     // this is what upgrades its icon and accessible name from "profile link" to the
     // card it can actually send once the record lands.
     _saHydrateSoon();
+    // TRUE means a sheet is on screen with something in it. Callers use this to
+    // decide whether they are allowed to consume the reader's tap.
+    return true;
   }
   function closeGap() {
     var back = document.getElementById('pdxc-gap-back');
@@ -6508,7 +6673,7 @@
     // directly rather than inferring it from a percentage.
     execActions: {
       eligible: execEligible,
-      forIssue: execRecordsFor,
+      forIssue: execRecordsForMemo,
       summary: execIssueSummary,
       issues: execIssueKeys,
       identifiers: execIdentifiers,

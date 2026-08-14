@@ -825,12 +825,30 @@
         ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
         : '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>';
       var tag = e.party ? '<span class="pdx-eye-tag" style="color:' + e.party.color + ';background:' + e.party.color + '22;border:1px solid ' + e.party.color + '55;">' + esc(e.party.label) + '</span>' : '';
-      // Say-vs-Do verdict — surface the strongest sourced contradiction (or
-      // "backed it up") right on the search row so the receipt leads the result.
-      // Where there's no receipt, fall back to an honest coverage signal so a
-      // thin/undocumented official reads as "not yet documented" — never silence.
+      // THE RESULT CHIP — one meaning, and it is the profile's own.
+      //
+      // First choice is the issue index: the strongest bucket that has rows, in the
+      // index's word and colour (PDXWordAction.searchBadgeHTML). A reader who taps
+      // through then finds that same word at the top of the profile. This used to
+      // lead with the curated Say-vs-Do receipt verdict instead, which answers a
+      // different question off a different evidence base — and answers it in the
+      // index's hardest words, so a record the index reads as Mixed was announced
+      // in search as "Says One Thing · Does Another".
+      //
+      // The receipt verdict is still the fallback, and it is a real one: it covers
+      // people the formal index cannot reach — no stances scored, or a record that
+      // is public rather than legislative. It is only ever shown where there is no
+      // index to disagree with. Coverage is the last resort, so a person we know and
+      // have not documented reads as "not yet documented" rather than as silence.
       var receipt = '';
-      try { if (window.PDXReceipts && window.PDXReceipts.rowBadge) receipt = window.PDXReceipts.rowBadge(e.id) || ''; } catch (rerr) {}
+      try {
+        if (window.PDXWordAction && window.PDXWordAction.searchBadgeHTML) {
+          receipt = window.PDXWordAction.searchBadgeHTML(e.id) || '';
+        }
+      } catch (ierr) {}
+      if (!receipt) {
+        try { if (window.PDXReceipts && window.PDXReceipts.rowBadge) receipt = window.PDXReceipts.rowBadge(e.id) || ''; } catch (rerr) {}
+      }
       if (!receipt) {
         try { if (window.PDXCoverage && window.PDXCoverage.badgeHTML) receipt = window.PDXCoverage.badgeHTML(e.id) || ''; } catch (cerr) {}
       }
