@@ -456,14 +456,40 @@ for (const [lane, pid, items] of [["🏛️", MEMBER, mItems], ["✒️", PREZ, 
       ok(!!m.counts && /[.!?]$/.test(m.counts.trim()),
         `${lane} ${d.ident}: has a finished "why it counts here" sentence (got ${JSON.stringify(m.counts)})`);
       ok(m.counts !== m.did, `${lane} ${d.ident}: the two sentences answer different questions`);
+      // WHICH WAY IT CUT is a third slot, not a clause tacked onto the second. It has
+      // to be there on every scored row, and it has to name the verdict the chip on
+      // the same row is showing — that quotation is what makes it impossible for the
+      // sentence and the chip to drift into disagreeing.
+      ok(!!m.dir && /[.!?]”?$/.test(m.dir.trim()),
+        `${lane} ${d.ident}: has a finished "which way it cut" sentence (got ${JSON.stringify(m.dir)})`);
+      const vLabel = (C.VERDICTS[d.verdict] || {}).label;
+      if (vLabel) {
+        has(m.dir, vLabel, `${lane} ${d.ident}: the direction line quotes the verdict on its own chip`);
+      }
     }
+  }
+}
+// THE CONTRADICTION THIS SLOT EXISTS TO KILL. The direction clause used to be built
+// from `effect` and captioned "the position they stated" — but `effect` is measured
+// against the ISSUE. Where a stated position runs against the issue's own direction,
+// that printed "cuts against the position they stated" underneath a chip reading
+// "Backs it up". No row may phrase it that way again, on any lane.
+for (const [lane, items] of [["🏛️", mItems], ["✒️", xItems]]) {
+  for (const d of items) {
+    if (d.held) continue;
+    const m = C.dossierMechanism(d, ISSUE);
+    hasnt(m.dir, "the position they stated.",
+      `${lane} ${d.ident}: direction is stated against the issue, never asserted of the stated position`);
+    hasnt(m.counts, "advances the position",
+      `${lane} ${d.ident}: and the why-it-counts slot does not smuggle a direction claim back in`);
   }
 }
 // And they reach the row face, labelled, on both lanes.
 for (const [lane, html] of [["🏛️", recs], ["✒️", C.dossierRecordsHtml(PREZ, ISSUE)]]) {
   has(html, "What it did:", `${lane} face: the mechanism is on the row, not one tap down`);
   has(html, "Why it counts here:", `${lane} face: so is the reason it counts on this issue`);
-  has(html, 'class="pdxdos-rec-wk"', `${lane} face: both slots are labelled rather than run together`);
+  has(html, "Which way it cut:", `${lane} face: and so is the direction that produced the chip`);
+  has(html, 'class="pdxdos-rec-wk"', `${lane} face: all three slots are labelled rather than run together`);
 }
 // The 🏛️ lane's sentences are ASSEMBLED FROM THE RECORD, not invented: the question
 // and the ballot are the two things a roll call actually carries.
@@ -471,8 +497,8 @@ const hr9Row = mItems.find((d) => d.ident === "H.R. 9");
 const hr9 = C.dossierMechanism(hr9Row, ISSUE);
 has(hr9.did, "On Passage", "🏛️: what it did names the question that was on the floor");
 has(hr9.did, "Voted Nay", "🏛️: and the ballot this member cast on it");
-has(hr9.counts, "a Yea counts as support",
-  "🏛️: why it counts spells out the support meaning — the step a reader most often reads backwards");
+has(hr9.dir, "a Yea counts as support",
+  "🏛️: the direction line spells out the support meaning — the step a reader most often reads backwards");
 // The ✒️ lane prefers curated prose over the derivation whenever the seed has it.
 const eoRow = xItems.find((d) => d.ident === "EO 14001");
 eq(C.dossierMechanism(eoRow, ISSUE).did, eoRow.plain,
@@ -568,6 +594,94 @@ hasnt(xl1, "rests on 0", "L1 ✒️: nor on the executive lane");
 // The lane line never launders the evidence count into a judged count.
 hasnt(cs, "+ (r.actions.judged || r.evidence.actions) + ' judged '",
   "L1: the judged count has no fallback to the evidence count — held items are not judged");
+
+// ── 13. THE VETO ROW ───────────────────────────────────────────────────────
+// A veto is the only instrument on this lane where the row's identity and the row's
+// direction belong to different actors: Congress wrote and passed the bill, the
+// President blocked it, and the issue mapping on file describes the bill. Before this
+// section existed the face showed a bill number, the word "Vetoed", a verdict chip
+// and — when the veto had been overridden — a standing token naming a third actor,
+// with no sentence joining any of them. Two vetoes here: one Congress overrode, one
+// that held, because "did the measure become law" has opposite answers in those two
+// cases and the row has to say which.
+// They hang off the president already seeded, on a second issue key, so the
+// lower_taxes counts every section above this one asserts are left alone.
+{
+  const VP = PREZ, VISSUE = "border_security";
+  ctx.EXEC_ACTIONS[VP].push(
+    {
+      actionClass: "vetoed_law", term: "47", documentId: "H.R. 700",
+      title: "Rate Reduction Act", actedAt: "2025-02-14",
+      sourceUrl: SRC, sourceLabel: "Congress.gov",
+      status: [{ status: "overridden", effectiveAt: "2025-03-01", sourceUrl: SRC, sourceLabel: "Congress.gov" }],
+      // The mapping describes the BILL — it advanced the issue — so the act of
+      // blocking it is the opposite, and the row must be filed the other way.
+      issues: [{ issueKey: VISSUE, direction: "advances", weight: 100, isPrimary: true }],
+    },
+    {
+      actionClass: "vetoed_law", term: "47", documentId: "H.R. 800",
+      title: "Second Rate Reduction Act", actedAt: "2025-06-14",
+      sourceUrl: SRC, sourceLabel: "Congress.gov", status: inForce,
+      issues: [{ issueKey: VISSUE, direction: "advances", weight: 100, isPrimary: true }],
+    },
+  );
+  const vItems = C.dossierItems(VP, VISSUE);
+  const over = vItems.find((d) => d.ident === "H.R. 700");
+  const held = vItems.find((d) => d.ident === "H.R. 800");
+  ok(!!over && !!held, "veto: both veto rows are enumerated");
+
+  const mo = C.dossierMechanism(over, VISSUE);
+  has(mo.veto, "Congress passed H.R. 700", "veto: the face says Congress passed the measure and sent it up");
+  has(mo.veto, "vetoed it rather than signing it", "veto: and that the President vetoed rather than signed");
+  has(mo.veto, "passed it over the veto", "veto: an overridden veto says the measure became law anyway");
+  has(mo.veto, "describes the bill", "veto: the inversion is stated, not left for the reader to infer");
+  has(mo.veto, "blocking it is the opposite",
+    "veto: naming why blocking a bill that advanced the issue is filed as cutting against it");
+  const mh = C.dossierMechanism(held, VISSUE);
+  has(mh.veto, "The veto held", "veto: a veto that was not overridden says so…");
+  has(mh.veto, "did not become law", "veto: …and says what that meant for the measure");
+  hasnt(mh.veto, "passed it over the veto", "veto: the two dispositions are not confused for one another");
+
+  // "In force" is written from the ACTION's point of view: for a veto it means the
+  // veto held. Printed under a bill number and a bill title it reads as a claim about
+  // the BILL, which is the exact opposite of what the token says.
+  eq(held.standing && held.standing.label, "Veto held",
+    "veto: standing is relabelled in the action's own terms rather than left as 'In force'");
+  eq(over.standing && over.standing.label, "Overridden by Congress",
+    "veto: and every other standing token passes through untouched");
+  // The relabel is display-only — the token the score reads is unchanged.
+  eq(held.standing && held.standing.key, "in_force", "veto: the underlying standing token is not rewritten");
+
+  const vRecs = C.dossierRecordsHtml(VP, VISSUE);
+  has(vRecs, "pdxdos-rec-veto", "veto: the path renders on the row face, not one tap down");
+  // A veto row is never a bare label plus a chip.
+  has(vRecs, "What it did:", "veto: with the mechanism slots the other rows get");
+  has(vRecs, "Which way it cut:", "veto: including the one that produces the chip");
+  // The derived why-it-counts sentence uses the instrument's noun. Lowercasing the
+  // class label produced "the primary subject of this vetoed".
+  has(mo.counts, "this veto", "veto: the derived sentence calls it a veto");
+  hasnt(mo.counts, "this vetoed", "veto: not 'this vetoed' — the class label is not a noun");
+  hasnt(C.dossierRecordsHtml(PREZ, ISSUE), "this signed into law",
+    "noun: nor 'this signed into law' on the signed-law rows");
+}
+
+// ── 14. THE COUNT IS ENUMERATED ON THE FACE, not just asserted ─────────────
+// A collapsed "N actions listed here" is a number a reader has to trust and then open
+// a drawer to check. The closed summary now names every instrument, so the count can
+// be audited from the face — and the enumeration is complete, because a truncated one
+// ("and 4 more") is the same hiding problem with a friendlier label.
+{
+  const xRecs = C.dossierRecordsHtml(PREZ, ISSUE);
+  has(xRecs, 'class="pdxdos-recs-list"', "face: the closed summary carries an enumeration");
+  for (const d of xItems) {
+    const stub = String(d.ident).slice(0, 30);
+    has(xRecs.split('class="pdxdos-rec" data-pdxdos-i="0"')[0], stub,
+      `face: ${d.ident} is named in the summary above the collapse, not only inside it`);
+  }
+  const listed = (xRecs.match(/class="pdxdos-recs-list">([^<]*)</) || [])[1] || "";
+  eq(listed.split(" · ").length, xItems.length,
+    "face: the enumeration has exactly one entry per row the expander opens onto");
+}
 
 if (failures.length) {
   console.error("✗ issue dossier: " + failures.length + " failure(s)");

@@ -1849,10 +1849,17 @@
       // L2 — every instrument on THIS issue, closed. The count is in the summary,
       // so the depth is readable without opening anything.
       '.pdxdos-recs{margin-top:0.55rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:0.15rem;}' +
-      '.pdxdos-recs>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:0.35rem;' +
+      '.pdxdos-recs>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:0.35rem;' +
         'min-height:2.2rem;font-family:"Barlow Condensed",sans-serif;font-size:0.78rem;' +
         'letter-spacing:0.03em;color:#dbe6f7;}' +
       '.pdxdos-recs>summary::-webkit-details-marker{display:none;}' +
+      // The enumeration under the count. It wraps to its own full-width line so the
+      // count stays scannable, and it is quieter than the count because it is the
+      // AUDIT of that number rather than a competing headline — a reader who wants to
+      // know how many looks up, a reader who wants to know which ones reads across.
+      '.pdxdos-recs-list{flex:1 0 100%;min-width:0;font-family:system-ui,sans-serif;' +
+        'font-size:0.66rem;letter-spacing:0;color:#8fa2c0;line-height:1.45;' +
+        'overflow-wrap:break-word;padding-bottom:0.2rem;}' +
       '.pdxdos-recs[open]>summary{color:#9fdbff;}' +
       '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
       // ── The continuity line, directly under the issue title ────────────────
@@ -1901,6 +1908,12 @@
       // the SCOPE of the row rather than about this issue, and it should not compete
       // with the two sentences that are.
       '.pdxdos-rec-multi{color:#7f97b8;font-style:italic;}' +
+      // The veto path. Tinted rather than dimmed, because unlike the multi-issue
+      // caveat it is not context around the row — it is the only sentence that
+      // explains why a bill Congress passed is filed as an action against the
+      // President, and a reader who skims it cannot make sense of the chip above it.
+      '.pdxdos-rec-veto{color:#c9b6e8;border-left:2px solid rgba(201,182,232,0.35);' +
+        'padding-left:0.45rem;}' +
       '.pdxdos-rec-hold{color:#f0cd8c;}' +
       '.pdxdos-rec-b{padding:0 0 0.5rem;}' +
       // L3 — one instrument's mechanism, mounted on first open.
@@ -4275,8 +4288,12 @@
       parts.push('<span class="pdxst-comp-x"><b>' + aside.count + '</b> ' + esc(asideUnit) + ' the other way, set aside</span>');
     }
     if (st) {
+      // Lowercase the FIRST LETTER, not the label. `toLowerCase()` on the whole
+      // string turned "Overridden by Congress" into "overridden by congress", which
+      // reads as a typo and quietly demotes the branch that did the overriding.
+      var stLbl = st.label.charAt(0).toLowerCase() + st.label.slice(1);
       parts.push('<span class="pdxst-comp-x">' + esc(st.ico + ' ' + st.count + ' ' +
-        (st.count === 1 ? n.one : n.many) + ' ' + st.label.toLowerCase()) + '</span>');
+        (st.count === 1 ? n.one : n.many) + ' ' + stLbl) + '</span>');
     }
     var tip = split.aligned + ' of ' + split.judged + ' judged ' +
       (split.judged === 1 ? unit : unit + 's') + ' pointed the same way as their stated position; ' +
@@ -5081,10 +5098,31 @@
     } catch (e) {}
     return null;
   }
+  // WHAT "IN FORCE" MEANS DEPENDS ON WHAT THE ACTION WAS. The standing vocabulary is
+  // shared with the ✒️ section and is written from the action's point of view: for a
+  // veto, `in_force` means THE VETO held, so the measure never became law. On a row
+  // whose identity is the bill number and whose title is the bill's title, the words
+  // "● In force" underneath read as a claim about the BILL — the exact opposite of
+  // what the token says. So a blocking class gets the same fact in its own terms.
+  // This is a relabel at the display layer only: the token, the contested flag and
+  // everything the score reads are untouched, and every other class passes through.
+  function _dosStandingFor(actionClass, key) {
+    var s = _dosStanding(key);
+    var p = _dosPower(actionClass);
+    if (!s || !p || !p.blocks) return s;
+    if (s.key === 'in_force') {
+      return { key: s.key, label: 'Veto held', ico: s.ico, contested: false,
+        why: 'The veto held: Congress did not override it, so the measure did not become law.' };
+    }
+    return s;
+  }
   function _dosPower(actionClass) {
     try {
       var C = window.PDXExecRecord && window.PDXExecRecord.CLASSES, d = C && C[actionClass];
-      if (d) return { verb: d.verb || '', label: d.label || '', sole: d.authorship === 'sole' };
+      if (d) {
+        return { key: d.key || actionClass, verb: d.verb || '', label: d.label || '',
+                 sole: d.authorship === 'sole', blocks: !!d.blocks };
+      }
     } catch (e) {}
     return null;
   }
@@ -5160,9 +5198,16 @@
           act: (_dosPower(it.actionClass) || {}).verb || '',
           question: '',
           date: it.date || '',
-          standing: _dosStanding(it.standing),
+          standing: _dosStandingFor(it.actionClass, it.standing),
           power: _dosPower(it.actionClass),
           effect: (adv === null) ? '' : (adv ? 'advances' : 'opposes'),
+          // Which way the STATED POSITION points on this issue. Carried because the
+          // direction line has to say how the document's direction and the stated
+          // direction combine into the verdict on the chip — and `effect` alone
+          // cannot: it is measured against the issue, not against what they said, so
+          // a row could truthfully say "cuts against the issue" beside a chip reading
+          // "Backs it up" whenever the stated position was against the issue too.
+          stance: xStance || '',
           plain: it.plain || '',
           counts: (m && m.counts) || '',
           rationale: (m && m.rationale) || '',
@@ -5170,6 +5215,7 @@
         }));
       });
     } else if (ov.record) {
+      var _recStance = positionStance(pid, issueKey) || '';
       _orProofPicks(pid, issueKey, ov).forEach(function (p) {
         var b = _orProofBits(p.item) || {};
         out.push(withMapping(p.item, {
@@ -5180,7 +5226,7 @@
           title: p.item.title || p.item.shortTitle || '',
           act: b.act || '', question: b.question || '',
           date: b.date || '',
-          standing: null, power: null, effect: '',
+          standing: null, power: null, effect: '', stance: _recStance,
           // A roll call carries no curated prose, so both mechanism lines are
           // DERIVED — see _dosMechanism. What it did is the question and the ballot,
           // which the record does carry; why it counts here is a restatement of the
@@ -5204,7 +5250,7 @@
           ident: a.headline || 'Formal action',
           title: '', act: '', question: '',
           date: a.date || '',
-          standing: null, power: null, effect: '',
+          standing: null, power: null, effect: '', stance: '',
           plain: lead,
           counts: a.why || '',
           rationale: (a.facts && a.facts !== lead) ? a.facts : '',
@@ -5223,7 +5269,7 @@
           title: h.title || '',
           act: (_dosPower(h.actionClass) || {}).verb || '',
           question: '', date: h.date || '',
-          standing: null, power: _dosPower(h.actionClass), effect: '',
+          standing: null, power: _dosPower(h.actionClass), effect: '', stance: '',
           plain: h.plain || '', counts: '', rationale: '',
           url: h.sourceUrl || '', srcLabel: h.sourceLabel || 'Primary source',
           primary: null, narrow: false, multi: false, support: '', item: h.action || null
@@ -5256,6 +5302,20 @@
   // asserts an effect in the world. That wall is the whole point of the lane, and a
   // mechanism line is exactly where it would be easiest to cross by accident.
   var _DOS_NOUN_FALLBACK = { exec: 'action', record: 'measure', formal: 'action' };
+  // The instrument's noun, in the vocabulary the ✒️ multi-issue block already uses —
+  // "law", "veto", "order", "directive". Read from that map rather than from the
+  // class LABEL, which is a past-participle phrase written for a different slot:
+  // lowercasing it produced "the primary subject of this vetoed" and "of this signed
+  // into law", which is the kind of sentence that tells a reader nobody read it.
+  function _dosNoun(d) {
+    if (d.lane === 'exec' && d.item && d.item.actionClass && _EXEC_OMNI_NOUN[d.item.actionClass]) {
+      return _EXEC_OMNI_NOUN[d.item.actionClass];
+    }
+    if (d.lane === 'exec' && d.power && d.power.key && _EXEC_OMNI_NOUN[d.power.key]) {
+      return _EXEC_OMNI_NOUN[d.power.key];
+    }
+    return _DOS_NOUN_FALLBACK[d.lane] || 'action';
+  }
   function _dosDidLine(d) {
     if (d.plain) return d.plain;
     if (d.lane === 'record') {
@@ -5273,29 +5333,96 @@
     return '';
   }
   function _dosCountsLine(d, issueKey) {
-    if (d.counts) return d.counts;
     if (d.held) return '';
+    // A curated sentence answers "why this issue" better than any restatement of the
+    // mapping can, so it wins the slot outright when the seed carries one.
+    if (d.counts) return d.counts;
     var lbl = _issueLabel(issueKey) || 'this issue';
-    var noun = (d.lane === 'exec' && d.power && d.power.label)
-      ? String(d.power.label).toLowerCase()
-      : (_DOS_NOUN_FALLBACK[d.lane] || 'action');
+    var noun = _dosNoun(d);
     var link = (d.primary === true) ? 'the primary subject of this ' + noun
              : (d.primary === false) ? 'one of the subjects this ' + noun + ' was mapped to'
              : 'mapped to this ' + noun;
-    var s = 'Counted on ' + lbl + ' because that is ' + link +
+    return 'Counted on ' + lbl + ' because that is ' + link +
       (d.narrow ? ', on a link the curation records as a narrow one' : '') + '.';
-    // Which way it cut, in the lane's own terms. A ballot needs the support meaning
-    // spelled out — "a Yea here counts as support" is not obvious and is the single
-    // step where a reader most often assumes the opposite of what the mapping says.
+  }
+  // ── WHICH WAY IT CUT, AND WHY THAT PRODUCES THE CHIP ────────────────────────
+  // Its own line, and always printed — including when a curated "why it counts here"
+  // sentence exists, because that sentence explains the SUBJECT and never the
+  // direction. Proclamation 11010 is the case that made this a rule: its curated
+  // sentence describes lowering a trade barrier to hold a grocery price down, which
+  // sounds like an alignment, and it sits beside a chip reading "Says one thing, does
+  // another" with nothing on the face bridging the two.
+  //
+  // THE BUG THIS REPLACES. The direction clause used to read "on this issue it
+  // advances / cuts against THE POSITION THEY STATED", built from `effect`. But
+  // `effect` is measured against the ISSUE, not against what they said. Where the
+  // stated position runs against the issue's own direction — a tariff record on
+  // 💵 Tariffs & Household Prices, say — a document that cuts against the issue is
+  // exactly what they said they would do, so the row printed "cuts against the
+  // position they stated" directly underneath a chip reading "Backs it up". Two
+  // contradictory claims, one row, no way to tell which to believe.
+  //
+  // So the line now states the two facts separately and names the chip they produce.
+  // The chip's own label is quoted verbatim rather than paraphrased, which is what
+  // makes it structurally impossible for this sentence and that chip to disagree.
+  function _dosDirLine(d, issueKey) {
+    if (d.held) return '';
+    var lbl = _issueLabel(issueKey) || 'this issue';
+    var v = VERDICTS[d.verdict];
+    var tail = (v && v.label) ? ' — which is why this row reads “' + v.label + '”.' : '.';
+    // A ballot needs the support meaning spelled out. "A Yea here counts as support"
+    // is not obvious, and it is the single step where a reader most often assumes the
+    // opposite of what the mapping says.
     if (d.lane === 'record' && d.support) {
-      s += ' On this issue a Yea counts as ' +
-        (d.support === 'yea_opposes' ? 'opposition' : 'support') +
-        (d.act ? ', and they ' + String(d.act).toLowerCase() + '.' : '.');
-    } else if (d.effect) {
-      s += ' On this issue it ' +
-        (d.effect === 'advances' ? 'advances' : 'cuts against') + ' the position they stated.';
+      var meaning = (d.support === 'yea_opposes') ? 'opposition to' : 'support for';
+      var cast = d.act ? String(d.act).toLowerCase() : '';
+      return 'On ' + lbl + ' a Yea counts as ' + meaning + ' the issue’s direction' +
+        (cast ? ', and they ' + cast : '') + tail;
     }
-    return s;
+    if (!d.effect) return '';
+    var dir = (d.effect === 'advances') ? 'advances' : 'cuts against';
+    var s = 'On ' + lbl + ' this ' + _dosNoun(d) + ' ' + dir + ' the issue’s direction';
+    if (d.stance === 'support' || d.stance === 'oppose') {
+      s += ', and the position they stated runs ' +
+        (d.stance === 'oppose' ? 'against' : 'with') + ' that direction';
+    }
+    return s + tail;
+  }
+  // ── THE VETO PATH ───────────────────────────────────────────────────────────
+  // A veto is the one instrument on this lane where the row's identity and the row's
+  // direction belong to two different actors. The identity is a bill Congress wrote
+  // and passed; the direction is what the President did to it; and the issue mapping
+  // on file describes the BILL, so the reading recorded against the President is the
+  // inverse of it. Every part of that was true before this line existed and none of
+  // it was on the face: a reader saw a bill number, the word "Vetoed", a verdict chip
+  // and — for an overridden veto — a standing token naming yet another actor, with no
+  // sentence anywhere joining them. This says all four beats in order.
+  function _dosVetoLine(d, issueKey) {
+    if (d.held || !d.power || !d.power.blocks) return '';
+    var lbl = _issueLabel(issueKey) || 'this issue';
+    var who = d.ident ? String(d.ident) : 'the measure';
+    var s = 'Veto path: Congress passed ' + who + ' and sent it to the desk, and the President ' +
+      'vetoed it rather than signing it. ';
+    // What happened next, when the file records it. `overridden` is the only token
+    // that changes the answer to "did the measure become law", so it is the only one
+    // that gets its own sentence; the rest keep the standing chip's own words.
+    var key = d.standing && d.standing.key;
+    if (key === 'overridden') {
+      s += 'Congress then passed it over the veto and it became law anyway. ';
+    } else if (key === 'in_force') {
+      s += 'The veto held, so the measure did not become law. ';
+    }
+    // The inversion, stated rather than assumed. `effect` is already the ACT's
+    // direction, so the measure's is its opposite — read off the same field the
+    // ledger used rather than re-derived, so the two cannot drift apart.
+    if (d.effect) {
+      var billDir = (d.effect === 'advances') ? 'cut against' : 'advanced';
+      var actDir = (d.effect === 'advances') ? 'advances' : 'cuts against';
+      s += 'The mapping on file describes the bill, which ' + billDir + ' ' + lbl +
+        ' — so blocking it is the opposite, and this row is filed as an action that ' +
+        actDir + ' the issue.';
+    }
+    return s.trim();
   }
   // THE MULTI-ISSUE DISCLOSURE, on the face rather than one tap down. The 🧩 chip
   // already says "2 issues"; a count is not a disclosure. This says the thing the
@@ -5313,7 +5440,13 @@
       'This row is only its reading on ' + lbl + '.';
   }
   function _dosMechanism(d, issueKey) {
-    return { did: _dosDidLine(d), counts: _dosCountsLine(d, issueKey), multi: _dosMultiLine(d, issueKey) };
+    return {
+      did: _dosDidLine(d),
+      counts: _dosCountsLine(d, issueKey),
+      dir: _dosDirLine(d, issueKey),
+      veto: _dosVetoLine(d, issueKey),
+      multi: _dosMultiLine(d, issueKey)
+    };
   }
 
   // ── L2 — one summary row per instrument ─────────────────────────────────────
@@ -5340,15 +5473,27 @@
     // withheld is exactly the title-only row this pass exists to remove, and the
     // reason it was held is easier to judge when a reader can see what was held.
     var m = _dosMechanism(d, issueKey);
+    var wk = function (label, text, cls) {
+      return text
+        ? '<span class="pdxdos-rec-why' + (cls ? ' ' + cls : '') + '">' +
+            (label ? '<b class="pdxdos-rec-wk">' + label + '</b> ' : '') + esc(text) + '</span>'
+        : '';
+    };
+    // ORDER IS THE ARGUMENT. What it did, then — for a veto only — how a bill
+    // Congress passed becomes an action recorded against the President, then why the
+    // issue is the right file for it, then which way it cut and what chip that
+    // produces, then the multi-issue caveat. The veto path sits above the direction
+    // line on purpose: it is the sentence that explains the inversion the direction
+    // line is about to assert, and a reader who meets them the other way round has to
+    // hold an apparent contradiction in mind for a sentence before it resolves.
     var why = d.held
-      ? ((m.did ? '<span class="pdxdos-rec-why"><b class="pdxdos-rec-wk">What it did:</b> ' +
-                    esc(m.did) + '</span>' : '') +
+      ? (wk('What it did:', m.did) +
          '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
-      : ((m.did ? '<span class="pdxdos-rec-why"><b class="pdxdos-rec-wk">What it did:</b> ' +
-                    esc(m.did) + '</span>' : '') +
-         (m.counts ? '<span class="pdxdos-rec-why"><b class="pdxdos-rec-wk">Why it counts here:</b> ' +
-                    esc(m.counts) + '</span>' : '') +
-         (m.multi ? '<span class="pdxdos-rec-why pdxdos-rec-multi">' + esc(m.multi) + '</span>' : ''));
+      : (wk('What it did:', m.did) +
+         wk('', m.veto, 'pdxdos-rec-veto') +
+         wk('Why it counts here:', m.counts) +
+         wk('Which way it cut:', m.dir) +
+         wk('', m.multi, 'pdxdos-rec-multi'));
     return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
         '<summary>' + head + why + '</summary>' +
@@ -5382,7 +5527,10 @@
           '</div>');
       }
       if (d.effect) {
-        out.push('<div class="pdxdos-d">On <b>' + esc(lbl) + '</b> this document <b>' +
+        // The instrument's own noun, not "document". On a veto row the identity is a
+        // bill and the direction belongs to the act taken against it, so "this
+        // document cuts against the issue" points at the wrong one of the two.
+        out.push('<div class="pdxdos-d">On <b>' + esc(lbl) + '</b> this ' + esc(_dosNoun(d)) + ' <b>' +
           (d.effect === 'advances' ? 'advances' : 'cuts against') + '</b> the issue.</div>');
       }
       if (d.standing) {
@@ -5525,6 +5673,19 @@
     // never open onto fewer than it advertised.
     var sum = cov.listed + ' ' + (cov.listed === 1 ? n.one : n.many) + ' listed here' +
       (cov.held ? ' — ' + cov.held + ' of them not scorable' : '');
+    // AND THE COUNT IS ENUMERATED, not merely asserted. A collapsed "9 actions listed
+    // here" is a number a reader has to take on trust and then open a drawer to
+    // audit; naming every instrument on the closed face turns it into something they
+    // can count. Every row is named — no "and 4 more", because a truncated
+    // enumeration is the same hiding problem wearing a different label. Executive
+    // identities are document numbers and stay short on their own; the migrated
+    // formal lane's identity is a headline sentence, so it is clipped at a word
+    // boundary with an ellipsis, which shortens a label without dropping an item.
+    var enumTxt = items.map(function (d) {
+      var s = String(d.ident || '').trim() || 'Unnamed action';
+      if (s.length > 44) s = s.slice(0, 44).replace(/\s+\S*$/, '') + '…';
+      return s;
+    }).join(' · ');
     var gap = cov.missing
       ? '<div class="pdxdos-gap">⏳ ' + esc(cov.judged + ' ' + (cov.judged === 1 ? n.one : n.many) +
           ' were judged on this issue and ' + cov.scored + ' of them can be listed right now. The other ' +
@@ -5539,7 +5700,8 @@
       : '';
     return '<details class="pdxdos-recs">' +
         '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
-          ' <span aria-hidden="true">▾</span></summary>' +
+          ' <span aria-hidden="true">▾</span>' +
+          '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
         gap +
         items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey); }).join('') +
         note +
@@ -5693,7 +5855,13 @@
       }
       caveat = 'This rests on ' + (depth.length ? depth.join(' and ') :
           r.evidence.total + ' item' + (r.evidence.total === 1 ? '' : 's')) +
-        '. The direction is real; a pattern is not established at that depth.';
+        // A Mixed row has no single direction, so "the direction is real" is the one
+        // thing this caveat must not say there — it would read as a verdict the
+        // bucket explicitly declined to reach. What is real on a Mixed row is the
+        // split: the record genuinely went both ways, on very few items.
+        '. ' + (r.verdict.token === 'mixed'
+          ? 'The split is real; a pattern is not established at that depth.'
+          : 'The direction is real; a pattern is not established at that depth.');
     }
     // WHERE THIS LANDS IN THE SCORE. The profile's headline figure is the pooled
     // ⚖️ Direction match and this issue is one input to it — said outright, so a
