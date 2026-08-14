@@ -20,27 +20,27 @@
   if (window.PDX_HERO_RECEIPT) return;
   window.PDX_HERO_RECEIPT = [
     {
-      "pid": "rob_bresnahan",
-      "issueKey": "stock_trading_ban",
-      "name": "Rob Bresnahan",
-      "sub": "U.S. Representative · Pennsylvania · PA-08",
+      "pid": "trump",
+      "issueKey": "america_first_fp",
+      "name": "Donald Trump",
+      "sub": "45th & 47th President · U.S.",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "issue": {
-        "icon": "🚫",
-        "label": "Ban Congressional Stock Trading"
+        "icon": "🌐",
+        "label": "America First Foreign Policy"
       },
       "said": {
-        "text": "Introduced legislation to bar members of Congress from trading individual stocks, delivering on a 2024 campaign pledge — though his own active trading has since drawn scrutiny.",
+        "text": "Built his foreign policy around an \"America First\" doctrine — pressing NATO allies to spend more, questioning open-ended foreign aid, and pushing to broker a rapid end to the war…",
         "word": "Supports"
       },
-      "did": "Kept trading heavily after sponsoring the ban",
-      "date": "2025",
+      "did": "The \"war ended in 24 hours\" pledge is years past due",
+      "date": "2023–2026",
       "source": {
-        "label": "Philadelphia Inquirer",
-        "url": "https://www.inquirer.com/politics/pennsylvania/congressional-stock-trading-ban-pennsylvania-rob-bresnahan-20250810.html"
+        "label": "CNN",
+        "url": "https://www.cnn.com/2025/03/26/europe/timeline-trumps-pledge-to-end-ukraine-war"
       },
       "verdict": {
         "key": "contradicts",
@@ -80,27 +80,27 @@
       }
     },
     {
-      "pid": "cox",
-      "issueKey": "water",
-      "name": "Spencer Cox",
-      "sub": "Governor · Utah",
+      "pid": "rob_bresnahan",
+      "issueKey": "stock_trading_ban",
+      "name": "Rob Bresnahan",
+      "sub": "U.S. Representative · Pennsylvania · PA-08",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "issue": {
-        "icon": "💧",
-        "label": "Water Conservation"
+        "icon": "🚫",
+        "label": "Ban Congressional Stock Trading"
       },
       "said": {
-        "text": "Has made saving the Great Salt Lake and statewide water conservation a defining priority of his governorship.",
+        "text": "Introduced legislation to bar members of Congress from trading individual stocks, delivering on a 2024 campaign pledge — though his own active trading has since drawn scrutiny.",
         "word": "Supports"
       },
-      "did": "Residential water-saving message vs. industrial water/power approvals",
-      "date": "2024–2025",
+      "did": "Kept trading heavily after sponsoring the ban",
+      "date": "2025",
       "source": {
-        "label": "The Salt Lake Tribune",
-        "url": "https://www.sltrib.com/"
+        "label": "Philadelphia Inquirer",
+        "url": "https://www.inquirer.com/politics/pennsylvania/congressional-stock-trading-ban-pennsylvania-rob-bresnahan-20250810.html"
       },
       "verdict": {
         "key": "contradicts",
