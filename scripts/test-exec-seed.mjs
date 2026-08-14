@@ -72,7 +72,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260830000000_seed_exec_actions_wave7.sql",
   "netlify/database/migrations/20260831000000_seed_exec_actions_wave8.sql",
   "netlify/database/migrations/20260901000000_seed_exec_actions_wave9.sql",
-  "netlify/database/migrations/20260902000000_seed_exec_actions_wave10.sql"
+  "netlify/database/migrations/20260902000000_seed_exec_actions_wave10.sql",
+  "netlify/database/migrations/20260903000000_seed_exec_actions_wave11.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
@@ -124,8 +125,11 @@ section("1 · shape and vocabulary");
 // and they are the first rows in the file under an issue key that did not exist
 // before them: EO 13839, EO 13957, EO 14171, EO 14317 and EO 14410, all on
 // civil_service_control. If that count slips, a Schedule F order has gone missing
-// from the only key that can hold one.
-ok(ACTIONS.length === 62, `the seed carries sixty-two actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10 (got ${ACTIONS.length})`);
+// from the only key that can hold one. Wave 11 adds fifteen, and it is the first
+// wave whose count is a DEPTH claim rather than a coverage one: eight issue rows
+// were asserting a full-confidence direction match on one or two instruments, and
+// fifteen documents is what reading the rest of them produced.
+ok(ACTIONS.length === 77, `the seed carries seventy-seven actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10, 15 from wave 11 (got ${ACTIONS.length})`);
 
 /* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
    This line used to read `a.term === EX.currentTerm("trump")`, which was true of
@@ -565,8 +569,8 @@ if (sum && sumAll) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 7 && C.executive_order === 41 && C.directive === 10 && C.vetoed_law === 4,
-    `class split is 7 laws + 41 orders + 10 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  ok(C.signed_law === 8 && C.executive_order === 54 && C.directive === 11 && C.vetoed_law === 4,
+    `class split is 8 laws + 54 orders + 11 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
   // The veto class existed in the vocabulary for six waves with no row using it.
   // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
   // pipeline nobody has proven works.
@@ -613,9 +617,13 @@ if (sum && sumAll) {
      latest row, and it therefore reads in force. That the two orders share a
      revocation date and diverge here is the whole reason the append-only log exists,
      so the number is pinned at the count that can only be right if the reinstatement
-     row is being read. */
-  ok(sumAll.actions.rescinded === 5 && B.rescinded === 0,
-    `the five revoked orders are reachable in the all-terms scope only (all ${sumAll.actions.rescinded}, current ${B.rescinded})`);
+     row is being read. SEVEN from wave 11: EO 13799, revoked by EO 13820 five months
+     after it was signed, and EO 13813, revoked by EO 14009 in the succeeding term.
+     Both were added as DEPTH on rows that were reading confident on one instrument,
+     and both are revoked — which is the point. A depth pass that only found surviving
+     instruments would be selecting, not reading. */
+  ok(sumAll.actions.rescinded === 7 && B.rescinded === 0,
+    `the seven revoked orders are reachable in the all-terms scope only (all ${sumAll.actions.rescinded}, current ${B.rescinded})`);
   ok(sum.allTimeTotal === ACTIONS.length, "the all-time total counts every sourced action");
   ok(sum.allTimeTotal > B.total,
     "the current-term summary discloses a larger all-time figure rather than presenting its own total as the whole record");
