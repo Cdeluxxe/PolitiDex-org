@@ -104,16 +104,28 @@
   }
 
   // Cached per pid, dropped whenever a record warms — the only thing that can
-  // change an answer. Mirrors profile-card.js's own memo policy.
+  // change an answer. Mirrors profile-card.js's own memo policy, including its
+  // epoch key: a lazy data bundle merges new stances into the roster WITHOUT
+  // firing a warm event, and a card holding a pre-merge figure while the profile
+  // computes a post-merge one is how the two print different numbers for one
+  // person. A null is never cached — one badly-timed read (engine a tick from
+  // ready) would otherwise permanently blank a card that has an answer.
   var readCache = {};
+  var readEpoch = -1;
+  function dataEpoch() {
+    try { if (typeof window.PDXDataEpoch === 'function') return window.PDXDataEpoch(); } catch (e) {}
+    return 0;
+  }
   function liveRead(pid) {
+    var ep = dataEpoch();
+    if (ep !== readEpoch) { readCache = {}; readEpoch = ep; }
     if (Object.prototype.hasOwnProperty.call(readCache, pid)) return readCache[pid];
     var d = null;
     try {
       var pc = PC();
       if (pc && typeof pc.read === 'function') d = pc.read(pid);
     } catch (e) { d = null; }
-    readCache[pid] = d;
+    if (d) readCache[pid] = d;
     return d;
   }
   function bustReads() { readCache = {}; }
@@ -170,12 +182,16 @@
     var label = (v && v.label) || 'Loading the record…';
     var tint = d && d.publishable && d.accent ? d.accent : '';
     var pct = (d && typeof d.pct === 'number') ? d.pct : null;
+    // The engine's own name for the figure, carried through brief(). A caption
+    // hardcoded here is how the card came to label this number one way while the
+    // profile labelled the same number another.
+    var kicker = (d && d.metric) ? d.metric : '';
     // The score leads; the plain-language verdict sits directly under it so the
     // number is never left to speak for itself.
     var scoreHtml = (pct === null) ? '' :
       '<div class="pdx-hs-sig-score"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
         '<span class="pdx-hs-sig-pct">' + pct + '<span class="pdx-hs-sig-pct-u">%</span></span>' +
-        '<span class="pdx-hs-sig-pct-k">word matched by action</span>' +
+        (kicker ? '<span class="pdx-hs-sig-pct-k">' + esc(kicker) + '</span>' : '') +
       '</div>';
     return '' +
       '<div class="pdx-hs-signal' + (d && d.publishable ? ' is-pub' : '') + (pct === null ? '' : ' has-score') + '">' +
@@ -356,7 +372,24 @@
 
   function paint() {
     var list = visible();
-    if (!list.length) {
+    var c = null;
+    var d = null;
+    // A candidate that cleared the publishing floor and then cannot produce a read
+    // is the one case that puts a skeleton inside a rotation of finished cards.
+    // brief() already said this record is publishable, so a failed read is not a
+    // timing problem and there is nothing to wait for: drop it and try whoever is
+    // next, until something can be painted or nobody is left.
+    for (var guard = list.length; guard > 0 && list.length; guard--) {
+      if (idx >= list.length) idx = 0;
+      if (idx < 0) idx = list.length - 1;
+      c = list[idx];
+      d = (c.state === 'publishable') ? liveRead(c.pid) : null;
+      if (d || c.state !== 'publishable') break;
+      c.state = 'ruled-out';
+      c = null;
+      list = visible();
+    }
+    if (!c) {
       // Every candidate ruled out. An empty proof slot is honest; a card built on
       // a read that will not publish is not.
       host.hidden = true;
@@ -364,11 +397,6 @@
       stopAuto();
       return;
     }
-    if (idx >= list.length) idx = 0;
-    if (idx < 0) idx = list.length - 1;
-
-    var c = list[idx];
-    var d = (c.state === 'publishable') ? liveRead(c.pid) : null;
     host.innerHTML = frame(c, d ? fullCard(c, d) : pendingCard(c), idx + 1, list.length);
     host.hidden = false;
 
@@ -399,7 +427,15 @@
   function startAuto() {
     stopAuto();
     if (reduced() || paused) return;
-    if (visible().length < 2) return;
+    var list = visible();
+    if (list.length < 2) return;
+    // And off until every card in the rotation has a read: advancing between two
+    // identical spinners reports progress the page has not made, and is how a
+    // half-warmed set shows loaded and unloaded cards in turn. The sweep that
+    // publishes a card calls startAuto() again.
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].state !== 'publishable') return;
+    }
     autoTimer = setInterval(function () {
       if (paused || document.hidden) return;
       step(1);
@@ -483,6 +519,8 @@
   // How long a candidate is given to start looking before silence counts against
   // it — comfortably longer than warm()'s 150ms debounce plus a slow round trip.
   var GRACE_MS = 2500;
+  // The final sweep — see the backstops in beginEngine().
+  var FINAL_MS = 20000;
 
   // FAIL CLOSED, BUT NOT PREMATURELY — the footgun in this component. `warming`
   // alone cannot tell "still arriving" from "never asked": PDXWordAction marks an
@@ -492,7 +530,7 @@
   // EVERY candidate looks empty — ruling out there would hide the hero one tick
   // before the data arrived. Hence allowRuleOut, set only once the grace period has
   // elapsed: until then a candidate can be promoted but never eliminated.
-  function settle(c, allowRuleOut) {
+  function settle(c, allowRuleOut, final) {
     // Already answered. brief() is a full PDXWordAction.read(), and a candidate
     // that cleared the publishing floor cannot be argued back below it by a later
     // arrival — re-asking buys nothing and costs one whole read per candidate per
@@ -514,8 +552,12 @@
     if (b && b.publishable) { c.state = 'publishable'; return; }
     if (!allowRuleOut) return;
     // Still fetching is not a verdict. Leave it unknown so a later event can
-    // publish it, rather than burning a candidate on a slow request.
-    if (b && b.coverage && b.coverage.warming) return;
+    // publish it, rather than burning a candidate on a slow request — but only
+    // while the fetch could still land. `final` is the last sweep, past every
+    // deadline the record lane has, and there "still warming" means a request
+    // that stalled: an unlimited excuse is what held a spinner for a whole visit.
+    // A late arrival can still promote it; warm events keep running settle().
+    if (!final && b && b.coverage && b.coverage.warming) return;
     c.state = 'ruled-out';
   }
 
@@ -534,11 +576,10 @@
 
   // ONE member's record landed. Settle that member and nobody else.
   //
-  // This is the fix for the homepage lock-up. Records arrive one per request, and
-  // every arrival used to run the full pass below: flush every cached read, then
-  // brief() all eight candidates — eight complete PDXWordAction reads — inside the
-  // fetch's own callback. Eight arrivals meant sixty-four reads landing in the same
-  // frames as eight ~125 KB JSON parses and the roster render, and the main thread
+  // This is the fix for the homepage lock-up: every arrival used to flush every
+  // cached read and brief() all eight candidates — eight full PDXWordAction reads
+  // inside the fetch's own callback, sixty-four across a cold load, landing in the
+  // same frames as eight ~125 KB parses and the roster render, and the main thread
   // never got a gap wide enough to answer a tap. One arrival can only change one
   // member's answer, so this does one member's work.
   //
@@ -553,12 +594,11 @@
   }
   function settleOne(pid) {
     var c = byPid(warmSet, pid);
-    // Not one of ours. A profile modal elsewhere warms members too, and re-reading
-    // the whole hero because some unrelated member settled is pure waste. "Ours" is
-    // the warm set PLUS whoever is on screen: before the pool publishes, visible()
-    // falls back to candidates past WARM_MAX, and a card whose record lands while it
-    // is on screen must repaint or it keeps showing a percentage the profile no
-    // longer agrees with.
+    // Not one of ours — a profile modal elsewhere warms members too, and re-reading
+    // the whole hero for an unrelated member is pure waste. "Ours" is the warm set
+    // PLUS whoever is on screen: visible() can fall back past WARM_MAX, and a card
+    // whose record lands while it is up must repaint or it keeps showing a
+    // percentage the profile no longer agrees with.
     if (!c) {
       var v = byPid(visible(), pid);
       if (v) { dropRead(v.pid); draw(); }
@@ -571,16 +611,17 @@
     startAuto();
   }
 
-  function settleAll() {
+  function settleAll(final) {
     bustReads();
     // Gate on `started`, not on the timestamp — a clock reading is not a flag.
     var allowRuleOut = false;
     if (started) {
       try { allowRuleOut = (Date.now() - engineStart) >= GRACE_MS; } catch (e) { allowRuleOut = true; }
     }
+    if (final) allowRuleOut = true;
 
     holdPlace(function () {
-      warmSet.forEach(function (c) { settle(c, allowRuleOut); });
+      warmSet.forEach(function (c) { settle(c, allowRuleOut, final); });
       // Past the warm cap they were never fetched, so they can never publish. Ruling
       // them out keeps visible() honest, and is safe even on the first pass.
       pool.forEach(function (c) {
@@ -632,6 +673,11 @@
     // "Loading the record…" forever instead of showing what it has or standing down.
     try { setTimeout(settleAll, GRACE_MS + 500); } catch (e) {}
     try { setTimeout(settleAll, 12000); } catch (e) {}
+    // The last word, later than every deadline downstream (the warm queue's
+    // per-job 9s, the record request's own 12s abort) plus room to drain. The two
+    // sweeps above still exempt a candidate reported as fetching, which is right
+    // until it cannot land: past this point that is a spinner nothing will clear.
+    try { setTimeout(function () { settleAll(true); }, FINAL_MS); } catch (e) {}
   }
 
   // ── Phase 1 · identity, now. No engine, no data file, no network ────────────

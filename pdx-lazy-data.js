@@ -36,6 +36,14 @@
       s.async = false;
       s.onload = function () {
         f.loaded = true;
+        // A bundle landing is a change to the inputs every derived figure is
+        // computed from: these files merge new stances, mappings and records
+        // into the same roster globals the integrity read walks. Bumping the
+        // derivation epoch invalidates every epoch-keyed cache at once, so a
+        // surface that computed a figure from the pre-merge roster cannot keep
+        // publishing it after the merge. Without this, readers that memoize a
+        // read stay one bundle behind whatever the profile computes live.
+        try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
         try { document.dispatchEvent(new CustomEvent('pdx:data:' + key)); } catch (e) {}
         resolve(true);
       };

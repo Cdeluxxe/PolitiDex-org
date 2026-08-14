@@ -23,6 +23,8 @@
 //   3. THE DOCUMENT STAYS SPLIT — no single inline block grows past the budget,
 //      and the gzipped document stays under its ceiling.
 //   4. RENDER-BLOCKING CSS is not silently added to.
+//   5. THE FIXED CHROME IS MEASURED ONCE — everything that has to start below the
+//      nav + search stack reads one variable instead of carrying its own guess.
 //
 //   node scripts/test-index-scripts.mjs
 //
@@ -188,6 +190,64 @@ ok(html.indexOf('id="hero-receipt"') < html.indexOf('<section id="say-vs-do"'),
   // the first frame, so they live inline in the head.
   ok(/#hero-showcase\s*\{/.test(html), "css: the hero showcase's styles are inlined in the document head");
   ok(/#hero-receipt\s*\{/.test(html), "css: the hero receipt's styles are inlined in the document head");
+}
+
+// ── 5. The fixed chrome is one number, and the hero clears it ─────────────────
+// The whole top of every page is a single fixed <nav> holding two stacked rows:
+// the nav bar and the All-Seeing Eye search row. Anything starting at the top of
+// the document has to begin below both. The hero used to carry its own guesses at
+// that height — a desktop `pt-32` and two smaller phone values — and the phone
+// guesses were shorter than the chrome, so at scroll 0 the POLITIDEX wordmark
+// rendered underneath the search bar. Nothing catches that: each value is valid
+// CSS, and the collision only appears at the viewport widths that use it.
+//
+// So the height is declared once and every consumer derives from it. These
+// assertions exist to keep it that way, because the failure mode is not a broken
+// rule — it is a second, plausible-looking number.
+{
+  const css = readFileSync(join(ROOT, "app.css"), "utf8");
+  ok(/:root\s*\{[^}]*--pdx-chrome:\s*[\d.]+rem/.test(html),
+    "chrome: --pdx-chrome is not declared on :root — the fixed nav + search height has no single home");
+
+  // Every #hero top padding, at every breakpoint, is chrome + air. A bare length
+  // here is the exact shape of the original bug.
+  const heroPads = [...html.matchAll(/#hero\s*\{[^}]*?padding-top:\s*([^;}]+)/g)].map((m) => m[1].trim());
+  ok(heroPads.length >= 2,
+    "chrome: the hero's top padding is not stated in the inline critical CSS, so first paint depends on a\n" +
+    "    stylesheet that has not arrived yet");
+  ok(heroPads.every((v) => v.includes("var(--pdx-chrome")),
+    `chrome: a #hero top padding is a hand-measured length (${heroPads.filter((v) => !v.includes("var(--pdx-chrome")).join(", ")})\n` +
+    "    — that is the guess that put the brand wordmark under the search bar on phones");
+
+  // Anchor scrolling reads the same number. A hand-measured offset here lands a
+  // jumped-to heading behind the chrome instead.
+  ok(/scroll-padding-top:\s*calc\(var\(--pdx-chrome/.test(css),
+    "chrome: app.css's scroll-padding-top carries its own measurement of the fixed chrome");
+
+  // The phone overrides have to key on classes the markup actually carries. The
+  // previous set matched `.mb-8` while the markup said `mb-5 md:mb-8`, so every
+  // trim — including hiding the badge on short screens — silently did nothing.
+  const hero = html.slice(html.indexOf('<section id="hero"'), html.indexOf("</section>", html.indexOf('<section id="hero"')));
+  // Depth of each hook inside the hero, counting only <div> nesting. Every rule
+  // above is a child combinator, so a hook one level deeper is styled by nothing.
+  const heroDepth = (cls) => {
+    const src = hero.replace(/<!--[\s\S]*?-->/g, "");
+    const at = src.search(new RegExp(`<div class="[^"]*\\b${cls}\\b`));
+    if (at < 0) return -1;
+    let depth = 0;
+    for (const m of src.slice(0, at).matchAll(/<(\/?)div\b/g)) depth += m[1] ? -1 : 1;
+    return depth;
+  };
+  for (const cls of ["hero-stack-top", "hero-brand", "hero-stack-end"]) {
+    ok(new RegExp(`class="[^"]*\\b${cls}\\b`).test(hero),
+      `chrome: no element in the hero carries .${cls}, so the rules written against it are dead CSS`);
+    ok(new RegExp(`#hero\\s*>\\s*\\.${cls}\\b`).test(html),
+      `chrome: .${cls} is on a hero element but nothing styles it — a hook with no rule is a rule that was lost`);
+    ok(heroDepth(cls) === 0,
+      `chrome: .${cls} is not a direct child of #hero (nested ${heroDepth(cls)} deep), so every\n` +
+      `    \`#hero > .${cls}\` override — including the clearance that keeps the brand lockup out from under\n` +
+      "    the search bar — stops applying to it");
+  }
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────

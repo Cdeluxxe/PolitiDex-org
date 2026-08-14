@@ -1132,9 +1132,15 @@ section("15 · one verdict engine, and a narrow Mixed");
   eq(typeof b.pct, "number", "the president's card brief carries no percentage — the card and the profile\n" +
     "    summarise the same record and must lead with the same figure");
   eq(b.pct, r.pct, "the card's percentage is not ⚖️ Word vs Action's — a second number computed a second way");
+  // …and it is labelled with the engine's name for it, carried through the brief.
+  // The card used to caption the figure "word matched by action" in its own words
+  // while the profile called the same number "Direction match", which is how one
+  // read came to look like two products to anyone comparing them.
+  eq(b.metric, (r.frame && r.frame.metric) || "",
+    "the card brief drops the metric name, so the card has to invent a caption for a number it did not name");
   const HS = R("hero-showcase.js");
-  ok(/d\.pct/.test(HS) && /word matched by action/.test(HS),
-    "the homepage card no longer paints brief().pct under the ⚖️ Word vs Action eyebrow");
+  ok(/d\.pct/.test(HS) && /d\.metric/.test(HS),
+    "the homepage card no longer paints brief().pct under the metric name the engine publishes for it");
   ok(/Word vs Action/.test(HS) && !/Kept word|Promise Receipts|Say vs\. ?Do/i.test(HS),
     "a retired integrity product is named on the homepage card — Word vs Action is the only score language");
 }

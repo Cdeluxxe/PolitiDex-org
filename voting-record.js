@@ -251,20 +251,46 @@
       return s ? ('?' + s) : '';
     },
 
+    // How long a single member request is given before it is treated as a failure.
+    // A stalled connection is the one outcome the catch below cannot rescue: it
+    // never resolves and never rejects, so the promise memoised under `key` stays
+    // pending forever and every surface awaiting it waits forever with it. There is
+    // no network condition where a caller is better off waiting past this than
+    // being told there is nothing — the cache entry is dropped either way, so a
+    // later attempt re-fetches from scratch.
+    _timeoutMs: 12000,
+
     fetchMember: function (id, opts) {
       id = canonPid(id);
       var qs = this._query(opts);
       var key = id + qs;
       if (this._cache.has(key)) return this._cache.get(key);
       var url = API_BASE + '/member/' + encodeURIComponent(id) + qs;
-      var promise = fetch(url, { headers: { accept: 'application/json' } })
+      var ctl = null, timer = null;
+      try { if (typeof AbortController === 'function') ctl = new AbortController(); } catch (e) { ctl = null; }
+      var init = { headers: { accept: 'application/json' } };
+      if (ctl) init.signal = ctl.signal;
+      try {
+        timer = setTimeout(function () {
+          try { if (ctl) ctl.abort(); } catch (e) {}
+        }, this._timeoutMs);
+      } catch (e) { timer = null; }
+      var clear = function () { if (timer) { try { clearTimeout(timer); } catch (e) {} timer = null; } };
+      var promise = fetch(url, init)
         .then(function (r) {
           if (!r.ok) throw new Error('voting-record ' + r.status);
           return r.json();
         })
+        // Disarmed only once the BODY has been read. Headers arriving is not the
+        // request completing: a response that stops mid-body leaves r.json()
+        // pending, which is the same stall one step later. The abort covers both.
+        .then(function (data) { clear(); return data; })
         .catch(function (e) {
           // On failure, drop the cache entry so a later (online) retry re-fetches,
-          // and resolve to null so callers degrade quietly instead of throwing.
+          // and resolve to null so callers degrade quietly instead of throwing. An
+          // abort from the deadline above arrives here and is handled as any other
+          // failure — callers cannot tell the difference and do not need to.
+          clear();
           PDXVotingRecord._cache.delete(key);
           if (window.console && console.warn) console.warn('PDXVotingRecord.fetchMember:', e && e.message);
           return null;

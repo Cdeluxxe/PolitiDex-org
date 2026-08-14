@@ -1,7 +1,11 @@
 
     /* ── Reset & Base ──────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: 108px; }
+    /* 108px was a hand-measured stand-in for the fixed chrome (nav bar + the
+       All-Seeing Eye search row) and came out ~6px short of it, so an anchored
+       section landed just under the bar. Both now read the same variable; the
+       fallback keeps this correct on any page that does not define it. */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome, 7.125rem) + 0.5rem); }
     body {
       background-color: #0a0f1e;
       font-family: 'Barlow', sans-serif;

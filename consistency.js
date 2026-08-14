@@ -1417,6 +1417,15 @@
   // event loop instead of stacking it. Four in flight keeps the pipe busy while
   // leaving room for the page's own requests.
   var WARM_CONCURRENCY = 4;
+  // A request that never comes back is the worst case this queue has, because it
+  // fails in two directions at once: the surface waiting on that member sits on a
+  // skeleton forever, AND the slot it occupies is never returned, so four hung
+  // requests stall the whole queue behind them and every member still queued
+  // waits on a fetch that will never answer. A deadline converts "no answer" into
+  // an answer — the lane is marked settled and the slot is handed back — while
+  // leaving the request itself alone: if it does land later it still notes the
+  // record, still bumps the derivation epoch, and every surface upgrades then.
+  var WARM_DEADLINE_MS = 9000;
   var _inFlight = 0;
   function pump() {
     while (_inFlight < WARM_CONCURRENCY && _queue.length) warmOne(_queue.shift());
@@ -1424,12 +1433,14 @@
   function warmOne(pid) {
     _inFlight++;
     var settled = false;
+    var deadline = null;
     // Hand the next fetch to a fresh task. Starting it inline would put its parse
     // in the same task as the listeners this one just woke.
     var done = function () {
       if (settled) return;
       settled = true;
       _inFlight--;
+      if (deadline) { try { clearTimeout(deadline); } catch (e) {} deadline = null; }
       // Asked and answered — whatever the answer was. A card waiting on this lane
       // needs to know the wait is over even when the request came back empty or
       // failed outright, or it sits on a skeleton until a backstop timer rescues it.
@@ -1437,12 +1448,35 @@
       try { setTimeout(pump, 0); } catch (e) { pump(); }
     };
     try {
+      deadline = setTimeout(function () {
+        if (settled) return;
+        done();
+        // Announced as a failure because that is what it is from the reader's side:
+        // there is nothing to show for this member. `timedOut` is carried for any
+        // surface that wants to distinguish "came back empty" from "never came
+        // back" — nothing needs to, and nothing should treat it as a finding.
+        try {
+          window.dispatchEvent(new CustomEvent('pdx-consistency-warm', {
+            detail: { pid: pid, failed: true, timedOut: true }
+          }));
+        } catch (e) {}
+      }, WARM_DEADLINE_MS);
+    } catch (e) { deadline = null; }
+    try {
       window.PDXVotingRecord.fetchMember(pid, { pageSize: 100 }).then(function (data) {
+        var late = settled;
         if (data && data.items && data.items.length && typeof window.PDXVotingRecord.noteMember === 'function') {
           window.PDXVotingRecord.noteMember(pid, data.items);
         }
         done();
-        try { window.dispatchEvent(new CustomEvent('pdx-consistency-warm', { detail: { pid: pid } })); } catch (e) {}
+        // A response that beat the deadline announces itself as an arrival; one
+        // that lost to it still announces, so a surface that fell back to an
+        // honest empty state picks the real record up on this pass.
+        try {
+          window.dispatchEvent(new CustomEvent('pdx-consistency-warm', {
+            detail: { pid: pid, late: late || undefined }
+          }));
+        } catch (e) {}
       }).catch(function () {
         // A failed fetch is still an answer. It used to announce nothing, so every
         // surface waiting on this member stayed in its loading state until a

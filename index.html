@@ -2421,6 +2421,33 @@ window.PDXLazy = (function () {
       #hero-showcase * { transition: none !important; animation: none !important; }
     }
 
+    /* ── The fixed chrome, as one number ────────────────────────────────────
+       The top of every page is a single fixed <nav> carrying TWO stacked rows:
+       the nav bar itself (px-4 py-3 around a 32px brand mark ≈ 56px) and the
+       All-Seeing Eye search row (1px rule + 0.5rem × 2 shell padding + a
+       2.5rem field ≈ 57px). Anything that has to start below that chrome now
+       measures it from here instead of carrying its own guess, because the two
+       guesses in the hero were both smaller than the chrome they were clearing:
+       the brand lockup rendered underneath the search bar at scroll 0. */
+    :root { --pdx-chrome: 7.125rem; }
+
+    /* The hero's own clearance. Desktop is unchanged (this is what pt-32 was),
+       stated as chrome + air so it cannot drift out of step again. */
+    #hero { padding-top: calc(var(--pdx-chrome) + 1rem); }
+
+    /* CENTERING THAT CANNOT EAT THE PADDING. #hero is a min-h-screen column with
+       justify-center. That is safe today — min-height lets the section grow, so
+       free space never goes negative and nothing is pushed past the top edge into
+       the hero's own overflow:hidden. It stops being safe the moment anything
+       gives this column a fixed height, because then centering distributes the
+       shortfall to BOTH ends and the top padding above is silently halved. Auto
+       margins centre the stack identically when there is room, collapse to zero
+       when there is not, and never move content above the padding — so the
+       clearance holds regardless of how the section is sized later. */
+    #hero { justify-content: flex-start; }
+    #hero > .hero-stack-top { margin-top: auto; }
+    #hero > .hero-stack-end { margin-bottom: auto; }
+
     /* ── Hero: fit the proof on a phone screen ──────────────────────────────
        The record card only counts as "above the fold" if it actually clears a
        phone viewport, and the hero's stacked chrome (padding + logo + brand
@@ -2434,13 +2461,22 @@ window.PDXLazy = (function () {
        breakdown, i.e. the whole read. Coverage and proof rows sitting an inch
        below the fold is the correct trade: they are the detail, not the claim. */
     @media (max-width: 639px) {
-      #hero { padding-top: 5rem; padding-bottom: 2.5rem; }
-      #hero > .relative.mb-8 { margin-bottom: .75rem; }
-      #hero > .relative.mb-8 > div:first-child { width: 4rem; height: 4rem; border-radius: .9rem; }
-      #hero > .relative.mb-8 .font-display { font-size: 1.6rem; }
-      #hero > .mb-8.animate-fadeUp { margin-bottom: .75rem; }
-      #hero > .mb-8.animate-fadeUp > .font-display { font-size: 1.6rem; }
-      #hero > .mb-8.animate-fadeUp .mt-3 { margin-top: .4rem; }
+      /* The phone clearance is the same arithmetic as the desktop one. It used to
+         be a flat 5rem — 80px against ~113px of fixed chrome — which is why the
+         badge and the POLITIDEX lockup rendered under the search bar on a phone
+         at scroll 0. Half a rem of air is enough here; the fold budget below is
+         what pays for the rest. */
+      #hero { padding-top: calc(var(--pdx-chrome) + 0.5rem); padding-bottom: 2.5rem; }
+      /* These trims keyed on `.mb-8` until the hero children became `mb-5 md:mb-8`
+         — a different class name, so every rule below silently stopped matching
+         and the phone hero kept its full-size stack. They are anchored to the
+         hero's own class names now, which responsive variants cannot rename. */
+      #hero > .hero-stack-top { margin-bottom: .75rem; }
+      #hero > .hero-stack-top > div:first-child { width: 4rem; height: 4rem; border-radius: .9rem; }
+      #hero > .hero-stack-top .font-display { font-size: 1.6rem; }
+      #hero > .hero-brand { margin-bottom: .75rem; }
+      #hero > .hero-brand > .font-display { font-size: 1.6rem; }
+      #hero > .hero-brand > div:last-child { margin-top: .4rem; }
       #hero h1 { margin-bottom: .75rem; }
       #hero h1 > span:nth-child(1) { font-size: .78rem; margin-bottom: .55rem; letter-spacing: .18em; }
       #hero h1 > span:nth-child(2) { font-size: 2.35rem; margin-bottom: .1rem; }
@@ -2470,9 +2506,14 @@ window.PDXLazy = (function () {
        the lockup shrinks to the wordmark's tagline rule. The headline is never
        touched — the card is meant to support the claim, not replace it. */
     @media (max-width: 639px) and (max-height: 720px) {
-      #hero { padding-top: 4.25rem; }
-      #hero > .relative.mb-8 { display: none; }
-      #hero > .mb-8.animate-fadeUp { margin-bottom: .5rem; }
+      /* Still the full chrome — a short screen is not a reason to put the brand
+         under the search bar, it is a reason to spend less on decoration below.
+         The badge going is what buys the space back (it was meant to go here all
+         along; the rule that hid it was one of the ones keyed on `.mb-8`), and
+         the lockup inherits the auto margin the badge was carrying. */
+      #hero { padding-top: calc(var(--pdx-chrome) + 0.25rem); }
+      #hero > .hero-stack-top { display: none; }
+      #hero > .hero-brand { margin-top: auto; margin-bottom: .5rem; }
       #hero h1 > span:nth-child(1) { margin-bottom: .35rem; }
       #hero h1 > span:nth-child(2) { font-size: 2.1rem; }
       #hero h1 > span:nth-child(3) { font-size: 1.65rem; margin-bottom: .35rem; }
@@ -3210,7 +3251,7 @@ window.PDXLazy = (function () {
          vs Action verdict on the record card below has to clear the first screen on
          a handset, and every pixel spent on chrome above it is a pixel the proof
          does not get. Unchanged from md: up, where the fold was never in question. -->
-    <div class="relative mb-5 md:mb-8 animate-float">
+    <div class="relative mb-5 md:mb-8 animate-float hero-stack-top">
       <div class="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto rounded-2xl bg-gradient-to-br from-crimson-600 via-navy-800 to-blue-900 border-2 border-gold-400/60 shadow-[0_20px_50px_rgba(192,21,42,0.4),0_0_35px_rgba(245,200,66,0.2)] flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:scale-105 hover:border-gold-400">
         <span class="font-display text-2xl sm:text-4xl md:text-5xl tracking-widest leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">PX</span>
         <span class="font-condensed text-[8px] sm:text-[10px] md:text-xs tracking-widest text-gold-300 uppercase font-bold">BETA</span>
@@ -3222,7 +3263,7 @@ window.PDXLazy = (function () {
     <!-- Brand lockup — wordmark + tagline. The standing PolitiDex tagline:
          "Bound by Truth." Kept compact and prominent so it reads as the brand
          signature directly under the badge, with the marketing headline below. -->
-    <div class="mb-5 md:mb-8 animate-fadeUp select-none">
+    <div class="mb-5 md:mb-8 animate-fadeUp select-none hero-brand">
       <div class="font-display text-2xl sm:text-4xl md:text-5xl tracking-[0.18em] text-white leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">POLITI<span class="text-crimson-400">DEX</span></div>
       <div class="mt-2 md:mt-3 flex items-center justify-center gap-3" aria-hidden="true">
         <span class="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold-400/70"></span>
@@ -3364,7 +3405,7 @@ window.PDXLazy = (function () {
          Its button is deliberately a size and weight BELOW the gold primary door
          above, so the hero reads eye → hub → alignment rather than presenting
          three peers. -->
-    <div class="mt-10 w-full max-w-2xl mx-auto px-2 sm:px-0 animate-fadeUp">
+    <div class="mt-10 w-full max-w-2xl mx-auto px-2 sm:px-0 animate-fadeUp hero-stack-end">
       <div class="relative overflow-hidden rounded-3xl border-2 border-gold-400/45 px-6 py-6 sm:px-8 backdrop-blur-lg" style="background:linear-gradient(135deg, rgba(76,29,149,0.42) 0%, rgba(10,15,30,0.6) 55%, rgba(192,21,42,0.18) 100%); box-shadow:0 0 38px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.05);">
         <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] pointer-events-none" style="background:rgba(139,92,246,0.35);"></div>
         <div class="relative flex flex-col items-center text-center gap-3">
