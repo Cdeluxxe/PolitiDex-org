@@ -561,7 +561,7 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260904000000_vr_split_umbrella_issue_keys',
+  eq(versions[versions.length - 1], '20260905000000_seed_exec_actions_wave12',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
   // whenever a later migration lands — updated here by the August 2026 umbrella

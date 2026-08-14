@@ -73,7 +73,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260831000000_seed_exec_actions_wave8.sql",
   "netlify/database/migrations/20260901000000_seed_exec_actions_wave9.sql",
   "netlify/database/migrations/20260902000000_seed_exec_actions_wave10.sql",
-  "netlify/database/migrations/20260903000000_seed_exec_actions_wave11.sql"
+  "netlify/database/migrations/20260903000000_seed_exec_actions_wave11.sql",
+  "netlify/database/migrations/20260905000000_seed_exec_actions_wave12.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 // Forward migrations that RE-KEY seed rows rather than insert them. The waves
@@ -139,7 +140,13 @@ section("1 · shape and vocabulary");
 // wave whose count is a DEPTH claim rather than a coverage one: eight issue rows
 // were asserting a full-confidence direction match on one or two instruments, and
 // fifteen documents is what reading the rest of them produced.
-ok(ACTIONS.length === 77, `the seed carries seventy-seven actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10, 15 from wave 11 (got ${ACTIONS.length})`);
+// Wave 12 adds THREE, and the count is small on purpose: it is a counter-directional
+// wave — EO 14353, EO 14373 and Proclamation 11015, the first second-term instruments
+// on the war_powers, restraint and america_first_fp chips — plus three secondary
+// cost_living mappings onto documents already on file. The brief it answers asked for
+// fewer strong items over many weak ones, so if this count grows without a wave note
+// explaining which row went thin, something was padded rather than found.
+ok(ACTIONS.length === 80, `the seed carries eighty actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10, 15 from wave 11, 3 from wave 12 (got ${ACTIONS.length})`);
 
 /* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
    This line used to read `a.term === EX.currentTerm("trump")`, which was true of
@@ -587,8 +594,8 @@ if (sum && sumAll) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 8 && C.executive_order === 54 && C.directive === 11 && C.vetoed_law === 4,
-    `class split is 8 laws + 54 orders + 11 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  ok(C.signed_law === 8 && C.executive_order === 56 && C.directive === 12 && C.vetoed_law === 4,
+    `class split is 8 laws + 56 orders + 12 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
   // The veto class existed in the vocabulary for six waves with no row using it.
   // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
   // pipeline nobody has proven works.
@@ -619,8 +626,28 @@ if (sum && sumAll) {
 
   // noActionFound is coverage, and it is nonzero here — so the disclosure that it is
   // coverage rather than a finding must actually be shown.
-  ok(A.noActionFound > 0, "issues with a stated position and no action on file are counted");
-  ok(/coverage, not a finding/.test(tip), "the tip says in words that no-action-found is coverage");
+  // noActionFound is coverage, not a finding — and from wave 12 on it is ZERO on the
+  // real seed. The one row that carried it was `restraint`: a stated position whose
+  // only instruments were two term-45 vetoes, so the current-term scope had a stated
+  // position and nothing on file to test it against. EO 14353 and Proclamation 11015
+  // closed that. Asserting `> 0` on live data would now be asserting that a coverage
+  // hole stays open, which is the opposite of what this file is for — so the count is
+  // pinned at zero here and the DISCLOSURE is proved on a pool that reopens a hole.
+  ok(A.noActionFound === 0,
+    `every stated position has at least one action on file in the current-term scope (noActionFound ${A.noActionFound})`);
+  {
+    const pmap = ctx.window._polPositionMap("trump", ctx.window.CMP_DATA.trump) || {};
+    const holeKey = Object.keys(pmap).sort().find((k) => {
+      setActions(ACTIONS.filter((a) => !(a.issues || []).some((m) => m.issueKey === k)));
+      return EX.issue("trump", k).token === "said_not_done";
+    });
+    ok(!!holeKey, "stripping every action for a stated position reopens a coverage hole to test the disclosure with");
+    const holed = EX.summary("trump");
+    setActions(ACTIONS);
+    ok(holed && holed.issues.noActionFound > 0, `the reopened hole is counted (${holeKey})`);
+    ok(/no action found/.test(holed.label), "the label names the coverage hole in words");
+    ok(/coverage, not a finding/.test(EX.summaryTip(holed)), "the tip says in words that no-action-found is coverage");
+  }
 
   /* ALL-TERMS SCOPE. This assertion used to read `all.actions.total === B.total`,
      with a comment explaining that everything on file was term 47 so the two scopes

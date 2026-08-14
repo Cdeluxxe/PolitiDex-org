@@ -673,9 +673,17 @@ section("10 · one verdict per issue — the Say-vs-Do merge");
   ok(/actionJudged && tok !== 'limited'/.test(rowFn),
     "the action branch no longer wins outright where a formal action exists — a formal\n" +
     "    action is the test wherever a formal action can be the test");
-  ok(/pub\.count >= MIN_SAYDO_EVIDENCE/.test(rowFn),
+  // THIN MEANS DIRECTIONAL-THIN. The gate used to read MIN_SAYDO_EVIDENCE against the
+  // item TOTAL, which let one judged receipt plus a red flag or two clear a bar named
+  // for directional evidence — and a row so decided printed "Says one thing, does
+  // another" with no percentage beside it, because one item does not divide. The count
+  // that opens the lane must be the same count the percentage is divided by.
+  ok(/pubDirectional >= MIN_SAYDO_EVIDENCE/.test(rowFn),
     "the public record can decide a row on a single receipt — thin evidence must not\n" +
     "    carry a verdict the formal record was never able to reach");
+  ok(/pubDirectional\s*=\s*\(pub\.supporting \|\| 0\) \+ \(pub\.contradicting \|\| 0\)/.test(rowFn),
+    "the public lane's evidence bar is counted over something other than supporting +\n" +
+    "    contradicting — flags are heat, and a bar that counts them is not a bar");
   ok(/flag` is deliberately NOT judgeable|flag` is deliberately/.test(CS_SRC) ||
      !/pub\.token === 'flag'/.test(rowFn),
     "a red flag can resolve a row's verdict — heat is Flashpoints' job, and promoting it\n" +

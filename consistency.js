@@ -3726,8 +3726,19 @@
     // too little record behind it — and that is the only opening the public record
     // gets. It is never blended with the action read and never overrides it.
     var basis = null;
+    // MIN_SAYDO_EVIDENCE counts DIRECTIONAL items — supporting plus contradicting —
+    // which is what its own definition says and what a public-record percentage is
+    // divided by. Measuring it against the item TOTAL let a row take its verdict from
+    // the public lane on the strength of items that lane had deliberately declined to
+    // judge: a red flag is heat, not a direction, and two of them still divide by zero.
+    // Three rows sat on the gap — Tlaib and Jayapal on foreign aid balance, the
+    // president on war powers — each holding one judged item beside one or two flags,
+    // each reading "Says one thing, does another" with no percentage to print next to
+    // it. That is a tested row that cannot state its own result. Below two directional
+    // items the public lane does not decide, and the action lane says the honest thing.
+    var pubDirectional = (pub.supporting || 0) + (pub.contradicting || 0);
     if (actionJudged && tok !== 'limited') basis = 'action';
-    else if (tok !== 'pending' && pub.judged && pub.count >= MIN_SAYDO_EVIDENCE) {
+    else if (tok !== 'pending' && pub.judged && pubDirectional >= MIN_SAYDO_EVIDENCE) {
       basis = 'public_record'; tok = pub.token; v = pub.verdict; score = pub.score;
     } else if (actionJudged) basis = 'action';
 

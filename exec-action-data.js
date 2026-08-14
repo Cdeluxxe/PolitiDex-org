@@ -1527,6 +1527,40 @@
         ]
       },
       {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14190",
+        "executiveOrderNumber": 14190,
+        "title": "Ending Radical Indoctrination in K-12 Schooling",
+        "actedAt": "2025-01-29",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/03/2025-02232/ending-radical-indoctrination-in-k-12-schooling",
+        "sourceLabel": "Federal Register — Executive Order 14190, 90 FR 8853",
+        "frCitation": "90 FR 8853",
+        "frDocumentNumber": "2025-02232",
+        "publishedAt": "2025-02-03",
+        "issues": [
+          {
+            "issueKey": "end_dei",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Ordered a government-wide plan to cut off federal money to K-12 schools that teach what the order calls discriminatory equity ideology — the schools side of this issue, which the federal-workforce orders do not reach.",
+            "rationale": "Section 3(a)(i) directs the Secretaries of Education, Defense and Health and Human Services to deliver an \"Ending Indoctrination Strategy\" containing a plan for \"eliminating Federal funding or support for illegal and discriminatory treatment and indoctrination in K-12 schools, including based on gender ideology and discriminatory equity ideology.\" Section 3(b) requires that strategy to inventory every federal funding stream that supports such instruction, in curriculum and in teacher training, and each agency’s process to prevent or rescind those funds. Section 1 grounds the order in Title VI, Title IX, FERPA and the PPRA. Mapped to end_dei because the chip covers government AND schools; this is the only instrument in this record on the schools side."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-03",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14190 document record, 90 FR 8853",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/03/2025-02232/ending-radical-indoctrination-in-k-12-schooling",
+            "note": "Signed January 29, 2025 and published February 3, 2025 at 90 FR 8853. The register’s disposition record for this document carries three cross-references — to Executive Order 13958 of November 2, 2020, Executive Order 13985 of January 20, 2021 and Executive Order 14280 of April 23, 2025 — and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
         "actionClass": "signed_law",
         "documentId": "Public Law 119-1",
         "measureNumber": "S. 5",
@@ -1582,99 +1616,6 @@
             "sourceLabel": "GovInfo — Public Law 119-1, enrolled text as published by GPO",
             "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ1/pdf/PLAW-119publ1.pdf",
             "note": "Enacted and published as Public Law 119-1, approved January 29, 2025. Nothing on file repeals or amends it. This states that the law exists and stands as published; it is not a statement about any challenge to it."
-          }
-        ]
-      },
-      {
-        "actionClass": "executive_order",
-        "documentId": "Executive Order 14190",
-        "executiveOrderNumber": 14190,
-        "title": "Ending Radical Indoctrination in K-12 Schooling",
-        "actedAt": "2025-01-29",
-        "term": "47",
-        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/03/2025-02232/ending-radical-indoctrination-in-k-12-schooling",
-        "sourceLabel": "Federal Register — Executive Order 14190, 90 FR 8853",
-        "frCitation": "90 FR 8853",
-        "frDocumentNumber": "2025-02232",
-        "publishedAt": "2025-02-03",
-        "issues": [
-          {
-            "issueKey": "end_dei",
-            "direction": "advances",
-            "isPrimary": true,
-            "weight": 70,
-            "plain": "Ordered a government-wide plan to cut off federal money to K-12 schools that teach what the order calls discriminatory equity ideology — the schools side of this issue, which the federal-workforce orders do not reach.",
-            "rationale": "Section 3(a)(i) directs the Secretaries of Education, Defense and Health and Human Services to deliver an \"Ending Indoctrination Strategy\" containing a plan for \"eliminating Federal funding or support for illegal and discriminatory treatment and indoctrination in K-12 schools, including based on gender ideology and discriminatory equity ideology.\" Section 3(b) requires that strategy to inventory every federal funding stream that supports such instruction, in curriculum and in teacher training, and each agency’s process to prevent or rescind those funds. Section 1 grounds the order in Title VI, Title IX, FERPA and the PPRA. Mapped to end_dei because the chip covers government AND schools; this is the only instrument in this record on the schools side."
-          }
-        ],
-        "status": [
-          {
-            "status": "in_force",
-            "effectiveAt": "2025-02-03",
-            "authority": "Issued by the President and published in the Federal Register",
-            "basis": "register_disposition",
-            "sourceLabel": "Federal Register — Executive Order 14190 document record, 90 FR 8853",
-            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/03/2025-02232/ending-radical-indoctrination-in-k-12-schooling",
-            "note": "Signed January 29, 2025 and published February 3, 2025 at 90 FR 8853. The register’s disposition record for this document carries three cross-references — to Executive Order 13958 of November 2, 2020, Executive Order 13985 of January 20, 2021 and Executive Order 14280 of April 23, 2025 — and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
-          }
-        ]
-      },
-      {
-        "actionClass": "executive_order",
-        "documentId": "Executive Order 14195",
-        "executiveOrderNumber": 14195,
-        "title": "Imposing Duties To Address the Synthetic Opioid Supply Chain in the People's Republic of China",
-        "actedAt": "2025-02-01",
-        "term": "47",
-        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02408/imposing-duties-to-address-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of-china",
-        "sourceLabel": "Federal Register — Executive Order 14195, 90 FR 9121",
-        "frCitation": "90 FR 9121",
-        "frDocumentNumber": "2025-02408",
-        "publishedAt": "2025-02-07",
-        "issues": [
-          {
-            "issueKey": "tariffs_china",
-            "direction": "advances",
-            "isPrimary": true,
-            "weight": 100,
-            "plain": "Imposed an extra across-the-board duty on goods from China, using emergency economic powers after finding ordinary tariff authority inadequate.",
-            "rationale": "Imposes an additional ad valorem duty on all articles that are products of the People's Republic of China, invoking section 1702(a)(1)(B) of the International Emergency Economic Powers Act on the finding that other tariff authority was inadequate."
-          },
-          {
-            "issueKey": "immig_fentanyl",
-            "direction": "advances",
-            "isPrimary": false,
-            "weight": 70,
-            "plain": "Extends the border emergency to China's failure to stop precursor-chemical suppliers and cartel money laundering, and uses the new duties as the lever against that supply chain.",
-            "rationale": "Expands the national emergency declared in Proclamation 10886 to cover the failure of the PRC government to intercept chemical precursor suppliers, money launderers and transnational criminal organisations, and imposes the duties as the measure against that supply chain."
-          },
-          {
-            "issueKey": "tariffs_authority",
-            "direction": "opposes",
-            "isPrimary": false,
-            "weight": 65,
-            "plain": "Set the China duty rate himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
-            "rationale": "The order is issued under the International Emergency Economic Powers Act and the National Emergencies Act and imposes an additional ad valorem duty on articles that are products of the PRC, with section 3 reserving to the President the determination whether the PRC has taken adequate steps. Mapped opposes on the guardrail chip, on the same ground as Executive Orders 14193, 14194, 14245 and 14257: the mapping is about who set the rate, not about whether the rate was wise. Added in wave 11; this document was already in the record for its tariffs_china and immig_fentanyl mappings, and leaving the authority question off it while filing three sibling orders for exactly that question would have been selection."
-          }
-        ],
-        "status": [
-          {
-            "status": "in_force",
-            "effectiveAt": "2025-02-07",
-            "authority": "Issued by the President and published in the Federal Register",
-            "basis": "register_disposition",
-            "sourceLabel": "Federal Register — Executive Order 14195 document record, 90 FR 9121",
-            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02408/imposing-duties-to-address-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of-china",
-            "note": "Issued February 1, 2025 and published February 7, 2025. The duties were collected under this order, as amended by Executive Order 14228 of March 3, 2025, for just over twelve months. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is not a statement about any challenge to it."
-          },
-          {
-            "status": "superseded",
-            "effectiveAt": "2026-02-20",
-            "authority": "President of the United States, by later executive order",
-            "basis": "register_disposition",
-            "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
-            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
-            "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency and every other action taken under it are unaffected, so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
           }
         ]
       },
@@ -1761,6 +1702,65 @@
             "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
             "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
             "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency declared or described in it, and every other action taken under it, are unaffected — so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14195",
+        "executiveOrderNumber": 14195,
+        "title": "Imposing Duties To Address the Synthetic Opioid Supply Chain in the People's Republic of China",
+        "actedAt": "2025-02-01",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02408/imposing-duties-to-address-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of-china",
+        "sourceLabel": "Federal Register — Executive Order 14195, 90 FR 9121",
+        "frCitation": "90 FR 9121",
+        "frDocumentNumber": "2025-02408",
+        "publishedAt": "2025-02-07",
+        "issues": [
+          {
+            "issueKey": "tariffs_china",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "plain": "Imposed an extra across-the-board duty on goods from China, using emergency economic powers after finding ordinary tariff authority inadequate.",
+            "rationale": "Imposes an additional ad valorem duty on all articles that are products of the People's Republic of China, invoking section 1702(a)(1)(B) of the International Emergency Economic Powers Act on the finding that other tariff authority was inadequate."
+          },
+          {
+            "issueKey": "immig_fentanyl",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "Extends the border emergency to China's failure to stop precursor-chemical suppliers and cartel money laundering, and uses the new duties as the lever against that supply chain.",
+            "rationale": "Expands the national emergency declared in Proclamation 10886 to cover the failure of the PRC government to intercept chemical precursor suppliers, money launderers and transnational criminal organisations, and imposes the duties as the measure against that supply chain."
+          },
+          {
+            "issueKey": "tariffs_authority",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 65,
+            "plain": "Set the China duty rate himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+            "rationale": "The order is issued under the International Emergency Economic Powers Act and the National Emergencies Act and imposes an additional ad valorem duty on articles that are products of the PRC, with section 3 reserving to the President the determination whether the PRC has taken adequate steps. Mapped opposes on the guardrail chip, on the same ground as Executive Orders 14193, 14194, 14245 and 14257: the mapping is about who set the rate, not about whether the rate was wise. Added in wave 11; this document was already in the record for its tariffs_china and immig_fentanyl mappings, and leaving the authority question off it while filing three sibling orders for exactly that question would have been selection."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-07",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14195 document record, 90 FR 9121",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02408/imposing-duties-to-address-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of-china",
+            "note": "Issued February 1, 2025 and published February 7, 2025. The duties were collected under this order, as amended by Executive Order 14228 of March 3, 2025, for just over twelve months. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is not a statement about any challenge to it."
+          },
+          {
+            "status": "superseded",
+            "effectiveAt": "2026-02-20",
+            "authority": "President of the United States, by later executive order",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
+            "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency and every other action taken under it are unaffected, so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
           }
         ]
       },
@@ -2158,6 +2158,14 @@
             "weight": 55,
             "plain": "Uses import duties as the instrument for reshoring manufacturing and rebuilding supply chains.",
             "rationale": "Uses import duties as the instrument for reshoring domestic manufacturing and rebuilding supply chains."
+          },
+          {
+            "issueKey": "cost_living",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 65,
+            "plain": "The duty reaches articles from nearly every trading partner and the order pairs it with no offsetting relief, so the charge lands on imported consumer goods — one of the four costs the day-one affordability directive named.",
+            "rationale": "The stated position on this chip is the day-one directive telling every agency to pursue emergency measures lowering the cost of housing, health care, energy and consumer goods. This order runs the other way on the last of those: it imposes an additional ad valorem duty on articles from nearly every trading partner, with higher country-specific rates in its annex, and it contains no offsetting measure for household purchasers. Added in wave 12 as a secondary mapping at reduced weight because the order is a trade instrument whose stated subject is the goods trade deficit rather than consumer prices; the tariffs_prices mapping already on this row carries the narrow reading about tariffs and prices, and this one carries the separate tension with the affordability directive. Note the struck_down standing row already on this document: this mapping records what the order imposed, and the standing rows record what survived."
           }
         ],
         "status": [
@@ -2651,6 +2659,56 @@
       },
       {
         "actionClass": "executive_order",
+        "documentId": "Executive Order 14353",
+        "executiveOrderNumber": 14353,
+        "title": "Assuring the Security of the State of Qatar",
+        "actedAt": "2025-09-29",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/10/06/2025-19483/assuring-the-security-of-the-state-of-qatar",
+        "sourceLabel": "Federal Register — Executive Order 14353, 90 FR 48143",
+        "frCitation": "90 FR 48143",
+        "frDocumentNumber": "2025-19483",
+        "publishedAt": "2025-10-06",
+        "issues": [
+          {
+            "issueKey": "war_powers",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Committed the United States in advance to defend another country by military means if that country is attacked, and set up standing joint war planning to carry it out — a forward commitment made by order alone, with no congressional authorization named in it.",
+            "rationale": "Section 1 makes it the policy of the United States “to guarantee the security and territorial integrity of the State of Qatar against external attack.” Section 2(a) provides that the United States “shall regard any armed attack on the territory, sovereignty, or critical infrastructure of the State of Qatar as a threat to the peace and security of the United States,” and section 2(b) that in that event the United States “shall take all lawful and appropriate measures—including diplomatic, economic, and, if necessary, military—to defend the interests of the United States and of the State of Qatar and to restore peace and stability.” Section 2(c) directs the Secretary of War, in coordination with the Secretary of State and the Director of National Intelligence, to “maintain joint contingency planning” with Qatar for a rapid and coordinated response. The order rests on “the authority vested in me as President by the Constitution and the laws of the United States” and identifies no treaty, statute or authorization for the use of military force. Mapped as opposing the congressional war-power chip because the instrument is itself the whole authorization for what it promises."
+          },
+          {
+            "issueKey": "restraint",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 75,
+            "plain": "A standing promise to fight for another country if it is attacked is a new open-ended military commitment, not the winding down of one.",
+            "rationale": "Sections 1 and 2, quoted in the war_powers rationale on this row. Filed against the restraint chip because the commitment the order creates carries no end date, no sunset and no triggering condition narrower than “any armed attack” on the covered state’s territory, sovereignty or critical infrastructure, and because section 2(c) makes the planning for it continuous rather than contingent on a later decision. The mapping records what the order commits the United States to do; it makes no claim about whether that commitment was wise."
+          },
+          {
+            "issueKey": "america_first_fp",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "The stated doctrine presses allies to carry more of their own defense; this order has the United States take on the defense of one instead. A narrower link — the order is a security guarantee, not a foreign-aid or burden-sharing instrument.",
+            "rationale": "The stated position on this chip is a doctrine of pressing allies to fund their own defense and of questioning open-ended commitments abroad. Section 1 of this order runs the other way for one ally: it makes guaranteeing that state’s security and territorial integrity the policy of the United States, and section 2(b) puts American military means behind the guarantee if an attack comes. The order asks nothing of the covered state in return and sets no cost-sharing condition. Mapped below the weight given to the war_powers reading because the stated doctrine is written about aid and burden-sharing rather than about defense guarantees, so the tension is real but secondary."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-10-06",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14353 document record, 90 FR 48143",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/10/06/2025-19483/assuring-the-security-of-the-state-of-qatar",
+            "note": "Signed September 29, 2025 and published October 6, 2025 at 90 FR 48143. The register’s document record for this order carries no disposition note and there is no later presidential document revoking, amending or superseding it, so it stands as published. This describes the register’s record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
         "documentId": "Executive Order 14358",
         "executiveOrderNumber": 14358,
         "title": "Modifying Reciprocal Tariff Rates Consistent With the Economic and Trade Arrangement Between the United States and the People’s Republic of China",
@@ -2776,6 +2834,40 @@
         ]
       },
       {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14373",
+        "executiveOrderNumber": 14373,
+        "title": "Safeguarding Venezuelan Oil Revenue for the Good of the American and Venezuelan People",
+        "actedAt": "2026-01-09",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/01/15/2026-00831/safeguarding-venezuelan-oil-revenue-for-the-good-of-the-american-and-venezuelan-people",
+        "sourceLabel": "Federal Register — Executive Order 14373, 91 FR 2045",
+        "frCitation": "91 FR 2045",
+        "frDocumentNumber": "2026-00831",
+        "publishedAt": "2026-01-15",
+        "issues": [
+          {
+            "issueKey": "america_first_fp",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 75,
+            "plain": "Declared a new national emergency so the United States could hold another government's oil revenue in Treasury custody, and named that country's economic and political stability an American foreign policy objective the order says must not fail.",
+            "rationale": "Section 1 finds that attachment or other judicial process against the covered funds “will substantially interfere with our critical efforts to ensure economic and political stability in Venezuela,” and that the failure of those efforts “would jeopardize major foreign policy objectives of the United States,” which the section lists as ending illegal immigration and illicit narcotics flows, “protecting American interests against malign actors such as Iran and Hezbollah,” and “bringing peace, prosperity, and stability to the Venezuelan people and to the Western Hemisphere more generally.” On that finding the order declares a national emergency under the International Emergency Economic Powers Act and the National Emergencies Act. Section 3 renders any attachment, judgment, lien, execution or garnishment against the covered funds null and void and bars any transfer of them except under a licence issued under the order. Section 4 finds the funds are property of that government, held by the United States “solely in a custodial and governmental capacity,” and “held pending sovereign disposition for public, governmental, or diplomatic purposes determined by the Secretary of State, on behalf of the Government of Venezuela.” Mapped as opposing the America-First chip because that chip is written around questioning open-ended commitments abroad, and this order takes one on: it makes another country’s stabilization a named United States objective and puts the Treasury in the position of custodian for that country’s resource revenue for a period the order does not bound."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-01-15",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14373 document record, 91 FR 2045",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/01/15/2026-00831/safeguarding-venezuelan-oil-revenue-for-the-good-of-the-american-and-venezuelan-people",
+            "note": "Signed January 9, 2026 and published January 15, 2026 at 91 FR 2045. The register’s document record carries no disposition note and no later presidential document revokes, amends or supersedes it; the later register entries that refer to it are notices of Treasury general licences issued under its own authority, which leave the order in place. This describes the register’s record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
         "actionClass": "directive",
         "documentId": "Proclamation 11010",
         "title": "Ensuring Affordable Beef for the American Consumer",
@@ -2815,55 +2907,6 @@
             "sourceLabel": "Federal Register — Proclamation 11010 document record, 91 FR 7107",
             "sourceUrl": "https://www.federalregister.gov/documents/2026/02/13/2026-03050/ensuring-affordable-beef-for-the-american-consumer",
             "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing has revoked, amended or superseded it and it stands as published. Standing describes the instrument, not its effect: this row asserts that the quota increase is on foot and asserts nothing about the price of beef. This is not a statement about any challenge to it."
-          }
-        ]
-      },
-      {
-        "actionClass": "directive",
-        "documentId": "Proclamation 11012",
-        "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
-        "actedAt": "2026-02-20",
-        "term": "47",
-        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
-        "sourceLabel": "Federal Register — Proclamation 11012, 91 FR 9339",
-        "frCitation": "91 FR 9339",
-        "frDocumentNumber": "2026-03824",
-        "publishedAt": "2026-02-25",
-        "issues": [
-          {
-            "issueKey": "tariffs_growth",
-            "direction": "advances",
-            "isPrimary": true,
-            "weight": 90,
-            "plain": "Imposed a temporary 10 percent surcharge on imported articles under the balance-of-payments provision of the Trade Act, which allows up to 15 percent for up to 150 days.",
-            "rationale": "Imposes an additional 10 percent ad valorem surcharge on articles imported into the United States, effective for goods entered on or after 12:01 a.m. eastern standard time on February 24, 2026, under section 122 of the Trade Act of 1974 (19 U.S.C. 2132), which permits an import surcharge of up to 15 percent for up to 150 days to deal with large and serious United States balance-of-payments deficits."
-          },
-          {
-            "issueKey": "econ_trade",
-            "direction": "advances",
-            "isPrimary": false,
-            "weight": 85,
-            "plain": "Re-imposed broad import duties on the day the previous, differently authorized program ended, under a statute chosen for that purpose, so the trade-barrier posture continued without a gap.",
-            "rationale": "Re-imposes broad-based import duties across nearly the whole tariff schedule on the day the previous, differently-authorized program ended, so the trade-barrier posture continues without interruption under a statute the President selected for that purpose."
-          },
-          {
-            "issueKey": "tariffs_prices",
-            "direction": "opposes",
-            "isPrimary": false,
-            "weight": 75,
-            "plain": "Applies to nearly all imported articles. The carve-out list — critical minerals, energy, fertilizers, medicines, some food and electronics — narrows it, but a broad surcharge still raises import costs on net.",
-            "rationale": "Applies a surcharge to nearly all imported articles. Paragraph 14 exempts a list of goods — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics, vehicles, aerospace articles, goods already covered by section 232 actions, USMCA-qualifying duty-free Canadian and Mexican goods and CAFTA-DR textiles — and those carve-outs are recorded here rather than filed as relief, because a broad surcharge with a list of exceptions raises import costs on net and the chip on this issue is about everyday costs not rising."
-          }
-        ],
-        "status": [
-          {
-            "status": "in_force",
-            "effectiveAt": "2026-02-25",
-            "authority": "Issued by the President and published in the Federal Register",
-            "basis": "register_disposition",
-            "sourceLabel": "Federal Register — Proclamation 11012 document record, 91 FR 9339",
-            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
-            "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing on the register has revoked, amended or superseded it and it stands as published. It is time-limited on its own face: section 122 of the Trade Act of 1974 permits a surcharge for a period of no more than 150 days from February 24, 2026 unless that period is extended by Act of Congress. NO STANDING IS ASSERTED FOR WHAT HAPPENED AT THE END OF THAT PERIOD. Nothing on the register discloses it, and no public law of the 119th Congress read in this pass extends the surcharge — but the absence of an extension among the laws published so far is not a citable disposition, and this lane files no standing it cannot cite. This is not a statement about any challenge to it."
           }
         ]
       },
@@ -2914,6 +2957,104 @@
             "sourceLabel": "Federal Register — Executive Order 14389 document record, 91 FR 9437",
             "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
             "note": "Signed February 20, 2026 and published February 25, 2026 at 91 FR 9437. The register’s disposition record for this document carries eleven cross-references to the orders it unwinds and to Proclamation 11012 and Executive Order 14388 of the same day, and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 11012",
+        "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
+        "actedAt": "2026-02-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
+        "sourceLabel": "Federal Register — Proclamation 11012, 91 FR 9339",
+        "frCitation": "91 FR 9339",
+        "frDocumentNumber": "2026-03824",
+        "publishedAt": "2026-02-25",
+        "issues": [
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "plain": "Imposed a temporary 10 percent surcharge on imported articles under the balance-of-payments provision of the Trade Act, which allows up to 15 percent for up to 150 days.",
+            "rationale": "Imposes an additional 10 percent ad valorem surcharge on articles imported into the United States, effective for goods entered on or after 12:01 a.m. eastern standard time on February 24, 2026, under section 122 of the Trade Act of 1974 (19 U.S.C. 2132), which permits an import surcharge of up to 15 percent for up to 150 days to deal with large and serious United States balance-of-payments deficits."
+          },
+          {
+            "issueKey": "econ_trade",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 85,
+            "plain": "Re-imposed broad import duties on the day the previous, differently authorized program ended, under a statute chosen for that purpose, so the trade-barrier posture continued without a gap.",
+            "rationale": "Re-imposes broad-based import duties across nearly the whole tariff schedule on the day the previous, differently-authorized program ended, so the trade-barrier posture continues without interruption under a statute the President selected for that purpose."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 75,
+            "plain": "Applies to nearly all imported articles. The carve-out list — critical minerals, energy, fertilizers, medicines, some food and electronics — narrows it, but a broad surcharge still raises import costs on net.",
+            "rationale": "Applies a surcharge to nearly all imported articles. Paragraph 14 exempts a list of goods — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics, vehicles, aerospace articles, goods already covered by section 232 actions, USMCA-qualifying duty-free Canadian and Mexican goods and CAFTA-DR textiles — and those carve-outs are recorded here rather than filed as relief, because a broad surcharge with a list of exceptions raises import costs on net and the chip on this issue is about everyday costs not rising."
+          },
+          {
+            "issueKey": "cost_living",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "A surcharge on nearly all imported articles raises what imported goods cost — thirteen months after the directive telling every agency to find emergency ways of bringing those costs down.",
+            "rationale": "The stated position on this chip is the day-one directive to lower the cost of housing, health care, energy and consumer goods. This proclamation imposes an additional 10 percent ad valorem surcharge on articles imported into the United States under section 122 of the Trade Act of 1974. Its paragraph 14 carve-out list — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics — removes several of the named categories from the charge, which is why this is filed below the weight of the primary mapping; the surcharge still reaches imported consumer goods generally, and it issued more than a year into the directive it sits against. Added in wave 12."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-25",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 11012 document record, 91 FR 9339",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
+            "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing on the register has revoked, amended or superseded it and it stands as published. It is time-limited on its own face: section 122 of the Trade Act of 1974 permits a surcharge for a period of no more than 150 days from February 24, 2026 unless that period is extended by Act of Congress. NO STANDING IS ASSERTED FOR WHAT HAPPENED AT THE END OF THAT PERIOD. Nothing on the register discloses it, and no public law of the 119th Congress read in this pass extends the surcharge — but the absence of an extension among the laws published so far is not a citable disposition, and this lane files no standing it cannot cite. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Proclamation 11015",
+        "title": "Commitment to Countering Cartel Criminal Activity",
+        "actedAt": "2026-03-07",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/03/12/2026-04924/commitment-to-countering-cartel-criminal-activity",
+        "sourceLabel": "Federal Register — Proclamation 11015, 91 FR 12285",
+        "frCitation": "91 FR 12285",
+        "frDocumentNumber": "2026-04924",
+        "publishedAt": "2026-03-12",
+        "issues": [
+          {
+            "issueKey": "war_powers",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 80,
+            "plain": "Committed the United States to an armed campaign across the Western Hemisphere and to mobilizing partner militaries for it, by proclamation, with no congressional authorization named in the text.",
+            "rationale": "The preamble recites that the Secretary of War convened a coalition of military leaders and representatives from seventeen countries “demonstrating that the region is ready to operationalize hard power to defeat these threats,” and states that the United States “will address these grave dangers by use of any necessary resources and legally available authorities, together with our partner nations.” Numbered paragraph (1) proclaims that the covered organizations “should be demolished to the fullest extent possible,” qualified in the same clause by applicable law; paragraph (3) that the United States “will train and mobilize partner nation militaries” to dismantle them; paragraph (4) that the United States and its allies “should keep external threats at bay.” The proclamation issues “by virtue of the authority vested in me by the Constitution and the laws of the United States” and identifies no authorization for the use of military force. Mapped as opposing the congressional war-power chip because a hemisphere-wide commitment to armed action is asserted here as an executive act on its own authority."
+          },
+          {
+            "issueKey": "restraint",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 75,
+            "plain": "A proclamation committing the country to demolishing armed organizations abroad, using any necessary resources, opens a campaign rather than ending one.",
+            "rationale": "Preamble and numbered paragraphs (1) through (4), quoted in the war_powers rationale on this row. Filed against the restraint chip because the commitment is open-ended in every dimension the document addresses: it names no end date, no theatre narrower than the Western Hemisphere, no ceiling on means beyond “any necessary resources and legally available authorities,” and an objective — demolition of the covered organizations “to the fullest extent possible” — that the document does not treat as achieved. The mapping records the commitment the document makes and asserts nothing about the campaign’s results."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-03-12",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Proclamation 11015 document record, 91 FR 12285",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/03/12/2026-04924/commitment-to-countering-cartel-criminal-activity",
+            "note": "Signed March 7, 2026 and published March 12, 2026 at 91 FR 12285. The register’s document record carries no disposition note and no later presidential document revoking or superseding it, so it stands as published. This describes the register’s record of presidential action and is not a statement about any challenge to the proclamation."
           }
         ]
       },
@@ -3046,6 +3187,14 @@
             "weight": 70,
             "plain": "Rests on a national-security finding about foreign dependence for medicines and directs continued negotiation of agreements to address it.",
             "rationale": "The action rests on the Secretary of Commerce's section 232 finding, recited in paragraph 1, that pharmaceuticals and associated active pharmaceutical ingredients are being imported in such quantities and under such circumstances as to threaten to impair the national security of the United States, and clause (1) directs continued negotiation of agreements under 19 U.S.C. 1862(c)(3)(A)(i) to address that threatened impairment."
+          },
+          {
+            "issueKey": "cost_living",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "Put a border charge on imported patented medicines, raising the cost of health care — named in the day-one affordability directive as one of the four costs every agency was told to bring down.",
+            "rationale": "The stated position on this chip is the day-one directive to lower the cost of housing, health care, energy and consumer goods. This proclamation imposes a duty of one hundred percent on imported patented and branded medicines and their listed ingredients, with lower rates for named countries and for firms whose onshoring plans are approved, and its own findings place the bulk of covered supply outside the country. Generics, biosimilars and a list of specialty therapies are exempt, which is one reason it is filed below the weight of the primary mapping. Added in wave 12 as a secondary mapping because the primary reading of this document is the drug-pricing one already on this row; the cost_living mapping records the separate tension with the broader affordability directive, which names health care by name."
           }
         ],
         "status": [
