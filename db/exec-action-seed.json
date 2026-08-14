@@ -532,6 +532,7 @@
             "isPrimary": true,
             "weight": 90,
             "plain": "Vetoed the resolution directing the withdrawal of U.S. forces from the Yemen conflict, which Congress had never authorized. Blocking it kept those forces committed.",
+            "counts": "A war powers resolution is the instrument Congress uses to pull forces out of a conflict it never authorized. This one covered Yemen, which is why the action taken on it is filed against a promise to end wars rather than start them.",
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 7 would have directed the removal of United States Armed Forces from hostilities in the Republic of Yemen that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
@@ -611,6 +612,7 @@
             "isPrimary": true,
             "weight": 95,
             "plain": "Signed the CARES Act, whose section 601 appropriates $150 billion in new federal money for state, tribal and local governments alone. Enacting an appropriation of that size runs against a record of cutting spending.",
+            "counts": "The question on this issue is whether federal spending goes down. This law sends $150 billion of new federal money to states, tribes and localities in a single appropriation, which puts it on the other side of that ledger.",
             "rationale": "Section 5001 adds a new title VI to the Social Security Act whose section 601(a)(1) provides that 'Out of any money in the Treasury of the United States not otherwise appropriated, there are appropriated for making payments to States, Tribal governments, and units of local government under this section, $150,000,000,000 for fiscal year 2020.' A direct appropriation of new federal money, quoted from the enrolled text rather than characterized from a topline."
           }
         ],
@@ -646,6 +648,7 @@
             "isPrimary": true,
             "weight": 90,
             "plain": "Vetoed the resolution directing withdrawal of U.S. forces from hostilities with Iran that Congress had not authorized, leaving that engagement in place.",
+            "counts": "A war powers resolution is the instrument Congress uses to pull forces out of a conflict it never authorized. This one covered the hostilities with Iran, which is why the action taken on it is filed against a promise to end wars rather than start them.",
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 68 would have directed the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
@@ -864,6 +867,7 @@
             "isPrimary": true,
             "weight": 90,
             "plain": "Vetoed the annual defense authorization, returning the Pentagon's funding levels and troop strengths to the House unsigned rather than enacting them.",
+            "counts": "The stated position pairs America First with backing the armed forces, and the annual defense authorization is the bill that sets the Pentagon's funding levels and troop strengths. That is why an action taken on it is filed here.",
             "rationale": "The direction recorded here describes the MEASURE, not the action taken against it. H.R. 6395 is the annual defense authorization: its long title is 'An Act to authorize appropriations for fiscal year 2021 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes'. Funding and manning the armed forces at the level the Department asked for is what the stated position's commitment to the military is about, so the measure advances this issue. The record engine inverts a blocking action, so the veto itself reads the other way — it returned that authorization to the House without approval."
           }
         ],
@@ -909,6 +913,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Directed the Secretary of State to bring the Department's policies, programs, personnel and operations into line with putting American interests first. It sets the doctrine as an operating instruction, not a statement.",
+            "counts": "This is where the doctrine stops being a slogan: the Secretary of State is directed to bring the Department's policies, programs, personnel and operations into line with putting American interests first.",
             "rationale": "Section 1 provides that from that day forward the foreign policy of the United States shall champion core American interests and always put America and American citizens first; section 2 directs the Secretary of State to issue guidance bringing the Department's policies, programs, personnel and operations in line with it."
           },
           {
@@ -917,6 +922,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Applies the America-First test to the State Department as a whole — the frame the same-day foreign-aid order then carries out on one program.",
+            "counts": "This issue is about aid and commitments abroad. The order sets the standard they are to be judged by across the whole Department of State, which is the frame the same-day foreign-aid order then applies to one program.",
             "rationale": "Sets the doctrine that the foreign-aid realignment order signed the same day carries out, at the level of the Department of State as a whole rather than of one program."
           }
         ],
@@ -1353,6 +1359,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Froze new foreign-aid obligations and payments pending review, and set the rule that no assistance goes out unless it is fully aligned with the President's foreign policy.",
+            "counts": "Foreign assistance is the subject of this issue, and this order reaches it at the payment: new obligations and disbursements pause during review, and nothing goes out afterwards unless it aligns with the President's foreign policy.",
             "rationale": "Section 2 states as policy that no further United States foreign assistance shall be disbursed in a manner that is not fully aligned with the foreign policy of the President, and section 3 imposes an immediate pause on new obligations and disbursements pending review."
           }
         ],
@@ -1870,6 +1877,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Imposed an extra across-the-board duty on goods from China, using emergency economic powers after finding ordinary tariff authority inadequate.",
+            "counts": "This issue asks whether tariffs are actually used against China. The order puts an additional duty on every article that is a product of the PRC, reaching for emergency economic powers after finding ordinary tariff authority inadequate.",
             "rationale": "Imposes an additional ad valorem duty on all articles that are products of the People's Republic of China, invoking section 1702(a)(1)(B) of the International Emergency Economic Powers Act on the finding that other tariff authority was inadequate."
           },
           {
@@ -1929,6 +1937,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Terminated every country arrangement, exemption and quota that had displaced the steel tariff — Canada, Mexico, the EU, Japan, the UK, Brazil and others — restoring the duty across steel imports.",
+            "counts": "Steel is the domestic industry this tariff was built to protect. Ending every country arrangement, exemption and quota puts the duty back across the whole steel import base, which is the protection this issue measures.",
             "rationale": "Terminates every country arrangement, exemption and quota that had displaced the section 232 steel tariff — for South Korea, Argentina, Australia, Brazil, Canada, Mexico, the European Union, Japan, the United Kingdom and Ukraine — effective March 12, 2025, restoring the ad valorem duty across steel imports."
           },
           {
@@ -1945,6 +1954,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Restores the duty across the steel import base with no offsetting relief for the American manufacturers and builders who buy steel.",
+            "counts": "Steel is an input, not a shelf good: the duty is paid by the American manufacturers and builders who buy it. This proclamation restores it across the import base with nothing offsetting it for them, and that downstream cost is what this issue tracks.",
             "rationale": "Restores the duty across the steel import base with no offsetting relief for downstream purchasers."
           }
         ],
@@ -2053,6 +2063,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Ordered agencies to route contract, grant and loan payments through a centralized review with the DOGE team lead before the money goes out the door.",
+            "counts": "Spending leaves the government as contracts, grants and loans. This order puts a centralized review between an agency and those payments, before the money goes out.",
             "rationale": "Section 1 commences what the order calls a transformation in federal spending on contracts, grants and loans, and directs agency heads to build a centralised review of covered payments with the DOGE team lead before they are made."
           }
         ],
@@ -2088,6 +2099,7 @@
             "isPrimary": true,
             "weight": 70,
             "plain": "Doubled the China tariff he had imposed five weeks earlier, from 10 percent to 20 percent, on the finding that Beijing had not moved against the fentanyl trade.",
+            "counts": "The issue measures tariff pressure on China, and this order raises it — doubling the rate on PRC goods on a finding that Beijing had not acted against the illicit drug trade.",
             "rationale": "Section 1 states the determination \"that the PRC has not taken adequate steps to alleviate the illicit drug crisis through cooperative enforcement actions, and that the crisis described in Executive Order 14195 has not abated.\" Section 2 amends section 2(a) of Executive Order 14195 \"by striking the words ``10 percent’’ and inserting in lieu thereof the words ``20 percent’’.\" Filed as its own row because it is a separate instrument with its own citation; the order it amends is already in this record and carries its own mapping."
           }
         ],
@@ -2216,6 +2228,7 @@
             "isPrimary": false,
             "weight": 55,
             "plain": "Directed the federal government into the running of elections that the Constitution leaves to the states — setting a ballot-receipt rule and conditioning federal election funding on state compliance.",
+            "counts": "Running elections is the textbook case of a power left to the states. This order directs it from Washington — a ballot-receipt rule enforced against states, and federal election money conditioned on adopting a registration form the order rewrote.",
             "rationale": "The order directs the Election Assistance Commission to condition federal funds on state adoption of the national mail voter registration form as amended by the order, and directs the Attorney General to enforce against states that count absentee or mail ballots received after election day. Mapped opposes on the chip \"keep decisions with the states unless there’s a clear national reason for Washington to override them,\" which the order overrides by directing state election administration from Washington. Note the standing rows already on this document: a federal court has permanently enjoined parts of it. This mapping records what the order directed, and the standing rows record what survived."
           }
         ],
@@ -2282,6 +2295,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Imposed a baseline duty on imports from nearly every trading partner plus higher country-specific rates, on the finding that persistent goods deficits hollowed out domestic manufacturing.",
+            "counts": "This issue asks whether tariffs are put to work rebuilding domestic manufacturing, and that is the order's own stated ground: persistent goods trade deficits had hollowed out the manufacturing base.",
             "rationale": "Imposes a baseline ad valorem duty on imports from nearly all trading partners plus higher country-specific rates, on the stated ground that persistent goods trade deficits have hollowed out the domestic manufacturing base.",
             "_circularNote": "The circular hold on this mapping was lifted. It was held because the tariffs_growth stance card named this order by number and by date — \"he signed Executive Order 14257 on April 2, 2025\" — which both the declared flag and the mechanical guard in consistency.js#execCircular caught. That card has been re-authored from the 2024 Republican Party Platform he campaigned on, whose trade chapter states the baseline-tariff position without reference to any order, so neither signal fires and this document can test it."
           },
@@ -2300,6 +2314,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "The duties reach nearly the whole import base and the order pairs them with no offsetting relief for household purchasers.",
+            "counts": "This issue asks who pays for a tariff. The duties reach nearly the entire import base and the order carries no offsetting measure for household purchasers, so the charge lands on the buyer.",
             "rationale": "The duties apply across nearly the whole import base and the order pairs them with no offsetting relief for household purchasers."
           },
           {
@@ -2308,6 +2323,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Assigns China one of the higher country-specific rates in the annexed schedule, on the stated ground of non-reciprocal trade practices.",
+            "counts": "The reciprocal tariff is a global instrument, and its China reading is one of the six issues it is judged on: the annexed schedule assigns the PRC one of the higher country-specific rates rather than the baseline.",
             "rationale": "Assigns China one of the higher country-specific rates in the annexed schedule, on the stated ground of non-reciprocal trade practices."
           },
           {
@@ -2324,6 +2340,7 @@
             "isPrimary": false,
             "weight": 65,
             "plain": "The duty reaches articles from nearly every trading partner and the order pairs it with no offsetting relief, so the charge lands on imported consumer goods — one of the four costs the day-one affordability directive named.",
+            "counts": "The affordability directive on file named consumer goods as one of four costs to bring down. This order puts a duty on articles from nearly every trading partner with nothing offsetting it for households, which reaches that category directly.",
             "rationale": "The stated position on this chip is the day-one directive telling every agency to pursue emergency measures lowering the cost of housing, health care, energy and consumer goods. This order runs the other way on the last of those: it imposes an additional ad valorem duty on articles from nearly every trading partner, with higher country-specific rates in its annex, and it contains no offsetting measure for household purchasers. Added in wave 12 as a secondary mapping at reduced weight because the order is a trade instrument whose stated subject is the goods trade deficit rather than consumer prices; the tariffs_prices mapping already on this row carries the narrow reading about tariffs and prices, and this one carries the separate tension with the affordability directive. Note the struck_down standing row already on this document: this mapping records what the order imposed, and the standing rows record what survived."
           }
         ],
@@ -2576,6 +2593,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Reduces federal spending across several mandatory programs to offset part of its tax provisions.",
+            "counts": "This reconciliation law is judged on fourteen issues, and the spending reading is one title of it. That title reduces outlays across several mandatory programs — money the government will not spend, which is what this issue measures.",
             "rationale": "Reduces federal spending across several mandatory programs."
           },
           {
@@ -2584,6 +2602,7 @@
             "isPrimary": false,
             "weight": 65,
             "plain": "Nonpartisan Congressional Budget Office analysis projects the law adds trillions of dollars to federal deficits over a ten-year window.",
+            "counts": "This reconciliation law is judged separately on fourteen issues, and the debt reading is of the package as a whole rather than any one title — the Congressional Budget Office's projection that it adds trillions of dollars to federal deficits over ten years.",
             "rationale": "Nonpartisan CBO analysis projects the Act adds trillions of dollars to federal deficits over ten years.",
             "_circularNote": "The circular hold on this mapping was lifted. It was held because the only national_debt stance card on file (\"H.R.1: Deficit & Debt\") was a narration of THIS law's deficit score sitting in the word slot — the card was downstream of the document, so the document could not test it. That card has been re-encoded as the stated commitment it was always standing in for (\"Reducing the National Debt\", support, sourced to the DOGE executive order), and the CBO finding now lives here, in the action lane, where it belongs. The word is independent of this document again, so this document can test it."
           },
@@ -2659,6 +2678,7 @@
             "isPrimary": false,
             "weight": 40,
             "plain": "Restricts graduate and parent student-loan borrowing and narrows the repayment options attached to it.",
+            "counts": "The promise on file is about what a family pays for higher education; this title works the borrowing side of that bill — how much graduate students and parents may borrow, and on what terms. The curation records it as a narrow link, because the platform is silent on borrowing.",
             "rationale": "Restricts graduate and parent student-loan borrowing and repayment options."
           },
           {
@@ -2818,6 +2838,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Signed the law cancelling appropriated money that had not yet been obligated, account by account, on the President's own rescission request — foreign assistance and public broadcasting among them.",
+            "counts": "Rescission is the one instrument that takes back money Congress has already appropriated. This law does exactly that, account by account, which lands directly on whether federal spending goes down.",
             "rationale": "Cancels unobligated balances of budget authority already appropriated, item by item, on the President's own rescission request — foreign assistance and public-broadcasting accounts among them.",
             "_circularNote": "The circular hold on this mapping was lifted. It was held because the cut_spending stance card named this law by its short title and recited its size — it said he \"sent Congress a rescissions request that became the Rescissions Act of 2025\" — so both the declared flag and the mechanical identifier match fired. That card has been re-authored from the 2024 Republican Party Platform's economy chapter, which states the spending-cut position and names no law, so this document can test it. The issue was already tested by Public Law 119-21, which the card also does not name; this row now corroborates it."
           }
@@ -2863,6 +2884,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "A standing promise to fight for another country if it is attacked is a new open-ended military commitment, not the winding down of one.",
+            "counts": "This issue tracks whether commitments abroad are being wound down or added to. The order adds one: guaranteeing another state's security becomes United States policy, on a trigger no narrower than any armed attack, with no end date behind it.",
             "rationale": "Sections 1 and 2, quoted in the war_powers rationale on this row. Filed against the restraint chip because the commitment the order creates carries no end date, no sunset and no triggering condition narrower than “any armed attack” on the covered state’s territory, sovereignty or critical infrastructure, and because section 2(c) makes the planning for it continuous rather than contingent on a later decision. The mapping records what the order commits the United States to do; it makes no claim about whether that commitment was wise."
           },
           {
@@ -2871,6 +2893,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "The stated doctrine presses allies to carry more of their own defense; this order has the United States take on the defense of one instead. A narrower link — the order is a security guarantee, not a foreign-aid or burden-sharing instrument.",
+            "counts": "The doctrine on file presses allies to carry more of their own defense. This order runs the other way for one of them — the United States guarantees that state's security, and the order asks nothing in return and sets no cost-sharing condition.",
             "rationale": "The stated position on this chip is a doctrine of pressing allies to fund their own defense and of questioning open-ended commitments abroad. Section 1 of this order runs the other way for one ally: it makes guaranteeing that state’s security and territorial integrity the policy of the United States, and section 2(b) puts American military means behind the guarantee if an attack comes. The order asks nothing of the covered state in return and sets no cost-sharing condition. Mapped below the weight given to the war_powers reading because the stated doctrine is written about aid and burden-sharing rather than about defense guarantees, so the tension is real but secondary."
           }
         ],
@@ -2905,6 +2928,7 @@
             "isPrimary": true,
             "weight": 55,
             "plain": "Kept the higher China tariff rates switched off for a further twelve months under a negotiated trade arrangement, extending a suspension rather than collecting the duties.",
+            "counts": "This issue is about whether the China duties are charged. The order keeps the higher rates suspended for another twelve months under a negotiated arrangement, so for that period they sit on the books uncollected.",
             "rationale": "Section 1 recounts that the heightened ad valorem duties on PRC goods imposed by Executive Order 14257 as amended were suspended in Executive Order 14298 of May 12, 2025 and Executive Order 14334 of August 11, 2025 following discussions with the PRC. Section 2 directs that \"Heading 9903.01.63 and subdivision (v)(xvii)(10) of U.S. note 2 to subchapter III of chapter 99 of the Harmonized Tariff Schedule of the United States shall continue to be suspended until 12:01 a.m. eastern standard time on November 10, 2026.\" Mapped opposes because the chip is about USING tariffs to counter China and this instrument holds them in abeyance; mapped at reduced weight and described in `plain` as a suspension because section 3(b) preserves the power to reimpose them if the PRC does not honour the arrangement."
           }
         ],
@@ -2940,6 +2964,7 @@
             "isPrimary": true,
             "weight": 90,
             "plain": "Signed the funding law that bars federal funds from being used for any reduction in force, voids the reductions taken since October 1, 2025, and orders those employees reinstated with back pay. Signing it stopped workforce cuts rather than making them.",
+            "counts": "Shrinking the federal payroll is a spending cut, and this issue counts it. This law bars reductions in force, voids the ones already taken and orders those employees reinstated with back pay.",
             "rationale": "Section 120(a) provides that no federal funds may be used to initiate, carry out, implement or otherwise notice a reduction in force to reduce the number of employees within any department, agency or office of the Federal Government, and section 120(b) applies that to all civilian positions without regard to the source of their funding. Section 120(e) provides that any reduction in force taken by an Executive Agency between October 1, 2025 and enactment \"shall have no force or effect\", requires each notice to be rescinded, returns the employee to employment status as of September 30, 2025 without interruption, and directs back pay."
           }
         ],
@@ -2985,6 +3010,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Pulled a list of agricultural products out of the reciprocal tariff and ordered refunds of duties already collected on them.",
+            "counts": "Pulling farm goods out of the reciprocal tariff, and refunding duties already collected on them, takes the tariff component back out of what those imports cost — the direct form of relief this issue measures.",
             "rationale": "Section 1 determines that certain agricultural products shall not be subject to the reciprocal tariff imposed under Executive Order 14257, as amended, and issues updated versions of that order's Annex II; section 2 modifies the Harmonized Tariff Schedule accordingly effective for goods entered on or after 12:01 a.m. eastern standard time on November 13, 2025 — a day before signature — and provides that to the extent implementation requires a refund of duties collected, refunds shall be processed through U.S. Customs and Border Protection's standard procedures."
           },
           {
@@ -2993,6 +3019,7 @@
             "isPrimary": false,
             "weight": 65,
             "plain": "Narrows the reciprocal tariff's coverage, giving domestic demand and domestic production capacity — not a concession from a trading partner — as part of the reason.",
+            "counts": "The carve-out is filed on the industry question, and not only on the price rows, because the order gives domestic production capacity as part of its reason — goods the country does not make enough of come out of the tariff, rather than the tariff being used to build that capacity.",
             "rationale": "Removes a class of goods from the reciprocal tariff's coverage, and gives as the grounds for doing so the President's consideration of \"current domestic demand for certain products, and current domestic capacity to produce certain products\" alongside the status of negotiations — a narrowing of the instrument driven in part by domestic supply conditions rather than by anything a trading partner conceded."
           },
           {
@@ -3001,6 +3028,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Took the reciprocal-tariff duty back off imported food — coffee, bananas, beef and other farm goods the United States does not grow enough of — so the tariff stopped showing up in grocery prices.",
+            "counts": "Groceries are the consumer-goods category the affordability directive named, and this is the only instrument in the record that reaches food prices directly — coffee, bananas and beef come back out of the tariff, with refunds for duties already collected.",
             "rationale": "Section 2 modifies the Harmonized Tariff Schedule as provided in Annex I, effective for goods entered for consumption on or after 12:01 a.m. eastern standard time on November 13, 2025, and provides for refunds of duties already collected. Section 1 states the decision followed monitoring of \"current domestic demand for certain products, and current domestic capacity to produce certain products.\" Filed as a secondary mapping on a document already in this record for its tariffs_prices and tariffs_growth mappings: the household-grocery reading is a distinct issue from the general price reading, and this is the only instrument in the record that reaches food prices directly."
           }
         ],
@@ -3038,6 +3066,7 @@
             "isPrimary": true,
             "weight": 75,
             "plain": "Declared a new national emergency so the United States could hold another government's oil revenue in Treasury custody, and named that country's economic and political stability an American foreign policy objective the order says must not fail.",
+            "counts": "This issue tracks open-ended commitments abroad. The order makes another country's economic and political stability a named United States objective and puts the Treasury in custody of that country's oil revenue, for a period the order does not bound.",
             "rationale": "Section 1 finds that attachment or other judicial process against the covered funds “will substantially interfere with our critical efforts to ensure economic and political stability in Venezuela,” and that the failure of those efforts “would jeopardize major foreign policy objectives of the United States,” which the section lists as ending illegal immigration and illicit narcotics flows, “protecting American interests against malign actors such as Iran and Hezbollah,” and “bringing peace, prosperity, and stability to the Venezuelan people and to the Western Hemisphere more generally.” On that finding the order declares a national emergency under the International Emergency Economic Powers Act and the National Emergencies Act. Section 3 renders any attachment, judgment, lien, execution or garnishment against the covered funds null and void and bars any transfer of them except under a licence issued under the order. Section 4 finds the funds are property of that government, held by the United States “solely in a custodial and governmental capacity,” and “held pending sovereign disposition for public, governmental, or diplomatic purposes determined by the Secretary of State, on behalf of the Government of Venezuela.” Mapped as opposing the America-First chip because that chip is written around questioning open-ended commitments abroad, and this order takes one on: it makes another country’s stabilization a named United States objective and puts the Treasury in the position of custodian for that country’s resource revenue for a period the order does not bound."
           }
         ],
@@ -3118,6 +3147,7 @@
             "isPrimary": true,
             "weight": 70,
             "plain": "Ended the tariffs he had imposed on China under emergency economic powers, ordering agencies to stop collecting them as soon as practicable.",
+            "counts": "The duties this order ends include the ones on PRC goods imposed under Executive Order 14195 — the instrument that built this issue's record — so stopping their collection lands directly on it.",
             "rationale": "Section 1 provides that the additional ad valorem duties imposed under IEEPA in Executive Order 14195 as amended — the synthetic-opioid duties on the PRC — along with those in Executive Orders 14193, 14194, 14245, 14257, 14323, 14329, 14380 and 14382, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" Section 2(a) directs every agency head to \"take all appropriate steps to end\" those duties and to \"immediately begin taking steps to effectuate this order.\""
           },
           {
@@ -3126,6 +3156,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Switched off the whole emergency-powers tariff program at once, removing the import duties that were the instrument of the reshoring case.",
+            "counts": "Tariffs are the instrument the reshoring case on this issue rests on. This order switches nine of them off at once, the reciprocal tariff among them.",
             "rationale": "Section 1, above, reaches nine orders including Executive Order 14257, the reciprocal-tariff order whose stated ground was that persistent goods trade deficits had hollowed out the domestic manufacturing base. Mapped opposes because the chip is about USING tariffs to reshore manufacturing and this instrument ends their collection."
           },
           {
@@ -3134,6 +3165,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Removing the duties takes the tariff component back out of the price of the covered imports.",
+            "counts": "This issue is about what a tariff adds at the till. Ending collection across nine orders, with refunds processed for duties already paid, removes that addition from every import those orders covered.",
             "rationale": "Section 1 ends collection of the additional ad valorem duties; section 2(b) directs the Secretary of Commerce, the Secretary of Homeland Security and the United States Trade Representative to implement, and section 2(a) provides for refunds of duties collected to be processed under standard Customs procedures. Mapped advances because the chip asks that families be shielded from tariff-driven price increases."
           }
         ],
@@ -3168,6 +3200,7 @@
             "isPrimary": true,
             "weight": 90,
             "plain": "Imposed a temporary 10 percent surcharge on imported articles under the balance-of-payments provision of the Trade Act, which allows up to 15 percent for up to 150 days.",
+            "counts": "This issue tracks duties raised in domestic industry's favour. The surcharge is one — a 10 percent charge across imported articles — issued under the Trade Act's balance-of-payments provision rather than the trade-deficit authority behind the others.",
             "rationale": "Imposes an additional 10 percent ad valorem surcharge on articles imported into the United States, effective for goods entered on or after 12:01 a.m. eastern standard time on February 24, 2026, under section 122 of the Trade Act of 1974 (19 U.S.C. 2132), which permits an import surcharge of up to 15 percent for up to 150 days to deal with large and serious United States balance-of-payments deficits."
           },
           {
@@ -3184,6 +3217,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "Applies to nearly all imported articles. The carve-out list — critical minerals, energy, fertilizers, medicines, some food and electronics — narrows it, but a broad surcharge still raises import costs on net.",
+            "counts": "This issue is about what tariffs add to what people pay. The surcharge reaches nearly all imported articles, and its carve-out list narrows the reach without taking the charge off imported goods generally.",
             "rationale": "Applies a surcharge to nearly all imported articles. Paragraph 14 exempts a list of goods — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics, vehicles, aerospace articles, goods already covered by section 232 actions, USMCA-qualifying duty-free Canadian and Mexican goods and CAFTA-DR textiles — and those carve-outs are recorded here rather than filed as relief, because a broad surcharge with a list of exceptions raises import costs on net and the chip on this issue is about everyday costs not rising."
           },
           {
@@ -3192,6 +3226,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "A surcharge on nearly all imported articles raises what imported goods cost — thirteen months after the directive telling every agency to find emergency ways of bringing those costs down.",
+            "counts": "The surcharge reaches imported consumer goods generally, one of the four costs the day-one affordability directive named, and it issued more than a year after it. Its carve-out list removes several of the other named categories, which is why this reading is a secondary one.",
             "rationale": "The stated position on this chip is the day-one directive to lower the cost of housing, health care, energy and consumer goods. This proclamation imposes an additional 10 percent ad valorem surcharge on articles imported into the United States under section 122 of the Trade Act of 1974. Its paragraph 14 carve-out list — critical minerals, bullion, energy, fertilizers, certain agricultural products, pharmaceuticals, certain electronics — removes several of the named categories from the charge, which is why this is filed below the weight of the primary mapping; the surcharge still reaches imported consumer goods generally, and it issued more than a year into the directive it sits against. Added in wave 12."
           }
         ],
@@ -3236,6 +3271,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "A proclamation committing the country to demolishing armed organizations abroad, using any necessary resources, opens a campaign rather than ending one.",
+            "counts": "This issue tracks new open-ended military commitments. The proclamation makes one — no end date, no theatre narrower than the Western Hemisphere, and no ceiling on means beyond any necessary resources and legally available authorities.",
             "rationale": "Preamble and numbered paragraphs (1) through (4), quoted in the war_powers rationale on this row. Filed against the restraint chip because the commitment is open-ended in every dimension the document addresses: it names no end date, no theatre narrower than the Western Hemisphere, no ceiling on means beyond “any necessary resources and legally available authorities,” and an objective — demolition of the covered organizations “to the fullest extent possible” — that the document does not treat as achieved. The mapping records the commitment the document makes and asserts nothing about the campaign’s results."
           }
         ],
@@ -3279,7 +3315,7 @@
             "isPrimary": false,
             "weight": 80,
             "plain": "Treats permitting delays and building mandates as a cause of high housing prices, and makes removing them administration policy.",
-            "counts": "Housing is the largest fixed line in most household budgets, and this order goes at the permitting cost of building more of it.",
+            "counts": "Housing is the largest fixed line in a typical household budget, and this order goes at the permitting cost of building more of it.",
             "rationale": "Sets as administration policy the reduction of regulatory barriers to building homes on the stated ground that permitting delays and mandates have driven up the cost of new housing and made it less affordable."
           }
         ],
@@ -3375,6 +3411,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "A 100 percent duty is the steepest rate on any product line in this record, and the proclamation's own findings place the bulk of covered supply outside the country.",
+            "counts": "Medicines are a household purchase, and this is the steepest rate on any product line in this record. The proclamation's own findings place the bulk of the covered supply outside the border, where the duty applies.",
             "rationale": "A duty of 100 percent ad valorem on an imported article is the largest single rate on any product line in this file. Paragraph 2 states that approximately 53 percent of patented pharmaceutical products distributed domestically are produced outside the country and that only 15 percent of patented active pharmaceutical ingredients by volume are domestically produced for the United States market, so the proclamation's own findings place the bulk of the covered supply on the dutiable side of the border."
           },
           {
@@ -3391,6 +3428,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Put a border charge on imported patented medicines, raising the cost of health care — named in the day-one affordability directive as one of the four costs every agency was told to bring down.",
+            "counts": "Health care is one of the four costs the affordability directive named outright, and this proclamation puts a border charge on imported patented medicines. Generics, biosimilars and a list of specialty therapies are exempt, which is why this reading is a secondary one.",
             "rationale": "The stated position on this chip is the day-one directive to lower the cost of housing, health care, energy and consumer goods. This proclamation imposes a duty of one hundred percent on imported patented and branded medicines and their listed ingredients, with lower rates for named countries and for firms whose onshoring plans are approved, and its own findings place the bulk of covered supply outside the country. Generics, biosimilars and a list of specialty therapies are exempt, which is one reason it is filed below the weight of the primary mapping. Added in wave 12 as a secondary mapping because the primary reading of this document is the drug-pricing one already on this row; the cost_living mapping records the separate tension with the broader affordability directive, which names health care by name."
           }
         ],
@@ -3427,6 +3465,7 @@
             "isPrimary": true,
             "weight": 75,
             "plain": "Made fixed-price contracts the default across federal procurement, and required written justification — plus the agency head's approval above set dollar thresholds — for anything else.",
+            "counts": "Procurement is where a large share of federal money is obligated, and the review behind this order found roughly $120 billion on cost-reimbursement consulting contracts alone. Making fixed-price the default is aimed at that outflow.",
             "rationale": "Section 2(a) directs executive branch departments and agencies, so far as applicable law allows, to utilize fixed-price contracts in procurement, making them the default rather than the exception. Section 2(b)(i) requires a contracting officer to justify any non-fixed-price contract in writing to the agency head, and section 2(b)(ii) requires the agency head's written approval where the non-fixed-price value exceeds 100 million dollars for a Department of War contract, 35 million for the National Aeronautics and Space Administration, 25 million for the Department of Homeland Security and 10 million for any other agency. Section 1 gives as the reason a review of Fiscal Year 2024 spending that identified approximately 120 billion dollars obligated on cost-reimbursement consulting contracts alone."
           }
         ],
@@ -3561,6 +3600,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Tightens who may act as an importer of record so duties owed are actually collected — collection is what makes a tariff schedule bite.",
+            "counts": "A tariff schedule only shelters domestic producers to the extent the duties are actually paid. This order tightens who may act as importer of record, naming undervaluation and duty avoidance as practices that disadvantage domestic businesses.",
             "rationale": "Section 1 gives as the purpose of the order that effective customs enforcement ensures importers of record are correctly identified and accountable for duties owed, and identifies undervaluing imports and avoiding payment of duties through various arrangements and schemes as forms of noncompliance that disadvantage domestic businesses."
           }
         ],
@@ -3604,6 +3644,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Chose duty-free foreign supply as the answer to a fertilizer shortfall, on the finding that building domestic capacity would take time.",
+            "counts": "Faced with a shortfall in a domestically produced good, this proclamation opens the border duty-free rather than putting the tariff to work behind domestic capacity — on its own finding that expanding that capacity would take time.",
             "rationale": "Paragraph 4 states that United States production of phosphate fertilizer is insufficient to support domestic agricultural food production after accounting for exports, and that although the Federal Government is working with the private sector to expand domestic fertilizer manufacturing capacity, \"those efforts will take time to increase the supply materially\" — so the interim answer chosen is duty-free foreign supply rather than the tariff."
           },
           {
@@ -3612,6 +3653,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Waived a duty on a farm input during the spring application window, on the stated ground that supply-chain disruption was driving rapid price increases.",
+            "counts": "The relief here is on a farm input rather than on anything bought off a shelf. It is filed on household prices because the proclamation's stated reason is rapid price increases in the supply chain behind domestic food production.",
             "rationale": "Paragraph 3 gives as the reason for the action persistent threats to the global fertilizer supply chain \"which create rapid price increases and procurement challenges\", and paragraph 2 ties the timing to the spring and summer application window, when the year's phosphate fertilizer goes onto the fields — relief from a duty, granted to keep an input cost down."
           }
         ],

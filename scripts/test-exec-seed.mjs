@@ -442,6 +442,39 @@ for (const a of ACTIONS) {
   }
 }
 
+/* THE SECOND DISPLAY LINE. `plain` answers "what did it do"; `counts` answers the
+   question a reader asks next and the mapping metadata cannot — why is THIS issue
+   the right file for it. Optional by design: where the subject-matter link is
+   obvious, the dossier derives an adequate sentence from the mapping itself. But
+   where one IS curated it is rendered on the row face beside `plain`, so it is held
+   to the same shape: display-sized, finished, no legal wall, and no vocabulary from
+   the congressional lane. It states an AIM, never an outcome — the seed can say an
+   action was aimed at a price without claiming the price moved. */
+section("3c · the 'why it counts here' line is display-shaped where it exists");
+for (const a of ACTIONS) {
+  for (const m of a.issues || []) {
+    if (!("counts" in m)) continue;
+    const at = `${a.documentId}/${m.issueKey} counts`;
+    ok(typeof m.counts === "string" && m.counts.trim().length > 0,
+      `${at}: present but empty — drop the key rather than shipping a blank slot`);
+    if (typeof m.counts !== "string" || !m.counts.trim()) continue;
+    ok(m.counts.length <= 320, `${at}: runs ${m.counts.length} chars — one tight sentence, two at most`);
+    const sentences = m.counts.trim().split(/(?<=[.!?])\s+(?=[A-Z“"'(])/).length;
+    ok(sentences <= 2, `${at}: runs ${sentences} sentences — two is the ceiling`);
+    ok(m.counts.trim() === m.counts, `${at}: has leading or trailing whitespace`);
+    ok(/[.!?]$/.test(m.counts.trim()), `${at}: is not a finished sentence`);
+    ok(!/§|U\.S\.C\.|C\.F\.R\./.test(m.counts),
+      `${at}: carries a code citation — that belongs in the rationale`);
+    const chit = m.counts.match(FORBIDDEN);
+    ok(!chit, `${at}: no forbidden vocabulary${chit ? ` (matched "${chit[0]}")` : ""}`);
+    // A restatement of the mapping is what the derived fallback already says. If a
+    // curated sentence is going to take that slot it has to earn it by naming the
+    // subject, so it may not simply be `plain` again.
+    ok(m.counts.trim() !== String(m.plain || "").trim(),
+      `${at}: repeats the plain line — the slot exists to say something plain does not`);
+  }
+}
+
 /* ═════════════════════════════════════════════════════════════════════════════
    4 · ONE DOCUMENT PER ROW — the dedupe, held in place
    The curated spotlight data carried the day-one energy order twice under a single

@@ -5563,6 +5563,14 @@
     for (var i = 0; i < all.length; i++) if (all[i] && all[i].issueKey === issueKey) return all[i];
     return null;
   }
+  // The name on the row head, built from what the file already carries. Both forms
+  // when there are two — see the note at the call site.
+  function _dosIdent(it) {
+    var id = (it && it.documentId) || '';
+    var mn = (it && it.measureNumber) || '';
+    if (id && mn && id.indexOf(mn) === -1) return id + ' (' + mn + ')';
+    return id || mn || (it && it.title) || 'Executive action';
+  }
   // The narrow-link threshold is the ✒️ section's, read from it rather than copied,
   // so the two surfaces cannot disagree about how much of a document a claim rests on.
   function _dosNarrowAt() {
@@ -5674,7 +5682,15 @@
           lane: 'exec',
           verdict: _orItemVerdict(it, issueKey, xStance),
           held: '', heldWhy: '',
-          ident: it.documentId || it.measureNumber || it.title || 'Executive action',
+          // Both names, when the file carries both. A signed law is on file under its
+          // public-law number, which is the citation — and which is also the one name
+          // no reader recognises. "Public Law 119-21" and "H.R. 1" are the same
+          // instrument; only the second is searchable, only the second is what the
+          // 🏛️ lane and the news called it, and a row that prints only the first asks
+          // the reader to already know the bill before the mechanism lines can teach
+          // them anything. Appended only when the id does not already contain it, so
+          // a vetoed bill filed as "H.R. 6395 (116th Congress)" is not doubled.
+          ident: _dosIdent(it),
           title: it.title || '',
           act: (_dosPower(it.actionClass) || {}).verb || '',
           question: '',
