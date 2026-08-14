@@ -1185,10 +1185,45 @@
   // same set of issues. Each used to fetch and rank it separately, which is three
   // chances for the strip to count an issue the rows below it do not show. Guarded
   // exactly as the callers were: no row model, no block.
+  //
+  // MEMOIZED — see THE DERIVATION EPOCH in stance-helpers.js. "Three surfaces" is
+  // now an undercount: the hero mount, the ledger read, the section, the gateway
+  // and the warm repaint all land here, and the sort underneath it is over the
+  // full row model. Cached per politician per epoch and handed back by reference —
+  // every caller reads the array and none of them writes to it.
+  //
+  // Two invalidation signals, not one. The epoch covers data arriving underneath
+  // the row model. The identity of the two functions that build it covers the row
+  // model being supplied from somewhere else entirely — which is what a harness
+  // does when it swaps PDXConsistency.issueRows to drive this block with a fixed
+  // set of rows. A cache that answered from the previous source would be reporting
+  // one politician's index while a different one was asked for.
+  //
+  // The key carries the engine's active exec term scope for the third: that scope
+  // is a setting inside consistency.js read below issueRows(), not an argument to
+  // it, so "this politician, this epoch" does not name one answer. The current-term
+  // slice of a presidential profile is rendered beside the all-time one.
+  var _rrCache = {}, _rrEpoch = 0;
+  function scopeKey() {
+    try {
+      var X = window.PDXConsistency && window.PDXConsistency.execActions;
+      return (X && typeof X.scope === 'function' && (X.scope() || {}).key) || '';
+    } catch (e) { return ''; }
+  }
   function rankedRows(pid) {
     var CS = window.PDXConsistency;
     if (!CS || typeof CS.issueRows !== 'function' || typeof CS.rankIssueRows !== 'function') return null;
-    try { return CS.rankIssueRows(CS.issueRows(pid)); } catch (e) { return null; }
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_rrEpoch !== ep) { _rrCache = {}; _rrEpoch = ep; }
+    var k = String(pid == null ? '' : pid) + '||' + scopeKey();
+    var hit = _rrCache[k];
+    if (hit && hit.src === CS.issueRows && hit.rank === CS.rankIssueRows) return hit.val;
+    var v;
+    try { v = CS.rankIssueRows(CS.issueRows(pid)); } catch (e) { return null; }
+    // Only a real answer is cached. A null from a module that has not finished
+    // loading is a fact about this instant, not about this politician.
+    if (v) _rrCache[k] = { src: CS.issueRows, rank: CS.rankIssueRows, val: v };
+    return v;
   }
 
   // ── AXIS B ON THE ROW — where the supporting action STANDS ─────────────────
@@ -1455,8 +1490,16 @@
   // yet" row with nothing stated is coverage — an issue we track and they have not
   // spoken on — which is a gap in the map, not a shape in the record.
   function outcomeBuckets(pid) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_obEpoch !== ep) { _obCache = {}; _obEpoch = ep; }
+    var ck = String(pid == null ? '' : pid) + '||' + scopeKey();
     var ranked = rankedRows(pid);
     if (!ranked) return null;
+    // Keyed on the row set it grouped, not just the politician: rankedRows above
+    // rebuilds when its source changes, and a bucketing held over a rebuilt row
+    // set would describe rows that are no longer on the card.
+    var hit = _obCache[ck];
+    if (hit && hit.ranked === ranked) return hit.val;
     var b = { buckets: {}, total: 0, contested: 0, contestedClean: 0, thin: 0, tension: 0, ranked: ranked };
     ranked.forEach(function (r) {
       if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
@@ -1475,7 +1518,58 @@
       }
       if (isTension(r)) b.tension++;
     });
-    return b.total ? b : null;
+    var res = b.total ? b : null;
+    _obCache[ck] = { ranked: ranked, val: res };
+    return res;
+  }
+  // The bucketed index, memoized alongside the ranked rows it groups — see THE
+  // DERIVATION EPOCH in stance-helpers.js. Six surfaces ask for it while one
+  // profile paints (the composition strip, the index itself, the ledger read, the
+  // gateway, the search chip and the warm repaint), and it is the same answer to
+  // all six. Null is cached too: "this politician has no index" is a real answer
+  // and re-deriving it costs the whole row model.
+  var _obCache = {}, _obEpoch = 0;
+
+  // ── THE SEARCH CHIP, IN THE INDEX'S OWN WORDS ──────────────────────────────
+  // ONE MEANING, published once, for the chip on an All-Seeing Eye politician row:
+  //
+  //     the strongest result in this politician's issue index, named and coloured
+  //     exactly as the index names and colours it.
+  //
+  // It replaces a chip that was answering a different question with the profile's
+  // hardest word. The old chip came from the curated Say-vs-Do receipt layer, whose
+  // effective rule is "does a negative public-record item exist for someone with a
+  // stated position" — and it printed the answer as "SAYS ONE THING · DOES ANOTHER".
+  // That is the index's name for its worst bucket. So a profile whose index reads
+  // 0 Contradicted and 4 Mixed carried the Contradicted words in search: two
+  // evidence bases, two questions, one vocabulary, and a reader with no way to tell
+  // that the chip and the profile were not talking about the same thing.
+  //
+  // Strongest means OUTCOMES order — contradicts, then mixed, then consistent —
+  // and only a bucket that actually HAS rows can be it, so "Mixed" is reachable and
+  // is never rendered as the hard negative. The coverage bucket is never the chip:
+  // "not enough record yet" is not a result, and PDXCoverage already has a chip for
+  // exactly that, so this returns '' and lets the honest coverage signal through.
+  //
+  // Counts ride in the tooltip, not in the chip. One word on a search row.
+  function searchBadgeHTML(pid) {
+    try {
+      var b = outcomeBuckets(pid);
+      if (!b || !b.total) return '';
+      var o = null, n = 0;
+      for (var i = 0; i < OUTCOMES.length && !o; i++) {
+        if (OUTCOMES[i].secondary) continue;       // coverage is not a result
+        var c = (b.buckets[OUTCOMES[i].token] || []).length;
+        if (c) { o = OUTCOMES[i]; n = c; }
+      }
+      if (!o) return '';
+      var issues = n + ' issue' + (n === 1 ? '' : 's');
+      return '<span class="pdxwa-eye-badge" data-pdxwa-eye="' + esc(o.token) + '"' +
+        ' style="--pdxwa-col:' + o.col + ';"' +
+        ' title="' + esc('Issue index: ' + issues + ' of ' + b.total + ' read ' + o.short +
+          ' — the strongest result on this record. ' + o.sub) + '">' +
+        esc(o.short) + '</span>';
+    } catch (e) { return ''; }
   }
 
   // ── THE SHAPE BEHIND THE AVERAGE ───────────────────────────────────────────
@@ -1782,15 +1876,28 @@
       // assembled sheet in the app and this surface only decides which issue it
       // opens on. Fails closed: no consistency module, no navigation, and the row
       // is left as inert text rather than a control that swallows the tap.
+      //
+      // SWALLOWING IS THE FAILURE MODE, not throwing. This block used to call
+      // preventDefault() first and wrap the open in `catch (e3) {}`. If openGap
+      // could not put a sheet on screen — module half-loaded, backdrop detached,
+      // assembly throwing — the tap was consumed and absolutely nothing happened:
+      // no sheet, no default action, no error, no second chance. A row that looks
+      // like a button and eats taps is worse than a row that is plainly inert.
+      //
+      // So the default is now consumed only once openGap has confirmed a sheet is
+      // up. openGap returns true for that; a module too old to return anything is
+      // read as a success, which is the behaviour this had before.
       var row = e.target.closest('[data-pdxwa-dos]');
       if (row) {
         var CS = window.PDXConsistency;
         if (!CS || typeof CS.openGap !== 'function') return;
-        e.preventDefault();
+        var opened = false;
         try {
-          CS.openGap(row.getAttribute('data-pdxwa-dos-pid') || '', row.getAttribute('data-pdxwa-dos') || '',
+          var res = CS.openGap(row.getAttribute('data-pdxwa-dos-pid') || '', row.getAttribute('data-pdxwa-dos') || '',
             { arrival: false, origin: row.getAttribute('data-pdxwa-dos-origin') || '' });
-        } catch (e3) {}
+          opened = (res !== false);
+        } catch (e3) { opened = false; }
+        if (opened) e.preventDefault();
       }
     });
   }
@@ -2263,6 +2370,10 @@
     // invent a result the other does not have.
     OUTCOMES: OUTCOMES,
     outcomeFor: outcomeFor,
+    // The All-Seeing Eye politician chip, in the buckets' own vocabulary. See
+    // searchBadgeHTML(): one meaning — the strongest result in this politician's
+    // issue index — so the chip and the profile can never name different things.
+    searchBadgeHTML: searchBadgeHTML,
     // Pure reads — no DOM, no fetch, safe to call from anywhere.
     wordLedger: wordLedger,
     read: read,

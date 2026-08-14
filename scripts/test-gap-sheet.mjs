@@ -109,7 +109,11 @@ ctx.CMP_DATA = { [PHOTO]: {}, [EMOJI]: {}, [NOFACE]: {}, [SAYDO]: {} };
 ctx.window._getPhotoUrl = (pid) => (ctx.PROFILES[pid] && ctx.PROFILES[pid].photo) || "";
 
 const sandbox = vm.createContext(ctx);
-for (const file of ["stance-helpers.js", "voting-record.js", "pdx-learn.js", "consistency.js"]) {
+// gaps.js is loaded because the empty Say-vs-Do side is no longer a paragraph: it
+// asks PDXGaps for a real coverage-gap row, with the same taxonomy, thread target
+// and ＋ Suggest a lead composer as every other gap in the app. Absent that module
+// the side degrades to the paragraph alone — that fallback is asserted below too.
+for (const file of ["stance-helpers.js", "voting-record.js", "pdx-learn.js", "gaps.js", "consistency.js"]) {
   vm.runInContext(readFileSync(join(ROOT, file), "utf8"), sandbox, { filename: file });
 }
 
@@ -204,11 +208,42 @@ ok(heroPct && heroPct === pillPct,
 // This is every shared card: formal record present, curated Say-vs-Do absent.
 has(html, "pdxgap-sides-solo", "solo: with no curated evidence the record takes the full width");
 has(html, 'class="pdxgap-solo"', "solo: and the 🧾 side becomes a deliberate note");
-has(html, "not on file yet", "solo: the absence is named");
+has(html, "nothing on file for this issue yet", "solo: the absence is named, and scoped to THIS issue");
 has(html, "formal roll-call votes and legislative actions", "solo: it says what IS on file");
 has(html, "has not been checked in yet", "solo: and that the curated layer is not");
 has(html, "not a verdict", "solo: an absence of coverage is not a finding about the member");
 has(html, "never merged into a single number", "solo: the separation rule is restated where it matters");
+
+// ── 3b. The empty side is a coverage gap with a door, not a dead end ─────────
+// A reader who came for "what they said vs what they did" used to hit a finished
+// formal lane and a closed one. The absence is still stated in full — but it now
+// carries the app's real gap row: same <ul class="pdxg-list"> markup, same
+// gap:<pid>:<slug> thread target, same ＋ Suggest a lead composer. Nothing here is
+// a second contribution system; it is PDXGaps.publicRecordGap() rendered by
+// PDXGaps.rowHtml().
+has(html, 'class="pdxg-list pdxgap-solo-gap"', "gap: the empty side hosts a real PDXGaps list");
+has(html, 'class="pdxg-row"', "gap: rendered by the shared row builder, not a lookalike");
+has(html, `data-pdx-gap="gap:${PHOTO}:no-public-record-lower-taxes"`,
+  "gap: addressed by the same gap:<pid>:<slug> thread target as every other gap");
+has(html, "No public-record evidence on file yet", "gap: the hole is named as a hole in OUR research");
+has(html, "＋ Suggest a lead", "gap: with the existing contribution path, not a new one");
+has(html, "_pdxGapsAsk", "gap: wired to the app's own lead composer");
+has(html, "What would fill it", "gap: and it says what evidence would actually close it");
+has(html, "it changes nothing above", "gap: the gap restates that the formal verdict is untouched");
+// The gap type is built on demand for the sheet a reader is looking at. Emitting it
+// from forPolitician() would put one row per tracked issue in the profile's gap
+// panel and inflate PDXGaps.count() — the record-level gaps would be buried.
+const G = ctx.window.PDXGaps;
+ok(typeof G.publicRecordGap === "function", "gap: the builder is a real export, callable on demand");
+ok(!(G.forPolitician(PHOTO, ctx.PROFILES[PHOTO]) || []).some((g) => g.type === "no_public_record"),
+  "gap: but it is never swept into the profile-wide gap list");
+// It degrades: with PDXGaps absent the side is the paragraph alone, never a broken row.
+const savedGaps = ctx.window.PDXGaps;
+ctx.window.PDXGaps = null;
+const noGaps = C.gapViewHtml(NOFACE, ISSUE);
+ctx.window.PDXGaps = savedGaps;
+has(noGaps, 'class="pdxgap-solo"', "gap: with PDXGaps absent the empty side still renders its note");
+hasnt(noGaps, "pdxg-row", "gap: and prints no half-built gap row");
 // Nothing invented for the empty side.
 hasnt(html, "pdxor-pct-na", "solo: no '—' score pill is fabricated for the empty side");
 hasnt(html, "Nothing on the public record yet",
@@ -227,6 +262,9 @@ ctx.window.PDXReceipts = {
     pid: SAYDO, issueKey: ISSUE, category: "statement",
     headline: "Told a town hall the bill would cut taxes for everyone",
     date: "2025-06-01", source: { url: "https://example.test/townhall", label: "Town hall video" },
+    said: { text: "Nobody in the middle class pays a dollar more under this bill." },
+    facts: "The enacted brackets raised the effective rate on the second and third deciles.",
+    why: "The pledge and the enacted schedule are the same subject, so they can be compared directly.",
     verdict: { key: "contradicts", label: "Contradicts", color: "#f87171" },
   }, {
     pid: SAYDO, issueKey: ISSUE, category: "news",
@@ -247,6 +285,44 @@ has(both, "example.test/townhall", "two-sided: and its own sourced evidence");
 has(both, "⚖️ Record vs. Public Picture",
   "two-sided: the comparison framing returns when there are two numbers to compare");
 has(both, "never blends them into one score", "two-sided: the separation statement is still printed");
+
+// ── 4b. The public lane gets the formal lane's teachable face ────────────────
+// The 🏛️ side has taught for a while: What it did / Why it counts here / Which way
+// it cut. The 🧾 side was a coloured glyph, a headline and a link — the data behind
+// it (said / facts / why) was collected and thrown away at render. Same four slots
+// now, in the public lane's own vocabulary, and a direction word so a reader never
+// has to decode the glyph.
+has(both, 'class="pdxor-act pdxsd-act"', "face: public-record items render in the teachable variant");
+has(both, "<b class=\"pdxdos-rec-wk\">They said:</b> Nobody in the middle class",
+  "face: the quoted claim is shown, not just the headline");
+has(both, "<b class=\"pdxdos-rec-wk\">What is on file:</b> The enacted brackets",
+  "face: with the documented fact it is measured against");
+has(both, "<b class=\"pdxdos-rec-wk\">Why it counts here:</b> The pledge and the enacted schedule",
+  "face: and why this item belongs on THIS issue");
+has(both, "Which way it cuts:</b> This item runs AGAINST",
+  "face: the direction is spelled out in words");
+has(both, 'class="pdxsd-dir"', "face: and carried as a chip a scanner can catch");
+has(both, ">Cuts against<", "face: with the public lane's own vocabulary");
+has(both, ">Backs it up<", "face: both directions are named");
+// A thin item stays thin. Nothing is invented to fill the slots.
+const floorSeg = both.slice(both.indexOf("Backed the same cut"));
+hasnt(floorSeg.slice(0, floorSeg.indexOf("</div>")), "They said:",
+  "face: an item with no quoted claim on file prints no They-said line");
+// The wall, said out loud on the surface where a reader might assume otherwise.
+has(both, 'class="pdxgap-side-wall"', "wall: the 🧾 panel carries the separation rule inline");
+has(both, "never merged into the formal figure", "wall: in words, next to the evidence");
+// Two numbers, never three. The 🧾 pill is the Say-vs-Do score; the 🏛️ pill is the
+// Direction Match; nothing here adds a blended figure.
+ok(both.split('class="pdxgap-pct"').length - 1 <= 2,
+  "wall: at most one score pill per lane — no third, blended number");
+
+// The dedicated Say-vs-Do feed is a different surface and keeps its compact rows:
+// the teachable face is opt-in, so widening the dossier did not densify everything.
+const sdFeed = C.saydoSectionHtml(SAYDO);
+has(sdFeed, "public-record item", "scope: the standalone Say-vs-Do feed still lists the same evidence");
+hasnt(sdFeed, "pdxsd-act",
+  "scope: but keeps its one-line rows — the teachable face is opt-in, not a global densification");
+hasnt(sdFeed, "They said:", "scope: and does not repeat the dossier's expanded slots");
 delete ctx.window.PDXReceipts;
 
 // ── 5. Multi-issue readability ──────────────────────────────────────────────

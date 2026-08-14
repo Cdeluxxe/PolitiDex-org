@@ -6,6 +6,31 @@
 (function() {
     'use strict';
 
+    // ── THE DERIVATION EPOCH ──────────────────────────────────────────────────
+    // One counter that every derived-read cache in the app keys itself on.
+    //
+    // WHY IT EXISTS. Nothing on a profile is stored — every figure, bucket and row
+    // is derived, on demand, from the curated data plus whatever the voting-record
+    // fetch has landed. That is the right shape and it was being paid for many
+    // times over: opening a presidential profile ran the same derivations from
+    // seven independent surfaces, and every one of them walked the whole action
+    // pool, re-resolved the same stance list and re-ran the same source gate. The
+    // work is pure, so the second answer is always the first answer.
+    //
+    // The only thing a cache of pure derivations needs is a truthful "the inputs
+    // changed" signal, and there are exactly two of those in this app: a full
+    // profile document merging in from Firestore, and a member's roll-call record
+    // arriving from the Voting Record API. Both now bump this counter, and every
+    // cache below stores the epoch it was computed under and recomputes when the
+    // two disagree. A missed bump costs a stale read; a spurious bump costs one
+    // recomputation. Both are cheap, and the failure mode is the safe direction.
+    //
+    // It lives here because stance-helpers.js is the earliest module every lane —
+    // 🏛️ congressional, ✒️ executive, Say-vs-Do — already depends on.
+    var _epoch = 1;
+    window.PDXDataEpoch = function () { return _epoch; };
+    window.PDXDataChanged = function () { _epoch++; return _epoch; };
+
     // ── Shared issue linkage (Alignment Tool ⇄ politician profiles) ──────
     // Build a lookup of a politician's documented positions, keyed by the SAME
     // ISSUE_MAP keys the Alignment Tool uses, so a visitor's saved positions can be
@@ -159,7 +184,31 @@
       });
       return out;
     }
-    window._polPositionMap = _polPositionMap;
+    // MEMOIZED — see THE DERIVATION EPOCH at the top of this file.
+    //
+    // This map is the single stance source both scoring lanes read, and every read
+    // is per (politician, issue): one presidential profile called it 1,295 times to
+    // paint one screen, rebuilding the same ~20-key object from the same ~26-card
+    // list each time. The result is a pure function of the curated list, so it is
+    // computed once per politician per epoch and handed back by reference.
+    //
+    // Callers must not mutate the returned object. They never did — every call site
+    // in the app reads `pm[issueKey].stance` and nothing writes — and the shared
+    // reference is what makes the memo worth having.
+    var _pmCache = {}, _pmEpoch = 0;
+    function _polPositionMapMemo(id, p) {
+      var ep = _epoch;
+      if (_pmEpoch !== ep) { _pmCache = {}; _pmEpoch = ep; }
+      // The name is part of the key: _resolveStanceList falls back to a slug of the
+      // display name, so the same id with a different profile can resolve a
+      // different list. Cheap to include, and it removes the one way this could lie.
+      var k = String(id == null ? '' : id) + '||' + String((p && p.name) || '');
+      if (Object.prototype.hasOwnProperty.call(_pmCache, k)) return _pmCache[k];
+      var v = _polPositionMap(id, p);
+      _pmCache[k] = v;
+      return v;
+    }
+    window._polPositionMap = _polPositionMapMemo;
 
     // ── Stance-vs-Record engine ("say vs. do") ─────────────────────────────────
     // Pure, side-effect-free derivation that compares what a politician SAYS (their
@@ -1485,7 +1534,7 @@
       '</div>';
     }
 
-    var polMap = _polPositionMap(id, p);
+    var polMap = _polPositionMapMemo(id, p);
     var documented = [];
     var researching = [];
     _alignIssues.forEach(function(key) {

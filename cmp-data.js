@@ -11528,7 +11528,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
     "title": "Insist that Congress, not the President, decides on war",
     "detail": "Says congressional oversight of the executive branch is not optional. Voted for H.Con.Res. 89, directing the removal of U.S. forces from hostilities with Iran under the War Powers Resolution; it passed 214–208 on July 23, 2026.",
     "verdict": "kept",
-    "issueKey": "checks_balances",
+    "issueKey": "war_powers",
     "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026282" }]
    },
    {
@@ -11726,7 +11726,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
     "title": "Stop pocket rescissions and restore Congress's spending power",
     "detail": "A senior appropriator who says the White House practice of letting appropriated money expire unspent is unconstitutional, because Congress decides how federal funds are spent. No legislative remedy has passed.",
     "verdict": "pending",
-    "issueKey": "checks_balances",
+    "issueKey": "power_of_purse",
     "sources": [{ "label": "simpson.house.gov", "url": "https://simpson.house.gov" }]
    },
    {
@@ -11813,7 +11813,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
     "title": "Defend Congress's power of the purse against the executive branch",
     "detail": "As House Budget Committee chairman he and the committee's ranking member jointly sought a GAO opinion, which confirmed that Congress controls federal spending. He said \"Article I grants the power of the purse to Congress.\"",
     "verdict": "kept",
-    "issueKey": "checks_balances",
+    "issueKey": "power_of_purse",
     "sources": [{ "label": "House Budget Committee", "url": "https://democrats-budget.house.gov/news/press-releases/yarmuth-womack-respond-gao-s-legal-opinion-confirming-congress-s-power-purse" }]
    },
    {

@@ -75,12 +75,12 @@
      "rationale": "Section 2 of the bill as passed the House adds a new INA 236(c)(1)(E) requiring the Secretary of Homeland Security to detain an inadmissible alien charged with, arrested for, convicted of, or who admits having committed burglary, theft, larceny or shoplifting, and to issue a detainer and take custody. A yea attaches a mandatory custodial consequence to those offences. Weighted 55, identical to S. 5's mapping, so the two Laken Riley vehicles score the same axis at the same strength. Note the House bill reaches ONLY those four property offences: assault of a law enforcement officer and crimes resulting in death or serious bodily injury entered the statute later, through the Senate's S.Amdt. 14 and S.Amdt. 8."
     },
     {
-     "issueKey": "states_federal_power",
+     "issueKey": "state_standing",
      "weight": 40,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr29eh/html/BILLS-119hr29eh.htm",
-     "rationale": "Section 3, 'Enforcement by attorney general of a State', amends INA 235(b) (8 U.S.C. 1225(b)) to give the attorney general of a State, or another authorised State officer, standing to sue the Secretary of Homeland Security in federal district court over alleged violations of the detention and removal requirements that harm the State or its residents. A yea creates a state cause of action against the federal government. Weighted 40, identical to S. 5's mapping. The same section is what the Senate's S.Amdt. 23 tried and failed to strike."
+     "rationale": "Section 3, 'Enforcement by attorney general of a State', amends INA 235(b) (8 U.S.C. 1225(b)) to give the attorney general of a State, or another authorised State officer, standing to sue the Secretary of Homeland Security in federal district court over alleged violations of the detention and removal requirements that harm the State or its residents. A yea creates a state cause of action against the federal government. Weighted 40, identical to S. 5's mapping. The same section is what the Senate's S.Amdt. 23 tried and failed to strike. Re-keyed from states_federal_power in the August 2026 taxonomy split: a cause of action against the federal government now has its own key."
     }
    ]
   },
@@ -115,11 +115,11 @@
      "_comment": "Restated from the CRS summary of Public Law 119-1 rather than copied from H.R. 29. H.R. 29's rationale enumerates the House bill's narrower trigger list; S. 5 as enacted adds larceny and the death/serious-bodily-injury clause via the Senate amendment (roll 119/1/6, Ernst, agreed 75-24). Reusing the H.R. 29 sentence here would have understated the enacted text."
     },
     {
-     "issueKey": "states_federal_power",
+     "issueKey": "state_standing",
      "weight": 40,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions; a yea expands state authority to contest federal enforcement choices in court."
+     "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions; a yea expands state authority to contest federal enforcement choices in court. Re-keyed from states_federal_power in the August 2026 taxonomy split: a cause of action against the federal government now has its own key."
     }
    ]
   },
@@ -258,11 +258,11 @@
      "rationale": "Requires congressional authorization before military action against Iran; a yea favors restraint and a congressional check on war-making."
     },
     {
-     "issueKey": "america_first_fp",
+     "issueKey": "war_powers",
      "weight": 70,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "A yea presses against open-ended involvement in a new Middle East conflict."
+     "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution directing removal of U.S. forces from hostilities with Iran absent congressional authorization; a yea asserts that the authorization decision belongs to Congress. Re-keyed from america_first_fp in the August 2026 taxonomy split, which narrowed that key to foreign aid and open-ended commitments; who authorizes the use of force now has its own key. Weight 70 preserved. The resolution's controlling axis is still the posture toward the conflict, which the restraint row carries at 100."
     },
     {
      "issueKey": "strong_defense",
@@ -1458,11 +1458,11 @@
    "number": "H.R. 3746",
    "issues": [
     {
-     "issueKey": "gov_regulation",
+     "issueKey": "permitting_reform",
      "weight": 70,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Division C, Title III is a permitting-reform title: it narrows the scope of National Environmental Policy Act administrative review, sets page and time limits on environmental reviews, and designates a lead agency. A yea reduces the regulatory review burden."
+     "rationale": "Division C, Title III is a permitting-reform title: it narrows the scope of National Environmental Policy Act administrative review, sets page and time limits on environmental reviews, and designates a lead agency. A yea speeds federal project review. Re-keyed from gov_regulation in the August 2026 taxonomy split — the row was always about how long a federal review takes, not about the size of the federal rulebook. Weight 70 and primary status preserved: the NEPA title is what this mapping was always reading."
     },
     {
      "issueKey": "energy_production",
@@ -2276,12 +2276,12 @@
    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00004.htm",
    "issues": [
     {
-     "issueKey": "states_federal_power",
+     "issueKey": "state_standing",
      "weight": 100,
      "isPrimary": true,
      "supportMeaning": "yea_opposes",
      "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00004.htm",
-     "rationale": "Amendment to S. 5 (Laken Riley Act) whose stated purpose is 'To strike the section that authorizes State attorneys general to sue Federal immigration authorities for alleged violations relating to the detention of aliens.' A YEA REMOVES a state cause of action against the federal government, so a yea cuts against keeping decisions and remedies with the states — the mirror of S. 5's own states_federal_power mapping, which is yea_supports because passing the bill is what created the standing. Rejected 46-49, so the section survived into Public Law 119-1."
+     "rationale": "Amendment to S. 5 (Laken Riley Act) whose stated purpose is 'To strike the section that authorizes State attorneys general to sue Federal immigration authorities for alleged violations relating to the detention of aliens.' A YEA REMOVES a state cause of action against the federal government, so a yea cuts against letting states take Washington to court — the mirror of S. 5's own mapping, which is yea_supports because passing the bill is what created the standing. Rejected 46-49, so the section survived into Public Law 119-1. Re-keyed from states_federal_power in the August 2026 taxonomy split. Weight 100 and primary status preserved: this is the record's only roll call isolating the provision."
     }
    ]
   },
@@ -2328,12 +2328,12 @@
      "rationale": "Division H, Title LXXXIII, Subtitle B (Secs. 8311-8314) is the Break Up Suspicious Transactions of Fentanyl Act — the BUST Fentanyl Act — enacted through this vehicle: it amends the Fentanyl Sanctions Act, adds fentanyl-trafficking reporting to the International Narcotics Control Strategy Report, and requires a study and report on fentanyl trafficking originating in the People's Republic of China. A yea enacts new sanctions authority and reporting aimed at fentanyl traffickers. Weighted 40 on purpose: it is one named subtitle inside an omnibus, and it works through sanctions and reporting rather than a direct enforcement change."
     },
     {
-     "issueKey": "states_federal_power",
+     "issueKey": "guard_authority",
      "weight": 25,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
-     "rationale": "Section 512 inserts a new 32 U.S.C. 328a: the chief executive of a State that has declared an emergency due to a disaster may order a member of that State's National Guard who is serving on Active Guard and Reserve duty to perform State disaster-response duty. A yea hands a governor direct authority over federally paid Guard personnel. Weighted 25 — the lowest mapping in this pass — because the authority is gated on the Secretary of Defense's consent, is reimbursable by the State, and is capped at 14 days per member per calendar year (extendable by 7 days, or by 46 for a catastrophic incident). It is a real Title 32 shift toward the states, but it is one narrow section of a 312-112 defence authorisation and must not be read as a federalism referendum."
+     "rationale": "Section 512 inserts a new 32 U.S.C. 328a: the chief executive of a State that has declared an emergency due to a disaster may order a member of that State's National Guard who is serving on Active Guard and Reserve duty to perform State disaster-response duty. A yea hands a governor direct authority over federally paid Guard personnel. Weighted 25 — the lowest mapping in that pass — because the authority is gated on the Secretary of Defense's consent, is reimbursable by the State, and is capped at 14 days per member per calendar year (extendable by 7 days, or by 46 for a catastrophic incident). It is a real Title 32 shift toward the states, but it is one narrow section of a 312-112 defence authorisation and must not be read as a referendum on who commands the Guard. Re-keyed from states_federal_power in the August 2026 taxonomy split."
     }
    ]
   },

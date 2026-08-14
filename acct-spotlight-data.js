@@ -2327,7 +2327,86 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
           headline:'Signed the "Most Favored Nation" drug-pricing order',
           facts:'On May 12, 2025, Trump signed an executive order reviving his "Most Favored Nation" drug-pricing policy, directing HHS to tie what the U.S. pays for certain medicines to the lower prices paid by other developed nations and to open direct-to-consumer sales at those prices.',
           why:'A signed action on prescription-drug costs is a documented, checkable step on a top pocketbook issue.',
-          source:{ label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/2025/05/delivering-most-favored-nation-prescription-drug-pricing-to-american-patients/' } }
+          source:{ label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/2025/05/delivering-most-favored-nation-prescription-drug-pricing-to-american-patients/' } },
+
+        // ── Public-record items for the 🧾 Say-vs-Do lane ────────────────────
+        // The second-term block above is category:'voting' — formal instruments
+        // that belong to the 🏛️ Official Record and are dropped at the
+        // say-vs-do collect() chokepoint. The items below are the public-record
+        // lane: statements, outside findings and rhetoric-vs-reality gaps on the
+        // highest-traffic issue rows, which carried no curated evidence at all.
+        // They are never merged into Direction Match.
+        // Category matters here: consistency.js SAYDO_EXCLUDE drops 'voting' AND
+        // 'promise' (promises have their own system), so a follow-through item
+        // is filed under 'rhetoric' with a Consistency tag — the idiom this file
+        // already uses for "the words matched the actions".
+
+        // America First
+        { impact:'positive', category:'rhetoric', date:'July 1, 2025', tags:['Consistency','Rhetoric vs Reality'], issueKey:'america_first',
+          headline:'Closed USAID and cancelled more than 80% of its programs',
+          facts:'The U.S. Agency for International Development stopped implementing foreign assistance on July 1, 2025, with surviving programs absorbed into the State Department. Secretary of State Marco Rubio announced the closure after the administration cancelled roughly 5,200 of the agency’s 6,200 awards.',
+          why:'The stated position questions open-ended foreign aid; dismantling the agency that delivered it is the follow-through on that position, not a departure from it.',
+          source:{ label:'The Hill', url:'https://thehill.com/policy/international/5379363-us-aid-agency-closure/' } },
+        { impact:'positive', category:'rhetoric', date:'July 14, 2025', tags:['Consistency','Rhetoric vs Reality'], issueKey:'america_first',
+          headline:'Shifted Ukraine weapons costs onto NATO allies',
+          facts:'Standing with NATO Secretary General Mark Rutte on July 14, 2025, Trump announced the Prioritized Ukraine Requirements List — allies buy U.S. weapons and hand them to Ukraine — saying "NATO is paying for those weapons, 100%." NATO approved the first allied-funded packages on September 16, 2025.',
+          why:'Making allies pay for aid the U.S. previously financed is the clearest test of the "questions open-ended foreign aid" position, and it was met.',
+          source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/u-s-is-selling-weapons-to-nato-allies-to-give-to-ukraine-trump-says' } },
+
+        // America First Foreign Policy
+        { impact:'positive', category:'rhetoric', date:'June 25, 2025', tags:['Consistency','Rhetoric vs Reality'], issueKey:'america_first_fp',
+          headline:'NATO allies agreed to a 5%-of-GDP defense target',
+          facts:'The Hague Summit Declaration of June 25, 2025 committed allies to invest 5% of GDP annually on defense by 2035 — 3.5% on core defense plus 1.5% on defense-related infrastructure and resilience. Spain was the lone holdout on the headline figure.',
+          why:'Pressing NATO allies to spend more is the load-bearing half of the stated doctrine, and the alliance signed a number to it.',
+          source:{ label:'NATO', url:'https://www.nato.int/en/about-us/official-texts-and-resources/official-texts/2025/06/25/the-hague-summit-declaration' } },
+        { impact:'negative', category:'rhetoric', date:'2023–2026', tags:['Rhetoric vs Reality','Public Statements'], issueKey:'america_first_fp',
+          headline:'The "war ended in 24 hours" pledge is years past due',
+          facts:'CNN documented at least 53 occasions on which Trump said he would end the war in Ukraine within 24 hours, or before even taking office. The war was still being fought through 2026, broken only by short holiday truces; Trump later said the 24-hour line had been "a little bit sarcastic."',
+          why:'A pledge repeated dozens of times, then recharacterized as a joke once the deadline passed, is exactly the words-vs-outcome gap this lane exists to show.',
+          source:{ label:'CNN', url:'https://www.cnn.com/2025/03/26/europe/timeline-trumps-pledge-to-end-ukraine-war' } },
+
+        // Cut Federal Spending & Reduce Debt
+        { impact:'negative', category:'transparency', date:'August 6, 2026', tags:['Accountability','Rhetoric vs Reality'], issueKey:'cut_spending',
+          headline:'GAO could not verify most of DOGE’s claimed savings',
+          facts:'GAO-26-108615 (Aug. 6, 2026) found DOGE’s public "Wall of Receipts" listed $110.34B in savings as of July 7, 2026 against roughly $215B claimed overall, and that "some savings estimates are incorrect or lack supporting evidence." GAO could replicate the math for only about 4% of reported grant savings; 3,751 of 13,476 contracts (27.8%) carried no contract number, including all 3,506 USAID entries; lease savings were overstated by $81.1M against $31.8M actually saved; and a Defense Health Agency IT contract was credited with over $1.7B although DOD confirmed no termination or deobligation occurred. DOGE did not respond to GAO.',
+          why:'The stated position is that spending was slashed. The federal auditor could not confirm the number the administration published to prove it.',
+          source:{ label:'GAO.gov', url:'https://files.gao.gov/reports/GAO-26-108615/index.html' } },
+        { impact:'negative', category:'legal', date:'July 23, 2025', tags:['Accountability','Notable Actions'], issueKey:'cut_spending',
+          headline:'GAO found the Head Start slowdown broke the Impoundment Control Act',
+          facts:'In decision B-337202 (July 23, 2025) GAO concluded HHS violated the Impoundment Control Act by withholding Head Start funds: between Jan. 20 and Apr. 15, 2025 the department disbursed about 65% of the prior year’s comparable amount, roughly $825 million less, without sending Congress a special message.',
+          why:'How money is withheld is a legal question separate from whether the cut was wise — it is on the record here as context, not as a mark for or against the stated position.',
+          source:{ label:'GAO.gov', url:'https://www.gao.gov/products/b-337202' } },
+
+        // Tariffs & Household Prices
+        { impact:'positive', category:'statement', date:'April 30, 2025', tags:['Public Statements','Consistency'], issueKey:'tariffs_prices',
+          headline:'"Maybe the children will have two dolls instead of 30 dolls"',
+          facts:'Asked at an April 30, 2025 Cabinet meeting about tariffs raising consumer prices, Trump said children might have "two dolls instead of 30 dolls" and that "maybe the two dolls will cost a couple of bucks more." He repeated the framing on Meet the Press on May 4, 2025.',
+          why:'It is the position stated plainly in his own words: higher prices are an accepted cost of the tariffs rather than something to be offset.',
+          source:{ label:'CBS News', url:'https://www.cbsnews.com/news/trump-says-kids-may-have-fewer-dolls-higher-prices-trade-policies/' } },
+        { impact:'negative', category:'statement', date:'November 9, 2025', tags:['Public Statements','Rhetoric vs Reality'], issueKey:'tariffs_prices',
+          headline:'Promised a $2,000 tariff "dividend" that never reached Congress',
+          facts:'On Nov. 9, 2025, five days after off-year election losses widely read as cost-of-living votes, Trump posted that "a dividend of at least $2000 a person (not including high income people!) will be paid to everyone" out of tariff revenue. Treasury Secretary Scott Bessent said that same day he had not discussed it with the President; tariffs raised about $195B in fiscal 2025 while CRFB estimated an annual $2,000 dividend would cost roughly $600B a year. No formal proposal went to Congress in 2025.',
+          why:'Announcing consumer relief funded by the tariffs cuts against the stated approach of imposing them without pairing them with relief — and the promise has not been delivered.',
+          source:{ label:'CRFB', url:'https://www.crfb.org/blogs/tariff-dividends-could-cost-600-billion-year' } },
+
+        // Tackle the National Debt
+        { impact:'negative', category:'rhetoric', date:'July 2025', tags:['Rhetoric vs Reality','Accountability'], issueKey:'national_debt',
+          headline:'CBO scored his signature law at +$3.4 trillion in deficits',
+          facts:'The Congressional Budget Office’s final estimate of H.R. 1, the law Trump signed in July 2025, put it at roughly $3.4 trillion added to deficits over 2025–2034 — about $4.1 trillion once additional debt-service costs are counted, pushing federal debt toward 127% of GDP by 2034.',
+          why:'The stated position is shrinking the debt through spending discipline; the cycle’s signature law is scored as one of the largest single additions to it.',
+          source:{ label:'CBO.gov', url:'https://www.cbo.gov/publication/61461' } },
+        { impact:'negative', category:'rhetoric', date:'October 21, 2025', tags:['Rhetoric vs Reality','Accountability'], issueKey:'national_debt',
+          headline:'Gross national debt passed $38 trillion, then $39 trillion',
+          facts:'Treasury’s Debt to the Penny series recorded the gross national debt crossing $38 trillion on Oct. 21, 2025 — only about 70 days after it passed $37 trillion, one of the fastest trillion-dollar increases outside the pandemic — and it crossed $39 trillion in March 2026.',
+          why:'The single most checkable measure of the stated goal moved the wrong way, and accelerated, while the goal was being restated.',
+          source:{ label:'CRFB', url:'https://www.crfb.org/press-releases/gross-national-debt-reaches-38-trillion' } },
+
+        // Tackle the Cost of Living
+        { impact:'negative', category:'rhetoric', date:'December 2, 2025', tags:['Rhetoric vs Reality','Public Statements'], issueKey:'cost_living',
+          headline:'Called affordability "a con job by the Democrats"',
+          facts:'At a Dec. 2, 2025 Cabinet meeting, Trump said "the word affordability is a con job by the Democrats," arguing prices were already coming down — eleven months after signing a day-one memorandum directing every agency to pursue emergency measures against the cost-of-living crisis.',
+          why:'Dismissing the framing of the problem he opened his term by declaring an emergency over is a direct words-vs-words gap on his own signature promise.',
+          source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/watch-trump-says-the-word-affordability-is-a-con-job-by-the-democrats' } }
       ],
       vance: [
         { impact:'neutral', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'lower_taxes',

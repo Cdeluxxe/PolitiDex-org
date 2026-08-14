@@ -90,37 +90,49 @@
   // Keys that are not structurally broken but are not cleared for the first
   // public wave either. Separate from BLOCKED_ISSUE_KEYS so the audit can say
   // which of the two it is, and so lifting a hold does not touch a guard.
+  //
+  // SPLIT, August 2026 — three of the four entries that used to live here are
+  // gone, because the keys behind them were narrowed until "Supports" meant one
+  // thing. The test for a hold was always: can ONE measure mapping be right for
+  // every stance filed on this key? Where the answer was no, the key was an
+  // umbrella and the verdict was an accident of filing. That is now fixed at the
+  // taxonomy level (alignment-tool.js) and in the mapping table
+  // (20260904000000_vr_split_umbrella_issue_keys.sql) rather than papered over
+  // here:
+  //
+  //   gov_regulation → narrowed to cutting the number and cost of federal rules,
+  //     with permitting_reform taking project review. The four mappings whose
+  //     sign was inverted (statutes that CREATE a regime, filed yea_supports on
+  //     a cut-the-rules chip) were removed, and the one card filed against its
+  //     own author's position (French Hill, who sponsored the CFPB overdraft
+  //     rescission and was printed as opposing deregulation) was corrected.
+  //   america_first_fp → narrowed to foreign aid and open-ended commitments.
+  //     War-powers stances moved to war_powers, counter-China stances to
+  //     strong_defense. AOC and Boebert can no longer be filed identically here
+  //     and vote opposite ways on the same amendment.
+  //   states_federal_power → narrowed to preemption, one boundary. Suing
+  //     Washington moved to state_standing, command of the Guard to
+  //     guard_authority.
+  //
+  // Nothing in publicShareBlock() moved to make room for them. A card on a
+  // narrowed key still has to clear PUBLIC_MIN_JUDGED and every guard above; the
+  // narrow keys are individually thinner than the umbrella was, so some pairs
+  // that used to be scored are now honestly untested rather than quietly wrong.
   var WAVE1_HOLD_ISSUE_KEYS = {
-    america_first_fp: 'held out of wave 1 — the key still carries two readings (America-First framing and war-powers restraint), and a finished card cannot show which one the verdict was scored against',
-    // Three more of the same shape, found by reading every stance behind a live
-    // card on each key. The test is the `tariffs_authority` test above: can ONE
-    // measure mapping be right for every stance filed here? Where the answer is
-    // no, the key is an umbrella and the verdict is an accident of filing.
-    //
-    //   gov_regulation (42 cards, 22 members) — "Supports" is filed both by
-    //   members who want LESS regulation (Johnson's "commonsense deregulation",
-    //   Chip Roy on the administrative state) and by members who want MORE of it
-    //   (Klobuchar on antitrust, Peters on cyber-incident reporting, Pallone
-    //   "resisting broad deregulation"). A deregulatory CRA scores the first
-    //   group consistent and the second group consistent for the opposite reason.
-    //
-    //   states_federal_power (14 cards, 11 members) — the stances are about
-    //   different federal–state boundaries entirely: hemp rules, state AI laws,
-    //   western water, coal-ash permits, immigration enforcement. S. 1582's
-    //   stablecoin opt-in cannot adjudicate any of them but the one.
-    //
-    //   checks_balances (19 cards, 14 members) — collects war powers (Massie,
-    //   Khanna, AOC), nationwide injunctions (Jordan, Jayapal), the power of the
-    //   purse (Cole, Womack, Simpson) and tariff emergency powers (Jason Smith).
-    //   Mike Johnson is filed "Opposes" for saying the War Powers Act is
-    //   unconstitutional, then judged by a nationwide-injunctions bill.
-    //
-    // Held rather than blocked: none of these keys is broken in the way
-    // `tariffs_authority` is — they are over-broad, and splitting them is
-    // curation work, not a code fix.
-    gov_regulation: 'held out of wave 1 — the key collects pro-deregulation and pro-regulation stances under the same "Supports", so one measure mapping scores both as matching',
-    states_federal_power: 'held out of wave 1 — the stances filed here concern unrelated federal–state boundaries, so the cited vote settles at most one of them',
-    checks_balances: 'held out of wave 1 — the key spans war powers, nationwide injunctions and the power of the purse, and a finished card cannot show which of them the verdict was scored against'
+    // checks_balances is the one entry that stays, and it is no longer a wave-1
+    // deferral — it is permanent. The key was split into war_powers,
+    // judicial_check, power_of_purse, congress_oversight, state_standing and
+    // guard_authority, and everything mechanism-specific went to one of those.
+    // What is deliberately left behind is the general institutional-posture
+    // chip: "keep Congress and the courts as a real check on executive power,
+    // whoever is president". A stance filed there is a statement of general
+    // posture, and no roll call adjudicates a general posture — which is why the
+    // key ends the split holding exactly one mapping (a birthright-citizenship
+    // suit, no roll calls) and is expected to keep none. A card here would print
+    // a verdict without being able to name the mechanism it was scored on, which
+    // is the original defect, so it stays held rather than being unblocked by
+    // the split that fixed the other three.
+    checks_balances: 'held permanently — the key is the general institutional-posture chip left behind by the August 2026 split, and a general posture has no roll call that settles it; members with a specific claim are on war_powers, judicial_check, power_of_purse, congress_oversight, state_standing or guard_authority instead'
   };
 
   // ── Guard 17 · the stance and the vote are about different subjects ───────

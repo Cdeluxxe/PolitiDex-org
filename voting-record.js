@@ -273,7 +273,12 @@
       return promise;
     },
 
-    clearCache: function () { this._cache.clear(); this._compareCache.clear(); this._packCache.clear(); this._issueRecCache.clear(); this._records = {}; },
+    clearCache: function () {
+      this._cache.clear(); this._compareCache.clear(); this._packCache.clear(); this._issueRecCache.clear();
+      this._records = {};
+      // Dropping the records changes every derived read that used them.
+      try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
+    },
 
     // ── Resolved per-member records (sync accessor) ─────────────────────────────
     // A member's full, unfiltered record items, cached the moment any surface loads
@@ -282,7 +287,16 @@
     // own fetch, so there is no request storm when scoring a big field; it simply
     // uses whatever is already warm and falls back to the legacy source otherwise.
     _records: {},
-    noteMember: function (id, items) { if (id && Array.isArray(items)) this._records[canonPid(id)] = items.slice(); },
+    // The other of the two data boundaries the derivation epoch tracks (the first
+    // is a full profile document arriving in firebase-boot.js). Every issue row,
+    // verdict and bucket on a profile is derived partly from this record, and the
+    // caches that hold those derivations are only allowed to be stale until this
+    // line runs. See THE DERIVATION EPOCH in stance-helpers.js.
+    noteMember: function (id, items) {
+      if (!id || !Array.isArray(items)) return;
+      this._records[canonPid(id)] = items.slice();
+      try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
+    },
     memberRecords: function (id) { return this._records[canonPid(id)] || null; },
 
     // ── Batched side-by-side fetch for the comparison surfaces ──────────────────

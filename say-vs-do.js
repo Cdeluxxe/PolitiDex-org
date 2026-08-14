@@ -154,7 +154,23 @@
 
   // ── build the receipt set ───────────────────────────────────────────────────
   var _cache = null, _cacheKey = '';
-  function buildKey() {
+  // The cache key for the receipt pool: the sizes of the three data objects it is
+  // built from, so a profile document arriving from Firestore invalidates it.
+  //
+  // Object.keys() on ~950 profiles and ~800 stance blocks, three times, is not a
+  // cheap key — and collect() asks for it on EVERY call, which on a profile open is
+  // once per issue per surface. It was the single hottest function in the whole
+  // profile render: more time spent proving the cache was still valid than the
+  // cached work would have taken.
+  //
+  // So the sizes are counted at most once per task. JavaScript is single-threaded:
+  // nothing can add a profile or a stance block in the middle of a synchronous
+  // render, so within one task the answer cannot change. The moment the stack
+  // unwinds, the microtask below clears the stamp and the next call counts again.
+  // A data merge lands in a different task by construction — it comes off a fetch
+  // promise — so it is always seen.
+  var _sizeKey = '', _sizeFresh = false;
+  function buildKeyRaw() {
     var acct = 0;
     try { acct = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) {}
     var prof = 0;
@@ -162,6 +178,19 @@
     var sd = 0;
     try { sd = window.ISSUE_STANCE_DATA ? Object.keys(window.ISSUE_STANCE_DATA).length : 0; } catch (e) {}
     return acct + ':' + prof + ':' + sd;
+  }
+  function buildKey() {
+    if (_sizeFresh) return _sizeKey;
+    _sizeKey = buildKeyRaw();
+    _sizeFresh = true;
+    try {
+      Promise.resolve().then(function () { _sizeFresh = false; });
+    } catch (e) {
+      // No microtask queue to hand it to: fall back to counting every time, which
+      // is what this function did before and is always correct.
+      _sizeFresh = false;
+    }
+    return _sizeKey;
   }
 
   // ── Phase 10 receipt issue-key backfill (Say-vs-Do side) ────────────────────

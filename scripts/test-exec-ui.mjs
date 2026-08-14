@@ -667,10 +667,29 @@ for (const card of CARDS) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Every string in this render is either the renderer's own copy or a neutral fixture
 // value, so the FULL forbidden matcher can be applied and any hit is provably ours.
+//
+// Clearing CMP_DATA alone did NOT make the fixture neutral, and the gap was invisible
+// until real data walked through it. The "stated position, no action found" chip list
+// names issue keys taken from the curated stance blocks, which stance-helpers resolves
+// out of ISSUE_STANCE_DATA directly — CMP_DATA never enters that path. So the real
+// profile's keys were reaching this render all along, and because the fixture
+// ISSUE_MAP defines no label for them, issueLabel() fell back to humanising the key
+// itself. That was harmless only for as long as no real issue key happened to contain
+// a forbidden word: `strong_defense` humanises to "strong defense", which the matcher
+// reads as the graded adjective it is meant to catch. The failure was in the fixture,
+// not in the renderer's copy — the key is the issue's name, not a grading of anyone.
+// Neutralising the stance source too is what the comment above always claimed, and it
+// keeps the chip path exercised rather than switched off.
 {
   const { ctx: c4 } = makeSandbox();
   c4.window.CMP_DATA = {};            // no stated positions → no interpolated stance labels
-  c4.window.ISSUE_MAP = { alpha_key: { label: "Alpha" }, beta_key: { label: "Beta" } };
+  c4.window.ISSUE_STANCE_DATA = {     // …and no real issue keys through the coverage chips
+    trump: [
+      { topic: "Alpha topic", issueKey: "alpha_key", issueStance: "support", pos: "support", text: "Alpha stated position." },
+      { topic: "Gamma topic", issueKey: "gamma_key", issueStance: "support", pos: "support", text: "Gamma stated position." }
+    ]
+  };
+  c4.window.ISSUE_MAP = { alpha_key: { label: "Alpha" }, beta_key: { label: "Beta" }, gamma_key: { label: "Gamma" } };
   c4.window.EXEC_ACTIONS = {
     trump: [{
       actionClass: "executive_order",

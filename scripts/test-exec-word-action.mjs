@@ -462,12 +462,28 @@ const heroR = WA.heroRead ? WA.heroRead(PID, P) : null;
 if (heroR) {
   eq(heroR.pct, r.pct, "one read: the hero and the section report the same number");
 }
-// The pledge tier is a form of "said", not a parallel track. It now carries eleven
-// itemized pledges, and the assertion that matters is not how many — it is that they
-// feed the SAME percentage and produce no second one. The count is derived from the
-// data so itemizing more pledges never has to touch this line.
-eq(r.tiers.pledge && r.tiers.pledge.total, (P.promises || []).length,
+// The pledge tier is a form of "said", not a parallel track. It carries every
+// itemized pledge on file, and the assertion that matters is not how many — it is
+// that they feed the SAME percentage and produce no second one. The count is derived
+// from the data so itemizing more pledges never has to touch this line.
+//
+// The tier is NOT only the itemized ledger, and this assertion used to read as
+// though it were. word-action.js also promotes a sourced stance card into the tier
+// when the card quotes first-person commitment language (PLEDGE_RE) — an existing
+// rule that had simply never fired on this profile, so `total` and the ledger length
+// happened to be the same number. Two of the 2024-platform cards added by the
+// stance-unlock pass quote the platform's own "We will …", so it fires now. Equality
+// was therefore the wrong shape for the claim above it: what "none silently dropped"
+// means is that no ITEMIZED pledge fails to arrive, which is the pledge-tracked
+// subset matching exactly, plus a tier at least that large. Loosening `total` to a
+// floor while pinning the subset exactly says that, and says it about a tier that
+// can legitimately grow.
+const pledgeTracked = r.tested.concat(r.untested || [])
+  .filter((t) => t.kind === "pledge-tracked").length;
+eq(r.tiers.pledge && r.tiers.pledge.total >= (P.promises || []).length, true,
   "one read: every itemized pledge on file reaches the tier — none silently dropped");
+eq(pledgeTracked, (P.promises || []).length,
+  "one read: the tracked-pledge items are the ledger exactly — one item per itemized pledge, no more");
 ok((P.promises || []).length > 0,
   "one read: the itemized pledges are actually present (a zero here makes the tier assertions vacuous)");
 ok(!("pledgePct" in r) && !("promiseScore" in r),

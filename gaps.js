@@ -54,6 +54,10 @@
     pending_pledge:     { sev: 50,  askable: true,  label: 'Pledge still open' },
     unitemized_pledges: { sev: 40,  askable: true,  label: 'Resolved pledges not itemized' },
     not_issue_linked:   { sev: 30,  askable: true,  label: 'Not tied to an issue yet' },
+    // The public-record half of one issue dossier. Built ONLY by publicRecordGap()
+    // below, on demand, for the issue sheet a reader is actually looking at — see
+    // the note there for why forPolitician() must never emit it.
+    no_public_record:   { sev: 65,  askable: true,  label: 'No public-record evidence on file yet' },
     circular_hold:      { sev: 20,  askable: false, label: 'Held: written from the record itself' },
     spoken_for:         { sev: 15,  askable: false, label: 'Second position on an already-scored issue' },
     below_floor:        { sev: 10,  askable: false, label: 'Not enough tested record to publish a number' }
@@ -343,6 +347,46 @@
 
   function count(pid, p, pre) {
     return forPolitician(pid, p, pre).filter(function (g) { return g.askable; }).length;
+  }
+
+  // ── One issue's public-record hole, on demand ───────────────────────────────
+  // The 🧾 half of an issue dossier can be empty for a figure whose 🏛️ formal half
+  // is complete — the two lanes are curated by different work, and the formal one
+  // scales with a seed while the public one is hand-checked per person per issue.
+  // Left alone that reads as a page that failed to load, or worse as a verdict; it
+  // is neither. It is one nameable hole in OUR coverage, which is the exact thing
+  // this module exists to state, so the dossier states it in these words, with this
+  // module's own Suggest-a-lead control, rather than growing a second one.
+  //
+  // NOT EMITTED BY forPolitician(), on purpose, and this is the load-bearing part:
+  // a figure has as many of these holes as they have tracked issues — 33 of them on
+  // the current presidential profile — and pouring those into the profile's gap
+  // panel would bury the eight gaps that are about the record as a whole under a
+  // per-issue list, and inflate PDXGaps.count() by an order of magnitude. This gap
+  // is built for the one issue sheet a reader has open, and it exists only while
+  // that sheet is on screen.
+  //
+  // Everything else is shared: the same make(), so the same key/slug scheme, the
+  // same `gap:<pid>:<slug>` thread target, the same rowHtml(), the same _reg
+  // registration, and therefore the same composer on the same ＋ Suggest a lead
+  // button. Returns null for a bad call, never a half-built row.
+  function publicRecordGap(pid, issueKey, p) {
+    if (!pid || !issueKey) return null;
+    var lbl = issueLabel(issueKey) || String(issueKey);
+    var who = lastName(pid, p);
+    return make(pid, p, 'no_public_record', {
+      slugExtra: issueKey,
+      issueKey: issueKey,
+      label: 'No public-record evidence on file yet — ' + lbl,
+      // What is missing, whose fault that is, and — said plainly, because this row
+      // sits directly under a formal verdict — that it does not touch that verdict.
+      detail: 'We hold no curated public-record item for ' + who + ' on ' + lbl + ' yet: no statement, ' +
+              'interview, news report or documented controversy has been checked in against this issue. ' +
+              'That is a hole in our research, not a finding about ' + who + ', and it changes nothing ' +
+              'above — the formal record and the public record are scored separately and never merged.',
+      ask: 'A datable, linkable public-record item — something ' + who + ' said or did on ' + lbl +
+           ', with a source we can check.'
+    });
   }
 
   // ── Rendering ──────────────────────────────────────────────────────────────
@@ -660,6 +704,9 @@
     targetId: targetId,
     forPolitician: forPolitician,
     count: count,
+    // One issue dossier's public-record hole. Deliberately outside forPolitician()
+    // and therefore outside count() — see the note on the function.
+    publicRecordGap: publicRecordGap,
     rowHtml: rowHtml,
     panelHtml: panelHtml,
     // Exposed for the Exchange controller (it needs the gap a composer was

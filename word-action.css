@@ -965,6 +965,34 @@
 .pdxwa-method-body b { color: #cbd9ec; }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   THE SEARCH CHIP  ·  the issue index's result, on an All-Seeing Eye row
+   Sized and spaced to match .svd-eye-badge and .pdx-cov-badge exactly — the
+   three are alternatives for the same slot on the same row, and a chip that
+   changes shape depending on which one answered would read as a different
+   kind of thing rather than the same slot with a different word in it. The
+   colour is the bucket's own, carried in as --pdxwa-col, so the word and the
+   colour a reader meets in search are the ones waiting on the profile.
+   ══════════════════════════════════════════════════════════════════════════ */
+.pdxwa-eye-badge {
+  --pdxwa-col: #9fb4d4;
+  display: inline-flex; align-items: center; gap: 0.25rem; margin-left: 0.4rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.6rem;
+  letter-spacing: 0.05em; text-transform: uppercase; padding: 0.1rem 0.4rem;
+  border-radius: 0.35rem; white-space: nowrap; vertical-align: middle;
+  color: var(--pdxwa-col);
+  background: color-mix(in srgb, var(--pdxwa-col) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pdxwa-col) 42%, transparent);
+}
+/* Browsers without color-mix() keep the word and the text colour and lose only
+   the tint — the chip is still legible and still the bucket's colour. */
+@supports not (background: color-mix(in srgb, #000 14%, transparent)) {
+  .pdxwa-eye-badge {
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.34);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    THE JOINED ROWS  ·  they said → they did → so
    Rendered by dotsHtml(). Used on the profile and inside the Connecting the
    Dots card, so these rules must stand alone in either container.

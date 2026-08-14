@@ -174,6 +174,169 @@
       },
       {
         "actionClass": "executive_order",
+        "documentId": "Executive Order 13789",
+        "executiveOrderNumber": 13789,
+        "title": "Identifying and Reducing Tax Regulatory Burdens",
+        "actedAt": "2017-04-21",
+        "term": "45",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/04/26/2017-08586/identifying-and-reducing-tax-regulatory-burdens",
+        "sourceLabel": "Federal Register — Executive Order 13789, 82 FR 19317",
+        "frCitation": "82 FR 19317",
+        "frDocumentNumber": "2017-08586",
+        "publishedAt": "2017-04-26",
+        "issues": [
+          {
+            "issueKey": "lower_taxes",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 55,
+            "plain": "Ordered Treasury to find the tax regulations issued since 2016 that impose an undue financial burden and to delay, modify or rescind them — a narrow touch on this issue, because it moves regulations rather than rates.",
+            "rationale": "Section 2(a) directs the Secretary of the Treasury to review all significant tax regulations issued on or after January 1, 2016 and identify those that \"impose an undue financial burden on United States taxpayers,\" \"add undue complexity to the Federal tax laws,\" or \"exceed the statutory authority of the Internal Revenue Service.\" Section 2(b) directs the Secretary to recommend specific mitigating actions and to \"take appropriate steps to cause the effective date of such regulations to be delayed or suspended, to the extent permitted by law, and to modify or rescind such regulations as appropriate.\" Mapped at reduced weight because the chip is written about tax RATES and this order reaches only the regulations built on top of them; the `plain` line says so rather than borrowing the force of a rate cut."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-04-26",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13789 document record, 82 FR 19317",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/04/26/2017-08586/identifying-and-reducing-tax-regulatory-burdens",
+            "note": "Signed April 21, 2017 and published April 26, 2017 at 82 FR 19317. The register’s disposition record for this document carries a single cross-reference, back to Executive Order 12866 of September 30, 1993, and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13799",
+        "executiveOrderNumber": 13799,
+        "title": "Establishment of Presidential Advisory Commission on Election Integrity",
+        "actedAt": "2017-05-11",
+        "term": "45",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/05/16/2017-10003/establishment-of-presidential-advisory-commission-on-election-integrity",
+        "sourceLabel": "Federal Register — Executive Order 13799, 82 FR 22389",
+        "frCitation": "82 FR 22389",
+        "frDocumentNumber": "2017-10003",
+        "publishedAt": "2017-05-16",
+        "issues": [
+          {
+            "issueKey": "voter_id",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "Stood up a presidential commission to study how people register and cast ballots in federal elections, and to report on the weaknesses that could put ineligible people on the rolls.",
+            "rationale": "Section 1 establishes the Presidential Advisory Commission on Election Integrity. Section 3 gives it the mission of studying the registration and balloting processes used in Federal elections, reporting on practices that enhance or undermine confidence in them, and reporting on the vulnerabilities in those systems and practices that could lead to improper registrations and improper ballots, including fraudulent ones. Section 4 defines both of those terms by reference to legal eligibility. It is an advisory body: it studies and reports, and section 3 gives it no power to change any State’s eligibility rules. Mapped at reduced weight and filed as a secondary reading for that reason — the chip is about requiring photo identification, and a commission charged with examining eligibility safeguards moves toward that position without imposing one."
+          },
+          {
+            "issueKey": "election_integrity",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 75,
+            "plain": "Made federal election security a standing White House project by creating a commission chaired by the Vice President to report on what undermines public confidence in federal elections.",
+            "rationale": "Sections 1–3, above. Carried as the primary mapping because the commission the order creates is an election-integrity body by its own name and charge; the identification question below is one item inside that charge rather than the charge itself."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-05-16",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13799 document record, 82 FR 22389",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/05/16/2017-10003/establishment-of-presidential-advisory-commission-on-election-integrity",
+            "note": "Signed May 11, 2017 and published May 16, 2017 at 82 FR 22389. The commission it created operated under this order for just under eight months. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2018-01-03",
+            "authority": "Executive Order 13820 of January 3, 2018, signed by the same President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13820, Termination of Presidential Advisory Commission on Election Integrity, 83 FR 969",
+            "sourceUrl": "https://www.federalregister.gov/documents/2018/01/08/2018-00240/termination-of-presidential-advisory-commission-on-election-integrity",
+            "note": "This document's own register record carries no “Revoked by:” entry — the reciprocal note sits on the revoking order, whose disposition record reads, in full: “Revokes: EO 13799, May 11, 2017”. The operative text is section 1 of Executive Order 13820: “Executive Order 13799 of May 11, 2017 (Establishment of Presidential Advisory Commission on Election Integrity), is hereby revoked, and the Presidential Advisory Commission on Election Integrity is accordingly terminated.” Both were read from Executive Order 13820’s own record. Revocation is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it. The terminating order states no position of its own, which is why it is recorded here as standing and is not filed as an instrument with a direction of its own."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13813",
+        "executiveOrderNumber": 13813,
+        "title": "Promoting Healthcare Choice and Competition Across the United States",
+        "actedAt": "2017-10-12",
+        "term": "45",
+        "sourceUrl": "https://www.federalregister.gov/documents/2017/10/17/2017-22677/promoting-healthcare-choice-and-competition-across-the-united-states",
+        "sourceLabel": "Federal Register — Executive Order 13813, 82 FR 48385",
+        "frCitation": "82 FR 48385",
+        "frDocumentNumber": "2017-22677",
+        "publishedAt": "2017-10-17",
+        "issues": [
+          {
+            "issueKey": "healthcare_costs",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Ordered Labor, Treasury and HHS to widen three cheaper alternatives to Affordable Care Act plans — association health plans, short-term policies and health reimbursement arrangements — on the stated ground that exchange premiums had roughly doubled since 2013.",
+            "rationale": "Section 1(a) states the policy of facilitating \"a healthcare system that provides high-quality care at affordable prices\" and finds that the average exchange premium in the 39 healthcare.gov States \"is more than double the average overall individual market premium recorded in 2013.\" Section 1(b) names association health plans, short-term limited-duration insurance and health reimbursement arrangements as the three near-term priorities. Sections 2, 3 and 4 direct the Secretaries of Labor, the Treasury and Health and Human Services to consider rulemaking expanding each. Mapped to the price chip rather than to the coverage chip because the order’s own stated mechanism is cost."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-10-17",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13813 document record, 82 FR 48385",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/10/17/2017-22677/promoting-healthcare-choice-and-competition-across-the-united-states",
+            "note": "Signed October 12, 2017 and published October 17, 2017 at 82 FR 48385. Unrevoked as of that date on the register’s own disposition record. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "rescinded",
+            "effectiveAt": "2021-01-28",
+            "authority": "Executive Order 14009 of January 28, 2021, signed by the succeeding President",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13813 document record, disposition notes",
+            "sourceUrl": "https://www.federalregister.gov/documents/2017/10/17/2017-22677/promoting-healthcare-choice-and-competition-across-the-united-states",
+            "note": "The disposition note on the register’s own record for this document reads, in full: \"Revoked by: EO 14009, January 28, 2021.\" The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "signed_law",
+        "documentId": "Public Law 115-97",
+        "measureNumber": "H.R. 1",
+        "congress": 115,
+        "chamber": "house",
+        "title": "To provide for reconciliation pursuant to titles II and V of the concurrent resolution on the budget for fiscal year 2018",
+        "actedAt": "2017-12-22",
+        "term": "45",
+        "sourceUrl": "https://www.congress.gov/bill/115th-congress/house-bill/1",
+        "sourceLabel": "Congress.gov — H.R. 1, 115th Congress",
+        "issues": [
+          {
+            "issueKey": "lower_taxes",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "circularWithStance": true,
+            "circularNote": "Declared, not matched. The only lower_taxes stance card on file reads \"Signed the 2017 Tax Cuts and Jobs Act and backs extending the individual and pass-through cuts,\" with an evidence line of \"Signed Tax Cuts and Jobs Act (2017).\" That card is a narration of THIS law, so this law cannot test it — but the mechanical guard in consistency.js#execCircular would not have caught it, because the card names the act by a popular short title that the enrolled text does not carry and that therefore appears in none of this row’s identifiers. The flag is set by hand for that reason. The row still ships: it is real, sourced record and the lane renders it. It simply cannot be scored, and it is not counted in this issue’s scored depth.",
+            "plain": "Signed the 2017 law cutting individual income-tax rates through 2025 and cutting the corporate rate to 21 percent.",
+            "rationale": "Section 11001 adds Internal Revenue Code section 1(j), setting reduced individual rate tables for taxable years beginning after December 31, 2017 and before January 1, 2026; title I also reduces the corporate rate to 21 percent. Verified against GPO’s published enrolled text, PLAW-115publ97, approved December 22, 2017."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2017-12-22",
+            "authority": "Passed by Congress and signed by the President",
+            "basis": "enacted_law_published",
+            "sourceLabel": "GovInfo — Public Law 115-97, enrolled text as published by GPO",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-115publ97/html/PLAW-115publ97.htm",
+            "note": "Enacted and published as Public Law 115-97, approved December 22, 2017. Nothing on file repeals it. Read the limit precisely: several of its individual-side provisions were written to expire after 2025 and were later made permanent by Public Law 119-21, which is a separate row in this record. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
         "documentId": "Executive Order 13839",
         "executiveOrderNumber": 13839,
         "title": "Promoting Accountability and Streamlining Removal Procedures Consistent With Merit System Principles",
@@ -269,12 +432,12 @@
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 7 would have directed the removal of United States Armed Forces from hostilities in the Republic of Yemen that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
-            "issueKey": "america_first_fp",
+            "issueKey": "war_powers",
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
-            "plain": "The blocked resolution would have closed an open-ended military commitment abroad that Congress never approved; the veto kept it running.",
-            "rationale": "Same inversion applies: the direction is the resolution's. Withdrawing forces from an unauthorized foreign conflict is the ending of an open-ended commitment abroad, which is what the stated position on this issue is about, so the resolution advances it and the veto is read against it."
+            "plain": "The blocked resolution would have required congressional authorization for the forces committed to that conflict; the veto left them there without it.",
+            "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split: this row was always about who authorizes the use of force, not about what the United States funds abroad, and the narrowed america_first_fp key covers aid and commitments only. Same inversion as the restraint row above — the direction is the resolution’s. A resolution directing removal of forces from hostilities Congress had not authorized advances the claim that Congress must authorize them, so the veto is read against it."
           }
         ],
         "status": [
@@ -286,6 +449,42 @@
             "sourceLabel": "Congress.gov — S.J. Res. 7, 116th Congress, legislative action history",
             "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/7/all-actions",
             "note": "The resolution was returned to the Senate with the President's objections on April 16, 2019. On May 2, 2019 the Senate failed of passage over the veto, 53 to 45, short of the two-thirds Article I, section 7 requires. The resolution never became law. This states what Congress did with the returned resolution and says nothing about any challenge to the veto."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13877",
+        "executiveOrderNumber": 13877,
+        "title": "Improving Price and Quality Transparency in American Healthcare To Put Patients First",
+        "actedAt": "2019-06-24",
+        "term": "45",
+        "sourceUrl": "https://www.federalregister.gov/documents/2019/06/27/2019-13945/improving-price-and-quality-transparency-in-american-healthcare-to-put-patients-first",
+        "sourceLabel": "Federal Register — Executive Order 13877, 84 FR 30849",
+        "frCitation": "84 FR 30849",
+        "frDocumentNumber": "2019-13945",
+        "publishedAt": "2019-06-27",
+        "issues": [
+          {
+            "issueKey": "healthcare_costs",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 80,
+            "circularWithStance": true,
+            "circularNote": "Declared, not matched. The healthcare_costs stance card on file is built entirely from remarks he gave on health-care price transparency on June 24, 2019 — the day he signed this order, at the event where he signed it. The card quotes the words and cites the Public Papers, and it names no document, so neither the identifier matcher nor an evidence-line check would fire; but the word and the deed here are the same event, and a document cannot test a card that is a transcript of its own signing ceremony. Flagged by hand for that reason. The row ships as record and is not counted in this issue’s scored depth.",
+            "plain": "Ordered hospitals to publish the prices they actually negotiate rather than list rates, and told agencies to write rules giving patients an out-of-pocket estimate before they receive care.",
+            "rationale": "Section 3 directs the Secretary of Health and Human Services to propose a rule requiring hospitals to publish \"standard charge information, including charges and information based on negotiated rates and for common or shoppable items and services, in an easy-to-understand, consumer-friendly, and machine-readable format.\" Section 4 directs the Secretaries of Health and Human Services, the Treasury and Labor to propose a rule requiring providers and insurers to give patients expected out-of-pocket cost information before care."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2019-06-27",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13877 document record, 84 FR 30849",
+            "sourceUrl": "https://www.federalregister.gov/documents/2019/06/27/2019-13945/improving-price-and-quality-transparency-in-american-healthcare-to-put-patients-first",
+            "note": "Signed June 24, 2019 and published June 27, 2019 at 84 FR 30849. The register’s disposition record for this document carries a single cross-reference, back to Executive Order 13813 of October 12, 2017, and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
           }
         ]
       },
@@ -343,12 +542,12 @@
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 68 would have directed the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
-            "issueKey": "america_first_fp",
+            "issueKey": "war_powers",
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
-            "plain": "Blocking a second such resolution thirteen months after the first kept another unauthorized foreign engagement open rather than winding it down.",
-            "rationale": "Same inversion applies: the direction is the resolution's. This is the second document on this issue that would have closed off an unauthorized foreign engagement, thirteen months after the first, which is why it is filed rather than treated as the same decision restated."
+            "plain": "A second resolution asserting that this engagement lacked congressional authorization was blocked thirteen months after the first, leaving that question unanswered.",
+            "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split, on the same reasoning as S.J. Res. 7: the claim under test is who authorizes hostilities, which the narrowed america_first_fp key no longer covers. The direction is the resolution’s and the veto is read against it. Filed separately from S.J. Res. 7 because it concerns a different country and has its own returned-resolution history."
           }
         ],
         "status": [
@@ -360,6 +559,47 @@
             "sourceLabel": "Congress.gov — S.J. Res. 68, 116th Congress, legislative action history",
             "sourceUrl": "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68/all-actions",
             "note": "The resolution was returned to the Senate with the President's objections on May 6, 2020. On May 7, 2020 the Senate failed of passage over the veto, 49 to 44, short of the two-thirds Article I, section 7 requires. The resolution never became law. This states what Congress did with the returned resolution and says nothing about any challenge to the veto."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Presidential Memorandum, 85 FR 49587",
+        "title": "Deferring Payroll Tax Obligations in Light of the Ongoing COVID-19 Disaster",
+        "actedAt": "2020-08-08",
+        "term": "45",
+        "sourceUrl": "https://www.federalregister.gov/documents/2020/08/13/2020-17899/deferring-payroll-tax-obligations-in-light-of-the-ongoing-covid-19-disaster",
+        "sourceLabel": "Federal Register — Presidential Memorandum of August 8, 2020, 85 FR 49587",
+        "frCitation": "85 FR 49587",
+        "frDocumentNumber": "2020-17899",
+        "publishedAt": "2020-08-13",
+        "status": [
+          {
+            "status": "expired",
+            "effectiveAt": "2020-12-31",
+            "authority": "By the terms of the memorandum itself, section 2",
+            "basis": "register_continuation",
+            "sourceLabel": "Federal Register — Presidential Memorandum of August 8, 2020, 85 FR 49587, section 2",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/08/13/2020-17899/deferring-payroll-tax-obligations-in-light-of-the-ongoing-covid-19-disaster",
+            "note": "Section 2 of the memorandum directs the Secretary of the Treasury to defer the withholding, deposit and payment of the tax imposed by 26 U.S.C. 3101(a) \"on wages or compensation, as applicable, paid during the period of September 1, 2020, through December 31, 2020\" — an end date the document sets for itself. The register carries no continuation and no later instrument extending that window, so the deferral authority ran out on the date named rather than being revoked. This row reads the memorandum's own timetable and the absence of any register entry extending it; it says nothing about any challenge to the memorandum, and it is not a statement about whether the deferred tax was ever forgiven, which section 4 left to Congress and Congress did not do."
+          }
+        ],
+        "issues": [
+          {
+            "issueKey": "lower_taxes",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 50,
+            "plain": "Directed Treasury to defer — not forgive — the employee share of Social Security payroll tax for lower-paid workers for the last four months of 2020, and to explore legislation wiping out the deferred amount.",
+            "rationale": "Section 2 directs the Secretary of the Treasury to use the authority of 26 U.S.C. 7508A to defer withholding, deposit and payment of the tax imposed by 26 U.S.C. 3101(a) on wages paid September 1 through December 31, 2020 for employees generally earning less than $4,000 per biweekly pay period; section 4 directs the Secretary to \"explore avenues, including legislation, to eliminate the obligation to pay the taxes deferred.\" Mapped at reduced weight and described in `plain` as a deferral because that is what it is — the obligation was postponed by executive action, not cut, and only Congress could have eliminated it."
+          },
+          {
+            "issueKey": "tax_middle_class",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 50,
+            "plain": "Aimed the deferral at workers earning under roughly $104,000 annually, so the relief it delivered was bounded to middle- and lower-income paychecks.",
+            "rationale": "Section 2 limits the deferral to employees \"generally less than $4,000 during a bi-weekly pay period, or the equivalent threshold amount with respect to other pay periods,\" which is the income bound that makes this a household-side mapping rather than a general rate mapping. Weighted level with the lower_taxes mapping rather than above it: the income bound is what makes this a household-side reading, but it is the same single act of deferral, and the primary mapping is the one that names the mechanism."
           }
         ]
       },
@@ -403,6 +643,40 @@
             "sourceLabel": "Federal Register — Executive Order 13950 document record, disposition notes",
             "sourceUrl": "https://www.federalregister.gov/documents/2020/09/28/2020-21534/combating-race-and-sex-stereotyping",
             "note": "The disposition note on the register's own record for this document reads: 'See: EO 11246, September 24, 1965; EO 14185, January 27, 2025' and 'Revoked by: EO 13985, January 20, 2021'. The order no longer stands. Revocation by a later President is a presidential act, so this row is not a statement about any challenge to the order and no court is claimed to have reached it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 13951",
+        "executiveOrderNumber": 13951,
+        "title": "An America-First Healthcare Plan",
+        "actedAt": "2020-09-24",
+        "term": "45",
+        "sourceUrl": "https://www.federalregister.gov/documents/2020/10/01/2020-21914/an-america-first-healthcare-plan",
+        "sourceLabel": "Federal Register — Executive Order 13951, 85 FR 62179",
+        "frCitation": "85 FR 62179",
+        "frDocumentNumber": "2020-21914",
+        "publishedAt": "2020-10-01",
+        "issues": [
+          {
+            "issueKey": "healthcare_costs",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Set a deadline for ending surprise medical bills — telling HHS to reach a deal with Congress by the end of 2020 and to act administratively if Congress did not — and ordered hospital billing conduct published on Medicare’s comparison site.",
+            "rationale": "Section 4 is titled \"Lowering Healthcare Costs for Americans.\" Section 4(b)(i) directs the Secretary of Health and Human Services to \"work with the Congress to reach a legislative solution by December 31, 2020\" on surprise billing; 4(b)(ii) directs administrative action \"in the event a legislative solution is not reached\" to prevent a patient receiving a bill for unforeseeable out-of-pocket expenses; 4(b)(iii) directs the Medicare.gov Hospital Compare site to be updated within 180 days to show whether a hospital complies with the Hospital Price Transparency Final Rule, whether it issues itemized discharge receipts, and how often it sues patients, garnishes wages or places liens on homes. Section 4(a) directs expanded access to affordable medicines."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2020-10-01",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 13951 document record, 85 FR 62179",
+            "sourceUrl": "https://www.federalregister.gov/documents/2020/10/01/2020-21914/an-america-first-healthcare-plan",
+            "note": "Signed September 24, 2020 and published October 1, 2020 at 85 FR 62179. The register’s disposition record for this document carries twelve cross-references to other health orders of the same term and no entry revoking or superseding it, so it stands as published on that record. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
           }
         ]
       },
@@ -1291,12 +1565,12 @@
             "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury."
           },
           {
-            "issueKey": "states_federal_power",
+            "issueKey": "state_standing",
             "direction": "advances",
             "isPrimary": false,
             "weight": 40,
             "plain": "Gives state attorneys general standing to sue the federal government over certain immigration detention and enforcement decisions — a narrow grant inside an immigration law, not a general shift of power.",
-            "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions."
+            "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions. Re-keyed from states_federal_power in the August 2026 taxonomy split: a cause of action against the federal government is a different question from whose rule governs a shared subject, and it now has its own key."
           }
         ],
         "status": [
@@ -1308,6 +1582,40 @@
             "sourceLabel": "GovInfo — Public Law 119-1, enrolled text as published by GPO",
             "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ1/pdf/PLAW-119publ1.pdf",
             "note": "Enacted and published as Public Law 119-1, approved January 29, 2025. Nothing on file repeals or amends it. This states that the law exists and stands as published; it is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14190",
+        "executiveOrderNumber": 14190,
+        "title": "Ending Radical Indoctrination in K-12 Schooling",
+        "actedAt": "2025-01-29",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/03/2025-02232/ending-radical-indoctrination-in-k-12-schooling",
+        "sourceLabel": "Federal Register — Executive Order 14190, 90 FR 8853",
+        "frCitation": "90 FR 8853",
+        "frDocumentNumber": "2025-02232",
+        "publishedAt": "2025-02-03",
+        "issues": [
+          {
+            "issueKey": "end_dei",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Ordered a government-wide plan to cut off federal money to K-12 schools that teach what the order calls discriminatory equity ideology — the schools side of this issue, which the federal-workforce orders do not reach.",
+            "rationale": "Section 3(a)(i) directs the Secretaries of Education, Defense and Health and Human Services to deliver an \"Ending Indoctrination Strategy\" containing a plan for \"eliminating Federal funding or support for illegal and discriminatory treatment and indoctrination in K-12 schools, including based on gender ideology and discriminatory equity ideology.\" Section 3(b) requires that strategy to inventory every federal funding stream that supports such instruction, in curriculum and in teacher training, and each agency’s process to prevent or rescind those funds. Section 1 grounds the order in Title VI, Title IX, FERPA and the PPRA. Mapped to end_dei because the chip covers government AND schools; this is the only instrument in this record on the schools side."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-03",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14190 document record, 90 FR 8853",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/03/2025-02232/ending-radical-indoctrination-in-k-12-schooling",
+            "note": "Signed January 29, 2025 and published February 3, 2025 at 90 FR 8853. The register’s disposition record for this document carries three cross-references — to Executive Order 13958 of November 2, 2020, Executive Order 13985 of January 20, 2021 and Executive Order 14280 of April 23, 2025 — and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
           }
         ]
       },
@@ -1339,6 +1647,14 @@
             "weight": 70,
             "plain": "Extends the border emergency to China's failure to stop precursor-chemical suppliers and cartel money laundering, and uses the new duties as the lever against that supply chain.",
             "rationale": "Expands the national emergency declared in Proclamation 10886 to cover the failure of the PRC government to intercept chemical precursor suppliers, money launderers and transnational criminal organisations, and imposes the duties as the measure against that supply chain."
+          },
+          {
+            "issueKey": "tariffs_authority",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 65,
+            "plain": "Set the China duty rate himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+            "rationale": "The order is issued under the International Emergency Economic Powers Act and the National Emergencies Act and imposes an additional ad valorem duty on articles that are products of the PRC, with section 3 reserving to the President the determination whether the PRC has taken adequate steps. Mapped opposes on the guardrail chip, on the same ground as Executive Orders 14193, 14194, 14245 and 14257: the mapping is about who set the rate, not about whether the rate was wise. Added in wave 11; this document was already in the record for its tariffs_china and immig_fentanyl mappings, and leaving the authority question off it while filing three sibling orders for exactly that question would have been selection."
           }
         ],
         "status": [
@@ -1349,7 +1665,7 @@
             "basis": "register_disposition",
             "sourceLabel": "Federal Register — Executive Order 14195 document record, 90 FR 9121",
             "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02408/imposing-duties-to-address-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of-china",
-            "note": "Issued February 1, 2025 and published February 7, 2025. The duties were collected under this order, as amended by Executive Order 14228 of March 3, 2025, for just over a year. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is not a statement about any challenge to it."
+            "note": "Issued February 1, 2025 and published February 7, 2025. The duties were collected under this order, as amended by Executive Order 14228 of March 3, 2025, for just over twelve months. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is not a statement about any challenge to it."
           },
           {
             "status": "superseded",
@@ -1359,6 +1675,92 @@
             "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
             "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
             "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency and every other action taken under it are unaffected, so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14193",
+        "executiveOrderNumber": 14193,
+        "title": "Imposing Duties To Address the Flow of Illicit Drugs Across Our Northern Border",
+        "actedAt": "2025-02-01",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02406/imposing-duties-to-address-the-flow-of-illicit-drugs-across-our-northern-border",
+        "sourceLabel": "Federal Register — Executive Order 14193, 90 FR 9113",
+        "frCitation": "90 FR 9113",
+        "frDocumentNumber": "2025-02406",
+        "publishedAt": "2025-02-07",
+        "issues": [
+          {
+            "issueKey": "tariffs_authority",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Set the tariff rates himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+            "rationale": "The order is issued \"by the authority vested in me as President by the Constitution and the laws of the United States of America, including the International Emergency Economic Powers Act (50 U.S.C. 1701 et seq.), the National Emergencies Act (50 U.S.C. 1601 et seq.), section 604 of the Trade Act of 1974 (19 U.S.C. 2483), and section 301 of title 3, United States Code,\" and imposes additional ad valorem duties on articles that are products of Canada. Mapped opposes because the chip states the guardrail position — keeping Congress’s constitutional role over tariffs — and setting rates unilaterally under an emergency statute runs against it. The mapping is about WHO SET THE RATE, not about whether the rate was wise."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-07",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14193 document record, 90 FR 9113",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02406/imposing-duties-to-address-the-flow-of-illicit-drugs-across-our-northern-border",
+            "note": "Signed February 1, 2025 and published February 7, 2025 at 90 FR 9113. The duties were collected under this order, as amended by Executive Order 14226 of March 2, 2025 and Executive Order 14289 of April 29, 2025, for just over twelve months. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "superseded",
+            "effectiveAt": "2026-02-20",
+            "authority": "President of the United States, by later executive order",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
+            "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency declared or described in it, and every other action taken under it, are unaffected — so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14194",
+        "executiveOrderNumber": 14194,
+        "title": "Imposing Duties To Address the Situation at Our Southern Border",
+        "actedAt": "2025-02-01",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02407/imposing-duties-to-address-the-situation-at-our-southern-border",
+        "sourceLabel": "Federal Register — Executive Order 14194, 90 FR 9117",
+        "frCitation": "90 FR 9117",
+        "frDocumentNumber": "2025-02407",
+        "publishedAt": "2025-02-07",
+        "issues": [
+          {
+            "issueKey": "tariffs_authority",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Set the tariff rates himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+            "rationale": "Same authority clause and same mechanism as Executive Order 14193, applied to articles that are products of Mexico: additional ad valorem duties imposed under the International Emergency Economic Powers Act and the National Emergencies Act by executive order. Filed as its own row rather than folded into the northern-border order because it is a separate instrument with its own citation and its own amendment history — Executive Order 14227 of March 2, 2025, Executive Order 14289 of April 29, 2025 and Proclamation 10962 of July 30, 2025."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-02-07",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14194 document record, 90 FR 9117",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/02/07/2025-02407/imposing-duties-to-address-the-situation-at-our-southern-border",
+            "note": "Signed February 1, 2025 and published February 7, 2025 at 90 FR 9117. The duties were collected under this order, as amended, for just over twelve months. That period is a fact about the record and is reported separately from what ended it, which is the row below. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "superseded",
+            "effectiveAt": "2026-02-20",
+            "authority": "President of the United States, by later executive order",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
+            "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency declared or described in it, and every other action taken under it, are unaffected — so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
           }
         ]
       },
@@ -1515,6 +1917,40 @@
       },
       {
         "actionClass": "executive_order",
+        "documentId": "Executive Order 14228",
+        "executiveOrderNumber": 14228,
+        "title": "Further Amendment to Duties Addressing the Synthetic Opioid Supply Chain in the People’s Republic of China",
+        "actedAt": "2025-03-03",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/03/07/2025-03775/further-amendment-to-duties-addressing-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of",
+        "sourceLabel": "Federal Register — Executive Order 14228, 90 FR 11463",
+        "frCitation": "90 FR 11463",
+        "frDocumentNumber": "2025-03775",
+        "publishedAt": "2025-03-07",
+        "issues": [
+          {
+            "issueKey": "tariffs_china",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Doubled the China tariff he had imposed five weeks earlier, from 10 percent to 20 percent, on the finding that Beijing had not moved against the fentanyl trade.",
+            "rationale": "Section 1 states the determination \"that the PRC has not taken adequate steps to alleviate the illicit drug crisis through cooperative enforcement actions, and that the crisis described in Executive Order 14195 has not abated.\" Section 2 amends section 2(a) of Executive Order 14195 \"by striking the words ``10 percent’’ and inserting in lieu thereof the words ``20 percent’’.\" Filed as its own row because it is a separate instrument with its own citation; the order it amends is already in this record and carries its own mapping."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-03-07",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14228 document record, 90 FR 11463",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/03/07/2025-03775/further-amendment-to-duties-addressing-the-synthetic-opioid-supply-chain-in-the-peoples-republic-of",
+            "note": "Signed March 3, 2025 and published March 7, 2025 at 90 FR 11463. The register’s disposition record for this document carries cross-references to Executive Order 14200 of February 5, 2025 and Executive Order 14256 of April 2, 2025, and an \"Amends\" entry for Executive Order 14195 of February 1, 2025, and no entry revoking or superseding it, so it stands as published. Read the limit of that carefully: the duties this order raised were themselves ended on February 20, 2026 by Executive Order 14389, which names \"Executive Order 14195, as amended\" — that supersession is recorded on the Executive Order 14195 row, and this row does not assert a disposition the register does not show for it. This is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
         "documentId": "Executive Order 14233",
         "executiveOrderNumber": 14233,
         "title": "Establishment of the Strategic Bitcoin Reserve and United States Digital Asset Stockpile",
@@ -1549,6 +1985,49 @@
       },
       {
         "actionClass": "executive_order",
+        "documentId": "Executive Order 14245",
+        "executiveOrderNumber": 14245,
+        "title": "Imposing Tariffs on Countries Importing Venezuelan Oil",
+        "actedAt": "2025-03-24",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/03/27/2025-05440/imposing-tariffs-on-countries-importing-venezuelan-oil",
+        "sourceLabel": "Federal Register — Executive Order 14245, 90 FR 13829",
+        "frCitation": "90 FR 13829",
+        "frDocumentNumber": "2025-05440",
+        "publishedAt": "2025-03-27",
+        "issues": [
+          {
+            "issueKey": "tariffs_authority",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Claimed the power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen by the executive branch alone.",
+            "rationale": "Issued under the International Emergency Economic Powers Act and the National Emergencies Act, the order authorizes a 25 percent ad valorem duty on goods from any country determined to import Venezuelan oil, directly or indirectly, with the determination left to the Secretary of State in consultation with named officials. Mapped opposes on the same ground as the other two duty orders in this wave: the chip is about who sets tariffs, and this instrument places both the rate and the choice of target inside the executive branch."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-03-27",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14245 document record, 90 FR 13829",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/03/27/2025-05440/imposing-tariffs-on-countries-importing-venezuelan-oil",
+            "note": "Signed March 24, 2025 and published March 27, 2025 at 90 FR 13829. That the order stood is a fact about the record and is reported separately from what ended it, which is the row below. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
+          },
+          {
+            "status": "superseded",
+            "effectiveAt": "2026-02-20",
+            "authority": "President of the United States, by later executive order",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14389, Ending Certain Tariff Actions, 91 FR 9437",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
+            "note": "Executive Order 14389, signed February 20, 2026 and published February 25, 2026, provides that the additional ad valorem duties imposed under the International Emergency Economic Powers Act by this order, as amended, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" That order names this one expressly and states that the national emergency declared or described in it, and every other action taken under it, are unaffected — so this row records the end of the duties and not the end of the order. Read from Executive Order 14389 itself; this is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
         "documentId": "Executive Order 14248",
         "executiveOrderNumber": 14248,
         "title": "Preserving and Protecting the Integrity of American Elections",
@@ -1575,6 +2054,14 @@
             "weight": 60,
             "plain": "Directs federal agencies to share data to identify ineligible registrants and to enforce ballot-receipt deadlines against states that count late-arriving ballots.",
             "rationale": "Directs federal agencies to share data to identify ineligible registrants and directs enforcement of ballot-receipt deadlines against States that count late-arriving ballots."
+          },
+          {
+            "issueKey": "states_federal_power",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 55,
+            "plain": "Directed the federal government into the running of elections that the Constitution leaves to the states — setting a ballot-receipt rule and conditioning federal election funding on state compliance.",
+            "rationale": "The order directs the Election Assistance Commission to condition federal funds on state adoption of the national mail voter registration form as amended by the order, and directs the Attorney General to enforce against states that count absentee or mail ballots received after election day. Mapped opposes on the chip \"keep decisions with the states unless there’s a clear national reason for Washington to override them,\" which the order overrides by directing state election administration from Washington. Note the standing rows already on this document: a federal court has permanently enjoined parts of it. This mapping records what the order directed, and the standing rows record what survived."
           }
         ],
         "status": [
@@ -1767,6 +2254,40 @@
             "sourceLabel": "Federal Register — Executive Order 14273 document record, 90 FR 16441",
             "sourceUrl": "https://www.federalregister.gov/documents/2025/04/18/2025-06837/lowering-drug-prices-by-once-again-putting-americans-first",
             "note": "Issued April 15, 2025 and published April 18, 2025. The register's disposition record for this order carries a single cross-reference to Executive Order 14297 and no revocation or supersession entry, so it stands as published. A cross-reference is not a repeal. This says nothing about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14281",
+        "executiveOrderNumber": 14281,
+        "title": "Restoring Equality of Opportunity and Meritocracy",
+        "actedAt": "2025-04-23",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/04/28/2025-07378/restoring-equality-of-opportunity-and-meritocracy",
+        "sourceLabel": "Federal Register — Executive Order 14281, 90 FR 17537",
+        "frCitation": "90 FR 17537",
+        "frDocumentNumber": "2025-07378",
+        "publishedAt": "2025-04-28",
+        "issues": [
+          {
+            "issueKey": "end_dei",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 75,
+            "plain": "Told every federal agency to stop enforcing disparate-impact discrimination law and told the Attorney General to start repealing the rules that carry it — the legal theory that treats unequal outcomes as evidence of discrimination.",
+            "rationale": "Section 1 states that the principle of equal treatment \"guarantees equality of opportunity, not equal outcomes\" and \"encourages meritocracy and a colorblind society, not race- or sex-based favoritism,\" and identifies disparate-impact liability as the movement’s \"key tool.\" Section 4 directs that \"all agencies shall deprioritize enforcement of all statutes and regulations to the extent they include disparate-impact liability,\" naming 42 U.S.C. 2000e-2 and three Justice Department regulations. Section 5(a) directs the Attorney General, under the delegation in Executive Order 12250, to \"initiate appropriate action to repeal or amend the implementing regulations for Title VI of the Civil Rights Act of 1964 for all agencies to the extent they contemplate disparate-impact liability.\" Mapped to end_dei on the \"in favor of merit\" limb of the chip."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-04-28",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14281 document record, 90 FR 17537",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/04/28/2025-07378/restoring-equality-of-opportunity-and-meritocracy",
+            "note": "Signed April 23, 2025 and published April 28, 2025 at 90 FR 17537. The register’s disposition record for this document carries a single cross-reference, back to Executive Order 12250 of November 2, 1980, and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
           }
         ]
       },
@@ -2129,6 +2650,40 @@
         ]
       },
       {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14358",
+        "executiveOrderNumber": 14358,
+        "title": "Modifying Reciprocal Tariff Rates Consistent With the Economic and Trade Arrangement Between the United States and the People’s Republic of China",
+        "actedAt": "2025-11-04",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/11/07/2025-19826/modifying-reciprocal-tariff-rates-consistent-with-the-economic-and-trade-arrangement-between-the",
+        "sourceLabel": "Federal Register — Executive Order 14358, 90 FR 50729",
+        "frCitation": "90 FR 50729",
+        "frDocumentNumber": "2025-19826",
+        "publishedAt": "2025-11-07",
+        "issues": [
+          {
+            "issueKey": "tariffs_china",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 55,
+            "plain": "Kept the higher China tariff rates switched off for a further twelve months under a negotiated trade arrangement, extending a suspension rather than collecting the duties.",
+            "rationale": "Section 1 recounts that the heightened ad valorem duties on PRC goods imposed by Executive Order 14257 as amended were suspended in Executive Order 14298 of May 12, 2025 and Executive Order 14334 of August 11, 2025 following discussions with the PRC. Section 2 directs that \"Heading 9903.01.63 and subdivision (v)(xvii)(10) of U.S. note 2 to subchapter III of chapter 99 of the Harmonized Tariff Schedule of the United States shall continue to be suspended until 12:01 a.m. eastern standard time on November 10, 2026.\" Mapped opposes because the chip is about USING tariffs to counter China and this instrument holds them in abeyance; mapped at reduced weight and described in `plain` as a suspension because section 3(b) preserves the power to reimpose them if the PRC does not honour the arrangement."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-11-07",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14358 document record, 90 FR 50729",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/11/07/2025-19826/modifying-reciprocal-tariff-rates-consistent-with-the-economic-and-trade-arrangement-between-the",
+            "note": "Signed November 4, 2025 and published November 7, 2025 at 90 FR 50729. The register’s disposition record for this document is empty — no revocation and no supersession — so it stands as published. Read the limit of that carefully: the reciprocal duties whose suspension this order extended were themselves ended on February 20, 2026 by Executive Order 14389. This row does not assert a standing beyond what the register shows, and it is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
         "actionClass": "signed_law",
         "documentId": "Public Law 119-37",
         "measureNumber": "H.R. 5371",
@@ -2198,6 +2753,14 @@
             "weight": 65,
             "plain": "Narrows the reciprocal tariff's coverage, giving domestic demand and domestic production capacity — not a concession from a trading partner — as part of the reason.",
             "rationale": "Removes a class of goods from the reciprocal tariff's coverage, and gives as the grounds for doing so the President's consideration of \"current domestic demand for certain products, and current domestic capacity to produce certain products\" alongside the status of negotiations — a narrowing of the instrument driven in part by domestic supply conditions rather than by anything a trading partner conceded."
+          },
+          {
+            "issueKey": "cost_living",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "Took the reciprocal-tariff duty back off imported food — coffee, bananas, beef and other farm goods the United States does not grow enough of — so the tariff stopped showing up in grocery prices.",
+            "rationale": "Section 2 modifies the Harmonized Tariff Schedule as provided in Annex I, effective for goods entered for consumption on or after 12:01 a.m. eastern standard time on November 13, 2025, and provides for refunds of duties already collected. Section 1 states the decision followed monitoring of \"current domestic demand for certain products, and current domestic capacity to produce certain products.\" Filed as a secondary mapping on a document already in this record for its tariffs_prices and tariffs_growth mappings: the household-grocery reading is a distinct issue from the general price reading, and this is the only instrument in the record that reaches food prices directly."
           }
         ],
         "status": [
@@ -2301,6 +2864,56 @@
             "sourceLabel": "Federal Register — Proclamation 11012 document record, 91 FR 9339",
             "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03824/imposing-a-temporary-import-surcharge-to-address-fundamental-international-payments-problems",
             "note": "The register's disposition record for this proclamation carries no cross-references at all, so nothing on the register has revoked, amended or superseded it and it stands as published. It is time-limited on its own face: section 122 of the Trade Act of 1974 permits a surcharge for a period of no more than 150 days from February 24, 2026 unless that period is extended by Act of Congress. NO STANDING IS ASSERTED FOR WHAT HAPPENED AT THE END OF THAT PERIOD. Nothing on the register discloses it, and no public law of the 119th Congress read in this pass extends the surcharge — but the absence of an extension among the laws published so far is not a citable disposition, and this lane files no standing it cannot cite. This is not a statement about any challenge to it."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14389",
+        "executiveOrderNumber": 14389,
+        "title": "Ending Certain Tariff Actions",
+        "actedAt": "2026-02-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
+        "sourceLabel": "Federal Register — Executive Order 14389, 91 FR 9437",
+        "frCitation": "91 FR 9437",
+        "frDocumentNumber": "2026-03832",
+        "publishedAt": "2026-02-25",
+        "issues": [
+          {
+            "issueKey": "tariffs_china",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 70,
+            "plain": "Ended the tariffs he had imposed on China under emergency economic powers, ordering agencies to stop collecting them as soon as practicable.",
+            "rationale": "Section 1 provides that the additional ad valorem duties imposed under IEEPA in Executive Order 14195 as amended — the synthetic-opioid duties on the PRC — along with those in Executive Orders 14193, 14194, 14245, 14257, 14323, 14329, 14380 and 14382, \"shall no longer be in effect and, as soon as practicable, shall no longer be collected.\" Section 2(a) directs every agency head to \"take all appropriate steps to end\" those duties and to \"immediately begin taking steps to effectuate this order.\""
+          },
+          {
+            "issueKey": "tariffs_growth",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "Switched off the whole emergency-powers tariff program at once, removing the import duties that were the instrument of the reshoring case.",
+            "rationale": "Section 1, above, reaches nine orders including Executive Order 14257, the reciprocal-tariff order whose stated ground was that persistent goods trade deficits had hollowed out the domestic manufacturing base. Mapped opposes because the chip is about USING tariffs to reshore manufacturing and this instrument ends their collection."
+          },
+          {
+            "issueKey": "tariffs_prices",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "plain": "Removing the duties takes the tariff component back out of the price of the covered imports.",
+            "rationale": "Section 1 ends collection of the additional ad valorem duties; section 2(b) directs the Secretary of Commerce, the Secretary of Homeland Security and the United States Trade Representative to implement, and section 2(a) provides for refunds of duties collected to be processed under standard Customs procedures. Mapped advances because the chip asks that families be shielded from tariff-driven price increases."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-25",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14389 document record, 91 FR 9437",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions",
+            "note": "Signed February 20, 2026 and published February 25, 2026 at 91 FR 9437. The register’s disposition record for this document carries eleven cross-references to the orders it unwinds and to Proclamation 11012 and Executive Order 14388 of the same day, and no entry revoking or superseding it, so it stands as published. This is a statement about the register’s record of presidential action and is not a statement about any challenge to the order."
           }
         ]
       },

@@ -201,7 +201,7 @@
     for (var pid in EXEC_PIDS) {
       if (!Object.prototype.hasOwnProperty.call(EXEC_PIDS, pid)) continue;
       if (!data[pid]) continue;
-      if (actionsFor(pid, { allTerms: true }).allTime > 0) out.push(pid);
+      if (actionsForMemo(pid, { allTerms: true }).allTime > 0) out.push(pid);
     }
     return out;
   }
@@ -455,6 +455,40 @@
     }
     return out;
   }
+  // MEMOIZED — see THE DERIVATION EPOCH in stance-helpers.js.
+  //
+  // The source gate is six regexes per action, and this pool is re-walked for EVERY
+  // issue on a profile by both the summary surfaces and consistency.js's per-issue
+  // feeder. On a presidential profile that was the single largest block of work in
+  // the whole open — the gate and its regexes together outweighed the rendering.
+  // The answer is a pure function of the shipped action list and the term scope, so
+  // it is computed once per (pid, scope) per epoch.
+  //
+  // TWO INVALIDATION SIGNALS, because the epoch alone is not enough here. The epoch
+  // covers the app's own data boundaries; the seeded action list is also swapped
+  // wholesale by callers that load or replace a seed (and by the seed suite, which
+  // is the same motion). So the entry also remembers the exact array it was built
+  // from and rebuilds when that array is replaced or changes length. Identity is
+  // checked FIRST and costs one property read.
+  //
+  // The cached object is handed back BY REFERENCE and `kept` is a live array. No
+  // caller mutates either — they read `.kept`, `.dropped`, `.allTime` — and the
+  // shared `kept` array is exactly what makes the repeat reads free.
+  var _afCache = {}, _afEpoch = 0;
+  function rawActions(pid) {
+    try { return (window.EXEC_ACTIONS || {})[norm(pid)] || null; } catch (e) { return null; }
+  }
+  function actionsForMemo(pid, opts) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_afEpoch !== ep) { _afCache = {}; _afEpoch = ep; }
+    var raw = rawActions(pid);
+    var k = norm(pid) + '||' + ((opts && opts.allTerms) ? 'all' : 'term');
+    var hit = _afCache[k];
+    if (hit && hit.raw === raw && hit.len === (raw ? raw.length : -1)) return hit.val;
+    var v = actionsFor(pid, opts);
+    _afCache[k] = { raw: raw, len: (raw ? raw.length : -1), val: v };
+    return v;
+  }
 
   // Current standing of one action: the LATEST status entry by effectiveAt, matching
   // the vr_exec_action_status read exactly. Every entry must carry its own citation —
@@ -495,7 +529,7 @@
     res.stance = stance;
     var dir = directionalStance(stance);
 
-    var pool = actionsFor(pid, opts).kept, adv = 0, opp = 0;
+    var pool = actionsForMemo(pid, opts).kept, adv = 0, opp = 0;
     for (var i = 0; i < pool.length; i++) {
       var a = pool[i], maps = a.issues || [];
       for (var j = 0; j < maps.length; j++) {
@@ -567,7 +601,7 @@
   function execSummary(pid, opts) {
     opts = opts || {};
     if (!eligible(pid)) return null;
-    var pool = actionsFor(pid, opts);
+    var pool = actionsForMemo(pid, opts);
     if (!pool.kept.length) return null; // nothing on file → the panel's empty state speaks
 
     // Issue universe: mapped issues from the kept actions ∪ stated positions.
@@ -785,6 +819,6 @@
     // Exposed so the tests gate the SHIPPED source rule rather than a copy of it.
     sourceOk: sourceOk,
     standingOf: standingOf,
-    actionsFor: actionsFor
+    actionsFor: actionsForMemo
   };
 })();

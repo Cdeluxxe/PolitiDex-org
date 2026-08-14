@@ -1050,19 +1050,31 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
 }
 
 // ── Wave 1 scope lock ────────────────────────────────────────────────────────
-ok(!!RC.guards.wave1HoldIssueKeys.america_first_fp,
-  "wave 1: america_first_fp is held out of the first public wave");
-has(RC.guards.wave1HoldIssueKeys.america_first_fp, "two readings",
+// The hold list held four umbrella keys until the August 2026 taxonomy split
+// narrowed three of them until "Supports" meant one thing (gov_regulation,
+// america_first_fp, states_federal_power). Those three are gone from the list
+// BECAUSE the defect behind them was fixed upstream, in ISSUE_MAP and in the
+// mapping table — not because the gate was loosened, which is what the
+// blockedIssueKeys and blockIssue assertions below still pin.
+ok(!!RC.guards.wave1HoldIssueKeys.checks_balances,
+  "wave 1: checks_balances is held out of the public wave");
+has(RC.guards.wave1HoldIssueKeys.checks_balances, "general institutional-posture",
   "wave 1: the hold states why, so lifting it is a decision and not a guess");
-ok(!RC.guards.blockedIssueKeys.america_first_fp,
-  "wave 1: the hold is a wave gate, not a permanent block — the guards stay separable");
+for (const lifted of ["gov_regulation", "america_first_fp", "states_federal_power"]) {
+  ok(!RC.guards.wave1HoldIssueKeys[lifted],
+    "wave 1: " + lifted + " was narrowed rather than held, so it is off the list");
+}
+ok(!RC.guards.blockedIssueKeys.checks_balances,
+  "wave 1: the hold is its own gate, not a permanent block — the guards stay separable");
 ok(!!RC.guards.blockedIssueKeys.tariffs_authority,
   "wave 1: tariffs_authority stays permanently blocked, not merely held");
-has(RC.guards.wave1Hold("america_first_fp"), "wave 1",
+has(RC.guards.wave1Hold("checks_balances"), "held",
   "wave 1: the hold is applied by its own gate, reachable independently of the guards");
 eq(RC.guards.wave1Hold("lower_taxes"), "", "wave 1: the hold touches nothing outside its own key");
 eq(RC.guards.blockIssue("someone_else", "america_first_fp", "America First means putting our own workers first.", null), "",
-  "wave 1: holding a key for wave 1 did not turn guard 4 into a blanket block");
+  "wave 1: lifting a hold did not turn guard 4 into a blanket block, or disarm it");
+ok(!!RC.guards.blockIssue("someone_else", "america_first_fp", "No more endless wars in the region.", null),
+  "wave 1: guard 4 still catches a restraint position filed under the aid key");
 
 // ══ 7. CHECKABLE OFF-APP ═════════════════════════════════════════════════════
 // The three things a skeptic with only the image needs: an address that opens
@@ -2025,8 +2037,8 @@ if (craCard) {
   has(G(leaky), "curator housekeeping", "gate: housekeeping in the finished facts is caught at the door");
   const circular = base(); circular.said = { text: "Voted for the Laken Riley Act.", word: "Supports" };
   has(G(circular), "reads as a vote", "gate: a stance that is itself a vote is caught at the door");
-  const held = base(); held.issueKey = "gov_regulation";
-  has(G(held), "held out of wave 1", "gate: an umbrella issue key is not public");
+  const held = base(); held.issueKey = "checks_balances";
+  has(G(held), "held", "gate: an umbrella issue key is not public");
   const mismatch = base(); mismatch.issueKey = "tech_balance"; mismatch.measureNumber = "S. 1582";
   has(G(mismatch), "held out of wave 1", "gate: a topical mismatch is not public");
 
