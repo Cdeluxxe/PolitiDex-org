@@ -561,13 +561,13 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260903000000_seed_exec_actions_wave11',
+  eq(versions[versions.length - 1], '20260904000000_vr_split_umbrella_issue_keys',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by wave 11 of the executive
-  // record. What it guards does not move: whatever was added most recently has to
-  // sort after everything already applied, or the deploy is rejected. The check
-  // below is the one that pins THIS test's migration, and it stays put.
+  // whenever a later migration lands — updated here by the August 2026 umbrella
+  // issue-key split. What it guards does not move: whatever was added most recently
+  // has to sort after everything already applied, or the deploy is rejected. The
+  // check below is the one that pins THIS test's migration, and it stays put.
   const gapIdx = versions.findIndex((v) => /cee_posts_gap_and_politician_links/.test(v));
   ok(gapIdx >= 0 && versions.slice(0, gapIdx).every((v) => v < versions[gapIdx]),
     'the gap migration must still sort after everything that predates it');

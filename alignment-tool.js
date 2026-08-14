@@ -118,7 +118,36 @@
       lower_taxes:        { label: '💰 Cut Income & Business Taxes', chip: 'Cut income and business tax rates to shrink the size of government', cat: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','income tax','corporate tax','fiscal','fiscal conservat','small government','deregulation','appropriation'] },
       tax_middle_class:   { label: '💵 Middle-Class Tax Relief', chip: 'Cut taxes for middle-class households through credits and a bigger standard deduction', cat: 'gov', stanceKeys: [], keywords: ['middle class','working families','tax cut','child tax credit','payroll tax','take-home pay','tax relief','standard deduction','cost of living'] },
       gov_waste:          { label: '🧹 Cut Waste, Not Services', chip: 'Cut duplicate programs and improper payments before raising any taxes', cat: 'gov', stanceKeys: ['debt'], keywords: ['waste','wasteful spending','government efficiency','fraud','accountability','audit','streamline','reform','spending cut','improper payments','duplicate programs'] },
-      gov_regulation:     { label: '✂️ Cut Federal Red Tape', chip: 'Sunset outdated federal regulations and require a cost-benefit review of new ones', cat: 'gov', lean: 'R', stanceKeys: [], keywords: ['regulation','deregulation','red tape','regulatory reform','rules','compliance','bureaucracy','permitting reform','sunset','cost-benefit','paperwork reduction','overregulation'] },
+      // SCOPE, narrowed August 2026. This key used to absorb anything with the word
+      // "regulation" in it, and both of its directions meant two opposite things at
+      // once: 'support' held both "fewer federal rules" (CRA disapprovals, REINS,
+      // sunset clauses) and "more federal rules" (antitrust enforcement, consumer
+      // protection, cyber-incident reporting), while 'oppose' held both halves in
+      // reverse — one member's card was a bill to RESCIND a CFPB overdraft rule filed
+      // on the anti-deregulation side, so his own yea on the matching CRA resolution
+      // read as contradicting a position he had authored. It is now about ONE thing:
+      // how many federal rules there are, what they cost to comply with, and the
+      // process by which they are written and repealed.
+      //   IN:  Congressional Review Act disapprovals; REINS-style congressional
+      //        approval of major rules; regulatory budgets, caps and sunset clauses;
+      //        cost-benefit and paperwork requirements; how much deference agencies
+      //        get in writing rules at all.
+      //   OUT: what a particular rule should SAY. A claim that one sector needs
+      //        tighter or looser rules is a claim about that sector, and belongs to
+      //        the sector's key — antitrust and consumer finance (econ_corp_account),
+      //        data and platform duties (privacy_rights, tech_balance,
+      //        tech_innovation), digital assets (crypto_cbdc). Also OUT: federal
+      //        environmental review of projects (permitting_reform), personnel
+      //        classification (civil_service_control), headcount and telework
+      //        (cut_spending), and preemption fights over whether a STATE may set its
+      //        own rule where a federal one exists (states_federal_power) — that is a
+      //        question about who decides, not about how heavy the rulebook is.
+      // POLARITY: 'support' = fewer and cheaper federal rules, and more procedural
+      // hurdles before new ones take effect. 'oppose' = defends federal rulemaking
+      // capacity and the existing stock of rules. A card that wants a specific rule
+      // strengthened is only 'oppose' here when its claim is about rulemaking as
+      // such; otherwise it belongs to the sector key.
+      gov_regulation:     { label: '✂️ Cut Federal Red Tape', chip: 'Cut the number and cost of federal regulations and require review before new ones take effect', cat: 'gov', lean: 'R', stanceKeys: [], keywords: ['regulation','deregulation','red tape','regulatory reform','rules','compliance','bureaucracy','sunset','cost-benefit','paperwork reduction','overregulation','congressional review act','regulatory budget','administrative state','rulemaking','agency deference'] },
       gov_balance:        { label: '⚖️ Balance the Budget', chip: 'Balance the budget over time using both targeted spending cuts and closing tax loopholes', cat: 'gov', stanceKeys: ['debt'], keywords: ['balanced budget','fiscal responsibility','deficit','debt','spending','accountability','efficiency','waste','reform','budget','bipartisan','tax loophole'] },
       gov_services:       { label: '🏛 Invest in Public Services', chip: 'Protect Social Security, Medicaid and public services — even if it means higher taxes on top earners', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','social security','funding','social','community service','services','paid leave','minimum wage','affordable','top earners','wealth tax'] },
       social_security:    { label: '👵 Protect Social Security & Medicare', chip: 'Protect Social Security and Medicare benefits from cuts or privatization', cat: 'gov', stanceKeys: [], keywords: ['social security','medicare','retirement','seniors','senior','entitlement','earned benefits','benefits','pension','fixed income','elderly','retiree'] },
@@ -254,6 +283,26 @@
       enviro_energy:      { label: '⚡ Energy Independence', chip: 'Use every energy source — gas, nuclear and renewables — to keep power reliable and affordable', cat: 'enviro', lean: 'R', stanceKeys: [], keywords: ['energy','energy independence','nuclear','natural gas','oil','grid','reliable','affordable','all of the above','domestic energy','baseload'] },
       energy_production:  { label: '🛢 Expand Domestic Energy Production', chip: 'Unleash American oil, gas and nuclear to lower energy prices and boost independence', cat: 'enviro', lean: 'R', stanceKeys: [], keywords: ['energy production','domestic energy','drill baby drill','drill','oil','gas','oil gas','oil and gas','natural gas','nuclear energy','nuclear','energy independence','fossil fuels','pipeline','lng'] },
       disaster_resilience:{ label: '🔥 Wildfire & Disaster Resilience', chip: 'Prepare for wildfires, floods and droughts and speed up disaster recovery', cat: 'enviro', stanceKeys: [], keywords: ['wildfire','fire','drought','flood','flooding','disaster','fema','emergency','resilience','mitigation','recovery','natural disaster','preparedness'] },
+      // SCOPE, deliberately narrow. Split out of gov_regulation (August 2026). The
+      // measures under it are a coherent cluster the parent key could not describe:
+      // H.R. 3746 (NEPA scope, page and time limits, a lead agency), H.R. 471
+      // (expedited review for forest-management projects) and H.R. 1949
+      // (consolidates authorisation at FERC) are about how long a federal review of
+      // a PROJECT takes and who may challenge it — not about how many rules bind a
+      // business. It has a genuine cross-party stance coalition, which is the tell
+      // that it is a real axis and not a synonym: Westerman and Graves (R) sit next
+      // to Golden (D) and Fedorchak (R) on the same side of it.
+      //   IN:  the scope of environmental review; statutory page and deadline limits
+      //        on it; lead-agency and one-federal-decision consolidation; the window
+      //        in which a completed permit may be sued over.
+      //   OUT: whether the project itself is a good idea (energy_production,
+      //        climate_action, infrastructure); local zoning and housing approvals
+      //        (housing_build); occupational licensing and small-business paperwork
+      //        (econ_smallbiz); and the size of the federal rulebook generally
+      //        (gov_regulation).
+      // POLARITY: 'support' = narrower review and firm deadlines. 'oppose' = keeps
+      // the current scope of review and the ability to challenge a permit.
+      permitting_reform:  { label: '⏱ Faster Permits & Reviews', chip: 'Speed up federal permits by narrowing environmental review and setting firm deadlines', cat: 'enviro', stanceKeys: [], keywords: ['permitting','permitting reform','permit','nepa','environmental review','environmental impact statement','categorical exclusion','judicial review deadline','lead agency','one federal decision','transmission siting','ferc','project delay','litigation window'] },
 
       // ── Housing & Cost of Living ──
       housing:            { label: '🏠 Housing Affordability', chip: 'Make housing more affordable by boosting supply and lowering the cost to build and buy', cat: 'housing', stanceKeys: [], keywords: ['housing','housing affordability','affordable housing','home prices','housing cost','cost of housing','housing crisis','housing supply','home ownership','homeownership','rent','mortgage','starter home','zoning','shortage'] },
@@ -288,7 +337,27 @@
       foreign_balance:    { label: '⚖️ Strategic Engagement', chip: 'Keep a strong military but lead through NATO and allied diplomacy, not solo action', cat: 'foreign', stanceKeys: [], keywords: ['foreign policy','diplomacy','alliances','nato','national security','strategic','allies','defense','engagement','statecraft','bipartisan'] },
       restraint:          { label: '🕊 Diplomacy & Restraint', chip: 'Prioritize diplomacy and limit foreign military intervention', cat: 'foreign', stanceKeys: [], keywords: ['diplomacy','restraint','end endless wars','foreign aid','intervention','peace','de-escalation','troops home','war powers','negotiation'] },
       america_first:      { label: '🇺🇸 America First', chip: 'Put U.S. interests first and avoid foreign entanglements', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign aid','sovereignty','national interest','entanglement','ukraine aid','nation building','trade','tariff','border'] },
-      america_first_fp:   { label: '🌐 America First Foreign Policy', chip: 'Put U.S. interests first, end endless wars and rethink foreign aid commitments', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign policy','endless wars','end endless wars','ukraine aid','foreign aid','nation building','sovereignty','national interest','no more wars','entanglement'] },
+      // SCOPE, narrowed August 2026. The old chip bundled three unrelated claims —
+      // "put U.S. interests first", "end endless wars" and "rethink foreign aid" —
+      // and 'support' therefore meant any one of them. Two members filed 'support'
+      // here voted OPPOSITE ways on the same two amendments: on H.Amdt. 235 (bar
+      // funds for Israel) one voted yea and the other nay, and on H.Amdt. 252 (bar
+      // Ukraine funds) the pattern reversed. Both hold their positions fully, and
+      // each read as half-contradicting it. A further seven cards under 'support'
+      // were about countering China, which the chip never mentioned. It is now about
+      // ONE thing: what the United States funds and commits to abroad.
+      //   IN:  foreign aid levels and conditions; funding for a specific partner or
+      //        conflict; assessed contributions to multilateral bodies; wind-down of
+      //        an open-ended commitment.
+      //   OUT: whether CONGRESS must authorise the use of force (war_powers) — that
+      //        is a claim about who decides, and it is held by members on both sides
+      //        of the aid question; whether to intervene at all (restraint);
+      //        countering China and military posture toward adversaries
+      //        (strong_defense, tariffs_china); and aid to Israel specifically, which
+      //        has carried its own key since July 2026 (israel_support).
+      // POLARITY: 'support' = cut, condition or wind down U.S. funding and
+      // commitments abroad. 'oppose' = keeps or increases them.
+      america_first_fp:   { label: '🌐 America First Foreign Aid & Commitments', chip: 'Cut, condition or wind down U.S. foreign aid and open-ended commitments abroad', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign aid','foreign assistance','aid package','supplemental','ukraine aid','nation building','sovereignty','national interest','entanglement','burden sharing','usaid','multilateral contributions','conditions on aid'] },
       // Support for Israel gets its own key because the record already exists and is
       // already being mis-filed. 76 sourced stances in ISSUE_STANCE_DATA mention Israel,
       // and they sit under foreign_balance (43), strong_defense (28), restraint (3) and
@@ -414,15 +483,61 @@
       reform_balance:     { label: '⚖️ Practical Government Reform', chip: 'Make government work better through common-sense efficiency, ethics and accountability', cat: 'reform', stanceKeys: ['termLimits','campaign'], keywords: ['government reform','efficiency','accountability','bipartisan','good governance','modernize','reform','transparency','ethics','term limits','common sense'] },
 
       // ── Institutional power ──
-      // These two exist because a large block of real votes — cabinet confirmations,
+      // These keys exist because a large block of real votes — cabinet confirmations,
       // war-powers and tariff-authority resolutions, nationwide-injunction bills,
       // National Guard and state-standing fights — are about WHO decides, not about
       // ballot access or the deficit. Those votes used to be filed under
       // democracy_balance ("Secure & Accessible Voting") and gov_balance ("Balance the
       // Budget"), which moved members' percentages on issues the vote was not about.
       // Deliberately carry no `lean`: both parties invoke institutional limits when
-      // they are out of power, so coding either one as D or R would be false signal.
-      checks_balances:      { label: '⚖️ Congressional Checks & Balances', chip: 'Keep Congress and the courts as a real check on executive power, whoever is president', cat: 'reform', stanceKeys: [], keywords: ['checks and balances','separation of powers','congressional oversight','oversight','advice and consent','confirmation','war powers','executive overreach','executive power','emergency powers','impoundment','rescission','nationwide injunction','universal injunction','judicial review','congressional authorization','power of the purse','subpoena','tariff authority','delegation of authority','unitary executive','institutional power'] },
+      // they are out of power, so coding any of them as D or R would be false signal.
+      //
+      // SPLIT, August 2026. There were two keys here, and both were over-broad in the
+      // same way: their direction was coherent but their SUBJECT was not, so the
+      // verdict on a card could not say which question the cited vote had settled.
+      // Under checks_balances, three members whose only stated claim was about the
+      // power of the purse were being judged entirely by war-powers and injunction
+      // roll calls — 100% off-mechanism — and two whose claim was about oversight had
+      // no on-mechanism measure at all. Under states_federal_power, "the state's
+      // choice stands" was answering three different questions at once: may a state
+      // set its own rule where a federal one exists, may a state sue or enforce
+      // against the federal government, and who commands the National Guard.
+      // The mechanism is now the key. checks_balances keeps only the general posture,
+      // which no single roll call can settle, and states_federal_power keeps only the
+      // first of its three questions.
+      // POLARITY (all six of the new keys, stated once): 'support' = the claim in the
+      // chip; 'oppose' = the executive's side of the same question; 'mixed' = backs
+      // some of each. Every one of them is a WHO-DECIDES claim, so a member may hold
+      // 'support' on one and 'oppose' on another without inconsistency — that is
+      // exactly the distinction the umbrella could not draw.
+      //
+      // Retained deliberately as the GENERAL key: cards that assert executive power
+      // should be checked without naming a mechanism (a "Congress is a co-equal
+      // branch" statement, an unresolved posture on holding two offices at once).
+      // It has no roll-call mappings and is expected to keep none — a general-posture
+      // claim cannot be settled by any single vote, which is why it stays on the
+      // receipt-card hold list in receipt-cards.js rather than being unblocked here.
+      // Anything with a named mechanism belongs to one of the five keys below it.
+      checks_balances:      { label: '⚖️ Congress as a Check on the Executive', chip: 'Keep Congress and the courts as a real check on executive power, whoever is president', cat: 'reform', stanceKeys: [], keywords: ['checks and balances','separation of powers','executive overreach','executive power','co-equal branch','unitary executive','institutional power','constitutional limits','rule of law','advice and consent','confirmation'] },
+      // The five mechanism keys. Each carries 'separation of powers' in its keywords
+      // so stance-library.js's ⚖️ Checks & Balances hot-topic predicate — which
+      // matches on that keyword rather than on `cat`, because `cat` is 'reform' for
+      // term limits and court ethics too — picks all of them up.
+      war_powers:           { label: '⚔️ Congress and War Powers', chip: 'Require a vote of Congress before U.S. forces are committed to hostilities', cat: 'reform', stanceKeys: [], keywords: ['war powers','war powers resolution','congressional authorization','authorization for use of military force','aumf','declaration of war','hostilities','article i','separation of powers','unauthorized war','commander in chief','privileged resolution'] },
+      // Distinct from restraint ("Diplomacy & Restraint"), which is about WHETHER to
+      // intervene. Members hold these two independently: several who want the U.S. out
+      // of a conflict on the merits also vote against the war-powers resolution, and
+      // several institutionalists want the vote taken and would then vote yes.
+      judicial_check:       { label: '🧑‍⚖️ Court Orders on the Executive', chip: 'Let federal courts halt unlawful executive action, including nationwide', cat: 'reform', stanceKeys: [], keywords: ['nationwide injunction','universal injunction','judicial review','injunction','court order','judicial power','contempt','equitable relief','district court','judge shopping','judicial impeachment','separation of powers','rule of law'] },
+      // Distinct from scotus_reform, which is about the ethics and tenure of justices
+      // rather than the reach of a court's order against the executive branch.
+      power_of_purse:       { label: '🧮 Power of the Purse', chip: 'Require the executive to spend what Congress appropriated instead of withholding or redirecting it', cat: 'reform', stanceKeys: [], keywords: ['power of the purse','impoundment','pocket rescission','rescission','appropriations','apportionment','impoundment control act','withhold funds','funding freeze','reprogramming','transfer authority','antideficiency','separation of powers','gao'] },
+      congress_oversight:   { label: '🕵 Congressional Oversight', chip: 'Make the executive branch answer congressional subpoenas, document requests and testimony', cat: 'reform', stanceKeys: [], keywords: ['congressional oversight','oversight','subpoena','document request','testimony','executive privilege','contempt of congress','inspector general','whistleblower','notification requirement','intelligence oversight','gang of eight','separation of powers'] },
+      // Distinct from gov_transparency, which is about disclosure BY members —
+      // financial disclosure, stock trading, ethics rules — not about compelling
+      // answers FROM the executive branch.
+      state_standing:       { label: '🗽 States Suing Washington', chip: 'Let states take the federal government to court over federal enforcement choices that hit them', cat: 'reform', stanceKeys: [], keywords: ['state standing','cause of action','sue the federal government','state attorney general','judicial review','injunctive relief','federalism','mandamus','enforcement discretion','private right of action','separation of powers'] },
+      guard_authority:      { label: '🪖 Who Commands the National Guard', chip: 'Keep the National Guard under the governor unless the state consents to federal control', cat: 'reform', stanceKeys: [], keywords: ['national guard','title 32','title 10','federalize','governor','commander of the guard','insurrection act','posse comitatus','commandeering','anti-commandeering','printz','state officers','federalism','separation of powers'] },
       // The chip has to be DIRECTIONAL, because the Official Record % under this key
       // is directional: every mapping is coded yea_supports = the vote favoured STATE
       // authority (H.J.Res. 88/89, the California waiver repeal, H.R. 26, H.Amdt. 249/250).
@@ -430,7 +545,18 @@
       // agreement with a *process* both preemption hawks and federalism absolutists
       // endorse, so "80%" would look like "80% agreement with drawing a clear line" when
       // the number actually means "80% of their judged votes favoured state authority".
-      states_federal_power: { label: '🗺 State vs. Federal Power', chip: 'Keep decisions with the states unless there’s a clear national reason for Washington to override them', cat: 'reform', stanceKeys: [], keywords: ['federalism','states rights','state authority','tenth amendment','preemption','federal preemption','national guard','title 32','state standing','sovereignty','state sovereignty','commandeering','unfunded mandate','local control','dual sovereignty','governor','state law','federal mandate'] },
+      // SCOPE, narrowed August 2026 to the PREEMPTION question only: when federal and
+      // state authority reach the same subject, whose rule governs. State AI and
+      // privacy laws, the California vehicle waiver, a state bank charter, state
+      // insurance and hemp rules, western water, who runs the schools.
+      //   OUT: whether a state may sue or enforce against the federal government
+      //        (state_standing) and who commands the Guard or may direct state
+      //        officers (guard_authority). Both were filed here and both are separate
+      //        questions — a member can want the state's rule to govern and still
+      //        oppose giving state attorneys general a new cause of action. Also OUT:
+      //        transferring federal LAND decisions to states and counties, which has
+      //        its own key (lands_local).
+      states_federal_power: { label: '🗺 Whose Rule Governs: State or Federal', chip: 'When federal and state rules cover the same subject, let the state’s choice stand unless there’s a clear national reason to override it', cat: 'reform', stanceKeys: [], keywords: ['federalism','states rights','state authority','tenth amendment','preemption','federal preemption','sovereignty','state sovereignty','unfunded mandate','local control','dual sovereignty','state law','federal mandate','patchwork','waiver','field preemption','savings clause'] },
       // SCOPE, deliberately narrow. This key is about ONE mechanism: the legal
       // classification of executive-branch employees — which positions sit in the
       // competitive service, which are excepted from it, and what removal and
@@ -511,7 +637,7 @@
         keys: ['gun_rights','gun_balance','gun_safety'] },
       { key: 'climate_energy', label: '🌱 Climate Change & Energy Policy',
         blurb: 'Climate action, clean and domestic energy, water, and disaster resilience.',
-        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production'] },
+        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production','permitting_reform'] },
       { key: 'crime_safety', label: '👮 Crime & Public Safety',
         blurb: 'Policing, violent crime, sentencing and justice reform, and public safety.',
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
@@ -520,7 +646,7 @@
         keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id'] },
       { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Who Decides',
         blurb: 'War powers, the power of the purse, congressional oversight, court orders, the line between federal and state authority, and control of the career civil service.',
-        keys: ['checks_balances','states_federal_power','civil_service_control'] },
+        keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
         keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },

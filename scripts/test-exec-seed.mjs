@@ -76,6 +76,16 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260903000000_seed_exec_actions_wave11.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
+// Forward migrations that RE-KEY seed rows rather than insert them. The waves
+// above are applied and frozen, so when a later pass moves an issue row to a
+// narrower key — the August 2026 umbrella split moved three of them — the only
+// place that move can live is a forward migration. It is deliberately read as a
+// SEPARATE body: the additive-only scan below still runs on the waves alone, so
+// nothing here can excuse an UPDATE or a DELETE inside a seed wave.
+const REKEY_RELS = [
+  "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+];
+const REKEY_SQL = REKEY_RELS.map(R).join("\n").replace(/^\s*--.*$/gm, "");
 const SEED_TEXT = R("db/exec-action-seed.json");
 
 const ACTIONS = (SEED.actions && SEED.actions.trump) || [];
@@ -506,7 +516,15 @@ for (const a of ACTIONS) {
   ok(SQL_CODE.includes(a.actedAt), `${id}: action date appears in the migration`);
   if (a.frCitation) ok(SQL.includes(a.frCitation), `${id}: FR citation appears in the migration`);
   for (const m of a.issues || []) {
-    ok(new RegExp(`'${m.issueKey}'`).test(SQL_CODE), `${id}/${m.issueKey}: issue row is in the migration`);
+    // Satisfied by an insert in a seed wave, or by a re-key in a forward
+    // migration that names BOTH the new key and this action's own measure
+    // identity. The identity half is what keeps this from degrading into "the
+    // literal appears somewhere in the repo": a re-key of some other measure's
+    // row to the same key must not stand in for this one.
+    const lit = new RegExp(`'${m.issueKey}'`);
+    const identity = [a.measureNumber, a.documentId].filter(Boolean);
+    const rekeyed = lit.test(REKEY_SQL) && identity.some((s) => REKEY_SQL.includes(`'${s}'`));
+    ok(lit.test(SQL_CODE) || rekeyed, `${id}/${m.issueKey}: issue row is in the migration`);
   }
   for (const s of a.status || []) {
     ok(SQL_CODE.includes(s.sourceUrl), `${id}@${s.effectiveAt}: standing citation appears in the migration`);

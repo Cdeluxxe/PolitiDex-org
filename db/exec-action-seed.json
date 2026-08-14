@@ -111,7 +111,8 @@
       "coverageOverSelection": "The wave was built by listing the instruments that touch each thin issue and then filing them, rather than by filing the ones that pointed the same way as the existing rows. Four of the fifteen point against the stated position or against the existing rows on their issue: Executive Order 14358 holds the China tariffs in suspense, Executive Order 14389 ends the emergency-powers tariff program outright, and both are filed as opposes on tariffs_china. That moves that row off a clean consistent read. The move is the finding, not a defect in it.",
       "refusedMappings": "Two candidate mappings were read and deliberately not filed. Executive Order 14389 carries no tariffs_authority direction — see _whyNoTariffsAuthorityMapping on that row. Executive Order 14200 of February 5, 2025, which restored duty-free de minimis treatment for low-value Chinese articles until Commerce certifies that collection systems are in place, was read in full and left out of the record entirely: its single operative sentence is a self-terminating implementation pause, and neither direction on tariffs_china could be asserted from it without over-reading. Executive Order 13820, which terminated the election-integrity commission, was likewise not filed as an instrument with a direction — it states no position of its own — and appears instead as the standing row on Executive Order 13799.",
       "circularityAddedByHand": "Two of the fifteen ship flagged and unscored. Public Law 115-97 is the law the lower_taxes stance card narrates, and Executive Order 13877 was signed at the event whose transcript the healthcare_costs stance card quotes. Neither would have been caught by the identifier matcher in consistency.js#execCircular — the first because the card names the act by a short title the enrolled text does not carry, the second because the card names no document at all — so both carry a declared circularWithStance flag with its reason. They count as coverage and not as scored depth, which is the distinction _circularityRule already draws."
-    }
+    },
+    "taxonomySplitAug2026": "Three issue rows re-keyed, no action added or removed. S.J. Res. 7 and S.J. Res. 68 moved their secondary row from america_first_fp to war_powers; Public Law 119-1 moved its fourth row from states_federal_power to state_standing. Executive Orders 14150 and 14169 stayed on america_first_fp (both are foreign-aid instruments and that is what the narrowed key now means) and Executive Order 14248 stayed on states_federal_power (a federal rule reaching a subject the states administer). Directions and weights are unchanged; only the key each row is filed under moved."
   },
   "_circularityRule": {
     "why": "WHY SOME MAPPINGS CARRY circularWithStance. PDXWordAction's third rule is that a position is never its own test. word-action.js#isIndependentWord already catches the blatant form of the violation — a card that leads with a record verb AND cites the clerk or congress.gov. What it cannot catch is a card that asserts a view in the figure's own voice and then cites the very document that would test it, which is the NORMAL shape of a presidential stance card: these cards were largely written FROM this record. Left alone, feeding these actions into the consistency engine would have produced a dense, near-total agreement read that measured nothing except the fact that a card and its own source agree.",
@@ -527,12 +528,12 @@
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 7 would have directed the removal of United States Armed Forces from hostilities in the Republic of Yemen that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
-            "issueKey": "america_first_fp",
+            "issueKey": "war_powers",
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
-            "plain": "The blocked resolution would have closed an open-ended military commitment abroad that Congress never approved; the veto kept it running.",
-            "rationale": "Same inversion applies: the direction is the resolution's. Withdrawing forces from an unauthorized foreign conflict is the ending of an open-ended commitment abroad, which is what the stated position on this issue is about, so the resolution advances it and the veto is read against it."
+            "plain": "The blocked resolution would have required congressional authorization for the forces committed to that conflict; the veto left them there without it.",
+            "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split: this row was always about who authorizes the use of force, not about what the United States funds abroad, and the narrowed america_first_fp key covers aid and commitments only. Same inversion as the restraint row above — the direction is the resolution’s. A resolution directing removal of forces from hostilities Congress had not authorized advances the claim that Congress must authorize them, so the veto is read against it."
           }
         ],
         "_issuesNote": "The restraint mapping is primary because a war-powers direction is that issue and nothing else. It is worth knowing what it does and does not do to the reading: the stated position on restraint is not directional, so this row lands in the 'action on file, no stated position' bucket and cannot be scored — but it takes that issue off 'no record at all', which is where it sat with the file holding no first-term action. The america_first_fp mapping is the one that can be checked, and it checks against a stated position written from second-term material that names none of these documents.",
@@ -641,12 +642,12 @@
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 68 would have directed the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
-            "issueKey": "america_first_fp",
+            "issueKey": "war_powers",
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
-            "plain": "Blocking a second such resolution thirteen months after the first kept another unauthorized foreign engagement open rather than winding it down.",
-            "rationale": "Same inversion applies: the direction is the resolution's. This is the second document on this issue that would have closed off an unauthorized foreign engagement, thirteen months after the first, which is why it is filed rather than treated as the same decision restated."
+            "plain": "A second resolution asserting that this engagement lacked congressional authorization was blocked thirteen months after the first, leaving that question unanswered.",
+            "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split, on the same reasoning as S.J. Res. 7: the claim under test is who authorizes hostilities, which the narrowed america_first_fp key no longer covers. The direction is the resolution’s and the veto is read against it. Filed separately from S.J. Res. 7 because it concerns a different country and has its own returned-resolution history."
           }
         ],
         "_issuesNote": "Filed alongside S.J. Res. 7 rather than folded into it because they are a year apart, they concern different countries and each has its own returned-resolution history. The three arms-sale resolutions of July 2019 were treated the opposite way and left out — those were three near-identical documents on one day, and filing three rows for one decision would have inflated the count without adding a fact.",
@@ -1701,15 +1702,15 @@
             "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury."
           },
           {
-            "issueKey": "states_federal_power",
+            "issueKey": "state_standing",
             "direction": "advances",
             "isPrimary": false,
             "weight": 40,
             "plain": "Gives state attorneys general standing to sue the federal government over certain immigration detention and enforcement decisions — a narrow grant inside an immigration law, not a general shift of power.",
-            "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions."
+            "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions. Re-keyed from states_federal_power in the August 2026 taxonomy split: a cause of action against the federal government is a different question from whose rule governs a shared subject, and it now has its own key."
           }
         ],
-        "_issuesNote": "Not re-authored here. These are the four vr_measure_issues rows S. 5 already carries, read straight across with supportMeaning yea_supports rendered as direction 'advances'. The EER and the 🏛️ lane therefore cannot disagree about what this law does.",
+        "_issuesNote": "Not re-authored here. These are the four vr_measure_issues rows S. 5 already carries, read straight across with supportMeaning yea_supports rendered as direction 'advances'. The fourth row moved from states_federal_power to state_standing in the August 2026 taxonomy split, and the migration in that pass moves the vr_measure_issues row with it, so the two still cannot disagree. The EER and the 🏛️ lane therefore cannot disagree about what this law does.",
         "status": [
           {
             "status": "in_force",

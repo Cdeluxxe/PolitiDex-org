@@ -47,7 +47,7 @@
         "color": "#60a5fa"
       },
       "_coverage": {
-        "scorable": 12,
+        "scorable": 13,
         "word": 27,
         "actionIssues": 2
       }
@@ -104,7 +104,7 @@
       },
       "_coverage": {
         "scorable": 11,
-        "word": 15,
+        "word": 14,
         "actionIssues": 0
       }
     },
@@ -137,16 +137,16 @@
       }
     },
     {
-      "pid": "steve_womack",
-      "name": "Steve Womack",
-      "office": "U.S. Representative · Arkansas · AR-03",
+      "pid": "mike_flood",
+      "name": "Mike Flood",
+      "office": "U.S. Representative · Nebraska · NE-01",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 13,
-        "word": 26,
+        "word": 24,
         "actionIssues": 0
       }
     },
@@ -165,17 +165,17 @@
       }
     },
     {
-      "pid": "massie",
-      "name": "Thomas Massie",
-      "office": "U.S. Representative · KY-04",
+      "pid": "steve_womack",
+      "name": "Steve Womack",
+      "office": "U.S. Representative · Arkansas · AR-03",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 10,
-        "word": 34,
-        "actionIssues": 2
+        "scorable": 13,
+        "word": 26,
+        "actionIssues": 0
       }
     },
     {
@@ -193,17 +193,17 @@
       }
     },
     {
-      "pid": "cox",
-      "name": "Spencer Cox",
-      "office": "Governor · Utah",
+      "pid": "massie",
+      "name": "Thomas Massie",
+      "office": "U.S. Representative · KY-04",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
-        "scorable": 12,
-        "word": 17,
-        "actionIssues": 0
+        "scorable": 10,
+        "word": 34,
+        "actionIssues": 2
       }
     },
     {
@@ -221,44 +221,16 @@
       }
     },
     {
-      "pid": "mike_flood",
-      "name": "Mike Flood",
-      "office": "U.S. Representative · Nebraska · NE-01",
+      "pid": "cox",
+      "name": "Spencer Cox",
+      "office": "Governor · Utah",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 12,
-        "word": 24,
-        "actionIssues": 0
-      }
-    },
-    {
-      "pid": "aoc",
-      "name": "Alexandria Ocasio-Cortez",
-      "office": "U.S. Representative · New York",
-      "party": {
-        "label": "D",
-        "color": "#60a5fa"
-      },
-      "_coverage": {
-        "scorable": 9,
-        "word": 15,
-        "actionIssues": 0
-      }
-    },
-    {
-      "pid": "tom_cole",
-      "name": "Tom Cole",
-      "office": "House Appropriations Committee Chair · Oklahoma",
-      "party": {
-        "label": "R",
-        "color": "#f87171"
-      },
-      "_coverage": {
-        "scorable": 12,
-        "word": 22,
+        "word": 17,
         "actionIssues": 0
       }
     },
@@ -274,6 +246,34 @@
         "scorable": 9,
         "word": 12,
         "actionIssues": 0
+      }
+    },
+    {
+      "pid": "tom_cole",
+      "name": "Tom Cole",
+      "office": "House Appropriations Committee Chair · Oklahoma",
+      "party": {
+        "label": "R",
+        "color": "#f87171"
+      },
+      "_coverage": {
+        "scorable": 12,
+        "word": 21,
+        "actionIssues": 0
+      }
+    },
+    {
+      "pid": "aromero",
+      "name": "Angela Romero",
+      "office": "UT State Representative · UT District 25 (West Salt Lake City, Salt Lake County)",
+      "party": {
+        "label": "D",
+        "color": "#60a5fa"
+      },
+      "_coverage": {
+        "scorable": 7,
+        "word": 9,
+        "actionIssues": 1
       }
     }
   ];

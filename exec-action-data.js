@@ -432,12 +432,12 @@
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 7 would have directed the removal of United States Armed Forces from hostilities in the Republic of Yemen that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
-            "issueKey": "america_first_fp",
+            "issueKey": "war_powers",
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
-            "plain": "The blocked resolution would have closed an open-ended military commitment abroad that Congress never approved; the veto kept it running.",
-            "rationale": "Same inversion applies: the direction is the resolution's. Withdrawing forces from an unauthorized foreign conflict is the ending of an open-ended commitment abroad, which is what the stated position on this issue is about, so the resolution advances it and the veto is read against it."
+            "plain": "The blocked resolution would have required congressional authorization for the forces committed to that conflict; the veto left them there without it.",
+            "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split: this row was always about who authorizes the use of force, not about what the United States funds abroad, and the narrowed america_first_fp key covers aid and commitments only. Same inversion as the restraint row above — the direction is the resolution’s. A resolution directing removal of forces from hostilities Congress had not authorized advances the claim that Congress must authorize them, so the veto is read against it."
           }
         ],
         "status": [
@@ -542,12 +542,12 @@
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it. S.J. Res. 68 would have directed the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that Congress had not authorized, which advances this issue. The record engine inverts a blocking action, so the veto reads the other way."
           },
           {
-            "issueKey": "america_first_fp",
+            "issueKey": "war_powers",
             "direction": "advances",
             "isPrimary": false,
             "weight": 75,
-            "plain": "Blocking a second such resolution thirteen months after the first kept another unauthorized foreign engagement open rather than winding it down.",
-            "rationale": "Same inversion applies: the direction is the resolution's. This is the second document on this issue that would have closed off an unauthorized foreign engagement, thirteen months after the first, which is why it is filed rather than treated as the same decision restated."
+            "plain": "A second resolution asserting that this engagement lacked congressional authorization was blocked thirteen months after the first, leaving that question unanswered.",
+            "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split, on the same reasoning as S.J. Res. 7: the claim under test is who authorizes hostilities, which the narrowed america_first_fp key no longer covers. The direction is the resolution’s and the veto is read against it. Filed separately from S.J. Res. 7 because it concerns a different country and has its own returned-resolution history."
           }
         ],
         "status": [
@@ -1565,12 +1565,12 @@
             "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury."
           },
           {
-            "issueKey": "states_federal_power",
+            "issueKey": "state_standing",
             "direction": "advances",
             "isPrimary": false,
             "weight": 40,
             "plain": "Gives state attorneys general standing to sue the federal government over certain immigration detention and enforcement decisions — a narrow grant inside an immigration law, not a general shift of power.",
-            "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions."
+            "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions. Re-keyed from states_federal_power in the August 2026 taxonomy split: a cause of action against the federal government is a different question from whose rule governs a shared subject, and it now has its own key."
           }
         ],
         "status": [

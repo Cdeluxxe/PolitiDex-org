@@ -30,7 +30,7 @@
       },
       "issue": {
         "icon": "🌐",
-        "label": "America First Foreign Policy"
+        "label": "America First Foreign Aid & Commitments"
       },
       "said": {
         "text": "Built his foreign policy around an \"America First\" doctrine — pressing NATO allies to spend more, questioning open-ended foreign aid, and pushing to broker a rapid end to the war…",
