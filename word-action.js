@@ -1357,6 +1357,23 @@
       // is untouched, so nothing is reordered except across the tension boundary.
       var top = elig.filter(isTension).concat(elig.filter(function (r) { return !isTension(r); }))
                     .slice(0, TOP_ROWS_MAX);
+      // ONE RESERVED SLOT FOR AXIS B. Tension-first is not the same as
+      // contested-visible. Every row in the tension half either contradicts or came
+      // out mixed, so once the record holds three of those the contested row ranks
+      // fourth and Axis B leaves the card altogether — the exact failure this
+      // treatment exists to prevent, arriving through the row cap instead of the row
+      // template. The standing chip, the standing line and the dotted stroke are all
+      // still written; there is simply no row left to carry them. So when nothing
+      // rendered rests on a contested action while an eligible row does, the
+      // lowest-ranked rendered row gives up its slot to the highest-ranked contested
+      // one. It is one substitution and never a re-sort: the rows that keep their
+      // slots keep their order, and a card whose top rows are already contested is
+      // left exactly as it was.
+      if (top.length === TOP_ROWS_MAX && !top.some(isContested)) {
+        for (var xi = 0; xi < elig.length; xi++) {
+          if (isContested(elig[xi])) { top[TOP_ROWS_MAX - 1] = elig[xi]; break; }
+        }
+      }
       if (!top.length) return '';
       var rows = top.map(function (r) {
         var col = r.verdict.color || '#9fb4d4';

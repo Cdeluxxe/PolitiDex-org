@@ -1985,6 +1985,41 @@
       { topic:'Reducing the National Debt', icon:'📉', pos:'support', issueKey:'national_debt', issueStance:'support', text:'Campaigns on shrinking the federal debt through spending discipline, standing up the Department of Government Efficiency in his first days in office to cut federal spending and workforce and sending Congress a rescissions request to claw back money already appropriated.', evidence:'Signed the DOGE executive order (Jan. 20, 2025) and the Rescissions Act of 2025 into law.', source:{label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/2025/01/establishing-and-implementing-the-presidents-department-of-government-efficiency/'} },
       { topic:'H.R.1: Medicaid & SNAP', icon:'🏥', pos:'mixed', issueKey:'healthcare', issueStance:'mixed', text:'Offsets part of its cost with Medicaid and SNAP reductions the CBO estimates leave ~12M more people uninsured by 2034; supporters call them work requirements and program integrity.', evidence:'CBO coverage estimate for H.R.1, 2025.', source:{label:'CBS News', url:'https://www.cbsnews.com/news/hakeem-jeffries-speech-house-floor-record/'} },
       { topic:'Birthright Citizenship & Courts', icon:'⚖️', pos:'support', issueKey:'immigration_reform', issueStance:'support', text:'Signed EO 14160 to end birthright citizenship for children of unauthorized immigrants; in Trump v. CASA (6-3, June 2025) the Supreme Court curbed nationwide injunctions blocking it — without ruling on the order\'s constitutionality.', evidence:'Supreme Court decision in Trump v. CASA, June 27, 2025.', source:{label:'Congress.gov (CRS)', url:'https://www.congress.gov/crs-product/LSB11331'} },
+      // ── Said-side unlock · the war/restraint cluster (Aug 2026, verified) ─────
+      // Two rows were holding formal instruments that could not be read. Military
+      // Restraint had four documents on file, every one of them pointing away from
+      // restraint, and the only position under it was the Ukraine-negotiation card
+      // below — a real position, but a non-directional one, and Direction Match
+      // cannot test a record against a position that takes no side. Congress and
+      // War Powers had four documents and no stated position at all, so it was not
+      // even in the scorable set. Adding the word is what makes the already-filed
+      // documents judgeable; no document was added or re-mapped here.
+      //
+      // Both positions come from sources that exist independently of the four
+      // instruments that will grade them — two first-term vetoes and two
+      // second-term documents. Neither card names an order number, a public-law
+      // number, a measure number or a document title, because execCircular matches
+      // those against the card's own topic, text, evidence and source and holds the
+      // pair wherever it finds one.
+      //
+      // ORDER MATTERS HERE, which is why the restraint card sits immediately above
+      // the Ukraine card rather than at the end of the block with the rest of the
+      // recent additions. wordLedger ranks the cards competing for an issue by
+      // whether they are independently worded and sourced, and breaks ties on LIST
+      // ORDER. Both restraint cards clear the independence bar, so the one written
+      // first is the one that speaks for the issue — filed after the Ukraine card,
+      // this position would have been outranked by a tie-break and the row would
+      // have stayed exactly as stranded as it was.
+      //
+      // The two rows come out pointing in OPPOSITE directions, and that is the
+      // point rather than a problem. On restraint the four documents run against
+      // what he said, so the row contradicts. On war powers he said the approval
+      // requirement does not bind him and the record shows him acting without it,
+      // so the row agrees with itself. Direction match measures direction, not
+      // whether the reader approves of it, and a system that could only ever find
+      // contradictions would not be measuring anything.
+      { topic:'No New Wars', icon:'🕊', pos:'support', issueKey:'restraint', issueStance:'support', text:'Returned to office promising to end wars rather than start them. In his second inaugural address he said "We will measure our success not only by the battles we win, but also by the wars that we end and, perhaps most importantly, the wars we never get into," and told the country "My proudest legacy will be that of a peacemaker and unifier."', evidence:'Inaugural Address, Jan. 20, 2025, as printed in the Daily Compilation of Presidential Documents. The same passage commits to "again build the strongest military the world has ever seen," so the position is restraint in the use of force rather than a smaller military.', source:{label:'GovInfo — Daily Compilation of Presidential Documents, Inaugural Address of Jan. 20, 2025', url:'https://www.govinfo.gov/content/pkg/DCPD-202500103/html/DCPD-202500103.htm'} },
+      { topic:'Congress and War Powers', icon:'🏛', pos:'oppose', issueKey:'war_powers', issueStance:'oppose', text:'Says a President does not need Congress\'s permission to use military force, and picks his words to stay clear of the requirement. Speaking at a party fundraising dinner he said "They don\'t like the word \'war,\' because you\'re supposed to get approval, so I\'ll use the word \'military operation,\'" and two days later gave the reason plainly: "It\'s for legal reasons ... because as a military operation, I don\'t need any approvals."', evidence:'Remarks at the National Republican Congressional Committee dinner, March 25, 2026, and at the Future Investment Initiative Priority Summit two days later. Asked in May 2026 why he had never sought authorization, he answered that it was unnecessary "because it\'s never been sought before," and that "They consider it totally unconstitutional."', source:{label:'CBS News', url:'https://www.cbsnews.com/news/trump-says-he-doesnt-want-to-call-iran-conflict-a-war-because-of-need-for-congressional-approval/'} },
       { topic:'Ending the Ukraine War', icon:'🕊', pos:'mixed', issueKey:'restraint', issueStance:'mixed', text:'Pushed a rapid negotiated end to the Russia-Ukraine war and clashed with President Zelensky in a Feb. 28, 2025 Oval Office meeting, pressing for gratitude and diplomacy; a planned minerals deal went unsigned.', evidence:'Oval Office meeting with President Zelensky, Feb. 28, 2025.', source:{label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/what-trump-and-zelenskyy-said-during-their-heated-argument-in-the-oval-office'} },
       // ── National priority-issue deepening · July 2026 (verified, sourced) ──────
       // Adds the healthcare-cost and cost-of-living axes to Trump's record, keyed to
