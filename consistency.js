@@ -1860,6 +1860,30 @@
       '.pdxgap-solo-b{font-size:0.72rem;color:#c6d4ec;line-height:1.45;margin-top:0.35rem;}' +
       '.pdxgap-solo-b b{color:#e8eefc;}' +
       '.pdxgap-solo-n{font-size:0.66rem;color:#8fa2c0;line-height:1.45;margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      // The coverage gap and its Suggest-a-lead control, inside the empty 🧾 side. The
+      // row itself is a real PDXGaps row and wears PDXGaps' own styles from
+      // word-action.css — only the spacing around the list belongs to this sheet.
+      '.pdxgap-solo-gap{list-style:none;margin:0.55rem 0 0;padding:0;display:grid;gap:0.45rem;}' +
+      // "Not here" is not "not anywhere". Quieter than the gap above it: this is
+      // orientation, and the actionable row is the one that should carry the weight.
+      '.pdxgap-solo-el{font-size:0.66rem;color:#8fa2c0;line-height:1.45;margin-top:0.5rem;}' +
+      '.pdxgap-solo-el b{color:#c6d4ec;}' +
+      '.pdxgap-solo-nx{margin-top:0.4rem;flex:0 1 auto;}' +
+      // THE WALL, stated in the 🧾 column head. Dimmer than the evidence it sits above
+      // — a reader needs it once, and it must never compete with an actual receipt.
+      '.pdxgap-side-wall{font-size:0.63rem;color:#8fa2c0;line-height:1.4;margin:-0.2rem 0 0.5rem;' +
+        'padding:0.28rem 0.4rem;border-radius:0.4rem;background:rgba(147,166,196,0.08);' +
+        'border:1px solid rgba(147,166,196,0.16);}' +
+      // ── the 🧾 item's teachable face ──────────────────────────────────────────
+      // The labelled slots are the 🏛️ side's (.pdxdos-rec-why / -wk, reused rather
+      // than re-declared so the two lanes can never drift apart typographically);
+      // all this adds is the wrap that lets them sit under the headline, and the
+      // direction word.
+      '.pdxsd-act{flex-wrap:wrap;padding-bottom:0.42rem;}' +
+      '.pdxsd-act .pdxdos-rec-why{margin-top:0.18rem;}' +
+      '.pdxsd-dir{flex:0 0 auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;' +
+        'font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;border:1px solid currentColor;' +
+        'border-radius:0.3rem;padding:0.02rem 0.3rem;opacity:0.85;}' +
       // The share control sits INSIDE the 🏛️ side of the sheet, never in the footer
       // and never on the 🧾 side, so what it shares is unambiguous. The separator
       // above it keeps it reading as the section's action rather than as one more
@@ -4690,24 +4714,80 @@
   function _catLabel(k) { try { return (typeof window._pdxCategoryLabelOf === 'function' ? window._pdxCategoryLabelOf(k) : '') || 'Other'; } catch (e) { return 'Other'; } }
   function _issueLabel(k) { try { return (window.ISSUE_MAP && window.ISSUE_MAP[k] && window.ISSUE_MAP[k].label) || k; } catch (e) { return k; } }
   var _SD_ITEM_RANK = { contradicts: 0, flag: 1, consistent: 2 };
+  // ── WHICH WAY A PUBLIC-RECORD ITEM CUT ──────────────────────────────────────
+  // The three answers the 🧾 lane can give about one item, in the house's own
+  // direction vocabulary. `flag` is the honest third option and the reason this map
+  // exists rather than a boolean: a documented red flag is real, sourced and worth
+  // a reader's attention, and it is NOT evidence for or against the stated position
+  // — so it says "context only" instead of borrowing either of the other two words.
+  //
+  // 'Cuts against' rather than VERDICTS.contradicts.label ('Says one thing, does
+  // another'): that phrase is the verdict on a whole ISSUE, assembled from
+  // everything on file, and printing it beside a single item would let one receipt
+  // read as the issue's conclusion. The direction word is the item-level claim.
+  var _SD_DIR = {
+    consistent:  { word: 'Backs it up',  say: 'runs WITH the position they stated on ' },
+    contradicts: { word: 'Cuts against', say: 'runs AGAINST the position they stated on ' },
+    flag:        { word: 'Context only', say: '' }
+  };
   // Public-record receipts behind a Say-vs-Do stance, as an array of row HTML (each
   // sourced, contradictions first). Shared by the feed's <details> and the gap drawer.
-  function _sdEvidenceItems(cur) {
+  //
+  // `opts.full` renders the TEACHABLE FACE — the same four fixed slots the 🏛️ side
+  // gives every formal action (_dosRowHtml): what they said, what is on file, why it
+  // counts on this issue, which way it cut. Every one of those was already carried on
+  // the receipt (`said`, `facts`, `why`, `verdict`) and none of them were rendered:
+  // the dossier's public lane showed a coloured glyph, a headline and a link, beside
+  // a formal lane that explains its mechanism line by line. Nothing new is invented
+  // here and no item is added — the same items grow the face the other lane has.
+  //
+  // Without the flag the compact one-line form is unchanged, which is what the
+  // dedicated Say-vs-Do feed's <details> list still wants: there the reader is
+  // scanning many issues, not studying one.
+  function _sdEvidenceItems(cur, opts) {
     if (!cur || !cur.items || !cur.items.length) return [];
+    var full = !!(opts && opts.full);
     var items = cur.items.slice().sort(function (a, b) {
       var ak = (a.verdict && a.verdict.key) || 'flag', bk = (b.verdict && b.verdict.key) || 'flag';
       return (_SD_ITEM_RANK[ak] == null ? 9 : _SD_ITEM_RANK[ak]) - (_SD_ITEM_RANK[bk] == null ? 9 : _SD_ITEM_RANK[bk]);
     });
     return items.map(function (r) {
-      var mv = VERDICTS[(r.verdict && r.verdict.key)] || VERDICTS.flag;
+      var vk = (r.verdict && r.verdict.key) || 'flag';
+      var mv = VERDICTS[vk] || VERDICTS.flag;
       var url = r.source && r.source.url;
       var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc((r.source && r.source.label) || 'Source') + ' ↗</a>' : '';
       var meta = [];
       if (r.date) meta.push(esc(r.date));
       if (r.category) meta.push(esc(r.category));
       var metaHtml = meta.length ? ' <span style="color:#7e93b3;">· ' + meta.join(' · ') + '</span>' : '';
-      return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
-        '<span>' + esc(r.headline || 'Public-record item') + metaHtml + src + '</span></div>';
+      var head = '<span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
+        '<span>' + esc(r.headline || 'Public-record item') + metaHtml + src + '</span>';
+      if (!full) return '<div class="pdxor-act">' + head + '</div>';
+
+      var dir = _SD_DIR[vk] || _SD_DIR.flag;
+      var lbl = _issueLabel(r.issueKey) || '';
+      var wk = function (label, text) {
+        return text
+          ? '<span class="pdxdos-rec-why">' + (label ? '<b class="pdxdos-rec-wk">' + label + '</b> ' : '') +
+              esc(text) + '</span>'
+          : '';
+      };
+      // ORDER IS THE ARGUMENT, and it is the 🏛️ side's argument in this lane's
+      // materials: what they SAID, then what is ON FILE against it, then why this
+      // issue is the right file for it, then which way it cut. A reader who has just
+      // read six formal actions meets the same four questions in the same order.
+      var said = (r.said && (r.said.text || '').trim()) ? r.said.text : '';
+      var cut = dir.say
+        ? 'This item ' + dir.say + (lbl || 'this issue') + '.'
+        : 'A documented red flag on the public record. It is not counted for or against ' +
+          'the stated position — it is here as context.';
+      return '<div class="pdxor-act pdxsd-act">' + head +
+        '<span class="pdxsd-dir" style="color:' + mv.color + '">' + esc(dir.word) + '</span>' +
+        wk('They said:', said) +
+        wk('What is on file:', r.facts) +
+        wk('Why it counts here:', r.why) +
+        wk('Which way it cuts:', cut) +
+      '</div>';
     });
   }
   function _sdEvidenceHtml(cur) {
@@ -4722,6 +4802,76 @@
     if (cur.contradicts) parts.push('<b style="color:' + VERDICTS.contradicts.color + '">' + cur.contradicts + '</b> against');
     if (cur.flag) parts.push('<b style="color:' + VERDICTS.flag.color + '">' + cur.flag + '</b> flag' + (cur.flag === 1 ? '' : 's'));
     return parts.length ? '<span class="pdxor-count">' + parts.join(' · ') + '</span>' : '';
+  }
+
+  // ── THE EMPTY 🧾 SIDE, MADE INTO A DOOR ──────────────────────────────────────
+  // An empty public-record lane is a real and common state — on the current
+  // presidential profile it is 33 of 35 issue sheets — and until now it was a wall:
+  // three true sentences about our coverage and no way to act on any of them, sitting
+  // beside a formal column that had enumerated nine actions and explained each one.
+  // That asymmetry is the trust cliff. What is missing here is not a paragraph, it is
+  // a next step.
+  //
+  // Two are offered, in this order, and both were already built:
+  //
+  //   1. THE GAP ITSELF. PDXGaps has one job — say what we do not hold and hand the
+  //      reader a clean way to help us find it — and it already owns the taxonomy,
+  //      the `gap:<pid>:<slug>` thread target, the lead composer and the moderation
+  //      round trip. So this renders a real PDXGaps row rather than a lookalike:
+  //      one contribution system, one queue, one set of words.
+  //   2. WHERE IT IS NOT MISSING. If we hold public-record items for this figure on
+  //      OTHER issues, saying so — and opening the strongest of them — turns "we
+  //      have nothing" into "we have nothing HERE", which is the true claim and the
+  //      more useful one. Derived from the same receipts, capped at one door.
+  //
+  // Fails closed at every step: no PDXGaps, no gap row; no other issue with evidence,
+  // no second line; a throw anywhere leaves the three sentences above standing alone,
+  // which is exactly the state this shipped in.
+  function _sdGapHtml(pid, issueKey) {
+    var out = '';
+    try {
+      var G = window.PDXGaps;
+      if (G && typeof G.publicRecordGap === 'function' && typeof G.rowHtml === 'function') {
+        var g = G.publicRecordGap(pid, issueKey, null);
+        var row = g ? G.rowHtml(g) : '';
+        if (row) out += '<ul class="pdxg-list pdxgap-solo-gap">' + row + '</ul>';
+      }
+    } catch (e) {}
+    try { out += _sdElsewhereHtml(pid, issueKey); } catch (e2) {}
+    return out;
+  }
+
+  // "Not here" is not "not anywhere". Counts this figure's Say-vs-Do-eligible
+  // receipts on OTHER issues and offers the strongest one as a door — the same
+  // data-pdxc-gap door every other cross-issue link in this sheet uses, so it is
+  // routed by the one delegated handler and cannot become a dead button. Ordered by
+  // the receipt score collect() already assigned (contradictions first), and the
+  // target must carry a real index bucket or it gets no link at all.
+  function _sdElsewhereHtml(pid, issueKey) {
+    var R = window.PDXReceipts;
+    if (!R || typeof R.collect !== 'function') return '';
+    var seen = {}, keys = [], best = null, n = 0;
+    var all = R.collect() || [];
+    for (var i = 0; i < all.length; i++) {
+      var r = all[i];
+      if (!r || !r.issueKey || r.issueKey === issueKey) continue;
+      if (!samePol(r.pid, pid) || !isSaydoReceipt(r)) continue;
+      n++;
+      if (!seen[r.issueKey]) { seen[r.issueKey] = 1; keys.push(r.issueKey); }
+      if (!best && _bucketAt(pid, r.issueKey)) best = r.issueKey;
+    }
+    if (!n) return '';
+    var who = '';
+    try { who = (_gapIdentity(pid) || {}).name || ''; } catch (e) {}
+    var door = best
+      ? '<button type="button" class="pdxgap-nx pdxgap-solo-nx" data-pdxc-gap="' + esc(best) +
+          '" data-pdxc-gap-pid="' + esc(pid) + '">' +
+          '<span class="pdxgap-nx-ico" aria-hidden="true">🧾</span>' +
+          '<span>See it on ' + esc(_issueLabel(best)) + ' <span aria-hidden="true">→</span></span></button>'
+      : '';
+    return '<div class="pdxgap-solo-el">We do hold <b>' + n + '</b> public-record ' +
+      (n === 1 ? 'item' : 'items') + ' for ' + (who ? esc(who) : 'this figure') + ' on <b>' + keys.length + '</b> other ' +
+      (keys.length === 1 ? 'issue' : 'issues') + ' — the gap is this issue, not the record.' + door + '</div>';
   }
   // Phase 7: render the stance-level public-record integrity % into the reserved
   // score slot. `sc` is a saydoScore() breakdown. Honest by construction — shows a
@@ -6206,24 +6356,24 @@
       '</div>';
 
     // ── 🧾 Say-vs-Do side ─────────────────────────────────────────────────────
-    // Two genuinely different situations were rendering the same way, and only one of
-    // them is a column:
+    // Two genuinely different situations, and only one of them is a column:
     //
     //   · There IS curated public-record evidence → the two-column comparison, which
-    //     is what this sheet was built for. Unchanged.
+    //     is what this sheet was built for. Each item now carries the same four-slot
+    //     teachable face the 🏛️ side gives every formal action — see the note on
+    //     _sdEvidenceItems for what was already on file and going unrendered.
     //
-    //   · There is NONE — which is every shared card, because the share gate selects
-    //     on formal-record depth while the curated Say-vs-Do layer covers different
-    //     members and issues. A narrow panel holding one grey line of "Nothing on
-    //     the public record yet", beside a full column of sourced votes, reads as a
-    //     page that failed to load. The absence is real and permanent-until-curated,
-    //     so it is stated on purpose instead: the Official Record takes the full
-    //     width, and the 🧾 side becomes a short note underneath saying what IS on
-    //     file, what is NOT, and that the difference is our coverage rather than a
-    //     verdict on the member.
+    //   · There is NONE — which is most presidential dossiers, because the share
+    //     gate selects on formal-record depth while the curated Say-vs-Do layer is
+    //     hand-checked per person per issue. A narrow panel holding one grey line of
+    //     "Nothing on the public record yet", beside a full column of sourced votes,
+    //     reads as a page that failed to load. The absence is real, so it is stated
+    //     on purpose AND made actionable: the Official Record takes the full width,
+    //     and the 🧾 side becomes a named coverage gap with the one control this
+    //     product already has for exactly this — PDXGaps' ＋ Suggest a lead.
     //
     // Nothing is invented and no score appears on this side in either case.
-    var sayItems = _sdEvidenceItems(say.curated);
+    var sayItems = _sdEvidenceItems(say.curated, { full: true });
     var sayCounts = _sdCounts(say.curated);
     var sayHas = sayItems.length > 0 || sNum;
     var saySide, sidesCls = '';
@@ -6234,6 +6384,12 @@
             LT('saydo', 'Say-vs-Do') + '</span>' +
             _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
           '<div class="pdxgap-side-sub">Public-record evidence — statements, news, controversies' + (sayCounts ? ' · ' + sayCounts : '') + '</div>' +
+          // THE WALL, said where the two columns meet. The 🏛️ pill beside this one is
+          // a Direction Match built from formal instruments only; nothing in this
+          // column is inside that number, and a reader looking at two panels side by
+          // side has every reason to assume otherwise unless told.
+          '<div class="pdxgap-side-wall">Kept out of the 🏛️ ' + LT('directionmatch', 'Direction Match') +
+            ' — public-record items are never merged into the formal figure.</div>' +
           '<div class="pdxgap-acts">' + sayItems.join('') + '</div>' +
         '</div>';
     } else {
@@ -6241,7 +6397,7 @@
       saySide =
         '<div class="pdxgap-solo">' +
           '<div class="pdxgap-solo-h"><span aria-hidden="true">🧾</span> ' +
-            LT('saydo', 'Say-vs-Do') + ' — not on file yet</div>' +
+            LT('saydo', 'Say-vs-Do') + ' — nothing on file for this issue yet</div>' +
           '<div class="pdxgap-solo-b">This is an <b>Official Record</b> read: it is built from ' +
             'formal roll-call votes and legislative actions, and those are ' +
             (oNum || offItems.length ? 'on file here.' : 'what this sheet covers.') +
@@ -6250,6 +6406,11 @@
           '<div class="pdxgap-solo-n">That is a gap in our coverage, not a verdict, and it changes ' +
             'nothing above: the two records are scored separately and are never merged into a ' +
             'single number, so the Official Record figure stands on its own either way.</div>' +
+          // The dead end, made into a door. Same module, same taxonomy, same thread
+          // target and the same composer as every other gap in the product — see
+          // PDXGaps.publicRecordGap. Absent module → the three sentences above stand
+          // exactly as they did, which is the state this shipped in.
+          _sdGapHtml(pid, issueKey) +
         '</div>';
     }
 

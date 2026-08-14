@@ -156,7 +156,7 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
 {
   const { G } = build();
   const ASKABLE = ['no_record', 'thin_record', 'thin_formal_action', 'no_action_yet',
-    'pending_pledge', 'unitemized_pledges', 'not_issue_linked'];
+    'pending_pledge', 'unitemized_pledges', 'not_issue_linked', 'no_public_record'];
   const EXPLAIN = ['circular_hold', 'spoken_for', 'below_floor'];
   ASKABLE.forEach((t) => {
     ok(G.TYPES[t] && G.TYPES[t].askable === true, `${t} must be askable`);
@@ -442,6 +442,46 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
   ok(!/cee_promoted[\s\S]{0,200}gapType/.test(COMMUNITY), 'a lead must not auto-promote into the curated record');
   ok(/lead_state[\s\S]{0,600}NOT a verification status|NOT a verification status/.test(SCHEMA),
     'db/schema.ts must say plainly that lead_state is not a verification status');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8b · The on-demand gap: no public-record evidence on ONE issue
+// ═════════════════════════════════════════════════════════════════════════════
+// Every other type in the taxonomy is derived by forPolitician() from the read.
+// This one is not derived at all — it is built by the issue dossier for the single
+// issue a reader is looking at, because a figure has as many of these holes as
+// they have tracked issues (33 on the presidential profile). Swept into the panel
+// they would bury the eight record-level gaps and inflate the header count, so the
+// invariant worth pinning is what this type must NOT do.
+{
+  const { G } = build();
+  const g = G.publicRecordGap('booker', 'lower_taxes', { name: 'Cory Booker' });
+  ok(!!g, 'publicRecordGap must build a gap for a real pid + issue');
+  eq(g.type, 'no_public_record', 'it carries its own type, not a borrowed one');
+  eq(g.issueKey, 'lower_taxes', 'and the issue it is about');
+  ok(g.askable === true, 'it is askable — a missing public-record item is a research hole we can fill');
+  ok(/^gap:booker:/.test(g.key), 'it uses the same gap:<pid>:<slug> thread target as every other gap');
+  ok(g.key !== G.publicRecordGap('booker', 'healthcare', { name: 'Cory Booker' }).key,
+    'two issues must not collide on one thread — a lead is about ONE issue');
+  ok(!G.publicRecordGap('', 'lower_taxes', null) && !G.publicRecordGap('booker', '', null),
+    'it refuses to build without both halves of the question');
+  // Copy: our coverage, never their record — and it must say the verdict is untouched.
+  ok(/hole in our research/.test(g.detail), 'the detail names it as OUR hole');
+  ok(/changes nothing above/.test(g.detail) && /never merged/.test(g.detail),
+    'and restates that the formal verdict above is not affected');
+  // The exclusion. Both the panel and the count must be blind to this type.
+  const wide = G.forPolitician('booker', { name: 'Cory Booker' }) || [];
+  ok(!wide.some((x) => x.type === 'no_public_record'),
+    'the profile-wide derivation must never emit one — it would be one row per tracked issue');
+  const before = G.count('booker', { name: 'Cory Booker' });
+  G.rowHtml(g);                       // registering it for the composer must not move a count
+  eq(G.count('booker', { name: 'Cory Booker' }), before,
+    'and rendering one must not change the profile gap count');
+  // It renders through the shared row builder, with the existing composer.
+  const row = G.rowHtml(g);
+  ok(/class="pdxg-row"/.test(row), 'it renders as the app\'s own gap row');
+  ok(/_pdxGapsAsk/.test(row) && /Suggest a lead/.test(row),
+    'wired to the existing lead composer — not a second contribution system');
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
