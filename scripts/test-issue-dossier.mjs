@@ -361,8 +361,13 @@ const sheet = C.gapViewHtml(MEMBER, ISSUE);
 has(sheet, 'class="pdxdos"', "sheet: L1 is in the sheet");
 has(sheet, "pdxdos-recs", "sheet: L2 is in the sheet");
 has(sheet, "pdxdos-step", "sheet: so is the issue stepper");
+// The header leads with the issue and its result; the identity strip sits under
+// them, above the assembled answer. A reader arriving from a stance row already
+// knows who this is — what they are waiting on is what the record said.
+ok(sheet.indexOf('class="pdxgap-title') < sheet.indexOf('class="pdxgap-id"'),
+  "sheet: issue first — the title leads, not the identity slab");
 ok(sheet.indexOf('class="pdxgap-id"') < sheet.indexOf('class="pdxdos"'),
-  "sheet: identity first — a reader has to know who this is before what they did");
+  "sheet: identity is still in the header, above the assembled answer — moved, not dropped");
 const sidesAt = sheet.indexOf('class="pdxgap-sides');
 ok(sidesAt > 0 && sheet.indexOf('class="pdxdos"') < sidesAt,
   "sheet: then the assembled answer, above the two record panels");

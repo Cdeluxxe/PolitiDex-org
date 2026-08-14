@@ -1656,7 +1656,8 @@
       // Top padding is deliberately tight (0.65rem, not 1rem): this sheet is the
       // LANDING PAGE for every shared card, and the first thing a reader saw used to
       // be a band of empty gradient above a 0.62rem eyebrow. The close button is
-      // pulled in to match so the identity row starts as high as it can.
+      // pulled in to match so the first line — the issue itself — starts as high as
+      // it can.
       '.pdxgap-sheet{position:relative;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#141a2c,#0c111e);border:1px solid rgba(255,255,255,0.12);border-radius:1rem 1rem 0 0;padding:0.65rem 0.85rem 1.3rem;box-shadow:0 -12px 40px rgba(0,0,0,0.5);font-family:"Barlow Condensed",sans-serif;animation:pdxgapUp .18s ease;}' +
       '@keyframes pdxgapUp{from{transform:translateY(14px);opacity:0.6;}to{transform:translateY(0);opacity:1;}}' +
       '@media (prefers-reduced-motion:reduce){.pdxgap-sheet{animation:none;}}' +
@@ -1674,30 +1675,38 @@
       '.pdxgap-x{position:absolute;top:0.45rem;right:0.5rem;width:1.85rem;height:1.85rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.15rem;line-height:1;cursor:pointer;z-index:2;}' +
       '.pdxgap-x:hover{background:rgba(10,15,30,0.9);}' +
       '.pdxgap-eyebrow{font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;}' +
-      // ── Header identity block ───────────────────────────────────────────────
-      // Face, then name, then office/state/party — the same three cues the shared
-      // image leads with, in the same order, so a reader who tapped a card can see
-      // in one glance that this is the same person. The photo is the only genuinely
-      // new element: it comes from _getPhotoUrl (the app's single headshot source)
-      // and degrades to party-tinted initials, never to a broken image frame.
-      '.pdxgap-id{display:flex;align-items:center;gap:0.6rem;padding-right:2.1rem;}' +
-      '.pdxgap-face{flex:none;position:relative;width:3.1rem;height:3.1rem;border-radius:0.7rem;overflow:hidden;background:#0a0f1e;border:1px solid var(--c,#8fa5c4);box-shadow:0 0 0 1px rgba(0,0,0,0.4);}' +
+      // ── Header identity strip ───────────────────────────────────────────────
+      // Compact, and BELOW the issue and the result. It used to be a slab at the
+      // very top — a 3.1rem face, an eyebrow, the name at 1.02rem and a sub-line —
+      // which on a 360px phone pushed the issue title and the verdict chip off the
+      // first screen on the one surface whose whole job is to answer "what did the
+      // record say about this issue". Same facts, one row, far less height. The
+      // photo still comes from _getPhotoUrl (the app's single headshot source) and
+      // still degrades to party-tinted initials, never to a broken image frame.
+      '.pdxgap-id{display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;}' +
+      '.pdxgap-face{flex:none;position:relative;width:1.85rem;height:1.85rem;border-radius:0.45rem;overflow:hidden;background:#0a0f1e;border:1px solid var(--c,#8fa5c4);box-shadow:0 0 0 1px rgba(0,0,0,0.4);}' +
       '.pdxgap-face img{width:100%;height:100%;object-fit:cover;display:block;}' +
-      '.pdxgap-face-ph::after{content:attr(data-fb);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.02em;color:var(--c,#8fa5c4);background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(0,0,0,0.25));}' +
-      '.pdxgap-idmain{min-width:0;}' +
-      // The member's name leads the block. Wraps rather than truncates — a clipped
-      // name on a page whose whole job is identifying someone is worse than a
-      // second line.
-      '.pdxgap-who{font-weight:700;font-size:1.02rem;color:#e8eefc;line-height:1.15;}' +
-      '.pdxgap-who-sub{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-weight:600;font-size:0.7rem;color:#8fa5c4;line-height:1.3;margin-top:0.1rem;}' +
+      '.pdxgap-face-ph::after{content:attr(data-fb);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Bebas Neue",sans-serif;font-size:0.72rem;letter-spacing:0.02em;color:var(--c,#8fa5c4);background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(0,0,0,0.25));}' +
+      '.pdxgap-idmain{min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:0.2rem 0.45rem;}' +
+      // The member's name. Wraps rather than truncates — a clipped name on a page
+      // that has to identify someone is worse than a second line — but it is no
+      // longer the largest thing in the header; the issue title is.
+      '.pdxgap-who{font-weight:700;font-size:0.84rem;color:#e8eefc;line-height:1.2;}' +
+      '.pdxgap-who-sub{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-weight:600;font-size:0.66rem;color:#8fa5c4;line-height:1.3;margin-top:0;}' +
+      // The lane cue, pushed to the end of the strip. It is chrome that names which
+      // record is speaking, so it reads last rather than first.
+      '.pdxgap-id .pdxgap-eyebrow{margin-left:auto;flex:none;font-size:0.58rem;text-align:right;}' +
+      '@media (max-width:420px){.pdxgap-id .pdxgap-eyebrow{display:none;}}' +
       '.pdxgap-party{font-weight:700;font-size:0.62rem;letter-spacing:0.04em;padding:0.05rem 0.34rem;border-radius:999px;color:var(--c,#8fa5c4);border:1px solid var(--c,#8fa5c4);background:rgba(10,15,30,0.5);}' +
-      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.55rem 0 0.4rem;}' +
+      // The issue leads the sheet, so it starts at the top of the header with no
+      // margin above it — the tight sheet padding is the only gap.
+      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0 2.1rem 0.4rem 0;}' +
       // The issue's own colour, carried in from the row that was tapped. Only ever
       // painted when the key resolved to a real core issue — an unmapped key gets no
       // spine rather than a neutral one that looks like a colour that failed.
       '.pdxgap-title.pdxc-ic{border-left:4px solid var(--pdx-ic);padding-left:0.5rem;' +
         'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 58%);}' +
-      '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:2.75rem;height:2.75rem;}}' +
+      '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:1.65rem;height:1.65rem;}}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
       // The verdict, sized so it is the thing the eye lands on. Same colour and
       // wording as the chip everywhere else; only the scale changes.
@@ -5563,12 +5572,11 @@
     }
 
     // ── The identity block ────────────────────────────────────────────────────
-    // Face, name, office/state/party, issue, verdict — in that order, which is the
-    // order the shared image itself leads with. The face is the cue the sheet was
-    // missing entirely: a reader who tapped a card about Mike Simpson used to land
-    // on a page whose first pixels were empty gradient, and had to read a 0.62rem
-    // eyebrow and a name in body text before anything confirmed they were in the
-    // right place. Recognition is faster than reading, so the photo goes first.
+    // Issue, verdict, then face + name + office/state/party. The face is still the
+    // fastest cue for a reader arriving from a shared card — recognition beats
+    // reading — but it no longer costs the issue and the result their place at the
+    // top of the sheet. It sits one line down, much smaller, on the same
+    // row as the name and the lane eyebrow.
     var _id = _gapIdentity(pid);
     // ── The path in, made visible ─────────────────────────────────────────────
     // A reader arrives here by tapping a row in the issue index — a coloured line
@@ -5582,20 +5590,40 @@
     var _titleAttr = _tskin.on
       ? ' class="pdxgap-title pdxc-ic" style="' + _tskin.style + '"'
       : ' class="pdxgap-title"';
+    // ── The header, issue-first ───────────────────────────────────────────────
+    // WHAT CHANGED AND WHY. This header used to open with an identity slab: a
+    // 3.1rem face beside a 0.62rem eyebrow, the member's name at 1.02rem and an
+    // office/district/state/party sub-line — a large share of a phone's first
+    // screen — before the issue was named and before the result was stated. That
+    // ordering was chosen for the shared-card arrival, where recognition matters;
+    // but the overwhelming majority of opens come from a stance row or an issue
+    // index row INSIDE a profile, where the reader already knows exactly whose
+    // record they are reading and is waiting on the one thing the slab pushed
+    // below the fold: what the record said about this issue.
+    //
+    // So the sheet now leads with the issue and its result, and the identity moves
+    // to a compact strip directly beneath them. Nothing is dropped — the face, the
+    // name, the office line and the party chip are all still here, still first in
+    // reading order among the person facts, and the arrival reader still gets
+    // "same person, same card" within the first two lines. It is a re-ordering and
+    // a re-sizing, not a removal.
     var head =
       '<div class="pdxgap-h">' +
-        '<div class="pdxgap-id">' + _gapFaceHtml(_id) +
-          '<div class="pdxgap-idmain">' +
-            '<div class="pdxgap-eyebrow">' + esc(eyebrow) + '</div>' +
-            '<div class="pdxgap-who">' + esc(_id.name) + '</div>' +
-            _gapSubHtml(_id) +
-          '</div>' +
-        '</div>' +
         '<div' + _titleAttr + '>' + esc(lbl) + '</div>' +
         _dosBucketHtml(_dosRow) +
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.
         '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
+        // Whose record this is, on one line, under the finding. The eyebrow that
+        // used to sit above the name is folded in here as the lane cue it always
+        // was, so the header carries the same facts in fewer rows.
+        '<div class="pdxgap-id">' + _gapFaceHtml(_id) +
+          '<div class="pdxgap-idmain">' +
+            '<div class="pdxgap-who">' + esc(_id.name) + '</div>' +
+            _gapSubHtml(_id) +
+          '</div>' +
+          '<span class="pdxgap-eyebrow">' + esc(eyebrow) + '</span>' +
+        '</div>' +
         // Person-level share, at the TOP of the sheet. This is the surface a shared
         // card lands on and the surface a phone reader reaches from the profile, and
         // until now its only share sat at the bottom of the 🏛️ column — below the

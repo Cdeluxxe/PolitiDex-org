@@ -808,6 +808,19 @@
    tap target, and gives up the border weight — it should never be the loudest
    thing in a row of findings. */
 .pdxwa-oc-tab-2nd { border-style: dashed; opacity: 0.82; }
+/* A bucket at zero. It keeps its chip, its count, its colour and its full tap
+   target — hiding it is what made "Contradicted" disappear from clean records —
+   and gives up saturation, so a row of chips still reads worst-first and a zero
+   never out-shouts a finding. Not disabled: the panel behind it has an answer in
+   it ("None. No issue in this index landed here"), and that answer is the point. */
+.pdxwa-oc-tab.is-zero {
+  opacity: 0.6;
+  border-style: dashed;
+  background: transparent;
+}
+.pdxwa-oc-tab.is-zero.is-on { opacity: 1; }
+.pdxwa-oc-tab.is-zero .pdxwa-oc-tab-n { color: #7f97b8; }
+.pdxwa-oc-tab.is-zero.is-on .pdxwa-oc-tab-n { color: var(--pdxwa-col, #9fb4d4); }
 
 .pdxwa-oc-panels { display: block; }
 /* Phone: one bucket at a time. */
@@ -820,6 +833,16 @@
 }
 .pdxwa-oc-grp.is-on { display: block; }
 .pdxwa-oc-grp-2nd { border-left-style: dashed; }
+/* An empty bucket's panel. Drawn quieter than a list of rows, because it is the
+   absence of rows — but present, and phrased, because "none" is the answer. */
+.pdxwa-oc-grp.is-zero { border-left-style: dotted; opacity: 0.85; }
+.pdxwa-oc-empty {
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #7f97b8;
+  margin: 0.25rem 0 0.1rem;
+  overflow-wrap: break-word;
+}
 .pdxwa-oc-h {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
@@ -1392,6 +1415,9 @@
   align-items: baseline;
   gap: 0.28rem;
 }
+/* Zero is listed, not hidden — see .pdxwa-oc-tab.is-zero. Dimmed so the legend
+   still reads as a picture of what IS on file. */
+.pdxwa-comp-i.is-zero { opacity: 0.55; }
 .pdxwa-comp-n {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;

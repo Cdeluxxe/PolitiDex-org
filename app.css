@@ -3603,8 +3603,11 @@
       .section-py { padding-top: 3rem !important; padding-bottom: 3rem !important; }
       /* Submit form internal padding */
       .submit-inner { padding: 1.25rem !important; }
-      /* Modal safe area for notched phones */
-      #modal-panel { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      /* NOTE: the profile modal's safe-area inset is NOT reserved here. Padding on
+         #modal-panel pushes the whole panel — including the sticky footer deck —
+         up off the true bottom of the screen, which is what made the deck look
+         like it was floating over the last rows. The inset is reserved exactly
+         once, on #modal-footer (see the ≤768px pass). */
       /* Directory filter grid: 1 col on very small */
       .dir-filter-grid { grid-template-columns: 1fr 1fr !important; }
     }
@@ -3656,8 +3659,12 @@
       /* Ballot candidate grids */
       .ballot-cand-grid { grid-template-columns: 1fr !important; }
 
-      /* Modal: full-screen on mobile */
+      /* Modal: full-screen on mobile. Sized to the *small* viewport (dvh) so the
+         panel bottom is the true bottom of the visible screen even while iOS
+         Safari's toolbars are showing — 100vh is the large viewport there, which
+         pushed the sticky footer below the fold. 100vh stays as the fallback. */
       #modal-panel { max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; height: 100% !important; }
+      #modal-panel { max-height: 100dvh !important; height: 100dvh !important; }
 
       /* Compare overlay: better mobile spacing */
       #cmp-header { padding: 0.75rem !important; }
@@ -13536,6 +13543,12 @@
         max-height: 100vh;
         height: 100%;
       }
+      /* Dynamic-viewport sizing, so the panel (and therefore the sticky footer
+         deck at its bottom edge) ends where the visible screen ends. */
+      #modal-panel {
+        max-height: 100dvh;
+        height: 100dvh;
+      }
       #modal-top-bar {
         padding: 0.75rem 1rem;
         position: sticky;
@@ -15049,9 +15062,14 @@
       border-bottom-color: rgba(255,255,255,0.04) !important;
     }
 
-    /* ── Improved modal body bottom padding for safe area ──────── */
+    /* ── Modal body bottom padding ─────────────────────────────── */
+    /* NOT a safe-area reservation. #modal-content sits INSIDE #modal-body, which
+       is the scrolling middle of the panel — the sticky footer deck is below it
+       and is the element actually touching the bottom edge of the screen. The
+       inset is reserved once, on #modal-footer; adding it here only buys a
+       second helping of dead scroll space under the last row. */
     #modal-content {
-      padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: 1.5rem;
     }
 
     /* ── Scrollbar styling for main content: subtle ────────────── */
@@ -17609,7 +17627,9 @@
       /* ── 3 · MODALS & PROFILE VIEWS — no overflow, comfortable padding ──
          Long links, sources and stance text wrap instead of forcing a
          horizontal scroll, and media can never push past the panel edge. */
-      #modal-body { padding: 1rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important; }
+      /* No safe-area inset here: the deck below reserves it once, and doubling it
+         up here only ate scroll height without moving the deck. */
+      #modal-body { padding: 1rem 1rem 1.25rem !important; }
       #modal-body, #modal-body p, #modal-body a, #modal-body li, #modal-body td,
       .modal-section, .modal-section-sub {
         overflow-wrap: anywhere;
@@ -18122,11 +18142,15 @@
       #nav-auth-desktop button { min-height: 40px; }
 
       /* ── 2 · PROFILE MODAL — bottom bar clears the notch, roomier CTA ────
-         On notched phones the sticky engagement strip sat under the home
-         indicator; reserve the safe-area inset so every footer control is
-         reachable. The "Add to My Team" call-to-action and the react / save /
-         comment / evidence strip get a touch more height so they read as
-         confident, separated thumb targets rather than a cramped cluster. */
+         THE ONE PLACE the bottom safe-area inset is reserved for this modal.
+         It used to be reserved four times over — on #modal-panel, #modal-body,
+         here, and again on #modal-action-strip — which on a notched phone stacked
+         roughly 130px of dead chrome under the deck and, worse, lifted the deck
+         itself off the true bottom (the panel's own padding sits *outside* the
+         footer). Reserve it once, on the deck, and the deck stays flush.
+         The "Add to My Team" call-to-action and the react / save / comment /
+         evidence strip get a touch more height so they read as confident,
+         separated thumb targets rather than a cramped cluster. */
       #modal-footer { padding-bottom: env(safe-area-inset-bottom, 0px); }
       #modal-action-strip > * { min-height: 46px !important; }
       #modal-addteam-btn { min-height: 50px !important; font-size: 0.82rem !important; }
@@ -18204,7 +18228,7 @@
       #modal-footer > div:first-child { padding-top: 0.7rem !important; padding-bottom: 0.55rem !important; }
       #modal-addteam-btn { letter-spacing: 0.06em !important; border-radius: 0.7rem !important; }
       #modal-addteam-hint { font-size: 0.74rem !important; }
-      #modal-action-strip { gap: 0.45rem !important; padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px)) !important; }
+      #modal-action-strip { gap: 0.45rem !important; padding-bottom: 0.6rem !important; }
       #modal-action-strip .like-count, #modal-action-strip .dislike-count { font-size: 0.82rem !important; }
       #modal-content { padding-bottom: 1.4rem !important; }
 
@@ -18527,7 +18551,7 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
   #modal-action-strip {
     flex-wrap: nowrap !important;
     gap: 0.375rem !important;
-    padding-bottom: calc(0.4rem + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: 0.4rem !important;
   }
   #modal-action-strip > button,
   #modal-action-strip > a {

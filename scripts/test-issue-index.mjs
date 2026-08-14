@@ -296,6 +296,45 @@ ok(IDX.lastIndexOf('data-pdxwa-oc-panel="limited"') > IDX.lastIndexOf('data-pdxw
   "index: the coverage bucket is not ordered last, so it sits between two sets of findings");
 
 // ═════════════════════════════════════════════════════════════════════════════
+// 1b. Four buckets AT ZERO, too
+// ═════════════════════════════════════════════════════════════════════════════
+// A bucket with no rows in it used to be filtered out of the switcher entirely, so
+// a member whose record contradicted nothing rendered an index with no Contradicted
+// chip at all. That reads as "this bucket does not exist here" when the honest and
+// far more informative statement is "Contradicted: 0". The empty bucket is the whole
+// point of the index: it is the reader's evidence that the check was run and came
+// back clean, and without it a clean record is indistinguishable from an unchecked
+// one. So all four render always, zeros drawn quieter but never dropped.
+const CLEAN = ocOf(withRows([
+  stubRow("border_security", "Border Security", "consistent"),
+  stubRow("guns", "Gun Rights", "consistent"),
+  stubRow("energy", "Energy", "limited"),
+]));
+ok(CLEAN.length > 0, "zero: the clean-record index did not render — the assertions below are vacuous");
+eq((CLEAN.match(/data-pdxwa-seg="/g) || []).length, 4,
+  "zero: a clean record drops chips instead of showing them at zero");
+eq((CLEAN.match(/data-pdxwa-oc-panel="/g) || []).length, 4,
+  "zero: a clean record drops whole panels, so the check that was run leaves no trace");
+for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
+  has(CLEAN, 'data-pdxwa-seg="' + tok + '"', `zero: the "${tok}" chip vanished on a clean record`);
+}
+has(CLEAN, "Contradicted", "zero: the word Contradicted is absent from a record that contradicted nothing");
+ok(/data-pdxwa-seg="contradicts"[\s\S]{0,300}?pdxwa-oc-tab-n">0</.test(CLEAN),
+  "zero: the empty Contradicted chip does not carry its 0");
+// Quieter, not hidden — and an empty panel says so in words rather than reading as
+// a panel that failed to load.
+has(CLEAN, "pdxwa-oc-tab is-zero", "zero: an empty chip is not drawn any quieter than a populated one");
+has(CLEAN, "pdxwa-oc-empty", "zero: an empty panel renders blank instead of stating that nothing landed there");
+has(CLEAN, "None. No issue in this index landed here",
+  "zero: the empty panel does not say plainly that the bucket is empty");
+has(CLEAN, "3 issues checked", "zero: the empty panel does not state how much record was checked to get there");
+// Selection still has to land somewhere a reader can read.
+eq((CLEAN.match(/aria-selected="true"/g) || []).length, 1,
+  "zero: a clean record does not select exactly one bucket");
+ok(/data-pdxwa-seg="consistent"[\s\S]{0,300}?aria-selected="true"/.test(CLEAN),
+  "zero: the index opens on an empty bucket while a populated one exists");
+
+// ═════════════════════════════════════════════════════════════════════════════
 // 2. Not a second scoreboard
 // ═════════════════════════════════════════════════════════════════════════════
 // The profile has ONE number and it is the Direction Match above this block. The

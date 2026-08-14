@@ -1505,14 +1505,20 @@
       var live = COMP_ORDER.map(function (t) {
         var o = OUTCOMES.filter(function (x) { return x.token === t; })[0];
         return { o: o, n: (b.buckets[t] || []).length };
-      }).filter(function (x) { return x.n > 0; });
-      if (!live.length) return '';
-      var bar = live.map(function (x) {
+      });
+      var drawn = live.filter(function (x) { return x.n > 0; });
+      if (!drawn.length) return '';
+      // The BAR is drawn from the buckets that have width — a zero-flex segment is
+      // an invisible segment either way. The CHIPS below it name all four, zeroes
+      // included, so the strip and the index it sits above use the same vocabulary
+      // on every profile. A "0 contradicted" chip is a result; a missing chip is a
+      // reader wondering whether we checked.
+      var bar = drawn.map(function (x) {
         return '<span class="pdxwa-comp-seg" style="flex-grow:' + x.n + ';background:' + x.o.col + ';"' +
           ' title="' + esc(x.n + ' ' + x.o.short.toLowerCase()) + '"></span>';
       }).join('');
       var chips = live.map(function (x) {
-        return '<li class="pdxwa-comp-i">' +
+        return '<li class="pdxwa-comp-i' + (x.n ? '' : ' is-zero') + '">' +
             '<span class="pdxwa-comp-n" style="color:' + x.o.col + ';">' + x.n + '</span>' +
             '<span class="pdxwa-comp-lbl">' + esc(x.o.short) + '</span>' +
           '</li>';
@@ -1645,42 +1651,69 @@
   // WHAT THIS IS NOT. It is not a second scoreboard. No bucket prints a
   // percentage, and the denominator is stated once, in words, at the foot. The one
   // number on this profile is the Direction Match above.
+  //
+  // ALL FOUR BUCKETS, ALWAYS, INCLUDING AT ZERO. This block used to render only
+  // the buckets that had rows. That reads as an honest economy and is not one:
+  // "Contradicted" simply vanished from a record with no contradictions, so the
+  // switcher silently changed its own vocabulary from profile to profile, and a
+  // reader had no way to tell "we found none" from "we do not look for that here".
+  // Zero is a finding, and on this card it is often the most important one. Every
+  // bucket now gets its chip, its count and its panel whatever the count, and an
+  // empty panel says so in words instead of showing an empty list.
   function outcomesHtml(pid) {
     try {
       var b = outcomeBuckets(pid);
       if (!b) return '';
       armIndex();
       var buckets = b.buckets;
-      var live = OUTCOMES.filter(function (o) { return (buckets[o.token] || []).length; });
-      if (!live.length) return '';
-      // Which bucket the index opens on. The sharpest live outcome, never the
-      // coverage pile unless it is the only thing on file.
-      var sel = live.filter(function (o) { return !!OUTCOME_OPEN[o.token]; })[0] || live[0];
+      var countOf = function (o) { return (buckets[o.token] || []).length; };
+      // The full, fixed vocabulary — not a filtered subset of it.
+      var live = OUTCOMES.slice();
+      // Which bucket the index opens on. The sharpest outcome that actually has
+      // rows; then any bucket with rows; and only as a last resort the first chip,
+      // so a zero-everywhere index (which outcomeBuckets cannot produce) still
+      // opens on something rather than on nothing.
+      var withRows = live.filter(function (o) { return countOf(o) > 0; });
+      var sel = withRows.filter(function (o) { return !!OUTCOME_OPEN[o.token]; })[0] ||
+                withRows[0] || live[0];
       var uid = 'pdxwa-ocb-' + _idPart(pid);
       var panelId = function (o) { return uid + '-p-' + _idPart(o.token); };
       var tabId = function (o) { return uid + '-t-' + _idPart(o.token); };
 
       var tabs = live.map(function (o) {
         var on = (o === sel);
+        var n = countOf(o);
+        // An empty bucket keeps its tap target and its aria wiring — it is a real
+        // panel with a real answer in it — and gives up contrast, so the row of
+        // chips still reads worst-first without a zero shouting for attention.
         return '<button type="button" role="tab" id="' + esc(tabId(o)) + '"' +
-            ' class="pdxwa-oc-tab' + (on ? ' is-on' : '') + (o.secondary ? ' pdxwa-oc-tab-2nd' : '') + '"' +
+            ' class="pdxwa-oc-tab' + (on ? ' is-on' : '') + (o.secondary ? ' pdxwa-oc-tab-2nd' : '') +
+              (n ? '' : ' is-zero') + '"' +
             ' style="--pdxwa-col:' + o.col + ';"' +
             ' data-pdxwa-seg="' + esc(o.token) + '" data-pdxwa-seg-uid="' + esc(uid) + '"' +
             ' aria-selected="' + (on ? 'true' : 'false') + '" aria-controls="' + esc(panelId(o)) + '">' +
-            '<span class="pdxwa-oc-tab-n">' + buckets[o.token].length + '</span>' +
+            '<span class="pdxwa-oc-tab-n">' + n + '</span>' +
             '<span class="pdxwa-oc-tab-l">' + esc(o.short) + '</span>' +
           '</button>';
       }).join('');
 
       var panels = live.map(function (o) {
-        var list = buckets[o.token];
+        var list = buckets[o.token] || [];
+        var body = list.length
+          ? '<ul class="pdxwa-oc-l">' + list.map(_outcomeRow).join('') + '</ul>'
+          // The empty state says which of the two zeroes this is: nothing on this
+          // pile, out of a stated denominator. It is the sentence the missing chip
+          // used to withhold.
+          : '<p class="pdxwa-oc-empty">' + esc('None. No issue in this index landed here — ' +
+              b.total + ' issue' + (b.total === 1 ? '' : 's') + ' checked.') + '</p>';
         return '<section class="pdxwa-oc-grp' + (o === sel ? ' is-on' : '') +
-            (o.secondary ? ' pdxwa-oc-grp-2nd' : '') + '" role="tabpanel"' +
+            (o.secondary ? ' pdxwa-oc-grp-2nd' : '') + (list.length ? '' : ' is-zero') +
+            '" role="tabpanel"' +
             ' id="' + esc(panelId(o)) + '" aria-labelledby="' + esc(tabId(o)) + '"' +
             ' data-pdxwa-oc-panel="' + esc(o.token) + '" style="--pdxwa-col:' + o.col + ';">' +
             '<div class="pdxwa-oc-h"><span class="pdxwa-oc-n">' + list.length + '</span> ' + esc(o.label) + '</div>' +
             '<div class="pdxwa-oc-hsub">' + esc(o.sub) + '</div>' +
-            '<ul class="pdxwa-oc-l">' + list.map(_outcomeRow).join('') + '</ul>' +
+            body +
           '</section>';
       }).join('');
 
