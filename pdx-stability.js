@@ -41,14 +41,24 @@
          observed section's height changes entirely above the viewport, scroll by
          the same delta so the visual position is unchanged. Where the browser
          already does this, we install nothing and stay out of the way.
+         It stands down completely while the page is in motion — a finger on the
+         glass, momentum after it lifts, a wheel — because a correction applied
+         mid-fling cancels the fling and lands the reader somewhere they did not
+         ask for. That is what made the true top of the homepage unreachable.
 
-     3 · A MEASURED NAV HEIGHT (--pdx-nav-h)
-         The fixed top nav's height was hard-coded into sticky offsets and
-         scroll padding in several places (`top: 62px`, `scroll-padding-top:
-         108px`, …). Those constants are right at one breakpoint and wrong at
-         the others, so sticky jump-bars tuck under the nav or float away from
-         it, and hash jumps land with the heading hidden. We measure the nav once
-         and publish it as a custom property that the stylesheet consumes.
+     3 · ONE MEASURED TOP OFFSET (--pdx-chrome)
+         The fixed top nav's depth was hard-coded into sticky offsets and scroll
+         padding in several places (`top: 62px`, `scroll-padding-top: 108px`, …).
+         Those constants are right at one breakpoint and wrong at the others, so
+         sticky jump-bars tuck under the nav or float away from it, and hash
+         jumps land with the heading hidden.
+         The first pass at this published its own variable, --pdx-nav-h, beside
+         the --pdx-chrome that index.html already measured — two numbers for one
+         offset, which disagreed badly enough to override the correct one
+         site-wide — the block above measureNav() below has the full account.
+         --pdx-nav-h is now a CSS alias, and what remains here is a fallback
+         publisher of --pdx-chrome for any page that loads this file without the
+         inline measurer.
 
      4 · NO SMOOTH-SCROLL HIJACK OF PROGRAMMATIC RESTORES
          `html { scroll-behavior: smooth }` is global, which turns every
@@ -72,6 +82,14 @@
      is the standards answer; the class is a belt-and-braces fallback for engines
      that ignore it. */
   var adjusting = 0;                            // >0 while WE are moving the page
+
+  /* How close to scroll 0 counts as "the reader is at the top". Nothing can have
+     grown entirely above the viewport this close to it, so any correction here
+     is a correction for a shift that did not happen — and the shove it produces
+     is what stopped the page resting at the true top. Deliberately a few pixels
+     rather than exactly 0: iOS reports fractional and briefly negative offsets
+     while the rubber band settles. */
+  var TOP_BAND = 8;
 
   function scrollToInstant(y) {
     adjusting++;
@@ -238,6 +256,36 @@
   var intentUntil = 0;
   function markIntent(ms) { intentUntil = Date.now() + (ms || 900); }
 
+  /* THE READER'S OWN FINGER IS INTENT TOO, AND IT WAS THE ONE KIND THIS MISSED.
+     markIntent above covered hash changes, anchor clicks and Page/Home/End —
+     every way of moving the page EXCEPT the way people actually move it on a
+     phone. So a section that finished hydrating above the viewport while a
+     reader was flinging back toward the hero fired scrollByInstant, and on iOS
+     a programmatic scrollTo mid-fling does two things at once: it cancels the
+     momentum and it lands the page at current + delta. The reader let go
+     expecting scroll 0 and got a lower resting position instead — the "false
+     top" that made the brand unreachable. Swipe again, hit another hydration,
+     same result.
+
+     A correction is only ever worth making when the page is STILL. While it is
+     moving, the shift the guard exists to hide is smaller than the jump it
+     would cause, so these two signals stand it down:
+
+       · touching — a finger is on the glass right now. Held across the whole
+         gesture rather than a timeout, because a drag can last as long as it
+         likes.
+       · motionUntil — the page has scrolled within the last fraction of a
+         second, from any cause: momentum after the finger lifts (which outlives
+         touchend, and is exactly when the old code fired), a wheel, a trackpad,
+         a keyboard. This is what covers the fling.
+
+     Both are set from passive listeners, so neither can cost a scroll frame. */
+  var touching = 0;
+  var motionUntil = 0;
+  var MOTION_QUIET_MS = 250;    // how long after the last scroll tick counts as "still moving"
+  function markMotion() { motionUntil = Date.now() + MOTION_QUIET_MS; }
+  function pageMoving() { return touching > 0 || Date.now() < motionUntil; }
+
   function installAnchorGuard() {
     var hasNative = !!(window.CSS && CSS.supports && CSS.supports('overflow-anchor', 'auto'));
     if (hasNative) return false;                // Chrome/Firefox already do this
@@ -252,7 +300,7 @@
       }
       var now = Date.now();
       var y = window.scrollY || window.pageYOffset || 0;
-      var suppress = (y <= 4) || now < intentUntil || adjusting > 0;
+      var suppress = (y <= TOP_BAND) || now < intentUntil || adjusting > 0 || pageMoving();
       var delta = 0;
 
       for (var i = 0; i < entries.length; i++) {
@@ -270,8 +318,16 @@
         delta += d;
       }
 
-      // One correction for every section that changed in this batch.
-      if (delta) scrollByInstant(delta);
+      // One correction for every section that changed in this batch — but read
+      // the position again first. Everything above was decided when the callback
+      // began, and on a phone the page can have travelled a long way since:
+      // measuring the entries alone takes layout. If the reader has reached the
+      // top in the meantime there is nothing above the viewport left to preserve,
+      // and pushing them back down is the bug this guard was causing.
+      if (!delta) return;
+      if (pageMoving()) return;
+      if ((window.scrollY || window.pageYOffset || 0) <= TOP_BAND) return;
+      scrollByInstant(delta);
     });
 
     function observe(el) {
@@ -297,15 +353,61 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
-     3 · MEASURED NAV HEIGHT
-     ═══════════════════════════════════════════════════════════════════════ */
+     3 · THE MEASURED CHROME, WHEN NOBODY ELSE PUBLISHES IT
+     ───────────────────────────────────────────────────────────────────────
+     This used to measure the nav itself and publish a SECOND variable,
+     --pdx-nav-h, alongside index.html's --pdx-chrome. Two numbers for one
+     offset is not a source of truth, and the two disagreed in a way that had
+     teeth:
+
+       · It took `nav.getBoundingClientRect().height` — the whole element. The
+         mobile drawer is a normal-flow child of that nav, so an open menu was
+         part of the number.
+       · To survive that it discarded anything over 200px. A notched phone at a
+         stepped-up font size renders the two permanent rows plus the safe-area
+         inset at more than 200px, so on exactly the devices that reported
+         POLITIDEX clipped under the search bar the measurement was thrown away
+         and the 57px stylesheet literal stood.
+       · mobile-polish.css loads after app.css, so the html{scroll-padding-top}
+         it derived from that literal overrode app.css's correct
+         calc(var(--pdx-chrome) …) site-wide: 73px of clearance against 113–160px
+         of real chrome.
+
+     --pdx-nav-h is now a plain CSS alias of --pdx-chrome, so there is one
+     number. What survives here is a FALLBACK PUBLISHER for --pdx-chrome, for a
+     page that loads this file without the inline measurer under the nav: it
+     measures the same thing that one does — the bottom edge of the last
+     PERMANENT row, which the drawer cannot inflate — and it stands down the
+     moment a real measurement is already in place. It never overwrites a value
+     someone else is maintaining. */
+
+  function chromeAlreadyPublished() {
+    try {
+      var v = root.style.getPropertyValue('--pdx-chrome');
+      return !!(v && parseFloat(v) > 0);
+    } catch (e) { return false; }
+  }
 
   function measureNav() {
-    var nav = document.querySelector('nav.nav-blur');
+    // Someone with a better view of the chrome is already publishing it.
+    if (chromeAlreadyPublished()) return;
+    var nav = document.getElementById('pdx-topnav') || document.querySelector('nav.nav-blur');
     if (!nav) return;
-    var h = Math.round(nav.getBoundingClientRect().height);
-    if (!h || h > 200) return;                  // implausible — keep the CSS default
-    root.style.setProperty('--pdx-nav-h', h + 'px');
+    // The permanent rows end where the search row ends; the drawer is rendered
+    // after it. Measuring that row's viewport-relative bottom, on a nav pinned
+    // at top:0, is the depth of the fixed chrome — safe-area inset included,
+    // because the nav is padded by it.
+    var row = nav.querySelector('.pdx-eye-row');
+    var h;
+    try {
+      h = Math.round(row ? row.getBoundingClientRect().bottom
+                         : nav.getBoundingClientRect().height);
+    } catch (e) { return; }
+    // Same sanity band as the inline measurer: below ~40px the nav is not
+    // rendered, above ~320px something other than the chrome is being measured.
+    // The old 200px ceiling was itself the bug on tall notched chrome.
+    if (!(h > 40 && h < 320)) return;
+    root.style.setProperty('--pdx-chrome', h + 'px');
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -344,6 +446,26 @@
       var k = e.key;
       if (k === 'PageDown' || k === 'PageUp' || k === 'Home' || k === 'End') markIntent(600);
     }, true);
+
+    /* The reader's own scrolling, which is the movement the guard has to stay
+       out of the way of. All passive: none of these can delay a scroll frame,
+       and none of them call preventDefault, so scrolling behaves exactly as it
+       did — they only record that it is happening.
+
+       'scroll' is the one that matters most. It keeps firing through iOS
+       momentum after the finger has lifted, which is the window the guard used
+       to fire in and the reason a fling toward the hero landed short. */
+    window.addEventListener('scroll', markMotion, { passive: true });
+    window.addEventListener('wheel', markMotion, { passive: true });
+    document.addEventListener('touchstart', function () { touching++; }, { passive: true });
+    function touchDone() {
+      touching = Math.max(0, touching - 1);
+      // The page is usually still travelling when the finger leaves; let the
+      // scroll ticks above carry the suppression from here.
+      markMotion();
+    }
+    document.addEventListener('touchend', touchDone, { passive: true });
+    document.addEventListener('touchcancel', touchDone, { passive: true });
 
     // Last-resort release: a page being unloaded or backgrounded must never be
     // handed back to the user still locked.

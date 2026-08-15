@@ -1,10 +1,21 @@
 
     /* ── Reset & Base ──────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; }
-    /* 108px was a hand-measured stand-in for the fixed chrome (nav bar + the
-       All-Seeing Eye search row) and came out ~6px short of it, so an anchored
-       section landed just under the bar. Both now read the same variable; the
-       fallback keeps this correct on any page that does not define it. */
+    /* THE ONE PLACE THE FIXED CHROME IS CLEARED.
+       108px was a hand-measured stand-in for the nav bar + the All-Seeing Eye
+       search row and came out ~6px short of it, so an anchored section landed
+       just under the bar. It now reads --pdx-chrome, which the script under the
+       nav measures off the rendered element (safe-area inset included) and
+       rewrites at runtime; the literal is only what the first paint uses.
+
+       This declaration is the WHOLE offset, and it is the only one. Element-level
+       scroll-margin-top and this scroll-padding-top ADD — the target's scroll
+       margin box is aligned to the scrollport's padding edge — so the ~40
+       elements that also stated a chrome-sized scroll-margin-top were not
+       redundant, they were doubling it, and every one of them has been dropped.
+       An element states a scroll-margin-top now only when it needs clearance
+       BEYOND the chrome (a sticky sub-rail inside its own section), and states
+       just that extra. */
     html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome, 7.125rem) + 0.5rem); }
     body {
       background-color: #0a0f1e;
@@ -3578,8 +3589,9 @@
       /* Hero title scaling */
       .hero-title { font-size: clamp(2.5rem, 14vw, 5rem) !important; }
 
-      /* Sections: tighter padding */
-      section { scroll-margin-top: 100px; }
+      /* The chrome clearance that used to be restated here (100px) is gone:
+         html{scroll-padding-top} above already holds every jump clear of the
+         fixed bar at every width, and the two offsets add. */
 
       /* Power Map location header: responsive */
       #voter-hub .pm-location-bar [style*="font-size:4.25rem"] { font-size: 2.2rem !important; line-height: 1.1 !important; }
@@ -5679,7 +5691,9 @@
        gold-on-dark language. */
     .mandate-jump {
       position: sticky;
-      top: 62px;                 /* clears the global fixed navbar */
+      /* Pinned to the measured chrome rather than a 62px guess, so the rail sits
+         flush under the nav on a notched phone too. */
+      top: calc(var(--pdx-chrome, 7.125rem) + 5px);
       z-index: 30;
       display: flex;
       gap: 0.5rem;
@@ -5752,16 +5766,21 @@
       border-color: rgba(10,15,30,0.25);
       color: #0a0f1e;
     }
-    /* Stopping point below the global nav + sticky jump bar for each target. */
+    /* These targets need clearance BEYOND the fixed chrome: .mandate-jump is a
+       sticky rail that sits directly under it. The chrome itself comes from
+       html{scroll-padding-top}, so the only thing stated here is the rail —
+       0.5rem of padding on each side of a 44px pill. 120px used to mean
+       "chrome + rail" and so double-counted the chrome the scrollport already
+       subtracts. */
     #mandate-overview, #mandate-stats, #rh-filter-bar, #agenda-grid, #mandate-submit {
-      scroll-margin-top: 120px;
+      scroll-margin-top: 3.75rem;
     }
     @media (prefers-reduced-motion: reduce) {
       .mandate-jump-pill { transition: none; }
       .mandate-jump-pill:hover { transform: none; }
     }
     @media (max-width: 640px) {
-      .mandate-jump { top: 58px; border-radius: 1rem; margin-bottom: 1.5rem; }
+      .mandate-jump { border-radius: 1rem; margin-bottom: 1.5rem; }
       .mandate-jump-pill { font-size: 0.66rem; padding: 0.4rem 0.8rem; }
     }
     /* ═══════ END PEOPLE'S MANDATE STYLES ═══════ */
@@ -8530,7 +8549,7 @@
     /* The wrap is the grid item now, so it carries the sticky the nav used to —
        its containing block is the full-height grid area, which is what gives the
        sidebar room to travel. The nav itself is a plain box inside it. */
-    .myteam-cockpit-navwrap { position: sticky; top: 84px; min-width: 0; }
+    .myteam-cockpit-navwrap { position: sticky; top: calc(var(--pdx-chrome, 7.125rem) + 0.5rem); min-width: 0; }
     .myteam-cockpit-navrow { display: block; min-width: 0; }
     /* The swipe cue, the chevrons and the pager are all off until the strip
        actually overflows — `.is-scroll` is set from its measured scrollWidth, so
@@ -12449,10 +12468,10 @@
       transition: background 0.2s ease;
     }
 
-    /* ── Smooth scroll targets ─────────────────────────────── */
-    [id] {
-      scroll-margin-top: 80px;
-    }
+    /* The blanket `[id] { scroll-margin-top: 80px }` that used to sit here gave
+       every element on the page a second chrome offset on top of the scrollport's
+       own, so on the narrowest phones a jump landed ~80px past its target. The
+       one offset lives in html{scroll-padding-top}. */
 
     /* ── Section spacing refinement ────────────────────────── */
     .section-py {
@@ -14980,10 +14999,8 @@
     }
 
     /* ── How It Works cards: consistent gap and padding ─────── */
-    .section-py + #submit,
-    #submit {
-      scroll-margin-top: 80px;
-    }
+    /* #submit's own 80px chrome offset is gone — html{scroll-padding-top} is
+       the single source, and the two used to add. */
 
     /* ── Submit section: balanced internal spacing on mobile ──── */
     @media (max-width: 640px) {
@@ -15280,10 +15297,8 @@
       transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
     }
 
-    /* ── Smooth page-level transitions when navigating ─────────── */
-    section {
-      scroll-margin-top: 76px;
-    }
+    /* A third restatement of the chrome (76px) lived here. Removed for the same
+       reason as the others: html{scroll-padding-top} already clears it. */
 
     /* ── Better keyboard focus for form fields ─────────────────── */
     .submit-inner input:focus,
@@ -18149,7 +18164,6 @@
          the personalised reasoning is actually readable, and give the
          Relevant and Key Races blocks a touch more vertical separation. */
       #relevant-browse-grid .relevant-why-pill { font-size: 0.66rem !important; padding: 0.18rem 0.55rem !important; }
-      #relevant-section { scroll-margin-top: 72px; }
     }
 
     @media (max-width: 480px) {

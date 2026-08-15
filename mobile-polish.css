@@ -149,14 +149,18 @@
   overscroll-behavior-x: contain;
 }
 
-/* Land smooth-scroll / anchor jumps just below the fixed top nav instead of
-   underneath it — makes in-app navigation feel intentional, not clipped.
-   Superseded at every width by the --pdx-nav-h rule in section 7c below, which
-   derives the same offset from the nav's measured height; kept as the value a
-   phone falls back to if that custom property is ever unresolvable. */
-@media (max-width: 640px) {
-  html { scroll-padding-top: 72px; }
-}
+/* THE PHONE OVERRIDE THAT USED TO LIVE HERE IS GONE ON PURPOSE.
+   It read `html { scroll-padding-top: 72px }` and was described as a fallback
+   for an unresolvable custom property — but it was a THIRD value for the one
+   offset the page has, on top of app.css's and section 7c's, and 72px is not
+   the chrome on any phone that reported the clipped wordmark: a notched device
+   is 113–160px once the safe-area inset and two nav rows are counted.
+
+   There is now exactly one declaration of html{scroll-padding-top}, in app.css,
+   derived from --pdx-chrome — the variable the nav measures itself into. A
+   phone whose JS never runs gets the stylesheet literal that --pdx-chrome is
+   declared with, which is the same fallback this rule was reaching for and is
+   maintained in one place instead of three. */
 
 
 /* ── 4 · Seamless transitions — promote only what actually animates ───────
@@ -249,8 +253,9 @@ nav.nav-blur {
    --------------------------------------------------------------------------
    Everything below targets site-wide "jumpiness": content that moves after you
    have started reading it. It pairs with pdx-stability.js, which owns the
-   scroll-lock coordinator, the Safari scroll-anchoring fallback and the live
-   --pdx-nav-h measurement that these rules consume. Still purely additive: no
+   scroll-lock coordinator and the Safari scroll-anchoring fallback. The top
+   offset these rules consume is --pdx-chrome, measured once under the nav in
+   index.html and nowhere else. Still purely additive: no
    existing declaration is replaced, and every layout-affecting change is either
    mobile-scoped or a no-op where the browser already behaves.
    ══════════════════════════════════════════════════════════════════════════ */
@@ -292,33 +297,52 @@ html.pdx-instant-scroll {
    Sticky jump-bars and scroll padding hard-coded the nav height (62px, 80px,
    108px) at a single breakpoint, so on phones the sticky bars tucked under the
    nav and hash jumps landed with the target heading hidden behind it.
-   pdx-stability.js measures the nav (including after the late webfont swap,
-   which changes its text metrics) and overwrites --pdx-nav-h; the value here is
-   the correct fallback for the mobile bar if JS never runs. */
+
+   THAT FIX SHIPPED A SECOND SOURCE OF TRUTH RATHER THAN ONE. --pdx-nav-h was
+   measured by pdx-stability.js while --pdx-chrome was measured by the script
+   under the nav in index.html, and the two do not agree:
+
+     · --pdx-nav-h took `nav.getBoundingClientRect().height`, i.e. the WHOLE
+       nav element — and the mobile drawer is a normal-flow child of that nav,
+       so an open menu is part of the number.
+     · To survive that, it discarded anything over 200px. A notched phone at a
+       stepped-up font size renders the two permanent rows plus the safe-area
+       inset at more than 200px, so on exactly the devices that reported the
+       clip the measurement was thrown away and the 57px literal below stood.
+     · This file loads after app.css, so the `html { scroll-padding-top }`
+       that used to sit in this section overrode app.css's correct
+       calc(var(--pdx-chrome) …) site-wide with calc(57px + 16px) = 73px —
+       against real chrome of 113–160px. Every hash jump and every
+       scrollIntoView on the page landed 40–90px under the bar.
+
+   --pdx-chrome is the survivor: it measures the bottom edge of the last
+   PERMANENT row (.pdx-eye-row), which is immune to the drawer, and it counts
+   the safe-area inset because the nav is padded by it. --pdx-nav-h is kept as
+   a plain alias so any rule that still names it gets the same number, and the
+   duplicate html{scroll-padding-top} that lived here is gone — app.css owns
+   that declaration alone now.
+
+   The literal is the pre-measurement / no-JS value, and it is the same literal
+   --pdx-chrome is declared with in index.html. */
 :root {
-  --pdx-nav-h: 57px;
+  --pdx-nav-h: var(--pdx-chrome, 7.125rem);
 }
 
-/* Land every hash jump / scrollIntoView clear of the nav, at every width.
-   Unscoped so desktop stops landing 108px low as well. */
-html {
-  scroll-padding-top: calc(var(--pdx-nav-h) + 16px);
-}
-
-/* Sections that never got an inline scroll-margin-top now get one. Inline
-   styles still win where a section already tuned its own value, so this only
-   fills the gaps (#hot-topics, #digital-library, #say-vs-do, #trending-reforms,
-   #compare-hub, #agenda, …). */
-section[id] {
-  scroll-margin-top: calc(var(--pdx-nav-h) + 16px);
-}
+/* THE BLANKET `section[id] { scroll-margin-top: … }` THAT USED TO SIT HERE IS
+   GONE ON PURPOSE. It was written to give sections that had no inline offset
+   the same clearance as the ones that did — but scroll-margin-top ADDS to the
+   scrollport's scroll-padding-top rather than replacing it, so once app.css
+   states the chrome once for the whole document, restating it here charged
+   every `<section id>` on the site the fixed nav twice and landed hash jumps
+   and scrollIntoView calls a full chrome-height past their heading. Sections
+   need nothing here: html{scroll-padding-top} in app.css already clears them. */
 
 /* The two sticky quick-jump rails both hard-coded `top: 62px`. Pin them to the
-   measured nav instead so they sit flush under it rather than overlapping it or
-   floating clear of it. */
+   measured chrome instead so they sit flush under it rather than overlapping it
+   or floating clear of it. */
 .el-jump,
 .mandate-jump {
-  top: calc(var(--pdx-nav-h) + 5px);
+  top: calc(var(--pdx-chrome, 7.125rem) + 5px);
 }
 
 /* ── 7d · Stop the sticky chrome repainting the page behind it, per frame ──
