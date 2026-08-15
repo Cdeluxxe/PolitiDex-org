@@ -270,7 +270,71 @@
     'bwilson||tied the lake s dust risk to hill afb and military readiness': 'water',
     'dowens_st||a consistent guardian of central utah farms and water': 'water',
     'jferry||pattern a farmer who rewrote utah water law then went to run it': 'water',
-    'kstratton||pattern practices the conservation he legislates': 'water'
+    'kstratton||pattern practices the conservation he legislates': 'water',
+
+    // ── August 2026, second pass: the highest-salience remainder ─────────────
+    // The pass above cleared 34 of 223. The 189 it left were read again, marquee
+    // and national profiles first — the ones a reader actually opens — because an
+    // unkeyed receipt on Trump, Obama or the Speaker of the Utah House costs more
+    // reach than an unkeyed receipt on a first-term backbencher.
+    //
+    // The three tests above are unchanged. One thing was made explicit that the
+    // first pass left to judgement, because it decided most of the calls here:
+    //
+    //   WHEN TWO OR THREE KEYS ARE PLAUSIBLE, THE MEMBER'S OWN STATED STANCE SET
+    //   IS THE TIEBREAK — AND ONLY WHEN IT CONTAINS EXACTLY ONE OF THEM.
+    //
+    // This is not a loosening of test 2. "Air quality" sits in the keyword list of
+    // three live keys, which is why it was shelved the first time; but Erin
+    // Mendenhall states climate_action and neither of the other two, so for HER
+    // profile there is one row this receipt can honestly join — the row the page
+    // already prints — and putting it anywhere else would invent a second
+    // environmental row next to the one she stands on. Where the member states two
+    // of the candidates (Hegseth on strong_defense AND veterans, Fiefia on
+    // privacy_rights AND tech_balance), the tiebreak yields nothing and the item
+    // stays unkeyed. Where they state none (Wilcox on agency rulemaking), likewise.
+    //
+    // 176 receipts remain unkeyed after this pass, and the reasons cluster:
+    //   · CONDUCT AND CANDOR — the largest group by far. Boebert's theater
+    //     ejection, Noem's dog, Greene's committee removal, Winder's pseudonymous
+    //     news stories, Gaetz's ethics report, Warren's bar card. Real, sourced,
+    //     and about a person rather than a policy question. They stay in the
+    //     flashpoints feed, which is the surface built for them.
+    //   · ELECTORAL AND CAREER BIOGRAPHY — party switches, primary losses,
+    //     resignations, nominations withdrawn, leadership posts won.
+    //   · SPANS TWO OR MORE ISSUES — most "Pattern:" rows. Trump's kept promises
+    //     name tax cuts, two treaty withdrawals, an embassy move and tariffs;
+    //     Albrecht's energy signature is filed alongside water and rural
+    //     agriculture. A row is one question, and these are three.
+    //   · NO HONEST HOME IN THE LIVE TAXONOMY — RFK Jr.'s chronic-disease agenda
+    //     (no food-policy key), Massie's off-grid self-reliance (no
+    //     limited-government key), Cox's civility initiative, state-versus-city
+    //     preemption fights (states_federal_power is state-versus-FEDERAL).
+    //   · WOULD PRINT THE WRONG DIRECTION — test 3, and the one worth naming
+    //     twice. Bush's WMD case for Iraq is a candor failure about a factual
+    //     predicate, not a departure from Peace Through Strength, but keyed to
+    //     strong_defense (which he states) verdictOf() would stamp it "Says One
+    //     Thing · Does Another". Gabbard taking the DNI job is described by its own
+    //     source as "a standing test" of her surveillance criticism, not a broken
+    //     one, and privacy_rights is a stance she still holds. Neither is keyed.
+    //     A contradiction the record has not yet demonstrated is not ours to print.
+    //
+    // Nothing here is a promise-category item: those are excluded from the
+    // Say-vs-Do pool upstream (SAYDO_EXCLUDE in consistency.js) and belong to the
+    // Promises system, so keying one would assign a key that could never land.
+    'obama||kept high stakes national security pledges': 'foreign_balance',
+    'cstewart||a national security focus that tracked his biography': 'strong_defense',
+    'nhaley||a consistent foreign policy hawk': 'strong_defense',
+    'kennedy||a single signature issue held steady across four offices': 'healthcare',
+    'emendenhall||an air quality advocate who made it her signature in office': 'climate_action',
+    'rfkjr||decades of genuine environmental litigation': 'climate_action',
+    'rwinterton||sponsored a refugee services office cutting against type': 'immigration_reform',
+    'rspendlove||pattern the economist who supplies the math not the theatrics': 'lower_taxes',
+    'kriebe||ran for office because no classroom teachers were writing school policy': 'public_schools',
+    'gwynn_h6||a working law enforcement officer legislating public safety': 'back_police',
+    'gwynn_h6||pattern legislates the public safety work he does on duty': 'back_police',
+    'jferry||a farmer with water interests now oversees water policy': 'gov_transparency',
+    'james_dunnigan||an insurance industry insider who writes insurance law': 'gov_transparency'
   };
   function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   // Resolve a receipt's issueKey: its own, else the Phase 10 backfill (validated
