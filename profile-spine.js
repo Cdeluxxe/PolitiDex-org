@@ -800,19 +800,45 @@
         }).join('') + '</div>'
       : '<p class="pdxbr-none">No documented positions on file yet — the record below shows what is tracked so far.</p>';
 
+    // The closed-row gists. Both are drawn from what the body already prints —
+    // the issue labels themselves, and the tension card's own badge — so the row
+    // can never name something the block behind it does not contain.
+    var sigGist = sigs.length
+      ? sigs.map(function (s) { return s.label; }).join(' · ')
+      : 'Nothing on file yet';
+    var tGist = t ? (t.badge || 'Contested') : 'No documented gap';
+
     return '<section class="pdxbr" aria-label="' + escAttr('The short version of ' + (p.name || 'this profile')) + '">' +
         '<div class="pdxbr-grid">' +
-          '<div class="pdxbr-col">' +
-            '<div class="pdxbr-col-lbl">What defines them</div>' +
-            sigHtml +
-          '</div>' +
-          '<div class="pdxbr-col">' +
-            '<div class="pdxbr-col-lbl">Where the tension is</div>' +
-            tensionCard(pid, p, t) +
-          '</div>' +
+          fold('What defines them', sigGist, sigHtml) +
+          fold('Where the tension is', tGist, tensionCard(pid, p, t)) +
         '</div>' +
         nextRow(pid, p, t) +
       '</section>';
+  }
+
+  // fold(label, gist, body) — one compact row of the brief.
+  //
+  // These two blocks used to render open, side by side on a desktop and stacked
+  // on a phone: three signature-issue buttons with a sentence of rationale each,
+  // then a tension card with a badge, a headline, a paragraph and a control.
+  // Between the letterhead and the Word-vs-Action graph that is most of a phone
+  // screen, and it is context — worth having, not worth spending the first screen
+  // on. Closed, each is a single row: the label, and a gist that already answers
+  // the question at chip length ("Healthcare · Immigration · Guns", "Says one
+  // thing, does another"). A reader who wants the reasoning taps the row.
+  //
+  // The gist is a SUMMARY OF THE BODY, never a second finding — it repeats words
+  // the body prints in full and adds nothing the body does not say.
+  function fold(label, gist, body) {
+    return '<details class="pdxbr-fold">' +
+        '<summary class="pdxbr-fold-s">' +
+          '<span class="pdxbr-col-lbl">' + esc(label) + '</span>' +
+          (gist ? '<span class="pdxbr-fold-g">' + esc(gist) + '</span>' : '') +
+          '<span class="pdxbr-fold-x" aria-hidden="true"></span>' +
+        '</summary>' +
+        '<div class="pdxbr-col">' + body + '</div>' +
+      '</details>';
   }
 
   // hydrate(root) — called SYNCHRONOUSLY by the caller in the same task that set

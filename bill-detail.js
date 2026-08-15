@@ -625,15 +625,30 @@
     var title = _current.number ? (_current.number + ' — ' + _current.title) : (_current.title || 'Bill');
     var coarse = false;
     try { coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches; } catch (e) {}
+    var copy = function () {
+      var done = function () { var t = btn.innerHTML; btn.innerHTML = '✓ Link copied'; setTimeout(function () { btn.innerHTML = t; }, 1600); };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(done, function () { window.prompt('Copy this link', url); }); return; }
+      } catch (e) {}
+      window.prompt('Copy this link', url);
+    };
+    // A refused share used to be indistinguishable from a completed one, because
+    // the rejection was swallowed and the copy fallback was already unreachable
+    // behind the early return. Now the outcome decides.
+    var L = null;
+    try { L = window.PDXShareLinks; } catch (e) { L = null; }
+    if (coarse && L && typeof L.native === 'function') {
+      L.native({ title: title, text: title, url: url }).then(function (res) {
+        if (res.ok || res.outcome === 'cancelled') return;
+        copy();
+      });
+      return;
+    }
     if (navigator.share && coarse) {
-      try { navigator.share({ title: title, text: title, url: url }).catch(function () {}); return; }
+      try { navigator.share({ title: title, text: title, url: url }).catch(copy); return; }
       catch (e) {}
     }
-    var done = function () { var t = btn.innerHTML; btn.innerHTML = '✓ Link copied'; setTimeout(function () { btn.innerHTML = t; }, 1600); };
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(done, function () { window.prompt('Copy this link', url); }); return; }
-    } catch (e) {}
-    window.prompt('Copy this link', url);
+    copy();
   }
 
   function show(html) {

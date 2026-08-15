@@ -2488,6 +2488,17 @@ window.PDXLazy = (function () {
          at scroll 0. Half a rem of air is enough here; the fold budget below is
          what pays for the rest. */
       #hero { padding-top: calc(var(--pdx-chrome) + 0.5rem); padding-bottom: 2.5rem; }
+      /* THE VIEWPORT THE READER ACTUALLY HAS AT SCROLL 0. `min-h-screen` is
+         100vh, and on iOS/Android 100vh is the LARGE viewport — the height the
+         page gets once the URL bar has retracted, which is not the height it has
+         when the reader is resting at the true top with the bar still showing.
+         The hero box is therefore taller than the window at exactly the moment
+         it most needs to fit, and since the stack is centred inside that box its
+         lower half (showcase and record card) hangs below the visible edge.
+         100svh is the small viewport — bar shown — so at scroll 0 the hero is
+         the screen, intro included. Engines without svh simply ignore this line
+         and keep the old 100vh behaviour. */
+      #hero { min-height: 100svh; }
       /* These trims keyed on `.mb-8` until the hero children became `mb-5 md:mb-8`
          — a different class name, so every rule below silently stopped matching
          and the phone hero kept its full-size stack. They are anchored to the
@@ -3324,7 +3335,14 @@ window.PDXLazy = (function () {
   </script>
 
   <!-- ═══════════════════════════════════════════ HERO ═════ -->
-  <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center text-center stars-bg scanline pt-32 pb-16 px-4 overflow-hidden">
+  <!-- pt-32 (8rem) used to sit in this class list as a fourth, silent top offset.
+       It lost to `#hero { padding-top: calc(var(--pdx-chrome) + …) }` on
+       specificity, so it changed nothing — it just meant the hero appeared to
+       declare its own clearance, which is the exact drift that put POLITIDEX
+       under the search bar the first time. The clearance is stated once, in the
+       #hero rules in the chrome stylesheet above, and derived from the measured
+       nav. -->
+  <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center text-center stars-bg scanline pb-16 px-4 overflow-hidden">
 
     <!-- Premium Background visual layers: stronger gradients & subtle stars/flag elements -->
     <div class="absolute inset-0 pointer-events-none select-none">
@@ -4011,7 +4029,7 @@ window.PDXLazy = (function () {
        Adding a Spotlight to the registry makes it appear here automatically; the
        whole section hides itself when the registry is empty. -->
   <section id="local-issues" class="relative px-4 py-12 md:py-16" hidden
-           style="display:none;background:linear-gradient(180deg,#0a0f1e 0%,#0b1326 55%,#0a0f1e 100%);border-top:1px solid rgba(255,255,255,0.05);scroll-margin-top:80px;"
+           style="display:none;background:linear-gradient(180deg,#0a0f1e 0%,#0b1326 55%,#0a0f1e 100%);border-top:1px solid rgba(255,255,255,0.05);"
            aria-label="Local Issues — sourced guides to major local controversies">
     <style>
       /* Flash guard: Local Issues is a POST-LOCATION surface. It is authored high
@@ -4317,11 +4335,11 @@ window.PDXLazy = (function () {
   </div>
 
   <!-- ═══════════════════════ VOTER EMPOWERMENT HUB ════════ -->
-  <!-- scroll-margin-top clears the fixed top navbar so jumping here from the nav
+  <!-- html{scroll-padding-top} clears the fixed top navbar so jumping here from the nav
        (or the welcome→ballot handoff) lands the section heading in view instead
        of tucked under the bar — matching #local-issues, #my-politicians and the
        Your Ballot section. -->
-  <section id="voter-hub" class="py-16 md:py-24 border-b border-white/5" style="background:linear-gradient(180deg,rgba(5,8,20,0.95) 0%,rgba(10,20,50,0.9) 100%);scroll-margin-top:80px;">
+  <section id="voter-hub" class="py-16 md:py-24 border-b border-white/5" style="background:linear-gradient(180deg,rgba(5,8,20,0.95) 0%,rgba(10,20,50,0.9) 100%);">
     <!-- Reusable, low-key "guidance hint" — a quiet helper line used to gently
          orient first-time visitors at each decision point without cluttering the
          interface. Blue by default; amber/purple modifiers tie a hint to the
@@ -4626,7 +4644,7 @@ window.PDXLazy = (function () {
            Past dates auto-collapse into a muted "done" strip, so the block
            stays correct as time passes with no edits required.
       ════════════════════════════════════════════════════════════════════ -->
-      <div id="key-dates" class="pd-ec mb-6 animate-on-scroll" style="scroll-margin-top:80px;transition-delay:0.05s;">
+      <div id="key-dates" class="pd-ec mb-6 animate-on-scroll" style="transition-delay:0.05s;">
         <style id="pd-ec-styles">
           .pd-ec-shell{position:relative;border-radius:1.25rem;padding:1.1rem 1.15rem;overflow:hidden;
             background:linear-gradient(135deg,rgba(192,21,42,0.10) 0%,rgba(10,15,30,0.92) 45%,rgba(26,58,107,0.20) 100%);
@@ -5764,7 +5782,7 @@ window.PDXLazy = (function () {
       </div>
 
       <!-- ── MY VOTING TEAM / BUILD YOUR TEAM Builder ── -->
-      <div id="my-politicians" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.08s; scroll-margin-top: 80px;">
+      <div id="my-politicians" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.08s;">
         <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══
              This is the page's PRIMARY destination — the one place voters build and
              finalize their slate. It deliberately carries the heaviest visual weight
@@ -5999,7 +6017,7 @@ window.PDXLazy = (function () {
             .rf-cards { grid-template-columns: 1fr; }
           }
         </style>
-        <section id="race-focus" class="race-focus animate-on-scroll" style="scroll-margin-top:80px;" aria-label="See who's running in my races — one race at a time">
+        <section id="race-focus" class="race-focus animate-on-scroll" aria-label="See who's running in my races — one race at a time">
           <div class="race-focus__head">
             <div class="race-focus__title-wrap">
               <span class="race-focus__ico" aria-hidden="true">🔎</span>
@@ -6039,7 +6057,7 @@ window.PDXLazy = (function () {
       </div>
 
       <!-- ── RELEVANT TO ME section directly below team builder ── -->
-      <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px; transition-delay:0.1s;">
+      <div id="relevant-section" class="mb-10 animate-on-scroll" style="transition-delay:0.1s;">
         <!-- Relevant to Me Section Header — a supporting RESEARCH tool: lighter than
              My Voting Team and clearly framed as "research & quick-add", with the path
              back up to the one builder kept prominent. -->
@@ -6388,7 +6406,7 @@ window.PDXLazy = (function () {
            before JS boots); everything below #efmv-panel is painted by the efmv
            module from the live team / saved / spotlight data and re-renders on
            pdx-team-change, pdx-saved-change and pdx-evidence-ready. -->
-      <section id="evidence-for-my-vote" class="mb-14 md:mb-16 animate-on-scroll" style="scroll-margin-top:80px; transition-delay:0.05s;" aria-label="Evidence for My Vote — the evidence tied to the politicians on your ballot">
+      <section id="evidence-for-my-vote" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.05s;" aria-label="Evidence for My Vote — the evidence tied to the politicians on your ballot">
         <div class="efmv">
           <div class="efmv-hero">
             <div class="efmv-hero-glow" aria-hidden="true"></div>
@@ -7324,7 +7342,7 @@ window.PDXLazy = (function () {
            detected client-side from the static/local data and merged in here.
            Opt-in email + topic controls live in the ⚙ settings modal. Painted
            entirely by the IIFE below into #whats-changed-panel. ─────────────── -->
-      <section id="whats-changed" class="mb-14 md:mb-16 animate-on-scroll" style="scroll-margin-top:80px;" aria-label="What Changed — updates on the politicians and issues you follow">
+      <section id="whats-changed" class="mb-14 md:mb-16 animate-on-scroll" aria-label="What Changed — updates on the politicians and issues you follow">
         <div id="whats-changed-panel" class="wc-panel"></div>
       </section>
 
@@ -7824,7 +7842,7 @@ window.PDXLazy = (function () {
       })();
       </script>
 
-      <section id="my-saved" class="mb-14 md:mb-16 animate-on-scroll" style="scroll-margin-top:80px; transition-delay:0.05s;" aria-label="My Saved — the politicians, issues and evidence I've saved">
+      <section id="my-saved" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.05s;" aria-label="My Saved — the politicians, issues and evidence I've saved">
         <div id="my-saved-panel" class="msv-panel"></div>
       </section>
 
@@ -7977,7 +7995,7 @@ window.PDXLazy = (function () {
            PDXSpotlight registry. Every Spotlight (national + local) shows here
            the moment it's added — filterable by scope/topic and searchable — so
            nothing stays buried behind a deep-link. -->
-      <div id="all-spotlights" style="scroll-margin-top:5rem;">
+      <div id="all-spotlights">
         <div class="shub-head">
           <div class="shub-head-eyebrow"><span aria-hidden="true">📌</span> The Full Collection</div>
           <h3 class="shub-head-title">Explore Every Issue Spotlight</h3>
@@ -10447,7 +10465,7 @@ window.PDXLazy = (function () {
        editing any existing rule. -->
   <link rel="stylesheet" href="/mobile-polish.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/mobile-polish.css" /></noscript>
-  <section id="evidence-locker" class="py-16 md:py-24 px-4" style="background:linear-gradient(180deg,rgba(10,15,30,0.96) 0%,rgba(13,21,38,0.92) 100%);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);scroll-margin-top:80px;">
+  <section id="evidence-locker" class="py-16 md:py-24 px-4" style="background:linear-gradient(180deg,rgba(10,15,30,0.96) 0%,rgba(13,21,38,0.92) 100%);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">
     <div class="el-shell">
       <div class="text-center mb-8 animate-on-scroll">
         <div class="inline-flex items-center gap-2 bg-blue-900/40 border border-blue-500/30 rounded-full px-4 py-1.5 mb-3">
@@ -10481,7 +10499,8 @@ window.PDXLazy = (function () {
       <style>
         .el-jump {
           position: sticky;
-          top: 62px;                          /* clears the global fixed navbar */
+          /* Pinned to the measured chrome rather than a 62px guess. */
+          top: calc(var(--pdx-chrome, 7.125rem) + 5px);
           z-index: 30;
           display: flex;
           gap: 0.5rem;
@@ -10554,16 +10573,25 @@ window.PDXLazy = (function () {
           border-color: rgba(10,15,30,0.25);
           color: #0a0f1e;
         }
-        /* Stopping point below the global nav + sticky jump bar for each target. */
+        /* Clearance BEYOND the fixed chrome, which html{scroll-padding-top}
+           already subtracts: .el-jump is a sticky rail pinned under the nav, so
+           what is stated here is the rail alone — 0.5rem of padding either side
+           of a 44px pill. The old 132px meant "chrome + rail" and therefore
+           counted the chrome twice. */
         #el-quickcats, #el-featured, #el-recent, #el-toolbar, #el-results {
-          scroll-margin-top: 132px;
+          scroll-margin-top: 3.75rem;
         }
         @media (prefers-reduced-motion: reduce) {
           .el-jump-pill { transition: none; }
           .el-jump-pill:hover { transform: none; }
         }
         @media (max-width: 640px) {
-          .el-jump { top: 58px; border-radius: 1rem; margin-bottom: 1.5rem; }
+          /* `top: 58px` used to live here and was the last phone-only restatement
+             of the nav's depth — it beat the measured calc on specificity, so on
+             exactly the screens where the chrome is tallest the rail parked ~60px
+             up underneath it. The rail's phone treatment is its shape, not its
+             offset; the offset stays with --pdx-chrome. */
+          .el-jump { border-radius: 1rem; margin-bottom: 1.5rem; }
           .el-jump-pill { font-size: 0.68rem; padding: 0.4rem 0.8rem; }
         }
       </style>
@@ -11063,7 +11091,7 @@ window.PDXLazy = (function () {
   <section id="compare-hub" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
 
     <!-- ═══ PROMISE TRACKER ═══ -->
-    <div id="tracker" style="scroll-margin-top:80px;">
+    <div id="tracker">
       <div id="myteam-browse-panel" class="w-full">
         <!-- Promise Tracker Section Header -->
         <div class="mb-6 animate-on-scroll" style="background:linear-gradient(135deg, rgba(192,21,42,0.1) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(192,21,42,0.2); border-radius:1.25rem; padding:1.25rem 1.5rem;">
@@ -11928,7 +11956,7 @@ window.PDXLazy = (function () {
     ║  search for "ADMIN_EMAIL" and update that value.                  ║
     ╚══════════════════════════════════════════════════════════════════╝
   -->
-  <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
+  <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%);">
     <style>
       /* Potential-duplicate suggestion cards stay hidden until the user opts in. */
       #expansion-results-list:not(.show-dups) .expansion-dup-card { display: none; }
@@ -12244,7 +12272,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        • All reads come from the in-memory PROFILES mirror (loaded from Firestore
          on page load); all writes go straight back to Firestore.
        ───────────────────────────────────────────────────────────────────────── -->
-  <section id="politician-manager" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(24,8,14,0.92) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
+  <section id="politician-manager" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(24,8,14,0.92) 0%,rgba(5,8,20,0.95) 100%);">
     <div class="max-w-6xl mx-auto px-4">
 
       <!-- ── Header ────────────────────────────────────────── -->
@@ -15943,7 +15971,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       #voter-academy .va-ctrl-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.12em;text-transform:uppercase;color:#cbd5e1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:0.55rem;padding:0.5rem 1.05rem;cursor:pointer;transition:all .2s ease;}
       #voter-academy .va-ctrl-btn:hover{color:#fff;border-color:rgba(245,200,66,0.4);background:rgba(245,200,66,0.06);transform:translateY(-1px);}
       /* ── Curriculum track dividers ───────────────────────── */
-      #voter-academy .va-track{display:flex;align-items:center;gap:0.85rem;margin:2.5rem 0 0.9rem;scroll-margin-top:6rem;}
+      #voter-academy .va-track{display:flex;align-items:center;gap:0.85rem;margin:2.5rem 0 0.9rem;}
       #voter-academy .va-track:first-of-type{margin-top:0.5rem;}
       #voter-academy .va-track-no{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.05em;color:#0a0f1e;background:var(--va-color,#fad96a);width:2.1rem;height:2.1rem;border-radius:0.55rem;display:flex;align-items:center;justify-content:center;}
       #voter-academy .va-track-txt{min-width:0;}
@@ -16575,7 +16603,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- Donation / Support Section -->
-      <div id="support-politidex" class="bg-navy-800/50 border border-white/10 rounded-2xl p-8 md:p-10 text-center animate-on-scroll relative overflow-hidden" style="transition-delay:0.18s;scroll-margin-top:80px;box-shadow:0 20px 56px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.03);">
+      <div id="support-politidex" class="bg-navy-800/50 border border-white/10 rounded-2xl p-8 md:p-10 text-center animate-on-scroll relative overflow-hidden" style="transition-delay:0.18s;box-shadow:0 20px 56px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.03);">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700"></div>
         <div class="absolute -top-32 -right-32 w-64 h-64 rounded-full bg-crimson-600/5 blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-32 -left-32 w-64 h-64 rounded-full bg-blue-700/5 blur-3xl pointer-events-none"></div>
@@ -16797,7 +16825,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
            is evidence that feeds this number, not a rival to it. Figures here
            mirror word-action.js: tier weights, the two floors, and the fact that
            a percentage exists only once both floors clear. -->
-      <div id="m-wordaction" class="bg-navy-800/70 border border-gold-400/20 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.08s;scroll-margin-top:90px;">
+      <div id="m-wordaction" class="bg-navy-800/70 border border-gold-400/20 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.08s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(245,200,66,0.10);">
           <div class="w-9 h-9 rounded-xl bg-gold-400/15 border border-gold-400/25 flex items-center justify-center text-lg flex-shrink-0">⚖️</div>
           <div>
@@ -16857,7 +16885,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
            the counts are still real evidence and because a methodology page that
            quietly drops a number it once published is worse than one that says it
            retired it. The #m-promise anchor is linked from several surfaces. -->
-      <div id="m-promise" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.1s;scroll-margin-top:90px;">
+      <div id="m-promise" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.1s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(245,200,66,0.07);">
           <div class="w-9 h-9 rounded-xl bg-gold-400/15 border border-gold-400/25 flex items-center justify-center text-lg flex-shrink-0">🤝</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">How Pledge Receipts Are Counted</h3>
@@ -16939,7 +16967,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ②  Data Sources -->
-      <div id="m-sources" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.15s;scroll-margin-top:90px;">
+      <div id="m-sources" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.15s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(30,53,96,0.5);">
           <div class="w-9 h-9 rounded-xl bg-steel-300/10 border border-steel-300/20 flex items-center justify-center text-lg flex-shrink-0">📚</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Data Sources</h3>
@@ -17010,7 +17038,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ②·5  Evidence Strength -->
-      <div id="m-strength" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.18s;scroll-margin-top:90px;">
+      <div id="m-strength" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.18s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(96,165,250,0.08);">
           <div class="w-9 h-9 rounded-xl bg-blue-400/12 border border-blue-400/25 flex items-center justify-center text-lg flex-shrink-0">🎚</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Evidence Strength — How Every Badge Is Scored</h3>
@@ -17091,7 +17119,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ③  Verification Process -->
-      <div id="m-verify" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.2s;scroll-margin-top:90px;">
+      <div id="m-verify" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.2s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(74,222,128,0.06);">
           <div class="w-9 h-9 rounded-xl bg-green-500/12 border border-green-500/20 flex items-center justify-center text-lg flex-shrink-0">⚖️</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Verification Process</h3>
@@ -17178,7 +17206,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ④  Our Neutrality Promise -->
-      <div id="m-neutrality" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.25s;scroll-margin-top:90px;">
+      <div id="m-neutrality" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.25s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(192,21,42,0.08);">
           <div class="w-9 h-9 rounded-xl bg-crimson-600/15 border border-crimson-600/25 flex items-center justify-center text-lg flex-shrink-0">🇺🇸</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Our Neutrality Promise</h3>
@@ -17238,7 +17266,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ④·2  Writing Standard — the person, not the party -->
-      <div id="m-writing" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.27s;scroll-margin-top:90px;">
+      <div id="m-writing" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.27s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(147,197,253,0.07);">
           <div class="w-9 h-9 rounded-xl bg-blue-400/12 border border-blue-400/25 flex items-center justify-center text-lg flex-shrink-0">✍️</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Writing Standard — The Person, Not the Party</h3>
@@ -17274,7 +17302,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ④·3  How We Organize Issues -->
-      <div id="m-issues" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.29s;scroll-margin-top:90px;">
+      <div id="m-issues" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.29s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(245,200,66,0.07);">
           <div class="w-9 h-9 rounded-xl bg-gold-400/15 border border-gold-400/25 flex items-center justify-center text-lg flex-shrink-0">🎯</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">How We Organize Issues</h3>
@@ -17303,7 +17331,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ④·4  Data-Center facet family worked example -->
-      <div id="m-datacenter" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.31s;scroll-margin-top:90px;">
+      <div id="m-datacenter" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.31s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(74,222,128,0.06);">
           <div class="w-9 h-9 rounded-xl bg-green-500/12 border border-green-500/20 flex items-center justify-center text-lg flex-shrink-0">🖥</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Worked Example — The Data-Center Facet Family</h3>
@@ -17338,7 +17366,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ④·5  Corrections & Last-Verified provenance -->
-      <div id="m-corrections" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.33s;scroll-margin-top:90px;">
+      <div id="m-corrections" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.33s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(192,21,42,0.07);">
           <div class="w-9 h-9 rounded-xl bg-crimson-600/15 border border-crimson-600/25 flex items-center justify-center text-lg flex-shrink-0">🛠</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Corrections &amp; &ldquo;Last Verified&rdquo; Provenance</h3>
@@ -17376,7 +17404,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ④·6  Version history / change log -->
-      <div id="m-changelog" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.35s;scroll-margin-top:90px;">
+      <div id="m-changelog" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-on-scroll" style="transition-delay:0.35s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(100,116,139,0.1);">
           <div class="w-9 h-9 rounded-xl bg-steel-400/10 border border-steel-400/20 flex items-center justify-center text-lg flex-shrink-0">🗒</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Version History</h3>
@@ -17446,7 +17474,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- ⑤  Disclaimer -->
-      <div id="m-disclaimer" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden animate-on-scroll" style="transition-delay:0.37s;scroll-margin-top:90px;">
+      <div id="m-disclaimer" class="bg-navy-800/70 border border-white/8 rounded-2xl overflow-hidden animate-on-scroll" style="transition-delay:0.37s;">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-white/6" style="background:rgba(100,116,139,0.12);">
           <div class="w-9 h-9 rounded-xl bg-steel-400/10 border border-steel-400/20 flex items-center justify-center text-lg flex-shrink-0">📋</div>
           <h3 class="font-display text-xl sm:text-2xl tracking-wider text-white">Disclaimer</h3>
@@ -18649,7 +18677,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .pdx-tour-highlight {
       outline: 3px solid rgba(245,200,66,0.85) !important; outline-offset: -3px;
       box-shadow: inset 0 0 90px rgba(245,200,66,0.16) !important;
-      border-radius: 14px; scroll-margin-top: 90px;
+      border-radius: 14px;
       animation: pdxTourFlash 1.4s ease-out;
       transition: outline-color .4s ease, box-shadow .4s ease;
     }
@@ -19179,9 +19207,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
     }
 
-    // Smooth-scroll to a target; scroll-margin-top on the targets keeps them
-    // clear of the sticky bars. Motion collapses to an instant jump when the
-    // user prefers reduced motion.
+    // Smooth-scroll to a target. html{scroll-padding-top} — derived from the
+    // measured --pdx-chrome — is what keeps the landing clear of the fixed bar;
+    // targets under a sticky sub-rail add that rail's height and nothing else.
+    // Motion collapses to an instant jump when the user prefers reduced motion.
     function jumpTo(id) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -19308,8 +19337,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
     }
 
-    // Smooth-scroll to a target; scroll-margin-top on the targets keeps them clear
-    // of the sticky bars. Motion collapses to an instant jump under reduced motion.
+    // Smooth-scroll to a target. html{scroll-padding-top} — derived from the
+    // measured --pdx-chrome — keeps the landing clear of the fixed bar. Motion
+    // collapses to an instant jump under reduced motion.
     function jumpTo(id) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -23407,6 +23437,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   .pdxseat-holder:focus-visible,
   .pdxseat-chip:focus-visible,
   .myteam-cockpit-navitem:focus-visible,
+  .myteam-cockpit-navarrow:focus-visible,
+  .myteam-cockpit-navdot:focus-visible,
   .myteam-slot-actions button:focus-visible,
   .myteam-slot-clear-btn:focus-visible,
   .myteam-empty-cta:focus-visible {
@@ -23441,7 +23473,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .myteam-slot-actions button:hover,
     .pdxseat-chip:hover { transform: none !important; }
     .myteam-cockpit-seats,
+    .myteam-cockpit-nav,
     .myteam-slots-grid.is-grouped { scroll-behavior: auto !important; }
+    .myteam-cockpit-navdot i { transition: none !important; }
     .myteam-cockpit-panel { animation: none !important; }
   }
   </style>
@@ -27849,7 +27883,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         align-items: center;
       }
       #modal-action-strip > * { min-height: 44px !important; }
-      #modal-addteam-btn, .myteam-add-btn { min-height: 48px !important; }
+      /* 44px, not 48. The threshold this pass is aiming at is 44, and the deck
+         it sits in is the last piece of fixed chrome between the reader and the
+         bottom of a full-height list — see the PROFILE DECK passes in app.css.
+         .myteam-add-btn keeps its 48 elsewhere on the page, where nothing is
+         pinned under it. */
+      #modal-addteam-btn { min-height: 44px !important; }
+      .myteam-add-btn { min-height: 48px !important; }
     }
 
     /* ── 4 · THE PEOPLE'S MANDATE ─────────────────────────────────────────

@@ -139,7 +139,12 @@
     },
     link: {
       ico: '🔗', cls: 'pdxsa-t-link',
-      hint: 'No verdict-stamped card on file yet — this shares the profile link.'
+      hint: 'No verdict-stamped card on file yet — this shares the profile link.',
+      // The same tier from inside an issue dossier. The link is more specific
+      // there (it opens the Official Record for that one issue), so the promise
+      // has to be too — and both strings are kept short enough that swapping
+      // between them cannot overflow the height-reserved hint box.
+      hintIssue: 'No verdict-stamped card on file yet — this shares the Official Record link.'
     }
   };
 
@@ -187,7 +192,8 @@
       st.what = sum.verdict ? String(sum.verdict.label) : 'their record so far';
     }
     var t = TIERS[st.tier];
-    st.ico = t.ico; st.cls = t.cls; st.hint = t.hint;
+    st.ico = t.ico; st.cls = t.cls;
+    st.hint = (st.issueKey && t.hintIssue) ? t.hintIssue : t.hint;
     st.label = label(st);
     // Only cache an answer that cannot still improve. Before the record settles
     // a 'link' is provisional, and caching it would freeze the weakest tier in
@@ -224,6 +230,14 @@
     if (st.tier === 'receipt') {
       return 'Share the Say-vs-Do receipt for ' + st.name +
         ' as an image — the card prints what they said, what they did, the source and the date.';
+    }
+    // The link tier, named by what the link actually opens. Inside an issue
+    // dossier that is the Official Record for that issue, not the profile — and a
+    // label that said "profile" while the button sent an issue link would be the
+    // same lie in the other direction.
+    if (st.issueKey) {
+      return 'Share a link to ' + st.name + '’s Official Record on this issue. ' +
+        'No verdict-stamped share card is on file for them here yet.';
     }
     return 'Share a link to ' + st.name +
       '’s profile. No verdict-stamped share card is on file for them yet.';
@@ -365,17 +379,28 @@
   }
 
   // The honest fallback. Nothing here pretends a card exists: it shares the one
-  // artifact that always exists — the profile itself — and names that plainly.
+  // artifact that always exists — the record itself — and names that plainly.
+  //
+  // "The record itself" is not always the profile. This control is mounted inside
+  // issue dossiers, where st.issueKey names the one issue the reader has open, and
+  // the app already has an address for that: #record=<pid>~<issue>, which
+  // share-links.js writes in server-visible form and receipt-cards.js opens
+  // straight onto the Official Record. Dropping the issue here was the whole "dead
+  // link" report: a share taken from Scalise / Secure & Accessible Voting emitted
+  // /?p=scalise, and the reader who followed it landed on a profile shell with no
+  // way to tell which of nineteen issues had been sent.
   function fallback(st, btn) {
     var inSheet = btn && btn.getAttribute && btn.getAttribute('data-pdxsa-fallback') === 'copy';
+    var scoped = !!st.issueKey;
+    var what = scoped ? 'issue link' : 'profile link';
     if (inSheet && typeof window._pdxCopyShareLink === 'function') {
       window._pdxCopyShareLink();
-      toast('No verdict-stamped card on file yet — profile link copied instead');
+      toast('No verdict-stamped card on file yet — ' + what + ' copied instead');
       return null;
     }
     if (typeof window.pdxSharePolitician === 'function') {
-      window.pdxSharePolitician(st.pid);
-      toast('No verdict-stamped card on file yet — sharing the profile link');
+      window.pdxSharePolitician(st.pid, null, { issueKey: st.issueKey || '' });
+      toast('No verdict-stamped card on file yet — sharing the ' + what);
       return null;
     }
     if (typeof window.showProfile === 'function') { window.showProfile(st.pid); return null; }

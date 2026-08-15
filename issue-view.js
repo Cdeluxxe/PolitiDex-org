@@ -1101,20 +1101,34 @@
     var iss = activeIssue();
     var url = shareLink();
     var title = iss ? ('Who backs up their words on ' + iss.text + ' — PolitiDex') : 'PolitiDex issue ranking';
+    var copy = function () {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function () { toast('Link copied — it opens this exact ranking ✓'); })
+            .catch(function () { toast(url); });
+          return;
+        }
+      } catch (e) {}
+      toast(url);
+    };
+    // Routed through PDXShareLinks.native so a platform refusal falls back to the
+    // clipboard instead of ending in silence. Only a genuine dismissal is silent.
+    var L = null;
+    try { L = window.PDXShareLinks; } catch (e) { L = null; }
+    if (L && typeof L.native === 'function') {
+      L.native({ title: title, text: title, url: url }).then(function (res) {
+        if (res.ok || res.outcome === 'cancelled') return;
+        copy();
+      });
+      return;
+    }
     try {
       if (navigator.share) {
-        navigator.share({ title: title, text: title, url: url }).catch(function () {});
+        navigator.share({ title: title, text: title, url: url }).catch(copy);
         return;
       }
     } catch (e) {}
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function () { toast('Link copied — it opens this exact ranking ✓'); })
-          .catch(function () { toast(url); });
-        return;
-      }
-    } catch (e) {}
-    toast(url);
+    copy();
   }
 
   // ── search bridge (feeds the global search box) ───────────────────────────────

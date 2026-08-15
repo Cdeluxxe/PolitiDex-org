@@ -19,7 +19,6 @@
   background: linear-gradient(180deg, rgba(13, 21, 38, 0.92) 0%, rgba(10, 15, 30, 0.96) 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  scroll-margin-top: 80px;
 }
 .sl-shell { max-width: 80rem; margin: 0 auto; }
 
@@ -234,7 +233,7 @@
 .sl-jn { opacity: 0.7; margin-left: 0.2rem; }
 
 /* Stance bucket sections */
-.sl-sec { margin-bottom: 1.4rem; scroll-margin-top: 90px; }
+.sl-sec { margin-bottom: 1.4rem; }
 .sl-sec-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.7rem; }
 .sl-sec-dot { font-size: 0.7rem; }
 .sl-sec.is-support .sl-sec-dot { color: #2dd4a4; }

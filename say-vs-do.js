@@ -980,16 +980,48 @@
     });
   }
 
+  // ── The artifact guard ──────────────────────────────────────────────────────
+  // share-links.js owns the rule (nothing shorter than a PNG header is an image);
+  // this is the one-line adapter, with an inline copy for the case where that file
+  // has not loaded. The guard must never be the reason a share fails to run, so
+  // both paths are total and neither throws.
+  function SL() { try { return window.PDXShareLinks || null; } catch (e) { return null; } }
+  function blobOk(b) {
+    var L = SL();
+    if (L && typeof L.blobOk === 'function') return L.blobOk(b);
+    return !!(b && typeof b.size === 'number' && b.size >= 64);
+  }
+  function dataUrlOk(s) {
+    var L = SL();
+    if (L && typeof L.dataUrlOk === 'function') return L.dataUrlOk(s);
+    return !!(s && typeof s === 'string' && s.slice(0, 5) === 'data:' &&
+              s.length - s.indexOf(',') > 88);
+  }
+
+  // Canvas → Blob, with the emptiness check that used to be missing.
+  //
+  // `toBlob` reports failure by handing back null, and that case was already
+  // handled. What was not: it can also hand back a Blob of zero bytes — a canvas
+  // whose draw threw halfway, a zero-dimension canvas, an encoder that gave up.
+  // A zero-byte Blob is truthy, `new File([blob])` wraps it without complaint, and
+  // the receiving app writes exactly what it was given. That is the "zero length
+  // file" this pipeline was producing: the share reported success and the artifact
+  // would not open. Rejecting here routes it into share()'s catch, which says so.
   function canvasToBlob(canvas) {
     return new Promise(function (resolve, reject) {
+      var ok = function (b) {
+        if (blobOk(b)) resolve(b);
+        else reject(new Error('empty image (' + ((b && b.size) || 0) + ' bytes)'));
+      };
       try {
-        if (canvas.toBlob) canvas.toBlob(function (b) { b ? resolve(b) : reject(new Error('toBlob null')); }, 'image/png');
+        if (canvas.toBlob) canvas.toBlob(function (b) { b ? ok(b) : reject(new Error('toBlob null')); }, 'image/png');
         else {
           var dataUrl = canvas.toDataURL('image/png');
+          if (!dataUrlOk(dataUrl)) { reject(new Error('empty data URL')); return; }
           var bin = atob(dataUrl.split(',')[1]);
           var arr = new Uint8Array(bin.length);
           for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-          resolve(new Blob([arr], { type: 'image/png' }));
+          ok(new Blob([arr], { type: 'image/png' }));
         }
       } catch (e) { reject(e); }
     });
@@ -1319,11 +1351,17 @@
     requestAnimationFrame(function () { t.classList.add('is-in'); });
     setTimeout(function () { t.classList.remove('is-in'); setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 320); }, 2800);
   }
+  // The desktop emitter, and the second place a zero-length file could be born.
+  // <a download> writes whatever the href resolves to, and "data:image/png;base64,"
+  // resolves to nothing at all — a file that saves, opens the Downloads shelf, and
+  // is empty. Returns false so callers can say something instead of celebrating.
   function download(dataUrl, name) {
+    if (!dataUrlOk(dataUrl)) { toast('Couldn’t build the image on this device — nothing was saved'); return false; }
     var a = document.createElement('a');
     a.href = dataUrl; a.download = name;
     document.body.appendChild(a); a.click();
     setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 60);
+    return true;
   }
   function copyText(txt) {
     if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(txt).catch(function () {});
@@ -1340,14 +1378,17 @@
   function openFallbackMenu(r, dataUrl, fileName, btn) {
     closeMenu();
     var cap = caption(r);
-    download(dataUrl, fileName); // ready to attach
+    var saved = download(dataUrl, fileName); // ready to attach
     var m = document.createElement('div');
     m.className = 'svd-share-menu';
     m.innerHTML =
       '<div class="svd-sm-head">Share this receipt</div>' +
-      '<div class="svd-sm-note">✅ Image saved to your device — attach it to your post.</div>' +
-      '<button type="button" data-act="save">📥 Save image again</button>' +
-      '<button type="button" data-act="copy">🔗 Copy caption</button>' +
+      '<div class="svd-sm-note">' + (saved
+        ? '✅ Image saved to your device — attach it to your post.'
+        : '⚠️ The image wouldn’t build on this device. The link below still works.') + '</div>' +
+      (saved ? '<button type="button" data-act="save">📥 Save image again</button>' : '') +
+      '<button type="button" data-act="link">🔗 Copy link</button>' +
+      '<button type="button" data-act="copy">📝 Copy caption</button>' +
       '<button type="button" data-act="x">𝕏  Post on X</button>' +
       '<button type="button" data-act="fb">📘 Share on Facebook</button>';
     document.body.appendChild(m);
@@ -1376,10 +1417,12 @@
       var b = e.target.closest && e.target.closest('button'); if (!b) return;
       var act = b.getAttribute('data-act');
       if (act === 'save') download(dataUrl, fileName);
+      else if (act === 'link') copyText(receiptLink(r, '', { canonical: true }) || SHARE_URL)
+        .then(function () { toast('Link copied — it opens this receipt ✓'); });
       else if (act === 'copy') copyText(cap).then(function () { toast('Caption copied'); });
       else if (act === 'x') window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText(r)) + '&url=' + encodeURIComponent(receiptLink(r, '', { canonical: true }) || SHARE_URL), '_blank', 'noopener');
       else if (act === 'fb') window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(receiptLink(r, '', { canonical: true }) || SHARE_URL) + '&quote=' + encodeURIComponent(caption(r)), '_blank', 'noopener');
-      if (act !== 'copy') closeMenu();
+      if (act !== 'copy' && act !== 'link') closeMenu();
     });
     setTimeout(function () { document.addEventListener('click', onDocClick, true); }, 0);
   }
@@ -1406,16 +1449,29 @@
     var fileName = 'politidex-receipt-' + slugify(r.name) + '.png';
     var done = function () { _sharing = false; setBusy(btn, false); };
 
-    renderCanvas(r).then(function (canvas) {
+    return renderCanvas(r).then(function (canvas) {
       return canvasToBlob(canvas).then(function (blob) {
         var file = null;
         try { file = new File([blob], fileName, { type: 'image/png' }); } catch (e) {}
-        var payload = { text: caption(r) };
+        // The image used to travel alone: the payload was { text: caption }, with
+        // no title and no url. A receiving app has nowhere to put a caption's
+        // embedded link, so the card arrived as a bare picture with no way back to
+        // the record it was made from — and on the platforms that key their subject
+        // line off `title`, no subject either. Both are available here and always
+        // were: receiptLink() is the canonical, previewable, server-visible address
+        // for exactly this receipt.
+        var url = receiptLink(r, '', { canonical: true }) || SHARE_URL;
+        var title = (r.name ? r.name + ' — ' : '') +
+          ((r.issue && (r.issue.label || r.issue)) || 'the record') + ' · PolitiDex';
+        var payload = { title: title, text: caption(r), url: url };
         if (file) payload.files = [file];
-        // Preferred path: native share sheet WITH the image file.
-        if (file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-          return navigator.share(payload).catch(function (e) {
-            if (e && (e.name === 'AbortError' || e.name === 'NotAllowedError')) return; // user cancelled
+        // Preferred path: native share sheet WITH the image file. PDXShareLinks
+        // classifies the result, so a platform refusal falls through to the
+        // destination menu instead of ending the gesture in silence.
+        var L = SL();
+        if (file && L && typeof L.native === 'function') {
+          return L.native(payload).then(function (res) {
+            if (res.ok || res.outcome === 'cancelled') return;
             openFallbackMenu(r, canvas.toDataURL('image/png'), fileName, btn);
           });
         }

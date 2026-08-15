@@ -1,10 +1,21 @@
 
     /* ── Reset & Base ──────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; }
-    /* 108px was a hand-measured stand-in for the fixed chrome (nav bar + the
-       All-Seeing Eye search row) and came out ~6px short of it, so an anchored
-       section landed just under the bar. Both now read the same variable; the
-       fallback keeps this correct on any page that does not define it. */
+    /* THE ONE PLACE THE FIXED CHROME IS CLEARED.
+       108px was a hand-measured stand-in for the nav bar + the All-Seeing Eye
+       search row and came out ~6px short of it, so an anchored section landed
+       just under the bar. It now reads --pdx-chrome, which the script under the
+       nav measures off the rendered element (safe-area inset included) and
+       rewrites at runtime; the literal is only what the first paint uses.
+
+       This declaration is the WHOLE offset, and it is the only one. Element-level
+       scroll-margin-top and this scroll-padding-top ADD — the target's scroll
+       margin box is aligned to the scrollport's padding edge — so the ~40
+       elements that also stated a chrome-sized scroll-margin-top were not
+       redundant, they were doubling it, and every one of them has been dropped.
+       An element states a scroll-margin-top now only when it needs clearance
+       BEYOND the chrome (a sticky sub-rail inside its own section), and states
+       just that extra. */
     html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome, 7.125rem) + 0.5rem); }
     body {
       background-color: #0a0f1e;
@@ -1971,6 +1982,55 @@
       .pdx-pnav-pill { transition: none; }
     }
 
+    /* ── Detailed profile: the biography, clamped ──────────
+       Three lines and a control. A bio is six to twelve lines of prose and it
+       sits above the record on every profile; opened by default it was most of
+       a phone's first screen spent on something the reader can already see the
+       name and office of. See profiles-full.js for why the whole block lives in
+       the <summary>: it is the one arrangement that gets a native, keyboard-
+       operable disclosure while printing the text exactly once. */
+    .pdxbio { margin: 0; }
+    .pdxbio-s {
+      cursor: pointer;
+      list-style: none;
+      display: block;
+    }
+    .pdxbio-s::-webkit-details-marker { display: none; }
+    .pdxbio-t {
+      display: block;
+      font-size: 0.88rem;
+      color: #b9cae3;
+      line-height: 1.75;
+    }
+    /* The clamp itself. -webkit-line-clamp is the only cross-browser way to cut
+       at a line count rather than a pixel height, and it is supported in every
+       engine this site runs in. A browser that ignores it shows the full bio,
+       which is the old behaviour and not a broken one. */
+    .pdxbio:not([open]) .pdxbio-t {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .pdxbio-cue {
+      display: block;
+      min-height: 2.75rem;      /* ≥44px tap target on mobile */
+      line-height: 2.75rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #7596c0;
+    }
+    .pdxbio-s:hover .pdxbio-cue,
+    .pdxbio-s:focus-visible .pdxbio-cue { color: #a9c4e8; }
+    .pdxbio-cue-b { display: none; }
+    .pdxbio[open] .pdxbio-cue-a { display: none; }
+    .pdxbio[open] .pdxbio-cue-b { display: inline; }
+    /* A quote below needs the gap the old inline margin used to supply. */
+    .pdxbio[data-pdxbio-q] { margin-bottom: 0.65rem; }
+
     /* ── Detailed profile: signature quote ─────────────── */
     .profile-quote {
       position: relative;
@@ -3529,8 +3589,9 @@
       /* Hero title scaling */
       .hero-title { font-size: clamp(2.5rem, 14vw, 5rem) !important; }
 
-      /* Sections: tighter padding */
-      section { scroll-margin-top: 100px; }
+      /* The chrome clearance that used to be restated here (100px) is gone:
+         html{scroll-padding-top} above already holds every jump clear of the
+         fixed bar at every width, and the two offsets add. */
 
       /* Power Map location header: responsive */
       #voter-hub .pm-location-bar [style*="font-size:4.25rem"] { font-size: 2.2rem !important; line-height: 1.1 !important; }
@@ -5630,7 +5691,9 @@
        gold-on-dark language. */
     .mandate-jump {
       position: sticky;
-      top: 62px;                 /* clears the global fixed navbar */
+      /* Pinned to the measured chrome rather than a 62px guess, so the rail sits
+         flush under the nav on a notched phone too. */
+      top: calc(var(--pdx-chrome, 7.125rem) + 5px);
       z-index: 30;
       display: flex;
       gap: 0.5rem;
@@ -5703,16 +5766,21 @@
       border-color: rgba(10,15,30,0.25);
       color: #0a0f1e;
     }
-    /* Stopping point below the global nav + sticky jump bar for each target. */
+    /* These targets need clearance BEYOND the fixed chrome: .mandate-jump is a
+       sticky rail that sits directly under it. The chrome itself comes from
+       html{scroll-padding-top}, so the only thing stated here is the rail —
+       0.5rem of padding on each side of a 44px pill. 120px used to mean
+       "chrome + rail" and so double-counted the chrome the scrollport already
+       subtracts. */
     #mandate-overview, #mandate-stats, #rh-filter-bar, #agenda-grid, #mandate-submit {
-      scroll-margin-top: 120px;
+      scroll-margin-top: 3.75rem;
     }
     @media (prefers-reduced-motion: reduce) {
       .mandate-jump-pill { transition: none; }
       .mandate-jump-pill:hover { transform: none; }
     }
     @media (max-width: 640px) {
-      .mandate-jump { top: 58px; border-radius: 1rem; margin-bottom: 1.5rem; }
+      .mandate-jump { border-radius: 1rem; margin-bottom: 1.5rem; }
       .mandate-jump-pill { font-size: 0.66rem; padding: 0.4rem 0.8rem; }
     }
     /* ═══════ END PEOPLE'S MANDATE STYLES ═══════ */
@@ -8478,9 +8546,19 @@
       gap: 1.35rem;
       align-items: start;
     }
+    /* The wrap is the grid item now, so it carries the sticky the nav used to —
+       its containing block is the full-height grid area, which is what gives the
+       sidebar room to travel. The nav itself is a plain box inside it. */
+    .myteam-cockpit-navwrap { position: sticky; top: calc(var(--pdx-chrome, 7.125rem) + 0.5rem); min-width: 0; }
+    .myteam-cockpit-navrow { display: block; min-width: 0; }
+    /* The swipe cue, the chevrons and the pager are all off until the strip
+       actually overflows — `.is-scroll` is set from its measured scrollWidth, so
+       the vertical desktop sidebar never lights any of them. */
+    .myteam-cockpit-navcue,
+    .myteam-cockpit-navdots,
+    .myteam-cockpit-navarrow { display: none; }
     .myteam-cockpit-nav {
       display: flex; flex-direction: column; gap: 0.5rem;
-      position: sticky; top: 84px;
       padding: 0.55rem;
       border-radius: 1.1rem;
       background: rgba(9,14,27,0.5);
@@ -8665,15 +8743,113 @@
        above the stage on tablets and phones so it stays calm and thumb-reachable. */
     @media (max-width: 880px) {
       .myteam-cockpit { grid-template-columns: 1fr; gap: 0.9rem; }
+      .myteam-cockpit-navwrap { position: static; }
       .myteam-cockpit-nav {
-        position: static; flex-direction: row; gap: 0.5rem;
+        flex-direction: row; gap: 0.5rem;
         overflow-x: auto; padding: 0.45rem; -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        /* A swipe that runs off the end of the strip must not hand the gesture to
+           the browser's back-navigation and throw the voter out of the builder. */
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
       }
-      .myteam-cockpit-navitem { flex: 0 0 auto; min-width: 172px; }
+      .myteam-cockpit-nav::-webkit-scrollbar { display: none; }
+      /* The base rule gives every chip `width: 100%`, which in a horizontal
+         scroller meant exactly one chip per screen and the next one entirely
+         past the edge — the clipped-sliver problem this pass exists to fix. Size
+         each chip to a fraction of the visible TRACK instead, so ~1.6 fit and
+         the next group is always half-shown. The cap keeps a wide tablet from
+         inflating four chips into four slabs. */
+      .myteam-cockpit-navitem {
+        flex: 0 0 auto; scroll-snap-align: start;
+        width: calc((100% - 0.5rem) / 1.6);
+        min-width: 124px; max-width: 240px;
+      }
       .myteam-cockpit-navsub { display: none; }
+
+      /* ── The strip says it is a strip ────────────────────────────────────
+         Chevrons flanking the track, a one-line cue that names how many groups
+         there are, and a dot per group. All three are revealed together by
+         `.is-scroll`, which is only set when the measured track overflows. */
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navrow {
+        display: flex; align-items: stretch; gap: 0.3rem;
+      }
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-nav { flex: 1 1 auto; min-width: 0; }
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navarrow,
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navcue,
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navdots { display: flex; }
+
+      .myteam-cockpit-navarrow {
+        flex: 0 0 auto; align-items: center; justify-content: center;
+        /* Comfortable thumb target, per the touch-target floor the rest of this
+           builder already holds to. */
+        min-width: 44px; min-height: 44px; padding: 0;
+        cursor: pointer; font-size: 1.5rem; line-height: 1;
+        font-family: 'Barlow Condensed', sans-serif; color: #e2ecfb;
+        border-radius: 0.85rem;
+        background: rgba(13,21,38,0.72);
+        border: 1px solid rgba(255,255,255,0.12);
+        transition: background 0.18s, border-color 0.18s, opacity 0.18s;
+      }
+      .myteam-cockpit-navarrow:hover:not(:disabled) {
+        background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.42); color: #fcd34d;
+      }
+      /* Kept in place rather than removed at the ends of the track: an arrow that
+         vanishes takes the evidence that the strip scrolls with it. */
+      .myteam-cockpit-navarrow:disabled { opacity: 0.3; cursor: default; }
+
+      .myteam-cockpit-navcue {
+        align-items: center; justify-content: center; gap: 0.4rem;
+        font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+        font-size: 0.64rem; letter-spacing: 0.11em; text-transform: uppercase;
+        color: #cbb574; margin: 0 0 0.35rem;
+      }
+      .myteam-cockpit-navcue span { color: #fbbf24; font-size: 0.9rem; line-height: 1; }
+
+      .myteam-cockpit-navdots {
+        align-items: center; justify-content: center; gap: 0.1rem;
+        /* The buttons stay a full 44px so the pager is genuinely tappable; the
+           negative margins claw back the dead space around the 8px marks, which
+           on a phone first screen is worth more than the padding. */
+        margin: -0.3rem 0 -0.45rem;
+      }
+      .myteam-cockpit-navdot {
+        /* The dot is 8px; the button around it is a full thumb target, so the
+           pager is usable and not just decorative. */
+        display: flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px; padding: 0;
+        background: none; border: 0; cursor: pointer;
+      }
+      .myteam-cockpit-navdot i {
+        display: block; width: 8px; height: 8px; border-radius: 999px;
+        background: rgba(255,255,255,0.22);
+        transition: width 0.2s, background 0.2s;
+      }
+      .myteam-cockpit-navdot.is-on i {
+        width: 20px; background: var(--nav-accent, #fbbf24);
+      }
+    }
+    @media (max-width: 640px) {
+      /* Narrower chips need lighter contents. The seat badge stays — it is the
+         "0/1" a voter reads to know what is left — so the room comes out of the
+         icon and the gaps instead. Two lines beat an ellipsis here: a truncated
+         "State Legisl…" is a label the voter has to guess at. */
+      .myteam-cockpit-navitem { gap: 0.4rem; padding: 0.5rem 0.45rem; }
+      .myteam-cockpit-navico { width: 1.65rem; height: 1.65rem; font-size: 0.88rem; border-radius: 0.55rem; }
+      .myteam-cockpit-navlabel { font-size: 0.8rem; line-height: 1.08; }
+      .myteam-cockpit-navcount { padding: 0.14rem 0.36rem; font-size: 0.6rem; }
+      /* The card's padding is worth a third of the strip on a 360px phone — with
+         two 44px chevrons also in the row, the chip fraction gets squeezed under
+         its readable floor and the count falls back toward one-and-a-sliver. Let
+         the TRACK (and only the track) run out into that padding; the cue and the
+         pager stay aligned to the card's content edge. Chips reaching the edge is
+         itself a scroll cue. */
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navrow {
+        margin-left: -1rem; margin-right: -1rem;
+      }
     }
     @media (max-width: 480px) {
-      .myteam-cockpit-navitem { min-width: 150px; }
       .myteam-cockpit-seats { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
     }
     .myteam-slot-scope { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #9fb4d4; margin: 0.15rem 0 0.1rem; }
@@ -12292,10 +12468,10 @@
       transition: background 0.2s ease;
     }
 
-    /* ── Smooth scroll targets ─────────────────────────────── */
-    [id] {
-      scroll-margin-top: 80px;
-    }
+    /* The blanket `[id] { scroll-margin-top: 80px }` that used to sit here gave
+       every element on the page a second chrome offset on top of the scrollport's
+       own, so on the narrowest phones a jump landed ~80px past its target. The
+       one offset lives in html{scroll-padding-top}. */
 
     /* ── Section spacing refinement ────────────────────────── */
     .section-py {
@@ -14823,10 +14999,8 @@
     }
 
     /* ── How It Works cards: consistent gap and padding ─────── */
-    .section-py + #submit,
-    #submit {
-      scroll-margin-top: 80px;
-    }
+    /* #submit's own 80px chrome offset is gone — html{scroll-padding-top} is
+       the single source, and the two used to add. */
 
     /* ── Submit section: balanced internal spacing on mobile ──── */
     @media (max-width: 640px) {
@@ -15123,10 +15297,8 @@
       transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
     }
 
-    /* ── Smooth page-level transitions when navigating ─────────── */
-    section {
-      scroll-margin-top: 76px;
-    }
+    /* A third restatement of the chrome (76px) lived here. Removed for the same
+       reason as the others: html{scroll-padding-top} already clears it. */
 
     /* ── Better keyboard focus for form fields ─────────────────── */
     .submit-inner input:focus,
@@ -17992,7 +18164,6 @@
          the personalised reasoning is actually readable, and give the
          Relevant and Key Races blocks a touch more vertical separation. */
       #relevant-browse-grid .relevant-why-pill { font-size: 0.66rem !important; padding: 0.18rem 0.55rem !important; }
-      #relevant-section { scroll-margin-top: 72px; }
     }
 
     @media (max-width: 480px) {
@@ -18056,10 +18227,13 @@
          work here: the deck needs a little air under its last row of buttons on
          every device, and a notched device needs the home-bar inset. Those are
          the same gap, not two gaps — a device reporting 34px gets 34px, a device
-         reporting none gets the 0.4rem, and neither gets the sum. The strip used
-         to add that 0.4rem itself, one level down, which made the notched case
-         pay both (see the deck-height pass at the end of this file). */
-      #modal-footer { padding-bottom: max(0.4rem, env(safe-area-inset-bottom, 0px)); }
+         reporting none gets the floor, and neither gets the sum. The strip used
+         to add its own 0.4rem one level down, which made the notched case pay
+         both (see the deck-height passes at the end of this file). The floor is
+         0.2rem rather than the 0.4rem it started at: on a flat-bottomed phone
+         the deck's own row padding already separates the last button from the
+         edge, so the second gap was buying air twice. */
+      #modal-footer { padding-bottom: max(0.2rem, env(safe-area-inset-bottom, 0px)); }
       #modal-action-strip > * { min-height: 46px !important; }
       #modal-addteam-btn { min-height: 50px !important; font-size: 0.82rem !important; }
       .pdx-modal-share-btn { min-width: 44px; min-height: 44px; }
@@ -18696,7 +18870,7 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
 @media (max-width: 768px) {
   /* THE ONE BOTTOM RESERVATION now covers both jobs, and it is declared where it
      always was — up in the ≤768px pass that owns it, changed in place from
-     `env(...)` to `max(0.4rem, env(...))`. It is not restated here: a second
+     `env(...)` to `max(air, env(...))`. It is not restated here: a second
      mention of the inset in this stack is the exact shape of the bug this file's
      modal rules keep having, and scripts/test-modal-bottom-chrome.mjs counts the
      mentions for that reason. What this pass does is take the duplicate OUT of
@@ -18713,4 +18887,63 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
     padding-bottom: 0.25rem !important;
   }
   #modal-addteam-hint { margin-top: 0.15rem !important; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROFILE DECK, SECOND TRIM — the last rows of a full list have to be reachable
+   ═══════════════════════════════════════════════════════════════════════════
+   The pass above brought the deck from ~132px to ~112px, which was enough while
+   the ⚖️ Word vs Action index was the only long list under it. It is not enough
+   now: the index renders its buckets in full and untruncated by design, so the
+   thing sitting closest to the deck on a phone is routinely the last row of a
+   twenty-row list — a real control, with a real destination, and the one a
+   reader reaches last. A deck that overlaps it by ten pixels does not look
+   broken; it just quietly fails to open.
+
+   Four measurements, no content removed:
+
+     · The CTA drops to 44px. It was nominally 46 here and actually 48 on glass:
+       the ≤640px pass in index.html holds the same button, that <style> block is
+       later in the document than the app.css link, and at equal specificity it
+       was winning. Both come down to 44 — trimming only this file would have
+       changed nothing at all. 44 is the threshold; 48 was never a requirement.
+     · Row 1's frame: 0.35/0.25rem → 0.2/0.15rem.
+     · The match hint keeps every word — it is a personal, calculated line
+       ("a strong match — they're with you on 78% of your issues"), not chrome —
+       but tightens to 0.62rem/1.2 with a 0.1rem lead-in. It is still clamped to
+       one line by the pass above.
+     · The deck's bottom floor: 0.4rem → 0.2rem, changed in place at its single
+       env() site so the modal still mentions the inset exactly once.
+
+   Measured at a 16px root, border + CTA row + hint + strip + bottom reservation:
+   a flat-bottomed phone goes ~126px → ~111px, and a notched one ~153px → ~142px
+   (the floor change is absorbed by the larger inset there). #modal-content's own
+   gutter above the deck comes down 0.9rem → 0.6rem on top of that, so the last
+   row of the open bucket clears the deck by ~20px more on a flat phone and ~16px
+   more on a notched one. Nothing on the deck is under 44px in either dimension.
+   Appended last so it wins the cascade over both phone passes above. */
+@media (max-width: 768px) {
+  #modal-addteam-btn { min-height: 44px !important; }
+
+  #modal-footer > div:first-child {
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.15rem !important;
+  }
+
+  #modal-addteam-hint {
+    font-size: 0.62rem !important;
+    line-height: 1.2 !important;
+    margin-top: 0.1rem !important;
+  }
+
+  /* Restated so the LAST #modal-action-strip bottom padding in the file is still
+     the zero — the deck's air is reserved once, on the deck (pinned by
+     scripts/test-mobile-profile-hierarchy.mjs §7). */
+  #modal-action-strip { padding-bottom: 0 !important; }
+
+  /* The scroll body's own gutter above the deck. With the deck this slim the old
+     0.9rem is the largest single thing still standing between the last list row
+     and the bottom of the screen. */
+  #modal-content { padding-bottom: 0.6rem !important; }
 }

@@ -600,8 +600,16 @@
 /* ── Top issue rows — Said → Did → Verdict → Receipts ───────────────────────
    The spine, on the card that carries the one score. Three rows at most: the
    sharpest tested issues, in the same rank order the Official Record uses. */
+/* The three sharpest rows, collapsed. See topRowsHtml for why: open, they were
+   a phone screen of prose sitting under the list a reader had just filtered. */
 .pdxwa-rows { margin-top: 0.55rem; }
 .pdxwa-rows-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 0.58rem;
@@ -610,6 +618,28 @@
   color: #7596c0;
   margin-bottom: 0.4rem;
 }
+.pdxwa-rows-h:hover,
+.pdxwa-rows-h:focus-visible { color: #a9c4e8; }
+/* display:flex on a <summary> drops the browser's own triangle in Chrome and
+   keeps it in Firefox, so the marker is suppressed in both and drawn here —
+   one affordance, in the same place, either way. */
+.pdxwa-rows-h { list-style: none; }
+.pdxwa-rows-h::-webkit-details-marker { display: none; }
+.pdxwa-rows-h::before {
+  content: '▸';
+  font-size: 0.7rem;
+  line-height: 1;
+  color: #5f7ea8;
+}
+.pdxwa-rows[open] > .pdxwa-rows-h::before { content: '▾'; }
+/* How much is behind the fold, before it is opened. A disclosure that does not
+   say what it holds is a disclosure nobody opens. */
+.pdxwa-rows-c {
+  margin-left: auto;
+  letter-spacing: 0.05em;
+  color: #6f88ab;
+}
+.pdxwa-rows-body { padding-top: 0.1rem; }
 .pdxwa-rows-l { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
 /* The spine is the ISSUE colour (issue-colors.js), so the same issue reads the
    same here, in the Official Record, in the Stance Library, on a Spotlight card
@@ -731,7 +761,12 @@
    query at 620px shows every panel at once as distinct lists, and the selection
    stops filtering and becomes emphasis. Same markup either way — the JS only ever
    moves `.is-on`, so a resize cannot lose a reader's place. */
-.pdxwa-oc { margin-top: 0.85rem; }
+/* scroll-margin-top is what makes "tap a count, land on the list" true rather
+   than nearly true. The strip's controls scroll this block into view, and the
+   modal has a sticky header sitting over the top of its own scroller — without
+   a margin the first bucket heading arrives underneath that header and the
+   reader sees rows with no indication of which bucket they belong to. */
+.pdxwa-oc { margin-top: 0.85rem; scroll-margin-top: 4.5rem; }
 .pdxwa-oc-t {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
@@ -1600,26 +1635,36 @@
   display: flex;
   gap: 2px;
   margin: 0.4rem 0 0.35rem;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   overflow: hidden;
 }
+/* THE BAR IS A ROW OF BUTTONS, SO IT IS SIZED LIKE ONE. It used to be drawn at
+   0.3rem of vertical padding — about ten device pixels — which is a fine
+   hairline chart and an unhittable control. A thumb aiming at the middle of a
+   10px band misses it more often than not, and the miss is silent: nothing
+   moves, so the strip reads as decoration and the reader stops trying. The
+   phone therefore gets a full 44px band, which is both the platform minimum
+   and, at this width, a better picture of the proportions than the hairline
+   was. Wider screens slim it back down (see the min-width query) because a
+   mouse does not need the band and the desktop card has less room to spend. */
 .pdxwa-comp-seg {
   display: block;
-  min-width: 0.5rem;
-  padding: 0.3rem 0;        /* a pointer-sized band, not a hairline — and no
-                               inline padding, or a button's default side padding
-                               would widen every slice off its own count */
+  min-width: 1.5rem;        /* a one-issue slice still has to be hittable */
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  padding: 0;               /* no inline padding, or a button's default side
+                               padding would widen every slice off its own count */
   border: 0;
   font: inherit;
   opacity: 0.72;
   cursor: pointer;
+  touch-action: manipulation;   /* no 300ms double-tap-zoom delay on the graph */
   transition: opacity 0.15s ease;
 }
 .pdxwa-comp-seg:hover { opacity: 0.95; }
 /* The open bucket's slice, lit. This is the only thing in the picture that says
    which list is below it, so it is a brightness difference rather than a border
    a 6px-tall slice could not show. */
-.pdxwa-comp-seg.is-on { opacity: 1; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55); }
+.pdxwa-comp-seg.is-on { opacity: 1; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7); }
 .pdxwa-comp-l {
   list-style: none;
   margin: 0;
@@ -1654,6 +1699,7 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
+  touch-action: manipulation;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .pdxwa-comp-b:hover,
@@ -1706,6 +1752,125 @@
 /* The clarifier that stops the strip and the percentage looking like an
    arithmetic error. Quieter than the finding above it, and never hidden. */
 .pdxwa-comp-fine { color: #6f88ab; font-size: 0.64rem; }
+
+/* ── What the shape means, AFTER the list it describes ────────────────────── */
+/* These two paragraphs used to close the strip. On a phone that put roughly
+   four lines of prose between a control and the list it opens, so a tap moved
+   a destination the reader could not see. They now render immediately below
+   the index: the same words, read by someone who has already arrived. */
+.pdxwa-shapenote {
+  margin-top: 0.55rem;
+  padding-left: 0.6rem;
+  border-left: 2px solid rgba(120, 150, 190, 0.28);
+}
+.pdxwa-shapenote .pdxwa-comp-note:first-child { margin-top: 0; }
+
+/* ── The formal tally, beside the headline number ─────────────────────────── */
+/* The same four integers as the bar, printed where the percentage is, because
+   the percentage alone cannot say whether it came from a record that agrees
+   with itself. This is NOT a second score: there is no percentage in it, no
+   total is blended, and the public lane contributes nothing — it is the shape
+   of the private record, stated as counts, with each count a door into that
+   bucket's list below. */
+.pdxwa-tally { margin-top: 0.55rem; }
+.pdxwa-tally-k {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6f88ab;
+}
+.pdxwa-tally-l {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.pdxwa-tally-i { display: flex; min-width: 0; flex: 1 1 6.5rem; }
+/* Zero is printed, not dropped — "nothing contradicted" is a finding, and the
+   list behind it says so in words. */
+.pdxwa-tally-i.is-zero { opacity: 0.62; }
+.pdxwa-tally-i.is-zero:hover,
+.pdxwa-tally-i.is-zero:focus-within { opacity: 1; }
+.pdxwa-tally-b {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  padding: 0.3rem 0.5rem;
+  border: 1px solid rgba(120, 150, 190, 0.24);
+  border-left: 3px solid var(--pdxwa-col, #9fb4d4);
+  border-radius: 0.45rem;
+  background: rgba(10, 15, 30, 0.4);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.pdxwa-tally-b:hover,
+.pdxwa-tally-b:focus-visible {
+  background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 14%, transparent);
+}
+.pdxwa-tally-b.is-on {
+  background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 20%, transparent);
+  border-color: var(--pdxwa-col, #9fb4d4);
+}
+@supports not (background: color-mix(in srgb, #000 14%, transparent)) {
+  .pdxwa-tally-b:hover,
+  .pdxwa-tally-b:focus-visible { background: rgba(255, 255, 255, 0.06); }
+  .pdxwa-tally-b.is-on { background: rgba(255, 255, 255, 0.1); border-color: var(--pdxwa-col, #9fb4d4); }
+}
+.pdxwa-tally-n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--pdxwa-col, #9fb4d4);
+}
+.pdxwa-tally-i.is-zero .pdxwa-tally-n { color: #7f97b8; }
+.pdxwa-tally-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8fa8c8;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.pdxwa-tally-b.is-on .pdxwa-tally-lbl { color: #eaf2ff; }
+
+/* ── The same tally, mounted in the letterhead ────────────────────────────── */
+/* The block above sits inside §1, under the section's own headline. This is the
+   copy that sits in the page header, directly beneath the photo / name / ring
+   letterhead, so the shape reaches the reader at the same glance as the score on
+   BOTH layouts rather than only on the phone (where §1 is the next screen).
+
+   It is a full-width sibling of .profile-hero, not a child of it: the letterhead
+   is a flex row on a desktop and a two-column grid with a full-width score row
+   on a phone, and a fourth child would be crushed beside the ring on one and
+   orphaned on the other. As a strip under the block, both layouts get the same
+   thing and the counts keep their 44px targets on the narrow one.
+
+   Every rule here is layout. The counts, colours, states and tap targets are the
+   shared .pdxwa-tally-* component above, which is the visual half of the same
+   guarantee the renderer makes: one builder, one set of numbers. */
+.pdxwa-htally-host { margin: -0.95rem 0 1.2rem; }
+/* No shape yet — no rule, no padding, no gap. The host is emitted empty on a
+   cold record so the warm repaint has somewhere to land; until then it must not
+   occupy a single pixel of the header. */
+.pdxwa-htally-host:empty { display: none; margin: 0; }
+.pdxwa-htally {
+  margin-top: 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(120, 150, 190, 0.18);
+}
 
 /* ── Friction: contested standing, thin evidence ──────────────────────────── */
 /* The spine keeps the ISSUE's colour — that vocabulary is load-bearing across
@@ -1813,6 +1978,17 @@
   /* The strip is the navigator on desktop too, so its counts stay full-size tap
      targets and gain the room to sit on one line. */
   .pdxwa-comp-l { gap: 0.15rem 0.35rem; }
+  /* The bar goes back to a band. A mouse hits a 14px slice without trouble, and
+     the desktop card would rather spend the other 30px on the list. */
+  .pdxwa-comp-seg { min-height: 0.9rem; min-width: 0.6rem; }
+  .pdxwa-comp-bar { border-radius: 999px; }
+  /* Four counts on one row beside the number rather than a 2×2 block. */
+  .pdxwa-tally-i { flex: 0 1 auto; }
+  .pdxwa-tally-n { font-size: 1.1rem; }
+  /* The letterhead copy has the whole modal width to work with and one job —
+     being read at a glance — so its four counts divide that width evenly rather
+     than shrink-wrapping their labels and leaving a ragged tail. */
+  .pdxwa-htally .pdxwa-tally-i { flex: 1 1 0; }
 }
 
 

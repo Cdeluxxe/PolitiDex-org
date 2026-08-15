@@ -4558,6 +4558,34 @@
         </div>
       </div>
 
+      <!-- The formal tally, attached to the letterhead. The ring above prints one
+           average; these four integers print the shape it averages — contradicted,
+           mixed, backed up, thin record — and each one is a door into that bucket's
+           full list in the issue index below.
+
+           WHY IT IS HERE AND NOT ONLY IN §1. The phone already had it: the ring
+           drops to a full-width hero row and ⚖️ Word vs Action is the next screen,
+           so the number and its shape were within a scroll of each other. On a
+           desktop they were not. The ring sits in the letterhead beside the photo
+           and the name, and the shape behind it was a section away — which meant
+           the glance most visitors actually take showed an average with nothing
+           said about whether the record it averages agrees with itself. 82% over
+           four backed-up issues and 82% over two contradictions and two thin rows
+           are the same figure and not the same finding.
+
+           A SIBLING OF THE HERO, NOT A FOURTH COLUMN IN IT. The letterhead is a
+           flex row on a desktop and a two-column grid with a full-width score row
+           on a phone; a fourth child would be squeezed beside the ring on one
+           layout and stranded on the other. As its own full-width strip directly
+           under the block it belongs to, it reads as attached to the letterhead on
+           both, and the four counts get a real tap target on the narrow one.
+
+           It carries no percentage — see headerTallyHtml() in word-action.js for
+           the four rules that let counts sit under a headline figure at all — and
+           it renders NOTHING below the two-issue floor, rather than four zeroes
+           that would read as findings on a profile the engine has not tested. -->
+      ${(window.PDXWordAction && typeof window.PDXWordAction.headerTallyMount === 'function') ? window.PDXWordAction.headerTallyMount(id) : ''}
+
       <!-- Quick-jump navigation — a sticky, glanceable map of the profile.
            Each pill summarizes a section (score, record, positions, evidence,
            your match, activity) and smooth-scrolls to it; the pill for the
@@ -4716,10 +4744,28 @@
 
       <!--PDXSP:identity-->
       <!-- Biography & signature quote — who they are, read early so the
-           profile opens like an honest dossier: identity → record → person. -->
+           profile opens like an honest dossier: identity → record → person.
+
+           IT OPENS CLAMPED. A bio runs six to twelve lines, and on a phone that
+           is most of the first screen spent on prose the reader did not come for
+           — the record is what is below it. It now shows three lines and a
+           "Read the full biography" control, and the full text is one tap away.
+
+           The clamp is a <details> whose entire content lives in the <summary>,
+           which is the one arrangement that gets a native, keyboard-operable
+           disclosure without printing the bio twice: <summary> renders in both
+           states, so the same single copy of the text is clamped when closed and
+           released when open (see .pdxbio in app.css). Nothing is hidden from a
+           reader who does not open it in the sense that matters — the text is in
+           the DOM, selectable, findable and read in full by a screen reader. -->
       ${(p.bio || p.quote) ? `<div class="modal-section">
         <div class="modal-section-title">📋 Biography</div>
-        ${p.bio ? `<p style="font-size:0.88rem;color:#b9cae3;line-height:1.75;margin:0 0 ${p.quote ? '1.05rem' : '0'};">${p.bio}</p>` : ''}
+        ${p.bio ? `<details class="pdxbio"${p.quote ? ' data-pdxbio-q="1"' : ''}>
+          <summary class="pdxbio-s">
+            <span class="pdxbio-t">${p.bio}</span>
+            <span class="pdxbio-cue" aria-hidden="true"><span class="pdxbio-cue-a">Read the full biography</span><span class="pdxbio-cue-b">Show less</span></span>
+          </summary>
+        </details>` : ''}
         ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p>${p.quoteSource ? `<cite class="profile-quote-cite">${p.quoteSource}</cite>` : ''}</blockquote>` : ''}
       </div>` : ''}
 
@@ -6681,28 +6727,77 @@
   // ════════════════════════════════════════════════════════════
   // A shared link looks like  https://<site>/?p=<id>  and re-opens that
   // politician's profile modal automatically on load (see _pdxOpenFromUrl).
+  //
+  // …unless the reader was looking at ONE ISSUE, in which case the sheet emits
+  // https://<site>/?record=<id>~<issueKey> instead, which lands on the Official
+  // Record for that issue rather than the profile shell. Both forms are built by
+  // share-links.js, which is also the module that converts them back into the
+  // app's own hashes on arrival.
   window._pdxShareData = null;
 
+  function _pdxLinks() {
+    try { return window.PDXShareLinks || null; } catch (e) { return null; }
+  }
+
+  // The link for a profile. Root-anchored through PDXShareLinks, because
+  // location.pathname is not always '/' — the app also answers on /vote/… , and a
+  // link built there carried the roll-call path along with it.
   window.pdxShareUrl = function(id) {
-    return location.origin + location.pathname + '?p=' + encodeURIComponent(id);
+    var L = _pdxLinks();
+    if (L && typeof L.profile === 'function') {
+      var u = L.profile(id);
+      if (u) return u;
+    }
+    return location.origin + '/?p=' + encodeURIComponent(id);
   };
 
-  window.pdxSharePolitician = function(id, ev) {
+  // The link for whatever the reader actually had open. `issueKey` is optional and
+  // is what every issue-scoped share control now passes down.
+  window.pdxShareTargetUrl = function(id, issueKey) {
+    var L = _pdxLinks();
+    if (L && typeof L.forTarget === 'function') {
+      var u = L.forTarget({ pid: id, issueKey: issueKey || '' });
+      if (u) return u;
+    }
+    return window.pdxShareUrl(id);
+  };
+
+  window.pdxSharePolitician = function(id, ev, opts) {
     if (ev && ev.stopPropagation) ev.stopPropagation();
+    if (!id) return;
+    opts = opts || {};
+    var issueKey = String(opts.issueKey || '');
     var p = (typeof PROFILES !== 'undefined' && PROFILES) ? PROFILES[id] : null;
     var name = (p && p.name) ? p.name : 'this politician';
     var office = (p && p.office) ? p.office : '';
-    var url = window.pdxShareUrl(id);
-    var text = name + (office ? ' (' + office + ')' : '') + ' on PolitiDex — track their promises and record. 🇺🇸';
-    window._pdxShareData = { id: id, name: name, url: url, text: text };
+    var issueLabel = '';
+    try {
+      if (issueKey && typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP && ISSUE_MAP[issueKey]) {
+        issueLabel = ISSUE_MAP[issueKey].label || '';
+      }
+    } catch (e) { issueLabel = ''; }
+    var url = window.pdxShareTargetUrl(id, issueKey);
+    var text = name + (office ? ' (' + office + ')' : '') +
+      (issueLabel ? ' on ' + issueLabel + ' — the Official Record on PolitiDex. 🇺🇸'
+                  : ' on PolitiDex — track their promises and record. 🇺🇸');
+    window._pdxShareData = { id: id, issueKey: issueKey, name: name, url: url, text: text,
+                             issueLabel: issueLabel };
 
     var overlay  = document.getElementById('pdx-share-overlay');
     var nameEl   = document.getElementById('pdx-share-name');
     var linkEl   = document.getElementById('pdx-share-link');
     var copyBtn  = document.getElementById('pdx-share-copy');
     var nativeBtn = document.getElementById('pdx-share-native');
-    if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '');
-    if (linkEl)  linkEl.value = url;
+    if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '') +
+                                      (issueLabel ? ' — ' + issueLabel : '');
+    if (linkEl)  {
+      linkEl.value = url;
+      // The sheet says which surface the link opens, so nobody has to paste it to
+      // find out. Two destinations, two accessible names.
+      linkEl.setAttribute('aria-label', issueKey
+        ? 'Direct link to the Official Record for ' + name + ' on ' + (issueLabel || 'this issue')
+        : 'Direct link to profile');
+    }
     if (copyBtn) { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy'; }
     // The share ARTIFACT — the image, not the link. Every compact card, browse
     // row, comparison card and the profile modal header funnel into this one
@@ -6715,8 +6810,8 @@
     if (artEl) {
       var SA = window.PDXShareAnywhere;
       if (SA && typeof SA.buttonHtml === 'function') {
-        artEl.innerHTML = SA.buttonHtml({ pid: id, block: true, hint: true, fallback: 'copy',
-                                          text: 'Share the card' });
+        artEl.innerHTML = SA.buttonHtml({ pid: id, issueKey: issueKey, block: true, hint: true,
+                                          fallback: 'copy', text: 'Share the card' });
         try { SA.hydrateSoon(artEl); } catch (e) {}
       } else {
         artEl.innerHTML = '';
@@ -6762,8 +6857,32 @@
     var u = encodeURIComponent(d.url);
     var t = encodeURIComponent(d.text);
     if (platform === 'native') {
+      // Routed through PDXShareLinks.native so a refusal is not a silent no-op.
+      // navigator.share resolves on hand-off and rejects on both "the reader
+      // dismissed it" and "the platform would not open it" — and only the first of
+      // those deserves silence. The second gets the link on the clipboard, which
+      // is the thing the reader was trying to obtain.
+      var L = _pdxLinks();
+      if (L && typeof L.native === 'function') {
+        L.native({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url })
+          .then(function (res) {
+            if (res.ok || res.outcome === 'cancelled') return;
+            window._pdxCopyShareLink();
+            try {
+              if (typeof window._showToast === 'function') {
+                window._showToast(res.outcome === 'unsupported'
+                  ? 'Sharing isn’t available in this browser — link copied instead'
+                  : 'Couldn’t open the share sheet — link copied instead');
+              }
+            } catch (e) {}
+          });
+        return;
+      }
       if (navigator.share) {
-        navigator.share({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url }).catch(function() {});
+        navigator.share({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url })
+          .catch(function() { window._pdxCopyShareLink(); });
+      } else {
+        window._pdxCopyShareLink();
       }
       return;
     }
@@ -6775,11 +6894,28 @@
 
   // Deep-link: open the profile named in the URL (?p=<id>) once profiles
   // have loaded. Called from _checkAndTrigger after the directory is built.
+  //
+  // A pid the roster does not carry — renamed, retired, mistyped, or a link
+  // pasted from a much older build — used to return here in silence, leaving the
+  // reader on the homepage having followed what looked like a citation. That is
+  // the same silent lie the /vote/ safety net exists to remove, so it gets the
+  // same answer: we could not open it, said out loud.
   window._pdxOpenFromUrl = function() {
     try {
       var pid = new URLSearchParams(location.search).get('p');
       if (!pid) return;
-      if (typeof PROFILES === 'undefined' || !PROFILES || !PROFILES[pid]) return;
+      if (typeof PROFILES === 'undefined' || !PROFILES || !PROFILES[pid]) {
+        try {
+          var L = window.PDXShareLinks;
+          if (L && typeof L.notice === 'function') {
+            L.notice('pdx-profile-unresolved', 'Shared profile',
+              'We couldn’t open the profile that link named. Rather than quietly show ' +
+              'you the front page, here’s the plain answer: “' + pid + '” isn’t someone ' +
+              'we currently carry a record for.');
+          }
+        } catch (e2) {}
+        return;
+      }
       if (typeof showProfile === 'function') showProfile(pid);
     } catch (e) { console.warn('Deep-link open failed:', e); }
   };

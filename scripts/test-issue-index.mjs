@@ -107,7 +107,17 @@ const ctx = {
     addEventListener: (type, fn) => { if (type === "click") docClick.push(fn); },
   },
 };
-ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx; ctx.addEventListener = () => {};
+ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
+// Warm-refresh listeners are captured rather than swallowed. The letterhead tally
+// is emitted while the roll-call record is still in flight, so "does the host get
+// filled when the record lands" is the one thing about it that cannot be read off
+// the markup — it has to be fired.
+const warmFns = [];
+ctx.addEventListener = (type, fn) => { if (type === "pdx-consistency-warm") warmFns.push(fn); };
+ctx.removeEventListener = (type, fn) => {
+  const i = type === "pdx-consistency-warm" ? warmFns.indexOf(fn) : -1;
+  if (i !== -1) warmFns.splice(i, 1);
+};
 ctx.window._pdxNavJump = () => {};
 ctx.window._pdxRevealTarget = () => {};
 
@@ -154,6 +164,7 @@ const failures = [];
 const ok = (c, m) => { if (c) passed++; else failures.push(m); };
 const eq = (a, b, m) => ok(a === b, `${m} (got ${JSON.stringify(a)}, want ${JSON.stringify(b)})`);
 const has = (s, sub, m) => ok(String(s).includes(sub), `${m} — missing ${JSON.stringify(sub)}`);
+const lacks = (s, sub, m) => ok(!String(s).includes(sub), `${m} — found ${JSON.stringify(sub)}`);
 const hasnt = (s, sub, m) => ok(!String(s).includes(sub), `${m} — should not contain ${JSON.stringify(sub)}`);
 
 const C = ctx.window.PDXConsistency;
@@ -475,14 +486,19 @@ eq(PANES.filter((p) => p._classes.has("is-on")).map((p) => p.getAttribute("data-
 // segments are now the same control set as the switcher chips, pointed at the
 // same panels: the summary is the navigator and the index is the one list it
 // opens. This section holds that contract — in the markup, and in the handler.
+// The strip only. Bounded at the index, which is the block that follows it —
+// this probe used to end at "pdxwa-comp-fine", the strip's own closing clarifier,
+// and that stopped being a boundary the moment the clarifier moved BELOW the
+// index (mobile pass: nothing renders between the navigator and the list it
+// opens). Left as it was, the slice ran from the strip, through the whole index,
+// down to a paragraph on the far side of it, and every "the strip contains no X"
+// assertion below became a claim about the index too.
 const compOf = (html) => {
   const s = String(html);
   const i = s.indexOf('<div class="pdxwa-comp"');
   if (i === -1) return "";
-  const f = s.indexOf("pdxwa-comp-fine", i);
-  if (f === -1) return "";
-  const e = s.indexOf("</div>", s.indexOf("</p>", f));
-  return s.slice(i, e === -1 ? s.length : e + 6);
+  const e = s.indexOf('<div class="pdxwa-oc"', i);
+  return s.slice(i, e === -1 ? s.length : e);
 };
 const CLEAN_ROWS = [
   stubRow("border_security", "Border Security", "consistent"),
@@ -557,8 +573,245 @@ has(IDX, 'data-pdxwa-oc-all="' + UID + '"',
 has(IDX, "See the full breakdown", "gateway: the flat view does not say what it offers");
 has(IDX, "Back to one bucket at a time", "gateway: the flat view cannot be left by the control that entered it");
 
-// ── Behaviour: a tap on a count moves the strip, the chips and the panels ───
-// The whole gateway is one delegated handler and one shared mover, so it is
+// ═════════════════════════════════════════════════════════════════════════════
+// THE TALLY — the same four counts, beside the headline number
+// ═════════════════════════════════════════════════════════════════════════════
+// The strip is a screen down on a phone: on a narrow device the reader meets the
+// percentage, then "what this measures", then the scope strip, and only then the
+// shape. The tally puts the four integers next to the figure they qualify, so
+// the first screen answers "how much of this record pulls against itself" as
+// well as "what is the average". It is NOT a second score — no percentage, no
+// blended total, nothing from the public lane — and it is not a second source of
+// truth either: it reads the same outcomeBuckets() the strip and the index read,
+// and its controls carry the same data-pdxwa-seg trio, so a tap on it goes
+// through the one delegated handler and moves all three surfaces together.
+const tallyOf = (html) => {
+  const s = String(html);
+  const i = s.indexOf('<div class="pdxwa-tally"');
+  if (i === -1) return "";
+  const e = s.indexOf('<p class="pdxwa-means"', i);
+  const f = s.indexOf('<div class="pdxwa-scope"', i);
+  const ends = [e, f, s.indexOf('<div class="pdxwa-comp"', i)].filter((n) => n !== -1);
+  return s.slice(i, ends.length ? Math.min.apply(null, ends) : s.length);
+};
+const CARD = withRows(ROWS);
+const TALLY = tallyOf(CARD);
+ok(TALLY.length > 0, "tally: the shape never reaches the first screen — every assertion below is vacuous");
+
+// It sits ABOVE the strip and above the index, beside the number it qualifies.
+ok(CARD.indexOf('class="pdxwa-tally"') < CARD.indexOf('class="pdxwa-comp"'),
+  "tally: the tally renders below the graph, which is the one place it adds nothing — the whole\n" +
+  "    point is to state the shape before a phone reader has scrolled to it");
+ok(CARD.indexOf('class="pdxwa-num-v"') < CARD.indexOf('class="pdxwa-tally"'),
+  "tally: the tally comes before the headline number, so the first thing on the card is four\n" +
+  "    integers with nothing to qualify");
+
+// Four controls, one per bucket, addressing the same panels as everything else.
+eq((TALLY.match(/<button type="button" class="pdxwa-tally-b/g) || []).length, 4,
+  "tally: the four counts are not four controls");
+for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
+  has(TALLY, 'data-pdxwa-seg="' + tok + '"', `tally: no control for the "${tok}" bucket`);
+  has(TALLY, 'aria-controls="' + UID + "-p-" + tok + '"',
+    `tally: the "${tok}" count does not name the panel it opens`);
+}
+eq((TALLY.match(new RegExp('data-pdxwa-seg-uid="' + UID + '"', "g")) || []).length, 4,
+  "tally: a control points at an index id that is not the index on this card");
+eq((TALLY.match(/data-pdxwa-gate="tally"/g) || []).length, 4,
+  "tally: a count is not gated, so tapping it switches the bucket without bringing the list it\n" +
+  "    opened into view — which on a phone is a tap that appears to do nothing");
+
+// NOT A SECOND SCORE. This is the assertion the whole block exists to protect.
+eq((TALLY.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
+  "tally: the tally prints a percentage — there is exactly one score on a profile, and it is the\n" +
+  "    number this block sits beside");
+lacks(TALLY.replace(/<[^>]+>/g, " "), "Public",
+  "tally: the public lane is named in the tally — the public record is counts-only and blending it\n" +
+  "    into the shape of the private record is the merge this card refuses");
+
+// SAME NUMBERS AS THE GRAPH. Two surfaces printing the same four integers from
+// the same derivation is only worth anything if they cannot drift; read both and
+// compare, rather than trusting that they call the same function.
+const countsFrom = (html, nCls) => {
+  const out = {};
+  const re = new RegExp('data-pdxwa-seg="([a-z]+)"[\\s\\S]{0,400}?class="' + nCls + '">(\\d+)<', "g");
+  let m;
+  while ((m = re.exec(html)) !== null) if (!(m[1] in out)) out[m[1]] = m[2];
+  return out;
+};
+const tallyCounts = countsFrom(TALLY, "pdxwa-tally-n");
+const stripCounts = countsFrom(STRIP, "pdxwa-comp-n");
+eq(Object.keys(tallyCounts).length, 4, "tally: fewer than four counts could be read out of the tally");
+eq(JSON.stringify(tallyCounts), JSON.stringify(stripCounts),
+  "tally: the tally and the graph print different numbers for the same buckets — they read the\n" +
+  "    same derivation, so a difference here is two answers to one question");
+
+// One bucket marked open, and it is the one the index opened on.
+eq((TALLY.match(/aria-pressed="true"/g) || []).length, 1,
+  "tally: the tally has no single open bucket, or claims more than one");
+ok(/data-pdxwa-seg="contradicts"[^>]*data-pdxwa-gate="tally"[^>]*aria-pressed="true"/.test(TALLY),
+  "tally: the tally opens on a different bucket than the index below it");
+ok(/data-pdxwa-seg="consistent"[^>]*data-pdxwa-gate="tally"[^>]*aria-pressed="true"/
+  .test(tallyOf(withRows(CLEAN_ROWS))),
+  "tally: on a clean record the tally and the index disagree about which bucket is open");
+// Zeroes are printed, not dropped — "nothing contradicted" is a finding.
+has(tallyOf(withRows(CLEAN_ROWS)), "pdxwa-tally-i is-zero",
+  "tally: a bucket at zero is dropped or drawn identically to a finding");
+has(TALLY, "Opens that list of issues below.",
+  "tally: the counts do not say what tapping them does, so a screen reader meets four bare numbers");
+// Below the floor there is no distribution to state and the number stands alone.
+eq(tallyOf(withRows([stubRow("guns", "Gun Rights", "consistent")])), "",
+  "tally: a single-issue record still gets a tally — one count under a percentage says nothing the\n" +
+  "    percentage did not");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// THE SAME TALLY, IN THE LETTERHEAD
+// ═════════════════════════════════════════════════════════════════════════════
+// The block above fixed the phone, where the ring and §1 are the same screen. On
+// a desktop they are not: the ring sits in the page header with the photo and the
+// name, and the shape behind it was a scroll away inside the card — so the glance
+// most readers take showed an average and said nothing about whether the record
+// it averages agrees with itself.
+//
+// This is that tally, mounted in the header. Everything that could drift is
+// pinned here: it prints the same four integers as the graph and the in-card
+// tally, addresses the same four panels, carries no percentage, names nothing
+// public, and — the part that is genuinely new — declares itself OUTSIDE the
+// section, which is what lets one delegated handler still move it. Below the
+// two-issue floor it renders nothing rather than four zeroes under a letterhead,
+// where a zero would read as a finding about the person instead of a fact about
+// our coverage.
+const withHeader = (rows) => {
+  C.issueRows = () => rows;
+  C.rankIssueRows = (rs) => rs;
+  try { return WA.headerTallyHtml(MEMBER); }
+  finally { C.issueRows = realIssueRows; C.rankIssueRows = realRank; }
+};
+const withHeaderMount = (rows) => {
+  C.issueRows = () => rows;
+  C.rankIssueRows = (rs) => rs;
+  try { return WA.headerTallyMount(MEMBER); }
+  finally { C.issueRows = realIssueRows; C.rankIssueRows = realRank; }
+};
+ok(typeof WA.headerTallyHtml === "function" && typeof WA.headerTallyMount === "function",
+  "header: word-action.js does not publish a header tally, so the profile builder has nothing to\n" +
+  "    mount and every assertion below is vacuous");
+const HTALLY = withHeader(ROWS);
+ok(HTALLY.length > 0, "header: the letterhead tally renders nothing on a record that has a shape");
+has(HTALLY, 'class="pdxwa-tally pdxwa-htally"',
+  "header: the letterhead copy does not reuse the tally component, so the two can be restyled\n" +
+  "    apart and stop looking like one statement");
+
+// Four controls, the same four panels, the same index.
+eq((HTALLY.match(/<button type="button" class="pdxwa-tally-b/g) || []).length, 4,
+  "header: the four counts are not four controls");
+for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
+  has(HTALLY, 'data-pdxwa-seg="' + tok + '"', `header: no control for the "${tok}" bucket`);
+  has(HTALLY, 'aria-controls="' + UID + "-p-" + tok + '"',
+    `header: the "${tok}" count does not name the panel it opens`);
+}
+eq((HTALLY.match(new RegExp('data-pdxwa-seg-uid="' + UID + '"', "g")) || []).length, 4,
+  "header: a control points at an index id that is not this profile's index");
+
+// The two attributes that are only true up here. Without the first, the switcher
+// walks up from the tap looking for a [data-pdxwa] section it will never find,
+// and the count is inert; without the second, a tap several thousand characters
+// above the index switches the bucket and leaves the reader in the header.
+eq((HTALLY.match(new RegExp('data-pdxwa-outside="' + UID + '"', "g")) || []).length, 4,
+  "header: a count in the letterhead does not declare which index it drives — it has no section\n" +
+  "    ancestor to be found by, so an undeclared control is a control that does nothing");
+eq((HTALLY.match(/data-pdxwa-gate="header"/g) || []).length, 4,
+  "header: a count is not gated, so tapping it opens a bucket a whole page below without bringing\n" +
+  "    the list into view");
+
+// NOT A SECOND SCORE, and this mount is where that matters most: it sits inches
+// from the ring.
+eq((HTALLY.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
+  "header: the letterhead tally prints a percentage — there is one score on a profile and it is\n" +
+  "    the ring directly above this block");
+lacks(HTALLY.replace(/<[^>]+>/g, " "), "Public",
+  "header: the public lane is named in the letterhead tally — the formal buckets are formal-lane\n" +
+  "    only and the public record is counted on the rows far below");
+
+// SAME NUMBERS AS THE GRAPH AND AS THE IN-CARD TALLY. Read all three and compare
+// rather than trusting that they call the same function.
+const headerCounts = countsFrom(HTALLY, "pdxwa-tally-n");
+eq(Object.keys(headerCounts).length, 4, "header: fewer than four counts could be read out of the letterhead tally");
+eq(JSON.stringify(headerCounts), JSON.stringify(stripCounts),
+  "header: the letterhead tally and the graph print different numbers for the same buckets — a\n" +
+  "    reader who scrolls from one to the other meets two answers to one question");
+eq(JSON.stringify(headerCounts), JSON.stringify(tallyCounts),
+  "header: the letterhead tally and the card's own tally disagree");
+
+// One open bucket, and it is the one the index opens on.
+eq((HTALLY.match(/aria-pressed="true"/g) || []).length, 1,
+  "header: the letterhead tally has no single open bucket, or claims more than one");
+ok(/data-pdxwa-seg="contradicts"[^>]*data-pdxwa-gate="header"[^>]*aria-pressed="true"/.test(HTALLY),
+  "header: the letterhead opens on a different bucket than the index it points at");
+eq((HTALLY.match(/aria-selected/g) || []).length, 0,
+  "header: a letterhead count claims to be a tab — the index's own chips are the tabs and these\n" +
+  "    are plain toggles pointed at them");
+has(HTALLY, "Opens that list of issues below.",
+  "header: the counts do not say what tapping them does, so a screen reader meets four bare\n" +
+  "    numbers under the name");
+has(withHeader(CLEAN_ROWS), "pdxwa-tally-i is-zero",
+  "header: a bucket at zero is dropped or drawn identically to a finding");
+ok(/data-pdxwa-seg="consistent"[^>]*data-pdxwa-gate="header"[^>]*aria-pressed="true"/.test(withHeader(CLEAN_ROWS)),
+  "header: on a clean record the letterhead and the index disagree about which bucket is open");
+
+// NO INVENTED SHAPE. Under the floor the engine does not have a distribution, and
+// four greyed zeroes in a letterhead read as four findings about the person.
+eq(withHeader([stubRow("guns", "Gun Rights", "consistent")]), "",
+  "header: a single-issue record gets a letterhead tally — one count beside a ring is not a shape,\n" +
+  "    and printing three zeroes beside it states a coverage gap as a clean record");
+eq(withHeader([]), "",
+  "header: a profile with no tested issues at all still gets four zeroes in its letterhead");
+
+// The MOUNT is the host plus the warm refresh, and it is emitted whether or not
+// there is a shape yet: the header is built from the synchronous word ledger while
+// the roll-call record is still in flight, so a mount that returned '' on a cold
+// open would leave the repaint nothing to land in and the tally would never appear.
+const HMOUNT = withHeaderMount(ROWS);
+has(HMOUNT, 'class="pdxwa-htally-host"', "header: the mount has no host element for the warm repaint to find");
+has(HMOUNT, "data-pdxwa-htally=", "header: the host is not addressable, so the warm repaint cannot locate it");
+has(HMOUNT, 'class="pdxwa-tally pdxwa-htally"', "header: the mount does not contain the tally it exists to carry");
+const HCOLD = withHeaderMount([stubRow("guns", "Gun Rights", "consistent")]);
+has(HCOLD, 'class="pdxwa-htally-host"',
+  "header: below the floor the mount emits nothing at all — the record warms a moment later and\n" +
+  "    there would be no host left in the DOM for the shape to appear in");
+ok(/data-pdxwa-htally="[^"]+"><\/div>$/.test(HCOLD.trim()),
+  "header: the host below the floor is not empty — an empty host collapses to nothing in CSS, and\n" +
+  "    anything inside it is chrome asserting a shape the engine does not have");
+
+// ── And the cold host actually fills when the record lands ──────────────────
+// This is the whole reason the mount emits an empty host instead of nothing. The
+// profile header is assembled off the synchronous word ledger; the roll-call
+// record arrives a beat later and fires `pdx-consistency-warm`. If that repaint
+// misses, a reader on a real connection sees a ring with no shape beside it for
+// the life of the page and nothing in the markup above would have caught it.
+const coldUid = (/data-pdxwa-htally="([^"]+)"/.exec(HCOLD) || [])[1] || "";
+ok(coldUid.length > 0, "header: the cold host has no id, so the repaint below is vacuous");
+await new Promise((r) => setTimeout(r, 0)); // the mount arms its listener on the next tick
+const hostEl = mkEl();
+const realQS = ctx.document.querySelector;
+ctx.document.querySelector = (sel) =>
+  (sel === '[data-pdxwa-htally="' + coldUid + '"]' ? hostEl : null);
+ok(warmFns.length > 0,
+  "header: nothing listened for the record warming, so a profile that opens cold never gets its\n" +
+  "    tally at all — the empty host it left behind is all the reader ever sees");
+C.issueRows = () => ROWS;
+C.rankIssueRows = (rs) => rs;
+try { warmFns.slice().forEach((fn) => fn({ detail: { pid: MEMBER } })); }
+finally { C.issueRows = realIssueRows; C.rankIssueRows = realRank; ctx.document.querySelector = realQS; }
+has(hostEl.innerHTML, 'class="pdxwa-tally pdxwa-htally"',
+  "header: the record warmed and the empty letterhead host stayed empty — the tally is absent for\n" +
+  "    the life of the page on every profile whose votes arrive after first paint");
+eq(JSON.stringify(countsFrom(hostEl.innerHTML, "pdxwa-tally-n")), JSON.stringify(stripCounts),
+  "header: the warmed letterhead prints different numbers than the graph — the repaint re-derives\n" +
+  "    the shape instead of re-reading the one the card already drew");
+eq((hostEl.innerHTML.match(/aria-pressed="true"/g) || []).length, 1,
+  "header: after the warm repaint the letterhead opens no bucket, or more than one");
+
+// ── Behaviour: a tap on a count moves the strip, the chips and the panels ───// The whole gateway is one delegated handler and one shared mover, so it is
 // driven here rather than read: three control sets that agree in the markup and
 // drift the moment anything is tapped would be the worst version of this.
 const gTab = (tok, on) => {
@@ -585,6 +838,11 @@ const G_TOKENS = ["contradicts", "mixed", "consistent", "limited"];
 const G_CHIPS = G_TOKENS.map((t) => gTab(t, t === "contradicts"));
 const G_COUNTS = G_TOKENS.map((t) => gCount(t, t === "contradicts"));
 const G_SEGS = G_TOKENS.map((t) => gCount(t, t === "contradicts", "bar"));
+// The tally beside the headline number is a fourth control set on the same four
+// destinations. It is here in the driven test rather than only in the markup
+// test because "four surfaces that agree until something is tapped" is the exact
+// failure this whole gateway is built to prevent.
+const G_TALLY = G_TOKENS.map((t) => gCount(t, t === "contradicts", "tally"));
 const G_PANES = G_TOKENS.map((t) => gPane(t, t === "contradicts"));
 let scrolled = 0;
 const gIdx = mkEl();
@@ -594,8 +852,8 @@ gIdx._classes.add("pdxwa-oc");
 const gSection = mkEl();
 gSection._kids[".pdxwa-oc"] = gIdx;
 gSection.querySelectorAll = (sel) =>
-  (sel.indexOf("data-pdxwa-seg-uid") !== -1 ? G_CHIPS.concat(G_COUNTS, G_SEGS) : G_PANES);
-[...G_CHIPS, ...G_COUNTS, ...G_SEGS].forEach((el) => {
+  (sel.indexOf("data-pdxwa-seg-uid") !== -1 ? G_CHIPS.concat(G_COUNTS, G_SEGS, G_TALLY) : G_PANES);
+[...G_CHIPS, ...G_COUNTS, ...G_SEGS, ...G_TALLY].forEach((el) => {
   el.closest = (sel) => (sel === "[data-pdxwa]" ? gSection : (sel === "[data-pdxwa-seg]" ? el : null));
 });
 const openTok = () => G_PANES.filter((p) => p._classes.has("is-on"))
@@ -650,6 +908,97 @@ tapSeg(G_CHIPS[2]);
 eq(openTok(), "consistent", "gateway: the index's own chips stopped switching once the strip could");
 eq(scrolled, scrollMark, "gateway: tapping a chip inside the index scrolls the index — only the summary above\n" +
   "    it has a distance to close");
+
+// ── The tally is the same gateway, from the top of the card ─────────────────
+// This is the assertion the mobile pass turns on. On a phone the graph is a
+// screen below the fold; a reader who never reaches it must still be able to
+// move the list, from the four counts sitting beside the percentage. And the
+// four surfaces have to stay agreed once anything is tapped — four blocks that
+// match in the markup and drift on first use would be the worst version of this.
+const tallyMark = scrolled;
+tapSeg(G_TALLY[0]);
+eq(openTok(), "contradicts", "gateway: tapping a count in the tally does not open that bucket's list");
+eq(G_TALLY.filter((c) => c.getAttribute("aria-pressed") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "contradicts", "gateway: the tally does not mark the bucket it just opened, or marks two");
+eq(G_COUNTS.filter((c) => c.getAttribute("aria-pressed") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "contradicts", "gateway: the graph did not follow the tally — the two print the same four numbers and\n" +
+   "    must never disagree about which of them is open");
+eq(G_CHIPS.filter((c) => c.getAttribute("aria-selected") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "contradicts", "gateway: the index's chips did not follow the tally");
+eq(scrolled, tallyMark + 1,
+  "gateway: a tap in the tally does not bring the list into view — the tally sits beside the\n" +
+  "    headline number, which is further from the index than anything else that moves it");
+eq(G_TALLY.filter((c) => c.getAttribute("aria-selected") !== null).length, 0,
+  "gateway: a tally count was told it is \"selected\" — it is a plain toggle, not a tab, and the\n" +
+  "    index's own chips are the tabs");
+
+// …and the graph still moves the tally, in the other direction.
+tapSeg(G_SEGS[1]);
+eq(G_TALLY.filter((c) => c.getAttribute("aria-pressed") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "mixed", "gateway: the tally did not follow the graph, so scrolling back up to the first screen\n" +
+   "    shows a bucket the reader has already left");
+tapSeg(G_CHIPS[2]);
+eq(G_TALLY.filter((c) => c.getAttribute("aria-pressed") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "consistent", "gateway: the tally did not follow a chip inside the index");
+
+// ── The letterhead tally, which has no section to walk up to ────────────────
+// Every control above shares one [data-pdxwa] ancestor with the index it drives,
+// which is how a tap resolves its own root. The header copy does not: it is
+// emitted by the profile builder into the page header, thousands of characters
+// above the section. It declares its index by uid instead, and the handler
+// resolves DOWN from that id. If either half of that is wrong the control is
+// simply inert — it looks identical, reports a state, and moves nothing — so
+// this is driven rather than read.
+const G_HEAD = G_TOKENS.map((t) => {
+  const el = mkEl();
+  el._attrs = {
+    "data-pdxwa-seg": t, "data-pdxwa-seg-uid": UID,
+    "data-pdxwa-gate": "header", "data-pdxwa-outside": UID,
+  };
+  if (t === "consistent") el._classes.add("is-on");
+  el.setAttribute("aria-pressed", t === "consistent" ? "true" : "false");
+  // The point of the whole exercise: no section ancestor, and no index ancestor
+  // either. Only the tap target itself resolves.
+  el.closest = (sel) => (sel === "[data-pdxwa-seg]" ? el : null);
+  return el;
+});
+// The index answers to its own id, exactly as it does on a real page, and knows
+// which section it lives in.
+byId.set(UID, gIdx);
+gIdx.closest = (sel) => (sel === "[data-pdxwa]" ? gSection : (sel === ".pdxwa-oc" ? gIdx : null));
+ctx.document.querySelectorAll = (sel) =>
+  (sel === '[data-pdxwa-outside="' + UID + '"]' ? G_HEAD : []);
+const headPressed = () => G_HEAD.filter((c) => c.getAttribute("aria-pressed") === "true")
+  .map((c) => c.getAttribute("data-pdxwa-seg")).join(",");
+
+const headMark = scrolled;
+tapSeg(G_HEAD[1]);
+eq(openTok(), "mixed",
+  "gateway: a count in the letterhead does not open its bucket — with no section ancestor to walk\n" +
+  "    up to, the handler has to resolve the index from the uid the control declares");
+eq(headPressed(), "mixed", "gateway: the letterhead tally does not mark the bucket it just opened, or marks two");
+eq(G_COUNTS.filter((c) => c.getAttribute("aria-pressed") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "mixed", "gateway: the graph did not follow the letterhead — one tap in the header has to move the\n" +
+   "    whole section, or the page carries two answers about which bucket is open");
+eq(G_TALLY.filter((c) => c.getAttribute("aria-pressed") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "mixed", "gateway: the card's own tally did not follow the letterhead's");
+eq(G_CHIPS.filter((c) => c.getAttribute("aria-selected") === "true").map((c) => c.getAttribute("data-pdxwa-seg")).join(","),
+   "mixed", "gateway: the index's chips did not follow the letterhead");
+eq(scrolled, headMark + 1,
+  "gateway: a tap in the letterhead does not bring the list into view — it is the furthest control\n" +
+  "    on the page from the index, so a silent switch is a tap that appears to do nothing at all");
+
+// …and every route back up. The header is the one surface a reader returns to by
+// scrolling rather than by tapping, so a stale state here is a state nobody
+// corrects.
+tapSeg(G_SEGS[3]);
+eq(headPressed(), "limited",
+  "gateway: the letterhead did not follow the graph, so scrolling back to the top of the profile\n" +
+  "    shows a bucket the reader has already left");
+tapSeg(G_CHIPS[0]);
+eq(headPressed(), "contradicts", "gateway: the letterhead did not follow a chip inside the index");
+tapSeg(G_TALLY[2]);
+eq(headPressed(), "consistent", "gateway: the letterhead did not follow the card's own tally");
 
 // ── Flat mode is a mode, and picking a bucket leaves it ─────────────────────
 const allBtn = mkEl();
