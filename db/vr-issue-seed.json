@@ -149,7 +149,7 @@
      "weight": 60,
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
-     "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access."
+     "rationale": "Requires documentary proof of U.S. citizenship to register to vote in federal elections. A yea adds a documentary precondition to federal voter registration."
     },
     {
      "issueKey": "election_security",
@@ -209,7 +209,7 @@
      "weight": 60,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Supporters framed the rule as unworkable for decentralized software and a drag on U.S. crypto development."
+     "rationale": "Nullifies the IRS rule that extended broker tax-reporting duties to decentralized-finance platforms, so those platforms are not required to collect and report user transaction data. A yea removes that reporting duty from decentralized software. Enacted as Public Law 119-5."
     }
    ]
   },
@@ -239,7 +239,7 @@
      "weight": 55,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Supporters argued the tariffs raise costs for U.S. consumers and businesses; a yea removes them."
+     "rationale": "Terminates the national emergency declaration that is the legal basis for the tariffs on Canadian imports; a yea ends those duties. Passed the Senate 51-48 and did not advance in the House."
     }
    ]
   },
@@ -269,7 +269,7 @@
      "weight": 55,
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
-     "rationale": "Opponents held that constraining the commander-in-chief would weaken deterrence; a yea cuts against that view."
+     "rationale": "Requires congressional authorization before continued U.S. hostilities against Iran and directs the removal of forces from hostilities Congress has not authorized. A yea withdraws U.S. forces from an ongoing engagement absent a vote of Congress."
     }
    ]
   },
@@ -322,7 +322,7 @@
      "weight": 70,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Supporters framed it as protecting consumer choice and gasoline-vehicle access."
+     "rationale": "Revokes the Clean Air Act waiver behind California's Advanced Clean Cars II rule, ending the requirement that a rising share of new vehicles sold be zero-emission in California and in the dozen states that adopted it. A yea keeps internal-combustion vehicles saleable in those markets."
     },
     {
      "issueKey": "gov_regulation",
@@ -352,7 +352,7 @@
      "weight": 70,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Supporters framed it as easing costs on trucking and freight."
+     "rationale": "Revokes the Clean Air Act waiver behind California's Advanced Clean Trucks rule, ending the requirement that a rising share of new medium- and heavy-duty truck sales be zero-emission. A yea removes that limit on conventional truck sales."
     },
     {
      "issueKey": "gov_regulation",
@@ -2435,7 +2435,7 @@
      "weight": 70,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Framed by supporters as clawing back wasteful or low-priority spending."
+     "rationale": "Cancels roughly $9 billion in budget authority Congress had already enacted, rescinding it from foreign-assistance accounts and from the Corporation for Public Broadcasting. A yea returns appropriated money to the Treasury unspent."
     },
     {
      "issueKey": "national_debt",
@@ -2482,7 +2482,7 @@
      "weight": 45,
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
-     "rationale": "Recorded neutrally: some public-health advocates argue permanent scheduling and mandatory minimums emphasize enforcement over treatment — a Yea is tagged as cutting against that concern."
+     "rationale": "Permanently places fentanyl-related substances as a class in Schedule I and applies to them the quantity thresholds and mandatory-minimum prison terms that attach to fentanyl analogues, while adding a registration pathway for Schedule I research. A yea sets the federal response to this class of substances in criminal-penalty terms."
     }
    ]
   },
