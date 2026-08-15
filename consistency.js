@@ -2190,6 +2190,16 @@
       '.pdxst-vd{font-weight:800;font-size:0.72rem;letter-spacing:0.01em;}' +
       '.pdxst-vd-none{font-weight:700;font-size:0.68rem;color:#8fa6c6;}' +
       '.pdxst-why{font-size:0.64rem;color:#7e93b3;}' +
+      // The reason line's own door, drawn only where the row holds instruments to
+      // show. Inline with the sentence rather than under it: it is the end of that
+      // sentence ("…see the votes →"), not a second control, and a row already
+      // carrying a verdict, a tally and a link strip cannot afford another button
+      // shape. Same restraint as .pdxst-pub-go — no border, no fill, no verdict
+      // colour — because this is a route to evidence, not a result.
+      '.pdxst-why-go{cursor:pointer;font-family:inherit;font-size:0.64rem;font-weight:700;color:#9fdbd0;' +
+        'background:none;border:0;padding:0.1rem 0.2rem;min-height:1.5rem;text-align:left;}' +
+      '.pdxst-why-go:hover,.pdxst-why-go:focus-visible{color:#bdeae1;text-decoration:underline;}' +
+      '.pdxst-why-go .pdxst-lbl-go{margin-left:0.2rem;}' +
       // Composition: what "mixed" actually meant, in counts, under the row that
       // said it. Never rendered on a row with nothing to break down.
       '.pdxst-comp{display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;font-size:0.64rem;color:#8fa6c6;margin-top:0.16rem;}' +
@@ -4023,6 +4033,13 @@
       category: _catOf(issueKey), categoryLabel: _catLabel(issueKey),
       // ── SAID ──
       stance: stance,
+      // …and whether there IS a said at all, by the same test the tiering above uses.
+      // A surface asking "is this row unscored because their record is thin, or
+      // because we hold no position of theirs to test it against?" was re-deriving
+      // this from `stance.key` alone, which misses the two other ways a position can
+      // be on file (`ov.hasStance`, `ov.record.hasStance`) and so quietly filed a
+      // documentation gap of ours as a shortcoming of theirs.
+      said: hasWord,
       // ── DID ──
       lane: ov.lane || null,
       actions: { count: evCount, lane: ov.lane || null, judged: judgedCountOf(ov) },
@@ -4494,6 +4511,21 @@
       ? { one: 'action', many: 'actions' }
       : { one: 'vote', many: 'votes' };
   }
+  // Is there a stated position on file to test this record against? Read off the row
+  // model (issueRow.said), which uses the same test the tiering does. Hand-built rows
+  // — tests, fallbacks — may not carry the flag, so it falls back to the stance
+  // itself: never assume a position exists that we cannot point at.
+  function _stSaid(r) {
+    if (!r) return false;
+    if (typeof r.said === 'boolean') return r.said;
+    return !!(r.stance && (r.stance.key || r.stance.text || r.stance.label));
+  }
+  // How many formal instruments this row holds. The row's own count, not a second
+  // definition of depth — the same number _stEvidenceHtml prints and the same one
+  // the dossier's list reconciles against.
+  function _stHeld(r) {
+    return (r && r.evidence && r.evidence.actions) || 0;
+  }
   // How many judged items pointed each way, from the lane that actually decided the
   // row. Returns null when nothing directional was judged — the caller must not
   // print a breakdown of a verdict no lane produced.
@@ -4552,18 +4584,42 @@
     var metric = pubBasis ? 'Public-record match' : 'Direction match';
     if (r && r.tested && typeof v.score === 'number') {
       return { state: 'tested', pct: v.score, metric: metric, label: word, ico: v.ico,
-               color: v.color, cls: v.cls, why: '', bucket: bucket };
+               color: v.color, cls: v.cls, why: '', bucket: bucket,
+               shape: 'tested', held: _stHeld(r), invite: null };
     }
     if (tok === 'limited') {
-      // WHY it is thin, not just that it is. "Limited" covers two different
-      // situations and a reader can tell them apart instantly once they are named:
-      // a record that exists but never takes a side on this claim (the president's
-      // healthcare row — four actions, none of them for or against what he said),
-      // and a record with almost nothing in it. Printing "not enough record" over
-      // four actions reads as a contradiction of the line right below it.
+      // WHY it is thin, not just that it is — and WHOSE side of the ledger the gap
+      // is on. "Limited" covers three different situations and a reader can tell
+      // them apart instantly once they are named:
+      //
+      //   · WE HOLD NO POSITION OF THEIRS. The row holds real, sourced instruments —
+      //     often a dozen or more — and there is simply no stated position on file to
+      //     test them against. This is the overwhelmingly common case, and it is a
+      //     gap in OUR documentation, not a shortcoming of their record. It used to
+      //     print "There is a record here, but none of it takes a clear side on this
+      //     claim", which is false twice over: there is no claim, and the votes take
+      //     sides all day — nobody has written down what they said they would do. So
+      //     the row now names the inventory it holds, says what is missing is a
+      //     stated position, and offers the list. The count is INVENTORY, never a
+      //     rate: the row stays unscored and prints no percentage.
+      //   · A RECORD THAT NEVER TAKES A SIDE on the claim (the president's healthcare
+      //     row — four actions, none of them for or against what he said).
+      //   · A RECORD WITH ALMOST NOTHING IN IT. Printing "not enough record" over
+      //     four actions reads as a contradiction of the line right below it.
       var lim = _stSplit(r), lnoun = _stNoun(r);
-      var lwhy;
-      if (!lim) {
+      var lheld = _stHeld(r), lsaid = _stSaid(r);
+      var lwhy, lshape = 'thin', linvite = null;
+      if (!lim && !lsaid) {
+        lshape = 'no_stance';
+        if (lheld > 0) {
+          var lmany = (lheld === 1 ? lnoun.one : lnoun.many);
+          lwhy = lheld + ' ' + lmany + ' on file · no stated position from them yet, ' +
+            'so this row isn’t scored.';
+          linvite = { count: lheld, noun: lmany, cta: 'see the ' + lmany };
+        } else {
+          lwhy = 'No stated position from them yet, so there is nothing here to test the record against.';
+        }
+      } else if (!lim) {
         lwhy = (r.evidence.total > 0)
           ? 'There is a record here, but none of it takes a clear side on this claim.'
           : 'Nothing on record yet takes a side on this one.';
@@ -4572,18 +4628,66 @@
       } else {
         lwhy = 'Not enough record to judge this one yet.';
       }
-      return { state: 'thin', pct: null, metric: metric, label: word, ico: v.ico,
-               color: v.color, cls: v.cls, why: lwhy, bucket: bucket };
+      return { state: 'thin', pct: null, metric: metric,
+               // THE WORD FOLLOWS THE SHAPE. "Thin record" is the issue index's name
+               // for a pile this row is not in — the index drops wordless rows before
+               // bucketing — so _dosBucket returns nothing here and the row says what
+               // is actually true of it instead: it is not scored. It is not a verdict,
+               // it does not rank, and it is the one label on this face that is about
+               // OUR coverage rather than their conduct.
+               label: (lshape === 'no_stance') ? 'Not scored yet' : word,
+               ico: v.ico, color: v.color, cls: v.cls, why: lwhy, bucket: bucket,
+               shape: lshape, held: lheld, invite: linvite };
     }
     if (tok === 'pending') {
       return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '⏳',
-               color: '#9fb4d4', cls: 'pending', why: 'Loading the record…', bucket: null };
+               color: '#9fb4d4', cls: 'pending', why: 'Loading the record…', bucket: null,
+               shape: 'pending', held: _stHeld(r), invite: null };
     }
-    var why = (tok === 'no_stance')
-      ? 'They have a record here, but no stated position to test it against.'
-      : 'Nothing formal on record for this issue yet.';
+    // The same distinction one tier down. `no_stance` is the engine reaching the same
+    // conclusion by a different route — a record on file, no word to check it against
+    // — so it says the same thing in the same shape, inventory included.
+    var uheld = _stHeld(r), unoun = _stNoun(r), uwhy, ushape = 'thin', uinvite = null;
+    if (tok === 'no_stance') {
+      ushape = 'no_stance';
+      if (uheld > 0) {
+        var umany = (uheld === 1 ? unoun.one : unoun.many);
+        uwhy = uheld + ' ' + umany + ' on file · no stated position from them yet, ' +
+          'so this row isn’t scored.';
+        uinvite = { count: uheld, noun: umany, cta: 'see the ' + umany };
+      } else {
+        uwhy = 'They have a record here, but no stated position to test it against.';
+      }
+    } else {
+      uwhy = 'Nothing formal on record for this issue yet.';
+      ushape = 'no_record';
+    }
     return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '—',
-             color: '#9fb4d4', cls: 'none', why: why, bucket: null };
+             color: '#9fb4d4', cls: 'none', why: uwhy, bucket: null,
+             shape: ushape, held: uheld, invite: uinvite };
+  }
+  // THE REASON LINE, AND — WHERE THERE IS ONE — THE WAY TO CHECK IT.
+  // A row that says "18 votes on file" and offers no route to those eighteen votes
+  // is asking to be taken on trust, which is the one thing this product is for not
+  // doing. The count is therefore the door: same dossier, same (pid, issue) pair and
+  // the same accessible name as the issue-name tap above it (_dosDoorLabel), asking
+  // the sheet to land on the Official Record enumeration rather than the top. It is
+  // drawn ONLY where the result carries an inventory to show — never on a row whose
+  // record really is thin, because there the invitation would be an empty promise.
+  function _stWhyHtml(r, res, tag) {
+    if (!res || !res.why) return '';
+    var t = tag || 'div';
+    var door = '';
+    if (res.invite && r && r.pid && r.key) {
+      door = '<button type="button" class="pdxst-why-go"' +
+        ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
+        ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+        ' data-pdxst-focus="record"' +
+        ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance && r.stance.label)) + '">' +
+        esc(res.invite.cta) + '<span class="pdxst-lbl-go" aria-hidden="true">→</span>' +
+      '</button>';
+    }
+    return '<' + t + ' class="pdxst-why">' + esc(res.why) + door + '</' + t + '>';
   }
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
@@ -4601,7 +4705,7 @@
     if (res.state === 'untested') {
       return '<div class="pdxst-result pdxst-r-untested">' + lane +
           '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico + ' ' + res.label) + '</span>' +
-          '<span class="pdxst-why">' + esc(res.why) + '</span>' +
+          _stWhyHtml(r, res, 'span') +
         '</div>';
     }
     var split = _stSplit(r);
@@ -4612,10 +4716,20 @@
           (split.judged === 1 ? scopeWord : scopeWord + 's') + ' pointed the same way as the position they state. '
                 : '') +
         'Verdict: ' + res.label + '. This is one issue, not the profile score — that one is in Word vs Action.'
-      : res.why + ' No percentage is shown, because the record behind this row is too thin to divide.';
+      : res.why + ' ' + (res.shape === 'no_stance'
+          ? 'No percentage is shown, because there is nothing stated to measure this record against — ' +
+            'the count is what we hold on file, not a score.'
+          : 'No percentage is shown, because the record behind this row is too thin to divide.');
     var num = (res.state === 'tested')
       ? '<span class="pdxst-pct" style="color:' + res.color + '">' + res.pct + '%</span>'
-      : '<span class="pdxst-pct pdxst-pct-na" aria-label="No percentage — not enough record">—</span>';
+      // The empty slot names its own reason too. "Not enough record" is a true
+      // sentence about a thin row and a false one about a row holding eighteen
+      // votes, and a screen-reader user gets ONLY this string — the count sits in
+      // the why line below, not in the slot — so it has to carry the distinction.
+      : '<span class="pdxst-pct pdxst-pct-na" aria-label="' +
+        escAttr(res.shape === 'no_stance'
+          ? 'No percentage — no stated position to score the record against'
+          : 'No percentage — not enough record') + '">—</span>';
     return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
         '<span class="pdxst-metric">' + esc(res.metric) + '</span>' +
@@ -4623,7 +4737,7 @@
         num +
         '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
       '</div>' +
-      (res.state === 'thin' ? '<div class="pdxst-why">' + esc(res.why) + '</div>' : '');
+      (res.state === 'thin' ? _stWhyHtml(r, res, 'div') : '');
   }
   // WHAT "MIXED" MEANT. Printed where the row actually carries tension — a split
   // verdict, counter-evidence the deciding lane set aside, or an action whose
@@ -6829,7 +6943,7 @@
         : (ov.lane === 'exec'
             ? 'No qualifying executive action on this issue is on file yet.'
             : 'No qualifying ' + n.many + ' on this issue are on file yet.');
-      return '<div class="pdxdos-recs" data-pdxdos-empty="1">' +
+      return '<div class="pdxdos-recs" data-pdxdos-empty="1" data-pdxgap-record="empty">' +
         '<div class="pdxdos-empty">' + esc(empty) + '</div></div>';
     }
     var cov = _dosCoverage(pid, issueKey, ov, items);
@@ -6867,7 +6981,12 @@
         'carry a written explanation the way an executive document does — so its two lines are assembled ' +
         'from the record itself rather than written, and nothing has been added to make them look the same.</div>'
       : '';
-    return '<details class="pdxdos-recs">' +
+    // THE LANDING PAD FOR THE FORMAL SIDE. A row that says "18 votes on file · see
+    // the votes" promises this list, and the promise is only kept if the sheet can
+    // be asked to stop at it. Same hook shape as the 🧾 column's, an attribute rather
+    // than an id, because a dossier is rendered as one HTML string and a duplicated
+    // id is a silent scroll to the wrong panel.
+    return '<details class="pdxdos-recs" data-pdxgap-record="items">' +
         '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
           ' <span aria-hidden="true">▾</span>' +
           '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
@@ -6897,14 +7016,20 @@
   // those buckets, and this line is what tells them the sheet they landed on is the
   // same finding at greater depth rather than a different reading of it.
   //
-  // FAIL CLOSED, TWO WAYS. The vocabulary is read from PDXWordAction, which owns it;
+  // FAIL CLOSED, THREE WAYS. The vocabulary is read from PDXWordAction, which owns it;
   // if that module is not loaded this prints nothing rather than inventing a second
-  // set of words for the same four outcomes. And a verdict with no bucket — pending,
+  // set of words for the same four outcomes. A verdict with no bucket — pending,
   // no record, nothing stated — prints nothing either, because it was never in the
-  // index to be filed anywhere. No percentage: the bucket is a name, not a score.
+  // index to be filed anywhere. And neither was a row we hold instruments for and no
+  // stated position of theirs: the index drops those before bucketing (see the
+  // `!r.stance.label` guard in outcomeBuckets), so calling one "Thin record" here
+  // borrowed a word from a pile it was never in, and hung it on a record whose only
+  // defect is that WE have nothing of theirs to test it against. No percentage: the
+  // bucket is a name, not a score.
   function _dosBucket(r) {
     var tok = r && r.verdict && r.verdict.token;
     if (!tok) return null;
+    if (tok === 'limited' && !(r.stance && r.stance.label)) return null;
     try {
       var WA = window.PDXWordAction;
       if (!WA) return null;
@@ -6973,9 +7098,15 @@
       lane = 'Decided by the public record — statements, news and controversies — because no formal ' +
         n.one + ' on this issue could settle it.';
     } else if (r.verdict.basis === 'action') {
-      lane = jn
-        ? 'Decided by the formal record: ' + jn + ' judged ' + (jn === 1 ? n.one : n.many) + ' on this issue.'
-        : 'Decided by the formal record.';
+      // "Decided by" is a claim about a decision, and a no-position row has not
+      // reached one — so the same fork the face makes is made here: the lane that
+      // WOULD decide this issue, named as such, rather than a decision asserted over
+      // a row whose result slot is empty. Every other row keeps its original wording.
+      lane = (res.shape === 'no_stance')
+        ? 'This issue would be decided by the formal record.'
+        : (jn
+          ? 'Decided by the formal record: ' + jn + ' judged ' + (jn === 1 ? n.one : n.many) + ' on this issue.'
+          : 'Decided by the formal record.');
       // WHERE TO FIND THEM. A count with no route to the items is the thing this
       // whole level is meant to stop being, so the sentence that names the number
       // also says whether the list below can show all of them.
@@ -7046,8 +7177,18 @@
         ', weighted by how many judged ' + n.many + ' sit behind it. The headline figure on the ' +
         'profile is that pooled number, never this one issue.';
     } else if (res.state === 'thin') {
-      score = 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
-        ' rather than counted as agreement — a row too thin to divide is disclosed, not scored.';
+      // Same fork as the row face, one level down. "Too thin to divide" is true of a
+      // record that took no side and false of nineteen votes we simply hold no
+      // position against — and this line is the sentence that tells a reader why
+      // their profile's headline figure did not move, so it has to name the right
+      // reason. Neither wording changes what the pooled figure does: both are set
+      // aside, exactly as before.
+      score = (res.shape === 'no_stance')
+        ? 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
+          ' rather than counted either way — there is no stated position here to test ' +
+          'these ' + n.many + ' against, so nothing about this issue moves that number.'
+        : 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
+          ' rather than counted as agreement — a row too thin to divide is disclosed, not scored.';
     } else {
       score = 'Not in the profile’s pooled score: there is nothing here to test yet.';
     }
@@ -7691,6 +7832,19 @@
     // when the band is not on this sheet, so the tap still lands somewhere true.
     else if (opts && opts.focus === 'lanes') {
       if (!_gapFocusSel(sheet, body, '[data-pdxgap-lanes]')) _gapFocusPublic(sheet, body);
+    }
+    // …or for the formal enumeration, which is where a reader who tapped "see the 18
+    // votes" was told they were going. The list is a <details> and ships collapsed —
+    // scrolling someone to a closed drawer is the same dead end wearing a scrollbar —
+    // so this opens it first. No fallback to the public column: this tap was about the
+    // formal record, and landing it on the other lane would answer a question nobody
+    // asked. When the hook is absent the sheet simply opens at the top, as before.
+    else if (opts && opts.focus === 'record') {
+      try {
+        var _rec = body.querySelector && body.querySelector('[data-pdxgap-record]');
+        if (_rec && _rec.tagName === 'DETAILS') _rec.open = true;
+      } catch (e) {}
+      _gapFocusSel(sheet, body, '[data-pdxgap-record]');
     }
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
