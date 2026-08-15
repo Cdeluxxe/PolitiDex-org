@@ -4054,6 +4054,131 @@
           frac +
         '</div>';
     }
+    // ── The office-category strip, on a phone ────────────────────────────────
+    // At ≤880px the level sidebar folds into one horizontal row. On a phone that
+    // row is wider than the screen, and it used to show one full chip plus a
+    // clipped sliver of the next with nothing saying the sliver was reachable —
+    // so a first-time voter could work the Federal seats and never learn that
+    // Statewide, State Legislative and Local groups were sitting off-screen.
+    //
+    // Three affordances fix that, and all three are driven from the strip's own
+    // scroll metrics rather than assumed: the chips are sized to a fraction of
+    // the visible track so the next one is always half-shown, a chevron sits on
+    // each side, and a dot per group states how many groups there are. The whole
+    // affordance row only appears when the strip genuinely overflows — on a
+    // desktop, where the nav is a vertical sidebar, `scrollWidth` never exceeds
+    // `clientWidth`, so nothing here shows and nothing about that layout moves.
+    function _myteamNavEl() { return document.getElementById('myteam-cockpit-nav'); }
+
+    // One place that moves the strip, so the OS "reduce motion" setting is
+    // honoured on every route in — CSS scroll-behavior cannot reach a
+    // programmatic scrollTo that asks for smooth explicitly.
+    function _myteamNavGo(nav, to, instant) {
+      // Clamp rather than trusting the scroller to: the non-smooth fallback below
+      // assigns scrollLeft straight, and the arrows' dead/live state is read back
+      // off this number a frame later.
+      var max = Math.max(0, (nav.scrollWidth || 0) - (nav.clientWidth || 0));
+      to = Math.max(0, Math.min(max, to));
+      var calm = !!instant;
+      try { calm = calm || !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) {}
+      try { nav.scrollTo({ left: to, behavior: calm ? 'auto' : 'smooth' }); }
+      catch (e2) { nav.scrollLeft = to; }
+    }
+
+    // Read the strip and tell the chrome what it found. This is the single place
+    // that decides whether the arrows exist, which of them is live, and which dot
+    // is lit — every other function below just calls it.
+    function _myteamNavSync() {
+      var nav = _myteamNavEl();
+      if (!nav) return;
+      var wrap = (nav.closest && nav.closest('.myteam-cockpit-navwrap')) ||
+        (nav.parentNode && nav.parentNode.parentNode);
+      // A strip that fits needs no chevrons: showing them dead would be chrome
+      // promising a move it cannot make.
+      var max = (nav.scrollWidth || 0) - (nav.clientWidth || 0);
+      var can = max > 4;
+      if (wrap && wrap.classList) wrap.classList.toggle('is-scroll', can);
+      var x = nav.scrollLeft || 0;
+      var arrows = document.querySelectorAll('.myteam-cockpit-navarrow');
+      for (var i = 0; i < arrows.length; i++) {
+        var back = arrows[i].getAttribute('data-dir') === '-1';
+        var dead = !can || (back ? x <= 2 : x >= max - 2);
+        arrows[i].disabled = dead;
+        arrows[i].setAttribute('aria-disabled', dead ? 'true' : 'false');
+      }
+    }
+    // Scroll listeners fire far faster than layout can answer, and every sync
+    // reads scrollWidth — so coalesce to one read per frame.
+    var _myteamNavRaf = 0;
+    function _myteamNavSyncSoon() {
+      if (_myteamNavRaf) return;
+      // Claim the slot before scheduling, not after: a scheduler that runs the
+      // callback synchronously would otherwise clear the flag first and have it
+      // set right back, wedging every later sync out.
+      _myteamNavRaf = 1;
+      var raf = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
+      raf(function () { _myteamNavRaf = 0; _myteamNavSync(); });
+    }
+    // One chevron press moves most of a screen but deliberately not all of it:
+    // leaving a chip behind keeps the reader oriented instead of teleporting them
+    // into an unfamiliar stretch of the row.
+    window._myteamNavPage = function(dir) {
+      var nav = _myteamNavEl();
+      if (!nav) return;
+      var step = Math.max(140, Math.round((nav.clientWidth || 0) * 0.8));
+      var to = (nav.scrollLeft || 0) + (dir < 0 ? -step : step);
+      _myteamNavGo(nav, to);
+      _myteamNavSyncSoon();
+    };
+    // Bring a chip fully into view without touching the page's own scroll — the
+    // strip is nudged by hand rather than with scrollIntoView, which on a nested
+    // horizontal scroller also drags the whole document sideways.
+    function _myteamNavReveal(id, instant) {
+      var nav = _myteamNavEl();
+      if (!nav || !nav.querySelector) return;
+      var chip = nav.querySelector('.myteam-cockpit-navitem[data-level="' + id + '"]');
+      if (!chip) return;
+      var pad = 12;
+      var left = chip.offsetLeft - pad;
+      var right = chip.offsetLeft + chip.offsetWidth + pad;
+      var view = nav.scrollLeft || 0;
+      var to = view;
+      if (left < view) to = left;
+      else if (right > view + nav.clientWidth) to = right - nav.clientWidth;
+      if (to !== view) _myteamNavGo(nav, to, instant);
+      _myteamNavSyncSoon();
+    }
+    // The cockpit is rebuilt with innerHTML on every pick, so the listeners hang
+    // off the grid that survives those rebuilds. Scroll does not bubble; the
+    // capture phase is how one handler covers a strip it will outlive.
+    function _myteamNavArm() {
+      if (window._myteamNavArmed) return;
+      var root = document.getElementById('myteam-slots-grid');
+      if (!root || !root.addEventListener) return;
+      window._myteamNavArmed = true;
+      root.addEventListener('scroll', function(e) {
+        var t = e && e.target;
+        if (t && t.classList && t.classList.contains('myteam-cockpit-nav')) _myteamNavSyncSoon();
+      }, true);
+      if (window.addEventListener) {
+        window.addEventListener('resize', function() { _myteamNavSyncSoon(); });
+        window.addEventListener('orientationchange', function() { _myteamNavSyncSoon(); });
+      }
+    }
+    // Called by the renderer once the strip is actually in the document.
+    window._myteamNavBoot = function() {
+      _myteamNavArm();
+      _myteamNavSync();
+      // The strip is brand new on every repaint, so restoring the voter's group
+      // is a jump, not a journey — animating a rebuild reads as the row moving
+      // by itself.
+      try { _myteamNavReveal(window._myteamActiveLevel, true); } catch (e) {}
+      // One more read after the frame settles. Web fonts and the section's
+      // fade-in can both land after this call, and a strip measured mid-settle
+      // can report itself as fitting when it does not.
+      try { setTimeout(_myteamNavSync, 300); } catch (e2) {}
+    };
+
     // Switch the visible level. Toggles nav highlight + panel visibility without a
     // full rebuild, and remembers the choice so repaints keep the voter's place.
     window._myteamSelectLevel = function(id) {
@@ -4070,6 +4195,14 @@
         p.hidden = !on;
         p.classList.toggle('is-active', on);
       });
+      // The pager is a second way in, so it has to answer to the first: picking a
+      // chip lights its dot, and picking a dot scrolls its chip back into view.
+      root.querySelectorAll('.myteam-cockpit-navdot').forEach(function(d) {
+        var on = d.getAttribute('data-level') === id;
+        d.classList.toggle('is-on', on);
+        d.setAttribute('aria-current', on ? 'true' : 'false');
+      });
+      _myteamNavReveal(id);
     };
     // Build the whole cockpit (nav + stage) from the already-bucketed seat groups.
     function _myteamRenderCockpit(slotsByGroup) {
@@ -4145,8 +4278,48 @@
       }).join('');
 
       return '<div class="myteam-cockpit">' +
-          '<nav class="myteam-cockpit-nav" role="tablist" aria-label="Ballot levels">' + nav + '</nav>' +
+          _myteamNavShellHtml(nav, levels, active) +
           '<div class="myteam-cockpit-stage">' + panels + '</div>' +
+        '</div>';
+    }
+
+    // The strip plus the three things that say it is a strip. On desktop the wrap
+    // is an ordinary sticky sidebar and the cue, chevrons and dots are all dark,
+    // because nothing sets `.is-scroll` when the nav is a vertical column.
+    function _myteamNavShellHtml(nav, levels, active) {
+      var n = levels.length;
+      var arrow = function(dir, label, glyph) {
+        return '<button type="button" class="myteam-cockpit-navarrow" data-dir="' + dir + '" ' +
+            'aria-controls="myteam-cockpit-nav" aria-label="' + label + '" ' +
+            'onclick="window._myteamNavPage(' + dir + ')">' + glyph + '</button>';
+      };
+      // Say the number out loud. The whole failure this fixes is a voter not
+      // knowing the other groups exist, and "4 office groups" states it in the
+      // one glance the strip gets — while naming OFFICES, not seats, so it can't
+      // be read as the "0 of 6 filled" count the stage carries a few lines below.
+      var cue = n > 1
+        ? '<div class="myteam-cockpit-navcue"><span aria-hidden="true">‹</span>' +
+            'Swipe or tap the arrows — ' + n + ' office groups' +
+            '<span aria-hidden="true">›</span></div>'
+        : '';
+      var dots = n > 1
+        ? '<div class="myteam-cockpit-navdots">' + levels.map(function(x, i) {
+            var on = x.lv.id === active;
+            return '<button type="button" class="myteam-cockpit-navdot' + (on ? ' is-on' : '') + '" ' +
+                'data-level="' + x.lv.id + '" style="--nav-accent:' + x.lv.accent + ';" ' +
+                'aria-current="' + (on ? 'true' : 'false') + '" ' +
+                'aria-label="' + x.lv.label + ' — office group ' + (i + 1) + ' of ' + n + '" ' +
+                'onclick="window._myteamSelectLevel(\'' + x.lv.id + '\')"><i></i></button>';
+          }).join('') + '</div>'
+        : '';
+      return '<div class="myteam-cockpit-navwrap">' +
+          cue +
+          '<div class="myteam-cockpit-navrow">' +
+            (n > 1 ? arrow(-1, 'Scroll back through the office groups', '‹') : '') +
+            '<nav class="myteam-cockpit-nav" id="myteam-cockpit-nav" role="tablist" aria-label="Ballot levels">' + nav + '</nav>' +
+            (n > 1 ? arrow(1, 'Scroll forward through the office groups', '›') : '') +
+          '</div>' +
+          dots +
         '</div>';
     }
 
@@ -4612,6 +4785,9 @@
         slotsGrid.classList.remove('is-grouped');
         slotsGrid.classList.add('is-cockpit');
         slotsGrid.innerHTML = slotsHtml;
+        // The category strip's chevrons and pager are driven by its real scroll
+        // metrics, which only exist once the markup above is in the document.
+        try { if (typeof window._myteamNavBoot === 'function') window._myteamNavBoot(); } catch (e) {}
       }
       // The old phone "swipe through your seats" hint described the flat strip the
       // cockpit replaces, so keep it out of the way.

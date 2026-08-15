@@ -8527,9 +8527,19 @@
       gap: 1.35rem;
       align-items: start;
     }
+    /* The wrap is the grid item now, so it carries the sticky the nav used to —
+       its containing block is the full-height grid area, which is what gives the
+       sidebar room to travel. The nav itself is a plain box inside it. */
+    .myteam-cockpit-navwrap { position: sticky; top: 84px; min-width: 0; }
+    .myteam-cockpit-navrow { display: block; min-width: 0; }
+    /* The swipe cue, the chevrons and the pager are all off until the strip
+       actually overflows — `.is-scroll` is set from its measured scrollWidth, so
+       the vertical desktop sidebar never lights any of them. */
+    .myteam-cockpit-navcue,
+    .myteam-cockpit-navdots,
+    .myteam-cockpit-navarrow { display: none; }
     .myteam-cockpit-nav {
       display: flex; flex-direction: column; gap: 0.5rem;
-      position: sticky; top: 84px;
       padding: 0.55rem;
       border-radius: 1.1rem;
       background: rgba(9,14,27,0.5);
@@ -8714,15 +8724,113 @@
        above the stage on tablets and phones so it stays calm and thumb-reachable. */
     @media (max-width: 880px) {
       .myteam-cockpit { grid-template-columns: 1fr; gap: 0.9rem; }
+      .myteam-cockpit-navwrap { position: static; }
       .myteam-cockpit-nav {
-        position: static; flex-direction: row; gap: 0.5rem;
+        flex-direction: row; gap: 0.5rem;
         overflow-x: auto; padding: 0.45rem; -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        /* A swipe that runs off the end of the strip must not hand the gesture to
+           the browser's back-navigation and throw the voter out of the builder. */
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
       }
-      .myteam-cockpit-navitem { flex: 0 0 auto; min-width: 172px; }
+      .myteam-cockpit-nav::-webkit-scrollbar { display: none; }
+      /* The base rule gives every chip `width: 100%`, which in a horizontal
+         scroller meant exactly one chip per screen and the next one entirely
+         past the edge — the clipped-sliver problem this pass exists to fix. Size
+         each chip to a fraction of the visible TRACK instead, so ~1.6 fit and
+         the next group is always half-shown. The cap keeps a wide tablet from
+         inflating four chips into four slabs. */
+      .myteam-cockpit-navitem {
+        flex: 0 0 auto; scroll-snap-align: start;
+        width: calc((100% - 0.5rem) / 1.6);
+        min-width: 124px; max-width: 240px;
+      }
       .myteam-cockpit-navsub { display: none; }
+
+      /* ── The strip says it is a strip ────────────────────────────────────
+         Chevrons flanking the track, a one-line cue that names how many groups
+         there are, and a dot per group. All three are revealed together by
+         `.is-scroll`, which is only set when the measured track overflows. */
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navrow {
+        display: flex; align-items: stretch; gap: 0.3rem;
+      }
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-nav { flex: 1 1 auto; min-width: 0; }
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navarrow,
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navcue,
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navdots { display: flex; }
+
+      .myteam-cockpit-navarrow {
+        flex: 0 0 auto; align-items: center; justify-content: center;
+        /* Comfortable thumb target, per the touch-target floor the rest of this
+           builder already holds to. */
+        min-width: 44px; min-height: 44px; padding: 0;
+        cursor: pointer; font-size: 1.5rem; line-height: 1;
+        font-family: 'Barlow Condensed', sans-serif; color: #e2ecfb;
+        border-radius: 0.85rem;
+        background: rgba(13,21,38,0.72);
+        border: 1px solid rgba(255,255,255,0.12);
+        transition: background 0.18s, border-color 0.18s, opacity 0.18s;
+      }
+      .myteam-cockpit-navarrow:hover:not(:disabled) {
+        background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.42); color: #fcd34d;
+      }
+      /* Kept in place rather than removed at the ends of the track: an arrow that
+         vanishes takes the evidence that the strip scrolls with it. */
+      .myteam-cockpit-navarrow:disabled { opacity: 0.3; cursor: default; }
+
+      .myteam-cockpit-navcue {
+        align-items: center; justify-content: center; gap: 0.4rem;
+        font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+        font-size: 0.64rem; letter-spacing: 0.11em; text-transform: uppercase;
+        color: #cbb574; margin: 0 0 0.35rem;
+      }
+      .myteam-cockpit-navcue span { color: #fbbf24; font-size: 0.9rem; line-height: 1; }
+
+      .myteam-cockpit-navdots {
+        align-items: center; justify-content: center; gap: 0.1rem;
+        /* The buttons stay a full 44px so the pager is genuinely tappable; the
+           negative margins claw back the dead space around the 8px marks, which
+           on a phone first screen is worth more than the padding. */
+        margin: -0.3rem 0 -0.45rem;
+      }
+      .myteam-cockpit-navdot {
+        /* The dot is 8px; the button around it is a full thumb target, so the
+           pager is usable and not just decorative. */
+        display: flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px; padding: 0;
+        background: none; border: 0; cursor: pointer;
+      }
+      .myteam-cockpit-navdot i {
+        display: block; width: 8px; height: 8px; border-radius: 999px;
+        background: rgba(255,255,255,0.22);
+        transition: width 0.2s, background 0.2s;
+      }
+      .myteam-cockpit-navdot.is-on i {
+        width: 20px; background: var(--nav-accent, #fbbf24);
+      }
+    }
+    @media (max-width: 640px) {
+      /* Narrower chips need lighter contents. The seat badge stays — it is the
+         "0/1" a voter reads to know what is left — so the room comes out of the
+         icon and the gaps instead. Two lines beat an ellipsis here: a truncated
+         "State Legisl…" is a label the voter has to guess at. */
+      .myteam-cockpit-navitem { gap: 0.4rem; padding: 0.5rem 0.45rem; }
+      .myteam-cockpit-navico { width: 1.65rem; height: 1.65rem; font-size: 0.88rem; border-radius: 0.55rem; }
+      .myteam-cockpit-navlabel { font-size: 0.8rem; line-height: 1.08; }
+      .myteam-cockpit-navcount { padding: 0.14rem 0.36rem; font-size: 0.6rem; }
+      /* The card's padding is worth a third of the strip on a 360px phone — with
+         two 44px chevrons also in the row, the chip fraction gets squeezed under
+         its readable floor and the count falls back toward one-and-a-sliver. Let
+         the TRACK (and only the track) run out into that padding; the cue and the
+         pager stay aligned to the card's content edge. Chips reaching the edge is
+         itself a scroll cue. */
+      .myteam-cockpit-navwrap.is-scroll .myteam-cockpit-navrow {
+        margin-left: -1rem; margin-right: -1rem;
+      }
     }
     @media (max-width: 480px) {
-      .myteam-cockpit-navitem { min-width: 150px; }
       .myteam-cockpit-seats { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
     }
     .myteam-slot-scope { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #9fb4d4; margin: 0.15rem 0 0.1rem; }
