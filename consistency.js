@@ -2162,6 +2162,36 @@
       '.pdxst-wall{font-size:0.64rem;line-height:1.45;color:#8fa6c6;margin:0.1rem 0 0.5rem;' +
         'padding:0.32rem 0.45rem;border-left:2px dotted rgba(159,180,212,0.34);background:rgba(159,180,212,0.05);border-radius:0 0.3rem 0.3rem 0;}' +
       '.pdxst-wall b{color:#c3d3ea;}' +
+      // ── THE LANE-DISAGREEMENT LINE, ON A STANCE ROW ──────────────────────────
+      // Sits under the 🧾 tally, inside the same dotted rule, because it is a note
+      // ABOUT the two lanes above it, not one more lane. No verdict colour and
+      // no fill: a coloured band here would read as a finding, and this is a
+      // reading aid. The chip is the shape in four words; the button is the door.
+      '.pdxst-lanes{display:flex;align-items:baseline;gap:0.35rem;flex-wrap:wrap;margin-top:0.14rem;' +
+        'padding-left:0.4rem;border-left:2px dotted rgba(159,180,212,0.34);font-size:0.63rem;color:#8fa6c6;}' +
+      '.pdxst-lanes-c{font-weight:700;color:#9fb4d4;}' +
+      '.pdxst-lanes-go{cursor:pointer;font-family:inherit;font-size:0.62rem;font-weight:700;color:#9fdbd0;' +
+        'background:none;border:0;padding:0.12rem 0.1rem;min-height:1.6rem;text-align:left;}' +
+      '.pdxst-lanes-go:hover,.pdxst-lanes-go:focus-visible{color:#bdeae1;text-decoration:underline;}' +
+      // ── THE SAME THING IN FULL, UNDER THE TWO COLUMNS OF THE DOSSIER ─────────
+      // Full width and neutral. It deliberately borrows neither column's chrome —
+      // it belongs to both of them, and matching either would read as that lane
+      // explaining itself rather than the boundary being stated once.
+      '.pdxlane{margin:0.15rem 0 0.55rem;padding:0.55rem 0.65rem;border-radius:0.5rem;' +
+        'background:rgba(147,166,196,0.07);border:1px solid rgba(147,166,196,0.18);}' +
+      '.pdxlane-h{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.72rem;' +
+        'letter-spacing:0.05em;text-transform:uppercase;color:#c3d3ea;margin-bottom:0.24rem;}' +
+      '.pdxlane-lead{font-size:0.7rem;line-height:1.5;color:#cbd8ee;}' +
+      '.pdxlane-ws{display:grid;gap:0.3rem;margin:0.45rem 0 0.4rem;}' +
+      '.pdxlane-w{display:grid;gap:0.08rem;padding-left:0.42rem;border-left:2px solid rgba(159,180,212,0.28);}' +
+      '.pdxlane-w-k{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.6rem;' +
+        'letter-spacing:0.07em;text-transform:uppercase;color:#8fa6c6;}' +
+      '.pdxlane-w-v{font-size:0.66rem;line-height:1.45;color:#9fb4d4;}' +
+      // The boundary sentence closes the band and is the one line that must survive
+      // a reader skimming the rest of it, so it keeps its own rule above.
+      '.pdxlane-foot{font-size:0.64rem;line-height:1.45;color:#8fa2c0;padding-top:0.36rem;' +
+        'border-top:1px dashed rgba(147,166,196,0.22);}' +
+      '@media (min-width:620px){.pdxlane-ws{grid-template-columns:1fr 1fr;gap:0.55rem;}}' +
       // The sub-divider inside the "record backs it up" group: the rows the engine
       // could not judge sit in the same tier as the ones it could, and a thin row
       // under a "backs it up" heading is a claim nobody made.
@@ -4661,6 +4691,178 @@
       '</div>';
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WHEN THE TWO LANES DISAGREE, SAID WHERE THEY MEET
+  // ═══════════════════════════════════════════════════════════════════════════
+  // The wall between the records is correct and it stays: the formal record decides
+  // the issue and feeds ⚖️ Direction Match; the public record is a separate test of
+  // the same stance and is never in that number. Both lanes are now stated on every
+  // row and both are rendered side by side in the dossier — which means a reader can
+  // now SEE them disagree, and until this they were left to explain it themselves.
+  // The three readings they reach on their own are all wrong:
+  //
+  //   · "the site is contradicting itself" — it is showing two measurements
+  //   · "one lane is correcting the other" — neither ever overrides the other
+  //   · "so they were lying" — sometimes; a split is not by itself a lie
+  //
+  // That is the strongest teaching moment in the product and it was silent. So the
+  // disagreement gets a short fixed explainer at the point of confusion.
+  //
+  // WHAT THIS IS NOT. It reaches no verdict, prints no number, and blends nothing:
+  // it reads the row model both lanes already produced and selects one of six fixed
+  // copy variants by SHAPE. There is no per-row curation here and no place to put
+  // any — a row that lands in a shape gets that shape's words verbatim, so the
+  // explanation cannot drift row to row for the same situation.
+  //
+  // THE FORMAL SIDE IS THE ACTION LANE, NOT THE ROW VERDICT. `basis` names which
+  // record produced the row's verdict, and on a `public_record` row the formal lane
+  // is precisely the one that could not decide — reading `verdict.token` there would
+  // report the public lane's finding as the formal lane's and invent a disagreement
+  // out of one lane talking to itself.
+  var LANE_SHAPES = {
+    // ── the formal record went one way and the public record went the other ──
+    formal_against_public_backs: {
+      head: 'Why both of these can be true',
+      lead: 'The formal record cut against this position; the public record backs it up. ' +
+        'Both readings can hold at once — what was said and defended in public is not what the signed instruments did.',
+      chip: 'Two records, two readings'
+    },
+    formal_backs_public_against: {
+      head: 'Why both of these can be true',
+      lead: 'The formal record backs this position up; the public record carries sourced items cutting against it. ' +
+        'An instrument can go one way while what was said around it goes another, and neither cancels the other out.',
+      chip: 'Two records, two readings'
+    },
+    mixed_vs_onesided: {
+      head: 'Why both of these can be true',
+      lead: 'The formal record went both ways here; the public record points one way. ' +
+        'A split in the instruments and a one-sided public picture are two different measurements, not a dispute about the facts.',
+      chip: 'Two records, two readings'
+    },
+    // ── the public record is silent, which is not the same as agreeing ──
+    formal_against_public_quiet: {
+      head: 'What the quiet 🧾 side means here',
+      lead: 'The formal record cut against this position; the public record has not been checked in on it. ' +
+        'Silence on the 🧾 side neither confirms this reading nor softens it — the verdict rests on the instruments alone, which is where it would rest either way.',
+      chip: '🧾 silence is not a clearance'
+    },
+    // ── the formal lane could not reach the question at all ──
+    public_only: {
+      head: 'Which record decided this one',
+      lead: 'No formal instrument on file could test this position, so the reading here comes from the public record. ' +
+        'It stays outside ⚖️ Direction Match either way — an issue the formal record cannot reach adds nothing to that figure.',
+      chip: '🧾 decided this row, not the score'
+    },
+    // ── heat, which is not direction ──
+    flags_only: {
+      head: 'What the 🧾 red flag means here',
+      lead: 'The public record on this issue is a red flag rather than a direction. ' +
+        'A flag is a documented controversy, counted in its own slot — it is never added to either side of the formal reading.',
+      chip: '🧾 a red flag, not a direction'
+    }
+  };
+  // The two sentences that answer "what is each lane even for", printed under every
+  // variant. Fixed, shared, and deliberately symmetrical: each names what its lane
+  // can show AND what it cannot, because a reader who is told only the strengths
+  // will read the stronger-sounding one as the real answer.
+  var LANE_WHAT = [
+    { ico: '🏛️', k: 'The formal record',
+      v: 'Binding and dated — a law signed, an order issued, a vote cast. It shows what someone did with the power they held. It cannot show what they meant by it, and it is silent on any question that never reached an instrument.' },
+    { ico: '🧾', k: 'The public record',
+      v: 'Sourced but not binding — statements, interviews, reported controversies. It catches positions that never reached a vote, and pressure that never became law. It cannot make anything happen, and it is curated issue by issue, so silence here often means unchecked rather than absent.' }
+  ];
+  var LANE_FOOT = 'Neither record corrects the other and the two are never merged into one result. ' +
+    'Only the formal record feeds the profile\'s ⚖️ Direction Match; the public record is never counted in it.';
+
+  // ── THE DETECTOR ────────────────────────────────────────────────────────────
+  // Ordered rules, first match wins, and every gate is a fact off the row model.
+  // Returns null far more often than not: an explainer on a row where the lanes
+  // agree, or where one of them has not finished loading, is furniture — and the
+  // band only teaches while it is rare enough to still be read.
+  function laneDisagreement(r) {
+    if (!r || !r.verdict || !r.public) return null;
+    var tok = r.verdict.token;
+    // NOTHING TO EXPLAIN YET. A warming roll-call record has no formal reading to
+    // set beside the public one, and a row with no stated position has nothing for
+    // either lane to be about.
+    if (tok === 'pending' || tok === 'no_stance') return null;
+    try { if (r.ov && r.ov.token === 'pending') return null; } catch (e) {}
+
+    var pub = r.public;
+    var backs = pub.supporting || 0, agn = pub.contradicting || 0;
+    var flags = pub.flags || 0, count = pub.count || 0;
+    var pubDir = backs + agn;
+    // The ACTION lane's own answer. Anything the formal lane did not decide reads as
+    // 'none' here, including a row the public record decided.
+    var formal = (r.verdict.basis === 'action' &&
+      (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed')) ? tok : 'none';
+
+    var shape = null;
+    // 1. The formal lane could not test the stance and the public lane has direction.
+    if (formal === 'none' && pubDir > 0) shape = 'public_only';
+    // 2. Heat with no direction behind it, beside a formal lane that did decide.
+    else if (formal !== 'none' && pubDir === 0 && flags > 0) shape = 'flags_only';
+    // 3. Formal cut against; the public record either backs the stance…
+    else if (formal === 'contradicts' && backs > 0 && agn === 0) shape = 'formal_against_public_backs';
+    //    …or has not been checked in at all. `count === 0` and not merely `agn === 0`:
+    //    a public lane holding items that simply point elsewhere is a different
+    //    situation from one nobody has looked at, and only the second is a gap.
+    else if (formal === 'contradicts' && count === 0) shape = 'formal_against_public_quiet';
+    // 4. Formal backed the stance up and the public record pushes back.
+    else if (formal === 'consistent' && agn > 0) shape = 'formal_backs_public_against';
+    // 5. Formal split, public one-sided. Both-sided public + mixed formal is two
+    //    lanes reaching the same reading, which needs no explaining.
+    else if (formal === 'mixed' && pubDir > 0 && (backs === 0 || agn === 0)) shape = 'mixed_vs_onesided';
+    if (!shape) return null;
+
+    var copy = LANE_SHAPES[shape];
+    return { shape: shape, head: copy.head, lead: copy.lead, chip: copy.chip,
+             formal: formal, backs: backs, against: agn, flags: flags, count: count };
+  }
+
+  // The full band, for the dossier: the shape's lead, then what each lane is for,
+  // then the boundary. Rendered where the two columns meet, because that is where
+  // the question occurs to a reader.
+  function _laneBandHtml(r) {
+    var g = laneDisagreement(r);
+    if (!g) return '';
+    var what = LANE_WHAT.map(function (w) {
+      return '<div class="pdxlane-w">' +
+        '<span class="pdxlane-w-k"><span aria-hidden="true">' + w.ico + '</span> ' + esc(w.k) + '</span>' +
+        '<span class="pdxlane-w-v">' + esc(w.v) + '</span></div>';
+    }).join('');
+    return '<div class="pdxlane" data-pdxgap-lanes="' + escAttr(g.shape) + '">' +
+        '<div class="pdxlane-h">' + esc(g.head) + '</div>' +
+        '<div class="pdxlane-lead">' + esc(g.lead) + '</div>' +
+        '<div class="pdxlane-ws">' + what + '</div>' +
+        '<div class="pdxlane-foot">' + esc(LANE_FOOT) + '</div>' +
+      '</div>';
+  }
+  // The same finding, compact, on the stance row — the lesson in a few words and a
+  // door into the band, rather than the band repeated thirty-five times over. The
+  // chip deliberately does NOT restate the tallies printed directly above it; it
+  // says the thing those tallies cannot, which is what their disagreement means.
+  var LANE_CTA = 'What that means';
+  function _stLanesHtml(r) {
+    var g = laneDisagreement(r);
+    if (!g) return '';
+    return '<div class="pdxst-lanes" data-pdxst-lanes="' + escAttr(g.shape) + '">' +
+        '<span class="pdxst-lanes-c">' + esc(g.chip) + '</span>' +
+        '<button type="button" class="pdxst-lanes-go"' +
+          ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
+          ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+          ' data-pdxst-focus="lanes"' +
+          // The visible label is the same three words on every row, so the accessible
+          // name has to carry what distinguishes this one — the shape's question and
+          // the issue it is about. NOT the lead: a button whose accessible name is a
+          // paragraph is read out in full on focus, and the paragraph is two taps
+          // away in the band where a reader can choose to read it.
+          ' aria-label="' + escAttr(LANE_CTA + ': ' + g.head + ' — ' + r.label) + '">' +
+          esc(LANE_CTA) + '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
+        '</button>' +
+      '</div>';
+  }
+
   // ── THE CONNECTIONS ─────────────────────────────────────────────────────────
   // Each jump is offered only when there is something on the other end, and each
   // one aims at THIS ISSUE rather than at the top of a section: a reader who taps
@@ -4835,6 +5037,10 @@
         // always, including when there is nothing on file, because an absent line and
         // an empty lane are indistinguishable and only one of them is true.
         _stPublicHtml(r) +
+        // AND WHAT IT MEANS WHEN THEY DISAGREE. Directly under the two lanes, on the
+        // rows where the reader can see them split — one line, and a way into the
+        // full explainer rather than the full explainer thirty-five times over.
+        _stLanesHtml(r) +
         _stEvidenceHtml(r) +
         (txt ? '<div class="pdxst-txt">' + esc(txt) + '</div>' : '') +
         (links.length ? '<div class="pdxst-links">' + links.join('') + '</div>' : '') +
@@ -6678,6 +6884,12 @@
       // this", not "which panels exist".
       _dosSummaryHtml(pid, issueKey, _dosRow) +
       '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
+      // ── THE WALL, EXPLAINED WHERE IT IS VISIBLE ──────────────────────────────
+      // Immediately below the two columns, because that is the inch of screen where
+      // a reader has just seen the lanes disagree and has no way to interpret it.
+      // Prints on the shapes the detector recognises and nothing otherwise — see
+      // laneDisagreement(). It reaches no verdict and shows no number.
+      _laneBandHtml(_dosRow) +
       // ── L2 ── every instrument on this issue, closed. It sits below the two
       // record panels rather than above them because those panels quote the
       // DECISIVE items; this is the complete enumeration they were drawn from, and
@@ -6887,8 +7099,15 @@
   // take the page behind it along for the ride. The viewport call is kept only as
   // the fallback for a layout where the offset walk does not reach the sheet.
   function _gapFocusPublic(sheet, body) {
+    return _gapFocusSel(sheet, body, '[data-pdxgap-public]');
+  }
+  // Scroll-and-flash, by selector. Two callers now — the 🧾 tally on a stance row
+  // asks for the public panel, the lane-disagreement line asks for the explainer —
+  // and they differ in exactly one string, so they share the walk rather than
+  // keeping two copies of an offsetTop loop that has to stay identical.
+  function _gapFocusSel(sheet, body, sel) {
     var el = null;
-    try { el = body.querySelector && body.querySelector('[data-pdxgap-public]'); } catch (e) {}
+    try { el = body.querySelector && body.querySelector(sel); } catch (e) {}
     if (!el) return false;
     try {
       var top = 0, n = el, hops = 0;
@@ -6944,6 +7163,11 @@
     // and the focus still lands on the dialog for a keyboard reader; only the scroll
     // position differs, and only when a caller asked.
     if (opts && opts.focus === 'public') _gapFocusPublic(sheet, body);
+    // …or for the explainer under the two columns. Falls back to the public panel
+    // when the band is not on this sheet, so the tap still lands somewhere true.
+    else if (opts && opts.focus === 'lanes') {
+      if (!_gapFocusSel(sheet, body, '[data-pdxgap-lanes]')) _gapFocusPublic(sheet, body);
+    }
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
     _rcHydrateSoon();
@@ -7216,6 +7440,19 @@
     },
     dossierDetailHtml: _dosDetailHtml,
     dossierStepHtml: _dosStepHtml,
+    // WHY THE TWO RECORDS CAN DISAGREE, as data and as the band that prints it.
+    // Exported so scripts/test-lane-disagreement.mjs can hold the detector to the
+    // shapes it claims to cover — and hold the copy to being fixed per shape —
+    // without asserting on the source text of the function that writes it.
+    laneDisagreement: laneDisagreement,
+    laneBandHtml: _laneBandHtml,
+    laneShapes: function () {
+      var out = {};
+      for (var k in LANE_SHAPES) if (Object.prototype.hasOwnProperty.call(LANE_SHAPES, k)) {
+        out[k] = { head: LANE_SHAPES[k].head, lead: LANE_SHAPES[k].lead, chip: LANE_SHAPES[k].chip };
+      }
+      return out;
+    },
     // The two derivations the levels have to agree on, exported so a test can hold
     // them to each other directly: the mechanism sentences one row shows, and the
     // reconciliation between the count L1 claims and the rows L2 can enumerate.
