@@ -938,13 +938,25 @@
    verdict colour. The row inside it is an ISSUE, and gets the issue's colour —
    otherwise the same issue is one colour in the "backed it up" bucket and another
    in the "mixed" bucket, which is the opposite of what a shared palette is for.
-   This same colour is what the dossier header repeats when the row is tapped. */
+   This same colour is what the dossier header repeats when the row is tapped.
+
+   MOBILE-FIRST, AND THE PHONE GETS THE LOUDER VERSION. These values are the
+   phone's; the widening query below steps them back. On a phone one bucket is on
+   screen at a time and the rows in it all carry the same outcome cue, so the ONLY
+   thing distinguishing one row from the next at a glance is the issue — and a
+   3px hairline against a dark panel is not a glance-level signal at arm's length
+   in daylight. A 4px spine with the wash carried further across the row makes the
+   issue the thing the eye lands on while scrolling a full bucket, which is the
+   scan this list is for. On a wider screen the row is one of several visible at
+   once with real whitespace around it, so the same emphasis reads as decoration;
+   it goes back to a hairline there. Nothing new is invented for either width —
+   it is the same two properties, from the same --pdx-ic, at two strengths. */
 .pdxwa-oc-row.pdxwa-ic {
-  border-left: 3px solid var(--pdx-ic);
+  border-left: 4px solid var(--pdx-ic);
   border-radius: 0 0.3rem 0.3rem 0;
-  padding: 0.3rem 0.35rem 0.3rem 0.45rem;
+  padding: 0.3rem 0.35rem 0.3rem 0.5rem;
   margin: 0.12rem 0;
-  background: linear-gradient(90deg, var(--pdx-ic-wash, transparent), transparent 58%);
+  background: linear-gradient(90deg, var(--pdx-ic-wash, transparent), transparent 74%);
 }
 /* The result, in the bucket's own word, on the row. Small and outlined: it is a
    restatement of the panel the row sits in, not a second judgement of it. */
@@ -958,6 +970,65 @@
   padding: 0.1rem 0.34rem;
   border: 1px solid currentColor;
   border-radius: 999px;
+  white-space: nowrap;
+}
+/* ── The result group: the bucket's word and the issue's figure, as one unit ──
+   The cue gives the DIRECTION of the finding, the percentage gives its DEGREE,
+   and neither is safe to read without the other. Held in one inline-flex so they
+   cannot wrap apart onto separate lines, and so on a wide screen the pair moves
+   into the result column together rather than the word going one way and the
+   number the other. */
+.pdxwa-oc-res {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0 0.3rem;
+  white-space: nowrap;
+}
+/* ── THE PER-ISSUE FIGURE, SIZED SO IT CANNOT BE THE PROFILE'S SCORE ──────────
+   There is one headline percentage on a profile and it is the pooled Direction
+   Match a screen above this, drawn at display size in a block of its own. This is
+   a different number about a different denominator — one issue, not the ledger —
+   and every property here exists to keep those two apart at a glance:
+
+     · SMALLER THAN THE ROW'S OWN TITLE. 0.68rem against the issue name's 0.76rem,
+       inside a row that is itself 0.76rem inside a section whose headline number
+       is several times that. A reader scanning for "the number" cannot land here
+       by accident.
+     · ALWAYS CARRYING ITS SCOPE. The label beneath the digits reads "this issue",
+       so the figure is never an unqualified percentage. It is set in the same
+       block, not a tooltip, because a tooltip does not exist on a phone.
+     · TINTED, NOT FILLED. It takes the row's own verdict colour at low alpha. The
+       headline is a solid, high-contrast number; this is a quiet chip that reads
+       as an attribute of the row it sits in.
+
+   No background bar, no ring, no arrow — anything that made this look measured
+   rather than reported would start it competing with the thing it qualifies. */
+.pdxwa-oc-pct {
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.28rem;
+  background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 12%, transparent);
+  line-height: 1.05;
+}
+.pdxwa-oc-pct-v {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;      /* under the issue title's 0.76rem, deliberately */
+  letter-spacing: 0.01em;
+  color: var(--pdxwa-col, #9fb4d4);
+}
+/* The scope, always present, never abbreviated away. This label is the whole
+   reason the figure is allowed on the row face at all. */
+.pdxwa-oc-pct-l {
+  font-size: 0.46rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #7f96b6;
   white-space: nowrap;
 }
 .pdxwa-oc-go { flex: 0 0 auto; color: #6f88ab; font-size: 0.9rem; line-height: 1; }
@@ -1726,6 +1797,17 @@
      not read as one long list with headings in it. */
   .pdxwa-oc.is-flat .pdxwa-oc-grp { margin-bottom: 0.7rem; }
   .pdxwa-oc-row { flex-wrap: nowrap; gap: 0 0.6rem; }
+  /* The issue spine, back to a hairline. See the base rule for why the phone
+     gets the louder one. */
+  .pdxwa-oc-row.pdxwa-ic {
+    border-left-width: 3px;
+    padding-left: 0.45rem;
+    background: linear-gradient(90deg, var(--pdx-ic-wash, transparent), transparent 58%);
+  }
+  /* The result column, wide. The group is what gets the width now, not the cue
+     alone — otherwise the word aligns down the stack and the figure beside it
+     does not, which is worse than no column at all. */
+  .pdxwa-oc-res { min-width: 8.4rem; justify-content: flex-end; }
   .pdxwa-oc-cue { min-width: 5.6rem; text-align: center; }
   .pdxwa-oc-tab { flex: 0 1 auto; min-height: 2.4rem; }
   /* The strip is the navigator on desktop too, so its counts stay full-size tap

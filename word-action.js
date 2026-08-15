@@ -1777,10 +1777,11 @@
   // PDXConsistency.publicTally so the two surfaces cannot drift.
   //
   // FOUR THINGS THIS DELIBERATELY DOES NOT DO:
-  //   · No percentage. Not the public lane's, and not the formal one's either: this
-  //     index has never printed a number and that is not a gap to fill. The one
-  //     score on a profile is the Direction Match above it, and the issue-level %
-  //     lives on the stance row that carries it. Counts here, numbers there.
+  //   · No PUBLIC-lane percentage, and no second profile score. The row face does
+  //     now carry a figure — see _outcomePct — but it is the issue's own, it is
+  //     labelled with the issue's own name for it, and it is drawn at row scale.
+  //     The public tally beside it stays counts-only: a percentage here would be a
+  //     second measurement of the same row by the lane that did not decide it.
   //   · No merge into the result cue. The cue is the formal verdict's word; a
   //     public item has never moved it and must not look like it could.
   //   · No nesting inside the row button. A <button> inside a <button> is invalid
@@ -1814,6 +1815,58 @@
       '</button>';
   }
 
+  // ── THE PER-ISSUE FIGURE, ON THE ROW FACE ──────────────────────────────────
+  // The row face has to answer "how did this issue come out" well enough that a
+  // reader can decide whether to open it. The bucket cue gives the direction of
+  // the finding; this gives its degree. Without it, a row that matched on eleven
+  // of twelve instruments and a row that scraped through read as the same green
+  // line, and the only way to tell them apart was to open both.
+  //
+  // IT IS THE STANCE ROW'S FIGURE, NOT A NEW ONE. Read from
+  // PDXConsistency.rowResult — the same helper the Stances & Connections rows
+  // print from — so one issue cannot carry two percentages on one profile. Fail
+  // closed: no helper, or a row that is not tested, prints nothing at all rather
+  // than a zero or a dash that would read as a result.
+  //
+  // WHY IT CANNOT BE MISTAKEN FOR THE PROFILE'S SCORE. Three things keep it
+  // scoped, and all three are load-bearing:
+  //   · It is inside the row, after the issue's own name, at row type scale — the
+  //     headline % is a display-size number in its own block a screen above.
+  //   · It carries its metric's name and the word "this issue alone" in the label
+  //     a screen reader gets, so it is never an unqualified percentage.
+  //   · It is drawn only for a row the FORMAL lane decided. rowResult also returns
+  //     a figure for a row the public record resolved, under its own name
+  //     ("Public-record match"), and the stance rows print that — they have the
+  //     room to name a lane in full and the surface exists to compare the two.
+  //     This index does not print it. ⚖️ Word vs Action is the score's own
+  //     section; a percentage appearing on a row inside it because three receipts
+  //     landed is indistinguishable, at a glance and at 0.68rem, from the public
+  //     lane entering the score. The receipts are still on the row — the tally
+  //     beside it counts them — they just do not get a rate here. Fail closed:
+  //     no helper, an untested row, or any basis but the formal one prints nothing
+  //     at all rather than a number the score did not authorise.
+  function _outcomePct(r) {
+    var res = null;
+    try {
+      var CS = window.PDXConsistency;
+      if (CS && typeof CS.rowResult === 'function') res = CS.rowResult(r);
+    } catch (e) { res = null; }
+    if (!res || res.state !== 'tested' || typeof res.pct !== 'number') return { html: '', aria: '' };
+    // The lane gate. 'Direction match' is rowResult's name for the formal
+    // arithmetic; anything else came from a lane that is outside this section.
+    if (res.metric !== 'Direction match') return { html: '', aria: '' };
+    return {
+      // Spoken in full, because a bare "78%" read out after an issue name is the
+      // one form of this that COULD be heard as the profile's score.
+      aria: ' · Direction match on this issue alone: ' + res.pct + '%',
+      html: '<span class="pdxwa-oc-pct" style="--pdxwa-col:' + ((res.color || '#9fb4d4')) + ';"' +
+          ' title="' + esc('Direction match on ' + r.label + ' alone — not this profile’s overall score') + '">' +
+          '<span class="pdxwa-oc-pct-v">' + res.pct + '%</span>' +
+          '<span class="pdxwa-oc-pct-l">this issue</span>' +
+        '</span>'
+    };
+  }
+
   function _outcomeRow(r) {
     var o = outcomeFor(r.verdict.token);
     var bits = [];
@@ -1841,8 +1894,9 @@
     // (pid, key) pair every surface already agrees on; see wordActionRowId() in
     // consistency.js, which must build the same string.
     var rid = 'pdxwa-oc-' + _idPart(r.pid) + '-' + _idPart(r.key);
+    var pct = _outcomePct(r);
     var aria = 'Open the issue dossier: ' + r.label +
-      (o ? ' — ' + o.short : '') + (r.stance.label ? ' · they said: ' + r.stance.label : '');
+      (o ? ' — ' + o.short : '') + (r.stance.label ? ' · they said: ' + r.stance.label : '') + pct.aria;
     return '<li class="pdxwa-oc-li" id="' + esc(rid) + '" data-pdxwa-issue="' + esc(r.key) + '">' +
         '<button type="button" class="pdxwa-oc-row' + skin.cls + friction + '" style="' + skin.style + '"' +
           ' data-pdxwa-dos="' + esc(r.key) + '" data-pdxwa-dos-pid="' + esc(String(r.pid)) + '"' +
@@ -1857,9 +1911,16 @@
           // The result, on the row, in the same word the bucket switcher used. It is
           // redundant beside its own bucket heading and deliberately kept: on a phone
           // one bucket is on screen at a time, and a reader arriving on this row from
-          // a deep link has no heading above them at all.
-          (o ? '<span class="pdxwa-oc-cue" style="color:' + o.col + ';border-color:' + o.col + '55;">' +
-                 esc(o.short) + '</span>' : '') +
+          // a deep link has no heading above them at all. The figure rides with it,
+          // in one block, so the word and the number that qualifies it can never be
+          // read apart or wrap away from each other.
+          (o || pct.html
+            ? '<span class="pdxwa-oc-res">' +
+                (o ? '<span class="pdxwa-oc-cue" style="color:' + o.col + ';border-color:' + o.col + '55;">' +
+                       esc(o.short) + '</span>' : '') +
+                pct.html +
+              '</span>'
+            : '') +
           '<span class="pdxwa-oc-go" aria-hidden="true">›</span>' +
         '</button>' +
         _outcomePub(r, rid) +
@@ -2328,13 +2389,26 @@
         // The shape behind the average. A single mean cannot say whether it came
         // from a record that agrees with itself everywhere or one pulling apart,
         // and the composition strip is the cheapest place to make that visible.
+        //
+        // IT HANDS STRAIGHT TO THE LIST IT OPENS. Nothing renders between these two
+        // blocks. The strip is a navigator — every count and every bar segment
+        // selects a bucket in the index directly below — and a navigator with two
+        // panels of prose under it is a navigator whose destination is off-screen on
+        // a phone at the moment it is tapped. The basis table and the three sharpest
+        // rows used to sit in this gap; both now follow the index (see below), which
+        // is where a reader who has already picked a bucket wants them.
         compositionHtml(pid) +
-        basisHtml(r) +
-        // The three rows that carry the read, immediately under the digest. Nothing
-        // else is allowed between the big % and these: the eye should reach a
-        // concrete issue in one hop, not after a coverage panel.
-        topRowsHtml(pid) +
         outcomesHtml(pid) +
+        // THE SUPPORTING READS, UNDER THE THING THEY SUPPORT. `basisHtml` is the
+        // count and table behind the percentage; `topRowsHtml` is the three sharpest
+        // rows. Both are still here in full and neither changed — they moved below
+        // the index rather than above it, because both answer questions a reader asks
+        // AFTER the shape and the issues, and on a phone each one was a screen
+        // between the strip and the list it controls. The three rows are also, by
+        // construction, rows the index lists again; leading with them meant meeting
+        // the same issues twice before reaching the navigator.
+        basisHtml(r) +
+        topRowsHtml(pid) +
         // What we do NOT have yet, named out loud. It used to sit directly under the
         // digest, which put a second block of coverage furniture in front of the
         // first issue row — the exact thing the trim was supposed to remove. It is

@@ -216,7 +216,61 @@
     'maloy||touted broadband funds from a law she publicly criticized': 'broadband',
     'kennedy||a practicing physician who legislates on healthcare transparency': 'healthcare',
     'cox||residential water saving message vs industrial water power approvals': 'water',
-    'bwilson||made the great salt lake rescue his signature cause as speaker': 'water'
+    'bwilson||made the great salt lake rescue his signature cause as speaker': 'water',
+
+    // ── August 2026 pass ──────────────────────────────────────────────────────
+    // 223 collected receipts carried no key at all, which meant 223 already-sourced,
+    // already-curated items could not reach an issue row, a public tally or the
+    // formal/public disagreement explainer. Every one was read against the live
+    // ISSUE_MAP under the same rule as the block above, tightened to three tests a
+    // key has to pass before it is written here:
+    //   1 · the item's SUBJECT is a policy question — not a career, an election, a
+    //       leadership post or a conduct story that merely happens near an issue;
+    //   2 · exactly ONE live key covers it. Two plausible keys is a refusal, not a
+    //       coin flip (that is what put air quality, Katrina-adjacent civil-liberties
+    //       items, higher-ed appropriations and most "Pattern:" rows back on the shelf);
+    //   3 · the direction the row will read is the direction the item actually runs.
+    //       A negative-impact item keyed to an issue the member CAMPAIGNS on would be
+    //       tallied as cutting against their own stated position — so RFK Jr.'s vaccine
+    //       items stay unkeyed rather than manufacture a contradiction out of a man
+    //       acting consistently with what he says.
+    // 189 of the 223 remain deliberately unkeyed. That is the expected outcome: the
+    // dominant population here is conduct, candor, credentials and electoral
+    // biography, and those belong in the flashpoints feed, not on a stance row.
+    'jdailey||builds bipartisan coalitions from the minority': 'cannabis_reform',
+    'gwbush||the hurricane katrina response': 'disaster_resilience',
+    'carl_albrecht||built disaster resilience before the disaster': 'disaster_resilience',
+    'kohler_h59||a non absolutist stance on library content within his caucus': 'edu_parental',
+    'obama||most transparent administration vs its record': 'gov_transparency',
+    'sadams||undisclosed personal stake in a 2024 law he initiated': 'gov_transparency',
+    'fgibson||as an inland port board member resisted fully opening meetings': 'gov_transparency',
+    'dowens_st||put his name on government transparency machinery': 'gov_transparency',
+    'jdougall||built real government transparency tools as state auditor': 'gov_transparency',
+    'jdougall||brought legislator level scrutiny to the books': 'gov_transparency',
+    'paul_a_cutler||pattern legislates the disclosure rules on his own colleagues': 'gov_transparency',
+    'nthurston||a red state economist s bid to import cheaper drugs': 'health_drug_prices',
+    'dthatcher||originated the idea behind the national 988 crisis line': 'health_mental',
+    'obama||if you like your plan you can keep it': 'healthcare',
+    'tyler_clancy||zero tolerance camp approach drew advocate pushback': 'homeless',
+    'tyler_clancy||blends back the badge with second chance recovery': 'homeless',
+    'emendenhall||homelessness and downtown safety tested the governing promise': 'homeless',
+    'swaldrip||stakes his credibility on a measurable number': 'housing_build',
+    'swaldrip||pattern left the title to actually do the job': 'housing_build',
+    'spitcher||a prosecutor who led cash bail reform against the bail lobby': 'justice_reform',
+    'lyman||anti federal overreach convictions he has acted on literally': 'lands_local',
+    'cox||publicly apologized to the lgbtq community after the pulse shooting': 'lgbtq_rights',
+    'janderegg||built a reputation on data protection not personal spotlight': 'privacy_rights',
+    'lfillmore||an educator senator focused on education equity': 'public_schools',
+    'biden||kept the afghanistan withdrawal pledge and owned the fallout': 'restraint',
+    'tgabbard||a consistent anti interventionist core across parties': 'restraint',
+    'kwan_s12||became utah s leading voice against anti asian harassment': 'rights_balance',
+    'james_dunnigan||carried a first in nation kids online safety law': 'tech_balance',
+    'jburton||pattern a retired general who legislates what he lived': 'veterans',
+    'koford_h10||added oversight after environmental pushback on her berm bill': 'water',
+    'bwilson||tied the lake s dust risk to hill afb and military readiness': 'water',
+    'dowens_st||a consistent guardian of central utah farms and water': 'water',
+    'jferry||pattern a farmer who rewrote utah water law then went to run it': 'water',
+    'kstratton||pattern practices the conservation he legislates': 'water'
   };
   function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   // Resolve a receipt's issueKey: its own, else the Phase 10 backfill (validated

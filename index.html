@@ -2428,8 +2428,29 @@ window.PDXLazy = (function () {
        2.5rem field ≈ 57px). Anything that has to start below that chrome now
        measures it from here instead of carrying its own guess, because the two
        guesses in the hero were both smaller than the chrome they were clearing:
-       the brand lockup rendered underneath the search bar at scroll 0. */
+       the brand lockup rendered underneath the search bar at scroll 0.
+
+       THE VALUE BELOW IS A FALLBACK, NOT THE ANSWER. 7.125rem was itself a
+       guess — the two row heights added up by hand — and it was wrong on exactly
+       the devices that reported the clip. It is short by the top safe-area inset
+       on a notched phone (this document is `viewport-fit=cover`, so the nav
+       genuinely starts under the status bar), and it drifts by whatever the
+       user's own font scaling does to two rows of text. The real number is
+       measured from the rendered nav and written back into this variable at
+       runtime — see the chrome-measure script after the nav — so this literal is
+       only what the first paint uses before the measurement lands, and what a
+       browser with no ResizeObserver keeps. Consumers do not change: they still
+       read var(--pdx-chrome) and get the truth as soon as it is known. */
     :root { --pdx-chrome: 7.125rem; }
+
+    /* THE NOTCH IS THE NAV'S TO CLEAR. With viewport-fit=cover the layout
+       viewport extends under the status bar, and a `fixed; top:0` element starts
+       there — so the first row of the nav was rendering behind the clock on a
+       notched phone, which pushed the whole two-row stack down over the hero and
+       took the wordmark with it. Padding the nav (rather than offsetting it)
+       keeps the blurred bar flush to the physical top edge where it belongs and
+       makes the inset part of the height the measurement below reports. */
+    #pdx-topnav { padding-top: env(safe-area-inset-top, 0px); }
 
     /* The hero's own clearance. Desktop is unchanged (this is what pt-32 was),
        stated as chrome + air so it cannot drift out of step again. */
@@ -2538,7 +2559,7 @@ window.PDXLazy = (function () {
   <script src="/pdx-stability.js"></script>
 
   <!-- ═══════════════════════════════════════════ NAV ══════ -->
-  <nav class="fixed top-0 left-0 right-0 z-50 nav-blur bg-navy-900/80 border-b border-white/5" style="box-shadow:0 4px 24px rgba(0,0,0,0.3);">
+  <nav id="pdx-topnav" class="fixed top-0 left-0 right-0 z-50 nav-blur bg-navy-900/80 border-b border-white/5" style="box-shadow:0 4px 24px rgba(0,0,0,0.3);">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
 
       <!-- ── LEFT: brand + core voter tools ─────────────────── -->
@@ -3122,6 +3143,95 @@ window.PDXLazy = (function () {
       <a href="#submit" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="hover:text-white active:text-crimson-400 flex items-center py-3.5 transition-colors">Submit</a>
     </div>
   </nav>
+
+  <script>
+  /* ── The fixed chrome, measured ──────────────────────────────────────────────
+     --pdx-chrome is the one number that says how far down the page the fixed nav
+     reaches. Everything that has to start below the chrome reads it: #hero's
+     padding-top (three values, in this file) and html{scroll-padding-top} (in
+     app.css), so an in-page jump does not land its target under the search bar.
+
+     UNTIL NOW IT WAS A GUESS. The literal in the stylesheet — 7.125rem — was the
+     two nav rows added up by hand on a desktop browser, and it is wrong wherever
+     the rendered nav is not exactly that tall:
+
+       · A notched phone. This document is viewport-fit=cover, so the fixed nav
+         starts under the status bar and is now padded by env(safe-area-inset-top)
+         to clear it. That inset is real height the constant knows nothing about —
+         44-59px of it on the phones that reported POLITIDEX sitting under the
+         search bar at scroll 0.
+       · Any user font scaling. Both rows are text-sized; a reader at 120% has a
+         taller nav and the same 7.125rem of clearance.
+       · Any future edit to either row, which is how the constant went stale the
+         first time.
+
+     So this reads the height off the element and writes it back into the same
+     variable. No new variable, no per-page override, no class that has to be
+     remembered — the consumers are untouched and simply start getting the truth.
+     The stylesheet literal stays as the pre-measurement/no-ResizeObserver value.
+
+     TWO THINGS IT DELIBERATELY WILL NOT DO:
+       · It will not track the search field growing. The Eye's input is a textarea
+         that expands as a sentence is pasted into it (up to 5.6rem), and following
+         that would walk the whole page down while someone is typing. While focus
+         is inside the nav the last measurement stands, and a fresh one is taken on
+         blur.
+       · It will not write a value it did not measure. A zero or absurd height —
+         display:none, a detached paint, a browser mid-reload — is discarded and the
+         previous number kept, because the failure mode of a bad write here is the
+         clipped wordmark this exists to fix.
+
+     WHAT IT MEASURES IS THE BOTTOM OF THE SEARCH ROW, NOT THE HEIGHT OF THE NAV.
+     The mobile drawer is a normal-flow child of this same <nav>, so an open menu
+     makes the element several hundred pixels tall — and a chrome offset that
+     followed it would shove the hero down the page every time someone opened the
+     menu, then yank it back. The two permanent rows end where .pdx-eye-row ends,
+     the drawer is rendered after it, and the nav is pinned at top:0, so that row's
+     viewport-relative bottom edge IS the depth of the fixed chrome. */
+  (function () {
+    var nav = document.getElementById('pdx-topnav');
+    if (!nav || !document.documentElement) return;
+    var root = document.documentElement;
+    var eye = nav.querySelector('.pdx-eye-row');
+    var last = 0;
+    function measure() {
+      // Focus inside the chrome means the Eye is in use and its field may be
+      // mid-grow; hold the last good number rather than reflowing the page under
+      // the reader's hands.
+      if (nav.contains(document.activeElement)) return;
+      var h = 0;
+      try {
+        // Bottom of the last permanent row, falling back to the nav box on a page
+        // whose search row was removed.
+        h = Math.round((eye ? eye.getBoundingClientRect().bottom
+                            : nav.getBoundingClientRect().height));
+      } catch (e) { return; }
+      // Sanity band, not a preference: below ~40px the nav is not rendered, and
+      // above ~320px something other than the chrome is being measured.
+      if (!(h > 40 && h < 320)) return;
+      if (Math.abs(h - last) < 1) return;
+      last = h;
+      root.style.setProperty('--pdx-chrome', h + 'px');
+    }
+    measure();
+    // Late web fonts change both rows' height after first paint, and 'load' is the
+    // cheapest point that is reliably after them.
+    window.addEventListener('load', measure);
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    // focusout bubbles, so this is the "Eye released the field" signal.
+    nav.addEventListener('focusout', function () { setTimeout(measure, 0); });
+    if (window.visualViewport) {
+      try { window.visualViewport.addEventListener('resize', measure); } catch (e) {}
+    }
+    // The authoritative signal: the nav's own box changing for any reason at all —
+    // a wrapped row, a menu opening, a font swap, a rotation. Everything above is
+    // the fallback for browsers without it.
+    if (window.ResizeObserver) {
+      try { new ResizeObserver(measure).observe(nav); } catch (e) {}
+    }
+  })();
+  </script>
 
   <script>
   /* Top-nav dropdown menus (Politicians · Library). CSS opens them on hover

@@ -7742,6 +7742,25 @@
     // hand-count what the row model already counted.
     publicTally: publicTally,
     publicCoverage: publicCoverage,
+    // ── THE ROW'S OWN RESULT, INCLUDING ITS PER-ISSUE FIGURE ────────────────
+    // What one issue row concluded, as data: { state, pct, metric, label, ico,
+    // color, cls, why, bucket }. `state` is 'tested' | 'limited' | …, `pct` is the
+    // figure for THIS ISSUE ALONE, and `metric` is the name that belongs to the
+    // lane which produced it — "Direction match" for the formal record,
+    // "Public-record match" for a row the public lane decided. The two names are
+    // not interchangeable and the caller must print the one it is handed.
+    //
+    // Exported because the issue index in word-action.js now prints this figure on
+    // the row face, and a second implementation of "what is this issue's
+    // percentage" is exactly how one profile comes to state a row's result twice,
+    // in two vocabularies, off two arithmetics. One helper, both surfaces.
+    //
+    // IT IS NOT THE PROFILE'S SCORE AND CANNOT BECOME IT. This reads a single row.
+    // The one headline figure on a profile is ⚖️ Word vs Action's pooled Direction
+    // Match, which weighs statements by testability across the whole ledger — see
+    // _read() in word-action.js. Averaging these row figures would produce a
+    // different number with the same name.
+    rowResult: _stResult,
     verdictTally: verdictTally,
     mixedGate: mixedGate,
     rankIssueRows: rankIssueRows,
