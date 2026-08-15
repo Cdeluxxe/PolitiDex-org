@@ -4558,6 +4558,34 @@
         </div>
       </div>
 
+      <!-- The formal tally, attached to the letterhead. The ring above prints one
+           average; these four integers print the shape it averages — contradicted,
+           mixed, backed up, thin record — and each one is a door into that bucket's
+           full list in the issue index below.
+
+           WHY IT IS HERE AND NOT ONLY IN §1. The phone already had it: the ring
+           drops to a full-width hero row and ⚖️ Word vs Action is the next screen,
+           so the number and its shape were within a scroll of each other. On a
+           desktop they were not. The ring sits in the letterhead beside the photo
+           and the name, and the shape behind it was a section away — which meant
+           the glance most visitors actually take showed an average with nothing
+           said about whether the record it averages agrees with itself. 82% over
+           four backed-up issues and 82% over two contradictions and two thin rows
+           are the same figure and not the same finding.
+
+           A SIBLING OF THE HERO, NOT A FOURTH COLUMN IN IT. The letterhead is a
+           flex row on a desktop and a two-column grid with a full-width score row
+           on a phone; a fourth child would be squeezed beside the ring on one
+           layout and stranded on the other. As its own full-width strip directly
+           under the block it belongs to, it reads as attached to the letterhead on
+           both, and the four counts get a real tap target on the narrow one.
+
+           It carries no percentage — see headerTallyHtml() in word-action.js for
+           the four rules that let counts sit under a headline figure at all — and
+           it renders NOTHING below the two-issue floor, rather than four zeroes
+           that would read as findings on a profile the engine has not tested. -->
+      ${(window.PDXWordAction && typeof window.PDXWordAction.headerTallyMount === 'function') ? window.PDXWordAction.headerTallyMount(id) : ''}
+
       <!-- Quick-jump navigation — a sticky, glanceable map of the profile.
            Each pill summarizes a section (score, record, positions, evidence,
            your match, activity) and smooth-scrolls to it; the pill for the

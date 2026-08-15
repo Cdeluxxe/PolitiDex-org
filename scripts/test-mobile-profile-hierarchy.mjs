@@ -16,6 +16,9 @@
      · THE SHAPE REACHES THE FIRST SCREEN. Four counts beside the number, in the
        index's own vocabulary, each one a door into that bucket. Counts only —
        one percentage per profile, and it is the one they sit beside.
+     · AND IT REACHES THE LETTERHEAD, which is the first screen a DESKTOP reader
+       gets: the ring sits in the header there, not a scroll above §1. Same four
+       counts, same doors, nothing at all below the two-issue floor.
      · THE STRIP HANDS STRAIGHT TO THE LIST IT OPENS. The strip is a navigator —
        every segment and count selects a bucket in the index below it — and the
        basis table plus the three sharpest rows used to sit in between. On a phone
@@ -409,6 +412,90 @@ must(footFloor, 'the deck\'s bottom reservation is no longer a max() with a rem 
 ok(parseFloat(footFloor[1]) <= 0.2,
   'deck: the deck\'s bottom floor went back up. On a flat-bottomed phone the CTA row\'s own\n' +
   `    padding already separates the last button from the edge (found: ${footFloor[1]}rem)`);
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 11. The shape is in the letterhead, on both layouts
+// ═════════════════════════════════════════════════════════════════════════════
+// Section 1 pins the tally's place INSIDE the card, which is what a phone reader
+// meets: the ring drops to a full-width hero row and ⚖️ Word vs Action is the
+// next screen. A desktop reader meets neither. The ring sits in the letterhead
+// beside the photo and the name and the shape behind it was a section away, so
+// the first glance — the only glance most visitors take — showed an average with
+// nothing said about whether the record it averages agrees with itself.
+//
+// The counts, their equality with the graph and the taps are all driven in
+// scripts/test-issue-index.mjs against the real modules. What is a property of
+// the SOURCE, and pinned here, is where it mounts and what it refuses to do.
+must(WA.indexOf('function headerTallyHtml') !== -1, 'word-action.js no longer has headerTallyHtml');
+ok(/headerTallyMount:\s*headerTallyMount/.test(WA),
+  'header: the letterhead tally is not published on PDXWordAction, so the profile builder has\n' +
+  '    nothing to mount');
+const htMount = PF.indexOf('PDXWordAction.headerTallyMount(');
+must(htMount !== -1, 'profiles-full.js no longer mounts headerTallyMount');
+
+// Placement: after the letterhead closes, before the quick-jump rail, and long
+// before the section it drives. "Near the ring" is the whole requirement — a
+// tally that renders below the nav rail is just a second copy of §1's block.
+const heroScore = PF.indexOf('class="profile-hero-score"');
+const navMount = PF.indexOf('${_navBar}');
+const sectionMount = PF.indexOf('PDXWordAction.sectionHtml(');
+must(heroScore !== -1 && navMount !== -1 && sectionMount !== -1,
+  'the hero score block, the nav rail or the ⚖️ section mount moved out of profiles-full.js');
+ok(htMount > heroScore,
+  'header: the letterhead tally is declared before the ring it qualifies — four counts arriving\n' +
+  '    ahead of the number they are the shape of');
+ok(htMount < navMount,
+  'header: the letterhead tally renders below the quick-jump rail, which is not the letterhead —\n' +
+  '    it is the top of the body, and the reader has already left the header zone');
+ok(htMount < sectionMount,
+  'header: the letterhead tally renders after ⚖️ Word vs Action, which is the position it exists\n' +
+  '    to avoid');
+
+// A SIBLING OF THE LETTERHEAD, NOT A FOURTH COLUMN IN IT. .profile-hero is a flex
+// row on a desktop and a two-column grid with a full-width score row on a phone.
+// Mounted inside it, the strip is squeezed beside the ring on one layout and
+// orphaned on the other; mounted under it, both layouts get the same thing.
+const heroBlock = PF.slice(PF.indexOf('<div class="profile-hero">'), htMount);
+const heroCloses = (heroBlock.match(/<div/g) || []).length - (heroBlock.match(/<\/div>/g) || []).length;
+eq(heroCloses, 0,
+  'header: the tally is mounted INSIDE the .profile-hero grid rather than under it. The hero is a\n' +
+  '    flex row on a desktop and a two-column grid on a phone, and a fourth child is crushed on\n' +
+  '    one layout and stranded on the other');
+
+// NO INVENTED SHAPE. Same floor as the graph, so a profile the engine has not
+// tested gets nothing rather than four zeroes under its name.
+const htSrc = WA.slice(WA.indexOf('function headerTallyHtml'), WA.indexOf('function bindHeaderTally'));
+must(htSrc.length > 200, 'headerTallyHtml is no longer a readable function body');
+ok(/if \(!b \|\| b\.total < 2\) return '';/.test(htSrc),
+  'header: the letterhead tally does not fail closed below the two-issue floor. Four greyed zeroes\n' +
+  '    under a letterhead read as four findings about the person, when what is true is that the\n' +
+  '    engine has not tested enough of the record to have a shape at all');
+ok(/outcomeBuckets\(pid\)/.test(htSrc) && !/rankedRows|read\(|scopedRead/.test(htSrc),
+  'header: the letterhead tally derives its own numbers instead of reading the one bucketing the\n' +
+  '    graph and the index read — which is how the header comes to disagree with the card');
+ok(!/%/.test(htSrc),
+  'header: a percent sign appears in the letterhead tally. One score per profile, and it is the\n' +
+  '    ring this block sits directly beneath');
+
+// The plumbing that makes a control mounted outside the section work at all.
+ok(/selectDetached\(uid, tok\);/.test(WA.slice(WA.indexOf('function selectBucket'), WA.indexOf('function armIndex'))),
+  'header: selectBucket no longer moves the controls mounted outside the section, so the\n' +
+  '    letterhead keeps reporting whichever bucket it painted with while the list shows another');
+ok(/document\.getElementById\(uid\)/.test(WA.slice(WA.indexOf('function armIndex'), WA.indexOf('function armIndex') + 4000)),
+  'header: the click handler cannot resolve an index from a uid, so a count with no section\n' +
+  '    ancestor is inert — it reports a state and moves nothing');
+
+// It is the shared tally component, so its 44px targets and its colours are the
+// ones section 8 already pins. What this file adds is that an empty host takes up
+// no room: the host is emitted on every profile, shape or not, so the warm
+// repaint has somewhere to land.
+ok(/\.pdxwa-htally-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
+  'header: an empty letterhead-tally host still occupies space, so a profile with no shape yet\n' +
+  '    carries a gap and a rule under its name saying nothing');
+ok(/\.pdxwa-htally\s*\{/.test(WACSS),
+  'header: the letterhead tally has no layout rule of its own');
+ok(!/\.pdxwa-htally[^{]*\{[^}]*min-height:\s*[01](\.\d+)?rem/.test(WACSS),
+  'header: the letterhead copy shrinks the shared tap target below the threshold section 8 pins');
 
 console.log(
   failures.length

@@ -1846,6 +1846,32 @@
 }
 .pdxwa-tally-b.is-on .pdxwa-tally-lbl { color: #eaf2ff; }
 
+/* ── The same tally, mounted in the letterhead ────────────────────────────── */
+/* The block above sits inside §1, under the section's own headline. This is the
+   copy that sits in the page header, directly beneath the photo / name / ring
+   letterhead, so the shape reaches the reader at the same glance as the score on
+   BOTH layouts rather than only on the phone (where §1 is the next screen).
+
+   It is a full-width sibling of .profile-hero, not a child of it: the letterhead
+   is a flex row on a desktop and a two-column grid with a full-width score row
+   on a phone, and a fourth child would be crushed beside the ring on one and
+   orphaned on the other. As a strip under the block, both layouts get the same
+   thing and the counts keep their 44px targets on the narrow one.
+
+   Every rule here is layout. The counts, colours, states and tap targets are the
+   shared .pdxwa-tally-* component above, which is the visual half of the same
+   guarantee the renderer makes: one builder, one set of numbers. */
+.pdxwa-htally-host { margin: -0.95rem 0 1.2rem; }
+/* No shape yet — no rule, no padding, no gap. The host is emitted empty on a
+   cold record so the warm repaint has somewhere to land; until then it must not
+   occupy a single pixel of the header. */
+.pdxwa-htally-host:empty { display: none; margin: 0; }
+.pdxwa-htally {
+  margin-top: 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(120, 150, 190, 0.18);
+}
+
 /* ── Friction: contested standing, thin evidence ──────────────────────────── */
 /* The spine keeps the ISSUE's colour — that vocabulary is load-bearing across
    the whole card and recolouring it here would break the one thing it promises.
@@ -1959,6 +1985,10 @@
   /* Four counts on one row beside the number rather than a 2×2 block. */
   .pdxwa-tally-i { flex: 0 1 auto; }
   .pdxwa-tally-n { font-size: 1.1rem; }
+  /* The letterhead copy has the whole modal width to work with and one job —
+     being read at a glance — so its four counts divide that width evenly rather
+     than shrink-wrapping their labels and leaving a ragged tail. */
+  .pdxwa-htally .pdxwa-tally-i { flex: 1 1 0; }
 }
 
 

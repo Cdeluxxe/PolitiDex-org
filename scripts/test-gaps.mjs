@@ -926,7 +926,10 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
 
   // And the panel has somewhere to mount: word-action.js used to return '' for the
   // whole section, so fixing derivation alone would have changed nothing on screen.
-  const hl = WA_SRC.slice(WA_SRC.indexOf('function headlineHtml'), WA_SRC.indexOf('function bind'));
+  // The end bound is the section's own warm-refresh binder, named in full: the file
+  // now has more than one `function bind…`, and a bare 'function bind' probe silently
+  // matched whichever came first in the file and sliced this section down to nothing.
+  const hl = WA_SRC.slice(WA_SRC.indexOf('function headlineHtml'), WA_SRC.indexOf('function bind(uid, pid, p)'));
   must(hl.length > 500, 'word-action.js no longer defines headlineHtml — section 16 is testing nothing');
   const stub = hl.slice(hl.indexOf('if (!r.coverage.word)'), hl.indexOf('var uid ='));
   must(stub.length > 200, 'headlineHtml no longer branches on a wordless record');

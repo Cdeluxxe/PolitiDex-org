@@ -1811,6 +1811,36 @@
   // attributes as the graph's counts, so tapping one selects that bucket in the
   // index and brings the index into view — the first screen's fastest route to
   // the list, without scrolling to the graph to start the trip.
+  // ONE BUILDER, TWO MOUNTS. The tally is printed twice on a profile — once in the
+  // card, under the section's own headline, and once in the letterhead at the top
+  // of the page — and the whole claim of the thing is that its four integers are
+  // the graph's four integers. Two copies of this loop is how that stops being
+  // true. `gate` names the surface for the switcher's scroll rule and `extra` is
+  // the one attribute a copy mounted OUTSIDE the ⚖️ section needs; everything
+  // that carries meaning — the counts, the order, the vocabulary, the colours,
+  // the panel each control addresses — is identical by construction.
+  function tallyItemsHtml(b, uid, openTok, gate, extra) {
+    return COMP_ORDER.map(function (t) {
+      var o = outcomeFor(t);
+      if (!o) return '';
+      var n = (b.buckets[t] || []).length;
+      var on = t === openTok;
+      var issues = n + ' issue' + (n === 1 ? '' : 's');
+      return '<li class="pdxwa-tally-i' + (n ? '' : ' is-zero') + '" style="--pdxwa-col:' + o.col + ';">' +
+          '<button type="button" class="pdxwa-tally-b' + (on ? ' is-on' : '') + '"' +
+            ' data-pdxwa-seg="' + esc(o.token) + '" data-pdxwa-seg-uid="' + esc(uid) + '"' +
+            ' data-pdxwa-gate="' + esc(gate) + '"' + (extra || '') +
+            ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+            ' aria-controls="' + esc(uid + '-p-' + _idPart(o.token)) + '"' +
+            ' aria-label="' + esc(o.short + ': ' + issues + ' of ' + b.total +
+              '. Opens that list of issues below.') + '">' +
+            '<span class="pdxwa-tally-n">' + n + '</span>' +
+            '<span class="pdxwa-tally-lbl">' + esc(o.short) + '</span>' +
+          '</button>' +
+        '</li>';
+    }).join('');
+  }
+
   function tallyHtml(pid) {
     try {
       var b = outcomeBuckets(pid);
@@ -1820,32 +1850,100 @@
       armIndex();
       var uid = ocUid(pid);
       var openTok = (openOutcome(b) || {}).token || '';
-      var items = COMP_ORDER.map(function (t) {
-        var o = outcomeFor(t);
-        if (!o) return '';
-        var n = (b.buckets[t] || []).length;
-        var on = t === openTok;
-        var issues = n + ' issue' + (n === 1 ? '' : 's');
-        return '<li class="pdxwa-tally-i' + (n ? '' : ' is-zero') + '" style="--pdxwa-col:' + o.col + ';">' +
-            '<button type="button" class="pdxwa-tally-b' + (on ? ' is-on' : '') + '"' +
-              ' data-pdxwa-seg="' + esc(o.token) + '" data-pdxwa-seg-uid="' + esc(uid) + '"' +
-              ' data-pdxwa-gate="tally"' +
-              ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
-              ' aria-controls="' + esc(uid + '-p-' + _idPart(o.token)) + '"' +
-              ' aria-label="' + esc(o.short + ': ' + issues + ' of ' + b.total +
-                '. Opens that list of issues below.') + '">' +
-              '<span class="pdxwa-tally-n">' + n + '</span>' +
-              '<span class="pdxwa-tally-lbl">' + esc(o.short) + '</span>' +
-            '</button>' +
-          '</li>';
-      }).join('');
       return '' +
         '<div class="pdxwa-tally">' +
           '<div class="pdxwa-tally-k">' +
             esc('Across ' + b.total + ' issue' + (b.total === 1 ? '' : 's') + ' — tap one to open its list') +
           '</div>' +
-          '<ul class="pdxwa-tally-l">' + items + '</ul>' +
+          '<ul class="pdxwa-tally-l">' +
+            tallyItemsHtml(b, uid, openTok, 'tally', '') +
+          '</ul>' +
         '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // ── THE SAME TALLY, IN THE LETTERHEAD ──────────────────────────────────────
+  // The tally above solved the phone, where the ring and the ⚖️ section are the
+  // same screen. On a desktop they are not: the ring sits in the letterhead with
+  // the photo and the name, and the shape behind it was a scroll away inside §1.
+  // So the first glance at a profile — the glance most readers only ever take —
+  // showed an average and nothing about whether the record it averages agrees
+  // with itself. 82% over four backed-up issues and 82% over two contradictions
+  // and two thin rows are the same figure and not remotely the same finding.
+  //
+  // This mounts those four counts in the header, immediately under the
+  // letterhead, on both layouts. It is the same builder, the same buckets, the
+  // same panels; the differences are two, and both are about position:
+  //   · `data-pdxwa-outside` — this copy is not inside the [data-pdxwa] section,
+  //     so the switcher cannot find its index by walking up from the tap. The
+  //     attribute is what lets selectBucket() move it and what lets the click
+  //     handler resolve the index by uid instead. See both, below.
+  //   · gate "header" — a tap from up here is a trip down the page, so the index
+  //     is scrolled into view exactly as it is from the strip.
+  //
+  // WHAT IT IS STILL NOT. Not a second score: four integers, no percentage, no
+  // rate, nothing that can be read against the ring beside it. Not a second
+  // reading of the record: outcomeBuckets() is memoized per row set, so the
+  // header, the bar and the index are literally the same object's counts. Not
+  // public: the buckets are formal-lane, and the public record is counted on the
+  // rows far below, blended into nothing here.
+  //
+  // AND IT DOES NOT INVENT A SHAPE. Below the two-issue floor it renders nothing
+  // at all — an empty host, no frame, no zeroes. Four greyed zeroes under a
+  // letterhead read as four findings ("nothing contradicted!") when what is
+  // actually true is that the engine has not tested enough to have a shape. The
+  // card's own limited-record notice is where a thin profile is explained, and it
+  // says so in words.
+  function headerTallyHtml(pid) {
+    try {
+      var b = outcomeBuckets(pid);
+      if (!b || b.total < 2) return '';
+      armIndex();
+      var uid = ocUid(pid);
+      var openTok = (openOutcome(b) || {}).token || '';
+      return '' +
+        '<div class="pdxwa-tally pdxwa-htally">' +
+          '<div class="pdxwa-tally-k">' +
+            esc('The shape behind it — across ' + b.total + ' issue' +
+              (b.total === 1 ? '' : 's') + ', tap one to open its list') +
+          '</div>' +
+          '<ul class="pdxwa-tally-l">' +
+            tallyItemsHtml(b, uid, openTok, 'header', ' data-pdxwa-outside="' + esc(uid) + '"') +
+          '</ul>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // The host is emitted whether or not there is a shape to put in it, because the
+  // header is built from the synchronous word ledger while the roll-call record is
+  // still in flight: a profile that has no shape at first paint usually has one a
+  // moment later, and a mount that returned '' would have nothing left in the DOM
+  // to grow into. Empty host, no chrome — `.pdxwa-htally-host:empty` collapses it.
+  function bindHeaderTally(uid, pid) {
+    if (!window.addEventListener) return;
+    var handler = function (ev) {
+      var host = document.querySelector('[data-pdxwa-htally="' + uid + '"]');
+      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
+      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+      try {
+        host.innerHTML = headerTallyHtml(pid);
+        // Fresh markup opens on the DEFAULT bucket, which is not necessarily the
+        // one the reader is on. This listener runs before the section's own
+        // repaint (it is bound first, from the header), so the index in the DOM
+        // is still the pre-warm one and still carries the reader's choice — read
+        // it back rather than silently disagreeing with the list on screen.
+        reflectOpenBucket(ocUid(pid));
+      } catch (e) {}
+    };
+    window.addEventListener('pdx-consistency-warm', handler);
+  }
+
+  function headerTallyMount(pid) {
+    try {
+      var uid = ('htally-' + String(pid) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '');
+      var inner = headerTallyHtml(pid);
+      try { setTimeout(function () { bindHeaderTally(uid, pid); }, 0); } catch (e) {}
+      return '<div class="pdxwa-htally-host" data-pdxwa-htally="' + esc(uid) + '">' + inner + '</div>';
     } catch (e) { return ''; }
   }
 
@@ -2185,6 +2283,45 @@
   // reader's tap, and the warm repaint that has to put back the bucket the reader
   // had chosen — and two copies of it is how the strip and the panel drift apart.
   // Presentational only: `.is-on` and the aria state, never a word of the record.
+  // ── CONTROLS MOUNTED OUTSIDE THE SECTION ───────────────────────────────────
+  // Everything above lives inside one [data-pdxwa] wrapper, which is why one
+  // root-scoped sweep can move the strip, the chips and the panels together. The
+  // letterhead tally does not: it is emitted by the profile builder into the page
+  // header, several thousand characters of markup above the section it drives, and
+  // no common ancestor short of the modal body holds both.
+  //
+  // So it declares itself. `data-pdxwa-outside="<uid>"` names the index a control
+  // belongs to, and this is the one place that lookup happens — a document query
+  // narrowed by the uid, which is derived from the politician alone, so it can only
+  // ever match controls pointed at this exact index. The root-scoped sweep is left
+  // exactly as it was: a stray control elsewhere on the page cannot widen the scope
+  // of a selection, it can only opt into one.
+  function selectDetached(uid, tok) {
+    try {
+      if (typeof document === 'undefined' || !document.querySelectorAll) return;
+      var out = document.querySelectorAll('[data-pdxwa-outside="' + uid + '"]');
+      for (var i = 0; i < out.length; i++) {
+        var on = out[i].getAttribute('data-pdxwa-seg') === tok;
+        if (out[i].classList) out[i].classList.toggle('is-on', on);
+        out[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+    } catch (e) {}
+  }
+
+  // Read the selection back OFF the index and onto the detached controls. Used
+  // after the letterhead tally re-renders on a warm record, when its fresh markup
+  // opens on the default bucket and the list on screen is on the reader's.
+  function reflectOpenBucket(uid) {
+    try {
+      if (typeof document === 'undefined' || !document.getElementById) return;
+      var idx = document.getElementById(uid);
+      if (!idx || !idx.querySelector) return;
+      var on = idx.querySelector('[data-pdxwa-oc-panel].is-on');
+      var tok = on && on.getAttribute('data-pdxwa-oc-panel');
+      if (tok) selectDetached(uid, tok);
+    } catch (e) {}
+  }
+
   function selectBucket(root, uid, tok) {
     if (!root || !uid || !tok || !root.querySelectorAll) return false;
     var panes = root.querySelectorAll('[data-pdxwa-oc-panel]');
@@ -2214,6 +2351,11 @@
     for (var j = 0; j < panes.length; j++) {
       panes[j].classList.toggle('is-on', panes[j].getAttribute('data-pdxwa-oc-panel') === tok);
     }
+    // Last, the copies of these controls that are not in this root at all — today,
+    // the letterhead tally. Done here rather than at the call sites so that every
+    // route into a bucket moves it: a tap on the bar, a tap on a chip, and the warm
+    // repaint that puts the reader's bucket back all pass through this function.
+    selectDetached(uid, tok);
     return true;
   }
 
@@ -2251,6 +2393,18 @@
           var tok = seg.getAttribute('data-pdxwa-seg') || '';
           var gate = seg.getAttribute('data-pdxwa-gate');
           var root = seg.closest('[data-pdxwa]') || seg.closest('.pdxwa-oc');
+          // A control that declares itself outside the section has no index to walk
+          // up to, so the index is resolved DOWN from its uid instead — that is the
+          // whole point of the id namespace being derived from the politician. The
+          // root is then widened to the section wrapper, so one tap in the
+          // letterhead still moves the strip, the bar, the in-card tally, the chips
+          // and the panel in one pass, exactly as a tap inside the section does.
+          if (!root && uid) {
+            try {
+              var live = document.getElementById(uid);
+              root = (live && live.closest && live.closest('[data-pdxwa]')) || live;
+            } catch (e1) {}
+          }
           if (!root || !uid) return;
           selectBucket(root, uid, tok);
           // Picking a bucket means picking ONE bucket, so the all-in-one-stack mode
@@ -2868,6 +3022,12 @@
     feedsHtml: feedsHtml,
     // The profile hero. heroMount() is the one call sites want: markup + refresh.
     heroMount: heroMount,
+    // The letterhead's formal tally — the four bucket counts, in the header, beside
+    // the ring rather than a scroll below it. headerTallyMount() is the mountable
+    // form (host + warm refresh); headerTallyHtml() is the pure string. Counts only,
+    // formal lane only, and nothing at all below the two-issue floor.
+    headerTallyMount: headerTallyMount,
+    headerTallyHtml: headerTallyHtml,
     heroHtml: heroInner,
     dotsHtml: dotsHtml
   };
