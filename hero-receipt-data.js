@@ -93,7 +93,7 @@
         "label": "Ban Congressional Stock Trading"
       },
       "said": {
-        "text": "Introduced legislation to bar members of Congress from trading individual stocks, delivering on a 2024 campaign pledge — though his own active trading has since drawn scrutiny.",
+        "text": "Campaigned in 2024 on barring members of Congress from trading individual stocks and has pushed legislation to do it — though his own active trading has since drawn scrutiny.",
         "word": "Supports"
       },
       "did": "Kept trading heavily after sponsoring the ban",
