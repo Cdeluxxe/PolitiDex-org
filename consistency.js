@@ -2093,6 +2093,16 @@
       // President, and a reader who skims it cannot make sense of the chip above it.
       '.pdxdos-rec-veto{color:#c9b6e8;border-left:2px solid rgba(201,182,232,0.35);' +
         'padding-left:0.45rem;}' +
+      // THE TWO TEACHING BEATS, on thin contradicted and mixed rows only. They are
+      // the bookends of the argument — the claim at the top, the comparison at the
+      // bottom — so they are tinted alike and set off from the three machine-assembled
+      // lines between them. `said` is quoted speech and leans italic; `gap` is the
+      // sentence that does the actual comparing and gets full contrast, because on
+      // these rows it is the single most load-bearing line on the face.
+      '.pdxdos-rec-said{color:#9fb4d4;font-style:italic;}' +
+      '.pdxdos-rec-said .pdxdos-rec-wk{font-style:normal;}' +
+      '.pdxdos-rec-gap{color:#e8eefc;border-left:2px solid rgba(127,180,255,0.45);' +
+        'padding-left:0.45rem;margin-top:0.12rem;}' +
       '.pdxdos-rec-hold{color:#f0cd8c;}' +
       '.pdxdos-rec-b{padding:0 0 0.5rem;}' +
       // L3 — one instrument's mechanism, mounted on first open.
@@ -3156,14 +3166,43 @@
     var rec = (ov && ov.record) || null;
     if (!rec) return picks;
     var stance = rec.stance || null;
+    // ── WHAT THIS DEDUPE IS FOR, AND WHAT IT MUST NOT DO ──────────────────────
+    // It exists for exactly one collision: the summary's two representative votes
+    // (topContradiction, topConsistent) are also members of the full item list, so
+    // pushing both sources without a key would list the decisive vote twice.
+    //
+    // THE BUG. The key was five identifier fields — rollcallId, measureId, number,
+    // date, action — and every one of them is OPTIONAL. A record that arrives with
+    // blank ids (a `position`-kind formal action, a migrated vote that never carried
+    // a roll-call number) keys to '||||' plus its date and action, and so does every
+    // one of its siblings. Six distinct divisions voted the same day on the same
+    // measure collapsed to ONE listed row while the engine summary went on counting
+    // six. The face then printed the count-vs-list mismatch this pass exists to
+    // remove — "6 judged votes … 1 of them are listed below; the other 5 arrive with
+    // this member's full roll-call record" — which is not merely a wrong number, it
+    // is a wrong PROMISE: those five were never going to arrive, they were already
+    // loaded and had just been thrown away here.
+    //
+    // So identity comes first (the two summary picks are literally the same objects
+    // as their entries in the item list, so a reference check catches the real
+    // collision exactly), and the field key is now a fallback that also carries the
+    // two fields which distinguish sibling records — the title and the ballot cast.
+    // Losing a row is a far worse failure than listing a true duplicate: an
+    // over-eager key hides evidence, a lax one shows the same receipt twice.
     var key = function (it) {
-      return [it.rollcallId || '', it.measureId || '', it.number || '', it.date || '', it.action || ''].join('|');
+      return [
+        it.rollcallId || '', it.measureId || '', it.number || '', it.date || '',
+        it.action || '', it.title || it.shortTitle || '', it.position || ''
+      ].join('|');
     };
+    var pushed = [];
     var push = function (item, verdict) {
       if (!item || (limit && picks.length >= limit)) return;
+      if (pushed.indexOf(item) >= 0) return;
       var k = key(item);
       if (seen[k]) return;
       seen[k] = 1;
+      pushed.push(item);
       picks.push({ item: item, verdict: verdict || _orItemVerdict(item, issueKey, stance) });
     };
     push(rec.topContradiction, 'contradicts');
@@ -4629,10 +4668,28 @@
   // HOW MUCH IS BEHIND IT, in the row's own nouns. Kept on its own line rather than
   // trailing the issue name, so the depth of a record is scannable down a column
   // instead of hiding at the end of whatever the longest label happened to be.
-  function _stEvidenceHtml(r) {
+  // `cov` is passed ONLY by the dossier face. On a stance row the number is a depth
+  // claim about a record the reader is not currently looking at, and "12 votes on
+  // record" is the honest thing to say there. Inside the dossier the same string sits
+  // a finger's width above a list, and a depth claim next to a list reads as a claim
+  // ABOUT the list — so it has to reconcile with what the list can open, or say why
+  // it does not. This is the third count source on that face (the other two, L1's
+  // judged count and L2's row count, were already reconciled through _dosCoverage)
+  // and it was the one nothing checked.
+  function _stEvidenceHtml(r, cov) {
     var n = _stNoun(r), bits = [];
     if (r.evidence.actions > 0) {
-      bits.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+      var onRecord = r.evidence.actions;
+      var noun = function (k) { return k === 1 ? n.one : n.many; };
+      if (cov && cov.listed < onRecord) {
+        // No silent truncation: both numbers are named, in the order that makes the
+        // smaller one the promise. The route to the rest is the gap disclosure L2
+        // already prints under the same expander.
+        bits.push(cov.listed + ' of ' + onRecord + ' ' + noun(onRecord) + ' on record open below');
+      } else {
+        bits.push(onRecord + ' ' + noun(onRecord) + ' on record' +
+          (cov ? ' · all ' + (onRecord === 1 ? 'of it' : 'of them') + ' listed below' : ''));
+      }
     }
     if (r.evidence.public > 0) {
       bits.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
@@ -6008,6 +6065,7 @@
         }));
       });
     } else if (ov.officialActions && ov.officialActions.items) {
+      var _faStance = positionStance(pid, issueKey) || '';
       ov.officialActions.items.forEach(function (a) {
         // The migrated formal action's curated prose, split by length rather than by
         // rewriting: the opening sentence of `facts` is what it did, `why` is why it
@@ -6021,7 +6079,7 @@
           ident: a.headline || 'Formal action',
           title: '', act: '', question: '',
           date: a.date || '',
-          standing: null, power: null, effect: '', stance: '',
+          standing: null, power: null, effect: '', stance: _faStance,
           plain: lead,
           counts: a.why || '',
           rationale: (a.facts && a.facts !== lead) ? a.facts : '',
@@ -6236,8 +6294,101 @@
     return 'Multi-issue ' + noun + ': it was mapped to ' + n + ' issues and is judged separately on each. ' +
       'This row is only its reading on ' + lbl + '.';
   }
-  function _dosMechanism(d, issueKey) {
+  // ── THE COMPARISON, TAUGHT RATHER THAN STAMPED ──────────────────────────────
+  // A row like Scalise / Secure & Accessible Voting is the whole reason this exists.
+  // It read: "0% · Contradicted", one vote titled "objected to certifying the 2020
+  // election", and a direction line naming the issue and the chip. Every fact was
+  // true and the ARGUMENT was nowhere: what did they say, what did this instrument
+  // do, and why does the second cut against the first. A reader who did not already
+  // know the answer got a verdict stamped on a vote title and was expected to take it.
+  //
+  // On a deep record the argument is carried by the pattern — twelve votes one way is
+  // its own explanation, and repeating the stated position verbatim on all twelve
+  // rows is noise a reader learns to skip (it is already stated once, at L1). On a
+  // THIN row there is no pattern to carry it: the verdict rests on one or two
+  // instruments, so each one has to make the case on its own face. So the teaching
+  // beats are gated to exactly the rows that need them.
+  //
+  // WHAT IS AND IS NOT INVENTED HERE. `said` is the politician's own sourced words
+  // from the position map, clipped, or — when no text is on file — the stance LABEL
+  // the chip already shows. `gap` is assembled from three fields that all exist:
+  // which way the stated position points, which way this instrument cut, and the
+  // verdict label the chip is already printing. No new political claim is made, no
+  // verdict, weight or scoring input is touched, and where the direction cannot be
+  // established from the file the line simply does not print.
+  var _DOS_TEACH_MAX = 3;
+  var _DOS_TEACH_TOKENS = { contradicts: 1, mixed: 1 };
+  // The row-level decision, made once per face in _dosRecordsHtml and handed down, so
+  // that opening a dossier does not re-derive a stance read per instrument.
+  function _dosTeach(pid, issueKey, r, cov) {
+    var tok = r && r.verdict && r.verdict.token;
+    if (!tok || !_DOS_TEACH_TOKENS[tok]) return null;
+    var judged = (cov && typeof cov.judged === 'number') ? cov.judged : null;
+    if (judged === null) judged = cov ? cov.scored : 0;
+    if (!(judged >= 1 && judged <= _DOS_TEACH_MAX)) return null;
+    var st = null;
+    try { st = _rowStance(pid, issueKey); } catch (e) { st = null; }
+    if (!st || (!st.text && !st.label)) return null;
+    return { stance: st, verdict: tok, judged: judged, label: _issueLabel(issueKey) || 'this issue' };
+  }
+  // Their words, in their voice, kept short. The dossier's own L1 clips at 320; a row
+  // face is a much tighter slot and sits above four other lines, so this clips harder.
+  function _dosSaidLine(teach) {
+    if (!teach) return '';
+    var st = teach.stance;
+    var t = st.text ? String(st.text).trim() : '';
+    if (t) {
+      if (t.length > 180) t = t.slice(0, 177).replace(/\s+\S*$/, '') + '…';
+      return '“' + t + '”';
+    }
+    // No sourced sentence on file — the chip's own word, said as a position rather
+    // than quoted as speech, because nobody said it in those words.
+    return st.label ? st.label + ' ' + teach.label + '.' : '';
+  }
+  // Which way THIS instrument cut on the issue, read off fields that already exist.
+  // '' when the file does not establish it — an unscored ballot, an executive document
+  // with no recorded effect — because a guess here would be the invented claim the
+  // whole lane exists to keep out.
+  function _dosItemDir(d) {
+    if (!d || d.held) return '';
+    if (d.lane === 'record') {
+      if (!d.support) return '';
+      var pos = String((d.item && d.item.position) || '').toLowerCase();
+      var yea = /^(yea|aye|yes)$/.test(pos);
+      var nay = /^(nay|no)$/.test(pos);
+      if (!yea && !nay) return '';
+      // A Yea on a `yea_supports` mapping advances the issue's direction; every other
+      // combination of the two flips it once.
+      return ((d.support !== 'yea_opposes') === yea) ? 'advances' : 'opposes';
+    }
+    return (d.effect === 'advances') ? 'advances' : (d.effect === 'opposes') ? 'opposes' : '';
+  }
+  // Bare stem, not third-person singular: the clause is always "they said they ___",
+  // so "supports" produced "they said they supports" — the exact kind of sentence that
+  // tells a reader nobody read the line before shipping it.
+  var _DOS_STANCE_VERB = { support: 'support', oppose: 'oppose' };
+  function _dosGapLine(d, issueKey, teach) {
+    if (!teach || !d || d.held) return '';
+    var dir = _dosItemDir(d);
+    if (!dir) return '';
+    var stanceKey = d.stance || teach.stance.key || '';
+    var verb = _DOS_STANCE_VERB[stanceKey];
+    if (!verb) return '';
+    var lbl = teach.label;
+    // Does the stated position point the same way this instrument did? `support`
+    // points with the issue's direction, `oppose` against it — the same convention
+    // _dosDirLine uses, so the two sentences cannot contradict each other.
+    var agrees = ((stanceKey === 'support') === (dir === 'advances'));
+    var v = VERDICTS[d.verdict];
+    var head = 'Said versus did: they said they ' + verb + ' ' + lbl + ', and this one pushed ' +
+      (agrees ? 'the same way.' : 'the other way.');
+    if (!v || !v.label) return head;
+    return head + ' That ' + (agrees ? 'match' : 'gap') + ' is what this row records as “' +
+      v.label + '”.';
+  }
+  function _dosMechanism(d, issueKey, teach) {
     return {
+      said: _dosSaidLine(teach),
       did: _dosDidLine(d),
       counts: _dosCountsLine(d, issueKey),
       // Additive, and load-bearing only for rendering: `counts` is the same string
@@ -6246,6 +6397,7 @@
       countsBy: _dosCountsBy(d),
       needsCurator: _dosNeedsCurator(d),
       dir: _dosDirLine(d, issueKey),
+      gap: _dosGapLine(d, issueKey, teach),
       veto: _dosVetoLine(d, issueKey),
       multi: _dosMultiLine(d, issueKey)
     };
@@ -6302,7 +6454,7 @@
   // and the mechanism lines. No percentage: a per-item weight printed as a number
   // reads as a second score, and "primary / supporting / narrow link" is the same
   // fact in the vocabulary the ✒️ section already uses.
-  function _dosRowHtml(d, i, pid, issueKey) {
+  function _dosRowHtml(d, i, pid, issueKey, teach) {
     var v = d.held ? null : (VERDICTS[d.verdict] || VERDICTS.limited);
     var head =
       (v ? '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>'
@@ -6320,16 +6472,21 @@
     // It still gets a "What it did" line: a document on file with its mechanism
     // withheld is exactly the title-only row this pass exists to remove, and the
     // reason it was held is easier to judge when a reader can see what was held.
-    var m = _dosMechanism(d, issueKey);
+    var m = _dosMechanism(d, issueKey, teach);
     var wk = function (label, text, cls) {
       return text
         ? '<span class="pdxdos-rec-why' + (cls ? ' ' + cls : '') + '">' +
             (label ? '<b class="pdxdos-rec-wk">' + label + '</b> ' : '') + esc(text) + '</span>'
         : '';
     };
-    // ORDER IS THE ARGUMENT. What it did, then — for a veto only — how a bill
-    // Congress passed becomes an action recorded against the President, then why the
-    // issue is the right file for it, then which way it cut and what chip that
+    // ORDER IS THE ARGUMENT. On a thin contradicted or mixed row it runs said → did →
+    // why it counts here → which way it cut → said versus did: the claim, the act, the
+    // link, the direction, and the comparison the verdict is. The stated position leads
+    // because it is the thing everything after it is measured against, and a reader who
+    // meets the act first has to hold it in mind until the comparison arrives.
+    //   On every other row it is what it was — what it did, then — for a veto only —
+    // how a bill Congress passed becomes an action recorded against the President, then
+    // why the issue is the right file for it, then which way it cut and what chip that
     // produces, then the multi-issue caveat. The veto path sits above the direction
     // line on purpose: it is the sentence that explains the inversion the direction
     // line is about to assert, and a reader who meets them the other way round has to
@@ -6337,10 +6494,12 @@
     var why = d.held
       ? (wk('What it did:', m.did) +
          '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
-      : (wk('What it did:', m.did) +
+      : (wk('They said:', m.said, 'pdxdos-rec-said') +
+         wk('What it did:', m.did) +
          wk('', m.veto, 'pdxdos-rec-veto') +
          _dosWhyHtml(m) +
          wk('Which way it cut:', m.dir) +
+         wk('', m.gap, 'pdxdos-rec-gap') +
          _dosMultiHtml(m, d));
     return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
@@ -6674,6 +6833,10 @@
         '<div class="pdxdos-empty">' + esc(empty) + '</div></div>';
     }
     var cov = _dosCoverage(pid, issueKey, ov, items);
+    // Does this face have to TEACH the comparison, or is the pattern carrying it?
+    // Decided once here from the row verdict and the judged depth, then handed to
+    // every row, so the answer cannot differ between two rows of the same list.
+    var teach = _dosTeach(pid, issueKey, r || issueRow(pid, issueKey), cov);
     // THE HEADLINE COUNT IS THE ROW COUNT. Whatever else this line says, the number
     // in front of the noun is the number of rows underneath it — so the expander can
     // never open onto fewer than it advertised.
@@ -6709,7 +6872,7 @@
           ' <span aria-hidden="true">▾</span>' +
           '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
         gap +
-        items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey); }).join('') +
+        items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey, teach); }).join('') +
         note +
       '</details>';
   }
@@ -6817,10 +6980,15 @@
       // whole level is meant to stop being, so the sentence that names the number
       // also says whether the list below can show all of them.
       if (jn && !cov.missing) {
-        lane += ' All ' + jn + ' are listed below' +
+        // Singular is its own sentence, not a plural with the number swapped. "All 1
+        // are listed below" is the shape a reader meets on exactly the rows this pass
+        // is about — a contradicted verdict resting on one vote — and a sentence that
+        // has visibly not been read undermines the count it is trying to vouch for.
+        lane += (jn === 1 ? ' It is listed below' : ' All ' + jn + ' are listed below') +
           (cov.held ? ', with ' + cov.held + ' further on file that could not be scored' : '') + '.';
       } else if (jn && cov.missing) {
-        lane += ' ' + cov.scored + ' of them are listed below; the other ' + cov.missing +
+        lane += ' ' + cov.scored + ' of them ' + (cov.scored === 1 ? 'is' : 'are') +
+          ' listed below; the other ' + cov.missing +
           ' arrive with this member’s full roll-call record.';
       } else if (cov.listed) {
         lane += ' ' + cov.listed + ' item' + (cov.listed === 1 ? ' is' : 's are') + ' listed below.';
@@ -6836,7 +7004,7 @@
     // prints only where the row genuinely carries tension — a split verdict,
     // counter-evidence the deciding lane set aside, or a contested standing.
     var comp = _stCompHtml(r, res);
-    var ev = _stEvidenceHtml(r);
+    var ev = _stEvidenceHtml(r, cov);
     // THE COVERAGE CAVEAT, when there is one to make. Thin and untested rows say
     // why; a tested row resting on one or two items says that the direction is real
     // and the pattern is not established.
