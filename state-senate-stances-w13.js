@@ -127,7 +127,7 @@
       text:"Majority Leader and a licensed firearms dealer of four decades who opposes the assault-weapons ban; the Ethics Commission ruled 8-1 he may still vote on gun legislation under a 'class exception,' over a dissent citing his outsized leadership clout.",
       source:{ label:"The Boston Globe", url:"https://www.bostonglobe.com/2025/05/20/metro/ri-assault-weapons-ban-frank-ciccone-ethics-commission/" } },
     { topic:"A Conservative Democrat", icon:"🏛", pos:"support", issueKey:"gov_services", issueStance:"support",
-      text:"A Providence Democrat in the Senate since 2003, elevated to Majority Leader in 2025; his record leans conservative on guns, abortion and related issues, at odds with parts of his caucus.",
+      text:"A Providence Democrat in the Senate since 2003, elevated to Majority Leader in 2025; his record leans conservative on guns, abortion and related issues, further right than most Rhode Island Democrats.",
       source:{ label:"Rhode Island Current", url:"https://rhodeislandcurrent.com/2025/05/16/ciccone-has-been-a-licensed-firearms-dealer-for-decades-should-he-recuse-himself-from-gun-debate/" } },
     { topic:"Labor Ties", icon:"🛠", pos:"support", issueKey:"econ_workers", issueStance:"support",
       text:"A longtime figure with organized-labor ties who has centered union and worker issues across his two decades in the chamber.",

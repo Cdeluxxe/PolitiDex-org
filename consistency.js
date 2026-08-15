@@ -7917,7 +7917,7 @@
       // us on, so it belongs in the methodology sheet rather than only in a
       // tooltip on the card that happens to carry the tag.
       row('⚙️', 'Why some votes count less', 'A ' + LT('procedural', 'procedural vote') +
-        ' — whether to debate a bill, send it back, or move on — counts at <b>a quarter</b> of the weight of a vote on the policy itself. These are real votes with real outcomes, but party leadership drives them more than personal conviction, so one of them never outweighs a member\'s actual vote on the bill. On a ' +
+        ' — whether to debate a bill, send it back, or move on — counts at <b>a quarter</b> of the weight of a vote on the policy itself. These are real votes with real outcomes, but floor-control pressure drives them more than personal conviction, so one of them never outweighs a member\'s actual vote on the bill. On a ' +
         LT('recommit', 'motion to recommit') + ' or a ' + LT('table', 'motion to table') +
         ' a Yea is a vote <b>against</b> the measure, and we read it that way — scoring it the other way round would produce exactly backwards verdicts.') +
       // The shareable-card rules. These are stricter than the in-app rules on purpose

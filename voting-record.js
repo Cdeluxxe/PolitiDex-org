@@ -724,7 +724,7 @@
       html: '<b>' + n + '</b> record' + (n === 1 ? '' : 's') + ' below ' + (n === 1 ? 'is' : 'are') +
         ' ' + LT('procedural', 'procedural') + ' — a vote about how the chamber handles a bill ' +
         'rather than a vote on the policy. They still count, at a quarter of the weight, because ' +
-        'party leadership drives them more than personal conviction. On a ' +
+        'floor-control pressure drives them more than personal conviction. On a ' +
         LT('recommit', 'motion to recommit') + ' or ' + LT('table', 'to table') +
         ' a Yea is a vote <b>against</b> the bill, and we read it that way.'
     });

@@ -11566,8 +11566,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "issues": ["Climate & Energy", "Agriculture & Rural Communities", "Bipartisanship", "Social Security & Medicare"],
   "promises": [
    {
-    "title": "Vote across party lines when his district calls for it",
-    "detail": "Brands himself an independent-minded, bipartisan legislator. Cast 12 votes against his party in the June–July 2026 window — including yeas on final passage of the FY2027 National Defense Authorization Act (H.R. 8800), the Stop Insider Trading Act (H.R. 7008), the FY2027 continuing resolution (H.R. 9770) and the Removing Barriers to Work for Disabled Americans Act (H.R. 8884).",
+    "title": "Vote his district's interests case by case rather than a fixed line",
+    "detail": "Brands himself an independent-minded, coalition-building legislator. In the June–July 2026 window he voted yes on final passage of the FY2027 National Defense Authorization Act (H.R. 8800), the Stop Insider Trading Act (H.R. 7008), the FY2027 continuing resolution (H.R. 9770) and the Removing Barriers to Work for Disabled Americans Act (H.R. 8884).",
     "verdict": "kept",
     "issueKey": "reform_balance",
     "sources": [{ "label": "dondavis.house.gov", "url": "https://dondavis.house.gov/media/press-releases/congressman-don-davis-votes-again-laken-riley-act" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026278" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026280" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026283" }]
@@ -11591,8 +11591,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "issues": ["Federal Spending", "National Debt", "Agriculture", "Energy Policy", "Judicial Impeachment"],
   "promises": [
    {
-    "title": "Vote against spending he judges unaffordable, even against his own party",
-    "detail": "Names the national debt his top concern and presses for structural spending reductions. Cast 14 votes against his party in the June–July 2026 window, the most in this cohort — including a nay on final passage of the FY2027 National Defense Authorization Act (H.R. 8800, which passed 216–212 on July 22, 2026) and nays on the suspension bills H.R. 915, H.R. 2478 and H.R. 7128.",
+    "title": "Vote against spending he judges unaffordable, whoever proposes it",
+    "detail": "Names the national debt his top concern and presses for structural spending reductions. In the June–July 2026 window he voted no on final passage of the FY2027 National Defense Authorization Act (H.R. 8800, which passed 216–212 on July 22, 2026) and nays on the suspension bills H.R. 915, H.R. 2478 and H.R. 7128.",
     "verdict": "kept",
     "issueKey": "national_debt",
     "sources": [{ "label": "GovTrack", "url": "https://www.govtrack.us/congress/members/josh_brecheen/456931" }, { "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/8800" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026278" }]

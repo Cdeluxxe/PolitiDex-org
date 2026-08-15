@@ -24,7 +24,7 @@
   /* ── ILLINOIS ────────────────────────────────────────────────────────── */
   "harmon_il": [
     { topic:"Beat a Record $9.8M Campaign-Finance Fine", icon:"💸", pos:"mixed", issueKey:"gov_transparency", issueStance:"mixed",
-      text:"Senate President whose campaign fund was hit with a record ~$9.8M fine by elections-board staff for accepting roughly $4M over the limits — under a law he co-sponsored — via a 'self-funding' loophole; the board deadlocked 4-4 on party lines in 2025 and the penalty was dropped.",
+      text:"Senate President whose campaign fund was hit with a record ~$9.8M fine by elections-board staff for accepting roughly $4M over the limits — under a law he co-sponsored — via a 'self-funding' loophole; the board deadlocked 4-4 in 2025 and the penalty was dropped.",
       source:{ label:"Capitol News Illinois", url:"https://capitolnewsillinois.com/news/elections-board-deadlocks-on-10m-fine-for-senate-president-don-harmon/" } },
     { topic:"Senate President", icon:"🏛", pos:"support", issueKey:"gov_services", issueStance:"support",
       text:"An Oak Park Democrat who has led the Senate since 2020 and is the chief fundraiser for the Democratic supermajority, regularly transferring money to colleagues' campaigns.",
@@ -142,7 +142,7 @@
       text:"A Montgomery/Chester/Berks Democrat (District 44) who chairs the Senate Democratic Policy Committee and is among the chamber's most outspoken progressives.",
       source:{ label:"Ballotpedia", url:"https://ballotpedia.org/Katie_Muth" } },
     { topic:"Government Accountability", icon:"🔎", pos:"support", issueKey:"gov_transparency", issueStance:"support",
-      text:"Has pressed for transparency in state government and pension oversight, at times clashing with her own party's establishment.",
+      text:"Has pressed for transparency in state government and pension oversight, at times clashing with legislative leaders.",
       source:{ label:"Senator Katie Muth", url:"https://www.palegis.us/senate/members/bio/1802/senator-katie-muth" } }
   ],
   "dush_pa": [

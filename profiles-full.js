@@ -5266,7 +5266,7 @@
             { bill:'National Defense Authorization Act FY2025', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Supported defense spending but bill included earmark provisions he had previously pledged to oppose.' },
           ],
           massie: [
-            { bill:'FISA Reauthorization Act (H.R. 7888)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed warrantless surveillance as promised — one of 19 House Republicans to break with leadership. Consistent with anti-surveillance donors.' },
+            { bill:'FISA Reauthorization Act (H.R. 7888)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed warrantless surveillance as promised — one of 19 House Republicans to vote no despite leadership support for the bill. Consistent with anti-surveillance donors.' },
             { bill:'FY2024 Omnibus Spending Bill', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Refused to vote for 1,000+ page bill he hadn\'t fully read — honoring his signature pledge to Kentucky voters.' },
             { bill:'Farm Bill 2023 (H.R. 8467)', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Voted for bill retaining crop subsidies despite pledge to eliminate them — Farm Bureau donors ($180K) and KY-04 agriculture pressure prevailed.' },
             { bill:'National Defense Authorization Act FY2025', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed military spending increases and called for Pentagon audit instead — consistent with libertarian fiscal stance.' },
@@ -5449,7 +5449,7 @@
             { bill:'No Child Left Behind Act (2002)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Fulfilled his "compassionate conservative" education pledge with testing-based accountability — later judged too rigid and rolled back.' },
             { bill:'Medicare Part D (2003)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Created prescription-drug coverage for seniors — the largest Medicare expansion in its history, though it added to long-term costs.' },
             { bill:'Iraq War Authorization (2002)', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Justified by WMD claims that proved false; the war\'s cost and length became the defining controversy of his presidency.' },
-            { bill:'Comprehensive Immigration Reform (2007)', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Pushed hard for a path to legal status, but his own party blocked it in the Senate — a promise he could not deliver.' },
+            { bill:'Comprehensive Immigration Reform (2007)', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Pushed hard for a path to legal status, but the bill was blocked in the Senate — a promise he could not deliver.' },
           ],
           sanders: [
             { bill:'Iraq War Authorization (2002)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Voted against the Iraq War as a House member — a defining early stand consistent with his lifelong anti-war record.' },

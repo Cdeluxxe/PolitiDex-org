@@ -127,11 +127,11 @@
 
   /* ── FLORIDA ─────────────────────────────────────────────────────────── */
   "garcia_fl": [
-    { topic:"'Latinas for Trump' Founder Who Broke Ranks", icon:"🔀", pos:"support", issueKey:"immigration_reform", issueStance:"support",
+    { topic:"'Latinas for Trump' Founder Who Backed Legal Status", icon:"🔀", pos:"support", issueKey:"immigration_reform", issueStance:"support",
       text:"A co-founder of Latinas for Trump who publicly rebuked the administration's deportation drive as 'unacceptable and inhumane' after courthouse arrests in South Florida — 'This is not what we voted for' — blaming adviser Stephen Miller.",
       source:{ label:"The Hill", url:"https://thehill.com/immigration/5339542-latinas-for-trump-co-founder-blasts-mass-deportations/" } },
-    { topic:"A Republican at Odds With Her Party", icon:"🌎", pos:"mixed", issueKey:"gov_balance", issueStance:"mixed",
-      text:"A Miami Republican (District 36) and daughter of Cuban refugees, formerly of the Department of Homeland Security's public-affairs office, whose immigration break put her at odds with hardliners in her own party.",
+    { topic:"A Republican Who Took Her Own Line on Immigration", icon:"🌎", pos:"mixed", issueKey:"gov_balance", issueStance:"mixed",
+      text:"A Miami Republican (District 36) and daughter of Cuban refugees, formerly of the Department of Homeland Security's public-affairs office, whose support for legal status put her at odds with immigration hardliners.",
       source:{ label:"MSNBC", url:"https://www.ms.now/rachel-maddow-show/maddowblog/not-voted-latinas-trump-founder-rejects-deportation-agenda-rcna212061" } },
     { topic:"Miami's Cuban-American Politics", icon:"🇨🇺", pos:"support", issueKey:"gov_services", issueStance:"support",
       text:"Represents a heavily Cuban-American Miami district and centers the immigrant experience of refugees fleeing communism.",

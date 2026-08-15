@@ -205,10 +205,10 @@
   // non-'voting' receipts, and 'voting' items are dropped from collect() upstream, so
   // an item is never keyed on both the Official Record and Say-vs-Do sides.
   var SAYDO_RECEIPT_ISSUE_BACKFILL = {
-    'bmoore||voted to certify the 2020 election breaking with most of his party': 'election_integrity',
+    'bmoore||voted to certify the 2020 election results': 'election_integrity',
     'owens||voted to object to pennsylvania s 2020 electoral votes': 'election_integrity',
     'dhenderson||knocked down 2020 election fraud claims as utah s chief election officer': 'election_integrity',
-    'dhenderson||rebuked election deniers in her own party before the 2024 vote': 'election_integrity',
+    'dhenderson||rebuked election deniers before the 2024 vote': 'election_integrity',
     'dhenderson||welcomed an independent audit of utah s elections': 'election_integrity',
     'cbramble||co authored the sb54 ballot access compromise and defended it': 'election_integrity',
     'cory_maloy_h52||drew a clear line on ballot return privacy': 'election_integrity',
@@ -240,7 +240,7 @@
     'jdailey||builds bipartisan coalitions from the minority': 'cannabis_reform',
     'gwbush||the hurricane katrina response': 'disaster_resilience',
     'carl_albrecht||built disaster resilience before the disaster': 'disaster_resilience',
-    'kohler_h59||a non absolutist stance on library content within his caucus': 'edu_parental',
+    'kohler_h59||a non absolutist stance on library content': 'edu_parental',
     'obama||most transparent administration vs its record': 'gov_transparency',
     'sadams||undisclosed personal stake in a 2024 law he initiated': 'gov_transparency',
     'fgibson||as an inland port board member resisted fully opening meetings': 'gov_transparency',
