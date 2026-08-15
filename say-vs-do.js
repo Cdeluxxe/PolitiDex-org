@@ -992,7 +992,12 @@
             ctx.font = '800 22px "Barlow Condensed", sans-serif';
             ctx.fillStyle = row[3];
             var n = row[2];
-            ctx.fillText(row[0] + (n ? '  ·  ' + n + (n === 1 ? ' TIME' : ' TIMES') : ''), x, y);
+            // A side carrying something that is not a roll call brings its own
+            // label — "ACTED AGAINST IT" over a signature or a cosponsorship.
+            // receipt-cards.js sets it only on that side, so a split holding one
+            // vote and one act names each for what it is, and a split of two
+            // votes prints exactly the label it always has.
+            ctx.fillText((s.head || row[0]) + (n ? '  ·  ' + n + (n === 1 ? ' TIME' : ' TIMES') : ''), x, y);
             y += 30;
             var line = [s.proof, s.title ? '— ' + s.title : '', s.date ? '(' + s.date + ')' : '']
               .filter(Boolean).join(' ');
@@ -1292,15 +1297,19 @@
           var bits = [trimTo(s.proof, 150)];
           if (s.title) bits.push(trimTo(s.title, 200));
           if (s.effect) bits.push(trimTo(s.effect, 200));
-          lines.push(row[0] + ': ' + bits.join(' — ') + (s.date ? ' (' + s.date + ')' : '') +
+          // Same rule as the image: the side names itself when it is not a roll
+          // call, and falls back to the vote wording when it is.
+          lines.push((s.lead || row[0]) + ': ' + bits.join(' — ') + (s.date ? ' (' + s.date + ')' : '') +
             (s.url ? ' — ' + s.url : ''));
         });
       // Why the counts and the examples are not the same number. Some judged
       // items — a confirmation vote mapped as a policy proxy, most often — count
       // on the issue row and still cannot carry a policy claim off-app, so the
       // card cites the strongest vote on each side that can. Said outright rather
-      // than left for a reader to notice.
-      lines.push('Counts cover every judged vote on this issue; each example above is the ' +
+      // than left for a reader to notice. A card whose counts cover more than
+      // roll calls supplies its own wording of the same sentence.
+      lines.push(r.countsNote ||
+        'Counts cover every judged vote on this issue; each example above is the ' +
         'strongest vote on its side that can be cited on its own.');
     }
     // The three fact tiers, each with the label its provenance earns. [0] is the
@@ -1311,7 +1320,10 @@
     var title = measureTitle(r);
     if (title) lines.push('The measure: ' + trimTo(title, 200));
     var didEffect = factPart(r, 0);
-    if (didEffect) lines.push('What a Yea did: ' + trimTo(didEffect, 200));
+    // Slot 0 is the disapproval sentence on a vote card and the instrument note
+    // on a card built on something else — two different claims, so the label
+    // comes from the card rather than being assumed to be the vote one.
+    if (didEffect) lines.push((r.effectLabel || 'What a Yea did') + ': ' + trimTo(didEffect, 200));
     var why = factPart(r, 2);
     // 300, not 220. The long caption is the one artefact with no platform limit,
     // and the rationale is the sentence that answers "why does a defence vote
@@ -1435,19 +1447,29 @@
     // form the card's headline uses — the shortest true version of the finding.
     if (r.sides && r.sides.with && r.sides.against) {
       var c = r.sides.counts || {};
-      var t = 'Voted with their position ' + c.with + '× (' + r.sides.with.number + ')' +
-        ' and against it ' + c.against + '× (' + r.sides.against.number + ')';
+      var t = r.didLine ||
+        ('Voted with their position ' + c.with + '× (' + r.sides.with.number + ')' +
+         ' and against it ' + c.against + '× (' + r.sides.against.number + ')');
       return trimTo(t, max);
     }
     var voted = votedSeg(r);
     var num = r.measureNumber || String((r && r.headline) || '').split(' · ')[0] || '';
-    var lead = voted && num ? voted + ' on ' + num : (voted || num);
+    // "Voted Yea on H.R. 1" is built from the direction the headline states. A
+    // card built on something that is not a roll call has no such direction to
+    // read, and would fall through to a bare bill number that says nothing about
+    // what happened — so it supplies the act in words instead: "Cosponsored
+    // S. 331", "Signed into law H.R. 5371".
+    var lead = r.didLine || (voted && num ? voted + ' on ' + num : (voted || num));
     if (!lead) return trimHeadline(r.headline, max);
     // Preference order is legibility: the disapproval sentence when there is one
     // (it is always plain English and always short), then the measure's own
-    // title, then the curated mapping rationale.
+    // title, then the curated mapping rationale. On an act line the order flips:
+    // slot 0 is the instrument note, the act line has already said what the act
+    // was, and what the reader still does not know is what the measure IS.
     var effect = factPart(r, 0);
-    var what = effect || measureTitle(r) || factPart(r, 2);
+    var what = r.didLine
+      ? (measureTitle(r) || factPart(r, 2) || effect)
+      : (effect || measureTitle(r) || factPart(r, 2));
     // The effect sentence is a SENTENCE ABOUT THE MEASURE — "A yea rolls back a
     // major state climate rule." — not a description of this member's vote. Hung
     // off an em dash it silently becomes one: "Voted Nay on H.J.Res. 88 — A yea
@@ -1455,14 +1477,22 @@
     // Larsen's NAY rolled back the rule, which is the opposite of what happened.
     // A full stop keeps the two claims apart: what they did, then what a yea
     // does. Title and rationale are noun phrases and still take the em dash.
-    var join = effect ? '. ' : ' — ';
+    var join = what === effect ? '. ' : ' — ';
+    // An act line already names the measure ("Cosponsored S. 331"), so a stored
+    // title that opens with the same number would print it twice. The number
+    // comes off the TITLE rather than off the act line, because the act is the
+    // claim and the number is only its object.
+    if (r.didLine && num && what &&
+        what.slice(0, String(num).length).toUpperCase() === String(num).toUpperCase()) {
+      what = what.slice(String(num).length).replace(/^[\s—–-]+/, '') || what;
+    }
     // Several stored titles already OPEN with the measure number — "H.R. 1 — One
     // Big Beautiful Bill Act", "H.Amdt. 232 (Boebert) to H.R. 8595 — …". Printing
     // one of those after "Voted Yea on H.R. 1" says the number twice, and cutting
     // the number off the front of the title leaves "(Boebert) to H.R. 8595 — …"
     // hanging. So when the title already names the measure, the title IS the
     // object of the sentence and the lead does not name it again.
-    if (!effect && num && what &&
+    if (!effect && !r.didLine && num && what &&
         what.slice(0, String(num).length).toUpperCase() === String(num).toUpperCase()) {
       lead = voted ? voted + ' on' : 'On';
       var joined = lead + ' ' + what;
@@ -1505,8 +1535,10 @@
     // is the half of the post a sceptic would go to first.
     var tail = '\nCheck: ' + deep;
     if (r.sides && r.sides.with && r.sides.against) {
-      if (r.sides.with.url) tail += '\nVoted with: ' + r.sides.with.url;
-      if (r.sides.against.url) tail += '\nVoted against: ' + r.sides.against.url;
+      // Each side is labelled with the word for what it actually is — the side
+      // face carries its own when it is not a roll call.
+      if (r.sides.with.url) tail += '\n' + (r.sides.with.tail || 'Voted with') + ': ' + r.sides.with.url;
+      if (r.sides.against.url) tail += '\n' + (r.sides.against.tail || 'Voted against') + ': ' + r.sides.against.url;
     } else if (src) {
       tail += '\nSource: ' + src;
     }
