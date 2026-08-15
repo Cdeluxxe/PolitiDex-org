@@ -2054,6 +2054,39 @@
       // the SCOPE of the row rather than about this issue, and it should not compete
       // with the two sentences that are.
       '.pdxdos-rec-multi{color:#7f97b8;font-style:italic;}' +
+      // The door out of the caveat. Sized and coloured like the link it is, not like
+      // a primary action: the trail is context for the row, and the row is still the
+      // thing the reader came for.
+      '.pdxdos-rec-follow{display:inline-block;margin-left:0.4rem;font-size:0.63rem;font-style:normal;' +
+        'color:#7fb4ff;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;' +
+        'text-underline-offset:2px;}' +
+      // The trail itself, inside the multi-issue disclosure that already existed.
+      '.pdxins{margin:0.3rem 0 0;outline:none;}' +
+      '.pdxins-r{padding:0.32rem 0;border-top:1px solid rgba(255,255,255,0.07);}' +
+      '.pdxins-r:first-child{border-top:0;}' +
+      '.pdxins-here{background:rgba(127,180,255,0.07);border-left:2px solid rgba(127,180,255,0.5);' +
+        'padding-left:0.4rem;margin-left:-0.42rem;}' +
+      '.pdxins-rh{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.34rem;font-size:0.68rem;}' +
+      '.pdxins-dir{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}' +
+      '.pdxins-adv{color:#6ee7a0;}' +
+      '.pdxins-opp{color:#ff9f9f;}' +
+      '.pdxins-neu{color:#8fa2c0;}' +
+      '.pdxins-off{opacity:0.5;}' +
+      '.pdxins-lbl{color:#e8eefc;font-weight:700;}' +
+      '.pdxins-v{font-size:0.64rem;}' +
+      '.pdxins-hold{color:#f0cd8c;}' +
+      '.pdxins-you{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.05em;color:#7fb4ff;' +
+        'border:1px solid rgba(127,180,255,0.4);border-radius:999px;padding:0.02rem 0.36rem;}' +
+      '.pdxins-go{margin-left:auto;font-size:0.63rem;color:#7fb4ff;background:none;border:0;padding:0;' +
+        'cursor:pointer;text-decoration:underline;text-underline-offset:2px;}' +
+      '.pdxins-why{display:block;font-size:0.66rem;color:#c6d4ec;line-height:1.45;margin-top:0.14rem;}' +
+      // Same two voices as the row face, so a reader who learned the difference one
+      // level up does not have to learn it again here.
+      '.pdxins-why-d{color:#75879f;font-style:italic;}' +
+      '.pdxins-wk{color:#c6d4ec;font-weight:700;}' +
+      '.pdxins-why-d .pdxins-wk{color:#8fa2c0;font-weight:600;font-style:normal;}' +
+      '.pdxins-foot{margin:0.5rem 0 0;font-size:0.63rem;color:#8fa2c0;line-height:1.5;' +
+        'border-top:1px solid rgba(255,255,255,0.07);padding-top:0.4rem;}' +
       // The veto path. Tinted rather than dimmed, because unlike the multi-issue
       // caveat it is not context around the row — it is the only sentence that
       // explains why a bill Congress passed is filed as an action against the
@@ -2450,6 +2483,17 @@
       // nothing on a dossier whose rows are never opened.
       var dos = e.target.closest && e.target.closest('[data-pdxdos-i]');
       if (dos) _dosMount(dos);
+      // ── Follow one document across every issue it decided ─────────────────
+      // Sits directly after the mount above, because the trail it scrolls to is
+      // part of L3 and L3 may not exist yet when the caveat is clicked. This branch
+      // DOES consume the default: the control lives inside a <summary>, so leaving
+      // the native toggle alone would collapse the row we just opened.
+      var ins = e.target.closest && e.target.closest('[data-pdxins-open]');
+      if (ins) {
+        e.preventDefault();
+        _insOpen(ins);
+        return;
+      }
       // The stance row's primary tap: the issue name opens that issue's dossier and
       // remembers the row it came from, so closing puts the reader back where they
       // were reading rather than at the top of the section.
@@ -3600,10 +3644,18 @@
       var pre = c.effect === 'advances' ? '▲ ' : c.effect === 'opposes' ? '▼ ' : '';
       return '<span class="pdxgap-om-chip' + k + '">' + pre + esc(c.label) + '</span>';
     }).join('');
-    var det = chips
-      ? '<details class="pdxgap-om-all"><summary>The other ' + ctx.others.length +
-          ' issue' + (ctx.others.length === 1 ? '' : 's') + ' this one ' + noun + ' touched</summary>' +
-          '<div class="pdxgap-om-chips">' + chips + '</div></details>'
+    // opts.trail — when the caller can afford the per-issue re-read (the dossier's
+    // L3, which is already one instrument deep), the disclosure holds the full trail
+    // instead of the label chips: same fold, same place, every issue now carrying its
+    // own direction, verdict and reason. Callers that pass nothing are unchanged.
+    var trail = (opts && opts.trail && opts.trail.html) ? opts.trail : null;
+    var body = trail ? trail.html : (chips ? '<div class="pdxgap-om-chips">' + chips + '</div>' : '');
+    var sumTxt = trail ? trail.summary
+      : ('The other ' + ctx.others.length + ' issue' + (ctx.others.length === 1 ? '' : 's') +
+         ' this one ' + noun + ' touched');
+    var det = body
+      ? '<details class="pdxgap-om-all" data-pdxins-det="' + (trail ? '1' : '0') + '">' +
+          '<summary>' + esc(sumTxt) + '</summary>' + body + '</details>'
       : '';
     return '<div class="pdxgap-om">' +
       '<div class="pdxgap-om-h"><span aria-hidden="true">🧩</span> <span>Multi-issue ' + kind +
@@ -6226,6 +6278,25 @@
       '</span>';
   }
 
+  // The multi-issue caveat, with the door out of it. The caveat already told a
+  // reader this document was judged on N issues and that they were looking at one of
+  // them; the only thing it could not do was let them go and look. The control does
+  // not open a new page — it opens this row and scrolls to the trail inside it, so
+  // the local issue reading stays on screen as the thing being compared FROM.
+  function _dosMultiHtml(m, d) {
+    if (!m || !m.multi) return '';
+    var n = 0;
+    try { n = d.item.issues.length; } catch (e) { n = 0; }
+    var body = '<span class="pdxdos-rec-why pdxdos-rec-multi">' + esc(m.multi);
+    if (n >= 2) {
+      body += '<button type="button" class="pdxdos-rec-follow" data-pdxins-open="1"' +
+        ' aria-label="' + escAttr('Follow ' + d.ident + ' across all ' + n +
+          ' issues it was mapped to, with the direction and verdict on each') + '">' +
+        'See all ' + n + ' readings <span aria-hidden="true">→</span></button>';
+    }
+    return body + '</span>';
+  }
+
   // ── L2 — one summary row per instrument ─────────────────────────────────────
   // Identity, what they did, which way that landed on this issue, where it stands,
   // and the mechanism lines. No percentage: a per-item weight printed as a number
@@ -6270,7 +6341,7 @@
          wk('', m.veto, 'pdxdos-rec-veto') +
          _dosWhyHtml(m) +
          wk('Which way it cut:', m.dir) +
-         wk('', m.multi, 'pdxdos-rec-multi'));
+         _dosMultiHtml(m, d));
     return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
         '<summary>' + head + why + '</summary>' +
@@ -6278,6 +6349,141 @@
         // see _dosMount. Nothing below L2 costs anything until it is asked for.
         '<div class="pdxdos-rec-b" data-pdxdos-body="1"></div>' +
       '</details>';
+  }
+
+  // ── ONE DOCUMENT, EVERY ISSUE IT DECIDED ────────────────────────────────────
+  // A law like Public Law 119-21 is not one story. It is mapped to fourteen issues
+  // and read separately on each, and the reading can flip: the same text that
+  // advances one issue cuts against another. Until now a reader who landed on one
+  // issue could see only that row plus a caveat saying "mapped to 14 issues", with
+  // no way to reach the other thirteen readings of the same document.
+  //   This builds that view. It invents nothing: the DIRECTION on each issue is the
+  // same _measureOmnibusContext component already printed as a chip in the block
+  // this replaces, and the VERDICT and the WHY-IT-COUNTS sentence on each issue are
+  // read straight out of that issue's own dossier row, by the same _dosItems the
+  // issue page itself renders. Nothing is scored, merged or averaged across issues:
+  // the document gets no aggregate reading, because it does not have one.
+
+  // A key that survives across _dosItems calls. Item OBJECT references do not — the
+  // exec pool rebuilds its adapted records — so cross-issue matching keys off the
+  // document's own published identifier.
+  function _insIdent(it) {
+    if (!it) return '';
+    var k = it.documentId || it.measureNumber || it.billNumber || it.identifier || it.voteKey || '';
+    return k ? String(k) : '';
+  }
+  // The same document's row on another issue, or null when that issue's dossier does
+  // not list it (a held pool, a bucket that never built). Never fabricates a row.
+  function _insFindOn(pid, issueKey, ident) {
+    if (!pid || !issueKey || !ident) return null;
+    try {
+      var list = _dosItems(pid, issueKey) || [];
+      for (var i = 0; i < list.length; i++) {
+        if (list[i] && _insIdent(list[i].item) === ident) return list[i];
+      }
+    } catch (e) {}
+    return null;
+  }
+  // One row per issue the document was mapped to, in the order the omnibus context
+  // already sorts them (primary first, then weight) with this issue lifted to front.
+  function _insTrail(pid, d, issueKey) {
+    if (!d || !d.item || !pid || typeof window._measureOmnibusContext !== 'function') return null;
+    var ctx;
+    try { ctx = window._measureOmnibusContext(d.item, issueKey, {}, { labelFn: _issueLabel }); }
+    catch (e) { return null; }
+    if (!ctx) return null;
+    var ident = _insIdent(d.item);
+    var comps = (ctx.thisIssue ? [ctx.thisIssue] : []).concat(ctx.others || []);
+    var rows = [];
+    for (var i = 0; i < comps.length; i++) {
+      var c = comps[i];
+      var here = !!(ctx.thisIssue && c === ctx.thisIssue);
+      // The local row is already in hand; every other issue is re-read from its own
+      // dossier so the trail can never drift from what that issue's page prints.
+      var hit = here ? d : _insFindOn(pid, c.issueKey, ident);
+      var m = hit ? _dosMechanism(hit, c.issueKey) : null;
+      var v = (hit && !hit.held && hit.verdict) ? VERDICTS[hit.verdict] : null;
+      rows.push({
+        issueKey: c.issueKey,
+        label: c.label || _issueLabel(c.issueKey) || c.issueKey,
+        effect: c.effect,                       // advances | opposes | none
+        here: here,
+        listed: !!hit,
+        held: !!(hit && hit.held),
+        heldWhy: (hit && hit.heldWhy) || '',
+        verdict: v ? hit.verdict : '',
+        vLabel: v ? v.label : '',
+        vIco: v ? v.ico : '',
+        vColor: v ? v.color : '',
+        counts: m ? m.counts : '',
+        countsBy: m ? m.countsBy : '',
+        needsCurator: !!(m && m.needsCurator),
+        // No door on the issue we are standing on, and none to a bucket that would
+        // open empty. A control that goes nowhere teaches nothing.
+        door: !here && !!_bucketAt(pid, c.issueKey)
+      });
+    }
+    return { ident: ident, count: ctx.count, splits: !!ctx.splits, rows: rows };
+  }
+  var INS_DIR = {
+    advances: { ico: '▲', word: 'Advances', cls: 'pdxins-adv' },
+    opposes:  { ico: '▼', word: 'Cuts against', cls: 'pdxins-opp' },
+    none:     { ico: '•', word: 'No position on', cls: 'pdxins-neu' }
+  };
+  // Fixed copy. One sentence, printed once under the trail, saying what the trail is
+  // evidence of — that the direction is one reading of one text applied to many
+  // issues, while the verdict is a separate measurement against what was said on each.
+  var INS_FOOT = 'One document, judged separately on every issue it was mapped to. ' +
+    'The direction is the same reading of the same text each time; the verdict differs ' +
+    'because it is measured against what this politician said on that issue. There is no ' +
+    'combined score for the document itself.';
+  function _insRowHtml(r, pid) {
+    var dir = INS_DIR[r.effect] || INS_DIR.none;
+    var why = r.counts
+      ? '<span class="pdxins-why' + (r.countsBy === 'derived' ? ' pdxins-why-d' : '') + '">' +
+          '<b class="pdxins-wk">' + (r.countsBy === 'derived' ? DOS_WHY_DERIVED : DOS_WHY_CURATED) + '</b> ' +
+          esc(r.counts) +
+          (r.needsCurator ? '<span class="pdxdos-rec-unex">' + esc(DOS_WHY_MARK) + '</span>' : '') +
+        '</span>'
+      : (r.held ? '<span class="pdxins-why pdxins-hold">' + esc(r.heldWhy) + '</span>'
+                : (r.listed ? '' : '<span class="pdxins-why pdxins-hold">Mapped here, but this issue’s ' +
+                    'record has no open row for it.</span>'));
+    return '<div class="pdxins-r' + (r.here ? ' pdxins-here' : '') + '" data-pdxins-k="' + escAttr(r.issueKey) + '">' +
+      '<div class="pdxins-rh">' +
+        // The direction is the mapping's, and it is the same one the chip list this
+        // replaces already printed — including on an issue whose verdict is withheld.
+        // Those get the direction dimmed, so the row reads as "mapped this way, not
+        // scored" rather than as a judgement that quietly happened anyway.
+        '<span class="pdxins-dir ' + dir.cls + ((r.held || !r.listed) ? ' pdxins-off' : '') + '">' +
+          '<span aria-hidden="true">' + dir.ico + '</span> ' + esc(dir.word) + '</span>' +
+        '<span class="pdxins-lbl">' + esc(r.label) + '</span>' +
+        (r.vLabel
+          ? '<span class="pdxins-v" style="color:' + r.vColor + '">' + esc(r.vIco + ' ' + r.vLabel) + '</span>'
+          : '<span class="pdxins-v pdxins-hold">' + (r.held ? 'Not scored' : 'No verdict here') + '</span>') +
+        (r.here ? '<span class="pdxins-you">you are here</span>'
+                : (r.door
+                    ? '<button type="button" class="pdxins-go" data-pdxc-gap="' + escAttr(r.issueKey) + '"' +
+                        ' data-pdxc-gap-pid="' + escAttr(pid || '') + '">' +
+                        'Read this issue →</button>'
+                    : '')) +
+      '</div>' + why + '</div>';
+  }
+  // Returns the { html, summary } pair _orOmniBlockHtml takes in place of its chip
+  // list, or null. Keeping it as an option on the existing block means the trail
+  // lands inside the disclosure that is already there — same fold, more inside it —
+  // rather than adding a second panel to the page.
+  function _insTrailOpts(pid, d, issueKey) {
+    var t = _insTrail(pid, d, issueKey);
+    if (!t || !t.rows.length) return null;
+    var others = t.rows.length - (t.rows[0] && t.rows[0].here ? 1 : 0);
+    if (others < 1) return null;
+    return {
+      summary: 'Follow this one document across all ' + t.count +
+        ' issues — direction, verdict and why, on each',
+      html: '<div class="pdxins" data-pdxins="1" data-pdxins-n="' + t.rows.length + '" tabindex="-1">' +
+        t.rows.map(function (r) { return _insRowHtml(r, pid); }).join('') +
+        '<p class="pdxins-foot">' + esc(INS_FOOT) + '</p></div>'
+    };
   }
 
   // ── L3 (+ L4) — one instrument, expanded ────────────────────────────────────
@@ -6355,8 +6561,9 @@
     // in this lane's nouns.
     var rel = d.item
       ? (d.lane === 'exec'
-          ? _orOmniBlockHtml(d.item, issueKey, { kind: 'action', noun: _EXEC_OMNI_NOUN[d.item.actionClass] || 'action' })
-          : _orOmniBlockHtml(d.item, issueKey))
+          ? _orOmniBlockHtml(d.item, issueKey, { kind: 'action', noun: _EXEC_OMNI_NOUN[d.item.actionClass] || 'action',
+              trail: _insTrailOpts(pid, d, issueKey) })
+          : _orOmniBlockHtml(d.item, issueKey, { trail: _insTrailOpts(pid, d, issueKey) }))
       : '';
     if (rel) out.push('<div class="pdxdos-rel">' + rel + '</div>');
     // ── L4 — the receipt itself ──────────────────────────────────────────────
@@ -6391,6 +6598,28 @@
       if (!pid || !key || isNaN(idx)) return;
       body.innerHTML = _dosDetailHtml(pid, key, idx) ||
         '<div class="pdxdos-note">This record has nothing further on file.</div>';
+    } catch (e) {}
+  }
+
+  // Open the trail from the caveat. Four steps, all of them things a reader would
+  // otherwise have to do by hand: open the row, build L3 if this is its first
+  // opening, open the disclosure the trail lives in, and put the trail on screen
+  // with focus on it so a keyboard reader arrives where the click pointed.
+  function _insOpen(btn) {
+    try {
+      var rec = btn.closest && btn.closest('[data-pdxdos-i]');
+      if (!rec) return;
+      rec.open = true;
+      _dosMount(rec);
+      var t = rec.querySelector('[data-pdxins]');
+      if (!t) return;
+      var p = t.parentNode;
+      while (p && p !== rec) {
+        if (p.tagName === 'DETAILS') p.open = true;
+        p = p.parentNode;
+      }
+      if (t.scrollIntoView) t.scrollIntoView({ block: 'nearest' });
+      if (t.focus) t.focus();
     } catch (e) {}
   }
 
@@ -7592,6 +7821,18 @@
     },
     dossierQueueHtml: function (pid, issueKey) {
       return _dosQueueHtml(pid, issueKey, officialIssue(pid, issueKey));
+    },
+    // One document read across every issue it was mapped to. Exported as data and as
+    // markup so a harness can check the trail against the per-issue dossiers it was
+    // assembled from, rather than against a rendering of itself.
+    instrumentTrail: function (pid, issueKey, idx) {
+      var items = _dosItems(pid, issueKey, officialIssue(pid, issueKey)) || [];
+      return items[idx] ? _insTrail(pid, items[idx], issueKey) : null;
+    },
+    instrumentTrailHtml: function (pid, issueKey, idx) {
+      var items = _dosItems(pid, issueKey, officialIssue(pid, issueKey)) || [];
+      var o = items[idx] ? _insTrailOpts(pid, items[idx], issueKey) : null;
+      return o ? o.html : '';
     },
     dossierCoverage: function (pid, issueKey) {
       return _dosCoverage(pid, issueKey, officialIssue(pid, issueKey));
