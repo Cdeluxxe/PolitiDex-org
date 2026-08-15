@@ -457,6 +457,11 @@
               actionType: rc.actionType,
               position: ref.position,
               result: rc.result || null,
+              // Carried because it is part of the API's item shape, never rendered.
+              // The flag is ingest provenance — it records how a roll call was
+              // attributed against the full chamber tally. Nothing reader-facing
+              // reads it, and nothing should: party agreement is not a measure of
+              // what someone said against what they did.
               isParty: ref.isParty || null,
               supports: null,
               isProcedural: !!rc.isProcedural,
@@ -1006,11 +1011,17 @@
     var statT = function (v, key, l) {
       return '<div class="vr-stat"><div class="vr-stat-v">' + esc(v) + '</div><div class="vr-stat-l">' + LT(key, l) + '</div></div>';
     };
+    // Every tile here counts the record. There is deliberately no tile counting how
+    // often the member agreed with their party: the API still returns withParty /
+    // againstParty and the database still stores is_party, because the flag is
+    // computed from the full chamber tally at ingest and is real provenance for how
+    // a roll call was attributed — but a party-agreement rate is not a measure of
+    // what someone said against what they did, and printing it here would make it
+    // the first number a reader meets on the Official Record. It is internal.
     var strip = '<div class="vr-summary">' +
       stat(s.totalRecords || 0, 'Records') +
       statT(s.votes || 0, 'rollcall', 'Roll-call Votes') +
       (s.positions ? stat(s.positions, 'Other Actions') : '') +
-      (s.withParty || s.againstParty ? stat(s.withParty + '/' + s.againstParty, 'With / Against Party') : '') +
       '</div>';
 
     // "Say vs. Do" — over issues where the member has BOTH a stance and a record.

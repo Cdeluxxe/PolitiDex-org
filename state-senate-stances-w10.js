@@ -26,7 +26,7 @@
 
   /* ── MISSISSIPPI ─────────────────────────────────────────────────────── */
   "delbert_hosemann": [
-    { topic:"Broke With His Own Governor on Medicaid", icon:"🏥", pos:"support", issueKey:"healthcare", issueStance:"support",
+    { topic:"Pushed to Expand Medicaid to the Working Poor", icon:"🏥", pos:"support", issueKey:"healthcare", issueStance:"support",
       text:"As lieutenant governor and Senate President he led an unusual Republican push to expand Medicaid to the working poor — roughly 200,000+ Mississippians — setting up a public clash with GOP Gov. Tate Reeves, who calls expansion 'welfare' and vowed to veto it.",
       source:{ label:"Mississippi Today", url:"https://mississippitoday.org/2024/10/31/mississippi-hobnob-medicaid-expansion-tax-cuts-jason-white-delbert-hosemann-wicker-pinkins/" } },
     { topic:"Senate President (Lt. Governor)", icon:"🏛", pos:"support", issueKey:"gov_services", issueStance:"support",
