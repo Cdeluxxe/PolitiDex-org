@@ -4716,10 +4716,28 @@
 
       <!--PDXSP:identity-->
       <!-- Biography & signature quote — who they are, read early so the
-           profile opens like an honest dossier: identity → record → person. -->
+           profile opens like an honest dossier: identity → record → person.
+
+           IT OPENS CLAMPED. A bio runs six to twelve lines, and on a phone that
+           is most of the first screen spent on prose the reader did not come for
+           — the record is what is below it. It now shows three lines and a
+           "Read the full biography" control, and the full text is one tap away.
+
+           The clamp is a <details> whose entire content lives in the <summary>,
+           which is the one arrangement that gets a native, keyboard-operable
+           disclosure without printing the bio twice: <summary> renders in both
+           states, so the same single copy of the text is clamped when closed and
+           released when open (see .pdxbio in app.css). Nothing is hidden from a
+           reader who does not open it in the sense that matters — the text is in
+           the DOM, selectable, findable and read in full by a screen reader. -->
       ${(p.bio || p.quote) ? `<div class="modal-section">
         <div class="modal-section-title">📋 Biography</div>
-        ${p.bio ? `<p style="font-size:0.88rem;color:#b9cae3;line-height:1.75;margin:0 0 ${p.quote ? '1.05rem' : '0'};">${p.bio}</p>` : ''}
+        ${p.bio ? `<details class="pdxbio"${p.quote ? ' data-pdxbio-q="1"' : ''}>
+          <summary class="pdxbio-s">
+            <span class="pdxbio-t">${p.bio}</span>
+            <span class="pdxbio-cue" aria-hidden="true"><span class="pdxbio-cue-a">Read the full biography</span><span class="pdxbio-cue-b">Show less</span></span>
+          </summary>
+        </details>` : ''}
         ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p>${p.quoteSource ? `<cite class="profile-quote-cite">${p.quoteSource}</cite>` : ''}</blockquote>` : ''}
       </div>` : ''}
 

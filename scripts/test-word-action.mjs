@@ -1452,6 +1452,16 @@ const voteNarration = (issueKey, extra = {}) => ({
     const j = ends.length ? Math.min.apply(null, ends) : -1;
     return h.slice(i, j === -1 ? h.length : j);
   };
+  // THE STRIP'S PROSE, WHICH NO LONGER LIVES IN THE STRIP. The tension count, the
+  // calm-record line and the score-versus-count clarifier used to close the block.
+  // On a phone that put three or four lines of reading between a control and the
+  // list it opens, so a tap moved a destination the reader could not see. They are
+  // now rendered immediately BELOW the index, where they are read by someone who
+  // has already arrived. Every claim below is unchanged; only the probe moved.
+  const note = (h) => {
+    const i = h.indexOf('class="pdxwa-shapenote"');
+    return i === -1 ? '' : h.slice(i);
+  };
   const txt = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/\s+/g, ' ');
 
   // A record that agrees with itself everywhere. The percentage says 100; the strip
@@ -1461,22 +1471,26 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(calmS, 'the composition strip does not render — the mean stands alone again');
   ok(txt(calmS).includes('3 issues with a verdict'), 'the strip does not say how many issues it counted');
   ok(txt(calmS).includes('3 Backed up'), 'the strip does not count the backed-up bucket');
-  ok(txt(calmS).includes('No contradictions, no mixed results and no contested standings'),
+  ok(txt(note(calm)).includes('No contradictions, no mixed results and no contested standings'),
     'a record with no internal tension is not named as such — "high average, low tension"\n' +
     '    is the shape this strip exists to make visible');
   // NEVER a second percentage. Two rates on one card get subtracted from each other.
   ok(!/%/.test(txt(calmS)), 'the composition strip prints a percentage — it counts issues, it does not score them');
   // And it says out loud that it cannot be reconciled with the number above by
   // arithmetic, because it weighs nothing and the score weighs testability.
-  ok(txt(calmS).includes('The two do not have to line up'),
+  ok(txt(note(calm)).includes('The two do not have to line up'),
     'the strip does not warn that its counts and the weighted score are different arithmetic');
+  // …and the whole note sits BELOW the list, not between the strip and the list.
+  ok(calm.indexOf('class="pdxwa-shapenote"') > calm.indexOf('class="pdxwa-oc"'),
+    'the shape note renders between the strip and the issue index again — that gap is the\n' +
+    '    one thing this block is not allowed to occupy');
 
   const tense = withRows([
     row('a', 'contradicts'), row('b', 'mixed'), row('c', 'consistent'),
     row('d', 'consistent'), row('e', 'limited')
   ]);
   const tenseS = strip(tense);
-  ok(txt(tenseS).includes('2 of these 5 issues carry tension'),
+  ok(txt(note(tense)).includes('2 of these 5 issues carry tension'),
     'the strip does not count tension against the whole — the one line that stops a\n' +
     '    green bar being read as a clean record');
   ok(txt(tenseS).includes('1 Contradicted'), 'the strip does not count contradictions');
@@ -1489,7 +1503,7 @@ const voteNarration = (issueKey, extra = {}) => ({
     row('a', 'consistent', { evidence: { count: 1, actions: 1, public: 0, total: 1, strength: 'thin', sources: [] } }),
     row('b', 'consistent'), row('c', 'consistent')
   ]);
-  ok(txt(strip(thin)).includes('1 rests on a single sourced item'),
+  ok(txt(note(thin)).includes('1 rests on a single sourced item'),
     'a thin row inside the backed-up bucket is invisible — thin evidence must not look\n' +
     '    like a dense still-in-force record just because it agreed');
   ok(/pdxwa-row-thin/.test(thin) && /Thin evidence/.test(thin),

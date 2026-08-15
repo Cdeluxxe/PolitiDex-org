@@ -1971,6 +1971,55 @@
       .pdx-pnav-pill { transition: none; }
     }
 
+    /* ── Detailed profile: the biography, clamped ──────────
+       Three lines and a control. A bio is six to twelve lines of prose and it
+       sits above the record on every profile; opened by default it was most of
+       a phone's first screen spent on something the reader can already see the
+       name and office of. See profiles-full.js for why the whole block lives in
+       the <summary>: it is the one arrangement that gets a native, keyboard-
+       operable disclosure while printing the text exactly once. */
+    .pdxbio { margin: 0; }
+    .pdxbio-s {
+      cursor: pointer;
+      list-style: none;
+      display: block;
+    }
+    .pdxbio-s::-webkit-details-marker { display: none; }
+    .pdxbio-t {
+      display: block;
+      font-size: 0.88rem;
+      color: #b9cae3;
+      line-height: 1.75;
+    }
+    /* The clamp itself. -webkit-line-clamp is the only cross-browser way to cut
+       at a line count rather than a pixel height, and it is supported in every
+       engine this site runs in. A browser that ignores it shows the full bio,
+       which is the old behaviour and not a broken one. */
+    .pdxbio:not([open]) .pdxbio-t {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .pdxbio-cue {
+      display: block;
+      min-height: 2.75rem;      /* ≥44px tap target on mobile */
+      line-height: 2.75rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #7596c0;
+    }
+    .pdxbio-s:hover .pdxbio-cue,
+    .pdxbio-s:focus-visible .pdxbio-cue { color: #a9c4e8; }
+    .pdxbio-cue-b { display: none; }
+    .pdxbio[open] .pdxbio-cue-a { display: none; }
+    .pdxbio[open] .pdxbio-cue-b { display: inline; }
+    /* A quote below needs the gap the old inline margin used to supply. */
+    .pdxbio[data-pdxbio-q] { margin-bottom: 0.65rem; }
+
     /* ── Detailed profile: signature quote ─────────────── */
     .profile-quote {
       position: relative;
@@ -18056,10 +18105,13 @@
          work here: the deck needs a little air under its last row of buttons on
          every device, and a notched device needs the home-bar inset. Those are
          the same gap, not two gaps — a device reporting 34px gets 34px, a device
-         reporting none gets the 0.4rem, and neither gets the sum. The strip used
-         to add that 0.4rem itself, one level down, which made the notched case
-         pay both (see the deck-height pass at the end of this file). */
-      #modal-footer { padding-bottom: max(0.4rem, env(safe-area-inset-bottom, 0px)); }
+         reporting none gets the floor, and neither gets the sum. The strip used
+         to add its own 0.4rem one level down, which made the notched case pay
+         both (see the deck-height passes at the end of this file). The floor is
+         0.2rem rather than the 0.4rem it started at: on a flat-bottomed phone
+         the deck's own row padding already separates the last button from the
+         edge, so the second gap was buying air twice. */
+      #modal-footer { padding-bottom: max(0.2rem, env(safe-area-inset-bottom, 0px)); }
       #modal-action-strip > * { min-height: 46px !important; }
       #modal-addteam-btn { min-height: 50px !important; font-size: 0.82rem !important; }
       .pdx-modal-share-btn { min-width: 44px; min-height: 44px; }
@@ -18696,7 +18748,7 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
 @media (max-width: 768px) {
   /* THE ONE BOTTOM RESERVATION now covers both jobs, and it is declared where it
      always was — up in the ≤768px pass that owns it, changed in place from
-     `env(...)` to `max(0.4rem, env(...))`. It is not restated here: a second
+     `env(...)` to `max(air, env(...))`. It is not restated here: a second
      mention of the inset in this stack is the exact shape of the bug this file's
      modal rules keep having, and scripts/test-modal-bottom-chrome.mjs counts the
      mentions for that reason. What this pass does is take the duplicate OUT of
@@ -18713,4 +18765,63 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
     padding-bottom: 0.25rem !important;
   }
   #modal-addteam-hint { margin-top: 0.15rem !important; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROFILE DECK, SECOND TRIM — the last rows of a full list have to be reachable
+   ═══════════════════════════════════════════════════════════════════════════
+   The pass above brought the deck from ~132px to ~112px, which was enough while
+   the ⚖️ Word vs Action index was the only long list under it. It is not enough
+   now: the index renders its buckets in full and untruncated by design, so the
+   thing sitting closest to the deck on a phone is routinely the last row of a
+   twenty-row list — a real control, with a real destination, and the one a
+   reader reaches last. A deck that overlaps it by ten pixels does not look
+   broken; it just quietly fails to open.
+
+   Four measurements, no content removed:
+
+     · The CTA drops to 44px. It was nominally 46 here and actually 48 on glass:
+       the ≤640px pass in index.html holds the same button, that <style> block is
+       later in the document than the app.css link, and at equal specificity it
+       was winning. Both come down to 44 — trimming only this file would have
+       changed nothing at all. 44 is the threshold; 48 was never a requirement.
+     · Row 1's frame: 0.35/0.25rem → 0.2/0.15rem.
+     · The match hint keeps every word — it is a personal, calculated line
+       ("a strong match — they're with you on 78% of your issues"), not chrome —
+       but tightens to 0.62rem/1.2 with a 0.1rem lead-in. It is still clamped to
+       one line by the pass above.
+     · The deck's bottom floor: 0.4rem → 0.2rem, changed in place at its single
+       env() site so the modal still mentions the inset exactly once.
+
+   Measured at a 16px root, border + CTA row + hint + strip + bottom reservation:
+   a flat-bottomed phone goes ~126px → ~111px, and a notched one ~153px → ~142px
+   (the floor change is absorbed by the larger inset there). #modal-content's own
+   gutter above the deck comes down 0.9rem → 0.6rem on top of that, so the last
+   row of the open bucket clears the deck by ~20px more on a flat phone and ~16px
+   more on a notched one. Nothing on the deck is under 44px in either dimension.
+   Appended last so it wins the cascade over both phone passes above. */
+@media (max-width: 768px) {
+  #modal-addteam-btn { min-height: 44px !important; }
+
+  #modal-footer > div:first-child {
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.15rem !important;
+  }
+
+  #modal-addteam-hint {
+    font-size: 0.62rem !important;
+    line-height: 1.2 !important;
+    margin-top: 0.1rem !important;
+  }
+
+  /* Restated so the LAST #modal-action-strip bottom padding in the file is still
+     the zero — the deck's air is reserved once, on the deck (pinned by
+     scripts/test-mobile-profile-hierarchy.mjs §7). */
+  #modal-action-strip { padding-bottom: 0 !important; }
+
+  /* The scroll body's own gutter above the deck. With the deck this slim the old
+     0.9rem is the largest single thing still standing between the last list row
+     and the bottom of the screen. */
+  #modal-content { padding-bottom: 0.6rem !important; }
 }

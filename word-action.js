@@ -1436,16 +1436,26 @@
           '</li>';
       }).join('');
       var more = ranked.filter(function (r) { return r.tested; }).length - top.length;
+      // COLLAPSED, AND BELOW THE INDEX. These three rows are the deepest thing on
+      // the card: a full Said → Did → Standing → Receipts chain each, four or five
+      // lines apiece. Open by default they were roughly a phone screen of prose
+      // sitting between the reader and the list they had just chosen a bucket in.
+      // The heading still says exactly what is inside, and one tap still opens it —
+      // what changed is that the reader chooses to spend the screen on it.
       return '' +
-        '<div class="pdxwa-rows">' +
-          '<div class="pdxwa-rows-h">Where this number comes from — sharpest first</div>' +
-          '<ul class="pdxwa-rows-l">' + rows + '</ul>' +
-          '<button type="button" class="pdxwa-rows-go"' + jumpAttr('pdxsec-official-record') + '>' +
-            esc(more > 0
-              ? 'See the full breakdown — ' + more + ' more tested issue' + (more === 1 ? '' : 's') + ' →'
-              : 'See the full breakdown →') +
-          '</button>' +
-        '</div>';
+        '<details class="pdxwa-rows">' +
+          '<summary class="pdxwa-rows-h">Where this number comes from — sharpest first' +
+            '<span class="pdxwa-rows-c">' + esc(top.length + ' issue' + (top.length === 1 ? '' : 's')) + '</span>' +
+          '</summary>' +
+          '<div class="pdxwa-rows-body">' +
+            '<ul class="pdxwa-rows-l">' + rows + '</ul>' +
+            '<button type="button" class="pdxwa-rows-go"' + jumpAttr('pdxsec-official-record') + '>' +
+              esc(more > 0
+                ? 'See the full breakdown — ' + more + ' more tested issue' + (more === 1 ? '' : 's') + ' →'
+                : 'See the full breakdown →') +
+            '</button>' +
+          '</div>' +
+        '</details>';
     } catch (e) { return ''; }
   }
 
@@ -1707,6 +1717,43 @@
             '</button>' +
           '</li>';
       }).join('');
+      // THE LAST THING IN THIS BLOCK IS A CONTROL. Everything that explains the
+      // graph — the instruction, the tension note, the clarifier — is either
+      // above the bar or below the index (see shapeNotesHtml). What used to sit
+      // here was three paragraphs between the chips and the list they open,
+      // which on a phone is the destination pushed off-screen at the exact
+      // moment the reader taps. The hint is the one line that has to stay inside
+      // the block, because a count that looks like a number and behaves like a
+      // button is only discovered by readers who happen to tap it — so it leads
+      // the graph rather than trailing it.
+      return '' +
+        '<div class="pdxwa-comp">' +
+          '<div class="pdxwa-comp-h">The shape behind the average' +
+            '<span class="pdxwa-comp-sub">' + esc(b.total + ' issue' + (b.total === 1 ? '' : 's') + ' with a verdict') + '</span>' +
+          '</div>' +
+          '<p class="pdxwa-comp-hint">' +
+            esc('Tap a count — or a segment of the bar — to open that bucket’s issues below.') +
+          '</p>' +
+          '<div class="pdxwa-comp-bar" aria-hidden="true">' + bar + '</div>' +
+          '<ul class="pdxwa-comp-l">' + chips + '</ul>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // ── WHAT THE SHAPE MEANS, UNDER THE LIST IT DESCRIBES ──────────────────────
+  // The tension note and the score-vs-count clarifier used to close the graph
+  // block. Both are prose, both are read once, and both were standing between a
+  // navigator and its destination on the one screen where that distance costs
+  // most. They are unchanged in wording and in what they count — they are simply
+  // printed after the bucket list, where a reader who has picked a bucket and
+  // read it is ready to ask what the whole shape means.
+  //
+  // Same gate as the graph (`b.total < 2`), so the note can never appear under an
+  // index that has no graph above it and no counts to explain.
+  function shapeNotesHtml(pid) {
+    try {
+      var b = outcomeBuckets(pid);
+      if (!b || b.total < 2) return '';
       // The one sentence a high, calm-looking record most needs printed on it.
       // Worst-first: a contested-but-matching row is the subtlest of these and the
       // easiest to lose, so it is said in its own clause rather than folded into a
@@ -1728,22 +1775,76 @@
         notes.push(b.thin + ' rest' + (b.thin === 1 ? 's' : '') + ' on a single sourced item.');
       }
       return '' +
-        '<div class="pdxwa-comp">' +
-          '<div class="pdxwa-comp-h">The shape behind the average' +
-            '<span class="pdxwa-comp-sub">' + esc(b.total + ' issue' + (b.total === 1 ? '' : 's') + ' with a verdict') + '</span>' +
-          '</div>' +
-          '<div class="pdxwa-comp-bar" aria-hidden="true">' + bar + '</div>' +
-          '<ul class="pdxwa-comp-l">' + chips + '</ul>' +
-          // The one line that turns a picture into a control. It is printed rather
-          // than implied: a count that looks like a number and behaves like a button
-          // is only discovered by readers who happen to tap it.
-          '<p class="pdxwa-comp-hint">' +
-            esc('Tap a count — or a segment of the bar — to open that bucket’s issues below.') +
-          '</p>' +
+        '<div class="pdxwa-shapenote">' +
           '<p class="pdxwa-comp-note">' + esc(notes.join(' ')) + '</p>' +
           '<p class="pdxwa-comp-note pdxwa-comp-fine">' +
             esc('The score above weighs statements by how testable they are; this counts issues. The two do not have to line up.') +
           '</p>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // ── THE TALLY, BESIDE THE ONE NUMBER ───────────────────────────────────────
+  // A reader who has just met "82%" has one question the percentage cannot
+  // answer: how many issues went which way. The graph answers it — but the graph
+  // is a screen further down on a phone, behind the line that says what the score
+  // measures and the term slice. So the first screen carried a figure and no
+  // shape, and a reader who stopped there stopped on the mean alone.
+  //
+  // This is that shape, printed at caption scale next to the number it belongs
+  // to: four counts, in the four words the graph and the index already use.
+  //
+  // WHAT MAKES IT NOT A SECOND SCORE — the same four rules as the graph, and they
+  // are the reason this can sit beside a headline percentage at all:
+  //   · COUNTS ONLY. No percentage, no rate, no share, nothing that can be
+  //     subtracted from the figure beside it.
+  //   · ONE SOURCE. Every number is read from outcomeBuckets(), the same
+  //     bucketing the graph draws and the index lists, so the tally cannot say
+  //     four when the bar draws three.
+  //   · SAME GATE. It renders exactly when the graph renders (`b.total < 2`
+  //     returns nothing from both), so there is never a tally with no graph to
+  //     check it against.
+  //   · FORMAL LANE ONLY, because the buckets are. The public record is counted
+  //     on the rows below and blended into nothing here.
+  //
+  // And it is a control, not a caption: each count carries the same three
+  // attributes as the graph's counts, so tapping one selects that bucket in the
+  // index and brings the index into view — the first screen's fastest route to
+  // the list, without scrolling to the graph to start the trip.
+  function tallyHtml(pid) {
+    try {
+      var b = outcomeBuckets(pid);
+      // Same gate as compositionHtml. One chip under a percentage is not a
+      // distribution, and a tally with no graph below it has nothing to agree with.
+      if (!b || b.total < 2) return '';
+      armIndex();
+      var uid = ocUid(pid);
+      var openTok = (openOutcome(b) || {}).token || '';
+      var items = COMP_ORDER.map(function (t) {
+        var o = outcomeFor(t);
+        if (!o) return '';
+        var n = (b.buckets[t] || []).length;
+        var on = t === openTok;
+        var issues = n + ' issue' + (n === 1 ? '' : 's');
+        return '<li class="pdxwa-tally-i' + (n ? '' : ' is-zero') + '" style="--pdxwa-col:' + o.col + ';">' +
+            '<button type="button" class="pdxwa-tally-b' + (on ? ' is-on' : '') + '"' +
+              ' data-pdxwa-seg="' + esc(o.token) + '" data-pdxwa-seg-uid="' + esc(uid) + '"' +
+              ' data-pdxwa-gate="tally"' +
+              ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+              ' aria-controls="' + esc(uid + '-p-' + _idPart(o.token)) + '"' +
+              ' aria-label="' + esc(o.short + ': ' + issues + ' of ' + b.total +
+                '. Opens that list of issues below.') + '">' +
+              '<span class="pdxwa-tally-n">' + n + '</span>' +
+              '<span class="pdxwa-tally-lbl">' + esc(o.short) + '</span>' +
+            '</button>' +
+          '</li>';
+      }).join('');
+      return '' +
+        '<div class="pdxwa-tally">' +
+          '<div class="pdxwa-tally-k">' +
+            esc('Across ' + b.total + ' issue' + (b.total === 1 ? '' : 's') + ' — tap one to open its list') +
+          '</div>' +
+          '<ul class="pdxwa-tally-l">' + items + '</ul>' +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -2382,6 +2483,11 @@
             '</p>' +
           '</div>' +
         '</div>' +
+        // THE SHAPE, BESIDE THE NUMBER. Four counts in the index's own words,
+        // attached to the figure they describe rather than a screen below it —
+        // and each one a door into that bucket's list. Counts only: the profile
+        // still has exactly one percentage on it, and it is the one above.
+        tallyHtml(pid) +
         // What the number means and what it does not claim, before anything else
         // has a chance to be read as a second finding.
         meansHtml(hasPct) +
@@ -2396,9 +2502,12 @@
         // panels of prose under it is a navigator whose destination is off-screen on
         // a phone at the moment it is tapped. The basis table and the three sharpest
         // rows used to sit in this gap; both now follow the index (see below), which
-        // is where a reader who has already picked a bucket wants them.
+        // is where a reader who has already picked a bucket wants them. The strip's
+        // own closing prose went the same way — see shapeNotesHtml, which is the
+        // FIRST thing after the list rather than the last thing before it.
         compositionHtml(pid) +
         outcomesHtml(pid) +
+        shapeNotesHtml(pid) +
         // THE SUPPORTING READS, UNDER THE THING THEY SUPPORT. `basisHtml` is the
         // count and table behind the percentage; `topRowsHtml` is the three sharpest
         // rows. Both are still here in full and neither changed — they moved below

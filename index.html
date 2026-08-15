@@ -27849,7 +27849,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         align-items: center;
       }
       #modal-action-strip > * { min-height: 44px !important; }
-      #modal-addteam-btn, .myteam-add-btn { min-height: 48px !important; }
+      /* 44px, not 48. The threshold this pass is aiming at is 44, and the deck
+         it sits in is the last piece of fixed chrome between the reader and the
+         bottom of a full-height list — see the PROFILE DECK passes in app.css.
+         .myteam-add-btn keeps its 48 elsewhere on the page, where nothing is
+         pinned under it. */
+      #modal-addteam-btn { min-height: 44px !important; }
+      .myteam-add-btn { min-height: 48px !important; }
     }
 
     /* ── 4 · THE PEOPLE'S MANDATE ─────────────────────────────────────────
