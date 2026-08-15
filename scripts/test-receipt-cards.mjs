@@ -234,8 +234,63 @@ const THIN_RECORDS = [
     issues: [{ issueKey: "climate_action", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }] },
 ];
 
+// A third member, whose record on an issue runs BOTH ways — the row the split
+// card exists for, and the only row shape that can produce one.
+//
+// `national_debt` is deliberately built so the strongest vote on the WITH side is
+// a confirmation vote (guard 1 territory) and the strongest on the AGAINST side
+// is an ordinary bill. That is the case the both-sides picker has to survive
+// without loosening anything: the top item on a side is refused, so the card
+// either steps down to the strongest CITABLE vote on that side or it does not
+// build. `climate_action` is the same shape with a nomination as the ONLY item
+// on its against side, so there is nothing to step down to and no card at all.
+ctx.ISSUE_STANCE_DATA.splitrep = [
+  { issueKey: "national_debt", issueStance: "support", topic: "National Debt",
+    text: "Washington cannot keep spending money it does not have." },
+  { issueKey: "climate_action", issueStance: "support", topic: "Climate",
+    text: "Emissions have to fall this decade, not the next one." },
+];
+ctx.PROFILES.splitrep = { name: "Sen. Split Record", office: "U.S. Senate", state: "ID", party: "R" };
+const SPLIT_RECORDS = [
+  // WITH the stance, and the heaviest item on that side — and a nomination, so a
+  // card may not cite it. 100.
+  { kind: "vote", measureId: 30, congress: 119, session: 1, rollNumber: 40, measureType: "nomination", number: "PN 200",
+    title: "Nomination of a Director of the Office of Management and Budget", chamber: "senate",
+    result: "Confirmed", date: "2025-02-06", action: "On the Nomination", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/nomination/119th-congress/200"),
+    issues: [{ issueKey: "national_debt", weight: 100, isPrimary: true, supportMeaning: "yea_supports" }] },
+  // WITH the stance, citable, and second-heaviest — the vote the card must reach
+  // by stepping down. 60.
+  { kind: "vote", measureId: 31, congress: 119, session: 1, rollNumber: 88, measureType: "bill", number: "S. 82",
+    title: "Federal Spending Cap Act", chamber: "senate", result: "Passed",
+    date: "2025-03-11", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/senate-bill/82"),
+    issues: [{ issueKey: "national_debt", weight: 60, isPrimary: true, supportMeaning: "yea_supports",
+      rationale: "Caps discretionary spending below the current baseline." }] },
+  // AGAINST the stance, citable. 90 — so consistent 160 vs contradicting 90 over
+  // three judged votes: materially split, neither side dominant, net = mixed.
+  { kind: "vote", measureId: 32, congress: 119, session: 1, rollNumber: 152, measureType: "bill", number: "S. 1024",
+    title: "Emergency Supplemental Appropriations Act", chamber: "senate", result: "Passed",
+    date: "2025-06-24", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/senate-bill/1024"),
+    issues: [{ issueKey: "national_debt", weight: 90, isPrimary: true, supportMeaning: "yea_opposes",
+      rationale: "Adds $300 billion in unoffset spending over the ten-year window." }] },
+  // climate_action: mixed on the numbers (80 with, 100 against, two judged
+  // votes), but the against side is a confirmation vote and nothing else.
+  { kind: "vote", measureId: 33, congress: 119, session: 1, rollNumber: 51, measureType: "bill", number: "S. 500",
+    title: "Clean Energy Deployment Act", chamber: "senate", result: "Passed",
+    date: "2025-02-27", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/senate-bill/500"),
+    issues: [{ issueKey: "climate_action", weight: 80, isPrimary: true, supportMeaning: "yea_supports" }] },
+  { kind: "vote", measureId: 34, congress: 119, session: 1, rollNumber: 63, measureType: "nomination", number: "PN 300",
+    title: "Nomination of an Administrator of the Environmental Protection Agency", chamber: "senate",
+    result: "Confirmed", date: "2025-03-04", action: "On the Nomination", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/nomination/119th-congress/300"),
+    issues: [{ issueKey: "climate_action", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }] },
+];
+
 // Stub the record data layer the module reads through.
-const RECORD_STORE = { testrep: RECORDS, thinrep: THIN_RECORDS };
+const RECORD_STORE = { testrep: RECORDS, thinrep: THIN_RECORDS, splitrep: SPLIT_RECORDS };
 ctx.window.PDXVotingRecord = {
   memberRecords: (pid) => RECORD_STORE[pid] || null,
   fetchMember: (pid) => Promise.resolve({ items: RECORD_STORE[pid] || [] }),
@@ -676,10 +731,11 @@ const blockedBtn = fakeBtn({ "data-pid": "testrep", "data-issue": "tariffs_autho
 const omniBtn = fakeBtn({ "data-pid": "testrep", "data-measure": "H.R. 1", "data-pdxrc-pending": "1" });
 const pidlessBtn = fakeBtn({ "data-pdxrc-pending": "1" });
 const unknownBtn = fakeBtn({ "data-pid": "nobody_here", "data-issue": "healthcare", "data-pdxrc-pending": "1" });
+const splitBtn = fakeBtn({ "data-pid": "splitrep", "data-issue": "national_debt", "data-pdxrc-pending": "1" });
 
-const shown = await RC.hydrate(fakeRoot([goodBtn, blockedBtn, omniBtn, pidlessBtn, unknownBtn]));
+const shown = await RC.hydrate(fakeRoot([goodBtn, blockedBtn, omniBtn, pidlessBtn, unknownBtn, splitBtn]));
 
-eq(shown, 2, "hydrate: exactly the two resolvable buttons were revealed");
+eq(shown, 3, "hydrate: exactly the three resolvable buttons were revealed");
 eq(goodBtn.removed, false, "hydrate: an eligible issue card keeps its share button");
 eq(goodBtn.attrs["data-pdxrc-pending"], undefined, "hydrate: a revealed button is no longer pending");
 eq(goodBtn.attrs.hidden, undefined, "hydrate: a revealed button is no longer hidden");
@@ -695,6 +751,23 @@ eq(unknownBtn.removed, true, "hydrate: FAIL CLOSED — an unknown member loses i
 eq(pidlessBtn.removed, true, "hydrate: a button with no member is removed rather than left hidden forever");
 eq(omniBtn.removed, false, "hydrate: the H.R. 1 omnibus split card keeps its share button");
 has(omniBtn.innerHTML, "split vote", "hydrate: the omnibus button says it is a split vote, not a single verdict");
+eq(splitBtn.removed, false, "hydrate: a split-record row keeps its share button");
+has(splitBtn.innerHTML, "split record",
+  "hydrate: and the button says it shares a split record, not a single-side verdict");
+ok(splitBtn.classes.indexOf("pdxrc-v-mixed") > -1,
+  "hydrate: with the mixed verdict accent, so the control matches the card it sends");
+has(splitBtn.props.title || "", "S. 82 & S. 1024",
+  "hydrate: the tooltip names BOTH bills, because both of them are the evidence");
+
+// Every verdict this module can stamp on a button needs an accent rule to stamp
+// it with, or the newest card ships with an uncoloured control.
+{
+  const svdCss = readFileSync(join(ROOT, "say-vs-do.css"), "utf8");
+  for (const key of Object.keys(RC.VERDICTS)) {
+    has(svdCss, ".pdxrc-" + RC.VERDICTS[key].cls,
+      `affordance: the ${key} verdict has a button accent in say-vs-do.css`);
+  }
+}
 
 // Second pass must be a no-op: nothing is left pending, so nothing is touched.
 const again = await RC.hydrate(fakeRoot([goodBtn, omniBtn]));
@@ -1608,10 +1681,14 @@ if (craCard) {
   // Every shippable card's own hash is fed to the real handleHash and the real
   // openGap is spied on. This is the one contract that spans two files, so it is
   // tested on behaviour rather than on the two halves agreeing in prose.
+  // The split card is in this list too: its footer address is the issue record
+  // rather than a chamber page, so "the link opens the view the card describes"
+  // is the whole of its citation contract and not merely a convenience.
   const shippable = RC.cardsFor("testrep")
+    .concat(RC.cardsFor("splitrep"))
     .concat([RC.omnibus("testrep", "H.R. 1")])
     .filter(Boolean);
-  ok(shippable.length >= 2, "arrival: there are cards to follow (contradiction, consistency, omnibus)");
+  ok(shippable.length >= 2, "arrival: there are cards to follow (contradiction, consistency, split, omnibus)");
   const realOpen = C.openGap;
   const realHash = ctx.location.hash;
   const calls = [];
@@ -2053,6 +2130,298 @@ if (craCard) {
   ok(tiers.indexOf("thin") === -1 || tiers.indexOf("core") === -1 ||
      tiers.lastIndexOf("core") < tiers.indexOf("thin"),
     "gate: core cards are offered before thin ones");
+}
+
+// ══ 8. THE SPLIT CARD ════════════════════════════════════════════════════════
+// The third shape. A row whose formal record runs BOTH ways is the deepest thing
+// the product owns and, until now, the one finding that could not leave the app:
+// the two single-sided cards are both refused on it by guard 9, correctly, because
+// neither of them is what the record says. The split card says what the record
+// says — and it is allowed to exist only where TWO votes, one per side, each clear
+// the identical chain a single-sided card's one vote has to clear.
+//
+// So these assertions are mostly about what the card CANNOT do. It cannot appear
+// on a row that is not mixed; it cannot appear with evidence on one side only; it
+// cannot cite a vote a one-sided card would have been refused for citing; and it
+// cannot print a percentage, which is the one way a split could quietly become a
+// second score sitting next to Direction Match.
+{
+  const splitAudit = RC.audit("splitrep");
+  const sRow = (issueKey, want) =>
+    splitAudit.find((a) => a.issueKey === issueKey && a.want === want) || null;
+  const sReason = (issueKey, want) => { const r = sRow(issueKey, want); return r ? r.reason : "(no such candidate)"; };
+  const sEligible = (issueKey, want) => { const r = sRow(issueKey, want); return !!(r && r.eligible); };
+
+  // ── Mixed-only eligibility ──────────────────────────────────────────────────
+  // The candidate is offered off the engine's own net verdict, so a row that is
+  // not split never sees one — there is no separate "is this interesting enough"
+  // judgement that could drift.
+  ok(auditRows.every((r) => r.want !== "mixed"),
+    "split: a member with no mixed row is offered no split candidate at all");
+  eq(sRow("national_debt", "mixed") && sRow("national_debt", "mixed").netVerdict, "mixed",
+    "split: the fixture row is genuinely split on the engine's own reckoning");
+  ok(sEligible("national_debt", "mixed"), "split: a deep two-directional row is eligible");
+  // And the reverse: the two single-sided cards are still refused on that same
+  // row, by the same guard 9 that refused them before this shape existed. The
+  // split card is an addition, not a loophole around verdict stability.
+  for (const want of ["contradicts", "consistent"]) {
+    ok(!sEligible("national_debt", want),
+      `split: guard 9 still refuses the ${want} card on a split row`);
+  }
+  has(sReason("national_debt", "contradicts"), "net record verdict",
+    "split: and still says why — the profile this card links to does not say contradicts");
+  // The consistent candidate on this row is stopped one guard EARLIER: the top
+  // with-side vote is a nomination, so guard 1 refuses it before the verdict is
+  // ever consulted. Both refusals are correct and neither is reachable only by
+  // accident of the fixture, so guard 9 is also asserted on its own below.
+  has(sReason("national_debt", "consistent"), "confirmation vote",
+    "split: the consistent card on that row is refused earlier still, by guard 1");
+  for (const want of ["contradicts", "consistent"]) {
+    has(RC.guards.stableVerdict({ netVerdict: "mixed" }, want), "net record verdict",
+      `split: a mixed net record refuses the ${want} card outright`);
+  }
+  has(RC.guards.stableVerdict({ netVerdict: "consistent" }, "mixed"), "net record verdict",
+    "split: guard 9 refuses a split card on a row the record does not call split");
+  eq(RC.guards.stableVerdict({ netVerdict: "mixed" }, "mixed"), "",
+    "split: and passes only where the net verdict is mixed");
+
+  // ── Both-sides evidence ─────────────────────────────────────────────────────
+  // climate_action is split on the numbers and has exactly one contradicting
+  // item: a confirmation vote. Guard 1 refuses it, there is nothing to step down
+  // to, and a "split" card citing one side and asserting the other is a one-sided
+  // card wearing a fairer name — so there is no card.
+  eq(sRow("climate_action", "mixed") && sRow("climate_action", "mixed").netVerdict, "mixed",
+    "split: the second fixture row is split too, so the refusal below is about the evidence");
+  ok(!sEligible("climate_action", "mixed"),
+    "split: a split row with no citable vote on one side yields no card");
+  has(sReason("climate_action", "mixed"), "the against-side example",
+    "split: and the audit names WHICH side had nothing to cite");
+  has(sReason("climate_action", "mixed"), "confirmation vote",
+    "split: with the guard that refused it, verbatim — the guard was applied, not waived");
+  eq(RC.find("splitrep", "climate_action"), null, "split: and no card is built for it");
+
+  // The step-down, directly. The heaviest with-side vote on national_debt is a
+  // nomination; the card must reach past it to the strongest CITABLE vote rather
+  // than either citing it or giving up. Every candidate goes through the same
+  // item chain — this is the difference between "the top item is uncitable so
+  // nothing travels" and "the strongest citable item travels".
+  {
+    const pos = ctx.window._polPositionMap("splitrep", ctx.PROFILES.splitrep) || {};
+    const nd = pos.national_debt;
+    const items = SPLIT_RECORDS.filter((r) => r.issues.some((i) => i.issueKey === "national_debt"));
+    const pick = (side) =>
+      RC.strongestCitable("splitrep", "national_debt", nd, SPLIT_RECORDS, items, nd.stance, side);
+    const w = pick("with"), a = pick("against");
+    eq(w.item && w.item.number, "S. 82", "split: the with side steps down past the nomination to a bill");
+    ok(w.steppedDown, "split: and reports that it stepped down rather than pretending it was the top item");
+    eq(a.item && a.item.number, "S. 1024", "split: the against side cites its top item, which is already citable");
+    eq(a.steppedDown, false, "split: and does not claim a step-down it did not make");
+    eq(w.blocked, "", "split: a side with a citable vote reports no refusal");
+    // The item chain is the SAME one the single-sided cards use — asserted by
+    // running it against the vote the step-down skipped.
+    has(RC.itemBlock("splitrep", "national_debt", nd, SPLIT_RECORDS.find((r) => r.number === "PN 200"), SPLIT_RECORDS),
+      "confirmation vote", "split: the skipped vote is skipped BECAUSE the shared chain refuses it");
+    eq(RC.itemBlock("splitrep", "national_debt", nd, SPLIT_RECORDS.find((r) => r.number === "S. 82"), SPLIT_RECORDS), "",
+      "split: and the vote it settled on passes that same chain outright");
+  }
+
+  // ── The card ────────────────────────────────────────────────────────────────
+  const split = RC.find("splitrep", "national_debt");
+  ok(!!split, "split: the eligible row builds a card");
+  if (split) {
+    eq(split.verdict.key, "mixed", "split: it carries its own verdict, not a softened contradiction");
+    has(split.verdict.label, "Split Record", "split: labelled as a split record on its face");
+    // The finding, in the form a reader can repeat. Counts, not a ratio.
+    has(split.headline, "voted with their stated position 2 times and against it 1 time",
+      "split: the headline teaches the split in the form the ticket asked for");
+    eq(split.sides.counts.with, 2, "split: the with count is the engine's own");
+    eq(split.sides.counts.against, 1, "split: and so is the against count");
+    eq(split.sides.counts.with, split.recordSummary.consistent,
+      "split: the printed counts are the row's counts — nothing is recounted for the card");
+    eq(split.sides.counts.against, split.recordSummary.contradicts,
+      "split: on both sides");
+    eq(split.recordSummary.netVerdict, "mixed", "split: and the card agrees with the row it links to");
+
+    // One named, dated, sourced example on each side.
+    eq(split.sides.with.number, "S. 82", "split: a named measure on the with side");
+    eq(split.sides.against.number, "S. 1024", "split: and a different one on the against side");
+    for (const [side, face] of [["with", split.sides.with], ["against", split.sides.against]]) {
+      ok(/^\d{4}-\d{2}-\d{2}$/.test(face.date), `split: the ${side}-side example is dated`);
+      has(face.url, "senate.gov", `split: and addressed at the chamber's own record`);
+      ok(!!face.proof, `split: and says how the member voted on it`);
+      ok(face.verify && face.verify.length <= 96,
+        `split: the ${side}-side address prints whole, un-elided (${face.verify})`);
+    }
+    ok(split.sides.with.url !== split.sides.against.url,
+      "split: two votes means two addresses — a split citing one page twice is one vote");
+
+    // Never the nomination, anywhere on the card.
+    lacks(JSON.stringify(split), "PN 200",
+      "split: the vote guard 1 refuses is nowhere on the finished card");
+    eq(split.measureNumbers.join(" & "), "S. 82 & S. 1024",
+      "split: both cited measures travel, so the wave-1 pair holds can be re-checked against each");
+
+    // The footer address. No government page is the record of two roll calls, so
+    // the card's own address is the issue record that holds both — and each
+    // vote's chamber address is printed beside it on the image regardless.
+    has(split.source.url, "#record=splitrep", "split: the footer points at the record that holds both votes");
+    has(split.source.url, "national_debt", "split: on this issue specifically, not the member's homepage");
+    ok(split.verifyUrl && split.verifyUrl.length <= 96,
+      `split: and prints as an address a reader can retype (${split.verifyUrl})`);
+    eq(split.date, "2025-03-11 – 2025-06-24",
+      "split: the footer date spans both votes rather than misattributing one to the other");
+    eq(split.origin, "official_record", "split: it is a formal-record card like every other one here");
+
+    // ── No second score ──────────────────────────────────────────────────────
+    // The single hardest rule on this shape: counts are countable things, and a
+    // percentage of the record would read as a PolitiDex number sitting next to
+    // Direction Match. There is one score.
+    const surfaces = {
+      headline: split.headline, facts: split.facts,
+      caption: R._caption(split), post: R._tweetText(split),
+    };
+    for (const [where, text] of Object.entries(surfaces)) {
+      lacks(text, "%", `split: no percentage reaches the ${where}`);
+      ok(!/\b\d+\s*(?:percent|pct)\b/i.test(text), `split: nor a percentage spelled out in the ${where}`);
+    }
+    // The card says outright why its counts and its two examples differ, rather
+    // than letting a reader assume the counts describe only the votes shown.
+    has(split.facts, "every judged vote", "split: the card says the counts cover the whole judged record");
+    has(split.facts, "strongest we can cite", "split: and that the examples are the strongest citable ones");
+
+    // ── The text half of the share ───────────────────────────────────────────
+    const cap = R._caption(split);
+    has(cap, "🏛️ OFFICIAL RECORD — ", "split caption: same marker as every record card");
+    has(cap, "\nTheir stated position: ", "split caption: the said side the verdict is computed against");
+    has(cap, "Voted with their position: ", "split caption: the with-side example is labelled");
+    has(cap, "Voted against it: ", "split caption: and so is the against-side one");
+    has(cap, split.sides.with.url, "split caption: carrying the with-side chamber address in full");
+    has(cap, split.sides.against.url, "split caption: and the against-side one");
+    has(cap, "\nCheck it yourself: https://politidex.fyi/#record=splitrep",
+      "split caption: and the path back to the record that holds both");
+    has(cap, "How this is judged: politidex.fyi/#methodology", "split caption: with the method link");
+
+    const post = R._tweetText(split);
+    ok(post.indexOf("🏛️ OFFICIAL RECORD") === 0, "split post: marked as Official Record");
+    has(post, "\nVoted with: " + split.sides.with.url, "split post: both government addresses travel, labelled by side");
+    has(post, "\nVoted against: " + split.sides.against.url, "split post: neither side is the one left unfootnoted");
+    has(post, "\nCheck: https://politidex.fyi/#record=splitrep", "split post: alongside the path back to the receipt");
+    has(post, "\nSaid: ", "split post: the stated position survives the two extra addresses");
+    has(post, "\nDid: ", "split post: and so does what the member actually did");
+    has(post, "and against it", "split post: which is stated as both sides, not as one");
+    // Two chamber addresses cost ~170 characters on a Senate row. The overrun is
+    // bounded by the same content floors as every other record post.
+    ok(post.length <= 560, `split post: the overrun stays bounded (${post.length})`);
+  }
+
+  // ── What the image actually paints ──────────────────────────────────────────
+  // The caption and the post are text and were asserted above. The image is the
+  // half most people will ever see, and a split card is the one shape where the
+  // evidence can be crowded off the bottom by a long bill title — so the real
+  // renderer is run against a recording context and the output is read back.
+  if (split) {
+    const painted = [];
+    const grad = { addColorStop() {} };
+    const fake2d = {
+      canvas: { width: 1080, height: 1350 }, font: "", fillStyle: "", strokeStyle: "",
+      lineWidth: 0, globalAlpha: 1, textBaseline: "", textAlign: "",
+      // Deliberately pessimistic: 12px per character is wider than Barlow at any
+      // of the sizes used here, so anything that fits under this measurement fits
+      // on the real canvas.
+      measureText: (s) => ({ width: String(s).length * 12 }),
+      fillText: (s, _x, y) => painted.push({ s: String(s), y }),
+      strokeText() {}, fillRect() {}, strokeRect() {}, clearRect() {},
+      beginPath() {}, closePath() {}, moveTo() {}, lineTo() {}, arc() {}, arcTo() {},
+      quadraticCurveTo() {}, bezierCurveTo() {}, rect() {}, fill() {}, stroke() {},
+      clip() {}, save() {}, restore() {}, translate() {}, rotate() {}, scale() {},
+      setTransform() {}, drawImage() {},
+      createLinearGradient: () => grad, createRadialGradient: () => grad, createPattern: () => null,
+    };
+    const realCreate = ctx.document.createElement;
+    ctx.document.createElement = (tag) => {
+      const el = realCreate(tag);
+      if (String(tag).toLowerCase() === "canvas") {
+        el.width = 0; el.height = 0;
+        el.getContext = () => fake2d;
+        el.toBlob = (cb) => cb(null);
+      }
+      return el;
+    };
+    await R.renderImage(split).catch(() => {});   // the blob is not the point; the paint log is
+    ctx.document.createElement = realCreate;
+
+    const FOOT_TOP = 1350 - 64 - 96 - (30 + 28);  // IMG_H − PAD − footer − verify/method reserve
+    const drew = (needle) => painted.filter((p) => p.s.indexOf(needle) > -1);
+    ok(painted.length > 0, "split image: the renderer ran and painted something");
+    const evidence = [
+      ["VOTED WITH THEIR POSITION  ·  2 TIMES", "the with-side label carries its count"],
+      ["VOTED AGAINST IT  ·  1 TIME", "the against-side label carries its count, singular"],
+      ["S. 82", "the with-side measure is named"],
+      ["Federal Spending Cap Act", "with its title"],
+      ["S. 1024", "the against-side measure is named"],
+      ["Emergency Supplemental Appropriations Act", "with its title"],
+      [split.sides.with.verify, "the with-side chamber address is printed on the image"],
+      [split.sides.against.verify, "the against-side chamber address is too"],
+    ];
+    for (const [needle, why] of evidence) {
+      const hits = drew(needle);
+      ok(hits.length > 0, `split image: ${why} (${needle})`);
+      hits.forEach((p) => ok(p.y < FOOT_TOP,
+        `split image: and is painted above the footer rule, not over it (${needle} at y=${p.y})`));
+    }
+    // The caveat is the honesty of this card, so it gets reserved room rather
+    // than whatever is left — printed once, whole, above the footer.
+    const note = drew("Counts cover every judged vote");
+    eq(note.length, 1, "split image: the counts caveat is painted exactly once, not also as a fact block");
+    if (note.length) {
+      ok(note[0].y < FOOT_TOP, `split image: and above the footer rule (y=${note[0].y})`);
+      lacks(note[0].s, "…", "split image: and whole — an ellipsized caveat is a caveat that did not travel");
+    }
+    // No percentage survives into the pixels either.
+    painted.forEach((p) => lacks(p.s, "%", "split image: nothing painted on the card is a percentage"));
+  }
+
+  // ── The public gate ─────────────────────────────────────────────────────────  // The gate re-asserts the both-sides rule on the FINISHED card, because this is
+  // the last place to catch a renderer or a caller that produced a one-sided
+  // "split" — and the last place to catch a percentage.
+  {
+    const G = RC.publicShareBlock;
+    eq(G(split), "", "split gate: a complete split card is public");
+    eq(RC.publicTier(split), "core", "split gate: three judged votes make it core");
+
+    const oneSided = JSON.parse(JSON.stringify(split)); oneSided.sides.against = null;
+    has(G(oneSided), "missing the cited vote on one side",
+      "split gate: a split card with one side missing is refused at the door");
+    const noAddr = JSON.parse(JSON.stringify(split)); noAddr.sides.with.url = "";
+    has(G(noAddr), "no citation a reader could follow",
+      "split gate: nor one whose example a reader could not check");
+    const pct = JSON.parse(JSON.stringify(split)); pct.headline = "Voted with their position 67% of the time.";
+    has(G(pct), "second score",
+      "split gate: nor one that prints a share of the record as a percentage");
+    const leaky = JSON.parse(JSON.stringify(split));
+    leaky.sides.against.effect = "Adds to the deficit. Weighted 60 rather than 100.";
+    has(G(leaky), "curator housekeeping",
+      "split gate: the housekeeping check reads the both-sides text too, not only the fact block");
+  }
+
+  // ── Nothing else moved ──────────────────────────────────────────────────────
+  // The whole existing pipeline is untouched: the single-sided cards still build
+  // for the members that earn them, none of them grew a `sides` field, and no
+  // split card appeared anywhere a mixed row did not exist.
+  const splitCards = RC.cardsFor("splitrep");
+  eq(splitCards.length, 1, "split: one card per member×issue still holds — the split row gets one card, not three");
+  eq(RC.contradiction("splitrep"), null, "split: a split row does not also emit a contradiction card");
+  eq(RC.consistency("splitrep"), null, "split: nor a consistency card");
+  const testCards = RC.cardsFor("testrep");
+  ok(testCards.length > 0, "split: the existing member still builds cards");
+  testCards.forEach((c) => {
+    ok(c.verdict.key === "contradicts" || c.verdict.key === "consistent",
+      `split: existing cards keep their own verdicts (${c.issueKey} → ${c.verdict.key})`);
+    ok(!c.sides, `split: and carry no both-sides block (${c.issueKey})`);
+    has(R._caption(c), "\nSource: ", `split: and still print their single source line (${c.issueKey})`);
+  });
+  ok(!!RC.contradiction("testrep") && !!RC.consistency("testrep"),
+    "split: both single-sided entry points still return a card");
 }
 
 // Reading the record must not mutate it.

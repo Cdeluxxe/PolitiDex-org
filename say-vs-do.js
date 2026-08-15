@@ -553,7 +553,7 @@
   // have to travel and why this is 280 rather than the old self-imposed 240.
   var RECORD_POST_MAX = 280;
   var IMG_W = 1080, IMG_H = 1350, PAD = 64;
-  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa' };
+  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa', mixed: '#fbbf24' };
   function accentOf(r) { return ACCENT[r.verdict.key] || '#f87171'; }
 
   function ensureFonts() {
@@ -686,6 +686,10 @@
   // Line height for a wrapped issue list in the split block. Tighter than the
   // fact block's 38 because these are list items, not sentences.
   var SPLIT_LH = 30;
+  // Line height for the example under each side of a split card. Between the
+  // fact block's 38 and the split list's 30: these are sentences, but two of them
+  // have to fit above the footer alongside their labels and their addresses.
+  var SIDE_LH = 32;
   var FACT_TIERS = {
     effect: { font: '600 29px "Barlow", sans-serif', fill: '#f5c842' },
     title:  { font: '600 29px "Barlow", sans-serif', fill: '#e8eefc' },
@@ -914,7 +918,11 @@
       ctx.fillStyle = accent; ctx.fillRect(x, y + 4, 5, 26);
       ctx.font = '800 22px "Barlow Condensed", sans-serif';
       ctx.fillStyle = accent;
-      ctx.fillText(r.impact === 'positive' ? 'AND THE RECORD SHOWS' : 'BUT THE RECORD SHOWS', x + 18, y);
+      // A split card is neither "AND" nor "BUT": the record it is reporting did
+      // both, and a label that picks a side would be the card arguing with its own
+      // headline. Cards that set no label keep the impact-driven wording exactly.
+      ctx.fillText(r.recordLabel ||
+        (r.impact === 'positive' ? 'AND THE RECORD SHOWS' : 'BUT THE RECORD SHOWS'), x + 18, y);
       y += 38;
       ctx.font = '700 42px "Barlow", sans-serif';
       ctx.fillStyle = '#ffffff';
@@ -958,7 +966,67 @@
           });
         y += 6;
       }
-      if (r.facts || (r.factParts && r.factParts.length)) {
+      // ── Optional both-sides block: the split record ────────────────────────
+      // Only a `mixed` card sets r.sides. The headline above it states the split
+      // in counts; this is the evidence under it — one named, dated, sourced vote
+      // on each side, each with its own chamber address printed directly beneath
+      // it. Two sides, drawn identically, in the colours the rest of the app uses
+      // for with-the-position and against-it, so neither reads as the finding and
+      // the other as a footnote.
+      if (r.sides && r.sides.with && r.sides.against) {
+        // One line of the remaining height is taken off the top, before the two
+        // sides divide what is left, and spent on the sentence that says why the
+        // counts and the two examples are not the same number. It is the honesty
+        // of this card and it does not get to be the thing that falls off the
+        // bottom on a member with a long bill title.
+        var splitNote = r.facts ? String(r.facts) : '';
+        var sidesFoot = footTop - (splitNote ? 30 : 0);
+        [['VOTED WITH THEIR POSITION', r.sides.with, r.sides.counts && r.sides.counts.with, ACCENT.consistent],
+         ['VOTED AGAINST IT', r.sides.against, r.sides.counts && r.sides.counts.against, ACCENT.contradicts]]
+          .forEach(function (row, idx) {
+            var s = row[1];
+            if (!s || y > sidesFoot - 60) return;
+            // Half of what is left, so the first side cannot eat the second's
+            // room and leave the card looking one-sided for want of pixels.
+            var room = idx === 0 ? (sidesFoot - y) / 2 : (sidesFoot - y);
+            ctx.font = '800 22px "Barlow Condensed", sans-serif';
+            ctx.fillStyle = row[3];
+            var n = row[2];
+            ctx.fillText(row[0] + (n ? '  ·  ' + n + (n === 1 ? ' TIME' : ' TIMES') : ''), x, y);
+            y += 30;
+            var line = [s.proof, s.title ? '— ' + s.title : '', s.date ? '(' + s.date + ')' : '']
+              .filter(Boolean).join(' ');
+            ctx.font = '600 27px "Barlow", sans-serif';
+            ctx.fillStyle = '#e8eefc';
+            var cap = Math.max(1, Math.min(2, Math.floor((room - 56) / SIDE_LH)));
+            y = drawLines(ctx, wrapText(ctx, line, contentW, cap), x, y, SIDE_LH) + 2;
+            // This side's own government address. Shrunk to fit rather than
+            // wrapped or ellipsized, for the same reason the footer's VERIFY line
+            // is: a URL with a "…" in it is not a URL. receipt-cards.js refuses
+            // any card whose addresses could not fit even so.
+            if (s.verify && y < sidesFoot - 24) {
+              for (var vz = 21; vz > 14; vz--) {
+                ctx.font = '600 ' + vz + 'px "Barlow Condensed", sans-serif';
+                if (ctx.measureText(s.verify).width <= contentW) break;
+              }
+              ctx.fillStyle = '#8fd0ff';
+              ctx.fillText(s.verify, x, y);
+              y += 26;
+            }
+            y += 8;
+          });
+        if (splitNote) {
+          ctx.font = '600 20px "Barlow", sans-serif';
+          ctx.fillStyle = '#9fb0d0';
+          // Two lines if the sides left room for two, one otherwise — reserved
+          // for one, so it prints either way.
+          var noteCap = (footTop - y) >= 52 ? 2 : 1;
+          y = drawLines(ctx, wrapText(ctx, splitNote, contentW, noteCap), x, y, 24) + 4;
+        }
+      }
+      // A split card's fact block is the note printed above, in the room reserved
+      // for it — running it through the tiered block as well would print it twice.
+      if (!r.sides && (r.facts || (r.factParts && r.factParts.length))) {
         var maxFactLines = Math.max(0, Math.floor((footTop - y - 10) / FACT_LH));
         if (maxFactLines >= 1) {
           // One pass per tier. A curated receipt has no factParts, comes back as a
@@ -1210,6 +1278,31 @@
       if (r.saidNote) lines.push(r.saidNote);
     }
     lines.push('The record: ' + trimHeadline(r.headline, 150));
+    // ── The split card's evidence ──────────────────────────────────────────
+    // The headline above already states the counts. What the pasted text has to
+    // carry that a count cannot is the two votes themselves — named, dated, and
+    // each with the government address it is read at, so neither side of the
+    // split is something the reader has to take on trust. Both, always, in the
+    // same shape: a caption that spelled one side out and summarised the other
+    // would be a one-sided caption on a two-sided card.
+    if (r.sides && r.sides.with && r.sides.against) {
+      [['Voted with their position', r.sides.with], ['Voted against it', r.sides.against]]
+        .forEach(function (row) {
+          var s = row[1];
+          var bits = [trimTo(s.proof, 150)];
+          if (s.title) bits.push(trimTo(s.title, 200));
+          if (s.effect) bits.push(trimTo(s.effect, 200));
+          lines.push(row[0] + ': ' + bits.join(' — ') + (s.date ? ' (' + s.date + ')' : '') +
+            (s.url ? ' — ' + s.url : ''));
+        });
+      // Why the counts and the examples are not the same number. Some judged
+      // items — a confirmation vote mapped as a policy proxy, most often — count
+      // on the issue row and still cannot carry a policy claim off-app, so the
+      // card cites the strongest vote on each side that can. Said outright rather
+      // than left for a reader to notice.
+      lines.push('Counts cover every judged vote on this issue; each example above is the ' +
+        'strongest vote on its side that can be cited on its own.');
+    }
     // The three fact tiers, each with the label its provenance earns. [0] is the
     // disapproval effect and says what a Yea DID; [2] is the curated mapping
     // rationale and says why the vote counts on THIS issue. Different sources,
@@ -1247,7 +1340,11 @@
         lines.push('On ' + iss + ' — the issue this card is about — the vote came down on the ' + fx + ' side.');
       }
     }
-    lines.push('Source: ' + sourceLine(r));
+    // A split card has already printed a source URL beside each of its two votes,
+    // and its card-level address is the PolitiDex issue record — the page that
+    // holds both, which is also what "Check it yourself" prints. One Source line
+    // here would be that same link a second time under a different name.
+    if (!r.sides) lines.push('Source: ' + sourceLine(r));
     if (r.method) lines.push(r.method.replace(/^HOW THIS IS JUDGED:\s*/i, 'How this is judged: '));
     lines.push('Check it yourself: ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL));
     return lines.join('\n');
@@ -1333,6 +1430,15 @@
   // that order. Falls back to the card's own headline when the pieces are not all
   // present.
   function recordDidLine(r, max) {
+    // A split card's "did" is not one vote, so it cannot be one measure and one
+    // direction. It is both measures and both directions, in the same counted
+    // form the card's headline uses — the shortest true version of the finding.
+    if (r.sides && r.sides.with && r.sides.against) {
+      var c = r.sides.counts || {};
+      var t = 'Voted with their position ' + c.with + '× (' + r.sides.with.number + ')' +
+        ' and against it ' + c.against + '× (' + r.sides.against.number + ')';
+      return trimTo(t, max);
+    }
     var voted = votedSeg(r);
     var num = r.measureNumber || String((r && r.headline) || '').split(' · ')[0] || '';
     var lead = voted && num ? voted + ' on ' + num : (voted || num);
@@ -1390,7 +1496,20 @@
     // cold reader no way to tell which one is the government's record and which
     // one reopens the receipt — and "Check:" is the invitation the whole share is
     // making. Fifteen characters is a cheap price for that.
-    var tail = '\nCheck: ' + deep + (src ? '\nSource: ' + src : '');
+    //
+    // A SPLIT card has two government records, one per side, and no single
+    // address that stands for both — its card-level source IS the deep link. So
+    // it spends the same budget differently: both chamber addresses travel, each
+    // labelled with the side it belongs to. That makes the post longer, and the
+    // alternative is a two-sided claim footnoted to one of its two sides, which
+    // is the half of the post a sceptic would go to first.
+    var tail = '\nCheck: ' + deep;
+    if (r.sides && r.sides.with && r.sides.against) {
+      if (r.sides.with.url) tail += '\nVoted with: ' + r.sides.with.url;
+      if (r.sides.against.url) tail += '\nVoted against: ' + r.sides.against.url;
+    } else if (src) {
+      tail += '\nSource: ' + src;
+    }
     var said = (r.said && r.said.text) ? String(r.said.text) : '';
     // Newlines for "\nSaid: " and "\nDid: " are part of the fixed cost.
     var fixed = head.length + tail.length + (said ? 7 : 0) + 6;

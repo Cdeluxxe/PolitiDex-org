@@ -31,6 +31,17 @@
    unreadable condition blocks the card rather than shipping it. A refutable
    receipt costs more than a missing one.
 
+   THREE SHAPES OF CARD, one per shape of verdict the engine can reach:
+     contradicts  the stated position and the vote point opposite ways
+     consistent   they point the same way
+     mixed        the record runs BOTH ways — the split card, which cites one
+                  named vote on each side and prints the counts as counts. It is
+                  offered only where the engine already says mixed, and it has to
+                  clear every guard twice (once per cited vote) to exist at all.
+                  Before it existed, the deepest, least dismissible rows in the
+                  app — the ones with evidence on both sides — were the only ones
+                  that could not travel.
+
    The public surface:
      PDXReceiptCards.warm(pid)            → Promise, loads the record if needed
      PDXReceiptCards.cardsFor(pid, opts)  → every eligible card, strongest first
@@ -898,7 +909,12 @@
   var VERDICTS = {
     contradicts: { key: 'contradicts', cls: 'v-contradicts', ico: '⚠', label: 'Says One Thing · Voted Another', rank: 5 },
     consistent:  { key: 'consistent',  cls: 'v-consistent',  ico: '✓', label: 'Vote Matched The Words',        rank: 2 },
-    omnibus:     { key: 'omnibus',     cls: 'v-omnibus',     ico: '⇅', label: 'One Vote · Two Outcomes',       rank: 4 }
+    omnibus:     { key: 'omnibus',     cls: 'v-omnibus',     ico: '⇅', label: 'One Vote · Two Outcomes',       rank: 4 },
+    // The split record. Not a softer contradiction and not a hedge: it is the
+    // verdict the engine already reached for this member on this issue, and the
+    // card exists so that verdict can leave the app in the same shape it has on
+    // the profile — both sides, counted, with a named vote cited on each.
+    mixed:       { key: 'mixed',       cls: 'v-mixed',       ico: '⇄', label: 'Split Record · Voted Both Ways', rank: 3 }
   };
 
   // "H.J.Res. 78 · On Passage · Voted Yea" — bill, question, position, in the same
@@ -1058,11 +1074,140 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // THE ITEM CHAIN  ·  every guard that judges ONE cited vote
+  // ──────────────────────────────────────────────────────────────────────────
+  // Pulled out of the candidate loop so there is exactly one list of them. A
+  // one-sided card cites one vote and runs this once; a split card cites two and
+  // runs it twice, on each. Written as one function rather than copied so a
+  // nineteenth guard cannot be added to one shape of card and forgotten on the
+  // other — the split card is harder to build than either single-sided card, and
+  // it stays that way by construction.
+  //
+  // What is NOT here: the checks that judge the ROW rather than the vote — a
+  // stated position exists (and is not itself a vote), the net verdict is the one
+  // the card claims, the issue key is not held out of wave 1. Those are asked
+  // once per row by the callers below.
+  // ══════════════════════════════════════════════════════════════════════════
+  function itemBlock(pid, issueKey, pos, item, records) {
+    return blockIssue(pid, issueKey, pos && pos.text, item) ||
+      blockDependentStance(pos, item) ||
+      blockRecord(item) ||
+      blockCitation(item) ||
+      blockUnverifiedCitation(item) ||
+      blockPlainEffect(item, issueKey) ||
+      blockFramedMapping(item, issueKey) ||
+      blockHousekeeping(item, issueKey) ||
+      blockDuplicateIdentity(records, issueKey, item.number) ||
+      wave1HoldPair(item, issueKey);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // BOTH-SIDES EVIDENCE  ·  what a split row is allowed to cite
+  // ──────────────────────────────────────────────────────────────────────────
+  // A split card makes one claim — "the record runs both ways on this issue" —
+  // and that claim is only as good as the two votes it puts under it. So each
+  // side needs a vote of its own that passes the whole item chain above. If
+  // either side has none, there is no card: a "split" card citing one side and
+  // asserting the other is a one-sided card wearing a fairer name.
+  //
+  // WHICH vote. The engine's own top item for the side is asked for first — the
+  // same one the profile row cites, so the card and the row agree. When that item
+  // is refused by a guard (most often guard 1: the strongest weight on a side is
+  // a confirmation vote, which is a policy proxy and cannot carry a policy claim
+  // off-app), the scan steps down to the next-strongest item on that side and
+  // asks again. That is not a loosened guard — every candidate is put through the
+  // identical chain, and an item that fails is never cited. It is the difference
+  // between "the strongest item happens to be uncitable, so nothing travels" and
+  // "the strongest CITABLE item travels", and the second is what the row already
+  // shows a reader who opens it.
+  //
+  // The step-down re-asks the shared engine rather than ranking items here: drop
+  // the refused item from the list, re-run _issueRecordSummary, read its new top
+  // for the side. Same ranking rule, same judging, no second implementation of
+  // either. The lists are per-issue and short, so the repeated summarise costs
+  // nothing worth optimising away.
+  var SIDE_WORD = { with: 'with-side', against: 'against-side' };
+  function strongestCitable(pid, issueKey, pos, records, issueItems, stance, side) {
+    var key = side === 'with' ? 'topConsistent' : 'topContradiction';
+    var pool = issueItems.slice();
+    var firstRefusal = '';
+    for (var guard = 0; guard <= issueItems.length; guard++) {
+      var s = window._issueRecordSummary(issueKey, stance, pool);
+      var item = s && s[key];
+      if (!item) break;
+      var why = itemBlock(pid, issueKey, pos, item, records);
+      if (!why) return { item: item, blocked: '', steppedDown: guard > 0 };
+      if (!firstRefusal) firstRefusal = why;
+      pool = pool.filter(function (x) { return x !== item; });
+    }
+    return {
+      item: null, steppedDown: false,
+      blocked: 'the ' + SIDE_WORD[side] + ' example: ' +
+        (firstRefusal || 'no vote on this side of the record to cite')
+    };
+  }
+
+  // The face of one cited vote inside a split card: what it was, what it did, when,
+  // and the address a stranger reads it at. Every field is one the single-sided
+  // card already prints — nothing new is asserted about either vote, they are
+  // simply both on the same card.
+  function sideFace(item, issueKey) {
+    var mapping = mappingOn(item, issueKey);
+    var parts = supportingParts(item, mapping);
+    var citation = canonicalCitation(item) || { url: '', print: '', label: 'Official record' };
+    return {
+      number: item.number || '',
+      proof: proofLine(item),
+      effect: parts[0] || '',
+      title: parts[1] || '',
+      date: dayOf(item.date),
+      url: citation.url,
+      verify: citation.print,
+      label: citation.label
+    };
+  }
+
+  // "2025-07-03" when both votes fall on one day, "2024-12-21 – 2025-07-03" when
+  // they do not — the same ISO day every other card's footer prints. The footer
+  // carries ONE date line, and a split card that prints one of its two vote dates
+  // there is quietly misattributing the other.
+  function dateSpan(a, b) {
+    var d1 = dayOf(a && a.date), d2 = dayOf(b && b.date);
+    if (!d1) return d2 || '';
+    if (!d2 || d1 === d2) return d1;
+    var first = String((a && a.date) || '') <= String((b && b.date) || '');
+    return (first ? d1 : d2) + ' – ' + (first ? d2 : d1);
+  }
+
+  // The page that holds BOTH votes. A one-sided card's footer address is the
+  // chamber's own record of the one vote it cites; a split card cites two, and
+  // there is no government page that is the record of both. So the footer points
+  // at the issue record this card is a picture of — which cites each vote at its
+  // own chamber address — and each of those addresses is printed on the card
+  // beside the vote it belongs to. Nothing is hidden behind the link that is not
+  // also on the image.
+  function recordPageUrl(pid, issueKey) {
+    try {
+      if (window.PDXShareLinks && typeof window.PDXShareLinks.record === 'function') {
+        var u = window.PDXShareLinks.record(pid, issueKey);
+        if (u) return u;
+      }
+    } catch (e) {}
+    return 'https://politidex.fyi/#' + SHARE_HASH + '=' +
+      encodeURIComponent(pid) + '~' + encodeURIComponent(issueKey);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // CANDIDATE ENUMERATION
   // ──────────────────────────────────────────────────────────────────────────
   // For one member: every (issue, cited vote) pair the engine already ranks,
   // annotated with the guard verdict. Returns candidates in BOTH states so
   // audit() can report the exclusions rather than only the survivors.
+  //
+  // Three wants per issue, not two. `contradicts` and `consistent` each cite the
+  // engine's top item on their side; `mixed` cites one on EACH side and is only
+  // ever offered on a row whose net verdict is already mixed — guard 9 refuses
+  // all three the moment the claim and the row disagree.
   // ══════════════════════════════════════════════════════════════════════════
   function candidates(pid) {
     pid = canonPid(pid);
@@ -1107,29 +1252,60 @@
             blockIssue(pid, issueKey, pos && pos.text, item) ||
             (pos ? '' : 'no stated position on this issue to line the vote up against') ||
             blockStance(pos && pos.text) ||
-            blockDependentStance(pos, item) ||
-            blockRecord(item) ||
-            blockCitation(item) ||
-            blockUnverifiedCitation(item) ||
-            blockPlainEffect(item, issueKey) ||
-            blockFramedMapping(item, issueKey) ||
-            blockHousekeeping(item, issueKey) ||
-            blockDuplicateIdentity(records, issueKey, item.number) ||
+            itemBlock(pid, issueKey, pos, item, records) ||
             stableVerdict(summary, want) ||
-            wave1Hold(issueKey) ||
-            wave1HoldPair(item, issueKey);
+            wave1Hold(issueKey);
           out.push(cand);
         });
+
+      // ── The split card ────────────────────────────────────────────────────
+      // Offered only where the engine already says the record runs both ways.
+      // It asks the SAME row-level questions the two single-sided cards ask, and
+      // then asks the item chain twice — once per side — so it can only exist
+      // where two separate votes each clear everything a single-sided card's one
+      // vote has to clear. Nothing here relaxes a guard; the extra evidence is
+      // the extra requirement.
+      if (summary.netVerdict === 'mixed') {
+        var withSide = strongestCitable(pid, issueKey, pos, records, byIssue[issueKey], stance, 'with');
+        var againstSide = strongestCitable(pid, issueKey, pos, records, byIssue[issueKey], stance, 'against');
+        var split = {
+          pid: pid, issueKey: issueKey, want: 'mixed',
+          // `item` is the against-side vote so every downstream reader that
+          // expects a cited item on a candidate keeps working; `sides` is what
+          // the card is actually built from, and both are required.
+          item: againstSide.item || withSide.item || null,
+          sides: { with: withSide.item, against: againstSide.item },
+          steppedDown: !!(withSide.steppedDown || againstSide.steppedDown),
+          summary: summary, stance: pos || null, blocked: ''
+        };
+        split.blocked =
+          blockIssue(pid, issueKey, pos && pos.text, split.item || {}) ||
+          (pos ? '' : 'no stated position on this issue to line the votes up against') ||
+          blockStance(pos && pos.text) ||
+          stableVerdict(summary, 'mixed') ||
+          wave1Hold(issueKey) ||
+          withSide.blocked ||
+          againstSide.blocked;
+        out.push(split);
+      }
     });
 
     // Strongest first: decisiveness of the issue verdict, then the weight of the
     // cited vote, then recency. Contradictions and consistencies are ranked in
-    // the same units so neither is structurally favoured.
+    // the same units so neither is structurally favoured. A split candidate that
+    // could not find a citable vote on either side is already blocked and only
+    // reaches this loop so audit() can report it, so `item` may be null here.
     out.forEach(function (c) {
-      var mapping = mappingOn(c.item, c.issueKey);
+      var mapping = c.item ? mappingOn(c.item, c.issueKey) : null;
       var w = (mapping && typeof mapping.weight === 'number') ? mapping.weight : 100;
       var margin = Math.abs(c.summary.contradictScore - c.summary.consistentScore);
-      c.strength = w + margin + Math.max(0, yearOf(c.item.date) - 2000) + (c.summary.total > 1 ? 25 : 0);
+      var recency = c.item ? Math.max(0, yearOf(c.item.date) - 2000) : 0;
+      c.strength = w + margin + recency + (c.summary.total > 1 ? 25 : 0);
+      // A split card is ranked in exactly those units too — no bonus for being
+      // the new shape. On a mixed row the two single-sided candidates are refused
+      // by guard 9 anyway, so the split card is the only one that can be built
+      // there; letting it also outrank a member's other issues would be this file
+      // putting a thumb on which finding leads, which is not its job.
     });
     out.sort(function (a, b) { return b.strength - a.strength; });
     return out;
@@ -1137,7 +1313,10 @@
 
   function toCard(cand) {
     if (!cand || cand.blocked) return null;
-    var card = baseCard(cand.pid, cand.item, cand.issueKey, cand.stance, VERDICTS[cand.want]);
+    var card = cand.want === 'mixed'
+      ? splitCard(cand)
+      : baseCard(cand.pid, cand.item, cand.issueKey, cand.stance, VERDICTS[cand.want]);
+    if (!card) return null;
     card.score = cand.strength;
     card.recordSummary = {
       total: cand.summary.total,
@@ -1145,6 +1324,85 @@
       contradicts: cand.summary.contradicts,
       netVerdict: cand.summary.netVerdict
     };
+    return card;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE SPLIT CARD  ·  "voted with it N times, against it M times"
+  // ──────────────────────────────────────────────────────────────────────────
+  // Built on the same baseCard every other card is built on — same identity,
+  // same issue chip, same stated position, same undated-stance disclosure, same
+  // method line — and then given the three things a split record needs and a
+  // one-sided card does not:
+  //
+  //   headline   the finding, in the form a reader can repeat: on this issue,
+  //              this member voted with their stated position N times and
+  //              against it M times. A sentence, not a score.
+  //   sides      one named, dated, sourced vote on EACH side, each with its own
+  //              chamber address printed beside it.
+  //   footer     the issue record that holds both votes, because no single
+  //              government page is the record of two different roll calls.
+  //
+  // WHAT IT MUST NOT DO, and how that is enforced here rather than hoped for:
+  //
+  //   · No percentage. The counts are printed as counts. A split rendered as
+  //     "67% with / 33% against" would read as a second PolitiDex score sitting
+  //     next to Direction Match, and there is only one score.
+  //   · No new arithmetic. N and M are summary.consistent and summary.contradicts
+  //     — the engine's own counts, the same two numbers the profile row shows.
+  //     They are not recounted, re-weighted, or filtered down to the votes this
+  //     card happens to cite. That is deliberate and it is why the card says
+  //     outright that the counts cover the whole judged record while the two
+  //     examples are the strongest CITABLE vote on each side: some judged items
+  //     (a confirmation vote mapped as a policy proxy, most often) count on the
+  //     row and still cannot carry a policy claim off-app. The link goes to the
+  //     row, where every item is listed with its own provenance.
+  //   · No public-lane material. `sides` is assembled from vr_* record items
+  //     only, exactly like every other card in this file.
+  // ══════════════════════════════════════════════════════════════════════════
+  function timesPhrase(n) { return n + (n === 1 ? ' time' : ' times'); }
+
+  function splitCard(cand) {
+    var withItem = cand.sides && cand.sides.with;
+    var againstItem = cand.sides && cand.sides.against;
+    if (!withItem || !againstItem) return null;   // fail closed: no one-sided "split"
+
+    var card = baseCard(cand.pid, againstItem, cand.issueKey, cand.stance, VERDICTS.mixed);
+    var issueName = (card.issue && card.issue.label) || 'this issue';
+
+    card.headline = 'On ' + issueName + ', ' + card.name + ' voted with their stated position ' +
+      timesPhrase(cand.summary.consistent) + ' and against it ' +
+      timesPhrase(cand.summary.contradicts) + '.';
+
+    card.sides = {
+      counts: { with: cand.summary.consistent, against: cand.summary.contradicts },
+      with: sideFace(withItem, cand.issueKey),
+      against: sideFace(againstItem, cand.issueKey)
+    };
+
+    // baseCard filled these from the against-side vote alone. On a split card
+    // that would print one measure's title under a headline about two, so the
+    // fact block carries the one thing the two-sided evidence needs said instead.
+    card.factParts = [];
+    // Short enough to print on ONE line inside the card's content width at the
+    // size the renderer reserves for it — an ellipsized caveat is a caveat that
+    // did not travel. The caption carries the same point at full length.
+    card.facts = 'Counts cover every judged vote; each example is the strongest we can cite.';
+
+    card.impact = 'split';
+    card.recordLabel = 'AND THE RECORD SHOWS BOTH';
+    card.date = dateSpan(withItem, againstItem);
+    card.source = { url: recordPageUrl(cand.pid, cand.issueKey), label: 'Official record — both votes' };
+    card.verifyUrl = printableUrl(card.source.url);
+    // Same rule guard 12 applies to a chamber citation: an address that will not
+    // fit the footer line un-shortened is not an address a reader can follow, and
+    // a "…" in a URL is quietly wrong. Fail closed rather than print one.
+    if (!card.verifyUrl || card.verifyUrl.length > VERIFY_MAX) return null;
+    // Both measures, so the public gate can re-check the wave-1 pair holds
+    // against each of them rather than only against the one baseCard named.
+    card.measureNumbers = [withItem.number || '', againstItem.number || ''].filter(Boolean);
+    card.sourceStored = [(withItem.source && withItem.source.url) || '',
+                         (againstItem.source && againstItem.source.url) || ''].filter(Boolean).join(' | ');
     return card;
   }
 
@@ -1251,11 +1509,14 @@
   // the Wave-1 exclusion list is read off, and the surface the tests assert on.
   function audit(pid) {
     return candidates(pid).map(function (c) {
+      // A refused split candidate can have no cited vote at all — that IS the
+      // refusal — so the item is read defensively here and nowhere else.
+      var it = c.item || {};
       return {
         pid: c.pid, issueKey: c.issueKey, want: c.want,
-        measure: c.item.number || '', measureType: c.item.measureType || '',
-        question: c.item.action || '', position: c.item.position || '',
-        date: dayOf(c.item.date), netVerdict: c.summary.netVerdict,
+        measure: it.number || '', measureType: it.measureType || '',
+        question: it.action || '', position: it.position || '',
+        date: dayOf(it.date), netVerdict: c.summary.netVerdict,
         eligible: !c.blocked, reason: c.blocked || 'eligible'
       };
     });
@@ -1300,6 +1561,30 @@
     if (!card.date) return 'no vote date to print';
     if (!card.source || !card.source.url || !card.verifyUrl) return 'no citation a reader could follow';
     if (!card.said || !String(card.said.text || '').trim()) return 'no stated position to line the vote up against';
+    // A split card carries two cited votes, so everything below that reads ONE
+    // measure or ONE fact string is asked of both. A card that cited a clean vote
+    // on one side and a held one on the other would otherwise pass a gate written
+    // when every card had exactly one measure on it.
+    if (card.sides) {
+      if (!card.sides.with || !card.sides.against) {
+        return 'split card is missing the cited vote on one side — it would read as a one-sided card';
+      }
+      var sideText = [card.sides.with, card.sides.against].map(function (s) {
+        return [s.proof, s.title, s.effect].filter(Boolean).join(' ');
+      }).join(' ');
+      if (HOUSEKEEPING_LEAK_RE.test(sideText)) {
+        return 'finished both-sides text still carries curator housekeeping';
+      }
+      if (!card.sides.with.url || !card.sides.against.url) {
+        return 'one side of the split has no citation a reader could follow';
+      }
+      // No percentage may reach a public card. The counts are counts; a share
+      // of the record printed as a number next to Direction Match reads as a
+      // second score, and there is only one score.
+      if (/\d\s*%/.test(String(card.headline || '') + ' ' + String(card.facts || ''))) {
+        return 'split card prints a percentage — a share of the record reads as a second score';
+      }
+    }
     // Re-assert the trust criteria on the finished public text.
     if (HOUSEKEEPING_LEAK_RE.test(String(card.facts || ''))) {
       return 'finished fact text still carries curator housekeeping';
@@ -1307,8 +1592,13 @@
     var circular = blockStance(card.said.text);
     if (circular) return 'finished stance text reads as a vote — ' + circular;
     if (WAVE1_HOLD_ISSUE_KEYS[card.issueKey]) return WAVE1_HOLD_ISSUE_KEYS[card.issueKey];
-    var pair = WAVE1_HOLD_PAIRS[String(card.measureNumber) + ' :: ' + card.issueKey];
-    if (pair) return pair;
+    // Every measure the card names, not only the one it leads with.
+    var numbers = (card.measureNumbers && card.measureNumbers.length)
+      ? card.measureNumbers : [card.measureNumber];
+    for (var i = 0; i < numbers.length; i++) {
+      var pair = WAVE1_HOLD_PAIRS[String(numbers[i]) + ' :: ' + card.issueKey];
+      if (pair) return pair;
+    }
     return '';
   }
 
@@ -1479,13 +1769,20 @@
 
   function revealBtn(btn, card) {
     var omni = card.verdict.key === 'omnibus';
+    var split = card.verdict.key === 'mixed';
     // What the reader is about to send, named on the control itself. The bill
     // number and the issue are the two things that make the image checkable, so
-    // they are what the tooltip and the accessible name say.
-    var what = [card.measureNumber, card.issue && card.issue.label].filter(Boolean).join(' · ');
+    // they are what the tooltip and the accessible name say. A split card names
+    // both bills, because both of them are the evidence.
+    var numbers = (card.measureNumbers && card.measureNumbers.length)
+      ? card.measureNumbers.join(' & ') : card.measureNumber;
+    var what = [numbers, card.issue && card.issue.label].filter(Boolean).join(' · ');
     btn.classList.add('pdxrc-' + card.verdict.cls);
-    btn.innerHTML = '<span class="pdxrc-ico" aria-hidden="true">' + (omni ? '⇅' : '🏛️') + '</span>' +
-      '<span class="pdxrc-lbl">' + escA(omni ? 'Share this split vote' : 'Share this vote') + '</span>';
+    btn.innerHTML = '<span class="pdxrc-ico" aria-hidden="true">' +
+      (omni ? '⇅' : (split ? '⇄' : '🏛️')) + '</span>' +
+      '<span class="pdxrc-lbl">' +
+      escA(omni ? 'Share this split vote' : (split ? 'Share this split record' : 'Share this vote')) +
+      '</span>';
     btn.setAttribute('title', 'Share ' + (what || 'this vote') +
       ' as an image — the card prints the bill, the question, the vote, the date, the source URL and how it was judged.');
     btn.setAttribute('aria-label', 'Share ' + (what || 'this vote') + ' as an Official Record image');
@@ -1681,6 +1978,12 @@
     proofLine: proofLine,
     splitFor: splitFor,
     candidates: candidates,
+    // The split card's two moving parts, exposed for the same reason the guards
+    // are: a test should be able to ask "which vote would this side cite, and
+    // why was the stronger one refused" directly, rather than inferring it from
+    // a finished card.
+    strongestCitable: strongestCitable,
+    itemBlock: itemBlock,
     // The arrival half of a share. A card's `hash` is what travels; handleHash is
     // what the recipient's browser runs when they tap it. Exposed so
     // scripts/test-receipt-cards.mjs can assert the round trip on the real router
