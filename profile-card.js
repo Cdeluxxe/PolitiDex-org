@@ -924,16 +924,40 @@
   // ══════════════════════════════════════════════════════════════════════════
   // SHARE
   // ══════════════════════════════════════════════════════════════════════════
+  // ── The artifact guard ──────────────────────────────────────────────────────
+  // See share-links.js: nothing shorter than a PNG header is an image, and both
+  // emitters below (a File handed to navigator.share, a data: URL handed to
+  // <a download>) will happily ship zero bytes if nobody asks. Inline fallback for
+  // the case where share-links.js has not loaded; the guard is never allowed to be
+  // the reason a share fails to run.
+  function SL() { try { return window.PDXShareLinks || null; } catch (e) { return null; } }
+  function blobOk(b) {
+    var L = SL();
+    if (L && typeof L.blobOk === 'function') return L.blobOk(b);
+    return !!(b && typeof b.size === 'number' && b.size >= 64);
+  }
+  function dataUrlOk(s) {
+    var L = SL();
+    if (L && typeof L.dataUrlOk === 'function') return L.dataUrlOk(s);
+    return !!(s && typeof s === 'string' && s.slice(0, 5) === 'data:' &&
+              s.length - s.indexOf(',') > 88);
+  }
+
   function canvasToBlob(canvas) {
     return new Promise(function (resolve, reject) {
+      var ok = function (b) {
+        if (blobOk(b)) resolve(b);
+        else reject(new Error('empty image (' + ((b && b.size) || 0) + ' bytes)'));
+      };
       try {
-        if (canvas.toBlob) canvas.toBlob(function (b) { b ? resolve(b) : reject(new Error('toBlob null')); }, 'image/png');
+        if (canvas.toBlob) canvas.toBlob(function (b) { b ? ok(b) : reject(new Error('toBlob null')); }, 'image/png');
         else {
           var dataUrl = canvas.toDataURL('image/png');
+          if (!dataUrlOk(dataUrl)) { reject(new Error('empty data URL')); return; }
           var bin = atob(dataUrl.split(',')[1]);
           var arr = new Uint8Array(bin.length);
           for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-          resolve(new Blob([arr], { type: 'image/png' }));
+          ok(new Blob([arr], { type: 'image/png' }));
         }
       } catch (e) { reject(e); }
     });
@@ -958,11 +982,16 @@
     } catch (e) {}
   }
 
+  // The desktop emitter, and the second place a zero-length file could be born:
+  // <a download> writes whatever the href resolves to, and an empty data: URL
+  // resolves to nothing at all. Returns false so callers can say so.
   function download(dataUrl, name) {
+    if (!dataUrlOk(dataUrl)) { toast('Couldn’t build the card on this device — nothing was saved'); return false; }
     var a = document.createElement('a');
     a.href = dataUrl; a.download = name;
     document.body.appendChild(a); a.click();
     setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 60);
+    return true;
   }
 
   function copyText(txt) {
@@ -990,14 +1019,17 @@
     closeMenu();
     var cap = caption(d);
     var url = profileUrl(d.pid);
-    download(dataUrl, fileName);
+    var saved = download(dataUrl, fileName);
     var m = document.createElement('div');
     m.className = 'svd-share-menu';
     m.innerHTML =
       '<div class="svd-sm-head">Share this record card</div>' +
-      '<div class="svd-sm-note">✅ Image saved to your device — attach it to your post.</div>' +
-      '<button type="button" data-act="save">📥 Save image again</button>' +
-      '<button type="button" data-act="copy">🔗 Copy the summary</button>' +
+      '<div class="svd-sm-note">' + (saved
+        ? '✅ Image saved to your device — attach it to your post.'
+        : '⚠️ The image wouldn’t build on this device. The link below still works.') + '</div>' +
+      (saved ? '<button type="button" data-act="save">📥 Save image again</button>' : '') +
+      '<button type="button" data-act="link">🔗 Copy link</button>' +
+      '<button type="button" data-act="copy">📝 Copy the summary</button>' +
       '<button type="button" data-act="x">𝕏  Post on X</button>' +
       '<button type="button" data-act="fb">📘 Share on Facebook</button>';
     document.body.appendChild(m);
@@ -1020,12 +1052,13 @@
       var bt = e.target.closest && e.target.closest('button'); if (!bt) return;
       var act = bt.getAttribute('data-act');
       if (act === 'save') download(dataUrl, fileName);
+      else if (act === 'link') copyText(url).then(function () { toast('Link copied — it opens this profile ✓'); });
       else if (act === 'copy') copyText(cap).then(function () { toast('Summary copied'); });
       else if (act === 'x') window.open('https://twitter.com/intent/tweet?text=' +
         encodeURIComponent(shortPost(d)) + '&url=' + encodeURIComponent(url), '_blank', 'noopener');
       else if (act === 'fb') window.open('https://www.facebook.com/sharer/sharer.php?u=' +
         encodeURIComponent(url) + '&quote=' + encodeURIComponent(shortPost(d)), '_blank', 'noopener');
-      if (act !== 'copy') closeMenu();
+      if (act !== 'copy' && act !== 'link') closeMenu();
     });
     setTimeout(function () { document.addEventListener('click', onDocClick, true); }, 0);
   }
@@ -1088,11 +1121,21 @@
         return canvasToBlob(canvas).then(function (blob) {
           var file = null;
           try { file = new File([blob], fileName, { type: 'image/png' }); } catch (e) {}
-          var payload = { text: caption(d) };
+          // Title and URL, which this payload used to omit entirely. The caption
+          // carries the address in its last lines, but a caption is text: the
+          // receiving app has no reason to treat it as a link, so the card arrived
+          // as a picture with no route back to the record behind it. profileUrl()
+          // is the canonical, root-anchored, previewable form of that route.
+          var payload = {
+            title: d.name + (d.office ? ' (' + d.office + ')' : '') + ' — Word vs Action · PolitiDex',
+            text: caption(d),
+            url: profileUrl(d.pid)
+          };
           if (file) payload.files = [file];
-          if (file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-            return navigator.share(payload).catch(function (e) {
-              if (e && (e.name === 'AbortError' || e.name === 'NotAllowedError')) return; // cancelled
+          var L = SL();
+          if (file && L && typeof L.native === 'function') {
+            return L.native(payload).then(function (res) {
+              if (res.ok || res.outcome === 'cancelled') return;
               openFallbackMenu(d, canvas.toDataURL('image/png'), fileName, btn);
             });
           }

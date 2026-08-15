@@ -225,7 +225,18 @@
     if (net === 'copy') { copyText(ctx.url); return; }
     if (net === 'save') { saveImage(ctx); return; }
     if (net === 'image') { shareImage(ctx); return; }
-    if (net === 'native') { try { if (navigator.share) navigator.share({ title: ctx.title, text: ctx.text, url: ctx.url }).catch(function () {}); } catch (e) {} return; }
+    if (net === 'native') {
+      var L = SL();
+      if (L && typeof L.native === 'function') {
+        L.native({ title: ctx.title, text: ctx.text, url: ctx.url }).then(function (res) {
+          if (res.ok || res.outcome === 'cancelled') return;
+          copyText(ctx.url);
+        });
+        return;
+      }
+      try { if (navigator.share) navigator.share({ title: ctx.title, text: ctx.text, url: ctx.url }).catch(function () { copyText(ctx.url); }); else copyText(ctx.url); } catch (e) { copyText(ctx.url); }
+      return;
+    }
     var u = intentUrl(net, ctx);
     if (u) { try { window.open(u, '_blank', 'noopener,noreferrer'); } catch (e) { try { location.href = u; } catch (e2) {} } }
   }
@@ -275,13 +286,23 @@
       draw();
     });
   }
+  // The same artifact guard the receipt and record-card pipelines use: a canvas
+  // that failed to draw encodes to a zero-byte Blob, which is truthy, wraps into a
+  // File without complaint, and saves as an empty file. See share-links.js.
+  function SL() { try { return window.PDXShareLinks || null; } catch (e) { return null; } }
+  function blobOk(b) {
+    var L = SL();
+    if (L && typeof L.blobOk === 'function') return L.blobOk(b);
+    return !!(b && typeof b.size === 'number' && b.size >= 64);
+  }
   function canvasBlob(c) {
     return new Promise(function (res) {
-      try { if (c.toBlob) { c.toBlob(function (b) { res(b); }, 'image/png'); return; } } catch (e) {}
+      try { if (c.toBlob) { c.toBlob(function (b) { res(blobOk(b) ? b : null); }, 'image/png'); return; } } catch (e) {}
       res(null);
     });
   }
   function downloadBlob(blob, filename) {
+    if (!blobOk(blob)) return false;
     try {
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a'); a.href = url; a.download = filename || 'my-stances.png';
@@ -303,15 +324,16 @@
       if (!blob) { toast('Couldn’t build the image on this browser.'); return; }
       var file = null;
       try { file = new File([blob], 'my-stances.png', { type: 'image/png' }); } catch (e) { file = null; }
-      var canFiles = false;
-      try { canFiles = !!(file && navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) { canFiles = false; }
-      if (canFiles) {
-        try {
-          navigator.share({ files: [file], title: c.title, text: c.text, url: c.url }).catch(function () {});
-          return;
-        } catch (e) {}
+      var L = SL();
+      if (file && L && typeof L.native === 'function') {
+        L.native({ files: [file], title: c.title, text: c.text, url: c.url }).then(function (res) {
+          if (res.ok || res.outcome === 'cancelled') return;
+          // No file-share support, or the platform refused → save the PNG so they
+          // can attach it themselves. Either way the reader is told which happened.
+          toast(downloadBlob(blob, 'my-stances.png') ? '🖼 Image saved — attach it to your post.' : 'Couldn’t share the image.');
+        });
+        return;
       }
-      // No file-share support → save the PNG so they can attach it themselves.
       toast(downloadBlob(blob, 'my-stances.png') ? '🖼 Image saved — attach it to your post.' : 'Couldn’t share the image.');
     });
   }

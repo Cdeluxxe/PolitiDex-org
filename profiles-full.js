@@ -6727,28 +6727,77 @@
   // ════════════════════════════════════════════════════════════
   // A shared link looks like  https://<site>/?p=<id>  and re-opens that
   // politician's profile modal automatically on load (see _pdxOpenFromUrl).
+  //
+  // …unless the reader was looking at ONE ISSUE, in which case the sheet emits
+  // https://<site>/?record=<id>~<issueKey> instead, which lands on the Official
+  // Record for that issue rather than the profile shell. Both forms are built by
+  // share-links.js, which is also the module that converts them back into the
+  // app's own hashes on arrival.
   window._pdxShareData = null;
 
+  function _pdxLinks() {
+    try { return window.PDXShareLinks || null; } catch (e) { return null; }
+  }
+
+  // The link for a profile. Root-anchored through PDXShareLinks, because
+  // location.pathname is not always '/' — the app also answers on /vote/… , and a
+  // link built there carried the roll-call path along with it.
   window.pdxShareUrl = function(id) {
-    return location.origin + location.pathname + '?p=' + encodeURIComponent(id);
+    var L = _pdxLinks();
+    if (L && typeof L.profile === 'function') {
+      var u = L.profile(id);
+      if (u) return u;
+    }
+    return location.origin + '/?p=' + encodeURIComponent(id);
   };
 
-  window.pdxSharePolitician = function(id, ev) {
+  // The link for whatever the reader actually had open. `issueKey` is optional and
+  // is what every issue-scoped share control now passes down.
+  window.pdxShareTargetUrl = function(id, issueKey) {
+    var L = _pdxLinks();
+    if (L && typeof L.forTarget === 'function') {
+      var u = L.forTarget({ pid: id, issueKey: issueKey || '' });
+      if (u) return u;
+    }
+    return window.pdxShareUrl(id);
+  };
+
+  window.pdxSharePolitician = function(id, ev, opts) {
     if (ev && ev.stopPropagation) ev.stopPropagation();
+    if (!id) return;
+    opts = opts || {};
+    var issueKey = String(opts.issueKey || '');
     var p = (typeof PROFILES !== 'undefined' && PROFILES) ? PROFILES[id] : null;
     var name = (p && p.name) ? p.name : 'this politician';
     var office = (p && p.office) ? p.office : '';
-    var url = window.pdxShareUrl(id);
-    var text = name + (office ? ' (' + office + ')' : '') + ' on PolitiDex — track their promises and record. 🇺🇸';
-    window._pdxShareData = { id: id, name: name, url: url, text: text };
+    var issueLabel = '';
+    try {
+      if (issueKey && typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP && ISSUE_MAP[issueKey]) {
+        issueLabel = ISSUE_MAP[issueKey].label || '';
+      }
+    } catch (e) { issueLabel = ''; }
+    var url = window.pdxShareTargetUrl(id, issueKey);
+    var text = name + (office ? ' (' + office + ')' : '') +
+      (issueLabel ? ' on ' + issueLabel + ' — the Official Record on PolitiDex. 🇺🇸'
+                  : ' on PolitiDex — track their promises and record. 🇺🇸');
+    window._pdxShareData = { id: id, issueKey: issueKey, name: name, url: url, text: text,
+                             issueLabel: issueLabel };
 
     var overlay  = document.getElementById('pdx-share-overlay');
     var nameEl   = document.getElementById('pdx-share-name');
     var linkEl   = document.getElementById('pdx-share-link');
     var copyBtn  = document.getElementById('pdx-share-copy');
     var nativeBtn = document.getElementById('pdx-share-native');
-    if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '');
-    if (linkEl)  linkEl.value = url;
+    if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '') +
+                                      (issueLabel ? ' — ' + issueLabel : '');
+    if (linkEl)  {
+      linkEl.value = url;
+      // The sheet says which surface the link opens, so nobody has to paste it to
+      // find out. Two destinations, two accessible names.
+      linkEl.setAttribute('aria-label', issueKey
+        ? 'Direct link to the Official Record for ' + name + ' on ' + (issueLabel || 'this issue')
+        : 'Direct link to profile');
+    }
     if (copyBtn) { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy'; }
     // The share ARTIFACT — the image, not the link. Every compact card, browse
     // row, comparison card and the profile modal header funnel into this one
@@ -6761,8 +6810,8 @@
     if (artEl) {
       var SA = window.PDXShareAnywhere;
       if (SA && typeof SA.buttonHtml === 'function') {
-        artEl.innerHTML = SA.buttonHtml({ pid: id, block: true, hint: true, fallback: 'copy',
-                                          text: 'Share the card' });
+        artEl.innerHTML = SA.buttonHtml({ pid: id, issueKey: issueKey, block: true, hint: true,
+                                          fallback: 'copy', text: 'Share the card' });
         try { SA.hydrateSoon(artEl); } catch (e) {}
       } else {
         artEl.innerHTML = '';
@@ -6808,8 +6857,32 @@
     var u = encodeURIComponent(d.url);
     var t = encodeURIComponent(d.text);
     if (platform === 'native') {
+      // Routed through PDXShareLinks.native so a refusal is not a silent no-op.
+      // navigator.share resolves on hand-off and rejects on both "the reader
+      // dismissed it" and "the platform would not open it" — and only the first of
+      // those deserves silence. The second gets the link on the clipboard, which
+      // is the thing the reader was trying to obtain.
+      var L = _pdxLinks();
+      if (L && typeof L.native === 'function') {
+        L.native({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url })
+          .then(function (res) {
+            if (res.ok || res.outcome === 'cancelled') return;
+            window._pdxCopyShareLink();
+            try {
+              if (typeof window._showToast === 'function') {
+                window._showToast(res.outcome === 'unsupported'
+                  ? 'Sharing isn’t available in this browser — link copied instead'
+                  : 'Couldn’t open the share sheet — link copied instead');
+              }
+            } catch (e) {}
+          });
+        return;
+      }
       if (navigator.share) {
-        navigator.share({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url }).catch(function() {});
+        navigator.share({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url })
+          .catch(function() { window._pdxCopyShareLink(); });
+      } else {
+        window._pdxCopyShareLink();
       }
       return;
     }
@@ -6821,11 +6894,28 @@
 
   // Deep-link: open the profile named in the URL (?p=<id>) once profiles
   // have loaded. Called from _checkAndTrigger after the directory is built.
+  //
+  // A pid the roster does not carry — renamed, retired, mistyped, or a link
+  // pasted from a much older build — used to return here in silence, leaving the
+  // reader on the homepage having followed what looked like a citation. That is
+  // the same silent lie the /vote/ safety net exists to remove, so it gets the
+  // same answer: we could not open it, said out loud.
   window._pdxOpenFromUrl = function() {
     try {
       var pid = new URLSearchParams(location.search).get('p');
       if (!pid) return;
-      if (typeof PROFILES === 'undefined' || !PROFILES || !PROFILES[pid]) return;
+      if (typeof PROFILES === 'undefined' || !PROFILES || !PROFILES[pid]) {
+        try {
+          var L = window.PDXShareLinks;
+          if (L && typeof L.notice === 'function') {
+            L.notice('pdx-profile-unresolved', 'Shared profile',
+              'We couldn’t open the profile that link named. Rather than quietly show ' +
+              'you the front page, here’s the plain answer: “' + pid + '” isn’t someone ' +
+              'we currently carry a record for.');
+          }
+        } catch (e2) {}
+        return;
+      }
       if (typeof showProfile === 'function') showProfile(pid);
     } catch (e) { console.warn('Deep-link open failed:', e); }
   };

@@ -1601,8 +1601,20 @@
     // rather than flashing an empty view — the same contract say-vs-do.js uses.
     if (recordsFor(canonPid(pid)) && open()) { _hashTries = 0; return; }
     if (_hashTries === 0) { try { warm(pid); } catch (e) {} }
-    if (_hashTries++ < 10) setTimeout(function () { handleHash(true); }, 700);
-    else open();
+    if (_hashTries++ < 10) { setTimeout(function () { handleHash(true); }, 700); return; }
+    // Out of retries. If even the last attempt cannot land the reader on a
+    // surface, say so — an arrival that silently becomes the front page is the
+    // dead link this whole deep-link path exists to prevent.
+    if (open()) return;
+    try {
+      var L = window.PDXShareLinks;
+      if (L && typeof L.notice === 'function') {
+        L.notice('pdx-record-unresolved', 'Shared record',
+          'We couldn’t open the Official Record that link named. Rather than quietly ' +
+          'show you the front page, here’s the plain answer: we couldn’t load a record ' +
+          'for “' + pid + '” on that issue.');
+      }
+    } catch (e) {}
   }
 
   window.PDXReceiptCards = {
