@@ -1655,7 +1655,7 @@
       limitedNote =
         '<div class="cmp-limited">' +
           '<span class="cmp-limited-ico" aria-hidden="true">🌱</span>' +
-          '<p class="cmp-limited-text">This is expected for a new or 2026 candidate — ' + first + ' doesn\'t have a documented position on your specific issues <em>yet</em>. As statements and votes are verified, each one is matched here automatically. In the meantime, the <strong>Candidate Snapshot</strong> above shows the positions ' + first + ' <em>has</em> stated, so you can still get a read.</p>' +
+          '<p class="cmp-limited-text">This is expected for a new or 2026 candidate — ' + first + ' doesn\'t have a documented position on your specific issues <em>yet</em>. As statements and votes are verified, each one is matched here automatically. In the meantime, <strong>⚖️ Word vs Action</strong> above indexes every position ' + first + ' <em>has</em> stated — including the ones no formal action can test yet — so you can still get a read.</p>' +
         '</div>';
     }
 

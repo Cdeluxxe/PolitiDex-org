@@ -58,6 +58,15 @@
     // below, on demand, for the issue sheet a reader is actually looking at — see
     // the note there for why forPolitician() must never emit it.
     no_public_record:   { sev: 65,  askable: true,  label: 'No public-record evidence on file yet' },
+    // The curation half of one issue dossier's formal list: instruments that are on
+    // file, counted and sourced, but whose "why it counts on this issue" line is
+    // still the mapping restated by machine rather than a sentence someone wrote.
+    // Built ONLY by mappingGap() below, for the same reason no_public_record is —
+    // see the note there. Askable, and it is worth being clear why: this is our
+    // writing to do, not a hole in the evidence, but a reader who can point at the
+    // section of a document that actually touches this issue has handed a curator
+    // exactly the thing they are missing.
+    unexplained_mapping: { sev: 45,  askable: true,  label: 'Mapping not explained yet' },
     circular_hold:      { sev: 20,  askable: false, label: 'Held: written from the record itself' },
     spoken_for:         { sev: 15,  askable: false, label: 'Second position on an already-scored issue' },
     below_floor:        { sev: 10,  askable: false, label: 'Not enough tested record to publish a number' }
@@ -389,6 +398,47 @@
     });
   }
 
+  // ── One issue's unexplained mappings, on demand ─────────────────────────────
+  // Same contract as publicRecordGap() above — built for the sheet a reader has
+  // open, never emitted by forPolitician(), therefore never inside count(). A
+  // figure has one of these per issue they are tracked on, and pouring them into
+  // the profile panel would bury the gaps about the record as a whole.
+  //
+  // WHAT THIS ROW IS NOT. It is not a doubt about the documents. Each one is on
+  // file, sourced, dated and already counted; what is missing is the sentence
+  // saying what it did on this issue. So the wording keeps those two apart in
+  // every line, and the row never implies the reading below it is unsafe.
+  //
+  // It closes itself, like every gap here: `n` is recounted from the dossier on
+  // each render, so each sentence a curator lands takes the number down by one and
+  // the last one takes the row off the sheet.
+  function mappingGap(pid, issueKey, n, listed, p) {
+    if (!pid || !issueKey || !(n > 0)) return null;
+    var lbl = issueLabel(issueKey) || String(issueKey);
+    var who = lastName(pid, p);
+    var total = (listed > 0) ? listed : n;
+    return make(pid, p, 'unexplained_mapping', {
+      slugExtra: issueKey,
+      issueKey: issueKey,
+      count: n,
+      label: n + ' of ' + total + ' ' + plural(total, 'document') + ' here ' +
+             (n === 1 ? 'has' : 'have') + ' no written explanation yet — ' + lbl,
+      detail: (n === 1 ? 'One document' : n + ' documents') + ' on ' + who + '’s record ' +
+              (n === 1 ? 'is' : 'are') + ' filed under ' + lbl + ' because our mapping links ' +
+              (n === 1 ? 'it' : 'them') + ' to that issue — and the line under ' +
+              (n === 1 ? 'it' : 'each one') + ' says exactly that and no more. Nobody has yet written ' +
+              'what the document did on ' + lbl + ' or why the link holds, so ' +
+              (n === 1 ? 'that row is' : 'those rows are') + ' marked on the list above and set in a ' +
+              'quieter voice than the ones a curator has read. This is our writing to do, not a doubt ' +
+              'about the evidence: every one of these documents is on file, sourced and counted exactly ' +
+              'as it was before, and nothing here moves a score. The number goes down as the sentences ' +
+              'land, and this row disappears when it reaches zero.',
+      ask: 'A pointer we can check — the section, passage or provision of one of these documents that ' +
+           'actually touches ' + lbl + ', with a link. That is the piece a curator needs to write the ' +
+           'sentence that is missing.'
+    });
+  }
+
   // ── Rendering ──────────────────────────────────────────────────────────────
   // A registry so click handlers can recover the full gap object from its key
   // without serialising JSON into an attribute.
@@ -707,6 +757,9 @@
     // One issue dossier's public-record hole. Deliberately outside forPolitician()
     // and therefore outside count() — see the note on the function.
     publicRecordGap: publicRecordGap,
+    // One issue dossier's unexplained-mapping queue. Same deliberate exclusion from
+    // forPolitician() and count() — see the note on the function.
+    mappingGap: mappingGap,
     rowHtml: rowHtml,
     panelHtml: panelHtml,
     // Exposed for the Exchange controller (it needs the gap a composer was

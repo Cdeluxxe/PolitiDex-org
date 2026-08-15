@@ -1482,39 +1482,10 @@
     }
     .cand-snapshot .cs-lede strong { color: #cbd9ec; }
 
-    /* Cohesion index — frames the Snapshot's three reads (stated Positions, the
-       visitor's Alignment match, and the Spotlight) as one connected system and
-       lets the visitor jump straight to any of them. This is what makes a thin
-       profile read as a single, intentional dossier rather than three separate,
-       half-filled sections that happen to share a card. */
-    .cand-snapshot .cs-map { margin-top: 0.95rem; }
-    .cand-snapshot .cs-map-intro {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.58rem; letter-spacing: 0.09em; text-transform: uppercase;
-      color: #7596c0; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;
-    }
-    .cand-snapshot .cs-map-row {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.45rem;
-    }
-    .cand-snapshot .cs-map-chip {
-      display: flex; align-items: center; gap: 0.5rem; text-align: left; min-width: 0;
-      background: rgba(10,15,30,0.5); border: 1px solid rgba(159,180,212,0.18);
-      border-radius: 0.6rem; padding: 0.5rem 0.6rem; cursor: pointer; color: inherit;
-      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
-    }
-    @media (hover: hover) { .cand-snapshot .cs-map-chip:hover { border-color: rgba(167,139,250,0.5); transform: translateY(-1px); background: rgba(30,53,96,0.5); } }
-    .cand-snapshot .cs-map-ico { font-size: 1.05rem; line-height: 1; flex-shrink: 0; }
-    .cand-snapshot .cs-map-txt { display: flex; flex-direction: column; min-width: 0; }
-    .cand-snapshot .cs-map-k {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0;
-    }
-    .cand-snapshot .cs-map-v {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.82rem; color: #e6eefb; line-height: 1.2;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .cand-snapshot .cs-map-v.cs-map-v-match { color: #a78bfa; }
+    /* The cohesion index (.cs-map*) is gone. It was a second navigation model —
+       a row of jump chips that competed with the sticky rail and with the
+       ⚖️ Word vs Action issue index for the same job. Members and executives
+       now share one path: shape strip → bucket → issue row → dossier. */
 
     /* At-a-glance facts */
     .cand-snapshot .cs-facts {
@@ -1550,26 +1521,13 @@
       color: #dbe6f6; margin-bottom: 0.55rem; display: flex; align-items: center; gap: 0.4rem;
     }
 
-    /* Stated-position list */
-    .cand-snapshot .cs-stance { display: flex; align-items: flex-start; gap: 0.55rem; padding: 0.42rem 0; }
-    .cand-snapshot .cs-stance + .cs-stance { border-top: 1px dashed rgba(159,180,212,0.12); }
-    .cand-snapshot .cs-stance-ico { font-size: 0.95rem; line-height: 1.4; flex-shrink: 0; }
-    .cand-snapshot .cs-stance-body { flex: 1; min-width: 0; }
-    .cand-snapshot .cs-stance-topic {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem;
-      color: #fff; letter-spacing: 0.01em;
-    }
-    .cand-snapshot .cs-stance-badge {
-      display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.5rem; letter-spacing: 0.08em; text-transform: uppercase;
-      border-radius: 999px; padding: 0.1rem 0.42rem; margin-left: 0.4rem; white-space: nowrap;
-      vertical-align: middle;
-    }
+    /* Position pointer copy. The card used to render the positions themselves
+       here, each with its own support/oppose/mixed badge — a second stance
+       vocabulary sitting a few hundred pixels under the shape strip's
+       Contradicted / Mixed / Backed up / Thin record buckets. The list moved to
+       Key Issue Stances and the browsing moved to ⚖️ Word vs Action; what is
+       left is one sentence pointing at both. */
     .cand-snapshot .cs-stance-text { font-size: 0.74rem; color: #9fb4d4; line-height: 1.5; margin: 0.18rem 0 0; }
-    .cand-snapshot .cs-b-support  { background: rgba(74,222,128,0.14);  color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
-    .cand-snapshot .cs-b-oppose   { background: rgba(248,113,113,0.14); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
-    .cand-snapshot .cs-b-mixed    { background: rgba(96,165,250,0.14);  color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
-    .cand-snapshot .cs-b-priority { background: rgba(167,139,250,0.14); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
 
     /* Campaign-priority pills (fallback when no documented stances) */
     .cand-snapshot .cs-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -1638,84 +1596,22 @@
     }
     .cand-snapshot .cs-align-guide strong { color: #c4b5fd; }
 
-    /* Issue-position list inside the Alignment linkage card — the scannable,
-       at-a-glance read on which issues the candidate has taken a stance on,
-       pulled from the same data the Alignment Tool compares against. */
-    .cand-snapshot .cs-pos-legend {
-      display: flex; flex-wrap: wrap; gap: 0.35rem 0.85rem;
-      margin: 0.1rem 0 0.6rem;
-      font-size: 0.64rem; color: #9a8cc9; line-height: 1.4;
-    }
-    .cand-snapshot .cs-pos-legend > span { display: inline-flex; align-items: center; gap: 0.3rem; }
-    .cand-snapshot .cs-pos-list { display: grid; gap: 0; }
-    .cand-snapshot .cs-pos { padding: 0.55rem 0; }
-    .cand-snapshot .cs-pos + .cs-pos { border-top: 1px dashed rgba(159,180,212,0.16); }
-    .cand-snapshot .cs-pos-line {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem;
-    }
-    /* The position's one-line stance, shown right under its topic so a visitor
-       reads WHAT the candidate said, not just that they took a position. */
-    .cand-snapshot .cs-pos-text { font-size: 0.74rem; color: #9fb4d4; line-height: 1.5; margin: 0.32rem 0 0; }
-    .cand-snapshot .cs-pos-ico { font-size: 0.95rem; line-height: 1; flex-shrink: 0; }
-    .cand-snapshot .cs-pos-topic {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem;
-      color: #f0eaff; letter-spacing: 0.01em; flex: 1 1 8rem; min-width: 0;
-    }
-    .cand-snapshot .cs-pos-badge {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.5rem; letter-spacing: 0.07em; text-transform: uppercase;
-      border-radius: 999px; padding: 0.12rem 0.42rem; white-space: nowrap; flex-shrink: 0;
-    }
-    /* Source-type tag — the visible difference between a position backed by an
-       actual vote/bill ("Recorded") and one taken from public statements ("Stated"). */
-    .cand-snapshot .cs-src {
-      display: inline-flex; align-items: center; gap: 0.22rem;
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase;
-      border-radius: 999px; padding: 0.12rem 0.42rem; white-space: nowrap; flex-shrink: 0;
-    }
-    .cand-snapshot .cs-src-rec {
-      color: #7dd3a0; background: rgba(74,222,128,0.12);
-      border: 1px solid rgba(74,222,128,0.34);
-    }
-    .cand-snapshot .cs-src-stated {
-      color: #9fb4d4; background: rgba(159,180,212,0.08);
-      border: 1px dashed rgba(159,180,212,0.4);
-    }
-    /* Per-issue "your match" verdict, shown only when the visitor has saved
-       Alignment Tool picks that overlap this candidate's positions. */
-    .cand-snapshot .cs-vd {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase;
-      border-radius: 999px; padding: 0.12rem 0.42rem; white-space: nowrap; flex-shrink: 0;
-    }
-    .cand-snapshot .cs-vd-match    { color: #4ade80; background: rgba(74,222,128,0.14);  border: 1px solid rgba(74,222,128,0.34); }
-    .cand-snapshot .cs-vd-partial  { color: #60a5fa; background: rgba(96,165,250,0.14);  border: 1px solid rgba(96,165,250,0.34); }
-    .cand-snapshot .cs-vd-mismatch { color: #f87171; background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.34); }
-    .cand-snapshot .cs-pos-more { font-size: 0.72rem; color: #9a8cc9; line-height: 1.5; margin: 0.5rem 0 0; }
+    /* RETIRED: the card's own per-issue list (.cs-pos*), its source tags
+       (.cs-src-rec / .cs-src-stated), its per-issue match verdicts (.cs-vd*)
+       and the distribution strip (.cs-dist*).
 
-    /* Centerpiece intro line — frames the positions list as the main read on a
-       thin candidate, not a secondary detail. */
-    .cand-snapshot .cs-pos-intro { font-size: 0.75rem; color: #cbd9ec; line-height: 1.55; margin: 0 0 0.6rem; }
-    .cand-snapshot .cs-pos-intro strong { color: #f5c842; }
-    /* At-a-glance distribution chips — the scan layer above the positions list.
-       Reuses the position direction (cs-b-*) and basis (cs-src-*) color tokens so
-       the summary and the rows below read in the same visual vocabulary. */
-    .cand-snapshot .cs-dist { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.65rem; }
-    .cand-snapshot .cs-dist-chip {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase;
-      border-radius: 999px; padding: 0.18rem 0.5rem; line-height: 1; white-space: nowrap;
-      display: inline-flex; align-items: center; gap: 0.2rem;
-    }
-    .cand-snapshot .cs-dist-chip.cs-dist-you {
-      color: #d8b4fe; background: rgba(167,139,250,0.16);
-      border: 1px solid rgba(167,139,250,0.42);
-    }
+       Every one of them had a shared-shell twin that says the same thing in the
+       vocabulary both lanes use. The shape strip above is the distribution. The
+       ⚖️ Word vs Action rows carry the formal ("Recorded") and public ("Stated")
+       lanes with the same disclosure rules an executive profile uses. The
+       per-issue match verdict lives in How You Compare. Keeping a second copy
+       here meant a member profile answered "how do they line up?" three times,
+       in three different palettes, with three different words for the same
+       three states. */
 
-    /* Issue-positions centerpiece — the heart of a thin profile. A gold-accented
-       card so a candidate's documented positions read as the valuable, central
-       part of getting to know them, even when the rest of the record is sparse. */
+    /* Issue-positions pointer — a short card, below ⚖️ Word vs Action, that
+       names how many documented positions exist and sends the reader to the
+       index that browses them and to Key Issue Stances for the full text. */
     .cand-snapshot .cs-positions {
       margin-top: 1rem; padding: 0.85rem 0.9rem 0.9rem;
       border-top: none;

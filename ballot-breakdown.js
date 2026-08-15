@@ -3751,7 +3751,7 @@
       var emptyNote = docKeys.length ? '' :
         '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:0.9rem;">' +
           '<span style="font-size:0.95rem;line-height:1.2;flex:none;">🌱</span>' +
-          '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;">We don\'t have documented positions for ' + firstName + ' on file yet. Pick the issues you care about below and we\'ll match them against ' + firstName + '\'s broader record as it\'s verified — the Candidate Snapshot shows what we do know so far.</p>' +
+          '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;">We don\'t have documented positions for ' + firstName + ' on file yet. Pick the issues you care about below and we\'ll match them against ' + firstName + '\'s broader record as it\'s verified — the profile\'s \u2696\ufe0f Word vs Action index shows what we do know so far.</p>' +
         '</div>';
 
       var photo = _krPhoto(pid, d, '#2dd4bf');
@@ -4063,7 +4063,7 @@
       } else if (nEvidence === 0) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.32);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.95rem;line-height:1.2;flex:none;">🌱</span>' +
-            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Early read.</b> We don\'t have a documented position or voting record from ' + firstName + ' on the issues you picked yet, so this is estimated from their stated priorities. It sharpens as positions are verified — and the Candidate Snapshot shows what ' + firstName + ' <em>has</em> stated so far.</p>' +
+            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Early read.</b> We don\'t have a documented position or voting record from ' + firstName + ' on the issues you picked yet, so this is estimated from their stated priorities. It sharpens as positions are verified — and the profile\'s \u2696\ufe0f Word vs Action index shows what ' + firstName + ' <em>has</em> stated so far.</p>' +
           '</div>';
       } else {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
@@ -4234,7 +4234,7 @@
             why: it.why || '',
             // Optional linkage to a specific Alignment Tool issue (an ISSUE_MAP key),
             // so a Spotlight headline can be tied to the same issue position shown in
-            // the Candidate Snapshot — the connective tissue between the two sections.
+            // the profile's shared issue index — the connective tissue between the two sections.
             issueKey: it.issueKey || null,
             source: _krSpotlightExtractSource(it.facts)
           };
@@ -4383,7 +4383,7 @@
     // ── Spotlight ↔ positions ↔ alignment bridge ──────────────────────────
     // The connective tissue that keeps the Spotlight from reading as a detached
     // news feed: it pulls the candidate's own documented issue positions — the
-    // same data the Candidate Snapshot leads with and the Alignment Tool compares
+    // same data the profile's shared issue index browses and the Alignment Tool compares
     // against — into the Spotlight modal, leading with the exact issue this update
     // is about. So a visitor reads the news, then sees where the candidate
     // actually stands on that issue and (if they've set Alignment picks) how it

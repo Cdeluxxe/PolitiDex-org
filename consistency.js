@@ -2034,10 +2034,59 @@
       // than as the opening words of a paragraph — a reader scanning six rows for
       // one of the two answers finds the same label in the same place every time.
       '.pdxdos-rec-wk{color:#c6d4ec;font-weight:700;}' +
+      // ── A DERIVED LINE MUST NOT WEAR A CURATOR'S VOICE ──────────────────────
+      // Dimmer than the sentence above it, italic, and set behind a dashed rule —
+      // dashed because the solid tinted rule on the veto path already means "read
+      // this, it explains the chip", and this means close to the opposite: nobody
+      // has read this yet. The label loses the bright colour and the bold weight,
+      // so the slot still scans in the same place on every row without claiming the
+      // authority the curated label carries.
+      '.pdxdos-rec-derived{color:#75879f;font-style:italic;' +
+        'border-left:2px dashed rgba(255,255,255,0.13);padding-left:0.45rem;}' +
+      '.pdxdos-rec-wk-d{color:#8fa2c0;font-weight:600;font-style:normal;}' +
+      '.pdxdos-rec-unex{display:inline-block;margin-left:0.35rem;font-size:0.6rem;font-style:normal;' +
+        'color:#9fb4d4;border:1px dashed rgba(159,180,212,0.45);border-radius:999px;' +
+        'padding:0.02rem 0.36rem;white-space:nowrap;}' +
+      // The queue row under the list. PDXGaps supplies the row's own styling; this
+      // only gives its <ul> the spacing a bare list does not have inside the sheet.
+      '.pdxdos-queue{list-style:none;margin:0.55rem 0 0;padding:0;}' +
       // The multi-issue disclosure sits under both, dimmer and italic: it is about
       // the SCOPE of the row rather than about this issue, and it should not compete
       // with the two sentences that are.
       '.pdxdos-rec-multi{color:#7f97b8;font-style:italic;}' +
+      // The door out of the caveat. Sized and coloured like the link it is, not like
+      // a primary action: the trail is context for the row, and the row is still the
+      // thing the reader came for.
+      '.pdxdos-rec-follow{display:inline-block;margin-left:0.4rem;font-size:0.63rem;font-style:normal;' +
+        'color:#7fb4ff;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;' +
+        'text-underline-offset:2px;}' +
+      // The trail itself, inside the multi-issue disclosure that already existed.
+      '.pdxins{margin:0.3rem 0 0;outline:none;}' +
+      '.pdxins-r{padding:0.32rem 0;border-top:1px solid rgba(255,255,255,0.07);}' +
+      '.pdxins-r:first-child{border-top:0;}' +
+      '.pdxins-here{background:rgba(127,180,255,0.07);border-left:2px solid rgba(127,180,255,0.5);' +
+        'padding-left:0.4rem;margin-left:-0.42rem;}' +
+      '.pdxins-rh{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.34rem;font-size:0.68rem;}' +
+      '.pdxins-dir{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}' +
+      '.pdxins-adv{color:#6ee7a0;}' +
+      '.pdxins-opp{color:#ff9f9f;}' +
+      '.pdxins-neu{color:#8fa2c0;}' +
+      '.pdxins-off{opacity:0.5;}' +
+      '.pdxins-lbl{color:#e8eefc;font-weight:700;}' +
+      '.pdxins-v{font-size:0.64rem;}' +
+      '.pdxins-hold{color:#f0cd8c;}' +
+      '.pdxins-you{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.05em;color:#7fb4ff;' +
+        'border:1px solid rgba(127,180,255,0.4);border-radius:999px;padding:0.02rem 0.36rem;}' +
+      '.pdxins-go{margin-left:auto;font-size:0.63rem;color:#7fb4ff;background:none;border:0;padding:0;' +
+        'cursor:pointer;text-decoration:underline;text-underline-offset:2px;}' +
+      '.pdxins-why{display:block;font-size:0.66rem;color:#c6d4ec;line-height:1.45;margin-top:0.14rem;}' +
+      // Same two voices as the row face, so a reader who learned the difference one
+      // level up does not have to learn it again here.
+      '.pdxins-why-d{color:#75879f;font-style:italic;}' +
+      '.pdxins-wk{color:#c6d4ec;font-weight:700;}' +
+      '.pdxins-why-d .pdxins-wk{color:#8fa2c0;font-weight:600;font-style:normal;}' +
+      '.pdxins-foot{margin:0.5rem 0 0;font-size:0.63rem;color:#8fa2c0;line-height:1.5;' +
+        'border-top:1px solid rgba(255,255,255,0.07);padding-top:0.4rem;}' +
       // The veto path. Tinted rather than dimmed, because unlike the multi-issue
       // caveat it is not context around the row — it is the only sentence that
       // explains why a bill Congress passed is filed as an action against the
@@ -2162,6 +2211,36 @@
       '.pdxst-wall{font-size:0.64rem;line-height:1.45;color:#8fa6c6;margin:0.1rem 0 0.5rem;' +
         'padding:0.32rem 0.45rem;border-left:2px dotted rgba(159,180,212,0.34);background:rgba(159,180,212,0.05);border-radius:0 0.3rem 0.3rem 0;}' +
       '.pdxst-wall b{color:#c3d3ea;}' +
+      // ── THE LANE-DISAGREEMENT LINE, ON A STANCE ROW ──────────────────────────
+      // Sits under the 🧾 tally, inside the same dotted rule, because it is a note
+      // ABOUT the two lanes above it, not one more lane. No verdict colour and
+      // no fill: a coloured band here would read as a finding, and this is a
+      // reading aid. The chip is the shape in four words; the button is the door.
+      '.pdxst-lanes{display:flex;align-items:baseline;gap:0.35rem;flex-wrap:wrap;margin-top:0.14rem;' +
+        'padding-left:0.4rem;border-left:2px dotted rgba(159,180,212,0.34);font-size:0.63rem;color:#8fa6c6;}' +
+      '.pdxst-lanes-c{font-weight:700;color:#9fb4d4;}' +
+      '.pdxst-lanes-go{cursor:pointer;font-family:inherit;font-size:0.62rem;font-weight:700;color:#9fdbd0;' +
+        'background:none;border:0;padding:0.12rem 0.1rem;min-height:1.6rem;text-align:left;}' +
+      '.pdxst-lanes-go:hover,.pdxst-lanes-go:focus-visible{color:#bdeae1;text-decoration:underline;}' +
+      // ── THE SAME THING IN FULL, UNDER THE TWO COLUMNS OF THE DOSSIER ─────────
+      // Full width and neutral. It deliberately borrows neither column's chrome —
+      // it belongs to both of them, and matching either would read as that lane
+      // explaining itself rather than the boundary being stated once.
+      '.pdxlane{margin:0.15rem 0 0.55rem;padding:0.55rem 0.65rem;border-radius:0.5rem;' +
+        'background:rgba(147,166,196,0.07);border:1px solid rgba(147,166,196,0.18);}' +
+      '.pdxlane-h{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.72rem;' +
+        'letter-spacing:0.05em;text-transform:uppercase;color:#c3d3ea;margin-bottom:0.24rem;}' +
+      '.pdxlane-lead{font-size:0.7rem;line-height:1.5;color:#cbd8ee;}' +
+      '.pdxlane-ws{display:grid;gap:0.3rem;margin:0.45rem 0 0.4rem;}' +
+      '.pdxlane-w{display:grid;gap:0.08rem;padding-left:0.42rem;border-left:2px solid rgba(159,180,212,0.28);}' +
+      '.pdxlane-w-k{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.6rem;' +
+        'letter-spacing:0.07em;text-transform:uppercase;color:#8fa6c6;}' +
+      '.pdxlane-w-v{font-size:0.66rem;line-height:1.45;color:#9fb4d4;}' +
+      // The boundary sentence closes the band and is the one line that must survive
+      // a reader skimming the rest of it, so it keeps its own rule above.
+      '.pdxlane-foot{font-size:0.64rem;line-height:1.45;color:#8fa2c0;padding-top:0.36rem;' +
+        'border-top:1px dashed rgba(147,166,196,0.22);}' +
+      '@media (min-width:620px){.pdxlane-ws{grid-template-columns:1fr 1fr;gap:0.55rem;}}' +
       // The sub-divider inside the "record backs it up" group: the rows the engine
       // could not judge sit in the same tier as the ones it could, and a thin row
       // under a "backs it up" heading is a claim nobody made.
@@ -2404,6 +2483,17 @@
       // nothing on a dossier whose rows are never opened.
       var dos = e.target.closest && e.target.closest('[data-pdxdos-i]');
       if (dos) _dosMount(dos);
+      // ── Follow one document across every issue it decided ─────────────────
+      // Sits directly after the mount above, because the trail it scrolls to is
+      // part of L3 and L3 may not exist yet when the caveat is clicked. This branch
+      // DOES consume the default: the control lives inside a <summary>, so leaving
+      // the native toggle alone would collapse the row we just opened.
+      var ins = e.target.closest && e.target.closest('[data-pdxins-open]');
+      if (ins) {
+        e.preventDefault();
+        _insOpen(ins);
+        return;
+      }
       // The stance row's primary tap: the issue name opens that issue's dossier and
       // remembers the row it came from, so closing puts the reader back where they
       // were reading rather than at the top of the section.
@@ -3554,10 +3644,18 @@
       var pre = c.effect === 'advances' ? '▲ ' : c.effect === 'opposes' ? '▼ ' : '';
       return '<span class="pdxgap-om-chip' + k + '">' + pre + esc(c.label) + '</span>';
     }).join('');
-    var det = chips
-      ? '<details class="pdxgap-om-all"><summary>The other ' + ctx.others.length +
-          ' issue' + (ctx.others.length === 1 ? '' : 's') + ' this one ' + noun + ' touched</summary>' +
-          '<div class="pdxgap-om-chips">' + chips + '</div></details>'
+    // opts.trail — when the caller can afford the per-issue re-read (the dossier's
+    // L3, which is already one instrument deep), the disclosure holds the full trail
+    // instead of the label chips: same fold, same place, every issue now carrying its
+    // own direction, verdict and reason. Callers that pass nothing are unchanged.
+    var trail = (opts && opts.trail && opts.trail.html) ? opts.trail : null;
+    var body = trail ? trail.html : (chips ? '<div class="pdxgap-om-chips">' + chips + '</div>' : '');
+    var sumTxt = trail ? trail.summary
+      : ('The other ' + ctx.others.length + ' issue' + (ctx.others.length === 1 ? '' : 's') +
+         ' this one ' + noun + ' touched');
+    var det = body
+      ? '<details class="pdxgap-om-all" data-pdxins-det="' + (trail ? '1' : '0') + '">' +
+          '<summary>' + esc(sumTxt) + '</summary>' + body + '</details>'
       : '';
     return '<div class="pdxgap-om">' +
       '<div class="pdxgap-om-h"><span aria-hidden="true">🧩</span> <span>Multi-issue ' + kind +
@@ -4661,6 +4759,178 @@
       '</div>';
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WHEN THE TWO LANES DISAGREE, SAID WHERE THEY MEET
+  // ═══════════════════════════════════════════════════════════════════════════
+  // The wall between the records is correct and it stays: the formal record decides
+  // the issue and feeds ⚖️ Direction Match; the public record is a separate test of
+  // the same stance and is never in that number. Both lanes are now stated on every
+  // row and both are rendered side by side in the dossier — which means a reader can
+  // now SEE them disagree, and until this they were left to explain it themselves.
+  // The three readings they reach on their own are all wrong:
+  //
+  //   · "the site is contradicting itself" — it is showing two measurements
+  //   · "one lane is correcting the other" — neither ever overrides the other
+  //   · "so they were lying" — sometimes; a split is not by itself a lie
+  //
+  // That is the strongest teaching moment in the product and it was silent. So the
+  // disagreement gets a short fixed explainer at the point of confusion.
+  //
+  // WHAT THIS IS NOT. It reaches no verdict, prints no number, and blends nothing:
+  // it reads the row model both lanes already produced and selects one of six fixed
+  // copy variants by SHAPE. There is no per-row curation here and no place to put
+  // any — a row that lands in a shape gets that shape's words verbatim, so the
+  // explanation cannot drift row to row for the same situation.
+  //
+  // THE FORMAL SIDE IS THE ACTION LANE, NOT THE ROW VERDICT. `basis` names which
+  // record produced the row's verdict, and on a `public_record` row the formal lane
+  // is precisely the one that could not decide — reading `verdict.token` there would
+  // report the public lane's finding as the formal lane's and invent a disagreement
+  // out of one lane talking to itself.
+  var LANE_SHAPES = {
+    // ── the formal record went one way and the public record went the other ──
+    formal_against_public_backs: {
+      head: 'Why both of these can be true',
+      lead: 'The formal record cut against this position; the public record backs it up. ' +
+        'Both readings can hold at once — what was said and defended in public is not what the signed instruments did.',
+      chip: 'Two records, two readings'
+    },
+    formal_backs_public_against: {
+      head: 'Why both of these can be true',
+      lead: 'The formal record backs this position up; the public record carries sourced items cutting against it. ' +
+        'An instrument can go one way while what was said around it goes another, and neither cancels the other out.',
+      chip: 'Two records, two readings'
+    },
+    mixed_vs_onesided: {
+      head: 'Why both of these can be true',
+      lead: 'The formal record went both ways here; the public record points one way. ' +
+        'A split in the instruments and a one-sided public picture are two different measurements, not a dispute about the facts.',
+      chip: 'Two records, two readings'
+    },
+    // ── the public record is silent, which is not the same as agreeing ──
+    formal_against_public_quiet: {
+      head: 'What the quiet 🧾 side means here',
+      lead: 'The formal record cut against this position; the public record has not been checked in on it. ' +
+        'Silence on the 🧾 side neither confirms this reading nor softens it — the verdict rests on the instruments alone, which is where it would rest either way.',
+      chip: '🧾 silence is not a clearance'
+    },
+    // ── the formal lane could not reach the question at all ──
+    public_only: {
+      head: 'Which record decided this one',
+      lead: 'No formal instrument on file could test this position, so the reading here comes from the public record. ' +
+        'It stays outside ⚖️ Direction Match either way — an issue the formal record cannot reach adds nothing to that figure.',
+      chip: '🧾 decided this row, not the score'
+    },
+    // ── heat, which is not direction ──
+    flags_only: {
+      head: 'What the 🧾 red flag means here',
+      lead: 'The public record on this issue is a red flag rather than a direction. ' +
+        'A flag is a documented controversy, counted in its own slot — it is never added to either side of the formal reading.',
+      chip: '🧾 a red flag, not a direction'
+    }
+  };
+  // The two sentences that answer "what is each lane even for", printed under every
+  // variant. Fixed, shared, and deliberately symmetrical: each names what its lane
+  // can show AND what it cannot, because a reader who is told only the strengths
+  // will read the stronger-sounding one as the real answer.
+  var LANE_WHAT = [
+    { ico: '🏛️', k: 'The formal record',
+      v: 'Binding and dated — a law signed, an order issued, a vote cast. It shows what someone did with the power they held. It cannot show what they meant by it, and it is silent on any question that never reached an instrument.' },
+    { ico: '🧾', k: 'The public record',
+      v: 'Sourced but not binding — statements, interviews, reported controversies. It catches positions that never reached a vote, and pressure that never became law. It cannot make anything happen, and it is curated issue by issue, so silence here often means unchecked rather than absent.' }
+  ];
+  var LANE_FOOT = 'Neither record corrects the other and the two are never merged into one result. ' +
+    'Only the formal record feeds the profile\'s ⚖️ Direction Match; the public record is never counted in it.';
+
+  // ── THE DETECTOR ────────────────────────────────────────────────────────────
+  // Ordered rules, first match wins, and every gate is a fact off the row model.
+  // Returns null far more often than not: an explainer on a row where the lanes
+  // agree, or where one of them has not finished loading, is furniture — and the
+  // band only teaches while it is rare enough to still be read.
+  function laneDisagreement(r) {
+    if (!r || !r.verdict || !r.public) return null;
+    var tok = r.verdict.token;
+    // NOTHING TO EXPLAIN YET. A warming roll-call record has no formal reading to
+    // set beside the public one, and a row with no stated position has nothing for
+    // either lane to be about.
+    if (tok === 'pending' || tok === 'no_stance') return null;
+    try { if (r.ov && r.ov.token === 'pending') return null; } catch (e) {}
+
+    var pub = r.public;
+    var backs = pub.supporting || 0, agn = pub.contradicting || 0;
+    var flags = pub.flags || 0, count = pub.count || 0;
+    var pubDir = backs + agn;
+    // The ACTION lane's own answer. Anything the formal lane did not decide reads as
+    // 'none' here, including a row the public record decided.
+    var formal = (r.verdict.basis === 'action' &&
+      (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed')) ? tok : 'none';
+
+    var shape = null;
+    // 1. The formal lane could not test the stance and the public lane has direction.
+    if (formal === 'none' && pubDir > 0) shape = 'public_only';
+    // 2. Heat with no direction behind it, beside a formal lane that did decide.
+    else if (formal !== 'none' && pubDir === 0 && flags > 0) shape = 'flags_only';
+    // 3. Formal cut against; the public record either backs the stance…
+    else if (formal === 'contradicts' && backs > 0 && agn === 0) shape = 'formal_against_public_backs';
+    //    …or has not been checked in at all. `count === 0` and not merely `agn === 0`:
+    //    a public lane holding items that simply point elsewhere is a different
+    //    situation from one nobody has looked at, and only the second is a gap.
+    else if (formal === 'contradicts' && count === 0) shape = 'formal_against_public_quiet';
+    // 4. Formal backed the stance up and the public record pushes back.
+    else if (formal === 'consistent' && agn > 0) shape = 'formal_backs_public_against';
+    // 5. Formal split, public one-sided. Both-sided public + mixed formal is two
+    //    lanes reaching the same reading, which needs no explaining.
+    else if (formal === 'mixed' && pubDir > 0 && (backs === 0 || agn === 0)) shape = 'mixed_vs_onesided';
+    if (!shape) return null;
+
+    var copy = LANE_SHAPES[shape];
+    return { shape: shape, head: copy.head, lead: copy.lead, chip: copy.chip,
+             formal: formal, backs: backs, against: agn, flags: flags, count: count };
+  }
+
+  // The full band, for the dossier: the shape's lead, then what each lane is for,
+  // then the boundary. Rendered where the two columns meet, because that is where
+  // the question occurs to a reader.
+  function _laneBandHtml(r) {
+    var g = laneDisagreement(r);
+    if (!g) return '';
+    var what = LANE_WHAT.map(function (w) {
+      return '<div class="pdxlane-w">' +
+        '<span class="pdxlane-w-k"><span aria-hidden="true">' + w.ico + '</span> ' + esc(w.k) + '</span>' +
+        '<span class="pdxlane-w-v">' + esc(w.v) + '</span></div>';
+    }).join('');
+    return '<div class="pdxlane" data-pdxgap-lanes="' + escAttr(g.shape) + '">' +
+        '<div class="pdxlane-h">' + esc(g.head) + '</div>' +
+        '<div class="pdxlane-lead">' + esc(g.lead) + '</div>' +
+        '<div class="pdxlane-ws">' + what + '</div>' +
+        '<div class="pdxlane-foot">' + esc(LANE_FOOT) + '</div>' +
+      '</div>';
+  }
+  // The same finding, compact, on the stance row — the lesson in a few words and a
+  // door into the band, rather than the band repeated thirty-five times over. The
+  // chip deliberately does NOT restate the tallies printed directly above it; it
+  // says the thing those tallies cannot, which is what their disagreement means.
+  var LANE_CTA = 'What that means';
+  function _stLanesHtml(r) {
+    var g = laneDisagreement(r);
+    if (!g) return '';
+    return '<div class="pdxst-lanes" data-pdxst-lanes="' + escAttr(g.shape) + '">' +
+        '<span class="pdxst-lanes-c">' + esc(g.chip) + '</span>' +
+        '<button type="button" class="pdxst-lanes-go"' +
+          ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
+          ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+          ' data-pdxst-focus="lanes"' +
+          // The visible label is the same three words on every row, so the accessible
+          // name has to carry what distinguishes this one — the shape's question and
+          // the issue it is about. NOT the lead: a button whose accessible name is a
+          // paragraph is read out in full on focus, and the paragraph is two taps
+          // away in the band where a reader can choose to read it.
+          ' aria-label="' + escAttr(LANE_CTA + ': ' + g.head + ' — ' + r.label) + '">' +
+          esc(LANE_CTA) + '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
+        '</button>' +
+      '</div>';
+  }
+
   // ── THE CONNECTIONS ─────────────────────────────────────────────────────────
   // Each jump is offered only when there is something on the other end, and each
   // one aims at THIS ISSUE rather than at the top of a section: a reader who taps
@@ -4835,6 +5105,10 @@
         // always, including when there is nothing on file, because an absent line and
         // an empty lane are indistinguishable and only one of them is true.
         _stPublicHtml(r) +
+        // AND WHAT IT MEANS WHEN THEY DISAGREE. Directly under the two lanes, on the
+        // rows where the reader can see them split — one line, and a way into the
+        // full explainer rather than the full explainer thirty-five times over.
+        _stLanesHtml(r) +
         _stEvidenceHtml(r) +
         (txt ? '<div class="pdxst-txt">' + esc(txt) + '</div>' : '') +
         (links.length ? '<div class="pdxst-links">' + links.join('') + '</div>' : '') +
@@ -5563,6 +5837,14 @@
     for (var i = 0; i < all.length; i++) if (all[i] && all[i].issueKey === issueKey) return all[i];
     return null;
   }
+  // The name on the row head, built from what the file already carries. Both forms
+  // when there are two — see the note at the call site.
+  function _dosIdent(it) {
+    var id = (it && it.documentId) || '';
+    var mn = (it && it.measureNumber) || '';
+    if (id && mn && id.indexOf(mn) === -1) return id + ' (' + mn + ')';
+    return id || mn || (it && it.title) || 'Executive action';
+  }
   // The narrow-link threshold is the ✒️ section's, read from it rather than copied,
   // so the two surfaces cannot disagree about how much of a document a claim rests on.
   function _dosNarrowAt() {
@@ -5674,7 +5956,15 @@
           lane: 'exec',
           verdict: _orItemVerdict(it, issueKey, xStance),
           held: '', heldWhy: '',
-          ident: it.documentId || it.measureNumber || it.title || 'Executive action',
+          // Both names, when the file carries both. A signed law is on file under its
+          // public-law number, which is the citation — and which is also the one name
+          // no reader recognises. "Public Law 119-21" and "H.R. 1" are the same
+          // instrument; only the second is searchable, only the second is what the
+          // 🏛️ lane and the news called it, and a row that prints only the first asks
+          // the reader to already know the bill before the mechanism lines can teach
+          // them anything. Appended only when the id does not already contain it, so
+          // a vetoed bill filed as "H.R. 6395 (116th Congress)" is not doubled.
+          ident: _dosIdent(it),
           title: it.title || '',
           act: (_dosPower(it.actionClass) || {}).verb || '',
           question: '',
@@ -5826,6 +6116,32 @@
     return 'Counted on ' + lbl + ' because that is ' + link +
       (d.narrow ? ', on a link the curation records as a narrow one' : '') + '.';
   }
+  // ── CURATED OR DERIVED, AND THE ROW HAS TO SAY WHICH ────────────────────────
+  // The sentence above is true and it is machine-assembled: it reports that a
+  // mapping exists and says nothing about the document. Printed in the same voice,
+  // the same label and the same weight as a curator's sentence, it is indistinguish-
+  // able from one — so a reader auditing a row cannot tell a reasoned link from a
+  // metadata match, and every mapping that has never been read by a human ships
+  // looking as if it had. That is the only thing this pair of predicates exists to
+  // fix, and it fixes it in presentation: nothing below changes which items are
+  // counted, which way they cut, what they weigh or what any verdict says.
+  function _dosCountsBy(d) {
+    if (!d || d.held) return '';
+    return (d.counts && String(d.counts).trim()) ? 'curated' : 'derived';
+  }
+  // WHICH LANES HAVE A CURATION SLOT AT ALL. `exec` and `formal` items carry a
+  // per-issue sentence in the seed, so a derived line there means the slot is empty
+  // and a curator can fill it — that is a real, closeable piece of work. A roll call
+  // carries no such slot by construction (see _dosItems: plain/counts/rationale are
+  // all '' on that lane, on purpose, because inventing prose the record does not
+  // record is the worse failure). Its line is still labelled as the derivation it
+  // is, and the list's own lane note already explains why — but it is NOT queued,
+  // because a queue nobody can ever action is not a queue, it is a permanent
+  // apology.
+  var _DOS_CURATABLE = { exec: 1, formal: 1 };
+  function _dosNeedsCurator(d) {
+    return _dosCountsBy(d) === 'derived' && !!(d && _DOS_CURATABLE[d.lane]);
+  }
   // ── WHICH WAY IT CUT, AND WHY THAT PRODUCES THE CHIP ────────────────────────
   // Its own line, and always printed — including when a curated "why it counts here"
   // sentence exists, because that sentence explains the SUBJECT and never the
@@ -5924,10 +6240,61 @@
     return {
       did: _dosDidLine(d),
       counts: _dosCountsLine(d, issueKey),
+      // Additive, and load-bearing only for rendering: `counts` is the same string
+      // it has always been, so nothing that reads the sentence sees a change. These
+      // two say how it was produced, which is what the row face now prints.
+      countsBy: _dosCountsBy(d),
+      needsCurator: _dosNeedsCurator(d),
       dir: _dosDirLine(d, issueKey),
       veto: _dosVetoLine(d, issueKey),
       multi: _dosMultiLine(d, issueKey)
     };
+  }
+
+  // ── THE SECOND SLOT, IN WHICHEVER VOICE IT WAS WRITTEN ──────────────────────
+  // Two renderings, one slot, and they are meant to look different from across the
+  // room. A curated line keeps everything it had — the bright "Why it counts here:"
+  // label, full contrast, no ornament — because that label is a claim only a human
+  // sentence can honour. A derived line loses the claim: the label says what the
+  // line actually is ("How it was linked"), the type goes dim and italic behind a
+  // dashed rule, and where a curator could have written one and has not, the row
+  // says so in as many words. No wording is softened and nothing is hidden; the
+  // derived sentence is printed in full, exactly as before.
+  var DOS_WHY_CURATED = 'Why it counts here:';
+  var DOS_WHY_DERIVED = 'How it was linked:';
+  // Short on purpose. It repeats on every unexplained row — up to nine on one
+  // issue — and a full sentence nine times over is noise a reader learns to skip.
+  // The sentence version of it lives once, on the queue row below the list.
+  var DOS_WHY_MARK = '⌛ Not yet explained by a curator';
+  function _dosWhyHtml(m) {
+    if (!m || !m.counts) return '';
+    if (m.countsBy !== 'derived') {
+      return '<span class="pdxdos-rec-why"><b class="pdxdos-rec-wk">' + DOS_WHY_CURATED + '</b> ' +
+        esc(m.counts) + '</span>';
+    }
+    return '<span class="pdxdos-rec-why pdxdos-rec-derived">' +
+        '<b class="pdxdos-rec-wk pdxdos-rec-wk-d">' + DOS_WHY_DERIVED + '</b> ' + esc(m.counts) +
+        (m.needsCurator ? '<span class="pdxdos-rec-unex">' + esc(DOS_WHY_MARK) + '</span>' : '') +
+      '</span>';
+  }
+
+  // The multi-issue caveat, with the door out of it. The caveat already told a
+  // reader this document was judged on N issues and that they were looking at one of
+  // them; the only thing it could not do was let them go and look. The control does
+  // not open a new page — it opens this row and scrolls to the trail inside it, so
+  // the local issue reading stays on screen as the thing being compared FROM.
+  function _dosMultiHtml(m, d) {
+    if (!m || !m.multi) return '';
+    var n = 0;
+    try { n = d.item.issues.length; } catch (e) { n = 0; }
+    var body = '<span class="pdxdos-rec-why pdxdos-rec-multi">' + esc(m.multi);
+    if (n >= 2) {
+      body += '<button type="button" class="pdxdos-rec-follow" data-pdxins-open="1"' +
+        ' aria-label="' + escAttr('Follow ' + d.ident + ' across all ' + n +
+          ' issues it was mapped to, with the direction and verdict on each') + '">' +
+        'See all ' + n + ' readings <span aria-hidden="true">→</span></button>';
+    }
+    return body + '</span>';
   }
 
   // ── L2 — one summary row per instrument ─────────────────────────────────────
@@ -5972,9 +6339,9 @@
          '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
       : (wk('What it did:', m.did) +
          wk('', m.veto, 'pdxdos-rec-veto') +
-         wk('Why it counts here:', m.counts) +
+         _dosWhyHtml(m) +
          wk('Which way it cut:', m.dir) +
-         wk('', m.multi, 'pdxdos-rec-multi'));
+         _dosMultiHtml(m, d));
     return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
         '<summary>' + head + why + '</summary>' +
@@ -5982,6 +6349,141 @@
         // see _dosMount. Nothing below L2 costs anything until it is asked for.
         '<div class="pdxdos-rec-b" data-pdxdos-body="1"></div>' +
       '</details>';
+  }
+
+  // ── ONE DOCUMENT, EVERY ISSUE IT DECIDED ────────────────────────────────────
+  // A law like Public Law 119-21 is not one story. It is mapped to fourteen issues
+  // and read separately on each, and the reading can flip: the same text that
+  // advances one issue cuts against another. Until now a reader who landed on one
+  // issue could see only that row plus a caveat saying "mapped to 14 issues", with
+  // no way to reach the other thirteen readings of the same document.
+  //   This builds that view. It invents nothing: the DIRECTION on each issue is the
+  // same _measureOmnibusContext component already printed as a chip in the block
+  // this replaces, and the VERDICT and the WHY-IT-COUNTS sentence on each issue are
+  // read straight out of that issue's own dossier row, by the same _dosItems the
+  // issue page itself renders. Nothing is scored, merged or averaged across issues:
+  // the document gets no aggregate reading, because it does not have one.
+
+  // A key that survives across _dosItems calls. Item OBJECT references do not — the
+  // exec pool rebuilds its adapted records — so cross-issue matching keys off the
+  // document's own published identifier.
+  function _insIdent(it) {
+    if (!it) return '';
+    var k = it.documentId || it.measureNumber || it.billNumber || it.identifier || it.voteKey || '';
+    return k ? String(k) : '';
+  }
+  // The same document's row on another issue, or null when that issue's dossier does
+  // not list it (a held pool, a bucket that never built). Never fabricates a row.
+  function _insFindOn(pid, issueKey, ident) {
+    if (!pid || !issueKey || !ident) return null;
+    try {
+      var list = _dosItems(pid, issueKey) || [];
+      for (var i = 0; i < list.length; i++) {
+        if (list[i] && _insIdent(list[i].item) === ident) return list[i];
+      }
+    } catch (e) {}
+    return null;
+  }
+  // One row per issue the document was mapped to, in the order the omnibus context
+  // already sorts them (primary first, then weight) with this issue lifted to front.
+  function _insTrail(pid, d, issueKey) {
+    if (!d || !d.item || !pid || typeof window._measureOmnibusContext !== 'function') return null;
+    var ctx;
+    try { ctx = window._measureOmnibusContext(d.item, issueKey, {}, { labelFn: _issueLabel }); }
+    catch (e) { return null; }
+    if (!ctx) return null;
+    var ident = _insIdent(d.item);
+    var comps = (ctx.thisIssue ? [ctx.thisIssue] : []).concat(ctx.others || []);
+    var rows = [];
+    for (var i = 0; i < comps.length; i++) {
+      var c = comps[i];
+      var here = !!(ctx.thisIssue && c === ctx.thisIssue);
+      // The local row is already in hand; every other issue is re-read from its own
+      // dossier so the trail can never drift from what that issue's page prints.
+      var hit = here ? d : _insFindOn(pid, c.issueKey, ident);
+      var m = hit ? _dosMechanism(hit, c.issueKey) : null;
+      var v = (hit && !hit.held && hit.verdict) ? VERDICTS[hit.verdict] : null;
+      rows.push({
+        issueKey: c.issueKey,
+        label: c.label || _issueLabel(c.issueKey) || c.issueKey,
+        effect: c.effect,                       // advances | opposes | none
+        here: here,
+        listed: !!hit,
+        held: !!(hit && hit.held),
+        heldWhy: (hit && hit.heldWhy) || '',
+        verdict: v ? hit.verdict : '',
+        vLabel: v ? v.label : '',
+        vIco: v ? v.ico : '',
+        vColor: v ? v.color : '',
+        counts: m ? m.counts : '',
+        countsBy: m ? m.countsBy : '',
+        needsCurator: !!(m && m.needsCurator),
+        // No door on the issue we are standing on, and none to a bucket that would
+        // open empty. A control that goes nowhere teaches nothing.
+        door: !here && !!_bucketAt(pid, c.issueKey)
+      });
+    }
+    return { ident: ident, count: ctx.count, splits: !!ctx.splits, rows: rows };
+  }
+  var INS_DIR = {
+    advances: { ico: '▲', word: 'Advances', cls: 'pdxins-adv' },
+    opposes:  { ico: '▼', word: 'Cuts against', cls: 'pdxins-opp' },
+    none:     { ico: '•', word: 'No position on', cls: 'pdxins-neu' }
+  };
+  // Fixed copy. One sentence, printed once under the trail, saying what the trail is
+  // evidence of — that the direction is one reading of one text applied to many
+  // issues, while the verdict is a separate measurement against what was said on each.
+  var INS_FOOT = 'One document, judged separately on every issue it was mapped to. ' +
+    'The direction is the same reading of the same text each time; the verdict differs ' +
+    'because it is measured against what this politician said on that issue. There is no ' +
+    'combined score for the document itself.';
+  function _insRowHtml(r, pid) {
+    var dir = INS_DIR[r.effect] || INS_DIR.none;
+    var why = r.counts
+      ? '<span class="pdxins-why' + (r.countsBy === 'derived' ? ' pdxins-why-d' : '') + '">' +
+          '<b class="pdxins-wk">' + (r.countsBy === 'derived' ? DOS_WHY_DERIVED : DOS_WHY_CURATED) + '</b> ' +
+          esc(r.counts) +
+          (r.needsCurator ? '<span class="pdxdos-rec-unex">' + esc(DOS_WHY_MARK) + '</span>' : '') +
+        '</span>'
+      : (r.held ? '<span class="pdxins-why pdxins-hold">' + esc(r.heldWhy) + '</span>'
+                : (r.listed ? '' : '<span class="pdxins-why pdxins-hold">Mapped here, but this issue’s ' +
+                    'record has no open row for it.</span>'));
+    return '<div class="pdxins-r' + (r.here ? ' pdxins-here' : '') + '" data-pdxins-k="' + escAttr(r.issueKey) + '">' +
+      '<div class="pdxins-rh">' +
+        // The direction is the mapping's, and it is the same one the chip list this
+        // replaces already printed — including on an issue whose verdict is withheld.
+        // Those get the direction dimmed, so the row reads as "mapped this way, not
+        // scored" rather than as a judgement that quietly happened anyway.
+        '<span class="pdxins-dir ' + dir.cls + ((r.held || !r.listed) ? ' pdxins-off' : '') + '">' +
+          '<span aria-hidden="true">' + dir.ico + '</span> ' + esc(dir.word) + '</span>' +
+        '<span class="pdxins-lbl">' + esc(r.label) + '</span>' +
+        (r.vLabel
+          ? '<span class="pdxins-v" style="color:' + r.vColor + '">' + esc(r.vIco + ' ' + r.vLabel) + '</span>'
+          : '<span class="pdxins-v pdxins-hold">' + (r.held ? 'Not scored' : 'No verdict here') + '</span>') +
+        (r.here ? '<span class="pdxins-you">you are here</span>'
+                : (r.door
+                    ? '<button type="button" class="pdxins-go" data-pdxc-gap="' + escAttr(r.issueKey) + '"' +
+                        ' data-pdxc-gap-pid="' + escAttr(pid || '') + '">' +
+                        'Read this issue →</button>'
+                    : '')) +
+      '</div>' + why + '</div>';
+  }
+  // Returns the { html, summary } pair _orOmniBlockHtml takes in place of its chip
+  // list, or null. Keeping it as an option on the existing block means the trail
+  // lands inside the disclosure that is already there — same fold, more inside it —
+  // rather than adding a second panel to the page.
+  function _insTrailOpts(pid, d, issueKey) {
+    var t = _insTrail(pid, d, issueKey);
+    if (!t || !t.rows.length) return null;
+    var others = t.rows.length - (t.rows[0] && t.rows[0].here ? 1 : 0);
+    if (others < 1) return null;
+    return {
+      summary: 'Follow this one document across all ' + t.count +
+        ' issues — direction, verdict and why, on each',
+      html: '<div class="pdxins" data-pdxins="1" data-pdxins-n="' + t.rows.length + '" tabindex="-1">' +
+        t.rows.map(function (r) { return _insRowHtml(r, pid); }).join('') +
+        '<p class="pdxins-foot">' + esc(INS_FOOT) + '</p></div>'
+    };
   }
 
   // ── L3 (+ L4) — one instrument, expanded ────────────────────────────────────
@@ -6059,8 +6561,9 @@
     // in this lane's nouns.
     var rel = d.item
       ? (d.lane === 'exec'
-          ? _orOmniBlockHtml(d.item, issueKey, { kind: 'action', noun: _EXEC_OMNI_NOUN[d.item.actionClass] || 'action' })
-          : _orOmniBlockHtml(d.item, issueKey))
+          ? _orOmniBlockHtml(d.item, issueKey, { kind: 'action', noun: _EXEC_OMNI_NOUN[d.item.actionClass] || 'action',
+              trail: _insTrailOpts(pid, d, issueKey) })
+          : _orOmniBlockHtml(d.item, issueKey, { trail: _insTrailOpts(pid, d, issueKey) }))
       : '';
     if (rel) out.push('<div class="pdxdos-rel">' + rel + '</div>');
     // ── L4 — the receipt itself ──────────────────────────────────────────────
@@ -6095,6 +6598,28 @@
       if (!pid || !key || isNaN(idx)) return;
       body.innerHTML = _dosDetailHtml(pid, key, idx) ||
         '<div class="pdxdos-note">This record has nothing further on file.</div>';
+    } catch (e) {}
+  }
+
+  // Open the trail from the caveat. Four steps, all of them things a reader would
+  // otherwise have to do by hand: open the row, build L3 if this is its first
+  // opening, open the disclosure the trail lives in, and put the trail on screen
+  // with focus on it so a keyboard reader arrives where the click pointed.
+  function _insOpen(btn) {
+    try {
+      var rec = btn.closest && btn.closest('[data-pdxdos-i]');
+      if (!rec) return;
+      rec.open = true;
+      _dosMount(rec);
+      var t = rec.querySelector('[data-pdxins]');
+      if (!t) return;
+      var p = t.parentNode;
+      while (p && p !== rec) {
+        if (p.tagName === 'DETAILS') p.open = true;
+        p = p.parentNode;
+      }
+      if (t.scrollIntoView) t.scrollIntoView({ block: 'nearest' });
+      if (t.focus) t.focus();
     } catch (e) {}
   }
 
@@ -6662,11 +7187,21 @@
       // this", not "which panels exist".
       _dosSummaryHtml(pid, issueKey, _dosRow) +
       '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
+      // ── THE WALL, EXPLAINED WHERE IT IS VISIBLE ──────────────────────────────
+      // Immediately below the two columns, because that is the inch of screen where
+      // a reader has just seen the lanes disagree and has no way to interpret it.
+      // Prints on the shapes the detector recognises and nothing otherwise — see
+      // laneDisagreement(). It reaches no verdict and shows no number.
+      _laneBandHtml(_dosRow) +
       // ── L2 ── every instrument on this issue, closed. It sits below the two
       // record panels rather than above them because those panels quote the
       // DECISIVE items; this is the complete enumeration they were drawn from, and
       // a list is only legible once you know what it is a list of.
       _dosRecordsHtml(pid, issueKey, _dosRow, off) +
+      // The outstanding curation on the list directly above, counted on the closed
+      // face so a sheet full of unexplained mappings cannot look like a finished one.
+      // Prints nothing at zero — see _dosQueueHtml.
+      _dosQueueHtml(pid, issueKey, off) +
       // Sideways, not backwards: the next issue's dossier without a trip through
       // the profile and back.
       _dosStepHtml(pid, issueKey) +
@@ -6674,6 +7209,55 @@
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
         LHOWTO('say-vs-do', 'How to read this') + '</div>';
+  }
+
+  // ── HOW MANY MAPPINGS ON THIS ISSUE NOBODY HAS EXPLAINED ────────────────────
+  // Counted off the same normalised list the rows are rendered from, so the number
+  // on the queue row and the number of marked rows in the list cannot drift. Only
+  // lanes with a curation slot are in the denominator — see _DOS_CURATABLE — which
+  // is what keeps this a queue of work someone can actually do. Pure, cheap, and
+  // fails closed to zero: a throw anywhere means no queue row rather than a wrong
+  // one.
+  function _dosUnexplained(pid, issueKey, ov) {
+    var items = [];
+    try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { return { n: 0, listed: 0 }; }
+    var n = 0, listed = 0;
+    for (var i = 0; i < items.length; i++) {
+      var d = items[i];
+      if (!d || d.held || !_DOS_CURATABLE[d.lane]) continue;
+      listed++;
+      if (_dosNeedsCurator(d)) n++;
+    }
+    return { n: n, listed: listed };
+  }
+  // ── AND THE QUEUE THAT CLOSES ITSELF ────────────────────────────────────────
+  // The per-row marker tells a reader that THIS line is unexplained. It does not
+  // tell them how much of the issue is in that state, and it is inside a collapsed
+  // list, so a sheet can be entirely unexplained and look complete on its closed
+  // face. This line states the count where it is visible, and states it as what it
+  // is: our own outstanding writing, not a defect in the record.
+  //
+  // Rendered as a real PDXGaps row rather than a lookalike, for the same reason the
+  // 🧾 hole below the empty public panel is — PDXGaps owns the taxonomy, the
+  // `gap:<pid>:<slug>` thread target, the lead composer and the moderation round
+  // trip, and one contribution system means one queue and one set of words. And,
+  // like every other gap in that module, it is DERIVED and never stored: the day a
+  // curator lands the sentences the count falls, and at zero this returns '' and the
+  // row disappears on its own. There is nothing to reconcile and nothing that can go
+  // on claiming a hole that has already been filled.
+  function _dosQueueHtml(pid, issueKey, ov) {
+    try {
+      var u = _dosUnexplained(pid, issueKey, ov);
+      if (!u.n) return '';
+      var G = window.PDXGaps;
+      if (!G || typeof G.mappingGap !== 'function' || typeof G.rowHtml !== 'function') return '';
+      var g = G.mappingGap(pid, issueKey, u.n, u.listed, null);
+      var row = g ? G.rowHtml(g) : '';
+      return row
+        ? '<ul class="pdxg-list pdxdos-queue" data-pdxdos-queue="' + u.n + '"' +
+            ' data-pdxdos-queue-of="' + u.listed + '">' + row + '</ul>'
+        : '';
+    } catch (e) { return ''; }
   }
 
   // ── One clear next step out of the gap sheet ────────────────────────────────
@@ -6871,8 +7455,15 @@
   // take the page behind it along for the ride. The viewport call is kept only as
   // the fallback for a layout where the offset walk does not reach the sheet.
   function _gapFocusPublic(sheet, body) {
+    return _gapFocusSel(sheet, body, '[data-pdxgap-public]');
+  }
+  // Scroll-and-flash, by selector. Two callers now — the 🧾 tally on a stance row
+  // asks for the public panel, the lane-disagreement line asks for the explainer —
+  // and they differ in exactly one string, so they share the walk rather than
+  // keeping two copies of an offsetTop loop that has to stay identical.
+  function _gapFocusSel(sheet, body, sel) {
     var el = null;
-    try { el = body.querySelector && body.querySelector('[data-pdxgap-public]'); } catch (e) {}
+    try { el = body.querySelector && body.querySelector(sel); } catch (e) {}
     if (!el) return false;
     try {
       var top = 0, n = el, hops = 0;
@@ -6928,6 +7519,11 @@
     // and the focus still lands on the dialog for a keyboard reader; only the scroll
     // position differs, and only when a caller asked.
     if (opts && opts.focus === 'public') _gapFocusPublic(sheet, body);
+    // …or for the explainer under the two columns. Falls back to the public panel
+    // when the band is not on this sheet, so the tap still lands somewhere true.
+    else if (opts && opts.focus === 'lanes') {
+      if (!_gapFocusSel(sheet, body, '[data-pdxgap-lanes]')) _gapFocusPublic(sheet, body);
+    }
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
     _rcHydrateSoon();
@@ -7200,10 +7796,44 @@
     },
     dossierDetailHtml: _dosDetailHtml,
     dossierStepHtml: _dosStepHtml,
+    // WHY THE TWO RECORDS CAN DISAGREE, as data and as the band that prints it.
+    // Exported so scripts/test-lane-disagreement.mjs can hold the detector to the
+    // shapes it claims to cover — and hold the copy to being fixed per shape —
+    // without asserting on the source text of the function that writes it.
+    laneDisagreement: laneDisagreement,
+    laneBandHtml: _laneBandHtml,
+    laneShapes: function () {
+      var out = {};
+      for (var k in LANE_SHAPES) if (Object.prototype.hasOwnProperty.call(LANE_SHAPES, k)) {
+        out[k] = { head: LANE_SHAPES[k].head, lead: LANE_SHAPES[k].lead, chip: LANE_SHAPES[k].chip };
+      }
+      return out;
+    },
     // The two derivations the levels have to agree on, exported so a test can hold
     // them to each other directly: the mechanism sentences one row shows, and the
     // reconciliation between the count L1 claims and the rows L2 can enumerate.
     dossierMechanism: _dosMechanism,
+    // The outstanding-curation count for one issue, and the queue row it produces.
+    // Exported so a harness can hold the marked rows and the stated number to each
+    // other without scraping HTML for either.
+    dossierUnexplained: function (pid, issueKey) {
+      return _dosUnexplained(pid, issueKey, officialIssue(pid, issueKey));
+    },
+    dossierQueueHtml: function (pid, issueKey) {
+      return _dosQueueHtml(pid, issueKey, officialIssue(pid, issueKey));
+    },
+    // One document read across every issue it was mapped to. Exported as data and as
+    // markup so a harness can check the trail against the per-issue dossiers it was
+    // assembled from, rather than against a rendering of itself.
+    instrumentTrail: function (pid, issueKey, idx) {
+      var items = _dosItems(pid, issueKey, officialIssue(pid, issueKey)) || [];
+      return items[idx] ? _insTrail(pid, items[idx], issueKey) : null;
+    },
+    instrumentTrailHtml: function (pid, issueKey, idx) {
+      var items = _dosItems(pid, issueKey, officialIssue(pid, issueKey)) || [];
+      var o = items[idx] ? _insTrailOpts(pid, items[idx], issueKey) : null;
+      return o ? o.html : '';
+    },
     dossierCoverage: function (pid, issueKey) {
       return _dosCoverage(pid, issueKey, officialIssue(pid, issueKey));
     },

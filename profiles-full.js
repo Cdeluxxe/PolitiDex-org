@@ -1018,9 +1018,9 @@
       // record feel like one intentional system: it names the connected lenses that
       // DO work without a full promise score — the sourced positions here, the
       // visitor's Alignment match, and the Spotlight — with honest counts, then says
-      // plainly what is still being built. It mirrors the Candidate Snapshot's
-      // framing for officials that don't qualify for the (score-less) Snapshot, and
-      // references the Snapshot only when it is actually shown above.
+      // plainly what is still being built. It mirrors the limited-record card's
+      // framing for officials that don't qualify for that (score-less) card, and
+      // references it only when it is actually shown.
       var _lrSnap = (window._pdxSnapshotShownId === id);
       var _lrChips = [];
       _lrChips.push('<span class="lr-chip"><span class="lr-chip-ico" aria-hidden="true">📌</span>' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + '</span>');
@@ -1035,10 +1035,12 @@
           : ((_lrSpot.total > 1) ? (_lrSpot.total + ' updates') : 'Latest update');
         _lrChips.push('<span class="lr-chip lr-chip-spot"><span class="lr-chip-ico" aria-hidden="true">🔦</span>' + _lrSpotV + '</span>');
       }
-      // Honest pointer — to the Snapshot when present, otherwise to the sections
-      // that ARE on this profile, so the cross-reference is always real.
+      // Honest pointer — to the shared index when the limited-record card is on this
+      // profile (the card sits under it), otherwise to the sections that ARE here, so
+      // the cross-reference is always real. It named "the Candidate Snapshot at the
+      // top" until that card was renamed and moved below ⚖️ Word vs Action.
       var _lrRef = _lrSnap
-        ? ' The <strong style="color:#c4b5fd;">Candidate Snapshot</strong> at the top pulls these together at a glance.'
+        ? ' <strong style="color:#d8b4fe;">⚖️ Word vs Action</strong> above indexes them by outcome, and the card under it explains why the record is still thin.'
         : (' Your <strong style="color:#a78bfa;">How You Compare</strong> match' +
             (_lrSpot ? ' and the <strong style="color:#f5c842;">Spotlight</strong> are' : ' is') + ' on this profile too.');
       _limitedBanner =
@@ -2663,19 +2665,36 @@
   };
 
 
-  // ── Candidate Snapshot ───────────────────────────────────────────────
-  // A structured overview for thin / early-record profiles. Rather than a
-  // stack of empty placeholders, it leads with what IS known about a
-  // candidate — their stated positions and priorities, the issues they can
-  // be compared on, and the latest Spotlight item — while being honest about
-  // the limited record and what is still being gathered. It is the orienting
-  // summary that ties together three existing systems:
-  //   • the Alignment Tool — which issues they have stated positions on,
-  //     keyed by the SAME ISSUE_MAP keys so it links one-to-one;
-  //   • the Spotlight — where statements, positions and events are logged;
-  //   • their bio, key issues and documented stances.
-  // Returns '' for a full record (or on any error) so it never shows there
-  // and the caller can cleanly fall back to the plain thin notice.
+  // ── The limited-record card (formerly "Candidate Snapshot") ──────────
+  // WHAT THIS IS NOW. A member or candidate with no scorable record still needs
+  // one thing the shared shell cannot derive: WHY the record is thin. ⚖️ Word vs
+  // Action can say "11 documented statements on file and no formal action to
+  // test any of them against yet" — it cannot know that the reason is a
+  // challenger who has never held the seat, an official three months into a
+  // first term, or someone who lost a primary in June. That is what this card
+  // explains, plus the two paths that still work without a record (compare on
+  // values, follow the Spotlight) and an honest list of what is being gathered.
+  //
+  // WHAT IT USED TO BE, AND WHY THAT CHANGED. It was "Candidate Snapshot": a
+  // full structured overview mounted ABOVE the verdict, opening with a jump
+  // index ("One read on <name>, three ways"), a distribution strip of ✓/✗/~
+  // chips, and every documented position as its own row with a direction badge,
+  // a 🗳 Recorded / 💬 Stated basis tag and an inline match verdict. On a thin
+  // member that meant a reader met a summary, a shape, an issue list and a
+  // per-issue vocabulary — and then met ⚖️ Word vs Action's summary, shape strip,
+  // issue index and four-bucket vocabulary one section later, computed from a
+  // different pool and free to disagree. Executive profiles never had the first
+  // set, which is precisely why the two lanes did not read as one product.
+  //
+  // Those four halves are retired here rather than restyled: the shared shell
+  // renders them for members exactly as it does for executives. What survives is
+  // the half the shell has no way to produce. The card is also DEMOTED — it
+  // mounts under ⚖️ Word vs Action now, in the verdict stage, so the reading
+  // order on a thin member is the same as on Trump: identity, then Direction
+  // Match, then the shape, then the issues, then the context for the gap.
+  //
+  // Returns '' for a full record (or on any error) so it never shows there and
+  // the caller can cleanly fall back to the plain thin notice.
   window._renderCandidateSnapshot = function(id, p, opts) {
     p = p || {}; opts = opts || {};
     if (!opts.isThin) return '';
@@ -2694,13 +2713,7 @@
       var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
       var keyed = stanceList.filter(function(s) { return s && s.issueKey; });
       var keyIssues = window._pdxKeyIssues(p);
-      var statedCount = stanceList.length || keyIssues.length;
       var trackedIssueCount = keyed.length || keyIssues.length;
-      // A position is "recorded" when it carries concrete evidence — a named
-      // vote, signed bill or sponsored measure — versus "stated", taken from
-      // public statements or campaign materials. This split drives the visual
-      // treatment that lets users tell a voting record from a campaign promise.
-      var recordedCount = stanceList.filter(function(s) { return s && s.evidence; }).length;
 
       // ── Honest "Limited Record" lede ─────────────────────────────────
       // Only promise "the issues below" when there is actually something there
@@ -2724,14 +2737,14 @@
           : (_candStatus === 'withdrew' || _candStatus === 'withdrawn' || _candStatus === 'suspended')
             ? 'withdrew from the ' + (is2026 ? '2026 ' : '') + 'race before the ballot was set'
             : 'ran in ' + (is2026 ? '2026' : 'this race') + ' but did not advance past the nominating stage';
-        lede = first + ' ' + _verb + ', so there is <strong>no governing record to score</strong>. ' +
+        lede = first + ' ' + _verb + ', so there is <strong>no governing record to test their word against</strong>. ' +
           (_hasStands
-            ? 'What is shown below is what ' + first + ' campaigned on — their stated positions and priorities, kept here for the record.'
+            ? 'What is on this profile is what ' + first + ' campaigned on — their stated positions and priorities, kept here for the record.'
             : 'This profile reflects only what is verifiable from public records, so positions are intentionally left out rather than invented.');
       } else if (isChallenger) {
-        lede = first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so there are <strong>no tracked promises to score yet</strong> — and that\'s expected this early. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding votes, sources and promises as the race develops.';
+        lede = first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so <strong>there is no formal record yet to test their word against</strong> — and that\'s expected this early. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding votes and sources as the race develops.';
       } else {
-        lede = first + ' is early in their term, so there are <strong>few tracked promises so far</strong> — a thin record here is normal at this stage. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
+        lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — a thin record here is normal at this stage. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
       }
 
       // ── At-a-glance facts ─────────────────────────────────────────────
@@ -2742,127 +2755,60 @@
         var ed = new Date(p.nextElection + 'T00:00:00');
         if (!isNaN(ed.getTime())) facts.push({ k: (p.electionLabel || 'Next election'), v: ed.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) });
       }
-      if (statedCount) facts.push({ k: 'Issue positions', v: String(statedCount), accent: true });
-      if (recordedCount) facts.push({ k: 'Vote/bill-backed', v: String(recordedCount) });
-      // Promise record: never show a bare "Promises scored: 0" — it reads as an
-      // empty scoreboard and adds no value. Lead with an honest status word
-      // instead. The lede already explains why nothing is scored yet. For a
-      // candidate who is no longer on the ballot, say so plainly rather than
-      // implying a record is still on its way.
-      facts.push(_inactiveCand
-        ? { k: 'Race status', v: _lostPrimaryCand ? 'Lost primary' : (_candStatus === 'withdrew' || _candStatus === 'withdrawn' || _candStatus === 'suspended') ? 'Withdrew' : 'Did not advance', muted: true }
-        : isChallenger
-          ? { k: 'Promise record', v: 'Begins in office', muted: true }
-          : { k: 'Promise record', v: 'Building', muted: true });
+      // NO COVERAGE OR PLEDGE TALLIES HERE. This block used to carry "Issue
+      // positions: N", "Vote/bill-backed: N" and "Promise record: Begins in
+      // office / Building". All three are counts of the same material ⚖️ Word vs
+      // Action counts one section below, in its own vocabulary and against its
+      // own denominator — a reader met "12 issue positions, 3 vote/bill-backed"
+      // here and "0 of 6 testable statements have a formal action behind them"
+      // there, and had no way to reconcile them. The shared shell owns coverage.
+      // What survives is identity: the seat, the party, the date, and — when the
+      // candidate is off the ballot — the fact that they are.
+      if (_inactiveCand) {
+        facts.push({ k: 'Race status', v: _lostPrimaryCand ? 'Lost primary' : (_candStatus === 'withdrew' || _candStatus === 'withdrawn' || _candStatus === 'suspended') ? 'Withdrew' : 'Did not advance', muted: true });
+      }
       var factsHtml = '<div class="cs-facts">' + facts.map(function(f) {
         return '<div class="cs-fact"><div class="cs-fact-k">' + f.k + '</div>' +
           '<div class="cs-fact-v' + (f.accent ? ' cs-accent' : '') + (f.muted ? ' cs-muted' : '') + '">' + f.v + '</div></div>';
       }).join('') + '</div>';
 
       // ── What they stand for ───────────────────────────────────────────
-      var posMetaCS = {
-        support:  { ico: '✓', label: 'Supports', cls: 'cs-b-support' },
-        oppose:   { ico: '✗', label: 'Opposes',  cls: 'cs-b-oppose' },
-        mixed:    { ico: '~', label: 'Mixed',     cls: 'cs-b-mixed' },
-        priority: { ico: '★', label: 'Priority',  cls: 'cs-b-priority' },
-        tracking: { ico: '…', label: 'Tracking',  cls: 'cs-b-priority' }
-      };
-      // Shared linkage state, used by both the positions list and the connector.
+      // THE PER-ISSUE LIST THAT USED TO LIVE HERE IS RETIRED. It rendered every
+      // documented position as its own row with a direction badge (✓ Supports /
+      // ✗ Opposes / ~ Mixed), a basis tag (🗳 Recorded / 💬 Stated) and, when the
+      // visitor had Alignment picks, an inline match verdict (✓ You match / ~
+      // Partial / ✗ You differ) — a complete second issue index, with a second
+      // per-issue vocabulary, sitting above the one ⚖️ Word vs Action publishes.
+      //
+      // Two of those words actively collided with the shared bucket language.
+      // "Mixed" here meant a stance that points both ways; "Mixed" in the shape
+      // strip means the RECORD went both ways on a stance. Same word, same
+      // scroll, two different claims. And "Recorded" here meant "this position
+      // cites a vote or bill", which is not what "the record backed it up"
+      // means anywhere else on the profile.
+      //
+      // Nothing is lost: the positions themselves render in full in 🧭 Key Issue
+      // Stances (with their sources and evidence depth), and the shared issue
+      // index below the shape strip is where a reader browses them by outcome.
+      // This card now points at both instead of restating either.
       var alignHasUser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
-      var hasIssueMap = (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP);
-      // Source-type tag — the visible difference between a position backed by an
-      // actual vote/bill ("Recorded") and one taken from public statements ("Stated").
-      var srcMeta = {
-        rec:    { ico: '🗳', label: 'Recorded', cls: 'cs-src-rec' },
-        stated: { ico: '💬', label: 'Stated',   cls: 'cs-src-stated' }
-      };
-      // Per-issue "your match" verdict, surfaced inline only when the visitor has
-      // a saved Alignment pick on this exact issue — the at-a-glance linkage.
-      var vdMeta = {
-        match:    { ico: '✓', label: 'You match',  cls: 'cs-vd-match' },
-        partial:  { ico: '~', label: 'Partial',    cls: 'cs-vd-partial' },
-        mismatch: { ico: '✗', label: 'You differ', cls: 'cs-vd-mismatch' }
-      };
-      function _csPositionRow(s) {
-        var m = posMetaCS[s.pos] || posMetaCS.tracking;
-        var src = s.evidence ? srcMeta.rec : srcMeta.stated;
-        var vdHtml = '';
-        if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
-          var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'support';
-          var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos) : null;
-          var vm = verdict && vdMeta[verdict];
-          if (vm) vdHtml = '<span class="cs-vd ' + vm.cls + '">' + vm.ico + ' ' + vm.label + '</span>';
-        }
-        var txt = (s.text || '').toString();
-        return '<div class="cs-pos">' +
-          '<div class="cs-pos-line">' +
-            '<span class="cs-pos-ico">' + (s.icon || '🎯') + '</span>' +
-            '<span class="cs-pos-topic">' + (s.topic || 'Issue') + '</span>' +
-            '<span class="cs-pos-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
-            '<span class="cs-src ' + src.cls + '">' + src.ico + ' ' + src.label + '</span>' +
-            vdHtml +
-          '</div>' +
-          (txt ? '<p class="cs-pos-text">' + txt + '</p>' : '') +
-        '</div>';
-      }
+
 
       // ── Issue positions (the centerpiece) ─────────────────────────────
-      // The heart of a thin profile: the specific issues this candidate has
-      // taken a documented position on, each shown with its DIRECTION
-      // (Supports / Opposes / Mixed), the one-line position itself, and its
-      // BASIS — "Recorded" (a named vote or bill) vs "Stated" (a public
-      // statement). Comparable (Alignment-keyed) positions lead, and any that
-      // overlap the visitor's saved Alignment picks get an inline match verdict.
+      // The heart of a thin profile USED to be a full per-issue list here. It is
+      // now a pointer: when documented positions exist they are browsed by
+      // outcome in the shared issue index under ⚖️ Word vs Action, and read in
+      // full — with sources and evidence depth — in 🧭 Key Issue Stances. This
+      // branch only says which door to use. The two branches below it are the
+      // honest blanks, and they stay, because when there is nothing to point at
+      // this card is the only place that says so.
       var standsHead, standsBody, posCountPill = '';
       if (stanceList.length) {
-        // Order so the strongest evidence leads: vote/bill-backed ("Recorded")
-        // positions first, then the other Alignment-comparable positions, then
-        // the rest. On a thin profile this list IS the main read, so every
-        // position is shown — nothing is hidden behind a "+N more" fold.
-        var sortedStances = stanceList.slice().sort(function(a, b) {
-          var ae = a.evidence ? 1 : 0, be = b.evidence ? 1 : 0;
-          if (be !== ae) return be - ae;
-          return (b.issueKey ? 1 : 0) - (a.issueKey ? 1 : 0);
-        });
-        // At-a-glance distribution — the scan layer. A visitor reads the SHAPE of
-        // the record (how many supports vs opposes, how much is vote-backed vs
-        // stated, and how many line up with their own Alignment picks) before
-        // reading any single position. This is what makes the Snapshot the place
-        // to size up a thin candidate in a few seconds.
-        var dSup = 0, dOpp = 0, dMix = 0, dRec = 0, dStated = 0, dYouM = 0, dYouT = 0;
-        stanceList.forEach(function(s) {
-          if (s.pos === 'support') dSup++;
-          else if (s.pos === 'oppose') dOpp++;
-          else if (s.pos === 'mixed') dMix++;
-          if (s.evidence) dRec++; else dStated++;
-          if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
-            dYouT++;
-            var ivd = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'support';
-            if ((typeof _issueVerdict === 'function' ? _issueVerdict(ivd, s.issueStance || s.pos) : '') === 'match') dYouM++;
-          }
-        });
-        var distChips = '';
-        if (dSup) distChips += '<span class="cs-dist-chip cs-b-support">✓ ' + dSup + ' Support' + (dSup > 1 ? 's' : '') + '</span>';
-        if (dOpp) distChips += '<span class="cs-dist-chip cs-b-oppose">✗ ' + dOpp + ' Oppose' + (dOpp > 1 ? 's' : '') + '</span>';
-        if (dMix) distChips += '<span class="cs-dist-chip cs-b-mixed">~ ' + dMix + ' Mixed</span>';
-        if (dRec) distChips += '<span class="cs-dist-chip cs-src-rec">🗳 ' + dRec + ' Recorded</span>';
-        if (dStated) distChips += '<span class="cs-dist-chip cs-src-stated">💬 ' + dStated + ' Stated</span>';
-        if (dYouT) distChips += '<span class="cs-dist-chip cs-dist-you">🤝 You agree on ' + dYouM + '/' + dYouT + '</span>';
-        var distRow = distChips ? '<div class="cs-dist">' + distChips + '</div>' : '';
-
         standsHead = '📌 Where ' + first + ' stands';
         posCountPill = '<span class="cs-count-pill">' + stanceList.length + ' position' + (stanceList.length === 1 ? '' : 's') + '</span>';
-        var posIntro = '<p class="cs-pos-intro">The clearest read on ' + first + ' right now: <strong>every issue position on record</strong>, strongest evidence first. ' +
-          (dYouT ? 'Your matching picks are flagged inline.' : 'Set your Alignment picks to see where you line up.') + '</p>';
-        var posLegend = '<div class="cs-pos-legend">' +
-          '<span><span class="cs-src cs-src-rec">🗳 Recorded</span> backed by a vote or bill</span>' +
-          '<span><span class="cs-src cs-src-stated">💬 Stated</span> from public statements</span>' +
-        '</div>';
-        standsBody = posIntro + distRow + posLegend + '<div class="cs-pos-list">' +
-          sortedStances.map(_csPositionRow).join('') +
-        '</div>' +
-        '<p class="cs-pos-more">Full context, the record and sources for each position are in <strong style="color:#d8b4fe;">Key Issue Stances</strong> below' +
-          (alignHasUser ? ', and matched issue-by-issue to your picks in <strong style="color:#d8b4fe;">How You Compare</strong>.' : '.') + '</p>';
+        standsBody = '<p class="cs-stance-text">' + first + ' has <strong>' + stanceList.length + ' documented position' + (stanceList.length === 1 ? '' : 's') + '</strong> on file. ' +
+          'They are browsed by outcome in the issue index under <strong style="color:#d8b4fe;">⚖️ Word vs Action</strong> above — including the ones nothing on the formal record can test yet — and read in full, with sources, in <strong style="color:#d8b4fe;">Key Issue Stances</strong> below' +
+          (alignHasUser ? ', matched issue-by-issue to your picks in <strong style="color:#d8b4fe;">How You Compare</strong>.' : '.') + '</p>';
       } else if (keyIssues.length) {
         standsHead = '🎯 ' + first + '\'s campaign priorities';
         posCountPill = '<span class="cs-count-pill">' + keyIssues.length + ' issue' + (keyIssues.length === 1 ? '' : 's') + '</span>';
@@ -3031,7 +2977,11 @@
       gatherItems.push(stanceList.length
         ? 'More sourced positions across additional issues'
         : 'Detailed, sourced positions on their key issues');
-      gatherItems.push('Kept-and-broken promises as commitments play out');
+      // NO "kept-and-broken promises" LINE. Pledges are a weighted tier INSIDE
+      // ⚖️ Word vs Action, not a scoreboard of their own — promising a future
+      // kept/broken tally here is the retired promise product announcing its
+      // return. What is genuinely missing is formal action to test the word
+      // against, and the line above already says that.
       var gatherBlock = '<div class="cs-gather"><div class="cs-gather-h">⏳ We\'re actively gathering</div>' +
         '<ul class="cs-gather-list">' + gatherItems.map(function(g) { return '<li>' + g + '</li>'; }).join('') + '</ul></div>';
 
@@ -3051,44 +3001,21 @@
       '</div>';
 
       var hint = '<div class="cs-foot-hint">↓ ' +
-        ((keyIssues.length || stanceList.length) ? 'Full positions, your alignment and the promise tracker are below' : 'More detail is below') + '</div>';
+        ((keyIssues.length || stanceList.length) ? 'The full positions, the record and your alignment are below' : 'More detail is below') + '</div>';
 
-      // ── Cohesion index ("one read, three ways") ───────────────────────
-      // The connective frame for the whole snapshot: it names the three lenses
-      // this card uses to size up a thin candidate — their stated Positions, the
-      // visitor's own Alignment match, and the Spotlight — and lets the visitor
-      // jump straight to any of them. Each chip reflects what data actually
-      // exists (a count, a live match %, or an honest status word), so the
-      // snapshot reads as one intentional system rather than three loose blocks.
-      // Built last so it can reflect the spotlight/alignment state resolved above.
-      var mapChips = [];
-      var posV = stanceList.length
-        ? (stanceList.length + ' on record')
-        : (keyIssues.length ? (keyIssues.length + ' priorit' + (keyIssues.length === 1 ? 'y' : 'ies')) : 'Being added');
-      mapChips.push({ t: 'cs-block-positions', ico: '📌', k: 'Positions', v: posV });
-      var matchV, matchAccent = false;
-      if (userMatch !== null) { matchV = userMatch + '% match'; matchAccent = true; }
-      else if (trackedIssueCount > 0) { matchV = 'Compare'; }
-      else { matchV = 'Compare'; }
-      mapChips.push({ t: 'cs-block-align', ico: '🤝', k: 'Your match', v: matchV, accent: matchAccent });
-      if (spotBlock) {
-        var spotV = (spot && (spot.kind === 'newcomer' || spot.kind === 'monitoring'))
-          ? 'Monitoring'
-          : ((spot && spot.total > 1) ? (spot.total + ' updates') : 'Latest update');
-        mapChips.push({ t: 'cs-block-spot', ico: '🔦', k: 'Spotlight', v: spotV });
-      }
-      var mapHtml = '<div class="cs-map">' +
-        '<div class="cs-map-intro"><span aria-hidden="true">🧭</span>One read on ' + first + ', three ways — tap to jump</div>' +
-        '<div class="cs-map-row">' +
-          mapChips.map(function(c) {
-            return '<button type="button" class="cs-map-chip" onclick="event.stopPropagation();var el=document.getElementById(\'' + c.t + '\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'center\'});">' +
-              '<span class="cs-map-ico" aria-hidden="true">' + c.ico + '</span>' +
-              '<span class="cs-map-txt"><span class="cs-map-k">' + c.k + '</span>' +
-              '<span class="cs-map-v' + (c.accent ? ' cs-map-v-match' : '') + '">' + c.v + '</span></span>' +
-            '</button>';
-          }).join('') +
-        '</div>' +
-      '</div>';
+      // ── THE "ONE READ, THREE WAYS" INDEX IS RETIRED ───────────────────
+      // It rendered a row of jump chips — 📌 Positions · 🤝 Your match · 🔦
+      // Spotlight — under the heading "One read on <name>, three ways — tap to
+      // jump". That was a second navigation model for the profile: a reader
+      // arriving on a thin member met it, then the sticky jump rail above it,
+      // then the shape strip's bucket gateway one section down, three different
+      // maps of the same page competing for the same tap.
+      //
+      // The shape strip is the browsing control now — on a member exactly as on
+      // an executive — and the sticky rail is the page-level map. This card is a
+      // stop on that path, not a rival index of it, so it no longer offers to
+      // navigate. The blocks it pointed at are still here, in order, one scroll
+      // apart, and they keep their ids so any existing deep link still lands.
 
       // Limited-record pill label — mirror the exact wording the card-level depth
       // badge uses (🌱 "Early in Term" for a sitting official with nothing tracked
@@ -3098,16 +3025,21 @@
       var csPillLabel = (!isChallenger && typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(p) === 'none')
         ? 'Early in Term' : 'Limited Record';
 
+      // THE TITLE IS SHARED VOCABULARY NOW. "Candidate Snapshot" named a product
+      // — a structured overview that led the profile and answered the same
+      // question ⚖️ Word vs Action answers, in different words, against a
+      // different pool. The card kept its honest content and lost its claim to
+      // be the summary: it is titled by what it actually explains, which is why
+      // the record is thin and what is being gathered.
       return '<div class="cand-snapshot">' +
         '<div class="cs-head">' +
           '<div class="cs-head-ico">' + (isChallenger ? '🗳️' : '🌱') + '</div>' +
           '<div class="cs-head-main">' +
-            '<div class="cs-title">Candidate Snapshot<span class="cs-pill" title="Not a knock on the candidate — it just means we have few tracked promises so far. This snapshot leads with what is known: their stated positions and where they stand on the issues.">' + csPillLabel + '</span></div>' +
+            '<div class="cs-title">Why this record is thin<span class="cs-pill" title="Not a knock on the candidate — it means there is not yet enough formal action on file to test their word against. The positions themselves are above and below; this explains the gap.">' + csPillLabel + '</span></div>' +
             '<p class="cs-lede">' + lede + '</p>' +
           '</div>' +
         '</div>' +
         factsHtml +
-        mapHtml +
         standsBlock +
         alignBlock +
         spotBlock +
@@ -4683,13 +4615,17 @@
         '</div>';
       })()}
 
-      <!-- Candidate Snapshot — a structured overview shown only when there is no
-           scorable record yet. It leads with what IS known (stated positions,
-           the issues they can be compared on, the latest Spotlight item) and is
-           honest about the limited record, so a fresh challenger or new
-           officeholder reads as intentional rather than broken. Falls back to
-           the plain thin notice if the snapshot can't render. -->
-      ${candidateSnapshot || thinNotice}
+      <!-- THE LIMITED-RECORD CARD NO LONGER MOUNTS HERE. It stood at this spot,
+           above the verdict, as "Candidate Snapshot" — and on a thin member that
+           made the first thing a reader met a summary, a distribution strip and a
+           per-issue list that ⚖️ Word vs Action was about to render again, one
+           section down, in the shared four-bucket vocabulary. An executive
+           profile has never had anything at this position, which is most of why
+           the two lanes did not read as the same product.
+
+           It now mounts UNDER the section, still in the verdict stage — see
+           below. Nothing about when it renders changed: it is still gated on
+           _isThinProfile and still falls back to the plain thin notice. -->
 
       <!--PDXSP:verdict-->
       <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the whole of the
@@ -4706,8 +4642,28 @@
            Receipts block is still the pledge tier's evidence, and the
            Official Record and Say-vs-Do sections are still the two scoped feeds
            underneath. Renders '' when no word is on file at all — an empty frame
-           would imply the record should be here. -->
+           would imply the record should be here.
+
+           IT IS THE SAME SECTION ON BOTH LANES. Nothing in it is office-aware
+           except the vocabulary of the formal lane itself (🏛️ roll-call votes for
+           a member, ✒️ formal actions for an executive) and the term-scope strip,
+           which is exec-only because a member's roll-call record is not
+           term-scoped anywhere in this engine. The Direction Match framing, the
+           shape strip, the one-bucket-at-a-time issue index, the formal + public
+           lanes on each row and the dossier entry from those rows are one
+           renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
+
+      <!-- The limited-record card — shown only when there is no scorable record
+           yet. It answers the one question the shared shell above it cannot
+           derive: WHY the record is thin (a challenger who has never held the
+           seat, an official early in a first term, a candidate who left the
+           ballot), plus the paths that still work without a record and an honest
+           list of what is being gathered. It carries no score, no shape, no
+           per-issue list and no navigation index of its own — all four now come
+           from the section above, identically on both lanes. Falls back to the
+           plain thin notice if the card can't render. -->
+      ${candidateSnapshot || thinNotice}
 
       <!-- CONNECTING THE DOTS IS UNMOUNTED. It rendered a full-width card here —
            the eyebrow "Connecting the Dots", the title "Where <name>'s word met
