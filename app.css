@@ -18050,8 +18050,16 @@
          footer). Reserve it once, on the deck, and the deck stays flush.
          The "Add to My Team" call-to-action and the react / save / comment /
          evidence strip get a touch more height so they read as confident,
-         separated thumb targets rather than a cramped cluster. */
-      #modal-footer { padding-bottom: env(safe-area-inset-bottom, 0px); }
+         separated thumb targets rather than a cramped cluster.
+
+         THE RESERVATION COVERS TWO JOBS AND PAYS FOR ONE. `max()` is doing real
+         work here: the deck needs a little air under its last row of buttons on
+         every device, and a notched device needs the home-bar inset. Those are
+         the same gap, not two gaps — a device reporting 34px gets 34px, a device
+         reporting none gets the 0.4rem, and neither gets the sum. The strip used
+         to add that 0.4rem itself, one level down, which made the notched case
+         pay both (see the deck-height pass at the end of this file). */
+      #modal-footer { padding-bottom: max(0.4rem, env(safe-area-inset-bottom, 0px)); }
       #modal-action-strip > * { min-height: 46px !important; }
       #modal-addteam-btn { min-height: 50px !important; font-size: 0.82rem !important; }
       .pdx-modal-share-btn { min-width: 44px; min-height: 44px; }
@@ -18651,4 +18659,58 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
 @media (max-width: 420px) {
   .pdxg-toggle-cta { flex: 1 1 100%; }
   .pdxg-ask-btn { flex: 1 1 100%; text-align: center; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROFILE DECK — the last of the reclaimable height, and the one real stack
+   ═══════════════════════════════════════════════════════════════════════════
+   The deck was already pinned correctly: it is a flex SIBLING of the scrolling
+   body, not an overlay, so it cannot sit on top of content, and the bottom
+   safe-area inset is reserved exactly once — on #modal-footer, the element
+   actually against the screen edge (pinned by scripts/test-modal-bottom-chrome).
+   Two things were still true on a phone, and this pass is only those two.
+
+   1 · THE INSET AND THE DECK'S OWN AIR WERE BOTH BEING PAID.
+       #modal-footer reserved env(safe-area-inset-bottom) and #modal-action-strip
+       independently reserved 0.4rem of breathing room under the last row of
+       buttons. On a device with no inset that 0.4rem is exactly right. On a
+       notched phone it is 6-7px of padding sitting on top of ~34px of home-bar
+       inset, which is the same "stacked" mistake the four-site version made, just
+       smaller and one level down. The strip's own reservation is removed and the
+       deck's becomes max(air, inset): whichever is larger, never the sum. Still
+       one env() site in the whole modal stack, still on the deck.
+
+   2 · THE TARGETS WERE OVERSIZED, NOT RIGHT-SIZED.
+       An earlier accessibility pass set the CTA to 50px and every engagement
+       control to 46px. The threshold that pass was aiming at is 44px, and both
+       numbers are simply above it — 12px of the deck bought nothing a reader can
+       use. They come down to 46 and 44 respectively: still at or over the target
+       everywhere, and no control loses a pixel of horizontal area.
+
+   Nothing is removed. The CTA, its hint line, and all five engagement controls
+   render exactly as before. Net on a notched phone: ~132px + 34px inset →
+   ~112px + 34px inset, so ~20px more profile visible on every screen, and the
+   last stance and issue-index rows clear the deck by that much more.
+   Appended last so it wins the cascade over the earlier phone passes. */
+@media (max-width: 768px) {
+  /* THE ONE BOTTOM RESERVATION now covers both jobs, and it is declared where it
+     always was — up in the ≤768px pass that owns it, changed in place from
+     `env(...)` to `max(0.4rem, env(...))`. It is not restated here: a second
+     mention of the inset in this stack is the exact shape of the bug this file's
+     modal rules keep having, and scripts/test-modal-bottom-chrome.mjs counts the
+     mentions for that reason. What this pass does is take the duplicate OUT of
+     the strip, so the deck's air and the home-bar inset stop being additive. */
+  #modal-action-strip { padding-bottom: 0 !important; }
+
+  /* At the 44px threshold rather than above it. */
+  #modal-addteam-btn { min-height: 46px !important; }
+  #modal-action-strip > * { min-height: 44px !important; }
+
+  /* The frame around the CTA row, trimmed to match. */
+  #modal-footer > div:first-child {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+  #modal-addteam-hint { margin-top: 0.15rem !important; }
 }

@@ -22,8 +22,11 @@
 //   · THE PATH IS CONTINUOUS. The dossier header repeats the bucket's word, in
 //     the bucket's colour, under a title carrying the issue's colour. One
 //     vocabulary, owned by PDXWordAction, read by consistency.js — never restated.
-//   · NO SECOND SCOREBOARD. Not one percentage anywhere in the index; the
-//     denominator is said once, in words, at the foot.
+//   · NO SECOND SCOREBOARD. A profile has exactly one score and it is the
+//     Direction Match above this block. The index may print a percentage only as a
+//     PER-ISSUE figure on the row that owns it, inside .pdxwa-oc-pct and carrying
+//     its own scope label; nothing else in the index prints one, the shape strip
+//     prints none at all, and the denominator is said once, in words, at the foot.
 //   · FAIL CLOSED. No consistency module, no navigation. No bucket for a verdict,
 //     no bucket line — rather than a fifth word invented for the same four
 //     outcomes.
@@ -346,24 +349,52 @@ ok(/data-pdxwa-seg="consistent"[\s\S]{0,300}?aria-selected="true"/.test(CLEAN),
   "zero: the index opens on an empty bucket while a populated one exists");
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 2. Not a second scoreboard
+// 2. One SCORE, and the row figures that are not it
 // ═════════════════════════════════════════════════════════════════════════════
-// The profile has ONE number and it is the Direction Match above this block. The
-// index reports counts and names; a percentage here would be subtracted from that
-// one by every reader who saw both.
-eq((IDX.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
-  "index: the issue index prints a percentage — there is exactly one score on a profile");
+// The profile has ONE score and it is the Direction Match above this block.
+//
+// This section used to say the index prints no percentage at all, which was the
+// cheapest way to guarantee that and, on a phone, too expensive: a bucket holds
+// every issue that landed in it, and with a word alone a row that matched on
+// eleven instruments of twelve and a row that scraped through are the same green
+// line. The rule is now the narrower true one — a percentage in the index is
+// allowed if, and only if, it is a PER-ISSUE figure that says so:
+//
+//   · it sits inside a .pdxwa-oc-pct block, on the row it belongs to;
+//   · that block carries its own scope label (.pdxwa-oc-pct-l — "this issue");
+//   · nothing outside those blocks prints a percentage anywhere in the index.
+//
+// The shape strip above and the dossier's bucket line below stay at zero
+// percentages — see the gateway and continuity sections. The strip is a gateway,
+// not a measurement, and the bucket line says where a finding was filed.
+const pctContract = (html, where) => {
+  const text = (h) => h.replace(/<[^>]+>/g, " ");
+  const all = (text(html).match(/%/g) || []).length;
+  const scoped = (html.match(/class="pdxwa-oc-pct-v">[^<]*%/g) || []).length;
+  eq(all, scoped,
+    where + ": a percentage is printed outside a row's own per-issue figure — there is exactly\n" +
+    "    one score on a profile, and it is not in this index");
+  eq((html.match(/class="pdxwa-oc-pct"/g) || []).length,
+     (html.match(/class="pdxwa-oc-pct-l"/g) || []).length,
+    where + ": a per-issue figure rendered without its scope label — an unqualified number on a\n" +
+    "    row is exactly how a reader comes to believe the profile has two scores");
+  return scoped;
+};
+pctContract(IDX, "index");
 // ...and the denominator is still recoverable, in words, once.
 has(IDX, "5 issues in this index", "index: the index does not state how many issues it covers");
 has(IDX, "4 with a result on the record", "index: the index does not separate judged issues from coverage");
 has(IDX, "1 stated but not testable yet", "index: the untestable rows are folded into the judged count");
 // The headline is still the headline: the section's own metric name appears above
-// the index, and the index never repeats it.
+// the index. The index may name the metric only where it is bound to one issue —
+// inside a row's figure, or in the row's own title/aria text, which always says
+// "on this issue alone". Never as free-standing text in the index body.
 const head = String(withRows(ROWS));
 ok(head.indexOf("Direction match") !== -1 || head.indexOf("Direction Match") !== -1,
   "hierarchy: the profile-level metric no longer names itself above the index");
-hasnt(IDX, "Direction match", "hierarchy: the index restates the profile-level metric, which makes it read\n" +
-  "    as a second scoreboard rather than as a breakdown of the first");
+hasnt(IDX.replace(/<[^>]+>/g, " "), "Direction match",
+  "hierarchy: the index restates the profile-level metric as visible body text, which makes it\n" +
+  "    read as a second scoreboard rather than as a breakdown of the first");
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 3. The row is the door
@@ -882,8 +913,15 @@ ok(prezIdx.length > 0, "lanes: the executive index did not render");
 has(prezIdx, "executive action", "lanes: a president's rows do not count executive actions");
 ok(!/\b\d+ votes?\b/.test(prezIdx), "lanes: a president's rows count votes — they cast none");
 has(prezIdx, 'data-pdxwa-dos="' + ISSUE + '"', "lanes: the executive rows are not clickable");
-eq((prezIdx.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
-  "lanes: the executive index prints a percentage of its own");
+eq((prezIdx.replace(/<[^>]+>/g, " ").match(/%/g) || []).length,
+   pctContract(prezIdx, "lanes"),
+  "lanes: the executive index prints a percentage that is not a scoped per-issue figure");
+// And the positive half, on real rows rather than stubs: the figure is actually
+// reaching the face. Without this the contract above is satisfied by an index that
+// prints no percentage at all, which is the state this pass changed.
+ok((prezIdx.match(/class="pdxwa-oc-pct"/g) || []).length > 0,
+  "lanes: no row carries its own Direction Match figure — the bucket word gives the direction\n" +
+  "    of a finding and nothing on the face gives its degree");
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 8. Thin and untested rows fail closed

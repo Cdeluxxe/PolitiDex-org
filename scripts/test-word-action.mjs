@@ -1439,7 +1439,17 @@ const voteNarration = (issueKey, extra = {}) => ({
   const strip = (h) => {
     const i = h.indexOf('class="pdxwa-comp"');
     if (i === -1) return '';
-    const j = h.indexOf('class="pdxwa-tiers"', i);
+    // END AT THE STRIP, NOT AT WHATEVER FOLLOWS IT. This probe used to run to
+    // `class="pdxwa-tiers"` — the basis table, which happened to be the next block
+    // in the card. When the mobile hierarchy pass moved the issue index between the
+    // two, the slice silently grew to cover the index as well, and every assertion
+    // below became a claim about both. The "no percentage" check is the one that
+    // matters: the index DOES print a per-issue figure by design, so a probe that
+    // reaches into it either fails for the wrong reason or passes vacuously.
+    // Stop at the first block that can follow the strip, whichever it is.
+    const ends = ['class="pdxwa-oc"', 'class="pdxwa-tiers"']
+      .map((s) => h.indexOf(s, i)).filter((n) => n !== -1);
+    const j = ends.length ? Math.min.apply(null, ends) : -1;
     return h.slice(i, j === -1 ? h.length : j);
   };
   const txt = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/\s+/g, ' ');

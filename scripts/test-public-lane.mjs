@@ -378,9 +378,25 @@ for (const [who, pid] of [["congressional", MEMBER], ["executive", PREZ]]) {
   const pubCount = (idx.match(/class="pdxwa-oc-pub[ "]/g) || []).length;
   ok(rowCount > 0, `index (${who}): no rows rendered`);
   eq(pubCount, rowCount, `index (${who}): the public tally does not appear on every row`);
-  // NO SECOND SCOREBOARD — and the public lane did not become one either.
-  eq((idx.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
-    `index (${who}): the index prints a percentage — there is exactly one score on a profile`);
+  // NO SECOND SCOREBOARD — and the public lane did not become one either. A row
+  // may carry its own Direction Match figure (the per-issue one, in
+  // .pdxwa-oc-pct, labelled with its scope — see scripts/test-issue-index.mjs
+  // section 2), and that is the ONLY percentage the index is allowed to print.
+  // What matters to this file is the lane, and the lane rule is absolute: the
+  // figure a row prints belongs to whichever lane DECIDED that row, and the
+  // public tally beside it stays counts-only forever.
+  const idxText = idx.replace(/<[^>]+>/g, " ");
+  eq((idxText.match(/%/g) || []).length,
+     (idx.match(/class="pdxwa-oc-pct-v">[^<]*%/g) || []).length,
+    `index (${who}): the index prints a percentage outside a row's own per-issue figure —\n` +
+    `    there is exactly one score on a profile and it is not in this index`);
+  // The public control is the one on the row that must never show a rate: it is a
+  // tally of receipts, and a percentage on it would read as the public lane
+  // scoring the issue the formal lane just decided.
+  const pubBlocks = idx.match(/class="pdxwa-oc-pub[ "][\s\S]*?<\/button>/g) || [];
+  ok(pubBlocks.length > 0 && !pubBlocks.some((b) => /%/.test(b.replace(/<[^>]+>/g, " "))),
+    `index (${who}): the public tally printed a percentage — it counts receipts, it does not\n` +
+    `    score the issue`);
   // A <button> inside a <button> is invalid markup browsers repair unpredictably.
   // The tally is a SIBLING in the same <li>, which is also what keeps the row's own
   // handler and its origin-id contract untouched.
@@ -557,6 +573,23 @@ const snap = () => {
 };
 const before = snap();
 ok(typeof before.pct === "number", "wall: the profile has no Direction Match to hold constant");
+// Every per-issue figure the index prints, keyed by the issue that prints it. The
+// rows now carry their own Direction Match on the face, so "the index prints no
+// number" is no longer the wall — "no number the index prints moves when public
+// receipts land, and no row starts printing one" is, and it is the stronger
+// statement: it holds the rendered figures still, not just the model. Keyed rather
+// than positional so a failure names the issue that moved, and SORTED because the
+// thing under test is the set of figures, not the running order of the list.
+// Receipts do move a row's position inside its bucket — rankIssueRows() ranks on
+// total evidence and public items are evidence — which is shipped behaviour this
+// pass did not touch and is not what "outside the score" is about: no row gains,
+// loses or changes a figure, and the bucket each one sits in is unmoved.
+const pctsOfIdx = (h) => String(h).split('<li class="pdxwa-oc-li"').slice(1).map((li) => {
+  const k = (li.match(/data-pdxwa-issue="([^"]*)"/) || [, "?"])[1];
+  const p = (li.match(/class="pdxwa-oc-pct-v">([^<]*)</) || [, ""])[1];
+  return p ? k + "=" + p : "";
+}).filter(Boolean).sort().join(" ");
+const cleanIdxPcts = pctsOfIdx(ocOf(WA.headlineHtml(PREZ, ctx.PROFILES[PREZ])));
 const FAKE = "TRUMP";           // normalises to the same pid; a new key busts the receipt cache
 const fake = (headline, impact, category) => ({
   headline: headline, impact: impact, category: category, issueKey: TARGET.key,
@@ -592,8 +625,13 @@ eq(after.word, before.word, "wall: injecting public items changed the stated-pos
 eq(after.rows, before.rows, "wall: injecting public items moved a formally decided issue's result or evidence count");
 // Nor did the surfaces start printing one.
 const dirtyIdx = ocOf(WA.headlineHtml(PREZ, ctx.PROFILES[PREZ]));
-eq((dirtyIdx.replace(/<[^>]+>/g, " ").match(/%/g) || []).length, 0,
-  "wall: with public items on file the index started printing a percentage");
+eq((dirtyIdx.replace(/<[^>]+>/g, " ").match(/%/g) || []).length,
+   (dirtyIdx.match(/class="pdxwa-oc-pct-v">[^<]*%/g) || []).length,
+  "wall: with public items on file the index started printing a percentage outside a row's\n" +
+  "    own per-issue figure");
+eq(pctsOfIdx(dirtyIdx), cleanIdxPcts,
+  "wall: injecting PUBLIC items changed a per-issue Direction Match figure on the index —\n" +
+  "    the receipts are outside the formal arithmetic and must move no figure it prints");
 const dirtyStances = CS.stancesSectionHtml(PREZ);
 const dirtyLine = (dirtyStances.slice(dirtyStances.indexOf('data-pdxst-dos="' + TARGET.key + '"')).match(pubLineRe) || [""])[0];
 ok(!/%/.test(dirtyLine), "wall: a populated public lane printed a percentage on the stance row");

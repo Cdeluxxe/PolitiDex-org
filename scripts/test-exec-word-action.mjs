@@ -1065,7 +1065,15 @@ section("9 · Axis B reaches the reader — a matched action that did not surviv
   // rests on an action nobody can rely on. It is invisible in every other tally on
   // the card — it raises the mean and nothing about it is disputed except whether
   // it still stands.
-  const comp = card.slice(card.indexOf('class="pdxwa-comp"'), card.indexOf("pdxwa-tiers"));
+  // The slice ends at the first block that can follow the strip. It used to end at
+  // "pdxwa-tiers" — the basis table — which was simply the block that happened to
+  // come next; once the issue index moved in between, that boundary swept the whole
+  // index into "the composition strip" and the no-percentage assertion below started
+  // reporting on rows that carry a per-issue figure by design.
+  const compEnds = ['class="pdxwa-oc"', 'pdxwa-tiers']
+    .map((s) => card.indexOf(s, card.indexOf('class="pdxwa-comp"'))).filter((n) => n !== -1);
+  const comp = card.slice(card.indexOf('class="pdxwa-comp"'),
+    compEnds.length ? Math.min.apply(null, compEnds) : card.length);
   ok(comp, "the president's card shows no composition — the mean stands alone");
   has(plain(comp), "issue", "the composition strip counts nothing");
   ok(!/%/.test(plain(comp)),
