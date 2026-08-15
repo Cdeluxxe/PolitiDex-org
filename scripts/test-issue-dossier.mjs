@@ -487,10 +487,21 @@ for (const [lane, items] of [["🏛️", mItems], ["✒️", xItems]]) {
 // And they reach the row face, labelled, on both lanes.
 for (const [lane, html] of [["🏛️", recs], ["✒️", C.dossierRecordsHtml(PREZ, ISSUE)]]) {
   has(html, "What it did:", `${lane} face: the mechanism is on the row, not one tap down`);
-  has(html, "Why it counts here:", `${lane} face: so is the reason it counts on this issue`);
+  // The second slot is always there — in whichever of its two voices the line was
+  // written. "Why it counts here" is a claim only a curated sentence can honour; a
+  // line assembled from the mapping is labelled as the derivation it is, so a reader
+  // auditing the row can tell reasoned curation from a metadata match.
+  ok(html.includes("Why it counts here:") || html.includes("How it was linked:"),
+    `${lane} face: so is the reason it counts on this issue — missing both labels for that slot`);
   has(html, "Which way it cut:", `${lane} face: and so is the direction that produced the chip`);
   has(html, 'class="pdxdos-rec-wk"', `${lane} face: all three slots are labelled rather than run together`);
 }
+// A roll call has no curated slot to fill — plain/counts/rationale are '' on that
+// lane by construction — so every one of its second lines is derived, and none of
+// them may borrow the curated label.
+has(recs, "How it was linked:", "🏛️ face: the roll-call lane's line is labelled as the derivation it is");
+hasnt(recs, "Why it counts here:",
+  "🏛️ face: and never wears the label reserved for a sentence a person wrote");
 // The 🏛️ lane's sentences are ASSEMBLED FROM THE RECORD, not invented: the question
 // and the ballot are the two things a roll call actually carries.
 const hr9Row = mItems.find((d) => d.ident === "H.R. 9");

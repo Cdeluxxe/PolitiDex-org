@@ -2034,6 +2034,22 @@
       // than as the opening words of a paragraph — a reader scanning six rows for
       // one of the two answers finds the same label in the same place every time.
       '.pdxdos-rec-wk{color:#c6d4ec;font-weight:700;}' +
+      // ── A DERIVED LINE MUST NOT WEAR A CURATOR'S VOICE ──────────────────────
+      // Dimmer than the sentence above it, italic, and set behind a dashed rule —
+      // dashed because the solid tinted rule on the veto path already means "read
+      // this, it explains the chip", and this means close to the opposite: nobody
+      // has read this yet. The label loses the bright colour and the bold weight,
+      // so the slot still scans in the same place on every row without claiming the
+      // authority the curated label carries.
+      '.pdxdos-rec-derived{color:#75879f;font-style:italic;' +
+        'border-left:2px dashed rgba(255,255,255,0.13);padding-left:0.45rem;}' +
+      '.pdxdos-rec-wk-d{color:#8fa2c0;font-weight:600;font-style:normal;}' +
+      '.pdxdos-rec-unex{display:inline-block;margin-left:0.35rem;font-size:0.6rem;font-style:normal;' +
+        'color:#9fb4d4;border:1px dashed rgba(159,180,212,0.45);border-radius:999px;' +
+        'padding:0.02rem 0.36rem;white-space:nowrap;}' +
+      // The queue row under the list. PDXGaps supplies the row's own styling; this
+      // only gives its <ul> the spacing a bare list does not have inside the sheet.
+      '.pdxdos-queue{list-style:none;margin:0.55rem 0 0;padding:0;}' +
       // The multi-issue disclosure sits under both, dimmer and italic: it is about
       // the SCOPE of the row rather than about this issue, and it should not compete
       // with the two sentences that are.
@@ -6048,6 +6064,32 @@
     return 'Counted on ' + lbl + ' because that is ' + link +
       (d.narrow ? ', on a link the curation records as a narrow one' : '') + '.';
   }
+  // ── CURATED OR DERIVED, AND THE ROW HAS TO SAY WHICH ────────────────────────
+  // The sentence above is true and it is machine-assembled: it reports that a
+  // mapping exists and says nothing about the document. Printed in the same voice,
+  // the same label and the same weight as a curator's sentence, it is indistinguish-
+  // able from one — so a reader auditing a row cannot tell a reasoned link from a
+  // metadata match, and every mapping that has never been read by a human ships
+  // looking as if it had. That is the only thing this pair of predicates exists to
+  // fix, and it fixes it in presentation: nothing below changes which items are
+  // counted, which way they cut, what they weigh or what any verdict says.
+  function _dosCountsBy(d) {
+    if (!d || d.held) return '';
+    return (d.counts && String(d.counts).trim()) ? 'curated' : 'derived';
+  }
+  // WHICH LANES HAVE A CURATION SLOT AT ALL. `exec` and `formal` items carry a
+  // per-issue sentence in the seed, so a derived line there means the slot is empty
+  // and a curator can fill it — that is a real, closeable piece of work. A roll call
+  // carries no such slot by construction (see _dosItems: plain/counts/rationale are
+  // all '' on that lane, on purpose, because inventing prose the record does not
+  // record is the worse failure). Its line is still labelled as the derivation it
+  // is, and the list's own lane note already explains why — but it is NOT queued,
+  // because a queue nobody can ever action is not a queue, it is a permanent
+  // apology.
+  var _DOS_CURATABLE = { exec: 1, formal: 1 };
+  function _dosNeedsCurator(d) {
+    return _dosCountsBy(d) === 'derived' && !!(d && _DOS_CURATABLE[d.lane]);
+  }
   // ── WHICH WAY IT CUT, AND WHY THAT PRODUCES THE CHIP ────────────────────────
   // Its own line, and always printed — including when a curated "why it counts here"
   // sentence exists, because that sentence explains the SUBJECT and never the
@@ -6146,10 +6188,42 @@
     return {
       did: _dosDidLine(d),
       counts: _dosCountsLine(d, issueKey),
+      // Additive, and load-bearing only for rendering: `counts` is the same string
+      // it has always been, so nothing that reads the sentence sees a change. These
+      // two say how it was produced, which is what the row face now prints.
+      countsBy: _dosCountsBy(d),
+      needsCurator: _dosNeedsCurator(d),
       dir: _dosDirLine(d, issueKey),
       veto: _dosVetoLine(d, issueKey),
       multi: _dosMultiLine(d, issueKey)
     };
+  }
+
+  // ── THE SECOND SLOT, IN WHICHEVER VOICE IT WAS WRITTEN ──────────────────────
+  // Two renderings, one slot, and they are meant to look different from across the
+  // room. A curated line keeps everything it had — the bright "Why it counts here:"
+  // label, full contrast, no ornament — because that label is a claim only a human
+  // sentence can honour. A derived line loses the claim: the label says what the
+  // line actually is ("How it was linked"), the type goes dim and italic behind a
+  // dashed rule, and where a curator could have written one and has not, the row
+  // says so in as many words. No wording is softened and nothing is hidden; the
+  // derived sentence is printed in full, exactly as before.
+  var DOS_WHY_CURATED = 'Why it counts here:';
+  var DOS_WHY_DERIVED = 'How it was linked:';
+  // Short on purpose. It repeats on every unexplained row — up to nine on one
+  // issue — and a full sentence nine times over is noise a reader learns to skip.
+  // The sentence version of it lives once, on the queue row below the list.
+  var DOS_WHY_MARK = '⌛ Not yet explained by a curator';
+  function _dosWhyHtml(m) {
+    if (!m || !m.counts) return '';
+    if (m.countsBy !== 'derived') {
+      return '<span class="pdxdos-rec-why"><b class="pdxdos-rec-wk">' + DOS_WHY_CURATED + '</b> ' +
+        esc(m.counts) + '</span>';
+    }
+    return '<span class="pdxdos-rec-why pdxdos-rec-derived">' +
+        '<b class="pdxdos-rec-wk pdxdos-rec-wk-d">' + DOS_WHY_DERIVED + '</b> ' + esc(m.counts) +
+        (m.needsCurator ? '<span class="pdxdos-rec-unex">' + esc(DOS_WHY_MARK) + '</span>' : '') +
+      '</span>';
   }
 
   // ── L2 — one summary row per instrument ─────────────────────────────────────
@@ -6194,7 +6268,7 @@
          '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
       : (wk('What it did:', m.did) +
          wk('', m.veto, 'pdxdos-rec-veto') +
-         wk('Why it counts here:', m.counts) +
+         _dosWhyHtml(m) +
          wk('Which way it cut:', m.dir) +
          wk('', m.multi, 'pdxdos-rec-multi'));
     return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
@@ -6895,6 +6969,10 @@
       // DECISIVE items; this is the complete enumeration they were drawn from, and
       // a list is only legible once you know what it is a list of.
       _dosRecordsHtml(pid, issueKey, _dosRow, off) +
+      // The outstanding curation on the list directly above, counted on the closed
+      // face so a sheet full of unexplained mappings cannot look like a finished one.
+      // Prints nothing at zero — see _dosQueueHtml.
+      _dosQueueHtml(pid, issueKey, off) +
       // Sideways, not backwards: the next issue's dossier without a trip through
       // the profile and back.
       _dosStepHtml(pid, issueKey) +
@@ -6902,6 +6980,55 @@
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
         LHOWTO('say-vs-do', 'How to read this') + '</div>';
+  }
+
+  // ── HOW MANY MAPPINGS ON THIS ISSUE NOBODY HAS EXPLAINED ────────────────────
+  // Counted off the same normalised list the rows are rendered from, so the number
+  // on the queue row and the number of marked rows in the list cannot drift. Only
+  // lanes with a curation slot are in the denominator — see _DOS_CURATABLE — which
+  // is what keeps this a queue of work someone can actually do. Pure, cheap, and
+  // fails closed to zero: a throw anywhere means no queue row rather than a wrong
+  // one.
+  function _dosUnexplained(pid, issueKey, ov) {
+    var items = [];
+    try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { return { n: 0, listed: 0 }; }
+    var n = 0, listed = 0;
+    for (var i = 0; i < items.length; i++) {
+      var d = items[i];
+      if (!d || d.held || !_DOS_CURATABLE[d.lane]) continue;
+      listed++;
+      if (_dosNeedsCurator(d)) n++;
+    }
+    return { n: n, listed: listed };
+  }
+  // ── AND THE QUEUE THAT CLOSES ITSELF ────────────────────────────────────────
+  // The per-row marker tells a reader that THIS line is unexplained. It does not
+  // tell them how much of the issue is in that state, and it is inside a collapsed
+  // list, so a sheet can be entirely unexplained and look complete on its closed
+  // face. This line states the count where it is visible, and states it as what it
+  // is: our own outstanding writing, not a defect in the record.
+  //
+  // Rendered as a real PDXGaps row rather than a lookalike, for the same reason the
+  // 🧾 hole below the empty public panel is — PDXGaps owns the taxonomy, the
+  // `gap:<pid>:<slug>` thread target, the lead composer and the moderation round
+  // trip, and one contribution system means one queue and one set of words. And,
+  // like every other gap in that module, it is DERIVED and never stored: the day a
+  // curator lands the sentences the count falls, and at zero this returns '' and the
+  // row disappears on its own. There is nothing to reconcile and nothing that can go
+  // on claiming a hole that has already been filled.
+  function _dosQueueHtml(pid, issueKey, ov) {
+    try {
+      var u = _dosUnexplained(pid, issueKey, ov);
+      if (!u.n) return '';
+      var G = window.PDXGaps;
+      if (!G || typeof G.mappingGap !== 'function' || typeof G.rowHtml !== 'function') return '';
+      var g = G.mappingGap(pid, issueKey, u.n, u.listed, null);
+      var row = g ? G.rowHtml(g) : '';
+      return row
+        ? '<ul class="pdxg-list pdxdos-queue" data-pdxdos-queue="' + u.n + '"' +
+            ' data-pdxdos-queue-of="' + u.listed + '">' + row + '</ul>'
+        : '';
+    } catch (e) { return ''; }
   }
 
   // ── One clear next step out of the gap sheet ────────────────────────────────
@@ -7457,6 +7584,15 @@
     // them to each other directly: the mechanism sentences one row shows, and the
     // reconciliation between the count L1 claims and the rows L2 can enumerate.
     dossierMechanism: _dosMechanism,
+    // The outstanding-curation count for one issue, and the queue row it produces.
+    // Exported so a harness can hold the marked rows and the stated number to each
+    // other without scraping HTML for either.
+    dossierUnexplained: function (pid, issueKey) {
+      return _dosUnexplained(pid, issueKey, officialIssue(pid, issueKey));
+    },
+    dossierQueueHtml: function (pid, issueKey) {
+      return _dosQueueHtml(pid, issueKey, officialIssue(pid, issueKey));
+    },
     dossierCoverage: function (pid, issueKey) {
       return _dosCoverage(pid, issueKey, officialIssue(pid, issueKey));
     },

@@ -156,7 +156,8 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
 {
   const { G } = build();
   const ASKABLE = ['no_record', 'thin_record', 'thin_formal_action', 'no_action_yet',
-    'pending_pledge', 'unitemized_pledges', 'not_issue_linked', 'no_public_record'];
+    'pending_pledge', 'unitemized_pledges', 'not_issue_linked', 'no_public_record',
+    'unexplained_mapping'];
   const EXPLAIN = ['circular_hold', 'spoken_for', 'below_floor'];
   ASKABLE.forEach((t) => {
     ok(G.TYPES[t] && G.TYPES[t].askable === true, `${t} must be askable`);
@@ -479,6 +480,57 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     'and rendering one must not change the profile gap count');
   // It renders through the shared row builder, with the existing composer.
   const row = G.rowHtml(g);
+  ok(/class="pdxg-row"/.test(row), 'it renders as the app\'s own gap row');
+  ok(/_pdxGapsAsk/.test(row) && /Suggest a lead/.test(row),
+    'wired to the existing lead composer — not a second contribution system');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8c · The on-demand gap: mappings on ONE issue that nobody has explained
+// ═════════════════════════════════════════════════════════════════════════════
+// Same shape and the same exclusions as 8b, and the same reason for them. What is
+// different is what the copy has to survive: this row sits directly under a list of
+// documents that ARE counted, so any phrasing that reads as doubt about those
+// documents would turn a note about our own writing into a hedge on the evidence.
+{
+  const { G } = build();
+  const P = { name: 'Cory Booker' };
+  const g = G.mappingGap('booker', 'lower_taxes', 4, 9, P);
+  ok(!!g, 'mappingGap must build a gap for a real pid + issue + count');
+  eq(g.type, 'unexplained_mapping', 'it carries its own type, not a borrowed one');
+  eq(g.issueKey, 'lower_taxes', 'and the issue it is about');
+  eq(g.count, 4, 'and the outstanding count, so the row is not the only place it lives');
+  ok(g.askable === true, 'it is askable — a pointer into the document is a lead a curator can use');
+  ok(/^gap:booker:/.test(g.key), 'it uses the same gap:<pid>:<slug> thread target as every other gap');
+  ok(g.key !== G.mappingGap('booker', 'healthcare', 4, 9, P).key,
+    'two issues must not collide on one thread');
+  ok(g.key !== G.publicRecordGap('booker', 'lower_taxes', P).key,
+    'and it must not collide with the other on-demand gap on the SAME issue');
+  // A queue with nothing in it is not a queue. Zero, negative and missing halves
+  // all refuse to build, which is what lets the sheet close the row by itself.
+  ok(!G.mappingGap('booker', 'lower_taxes', 0, 9, P), 'zero outstanding builds nothing');
+  ok(!G.mappingGap('', 'lower_taxes', 4, 9, P) && !G.mappingGap('booker', '', 4, 9, P),
+    'it refuses to build without both halves of the question');
+  // The label states the fraction of the list, so the closed face carries the size.
+  ok(/^4 of 9 documents here have no written explanation yet/.test(g.label),
+    `the label states how many of how many (got ${JSON.stringify(g.label)})`);
+  eq(G.mappingGap('booker', 'lower_taxes', 1, 1, P).label.indexOf('1 of 1 document here has'), 0,
+    'and it stays grammatical at one');
+  // Copy: our writing to do, never a doubt about the documents underneath it.
+  ok(/our writing to do/.test(g.detail), 'the detail names it as OUR work');
+  ok(/nothing here moves a score/.test(g.detail),
+    'and says out loud that no score is touched');
+  ok(/on file, sourced and counted exactly/.test(g.detail),
+    'and that the documents themselves are unaffected');
+  ok(!/unreliable|questionable|doubt about the record|may be wrong/i.test(g.detail + ' ' + g.label),
+    'and it never casts the counted documents as unsafe');
+  // The exclusion. Both the panel and the count must be blind to this type.
+  const wide = G.forPolitician('booker', P) || [];
+  ok(!wide.some((x) => x.type === 'unexplained_mapping'),
+    'the profile-wide derivation must never emit one — it would be one row per tracked issue');
+  const before = G.count('booker', P);
+  const row = G.rowHtml(g);
+  eq(G.count('booker', P), before, 'and rendering one must not change the profile gap count');
   ok(/class="pdxg-row"/.test(row), 'it renders as the app\'s own gap row');
   ok(/_pdxGapsAsk/.test(row) && /Suggest a lead/.test(row),
     'wired to the existing lead composer — not a second contribution system');
