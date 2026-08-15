@@ -254,7 +254,7 @@
             { title: "Offer Utah Republicans a moderate alternative", detail: "Built her brand on civility and pragmatism, challenging Senator Lee from the center in 2022.", verdict: "kept" },
             { title: "Advance family tax credits and housing affordability", detail: "Championed family-support and housing measures during her House tenure.", verdict: "kept" },
             { title: "Win federal office", detail: "Fell short in the 2022 Senate primary; a 2026 congressional bid remains a possibility rather than a victory.", verdict: "pending" },
-            { title: "Make clean air a conservative cause", detail: "Broke with much of her party to push for serious action on Wasatch Front air quality and climate, arguing it is consistent with conservatism.", verdict: "kept" },
+            { title: "Make clean air a conservative cause", detail: "Pushed for serious action on Wasatch Front air quality and climate, arguing it is consistent with conservatism.", verdict: "kept" },
             { title: "Restore civility to Utah's politics", detail: "Ran explicitly against polarization and personal attacks, a message that drew a strong second-place primary finish but not a win.", verdict: "pending" }
           ],
           sections: [
@@ -727,14 +727,14 @@
         },
         { id: "ray_ward", name: "Ray Ward", office: "State Representative (Dist. 19)", state: "Utah", party: "Republican", district: "District 19 (Davis County)", why: "Physician-legislator focused on healthcare access and tax fairness.", score: 73, kept: 18, broken: 4, pending: 5, icon: "🏛", tier: "silver",
           keyIssues: ["Healthcare Access", "Tax Fairness", "Public Health", "Pandemic Preparedness"],
-          bio: "Ray Ward is a Bountiful family physician who has served in the Utah House since 2015 and is widely regarded as the chamber's resident medical expert. He has used that authority to push pragmatic, sometimes politically uncomfortable health policy — backing Medicaid coverage, vaccination access, and tobacco-prevention measures — while also working on tax policy that eases burdens on lower-income families. His willingness to break from party orthodoxy on public-health questions has made him a respected but occasionally lonely voice within the Republican caucus.",
+          bio: "Ray Ward is a Bountiful family physician who has served in the Utah House since 2015 and is widely regarded as the chamber's resident medical expert. He has used that authority to push pragmatic, sometimes politically uncomfortable health policy — backing Medicaid coverage, vaccination access, and tobacco-prevention measures — while also working on tax policy that eases burdens on lower-income families. His willingness to follow the clinical evidence on public-health questions has made him a respected but occasionally lonely voice in the Utah House.",
           quote: "I've spent my career keeping patients healthy. Good health policy is just preventive medicine for a whole state.",
           promises: [
-            { title: "Protect and expand healthcare coverage", detail: "Supported Medicaid coverage and access measures, repeatedly making the medical case to a skeptical caucus.", verdict: "kept", issueKey: "healthcare" },
+            { title: "Protect and expand healthcare coverage", detail: "Supported Medicaid coverage and access measures, repeatedly making the medical case to skeptical colleagues.", verdict: "kept", issueKey: "healthcare" },
             { title: "Strengthen public-health and vaccination access", detail: "Carried legislation improving immunization access and pandemic preparedness despite political headwinds.", verdict: "kept", issueKey: "healthcare" },
             { title: "Make Utah's tax code fairer for working families", detail: "Pushed targeted credits and grocery-tax relief; some proposals advanced while others stalled in committee.", verdict: "pending", issueKey: "tax_middle_class" },
             { title: "Put a price on carbon to clean Utah's air", detail: "One of the few Republicans willing to float carbon-pricing study legislation as a market answer to Wasatch Front pollution.", verdict: "pending", issueKey: "enviro_balance" },
-            { title: "Follow the clinical evidence even when it's unpopular", detail: "Repeatedly broke from his caucus on public-health questions when the clinical evidence pointed the other way.", verdict: "kept", issueKey: "reform_balance" }
+            { title: "Follow the clinical evidence even when it's unpopular", detail: "Repeatedly took the position the clinical evidence supported on public-health bills, even when few colleagues joined him.", verdict: "kept", issueKey: "reform_balance" }
           ],
           sections: [
             { type: "deepdive", title: "Deep Dive — The Doctor in the Caucus", sources_count: 1, promises: [

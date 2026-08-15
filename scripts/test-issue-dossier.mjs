@@ -254,8 +254,13 @@ eq(pcts(xl1), 0, "L1: no percentage on the executive lane either");
 
 // ── 3. L2 — the enumeration, collapsed, with its count readable closed ──────
 const recs = C.dossierRecordsHtml(MEMBER, ISSUE);
-has(recs, '<details class="pdxdos-recs">', "L2: the group is a <details>…");
-hasnt(recs, '<details class="pdxdos-recs" open', "L2: …and it is closed by default");
+has(recs, '<details class="pdxdos-recs"', "L2: the group is a <details>…");
+ok(!/<details class="pdxdos-recs"[^>]*\sopen[\s>]/.test(recs), "L2: …and it is closed by default");
+// …and it is a LANDING PAD. A row that says "18 votes on file · see the votes"
+// promises this list; the sheet can only keep that promise if the tap has something
+// to aim at. Same hook shape as the 🧾 column's, and an attribute rather than an id
+// because a dossier is one HTML string and a duplicated id scrolls to the wrong one.
+has(recs, 'data-pdxgap-record=', "L2: the enumeration is addressable, so a row can send a reader to it");
 // THE NUMBER ON THE FACE IS THE NUMBER OF ROWS. The summary used to read "N votes
 // on this issue", which is a claim about the record; the rows under it are a claim
 // about what loaded. Those two can differ, and when they did the expander opened

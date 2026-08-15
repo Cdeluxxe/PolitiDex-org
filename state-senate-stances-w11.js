@@ -55,7 +55,7 @@
       text:"A Ralston Republican (District 12) and former hospital administrator who proposed a less-strict 12-week limit instead of six weeks, warning six weeks may not give women time to know they are pregnant.",
       source:{ label:"Nebraska Examiner", url:"https://nebraskaexaminer.com/2023/03/15/nebraska-state-senator-proposes-12-week-abortion-ban-instead-of-cardiac-activity-ban/" } },
     { topic:"A Reliable Swing Vote", icon:"↔️", pos:"mixed", issueKey:"election_integrity", issueStance:"mixed",
-      text:"One of two Republicans who broke ranks in 2025 to help sustain the filibuster of the winner-take-all electoral bill.",
+      text:"One of two Republicans who voted in 2025 to sustain the filibuster of the winner-take-all electoral bill.",
       source:{ label:"WOWT", url:"https://www.wowt.com/2025/04/08/nebraska-winner-take-all-bill-fails-after-first-round-debate/" } }
   ],
   "loren_lippincott": [
@@ -72,7 +72,7 @@
 
   /* ── MONTANA ─────────────────────────────────────────────────────────── */
   "matt_regier": [
-    { topic:"Lost His Caucus on Day One", icon:"🧨", pos:"mixed", issueKey:"gov_balance", issueStance:"mixed",
+    { topic:"Lost Control of the Senate on Day One", icon:"🧨", pos:"mixed", issueKey:"gov_balance", issueStance:"mixed",
       text:"Senate President whose control collapsed on the session's first day in 2025 when nine moderate Republicans joined 18 Democrats to form a working majority that reassigned committees and ran the chamber around him.",
       source:{ label:"Montana Free Press", url:"https://montanafreepress.org/2025/02/17/chaos-reigns-montana-divided-republican-senate/" } },
     { topic:"The 'Parking Lot' Committee", icon:"🅿️", pos:"oppose", issueKey:"gov_balance", issueStance:"oppose",

@@ -646,6 +646,73 @@ eq(restored.rows, before.rows, "wall: the row results did not survive removing t
 eq(CS.publicTally(rowsOfModel(PREZ).filter((r) => r.key === TARGET.key)[0]).count,
   CS.publicTally(TARGET).count, "wall: the public tally did not return to its shipped count");
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 7. The join itself — a key that cannot reach a row is not a key
+// ═════════════════════════════════════════════════════════════════════════════
+// Everything above tests what happens once a receipt is ON a row. A receipt gets
+// there through exactly one join: its issueKey, either shipped on the item or
+// hand-assigned in SAYDO_RECEIPT_ISSUE_BACKFILL. Two ways that join can be
+// written and still reach nothing, both silent:
+//
+//   · A KEY THAT IS NOT IN THE LIVE ISSUE_MAP. _resolveReceiptIssue() already
+//     validates backfilled keys against it, so this pins the other half — an item
+//     that ships its OWN issueKey is not validated anywhere, and a taxonomy
+//     rename would strand it with no error.
+//   · A KEY ON AN ITEM THE PUBLIC LANE DOES NOT ADMIT. SAYDO_EXCLUDE drops
+//     'promise' and 'voting' items from every Say-vs-Do surface, so keying one
+//     assigns a destination it can never travel to. Four shipped receipts are in
+//     this state today — three carry their own key, one was backfilled — and they
+//     are listed by name below rather than absorbed into a tolerance, because the
+//     point of the list is that adding a fifth has to be a decision someone makes
+//     on purpose.
+say("7 · every key resolves to a live issue, and to a lane that admits the item");
+const R = ctx.window.PDXReceipts;
+ok(R && typeof R.collect === "function", "join: PDXReceipts.collect() is unavailable");
+const IM = ctx.window.ISSUE_MAP || {};
+const allReceipts = (R && R.collect && R.collect()) || [];
+const keyedReceipts = allReceipts.filter((r) => r.issueKey);
+ok(keyedReceipts.length > 0, "join: no receipt carries an issue key at all");
+const deadKeys = keyedReceipts.filter((r) => !IM[r.issueKey]);
+eq(deadKeys.length, 0,
+  "join: a receipt is keyed to an issue that is not in the live ISSUE_MAP, so it can never\n" +
+  "    reach a row — " + deadKeys.slice(0, 4).map((r) => `${r.pid}/${r.issueKey}`).join(", "));
+// The known, named remainder. Keyed, valid, and still unreachable because the
+// public lane does not carry promises.
+const UNREACHABLE = [
+  "hall_h11||healthcare",
+  "kgrover||rights_balance",
+  "amillner||edu_college_cost",
+  "dthatcher||health_mental",
+];
+const excluded = keyedReceipts
+  .filter((r) => ["promise", "voting"].indexOf(String(r.category || "").toLowerCase()) !== -1)
+  .map((r) => `${r.pid}||${r.issueKey}`);
+eq(excluded.filter((k) => UNREACHABLE.indexOf(k) === -1).join(", "), "",
+  "join: a receipt the public lane excludes ('promise'/'voting') was given an issue key it can\n" +
+  "    never land on. Either the item belongs in the Promises system with no key, or this list\n" +
+  "    is out of date — do not widen it without checking which");
+// And the reachable ones must actually be reachable: every backfilled key belongs
+// to a member whose row model can hold it. Spot-checked over the whole keyed pool
+// rather than a fixture, because the failure this catches is per-profile.
+let landed = 0, stranded = [];
+const byPid = new Map();
+for (const r of keyedReceipts) {
+  if (!byPid.has(r.pid)) byPid.set(r.pid, new Set());
+  byPid.get(r.pid).add(r.issueKey);
+}
+for (const [pid, keys] of byPid) {
+  let rows = [];
+  try { rows = CS.issueRows(pid) || []; } catch (e) { rows = []; }
+  const held = new Set(rows.filter((r) => r.public && r.public.count > 0).map((r) => r.key));
+  for (const k of keys) {
+    if (held.has(k)) landed++;
+    else if (UNREACHABLE.indexOf(pid + "||" + k) === -1) stranded.push(pid + "/" + k);
+  }
+}
+ok(landed > 100, `join: only ${landed} (pid, issue) pairs carry a public tally — the join has collapsed`);
+eq(stranded.join(", "), "",
+  "join: a keyed receipt produced no public tally on its own profile's row model");
+
 // ── Report ──────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ public lane: ${failures.length} failed, ${passed} passed\n`);

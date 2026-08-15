@@ -24573,9 +24573,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .pdxis-vr-yea{background:rgba(74,222,128,.16);color:#6ee7a0;border:1px solid rgba(74,222,128,.35);}
     .pdxis-vr-nay{background:rgba(248,113,113,.16);color:#fca5a5;border:1px solid rgba(248,113,113,.35);}
     .pdxis-vr-neutral{background:rgba(159,180,212,.14);color:#9fb4d4;border:1px solid rgba(159,180,212,.3);}
-    .pdxis-vr-flag{font:600 .68rem/1 'Barlow',sans-serif;color:#8ea4c6;background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:.16rem .5rem;white-space:nowrap;}
-    .pdxis-vr-flag.is-cross{color:#f5c842;background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.4);}
     .pdxis-vr-verdict{font:700 .64rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;
       border-radius:999px;padding:.2rem .55rem;white-space:nowrap;}
     .pdxis-vr-v-consistent{background:rgba(74,222,128,.16);color:#6ee7a0;border:1px solid rgba(74,222,128,.35);}
@@ -25192,9 +25189,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (!it) return;
           var posCls = it.position === 'yea' ? 'yea' : it.position === 'nay' ? 'nay' : 'neutral';
           var posTxt = it.position === 'yea' ? 'Voted Yea' : it.position === 'nay' ? 'Voted Nay' : (it.position || '—');
-          var flag = '';
-          if (it.isParty === 'against_party') flag = '<span class="pdxis-vr-flag is-cross">Crossed party</span>';
-          else if (it.isParty === 'with_party') flag = '<span class="pdxis-vr-flag">With party</span>';
+          // No party-agreement chip rides next to the vote. The item still carries
+          // isParty from the API — it is ingest provenance, computed against the
+          // full chamber tally — but "Crossed party" is a claim about a caucus, not
+          // about whether this person did what they said. The verdict chip below is
+          // the accountability signal here, and it is measured against their stance.
           // Official Record verdict — votes/formal actions only (this is the voting
           // record section). Say-vs-Do (public record) is surfaced separately.
           var verdict = '';
@@ -25214,7 +25213,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           rows.push('<div class="pdxis-vrow">' +
             '<button type="button" class="pdxis-vrow-name" data-pid="' + esc(pid) + '">' + esc(nameFor({ id: pid })) + '</button>' +
             '<span class="pdxis-vr-pill pdxis-vr-' + posCls + '">' + esc(posTxt) + '</span>' +
-            flag + verdict + src +
+            verdict + src +
           '</div>');
         });
         if (!rows.length) { hide(); return; }          // nothing ingested yet → stay out of the way

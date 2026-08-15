@@ -205,10 +205,10 @@
   // non-'voting' receipts, and 'voting' items are dropped from collect() upstream, so
   // an item is never keyed on both the Official Record and Say-vs-Do sides.
   var SAYDO_RECEIPT_ISSUE_BACKFILL = {
-    'bmoore||voted to certify the 2020 election breaking with most of his party': 'election_integrity',
+    'bmoore||voted to certify the 2020 election results': 'election_integrity',
     'owens||voted to object to pennsylvania s 2020 electoral votes': 'election_integrity',
     'dhenderson||knocked down 2020 election fraud claims as utah s chief election officer': 'election_integrity',
-    'dhenderson||rebuked election deniers in her own party before the 2024 vote': 'election_integrity',
+    'dhenderson||rebuked election deniers before the 2024 vote': 'election_integrity',
     'dhenderson||welcomed an independent audit of utah s elections': 'election_integrity',
     'cbramble||co authored the sb54 ballot access compromise and defended it': 'election_integrity',
     'cory_maloy_h52||drew a clear line on ballot return privacy': 'election_integrity',
@@ -240,7 +240,7 @@
     'jdailey||builds bipartisan coalitions from the minority': 'cannabis_reform',
     'gwbush||the hurricane katrina response': 'disaster_resilience',
     'carl_albrecht||built disaster resilience before the disaster': 'disaster_resilience',
-    'kohler_h59||a non absolutist stance on library content within his caucus': 'edu_parental',
+    'kohler_h59||a non absolutist stance on library content': 'edu_parental',
     'obama||most transparent administration vs its record': 'gov_transparency',
     'sadams||undisclosed personal stake in a 2024 law he initiated': 'gov_transparency',
     'fgibson||as an inland port board member resisted fully opening meetings': 'gov_transparency',
@@ -270,7 +270,71 @@
     'bwilson||tied the lake s dust risk to hill afb and military readiness': 'water',
     'dowens_st||a consistent guardian of central utah farms and water': 'water',
     'jferry||pattern a farmer who rewrote utah water law then went to run it': 'water',
-    'kstratton||pattern practices the conservation he legislates': 'water'
+    'kstratton||pattern practices the conservation he legislates': 'water',
+
+    // ── August 2026, second pass: the highest-salience remainder ─────────────
+    // The pass above cleared 34 of 223. The 189 it left were read again, marquee
+    // and national profiles first — the ones a reader actually opens — because an
+    // unkeyed receipt on Trump, Obama or the Speaker of the Utah House costs more
+    // reach than an unkeyed receipt on a first-term backbencher.
+    //
+    // The three tests above are unchanged. One thing was made explicit that the
+    // first pass left to judgement, because it decided most of the calls here:
+    //
+    //   WHEN TWO OR THREE KEYS ARE PLAUSIBLE, THE MEMBER'S OWN STATED STANCE SET
+    //   IS THE TIEBREAK — AND ONLY WHEN IT CONTAINS EXACTLY ONE OF THEM.
+    //
+    // This is not a loosening of test 2. "Air quality" sits in the keyword list of
+    // three live keys, which is why it was shelved the first time; but Erin
+    // Mendenhall states climate_action and neither of the other two, so for HER
+    // profile there is one row this receipt can honestly join — the row the page
+    // already prints — and putting it anywhere else would invent a second
+    // environmental row next to the one she stands on. Where the member states two
+    // of the candidates (Hegseth on strong_defense AND veterans, Fiefia on
+    // privacy_rights AND tech_balance), the tiebreak yields nothing and the item
+    // stays unkeyed. Where they state none (Wilcox on agency rulemaking), likewise.
+    //
+    // 176 receipts remain unkeyed after this pass, and the reasons cluster:
+    //   · CONDUCT AND CANDOR — the largest group by far. Boebert's theater
+    //     ejection, Noem's dog, Greene's committee removal, Winder's pseudonymous
+    //     news stories, Gaetz's ethics report, Warren's bar card. Real, sourced,
+    //     and about a person rather than a policy question. They stay in the
+    //     flashpoints feed, which is the surface built for them.
+    //   · ELECTORAL AND CAREER BIOGRAPHY — party switches, primary losses,
+    //     resignations, nominations withdrawn, leadership posts won.
+    //   · SPANS TWO OR MORE ISSUES — most "Pattern:" rows. Trump's kept promises
+    //     name tax cuts, two treaty withdrawals, an embassy move and tariffs;
+    //     Albrecht's energy signature is filed alongside water and rural
+    //     agriculture. A row is one question, and these are three.
+    //   · NO HONEST HOME IN THE LIVE TAXONOMY — RFK Jr.'s chronic-disease agenda
+    //     (no food-policy key), Massie's off-grid self-reliance (no
+    //     limited-government key), Cox's civility initiative, state-versus-city
+    //     preemption fights (states_federal_power is state-versus-FEDERAL).
+    //   · WOULD PRINT THE WRONG DIRECTION — test 3, and the one worth naming
+    //     twice. Bush's WMD case for Iraq is a candor failure about a factual
+    //     predicate, not a departure from Peace Through Strength, but keyed to
+    //     strong_defense (which he states) verdictOf() would stamp it "Says One
+    //     Thing · Does Another". Gabbard taking the DNI job is described by its own
+    //     source as "a standing test" of her surveillance criticism, not a broken
+    //     one, and privacy_rights is a stance she still holds. Neither is keyed.
+    //     A contradiction the record has not yet demonstrated is not ours to print.
+    //
+    // Nothing here is a promise-category item: those are excluded from the
+    // Say-vs-Do pool upstream (SAYDO_EXCLUDE in consistency.js) and belong to the
+    // Promises system, so keying one would assign a key that could never land.
+    'obama||kept high stakes national security pledges': 'foreign_balance',
+    'cstewart||a national security focus that tracked his biography': 'strong_defense',
+    'nhaley||a consistent foreign policy hawk': 'strong_defense',
+    'kennedy||a single signature issue held steady across four offices': 'healthcare',
+    'emendenhall||an air quality advocate who made it her signature in office': 'climate_action',
+    'rfkjr||decades of genuine environmental litigation': 'climate_action',
+    'rwinterton||sponsored a refugee services office cutting against type': 'immigration_reform',
+    'rspendlove||pattern the economist who supplies the math not the theatrics': 'lower_taxes',
+    'kriebe||ran for office because no classroom teachers were writing school policy': 'public_schools',
+    'gwynn_h6||a working law enforcement officer legislating public safety': 'back_police',
+    'gwynn_h6||pattern legislates the public safety work he does on duty': 'back_police',
+    'jferry||a farmer with water interests now oversees water policy': 'gov_transparency',
+    'james_dunnigan||an insurance industry insider who writes insurance law': 'gov_transparency'
   };
   function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   // Resolve a receipt's issueKey: its own, else the Phase 10 backfill (validated
@@ -489,7 +553,7 @@
   // have to travel and why this is 280 rather than the old self-imposed 240.
   var RECORD_POST_MAX = 280;
   var IMG_W = 1080, IMG_H = 1350, PAD = 64;
-  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa' };
+  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa', mixed: '#fbbf24' };
   function accentOf(r) { return ACCENT[r.verdict.key] || '#f87171'; }
 
   function ensureFonts() {
@@ -622,6 +686,10 @@
   // Line height for a wrapped issue list in the split block. Tighter than the
   // fact block's 38 because these are list items, not sentences.
   var SPLIT_LH = 30;
+  // Line height for the example under each side of a split card. Between the
+  // fact block's 38 and the split list's 30: these are sentences, but two of them
+  // have to fit above the footer alongside their labels and their addresses.
+  var SIDE_LH = 32;
   var FACT_TIERS = {
     effect: { font: '600 29px "Barlow", sans-serif', fill: '#f5c842' },
     title:  { font: '600 29px "Barlow", sans-serif', fill: '#e8eefc' },
@@ -850,7 +918,11 @@
       ctx.fillStyle = accent; ctx.fillRect(x, y + 4, 5, 26);
       ctx.font = '800 22px "Barlow Condensed", sans-serif';
       ctx.fillStyle = accent;
-      ctx.fillText(r.impact === 'positive' ? 'AND THE RECORD SHOWS' : 'BUT THE RECORD SHOWS', x + 18, y);
+      // A split card is neither "AND" nor "BUT": the record it is reporting did
+      // both, and a label that picks a side would be the card arguing with its own
+      // headline. Cards that set no label keep the impact-driven wording exactly.
+      ctx.fillText(r.recordLabel ||
+        (r.impact === 'positive' ? 'AND THE RECORD SHOWS' : 'BUT THE RECORD SHOWS'), x + 18, y);
       y += 38;
       ctx.font = '700 42px "Barlow", sans-serif';
       ctx.fillStyle = '#ffffff';
@@ -894,7 +966,72 @@
           });
         y += 6;
       }
-      if (r.facts || (r.factParts && r.factParts.length)) {
+      // ── Optional both-sides block: the split record ────────────────────────
+      // Only a `mixed` card sets r.sides. The headline above it states the split
+      // in counts; this is the evidence under it — one named, dated, sourced vote
+      // on each side, each with its own chamber address printed directly beneath
+      // it. Two sides, drawn identically, in the colours the rest of the app uses
+      // for with-the-position and against-it, so neither reads as the finding and
+      // the other as a footnote.
+      if (r.sides && r.sides.with && r.sides.against) {
+        // One line of the remaining height is taken off the top, before the two
+        // sides divide what is left, and spent on the sentence that says why the
+        // counts and the two examples are not the same number. It is the honesty
+        // of this card and it does not get to be the thing that falls off the
+        // bottom on a member with a long bill title.
+        var splitNote = r.facts ? String(r.facts) : '';
+        var sidesFoot = footTop - (splitNote ? 30 : 0);
+        [['VOTED WITH THEIR POSITION', r.sides.with, r.sides.counts && r.sides.counts.with, ACCENT.consistent],
+         ['VOTED AGAINST IT', r.sides.against, r.sides.counts && r.sides.counts.against, ACCENT.contradicts]]
+          .forEach(function (row, idx) {
+            var s = row[1];
+            if (!s || y > sidesFoot - 60) return;
+            // Half of what is left, so the first side cannot eat the second's
+            // room and leave the card looking one-sided for want of pixels.
+            var room = idx === 0 ? (sidesFoot - y) / 2 : (sidesFoot - y);
+            ctx.font = '800 22px "Barlow Condensed", sans-serif';
+            ctx.fillStyle = row[3];
+            var n = row[2];
+            // A side carrying something that is not a roll call brings its own
+            // label — "ACTED AGAINST IT" over a signature or a cosponsorship.
+            // receipt-cards.js sets it only on that side, so a split holding one
+            // vote and one act names each for what it is, and a split of two
+            // votes prints exactly the label it always has.
+            ctx.fillText((s.head || row[0]) + (n ? '  ·  ' + n + (n === 1 ? ' TIME' : ' TIMES') : ''), x, y);
+            y += 30;
+            var line = [s.proof, s.title ? '— ' + s.title : '', s.date ? '(' + s.date + ')' : '']
+              .filter(Boolean).join(' ');
+            ctx.font = '600 27px "Barlow", sans-serif';
+            ctx.fillStyle = '#e8eefc';
+            var cap = Math.max(1, Math.min(2, Math.floor((room - 56) / SIDE_LH)));
+            y = drawLines(ctx, wrapText(ctx, line, contentW, cap), x, y, SIDE_LH) + 2;
+            // This side's own government address. Shrunk to fit rather than
+            // wrapped or ellipsized, for the same reason the footer's VERIFY line
+            // is: a URL with a "…" in it is not a URL. receipt-cards.js refuses
+            // any card whose addresses could not fit even so.
+            if (s.verify && y < sidesFoot - 24) {
+              for (var vz = 21; vz > 14; vz--) {
+                ctx.font = '600 ' + vz + 'px "Barlow Condensed", sans-serif';
+                if (ctx.measureText(s.verify).width <= contentW) break;
+              }
+              ctx.fillStyle = '#8fd0ff';
+              ctx.fillText(s.verify, x, y);
+              y += 26;
+            }
+            y += 8;
+          });
+        if (splitNote) {
+          ctx.font = '600 20px "Barlow", sans-serif';
+          ctx.fillStyle = '#9fb0d0';
+          // Two lines if the sides left room for two, one otherwise — reserved
+          // for one, so it prints either way.
+          var noteCap = (footTop - y) >= 52 ? 2 : 1;
+          y = drawLines(ctx, wrapText(ctx, splitNote, contentW, noteCap), x, y, 24) + 4;
+        }
+      }
+      // A split card's fact block is the note printed above, in the room reserved
+      // for it — running it through the tiered block as well would print it twice.
+      if (!r.sides && (r.facts || (r.factParts && r.factParts.length))) {
         var maxFactLines = Math.max(0, Math.floor((footTop - y - 10) / FACT_LH));
         if (maxFactLines >= 1) {
           // One pass per tier. A curated receipt has no factParts, comes back as a
@@ -1146,6 +1283,35 @@
       if (r.saidNote) lines.push(r.saidNote);
     }
     lines.push('The record: ' + trimHeadline(r.headline, 150));
+    // ── The split card's evidence ──────────────────────────────────────────
+    // The headline above already states the counts. What the pasted text has to
+    // carry that a count cannot is the two votes themselves — named, dated, and
+    // each with the government address it is read at, so neither side of the
+    // split is something the reader has to take on trust. Both, always, in the
+    // same shape: a caption that spelled one side out and summarised the other
+    // would be a one-sided caption on a two-sided card.
+    if (r.sides && r.sides.with && r.sides.against) {
+      [['Voted with their position', r.sides.with], ['Voted against it', r.sides.against]]
+        .forEach(function (row) {
+          var s = row[1];
+          var bits = [trimTo(s.proof, 150)];
+          if (s.title) bits.push(trimTo(s.title, 200));
+          if (s.effect) bits.push(trimTo(s.effect, 200));
+          // Same rule as the image: the side names itself when it is not a roll
+          // call, and falls back to the vote wording when it is.
+          lines.push((s.lead || row[0]) + ': ' + bits.join(' — ') + (s.date ? ' (' + s.date + ')' : '') +
+            (s.url ? ' — ' + s.url : ''));
+        });
+      // Why the counts and the examples are not the same number. Some judged
+      // items — a confirmation vote mapped as a policy proxy, most often — count
+      // on the issue row and still cannot carry a policy claim off-app, so the
+      // card cites the strongest vote on each side that can. Said outright rather
+      // than left for a reader to notice. A card whose counts cover more than
+      // roll calls supplies its own wording of the same sentence.
+      lines.push(r.countsNote ||
+        'Counts cover every judged vote on this issue; each example above is the ' +
+        'strongest vote on its side that can be cited on its own.');
+    }
     // The three fact tiers, each with the label its provenance earns. [0] is the
     // disapproval effect and says what a Yea DID; [2] is the curated mapping
     // rationale and says why the vote counts on THIS issue. Different sources,
@@ -1154,7 +1320,10 @@
     var title = measureTitle(r);
     if (title) lines.push('The measure: ' + trimTo(title, 200));
     var didEffect = factPart(r, 0);
-    if (didEffect) lines.push('What a Yea did: ' + trimTo(didEffect, 200));
+    // Slot 0 is the disapproval sentence on a vote card and the instrument note
+    // on a card built on something else — two different claims, so the label
+    // comes from the card rather than being assumed to be the vote one.
+    if (didEffect) lines.push((r.effectLabel || 'What a Yea did') + ': ' + trimTo(didEffect, 200));
     var why = factPart(r, 2);
     // 300, not 220. The long caption is the one artefact with no platform limit,
     // and the rationale is the sentence that answers "why does a defence vote
@@ -1183,7 +1352,11 @@
         lines.push('On ' + iss + ' — the issue this card is about — the vote came down on the ' + fx + ' side.');
       }
     }
-    lines.push('Source: ' + sourceLine(r));
+    // A split card has already printed a source URL beside each of its two votes,
+    // and its card-level address is the PolitiDex issue record — the page that
+    // holds both, which is also what "Check it yourself" prints. One Source line
+    // here would be that same link a second time under a different name.
+    if (!r.sides) lines.push('Source: ' + sourceLine(r));
     if (r.method) lines.push(r.method.replace(/^HOW THIS IS JUDGED:\s*/i, 'How this is judged: '));
     lines.push('Check it yourself: ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL));
     return lines.join('\n');
@@ -1269,15 +1442,34 @@
   // that order. Falls back to the card's own headline when the pieces are not all
   // present.
   function recordDidLine(r, max) {
+    // A split card's "did" is not one vote, so it cannot be one measure and one
+    // direction. It is both measures and both directions, in the same counted
+    // form the card's headline uses — the shortest true version of the finding.
+    if (r.sides && r.sides.with && r.sides.against) {
+      var c = r.sides.counts || {};
+      var t = r.didLine ||
+        ('Voted with their position ' + c.with + '× (' + r.sides.with.number + ')' +
+         ' and against it ' + c.against + '× (' + r.sides.against.number + ')');
+      return trimTo(t, max);
+    }
     var voted = votedSeg(r);
     var num = r.measureNumber || String((r && r.headline) || '').split(' · ')[0] || '';
-    var lead = voted && num ? voted + ' on ' + num : (voted || num);
+    // "Voted Yea on H.R. 1" is built from the direction the headline states. A
+    // card built on something that is not a roll call has no such direction to
+    // read, and would fall through to a bare bill number that says nothing about
+    // what happened — so it supplies the act in words instead: "Cosponsored
+    // S. 331", "Signed into law H.R. 5371".
+    var lead = r.didLine || (voted && num ? voted + ' on ' + num : (voted || num));
     if (!lead) return trimHeadline(r.headline, max);
     // Preference order is legibility: the disapproval sentence when there is one
     // (it is always plain English and always short), then the measure's own
-    // title, then the curated mapping rationale.
+    // title, then the curated mapping rationale. On an act line the order flips:
+    // slot 0 is the instrument note, the act line has already said what the act
+    // was, and what the reader still does not know is what the measure IS.
     var effect = factPart(r, 0);
-    var what = effect || measureTitle(r) || factPart(r, 2);
+    var what = r.didLine
+      ? (measureTitle(r) || factPart(r, 2) || effect)
+      : (effect || measureTitle(r) || factPart(r, 2));
     // The effect sentence is a SENTENCE ABOUT THE MEASURE — "A yea rolls back a
     // major state climate rule." — not a description of this member's vote. Hung
     // off an em dash it silently becomes one: "Voted Nay on H.J.Res. 88 — A yea
@@ -1285,14 +1477,22 @@
     // Larsen's NAY rolled back the rule, which is the opposite of what happened.
     // A full stop keeps the two claims apart: what they did, then what a yea
     // does. Title and rationale are noun phrases and still take the em dash.
-    var join = effect ? '. ' : ' — ';
+    var join = what === effect ? '. ' : ' — ';
+    // An act line already names the measure ("Cosponsored S. 331"), so a stored
+    // title that opens with the same number would print it twice. The number
+    // comes off the TITLE rather than off the act line, because the act is the
+    // claim and the number is only its object.
+    if (r.didLine && num && what &&
+        what.slice(0, String(num).length).toUpperCase() === String(num).toUpperCase()) {
+      what = what.slice(String(num).length).replace(/^[\s—–-]+/, '') || what;
+    }
     // Several stored titles already OPEN with the measure number — "H.R. 1 — One
     // Big Beautiful Bill Act", "H.Amdt. 232 (Boebert) to H.R. 8595 — …". Printing
     // one of those after "Voted Yea on H.R. 1" says the number twice, and cutting
     // the number off the front of the title leaves "(Boebert) to H.R. 8595 — …"
     // hanging. So when the title already names the measure, the title IS the
     // object of the sentence and the lead does not name it again.
-    if (!effect && num && what &&
+    if (!effect && !r.didLine && num && what &&
         what.slice(0, String(num).length).toUpperCase() === String(num).toUpperCase()) {
       lead = voted ? voted + ' on' : 'On';
       var joined = lead + ' ' + what;
@@ -1326,7 +1526,22 @@
     // cold reader no way to tell which one is the government's record and which
     // one reopens the receipt — and "Check:" is the invitation the whole share is
     // making. Fifteen characters is a cheap price for that.
-    var tail = '\nCheck: ' + deep + (src ? '\nSource: ' + src : '');
+    //
+    // A SPLIT card has two government records, one per side, and no single
+    // address that stands for both — its card-level source IS the deep link. So
+    // it spends the same budget differently: both chamber addresses travel, each
+    // labelled with the side it belongs to. That makes the post longer, and the
+    // alternative is a two-sided claim footnoted to one of its two sides, which
+    // is the half of the post a sceptic would go to first.
+    var tail = '\nCheck: ' + deep;
+    if (r.sides && r.sides.with && r.sides.against) {
+      // Each side is labelled with the word for what it actually is — the side
+      // face carries its own when it is not a roll call.
+      if (r.sides.with.url) tail += '\n' + (r.sides.with.tail || 'Voted with') + ': ' + r.sides.with.url;
+      if (r.sides.against.url) tail += '\n' + (r.sides.against.tail || 'Voted against') + ': ' + r.sides.against.url;
+    } else if (src) {
+      tail += '\nSource: ' + src;
+    }
     var said = (r.said && r.said.text) ? String(r.said.text) : '';
     // Newlines for "\nSaid: " and "\nDid: " are part of the fixed cost.
     var fixed = head.length + tail.length + (said ? 7 : 0) + 6;

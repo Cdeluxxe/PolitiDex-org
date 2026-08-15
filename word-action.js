@@ -1480,9 +1480,14 @@
   //
   // `secondary` marks the one bucket that is not a finding. "Not enough record yet"
   // is coverage — an issue we track, a position they stated, and nothing on file
-  // able to test it. It is listed, counted and reachable like every other bucket,
-  // and it is drawn quieter and ordered last, because a reader scanning results
-  // should not have to work out which pile is a result.
+  // able to test it. Its subtitle can say "Stated, but…" and stay true because
+  // outcomeBuckets() admits no wordless row into this bucket (see the `!r.stance.label`
+  // guard there): a row we hold instruments for and no position of theirs is not a
+  // result this index can file, and it is answered on the Stances & Connections face
+  // instead, which states the inventory and says whose gap it is. It is listed,
+  // counted and reachable like every other bucket, and it is drawn quieter and
+  // ordered last, because a reader scanning results should not have to work out
+  // which pile is a result.
   var OUTCOMES = [
     { token: 'contradicts', label: 'Says one thing, does another', short: 'Contradicted', col: '#f89b9b',
       sub: 'The record pushes back on what they said.' },

@@ -31,6 +31,17 @@
    unreadable condition blocks the card rather than shipping it. A refutable
    receipt costs more than a missing one.
 
+   THREE SHAPES OF CARD, one per shape of verdict the engine can reach:
+     contradicts  the stated position and the vote point opposite ways
+     consistent   they point the same way
+     mixed        the record runs BOTH ways — the split card, which cites one
+                  named vote on each side and prints the counts as counts. It is
+                  offered only where the engine already says mixed, and it has to
+                  clear every guard twice (once per cited vote) to exist at all.
+                  Before it existed, the deepest, least dismissible rows in the
+                  app — the ones with evidence on both sides — were the only ones
+                  that could not travel.
+
    The public surface:
      PDXReceiptCards.warm(pid)            → Promise, loads the record if needed
      PDXReceiptCards.cardsFor(pid, opts)  → every eligible card, strongest first
@@ -480,6 +491,179 @@
     }
     return null;
   }
+  // ══════════════════════════════════════════════════════════════════════════
+  // FORMAL INSTRUMENTS  ·  what KIND of act is this, and what may it claim?
+  // ──────────────────────────────────────────────────────────────────────────
+  // The formal record has never been only roll calls. vr_positions has carried
+  // signings, vetoes, issued executive actions, sponsorships, cosponsorships,
+  // on-record statements, amicus filings and litigation postures since it was
+  // created, every one of them already scored by the SAME engine that scores a
+  // vote (stance-helpers.js `_voteEffectiveSupport` branches on kind ===
+  // 'position' and reads the boolean `supports`). They are on the row face, they
+  // are inside Direction Match, and until now the one thing they could not do was
+  // leave the app: guard 5 refused anything whose kind was not 'vote', because a
+  // card that says "the record shows … voted Yea" over a cosponsorship is a lie
+  // about the mechanism even when it is right about the direction.
+  //
+  // The fix is not to loosen that guard. It is to stop making the card say
+  // "voted" when the act was not a vote. Every instrument below names itself on
+  // the card, in the chamber's own vocabulary, and carries a `strength`:
+  //
+  //   deciding    the act itself disposes of the thing — a recorded floor vote,
+  //               a signature, a veto, an executive action taken under the
+  //               president's own authority. It settled something.
+  //   supporting  the act is on the record and is real evidence of a position,
+  //               and it decided nothing on its own — a cosponsorship, a
+  //               statement, a brief, a committee vote. Shown for transparency,
+  //               never worded as though it were the deciding vote.
+  //
+  // `note` is the sentence that says which of the two a reader is looking at. It
+  // is printed in the card's first, PROTECTED fact slot (see supportingParts), so
+  // it is the one clause the renderer's line budget can never drop — the same
+  // treatment the disapproval "what a yea did" sentence gets, and for the same
+  // reason: it is the clause a reader cannot reconstruct from the rest of the
+  // card, and getting it wrong inverts the meaning of the whole image.
+  //
+  // WHAT THIS DOES NOT DO. It does not touch Direction Match. Nothing here
+  // weights, re-weights or re-signs anything: a cosponsorship counted exactly as
+  // much before this file could print it as it does after, and a signature that
+  // was already inside the score is still inside it on the same terms. The only
+  // thing that changed is whether the reader can take the receipt with them.
+  //
+  // `did` is the same act stated as a short sentence with the item's own identity
+  // in it, for the one-line "Did:" a post has room for. Composed here rather than
+  // in the renderer because this is the file that owns the vocabulary.
+  //
+  // An instrument this table does not know is REFUSED (guard 5). A slug with no
+  // honest label is a card that would have to invent one.
+  var INSTRUMENTS = {
+    vote: {
+      key: 'vote', label: 'Recorded floor vote', strength: 'deciding',
+      note: '', did: ''
+    },
+    signed: {
+      key: 'signed', label: 'Signed into law', strength: 'deciding',
+      note: 'Signed into law — a formal act with legal effect, not a floor vote.',
+      did: 'Signed {n} into law'
+    },
+    vetoed: {
+      key: 'vetoed', label: 'Vetoed', strength: 'deciding',
+      note: 'A veto — a formal act with legal effect, not a floor vote.',
+      did: 'Vetoed {n}'
+    },
+    // The label narrows to the document type the number names (see EXEC_DOC).
+    issued: {
+      key: 'issued', label: 'Issued executive action', strength: 'deciding',
+      note: 'Issued under executive authority — a unilateral act, not a floor vote.',
+      did: 'Issued {n}'
+    },
+    sponsor: {
+      key: 'sponsor', label: 'Sponsored', strength: 'supporting',
+      note: 'Sponsoring puts a name to a bill on the record. It is not a vote on it.',
+      did: 'Sponsored {n}'
+    },
+    cosponsor: {
+      key: 'cosponsor', label: 'Cosponsored', strength: 'supporting',
+      note: 'Cosponsoring puts a name to a bill on the record. It is not a vote on it.',
+      did: 'Cosponsored {n}'
+    },
+    statement: {
+      key: 'statement', label: 'On-record statement', strength: 'supporting',
+      note: 'A position stated on the record. It is not a vote.',
+      did: 'On-record statement — {n}'
+    },
+    amicus: {
+      key: 'amicus', label: 'Filed an amicus brief', strength: 'supporting',
+      note: 'A formal court filing. It is not a vote.',
+      did: 'Filed an amicus brief — {n}'
+    },
+    plaintiff: {
+      key: 'plaintiff', label: 'Party to the case', strength: 'supporting',
+      note: 'A formal litigation posture entered in court. It is not a vote.',
+      did: 'Party to the case — {n}'
+    },
+    committee_vote: {
+      key: 'committee_vote', label: 'Recorded committee vote', strength: 'supporting',
+      note: 'A recorded vote in committee, not on the floor.',
+      did: 'Recorded committee vote — {n}'
+    }
+  };
+  // vr_positions stores one slug — 'issued' — for every unilateral presidential
+  // document, and the document type is carried in the number the Federal Register
+  // assigns it ("Executive Order 14418", "Proclamation 11043"). A card that says
+  // only "Issued" leaves the reader to guess which of those they are looking at,
+  // so the label is narrowed from the identity the record already carries. An
+  // unrecognised number keeps the general label rather than guessing.
+  var EXEC_DOC = [
+    { re: /^\s*executive\s+order\b/i, label: 'Issued executive order' },
+    { re: /^\s*proclamation\b/i, label: 'Issued proclamation' },
+    { re: /^\s*(?:presidential\s+)?memorand(?:um|a)\b/i, label: 'Issued presidential memorandum' }
+  ];
+  function instrumentOf(item) {
+    if (!item) return null;
+    if (item.kind === 'vote') return INSTRUMENTS.vote;
+    if (item.kind !== 'position') return null;
+    // `actionType` first; hydrateIssueRecords copies it into all three fields, but
+    // a curated position may only carry `action`.
+    var slug = String(item.actionType || item.action || item.position || '')
+      .toLowerCase().trim().replace(/\s+/g, '_');
+    var base = INSTRUMENTS[slug];
+    if (!base || base.key === 'vote') return null;   // 'vote' is not a position slug
+    if (base.key !== 'issued') return base;
+    var num = String(item.number || '');
+    for (var i = 0; i < EXEC_DOC.length; i++) {
+      if (!EXEC_DOC[i].re.test(num)) continue;
+      return { key: base.key, label: EXEC_DOC[i].label, strength: base.strength,
+               note: base.note, did: base.did };
+    }
+    return base;
+  }
+  // "Cosponsored S. 331" / "Issued Executive Order 14418". '' when the instrument
+  // has no short form (a floor vote, which the headline already states in full).
+  function didPhrase(instr, number) {
+    if (!instr || !instr.did) return '';
+    var n = String(number || '').trim();
+    if (!n) return '';
+    return instr.did.replace('{n}', n);
+  }
+  // The address printed on a NON-vote card. A roll call has a canonical public
+  // page that can be DERIVED from (chamber, congress, session, roll) — see above —
+  // and no other instrument does: the record of a signature is the bill page, the
+  // record of an executive order is its Federal Register document, the record of a
+  // filing is the filing. So the stored URL is used as-is, and it either resolves
+  // or the card does not exist. Three things still disqualify it:
+  //
+  //   · not https — a card is a receipt and a receipt is not carried over http
+  //   · a query or a fragment — printableUrl strips neither, and an address that
+  //     needs one to land is one a reader retyping from an image will not land
+  //   · an api.congress.gov endpoint — returns an API-key error in a browser, the
+  //     same defect guard 12 refuses on the vote side
+  //
+  // Unlike a roll-call citation this one is NOT length-capped here: 118 of the
+  // stored document addresses are longer than a footer line, and the fix for that
+  // is the split card's fix — print the PolitiDex record page in the footer, which
+  // cites the document — not to refuse the receipt or, worse, to shorten a URL.
+  // See baseCard.
+  function instrumentCitation(item) {
+    if (!item || item.kind === 'vote' || !instrumentOf(item)) return null;
+    var url = String((item.source && item.source.url) || '').trim();
+    if (!/^https:\/\/\S+$/i.test(url)) return null;
+    if (/[?#]/.test(url)) return null;
+    if (/api\.congress\.gov/i.test(url)) return null;
+    var label = String((item.source && item.source.label) || '').trim();
+    if (!label) {
+      var h = (url.match(/^https:\/\/([^/]+)/i) || [])[1] || '';
+      label = h ? h.replace(/^www\./i, '') : 'Official record';
+    }
+    return { url: url, print: printableUrl(url), label: label };
+  }
+  // The one place the rest of the file asks "where is this act read?", so a vote
+  // and a signature cannot end up on two different rules by accident.
+  function citationFor(item) {
+    if (!item) return null;
+    return item.kind === 'vote' ? canonicalCitation(item) : instrumentCitation(item);
+  }
+
   function positionMapFor(pid) {
     try {
       var d = polRec(pid);
@@ -517,23 +701,49 @@
     // Guard 1 — nominations.
     var mt = String(item.measureType || '').toLowerCase();
     if (BLOCKED_MEASURE_TYPES[mt]) return BLOCKED_MEASURE_TYPES[mt];
-    // Guard 5 — a card says "the record shows … voted <position>". Only an actual
-    // recorded yea/nay does. Positions (co-sponsorships, amicus filings,
-    // litigation, executive actions) are real record, but they are not votes and
-    // this feed does not claim they are.
-    if (item.kind !== 'vote') return 'not a recorded floor vote (' + (item.kind || 'unknown') + ')';
-    if (item.position !== 'yea' && item.position !== 'nay') {
-      return 'no directional vote recorded (' + (item.position || 'none') + ')';
+    // Guard 5 — what kind of act is this, and is there an honest name for it?
+    // The card states the mechanism in the chamber's own words, so an instrument
+    // this file has no label for cannot ship: naming it would mean inventing the
+    // name. What it no longer does is refuse everything that is not a floor vote —
+    // a signature, a veto, an executive action, a cosponsorship and a statement
+    // are all real record, all already scored, and all of them say what they are.
+    var instr = instrumentOf(item);
+    if (!instr) {
+      var what = item.kind === 'position'
+        ? String(item.actionType || item.action || 'unknown action')
+        : String(item.kind || 'unknown');
+      return 'not a formal-record instrument with an honest label (' + what + ')';
     }
-    // Guard 6 — procedural votes are down-weighted inside the app for good
-    // reason: a yea on a motion to table is not a yea on the bill. Off-app,
-    // where the nuance cannot travel with the image, they do not ship at all.
-    if (item.isProcedural || item.advanceInverted) return 'procedural vote — the question does not read plainly off-app';
-    // Guard 7 — the four things the card must print. A missing one makes the card
-    // uncheckable, which is the only thing worse than not shipping it.
-    if (!item.number) return 'measure has no bill number to cite';
-    if (!item.action) return 'roll call has no recorded question';
-    if (!item.date) return 'record carries no date';
+    if (instr.key === 'vote') {
+      if (item.position !== 'yea' && item.position !== 'nay') {
+        return 'no directional vote recorded (' + (item.position || 'none') + ')';
+      }
+      // Guard 6 — procedural votes are down-weighted inside the app for good
+      // reason: a yea on a motion to table is not a yea on the bill. Off-app,
+      // where the nuance cannot travel with the image, they do not ship at all.
+      if (item.isProcedural || item.advanceInverted) return 'procedural vote — the question does not read plainly off-app';
+      // Guard 7 — the four things the card must print. A missing one makes the card
+      // uncheckable, which is the only thing worse than not shipping it.
+      if (!item.number) return 'measure has no bill number to cite';
+      if (!item.action) return 'roll call has no recorded question';
+      if (!item.date) return 'record carries no date';
+    } else {
+      // The same question guard 7 asks a vote, asked of an act: does the record
+      // say which WAY it cut, and does it name what was acted on?
+      //
+      // `supports` is the field the scoring engine already reads for these items,
+      // so requiring it here is not a new test — it is the card refusing to print
+      // a verdict the engine could not have reached either.
+      if (typeof item.supports !== 'boolean') {
+        return 'the record does not say which way this act cut, so there is no direction to report';
+      }
+      if (item.isProcedural || item.advanceInverted) return 'procedural action — the question does not read plainly off-app';
+      if (!item.number) return 'the record carries nothing that names what was acted on';
+      // A date is required to SHIP (publicShareBlock refuses a card with no date)
+      // but not to BUILD: three on-record statements in the ledger carry a source
+      // and no date, and the honest handling of that is a card that exists in the
+      // app and does not leave it, not a pretended date.
+    }
     if (!item.source || !item.source.url) return 'record carries no source URL';
     // Guard 8 — a provisional title ("Roll call 310") names nothing a reader can
     // look up, and the card's supporting line is built from the title.
@@ -546,9 +756,21 @@
   // card quotes but cannot point a stranger at a page that shows it — most often
   // because the roll number was never captured (the vote is sourced to a bill's
   // all-actions page or a chamber's vote index, neither of which identifies it).
+  //
+  // For every other instrument there is no address to derive — the record of the
+  // act IS the stored document — so the question becomes whether that document is
+  // one a reader can actually open. See instrumentCitation.
   function blockCitation(item) {
-    if (canonicalCitation(item)) return '';
+    if (citationFor(item)) return '';
     var u = String((item && item.source && item.source.url) || '');
+    if (item && item.kind !== 'vote') {
+      if (!u) return 'record carries no source URL';
+      if (/api\.congress\.gov/i.test(u)) {
+        return 'the only stored source for this act is an api.congress.gov endpoint, which returns an API-key error in a browser';
+      }
+      if (!/^https:\/\//i.test(u)) return 'the stored source for this act is not an https address a reader could open';
+      return 'the stored source for this act carries a query or a fragment, so the address printed on the card would not land on the same page';
+    }
     if (/api\.congress\.gov/i.test(u)) {
       return 'the only stored source is an api.congress.gov endpoint and the roll-call number is missing, so no public roll-call page can be derived';
     }
@@ -758,6 +980,15 @@
 
   function blockPlainEffect(item, issueKey) {
     if (!isDisapproval(item)) return '';
+    // The curators' sentence is written in ballot language — "a yea rolls back the
+    // mandate" — because it exists to tell a reader which way a YEA cut. It cannot
+    // say what a signature or a veto on the same resolution did, and no other
+    // sentence in the record says it either. Composing one here is exactly the
+    // thing guard 13 exists to prevent, so a disapproval-style measure carried by
+    // anything other than a recorded vote is refused outright.
+    if (item && item.kind !== 'vote') {
+      return 'this is a disapproval-style resolution and the only plain-English sentence on file says what a YEA did — it cannot state what this act did, and the title alone would let a reader read it backwards';
+    }
     if (yeaEffect(item, mappingOn(item, issueKey))) return '';
     return 'this is a disapproval-style resolution and no curated rationale states in plain words what a Yea did — the title alone would let a reader read the vote backwards';
   }
@@ -819,10 +1050,18 @@
   function blockDependentStance(pos, item) {
     if (!pos) return '';
     var surl = String((pos.source && pos.source.url) || '');
-    var cit = canonicalCitation(item);
+    var cit = citationFor(item);
     var curl = cit ? cit.url : '';
     if (surl && curl && sameAddress(surl, curl)) {
       return 'stated position is sourced to the very roll call this card cites — the two halves are one document';
+    }
+    // The DERIVED address is not the only way the two halves can be one document.
+    // On the executive lane the citation IS the stored source, and on the
+    // congressional lane a cosponsorship is sourced to the bill page a stance can
+    // just as easily be sourced to — so the stored address is compared too.
+    var stored = String((item && item.source && item.source.url) || '');
+    if (surl && stored && sameAddress(surl, stored)) {
+      return 'stated position is sourced to the very document this card cites — the two halves are one document';
     }
     if (ROLLCALL_URL_RE.test(surl)) {
       return 'stated position is sourced to a roll call — it is itself a vote, so the card would be circular';
@@ -898,14 +1137,53 @@
   var VERDICTS = {
     contradicts: { key: 'contradicts', cls: 'v-contradicts', ico: '⚠', label: 'Says One Thing · Voted Another', rank: 5 },
     consistent:  { key: 'consistent',  cls: 'v-consistent',  ico: '✓', label: 'Vote Matched The Words',        rank: 2 },
-    omnibus:     { key: 'omnibus',     cls: 'v-omnibus',     ico: '⇅', label: 'One Vote · Two Outcomes',       rank: 4 }
+    omnibus:     { key: 'omnibus',     cls: 'v-omnibus',     ico: '⇅', label: 'One Vote · Two Outcomes',       rank: 4 },
+    // The split record. Not a softer contradiction and not a hedge: it is the
+    // verdict the engine already reached for this member on this issue, and the
+    // card exists so that verdict can leave the app in the same shape it has on
+    // the profile — both sides, counted, with a named vote cited on each.
+    mixed:       { key: 'mixed',       cls: 'v-mixed',       ico: '⇄', label: 'Split Record · Voted Both Ways', rank: 3 }
   };
+
+  // ── The same four verdicts, said in the language of an ACT ────────────────
+  // "Says One Thing · Voted Another" over a signature, an executive order or a
+  // cosponsorship is a false statement about the mechanism even when the verdict
+  // itself is right, and the verdict stamp is the largest text on the card — it is
+  // the one line a scrolling reader takes away. So a card built on a non-vote
+  // instrument gets a stamp that says what actually happened.
+  //
+  // The KEY is unchanged, deliberately: the stamp is what a reader sees, and the
+  // key is what every other surface (impact, colour class, ranking, the public
+  // audit) reads. Changing the wording must not fork the verdict.
+  var ACT_VERDICT_LABELS = {
+    contradicts: 'Says One Thing · Did Another',
+    consistent:  'Action Matched The Words',
+    omnibus:     'One Action · Two Outcomes',
+    mixed:       'Split Record · Acted Both Ways'
+  };
+  function actVerdict(v) {
+    var label = v && ACT_VERDICT_LABELS[v.key];
+    if (!label) return v;
+    return { key: v.key, cls: v.cls, ico: v.ico, label: label, rank: v.rank };
+  }
 
   // "H.J.Res. 78 · On Passage · Voted Yea" — bill, question, position, in the same
   // order and the same words the profile's Official Record proof line uses. Built
   // from PDXConsistency.proof.proofText when that module is loaded so the two can
   // never drift; the local fallback prints the identical string.
+  //
+  // A NON-VOTE instrument is named from the table in this file instead. The row
+  // face's phrase for one is assembled from exec-record.js's verb list, which
+  // degrades to a bare title-cased slug ("Issued") when that module has not
+  // loaded — acceptable on a row sitting inside the app beside its own source,
+  // and not acceptable on an image whose whole job is to say what kind of act it
+  // is showing. INSTRUMENTS ships with this file and cannot be half-present.
   function proofLine(item) {
+    var instr = instrumentOf(item);
+    if (instr && instr.key !== 'vote') {
+      return [String((item && (item.number || item.title)) || '').trim(), instr.label]
+        .filter(Boolean).join(' · ');
+    }
     var t = '';
     try {
       if (window.PDXConsistency && window.PDXConsistency.proof &&
@@ -918,7 +1196,9 @@
       if (item.number) parts.push(String(item.number));
       else if (item.title) parts.push(String(item.title));
       if (item.action) parts.push(String(item.action));
-      if (item.position) parts.push('Voted ' + titleCase(item.position));
+      // "Voted <x>" is printed only for something a member can actually vote —
+      // never off an actionType that happens to be sitting in `position`.
+      if (item.position && item.kind !== 'position') parts.push('Voted ' + titleCase(item.position));
       t = parts.join(' · ');
     }
     // Two roll calls in the ledger carry a question that repeats the measure
@@ -970,7 +1250,16 @@
   function supportingParts(item, mapping) {
     var parts = [];
     var rat = publicRationale(mapping && mapping.rationale);
-    if (isDisapproval(item)) {
+    var instr = instrumentOf(item);
+    // Slot 0 is the clause a reader cannot reconstruct from anything else on the
+    // card. On a floor vote that is the disapproval effect; on every other
+    // instrument it is what kind of act this was — the sentence that keeps a
+    // cosponsorship from being read as a deciding vote. The two never collide:
+    // a disapproval measure carried by a non-vote instrument is refused by
+    // guard 13 rather than published with either sentence.
+    if (instr && instr.key !== 'vote') {
+      if (instr.note) parts.push(instr.note);
+    } else if (isDisapproval(item)) {
       var eff = yeaEffect(item, mapping);
       if (eff) {
         parts.push(eff.text);
@@ -1004,9 +1293,30 @@
     try { if (typeof window._getPhotoUrl === 'function') photo = window._getPhotoUrl(pid) || ''; } catch (e) {}
     var mapping = mappingOn(item, issueKey);
     var date = dayOf(item.date);
-    // Guard 12 has already refused anything this cannot resolve, so a built card
-    // always cites a page a stranger can open.
-    var citation = canonicalCitation(item) || { url: '', print: '', label: 'Official record' };
+    // Guard 5 has already refused an instrument with no honest label, and guard 12
+    // anything this cannot resolve, so a built card always names its act and cites
+    // a page a stranger can open.
+    var instr = instrumentOf(item) || INSTRUMENTS.vote;
+    var isVote = instr.key === 'vote';
+    var citation = citationFor(item) || { url: '', print: '', label: 'Official record' };
+    // ── The footer address, when the document's own address will not fit ──────
+    // A derived roll-call citation is always short. A stored document address
+    // frequently is not: most Federal Register documents and most court filings
+    // run past the printable width of the footer line, and 118 of the ones on file
+    // do. The three ways out of that are to shorten the URL (a URL a reader cannot
+    // retype is not a citation), to refuse the card (the receipt is real and the
+    // reader loses it over typography), or to print the PolitiDex record page —
+    // which cites the document, by name and by address, on the page it opens.
+    // That is what the split card already does when it has two chamber addresses
+    // and no single page that is the record of both, so it is what happens here.
+    // The document's own address is unchanged in `source`, so the pasted caption
+    // still carries the direct link at full length.
+    var verify = citation.print;
+    if (!verify || verify.length > VERIFY_MAX) {
+      verify = printableUrl(recordPageUrl(pid, issueKey));
+      if (!verify || verify.length > VERIFY_MAX) return null;   // fail closed
+    }
+    if (!isVote) verdict = actVerdict(verdict);
 
     return {
       // identity
@@ -1027,9 +1337,22 @@
       // outright. The verdict itself is unaffected — it never depended on order,
       // only on whether the position and the vote point the same way.
       saidLabel: 'THEIR STATED POSITION',
-      saidNote: 'Stated position is undated — this card does not claim it came before the vote.',
+      saidNote: 'Stated position is undated — this card does not claim it came before the ' +
+        (isVote ? 'vote' : 'act') + '.',
       // DID — bill, question, position, date
       headline: proofLine(item),
+      // WHAT KIND OF ACT — the label, the strength and the sentence that keeps a
+      // supporting act from being read as a deciding one. Carried on the card
+      // rather than re-derived downstream so the public gate, the renderer and any
+      // future surface all read the same answer.
+      instrument: { key: instr.key, label: instr.label, strength: instr.strength, note: instr.note },
+      // The short form a post has room for ("Cosponsored S. 331"). Empty on a
+      // floor vote, whose headline already states the direction in full and whose
+      // short form the renderer has always built for itself.
+      didLine: isVote ? '' : didPhrase(instr, item.number),
+      // What the caption calls fact slot 0. On a vote that slot is the disapproval
+      // sentence and the label says so; on an act it is the instrument note.
+      effectLabel: isVote ? '' : 'What kind of act this is',
       facts: supportingText(item, mapping),
       // The same content the renderer can shorten a segment at a time. Empty
       // slots are kept so index 1 is always the title; the canvas skips them.
@@ -1042,7 +1365,7 @@
       category: 'official_record',
       impact: verdict.key === 'contradicts' ? 'negative' : 'positive',
       verdict: verdict,
-      verifyUrl: citation.print,
+      verifyUrl: verify,
       method: 'HOW THIS IS JUDGED: ' + METHOD_URL,
       // Provenance a caller (or a test) can read without re-deriving it. `origin`
       // is what keeps this feed identifiable downstream: nothing that carries it
@@ -1058,11 +1381,157 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // THE ITEM CHAIN  ·  every guard that judges ONE cited vote
+  // ──────────────────────────────────────────────────────────────────────────
+  // Pulled out of the candidate loop so there is exactly one list of them. A
+  // one-sided card cites one vote and runs this once; a split card cites two and
+  // runs it twice, on each. Written as one function rather than copied so a
+  // nineteenth guard cannot be added to one shape of card and forgotten on the
+  // other — the split card is harder to build than either single-sided card, and
+  // it stays that way by construction.
+  //
+  // What is NOT here: the checks that judge the ROW rather than the vote — a
+  // stated position exists (and is not itself a vote), the net verdict is the one
+  // the card claims, the issue key is not held out of wave 1. Those are asked
+  // once per row by the callers below.
+  // ══════════════════════════════════════════════════════════════════════════
+  function itemBlock(pid, issueKey, pos, item, records) {
+    return blockIssue(pid, issueKey, pos && pos.text, item) ||
+      blockDependentStance(pos, item) ||
+      blockRecord(item) ||
+      blockCitation(item) ||
+      blockUnverifiedCitation(item) ||
+      blockPlainEffect(item, issueKey) ||
+      blockFramedMapping(item, issueKey) ||
+      blockHousekeeping(item, issueKey) ||
+      blockDuplicateIdentity(records, issueKey, item.number) ||
+      wave1HoldPair(item, issueKey);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // BOTH-SIDES EVIDENCE  ·  what a split row is allowed to cite
+  // ──────────────────────────────────────────────────────────────────────────
+  // A split card makes one claim — "the record runs both ways on this issue" —
+  // and that claim is only as good as the two votes it puts under it. So each
+  // side needs a vote of its own that passes the whole item chain above. If
+  // either side has none, there is no card: a "split" card citing one side and
+  // asserting the other is a one-sided card wearing a fairer name.
+  //
+  // WHICH vote. The engine's own top item for the side is asked for first — the
+  // same one the profile row cites, so the card and the row agree. When that item
+  // is refused by a guard (most often guard 1: the strongest weight on a side is
+  // a confirmation vote, which is a policy proxy and cannot carry a policy claim
+  // off-app), the scan steps down to the next-strongest item on that side and
+  // asks again. That is not a loosened guard — every candidate is put through the
+  // identical chain, and an item that fails is never cited. It is the difference
+  // between "the strongest item happens to be uncitable, so nothing travels" and
+  // "the strongest CITABLE item travels", and the second is what the row already
+  // shows a reader who opens it.
+  //
+  // The step-down re-asks the shared engine rather than ranking items here: drop
+  // the refused item from the list, re-run _issueRecordSummary, read its new top
+  // for the side. Same ranking rule, same judging, no second implementation of
+  // either. The lists are per-issue and short, so the repeated summarise costs
+  // nothing worth optimising away.
+  var SIDE_WORD = { with: 'with-side', against: 'against-side' };
+  function strongestCitable(pid, issueKey, pos, records, issueItems, stance, side) {
+    var key = side === 'with' ? 'topConsistent' : 'topContradiction';
+    var pool = issueItems.slice();
+    var firstRefusal = '';
+    for (var guard = 0; guard <= issueItems.length; guard++) {
+      var s = window._issueRecordSummary(issueKey, stance, pool);
+      var item = s && s[key];
+      if (!item) break;
+      var why = itemBlock(pid, issueKey, pos, item, records);
+      if (!why) return { item: item, blocked: '', steppedDown: guard > 0 };
+      if (!firstRefusal) firstRefusal = why;
+      pool = pool.filter(function (x) { return x !== item; });
+    }
+    return {
+      item: null, steppedDown: false,
+      blocked: 'the ' + SIDE_WORD[side] + ' example: ' +
+        (firstRefusal || 'no vote on this side of the record to cite')
+    };
+  }
+
+  // The face of one cited item inside a split card: what it was, what it did, when,
+  // and the address a stranger reads it at. Every field is one the single-sided
+  // card already prints — nothing new is asserted about either item, they are
+  // simply both on the same card.
+  //
+  // `head`, `lead` and `tail` are the three places the two sides get LABELLED —
+  // the image, the pasted caption and the post — and all three used to say
+  // "VOTED". A side carrying a signature, an executive order or a cosponsorship
+  // is not a vote, so it says what it is instead. Only the side that is not a
+  // vote is relabelled, so a split holding one roll call and one signature reads
+  // "VOTED WITH THEIR POSITION" over the one and "ACTED AGAINST IT" over the
+  // other — which is exactly what happened. Left unset on a vote so every
+  // renderer keeps its own wording as the default and vote cards are untouched.
+  function sideFace(item, issueKey, side) {
+    var mapping = mappingOn(item, issueKey);
+    var parts = supportingParts(item, mapping);
+    var instr = instrumentOf(item) || INSTRUMENTS.vote;
+    var citation = citationFor(item) || { url: '', print: '', label: 'Official record' };
+    var face = {
+      number: item.number || '',
+      proof: proofLine(item),
+      effect: parts[0] || '',
+      title: parts[1] || '',
+      date: dayOf(item.date),
+      url: citation.url,
+      verify: citation.print,
+      label: citation.label,
+      instrument: { key: instr.key, label: instr.label, strength: instr.strength, note: instr.note }
+    };
+    if (instr.key !== 'vote') {
+      face.head = side === 'with' ? 'ACTED IN LINE WITH THEIR POSITION' : 'ACTED AGAINST IT';
+      face.lead = side === 'with' ? 'Acted in line with their position' : 'Acted against it';
+      face.tail = side === 'with' ? 'Acted with' : 'Acted against';
+    }
+    return face;
+  }
+
+  // "2025-07-03" when both votes fall on one day, "2024-12-21 – 2025-07-03" when
+  // they do not — the same ISO day every other card's footer prints. The footer
+  // carries ONE date line, and a split card that prints one of its two vote dates
+  // there is quietly misattributing the other.
+  function dateSpan(a, b) {
+    var d1 = dayOf(a && a.date), d2 = dayOf(b && b.date);
+    if (!d1) return d2 || '';
+    if (!d2 || d1 === d2) return d1;
+    var first = String((a && a.date) || '') <= String((b && b.date) || '');
+    return (first ? d1 : d2) + ' – ' + (first ? d2 : d1);
+  }
+
+  // The page that holds BOTH votes. A one-sided card's footer address is the
+  // chamber's own record of the one vote it cites; a split card cites two, and
+  // there is no government page that is the record of both. So the footer points
+  // at the issue record this card is a picture of — which cites each vote at its
+  // own chamber address — and each of those addresses is printed on the card
+  // beside the vote it belongs to. Nothing is hidden behind the link that is not
+  // also on the image.
+  function recordPageUrl(pid, issueKey) {
+    try {
+      if (window.PDXShareLinks && typeof window.PDXShareLinks.record === 'function') {
+        var u = window.PDXShareLinks.record(pid, issueKey);
+        if (u) return u;
+      }
+    } catch (e) {}
+    return 'https://politidex.fyi/#' + SHARE_HASH + '=' +
+      encodeURIComponent(pid) + '~' + encodeURIComponent(issueKey);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // CANDIDATE ENUMERATION
   // ──────────────────────────────────────────────────────────────────────────
   // For one member: every (issue, cited vote) pair the engine already ranks,
   // annotated with the guard verdict. Returns candidates in BOTH states so
   // audit() can report the exclusions rather than only the survivors.
+  //
+  // Three wants per issue, not two. `contradicts` and `consistent` each cite the
+  // engine's top item on their side; `mixed` cites one on EACH side and is only
+  // ever offered on a row whose net verdict is already mixed — guard 9 refuses
+  // all three the moment the claim and the row disagree.
   // ══════════════════════════════════════════════════════════════════════════
   function candidates(pid) {
     pid = canonPid(pid);
@@ -1107,37 +1576,106 @@
             blockIssue(pid, issueKey, pos && pos.text, item) ||
             (pos ? '' : 'no stated position on this issue to line the vote up against') ||
             blockStance(pos && pos.text) ||
-            blockDependentStance(pos, item) ||
-            blockRecord(item) ||
-            blockCitation(item) ||
-            blockUnverifiedCitation(item) ||
-            blockPlainEffect(item, issueKey) ||
-            blockFramedMapping(item, issueKey) ||
-            blockHousekeeping(item, issueKey) ||
-            blockDuplicateIdentity(records, issueKey, item.number) ||
+            itemBlock(pid, issueKey, pos, item, records) ||
             stableVerdict(summary, want) ||
-            wave1Hold(issueKey) ||
-            wave1HoldPair(item, issueKey);
+            wave1Hold(issueKey);
           out.push(cand);
         });
+
+      // ── The split card ────────────────────────────────────────────────────
+      // Offered only where the engine already says the record runs both ways.
+      // It asks the SAME row-level questions the two single-sided cards ask, and
+      // then asks the item chain twice — once per side — so it can only exist
+      // where two separate votes each clear everything a single-sided card's one
+      // vote has to clear. Nothing here relaxes a guard; the extra evidence is
+      // the extra requirement.
+      if (summary.netVerdict === 'mixed') {
+        var withSide = strongestCitable(pid, issueKey, pos, records, byIssue[issueKey], stance, 'with');
+        var againstSide = strongestCitable(pid, issueKey, pos, records, byIssue[issueKey], stance, 'against');
+        var split = {
+          pid: pid, issueKey: issueKey, want: 'mixed',
+          // `item` is the against-side vote so every downstream reader that
+          // expects a cited item on a candidate keeps working; `sides` is what
+          // the card is actually built from, and both are required.
+          item: againstSide.item || withSide.item || null,
+          sides: { with: withSide.item, against: againstSide.item },
+          // Whether the COUNTS this card prints cover anything that is not a
+          // floor vote. The counts are the engine's, over the whole judged list
+          // for this issue — so "voted with their position 3 times" is a false
+          // sentence the moment one of those three is a signature or a
+          // cosponsorship, even when both cited examples happen to be roll
+          // calls. Read off the judged list rather than off the two examples.
+          hasActs: byIssue[issueKey].some(function (it) {
+            var ins = instrumentOf(it);
+            return !!ins && ins.key !== 'vote';
+          }),
+          // And whether any of them is a SUPPORTING act, which is the stricter
+          // question: a card whose counts include a cosponsorship may not be
+          // worded as though every item under it were a deciding one.
+          hasSupporting: byIssue[issueKey].some(function (it) {
+            var ins = instrumentOf(it);
+            return !!ins && ins.strength === 'supporting';
+          }),
+          steppedDown: !!(withSide.steppedDown || againstSide.steppedDown),
+          summary: summary, stance: pos || null, blocked: ''
+        };
+        split.blocked =
+          blockIssue(pid, issueKey, pos && pos.text, split.item || {}) ||
+          (pos ? '' : 'no stated position on this issue to line the votes up against') ||
+          blockStance(pos && pos.text) ||
+          stableVerdict(summary, 'mixed') ||
+          wave1Hold(issueKey) ||
+          withSide.blocked ||
+          againstSide.blocked;
+        out.push(split);
+      }
     });
 
     // Strongest first: decisiveness of the issue verdict, then the weight of the
     // cited vote, then recency. Contradictions and consistencies are ranked in
-    // the same units so neither is structurally favoured.
+    // the same units so neither is structurally favoured. A split candidate that
+    // could not find a citable vote on either side is already blocked and only
+    // reaches this loop so audit() can report it, so `item` may be null here.
     out.forEach(function (c) {
-      var mapping = mappingOn(c.item, c.issueKey);
+      var mapping = c.item ? mappingOn(c.item, c.issueKey) : null;
       var w = (mapping && typeof mapping.weight === 'number') ? mapping.weight : 100;
       var margin = Math.abs(c.summary.contradictScore - c.summary.consistentScore);
-      c.strength = w + margin + Math.max(0, yearOf(c.item.date) - 2000) + (c.summary.total > 1 ? 25 : 0);
+      var recency = c.item ? Math.max(0, yearOf(c.item.date) - 2000) : 0;
+      c.strength = w + margin + recency + (c.summary.total > 1 ? 25 : 0);
+      // ── Deciding acts outrank supporting ones, always ─────────────────────
+      // Only one card is built per (member, issue) — the strongest candidate
+      // takes the slot — so this ranking decides which receipt a reader is shown
+      // and which one travels. A cosponsorship that outranked a floor vote on
+      // the same issue would be exactly the silent upgrade the walls forbid: the
+      // soft act would become the member's record on that issue in every surface
+      // that shows one. So the two strengths are ranked in separate bands rather
+      // than on one scale, and a supporting act leads only where there is no
+      // deciding act to lead with. Nothing is dropped — the demoted candidate is
+      // still eligible, still audited, still shareable from its own row.
+      var ins = c.item ? instrumentOf(c.item) : null;
+      c.deciding = !(ins && ins.strength === 'supporting');
+      // A split card is ranked in exactly those units too — no bonus for being
+      // the new shape. On a mixed row the two single-sided candidates are refused
+      // by guard 9 anyway, so the split card is the only one that can be built
+      // there; letting it also outrank a member's other issues would be this file
+      // putting a thumb on which finding leads, which is not its job.
     });
-    out.sort(function (a, b) { return b.strength - a.strength; });
+    out.sort(function (a, b) {
+      // The band first, and it is a band rather than a penalty on purpose: a
+      // large enough margin on a soft act must not be able to buy its way past a
+      // roll call, which any subtracted constant would eventually allow.
+      if (a.deciding !== b.deciding) return a.deciding ? -1 : 1;
+      return b.strength - a.strength;
+    });
     return out;
   }
 
   function toCard(cand) {
     if (!cand || cand.blocked) return null;
-    var card = baseCard(cand.pid, cand.item, cand.issueKey, cand.stance, VERDICTS[cand.want]);
+    var card = cand.want === 'mixed'
+      ? splitCard(cand)
+      : baseCard(cand.pid, cand.item, cand.issueKey, cand.stance, VERDICTS[cand.want]);
+    if (!card) return null;
     card.score = cand.strength;
     card.recordSummary = {
       total: cand.summary.total,
@@ -1145,6 +1683,134 @@
       contradicts: cand.summary.contradicts,
       netVerdict: cand.summary.netVerdict
     };
+    return card;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE SPLIT CARD  ·  "voted with it N times, against it M times"
+  // ──────────────────────────────────────────────────────────────────────────
+  // Built on the same baseCard every other card is built on — same identity,
+  // same issue chip, same stated position, same undated-stance disclosure, same
+  // method line — and then given the three things a split record needs and a
+  // one-sided card does not:
+  //
+  //   headline   the finding, in the form a reader can repeat: on this issue,
+  //              this member voted with their stated position N times and
+  //              against it M times. A sentence, not a score.
+  //   sides      one named, dated, sourced vote on EACH side, each with its own
+  //              chamber address printed beside it.
+  //   footer     the issue record that holds both votes, because no single
+  //              government page is the record of two different roll calls.
+  //
+  // WHAT IT MUST NOT DO, and how that is enforced here rather than hoped for:
+  //
+  //   · No percentage. The counts are printed as counts. A split rendered as
+  //     "67% with / 33% against" would read as a second PolitiDex score sitting
+  //     next to Direction Match, and there is only one score.
+  //   · No new arithmetic. N and M are summary.consistent and summary.contradicts
+  //     — the engine's own counts, the same two numbers the profile row shows.
+  //     They are not recounted, re-weighted, or filtered down to the votes this
+  //     card happens to cite. That is deliberate and it is why the card says
+  //     outright that the counts cover the whole judged record while the two
+  //     examples are the strongest CITABLE vote on each side: some judged items
+  //     (a confirmation vote mapped as a policy proxy, most often) count on the
+  //     row and still cannot carry a policy claim off-app. The link goes to the
+  //     row, where every item is listed with its own provenance.
+  //   · No public-lane material. `sides` is assembled from vr_* record items
+  //     only, exactly like every other card in this file.
+  // ══════════════════════════════════════════════════════════════════════════
+  function timesPhrase(n) { return n + (n === 1 ? ' time' : ' times'); }
+
+  function splitCard(cand) {
+    var withItem = cand.sides && cand.sides.with;
+    var againstItem = cand.sides && cand.sides.against;
+    if (!withItem || !againstItem) return null;   // fail closed: no one-sided "split"
+
+    var card = baseCard(cand.pid, againstItem, cand.issueKey, cand.stance, VERDICTS.mixed);
+    if (!card) return null;   // baseCard fails closed on an address it cannot print
+    var issueName = (card.issue && card.issue.label) || 'this issue';
+
+    // ── Vote language, or act language, for the whole card ────────────────────
+    // Either cited example being something other than a roll call is enough, and
+    // so is a non-vote sitting anywhere in the judged list the COUNTS are taken
+    // from: this card's headline is a sentence about N + M items, not about the
+    // two it happens to show. When any of them is a signature or a cosponsorship,
+    // "voted" is the wrong verb for the sentence and the stamp goes with it.
+    var withInstr = instrumentOf(withItem) || INSTRUMENTS.vote;
+    var againstInstr = instrumentOf(againstItem) || INSTRUMENTS.vote;
+    var acts = withInstr.key !== 'vote' || againstInstr.key !== 'vote' || !!cand.hasActs;
+
+    card.headline = 'On ' + issueName + ', ' + card.name + ' ' +
+      (acts ? 'acted in line with their stated position ' : 'voted with their stated position ') +
+      timesPhrase(cand.summary.consistent) + ' and against it ' +
+      timesPhrase(cand.summary.contradicts) + '.';
+    card.verdict = acts ? actVerdict(VERDICTS.mixed) : VERDICTS.mixed;
+
+    card.sides = {
+      counts: { with: cand.summary.consistent, against: cand.summary.contradicts },
+      with: sideFace(withItem, cand.issueKey, 'with'),
+      against: sideFace(againstItem, cand.issueKey, 'against')
+    };
+    // Each side prints its OWN address on the image, so neither can fall back to
+    // the record page the way a single-sided card does — both would then print
+    // the same line. A document address too long to set is refused outright.
+    if (!card.sides.with.verify || card.sides.with.verify.length > VERIFY_MAX) return null;
+    if (!card.sides.against.verify || card.sides.against.verify.length > VERIFY_MAX) return null;
+
+    // A split card is about two items, so the single-item act line baseCard left
+    // here would name one of them and drop the other. Replaced with the counted
+    // form, or cleared so the post keeps the vote wording it has always used.
+    card.didLine = acts
+      ? ('Acted in line with their position ' + cand.summary.consistent + '× (' +
+         (withItem.number || '') + ') and against it ' + cand.summary.contradicts + '× (' +
+         (againstItem.number || '') + ')')
+      : '';
+    card.effectLabel = '';
+    // What KIND of act this card is about is now a two-part answer. The strength
+    // is the weaker of everything the counts cover: a card that counts a
+    // cosponsorship alongside a roll call may not be worded as though every item
+    // on it were a deciding act. The per-side instrument, which is the precise
+    // answer, is on each side face.
+    var soft = cand.hasSupporting ||
+      withInstr.strength === 'supporting' || againstInstr.strength === 'supporting';
+    card.instrument = acts
+      ? { key: 'mixed', label: 'Recorded votes and other formal acts',
+          strength: soft ? 'supporting' : 'deciding',
+          note: 'This card counts recorded votes together with other formal acts on the record. ' +
+                'Each example below says which it is.' }
+      : { key: 'vote', label: INSTRUMENTS.vote.label, strength: 'deciding', note: '' };
+
+    // baseCard filled these from the against-side vote alone. On a split card
+    // that would print one measure's title under a headline about two, so the
+    // fact block carries the one thing the two-sided evidence needs said instead.
+    card.factParts = [];
+    // Short enough to print on ONE line inside the card's content width at the
+    // size the renderer reserves for it — an ellipsized caveat is a caveat that
+    // did not travel. The caption carries the same point at full length.
+    card.facts = acts
+      ? 'Counts cover every judged action; each example is the strongest we can cite.'
+      : 'Counts cover every judged vote; each example is the strongest we can cite.';
+    card.countsNote = 'Counts cover every judged ' + (acts ? 'action' : 'vote') +
+      ' on this issue; each example above is the strongest ' + (acts ? 'one' : 'vote') +
+      ' on its side that can be cited on its own.';
+
+    card.impact = 'split';
+    card.recordLabel = 'AND THE RECORD SHOWS BOTH';
+    card.date = dateSpan(withItem, againstItem);
+    card.source = {
+      url: recordPageUrl(cand.pid, cand.issueKey),
+      label: 'Official record — both ' + (acts ? 'actions' : 'votes')
+    };
+    card.verifyUrl = printableUrl(card.source.url);
+    // Same rule guard 12 applies to a chamber citation: an address that will not
+    // fit the footer line un-shortened is not an address a reader can follow, and
+    // a "…" in a URL is quietly wrong. Fail closed rather than print one.
+    if (!card.verifyUrl || card.verifyUrl.length > VERIFY_MAX) return null;
+    // Both measures, so the public gate can re-check the wave-1 pair holds
+    // against each of them rather than only against the one baseCard named.
+    card.measureNumbers = [withItem.number || '', againstItem.number || ''].filter(Boolean);
+    card.sourceStored = [(withItem.source && withItem.source.url) || '',
+                         (againstItem.source && againstItem.source.url) || ''].filter(Boolean).join(' | ');
     return card;
   }
 
@@ -1210,7 +1876,10 @@
       // underlying say-vs-do verdict is preserved on the card for anyone reading
       // it programmatically.
       card.saydoVerdict = card.verdict;
-      card.verdict = VERDICTS.omnibus;
+      // Act-aware for the same reason every other stamp is: "One Vote · Two
+      // Outcomes" over an executive order names a mechanism that did not happen.
+      card.verdict = (card.instrument && card.instrument.key !== 'vote')
+        ? actVerdict(VERDICTS.omnibus) : VERDICTS.omnibus;
       card.impact = card.saydoVerdict.key === 'contradicts' ? 'negative' : 'positive';
       return card;
     }
@@ -1251,11 +1920,25 @@
   // the Wave-1 exclusion list is read off, and the surface the tests assert on.
   function audit(pid) {
     return candidates(pid).map(function (c) {
+      // A refused split candidate can have no cited vote at all — that IS the
+      // refusal — so the item is read defensively here and nowhere else.
+      var it = c.item || {};
+      var ins = instrumentOf(it);
       return {
         pid: c.pid, issueKey: c.issueKey, want: c.want,
-        measure: c.item.number || '', measureType: c.item.measureType || '',
-        question: c.item.action || '', position: c.item.position || '',
-        date: dayOf(c.item.date), netVerdict: c.summary.netVerdict,
+        measure: it.number || '', measureType: it.measureType || '',
+        question: it.action || '',
+        // WHAT KIND of act this candidate is, alongside the reason it was kept or
+        // dropped — so the exclusion list can be read per instrument rather than
+        // only in total, and so a refusal that only ever hits one instrument is
+        // visible as that rather than as a general failure.
+        instrument: ins ? ins.key : '', instrumentLabel: ins ? ins.label : '',
+        // On a non-vote there is no yea/nay to report; the direction is the
+        // boolean the record stores, said in words that are not vote words.
+        position: (ins && ins.key !== 'vote')
+          ? (it.supports === true ? 'supports' : it.supports === false ? 'opposes' : '')
+          : (it.position || ''),
+        date: dayOf(it.date), netVerdict: c.summary.netVerdict,
         eligible: !c.blocked, reason: c.blocked || 'eligible'
       };
     });
@@ -1292,6 +1975,25 @@
   // handling of thin is to stop leading with it, not to pretend it is not there.
   var PUBLIC_MIN_JUDGED = 2;
 
+  // ── Two tripwires on the text this file composes ──────────────────────────
+  // The first is the wall between a deciding act and a supporting one. A card
+  // built on a cosponsorship, a statement or a court filing may say what it is
+  // and may travel; what it may not do is borrow the vocabulary of a roll call,
+  // because "Voted Another" over a cosponsorship is a false statement about the
+  // mechanism even when the direction is right. The second is the wall this
+  // product has had from the start: no card frames a formal act as party
+  // behaviour. Neither regex is a substitute for writing the copy correctly —
+  // they are there so a future edit that reintroduces the wording cannot ship
+  // quietly.
+  //
+  // Both are run over COMPOSED text only — the headline, the verdict stamp, the
+  // short act line, the counts caveat, the both-sides labels. A measure title, a
+  // curated rationale and a stated position are quoted, not written here, and a
+  // bill actually named the Voting Rights Act is not this card calling a
+  // signature a vote.
+  var VOTE_WORD_RE = /\b(?:voted?|votes|voting|yea|nay|roll\s*call|on\s+passage)\b/i;
+  var PARTY_FRAME_RE = /\b(?:broke\s+with\s+(?:their|his|her|the)\s+party|party\s+lines?|party\s+loyalty|caucus|crossed\s+the\s+aisle|bipartisan)\b/i;
+
   function publicShareBlock(card) {
     if (!card) return 'no card';
     if (!card.hasOffice || !card.party || !card.party.label) {
@@ -1300,15 +2002,75 @@
     if (!card.date) return 'no vote date to print';
     if (!card.source || !card.source.url || !card.verifyUrl) return 'no citation a reader could follow';
     if (!card.said || !String(card.said.text || '').trim()) return 'no stated position to line the vote up against';
+    // A split card carries two cited votes, so everything below that reads ONE
+    // measure or ONE fact string is asked of both. A card that cited a clean vote
+    // on one side and a held one on the other would otherwise pass a gate written
+    // when every card had exactly one measure on it.
+    if (card.sides) {
+      if (!card.sides.with || !card.sides.against) {
+        return 'split card is missing the cited vote on one side — it would read as a one-sided card';
+      }
+      var sideText = [card.sides.with, card.sides.against].map(function (s) {
+        return [s.proof, s.title, s.effect].filter(Boolean).join(' ');
+      }).join(' ');
+      if (HOUSEKEEPING_LEAK_RE.test(sideText)) {
+        return 'finished both-sides text still carries curator housekeeping';
+      }
+      if (!card.sides.with.url || !card.sides.against.url) {
+        return 'one side of the split has no citation a reader could follow';
+      }
+      // No percentage may reach a public card. The counts are counts; a share
+      // of the record printed as a number next to Direction Match reads as a
+      // second score, and there is only one score.
+      if (/\d\s*%/.test(String(card.headline || '') + ' ' + String(card.facts || ''))) {
+        return 'split card prints a percentage — a share of the record reads as a second score';
+      }
+    }
     // Re-assert the trust criteria on the finished public text.
+    // ── What kind of act, said on the card, before it may leave ──────────────
+    // Requirement 2 in one place: a public card states its instrument, and a
+    // supporting act carries the sentence that keeps it from being read as a
+    // deciding one. Asked of the finished card rather than of the item, because
+    // this is the last surface before a stranger sees it.
+    var instr = card.instrument;
+    if (!instr || !instr.label) return 'card does not say what kind of act it is';
+    if (instr.key !== 'vote' && !instr.note) {
+      return 'card does not say how this act differs from a deciding floor vote';
+    }
+    var composed = [card.headline, card.verdict && card.verdict.label, card.didLine,
+                    card.countsNote, card.recordLabel];
+    var faces = card.sides ? [card.sides.with, card.sides.against] : [];
+    for (var f = 0; f < faces.length; f++) {
+      var face = faces[f];
+      if (!face.instrument || !face.instrument.label) {
+        return 'one side of the split does not say what kind of act it is';
+      }
+      if (face.instrument.key === 'vote') continue;
+      if (!face.head || !face.lead || !face.tail) {
+        return 'a side that is not a floor vote is still labelled as one';
+      }
+      composed.push(face.proof, face.head, face.lead, face.tail);
+    }
+    var composedText = composed.filter(Boolean).join(' · ');
+    if (instr.key !== 'vote' && VOTE_WORD_RE.test(composedText)) {
+      return 'card is worded as a floor vote and the act it reports is not one';
+    }
+    if (PARTY_FRAME_RE.test(composedText)) {
+      return 'card frames a formal act as party behaviour';
+    }
     if (HOUSEKEEPING_LEAK_RE.test(String(card.facts || ''))) {
       return 'finished fact text still carries curator housekeeping';
     }
     var circular = blockStance(card.said.text);
     if (circular) return 'finished stance text reads as a vote — ' + circular;
     if (WAVE1_HOLD_ISSUE_KEYS[card.issueKey]) return WAVE1_HOLD_ISSUE_KEYS[card.issueKey];
-    var pair = WAVE1_HOLD_PAIRS[String(card.measureNumber) + ' :: ' + card.issueKey];
-    if (pair) return pair;
+    // Every measure the card names, not only the one it leads with.
+    var numbers = (card.measureNumbers && card.measureNumbers.length)
+      ? card.measureNumbers : [card.measureNumber];
+    for (var i = 0; i < numbers.length; i++) {
+      var pair = WAVE1_HOLD_PAIRS[String(numbers[i]) + ' :: ' + card.issueKey];
+      if (pair) return pair;
+    }
     return '';
   }
 
@@ -1479,16 +2241,34 @@
 
   function revealBtn(btn, card) {
     var omni = card.verdict.key === 'omnibus';
+    var split = card.verdict.key === 'mixed';
     // What the reader is about to send, named on the control itself. The bill
     // number and the issue are the two things that make the image checkable, so
-    // they are what the tooltip and the accessible name say.
-    var what = [card.measureNumber, card.issue && card.issue.label].filter(Boolean).join(' · ');
+    // they are what the tooltip and the accessible name say. A split card names
+    // both bills, because both of them are the evidence.
+    var numbers = (card.measureNumbers && card.measureNumbers.length)
+      ? card.measureNumbers.join(' & ') : card.measureNumber;
+    var what = [numbers, card.issue && card.issue.label].filter(Boolean).join(' · ');
+    // The control says what it is about to send. A button reading "Share this
+    // vote" over a signed law or a cosponsorship is the first place a reader
+    // would be misled, and it is the one piece of copy they see before the card
+    // exists. "this act" is the honest general word for the instruments that are
+    // not roll calls; a card built on one still names the specific instrument on
+    // its own face.
+    var isVote = !card.instrument || card.instrument.key === 'vote';
+    var noun = isVote ? 'vote' : 'act';
     btn.classList.add('pdxrc-' + card.verdict.cls);
-    btn.innerHTML = '<span class="pdxrc-ico" aria-hidden="true">' + (omni ? '⇅' : '🏛️') + '</span>' +
-      '<span class="pdxrc-lbl">' + escA(omni ? 'Share this split vote' : 'Share this vote') + '</span>';
-    btn.setAttribute('title', 'Share ' + (what || 'this vote') +
-      ' as an image — the card prints the bill, the question, the vote, the date, the source URL and how it was judged.');
-    btn.setAttribute('aria-label', 'Share ' + (what || 'this vote') + ' as an Official Record image');
+    btn.innerHTML = '<span class="pdxrc-ico" aria-hidden="true">' +
+      (omni ? '⇅' : (split ? '⇄' : '🏛️')) + '</span>' +
+      '<span class="pdxrc-lbl">' +
+      escA(omni ? 'Share this split ' + noun
+                : (split ? 'Share this split record' : 'Share this ' + noun)) +
+      '</span>';
+    btn.setAttribute('title', 'Share ' + (what || 'this ' + noun) +
+      ' as an image — the card prints the ' + (isVote ? 'bill, the question, the vote' :
+        'measure, the kind of act, which way it cut') +
+      ', the date, the source URL and how it was judged.');
+    btn.setAttribute('aria-label', 'Share ' + (what || 'this ' + noun) + ' as an Official Record image');
     btn.removeAttribute('data-pdxrc-pending');
     btn.removeAttribute('hidden');
   }
@@ -1669,18 +2449,36 @@
       blockedIssueKeys: BLOCKED_ISSUE_KEYS,
       wave1HoldIssueKeys: WAVE1_HOLD_ISSUE_KEYS,
       wave1HoldPairs: WAVE1_HOLD_PAIRS,
-      restraintPids: AFP_RESTRAINT_PIDS
+      restraintPids: AFP_RESTRAINT_PIDS,
+      // The two tripwires the public gate runs over composed copy, exposed so a
+      // test can assert what they catch rather than only that a card passed.
+      voteWordRe: VOTE_WORD_RE,
+      partyFrameRe: PARTY_FRAME_RE
     },
     VERDICTS: VERDICTS,
+    ACT_VERDICT_LABELS: ACT_VERDICT_LABELS,
     METHOD_URL: METHOD_URL,
     // pure, testable pieces
     canonicalCitation: canonicalCitation,
+    // The instrument table and the two functions that read it. A test should be
+    // able to ask "what kind of act is this, and what may it claim" without
+    // building a card, and to enumerate exactly which instruments this file will
+    // let out of the app.
+    INSTRUMENTS: INSTRUMENTS,
+    instrumentOf: instrumentOf,
+    citationFor: citationFor,
     isDisapproval: isDisapproval,
     yeaEffect: yeaEffect,
     tidyRemainder: tidyRemainder,
     proofLine: proofLine,
     splitFor: splitFor,
     candidates: candidates,
+    // The split card's two moving parts, exposed for the same reason the guards
+    // are: a test should be able to ask "which vote would this side cite, and
+    // why was the stronger one refused" directly, rather than inferring it from
+    // a finished card.
+    strongestCitable: strongestCitable,
+    itemBlock: itemBlock,
     // The arrival half of a share. A card's `hash` is what travels; handleHash is
     // what the recipient's browser runs when they tap it. Exposed so
     // scripts/test-receipt-cards.mjs can assert the round trip on the real router

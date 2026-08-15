@@ -82,7 +82,7 @@
       aka: ['H.Res.', 'S.Res.', 'H. Res.', 'S. Res.', 'H.Con.Res.', 'S.Con.Res.'],
       short: 'A measure a chamber uses for its own business — internal rules, procedure, or a formal statement of opinion. A simple resolution does not become law.',
       long: 'H.Res. and S.Res. affect only the chamber that passes them. A joint resolution (H.J.Res. / S.J.Res.) is different: it does go to the President and carries the force of law, which is why constitutional amendments and some funding measures use that form.',
-      why: 'Many House resolutions are “providing for consideration of…” — floor-procedure votes whipped along party lines. PolitiDex deliberately leaves those unmapped to issues, because scoring one would read party discipline as personal conviction.',
+      why: 'Many House resolutions are “providing for consideration of…” — floor-procedure votes whipped by chamber leadership. PolitiDex deliberately leaves those unmapped to issues, because scoring one would read floor-control pressure as personal conviction.',
       see: ['procedural', 'house'], src: CONGRESS_GLOSSARY
     },
     amendment: {
@@ -147,7 +147,7 @@
       term: 'Procedural vote', kind: 'Procedure', cat: 'Procedure — and why it counts less',
       aka: ['Procedural'],
       short: 'A vote about *how* the chamber handles a bill — whether to debate it, amend it, send it back, or move on — rather than a direct vote on the policy itself.',
-      long: 'Procedural votes decide real outcomes: a bill blocked on procedure is just as dead as one voted down. But they are also where party leadership applies the most pressure, so they reflect a member’s own policy views less reliably than a vote on final passage.',
+      long: 'Procedural votes decide real outcomes: a bill blocked on procedure is just as dead as one voted down. But they are also where chamber leadership applies the most pressure, so they reflect a member’s own policy views less reliably than a vote on final passage.',
       why: 'PolitiDex counts procedural votes at a quarter of the weight of a substantive vote when checking a stated position against a record. They still count — a pattern of them still shows up — but one procedural vote will not outweigh a member’s actual vote on the bill.',
       see: ['recommit', 'previousquestion', 'cloture', 'rollcall'], src: CONGRESS_GLOSSARY
     },
@@ -171,8 +171,8 @@
       term: 'Previous question', kind: 'Procedure', cat: 'Procedure — and why it counts less',
       aka: ['ordering the previous question'],
       short: 'A House motion to cut off debate and amendments and go straight to a vote. It is close to a pure party-discipline vote.',
-      long: 'Members almost always vote with their party here regardless of how they feel about the bill, because the motion is about controlling the floor rather than about the policy.',
-      why: 'Treated as procedural, so it carries a quarter weight. PolitiDex will not read a party-line procedural vote as a personal policy conviction.',
+      long: 'Members almost always follow their leadership here regardless of how they feel about the bill, because the motion is about controlling the floor rather than about the policy.',
+      why: 'Treated as procedural, so it carries a quarter weight. PolitiDex will not read a whipped procedural vote as a personal policy conviction.',
       see: ['procedural', 'resolution'], src: CONGRESS_GLOSSARY
     },
     cloture: {
