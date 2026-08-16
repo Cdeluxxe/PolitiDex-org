@@ -482,6 +482,253 @@
     window._issueRecordSummary = _issueRecordSummary;
     window._polRecordMap = _polRecordMap;
 
+    // ── RECORD DIRECTION INDEX ────────────────────────────────────────────────
+    // WHAT THE RECORD DID, WITH NOBODY'S STANCE IN IT.
+    //
+    // _issueRecordSummary above answers "does the record agree with what they
+    // said?", and on ~7,800 live (member, issue) pairs it cannot answer at all,
+    // because there is no stated position on that key. It short-circuits to
+    // `no_stance` at the top of its ladder and returns zero directional counts —
+    // so the row goes on to print an inventory ("18 votes on file") and stops.
+    // But the direction of each of those eighteen votes was never in doubt:
+    // _voteEffectiveSupport computes it with no stance argument at all. The
+    // number was being computed and thrown away.
+    //
+    // This function keeps it. Same inputs, same weighting, same procedural
+    // factor, same inversion rules — it simply counts which way the record ran
+    // instead of comparing it to something. It is a DESCRIPTION OF VOTES, and
+    // the walls that keep it one are structural rather than editorial:
+    //
+    //   · NO PERCENTAGE. It returns counts and a sentence. There is no ratio in
+    //     the return value for a surface to print, so "72% oppose" cannot be
+    //     rendered from it without a caller doing arithmetic this file refuses
+    //     to do. Direction Match is the product's one formal percentage.
+    //   · SEPARATE TOKENS. Every token here is prefixed `record_` and none of
+    //     them appears in consistency.js's VERDICTS or in _RECORD_SUMMARY_LABEL.
+    //     The precedent is exec-record.js's EXEC_VERDICTS, which shares no token
+    //     with the roll-call scorer for exactly this reason: two vocabularies
+    //     that can be passed to each other's functions are one vocabulary.
+    //   · NO STANCE, EITHER DIRECTION. It takes no stance argument, so it cannot
+    //     read one; and nothing it returns may be written back as one. "13 of 18
+    //     cut against it" is a fact about ballots. "They oppose it" is a position
+    //     nobody has stated, and this file never produces that sentence.
+    //   · IT DOES NOT FEED DIRECTION MATCH. It is not called by
+    //     _issueRecordSummary, _polRecordMap, or anything either of them calls.
+    //     The dependency runs one way only.
+
+    // THE THRESHOLDS, AND WHY THEY ARE NOT THE MIXED GATE'S.
+    // _MIXED_DOMINANCE (2/3) and _MIXED_MIN_ITEMS (2) are right for their own
+    // job: gating a verdict that already has an independently sourced stance
+    // behind it, where the record is the second piece of evidence. Here the
+    // record is the ONLY evidence, so the same numbers buy far less. Measured
+    // across the live corpus, at 2 items and 2/3 dominance, 46% of every "clear"
+    // direction in this index would rest on exactly two votes — a confident-
+    // sounding characterisation drawn from a coin flipped twice. Four items at
+    // 3/4 cuts the population by 64% and is the trade this index is worth
+    // making: the thin rows still print their counts, they just don't get
+    // characterised.
+    var _RD_MIN_JUDGED = 4;      // …before the record may be characterised at all
+    var _RD_DOMINANCE = 0.75;    // …of the weight, before one side is "the record"
+    var _RD_THIN_MIN = 2;        // …items before even a uniform run is worth stating
+
+    // A MAPPING THAT IS ABOUT THIS ISSUE, not one that merely touched it. An
+    // omnibus maps to every issue it brushes, and at the loose thresholds above
+    // 38% of clear directions came entirely from non-primary mappings — an
+    // appropriations package asserting a climate direction. At least one judged
+    // item must carry `isPrimary` before the record here is characterised.
+    var _RD_MIN_PRIMARY = 1;
+
+    // HOW MUCH OF THE MEMBER'S OWN RECORD WE HOLD, before any of it is read as a
+    // pattern. This is the wall against OUR sampling being reported as THEIR
+    // conduct. 44 of the 221 attributed members hold one or two mapped roll calls
+    // — the residue of a narrow ingest wave — and on an omnibus those two votes
+    // reach a dozen issues at once. Characterising that produces a full-looking
+    // profile assembled entirely out of which wave we happened to run. The live
+    // distribution has a clean break: 44 members at 1–2 records, nothing at 3–5,
+    // 22 at 6–11, then the bulk. Twelve sits above the break, and is the point at
+    // which a four-vote issue is a subset of a record rather than the whole file.
+    var _RD_MEMBER_FLOOR = 12;
+
+    // KEYS WITH NO SUPPORT POLE. "Advances it" is only meaningful where the
+    // issue's own curated label states a direction — and for these keys it
+    // deliberately does not. The `*_balance` family exists precisely to hold the
+    // issues where "for or against" is not a coherent question ("⚖️ Rights +
+    // Common-Sense Safety"), and the keys listed below name a subject or a
+    // contested authority rather than a proposition ("🪖 Who Commands the
+    // National Guard"). On those, the mapping's support_meaning still resolves an
+    // arithmetic direction — but printing it would assert a pole nobody curated,
+    // which is inventing a stance by another route. They keep the inventory copy.
+    //
+    // Everywhere else the gloss the sentence needs is ALREADY on the row: the
+    // ISSUE_MAP label is a curated directional proposition ("✂️ Cut Federal Red
+    // Tape", "🛢 Expand Domestic Energy Production"), so "5 advanced it" resolves
+    // against the heading the reader just read. That is why there is no second
+    // gloss table here — a duplicate would be a second place for the polarity of
+    // an issue to be stated, and therefore a place for it to disagree.
+    var _RD_NO_POLE = {
+      guard_authority: 1,      // 🪖 Who Commands the National Guard
+      states_federal_power: 1, // 🗺 Whose Rule Governs: State or Federal
+      war_powers: 1,           // ⚔️ Congress and War Powers
+      tariffs_authority: 1,    // ⚖️ Tariffs & Trade Authority
+      civil_service_control: 1,// 🗂 Control of the Civil Service
+      state_standing: 1,       // 🗽 States Suing Washington
+      homeless: 1,             // 🏕 Homelessness Policy
+      medical_freedom: 1,      // 🩺 Medical Freedom
+      crypto_cbdc: 1,          // 🪙 Cryptocurrency Rules & Digital Dollar
+      datacenter_water: 1,     // 💧 Data Centers & Water
+      datacenter_power: 1,     // ⚡ Data Centers, Power & Ratepayers
+      tariffs_prices: 1,       // 💵 Tariffs & Household Prices
+      tariffs_growth: 1        // 🏭 Tariffs & American Industry
+    };
+
+    // Why this issue may not be characterised, or null when it may.
+    function _rdSuppressedKey(issueKey) {
+      var k = String(issueKey || '');
+      if (!k) return 'no_issue';
+      if (/_balance$/.test(k)) return 'balance_key';
+      if (_RD_NO_POLE[k]) return 'no_pole';
+      return null;
+    }
+
+    // The four states, plus the two ways there is nothing to state. No token here
+    // appears in VERDICTS, _RECORD_SUMMARY_LABEL or EXEC_VERDICTS — see the wall
+    // above. `characterised` marks the two states that make a claim about the
+    // record as a whole; the rest only count or decline.
+    var _RD_TOKENS = {
+      record_direction:    { key: 'record_direction',    label: 'What the record did',   characterised: true },
+      record_uniform_thin: { key: 'record_uniform_thin', label: 'Every vote one way',    characterised: true },
+      record_split:        { key: 'record_split',        label: 'Ran both ways',         characterised: false },
+      record_thin:         { key: 'record_thin',         label: 'Too thin to characterise', characterised: false },
+      record_none:         { key: 'record_none',         label: 'Nothing directional on file', characterised: false }
+    };
+
+    function _rdPlural(n, one, many) { return n === 1 ? one : many; }
+
+    // Derive the record's own direction on ONE (member, issue) pair. Pure, and
+    // computed at read time from the same items _issueRecordSummary aggregates —
+    // nothing here is stored, so it cannot drift from the record it describes.
+    //   issueKey — the issue being described
+    //   records  — API record items, exactly as _issueRecordSummary takes them
+    //   opts.memberRecordCount — how many mapped records the member holds IN
+    //            TOTAL (from _pdxRecordMappedCounts(pid).votes). Omitted means
+    //            unknown, and unknown fails closed: the coverage wall holds.
+    //   opts.noun — { one, many } for the office's own countable, default votes
+    //   opts.label — the issue's display label, used only in the long sentence
+    function _recordDirectionIndex(issueKey, records, opts) {
+      opts = opts || {};
+      records = Array.isArray(records) ? records : [];
+      var noun = opts.noun || { one: 'vote', many: 'votes' };
+      var out = {
+        issueKey: issueKey || null,
+        token: 'record_none', lead: null, characterised: false,
+        judged: 0, advances: 0, opposes: 0,
+        advanceScore: 0, opposeScore: 0, primary: 0, total: 0,
+        suppressed: null, clause: '', summary: '', label: ''
+      };
+
+      var suppressed = _rdSuppressedKey(issueKey);
+      records.forEach(function (item) {
+        var mapping = _findIssueMapping(item, issueKey);
+        if (!mapping) return;
+        out.total++;
+        // The SAME direction function the say-vs-do engine uses, including its
+        // procedural inversion — not a second copy of the recommit/table rule.
+        var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
+        if (eff === null || typeof eff === 'undefined') return; // present / not voting
+        var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
+        if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
+        out.judged++;
+        if (mapping.isPrimary) out.primary++;
+        if (eff) { out.advances++; out.advanceScore += w; }
+        else { out.opposes++; out.opposeScore += w; }
+      });
+
+      // ── The gates, outermost first ─────────────────────────────────────────
+      // Each one returns the row to its inventory copy rather than degrading to a
+      // weaker claim, because a weaker claim about a record we should not be
+      // characterising is still a claim.
+      var stop = function (token, why) {
+        out.token = token; out.suppressed = why || null;
+        out.characterised = false; out.label = _RD_TOKENS[token].label;
+        return out;
+      };
+      if (!out.judged) return stop('record_none', suppressed);
+      if (suppressed) return stop('record_thin', suppressed);
+      var held = opts.memberRecordCount;
+      if (typeof held !== 'number' || !isFinite(held) || held < _RD_MEMBER_FLOOR) {
+        return stop('record_thin', 'coverage_floor');
+      }
+
+      var tw = out.advanceScore + out.opposeScore;
+      var uniform = (out.advances === 0 || out.opposes === 0);
+      var dominant = tw > 0 &&
+        (out.advanceScore >= tw * _RD_DOMINANCE || out.opposeScore >= tw * _RD_DOMINANCE);
+
+      if (out.judged >= _RD_MIN_JUDGED) {
+        if (!dominant) {
+          out.token = 'record_split';
+        } else if (out.primary < _RD_MIN_PRIMARY) {
+          // Deep, one-sided, and entirely incidental. Naming a direction off
+          // bills this issue was never the subject of is the omnibus problem
+          // wearing a confident face, so the row says how thin the connection is
+          // instead of how one-sided the arithmetic is.
+          return stop('record_thin', 'no_primary');
+        } else {
+          out.token = 'record_direction';
+          out.lead = (out.advanceScore >= out.opposeScore) ? 'advances' : 'opposes';
+        }
+      } else if (out.judged >= _RD_THIN_MIN && uniform) {
+        // A run, not a tendency. Two or three votes that all went the same way is
+        // a fact worth stating and is stated as a fact — never as a lean, which
+        // is a claim about a sample this size cannot carry.
+        out.token = 'record_uniform_thin';
+        out.lead = out.advances ? 'advances' : 'opposes';
+      } else {
+        return stop('record_thin', null);
+      }
+      out.characterised = !!_RD_TOKENS[out.token].characterised;
+      out.label = _RD_TOKENS[out.token].label;
+
+      // ── The sentence ───────────────────────────────────────────────────────
+      // "it" is the issue whose curated directional label the reader is looking
+      // at — which is why keys without such a label were suppressed above rather
+      // than glossed here. The long form names the issue for a surface with no
+      // heading in earshot (screen-reader summaries, tooltips).
+      var many = _rdPlural(out.judged, noun.one, noun.many);
+      var subj = opts.label ? String(opts.label) : 'this issue';
+      var adv = out.advances, opp = out.opposes;
+      if (out.token === 'record_direction') {
+        out.clause = (out.lead === 'opposes')
+          ? opp + ' cut against it, ' + adv + ' advanced it'
+          : adv + ' advanced it, ' + opp + ' cut against it';
+        if (uniform) {
+          out.clause = 'all ' + out.judged + ' ' +
+            (out.lead === 'opposes' ? 'cut against it' : 'advanced it');
+        }
+        out.summary = out.judged + ' recorded ' + many + ' on ' + subj + ' — ' +
+          (uniform
+            ? 'all of them ' + (out.lead === 'opposes' ? 'cut against it' : 'advanced it')
+            : out.clause) + '.';
+      } else if (out.token === 'record_uniform_thin') {
+        var word = (out.lead === 'opposes') ? 'cut against it' : 'advanced it';
+        out.clause = (out.judged === 2 ? 'both' : 'all ' + out.judged) + ' ' + word;
+        out.summary = (out.judged === 2 ? 'Both' : 'All ' + out.judged) + ' recorded ' +
+          many + ' on ' + subj + ' ' + word + '.';
+      } else if (out.token === 'record_split') {
+        out.clause = 'they ran both ways';
+        out.summary = 'These ' + out.judged + ' recorded ' + many + ' on ' + subj +
+          ' ran both ways.';
+      }
+      return out;
+    }
+
+    window._recordDirectionIndex = _recordDirectionIndex;
+    window._PDX_RD_TOKENS = _RD_TOKENS;
+    window._PDX_RD_MIN_JUDGED = _RD_MIN_JUDGED;
+    window._PDX_RD_DOMINANCE = _RD_DOMINANCE;
+    window._PDX_RD_MEMBER_FLOOR = _RD_MEMBER_FLOOR;
+    window._PDX_RD_NO_POLE = _RD_NO_POLE;
+
     // ── Omnibus component breakdown (the reusable primitive) ───────────────────
     // Break ONE record (a floor vote or a non-roll-call position) into its component
     // issues. An omnibus bill maps to many issues via vr_measure_issues, so this is

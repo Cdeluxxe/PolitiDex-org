@@ -1606,6 +1606,32 @@
     return { votes: votes, issues: keys.length, total: recs.length, issueKeys: keys };
   };
 
+  // WHAT THE RECORD ITSELF DID on a (member, issue) pair, with no stated position
+  // anywhere in the arithmetic — the companion to _pdxRecordIssueSummary above,
+  // which can only answer where a position exists to compare against. Same warm
+  // cache, same items, same engine constants; it counts the direction those items
+  // already carry instead of scoring them against a claim. Returns null when no
+  // record is warm for the member, so a caller simply renders what it rendered
+  // before. Pure and synchronous — nothing here is stored or fetched.
+  //
+  // The COVERAGE FLOOR is supplied here rather than by the caller, because this is
+  // the layer that knows how much of a member's record we actually hold: a member
+  // attributed on two roll calls must not have those two read as a pattern, and a
+  // caller cannot be relied on to remember to ask.
+  //   opts.noun  — { one, many } for the office's countable (default: votes)
+  //   opts.label — the issue's display label, for the long-form sentence
+  window._pdxRecordDirection = function (pid, issueKey, opts) {
+    if (typeof window._recordDirectionIndex !== 'function') return null;
+    var items = window._pdxRecordIssueItems(pid, issueKey);
+    if (!items) return null; // nothing warm for this member
+    var counts = window._pdxRecordMappedCounts(pid);
+    var o = opts || {};
+    return window._recordDirectionIndex(issueKey, items, {
+      memberRecordCount: counts ? counts.votes : null,
+      noun: o.noun, label: o.label
+    });
+  };
+
   // Companion to the summary above: where that (member, issue) verdict CAME from —
   // how many of the votes behind it were multi-issue bills, and which other issues
   // those bills also touched. Pure presentation metadata (see _recordOmnibusStats in

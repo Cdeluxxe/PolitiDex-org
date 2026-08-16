@@ -4563,6 +4563,50 @@
     } catch (e) {}
     return null;
   }
+  // ── WHAT THE RECORD DID, ON A ROW NOTHING WAS STATED FOR ────────────────────
+  // The rows this reads for are the ones the thin-record pass made honest: real,
+  // sourced, mapped instruments, no stated position of theirs to test them
+  // against, so the row states its inventory and stops. "18 votes on file" is
+  // true and it is also the end of the sentence — the reader's next question is
+  // which way those eighteen went, and the answer was already computed and
+  // discarded. This asks stance-helpers' record-direction index for it.
+  //
+  // WHAT IT IS NOT. It returns a fragment of a REASON LINE, never a result. It
+  // cannot reach res.pct (which stays null), res.state, res.bucket or the verdict
+  // — the row remains unscored and unranked, and Direction Match never sees it.
+  // The index's own tokens are `record_*` and are not verdict tokens; nothing
+  // here converts between the two vocabularies.
+  //
+  // SLICE SCOPE: the 🏛️ legislative lane only. exec-record.js has the identical
+  // gap (it computes each action's direction and drops it at `acted_no_stance`)
+  // and the same fix applies there, but "advanced it" over an executive order
+  // needs the exec lane's own vocabulary and its own standing rules, so that is a
+  // later slice rather than a rename of this one.
+  function _stRecordDirection(r) {
+    try {
+      if (!r || !r.pid || !r.key) return null;
+      if (r.lane === 'exec') return null;         // later slice — see above
+      if (_stSaid(r)) return null;                // a stated position: Direction Match's row, not this one
+      if (typeof window._pdxRecordDirection !== 'function') return null;
+      var idx = window._pdxRecordDirection(r.pid, r.key,
+        { noun: _stNoun(r), label: r.label || '' });
+      if (!idx || !idx.clause) return null;
+      return idx;
+    } catch (e) { return null; }
+  }
+  // The clause, reconciled against the count the row already printed. `judged`
+  // counts items that took a side; `held` counts every instrument on file, and a
+  // present or not-voting ballot sits in the second and not the first. Printing
+  // "18 votes on file — 13 cut against it, 4 advanced it" would be an arithmetic
+  // error on the face of the row, so where the two differ the clause names its
+  // own denominator instead of borrowing the row's.
+  function _stDirClause(idx, held) {
+    if (!idx || !idx.clause) return '';
+    if (typeof held === 'number' && held > idx.judged) {
+      return 'of the ' + idx.judged + ' that took a side, ' + idx.clause;
+    }
+    return idx.clause;
+  }
   // The row's result, as data. One place decides what a row concluded, so the
   // markup below and the tests both read the same answer.
   function _stResult(r) {
@@ -4608,13 +4652,20 @@
       //     four actions reads as a contradiction of the line right below it.
       var lim = _stSplit(r), lnoun = _stNoun(r);
       var lheld = _stHeld(r), lsaid = _stSaid(r);
-      var lwhy, lshape = 'thin', linvite = null;
+      var lwhy, lshape = 'thin', linvite = null, ldir = null;
       if (!lim && !lsaid) {
         lshape = 'no_stance';
         if (lheld > 0) {
           var lmany = (lheld === 1 ? lnoun.one : lnoun.many);
-          lwhy = lheld + ' ' + lmany + ' on file · no stated position from them yet, ' +
-            'so this row isn’t scored.';
+          // The inventory, then what it did, then why it is still not a score. The
+          // middle clause is the record describing itself; it is absent whenever
+          // the index declines to characterise (too thin, no primary mapping, an
+          // issue with no support pole, a member we hold too little of), and the
+          // sentence reads exactly as it did before this pass.
+          ldir = _stRecordDirection(r);
+          var lclause = _stDirClause(ldir, lheld);
+          lwhy = lheld + ' ' + lmany + ' on file' + (lclause ? ' — ' + lclause : '') +
+            ' · no stated position from them yet, so this row isn’t scored.';
           linvite = { count: lheld, noun: lmany, cta: 'see the ' + lmany };
         } else {
           lwhy = 'No stated position from them yet, so there is nothing here to test the record against.';
@@ -4637,7 +4688,7 @@
                // OUR coverage rather than their conduct.
                label: (lshape === 'no_stance') ? 'Not scored yet' : word,
                ico: v.ico, color: v.color, cls: v.cls, why: lwhy, bucket: bucket,
-               shape: lshape, held: lheld, invite: linvite };
+               shape: lshape, held: lheld, invite: linvite, dir: ldir };
     }
     if (tok === 'pending') {
       return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '⏳',
@@ -4647,13 +4698,15 @@
     // The same distinction one tier down. `no_stance` is the engine reaching the same
     // conclusion by a different route — a record on file, no word to check it against
     // — so it says the same thing in the same shape, inventory included.
-    var uheld = _stHeld(r), unoun = _stNoun(r), uwhy, ushape = 'thin', uinvite = null;
+    var uheld = _stHeld(r), unoun = _stNoun(r), uwhy, ushape = 'thin', uinvite = null, udir = null;
     if (tok === 'no_stance') {
       ushape = 'no_stance';
       if (uheld > 0) {
         var umany = (uheld === 1 ? unoun.one : unoun.many);
-        uwhy = uheld + ' ' + umany + ' on file · no stated position from them yet, ' +
-          'so this row isn’t scored.';
+        udir = _stRecordDirection(r);
+        var uclause = _stDirClause(udir, uheld);
+        uwhy = uheld + ' ' + umany + ' on file' + (uclause ? ' — ' + uclause : '') +
+          ' · no stated position from them yet, so this row isn’t scored.';
         uinvite = { count: uheld, noun: umany, cta: 'see the ' + umany };
       } else {
         uwhy = 'They have a record here, but no stated position to test it against.';
@@ -4664,7 +4717,7 @@
     }
     return { state: 'untested', pct: null, metric: '', label: 'Not tested yet', ico: '—',
              color: '#9fb4d4', cls: 'none', why: uwhy, bucket: null,
-             shape: ushape, held: uheld, invite: uinvite };
+             shape: ushape, held: uheld, invite: uinvite, dir: udir };
   }
   // THE REASON LINE, AND — WHERE THERE IS ONE — THE WAY TO CHECK IT.
   // A row that says "18 votes on file" and offers no route to those eighteen votes
@@ -4710,16 +4763,27 @@
     }
     var split = _stSplit(r);
     var scopeWord = (res.metric === 'Public-record match') ? 'public-record item' : n.one;
+    // THE NO-STANCE TIP SAYS THE ISSUE OUT LOUD. The why line beneath the row can
+    // lean on the heading directly above it and write "it"; the tooltip and the
+    // aria-label cannot — a screen-reader user lands on this string with no
+    // heading in earshot. So where the record-direction index produced a full
+    // sentence (which names the issue), that sentence replaces the clipped clause
+    // rather than joining it, and the count is stated once.
+    var noStanceLead = (res.shape === 'no_stance' && res.dir && res.dir.summary)
+      ? res.dir.summary + ' No stated position from them yet, so this row isn’t scored.'
+      : res.why;
     var tip = (res.state === 'tested')
       ? res.metric + ' on this issue only: ' + res.pct + '% — ' +
         (split ? split.aligned + ' of ' + split.judged + ' judged ' +
           (split.judged === 1 ? scopeWord : scopeWord + 's') + ' pointed the same way as the position they state. '
                 : '') +
         'Verdict: ' + res.label + '. This is one issue, not the profile score — that one is in Word vs Action.'
-      : res.why + ' ' + (res.shape === 'no_stance'
-          ? 'No percentage is shown, because there is nothing stated to measure this record against — ' +
+      : (res.shape === 'no_stance'
+          ? noStanceLead + ' ' +
+            'No percentage is shown, because there is nothing stated to measure this record against — ' +
             'the count is what we hold on file, not a score.'
-          : 'No percentage is shown, because the record behind this row is too thin to divide.');
+          : res.why + ' ' +
+            'No percentage is shown, because the record behind this row is too thin to divide.');
     var num = (res.state === 'tested')
       ? '<span class="pdxst-pct" style="color:' + res.color + '">' + res.pct + '%</span>'
       // The empty slot names its own reason too. "Not enough record" is a true
@@ -5299,13 +5363,28 @@
       // row: same tier, sorted to the end, no visible line between a verdict and a
       // shrug. The divider draws that line without moving a row, so the fold maths
       // below — and the lead cap it feeds — count exactly what they counted before.
-      var thinShown = false;
+      //
+      // TWO POPULATIONS SHARE THAT TOKEN, and only one of them is thin. `limited`
+      // also covers the rows where the record is deep and mapped and we simply hold
+      // no stated position to test it against — the majority case, and the one this
+      // pass gave a record-direction line to. Printing "Too thin to judge yet" over
+      // a row that now reads "14 votes on file — 11 cut against it, 3 advanced it"
+      // is the same false sentence about their record the row face stopped telling.
+      // So the divider label follows the row's shape, and re-prints whenever the
+      // shape changes: a homogeneous run still gets exactly one divider, in exactly
+      // the place it got one before, and no row moves to make it true.
+      var lastSub = null;
       g.tiers.forEach(function (t) {
         (byTier[t] || []).forEach(function (r) {
           var html = _stRowHtml(r);
-          if (!thinShown && r.verdict && r.verdict.token === 'limited') {
-            thinShown = true;
-            html = '<div class="pdxst-sub">Too thin to judge yet</div>' + html;
+          if (r.verdict && r.verdict.token === 'limited') {
+            var sub = (_stResult(r).shape === 'no_stance')
+              ? 'On the record — nothing stated to test it against'
+              : 'Too thin to judge yet';
+            if (sub !== lastSub) {
+              lastSub = sub;
+              html = '<div class="pdxst-sub">' + esc(sub) + '</div>' + html;
+            }
           }
           rows.push(html);
         });

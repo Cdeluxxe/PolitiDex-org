@@ -393,6 +393,72 @@
       troy_downing:             'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000634.jpg', // Troy Downing — Rep, MT-02
       van_hollen:               'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000128.jpg', // Chris Van Hollen — Sen, MD
 
+      // ── The people who run the committees ────────────────────────────────
+      // This map is a curated shelf, not a census, and for a long time it skipped
+      // almost every House chair and ranking member — the committee gavels were
+      // simply never anyone's turn to add. That went unnoticed while the map was
+      // only a photo fallback. It stopped being invisible when the Voting Record
+      // roster was widened to attribute roll calls to them: db/vr-member-map.json
+      // is derived from the portraits below, so a member with no face here could
+      // not be attributed a vote at all, and the profiles of the members chairing
+      // Agriculture, Appropriations, Budget, Education & Workforce, Energy &
+      // Commerce, Homeland Security, House Administration, Judiciary, Natural
+      // Resources, Oversight, Rules, Science, Small Business, Transportation &
+      // Infrastructure, Veterans' Affairs and Ways & Means each read as though
+      // that member had barely voted.
+      //
+      // Each Bioguide was resolved by full name + state + chamber against the
+      // authoritative dataset and each URL confirmed HTTP 200 image/jpeg, on the
+      // same official portrait host the rest of this block uses.
+      andy_harris:              'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001052.jpg', // Andy Harris — Rep, MD-01
+      angie_craig:              'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001119.jpg', // Angie Craig — Rep, MN-02
+      arrington:                'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000375.jpg', // Jodey C. Arrington — Rep, TX-19
+      brian_babin:              'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001291.jpg', // Brian Babin — Rep, TX-36
+      bryan_steil:              'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001213.jpg', // Bryan Steil — Rep, WI-01
+      comer:                    'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001108.jpg', // James Comer — Rep, KY-01
+      delauro:                  'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000216.jpg', // Rosa L. DeLauro — Rep, CT-03
+      foxx:                     'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000450.jpg', // Virginia Foxx — Rep, NC-05
+      garbarino:                'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000597.jpg', // Andrew R. Garbarino — Rep, NY-02
+      glenn_thompson:           'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000467.jpg', // Glenn Thompson — Rep, PA-15
+      guthrie:                  'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000558.jpg', // Brett Guthrie — Rep, KY-02
+      jared_huffman:            'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001068.jpg', // Jared Huffman — Rep, CA-02
+      jim_himes:                'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001047.jpg', // James A. Himes — Rep, CT-04
+      mike_bost:                'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001295.jpg', // Mike Bost — Rep, IL-12
+      neal:                     'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000015.jpg', // Richard E. Neal — Rep, MA-01
+      pallone:                  'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000034.jpg', // Frank Pallone, Jr. — Rep, NJ-06
+      raskin:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000606.jpg', // Jamie Raskin — Rep, MD-08
+      roger_williams:           'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000816.jpg', // Roger Williams — Rep, TX-25
+      sam_graves:               'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000546.jpg', // Sam Graves — Rep, MO-06
+      takano:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000472.jpg', // Mark Takano — Rep, CA-39
+      walberg:                  'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000798.jpg', // Tim Walberg — Rep, MI-05
+      zoe_lofgren:              'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000397.jpg', // Zoe Lofgren — Rep, CA-18
+
+      // ── …and the senators who chair the committees ───────────────────────
+      // The same omission on the other side of the Capitol, found the same way:
+      // forty of the fifty-five sitting senators the app profiles already had a
+      // portrait here, and the fifteen without one were disproportionately the
+      // gavels — Appropriations, Armed Services, Agriculture, Commerce, Energy
+      // & Natural Resources, Environment & Public Works, Finance, HELP,
+      // Homeland Security, Intelligence and Veterans' Affairs. Each Bioguide was
+      // confirmed against the authoritative dataset and each URL returned HTTP
+      // 200 image/jpeg. (Ben Ray Luján is the fifteenth; his curated photo is a
+      // Commons upload and he is named in vr-gen-member-map.mjs's SEED_SLUGS
+      // instead, because a Commons URL carries no readable Bioguide.)
+      boozman:                  'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001236.jpg', // John Boozman — Sen, AR
+      cantwell:                 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C000127.jpg', // Maria Cantwell — Sen, WA
+      capito:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001047.jpg', // Shelley Moore Capito — Sen, WV
+      cassidy:                  'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001075.jpg', // Bill Cassidy — Sen, LA
+      cotton:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001095.jpg', // Tom Cotton — Sen, AR
+      crapo:                    'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C000880.jpg', // Mike Crapo — Sen, ID
+      heinrich:                 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001046.jpg', // Martin Heinrich — Sen, NM
+      jerry_moran:              'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000934.jpg', // Jerry Moran — Sen, KS
+      murray:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001111.jpg', // Patty Murray — Sen, WA
+      peters:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000595.jpg', // Gary C. Peters — Sen, MI
+      warner:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000805.jpg', // Mark R. Warner — Sen, VA
+      whitehouse:               'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000802.jpg', // Sheldon Whitehouse — Sen, RI
+      wicker:                   'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000437.jpg', // Roger F. Wicker — Sen, MS
+      wyden:                    'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000779.jpg', // Ron Wyden — Sen, OR
+
       adrian_fontes:            'https://commons.wikimedia.org/wiki/Special:FilePath/Adrian_Fontes_2025.jpg?width=500', // Adrian Fontes — Secretary of State, AZ
       al_schmidt:               'https://commons.wikimedia.org/wiki/Special:FilePath/Al_Schmidt.jpg?width=500', // Al Schmidt — Secretary of the Commonwealth, PA
       brad_raffensperger:       'https://commons.wikimedia.org/wiki/Special:FilePath/SoS_HeadshotRaffensperger.jpg?width=500', // Brad Raffensperger — Secretary of State, GA
