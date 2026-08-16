@@ -553,7 +553,12 @@
   // have to travel and why this is 280 rather than the old self-imposed 240.
   var RECORD_POST_MAX = 280;
   var IMG_W = 1080, IMG_H = 1350, PAD = 64;
-  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa', mixed: '#fbbf24' };
+  // `record_direction` is not one of the four verdicts — it is the record's own
+  // direction on a row where nothing was said — so it gets a colour of its own
+  // rather than borrowing the green of "matched the words" or the red of a
+  // contradiction. Institutional blue: the card is a description, not a finding
+  // against anyone.
+  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa', mixed: '#fbbf24', record_direction: '#7dd3fc' };
   function accentOf(r) { return ACCENT[r.verdict.key] || '#f87171'; }
 
   function ensureFonts() {
@@ -826,7 +831,11 @@
       roundRect(ctx, -stampW / 2, -stampH / 2, stampW, stampH, 12); ctx.fill(); ctx.stroke();
       ctx.fillStyle = accent; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
       ctx.font = '800 34px "Barlow Condensed", sans-serif';
-      ctx.fillText(r.verdict.ico === '⚠' ? 'VERDICT' : 'VERDICT', 0, -stampH / 2 + 12);
+      // The word over the stamp. "VERDICT" is right for a card that judges a
+      // stated position against a record; it is wrong for one that only reports
+      // what the record did, and the stamp is the largest text on the image. A
+      // card that wants a different word supplies it.
+      ctx.fillText(r.stampKicker || 'VERDICT', 0, -stampH / 2 + 12);
       ctx.font = '800 30px "Barlow Condensed", sans-serif';
       for (var vi = 0; vi < vLines.length; vi++) {
         ctx.fillText(vLines[vi].toUpperCase(), 0, -stampH / 2 + 50 + vi * 34);
@@ -924,6 +933,19 @@
       ctx.fillText(r.recordLabel ||
         (r.impact === 'positive' ? 'AND THE RECORD SHOWS' : 'BUT THE RECORD SHOWS'), x + 18, y);
       y += 38;
+      // ── The disclosure a card with no SAID half has to make ────────────────
+      // On every other card the block above this one is the stated position, and
+      // its absence is the whole point of a record-direction card — so the thing
+      // that is missing is said outright, in the space it would have occupied,
+      // rather than left for a reader to infer from a gap. Two lines, because
+      // the sentence has two jobs: no position on file, and this is not a score.
+      // Only that card sets it; every other card is drawn exactly as before.
+      if (r.recordNote) {
+        ctx.font = '600 23px "Barlow Condensed", sans-serif';
+        ctx.fillStyle = '#9fb4d4';
+        y = drawLines(ctx, wrapText(ctx, String(r.recordNote), contentW, 2), x, y, 27) + 10;
+        ctx.fillStyle = '#ffffff';
+      }
       ctx.font = '700 42px "Barlow", sans-serif';
       ctx.fillStyle = '#ffffff';
       var headLines = wrapText(ctx, r.headline, contentW, 3);
@@ -1110,7 +1132,7 @@
       // A vote-derived card is Official Record, not Say-vs-Do. The mark names
       // which system produced the verdict so the two are never conflated by
       // whoever sees the image.
-      ctx.fillText(r.origin === 'official_record' ? 'OFFICIAL RECORD' : 'SAY vs. DO', right, fy + 36);
+      ctx.fillText(isRecordCard(r) ? 'OFFICIAL RECORD' : 'SAY vs. DO', right, fy + 36);
       ctx.textAlign = 'left';
 
       return c;
@@ -1184,7 +1206,17 @@
   // agree with it. A vote-derived card is 🏛️ Official Record and leads with the bill,
   // and its source line prints the citable URL the card footer shows — a curated 🧾
   // Say-vs-Do receipt is unchanged.
-  function isRecordCard(r) { return !!(r && r.origin === 'official_record'); }
+  // Both feeds receipt-cards.js builds are Official Record cards: the say-vs-do
+  // ones, whose origin is `official_record`, and the record-direction ones,
+  // whose origin names itself so nothing downstream can mistake one for the
+  // other while both still take the record caption, the record source line and
+  // the record post shape. A curated 🧾 Say-vs-Do receipt is unchanged.
+  function isRecordCard(r) {
+    return !!(r && (r.origin === 'official_record' || r.origin === 'record_direction'));
+  }
+  // The card that reports a record's direction and claims no stated position.
+  // Everything conditional on it below is wording, never structure.
+  function isRecordDirection(r) { return !!(r && r.origin === 'record_direction'); }
   function sourceLine(r) {
     var lbl = (r.source && r.source.label) || (isRecordCard(r) ? 'the official record' : 'public record');
     // The card IMAGE prints r.verifyUrl — the same address with its scheme
@@ -1269,7 +1301,13 @@
     // follows on its own labelled line. Labelling it also keeps it readable as a
     // finding rather than as a headline the account is asserting.
     lines.push('🏛️ OFFICIAL RECORD — ' + r.name + (iss ? ' on ' + iss : ''));
-    lines.push('Verdict: ' + r.verdict.label);
+    // "Verdict" is the wrong noun over a card that judges nobody against
+    // anything. The record-direction card labels its own line for what it is.
+    lines.push((isRecordDirection(r) ? 'Record direction: ' : 'Verdict: ') + r.verdict.label);
+    // The absent stated position, said outright, immediately under the finding —
+    // the same sentence the image carries, in the half of the share that gets
+    // quoted without the pixels.
+    if (r.recordNote) lines.push(r.recordNote);
     if (r.said && r.said.text) {
       // The image prints the stance word ahead of the quote — Opposes: “…” —
       // because the verdict is computed against that word, not against the
@@ -1352,6 +1390,10 @@
         lines.push('On ' + iss + ' — the issue this card is about — the vote came down on the ' + fx + ' side.');
       }
     }
+    // A record-direction card whose evidence is a single example still owes the
+    // reader the sentence that says the counts cover more than that one item.
+    // The both-sides branch above prints it for the split case.
+    if (isRecordDirection(r) && !r.sides && r.countsNote) lines.push(r.countsNote);
     // A split card has already printed a source URL beside each of its two votes,
     // and its card-level address is the PolitiDex issue record — the page that
     // holds both, which is also what "Check it yourself" prints. One Source line
@@ -1452,6 +1494,11 @@
          ' and against it ' + c.against + '× (' + r.sides.against.number + ')');
       return trimTo(t, max);
     }
+    // A record-direction card's "did" is its counts too, and for the same
+    // reason: the sentence is about N items, so pairing it with the one measure
+    // the fact block happens to name would attribute the whole record to that
+    // measure. The counted form is the shortest true version of the finding.
+    if (isRecordDirection(r) && r.didLine) return trimTo(r.didLine, max);
     var voted = votedSeg(r);
     var num = r.measureNumber || String((r && r.headline) || '').split(' · ')[0] || '';
     // "Voted Yea on H.R. 1" is built from the direction the headline states. A
@@ -1543,15 +1590,19 @@
       tail += '\nSource: ' + src;
     }
     var said = (r.said && r.said.text) ? String(r.said.text) : '';
-    // Newlines for "\nSaid: " and "\nDid: " are part of the fixed cost.
-    var fixed = head.length + tail.length + (said ? 7 : 0) + 6;
+    var didLabel = isRecordDirection(r) ? 'Record: ' : 'Did: ';
+    // Newlines for "\nSaid: " and the record/did label are part of the fixed cost.
+    var fixed = head.length + tail.length + (said ? 7 : 0) + 1 + didLabel.length;
     var room = RECORD_POST_MAX - fixed;
     var didBudget = Math.max(RECORD_POST_DID_FLOOR, Math.min(130, Math.round(room * 0.5)));
     var did = recordDidLine(r, didBudget);
     var saidBudget = said ? Math.max(RECORD_POST_SAID_FLOOR, Math.min(110, room - did.length)) : 0;
     var out = head +
       (said ? '\nSaid: ' + quoted(said, saidBudget) : '') +
-      '\nDid: ' + did + tail;
+      // "Did:" reads as the second half of a said-vs-did pair. On a card with no
+      // Said line there is no pair, so the label names what the line actually
+      // is: the record.
+      '\n' + didLabel + did + tail;
     // The method path is the one optional element — it goes in only if the post
     // is still inside the target after everything required is in.
     var m = r.method ? String(r.method).replace(/^HOW THIS IS JUDGED:\s*/i, '') : '';

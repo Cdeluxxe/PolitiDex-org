@@ -472,6 +472,10 @@
 .pdxrc-share-btn.pdxrc-v-consistent  { --pdxrc-c: rgba(74, 222, 128, 0.5); }
 .pdxrc-share-btn.pdxrc-v-omnibus     { --pdxrc-c: rgba(167, 139, 250, 0.55); }
 .pdxrc-share-btn.pdxrc-v-mixed       { --pdxrc-c: rgba(251, 191, 36, 0.55); }
+/* Not a verdict: the record's own direction on a row where nothing was said.
+   Institutional blue rather than any of the four above, so the control cannot
+   read as a softer contradiction or a quieter consistency. */
+.pdxrc-share-btn.pdxrc-v-record-direction { --pdxrc-c: rgba(125, 211, 252, 0.55); }
 /* Bottom-sheet / narrow-column use: a full-width tap target. */
 .pdxrc-share-btn.pdxrc-block { width: 100%; min-height: 2.6rem; font-size: 0.78rem; }
 @media (max-width: 640px) {

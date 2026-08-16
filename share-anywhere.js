@@ -62,6 +62,16 @@
   function SVD() { return window.PDXReceipts || null; }
   function PC() { return window.PDXProfileCard || null; }
 
+  // The origin stamp receipt-cards.js writes onto a record-direction card, read
+  // from the module that owns it rather than hard-coded here. If that module is
+  // absent the answer is '' and every recordDirection test below is false, which
+  // is the safe direction: the copy falls back to the general Official Record
+  // wording, which claims strictly less.
+  function RD_ORIGIN() {
+    var rc = RC();
+    return (rc && rc.RECORD_DIRECTION_ORIGIN) || '';
+  }
+
   // The roster read every other surface uses, so the accessible name on this
   // button and the name on the card can never disagree.
   function nameOf(pid) {
@@ -80,19 +90,61 @@
   // allowlist and all fourteen trust guards have already run inside it — so a
   // card this module can see is a card that was cleared to leave the app.
   // ══════════════════════════════════════════════════════════════════════════
+  // The record-direction feed, asked for by name. receipt-cards.js keeps it out
+  // of publicCardsFor on purpose — that list is the say-vs-do card feed and every
+  // count taken off it has to keep meaning the same thing — so a caller that
+  // wants these cards has to say so. Same guards, same wave-1 gate, same public
+  // share block: publicRecordDirectionCardsFor() has already run all of them.
+  function recordDirectionCard(pid, issueKey) {
+    var rc = RC();
+    if (!rc || typeof rc.publicRecordDirectionCardsFor !== 'function') return null;
+    var list = null;
+    try { list = rc.publicRecordDirectionCardsFor(pid, issueKey ? { issueKey: issueKey } : {}); }
+    catch (e) { list = null; }
+    return (list && list.length) ? list[0] : null;
+  }
+
+  // Resolution order, and the reason for it:
+  //
+  //   1. the say-vs-do card FOR THIS ISSUE — strongest artifact there is, because
+  //      it tests something they said against something they did;
+  //   2. the record-direction card FOR THIS ISSUE — no stated position, so it
+  //      claims none; it reports what the record did and nothing more;
+  //   3. the member's strongest say-vs-do card, whatever issue it is about.
+  //
+  // (2) sits above (3) because a card about the row in hand beats a card about
+  // some other row, always. That inversion is the whole fix: before it, 4,111
+  // (member, issue) pairs held a finished, guard-cleared record-direction card
+  // and this resolver returned a card about a DIFFERENT issue for 4,039 of them
+  // and a bare profile link for the other 72. Tapping Share on Schumer × Israel
+  // sent a Prescription Drug Prices card. The card was true; it was not the row
+  // the reader was reading, and a share that swaps the subject reads as the
+  // product misattributing records.
+  //
+  // Nothing here can displace a say-vs-do card: step 1 still runs first and
+  // still wins outright, so every consistent / contradicts / mixed share that
+  // resolved before this change resolves to the same card after it. And step 3
+  // is deliberately NOT mirrored for the record-direction feed — a wrong-issue
+  // record-direction card would be the same substitution this fix exists to
+  // remove, in the other feed.
   function recordCard(pid, issueKey) {
     var rc = RC();
     if (!rc || typeof rc.publicCardsFor !== 'function') return null;
     var list = null;
-    // Prefer the card for the issue the host is showing; fall back to the
-    // member's strongest public card, so a row about one issue never silently
-    // shares a different one unless that is all there is.
     if (issueKey) {
       try { list = rc.publicCardsFor(pid, { issueKey: issueKey }); } catch (e) { list = null; }
       if (list && list.length) return list[0];
+      var rd = recordDirectionCard(pid, issueKey);
+      if (rd) return rd;
     }
     try { list = rc.publicCardsFor(pid, {}); } catch (e) { list = null; }
-    return (list && list.length) ? list[0] : null;
+    if (list && list.length) return list[0];
+    // Whole-person ask, and the say-vs-do feed has nothing at all. No issue was
+    // named, so there is no issue to get wrong: this is the same "strongest card
+    // on file" question, asked of the only feed that has one. It is what puts
+    // members like Maloy — 27 shareable rows, zero say-vs-do cards — back inside
+    // the share pipeline instead of behind a bare link.
+    return issueKey ? null : recordDirectionCard(pid, '');
   }
 
   function receiptFor(pid, issueKey) {
@@ -131,7 +183,14 @@
     },
     record: {
       ico: '🏛️', cls: 'pdxsa-t-record',
-      hint: 'Official Record card — bill, vote, date, source and how it was judged.'
+      hint: 'Official Record card — bill, vote, date, source and how it was judged.',
+      // The same tier carrying a record-direction card. Still the Official Record
+      // feed, still tier 'record' for every consumer of data-pdxsa-tier — but the
+      // card in hand reports counts by direction on a row where nothing was said,
+      // so the promise names counts rather than a single vote, and says out loud
+      // that no stated position is being claimed. Kept to the same length budget
+      // as the line it swaps with, so the height-reserved hint box still holds.
+      hintRecordDirection: 'What the record did — counts by direction, a cited example, dates and sources.'
     },
     receipt: {
       ico: '🧾', cls: 'pdxsa-t-receipt',
@@ -167,6 +226,7 @@
     if (_tier[k]) return _tier[k];
 
     var st = { pid: pid, issueKey: iss, tier: 'link', card: null, receipt: null, summary: null,
+               recordDirection: false,
                settled: !!_settled[pid], name: nameOf(pid), what: '' };
     // Every artifact that exists is gathered, not just the winning one, so
     // dispatch() can step DOWN a tier if the module that owns the top one is
@@ -176,7 +236,15 @@
     if (card) {
       st.card = card;
       st.tier = 'record';
-      st.what = [card.measureNumber, card.issue && card.issue.label].filter(Boolean).join(' · ');
+      // Whether the card came from the record-direction feed. Read off the card's
+      // own origin stamp rather than guessed from its shape, so this can never
+      // disagree with receipt-cards.js about what it is holding.
+      st.recordDirection = !!(card.origin && RD_ORIGIN() && card.origin === RD_ORIGIN());
+      // A split record cites both sides, so both bills are the evidence and both
+      // are named — the same rule receipt-cards.js applies on its own button.
+      var numbers = (card.measureNumbers && card.measureNumbers.length)
+        ? card.measureNumbers.join(' & ') : card.measureNumber;
+      st.what = [numbers, card.issue && card.issue.label].filter(Boolean).join(' · ');
     } else {
       var r = receiptFor(pid, iss);
       if (r) {
@@ -193,7 +261,8 @@
     }
     var t = TIERS[st.tier];
     st.ico = t.ico; st.cls = t.cls;
-    st.hint = (st.issueKey && t.hintIssue) ? t.hintIssue : t.hint;
+    st.hint = (st.recordDirection && t.hintRecordDirection) ? t.hintRecordDirection
+            : ((st.issueKey && t.hintIssue) ? t.hintIssue : t.hint);
     st.label = label(st);
     // Only cache an answer that cannot still improve. Before the record settles
     // a 'link' is provisional, and caching it would freeze the weakest tier in
@@ -224,6 +293,18 @@
         ', its coverage, and the receipts under it. No percentage is printed on the card.';
     }
     if (st.tier === 'record') {
+      // A record-direction card names no stated position, so its accessible name
+      // must not promise one either. It describes what the card actually prints —
+      // counts by direction, one cited example, the dates and the sources — and
+      // then says the missing thing out loud, because "no stated position is
+      // claimed" is the sentence that keeps this card from reading as a verdict
+      // on the person. Same wording receipt-cards.js already puts on its own
+      // button for the same card.
+      if (st.recordDirection) {
+        return 'Share what the record did on ' + (st.what || 'this issue') + ' for ' + st.name +
+          ' as an Official Record image — the card prints the counts by direction, a cited example, ' +
+          'the dates, the sources and how it was judged. No stated position is claimed.';
+      }
       return 'Share ' + (st.what || 'this vote') + ' for ' + st.name +
         ' as an Official Record image — the card prints the bill, the vote, the date, the source and how it was judged.';
     }

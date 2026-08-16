@@ -24,6 +24,11 @@
 //      already existed, the invitation did not.
 //   4. A TRULY THIN ROW IS UNTOUCHED. A row with a stated position and one
 //      judged vote keeps its own reason and is never told it has no position.
+//   5. A ROW NEVER DENIES A RECORD IT HOLDS. The mirror-image case: a stated
+//      position IS on file, the formal record IS on file, and nothing joined
+//      them — so the row fell to `limited` and printed the same false sentence
+//      over a record that ran one way nine times out of nine. It now states what
+//      the record did, in the index's own words, and says the row is not scored.
 //
 //   node scripts/test-thin-record-honesty.mjs
 //
@@ -63,6 +68,20 @@ const sandbox = vm.createContext(win);
 win.PROFILES = win.CMP_DATA;
 for (const f of FILES) vm.runInContext(R(f), sandbox, { filename: f });
 win.PROFILES = win.CMP_DATA;
+
+// A second realm, on demand. Section 8 needs a member the shipped data gives a
+// directionless stated position to, which massie has none of, and it needs the
+// same member twice — once with the record-direction index live and once with it
+// removed — to prove Direction Match cannot see the difference.
+const SRC = FILES.map((f) => [f, R(f)]);
+function boot() {
+  const w = makeSandbox();
+  const sb = vm.createContext(w);
+  w.PROFILES = w.CMP_DATA;
+  for (const [f, src] of SRC) vm.runInContext(src, sb, { filename: f });
+  w.PROFILES = w.CMP_DATA;
+  return w;
+}
 
 const CS = win.PDXConsistency;
 const WA = win.PDXWordAction;
@@ -310,6 +329,191 @@ section("7 · the dossier behind the door tells the same story");
   const cl1 = CS.dossierSummaryHtml(PID, SPOKEN, spoken) || "";
   has(cl1, "Decided by the formal record", "a decided lane still says so");
   has(cl1, "too thin to divide", "…and a genuinely thin row keeps its own score line");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · a row never denies a record it holds");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE MIRROR-IMAGE CASE. Section 1 covers the row we hold no position for.
+// This is the row we hold BOTH halves for and joined neither: a stated position
+// with no direction in it — "mixed", the shape the shipped stance data gives 479
+// rows — so ⚖️ Direction Match correctly declines to score it and _stSplit()
+// returns nothing. That silence used to be printed as a claim about the record:
+// "There is a record here, but none of it takes a clear side on this claim",
+// over nine roll calls that every one of them advanced the issue.
+//
+// Nothing here re-opens the score. The row is still `limited`, still unscored,
+// still carries no percentage; only the sentence explaining the empty slot
+// changed, and it changed to something the index had already computed.
+const DPID = "schumer";
+const dwin = boot();
+// The control realm: identical bytes, identical seed, index removed at the
+// derivation — `_pdxRecordDirection` fails closed without it, so this is the
+// product exactly as it stood before the index existed.
+const cwin = boot();
+cwin._recordDirectionIndex = undefined;
+{
+  const DCS = dwin.PDXConsistency, CCS = cwin.PDXConsistency;
+  // The key is chosen off the real row model: a stated position with no
+  // direction, on an issue that HAS a support pole (a "…Balance" key names a
+  // subject, not a direction, and the index rightly refuses to characterise
+  // one). If the shipped data ever stops offering that combination the fixture
+  // vacates loudly rather than passing on an empty case.
+  const cand = DCS.issueRows(DPID).filter(
+    (r) => r.said && r.stance && r.stance.direction === 0 && !/_balance$/.test(r.key)
+  )[0];
+  // A second issue this member DOES state a direction on, seeded alongside: it
+  // lifts the profile over the index's member-coverage floor and gives the
+  // comparison below some genuinely scored rows to protect.
+  const scoredCand = DCS.issueRows(DPID).filter(
+    (r) => r.said && r.stance && r.stance.direction !== 0 && !/_balance$/.test(r.key)
+  )[0];
+  ok(!!cand, `${DPID} still carries a stated position with no direction in it`);
+  ok(!!scoredCand, `…alongside one it does state a direction on`);
+  if (!cand || !scoredCand) {
+    console.error("✗ thin-record honesty: the held-record fixture no longer exists");
+    process.exit(1);
+  }
+  const DKEY = cand.key;
+  const HELD9 = 9;
+  const dvote = (n, k, pos) => ({
+    kind: "vote", rollcallId: 700 + n, measureId: 950 + n, number: "S. " + (200 + n),
+    date: "2025-0" + ((n % 9) + 1) + "-11", action: "On Passage", position: pos,
+    isProcedural: false, title: "Measure " + n,
+    source: { url: "https://www.congress.gov/roll-call-vote/" + (700 + n), label: "Congress.gov" },
+    issues: [{ issueKey: k, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+  });
+  const dseed = [];
+  for (let i = 0; i < HELD9; i++) dseed.push(dvote(i, DKEY, "yea"));
+  for (let i = 0; i < 12; i++) dseed.push(dvote(300 + i, scoredCand.key, "yea"));
+  dwin.PDXVotingRecord.noteMember(DPID, dseed.map((v) => JSON.parse(JSON.stringify(v))));
+  cwin.PDXVotingRecord.noteMember(DPID, dseed.map((v) => JSON.parse(JSON.stringify(v))));
+
+  const held = DCS.issueRows(DPID).filter((r) => r.key === DKEY)[0];
+  const res = DCS.rowResult(held);
+
+  // ── The fixture is the real shape, not a convenient one ────────────────────
+  eq(held.said, true, "the held row does have a stated position on file");
+  eq(held.verdict.token, "limited", "…and Direction Match still declines to score it");
+  eq(res.state, "thin", "…so the row is in the unscored state this section is about");
+  ok((held.evidence.actions || 0) >= HELD9, "…over a record that is genuinely on file");
+  const dir = dwin._pdxRecordDirection(DPID, DKEY, { noun: { one: "vote", many: "votes" } });
+  eq(dir.token, "record_direction", "the index characterises the record as one-way");
+  eq(dir.advances, HELD9, "…counting every one of the seeded votes on the advancing side");
+  eq(dir.opposes, 0, "…and none on the other");
+
+  // ── The false sentence is gone, and what replaced it is the index's ────────
+  eq(res.shape, "unjudged", "the row is classified as held-but-unjudged, not as thin");
+  lacks(res.why, "none of it takes a clear side",
+    "the sentence denying a record that ran one way nine times is gone");
+  lacks(res.why, "takes a side on this one", "…and its empty-record variant is not borrowed either");
+  has(res.why, HELD9 + " votes on file", "the face leads with the inventory it holds");
+  has(res.why, dir.clause, "…then states what that record did, in the index's own words");
+  has(res.why, "isn’t scored", "…and says outright that this row is not scored");
+  has(res.why, "judged against their stated position",
+    "…naming the gap as the reason, which is where the gap actually is");
+
+  // ── It is still not a score, and still not a stance ────────────────────────
+  eq(res.pct, null, "no percentage reaches the row");
+  eq(held.tested, false, "the row is still not a tested row");
+  eq(held.verdict.score, null, "the verdict still holds no score");
+  eq(res.metric, "Direction match", "the metric name is unchanged");
+  ok(!/%/.test(res.why), "and no percentage is smuggled into the sentence");
+  for (const bad of ["Backed up", "Contradicted", "Mixed record", "Broke", "Kept"]) {
+    lacks(res.why, bad, `the row earns no verdict word — "${bad}" is not printed`);
+  }
+  ok(!/\bthey (support|oppose)\b|supports this|opposes this|in favour|against the position/i.test(res.why),
+    "…and never turns votes into a position they hold");
+  ok(!/Democrat|Republican|party|caucus/i.test(res.why), "…and never reaches for party");
+
+  // ── The rendered surfaces agree with the face ──────────────────────────────
+  const dhtml = DCS.stancesSectionHtml(DPID) || "";
+  const dchunks = {};
+  for (const chunk of dhtml.split(/<div class="pdxst-row["\s]/).slice(1)) {
+    const k = (chunk.match(/data-pdxst-issue="([^"]*)"/) || [])[1];
+    if (k) dchunks[k] = chunk;
+  }
+  const dchunk = dchunks[DKEY] || "";
+  ok(!!dchunk, "the held row is rendered");
+  has(dchunk, "votes on file", "the rendered row states the inventory");
+  lacks(dchunk, "none of it takes a clear side", "…and not the sentence it replaced");
+  ok(!/class="pdxst-pct"[^>]*>\s*\d+%/.test(dchunk), "no percentage is printed on the row");
+  const dslot = (dchunk.match(/<span class="pdxst-pct pdxst-pct-na"[^>]*>/) || [])[0] || "";
+  lacks(dslot, "not enough record",
+    "the empty slot stops telling a screen reader the record is too short");
+  has(dslot, "judged against what they said",
+    "…and names the real reason the slot is empty");
+  lacks(dchunk, "Too thin to judge yet",
+    "the group divider stops filing a nine-vote row under thin");
+  has(dhtml, "not yet judged against each other",
+    "…and gives these rows a heading that is true of them");
+
+  // ── The dossier behind the door says the same thing ────────────────────────
+  const dl1 = DCS.dossierSummaryHtml(DPID, DKEY, held) || "";
+  has(dl1, "would be decided by the formal record",
+    "the dossier names the lane rather than asserting a decision this row never reached");
+  lacks(dl1, "too thin to divide",
+    "…and does not tell the reader their record was too thin to divide");
+  has(dl1, "has been judged against the position they state",
+    "…saying instead why the pooled figure did not move");
+
+  // ── Direction Match cannot see any of it ───────────────────────────────────
+  const dRows = DCS.issueRows(DPID), cRows = CCS.issueRows(DPID);
+  eq(dRows.length, cRows.length, "both realms model the same rows");
+  eq(JSON.stringify(DCS.officialRecord(DPID)), JSON.stringify(CCS.officialRecord(DPID)),
+    "Direction Match is byte-identical with the index live");
+  eq(JSON.stringify(DCS.sayVsDo(DPID)), JSON.stringify(CCS.sayVsDo(DPID)),
+    "…and so is the public lane");
+  eq(JSON.stringify(DCS.verdictTally(DPID)), JSON.stringify(CCS.verdictTally(DPID)),
+    "…and the verdict tally");
+  const cByKey = {};
+  cRows.forEach((r) => { cByKey[r.key] = r; });
+  let scored9 = 0, changed9 = 0;
+  for (const a of dRows) {
+    const b = cByKey[a.key];
+    if (!b) { ok(false, `${a.key}: the row exists in both realms`); continue; }
+    const ra = DCS.rowResult(a), rb = CCS.rowResult(b);
+    eq(a.verdict.token, b.verdict.token, `${a.key}: the verdict token is unchanged`);
+    eq(a.verdict.score, b.verdict.score, `${a.key}: the verdict score is unchanged`);
+    eq(a.tested, b.tested, `${a.key}: testedness is unchanged`);
+    eq(a.tier, b.tier, `${a.key}: the row's tier is unchanged`);
+    eq(ra.pct, rb.pct, `${a.key}: the percentage is unchanged`);
+    eq(ra.state, rb.state, `${a.key}: the result state is unchanged`);
+    eq(ra.label, rb.label, `${a.key}: the verdict word is unchanged`);
+    eq(ra.metric, rb.metric, `${a.key}: the metric name is unchanged`);
+    eq(ra.held, rb.held, `${a.key}: the inventory count is unchanged`);
+    if (ra.state === "tested") {
+      scored9++;
+      eq(ra.why, rb.why, `${a.key}: a scored row's reason line is untouched`);
+      ok(ra.shape === "tested", `${a.key}: a scored row keeps the tested shape`);
+    }
+    if (ra.why !== rb.why) changed9++;
+  }
+  ok(scored9 > 0, "the fixture actually scores something for the comparison to protect");
+  ok(changed9 > 0, "…and the two realms really do differ, so none of the above passed vacuously");
+
+  // ── A truly thin row still gains no direction language ─────────────────────
+  // Same member, same key, same directionless stance, same coverage — one vote
+  // instead of nine. The index has nothing to characterise at that depth, so the
+  // row keeps the sentence that is true of it and gains no clause.
+  const twin = boot();
+  {
+    const tseed = [dvote(80, DKEY, "yea")];
+    for (let i = 0; i < 12; i++) tseed.push(dvote(300 + i, scoredCand.key, "yea"));
+    twin.PDXVotingRecord.noteMember(DPID, tseed);
+    const trow = twin.PDXConsistency.issueRows(DPID).filter((r) => r.key === DKEY)[0];
+    const tres = twin.PDXConsistency.rowResult(trow);
+    const tdir = twin._pdxRecordDirection(DPID, DKEY, { noun: { one: "vote", many: "votes" } });
+    eq(tdir.token, "record_thin", "one vote characterises nothing, member coverage or not");
+    eq(tdir.clause, "", "…and offers the row no clause to print");
+    eq(tres.state, "thin", "the one-vote control is genuinely in the unscored state");
+    eq(tres.shape, "thin", "…and is still classified as thin, not as held-but-unjudged");
+    has(tres.why, "takes a clear side",
+      "…keeping the sentence that is true of a record this short");
+    ok(!/advanced it|cut against it|ran both ways/.test(tres.why),
+      "…and inventing no direction out of one vote");
+    eq(tres.pct, null, "…and still carrying no percentage");
+  }
 }
 
 if (failures.length) {  console.error(`\n✗ thin-record honesty: ${failures.length} failure(s)`);

@@ -4583,16 +4583,50 @@
   // needs the exec lane's own vocabulary and its own standing rules, so that is a
   // later slice rather than a rename of this one.
   function _stRecordDirection(r) {
+    if (!r || _stSaid(r)) return null;          // a stated position: _stUnscoredDirection's row, if anyone's
+    return _stDirIndex(r);
+  }
+  // The index read itself, with no opinion about which rows deserve it. Both
+  // readers below share it so the two surfaces can never disagree about what the
+  // record did — only about whether this row is allowed to say so.
+  function _stDirIndex(r) {
     try {
       if (!r || !r.pid || !r.key) return null;
       if (r.lane === 'exec') return null;         // later slice — see above
-      if (_stSaid(r)) return null;                // a stated position: Direction Match's row, not this one
       if (typeof window._pdxRecordDirection !== 'function') return null;
       var idx = window._pdxRecordDirection(r.pid, r.key,
         { noun: _stNoun(r), label: r.label || '' });
       if (!idx || !idx.clause) return null;
       return idx;
     } catch (e) { return null; }
+  }
+  // ── WHAT THE RECORD DID, ON A ROW THAT WAS NOT SCORED ───────────────────────
+  // The mirror image of the function above, for the rows it refuses. A stated
+  // position exists, so _stRecordDirection declines — correctly, because where
+  // Direction Match SCORED the row, the record's direction is Direction Match's
+  // business and a second direction printed beside its verdict would be a second
+  // score.
+  //
+  // But a row that fell to `limited` was not scored. Nothing in its record was
+  // judged against the claim, which is exactly what `_stSplit(r) === null` means,
+  // and the fallback sentence then made an affirmative claim about the record
+  // that the record refutes: "There is a record here, but none of it takes a
+  // clear side on this claim", printed over nine votes that all went the same
+  // way. Schumer on Israel — 9 recorded votes, all nine primary-mapped, all nine
+  // advancing it — read as a denial that any of it took a side. 127 rows printed
+  // that shape; 59 of them held a clause the index had already computed.
+  //
+  // WHAT THIS IS NOT. Like its sibling it returns a fragment of a REASON LINE.
+  // It cannot reach res.pct (still null), res.state, res.bucket or the verdict;
+  // the row keeps the label it already had and stays out of Direction Match. Its
+  // caller has already established that no lane judged a direction here, so this
+  // clause can never sit beside a percentage, a numerator or a verdict word. And
+  // it says what the RECORD did, never what the person holds: the stated position
+  // is on the row two lines up, and these two facts are printed side by side,
+  // deliberately never merged into a conclusion neither of them reached.
+  function _stUnscoredDirection(r) {
+    if (!r || !_stSaid(r)) return null;         // no stated position: _stRecordDirection's row
+    return _stDirIndex(r);
   }
   // The clause, reconciled against the count the row already printed. `judged`
   // counts items that took a side; `held` counts every instrument on file, and a
@@ -4633,7 +4667,7 @@
     }
     if (tok === 'limited') {
       // WHY it is thin, not just that it is — and WHOSE side of the ledger the gap
-      // is on. "Limited" covers three different situations and a reader can tell
+      // is on. "Limited" covers four different situations and a reader can tell
       // them apart instantly once they are named:
       //
       //   · WE HOLD NO POSITION OF THEIRS. The row holds real, sourced instruments —
@@ -4646,6 +4680,9 @@
       //     the row now names the inventory it holds, says what is missing is a
       //     stated position, and offers the list. The count is INVENTORY, never a
       //     rate: the row stays unscored and prints no percentage.
+      //   · A STATED POSITION WE COULD NOT TEST — the record ran one way, or ran
+      //     both ways, but none of it was judged against this particular claim.
+      //     See the branch below; this one used to deny the record it holds.
       //   · A RECORD THAT NEVER TAKES A SIDE on the claim (the president's healthcare
       //     row — four actions, none of them for or against what he said).
       //   · A RECORD WITH ALMOST NOTHING IN IT. Printing "not enough record" over
@@ -4671,9 +4708,31 @@
           lwhy = 'No stated position from them yet, so there is nothing here to test the record against.';
         }
       } else if (!lim) {
-        lwhy = (r.evidence.total > 0)
-          ? 'There is a record here, but none of it takes a clear side on this claim.'
-          : 'Nothing on record yet takes a side on this one.';
+        //   · A STATED POSITION WE COULD NOT TEST. Same silence from _stSplit, but
+        //     the other way round: we hold what they said, and we hold the record,
+        //     and nothing in the record was judged against that particular claim.
+        //     The old sentence turned that into an assertion about the record —
+        //     "none of it takes a clear side" — which on a one-way record is simply
+        //     false. Nine votes on Israel, every one of them advancing it, printed
+        //     as a denial that any of them took a side. So where the index already
+        //     knows which way the record cut, the row says so, in the index's own
+        //     words, and then says plainly that this is not a score. Where the index
+        //     declines — a genuinely thin or genuinely sideless record — the two
+        //     original sentences stand unchanged, because there they are true.
+        ldir = _stUnscoredDirection(r);
+        var sclause = _stDirClause(ldir, lheld);
+        if (sclause && lheld > 0) {
+          var smany = (lheld === 1 ? lnoun.one : lnoun.many);
+          lshape = 'unjudged';
+          lwhy = lheld + ' ' + smany + ' on file — ' + sclause +
+            ' · none of it has been judged against their stated position, so this row isn’t scored.';
+          linvite = { count: lheld, noun: smany, cta: 'see the ' + smany };
+        } else {
+          ldir = null;
+          lwhy = (r.evidence.total > 0)
+            ? 'There is a record here, but none of it takes a clear side on this claim.'
+            : 'Nothing on record yet takes a side on this one.';
+        }
       } else if (lim.judged === 1) {
         lwhy = 'One ' + lnoun.one + ' is not enough to judge this one yet.';
       } else {
@@ -4763,14 +4822,18 @@
     }
     var split = _stSplit(r);
     var scopeWord = (res.metric === 'Public-record match') ? 'public-record item' : n.one;
-    // THE NO-STANCE TIP SAYS THE ISSUE OUT LOUD. The why line beneath the row can
+    // THE NO-SCORE TIPS SAY THE ISSUE OUT LOUD. The why line beneath the row can
     // lean on the heading directly above it and write "it"; the tooltip and the
     // aria-label cannot — a screen-reader user lands on this string with no
     // heading in earshot. So where the record-direction index produced a full
     // sentence (which names the issue), that sentence replaces the clipped clause
     // rather than joining it, and the count is stated once.
-    var noStanceLead = (res.shape === 'no_stance' && res.dir && res.dir.summary)
-      ? res.dir.summary + ' No stated position from them yet, so this row isn’t scored.'
+    var dirLead = (res.dir && res.dir.summary) ? res.dir.summary : '';
+    var noStanceLead = (res.shape === 'no_stance' && dirLead)
+      ? dirLead + ' No stated position from them yet, so this row isn’t scored.'
+      : res.why;
+    var unjudgedLead = (res.shape === 'unjudged' && dirLead)
+      ? dirLead + ' None of it has been judged against their stated position, so this row isn’t scored.'
       : res.why;
     var tip = (res.state === 'tested')
       ? res.metric + ' on this issue only: ' + res.pct + '% — ' +
@@ -4781,6 +4844,14 @@
       : (res.shape === 'no_stance'
           ? noStanceLead + ' ' +
             'No percentage is shown, because there is nothing stated to measure this record against — ' +
+            'the count is what we hold on file, not a score.'
+          // A row that holds a record AND a stated position, with nothing joining
+          // them. The reason for the empty slot is the gap between the two, not a
+          // shortage of record — saying "too thin to divide" over a one-way run of
+          // nine would contradict the sentence immediately above it.
+          : res.shape === 'unjudged'
+          ? unjudgedLead + ' ' +
+            'No percentage is shown, because none of this record has been judged against what they said — ' +
             'the count is what we hold on file, not a score.'
           : res.why + ' ' +
             'No percentage is shown, because the record behind this row is too thin to divide.');
@@ -4793,6 +4864,8 @@
       : '<span class="pdxst-pct pdxst-pct-na" aria-label="' +
         escAttr(res.shape === 'no_stance'
           ? 'No percentage — no stated position to score the record against'
+          : res.shape === 'unjudged'
+          ? 'No percentage — none of this record has been judged against what they said'
           : 'No percentage — not enough record') + '">—</span>';
     return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
@@ -5372,14 +5445,19 @@
       // is the same false sentence about their record the row face stopped telling.
       // So the divider label follows the row's shape, and re-prints whenever the
       // shape changes: a homogeneous run still gets exactly one divider, in exactly
-      // the place it got one before, and no row moves to make it true.
+      // the place it got one before, and no row moves to make it true. The same
+      // goes for `unjudged` — a held record and a stated position that were never
+      // tested against each other is not a thin row either.
       var lastSub = null;
       g.tiers.forEach(function (t) {
         (byTier[t] || []).forEach(function (r) {
           var html = _stRowHtml(r);
           if (r.verdict && r.verdict.token === 'limited') {
-            var sub = (_stResult(r).shape === 'no_stance')
+            var shp = _stResult(r).shape;
+            var sub = (shp === 'no_stance')
               ? 'On the record — nothing stated to test it against'
+              : (shp === 'unjudged')
+              ? 'Stated and on the record — not yet judged against each other'
               : 'Too thin to judge yet';
             if (sub !== lastSub) {
               lastSub = sub;
@@ -7181,7 +7259,9 @@
       // reached one — so the same fork the face makes is made here: the lane that
       // WOULD decide this issue, named as such, rather than a decision asserted over
       // a row whose result slot is empty. Every other row keeps its original wording.
-      lane = (res.shape === 'no_stance')
+      // An `unjudged` row is in the same position for the mirror-image reason: both
+      // halves are on file, nothing has been tested, and no decision was reached.
+      lane = (res.shape === 'no_stance' || res.shape === 'unjudged')
         ? 'This issue would be decided by the formal record.'
         : (jn
           ? 'Decided by the formal record: ' + jn + ' judged ' + (jn === 1 ? n.one : n.many) + ' on this issue.'
@@ -7266,6 +7346,10 @@
         ? 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
           ' rather than counted either way — there is no stated position here to test ' +
           'these ' + n.many + ' against, so nothing about this issue moves that number.'
+        : (res.shape === 'unjudged')
+        ? 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
+          ' rather than counted either way — none of these ' + n.many + ' has been judged ' +
+          'against the position they state, so nothing about this issue moves that number.'
         : 'Set aside from the profile’s pooled ⚖️ ' + res.metric +
           ' rather than counted as agreement — a row too thin to divide is disclosed, not scored.';
     } else {
