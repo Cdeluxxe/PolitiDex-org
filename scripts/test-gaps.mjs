@@ -613,11 +613,11 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260906000000_vr_rewrite_framed_mapping_rationales',
+  eq(versions[versions.length - 1], '20260908000000_vr_senate_lis_attribution_backfill',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by the August 2026 rewrite of
-  // the framed mapping rationales. What it guards does not move: whatever was added
+  // whenever a later migration lands — updated here by the August 2026 Senate roll-call
+  // attribution backfill. What it guards does not move: whatever was added
   // most recently has to sort after everything already applied, or the deploy is
   // rejected. The check below is the one that pins THIS test's migration, and it
   // stays put.

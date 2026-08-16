@@ -78,6 +78,18 @@ const SEED_SLUGS = {
   troy_downing: "D000634",    // Troy Downing — Rep, MT-02
   mike_simpson: "S001148",    // Michael K. Simpson — Rep, ID-02
   mike_flood: "F000474",      // Mike Flood — Rep, NE-01
+
+  // ── The people who run the committees ──────────────────────────────────────
+  // The twenty-four House chairs, ranking members and elected leaders the app
+  // profiles were all missing from this map, because BROWSE_PHOTOS is a curated
+  // shelf rather than a census and the committee gavels were never anyone's turn
+  // to add. Twenty-two of them now carry an official congressional portrait there
+  // and resolve the ordinary way. These two do not — maloy's curated photo is a
+  // bioguide.congress.gov file and neguse's is a Commons upload, so neither URL
+  // carries a readable Bioguide and both need naming here.
+  maloy: "M001228",           // Celeste Maloy — Rep, UT-02
+  neguse: "N000191",          // Joe Neguse — Rep, CO-02
+  lujan: "L000570",           // Ben Ray Luján — Sen, NM (Commons portrait, no readable Bioguide)
 };
 
 // ── 1. slug → bioguide from BROWSE_PHOTOS congress portraits ──────────────────
