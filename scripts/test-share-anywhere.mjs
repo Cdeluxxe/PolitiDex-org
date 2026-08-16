@@ -144,6 +144,29 @@ const CARD = {
 const CARD_OTHER = Object.assign({}, CARD, { issueKey: "healthcare", measureNumber: "H.R. 9", issue: { label: "🏥 Health Care" } });
 const RECEIPT = { pid: "rep_receipt", name: "Rep Receipt", headline: "Promised, then voted the other way", verdict: { key: "contradicts" }, issue: { label: "🧾 Taxes" } };
 
+// The record-direction feed. Two cards, on two issues the say-vs-do feed says
+// nothing about — which is the whole point of the feed: it only ever covers rows
+// where nothing was stated. RD_SPLIT carries measureNumbers because a split
+// record cites both sides, and both bills are the evidence.
+const RD_ORIGIN = "record_direction";
+const RD_CARD = {
+  pid: "rep_record", issueKey: "border_security", measureNumber: "S. 2",
+  issue: { label: "🛡 Strong Border & Enforcement" }, said: null, origin: RD_ORIGIN,
+  verdict: { key: "record_direction", cls: "v-record-direction" },
+};
+const RD_SPLIT = {
+  pid: "rep_record", issueKey: "cut_spending", measureNumber: "H.Amdt. 232",
+  measureNumbers: ["H.Amdt. 235", "H.Amdt. 232"],
+  issue: { label: "✂️ Cut Federal Spending" }, said: null, origin: RD_ORIGIN,
+  sides: { with: {}, against: {} },
+  verdict: { key: "record_direction", cls: "v-record-direction" },
+};
+// A member with NOTHING in the say-vs-do feed and a record-direction card on one
+// issue. Before this wiring they were tier 'link' on every surface — the five
+// live members in that state held 72 shareable rows between them.
+const RD_ONLY = Object.assign({}, RD_CARD, { pid: "rep_rdonly", issueKey: "social_security",
+  measureNumber: "H.R. 82", issue: { label: "👵 Social Security" } });
+
 const calls = [];
 ctx.PDXReceiptCards = ctx.window.PDXReceiptCards = {
   cardsFor() { throw new Error("share-anywhere must not read the unguarded card list"); },
@@ -156,6 +179,20 @@ ctx.PDXReceiptCards = ctx.window.PDXReceiptCards = {
   },
   warm(pid) { calls.push(["warm", pid]); return Promise.resolve(null); },
   share(card, btn) { calls.push(["rc.share", card, btn]); return "rc"; },
+  RECORD_DIRECTION_ORIGIN: RD_ORIGIN,
+  // The record-direction feed's own guarded accessor, kept out of publicCardsFor
+  // by receipt-cards.js on purpose. It throws for anyone else, so a resolver that
+  // reached for these cards on a member who has none would turn this file red
+  // rather than quietly widening the feed.
+  publicRecordDirectionCardsFor(pid, o) {
+    const iss = (o && o.issueKey) || "";
+    if (pid === "rep_rdonly") return (!iss || iss === "social_security") ? [RD_ONLY] : [];
+    if (pid !== "rep_record") return [];
+    if (iss === "border_security") return [RD_CARD];
+    if (iss === "cut_spending") return [RD_SPLIT];
+    if (iss) return [];
+    return [RD_CARD, RD_SPLIT];
+  },
 };
 ctx.PDXReceipts = ctx.window.PDXReceipts = {
   forPolitician(pid) { return pid === "rep_receipt" ? RECEIPT : null; },
@@ -199,14 +236,105 @@ const run = async () => {
   // Issue scoping: a row about one issue must not silently share another.
   const d = SA.state("rep_record", { issueKey: "healthcare" });
   ok(d.card === CARD_OTHER, "tier: an issueKey selects that issue's card");
-  const e = SA.state("rep_record", { issueKey: "border_security" });
+  // An issue NEITHER feed covers. The wrong-issue fallback is still correct here
+  // — a card about something is better than a bare link — and it is deliberately
+  // still in place, so this pass narrows the substitution rather than removing a
+  // behaviour readers depend on.
+  const e = SA.state("rep_record", { issueKey: "voting_access" });
   ok(e.tier === "record" && e.card === CARD,
-     "tier: an issue with no card of its own falls back to the member's strongest card, not to a link");
+     "tier: an issue no feed covers falls back to the member's strongest card, not to a link");
 
-  ok(/publicCardsFor/.test(CODE) && !/\bcardsFor\s*\(/.test(CODE.replace(/publicCardsFor/g, "publicCF")),
+  ok(/publicCardsFor/.test(CODE) && !/\bcardsFor\s*\(/.test(CODE.replace(/publicCardsFor/g, "publicCF").replace(/publicRecordDirectionCardsFor/g, "publicRDCF")),
      "guards: the record read goes through publicCardsFor only — the unguarded cardsFor is never called");
+  ok(/publicRecordDirectionCardsFor/.test(CODE) &&
+     !/recordDirectionCardsFor\s*\(/.test(CODE.replace(/publicRecordDirectionCardsFor/g, "publicRDCF")),
+     "guards: the record-direction read goes through publicRecordDirectionCardsFor only — the unguarded recordDirectionCardsFor is never called");
   ok(!/renderImage|canvasToBlob|navigator\.share/.test(CODE),
      "guards: this module renders no image and calls no share API itself, so 'sourced, dated, verdict-stamped, branded' stays a property of the two pipelines");
+}
+
+// ── 1b. The record-direction feed ────────────────────────────────────────────
+// The measured failure this section exists to prevent: 4,111 (member, issue)
+// pairs held a finished, guard-cleared record-direction card and the universal
+// Share control resolved a card about a DIFFERENT issue for 4,039 of them and a
+// bare profile link for the other 72. Zero resolved to the row in hand. The
+// artifact was built, cleared and unreachable.
+{
+  // ① The acceptance property, stated as a property rather than a case: where a
+  //    record-direction card exists for the issue asked about, the resolved card
+  //    IS about that issue.
+  const rd = SA.state("rep_record", { issueKey: "border_security" });
+  ok(rd.tier === "record" && rd.card === RD_CARD,
+     "record-direction: an issue with a record-direction card resolves to THAT card");
+  ok(rd.card.issueKey === "border_security",
+     "record-direction: the resolved card's issueKey equals the issue asked about — the acceptance property");
+  ok(rd.recordDirection === true,
+     "record-direction: state() flags which feed the card came from, read off the card's own origin stamp");
+
+  // ② No wrong-issue substitution. This is the same assertion from the other
+  //    side: the member HAS a stronger say-vs-do card (CARD, national_debt) and
+  //    it must not be what a border_security row sends.
+  ok(rd.card !== CARD && rd.card !== CARD_OTHER,
+     "record-direction: a row with its own card never sends the member's say-vs-do card about another issue");
+  const split = SA.state("rep_record", { issueKey: "cut_spending" });
+  ok(split.card === RD_SPLIT, "record-direction: each issue resolves its own card, not the feed's first one");
+  ok(/H\.Amdt\. 235 & H\.Amdt\. 232/.test(split.what),
+     "record-direction: a split record names BOTH bills in 'what' — both sides are the evidence");
+
+  // ③ The say-vs-do path is untouched where it had an answer. Live measurement:
+  //    704 issue-matched say-vs-do cards before, 704 identical after.
+  const svd = SA.state("rep_record", { issueKey: "national_debt" });
+  ok(svd.card === CARD && svd.recordDirection === false,
+     "record-direction: an issue the say-vs-do feed covers still resolves to the say-vs-do card, unchanged");
+  ok(SA.state("rep_record", { issueKey: "healthcare" }).card === CARD_OTHER,
+     "record-direction: a stance row's own contradiction card still wins — the new feed is a fallback, never a preemption");
+  ok(SA.state("rep_receipt").receipt === RECEIPT && SA.state("rep_receipt").tier === "receipt",
+     "record-direction: the curated Say-vs-Do receipt tier is unaffected");
+
+  // ④ A member the say-vs-do feed knows nothing about. Five live members were in
+  //    exactly this state, holding 72 shareable rows behind a bare link.
+  const only = SA.state("rep_rdonly", { issueKey: "social_security" });
+  ok(only.tier === "record" && only.card === RD_ONLY,
+     "record-direction: a member with no say-vs-do cards at all is no longer reduced to a link");
+  ok(SA.state("rep_rdonly").tier === "record",
+     "record-direction: their whole-person share resolves too — no issue was named, so there is no issue to get wrong");
+  ok(SA.state("rep_rdonly", { issueKey: "healthcare" }).tier === "link",
+     "record-direction: an issue they hold no card for still falls to the honest link — a wrong-issue record-direction card would be the same substitution this fixes");
+
+  // ⑤ The copy. A card that claims no stated position must not be announced as
+  //    one, and the promise must name what the card actually prints.
+  ok(/no stated position is claimed/i.test(rd.label),
+     "record-direction: the accessible name says out loud that no stated position is claimed");
+  ok(/counts by direction/i.test(rd.label) && /counts by direction/i.test(rd.hint),
+     "record-direction: both the promise and the hint name counts by direction, not a single vote");
+  ok(!/%/.test(rd.label) && !/%/.test(rd.hint) && !/%/.test(rd.what),
+     "record-direction: no percentage anywhere in what this control promises");
+  ok(!/\b(republican|democrat|party|loyal)/i.test(rd.label + rd.hint),
+     "record-direction: no party framing in the promise");
+  ok(!/\b(supports?|opposes?|believes?|stance|position on)\b/i.test(rd.hint),
+     "record-direction: the hint attributes no stance to the person");
+  ok(svd.label !== rd.label && svd.hint !== rd.hint,
+     "record-direction: the two feeds describe themselves differently — a reader is told which one they are sending");
+  ok(rd.tier === "record" && rd.cls === svd.cls && rd.ico === svd.ico,
+     "record-direction: it stays tier 'record' with the same glyph and class, so no host surface has to learn a new tier");
+
+  // ⑥ Dispatch. The card goes to the module that built it, unmodified.
+  calls.length = 0;
+  SA.share("rep_record", null, { issueKey: "border_security" });
+  const sent = calls.find((c) => c[0] === "rc.share");
+  ok(sent && sent[1] === RD_CARD,
+     "record-direction: tapping Share hands the record-direction card to PDXReceiptCards.share, unmodified");
+  ok(!calls.some((c) => c[0] === "link"),
+     "record-direction: it no longer falls through to the bare profile link");
+
+  // ⑦ Thresholds are the owning module's business. This file must not restate
+  //    them, and the resolver must not second-guess them: whatever
+  //    publicRecordDirectionCardsFor hands over is already past every guard.
+  //    ("how it was judged" is reader copy and is not a threshold, so the match
+  //    is on the threshold vocabulary itself — the constants, the index tokens
+  //    and the dominance ratio.)
+  ok(!/MIN_JUDGED|MIN_PRIMARY|MEMBER_FLOOR|DOMINANCE|0\.75|\brecord_(direction|split|thin|none|uniform_thin)\b|characterised|\.judged\b|\.advances\b|\.opposes\b/.test(CODE),
+     "record-direction: the resolver holds no eligibility threshold of its own — it asks the owning module and takes the answer");
 }
 
 // ── 2. The honest fallback ───────────────────────────────────────────────────

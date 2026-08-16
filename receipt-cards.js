@@ -1324,8 +1324,17 @@
       photo: photo, hasOffice: !!(d && (d.office || d.district)),
       // issue
       issueKey: issueKey, issue: issueMeta(issueKey),
-      // SAID — the stated position, verbatim
-      said: { text: stance.text || stance.topic || '', word: stanceWord(stance.stance) },
+      // SAID — the stated position, verbatim.
+      //
+      // NULL, not empty, when there is no stated position. The record-direction
+      // card below is built for exactly the rows where none exists, and an empty
+      // SAID block is not the same object as an absent one: the renderer already
+      // guards the whole block on `r.said`, so null omits it cleanly, while a
+      // present-but-blank block would print a label and an empty quote. Every
+      // other card in this file passes a real stance and is unaffected.
+      said: stance
+        ? { text: stance.text || stance.topic || '', word: stanceWord(stance.stance) }
+        : null,
       // ── Chronology honesty ────────────────────────────────────────────────
       // Stance blocks carry no date — not one of the 5,041 in the corpus does. A
       // card headed "THEY SAID" above a dated vote therefore asserts a sequence
@@ -1336,9 +1345,11 @@
       // present-tense label for an undated position, and a line that says so
       // outright. The verdict itself is unaffected — it never depended on order,
       // only on whether the position and the vote point the same way.
-      saidLabel: 'THEIR STATED POSITION',
-      saidNote: 'Stated position is undated — this card does not claim it came before the ' +
-        (isVote ? 'vote' : 'act') + '.',
+      saidLabel: stance ? 'THEIR STATED POSITION' : '',
+      saidNote: stance
+        ? ('Stated position is undated — this card does not claim it came before the ' +
+           (isVote ? 'vote' : 'act') + '.')
+        : '',
       // DID — bill, question, position, date
       headline: proofLine(item),
       // WHAT KIND OF ACT — the label, the strength and the sentence that keeps a
@@ -1815,6 +1826,342 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // THE RECORD-DIRECTION CARD  ·  what the record did, where nothing was said
+  // ──────────────────────────────────────────────────────────────────────────
+  // Every card above this line is a claim about a member's WORDS against their
+  // record. That claim needs a stated position, and on most (member, issue)
+  // pairs there is none — so the strongest thing PolitiDex knows about those
+  // rows, the direction of the formal record itself, has never been able to
+  // leave the app. This is the shape that lets it, and the whole design problem
+  // is keeping it from quietly becoming one of the things above it.
+  //
+  // WHAT IT CLAIMS. One sentence, made of counts the row already shows:
+  //   "On <issue>, <Name> has 14 recorded votes — 11 advanced it, 3 cut
+  //    against it."
+  //   "On <issue>, <Name>'s recorded votes all advanced it (5)."
+  // That is a description of a record. It is not a stance, not an inferred
+  // stance, and not a score.
+  //
+  // WHAT IT MUST NOT DO, and where each wall is:
+  //   · No stance, inferred or otherwise. The card is only ever built where the
+  //     member's position map holds NOTHING for the issue, `said` is null, and
+  //     no copy on it uses "supports", "opposes" or any said-vs-did token —
+  //     enforced on the finished text by rdPublicBlock() below.
+  //   · No second score. No percentage, no proportion, no ratio: the counts are
+  //     printed as counts. Also enforced on the finished text.
+  //   · No effect on Direction Match. Nothing here writes; the eligibility test
+  //     is a READ of the same pure index the row uses, and this feed is reached
+  //     through its own functions — candidates(), cardsFor(), audit() and the
+  //     public reads over them are untouched, so said-vs-did card volume cannot
+  //     move because this file grew.
+  //   · No loosened guards. Eligibility is `idx.characterised === true` from
+  //     window._recordDirectionIndex — which is the depth rule, the dominance
+  //     rule, the primary-mapping rule, the member coverage floor and the
+  //     no-pole / *_balance suppressions, all of them, in one flag and in one
+  //     implementation. Every cited example goes through the identical
+  //     itemBlock() chain the split card's two examples go through, with the
+  //     stance argument passed as null — which that chain already handles,
+  //     because guard 10 is asked by the CALLERS and never by the chain.
+  // ══════════════════════════════════════════════════════════════════════════
+  var RD_ORIGIN = 'record_direction';
+
+  // The stamp. Deliberately not in VERDICTS and deliberately sharing no key with
+  // it: a reader must not be able to confuse this with "Vote Matched The Words",
+  // and a downstream surface reading `verdict.key` must not be able to either.
+  // One label for votes and acts alike, because the sentence it heads is already
+  // written in whichever noun the record earns.
+  var RD_VERDICT = {
+    key: 'record_direction', cls: 'v-record-direction', ico: '🏛',
+    label: 'What The Record Did', rank: 1
+  };
+  function rdVerdict() {
+    return { key: RD_VERDICT.key, cls: RD_VERDICT.cls, ico: RD_VERDICT.ico,
+             label: RD_VERDICT.label, rank: RD_VERDICT.rank };
+  }
+
+  // THE DISCLOSURE, as a constant rather than a sentence written at the call
+  // site. It is the one line on the card that has to survive to the pixels, and
+  // it is checked below by EQUALITY, not by a denylist: the stance-vocabulary
+  // tripwire is a blunt instrument that would have to be taught an exception for
+  // this sentence's own "not a stated stance", and an exception in a denylist is
+  // a hole. Fixed text compared exactly is stricter than any regex over it —
+  // nothing can be added to this line, softened in it, or dropped from it.
+  var RD_NOTE = 'No stated position on file — this is what the record itself did, ' +
+    'not a stated stance and not a score.';
+
+  // Which way ONE item cut on this issue, from the same engine function the
+  // index counts with — never a second reading of supportMeaning. null when the
+  // item carries no direction (present / not voting), which is exactly what the
+  // index skips.
+  function rdSide(item, issueKey) {
+    var m = mappingOn(item, issueKey);
+    if (!m || typeof window._voteEffectiveSupport !== 'function') return null;
+    var eff = window._voteEffectiveSupport(item, m.supportMeaning);
+    if (eff === null || typeof eff === 'undefined') return null;
+    return eff ? 'advances' : 'opposes';
+  }
+
+  // The strongest CITABLE item on one side, by the same step-down the split card
+  // uses: rank, ask the whole item chain, and on a refusal move to the next one
+  // rather than either loosening the chain or losing the card. Ranked on a
+  // primary mapping first (the index already requires at least one, and an issue
+  // the measure was actually about illustrates the direction better than an
+  // incidental mapping does), then curated weight, then recency.
+  var RD_SIDE_WORD = { advances: 'advanced-it', opposes: 'cut-against-it' };
+  function rdStrongest(pid, issueKey, items, records, want) {
+    var pool = items.filter(function (it) { return rdSide(it, issueKey) === want; });
+    pool.sort(function (a, b) {
+      var ma = mappingOn(a, issueKey) || {}, mb = mappingOn(b, issueKey) || {};
+      if (!!ma.isPrimary !== !!mb.isPrimary) return ma.isPrimary ? -1 : 1;
+      var wa = (typeof ma.weight === 'number') ? ma.weight : 100;
+      var wb = (typeof mb.weight === 'number') ? mb.weight : 100;
+      if (wa !== wb) return wb - wa;
+      return String(b.date || '') < String(a.date || '') ? -1
+           : String(b.date || '') > String(a.date || '') ? 1 : 0;
+    });
+    var firstRefusal = '';
+    for (var i = 0; i < pool.length; i++) {
+      var why = itemBlock(pid, issueKey, null, pool[i], records);
+      if (!why) return { item: pool[i], blocked: '', steppedDown: i > 0 };
+      if (!firstRefusal) firstRefusal = why;
+    }
+    return {
+      item: null, steppedDown: false,
+      blocked: 'the ' + RD_SIDE_WORD[want] + ' example: ' +
+        (firstRefusal || 'nothing on this side of the record can be cited on its own')
+    };
+  }
+
+  // Why this row may not be characterised, in the index's own words. The index
+  // is the ONLY authority on this — there is no second threshold table here, so
+  // there is nothing to drift.
+  function rdBlockIndex(idx) {
+    if (!idx) return 'the record-direction index is unavailable';
+    if (!idx.characterised) {
+      return 'the record does not characterise on this row: ' +
+        String(idx.label || idx.token).toLowerCase() +
+        (idx.suppressed ? ' (' + idx.suppressed + ')' : '');
+    }
+    return '';
+  }
+
+  // ── Candidate enumeration for this feed only ──────────────────────────────
+  // Same grouping as candidates() above, a different question asked of it.
+  // Returns candidates in BOTH states so the audit can report the exclusions.
+  function recordDirectionCandidates(pid) {
+    pid = canonPid(pid);
+    var records = recordsFor(pid);
+    if (!records || !records.length) return [];
+    if (typeof window._recordDirectionIndex !== 'function') return [];
+
+    var counts = (typeof window._pdxRecordMappedCounts === 'function')
+      ? window._pdxRecordMappedCounts(pid) : null;
+    var held = counts ? counts.votes : null;   // unknown fails the coverage floor
+    var pm = positionMapFor(pid);
+
+    var byIssue = {};
+    records.forEach(function (it) {
+      if (!it || !Array.isArray(it.issues)) return;
+      it.issues.forEach(function (m) {
+        if (!m || !m.issueKey) return;
+        (byIssue[m.issueKey] = byIssue[m.issueKey] || []).push(it);
+      });
+    });
+
+    var out = [];
+    Object.keys(byIssue).forEach(function (issueKey) {
+      // The same items the row reads, in the same order, when the adapter is
+      // loaded — so the card and the profile row can never be built from two
+      // different lists. The local grouping is the fallback and holds the same
+      // set; the index's counts are order-independent either way.
+      var items = byIssue[issueKey];
+      try {
+        if (typeof window._pdxRecordIssueItems === 'function') {
+          items = window._pdxRecordIssueItems(pid, issueKey) || items;
+        }
+      } catch (e) {}
+
+      var meta = issueMeta(issueKey);
+      var idx = window._recordDirectionIndex(issueKey, items, {
+        memberRecordCount: held,
+        label: (meta && meta.label) || ''
+      });
+
+      // Whether the judged pool holds anything that is not a floor vote. The
+      // counts this card prints cover every judged item, so "recorded votes" is
+      // a false noun the moment one of them is a signature or a cosponsorship —
+      // read off the judged list, never off the one or two examples shown.
+      var acts = false, soft = false;
+      items.forEach(function (it) {
+        if (!mappingOn(it, issueKey)) return;
+        if (rdSide(it, issueKey) === null) return;
+        var ins = instrumentOf(it);
+        if (!ins) { acts = true; soft = true; return; }
+        if (ins.key !== 'vote') acts = true;
+        if (ins.strength === 'supporting') soft = true;
+      });
+
+      var leadSide = idx.lead || 'advances';
+      var otherSide = leadSide === 'advances' ? 'opposes' : 'advances';
+      var lead = rdStrongest(pid, issueKey, items, records, leadSide);
+      // Only asked for where the record actually ran both ways. "for splits, one
+      // on each side if available" — so a minority side with nothing citable
+      // costs the card its second example, not its existence: the counts are the
+      // finding and they are unchanged either way.
+      var other = (idx.advances && idx.opposes)
+        ? rdStrongest(pid, issueKey, items, records, otherSide)
+        : { item: null, blocked: '', steppedDown: false };
+
+      var cand = {
+        pid: pid, issueKey: issueKey, want: 'record_direction',
+        idx: idx, items: items, acts: acts, soft: soft,
+        lead: lead, other: other,
+        // The item every downstream reader of a candidate expects.
+        item: lead.item || null,
+        steppedDown: !!(lead.steppedDown || other.steppedDown),
+        blocked: ''
+      };
+      cand.blocked =
+        // First, and it is the whole point of this feed: a row with a stated
+        // position belongs to Direction Match and to the cards above. This one
+        // does not go near it.
+        (pm[issueKey] ? 'a stated position exists on this issue — that row belongs to the say-vs-do cards' : '') ||
+        rdBlockIndex(idx) ||
+        blockIssue(pid, issueKey, '', lead.item || {}) ||
+        wave1Hold(issueKey) ||
+        lead.blocked;
+      out.push(cand);
+    });
+
+    // Deepest record first, then the clearest direction — so a host surface that
+    // takes the first card takes the best-evidenced one.
+    out.forEach(function (c) {
+      c.strength = (c.idx.judged * 10) + Math.abs(c.idx.advances - c.idx.opposes);
+    });
+    out.sort(function (a, b) { return b.strength - a.strength; });
+    return out;
+  }
+
+  // The face of one cited example on a record-direction card. Built by the same
+  // sideFace() every split card uses, then relabelled: "VOTED WITH THEIR
+  // POSITION" is a sentence about a position, and there is no position here.
+  // Both sides are relabelled, not only the non-vote one, because on this card
+  // the vote wording is wrong for the same reason on both.
+  function rdFace(item, issueKey, side) {
+    var face = sideFace(item, issueKey, side === 'advances' ? 'with' : 'against');
+    var advanced = side === 'advances';
+    face.head = advanced ? 'ADVANCED IT' : 'CUT AGAINST IT';
+    face.lead = advanced ? 'Advanced it' : 'Cut against it';
+    face.tail = advanced ? 'Advanced it' : 'Cut against it';
+    return face;
+  }
+
+  function recordDirectionCard(cand) {
+    if (!cand || cand.blocked) return null;
+    var idx = cand.idx;
+    var leadItem = cand.lead && cand.lead.item;
+    if (!leadItem || !idx || !idx.characterised) return null;
+
+    // baseCard with a null stance: same identity, same issue chip, same footer
+    // rules, same fail-closed on an address that will not print — and no SAID
+    // half, because there is nothing said to put in it.
+    var card = baseCard(cand.pid, leadItem, cand.issueKey, null, rdVerdict());
+    if (!card) return null;
+
+    var issueName = (card.issue && card.issue.label) || 'this issue';
+    var acts = !!cand.acts;
+    var manyNoun = acts ? 'formal actions' : 'recorded votes';
+    var oneNoun = acts ? 'formal action' : 'recorded vote';
+    var n = idx.judged, adv = idx.advances, opp = idx.opposes;
+    var uniform = !adv || !opp;
+    var leadWord = (idx.lead === 'opposes') ? 'cut against it' : 'advanced it';
+
+    card.origin = RD_ORIGIN;
+    card.verdict = rdVerdict();
+    // The stamp on every other card is headed VERDICT. This one is not a verdict
+    // on anybody — it reports what the record did — so it says so, and the
+    // renderer prints whatever this field holds.
+    card.stampKicker = 'RECORD DIRECTION';
+    card.impact = 'record';
+    card.recordLabel = 'WHAT THE RECORD DID';
+    // The disclosure, on the image, in the place the stated position would have
+    // been. It travels with the pixels because the pixels are what travel.
+    card.recordNote = RD_NOTE;
+
+    // The finding. Counts, in words, in the two forms the record comes in.
+    card.headline = uniform
+      ? ('On ' + issueName + ', ' + card.name + '’s ' + manyNoun + ' all ' + leadWord +
+         ' (' + n + ').')
+      : ('On ' + issueName + ', ' + card.name + ' has ' + n + ' ' + manyNoun + ' — ' +
+         adv + ' advanced it, ' + opp + ' cut against it.');
+
+    // What kind of act the COUNTS cover — the same two-part answer the split card
+    // gives, for the same reason: a card counting a cosponsorship alongside a
+    // roll call may not be worded as though every item on it were a floor vote.
+    card.instrument = acts
+      ? { key: 'record', label: 'Recorded votes and other formal actions',
+          strength: cand.soft ? 'supporting' : 'deciding',
+          note: 'This card counts recorded votes together with other formal actions on ' +
+                'the record. Each example below says which it is.' }
+      : { key: 'vote', label: INSTRUMENTS.vote.label, strength: 'deciding', note: '' };
+    card.effectLabel = acts ? 'What kind of actions these are' : '';
+
+    // Provenance, read straight off the index. This is what the public gate and
+    // the tests check the finished copy against, so neither has to re-derive it.
+    card.recordDirection = {
+      token: idx.token, lead: idx.lead, judged: n, advances: adv, opposes: opp,
+      primary: idx.primary, total: idx.total, uniform: uniform,
+      characterised: !!idx.characterised, acts: acts, soft: !!cand.soft,
+      steppedDown: !!cand.steppedDown
+    };
+
+    var otherItem = cand.other && cand.other.item;
+    if (!uniform && otherItem) {
+      // Both sides citable: one named, dated, sourced example on each, in the
+      // same both-sides block the split card already draws.
+      var advItem = (idx.lead === 'advances') ? leadItem : otherItem;
+      var oppItem = (idx.lead === 'advances') ? otherItem : leadItem;
+      card.sides = {
+        counts: { with: adv, against: opp },
+        with: rdFace(advItem, cand.issueKey, 'advances'),
+        against: rdFace(oppItem, cand.issueKey, 'opposes')
+      };
+      if (!card.sides.with.verify || card.sides.with.verify.length > VERIFY_MAX) return null;
+      if (!card.sides.against.verify || card.sides.against.verify.length > VERIFY_MAX) return null;
+      // baseCard filled the fact block from the lead example alone, which under a
+      // headline about N items would print one measure's title as if it were the
+      // record. The caveat takes its place.
+      card.factParts = [];
+      card.facts = 'Counts cover every judged ' + oneNoun +
+        '; each example is the strongest we can cite.';
+      card.date = dateSpan(advItem, oppItem);
+      card.source = {
+        url: recordPageUrl(cand.pid, cand.issueKey),
+        label: 'Official record — ' + manyNoun + ' on this issue'
+      };
+      card.verifyUrl = printableUrl(card.source.url);
+      if (!card.verifyUrl || card.verifyUrl.length > VERIFY_MAX) return null;
+      card.measureNumbers = [advItem.number || '', oppItem.number || ''].filter(Boolean);
+      card.sourceStored = [(advItem.source && advItem.source.url) || '',
+                           (oppItem.source && oppItem.source.url) || ''].filter(Boolean).join(' | ');
+    }
+
+    // The counted short form, for the post and the caption. Always the counts —
+    // never the one measure baseCard would otherwise name under a sentence about
+    // N of them.
+    card.didLine = uniform
+      ? ('All ' + n + ' ' + manyNoun + ' ' + leadWord)
+      : (n + ' ' + manyNoun + ' — ' + adv + ' advanced it, ' + opp + ' cut against it');
+    card.countsNote = 'Counts cover every judged ' + oneNoun + ' on this issue; ' +
+      (card.sides
+        ? 'each example above is the strongest one on its side that can be cited on its own.'
+        : 'the example shown is the strongest one that can be cited on its own.');
+
+    card.score = cand.strength || 0;
+    return card;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // THE OMNIBUS SPLIT CARD  ·  "one vote, two outcomes"
   // ──────────────────────────────────────────────────────────────────────────
   // Built on top of an ordinary eligible card, never instead of one: the same
@@ -1994,6 +2341,162 @@
   var VOTE_WORD_RE = /\b(?:voted?|votes|voting|yea|nay|roll\s*call|on\s+passage)\b/i;
   var PARTY_FRAME_RE = /\b(?:broke\s+with\s+(?:their|his|her|the)\s+party|party\s+lines?|party\s+loyalty|caucus|crossed\s+the\s+aisle|bipartisan)\b/i;
 
+  // ── Three more, asked only of the record-direction feed ───────────────────
+  // That card is the one shape in this file with no stated position behind it,
+  // which makes three specific failures possible that cannot happen above:
+  // reading as a stance it never had, borrowing a said-vs-did verdict word for a
+  // comparison that never happened, or printing the direction as a proportion —
+  // which is the exact move that would turn a description of a record into a
+  // second score sitting next to Direction Match.
+  //
+  // TWO DIFFERENT SURFACES, because the three failures are not the same kind of
+  // failure:
+  //
+  //   COMPOSED copy — the sentences this file writes: the headline, the stamp,
+  //     the counts note, the side labels. A stance word or a verdict token here
+  //     is the CARD making a claim it has no basis for, and all three denylists
+  //     run over it. The measure title, the curated rationale and the chamber
+  //     question are NOT in it: those are quoted, they already cleared guards 13,
+  //     15 and 16 at the item level, and every say-vs-do card prints them under
+  //     exactly that clearance. A bill actually named the Taxpayer Support Act is
+  //     not this card claiming the member supports anything, and refusing it here
+  //     would be a lottery on which bills have the word in their title rather
+  //     than a wall against anything.
+  //     The issue's own curated NAME is excluded for the same reason — "🇮🇱
+  //     Support for Israel" is the heading a reader is already looking at, not a
+  //     sentence this card wrote.
+  //
+  //   PRINTED text — everything a reader can see, quotes included. Only the
+  //     PROPORTION check runs over this, and it is the one wall the brief states
+  //     flatly: no percentage on the card, from any source. A share printed
+  //     beside a count is the exact shape of a second score whether we wrote it
+  //     or quoted it, so this one is stricter than the say-vs-do cards, on
+  //     purpose.
+  var RD_PROPORTION_RE = /\d\s*%|\b\d+(?:\.\d+)?\s*(?:percent|pct)\b|\b\d+\s*out\s+of\s+\d|\b(?:share|proportion|ratio|rate)\s+of\b/i;
+  var RD_STANCE_WORD_RE = /\b(?:supports?|supported|supporting|opposes?|opposed|backs?\s+it\s+up|backed\s+it\s+up|stated\s+stance|campaigned|promised|pledged|says?\s+one\s+thing|their\s+position|his\s+position|her\s+position)\b/i;
+  var RD_SAYDO_TOKEN_RE = /\b(?:contradicts?|contradicted|contradiction|consistent|inconsistent|backs?\s+up|backed\s+up|matched\s+the\s+words|kept\s+(?:their|his|her)\s+word|broke\s+(?:their|his|her)\s+word)\b/i;
+
+  // The denylist above is a fixed list of words. This is the moving one: the
+  // LIVE say-vs-do verdict labels, read off PDXConsistency.VERDICTS at call time
+  // rather than copied here, so renaming a verdict cannot quietly make its new
+  // name sayable on a card about a comparison that never happened.
+  //   Only the four labels that make a claim about said-vs-did are checked. The
+  // inventory labels ("No record yet", "Limited record") assert nothing this
+  // card could borrow, and "No stated stance" is the very condition it is built
+  // under — refusing that string would refuse the card for being honest.
+  var SAYDO_CLAIM_VERDICTS = { consistent: 1, contradicts: 1, mixed: 1, flag: 1 };
+  function rdBorrowedVerdict(text) {
+    var t = String(text || '').toLowerCase();
+    var V = (window.PDXConsistency && window.PDXConsistency.VERDICTS) || {};
+    var hit = '';
+    Object.keys(V).forEach(function (k) {
+      if (hit || !SAYDO_CLAIM_VERDICTS[k]) return;
+      var lab = V[k] && V[k].label;
+      if (lab && t.indexOf(String(lab).toLowerCase()) !== -1) hit = lab;
+    });
+    return hit;
+  }
+
+  // Exactly the strings this file writes onto a record-direction card. Quoted
+  // material — the measure title, the curated rationale, the chamber question —
+  // is deliberately absent, and so is the fixed disclosure: that line is checked
+  // by equality against RD_NOTE instead, because it contains the very words
+  // ("not a stated stance") the denylists exist to catch, and a denylist that has
+  // to be taught an exception is a denylist with a hole.
+  function rdWritten(card) {
+    var parts = [card.headline, card.verdict && card.verdict.label, card.stampKicker,
+                 card.recordLabel, card.didLine, card.countsNote,
+                 card.effectLabel, card.instrument && card.instrument.note,
+                 card.source && card.source.label];
+    var faces = card.sides ? [card.sides.with, card.sides.against] : [];
+    faces.forEach(function (f) { if (f) parts.push(f.head, f.lead, f.tail); });
+    return parts.filter(Boolean).join(' · ');
+  }
+
+  // The same copy with the issue's own curated name taken out of it. The name is
+  // the heading the reader is already under — "🇮🇱 Support for Israel" is not this
+  // card claiming anybody supports anything — so it is neutralised rather than
+  // dropped, leaving the rest of the sentence around it still readable by the
+  // vocabulary walls.
+  function rdComposed(card) {
+    var text = rdWritten(card);
+    var label = (card.issue && card.issue.label) || '';
+    return label ? text.split(label).join('this issue') : text;
+  }
+
+  // Everything a reader can SEE on the finished card, quotes and heading
+  // included. Only the proportion wall is asked of this, and it is asked of
+  // every source equally.
+  function rdPrinted(card) {
+    var parts = [rdWritten(card), (card.issue && card.issue.label) || '',
+                 card.recordNote, card.facts];
+    (card.factParts || []).forEach(function (p) { parts.push(p); });
+    var faces = card.sides ? [card.sides.with, card.sides.against] : [];
+    faces.forEach(function (f) {
+      if (f) parts.push(f.proof, f.title, f.effect, f.number, f.label);
+    });
+    if (!card.sides) parts.push(card.measureNumber, card.measureTitle);
+    return parts.filter(Boolean).join(' · ');
+  }
+
+  function rdPublicBlock(card) {
+    if (card.said) {
+      return 'record-direction card carries a stated position — it reports the record only';
+    }
+    var rd = card.recordDirection;
+    if (!rd || !rd.characterised) {
+      return 'record-direction card is not backed by a characterised record row';
+    }
+    // The absence of a stated position is the whole premise of this card, so the
+    // line that says so is required verbatim — not merely present, not merely
+    // similar. A card that reached a stranger without it would be a counted
+    // record wearing the layout a stated position usually occupies.
+    if (card.recordNote !== RD_NOTE) {
+      return 'record-direction card does not carry the no-stated-position disclosure verbatim';
+    }
+    // The counts printed on the card ARE the index's counts. Re-asserted here so
+    // a future edit that recounted them off the cited examples cannot ship.
+    if (!rd.judged || rd.advances + rd.opposes !== rd.judged) {
+      return 'record-direction counts do not add up to the judged record';
+    }
+    if (rd.uniform && rd.advances && rd.opposes) {
+      return 'record-direction card claims a uniform record that ran both ways';
+    }
+    if (!rd.uniform && !(rd.advances && rd.opposes)) {
+      return 'record-direction card claims both sides on a one-sided record';
+    }
+    // The proportion wall is asked of everything a reader can SEE — the quoted
+    // measure title and the curated rationale included. A share printed beside a
+    // count is the shape of a second score whether this file wrote it or quoted
+    // it, so this one check is stricter here than anywhere else in the file.
+    if (RD_PROPORTION_RE.test(rdPrinted(card))) {
+      return 'record-direction card prints a proportion — the record’s direction is counts, not a second score';
+    }
+    // The three vocabulary walls are asked only of the copy this file COMPOSES.
+    var text = rdComposed(card);
+    if (RD_STANCE_WORD_RE.test(text)) {
+      return 'record-direction card words the record as a stated position';
+    }
+    if (RD_SAYDO_TOKEN_RE.test(text)) {
+      return 'record-direction card borrows a said-vs-did verdict token for a comparison that never happened';
+    }
+    var borrowed = rdBorrowedVerdict(text);
+    if (borrowed) {
+      return 'record-direction card prints the “' + borrowed +
+        '” say-vs-do verdict for a comparison that never happened';
+    }
+    if (PARTY_FRAME_RE.test(text)) {
+      return 'record-direction card frames a formal action as party behaviour';
+    }
+    // Vote vocabulary is correct on a card whose counts are all roll calls, and
+    // false on one whose counts are not. Asked here rather than left to the
+    // general instrument check below, which does not see recordNote or facts.
+    if (rd.acts && VOTE_WORD_RE.test(text)) {
+      return 'record-direction card is worded as votes and the record it counts is not all votes';
+    }
+    return '';
+  }
+
   function publicShareBlock(card) {
     if (!card) return 'no card';
     if (!card.hasOffice || !card.party || !card.party.label) {
@@ -2001,7 +2504,16 @@
     }
     if (!card.date) return 'no vote date to print';
     if (!card.source || !card.source.url || !card.verifyUrl) return 'no citation a reader could follow';
-    if (!card.said || !String(card.said.text || '').trim()) return 'no stated position to line the vote up against';
+    // The record-direction card is the one shape with no SAID half by design, so
+    // it answers a different question here — and a stricter one, because the
+    // absence of a stated position is the thing that has to stay true all the
+    // way to the pixels. Every card above it is unaffected.
+    if (card.origin === RD_ORIGIN) {
+      var rdWhy = rdPublicBlock(card);
+      if (rdWhy) return rdWhy;
+    } else if (!card.said || !String(card.said.text || '').trim()) {
+      return 'no stated position to line the vote up against';
+    }
     // A split card carries two cited votes, so everything below that reads ONE
     // measure or ONE fact string is asked of both. A card that cited a clean vote
     // on one side and a held one on the other would otherwise pass a gate written
@@ -2061,8 +2573,13 @@
     if (HOUSEKEEPING_LEAK_RE.test(String(card.facts || ''))) {
       return 'finished fact text still carries curator housekeeping';
     }
-    var circular = blockStance(card.said.text);
-    if (circular) return 'finished stance text reads as a vote — ' + circular;
+    // Guard 10 again, on the finished text — asked only where there IS a stated
+    // position. A record-direction card has none by construction, and
+    // rdPublicBlock() has already required that to still be true here.
+    if (card.origin !== RD_ORIGIN) {
+      var circular = blockStance(card.said.text);
+      if (circular) return 'finished stance text reads as a vote — ' + circular;
+    }
     if (WAVE1_HOLD_ISSUE_KEYS[card.issueKey]) return WAVE1_HOLD_ISSUE_KEYS[card.issueKey];
     // Every measure the card names, not only the one it leads with.
     var numbers = (card.measureNumbers && card.measureNumbers.length)
@@ -2080,7 +2597,11 @@
   // ''      — not public
   function publicTier(card) {
     if (publicShareBlock(card)) return '';
-    var total = (card.recordSummary && card.recordSummary.total) || 0;
+    // Depth, whichever feed the card came from: a say-vs-do card counts the
+    // judged items behind its verdict, a record-direction card counts the judged
+    // items behind its direction. Same question, same threshold.
+    var total = (card.recordSummary && card.recordSummary.total) ||
+                (card.recordDirection && card.recordDirection.judged) || 0;
     return total >= PUBLIC_MIN_JUDGED ? 'core' : 'thin';
   }
 
@@ -2107,6 +2628,61 @@
       return { pid: c.pid, issueKey: c.issueKey, measure: c.measureNumber || '',
                verdict: c.verdict && c.verdict.key, judged: (c.recordSummary || {}).total || 0,
                tier: publicTier(c), publicEligible: !r, reason: r || 'public' };
+    });
+  }
+
+  // ── The record-direction feed's own reads ─────────────────────────────────
+  // Kept out of cardsFor / publicCardsFor / audit on purpose. Those three are
+  // the say-vs-do card feed, and every count taken off them — card volume, the
+  // wave-1 exclusion list, the public tally — has to mean the same thing after
+  // this slice as before it. A caller that wants record-direction cards asks for
+  // them by name.
+  function recordDirectionCardsFor(pid, opts) {
+    opts = opts || {};
+    var cards = [];
+    recordDirectionCandidates(pid).forEach(function (c) {
+      if (opts.issueKey && c.issueKey !== opts.issueKey) return;
+      var card = recordDirectionCard(c);
+      if (!card) return;
+      for (var i = 0; i < cards.length; i++) if (cards[i].issueKey === card.issueKey) return;
+      cards.push(card);
+    });
+    return cards;
+  }
+  function publicRecordDirectionCardsFor(pid, opts) {
+    return recordDirectionCardsFor(pid, opts)
+      .filter(function (c) { return !publicShareBlock(c); })
+      .sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+  }
+  function recordDirection(pid, issueKey) {
+    if (!pid) return null;
+    var list = publicRecordDirectionCardsFor(pid, issueKey ? { issueKey: issueKey } : {});
+    return list.length ? list[0] : null;
+  }
+  // Every record-direction candidate with the reason it was kept or dropped, in
+  // the same shape audit() reports — including the index token, so the coverage
+  // of this feed can be read against the row model it is derived from.
+  function recordDirectionAudit(pid) {
+    return recordDirectionCandidates(pid).map(function (c) {
+      var it = c.item || {};
+      var ins = instrumentOf(it);
+      var built = c.blocked ? null : recordDirectionCard(c);
+      var pub = built ? publicShareBlock(built) : '';
+      return {
+        pid: c.pid, issueKey: c.issueKey, want: c.want,
+        token: c.idx.token, characterised: !!c.idx.characterised,
+        judged: c.idx.judged, advances: c.idx.advances, opposes: c.idx.opposes,
+        lead: c.idx.lead || '', suppressed: c.idx.suppressed || '',
+        uniform: !(c.idx.advances && c.idx.opposes),
+        bothSidesCited: !!(built && built.sides),
+        measure: it.number || '', instrument: ins ? ins.key : '',
+        date: dayOf(it.date),
+        eligible: !c.blocked, reason: c.blocked || 'eligible',
+        built: !!built,
+        tier: built ? publicTier(built) : '',
+        publicEligible: !!(built && !pub),
+        publicReason: built ? (pub || 'public') : (c.blocked || 'not built')
+      };
     });
   }
 
@@ -2234,7 +2810,16 @@
     var num = btn.getAttribute('data-measure') || '';
     if (num) return publicOmnibus(pid, num);
     var list = publicCardsFor(pid, iss ? { issueKey: iss } : {});
-    return list.length ? list[0] : null;
+    if (list.length) return list[0];
+    // ── The record-direction fallback ───────────────────────────────────────
+    // Reached ONLY where the say-vs-do feed has nothing to offer, which is the
+    // definition of a row with no stated position — so this can add a Share
+    // button where there was none and can never displace or re-rank one that
+    // already existed. Said-vs-did card volume is unchanged by construction, not
+    // by intention. Every host surface that already emits a button slot per
+    // (member, issue) therefore gains the new card with no change of its own.
+    var rd = publicRecordDirectionCardsFor(pid, iss ? { issueKey: iss } : {});
+    return rd.length ? rd[0] : null;
   }
 
   function dropBtn(btn) { if (btn && btn.parentNode) btn.parentNode.removeChild(btn); }
@@ -2242,6 +2827,10 @@
   function revealBtn(btn, card) {
     var omni = card.verdict.key === 'omnibus';
     var split = card.verdict.key === 'mixed';
+    // A record-direction card is about the record and about nothing said, so the
+    // control cannot promise a vote-against-a-position share. It names what it
+    // is instead, on the one piece of copy a reader sees before the card exists.
+    var rec = card.origin === RD_ORIGIN;
     // What the reader is about to send, named on the control itself. The bill
     // number and the issue are the two things that make the image checkable, so
     // they are what the tooltip and the accessible name say. A split card names
@@ -2261,14 +2850,21 @@
     btn.innerHTML = '<span class="pdxrc-ico" aria-hidden="true">' +
       (omni ? '⇅' : (split ? '⇄' : '🏛️')) + '</span>' +
       '<span class="pdxrc-lbl">' +
-      escA(omni ? 'Share this split ' + noun
-                : (split ? 'Share this split record' : 'Share this ' + noun)) +
+      escA(rec ? 'Share what the record did'
+               : (omni ? 'Share this split ' + noun
+                       : (split ? 'Share this split record' : 'Share this ' + noun))) +
       '</span>';
-    btn.setAttribute('title', 'Share ' + (what || 'this ' + noun) +
-      ' as an image — the card prints the ' + (isVote ? 'bill, the question, the vote' :
-        'measure, the kind of act, which way it cut') +
-      ', the date, the source URL and how it was judged.');
-    btn.setAttribute('aria-label', 'Share ' + (what || 'this ' + noun) + ' as an Official Record image');
+    btn.setAttribute('title', rec
+      ? ('Share the record’s own direction on ' + (what || 'this issue') +
+         ' as an image — the card prints the counts by direction, a cited example, the ' +
+         'dates, the source URLs and how it was judged. No stated position is claimed.')
+      : ('Share ' + (what || 'this ' + noun) +
+         ' as an image — the card prints the ' + (isVote ? 'bill, the question, the vote' :
+           'measure, the kind of act, which way it cut') +
+         ', the date, the source URL and how it was judged.'));
+    btn.setAttribute('aria-label', rec
+      ? 'Share the record’s direction on ' + (what || 'this issue') + ' as an Official Record image'
+      : 'Share ' + (what || 'this ' + noun) + ' as an Official Record image');
     btn.removeAttribute('data-pdxrc-pending');
     btn.removeAttribute('hidden');
   }
@@ -2412,6 +3008,18 @@
     publicShareBlock: publicShareBlock,
     publicTier: publicTier,
     PUBLIC_MIN_JUDGED: PUBLIC_MIN_JUDGED,
+    // ── The record-direction feed ─────────────────────────────────────────
+    // Its own entry points, deliberately not folded into the four above: a
+    // count taken off cardsFor / publicCardsFor / audit means the same thing
+    // after this slice as before it, and a caller that wants the record's own
+    // direction asks for it by name.
+    recordDirection: recordDirection,
+    recordDirectionCardsFor: recordDirectionCardsFor,
+    publicRecordDirectionCardsFor: publicRecordDirectionCardsFor,
+    recordDirectionCandidates: recordDirectionCandidates,
+    recordDirectionAudit: recordDirectionAudit,
+    RECORD_DIRECTION_VERDICT: RD_VERDICT,
+    RECORD_DIRECTION_ORIGIN: RD_ORIGIN,
     // Phase 10 (digital share): the two pure text builders that decide what the
     // fact block and the issue chip actually PRINT. Exposed so the presentation
     // tests can assert on the string a reader sees rather than on the source of
@@ -2453,7 +3061,21 @@
       // The two tripwires the public gate runs over composed copy, exposed so a
       // test can assert what they catch rather than only that a card passed.
       voteWordRe: VOTE_WORD_RE,
-      partyFrameRe: PARTY_FRAME_RE
+      partyFrameRe: PARTY_FRAME_RE,
+      // The record-direction feed's own three, plus the composer they run over
+      // and the gate that applies them — so a test can assert what each catches
+      // rather than only that a card passed.
+      rdProportionRe: RD_PROPORTION_RE,
+      rdNote: RD_NOTE,
+      rdStanceWordRe: RD_STANCE_WORD_RE,
+      rdSaydoTokenRe: RD_SAYDO_TOKEN_RE,
+      rdBorrowedVerdict: rdBorrowedVerdict,
+      rdComposed: rdComposed,
+      rdPrinted: rdPrinted,
+      rdPublicBlock: rdPublicBlock,
+      rdBlockIndex: rdBlockIndex,
+      rdStrongest: rdStrongest,
+      rdSide: rdSide
     },
     VERDICTS: VERDICTS,
     ACT_VERDICT_LABELS: ACT_VERDICT_LABELS,
