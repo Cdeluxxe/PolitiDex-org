@@ -3850,6 +3850,14 @@
     }
     return tip;
   }
+  // PUBLISHED, so the profile letterhead's depth line prints THIS sentence rather
+  // than assembling a second one from the same counts. Both are pure copy over a
+  // counts object the caller already holds — no reads, no DOM, nothing scored — and
+  // one builder is the only way the header and this section stay incapable of
+  // describing one warm cache two different ways. `_orMappedSummaryTip` assumes a
+  // counts object, so callers gate on having one.
+  window._pdxMappedSummaryText = _orMappedSummaryText;
+  window._pdxMappedSummaryTip = _orMappedSummaryTip;
   // Is there a Voting Record section to send a reader to? Asking the document is
   // not enough. This runs while the next profile is still a string, so the only
   // evidence ever available was the PREVIOUS render — and that record now waits

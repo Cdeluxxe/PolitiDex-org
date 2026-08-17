@@ -4586,6 +4586,24 @@
            that would read as findings on a profile the engine has not tested. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.headerTallyMount === 'function') ? window.PDXWordAction.headerTallyMount(id) : ''}
 
+      <!-- …and the last two lines of the same summary stack: HOW MUCH record is
+           behind the figure, and WHAT SPAN it covers.
+
+           The ring says how much of their word the record backs up and how much of
+           it was tested; the tally above says what shape that average came out of;
+           this says how big the file is — "12 mapped votes across 5 issues", or on
+           an executive profile "Of the formal actions on file — 23 across 8 issues"
+           — and, only where a term scope is a real distinction, that the current
+           term is counted inside the score rather than shown against it.
+
+           Both lines are printed by the builders the sections below use (the
+           Official Record's entry line and PDXExecRecord's own label), so the
+           header cannot describe our file in words the section it summarises would
+           not use. Display-only: the four counts above are the header's one
+           gateway, and this pass adds no second one. No percentage in either line —
+           see headerStackHtml() in word-action.js. -->
+      ${(window.PDXWordAction && typeof window.PDXWordAction.headerStackMount === 'function') ? window.PDXWordAction.headerStackMount(id) : ''}
+
       <!-- Quick-jump navigation — a sticky, glanceable map of the profile.
            Each pill summarizes a section (score, record, positions, evidence,
            your match, activity) and smooth-scrolls to it; the pill for the

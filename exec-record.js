@@ -685,6 +685,27 @@
     return sum;
   }
 
+  // ── The volume clause, on its own ──────────────────────────────────────────
+  // The label's FIRST clause — the framing plus how much is actually on file —
+  // published separately so a surface with room for one line rather than a
+  // paragraph prints these words instead of assembling its own sentence from the
+  // same counts. The profile letterhead's depth line is that surface: it needs
+  // "how much record is this" and nothing else, and a second phrasing of it is a
+  // second thing to keep true.
+  //
+  // It carries the framing and the thinness caveat because those are what make the
+  // count honest — a bare "23 across 8 issues" implies our file is their complete
+  // output, and two actions read as a pattern unless the line says otherwise. No
+  // verdict, no standing, no percentage: this is the denominator sentence.
+  function execVolumeText(sum) {
+    if (!sum || !sum.actions) return '';
+    var docs = sum.actions.total + (sum.unstatedStanding || 0);
+    if (!docs) return '';
+    var iss = sum.issues.total;
+    return FRAMING + ' — ' + docs + ' across ' + iss + ' ' + plural(iss, 'issue', 'issues') +
+      (sum.thin ? ', still a thin record' : '');
+  }
+
   // ── The label ──────────────────────────────────────────────────────────────
   // Assembled from the counts, never authored per figure — a pure function of the
   // summary object, no DOM and no window reads, so the language rules can be gated
@@ -698,12 +719,11 @@
   // numeric check. The label describes composition; it never grades it.
   function execSummaryText(sum) {
     if (!sum || !sum.actions || !sum.actions.total && !sum.unstatedStanding) return '';
-    var docs = sum.actions.total + (sum.unstatedStanding || 0);
-    if (!docs) return '';
-    var iss = sum.issues.total;
-
-    var out = FRAMING + ' — ' + docs + ' across ' + iss + ' ' + plural(iss, 'issue', 'issues');
-    if (sum.thin) out += ', still a thin record';
+    // The opening clause is the shared one — same words the letterhead prints, so
+    // the header's depth line and this label cannot come to describe one file two
+    // ways.
+    var out = execVolumeText(sum);
+    if (!out) return '';
 
     var al = [];
     if (sum.issues.aligned)  al.push('acted on it on ' + sum.issues.aligned);
@@ -815,6 +835,9 @@
     summary: execSummary,
     // Pure, DOM-free, directly unit-testable.
     summaryText: execSummaryText,
+    // The label's volume clause alone — for surfaces with one line to spend. Same
+    // builder the label uses, so the two can never name one file differently.
+    volumeText: execVolumeText,
     summaryTip: execSummaryTip,
     // Exposed so the tests gate the SHIPPED source rule rather than a copy of it.
     sourceOk: sourceOk,

@@ -1872,6 +1872,57 @@
   border-top: 1px solid rgba(120, 150, 190, 0.18);
 }
 
+/* ── The tail of the header stack: how much record, over what span ──────────── */
+/* Two lines under the four counts, closing the summary the letterhead makes: the
+   ring is the figure, the tally is the shape it came out of, and this is the size
+   of the file behind both plus the span it covers. See headerStackHtml() in
+   word-action.js for what each line is allowed to say.
+
+   EVERYTHING HERE IS QUIETER THAN THE COUNTS ABOVE IT, deliberately. These lines
+   are context on a figure, not findings of their own: no colour keyed to a value,
+   no numeral set larger than the surrounding words, no panel of their own to make
+   them look like a second block. They are also display-only — no tap target, no
+   hover state, nothing that offers a trip the four counts above do not already
+   offer — so a reader's eye passes over them on the way to the shape.
+
+   Same host discipline as the tally: emitted on every profile so the warm repaint
+   has somewhere to land, and worth zero pixels until it holds something. */
+.pdxwa-hstack-host { margin: -0.9rem 0 1.2rem; }
+.pdxwa-hstack-host:empty { display: none; margin: 0; }
+.pdxwa-hstack {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(120, 150, 190, 0.14);
+}
+/* The volume line. Icon in its own column so a wrapped sentence stays aligned
+   under itself rather than running back under the glyph. */
+.pdxwa-hdepth {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+  color: #a9bfdd;
+}
+.pdxwa-hdepth-ico { flex-shrink: 0; }
+.pdxwa-hdepth-t { min-width: 0; }
+/* The scope note, tied to the figure above it by the same glyph the card's slice
+   strip uses. It carries no number, so it is set a step quieter again. */
+.pdxwa-hscope {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.64rem;
+  line-height: 1.35;
+  color: #8298b8;
+}
+.pdxwa-hscope-tie { flex-shrink: 0; color: #6f88ab; }
+.pdxwa-hscope-t { min-width: 0; }
+
 /* ── Friction: contested standing, thin evidence ──────────────────────────── */
 /* The spine keeps the ISSUE's colour — that vocabulary is load-bearing across
    the whole card and recolouring it here would break the one thing it promises.
@@ -1989,6 +2040,10 @@
      being read at a glance — so its four counts divide that width evenly rather
      than shrink-wrapping their labels and leaving a ragged tail. */
   .pdxwa-htally .pdxwa-tally-i { flex: 1 1 0; }
+  /* The stack's tail gains leading, not size: it is context on the figure above
+     and has to stay quieter than the counts it follows on every layout. */
+  .pdxwa-hdepth { font-size: 0.72rem; }
+  .pdxwa-hscope { font-size: 0.68rem; }
 }
 
 
