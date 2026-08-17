@@ -2098,48 +2098,49 @@
 
    The strip is given a panel of its own — not for decoration, but so a reader
    can tell at a glance that the ring and the "7 of 10 tested" line are one read
-   rather than two loose figures floating under the office line. Row 2 of column
-   2 is still declared: the tracking/pending states render there on a profile
+   rather than two loose figures floating under the office line.
+
+   That panel is no longer drawn here. It is drawn one level up, on
+   .profile-hero-score in app.css, so the eyebrow that names the score and the
+   summary rows mounted after the letterhead can sit inside the same card as the
+   ring instead of beside an empty half of it. All this file still owns is the
+   placement of the hero's own children inside that card, which is why the hero
+   box itself becomes `display: contents`: the ring, its denominator line and
+   the tracking states are promoted into the card's grid as direct items. Row 3
+   is still declared — the tracking/pending sentences render there on a profile
    with no scorable record. The pledge count chip that used to occupy it is
    gone. */
 @media (max-width: 480px) {
   .profile-hero-score .pdxwa-hero {
-    display: grid;
-    grid-template-columns: 5rem minmax(0, 1fr);
-    align-items: center;
-    column-gap: 0.7rem;
-    row-gap: 0.25rem;
-    padding: 0.55rem 0.7rem;
-    background: rgba(16, 26, 46, 0.55);
-    border: 1px solid rgba(159, 180, 212, 0.18);
-    border-left: 3px solid rgba(159, 219, 208, 0.5);
-    border-radius: 0.75rem;
+    display: contents;
   }
   /* Whichever of the three possible left-hand tiles rendered — the real ring,
      the "monitoring" dash, or the tracked-but-unresolved hourglass — occupies
-     column 1 and spans both rows. */
+     column 1 and spans the eyebrow and the denominator beside it. */
   .profile-hero-score .pdxwa-hero > .pdxwa-hero-jump,
   .profile-hero-score .pdxwa-hero > .pdxwa-hero-none,
   .profile-hero-score .pdxwa-hero > .profile-score-tracking {
     grid-column: 1;
     grid-row: 1 / span 2;
     margin: 0;
+    align-self: center;
   }
+  /* Row 2 of column 2, directly under the eyebrow the card is titled with. */
   .profile-hero-score .pdxwa-hero > .pdxwa-hero-sub,
   .profile-hero-score .pdxwa-hero > .profile-score-denom {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 2;
     margin: 0;
     max-width: none;
     min-height: 0;
     text-align: left;
-    align-self: end;
+    align-self: start;
   }
   .profile-hero-score .pdxwa-hero > .profile-score-pending,
   .profile-hero-score .pdxwa-hero > .profile-score-track-note {
-    grid-column: 2;
-    grid-row: 2;
-    margin: 0;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin: 0.15rem 0 0;
     width: 100%;
     max-width: none;
     align-self: start;

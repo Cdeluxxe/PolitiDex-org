@@ -1878,16 +1878,78 @@
       }
       .profile-hero-photo { grid-area: photo; width: 96px; height: 118px; border-radius: 0.7rem; }
       .profile-hero-id { grid-area: id; }
+      /* The score card. The panel used to be drawn on .pdxwa-hero one level in,
+         which left it holding a ring and a single short denominator line: an
+         80px-tall box whose right-hand half was empty on every profile that had
+         a real record. Drawing it here instead means the eyebrow that names the
+         score sits INSIDE the card beside the ring, and the summary rows
+         mounted after the letterhead (see below) can attach to its bottom edge
+         as further rows of the same card rather than floating off as loose
+         strips. One headline percentage still, in the same place — the card
+         around it is simply doing work now. */
       .profile-hero-score {
         grid-area: score;
-        display: block;
+        display: grid;
+        grid-template-columns: 5rem minmax(0, 1fr);
+        column-gap: 0.7rem;
+        row-gap: 0.15rem;
+        align-items: center;
         margin-top: 0.1rem;
+        padding: 0.55rem 0.7rem;
+        background: rgba(16, 26, 46, 0.55);
+        border: 1px solid rgba(159, 180, 212, 0.18);
+        border-left: 3px solid rgba(159, 219, 208, 0.5);
+        border-radius: 0.75rem;
       }
       .profile-hero-score-lbl {
         display: block;
+        grid-column: 2; grid-row: 1; align-self: end;
         font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
         font-size: 0.58rem; letter-spacing: 0.13em; text-transform: uppercase;
-        color: #9fb4d4; margin-bottom: 0.3rem;
+        color: #9fb4d4; margin: 0;
+      }
+
+      /* ── The summary rows, attached to that card ──────────────────
+         The evidence tally and the depth/scope stack are mounted as siblings of
+         the letterhead, not inside it — deliberately, so they get the full page
+         width instead of being squeezed into a column beside the ring. That
+         stays true. What changes on a phone is only that they are drawn as
+         continuations of the card above: same fill, same side rule, no top
+         edge, and the last one that actually rendered closes the corner. The
+         reader gets one block — score, then the shape behind it, then how much
+         record was tested — instead of a card followed by two orphans.
+
+         Each host is emitted even when its builder returns nothing, so every
+         rule here is guarded on :not(:empty); an empty host keeps the base
+         `display: none` and the card closes above it. */
+      .profile-hero:has(~ .pdxwa-htally-host:not(:empty)),
+      .profile-hero:has(~ .pdxwa-hstack-host:not(:empty)) { margin-bottom: 0; }
+      .profile-hero:has(~ .pdxwa-htally-host:not(:empty)) .profile-hero-score,
+      .profile-hero:has(~ .pdxwa-hstack-host:not(:empty)) .profile-hero-score {
+        border-bottom-color: transparent;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      .pdxwa-htally-host:not(:empty),
+      .pdxwa-hstack-host:not(:empty) {
+        margin: 0;
+        padding: 0 0.7rem 0.55rem;
+        background: rgba(16, 26, 46, 0.55);
+        border: 1px solid rgba(159, 180, 212, 0.18);
+        border-top: 0;
+        border-bottom: 0;
+        border-left: 3px solid rgba(159, 219, 208, 0.5);
+      }
+      /* Whichever row is last closes the card. The stack is last in the DOM, so
+         it closes whenever it rendered; the tally closes only when the stack
+         below it came back empty. */
+      .pdxwa-hstack-host:not(:empty),
+      .pdxwa-htally-host:not(:empty):has(+ .pdxwa-hstack-host:empty) {
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.65rem;
+        border-bottom: 1px solid rgba(159, 180, 212, 0.18);
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
       }
     }
 
