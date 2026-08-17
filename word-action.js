@@ -2147,6 +2147,11 @@
         ' aria-label="' + esc(t.cta + ' — ' + r.label + ': ' + tip) + '"' +
         ' title="' + esc(tip) + '">' +
         '<span class="pdxwa-oc-pub-k">' + esc(t.lane) + '</span>' +
+        // The lane's subject, after its status. "Outside the score" answers the
+        // question the reader has next to a percentage; this answers the one they
+        // have immediately after. Lower case and quiet on purpose — a second
+        // condensed caps run beside the first would read as a second key.
+        '<span class="pdxwa-oc-pub-sub">' + esc('· ' + (t.laneSub || '')) + '</span>' +
         '<span class="pdxwa-oc-pub-t">' + esc(t.text) + '</span>' +
         '<span class="pdxwa-oc-pub-tag">' + esc(t.tag) + '</span>' +
         '<span class="pdxwa-oc-pub-go" aria-hidden="true">›</span>' +
@@ -2196,11 +2201,19 @@
     return {
       // Spoken in full, because a bare "78%" read out after an issue name is the
       // one form of this that COULD be heard as the profile's score.
-      aria: ' · Direction match on this issue alone: ' + res.pct + '%',
+      aria: ' · Formal Direction Match on this issue alone: ' + res.pct + '%',
       html: '<span class="pdxwa-oc-pct" style="--pdxwa-col:' + ((res.color || '#9fb4d4')) + ';"' +
-          ' title="' + esc('Direction match on ' + r.label + ' alone — not this profile’s overall score') + '">' +
+          ' title="' + esc('Formal Direction Match on ' + r.label + ' alone — the scored lane, ' +
+            'not this profile’s overall score') + '">' +
           '<span class="pdxwa-oc-pct-v">' + res.pct + '%</span>' +
-          '<span class="pdxwa-oc-pct-l">this issue</span>' +
+          // THE LABEL NAMES THE LANE, NOT JUST THE SCOPE. "this issue" answered the
+          // wrong half of the question: it walled the figure off from the profile
+          // score and said nothing about which of the row's two signals it came from.
+          // A reader looking at a percentage here and a receipt tally one line below
+          // needs the percentage to say "formal" out loud, because the tally now says
+          // "outside the score" out loud. Wrapped rather than truncated — the label is
+          // the reason the figure is allowed on the row face at all.
+          '<span class="pdxwa-oc-pct-l">Formal · Direction Match · this issue</span>' +
         '</span>'
     };
   }
@@ -2364,11 +2377,11 @@
         ((buckets.limited || []).length
           ? ', ' + buckets.limited.length + ' stated but not testable yet' : '') +
         '. Tap any issue for its full record.';
-      // THE PUBLIC LANE'S DENOMINATOR, once, in words. The rows say what is on file
-      // per issue; this says how much of the index the public record reaches at all,
-      // which is the question a reader who has just skimmed twelve "nothing on file
-      // yet" lines is actually asking. It is a coverage count and it says so — no
-      // percentage, no share, and the sentence that follows it is the wall.
+      // THE OUTSIDE-THE-SCORE LANE'S DENOMINATOR, once, in words. The rows say what
+      // is on file per issue; this says how much of the index the reported record
+      // reaches at all, which is the question a reader who has just skimmed twelve
+      // "nothing on file yet" lines is actually asking. It is a coverage count and it
+      // says so — no percentage, no share, and the sentence that follows it is the wall.
       var pubFoot = '';
       try {
         var CS = window.PDXConsistency;
@@ -2381,10 +2394,13 @@
             idxRows = idxRows.concat(buckets[live[pi].token] || []);
           }
           var pc = CS.publicCoverage(pid, idxRows);
-          pubFoot = '<p class="pdxwa-oc-pubfoot"><b>' + esc('Public record on file for ' + pc.issues +
-            ' of ' + pc.total + ' issue' + (pc.total === 1 ? '' : 's') + '.') + '</b> ' +
-            esc('That is a separate test of the same stances — sourced items, statements and ' +
-                'controversies. It is a count, not a score, and none of it is inside the ' +
+          // The lane's own words, read from the module that owns them rather than
+          // spelled again here — one lane, one name, on every surface that prints it.
+          var L = (CS.LANE_LABELS || {});
+          pubFoot = '<p class="pdxwa-oc-pubfoot"><b>' + esc((L.outsideFull || 'Outside the score') +
+            ' · on file for ' + pc.issues + ' of ' + pc.total + ' issue' + (pc.total === 1 ? '' : 's') + '.') + '</b> ' +
+            esc('That is the reported record — a separate test of the same stances, from statements and ' +
+                'coverage. It is a count, never a percentage, and none of it is inside the ' +
                 'Direction Match above.') + '</p>';
         }
       } catch (e) { pubFoot = ''; }

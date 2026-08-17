@@ -2214,6 +2214,17 @@
       '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
       '.pdxst-go:hover,.pdxst-go:focus-visible{background:rgba(159,219,208,0.18);}' +
       '.pdxst-ev{font-size:0.64rem;color:#6f88ab;}' +
+      // RECEIPT COUNTS ARE NOT A SECOND FIGURE. The depth line names two different
+      // kinds of thing — formal instruments, which are inside the score, and public
+      // receipts, which never are — and it named them in one undifferentiated grey
+      // run. Inside the dossier, where no outside-the-score line sits beneath it to
+      // carry the boundary, the receipt side takes the lane's own quiet marker: same
+      // dashed-outline vocabulary as every other outside-the-score tag on the site,
+      // and deliberately no number type, no fill and no verdict colour.
+      '.pdxst-ev-ots{color:#8fa6c6;}' +
+      '.pdxst-ev-ots .pdxst-ev-tag{font-size:0.55rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;' +
+        'color:#8fa6c6;border:1px dashed rgba(159,180,212,0.34);border-radius:0.3rem;padding:0.02rem 0.28rem;margin-left:0.24rem;' +
+        'white-space:nowrap;}' +
       // ── THE RESULT LINE ────────────────────────────────────────────────────
       // The row used to end its top line at a pastel verdict chip and a receipt
       // count, which is a label, not a finding: a reader scanning six rows could
@@ -2234,6 +2245,29 @@
       '.pdxst-pct-na{font-family:"Bebas Neue",sans-serif;font-size:0.95rem;line-height:0.95;color:#7e93b3;}' +
       '.pdxst-vd{font-weight:800;font-size:0.72rem;letter-spacing:0.01em;}' +
       '.pdxst-vd-none{font-weight:700;font-size:0.68rem;color:#8fa6c6;}' +
+      // ── THE SPLIT, ON THE FORMAL LINE ITSELF ───────────────────────────────
+      // The percentage and the counts it divides used to sit on two lines, and two
+      // lines is one line too many: the reader met "67%" on the formal line and a
+      // pair of tallies on the next, directly above one more line of tallies from a
+      // lane that is not in the score. Three stacked count-shaped things, one of
+      // which is scored — the split now travels with the number it is the
+      // denominator of, so the formal claim is one line and everything below it
+      // belongs to something else.
+      //
+      // It is the SAME element as the composition line under an unscored row — one
+      // markup path, so the counts can never differ between the two placements. All
+      // that changes is that on a scored row it is a flex item of `.pdxst-result`,
+      // wrapping under the number rather than under the whole row when space runs
+      // out. The separator is decoration and hidden from the reading order, which
+      // already has the composition line's own label.
+      '.pdxst-result>.pdxst-comp{margin-top:0;}' +
+      '.pdxst-rsep{font-size:0.6rem;color:#5c7091;}' +
+      // The formal block's own key, where a face has no lane column to put one in
+      // (the dossier's short version). Same condensed uppercase vocabulary as the
+      // row's lane key, so "which lane is this" is answered by the same shape in
+      // both places.
+      '.pdxst-comp-k{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.58rem;' +
+        'letter-spacing:0.07em;text-transform:uppercase;color:#8fa6c6;}' +
       '.pdxst-why{font-size:0.64rem;color:#7e93b3;}' +
       // The reason line's own door, drawn only where the row holds instruments to
       // show. Inline with the sentence rather than under it: it is the end of that
@@ -2256,18 +2290,31 @@
       // colour of its own, no weight, no icon. It qualifies the counts beside it
       // and must never read as a fourth tally or a second verdict.
       '.pdxst-comp-thin{color:#7d90ad;font-style:italic;}' +
-      // ── THE PUBLIC LANE, BESIDE THE FORMAL ONE AND NOT DRESSED AS IT ──────────
+      // ── THE OUTSIDE-THE-SCORE LANE, BESIDE THE FORMAL ONE AND NOT DRESSED AS IT ─
       // Related, distinct, and cheap to skip. The formal result line owns the
       // verdict colour, the percentage type and the pill-shaped scope tag; this line
       // gets none of the three. What it gets instead is a dotted left rule and a
       // single muted weight, so a reader scanning a column can tell at a glance that
       // it is the same row's second lane rather than a second grade. A coloured chip
       // here would out-shout the number above it within one screen.
-      '.pdxst-lane{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#8fa6c6;min-width:2.6rem;}' +
+      //
+      // THE COUNTS ARE DELIBERATELY QUIETER THAN THEY WERE. They used to be drawn at
+      // 700 in near-white (#c3d3ea) — the brightest thing on the line, one line under
+      // a percentage, in a column of rows where the eye is already hunting for
+      // figures. Two receipts rendered as emphatically as a scored result is the
+      // blend this whole lane exists to prevent, so the tally now sits at the lane's
+      // own weight and the boundary tag is the only thing on the line with an outline.
+      '.pdxst-lane{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#8fa6c6;}' +
       '.pdxst-pub{display:flex;align-items:baseline;gap:0.3rem;flex-wrap:wrap;margin-top:0.18rem;' +
         'padding-left:0.4rem;border-left:2px dotted rgba(159,180,212,0.34);font-size:0.66rem;color:#9fb4d4;}' +
-      '.pdxst-pub-k{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#8fa6c6;min-width:2.6rem;}' +
-      '.pdxst-pub-t{font-weight:700;color:#c3d3ea;}' +
+      '.pdxst-pub-k{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:0.08em;' +
+        'text-transform:uppercase;color:#8fa6c6;white-space:nowrap;}' +
+      // WHAT THE LANE IS, after what it is not. The key says "outside the score";
+      // this says which record that is, in ordinary lower case, so the reader is not
+      // left with a boundary and no subject. Never uppercase — a second condensed
+      // caps run would read as a second key.
+      '.pdxst-pub-sub{font-size:0.6rem;color:#7e93b3;}' +
+      '.pdxst-pub-t{font-weight:600;color:#9fb4d4;}' +
       '.pdxst-pub-0 .pdxst-pub-t{font-weight:600;color:#7e93b3;font-style:italic;}' +
       // The standing disclosure, on every row. Small, unmissable, and never coloured
       // like a verdict — it is a boundary, not a finding.
@@ -5076,16 +5123,6 @@
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
     var n = _stNoun(r);
-    // WHICH RECORD IS TALKING. The row now states both lanes, one under the other,
-    // so each line names the record it came from — otherwise the reader is left to
-    // infer the pairing from a metric name and a chip colour. The key follows the
-    // basis rather than the surface: a row no formal instrument could test carries a
-    // public-record result, and calling that line "Formal" would be a lie told in one
-    // word. The public line below keys itself the same way, so a row where both read
-    // "Public" is a row where the public record both decided the result and is still
-    // outside Direction Match — which is exactly what its note says.
-    var laneKey = (res.metric === 'Public-record match') ? PUB_LANE : 'Formal';
-    var lane = '<span class="pdxst-lane">' + esc(laneKey) + '</span>';
     // THE METRIC TEACHES ITSELF. "Direction match" is the row's central claim and
     // was, until now, a name with no definition anywhere in the product — the
     // reader had to already know that it means said-versus-did, on this issue
@@ -5093,7 +5130,30 @@
     // the lane chip, so a public-record row explains the public-record read and
     // never borrows the formal one's definition. With the education layer absent
     // LT() is plain escaped text, so this is exactly the old markup.
+    //
+    // The NAME PRINTED IS THE MODEL'S, not a restyling of it. `res.metric` is a
+    // token other surfaces branch on and tests pin to the record that produced it,
+    // so the line prints it verbatim — recapitalising it here would put a second
+    // spelling of the product's central term into circulation for one line's look.
     var metricKey = (res.metric === 'Public-record match') ? 'publicmatch' : 'directionmatch';
+    // WHICH RECORD IS TALKING. The row states both lanes, one under the other, so
+    // each line names the record it came from — otherwise the reader is left to
+    // infer the pairing from a metric name and a chip colour. The key follows the
+    // basis rather than the surface: a row no formal instrument could test carries a
+    // public-record result, and calling that line "Formal" would be a lie told in one
+    // word.
+    //
+    // IT IS NOT THE OUTSIDE-THE-SCORE LANE'S NAME, THOUGH. Both keys on such a row
+    // used to read "Public", on the reasoning that the same record was doing both
+    // jobs. It is, and they are still two different claims: this line carries a
+    // PERCENTAGE and the line below it carries COUNTS. The outside-the-score lane is
+    // count-only on every surface, so its label may never sit over a figure — one
+    // name doing both would teach a reader that the lane sometimes scores things.
+    // So this line names the record, and the boundary tag beneath states the wall
+    // that a percentage from this lane most needs said out loud.
+    var pubDecided = (metricKey === 'publicmatch');
+    var laneKey = pubDecided ? PUBDEC_LANE : FORMAL_LANE;
+    var lane = '<span class="pdxst-lane">' + esc(laneKey) + '</span>';
     // "Not scored yet" / "Not tested yet" is the one label on this face that is
     // about OUR coverage rather than their conduct, and it is the one most easily
     // read as a dodge — a row holding eighteen sourced votes and printing no
@@ -5166,6 +5226,17 @@
           : res.shape === 'part_judged'
           ? 'No percentage — too little of this record has been judged against what they said'
           : 'No percentage — not enough record') + '">—</span>';
+    // THE SPLIT TRAVELS WITH ITS OWN NUMERATOR. The counts the percentage divides
+    // used to open the line below it, one line above yet another line of counts from
+    // the lane that is not in the score. Three stacked tallies, one of them scored,
+    // is the blend this pass exists to end — so on a scored row the composition line
+    // is a flex item of the formal line itself and reads `67% Mixed · 4 aligned ·
+    // 2 against`. Everything left underneath belongs to something else. Same call,
+    // same numbers, same `_stSplit` behind them: only the placement moved.
+    var comp = (res.state === 'tested') ? _stCompHtml(r, res) : '';
+    var inlineSplit = comp
+      ? '<span class="pdxst-rsep" aria-hidden="true">·</span>' + comp
+      : '';
     return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
         '<span class="pdxst-metric">' + LT(metricKey, res.metric) + '</span>' +
@@ -5178,6 +5249,13 @@
         // three dotted words on one line.
         '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico) + ' ' +
           (res.label === 'Not scored yet' ? LT('notscored', res.label) : esc(res.label)) + '</span>' +
+        inlineSplit +
+        // THE ONE PERCENTAGE ON THIS SURFACE THAT IS NOT DIRECTION MATCH SAYS SO.
+        // A public-record row prints a figure under its own metric name, and a name
+        // is a weaker wall than a marker: the tag is the same dashed, colourless
+        // shape the outside-the-score lane wears everywhere else, so the boundary is
+        // recognised before the label is read.
+        (pubDecided ? '<span class="pdxst-pub-tag">' + esc(PUB_TAG) + '</span>' : '') +
       '</div>' +
       (res.state === 'thin' ? _stWhyHtml(r, res, 'div') : '');
   }
@@ -5211,7 +5289,12 @@
   // composition to state. Unscored rows keep the old gate exactly: they print
   // this line only under tension, because on a row with no result a bare tally
   // has no percentage to be the denominator OF.
-  function _stCompHtml(r, res) {
+  // ONE LINE, TWO PLACES TO PUT IT. On a scored row this is a flex item of the
+  // formal result line, so the split sits beside the number it divides; on an
+  // unscored-but-tense row there is no number up there to sit beside and it stays a
+  // line of its own. `opts.formalKey` prints the lane/metric/scope key the row face
+  // carries in its own column, for the faces that have no such column.
+  function _stCompHtml(r, res, opts) {
     if (res.state === 'untested') return '';
     var split = _stSplit(r);
     if (!split) return '';
@@ -5227,7 +5310,7 @@
     var parts = [
       // The word "aligned" carries the definition for the whole line: it is the
       // first countable noun on it, and one entry ("Aligned · against") explains
-      // both halves, so a second control on "against" would teach nothing new
+      // both sides, so a second control on "against" would teach nothing new
       // while doubling the dotted words under the percentage. The digits stay
       // ordinary text — a number is not a term.
       '<span class="pdxst-comp-for"><b>' + split.aligned + '</b> ' + LT('depthcounts', 'aligned') + '</span>',
@@ -5276,8 +5359,17 @@
       (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
         aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
       (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '');
+    var key = '';
+    if (opts && opts.formalKey) {
+      // WHICH LANE THESE COUNTS BELONG TO, said before the counts. On a face with no
+      // lane column, an unlabelled pair of tallies is exactly the thing a reader
+      // blends with the receipt counts a line below — so the key names the lane, the
+      // metric and the scope in the order the row face states them.
+      var kLane = (res.metric === 'Public-record match') ? PUBDEC_LANE : FORMAL_LANE;
+      key = '<span class="pdxst-comp-k">' + esc(kLane + ' · ' + res.metric + ' · this issue') + '</span>';
+    }
     return '<div class="pdxst-comp" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
-      parts.join('<span aria-hidden="true">·</span>') + '</div>';
+      key + parts.join('<span aria-hidden="true">·</span>') + '</div>';
   }
   // HOW MUCH IS BEHIND IT, in the row's own nouns. Kept on its own line rather than
   // trailing the issue name, so the depth of a record is scannable down a column
@@ -5305,12 +5397,29 @@
           (cov ? ' · all ' + (onRecord === 1 ? 'of it' : 'of them') + ' listed below' : ''));
       }
     }
+    // TWO KINDS OF THING IN ONE GREY RUN. This line lists formal instruments, which
+    // are inside the score, immediately beside public receipts, which never are, and
+    // it listed them in identical type separated by an identical dot. On a stance row
+    // that was survivable, because the outside-the-score line sits directly beneath
+    // and carries the boundary in words. Inside the dossier's short version there is
+    // no such line — this IS where the reader meets the receipt count — so the
+    // receipt side takes the lane's own marker there. Gated on `cov` because `cov` is
+    // exactly the signal that says which face is asking, and repeating the tag on a
+    // row that already prints it one line down is noise, not a wall.
+    var ots = '';
     if (r.evidence.public > 0) {
-      bits.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
+      var pubBit = r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's');
+      if (cov) {
+        ots = '<span class="pdxst-ev-ots">' + esc(pubBit) +
+          '<span class="pdxst-ev-tag">' + esc(PUB_TAG) + '</span></span>';
+      } else {
+        bits.push(pubBit);
+      }
     }
-    if (!bits.length) return '';
+    if (!bits.length && !ots) return '';
     bits.push(r.evidence.strength + ' evidence');
-    return '<div class="pdxst-ev">' + esc(bits.join(' · ')) + '</div>';
+    return '<div class="pdxst-ev">' + esc(bits.join(' · ')) +
+      (ots ? '<span aria-hidden="true"> · </span>' + ots : '') + '</div>';
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -5344,15 +5453,39 @@
   // row's own title/aria-label and printed once per surface. A sentence that long
   // repeated down thirty-five rows is a sentence readers learn to skip, which is how
   // a disclosure stops disclosing.
-  var PUB_LANE  = 'Public';
+  // ── THE WORDS, IN ONE PLACE, CHOSEN FOR THE QUESTION A READER ACTUALLY ASKS ──
+  // "Public" was this lane's label for as long as the lane has existed, and it is
+  // the wrong word in the one position it occupies: one line under a percentage.
+  // It names a SOURCE — the public record — while the question a reader has at that
+  // moment is a STATUS: is this in the number above it, or not? A one-word source
+  // label answers a question nobody asked, and beside "67% · 4 aligned · 2 against"
+  // a second line of counts reads as the other side of a comparison.
+  //
+  // So the lane is now named by what it is TO THE SCORE first, and by what it is
+  // made of second. Both halves ship: a reader told only that something is outside
+  // the score has been handed a boundary with no subject, and "Outside the score"
+  // alone invites the guess that it is a leftovers bin rather than sourced evidence.
+  //   OTS_LANE is the status. OTS_SUB is the subject. PUB_TAG is the explicit
+  // machine-checkable marker, unchanged, and it is still printed on every single row
+  // rather than once per surface, because any row can be arrived at from a deep link.
+  var FORMAL_LANE = 'Formal';
+  // …and the key on the one kind of result line the formal record did not produce.
+  // It carries a percentage, so it may not wear the outside-the-score lane's name:
+  // that lane is count-only everywhere, without exception, and a label that appears
+  // over a figure on one row and over tallies on the next is not a wall. This says
+  // which record decided the row, and the row's own boundary tag says the rest.
+  var PUBDEC_LANE = 'Public record';
+  var OTS_LANE  = 'Outside the score';
+  var OTS_SUB   = 'statements & coverage';
+  var OTS_FULL  = OTS_LANE + ' · ' + OTS_SUB;
   var PUB_EMPTY = 'Nothing on file yet';
   var PUB_TAG   = 'Not in Direction Match';
-  var PUB_NOTE  = 'The public record is a separate test of the same stance — sourced items, ' +
-                  'statements and controversies. It is never counted in Direction Match.';
+  var PUB_NOTE  = 'Outside the score. The reported record is a separate test of the same stance — sourced items, ' +
+                  'statements and coverage. It is counted, never rated, and never counted in Direction Match.';
   // The one case where the public lane DID decide the row: no formal instrument
   // could test the stance at all. Even then it is outside the profile figure, and
   // saying so is the difference between "this is the result" and "this is the score".
-  var PUB_NOTE_DECIDED = 'No formal instrument could test this stance, so the public record ' +
+  var PUB_NOTE_DECIDED = 'Outside the score. No formal instrument could test this stance, so the reported record ' +
                   'decided this row. It is still never counted in Direction Match.';
   function _pubCta(t) {
     if (!t.empty) return '🧾 Public receipts';
@@ -5380,7 +5513,8 @@
       if (flags) bits.push(flags + ' red flag' + (flags === 1 ? '' : 's'));
     }
     var t = {
-      lane: PUB_LANE, count: count, against: against, backs: backs, flags: flags,
+      lane: OTS_LANE, laneSub: OTS_SUB, laneFull: OTS_FULL,
+      count: count, against: against, backs: backs, flags: flags,
       directional: against + backs,
       empty: count === 0, decided: decided,
       text: bits.join(' · '),
@@ -5418,6 +5552,7 @@
         ' data-pdxst-pub="' + (t.empty ? 'empty' : 'tally') + '"' +
         ' title="' + escAttr(tip) + '">' +
         '<span class="pdxst-pub-k">' + esc(t.lane) + '</span>' +
+        '<span class="pdxst-pub-sub">' + esc('· ' + t.laneSub) + '</span>' +
         '<span class="pdxst-pub-t">' + esc(t.text) + '</span>' +
         '<span class="pdxst-pub-tag">' + esc(t.tag) + '</span>' +
         '<button type="button" class="pdxst-pub-go"' +
@@ -5771,10 +5906,16 @@
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
         '</div>' +
         _stResultHtml(r, res) +
-        _stCompHtml(r, res) +
-        // BOTH LANES, ONE GLANCE. The formal result above, the public tally here —
-        // always, including when there is nothing on file, because an absent line and
-        // an empty lane are indistinguishable and only one of them is true.
+        // THE COMPOSITION LINE, WHERE IT STILL HAS TO BE ITS OWN LINE. On a scored
+        // row `_stResultHtml` has already placed it beside the percentage it
+        // divides, so printing it again here would state one denominator twice. An
+        // unscored-but-tense row has no percentage up there to sit beside, so its
+        // set-aside and standing counts keep the line they always had.
+        (res.state === 'tested' ? '' : _stCompHtml(r, res)) +
+        // BOTH LANES, ONE GLANCE. The formal result above, the outside-the-score
+        // tally here — always, including when there is nothing on file, because an
+        // absent line and an empty lane are indistinguishable and only one of them
+        // is true.
         _stPublicHtml(r) +
         // AND WHAT IT MEANS WHEN THEY DISAGREE. Directly under the two lanes, on the
         // rows where the reader can see them split — one line, and a way into the
@@ -5885,7 +6026,7 @@
     // public record this profile actually has — a count is the honest way to say
     // "this lane exists and is uneven" without implying it is a score.
     var pc = publicCoverage(pid, ranked);
-    var wall = '<div class="pdxst-wall"><b>' + esc(PUB_LANE) + ' · ' + pc.issues + ' of ' + pc.total +
+    var wall = '<div class="pdxst-wall"><b>' + esc(OTS_FULL) + ' · ' + pc.issues + ' of ' + pc.total +
       ' issue' + (pc.total === 1 ? '' : 's') + '</b> ' + esc(PUB_NOTE) +
       ' The formal percentage is the only scored figure on a row.</div>';
     return head + cov + wall + lead + rest;
@@ -7660,7 +7801,15 @@
     // unscored rows only where they carry tension. Borrowing it verbatim is what
     // keeps this face and the row face from stating different denominators for
     // the same verdict.
-    var comp = _stCompHtml(r, res);
+    //
+    // WITH THE LANE NAMED, HERE. This face has no lane column: the row face puts
+    // "Formal · Direction match · this issue" in its own slot on the result line,
+    // and without it these two tallies sit a finger's width above a receipt count
+    // with nothing saying which of them the score is made of. So the key travels
+    // with the counts. The split stays on this line rather than moving up to the
+    // verdict — there is no percentage on this face for it to be the denominator
+    // of, and this face is not the place to introduce one.
+    var comp = _stCompHtml(r, res, { formalKey: true });
     var ev = _stEvidenceHtml(r, cov);
     // THE COVERAGE CAVEAT, when there is one to make. Thin and untested rows say
     // why; a tested row resting on one or two items says that the direction is real
@@ -8630,6 +8779,22 @@
     // hand-count what the row model already counted.
     publicTally: publicTally,
     publicCoverage: publicCoverage,
+    // ── THE TWO LANES' LABELS, AS DATA ──────────────────────────────────────
+    // Published so no surface has to spell "Outside the score" for itself. The
+    // strings ARE the wall: a second surface writing its own version of them is how
+    // one lane comes to be called two things, and how the explicit
+    // not-in-Direction-Match marker quietly goes missing from the one row a reader
+    // deep-linked to. Read them; never re-type them.
+    LANE_LABELS: {
+      formal: FORMAL_LANE,
+      publicDecided: PUBDEC_LANE,
+      outside: OTS_LANE,
+      outsideSub: OTS_SUB,
+      outsideFull: OTS_FULL,
+      outsideTag: PUB_TAG,
+      outsideEmpty: PUB_EMPTY,
+      outsideNote: PUB_NOTE
+    },
     // ── THE ROW'S OWN RESULT, INCLUDING ITS PER-ISSUE FIGURE ────────────────
     // What one issue row concluded, as data: { state, pct, metric, label, ico,
     // color, cls, why, bucket }. `state` is 'tested' | 'limited' | …, `pct` is the

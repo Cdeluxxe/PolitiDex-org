@@ -1045,6 +1045,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
+  max-width: 5.4rem;
   padding: 0.05rem 0.3rem;
   border-radius: 0.28rem;
   background: color-mix(in srgb, var(--pdxwa-col, #9fb4d4) 12%, transparent);
@@ -1057,21 +1058,25 @@
   letter-spacing: 0.01em;
   color: var(--pdxwa-col, #9fb4d4);
 }
-/* The scope, always present, never abbreviated away. This label is the whole
-   reason the figure is allowed on the row face at all. */
+/* The lane and the scope, always present, never abbreviated away. This label is
+   the whole reason the figure is allowed on the row face at all — and since the
+   row now carries an outside-the-score tally underneath, it also has to say which
+   of the two signals the number is. It wraps to two short lines rather than
+   truncating: a clipped "Direction Ma…" is a label that has stopped working. */
 .pdxwa-oc-pct-l {
   font-size: 0.46rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #7f96b6;
-  white-space: nowrap;
+  text-align: center;
+  text-wrap: balance;
 }
 .pdxwa-oc-go { flex: 0 0 auto; color: #6f88ab; font-size: 0.9rem; line-height: 1; }
 .pdxwa-oc-said { color: #a9bdd8; overflow-wrap: break-word; min-width: 0; }
 .pdxwa-oc-issue { color: #dbe6f5; font-weight: 600; overflow-wrap: break-word; min-width: 0; }
 .pdxwa-oc-meta { color: #6f88ab; font-size: 0.68rem; }
 
-/* ── The public lane, beside the formal result ─────────────────────────────
+/* ── The outside-the-score lane, beside the formal result ──────────────────
    A SECOND CONTROL, NOT A SECOND ROW. It sits under the row it belongs to, in
    the same <li>, indented to the issue's own colour rule and drawn in the
    quieter of the two weights — related to the formal row, distinct from it, and
@@ -1080,7 +1085,13 @@
    result, this one is dotted because it carries context.
    No colour from the verdict palette reaches it. A public tally that turned red
    under a Contradicted row would be read as part of that verdict — which is
-   exactly the merge the two lanes exist to prevent. */
+   exactly the merge the two lanes exist to prevent.
+   AND THE COUNTS ARE NOT DRAWN LIKE A FIGURE. They used to be the brightest text
+   on the line (#c6d4ec), one line under a tinted percentage chip, in a list where
+   the eye is hunting for numbers. A receipt count rendered as emphatically as a
+   scored result is the blend the lane exists to prevent, so the tally now sits at
+   the lane's own weight and the dashed boundary tag is the only outlined thing on
+   the line. */
 .pdxwa-oc-pub {
   display: flex;
   flex-wrap: wrap;
@@ -1114,8 +1125,17 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #b9c9e4;
+  white-space: nowrap;
 }
-.pdxwa-oc-pub-t { flex: 1 1 100%; min-width: 0; color: #c6d4ec; overflow-wrap: break-word; }
+/* What the lane IS, after what it is not. Lower case and quiet: a second run of
+   condensed caps beside the key would read as a second key rather than as the
+   qualifier on the first one. */
+.pdxwa-oc-pub-sub {
+  flex: 0 0 auto;
+  font-size: 0.6rem;
+  color: #7f93b4;
+}
+.pdxwa-oc-pub-t { flex: 1 1 100%; min-width: 0; font-weight: 400; color: #9fb1cc; overflow-wrap: break-word; }
 /* Nothing on file yet is a real answer and it is drawn as one: italic and quiet,
    so it reads as an absence rather than as a finding, and still legible enough
    that a reader knows the line loaded. */
