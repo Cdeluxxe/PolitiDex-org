@@ -3852,6 +3852,73 @@
     .dd-toggle-btn.dd-active { border-radius: 0.75rem 0.75rem 0 0; border-color: rgba(159,180,212,0.3); background: rgba(30,53,96,0.7); }
     .dd-chevron { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); flex-shrink: 0; }
     .dd-toggle-btn.dd-active .dd-chevron { transform: rotate(180deg); }
+
+    /* ── Drawer headers on a phone: the title is not the shrink victim ───────
+       Every drawer header on a politician profile is the same shape — a flex row
+       holding [ title span · count pill ] on the left and the chevron on the
+       right — and on a phone all four of them (Stance at a Glance, the Deep Dive
+       drawers, the full promise breakdown, "read all N in full") were rendering
+       the title as a column of single letters:
+
+           S
+           T
+           A
+           N
+           C
+           E
+           …
+
+       The cause is two rules meeting. The phone pass further down this file sets
+       `overflow-wrap: anywhere; word-break: break-word` on #modal-body and
+       .modal-section so a long source URL can never force a horizontal scroll.
+       Both properties INHERIT, so every span inside every drawer header picks
+       them up — and `anywhere` is the one value of overflow-wrap that is defined
+       to change intrinsic sizing: it drops the element's min-content width from
+       "the longest word" to "the widest single character". (`break-word`, which
+       is what that rule wants, does not.) The count pill beside the title is
+       `white-space: nowrap`, so it is unshrinkable; the chevron is
+       flex-shrink: 0. That leaves the title as the only flexible item in the
+       row, with its shrink floor removed — so once the header's natural width
+       exceeded the body's, flexbox crushed the title to one glyph and every
+       letter wrapped onto its own line.
+
+       Two rules undo it, and neither touches content, behaviour, or the wrap
+       protection the phone pass was added for:
+
+       1. Put the min-content floor back for header text only. `break-word` still
+          breaks a word that genuinely cannot fit on a line of its own, so a long
+          section title is still safe — it simply can no longer be squeezed below
+          the width of its longest word.
+       2. Let the title/pill group WRAP rather than compress. Flexbox wraps before
+          it shrinks, so when the pair no longer fits on one line the pill drops
+          beneath the title and the title gets the row's full width. When they do
+          fit — which is most headers on most phones — nothing moves.
+
+       The button itself deliberately stays nowrap: the chevron belongs at the
+       right-hand end on the first line, not pushed onto a line of its own. */
+    @media (max-width: 768px) {
+      .dd-toggle-btn,
+      .dd-toggle-btn * {
+        overflow-wrap: break-word;
+        word-break: normal;
+      }
+      /* The title/pill group: wraps internally instead of compressing. Both
+         wrapper variants are covered — a <div> on three of the headers, a <span>
+         on the fourth — and `:not([class])` is what picks out exactly those four:
+         they are the headers laid out with an inline style attribute and no class
+         to hook, which is why they were never given wrap behaviour of their own.
+         The spine's drawer and lid headers DO have classes, and .pdxsp-dw-head
+         already declares `flex-wrap: wrap; min-width: 0` for this same reason —
+         so they are deliberately left to their own rules rather than doubled up
+         on here. The row gap between wrapped lines is the group's own inline
+         `gap: 0.5rem`, which no stylesheet rule can override and which is the
+         right figure anyway. */
+      .dd-toggle-btn > div:not([class]),
+      .dd-toggle-btn > span:not([class]) {
+        flex-wrap: wrap;
+        min-width: 0;
+      }
+    }
     .dd-inner {
       border: 1px solid rgba(159,180,212,0.18); border-top: none;
       border-radius: 0 0 0.75rem 0.75rem; overflow: hidden;
