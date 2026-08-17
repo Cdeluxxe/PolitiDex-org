@@ -986,6 +986,13 @@
   window._vhSyncBanner = function() {
     try { if (typeof window._vhPositionLocPin === 'function') window._vhPositionLocPin(); } catch (e) {}
     try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
+    // The homepage front door reads the same resolver as the strip above, so it
+    // re-paints on the same signal. Guarded like the rest: a missing module must
+    // never stop the banner from syncing.
+    try { if (window.PDXWhoRepresentsMe && window.PDXWhoRepresentsMe.sync) window.PDXWhoRepresentsMe.sync(); } catch (e) {}
+    // The Team Builder's "start one step earlier" strip retires itself once step ①
+    // is behind the visitor, which is exactly this signal.
+    try { if (typeof window._myteamFindRepsSync === 'function') window._myteamFindRepsSync(); } catch (e) {}
     try { if (typeof window._vhSyncPathSteps === 'function') window._vhSyncPathSteps(); } catch (e) {}
     try { if (typeof window._pdxFirstRunSync === 'function') window._pdxFirstRunSync(); } catch (e) {}
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
@@ -1131,6 +1138,98 @@
     }
   };
 
+  // ── window.pdxRepsForMe() — the ONE resolution of "who represents me" ───────
+  // Two surfaces now answer this question: the Voter Hub's "Who Represents You
+  // Now" strip (below) and the homepage front door (who-represents-me.js), which
+  // is the first thing a cold visitor meets. They read this helper rather than
+  // each resolving districts themselves, so the two can never disagree about a
+  // district number or an officeholder — the same rule the strip already followed
+  // against the team builder, now enforced one level up.
+  //
+  // It resolves from the SAME authoritative ballot data every other surface uses
+  // (_pdxVoterBallot → keyRacesRelevantData) and applies the same redistricting
+  // correction: in a redrawn area it names the member who represents the voter
+  // RIGHT NOW, paired with that member's CURRENT-map district, so a row is always
+  // internally consistent.
+  //
+  // It states only what it actually resolved. A level with no officeholder on file
+  // comes back `resolved:false` and stays in the list rather than being dropped or
+  // guessed at, so a caller can say "we don't have this one yet" instead of
+  // implying the list is complete. Local offices (mayor, council, school board,
+  // county) are deliberately NOT in this list — PolitiDex resolves them through the
+  // Relevant-to-Me ballot, and callers link out to it rather than claim coverage
+  // here.
+  window.pdxRepsForMe = function () {
+    var loc = window._currentVoterLocation || {};
+    var state = (loc.state || '');
+    var located = !!window._hasUserLocation;
+    var national = state === 'National';
+
+    var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+    var vb  = (typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
+    var matched = !!(krd && krd.matched && String(state).toLowerCase() === 'utah');
+
+    var dist = function (seatKey, vbKey, fallback) {
+      if (vb && vb.districts && vb.districts[vbKey] != null) return vb.districts[vbKey];
+      if (matched && krd.byRace && krd.byRace[seatKey]) return krd.byRace[seatKey].district;
+      return (fallback != null ? fallback : null);
+    };
+    var inc = function (seatKey, vbOffice) {
+      var pid = null;
+      if (vb && vb.byOffice && vbOffice && vb.byOffice[vbOffice]) pid = vb.byOffice[vbOffice].incumbentPid;
+      if (!pid && matched && krd.byRace && krd.byRace[seatKey]) {
+        var br = krd.byRace[seatKey];
+        pid = br.incumbentPid || ((br.incumbentPids || [])[0]);
+      }
+      return pid || null;
+    };
+
+    var hd = dist('house', 'house', loc.district);
+    var sd = dist('statesenate', 'senate', null);
+    var ld = dist('statehouse', 'lower', null);
+    var hp = inc('house', 'representative');
+    var sp = inc('statesenate', 'state_senator');
+    var lp = inc('statehouse', 'state_rep');
+    var redrawn = false;
+
+    try {
+      var hr = (typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
+      if (hr && hr.changed) {
+        redrawn = true;
+        hp = hr.currentPid || hp;
+        if (hr.currentDistrict != null) hd = hr.currentDistrict;
+      }
+    } catch (e) {}
+
+    var num = function (v) { return String(v == null ? '' : v).replace(/[^0-9]/g, ''); };
+    var level = function (key, label, tierLabel, color, d, pid) {
+      var n = num(d);
+      return {
+        key: key,
+        label: label,
+        tierLabel: tierLabel,
+        color: color,
+        district: n || null,
+        distLabel: n ? (label + ' · District ' + n) : label,
+        pid: pid || null,
+        resolved: !!pid
+      };
+    };
+
+    return {
+      located: located,
+      national: national,
+      state: state,
+      area: (matched && krd && krd.label) ? krd.label : (loc.city || loc.county || state || ''),
+      redrawn: redrawn,
+      levels: [
+        level('house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp),
+        level('statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp),
+        level('statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
+      ]
+    };
+  };
+
   // ── "YOUR VOTING DISTRICTS" strip (inside the prominent location card) ──────
   // Turns an abstract saved location into the concrete thing a voter actually
   // needs: the exact districts they vote in. Before a location is set it states,
@@ -1166,49 +1265,14 @@
     // the full team-builder cockpit that lives further down the page.
     if (!window._hasUserLocation) { host.style.display = 'none'; host.innerHTML = ''; return; }
 
-    var _wrLoc = window._currentVoterLocation || {};
-    var _wrState = (_wrLoc.state || '');
-    var _wrKrd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
-    var _wrVb  = (typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
-    var _wrMatched = !!(_wrKrd && _wrKrd.matched && _wrState.toLowerCase() === 'utah');
-    var _wrNum = function(v) { return String(v == null ? '' : v).replace(/[^0-9]/g, ''); };
+    // Districts + officeholders come from the shared resolver above, which the
+    // homepage front door reads too. The rows below only present what it returns.
+    var _wrReps = window.pdxRepsForMe();
     var _wrEsc = function(s) {
       return String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     };
-    var _wrDist = function(seatKey, vbKey, fallback) {
-      if (_wrVb && _wrVb.districts && _wrVb.districts[vbKey] != null) return _wrVb.districts[vbKey];
-      if (_wrMatched && _wrKrd.byRace && _wrKrd.byRace[seatKey]) return _wrKrd.byRace[seatKey].district;
-      return (fallback != null ? fallback : null);
-    };
-    var _wrInc = function(seatKey, vbOffice) {
-      var pid = null;
-      if (_wrVb && _wrVb.byOffice && vbOffice && _wrVb.byOffice[vbOffice]) pid = _wrVb.byOffice[vbOffice].incumbentPid;
-      if (!pid && _wrMatched && _wrKrd.byRace && _wrKrd.byRace[seatKey]) {
-        var _br = _wrKrd.byRace[seatKey];
-        pid = _br.incumbentPid || ((_br.incumbentPids || [])[0]);
-      }
-      return pid || null;
-    };
-    var _wrHd = _wrDist('house', 'house', _wrLoc.district);
-    var _wrSd = _wrDist('statesenate', 'senate', null);
-    var _wrLd = _wrDist('statehouse', 'lower', null);
-    var _wrHp = _wrInc('house', 'representative');
-    var _wrSp = _wrInc('statesenate', 'state_senator');
-    var _wrLp = _wrInc('statehouse', 'state_rep');
-    // Redistricting: show who represents this voter RIGHT NOW (current-map rep and
-    // current-map district), not the incumbent of the redrawn 2026 ballot district.
-    // Keeping the district number and the name from the SAME (current) map means the
-    // House row is always internally consistent — e.g. "District 1 · Blake Moore" —
-    // even where the 2026 ballot district shown up top differs.
-    try {
-      var _wrHr = (typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
-      if (_wrHr && _wrHr.changed) {
-        _wrHp = _wrHr.currentPid || _wrHp;
-        if (_wrHr.currentDistrict != null) _wrHd = _wrHr.currentDistrict;
-      }
-    } catch (e) {}
 
     var _wrParty = function(p) {
       if (!p) return null;
@@ -1253,11 +1317,9 @@
         '</div>';
     };
 
-    var _wrRows = [
-      _wrRow({ pid: _wrHp, color: '#60a5fa', tierLabel: 'U.S. House of Representatives', distLabel: _wrNum(_wrHd) ? 'U.S. House · District ' + _wrNum(_wrHd) : 'U.S. House' }),
-      _wrRow({ pid: _wrSp, color: '#a78bfa', tierLabel: 'State Senate', distLabel: _wrNum(_wrSd) ? 'State Senate · District ' + _wrNum(_wrSd) : 'State Senate' }),
-      _wrRow({ pid: _wrLp, color: '#2dd4bf', tierLabel: 'State House', distLabel: _wrNum(_wrLd) ? 'State House · District ' + _wrNum(_wrLd) : 'State House' })
-    ].join('');
+    var _wrRows = _wrReps.levels.map(function (lv) {
+      return _wrRow({ pid: lv.pid, color: lv.color, tierLabel: lv.tierLabel, distLabel: lv.distLabel });
+    }).join('');
 
     host.style.display = '';
     host.innerHTML =

@@ -2579,30 +2579,49 @@ window.PDXLazy = (function () {
           <div class="w-8 h-8 rounded-lg bg-crimson-600 flex items-center justify-center text-sm shadow-lg shadow-crimson-600/20 transition-transform duration-200 group-hover:scale-110">🏠</div>
           <span class="font-display text-xl tracking-wider text-white">POLITI<span class="text-crimson-400">DEX</span></span>
         </a>
-        <!-- TWO PILLS, TWO DOORS. The bar used to carry exactly one emphasised
-             control — the gold ⭐ My Voting Team — which made the seasonal door the
-             only thing in the chrome with any weight, on every page and in every
-             month of the year. It now carries a matched pair, in the order the
-             homepage states them:
+        <!-- THREE PILLS, THREE DOORS. The bar carried exactly one emphasised
+             control for a long time — the gold ⭐ My Voting Team — which made the
+             seasonal door the only thing in the chrome with any weight. It gained
+             a matched blue peer (👁️ Check a Claim, the record door), and now a
+             third that comes before either of them:
 
-               👁️ CHECK A CLAIM   · blue-filled, the record door. Wakes the
-                                     All-Seeing Eye sitting directly below this bar.
-               ⭐ MY VOTING TEAM  · gold-filled, unchanged, the ballot door.
+               🏛️ WHO REPRESENTS ME · light-blue-filled, the front step. Scrolls to
+                                       the homepage front door and, when no location
+                                       is set yet, opens the same picker the rest of
+                                       the app uses.
+               👁️ CHECK A CLAIM      · blue-filled, the record door. Wakes the
+                                       All-Seeing Eye sitting directly below this bar.
+               ⭐ MY VOTING TEAM     · gold-filled, unchanged, the ballot door.
 
              Same geometry, same border weight, same glow budget; different hue, so
-             they read as peers rather than as a primary and its shadow. Voting lost
-             nothing: the pill, Voter Hub, Your Ballot, My Profile and Local Issues
-             are all still here.
+             they read as peers rather than as a primary and its shadows. Voting lost
+             nothing: the pill, Voter Hub, Your Ballot and Local Issues are all still
+             here.
 
-             The bar did not grow to make room. "🎯 My Stances" came out of the
-             DESKTOP row only — it is still in the mobile menu, and still one hover
-             away on desktop as "My Views" in the account chip — because a seven-item
-             row plus three dropdowns is how a nav stops being usable at 1280px.
+             The bar has not grown across either change. "🎯 My Stances" came out of
+             the DESKTOP row when the second pill landed; "👤 My Profile" came out
+             when the third did — both are still in the mobile menu, and still one
+             click away on desktop in the account chip — because a seven-item row
+             plus three dropdowns is how a nav stops being usable at 1280px.
 
-             Order still follows the flow, with the record now in front of it:
-             Check a Claim (verify) → Voter Hub (learn) → My Voting Team (build) →
-             Your Ballot (decide) → Mandate (act, on the right cluster). -->
+             Order follows the flow, with the lookup now in front of all of it:
+             Who Represents Me (find) → Check a Claim (verify) → Voter Hub (learn) →
+             My Voting Team (build) → Your Ballot (decide) → Mandate (act, on the
+             right cluster). -->
         <div class="hidden lg:flex items-center gap-2.5 lg:gap-4 font-condensed font-600 text-xs lg:text-sm tracking-widest uppercase text-steel-300">
+          <!-- 🏛️ WHO REPRESENTS ME leads the row. Representative lookup is the
+               most useful thing this site does for someone arriving cold, and it
+               used to have no chrome of its own at all — the only way in was the
+               gold ballot pill, which asks a visitor to commit to building a team
+               before they know the site can even name their representatives. It
+               is a filled pill like the other two doors, and it leads because it
+               is the step that comes before both of them.
+               The row did not grow to fit it: 👤 My Profile came off the DESKTOP
+               row only. It is still in the mobile menu below and still one click
+               away in the account chip on the right, and it is a returning-visitor
+               destination — exactly the kind of item that should yield a slot to a
+               first-visit one. -->
+          <a href="#who-represents-me" title="Find the officials with power over you — then see their records" onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#07101f;background:linear-gradient(135deg,#a8d4ff,#5ea2f5);border:1.5px solid rgba(167,212,255,0.9);box-shadow:0 0 16px rgba(96,165,250,0.4),inset 0 1px 0 rgba(255,255,255,0.3);text-shadow:0 1px 1px rgba(255,255,255,0.2);">🏛️ Who Represents Me</a>
           <!-- href is a real destination, not a decoration: if the helper has not
                loaded yet the click is left alone and lands on the receipts band, so
                the control is never dead. When the helper is there it takes over and
@@ -2612,7 +2631,6 @@ window.PDXLazy = (function () {
           <a href="#voter-hub" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">Voter Hub</a>
           <a href="#my-politicians" title="Your voting team — the slate of politicians you're building and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Voting Team</a>
           <a href="#your-ballot" title="Enter your address and see every contest on your real ballot" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🗳️ Your Ballot</a>
-          <a href="#my-profile" title="Your personal hub — stances, team, footprint and the money that follows your officials" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">👤 My Profile</a>
           <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🔦 Local Issues</a>
           <!-- The former research/reference links (Evidence Locker, Compare,
                Spotlight, Library, Exchange, All Politicians and the admin tools)
@@ -3095,13 +3113,17 @@ window.PDXLazy = (function () {
            focusing it puts the cursor exactly where the label promised. -->
       <div class="mnav-group-label">The Record</div>
       <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye checks it against the voting record" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Check a Claim</a>
-      <!-- Core voter tools — same onboarding flow as the desktop bar:
-           Voter Hub (learn) → My Voting Team (build) → Your Ballot (decide).
-           Voter Hub leads as the primary educational entry on mobile; Local
-           Issues follows, and only resolves once a location is confirmed.
-           🎯 My Stances stays listed here even though it came off the desktop row —
-           this menu has the vertical room the bar does not. -->
+      <!-- Core voter tools — same onboarding flow as the desktop bar, and the same
+           reordering: Who Represents Me (find) → Voter Hub (learn) → My Voting Team
+           (build) → Your Ballot (decide). The lookup leads because this menu is read
+           top-down and it is the step that comes before the rest; on a phone that
+           position matters more than it does on the bar, since the mobile visitor
+           sees nothing else until they open this.
+           🎯 My Stances and 👤 My Profile stay listed here even though they came off
+           the desktop row — this menu has the vertical room the bar does not.
+           Local Issues follows, and only resolves once a location is confirmed. -->
       <div class="mnav-group-label">Your Vote</div>
+      <a href="#who-represents-me" title="Find the officials with power over you — then see their records" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
       <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Voting Team</a>
       <a href="#my-stances" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎯 My Stances</a>
@@ -3735,6 +3757,179 @@ window.PDXLazy = (function () {
     }
   </script>
 
+  <!-- ═══════════════════ SEE WHO REPRESENTS ME · the front step ═════════════
+       Representative lookup as a service with its own name, its own words and
+       its own place on the page — the first content band under the hero.
+
+       It used to be the reward at the end of the Team Builder: the machinery was
+       all there, but the only door into it was labelled "build your voting team",
+       so a visitor had to already believe PolitiDex could answer "who represents
+       me" before they would go looking. This band states the service directly and
+       reorders the story to the way a person actually lives it — find who
+       represents you, inspect their records, and only then (optionally) build a
+       team. Team Builder is untouched and still sits where it sat; it is the
+       deeper third step now rather than the entrance.
+
+       Deliberately a slim band, not a second hero. Door 1 (the record) still
+       carries the page's narrative weight immediately below, and the supporting
+       line here hands off to it: "then see their records."
+
+       COLD STATE IS STATIC. Everything a first-time visitor needs — the headline,
+       the supporting line, the three steps and the primary CTA — is plain markup
+       right here, so the entry point exists at first paint and survives
+       who-represents-me.js failing to load. That module only paints the WARM
+       state into #wrm-reps once a location resolves, and sets data-located on the
+       section, which is what swaps the cold block out. -->
+  <section id="who-represents-me" class="wrm" aria-labelledby="wrm-title">
+    <style id="wrm-styles">
+      .wrm{position:relative;padding:1.6rem 1rem 1.75rem;overflow:hidden;
+        background:linear-gradient(180deg,#0a0f1e 0%,#0d1730 55%,#0a0f1e 100%);
+        border-top:1px solid rgba(96,165,250,0.16);border-bottom:1px solid rgba(96,165,250,0.16);}
+      .wrm::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+        background:linear-gradient(90deg,transparent,#3b82f6 22%,#ffffff 50%,#ef4444 78%,transparent);opacity:0.65;}
+      .wrm-inner{position:relative;z-index:1;max-width:56rem;margin:0 auto;text-align:center;}
+      .wrm-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;border:1px solid rgba(96,165,250,0.35);
+        background:rgba(59,130,246,0.1);border-radius:9999px;padding:0.28rem 0.85rem;margin-bottom:0.6rem;
+        font-family:'Barlow Condensed',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.16em;
+        text-transform:uppercase;color:#9ec8ff;}
+      .wrm-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.65rem,4.6vw,2.6rem);letter-spacing:0.03em;
+        color:#fff;line-height:1.03;margin:0 0 0.4rem;}
+      .wrm-title .wrm-accent{background:linear-gradient(90deg,#60a5fa,#f5c842);-webkit-background-clip:text;
+        background-clip:text;-webkit-text-fill-color:transparent;}
+      .wrm-lead{font-family:'Barlow',sans-serif;font-size:clamp(0.94rem,2.1vw,1.1rem);line-height:1.5;
+        color:#cbd5e1;max-width:36rem;margin:0 auto;}
+      .wrm-lead strong{color:#fff;font-weight:700;}
+      /* The reordered story, stated once so it is learnable rather than inferred. */
+      .wrm-steps{display:flex;flex-wrap:wrap;justify-content:center;gap:0.45rem;margin:1rem auto 0;max-width:44rem;}
+      .wrm-step{display:flex;align-items:center;gap:0.45rem;flex:1 1 12rem;min-width:0;text-align:left;
+        background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.09);border-radius:0.7rem;padding:0.5rem 0.65rem;}
+      .wrm-step--now{border-color:rgba(96,165,250,0.45);background:rgba(59,130,246,0.1);}
+      .wrm-stepno{flex:none;font-family:'Bebas Neue',sans-serif;font-size:1rem;line-height:1;color:#7f9dc6;}
+      .wrm-step--now .wrm-stepno{color:#93c5fd;}
+      .wrm-steptext{min-width:0;font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;line-height:1.25;color:#b9c9e2;}
+      .wrm-steptext strong{display:block;color:#e9f1fd;font-weight:700;letter-spacing:0.02em;}
+      .wrm-step em{font-style:normal;color:#8ba1bf;}
+      .wrm-ctarow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.6rem;margin-top:1.05rem;}
+      .wrm-cta{display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;cursor:pointer;
+        font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:0.98rem;letter-spacing:0.07em;
+        text-transform:uppercase;color:#07101f;background:linear-gradient(135deg,#7fc0ff,#3b82f6);
+        border:none;border-radius:0.85rem;padding:0.8rem 1.45rem;min-height:48px;
+        box-shadow:0 8px 26px rgba(59,130,246,0.42);transition:transform .18s ease,box-shadow .18s ease;}
+      .wrm-cta:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(59,130,246,0.55);}
+      .wrm-cta:active{transform:scale(0.97);}
+      .wrm-cta2{display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;cursor:pointer;
+        font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.83rem;letter-spacing:0.07em;
+        text-transform:uppercase;color:#bcd3f5;background:rgba(255,255,255,0.05);
+        border:1px solid rgba(148,163,184,0.32);border-radius:0.85rem;padding:0.65rem 1.05rem;min-height:48px;
+        transition:color .18s ease,background .18s ease,border-color .18s ease;}
+      .wrm-cta2:hover{color:#fff;background:rgba(96,165,250,0.16);border-color:rgba(96,165,250,0.55);}
+      /* Coverage honesty. Small, permanent, and stated in both states. */
+      .wrm-scope{font-family:'Barlow',sans-serif;font-size:0.76rem;line-height:1.45;color:#8296b4;
+        max-width:38rem;margin:0.9rem auto 0;}
+      .wrm-scope strong{color:#adc0da;font-weight:600;}
+      /* ── Warm state, painted by who-represents-me.js ───────────────────── */
+      .wrm-result{max-width:34rem;margin:0.95rem auto 0;text-align:left;
+        background:linear-gradient(135deg,rgba(30,58,138,0.2),rgba(10,15,30,0.4));
+        border:1px solid rgba(96,165,250,0.3);border-radius:1rem;padding:0.85rem 0.9rem;}
+      .wrm-resulthd{display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;
+        flex-wrap:wrap;margin-bottom:0.6rem;}
+      .wrm-resultkicker{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:0.05em;color:#fff;}
+      .wrm-resultcount{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;
+        letter-spacing:0.08em;text-transform:uppercase;color:#8fa8c8;}
+      .wrm-rows{display:flex;flex-direction:column;gap:0.45rem;}
+      .wrm-row{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.55rem;border-radius:0.7rem;
+        background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.07);border-left:3px solid #60a5fa;
+        cursor:pointer;min-height:56px;transition:background .15s ease,transform .15s ease;}
+      .wrm-row:hover{background:rgba(10,15,30,0.72);transform:translateX(1px);}
+      .wrm-row:focus-visible{outline:2px solid #f5c842;outline-offset:2px;}
+      .wrm-row--unresolved{cursor:default;opacity:0.8;}
+      .wrm-row--unresolved:hover{background:rgba(10,15,30,0.45);transform:none;}
+      .wrm-avatar{width:42px;height:42px;flex:none;border-radius:50%;overflow:hidden;display:block;
+        border:2px solid #60a5fa;background:#0a0f1e;}
+      .wrm-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+      .wrm-avatar--empty{display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+        color:#9fb4d4;background:rgba(30,53,96,0.35);}
+      .wrm-rowtext{min-width:0;flex:1;}
+      .wrm-rowlevel{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:800;
+        letter-spacing:0.07em;text-transform:uppercase;}
+      .wrm-rowname{display:block;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.02em;
+        color:#fff;line-height:1.18;}
+      .wrm-rowname--muted{color:#9fb4d4;font-size:0.95rem;}
+      .wrm-party{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:800;}
+      .wrm-rowsub{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.2;}
+      .wrm-rowgo{flex:none;font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;font-weight:700;
+        letter-spacing:0.03em;text-transform:uppercase;}
+      .wrm-redrawn{font-family:'Barlow',sans-serif;font-size:0.75rem;line-height:1.45;color:#f5d9a8;
+        background:rgba(245,158,11,0.09);border:1px solid rgba(245,158,11,0.26);border-radius:0.6rem;
+        padding:0.5rem 0.6rem;margin:0.55rem 0 0;}
+      .wrm-redrawn strong{color:#fde68a;}
+      .wrm-next{margin-top:0.7rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:0.65rem;}
+      .wrm-nextlabel{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:800;
+        letter-spacing:0.14em;text-transform:uppercase;color:#8fa8c8;margin-bottom:0.45rem;}
+      .wrm-nextrow{display:flex;flex-wrap:wrap;gap:0.4rem;}
+      .wrm-next-btn{flex:1 1 9.5rem;display:inline-flex;align-items:center;justify-content:center;gap:0.3rem;
+        cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;
+        letter-spacing:0.03em;text-transform:uppercase;color:#cfe0f5;background:rgba(255,255,255,0.05);
+        border:1px solid rgba(148,163,184,0.3);border-radius:0.6rem;padding:0.55rem 0.6rem;min-height:44px;
+        line-height:1.2;text-align:center;transition:background .15s ease,border-color .15s ease,color .15s ease;}
+      .wrm-next-btn:hover{color:#fff;background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.5);}
+      .wrm-next-btn--lead{color:#eaf3ff;background:rgba(59,130,246,0.16);border-color:rgba(96,165,250,0.5);}
+      .wrm-next-btn em{font-style:normal;opacity:0.72;font-weight:600;}
+      .wrm-changeloc{display:block;width:100%;margin-top:0.45rem;cursor:pointer;background:none;border:none;
+        font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.72rem;letter-spacing:0.08em;
+        text-transform:uppercase;color:#7e93b4;min-height:40px;transition:color .15s ease;}
+      .wrm-changeloc:hover{color:#cbd5e1;}
+      /* The swap. Cold copy is the resting state; a resolved lookup replaces the
+         pitch with the answer and keeps only the scope note, which is true in
+         both states. */
+      .wrm[data-located] .wrm-cold{display:none;}
+      @media (max-width:600px){
+        .wrm{padding:1.35rem 0.9rem 1.5rem;}
+        .wrm-steps{max-width:22rem;}
+        .wrm-step{flex:1 1 100%;}
+        .wrm-ctarow{flex-direction:column;}
+        .wrm-cta,.wrm-cta2{width:100%;}
+        .wrm-next-btn{flex:1 1 100%;}
+      }
+      @media (prefers-reduced-motion:reduce){
+        .wrm-cta,.wrm-row{transition:none;}
+        .wrm-cta:hover,.wrm-row:hover{transform:none;}
+      }
+    </style>
+    <div class="wrm-inner">
+      <div class="wrm-eyebrow">🏛️ Free public service · No account needed</div>
+      <h2 id="wrm-title" class="wrm-title">SEE WHO <span class="wrm-accent">REPRESENTS ME</span></h2>
+      <p class="wrm-lead">Find the officials with power over you &mdash; <strong>then see their records.</strong></p>
+
+      <div class="wrm-cold">
+        <div class="wrm-steps">
+          <div class="wrm-step wrm-step--now">
+            <span class="wrm-stepno">①</span>
+            <span class="wrm-steptext"><strong>Find who represents you</strong>Set your location once.</span>
+          </div>
+          <div class="wrm-step">
+            <span class="wrm-stepno">②</span>
+            <span class="wrm-steptext"><strong>Inspect their records</strong>What they said, and how they actually voted.</span>
+          </div>
+          <div class="wrm-step">
+            <span class="wrm-stepno">③</span>
+            <span class="wrm-steptext"><strong>Build your team</strong><em>Optional &mdash; only if you want a slate.</em></span>
+          </div>
+        </div>
+
+        <div class="wrm-ctarow">
+          <button type="button" class="wrm-cta btn-tap" onclick="window.pdxFindMyReps&amp;&amp;window.pdxFindMyReps()">📍 See who represents me</button>
+          <button type="button" class="wrm-cta2 btn-tap" onclick="window.openDistrictMapModal&amp;&amp;window.openDistrictMapModal()">🗺️ Find it on the map</button>
+        </div>
+      </div>
+
+      <div id="wrm-reps"></div>
+
+      <p class="wrm-scope">PolitiDex resolves your <strong>U.S. House, State Senate and State House</strong> seats from your location. Local offices &mdash; mayor, council, school board, county &mdash; are listed where we have them, and we say so where we don&rsquo;t.</p>
+    </div>
+  </section>
+  <script src="/who-represents-me.js" defer></script>
+
   <!-- ══════════════════════ DOOR 1 · THE RECORD (year-round) ═══════════════
        The national truth surfaces — Say vs. Do, the Issue Front Door and the H.R.1
        Showcase — used to sit BELOW the Voter Hub, the ballot flow and Local Issues,
@@ -3925,11 +4120,11 @@ window.PDXLazy = (function () {
     </button>
     <div class="relative max-w-3xl mx-auto z-10 text-center">
       <div class="sh-eyebrow"><span>🗳️ Election tools · 30 seconds to set up</span></div>
-      <h2 class="sh-title">BUILD YOUR <span class="sh-accent">VOTING TEAM</span></h2>
-      <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex shows the seats you actually decide, so you can pick a team on <strong>receipts rather than party lines</strong> &mdash; saved for election day.</p>
+      <h2 class="sh-title">SEE WHO <span class="sh-accent">REPRESENTS YOU</span></h2>
+      <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex names the officials with power over you and the seats you actually decide &mdash; so you can read their records first, and pick a team on <strong>receipts rather than party lines</strong> if you want one.</p>
 
       <div class="sh-cta-row">
-        <button type="button" class="sh-cta-primary btn-tap" onclick="pdxStartHereGo()">📍 Set my location &amp; start building my team</button>
+        <button type="button" class="sh-cta-primary btn-tap" onclick="pdxStartHereGo()">📍 See who represents me</button>
         <button type="button" class="sh-cta-tour btn-tap" onclick="pdxOpenWelcome()">🚀 Quick tour</button>
       </div>
 
@@ -5783,6 +5978,61 @@ window.PDXLazy = (function () {
 
       <!-- ── MY VOTING TEAM / BUILD YOUR TEAM Builder ── -->
       <div id="my-politicians" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.08s;">
+        <!-- ═══ STEP ① · the way in, restated at the entrance ═══
+             The Team Builder is the deeper step, not the front door, and this strip
+             says so at the top of it. Anyone who scrolled here without a location —
+             or who arrived believing a voting team is the only thing this section
+             offers — gets the earlier step named and one tap back to it. It is
+             deliberately quiet and it disappears the moment it is no longer true:
+             the JS below hides it once a location is set, so a returning voter with
+             their seats already resolved never sees an instruction to do something
+             they have done. -->
+        <div id="myteam-findreps" class="myteam-findreps" hidden>
+          <span class="myteam-findreps-ico" aria-hidden="true">🏛️</span>
+          <span class="myteam-findreps-text">
+            <strong>New here? Start one step earlier.</strong>
+            Find the officials with power over you, see their records, and build a team from there &mdash; if you want one.
+          </span>
+          <button type="button" class="myteam-findreps-btn btn-tap" onclick="window.pdxFindMyReps&amp;&amp;window.pdxFindMyReps()">📍 See who represents me</button>
+        </div>
+        <style id="myteam-findreps-styles">
+          .myteam-findreps{display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;margin-bottom:0.9rem;
+            background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(10,15,30,0.4));
+            border:1px solid rgba(96,165,250,0.34);border-left:3px solid #60a5fa;border-radius:0.9rem;
+            padding:0.7rem 0.85rem;}
+          .myteam-findreps[hidden]{display:none;}
+          .myteam-findreps-ico{font-size:1.25rem;line-height:1;flex:none;}
+          .myteam-findreps-text{flex:1 1 16rem;min-width:0;font-family:'Barlow',sans-serif;font-size:0.83rem;
+            line-height:1.45;color:#bcd3f5;}
+          .myteam-findreps-text strong{display:block;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;
+            font-size:0.95rem;letter-spacing:0.02em;}
+          .myteam-findreps-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;
+            cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.8rem;
+            letter-spacing:0.06em;text-transform:uppercase;color:#07101f;
+            background:linear-gradient(135deg,#a8d4ff,#5ea2f5);border:none;border-radius:0.7rem;
+            padding:0.6rem 1rem;min-height:44px;box-shadow:0 6px 18px rgba(59,130,246,0.35);
+            transition:transform .15s ease;}
+          .myteam-findreps-btn:hover{transform:translateY(-1px);}
+          @media (max-width:600px){.myteam-findreps-btn{flex:1 1 100%;}}
+          @media (prefers-reduced-motion:reduce){.myteam-findreps-btn{transition:none;}
+            .myteam-findreps-btn:hover{transform:none;}}
+        </style>
+        <script>
+          // Shown only while step ① is still ahead of the visitor. The Voter Hub's
+          // location sync calls the exported hook on every location change; the
+          // timers only cover a location restored from storage before this node
+          // parsed, or one set before voter-hub-location.js finished loading.
+          (function () {
+            function sync() {
+              var el = document.getElementById('myteam-findreps');
+              if (el) el.hidden = !!window._hasUserLocation;
+            }
+            window._myteamFindRepsSync = sync;
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+            else sync();
+            [500, 1500, 3500].forEach(function (ms) { setTimeout(sync, ms); });
+          })();
+        </script>
         <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══
              This is the page's PRIMARY destination — the one place voters build and
              finalize their slate. It deliberately carries the heaviest visual weight
@@ -5807,10 +6057,12 @@ window.PDXLazy = (function () {
                   <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Your personal slate — <strong class="text-white">the people who will actually make the decisions that affect you</strong>. Fill every seat with whoever earns it on record and values, not the letter after their name.</p>
                   <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
                   <!-- Journey breadcrumb — marks this as the destination of the
-                       ① Overview → ② Research → ★ Build flow, so the supporting
-                       sections below read as feeding into it. -->
+                       ① Find → ② Research → ★ Build flow, so the supporting
+                       sections below read as feeding into it. Step ① is named for
+                       the question a visitor actually asks ("who represents me?")
+                       rather than for the data structure that answers it. -->
                   <div class="myteam-journey" aria-hidden="true">
-                    <span class="myteam-journey__step">① Your Districts</span>
+                    <span class="myteam-journey__step">① Who Represents You</span>
                     <span class="myteam-journey__arrow">→</span>
                     <span class="myteam-journey__step">② Relevant to Me</span>
                     <span class="myteam-journey__arrow">→</span>
