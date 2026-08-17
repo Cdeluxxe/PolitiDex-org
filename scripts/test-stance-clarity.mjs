@@ -162,12 +162,17 @@ section("1 · every tested row states a result; every untested row says it is un
           // The reason is specific to WHY it is thin: a record that takes no side is
           // a different situation from a record that is barely there, and a row that
           // says "not enough record" over four actions contradicts its own next line.
-          // The fourth case is not about their record at all — we hold the votes and
-          // hold no position of theirs to test them against — so it is allowed to say
-          // so, and is the ONLY branch permitted to print an inventory count.
-          ok(/(takes a clear side on this claim|takes a side on this one|is not enough to judge this one yet|Not enough record to judge this one yet|no stated position from them yet)/.test(chunk),
+          // The last three cases are not about their record at all — we hold the
+          // votes and hold either no position of theirs, or a position that little
+          // or none of the record was ever judged against — so they are allowed to
+          // say so, and they are the ONLY branches permitted to print an inventory
+          // count. The rule is unchanged in intent: a count never appears without
+          // the sentence that explains why it is not a score.
+          const unscoredWhy = /(no stated position from them yet|judged against their stated position|judged against a stated position)/;
+          ok(/(takes a clear side on this claim|takes a side on this one|is not enough to judge this one yet|Not enough record to judge this one yet)/.test(chunk) ||
+             unscoredWhy.test(chunk),
             `${who}/${r.key}: a thin row does not say why it has no result`);
-          ok(!/\d+\s+(votes?|actions?|items?)\s+on file/.test(chunk) || /no stated position from them yet/.test(chunk),
+          ok(!/\d+\s+(votes?|actions?|items?)\s+on file/.test(chunk) || unscoredWhy.test(chunk),
             `${who}/${r.key}: a thin row prints an inventory count without saying why it is unscored`);
         } else {
           has(chunk, "pdxst-vd-none", `${who}/${r.key}: an untested row borrows a verdict's styling`);

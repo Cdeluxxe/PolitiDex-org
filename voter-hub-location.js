@@ -1138,6 +1138,96 @@
     }
   };
 
+  // ── window._pdxStatewideSeats(state) — the two seats with no district math ───
+  // A voter's U.S. Senators and their Governor are elected by the WHOLE state, so
+  // naming them needs nothing but the state the visitor already gave us — no
+  // district geometry, no curated area, no map pin. PolitiDex holds those records
+  // nationally (a Governor for every state, and at least one U.S. Senator for
+  // every state), and until now the front door named none of them, because the
+  // only seats it knew how to resolve were the three that need districts and the
+  // only districts it curates are Utah's. That is the gap this closes.
+  //
+  // Resolution is from roster metadata ONLY — a person's `office` string and
+  // their `state` — and it is deliberately conservative, because a mis-assigned
+  // senator is worse than a blank row:
+  //
+  //   · Governor is matched on the office string EXACTLY. "Lieutenant Governor"
+  //     and "Governor Candidate" are different offices and are never matched.
+  //   · The U.S. Senate is matched by ruling state offices OUT first, then
+  //     letting federal ones in. It has to work this way because a sitting U.S.
+  //     Senator's office string is frequently a leadership or committee title
+  //     rather than "U.S. Senator" — Thune reads "U.S. Senate Majority Leader",
+  //     Grassley "Senate Judiciary Chair & President pro tempore", Luján
+  //     "Assistant Senate Democratic Leader". Matching only the plain title would
+  //     silently drop one of a state's two senators and print a blank beside a
+  //     record the app holds in full.
+  //   · A state that somehow resolves MORE than two senators is a data fault, not
+  //     a seat we get to guess at. Both rows go blank and `ambiguous` is set, so
+  //     the surface says "not resolved" rather than picking two of three.
+  //
+  // Memoized per state: the two callers below run on every location change and on
+  // several deferred re-syncs, and this walks the whole roster.
+  var _pdxStatewideCache = {};
+
+  function _pdxStateName(v) {
+    // Roster `state` fields are not uniformly clean — a U.S. Representative reads
+    // "Utah · UT-1" and a state legislator "UT District 6". Statewide seats are
+    // only ever matched on the leading state name, and anything that does not
+    // reduce to a plain state name matches nothing.
+    return String(v == null ? '' : v).split('·')[0].split('-')[0].trim().toLowerCase();
+  }
+
+  function _pdxIsUsSenatorOffice(office) {
+    var o = String(office == null ? '' : office).trim();
+    if (!o) return false;
+    // Rule out, in order: every state upper chamber, every Utah-specific variant,
+    // and anything marked former. "State Senator", "Ohio State Senator", "State
+    // Senate President", "UT State Senator", "Utah Senate President", "Former UT
+    // State Senator" all leave here.
+    if (/\bstate\s+senat/i.test(o)) return false;
+    if (/^(utah|ut)\s+senate\b/i.test(o)) return false;
+    if (/\bformer\b/i.test(o)) return false;
+    // Then let the federal chamber in: the plain title, the four elected floor
+    // leaders, and the committee chairs / ranking members that only U.S. Senators
+    // hold. Every one of these is a seat in the United States Senate.
+    if (/\bu\.s\.\s*senat/i.test(o)) return true;
+    if (/\bsenate\b/i.test(o)) return true;
+    return false;
+  }
+
+  function _pdxIsGovernorOffice(office) {
+    return String(office == null ? '' : office).trim().toLowerCase() === 'governor';
+  }
+
+  window._pdxStatewideSeats = function (stateName) {
+    var st = _pdxStateName(stateName);
+    if (!st || st === 'national') return { senators: [], governor: null, ambiguous: false };
+    if (_pdxStatewideCache[st]) return _pdxStatewideCache[st];
+
+    var out = { senators: [], governor: null, ambiguous: false };
+    try {
+      var roster = window.CMP_DATA;
+      if (roster) {
+        var sens = [], govs = [];
+        for (var pid in roster) {
+          if (!Object.prototype.hasOwnProperty.call(roster, pid)) continue;
+          var p = roster[pid];
+          if (!p || _pdxStateName(p.state) !== st) continue;
+          if (_pdxIsUsSenatorOffice(p.office)) sens.push(pid);
+          else if (_pdxIsGovernorOffice(p.office)) govs.push(pid);
+        }
+        // A state has exactly two Senate seats and one Governor. More than that on
+        // file means the roster disagrees with itself about who holds them, and
+        // there is no honest way to choose — so nothing is claimed.
+        if (sens.length > 2) out.ambiguous = true; else out.senators = sens;
+        if (govs.length > 1) out.ambiguous = true; else out.governor = govs[0] || null;
+      }
+    } catch (e) {}
+
+    _pdxStatewideCache[st] = out;
+    return out;
+  };
+
   // ── window.pdxRepsForMe() — the ONE resolution of "who represents me" ───────
   // Two surfaces now answer this question: the Voter Hub's "Who Represents You
   // Now" strip (below) and the homepage front door (who-represents-me.js), which
@@ -1152,22 +1242,64 @@
   // RIGHT NOW, paired with that member's CURRENT-map district, so a row is always
   // internally consistent.
   //
+  // TWO CLASSES OF SEAT, RESOLVED FROM DIFFERENT THINGS
+  // ────────────────────────────────────────────────────
+  // The list is no longer three district seats. It is two kinds of seat:
+  //
+  //   STATEWIDE (U.S. Senate ×2, Governor) — elected by the whole state, so they
+  //   resolve from the visitor's STATE alone via _pdxStatewideSeats() above, for
+  //   all fifty states. No district, no curated area, no map pin.
+  //
+  //   DISTRICT (U.S. House, State Senate, State House) — need district geometry,
+  //   and PolitiDex curates districts for Utah only. Outside Utah they resolve to
+  //   nothing and say so.
+  //
+  // WHY THE DISTRICT SEATS ARE GATED ON UTAH
+  // ─────────────────────────────────────────
+  // _pdxVoterBallot() and _pdxHouseRedistrict() are built for the curated Utah
+  // ballot, and when they cannot place a voter they do not fail — they fall back
+  // to a default curated area (Davis County). Reading them unconditionally is how
+  // a Columbus voter was shown "U.S. House · District 2 → Celeste Maloy", "State
+  // Senate · District 6 → Jerry Stevenson" and "State House · District 15 → Ariel
+  // Defay" under the heading "Your representatives · Columbus", with the count
+  // reading "3 of 3 seats resolved". Three Utah politicians, three Utah district
+  // numbers, and a completeness claim on top.
+  //
+  // It is not only the silent fallback. _krInferLocation() matches on county name,
+  // and county names are not unique across states: Washington County, Oregon
+  // resolves to St. George, Utah and Grand County, Colorado resolves to Moab,
+  // Utah — and those come back MATCHED, so they were treated as a genuine hit
+  // rather than a default. Checking `matched` was never enough. The state itself
+  // has to be the gate, which is why every read of the curated ballot below goes
+  // through `vb`, which is null unless the visitor is in Utah.
+  //
+  // The visitor's own typed/pinned `loc.district` is not used outside Utah either.
+  // It is their own datum rather than an inference, but it survives a change of
+  // state in saved location (it is written from a curated Utah area when one is
+  // adopted), there is no non-Utah district→officeholder map to pair it with, and
+  // a bare number beside an unresolved name buys the reader nothing. Blank beats
+  // possibly-stale.
+  //
   // It states only what it actually resolved. A level with no officeholder on file
   // comes back `resolved:false` and stays in the list rather than being dropped or
   // guessed at, so a caller can say "we don't have this one yet" instead of
   // implying the list is complete. Local offices (mayor, council, school board,
   // county) are deliberately NOT in this list — PolitiDex resolves them through the
   // Relevant-to-Me ballot, and callers link out to it rather than claim coverage
-  // here.
+  // here. `districtsResolvable` tells a caller whether that link can honestly be
+  // offered at all, since the local roster is curated for the same Utah areas.
   window.pdxRepsForMe = function () {
     var loc = window._currentVoterLocation || {};
     var state = (loc.state || '');
     var located = !!window._hasUserLocation;
     var national = state === 'National';
+    var utah = String(state).trim().toLowerCase() === 'utah';
 
     var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
-    var vb  = (typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
-    var matched = !!(krd && krd.matched && String(state).toLowerCase() === 'utah');
+    // The curated ballot is Utah-only data. Outside Utah it is not a weaker
+    // answer, it is somebody else's answer, so it is not read at all.
+    var vb  = (utah && typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
+    var matched = !!(krd && krd.matched && utah);
 
     var dist = function (seatKey, vbKey, fallback) {
       if (vb && vb.districts && vb.districts[vbKey] != null) return vb.districts[vbKey];
@@ -1184,22 +1316,29 @@
       return pid || null;
     };
 
-    var hd = dist('house', 'house', loc.district);
-    var sd = dist('statesenate', 'senate', null);
-    var ld = dist('statehouse', 'lower', null);
-    var hp = inc('house', 'representative');
-    var sp = inc('statesenate', 'state_senator');
-    var lp = inc('statehouse', 'state_rep');
+    var hd = utah ? dist('house', 'house', loc.district) : null;
+    var sd = utah ? dist('statesenate', 'senate', null) : null;
+    var ld = utah ? dist('statehouse', 'lower', null) : null;
+    var hp = utah ? inc('house', 'representative') : null;
+    var sp = utah ? inc('statesenate', 'state_senator') : null;
+    var lp = utah ? inc('statehouse', 'state_rep') : null;
     var redrawn = false;
 
     try {
-      var hr = (typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
+      // Same gate: the redistricting bridge reads the curated area too, so outside
+      // Utah it would claim a redrawn seat for a map that does not cover the voter.
+      var hr = (utah && typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
       if (hr && hr.changed) {
         redrawn = true;
         hp = hr.currentPid || hp;
         if (hr.currentDistrict != null) hd = hr.currentDistrict;
       }
     } catch (e) {}
+
+    // Statewide seats: state in, officeholders out, for all fifty states.
+    var sw = (!national && typeof window._pdxStatewideSeats === 'function')
+      ? window._pdxStatewideSeats(state) : { senators: [], governor: null, ambiguous: false };
+    var stateLabel = national ? '' : String(state || '').trim();
 
     var num = function (v) { return String(v == null ? '' : v).replace(/[^0-9]/g, ''); };
     var level = function (key, label, tierLabel, color, d, pid) {
@@ -1209,8 +1348,25 @@
         label: label,
         tierLabel: tierLabel,
         color: color,
+        statewide: false,
         district: n || null,
         distLabel: n ? (label + ' · District ' + n) : label,
+        pid: pid || null,
+        resolved: !!pid
+      };
+    };
+    // A statewide row carries no district and must never look like it does. Its
+    // heading names the state instead, which is the honest scope of the seat and
+    // also what tells the two Senate rows apart from each other.
+    var swLevel = function (key, label, tierLabel, color, pid) {
+      return {
+        key: key,
+        label: label,
+        tierLabel: tierLabel,
+        color: color,
+        statewide: true,
+        district: null,
+        distLabel: stateLabel ? (label + ' · ' + stateLabel) : label,
         pid: pid || null,
         resolved: !!pid
       };
@@ -1222,8 +1378,20 @@
       state: state,
       area: (matched && krd && krd.label) ? krd.label : (loc.city || loc.county || state || ''),
       redrawn: redrawn,
+      // Whether this visitor's location has curated district geometry at all. It
+      // is what separates "we hold no record for your state senator" from "we do
+      // not map your state's legislative districts", and it also gates the handoff
+      // to local offices, which are curated for the same areas.
+      districtsResolvable: utah,
+      statewideAmbiguous: !!sw.ambiguous,
       levels: [
+        // Both Senate seats are always listed. Every state has two, and that is a
+        // fact about the Senate rather than a claim about our coverage — so a
+        // state we hold one senator for shows one name and one honest blank.
+        swLevel('ussenate1', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[0]),
+        swLevel('ussenate2', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[1]),
         level('house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp),
+        swLevel('governor', 'Governor', 'Governor', '#fbbf24', sw.governor),
         level('statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp),
         level('statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
       ]
@@ -1299,7 +1467,11 @@
         nameHtml = _wrEsc(person.name) + (pm ? ' <span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:800;color:' + pm.c + ';">(' + pm.l + ')</span>' : '');
         subLine = _wrEsc(person.office || cfg.tierLabel);
       } else {
-        nameHtml = '<span style="color:#9fb4d4;">Being confirmed</span>';
+        // "Being confirmed" implied we knew the seat and were checking the name.
+        // Outside Utah we do not know the seat at all, and inside it we may simply
+        // hold no record — either way the honest word is "not resolved", matching
+        // the homepage band that reads the same resolver.
+        nameHtml = '<span style="color:#9fb4d4;">' + (cfg.statewide ? 'No record on file yet' : 'Not resolved yet') + '</span>';
         subLine = _wrEsc(cfg.tierLabel);
       }
       var pidJs = pid ? String(pid).replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '';
@@ -1318,8 +1490,17 @@
     };
 
     var _wrRows = _wrReps.levels.map(function (lv) {
-      return _wrRow({ pid: lv.pid, color: lv.color, tierLabel: lv.tierLabel, distLabel: lv.distLabel });
+      return _wrRow({ pid: lv.pid, color: lv.color, tierLabel: lv.tierLabel, distLabel: lv.distLabel, statewide: lv.statewide });
     }).join('');
+
+    // Same two-speed truth the homepage band states: statewide seats resolve from
+    // the state for every visitor, district seats need lines we only draw in Utah.
+    // Without this a visitor outside Utah reads three blank district rows as "this
+    // site has nothing on my state" when it has both senators and the governor.
+    var _wrDistrictsOk = !!_wrReps.districtsResolvable;
+    var _wrLede = _wrDistrictsOk
+      ? 'Meet the people who hold power in your districts today. Tap any name to see their record — <strong style="color:#cdd9ec;">promises kept, money, and how they vote</strong>.'
+      : 'Meet the people who hold power in your state today. Tap any name to see their record — <strong style="color:#cdd9ec;">promises kept, money, and how they vote</strong>. Your U.S. House, State Senate and State House seats need district lines, which we map in Utah so far — those rows stay blank rather than naming someone else&rsquo;s district.';
 
     host.style.display = '';
     host.innerHTML =
@@ -1327,9 +1508,13 @@
         '<div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">' +
           '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.1rem;color:#fff;">🏛️ Who Represents You Now</span>' +
         '</div>' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.7rem;">Meet the people who hold power in your districts today. Tap any name to see their record — <strong style="color:#cdd9ec;">promises kept, money, and how they vote</strong>.</div>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.7rem;">' + _wrLede + '</div>' +
         '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + _wrRows + '</div>' +
-        '<button type="button" onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;width:100%;margin-top:0.7rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.03em;text-transform:uppercase;color:#fcd34d;background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(245,158,11,0.06));border:1px solid rgba(245,200,66,0.4);border-radius:0.6rem;padding:0.6rem 0.7rem;min-height:44px;cursor:pointer;transition:transform .12s ease;text-align:center;line-height:1.25;" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">🏙️ See your local representatives — mayor, council, school board &amp; county →</button>' +
+        // Local seats are curated for the same areas the district seats are, so the
+        // handoff is only offered where it can actually answer for this visitor.
+        (_wrDistrictsOk
+          ? '<button type="button" onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;width:100%;margin-top:0.7rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.03em;text-transform:uppercase;color:#fcd34d;background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(245,158,11,0.06));border:1px solid rgba(245,200,66,0.4);border-radius:0.6rem;padding:0.6rem 0.7rem;min-height:44px;cursor:pointer;transition:transform .12s ease;text-align:center;line-height:1.25;" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">🏙️ See your local representatives — mayor, council, school board &amp; county →</button>'
+          : '') +
       '</div>';
     return;
 

@@ -4224,6 +4224,14 @@
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; letter-spacing: 0.07em;
       text-transform: uppercase; color: #3f5d85;
     }
+    /* …and underneath it, what that member's formal record actually did on this
+       issue, hydrated after the batched /compare call. An undocumented position is
+       not the same fact as an empty record, and this cell used to render both as
+       the one grey blank above. Untinted and unlinked: it is inventory text, not a
+       verdict, and it takes no part in the row's agreement badge. */
+    .cmp-issue-rdir:empty { display: none; }
+    .cmp-issue-rdir { display: block; margin-top: 0.12rem; text-align: center; }
+    .cmp-issue-rdir .pdx-rdir { justify-content: center; font-size: 0.6rem; line-height: 1.35; }
     .cmp-issue-more td {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.06em;
       text-transform: uppercase; color: #6d8ab0; text-align: center;

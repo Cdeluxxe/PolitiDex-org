@@ -293,10 +293,23 @@
     const PDX = window.PDXStance;
     // No documented position → the canonical grey "No Clear Position" pill, the
     // exact same calm language every other surface uses for an honest gap.
+    //
+    // …AND WHAT THE RECORD DID, when there is a record to say it. This is the cell
+    // the whole record-direction move exists for: two picks on one issue, neither
+    // with a sourced stance, and until now two identical grey blanks — one over a
+    // member with nothing on file, one over a member with twenty mapped roll calls
+    // running the same way. Same blank, opposite facts. The clause is filled in
+    // after the batched /compare call (see _pdxHydrateRecordDirection) because at
+    // paint time nothing is warm and "no record" would be a guess; a cell whose
+    // member never lands keeps exactly the copy below. Display only — the
+    // agreement maths above reads iss.cells and has never seen this.
     if (!entry) {
       const nonePill = PDX ? PDX.stancePill('none') : '<span class="cmp-issue-none-lbl">No clear position</span>';
+      const rdir = (pid && issueKey)
+        ? `<span class="cmp-issue-rdir" data-vrdir="${String(pid).replace(/"/g, '&quot;')}|${String(issueKey).replace(/"/g, '&quot;')}" data-vrdir-compact="1"></span>`
+        : '';
       return '<div class="cmp-issue-cell is-none cmp-issue-emptycell">' + nonePill +
-        '<span class="cmp-issue-none-note">Not documented yet</span></div>';
+        '<span class="cmp-issue-none-note">Not documented yet</span>' + rdir + '</div>';
     }
     // Canonical four-state stance via the shared helper (window.PDXStance) — the
     // same pill Who Stands Where, the profile, and the Home Team matrix render.
@@ -999,8 +1012,14 @@
     _cmpRenderFooter(pids);
     // Light up the head-to-head consistency dots (stance vs. actual votes) via one
     // batched /api/voting-record/compare call. Additive — no-op if unavailable.
+    // The record-direction pass rides the same cached request: it fills the empty
+    // cells (no documented position) with what that member's record actually did,
+    // and skips every pair the dot above already scored.
     if (typeof window._pdxHydrateVoteDots === 'function') {
       setTimeout(function () { try { window._pdxHydrateVoteDots(document.getElementById('compare-overlay')); } catch (e) {} }, 0);
+    }
+    if (typeof window._pdxHydrateRecordDirection === 'function') {
+      setTimeout(function () { try { window._pdxHydrateRecordDirection(document.getElementById('compare-overlay')); } catch (e) {} }, 0);
     }
   }
 

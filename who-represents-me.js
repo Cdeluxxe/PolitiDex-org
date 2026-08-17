@@ -38,7 +38,29 @@
    "not resolved yet" row rather than dropped. Dropping it would leave a list of
    two that reads as complete. Local offices (mayor, council, school board,
    county) are never claimed here at all — they resolve through the Relevant-to-Me
-   ballot, and the footer links out to it rather than implying coverage.
+   ballot, and the footer links out to it rather than implying coverage, and only
+   where that ballot can actually answer for this visitor.
+
+   WHY THE ANSWER IS TWO-SPEED, AND WHY THAT IS SAID OUT LOUD
+   ──────────────────────────────────────────────────────────
+   The resolver returns two classes of seat. The statewide ones — both U.S. Senate
+   seats and the Governor — are elected by the whole state and therefore resolve
+   from the visitor's state alone, in all fifty of them. The district ones — U.S.
+   House, State Senate, State House — need district lines, and PolitiDex maps
+   districts in Utah only.
+
+   That asymmetry used to be invisible and catastrophic. The band read the curated
+   Utah ballot for every visitor, and that ballot never fails — it falls back to a
+   default Utah area. So a voter in Columbus was shown Celeste Maloy for "U.S.
+   House · District 2", a Utah state senator for "State Senate · District 6" and a
+   Utah state representative for "State House · District 15", headed "Your
+   representatives · Columbus" and footed "3 of 3 seats resolved". Every row was a
+   real person, correctly labelled, and none of them represented the reader.
+
+   Now the district rows go blank outside Utah, the statewide rows fill in, the
+   count runs over the seats actually shown, and scopeNote() says which seats need
+   district lines and which do not — so a blank reads as a boundary we respect
+   rather than as a site that knows nothing about the reader's state.
 
    The cold-state markup — headline, supporting line and the primary CTA — is
    STATIC in index.html, not painted here. The entry point has to exist at first
@@ -88,18 +110,29 @@
   // in plain words. The party letter is an identifier printed beside a name, the
   // way a ballot prints it; nothing on this surface groups, scores or ranks by
   // it, and no copy here frames a record in terms of it.
+  //
+  // An unresolved row says which KIND of gap it is, because the two are not the
+  // same admission. A statewide seat is always locatable — every state has two
+  // senators and a governor — so a blank one means PolitiDex holds no record for
+  // the person in it. A district seat blank means the seat could not be placed at
+  // all. Reading "not resolved for your area" against a U.S. Senate row would be
+  // simply untrue: the area is the state, and we have it.
   function row(lv) {
     var person = (lv.pid && typeof window._pdxPersonById === 'function')
       ? window._pdxPersonById(lv.pid) : null;
     var color = lv.color || '#60a5fa';
 
     if (!person) {
+      var headline = lv.statewide ? 'No record on file yet' : 'Not resolved for your area yet';
+      var sub = lv.statewide
+        ? 'We&rsquo;d rather leave this blank than name the wrong person.'
+        : 'We&rsquo;d rather leave this blank than guess at your seat.';
       return '<div class="wrm-row wrm-row--unresolved" style="border-left-color:' + color + '66;">' +
         '<span class="wrm-avatar wrm-avatar--empty" aria-hidden="true">🏛</span>' +
         '<span class="wrm-rowtext">' +
           '<span class="wrm-rowlevel" style="color:' + color + 'cc;">' + esc(lv.distLabel) + '</span>' +
-          '<span class="wrm-rowname wrm-rowname--muted">Not resolved for your area yet</span>' +
-          '<span class="wrm-rowsub">We&rsquo;d rather leave this blank than guess at your seat.</span>' +
+          '<span class="wrm-rowname wrm-rowname--muted">' + headline + '</span>' +
+          '<span class="wrm-rowsub">' + sub + '</span>' +
         '</span>' +
       '</div>';
     }
@@ -144,7 +177,13 @@
   // Records first, because that is what the supporting line promised. Team
   // building is present and clearly optional, which is the reorder this whole
   // pass is about — it is a step the visitor may take, not the price of entry.
-  function nextActions() {
+  //
+  // The local-officials handoff is conditional. Local seats are curated for the
+  // same areas the district seats are, so offering it to a visitor whose district
+  // seats came back blank sends them to a surface that cannot answer for them
+  // either — a dead end dressed as a next step. Where it cannot be honoured it is
+  // not offered.
+  function nextActions(localOk) {
     return '<div class="wrm-next">' +
       '<div class="wrm-nextlabel">What now?</div>' +
       '<div class="wrm-nextrow">' +
@@ -154,14 +193,46 @@
         '<button type="button" class="wrm-next-btn"' +
           ' onclick="var e=document.getElementById(\'my-politicians\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});">' +
           '⭐ Build my voting team <em>(optional)</em></button>' +
-        '<button type="button" class="wrm-next-btn"' +
-          ' onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')">' +
-          '🏙️ My local officials</button>' +
+        (localOk
+          ? '<button type="button" class="wrm-next-btn"' +
+            ' onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')">' +
+            '🏙️ My local officials</button>'
+          : '') +
       '</div>' +
       '<button type="button" class="wrm-changeloc"' +
         ' onclick="(window.openLocationModal||window.toggleChangeLocation||function(){})()">' +
         '📍 Change my location</button>' +
     '</div>';
+  }
+
+  // ── Saying what the blanks are ─────────────────────────────────────────────
+  // Two very different things produce an unresolved row, and a reader cannot tell
+  // them apart from the row itself:
+  //
+  //   · a seat PolitiDex holds no record for — nothing to say about that person
+  //   · a seat PolitiDex cannot LOCATE, because the districts it maps are Utah's
+  //
+  // The second one is the whole reason a visitor outside Utah sees three blanks,
+  // and leaving it unexplained reads as "this site has nothing on my state" when
+  // the truth is narrower and much better: it has both senators and the governor,
+  // and it declines to guess at the rest. So it is stated, next to the blanks it
+  // explains. It is not an apology and it is not a coverage boast — it names which
+  // seats resolve from a state and which need district lines we do not draw.
+  function scopeNote(reps) {
+    if (reps.districtsResolvable) return '';
+    var blanks = reps.levels.filter(function (l) { return !l.statewide && !l.resolved; }).length;
+    if (!blanks) return '';
+    var st = reps.state ? esc(reps.state) : 'your state';
+    var swFilled = reps.levels.filter(function (l) { return l.statewide && l.resolved; }).length;
+    return '<p class="wrm-scopenote">' +
+      (swFilled
+        ? 'Your <strong>statewide seats</strong> are resolved &mdash; those are elected by all of ' + st +
+          ', so your state is all we need. '
+        : '') +
+      'Your <strong>U.S. House, State Senate and State House</strong> seats need district lines, and ' +
+      'PolitiDex only maps districts in Utah so far. Those rows are left blank on purpose: we would ' +
+      'rather show you nothing than show you someone else&rsquo;s district.' +
+    '</p>';
   }
 
   // ── Paint ──────────────────────────────────────────────────────────────────
@@ -186,8 +257,11 @@
     var resolved = reps.levels.filter(function (l) { return l.resolved; }).length;
 
     // The count is stated plainly rather than implied by the row list, so a
-    // partial answer reads as partial. "3 of 3" is not a completeness claim
-    // about government — the line below it names what is out of scope.
+    // partial answer reads as partial. It counts over the levels ACTUALLY SHOWN —
+    // six seats, not the three the band used to know how to look for — so a
+    // visitor outside Utah reads "3 of 6" and a visitor in Utah reads "6 of 6".
+    // The line below it names what is out of scope, and scopeNote() names why the
+    // blanks are blank.
     host.innerHTML =
       '<div class="wrm-result">' +
         '<div class="wrm-resulthd">' +
@@ -198,7 +272,8 @@
         (reps.redrawn
           ? '<p class="wrm-redrawn">Your U.S. House district was redrawn for 2026. The name above is who represents you <strong>right now</strong>; the Voter Hub shows the district you&rsquo;ll actually vote in.</p>'
           : '') +
-        nextActions() +
+        scopeNote(reps) +
+        nextActions(!!reps.districtsResolvable) +
       '</div>';
     sec.setAttribute('data-located', '1');
   }

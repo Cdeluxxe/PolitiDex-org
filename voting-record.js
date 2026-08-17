@@ -1758,6 +1758,55 @@
     });
   };
 
+  // Fill any [data-vrdir="pid|issueKey"] placeholders a comparison board emitted
+  // with WHAT THE RECORD DID on that pair — the same clause the profile row prints,
+  // rendered by PDXConsistency.recordDirection so a compare cell can never word it
+  // differently from the row.
+  //
+  // WHY A PLACEHOLDER. The record-direction read is pure and synchronous, and the
+  // compare table renders before any member's record is warm, so at paint time the
+  // honest answer is "we have not looked yet" — which is neither of the three empty
+  // states and must not be printed as one. The cell emits an empty span, this fills
+  // it after the same one batched /compare call the consistency dots already make
+  // (fetchCompare caches by member list, so a board doing both fetches once), and a
+  // cell whose member never lands keeps the copy it rendered with.
+  //
+  // A SCORED RESULT WINS. Where officialRecord() reached a verdict on this pair,
+  // this leaves the placeholder empty: the dot beside it is the finding, and a
+  // record-direction clause under a verdict would be a second answer to a question
+  // already answered. Idempotent (marks filled nodes) and additive — a failure just
+  // leaves the placeholders as they were.
+  var _RD_SCORED = { consistent: 1, contradicts: 1, mixed: 1, flag: 1 };
+  window._pdxHydrateRecordDirection = function (scope) {
+    var root = scope || document;
+    var nodes = root.querySelectorAll('[data-vrdir]:not([data-vrdone])');
+    if (!nodes.length) return;
+    var pids = {}, want = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var parts = (nodes[i].getAttribute('data-vrdir') || '').split('|');
+      if (parts.length !== 2 || !parts[0] || !parts[1]) { nodes[i].setAttribute('data-vrdone', '1'); continue; }
+      pids[parts[0]] = true;
+      want.push({ el: nodes[i], pid: parts[0], key: parts[1] });
+    }
+    var pidList = Object.keys(pids);
+    if (!pidList.length) return;
+    PDXVotingRecord.fetchCompare(pidList).then(function () {
+      var PC = window.PDXConsistency;
+      if (!PC || !PC.recordDirection || typeof PC.recordDirection.slot !== 'function') return;
+      want.forEach(function (w) {
+        w.el.setAttribute('data-vrdone', '1');
+        try {
+          if (typeof PC.officialRecord === 'function') {
+            var ov = PC.officialRecord(w.pid, w.key);
+            if (ov && _RD_SCORED[ov.token]) return;   // scored: that verdict is the answer
+          }
+          var html = PC.recordDirection.for(w.pid, w.key, { compact: !!w.el.getAttribute('data-vrdir-compact') });
+          if (html) w.el.innerHTML = html;
+        } catch (e) {}
+      });
+    });
+  };
+
   // Inject the stylesheet at load so the comparison-board consistency dots are
   // styled even when a board renders before any profile has been opened.
   try { injectStyles(); } catch (e) {}

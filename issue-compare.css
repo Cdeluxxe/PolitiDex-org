@@ -155,6 +155,12 @@
 .ic-flag { display: inline-block; margin-left: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #fca5a5; background: rgba(248, 113, 113, 0.14); border: 1px solid rgba(248, 113, 113, 0.45); padding: 0.04rem 0.4rem; border-radius: 999px; vertical-align: middle; }
 .ic-spin { display: inline-block; width: 0.7em; height: 0.7em; vertical-align: middle; border: 2px solid rgba(147, 197, 253, 0.35); border-top-color: #93c5fd; border-radius: 50%; animation: icSpin 0.7s linear infinite; }
 @keyframes icSpin { to { transform: rotate(360deg); } }
+/* Record direction, under a readout that had no verdict to give. Sits below the
+   muted "no stated stance / no qualifying votes" line and states what the record
+   itself did. Untinted on purpose: this card's colour vocabulary is its verdict
+   vocabulary, and this has no verdict to colour. */
+.ic-rdir { margin-top: 0.3rem; }
+.ic-cons-row .pdx-rdir { text-transform: none; letter-spacing: 0; }
 
 .ic-evidence { margin: 0.55rem 0 0; color: #cfe0fb; font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.45; }
 .ic-evidence--vote { color: #9fb4d4; }

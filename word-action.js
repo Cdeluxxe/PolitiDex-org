@@ -691,20 +691,33 @@
   // support. Surfaces use this to decide whether to print the slice as a contrast or
   // as a confirmation — never to hide it, which would leave a reader unable to tell
   // "the same" from "not shown".
-  function scopedRead(pid, p) {
-    var main = read(pid, p, { termScope: 'all_time' });
-    var out = {
-      main: main, current: null,
-      scope: main.termScope,
-      lane: isExecLane(pid) ? 'exec' : 'record',
-      serving: false, applicable: false, term: null, differs: false, delta: null
-    };
+  // WHETHER THERE IS A SLICE AT ALL, decided without taking a read. Both rules
+  // above are properties of the figure — which lane they are on and whether they
+  // are serving — so a surface that only needs to know "is a current-term note
+  // true here" can ask without paying for a second scoring pass. `scopedRead`
+  // asks the same function, so the strip inside the card and the note in the
+  // letterhead cannot come to different conclusions about the same person.
+  function sliceApplies(pid) {
+    var out = { lane: isExecLane(pid) ? 'exec' : 'record', serving: false, applicable: false, term: null };
     if (out.lane !== 'exec') return out;
     var cs = C();
     try { out.serving = !!(cs && cs.execActions && cs.execActions.serving(pid)); } catch (e) { out.serving = false; }
     if (!out.serving) return out;
     out.applicable = true;
     try { out.term = (cs.execActions.currentTerm && cs.execActions.currentTerm(pid)) || null; } catch (e) { out.term = null; }
+    return out;
+  }
+
+  function scopedRead(pid, p) {
+    var main = read(pid, p, { termScope: 'all_time' });
+    var sl = sliceApplies(pid);
+    var out = {
+      main: main, current: null,
+      scope: main.termScope,
+      lane: sl.lane,
+      serving: sl.serving, applicable: sl.applicable, term: sl.term, differs: false, delta: null
+    };
+    if (!out.applicable) return out;
     out.current = read(pid, p, { termScope: 'current_term' });
     var a = main.pct, b = out.current.pct;
     out.differs = (a !== b) || (main.token !== out.current.token) ||
@@ -1952,6 +1965,127 @@
     } catch (e) { return ''; }
   }
 
+  // ── HOW MUCH RECORD, AND OVER WHAT SPAN — THE TAIL OF THE HEADER STACK ─────
+  // The letterhead now answers three questions in the order a reader asks them:
+  // the ring says how much of their word their record backs up and how much of it
+  // was tested; the tally above says what shape that average came out of; and this
+  // block says how much record there IS behind both, and — where a term scope
+  // exists at all — which span the figure covers.
+  //
+  // That third question is the one the top of a profile kept leaving to a scroll.
+  // 82% over four issues is a different finding depending on whether the file
+  // behind it is twelve mapped votes or two hundred, and a reader who has to reach
+  // the Official Record to learn which is a reader who has already decided.
+  //
+  // WHAT IT IS NOT.
+  //   · Not a second read. Neither line is computed here: the member lane prints
+  //     window._pdxMappedSummaryText over window._pdxRecordMappedCounts — the same
+  //     sentence over the same warm cache the Official Record's entry line uses —
+  //     and the executive lane prints PDXExecRecord.volumeText over that module's
+  //     own summary, which is the first clause of the label rendered below. One
+  //     builder each, so the header cannot describe our file in words the section
+  //     it summarises would not use.
+  //   · Not a second score. No percentage, no rate, no verdict, no colour keyed to
+  //     a figure. The scope note names a span and says the score above contains
+  //     it; it prints no number of its own, which is why the current-term SLICE
+  //     stays where it already shipped, inside the card, and only its containment
+  //     is said up here.
+  //   · Not a navigator. The lines below are display-only mirrors — the four counts
+  //     above them are the header's one gateway, and this pass adds no second one.
+  //   · Not a claim of completeness. Both builders carry their own thinness caveat
+  //     at low N and their own "counted from what we hold" tooltip, and when
+  //     nothing is warm they return nothing at all rather than a zero.
+  function headerDepthHtml(pid) {
+    try {
+      var txt = '', tip = '';
+      if (isExecLane(pid)) {
+        var X = window.PDXExecRecord;
+        if (X && typeof X.summary === 'function' && typeof X.volumeText === 'function') {
+          // All terms, because the figure this line sits under is the whole record.
+          // Asking for the current term here would put a narrower denominator under
+          // an all-time percentage, which is the mismatch the scope note exists to
+          // prevent rather than to introduce.
+          var sum = X.summary(pid, { allTerms: true });
+          if (sum) {
+            txt = X.volumeText(sum) || '';
+            if (txt && typeof X.summaryTip === 'function') tip = X.summaryTip(sum) || '';
+          }
+        }
+      } else if (typeof window._pdxRecordMappedCounts === 'function' &&
+                 typeof window._pdxMappedSummaryText === 'function') {
+        var counts = window._pdxRecordMappedCounts(pid);
+        if (counts && counts.votes) {
+          txt = window._pdxMappedSummaryText(counts) || '';
+          if (txt && typeof window._pdxMappedSummaryTip === 'function') {
+            tip = window._pdxMappedSummaryTip(counts) || '';
+          }
+        }
+      }
+      if (!txt) return '';
+      return '' +
+        '<div class="pdxwa-hdepth"' + (tip ? ' title="' + esc(tip) + '"' : '') + '>' +
+          '<span class="pdxwa-hdepth-ico" aria-hidden="true">🗂️</span>' +
+          '<span class="pdxwa-hdepth-t">' + esc(txt) + '</span>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // The scope note. Words only, and only where a term scope is a real distinction:
+  // a member's roll-call record is not term-filtered anywhere in this engine, so
+  // saying "all terms" on their profile would name a difference that does not
+  // exist. The sentence is the containment half of the card's own slice note, which
+  // is the half that stops two spans reading as two rival findings — the slice's
+  // FIGURE stays in the card, because a second percentage in the letterhead is the
+  // exact thing the ring is one number to avoid.
+  function headerScopeHtml(pid) {
+    try {
+      var sl = sliceApplies(pid);
+      if (!sl.applicable) return '';
+      var termLabel = sl.term ? 'Current term (' + sl.term + ')' : 'Current term';
+      return '' +
+        '<div class="pdxwa-hscope">' +
+          '<span class="pdxwa-hscope-tie" aria-hidden="true">↳</span>' +
+          '<span class="pdxwa-hscope-t">' +
+            esc(termLabel + ' is counted inside the score above — that figure is the whole record, every term.') +
+          '</span>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  function headerStackHtml(pid) {
+    var depth = headerDepthHtml(pid);
+    var scope = headerScopeHtml(pid);
+    // Nothing true to say yet → no frame, no rule, no reserved row. Same rule the
+    // tally host follows, and for the same reason: an empty strip under a name
+    // reads as something withheld.
+    if (!depth && !scope) return '';
+    return '<div class="pdxwa-hstack">' + depth + scope + '</div>';
+  }
+
+  // Emitted on every profile whether or not there is anything in it yet, because
+  // the member lane's counts come off the roll-call cache and that cache is still
+  // in flight when the header is built. Empty host, no chrome — repainted by the
+  // same `pdx-consistency-warm` event the tally listens for.
+  function bindHeaderStack(uid, pid) {
+    if (!window.addEventListener) return;
+    var handler = function (ev) {
+      var host = document.querySelector('[data-pdxwa-hstack="' + uid + '"]');
+      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
+      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+      try { host.innerHTML = headerStackHtml(pid); } catch (e) {}
+    };
+    window.addEventListener('pdx-consistency-warm', handler);
+  }
+
+  function headerStackMount(pid) {
+    try {
+      var uid = ('hstack-' + String(pid) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '');
+      var inner = headerStackHtml(pid);
+      try { setTimeout(function () { bindHeaderStack(uid, pid); }, 0); } catch (e) {}
+      return '<div class="pdxwa-hstack-host" data-pdxwa-hstack="' + esc(uid) + '">' + inner + '</div>';
+    } catch (e) { return ''; }
+  }
+
   // ── THE ROW IS THE TAP TARGET ──────────────────────────────────────────────
   // Every row in the index opens the issue dossier for that politician and that
   // issue — the same assembled sheet the stance rows open, built once in
@@ -3033,6 +3167,12 @@
     // formal lane only, and nothing at all below the two-issue floor.
     headerTallyMount: headerTallyMount,
     headerTallyHtml: headerTallyHtml,
+    // The tail of that same header stack: how much record is on file, in the
+    // vocabulary the section below uses for it, plus the span the figure covers
+    // where a span is a real distinction. Display-only, no percentage, no gateway
+    // of its own — the tally above it is the header's one set of doors.
+    headerStackMount: headerStackMount,
+    headerStackHtml: headerStackHtml,
     heroHtml: heroInner,
     dotsHtml: dotsHtml
   };

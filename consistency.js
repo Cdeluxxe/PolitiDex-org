@@ -1544,6 +1544,17 @@
       '.pdxc-legend{display:flex;flex-direction:column;gap:0.35rem;font-family:"Barlow Condensed",sans-serif;}' +
       '.pdxc-legend-row{display:flex;align-items:baseline;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;}' +
       '.pdxc-legend-row b{white-space:nowrap;}' +
+      // ── Record direction, on a decision surface ─────────────────────────────
+      // Deliberately UNTINTED. Every verdict chip above owns a colour and the
+      // colour is the verdict; a record-direction slot has no verdict to colour,
+      // so it borrows none. It reads as calm inventory text — which is what it is
+      // — and the three empty states differ in wording rather than in hue, so no
+      // surface can imply a judgement by styling one.
+      '.pdx-rdir{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:0.3rem;font-family:"Barlow",sans-serif;font-size:0.72rem;line-height:1.45;color:#a9bcd8;}' +
+      '.pdx-rdir .pdx-rdir-ico{opacity:0.85;}' +
+      '.pdx-rdir .pdx-rdir-txt{color:#c6d4ec;}' +
+      '.pdx-rdir.is-none .pdx-rdir-txt,.pdx-rdir.is-thin .pdx-rdir-txt{color:#9fb4d4;}' +
+      '.pdx-rdir .pdx-rdir-note{flex:1 1 100%;font-size:0.66rem;color:#7596c0;}' +
       // Promise Tracker gateway — the section name (no %) + two dive-in cards.
       '.pdxc-gate{border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.6),rgba(10,15,30,0.35));}' +
       '.pdxc-gate-h{display:flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.15rem;letter-spacing:0.03em;color:#e8eefc;line-height:1;}' +
@@ -3839,6 +3850,14 @@
     }
     return tip;
   }
+  // PUBLISHED, so the profile letterhead's depth line prints THIS sentence rather
+  // than assembling a second one from the same counts. Both are pure copy over a
+  // counts object the caller already holds — no reads, no DOM, nothing scored — and
+  // one builder is the only way the header and this section stay incapable of
+  // describing one warm cache two different ways. `_orMappedSummaryTip` assumes a
+  // counts object, so callers gate on having one.
+  window._pdxMappedSummaryText = _orMappedSummaryText;
+  window._pdxMappedSummaryTip = _orMappedSummaryTip;
   // Is there a Voting Record section to send a reader to? Asking the document is
   // not enough. This runs while the next profile is still a string, so the only
   // evidence ever available was the PREVIOUS render — and that record now waits
@@ -4628,14 +4647,23 @@
   // readers below share it so the two surfaces can never disagree about what the
   // record did — only about whether this row is allowed to say so.
   function _stDirIndex(r) {
+    var idx = _stDirRaw(r);
+    if (!idx || !idx.clause) return null;
+    return idx;
+  }
+  // The same read with one gate fewer: the index BEFORE "has it anything to
+  // print". A row needs this to say that the index looked and declined — two
+  // rows, one holding a record we cannot characterise and one holding nothing,
+  // printed the same blank, and only one of them was a fact about their record.
+  // No clause is ever rendered from here: _stDirIndex above is still the only
+  // door a printable direction comes through.
+  function _stDirRaw(r) {
     try {
       if (!r || !r.pid || !r.key) return null;
       if (r.lane === 'exec') return null;         // later slice — see above
       if (typeof window._pdxRecordDirection !== 'function') return null;
-      var idx = window._pdxRecordDirection(r.pid, r.key,
-        { noun: _stNoun(r), label: r.label || '' });
-      if (!idx || !idx.clause) return null;
-      return idx;
+      return window._pdxRecordDirection(r.pid, r.key,
+        { noun: _stNoun(r), label: r.label || '' }) || null;
     } catch (e) { return null; }
   }
   // ── WHAT THE RECORD DID, ON A ROW THAT WAS NOT SCORED ───────────────────────
@@ -4678,6 +4706,170 @@
       return 'of the ' + idx.judged + ' that took a side, ' + idx.clause;
     }
     return idx.clause;
+  }
+  // Suppressions that are about THE ISSUE, not about their record. When the index
+  // declines because this issue has no directional pole to sort a vote against —
+  // or is a balance key, where "advanced it" is not a thing a vote can do — the
+  // shortfall belongs to our mapping, not to them. Saying "too thin to
+  // characterise" there would state a fact about their record that we have not
+  // established, so the row stays silent and prints only what it can defend.
+  var _ST_DIR_ISSUE_SILENT = { balance_key: 1, no_pole: 1, no_issue: 1 };
+  // The counterpart to _stDirClause: what the row says when the index LOOKED and
+  // could not speak. `record_thin` is the one token that is a finding about their
+  // record — items are on file, too few took a side to characterise — and it is
+  // the only one that earns a line here. `record_none` stays silent on purpose:
+  // "nothing directional on file" beside an inventory count reads as a complaint
+  // about a record that may be complete and simply unmapped, and a row that
+  // already prints its count does not need us to editorialise the blank.
+  //
+  // WHAT THIS IS NOT. Not a clause, not a direction, not a token the row can be
+  // sorted or scored on: it borrows the index's own published label so the
+  // vocabulary stays the index's, and it is never a substitute for a stated
+  // position that exists.
+  function _stDirLimit(r) {
+    var idx = _stDirRaw(r);
+    if (!idx || idx.clause) return '';                              // spoke, or nothing there
+    if (idx.token !== 'record_thin') return '';
+    if (idx.suppressed && _ST_DIR_ISSUE_SILENT[idx.suppressed]) return '';
+    var lbl = idx.label || '';
+    return lbl ? lbl.charAt(0).toLowerCase() + lbl.slice(1) : '';
+  }
+
+  // ── THE SAME FINDING, WHERE VOTERS ACTUALLY COMPARE AND CHOOSE ───────────────
+  // Everything above this line renders a PROFILE ROW. That is one screen deep in
+  // one person's file, and it is not where a ballot is decided: the compare table,
+  // the issue-choice cards and the ballot breakdown are. On those surfaces a
+  // member with twenty mapped roll calls and no sourced stance rendered the same
+  // grey blank as a member with nothing on file at all — the record was computed,
+  // and then discarded one function short of the screen a voter chooses on.
+  //
+  // ONE PLACE DECIDES. The three surfaces below (compare-table.js,
+  // issue-compare.js, ballot-breakdown.js) do not each ask the index and each
+  // word an answer; they call this and print what comes back. That is why the
+  // clause is _stDirClause's clause, the labels are _RD_TOKENS' labels and the
+  // vocabulary is _stTeach's vocabulary: a surface cannot drift from the row,
+  // because a surface never writes this sentence.
+  //
+  // WHAT IT IS NOT, on every surface it reaches:
+  //   · not a score — `pct` does not exist on this shape and no share, rate or
+  //     percentage is composed anywhere below;
+  //   · not a stance — the record is the subject of every sentence, never the
+  //     person, and the disclosure says so in words;
+  //   · not a sort key and not a filter key — this returns display text and
+  //     nothing ordinal. The callers rank and bucket on what they already ranked
+  //     and bucketed on (see the note over rankScore in issue-compare.js);
+  //   · not an input to Direction Match / Word vs Action. It reads the same warm
+  //     items those score from and writes nothing back.
+  //
+  // A SCORED RESULT ALWAYS WINS. Callers ask this only where their own scored
+  // read came back empty — no verdict, no percentage, nothing judged. That
+  // ordering lives in the caller because the caller is the one holding the
+  // verdict; what lives here is the refusal to invent one.
+  //
+  // THE THREE EMPTY STATES, which a single grey blank used to flatten into one:
+  //   'none'   — no formal record on file for this member on this issue;
+  //   'thin'   — a record IS on file and may not be characterised (too short, too
+  //              split, below the coverage floor, or an issue with no support
+  //              pole). The count is honest; the direction is withheld;
+  //   'speaks' — the record-direction clause the profile row would print.
+  // Returns null when nothing is warm yet, so a surface keeps whatever pending or
+  // silent state it already had rather than asserting an absence we have not read.
+  var _RD_SLOT_NOTE = 'No stated position on file — this is what the record itself did, ' +
+    'not a stated stance and not a score.';
+  var _RD_SLOT_NOTE_SAID = 'None of it has been judged against their stated position, ' +
+    'so this is what the record itself did — not a score.';
+  var _RD_SLOT_NOTE_THIN = 'Too little on file to say which way it ran, so no direction is stated.';
+  // The disclosure is the SHARE CARD'S fixed disclosure wherever receipt-cards.js
+  // is loaded, so the sentence a reader meets on a compare cell is the sentence
+  // they meet on the card they share from it. The literal above is pinned equal to
+  // it by scripts/test-record-direction-surfaces.mjs — two copies that cannot
+  // drift beats one copy that only some surfaces can reach.
+  function _rdSlotNote() {
+    try {
+      var g = window.PDXReceiptCards && window.PDXReceiptCards.guards;
+      if (g && g.rdNote) return g.rdNote;
+    } catch (e) {}
+    return _RD_SLOT_NOTE;
+  }
+  function _rdSlot(pid, issueKey, opts) {
+    try {
+      if (!pid || !issueKey) return null;
+      if (typeof window._pdxRecordDirection !== 'function') return null;
+      var o = opts || {};
+      // The exec lane is out of scope here for the same reason it is out of scope
+      // on the row: "advanced it" over an executive order needs the exec lane's
+      // own vocabulary and its own standing rules.
+      var lane = o.lane || recordLaneFor(pid, issueKey);
+      if (lane === 'exec') return null;
+      var noun = o.noun || { one: 'vote', many: 'votes' };
+      var label = o.label || _issueLabel(issueKey) || '';
+      var idx = window._pdxRecordDirection(pid, issueKey, { noun: noun, label: label });
+      if (!idx) return null;                    // nothing warm — the surface stays as it was
+      var total = idx.total || 0;
+      var many = (total === 1) ? noun.one : noun.many;
+      // `clause`, not `characterised` and not `counted` — the gate is exactly the
+      // gate the profile row uses (_stDirIndex refuses an empty clause and nothing
+      // else), so a decision surface speaks wherever the row would speak.
+      var speaks = !!idx.clause;
+      var state = speaks ? 'speaks' : (total ? 'thin' : 'none');
+      var said = false;
+      try { said = !!(o.said === true || (o.said !== false && positionStance(pid, issueKey))); } catch (e) { said = false; }
+      var inv = total + ' ' + many + ' on file';
+      var text, note, aria;
+      if (state === 'speaks') {
+        text = inv + ' — ' + _stDirClause(idx, total);
+        note = said ? _RD_SLOT_NOTE_SAID : _rdSlotNote();
+        aria = (idx.summary || text) + ' ' + note;
+      } else if (state === 'thin') {
+        // The token names its own refusal ("Too thin to characterise"), so the
+        // reason a direction is withheld is not worded a second time here.
+        text = inv + ' — ' + String(idx.label || '').toLowerCase();
+        note = _RD_SLOT_NOTE_THIN;
+        aria = text + '. ' + note;
+      } else {
+        text = 'No record on file yet';
+        note = '';
+        aria = 'No formal record on file yet' + (label ? ' on ' + label : '') + '.';
+      }
+      return {
+        state: state, token: idx.token, issueKey: issueKey, pid: pid, lane: lane,
+        label: idx.label || '', judged: idx.judged || 0, total: total, held: total,
+        characterised: !!idx.characterised, counted: !!idx.counted,
+        lead: idx.lead || null, suppressed: idx.suppressed || null,
+        noun: noun, many: many, said: said,
+        clause: speaks ? _stDirClause(idx, total) : '',
+        summary: idx.summary || '', text: text, note: note, aria: aria
+      };
+    } catch (e) { return null; }
+  }
+  // The slot's markup. Escaped, then run through the row's OWN teaching pass, so
+  // "advanced it" / "cut against it" / "ran both ways" carry the same dotted
+  // glossary control on a ballot card that they carry on the profile row — the
+  // reader meets the claim and its definition in the same place.
+  //   opts.compact — drop the disclosure line (tight cells); it stays in the
+  //                  tooltip and the accessible name, never dropped outright.
+  //   opts.ico     — false to omit the 🏛️ lane glyph.
+  //   opts.cls     — extra class for the calling surface's own spacing.
+  function _rdSlotHtml(slot, opts) {
+    if (!slot) return '';
+    try { ensureStyles(); } catch (e) {}
+    var o = opts || {};
+    var ico = (o.ico === false) ? ''
+      : '<span class="pdx-rdir-ico" aria-hidden="true">🏛️</span>';
+    var note = (o.compact || !slot.note) ? ''
+      : '<span class="pdx-rdir-note">' + esc(slot.note) + '</span>';
+    return '<span class="pdx-rdir is-' + esc(slot.state) + (o.cls ? ' ' + esc(o.cls) : '') +
+      '" title="' + esc(slot.aria) + '" aria-label="' + esc(slot.aria) + '">' + ico +
+      '<span class="pdx-rdir-txt">' + _stTeach(esc(slot.text)) + '</span>' + note + '</span>';
+  }
+  // Slot + markup in one call, for the surfaces whose empty branch is a single
+  // return statement. '' when nothing is warm, which is what those branches
+  // already returned.
+  function _rdSlotFor(pid, issueKey, opts) {
+    var slot = _rdSlot(pid, issueKey, opts);
+    if (!slot) return '';
+    if (opts && opts.only && opts.only.indexOf(slot.state) < 0) return '';
+    return _rdSlotHtml(slot, opts);
   }
   // The row's result, as data. One place decides what a row concluded, so the
   // markup below and the tests both read the same answer.
@@ -4739,8 +4931,20 @@
           // sentence reads exactly as it did before this pass.
           ldir = _stRecordDirection(r);
           var lclause = _stDirClause(ldir, lheld);
-          lwhy = lheld + ' ' + lmany + ' on file' + (lclause ? ' — ' + lclause : '') +
-            ' · no stated position from them yet, so this row isn’t scored.';
+          // WHERE THE INDEX LOOKED AND DECLINED. Two rows printed the identical
+          // bare inventory: one holding a record too thin to characterise, one
+          // holding a record we simply have no pole to sort. Only the first is a
+          // fact about their record, so only the first says so — see _stDirLimit.
+          var llimit = lclause ? '' : _stDirLimit(r);
+          lwhy = lheld + ' ' + lmany + ' on file' +
+            (lclause ? ' — ' + lclause : (llimit ? ' — ' + llimit : '')) +
+            ' · no stated position from them yet, so this row isn’t scored' +
+            // THE FOURTH PART OF THE DISCLOSURE. Inventory, direction and "not a
+            // score" were all on the row already; what was missing is the one that
+            // stops a reader carrying the direction away as a position — this is
+            // the share card's and the compare cell's sentence (_RD_SLOT_NOTE),
+            // ending on the same two denials, so the row cannot drift from them.
+            (lclause ? ' — this is what the record itself did, not a stated stance.' : '.');
           linvite = { count: lheld, noun: lmany, cta: 'see the ' + lmany };
         } else {
           lwhy = 'No stated position from them yet, so there is nothing here to test the record against.';
@@ -4771,6 +4975,30 @@
             ? 'There is a record here, but none of it takes a clear side on this claim.'
             : 'Nothing on record yet takes a side on this one.';
         }
+      } else if (lim.basis !== 'public_record' && _stDirClause(_stDirIndex(r), lheld) && lheld > 0) {
+        //   · A RECORD THAT WAS ONLY PARTLY TESTED. _stSplit does return counts
+        //     here — a judged handful, too few or too evenly split for the mixed
+        //     gate to call — and the row answered with "Not enough record to judge
+        //     this one yet." over a file of a dozen or more votes whose direction
+        //     the index had already characterised. That sentence is about the JUDGED
+        //     subset and reads as a statement about the whole record, which is the
+        //     same error this pass fixed one branch up. So the row states its
+        //     inventory, states what that record did, and then says precisely how
+        //     much of it was judged — the shortfall named, not generalised.
+        //     FORMAL SPLITS ONLY. Where the judged handful came from the public
+        //     lane, the two numbers in one sentence would be a formal count and a
+        //     public count reading as one arithmetic, so that row keeps the old
+        //     sentence and the lanes stay separable.
+        var pdir = _stDirIndex(r), pclause = _stDirClause(pdir, lheld);
+        var pmany = (lheld === 1 ? lnoun.one : lnoun.many);
+        var pj = lim.judged, pjn = (pj === 1 ? lnoun.one : lnoun.many);
+        ldir = pdir;
+        lshape = 'part_judged';
+        lwhy = lheld + ' ' + pmany + ' on file — ' + pclause + ' · only ' + pj + ' ' + pjn + ' ' +
+          (pj === 1 ? 'has' : 'have') + ' been judged against ' +
+          (lsaid ? 'their stated position' : 'a stated position') +
+          ', which is not enough to score this row yet.';
+        linvite = { count: lheld, noun: pmany, cta: 'see the ' + pmany };
       } else if (lim.judged === 1) {
         lwhy = 'One ' + lnoun.one + ' is not enough to judge this one yet.';
       } else {
@@ -4782,8 +5010,11 @@
                // bucketing — so _dosBucket returns nothing here and the row says what
                // is actually true of it instead: it is not scored. It is not a verdict,
                // it does not rank, and it is the one label on this face that is about
-               // OUR coverage rather than their conduct.
-               label: (lshape === 'no_stance') ? 'Not scored yet' : word,
+               // OUR coverage rather than their conduct. `part_judged` joins it for
+               // the same reason: "Thin record" over a row that has just printed
+               // fourteen votes and what they did is the false sentence this pass
+               // exists to remove, and the word has to agree with the line under it.
+               label: (lshape === 'no_stance' || lshape === 'part_judged') ? 'Not scored yet' : word,
                ico: v.ico, color: v.color, cls: v.cls, why: lwhy, bucket: bucket,
                shape: lshape, held: lheld, invite: linvite, dir: ldir };
     }
@@ -4802,8 +5033,11 @@
         var umany = (uheld === 1 ? unoun.one : unoun.many);
         udir = _stRecordDirection(r);
         var uclause = _stDirClause(udir, uheld);
-        uwhy = uheld + ' ' + umany + ' on file' + (uclause ? ' — ' + uclause : '') +
-          ' · no stated position from them yet, so this row isn’t scored.';
+        var ulimit = uclause ? '' : _stDirLimit(r);
+        uwhy = uheld + ' ' + umany + ' on file' +
+          (uclause ? ' — ' + uclause : (ulimit ? ' — ' + ulimit : '')) +
+          ' · no stated position from them yet, so this row isn’t scored' +
+          (uclause ? ' — this is what the record itself did, not a stated stance.' : '.');
         uinvite = { count: uheld, noun: umany, cta: 'see the ' + umany };
       } else {
         uwhy = 'They have a record here, but no stated position to test it against.';
@@ -4882,10 +5116,17 @@
     // rather than joining it, and the count is stated once.
     var dirLead = (res.dir && res.dir.summary) ? res.dir.summary : '';
     var noStanceLead = (res.shape === 'no_stance' && dirLead)
-      ? dirLead + ' No stated position from them yet, so this row isn’t scored.'
+      ? dirLead + ' No stated position from them yet, so this row isn’t scored — ' +
+        'this is what the record itself did, not a stated stance.'
       : res.why;
     var unjudgedLead = (res.shape === 'unjudged' && dirLead)
       ? dirLead + ' None of it has been judged against their stated position, so this row isn’t scored.'
+      : res.why;
+    // Same construction for the partly-judged row: the index's sentence names the
+    // issue and the direction, and the tail names the shortfall that keeps the
+    // percentage empty — which is the judged subset, not the record.
+    var partLead = (res.shape === 'part_judged' && dirLead)
+      ? dirLead + ' Too little of it has been judged against their stated position to score this row.'
       : res.why;
     var tip = (res.state === 'tested')
       ? res.metric + ' on this issue only: ' + res.pct + '% — ' +
@@ -4905,6 +5146,10 @@
           ? unjudgedLead + ' ' +
             'No percentage is shown, because none of this record has been judged against what they said — ' +
             'the count is what we hold on file, not a score.'
+          : res.shape === 'part_judged'
+          ? partLead + ' ' +
+            'No percentage is shown, because too little of this record has been judged against what they said — ' +
+            'the count is what we hold on file, not a score.'
           : res.why + ' ' +
             'No percentage is shown, because the record behind this row is too thin to divide.');
     var num = (res.state === 'tested')
@@ -4918,6 +5163,8 @@
           ? 'No percentage — no stated position to score the record against'
           : res.shape === 'unjudged'
           ? 'No percentage — none of this record has been judged against what they said'
+          : res.shape === 'part_judged'
+          ? 'No percentage — too little of this record has been judged against what they said'
           : 'No percentage — not enough record') + '">—</span>';
     return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
@@ -5574,6 +5821,8 @@
               ? 'On the record — nothing stated to test it against'
               : (shp === 'unjudged')
               ? 'Stated and on the record — not yet judged against each other'
+              : (shp === 'part_judged')
+              ? 'On the record — only part of it judged against what they said'
               : 'Too thin to judge yet';
             if (sub !== lastSub) {
               lastSub = sub;
@@ -8318,6 +8567,19 @@
       multiNote: _orRowMultiNote,
       mappedSummary: _orMappedSummaryText,
       LABELS: _OR_ROW
+    },
+    // WHAT THE RECORD DID, for the surfaces a voter actually chooses on. `slot`
+    // returns the data shape (state / counts / clause / disclosure), `html` its
+    // markup, `for` both in one call. Display-only by construction: there is no
+    // `pct` on the shape, nothing ordinal to sort or filter on, and no path from
+    // any of the three back into Direction Match. See the long note over _rdSlot.
+    recordDirection: {
+      slot: _rdSlot,
+      html: _rdSlotHtml,
+      for: _rdSlotFor,
+      NOTE: _RD_SLOT_NOTE,
+      NOTE_SAID: _RD_SLOT_NOTE_SAID,
+      NOTE_THIN: _RD_SLOT_NOTE_THIN
     },
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.

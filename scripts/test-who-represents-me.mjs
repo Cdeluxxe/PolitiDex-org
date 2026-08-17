@@ -40,8 +40,9 @@
      2. Chrome: the desktop pill, the mobile entry, one shared action
      3. Team Builder survived, and gained a step-① door back
      4. Driven: one resolver, and it never drops a level it could not resolve
-     5. Driven: the band paints cold, warm, and honestly partial
+     5. Driven: the band paints cold, warm, honestly partial, and non-Utah
      6. No scores, no verdicts, no party framing, and real thumb targets
+     7. Statewide coverage, measured against the real shipped roster
    ═══════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -125,10 +126,20 @@ ok(/Build your team<\/strong><em>Optional/.test(SEC),
   'front door: step ③ no longer marks team building optional, so the band reads as a funnel into a\n' +
   '    slate builder rather than a lookup service that happens to offer one');
 
-// Coverage honesty in the cold state: name the levels, and name what is not one.
+// Coverage honesty in the cold state: name the levels, name which ones resolve
+// from a state alone, and name what is not one. The band answers nationally for
+// statewide seats and in Utah only for district seats, and a cold visitor is told
+// which is which BEFORE they type an address — otherwise "see who represents me"
+// promises a full ballot everywhere.
+has(SEC, 'U.S. Senate and Governor',
+  'front door: the scope note no longer names the statewide seats, which are the ones the band can\n' +
+  '    resolve for every state — a visitor outside Utah has no idea it will answer for them at all');
 has(SEC, 'U.S. House, State Senate and State House',
-  'front door: the scope note no longer names which seats are resolved, so "see who represents me"\n' +
-  '    implies every level of government');
+  'front door: the scope note no longer names which district seats are resolved, so "see who\n' +
+  '    represents me" implies every level of government');
+has(SEC, 'district lines',
+  'front door: the scope note no longer says the district seats need district lines, so a blank row\n' +
+  '    outside Utah reads as missing data rather than an unmapped boundary');
 has(SEC, 'we say so where we don',
   'front door: the scope note dropped its admission about local offices — a lookup that silently\n' +
   '    omits a mayor is a completeness claim it cannot back');
@@ -225,13 +236,20 @@ has(HTML.slice(shAt - 2500, shAt), 'SEE WHO <span class="sh-accent">REPRESENTS Y
 // 4 · Driven: one resolver, and it never drops a level it could not resolve
 // ═════════════════════════════════════════════════════════════════════════════
 // voter-hub-location.js is one long IIFE that boots against the live page, so
-// the resolver is sliced out and driven directly.
+// the resolver is sliced out and driven directly. The slice starts at the
+// statewide-seat helper rather than at pdxRepsForMe itself, because the two U.S.
+// Senate rows and the Governor row resolve through it — slicing below it would
+// leave every statewide assertion below silently blank and vacuously "honest".
+const swFrom = VHL.indexOf('var _pdxStatewideCache = {};');
 const resFrom = VHL.indexOf('window.pdxRepsForMe = function ()');
 const resTo = VHL.indexOf('window._vhSyncDistrictStrip = function()', resFrom);
+must(swFrom !== -1 && swFrom < resFrom,
+  'voter-hub-location.js no longer defines the _pdxStatewideCache/_pdxStatewideSeats block above\n' +
+  '  pdxRepsForMe — the statewide seats (U.S. Senate, Governor) have no resolver');
 must(resFrom !== -1 && resTo > resFrom,
   'voter-hub-location.js no longer defines window.pdxRepsForMe above _vhSyncDistrictStrip — the\n' +
   '  shared-resolver contract this whole pass rests on is gone');
-const RESOLVER = VHL.slice(resFrom, resTo);
+const RESOLVER = VHL.slice(swFrom, resTo);
 
 // The strip must CONSUME the resolver rather than keep a private copy. Two
 // surfaces deriving districts separately is the failure mode worth a test. Only
@@ -251,11 +269,29 @@ lacks(STRIPFN, '_pdxHouseRedistrict',
 has(WRM, 'window.pdxRepsForMe',
   'resolver: the homepage band stopped reading the shared resolver');
 
+// The synthetic roster the driven resolver resolves statewide seats against. Two
+// Senate seats and a Governor for Utah, plus the traps a lazy office-string match
+// would fall into: a state senator, a lieutenant governor and a governor
+// CANDIDATE, none of whom hold the seats being resolved.
+const ROSTER_UT = {
+  'ut-sen-a': { name: 'Sen Ay', office: 'U.S. Senator', state: 'Utah', party: 'R' },
+  'ut-sen-b': { name: 'Sen Bee', office: 'U.S. Senate Majority Whip', state: 'Utah', party: 'R' },
+  'ut-gov': { name: 'Gov Gee', office: 'Governor', state: 'Utah', party: 'R' },
+  'ut-ltgov': { name: 'Lt Gov', office: 'Lieutenant Governor', state: 'Utah', party: 'R' },
+  'ut-govcand': { name: 'Gov Hopeful', office: 'Governor Candidate', state: 'Utah', party: 'D' },
+  'ut-statesen': { name: 'State Sen', office: 'Utah State Senator', state: 'UT District 6', party: 'R' },
+  'p-house': { name: 'Blake Moore', party: 'R', office: 'U.S. Representative', state: 'Utah · UT-1' },
+  'p-sen': { name: 'Todd Weiler', party: 'R', office: 'Utah State Senator', state: 'UT District 23' },
+  'p-rep': { name: 'Ray Ward', party: 'R', office: 'Utah State Representative', state: 'UT District 17' },
+  'p-old': { name: 'Old Member', party: 'R', office: 'U.S. Representative', state: 'Utah · UT-2' },
+};
+
 const mkResolverCtx = (over) => {
   const ctx = {
     console, Math, JSON, String, Array, Object, Number, Boolean, RegExp,
     _hasUserLocation: true,
     _currentVoterLocation: { state: 'Utah', city: 'Bountiful', county: 'Davis', district: '1' },
+    CMP_DATA: ROSTER_UT,
     _pdxVoterBallot: () => ({
       districts: { house: '1', senate: '23', lower: '17' },
       byOffice: {
@@ -274,17 +310,55 @@ const mkResolverCtx = (over) => {
   return ctx;
 };
 
+// The level model, stated once. Six seats in two classes: three that resolve from
+// the STATE alone (both U.S. Senate seats and the Governor) and three that need
+// district lines. Every assertion about ordering, counting and blanking below is
+// measured against this list.
+const KEYS = 'ussenate1,ussenate2,house,governor,statesenate,statehouse';
+const byKey = (reps, k) => reps.levels.filter((l) => l.key === k)[0];
+
 const full = mkResolverCtx().pdxRepsForMe();
 eq(full.located, true, 'resolver: a located visitor is reported as unlocated');
-eq(full.levels.length, 3,
-  'resolver: the level list is not the three seats the band\'s scope note promises');
-eq(full.levels.map((l) => l.key).join(','), 'house,statesenate,statehouse',
-  'resolver: the levels are not federal-then-state, which is the order both surfaces render');
-eq(full.levels[0].distLabel, 'U.S. House · District 1',
+eq(full.levels.length, 6,
+  'resolver: the level list is not the six seats the band now resolves — two U.S. Senate, U.S. House,\n' +
+  '    Governor, State Senate, State House');
+eq(full.levels.map((l) => l.key).join(','), KEYS,
+  'resolver: the levels are not in the order both surfaces render — federal statewide, federal\n' +
+  '    district, then the state seats');
+eq(byKey(full, 'house').distLabel, 'U.S. House · District 1',
   'resolver: the district label a visitor reads changed shape');
-eq(full.levels.filter((l) => l.resolved).length, 3,
-  'resolver: a fully-resolved address did not resolve all three seats');
+eq(full.levels.filter((l) => l.resolved).length, 6,
+  'resolver: a fully-resolved Utah address did not resolve all six seats — Utah is the one state\n' +
+  '    with curated districts AND a full statewide roster, so it is the case that must be complete');
 eq(full.area, 'Bountiful, Davis County', 'resolver: the area label a visitor recognises is gone');
+eq(full.districtsResolvable, true,
+  'resolver: a Utah visitor is reported as having no resolvable districts, which would blank the\n' +
+  '    three seats PolitiDex actually maps');
+
+// Statewide rows carry no district and say which state they cover — that label is
+// also the only thing telling the two Senate rows apart from each other.
+for (const k of ['ussenate1', 'ussenate2', 'governor']) {
+  const lv = byKey(full, k);
+  eq(lv.statewide, true, `resolver: ${k} is not flagged statewide, so a renderer cannot tell it needs no district`);
+  eq(lv.district, null, `resolver: ${k} carries a district number — a statewide seat has no district`);
+  ok(lv.distLabel.indexOf('District') === -1,
+    `resolver: ${k} prints the word "District" in its heading, which invites a reader to take the\n` +
+    '    state name for a district number');
+}
+eq(byKey(full, 'ussenate1').distLabel, 'U.S. Senate · Utah',
+  'resolver: the U.S. Senate row no longer names the state it covers, so the two Senate rows are\n' +
+  '    indistinguishable from each other');
+eq(byKey(full, 'governor').distLabel, 'Governor · Utah',
+  'resolver: the Governor row no longer names the state it covers');
+eq(byKey(full, 'governor').pid, 'ut-gov',
+  'resolver: Governor resolved to something other than the office holder — "Lieutenant Governor" and\n' +
+  '    "Governor Candidate" are in this roster precisely so a loose match shows up here');
+eq([byKey(full, 'ussenate1').pid, byKey(full, 'ussenate2').pid].sort().join(','), 'ut-sen-a,ut-sen-b',
+  'resolver: the two U.S. Senate rows did not resolve to the state\'s two senators. A sitting senator\n' +
+  '    frequently carries a leadership title instead of "U.S. Senator" ("U.S. Senate Majority Whip"\n' +
+  '    here), and matching only the plain title drops one of the two');
+eq(byKey(full, 'house').statewide, false,
+  'resolver: the U.S. House is flagged statewide — it is the federal seat that needs a district');
 
 // The honesty case. A level with no officeholder must survive as an explicit
 // unresolved entry, because a list of two reads as complete.
@@ -295,12 +369,13 @@ const partial = mkResolverCtx({
   }),
   keyRacesRelevantData: () => ({ matched: false }),
 }).pdxRepsForMe();
-eq(partial.levels.length, 3,
+eq(partial.levels.length, 6,
   'resolver: an unresolved seat was DROPPED from the list — the remaining rows then read as the\n' +
   '    complete answer, which is precisely the fake completeness claim the brief forbids');
-eq(partial.levels.filter((l) => l.resolved).length, 1,
-  'resolver: a seat with no officeholder still reports itself resolved');
-eq(partial.levels[1].pid, null, 'resolver: an unresolved level carries a stale pid');
+eq(partial.levels.filter((l) => l.resolved).length, 4,
+  'resolver: the two state legislative seats with no officeholder still report themselves resolved\n' +
+  '    (or the statewide seats stopped resolving when the curated ballot went thin)');
+eq(byKey(partial, 'statesenate').pid, null, 'resolver: an unresolved level carries a stale pid');
 
 // No location, and the national pseudo-location, both have to be legible to the
 // band as "do not paint an answer".
@@ -310,15 +385,21 @@ const nat = mkResolverCtx({ _currentVoterLocation: { state: 'National' } }).pdxR
 eq(nat.national, true,
   'resolver: the national pseudo-location is not flagged, so the band would claim a nationwide\n' +
   '    visitor has three specific seats');
+eq(nat.levels.filter((l) => l.resolved).length, 0,
+  'resolver: the national pseudo-location resolved seats for somebody — "National" is not a state\n' +
+  '    and has neither senators nor a governor of its own');
 
 // Redistricting travels with the resolver, so both surfaces say the same thing.
 const redrawn = mkResolverCtx({
   _pdxHouseRedistrict: () => ({ changed: true, currentPid: 'p-old', currentDistrict: '2' }),
 }).pdxRepsForMe();
 eq(redrawn.redrawn, true, 'resolver: a redrawn House seat is no longer flagged to its callers');
-eq(redrawn.levels[0].pid, 'p-old',
+eq(byKey(redrawn, 'house').pid, 'p-old',
   'resolver: a redrawn seat names the future member as the current one — who represents you NOW is\n' +
   '    the question the band asked');
+eq(byKey(redrawn, 'house').distLabel, 'U.S. House · District 2',
+  'resolver: the redrawn row pairs the current member with a district number that is not theirs —\n' +
+  '    the label and the name it opens have to describe the same seat');
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 5 · Driven: the band paints cold, warm, and honestly partial
@@ -348,7 +429,10 @@ const runBand = (over) => {
     },
     _hasUserLocation: true,
     _pdxPersonById: (pid) => ({
+      'p-us1': { name: 'John Curtis', party: 'R', office: 'U.S. Senator' },
+      'p-us2': { name: 'Mike Lee', party: 'R', office: 'U.S. Senator' },
       'p-house': { name: 'Blake Moore', party: 'R', office: 'U.S. Representative' },
+      'p-gov': { name: 'Spencer Cox', party: 'R', office: 'Governor' },
       'p-sen': { name: 'Todd Weiler', party: 'R', office: 'State Senator' },
       'p-rep': { name: 'Ray Ward', party: 'R', office: 'State Representative' },
     }[pid] || null),
@@ -377,34 +461,57 @@ eq(unloc.host.innerHTML, '', 'band: an unlocated visitor got rep rows');
 eq(unloc.sec.getAttribute('data-located'), null,
   'band: an unlocated visitor lost the cold state, so there is no CTA to set a location with');
 
-// Warm: three resolved seats.
-const LEVELS3 = [
-  { key: 'house', label: 'U.S. House', tierLabel: 'U.S. House of Representatives', color: '#60a5fa', district: '1', distLabel: 'U.S. House · District 1', pid: 'p-house', resolved: true },
-  { key: 'statesenate', label: 'State Senate', tierLabel: 'State Senate', color: '#a78bfa', district: '23', distLabel: 'State Senate · District 23', pid: 'p-sen', resolved: true },
-  { key: 'statehouse', label: 'State House', tierLabel: 'State House', color: '#2dd4bf', district: '17', distLabel: 'State House · District 17', pid: 'p-rep', resolved: true },
+// Warm, in Utah: all six seats resolved — two statewide from the state alone,
+// three district seats from mapped boundaries, and the Governor.
+const SW = (key, label, color, pid) => ({
+  key, label, tierLabel: label, color, statewide: true, district: null,
+  distLabel: label + ' · Utah', pid, resolved: !!pid,
+});
+const LEVELS6 = [
+  SW('ussenate1', 'U.S. Senate', '#f0abfc', 'p-us1'),
+  SW('ussenate2', 'U.S. Senate', '#f0abfc', 'p-us2'),
+  { key: 'house', label: 'U.S. House', tierLabel: 'U.S. House of Representatives', color: '#60a5fa', statewide: false, district: '1', distLabel: 'U.S. House · District 1', pid: 'p-house', resolved: true },
+  SW('governor', 'Governor', '#fbbf24', 'p-gov'),
+  { key: 'statesenate', label: 'State Senate', tierLabel: 'State Senate', color: '#a78bfa', statewide: false, district: '23', distLabel: 'State Senate · District 23', pid: 'p-sen', resolved: true },
+  { key: 'statehouse', label: 'State House', tierLabel: 'State House', color: '#2dd4bf', statewide: false, district: '17', distLabel: 'State House · District 17', pid: 'p-rep', resolved: true },
 ];
 const warm = runBand({
-  pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful, Davis County', redrawn: false, levels: LEVELS3 }),
+  pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful, Davis County', redrawn: false, districtsResolvable: true, levels: LEVELS6 }),
 });
 const OUT = warm.host.innerHTML;
 must(OUT.length > 0, 'the band painted nothing for a fully-resolved visitor — section 5 is vacuous');
 eq(warm.sec.getAttribute('data-located'), '1',
   'band: the band did not mark itself located, so the cold CTA sits on top of the answer');
-for (const n of ['Blake Moore', 'Todd Weiler', 'Ray Ward']) {
+for (const n of ['John Curtis', 'Mike Lee', 'Blake Moore', 'Spencer Cox', 'Todd Weiler', 'Ray Ward']) {
   has(OUT, n, `band: ${n} is missing from the answer — the band resolved a seat and did not name it`);
 }
 has(OUT, 'U.S. House · District 1',
   'band: a row no longer states which district it is, so "your representative" is unverifiable');
-eq((OUT.match(/See their record ›/g) || []).length, 3,
+// Every "U.S. House · District 1" style label the band paints, in order.
+const rowLabels = (html) =>
+  (html.match(/class="wrm-rowlevel"[^>]*>([^<]*)</g) || []).map((s) => s.slice(s.indexOf('>') + 1, -1));
+
+has(OUT, 'U.S. Senate · Utah',
+  'band: a statewide row no longer says which state it is for — a Senate seat is answered from the\n' +
+  '    state alone, and saying so is what distinguishes it from a district row that needs boundaries');
+const utLabels = rowLabels(OUT);
+eq(utLabels.length, 6, 'band: the six rows did not each paint a seat label — the label assertions below are vacuous');
+ok(!utLabels.some((l) => /U\.S\. Senate|Governor/.test(l) && /District/.test(l)),
+  'band: a statewide row printed a district number — U.S. Senate and Governor are elected statewide\n' +
+  '    and have no district, so any number there is invented: ' + JSON.stringify(utLabels));
+eq((OUT.match(/See their record ›/g) || []).length, 6,
   'band: not every named official offers the record jump — the bridge from "my reps" to "their\n' +
   '    records" is the point of the band, and a name with no way through is a dead end');
-eq((OUT.match(/window\.showProfile\(/g) || []).length, 6,
-  'band: the three rows do not each carry BOTH a click and a keydown route into the profile, so\n' +
+eq((OUT.match(/window\.showProfile\(/g) || []).length, 12,
+  'band: the six rows do not each carry BOTH a click and a keydown route into the profile, so\n' +
   '    the record jump is either a label rather than a control, or a control only a mouse can use');
 has(OUT, 'Bountiful, Davis County',
   'band: the answer no longer says which area it is for, so a visitor cannot tell it used their address');
-has(OUT, '3 of 3 seats resolved',
+has(OUT, '6 of 6 seats resolved',
   'band: the coverage count is gone — it is what makes a partial answer legible as partial');
+lacks(OUT, 'wrm-scopenote',
+  'band: a visitor whose district seats DID resolve is still told the district seats cannot be\n' +
+  '    resolved for them — the two-speed caveat only applies where it is true');
 
 // The next actions, in the order the band promised: records first, team optional.
 has(OUT, 'Compare them on an issue', 'band: the post-lookup step into issues is gone');
@@ -426,24 +533,73 @@ has(OUT, "my-politicians",
 // Honestly partial: one unresolved seat must be STATED.
 const partialBand = runBand({
   pdxRepsForMe: () => ({
-    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false,
-    levels: [LEVELS3[0], { ...LEVELS3[1], pid: null, resolved: false }, LEVELS3[2]],
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'statesenate' ? { ...l, pid: null, resolved: false } : l)),
   }),
 });
 const POUT = partialBand.host.innerHTML;
 has(POUT, 'Not resolved for your area yet',
-  'band: an unresolved seat is rendered as nothing at all — the visitor then reads two rows as the\n' +
+  'band: an unresolved seat is rendered as nothing at all — the visitor then reads five rows as the\n' +
   '    complete answer, which is a completeness claim the data does not support');
 has(POUT, 'State Senate',
   'band: the unresolved row does not even name which seat is missing, so the gap is invisible');
-has(POUT, '2 of 3 seats resolved',
+has(POUT, '5 of 6 seats resolved',
   'band: the count does not report the gap, so a partial answer prints as a whole one');
-eq((POUT.match(/See their record ›/g) || []).length, 2,
+eq((POUT.match(/See their record ›/g) || []).length, 5,
   'band: the unresolved seat offers a record jump to a person who was never resolved');
+
+// ── Outside Utah: statewide seats answered, district seats blank, and said so.
+// This is the whole point of the change. A visitor in Columbus is inside the
+// product's national coverage for Senate and Governor and outside its district
+// coverage entirely, and the band has to render both halves of that truth
+// without ever printing a Utah district number under an Ohio city.
+const OHIO_LEVELS = [
+  { ...SW('ussenate1', 'U.S. Senate', '#f0abfc', 'p-us1'), distLabel: 'U.S. Senate · Ohio' },
+  { ...SW('ussenate2', 'U.S. Senate', '#f0abfc', null), distLabel: 'U.S. Senate · Ohio' },
+  { key: 'house', label: 'U.S. House', tierLabel: 'U.S. House of Representatives', color: '#60a5fa', statewide: false, district: null, distLabel: 'U.S. House', pid: null, resolved: false },
+  { ...SW('governor', 'Governor', '#fbbf24', 'p-gov'), distLabel: 'Governor · Ohio' },
+  { key: 'statesenate', label: 'State Senate', tierLabel: 'State Senate', color: '#a78bfa', statewide: false, district: null, distLabel: 'State Senate', pid: null, resolved: false },
+  { key: 'statehouse', label: 'State House', tierLabel: 'State House', color: '#2dd4bf', statewide: false, district: null, distLabel: 'State House', pid: null, resolved: false },
+];
+const oh = runBand({
+  pdxRepsForMe: () => ({ located: true, national: false, state: 'Ohio', area: 'Columbus, Franklin County', redrawn: false, districtsResolvable: false, levels: OHIO_LEVELS }),
+});
+const OHOUT = oh.host.innerHTML;
+must(OHOUT.length > 0, 'the band painted nothing outside Utah — the non-Utah assertions below are vacuous');
+const ohLabels = rowLabels(OHOUT);
+eq(ohLabels.length, 6, 'band: the Ohio visitor did not get six seat rows — the label assertions below are vacuous');
+ok(!ohLabels.some((l) => /District|Utah/.test(l)),
+  'band: a visitor outside the district-mapped states was shown a district number or a Utah label.\n' +
+  '    Every district label the app holds is Utah geometry, so a number here is another state\'s seat\n' +
+  '    printed under this visitor\'s city — the single worst thing this surface can do: ' +
+  JSON.stringify(ohLabels));
+lacks(OHOUT, '· District',
+  'band: a district number reached a non-Utah answer somewhere outside the seat labels');
+for (const n of ['Blake Moore', 'Todd Weiler', 'Ray Ward']) {
+  lacks(OHOUT, n, `band: ${n} — a Utah district officeholder — was named for an Ohio visitor`);
+}
+has(OHOUT, 'Spencer Cox',
+  'band: the Governor row did not resolve outside Utah, but a governor needs only a state — dropping\n' +
+  '    it wastes coverage the roster already has');
+has(OHOUT, '2 of 6 seats resolved',
+  'band: the count outside Utah does not report over the real level set, so the answer either\n' +
+  '    overclaims or hides which seats are blank');
+has(OHOUT, 'wrm-scopenote',
+  'band: outside the district-mapped states the band leaves three rows blank and says nothing about\n' +
+  '    why — an unexplained blank reads as a broken lookup rather than an honest limit');
+has(OHOUT, 'someone else',
+  'band: the scope note does not say the blanks are deliberate — "we would rather show you nothing\n' +
+  '    than someone else\'s district" is the sentence that turns a gap into a promise');
+lacks(OHOUT, 'My local officials',
+  'band: the band offers a local-officials jump outside its curated coverage, which sends a visitor\n' +
+  '    to a page that has nothing for them');
+has(OHOUT, 'No record on file yet',
+  'band: the second Ohio Senate seat has no person on file and rendered as nothing — a missing\n' +
+  '    statewide seat must read as blank-on-purpose, not be silently dropped from the list');
 
 // Redistricting has to be said, not silently resolved to one of the two answers.
 const redrawnBand = runBand({
-  pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: true, levels: LEVELS3 }),
+  pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: true, districtsResolvable: true, levels: LEVELS6 }),
 });
 has(redrawnBand.host.innerHTML, 'redrawn',
   'band: a redrawn district is not mentioned, so the visitor is shown a current member with no hint\n' +
@@ -465,7 +621,7 @@ eq(act.ctx._opened, true,
   '    answer the question it just asked');
 
 const actWarm = runBand({
-  pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, levels: LEVELS3 }),
+  pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true, levels: LEVELS6 }),
   openLocationModal: function () { actWarm.ctx._opened = true; },
 });
 actWarm.ctx.pdxFindMyReps();
@@ -481,7 +637,11 @@ ok(!actWarm.timers.some((t) => t.ms === 260),
 // public lane rules — so there is nothing here to get wrong, and nothing here
 // that needs a lane.
 const textOf = (h) => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-const BAND_TEXT = textOf(SEC.slice(SEC.indexOf('</style>'))) + ' ' + textOf(OUT) + ' ' + textOf(POUT);
+// OHOUT is in the sweep because the non-Utah answer carries copy the Utah answer
+// never paints — the scope note explaining the blanks. New copy is exactly where
+// a stray "aligned" or "party line" would enter.
+const BAND_TEXT = textOf(SEC.slice(SEC.indexOf('</style>'))) + ' ' + textOf(OUT) + ' ' + textOf(POUT) +
+  ' ' + textOf(OHOUT);
 for (const word of ['% match', 'Direction Match', 'aligned', 'loyalty', 'votes with', 'grade', 'score']) {
   lacks(BAND_TEXT.toLowerCase(), word.toLowerCase(),
     `lane: the lookup band says "${word}" — it is a name-and-district surface that makes no claim\n` +
@@ -528,11 +688,154 @@ has(WRM, 'onkeydown=', 'a11y: the rep rows cannot be activated by keyboard');
 has(WRM, "role=\"button\"", 'a11y: the rep rows are divs with a click handler and no role');
 
 // ═════════════════════════════════════════════════════════════════════════════
-// Report
+// 7 · Statewide seats, measured against the REAL roster
 // ═════════════════════════════════════════════════════════════════════════════
+// Sections 4 and 5 drive the resolver against a synthetic roster, which proves the
+// logic and proves nothing about coverage. The claim this pass makes to a visitor
+// in Columbus is a claim about the SHIPPED data: that their two Senate seats and
+// their Governor can be answered from their state alone. So the real cmp-data.js
+// roster is loaded and every state is asked.
+//
+// The classifier is the fragile part, and it is fragile in one direction. Sitting
+// senators are routinely filed under a leadership or committee title rather than
+// "U.S. Senator" — the Majority Leader, the President pro tempore, the Assistant
+// Democratic Leader — so a matcher that looks for the plain office silently drops
+// one of a state's two seats and the band renders a blank next to a person the
+// roster has had all along. That is a coverage regression no assertion about
+// synthetic data can catch, which is why the counts below are measured here.
+const STATES = [
+  'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+  'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+  'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
+  'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+  'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
+  'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
+  'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia',
+  'Wisconsin', 'Wyoming',
+];
+
+const realCtx = (() => {
+  const ctx = { console, Math, JSON, String, Array, Object, Number, Boolean, RegExp };
+  ctx.window = ctx; ctx.globalThis = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(read('cmp-data.js'), ctx, { filename: 'cmp-data.js' });
+  vm.runInContext(RESOLVER, ctx, { filename: 'voter-hub-location.js[statewide]' });
+  return ctx;
+})();
+must(realCtx.CMP_DATA && Object.keys(realCtx.CMP_DATA).length > 400,
+  'the real roster did not load — every coverage number in section 7 would be measured against nothing');
+must(typeof realCtx._pdxStatewideSeats === 'function',
+  'window._pdxStatewideSeats is not exported — section 7 is vacuous');
+
+const SW_BY_STATE = {};
+STATES.forEach((s) => { SW_BY_STATE[s] = realCtx._pdxStatewideSeats(s); });
+
+// Governors: one state, one governor, no exceptions. This is the seat with the
+// least room for ambiguity, so a miss here means the matcher broke, not the data.
+const govMissing = STATES.filter((s) => !SW_BY_STATE[s].governor);
+eq(govMissing.length, 0,
+  'coverage: a state resolved no Governor from the shipped roster. Every state has exactly one and\n' +
+  '    the roster holds all fifty, so a blank Governor row is the matcher failing, not a gap: ' +
+  JSON.stringify(govMissing));
+
+// Senators: at least one everywhere, and both in the overwhelming majority. The
+// floor is deliberately below the measured 48 so a single roster edit does not
+// fail the suite, and deliberately well above the 42 a title-blind matcher yields.
+const senZero = STATES.filter((s) => SW_BY_STATE[s].senators.length === 0);
+eq(senZero.length, 0,
+  'coverage: a state resolved no U.S. Senator at all. Statewide seats are the entire national promise\n' +
+  '    of this band — a state with neither senator has nothing resolved and reads as uncovered: ' +
+  JSON.stringify(senZero));
+const senBoth = STATES.filter((s) => SW_BY_STATE[s].senators.length === 2).length;
+ok(senBoth >= 45,
+  'coverage: only ' + senBoth + ' of 50 states resolve BOTH Senate seats, down from 48. The usual cause\n' +
+  '    is a matcher that wants the literal office "U.S. Senator" and so drops every senator filed under\n' +
+  '    a leadership or committee title — the second seat then renders blank beside a record we hold');
+
+// The exact regression above, named. Each of these is a sitting senator whose
+// office string is a title, not the seat.
+for (const [pid, state] of [['thune', 'South Dakota'], ['grassley', 'Iowa'], ['lujan', 'New Mexico'], ['wyden', 'Oregon'], ['heinrich', 'New Mexico']]) {
+  must(!!realCtx.CMP_DATA[pid], `the roster no longer holds ${pid} — this leadership-title assertion is vacuous`);
+  ok(SW_BY_STATE[state].senators.indexOf(pid) !== -1,
+    `coverage: ${realCtx.CMP_DATA[pid].name} did not resolve as a ${state} Senate seat. Their office reads\n` +
+    `    "${realCtx.CMP_DATA[pid].office}" — a leadership title, not the seat — and matching the seat name\n` +
+    '    alone is exactly how a sitting senator becomes a blank row');
+}
+
+// No seat is claimed twice. A pid resolving as two states' senator would mean a
+// visitor in one state is shown a person who represents another — the leak, in a
+// different door.
+const claims = {};
+STATES.forEach((s) => {
+  SW_BY_STATE[s].senators.concat(SW_BY_STATE[s].governor || []).forEach((pid) => {
+    (claims[pid] = claims[pid] || []).push(s);
+  });
+});
+const doubled = Object.keys(claims).filter((p) => claims[p].length > 1);
+eq(doubled.length, 0,
+  'coverage: a person resolved as the statewide officeholder of more than one state, which means one\n' +
+  '    of those visitors is being shown somebody else\'s senator: ' +
+  JSON.stringify(doubled.map((p) => p + '→' + claims[p].join('/'))));
+
+// Nobody resolved as a U.S. Senate seat may be a STATE legislator. This is the
+// reject-first half of the classifier: "Senate" appears in both offices, and only
+// the rejections keep a state senator out of a federal row.
+const senOffices = [];
+STATES.forEach((s) => SW_BY_STATE[s].senators.forEach((pid) => {
+  senOffices.push([pid, String((realCtx.CMP_DATA[pid] || {}).office || '')]);
+}));
+must(senOffices.length > 90, 'fewer than 90 senators resolved — the office-shape assertion below is vacuous');
+const badSen = senOffices.filter(([, o]) => /\bstate\s+senat/i.test(o) || /\bformer\b/i.test(o));
+eq(badSen.length, 0,
+  'coverage: a state legislator or a former member resolved into a U.S. Senate row. Both office\n' +
+  '    strings contain the word "Senate", so the federal match only holds because it rules the state\n' +
+  '    seats out first: ' + JSON.stringify(badSen));
+
+// Partial senate coverage is a real state of the shipped data, not a hypothetical.
+// It must resolve what it has and blank the rest — never pad to two.
+const onlyOne = STATES.filter((s) => SW_BY_STATE[s].senators.length === 1);
+must(onlyOne.length > 0,
+  'no state has partial Senate coverage any more — the partial-coverage assertions below are vacuous\n' +
+  '    (this is good news; delete them rather than let them pass on nothing)');
+for (const s of onlyOne) {
+  eq(SW_BY_STATE[s].ambiguous, false,
+    `coverage: ${s} holds one senator and the resolver called that ambiguous, which throws away the\n` +
+    '    seat it does have — ambiguity is having too MANY claimants, not too few');
+  ok(!!SW_BY_STATE[s].governor,
+    `coverage: ${s} lost its Governor along with its second senator — the seats resolve independently`);
+}
+
+// Over-claiming is the other failure. Three senators on file for one state means
+// the roster disagrees with itself, and there is no honest way to pick two.
+const overClaimed = STATES.filter((s) => SW_BY_STATE[s].senators.length > 2);
+eq(overClaimed.length, 0,
+  'coverage: a state resolved more than two U.S. Senate seats, which is not a thing that exists — the\n' +
+  '    matcher is catching somebody it should not: ' + JSON.stringify(overClaimed));
+const ambiguousStates = STATES.filter((s) => SW_BY_STATE[s].ambiguous);
+eq(ambiguousStates.length, 0,
+  'coverage: a state came back ambiguous, so its statewide rows render blank for every visitor there.\n' +
+  '    That is the right behaviour for contradictory data and the wrong state for shipped data to be\n' +
+  '    in: ' + JSON.stringify(ambiguousStates));
+
+// A state name is the ONLY key. Anything that is not one resolves to nothing,
+// which is what keeps a stray district label or a pseudo-location from matching.
+for (const k of ['', 'National', 'District 2', 'UT-1', 'Franklin County', 'Davis']) {
+  const r = realCtx._pdxStatewideSeats(k);
+  ok(r.senators.length === 0 && !r.governor,
+    `resolver: _pdxStatewideSeats(${JSON.stringify(k)}) resolved a seat. Only a plain state name is a\n` +
+    '    valid key — matching anything looser is how a district label becomes a statewide answer');
+}
+// The normalisation that makes the above safe cuts the other way too: the roster's
+// own state fields are dirty ("Utah · UT-1", "UT District 6"), so the leading state
+// name is all that is ever compared. A key that reduces to a state still matches.
+eq(JSON.stringify(realCtx._pdxStatewideSeats('Ohio · OH-3')), JSON.stringify(SW_BY_STATE.Ohio),
+  'resolver: a state field with a district suffix no longer reduces to its state, which would drop\n' +
+  '    every officeholder the roster files as "Utah · UT-1" out of their own statewide lookup');
+
+
 if (failures.length) {
   console.error(`\n✗ who represents me: ${failures.length} failure(s)`);
   failures.forEach((f) => console.error('  · ' + f));
   process.exit(1);
 }
-console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, gaps stated not dropped`);
+console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, 6 seats in two classes, gaps stated not dropped`);

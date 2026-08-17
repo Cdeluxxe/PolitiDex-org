@@ -497,6 +497,41 @@ ok(/\.pdxwa-htally\s*\{/.test(WACSS),
 ok(!/\.pdxwa-htally[^{]*\{[^}]*min-height:\s*[01](\.\d+)?rem/.test(WACSS),
   'header: the letterhead copy shrinks the shared tap target below the threshold section 8 pins');
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 12. …and the depth line sits under the shape, in its own host
+// ═════════════════════════════════════════════════════════════════════════════
+// The letterhead reads score → shape → depth. The third line is driven against
+// the real modules in scripts/test-profile-header-stack.mjs; what belongs here is
+// the same two source properties the tally has — where it mounts, and that it is
+// STRUCTURALLY separate from the tally rather than folded into it.
+//
+// Separate matters twice over. The tally fails closed below a two-issue floor and
+// emits an exactly-empty host when it does (pinned above and in test-issue-index)
+// — a depth line sharing that host would either vanish with the shape it does not
+// depend on, or fill a host another test requires to be empty. And the slice
+// checked at line 467 is bounded by the next function in the file, so a depth
+// builder declared inside those bounds would drag reads and percentages into a
+// window pinned to contain neither.
+const hsMount = PF.indexOf('PDXWordAction.headerStackMount(');
+must(hsMount !== -1, 'profiles-full.js no longer mounts headerStackMount');
+must(WA.indexOf('function headerStackHtml') !== -1, 'word-action.js no longer has headerStackHtml');
+ok(/headerStackMount:\s*headerStackMount/.test(WA),
+  'header: the depth tail is not published on PDXWordAction, so the profile builder has nothing\n' +
+  '    to mount');
+ok(hsMount > htMount && hsMount < navMount,
+  'header: the depth line is not between the four counts and the quick-jump rail — the stack reads\n' +
+  '    score → shape → depth, and all three belong above the body');
+ok(WA.indexOf('function headerDepthHtml') > WA.indexOf('function bindHeaderTally'),
+  'header: the depth builder is declared inside the window section 11 slices for the tally, which\n' +
+  '    pins that window to hold no read() and no percent sign — both of which the surrounding\n' +
+  '    letterhead legitimately needs elsewhere');
+ok(/data-pdxwa-hstack=/.test(WA) && !/data-pdxwa-htally="[^"]*"[^>]*>\s*'\s*\+\s*(depth|headerDepth)/.test(WA),
+  'header: the depth line shares the tally\'s host. Below the two-issue floor that host must be\n' +
+  '    exactly empty, and depth does not depend on having a shape');
+ok(/\.pdxwa-hstack-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
+  'header: an empty depth host still occupies space, so a profile with nothing warm carries a gap\n' +
+  '    under its name saying nothing');
+
 console.log(
   failures.length
     ? ''
