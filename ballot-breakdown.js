@@ -3928,13 +3928,44 @@
 
       // Voting-record consistency line: what they actually DID on this issue vs. what
       // they say, when their votes are on record (Phase 5). Blank otherwise.
+      //
+      // …EXCEPT THAT "BLANK OTHERWISE" WAS THE PROBLEM. This is a ballot card — the
+      // surface a voter is standing on when they choose — and two of its branches
+      // said nothing about a record that exists. An issue with no stated position
+      // returned '' outright, and an issue WITH a dense record but nothing judged
+      // against a stance printed "Say-vs-Do — No stated stance · 14 votes on
+      // record": a count under a heading naming a comparison that never happened.
+      // Both now state what the record itself did, in the profile row's own words.
+      //
+      // A SCORED READ WINS. Where the say-vs-do lane reached a verdict
+      // (consistent / contradicts / mixed) that verdict is the answer and this adds
+      // nothing — a record-direction clause beside it would be a second finding on
+      // one row. Display only: `it.score`, the bar, the bucket and the overall
+      // match are computed in _calcAlignmentBreakdown and none of them can see this.
+      var _KRAQ_SCORED = { consistent: 1, contradicts: 1, mixed: 1 };
+      function _kraqRecordDir(it) {
+        try {
+          var PC = window.PDXConsistency;
+          if (!it || !it.key) return '';
+          if (!PC || !PC.recordDirection || typeof PC.recordDirection.for !== 'function') return '';
+          return PC.recordDirection.for(pid, it.key, { cls: 'kraq-rdir' });
+        } catch (e) { return ''; }
+      }
       function _kraqRecordLine(it) {
+        var scored = !!(it.record && it.record.total && _KRAQ_SCORED[it.record.netVerdict]);
+        var rdir = scored ? '' : _kraqRecordDir(it);
+        var rdirLine = rdir
+          ? '<p class="kraq-record-line kraq-rdir-line" style="margin:0.3rem 0 0;">' + rdir + '</p>'
+          : '';
         if (!it.record || !it.record.total) {
           // Stated a position here but no votes to check it against → say so plainly.
           if (it.direct) return '<p class="kraq-record-line" style="margin:0.3rem 0 0;font-size:0.63rem;color:#8b97ad;display:flex;align-items:center;gap:0.35rem;">'
             + '<span aria-hidden="true">⚖️</span><span><strong>Say-vs-Do:</strong> limited record — no votes yet to verify this stated position</span></p>';
-          return '';
+          return rdirLine;
         }
+        // Records on file and nothing scored against them: the record speaks for
+        // itself, and the Say-vs-Do frame below is not the frame for it.
+        if (!scored && rdirLine) return rdirLine;
         var v = it.record.netVerdict;
         var col = v === 'consistent' ? '#6ee7a0' : v === 'contradicts' ? '#f89b9b' : v === 'mixed' ? '#93c5fd' : '#9fb4d4';
         var ico = v === 'contradicts' ? '⚠️' : v === 'consistent' ? '✅' : '🗳️';

@@ -200,6 +200,15 @@
 
   // Rank within a bucket: rated first (consistent > mixed > contradicts), then by
   // vote count; pending next; no-record last.
+  //
+  // RECORD DIRECTION IS NOT A TERM HERE, AND MUST NOT BECOME ONE. The readout below
+  // can now print what a member's record did on an issue nobody sourced a stance
+  // for, and the tempting next step — floating those cards above the genuinely
+  // empty ones — would turn an unscored inventory count into an ordering, which is
+  // a ranking signal built out of how much of a record WE happen to hold. A card
+  // with a dense record and a card with none rank identically here (0, no_record)
+  // and differ only in what they say. Same rule for the buckets: cards are grouped
+  // by stated position, and a record with no stated position stays in `none`.
   function rankScore(r) {
     // Unified verdict first (matches what the card shows): consistent > mixed >
     // flag > contradicts, then by how much record backs it; pending, then none.
@@ -353,12 +362,35 @@
   }
 
   /* ── render: a single result card ───────────────────────────────────── */
+  // WHAT THE RECORD DID, for the two branches of this readout that had nothing to
+  // say. A card in the "No stated position" bucket with a dense mapped record read
+  // "🏛️ No qualifying votes yet" — which is false where the votes exist and were
+  // simply never checkable against a stance nobody sourced. The clause comes from
+  // PDXConsistency.recordDirection, the one place that words it, so this card and
+  // the profile row cannot disagree.
+  //
+  // ONLY WHERE NOTHING WAS SCORED. Called from the no_record / no_stance branches
+  // and nowhere else: every branch below them owns a verdict, and a verdict is the
+  // answer. Records are already warm here (queueWarm → paintResults), so this is a
+  // straight synchronous read; '' while they are still loading, which keeps the
+  // pending copy the branch already had.
+  //   Display only. rankScore() below does not read it — see the note there.
+  function recordDirHtml(r) {
+    try {
+      var PC = window.PDXConsistency;
+      if (!PC || !PC.recordDirection || !isFn(PC.recordDirection.for)) return '';
+      return PC.recordDirection.for(r.pid, _state.issueKey, { cls: 'ic-rdir' });
+    } catch (e) { return ''; }
+  }
   function consReadout(r) {
     // Unified path — same vocabulary/icons/colours as every other surface.
     if (r.cons.uni) {
       var uni = r.cons.uni, m = uni.verdict;
       if (uni.token === 'pending') return '<span class="ic-cons is-muted">🏛️ Official Record <span class="ic-spin"></span> checking votes…</span>';
-      if (uni.token === 'no_record' || uni.token === 'no_stance') return '<span class="ic-cons is-muted" title="' + esc(m.short) + '">🏛️ ' + esc(m.label) + '</span>';
+      if (uni.token === 'no_record' || uni.token === 'no_stance') {
+        return '<span class="ic-cons is-muted" title="' + esc(m.short) + '">🏛️ ' + esc(m.label) + '</span>'
+          + recordDirHtml(r);
+      }
       var recU = uni.record, parts = [];
       if (recU && recU.total) parts.push(recU.total + ' vote' + (recU.total === 1 ? '' : 's'));
       if (uni.curated && uni.curated.total) parts.push(uni.curated.total + ' receipt' + (uni.curated.total === 1 ? '' : 's'));
@@ -369,7 +401,10 @@
         + '<span class="ic-cons-txt"><b>🏛️ ' + esc(m.label) + '</b>' + flagU + '<span class="ic-cons-sub">' + esc(parts.join(' · ')) + '</span></span></span>';
     }
     if (r.cons.state === 'pending') return '<span class="ic-cons is-muted">🏛️ Official Record <span class="ic-spin"></span> checking votes…</span>';
-    if (r.cons.state === 'no_record') return '<span class="ic-cons is-muted" title="No qualifying votes on record yet to verify this position">🏛️ No qualifying votes yet</span>';
+    if (r.cons.state === 'no_record') {
+      return '<span class="ic-cons is-muted" title="No qualifying votes on record yet to verify this position">🏛️ No qualifying votes yet</span>'
+        + recordDirHtml(r);
+    }
     var rec = r.cons.rec, nv = rec.netVerdict;
     var v = VERDICT[nv] || VERDICT.no_position;
     var counts = rec.total + ' vote' + (rec.total === 1 ? '' : 's')

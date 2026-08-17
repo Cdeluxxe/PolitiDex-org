@@ -1544,6 +1544,17 @@
       '.pdxc-legend{display:flex;flex-direction:column;gap:0.35rem;font-family:"Barlow Condensed",sans-serif;}' +
       '.pdxc-legend-row{display:flex;align-items:baseline;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;}' +
       '.pdxc-legend-row b{white-space:nowrap;}' +
+      // ── Record direction, on a decision surface ─────────────────────────────
+      // Deliberately UNTINTED. Every verdict chip above owns a colour and the
+      // colour is the verdict; a record-direction slot has no verdict to colour,
+      // so it borrows none. It reads as calm inventory text — which is what it is
+      // — and the three empty states differ in wording rather than in hue, so no
+      // surface can imply a judgement by styling one.
+      '.pdx-rdir{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:0.3rem;font-family:"Barlow",sans-serif;font-size:0.72rem;line-height:1.45;color:#a9bcd8;}' +
+      '.pdx-rdir .pdx-rdir-ico{opacity:0.85;}' +
+      '.pdx-rdir .pdx-rdir-txt{color:#c6d4ec;}' +
+      '.pdx-rdir.is-none .pdx-rdir-txt,.pdx-rdir.is-thin .pdx-rdir-txt{color:#9fb4d4;}' +
+      '.pdx-rdir .pdx-rdir-note{flex:1 1 100%;font-size:0.66rem;color:#7596c0;}' +
       // Promise Tracker gateway — the section name (no %) + two dive-in cards.
       '.pdxc-gate{border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.6),rgba(10,15,30,0.35));}' +
       '.pdxc-gate-h{display:flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.15rem;letter-spacing:0.03em;color:#e8eefc;line-height:1;}' +
@@ -4678,6 +4689,143 @@
       return 'of the ' + idx.judged + ' that took a side, ' + idx.clause;
     }
     return idx.clause;
+  }
+
+  // ── THE SAME FINDING, WHERE VOTERS ACTUALLY COMPARE AND CHOOSE ───────────────
+  // Everything above this line renders a PROFILE ROW. That is one screen deep in
+  // one person's file, and it is not where a ballot is decided: the compare table,
+  // the issue-choice cards and the ballot breakdown are. On those surfaces a
+  // member with twenty mapped roll calls and no sourced stance rendered the same
+  // grey blank as a member with nothing on file at all — the record was computed,
+  // and then discarded one function short of the screen a voter chooses on.
+  //
+  // ONE PLACE DECIDES. The three surfaces below (compare-table.js,
+  // issue-compare.js, ballot-breakdown.js) do not each ask the index and each
+  // word an answer; they call this and print what comes back. That is why the
+  // clause is _stDirClause's clause, the labels are _RD_TOKENS' labels and the
+  // vocabulary is _stTeach's vocabulary: a surface cannot drift from the row,
+  // because a surface never writes this sentence.
+  //
+  // WHAT IT IS NOT, on every surface it reaches:
+  //   · not a score — `pct` does not exist on this shape and no share, rate or
+  //     percentage is composed anywhere below;
+  //   · not a stance — the record is the subject of every sentence, never the
+  //     person, and the disclosure says so in words;
+  //   · not a sort key and not a filter key — this returns display text and
+  //     nothing ordinal. The callers rank and bucket on what they already ranked
+  //     and bucketed on (see the note over rankScore in issue-compare.js);
+  //   · not an input to Direction Match / Word vs Action. It reads the same warm
+  //     items those score from and writes nothing back.
+  //
+  // A SCORED RESULT ALWAYS WINS. Callers ask this only where their own scored
+  // read came back empty — no verdict, no percentage, nothing judged. That
+  // ordering lives in the caller because the caller is the one holding the
+  // verdict; what lives here is the refusal to invent one.
+  //
+  // THE THREE EMPTY STATES, which a single grey blank used to flatten into one:
+  //   'none'   — no formal record on file for this member on this issue;
+  //   'thin'   — a record IS on file and may not be characterised (too short, too
+  //              split, below the coverage floor, or an issue with no support
+  //              pole). The count is honest; the direction is withheld;
+  //   'speaks' — the record-direction clause the profile row would print.
+  // Returns null when nothing is warm yet, so a surface keeps whatever pending or
+  // silent state it already had rather than asserting an absence we have not read.
+  var _RD_SLOT_NOTE = 'No stated position on file — this is what the record itself did, ' +
+    'not a stated stance and not a score.';
+  var _RD_SLOT_NOTE_SAID = 'None of it has been judged against their stated position, ' +
+    'so this is what the record itself did — not a score.';
+  var _RD_SLOT_NOTE_THIN = 'Too little on file to say which way it ran, so no direction is stated.';
+  // The disclosure is the SHARE CARD'S fixed disclosure wherever receipt-cards.js
+  // is loaded, so the sentence a reader meets on a compare cell is the sentence
+  // they meet on the card they share from it. The literal above is pinned equal to
+  // it by scripts/test-record-direction-surfaces.mjs — two copies that cannot
+  // drift beats one copy that only some surfaces can reach.
+  function _rdSlotNote() {
+    try {
+      var g = window.PDXReceiptCards && window.PDXReceiptCards.guards;
+      if (g && g.rdNote) return g.rdNote;
+    } catch (e) {}
+    return _RD_SLOT_NOTE;
+  }
+  function _rdSlot(pid, issueKey, opts) {
+    try {
+      if (!pid || !issueKey) return null;
+      if (typeof window._pdxRecordDirection !== 'function') return null;
+      var o = opts || {};
+      // The exec lane is out of scope here for the same reason it is out of scope
+      // on the row: "advanced it" over an executive order needs the exec lane's
+      // own vocabulary and its own standing rules.
+      var lane = o.lane || recordLaneFor(pid, issueKey);
+      if (lane === 'exec') return null;
+      var noun = o.noun || { one: 'vote', many: 'votes' };
+      var label = o.label || _issueLabel(issueKey) || '';
+      var idx = window._pdxRecordDirection(pid, issueKey, { noun: noun, label: label });
+      if (!idx) return null;                    // nothing warm — the surface stays as it was
+      var total = idx.total || 0;
+      var many = (total === 1) ? noun.one : noun.many;
+      // `clause`, not `characterised` and not `counted` — the gate is exactly the
+      // gate the profile row uses (_stDirIndex refuses an empty clause and nothing
+      // else), so a decision surface speaks wherever the row would speak.
+      var speaks = !!idx.clause;
+      var state = speaks ? 'speaks' : (total ? 'thin' : 'none');
+      var said = false;
+      try { said = !!(o.said === true || (o.said !== false && positionStance(pid, issueKey))); } catch (e) { said = false; }
+      var inv = total + ' ' + many + ' on file';
+      var text, note, aria;
+      if (state === 'speaks') {
+        text = inv + ' — ' + _stDirClause(idx, total);
+        note = said ? _RD_SLOT_NOTE_SAID : _rdSlotNote();
+        aria = (idx.summary || text) + ' ' + note;
+      } else if (state === 'thin') {
+        // The token names its own refusal ("Too thin to characterise"), so the
+        // reason a direction is withheld is not worded a second time here.
+        text = inv + ' — ' + String(idx.label || '').toLowerCase();
+        note = _RD_SLOT_NOTE_THIN;
+        aria = text + '. ' + note;
+      } else {
+        text = 'No record on file yet';
+        note = '';
+        aria = 'No formal record on file yet' + (label ? ' on ' + label : '') + '.';
+      }
+      return {
+        state: state, token: idx.token, issueKey: issueKey, pid: pid, lane: lane,
+        label: idx.label || '', judged: idx.judged || 0, total: total, held: total,
+        characterised: !!idx.characterised, counted: !!idx.counted,
+        lead: idx.lead || null, suppressed: idx.suppressed || null,
+        noun: noun, many: many, said: said,
+        clause: speaks ? _stDirClause(idx, total) : '',
+        summary: idx.summary || '', text: text, note: note, aria: aria
+      };
+    } catch (e) { return null; }
+  }
+  // The slot's markup. Escaped, then run through the row's OWN teaching pass, so
+  // "advanced it" / "cut against it" / "ran both ways" carry the same dotted
+  // glossary control on a ballot card that they carry on the profile row — the
+  // reader meets the claim and its definition in the same place.
+  //   opts.compact — drop the disclosure line (tight cells); it stays in the
+  //                  tooltip and the accessible name, never dropped outright.
+  //   opts.ico     — false to omit the 🏛️ lane glyph.
+  //   opts.cls     — extra class for the calling surface's own spacing.
+  function _rdSlotHtml(slot, opts) {
+    if (!slot) return '';
+    try { ensureStyles(); } catch (e) {}
+    var o = opts || {};
+    var ico = (o.ico === false) ? ''
+      : '<span class="pdx-rdir-ico" aria-hidden="true">🏛️</span>';
+    var note = (o.compact || !slot.note) ? ''
+      : '<span class="pdx-rdir-note">' + esc(slot.note) + '</span>';
+    return '<span class="pdx-rdir is-' + esc(slot.state) + (o.cls ? ' ' + esc(o.cls) : '') +
+      '" title="' + esc(slot.aria) + '" aria-label="' + esc(slot.aria) + '">' + ico +
+      '<span class="pdx-rdir-txt">' + _stTeach(esc(slot.text)) + '</span>' + note + '</span>';
+  }
+  // Slot + markup in one call, for the surfaces whose empty branch is a single
+  // return statement. '' when nothing is warm, which is what those branches
+  // already returned.
+  function _rdSlotFor(pid, issueKey, opts) {
+    var slot = _rdSlot(pid, issueKey, opts);
+    if (!slot) return '';
+    if (opts && opts.only && opts.only.indexOf(slot.state) < 0) return '';
+    return _rdSlotHtml(slot, opts);
   }
   // The row's result, as data. One place decides what a row concluded, so the
   // markup below and the tests both read the same answer.
@@ -8318,6 +8466,19 @@
       multiNote: _orRowMultiNote,
       mappedSummary: _orMappedSummaryText,
       LABELS: _OR_ROW
+    },
+    // WHAT THE RECORD DID, for the surfaces a voter actually chooses on. `slot`
+    // returns the data shape (state / counts / clause / disclosure), `html` its
+    // markup, `for` both in one call. Display-only by construction: there is no
+    // `pct` on the shape, nothing ordinal to sort or filter on, and no path from
+    // any of the three back into Direction Match. See the long note over _rdSlot.
+    recordDirection: {
+      slot: _rdSlot,
+      html: _rdSlotHtml,
+      for: _rdSlotFor,
+      NOTE: _RD_SLOT_NOTE,
+      NOTE_SAID: _RD_SLOT_NOTE_SAID,
+      NOTE_THIN: _RD_SLOT_NOTE_THIN
     },
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.
