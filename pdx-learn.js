@@ -221,8 +221,67 @@
       short: 'The share of a member’s roll-call votes and formal actions on an issue that line up with the position they have stated on it.',
       long: 'Built only from votes and formal legislative or legal actions — never from statements, interviews or news coverage.',
       why: 'Kept deliberately separate from the 🧾 Say-vs-Do score, which is built only from public-record evidence and never from votes. Two questions, two numbers, shown side by side — the contrast is the signal.',
-      see: ['saydo', 'rollcall', 'norecord']
+      see: ['saydo', 'directionmatch', 'rollcall', 'norecord']
     },
+
+    /* ── The words an issue row actually prints ──────────────────────────────
+       Everything below is vocabulary a reader meets ON a stance row, at the
+       moment they first meet it. These entries exist because the row surface had
+       outgrown the glossary: it names its metric, names the lane that produced
+       it, says what the record did, and prints the counts a percentage divides —
+       and a first-time visitor hit every one of those claims before any
+       definition of them. Each entry is written to be read in a popover anchored
+       to the phrase itself, so it answers "what does this word mean HERE"
+       rather than restating civics. ─────────────────────────────────────────── */
+    directionmatch: {
+      term: 'Direction match', kind: 'How we score', cat: 'What PolitiDex measures',
+      aka: ['Direction Match', 'direction match'],
+      short: 'On one issue: the share of the formal record that pointed the same way as the position they stated on it.',
+      long: 'Said versus did, and nothing else. It needs both halves — a position on file to test, and votes or formal actions judged against it. The counts printed beside the percentage are exactly what it divides.',
+      why: 'It is scoped to ONE issue and is never the profile score — that one is the pooled figure in ⚖️ Word vs Action, and the row says so. It is built only from the formal record; statements, interviews and news sit in a separate lane and can never move it. A row the formal lane could not test is labelled “Public-record match” instead, so the name always follows the record that produced the number.',
+      see: ['officialrecord', 'publicmatch', 'depthcounts', 'notscored']
+    },
+    publicmatch: {
+      term: 'Public-record match', kind: 'How we score', cat: 'What PolitiDex measures',
+      aka: ['Public-record match', 'public lane', 'public record match'],
+      short: 'The same said-versus-did comparison, run on the public lane — statements, interviews, news and controversies — for a row the formal record could not decide.',
+      long: 'It appears only where no vote or formal action was judged against the stated position, so there was no formal number to print. The lane chip at the start of the line names which record you are reading.',
+      why: 'It is a separate lane and is never pooled into 🏛️ Direction match. A row decided this way says so in the metric’s own name and stays outside the formal figure, so a public-record read can never be mistaken for arithmetic the formal record did not do.',
+      see: ['saydo', 'directionmatch', 'officialrecord']
+    },
+    notscored: {
+      term: 'Not scored yet / Not tested yet', kind: 'Data honesty', cat: 'What PolitiDex measures',
+      aka: ['Not scored yet', 'Not tested yet', 'unscored', 'no percentage'],
+      short: 'The row shows no percentage because nothing has been judged against a stated position yet — not because the record is empty, and not as a finding about the person.',
+      long: 'Four different situations wear this label, and the line under the row says which one it is: we hold no stated position of theirs to test; we hold both but none of the record was judged against that particular claim; the record takes no side on the claim; or there is very little record.',
+      why: 'A row can hold a dozen sourced votes and still be unscored. Where it does, the count beside it is inventory — what we hold on file — never a rate, and no percentage is invented from it. Where the record’s own direction is known, the row states what the record did and prints the stated position (or its absence) separately; the two are never merged into a conclusion neither reached.',
+      see: ['norecord', 'recorddirection', 'directionmatch']
+    },
+    recorddirection: {
+      term: 'Advanced it / cut against it', kind: 'How we score', cat: 'What PolitiDex measures',
+      aka: ['advanced it', 'cut against it', 'record direction', 'what the record did'],
+      short: 'For each mapped vote, whether passing that measure would move the issue forward or push against it — a per-bill call, recorded with its reason and its source.',
+      long: 'Counting those directions describes what a record did on an issue, on its own terms. It compares the record to nothing: not to a stated position, not to a party, not to anyone else.',
+      why: 'It is a description of the record, never a position we attribute to them. “12 votes on file — all 12 advanced it” says what happened; whether they ever said anything matching it is a separate line on the same row. It is not an input to 🏛️ Direction match, and a row described this way stays unscored and unranked.',
+      see: ['supportmeaning', 'ranbothways', 'notscored']
+    },
+    ranbothways: {
+      term: 'Ran both ways', kind: 'How we score', cat: 'What PolitiDex measures',
+      aka: ['ran both ways', 'split record', 'both ways'],
+      short: 'The judged record went in both directions on an issue, with neither side clearly dominant.',
+      long: 'No direction is named, because none was reached. Where the record is deep enough and both sides substantial, the row prints the two counts; short of that it says the record ran both ways and stops.',
+      why: 'This is arithmetic, not a verdict: no lean is worded, no share is computed, and nothing about it enters a score. A record that runs both ways on an issue is a normal thing for a record to do, and saying so is more honest than picking a side of it.',
+      see: ['recorddirection', 'depthcounts', 'notscored']
+    },
+    depthcounts: {
+      term: 'Aligned · against', kind: 'How we score', cat: 'What PolitiDex measures',
+      aka: ['aligned', 'against', 'denominator', 'aligned against'],
+      short: 'The two counts a row’s percentage divides: how many judged items pointed the same way as the stated position, and how many ran against it.',
+      long: 'They are the denominator, printed so a percentage can be checked instead of taken on trust. 100% over one judged item and 100% over twenty are the same number and very different claims.',
+      why: 'Depth, not a second score. The counts come from the same tally the percentage is computed from, so the two can never disagree — and where only one or two items were judged, the row says so in words: a direction, not yet a pattern.',
+      see: ['directionmatch', 'norecord', 'notscored']
+    },
+
     supportmeaning: {
       term: 'Does a Yea advance the issue?', kind: 'How we score', cat: 'What PolitiDex measures',
       short: 'For each bill-to-issue link, a curated call on whether passing the bill would advance that issue or cut against it.',
@@ -244,7 +303,7 @@
       short: 'We show “no record yet” or “—” instead of a number when there genuinely is not enough evidence to score something honestly.',
       long: 'Below two directional items, any percentage could only ever read 0% or 100%, which would look like a finding but carry no information. With two or three we show the number and flag it as thin.',
       why: 'It means our coverage is incomplete — not that the person did nothing. Common causes: the issue was handled by voice vote, the member’s chamber has thinner published data, or we have not documented that area yet. A coverage line on each section shows how much of the record we actually have.',
-      see: ['rollcall', 'voicevote', 'senate']
+      see: ['rollcall', 'voicevote', 'notscored']
     }
   };
 
@@ -851,8 +910,12 @@
     });
 
     // Every priority concept the product promises to explain must be reachable.
+    // The second row is the vocabulary an issue ROW prints on its own face — the
+    // words a reader meets before they have opened anything — so a definition
+    // going missing there is the failure this list exists to catch.
     ['hr', 's', 'resolution', 'amendment', 'house', 'senate', 'rollcall', 'voicevote',
-     'omnibus', 'saydo', 'contradiction', 'procedural', 'recommit', 'norecord', 'twoaxis'
+     'omnibus', 'saydo', 'contradiction', 'procedural', 'recommit', 'norecord', 'twoaxis',
+     'directionmatch', 'publicmatch', 'notscored', 'recorddirection', 'ranbothways', 'depthcounts'
     ].forEach(function (k) { ok(!!GLOSSARY[k], 'priority concept "' + k + '" is covered'); });
 
     // The measure-number parser: prefix linked, number left as plain text.

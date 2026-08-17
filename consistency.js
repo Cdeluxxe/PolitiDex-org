@@ -210,6 +210,40 @@
     var L = window.PDXLearn;
     return (L && L.howto) ? L.howto(id, label) : '';
   }
+  // ── TEACHING THE ROW'S OWN VOCABULARY, WHERE THE READER MEETS IT ────────────
+  // The reason line under an unscored row is the one place in the product a
+  // visitor is shown "advanced it", "cut against it" or "ran both ways", and
+  // until now it was also the only place those phrases appeared at all: the
+  // glossary had entries for roll calls and omnibus bills and nothing for the
+  // words the recent honesty ships actually put on the face. A skeptical reader
+  // met the claim several screens before any definition of it, which is the
+  // wrong order for the one audience this surface is built for.
+  //
+  // ONE LESSON PER LINE. Both directional phrases share a single entry, so
+  // linking the second occurrence in "13 cut against it, 7 advanced it" would put
+  // two dotted controls on one clause and teach nothing the first did not. Only
+  // the first match of each rule is wrapped, and the rules must stay mutually
+  // exclusive in the text they match — a rule whose phrase could occur inside
+  // another rule's rendered button would linkify markup. There is a test on that.
+  //
+  // WHERE IT MAY RUN. On already-escaped element text only. It replaces plain
+  // ASCII phrases, so it cannot straddle an entity or reopen a tag — but it must
+  // never touch a tooltip or an aria-label, which are attribute values: a
+  // <button> in one of those is printed as literal angle brackets. The tips are
+  // built on the raw string through escAttr and stay untouched.
+  var _ST_TEACH = [
+    { re: /(advanced it|cut against it)/, key: 'recorddirection' },
+    { re: /(ran both ways)/, key: 'ranbothways' }
+  ];
+  function _stTeach(escaped) {
+    var s = String(escaped == null ? '' : escaped);
+    for (var i = 0; i < _ST_TEACH.length; i++) {
+      var m = _ST_TEACH[i].re.exec(s);
+      if (!m) continue;
+      s = s.slice(0, m.index) + LT(_ST_TEACH[i].key, m[0]) + s.slice(m.index + m[0].length);
+    }
+    return s;
+  }
   function norm(id) { return String(id == null ? '' : id).trim().toLowerCase(); }
 
   // ── source readers (guarded; each returns a neutral empty when unavailable) ──
@@ -4803,7 +4837,7 @@
         esc(res.invite.cta) + '<span class="pdxst-lbl-go" aria-hidden="true">→</span>' +
       '</button>';
     }
-    return '<' + t + ' class="pdxst-why">' + esc(res.why) + door + '</' + t + '>';
+    return '<' + t + ' class="pdxst-why">' + _stTeach(esc(res.why)) + door + '</' + t + '>';
   }
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
@@ -4818,9 +4852,23 @@
     // outside Direction Match — which is exactly what its note says.
     var laneKey = (res.metric === 'Public-record match') ? PUB_LANE : 'Formal';
     var lane = '<span class="pdxst-lane">' + esc(laneKey) + '</span>';
+    // THE METRIC TEACHES ITSELF. "Direction match" is the row's central claim and
+    // was, until now, a name with no definition anywhere in the product — the
+    // reader had to already know that it means said-versus-did, on this issue
+    // only, from the formal record only. The key follows the metric rather than
+    // the lane chip, so a public-record row explains the public-record read and
+    // never borrows the formal one's definition. With the education layer absent
+    // LT() is plain escaped text, so this is exactly the old markup.
+    var metricKey = (res.metric === 'Public-record match') ? 'publicmatch' : 'directionmatch';
+    // "Not scored yet" / "Not tested yet" is the one label on this face that is
+    // about OUR coverage rather than their conduct, and it is the one most easily
+    // read as a dodge — a row holding eighteen sourced votes and printing no
+    // number looks evasive until you can find out, in place, why. The icon stays
+    // outside the control: it is decoration, not a word to define.
     if (res.state === 'untested') {
       return '<div class="pdxst-result pdxst-r-untested">' + lane +
-          '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico + ' ' + res.label) + '</span>' +
+          '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico) + ' ' +
+            LT('notscored', res.label) + '</span>' +
           _stWhyHtml(r, res, 'span') +
         '</div>';
     }
@@ -4873,10 +4921,16 @@
           : 'No percentage — not enough record') + '">—</span>';
     return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
-        '<span class="pdxst-metric">' + esc(res.metric) + '</span>' +
+        '<span class="pdxst-metric">' + LT(metricKey, res.metric) + '</span>' +
         '<span class="pdxst-scope">this issue</span>' +
         num +
-        '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
+        // A thin row's word is "Not scored yet", which needs the same definition
+        // the untested branch gives it. A tested row's word is a verdict from the
+        // ⚖️ Word vs Action bucket vocabulary and is left alone — it is taught
+        // where those buckets are defined, and a second control here would put
+        // three dotted words on one line.
+        '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico) + ' ' +
+          (res.label === 'Not scored yet' ? LT('notscored', res.label) : esc(res.label)) + '</span>' +
       '</div>' +
       (res.state === 'thin' ? _stWhyHtml(r, res, 'div') : '');
   }
@@ -4924,7 +4978,12 @@
     var n = _stNoun(r);
     var unit = (split.basis === 'public_record') ? 'public-record item' : n.one;
     var parts = [
-      '<span class="pdxst-comp-for"><b>' + split.aligned + '</b> aligned</span>',
+      // The word "aligned" carries the definition for the whole line: it is the
+      // first countable noun on it, and one entry ("Aligned · against") explains
+      // both halves, so a second control on "against" would teach nothing new
+      // while doubling the dotted words under the percentage. The digits stay
+      // ordinary text — a number is not a term.
+      '<span class="pdxst-comp-for"><b>' + split.aligned + '</b> ' + LT('depthcounts', 'aligned') + '</span>',
       '<span class="pdxst-comp-against"><b>' + split.against + '</b> against</span>'
     ];
     if (aside && aside.count) {
