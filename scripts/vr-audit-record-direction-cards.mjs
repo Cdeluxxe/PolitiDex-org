@@ -277,6 +277,7 @@ async function main() {
   const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
 
   let built = 0, publicCards = 0, uniform = 0, twoSided = 0, bothCited = 0;
+  let splitPublic = 0, splitBothCited = 0, splitJudged = 0;
   const members = new Set(), issues = new Set();
   for (const r of rows) {
     bump(tokenTally, r.token);
@@ -287,18 +288,29 @@ async function main() {
       bump(tierTally, r.tier || '(none)');
       members.add(r.pid); issues.add(r.issueKey);
       if (r.uniform) uniform++; else { twoSided++; if (r.bothSidesCited) bothCited++; }
+      // The split population, tracked on its own line: these are the rows that
+      // could not leave the app at all before this move.
+      if (r.split) {
+        splitPublic++; splitJudged += (r.judged || 0);
+        if (r.bothSidesCited) splitBothCited++;
+      }
     } else {
       bump(reasonTally, r.publicReason);
     }
   }
 
   // Every public record-direction card must sit on a row the PROFILE itself
-  // already characterises — the card may never be more confident than the row.
+  // already lets speak — the card may never be more confident than the row.
+  // The bar is `counted`: a deep split's card states two numbers the row also
+  // states, and claims no direction, so it is not more confident than a row
+  // that characterises nothing. A card that claimed a direction on a split row
+  // would be, which is what the `split`/`characterised` check below catches.
   let overconfident = 0;
   for (const r of rows) {
     if (!r.publicEligible) continue;
     const i = live.ctx.window._pdxRecordDirection(r.pid, r.issueKey);
-    if (!i || !i.characterised || i.token !== r.token ||
+    if (!i || !i.counted || i.token !== r.token ||
+        !!i.characterised === !!r.split ||
         i.judged !== r.judged || i.advances !== r.advances || i.opposes !== r.opposes) {
       overconfident++;
     }
@@ -340,12 +352,16 @@ async function main() {
 
   // ── 4 · worked examples ────────────────────────────────────────────────────
   const pick = (want) => {
-    const hit = rows.filter((r) => r.publicEligible && (want === 'uniform' ? r.uniform : (!r.uniform && r.bothSidesCited)))
+    const hit = rows.filter((r) => r.publicEligible && (
+      want === 'uniform' ? r.uniform
+        : want === 'bothways' ? r.split
+        : (!r.uniform && !r.split && r.bothSidesCited)))
       .sort((x, y) => y.judged - x.judged)[0];
     return hit ? RC.recordDirection(hit.pid, hit.issueKey) : null;
   };
   const exUniform = pick('uniform');
   const exSplit = pick('split');
+  const exBothWays = pick('bothways');
 
   // ── 5 · where the tripwires actually fire ──────────────────────────────────
   // A tripwire firing on a sentence the app WROTE is a copy bug worth fixing. A
@@ -375,7 +391,9 @@ async function main() {
 
   const out = {
     newlyEligible: { built, publicCards, members: members.size, issues: issues.size,
-                     uniform, twoSided, bothSidesCited: bothCited, overconfident },
+                     uniform, twoSided, bothSidesCited: bothCited, overconfident,
+                     split: splitPublic, splitBothSidesCited: splitBothCited,
+                     splitMeanJudged: splitPublic ? +(splitJudged / splitPublic).toFixed(1) : 0 },
     tiers: Object.fromEntries([...tierTally].sort((a, b) => b[1] - a[1])),
     tokens: Object.fromEntries([...tokenTally].sort((a, b) => b[1] - a[1])),
     shareEligibility: { sayVsDoBefore: sayBefore, sayVsDoAfter: sayAfter,
@@ -391,7 +409,8 @@ async function main() {
   };
 
   if (JSON_OUT) {
-    console.log(JSON.stringify({ ...out, examples: { uniform: exUniform, split: exSplit } }, null, 2));
+    console.log(JSON.stringify({ ...out,
+      examples: { uniform: exUniform, split: exSplit, bothWays: exBothWays } }, null, 2));
     return;
   }
 
@@ -404,6 +423,7 @@ async function main() {
   L(`  cards that clear the public gate  ${publicCards}   (${members.size} members · ${issues.size} issues)`);
   L(`     uniform records             ${uniform}`);
   L(`     two-sided records           ${twoSided}   (${bothCited} cite an example on BOTH sides)`);
+  L(`     records that ran both ways  ${splitPublic}   (${splitBothCited} cite an example on BOTH sides · mean ${splitPublic ? (splitJudged / splitPublic).toFixed(1) : '0'} judged)`);
   L(`  cards more confident than the row they sit on   ${overconfident}   ← must be 0`);
   L('');
   L('  by public tier');
@@ -470,6 +490,7 @@ async function main() {
     };
     show('WORKED EXAMPLE · uniform record', exUniform);
     show('WORKED EXAMPLE · split record', exSplit);
+    show('WORKED EXAMPLE · record that ran both ways', exBothWays);
   }
   L('');
 }

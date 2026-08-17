@@ -1839,8 +1839,22 @@
   //   "On <issue>, <Name> has 14 recorded votes — 11 advanced it, 3 cut
   //    against it."
   //   "On <issue>, <Name>'s recorded votes all advanced it (5)."
+  //   "On <issue>, <Name>'s record ran both ways — 20 recorded votes: 13 cut
+  //    against it, 7 advanced it."
   // That is a description of a record. It is not a stance, not an inferred
   // stance, and not a score.
+  //
+  // THE THIRD SHAPE is the one that names no direction, and it is here because
+  // the alternative was worse. A row whose record ran both ways used to print
+  // five words — "they ran both ways" — over as many as twenty judged votes,
+  // and could not leave the app at all, because "does this record characterise?"
+  // was being asked to answer two different questions at once: may we say what
+  // the record DID, and may we say HOW MUCH of it went each way. A split can
+  // never answer the first. It answers the second perfectly well once it is
+  // deep enough, so the index publishes the two permissions separately
+  // (`characterised` and `counted`) and this card reads the second. Nothing
+  // about the split shape names a lead, ranks the sides, or implies that the
+  // larger number is the member's position.
   //
   // WHAT IT MUST NOT DO, and where each wall is:
   //   · No stance, inferred or otherwise. The card is only ever built where the
@@ -1854,14 +1868,16 @@
   //     through its own functions — candidates(), cardsFor(), audit() and the
   //     public reads over them are untouched, so said-vs-did card volume cannot
   //     move because this file grew.
-  //   · No loosened guards. Eligibility is `idx.characterised === true` from
+  //   · No loosened guards. Eligibility is `idx.counted === true` from
   //     window._recordDirectionIndex — which is the depth rule, the dominance
-  //     rule, the primary-mapping rule, the member coverage floor and the
-  //     no-pole / *_balance suppressions, all of them, in one flag and in one
-  //     implementation. Every cited example goes through the identical
-  //     itemBlock() chain the split card's two examples go through, with the
-  //     stance argument passed as null — which that chain already handles,
-  //     because guard 10 is asked by the CALLERS and never by the chain.
+  //     rule, the split depth and both-sides-material rules, the primary-mapping
+  //     rule, the member coverage floor and the no-pole / *_balance
+  //     suppressions, all of them, in one flag and in one implementation. The
+  //     split shape adds thresholds to that index; it removes none, and it adds
+  //     none here. Every cited example goes through the identical itemBlock()
+  //     chain the omnibus split card's two examples go through, with the stance
+  //     argument passed as null — which that chain already handles, because
+  //     guard 10 is asked by the CALLERS and never by the chain.
   // ══════════════════════════════════════════════════════════════════════════
   var RD_ORIGIN = 'record_direction';
 
@@ -1874,9 +1890,13 @@
     key: 'record_direction', cls: 'v-record-direction', ico: '🏛',
     label: 'What The Record Did', rank: 1
   };
-  function rdVerdict() {
+  // A record that ran both ways did not do one thing, so the stamp does not say
+  // it did. Same key, same accent, same lane — only the sentence on the stamp
+  // changes, because the sentence is the part that would otherwise be false.
+  var RD_SPLIT_LABEL = 'The Record Ran Both Ways';
+  function rdVerdict(split) {
     return { key: RD_VERDICT.key, cls: RD_VERDICT.cls, ico: RD_VERDICT.ico,
-             label: RD_VERDICT.label, rank: RD_VERDICT.rank };
+             label: split ? RD_SPLIT_LABEL : RD_VERDICT.label, rank: RD_VERDICT.rank };
   }
 
   // THE DISCLOSURE, as a constant rather than a sentence written at the call
@@ -1932,12 +1952,18 @@
     };
   }
 
-  // Why this row may not be characterised, in the index's own words. The index
+  // Why this row may not print its counts, in the index's own words. The index
   // is the ONLY authority on this — there is no second threshold table here, so
   // there is nothing to drift.
+  //   The flag asked for is `counted`, not `characterised`. Those are two
+  // different permissions and the index publishes both: a deep split has no
+  // direction to characterise and two real counts to state, and a card that
+  // reported the second is not making the first claim. Every row that clears
+  // `characterised` also clears `counted`, so nothing that shipped before this
+  // stops shipping.
   function rdBlockIndex(idx) {
     if (!idx) return 'the record-direction index is unavailable';
-    if (!idx.characterised) {
+    if (!idx.counted) {
       return 'the record does not characterise on this row: ' +
         String(idx.label || idx.token).toLowerCase() +
         (idx.suppressed ? ' (' + idx.suppressed + ')' : '');
@@ -2001,7 +2027,13 @@
         if (ins.strength === 'supporting') soft = true;
       });
 
-      var leadSide = idx.lead || 'advances';
+      // WHICH SIDE THE CARD FETCHES FIRST. A characterised row already knows —
+      // `lead` names the heavier side by weight. A split has no lead and must
+      // not be handed one, so the order falls back to the larger raw count
+      // (ties to advances). It decides which example is looked up first and
+      // nothing else: it is never printed, never stored on the card as a
+      // direction, and both sides are asked for either way.
+      var leadSide = idx.lead || (idx.advances >= idx.opposes ? 'advances' : 'opposes');
       var otherSide = leadSide === 'advances' ? 'opposes' : 'advances';
       var lead = rdStrongest(pid, issueKey, items, records, leadSide);
       // Only asked for where the record actually ran both ways. "for splits, one
@@ -2015,7 +2047,7 @@
       var cand = {
         pid: pid, issueKey: issueKey, want: 'record_direction',
         idx: idx, items: items, acts: acts, soft: soft,
-        lead: lead, other: other,
+        lead: lead, other: other, leadSide: leadSide,
         // The item every downstream reader of a candidate expects.
         item: lead.item || null,
         steppedDown: !!(lead.steppedDown || other.steppedDown),
@@ -2060,12 +2092,17 @@
     if (!cand || cand.blocked) return null;
     var idx = cand.idx;
     var leadItem = cand.lead && cand.lead.item;
-    if (!leadItem || !idx || !idx.characterised) return null;
+    if (!leadItem || !idx || !idx.counted) return null;
+
+    // A record that ran both ways, deep enough to state its counts. It has no
+    // direction, so every sentence below that would name one is skipped rather
+    // than softened, and the card's own flag says which shape it is.
+    var isSplit = !idx.characterised;
 
     // baseCard with a null stance: same identity, same issue chip, same footer
     // rules, same fail-closed on an address that will not print — and no SAID
     // half, because there is nothing said to put in it.
-    var card = baseCard(cand.pid, leadItem, cand.issueKey, null, rdVerdict());
+    var card = baseCard(cand.pid, leadItem, cand.issueKey, null, rdVerdict(isSplit));
     if (!card) return null;
 
     var issueName = (card.issue && card.issue.label) || 'this issue';
@@ -2077,23 +2114,28 @@
     var leadWord = (idx.lead === 'opposes') ? 'cut against it' : 'advanced it';
 
     card.origin = RD_ORIGIN;
-    card.verdict = rdVerdict();
+    card.verdict = rdVerdict(isSplit);
     // The stamp on every other card is headed VERDICT. This one is not a verdict
     // on anybody — it reports what the record did — so it says so, and the
     // renderer prints whatever this field holds.
     card.stampKicker = 'RECORD DIRECTION';
     card.impact = 'record';
-    card.recordLabel = 'WHAT THE RECORD DID';
+    card.recordLabel = isSplit ? 'WHAT THE RECORD DID — BOTH WAYS' : 'WHAT THE RECORD DID';
     // The disclosure, on the image, in the place the stated position would have
     // been. It travels with the pixels because the pixels are what travel.
     card.recordNote = RD_NOTE;
 
-    // The finding. Counts, in words, in the two forms the record comes in.
+    // The finding. Counts, in words, in the three forms the record comes in.
+    // The split form leads with the total and then states both sides, in the
+    // index's own order — it names no lead, because there is none to name.
     card.headline = uniform
       ? ('On ' + issueName + ', ' + card.name + '’s ' + manyNoun + ' all ' + leadWord +
          ' (' + n + ').')
-      : ('On ' + issueName + ', ' + card.name + ' has ' + n + ' ' + manyNoun + ' — ' +
-         adv + ' advanced it, ' + opp + ' cut against it.');
+      : isSplit
+        ? ('On ' + issueName + ', ' + card.name + '’s record ran both ways — ' + n + ' ' +
+           manyNoun + ': ' + idx.clause + '.')
+        : ('On ' + issueName + ', ' + card.name + ' has ' + n + ' ' + manyNoun + ' — ' +
+           adv + ' advanced it, ' + opp + ' cut against it.');
 
     // What kind of act the COUNTS cover — the same two-part answer the split card
     // gives, for the same reason: a card counting a cosponsorship alongside a
@@ -2111,16 +2153,19 @@
     card.recordDirection = {
       token: idx.token, lead: idx.lead, judged: n, advances: adv, opposes: opp,
       primary: idx.primary, total: idx.total, uniform: uniform,
-      characterised: !!idx.characterised, acts: acts, soft: !!cand.soft,
-      steppedDown: !!cand.steppedDown
+      characterised: !!idx.characterised, counted: !!idx.counted, split: isSplit,
+      acts: acts, soft: !!cand.soft, steppedDown: !!cand.steppedDown
     };
 
     var otherItem = cand.other && cand.other.item;
     if (!uniform && otherItem) {
       // Both sides citable: one named, dated, sourced example on each, in the
-      // same both-sides block the split card already draws.
-      var advItem = (idx.lead === 'advances') ? leadItem : otherItem;
-      var oppItem = (idx.lead === 'advances') ? otherItem : leadItem;
+      // same both-sides block the split card already draws. Which item goes on
+      // which side is read off the side each was FETCHED for, never off the
+      // index's lead — a split has no lead, and reading a null one would put
+      // both examples under the wrong heading.
+      var advItem = (cand.leadSide === 'advances') ? leadItem : otherItem;
+      var oppItem = (cand.leadSide === 'advances') ? otherItem : leadItem;
       card.sides = {
         counts: { with: adv, against: opp },
         with: rdFace(advItem, cand.issueKey, 'advances'),
@@ -2151,7 +2196,9 @@
     // N of them.
     card.didLine = uniform
       ? ('All ' + n + ' ' + manyNoun + ' ' + leadWord)
-      : (n + ' ' + manyNoun + ' — ' + adv + ' advanced it, ' + opp + ' cut against it');
+      : isSplit
+        ? (n + ' ' + manyNoun + ', both ways — ' + idx.clause)
+        : (n + ' ' + manyNoun + ' — ' + adv + ' advanced it, ' + opp + ' cut against it');
     card.countsNote = 'Counts cover every judged ' + oneNoun + ' on this issue; ' +
       (card.sides
         ? 'each example above is the strongest one on its side that can be cited on its own.'
@@ -2444,8 +2491,29 @@
       return 'record-direction card carries a stated position — it reports the record only';
     }
     var rd = card.recordDirection;
-    if (!rd || !rd.characterised) {
+    if (!rd || !rd.counted) {
+      return 'record-direction card is not backed by a counted record row';
+    }
+    // THE TWO SHAPES, EACH HELD TO ITS OWN CLAIM. A card that says what the
+    // record DID must sit on a row that characterises one; a card that says the
+    // record ran BOTH WAYS must sit on a row that refused to. Asked in both
+    // directions, so neither shape can borrow the other's permission — a split
+    // wearing a characterised flag would be a direction asserted where the index
+    // found none, and a direction card without one would be the reverse.
+    if (rd.split && rd.characterised) {
+      return 'record-direction card reports a split on a row that characterised a direction';
+    }
+    if (!rd.split && !rd.characterised) {
       return 'record-direction card is not backed by a characterised record row';
+    }
+    // A split with one side empty is not a split. The counts are the finding on
+    // this card, so an arithmetic shape that contradicts its own headline stops
+    // here rather than printing.
+    if (rd.split && !(rd.advances && rd.opposes)) {
+      return 'record-direction card reports a record that ran both ways with only one side on it';
+    }
+    if (rd.split && rd.lead) {
+      return 'record-direction card names a leading side on a record that ran both ways';
     }
     // The absence of a stated position is the whole premise of this card, so the
     // line that says so is required verbatim — not merely present, not merely
@@ -2671,6 +2739,11 @@
       return {
         pid: c.pid, issueKey: c.issueKey, want: c.want,
         token: c.idx.token, characterised: !!c.idx.characterised,
+        counted: !!c.idx.counted,
+        // A row the index refused to characterise but allowed to state its
+        // counts. Reported separately so the split population can be read off
+        // this audit without inferring it from two other columns.
+        split: !!(c.idx.counted && !c.idx.characterised),
         judged: c.idx.judged, advances: c.idx.advances, opposes: c.idx.opposes,
         lead: c.idx.lead || '', suppressed: c.idx.suppressed || '',
         uniform: !(c.idx.advances && c.idx.opposes),
@@ -3019,6 +3092,7 @@
     recordDirectionCandidates: recordDirectionCandidates,
     recordDirectionAudit: recordDirectionAudit,
     RECORD_DIRECTION_VERDICT: RD_VERDICT,
+    RECORD_DIRECTION_SPLIT_LABEL: RD_SPLIT_LABEL,
     RECORD_DIRECTION_ORIGIN: RD_ORIGIN,
     // Phase 10 (digital share): the two pure text builders that decide what the
     // fact block and the issue chip actually PRINT. Exposed so the presentation
