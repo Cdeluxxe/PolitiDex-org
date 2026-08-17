@@ -14,9 +14,11 @@
 //      model's own number, a verdict beside it, and the depth of the record under
 //      it, in the office's own nouns. Untested and too-thin rows fail closed and
 //      say why: no row is ever given an answer the engine did not reach.
-//   2. COMPOSITION UNDER TENSION — a mixed row, a row with counter-evidence the
-//      verdict set aside, and a row whose action is contested all print the split
-//      instead of leaving "mixed" to be guessed at.
+//   2. COMPOSITION ON EVERY SCORED ROW — a mixed row, a row with counter-evidence
+//      the verdict set aside, and a row whose action is contested all print the
+//      split instead of leaving "mixed" to be guessed at; and so does every clean
+//      row, because a percentage whose denominator is withheld is the strongest
+//      claim on the surface making the least disclosure (section 5).
 //   3. CONNECTIONS THAT LAND ON THE ISSUE — every jump carries the (pid, issue)
 //      pair, and the two per-issue anchors it aims at are actually emitted by the
 //      sections that own them, built from the same string on both ends.
@@ -89,6 +91,14 @@ const text = (h) => String(h || "")
   .replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"')
   .replace(/\s+/g, " ").trim();
 const section = (t) => console.log(`  · ${t}`);
+// A probe that names a specific row, function or fixture is only meaningful while
+// that thing exists. If one vanishes the assertions built on it would pass
+// vacuously, which is worse than failing — so the harness stops instead.
+const must = (cond, what) => {
+  if (cond) return;
+  console.error(`\nSTALE HARNESS: ${what}`);
+  process.exit(2);
+};
 
 // Split the rendered section into one chunk per row, keyed by issue. The trailing
 // character class keeps `pdxst-row-top` from opening a chunk of its own.
@@ -213,13 +223,29 @@ section("2 · a mixed row shows what mixed meant");
     has(rows[r.key] || "", "set aside",
       `president/${r.key}: counter-evidence the verdict set aside is not disclosed on the row`);
   }
-  // A clean, uncontested row is left alone: a breakdown under "9 of 9 aligned" is
-  // furniture, and this section's whole problem was furniture.
+  // A clean, uncontested row used to be left alone, on the reasoning that a
+  // breakdown under "9 of 9 aligned" is furniture. That was wrong in one
+  // direction: it left the STRONGEST claims on the surface as bare numbers while
+  // every unscored row around them carried arithmetic, so a 100% resting on one
+  // judged vote was typographically identical to a 100% resting on twenty. Every
+  // scored row now states the counts its percentage divides.
   const clean = CS.issueRows(PRES).filter(
     (r) => r.verdict.token === "consistent" && !r.setAside && r.verdict.score === 100);
+  ok(clean.length > 0, "fixture: the president has no clean 100% row to check the denominator on");
   let bare = 0;
   for (const r of clean) if (!/pdxst-comp/.test(rows[r.key] || "")) bare++;
-  ok(bare > 0, "every clean row carries a breakdown — composition is for rows that need it");
+  eq(bare, 0, "a clean 100% row still prints a bare percentage with nothing to say how deep it is");
+  // …and the counts are the ones the percentage is actually a ratio of, so a
+  // reader can reconstruct it rather than take it on trust.
+  for (const r of clean) {
+    const chunk = rows[r.key] || "";
+    const aligned = Number((chunk.match(/pdxst-comp-for"><b>(\d+)<\/b>/) || [])[1]);
+    const against = Number((chunk.match(/pdxst-comp-against"><b>(\d+)<\/b>/) || [])[1]);
+    ok(aligned > 0, `president/${r.key}: a 100% row claims no aligned items`);
+    eq(against, 0, `president/${r.key}: a 100% row prints items running against it`);
+    eq(Math.round((100 * aligned) / (aligned + against)), r.verdict.score,
+      `president/${r.key}: the printed split does not reconstruct the row's own percentage`);
+  }
   // Contested standing is an executive-only idea and is read from the Executive
   // Enactment Record's own vocabulary, never restated here.
   has(CS_SRC, "window.PDXExecRecord", "the standing read stopped going through PDXExecRecord");
@@ -364,7 +390,135 @@ section("4 · hierarchy, lane vocabulary, reach and the phone");
     "    the brief was clarity, not density");
 }
 
-// ── Report ────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+section("5 · every scored row states what its percentage divides");
+// ═════════════════════════════════════════════════════════════════════════════
+// The composition line used to print only where a row carried visible tension, on
+// the reasoning that a breakdown under a clean row is furniture. Measured against
+// the shipped record that left 1,013 of 1,194 scored rows printing a bare
+// percentage — 768 of them at 100%, and 261 of THOSE resting on a single judged
+// item. So the rows making the strongest claim disclosed the least, and a 100% on
+// one action was typographically identical to a 100% on twenty while every
+// unscored row around them carried arithmetic.
+//
+// The fix was one widened condition, not a new tally: the counts still come from
+// _stSplit, the same numbers the result tooltip has always quoted. This section
+// gates that the widening is total, that depth is legible without clicking, and
+// that nothing about it reaches the score.
+{
+  const { rows } = rowsOf(PRES);
+  const model = CS.issueRows(PRES);
+  const scored = model.filter((r) => r.scored && r.tested);
+  ok(scored.length > 5, `fixture: only ${scored.length} scored rows on the president to check`);
+
+  let gained = 0;
+  for (const r of scored) {
+    const chunk = rows[r.key] || "";
+    has(chunk, 'class="pdxst-comp"',
+      `president/${r.key}: a scored row prints its percentage with nothing to say what it divides`);
+    const aligned = Number((chunk.match(/pdxst-comp-for"><b>(\d+)<\/b>/) || [])[1]);
+    const against = Number((chunk.match(/pdxst-comp-against"><b>(\d+)<\/b>/) || [])[1]);
+    ok(Number.isFinite(aligned) && Number.isFinite(against),
+      `president/${r.key}: the composition line names no counts`);
+    ok(aligned + against > 0, `president/${r.key}: the denominator under the percentage is zero`);
+    // THE SCORE PATH IS UNCHANGED. The printed split must reconstruct the row's own
+    // number — not approximately, exactly. If this ever drifts, the surface has
+    // started doing arithmetic of its own, which is the one thing it may not do.
+    eq(Math.round((100 * aligned) / (aligned + against)), r.verdict.score,
+      `president/${r.key}: the printed split does not reconstruct the row's own percentage`);
+    gained++;
+  }
+  console.log(`    ${gained} scored rows carry a denominator; 0 print a bare percentage`);
+
+  // NOT A SECOND PERCENTAGE. The counts are counts. A "%" inside the composition
+  // line would put two numbers of the same shape on one row and invite the reader
+  // to read the wrong one as the verdict.
+  for (const r of scored) {
+    const chunk = rows[r.key] || "";
+    const at = chunk.indexOf('class="pdxst-comp"');
+    const comp = chunk.slice(at, chunk.indexOf("</div>", at));
+    lacks(comp, "%", `president/${r.key}: the composition line prints a percentage of its own`);
+    lacks(comp, "pdxst-pct", `president/${r.key}: the composition line borrows the result number's styling`);
+  }
+
+  // ONE RECORD VERSUS MANY, VISIBLY. This is the whole point of the pass, so it is
+  // pinned on two named rows rather than on a property that could hold vacuously:
+  // a 100% resting on a single action and a 100% resting on nine must not paint the
+  // same face. `family_support` and `border_security` are both clean 100% rows on
+  // the president's shipped record.
+  const SHALLOW = "family_support", DEEP = "border_security";
+  const sh = rows[SHALLOW] || "", dp = rows[DEEP] || "";
+  must(!!sh && !!dp, `both example rows still render (${SHALLOW}, ${DEEP})`);
+  const shR = model.find((r) => r.key === SHALLOW), dpR = model.find((r) => r.key === DEEP);
+  must(!!shR && !!dpR, "both example rows are still in the row model");
+  must(shR.verdict.score === 100 && dpR.verdict.score === 100,
+    "both example rows still score 100% — the contrast is between depths, not scores");
+  eq(Number((sh.match(/pdxst-comp-for"><b>(\d+)<\/b>/) || [])[1]), 1,
+    `president/${SHALLOW}: the one-record example no longer rests on one record`);
+  ok(Number((dp.match(/pdxst-comp-for"><b>(\d+)<\/b>/) || [])[1]) >= 8,
+    `president/${DEEP}: the deep example no longer rests on a deep record`);
+  const shComp = sh.slice(sh.indexOf('class="pdxst-comp"'), sh.indexOf("</div>", sh.indexOf('class="pdxst-comp"')));
+  const dpComp = dp.slice(dp.indexOf('class="pdxst-comp"'), dp.indexOf("</div>", dp.indexOf('class="pdxst-comp"')));
+  ok(text(shComp) !== text(dpComp),
+    "a 100% on one action and a 100% on nine paint the same face — the reader cannot tell them apart");
+  // …and the shallow one says so in words, not only in a digit a skimming eye slides past.
+  has(shComp, "pdxst-comp-thin", `president/${SHALLOW}: a 100% on one action is not marked as thin`);
+  lacks(dpComp, "pdxst-comp-thin", `president/${DEEP}: a 100% on nine actions is marked as thin`);
+
+  // THE THIN QUALIFIER IS A QUALIFIER, NOT A VERDICT. It fires exactly where the
+  // judged count is 1 or 2 and a score exists for it to qualify — never on a deep
+  // row, never on a row with no percentage above it.
+  for (const r of model) {
+    const chunk = rows[r.key] || "";
+    const isThin = /pdxst-comp-thin/.test(chunk);
+    const aligned = Number((chunk.match(/pdxst-comp-for"><b>(\d+)<\/b>/) || [])[1]) || 0;
+    const against = Number((chunk.match(/pdxst-comp-against"><b>(\d+)<\/b>/) || [])[1]) || 0;
+    const judged = aligned + against;
+    const isScored = /class="pdxst-pct"[^>]*>\d+%/.test(chunk);
+    eq(isThin, isScored && judged > 0 && judged <= 2,
+      `president/${r.key}: the thin qualifier fires on the wrong row (scored ${isScored}, judged ${judged})`);
+    if (isThin) {
+      // A Mixed row reached no direction, so the one thing this note must not say
+      // there is that a direction is real.
+      has(chunk, r.verdict.token === "mixed" ? "a split, not yet a pattern" : "a direction, not yet a pattern",
+        `president/${r.key}: the thin note claims a direction the bucket declined to reach`);
+    }
+  }
+  // It is quiet by construction: no icon, and no colour of its own to compete with
+  // the verdict token beside it.
+  ok(/\.pdxst-comp-thin\{[^}]*font-style:italic/.test(CS_SRC),
+    "the thin qualifier lost its quiet styling and now competes with the verdict");
+  ok(!/\.pdxst-comp-thin\{[^}]*font-weight:[67]/.test(CS_SRC),
+    "the thin qualifier is bolded — it reads as a second verdict rather than a note on the counts");
+
+  // NO FAKE DEPTH. A row the engine never scored gains nothing here: `no_stance`
+  // and `limited` rows have no percentage for a denominator to be the denominator
+  // OF, and _stSplit has nothing honest to hand them.
+  for (const r of model) {
+    if (r.tested) continue;
+    const chunk = rows[r.key] || "";
+    if (r.setAside && r.setAside.count) continue; // tension is still disclosed, as before
+    lacks(chunk, 'class="pdxst-comp"',
+      `president/${r.key}: an unscored row was given composition counts it did not earn`);
+  }
+  // …and the gate that keeps it that way is the row's own state, read from the
+  // result the engine already reached rather than re-derived here.
+  ok(/if \(res\.state === 'untested'\) return '';/.test(CS_SRC),
+    "the composition line no longer refuses rows with no result at all");
+  ok(/if \(!tense && res\.state !== 'tested'\) return '';/.test(CS_SRC),
+    "the widened condition is gone: either every row prints composition, or only tense ones do");
+  // The counts come from _stSplit and nowhere else — one tally, so the row face, the
+  // tooltip and the dossier cannot state different denominators for one verdict.
+  const compFn = CS_SRC.slice(CS_SRC.indexOf("function _stCompHtml"));
+  const compBody = compFn.slice(0, compFn.indexOf("\n  function "));
+  must(compBody.length > 400 && compBody.length < 6000,
+    `the _stCompHtml slice looks wrong (${compBody.length} chars)`);
+  has(compBody, "_stSplit(r)", "_stCompHtml stopped reading the shared split and now tallies for itself");
+  lacks(compBody, "verdict.score", "_stCompHtml reads the score — the denominator must not be derived from the number it explains");
+  lacks(compBody, "rowResult", "_stCompHtml reaches into the scoring path");
+}
+
+
 if (failures.length) {
   console.error(`\n✗ stance clarity: ${failures.length} failure(s) (${passed} passed)\n`);
   for (const f of failures) console.error("  ✗ " + f);

@@ -2207,6 +2207,10 @@
       '.pdxst-comp-for{color:#6ee7a0;}' +
       '.pdxst-comp-against{color:#f89b9b;}' +
       '.pdxst-comp-x{color:#f5c842;}' +
+      // The thin qualifier is deliberately the quietest thing on the line: no
+      // colour of its own, no weight, no icon. It qualifies the counts beside it
+      // and must never read as a fourth tally or a second verdict.
+      '.pdxst-comp-thin{color:#7d90ad;font-style:italic;}' +
       // ── THE PUBLIC LANE, BESIDE THE FORMAL ONE AND NOT DRESSED AS IT ──────────
       // Related, distinct, and cheap to skip. The formal result line owns the
       // verdict colour, the percentage type and the pill-shaped scope tag; this line
@@ -4876,17 +4880,47 @@
       '</div>' +
       (res.state === 'thin' ? _stWhyHtml(r, res, 'div') : '');
   }
-  // WHAT "MIXED" MEANT. Printed where the row actually carries tension — a split
-  // verdict, counter-evidence the deciding lane set aside, or an action whose
-  // standing is contested — and nowhere else, because a breakdown under a clean
-  // row is furniture.
+  // WHAT THE PERCENTAGE IS A PERCENTAGE OF. This began as "what mixed meant" and
+  // printed only where the row carried visible tension — a split verdict,
+  // counter-evidence the deciding lane set aside, a contested standing — on the
+  // reasoning that a breakdown under a clean row is furniture. That reasoning was
+  // wrong in one specific and expensive way, and the honesty passes that followed
+  // it are what made the error visible.
+  //
+  // THE INVERSION. Rows that reached no result acquired rich arithmetic: an
+  // unscored row states how many instruments it holds, a `limited` row states
+  // which way the record ran, a split row states its composition. Meanwhile the
+  // rows making the STRONGEST claim — a clean 100% with a verdict beside it —
+  // printed a bare number and stopped. 1,013 of 1,194 scored rows were in that
+  // state, 768 of them at 100%. So the reader was handed the most confident
+  // figure on the surface with the least evidence about what stood behind it,
+  // and a 100% resting on one judged vote was typographically identical to a
+  // 100% resting on twenty.
+  //
+  // A percentage without its denominator is not a small omission on this
+  // surface: it is the entire difference between "they voted this way once" and
+  // "they voted this way every time it came up". The row now states both.
+  //
+  // WHAT DID NOT CHANGE. The counts come from _stSplit — the deciding lane's own
+  // judged tallies, the same numbers the result line's tooltip has always
+  // quoted — so this invents no arithmetic and cannot disagree with the score.
+  // The percentage, the verdict token and the bucket are untouched; nothing here
+  // reaches rowResult. A row where no lane judged anything directional still
+  // prints nothing at all, because _stSplit returns null and there is no honest
+  // composition to state. Unscored rows keep the old gate exactly: they print
+  // this line only under tension, because on a row with no result a bare tally
+  // has no percentage to be the denominator OF.
   function _stCompHtml(r, res) {
     if (res.state === 'untested') return '';
     var split = _stSplit(r);
+    if (!split) return '';
     var st = _stStanding(r);
     var aside = r.setAside;
     var tense = (r.verdict.token === 'mixed') || !!aside || !!st;
-    if (!tense || !split) return '';
+    // A scored row always states its denominator; an unscored one only where it
+    // carries tension worth naming. This is the widened condition, and the whole
+    // of the change: everything below already worked, on 15% of the rows.
+    if (!tense && res.state !== 'tested') return '';
     var n = _stNoun(r);
     var unit = (split.basis === 'public_record') ? 'public-record item' : n.one;
     var parts = [
@@ -4907,9 +4941,32 @@
       parts.push('<span class="pdxst-comp-x">' + esc(st.ico + ' ' + st.count + ' ' +
         (st.count === 1 ? n.one : n.many) + ' ' + stLbl) + '</span>');
     }
+    // THIN, SAID ON THE FACE. A scored row resting on one or two judged items is
+    // the case this whole pass exists for: the percentage is arithmetically
+    // correct and reads as a pattern it has not earned. The dossier already made
+    // exactly this caveat one level down ("The direction is real; a pattern is
+    // not established at that depth"), keyed on evidence depth; the same sentence
+    // is compressed here and keyed on the JUDGED count instead, because the
+    // judged count is the denominator of the number it sits beneath. A Mixed row
+    // gets the split wording rather than the direction wording, for the same
+    // reason the dossier forks it: "the direction is real" is the one thing a
+    // bucket that declined to reach a direction must not say.
+    //
+    // It is a qualifier on the counts, not a second verdict — no icon, no colour
+    // of its own, and it never appears on an unscored row, which has no
+    // percentage for depth to qualify.
+    var thin = (res.state === 'tested' && split.judged > 0 && split.judged <= 2);
+    var thinNote = (r.verdict.token === 'mixed')
+      ? 'a split, not yet a pattern'
+      : 'a direction, not yet a pattern';
+    if (thin) parts.push('<span class="pdxst-comp-thin">' + esc(thinNote) + '</span>');
+    // "0 ran against it" is arithmetic read aloud; "none ran against it" is the
+    // same fact in the sentence a person would write. The clean rows this line
+    // now reaches are overwhelmingly the zero case, so it is worth the branch.
     var tip = split.aligned + ' of ' + split.judged + ' judged ' +
       (split.judged === 1 ? unit : unit + 's') + ' pointed the same way as their stated position; ' +
-      split.against + ' ran against it.' +
+      (split.against === 0 ? 'none ran against it.' : split.against + ' ran against it.') +
+      (thin ? ' That is the whole of the record judged against this claim — ' + thinNote + '.' : '') +
       (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
         aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
       (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '');
@@ -7291,8 +7348,10 @@
       '</div>' +
       '<div class="pdxdos-lane">' + esc(lane) + '</div>');
     // COMPOSITION and DEPTH, borrowed verbatim from the stance row. Composition
-    // prints only where the row genuinely carries tension — a split verdict,
-    // counter-evidence the deciding lane set aside, or a contested standing.
+    // now prints on every scored row — the counts the percentage divides — and on
+    // unscored rows only where they carry tension. Borrowing it verbatim is what
+    // keeps this face and the row face from stating different denominators for
+    // the same verdict.
     var comp = _stCompHtml(r, res);
     var ev = _stEvidenceHtml(r, cov);
     // THE COVERAGE CAVEAT, when there is one to make. Thin and untested rows say
@@ -7309,23 +7368,46 @@
     // guesses at.
     var caveat = '';
     if (res.state !== 'tested' && res.why) caveat = res.why;
-    else if (res.state === 'tested' && r.evidence.total > 0 && r.evidence.total <= 2) {
-      var depth = [];
-      if (r.evidence.actions > 0) {
-        depth.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+    else if (res.state === 'tested') {
+      // WHICH DEPTH THIS IS A CAVEAT ABOUT. It used to be `evidence.total` — how
+      // much is on file for the issue. That is a different number from how much
+      // was JUDGED against the claim, and now that the row face states the judged
+      // count next to the percentage, the two could be read side by side and
+      // contradict: 7 rows printed "This rests on 1 vote on record" directly
+      // above a composition line reading "9 aligned · 0 against", and 45 more
+      // carried the face's thin qualifier while this line said nothing at all.
+      //
+      // The judged count wins, because it is the denominator of the percentage
+      // both lines sit under. Evidence total stays as the fallback for a tested
+      // row with no directional split to read — rare, but it is the one case
+      // where the old number is the only one there is.
+      var cvSplit = _stSplit(r);
+      var cvDepth = cvSplit ? cvSplit.judged : r.evidence.total;
+      if (cvDepth > 0 && cvDepth <= 2) {
+        var depth = [];
+        if (cvSplit) {
+          var cvUnit = (cvSplit.basis === 'public_record')
+            ? 'public-record item' : (cvSplit.judged === 1 ? n.one : n.many);
+          depth.push(cvSplit.judged + ' judged ' +
+            (cvSplit.basis === 'public_record' && cvSplit.judged !== 1 ? cvUnit + 's' : cvUnit));
+        } else {
+          if (r.evidence.actions > 0) {
+            depth.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+          }
+          if (r.evidence.public > 0) {
+            depth.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
+          }
+        }
+        caveat = 'This rests on ' + (depth.length ? depth.join(' and ') :
+            cvDepth + ' item' + (cvDepth === 1 ? '' : 's')) +
+          // A Mixed row has no single direction, so "the direction is real" is the one
+          // thing this caveat must not say there — it would read as a verdict the
+          // bucket explicitly declined to reach. What is real on a Mixed row is the
+          // split: the record genuinely went both ways, on very few items.
+          '. ' + (r.verdict.token === 'mixed'
+            ? 'The split is real; a pattern is not established at that depth.'
+            : 'The direction is real; a pattern is not established at that depth.');
       }
-      if (r.evidence.public > 0) {
-        depth.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
-      }
-      caveat = 'This rests on ' + (depth.length ? depth.join(' and ') :
-          r.evidence.total + ' item' + (r.evidence.total === 1 ? '' : 's')) +
-        // A Mixed row has no single direction, so "the direction is real" is the one
-        // thing this caveat must not say there — it would read as a verdict the
-        // bucket explicitly declined to reach. What is real on a Mixed row is the
-        // split: the record genuinely went both ways, on very few items.
-        '. ' + (r.verdict.token === 'mixed'
-          ? 'The split is real; a pattern is not established at that depth.'
-          : 'The direction is real; a pattern is not established at that depth.');
     }
     // WHERE THIS LANDS IN THE SCORE. The profile's headline figure is the pooled
     // ⚖️ Direction match and this issue is one input to it — said outright, so a
