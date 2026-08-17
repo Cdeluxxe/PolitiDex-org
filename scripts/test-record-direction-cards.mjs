@@ -52,6 +52,8 @@ const LABELS = {
   national_debt:        "💰 National Debt",
   border_security:      "🛂 Border Security",
   gov_regulation:       "📋 Government Regulation",
+  immigration:          "🛬 Immigration Levels",
+  gun_rights:           "🔫 Gun Rights",
   rights_safety_balance:"⚖️ Rights + Common-Sense Safety",
   war_powers:           "⚔️ Congress and War Powers",
   healthcare:           "🏥 Health Care",
@@ -63,6 +65,10 @@ const THIN_UNI    = "lower_taxes";           // 2 judged, both advance
 const MIXED3      = "national_debt";         // 3 judged, 2/1 — under the depth floor
 const SOLO        = "border_security";       // 1 judged
 const EVEN_SPLIT  = "gov_regulation";        // 6 judged, 3/3 — no dominant side
+const SHORT_SPLIT = "immigration";           // 4 judged, 2/2 — a split, under the
+                                             //   depth at which counts are stated
+const LOPSIDED    = "gun_rights";            // 6 judged, 5 procedural / 1 full —
+                                             //   split by weight, one item a side
 const BALANCE_KEY = "rights_safety_balance"; // suppressed: no pole to advance
 const NO_POLE_KEY = "war_powers";            // suppressed: contested authority
 const SPOKEN_KEY  = "healthcare";            // a stated position exists
@@ -78,7 +84,7 @@ const mkVote = (issueKey, position, opts) => {
     measureType: "bill", number: "H.R. " + id,
     title: "Measure " + seq + " Act", chamber: "house", result: "Passed",
     date: "2025-" + pad((seq % 11) + 1) + "-" + pad((seq % 27) + 1),
-    action: "On Passage", position: position, isProcedural: false,
+    action: "On Passage", position: position, isProcedural: !!opts.procedural,
     source: { url: "https://www.congress.gov/bill/119th-congress/house-bill/" + id,
               label: "Congress.gov" },
     issues: [{
@@ -103,6 +109,10 @@ const REC_RECORDS = [
   ...many(1, SOLO, "yea"),
   ...many(3, EVEN_SPLIT, "yea"),
   ...many(3, EVEN_SPLIT, "nay"),
+  ...many(2, SHORT_SPLIT, "yea"),
+  ...many(2, SHORT_SPLIT, "nay"),
+  ...many(5, LOPSIDED, "yea", { procedural: true }),
+  ...many(1, LOPSIDED, "nay"),
   ...many(4, BALANCE_KEY, "yea"),
   ...many(5, NO_POLE_KEY, "yea"),
   ...many(5, SPOKEN_KEY, "yea"),
@@ -297,9 +307,81 @@ if (thinUniform) {
   eq(thinUniform.recordDirection.judged, 2, "thin-uniform: two judged records behind it");
 }
 
+// ── Ran both ways ────────────────────────────────────────────────────────────
+// The fourth shape, and the one this move exists for. A record with no dominant
+// side used to leave the app as nothing at all: the row shrugged and the card
+// feed refused it, because the feed asked whether a direction could be named.
+// Now it asks a weaker question — may these two counts be stated? — and a record
+// deep enough with both sides material answers yes without ever answering the
+// first. So the card says how many, and which way each, and stops.
+const bothWays = RC.recordDirection("recrep", EVEN_SPLIT);
+ok(!!bothWays, "both-ways: a deep even record builds a record-direction card");
+if (bothWays) {
+  eq(bothWays.origin, "record_direction", "both-ways: the card is on the record-direction feed");
+  eq(bothWays.recordDirection.token, "record_split_deep",
+    "both-ways: it is built on the row's deep-split token");
+  eq(bothWays.recordDirection.split, true, "both-ways: the card knows it is a split");
+  eq(bothWays.recordDirection.counted, true, "both-ways: …that may state its counts");
+  eq(bothWays.recordDirection.characterised, false,
+    "both-ways: …and characterises no direction");
+  eq(bothWays.recordDirection.lead, null, "both-ways: no side leads");
+  eq(bothWays.recordDirection.uniform, false, "both-ways: the record is not one-sided");
+  // The counts, which are the entire finding.
+  eq(bothWays.recordDirection.judged, 6, "both-ways: six judged records behind it");
+  eq(bothWays.recordDirection.advances, 3, "both-ways: three advanced it");
+  eq(bothWays.recordDirection.opposes, 3, "both-ways: three cut against it");
+  eq(bothWays.headline,
+    "On Government Regulation, Rep. Record Member’s record ran both ways — 6 recorded votes: 3 advanced it, 3 cut against it.",
+    "both-ways: the headline states the total and each side, and claims nothing else");
+  eq(bothWays.didLine, "6 recorded votes, both ways — 3 advanced it, 3 cut against it",
+    "both-ways: the short form carries the total and both counts");
+  has(bothWays.headline, "ran both ways",
+    "both-ways: the headline says on its face that the record went two directions");
+  // Labelled as a record that ran both ways — not as a direction, and not as a
+  // verdict borrowed from the say-vs-do lane.
+  eq(bothWays.recordLabel, "WHAT THE RECORD DID — BOTH WAYS",
+    "both-ways: the record half is labelled as a two-way record");
+  eq(bothWays.verdict && bothWays.verdict.label, RC.RECORD_DIRECTION_SPLIT_LABEL,
+    "both-ways: the stamp reads as a record that ran both ways");
+  eq(bothWays.verdict && bothWays.verdict.key, "record_direction",
+    "both-ways: …on the record-direction verdict key, not a new one");
+  eq(bothWays.stampKicker, "RECORD DIRECTION",
+    "both-ways: the kicker still discloses the lane");
+  // Both sides shown, each with its own citable example — and the right example
+  // under the right heading, which is the one thing a null lead could have got
+  // silently backwards.
+  ok(!!bothWays.sides, "both-ways: both sides of the record are shown");
+  if (bothWays.sides) {
+    eq(bothWays.sides.counts.with, 3, "both-ways: the advanced-it count is the index's count");
+    eq(bothWays.sides.counts.against, 3, "both-ways: the cut-against-it count is the index's count");
+    eq(bothWays.sides.with.head, "ADVANCED IT", "both-ways: the advancing example is labelled by effect");
+    eq(bothWays.sides.against.head, "CUT AGAINST IT", "both-ways: the cutting example is labelled by effect");
+    ok(!!bothWays.sides.with.url && !!bothWays.sides.against.url,
+      "both-ways: each cited example carries its own address");
+    ok(bothWays.sides.with.number !== bothWays.sides.against.number,
+      "both-ways: the two examples are two different measures");
+    const advIds = new Set(REC_RECORDS.filter(
+      (r) => r.issues[0].issueKey === EVEN_SPLIT && r.position === "yea").map((r) => r.number));
+    ok(advIds.has(bothWays.sides.with.number),
+      "both-ways: the example under ADVANCED IT is one of the records that advanced it");
+    ok(!advIds.has(bothWays.sides.against.number),
+      "both-ways: and the example under CUT AGAINST IT is not");
+  }
+  eq(bothWays.measureNumbers && bothWays.measureNumbers.length, 2,
+    "both-ways: the card names both measures it cites");
+  eq(bothWays.hash, "#record=recrep~gov_regulation",
+    "both-ways: the card links back to the politician × issue Official Record");
+  // No direction leaks in through the back door.
+  const bwText = RC.guards.rdComposed(bothWays);
+  ok(!/\b(?:mostly|mainly|largely|leans?|tends?|on\s+balance|overall|more\s+often)\b/i.test(bwText),
+    "both-ways: nothing in the copy characterises the split as leaning either way");
+  ok(!/\brecord\s+(?:advanced|cut\s+against)\s+it\b/i.test(bwText),
+    "both-ways: and the record itself is never said to have done one of the two");
+}
+
 // ══ 2. IT IS A RECORD CARD, NOT A STANCE CARD ════════════════════════════════
-const built = [uniform, split, thinUniform].filter(Boolean);
-ok(built.length === 3, "cards: all three worked examples built");
+const built = [uniform, split, thinUniform, bothWays].filter(Boolean);
+ok(built.length === 4, "cards: all four worked examples built");
 
 for (const card of built) {
   const where = card.issueKey;
@@ -310,7 +392,9 @@ for (const card of built) {
   // The disclosure travels on the pixels.
   eq(card.stampKicker, "RECORD DIRECTION",
     `stance: ${where} — the stamp says record direction, not VERDICT`);
-  eq(card.recordLabel, "WHAT THE RECORD DID",
+  eq(card.recordLabel,
+    card.recordDirection && card.recordDirection.split
+      ? "WHAT THE RECORD DID — BOTH WAYS" : "WHAT THE RECORD DID",
     `stance: ${where} — the record half is labelled as the record`);
   eq(card.recordNote, RC.guards.rdNote,
     `stance: ${where} — the disclosure is the fixed one, verbatim`);
@@ -447,6 +531,34 @@ if (split) {
     ok(!badSplit((c) => { c.sides.with.title = "The Taxpayer Support Act of 2025"; }),
       "surfaces: a cited example's quoted title may carry a stance word");
   }
+  // ── The both-ways card's own walls ─────────────────────────────────────────
+  // A split card states two counts and nothing else. The three ways it could
+  // quietly become a direction card are all refusals, not warnings.
+  if (bothWays) {
+    const badBoth = (mutate) => {
+      const c = JSON.parse(JSON.stringify(bothWays));
+      mutate(c);
+      return RC.guards.rdPublicBlock(c);
+    };
+    eq(badBoth(() => {}), "",
+      "tripwire: the untouched both-ways card clears the gate");
+    ok(!!badBoth((c) => { c.recordDirection.characterised = true; }),
+      "tripwire: a split card claiming its row characterised a direction stops");
+    ok(!!badBoth((c) => { c.recordDirection.lead = "advances"; }),
+      "tripwire: a split card naming a leading side stops");
+    ok(!!badBoth((c) => { c.recordDirection.opposes = 0; c.recordDirection.judged = 3; }),
+      "tripwire: a split card with only one side on it stops");
+    ok(!!badBoth((c) => { c.recordDirection.counted = false; }),
+      "tripwire: a card not backed by a counted row stops");
+    ok(!!badBoth((c) => {
+      c.headline = "On Government Regulation, Rep. Record Member’s record advanced it 50% of the time.";
+    }), "tripwire: a percentage on the both-ways card stops it");
+    ok(!!badBoth((c) => {
+      c.headline = "On Government Regulation, Rep. Record Member supports government regulation.";
+    }), "tripwire: an inferred stance on the both-ways card stops it");
+    ok(!!badBoth((c) => { c.didLine = "Mixed record"; }),
+      "tripwire: a borrowed say-vs-do verdict on the both-ways card stops it");
+  }
 }
 
 // ══ 3. ELIGIBILITY IS THE ROW'S ELIGIBILITY ══════════════════════════════════
@@ -463,14 +575,22 @@ for (const key of Object.keys(LABELS)) {
   eq(row.token, i.token, `eligibility: ${key} — the card feed reads the row's own token`);
   eq(row.characterised, !!i.characterised,
     `eligibility: ${key} — and the row's own characterised flag`);
+  eq(row.counted, !!i.counted,
+    `eligibility: ${key} — and the row's own counted flag`);
   eq(row.judged, i.judged, `eligibility: ${key} — and the row's own judged count`);
   eq(row.advances, i.advances, `eligibility: ${key} — and the row's own advanced-it count`);
   eq(row.opposes, i.opposes, `eligibility: ${key} — and the row's own cut-against-it count`);
-  // The whole rule, in one line: a card exists exactly where the row
-  // characterises AND no stated position owns the row.
-  const wantCard = !!i.characterised && key !== SPOKEN_KEY;
+  // The whole rule, in one line: a card exists exactly where the row may state
+  // its counts AND no stated position owns the row. `counted`, not
+  // `characterised` — a deep split has no direction to characterise and two
+  // real numbers to state, and the card reports the second.
+  const wantCard = !!i.counted && key !== SPOKEN_KEY;
   eq(!!RC.recordDirection("recrep", key), wantCard,
-    `eligibility: ${key} — a card exists iff the row characterises and nothing was said`);
+    `eligibility: ${key} — a card exists iff the row may state its counts and nothing was said`);
+  // And the weaker flag never smuggles in the stronger claim.
+  if (i.counted && !i.characterised) {
+    eq(i.lead, null, `eligibility: ${key} — a counted split names no leading side`);
+  }
 }
 
 eq(idx("recrep", MIXED3).token, "record_thin", "eligibility: a 3-vote 2-1 record is thin");
@@ -480,9 +600,25 @@ has(rdReason(MIXED3), "too thin to characterise", "eligibility: and the audit sa
 eq(idx("recrep", SOLO).token, "record_thin", "eligibility: a single vote is thin");
 ok(!rdEligible(SOLO), "eligibility: …so it gets no card");
 
-eq(idx("recrep", EVEN_SPLIT).token, "record_split", "eligibility: an even record is a split");
-ok(!rdEligible(EVEN_SPLIT), "eligibility: a split record gets no card — there is no direction to share");
-has(rdReason(EVEN_SPLIT), "ran both ways", "eligibility: and the audit names the split");
+// ── The split publish bar ────────────────────────────────────────────────────
+// Deep enough, both sides material: the counts ship. One tier short on either
+// axis: they do not, and the row keeps the sentence it always had.
+eq(idx("recrep", EVEN_SPLIT).token, "record_split_deep",
+  "eligibility: an even six-item record is a split deep enough to state its counts");
+eq(idx("recrep", EVEN_SPLIT).characterised, false,
+  "eligibility: …and still characterises no direction");
+ok(rdEligible(EVEN_SPLIT), "eligibility: a deep split gets a card — the counts are the finding");
+
+eq(idx("recrep", SHORT_SPLIT).token, "record_split",
+  "eligibility: a four-item split is under the counting depth");
+ok(!rdEligible(SHORT_SPLIT), "eligibility: …so it gets no card");
+has(rdReason(SHORT_SPLIT), "ran both ways", "eligibility: and the audit names the split");
+
+eq(idx("recrep", LOPSIDED).judged, 6, "eligibility: the lopsided record is six deep");
+eq(idx("recrep", LOPSIDED).opposes, 1, "eligibility: …with one item on the minority side");
+eq(idx("recrep", LOPSIDED).token, "record_split",
+  "eligibility: …which is an exception, not a side");
+ok(!rdEligible(LOPSIDED), "eligibility: …so a one-item side ships no both-ways card");
 
 eq(idx("recrep", BALANCE_KEY).suppressed, "balance_key",
   "eligibility: a *_balance key has no pole to advance");

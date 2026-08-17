@@ -25,9 +25,11 @@
 //      record-direction line, and the index takes no stance argument to write
 //      one from.
 //   5. THE THRESHOLDS HOLD. n≥4 with ≥75% of the weight one way to be
-//      characterised; 2–3 one-way votes stated as the bare fact; everything
-//      else stays thin. Balance keys and subject-named keys are suppressed,
-//      and a member we barely hold a record for gets no "pattern" at all.
+//      characterised; 2–3 one-way votes stated as the bare fact; a record that
+//      ran both ways states its two counts at n≥6 with ≥2 items on the smaller
+//      side and never states a direction; everything else stays thin. Balance
+//      keys and subject-named keys are suppressed, and a member we barely hold
+//      a record for gets no "pattern" at all.
 //   6. THE COUNT IS STILL THE DOOR, and the arithmetic on the face adds up.
 //
 //   node scripts/test-record-direction.mjs
@@ -101,9 +103,15 @@ const SPOKEN = ISSUE_KEYS.filter((k) => stanceKeys.has(k))[0];
 // UNIFORM: two votes, both the same way — stated as the bare fact, no tendency.
 // MIXED3: three votes, two-to-one — under the floor, stays thin.
 // SOLO: one vote — thin, and always was.
-// SPLIT: six votes, three each — deep enough to characterise, and it will not.
-const [DEEP, UNIFORM, MIXED3, SOLO, SPLIT] = SILENT;
-if (!DEEP || !UNIFORM || !MIXED3 || !SOLO || !SPLIT || !BALANCE || !SPOKEN) {
+// SPLIT: six votes, three each — deep enough to state both counts, and it will
+//   never state a direction.
+// SHALLOW: four votes, two each — a real split, under the counting depth, so it
+//   keeps the five-word sentence.
+// LOPSIDED: five procedural votes one way and one full-weight vote the other —
+//   non-dominant by WEIGHT, so it is a split, but one item is not a side.
+const [DEEP, UNIFORM, MIXED3, SOLO, SPLIT, SHALLOW, LOPSIDED] = SILENT;
+if (!DEEP || !UNIFORM || !MIXED3 || !SOLO || !SPLIT || !SHALLOW || !LOPSIDED ||
+    !BALANCE || !SPOKEN) {
   console.error("✗ record direction: the fixture profile no longer offers every case");
   process.exit(1);
 }
@@ -127,6 +135,16 @@ SEED.push(vote(20, UNIFORM, "nay"), vote(21, UNIFORM, "nay"));
 SEED.push(vote(30, MIXED3, "nay"), vote(31, MIXED3, "nay"), vote(32, MIXED3, "yea"));
 SEED.push(vote(40, SOLO, "nay"));
 for (let i = 0; i < 6; i++) SEED.push(vote(50 + i, SPLIT, i % 2 ? "nay" : "yea"));
+// A split that is real and short: four judged, two each. Both sides are
+// material; the record simply is not deep enough for two numbers to be worth
+// more than the plain sentence.
+for (let i = 0; i < 4; i++) SEED.push(vote(56 + i, SHALLOW, i % 2 ? "nay" : "yea"));
+// A split by WEIGHT and not by shape: five procedural votes advancing it
+// (halved weight) against one full-weight vote cutting against it. Six judged
+// items, neither side dominant — and a single item on the minority side, which
+// is an exception rather than a side.
+for (let i = 0; i < 5; i++) SEED.push(vote(60 + i, LOPSIDED, "yea", { proc: true }));
+SEED.push(vote(65, LOPSIDED, "nay"));
 SEED.push(vote(70, BALANCE, "nay"), vote(71, BALANCE, "nay"),
           vote(72, BALANCE, "nay"), vote(73, BALANCE, "nay"));
 // A stated position WITH a deep one-way record: Direction Match's row, and the
@@ -304,14 +322,46 @@ section("5 · the thresholds, one case each");
   eq(solo.token, "record_thin", "a single vote characterises nothing");
   eq(solo.clause, "", "…and says nothing");
 
-  // n = 6, three each → deep enough, and it declines anyway.
+  // n = 6, three each → deep enough to state both counts, and it states no
+  // direction. This is the row the five-word sentence used to hide.
   const split = idx(SPLIT);
   eq(split.judged, 6, "the split fixture clears the depth floor");
-  eq(split.token, "record_split", "…and is reported as running both ways");
-  eq(split.characterised, false, "…which is not a characterisation");
-  eq(split.clause, "they ran both ways", "…and reads as exactly that");
-  ok(!/cut against it,|advanced it,/.test(split.clause),
-    "…without implying a winner by ordering the counts");
+  eq(split.token, "record_split_deep", "…and is reported as a counted split");
+  eq(split.characterised, false, "…which is still not a characterisation");
+  eq(split.counted, true, "…but its counts may be stated");
+  eq(split.lead, null, "…and no side is named as the record's direction");
+  eq(split.clause, "3 advanced it, 3 cut against it",
+    "…so the row prints both counts instead of a shrug");
+  has(split.summary, "ran both ways", "…and the long form still says it ran both ways");
+  ok(!/%|percent|out of/i.test(split.clause + " " + split.summary),
+    "…with no share, proportion or percentage anywhere in it");
+  ok(!/leans|tends|mostly|mainly|overall/i.test(split.clause + " " + split.summary),
+    "…and no word that would turn two counts into a lean");
+
+  // The same shape, one tier shallower: still a split, still honest, and the
+  // counts stay off it. Two numbers off four votes invite a reader to weigh a
+  // margin that is not there.
+  const shallow = idx(SHALLOW);
+  eq(shallow.judged, 4, "the shallow-split fixture is judged in full");
+  eq(shallow.token, "record_split", "…and is a split at four judged items");
+  eq(shallow.counted, false, "…that has not earned its counts");
+  eq(shallow.clause, "they ran both ways", "…so it reads exactly as it always did");
+  ok(!/\d/.test(shallow.clause), "…without a count on the face of the row");
+
+  // Non-dominant by weight, but one item on the minority side. A single vote
+  // against a run is an exception, and headlining it as a side would be the
+  // arithmetic making a claim the record does not.
+  const lop = idx(LOPSIDED);
+  eq(lop.judged, 6, "the lopsided fixture clears the depth floor too");
+  eq(lop.opposes, 1, "…with exactly one item on the minority side");
+  eq(lop.token, "record_split", "…so it is a split that may not state its counts");
+  eq(lop.counted, false, "…and says so");
+  eq(lop.clause, "they ran both ways", "…keeping the plain sentence");
+
+  eq(A._PDX_RD_SPLIT_MIN_JUDGED, 6, "the split counting floor is six judged items");
+  eq(A._PDX_RD_SPLIT_MIN_SIDE, 2, "…and two items on the smaller side");
+  ok(A._PDX_RD_SPLIT_MIN_JUDGED > A._PDX_RD_MIN_JUDGED,
+    "…set above the characterisation floor, not below it");
 
   // A member we barely hold a record for gets no pattern at all, however
   // one-sided the handful we do hold looks.
@@ -368,6 +418,32 @@ section("7 · the face adds up, and the count is still a door");
   has(res.why, "14 votes on file", "the reason leads with the inventory");
   has(res.why, "11 cut against it, 3 advanced it", "…then says what those votes did");
   has(res.why, "no stated position from them yet", "…and why it is not a score");
+
+  // THE ROW THAT USED TO SHRUG. Same shape, same no-score framing, same door —
+  // the only thing that changed is that the two numbers the index already had
+  // are now on the face instead of behind five words.
+  {
+    const splitRow = rowOf(SPLIT);
+    const sres = CS.rowResult(splitRow);
+    eq(sres.shape, "no_stance", "the split row is still our gap, not their record");
+    eq(sres.pct, null, "…still unscored");
+    eq(sres.label, "Not scored yet", "…and still says so in the verdict slot");
+    has(sres.why, "6 votes on file", "the reason still leads with the inventory");
+    has(sres.why, "3 advanced it, 3 cut against it",
+      "…and then states both counts instead of “they ran both ways”");
+    lacks(sres.why, "they ran both ways", "…so the five-word shrug is gone from this row");
+    has(sres.why, "isn’t scored", "…while keeping the no-score framing verbatim");
+    lacks(sres.why, "%", "…and printing no percentage");
+    ok(!/supports|opposes|their position/i.test(sres.why),
+      "…and inferring no stated position from a record that ran both ways");
+
+    // The shallow split is the control: identical wording to before this pass.
+    const shallowRow = rowOf(SHALLOW);
+    const shres = CS.rowResult(shallowRow);
+    has(shres.why, "they ran both ways", "a four-item split keeps the plain sentence");
+    ok(!/advanced it,|cut against it,/.test(shres.why),
+      "…and states no counts on the face");
+  }
 
   // THE ARITHMETIC ON THE FACE. `held` counts every instrument on file; the
   // index counts only the ones that took a side. Where they differ the clause

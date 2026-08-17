@@ -538,6 +538,31 @@
     // item must carry `isPrimary` before the record here is characterised.
     var _RD_MIN_PRIMARY = 1;
 
+    // THE PUBLISH BAR FOR A RECORD THAT RAN BOTH WAYS. A split is not a
+    // direction and never becomes one — but "they ran both ways" over twenty
+    // judged votes hides the very thing a reader came for, and five words are a
+    // worse answer than two numbers. So a split states its COUNTS once it is
+    // deep enough that both sides are a fact about the record rather than about
+    // our sample.
+    //   DEPTH is set above the characterisation floor on purpose. Four judged
+    // items split 3–1 is a coin landing twice; printing "3 advanced it, 1 cut
+    // against it" invites the reader to weigh a margin that is not there. Six is
+    // where the smaller side can clear the two-item bar below and still leave a
+    // real majority, and it is the depth at which the audit's split population
+    // stops being dominated by four- and five-item rows.
+    //   BOTH SIDES MATERIAL. One stray item against a run of nine is not a
+    // record that ran both ways; it is a one-way record with an exception, and
+    // the honest handling of an exception is not to headline it as a side. Two
+    // items is the smallest number that is a side rather than an incident — the
+    // same reasoning as _RD_THIN_MIN, applied to the minority side.
+    // Everything else the split has to clear is already a wall above: the
+    // coverage floor, the no-pole and *_balance suppressions, and the
+    // primary-mapping rule (asked of splits here for the first time — a split
+    // assembled entirely out of incidental omnibus mappings is the same omnibus
+    // problem wearing two faces instead of one).
+    var _RD_SPLIT_MIN_JUDGED = 6;  // …before a split may state its counts
+    var _RD_SPLIT_MIN_SIDE = 2;    // …on the smaller side, before it is a side
+
     // HOW MUCH OF THE MEMBER'S OWN RECORD WE HOLD, before any of it is read as a
     // pattern. This is the wall against OUR sampling being reported as THEIR
     // conduct. 44 of the 221 attributed members hold one or two mapped roll calls
@@ -590,16 +615,24 @@
       return null;
     }
 
-    // The four states, plus the two ways there is nothing to state. No token here
+    // The five states, plus the two ways there is nothing to state. No token here
     // appears in VERDICTS, _RECORD_SUMMARY_LABEL or EXEC_VERDICTS — see the wall
-    // above. `characterised` marks the two states that make a claim about the
-    // record as a whole; the rest only count or decline.
+    // above.
+    //   `characterised` marks the two states that make a claim about the record
+    // AS A WHOLE — "this is what it did". A split never earns it, however deep,
+    // because there is no single thing the record did.
+    //   `counted` marks the states whose COUNTS may be printed and may travel on
+    // a card. It is the weaker flag on purpose: a deep split has nothing to
+    // characterise and two real numbers to state, and those are different
+    // permissions. Every characterised state is counted; the reverse is not true,
+    // and no surface may read one for the other.
     var _RD_TOKENS = {
-      record_direction:    { key: 'record_direction',    label: 'What the record did',   characterised: true },
-      record_uniform_thin: { key: 'record_uniform_thin', label: 'Every vote one way',    characterised: true },
-      record_split:        { key: 'record_split',        label: 'Ran both ways',         characterised: false },
-      record_thin:         { key: 'record_thin',         label: 'Too thin to characterise', characterised: false },
-      record_none:         { key: 'record_none',         label: 'Nothing directional on file', characterised: false }
+      record_direction:    { key: 'record_direction',    label: 'What the record did',   characterised: true,  counted: true },
+      record_uniform_thin: { key: 'record_uniform_thin', label: 'Every vote one way',    characterised: true,  counted: true },
+      record_split_deep:   { key: 'record_split_deep',   label: 'Ran both ways, counted', characterised: false, counted: true },
+      record_split:        { key: 'record_split',        label: 'Ran both ways',         characterised: false, counted: false },
+      record_thin:         { key: 'record_thin',         label: 'Too thin to characterise', characterised: false, counted: false },
+      record_none:         { key: 'record_none',         label: 'Nothing directional on file', characterised: false, counted: false }
     };
 
     function _rdPlural(n, one, many) { return n === 1 ? one : many; }
@@ -620,7 +653,7 @@
       var noun = opts.noun || { one: 'vote', many: 'votes' };
       var out = {
         issueKey: issueKey || null,
-        token: 'record_none', lead: null, characterised: false,
+        token: 'record_none', lead: null, characterised: false, counted: false,
         judged: 0, advances: 0, opposes: 0,
         advanceScore: 0, opposeScore: 0, primary: 0, total: 0,
         suppressed: null, clause: '', summary: '', label: ''
@@ -649,7 +682,8 @@
       // characterising is still a claim.
       var stop = function (token, why) {
         out.token = token; out.suppressed = why || null;
-        out.characterised = false; out.label = _RD_TOKENS[token].label;
+        out.characterised = false; out.counted = false;
+        out.label = _RD_TOKENS[token].label;
         return out;
       };
       if (!out.judged) return stop('record_none', suppressed);
@@ -666,7 +700,18 @@
 
       if (out.judged >= _RD_MIN_JUDGED) {
         if (!dominant) {
-          out.token = 'record_split';
+          // A RECORD THAT RAN BOTH WAYS, and how much of it may be said. There
+          // is no direction here and none is manufactured — `lead` stays null
+          // through every branch below, so nothing downstream can read a winner
+          // off this row. What changes with depth is only whether the two counts
+          // are printed or withheld: deep enough and both sides material, the
+          // row states them; short of that it says the record ran both ways and
+          // stops, exactly as it did before.
+          var smallSide = Math.min(out.advances, out.opposes);
+          out.token = (out.judged >= _RD_SPLIT_MIN_JUDGED &&
+                       smallSide >= _RD_SPLIT_MIN_SIDE &&
+                       out.primary >= _RD_MIN_PRIMARY)
+            ? 'record_split_deep' : 'record_split';
         } else if (out.primary < _RD_MIN_PRIMARY) {
           // Deep, one-sided, and entirely incidental. Naming a direction off
           // bills this issue was never the subject of is the omnibus problem
@@ -687,6 +732,7 @@
         return stop('record_thin', null);
       }
       out.characterised = !!_RD_TOKENS[out.token].characterised;
+      out.counted = !!_RD_TOKENS[out.token].counted;
       out.label = _RD_TOKENS[out.token].label;
 
       // ── The sentence ───────────────────────────────────────────────────────
@@ -714,6 +760,20 @@
         out.clause = (out.judged === 2 ? 'both' : 'all ' + out.judged) + ' ' + word;
         out.summary = (out.judged === 2 ? 'Both' : 'All ' + out.judged) + ' recorded ' +
           many + ' on ' + subj + ' ' + word + '.';
+      } else if (out.token === 'record_split_deep') {
+        // BOTH COUNTS, AND NOTHING ELSE. The larger side is named first because
+        // a reader reads a list in order and the alternative — a fixed
+        // advances-first order — buries the bigger number half the time. It is
+        // an ordering, not a finding: no lead is set, no lean is worded, no
+        // share is computed, and the two numbers are printed as the two numbers
+        // they are. "20 recorded votes — 13 cut against it, 7 advanced it" is
+        // the whole claim, and it is a claim only about arithmetic.
+        var advFirst = (out.advances >= out.opposes);
+        out.clause = advFirst
+          ? adv + ' advanced it, ' + opp + ' cut against it'
+          : opp + ' cut against it, ' + adv + ' advanced it';
+        out.summary = out.judged + ' recorded ' + many + ' on ' + subj +
+          ' ran both ways — ' + out.clause + '.';
       } else if (out.token === 'record_split') {
         out.clause = 'they ran both ways';
         out.summary = 'These ' + out.judged + ' recorded ' + many + ' on ' + subj +
@@ -727,6 +787,8 @@
     window._PDX_RD_MIN_JUDGED = _RD_MIN_JUDGED;
     window._PDX_RD_DOMINANCE = _RD_DOMINANCE;
     window._PDX_RD_MEMBER_FLOOR = _RD_MEMBER_FLOOR;
+    window._PDX_RD_SPLIT_MIN_JUDGED = _RD_SPLIT_MIN_JUDGED;
+    window._PDX_RD_SPLIT_MIN_SIDE = _RD_SPLIT_MIN_SIDE;
     window._PDX_RD_NO_POLE = _RD_NO_POLE;
 
     // ── Omnibus component breakdown (the reusable primitive) ───────────────────

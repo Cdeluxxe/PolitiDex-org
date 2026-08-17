@@ -210,6 +210,40 @@
     var L = window.PDXLearn;
     return (L && L.howto) ? L.howto(id, label) : '';
   }
+  // ── TEACHING THE ROW'S OWN VOCABULARY, WHERE THE READER MEETS IT ────────────
+  // The reason line under an unscored row is the one place in the product a
+  // visitor is shown "advanced it", "cut against it" or "ran both ways", and
+  // until now it was also the only place those phrases appeared at all: the
+  // glossary had entries for roll calls and omnibus bills and nothing for the
+  // words the recent honesty ships actually put on the face. A skeptical reader
+  // met the claim several screens before any definition of it, which is the
+  // wrong order for the one audience this surface is built for.
+  //
+  // ONE LESSON PER LINE. Both directional phrases share a single entry, so
+  // linking the second occurrence in "13 cut against it, 7 advanced it" would put
+  // two dotted controls on one clause and teach nothing the first did not. Only
+  // the first match of each rule is wrapped, and the rules must stay mutually
+  // exclusive in the text they match — a rule whose phrase could occur inside
+  // another rule's rendered button would linkify markup. There is a test on that.
+  //
+  // WHERE IT MAY RUN. On already-escaped element text only. It replaces plain
+  // ASCII phrases, so it cannot straddle an entity or reopen a tag — but it must
+  // never touch a tooltip or an aria-label, which are attribute values: a
+  // <button> in one of those is printed as literal angle brackets. The tips are
+  // built on the raw string through escAttr and stay untouched.
+  var _ST_TEACH = [
+    { re: /(advanced it|cut against it)/, key: 'recorddirection' },
+    { re: /(ran both ways)/, key: 'ranbothways' }
+  ];
+  function _stTeach(escaped) {
+    var s = String(escaped == null ? '' : escaped);
+    for (var i = 0; i < _ST_TEACH.length; i++) {
+      var m = _ST_TEACH[i].re.exec(s);
+      if (!m) continue;
+      s = s.slice(0, m.index) + LT(_ST_TEACH[i].key, m[0]) + s.slice(m.index + m[0].length);
+    }
+    return s;
+  }
   function norm(id) { return String(id == null ? '' : id).trim().toLowerCase(); }
 
   // ── source readers (guarded; each returns a neutral empty when unavailable) ──
@@ -2207,6 +2241,10 @@
       '.pdxst-comp-for{color:#6ee7a0;}' +
       '.pdxst-comp-against{color:#f89b9b;}' +
       '.pdxst-comp-x{color:#f5c842;}' +
+      // The thin qualifier is deliberately the quietest thing on the line: no
+      // colour of its own, no weight, no icon. It qualifies the counts beside it
+      // and must never read as a fourth tally or a second verdict.
+      '.pdxst-comp-thin{color:#7d90ad;font-style:italic;}' +
       // ── THE PUBLIC LANE, BESIDE THE FORMAL ONE AND NOT DRESSED AS IT ──────────
       // Related, distinct, and cheap to skip. The formal result line owns the
       // verdict colour, the percentage type and the pill-shaped scope tag; this line
@@ -4799,7 +4837,7 @@
         esc(res.invite.cta) + '<span class="pdxst-lbl-go" aria-hidden="true">→</span>' +
       '</button>';
     }
-    return '<' + t + ' class="pdxst-why">' + esc(res.why) + door + '</' + t + '>';
+    return '<' + t + ' class="pdxst-why">' + _stTeach(esc(res.why)) + door + '</' + t + '>';
   }
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
@@ -4814,9 +4852,23 @@
     // outside Direction Match — which is exactly what its note says.
     var laneKey = (res.metric === 'Public-record match') ? PUB_LANE : 'Formal';
     var lane = '<span class="pdxst-lane">' + esc(laneKey) + '</span>';
+    // THE METRIC TEACHES ITSELF. "Direction match" is the row's central claim and
+    // was, until now, a name with no definition anywhere in the product — the
+    // reader had to already know that it means said-versus-did, on this issue
+    // only, from the formal record only. The key follows the metric rather than
+    // the lane chip, so a public-record row explains the public-record read and
+    // never borrows the formal one's definition. With the education layer absent
+    // LT() is plain escaped text, so this is exactly the old markup.
+    var metricKey = (res.metric === 'Public-record match') ? 'publicmatch' : 'directionmatch';
+    // "Not scored yet" / "Not tested yet" is the one label on this face that is
+    // about OUR coverage rather than their conduct, and it is the one most easily
+    // read as a dodge — a row holding eighteen sourced votes and printing no
+    // number looks evasive until you can find out, in place, why. The icon stays
+    // outside the control: it is decoration, not a word to define.
     if (res.state === 'untested') {
       return '<div class="pdxst-result pdxst-r-untested">' + lane +
-          '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico + ' ' + res.label) + '</span>' +
+          '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico) + ' ' +
+            LT('notscored', res.label) + '</span>' +
           _stWhyHtml(r, res, 'span') +
         '</div>';
     }
@@ -4869,28 +4921,69 @@
           : 'No percentage — not enough record') + '">—</span>';
     return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
-        '<span class="pdxst-metric">' + esc(res.metric) + '</span>' +
+        '<span class="pdxst-metric">' + LT(metricKey, res.metric) + '</span>' +
         '<span class="pdxst-scope">this issue</span>' +
         num +
-        '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
+        // A thin row's word is "Not scored yet", which needs the same definition
+        // the untested branch gives it. A tested row's word is a verdict from the
+        // ⚖️ Word vs Action bucket vocabulary and is left alone — it is taught
+        // where those buckets are defined, and a second control here would put
+        // three dotted words on one line.
+        '<span class="pdxst-vd" style="color:' + res.color + '">' + esc(res.ico) + ' ' +
+          (res.label === 'Not scored yet' ? LT('notscored', res.label) : esc(res.label)) + '</span>' +
       '</div>' +
       (res.state === 'thin' ? _stWhyHtml(r, res, 'div') : '');
   }
-  // WHAT "MIXED" MEANT. Printed where the row actually carries tension — a split
-  // verdict, counter-evidence the deciding lane set aside, or an action whose
-  // standing is contested — and nowhere else, because a breakdown under a clean
-  // row is furniture.
+  // WHAT THE PERCENTAGE IS A PERCENTAGE OF. This began as "what mixed meant" and
+  // printed only where the row carried visible tension — a split verdict,
+  // counter-evidence the deciding lane set aside, a contested standing — on the
+  // reasoning that a breakdown under a clean row is furniture. That reasoning was
+  // wrong in one specific and expensive way, and the honesty passes that followed
+  // it are what made the error visible.
+  //
+  // THE INVERSION. Rows that reached no result acquired rich arithmetic: an
+  // unscored row states how many instruments it holds, a `limited` row states
+  // which way the record ran, a split row states its composition. Meanwhile the
+  // rows making the STRONGEST claim — a clean 100% with a verdict beside it —
+  // printed a bare number and stopped. 1,013 of 1,194 scored rows were in that
+  // state, 768 of them at 100%. So the reader was handed the most confident
+  // figure on the surface with the least evidence about what stood behind it,
+  // and a 100% resting on one judged vote was typographically identical to a
+  // 100% resting on twenty.
+  //
+  // A percentage without its denominator is not a small omission on this
+  // surface: it is the entire difference between "they voted this way once" and
+  // "they voted this way every time it came up". The row now states both.
+  //
+  // WHAT DID NOT CHANGE. The counts come from _stSplit — the deciding lane's own
+  // judged tallies, the same numbers the result line's tooltip has always
+  // quoted — so this invents no arithmetic and cannot disagree with the score.
+  // The percentage, the verdict token and the bucket are untouched; nothing here
+  // reaches rowResult. A row where no lane judged anything directional still
+  // prints nothing at all, because _stSplit returns null and there is no honest
+  // composition to state. Unscored rows keep the old gate exactly: they print
+  // this line only under tension, because on a row with no result a bare tally
+  // has no percentage to be the denominator OF.
   function _stCompHtml(r, res) {
     if (res.state === 'untested') return '';
     var split = _stSplit(r);
+    if (!split) return '';
     var st = _stStanding(r);
     var aside = r.setAside;
     var tense = (r.verdict.token === 'mixed') || !!aside || !!st;
-    if (!tense || !split) return '';
+    // A scored row always states its denominator; an unscored one only where it
+    // carries tension worth naming. This is the widened condition, and the whole
+    // of the change: everything below already worked, on 15% of the rows.
+    if (!tense && res.state !== 'tested') return '';
     var n = _stNoun(r);
     var unit = (split.basis === 'public_record') ? 'public-record item' : n.one;
     var parts = [
-      '<span class="pdxst-comp-for"><b>' + split.aligned + '</b> aligned</span>',
+      // The word "aligned" carries the definition for the whole line: it is the
+      // first countable noun on it, and one entry ("Aligned · against") explains
+      // both halves, so a second control on "against" would teach nothing new
+      // while doubling the dotted words under the percentage. The digits stay
+      // ordinary text — a number is not a term.
+      '<span class="pdxst-comp-for"><b>' + split.aligned + '</b> ' + LT('depthcounts', 'aligned') + '</span>',
       '<span class="pdxst-comp-against"><b>' + split.against + '</b> against</span>'
     ];
     if (aside && aside.count) {
@@ -4907,9 +5000,32 @@
       parts.push('<span class="pdxst-comp-x">' + esc(st.ico + ' ' + st.count + ' ' +
         (st.count === 1 ? n.one : n.many) + ' ' + stLbl) + '</span>');
     }
+    // THIN, SAID ON THE FACE. A scored row resting on one or two judged items is
+    // the case this whole pass exists for: the percentage is arithmetically
+    // correct and reads as a pattern it has not earned. The dossier already made
+    // exactly this caveat one level down ("The direction is real; a pattern is
+    // not established at that depth"), keyed on evidence depth; the same sentence
+    // is compressed here and keyed on the JUDGED count instead, because the
+    // judged count is the denominator of the number it sits beneath. A Mixed row
+    // gets the split wording rather than the direction wording, for the same
+    // reason the dossier forks it: "the direction is real" is the one thing a
+    // bucket that declined to reach a direction must not say.
+    //
+    // It is a qualifier on the counts, not a second verdict — no icon, no colour
+    // of its own, and it never appears on an unscored row, which has no
+    // percentage for depth to qualify.
+    var thin = (res.state === 'tested' && split.judged > 0 && split.judged <= 2);
+    var thinNote = (r.verdict.token === 'mixed')
+      ? 'a split, not yet a pattern'
+      : 'a direction, not yet a pattern';
+    if (thin) parts.push('<span class="pdxst-comp-thin">' + esc(thinNote) + '</span>');
+    // "0 ran against it" is arithmetic read aloud; "none ran against it" is the
+    // same fact in the sentence a person would write. The clean rows this line
+    // now reaches are overwhelmingly the zero case, so it is worth the branch.
     var tip = split.aligned + ' of ' + split.judged + ' judged ' +
       (split.judged === 1 ? unit : unit + 's') + ' pointed the same way as their stated position; ' +
-      split.against + ' ran against it.' +
+      (split.against === 0 ? 'none ran against it.' : split.against + ' ran against it.') +
+      (thin ? ' That is the whole of the record judged against this claim — ' + thinNote + '.' : '') +
       (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
         aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
       (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '');
@@ -7291,8 +7407,10 @@
       '</div>' +
       '<div class="pdxdos-lane">' + esc(lane) + '</div>');
     // COMPOSITION and DEPTH, borrowed verbatim from the stance row. Composition
-    // prints only where the row genuinely carries tension — a split verdict,
-    // counter-evidence the deciding lane set aside, or a contested standing.
+    // now prints on every scored row — the counts the percentage divides — and on
+    // unscored rows only where they carry tension. Borrowing it verbatim is what
+    // keeps this face and the row face from stating different denominators for
+    // the same verdict.
     var comp = _stCompHtml(r, res);
     var ev = _stEvidenceHtml(r, cov);
     // THE COVERAGE CAVEAT, when there is one to make. Thin and untested rows say
@@ -7309,23 +7427,46 @@
     // guesses at.
     var caveat = '';
     if (res.state !== 'tested' && res.why) caveat = res.why;
-    else if (res.state === 'tested' && r.evidence.total > 0 && r.evidence.total <= 2) {
-      var depth = [];
-      if (r.evidence.actions > 0) {
-        depth.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+    else if (res.state === 'tested') {
+      // WHICH DEPTH THIS IS A CAVEAT ABOUT. It used to be `evidence.total` — how
+      // much is on file for the issue. That is a different number from how much
+      // was JUDGED against the claim, and now that the row face states the judged
+      // count next to the percentage, the two could be read side by side and
+      // contradict: 7 rows printed "This rests on 1 vote on record" directly
+      // above a composition line reading "9 aligned · 0 against", and 45 more
+      // carried the face's thin qualifier while this line said nothing at all.
+      //
+      // The judged count wins, because it is the denominator of the percentage
+      // both lines sit under. Evidence total stays as the fallback for a tested
+      // row with no directional split to read — rare, but it is the one case
+      // where the old number is the only one there is.
+      var cvSplit = _stSplit(r);
+      var cvDepth = cvSplit ? cvSplit.judged : r.evidence.total;
+      if (cvDepth > 0 && cvDepth <= 2) {
+        var depth = [];
+        if (cvSplit) {
+          var cvUnit = (cvSplit.basis === 'public_record')
+            ? 'public-record item' : (cvSplit.judged === 1 ? n.one : n.many);
+          depth.push(cvSplit.judged + ' judged ' +
+            (cvSplit.basis === 'public_record' && cvSplit.judged !== 1 ? cvUnit + 's' : cvUnit));
+        } else {
+          if (r.evidence.actions > 0) {
+            depth.push(r.evidence.actions + ' ' + (r.evidence.actions === 1 ? n.one : n.many) + ' on record');
+          }
+          if (r.evidence.public > 0) {
+            depth.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
+          }
+        }
+        caveat = 'This rests on ' + (depth.length ? depth.join(' and ') :
+            cvDepth + ' item' + (cvDepth === 1 ? '' : 's')) +
+          // A Mixed row has no single direction, so "the direction is real" is the one
+          // thing this caveat must not say there — it would read as a verdict the
+          // bucket explicitly declined to reach. What is real on a Mixed row is the
+          // split: the record genuinely went both ways, on very few items.
+          '. ' + (r.verdict.token === 'mixed'
+            ? 'The split is real; a pattern is not established at that depth.'
+            : 'The direction is real; a pattern is not established at that depth.');
       }
-      if (r.evidence.public > 0) {
-        depth.push(r.evidence.public + ' public receipt' + (r.evidence.public === 1 ? '' : 's'));
-      }
-      caveat = 'This rests on ' + (depth.length ? depth.join(' and ') :
-          r.evidence.total + ' item' + (r.evidence.total === 1 ? '' : 's')) +
-        // A Mixed row has no single direction, so "the direction is real" is the one
-        // thing this caveat must not say there — it would read as a verdict the
-        // bucket explicitly declined to reach. What is real on a Mixed row is the
-        // split: the record genuinely went both ways, on very few items.
-        '. ' + (r.verdict.token === 'mixed'
-          ? 'The split is real; a pattern is not established at that depth.'
-          : 'The direction is real; a pattern is not established at that depth.');
     }
     // WHERE THIS LANDS IN THE SCORE. The profile's headline figure is the pooled
     // ⚖️ Direction match and this issue is one input to it — said outright, so a

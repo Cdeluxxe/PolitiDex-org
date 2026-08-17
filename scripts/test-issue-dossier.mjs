@@ -595,7 +595,17 @@ has(l1, "All " + cov.judged + " are listed below",
 // and the old caveat printed the second straight from a total that can legitimately
 // be zero. It now requires something real to warn about and names what the items
 // ARE, so the two lines can be read against each other.
-ok(/r\.evidence\.total > 0 && r\.evidence\.total <= 2/.test(cs),
+//
+// The depth it warns about is now the JUDGED count rather than the evidence total.
+// Those are different numbers, and once the row face started printing the judged
+// count beside the percentage the old one could contradict it outright — 7 rows
+// said "This rests on 1 vote on record" above a composition line reading "9
+// aligned · 0 against". The gate below is the same promise against the number the
+// percentage is actually a percentage of, with the evidence total kept as the
+// fallback for a tested row that has no directional split to read.
+ok(/var cvDepth = cvSplit \? cvSplit\.judged : r\.evidence\.total;/.test(cs),
+  "caveat: the depth warning no longer reads the evidence total in preference to the judged count");
+ok(/cvDepth > 0 && cvDepth <= 2/.test(cs),
   "caveat: the depth warning is gated on there being any depth to warn about");
 hasnt(l1, "rests on 0", "L1: no dossier claims a verdict rests on nothing");
 hasnt(xl1, "rests on 0", "L1 ✒️: nor on the executive lane");
@@ -603,7 +613,7 @@ hasnt(xl1, "rests on 0", "L1 ✒️: nor on the executive lane");
 {
   const thin = C.dossierSummaryHtml(MEMBER, "border_security");
   if (thin.includes("This rests on")) {
-    ok(/This rests on \d+ (vote|action|public receipt)/.test(thin),
+    ok(/This rests on \d+ (judged )?(vote|action|public receipt)/.test(thin),
       "caveat: it says what the items are, not just how many");
   }
 }
