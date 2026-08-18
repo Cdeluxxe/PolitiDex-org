@@ -368,8 +368,20 @@ section("5 · a row with a stated position keeps it — scored, or stated-and-un
   eq(dirOf(PID, SPOKEN, spoke.label).token, "record_direction",
     "…even though the index would have had plenty to say");
   const schunk = chunkOf(htmlA, SPOKEN);
-  eq(schunk, chunkOf(htmlB, SPOKEN), "the scored row renders byte-identically to before");
+  // BYTE-IDENTICAL EXCEPT THE PATTERN CHIP. Slice 2 added one chip to the top line
+  // of every row with a formal record, this one included — see _stPatternHtml. It
+  // is not a reason line, not a result and not a stance: strip it and the scored
+  // row is character-for-character what it was before the index existed, which is
+  // the wall this case has always been about. The chip's own walls are pinned in
+  // test-record-pattern-tiers.mjs.
+  const noChip = (h) => h.replace(/<span class="pdxst-pat [^]*?<\/span><\/span>/, "");
+  eq(noChip(schunk), chunkOf(htmlB, SPOKEN),
+    "the scored row renders byte-identically to before, but for the pattern chip");
+  has(schunk, "pdxst-pat", "…which is on it, because the record has a pattern");
   has(schunk, "pdxor-stance", "…with its stated position still on the row");
+  ok(schunk.indexOf("pdxst-pat") < schunk.indexOf("pdxor-stance"),
+    "…the record's pattern first, their stated word after it");
+  ok(!sres.dir, "…and still no record-direction REASON LINE competing with the score");
 
   // (b) Stated, on the record, never judged against each other: the position
   // stays, and the record now speaks beside it instead of being denied.

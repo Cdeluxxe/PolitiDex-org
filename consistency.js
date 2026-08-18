@@ -2209,6 +2209,78 @@
         'background:none;border:none;padding:0;margin:0;cursor:pointer;}' +
       '.pdxst-open:hover,.pdxst-open:focus-visible{color:#9fdbff;}' +
       '.pdxst-lbl-go{color:#7fb4ff;font-size:0.86rem;line-height:1;}' +
+      // ── THE FORMAL-RECORD PATTERN CHIP ─────────────────────────────────────
+      // Direction colour is the SITE's direction colour (#4ade80 / #f87171 /
+      // #f5c842 — the same three as .stance-support/.stance-oppose/.stance-mixed
+      // and _OR_STANCE), because a reader who has learned green-means-advance on
+      // an issue card should not have to learn it twice. What separates this chip
+      // from a stated-position chip is the lane marker and the weight, never the
+      // hue: recolouring the record would say the two facts are different KINDS of
+      // thing, and they are the same kind of thing from two different sources.
+      //   WEIGHT IS THE HONESTY. Four rungs, loudest first: `w-full` (a uniform run
+      // and a genuine split — both are complete statements about a deep record),
+      // `w-strong` (a lean with counter-votes: same hue and border, fainter fill),
+      // `w-thin` (one to three votes: no fill, dashed border, lighter type, dialled back —
+      // still direction-coloured, because the direction is a fact, but visibly not
+      // a finding), `w-flat` (grey, dotted, no direction at all). A thin chip must
+      // never be mistakable for a deep one at a glance, which is what these rules
+      // are for.
+      '.pdxst-pat{display:inline-flex;align-items:center;gap:0.24rem;font-size:0.63rem;font-weight:800;'
+        + 'letter-spacing:0.01em;padding:0.08rem 0.45rem;border-radius:999px;white-space:nowrap;'
+        + 'color:var(--c);border:1px solid var(--c);background:var(--bg);}' +
+      '.pdxst-pat-lane{font-size:0.55rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;opacity:0.72;}' +
+      // The counts are the evidence, not the headline: same colour, lighter type.
+      '.pdxst-pat-n{font-weight:600;font-size:0.6rem;opacity:0.86;}' +
+      '.pdxst-pat.w-thin{border-style:dashed;border-color:var(--c);font-weight:700;opacity:0.78;}' +
+      '.pdxst-pat.w-thin .pdxst-pat-lb{font-weight:700;}' +
+      '.pdxst-pat.w-flat{border-style:dotted;border-color:rgba(159,180,212,0.34);font-weight:700;opacity:0.82;}' +
+      // ── THE FULL FORMAL-PATTERN ISSUE INDEX ────────────────────────────────
+      // A flat, dense list, not a stack of cards: sixty-four issues is a table's
+      // job, and every ornament repeated sixty-four times is a scroll the reader
+      // pays for. The chip does the colour work — these rules only give it a line
+      // to sit on, and keep the issue name the biggest thing in the row.
+      '.pdxfpi{margin-top:0.9rem;border:1px solid rgba(96,165,250,0.22);border-radius:0.8rem;'
+        + 'background:rgba(9,14,28,0.5);padding:0.75rem 0.8rem 0.6rem;}' +
+      '.pdxfpi-head{display:flex;align-items:baseline;gap:0.5rem;justify-content:space-between;}' +
+      '.pdxfpi-title{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;letter-spacing:0.03em;color:#e8f0ff;}' +
+      '.pdxfpi-count{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.78rem;color:#93b4e6;'
+        + 'border:1px solid rgba(147,180,230,0.34);border-radius:999px;padding:0.04rem 0.5rem;}' +
+      '.pdxfpi-q{font-size:0.76rem;color:#9fb4d4;font-style:italic;margin:0.25rem 0 0;}' +
+      '.pdxfpi-lede{font-size:0.74rem;color:#8fa6c6;line-height:1.45;margin:0.3rem 0 0;}' +
+      '.pdxfpi-lede b{color:#cfe0f8;}' +
+      // The census is a row of counts, one per tier, in that tier's own colour —
+      // the shape of the list before anyone scrolls it.
+      '.pdxfpi-census{display:flex;flex-wrap:wrap;gap:0.28rem;margin-top:0.45rem;}' +
+      '.pdxfpi-cn{font-size:0.62rem;font-weight:700;color:var(--c);border:1px solid var(--c);'
+        + 'border-radius:999px;padding:0.06rem 0.44rem;opacity:0.86;}' +
+      '.pdxfpi-cn b{font-size:0.7rem;}' +
+      '.pdxfpi-segs{display:flex;flex-wrap:wrap;gap:0.26rem;margin-top:0.5rem;}' +
+      '.pdxfpi-seg{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.63rem;'
+        + 'letter-spacing:0.04em;text-transform:uppercase;color:#9fb4d4;background:rgba(147,180,230,0.06);'
+        + 'border:1px solid rgba(147,180,230,0.24);border-radius:999px;padding:0.3rem 0.6rem;min-height:1.95rem;}' +
+      '.pdxfpi-seg:hover,.pdxfpi-seg:focus-visible{color:#e8f0ff;background:rgba(147,180,230,0.16);}' +
+      '.pdxfpi-seg.is-on{color:#06121f;background:#93b4e6;border-color:#93b4e6;}' +
+      '.pdxfpi-seg-n{font-weight:800;opacity:0.72;}' +
+      '.pdxfpi-shown{font-size:0.68rem;color:#6f88ab;margin:0.45rem 0 0.2rem;}' +
+      '.pdxfpi-shown b{color:#cfe0f8;}' +
+      '.pdxfpi-list{display:flex;flex-direction:column;}' +
+      '.pdxfpi-row{display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem 0.45rem;'
+        + 'padding:0.42rem 0.1rem;border-top:1px solid rgba(147,180,230,0.12);}' +
+      '.pdxfpi-row:first-child{border-top:none;}' +
+      // The issue name is the door, so it is a real target — full-height, its own
+      // hover, and the chevron only appears when the row is pointed at.
+      '.pdxfpi-lbl{flex:1 1 11rem;min-width:0;display:flex;align-items:center;gap:0.3rem;text-align:left;'
+        + 'background:none;border:none;cursor:pointer;padding:0.1rem 0;min-height:1.9rem;'
+        + 'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.86rem;'
+        + 'letter-spacing:0.01em;color:#e8f0ff;}' +
+      '.pdxfpi-lbl:hover,.pdxfpi-lbl:focus-visible{color:#9fdbd0;}' +
+      '.pdxfpi-go{color:#6f88ab;font-size:0.9rem;opacity:0;transition:opacity 0.12s ease;}' +
+      '.pdxfpi-lbl:hover .pdxfpi-go,.pdxfpi-lbl:focus-visible .pdxfpi-go{opacity:1;}' +
+      '.pdxfpi-chips{display:flex;align-items:center;flex-wrap:wrap;gap:0.26rem;}' +
+      '.pdxfpi-meta{font-size:0.63rem;color:#6f88ab;white-space:nowrap;}' +
+      '.pdxfpi-none{font-size:0.74rem;color:#8fa6c6;padding:0.5rem 0;}' +
+      '.pdxfpi-foot{font-size:0.66rem;color:#6f88ab;line-height:1.45;margin:0.5rem 0 0;'
+        + 'border-top:1px solid rgba(147,180,230,0.12);padding-top:0.45rem;}' +
       '.pdxst-txt{font-size:0.74rem;line-height:1.4;color:#9fb4d4;margin-top:0.15rem;}' +
       '.pdxst-links{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.28rem;}' +
       '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
@@ -2413,11 +2485,24 @@
         // the outcome word stay together — those two are the answer, and splitting
         // them across a wrap is what turns a result back into a label.
         '.pdxst-result{gap:0.24rem 0.3rem;}' +
+        // MOBILE: the chip may wrap inside itself rather than push the issue name
+        // off the line — the row already wraps, and a chip that cannot break forces
+        // the issue name onto a line of its own.
+        '.pdxst-pat{white-space:normal;font-size:0.66rem;}' +
+        '.pdxst-pat-n{font-size:0.63rem;}' +
         '.pdxst-pct{font-size:1.15rem;}' +
         '.pdxst-vd{font-size:0.74rem;}' +
         // Every jump is a thumb target, not a hover target.
         '.pdxst-go{min-height:2.3rem;padding:0.4rem 0.7rem;font-size:0.62rem;}' +
         '.pdxst-links{gap:0.34rem;}' +
+        // MOBILE: the index becomes one issue per block — name on its own line,
+        // chips beneath it — because a chip and a 24-character issue name cannot
+        // share a phone line without one of them being truncated.
+        '.pdxfpi-row{flex-direction:column;align-items:flex-start;gap:0.24rem;padding:0.5rem 0.1rem;}' +
+        '.pdxfpi-lbl{flex:1 1 auto;width:100%;font-size:0.9rem;min-height:2.1rem;}' +
+        '.pdxfpi-go{opacity:1;margin-left:auto;}' +
+        '.pdxfpi-seg{min-height:2.2rem;padding:0.38rem 0.66rem;}' +
+        '.pdxfpi-title{font-size:1rem;}' +
         // MOBILE: the public line stays ONE extra line, not four. The tally and the
         // disclosure tag sit together on the first wrap and the tap drops below them
         // at thumb height — the alternative was a fixed two-column key/value layout
@@ -4804,6 +4889,86 @@
     return lbl ? lbl.charAt(0).toLowerCase() + lbl.slice(1) : '';
   }
 
+  // ── THE FORMAL-RECORD PATTERN CHIP ──────────────────────────────────────────
+  // WHAT IT IS. One chip on the row's top line saying how one-sided the formal
+  // record on this issue actually was — "Strongly opposes · 12 advanced · 0
+  // against", "Thin supports · 1 vote advanced" — read straight off
+  // _recordPatternTier(), which reads straight off the index _stDirRaw already
+  // returns. No second engine, no arithmetic here, no new gate: every threshold
+  // it obeys is a shipped record-direction gate.
+  //
+  // WHY A CHIP AND NOT A LINE. The clause lines below (_stRecordDirection,
+  // _stUnscoredDirection) are prose, and prose is unscannable at fifteen rows.
+  // They also each carry a precondition about the STATED position — one prints
+  // only where there is none, the other only where there is one — which means a
+  // reader scanning for "which way does their record run" met three different
+  // shapes depending on facts about our stance coverage. The chip has no such
+  // precondition: any row whose issue has a directional pole and whose record has
+  // anything on file gets the same chip in the same place, and the clause stays
+  // exactly where it was, saying exactly what it said.
+  //
+  // WHAT IT IS NOT — and this is the whole reason it is allowed to say "supports".
+  // It is not a stance. It never reaches positionStance(), never writes to a
+  // position map, and sits BESIDE "Says: …" rather than in place of it, so a row
+  // with both shows both and a reader can see the two disagree. It is not a
+  // score: no percentage, nothing ordinal, `res.pct`/`res.state`/`res.bucket` are
+  // not read here and not written, and the row's data attributes are untouched, so
+  // nothing sorts or filters on this. It is not evidence of a claim: the public
+  // lane is not consulted — _stDirRaw reads formal items only — so no media
+  // receipt can move this chip. And it is not on the exec lane yet, because
+  // _stDirRaw declines there; that lane needs its own verb and gets its own pass.
+  //
+  // FAIL CLOSED, TWO DIFFERENT WAYS. When the ISSUE has no directional pole (a
+  // balance key, an unmapped key) the tier engine returns null and no chip renders
+  // — the shortfall is our mapping's, and a neutral "No clear pattern yet" printed
+  // there would be a claim about their record we have not earned. When the RECORD
+  // is the problem (below the member coverage floor, one-sided only on bills this
+  // issue was incidental to) the chip prints "No clear pattern yet" in grey, which
+  // is the true statement.
+  var _ST_PAT_TONE = {
+    support: { c: '#4ade80', full: 'rgba(74,222,128,0.18)',  strong: 'rgba(74,222,128,0.10)' },
+    oppose:  { c: '#f87171', full: 'rgba(248,113,113,0.18)', strong: 'rgba(248,113,113,0.10)' },
+    mixed:   { c: '#f5c842', full: 'rgba(245,200,66,0.16)',  strong: 'rgba(245,200,66,0.10)' },
+    muted:   { c: '#8fa6c6', full: 'rgba(159,180,212,0.10)', strong: 'rgba(159,180,212,0.08)' }
+  };
+  // The quiet fill both weak tiers share. Thin and none must not read as findings,
+  // so neither gets its tone's fill — thin keeps the tone in its text and border
+  // only, which is what "direction-coloured but visibly lighter" means here.
+  var _ST_PAT_QUIET = 'rgba(10,15,30,0.32)';
+  function _stPatternTier(r) {
+    try {
+      if (typeof window._recordPatternTier !== 'function') return null;
+      var idx = _stDirRaw(r);
+      if (!idx) return null;
+      return window._recordPatternTier(idx, { noun: _stNoun(r) }) || null;
+    } catch (e) { return null; }
+  }
+  function _stPatternHtml(r, t) {
+    t = t || _stPatternTier(r);
+    if (!t) return '';
+    var tone = _ST_PAT_TONE[t.tone] || _ST_PAT_TONE.muted;
+    var bg = (t.weight === 'full') ? tone.full
+      : (t.weight === 'strong') ? tone.strong : _ST_PAT_QUIET;
+    // The lane marker is not decoration either: "supports" without it reads as a
+    // stance, and this chip is the record's, not theirs. The title and the
+    // screen-reader label carry the same one sentence the engine publishes.
+    var note = t.note || '';
+    // role=img + aria-label so the chip is announced as ONE thing, with its
+    // disclosure attached — a screen reader reading "Record / Mostly opposes / 8
+    // advanced" as three fragments loses the sentence that keeps it out of the
+    // score.
+    var say = 'Formal record: ' + t.label + (t.counts ? ', ' + t.counts : '') + '. ' + note;
+    return '<span class="pdxst-pat w-' + escAttr(t.weight) + '"' +
+      ' style="--c:' + tone.c + ';--bg:' + bg + '"' +
+      ' data-pdxst-pat="' + escAttr(t.tier) + '"' +
+      ' role="img" aria-label="' + escAttr(say) + '"' +
+      ' title="' + escAttr(note) + '">' +
+      '<span class="pdxst-pat-lane" aria-hidden="true">🏛 Record</span>' +
+      '<span class="pdxst-pat-lb">' + esc(t.label) + '</span>' +
+      (t.counts ? '<span class="pdxst-pat-n">· ' + esc(t.counts) + '</span>' : '') +
+      '</span>';
+  }
+
   // ── WHICH GROUP A ROW BELONGS UNDER ─────────────────────────────────────────
   // The grouping key, and the only thing that reads it is the heading a row is
   // rendered beneath. It maps a row's TIER to a group id, with one split: tier 1
@@ -5992,6 +6157,14 @@
             _icDot(skin) + esc(r.label) +
             '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
           '</button>' +
+          // BOTH FACTS, IN READING ORDER: what the record did, then what they say.
+          // The chip goes FIRST because it is the one a row can always have —
+          // 'Says:' is present only where we hold a stated position, and a reader
+          // scanning fifteen rows should meet the same column of chips on every one
+          // of them. Neither replaces the other and neither is derived from the
+          // other; where both are present and they disagree, that disagreement is
+          // the point and it is visible on the row's first line.
+          _stPatternHtml(r) +
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
         '</div>' +
         _stResultHtml(r, res) +
@@ -6146,6 +6319,322 @@
     return '<span id="pdxsec-stances" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<section class="pdxst" data-pdxc-stances-pid="' + esc(pid) + '" aria-label="Stances and connections">' +
       inner + '</section>';
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // THE FULL FORMAL-PATTERN ISSUE INDEX
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WHAT IT IS. One list of EVERY issue this politician's formal record touched,
+  // each row carrying the pattern chip the row faces already carry. Nothing here
+  // is new information: it is _stInner's row model, filtered to the formal lane,
+  // rendered flat and sorted by how much the record actually said.
+  //
+  // WHY IT EXISTS. "Full Stance Record" was built from documented stance cards,
+  // the evidence map and the receipt-depth index — three curated sources — so on
+  // Schumer it opened at seven issues while the formal record ran to sixty-four.
+  // A surface promising "every issue" that lists the seven somebody wrote a card
+  // for is not a record of what they did; it is a record of what we have written
+  // down. This is the other list, and it is the longer one.
+  //
+  // WHAT A ROW IS. An issue with SOMETHING FORMAL ON FILE: a pattern the index
+  // could read, or formal instruments held with no pattern read yet. Nothing
+  // else qualifies — a stated position with no formal record is not a formal
+  // record, and it stays on the curated list where it belongs. That is the
+  // fail-closed direction: an issue with no formal signal does not appear here at
+  // all rather than appearing with an empty pattern.
+  //
+  // WHAT IT IS NOT. Not a score, and not an input to one: every row reads
+  // _stPatternTier(), which reads the record-direction index, which no scoring
+  // path consults. Nothing here writes to a position map, so a pattern read on
+  // this surface can never become a stated stance. Not the public lane: the rows
+  // are built from formal held counts and the formal pattern only, and a media
+  // receipt cannot put an issue on this list or move a chip on it. And no party
+  // framing anywhere — the only subject of every sentence here is this one
+  // person's own record.
+  var _FPI_RANK = { strong: 0, mostly: 1, split: 2, thin: 3, none: 4 };
+  // Where a row the pattern engine has no verb for sorts. Below "No clear pattern
+  // yet" on purpose: that tier is a statement about a record we DID read, and this
+  // one is an admission we have not read it yet — the weaker of the two claims goes
+  // last so the top of the list stays the part that says something.
+  var _FPI_UNREAD_RANK = 5;
+  // The one sentence that keeps this list out of the score, printed once at the
+  // foot of the index rather than on sixty-four rows.
+  var _FPI_WALL = 'Every issue here is drawn from the formal record only — roll-call votes and ' +
+    'formal actions on file. A pattern is what that record did; it is never treated as a ' +
+    'stated position, and none of it enters Direction Match.';
+  function _fpiRowId(pid, key) { return 'pdxfpi-row-' + _stSlug(pid) + '-' + _stSlug(key); }
+
+  // ── THE ROWS ────────────────────────────────────────────────────────────────
+  // Pure. Reads the shared row model and the shared pattern engine and derives
+  // nothing of its own: `tier`, `tone`, `weight`, `label` and `counts` all arrive
+  // from _recordPatternTier, `held` is the row's own formal inventory, and `said`
+  // is the row's own stated-position flag. The sort is the only decision made here.
+  function _fpiRows(pid, opts) {
+    opts = opts || {};
+    var out = [];
+    (issueRows(pid) || []).forEach(function (r) {
+      if (!r || !r.key) return;
+      var res = _stResult(r);
+      var held = res.held || 0;
+      var t = _stPatternTier(r);
+      // FAIL CLOSED. No pattern and nothing formal on file means no formal signal,
+      // and an issue with no formal signal is not part of the formal record index.
+      if (!t && held <= 0) return;
+      var why = t ? null : _fpiUnreadWhy(r);
+      out.push({
+        pid: r.pid, key: r.key, label: r.label,
+        tier: t ? t.tier : 'unread',
+        weight: t ? t.weight : 'flat',
+        tone: t ? t.tone : 'muted',
+        patLabel: t ? t.label : why.lb,
+        why: why,
+        counts: t ? t.counts : '',
+        judged: t ? t.judged : 0,
+        directional: !!(t && t.directional),
+        read: !!t,
+        held: held,
+        noun: _stNoun(r),
+        said: _stSaid(r),
+        stance: (r.stance && r.stance.label) ? r.stance.label : '',
+        pat: t,
+        row: r,
+        rank: t ? (_FPI_RANK.hasOwnProperty(t.tier) ? _FPI_RANK[t.tier] : _FPI_RANK.none)
+                : _FPI_UNREAD_RANK
+      });
+    });
+    // STRONGEST FIRST, THINNEST LAST — the index's confidence ladder, which is the
+    // pattern engine's own and not a second opinion about it. Inside a tier the
+    // deeper record leads (more judged items, then more instruments on file), and
+    // the label breaks the last tie so two renders never disagree about the order.
+    //
+    // A–Z is offered because a reader who came for one issue should not have to
+    // know how one-sided its record was to find it.
+    if (opts.sort === 'az') {
+      out.sort(function (a, b) {
+        return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+      });
+    } else {
+      out.sort(function (a, b) {
+        if (a.rank !== b.rank) return a.rank - b.rank;
+        if (a.judged !== b.judged) return b.judged - a.judged;
+        if (a.held !== b.held) return b.held - a.held;
+        return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+      });
+    }
+    return out;
+  }
+
+  // ── THE FILTERS ─────────────────────────────────────────────────────────────
+  // Six views, and the two that matter are `stated` and `pattern`: the curated
+  // list's "Gaps only" folds an issue with a deep formal record and no stance card
+  // in with the issues nothing at all is known about, which is exactly the framing
+  // this index exists to undo. Here "pattern only" is a FINDING — sixty-odd issues
+  // where the record spoke and nobody has written down what they said — and it is
+  // reachable in one tap from the default view, never behind a gaps filter.
+  var _FPI_VIEWS = {
+    all:      { lb: 'All',                  test: function () { return true; } },
+    stated:   { lb: 'With stated position',  test: function (x) { return !!x.said; } },
+    pattern:  { lb: 'Pattern only',          test: function (x) { return !x.said; } },
+    supports: { lb: 'Supports-leaning',      test: function (x) { return x.tone === 'support'; } },
+    opposes:  { lb: 'Opposes-leaning',       test: function (x) { return x.tone === 'oppose'; } },
+    split:    { lb: 'Split',                 test: function (x) { return x.tier === 'split'; } }
+  };
+  var _FPI_VIEW_ORDER = ['all', 'stated', 'pattern', 'supports', 'opposes', 'split'];
+  // Session-level, deliberately: the surface it mounts in re-renders itself whole
+  // on a sort change and on the warm repaint, and a reader's chosen filter
+  // surviving that is the difference between a control and a surprise.
+  var _fpiView = 'all';
+  function _fpiViewOf(v) { return (v && _FPI_VIEWS[v]) ? v : 'all'; }
+
+  // ── ONE ROW ─────────────────────────────────────────────────────────────────
+  // The issue name is the door, exactly as it is on a stance row: same delegated
+  // [data-pdxst-dos] handler, same openGap(), same accessible name — so the
+  // dossier this opens is the dossier that row opens, not a second view of it.
+  // The row carries its OWN id (never stanceRowId) because the stance section may
+  // be on the page at the same time and two elements cannot share one id; the back
+  // pill then returns the reader to the row they tapped inside this index.
+  function _fpiRowHtml(x) {
+    var skin = _icSkin(x.key);
+    // The pattern, then their word — the same reading order the row faces use, for
+    // the same reason: the chip is the fact every row here has, and "Says: …" is
+    // the one only some of them do.
+    var chip = x.read ? _stPatternHtml(x.row, x.pat) : _fpiUnreadHtml(x);
+    var says = x.stance ? _orStanceChip(x.pid, x.key) : '';
+    var meta = x.held > 0
+      ? (x.held + ' ' + (x.held === 1 ? x.noun.one : x.noun.many) + ' on file')
+      : '';
+    return '<div class="pdxfpi-row' + skin.cls + '" style="' + skin.style + '"' +
+        ' id="' + escAttr(_fpiRowId(x.pid, x.key)) + '"' +
+        ' data-pdxfpi-issue="' + escAttr(x.key) + '"' +
+        ' data-pdxfpi-tier="' + escAttr(x.tier) + '"' +
+        ' data-pdxfpi-said="' + (x.said ? '1' : '0') + '">' +
+        '<button type="button" class="pdxfpi-lbl pdxst-open"' +
+          ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
+          ' data-pdxst-origin="' + escAttr(_fpiRowId(x.pid, x.key)) + '"' +
+          ' aria-label="' + escAttr(_dosDoorLabel(x.label, null, x.stance)) + '">' +
+          _icDot(skin) + esc(x.label) +
+          '<span class="pdxfpi-go" aria-hidden="true">›</span>' +
+        '</button>' +
+        '<span class="pdxfpi-chips">' + chip + says + '</span>' +
+        (meta ? '<span class="pdxfpi-meta">' + esc(meta) + '</span>' : '') +
+      '</div>';
+  }
+  // A ROW WITH A RECORD AND NO VERB FOR IT. The executive lane is the population
+  // this covers: _stDirRaw declines there, so no tier is read and none is invented.
+  // The row still belongs in the index — the instruments are on file and the
+  // dossier holds them — so it says what is true and nothing more. Grey, dotted,
+  // no direction word, and explicitly NOT "No clear pattern yet": that tier is a
+  // read of a record, and this is the absence of one.
+  function _fpiUnreadHtml(x) {
+    var why = x.why || { lb: 'Pattern not read yet', note: '' };
+    return '<span class="pdxst-pat w-flat pdxfpi-unread" style="--c:#8fa6c6;--bg:rgba(10,15,30,0.32)"' +
+      ' data-pdxfpi-pat="' + escAttr(why.id || 'unread') + '" role="img"' +
+      ' aria-label="' + escAttr('Formal record: ' + why.lb.toLowerCase() + '. ' + why.note) + '"' +
+      ' title="' + escAttr(why.note) + '">' +
+      '<span class="pdxst-pat-lane" aria-hidden="true">🏛 Record</span>' +
+      '<span class="pdxst-pat-lb">' + esc(why.lb) + '</span>' +
+      '</span>';
+  }
+  // WHY NO PATTERN — AND THE THREE ANSWERS ARE NOT THE SAME ANSWER. A grey chip
+  // reading "not read yet" over three different situations is the vaguest thing
+  // this index could say, and one of the three is not a shortfall at all. So each
+  // says its own true sentence, and none of them borrows a direction word:
+  //
+  //   · THE EXEC LANE. _stDirRaw declines there by design — the pattern read is
+  //     built on roll-call votes and an executive action needs its own verb. The
+  //     instruments are real and the dossier holds them.
+  //   · NO ROLL CALLS MAPPED HERE. The row's inventory came from the curated
+  //     formal feeder, and the roll-call index has nothing on this issue to read
+  //     — including before the vote record has finished loading.
+  //   · THE ISSUE HAS NO SIDE. A balance key, or a key with no support pole: our
+  //     mapping cannot say what "advancing" this issue would even mean, so no
+  //     direction is claimed from a record that may well be perfectly clear. This
+  //     is the shortfall this surface owns, and it says so.
+  function _fpiUnreadWhy(r) {
+    var n = _stNoun(r);
+    if (r && r.lane === 'exec') {
+      return { id: 'exec_lane', lb: 'Pattern not read on this lane yet',
+        note: 'These ' + n.many + ' are on file and open in the dossier. The pattern read runs on ' +
+          'roll-call votes and has not been extended to executive actions yet, so no direction is ' +
+          'claimed here either way.' };
+    }
+    var idx = null;
+    try { idx = _stDirRaw(r); } catch (e) { idx = null; }
+    if (idx && idx.suppressed && window._PDX_RD_TIERS && _RD_TIER_MUTED[idx.suppressed]) {
+      return { id: 'no_side', lb: 'No side to read on this issue',
+        note: 'This issue has no for-or-against side in our own issue mapping, so we do not claim a ' +
+          'direction for these ' + n.many + '. That is a gap in our mapping, not a finding about ' +
+          'their record — the ' + n.many + ' themselves are in the dossier.' };
+    }
+    return { id: 'no_rollcall', lb: 'No roll-call pattern on file yet',
+      note: 'These ' + n.many + ' are on file and open in the dossier, but no roll call mapped to ' +
+        'this issue has been read for a pattern yet, so no direction is claimed here.' };
+  }
+  // The issue-level suppressions the tier engine mutes a chip for, mirrored here so
+  // the index can NAME which of them happened. Not a second gate: the engine still
+  // decides, and this only reads its published reason.
+  var _RD_TIER_MUTED = { no_issue: 1, balance_key: 1, no_pole: 1 };
+
+  // ── THE INDEX ───────────────────────────────────────────────────────────────
+  // `opts.sort` comes from whatever surface hosts this (the Full Stance Record
+  // overlay hands it its own Sort control's state, so one control governs both
+  // lists). `opts.view` overrides the remembered filter; the delegated handler
+  // below uses it to re-render in place.
+  function formalPatternIndexHtml(pid, opts) {
+    opts = opts || {};
+    if (!pid) return '';
+    ensureStyles();
+    // The rows are doors into the dossier, so the one delegated click listener has
+    // to be armed even when this index is the only thing on screen — the overlay it
+    // mounts in can be opened from a card that never rendered the stance section.
+    bindGateway();
+    _fpiBind();
+    var sort = (opts.sort === 'az') ? 'az' : 'strength';
+    var all = _fpiRows(pid, { sort: sort });
+    if (!all.length) return '';
+    if (opts.view) _fpiView = _fpiViewOf(opts.view);
+    var view = _fpiViewOf(_fpiView);
+    var shown = all.filter(_FPI_VIEWS[view].test);
+    // A filter with nothing behind it is a dead control, so a view is only offered
+    // where it would change what is on screen — and `all` is always offered, so a
+    // reader can always get back to the whole list.
+    var live = _FPI_VIEW_ORDER.filter(function (v) {
+      if (v === 'all') return true;
+      var n = all.filter(_FPI_VIEWS[v].test).length;
+      return n > 0 && n < all.length;
+    });
+    var segs = live.map(function (v) {
+      var on = (v === view);
+      var n = all.filter(_FPI_VIEWS[v].test).length;
+      return '<button type="button" class="pdxfpi-seg' + (on ? ' is-on' : '') + '"' +
+        ' data-pdxfpi-set="' + escAttr(v) + '"' + (on ? ' aria-pressed="true"' : '') + '>' +
+        esc(_FPI_VIEWS[v].lb) + ' <span class="pdxfpi-seg-n">' + n + '</span></button>';
+    }).join('');
+    // THE CENSUS IS A COUNT, NOT A GRADE. Five tiers and the unread lane, each with
+    // how many issues landed there — the honest shape of the list before anyone
+    // scrolls it. It reports; it does not rank the person.
+    var census = {}, order = [];
+    all.forEach(function (x) {
+      // Keyed on the printed label, not the tier: the three unread reasons are three
+      // different statements and collapsing them into one grey count would hide the
+      // only one of them that is ours to fix.
+      var k = x.tier + '|' + x.patLabel;
+      if (!census[k]) { census[k] = { n: 0, x: x }; order.push(k); }
+      census[k].n++;
+    });
+    order.sort(function (a, b) {
+      return (census[a].x.rank - census[b].x.rank) || (a < b ? -1 : 1);
+    });
+    var censusHtml = order.map(function (k) {
+      var c = census[k], tone = _ST_PAT_TONE[c.x.tone] || _ST_PAT_TONE.muted;
+      return '<span class="pdxfpi-cn" style="--c:' + tone.c + '">' +
+        '<b>' + c.n + '</b> ' + esc(c.x.patLabel) + '</span>';
+    }).join('');
+    var stated = all.filter(function (x) { return x.said; }).length;
+    var patternOnly = all.length - stated;
+    var viewNote = (view === 'all') ? '' : ' · ' + _FPI_VIEWS[view].lb.toLowerCase();
+    return '<div class="pdxfpi" data-pdxfpi-host="' + escAttr(pid) + '"' +
+        ' data-pdxfpi-sort="' + escAttr(sort) + '" data-pdxfpi-view="' + escAttr(view) + '"' +
+        ' aria-label="Every issue on the formal record">' +
+        '<div class="pdxfpi-head">' +
+          '<span class="pdxfpi-title"><span aria-hidden="true">🏛</span> Every issue on the formal record</span>' +
+          '<span class="pdxfpi-count">' + all.length + '</span>' +
+        '</div>' +
+        '<p class="pdxfpi-q">“What did the record itself do — across every issue, not just the ones with a written card?”</p>' +
+        '<p class="pdxfpi-lede">' + all.length + ' issue' + (all.length === 1 ? '' : 's') +
+          ' with something formal on file' +
+          (patternOnly ? ' — <b>' + patternOnly + '</b> of them with no stated position from them yet' : '') +
+          '. Tap any issue for its dossier.</p>' +
+        (censusHtml ? '<div class="pdxfpi-census">' + censusHtml + '</div>' : '') +
+        (segs ? '<div class="pdxfpi-segs" role="group" aria-label="Filter the formal record index">' + segs + '</div>' : '') +
+        '<p class="pdxfpi-shown">Showing <b>' + shown.length + '</b> of ' + all.length +
+          ' issue' + (all.length === 1 ? '' : 's') + ' on the formal record' + viewNote + '</p>' +
+        '<div class="pdxfpi-list">' +
+          (shown.length ? shown.map(_fpiRowHtml).join('')
+            : '<p class="pdxfpi-none">No issue on the formal record matches this filter.</p>') +
+        '</div>' +
+        '<p class="pdxfpi-foot">' + esc(_FPI_WALL) + '</p>' +
+      '</div>';
+  }
+  // Re-render one mounted index in place on a filter tap. In place, not through the
+  // host surface's own re-render, so the reader keeps their scroll position in a
+  // sixty-row list — and armed on the same delegated listener every other control
+  // in this module uses.
+  var _fpiBound = false;
+  function _fpiBind() {
+    if (_fpiBound || !document.addEventListener) return;
+    _fpiBound = true;
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-pdxfpi-set]');
+      if (!b) return;
+      var host = b.closest('[data-pdxfpi-host]');
+      if (!host) return;
+      e.preventDefault();
+      var pid = host.getAttribute('data-pdxfpi-host') || '';
+      var sort = host.getAttribute('data-pdxfpi-sort') || 'strength';
+      var html = formalPatternIndexHtml(pid, { sort: sort, view: b.getAttribute('data-pdxfpi-set') || 'all' });
+      if (html) host.outerHTML = html;
+    }, false);
   }
 
   // ── Dedicated Say-vs-Do feed (the stance-first public-record dive-in) ────────
@@ -8833,6 +9322,35 @@
       NOTE: _RD_SLOT_NOTE,
       NOTE_SAID: _RD_SLOT_NOTE_SAID,
       NOTE_THIN: _RD_SLOT_NOTE_THIN
+    },
+    // 🏛 FORMAL-RECORD PATTERN TIERS, for the row faces. `tier` returns the shape
+    // (tier / weight / tone / label / counts) for one row, `html` the chip. Both
+    // read _recordPatternTier(), which reads the record-direction index — so a
+    // second surface adopting this cannot end up with a different vocabulary or a
+    // different threshold than the rows have. Exposed for the harnesses and for
+    // the decision-surface slot above, which may take the tier's wording in a
+    // later pass; it deliberately has not yet, because that slot's contract test
+    // governs its empty states and its non-ordinality and this pass changes
+    // neither. Nothing here is a stance and nothing here is scored: see the long
+    // note over _stPatternHtml.
+    recordPattern: {
+      tier: _stPatternTier,
+      html: _stPatternHtml,
+      TONE: _ST_PAT_TONE
+    },
+    // 🏛 THE FULL FORMAL-PATTERN ISSUE INDEX. `rows` is the list — one entry per
+    // issue with a pattern read or formal instruments on file, sorted strongest
+    // first — and `html` is the mounted surface with its own filters. `count` is
+    // what the Full Stance Record's CTA promises, so the button and the list it
+    // opens cannot disagree about how many issues there are. Presentation only:
+    // every field on a row is read off the shared row model or the shared pattern
+    // engine, nothing here writes to a position map, and no scoring path reads it.
+    formalPatternIndex: {
+      rows: _fpiRows,
+      html: formalPatternIndexHtml,
+      count: function (pid) { try { return _fpiRows(pid).length; } catch (e) { return 0; } },
+      VIEWS: _FPI_VIEW_ORDER,
+      WALL: _FPI_WALL
     },
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.

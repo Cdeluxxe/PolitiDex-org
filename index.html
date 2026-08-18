@@ -2440,8 +2440,48 @@ window.PDXLazy = (function () {
        runtime — see the chrome-measure script after the nav — so this literal is
        only what the first paint uses before the measurement lands, and what a
        browser with no ResizeObserver keeps. Consumers do not change: they still
-       read var(--pdx-chrome) and get the truth as soon as it is known. */
+       read var(--pdx-chrome) and get the truth as soon as it is known.
+
+       WHAT THE LITERAL CAN AND CANNOT SAY, EXACTLY — this is the arithmetic that
+       kept going stale, so it is written down rather than re-guessed:
+
+         row 1  py-3 (0.75rem x 2) around a 2rem brand mark ....... 3.5rem
+         row 2  0.5rem x 2 shell padding + a 2.5rem field ......... 3.5rem
+                + the 1px rule that separates the two rows ........ 1px
+         ------------------------------------------------------------------
+                                                          7rem + 1px = 113px
+
+       Every term above is rem-derived, so the literal already tracks the reader's
+       own font scaling: at a 20px root the rows compute to 141px and 7.125rem is
+       142.5px. Font size was never the hole. THE HOLE IS THE SAFE-AREA INSET.
+       This document is viewport-fit=cover and the nav is padded by
+       env(safe-area-inset-top) so the blurred bar can sit flush to the physical
+       top edge (see #pdx-topnav below). That inset is 44-59px of real chrome on a
+       notched iPhone and 24-48px on an Android cutout, it is the one contributor
+       that is not a multiple of the root font size, and a plain rem literal
+       cannot express it. So the fail-closed value under-cleared the true chrome
+       by up to 59px on exactly the phones that reported the clip — more than the
+       26px line box the phone wordmark renders in. The runtime measurement hides
+       that whenever it lands, which is why the bug reads as intermittent: it
+       survives only where the measurement is unavailable or held (no
+       ResizeObserver, JS blocked or broken, the first paint, and the
+       focus-inside-the-nav hold when Safari restores focus into the Eye across a
+       back-navigation or a hard refresh).
+
+       The fallback therefore states the inset instead of guessing at it. Same
+       variable, same base literal, one extra term. The @supports guard is not
+       decoration: a custom property accepts any token sequence, so an engine that
+       does not parse env() would swallow this declaration and then invalidate
+       every calc() that consumes it — turning three hero paddings and the
+       document's scroll padding into 0 and clipping the wordmark completely. An
+       engine without env() also has no notch, so the plain literal above is the
+       right answer there and this block simply never applies. The measured px
+       value is written as an inline style on <html>, which outranks both
+       declarations, so the inset is never counted twice. */
     :root { --pdx-chrome: 7.125rem; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(7.125rem + env(safe-area-inset-top, 0px)); }
+    }
 
     /* THE NOTCH IS THE NAV'S TO CLEAR. With viewport-fit=cover the layout
        viewport extends under the status bar, and a `fixed; top:0` element starts
@@ -2485,9 +2525,20 @@ window.PDXLazy = (function () {
       /* The phone clearance is the same arithmetic as the desktop one. It used to
          be a flat 5rem — 80px against ~113px of fixed chrome — which is why the
          badge and the POLITIDEX lockup rendered under the search bar on a phone
-         at scroll 0. Half a rem of air is enough here; the fold budget below is
-         what pays for the rest. */
-      #hero { padding-top: calc(var(--pdx-chrome) + 0.5rem); padding-bottom: 2.5rem; }
+         at scroll 0.
+
+         THE AIR HAS TO OUTLAST THE FLOAT. This was 0.5rem, and the first child of
+         the stack is the logo badge carrying .animate-float — whose keyframe is
+         translateY(-8px) at the midpoint. 8px of animation against 8px of air
+         means the badge rises to exactly the bottom edge of the search row and
+         grazes under the blurred bar twice every three seconds, which is the
+         "cut off at the top" the report describes even on the frames where the
+         static layout is correct. 0.75rem is the float amplitude plus 4px that
+         stays visible at the peak. Four pixels is what this costs the fold
+         budget below; the wordmark itself never floats — .animate-fadeUp starts
+         30px LOW and settles, so it can only ever be further from the chrome
+         than its resting position. */
+      #hero { padding-top: calc(var(--pdx-chrome) + 0.75rem); padding-bottom: 2.5rem; }
       /* THE VIEWPORT THE READER ACTUALLY HAS AT SCROLL 0. `min-h-screen` is
          100vh, and on iOS/Android 100vh is the LARGE viewport — the height the
          page gets once the URL bar has retracted, which is not the height it has
@@ -3086,8 +3137,17 @@ window.PDXLazy = (function () {
       /* The mobile menu lives inside the fixed top nav and can be taller than the
          screen. Cap it to the space below the bar and let it scroll internally, so
          every destination is reachable and it never runs off-screen or traps the
-         page. JS refines the exact max-height on open (see pdx-mobilenav-fix). */
-      #mobileMenu{ max-height: calc(100dvh - 3.25rem); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scroll-behavior: smooth; }
+         page. JS refines the exact max-height on open (see pdx-mobilenav-fix).
+
+         THE CAP IS THE CHROME, NOT A NUMBER THAT LOOKS LIKE IT. This read
+         `100dvh - 3.25rem` — 52px standing in for a nav that is 113px at rest and
+         113px + the safe-area inset on a notched phone. The drawer is rendered
+         directly below the two permanent rows, so the space it has is the viewport
+         minus the chrome, and the chrome has exactly one name. A hardcoded stand-in
+         here is the same failure as the hero's old pt-32: right on the machine it
+         was typed on, and silently wrong everywhere else — it let the drawer run
+         60-110px off the bottom of the screen. */
+      #mobileMenu{ max-height: calc(100dvh - var(--pdx-chrome)); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scroll-behavior: smooth; }
       #mobileMenu::-webkit-scrollbar{ width: 8px; }
       #mobileMenu::-webkit-scrollbar-thumb{ background: rgba(148,163,184,0.28); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
     </style>
@@ -6422,6 +6482,9 @@ window.PDXLazy = (function () {
               <input type="text" id="align-search-rel" placeholder="Search issues…" oninput="alignSearch(this,'align-cats-rel')" aria-label="Search alignment issues" autocomplete="off" />
               <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-rel');i.value='';alignSearch(i,'align-cats-rel');i.focus();">✕</button>
             </div>
+
+            <!-- Same match-input toggle as the main tool, compact — one state, two mounts -->
+            <div id="align-mode-rel" class="align-mode-mount"></div>
 
             <!-- Accordion controls mirror the main tool so both surfaces feel identical -->
             <div class="align-toolbar">
@@ -11479,6 +11542,7 @@ window.PDXLazy = (function () {
           <div class="align-compact" id="align-compact">
             <div class="align-compact-info">
               <span class="align-compact-status" id="align-compact-status">No stances set yet</span>
+              <span class="align-compact-mode" id="align-compact-mode" data-align-mode="stated">💬 Matching on <b>stated positions</b></span>
               <span class="align-compact-tagline" id="align-compact-tagline">Set your stances — what you stand for — and this shows who matches, plus whether their record backs it up. Add your best matches to your team.</span>
             </div>
             <div class="align-compact-actions">
@@ -11502,6 +11566,13 @@ window.PDXLazy = (function () {
                 <span class="pdx-hint-ico" aria-hidden="true">🎯</span>
                 <p class="pdx-hint-text"><strong>Stances → matches → team.</strong> ① Set the positions you actually believe in below — these are your <strong>stances</strong> (also saved in My Stances). ② Every politician instantly gets a <strong>🎯 Your Match %</strong> (how their stated positions fit yours) paired with <strong>⚖️ Say-vs-Do</strong> (whether their voting record backs those positions up). ③ Compare the candidates in your district and add your strongest matches to your team. Change your stances anytime.<br><span style="display:inline-block;margin-top:0.5rem;color:#c4b5fd;">🌱 <strong>New or 2026 candidate?</strong> Even without a long voting record, your match is built from their <strong>stated positions</strong> — and each candidate&rsquo;s profile tells you exactly how much of the score rests on a documented record versus an early read, so you always know what you&rsquo;re looking at.</span></p>
               </div>
+
+              <!-- MATCH INPUT MODE — stated positions vs formal-record patterns.
+                   Rendered by _alignRenderModeRow() so both this panel and the
+                   "My Key Alignments" mirror below read one piece of state. Same
+                   issue list and same values either way; only the politician-side
+                   input changes. Default is stated positions. -->
+              <div id="align-mode-main" class="align-mode-mount"></div>
 
               <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
                    their strength mix, and the areas they have / haven't weighed in on.

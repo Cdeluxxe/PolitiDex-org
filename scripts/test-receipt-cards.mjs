@@ -1304,11 +1304,22 @@ for (const card of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1"
   ok(card.source.label === "U.S. House Clerk" || /^U\.S\. (House Clerk|Senate) · roll call \d+$/.test(card.source.label),
     `citation: the ${where} card's source label names the chamber page it cites`);
 }
-// The renderer must not re-introduce a truncation layer under the guard.
+// The renderer must not re-introduce a truncation layer under the guard. The
+// window is the VERIFY ROW ITSELF and stops at its own final advance, because
+// what sits underneath it is a different kind of text: an address must never be
+// wrapped or elided (a URL a reader cannot retype is not a citation), while the
+// disclosure sentence below it must wrap rather than clip, and the two rules are
+// asserted separately so neither can be satisfied by the other's code.
 const svdVerify = svd.slice(svd.indexOf("if (r.verifyUrl) {", svd.indexOf("function renderCanvas")));
-const svdVerifyBlock = svdVerify.slice(0, svdVerify.indexOf("if (r.method)"));
+const svdVerifyBlock = svdVerify.slice(0, svdVerify.indexOf("my += 30;"));
 lacks(svdVerifyBlock, "wrapText", "citation: the VERIFY line is not wrapped or ellipsized by the renderer");
 has(svdVerifyBlock, "measureText", "citation: the VERIFY line is measured and shrunk to fit instead");
+// The footer disclosure. A card that dropped half of its own disclosure to make
+// the line fit would be printing a claim it never finished qualifying, so this
+// one wraps — and it is the one piece of footer text that may.
+const svdFootNote = svdVerify.slice(svdVerify.indexOf("if (r.footNote) {"), svdVerify.indexOf("if (r.method)"));
+has(svdFootNote, "wrapText", "footer: a card's own disclosure sentence wraps rather than clipping");
+has(svdFootNote, "Verdict based on public record", "footer: and the default sentence is still the fallback");
 
 // ── Part 2 · chronology ──────────────────────────────────────────────────────
 // Not one stance block in the corpus carries a date, so no card may imply order.

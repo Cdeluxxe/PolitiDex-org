@@ -1011,6 +1011,7 @@
         : '🎯 Your Match and 🏛️ Official Record now show on every candidate — see who fits, then tap “Add to my team” or “See the receipts” right on each card.';
       var cm = document.getElementById('align-compact-matches');
       if (cm) cm.style.display = (n === 0) ? 'none' : 'inline-flex';
+      _alignRenderModeRow();
       var dn = document.getElementById('align-done-btn');
       if (dn) dn.style.display = (n === 0) ? 'none' : 'inline-flex';
     }
@@ -1143,6 +1144,13 @@
       try {
         var si = localStorage.getItem(ALIGN_INT_KEY);
         if (si) { _alignIntensity = _alignSanitizeIntensity(JSON.parse(si)); _alignExposeIntensity(); }
+      } catch(e) {}
+      // Which side of the politician the match reads. Anything but the exact
+      // string 'record' lands on stated, so a corrupt value fails to the default
+      // rather than to the newer, sparser lane.
+      try {
+        var sm = localStorage.getItem(ALIGN_MODE_KEY);
+        if (sm) _alignMode = _alignModeOf(sm);
       } catch(e) {}
     }
 
@@ -1411,10 +1419,385 @@
       return 1;
     }
 
-    function _calcAlignmentScore(pid) {
+    /* ═══════════════════════════════════════════════════════════════════════
+       MATCH INPUT MODE — stated positions vs formal-record patterns
+       -----------------------------------------------------------------------
+       The tool has always asked one question: "how do this politician's
+       positions fit my values?" — and answered it from what they SAID. That is
+       the honest answer for a candidate whose whole record is a platform, and
+       the wrong one for a twenty-year incumbent whose votes are the record.
+       So the question splits in two, and the voter picks which one they are
+       asking:
+
+         stated  — their documented, sourced positions   (the shipped behaviour)
+         record  — what their votes and formal actions DID on each issue
+
+       SAME ISSUE LIST, SAME USER VALUES. Only the politician-side input moves.
+       The verdict function (_issueVerdict), the weights, the intensity model,
+       the My-Stances priority multiplier and the accountability nudge are the
+       ones already shipped, unchanged in both modes.
+
+       THE WALLS, and why each one is here:
+         • A pattern is not a stated position. Record-mode rows never set
+           `direct`, never carry `stance`/`text`, and never render the 📍 Stated
+           badge or a stance pill — the surfaces that quote a politician read
+           those fields, so keeping them null is what stops a derived pattern
+           from being served as a quote.
+         • Nothing is written back. This reads formalPatternIndex (itself a pure
+           derivation of the vote pack) and writes to no map. _polPositionMap is
+           never touched, so Direction Match — which reads it — cannot move.
+         • No side is invented. An issue with no readable pattern is EXCLUDED
+           from the record-mode score and reported as uncovered, rather than
+           quietly scored from the keyword/lean inference the stated lane uses
+           when a position is missing. A mode that silently borrowed the other
+           mode's answer would be the one dishonest thing this feature could do.
+         • Thin counts less. The pattern engine already ranks its own
+           confidence; record mode multiplies the issue weight by that rank, so
+           a one-vote lean moves the match about half as far as a uniform run.
+       ═══════════════════════════════════════════════════════════════════════ */
+    var ALIGN_MODE_KEY = 'politidex_align_matchmode';
+    // DEFAULT: stated. The stated lane is the only one that covers the whole
+    // field — a first-time candidate has positions and no roll calls at all —
+    // so it stays the default and the record lane is the deliberate choice.
+    var _alignMode = 'stated';
+    var ALIGN_MODE_META = {
+      stated: {
+        key: 'stated', ico: '💬', label: 'Stated positions', short: 'Stated positions',
+        verb: 'says', sub: 'What they have claimed — their documented, sourced positions on each issue.'
+      },
+      record: {
+        key: 'record', ico: '🏛', label: 'Formal-record patterns', short: 'Record patterns',
+        verb: 'did', sub: 'What their votes and formal actions did on each issue. A pattern is what the record did — not a stated position, and never part of Direction Match.'
+      }
+    };
+    function _alignModeOf(v) { return (v === 'record') ? 'record' : 'stated'; }
+    function _alignModeIsRecord(opts) {
+      var m = (opts && opts.mode) ? _alignModeOf(opts.mode) : _alignMode;
+      return m === 'record';
+    }
+    function _alignModeMeta(m) { return ALIGN_MODE_META[_alignModeOf(m || _alignMode)]; }
+    window.alignMatchMode = function () { return _alignMode; };
+    window.alignMatchModeMeta = function (m) { return _alignModeMeta(m || _alignMode); };
+
+    // TIER → SIDE. The pattern engine's own tone is the direction: it is the
+    // single place that decides whether a run of votes advanced or opposed an
+    // issue, and re-deriving that here would be a second opinion about the same
+    // votes. 'muted' (no clear pattern yet, no readable pole, an unread lane) has
+    // no side, so it maps to nothing and the issue drops out.
+    var _ALIGN_TONE_SIDE = { support: 'support', oppose: 'oppose', mixed: 'mixed' };
+    // TIER → CONFIDENCE. A weight multiplier, never a direction and never a
+    // score: thin still counts, and counts about half. Split is a real finding
+    // (they went both ways) that resolves to a partial verdict, so it carries a
+    // little less than a one-sided run of the same depth.
+    var _ALIGN_PAT_CONF = { strong: 1, mostly: 0.85, split: 0.6, thin: 0.5 };
+    window._PDX_ALIGN_PAT_CONF = _ALIGN_PAT_CONF;
+
+    function _alignRecordWarm(pid) {
+      try {
+        return !!(window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function'
+                  && window.PDXVotingRecord.memberRecords(pid));
+      } catch (e) { return false; }
+    }
+
+    // The politician-side input for record mode: { issueKey → signal }, built
+    // once per politician per derivation epoch (PDXDataEpoch bumps the moment a
+    // vote pack lands, so this can never serve a stale read of a warm record).
+    var _armCache = {}, _armEpoch = -1;
+    function _alignRecordSideMap(pid) {
+      var ep = 0;
+      try { ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0; } catch (e) { ep = 0; }
+      if (ep !== _armEpoch) { _armCache = {}; _armEpoch = ep; }
+      var k = String(pid == null ? '' : pid);
+      if (Object.prototype.hasOwnProperty.call(_armCache, k)) return _armCache[k];
+      var out = { sides: {}, rows: 0, read: 0, warm: _alignRecordWarm(pid) };
+      try {
+        var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+        if (FPI && typeof FPI.rows === 'function') {
+          (FPI.rows(pid) || []).forEach(function (x) {
+            if (!x || !x.key) return;
+            out.rows++;
+            var side = _ALIGN_TONE_SIDE[x.tone];
+            var conf = _ALIGN_PAT_CONF[x.tier];
+            // FAIL CLOSED: unread lane, no readable pole, or a tier this does
+            // not know is not a side. It is an issue we say nothing about.
+            if (!x.read || !side || !conf) return;
+            out.read++;
+            out.sides[x.key] = {
+              side: side, tier: x.tier, tone: x.tone, conf: conf,
+              label: x.patLabel, counts: x.counts,
+              judged: (x.pat && x.pat.judged) || 0,
+              advances: (x.pat && x.pat.advances) || 0,
+              opposes: (x.pat && x.pat.opposes) || 0,
+              rank: x.weight
+            };
+          });
+        }
+      } catch (e) {}
+      _armCache[k] = out;
+      return out;
+    }
+    window._alignRecordSideMap = _alignRecordSideMap;
+
+    // Coverage of the visitor's OWN selected issues by the formal record — the
+    // number the honesty note is built from. `pending` distinguishes "we have not
+    // read their votes yet" from "their votes say nothing here", which are the
+    // two states a sparse mode must never blur together.
+    function _alignRecordCoverage(pid) {
+      var m = _alignRecordSideMap(pid);
+      var total = (typeof _alignIssues !== 'undefined' && _alignIssues) ? _alignIssues.size : 0;
+      var covered = 0, thin = 0, split = 0, deep = 0, missing = [];
+      if (total) {
+        _alignIssues.forEach(function (key) {
+          var s = m.sides[key];
+          if (!s) {
+            missing.push({ key: key, label: (ISSUE_MAP[key] && ISSUE_MAP[key].label) || key });
+            return;
+          }
+          covered++;
+          if (s.tier === 'thin') thin++;
+          else if (s.tier === 'split') split++;
+          else deep++;
+        });
+      }
+      var warm = m.warm;
+      var pending = !warm && !_consistTried[pid] && covered === 0 && total > 0;
+      return {
+        covered: covered, total: total, missing: missing,
+        thin: thin, split: split, deep: deep,
+        indexRows: m.rows, warm: warm, pending: pending,
+        // SPARSE is a claim about the match, not about the person: fewer than
+        // half the voter's issues carry a pattern, so the number they are
+        // reading rests on a minority of what they asked about.
+        sparse: covered > 0 && covered * 2 < total,
+        thinLed: covered > 0 && thin > deep + split
+      };
+    }
+    window._alignRecordCoverage = _alignRecordCoverage;
+
+    // Switch modes. Repaints every alignment surface through the same refresh
+    // path a chip toggle uses, so the whole page answers the new question at
+    // once rather than half-answering the old one.
+    window.alignSetMatchMode = function (mode, opts) {
+      var next = _alignModeOf(mode);
+      if (next === _alignMode) { _alignRenderModeRow(); return next; }
+      _alignMode = next;
+      try { localStorage.setItem(ALIGN_MODE_KEY, next); } catch (e) {}
+      _alignRenderModeRow();
+      // Record mode needs the vote packs the stated lane never asked for. Warm
+      // the people already on screen so the mode fills in instead of reading as
+      // "no pattern" everywhere for its first second.
+      if (next === 'record') { try { _alignWarmVisibleForRecord(); } catch (e) {} }
+      try { _alignRefreshAll(); } catch (e) {}
+      if (!(opts && opts.quiet)) {
+        try {
+          var ov = document.getElementById('kr-align-overlay');
+          if (ov && ov.style.display && ov.style.display !== 'none' && window._kraqRecordPid
+              && typeof window.keyRacesAlignQuickView === 'function') {
+            window.keyRacesAlignQuickView(window._kraqRecordPid);
+          }
+        } catch (e) {}
+      }
+      return next;
+    };
+    window.alignToggleMatchMode = function () {
+      return window.alignSetMatchMode(_alignMode === 'record' ? 'stated' : 'record');
+    };
+
+    // Kick the batched record warmer for the politicians whose match is on
+    // screen right now. Reuses the Say-vs-Do warmer (one /compare per batch of
+    // 24, already debounced) — no new request path, no per-card fetch.
+    function _alignWarmVisibleForRecord() {
+      var seen = {}, n = 0;
+      document.querySelectorAll('[data-align-pid]').forEach(function (el) {
+        var pid = el.getAttribute('data-align-pid');
+        if (!pid || seen[pid] || n >= 24) return;
+        seen[pid] = 1; n++;
+        _alignQueueConsistWarm(pid);
+      });
+    }
+
+    /* ── Mode UI: the toggle, the mode tag, the per-row signal, the honesty note ──
+       All four live here so every surface that shows a match reads the mode from
+       one place and words it one way. */
+
+    // The segmented control. `id` scopes it (the tool renders one, a breakdown
+    // renders another) so two on screen at once stay in step through the same
+    // state rather than each holding their own.
+    function _alignModeToggleHtml(opts) {
+      opts = opts || {};
+      var cur = _alignMode;
+      var segs = ['stated', 'record'].map(function (k) {
+        var meta = ALIGN_MODE_META[k];
+        var on = (k === cur);
+        return '<button type="button" class="align-mode-seg' + (on ? ' is-on' : '') + '"' +
+            ' data-align-mode="' + k + '" aria-pressed="' + (on ? 'true' : 'false') +
+            '" onclick="event.stopPropagation();window.alignSetMatchMode(\'' + k + '\');"' +
+            ' title="' + meta.sub.replace(/"/g, '&quot;') + '">' +
+            '<span class="align-mode-ico" aria-hidden="true">' + meta.ico + '</span>' +
+            (opts.compact ? meta.short : meta.label) +
+          '</button>';
+      }).join('');
+      return '<div class="align-mode-row' + (opts.compact ? ' is-compact' : '') + '"' +
+          ' data-align-mode-row="' + _alignModeOf(cur) + '" role="group" aria-label="Match politicians on stated positions or on their formal record">' +
+          '<span class="align-mode-lead">Match on</span>' +
+          '<span class="align-mode-segs">' + segs + '</span>' +
+          (opts.compact ? '' : '<span class="align-mode-sub">' + ALIGN_MODE_META[cur].sub + '</span>') +
+        '</div>';
+    }
+    window._alignModeToggleHtml = _alignModeToggleHtml;
+
+    // The state, at a glance, on a surface that is showing a match. Rendered in
+    // both modes: a number whose input is unnamed is the thing this pass exists
+    // to end.
+    function _alignModeTagHtml(opts) {
+      opts = opts || {};
+      var meta = ALIGN_MODE_META[_alignMode];
+      return '<span class="align-mode-tag is-' + meta.key + '" data-align-mode-tag="' + meta.key + '"' +
+          ' title="This match was produced from ' + meta.label.toLowerCase() + '. ' + meta.sub.replace(/"/g, '&quot;') + '">' +
+          '<span aria-hidden="true">' + meta.ico + '</span>' +
+          (opts.compact ? meta.short : 'Matched on ' + meta.label.toLowerCase()) +
+        '</span>';
+    }
+    window._alignModeTagHtml = _alignModeTagHtml;
+
+    // THE PER-ISSUE SOURCE LINE. Every compared issue names where the
+    // politician's side came from, in the vocabulary of its own lane:
+    //   Says: Supports                     — a documented position, quoted lane
+    //   Record pattern: Mostly opposes ·
+    //     8 advanced · 2 against           — what the votes did, counted lane
+    // The record chip carries the pattern engine's own label and its own counts
+    // (which are withheld when the index withholds them), never a stance verb
+    // borrowed from the stated lane.
+    var _ALIGN_SIDE_WORD = { support: 'Supports', oppose: 'Opposes', mixed: 'Mixed' };
+    function _alignSignalChipHtml(it) {
+      if (!it) return '';
+      if (it.source === 'record' && it.pattern) {
+        var p = it.pattern;
+        var counts = p.counts ? '<span class="align-sig-n"> · ' + p.counts + '</span>' : '';
+        return '<span class="align-sig align-sig-rec is-' + p.tone + ' w-' + (p.rank || 'flat') + '"' +
+            ' title="' + (window._PDX_RD_TIER_NOTE || 'What the formal record did.') + '">' +
+            '<span aria-hidden="true">🏛</span><span class="align-sig-k">Record pattern:</span> ' +
+            '<b>' + p.label + '</b>' + counts +
+          '</span>';
+      }
+      if (it.source === 'stated' && it.stance) {
+        var word = _ALIGN_SIDE_WORD[it.stance] || 'Mixed';
+        return '<span class="align-sig align-sig-said is-' + it.stance + '"' +
+            ' title="A documented, sourced position on this exact issue — their own words.">' +
+            '<span aria-hidden="true">💬</span><span class="align-sig-k">Says:</span> <b>' + word + '</b>' +
+          '</span>';
+      }
+      return '';
+    }
+    window._alignSignalChipHtml = _alignSignalChipHtml;
+
+    // COVERAGE HONESTY. Record mode only. Says how much of what the voter asked
+    // about the record actually answers, names the issues it does not, and says
+    // in as many words that those are not scored from the stated positions
+    // instead. Returns '' in stated mode (its own confidence note already runs).
+    function _alignCoverageNoteHtml(pid, bd) {
+      if (!_alignModeIsRecord()) return '';
+      var c = _alignRecordCoverage(pid);
+      if (!c.total) return '';
+      var miss = c.missing.map(function (m) { return m.label; });
+      var missLine = miss.length
+        ? '<span class="align-cov-miss"><b>Not counted</b> (no formal pattern on file): ' +
+            miss.slice(0, 6).join(' · ') + (miss.length > 6 ? ' · +' + (miss.length - 6) + ' more' : '') +
+          '</span>'
+        : '';
+      var wall = '<span class="align-cov-wall">These are left out of the match — they are <b>not</b> scored from ' +
+        'stated positions instead. Switch to <b>Stated positions</b> to match on those.</span>';
+      if (c.pending) {
+        return '<div class="align-cov-note is-pending" data-align-cov="pending">' +
+            '<span class="align-cov-ico" aria-hidden="true">⏳</span>' +
+            '<span class="align-cov-txt"><b>Reading their formal record…</b> ' +
+              'Matching on votes and formal actions across your ' + c.total + ' issue' + (c.total === 1 ? '' : 's') + '.</span>' +
+          '</div>';
+      }
+      if (!c.covered) {
+        return '<div class="align-cov-note is-none" data-align-cov="none">' +
+            '<span class="align-cov-ico" aria-hidden="true">🏛</span>' +
+            '<span class="align-cov-txt"><b>No formal-record pattern on your issues.</b> ' +
+              'Their record on file does not read a direction on any of the ' + c.total + ' issue' +
+              (c.total === 1 ? '' : 's') + ' you picked, so there is nothing to match in this mode. ' + wall +
+            '</span>' +
+          '</div>';
+      }
+      var cls = c.sparse ? 'is-sparse' : 'is-ok';
+      var lead = (c.sparse ? '<b>Sparse coverage</b> · ' : '') +
+        '<b>' + c.covered + ' of your ' + c.total + ' issue' + (c.total === 1 ? '' : 's') + '</b>';
+      var thinNote = c.thin
+        ? (c.thin === 1 ? ' One of them rests on a <b>thin</b> pattern, which counts less.'
+                        : ' ' + c.thin + ' of them rest on <b>thin</b> patterns, which count less.')
+        : '';
+      return '<div class="align-cov-note ' + cls + '" data-align-cov="' + (c.sparse ? 'sparse' : 'ok') + '">' +
+          '<span class="align-cov-ico" aria-hidden="true">' + (c.sparse ? '⚠️' : '🏛') + '</span>' +
+          '<span class="align-cov-txt">' + lead + ' have a formal-record pattern to match against.' +
+            thinNote + ' ' + (miss.length ? wall : '') +
+            missLine +
+          '</span>' +
+        '</div>';
+    }
+    window._alignCoverageNoteHtml = _alignCoverageNoteHtml;
+
+    // What a card says in record mode when the record says nothing on the
+    // voter's issues. The alternative was returning '' — a blank space where a
+    // match used to be, which reads as "we have no opinion" when the truth is
+    // "this mode has no input here". Never a number, never a fallback.
+    function _alignModeGapBarHtml(pid) {
+      if (!_alignModeIsRecord()) return '';
+      var c = _alignRecordCoverage(pid);
+      if (!c.total || c.covered > 0) return '';
+      if (c.pending) {
+        _alignQueueConsistWarm(pid);
+        return '<div class="align-mode-gap is-pending" data-align-mode-gap="pending">' +
+            '<span aria-hidden="true">⏳</span><span>🏛 Reading their formal record…</span>' +
+          '</div>';
+      }
+      return '<div class="align-mode-gap" data-align-mode-gap="none">' +
+          '<span aria-hidden="true">🏛</span>' +
+          '<span>No formal-record pattern on your issues — nothing to match in this mode. ' +
+            _alignModeSwapHtml() +
+          '</span>' +
+        '</div>';
+    }
+    window._alignModeGapBarHtml = _alignModeGapBarHtml;
+
+    // The way back out of a dry lane. Shared so every "nothing to match here"
+    // surface offers the same escape with the same words — switching modes is
+    // the visitor's call, which is precisely why the code never makes it for them.
+    function _alignModeSwapHtml(mode) {
+      var to = (mode === 'record') ? 'record' : 'stated';
+      return '<button type="button" class="align-mode-swap" data-align-mode-swap="' + to + '"' +
+          ' onclick="event.stopPropagation();window.alignSetMatchMode(\'' + to + '\');">' +
+          'Match on ' + ALIGN_MODE_META[to].label.toLowerCase() + '</button>';
+    }
+    window._alignModeSwapHtml = _alignModeSwapHtml;
+
+    // The mode row inside the tool, plus the compact echo on the collapsed card.
+    function _alignRenderModeRow() {
+      var meta = ALIGN_MODE_META[_alignMode];
+      ['align-mode-main', 'align-mode-rel'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = _alignModeToggleHtml({ compact: (id === 'align-mode-rel') });
+      });
+      var cm = document.getElementById('align-compact-mode');
+      if (cm) {
+        cm.innerHTML = meta.ico + ' Matching on <b>' + meta.label.toLowerCase() + '</b>';
+        cm.setAttribute('data-align-mode', meta.key);
+      }
+    }
+    window._alignRenderModeRow = _alignRenderModeRow;
+
+    function _calcAlignmentScore(pid, opts) {
       if (_alignIssues.size === 0) return null;
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return null;
+      // MATCH INPUT MODE. `opts.mode` pins the lane for a caller that needs a
+      // specific one (the Say-vs-Do score always asks the stated question);
+      // otherwise the visitor's own choice decides.
+      var _recMode = _alignModeIsRecord(opts);
+      var _recMap = _recMode ? _alignRecordSideMap(pid) : null;
 
       var profile = (typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
 
@@ -1529,9 +1912,22 @@
 
         var _userIntensity = _alignMigrateLevel(_alignIntensity[issueKey] || ALIGN_DEFAULT_LEVEL);
         var _model = _alignLevelModel(_userIntensity);
-        var directPos = polMap[issueKey] || null;
+        // In record mode the stated map is not consulted at all — not as a
+        // fallback, not as a tie-breaker. The record answers or the issue is
+        // dropped (see THE WALLS above).
+        var recSig = _recMap ? (_recMap.sides[issueKey] || null) : null;
+        if (_recMode && !recSig) return;
+        var directPos = _recMode ? null : (polMap[issueKey] || null);
 
-        if (directPos) {
+        if (recSig) {
+          // The formal record's own direction on this issue, read through the
+          // SAME verdict function and the SAME 90/55/12 ladder a documented
+          // position uses — then scaled by the pattern's confidence tier, so a
+          // one-vote lean cannot weigh like a twelve-vote run.
+          var _rVerdict = (typeof window._issueVerdict === 'function') ? window._issueVerdict(_userIntensity, recSig.side) : 'partial';
+          issueScore = _rVerdict === 'match' ? 90 : _rVerdict === 'partial' ? 55 : 12;
+          issueWeight = Math.max(issueWeight, 2.6) * _model.weight * recSig.conf;
+        } else if (directPos) {
           // The candidate has a documented position on this exact issue — the most
           // authoritative signal there is. Score it straight from that stance vs. the
           // visitor's own view (_issueVerdict already folds oppose/neutral picks into
@@ -1576,11 +1972,16 @@
 
     // Per-issue version of the alignment score — same math, but it records each
     // selected issue's contribution so the Align quick-view can show a breakdown.
-    function _calcAlignmentBreakdown(pid) {
+    function _calcAlignmentBreakdown(pid, opts) {
       if (_alignIssues.size === 0) return null;
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return null;
       var profile = (typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
+      // Kept in lock-step with _calcAlignmentScore: same mode resolution, same
+      // record-side map, same early-out for an issue the record cannot answer.
+      var _recMode = _alignModeIsRecord(opts);
+      var _recMap = _recMode ? _alignRecordSideMap(pid) : null;
+      var _uncovered = [];
 
       // Same authoritative curated positions used by _calcAlignmentScore (kept in
       // lock-step), so the breakdown's per-issue scores and the headline % agree.
@@ -1681,10 +2082,22 @@
 
         var _userIntensity = _alignMigrateLevel(_alignIntensity[issueKey] || ALIGN_DEFAULT_LEVEL);
         var _model = _alignLevelModel(_userIntensity);
-        var directPos = polMap[issueKey] || null;
+        var recSig = _recMap ? (_recMap.sides[issueKey] || null) : null;
+        // An issue the record says nothing about is REPORTED, not scored: it
+        // leaves the weighted average untouched and lands in bd.uncovered, which
+        // is what the coverage note is built from.
+        if (_recMode && !recSig) {
+          _uncovered.push({ key: issueKey, label: issueDef.label, intensity: _userIntensity });
+          return;
+        }
+        var directPos = _recMode ? null : (polMap[issueKey] || null);
         var _verdict = null;
 
-        if (directPos) {
+        if (recSig) {
+          _verdict = (typeof window._issueVerdict === 'function') ? window._issueVerdict(_userIntensity, recSig.side) : 'partial';
+          issueScore = _verdict === 'match' ? 90 : _verdict === 'partial' ? 55 : 12;
+          issueWeight = Math.max(issueWeight, 2.6) * _model.weight * recSig.conf;
+        } else if (directPos) {
           // Authoritative documented position — score straight from the stance vs.
           // the visitor's view (see _calcAlignmentScore for the rationale).
           _verdict = (typeof window._issueVerdict === 'function') ? window._issueVerdict(_userIntensity, directPos.stance) : 'partial';
@@ -1715,7 +2128,14 @@
         // Stance-vs-record summary for this issue (voted vs. said), when the member's
         // votes are warm in cache — powers the consistency line in the breakdown UI.
         var _record = (typeof window._pdxRecordIssueSummary === 'function') ? window._pdxRecordIssueSummary(pid, issueKey) : null;
-        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _userIntensity, record: _record });
+        // `source` names the lane this row's side came from, and the quoted
+        // fields (stance / topic / text / direct) stay null on a record row —
+        // those are the fields every "here is what they said" surface reads, so
+        // a pattern cannot be rendered as a claim even by a caller that has not
+        // heard of modes.
+        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _userIntensity, record: _record,
+          source: recSig ? 'record' : (directPos ? 'stated' : 'inferred'),
+          pattern: recSig ? { side: recSig.side, tier: recSig.tier, tone: recSig.tone, label: recSig.label, counts: recSig.counts, judged: recSig.judged, advances: recSig.advances, opposes: recSig.opposes, conf: recSig.conf, rank: recSig.rank } : null });
       });
 
       if (totalWeight === 0) return null;
@@ -1726,7 +2146,10 @@
       // the headline % the UI shows matches the sort order. `acct`/`acctDelta` let
       // the quick-view explain how the integrity read moved the number.
       var _info = _acctMatchInfo(pid, totalScore / totalWeight);
-      return { overall: _info.adjusted, issueOverall: _info.base, acct: _info.acct, acctDelta: _info.delta, issues: perIssue };
+      return { overall: _info.adjusted, issueOverall: _info.base, acct: _info.acct, acctDelta: _info.delta, issues: perIssue,
+        mode: _recMode ? 'record' : 'stated',
+        uncovered: _uncovered,
+        coverage: _recMode ? _alignRecordCoverage(pid) : null };
     }
 
     // Aggregate the whole 6-person team into a single alignment picture:
@@ -1798,7 +2221,10 @@
 
     function _calcConsistencyScore(pid) {
       if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return null;
-      var bd = (typeof _calcAlignmentBreakdown === 'function') ? _calcAlignmentBreakdown(pid) : null;
+      // ALWAYS the stated lane: this score exists to check a record against a
+      // stated position, so it reads the stated breakdown whatever the visitor
+      // has the match set to. Say-vs-Do is byte-identical in both modes.
+      var bd = (typeof _calcAlignmentBreakdown === 'function') ? _calcAlignmentBreakdown(pid, { mode: 'stated' }) : null;
       if (!bd || !bd.issues) return null;
 
       var warm = !!(window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function'
@@ -2123,7 +2549,8 @@
             '<span style="color:#cdd9ec;">' + strong + i.label + '</span><b style="color:' + c + ';">' + i.score + '%</b>' +
           '</span>';
       }).join('');
-      return '<div class="align-drivers"><span class="align-drivers-lead">▲ Driven by</span>' + chips + '</div>';
+      var _dLead = _alignModeIsRecord() ? '▲ Record pattern agrees on' : '▲ Driven by';
+      return '<div class="align-drivers" data-align-mode="' + _alignMode + '"><span class="align-drivers-lead">' + _dLead + '</span>' + chips + '</div>';
     }
     window._alignDriverChips = _alignDriverChips;
 
@@ -2438,20 +2865,31 @@
             '<span class="align-card-chev">›</span>' +
           '</button>';
       }
+      // Record mode reads a vote pack the stated lane never needed. This is a
+      // render path, so the warm is bounded by what is actually on screen.
+      if (_alignModeIsRecord() && !_alignRecordWarm(pid)) _alignQueueConsistWarm(pid);
       var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
-      if (score === null || score === undefined) return '';
+      // No score in record mode means the record answered none of the visitor's
+      // issues — said out loud, with the way back, never as a blank.
+      if (score === null || score === undefined) return _alignModeGapBarHtml(pid);
       var col = _alignScoreColor(score);
       var label = score >= 85 ? '⭐ Best Match for You' : score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
       var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 2) : '';
-      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
+      var modeTag = _alignModeTagHtml({ compact: true });
+      var _cov = _alignModeIsRecord() ? _alignRecordCoverage(pid) : null;
+      var subLine = _cov
+        ? 'From their <b>formal record</b> on <b>' + _cov.covered + ' of your ' + _cov.total + ' issue' + (_cov.total > 1 ? 's' : '') + '</b> · tap for breakdown'
+        : 'Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown';
+      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues, matched on ' + _alignModeMeta().label.toLowerCase() + '. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
           '<span class="align-card-main">' +
             '<span class="align-card-titlerow">' +
               '<span class="align-card-title" style="color:' + col + ';">🎯 Your Match</span>' +
               '<span class="align-card-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
+              modeTag +
             '</span>' +
             '<span class="align-card-mini"><div style="width:' + score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
-            '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown</span>' +
+            '<span class="align-card-sub">' + subLine + '</span>' +
           '</span>' +
           '<span class="align-card-chev">▾</span>' +
         '</button>' + _alignConsistencyBar(pid) + drivers + _alignMatchActions(pid);
@@ -2516,7 +2954,8 @@
       // card list — not just a static number.
       var _openBd = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
       if (size === 'small') {
-        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%</button>' + _alignConsistencyBadge(pid);
+        var _mm = _alignModeMeta();
+        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues, matched on ' + _mm.label.toLowerCase() + ' — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%' + (_alignModeIsRecord() ? ' <span class="align-score-mode" aria-hidden="true">' + _mm.ico + '</span>' : '') + '</button>' + _alignConsistencyBadge(pid);
       }
 
       if (usePurpleTheme) {
@@ -3037,6 +3476,7 @@
       window._alignIssues = _alignIssues;
       _alignRenderQuickPicks();
       _alignRenderPickers();
+      _alignRenderModeRow();
       _alignUpdateStatus();
       _alignRenderProfile();
       _alignSyncBrowseChips();
