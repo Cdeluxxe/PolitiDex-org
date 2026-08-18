@@ -4562,25 +4562,47 @@
   // Tiers (a) and (b) are open; everything from (c) down folds, because "testable +
   // evidenced first" is a statement about what a reader meets, not only about sort
   // order.
+  //
+  // ONE TIER, TWO POPULATIONS — AND ONLY ONE OF THEM WAS TESTED. ROW_TIER.tested is
+  // "the engine reached a verdict", and `limited` is one of those verdicts, so a row
+  // holding a dozen mapped roll calls and NO stated position of theirs to test them
+  // against landed in tier 1 under the heading "Tested — and the record backs it up".
+  // Measured on the shipped list that was the majority of the tier on a dense member:
+  // 58 of Schumer's tier-1 rows, sorted last inside it by _VERDICT_RANK and therefore
+  // past the lead cap, behind a fold whose label promised issues the record backs up.
+  // Nothing was tested on those rows and nothing was backed up; the formal record they
+  // do hold — and the direction line this list already prints for it — read as absent.
+  //
+  // So the tier splits into two GROUPS. Same tier, same rank, same rows, same result
+  // vocabulary: what changes is which heading a reader meets them under and whether
+  // they have to open something labelled for scored issues to find them. The group is
+  // keyed on the row's already-resolved result SHAPE (_stResult(r).shape === 'no_stance'
+  // over a record that is genuinely on file) — it derives nothing, scores nothing, and
+  // these rows stay exactly as unscored as they were.
   var _ST_GRP = [
-    { tiers: [0], label: 'Tested — and the record pushes back' },
-    { tiers: [1], label: 'Tested — and the record backs it up' },
-    { tiers: [2], label: 'Stated, nothing formal has tested it yet' },
-    { tiers: [3], label: 'On the record, nothing stated' },
-    { tiers: [4], label: 'Nothing on file yet' }
+    { id: 'tension', tiers: [0], label: 'Tested — and the record pushes back' },
+    { id: 'tested',  tiers: [1], label: 'Tested — and the record backs it up',
+      fold: 'the record backs up' },
+    { id: 'held',    tiers: [1], label: 'On the formal record — no stated position yet',
+      fold: 'with a formal record and no stated position' },
+    { id: 'word',    tiers: [2], label: 'Stated, nothing formal has tested it yet' },
+    { id: 'action',  tiers: [3], label: 'On the record, nothing stated' },
+    { id: 'empty',   tiers: [4], label: 'Nothing on file yet' }
   ];
-  // A TIER SET, not a count of groups. Slicing the first two LIVE groups was wrong:
+  // A GROUP SET, not a count of groups. Slicing the first two LIVE groups was wrong:
   // on a figure with no contradictions the tension group is empty and drops out of
   // `live`, so "the first two" silently became tested + everything-untested — 24 of
   // 32 rows open on a president, which is the wall this layer exists to replace.
-  // Keying on the tier means an empty group above can never promote a folded one.
-  var _ST_OPEN_TIERS = { 0: 1, 1: 1 }; // (a) tension and (b) tested stay open
+  // Keying on the group id means an empty group above can never promote a folded one.
+  // `held` is open for the same reason `tension` is: a formal record nobody has a
+  // stated position for is a finding, and a finding one tap down is a finding missing.
+  var _ST_OPEN_GRPS = { tension: 1, tested: 1, held: 1 };
   // How many rows an OPEN group may show before the remainder folds. Six, because the
   // lead has to stay readable on a phone without scrolling past it, and because the
   // rows below the sixth in a "the record backs it up" group are the least surprising
   // thing on the page. The tension group is exempt — see blockOf.
   var _ST_LEAD_CAP = 6;
-  function _stOpen(g) { return g.tiers.some(function (t) { return _ST_OPEN_TIERS[t]; }); }
+  function _stOpen(g) { return !!_ST_OPEN_GRPS[g.id]; }
 
   // ── WHAT THE RECORD CONCLUDED, ON THE ROW ───────────────────────────────────
   // A stance row's job is to answer four questions in one glance: what they said,
@@ -4780,6 +4802,73 @@
     if (idx.suppressed && _ST_DIR_ISSUE_SILENT[idx.suppressed]) return '';
     var lbl = idx.label || '';
     return lbl ? lbl.charAt(0).toLowerCase() + lbl.slice(1) : '';
+  }
+
+  // ── WHICH GROUP A ROW BELONGS UNDER ─────────────────────────────────────────
+  // The grouping key, and the only thing that reads it is the heading a row is
+  // rendered beneath. It maps a row's TIER to a group id, with one split: tier 1
+  // holds both the rows a verdict actually tested and the rows that fell to
+  // `limited` because we hold no stated position to test their formal record
+  // against, and those two do not belong under one heading. See _ST_GRP.
+  //
+  // NOTHING HERE DERIVES ANYTHING. Both facts are read off the row's own resolved
+  // result: `shape === 'no_stance'` is _stResult's name for "no stated position on
+  // file", and `held` is r.evidence.actions, the formal inventory the row already
+  // prints. A row with no stated position AND no formal record is not a formal-record
+  // finding, so it stays where it was.
+  //
+  // `res` is that result, passed in where the caller already has it so a dense list
+  // resolves each row once instead of once per question asked about it.
+  function _stHeldRecord(r, res) {
+    if (!r || r.tier !== ROW_TIER.tested) return false;
+    res = res || _stResult(r);
+    return res.shape === 'no_stance' && (res.held || 0) > 0;
+  }
+  function _stGrpId(r, res) {
+    if (_stHeldRecord(r, res)) return 'held';
+    var t = r && r.tier;
+    return (t === ROW_TIER.tension) ? 'tension'
+      : (t === ROW_TIER.tested) ? 'tested'
+      : (t === ROW_TIER.word_only) ? 'word'
+      : (t === ROW_TIER.action_only) ? 'action' : 'empty';
+  }
+  // ── STRONGEST FIRST, INSIDE THAT ONE GROUP ──────────────────────────────────
+  // rankIssueRows() is the shared ranking contract and it is not touched: every
+  // surface still receives the same rows in the same order, and this group is still
+  // a subsequence of it. Within the group, though, the shared sort's tiebreakers
+  // (evidence volume, then salience) are the wrong ones — the rows a reader came
+  // for are the ones whose record SAID something, and a row whose index declined
+  // reads as an empty promise sitting above one that didn't.
+  //
+  // The order is the index's own confidence ladder, borrowed rather than restated:
+  // a characterised direction, then a short run that all went one way, then a split
+  // that may print both counts, then a split that may not, then a record the index
+  // looked at and called too thin, then the rows it cannot speak on at all. No
+  // percentage, no lean and no verdict is computed here — this only decides which
+  // already-rendered row is painted first.
+  var _ST_HELD_STRENGTH = {
+    record_direction: 0, record_uniform_thin: 1, record_split_deep: 2, record_split: 3
+  };
+  function _stHeldStrength(idx, r) {
+    if (idx && idx.clause && typeof _ST_HELD_STRENGTH[idx.token] === 'number') {
+      return _ST_HELD_STRENGTH[idx.token];
+    }
+    return _stDirLimit(r) ? 4 : 5;
+  }
+  // resOf(r) hands back the row's already-computed result, whose `dir` IS the index
+  // read this row printed from — so the order is taken off the rendered row rather
+  // than from a second derivation that could disagree with it.
+  function _stHeldOrder(rows, resOf) {
+    return rows.map(function (r, i) {
+      var res = (resOf && resOf(r)) || _stResult(r);
+      var idx = res.dir || null;
+      return { r: r, i: i, s: _stHeldStrength(idx, r), j: (idx && idx.judged) || 0,
+               h: (res.held || 0) };
+    }).sort(function (a, b) {
+      // Position in the shared ranking is the last tiebreaker, so a group whose rows
+      // the index says nothing about is byte-identical to the list as it shipped.
+      return (a.s - b.s) || (b.j - a.j) || (b.h - a.h) || (a.i - b.i);
+    }).map(function (o) { return o.r; });
   }
 
   // ── THE SAME FINDING, WHERE VOTERS ACTUALLY COMPARE AND CHOOSE ───────────────
@@ -5931,7 +6020,18 @@
     if (!ranked.length) return '';
     var byTier = {};
     ranked.forEach(function (r) { (byTier[r.tier] = byTier[r.tier] || []).push(r); });
-    var live = _ST_GRP.filter(function (g) { return g.tiers.some(function (t) { return (byTier[t] || []).length; }); });
+    // Grouped, not re-ranked: every row keeps the place the shared ranking gave it,
+    // and the only group whose internal order changes is `held` — see _stHeldOrder.
+    var byGrp = {}, resBy = {};
+    ranked.forEach(function (r) {
+      var res = _stResult(r);
+      resBy[r.key] = res;
+      var id = _stGrpId(r, res);
+      (byGrp[id] = byGrp[id] || []).push(r);
+    });
+    var resOf = function (r) { return resBy[r.key]; };
+    if (byGrp.held) byGrp.held = _stHeldOrder(byGrp.held, resOf);
+    var live = _ST_GRP.filter(function (g) { return (byGrp[g.id] || []).length; });
     if (!live.length) return '';
     var blockOf = function (g, cap) {
       var rows = [];
@@ -5952,42 +6052,48 @@
       // the place it got one before, and no row moves to make it true. The same
       // goes for `unjudged` — a held record and a stated position that were never
       // tested against each other is not a thin row either.
+      //
+      // THE `held` GROUP DRAWS NO DIVIDER, because its heading already is one: every
+      // row under it is that shape, and a divider repeating the heading is furniture.
+      // The divider stays for the rest of tier 1, where the populations still mix.
       var lastSub = null;
-      g.tiers.forEach(function (t) {
-        (byTier[t] || []).forEach(function (r) {
-          var html = _stRowHtml(r);
-          if (r.verdict && r.verdict.token === 'limited') {
-            var shp = _stResult(r).shape;
-            var sub = (shp === 'no_stance')
-              ? 'On the record — nothing stated to test it against'
-              : (shp === 'unjudged')
-              ? 'Stated and on the record — not yet judged against each other'
-              : (shp === 'part_judged')
-              ? 'On the record — only part of it judged against what they said'
-              : 'Too thin to judge yet';
-            if (sub !== lastSub) {
-              lastSub = sub;
-              html = '<div class="pdxst-sub">' + esc(sub) + '</div>' + html;
-            }
+      (byGrp[g.id] || []).forEach(function (r) {
+        var html = _stRowHtml(r);
+        if (g.id !== 'held' && r.verdict && r.verdict.token === 'limited') {
+          var shp = resOf(r).shape;
+          var sub = (shp === 'no_stance')
+            ? 'On the record — nothing stated to test it against'
+            : (shp === 'unjudged')
+            ? 'Stated and on the record — not yet judged against each other'
+            : (shp === 'part_judged')
+            ? 'On the record — only part of it judged against what they said'
+            : 'Too thin to judge yet';
+          if (sub !== lastSub) {
+            lastSub = sub;
+            html = '<div class="pdxst-sub">' + esc(sub) + '</div>' + html;
           }
-          rows.push(html);
-        });
+        }
+        rows.push(html);
       });
       var body = rows.join('');
       // A LEAD IS A LEAD, NOT A LIST. The open groups are tension first, then the
-      // issues the record backs up, and on a densely-seeded figure the second one
-      // grows without bound: wave 4 of the executive record took the president's
-      // tested tier to eighteen rows, and nineteen open rows is the wall this layer
-      // exists to replace. So an open group shows its first few and folds the
-      // remainder behind the same lid the closed groups already use — the rows are
-      // one tap away, and the group header still counts all of them, so nothing is
-      // hidden about how much there is. Only the backs-it-up group is capped: the
-      // tension group is the reason to read the section at all.
+      // issues the record backs up, then the formal record nothing was stated for,
+      // and on a densely-seeded figure the later ones grow without bound: wave 4 of
+      // the executive record took the president's tested tier to eighteen rows, and
+      // nineteen open rows is the wall this layer exists to replace. So an open group
+      // shows its first few and folds the remainder behind the same lid the closed
+      // groups already use — the rows are one tap away, and the group header still
+      // counts all of them, so nothing is hidden about how much there is. Every open
+      // group is capped except tension: that one is the reason to read the section.
+      //
+      // AND THE LABEL NAMES ITS OWN GROUP. "Show 52 more issues the record backs up"
+      // over a fold holding rows nothing was tested on is the same false heading this
+      // pass split the tier to remove, so the sentence comes off the group.
       if (cap && rows.length > cap + 1) {
         var over = rows.length - cap;
         body = rows.slice(0, cap).join('') +
-          '<!--PDXSP:lid id="st-open-' + g.tiers.join('-') + '" label="Show ' + over +
-          ' more issue' + (over === 1 ? '' : 's') + ' the record backs up" defer-->' +
+          '<!--PDXSP:lid id="st-open-' + g.id + '" label="Show ' + over +
+          ' more issue' + (over === 1 ? '' : 's') + ' ' + (g.fold || 'in this group') + '" defer-->' +
           rows.slice(cap).join('') + '<!--PDXSP:/lid-->';
       }
       return '<div class="pdxst-grp"><div class="pdxst-grp-h">' + esc(g.label) + ' · ' + rows.length + '</div>' + body + '</div>';
@@ -6004,14 +6110,12 @@
     // argument, which would arrive as `cap` and fold whichever group happened to sit
     // at a non-zero position.
     var lead = live.filter(_stOpen).map(function (g) {
-      return blockOf(g, g.tiers.indexOf(0) === -1 ? _ST_LEAD_CAP : 0);
+      return blockOf(g, g.id === 'tension' ? 0 : _ST_LEAD_CAP);
     }).join('');
     var restGrps = live.filter(function (g) { return !_stOpen(g); });
     var rest = '';
     if (restGrps.length) {
-      var restN = restGrps.reduce(function (n, g) {
-        return n + g.tiers.reduce(function (m, t) { return m + ((byTier[t] || []).length); }, 0);
-      }, 0);
+      var restN = restGrps.reduce(function (n, g) { return n + ((byGrp[g.id] || []).length); }, 0);
       rest = '<!--PDXSP:lid id="st-rest" label="Show ' + restN + ' more position' + (restN === 1 ? '' : 's') +
         ' with nothing to test them yet" defer-->' +
         restGrps.map(function (g) { return blockOf(g, 0); }).join('') + '<!--PDXSP:/lid-->';

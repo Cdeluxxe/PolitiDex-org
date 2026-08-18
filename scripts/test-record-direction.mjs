@@ -484,22 +484,49 @@ section("7 · the face adds up, and the count is still a door");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("8 · the divider over these rows stopped calling them thin");
+section("8 · the heading over these rows stopped calling them thin");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // These rows share the `limited` token with genuinely thin ones and sort into
   // the same tier, under one divider that said "Too thin to judge yet" — which
-  // is the exact sentence the row face stopped telling. The divider now follows
-  // the row's shape.
+  // is the exact sentence the row face stopped telling. They now carry a GROUP
+  // of their own, named for what they are, outside the fold labelled for the
+  // issues the record backs up; the shape-keyed divider stays behind for the
+  // populations still sharing the tested group.
   const html = CS.stancesSectionHtml(PID);
-  const subs = (html.match(/<div class="pdxst-sub">([^<]*)</g) || [])
+  const groups = (html.match(/<div class="pdxst-grp-h">([^<]*)</g) || [])
     .map((s) => s.replace(/^.*">/, "").replace(/<$/, ""));
-  ok(subs.length > 0, "the group still draws a divider before its unscored rows");
-  has(subs.join(" | "), "nothing stated to test it against",
-    "…and names our gap over the rows that are ours to fix");
-  // …and it is still available, unchanged, for a row that really is thin.
+  has(groups.join(" | "), "On the formal record — no stated position yet",
+    "the rows with a record and nothing stated have no group of their own");
+  // …and none of them renders under the backs-it-up heading. Measured by slicing the
+  // markup at its headings and looking for the rows themselves, so the check fails if
+  // a single row lands in the wrong block rather than only if the heading vanishes.
+  const segOf = (label) => {
+    const at = html.indexOf('pdxst-grp-h">' + label);
+    if (at === -1) return "";
+    const rest = html.slice(at);
+    const next = rest.indexOf('<div class="pdxst-grp-h">', 1);
+    return next === -1 ? rest : rest.slice(0, next);
+  };
+  const backed = segOf("Tested — and the record backs it up");
+  const heldKeys = CS.issueRows(PID).filter((r) => {
+    const res = CS.rowResult(r);
+    return r.tier === 1 && res.shape === "no_stance" && (res.held || 0) > 0;
+  }).map((r) => r.key);
+  ok(heldKeys.length > 0,
+    "the fixture holds no record-with-nothing-stated row — the check below proves nothing");
+  ok(!heldKeys.some((k) => backed.includes('data-pdxst-issue="' + k + '"')),
+    "a row with a formal record and nothing stated renders under the backs-it-up heading");
+  // The fold over them names them, rather than promising backed-up issues.
+  const held = (html.match(/id="st-open-held" label="([^"]*)"/) || [])[1];
+  if (held) has(held, "no stated position",
+    "the fold over the new group borrows the label of a scored group");
+  // …and the shape-keyed divider is still there, unchanged, for a row that
+  // really is thin.
   ok(/Too thin to judge yet/.test(R("consistency.js")),
     "the thin divider is still there for the rows it was true of");
+  ok(/pdxst-sub/.test(R("consistency.js")),
+    "the shape-keyed divider was removed rather than narrowed");
 }
 
 if (failures.length) {

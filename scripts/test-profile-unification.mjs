@@ -881,8 +881,12 @@ section("12 · stances & connections — what they stand for, ranked and connect
     // exactly (so the cap cannot quietly become a truncation of something else).
     const LEAD_CAP = Number((CS_SRC.match(/_ST_LEAD_CAP = (\d+)/) || [])[1]);
     ok(LEAD_CAP > 0, `${who}: _ST_LEAD_CAP is readable from consistency.js`);
+    // WHAT IS VISIBLE IS WHAT SITS OUTSIDE EVERY LID, not what sits before the first
+    // one: tier 1 renders as two groups now (the rows a verdict tested, and the rows
+    // holding a formal record with no stated position to test it against), so the
+    // second group's open rows come AFTER the first group's fold in document order.
     const lidAt = st.indexOf("PDXSP:lid");
-    const openHtml = lidAt === -1 ? st : st.slice(0, lidAt);
+    const openHtml = st.replace(/<!--PDXSP:lid[\s\S]*?<!--PDXSP:\/lid-->/g, "");
     const openRows = openHtml.match(/class="pdxst-row"/g) || [];
     const openTiers = [...openHtml.matchAll(/data-pdxst-tier="(\d)"/g)].map((m) => Number(m[1]));
     ok(openTiers.every((t) => t === 0 || t === 1),
@@ -890,10 +894,17 @@ section("12 · stances & connections — what they stand for, ranked and connect
       "    must never promote a folded one into the reader's path");
     const tensionRows = CS.issueRows(pid).filter((r) => r.tier === 0).length;
     const testedRows = CS.issueRows(pid).filter((r) => r.tier === 0 || r.tier === 1).length;
-    const backedRows = testedRows - tensionRows;
+    // The tier-1 split, read off the row's own resolved result — no stated position,
+    // over a formal record that is genuinely on file.
+    const heldRows = CS.issueRows(pid).filter((r) => {
+      if (r.tier !== 1) return false;
+      const res = CS.rowResult(r);
+      return res.shape === "no_stance" && (res.held || 0) > 0;
+    }).length;
+    const backedRows = testedRows - tensionRows - heldRows;
     // +1 mirrors blockOf's "do not fold a single row" guard.
-    const openBacked = backedRows > LEAD_CAP + 1 ? LEAD_CAP : backedRows;
-    eq(openRows.length, tensionRows + openBacked,
+    const capped = (n) => (n > LEAD_CAP + 1 ? LEAD_CAP : n);
+    eq(openRows.length, tensionRows + capped(backedRows) + capped(heldRows),
       `${who}: the open stance rows are not the tested ones capped at ${LEAD_CAP}`);
     if (rows > testedRows) ok(lidAt !== -1, `${who}: the untested positions do not fold`);
   }
