@@ -2492,9 +2492,69 @@ window.PDXLazy = (function () {
        makes the inset part of the height the measurement below reports. */
     #pdx-topnav { padding-top: env(safe-area-inset-top, 0px); }
 
-    /* The hero's own clearance. Desktop is unchanged (this is what pt-32 was),
-       stated as chrome + air so it cannot drift out of step again. */
-    #hero { padding-top: calc(var(--pdx-chrome) + 1rem); }
+    /* NOTHING GHOSTS THROUGH THE BAR ON A PHONE, FROM THE FIRST PAINT.
+       The report describes "a large faint POLITIDEX mark behind the Eye field",
+       and there is no watermark element in this document to delete — that mark is
+       the real hero lockup, seen THROUGH the bar. The nav is `bg-navy-900/80` with
+       .nav-blur's backdrop-filter: blur(18px) saturate(160%) on top, so a pixel
+       that ends up underneath it is not hidden, it is smeared into a large, faint,
+       out-of-focus copy of itself: exactly the described ghost.
+
+       mobile-polish.css already drops the blur and tops the phone bar up to fully
+       opaque — but it is loaded `media="print" onload="this.media='all'"`, i.e.
+       deferred, so it applies only after the stylesheet swaps in. The whole first
+       paint — which is all a hard refresh shows before anything else lands — runs
+       with the translucent, blurred bar. Stating it here in the critical inline
+       stylesheet closes that window: on a phone the bar is opaque from the first
+       frame, so a clearance regression can never again render as a ghosted
+       wordmark. Identical to what mobile-polish.css says, just early enough to
+       matter; desktop keeps the blur untouched. */
+    @media (max-width: 640px) {
+      #pdx-topnav.nav-blur {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background-color: #0a0f1e;
+      }
+    }
+
+    /* THE DECORATIVE STARS ARE NOT ALLOWED IN THE CHROME'S BAND EITHER.
+       The hero's background layer is `absolute inset-0`, so it spans the section's
+       padding box — the clearance above keeps CONTENT out from under the bar and
+       says nothing about decoration. Two of the four star accents were placed at
+       `top-24` (96px) and `top-32` (128px), against chrome that is 113px at rest
+       and 113px + the safe-area inset (137-172px) on a notched phone. So the first
+       star painted under the bar on every device and the second on every notched
+       one: faint gold marks rendering behind the search field, part of the same
+       ghosting the report is describing. They are decoration, so they move rather
+       than needing space of their own — pinned below the one measured offset like
+       everything else, which also keeps them out of the way at any font scale. */
+    #hero > .absolute.inset-0 > .top-24 { top: calc(var(--pdx-chrome) + 1.5rem); }
+    #hero > .absolute.inset-0 > .top-32 { top: calc(var(--pdx-chrome) + 3.5rem); }
+
+    /* The hero's own clearance, stated as chrome + air so it cannot drift out of
+       step again.
+
+       THE AIR IS MEASURED AGAINST THE HIGHEST HERO PIXEL, NOT THE STACK'S BOX.
+       This was 1rem, and it was checked against the float keyframe: 16px of air
+       versus an 8px lift left 8px to spare, so the stack's own top edge was never
+       the problem. The problem is that the top edge of the stack is not the top
+       edge of what it renders. The first child of .hero-stack-top carries the LIVE
+       pill at `-top-2 -right-2` — top: -0.5rem — so the pill hangs 8px ABOVE the
+       box the clearance was being measured to:
+
+         resting pill top ..... chrome + 16 - 8 (overhang) = chrome +  8px
+         at the float peak ..... chrome +  8 - 8 (keyframe) = chrome +  0px
+
+       Exactly grazing the bottom edge of the search row at the top of every
+       three-second cycle — which is the "logo clipped under the bar" the report
+       describes on a layout whose static arithmetic is correct. The air now covers
+       the overhang and the keyframe and still leaves a few px visible at the peak:
+
+         8px overhang + 8px float + 4px of air = 20px = 1.25rem
+
+       Four pixels more than before on desktop, which is not a band; it is the
+       difference between grazing the bar and clearing it. */
+    #hero { padding-top: calc(var(--pdx-chrome) + 1.25rem); }
 
     /* CENTERING THAT CANNOT EAT THE PADDING. #hero is a min-h-screen column with
        justify-center. That is safe today — min-height lets the section grow, so
@@ -2527,18 +2587,37 @@ window.PDXLazy = (function () {
          badge and the POLITIDEX lockup rendered under the search bar on a phone
          at scroll 0.
 
-         THE AIR HAS TO OUTLAST THE FLOAT. This was 0.5rem, and the first child of
-         the stack is the logo badge carrying .animate-float — whose keyframe is
-         translateY(-8px) at the midpoint. 8px of animation against 8px of air
-         means the badge rises to exactly the bottom edge of the search row and
-         grazes under the blurred bar twice every three seconds, which is the
-         "cut off at the top" the report describes even on the frames where the
-         static layout is correct. 0.75rem is the float amplitude plus 4px that
-         stays visible at the peak. Four pixels is what this costs the fold
-         budget below; the wordmark itself never floats — .animate-fadeUp starts
-         30px LOW and settles, so it can only ever be further from the chrome
-         than its resting position. */
-      #hero { padding-top: calc(var(--pdx-chrome) + 0.75rem); padding-bottom: 2.5rem; }
+         THE AIR HAS TO OUTLAST THE FLOAT *AND* THE OVERHANG. This was 0.5rem,
+         then 0.75rem, and both were computed against the wrong edge. The first
+         child of the stack is the logo badge carrying .animate-float — whose
+         keyframe is translateY(-8px) at the midpoint — so 0.5rem of air meant the
+         badge box rose to exactly the bottom edge of the search row, and 0.75rem
+         left it 4px clear at the peak. That arithmetic is right about the BOX and
+         wrong about the PIXELS, because the badge is not the highest thing the
+         stack paints: the LIVE pill inside it is positioned `-top-2 -right-2`,
+         i.e. top: -0.5rem, and hangs 8px above the box every rule here was
+         measuring to.
+
+           what the old value cleared     what actually renders there
+           ---------------------------    -----------------------------------
+           badge box, resting  +12px      LIVE pill, resting          + 4px
+           badge box, at peak  + 4px      LIVE pill, at the peak      - 4px
+
+         Minus four: on a phone at scroll 0 the LIVE pill crossed under the Eye
+         row twice every three seconds, and the badge and the POLITIDEX lockup
+         below it read as clipped even on the frames where they were not — the bar
+         is `bg-navy-900/80` + blur(18px) until mobile-polish.css lands, so a pixel
+         four deep under it does not disappear, it ghosts.
+
+         The air is now the whole distance the highest hero pixel can travel
+         toward the chrome, plus air that survives the trip:
+
+           8px overhang + 8px float amplitude + 4px visible = 20px = 1.25rem
+
+         Eight pixels is what this costs the fold budget below; the wordmark
+         itself never floats — .animate-fadeUp starts 30px LOW and settles, so it
+         can only ever be further from the chrome than its resting position. */
+      #hero { padding-top: calc(var(--pdx-chrome) + 1.25rem); padding-bottom: 2.5rem; }
       /* THE VIEWPORT THE READER ACTUALLY HAS AT SCROLL 0. `min-h-screen` is
          100vh, and on iOS/Android 100vh is the LARGE viewport — the height the
          page gets once the URL bar has retracted, which is not the height it has
@@ -2593,8 +2672,19 @@ window.PDXLazy = (function () {
          under the search bar, it is a reason to spend less on decoration below.
          The badge going is what buys the space back (it was meant to go here all
          along; the rule that hid it was one of the ones keyed on `.mb-8`), and
-         the lockup inherits the auto margin the badge was carrying. */
-      #hero { padding-top: calc(var(--pdx-chrome) + 0.25rem); }
+         the lockup inherits the auto margin the badge was carrying.
+
+         The air is smaller here than in the block above and that is correct, not
+         an oversight: the two things that made 1.25rem the right number there —
+         the LIVE pill's 8px overhang and the badge's 8px float — both belong to
+         .hero-stack-top, and .hero-stack-top is display:none on this screen. What
+         is left at the top of the stack is the POLITIDEX lockup, whose only
+         animation (fadeUp) starts 30px BELOW its resting position, so it can never
+         travel toward the chrome at all. 0.25rem of air, though, was a hairline:
+         the wordmark carries drop-shadow(0 2px 6px) and the row it sits under
+         closes with a 1px rule, so four pixels read as touching. 0.5rem is real
+         air under the tightest fold budget in the app, for four pixels. */
+      #hero { padding-top: calc(var(--pdx-chrome) + 0.5rem); }
       #hero > .hero-stack-top { display: none; }
       #hero > .hero-brand { margin-top: auto; margin-bottom: .5rem; }
       #hero h1 > span:nth-child(1) { margin-bottom: .35rem; }

@@ -558,13 +558,28 @@ const run = async () => {
      "are still in place");
 
   // Desktop must not have regressed: the svh sizing and the trimmed hero stack
-  // are phone-scoped, and the desktop clearance is still chrome + 1rem.
+  // are phone-scoped, and the desktop clearance is still chrome + a few px of air.
+  //
+  // THIS PINNED 1rem, WHICH WAS pt-32's VALUE AND NOT A CLEARANCE. It is now
+  // 1.25rem, and the extra 4px is a correction rather than drift: the highest
+  // pixel the hero paints is not the top of .hero-stack-top but the LIVE pill
+  // inside it, positioned -top-2 (8px above that box), and the stack then floats
+  // 8px up. 16px of air minus 16px of travel is exactly zero — the pill grazed the
+  // bottom edge of the search row at the top of every cycle on desktop too. The
+  // geometry is modelled properly in scripts/test-mobile-hero-clearance.mjs, which
+  // owns the floor; this stays as the "no band, no drift" bound, stated as a range
+  // so a correction can land without a literal here having to be remembered.
   const css = stripCss(HTML);
   const svhBlock = css.match(/@media\s*\(\s*max-width:\s*639px\s*\)\s*\{[\s\S]*?#hero\s*\{[^}]*min-height\s*:\s*100svh/);
   ok(!!svhBlock,
      "no desktop regression: the small-viewport hero sizing is inside the phone media query only");
-  ok(/#hero\s*\{\s*padding-top\s*:\s*calc\(\s*var\(\s*--pdx-chrome\s*\)\s*\+\s*1rem\s*\)/.test(css),
-     "no desktop regression: the desktop hero clearance is chrome + 1rem, which is what pt-32 resolved to");
+  const deskAir = css.match(/#hero\s*\{\s*padding-top\s*:\s*calc\(\s*var\(\s*--pdx-chrome\s*\)\s*\+\s*([\d.]+)rem\s*\)/);
+  must(deskAir, "the desktop #hero clearance is no longer stated as calc(var(--pdx-chrome) + Nrem)");
+  const deskPx = parseFloat(deskAir[1]) * 16;
+  ok(deskPx >= 20 && deskPx <= 32,
+     "no desktop regression: the desktop hero clearance is chrome + " + deskPx + "px. Below 20px the " +
+     "LIVE pill's 8px overhang plus the badge's 8px float reaches the search row; above 32px it is an " +
+     "empty band under the bar on every desktop screen.");
 }
 
 
