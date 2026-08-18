@@ -2759,6 +2759,536 @@
     });
   }
 
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE WHOLE-PERSON CARD  ·  words vs formal record, counted across issues
+  // ──────────────────────────────────────────────────────────────────────────
+  // Every card above this line is about ONE thing: one vote, or one issue's
+  // record. That is the right shape for evidence and the wrong shape for the
+  // question a reader actually arrives with, which is about a PERSON — do this
+  // member's stated positions line up with what their formal record did, or not.
+  // Answering it by sharing four single-issue cards asks the reader to do the
+  // arithmetic and to trust that the four were not cherry-picked. This card does
+  // the arithmetic in the open and states how many issues it covered.
+  //
+  // WHAT IT CLAIMS. Three counts and nothing else:
+  //   "Compared 9 stated positions to the voting pattern —
+  //    ✓ 5 backed by the record · ✕ 3 cut the other way · ◑ 1 split"
+  // Each of those 9 is an issue where BOTH halves exist and both have a pole:
+  // a stated position that says support or oppose, and a formal-record pattern
+  // the pattern engine reads at Strongly, Mostly or Split. That is the whole
+  // comparable-issue rule, and it is deliberately narrow in both directions.
+  //
+  // WHAT IT IS NOT, and where each wall is:
+  //   · NOT A SECOND SCORE. No percentage, no ratio, no "agreement rate" — the
+  //     counts print as counts, and wrPublicBlock() below refuses the card if a
+  //     proportion appears anywhere a reader can see, the same tripwire the
+  //     record-direction card is held to. ⚖️ Direction Match is the app's one
+  //     headline figure about a person; a second figure sitting beside it would
+  //     be read as a rival for it no matter what the label said.
+  //   · NOT DIRECTION MATCH, and it cannot touch it. Nothing here writes: this
+  //     lane is three READS — positionMapFor (the memoised stated-position map),
+  //     window._pdxRecordDirection and window._recordPatternTier — which are the
+  //     identical two engine functions the Formal Pattern Index rows are built
+  //     from, so the counts on this card and the tiers on that index cannot
+  //     disagree. No tier is written into a position map, and the say-vs-do feed
+  //     (cardsFor / publicCardsFor / audit) is not called and not changed.
+  //   · NOT BUILT ON THIN RECORD. A 1–3 vote lean reads "Thin supports" on the
+  //     index and it is a true thing to show there, next to its own count, on a
+  //     page. It is not a thing to count in a headline total that a stranger
+  //     sees with no page around it, so thin rows are EXCLUDED from all three
+  //     counts and disclosed as a sentence instead: "3 more issues had too
+  //     little record to read." A number and a tick would file our own coverage
+  //     gap as one of their positions.
+  //   · NOT A SIDE WE INVENTED. A stated position of "mixed" has no pole, an
+  //     issue with no directional pole gets no tier at all (the pattern engine
+  //     returns null for those), and a directional tier whose tone is neither
+  //     support nor oppose is dropped rather than guessed at.
+  //   · NO PUBLIC-LANE RECEIPTS. The record read here is the formal record —
+  //     votes and formal actions on file. Nothing from the public lane (rallies,
+  //     statements, endorsements) is counted, because the card's own footer says
+  //     "formal record only" and that sentence has to be true.
+  //   · NO PARTY FRAMING. Enforced on the composed copy, like everywhere else.
+  //
+  // FAIL CLOSED. Under WR_MIN_COMPARABLE comparable issues there is no card at
+  // all — not a card with a smaller number on it. Three issues is not a pattern
+  // in a person, it is three issues, and the honest artefact for that is the
+  // single-issue cards that already exist.
+  // ══════════════════════════════════════════════════════════════════════════
+  var WR_ORIGIN = 'word_record_pattern';
+
+  // The stamp. Its own key and its own class: a downstream reader switching on
+  // verdict.key must not be able to confuse a whole-person count with a verdict
+  // about one vote ('contradicts'), or with the record-direction card's
+  // 'record_direction'. "VERDICT" is also the wrong kicker over a tally, so the
+  // card supplies its own.
+  var WR_VERDICT = {
+    key: 'word_record', cls: 'v-word-record', ico: '🏛',
+    label: 'Words vs Formal Record', rank: 1
+  };
+  var WR_KICKER = 'RECORD CHECK';
+
+  // The floor, as asked for. Four is where the three counts stop being a list of
+  // issues and start being a shape — and it is the same number the pattern
+  // engine uses for its own minimum judged pool, so a reader who reaches the
+  // index behind this card finds it built on the same threshold.
+  var WR_MIN_COMPARABLE = 4;
+
+  // THE DISCLOSURE, verbatim, checked by equality below rather than by pattern —
+  // for the same reason RD_NOTE is: an exception carved into a denylist is a
+  // hole, and fixed text compared exactly cannot be softened, extended or
+  // dropped. Three claims, because a reader needs all three: which record was
+  // read, which score this is not, and what a "pattern" is.
+  var WR_FOOT = 'Formal record only. Not Direction Match. Pattern is what the votes did, ' +
+    'not a quoted speech.';
+
+  var WR_HASH = 'wordrecord';
+  var WR_NOUN = { one: 'vote', many: 'votes' };
+  // A stated position may only enter the tally if it names a pole. `mixed` does
+  // not, and neither does an absent one.
+  var WR_STANCE_DIR = { support: 1, oppose: -1 };
+  // The pattern engine's tone, as a pole. 'mixed' (a split) and 'muted' (no
+  // pattern) are absent on purpose: they are not sides, so they cannot be
+  // compared to one.
+  var WR_TONE_DIR = { support: 1, oppose: -1 };
+  // Which pattern is the better example when two rows disagree equally loudly.
+  var WR_TIER_RANK = { strong: 0, mostly: 1, split: 2 };
+  var WR_SHAPE_LABEL = {
+    backed: 'backed by the record',
+    against: 'cut the other way',
+    split: 'split'
+  };
+
+  // The word the card uses for a stated position. Lower case and present tense
+  // because it sits inside a sentence — "says supports, record strongly opposes"
+  // — not at the head of a block.
+  function wrSaysWord(stance) { return stance === 'oppose' ? 'opposes' : 'supports'; }
+
+  // ── One row per comparable issue ──────────────────────────────────────────
+  // The rows are the card. Everything below counts them, sorts them or writes a
+  // sentence about them; nothing below re-derives a direction.
+  //
+  // Enumerated off the member's own warm record so an issue with a stated
+  // position and no record at all never appears — there is nothing to compare it
+  // to, and a row of "no record on file" in a tally of positions would read as a
+  // finding about the person rather than about our coverage.
+  function wrRows(pid) {
+    pid = canonPid(pid);
+    var out = [];
+    if (!pid) return out;
+    if (typeof window._pdxRecordDirection !== 'function') return out;
+    if (typeof window._recordPatternTier !== 'function') return out;
+    var records = recordsFor(pid);
+    if (!records || !records.length) return out;
+    var pm = positionMapFor(pid);
+    if (!pm) return out;
+
+    var keys = {};
+    records.forEach(function (it) {
+      if (!it || !Array.isArray(it.issues)) return;
+      it.issues.forEach(function (m) { if (m && m.issueKey) keys[m.issueKey] = 1; });
+    });
+
+    Object.keys(keys).forEach(function (key) {
+      var said = pm[key];
+      // HALF ONE: a real stated position, with a pole. This is a READ of the
+      // memoised position map — the same object Direction Match reads — and
+      // nothing in this lane writes to it.
+      var dir = said ? WR_STANCE_DIR[said.stance] : 0;
+      if (!dir) return;
+
+      var meta = issueMeta(key);
+      // HALF TWO: the formal-record pattern, from the engine the Formal Pattern
+      // Index rows are built from. Not a second reading of the votes.
+      var idx = null, pat = null;
+      try {
+        idx = window._pdxRecordDirection(pid, key, {
+          noun: WR_NOUN, label: (meta && meta.label) || ''
+        });
+        pat = window._recordPatternTier(idx, { noun: WR_NOUN });
+      } catch (e) { return; }
+      // null means the ISSUE has no directional pole (a balance key, an unmapped
+      // key) or there is nothing on file. Either way there is no pattern to
+      // compare, and the engine has already decided that — this lane does not
+      // get a second opinion.
+      if (!pat) return;
+
+      var shape;
+      if (pat.tier === 'split') {
+        shape = 'split';
+      } else if (pat.tier === 'strong' || pat.tier === 'mostly') {
+        var pd = WR_TONE_DIR[pat.tone];
+        if (!pd) return;                 // directional tier, no pole: invent nothing
+        shape = (pd === dir) ? 'backed' : 'against';
+      } else if (pat.tier === 'thin') {
+        shape = 'thin';                  // disclosed, never counted
+      } else {
+        shape = 'unread';                // 'none' — no clear pattern yet
+      }
+
+      out.push({
+        pid: pid, key: key, shape: shape,
+        label: (meta && meta.label) || String(key),
+        stance: said.stance, saidText: said.text || said.topic || '',
+        saidSource: (said.source && said.source.url) || said.source || '',
+        tier: pat.tier, tone: pat.tone, patLabel: pat.label,
+        judged: pat.judged, advances: pat.advances, opposes: pat.opposes,
+        counted: !!(idx && idx.counted), token: pat.token
+      });
+    });
+
+    // Deepest first, then alphabetical — a stable order so the same member's
+    // card is the same card twice, and so the example search below meets the
+    // best-evidenced rows first.
+    out.sort(function (a, b) {
+      if (b.judged !== a.judged) return b.judged - a.judged;
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    });
+    return out;
+  }
+
+  // The three counts, plus what was left out of them. `compared` is the sum of
+  // the three and nothing else — the excluded rows are counted separately so the
+  // sentence about them can be written from a number rather than from a guess.
+  function wrTally(pid) {
+    var rows = wrRows(pid);
+    var t = { rows: rows, compared: 0, backed: 0, against: 0, split: 0, thin: 0, unread: 0 };
+    rows.forEach(function (r) {
+      if (r.shape === 'backed') { t.backed++; t.compared++; }
+      else if (r.shape === 'against') { t.against++; t.compared++; }
+      else if (r.shape === 'split') { t.split++; t.compared++; }
+      else if (r.shape === 'thin') t.thin++;
+      else t.unread++;
+    });
+    return t;
+  }
+
+  // What the counts left out, in one sentence or none. Thin and unread are named
+  // separately because they are different facts: one is "we hold 1–3 votes here",
+  // the other is "we hold votes and they do not form a pattern". Both are
+  // statements about the record we have, so neither gets a tick or a number in
+  // the tally above.
+  function wrExcludedNote(t) {
+    var bits = [];
+    if (t.thin) {
+      bits.push(t.thin + ' more ' + (t.thin === 1 ? 'issue had' : 'issues had') +
+        ' too little record to read');
+    }
+    if (t.unread) {
+      bits.push(t.unread + ' had no clear pattern yet');
+    }
+    if (!bits.length) return '';
+    return 'Not counted: ' + bits.join('; ') + '.';
+  }
+
+  // ── The circularity check, for the example line only ──────────────────────
+  // A "stated position" whose only evidence IS a vote makes a say-vs-record
+  // comparison against itself: of course the record backs it, the record is
+  // where the position came from. That is a weak COUNT and a dishonest EXAMPLE,
+  // and the difference matters — a count is one of nine, while an example is the
+  // one row a stranger will actually read and check. So a circular row stays in
+  // the counts (dropping it would silently shrink a total nobody can audit) and
+  // is never promoted to the example line.
+  //
+  // Cheap on purpose: three tests, run on the two or three candidate rows the
+  // sort below reaches, never on the whole set.
+  var WR_LEGIS_SRC_RE = /clerk\.house\.gov|senate\.gov\/legislative|congress\.gov\/(?:bill|amendment)|rollcall|roll_?call/i;
+  var WR_MEASURE_RE = /\b(?:H\.?R\.?|S\.?|H\.?J\.?Res\.?|S\.?J\.?Res\.?|H\.?Res\.?|S\.?Res\.?|H\.?Amdt\.?|S\.?Amdt\.?)\s*\d+\b/ig;
+  function wrCircular(pid, row, records) {
+    if (!row) return false;
+    var src = String(row.saidSource || '');
+    // 1. The position is sourced to a legislative page — a roll call, a bill, an
+    //    amendment. Then it is not a statement about a bill, it IS the bill.
+    if (src && WR_LEGIS_SRC_RE.test(src)) return true;
+    // 2. The position's address is one of the addresses in the record we counted.
+    if (src) {
+      var items = records || recordsFor(pid) || [];
+      for (var i = 0; i < items.length; i++) {
+        var u = items[i] && items[i].source && items[i].source.url;
+        if (u && sameAddress(src, u)) return true;
+      }
+    }
+    // 3. The position's own text names a measure. "Voted for H.R. 5376" is a
+    //    vote wearing a stance's clothes.
+    var txt = String(row.saidText || '');
+    WR_MEASURE_RE.lastIndex = 0;
+    if (WR_MEASURE_RE.test(txt)) return true;
+    return false;
+  }
+
+  // ── The one optional example ──────────────────────────────────────────────
+  // ONE, because two is a list and a list is a case being made. The discrepancy
+  // leads when there is an honest one, because that is the finding a reader
+  // cannot get from the counts alone; where there is no discrepancy the card
+  // says so by showing its strongest AGREEMENT rather than by manufacturing a
+  // gap out of a split or a thin row.
+  //
+  // Returns null freely. A card with three counts and no example is complete;
+  // a card with an example we had to reach for is not.
+  function wrExample(pid, t) {
+    var records = recordsFor(pid) || [];
+    var pick = function (shape) {
+      var pool = t.rows.filter(function (r) { return r.shape === shape; });
+      pool.sort(function (a, b) {
+        var ra = WR_TIER_RANK[a.tier], rb = WR_TIER_RANK[b.tier];
+        if (ra !== rb) return ra - rb;
+        if (b.judged !== a.judged) return b.judged - a.judged;
+        return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+      });
+      for (var i = 0; i < pool.length; i++) {
+        if (!wrCircular(pid, pool[i], records)) return pool[i];
+      }
+      return null;
+    };
+    // A split is neither a gap nor an agreement, so it is never the example: the
+    // ◑ count already says it happened, and a sentence about it would have to
+    // name a direction the pattern engine explicitly refused to name.
+    var row = pick('against');
+    var lead = 'Biggest gap';
+    if (!row) { row = pick('backed'); lead = 'Strongest agreement'; }
+    if (!row) return null;
+    return {
+      lead: lead,
+      // "says supports, record strongly opposes" — the two halves, in the two
+      // vocabularies they belong to. `patLabel` is the pattern engine's own
+      // label, lower-cased to sit inside the sentence, never reworded.
+      text: row.label + ' — says ' + wrSaysWord(row.stance) +
+        ', record ' + String(row.patLabel || '').toLowerCase(),
+      key: row.key, shape: row.shape
+    };
+  }
+
+  // Where the card sends a reader: this member's own record page. Never an issue
+  // address, because the card never named one issue — the example line names an
+  // issue in words, and if it is ever made tappable it will carry its own link.
+  function wrPageUrl(pid) {
+    try {
+      if (window.PDXShareLinks && typeof window.PDXShareLinks.wordrecord === 'function') {
+        var u = window.PDXShareLinks.wordrecord(pid);
+        if (u) return u;
+      }
+    } catch (e) {}
+    return 'https://politidex.fyi/#' + WR_HASH + '=' + encodeURIComponent(pid);
+  }
+
+  // ── The card ──────────────────────────────────────────────────────────────
+  // Built by hand rather than through baseCard(), and this is the one place in
+  // the file where that is right: baseCard's whole signature is (pid, item,
+  // issueKey, stance, verdict) — one cited item, one issue, one stance — and
+  // this card has none of the three. Passing it a representative item would
+  // print that item's bill title, chamber, result and date on a card whose
+  // finding covers nine issues, which is the single most misleading thing this
+  // artefact could do. So it shares baseCard's IDENTITY rules and its
+  // fail-closed footer rule, and carries no measure block at all.
+  function wordRecordCard(pid) {
+    pid = canonPid(pid);
+    if (!pid) return null;
+    var t = wrTally(pid);
+    // FAIL CLOSED. Not a smaller card — no card.
+    if (t.compared < WR_MIN_COMPARABLE) return null;
+
+    var d = polRec(pid);
+    var name = (d && d.name) || prettyName(pid);
+    var sub = d
+      ? [d.office, d.district, d.state].map(function (x) { return String(x == null ? '' : x).trim(); })
+          .filter(Boolean).join(' · ')
+      : '';
+    var photo = '';
+    try { if (typeof window._getPhotoUrl === 'function') photo = window._getPhotoUrl(pid) || ''; } catch (e) {}
+
+    var page = wrPageUrl(pid);
+    var verify = printableUrl(page);
+    if (!verify || verify.length > VERIFY_MAX) return null;   // fail closed, as everywhere
+
+    return {
+      // identity
+      pid: pid, name: name, sub: sub,
+      // NO PARTY CHIP. Every other card carries one and this one must not: a
+      // count of one person's words against their own record is not a fact about
+      // a party, and a coloured party ring around a tally invites exactly the
+      // reading the hard walls forbid. The renderer already falls back to a
+      // neutral ring when `party` is absent.
+      party: null,
+      photo: photo, hasOffice: !!(d && (d.office || d.district)),
+      // NO ISSUE CHIP, for the same reason there is no measure block: the card
+      // covers every comparable issue, so naming one at the top would be a claim
+      // about scope that the counts underneath contradict.
+      issueKey: '', issue: null,
+      // NO SAID BLOCK. There is no single stated position on this card; there
+      // are N of them, and the tally is how they are reported.
+      said: null, saidLabel: '', saidNote: '',
+      recordLabel: 'WORDS VS FORMAL RECORD',
+      // The one sentence above the counts. Says what was compared and how many —
+      // so the three numbers below are read against a denominator the reader was
+      // given rather than one they have to assume.
+      headline: 'Compared ' + t.compared + ' stated ' +
+        (t.compared === 1 ? 'position' : 'positions') + ' to the voting pattern',
+      // The counts, as counts. Three rows and no fourth — see the renderer.
+      tally: {
+        compared: t.compared, backed: t.backed, against: t.against, split: t.split,
+        thin: t.thin, unread: t.unread,
+        backedLabel: WR_SHAPE_LABEL.backed,
+        againstLabel: WR_SHAPE_LABEL.against,
+        splitLabel: WR_SHAPE_LABEL.split,
+        note: wrExcludedNote(t),
+        example: wrExample(pid, t)
+      },
+      // No measure block, and said so in the fields rather than left undefined:
+      // the renderer skips an empty fact block, and an explicit empty is a
+      // statement that this card has no measure to cite.
+      facts: '', factParts: [], factProtected: false,
+      why: '', date: '',
+      source: { url: page, label: 'the official record' },
+      // renderer hints
+      category: 'official_record',
+      impact: t.against > t.backed ? 'negative' : 'positive',
+      verdict: WR_VERDICT,
+      stampKicker: WR_KICKER,
+      verifyUrl: verify,
+      footNote: WR_FOOT,
+      method: 'HOW THIS IS JUDGED: ' + METHOD_URL,
+      // Provenance. `origin` is what keeps this artefact identifiable
+      // downstream: nothing carrying it may be counted into a Say-vs-Do score or
+      // into Direction Match.
+      origin: WR_ORIGIN,
+      rows: t.rows.map(function (r) {
+        return { key: r.key, label: r.label, shape: r.shape, stance: r.stance,
+                 tier: r.tier, judged: r.judged };
+      }),
+      hash: '#' + WR_HASH + '=' + encodeURIComponent(pid),
+      score: 0
+    };
+  }
+
+  // ── The public gate for this lane ─────────────────────────────────────────
+  // Same job as rdPublicBlock: the guards are asked of the FINISHED card, on the
+  // text a reader will actually see, so a future edit that reworded a sentence
+  // cannot slip past a check written against the old wording. Returns '' when
+  // the card may leave the app.
+  function wrComposed(card) {
+    var t = card.tally || {};
+    return [card.recordLabel, card.headline, t.backedLabel, t.againstLabel, t.splitLabel,
+            t.note, t.example && t.example.lead, t.example && t.example.text,
+            card.footNote, card.verdict && card.verdict.label]
+      .filter(Boolean).join(' · ');
+  }
+  function wrPublicBlock(card) {
+    if (!card) return 'no card';
+    if (card.origin !== WR_ORIGIN) return 'not a words-vs-record card';
+    var t = card.tally;
+    if (!t) return 'words-vs-record card carries no tally';
+    // The floor, re-asserted on the finished card. wordRecordCard() already
+    // refused below it; this catches a card built by any other path.
+    if (t.compared < WR_MIN_COMPARABLE) {
+      return 'words-vs-record card compares fewer than ' + WR_MIN_COMPARABLE + ' issues';
+    }
+    // The three counts ARE the comparison. Re-added here so an edit that
+    // recounted them from anywhere else cannot ship.
+    if (t.backed + t.against + t.split !== t.compared) {
+      return 'words-vs-record counts do not add up to the issues compared';
+    }
+    // THIN NEVER ENTERS THE HEADLINE. Checked as arithmetic rather than as
+    // intent: every counted row is a strong, mostly or split pattern, so the
+    // number of counted rows and the number of non-thin, non-unread rows must be
+    // the same number.
+    var rows = card.rows || [];
+    var counted = 0, excluded = 0;
+    rows.forEach(function (r) {
+      if (r.shape === 'thin' || r.shape === 'unread') excluded++;
+      else counted++;
+    });
+    if (counted !== t.compared) {
+      return 'words-vs-record card counts a row that is not a comparable issue';
+    }
+    if (excluded !== t.thin + t.unread) {
+      return 'words-vs-record card mis-states how many issues it left out';
+    }
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].shape === 'thin' && rows[i].tier !== 'thin') {
+        return 'words-vs-record card mislabels a thin row';
+      }
+      if (rows[i].shape !== 'thin' && rows[i].shape !== 'unread' &&
+          !(rows[i].tier === 'strong' || rows[i].tier === 'mostly' || rows[i].tier === 'split')) {
+        return 'words-vs-record card counts a pattern the engine did not read at ' +
+          'Strongly, Mostly or Split';
+      }
+    }
+    // A stated position is required on every counted row, and it must name a
+    // pole. A row counted off a `mixed` position would be a comparison against
+    // nothing.
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].shape === 'thin' || rows[i].shape === 'unread') continue;
+      if (rows[i].stance !== 'support' && rows[i].stance !== 'oppose') {
+        return 'words-vs-record card counts a row whose stated position names no side';
+      }
+    }
+    // The example is never a split (no direction to state) and never circular.
+    if (t.example) {
+      if (t.example.shape !== 'against' && t.example.shape !== 'backed') {
+        return 'words-vs-record example is not a gap or an agreement';
+      }
+      if (wrCircular(card.pid, findRow(card.pid, t.example.key))) {
+        return 'words-vs-record example is a position sourced to the vote it is compared against';
+      }
+    }
+    // The disclosure, verbatim.
+    if (card.footNote !== WR_FOOT) {
+      return 'words-vs-record card does not carry the formal-record disclosure verbatim';
+    }
+    // A single stated position, or a single measure, on a card whose finding is a
+    // count across issues.
+    if (card.said || card.issue || (card.facts && String(card.facts).trim())) {
+      return 'words-vs-record card carries single-issue evidence on a whole-person finding';
+    }
+    // NO PARTY FRAMING, and no second score. Both asked of everything a reader
+    // can see, both the same tripwires the rest of the file is held to.
+    var text = wrComposed(card);
+    if (PARTY_FRAME_RE.test(text)) {
+      return 'words-vs-record card frames a formal record as party behaviour';
+    }
+    if (RD_PROPORTION_RE.test(text)) {
+      return 'words-vs-record card prints a proportion — the finding is counts, not a ' +
+        'second score';
+    }
+    return '';
+  }
+  // The row behind an example key, for the gate's re-check. Cheap: the tally is
+  // already built by the time anything asks.
+  function findRow(pid, key) {
+    var rows = wrRows(pid);
+    for (var i = 0; i < rows.length; i++) if (rows[i].key === key) return rows[i];
+    return null;
+  }
+
+  // The public read. Named, not folded into publicCardsFor — the say-vs-do feed's
+  // counts have to mean the same thing after this lane as before it.
+  function wordRecord(pid) {
+    var card = wordRecordCard(pid);
+    if (!card) return null;
+    return wrPublicBlock(card) ? null : card;
+  }
+  // Why a member has no card, in one sentence, for the audit and the tests.
+  function wordRecordAudit(pid) {
+    var t = wrTally(pid);
+    var card = t.compared >= WR_MIN_COMPARABLE ? wordRecordCard(pid) : null;
+    var blocked = card ? wrPublicBlock(card) : '';
+    return {
+      pid: canonPid(pid), compared: t.compared,
+      backed: t.backed, against: t.against, split: t.split,
+      thin: t.thin, unread: t.unread,
+      floor: WR_MIN_COMPARABLE,
+      built: !!card, publicEligible: !!(card && !blocked),
+      reason: !card
+        ? ('only ' + t.compared + ' comparable ' + (t.compared === 1 ? 'issue' : 'issues') +
+           ' — the floor is ' + WR_MIN_COMPARABLE)
+        : (blocked || 'public'),
+      rows: t.rows.map(function (r) {
+        return { key: r.key, label: r.label, shape: r.shape, stance: r.stance,
+                 tier: r.tier, patLabel: r.patLabel, judged: r.judged };
+      })
+    };
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // WARMING  ·  the record has to be in the sync cache before a card exists
   // ──────────────────────────────────────────────────────────────────────────
@@ -2858,6 +3388,12 @@
       ' data-pid="' + escA(opts.pid) + '"' +
       (opts.issueKey ? ' data-issue="' + escA(opts.issueKey) + '"' : '') +
       (opts.measure ? ' data-measure="' + escA(opts.measure) + '"' : '') +
+      // The whole-person slot. A flag rather than a second function because the
+      // hydrator, the click delegate, the reveal path and the fail-closed removal
+      // are all one code path already — a host surface that wants the tally asks
+      // for it here, and gets the same guards, the same warming and the same
+      // "no card, no button" behaviour as every other slot in the app.
+      (opts.whole ? ' data-pdxrc-whole="1"' : '') +
       (opts.stopKeys ? ' onkeydown="event.stopPropagation()"' : '') +
       ' aria-label="Share this Official Record card as an image">' +
       '<span class="pdxrc-ico" aria-hidden="true">🏛️</span>' +
@@ -2881,6 +3417,14 @@
     if (!pid) return null;
     var iss = btn.getAttribute('data-issue') || '';
     var num = btn.getAttribute('data-measure') || '';
+    // ── The whole-person slot, asked first and answered alone ───────────────
+    // A `whole` button means the host surface asked for the words-vs-formal-
+    // record tally, and there is no fallback: if the member does not clear the
+    // comparable-issue floor, this returns null and hydrate() removes the
+    // button. Falling through to a single-issue card would be the worst possible
+    // substitution — the reader tapped a control that promised a count across
+    // their positions and would have been handed one vote.
+    if (btn.getAttribute('data-pdxrc-whole') === '1') return wordRecord(pid);
     if (num) return publicOmnibus(pid, num);
     var list = publicCardsFor(pid, iss ? { issueKey: iss } : {});
     if (list.length) return list[0];
@@ -2904,6 +3448,30 @@
     // control cannot promise a vote-against-a-position share. It names what it
     // is instead, on the one piece of copy a reader sees before the card exists.
     var rec = card.origin === RD_ORIGIN;
+    // ── The whole-person control ────────────────────────────────────────────
+    // Returns early: every line below this point is written for a card that
+    // names a measure and an issue, and this one names neither. The control says
+    // what the card counts and how many issues it covered, because "Share this
+    // vote" over a nine-issue tally is the first place a reader would be misled
+    // and this is the only copy they see before the card exists.
+    if (card.origin === WR_ORIGIN) {
+      var n = (card.tally && card.tally.compared) || 0;
+      btn.classList.add('pdxrc-' + card.verdict.cls);
+      btn.innerHTML = '<span class="pdxrc-ico" aria-hidden="true">🏛️</span>' +
+        '<span class="pdxrc-lbl">' + escA('Share words vs record') + '</span>';
+      btn.setAttribute('title',
+        'Share how ' + card.name + '’s stated positions line up with their formal ' +
+        'record as an image — the card counts ' + n + ' ' +
+        (n === 1 ? 'issue' : 'issues') + ' where both a stated position and a ' +
+        'readable voting pattern exist, and prints the counts, one example and how ' +
+        'it was judged. Formal record only; this is not Direction Match.');
+      btn.setAttribute('aria-label',
+        'Share ' + card.name + '’s words versus their formal record as an Official ' +
+        'Record image');
+      btn.removeAttribute('data-pdxrc-pending');
+      btn.removeAttribute('hidden');
+      return;
+    }
     // What the reader is about to send, named on the control itself. The bill
     // number and the issue are the two things that make the image checkable, so
     // they are what the tooltip and the accessible name say. A split card names
@@ -3066,6 +3634,63 @@
     } catch (e) {}
   }
 
+  // ── Arrival for the whole-person card ─────────────────────────────────────
+  // `#wordrecord=<pid>` — a member id and no issue, because the card named no
+  // issue. It opens the member's profile and then their Full Stance Record
+  // overlay, which is where the formal-pattern index lives: the page-shaped
+  // version of exactly what the card counted, every row with its own pattern
+  // tier and its own count beside it. The one thing this must never do is land a
+  // reader on a single-issue dossier — a card whose finding is "9 positions
+  // compared" opening on one vote would silently narrow its own claim, which is
+  // why this shape is routed separately from `#record=<pid>~<issue>` above
+  // rather than folded into it.
+  //
+  // _pdxOpenStanceRecord writes its own `#record/<id>` hash on open, so the
+  // address bar ends up naming the surface the reader is actually looking at and
+  // the retry loop below stops on its own.
+  var _wrHashTries = 0;
+  function handleWordRecordHash(retry) {
+    var m = (location.hash || '').match(/^#wordrecord=([^~&]+)/);
+    if (!m) { _wrHashTries = 0; return; }
+    var pid = '';
+    try { pid = decodeURIComponent(m[1]); } catch (e) { pid = m[1]; }
+    if (!retry) _wrHashTries = 0;
+    var open = function () {
+      var opened = false;
+      if (typeof window.showProfile === 'function') {
+        try { window.showProfile(pid); opened = true; } catch (e) {}
+      }
+      if (typeof window._pdxOpenStanceRecord === 'function') {
+        // Deferred behind the profile so the overlay opens over a page rather
+        // than over nothing. Presentation only — the surface is the same either
+        // way.
+        setTimeout(function () {
+          try { window._pdxOpenStanceRecord(canonPid(pid) || pid); } catch (e) {}
+        }, opened ? 250 : 0);
+        opened = true;
+      }
+      return opened;
+    };
+    // The record arrives asynchronously and the index is built from it, so an
+    // arrival that beats the fetch waits rather than opening an empty overlay —
+    // the same contract handleHash() above uses.
+    if (recordsFor(canonPid(pid)) && open()) { _wrHashTries = 0; return; }
+    if (_wrHashTries === 0) { try { warm(pid); } catch (e) {} }
+    if (_wrHashTries++ < 10) { setTimeout(function () { handleWordRecordHash(true); }, 700); return; }
+    if (open()) return;
+    // Out of retries and nothing to open. Say so, rather than leaving the reader
+    // on the front page wondering what the link was for.
+    try {
+      var L = window.PDXShareLinks;
+      if (L && typeof L.notice === 'function') {
+        L.notice('pdx-wordrecord-unresolved', 'Shared record check',
+          'We couldn’t open the formal record for that link. Rather than quietly ' +
+          'show you the front page, here’s the plain answer: we couldn’t load a ' +
+          'record for “' + pid + '”.');
+      }
+    } catch (e) {}
+  }
+
   window.PDXReceiptCards = {
     // reads
     cardsFor: cardsFor,
@@ -3094,6 +3719,23 @@
     RECORD_DIRECTION_VERDICT: RD_VERDICT,
     RECORD_DIRECTION_SPLIT_LABEL: RD_SPLIT_LABEL,
     RECORD_DIRECTION_ORIGIN: RD_ORIGIN,
+    // ── The whole-person words-vs-formal-record card ──────────────────────
+    // Named entry points, for the same reason the record-direction feed has
+    // its own: this lane must not move any count taken off cardsFor /
+    // publicCardsFor / audit, and a caller that wants a tally across a
+    // person's issues asks for it by name. `wordRecord` is the public read —
+    // it applies the gate; `wordRecordCard` is the ungated build, exposed so a
+    // test can assert what the gate catches rather than only that a card
+    // passed.
+    wordRecord: wordRecord,
+    wordRecordCard: wordRecordCard,
+    wordRecordRows: wrRows,
+    wordRecordTally: wrTally,
+    wordRecordAudit: wordRecordAudit,
+    WORD_RECORD_ORIGIN: WR_ORIGIN,
+    WORD_RECORD_VERDICT: WR_VERDICT,
+    WORD_RECORD_MIN_COMPARABLE: WR_MIN_COMPARABLE,
+    WORD_RECORD_NOTE: WR_FOOT,
     // Phase 10 (digital share): the two pure text builders that decide what the
     // fact block and the issue chip actually PRINT. Exposed so the presentation
     // tests can assert on the string a reader sees rather than on the source of
@@ -3149,7 +3791,14 @@
       rdPublicBlock: rdPublicBlock,
       rdBlockIndex: rdBlockIndex,
       rdStrongest: rdStrongest,
-      rdSide: rdSide
+      rdSide: rdSide,
+      // The whole-person lane's gate and the two pure pieces it depends on, so
+      // a test can ask "would this card leave the app, and why not" directly.
+      wrPublicBlock: wrPublicBlock,
+      wrComposed: wrComposed,
+      wrCircular: wrCircular,
+      wrExcludedNote: wrExcludedNote,
+      wrFoot: WR_FOOT
     },
     VERDICTS: VERDICTS,
     ACT_VERDICT_LABELS: ACT_VERDICT_LABELS,
@@ -3180,16 +3829,19 @@
     // scripts/test-receipt-cards.mjs can assert the round trip on the real router
     // — card.hash in, openGap(pid, issue) out, same pid and same issue — instead
     // of trusting that the two halves were written to agree.
-    handleHash: handleHash
+    handleHash: handleHash,
+    handleWordRecordHash: handleWordRecordHash
   };
 
   function boot() {
     try { bindDelegate(); } catch (e) {}
     try { handleMethodHash(); } catch (e) {}
     try { handleHash(); } catch (e) {}
+    try { handleWordRecordHash(); } catch (e) {}
     window.addEventListener('hashchange', function () {
       try { handleMethodHash(); } catch (e) {}
       try { handleHash(); } catch (e) {}
+      try { handleWordRecordHash(); } catch (e) {}
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

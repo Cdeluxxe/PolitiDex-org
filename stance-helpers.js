@@ -801,10 +801,21 @@
     //   THE WALL, RESTATED WHERE IT MATTERS. These labels say supports/opposes, which
     // is stance vocabulary, and they are therefore forbidden from every place a stance
     // lives: they are never written into a position map, never counted in Direction
-    // Match or the Word-vs-Action ratio, never travel on a share card, and never
-    // outrank a stated position on a row that has one. A tier is a description of
-    // arithmetic that already happened. A stance is a claim a person made. The only
-    // thing keeping those apart is that nothing consumes this but a chip.
+    // Match or the Word-vs-Action ratio, and never outrank a stated position on a row
+    // that has one. A tier is a description of arithmetic that already happened. A
+    // stance is a claim a person made.
+    //   ONE ARTEFACT CARRIES A TIER OFF-APP, and the terms are strict. The
+    // words-vs-formal-record card in receipt-cards.js counts how many of a member's
+    // stated positions their record backed, cut against or split on, reading this
+    // function for each row — and its optional example line quotes one tier label
+    // verbatim ("says supports, record strongly opposes"). It may, because the tier
+    // is named as the RECORD's pattern on both halves of that sentence, beside the
+    // stated position it is being compared to and under a footer that says "formal
+    // record only, not Direction Match". What is still forbidden there is everything
+    // forbidden here: no tier is written back, no tier is counted into a score, and a
+    // thin tier is excluded from that card's totals outright. A tier travelling
+    // WITHOUT the stated position beside it would be a stance we invented, which is
+    // why no other card may take one.
     //   WHY THE THIN TIER EXISTS AT ALL. The index refuses to characterise one vote,
     // and that refusal is correct — one vote is not a tendency. But the count is a
     // fact, and a reader looking at an issue where their senator voted once, against,

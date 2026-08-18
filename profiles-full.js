@@ -2295,7 +2295,40 @@
             '</span>' +
             '<span class="pdx-fsr-go" aria-hidden="true">Open ↗</span>' +
           '</button>' +
+          // ── The whole-person share slot ──────────────────────────────────
+          // Emitted beside the button that opens the record, because the card it
+          // shares is a picture of exactly that record: how this politician's
+          // stated positions line up with what their formal record did, counted
+          // across every issue where both halves exist. It arrives hidden and
+          // pending; receipt-cards.js reveals it only if the member clears the
+          // comparable-issue floor and REMOVES it otherwise, so a thin profile
+          // shows no control at all rather than a control that shares a card
+          // built on three issues.
+          _pdxWordRecordShareSlot(id) +
         '</div>';
+    } catch (e) { return ''; }
+  };
+
+  // One place the slot is written, used by both surfaces below — so what the
+  // profile offers and what the Full Stance Record offers can never be two
+  // different things. Returns '' when the share module is not loaded, which is
+  // the honest answer: no module, no card, no button.
+  window._pdxWordRecordShareSlot = function (id) {
+    try {
+      var RC = window.PDXReceiptCards;
+      if (!RC || typeof RC.buttonHtml !== 'function') return '';
+      var html = RC.buttonHtml({ pid: id, whole: true, block: true, stopKeys: true });
+      if (!html) return '';
+      // The sweep runs on content that was still a string when the last one went
+      // past. Deferred to the next task rather than called inline for the same
+      // reason every other host surface defers it: this markup is not in the DOM
+      // yet.
+      try {
+        setTimeout(function () {
+          try { if (RC.hydrate) RC.hydrate(document); } catch (e) {}
+        }, 0);
+      } catch (e) {}
+      return '<div class="pdx-fsr-share">' + html + '</div>';
     } catch (e) { return ''; }
   };
 
@@ -2659,6 +2692,12 @@
             '<div class="fsrec-title">' + esc(name) + '</div>' +
             (p.office ? '<div class="fsrec-office">' + esc(p.office) + '</div>' : '') +
             headLocker +
+            // The same slot, on the surface that shows the formal-pattern index
+            // itself. Cheap: one call, the identical guards, and it is where a
+            // reader who has just read the rows would look for a way to send
+            // them. The arrival path of the card it shares lands right back
+            // here.
+            window._pdxWordRecordShareSlot(id) +
           '</div>' +
           '<button class="fsrec-x" onclick="window._pdxCloseStanceRecord()" aria-label="Close">✕</button>' +
         '</div>' +

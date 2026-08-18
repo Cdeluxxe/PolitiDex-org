@@ -558,7 +558,12 @@
   // rather than borrowing the green of "matched the words" or the red of a
   // contradiction. Institutional blue: the card is a description, not a finding
   // against anyone.
-  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa', mixed: '#fbbf24', record_direction: '#7dd3fc' };
+  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa', mixed: '#fbbf24', record_direction: '#7dd3fc',
+                 // The whole-person words-vs-record card. Its own hue on purpose: the
+                 // card is neither a verdict about one vote nor a report of one issue's
+                 // record, and a reader who has seen the other five should not read this
+                 // one as any of them at a glance.
+                 word_record: '#5eead4' };
   function accentOf(r) { return ACCENT[r.verdict.key] || '#f87171'; }
 
   function ensureFonts() {
@@ -695,6 +700,11 @@
   // fact block's 38 and the split list's 30: these are sentences, but two of them
   // have to fit above the footer alongside their labels and their addresses.
   var SIDE_LH = 32;
+  // Line height for one row of the whole-person tally. The tallest of the four
+  // because each row is a COUNT and the count is the finding — the three numbers
+  // are the only thing on that card a reader has to be able to read at thumbnail
+  // size, so they are set larger than any sentence around them.
+  var TALLY_LH = 52;
   var FACT_TIERS = {
     effect: { font: '600 29px "Barlow", sans-serif', fill: '#f5c842' },
     title:  { font: '600 29px "Barlow", sans-serif', fill: '#e8eefc' },
@@ -950,6 +960,62 @@
       ctx.fillStyle = '#ffffff';
       var headLines = wrapText(ctx, r.headline, contentW, 3);
       y = drawLines(ctx, headLines, x, y, 50) + 12;
+      // ── Optional tally block: one person, counted across issues ────────────
+      // Only the words-vs-formal-record card sets r.tally. Every other card on
+      // this canvas is about ONE thing — one vote, one issue, one stated position
+      // — and this one is about a person across all of them, so what it needs from
+      // the renderer is a shape none of the blocks above can carry: three counts,
+      // stated as counts.
+      //
+      // THREE ROWS AND NO FOURTH. There is no percentage, no ratio and no total
+      // bar, because any of those would be a second figure that could sit beside
+      // ⚖️ Direction Match and be read as a rival score. The issues that were
+      // EXCLUDED from the counts get a sentence, not a row: "too thin to read" is
+      // a statement about how much record we hold, and giving it a tick and a
+      // number would file our own coverage gap as one of their positions.
+      //
+      // ONE EXAMPLE, OR NONE. The builder decides which — and whether an honest
+      // one exists at all — because that decision needs the rows, the pattern
+      // tiers and the circularity check, none of which belong on a canvas.
+      if (r.tally) {
+        [['\u2713', r.tally.backed, r.tally.backedLabel || 'backed by the record', ACCENT.consistent],
+         ['\u2715', r.tally.against, r.tally.againstLabel || 'cut the other way', ACCENT.contradicts],
+         ['\u25D1', r.tally.split, r.tally.splitLabel || 'split', '#c4b5fd']]
+          .forEach(function (row) {
+            if (y > footTop - TALLY_LH) return;
+            ctx.font = '700 40px "Barlow Condensed", sans-serif';
+            ctx.fillStyle = row[3];
+            ctx.fillText(row[0], x, y + 2);
+            ctx.font = '700 44px "Barlow", sans-serif';
+            ctx.fillStyle = '#ffffff';
+            var nTxt = String(row[1]);
+            ctx.fillText(nTxt, x + 48, y - 2);
+            var nWide = ctx.measureText(nTxt).width;
+            ctx.font = '400 34px "Barlow", sans-serif';
+            ctx.fillStyle = '#cdd9ec';
+            ctx.fillText(row[2], x + 48 + nWide + 16, y + 4);
+            y += TALLY_LH;
+          });
+        y += 4;
+        // What the counts left out, in the builder's own words. Reserved BEFORE
+        // the example line below it, because a card that drops its own exclusion
+        // notice to make room for a highlight is overstating its coverage.
+        if (r.tally.note && y < footTop - 30) {
+          ctx.font = '600 23px "Barlow Condensed", sans-serif';
+          ctx.fillStyle = '#7596c0';
+          y = drawLines(ctx, wrapText(ctx, String(r.tally.note), contentW, 2), x, y, 27) + 12;
+        }
+        if (r.tally.example && y < footTop - 44) {
+          ctx.font = '800 22px "Barlow Condensed", sans-serif';
+          ctx.fillStyle = accent;
+          ctx.fillText(String(r.tally.example.lead || '').toUpperCase(), x, y);
+          y += 30;
+          ctx.font = '600 30px "Barlow", sans-serif';
+          ctx.fillStyle = '#e8eefc';
+          var exCap = Math.max(1, Math.min(2, Math.floor((footTop - y) / 36)));
+          y = drawLines(ctx, wrapText(ctx, String(r.tally.example.text), contentW, exCap), x, y, 36) + 10;
+        }
+      }
       // ── Optional split block: one vote, two outcomes ───────────────────────
       // Only vote-derived omnibus cards set r.split. It names the other curated
       // issues the SAME cited vote moved, and the direction it moved each of
@@ -1113,7 +1179,18 @@
       }
       ctx.font = '600 22px "Barlow Condensed", sans-serif';
       ctx.fillStyle = '#7596c0';
-      ctx.fillText('Verdict based on public record — check it yourself.', x, my);
+      // The one line under the source that says what kind of claim the card is
+      // making. "Verdict based on public record" is right for a card that reached
+      // a verdict; a card that only counted how a person's stated positions line
+      // up with their formal-record patterns has to say which record it read and
+      // which score it is NOT — so it supplies its own sentence. Wrapped to two
+      // lines rather than clipped: this is the disclosure, not a caption.
+      if (r.footNote) {
+        drawLines(ctx, wrapText(ctx, String(r.footNote), contentW, 2), x, my, 26);
+        my += 26;
+      } else {
+        ctx.fillText('Verdict based on public record — check it yourself.', x, my);
+      }
       // Method stays visible on the card, not just in the app.
       if (r.method) {
         my += 28;
@@ -1212,8 +1289,15 @@
   // other while both still take the record caption, the record source line and
   // the record post shape. A curated 🧾 Say-vs-Do receipt is unchanged.
   function isRecordCard(r) {
-    return !!(r && (r.origin === 'official_record' || r.origin === 'record_direction'));
+    return !!(r && (r.origin === 'official_record' || r.origin === 'record_direction' ||
+                    r.origin === 'word_record_pattern'));
   }
+  // The whole-person card: a count of how one person's stated positions line up
+  // with their formal-record patterns, across issues. It is an Official Record
+  // artefact (the mark, the source line and the URL rules above all apply), but it
+  // cites no single measure — so the caption and the short post it takes are its
+  // own, and everything conditional on this is text, never structure.
+  function isWordRecord(r) { return !!(r && r.origin === 'word_record_pattern'); }
   // The card that reports a record's direction and claims no stated position.
   // Everything conditional on it below is wording, never structure.
   function isRecordDirection(r) { return !!(r && r.origin === 'record_direction'); }
@@ -1403,7 +1487,76 @@
     lines.push('Check it yourself: ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL));
     return lines.join('\n');
   }
+  // ── The whole-person card's pasted text ─────────────────────────────────────
+  // recordCaption() above is built for a card that cites ONE measure: it prints a
+  // verdict, a stated position, a bill title, a chamber result and the government
+  // address that vote is read at. The words-vs-formal-record card has none of
+  // those — no measure, no single stance, no roll call — so running it through
+  // that shape would produce a caption of empty labels with a verdict noun over
+  // it. What it has instead is three counts, and the counts ARE the finding, so
+  // they lead and they travel in full.
+  //
+  // The disclosure travels with them. In the image it is a footer line; in the
+  // text half it is a line of the caption, because the caption is the half that
+  // gets quoted, screenshotted and re-posted without the pixels, and "this is the
+  // formal record, this is not Direction Match" is the sentence that stops the
+  // counts being read as our headline score for the person.
+  function wordRecordCaption(r) {
+    var t = r.tally || {};
+    var lines = [];
+    lines.push('\uD83C\uDFDB\uFE0F OFFICIAL RECORD — ' + r.name + (r.sub ? ' (' + r.sub + ')' : ''));
+    lines.push('Words vs formal record');
+    if (r.headline) lines.push(r.headline);
+    lines.push('\u2713 ' + t.backed + ' backed by the record');
+    lines.push('\u2715 ' + t.against + ' cut the other way');
+    lines.push('\u25D1 ' + t.split + ' split');
+    // The excluded issues, in the builder's own sentence. Kept adjacent to the
+    // counts rather than filed at the bottom: a reader who learns the number of
+    // comparable issues and the number we could not read at the same moment can
+    // judge the coverage; one who learns them four lines apart cannot.
+    if (t.note) lines.push(t.note);
+    if (t.example) lines.push(t.example.lead + ': ' + t.example.text);
+    if (r.footNote) lines.push(r.footNote);
+    lines.push('Source: ' + sourceLine(r));
+    lines.push('Checked on PolitiDex \u00B7 ' +
+      (receiptLink(r, '', { canonical: true }) || SHARE_URL).replace(/^https?:\/\//, ''));
+    return lines.join('\n');
+  }
+  // The short post. Same rule as the record post below: both addresses are
+  // reserved whole before any content gets a budget — the record page where the
+  // patterns are shown, and the deep link that reopens this card's own surface.
+  // What gives way under the limit is the example line, then the exclusion note,
+  // and never one of the three counts: dropping a count would change the finding,
+  // while dropping the example only makes the post less interesting.
+  function wordRecordPost(r) {
+    var t = r.tally || {};
+    var head = '\uD83C\uDFDB\uFE0F OFFICIAL RECORD — ' + r.name +
+      '\nWords vs formal record' +
+      '\n\u2713 ' + t.backed + ' backed \u00B7 \u2715 ' + t.against + ' cut against \u00B7 \u25D1 ' + t.split + ' split';
+    var deep = receiptLink(r, '', { canonical: true }) || SHARE_URL;
+    var tail = '\nCheck: ' + deep;
+    var out = head + tail;
+    // "Formal record, not Direction Match" is the disclosure, so it is tried
+    // before anything optional and in the shortest form that still says both
+    // halves of it.
+    var disc = '\nFormal record only \u2014 not Direction Match.';
+    if (out.length + disc.length <= RECORD_POST_MAX) out = head + disc + tail;
+    if (t.example) {
+      var ex = '\n' + t.example.lead + ': ' + t.example.text;
+      var withEx = out.slice(0, out.length - tail.length) + ex + tail;
+      if (withEx.length <= RECORD_POST_MAX) out = withEx;
+      else {
+        var short = '\n' + t.example.lead + ': ' +
+          trimTo(t.example.text, Math.max(40, RECORD_POST_MAX - out.length - t.example.lead.length - 3));
+        var withShort = out.slice(0, out.length - tail.length) + short + tail;
+        if (withShort.length <= RECORD_POST_MAX) out = withShort;
+      }
+    }
+    return out;
+  }
+
   function caption(r) {
+    if (isWordRecord(r)) return wordRecordCaption(r);
     if (isRecordCard(r)) return recordCaption(r);
     var lines = [];
     lines.push('🧾 ' + r.name + ' — ' + r.verdict.label.replace(' · ', ': '));
@@ -1555,6 +1708,10 @@
 
   function tweetText(r) {
     var v = r.verdict.label.replace(' · ', ': ');
+    // Branched ahead of the record post because that post is assembled out of a
+    // said line and a did line, and this card has neither: one person, no quote,
+    // no measure, three counts.
+    if (isWordRecord(r)) return wordRecordPost(r);
     if (!isRecordCard(r)) {
       return trimTo('🧾 ' + r.name + ' — ' + v + '. ' + r.headline +
         ' (source: ' + sourceLine(r) + ')', 240);
@@ -2118,7 +2275,12 @@
       : '#receipt=' + encodeURIComponent(pid) + (iss ? '~' + encodeURIComponent(iss) : '');
     // Which surface this link lands on — the Official Record gap view or the
     // Say-vs-Do lightbox — is decided above and must survive the trip.
-    var kind = /^#record=/.test(h) ? 'record' : 'receipt';
+    // Three surfaces now, and the default is the Say-vs-Do lightbox — so a new
+    // hash shape that is not named here does not fail loudly, it silently lands
+    // a whole-person record card on a single-vote receipt view. Named explicitly
+    // for that reason.
+    var kind = /^#record=/.test(h) ? 'record'
+      : /^#wordrecord=/.test(h) ? 'wordrecord' : 'receipt';
     // A hash is invisible to a server, so a pasted receipt link could only ever
     // unfurl as the generic site card. The query form carries the same (member,
     // issue) pair somewhere the edge can read it, and share-links.js turns it back

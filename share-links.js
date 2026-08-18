@@ -32,7 +32,12 @@
   // Params this module consumes. Deliberately NOT here: `p` (profiles) and
   // `issue` (Issue Spotlights), which are already server-visible and already have
   // their own boot handlers — this file must not race them.
-  var PARAMS = ['bill', 'receipt', 'record', 'rank'];
+  // `wordrecord` is a whole-person address: one member, no issue. It is listed
+  // here — and not folded into `record` — because the two open different surfaces
+  // (the formal-pattern index for the person vs one issue's gap view), and a
+  // share link that resolves to the wrong one of those is a link that changes the
+  // claim it was sent to make.
+  var PARAMS = ['bill', 'receipt', 'record', 'rank', 'wordrecord'];
 
   function param(name) {
     try { return new URLSearchParams(location.search).get(name) || ''; }
@@ -54,6 +59,14 @@
       if (!parts[0]) return '';
       return '#' + name + '=' + encodeURIComponent(parts[0]) +
         (parts[1] ? '~' + encodeURIComponent(parts[1]) : '');
+    }
+    if (name === 'wordrecord') {
+      // Member id only. Anything with an issue segment is a single-issue address
+      // wearing the wrong param name, and opening it here would land a
+      // whole-person card on one issue — so it opens nothing.
+      var pid = String(value).split('~')[0];
+      if (!pid || pid !== String(value)) return '';
+      return '#wordrecord=' + encodeURIComponent(pid);
     }
     if (name === 'rank') {
       // The ranking view keeps its extra state (sub-issue, lens, scope) in the
@@ -230,6 +243,13 @@
     record: function (pid, issueKey) {
       if (!pid) return origin() + '/';
       return origin() + '/?record=' + encodeURIComponent(pid + (issueKey ? '~' + issueKey : ''));
+    },
+    // The whole-person words-vs-formal-record card. No issue key, ever: the card
+    // is a count ACROSS issues, and an address that named one would promise a
+    // single-issue page the card never claimed to be about.
+    wordrecord: function (pid) {
+      if (!pid) return origin() + '/';
+      return origin() + '/?wordrecord=' + encodeURIComponent(pid);
     },
     rank: function (coreKey, opts) {
       if (!coreKey) return origin() + '/';
