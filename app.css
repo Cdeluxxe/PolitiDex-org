@@ -2773,6 +2773,19 @@
     .fsrec-sum-chip.is-ev { color: #bfdbfe; background: rgba(96,165,250,0.13); border-color: rgba(96,165,250,0.4); }
     .fsrec-sum-chip.is-ev b { color: #dbe9ff; }
     .fsrec-sum-chip.is-thin { color: #8aa0c0; }
+    /* 🏛 How many issues the FORMAL record touched — the count this overlay used to
+       leave out entirely, and on most officeholders the largest number in the row.
+       Institution-teal, matching the formal lane everywhere else on the site. */
+    .fsrec-sum-chip.is-formal { color: #9fdbd0; background: rgba(159,219,208,0.1); border-color: rgba(159,219,208,0.34); }
+    .fsrec-sum-chip.is-formal b { color: #cdf3ec; }
+    /* The divider between the two lists. The formal index sits above it and is the
+       longer, more complete answer; the curated cards sit below it and say so. */
+    .fsrec-curated-h { margin: 1rem 0 0.55rem; padding-top: 0.7rem; border-top: 1px solid rgba(96,165,250,0.18); }
+    .fsrec-curated-t {
+      display: block; font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem;
+      letter-spacing: 0.03em; color: #e8f0ff;
+    }
+    .fsrec-curated-s { display: block; font-size: 0.72rem; line-height: 1.45; color: #8fa6c6; margin-top: 0.15rem; }
     /* Community-discussion count — gold accent (the site's community language) and
        tappable into the comment thread. Pushed to the right end of the stat row. */
     button.fsrec-sum-chip { cursor: pointer; line-height: 1.3; }

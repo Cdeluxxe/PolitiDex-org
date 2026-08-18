@@ -2273,7 +2273,19 @@
       if (connected || rec) withEv++;
       if (!docKeys[k]) gaps++;
     });
-    return { tracked: tracked, withEvidence: withEv, gaps: gaps };
+    // HOW MANY ISSUES THE FORMAL RECORD TOUCHED. Everything above this line counts
+    // CURATED material — documented cards, connected evidence, receipt depth — and
+    // that is the whole reason a CTA promising "the complete picture" said "7 issues
+    // tracked" over a senator with sixty-four issues of roll-call votes on file. The
+    // destination now lists both; the button has to be able to say so. Read from the
+    // consistency engine's own index (memoised row model, no new work, no network),
+    // and guarded so a surface that loads before it simply keeps the old wording.
+    var formal = 0;
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (FPI && typeof FPI.count === 'function') formal = FPI.count(id) || 0;
+    } catch (e) { formal = 0; }
+    return { tracked: tracked, withEvidence: withEv, gaps: gaps, formal: formal };
   }
   window._pdxStanceRecordStats = _pdxStanceRecordStats;
 
@@ -2292,9 +2304,15 @@
       p = p || {};
       var s = _pdxStanceRecordStats(id, p);
       var jsId = _pdxEvJsId(id);
-      var label = s.tracked
-        ? ('See all ' + s.tracked + ' issues + gaps')
-        : 'See every issue + gaps';
+      // The label names the LONGER of the two lists the overlay holds, because that
+      // is the one a reader clicking "see all" is asking for. Where the formal
+      // record is the longer one it is named as the formal record — "all 64 issues"
+      // beside seven stance cards would read as a promise of 64 written positions.
+      var label = (s.formal > s.tracked)
+        ? ('See all ' + s.formal + ' issues on the record')
+        : (s.tracked
+          ? ('See all ' + s.tracked + ' issues + gaps')
+          : 'See every issue + gaps');
       return '<button type="button" class="pdx-fsr-mini" ' +
         'onclick="event.stopPropagation();window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
         'aria-label="Open the full stance record — every issue, its evidence, and what is still missing">' +

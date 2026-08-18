@@ -2272,10 +2272,17 @@
       // Thin profiles still get the button — the label simply tells the honest
       // truth that the record is in progress (and the overlay shows the gaps).
       var title = thinRecord ? 'View Full Record — still being built' : 'View Full Stance Record';
-      var statText = s.tracked
-        ? (s.tracked + ' issue' + (s.tracked === 1 ? '' : 's') + ' tracked' +
-            (s.withEvidence ? ' <span class="pdx-fsr-dot" aria-hidden="true">•</span> ' + s.withEvidence + ' with evidence' : ''))
-        : 'Every issue + honest gaps';
+      // TWO NUMBERS, EACH NAMED FOR THE LIST IT COUNTS. The formal one leads where
+      // it is larger — it is the reason this button is worth pressing on an
+      // officeholder — and the curated one follows, so neither is mistaken for the
+      // other. Where there is no formal record the line is exactly what it was.
+      var statText = (s.formal > s.tracked)
+        ? (s.formal + ' issue' + (s.formal === 1 ? '' : 's') + ' on the formal record' +
+            (s.tracked ? ' <span class="pdx-fsr-dot" aria-hidden="true">•</span> ' + s.tracked + ' with a stated position' : ''))
+        : (s.tracked
+          ? (s.tracked + ' issue' + (s.tracked === 1 ? '' : 's') + ' tracked' +
+              (s.withEvidence ? ' <span class="pdx-fsr-dot" aria-hidden="true">•</span> ' + s.withEvidence + ' with evidence' : ''))
+          : 'Every issue + honest gaps');
       return '<div class="modal-section pdx-fsr-wrap">' +
           '<button type="button" class="pdx-fsr-btn" ' +
             'onclick="window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
@@ -2327,6 +2334,31 @@
       try { if (String(location.hash || '').indexOf('#record/') === 0) history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     }
   };
+
+  // ── THE OVERLAY, WHEN THE VOTE RECORD LANDS ───────────────────────────────
+  // The formal index is built from the voting-record cache, which arrives
+  // asynchronously — a reader who opens this overlay during that fetch sees the
+  // curated list and a formal index that is empty or short, and it never fills.
+  // The engine already announces the arrival; this listens for it and rebuilds the
+  // body once, for the profile it is showing, keeping the reader's scroll position.
+  try {
+    window.addEventListener('pdx-voting-warm', function (ev) {
+      try {
+        var st = window._pdxRecordState;
+        if (!st || !st.id) return;
+        var pid = ev && ev.detail && ev.detail.pid;
+        if (pid && String(pid) !== String(st.id)) return;
+        var ov = document.getElementById('pdx-record-overlay');
+        if (!ov || ov.style.display === 'none') return;
+        var top = ov.scrollTop;
+        var pp = (window.PROFILES && window.PROFILES[st.id]) ? window.PROFILES[st.id]
+              : ((typeof CMP_DATA !== 'undefined' && CMP_DATA[st.id]) ? CMP_DATA[st.id] : {});
+        ov.innerHTML = window._pdxStanceRecordBody(st.id, pp);
+        try { ov.scrollTop = top; } catch (e2) {}
+        if (typeof window._pdxEnhanceDepthPills === 'function') window._pdxEnhanceDepthPills(ov);
+      } catch (e) {}
+    });
+  } catch (e) {}
 
   // Re-render the overlay after a sort/filter change.
   window._pdxRecordSet = function (key, val) {
@@ -2494,6 +2526,30 @@
 
     var view = (st.view === 'evidence' || st.view === 'gaps') ? st.view : 'all';
 
+    // ── THE FORMAL RECORD, IN FULL ────────────────────────────────────────────
+    // Everything above this line is CURATED: documented stance cards, the evidence
+    // map, the receipt-depth index. That is why this overlay opened at seven issues
+    // on a senator whose roll-call record runs to sixty-four — it was listing what
+    // we have written down, under a title promising what they have done.
+    //
+    // So the formal record gets its own list, built by the consistency engine from
+    // the same row model the profile's stance rows use, with the same pattern chips
+    // and the same dossier doors. It is rendered ABOVE the curated list because it
+    // is the longer and more complete answer to the question the title asks; the
+    // curated list keeps every control and every on-ramp it had, one heading down.
+    //
+    // The engine owns its own filters and re-renders itself in place, so nothing
+    // here has to know about them. It is handed this overlay's Sort state so one
+    // Sort control governs both lists rather than two disagreeing about the order.
+    var fpiHtml = '', fpiN = 0;
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (FPI) {
+        fpiN = FPI.count(id) || 0;
+        fpiHtml = FPI.html(id, { sort: (st.sort === 'az' ? 'az' : 'strength') }) || '';
+      }
+    } catch (e) { fpiHtml = ''; fpiN = 0; }
+
     // Rows actually rendered for the active Show filter, and the count shown in
     // the live result note. "Gaps only" drops every documented-stance-with-record
     // row, leaving the honest gaps + unsummarised rows the suggest cues live on.
@@ -2515,6 +2571,10 @@
         '<span class="fsrec-sum-chip"><b>' + documentedCount + '</b> documented position' + (documentedCount === 1 ? '' : 's') + '</span>' +
         '<span class="fsrec-sum-chip is-ev"><b>' + withRec + '</b> with evidence</span>' +
         '<span class="fsrec-sum-chip is-thin"><b>' + gapsCount + '</b> gap' + (gapsCount === 1 ? '' : 's') + '</span>' +
+        // The count that used to be missing from this row entirely: how many issues
+        // their FORMAL record touched, which on most officeholders is several times
+        // the number of documented cards above it.
+        (fpiN ? '<span class="fsrec-sum-chip is-formal">🏛 <b>' + fpiN + '</b> issue' + (fpiN === 1 ? '' : 's') + ' on the formal record</span>' : '') +
         (commentN
           ? '<button type="button" class="fsrec-sum-chip is-community" onclick="event.stopPropagation();window.openCommentModal&&openCommentModal(\'' + jsId + '\')" title="Read &amp; add community discussion for ' + esc(first) + '">💬 <b>' + commentN + '</b> active community discussion' + (commentN === 1 ? '' : 's') + '</button>'
           : '<span class="fsrec-sum-chip is-thin is-community">💬 <b>0</b> community discussions</span>') +
@@ -2556,20 +2616,38 @@
           'aria-label="Browse all evidence for ' + esc(first) + ' in the Evidence Locker">📂 Browse all evidence in the Locker <span aria-hidden="true">→</span></button>'
       : '';
 
+    // The heading that keeps the two lists from reading as one. Only printed when
+    // the formal index is actually above it — on a profile with no formal record
+    // the curated list is the whole surface and needs no divider.
+    var curatedHead = fpiHtml
+      ? '<div class="fsrec-curated-h"><span class="fsrec-curated-t">' +
+          '<span aria-hidden="true">📑</span> Documented positions &amp; receipts</span>' +
+          '<span class="fsrec-curated-s">' + documentedCount + ' issue' + (documentedCount === 1 ? '' : 's') +
+          ' someone has written up for ' + esc(first) + ' — their stated words, the receipts connected to ' +
+          'them, and the honest gaps. The formal record above is the longer list.</span></div>'
+      : '';
+
     var content;
-    if (!total) {
+    if (!total && !fpiHtml) {
       content = '<div class="fsrec-empty"><span aria-hidden="true">📋</span>' +
         '<p>No documented positions or evidence are on record for ' + esc(first) + ' yet. As statements, votes and receipts are verified and tagged, they’ll appear here — this view stays honest about what isn’t known.</p></div>';
+    } else if (!total) {
+      // A FORMAL RECORD AND NOTHING WRITTEN UP. Before this pass the overlay showed
+      // the empty state above over a politician with a full voting record, because
+      // "total" only ever counted curated cards. The record is the answer here.
+      content = summary + fpiHtml +
+        '<div class="fsrec-empty"><span aria-hidden="true">📋</span>' +
+        '<p>No documented positions have been written up for ' + esc(first) + ' yet — everything above is what the formal record itself did. As their stated positions are sourced and tagged, they’ll appear here beside it.</p></div>';
     } else if (!shownCount) {
       // Filter selected but nothing matches (e.g. "Gaps only" on a complete record).
-      content = summary + controls +
+      content = summary + fpiHtml + curatedHead + controls +
         '<div class="fsrec-empty"><span aria-hidden="true">✅</span>' +
         '<p>No issues match this filter. ' +
         (view === 'gaps' ? 'Every tracked issue for ' + esc(first) + ' already has a documented position with evidence.' : 'Switch back to “All” to see the full record.') +
         '</p></div>' +
         '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
     } else {
-      content = summary + controls + resultNote +
+      content = summary + fpiHtml + curatedHead + controls + resultNote +
         '<div class="fsrec-list">' + bodyHtml + '</div>' +
         '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
     }
