@@ -1878,16 +1878,78 @@
       }
       .profile-hero-photo { grid-area: photo; width: 96px; height: 118px; border-radius: 0.7rem; }
       .profile-hero-id { grid-area: id; }
+      /* The score card. The panel used to be drawn on .pdxwa-hero one level in,
+         which left it holding a ring and a single short denominator line: an
+         80px-tall box whose right-hand half was empty on every profile that had
+         a real record. Drawing it here instead means the eyebrow that names the
+         score sits INSIDE the card beside the ring, and the summary rows
+         mounted after the letterhead (see below) can attach to its bottom edge
+         as further rows of the same card rather than floating off as loose
+         strips. One headline percentage still, in the same place — the card
+         around it is simply doing work now. */
       .profile-hero-score {
         grid-area: score;
-        display: block;
+        display: grid;
+        grid-template-columns: 5rem minmax(0, 1fr);
+        column-gap: 0.7rem;
+        row-gap: 0.15rem;
+        align-items: center;
         margin-top: 0.1rem;
+        padding: 0.55rem 0.7rem;
+        background: rgba(16, 26, 46, 0.55);
+        border: 1px solid rgba(159, 180, 212, 0.18);
+        border-left: 3px solid rgba(159, 219, 208, 0.5);
+        border-radius: 0.75rem;
       }
       .profile-hero-score-lbl {
         display: block;
+        grid-column: 2; grid-row: 1; align-self: end;
         font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
         font-size: 0.58rem; letter-spacing: 0.13em; text-transform: uppercase;
-        color: #9fb4d4; margin-bottom: 0.3rem;
+        color: #9fb4d4; margin: 0;
+      }
+
+      /* ── The summary rows, attached to that card ──────────────────
+         The evidence tally and the depth/scope stack are mounted as siblings of
+         the letterhead, not inside it — deliberately, so they get the full page
+         width instead of being squeezed into a column beside the ring. That
+         stays true. What changes on a phone is only that they are drawn as
+         continuations of the card above: same fill, same side rule, no top
+         edge, and the last one that actually rendered closes the corner. The
+         reader gets one block — score, then the shape behind it, then how much
+         record was tested — instead of a card followed by two orphans.
+
+         Each host is emitted even when its builder returns nothing, so every
+         rule here is guarded on :not(:empty); an empty host keeps the base
+         `display: none` and the card closes above it. */
+      .profile-hero:has(~ .pdxwa-htally-host:not(:empty)),
+      .profile-hero:has(~ .pdxwa-hstack-host:not(:empty)) { margin-bottom: 0; }
+      .profile-hero:has(~ .pdxwa-htally-host:not(:empty)) .profile-hero-score,
+      .profile-hero:has(~ .pdxwa-hstack-host:not(:empty)) .profile-hero-score {
+        border-bottom-color: transparent;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      .pdxwa-htally-host:not(:empty),
+      .pdxwa-hstack-host:not(:empty) {
+        margin: 0;
+        padding: 0 0.7rem 0.55rem;
+        background: rgba(16, 26, 46, 0.55);
+        border: 1px solid rgba(159, 180, 212, 0.18);
+        border-top: 0;
+        border-bottom: 0;
+        border-left: 3px solid rgba(159, 219, 208, 0.5);
+      }
+      /* Whichever row is last closes the card. The stack is last in the DOM, so
+         it closes whenever it rendered; the tally closes only when the stack
+         below it came back empty. */
+      .pdxwa-hstack-host:not(:empty),
+      .pdxwa-htally-host:not(:empty):has(+ .pdxwa-hstack-host:empty) {
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.65rem;
+        border-bottom: 1px solid rgba(159, 180, 212, 0.18);
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
       }
     }
 
@@ -3790,6 +3852,73 @@
     .dd-toggle-btn.dd-active { border-radius: 0.75rem 0.75rem 0 0; border-color: rgba(159,180,212,0.3); background: rgba(30,53,96,0.7); }
     .dd-chevron { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); flex-shrink: 0; }
     .dd-toggle-btn.dd-active .dd-chevron { transform: rotate(180deg); }
+
+    /* ── Drawer headers on a phone: the title is not the shrink victim ───────
+       Every drawer header on a politician profile is the same shape — a flex row
+       holding [ title span · count pill ] on the left and the chevron on the
+       right — and on a phone all four of them (Stance at a Glance, the Deep Dive
+       drawers, the full promise breakdown, "read all N in full") were rendering
+       the title as a column of single letters:
+
+           S
+           T
+           A
+           N
+           C
+           E
+           …
+
+       The cause is two rules meeting. The phone pass further down this file sets
+       `overflow-wrap: anywhere; word-break: break-word` on #modal-body and
+       .modal-section so a long source URL can never force a horizontal scroll.
+       Both properties INHERIT, so every span inside every drawer header picks
+       them up — and `anywhere` is the one value of overflow-wrap that is defined
+       to change intrinsic sizing: it drops the element's min-content width from
+       "the longest word" to "the widest single character". (`break-word`, which
+       is what that rule wants, does not.) The count pill beside the title is
+       `white-space: nowrap`, so it is unshrinkable; the chevron is
+       flex-shrink: 0. That leaves the title as the only flexible item in the
+       row, with its shrink floor removed — so once the header's natural width
+       exceeded the body's, flexbox crushed the title to one glyph and every
+       letter wrapped onto its own line.
+
+       Two rules undo it, and neither touches content, behaviour, or the wrap
+       protection the phone pass was added for:
+
+       1. Put the min-content floor back for header text only. `break-word` still
+          breaks a word that genuinely cannot fit on a line of its own, so a long
+          section title is still safe — it simply can no longer be squeezed below
+          the width of its longest word.
+       2. Let the title/pill group WRAP rather than compress. Flexbox wraps before
+          it shrinks, so when the pair no longer fits on one line the pill drops
+          beneath the title and the title gets the row's full width. When they do
+          fit — which is most headers on most phones — nothing moves.
+
+       The button itself deliberately stays nowrap: the chevron belongs at the
+       right-hand end on the first line, not pushed onto a line of its own. */
+    @media (max-width: 768px) {
+      .dd-toggle-btn,
+      .dd-toggle-btn * {
+        overflow-wrap: break-word;
+        word-break: normal;
+      }
+      /* The title/pill group: wraps internally instead of compressing. Both
+         wrapper variants are covered — a <div> on three of the headers, a <span>
+         on the fourth — and `:not([class])` is what picks out exactly those four:
+         they are the headers laid out with an inline style attribute and no class
+         to hook, which is why they were never given wrap behaviour of their own.
+         The spine's drawer and lid headers DO have classes, and .pdxsp-dw-head
+         already declares `flex-wrap: wrap; min-width: 0` for this same reason —
+         so they are deliberately left to their own rules rather than doubled up
+         on here. The row gap between wrapped lines is the group's own inline
+         `gap: 0.5rem`, which no stylesheet rule can override and which is the
+         right figure anyway. */
+      .dd-toggle-btn > div:not([class]),
+      .dd-toggle-btn > span:not([class]) {
+        flex-wrap: wrap;
+        min-width: 0;
+      }
+    }
     .dd-inner {
       border: 1px solid rgba(159,180,212,0.18); border-top: none;
       border-radius: 0 0 0.75rem 0.75rem; overflow: hidden;

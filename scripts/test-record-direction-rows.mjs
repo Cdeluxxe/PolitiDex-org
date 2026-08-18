@@ -234,9 +234,31 @@ section("2 · nothing here reaches the score, the order or the metric");
     eq(JSON.stringify(CS.verdictTally(pid)), JSON.stringify(CSB.verdictTally(pid)),
       `${pid}: the verdict tally moved`);
   }
-  // NEVER A SORT KEY AND NEVER A FILTER KEY. Same rows, same order, both realms.
-  eq(orderOf(htmlA), orderOf(htmlB),
-    "the rows render in exactly the same order with the index live");
+  // NEVER A RANK KEY AND NEVER A FILTER KEY. The shared ranking contract —
+  // rankIssueRows(), which every surface on the profile sorts by — is byte-identical
+  // with the index live and with it gone. That is the invariant this pair protects:
+  // the index cannot promote a row past another row anywhere a rank is read.
+  for (const pid of [PID, SPID]) {
+    eq(CS.rankIssueRows(CS.issueRows(pid)).map((r) => r.key).join(","),
+       CSB.rankIssueRows(CSB.issueRows(pid)).map((r) => r.key).join(","),
+      `${pid}: the shared row ranking moved when the index was switched on`);
+  }
+  // In the RENDERED list it is a presentation order, inside one group and no further.
+  // "On the formal record — no stated position yet" paints the rows the index can
+  // characterise before the ones it cannot, which is the point of the group; so the
+  // assertion is not that no row moves but that no row moves ACROSS A HEADING — the
+  // groups appear in the same order, holding the same rows, in both realms.
+  const groupsOf = (html) => {
+    const out = [];
+    for (const seg of String(html).split(/<div class="pdxst-grp-h">/).slice(1)) {
+      const label = (seg.match(/^([^<]*)</) || [])[1] || "";
+      out.push([label, (seg.split(/<div class="pdxst-grp-h">/)[0]
+        .match(/data-pdxst-issue="[^"]*"/g) || []).slice().sort().join(",")]);
+    }
+    return JSON.stringify(out);
+  };
+  eq(groupsOf(htmlA), groupsOf(htmlB),
+    "a row changed which group heading it renders under when the index was switched on");
   eq((htmlA.match(/data-pdxst-issue=/g) || []).length,
      (htmlB.match(/data-pdxst-issue=/g) || []).length,
     "…and no row is added or filtered out by it");
@@ -390,7 +412,13 @@ section("6 · where the index declined: which declines are about their record");
     "…and never blames their record for a gap in our issue vocabulary");
   eq(bres.why, CSB.rowResult(rowOf(BALANCE, rowsB)).why,
     "…so that row's sentence is byte-identical to the pre-index product");
-  eq(chunkOf(htmlA, BALANCE), chunkOf(htmlB, BALANCE),
+  // The row's OWN markup, with the group scaffolding around it removed: a silent row
+  // sits in a different position inside its group in the two realms (see section 2),
+  // so a raw chunk comparison would be measuring which lid follows it rather than
+  // what it renders.
+  const rowMarkupOf = (html, k) =>
+    chunkOf(html, k).split(/<!--PDXSP:|<div class="pdxst-grp/)[0].replace(/(<\/div>)+$/, "");
+  eq(rowMarkupOf(htmlA, BALANCE), rowMarkupOf(htmlB, BALANCE),
     "…and so is its markup");
 
   // The empty control: a stated position, nothing formal on file. Nothing to
@@ -485,11 +513,15 @@ section("8 · the walls, read off the rendered list");
         `${pid}/${r.key}: the row's record line is not in record vocabulary`);
     }
   }
-  // The dividers name the two populations that share the `limited` token, so a
+  // The two populations that share the `limited` token each name themselves, so a
   // reader is never handed "Too thin to judge yet" over a row that just stated
-  // fourteen votes and what they did.
-  has(htmlA, "On the record — nothing stated to test it against",
+  // fourteen votes and what they did. The held-with-nothing-stated rows now say it
+  // in a GROUP HEADING of their own rather than in a divider inside the tested
+  // group — same sentence, one level up, and outside the "backs it up" fold.
+  has(htmlA, "On the formal record — no stated position yet",
     "the held-with-nothing-stated group names itself");
+  ok(new RegExp('pdxst-grp-h">On the formal record — no stated position yet · \\d+<')
+    .test(htmlA), "…as a counted heading, not as a divider inside another group");
   has(shtmlA, "not yet judged against each other",
     "…and so does the stated-and-held group");
   // Teaching, not a new glossary: the row's vocabulary is the shipped one.
@@ -497,6 +529,115 @@ section("8 · the walls, read off the rendered list");
   has(learn, "recorddirection", "the record-direction term is still taught");
   ok(!/record[_-]?direction[_-]?row/i.test(learn),
     "…and this pass added no second, row-only vocabulary to teach");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("9 · a record with nothing stated for it is its own group, not a footnote");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // The rows this whole file is about resolve to `limited`, which is a verdict, so
+  // they landed in ROW_TIER.tested under "Tested — and the record backs it up" —
+  // sorted last inside it by _VERDICT_RANK and therefore past the lead cap, behind a
+  // fold that promised issues the record backs up. Nothing was tested on them and
+  // nothing was backed up. They are a group now. What is pinned here is the group's
+  // heading, its count, that a reader meets it without opening anything, that its
+  // fold names itself, that the rows the index can characterise come first, and that
+  // every row stayed exactly as unscored and as tappable as it was.
+  const GRP = "On the formal record — no stated position yet";
+  const LEAD_CAP = Number((R("consistency.js").match(/_ST_LEAD_CAP = (\d+)/) || [])[1]);
+  must(LEAD_CAP > 0, "_ST_LEAD_CAP is no longer readable from consistency.js");
+  // Membership is read off each row's already-resolved result — no stated position,
+  // over a formal record that is genuinely on file. Nothing is re-derived here.
+  const heldRows = CS.issueRows(PID).filter((r) => {
+    const res = CS.rowResult(r);
+    return r.tier === 1 && res.shape === "no_stance" && (res.held || 0) > 0;
+  });
+  must(heldRows.length >= 3,
+    "the fixture no longer seeds a group's worth of held-with-nothing-stated rows");
+  const segOf = (html, label) => {
+    const at = String(html).indexOf('pdxst-grp-h">' + label);
+    if (at === -1) return "";
+    const rest = String(html).slice(at);
+    const next = rest.indexOf('<div class="pdxst-grp-h">', 1);
+    return next === -1 ? rest : rest.slice(0, next);
+  };
+  const seg = segOf(htmlA, GRP);
+  must(seg, "the group is missing from the rendered list");
+  eq((seg.match(/data-pdxst-issue="/g) || []).length, heldRows.length,
+    "the group does not hold exactly the rows that belong to it");
+  has(seg, GRP + " · " + heldRows.length, "the heading does not count its own rows");
+  // NOT UNDER A SCORED HEADING. The tested group keeps the rows a verdict tested.
+  const backed = segOf(htmlA, "Tested — and the record backs it up");
+  ok(!heldRows.some((r) => backed.includes('data-pdxst-issue="' + r.key + '"')),
+    "a row with a formal record and nothing stated renders under the backs-it-up heading");
+  // MET, NOT SOUGHT. Everything outside every lid is what a reader sees with nothing
+  // opened — this group, at this size, has to be entirely in there.
+  const unfold = (html) => String(html).replace(/<!--PDXSP:lid[\s\S]*?<!--PDXSP:\/lid-->/g, "");
+  const visible = unfold(htmlA);
+  eq((segOf(visible, GRP).match(/data-pdxst-issue="/g) || []).length,
+     Math.min(heldRows.length, LEAD_CAP),
+    "the group's lead is not the first " + LEAD_CAP + " of its rows");
+  has(visible, GRP, "the group heading itself is inside a fold");
+  // STRONGEST FIRST. A row the index characterised must never render below one it
+  // could not speak on — that ordering is the difference between a group a reader
+  // learns something from and a list of blanks with the findings at the bottom.
+  const order = [...seg.matchAll(/data-pdxst-issue="([^"]*)"/g)].map((m) => m[1]);
+  let silentSeen = false, inverted = 0;
+  for (const k of order) {
+    if (CS.rowResult(rowOf(k)).dir) { if (silentSeen) inverted++; } else silentSeen = true;
+  }
+  eq(inverted, 0, "a row the index cannot characterise renders above one it can");
+  ok(order.some((k) => CS.rowResult(rowOf(k)).dir) &&
+     order.some((k) => !CS.rowResult(rowOf(k)).dir),
+    "the group holds only one kind of row — the ordering above proves nothing");
+  // AND NOTHING ABOUT THE ROWS THEMSELVES MOVED: unscored, no percentage, still a
+  // door into the same dossier, still saying what the record did where it can.
+  for (const k of order) {
+    const r = rowOf(k), res = CS.rowResult(r), chunk = chunkOf(htmlA, k);
+    ok(typeof res.pct !== "number", `${k}: a row in the unscored group carries a percentage`);
+    ok(res.state !== "tested", `${k}: a row in the unscored group resolved as scored`);
+    eq(r.tested, false, `${k}: the move made a row testable`);
+    ok(!/class="pdxst-pct"[^>]*>\s*\d+%/.test(chunk), `${k}: the group prints a percentage`);
+    has(chunk, 'data-pdxst-dos="' + k + '"', `${k}: the row is no longer a door into its dossier`);
+    has(chunk, res.held + " " + (res.held === 1 ? NOUN.one : NOUN.many) + " on file",
+      `${k}: the row stopped stating the record it holds`);
+    if (res.dir) {
+      ok(/advanced it|cut against it|ran both ways/.test(chunk),
+        `${k}: the row lost its record-direction line in the move`);
+    }
+  }
+  // ── THE FOLD, on a member with more of this than a lead can hold ────────────
+  // The shipped case is bigger than this fixture: a sitting senator's list runs to
+  // fifty-odd of these rows, so the group folds past its lead exactly as the tested
+  // group does. What must not survive the fold is the label — "Show 52 more issues
+  // the record backs up" over rows nothing was tested on is the sentence this pass
+  // exists to delete. A third realm, seeded wide, so the label is measured and not
+  // read off the source.
+  const WIDE = SILENT.slice(2, 2 + LEAD_CAP + 4);
+  must(WIDE.length === LEAD_CAP + 4, "the fixture no longer offers enough silent keys");
+  const WSEED = [];
+  WIDE.forEach((k, n) => {
+    for (let i = 0; i < 4; i++) WSEED.push(vote(400 + n * 10 + i, k, "yea"));
+  });
+  const C = boot();
+  C.PDXVotingRecord.noteMember(PID, clone(WSEED));
+  const CSC = C.PDXConsistency, htmlC = CSC.stancesSectionHtml(PID);
+  const wideHeld = CSC.issueRows(PID).filter((r) => {
+    const res = CSC.rowResult(r);
+    return r.tier === 1 && res.shape === "no_stance" && (res.held || 0) > 0;
+  });
+  must(wideHeld.length > LEAD_CAP + 1, "the wide realm did not seed past the lead cap");
+  has(htmlC, GRP + " · " + wideHeld.length, "the group heading does not count its own rows");
+  eq((segOf(unfold(htmlC), GRP).match(/data-pdxst-issue="/g) || []).length, LEAD_CAP,
+    "the group's lead is not capped like every other open group");
+  const fold = (htmlC.match(/id="st-open-held" label="([^"]*)"/) || [])[1] || "";
+  must(fold, "the rows past the group's lead do not fold");
+  has(fold, "no stated position", "the fold over the group does not say what it holds");
+  lacks(fold, "backs up", "the fold over the group promises issues the record backs up");
+  has(fold, String(wideHeld.length - LEAD_CAP), "…or does not count what it holds");
+  // The tested group's own fold keeps its own sentence, unchanged.
+  const tfold = (htmlC.match(/id="st-open-tested" label="([^"]*)"/) || [])[1] || "";
+  if (tfold) has(tfold, "the record backs up", "the tested group's fold lost its label");
 }
 
 // ── Result ───────────────────────────────────────────────────────────────────

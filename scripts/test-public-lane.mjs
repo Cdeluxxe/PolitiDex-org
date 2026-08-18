@@ -320,7 +320,8 @@ for (const [who, pid, rows] of [["congressional", MEMBER, mRows], ["executive", 
     // NO NUMBER IN THIS LANE. Not a percentage, and not a bare "57" either — the
     // formal figure is the only scored thing on the row and it lives above.
     ok(!/%/.test(line), `stances (${who}): the public line on row ${i} prints a percentage`);
-    has(line, ">Public<", `stances (${who}): row ${i} does not name the lane`);
+    has(line, ">Outside the score<", `stances (${who}): row ${i} does not name the lane by its status`);
+    has(line, "statements &amp; coverage", `stances (${who}): row ${i} does not say what the lane is made of`);
     has(line, "Not in Direction Match", `stances (${who}): row ${i} drops the non-score disclosure`);
     has(line, 'data-pdxst-focus="public"', `stances (${who}): row ${i} has no path into the public receipts`);
     has(line, "data-pdxst-dos=", `stances (${who}): row ${i}'s public control does not name the issue it opens`);
@@ -345,7 +346,7 @@ for (const [who, pid, rows] of [["congressional", MEMBER, mRows], ["executive", 
   has(wall, "only scored figure", `stances (${who}): the note does not say which figure IS the scored one`);
   ok(!/\d+%/.test(wall), `stances (${who}): the public-lane note prints a percentage of its own`);
   const pc = CS.publicCoverage(pid);
-  has(wall, "Public · " + pc.issues + " of " + pc.total,
+  has(wall, "Outside the score · statements &amp; coverage · " + pc.issues + " of " + pc.total,
     `stances (${who}): the note's coverage count does not match the model's`);
   // The existing 🧾 receipts link into the Evidence drawer is a different door and
   // is not replaced by this one.
@@ -414,18 +415,20 @@ for (const [who, pid] of [["congressional", MEMBER], ["executive", PREZ]]) {
   has(idx, "Not in Direction Match", `index (${who}): the index rows drop the non-score disclosure`);
   const tags = (idx.match(/Not in Direction Match/g) || []).length;
   eq(tags, rowCount, `index (${who}): the disclosure is not on every row`);
-  has(idx, ">Public<", `index (${who}): the rows do not name the lane`);
+  has(idx, ">Outside the score<", `index (${who}): the rows do not name the lane by its status`);
+  has(idx, "statements &amp; coverage", `index (${who}): the rows do not say what the lane is made of`);
   // The bucket cue is the formal verdict's word and the tally is not inside it.
   const cues = idx.match(/<span class="pdxwa-oc-cue"[\s\S]*?<\/span>/g) || [];
   ok(cues.length > 0, `index (${who}): the formal result cue is gone from the rows`);
-  ok(!cues.some((c) => /Public|cut against|Nothing on file/.test(c)),
-    `index (${who}): the public tally leaked into the formal result cue`);
+  ok(!cues.some((c) => /Outside the score|cut against|Nothing on file/.test(c)),
+    `index (${who}): the outside-the-score tally leaked into the formal result cue`);
   // The coverage count, once, in words, under the denominator it shares.
   eq((idx.match(/class="pdxwa-oc-pubfoot"/g) || []).length, 1,
     `index (${who}): the profile-level public note is missing or duplicated`);
   const foot = (idx.match(/<p class="pdxwa-oc-pubfoot">[\s\S]*?<\/p>/) || [""])[0];
-  has(foot, "Public record on file for", `index (${who}): the note does not state the public lane's coverage`);
-  has(foot, "a count, not a score", `index (${who}): the note does not say the count is not a score`);
+  has(foot, "Outside the score · statements &amp; coverage · on file for",
+    `index (${who}): the note does not state the lane's coverage under the lane's own name`);
+  has(foot, "a count, never a percentage", `index (${who}): the note does not say the count is not a score`);
   has(foot, "none of it is inside the Direction Match", `index (${who}): the note does not name what it is outside of`);
   ok(!/\d+%/.test(foot), `index (${who}): the coverage note prints a percentage`);
   // Its denominator is the index's own row count, not a second one.
