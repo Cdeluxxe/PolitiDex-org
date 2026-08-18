@@ -34,7 +34,16 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v54';
+// v55 — the mobile hero clearance fix. This bump is part of the fix, not
+// bookkeeping: navigations are stale-while-revalidate (handleNavigate below), so a
+// phone with a warm shell cache is served the PREVIOUS index.html on a hard
+// refresh and only gets the new one on the load after that. There is no
+// shift-reload on a handset, so "hard refresh and the hero is still under the
+// bar" is exactly what a shipped-but-not-yet-swapped shell looks like. Renaming
+// the cache makes the shell cache empty on activate, so the first navigation
+// after this worker takes control goes to the network and the fix is visible on
+// the refresh that was supposed to show it.
+const CACHE_VERSION = 'v55';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
