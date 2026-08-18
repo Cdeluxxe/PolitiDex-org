@@ -567,6 +567,222 @@ const run = async () => {
      "no desktop regression: the desktop hero clearance is chrome + 1rem, which is what pt-32 resolved to");
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 6 · THE FAIL-CLOSED VALUE IS BIG ENOUGH, AND STILL THE ONLY ONE
+// ═══════════════════════════════════════════════════════════════════════════
+// Sections 1-3 proved there is one offset and that it is charged once. They did
+// NOT prove the number is large enough when the measurement is unavailable: the
+// fallback assertion in section 1 only checks that every fallback AGREES with
+// index.html's literal, so a set of fallbacks that agreed on a value too small to
+// clear the nav passed cleanly. That is what was still shipping.
+//
+// The literal is the sum of the two permanent rows, and every term of that sum is
+// rem-derived, so it tracks the reader's font scaling on its own:
+//
+//   row 1  py-3 (0.75rem x 2) around a 2rem brand mark ......... 3.5rem
+//   row 2  0.5rem x 2 shell padding + a 2.5rem field .......... 3.5rem
+//          + the 1px rule between the rows ..................... 1px
+//   ---------------------------------------------------------------------
+//                                                     7rem + 1px = 113px
+//
+// The one contributor that is NOT a multiple of the root font size is
+// env(safe-area-inset-top): this document is viewport-fit=cover and #pdx-topnav is
+// padded by the inset so the bar sits flush to the physical top edge, which makes
+// 44-59px on a notched iPhone (24-48px on an Android cutout) part of the real
+// chrome depth. A plain rem literal cannot say that, so the pre-measurement value
+// under-cleared by up to 59px — more than the 26px line box the phone wordmark
+// renders in — on exactly the devices that reported the clip.
+//
+// So this section pins two things a later chrome edit must not undo:
+//   · the fail-closed value covers the rows AND states the inset, and
+//   · stating the inset did not smuggle in a second competing offset.
+{
+  const css = stripCss(HTML);
+
+  // ── The base literal covers the two rows ──────────────────────────────────
+  const rootDecls = [...css.matchAll(/:root\s*\{\s*--pdx-chrome\s*:\s*([^;}]+)/g)].map((m) => m[1].trim());
+  must(rootDecls.length >= 1, "index.html no longer declares --pdx-chrome on :root");
+
+  const base = rootDecls.find((v) => /^[\d.]+rem$/.test(v));
+  ok(!!base,
+     "fail closed: --pdx-chrome still has a plain rem base declaration on :root, so an engine that " +
+     "cannot parse the notch-aware form below has a valid length to fall back to rather than an " +
+     "invalid calc() — found " + JSON.stringify(rootDecls));
+
+  const ROWS_REM = 7;   // 3.5rem row 1 + 3.5rem row 2; the 1px rule is the rounding
+  if (base) {
+    const rem = parseFloat(base);
+    ok(rem >= ROWS_REM,
+       "fail closed: the --pdx-chrome base literal (" + base + " = " + (rem * 16) + "px at a 16px root) is " +
+       "SMALLER than the two permanent nav rows it has to clear (" + ROWS_REM + "rem = " + (ROWS_REM * 16) +
+       "px). This is the shape of every previous regression here — a flat 5rem, then 57px, then 3.25rem — " +
+       "each of them right on the machine it was typed on. Raise it to the row arithmetic in the comment " +
+       "above, do not shave it to close a gap.");
+    // Headroom is fine; a fallback so large it reads as a deliberate empty band is
+    // the other wall this pass had to respect.
+    ok(rem <= ROWS_REM + 3,
+       "no wasted space: the --pdx-chrome base literal (" + base + ") is more than 3rem taller than the " +
+       "rows it clears, which on a phone with no notch is a permanent empty band above the wordmark. " +
+       "The inset belongs in the env() term below, not in the literal.");
+  }
+
+  // ── ...and the fail-closed value states the inset ─────────────────────────
+  const notchDecl = rootDecls.find((v) => /env\(\s*safe-area-inset-top/.test(v));
+  ok(!!notchDecl,
+     "fail closed: no --pdx-chrome declaration accounts for env(safe-area-inset-top). The nav is padded " +
+     "by the inset under viewport-fit=cover, so on a notched phone the real chrome is the literal PLUS " +
+     "44-59px. Without this term the fallback clips the POLITIDEX wordmark on every path where the " +
+     "runtime measurement is unavailable or held — no ResizeObserver, JS blocked, the first paint, and " +
+     "the focus-inside-the-nav hold after a hard refresh.");
+
+  if (notchDecl && base) {
+    ok(notchDecl.replace(/\s+/g, "").includes(base.replace(/\s+/g, "")),
+       "fail closed: the notch-aware --pdx-chrome is built from the same base literal as the plain one (" +
+       base + "), so the two forms cannot drift apart — found " + JSON.stringify(notchDecl));
+    ok(/^calc\(/.test(notchDecl) && /\+/.test(notchDecl),
+       "fail closed: the notch-aware --pdx-chrome ADDS the inset to the rows rather than replacing them — " +
+       "found " + JSON.stringify(notchDecl));
+    ok(/env\(\s*safe-area-inset-top\s*,\s*0(px)?\s*\)/.test(notchDecl),
+       "fail closed: env(safe-area-inset-top) is given its own 0px fallback, so a supporting engine with " +
+       "no inset resolves to the plain row arithmetic instead of dropping the declaration");
+  }
+
+  // The @supports guard is load-bearing, not decoration. A custom property accepts
+  // any token sequence, so an engine that does not parse env() would accept the
+  // declaration and then invalidate every calc() consuming it — three hero
+  // paddings and the document's scroll padding would compute to 0 and the wordmark
+  // would be fully behind the bar, which is worse than the bug being fixed.
+  const guarded = /@supports\s*\([^)]*env\(\s*safe-area-inset-top[^)]*\)[^{]*\)\s*\{\s*:root\s*\{\s*--pdx-chrome\s*:\s*calc\([^}]*env\(\s*safe-area-inset-top/.test(css);
+  ok(guarded,
+     "fail closed: the env()-bearing --pdx-chrome is not inside an @supports test for env(safe-area-inset-top). " +
+     "Custom properties parse permissively, so on an engine without env() the declaration would be accepted " +
+     "and then poison every calc(var(--pdx-chrome) + …) into invalid-at-computed-value-time — padding-top 0, " +
+     "wordmark entirely under the nav. An engine without env() has no notch, so the plain literal is correct " +
+     "there and this block must simply not apply.");
+
+  // ── No second competing offset came back in ───────────────────────────────
+  // The chrome depth has one name. Anything else that gets given a chrome-sized
+  // length of its own is the next --pdx-nav-h / 57px / pt-32 / 3.25rem, and it will
+  // win somewhere the measured variable does not reach.
+  const CHROME_PX = (v) => {
+    const m = /^([\d.]+)(px|rem)$/.exec(v.trim());
+    if (!m) return 0;
+    return m[2] === "rem" ? parseFloat(m[1]) * 16 : parseFloat(m[1]);
+  };
+  const rogue = [];
+  for (const f of SHEETS.concat(["index.html"])) {
+    const src = f.endsWith(".html") ? css : stripCss(read(f));
+    // A custom property other than --pdx-chrome handed a bare chrome-sized length.
+    for (const m of src.matchAll(/(--pdx-[a-z0-9-]*(?:nav|chrome|bar|header|top)[a-z0-9-]*)\s*:\s*([^;}]+)/gi)) {
+      const [, name, raw] = m;
+      if (name === "--pdx-chrome") continue;
+      if (/var\(\s*--pdx-chrome/.test(raw)) continue;          // an alias is fine
+      const px = CHROME_PX(raw);
+      if (px >= 40) rogue.push(f + " → " + name + ": " + raw.trim());
+    }
+  }
+  ok(rogue.length === 0,
+     "one offset: a custom property other than --pdx-chrome has been given a chrome-sized length of its " +
+     "own — " + JSON.stringify(rogue) + ". This is exactly how --pdx-nav-h came to exist, and how a 57px " +
+     "literal in the file that loads last replaced the measured offset site-wide. Alias --pdx-chrome " +
+     "instead: var(--pdx-chrome).");
+
+  // The drawer hangs off the bottom of the same chrome, so its cap derives from the
+  // same variable. `100dvh - 3.25rem` was 52px against a 113px+ nav: the menu ran
+  // off the bottom of the screen by the difference.
+  const drawerCaps = [...css.matchAll(/#mobileMenu\s*\{[^}]*max-height\s*:\s*([^;}]+)/g)].map((m) => m[1].trim());
+  ok(drawerCaps.length > 0 && drawerCaps.every((v) => /var\(\s*--pdx-chrome/.test(v)),
+     "one offset: the mobile drawer's pre-JS max-height derives from --pdx-chrome rather than restating " +
+     "the nav height as a literal — found " + JSON.stringify(drawerCaps));
+
+  // Exactly one thing may publish the measured number, and both publishers must
+  // write the same variable name (section 1 checks the names; this checks the count).
+  const writers = [...stripJs(HTML).matchAll(/setProperty\(\s*['"](--pdx-[a-z0-9-]+)['"]/gi)]
+    .map((m) => m[1])
+    .concat([...stripJs(STAB).matchAll(/setProperty\(\s*['"](--pdx-[a-z0-9-]+)['"]/gi)].map((m) => m[1]));
+  ok(writers.length > 0 && writers.every((w) => w === "--pdx-chrome"),
+     "one offset: every runtime publisher writes --pdx-chrome and nothing else — found " +
+     JSON.stringify([...new Set(writers)]));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 7 · THE WORDMARK IS AT THE TRUE TOP, AND THE AIR OUTLASTS THE FLOAT
+// ═══════════════════════════════════════════════════════════════════════════
+// "Scroll back to top lands on the wordmark" is only true if scroll 0 IS the
+// wordmark's screen. Two ways that quietly stops being true: something in normal
+// flow appears above #hero (the reader now rests on that instead, with the nav
+// over it), or the clearance is smaller than the distance the top of the hero
+// stack travels under its own animation.
+{
+  const html = HTML;
+  const bodyStart = html.indexOf("<body");
+  const heroStart = html.indexOf('<section id="hero"');
+  must(bodyStart > 0 && heroStart > bodyStart, "index.html's <body> or #hero is no longer recognisable");
+
+  // Everything between <body> and #hero, comments and whitespace removed.
+  const before = html.slice(html.indexOf(">", bodyStart) + 1, heroStart)
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<script\b[\s\S]*?<\/script>/gi, " ")            // no layout box
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ")              // no layout box
+    .replace(/<nav id="pdx-topnav"[\s\S]*?<\/nav>/i, " ")     // position: fixed, out of flow
+    .replace(/\s+/g, "");
+  ok(before === "",
+     "true top: something now sits between <body> and #hero in normal flow — " +
+     JSON.stringify(before.slice(0, 220)) + ". Scroll 0 is then that element's screen, not the " +
+     "wordmark's, and the fixed nav covers it. The nav is the only thing allowed above the hero and " +
+     "it is position:fixed precisely so the hero starts at document offset 0.");
+
+  // The hero states no scroll-margin-top of its own: it is the scroll origin, and
+  // section 2's rule (padding and margin ADD) applies to it like anything else.
+  const heroTag = html.slice(heroStart, html.indexOf(">", heroStart) + 1);
+  ok(!/scroll-m[targin-]*top/i.test(heroTag) && !/\bscroll-mt-/.test(heroTag),
+     "true top: #hero carries no scroll-margin-top — it is the origin the reader flings back to, and a " +
+     "margin here would push the landing past the top of the page");
+
+  // The first child of the hero stack floats. Whatever air sits above it has to be
+  // greater than the keyframe's amplitude or the badge rises under the blurred bar
+  // on every cycle — visible clipping on a layout that is statically correct.
+  const css = stripCss(HTML);
+  const tw = stripCss(read("css/tailwind.css"));
+  const floatKf = tw.match(/@keyframes\s+float\s*\{[\s\S]*?translateY\(\s*-?([\d.]+)px/);
+  must(floatKf, "the float keyframe is no longer recognisable in css/tailwind.css");
+  const amplitude = parseFloat(floatKf[1]);
+
+  const phoneBlock = css.match(/@media\s*\(\s*max-width:\s*639px\s*\)\s*\{([\s\S]*?)\n    \}/);
+  must(phoneBlock, "the phone hero media query is no longer recognisable in index.html");
+  const phonePad = phoneBlock[1].match(/#hero\s*\{\s*padding-top\s*:\s*calc\(\s*var\(\s*--pdx-chrome\s*\)\s*\+\s*([\d.]+)rem\s*\)/);
+  must(phonePad, "the phone #hero clearance is no longer stated as chrome + Nrem");
+  const phoneAir = parseFloat(phonePad[1]) * 16;
+
+  ok(phoneAir > amplitude,
+     "float clearance: the phone hero's air above the chrome is " + phoneAir + "px and the logo badge's " +
+     "float keyframe lifts it " + amplitude + "px, so at the top of every cycle the badge reaches the " +
+     "bottom edge of the search row and grazes under the blurred bar. The air has to exceed the " +
+     "amplitude, not equal it.");
+  ok(phoneAir <= amplitude + 24,
+     "no wasted space: the phone hero's air above the chrome is " + phoneAir + "px against a " + amplitude +
+     "px float — more than 24px of slack is a permanent empty band on the screen with the tightest fold " +
+     "budget in the app.");
+
+  // The badge is hidden on short phones, and the lockup that inherits its auto
+  // margin uses fadeUp — which starts 30px LOW and settles, so it can only ever be
+  // further from the chrome than its resting position. That is why the short-phone
+  // clearance is allowed to be tighter than the float amplitude.
+  const shortBlock = css.match(/@media\s*\(\s*max-width:\s*639px\s*\)\s*and\s*\(\s*max-height:\s*720px\s*\)\s*\{([\s\S]*?)\n    \}/);
+  must(shortBlock, "the short-phone hero media query is no longer recognisable in index.html");
+  ok(/#hero\s*>\s*\.hero-stack-top\s*\{\s*display\s*:\s*none/.test(shortBlock[1]),
+     "float clearance: the short-phone block still hides the floating badge, which is what lets its " +
+     "clearance be tighter than the float amplitude");
+  ok(/#hero\s*>\s*\.hero-brand\s*\{\s*margin-top\s*:\s*auto/.test(shortBlock[1]),
+     "float clearance: with the badge hidden the POLITIDEX lockup inherits the auto top margin, so it " +
+     "centres in the space below the padding instead of being pushed above it");
+  const fadeKf = tw.match(/@keyframes\s+fadeUp\s*\{\s*0%\s*\{[^}]*translateY\(\s*([\d.]+)px/);
+  ok(!!fadeKf && parseFloat(fadeKf[1]) > 0,
+     "float clearance: the wordmark's own entrance animation still starts BELOW its resting position " +
+     "(fadeUp translateY is positive), so it can never animate up into the chrome");
+}
+
 }; // run
 
 await run();
