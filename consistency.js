@@ -2209,6 +2209,31 @@
         'background:none;border:none;padding:0;margin:0;cursor:pointer;}' +
       '.pdxst-open:hover,.pdxst-open:focus-visible{color:#9fdbff;}' +
       '.pdxst-lbl-go{color:#7fb4ff;font-size:0.86rem;line-height:1;}' +
+      // ── THE FORMAL-RECORD PATTERN CHIP ─────────────────────────────────────
+      // Direction colour is the SITE's direction colour (#4ade80 / #f87171 /
+      // #f5c842 — the same three as .stance-support/.stance-oppose/.stance-mixed
+      // and _OR_STANCE), because a reader who has learned green-means-advance on
+      // an issue card should not have to learn it twice. What separates this chip
+      // from a stated-position chip is the lane marker and the weight, never the
+      // hue: recolouring the record would say the two facts are different KINDS of
+      // thing, and they are the same kind of thing from two different sources.
+      //   WEIGHT IS THE HONESTY. Four rungs, loudest first: `w-full` (a uniform run
+      // and a genuine split — both are complete statements about a deep record),
+      // `w-strong` (a lean with counter-votes: same hue and border, fainter fill),
+      // `w-thin` (one to three votes: no fill, dashed border, lighter type, dialled back —
+      // still direction-coloured, because the direction is a fact, but visibly not
+      // a finding), `w-flat` (grey, dotted, no direction at all). A thin chip must
+      // never be mistakable for a deep one at a glance, which is what these rules
+      // are for.
+      '.pdxst-pat{display:inline-flex;align-items:center;gap:0.24rem;font-size:0.63rem;font-weight:800;'
+        + 'letter-spacing:0.01em;padding:0.08rem 0.45rem;border-radius:999px;white-space:nowrap;'
+        + 'color:var(--c);border:1px solid var(--c);background:var(--bg);}' +
+      '.pdxst-pat-lane{font-size:0.55rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;opacity:0.72;}' +
+      // The counts are the evidence, not the headline: same colour, lighter type.
+      '.pdxst-pat-n{font-weight:600;font-size:0.6rem;opacity:0.86;}' +
+      '.pdxst-pat.w-thin{border-style:dashed;border-color:var(--c);font-weight:700;opacity:0.78;}' +
+      '.pdxst-pat.w-thin .pdxst-pat-lb{font-weight:700;}' +
+      '.pdxst-pat.w-flat{border-style:dotted;border-color:rgba(159,180,212,0.34);font-weight:700;opacity:0.82;}' +
       '.pdxst-txt{font-size:0.74rem;line-height:1.4;color:#9fb4d4;margin-top:0.15rem;}' +
       '.pdxst-links{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.28rem;}' +
       '.pdxst-go{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;background:rgba(159,219,208,0.08);border:1px solid rgba(159,219,208,0.26);border-radius:999px;padding:0.26rem 0.6rem;min-height:1.9rem;}' +
@@ -2413,6 +2438,11 @@
         // the outcome word stay together — those two are the answer, and splitting
         // them across a wrap is what turns a result back into a label.
         '.pdxst-result{gap:0.24rem 0.3rem;}' +
+        // MOBILE: the chip may wrap inside itself rather than push the issue name
+        // off the line — the row already wraps, and a chip that cannot break forces
+        // the issue name onto a line of its own.
+        '.pdxst-pat{white-space:normal;font-size:0.66rem;}' +
+        '.pdxst-pat-n{font-size:0.63rem;}' +
         '.pdxst-pct{font-size:1.15rem;}' +
         '.pdxst-vd{font-size:0.74rem;}' +
         // Every jump is a thumb target, not a hover target.
@@ -4804,6 +4834,86 @@
     return lbl ? lbl.charAt(0).toLowerCase() + lbl.slice(1) : '';
   }
 
+  // ── THE FORMAL-RECORD PATTERN CHIP ──────────────────────────────────────────
+  // WHAT IT IS. One chip on the row's top line saying how one-sided the formal
+  // record on this issue actually was — "Strongly opposes · 12 advanced · 0
+  // against", "Thin supports · 1 vote advanced" — read straight off
+  // _recordPatternTier(), which reads straight off the index _stDirRaw already
+  // returns. No second engine, no arithmetic here, no new gate: every threshold
+  // it obeys is a shipped record-direction gate.
+  //
+  // WHY A CHIP AND NOT A LINE. The clause lines below (_stRecordDirection,
+  // _stUnscoredDirection) are prose, and prose is unscannable at fifteen rows.
+  // They also each carry a precondition about the STATED position — one prints
+  // only where there is none, the other only where there is one — which means a
+  // reader scanning for "which way does their record run" met three different
+  // shapes depending on facts about our stance coverage. The chip has no such
+  // precondition: any row whose issue has a directional pole and whose record has
+  // anything on file gets the same chip in the same place, and the clause stays
+  // exactly where it was, saying exactly what it said.
+  //
+  // WHAT IT IS NOT — and this is the whole reason it is allowed to say "supports".
+  // It is not a stance. It never reaches positionStance(), never writes to a
+  // position map, and sits BESIDE "Says: …" rather than in place of it, so a row
+  // with both shows both and a reader can see the two disagree. It is not a
+  // score: no percentage, nothing ordinal, `res.pct`/`res.state`/`res.bucket` are
+  // not read here and not written, and the row's data attributes are untouched, so
+  // nothing sorts or filters on this. It is not evidence of a claim: the public
+  // lane is not consulted — _stDirRaw reads formal items only — so no media
+  // receipt can move this chip. And it is not on the exec lane yet, because
+  // _stDirRaw declines there; that lane needs its own verb and gets its own pass.
+  //
+  // FAIL CLOSED, TWO DIFFERENT WAYS. When the ISSUE has no directional pole (a
+  // balance key, an unmapped key) the tier engine returns null and no chip renders
+  // — the shortfall is our mapping's, and a neutral "No clear pattern yet" printed
+  // there would be a claim about their record we have not earned. When the RECORD
+  // is the problem (below the member coverage floor, one-sided only on bills this
+  // issue was incidental to) the chip prints "No clear pattern yet" in grey, which
+  // is the true statement.
+  var _ST_PAT_TONE = {
+    support: { c: '#4ade80', full: 'rgba(74,222,128,0.18)',  strong: 'rgba(74,222,128,0.10)' },
+    oppose:  { c: '#f87171', full: 'rgba(248,113,113,0.18)', strong: 'rgba(248,113,113,0.10)' },
+    mixed:   { c: '#f5c842', full: 'rgba(245,200,66,0.16)',  strong: 'rgba(245,200,66,0.10)' },
+    muted:   { c: '#8fa6c6', full: 'rgba(159,180,212,0.10)', strong: 'rgba(159,180,212,0.08)' }
+  };
+  // The quiet fill both weak tiers share. Thin and none must not read as findings,
+  // so neither gets its tone's fill — thin keeps the tone in its text and border
+  // only, which is what "direction-coloured but visibly lighter" means here.
+  var _ST_PAT_QUIET = 'rgba(10,15,30,0.32)';
+  function _stPatternTier(r) {
+    try {
+      if (typeof window._recordPatternTier !== 'function') return null;
+      var idx = _stDirRaw(r);
+      if (!idx) return null;
+      return window._recordPatternTier(idx, { noun: _stNoun(r) }) || null;
+    } catch (e) { return null; }
+  }
+  function _stPatternHtml(r, t) {
+    t = t || _stPatternTier(r);
+    if (!t) return '';
+    var tone = _ST_PAT_TONE[t.tone] || _ST_PAT_TONE.muted;
+    var bg = (t.weight === 'full') ? tone.full
+      : (t.weight === 'strong') ? tone.strong : _ST_PAT_QUIET;
+    // The lane marker is not decoration either: "supports" without it reads as a
+    // stance, and this chip is the record's, not theirs. The title and the
+    // screen-reader label carry the same one sentence the engine publishes.
+    var note = t.note || '';
+    // role=img + aria-label so the chip is announced as ONE thing, with its
+    // disclosure attached — a screen reader reading "Record / Mostly opposes / 8
+    // advanced" as three fragments loses the sentence that keeps it out of the
+    // score.
+    var say = 'Formal record: ' + t.label + (t.counts ? ', ' + t.counts : '') + '. ' + note;
+    return '<span class="pdxst-pat w-' + escAttr(t.weight) + '"' +
+      ' style="--c:' + tone.c + ';--bg:' + bg + '"' +
+      ' data-pdxst-pat="' + escAttr(t.tier) + '"' +
+      ' role="img" aria-label="' + escAttr(say) + '"' +
+      ' title="' + escAttr(note) + '">' +
+      '<span class="pdxst-pat-lane" aria-hidden="true">🏛 Record</span>' +
+      '<span class="pdxst-pat-lb">' + esc(t.label) + '</span>' +
+      (t.counts ? '<span class="pdxst-pat-n">· ' + esc(t.counts) + '</span>' : '') +
+      '</span>';
+  }
+
   // ── WHICH GROUP A ROW BELONGS UNDER ─────────────────────────────────────────
   // The grouping key, and the only thing that reads it is the heading a row is
   // rendered beneath. It maps a row's TIER to a group id, with one split: tier 1
@@ -5992,6 +6102,14 @@
             _icDot(skin) + esc(r.label) +
             '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
           '</button>' +
+          // BOTH FACTS, IN READING ORDER: what the record did, then what they say.
+          // The chip goes FIRST because it is the one a row can always have —
+          // 'Says:' is present only where we hold a stated position, and a reader
+          // scanning fifteen rows should meet the same column of chips on every one
+          // of them. Neither replaces the other and neither is derived from the
+          // other; where both are present and they disagree, that disagreement is
+          // the point and it is visible on the row's first line.
+          _stPatternHtml(r) +
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
         '</div>' +
         _stResultHtml(r, res) +
@@ -8833,6 +8951,21 @@
       NOTE: _RD_SLOT_NOTE,
       NOTE_SAID: _RD_SLOT_NOTE_SAID,
       NOTE_THIN: _RD_SLOT_NOTE_THIN
+    },
+    // 🏛 FORMAL-RECORD PATTERN TIERS, for the row faces. `tier` returns the shape
+    // (tier / weight / tone / label / counts) for one row, `html` the chip. Both
+    // read _recordPatternTier(), which reads the record-direction index — so a
+    // second surface adopting this cannot end up with a different vocabulary or a
+    // different threshold than the rows have. Exposed for the harnesses and for
+    // the decision-surface slot above, which may take the tier's wording in a
+    // later pass; it deliberately has not yet, because that slot's contract test
+    // governs its empty states and its non-ordinality and this pass changes
+    // neither. Nothing here is a stance and nothing here is scored: see the long
+    // note over _stPatternHtml.
+    recordPattern: {
+      tier: _stPatternTier,
+      html: _stPatternHtml,
+      TONE: _ST_PAT_TONE
     },
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.

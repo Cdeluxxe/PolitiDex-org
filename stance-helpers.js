@@ -791,6 +791,114 @@
     window._PDX_RD_SPLIT_MIN_SIDE = _RD_SPLIT_MIN_SIDE;
     window._PDX_RD_NO_POLE = _RD_NO_POLE;
 
+    // ── FORMAL-RECORD PATTERN TIERS (presentation only) ────────────────────────
+    // ONE READ OF THE INDEX ABOVE, WORDED FOR A ROW FACE. This adds no arithmetic:
+    // every number it prints is a count _recordDirectionIndex already computed, and
+    // every gate it obeys is a gate that function already applied. What it adds is a
+    // five-way vocabulary a reader can see at a glance — how one-sided the record was
+    // and how much of it there is — because "Too thin to characterise" is honest and
+    // unreadable, and a row that stays silent about a real vote reads like a bug.
+    //   THE WALL, RESTATED WHERE IT MATTERS. These labels say supports/opposes, which
+    // is stance vocabulary, and they are therefore forbidden from every place a stance
+    // lives: they are never written into a position map, never counted in Direction
+    // Match or the Word-vs-Action ratio, never travel on a share card, and never
+    // outrank a stated position on a row that has one. A tier is a description of
+    // arithmetic that already happened. A stance is a claim a person made. The only
+    // thing keeping those apart is that nothing consumes this but a chip.
+    //   WHY THE THIN TIER EXISTS AT ALL. The index refuses to characterise one vote,
+    // and that refusal is correct — one vote is not a tendency. But the count is a
+    // fact, and a reader looking at an issue where their senator voted once, against,
+    // is owed that fact. So the thin tier states the direction of the votes on file
+    // and is built to look like the small thing it is: its own word ("Thin"), never
+    // Mostly/Strongly, quieter styling, and no promotion path — `characterised` and
+    // `counted` on the index are untouched, so nothing that gates on them (cards,
+    // decision slots) can see a thin tier at all.
+    var _RD_TIER_DIR = {
+      advances: { tone: 'support', word: 'supports' },
+      opposes:  { tone: 'oppose',  word: 'opposes'  }
+    };
+    // weight is a rendering rank, not a score: full > strong > thin > flat. It exists
+    // so the chip can be styled by confidence without any surface inventing its own
+    // idea of which tier is the loud one.
+    var _RD_TIERS = {
+      strong: { key: 'strong', weight: 'full',   directional: true,  lead: 'Strongly' },
+      mostly: { key: 'mostly', weight: 'strong', directional: true,  lead: 'Mostly'   },
+      split:  { key: 'split',  weight: 'full',   directional: false, label: 'Split', tone: 'mixed' },
+      thin:   { key: 'thin',   weight: 'thin',   directional: true,  lead: 'Thin'     },
+      none:   { key: 'none',   weight: 'flat',   directional: false, label: 'No clear pattern yet', tone: 'muted' }
+    };
+    // One sentence, one place. Every chip carries it; the tests assert it is this one.
+    var _RD_TIER_NOTE = 'What the formal record did — a pattern in the votes on file, ' +
+      'not a stated position, and never counted in Direction Match.';
+    // Issue-level suppressions mean the ISSUE has no directional pole (a balance key,
+    // an unmapped key), so there is nothing for a record to lean on. Those rows print
+    // no chip at all rather than "No clear pattern yet", which would be a false claim
+    // about the member's record instead of a true one about the issue's shape.
+    var _RD_TIER_MUTE = { no_issue: 1, balance_key: 1, no_pole: 1 };
+
+    // Word the two counts. Printed only where the index permits counts, or where the
+    // tier's own label already denies depth (thin) — a shallow split still withholds
+    // its margin, exactly as the index does.
+    //   THE THIN TIER COUNTS ITSELF DIFFERENTLY, because it is always one-sided (a
+    // uniform run, or the single vote) and "0 advanced · 2 against" spends a number
+    // on a side that has nothing on it. It names its own countable instead — "1 vote
+    // against", "2 votes against" — which is the smaller claim and the shorter chip.
+    function _rdTierCounts(idx, noun, tier) {
+      noun = noun || { one: 'vote', many: 'votes' };
+      if (tier === 'thin') {
+        return idx.judged + ' ' + _rdPlural(idx.judged, noun.one, noun.many) + ' ' +
+          (idx.advances ? 'advanced' : 'against');
+      }
+      return idx.advances + ' advanced · ' + idx.opposes + ' against';
+    }
+
+    // idx — a _recordDirectionIndex() result. Returns null when no chip should render,
+    // otherwise the tier shape. Fails closed everywhere: any state this does not
+    // recognise lands on 'none'.
+    function _recordPatternTier(idx, opts) {
+      opts = opts || {};
+      if (!idx || typeof idx !== 'object') return null;
+      var noun = opts.noun || { one: 'vote', many: 'votes' };
+      if (idx.suppressed && _RD_TIER_MUTE[idx.suppressed]) return null;
+      if (!idx.total) return null; // nothing on file for this issue at all
+
+      var t = null, dir = null;
+      if (idx.token === 'record_direction') {
+        dir = _RD_TIER_DIR[idx.lead] || null;
+        t = dir ? ((idx.advances === 0 || idx.opposes === 0) ? _RD_TIERS.strong : _RD_TIERS.mostly) : null;
+      } else if (idx.token === 'record_uniform_thin') {
+        dir = _RD_TIER_DIR[idx.lead] || null;
+        t = dir ? _RD_TIERS.thin : null;
+      } else if (idx.token === 'record_split_deep' || idx.token === 'record_split') {
+        t = _RD_TIERS.split;
+      } else if (idx.token === 'record_thin' && !idx.suppressed &&
+                 idx.judged === 1 && idx.primary >= _RD_MIN_PRIMARY) {
+        // The one-vote lean. Only when that vote is ON this issue (primary) — an
+        // incidental omnibus brush is not a lean, it is a coincidence.
+        dir = _RD_TIER_DIR[idx.advances ? 'advances' : 'opposes'];
+        t = _RD_TIERS.thin;
+      }
+      if (!t) t = _RD_TIERS.none; // coverage_floor, no_primary, judged 0, anything new
+
+      var showCounts = idx.judged > 0 && t.key !== 'none' &&
+        (idx.counted === true || t.key === 'thin');
+      return {
+        tier: t.key,
+        weight: t.weight,
+        tone: t.directional ? dir.tone : t.tone,
+        label: t.directional ? (t.lead + ' ' + dir.word) : t.label,
+        counts: showCounts ? _rdTierCounts(idx, noun, t.key) : '',
+        judged: idx.judged, advances: idx.advances, opposes: idx.opposes,
+        directional: !!t.directional,
+        token: idx.token,
+        note: _RD_TIER_NOTE
+      };
+    }
+
+    window._recordPatternTier = _recordPatternTier;
+    window._PDX_RD_TIERS = _RD_TIERS;
+    window._PDX_RD_TIER_NOTE = _RD_TIER_NOTE;
+
     // ── Omnibus component breakdown (the reusable primitive) ───────────────────
     // Break ONE record (a floor vote or a non-roll-call position) into its component
     // issues. An omnibus bill maps to many issues via vr_measure_issues, so this is
