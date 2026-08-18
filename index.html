@@ -6423,6 +6423,9 @@ window.PDXLazy = (function () {
               <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-rel');i.value='';alignSearch(i,'align-cats-rel');i.focus();">✕</button>
             </div>
 
+            <!-- Same match-input toggle as the main tool, compact — one state, two mounts -->
+            <div id="align-mode-rel" class="align-mode-mount"></div>
+
             <!-- Accordion controls mirror the main tool so both surfaces feel identical -->
             <div class="align-toolbar">
               <span class="align-sel-count" id="align-sel-count-rel" data-n="0">No stances set yet</span>
@@ -11479,6 +11482,7 @@ window.PDXLazy = (function () {
           <div class="align-compact" id="align-compact">
             <div class="align-compact-info">
               <span class="align-compact-status" id="align-compact-status">No stances set yet</span>
+              <span class="align-compact-mode" id="align-compact-mode" data-align-mode="stated">💬 Matching on <b>stated positions</b></span>
               <span class="align-compact-tagline" id="align-compact-tagline">Set your stances — what you stand for — and this shows who matches, plus whether their record backs it up. Add your best matches to your team.</span>
             </div>
             <div class="align-compact-actions">
@@ -11502,6 +11506,13 @@ window.PDXLazy = (function () {
                 <span class="pdx-hint-ico" aria-hidden="true">🎯</span>
                 <p class="pdx-hint-text"><strong>Stances → matches → team.</strong> ① Set the positions you actually believe in below — these are your <strong>stances</strong> (also saved in My Stances). ② Every politician instantly gets a <strong>🎯 Your Match %</strong> (how their stated positions fit yours) paired with <strong>⚖️ Say-vs-Do</strong> (whether their voting record backs those positions up). ③ Compare the candidates in your district and add your strongest matches to your team. Change your stances anytime.<br><span style="display:inline-block;margin-top:0.5rem;color:#c4b5fd;">🌱 <strong>New or 2026 candidate?</strong> Even without a long voting record, your match is built from their <strong>stated positions</strong> — and each candidate&rsquo;s profile tells you exactly how much of the score rests on a documented record versus an early read, so you always know what you&rsquo;re looking at.</span></p>
               </div>
+
+              <!-- MATCH INPUT MODE — stated positions vs formal-record patterns.
+                   Rendered by _alignRenderModeRow() so both this panel and the
+                   "My Key Alignments" mirror below read one piece of state. Same
+                   issue list and same values either way; only the politician-side
+                   input changes. Default is stated positions. -->
+              <div id="align-mode-main" class="align-mode-mount"></div>
 
               <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
                    their strength mix, and the areas they have / haven't weighed in on.

@@ -3524,8 +3524,14 @@
             }
           }
         } catch (e) {}
-        var signalRow = (stanceChip || powerBadge)
-          ? '<div class="kraq-signal-row" style="margin-top:0.3rem;">' + stanceChip + powerBadge + '</div>' : '';
+        // WHERE THIS SIGNAL CAME FROM — words or the voting pattern. Rendered on
+        // every compared issue in both modes: `💬 Says: Supports` or
+        // `🏛 Record pattern: Mostly opposes · 8 advanced · 2 against`. A pattern
+        // is never dressed as a quoted claim: record rows carry no it.direct and
+        // no it.stance, so the stance pill and 📍 Stated badge above cannot fire.
+        var sigChip = (typeof window._alignSignalChipHtml === 'function') ? window._alignSignalChipHtml(it) : '';
+        var signalRow = (sigChip || stanceChip || powerBadge)
+          ? '<div class="kraq-signal-row" style="margin-top:0.3rem;">' + sigChip + stanceChip + powerBadge + '</div>' : '';
         // Voting-record consistency line — "what they actually did" vs. their stance
         // on this issue, when their votes are on record (Phase 5).
         var recordRow = '';
@@ -3597,14 +3603,22 @@
       }
       var bd = (typeof window._calcAlignmentBreakdown === 'function') ? window._calcAlignmentBreakdown(pid) : null;
       if (!bd) {
-        // Issues are set but this candidate has no record to ground a match yet.
+        // Issues are set but nothing in the CURRENT match input grounds a score.
+        // In formal-record mode that is a statement about this mode, not about the
+        // candidate — say which, and never quietly score them from words instead.
+        var _rec = (typeof window.alignMatchMode === 'function') && window.alignMatchMode() === 'record';
         return '<div class="kr-align-inline kr-align-inline-setup" style="cursor:default;">' +
-            '<span class="kr-align-inline-ico">🎯</span>' +
+            '<span class="kr-align-inline-ico">' + (_rec ? '🏛' : '🎯') + '</span>' +
             '<span class="kr-align-inline-text">' +
-              '<span class="kr-align-inline-title">No alignment record yet</span>' +
-              '<span class="kr-align-inline-sub">Not enough data on this candidate</span>' +
+              '<span class="kr-align-inline-title">' +
+                (_rec ? 'No formal-record pattern on your issues' : 'No alignment record yet') + '</span>' +
+              '<span class="kr-align-inline-sub">' +
+                (_rec ? 'Their votes do not read a direction on the issues you picked. Nothing is scored from their stated positions in this mode.'
+                      : 'Not enough data on this candidate') + '</span>' +
             '</span>' +
-          '</div>';
+          '</div>' +
+          ((_rec && typeof window._alignModeSwapHtml === 'function')
+            ? '<div class="align-mode-gap" data-align-mode-gap="none">' + window._alignModeSwapHtml() + '</div>' : '');
       }
       var overall = bd.overall;
       var col = _krAlignColor(overall);
@@ -3625,10 +3639,12 @@
             '</span>' +
             '<span class="kr-align-mini"><div style="width:' + overall + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
             '<span class="kr-align-issues-line">🎯 Across <b>' + shown + '</b>' + extra + ' · <span class="kr-align-edit">tap to view &amp; adjust</span></span>' +
+            ((typeof window._alignModeTagHtml === 'function') ? window._alignModeTagHtml({ compact: true }) : '') +
           '</span>' +
           '<span class="kr-align-inline-chev" style="transform:rotate(' + (expanded ? '180' : '0') + 'deg);">▾</span>' +
         '</button>' +
         '<div class="kr-align-inline-body" style="display:' + (expanded ? 'block' : 'none') + ';">' +
+          ((typeof window._alignCoverageNoteHtml === 'function') ? window._alignCoverageNoteHtml(pid, bd) : '') +
           _krAlignInlineRows(bd, pid, d) +
           _krAlignQuickAdjustHtml() +
           '<button type="button" onclick="window.keyRacesAlignQuickView(\'' + pid + '\')" class="kr-align-inline-more">View full breakdown →</button>' +
@@ -3796,6 +3812,76 @@
     }
     window._krAlignDiscoveryView = _krAlignDiscoveryView;
 
+    // ── Record-mode gap view ────────────────────────────────────────────────
+    // What the full breakdown opens to when the visitor is matching on formal-record
+    // patterns and this member's record reads no direction on any issue they picked.
+    // The honest answer is a short one: name the two counts, name the issues that
+    // fell out, say plainly that nothing was scored from their stated positions
+    // instead, and put the other question one tap away. No score, no fallback.
+    function _krAlignRecordGapView(pid, d) {
+      window._kraqRecordPid = pid;
+      var cov = (typeof window._alignRecordCoverage === 'function') ? window._alignRecordCoverage(pid) : null;
+      // A dry lane may just be a cold one — ask for the vote pack, then re-open.
+      try {
+        if (cov && cov.pending && window.PDXVotingRecord && typeof window.PDXVotingRecord.fetchMember === 'function'
+            && typeof window.PDXVotingRecord.memberRecords === 'function' && !window.PDXVotingRecord.memberRecords(pid)) {
+          window.PDXVotingRecord.fetchMember(pid, { pageSize: 100 }).then(function (data) {
+            if (!data || !data.items || !data.items.length) return;
+            window.PDXVotingRecord.noteMember(pid, data.items);
+            var ov2 = document.getElementById('kr-align-overlay');
+            if (ov2 && ov2.style.display !== 'none' && window._kraqRecordPid === pid) window.keyRacesAlignQuickView(pid);
+          });
+        }
+      } catch (e) {}
+      var total = cov ? cov.total : 0;
+      var miss = (cov && cov.missing ? cov.missing : []).map(function (m) { return m.label; });
+      var firstName = (d.name || '').split(' ')[0] || 'They';
+      var photo = _krPhoto(pid, d, '#93b4e6');
+      var partyMeta = _krPartyMeta(d.party);
+      var partyHtml = partyMeta ? '<span style="color:' + partyMeta.color + ';">' + partyMeta.label + '</span>' : '';
+      var pending = !!(cov && cov.pending);
+      var body = pending
+        ? '<p style="font-size:0.76rem;color:#cbd9ec;line-height:1.6;margin:0 0 0.9rem;">⏳ <b>Reading ' + firstName + '\u2019s formal record…</b> Their votes and formal actions are still loading. Reopen this in a moment.</p>'
+        : '<p style="font-size:0.76rem;color:#cbd9ec;line-height:1.6;margin:0 0 0.9rem;">' +
+            'You are matching on <b style="color:#93b4e6;">formal-record patterns</b> — what ' + firstName +
+            '\u2019s votes and formal actions did. Their record on file does not read a direction on ' +
+            (total ? '<b>any of the ' + total + ' issue' + (total === 1 ? '' : 's') + '</b> you picked' : 'your issues') +
+            ', so there is nothing to match in this mode.</p>' +
+          '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
+            'Those issues are <b>left out</b> — they are <b>not</b> scored from ' + firstName +
+            '\u2019s stated positions instead. Switching to stated positions asks a different question, and gets a different answer.</p>' +
+          (miss.length
+            ? '<p style="font-size:0.68rem;color:#8ea2c0;line-height:1.5;margin:0 0 0.9rem;">Not counted: ' +
+                miss.slice(0, 8).join(' · ') + (miss.length > 8 ? ' · +' + (miss.length - 8) + ' more' : '') + '</p>'
+            : '');
+      var html =
+        '<div class="kraq-card">' +
+          '<div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.1rem;background:linear-gradient(135deg,rgba(96,165,250,0.16),rgba(10,15,30,0.6));border-bottom:1px solid rgba(96,165,250,0.25);border-radius:1.1rem 1.1rem 0 0;">' +
+            photo +
+            '<div style="flex:1;min-width:0;">' +
+              '<div class="font-condensed" style="font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;color:#93b4e6;">\ud83c\udfdb Matching on the formal record</div>' +
+              '<div class="font-display text-lg text-white" style="line-height:1.1;">' + d.name + '</div>' +
+              '<div class="font-condensed" style="font-size:0.66rem;color:#9fb4d4;">' + partyHtml + (d.office ? ' · ' + d.office : '') + '</div>' +
+            '</div>' +
+            '<button type="button" onclick="window.keyRacesCloseAlign()" aria-label="Close" style="flex-shrink:0;width:34px;height:34px;border-radius:0.65rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd9ec;cursor:pointer;font-size:1.05rem;line-height:1;">✕</button>' +
+          '</div>' +
+          '<div style="padding:1.1rem;">' +
+            body +
+            ((typeof window._alignModeToggleHtml === 'function') ? window._alignModeToggleHtml({}) : '') +
+            '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
+              '<button type="button" onclick="window.keyRacesCloseAlign();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#1d4ed8,#60a5fa);border:none;padding:0.7rem;border-radius:0.6rem;">\ud83c\udfdb See their formal record</button>' +
+              '<button type="button" onclick="window.keyRacesCloseAlign();setTimeout(window._krAlignGuideToPicker,220);" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#cbd9ec;background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">⚙ Adjust Issues</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      var ov = _krEnsureAlignOverlay();
+      ov.innerHTML = html;
+      ov.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function () { ov.style.opacity = '1'; });
+    }
+    window._krAlignRecordGapView = _krAlignRecordGapView;
+
     window.keyRacesAlignQuickView = function(pid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) { if (typeof showProfile === 'function') showProfile(pid); return; }
@@ -3804,8 +3890,19 @@
       var _n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
              : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
       if (!_n) { _krAlignDiscoveryView(pid, d); return; }
+      window._kraqRecordPid = pid;
       var bd = (typeof window._calcAlignmentBreakdown === 'function') ? window._calcAlignmentBreakdown(pid) : null;
-      if (!bd) { _krAlignGuideToPicker(); return; }
+      if (!bd) {
+        // Record mode with nothing to match is NOT a picker problem — the visitor's
+        // issues are set and valid, this lane just has no direction on them. Bouncing
+        // them to "adjust your issues" would blame them for our coverage gap.
+        if ((typeof window.alignMatchMode === 'function') && window.alignMatchMode() === 'record') {
+          _krAlignRecordGapView(pid, d);
+          return;
+        }
+        _krAlignGuideToPicker();
+        return;
+      }
 
       // Warm this member's voting record (once) so the per-issue consistency lines
       // can render; when it lands, re-open this same view so they appear. Guarded by
@@ -3892,8 +3989,13 @@
           : '';
         var powerBadge = (it._powerTie && typeof window._alignPowerBadgeHtml === 'function')
           ? window._alignPowerBadgeHtml(it._powerTie) : '';
-        var signalRow = (stanceChip || powerBadge)
-          ? '<div class="kraq-signal-row">' + stanceChip + powerBadge + '</div>' : '';
+        // WORDS OR PATTERN — stated on every compared issue, leading the row's
+        // evidence. `💬 Says: Opposes` and `🏛 Record pattern: Mostly opposes ·
+        // 8 advanced · 2 against` are deliberately different shapes: a pattern is
+        // what the record DID, and must never read as something they said.
+        var sigChip = (typeof window._alignSignalChipHtml === 'function') ? window._alignSignalChipHtml(it) : '';
+        var signalRow = (sigChip || stanceChip || powerBadge)
+          ? '<div class="kraq-signal-row">' + sigChip + stanceChip + powerBadge + '</div>' : '';
         // For a documented position, show the candidate's own one-line stance right
         // under the chips so the voter reads exactly WHERE they stand, not just a number.
         var stanceLine = '';
@@ -4176,13 +4278,23 @@
             '<div style="display:flex;align-items:center;gap:1rem;background:rgba(20,184,166,0.07);border:1px solid rgba(45,212,191,0.3);border-radius:0.9rem;padding:0.9rem 1rem;margin-bottom:1rem;">' +
               '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:3rem;line-height:0.9;color:' + col + ';text-shadow:0 0 16px ' + col + '55;">' + overall + '%</div>' +
               '<div style="flex:1;min-width:0;">' +
-                '<div class="font-condensed font-700" style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:' + col + ';">' + matchWord + ' with your issues</div>' +
-                '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.25rem 0 0;">Weighted across the ' + bd.issues.length + ' issue' + (bd.issues.length === 1 ? '' : 's') + ' you selected — your personal fit, with a small accountability adjustment layered in.</p>' +
+                '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
+                  '<span class="font-condensed font-700" style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:' + col + ';">' + matchWord + ' with your issues</span>' +
+                  ((typeof window._alignModeTagHtml === 'function') ? window._alignModeTagHtml() : '') +
+                '</div>' +
+                '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.25rem 0 0;">Weighted across the ' + bd.issues.length + ' issue' + (bd.issues.length === 1 ? '' : 's') +
+                  ((bd.mode === 'record')
+                    ? ' the record reads a direction on — matched against what their votes did, not what they say.'
+                    : ' you selected — your personal fit, with a small accountability adjustment layered in.') + '</p>' +
               '</div>' +
             '</div>' +
             consHeadHtml +
             acctNote +
             confHtml +
+            // Which side of the politician this number matched against, and the
+            // toggle to ask the other question without leaving the breakdown.
+            ((typeof window._alignModeToggleHtml === 'function') ? window._alignModeToggleHtml({ compact: true }) : '') +
+            ((typeof window._alignCoverageNoteHtml === 'function') ? window._alignCoverageNoteHtml(pid, bd) : '') +
             '<div class="font-condensed font-700" style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#5eead4;margin-bottom:0.6rem;">Issue-by-issue breakdown</div>' +
             tallyHtml +
             sigHtml +
