@@ -91,7 +91,34 @@
      while the rubber band settles. */
   var TOP_BAND = 8;
 
+  /* THE TRUE TOP IS EVERYTHING THE FIXED CHROME COVERS, NOT JUST SCROLL 0.
+     TOP_BAND above is the "already there" band. This is the wider band in which
+     a DOWNWARD correction is never legitimate, and it is the rule the mobile hero
+     report keeps landing on: the reader flings up toward the brand lockup, a
+     section finishes hydrating, and a positive delta lands them a hundred-odd
+     pixels short of the top — with the lockup still behind the search row,
+     because the page never reached the position the hero's clearance was computed
+     for. Within one chrome-depth of the document top the only thing above the
+     viewport is the hero's own top padding, and padding does not hydrate: any
+     correction claiming content grew up there is measuring something else.
+
+     Read from the same --pdx-chrome the nav publishes, so it tracks a notch and a
+     font scale instead of re-guessing them; the fallback is the stylesheet's own
+     fail-closed depth. Corrections that move the page UP (toward the top) are
+     untouched at any position — the guard has never been the thing that stopped
+     the reader reaching the hero, a downward shove was. */
+  function topReach() {
+    var v = 0;
+    try { v = parseFloat(root.style.getPropertyValue('--pdx-chrome')) || 0; } catch (e) { v = 0; }
+    if (!(v > 0 && v < 320)) v = 114;            // 7.125rem, the stylesheet literal
+    return Math.max(TOP_BAND, Math.round(v));
+  }
+
   function scrollToInstant(y) {
+    // A correction may never come to rest above the document's own top edge. iOS
+    // accepts a negative offset as a rubber band and settles back, which reads as
+    // a bounce at exactly the moment the reader is trying to hold the true top.
+    if (!(y > 0)) y = 0;
     adjusting++;
     root.classList.add('pdx-instant-scroll');
     try {
@@ -326,7 +353,11 @@
       // and pushing them back down is the bug this guard was causing.
       if (!delta) return;
       if (pageMoving()) return;
-      if ((window.scrollY || window.pageYOffset || 0) <= TOP_BAND) return;
+      var atNow = window.scrollY || window.pageYOffset || 0;
+      if (atNow <= TOP_BAND) return;
+      // The one direction that can strand the reader below the hero. Anything
+      // still inside the chrome's own depth is, for this purpose, at the top.
+      if (delta > 0 && atNow <= topReach()) return;
       scrollByInstant(delta);
     });
 

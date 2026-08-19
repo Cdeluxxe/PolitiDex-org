@@ -34,7 +34,11 @@
 
 'use strict';
 
-// v55 — the mobile hero clearance fix. This bump is part of the fix, not
+// v57 — the mobile hero BRAND LOCKUP fix (the PX/LIVE badge no longer being
+// display:none on any phone, plus the runtime audit that tops the hero's padding
+// up from the measured bottom of .pdx-eye-row). Same reason as every bump in this
+// comment's history, restated because it keeps being the reason the fix is
+// reported as not shipped. This bump is part of the fix, not
 // bookkeeping: navigations are stale-while-revalidate (handleNavigate below), so a
 // phone with a warm shell cache is served the PREVIOUS index.html on a hard
 // refresh and only gets the new one on the load after that. There is no
@@ -43,7 +47,7 @@
 // the cache makes the shell cache empty on activate, so the first navigation
 // after this worker takes control goes to the network and the fix is visible on
 // the refresh that was supposed to show it.
-const CACHE_VERSION = 'v56';
+const CACHE_VERSION = 'v57';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
