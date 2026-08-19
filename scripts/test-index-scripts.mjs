@@ -209,15 +209,26 @@ ok(html.indexOf('id="hero-receipt"') < html.indexOf('<section id="say-vs-do"'),
   ok(/:root\s*\{[^}]*--pdx-chrome:\s*[\d.]+rem/.test(html),
     "chrome: --pdx-chrome is not declared on :root — the fixed nav + search height has no single home");
 
-  // Every #hero top padding, at every breakpoint, is chrome + air. A bare length
-  // here is the exact shape of the original bug.
+  // The hero's top padding is stated ONCE and reads the one published value. It
+  // used to be restated at each breakpoint as calc(var(--pdx-chrome) + Nrem) —
+  // three copies of an arithmetic add-on, which is how the air term went stale
+  // twice while every check like this one stayed green. --pdx-hero-top is written
+  // by the publisher under the nav from the measured chrome bottom PLUS the
+  // measured hero overhang, and its no-JS fallback chain is built on
+  // --pdx-chrome. scripts/test-mobile-hero-clearance.mjs resolves that chain and
+  // owns the geometry; all this checks is that the hero carries no bare length.
   const heroPads = [...html.matchAll(/#hero\s*\{[^}]*?padding-top:\s*([^;}]+)/g)].map((m) => m[1].trim());
-  ok(heroPads.length >= 2,
+  ok(heroPads.length >= 1,
     "chrome: the hero's top padding is not stated in the inline critical CSS, so first paint depends on a\n" +
     "    stylesheet that has not arrived yet");
-  ok(heroPads.every((v) => v.includes("var(--pdx-chrome")),
-    `chrome: a #hero top padding is a hand-measured length (${heroPads.filter((v) => !v.includes("var(--pdx-chrome")).join(", ")})\n` +
+  const heroPadOk = (v) => v.includes("var(--pdx-chrome") || v.includes("var(--pdx-hero-top");
+  ok(heroPads.every(heroPadOk),
+    `chrome: a #hero top padding is a hand-measured length (${heroPads.filter((v) => !heroPadOk(v)).join(", ")})\n` +
     "    — that is the guess that put the brand wordmark under the search bar on phones");
+  ok(/--pdx-hero-top:\s*calc\(\s*var\(\s*--pdx-chrome/.test(html),
+    "chrome: --pdx-hero-top no longer falls back to calc(var(--pdx-chrome) + …). It is what #hero's\n" +
+    "    padding reads, so a chain that does not terminate in the measured chrome is a hero clearance\n" +
+    "    that is a literal again on first paint and on any device where the publisher cannot run");
 
   // Anchor scrolling reads the same number. A hand-measured offset here lands a
   // jumped-to heading behind the chrome instead.
