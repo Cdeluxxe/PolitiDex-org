@@ -116,6 +116,33 @@
 /* Thin and no-clear-pattern are quieter, in the pattern engine's own weight
    classes — never a bolder face than a read that earned its direction. */
 .pdxtree-pat.w-thin, .pdxtree-pat.w-flat { opacity: .72; font-size: .7rem; }
+/* A SCORED SLOT PAINTS FROM THE VERDICT, not from the record's lean. The word in
+   the slot is Direction Match's ("Backed up", "Contradicted"), so its colour is
+   Direction Match's too — taken from the verdict the row already resolved and
+   passed in as a custom property, never restated as a hex in this file. */
+.pdxtree-pat.tone-verdict { color: var(--pdx-rc, #b9cbe6); }
+.pdxtree-pat.st-scored b { color: var(--pdx-rc, #8fa6c6); opacity: .8; }
+/* Depth is the smaller half of the same sentence: how much is behind the label.
+   It never outweighs the label and it is never coloured on its own. */
+.pdxtree-depth { font-style: normal; opacity: .8; }
+/* The one-item horizon. Printed, not hidden — including on a phone, where it is
+   the row most likely to be misread as a settled finding. */
+.pdxtree-early { font-style: italic; font-size: .68rem; color: #9fb4d4; opacity: .95; }
+/* On file with no direction read, still warming, nothing on file: three true
+   states, all of them quiet, none of them absent. */
+.pdxtree-pat.st-onfile, .pdxtree-pat.st-pending, .pdxtree-pat.st-none {
+  color: #8fa6c6; font-style: italic; opacity: .82;
+}
+
+/* THE ONE PERCENTAGE A LEAF MAY CARRY. It belongs to the Record slot it sits
+   beside — one issue's Direction Match result — and it is emitted only for the
+   scored state (see pctHtml). No branch has one; no pattern-only row has one. */
+.pdxtree-pct {
+  font-size: .7rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  padding: .04rem .3rem; border-radius: 4px;
+  color: var(--pdx-rc, #cfe0f5); background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
 
 /* The cue — a relation between the two slots beside it, printed only when both
    exist (pattern_only being the one that says the opposite out loud). */
@@ -152,6 +179,18 @@
    up: it is the smallest, dimmest thing in the panel. */
 .pdxtree-leaf.is-quiet { opacity: .78; }
 .pdxtree-leaf.is-quiet .pdxtree-name { font-size: .8rem; font-weight: 600; }
+
+/* ── THE HEADER TALLY ──────────────────────────────────────────────────────
+   Four figures, each one a field of the shared counts object, each carrying the
+   denominator it means in its own title. Middot-separated rather than boxed: it
+   is a caption on the tree below it, not a scoreboard of its own. */
+.pdxtree-tally {
+  margin: 0 .1rem .5rem; display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: .18rem .5rem; font-size: .7rem; line-height: 1.45; color: #9fb4d4;
+}
+.pdxtree-tallybit { display: inline-flex; align-items: baseline; gap: .3rem; }
+.pdxtree-tallybit + .pdxtree-tallybit::before { content: "·"; opacity: .6; }
+.pdxtree-tallybit[title] { cursor: help; }
 
 .pdxtree-note {
   margin: .55rem .1rem 0; font-size: .7rem; line-height: 1.5; color: #8fa6c6;

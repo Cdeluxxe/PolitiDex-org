@@ -566,9 +566,22 @@ const [displayScore, promiseState] = (() => {
   ok(!/keptCount\s*\/\s*_resolved/.test(rail),
     "the nav rail's Record pill recomputes the follow-through rate — it sits beside\n" +
     "    the Promises pill that already shows it");
-  ok(/label:\s*'Record',\s*\n?\s*value:\s*\(_orTested\.tested\s*\|\|\s*0\)\s*\+\s*' of '/.test(rail),
+  // The pill's figure is decided in window._pdxNavChips now — one derivation shared
+  // by the build-time string and the warm repaint — so coverage is checked there, and
+  // the pill is checked for being wired to it. The numerator is the counts object's
+  // `scored`, which is the same split the Official Record's own digest leads with, so
+  // the pill and the section it jumps to cannot state different totals. While the
+  // record is still arriving it says so rather than printing the 0 it would retract.
+  const chipSrc = PROFILES.slice(PROFILES.indexOf("window._pdxNavChips = function"),
+    PROFILES.indexOf("window._pdxNavChipAria = function"));
+  must(chipSrc.length > 400, "could not isolate the nav chip derivation");
+  ok(/counts\.scored \+ ' of ' \+ counts\.onRecord \+ ' tested'/.test(chipSrc) &&
+    /out\.record = counts\.warming/.test(chipSrc),
     "the nav rail's Record pill no longer reports Official Record coverage — it is the\n" +
     "    only pill for the formal-record lane, so it has to say how much of it was tested");
+  ok(/label:\s*'Record',\s*live:\s*'record',\s*\n?\s*value:\s*_navChips\.record\.value/.test(rail),
+    "the Record pill builds its own coverage figure instead of taking the live chip's — a\n" +
+    "    string built before the roll-call fetch returns cannot be corrected when it does");
   ok(/target:\s*'pdxsec-official-record',[\s\S]{0,200}label:\s*'Record'/.test(rail),
     "the Record pill no longer points at the Official Record — a pill labelled Record has to\n" +
     "    land on the record lane, not on a pledge drawer");

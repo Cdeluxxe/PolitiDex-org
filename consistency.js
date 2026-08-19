@@ -4325,6 +4325,103 @@
     return out;
   }
 
+  // ── PHASE 0 · THE ONE COUNTS OBJECT ─────────────────────────────────────────
+  // Seven different "N of M issues" figures were reachable on one profile at once,
+  // each derived where it was printed: a rail pill counting the tested set, a tree
+  // counting leaves, a header counting stated positions, an index counting rows
+  // with formal instruments. None of them was wrong on its own terms and no two of
+  // them were the same M, so the screen read as four contradictions.
+  //
+  // This is the only place those totals are counted. Every surface that prints one
+  // reads it from here and NAMES WHICH M IT MEANS — the `of` map below is that
+  // naming, in one wording per denominator, so a chip's accessible name and a
+  // section's subtitle cannot describe the same figure two ways.
+  //
+  //   total      issues we track for them — one per issue row
+  //   stated     issues with a stated position of theirs on file
+  //   tested     issues Direction Match actually tested (its numerator)
+  //   scorable   issues Direction Match counts as testable (its denominator)
+  //   onRecord   issues with ≥1 mapped formal vote or formal action — THE DISPLAY
+  //              BAR, read from _stRecordDisplay, the same accessor the browse
+  //              surfaces render, so "is there a record?" cannot be answered one
+  //              way by a chip and another way by the row it jumps to
+  //   scored     issues the FORMAL RECORD scored — row.scored, which is the split the
+  //              Official Record section itself makes and the numerator its own
+  //              digest leads with ("35 issues tested against orders, signings and
+  //              vetoes"). It is a subset of onRecord by construction: a row is
+  //              only `scored` when a formal instrument on it was judged.
+  //   shown      issues that reach a browse surface: a stated position, or a formal
+  //              record, or both. This is the tree's leaf count by construction.
+  //   signature  issues tagged on the profile document (the 🎯 Key Issues block).
+  //              Not an engine figure and never mixed with one — it is what that
+  //              section prints, which is what the pill pointing at it must say.
+  //
+  // NOT A SCORE, and no new arithmetic: `tested` and `scorable` are Word vs
+  // Action's own published coverage, read rather than recomputed, and the rest are
+  // counts of rows the row model already built. Nothing here lowers a floor,
+  // decides a verdict or feeds one.
+  var _PC_OF = {
+    total: 'issues we track for them',
+    stated: 'issues with a stated position',
+    tested: 'issues Direction Match could test',
+    scorable: 'issues Direction Match counts',
+    onRecord: 'issues with a formal record on file',
+    scored: 'issues the formal record scored',
+    shown: 'issues on the browse surfaces',
+    signature: 'issues tagged on this profile'
+  };
+  function _profileCountsBuild(pid, p) {
+    var out = { pid: pid || '', total: 0, stated: 0, tested: 0, scorable: 0,
+                onRecord: 0, scored: 0, shown: 0, signature: 0, warming: false, of: _PC_OF };
+    if (!pid) return out;
+    var rows = [];
+    try { rows = issueRows(pid) || []; } catch (e) { rows = []; }
+    rows.forEach(function (r) {
+      if (!r || !r.key) return;
+      out.total++;
+      var said = _stSaid(r);
+      if (said) out.stated++;
+      var on = false;
+      try { on = !!(_stRecordDisplay(r) || {}).onRecord; } catch (e) { on = false; }
+      if (on) out.onRecord++;
+      if (r.scored) out.scored++;
+      if (said || on) out.shown++;
+    });
+    // Direction Match's coverage, as Direction Match publishes it. Read lazily —
+    // word-action.js loads after this file and the accessor is called long after
+    // both are on the page.
+    try {
+      if (window.PDXWordAction && typeof window.PDXWordAction.read === 'function') {
+        var cov = (window.PDXWordAction.read(pid, p) || {}).coverage || null;
+        if (cov) {
+          out.tested = cov.tested || 0;
+          out.scorable = cov.scorable || 0;
+          out.warming = !!cov.warming;
+        }
+      }
+    } catch (e) {}
+    try {
+      if (typeof window._pdxKeyIssues === 'function') out.signature = (window._pdxKeyIssues(p) || []).length;
+      else if (p) out.signature = ((p.issues || p.keyIssues || []) || []).length;
+    } catch (e) { out.signature = 0; }
+    return out;
+  }
+  var _pcCache = {}, _pcEpoch = -1;
+  // Memoized per (politician, term scope) on the derivation epoch, exactly as the
+  // row cache is — the counts are a fold over those rows, so they may not outlive
+  // them. A warming profile is NOT cached: `warming` can go false without the
+  // record changing (a fetch that came back empty settles the lane without noting
+  // a member), and a cached "still loading" would strand every chip reading it.
+  function profileCounts(pid, p) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_pcEpoch !== ep) { _pcCache = {}; _pcEpoch = ep; }
+    var k = norm(pid) + '||' + execTermScope().key;
+    if (Object.prototype.hasOwnProperty.call(_pcCache, k)) return _pcCache[k];
+    var v = _profileCountsBuild(pid, p);
+    if (!v.warming) _pcCache[k] = v;
+    return v;
+  }
+
   // The one sort. Tier first (the contract above), then — inside a tier — the sharper
   // verdict, then the deeper receipt pile, then the declared weights if a caller has
   // set them, then the label so the order is stable across renders.
@@ -4967,6 +5064,241 @@
       '<span class="pdxst-pat-lb">' + esc(t.label) + '</span>' +
       (t.counts ? '<span class="pdxst-pat-n">· ' + esc(t.counts) + '</span>' : '') +
       '</span>';
+  }
+
+  // ── 🏛 THE RECORD SLOT: WHAT TO PRINT WHERE ONE FORMAL ITEM EXISTS ──────────
+  // _stPatternTier above is the CHARACTERISATION read and it stays exactly as it
+  // is: the record-pattern chip on a stance row, the formal-pattern index and the
+  // words-vs-record card all read it, and every one of its floors still holds.
+  // What it cannot do is fill a slot. It declines on three separate grounds — the
+  // roll-call index is still in flight, the lane is executive, the member's mapped
+  // file is under the coverage floor — and a browse surface that omits its Record
+  // line on each of them prints a blank, which a reader reads as "nothing on
+  // record". That is a stronger claim than the engine ever made and it is false in
+  // all three cases.
+  //
+  // So this is the DISPLAY read, and it is the accessor a browse surface should
+  // use. One mapped formal vote or one formal action is enough to say there is a
+  // record and what it did; the depth is printed beside it every time, and a
+  // single item is worded as a beginning. It resolves in this order, which is the
+  // shipped decision table:
+  //
+  //   scored     Direction Match already tested this issue from the FORMAL lane —
+  //              so the slot prefers that verdict's own word (Backed up / Mixed /
+  //              Contradicted / Thin record) over a second vocabulary for the same
+  //              finding, and carries the percentage with it.
+  //   direction  ≥1 formal item and a direction the display bar could read →
+  //              _RD_TIERS' own label plus the count it was read from.
+  //   onfile     formal items on file, no direction yet → says exactly that, with
+  //              the count, and names WHY in the reason line.
+  //   none       nothing formal on this issue → "No formal record on this issue
+  //              yet", which is the one state that may say nothing is there.
+  //
+  // WHAT IT IS NOT. Not a score and not an input to one — no verdict, no ratio and
+  // no tally reads this function, and the percentage it carries is one Direction
+  // Match had already computed and published on the row. Not a stance: nothing
+  // here is written to a position map, and a direction read from the record is
+  // labelled as the record's on every surface that prints it. Not the public lane:
+  // `items` is the row's FORMAL inventory only, and the scored branch is refused to
+  // a public-record verdict however well evidenced it is, because a public-record
+  // percentage under a 🏛 Record label would be two lanes reading as one.
+  var _ST_REC_ONFILE = 'Formal items on file · direction not clear yet';
+  var _ST_REC_NONE = 'No formal record on this issue yet';
+  var _ST_REC_PENDING = 'Checking the formal record…';
+  // The scored slot's own sentence. It may NOT borrow the pattern engine's note,
+  // which ends on "never counted in Direction Match" — true of every pattern read
+  // and false of exactly this one state, because this state IS the Direction Match
+  // result. One wrong disclosure is worse than none.
+  var _ST_REC_NOTE_SCORED = 'Direction Match on this issue: what they said, tested against the ' +
+    'formal record on file.';
+  // THE SAME SENTENCE, IN THE LANE'S OWN COUNTABLE. The engine publishes one note
+  // and it says "votes on file"; on the executive lane the countable is actions and
+  // nothing else about the sentence changes. Fails safe by construction — if the
+  // engine's wording moves, the swap no-ops and the shared sentence still prints.
+  function _stRecNote(r, t) {
+    var note = (t && t.note) || '';
+    if (note && r && r.lane === 'exec') note = note.replace('votes on file', 'actions on file');
+    return note;
+  }
+  // The one-item sentence. A count with no horizon reads as a verdict on a sample
+  // of one, so the slot says out loud what one item is: a start.
+  function _stRecEarly(noun) {
+    return 'early signal; more ' + noun.many + ' can change this.';
+  }
+
+  // The executive lane's index, shaped like a roll-call one so the SAME display
+  // tier reads both. This is not a pattern engine for executive actions and it
+  // does not become one: it counts what PDXExecRecord already resolved per issue —
+  // one entry per action with its own direction, already inverted for the blocking
+  // classes by issueDirection() — and hands those counts over. `token` is its own
+  // so nothing downstream can mistake it for a roll-call read, and no score is
+  // set, published or derived here.
+  //
+  // WHY THE EXEC POOL IS NOT "PARTIAL". The roll-call coverage floor exists because
+  // an API fetch may have landed us a fraction of a member's mapped votes. The
+  // executive pool is the shipped, curated action set for that term scope — we
+  // hold all of it or none of it — so a uniform run of seven orders is seven of
+  // seven, not seven of an unknown number, and the display tier reads its depth at
+  // face value. See the `partial` flag in _recordDisplayTier.
+  function _stExecDisplayIndex(r) {
+    try {
+      if (!r || r.lane !== 'exec' || !r.pid || !r.key) return null;
+      var XR = window.PDXExecRecord;
+      if (!XR || typeof XR.issue !== 'function') return null;
+      var res = XR.issue(r.pid, r.key) || {};
+      var acts = res.actions || [];
+      var idx = { issueKey: r.key, token: 'record_exec', lead: null,
+                  characterised: false, counted: false,
+                  judged: 0, advances: 0, opposes: 0, advanceScore: 0, opposeScore: 0,
+                  primary: 0, total: 0, suppressed: null, clause: '', summary: '', label: '' };
+      for (var i = 0; i < acts.length; i++) {
+        var a = acts[i];
+        if (!a || (a.direction !== 'advances' && a.direction !== 'opposes')) continue;
+        idx.total++; idx.judged++;
+        if (a.isPrimary) idx.primary++;
+        // Unweighted on purpose: an executive action has no mapping weight and no
+        // procedural discount to apply, so every act counts once and the two
+        // scores are the two counts. Nothing reads them as a magnitude.
+        if (a.direction === 'advances') { idx.advances++; idx.advanceScore += 100; }
+        else { idx.opposes++; idx.opposeScore += 100; }
+      }
+      return idx.total ? idx : null;
+    } catch (e) { return null; }
+  }
+  // WHICH INDEX, BY LANE — and _stDirRaw is left exactly as it is. That function
+  // declines on the executive lane by design and the scoring path depends on it
+  // declining; the display path routes around it instead of loosening it.
+  function _stDisplayIndex(r) {
+    if (!r) return null;
+    if (r.lane === 'exec') return _stExecDisplayIndex(r);
+    try { return _stDirRaw(r); } catch (e) { return null; }
+  }
+  function _stDisplayTier(r) {
+    try {
+      if (typeof window._recordDisplayTier !== 'function') return _stPatternTier(r);
+      var idx = _stDisplayIndex(r);
+      if (!idx) return null;
+      return window._recordDisplayTier(idx, { noun: _stNoun(r) }) || null;
+    } catch (e) { return null; }
+  }
+
+  // WHY NO DIRECTION, when there are items. Two of the four answers are already
+  // written and still true, so they are reused verbatim from the formal-pattern
+  // index rather than restated here; the two the display bar creates are new,
+  // because "the pattern read has not been extended to this lane" stopped being
+  // true for this slot the moment the exec index above existed.
+  function _stRecordWhy(r, idx, items) {
+    var n = _stNoun(r);
+    var many = (items === 1 ? n.one : n.many);
+    var sup = (idx && idx.suppressed) || null;
+    if (!sup) {
+      try {
+        if (typeof window._pdxRecordSuppressedKey === 'function') {
+          sup = window._pdxRecordSuppressedKey(r && r.key) || null;
+        }
+      } catch (e) { sup = null; }
+    }
+    // A POLELESS ISSUE ANSWERS FIRST, on every lane. It is the one reason that is
+    // about the issue rather than about the record, and _fpiUnreadWhy already words
+    // it — including for the executive lane now that it reads the key.
+    if (sup && _RD_TIER_MUTED[sup]) {
+      try { return _fpiUnreadWhy(r); } catch (e) {}
+    }
+    if (r && r.lane === 'exec') {
+      return { id: 'exec_no_direction', lb: 'Formal items on file',
+        note: items + ' ' + many + ' on file and open in the dossier. None of them takes a ' +
+          'for-or-against side on this issue, so no direction is claimed here either way.' };
+    }
+    if (sup === 'no_primary') {
+      return { id: 'incidental', lb: 'Formal items on file',
+        note: items + ' ' + many + ' on file touch this issue only incidentally — none of them ' +
+          'was about it — so no direction is read from them. The ' + n.many + ' are in the dossier.' };
+    }
+    try { return _fpiUnreadWhy(r); } catch (e) {}
+    return { id: 'unread', lb: 'Formal items on file', note: '' };
+  }
+
+  // ONE ROW'S RECORD SLOT. Pure, and every number on it is a number some other
+  // engine already published: `items` is the row's own formal inventory, `pct` and
+  // the verdict word are Direction Match's, the direction and its counts are the
+  // display tier's. The slot decides nothing except which of the four states to
+  // print.
+  function _stRecordDisplay(r) {
+    var noun = _stNoun(r || {});
+    var out = { state: 'none', label: _ST_REC_NONE, depth: '', counts: '',
+                items: 0, judged: 0, noun: noun, onRecord: false,
+                tier: 'none', weight: 'flat', tone: 'muted', color: '',
+                directional: false, early: false, partial: false, display: false,
+                earlyNote: '', pct: null, scored: false, metric: '', token: '',
+                note: '', why: null };
+    if (!r || !r.key) return out;
+    var idx = _stDisplayIndex(r);
+    var t = null;
+    try {
+      if (idx && typeof window._recordDisplayTier === 'function') {
+        t = window._recordDisplayTier(idx, { noun: noun }) || null;
+      }
+    } catch (e) { t = null; }
+    // The inventory is the row's own formal count, floored by whatever the index
+    // actually holds — never the public lane, and never a sum of the two.
+    var items = Math.max(_stHeld(r) || 0, (idx && idx.total) || 0);
+    out.items = items;
+    out.onRecord = items > 0;
+    out.judged = (idx && idx.judged) || (t && t.judged) || 0;
+    out.token = (r.verdict && r.verdict.token) || '';
+    if (t) {
+      out.tier = t.tier; out.weight = t.weight; out.tone = t.tone;
+      out.counts = t.counts || ''; out.directional = !!t.directional;
+      out.display = !!t.display; out.partial = !!t.partial;
+      out.early = !!t.early; out.note = _stRecNote(r, t);
+    }
+    // DEPTH IS THE INVENTORY, always — the number of formal items this row holds,
+    // which is the number its dossier lists and the number _stResult prints. The
+    // judged subset is stated separately in `counts` ("2 actions advanced") where a
+    // direction was read from fewer items than are on file, so the two figures are
+    // never one figure and the smaller one never stands in for the file.
+    out.depth = items ? (items + ' ' + (items === 1 ? noun.one : noun.many)) : '';
+    if (out.early || items === 1) {
+      out.early = true;
+      out.earlyNote = _stRecEarly(noun);
+    }
+    if (!items) {
+      // NOTHING ON FILE IS NOT THE SAME AS NOTHING FETCHED YET. The roll-call lane
+      // arrives after first paint, and "No formal record on this issue yet" printed
+      // over a request still in flight is the one wrong sentence this slot could
+      // say — so while the lane is outstanding the slot says it is still looking,
+      // in the same words the row's own result uses.
+      if (r.lane !== 'exec' && !recordSettled(r.pid)) {
+        out.state = 'pending';
+        out.label = _ST_REC_PENDING;
+      }
+      return out;
+    }
+
+    // ── scored ──────────────────────────────────────────────────────────────
+    // Direction Match's own word, and only for a FORMAL-lane result. A row the
+    // public record decided keeps its public-record verdict on the surfaces that
+    // own that lane and is read here as what it is on this one: a formal record
+    // with, or without, a direction.
+    var res = null;
+    try { res = _stResult(r); } catch (e) { res = null; }
+    if (res && res.state === 'tested' && typeof res.pct === 'number' &&
+        res.metric === 'Direction match') {
+      out.state = 'scored'; out.scored = true;
+      out.pct = res.pct; out.metric = res.metric;
+      out.label = res.label || (r.verdict && r.verdict.label) || '';
+      out.color = res.color || '';
+      out.note = _ST_REC_NOTE_SCORED;
+      return out;
+    }
+    // ── direction ───────────────────────────────────────────────────────────
+    if (t) { out.state = 'direction'; out.label = t.label; return out; }
+    // ── onfile ──────────────────────────────────────────────────────────────
+    out.state = 'onfile';
+    out.label = _ST_REC_ONFILE;
+    out.why = _stRecordWhy(r, idx, items);
+    out.note = (out.why && out.why.note) || out.note;
+    return out;
   }
 
   // ── WHICH GROUP A ROW BELONGS UNDER ─────────────────────────────────────────
@@ -6512,6 +6844,24 @@
   //     is the shortfall this surface owns, and it says so.
   function _fpiUnreadWhy(r) {
     var n = _stNoun(r);
+    // THE ISSUE'S SHAPE IS ASKED FIRST, and from the KEY rather than from an index.
+    // A poleless issue has nothing for any record to lean on — roll-call, executive
+    // or otherwise — so on a lane with no index to inspect (the executive one) that
+    // answer used to be unreachable and the row said "the pattern read has not been
+    // extended to this lane" over an issue no lane could ever read. The gap is our
+    // mapping's either way, and the row now says which gap it is.
+    var _fsup = null;
+    try {
+      if (typeof window._pdxRecordSuppressedKey === 'function') {
+        _fsup = window._pdxRecordSuppressedKey(r && r.key) || null;
+      }
+    } catch (e) { _fsup = null; }
+    if (_fsup && _RD_TIER_MUTED[_fsup]) {
+      return { id: 'no_side', lb: 'No side to read on this issue',
+        note: 'This issue has no for-or-against side in our own issue mapping, so we do not claim a ' +
+          'direction for these ' + n.many + '. That is a gap in our mapping, not a finding about ' +
+          'their record — the ' + n.many + ' themselves are in the dossier.' };
+    }
     if (r && r.lane === 'exec') {
       return { id: 'exec_lane', lb: 'Pattern not read on this lane yet',
         note: 'These ' + n.many + ' are on file and open in the dossier. The pattern read runs on ' +
@@ -9336,7 +9686,20 @@
     recordPattern: {
       tier: _stPatternTier,
       html: _stPatternHtml,
-      TONE: _ST_PAT_TONE
+      TONE: _ST_PAT_TONE,
+      // THE DISPLAY READ, and the accessor a browse surface should use. `tier`
+      // above is the characterisation read and is unchanged — the cards and the
+      // formal-pattern index still gate on it and still exclude what it declines.
+      // `display` answers the other question ("is there a record here at all, and
+      // what did it do?") from one formal item up, and returns the whole slot: its
+      // state, its label, its depth, its reason line, and the percentage Direction
+      // Match had already published where there is one. Nothing here is a stance,
+      // nothing here is scored, and nothing scoring reads it.
+      display: _stRecordDisplay,
+      ONFILE: _ST_REC_ONFILE,
+      NONE: _ST_REC_NONE,
+      PENDING: _ST_REC_PENDING,
+      NOTE_SCORED: _ST_REC_NOTE_SCORED
     },
     // 🏛 THE FULL FORMAL-PATTERN ISSUE INDEX. `rows` is the list — one entry per
     // issue with a pattern read or formal instruments on file, sorted strongest
@@ -9437,6 +9800,11 @@
     // different number with the same name.
     rowResult: _stResult,
     verdictTally: verdictTally,
+    // PHASE 0: the one counts object. stated / tested / scorable / onRecord /
+    // shown / signature, each with the wording for which M it means in `.of`.
+    // Every surface printing "N of M issues" reads this and no surface counts
+    // its own — see the long note over _profileCountsBuild.
+    profileCounts: profileCounts,
     mixedGate: mixedGate,
     rankIssueRows: rankIssueRows,
     ROW_TIER: ROW_TIER,

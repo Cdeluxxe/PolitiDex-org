@@ -182,8 +182,16 @@ ok(/not a tally of anything/.test(PF),
 // so it is the cheapest place to check that only one number claims to be the score.
 const rail = PF.slice(PF.indexOf("const _navItems = []"), PF.indexOf("// A single pill isn't a"));
 must(rail.length > 400, "could not isolate the profile nav rail");
-eq((rail.match(/value: _waVal/g) || []).length, 1,
+// The figures moved into window._pdxNavChips (one derivation, read by the build and
+// by the warm repaint), so the single percentage is counted there — the ⚖️ chip is the
+// only one allowed to emit one.
+const chipSrc = PF.slice(PF.indexOf("window._pdxNavChips = function"),
+  PF.indexOf("window._pdxNavChipAria = function"));
+must(chipSrc.length > 400, "could not isolate the nav chip derivation");
+eq((chipSrc.match(/\+ '%'/g) || []).length, 1,
   "the rail's one percentage is not the ⚖️ pill's");
+ok(chipSrc.indexOf("+ '%'") > chipSrc.indexOf("out.wordaction ="),
+  "the one percentage is emitted before the ⚖️ chip is built, so it belongs to another pill");
 ok(!/scoreNum \+ '%'/.test(rail), "the rail prints the pledge rate as a second headline");
 eq((rail.match(/label: 'Promises'/g) || []).length, 0,
   "the rail carries a pledge pill — phase 5 cut two down to one, and phase 6 cut the survivor:\n" +

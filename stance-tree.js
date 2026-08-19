@@ -12,22 +12,39 @@
      · PDXConsistency.issueRows(pid)        — the one row model. `stance` is what
        they SAID (off _polPositionMap, through positionStance), `label`, `category`
        and the rest are the row's own fields.
-     · PDXConsistency.recordPattern.tier(r) — the five-rung formal-record pattern
-       (Strongly / Mostly / Split / Thin / No clear pattern yet), which reads
-       _recordDirectionIndex and nothing else.
+     · PDXConsistency.recordPattern.display(r) — the row's RECORD SLOT: which of
+       five states the formal record on this issue is in (scored / direction /
+       on file / pending / none), its label, its depth, and Direction Match's own
+       percentage where that issue was tested. It reads the five-rung pattern
+       engine, the executive action index and the row's own resolved result; it
+       computes no score and moves no threshold.
 
    So a threshold cannot drift between this tree and the row faces, the Official
    Record or the full formal-pattern index: there is one place to move it, and it
    is not in this file.
 
+   ONE FORMAL ITEM IS ALREADY A RECORD — for DISPLAY. A single mapped vote, or a
+   single executive action, is enough for a leaf to appear and for its 🏛 Record
+   slot to say something true, labelled at its real depth ("Thin · 1 vote — early
+   signal"). That is a presentation rule and it is only a presentation rule: the
+   scoring floors it does not touch are listed under wall 1. One item is the start
+   of a pattern, time can strengthen or reverse it, and hiding it until it reaches
+   a scoring threshold is the failure mode this surface exists to undo.
+
    THE FIVE WALLS, and they are the reason this file is allowed to print the word
    "opposes" next to a person's name twice on one line:
 
-     1. NO SCORE. There is no percentage anywhere in this module — not on a leaf,
-        not on a branch, not in a tooltip. `%` does not appear in the markup it
-        emits, and scripts/test-stance-tree.mjs asserts that over the whole tree.
-        Direction Match keeps its one headline in word-action.js and this surface
-        never restates it, agrees with it, or disagrees with it.
+     1. NO SCORE OF ITS OWN, AND NO SCORE WHERE ONE WAS NOT EARNED. The only
+        percentage this module can print is Direction Match's own figure for that
+        one issue, read off the shared row result, and only on a leaf whose record
+        slot is in the `scored` state — the state that exists because Direction
+        Match tested it against its own floors. Nothing here averages, aggregates,
+        rounds or re-derives a percentage: a branch has none, a pattern-only leaf
+        has none, a thin record has none, and a row the public record decided has
+        none on this surface. The floors themselves (MIN_TESTED_ITEMS,
+        MIN_TESTED_WEIGHT, the record engine's member and judged floors) are not
+        read here and not lowered anywhere: a one-item issue shows a Record LINE,
+        never a number.
      2. BROAD NODES ARE NAVIGATION. A branch face carries an icon, a name and a
         COUNT of the issues filed under it. It carries no verdict word, no tier
         word, no direction and no number that could be read as a grade. A topic is
@@ -45,12 +62,14 @@
         accessible name (the full sentence), in its skin (dashed rail, no fill)
         and in the tree's own disclosure line. Nothing here writes to a position
         map: this module never calls _polPositionMap and has no write path to it.
-     5. THIN STAYS THIN. A one-to-three-item run is admitted (it is true) and is
-        never dressed as a tendency: it keeps the pattern engine's own `thin`
-        weight class, it sorts below every read that earned a direction, and a
-        pattern-only thin row is additionally marked quiet. A tier the engine
-        declines to characterise at all ("No clear pattern yet") is NOT a readable
-        pattern and can never be a row's only reason to appear.
+     5. THIN STAYS THIN, AND SAYS SO. A one-to-three-item run is admitted (it is
+        true) and is never dressed as a tendency: it keeps the pattern engine's own
+        `thin` weight class, it sorts below every read that earned a direction, a
+        pattern-only thin row is additionally marked quiet, and a ONE-ITEM record
+        additionally prints the horizon out loud — "early signal; more votes can
+        change this" — on the row, in its title and in its accessible name. A
+        record the engine will not characterise is still not given a direction: it
+        prints the inventory it holds and the reason no direction is claimed.
 
    NO PARTY FRAMING. Party is not read, not mapped and not mentioned; the only
    grouping axis is the issue taxonomy the site already ships.
@@ -125,8 +144,20 @@
   var PATTERN_ONLY_NOTE = 'Inferred from the formal record pattern — this is not a quoted stance, ' +
     'and it is not counted in Direction Match.';
   var PATTERN_ONLY_TAG = 'Not in Direction Match';
-  var TREE_NOTE = 'Said is their own stated position. 🏛 Record is what the formal record did — a ' +
-    'pattern in the votes on file, never a stated position and never counted in Direction Match.';
+  var TREE_NOTE = 'Said is their own stated position. 🏛 Record is what the formal record on file ' +
+    'did — one item is enough to show a line, and the depth beside it says how much is behind it. ' +
+    'Where Direction Match has tested an issue the slot carries that verdict and its %; a record with ' +
+    'no result behind it is a description of the record only, never a stated position and never ' +
+    'counted in Direction Match.';
+  // A SCORED ROW'S CUE IS DIRECTION MATCH'S OWN ANSWER, TRANSLATED. The cue compares
+  // said against did, and on an issue Direction Match already tested, that comparison
+  // has an answer with floors behind it. Deriving a second one here from the record's
+  // lean could contradict the verdict word printed one chip to the left — so on a
+  // scored row the cue is the verdict token and nothing else. `flag` is a documented
+  // red flag on the record, which is tension by definition.
+  var VERDICT_CUE = {
+    consistent: 'aligns', contradicts: 'cuts_against', flag: 'cuts_against', mixed: 'split'
+  };
 
   // The trailing node. Its key is '' because that is what PDXIssueColors.coreKeyFor
   // returns for an unmapped issue, so the bucket id and the colour lookup agree.
@@ -197,37 +228,57 @@
   // ── ONE LEAF ──────────────────────────────────────────────────────────────
   // Returns null for an issue that belongs on no browse surface. The inclusion
   // rule is the brief's, stated once: a leaf appears if a STATED POSITION exists,
-  // or if a READABLE formal pattern exists — and "readable" excludes the tier the
-  // engine uses to say it cannot read one. "No clear pattern yet" beside "No
-  // stated position" is two absences wearing the clothes of a finding, and it is
-  // the one row this surface refuses to print.
+  // or if there is at least ONE FORMAL ITEM on file for that issue — one mapped
+  // vote, one executive action. It does not wait for a pattern the engine will
+  // characterise, and it does not wait for a score.
+  //
+  // WHY THE BAR IS ONE ITEM AND NOT A PATTERN. The old rule admitted a leaf only
+  // where the pattern engine returned a direction, which quietly hid three real
+  // situations: an issue with one mapped vote, an issue whose votes the engine
+  // declines to characterise, and every issue on the executive lane (where the
+  // roll-call pattern engine has no read at all, by design). All three have
+  // sourced instruments in the dossier, and filing them under "nothing known"
+  // states something false about our own file. The Record slot instead names the
+  // state it is actually in — see PDXConsistency.recordPattern.display.
+  //
+  // WHAT STILL DOES NOT APPEAR: an issue with no stated position AND no formal
+  // item on file. Two absences are not a finding, and there is nothing behind the
+  // door.
   function leafOf(row) {
     if (!row || !row.key) return null;
     var CS = window.PDXConsistency;
     var stanceKey = (row.stance && row.stance.key) || null;
     var said = SAID[stanceKey] || SAID.none;
-    var tier = null;
+    // The record slot, whole, from the shared accessor. Its `state` is the only
+    // thing this file branches on and it is never recomputed here.
+    var rec = null;
     try {
-      if (CS && CS.recordPattern && typeof CS.recordPattern.tier === 'function') {
-        tier = CS.recordPattern.tier(row) || null;
+      if (CS && CS.recordPattern && typeof CS.recordPattern.display === 'function') {
+        rec = CS.recordPattern.display(row) || null;
       }
-    } catch (e) { tier = null; }
-    var readable = !!(tier && tier.tier !== 'none');
-    if (!stanceKey && !readable) return null;
+    } catch (e) { rec = null; }
+    var onRecord = !!(rec && rec.onRecord);
+    if (!stanceKey && !onRecord) return null;
 
     var patternOnly = !stanceKey;
-    // The cue needs two directional facts. A stated Mixed, a Split record, or a
-    // pattern the engine declined all land on `split`/no-cue rather than being
-    // forced into agreement or disagreement.
+    // The cue needs two directional facts. A stated Mixed, a Split record, a
+    // record with no direction read from it yet, or no record at all all land on
+    // `split`/no-cue rather than being forced into agreement or disagreement.
     var cue = null;
     if (patternOnly) cue = CUES.pattern_only;
-    else if (tier && readable) {
+    else if (rec && rec.state === 'scored') {
+      cue = CUES[VERDICT_CUE[rec.token]] || null;
+    } else if (rec && rec.state === 'direction') {
       var sd = SAID_DIR.hasOwnProperty(stanceKey) ? SAID_DIR[stanceKey] : null;
-      var rd = tier.directional ? (tier.tone === 'support' ? 1 : tier.tone === 'oppose' ? -1 : 0) : 0;
-      if (sd === 0 || rd === 0 || !tier.directional) cue = CUES.split;
+      var rd = rec.directional ? (rec.tone === 'support' ? 1 : rec.tone === 'oppose' ? -1 : 0) : 0;
+      if (sd === 0 || rd === 0 || !rec.directional) cue = CUES.split;
       else cue = (sd === rd) ? CUES.aligns : CUES.cuts_against;
     }
-    var quiet = !!(patternOnly && tier && (tier.weight === 'thin' || tier.weight === 'flat'));
+    // QUIET is a pattern-only row whose record does not amount to a direction —
+    // thin, flat, or on file with no direction read. It still appears; it sorts
+    // last and it is dimmed, because it is the weakest thing this surface holds.
+    var quiet = !!(patternOnly && rec &&
+      (!rec.directional || rec.weight === 'thin' || rec.weight === 'flat'));
     var rank = patternOnly ? (quiet ? LEAF_RANK.quiet : LEAF_RANK.pattern_only)
       : (cue ? LEAF_RANK[cue.key] : LEAF_RANK.said_only);
 
@@ -237,10 +288,17 @@
       topic: topic,
       group: row.category || 'other', groupLabel: row.categoryLabel || 'Other',
       said: { key: said.key, label: said.label, stated: !!stanceKey, color: said.c, ico: said.ico },
-      pattern: tier ? {
-        tier: tier.tier, label: tier.label, tone: tier.tone, weight: tier.weight,
-        counts: tier.counts || '', directional: !!tier.directional,
-        note: tier.note || '', readable: readable
+      // The record slot, projected. `pct` lives HERE and nowhere else on the leaf:
+      // there is one percentage on a leaf, it belongs to one issue's Direction
+      // Match result, and nothing that sorts or groups leaves can reach it.
+      record: rec ? {
+        state: rec.state, label: rec.label, depth: rec.depth || '', counts: rec.counts || '',
+        items: rec.items || 0, onRecord: onRecord,
+        tier: rec.tier || 'none', weight: rec.weight || 'flat', tone: rec.tone || 'muted',
+        directional: !!rec.directional, early: !!rec.early, earlyNote: rec.earlyNote || '',
+        scored: !!rec.scored, pct: (typeof rec.pct === 'number') ? rec.pct : null,
+        metric: rec.metric || '', color: rec.color || '',
+        note: rec.note || '', why: rec.why || null
       } : null,
       cue: cue,
       patternOnly: patternOnly,
@@ -326,30 +384,78 @@
   // against" as four separate things loses the relation, and a pattern-only row
   // read as fragments loses the disclosure entirely — so it is spelled out here.
   function leafSay(lf) {
+    var rc = lf.record;
     var s = lf.label + '. ';
     s += lf.said.stated ? ('Their stated position: ' + lf.said.label + '. ')
                         : 'No stated position on file. ';
-    if (lf.pattern) {
-      s += 'Formal record pattern: ' + lf.pattern.label +
-        (lf.pattern.counts ? ' (' + lf.pattern.counts + ')' : '') + '. ';
+    // THE RECORD HALF, IN THE STATE IT IS ACTUALLY IN. Five states, five sentences,
+    // and none of them is silence: a screen reader that hears the Said half and
+    // then nothing cannot tell "we hold no formal record" apart from "we did not
+    // print one".
+    if (rc && rc.state === 'scored') {
+      s += 'Direction match on this issue: ' + rc.label +
+        ((rc.pct === null) ? '' : ', ' + rc.pct + '%') +
+        (rc.depth ? ', from ' + rc.depth + ' on file' : '') + '. ';
+    } else if (rc && rc.state === 'direction') {
+      s += 'Formal record: ' + rc.label + (rc.depth ? ', ' + rc.depth + ' on file' : '') +
+        (rc.counts ? ' (' + rc.counts + ')' : '') + '. ';
+    } else if (rc && rc.state === 'onfile') {
+      s += rc.label + (rc.depth ? ' — ' + rc.depth + ' on file' : '') + '. ';
+    } else if (rc) {
+      s += rc.label + '. ';
     }
-    if (lf.cue && lf.said.stated && lf.pattern) s += lf.cue.label + ' — ' + lf.cue.note + ' ';
+    // The one-item horizon, out loud. A depth of one read without it is a verdict
+    // on a sample of one.
+    if (rc && rc.early && rc.earlyNote) s += 'This is an ' + rc.earlyNote + ' ';
+    // WHY there is no direction, where there are items but no read. The reason is
+    // the shared one — a poleless issue, an incidental-only run, a lane still
+    // warming — and it is worth more to a reader than the state name.
+    if (rc && rc.why && rc.why.note) s += rc.why.note + ' ';
+    if (lf.cue && lf.said.stated && rc && rc.onRecord) s += lf.cue.label + ' — ' + lf.cue.note + ' ';
     if (lf.patternOnly) s += PATTERN_ONLY_NOTE + ' ';
     return s + 'Opens the issue dossier.';
   }
 
+  // The Record chip, in every state. THERE IS NO SIXTH STATE IN WHICH IT IS ABSENT:
+  // a leaf exists because something is on file or something was said, and in both
+  // cases the reader is owed a sentence about the formal record rather than a gap
+  // they have to interpret. `st-` is the state, `t-`/`w-`/`tone-` are the pattern
+  // engine's own tier vocabulary kept for the skin, and a scored row paints from
+  // the verdict's colour instead of the record's lean — the word in the slot is the
+  // verdict's, so the colour must be too.
+  function recHtml(rc) {
+    if (!rc) return '';
+    var scored = (rc.state === 'scored');
+    var early = (rc.early && rc.earlyNote)
+      ? '<i class="pdxtree-early"> — ' + esc(String(rc.earlyNote).replace(/\.$/, '')) + '</i>' : '';
+    return '<span class="pdxtree-pat st-' + escAttr(rc.state) + ' t-' + escAttr(rc.tier) +
+        ' w-' + escAttr(rc.weight) + ' tone-' + escAttr(scored ? 'verdict' : rc.tone) + '"' +
+        ((scored && rc.color) ? ' style="--pdx-rc:' + escAttr(rc.color) + '"' : '') + '>' +
+        '<b>🏛 Record:</b> ' + esc(rc.label) +
+        (rc.depth ? '<i class="pdxtree-depth"> · ' + esc(rc.depth) + '</i>' : '') +
+        early +
+      '</span>';
+  }
+  // The one percentage a leaf may carry, and only in the one state that earned it.
+  function pctHtml(rc) {
+    if (!rc || rc.state !== 'scored' || typeof rc.pct !== 'number') return '';
+    return '<span class="pdxtree-pct"' +
+      (rc.color ? ' style="--pdx-rc:' + escAttr(rc.color) + '"' : '') + '>' +
+      esc(rc.pct) + '%</span>';
+  }
+
   function leafHtml(lf, uid) {
     var id = leafId(uid, lf.key);
-    var pat = lf.pattern;
-    var title = lf.patternOnly ? PATTERN_ONLY_NOTE
-      : (pat ? (pat.note || '') : '');
+    var rc = lf.record;
+    var title = lf.patternOnly ? PATTERN_ONLY_NOTE : ((rc && rc.note) || '');
     return '<div class="pdxtree-leaf' + (lf.skin.on ? ' pdxtree-ic' : '') +
         (lf.patternOnly ? ' is-patternonly' : '') + (lf.quiet ? ' is-quiet' : '') + '"' +
         ' style="' + escAttr(lf.skin.style) + '"' +
         ' data-pdxtree-issue="' + escAttr(lf.key) + '"' +
         ' data-pdxtree-topic="' + escAttr(lf.topic || '') + '"' +
         ' data-pdxtree-said="' + escAttr(lf.said.key) + '"' +
-        ' data-pdxtree-pat="' + escAttr(pat ? pat.tier : 'none') + '"' +
+        ' data-pdxtree-pat="' + escAttr(rc ? rc.tier : 'none') + '"' +
+        ' data-pdxtree-rec="' + escAttr(rc ? rc.state : 'none') + '"' +
         ' data-pdxtree-cue="' + escAttr(lf.cue ? lf.cue.key : '') + '"' +
         ' data-pdxtree-only="' + (lf.patternOnly ? '1' : '0') + '">' +
         '<button type="button" class="pdxtree-face" id="' + escAttr(id) + '"' +
@@ -363,9 +469,8 @@
           '<span class="pdxtree-slots" aria-hidden="true">' +
             '<span class="pdxtree-said s-' + escAttr(lf.said.key) + '">' +
               '<b>Said:</b> ' + esc(lf.said.label) + '</span>' +
-            (pat ? '<span class="pdxtree-pat t-' + escAttr(pat.tier) + ' w-' + escAttr(pat.weight) +
-                     ' tone-' + escAttr(pat.tone) + '">' +
-                     '<b>🏛 Record:</b> ' + esc(pat.label) + '</span>' : '') +
+            recHtml(rc) +
+            pctHtml(rc) +
             (lf.cue ? '<span class="pdxtree-cue c-' + escAttr(lf.cue.key) + '">' +
                         esc(lf.cue.label) + '</span>' : '') +
             (lf.patternOnly ? '<span class="pdxtree-tag">' + esc(PATTERN_ONLY_TAG) + '</span>' : '') +
@@ -406,6 +511,50 @@
       '</div>';
   }
 
+  // ── THE HEADER TALLY ──────────────────────────────────────────────────────
+  // ONE COUNTS OBJECT. Every figure on this line comes from
+  // PDXConsistency.profileCounts(pid) — the same accessor the quick chips and the
+  // header tally read — and every figure NAMES ITS OWN DENOMINATOR in its title,
+  // from that object's own `of` map. There is no count computed in this file and no
+  // second total for anything.
+  //
+  // WHILE THE ROLL-CALL LANE IS STILL WARMING, THE RECORD FIGURES ARE NOT PRINTED.
+  // `onRecord` climbs as votes arrive, so an integer printed cold is an integer we
+  // would have to take back — and "8 with a formal record" that becomes 14 a second
+  // later teaches a reader that our counts are guesses. The two figures that cannot
+  // move (what is on screen, what they have stated) print immediately; the rest says
+  // it is still looking, in the same words the rows use.
+  function countsOf(pid) {
+    var CS = window.PDXConsistency;
+    try {
+      if (CS && typeof CS.profileCounts === 'function') return CS.profileCounts(pid) || null;
+    } catch (e) {}
+    return null;
+  }
+  var TALLY_WARM = 'Checking the formal record…';
+  function tallyHtml(pid, shownNow) {
+    var c = countsOf(pid);
+    if (!c) return '';
+    var of = c.of || {};
+    var bits = [];
+    function bit(v, t) { bits.push({ v: v, t: t || '' }); }
+    bit(shownNow + ' issue' + (shownNow === 1 ? '' : 's') + ' on this tree', of.shown);
+    bit(c.stated + ' with a stated position', of.stated);
+    if (c.warming) {
+      bit(TALLY_WARM, '');
+    } else {
+      bit(c.onRecord + ' with a formal record on file', of.onRecord);
+      if (c.scorable) {
+        bit(c.tested + ' of ' + c.scorable + ' tested by Direction Match',
+          (of.tested || '') + ' — out of ' + (of.scorable || ''));
+      }
+    }
+    return '<p class="pdxtree-tally">' + bits.map(function (b) {
+      return '<span class="pdxtree-tallybit"' + (b.t ? ' title="' + escAttr(b.t) + '"' : '') + '>' +
+        esc(b.v) + '</span>';
+    }).join('') + '</p>';
+  }
+
   // The tree body. `opts.open` is the branch key to leave expanded — the caller
   // passes back whatever the reader had open before a warm repaint, so a repaint
   // never collapses the branch someone is reading.
@@ -419,7 +568,10 @@
     gs.forEach(function (g) {
       g.leaves.forEach(function (lf) { if (lf.patternOnly) anyOnly = true; });
     });
+    var shownNow = 0;
+    gs.forEach(function (g) { shownNow += g.count; });
     return '<div class="pdxtree" data-pdxtree-pid="' + escAttr(pid) + '" data-pdxtree-uid="' + escAttr(uid) + '">' +
+        tallyHtml(pid, shownNow) +
         gs.map(function (g) { return branchHtml(g, uid, openKeys.indexOf(g.key) !== -1); }).join('') +
       '</div>' +
       '<p class="pdxtree-note">' + esc(TREE_NOTE) + '</p>' +
@@ -592,6 +744,10 @@
       } catch (e) { return null; }
     },
     leaves: leaves,
+    // The counts object, exactly as the shared accessor returns it — no projection,
+    // no second total. Every figure the tree prints is one of these fields.
+    counts: countsOf,
+    TALLY_WARM: TALLY_WARM,
     midsFor: midsFor,
     groups: groups,
     count: count,

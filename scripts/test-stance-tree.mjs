@@ -12,14 +12,18 @@
 //      their declared order, plus exactly one explicit trailing node for the
 //      keys that belong to no core issue. No leaf is filed under a topic the
 //      shared reverse lookup disagrees with.
-//   2. EVERY LEAF STATE IS REACHABLE AND CORRECTLY WORDED. Four Said faces, five
-//      record tiers, four alignment cues — and the cue appears ONLY where both
-//      halves of the line exist.
+//   2. EVERY LEAF STATE IS REACHABLE AND CORRECTLY WORDED. Four Said faces, four
+//      Record slot states (scored / direction / on-file / none), four alignment
+//      cues — and the cue appears ONLY where both halves of the line exist. ONE
+//      mapped formal item is already a record: the Record slot is never blank on
+//      an issue that has one, it prints the depth it is drawn from, and a
+//      one-item record says out loud that it is an early signal.
 //   3. PATTERN-ONLY ROWS ARE DISCLOSED THREE WAYS. Their own visible tag, the
 //      full three-denial sentence in the accessible name, and a distinct skin.
-//      An issue with no stated position and no readable pattern is not a row.
-//   4. BROAD NODES CARRY NO SCORE AND NO VERDICT. A branch face is an icon, a
-//      name and a count of issues. No percentage anywhere in the tree.
+//      An issue with neither a stated position nor a formal item is not a row.
+//   4. BROAD NODES CARRY NO SCORE AND NO VERDICT, and a percentage appears ONLY
+//      on a leaf whose issue Direction Match already scored — never on a branch,
+//      never on a pattern-only row, and never computed here.
 //   5. THE LEAF IS THE EXISTING DOOR. One openGap(), the same dossier every other
 //      surface opens, no tree-only detail view.
 //   6. COLOURS COME FROM PDXIssueColors. Same issue, same colour as everywhere
@@ -249,58 +253,108 @@ section("2 · leaf states — said and record, side by side");
   eq(T.SAID.mixed.label, "Mixed", "…Mixed");
   eq(T.SAID.none.label, "No stated position", "…and the honest absence");
 
+  // ── ONE LINE, TWO SLOTS, AND THE RECORD SLOT IS NEVER BLANK ───────────────
+  // Said is their word. 🏛 Record is the formal file, and ONE mapped item is
+  // already a record: the slot's job is to say what is on file and how deep it
+  // goes, not to stay empty until a pattern engine clears a floor. Where
+  // Direction Match has actually scored an issue the slot carries THAT verdict
+  // instead of a tier description — a scored issue has a better sentence
+  // available than "strongly supports", and it is the one the score section
+  // beside it prints.
   const a = byKey[ALIGNS];
   must(!!a, `${ALIGNS}: the stated+record fixture row is missing`);
   eq(a.said.label, "Supports", `${ALIGNS}: the stated side is their own position`);
   eq(a.said.stated, true, "…marked as actually stated");
-  eq(a.pattern.label, "Strongly supports", `${ALIGNS}: the record side is the pattern engine's label`);
+  eq(a.record.state, "scored", `${ALIGNS}: Direction Match scored this issue`);
+  eq(a.record.label, "Backed up", "…so the Record slot speaks the score's own verdict, not a tier");
+  eq(a.record.depth, "12 votes", "…with the depth of the file beside it");
+  eq(a.record.pct, 100, "…and that issue's own percentage");
+  eq(a.record.metric, "Direction match", "…named as Direction Match rather than a second metric");
   eq(a.cue.key, "aligns", "…and with both halves pointing the same way the cue is Aligns");
   eq(a.patternOnly, false, "…this is not a pattern-only row");
   const ah = chunkOf(ALIGNS);
   has(ah, "<b>Said:</b> Supports", `${ALIGNS}: the leaf prints Said in the markup`);
-  has(ah, "<b>🏛 Record:</b> Strongly supports", "…and the record beside it, lane-marked");
+  has(ah, "<b>🏛 Record:</b> Backed up", "…and the record beside it, lane-marked");
+  has(ah, 'class="pdxtree-depth"> · 12 votes<', "…with the depth as its own element, not folded into the label");
   has(ah, ">Aligns<", "…and the cue at the end of the line");
   ok(ah.indexOf("Said:") < ah.indexOf("Record:"),
     "…in that reading order: their word first, the record second");
+  has(ah, 'data-pdxtree-rec="scored"',
+    "…and the slot's state is published as data, so a filter can find the scored rows");
 
   const c = byKey[CUTS];
   must(!!c, `${CUTS}: the tension fixture row is missing`);
   eq(c.said.label, "Supports", `${CUTS}: stated Supports`);
-  eq(c.pattern.label, "Strongly opposes", "…against a record that ran the other way");
+  eq(c.record.state, "scored", "…and Direction Match scored it too");
+  eq(c.record.label, "Contradicted", "…against a record that ran the other way");
+  eq(c.record.pct, 0, "…at the percentage that record earns");
   eq(c.cue.key, "cuts_against", "…so the cue is Cuts against");
   has(chunkOf(CUTS), ">Cuts against<", "…and the leaf prints it");
 
   const s = byKey[SPLITCUE];
-  eq(s.pattern.tier, "split", `${SPLITCUE}: a both-ways record is the split tier`);
-  eq(s.pattern.directional, false, "…which claims no direction");
+  eq(s.record.tier, "split", `${SPLITCUE}: a both-ways record is the split tier`);
+  eq(s.record.directional, false, "…which claims no direction");
+  eq(s.record.label, "Mixed", "…and reads as Mixed once the score has spoken on it");
   eq(s.cue.key, "split", "…so the comparison resolves to Split, not to agreement");
 
   const m = byKey[MIXCUE];
   eq(m.said.label, "Mixed", `${MIXCUE}: a stated Mixed position`);
-  ok(m.pattern.directional, "…beside a record that DID take a side");
+  eq(m.record.state, "direction", "…which Direction Match does not score, so the slot describes the record");
+  ok(m.record.directional, "…and that record DID take a side");
   eq(m.cue.key, "split", "…still resolves to Split — a mixed stance agrees with nothing");
 
   const so = byKey[SAIDONLY];
   must(!!so, `${SAIDONLY}: the stated-only fixture row is missing`);
   eq(so.said.stated, true, `${SAIDONLY}: the stated side is on file`);
-  ok(!so.pattern || !so.pattern.readable,
-    "…with no readable pattern behind it");
+  eq(so.record.state, "none", "…with no formal item behind it at all");
+  eq(so.record.onRecord, false, "…so it is not on the record bar");
+  ok(!!so.record.label, "…and the slot still says something rather than going blank");
   eq(so.cue, null, "…and therefore NO alignment cue: there is nothing to compare");
   lacks(chunkOf(SAIDONLY), 'class="pdxtree-cue',
     "…the leaf prints no cue element at all");
   has(chunkOf(SAIDONLY), 'data-pdxtree-cue=""',
     "…and publishes the empty cue as data, so a filter can find the untested rows");
+  has(chunkOf(SAIDONLY), "<b>🏛 Record:</b> No formal record on this issue yet",
+    "…while the Record slot prints the honest absence in words, not as an empty chip");
 
-  // Every rung of the record vocabulary the fixture reaches is the engine's own
-  // word, never a synonym invented here.
-  const seen = new Set(LEAVES.filter((l) => l.pattern).map((l) => l.pattern.tier));
-  ["strong", "split", "thin"].forEach((t) =>
-    ok(seen.has(t), `the fixture reaches the ${t} record tier`));
+  // NEVER A BLANK CHIP. Every leaf on the tree resolves to one of the four slot
+  // states, and every one of them has a sentence.
+  const states = new Set(LEAVES.map((lf) => lf.record && lf.record.state));
+  ["scored", "direction", "onfile", "none"].forEach((st) =>
+    ok(states.has(st), `the fixture reaches the ${st} Record slot state`));
+  ok(!states.has(undefined) && !states.has(null),
+    "every leaf carries a Record slot — a leaf with none would render an empty chip");
+
+  // Every rung of the vocabulary the fixture reaches is a shared engine's own
+  // word: the pattern index's where the slot DESCRIBES a record, Direction
+  // Match's where it REPORTS a score. Nothing is paraphrased here.
+  const SCORE_WORDS = ["Contradicted", "Mixed", "Backed up", "Thin record"];
+  const WA_SRC = R("word-action.js");
+  SCORE_WORDS.forEach((w) =>
+    has(WA_SRC, "short: '" + w + "'", `${w} is Direction Match's own short word, not the tree's`));
+  const tiers = new Set(LEAVES.filter((l) => l.record).map((l) => l.record.tier));
+  ["strong", "split", "thin", "none"].forEach((t) =>
+    ok(tiers.has(t), `the fixture reaches the ${t} record tier`));
   LEAVES.forEach((lf) => {
-    if (!lf.pattern) return;
+    const rc = lf.record;
+    if (!rc) return;
+    ok(!!rc.label, `${lf.key}: the Record slot is never blank`);
     const engine = CS.recordPattern.tier(CS.issueRows(PID, [lf.key])[0]);
-    eq(lf.pattern.label, engine.label, `${lf.key}: the record label is the shared engine's`);
-    eq(lf.pattern.weight, engine.weight, `${lf.key}: …at the engine's own weight`);
+    if (!engine) {
+      eq(rc.tier, "none", `${lf.key}: with no tier from the engine the slot claims none`);
+      eq(rc.weight, "flat", `${lf.key}: …and no weight either`);
+      return;
+    }
+    eq(rc.tier, engine.tier, `${lf.key}: the record tier is the shared engine's`);
+    eq(rc.weight, engine.weight, `${lf.key}: …at the engine's own weight`);
+    if (rc.state === "direction") {
+      eq(rc.label, engine.label, `${lf.key}: a described record uses the engine's own label`);
+    }
+    if (rc.state === "scored") {
+      ok(SCORE_WORDS.indexOf(rc.label) !== -1,
+        `${lf.key}: a scored record speaks Direction Match's word (got ${JSON.stringify(rc.label)})`);
+      eq(typeof rc.pct, "number", `${lf.key}: …and carries the percentage that word came from`);
+    }
   });
 }
 
@@ -313,7 +367,9 @@ section("3 · pattern-only rows are disclosed, three ways");
   eq(o.said.stated, false, `${ONLY_STRONG}: nothing stated on this issue`);
   eq(o.said.label, "No stated position", "…and the leaf says exactly that");
   eq(o.patternOnly, true, "…so the row is marked pattern-only");
-  eq(o.pattern.label, "Strongly opposes", "…over a record the engine read as strongly one-way");
+  eq(o.record.label, "Strongly opposes", "…over a record the engine read as strongly one-way");
+  eq(o.record.state, "direction", "…which is a description of that record, not a score of it");
+  eq(o.record.pct, null, "…and carries no percentage, because nothing scored it");
   eq(o.cue.key, "pattern_only", "…and the cue slot says Pattern only rather than a comparison");
   eq(o.cue.label, "Pattern only", "…in those words");
 
@@ -339,25 +395,56 @@ section("3 · pattern-only rows are disclosed, three ways");
   has(T.NOTE, "never counted in Direction Match",
     "…which says the record lane is out of the score in so many words");
 
-  // A pattern-only row is admitted only for a READABLE pattern. Two absences do
-  // not make a finding.
+  // ── ONE ITEM IS THE START OF A PATTERN, AND IT SAYS SO ────────────────────
+  // A single mapped vote is enough to put an issue on the tree with a Record
+  // line. What it is NOT enough for is a finished finding, so the depth is
+  // printed, the row is marked quiet, it sorts below every characterised record,
+  // and the line itself carries the sentence that says time can still move it.
   const q = byKey[ONLY_THIN];
-  must(!!q, `${ONLY_THIN}: the thin pattern-only fixture row is missing`);
-  eq(q.pattern.tier, "thin", `${ONLY_THIN}: one vote reads as thin`);
+  must(!!q, `${ONLY_THIN}: the one-vote fixture row is missing`);
+  eq(q.record.tier, "thin", `${ONLY_THIN}: one vote reads as thin`);
+  eq(q.record.items, 1, "…over exactly one formal item");
+  eq(q.record.depth, "1 vote", "…and the depth says so, singular");
+  eq(q.record.early, true, "…flagged as an early signal rather than a settled one");
+  ok(/more votes can change this/.test(q.record.earlyNote || ""),
+    "…with the sentence that says time can still move it");
   eq(q.quiet, true, "…and a thin pattern-only row is marked quiet");
-  has(chunkOf(ONLY_THIN), "is-quiet", "…which reaches the markup as its own class");
+  const qh = chunkOf(ONLY_THIN);
+  has(qh, "is-quiet", "…which reaches the markup as its own class");
+  has(qh, "<b>🏛 Record:</b> Thin supports", "the one-vote row shows a Record line, not a blank");
+  has(qh, 'class="pdxtree-depth"> · 1 vote<', "…with the depth of the file it is drawn from");
+  has(qh, 'class="pdxtree-early"> — early signal; more votes can change this<',
+    "…and the early-signal disclosure on the row itself, where the number is");
   ok(q.rank > byKey[ONLY_STRONG].rank,
     "…and it sorts below a pattern the engine actually characterised");
   ok(T.RANK.quiet === Math.max(...Object.values(T.RANK)),
     "quiet is the last rank there is — thin is never dressed as a strong finding");
 
-  eq(byKey[UNREADABLE], undefined,
-    `${UNREADABLE}: a record the index declines to characterise is NOT a row`);
+  // A record the pattern index declines to characterise is still A RECORD. It
+  // used to be dropped from the tree entirely — five votes on file, and an issue
+  // the reader could not see at all — which is the blank this pass removed. It
+  // comes back as a row that states what is on file and refuses to name a
+  // direction, which is exactly what is true of it.
+  const u = byKey[UNREADABLE];
+  must(!!u, `${UNREADABLE}: the on-file-but-unreadable fixture row is missing`);
   const urow = CS.issueRows(PID, [UNREADABLE])[0];
   const utier = CS.recordPattern.tier(urow);
-  eq(utier && utier.tier, "none", "…the engine really does decline it");
+  eq(utier && utier.tier, "none", "the pattern engine really does decline to characterise it");
   eq(urow.said, false, "…and nothing is stated on it either");
-  eq(T.leaf(PID, UNREADABLE), null, "…so the leaf builder refuses it too");
+  eq(u.record.state, "onfile", "…so the slot falls to the on-file state, not to nothing");
+  eq(u.record.onRecord, true, "…because there IS a formal record here");
+  eq(u.record.items, 5, "…of five items");
+  eq(u.record.directional, false, "…from which no direction is read");
+  eq(u.patternOnly, true, "…and with no stated position the row is pattern-only");
+  eq(u.quiet, true, "…and quiet, because an unreadable record is not a finding");
+  const uh = chunkOf(UNREADABLE);
+  has(uh, "<b>🏛 Record:</b> Formal items on file · direction not clear yet",
+    "the row says items are on file and that their direction is not clear yet");
+  has(uh, 'class="pdxtree-depth"> · 5 votes<', "…with the count of them");
+  lacks(uh, "pdxtree-pct", "…and no percentage, because nothing scored it");
+  const usay = (uh.match(/aria-label="([^"]*)"/) || [])[1] || "";
+  has(usay, "only incidentally", "…and the accessible name says WHY no direction was read");
+  ok(!!T.leaf(PID, UNREADABLE), "…so the leaf builder admits it");
   // Nothing here wrote a pattern into a position map.
   const pm = A._polPositionMap(PID, A.CMP_DATA[PID]) || {};
   eq(pm[ONLY_STRONG], undefined,
@@ -372,9 +459,30 @@ section("3 · pattern-only rows are disclosed, three ways");
 section("4 · broad nodes are navigation — no score, no verdict");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  ok(!/%/.test(HTML), "there is no percent sign anywhere in the tree");
-  ok(!/\d+\s*(percent|pct)\b/i.test(HTML), "…and none spelled out");
-  ok(!/%/.test(SECTION), "…nor in the section that mounts it");
+  // A PERCENTAGE ONLY WHERE ONE WAS EARNED. The tree computes no score of its
+  // own; the only figure it prints is the Direction Match result an issue already
+  // has, on the leaf for that issue. Everything else on the tree — every branch,
+  // every described record, every pattern-only row — has no number to show and
+  // shows none.
+  const scoredKeys = LEAVES.filter((lf) => lf.record && lf.record.state === "scored").map((lf) => lf.key);
+  must(scoredKeys.length > 0, "the fixture no longer scores any issue");
+  must(scoredKeys.length < LEAVES.length, "the fixture no longer offers an unscored leaf to compare against");
+  eq((HTML.match(/class="pdxtree-pct"/g) || []).length, scoredKeys.length,
+    "there is exactly one percentage chip per issue Direction Match scored");
+  LEAVES.forEach((lf) => {
+    const h = chunkOf(lf.key);
+    const wantPct = scoredKeys.indexOf(lf.key) !== -1;
+    eq(/class="pdxtree-pct"/.test(h), wantPct,
+      `${lf.key}: the % chip is present exactly when the issue has a Direction Match result`);
+    // The leaf's own markup only — the last chunk on the page also carries the
+    // tree's footer notes, and the standing note names the % as a concept.
+    if (!wantPct) lacks(h.slice(0, h.indexOf("</button>") + 1), "%",
+      `${lf.key}: an unscored leaf prints no percent sign at all`);
+    if (lf.patternOnly) lacks(h, "class=\"pdxtree-pct\"", `${lf.key}: a pattern-only leaf gets no %`);
+  });
+  ok(!/\d+\s*(percent|pct)\b/i.test(HTML), "…and no percentage is spelled out in words either");
+  eq((SECTION.match(/%/g) || []).length, (HTML.match(/%/g) || []).length,
+    "the section that mounts the tree adds no percentage of its own");
   FACES.forEach((f, i) => {
     const label = `branch face ${i}`;
     lacks(f, "%", `${label}: no percentage`);

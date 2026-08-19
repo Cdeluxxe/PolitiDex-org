@@ -1000,10 +1000,35 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(rail.slice(pillAt("pdxsec-positions"), rail.indexOf("action: 'stance'")).indexOf("\n    }") === -1,
      "rail: the Full Report pill has left the Positions gate — an anchorless pill that can ship without\n" +
      "    the pill it inherits its rank from will land somewhere arbitrary in the rail");
-  // Exactly one percentage in the rail, still. Reordering must not have smuggled
+  // Exactly one percentage on the rail, still. Reordering must not have smuggled
   // the pledge rate back in beside the primary read.
-  ok((rail.match(/value: _waVal/g) || []).length === 1 && !/value: scoreNum \+ '%'/.test(rail),
+  //
+  // The pills' FIGURES no longer live in this block: window._pdxNavChips decides
+  // every one of them, once, and both the build-time string and the warm repaint
+  // read that one derivation. So the count is taken there — a second percentage
+  // would have to be written into the chip builder to reach a pill at all — and the
+  // rail is checked for the thing it can still do wrong, which is compute a figure
+  // of its own instead of taking the chip's. (The 🤝 Match pill's "% Match" is not
+  // a finding about the politician; it is the reader's own overlap with them, and it
+  // is built from the alignment tool, not from a chip.)
+  const chipFrom = PFL.indexOf("window._pdxNavChips = function");
+  const chipTo = PFL.indexOf("window._pdxNavChipAria = function");
+  ok(chipFrom !== -1 && chipTo > chipFrom, "rail: the chip derivation is where this file says it is");
+  const chipSrc = PFL.slice(chipFrom, chipTo);
+  const pctAt = chipSrc.indexOf("+ '%'");
+  ok((chipSrc.match(/\+ '%'/g) || []).length === 1 &&
+     pctAt > chipSrc.indexOf("out.wordaction =") && pctAt < chipSrc.indexOf("out.positions ="),
      "rail: exactly one pill reports a percentage — the reorder did not reintroduce a rival score");
+  ok(!/value: scoreNum \+ '%'/.test(rail) && !/keptCount/.test(rail),
+     "rail: a pill computes the pledge rate inside the pill list — every live figure comes from\n" +
+     "    window._pdxNavChips, so a figure derived here is one the warm repaint cannot correct");
+  // Every pill that carries a figure which can arrive late carries the key the
+  // repaint writes back into. A live figure with no `live` key is a frozen string.
+  for (const k of ["wordaction", "positions", "record", "evidence"]) {
+    ok(rail.indexOf("_navChips." + k + ".value") !== -1 && rail.indexOf("live: '" + k + "'") !== -1,
+       "rail: the " + k + " pill is not wired to the live chip derivation — it either builds its own\n" +
+       "    figure or has no repaint key, and either way it can outlive the number it prints");
+  }
 
   // 11d. Nothing moved into or out of a drawer. Phase 4 is order-only, so every
   //      drawer spec and every deferral flag must be exactly as Phase 2 left them.
