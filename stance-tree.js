@@ -45,11 +45,16 @@
         MIN_TESTED_WEIGHT, the record engine's member and judged floors) are not
         read here and not lowered anywhere: a one-item issue shows a Record LINE,
         never a number.
-     2. BROAD NODES ARE NAVIGATION. A branch face carries an icon, a name and a
-        COUNT of the issues filed under it. It carries no verdict word, no tier
-        word, no direction and no number that could be read as a grade. A topic is
-        not a thing a person can be scored on, and rolling thirteen leaves up into
-        one badge is exactly how a taxonomy quietly becomes a scoreboard.
+     2. BROAD NODES ARE NAVIGATION, AND THEY MAY DESCRIBE WHAT IS UNDER THEM.
+        A branch face carries an icon, a name, a COUNT of the issues filed under
+        it, and a STATE SUMMARY of the leaves currently visible beneath it — "2
+        cuts against · 1 mixed · 3 aligns", in the bands' own lower-case words,
+        counting rows. What it still carries is no percentage, no ratio, no tier
+        word, no direction of its own and no word that reads as a grade on the
+        topic: a topic is not a thing a person can be scored on, and rolling
+        thirteen leaves up into one BADGE is how a taxonomy quietly becomes a
+        scoreboard. Counting the states underneath is the opposite move — it is
+        what stops a closed branch from hiding the row that mattered.
      3. SAID AND RECORD ARE TWO DIFFERENT CLAIMS, SIDE BY SIDE. `Said:` is theirs.
         `🏛 Record:` is the formal record's. They sit in adjacent slots on one line
         precisely so a reader can see them disagree — which is why the alignment
@@ -73,6 +78,23 @@
 
    NO PARTY FRAMING. Party is not read, not mapped and not mentioned; the only
    grouping axis is the issue taxonomy the site already ships.
+
+   ─────────────────────────────────────────────────────────────────────────────
+   WHAT A READER ACTUALLY DOES WITH THIS SURFACE decides three more things, and
+   all three are presentation: they change what is shown first, not what is true.
+
+     · TENSION ORDER (see BAND). Branch ORDER is the taxonomy's, always, so the
+       tree reads the same on every profile — but the order of leaves, the flat
+       list and the branch that opens by default all read one sort key, and that
+       key puts said-vs-record disagreement first. Nobody should have to walk
+       seven taxonomy branches to find the row where the two halves disagree.
+     · FILTERS (see FILTERS). Six chips, one active at a time, each of them a
+       VIEW: it hides rows and touches nothing else. An empty one says so in
+       words rather than rendering an empty tree.
+     · FLAT MODE (see FLAT). At or under the threshold, the topic accordions are
+       pure tap tax — five one-row branches to open one at a time — so the same
+       leaves render as one flat list in tension order. Above it, the tree.
+   ─────────────────────────────────────────────────────────────────────────────
 
    ─────────────────────────────────────────────────────────────────────────────
    THE GROUPING MAP is CORE_NATIONAL_ISSUES (alignment-tool.js) in its own order,
@@ -179,11 +201,129 @@
   // with the category shown anywhere else.
   var MID = { minLeaves: 7, minGroups: 2, minPerGroup: 2 };
 
-  // Sort rank inside one branch. Tension first because it is the most
-  // informative thing this surface can tell a reader; stated-only next (a real
-  // position of theirs); pattern-only after that (true, but ours to disclose);
-  // quiet last. Nothing ordinal here leaves the sort — no rank is printed.
-  var LEAF_RANK = { cuts_against: 0, split: 1, aligns: 2, said_only: 3, pattern_only: 4, quiet: 5 };
+  // ── GLOBAL TENSION PRIORITY ────────────────────────────────────────────────
+  // ONE ORDER, AND IT IS A SORT KEY ONLY. Every leaf carries a BAND, and every
+  // decision about what to show first — the order inside a branch, the order of
+  // the flat list, which branch opens by default — reads that one key. Six bands,
+  // in the order a reader wants them:
+  //
+  //   0 cuts_against  they stated a position and the formal record runs against it
+  //   1 mixed         they stated one and the record ran both ways (or Mixed itself)
+  //   2 aligns        they stated one and the record points the same way
+  //   3 pattern       nothing stated, and a record with a direction (strong → thin)
+  //   4 onfile        formal items on file, no direction read from them
+  //   5 nofile        nothing formal on file yet
+  //
+  // A PATTERN-ONLY ROW CAN NEVER OUTRANK A REAL SAID-VS-RECORD TENSION. Bands 0-2
+  // are exactly the rows where both halves of the line exist and were compared;
+  // band 3 begins only after all of them. DEPTH breaks ties INSIDE a band — the
+  // pattern engine's own weight class, strong before thin, so a one-item read
+  // never leads a band it shares with a characterised one — and never across
+  // bands.
+  //
+  // NOTHING ORDINAL HERE IS A JUDGEMENT. A band is not a grade, not a score and
+  // not a threshold: no percentage is derived from it, none of the scoring floors
+  // is read to compute it, it is not published to the DOM, and the only thing it
+  // can change is the order two true rows appear in.
+  var BAND = { cuts_against: 0, mixed: 1, aligns: 2, pattern: 3, onfile: 4, nofile: 5 };
+  var BANDS = ['cuts_against', 'mixed', 'aligns', 'pattern', 'onfile', 'nofile'];
+  // The cue is the comparison; the band is where that comparison sorts. One map,
+  // so "split" cannot come to mean two different positions in the order.
+  var CUE_BAND = { cuts_against: 'cuts_against', split: 'mixed', aligns: 'aligns' };
+  var DEPTH_RANK = { full: 0, thin: 1, flat: 2 };
+  function rankOf(band, weight) {
+    var b = BAND.hasOwnProperty(band) ? BAND[band] : BAND.nofile;
+    var d = DEPTH_RANK.hasOwnProperty(weight) ? DEPTH_RANK[weight] : 3;
+    return b * 10 + d;
+  }
+
+  // ── THE BRANCH SUMMARY ────────────────────────────────────────────────────
+  // A closed branch that says only "Economy · 6 issues" hides the six states
+  // underneath it, which is how a reader ends up opening seven branches to find
+  // the one that mattered. So the face also carries a short STATE SUMMARY of the
+  // leaves visible beneath it — in the BANDS' own words, which are the words the
+  // leaf slots and the alignment cues already use. Never a new vocabulary, never
+  // a percentage, never a ratio (see wall 2).
+  //
+  // THE BANDS PARTITION THE BRANCH, so the bits always add up to the count beside
+  // them: a reader can check the summary against the count without opening it.
+  // "Thin" is not a band because depth is a fact about one row, not a state of
+  // the branch — a thin row is counted in its own band and sorts last inside it,
+  // and its depth is printed on the row where the item count is.
+  var BAND_WORD = {
+    cuts_against: 'cuts against', mixed: 'mixed', aligns: 'aligns',
+    pattern: 'pattern only', onfile: 'on file', nofile: 'no record yet'
+  };
+  // Worst tension first, and at most three bits on the face. The whole sentence
+  // rides the face's title, and on a phone CSS keeps the count plus the first
+  // (worst) bit — which is why the bits are emitted in band order and the extras
+  // carry their own class rather than being dropped from the markup.
+  var SUMMARY_MAX = 3;
+  function summaryOf(list) {
+    list = list || [];
+    var n = {}, bits = [];
+    list.forEach(function (lf) { if (lf && lf.band) n[lf.band] = (n[lf.band] || 0) + 1; });
+    BANDS.forEach(function (b) {
+      if (n[b]) bits.push({ key: b, n: n[b], label: n[b] + ' ' + BAND_WORD[b] });
+    });
+    return {
+      total: list.length, bits: bits,
+      text: bits.map(function (b) { return b.label; }).join(' \u00b7 ')
+    };
+  }
+
+  // ── THE FILTERS ───────────────────────────────────────────────────────────
+  // Six chips, ONE ACTIVE AT A TIME, and every one of them is a VIEW ONLY. A
+  // filter hides rows. It does not touch a row, a record read, a count, a floor
+  // or a score; the same leaf says exactly the same thing under every filter, and
+  // `all` — the full set, nothing hidden — is the default.
+  //
+  // PATTERN-ONLY KEEPS EVERY DISCLOSURE UNDER ITS OWN FILTER: the tag on the row,
+  // the three denials in the accessible name, the footer note. A screenful of
+  // pattern-only rows is where the disclosure matters most, not least.
+  var FILTER_ALL = 'all';
+  var FILTERS = [
+    { key: 'all', label: 'All', title: 'Every issue on this tree.', test: null },
+    { key: 'stance', label: 'With stance',
+      title: 'Issues with a stated position of theirs on file.',
+      test: function (lf) { return !!lf.said.stated; } },
+    { key: 'cuts', label: 'Cuts against',
+      title: 'Their stated position and their formal record point opposite ways.',
+      test: function (lf) { return lf.band === 'cuts_against'; } },
+    { key: 'aligns', label: 'Aligns',
+      title: 'Their stated position and their formal record point the same way.',
+      test: function (lf) { return lf.band === 'aligns'; } },
+    { key: 'only', label: 'Pattern only',
+      title: 'A formal record on file with no stated position to compare it against.',
+      test: function (lf) { return !!lf.patternOnly; } },
+    { key: 'onfile', label: 'Formal on file',
+      title: 'At least one formal item on the record for that issue.',
+      test: function (lf) { return !!(lf.record && lf.record.onRecord); } }
+  ];
+  // AN EMPTY FILTER SAYS SO, IN WORDS. A filter a profile has no rows for is not a
+  // broken tree with nothing in it: it is an answer, and it is one of the more
+  // useful answers this surface gives ("nothing on this profile cuts against").
+  var EMPTY_NOTE = 'None on this profile.';
+  function filterOf(key) {
+    for (var i = 0; i < FILTERS.length; i++) if (FILTERS[i].key === key) return FILTERS[i];
+    return FILTERS[0];
+  }
+  function filterLeaves(list, key) {
+    var f = filterOf(key);
+    list = list || [];
+    if (!f || !f.test) return list.slice();
+    return list.filter(function (lf) { try { return !!f.test(lf); } catch (e) { return false; } });
+  }
+
+  // ── THE FLAT-MODE THRESHOLD, IN ONE PLACE ─────────────────────────────────
+  // Under a handful of leaves the accordions cost more than they organise: five
+  // one-row branches is five taps to read five rows, which on a phone is the "pure
+  // tap tax" this threshold exists to remove. At or below it the same leaves render
+  // as ONE FLAT LIST IN TENSION ORDER — same leaf chrome, same dossier door, same
+  // filters, no branches; above it, the tree. The count tested is the count of
+  // leaves ACTUALLY VISIBLE, so narrowing with a filter drops the chrome too.
+  var FLAT = { maxLeaves: 5 };
+  function modeFor(n) { return ((n || 0) <= FLAT.maxLeaves) ? 'flat' : 'tree'; }
 
   function IC() { return window.PDXIssueColors || null; }
   // A key with no core issue is NOT left unstyled: styleFor() answers with the
@@ -279,8 +419,15 @@
     // last and it is dimmed, because it is the weakest thing this surface holds.
     var quiet = !!(patternOnly && rec &&
       (!rec.directional || rec.weight === 'thin' || rec.weight === 'flat'));
-    var rank = patternOnly ? (quiet ? LEAF_RANK.quiet : LEAF_RANK.pattern_only)
-      : (cue ? LEAF_RANK[cue.key] : LEAF_RANK.said_only);
+    // THE BAND, resolved from facts already on the line and nothing else: is a
+    // position stated, is anything formal on file, and did the two halves of the
+    // line end up agreeing. `rank` is that band with the record's own weight class
+    // as a tie-break — one integer, used only to order rows.
+    var band;
+    if (!rec || !onRecord) band = 'nofile';
+    else if (patternOnly) band = rec.directional ? 'pattern' : 'onfile';
+    else band = (cue && CUE_BAND[cue.key]) || 'onfile';
+    var rank = rankOf(band, rec ? rec.weight : 'flat');
 
     var topic = coreKeyOf(row.key);
     return {
@@ -303,9 +450,23 @@
       cue: cue,
       patternOnly: patternOnly,
       quiet: quiet,
+      band: band,
       rank: rank,
       skin: skinFor(row.key)
     };
+  }
+
+  // ONE COMPARATOR, used by the branch panels, the flat list and the default-open
+  // rule alike, so "what comes first" cannot mean two different things on one
+  // surface: band, then the record's own depth, then how much is on file, then the
+  // label — the last two only so the order is stable rather than incidental.
+  function sortLeaves(list) {
+    return (list || []).slice().sort(function (a, b) {
+      if (a.rank !== b.rank) return a.rank - b.rank;
+      var ai = (a.record && a.record.items) || 0, bi = (b.record && b.record.items) || 0;
+      if (ai !== bi) return bi - ai;
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    });
   }
 
   function leaves(pid) {
@@ -315,11 +476,7 @@
     try { rows = CS.issueRows(pid) || []; } catch (e) { return []; }
     var out = [];
     rows.forEach(function (r) { var lf = leafOf(r); if (lf) out.push(lf); });
-    out.sort(function (a, b) {
-      if (a.rank !== b.rank) return a.rank - b.rank;
-      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
-    });
-    return out;
+    return sortLeaves(out);
   }
 
   // ── THE MID LEVEL, AS A PURE FUNCTION ─────────────────────────────────────
@@ -348,8 +505,18 @@
   }
 
   // ── THE BRANCHES ──────────────────────────────────────────────────────────
-  function groups(pid) {
-    var all = leaves(pid);
+  // BRANCH ORDER IS THE TAXONOMY'S, ON EVERY PROFILE. Sorting branches by how much
+  // tension is under them would make the same tree read differently for every
+  // person and would turn the topic list itself into a ranking of topics — so the
+  // declared core-issue order stands, and the two things that answer "where do I
+  // look first" instead are the LEAF order inside each branch (tension first) and
+  // which branch is open when the tree first paints (see defaultOpenKey).
+  //
+  // `list` is an optional pre-filtered set of leaves: a filter is a view, so it is
+  // applied once, here, and every figure the branch prints — its count, its state
+  // summary, its mid gate — describes exactly the rows a reader can see under it.
+  function groups(pid, list) {
+    var all = list ? sortLeaves(list) : leaves(pid);
     var byTopic = {};
     all.forEach(function (lf) {
       var k = lf.topic || '';
@@ -357,17 +524,35 @@
     });
     var out = [];
     TOPICS().forEach(function (t) {
-      var list = byTopic[t.key];
-      if (!list || !list.length) return;
+      var ls = byTopic[t.key];
+      if (!ls || !ls.length) return;
       out.push({
         key: t.key || 'other', topicKey: t.key, label: t.label, blurb: t.blurb,
-        count: list.length, leaves: list, mids: midsFor(list),
+        count: ls.length, leaves: ls, mids: midsFor(ls),
+        summary: summaryOf(ls),
         skin: skinFor(t.key)
       });
     });
     return out;
   }
   function count(pid) { try { return leaves(pid).length; } catch (e) { return 0; } }
+
+  // ── WHICH BRANCH IS OPEN WHEN THE TREE FIRST PAINTS ───────────────────────
+  // The one holding the highest-tension row that is currently visible — not
+  // taxonomy #1, which on a deep profile is routinely a quiet branch while the
+  // contradiction sits in branch seven behind a closed header. Ties keep taxonomy
+  // order (the first branch that holds a row of that band wins), so the answer is
+  // deterministic. Leaves are already in band order inside a branch, so a branch's
+  // best row is its first one.
+  function defaultOpenKey(gs) {
+    gs = gs || [];
+    var best = null, bestRank = Infinity;
+    gs.forEach(function (g) {
+      var r = (g.leaves && g.leaves.length) ? g.leaves[0].rank : Infinity;
+      if (r < bestRank) { bestRank = r; best = g.key; }
+    });
+    return best || (gs.length ? gs[0].key : '');
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // MARKUP
@@ -481,9 +666,19 @@
   }
 
   // ── A BRANCH FACE ─────────────────────────────────────────────────────────
-  // Icon, name, and how many issues are filed here. That is the whole face, and
-  // the count is the only number on it: navigation, never a grade. There is no
-  // verdict, no tier, no direction and no percentage on this element — see wall 2.
+  // Icon, name, count, and a state summary of the rows visible underneath. The
+  // numbers on it are counts of rows and nothing else: no percentage, no ratio, no
+  // tier word, no direction of the branch's own — see wall 2. The summary is built
+  // from the leaves this branch actually holds under the active filter, so a closed
+  // header and its open panel can never disagree.
+  function bsumHtml(g) {
+    var sm = g.summary || summaryOf(g.leaves);
+    if (!sm.bits.length) return '';
+    return '<span class="pdxtree-bsum">' + sm.bits.slice(0, SUMMARY_MAX).map(function (b, i) {
+      return '<span class="pdxtree-bsumbit b-' + escAttr(b.key) + (i ? ' is-extra' : '') + '">' +
+        esc(b.label) + '</span>';
+    }).join('') + '</span>';
+  }
   function branchHtml(g, uid, open) {
     var panel = uid + '-p-' + escAttr(g.key);
     var body = g.mids
@@ -495,15 +690,22 @@
         }).join('')
       : g.leaves.map(function (lf) { return leafHtml(lf, uid); }).join('');
     var n = g.count + ' issue' + (g.count === 1 ? '' : 's');
+    var sm = g.summary || summaryOf(g.leaves);
+    // The whole sentence, on the face's own title: the visible bits are capped at
+    // three so the header stays scannable, and nothing is only in the markup a
+    // phone hides.
+    var ttl = g.label + ' \u00b7 ' + n + (sm.text ? ' \u00b7 ' + sm.text : '');
     return '<div class="pdxtree-branch' + (g.skin.on ? ' pdxtree-ic' : '') + '"' +
         ' style="' + escAttr(g.skin.style) + '"' +
         ' data-pdxtree-branch="' + escAttr(g.key) + '"' +
         ' data-pdxtree-open="' + (open ? '1' : '0') + '">' +
         '<button type="button" class="pdxtree-bface" data-pdxtree-toggle="' + escAttr(g.key) + '"' +
+          ' title="' + escAttr(ttl) + '"' +
           ' aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="' + escAttr(panel) + '">' +
           '<span class="pdxtree-caret" aria-hidden="true">▸</span>' +
           '<span class="pdxtree-btitle">' + esc(g.label) + '</span>' +
           '<span class="pdxtree-bn">' + esc(n) + '</span>' +
+          bsumHtml(g) +
         '</button>' +
         '<div class="pdxtree-panel" id="' + escAttr(panel) + '"' + (open ? '' : ' hidden') + '>' +
           body +
@@ -531,14 +733,25 @@
     } catch (e) {}
     return null;
   }
+  //
+  // UNDER AN ACTIVE FILTER the first figure says what it is: how many of the tree's
+  // own issues are on screen. The denominator is still `counts.shown` — the shared
+  // object's figure for this tree — so a filtered view narrows what a reader sees
+  // without inventing a second total for anything.
   var TALLY_WARM = 'Checking the formal record…';
-  function tallyHtml(pid, shownNow) {
+  function tallyHtml(pid, shownNow, filterKey) {
     var c = countsOf(pid);
     if (!c) return '';
     var of = c.of || {};
     var bits = [];
+    var filtered = !!(filterKey && filterKey !== FILTER_ALL);
     function bit(v, t) { bits.push({ v: v, t: t || '' }); }
-    bit(shownNow + ' issue' + (shownNow === 1 ? '' : 's') + ' on this tree', of.shown);
+    if (filtered) {
+      bit(shownNow + ' of ' + c.shown + ' issue' + (c.shown === 1 ? '' : 's') + ' shown \u00b7 ' +
+        filterOf(filterKey).label, of.shown);
+    } else {
+      bit(shownNow + ' issue' + (shownNow === 1 ? '' : 's') + ' on this tree', of.shown);
+    }
     bit(c.stated + ' with a stated position', of.stated);
     if (c.warming) {
       bit(TALLY_WARM, '');
@@ -555,28 +768,93 @@
     }).join('') + '</p>';
   }
 
-  // The tree body. `opts.open` is the branch key to leave expanded — the caller
-  // passes back whatever the reader had open before a warm repaint, so a repaint
-  // never collapses the branch someone is reading.
+  // ── THE FILTER BAR ────────────────────────────────────────────────────────
+  // WHICH CHIPS EXIST IS A PROPERTY OF THE PROFILE, not a fixed row of six. A chip
+  // that would select every row, or none of them, tells a reader nothing and costs
+  // a tap target — so `all` plus the chips that actually narrow this profile is the
+  // bar, and it is not drawn at all where there is nothing to narrow. The ACTIVE
+  // chip is always drawn even when its set is empty, because a reader who filtered
+  // into an empty view needs to see what they chose and the way back out.
+  function chipsFor(all, active) {
+    var out = [FILTERS[0]];
+    FILTERS.slice(1).forEach(function (f) {
+      var n = filterLeaves(all, f.key).length;
+      if ((n > 0 && n < all.length) || f.key === active) out.push(f);
+    });
+    return out.length > 1 ? out : [];
+  }
+  function filtersHtml(all, active) {
+    var chips = chipsFor(all, active);
+    if (!chips.length) return '';
+    return '<div class="pdxtree-filters" role="group" aria-label="Filter these issues">' +
+      chips.map(function (f) {
+        var on = (f.key === active);
+        return '<button type="button" class="pdxtree-fchip' + (on ? ' is-on' : '') + '"' +
+          ' data-pdxtree-filter="' + escAttr(f.key) + '"' +
+          ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+          ' title="' + escAttr(f.title) + '">' + esc(f.label) + '</button>';
+      }).join('') + '</div>';
+  }
+  // The honest empty view: what was asked, that the answer is none, and one control
+  // back to the full set. Never an empty tree, and never a filter silently ignored.
+  function emptyHtml(active) {
+    return '<p class="pdxtree-empty">' +
+      '<b>' + esc(filterOf(active).label) + ':</b> ' + esc(EMPTY_NOTE) +
+      ' <button type="button" class="pdxtree-fchip pdxtree-reset"' +
+      ' data-pdxtree-filter="' + escAttr(FILTER_ALL) + '">Show all issues</button></p>';
+  }
+
+  // ── THE TREE BODY ─────────────────────────────────────────────────────────
+  // `opts.open` is the branch keys to leave expanded — the caller passes back
+  // whatever the reader had open before a warm repaint, so a repaint never
+  // collapses the branch someone is reading. `opts.filter` is the active view; it
+  // is applied ONCE, here, to the leaf list, and everything below it (branches,
+  // counts on the faces, summaries, the mode, the default-open branch) describes
+  // that visible set. Nothing on this path reads or recomputes a score.
   function treeHtml(pid, opts) {
     opts = opts || {};
-    var gs = groups(pid);
-    if (!gs.length) return '';
+    var all = leaves(pid);
+    if (!all.length) return '';
     var uid = opts.uid || uidFor(pid);
-    var openKeys = opts.open && opts.open.length ? opts.open : [gs[0].key];
+    var active = filterOf(opts.filter || FILTER_ALL).key;
+    var shown = filterLeaves(all, active);
+    var mode = modeFor(shown.length);
+    var head = '<div class="pdxtree" data-pdxtree-pid="' + escAttr(pid) + '"' +
+      ' data-pdxtree-uid="' + escAttr(uid) + '"' +
+      ' data-pdxtree-filter="' + escAttr(active) + '"' +
+      ' data-pdxtree-mode="' + escAttr(shown.length ? mode : 'empty') + '">' +
+      tallyHtml(pid, shown.length, active) +
+      filtersHtml(all, active);
+    var body;
+    if (!shown.length) {
+      body = emptyHtml(active);
+    } else if (mode === 'flat') {
+      // FLAT MODE: one list, tension order, no accordions. Same leaf markup, so the
+      // dossier door, the slots, the disclosures and the ids are the tree's.
+      body = '<div class="pdxtree-flat" data-pdxtree-flat="1">' +
+        shown.map(function (lf) { return leafHtml(lf, uid); }).join('') + '</div>';
+    } else {
+      var gs = groups(pid, shown);
+      // Whatever the reader had open, minus branches this view no longer holds; if
+      // that leaves nothing open, the tension rule picks the branch.
+      var openKeys = (opts.open || []).filter(function (k) {
+        return gs.some(function (g) { return g.key === k; });
+      });
+      if (!openKeys.length) openKeys = [defaultOpenKey(gs)];
+      body = gs.map(function (g) {
+        return branchHtml(g, uid, openKeys.indexOf(g.key) !== -1);
+      }).join('');
+    }
     var anyOnly = false;
-    gs.forEach(function (g) {
-      g.leaves.forEach(function (lf) { if (lf.patternOnly) anyOnly = true; });
-    });
-    var shownNow = 0;
-    gs.forEach(function (g) { shownNow += g.count; });
-    return '<div class="pdxtree" data-pdxtree-pid="' + escAttr(pid) + '" data-pdxtree-uid="' + escAttr(uid) + '">' +
-        tallyHtml(pid, shownNow) +
-        gs.map(function (g) { return branchHtml(g, uid, openKeys.indexOf(g.key) !== -1); }).join('') +
-      '</div>' +
+    shown.forEach(function (lf) { if (lf.patternOnly) anyOnly = true; });
+    // The notes live INSIDE the tree element: a filter chip re-renders this whole
+    // block in place, and a disclosure that was a sibling of it would survive a
+    // repaint that removed the rows it was disclosing.
+    return head + body +
       '<p class="pdxtree-note">' + esc(TREE_NOTE) + '</p>' +
       (anyOnly ? '<p class="pdxtree-note pdxtree-note-only"><span class="pdxtree-tag">' +
-        esc(PATTERN_ONLY_TAG) + '</span> ' + esc(PATTERN_ONLY_NOTE) + '</p>' : '');
+        esc(PATTERN_ONLY_TAG) + '</span> ' + esc(PATTERN_ONLY_NOTE) + '</p>' : '') +
+      '</div>';
   }
 
   // ── THE SECTION ───────────────────────────────────────────────────────────
@@ -654,6 +932,42 @@
     document.addEventListener('click', function (e) {
       if (!e.target || !e.target.closest) return;
 
+      // ── THE FILTER CHIPS ────────────────────────────────────────────────
+      // A chip re-renders the tree block in place with the new view. It is a
+      // RE-RENDER OF THE SAME BUILDER, not a second code path that hides rows in
+      // the DOM: the tally, the branch counts, the summaries, the mode and the
+      // default-open branch therefore all describe the set that is on screen,
+      // and no leaf is ever left saying something that was true of another view.
+      var fc = e.target.closest('[data-pdxtree-filter]');
+      if (fc) {
+        var froot = fc.closest('.pdxtree');
+        if (!froot) return;
+        var fhost = froot.parentNode;
+        // The key is normalised through the filter table before it is used for
+        // anything, so an unrecognised value renders the full view rather than an
+        // empty one — and never reaches a selector as-is.
+        var fkey = filterOf(fc.getAttribute('data-pdxtree-filter') || FILTER_ALL).key;
+        var fuid = froot.getAttribute('data-pdxtree-uid') || '';
+        var next;
+        try {
+          next = treeHtml(froot.getAttribute('data-pdxtree-pid') || '', { uid: fuid, filter: fkey });
+        } catch (e1) { next = ''; }
+        if (next) {
+          froot.outerHTML = next;
+          // THE CHIP A READER PRESSED IS REPLACED BY THE RE-RENDER, so focus is put
+          // back on its successor. Without this a keyboard reader is dropped to the
+          // top of the document by their own filter, which is the one control on
+          // this surface they are most likely to use twice in a row.
+          try {
+            var back = fhost && fhost.querySelector('.pdxtree[data-pdxtree-uid="' + fuid + '"] ' +
+              '[data-pdxtree-filter="' + fkey + '"]');
+            if (back && back.focus) back.focus();
+          } catch (e2) {}
+        }
+        e.preventDefault();
+        return;
+      }
+
       // The branch toggle.
       var tg = e.target.closest('[data-pdxtree-toggle]');
       if (tg) {
@@ -708,8 +1022,14 @@
       if (!el) { window.removeEventListener('pdx-consistency-warm', handler); return; }
       if (ev && ev.detail && ev.detail.pid && norm(ev.detail.pid) !== norm(pid)) return;
       try {
-        var open = openBranches(el);
-        var next = treeHtml(pid, { open: open, uid: host });
+        // The reader's view survives the warm swap as well as their open branches:
+        // a repaint that silently reset an active filter would look like the
+        // filter had failed.
+        var root = el.querySelector('.pdxtree');
+        var next = treeHtml(pid, {
+          open: openBranches(el), uid: host,
+          filter: (root && root.getAttribute('data-pdxtree-filter')) || FILTER_ALL
+        });
         if (next) el.innerHTML = next;
       } catch (e) {}
     };
@@ -726,7 +1046,26 @@
     SAID: SAID,
     CUES: CUES,
     MID: MID,
-    RANK: LEAF_RANK,
+    // The sort key, as data: the band order, the words a branch summary may use,
+    // and the depth tie-break inside a band. Nothing here is printed as a number.
+    RANK: BAND,
+    BANDS: BANDS,
+    BAND_WORD: BAND_WORD,
+    DEPTH_RANK: DEPTH_RANK,
+    rankOf: rankOf,
+    SUMMARY_MAX: SUMMARY_MAX,
+    summary: summaryOf,
+    // The views. `FILTERS` is the whole chip set with its predicates; `filter`
+    // applies one to a leaf list and is the only thing that ever narrows this
+    // surface.
+    FILTERS: FILTERS,
+    FILTER_ALL: FILTER_ALL,
+    EMPTY_NOTE: EMPTY_NOTE,
+    filter: filterLeaves,
+    chipsFor: chipsFor,
+    // The flat-mode threshold and the rule that reads it, in one place each.
+    FLAT: FLAT,
+    modeFor: modeFor,
     NOTE: TREE_NOTE,
     PATTERN_ONLY_NOTE: PATTERN_ONLY_NOTE,
     PATTERN_ONLY_TAG: PATTERN_ONLY_TAG,
@@ -751,6 +1090,8 @@
     midsFor: midsFor,
     groups: groups,
     count: count,
+    // Which branch opens first, as a rule rather than an accident of taxonomy order.
+    defaultOpen: defaultOpenKey,
     // The markup layer.
     html: treeHtml,
     sectionHtml: sectionHtml,

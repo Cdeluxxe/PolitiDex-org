@@ -59,6 +59,23 @@
 .pdxtree-panel { padding: .1rem .45rem .5rem; display: flex; flex-direction: column; gap: .22rem; }
 .pdxtree-panel[hidden] { display: none; }
 
+/* ── the branch's state summary ─────────────────────────────────────────────
+   Counts of rows, in the bands' own words, so a CLOSED header still says what is
+   underneath it. Quieter than the topic name and quieter than the count: it is a
+   description of the panel, not a headline. Worst tension first, and on a phone
+   only that first bit survives — the count and the sharpest signal are what fit,
+   and the whole sentence is on the face's title either way. No percentage and no
+   ratio can appear here; see wall 2 in stance-tree.js. */
+.pdxtree-bsum {
+  flex: 0 0 auto; display: inline-flex; flex-wrap: wrap; align-items: baseline;
+  gap: .1rem .34rem; font-size: .66rem; line-height: 1.3; color: #8fa6c6;
+  font-variant-numeric: tabular-nums;
+}
+.pdxtree-bsumbit + .pdxtree-bsumbit::before { content: "·"; opacity: .55; margin-right: .3rem; }
+.pdxtree-bsumbit.b-cuts_against { color: #fca5a5; font-weight: 700; }
+.pdxtree-bsumbit.b-mixed        { color: #fbe08a; }
+.pdxtree-bsumbit.b-aligns       { color: #86efac; }
+
 /* ── the optional mid node ──────────────────────────────────────────────────
    Only rendered where a branch failed the flat-scan test (see MID in the JS).
    A heading, not a control: nothing collapses at this level, because a second
@@ -192,6 +209,43 @@
 .pdxtree-tallybit + .pdxtree-tallybit::before { content: "·"; opacity: .6; }
 .pdxtree-tallybit[title] { cursor: help; }
 
+/* ── THE FILTER CHIPS ──────────────────────────────────────────────────────
+   One row of view switches, one of them active. They are controls, so they are
+   sized for a thumb rather than for the caption they sit under, and the active one
+   is marked by more than colour (weight and border as well as fill) because the
+   pressed state is the only thing telling a reader why rows are missing. Nothing
+   here carries a number: a chip is a view, not a count. */
+.pdxtree-filters {
+  margin: 0 .1rem .5rem; display: flex; flex-wrap: wrap; gap: .3rem;
+}
+.pdxtree-fchip {
+  font: inherit; font-size: .7rem; font-weight: 700; line-height: 1;
+  padding: .34rem .6rem; border-radius: 999px; cursor: pointer;
+  color: #b9cbe6; background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+}
+.pdxtree-fchip:hover { background: rgba(148, 163, 184, 0.2); color: #eaf2ff; }
+.pdxtree-fchip:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 1px; }
+.pdxtree-fchip.is-on {
+  color: #0b1220; font-weight: 800;
+  background: #cfe0f5; border-color: #cfe0f5;
+}
+
+/* The honest empty view. It states the filter, the answer and the way back. */
+.pdxtree-empty {
+  margin: .2rem .1rem .1rem; padding: .6rem .7rem; border-radius: 10px;
+  border: 1px dashed rgba(148, 163, 184, 0.3); background: rgba(10, 15, 30, 0.34);
+  font-size: .78rem; line-height: 1.5; color: #b9cbe6;
+}
+.pdxtree-empty b { color: #eaf2ff; }
+.pdxtree-reset { margin-left: .3rem; }
+
+/* ── FLAT MODE ─────────────────────────────────────────────────────────────
+   At or under the threshold in stance-tree.js there are no branches to style: the
+   same leaves, in tension order, in one list. Identical leaf chrome by design —
+   a row must not look like a different kind of row because the profile is small. */
+.pdxtree-flat { display: flex; flex-direction: column; gap: .22rem; }
+
 .pdxtree-note {
   margin: .55rem .1rem 0; font-size: .7rem; line-height: 1.5; color: #8fa6c6;
 }
@@ -201,7 +255,13 @@
   .pdxtree-name { flex: 1 1 100%; }
   .pdxtree-face { padding: .5rem .45rem; }
   .pdxtree-slots { font-size: .7rem; }
-  .pdxtree-bface { padding: .62rem .6rem; }
+  .pdxtree-bface { padding: .62rem .6rem; flex-wrap: wrap; }
+  /* NARROW: THE COUNT AND THE WORST SIGNAL FIRST. Only the leading summary bit is
+     kept — it is the highest-tension band present, because the bits are emitted in
+     band order — and the rest of the sentence stays on the face's title. */
+  .pdxtree-bsumbit.is-extra { display: none; }
+  .pdxtree-bsum { flex: 1 1 100%; }
+  .pdxtree-fchip { padding: .4rem .62rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pdxtree-caret { transition: none; }

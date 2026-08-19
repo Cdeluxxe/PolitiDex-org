@@ -21,9 +21,12 @@
 //   3. PATTERN-ONLY ROWS ARE DISCLOSED THREE WAYS. Their own visible tag, the
 //      full three-denial sentence in the accessible name, and a distinct skin.
 //      An issue with neither a stated position nor a formal item is not a row.
-//   4. BROAD NODES CARRY NO SCORE AND NO VERDICT, and a percentage appears ONLY
-//      on a leaf whose issue Direction Match already scored — never on a branch,
-//      never on a pattern-only row, and never computed here.
+//   4. BROAD NODES CARRY NO SCORE AND NO GRADE. A branch face may DESCRIBE what
+//      is under it — counts of rows, in the bands' own lower-case words, adding up
+//      to the count beside them — and it still carries no percentage, no ratio, no
+//      tier word and no verdict word of the kind a leaf prints for a person. A
+//      percentage appears ONLY on a leaf whose issue Direction Match already
+//      scored — never on a branch, never on a pattern-only row, never computed here.
 //   5. THE LEAF IS THE EXISTING DOOR. One openGap(), the same dossier every other
 //      surface opens, no tree-only detail view.
 //   6. COLOURS COME FROM PDXIssueColors. Same issue, same colour as everywhere
@@ -31,6 +34,17 @@
 //   7. MOBILE OPENS ONE BRANCH AT A TIME, and the rule is asserted as a rule.
 //   8. IT IS NOT A SCORE. Direction Match, the verdict tally, every row verdict
 //      and the position map are byte-identical with the whole module unloaded.
+//   9. TENSION ORDER IS A SORT KEY AND NOTHING ELSE. Six bands, said-vs-record
+//      disagreement first, depth breaking ties only INSIDE a band, and a
+//      pattern-only row never ordered above a real said-plus-record tension. No
+//      band is printed, published or turned into a figure, and the branch ORDER
+//      stays the taxonomy's on every profile.
+//  10. FILTERS ARE VIEWS. One active at a time, each one hiding rows and touching
+//      nothing else: same leaf markup, same counts object, same scores, same
+//      pattern-only disclosures. An empty view says so in words.
+//  11. FLAT MODE UNDER THE THRESHOLD. One constant decides it, a handful of leaves
+//      renders as one flat list in tension order with no accordions, and both
+//      sides of the boundary are asserted on real profiles.
 //
 //   node scripts/test-stance-tree.mjs
 //
@@ -172,6 +186,14 @@ const HTML = T.html(PID, { uid: "t" });
 const SECTION = T.sectionHtml(PID);
 // One leaf's markup, isolated, so an assertion about a row cannot pass on some
 // other row's text.
+const rowIn = (html, key) => {
+  for (const c of String(html).split('<div class="pdxtree-leaf').slice(1)) {
+    if ((c.match(/data-pdxtree-issue="([^"]*)"/) || [])[1] === key) {
+      return c.slice(0, c.indexOf("</button>") + "</button>".length);
+    }
+  }
+  return "";
+};
 const chunkOf = (key) => {
   for (const c of HTML.split('<div class="pdxtree-leaf').slice(1)) {
     if ((c.match(/data-pdxtree-issue="([^"]*)"/) || [])[1] === key) return c;
@@ -417,8 +439,12 @@ section("3 · pattern-only rows are disclosed, three ways");
     "…and the early-signal disclosure on the row itself, where the number is");
   ok(q.rank > byKey[ONLY_STRONG].rank,
     "…and it sorts below a pattern the engine actually characterised");
-  ok(T.RANK.quiet === Math.max(...Object.values(T.RANK)),
-    "quiet is the last rank there is — thin is never dressed as a strong finding");
+  eq(q.band, byKey[ONLY_STRONG].band,
+    "…inside the same band, because depth is a tie-break and not a band of its own");
+  eq(T.RANK.nofile, Math.max(...Object.values(T.RANK)),
+    "nothing-on-file is the last band there is");
+  ok(LEAVES.indexOf(byKey[ONLY_STRONG]) < LEAVES.indexOf(q),
+    "…so a thin read never leads the band it shares with a characterised one");
 
   // A record the pattern index declines to characterise is still A RECORD. It
   // used to be dropped from the tree entirely — five votes on file, and an issue
@@ -483,15 +509,30 @@ section("4 · broad nodes are navigation — no score, no verdict");
   ok(!/\d+\s*(percent|pct)\b/i.test(HTML), "…and no percentage is spelled out in words either");
   eq((SECTION.match(/%/g) || []).length, (HTML.match(/%/g) || []).length,
     "the section that mounts the tree adds no percentage of its own");
+  // A BRANCH FACE MAY NOW DESCRIBE WHAT IS UNDER IT, and it still may not grade
+  // it. The summary is counts of rows in the bands' own lower-case words (asserted
+  // exhaustively in section 12); what stays banned is the grade — a percentage, a
+  // ratio, a tier word, and the verdict or stance vocabulary a leaf prints for a
+  // person, which on a topic would read as a score of the topic.
   FACES.forEach((f, i) => {
     const label = `branch face ${i}`;
     lacks(f, "%", `${label}: no percentage`);
     ok(!/\b\d+\s*(of|\/)\s*\d+\b/.test(f), `${label}: no ratio either`);
     ["Supports", "Opposes", "Mixed", "Strongly", "Mostly", "Split", "Thin",
-     "No clear pattern", "Aligns", "Cuts against", "Backs it up",
-     "Says one thing", "Direction Match"].forEach((w) =>
+     "No clear pattern", "Aligns", "Cuts against", "Backs it up", "Backed up",
+     "Contradicted", "Says one thing", "Direction Match", "Said:", "Record:"].forEach((w) =>
       lacks(f, w, `${label}: carries no verdict, tier or stance word (${w})`));
-    ok(/pdxtree-bn">\d+ issues?</.test(f), `${label}: the only number on it is a count of issues`);
+    ok(/pdxtree-bn">\d+ issues?</.test(f), `${label}: the count of issues is on it, as a count`);
+    // Every number on the face is a count of rows — the issue count, or a band
+    // count in the summary. Nothing else numeric is allowed on this element, in
+    // the visible markup or in the title that carries the rest of the sentence.
+    const ttl = (f.match(/ title="([^"]*)"/) || [])[1] || "";
+    const nums = [...f.replace(/ title="[^"]*"/, "").matchAll(/\d+/g)].map((m) => m[0]);
+    const bandNums = [...f.matchAll(/pdxtree-bsumbit[^>]*>(\d+) /g)].map((m) => m[1]);
+    eq(nums.length, bandNums.length + 1,
+      `${label}: the only numbers on it are the issue count and its band counts`);
+    ok(/^[^·]+ · \d+ issues? ?(· \d+ [a-z ]+)*$/.test(ttl),
+      `${label}: the title is the topic, the count and band counts — nothing else (${ttl})`);
   });
   // The branch shape itself offers nothing to score on.
   GROUPS.forEach((g) => {
@@ -580,11 +621,20 @@ section("7 · mobile opens one branch at a time");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   eq(T.PHONE, "(max-width: 639px)", "the phone test is the site's own phone breakpoint");
-  // Default state: exactly one branch open, and it is the first.
+  // Default state: exactly one branch open, and it is the branch holding the
+  // highest-tension row on the profile — not taxonomy #1, which is where the old
+  // rule left a reader when the contradiction sat in branch seven.
   const open = [...HTML.matchAll(/data-pdxtree-branch="([^"]*)" data-pdxtree-open="1"/g)]
     .map((m) => m[1]);
   eq(open.length, 1, "a freshly rendered tree has exactly one branch open");
-  eq(open[0], GROUPS[0].key, "…and it is the first branch, not an arbitrary one");
+  eq(open[0], T.defaultOpen(GROUPS), "…and it is the branch the default-open rule names");
+  const topRank = Math.min(...LEAVES.map((lf) => lf.rank));
+  const opened = GROUPS.filter((g) => g.key === open[0])[0];
+  eq(Math.min(...opened.leaves.map((lf) => lf.rank)), topRank,
+    "…which is a branch holding the highest-tension row on the profile");
+  GROUPS.slice(0, GROUPS.indexOf(opened)).forEach((g) =>
+    ok(Math.min(...g.leaves.map((lf) => lf.rank)) > topRank,
+      `${g.key}: an earlier branch is skipped only because nothing in it ranks higher`));
   eq((HTML.match(/aria-expanded="true"/g) || []).length, 1,
     "…which is the one branch reporting itself expanded");
   eq((HTML.match(/<div class="pdxtree-panel"[^>]* hidden>/g) || []).length, GROUPS.length - 1,
@@ -692,6 +742,351 @@ section("9 · the mount");
   const ix = R("index.html");
   ok(ix.indexOf('src="consistency.js"') < ix.indexOf('src="stance-tree.js"'),
     "…after consistency.js, which owns both engines it reads");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · tension order is a sort key and nothing else");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // The bands, as declared data — six of them, in the order a reader wants them.
+  eq(T.BANDS.join(","), "cuts_against,mixed,aligns,pattern,onfile,nofile",
+    "the six bands are declared in tension order");
+  eq(Object.keys(T.RANK).length, T.BANDS.length, "…and there are exactly six of them");
+  T.BANDS.forEach((b, i) => eq(T.RANK[b], i, `${b}: is band ${i} of the declared order`));
+  T.BANDS.forEach((b) => ok(/^[a-z ]+$/.test(T.BAND_WORD[b] || ""),
+    `${b}: has one lower-case word for a branch summary to print (${T.BAND_WORD[b]})`));
+
+  // DEPTH BREAKS TIES INSIDE A BAND, NEVER ACROSS ONE. A thin record sorts last
+  // among the rows it shares a band with and still ahead of the whole band below.
+  ok(T.rankOf("cuts_against", "full") < T.rankOf("cuts_against", "thin"),
+    "inside a band, a characterised record leads a thin one");
+  ok(T.rankOf("cuts_against", "thin") < T.rankOf("mixed", "full"),
+    "…and the thinnest row of a band still leads the band beneath it");
+  ok(T.rankOf("pattern", "full") > T.rankOf("aligns", "flat"),
+    "a pattern-only read never outranks a compared row, however weak that row's record");
+
+  // The fixture, band by band: every one of the six is reached by a real row.
+  eq(byKey[CUTS].band, "cuts_against", `${CUTS}: stated position against a deep record is the top band`);
+  eq(byKey[SPLITCUE].band, "mixed", `${SPLITCUE}: a record that ran both ways is the mixed band`);
+  eq(byKey[MIXCUE].band, "mixed", `${MIXCUE}: a stated Mixed lands in the same band`);
+  eq(byKey[ALIGNS].band, "aligns", `${ALIGNS}: said and record pointing one way is the aligns band`);
+  eq(byKey[ONLY_STRONG].band, "pattern", `${ONLY_STRONG}: pattern-only with a direction sorts after all three`);
+  eq(byKey[ONLY_THIN].band, "pattern", `${ONLY_THIN}: …and a thin one with it, below it inside the band`);
+  eq(byKey[ONLY_SPLIT].band, "onfile", `${ONLY_SPLIT}: a pattern with no clear direction is on-file, not a direction`);
+  eq(byKey[UNREADABLE].band, "onfile", `${UNREADABLE}: …and so is a record the engine will not characterise`);
+  eq(byKey[SAIDONLY].band, "nofile", `${SAIDONLY}: a stated position with nothing on file is the last band`);
+  const seen = new Set(LEAVES.map((lf) => lf.band));
+  T.BANDS.forEach((b) => ok(seen.has(b), `the fixture exercises the ${b} band`));
+
+  // The order the module actually returns.
+  LEAVES.forEach((lf, i) => {
+    if (!i) return;
+    ok(LEAVES[i - 1].rank <= lf.rank,
+      `${lf.key}: leaves come back in band order (${LEAVES[i - 1].rank} → ${lf.rank})`);
+  });
+  // THE ONE RULE THE BRIEF NAMES OUTRIGHT: a pattern-only row can never sort above
+  // a real said-plus-record tension.
+  const compared = LEAVES.filter((lf) => !lf.patternOnly &&
+    ["cuts_against", "mixed", "aligns"].indexOf(lf.band) !== -1);
+  const only = LEAVES.filter((lf) => lf.patternOnly);
+  must(compared.length > 0 && only.length > 0, "the fixture no longer holds both kinds of row");
+  ok(Math.min(...only.map((lf) => lf.rank)) > Math.max(...compared.map((lf) => lf.rank)),
+    "no pattern-only row sorts above any row where said and record were compared");
+  ok(LEAVES[0].band === "cuts_against",
+    "…and the first row on the profile is the said-vs-record contradiction");
+
+  // The DOM follows it, inside every branch that renders flat.
+  GROUPS.filter((g) => !g.mids).forEach((g) => {
+    const panel = HTML.slice(HTML.indexOf(`data-pdxtree-branch="${g.key}"`));
+    const keys = [...panel.slice(0, panel.indexOf("</div></div>"))
+      .matchAll(/data-pdxtree-issue="([^"]*)"/g)].map((m) => m[1]);
+    const ranks = keys.map((k) => byKey[k].rank);
+    ranks.forEach((r, i) => ok(i === 0 || ranks[i - 1] <= r,
+      `${g.key}: the rows inside the branch are in band order`));
+  });
+
+  // NOTHING ORDINAL LEAVES THE MODULE. The band is not published, not printed and
+  // not a figure, and the ordering reads no scoring floor and no scoring engine.
+  lacks(HTML, "data-pdxtree-band", "the band is not published to the DOM");
+  lacks(HTML, "data-pdxtree-rank", "…and neither is the rank");
+  // The CODE, not the header comment that names the floors in order to say it does
+  // not read them.
+  const body = R("stance-tree.js").slice(R("stance-tree.js").indexOf("(function () {"));
+  ["MIN_TESTED_ITEMS", "MIN_TESTED_WEIGHT", "EVIDENCE_CAP", "_RD_", "_recordPatternTier",
+   "_recordDisplayTier", "_pdxRecordDirection", "recordPattern.tier"].forEach((w) =>
+    lacks(body, w, `the ordering reads no floor and no scoring engine of its own (${w})`));
+  eq((body.match(/recordPattern\.display\(/g) || []).length, 1,
+    "the record half of a leaf still comes from exactly one shared accessor, called once");
+  LEAVES.forEach((lf) => {
+    eq(typeof lf.band, "string", `${lf.key}: the band is a name`);
+    eq(typeof lf.rank, "number", `${lf.key}: …and the rank an ordering integer, nothing printed`);
+  });
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · filters are views — they hide rows and touch nothing else");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  eq(T.FILTERS.map((f) => f.key).join(","), "all,stance,cuts,aligns,only,onfile",
+    "the chip set is the six the brief names, in that order");
+  eq(T.FILTER_ALL, "all", "…and the default is the full set");
+  eq(T.FILTERS[0].test, null, "…which has no predicate at all, so it can hide nothing");
+  T.FILTERS.forEach((f) => ok(!!f.label && !!f.title,
+    `${f.key}: the chip has a label and a sentence saying what it selects`));
+
+  // Each filter, restated independently off the leaf shape. If a predicate drifts,
+  // this disagrees with it rather than following it.
+  const PRED = {
+    all: () => true,
+    stance: (lf) => !!lf.said.stated,
+    cuts: (lf) => lf.band === "cuts_against",
+    aligns: (lf) => lf.band === "aligns",
+    only: (lf) => !!lf.patternOnly,
+    onfile: (lf) => !!(lf.record && lf.record.onRecord),
+  };
+  const leavesBefore = JSON.stringify(LEAVES);
+  const waBefore = JSON.stringify(A.PDXWordAction.read(PID));
+  const countsBefore = JSON.stringify(T.counts(PID));
+  const rowsBefore = JSON.stringify(CS.issueRows(PID).map((r) => [r.key, r.verdict.token, r.verdict.score]));
+
+  T.FILTERS.forEach((f) => {
+    const got = T.filter(LEAVES, f.key);
+    const want = LEAVES.filter(PRED[f.key]);
+    eq(got.length, want.length, `${f.key}: selects the rows the predicate names`);
+    got.forEach((lf) => ok(LEAVES.indexOf(lf) !== -1,
+      `${f.key}: selects rows already on the tree, never new ones`));
+    if (f.key !== "all") ok(got.length < LEAVES.length || f.key === "onfile",
+      `${f.key}: actually narrows the fixture`);
+
+    // The SAME uid as the full view, so a row that differs by so much as its id
+    // fails the byte-identical comparison below.
+    const h = T.html(PID, { uid: "t", filter: f.key });
+    has(h, `data-pdxtree-filter="${f.key}"`, `${f.key}: the view names itself on the tree element`);
+    const keys = [...h.matchAll(/data-pdxtree-issue="([^"]*)"/g)].map((m) => m[1]);
+    eq(keys.length, got.length, `${f.key}: renders exactly the rows it selected`);
+    keys.forEach((k) => ok(PRED[f.key](byKey[k]), `${f.key}: ${k} belongs in this view`));
+    eq((h.match(/aria-pressed="true"/g) || []).length, 1,
+      `${f.key}: exactly one chip is pressed`);
+    ok(new RegExp(`data-pdxtree-filter="${f.key}" aria-pressed="true"`).test(h),
+      `${f.key}: …and it is this one`);
+    // A ROW SAYS THE SAME THING UNDER EVERY VIEW — byte for byte.
+    if (got.length) eq(rowIn(h, got[0].key), rowIn(HTML, got[0].key),
+      `${f.key}: the row for ${got[0].key} is byte-identical to its row in the full view`);
+    // …including the one percentage a leaf may carry, and only where earned.
+    eq((h.match(/class="pdxtree-pct"/g) || []).length,
+       got.filter((lf) => lf.record && lf.record.state === "scored").length,
+      `${f.key}: a percentage still appears only on a scored row`);
+  });
+
+  eq(JSON.stringify(LEAVES), leavesBefore, "filtering mutated no leaf");
+  eq(JSON.stringify(A.PDXWordAction.read(PID)), waBefore, "…moved no score");
+  eq(JSON.stringify(T.counts(PID)), countsBefore, "…and moved no count");
+  eq(JSON.stringify(CS.issueRows(PID).map((r) => [r.key, r.verdict.token, r.verdict.score])),
+     rowsBefore, "…and left every row verdict exactly where it was");
+
+  // PATTERN-ONLY KEEPS EVERY DISCLOSURE UNDER ITS OWN FILTER.
+  const oh = T.html(PID, { uid: "f", filter: "only" });
+  const onlyN = T.filter(LEAVES, "only").length;
+  must(onlyN > 0, "the fixture no longer holds a pattern-only row");
+  has(oh, "pdxtree-note-only", "the pattern-only view keeps the tree's footer disclosure");
+  has(oh, T.PATTERN_ONLY_NOTE, "…in full");
+  eq((oh.match(/>Not in Direction Match</g) || []).length, onlyN + 1,
+    "…and every row keeps its own tag, with the footer's alongside");
+  [...oh.matchAll(/data-pdxtree-only="([^"]*)"/g)].forEach((m) =>
+    eq(m[1], "1", "every row in the pattern-only view is flagged as one"));
+  lacks(oh, "class=\"pdxtree-pct\"", "…and none of them carries a percentage");
+
+  // AN EMPTY VIEW SAYS SO. Picked off a real profile that has no contradiction on
+  // file rather than constructed, because that is the common case.
+  let EMPTY_PID = "";
+  for (const pid of Object.keys(A.CMP_DATA)) {
+    const ls = T.leaves(pid);
+    if (ls.length >= 2 && !T.filter(ls, "cuts").length) { EMPTY_PID = pid; break; }
+  }
+  must(!!EMPTY_PID, "no profile offers an empty filter to render");
+  const eh = T.html(EMPTY_PID, { uid: "e", filter: "cuts" });
+  has(eh, 'data-pdxtree-mode="empty"', "an empty view says so on the tree element");
+  has(eh, T.EMPTY_NOTE, "…and says it in words");
+  eq(T.EMPTY_NOTE, "None on this profile.", "…in the brief's own words");
+  has(eh, "Cuts against:", "…naming the filter that came back empty");
+  lacks(eh, 'class="pdxtree-leaf', "…with no rows");
+  lacks(eh, "pdxtree-branch", "…and no empty branches either");
+  ok(/data-pdxtree-filter="cuts" aria-pressed="true"/.test(eh),
+    "…while still showing which filter is on");
+  has(eh, 'data-pdxtree-filter="all"', "…and one control back to the full set");
+  has(eh, "Show all issues", "…labelled as the way out");
+
+  // An unknown view is the full one, never an empty one.
+  eq(T.filter(LEAVES, "nope").length, LEAVES.length, "an unknown filter key selects everything");
+  has(T.html(PID, { uid: "f", filter: "nope" }), 'data-pdxtree-filter="all"',
+    "…and renders as the full view");
+
+  // WHICH CHIPS EXIST IS A PROPERTY OF THE PROFILE.
+  const chips = T.chipsFor(LEAVES, "all").map((f) => f.key);
+  eq(chips[0], "all", "the full set is always the first chip");
+  T.FILTERS.slice(1).forEach((f) => {
+    const n = T.filter(LEAVES, f.key).length;
+    eq(chips.indexOf(f.key) !== -1, n > 0 && n < LEAVES.length,
+      `${f.key}: a chip exists exactly where it narrows this profile`);
+  });
+  ok(T.chipsFor(T.leaves(EMPTY_PID), "cuts").some((f) => f.key === "cuts"),
+    "the active chip is drawn even when its own set is empty");
+  const oneBand = LEAVES.filter((lf) => lf.band === "aligns" && lf.said.stated);
+  must(oneBand.length > 0, "the fixture no longer holds an aligned stated row");
+  eq(T.chipsFor(oneBand, "all").length, 0,
+    "no bar at all where every chip would select everything or nothing");
+  const bar = T.html(PID, { uid: "f" });
+  has(bar, "pdxtree-filters", "the fixture's own tree does draw the bar");
+  ok(/role="group" aria-label="Filter these issues"/.test(bar),
+    "…as one labelled group of controls");
+  T.FILTERS.forEach((f) => ok(!/\d/.test(f.label),
+    `${f.key}: a chip carries no figure of its own — profileCounts stays the one source`));
+
+  // A CHIP IS THE SAME BUILDER, NOT A SECOND CODE PATH: the handler re-renders the
+  // tree through treeHtml with the new view, normalises the key through the filter
+  // table first, and puts focus back on the chip its own re-render replaced.
+  const hsrc = R("stance-tree.js");
+  const handler = hsrc.slice(hsrc.indexOf("[data-pdxtree-filter]"), hsrc.indexOf("// The branch toggle."));
+  has(handler, "treeHtml(", "the chip handler re-renders through the shared builder");
+  has(handler, "filterOf(", "…normalising the key through the filter table first");
+  has(handler, "focus()", "…and returning focus to the chip it replaced");
+  ok(!/innerHTML\s*=/.test(handler), "…and hides no row by hand in the DOM");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("12 · a closed branch summarises the state under it");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const faceOf = (html, key) => {
+    const all = [...html.matchAll(/<button type="button" class="pdxtree-bface"[\s\S]*?<\/button>/g)]
+      .map((m) => m[0]);
+    return all.filter((f) => f.includes(`data-pdxtree-toggle="${key}"`))[0] || "";
+  };
+  GROUPS.forEach((g) => {
+    const sm = g.summary;
+    eq(sm.total, g.count, `${g.key}: the summary describes exactly the rows filed under it`);
+    eq(sm.bits.reduce((n, b) => n + b.n, 0), g.count,
+      `${g.key}: …and its bits add up to the count beside them`);
+    const order = sm.bits.map((b) => T.RANK[b.key]);
+    order.forEach((v, i) => ok(i === 0 || order[i - 1] < v,
+      `${g.key}: the bits run worst-tension first, in band order`));
+    sm.bits.forEach((b) => eq(b.label, b.n + " " + T.BAND_WORD[b.key],
+      `${g.key}/${b.key}: a bit is a count of rows and the band's own word`));
+
+    const face = faceOf(HTML, g.key);
+    must(!!face, `${g.key}: the branch face is missing from the markup`);
+    has(face, "pdxtree-bsum", `${g.key}: the face carries the summary`);
+    const shown = [...face.matchAll(/class="pdxtree-bsumbit b-([a-z_]+)( is-extra)?"/g)];
+    eq(shown.length, Math.min(sm.bits.length, T.SUMMARY_MAX),
+      `${g.key}: at most ${T.SUMMARY_MAX} bits are printed on the face`);
+    eq(shown.map((m) => m[1]).join(","),
+       sm.bits.slice(0, T.SUMMARY_MAX).map((b) => b.key).join(","),
+      `${g.key}: …and they are the worst ones, in band order`);
+    eq(!!shown[0][2], false, `${g.key}: the first bit is the one a narrow screen keeps`);
+    shown.slice(1).forEach((m, i) => ok(!!m[2],
+      `${g.key}: bit ${i + 1} is marked as an extra a narrow screen may drop`));
+    has(face, sm.text.replace(/&/g, "&amp;"), `${g.key}: the whole sentence rides the face's title`);
+    lacks(face, "%", `${g.key}: and no percentage anywhere on it`);
+  });
+
+  // The point of the exercise: a branch holding a contradiction says so while it
+  // is still CLOSED, which is what "Economy · 6 issues" could not do.
+  const tense = GROUPS.filter((g) => g.summary.bits.some((b) => b.key === "cuts_against"))[0];
+  must(!!tense, "the fixture no longer files a contradiction under any branch");
+  const tf = faceOf(HTML, tense.key);
+  has(tf, "cuts against", "a branch holding a contradiction says so on its face");
+  const closed = GROUPS.filter((g) => g.key !== T.defaultOpen(GROUPS) && g.summary.bits.length)[0];
+  must(!!closed, "the fixture no longer has a closed branch to read");
+  const cf = faceOf(HTML, closed.key);
+  has(cf, 'aria-expanded="false"', `${closed.key}: is closed`);
+  has(cf, "pdxtree-bsum", "…and still summarises its own state, count-only never being enough");
+
+  // THE SUMMARY DESCRIBES THE VISIBLE SET, so it cannot disagree with the panel.
+  const TP = "trump";
+  must(T.count(TP) > T.FLAT.maxLeaves, "the deep exec-lane fixture is gone");
+  const ah = T.html(TP, { uid: "s", filter: "aligns" });
+  const afaces = [...ah.matchAll(/<button type="button" class="pdxtree-bface"[\s\S]*?<\/button>/g)]
+    .map((m) => m[0]);
+  must(afaces.length > 0, "the aligned view of the deep fixture no longer renders branches");
+  afaces.forEach((f, i) => {
+    const bits = [...f.matchAll(/pdxtree-bsumbit b-([a-z_]+)/g)].map((m) => m[1]);
+    eq(bits.join(","), "aligns",
+      `filtered branch ${i}: the summary counts only the rows still visible under it`);
+  });
+  T.groups(TP, T.filter(T.leaves(TP), "aligns")).forEach((g) => {
+    eq(g.summary.total, g.count, `${g.key}: the filtered branch counts its filtered rows`);
+    eq(g.leaves.every((lf) => lf.band === "aligns"), true, `${g.key}: …and holds only those rows`);
+  });
+
+  // A narrow screen keeps the count and the worst signal; the rest is in the title.
+  const css = R("stance-tree.css");
+  const phone = css.slice(css.indexOf("@media (max-width: 639px)"));
+  has(phone, ".pdxtree-bsumbit.is-extra { display: none; }",
+    "on a phone only the leading (worst) bit survives beside the count");
+  lacks(css, "content: \"%\"", "the stylesheet adds no percentage to a branch either");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("13 · a handful of leaves renders flat");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  eq(T.FLAT.maxLeaves, 5, "the threshold is five leaves");
+  const src = R("stance-tree.js");
+  eq((src.match(/maxLeaves/g) || []).length, 2,
+    "the threshold is written in one place and read in one place");
+  eq((src.match(/FLAT\.maxLeaves/g) || []).length, 1, "…by the mode rule alone");
+  eq(T.modeFor(T.FLAT.maxLeaves), "flat", "at the threshold the tree renders flat");
+  eq(T.modeFor(T.FLAT.maxLeaves + 1), "tree", "one leaf over it, the topic tree comes back");
+  eq(T.modeFor(1), "flat", "a single leaf is never given an accordion");
+  eq(T.modeFor(0), "flat", "…and neither is none");
+
+  // BOTH SIDES OF THE BOUNDARY, ON REAL PROFILES.
+  const pick = (n) => {
+    for (const pid of Object.keys(A.CMP_DATA)) if (T.count(pid) === n) return pid;
+    return "";
+  };
+  const FLATPID = pick(T.FLAT.maxLeaves), TREEPID = pick(T.FLAT.maxLeaves + 1);
+  must(!!FLATPID && !!TREEPID,
+    `no real profile sits on each side of the boundary (${FLATPID} / ${TREEPID})`);
+  eq(T.count(TREEPID), T.count(FLATPID) + 1, "the two fixtures differ by exactly one leaf");
+  const fh = T.html(FLATPID, { uid: "fl" }), th = T.html(TREEPID, { uid: "tr" });
+  has(fh, 'data-pdxtree-mode="flat"', `${FLATPID}: ${T.FLAT.maxLeaves} leaves render flat`);
+  has(fh, 'class="pdxtree-flat"', "…as one list");
+  lacks(fh, "pdxtree-branch", "…with no topic accordions");
+  lacks(fh, "aria-expanded", "…nothing to expand");
+  lacks(fh, "pdxtree-panel", "…and no panels to hide rows in");
+  eq((fh.match(/data-pdxtree-issue="/g) || []).length, T.FLAT.maxLeaves,
+    "…and every leaf is on screen");
+  eq((fh.match(/data-pdxtree-dos="/g) || []).length, T.FLAT.maxLeaves,
+    "…each one still the door to its own dossier");
+  has(th, 'data-pdxtree-mode="tree"', `${TREEPID}: one leaf more, and the tree is back`);
+  has(th, "pdxtree-branch", "…with its branches");
+  eq((th.match(/aria-expanded="true"/g) || []).length, 1, "…one of them open");
+
+  // Tension order, and the same leaf chrome as the tree.
+  const fl = T.leaves(FLATPID);
+  const forder = [...fh.matchAll(/data-pdxtree-issue="([^"]*)"/g)].map((m) => m[1]);
+  eq(forder.join(","), fl.map((lf) => lf.key).join(","), "the flat list is in tension order");
+  has(fh, T.leafHtml(fl[0], "fl"),
+    "a row in flat mode is byte-identical to the same row built for the tree");
+  has(fh, "pdxtree-tally", "the flat view keeps the header tally");
+  has(fh, T.NOTE, "…and the standing note that separates Said from Record");
+  eq(/pdxtree-filters/.test(fh), T.chipsFor(fl, "all").length > 0,
+    "…and keeps the filter bar exactly where the profile has something to narrow");
+
+  // NARROWING BELOW THE THRESHOLD DROPS THE CHROME TOO — which is the deep-profile
+  // case the brief is really about: four contradictions, one flat list, no hunting.
+  const TP = "trump";
+  const cuts = T.filter(T.leaves(TP), "cuts");
+  must(cuts.length > 0 && cuts.length <= T.FLAT.maxLeaves,
+    `the deep fixture no longer narrows below the threshold (${cuts.length})`);
+  const nh = T.html(TP, { uid: "nn", filter: "cuts" });
+  has(nh, 'data-pdxtree-mode="flat"', "a filter that narrows below the threshold renders flat");
+  lacks(nh, "pdxtree-branch", "…with no accordions left to open");
+  eq((nh.match(/data-pdxtree-issue="/g) || []).length, cuts.length,
+    "…and exactly the narrowed rows on screen");
+  has(T.html(TP, { uid: "nn" }), 'data-pdxtree-mode="tree"',
+    "…while the unfiltered view of the same profile is still a tree");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
