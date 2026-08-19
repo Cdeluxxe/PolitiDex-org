@@ -4828,6 +4828,27 @@
            plain thin notice if the card can't render. -->
       ${candidateSnapshot || thinNotice}
 
+      <!-- 🌳 ALL ISSUES BY TOPIC — the browse-all-stances surface, and the reason
+           Stance at a Glance below is unmounted. The glance was a FLAT WALL: every
+           documented position in one alphabetised column, no grouping, no colour,
+           and no record beside any of it, so a reader who wanted "where do they
+           stand on energy" met thirty rows and did the filing themselves.
+           This is the same population arranged as a tree — broad core national
+           issue → optional mid → the issue we actually track — with what they SAID
+           and what their formal RECORD did in adjacent slots on one line, and an
+           alignment cue only where both slots are filled.
+
+           IT SITS HERE, DIRECTLY UNDER THE WORD VS ACTION SUMMARY, on purpose: the
+           section above states the one headline finding, and this is the surface a
+           reader browses to check that finding issue by issue. It publishes no
+           percentage of its own, and a broad node publishes no verdict — a topic is
+           not something a person can be scored on. See the five walls at the top of
+           stance-tree.js. Renders '' when neither a stated position nor a readable
+           formal pattern exists anywhere on the profile. -->
+      ${(window.PDXStanceTree && typeof window.PDXStanceTree.sectionHtml === 'function')
+        ? (function(){ try { return window.PDXStanceTree.sectionHtml(id); } catch(e){ return ''; } })()
+        : ''}
+
       <!-- CONNECTING THE DOTS IS UNMOUNTED. It rendered a full-width card here —
            the eyebrow "Connecting the Dots", the title "Where <name>'s word met
            their record", a four-line summary paragraph ("Every row below follows
@@ -5056,11 +5077,18 @@
            score can never disagree about the same issue. -->
       ${(window.PDXConsistency && typeof window.PDXConsistency.stancesSectionHtml === 'function') ? (function(){ try { var _st = window.PDXConsistency.stancesSectionHtml(id); return _st ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _st + '</div>') : ''; } catch(e){ return ''; } })() : ''}
 
-      <!-- Stance at a Glance — collapsible, scannable index of documented
-           positions with a per-issue evidence dot; taps open a small evidence
-           popover. Sits just above the detailed Key Issue Stances cards. -->
-      <span id="pdxsec-glance" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderStanceGlance === 'function') ? window._renderStanceGlance(id, p) : ''}
+      <!-- STANCE AT A GLANCE IS UNMOUNTED. It was a collapsible flat index of
+           documented positions with a per-issue evidence dot — one alphabetised
+           column, no topic grouping, no issue colour, and nothing about the formal
+           record next to any row. 🌳 All Issues by Topic (stance-tree.js, mounted
+           in the verdict stage above) is that same browse-all surface arranged as
+           a tree, in the core issue colours, with the record pattern beside each
+           stated position. Two flat-versus-grouped indexes of the same positions
+           in one scroll is the wall this pass exists to remove.
+           The renderer itself is left defined and exported for the archive, the
+           same way Connecting the Dots was; only the mount is gone, and the
+           #pdxsec-glance nav anchor now rides on the tree so every existing jump
+           into "their stated positions" still lands on the surface holding them. -->
 
       <!-- Elections — Two Axes. 🔐 election security and 📩 ballot access are
            separate ISSUE_MAP keys scored in their own directions, so a member can

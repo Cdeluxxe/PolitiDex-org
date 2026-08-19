@@ -402,7 +402,15 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ok(n === 1, `dedupe: ${label} is mounted exactly once in the modal body (found ${n})`);
   };
   once("window._renderIssueStances(id, p)", "the full per-issue stance set");
-  once("window._renderStanceGlance(id, p)", "Stance at a Glance");
+  once("window.PDXStanceTree.sectionHtml(id)", "the topic tree of stances");
+  // Stance at a Glance is mounted ZERO times by design. It was a flat, ungrouped,
+  // uncoloured index of the same documented positions the topic tree now lists by
+  // topic with the formal record pattern beside each one — two indexes of one
+  // population in one scroll. The renderer stays defined for the archive; the
+  // mount, and only the mount, is gone.
+  ok(!/window\._renderStanceGlance\(id, p\)/.test(PF),
+    "dedupe: Stance at a Glance is mounted in the modal body again — that is the flat\n" +
+    "    stance wall the topic tree replaced, back beside it");
   once("window._renderVotingRecord(id, p)", "the API voting record");
   once("window._renderMajorContracts(id, p)", "major contracts");
   // The Promise Tracker gateway is mounted ZERO times by design. Pledges are an
@@ -1040,22 +1048,37 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
       realStage[m[2]] = cur.startsWith("dw:") ? "drawers" : cur;
     }
   }
-  // Five anchors are emitted by other modules, so the template only shows the call.
-  // The stage of the call is the stage of the anchor.
+  // Several anchors are emitted by other modules, so the template only shows the
+  // call. The stage of the call is the stage of the anchor. One call may emit more
+  // than one anchor — the topic tree carries its own plus the legacy #pdxsec-glance
+  // alias the unmounted flat index used to own — so every entry naming a call is
+  // credited with that call's stage, not just the first.
   const external = [
     ["pdxsec-wordaction", "PDXWordAction.sectionHtml", "word-action.js"],
+    ["pdxsec-stancetree", "PDXStanceTree.sectionHtml", "stance-tree.js"],
+    ["pdxsec-glance", "PDXStanceTree.sectionHtml", "stance-tree.js"],
     ["pdxsec-stances", "PDXConsistency.stancesSectionHtml", "consistency.js"],
     ["pdxsec-controversies", "_renderControversies", "controversies.js"],
     ["pdxsec-funding", "_pdxFundingSection", "index.html"],
   ];
   {
-    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|PDXConsistency\.stancesSectionHtml|_renderControversies|_pdxFundingSection)\(/g;
+    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|PDXStanceTree\.sectionHtml|PDXConsistency\.stancesSectionHtml|_renderControversies|_pdxFundingSection)\(/g;
     let m, cur = "identity";
     while ((m = re.exec(bodySrc)) !== null) {
       if (m[1]) { cur = m[1]; continue; }
-      const hit = external.find((x) => x[1] === m[2]);
-      if (hit) realStage[hit[0]] = cur.startsWith("dw:") ? "drawers" : cur;
+      external.filter((x) => x[1] === m[2])
+        .forEach((hit) => { realStage[hit[0]] = cur.startsWith("dw:") ? "drawers" : cur; });
     }
+  }
+  // …and the module really does emit both of them, so the two entries above are
+  // not describing an anchor that no longer exists.
+  {
+    const ST = read("stance-tree.js");
+    ok(/id="pdxsec-stancetree"/.test(ST),
+       "rail: stance-tree.js still emits the anchor its own pill aims at");
+    ok(/id="pdxsec-glance"/.test(ST),
+       "rail: stance-tree.js still carries the legacy #pdxsec-glance alias, so every existing\n" +
+       "    jump into \"their stated positions\" lands on the surface that now holds them");
   }
   // The voting anchor is emitted by voting-record.js into the votes drawer.
   ok(/<span id="pdxsec-voting"/.test(read("voting-record.js")),

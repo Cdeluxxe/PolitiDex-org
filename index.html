@@ -1912,6 +1912,13 @@ window.PDXLazy = (function () {
        layout even if the CSS arrives after the first paint. -->
   <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
+  <!-- 🌳 The topic tree of stances (stance-tree.js). Modal-only and below the
+       fold, so it loads non-blocking like the rest of the profile CSS. It carries
+       the one distinction the markup alone cannot make: a pattern-only row's
+       dashed rail and unfilled dot, which is what keeps an inferred record pattern
+       from reading as a stated position. -->
+  <link rel="stylesheet" href="/stance-tree.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/stance-tree.css" /></noscript>
   <!-- 🧩 Dossier join layer — the five-link chain's visual grammar, the reusable
        receipt chips, the compact Issue Spotlight rail that replaced three stacked
        full-width callouts above the accountability spine, and the compact
@@ -20360,6 +20367,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        no Official Record verdict enters a Say-vs-Do score. Loads after
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
+  <!-- 🌳 The topic tree of stances (window.PDXStanceTree) — the profile's
+       browse-all-stances surface, mounted under the Word vs Action summary. Pure
+       presentation over two shared engines: PDXConsistency.issueRows (what they
+       said) and PDXConsistency.recordPattern.tier (what the formal record did), so
+       it must load AFTER consistency.js. It also reads PDXIssueColors for the topic
+       colours and CORE_NATIONAL_ISSUES (alignment-tool.js) for the grouping map,
+       both through guarded lookups. It computes no verdict, publishes no
+       percentage, and has no write path into a position map or into Direction
+       Match — see the five walls at the top of the file. -->
+  <script defer src="stance-tree.js"></script>
   <script defer src="receipt-cards.js"></script>
   <!-- Claim check (window.PDXClaimCheck) — the paste-a-claim adapter. It owns no
        verdict logic and no renderer of its own: it POSTs a pasted claim to

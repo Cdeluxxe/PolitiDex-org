@@ -159,12 +159,18 @@
     // verdict — the one primary score, and the only integrity section. Anchor
     // emitted by word-action.js.
     'pdxsec-wordaction': 'verdict',
+    // 🌳 All Issues by Topic, mounted directly under the score. Anchor emitted by
+    // stance-tree.js. `pdxsec-glance` is its LEGACY ALIAS and lives in this stage
+    // for that reason: the flat Stance at a Glance index it used to name is
+    // unmounted, and the tree is the browse-all-stances surface every jump into
+    // "their stated positions" should now land on.
+    'pdxsec-stancetree': 'verdict',
+    'pdxsec-glance': 'verdict',
     // signature — what they stand for. #pdxsec-stances is emitted by consistency.js
-    // (stancesSectionHtml) and is the stage's entry point; the glance and the full
-    // position set sit under it.
+    // (stancesSectionHtml) and is the stage's entry point; the full position set
+    // sits under it.
     'pdxsec-stances': 'signature',
     'pdxsec-positions': 'signature',
-    'pdxsec-glance': 'signature',
     // record — the formal apparatus behind the verdict
     'pdxsec-exec-record': 'record',
     'pdxsec-official-record': 'record',

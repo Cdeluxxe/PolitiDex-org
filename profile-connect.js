@@ -164,9 +164,14 @@
   // that is not on the page.
   function stepDefs(ctx) {
     return [
-      { key: 'glance', target: 'pdxsec-glance', accent: '#60a5fa', icon: '🗣️',
-        lead: '1 · They said', label: 'Stance at a Glance',
-        desc: 'Their documented positions, issue by issue.',
+      // Step 1 points at 🌳 All Issues by Topic (stance-tree.js). The flat Stance
+      // at a Glance index this step was named for is unmounted; the tree holds the
+      // same documented positions, grouped by topic, with the formal record pattern
+      // beside each one. `pdxsec-glance` still resolves — the tree carries that
+      // anchor as an alias — but the destination is named honestly here.
+      { key: 'glance', target: 'pdxsec-stancetree', accent: '#60a5fa', icon: '🗣️',
+        lead: '1 · They said', label: 'All Issues by Topic',
+        desc: 'Their documented positions by topic, beside what the formal record did.',
         sync: ctx.stanceN > 0, badge: ctx.stanceN ? (ctx.stanceN + ' position' + (ctx.stanceN === 1 ? '' : 's')) : '' },
       { key: 'voting', target: 'pdxsec-voting', accent: '#8b5cf6', icon: '🏛️',
         lead: '2 · They did', label: 'Voting Record & Official Acts',
