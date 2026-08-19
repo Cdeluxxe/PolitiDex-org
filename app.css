@@ -2024,6 +2024,13 @@
       font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem;
       letter-spacing: 0.02em;
     }
+    /* A PILL STILL READING THE RECORD SAYS SO. The figure on these pills comes off
+       engines that finish warming after first paint, and the repaint that replaces
+       it is window._pdxNavLive. Until then the value is a word, not a number, and
+       this dims it so it does not read as a settled figure. No animation: a
+       flashing pill in a sticky rail is motion under the reader's thumb. */
+    .pdx-pnav-pill[data-pdxnav-pending] .pdx-pnav-val { opacity: 0.72; font-style: italic; }
+    .pdx-pnav-pill[data-pdxnav-pending] .pdx-pnav-label { opacity: 0.85; }
     /* Zero-height in-flow markers the pills scroll to. scroll-margin keeps a
        section clear of the sticky rail even on native anchor jumps. */
     .pdx-nav-anchor { display: block; height: 0; scroll-margin-top: 4.25rem; }

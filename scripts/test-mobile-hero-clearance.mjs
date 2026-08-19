@@ -357,7 +357,12 @@ const CHROME_PROFILES = [
   { label: "wrapped nav row, worst case",       px: 260 },
 ];
 
-const AIR_REQUIRED = 16;   // the report's floor: "measured bottom + at least 16px"
+// The report's floor is "measured bottom + at least 16px", and that is what
+// scripts/test-mobile-hero-brand.mjs asserts against a rendered rect. This file
+// checks the SUM the stylesheet forces, which is deliberately larger: forcing
+// exactly the asserted threshold leaves nothing for a fractional device pixel
+// ratio, a half-pixel border or a rounded rem. 24 forced, 16 asserted.
+const AIR_REQUIRED = 24;
 
 const BREAKPOINTS = [
   { label: "desktop / tablet (no media query)", vars: baseVars,  floatRuns: true },
@@ -590,8 +595,17 @@ for (const bp of BREAKPOINTS) {
   const air = /var HERO_AIR = (\d+)/.exec(src);
   must(air, "the publisher no longer states HERO_AIR");
   ok(parseInt(air[1], 10) >= AIR_REQUIRED,
-     "MEASUREMENT: the publisher forces " + air[1] + "px of visible air; the report's floor is " +
+     "MEASUREMENT: the publisher forces " + air[1] + "px of visible air; the forced floor is " +
      AIR_REQUIRED + "px.");
+  // The stylesheet and the publisher have to force the SAME air, or the page
+  // moves the moment the measurement lands — up if the script is the generous
+  // one, down (into the row) if the stylesheet is.
+  const cssAir = resolveValue(baseVars["--pdx-hero-air"] ?? "0px", baseVars);
+  must(cssAir, "--pdx-hero-air does not resolve on :root");
+  ok(cssAir.px === parseInt(air[1], 10),
+     "MEASUREMENT: the stylesheet's --pdx-hero-air is " + cssAir.px + "px and the publisher's HERO_AIR " +
+     "is " + air[1] + "px. They are the same guarantee stated twice — the fallback and the measured " +
+     "value — so a difference is a visible jump when the measurement lands.");
   const jsFloat = /var HERO_FLOAT = (\d+)/.exec(src);
   must(jsFloat, "the publisher no longer states HERO_FLOAT");
   ok(parseInt(jsFloat[1], 10) >= HERO_FLOAT,
@@ -637,7 +651,7 @@ for (const bp of BREAKPOINTS) {
   ok(/handleNavigate/.test(sw),
      "shell delivery: sw.js still routes navigations through a named handler, so the strategy this " +
      "section reasons about is still the one shipping");
-  ok(parseInt(ver[1].replace(/\D/g, ""), 10) >= 56,
+  ok(parseInt(ver[1].replace(/\D/g, ""), 10) >= 57,
      "shell delivery: sw.js CACHE_VERSION is " + ver[1] + ", which is the version that shipped WITH the " +
      "pre-fix hero clearance. handleNavigate() returns the cached shell whenever one exists, so a phone " +
      "that already has this cache keeps being served the old index.html on a hard open and the forced " +

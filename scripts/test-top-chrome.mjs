@@ -860,22 +860,33 @@ const run = async () => {
      "no wasted space: the phone hero's air above the chrome is " + (phoneClear - travel) + "px — more " +
      "than 40px of slack is a permanent empty band on the screen with the tightest fold budget in the app.");
 
-  // The badge is hidden on short phones, and the lockup that inherits its auto
-  // margin uses fadeUp — which starts 30px LOW and settles, so it can only ever be
-  // further from the chrome than its resting position. That is why the short-phone
-  // clearance is allowed to be tighter than the float amplitude.
+  // THE SHORT-PHONE BLOCK NO LONGER BUYS SPACE BY HIDING THE BADGE. It used to
+  // (`#hero > .hero-stack-top { display: none }`), and that rule is what the brand
+  // report is about: every phone 720px or shorter — an SE in portrait and any
+  // handset in landscape — opened the hero with no PX badge and no LIVE pill above
+  // the headline. The badge is compact there now instead of absent, so the two
+  // assertions that used to REQUIRE the hide are inverted: the badge must be in the
+  // flow, and its overhang must therefore be paid for.
   const shortBlock = css.match(/@media\s*\(\s*max-width:\s*639px\s*\)\s*and\s*\(\s*max-height:\s*720px\s*\)\s*\{([\s\S]*?)\n    \}/);
   must(shortBlock, "the short-phone hero media query is no longer recognisable in index.html");
-  ok(/#hero\s*>\s*\.hero-stack-top\s*\{\s*display\s*:\s*none/.test(shortBlock[1]),
-     "float clearance: the short-phone block still hides the floating badge, which is what lets its " +
-     "clearance be tighter than the float amplitude");
-  ok(/#hero\s*>\s*\.hero-brand\s*\{\s*margin-top\s*:\s*auto/.test(shortBlock[1]),
-     "float clearance: with the badge hidden the POLITIDEX lockup inherits the auto top margin, so it " +
-     "centres in the space below the padding instead of being pushed above it");
+  ok(!/#hero\s*>\s*\.hero-stack-top\s*\{[^}]*display\s*:\s*none/.test(shortBlock[1]),
+     "brand lockup: the short-phone block hides .hero-stack-top again. That is the PX badge and the LIVE " +
+     "pill — half the brand lockup — gone on every phone 720px or shorter, which is the failure being " +
+     "fixed. Trim its SIZE on a short screen; do not remove it.");
+  ok(!/#hero\s*>\s*\.hero-brand\s*\{[^}]*margin-top\s*:\s*auto/.test(shortBlock[1]),
+     "brand lockup: the short-phone block gives .hero-brand its own `margin-top: auto` while " +
+     ".hero-stack-top (which is now in the flow here) already carries one. Two auto top margins in one " +
+     "column split the free space between them and open a gap through the middle of the lockup.");
+  ok(termIn(shortBlock[1], "overhang") === null || termIn(shortBlock[1], "overhang") > 0,
+     "brand lockup: the short-phone block zeroes --pdx-hero-overhang. That term is the LIVE pill's 8px, " +
+     "and it is zero only while the badge carrying the pill is not rendered — which it now is on this " +
+     "breakpoint too.");
   const fadeKf = tw.match(/@keyframes\s+fadeUp\s*\{\s*0%\s*\{[^}]*translateY\(\s*([\d.]+)px/);
   ok(!!fadeKf && parseFloat(fadeKf[1]) > 0,
      "float clearance: the wordmark's own entrance animation still starts BELOW its resting position " +
-     "(fadeUp translateY is positive), so it can never animate up into the chrome");
+     "(fadeUp translateY is positive), so it can never animate up into the chrome — and on a phone it " +
+     "does not run at all (see scripts/test-mobile-hero-brand.mjs, which requires the transform off so " +
+     "the runtime clearance audit never samples a rect mid-entrance)");
 }
 
 }; // run

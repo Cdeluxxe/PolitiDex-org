@@ -402,7 +402,15 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ok(n === 1, `dedupe: ${label} is mounted exactly once in the modal body (found ${n})`);
   };
   once("window._renderIssueStances(id, p)", "the full per-issue stance set");
-  once("window._renderStanceGlance(id, p)", "Stance at a Glance");
+  once("window.PDXStanceTree.sectionHtml(id)", "the topic tree of stances");
+  // Stance at a Glance is mounted ZERO times by design. It was a flat, ungrouped,
+  // uncoloured index of the same documented positions the topic tree now lists by
+  // topic with the formal record pattern beside each one — two indexes of one
+  // population in one scroll. The renderer stays defined for the archive; the
+  // mount, and only the mount, is gone.
+  ok(!/window\._renderStanceGlance\(id, p\)/.test(PF),
+    "dedupe: Stance at a Glance is mounted in the modal body again — that is the flat\n" +
+    "    stance wall the topic tree replaced, back beside it");
   once("window._renderVotingRecord(id, p)", "the API voting record");
   once("window._renderMajorContracts(id, p)", "major contracts");
   // The Promise Tracker gateway is mounted ZERO times by design. Pledges are an
@@ -992,10 +1000,35 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(rail.slice(pillAt("pdxsec-positions"), rail.indexOf("action: 'stance'")).indexOf("\n    }") === -1,
      "rail: the Full Report pill has left the Positions gate — an anchorless pill that can ship without\n" +
      "    the pill it inherits its rank from will land somewhere arbitrary in the rail");
-  // Exactly one percentage in the rail, still. Reordering must not have smuggled
+  // Exactly one percentage on the rail, still. Reordering must not have smuggled
   // the pledge rate back in beside the primary read.
-  ok((rail.match(/value: _waVal/g) || []).length === 1 && !/value: scoreNum \+ '%'/.test(rail),
+  //
+  // The pills' FIGURES no longer live in this block: window._pdxNavChips decides
+  // every one of them, once, and both the build-time string and the warm repaint
+  // read that one derivation. So the count is taken there — a second percentage
+  // would have to be written into the chip builder to reach a pill at all — and the
+  // rail is checked for the thing it can still do wrong, which is compute a figure
+  // of its own instead of taking the chip's. (The 🤝 Match pill's "% Match" is not
+  // a finding about the politician; it is the reader's own overlap with them, and it
+  // is built from the alignment tool, not from a chip.)
+  const chipFrom = PFL.indexOf("window._pdxNavChips = function");
+  const chipTo = PFL.indexOf("window._pdxNavChipAria = function");
+  ok(chipFrom !== -1 && chipTo > chipFrom, "rail: the chip derivation is where this file says it is");
+  const chipSrc = PFL.slice(chipFrom, chipTo);
+  const pctAt = chipSrc.indexOf("+ '%'");
+  ok((chipSrc.match(/\+ '%'/g) || []).length === 1 &&
+     pctAt > chipSrc.indexOf("out.wordaction =") && pctAt < chipSrc.indexOf("out.positions ="),
      "rail: exactly one pill reports a percentage — the reorder did not reintroduce a rival score");
+  ok(!/value: scoreNum \+ '%'/.test(rail) && !/keptCount/.test(rail),
+     "rail: a pill computes the pledge rate inside the pill list — every live figure comes from\n" +
+     "    window._pdxNavChips, so a figure derived here is one the warm repaint cannot correct");
+  // Every pill that carries a figure which can arrive late carries the key the
+  // repaint writes back into. A live figure with no `live` key is a frozen string.
+  for (const k of ["wordaction", "positions", "record", "evidence"]) {
+    ok(rail.indexOf("_navChips." + k + ".value") !== -1 && rail.indexOf("live: '" + k + "'") !== -1,
+       "rail: the " + k + " pill is not wired to the live chip derivation — it either builds its own\n" +
+       "    figure or has no repaint key, and either way it can outlive the number it prints");
+  }
 
   // 11d. Nothing moved into or out of a drawer. Phase 4 is order-only, so every
   //      drawer spec and every deferral flag must be exactly as Phase 2 left them.
@@ -1040,22 +1073,37 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
       realStage[m[2]] = cur.startsWith("dw:") ? "drawers" : cur;
     }
   }
-  // Five anchors are emitted by other modules, so the template only shows the call.
-  // The stage of the call is the stage of the anchor.
+  // Several anchors are emitted by other modules, so the template only shows the
+  // call. The stage of the call is the stage of the anchor. One call may emit more
+  // than one anchor — the topic tree carries its own plus the legacy #pdxsec-glance
+  // alias the unmounted flat index used to own — so every entry naming a call is
+  // credited with that call's stage, not just the first.
   const external = [
     ["pdxsec-wordaction", "PDXWordAction.sectionHtml", "word-action.js"],
+    ["pdxsec-stancetree", "PDXStanceTree.sectionHtml", "stance-tree.js"],
+    ["pdxsec-glance", "PDXStanceTree.sectionHtml", "stance-tree.js"],
     ["pdxsec-stances", "PDXConsistency.stancesSectionHtml", "consistency.js"],
     ["pdxsec-controversies", "_renderControversies", "controversies.js"],
     ["pdxsec-funding", "_pdxFundingSection", "index.html"],
   ];
   {
-    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|PDXConsistency\.stancesSectionHtml|_renderControversies|_pdxFundingSection)\(/g;
+    const re = /<!--PDXSP:([a-z0-9:_-]+)-->|(PDXWordAction\.sectionHtml|PDXStanceTree\.sectionHtml|PDXConsistency\.stancesSectionHtml|_renderControversies|_pdxFundingSection)\(/g;
     let m, cur = "identity";
     while ((m = re.exec(bodySrc)) !== null) {
       if (m[1]) { cur = m[1]; continue; }
-      const hit = external.find((x) => x[1] === m[2]);
-      if (hit) realStage[hit[0]] = cur.startsWith("dw:") ? "drawers" : cur;
+      external.filter((x) => x[1] === m[2])
+        .forEach((hit) => { realStage[hit[0]] = cur.startsWith("dw:") ? "drawers" : cur; });
     }
+  }
+  // …and the module really does emit both of them, so the two entries above are
+  // not describing an anchor that no longer exists.
+  {
+    const ST = read("stance-tree.js");
+    ok(/id="pdxsec-stancetree"/.test(ST),
+       "rail: stance-tree.js still emits the anchor its own pill aims at");
+    ok(/id="pdxsec-glance"/.test(ST),
+       "rail: stance-tree.js still carries the legacy #pdxsec-glance alias, so every existing\n" +
+       "    jump into \"their stated positions\" lands on the surface that now holds them");
   }
   // The voting anchor is emitted by voting-record.js into the votes drawer.
   ok(/<span id="pdxsec-voting"/.test(read("voting-record.js")),

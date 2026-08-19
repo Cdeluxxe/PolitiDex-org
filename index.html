@@ -1912,6 +1912,13 @@ window.PDXLazy = (function () {
        layout even if the CSS arrives after the first paint. -->
   <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
+  <!-- 🌳 The topic tree of stances (stance-tree.js). Modal-only and below the
+       fold, so it loads non-blocking like the rest of the profile CSS. It carries
+       the one distinction the markup alone cannot make: a pattern-only row's
+       dashed rail and unfilled dot, which is what keeps an inferred record pattern
+       from reading as a stated position. -->
+  <link rel="stylesheet" href="/stance-tree.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/stance-tree.css" /></noscript>
   <!-- 🧩 Dossier join layer — the five-link chain's visual grammar, the reusable
        receipt chips, the compact Issue Spotlight rail that replaced three stacked
        full-width callouts above the accountability spine, and the compact
@@ -2570,19 +2577,29 @@ window.PDXLazy = (function () {
          --pdx-hero-float     10px, heroFloat's peak — 0 on a phone, where the
                               float is switched off outright (see below)
          --pdx-hero-bleed     8px for the glow / drop-shadow that no rect reports
-         --pdx-hero-air       16px that MUST stay visible. This is the floor the
+         --pdx-hero-air       24px that MUST stay visible. This is the floor the
                               whole pass is built on: whatever the chrome and the
                               travel turn out to be, the highest hero pixel ends
-                              up at least 16px below the bottom of the Eye row.
+                              up at least 24px below the bottom of the Eye row.
+                              It was 16px, which is the ASSERTION threshold (the
+                              gap the brand lockup's own box has to beat), not a
+                              sane target to aim at: forcing exactly the number
+                              you are then tested against leaves nothing for the
+                              half-pixel a fractional device ratio rounds away,
+                              and a phone reported the lockup reading as tight
+                              against the row at that value. The forced air and
+                              the asserted floor are now two different numbers —
+                              force 24, assert 16 — so the shipped clearance has
+                              8px of margin over the thing that fails the build.
 
-       Desktop: 8 + 10 + 8 + 16 = 42px. It costs nothing until the stack
+       Desktop: 8 + 10 + 8 + 24 = 50px. It costs nothing until the stack
        overflows, because the auto margins below centre it whenever there is
        room. */
     :root {
       --pdx-hero-overhang: 8px;
       --pdx-hero-float: 10px;
       --pdx-hero-bleed: 8px;
-      --pdx-hero-air: 16px;
+      --pdx-hero-air: 24px;
       --pdx-hero-clear: calc(var(--pdx-hero-overhang) + var(--pdx-hero-float)
                              + var(--pdx-hero-bleed) + var(--pdx-hero-air));
       --pdx-hero-top: calc(var(--pdx-chrome) + var(--pdx-hero-clear));
@@ -2674,7 +2691,36 @@ window.PDXLazy = (function () {
       /* The 10px lift, gone. Scoped to the stack (id + two classes) so it beats
          app.css's `#hero .animate-float` without touching the decorative glows in
          the background layer or the LIVE pill's own colour pulse. */
-      #hero > .hero-stack-top.animate-float { animation: none; transform: none; }
+      #hero > .hero-stack-top.animate-float { animation: none; transform: none; opacity: 1; }
+      /* AND THE LOCKUP'S ENTRANCE, TOO. `.animate-fadeUp` is
+         `animation: fadeUp .6s ease forwards`, whose 0% frame is
+         `opacity: 0; translateY(30px)` — a transform on the brand stack, on the
+         one screen where the brand stack's position relative to the Eye row is
+         the whole point. It moves AWAY from the chrome rather than toward it, so
+         it was never a clearance risk; it is a REPORTING risk, and that is what
+         this pass is closing. The runtime audit below measures the lockup's own
+         getBoundingClientRect().top against the measured bottom of .pdx-eye-row
+         and tops the padding up if that gap is short, and a rect sampled while
+         a 30px translate is still unwinding is 30px of noise in the one
+         measurement that is allowed to move the page. On a phone the lockup is
+         simply where it belongs from the first frame: no float, no fade-in
+         travel, no transform on either half of the stack.
+         The class only ever set opacity in a keyframe (the elements have no
+         resting `opacity: 0`), so cancelling the animation leaves them fully
+         painted rather than invisible — which is why `opacity: 1` is stated
+         here anyway rather than assumed. */
+      #hero > .hero-brand.animate-fadeUp { animation: none; transform: none; opacity: 1; }
+      /* THE BRAND STACK IS NOT OPTIONAL ON A PHONE. The report is that the hero
+         opens on its headlines with no lockup above them, and the two ways that
+         happens are a `display: none` (which this pass removed from the
+         short-phone block below) and a later stylesheet re-introducing one. Both
+         halves of the lockup — the PX/LIVE badge and the POLITIDEX / BOUND BY
+         TRUTH wordmark — are stated visible here, at the same specificity the
+         trims below use, so hiding either of them is a deliberate act in a file
+         that scripts/test-mobile-hero-brand.mjs reads rather than a side effect
+         of a trim keyed on the wrong class name. */
+      #hero > .hero-stack-top,
+      #hero > .hero-brand { display: block; visibility: visible; }
       /* CLEARANCE FOR ANYTHING THAT *LANDS* ON THE HERO TOO. html's
          scroll-padding-top covers the scrollport, but a scrollIntoView aimed at
          one of these three — the badge, the PX/POLITIDEX lockup, the headline —
@@ -2729,38 +2775,56 @@ window.PDXLazy = (function () {
       #hero > .absolute.bottom-8 { display: none; }
     }
 
-    /* Short phones (SE-class, and anything in landscape) genuinely cannot fit the
-       logo badge, the brand lockup, three headline lines AND a record card. Given
-       the choice, the proof stays and the decoration goes: the badge is hidden and
-       the lockup shrinks to the wordmark's tagline rule. The headline is never
-       touched — the card is meant to support the claim, not replace it. */
+    /* Short phones (SE-class, and anything in landscape) are the tightest fold
+       budget in the app: the logo badge, the brand lockup, three headline lines
+       AND a record card do not all fit. What gives is SIZE, not presence. This
+       block used to hide the badge outright — `#hero > .hero-stack-top
+       { display: none }` — and that is the rule the current report is about: a
+       phone whose viewport measures 720px or less tall (an SE in portrait, and
+       EVERY phone in landscape) opened the hero with no PX badge and no LIVE
+       pill above the headlines, which is exactly "the upper hero brand stack
+       does not appear". The lockup below it was still there, so the page was not
+       brandless — but "the wordmark survived" is not the same claim as "the
+       brand lockup appears below the Eye", and hiding half of the lockup to buy
+       44px was the wrong trade on the one screen where a reader's first
+       impression is all they get.
+
+       So nothing in the brand stack is display:none at any phone size any more.
+       The badge stays and is SMALL: a 2.75rem tile instead of 4rem, with the
+       type scaled to match. That is 44px — the platform minimum touch target,
+       and the smallest size the PX mark still reads at — and it costs about 52px
+       of the fold against the ~44px the old `display: none` bought, i.e. the
+       whole trade is a single line of the record card's coverage row moving
+       below the fold. The headline is untouched, as it always was.
+
+       THE CLEARANCE GOES BACK UP WITH IT. The overhang term is the LIVE pill's,
+       and it is zero only while the badge that carries the pill is not rendered.
+       The badge renders here now, so this block no longer zeroes
+       --pdx-hero-overhang — it inherits the 8px from :root (which the runtime
+       publisher then replaces with the measured value) and keeps only
+       --pdx-hero-float: 0px, because the float is switched off for every phone
+       in the block above. 8 + 0 + 8 bleed + 24 air = 40px on the shortest screen
+       in the app, and scripts/test-mobile-hero-clearance.mjs ties the two
+       together: zeroing the overhang while the badge is visible fails there.
+
+       The auto margin goes back to the badge too. .hero-stack-top carries
+       `margin-top: auto` in the unscoped rules; the lockup was given its own
+       copy only because the badge above it was not in the flow. Two auto top
+       margins in one column split the free space between them and open a gap
+       through the middle of the lockup, so the lockup's is removed rather than
+       left to fight. */
     @media (max-width: 639px) and (max-height: 720px) {
-      /* Still the full chrome — a short screen is not a reason to put the brand
-         under the search bar, it is a reason to spend less on decoration below.
-         The badge going is what buys the space back (it was meant to go here all
-         along; the rule that hid it was one of the ones keyed on `.mb-8`), and
-         the lockup inherits the auto margin the badge was carrying.
-
-         The air is smaller here than in the block above and that is correct, not
-         an oversight: the two things that made 1.25rem the right number there —
-         the LIVE pill's 8px overhang and the badge's 8px float — both belong to
-         .hero-stack-top, and .hero-stack-top is display:none on this screen. What
-         is left at the top of the stack is the POLITIDEX lockup, whose only
-         animation (fadeUp) starts 30px BELOW its resting position, so it can never
-         travel toward the chrome at all. 0.25rem of air, though, was a hairline:
-         the wordmark carries drop-shadow(0 2px 6px) and the row it sits under
-         closes with a 1px rule, so four pixels read as touching. 0.5rem is real
-         air under the tightest fold budget in the app, for four pixels.
-
-         WHAT IT IS NOW: the badge is hidden, so there is no overhang and no
-         float — 0 + 0 + 8px of the wordmark's drop-shadow bleed + the same 16px
-         of forced visible air = 24px. Three times the old value on the shortest
-         screen in the app, and it is still the cheapest clearance in the
-         document because this is the one breakpoint where the overhanging,
-         glowing badge is not on the screen at all. */
-      :root { --pdx-hero-overhang: 0px; --pdx-hero-float: 0px; }
-      #hero > .hero-stack-top { display: none; }
-      #hero > .hero-brand { margin-top: auto; margin-bottom: .5rem; }
+      :root { --pdx-hero-float: 0px; }
+      /* The badge, compact rather than absent. Sized here rather than in the
+         block above so a tall phone keeps the 4rem tile. */
+      #hero > .hero-stack-top { margin-bottom: .4rem; }
+      #hero > .hero-stack-top > div:first-child { width: 2.75rem; height: 2.75rem; border-radius: .7rem; gap: 0; }
+      #hero > .hero-stack-top > div:first-child > span:first-child { font-size: 1.05rem; }
+      #hero > .hero-stack-top > div:first-child > span:last-child { font-size: 7px; letter-spacing: .12em; }
+      /* The LIVE pill shrinks with the tile it hangs off, so its 8px overhang
+         stays an overhang rather than becoming a second row of chrome. */
+      #hero > .hero-stack-top > div:last-child { font-size: 8px; padding: .12rem .4rem; }
+      #hero > .hero-brand { margin-bottom: .4rem; }
       #hero h1 > span:nth-child(1) { margin-bottom: .35rem; }
       #hero h1 > span:nth-child(2) { font-size: 2.1rem; }
       #hero h1 > span:nth-child(3) { font-size: 1.65rem; margin-bottom: .35rem; }
@@ -3464,9 +3528,30 @@ window.PDXLazy = (function () {
        These are the terms of the sum, and they are the same ones the fallback
        declarations in the stylesheet state:
 
-         AIR    16px that must remain visible between the bottom of the Eye row
+         AIR    24px that must remain visible between the bottom of the Eye row
                 and the highest pixel the hero paints. The floor of this whole
-                pass; nothing is allowed to shave it.
+                pass; nothing is allowed to shave it. 16px is the number the
+                build ASSERTS (see GATE below and
+                scripts/test-mobile-hero-brand.mjs); forcing exactly the
+                threshold you are tested against leaves nothing for a fractional
+                device pixel ratio, so the forced value is 24 and the asserted
+                floor stays 16.
+         GATE   16px, and it is a different KIND of number from the three others:
+                they are terms in a sum that predicts where the hero will land,
+                this is the measurement of where it actually did. After the
+                padding is published, auditHeroClearance() reads the real
+                getBoundingClientRect().top of the first visible brand element
+                (the PX/LIVE badge, or the POLITIDEX lockup if a trim ever hides
+                the badge again) and the real bottom of .pdx-eye-row, and if the
+                gap between them is under AIR it adds the shortfall to the
+                padding and re-measures. That closes the loop the last three
+                passes left open: every one of them computed a clearance from a
+                sum of terms it believed, shipped it, and was told by a phone
+                that the lockup was still under the bar. A sum can be wrong about
+                a term nobody thought of — a collapsed margin, an auto margin
+                that did not collapse, a wrapped nav row, a scaled font, a
+                stylesheet that lost a match. A rect cannot: it is where the
+                pixels are.
          BLEED   8px for what no rect reports — the pill's
                 shadow-[0_0_14px_rgba(217,26,49,0.85)] bloom and the wordmark's
                 drop-shadow(0 2px 6px). Half the glow radius is where it stops
@@ -3478,9 +3563,21 @@ window.PDXLazy = (function () {
                 the stack's float is switched off in the stylesheet rather than
                 paid for.
          overhang  measured, not transcribed. */
-    var HERO_AIR = 16;
+    var HERO_AIR = 24;
     var HERO_BLEED = 8;
     var HERO_FLOAT = 10;
+    // The asserted floor: the gap the first visible brand element's own box has
+    // to beat, measured rather than predicted. Never raise this above HERO_AIR —
+    // the audit would then chase a target the sum can never reach and top the
+    // padding up on every pass until it hit FORCE_CAP.
+    var HERO_GATE = 16;
+    // How much the audit is allowed to add on top of the computed sum, ever. A
+    // runaway here would push the hero off the bottom of the screen, which is a
+    // worse failure than the one it is fixing; past this the sum is simply wrong
+    // in a way a stylesheet has to fix.
+    var FORCE_CAP = 240;
+    var forced = 0;        // px the audit has had to add, cumulative
+    var auditPasses = 0;   // bounded per measurement — layout could otherwise oscillate
 
     function isPhone() {
       try {
@@ -3525,6 +3622,28 @@ window.PDXLazy = (function () {
       return over;
     }
 
+    /* THE FIRST THING THE READER IS SUPPOSED TO SEE, whichever element that turns
+       out to be. In document order: the PX/LIVE badge, then the POLITIDEX /
+       BOUND BY TRUTH lockup, then the headline. The badge is the answer on every
+       phone size now that nothing in the stack is display:none — but this reads
+       the computed style rather than trusting that, because the whole point of
+       the audit is to measure the page that shipped, not the page that was
+       intended. Whatever is first and visible is what has to clear the row. */
+    function firstBrandEl(hero) {
+      var list;
+      try { list = hero.querySelectorAll('.hero-stack-top, .hero-brand, h1'); }
+      catch (e) { return null; }
+      for (var i = 0; i < list.length; i++) {
+        var el = list[i], cs, r;
+        try { cs = window.getComputedStyle(el); } catch (e) { continue; }
+        if (!cs || cs.display === 'none' || cs.visibility === 'hidden') continue;
+        try { r = el.getBoundingClientRect(); } catch (e) { continue; }
+        if (!r.width && !r.height) continue;          // in the tree, not on the screen
+        return el;
+      }
+      return null;
+    }
+
     function publishHeroTop(chromeBottom) {
       var hero = document.getElementById('hero');
       if (!hero) return;
@@ -3533,13 +3652,87 @@ window.PDXLazy = (function () {
       var over = host ? paintOverhang(host) : null;
       if (over === null) over = phone ? 8 : 8;        // the stylesheet's fallback
       var travel = over + (phone ? 0 : HERO_FLOAT) + HERO_BLEED;
-      var top = chromeBottom + travel + HERO_AIR;
+      var top = chromeBottom + travel + HERO_AIR + forced;
       // Never publish a value that is not at least the measured chrome plus the
       // forced air — that is the guarantee the whole pass exists to make.
       if (top < chromeBottom + HERO_AIR) top = chromeBottom + HERO_AIR;
       if (Math.abs(top - lastTop) < 1) return;
       lastTop = top;
       root.style.setProperty('--pdx-hero-top', top + 'px');
+    }
+
+    /* ── The audit: the sum, checked against the rendered page ──────────────
+       Everything above predicts. This measures, and it is the only part of the
+       system that can catch a term nobody budgeted for.
+
+       Both edges are read at their own natural moment and compared in DOCUMENT
+       coordinates, so the reader's scroll position is irrelevant:
+
+         · .pdx-eye-row's bottom is viewport-relative and CONSTANT — the nav is
+           `position: fixed; top: 0`, so its rect does not move when the page
+           scrolls. That number is the depth of the chrome at scroll 0, which is
+           the position the clearance is defined for.
+         · the brand element's rect.top is viewport-relative and DOES move, so
+           the current scroll offset is added back to it. rect.top + scrollY is
+           where it sits relative to the top of the document, i.e. where it would
+           be at scroll 0 — the "highest reachable position" the report is made
+           from.
+
+       If that gap is short, the shortfall is added to the padding and the whole
+       measurement runs again, up to four passes per measure(). Four because the
+       first pass fixes the shortfall, the second confirms it (a padding change
+       can move a `margin-top: auto` sibling and change the answer), and two more
+       are slack; an oscillation that survives four passes is a stylesheet bug
+       that must not be papered over by a script looping on layout. */
+    function auditHeroClearance() {
+      if (!eye) return;
+      // Nothing to top up until a chrome depth has actually been measured and
+      // accepted: publishing off `last === 0` would write a padding SMALLER than
+      // the stylesheet's fail-closed literal and put the whole stack under the bar.
+      if (!(last > 0)) return;
+      var hero = document.getElementById('hero');
+      if (!hero) return;
+      var el = firstBrandEl(hero);
+      if (!el) return;
+      var rowBottom, brandTop;
+      try {
+        rowBottom = eye.getBoundingClientRect().bottom;
+        brandTop = el.getBoundingClientRect().top;
+      } catch (e) { return; }
+      if (!(rowBottom > 0)) return;                   // nav not rendered; nothing to clear
+      var y = window.scrollY || window.pageYOffset || 0;
+      var gap = Math.round((brandTop + y) - rowBottom);
+      if (!(gap === gap)) return;                     // NaN guard
+      /* THE NUMBER, PUBLISHED WHERE A PHONE CAN SHOW IT. Every round of this bug
+         has been argued from a screenshot, because the one quantity that settles
+         it — the distance from the bottom of the Eye row to the top of the first
+         visible brand element, at scroll 0 — was not readable anywhere. It is an
+         attribute on <html> now: `data-pdx-hero-gap="24"`, plus
+         `data-pdx-hero-gate="fail"` when it is inside the asserted 16px floor. On
+         a real device that is Inspect → <html>, or one line in the console, and it
+         is the same number scripts/test-mobile-hero-brand.mjs asserts. */
+      try {
+        root.setAttribute('data-pdx-hero-gap', String(gap));
+        if (gap <= HERO_GATE) root.setAttribute('data-pdx-hero-gate', 'fail');
+        else root.removeAttribute('data-pdx-hero-gate');
+      } catch (e) {}
+      if (gap >= HERO_AIR) return;                    // and therefore >= HERO_GATE
+      var add = Math.ceil(HERO_AIR - gap);
+      if (add > FORCE_CAP - forced) add = FORCE_CAP - forced;
+      if (add < 1) return;
+      forced += add;
+      lastTop = 0;                                    // the value changed; force the write
+      publishHeroTop(last);
+      if (++auditPasses < 4) scheduleAudit();
+    }
+
+    function scheduleAudit() {
+      // After layout, not during it: a rect read in the same frame as the write
+      // that changes it is the previous frame's answer on some engines.
+      if (window.requestAnimationFrame) {
+        try { window.requestAnimationFrame(auditHeroClearance); return; } catch (e) {}
+      }
+      setTimeout(auditHeroClearance, 0);
     }
 
     function measure() {
@@ -3571,6 +3764,13 @@ window.PDXLazy = (function () {
       // without the nav changing height at all (a rotation into the short-phone
       // block is exactly that).
       publishHeroTop(last);
+      // …and then checked against the pixels. `forced` is deliberately NOT reset
+      // here: it is a standing correction for a term the sum does not know about,
+      // and re-zeroing it on every resize would let the lockup slide back under
+      // the row for a frame on each one. The pass counter is what resets, so a
+      // genuine relayout gets a fresh budget of audits.
+      auditPasses = 0;
+      scheduleAudit();
     }
     measure();
     // This script sits directly under the nav, which is BEFORE #hero exists — so
@@ -20167,6 +20367,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        no Official Record verdict enters a Say-vs-Do score. Loads after
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
+  <!-- 🌳 The topic tree of stances (window.PDXStanceTree) — the profile's
+       browse-all-stances surface, mounted under the Word vs Action summary. Pure
+       presentation over two shared engines: PDXConsistency.issueRows (what they
+       said) and PDXConsistency.recordPattern.tier (what the formal record did), so
+       it must load AFTER consistency.js. It also reads PDXIssueColors for the topic
+       colours and CORE_NATIONAL_ISSUES (alignment-tool.js) for the grouping map,
+       both through guarded lookups. It computes no verdict, publishes no
+       percentage, and has no write path into a position map or into Direction
+       Match — see the five walls at the top of the file. -->
+  <script defer src="stance-tree.js"></script>
   <script defer src="receipt-cards.js"></script>
   <!-- Claim check (window.PDXClaimCheck) — the paste-a-claim adapter. It owns no
        verdict logic and no renderer of its own: it POSTs a pasted claim to

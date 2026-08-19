@@ -3694,6 +3694,157 @@
     }, 650);
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // THE QUICK CHIPS ARE LIVE, AND THEY ARE ONE DERIVATION
+  // ═══════════════════════════════════════════════════════════════════════════
+  // The rail's pills each carry a figure: ⚖️ a percentage, 🎯 a count of tagged
+  // issues, 🏛/✒️ how much of the formal record has been tested, 🔗 how many
+  // receipts are on file. Those figures used to be BUILT ONCE, into a string, at
+  // modal-render time — before the roll-call fetch that half of them depend on had
+  // come back. The rail then sat there for the life of the profile stating what was
+  // true a second before the record arrived: "0 of 11 tested" over a section
+  // reading eleven tested issues, an ⚖️ pill frozen mid-warm.
+  //
+  // Two rules fix that, and both are load-bearing:
+  //
+  //   ONE DERIVATION, TWO CALLERS. _pdxNavChips is the only place a pill's value
+  //   and colour are decided. The build-time string calls it; the warm repaint
+  //   calls it again and writes the answer into the pill that is already on screen.
+  //   A frozen string cannot drift from a live section because there is no second
+  //   place for the two to disagree.
+  //
+  //   PENDING, NEVER A WRONG INTEGER. Every count here comes off an engine that can
+  //   still be warming. While it is, the pill says so in the same word the hero and
+  //   the rows use ("Checking…") rather than printing the zero it would have to take
+  //   back one event later.
+  //
+  // The counts themselves are NOT computed here: PDXConsistency.profileCounts(pid)
+  // is the one counts object, and each chip's accessible name states WHICH M its
+  // figure is out of, in that object's own wording. Nothing in this block scores,
+  // ranks or thresholds anything.
+  var _NAV_PEND = 'Checking…';
+  // Receipts on file, in one place because two callers need the same number: the
+  // 🔗 pill and the 🕑 Activity fallback value.
+  window._pdxNavEvidenceCount = function (id, p) {
+    var n = 0;
+    try {
+      ((p && p.promises) || []).forEach(function (pr) {
+        if (pr && Array.isArray(pr.sources)) n += pr.sources.length;
+      });
+      ((p && p.sections) || []).forEach(function (s) {
+        if (s && typeof s.sources_count === 'number') n += s.sources_count;
+      });
+      var ev = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+      Object.keys(ev).forEach(function (k) {
+        n += ((ev[k] && ev[k].spotlight) ? ev[k].spotlight.length : 0);
+      });
+    } catch (e) { return 0; }
+    return n;
+  };
+  window._pdxNavChips = function (id, p) {
+    p = p || (window.PROFILES && window.PROFILES[id]) ||
+        ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : null) || {};
+    var out = {};
+    var counts = null;
+    try {
+      if (window.PDXConsistency && typeof window.PDXConsistency.profileCounts === 'function') {
+        counts = window.PDXConsistency.profileCounts(id, p);
+      }
+    } catch (e) { counts = null; }
+    var of = (counts && counts.of) || {};
+    // ⚖️ Word vs Action — the one percentage on the rail, and the engine's own
+    // fail-closed states where it has no percentage to give.
+    try {
+      if (window.PDXWordAction && typeof window.PDXWordAction.read === 'function') {
+        var wa = window.PDXWordAction.read(id, p);
+        if (wa && wa.coverage && wa.coverage.word) {
+          var waWarm = !!wa.coverage.warming;
+          out.wordaction = {
+            value: (wa.pct !== null) ? (wa.pct + '%')
+              : (waWarm ? _NAV_PEND : (wa.coverage.tested ? 'Thin record' : 'Untested')),
+            color: (wa.verdict && wa.verdict.color) || '#9fb4d4',
+            pending: waWarm,
+            note: 'Direction Match, tested on ' + (wa.coverage.tested || 0) + ' of ' +
+              (wa.coverage.scorable || 0) + ' ' + (of.scorable || 'issues it counts')
+          };
+        }
+      }
+    } catch (e) {}
+    // 🎯 Positions — the tagged key issues, which is exactly what the section this
+    // pill jumps to prints one pill per. Not an engine figure; see counts.signature.
+    var sig = counts ? counts.signature : 0;
+    if (!counts) { try { sig = (window._pdxKeyIssues(p) || []).length; } catch (e2) { sig = 0; } }
+    if (sig) {
+      out.positions = { value: sig + ' Issue' + (sig === 1 ? '' : 's'), color: '#c4b5fd',
+        pending: false, note: of.signature || 'issues tagged on this profile' };
+    }
+    // 🏛️ / ✒️ Record — how much of the formal record has been tested, out of how
+    // much formal record is on file. Both figures are the counts object's, and the
+    // numerator is the same one the Official Record's own digest leads with, so the
+    // pill and the section it jumps to cannot state different totals.
+    if (counts && (counts.onRecord || counts.scorable || counts.tested)) {
+      out.record = counts.warming
+        ? { value: _NAV_PEND, color: '#9fdbd0', pending: true,
+            note: 'still reading the formal record' }
+        : { value: counts.scored + ' of ' + counts.onRecord + ' tested', color: '#9fdbd0',
+            pending: false,
+            note: (of.scored || 'issues the formal record scored') + ', out of ' +
+              (of.onRecord || 'issues with a formal record on file') };
+    }
+    // 🔗 Evidence — receipts, not issues, and it says so.
+    var ev = window._pdxNavEvidenceCount(id, p);
+    if (ev > 0) {
+      out.evidence = { value: ev + ' Evidence', color: '#f5c842', pending: false,
+        note: 'sourced receipts gathered on this profile' };
+    }
+    return out;
+  };
+  // The accessible name is built in ONE place too — a pill whose visible figure
+  // repaints and whose spoken name does not is a pill that lies to exactly the
+  // readers least able to check it.
+  window._pdxNavChipAria = function (label, value, note) {
+    return String(label) + ': ' + String(value == null ? '' : value).replace(/"/g, '') +
+      (note ? ' — ' + String(note).replace(/"/g, '') : '');
+  };
+  // THE REPAINT. Same event the hero ring, the header tally and the topic tree
+  // rebuild on. It writes text and colour into pills that already exist and never
+  // adds, removes or reorders one: a rail that grew a pill mid-read would move the
+  // thing under the reader's thumb, and self-gating already happens at build time
+  // off figures that cannot arrive late.
+  window._pdxNavLive = function (pid) {
+    var nav = document.getElementById('pdx-profile-nav');
+    if (!nav) return;
+    var id = nav.getAttribute('data-pdxnav-pid') || '';
+    if (!id) return;
+    if (pid && String(pid).trim().toLowerCase() !== id.trim().toLowerCase()) return;
+    var chips;
+    try { chips = window._pdxNavChips(id, null) || {}; } catch (e) { return; }
+    var live = nav.querySelectorAll('[data-pdxnav-live]');
+    for (var i = 0; i < live.length; i++) {
+      var btn = live[i];
+      var c = chips[btn.getAttribute('data-pdxnav-live')];
+      if (!c) continue;
+      var val = btn.querySelector('.pdx-pnav-val');
+      if (!val) continue;
+      if (val.textContent !== c.value) val.textContent = c.value;
+      try { val.style.color = c.color; } catch (e2) {}
+      btn.setAttribute('aria-label',
+        window._pdxNavChipAria(btn.getAttribute('data-pdxnav-label') || '', c.value, c.note));
+      if (c.pending) btn.setAttribute('data-pdxnav-pending', '1');
+      else btn.removeAttribute('data-pdxnav-pending');
+    }
+  };
+  var _navLiveBound = false;
+  function _pdxNavLiveBind() {
+    if (_navLiveBound || !window.addEventListener) return;
+    _navLiveBound = true;
+    // Bound once, for the life of the page, and cheap: it does nothing at all
+    // unless a rail is mounted and the event names the profile that rail is for.
+    window.addEventListener('pdx-consistency-warm', function (ev) {
+      try { window._pdxNavLive((ev && ev.detail && ev.detail.pid) || ''); } catch (e) {}
+    });
+  }
+
   // Re-arm the rail after the DOM under it changed — a deferred drawer mounted, a
   // pill was injected late. Coalesced into one animation frame so a burst of
   // reveals costs one re-arm instead of one per reveal, and so the re-arm reads
@@ -3741,6 +3892,8 @@
   window._pdxInitProfileNav = function () {
     var body = document.getElementById('modal-body');
     var nav = document.getElementById('pdx-profile-nav');
+    // The rail exists, so the live-chip listener should too. Guarded to one bind.
+    try { _pdxNavLiveBind(); if (nav) window._pdxNavLive(nav.getAttribute('data-pdxnav-pid') || ''); } catch (e) {}
     // Re-arming is how this function is used — on open, after a drawer mounts,
     // after a late pill is added — so tearing the previous observer down is the
     // first thing it does. Nothing here can stack.
@@ -4445,13 +4598,9 @@
     // from the same figures the sections render, so a pill never disagrees
     // with the content below, and self-gating — a section with nothing to show
     // contributes no pill (the whole rail hides if fewer than two survive).
-    let _navEvidenceCount = 0;
-    try {
-      (p.promises || []).forEach(function (pr) { if (pr && Array.isArray(pr.sources)) _navEvidenceCount += pr.sources.length; });
-      (p.sections || []).forEach(function (s) { if (s && typeof s.sources_count === 'number') _navEvidenceCount += s.sources_count; });
-      const _evMap = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
-      Object.keys(_evMap).forEach(function (k) { _navEvidenceCount += ((_evMap[k] && _evMap[k].spotlight) ? _evMap[k].spotlight.length : 0); });
-    } catch (e) { _navEvidenceCount = 0; }
+    // One receipt count for the 🔗 pill and the 🕑 Activity fallback, from the same
+    // helper the live repaint reads — see window._pdxNavEvidenceCount.
+    const _navEvidenceCount = window._pdxNavEvidenceCount(id, p);
 
     let _navActivityRel = '';
     try {
@@ -4481,25 +4630,26 @@
     // fail-closed floors, and the honest state ("Checking…" / "Thin record") when it
     // does not — never a bare number standing in for one. Self-gating: no pill when
     // no word is on file.
-    try {
-      if (window.PDXWordAction && typeof window.PDXWordAction.read === 'function') {
-        const _wa = window.PDXWordAction.read(id, p);
-        if (_wa && _wa.coverage.word) {
-          const _waVal = (_wa.pct !== null) ? (_wa.pct + '%')
-            : (_wa.coverage.warming ? 'Checking…' : (_wa.coverage.tested ? 'Thin record' : 'Untested'));
-          _navItems.push({ target: 'pdxsec-wordaction', icon: '⚖️', label: 'Word vs Action',
-            value: _waVal, color: (_wa.verdict && _wa.verdict.color) || '#9fb4d4' });
-        }
-      }
-    } catch (e) {}
+    // EVERY FIGURE BELOW COMES FROM window._pdxNavChips, and it is the same call the
+    // warm repaint makes — so a pill's build-time value and its repainted value are
+    // the same derivation, not two copies of it. `live` is the key the repaint writes
+    // back into; a pill without one is a static destination (no figure to keep up).
+    const _navChips = window._pdxNavChips(id, p);
+    if (_navChips.wordaction) {
+      _navItems.push({ target: 'pdxsec-wordaction', icon: '⚖️', label: 'Word vs Action',
+        live: 'wordaction', value: _navChips.wordaction.value,
+        color: _navChips.wordaction.color, note: _navChips.wordaction.note,
+        pending: _navChips.wordaction.pending });
+    }
     // 🎯 Positions — number of tracked key issues, and the doorway to 🧭 Stances &
     // Connections, which now opens that stage. Pushed SECOND, because the signature
     // stage sits second on the page under the locked reading order: the verdict,
     // then what they stand for, then the record that tests it. The push order here
     // IS the rail order.
-    if (window._pdxKeyIssues(p).length) {
-      const _n = window._pdxKeyIssues(p).length;
-      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
+    if (_navChips.positions) {
+      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions',
+        live: 'positions', value: _navChips.positions.value, color: _navChips.positions.color,
+        note: _navChips.positions.note, pending: _navChips.positions.pending });
       // Full Report — a dedicated rail entry that OPENS the Full Stance Record
       // overlay (every issue + evidence depth + honest gaps) rather than scrolling
       // to a section, so the deepest per-issue view is one tap from the map. Sits
@@ -4512,15 +4662,13 @@
     // three entries for what is now a single spine. Office-aware label, count only —
     // the rail carries exactly one percentage (the ⚖️ pill leading it).
     try {
-      const _orTested = (window.PDXWordAction && typeof window.PDXWordAction.read === 'function')
-        ? (window.PDXWordAction.read(id, p) || {}).coverage : null;
       const _isExecPid = !!(window.PDXExecRecord && typeof window.PDXExecRecord.eligible === 'function' && window.PDXExecRecord.eligible(id));
-      if (_orTested && (_orTested.scorable || _orTested.tested)) {
+      if (_navChips.record) {
         _navItems.push({
           target: 'pdxsec-official-record', icon: _isExecPid ? '✒️' : '🏛️',
-          label: 'Record',
-          value: (_orTested.tested || 0) + ' of ' + (_orTested.scorable || 0) + ' tested',
-          color: '#9fdbd0'
+          label: 'Record', live: 'record',
+          value: _navChips.record.value, color: _navChips.record.color,
+          note: _navChips.record.note, pending: _navChips.record.pending
         });
       }
     } catch (e) {}
@@ -4543,8 +4691,10 @@
     // pledge ledger is reachable from the ⚖️ Word vs Action feeds list, which is
     // the honest doorway to it: an input to the score, opened from the score.
     // Evidence — total receipts/sources/clips gathered. The shared proof layer.
-    if (_navEvidenceCount > 0) {
-      _navItems.push({ target: 'pdxsec-evidence', icon: '🔗', label: 'Evidence', value: _navEvidenceCount + ' Evidence', color: '#f5c842' });
+    if (_navChips.evidence) {
+      _navItems.push({ target: 'pdxsec-evidence', icon: '🔗', label: 'Evidence',
+        live: 'evidence', value: _navChips.evidence.value, color: _navChips.evidence.color,
+        note: _navChips.evidence.note, pending: _navChips.evidence.pending });
     }
     // Funding — who bankrolls them, shown only when a filing record is on file.
     // Pushed before Match: money is its own lens and sits above the alignment tail
@@ -4587,7 +4737,8 @@
 
     // A single pill isn't a "map" — only render the rail when at least two exist.
     const _navBar = (_navOrdered.length >= 2)
-      ? '<nav id="pdx-profile-nav" class="pdx-pnav" aria-label="Jump to a section of this profile">' +
+      ? '<nav id="pdx-profile-nav" class="pdx-pnav" data-pdxnav-pid="' + id +
+          '" aria-label="Jump to a section of this profile">' +
           '<div class="pdx-pnav-track">' +
             _navOrdered.map(function (n) {
               // Action pill — opens an overlay (Full Stance Record) instead of
@@ -4604,8 +4755,14 @@
                   '</span>' +
                 '</button>';
               }
+              // `data-pdxnav-live` is the handle the warm repaint writes through, and
+              // `data-pdxnav-label` is what it rebuilds the accessible name from. A
+              // pending pill is marked as data so the skin can say it is still
+              // reading rather than looking like a settled figure.
               return '<button type="button" class="pdx-pnav-pill" data-target="' + n.target + '" ' +
-                'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + '" ' +
+                (n.live ? 'data-pdxnav-live="' + n.live + '" data-pdxnav-label="' + n.label + '" ' : '') +
+                (n.pending ? 'data-pdxnav-pending="1" ' : '') +
+                'aria-label="' + window._pdxNavChipAria(n.label, n.value, n.note) + '" ' +
                 'onclick="window._pdxNavJump && window._pdxNavJump(\'' + n.target + '\', this)">' +
                 '<span class="pdx-pnav-ico" aria-hidden="true">' + n.icon + '</span>' +
                 '<span class="pdx-pnav-txt">' +
@@ -4827,6 +4984,27 @@
            from the section above, identically on both lanes. Falls back to the
            plain thin notice if the card can't render. -->
       ${candidateSnapshot || thinNotice}
+
+      <!-- 🌳 ALL ISSUES BY TOPIC — the browse-all-stances surface, and the reason
+           Stance at a Glance below is unmounted. The glance was a FLAT WALL: every
+           documented position in one alphabetised column, no grouping, no colour,
+           and no record beside any of it, so a reader who wanted "where do they
+           stand on energy" met thirty rows and did the filing themselves.
+           This is the same population arranged as a tree — broad core national
+           issue → optional mid → the issue we actually track — with what they SAID
+           and what their formal RECORD did in adjacent slots on one line, and an
+           alignment cue only where both slots are filled.
+
+           IT SITS HERE, DIRECTLY UNDER THE WORD VS ACTION SUMMARY, on purpose: the
+           section above states the one headline finding, and this is the surface a
+           reader browses to check that finding issue by issue. It publishes no
+           percentage of its own, and a broad node publishes no verdict — a topic is
+           not something a person can be scored on. See the five walls at the top of
+           stance-tree.js. Renders '' when neither a stated position nor a readable
+           formal pattern exists anywhere on the profile. -->
+      ${(window.PDXStanceTree && typeof window.PDXStanceTree.sectionHtml === 'function')
+        ? (function(){ try { return window.PDXStanceTree.sectionHtml(id); } catch(e){ return ''; } })()
+        : ''}
 
       <!-- CONNECTING THE DOTS IS UNMOUNTED. It rendered a full-width card here —
            the eyebrow "Connecting the Dots", the title "Where <name>'s word met
@@ -5056,11 +5234,18 @@
            score can never disagree about the same issue. -->
       ${(window.PDXConsistency && typeof window.PDXConsistency.stancesSectionHtml === 'function') ? (function(){ try { var _st = window.PDXConsistency.stancesSectionHtml(id); return _st ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _st + '</div>') : ''; } catch(e){ return ''; } })() : ''}
 
-      <!-- Stance at a Glance — collapsible, scannable index of documented
-           positions with a per-issue evidence dot; taps open a small evidence
-           popover. Sits just above the detailed Key Issue Stances cards. -->
-      <span id="pdxsec-glance" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderStanceGlance === 'function') ? window._renderStanceGlance(id, p) : ''}
+      <!-- STANCE AT A GLANCE IS UNMOUNTED. It was a collapsible flat index of
+           documented positions with a per-issue evidence dot — one alphabetised
+           column, no topic grouping, no issue colour, and nothing about the formal
+           record next to any row. 🌳 All Issues by Topic (stance-tree.js, mounted
+           in the verdict stage above) is that same browse-all surface arranged as
+           a tree, in the core issue colours, with the record pattern beside each
+           stated position. Two flat-versus-grouped indexes of the same positions
+           in one scroll is the wall this pass exists to remove.
+           The renderer itself is left defined and exported for the archive, the
+           same way Connecting the Dots was; only the mount is gone, and the
+           #pdxsec-glance nav anchor now rides on the tree so every existing jump
+           into "their stated positions" still lands on the surface holding them. -->
 
       <!-- Elections — Two Axes. 🔐 election security and 📩 ballot access are
            separate ISSUE_MAP keys scored in their own directions, so a member can

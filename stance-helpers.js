@@ -783,6 +783,11 @@
     }
 
     window._recordDirectionIndex = _recordDirectionIndex;
+    // Published so a surface can ask WHY an issue may not be characterised without
+    // holding an index for it — the executive lane has no roll-call index at all,
+    // and "this issue has no for-or-against pole" is a fact about the issue, not
+    // about whichever record happens to be on it.
+    window._pdxRecordSuppressedKey = _rdSuppressedKey;
     window._PDX_RD_TOKENS = _RD_TOKENS;
     window._PDX_RD_MIN_JUDGED = _RD_MIN_JUDGED;
     window._PDX_RD_DOMINANCE = _RD_DOMINANCE;
@@ -909,6 +914,97 @@
     window._recordPatternTier = _recordPatternTier;
     window._PDX_RD_TIERS = _RD_TIERS;
     window._PDX_RD_TIER_NOTE = _RD_TIER_NOTE;
+
+    // ── THE DISPLAY BAR: ONE FORMAL ITEM IS ALREADY A RECORD ───────────────────
+    // _recordPatternTier answers "may we characterise this record?" and its floors
+    // are right for that question: a member we hold twelve mapped votes of, four
+    // judged items on the issue, a primary mapping, a dominant side. This function
+    // answers a DIFFERENT question — "is there a record here at all, and what did
+    // it do?" — for the surfaces that must not print a blank where one formal item
+    // exists. One vote is the start of a pattern, not a finished one, and hiding it
+    // until the twelfth is the wrong end of the fail-closed trade: the reader draws
+    // "nothing on record" from an empty slot, which is a stronger and falser claim
+    // than "one vote, and here it is".
+    //
+    // WHAT IT MAY NOT DO, and this is the whole of it:
+    //   · IT CHANGES NO SCORE. Nothing here is read by Direction Match, by the
+    //     Word-vs-Action ratio, by _issueRecordSummary or by any verdict. Every
+    //     floor above (_RD_MEMBER_FLOOR, _RD_MIN_JUDGED, _RD_THIN_MIN,
+    //     _RD_DOMINANCE, _RD_SPLIT_*) is untouched and still gates every one of
+    //     those reads, and `characterised` / `counted` on the index stay exactly as
+    //     the index set them — so a display read cannot promote itself into a card
+    //     total or a decision slot.
+    //   · IT NEVER OVERRULES THE PATTERN ENGINE. The first thing it does is ask,
+    //     and any read that engine was willing to make is returned verbatim.
+    //   · IT INVENTS NO VOCABULARY. Strongly / Mostly / Thin / Split and the two
+    //     direction words are _RD_TIERS' own, so a display read and a pattern read
+    //     cannot be worded differently on one page.
+    //   · IT NEVER CLAIMS A DIRECTION IT HAS NOT EARNED. Two walls do not move an
+    //     inch: an issue with no for-or-against pole gets no direction (there is
+    //     nothing to lean on), and neither does a record connected to the issue
+    //     only incidentally (_RD_MIN_PRIMARY). Depth is a floor about SIZE; those
+    //     two are about MEANING, and lowering the first is not licence to lower
+    //     either of the others.
+    //
+    // `display: true` marks a read that only exists because of this bar, `early`
+    // marks the one-item read that must be worded as a beginning, and `partial`
+    // marks the reads where the shortfall is OUR coverage rather than their record
+    // — those are held to thin styling however one-sided their arithmetic looks,
+    // because a fifth of a member's file is not a tendency.
+    function _recordDisplayTier(idx, opts) {
+      opts = opts || {};
+      var t = _recordPatternTier(idx, opts);
+      if (t && t.tier !== 'none') return t; // the engine's own read, untouched
+      if (!idx || typeof idx !== 'object') return null;
+      if (!idx.total) return null; // nothing formal on this issue at all
+      var sup = idx.suppressed || _rdSuppressedKey(idx.issueKey);
+      if (sup && _RD_TIER_MUTE[sup]) return null; // no pole: no direction, at any depth
+      var judged = idx.judged || 0;
+      if (judged < 1) return null;                       // nothing judged: nothing did anything
+      if ((idx.primary || 0) < _RD_MIN_PRIMARY) return null; // incidental only: a coincidence
+
+      var noun = opts.noun || { one: 'vote', many: 'votes' };
+      var adv = idx.advances || 0, opp = idx.opposes || 0;
+      var partial = (sup === 'coverage_floor');
+      var deep = !partial && judged >= _RD_MIN_JUDGED;
+      var uniform = (adv === 0 || opp === 0);
+      var tw = (idx.advanceScore || 0) + (idx.opposeScore || 0);
+      var dominant = tw > 0 &&
+        (idx.advanceScore >= tw * _RD_DOMINANCE || idx.opposeScore >= tw * _RD_DOMINANCE);
+
+      var key, weight, tone, label, dir = null;
+      if (!uniform && !(deep && dominant)) {
+        // Ran both ways, and no lead is derived from it — 'Split' is the pattern
+        // engine's own word for a record with no single thing it did, and the two
+        // counts beside it are the whole claim.
+        key = 'split';
+        weight = (!partial && judged >= _RD_SPLIT_MIN_JUDGED) ? _RD_TIERS.split.weight : 'thin';
+        tone = _RD_TIERS.split.tone;
+        label = _RD_TIERS.split.label;
+      } else {
+        var leadKey = uniform ? (adv ? 'advances' : 'opposes')
+          : (((idx.advanceScore || 0) >= (idx.opposeScore || 0)) ? 'advances' : 'opposes');
+        dir = _RD_TIER_DIR[leadKey];
+        key = deep ? (uniform ? 'strong' : 'mostly') : 'thin';
+        weight = deep ? _RD_TIERS[key].weight : 'thin';
+        tone = dir.tone;
+        label = _RD_TIERS[key].lead + ' ' + dir.word;
+      }
+      return {
+        tier: key, weight: weight, tone: tone, label: label,
+        // A uniform record counts itself the way the thin tier does — "3 actions
+        // advanced" — because "3 advanced · 0 against" spends a number on a side
+        // with nothing on it.
+        counts: _rdTierCounts(idx, noun, (uniform || key === 'thin') ? 'thin' : key),
+        judged: judged, advances: adv, opposes: opp,
+        directional: key !== 'split',
+        token: idx.token,
+        note: _RD_TIER_NOTE,
+        display: true, early: judged <= 1, partial: partial
+      };
+    }
+
+    window._recordDisplayTier = _recordDisplayTier;
 
     // ── Omnibus component breakdown (the reusable primitive) ───────────────────
     // Break ONE record (a floor vote or a non-roll-call position) into its component

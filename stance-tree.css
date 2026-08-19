@@ -1,0 +1,268 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   stance-tree.css — 🌳 the topic tree of stances
+   ─────────────────────────────────────────────────────────────────────────────
+   Companion to stance-tree.js. Two rules govern everything below:
+
+   1. NO PER-ISSUE SELECTORS. Every colour on a branch or a leaf comes from the
+      four custom properties PDXIssueColors.styleFor() writes inline
+      (--pdx-ic / -soft / -wash / -ink). This file never names an issue, so adding
+      a core issue needs no edit here and an issue is the same colour on this
+      surface as on every other one.
+   2. A PATTERN-ONLY ROW MUST NOT BE ABLE TO LOOK LIKE A STANCE. Its rail is
+      dashed rather than solid, it takes no topic fill, its name is not bolded to
+      stance weight, and it carries a visible tag. Three signals, because one is a
+      thing a reader can miss.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.pdxtree-sec { margin-bottom: 1.25rem; }
+.pdxtree-h {
+  margin: 0 0 .25rem; font-size: 1.05rem; font-weight: 800; letter-spacing: .01em;
+  color: #eaf2ff;
+}
+.pdxtree-sub {
+  margin: 0 0 .7rem; font-size: .82rem; line-height: 1.45; color: #9fb4d4;
+}
+.pdxtree-sub b { color: #cfe0f8; font-weight: 700; }
+
+.pdxtree { display: flex; flex-direction: column; gap: .4rem; }
+
+/* ── the broad node ─────────────────────────────────────────────────────────
+   Navigation furniture. The count is the only number allowed on this face; see
+   wall 2 in stance-tree.js. */
+.pdxtree-branch {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-left: 3px solid var(--pdx-ic, #94A3B8);
+  border-radius: 10px;
+  background: rgba(10, 15, 30, 0.36);
+  overflow: hidden;
+}
+.pdxtree-branch.pdxtree-ic { background: linear-gradient(90deg, var(--pdx-ic-soft, transparent), rgba(10, 15, 30, 0.36) 70%); }
+.pdxtree-bface {
+  display: flex; align-items: center; gap: .5rem; width: 100%;
+  padding: .55rem .7rem; background: none; border: 0; cursor: pointer;
+  text-align: left; font: inherit; color: #eaf2ff;
+}
+.pdxtree-bface:hover { background: rgba(255, 255, 255, 0.04); }
+.pdxtree-bface:focus-visible { outline: 2px solid var(--pdx-ic, #7dd3fc); outline-offset: -2px; }
+.pdxtree-caret {
+  flex: 0 0 auto; font-size: .8rem; color: var(--pdx-ic-ink, #9fb4d4);
+  transition: transform .16s ease;
+}
+.pdxtree-branch[data-pdxtree-open="1"] .pdxtree-caret { transform: rotate(90deg); }
+.pdxtree-btitle { flex: 1 1 auto; font-size: .92rem; font-weight: 750; }
+.pdxtree-bn {
+  flex: 0 0 auto; font-size: .7rem; font-weight: 700; color: #9fb4d4;
+  padding: .1rem .42rem; border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+.pdxtree-panel { padding: .1rem .45rem .5rem; display: flex; flex-direction: column; gap: .22rem; }
+.pdxtree-panel[hidden] { display: none; }
+
+/* ── the branch's state summary ─────────────────────────────────────────────
+   Counts of rows, in the bands' own words, so a CLOSED header still says what is
+   underneath it. Quieter than the topic name and quieter than the count: it is a
+   description of the panel, not a headline. Worst tension first, and on a phone
+   only that first bit survives — the count and the sharpest signal are what fit,
+   and the whole sentence is on the face's title either way. No percentage and no
+   ratio can appear here; see wall 2 in stance-tree.js. */
+.pdxtree-bsum {
+  flex: 0 0 auto; display: inline-flex; flex-wrap: wrap; align-items: baseline;
+  gap: .1rem .34rem; font-size: .66rem; line-height: 1.3; color: #8fa6c6;
+  font-variant-numeric: tabular-nums;
+}
+.pdxtree-bsumbit + .pdxtree-bsumbit::before { content: "·"; opacity: .55; margin-right: .3rem; }
+.pdxtree-bsumbit.b-cuts_against { color: #fca5a5; font-weight: 700; }
+.pdxtree-bsumbit.b-mixed        { color: #fbe08a; }
+.pdxtree-bsumbit.b-aligns       { color: #86efac; }
+
+/* ── the optional mid node ──────────────────────────────────────────────────
+   Only rendered where a branch failed the flat-scan test (see MID in the JS).
+   A heading, not a control: nothing collapses at this level, because a second
+   collapsible tier is a second thing to fight with on a phone. */
+.pdxtree-mid { display: flex; flex-direction: column; gap: .22rem; }
+.pdxtree-mid + .pdxtree-mid { margin-top: .3rem; }
+.pdxtree-midhd {
+  font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  color: #8fa6c6; padding: .3rem .35rem .1rem;
+}
+
+/* ── the leaf ───────────────────────────────────────────────────────────────
+   One scannable line: name, Said, Record, cue. It wraps rather than truncates,
+   because a truncated stance label is a stance a reader cannot read. */
+.pdxtree-leaf {
+  border-left: 3px solid var(--pdx-ic, #94A3B8);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.022);
+}
+.pdxtree-leaf.pdxtree-ic { background: var(--pdx-ic-soft, rgba(255, 255, 255, 0.022)); }
+.pdxtree-face {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: .3rem .5rem;
+  width: 100%; padding: .42rem .5rem; background: none; border: 0; cursor: pointer;
+  text-align: left; font: inherit; color: #dce8f8;
+}
+.pdxtree-face:hover { background: rgba(255, 255, 255, 0.045); border-radius: 6px; }
+.pdxtree-face:focus-visible { outline: 2px solid var(--pdx-ic, #7dd3fc); outline-offset: -2px; }
+.pdxtree-dot {
+  flex: 0 0 auto; width: .5rem; height: .5rem; border-radius: 50%;
+  background: var(--pdx-ic, #94A3B8); align-self: center;
+}
+.pdxtree-name { flex: 1 1 12rem; font-size: .855rem; font-weight: 700; color: #eaf2ff; }
+.pdxtree-slots {
+  flex: 1 1 100%; display: flex; align-items: center; flex-wrap: wrap; gap: .26rem .45rem;
+  font-size: .73rem; line-height: 1.3;
+}
+.pdxtree-go { flex: 0 0 auto; color: #8fa6c6; font-size: .95rem; align-self: center; }
+
+/* Said — theirs. */
+.pdxtree-said { color: #b9cbe6; }
+.pdxtree-said b { font-weight: 700; color: #8fa6c6; }
+.pdxtree-said.s-support { color: #86efac; }
+.pdxtree-said.s-oppose  { color: #fca5a5; }
+.pdxtree-said.s-mixed   { color: #fbe08a; }
+.pdxtree-said.s-none    { color: #8fa6c6; font-style: italic; }
+
+/* Record — the formal record's, never theirs. The lane marker (🏛) is part of
+   the label in the markup for exactly that reason. */
+.pdxtree-pat { color: #b9cbe6; }
+.pdxtree-pat b { font-weight: 700; color: #8fa6c6; }
+.pdxtree-pat.tone-support { color: #86efac; }
+.pdxtree-pat.tone-oppose  { color: #fca5a5; }
+.pdxtree-pat.tone-mixed   { color: #fbe08a; }
+.pdxtree-pat.tone-muted   { color: #8fa6c6; }
+/* Thin and no-clear-pattern are quieter, in the pattern engine's own weight
+   classes — never a bolder face than a read that earned its direction. */
+.pdxtree-pat.w-thin, .pdxtree-pat.w-flat { opacity: .72; font-size: .7rem; }
+/* A SCORED SLOT PAINTS FROM THE VERDICT, not from the record's lean. The word in
+   the slot is Direction Match's ("Backed up", "Contradicted"), so its colour is
+   Direction Match's too — taken from the verdict the row already resolved and
+   passed in as a custom property, never restated as a hex in this file. */
+.pdxtree-pat.tone-verdict { color: var(--pdx-rc, #b9cbe6); }
+.pdxtree-pat.st-scored b { color: var(--pdx-rc, #8fa6c6); opacity: .8; }
+/* Depth is the smaller half of the same sentence: how much is behind the label.
+   It never outweighs the label and it is never coloured on its own. */
+.pdxtree-depth { font-style: normal; opacity: .8; }
+/* The one-item horizon. Printed, not hidden — including on a phone, where it is
+   the row most likely to be misread as a settled finding. */
+.pdxtree-early { font-style: italic; font-size: .68rem; color: #9fb4d4; opacity: .95; }
+/* On file with no direction read, still warming, nothing on file: three true
+   states, all of them quiet, none of them absent. */
+.pdxtree-pat.st-onfile, .pdxtree-pat.st-pending, .pdxtree-pat.st-none {
+  color: #8fa6c6; font-style: italic; opacity: .82;
+}
+
+/* THE ONE PERCENTAGE A LEAF MAY CARRY. It belongs to the Record slot it sits
+   beside — one issue's Direction Match result — and it is emitted only for the
+   scored state (see pctHtml). No branch has one; no pattern-only row has one. */
+.pdxtree-pct {
+  font-size: .7rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  padding: .04rem .3rem; border-radius: 4px;
+  color: var(--pdx-rc, #cfe0f5); background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+/* The cue — a relation between the two slots beside it, printed only when both
+   exist (pattern_only being the one that says the opposite out loud). */
+.pdxtree-cue {
+  font-size: .66rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  padding: .06rem .38rem; border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.28); color: #9fb4d4;
+}
+.pdxtree-cue.c-aligns       { color: #86efac; border-color: rgba(134, 239, 172, 0.4); background: rgba(74, 222, 128, 0.1); }
+.pdxtree-cue.c-cuts_against { color: #fca5a5; border-color: rgba(252, 165, 165, 0.45); background: rgba(248, 113, 113, 0.12); }
+.pdxtree-cue.c-split        { color: #fbe08a; border-color: rgba(245, 200, 66, 0.4); background: rgba(245, 200, 66, 0.1); }
+.pdxtree-cue.c-pattern_only { color: #9fb4d4; border-style: dashed; background: none; }
+
+/* The disclosure tag. Same pill on the row and in the footer note, so the two
+   read as one statement rather than two coincidences. */
+.pdxtree-tag {
+  font-size: .63rem; font-weight: 800; letter-spacing: .03em;
+  padding: .06rem .36rem; border-radius: 4px; white-space: nowrap;
+  color: #cbd5e1; background: rgba(148, 163, 184, 0.14);
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+}
+
+/* ── pattern-only: visibly not a stance ────────────────────────────────────── */
+.pdxtree-leaf.is-patternonly {
+  border-left-style: dashed;
+  background: rgba(10, 15, 30, 0.3);
+}
+.pdxtree-leaf.is-patternonly.pdxtree-ic { background: rgba(10, 15, 30, 0.3); }
+.pdxtree-leaf.is-patternonly .pdxtree-dot {
+  background: none; border: 1px dashed var(--pdx-ic, #94A3B8);
+}
+.pdxtree-leaf.is-patternonly .pdxtree-name { font-weight: 600; color: #cfdcf0; }
+/* Quiet = a pattern-only row whose read is thin. True, admitted, and not dressed
+   up: it is the smallest, dimmest thing in the panel. */
+.pdxtree-leaf.is-quiet { opacity: .78; }
+.pdxtree-leaf.is-quiet .pdxtree-name { font-size: .8rem; font-weight: 600; }
+
+/* ── THE HEADER TALLY ──────────────────────────────────────────────────────
+   Four figures, each one a field of the shared counts object, each carrying the
+   denominator it means in its own title. Middot-separated rather than boxed: it
+   is a caption on the tree below it, not a scoreboard of its own. */
+.pdxtree-tally {
+  margin: 0 .1rem .5rem; display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: .18rem .5rem; font-size: .7rem; line-height: 1.45; color: #9fb4d4;
+}
+.pdxtree-tallybit { display: inline-flex; align-items: baseline; gap: .3rem; }
+.pdxtree-tallybit + .pdxtree-tallybit::before { content: "·"; opacity: .6; }
+.pdxtree-tallybit[title] { cursor: help; }
+
+/* ── THE FILTER CHIPS ──────────────────────────────────────────────────────
+   One row of view switches, one of them active. They are controls, so they are
+   sized for a thumb rather than for the caption they sit under, and the active one
+   is marked by more than colour (weight and border as well as fill) because the
+   pressed state is the only thing telling a reader why rows are missing. Nothing
+   here carries a number: a chip is a view, not a count. */
+.pdxtree-filters {
+  margin: 0 .1rem .5rem; display: flex; flex-wrap: wrap; gap: .3rem;
+}
+.pdxtree-fchip {
+  font: inherit; font-size: .7rem; font-weight: 700; line-height: 1;
+  padding: .34rem .6rem; border-radius: 999px; cursor: pointer;
+  color: #b9cbe6; background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+}
+.pdxtree-fchip:hover { background: rgba(148, 163, 184, 0.2); color: #eaf2ff; }
+.pdxtree-fchip:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 1px; }
+.pdxtree-fchip.is-on {
+  color: #0b1220; font-weight: 800;
+  background: #cfe0f5; border-color: #cfe0f5;
+}
+
+/* The honest empty view. It states the filter, the answer and the way back. */
+.pdxtree-empty {
+  margin: .2rem .1rem .1rem; padding: .6rem .7rem; border-radius: 10px;
+  border: 1px dashed rgba(148, 163, 184, 0.3); background: rgba(10, 15, 30, 0.34);
+  font-size: .78rem; line-height: 1.5; color: #b9cbe6;
+}
+.pdxtree-empty b { color: #eaf2ff; }
+.pdxtree-reset { margin-left: .3rem; }
+
+/* ── FLAT MODE ─────────────────────────────────────────────────────────────
+   At or under the threshold in stance-tree.js there are no branches to style: the
+   same leaves, in tension order, in one list. Identical leaf chrome by design —
+   a row must not look like a different kind of row because the profile is small. */
+.pdxtree-flat { display: flex; flex-direction: column; gap: .22rem; }
+
+.pdxtree-note {
+  margin: .55rem .1rem 0; font-size: .7rem; line-height: 1.5; color: #8fa6c6;
+}
+.pdxtree-note-only { display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap; }
+
+@media (max-width: 639px) {
+  .pdxtree-name { flex: 1 1 100%; }
+  .pdxtree-face { padding: .5rem .45rem; }
+  .pdxtree-slots { font-size: .7rem; }
+  .pdxtree-bface { padding: .62rem .6rem; flex-wrap: wrap; }
+  /* NARROW: THE COUNT AND THE WORST SIGNAL FIRST. Only the leading summary bit is
+     kept — it is the highest-tension band present, because the bits are emitted in
+     band order — and the rest of the sentence stays on the face's title. */
+  .pdxtree-bsumbit.is-extra { display: none; }
+  .pdxtree-bsum { flex: 1 1 100%; }
+  .pdxtree-fchip { padding: .4rem .62rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdxtree-caret { transition: none; }
+}
