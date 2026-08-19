@@ -220,12 +220,21 @@ const run = async () => {
 {
   const css = stripCss(HTML);
 
-  // Every #hero padding-top, at every breakpoint, is chrome + air.
+  // The #hero padding-top is stated ONCE and reads --pdx-hero-top, which the
+  // publisher under the nav writes from the measured chrome bottom plus the hero's
+  // own measured paint overhang, and whose no-JS fallback is chrome + the
+  // --pdx-hero-* terms. It used to be restated per breakpoint as
+  // calc(var(--pdx-chrome) + Nrem); three copies of an arithmetic add-on is how one
+  // copy's air term went stale while this assertion stayed green.
   const pads = [...css.matchAll(/#hero\s*\{[^}]*?padding-top\s*:\s*([^;}]+)/g)].map((m) => m[1].trim());
-  must(pads.length >= 2, "index.html no longer states a padding-top for #hero");
-  ok(pads.every((p) => /var\(\s*--pdx-chrome/.test(p)),
-     "hero clearance: the hero's top padding derives from --pdx-chrome at every breakpoint, so the " +
-     "POLITIDEX badge and wordmark sit below the bar rather than behind it — found " + JSON.stringify(pads));
+  must(pads.length >= 1, "index.html no longer states a padding-top for #hero");
+  ok(pads.every((p) => /var\(\s*--pdx-(?:chrome|hero-top)/.test(p)),
+     "hero clearance: the hero's top padding derives from the measured chrome at every breakpoint, so " +
+     "the POLITIDEX badge and wordmark sit below the bar rather than behind it — found " + JSON.stringify(pads));
+  ok(/--pdx-hero-top:\s*calc\(\s*var\(\s*--pdx-chrome/.test(css),
+     "hero clearance: --pdx-hero-top no longer falls back to calc(var(--pdx-chrome) + …). That fallback " +
+     "is the whole clearance until the publisher runs, and on any device where it cannot run it is the " +
+     "clearance for good — a chain not terminating in the measured chrome is a literal again.");
 
   // pt-32 was a fourth, silent offset: a utility class that lost on specificity
   // and so said nothing about where the hero actually starts.
@@ -560,26 +569,45 @@ const run = async () => {
   // Desktop must not have regressed: the svh sizing and the trimmed hero stack
   // are phone-scoped, and the desktop clearance is still chrome + a few px of air.
   //
-  // THIS PINNED 1rem, WHICH WAS pt-32's VALUE AND NOT A CLEARANCE. It is now
-  // 1.25rem, and the extra 4px is a correction rather than drift: the highest
-  // pixel the hero paints is not the top of .hero-stack-top but the LIVE pill
-  // inside it, positioned -top-2 (8px above that box), and the stack then floats
-  // 8px up. 16px of air minus 16px of travel is exactly zero — the pill grazed the
-  // bottom edge of the search row at the top of every cycle on desktop too. The
-  // geometry is modelled properly in scripts/test-mobile-hero-clearance.mjs, which
-  // owns the floor; this stays as the "no band, no drift" bound, stated as a range
-  // so a correction can land without a literal here having to be remembered.
+  // THIS PINNED 1rem, WHICH WAS pt-32's VALUE AND NOT A CLEARANCE. Then it pinned
+  // 1.25rem = 20px, sized as 8px pill overhang + 8px float + 4px visible — and that
+  // was still too small, because the 8px float was tailwind's @keyframes float
+  // while app.css re-points the hero's copy at #hero .animate-float {animation:
+  // heroFloat} whose travel is 10px, and the pill's 14px glow was never budgeted at
+  // all. 8 + 10 + a glow > 20px of air is a pill under the search row at the top of
+  // every cycle.
+  //
+  // So the clearance is no longer one hand-summed rem. It is the chrome plus named
+  // terms — one per thing that actually paints above the hero's box — and the
+  // publisher measures the overhang at runtime rather than trusting the literal.
+  // scripts/test-mobile-hero-clearance.mjs resolves the chain against real chrome
+  // depths and owns the geometry; this stays the "no band, no drift" bound on the
+  // desktop fallback, plus the floor the brief fixed: at least 16px of AIR, over and
+  // above every travel term, at every breakpoint.
   const css = stripCss(HTML);
   const svhBlock = css.match(/@media\s*\(\s*max-width:\s*639px\s*\)\s*\{[\s\S]*?#hero\s*\{[^}]*min-height\s*:\s*100svh/);
   ok(!!svhBlock,
      "no desktop regression: the small-viewport hero sizing is inside the phone media query only");
-  const deskAir = css.match(/#hero\s*\{\s*padding-top\s*:\s*calc\(\s*var\(\s*--pdx-chrome\s*\)\s*\+\s*([\d.]+)rem\s*\)/);
-  must(deskAir, "the desktop #hero clearance is no longer stated as calc(var(--pdx-chrome) + Nrem)");
-  const deskPx = parseFloat(deskAir[1]) * 16;
-  ok(deskPx >= 20 && deskPx <= 32,
-     "no desktop regression: the desktop hero clearance is chrome + " + deskPx + "px. Below 20px the " +
-     "LIVE pill's 8px overhang plus the badge's 8px float reaches the search row; above 32px it is an " +
-     "empty band under the bar on every desktop screen.");
+
+  const heroTerm = (name) => {
+    const hits = [...css.matchAll(new RegExp("--pdx-hero-" + name + "\\s*:\\s*([\\d.]+)px", "g"))];
+    return hits.length ? parseFloat(hits[0][1]) : null;
+  };
+  const TERMS = ["overhang", "float", "bleed", "air"];
+  const missing = TERMS.filter((t) => heroTerm(t) === null);
+  must(missing.length === 0,
+       "the desktop #hero clearance is no longer built from named --pdx-hero-* px terms (missing: " +
+       missing.join(", ") + ")");
+  const air = heroTerm("air");
+  ok(air >= 16,
+     "no desktop regression: --pdx-hero-air is " + air + "px. The brief's floor is 16px of visible air " +
+     "ABOVE the chrome and above every travel term; anything less and the headline is a rounding error " +
+     "away from the search row again.");
+  const deskPx = TERMS.reduce((sum, t) => sum + heroTerm(t), 0);
+  ok(deskPx >= 32 && deskPx <= 56,
+     "no desktop regression: the desktop hero clearance is chrome + " + deskPx + "px. Below 32px the " +
+     "LIVE pill's 8px overhang plus the badge's 10px heroFloat travel plus its glow reaches the search " +
+     "row; above 56px it is an empty band under the bar on every desktop screen.");
 }
 
 
@@ -716,9 +744,24 @@ const run = async () => {
   const writers = [...stripJs(HTML).matchAll(/setProperty\(\s*['"](--pdx-[a-z0-9-]+)['"]/gi)]
     .map((m) => m[1])
     .concat([...stripJs(STAB).matchAll(/setProperty\(\s*['"](--pdx-[a-z0-9-]+)['"]/gi)].map((m) => m[1]));
-  ok(writers.length > 0 && writers.every((w) => w === "--pdx-chrome"),
-     "one offset: every runtime publisher writes --pdx-chrome and nothing else — found " +
-     JSON.stringify([...new Set(writers)]));
+  // --pdx-hero-top is allowed alongside it, and only alongside it: it is the hero's
+  // clearance, written by the SAME publisher from the chrome bottom it just measured
+  // plus the hero's own measured paint overhang. A third name would be a second
+  // offset with its own idea of where the chrome ends, which is the failure this
+  // section exists to catch.
+  const PUBLISHABLE = new Set(["--pdx-chrome", "--pdx-hero-top"]);
+  ok(writers.length > 0 && writers.every((w) => PUBLISHABLE.has(w)),
+     "one offset: every runtime publisher writes --pdx-chrome (and, for the hero, --pdx-hero-top) and " +
+     "nothing else — found " + JSON.stringify([...new Set(writers)]));
+  ok(writers.includes("--pdx-chrome"),
+     "one offset: nothing publishes --pdx-chrome any more, so every consumer of it is running on its " +
+     "fail-closed literal");
+  const stabWriters = [...stripJs(STAB).matchAll(/setProperty\(\s*['"](--pdx-[a-z0-9-]+)['"]/gi)].map((m) => m[1]);
+  ok(stabWriters.every((w) => w === "--pdx-chrome"),
+     "one offset: pdx-stability.js publishes the hero clearance too — found " +
+     JSON.stringify([...new Set(stabWriters)]) + ". It is the fallback publisher and does not measure " +
+     "the hero, so a value from there would be the chrome with no overhang budget: the clipped headline " +
+     "again, on exactly the devices the fallback exists for.");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -758,27 +801,64 @@ const run = async () => {
   // The first child of the hero stack floats. Whatever air sits above it has to be
   // greater than the keyframe's amplitude or the badge rises under the blurred bar
   // on every cycle — visible clipping on a layout that is statically correct.
+  //
+  // WHICH keyframe runs is the part this used to get wrong. It read tailwind's
+  // @keyframes float (8px) — but app.css re-points the hero's copy at
+  // `#hero .animate-float { animation: heroFloat }`, id+class beats class, and
+  // heroFloat lifts 10px. The phone air term was hand-summed against the 8px number,
+  // so it was under the real travel from the day it landed and this assertion agreed
+  // with it. Read the amplitude that actually applies.
   const css = stripCss(HTML);
+  const app = stripCss(read("app.css"));
   const tw = stripCss(read("css/tailwind.css"));
-  const floatKf = tw.match(/@keyframes\s+float\s*\{[\s\S]*?translateY\(\s*-?([\d.]+)px/);
-  must(floatKf, "the float keyframe is no longer recognisable in css/tailwind.css");
-  const amplitude = parseFloat(floatKf[1]);
+
+  const ampOf = (src, name) => {
+    const m = src.match(new RegExp("@keyframes\\s+" + name + "\\s*\\{"));
+    if (!m) return null;
+    const body = src.slice(m.index, m.index + 400);
+    const lifts = [...body.matchAll(/translateY\(\s*-([\d.]+)px/g)].map((x) => parseFloat(x[1]));
+    return lifts.length ? Math.max(...lifts) : 0;
+  };
+  const heroKf = (app.match(/#hero\s+\.animate-float\s*\{[^}]*animation\s*:\s*([\w-]+)/) || [])[1];
+  const amplitude = (heroKf && ampOf(app, heroKf)) ?? ampOf(tw, "float");
+  must(amplitude !== null && amplitude > 0,
+       "the hero badge's float keyframe is no longer recognisable in app.css or css/tailwind.css");
 
   const phoneBlock = css.match(/@media\s*\(\s*max-width:\s*639px\s*\)\s*\{([\s\S]*?)\n    \}/);
   must(phoneBlock, "the phone hero media query is no longer recognisable in index.html");
-  const phonePad = phoneBlock[1].match(/#hero\s*\{\s*padding-top\s*:\s*calc\(\s*var\(\s*--pdx-chrome\s*\)\s*\+\s*([\d.]+)rem\s*\)/);
-  must(phonePad, "the phone #hero clearance is no longer stated as chrome + Nrem");
-  const phoneAir = parseFloat(phonePad[1]) * 16;
 
-  ok(phoneAir > amplitude,
-     "float clearance: the phone hero's air above the chrome is " + phoneAir + "px and the logo badge's " +
-     "float keyframe lifts it " + amplitude + "px, so at the top of every cycle the badge reaches the " +
-     "bottom edge of the search row and grazes under the blurred bar. The air has to exceed the " +
-     "amplitude, not equal it.");
-  ok(phoneAir <= amplitude + 24,
-     "no wasted space: the phone hero's air above the chrome is " + phoneAir + "px against a " + amplitude +
-     "px float — more than 24px of slack is a permanent empty band on the screen with the tightest fold " +
-     "budget in the app.");
+  // The clearance is named terms now, not one hand-summed rem, and the phone block
+  // overrides individual terms rather than restating the total — so resolve it the
+  // way the cascade does: phone override if present, else the base :root value.
+  const TERMS = ["overhang", "float", "bleed", "air"];
+  const termIn = (chunk, name) => {
+    const hits = [...chunk.matchAll(new RegExp("--pdx-hero-" + name + "\\s*:\\s*([\\d.]+)px", "g"))];
+    return hits.length ? parseFloat(hits[hits.length - 1][1]) : null;
+  };
+  const phoneTerm = (name) => {
+    const over = termIn(phoneBlock[1], name);
+    return over === null ? termIn(css, name) : over;
+  };
+  const unresolved = TERMS.filter((t) => phoneTerm(t) === null);
+  must(unresolved.length === 0,
+       "the phone #hero clearance is no longer built from named --pdx-hero-* px terms (missing: " +
+       unresolved.join(", ") + ")");
+  const phoneClear = TERMS.reduce((sum, t) => sum + phoneTerm(t), 0);
+
+  // Either the motion toward the chrome is off on phones, or the clearance carries
+  // its full travel on top of the air floor. Both are acceptable; silently doing
+  // neither is what shipped.
+  const floatOff = /#hero\s*>\s*\.hero-stack-top\.animate-float\s*\{[^}]*animation\s*:\s*none/.test(phoneBlock[1]);
+  const travel = floatOff ? 0 : amplitude;
+  ok(phoneClear - travel >= 16,
+     "float clearance: the phone hero's clearance above the chrome is " + phoneClear + "px and the badge " +
+     (floatOff ? "does not float here" : "floats " + amplitude + "px toward the bar") + ", leaving " +
+     (phoneClear - travel) + "px of air. At the top of every cycle the badge reaches the bottom edge of " +
+     "the search row and grazes under the blurred bar. Either switch the motion off on phone or add the " +
+     "full travel to the clearance — the brief's floor is 16px of air after every travel term.");
+  ok(phoneClear - travel <= 40,
+     "no wasted space: the phone hero's air above the chrome is " + (phoneClear - travel) + "px — more " +
+     "than 40px of slack is a permanent empty band on the screen with the tightest fold budget in the app.");
 
   // The badge is hidden on short phones, and the lockup that inherits its auto
   // margin uses fadeUp — which starts 30px LOW and settles, so it can only ever be

@@ -278,12 +278,20 @@ ok(/ResizeObserver/.test(HTML.slice(HTML.indexOf('setProperty(\'--pdx-chrome\'')
 
 // Every consumer still reads the variable. A literal clearance anywhere is a second
 // guess that the measurement cannot correct.
+// The clearance is stated once now, as var(--pdx-hero-top): the publisher under
+// the nav writes it from the measured chrome bottom plus the hero's own measured
+// paint overhang, and the stylesheet's fallback for it is built on --pdx-chrome.
+// Restating it per breakpoint as calc(var(--pdx-chrome) + Nrem) is what let one
+// copy's air term go stale while the others looked fine.
 const heroPads = HTML.match(/#hero\s*\{[^}]*padding-top:[^;]+;/g) || [];
-must(heroPads.length >= 2, 'the hero clearance rules were renamed');
-ok(heroPads.every((r) => r.indexOf('var(--pdx-chrome') !== -1),
-  'chrome: a #hero clearance is stated as a literal instead of chrome + air. Both of the hand-\n' +
+must(heroPads.length >= 1, 'the hero clearance rules were renamed');
+ok(heroPads.every((r) => r.indexOf('var(--pdx-chrome') !== -1 || r.indexOf('var(--pdx-hero-top') !== -1),
+  'chrome: a #hero clearance is stated as a literal instead of the measured chrome. Both of the hand-\n' +
   '    written values this replaced were smaller than the chrome they were clearing, which is\n' +
   `    exactly how POLITIDEX ended up under the search bar (found: ${heroPads.join(' | ')})`);
+ok(/--pdx-hero-top:\s*calc\(\s*var\(\s*--pdx-chrome/.test(HTML),
+  'chrome: --pdx-hero-top does not fall back to calc(var(--pdx-chrome) + …), so the value #hero\n' +
+  '    actually reads stops being chrome-derived the moment the runtime publisher cannot run');
 ok(/scroll-padding-top:\s*calc\(var\(--pdx-chrome/.test(CSS),
   'chrome: html no longer offsets its scroll padding by the chrome, so an in-page jump lands its\n' +
   '    target under the nav');

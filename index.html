@@ -2531,30 +2531,72 @@ window.PDXLazy = (function () {
     #hero > .absolute.inset-0 > .top-24 { top: calc(var(--pdx-chrome) + 1.5rem); }
     #hero > .absolute.inset-0 > .top-32 { top: calc(var(--pdx-chrome) + 3.5rem); }
 
-    /* The hero's own clearance, stated as chrome + air so it cannot drift out of
-       step again.
+    /* ── The hero's clearance, FORCED from the measurement ────────────────
+       WHY THE LAST AIR TERM STILL FAILED. It was 1.25rem = 20px, and it was
+       sized against this arithmetic: 8px of LIVE-pill overhang + 8px of float
+       amplitude + 4px still visible. The float amplitude in that sum is wrong.
+       `.animate-float` in css/tailwind.css is `animation: float 3s`, and the
+       `float` keyframe peaks at translateY(-8px) — but app.css re-points the
+       hero's copy of that class at a DIFFERENT animation:
 
-       THE AIR IS MEASURED AGAINST THE HIGHEST HERO PIXEL, NOT THE STACK'S BOX.
-       This was 1rem, and it was checked against the float keyframe: 16px of air
-       versus an 8px lift left 8px to spare, so the stack's own top edge was never
-       the problem. The problem is that the top edge of the stack is not the top
-       edge of what it renders. The first child of .hero-stack-top carries the LIVE
-       pill at `-top-2 -right-2` — top: -0.5rem — so the pill hangs 8px ABOVE the
-       box the clearance was being measured to:
+         #hero .animate-float { animation: heroFloat 4s ease-in-out infinite; }
+         @keyframes heroFloat { 0%,100% { translateY(0) } 50% { translateY(-10px) } }
 
-         resting pill top ..... chrome + 16 - 8 (overhang) = chrome +  8px
-         at the float peak ..... chrome +  8 - 8 (keyframe) = chrome +  0px
+       One id + one class beats one class, so the hero badge has always floated
+       10px, not 8. The air term was therefore two pixels short of its own
+       premise before anything else was counted — and the overhanging thing is
+       not a hard edge either: the LIVE pill carries
+       shadow-[0_0_14px_rgba(217,26,49,0.85)], a 14px bloom at 0.85 alpha that
+       getBoundingClientRect() cannot see and that no previous pass budgeted for
+       at all. Add it up the way the screen does:
 
-       Exactly grazing the bottom edge of the search row at the top of every
-       three-second cycle — which is the "logo clipped under the bar" the report
-       describes on a layout whose static arithmetic is correct. The air now covers
-       the overhang and the keyframe and still leaves a few px visible at the peak:
+         8 overhang + 10 heroFloat + 14 glow = 32px of travel against 20px of air
 
-         8px overhang + 8px float + 4px of air = 20px = 1.25rem
+       i.e. the pill's bloom reached 12px UNDER the search row at the top of
+       every four-second cycle, and until the deferred mobile-polish.css lands
+       the bar is bg-navy-900/80 under blur(18px) — so those pixels did not
+       disappear, they smeared into the large faint mark the report describes,
+       and the whole stack below them read as clipped.
 
-       Four pixels more than before on desktop, which is not a band; it is the
-       difference between grazing the bar and clearing it. */
-    #hero { padding-top: calc(var(--pdx-chrome) + 1.25rem); }
+       SO THE CLEARANCE IS NO LONGER AN ARITHMETIC ADD-ON. The runtime publisher
+       under the nav measures the chrome's true bottom edge AND the hero's own
+       paint overhang (the highest pixel of the first flow child, relative to its
+       own box — transform-invariant, so it is correct mid-float) and writes
+       `--pdx-hero-top: <px>` as an inline style on <html>. #hero simply consumes
+       it. The declarations here are the pre-measurement / no-JS fallback, and
+       they state the same sum in the same terms:
+
+         --pdx-hero-overhang  measured at runtime; 8px here (the pill's -top-2)
+         --pdx-hero-float     10px, heroFloat's peak — 0 on a phone, where the
+                              float is switched off outright (see below)
+         --pdx-hero-bleed     8px for the glow / drop-shadow that no rect reports
+         --pdx-hero-air       16px that MUST stay visible. This is the floor the
+                              whole pass is built on: whatever the chrome and the
+                              travel turn out to be, the highest hero pixel ends
+                              up at least 16px below the bottom of the Eye row.
+
+       Desktop: 8 + 10 + 8 + 16 = 42px. It costs nothing until the stack
+       overflows, because the auto margins below centre it whenever there is
+       room. */
+    :root {
+      --pdx-hero-overhang: 8px;
+      --pdx-hero-float: 10px;
+      --pdx-hero-bleed: 8px;
+      --pdx-hero-air: 16px;
+      --pdx-hero-clear: calc(var(--pdx-hero-overhang) + var(--pdx-hero-float)
+                             + var(--pdx-hero-bleed) + var(--pdx-hero-air));
+      --pdx-hero-top: calc(var(--pdx-chrome) + var(--pdx-hero-clear));
+    }
+    #hero { padding-top: var(--pdx-hero-top); }
+
+    /* NOTHING PULLS THE HERO BACK UP AGAIN. Stated rather than assumed: the
+       clearance is only a clearance if scroll 0 is the true visual top, so the
+       section may not carry a negative top margin and may not be lifted by a
+       transform of its own. (Nothing in the document does either today —
+       scripts/test-mobile-hero-clearance.mjs fails if that changes, including
+       for the body and root elements, which a transform would turn into a false
+       top for everything inside them.) */
+    #hero { margin-top: 0; }
 
     /* CENTERING THAT CANNOT EAT THE PADDING. #hero is a min-h-screen column with
        justify-center. That is safe today — min-height lets the section grow, so
@@ -2610,14 +2652,39 @@ window.PDXLazy = (function () {
          four deep under it does not disappear, it ghosts.
 
          The air is now the whole distance the highest hero pixel can travel
-         toward the chrome, plus air that survives the trip:
+         toward the chrome, plus air that survives the trip — and on a phone the
+         travel is cut rather than paid for. THE FLOAT IS SWITCHED OFF HERE. It
+         is 10px of decoration (app.css re-points #hero .animate-float at
+         heroFloat, whose peak is -10px — not the 8px the `float` keyframe in
+         tailwind.css says, which is the two pixels the last pass was already
+         short by) moving the one hero element that has an overhanging, glowing
+         child TOWARD the one piece of chrome it must never touch, on the screen
+         with the tightest fold budget in the app. Removing it is strictly better
+         than buying 10px of empty band to survive it:
 
-           8px overhang + 8px float amplitude + 4px visible = 20px = 1.25rem
+           8px pill overhang + 0px float + 8px glow bleed + 16px visible = 32px
 
-         Eight pixels is what this costs the fold budget below; the wordmark
-         itself never floats — .animate-fadeUp starts 30px LOW and settles, so it
-         can only ever be further from the chrome than its resting position. */
-      #hero { padding-top: calc(var(--pdx-chrome) + 1.25rem); padding-bottom: 2.5rem; }
+         The wordmark itself never floats — .animate-fadeUp starts 30px LOW and
+         settles, so it can only ever be further from the chrome than its resting
+         position. The runtime publisher measures the overhang instead of trusting
+         the 8px above and writes the sum as --pdx-hero-top; this is the no-JS
+         fallback for the same number. */
+      :root { --pdx-hero-float: 0px; }
+      #hero { padding-bottom: 2.5rem; }
+      /* The 10px lift, gone. Scoped to the stack (id + two classes) so it beats
+         app.css's `#hero .animate-float` without touching the decorative glows in
+         the background layer or the LIVE pill's own colour pulse. */
+      #hero > .hero-stack-top.animate-float { animation: none; transform: none; }
+      /* CLEARANCE FOR ANYTHING THAT *LANDS* ON THE HERO TOO. html's
+         scroll-padding-top covers the scrollport, but a scrollIntoView aimed at
+         one of these three — the badge, the PX/POLITIDEX lockup, the headline —
+         is the case where the reader is asking to be shown the very thing that
+         was reported as hidden. scroll-margin-top makes the landing the same
+         forced clearance the padding uses, so none of them can come to rest under
+         the Eye row. */
+      #hero > .hero-stack-top,
+      #hero > .hero-brand,
+      #hero h1 { scroll-margin-top: var(--pdx-hero-top); }
       /* THE VIEWPORT THE READER ACTUALLY HAS AT SCROLL 0. `min-h-screen` is
          100vh, and on iOS/Android 100vh is the LARGE viewport — the height the
          page gets once the URL bar has retracted, which is not the height it has
@@ -2683,8 +2750,15 @@ window.PDXLazy = (function () {
          travel toward the chrome at all. 0.25rem of air, though, was a hairline:
          the wordmark carries drop-shadow(0 2px 6px) and the row it sits under
          closes with a 1px rule, so four pixels read as touching. 0.5rem is real
-         air under the tightest fold budget in the app, for four pixels. */
-      #hero { padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+         air under the tightest fold budget in the app, for four pixels.
+
+         WHAT IT IS NOW: the badge is hidden, so there is no overhang and no
+         float — 0 + 0 + 8px of the wordmark's drop-shadow bleed + the same 16px
+         of forced visible air = 24px. Three times the old value on the shortest
+         screen in the app, and it is still the cheapest clearance in the
+         document because this is the one breakpoint where the overhanging,
+         glowing badge is not on the screen at all. */
+      :root { --pdx-hero-overhang: 0px; --pdx-hero-float: 0px; }
       #hero > .hero-stack-top { display: none; }
       #hero > .hero-brand { margin-top: auto; margin-bottom: .5rem; }
       #hero h1 > span:nth-child(1) { margin-bottom: .35rem; }
@@ -3377,11 +3451,107 @@ window.PDXLazy = (function () {
     var root = document.documentElement;
     var eye = nav.querySelector('.pdx-eye-row');
     var last = 0;
+    var lastTop = 0;
+
+    /* ── The forced hero clearance ─────────────────────────────────────────
+       The chrome's bottom edge is only half of the answer. The other half is how
+       far ABOVE its own box the hero paints, which is why every previous pass
+       under-cleared: the clearance was sized to a box, and the hero's highest
+       pixel is not on that box. The badge tile carries the LIVE pill at
+       `-top-2 -right-2`, so 8px of the hero renders above the element the padding
+       was being measured to.
+
+       These are the terms of the sum, and they are the same ones the fallback
+       declarations in the stylesheet state:
+
+         AIR    16px that must remain visible between the bottom of the Eye row
+                and the highest pixel the hero paints. The floor of this whole
+                pass; nothing is allowed to shave it.
+         BLEED   8px for what no rect reports — the pill's
+                shadow-[0_0_14px_rgba(217,26,49,0.85)] bloom and the wordmark's
+                drop-shadow(0 2px 6px). Half the glow radius is where it stops
+                reading against the opaque phone bar.
+         FLOAT  10px, the peak of app.css's `#hero .animate-float →
+                heroFloat`. NOT the 8px of tailwind.css's `float` keyframe, which
+                is what the previous air term was sized against and the reason it
+                was two pixels short of its own premise. Zero on a phone, where
+                the stack's float is switched off in the stylesheet rather than
+                paid for.
+         overhang  measured, not transcribed. */
+    var HERO_AIR = 16;
+    var HERO_BLEED = 8;
+    var HERO_FLOAT = 10;
+
+    function isPhone() {
+      try {
+        return !!(window.matchMedia && window.matchMedia('(max-width: 639px)').matches);
+      } catch (e) { return false; }
+    }
+
+    // The hero's first FLOW child — the badge stack on a tall phone and on
+    // desktop, the PX/POLITIDEX lockup on a short one where the stack is
+    // display:none. The `absolute inset-0` decoration layer is skipped: it spans
+    // the padding box and is pinned off --pdx-chrome separately.
+    function firstFlowChild(hero) {
+      var kids = hero.children;
+      for (var i = 0; i < kids.length; i++) {
+        var el = kids[i], cs;
+        try { cs = window.getComputedStyle(el); } catch (e) { continue; }
+        if (!cs || cs.display === 'none' || cs.visibility === 'hidden') continue;
+        if (cs.position === 'absolute' || cs.position === 'fixed') continue;
+        return el;
+      }
+      return null;
+    }
+
+    /* How far above its own box that child actually paints. Transform-invariant
+       by construction: the float transform is on the host, so host and
+       descendants shift together and the DIFFERENCE is the same at every frame of
+       the animation. That is what makes this safe to sample at any moment. */
+    function paintOverhang(host) {
+      var box, top, kids, i, r;
+      try { box = host.getBoundingClientRect(); } catch (e) { return null; }
+      top = box.top;
+      kids = host.querySelectorAll('*');
+      for (i = 0; i < kids.length; i++) {
+        try { r = kids[i].getBoundingClientRect(); } catch (e) { continue; }
+        if (!r.width && !r.height) continue;          // not rendered
+        if (r.top < top) top = r.top;
+      }
+      var over = Math.round(box.top - top);
+      // A negative result means nothing overhangs; an absurd one means something
+      // other than the stack was measured. Fail toward the stylesheet's 8px.
+      if (!(over >= 0 && over < 120)) return null;
+      return over;
+    }
+
+    function publishHeroTop(chromeBottom) {
+      var hero = document.getElementById('hero');
+      if (!hero) return;
+      var phone = isPhone();
+      var host = firstFlowChild(hero);
+      var over = host ? paintOverhang(host) : null;
+      if (over === null) over = phone ? 8 : 8;        // the stylesheet's fallback
+      var travel = over + (phone ? 0 : HERO_FLOAT) + HERO_BLEED;
+      var top = chromeBottom + travel + HERO_AIR;
+      // Never publish a value that is not at least the measured chrome plus the
+      // forced air — that is the guarantee the whole pass exists to make.
+      if (top < chromeBottom + HERO_AIR) top = chromeBottom + HERO_AIR;
+      if (Math.abs(top - lastTop) < 1) return;
+      lastTop = top;
+      root.style.setProperty('--pdx-hero-top', top + 'px');
+    }
+
     function measure() {
       // Focus inside the chrome means the Eye is in use and its field may be
       // mid-grow; hold the last good number rather than reflowing the page under
-      // the reader's hands.
-      if (nav.contains(document.activeElement)) return;
+      // the reader's hands. BUT NOT BEFORE THE FIRST MEASUREMENT: Safari restores
+      // focus into the Eye's textarea across a hard refresh and a back
+      // navigation, and this early return used to make that permanent — every
+      // call, including the ResizeObserver's, bailed out and the page kept the
+      // stylesheet's fail-closed literal for the whole session. That is one of
+      // the paths the clip survived on. A first measurement always happens.
+      if (last > 0 && nav.contains(document.activeElement)) return;
       var h = 0;
       try {
         // Bottom of the last permanent row, falling back to the nav box on a page
@@ -3392,14 +3562,33 @@ window.PDXLazy = (function () {
       // Sanity band, not a preference: below ~40px the nav is not rendered, and
       // above ~320px something other than the chrome is being measured.
       if (!(h > 40 && h < 320)) return;
-      if (Math.abs(h - last) < 1) return;
-      last = h;
-      root.style.setProperty('--pdx-chrome', h + 'px');
+      if (Math.abs(h - last) >= 1) {
+        last = h;
+        root.style.setProperty('--pdx-chrome', h + 'px');
+      }
+      // The hero's clearance is republished even when the chrome has not moved:
+      // the breakpoint, the stack's visibility and its overhang can all change
+      // without the nav changing height at all (a rotation into the short-phone
+      // block is exactly that).
+      publishHeroTop(last);
     }
     measure();
+    // This script sits directly under the nav, which is BEFORE #hero exists — so
+    // the first call publishes the chrome and finds no hero to size. The document
+    // being parsed is the first moment the hero can be measured, and it is well
+    // before the reader can scroll: without this, the forced clearance waited for
+    // 'load' (and every image on the page) to land.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', measure);
+    } else {
+      measure();
+    }
     // Late web fonts change both rows' height after first paint, and 'load' is the
     // cheapest point that is reliably after them.
     window.addEventListener('load', measure);
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      try { document.fonts.ready.then(measure).catch(function () {}); } catch (e) {}
+    }
     window.addEventListener('resize', measure);
     window.addEventListener('orientationchange', measure);
     // focusout bubbles, so this is the "Eye released the field" signal.

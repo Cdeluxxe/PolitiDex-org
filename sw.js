@@ -43,7 +43,7 @@
 // the cache makes the shell cache empty on activate, so the first navigation
 // after this worker takes control goes to the network and the fix is visible on
 // the refresh that was supposed to show it.
-const CACHE_VERSION = 'v55';
+const CACHE_VERSION = 'v56';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
