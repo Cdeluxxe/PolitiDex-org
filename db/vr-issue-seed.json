@@ -733,6 +733,22 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "Amends the Federal banking laws to widen small-business and Main Street access to capital; a yea backs that expansion of access."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 85,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Lessens and modifies Federal banking regulation as its operative purpose: new banks get a three-year phase-in to meet certain capital requirements, certain rural community banks get a reduced leverage ratio, financial regulators must tailor regulatory actions to an institution's risk profile and business model and review their regulations more often and more widely, and higher asset thresholds exempt more financial companies and banks from various fees and reporting requirements while letting more small banks qualify for a longer examination cycle. A yea enacts that relief.",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr6955.xml"
+    },
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Eases the competition review that bank mergers currently pass through: it allows financial regulators to approve certain bank mergers without considering whether the merger is noncompetitive or monopolistic, and raises the asset threshold above which a financial holding company needs Federal Reserve Board approval to acquire a company, so more acquisitions close without that approval. A yea removes those checks.",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr6955.xml"
     }
    ]
   },
@@ -1499,7 +1515,15 @@
      "weight": 100,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Annual defense authorization. Mapped to a single key: the enacted summary contains no Foreign Intelligence Surveillance Act section 702 provision (a search of the Public Law summary returns zero hits), so no privacy_rights slice is asserted."
+     "rationale": "Annual defense authorization. A yea authorizes the fiscal year 2024 defense topline and the personnel, procurement, research, military-construction and Department of Energy national-security programs under it."
+    },
+    {
+     "issueKey": "privacy_rights",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Section 7902 of the enacted act reauthorizes Title VII of the Foreign Intelligence Surveillance Act of 1978, the authority under which section 702 collection against targets outside the United States runs, through April 19, 2024. A yea extends that authority. Weighted as a provision-level slice rather than as the bill's headline: this is one section of a whole defense authorization.",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"

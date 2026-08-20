@@ -202,7 +202,7 @@
       },
       "_coverage": {
         "scorable": 10,
-        "word": 34,
+        "word": 33,
         "actionIssues": 2
       }
     },
@@ -221,16 +221,16 @@
       }
     },
     {
-      "pid": "cox",
-      "name": "Spencer Cox",
-      "office": "Governor · Utah",
+      "pid": "boebert",
+      "name": "Lauren Boebert",
+      "office": "U.S. Representative · Colorado",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 12,
-        "word": 17,
+        "word": 29,
         "actionIssues": 0
       }
     },
@@ -249,16 +249,16 @@
       }
     },
     {
-      "pid": "tom_cole",
-      "name": "Tom Cole",
-      "office": "House Appropriations Committee Chair · Oklahoma",
+      "pid": "cox",
+      "name": "Spencer Cox",
+      "office": "Governor · Utah",
       "party": {
         "label": "R",
         "color": "#f87171"
       },
       "_coverage": {
         "scorable": 12,
-        "word": 21,
+        "word": 17,
         "actionIssues": 0
       }
     },

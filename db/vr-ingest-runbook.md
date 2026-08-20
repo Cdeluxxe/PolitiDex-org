@@ -667,9 +667,34 @@ depth — 428 more judged votes standing behind positions that previously rested
    actually read. Corollary: grep **every** migration for a measure before adding a key to it.
    H.R. 4 looked like a three-key measure in the migration that created it and is a seven-key
    measure once `20260721140000` is counted.
+22. **Read every candidate mapping backwards before you write it.** `support_meaning` is not a
+   statement about the yea bloc; it tells `_voteEffectiveSupport` that a yea advances the issue
+   **and** that a nay cuts against it, and the nay side is scored just as hard. So the test is
+   not "does this provision exist in the text" — it is "is the nay bloc's vote honestly described
+   as opposition to this issue". The August 2026 densification pass drafted twelve rows against
+   real, verified provisions and shipped three; the nine refusals all failed the backwards read
+   and none failed the forwards one. Three shapes recur, each an extension of rule 5:
+   · **The two-flank nay.** H.R. 8404 → `religious_liberty`: Secs. 6(b) and 7(a) are genuine
+     affirmative protections, but a bloc voted no *because those protections were too weak*, so
+     `yea_supports` records them as opposing the very thing they wanted more of.
+   · **The section inside a vehicle.** H.R. 8800 → `israel_support`: Subtitle C and Sec. 219 are
+     real, but three sections inside a defense authorization are not a referendum on them, and
+     a nay on the vehicle is not a nay on the sections.
+   · **The conviction already carried.** H.R. 8034 → `strong_defense` and `cut_spending`: the
+     emergency designation is real and the nays were not fiscal hawks; the conviction that vote
+     actually records is already carried correctly by `israel_support`. A second key here is
+     double-counting one belief, not new coverage.
+   When a provision is real but the backwards read fails, the honest home for it is the refusal
+   list in the migration header — written down, with the reason, so the next pass does not
+   rediscover it as an opportunity.
 
 ### Best remaining follow-ups after this pass
 
+0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
+   the two heaviest single-key measures in the record; `20260910000000` widened them onto
+   `gov_regulation` / `econ_corp_account` and `privacy_rights` respectively, and corrected the
+   H.R. 2670 `strong_defense` rationale, which asserted the enacted summary carried no FISA
+   section 702 provision. Sec. 7902 reauthorizes Title VII through April 19, 2024.
 1. **H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53). The strongest
    remaining candidate and the one deliberately deferred here: real, decisive, heavily
    attributable, and a genuine multi-axis omnibus that needs a division-by-division read before
