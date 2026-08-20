@@ -290,6 +290,16 @@
       // source for the name means a rename can never leave two vocabularies
       // live on the same page.
       metric: (r.frame && r.frame.metric) ? String(r.frame.metric) : '',
+      // …and the engine's own denominator for it, phrased the engine's own way
+      // ("32 issues tested"). Same reasoning as `metric`, one step further: a card
+      // that prints the figure needs the count of tested issues sitting under it,
+      // or a 100% over three reads exactly like a 100% over forty. Carried as
+      // finished text rather than an integer so no surface has to decide singular
+      // vs plural for itself, and empty whenever there is no figure to qualify.
+      // The count is `r.coverage.tested` — the same integer this read divided by,
+      // never a recount — so caption and percentage cannot come apart.
+      testedSay: (wPct === null) ? '' :
+        ((typeof wa.depthCaption === 'function') ? wa.depthCaption(r.coverage.tested) : ''),
       // ── the breakdown, as counts ──
       // Issue rows, straight off the shared tally in consistency.js — the exact
       // objects the profile prints one line per. This used to count word ITEMS from

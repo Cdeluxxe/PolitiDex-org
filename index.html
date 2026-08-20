@@ -2281,7 +2281,7 @@ window.PDXLazy = (function () {
        plain-language verdict below always carries it. */
     .pdx-hs-sig-score {
       display: flex; align-items: baseline; gap: .4rem; margin-top: .15rem;
-      color: #9fb4d4;
+      color: #9fb4d4; flex-wrap: wrap;
     }
     .pdx-hs-sig-pct {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
@@ -2293,6 +2293,20 @@ window.PDXLazy = (function () {
       font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
       color: #7f92ad; font-weight: 700; min-width: 0;
     }
+    /* HOW MANY TESTS THE PERCENTAGE IS OVER, on the same line as the figure it
+       qualifies — "73% DIRECTION MATCH · 32 ISSUES TESTED". The homepage publishes
+       this number to readers who have not opened anything yet, so a bare "100%"
+       here is the least checkable and most confident-looking thing on the site.
+       Same weight and same colour as the metric caption beside it: the denominator
+       is part of the figure, not a footnote to it. The separator is drawn in CSS so
+       an absent metric caption cannot leave a dangling middot. */
+    .pdx-hs-sig-pct-n {
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
+      color: #7f92ad; font-weight: 700; min-width: 0;
+    }
+    .pdx-hs-sig-pct-k + .pdx-hs-sig-pct-n::before { content: '· '; }
+
     /* With a score above it the verdict line is the caption, not the headline. */
     .pdx-hs-signal.has-score .pdx-hs-sig-read { font-size: .92rem; margin-top: .28rem; }
 
@@ -19370,6 +19384,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .pdx-ob-rep-score span { font-family:'Barlow Condensed',sans-serif; font-size:0.54rem; letter-spacing:0.1em;
       text-transform:uppercase; color:#6b82a8; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
       overflow:hidden; line-height:1.25; }
+    /* The denominator, under the caption. Printed whenever the figure is — a
+       percentage on this card without one reads as a strong record when it may be
+       three tested issues. Set a shade brighter than the caption above it, not
+       dimmer: it is not fine print. */
+    .pdx-ob-rep-score i { display:block; font-style:normal; font-family:'Barlow Condensed',sans-serif;
+      font-size:0.52rem; letter-spacing:0.05em; text-transform:uppercase; color:#8ba0c4;
+      margin-top:0.16rem; line-height:1.2; }
     .pdx-ob-explain { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:1.2rem; }
     .pdx-ob-explain-card { border-radius:0.85rem; padding:0.7rem 0.8rem; }
     .pdx-ob-explain-card.is-home { background:linear-gradient(135deg,rgba(22,163,74,0.18),rgba(15,23,42,0.4));
@@ -21310,6 +21331,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var hasScore = (typeof r.score === 'number');
       var scTxt = hasScore ? (r.score + '%') : '—';
       var scLbl = hasScore ? 'Direction match' : (r.scoreNote || 'No record yet');
+      // AND HOW MANY TESTS IT IS OVER. A card publishing "100%" with no denominator
+      // is the strongest-looking and least supported thing on this screen, so the
+      // depth rides with the figure wherever the figure goes. Same words as the
+      // profile headline (PDXWordAction.depthCaption), from the same read, and never
+      // gated: there is no depth at which this card stops saying how deep it is.
+      var wa = window.PDXWordAction;
+      var scN = (hasScore && wa && typeof wa.depthCaption === 'function')
+        ? wa.depthCaption(r.scoreTested)
+        : (hasScore && r.scoreTested ? r.scoreTested + ' issues tested' : '');
       return '<div class="pdx-ob-rep" style="--c:' + (r.color || '#4ade80') + ';">' +
         '<div class="pdx-ob-rep-photo">' + photo + '</div>' +
         '<div class="pdx-ob-rep-main">' +
@@ -21320,6 +21350,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="pdx-ob-rep-score">' +
           '<b style="color:' + scoreColor(hasScore ? r.score : null) + ';">' + scTxt + '</b>' +
           '<span>' + esc(scLbl) + '</span>' +
+          (scN ? '<i class="pdx-ob-rep-n" data-pdx-tested="' + (r.scoreTested || 0) + '">' +
+                   esc(scN) + '</i>' : '') +
         '</div>' +
       '</div>';
     }

@@ -494,6 +494,10 @@
       record: rec ? {
         state: rec.state, label: rec.label, depth: rec.depth || '', counts: rec.counts || '',
         items: rec.items || 0, onRecord: onRecord,
+        // How many DISTINCT documents those items are, from the shared accessor.
+        // Carried through the projection because the leaf face prints it beside the
+        // item count: see oneHtml().
+        docs: rec.docs || 0, single: !!rec.single,
         tier: rec.tier || 'none', weight: rec.weight || 'flat', tone: rec.tone || 'muted',
         directional: !!rec.directional, early: !!rec.early, earlyNote: rec.earlyNote || '',
         scored: !!rec.scored, pct: (typeof rec.pct === 'number') ? rec.pct : null,
@@ -642,6 +646,11 @@
     } else if (rc) {
       s += rc.label + '. ';
     }
+    // One document under the count, out loud, on the same leaves the printed
+    // marker appears on.
+    if (rc && rc.single && (rc.state === 'scored' || rc.state === 'direction')) {
+      s += (rc.items > 1 ? 'All of it is one measure. ' : 'That is one measure. ');
+    }
     // The one-item horizon, out loud. A depth of one read without it is a verdict
     // on a sample of one.
     if (rc && rc.early && rc.earlyNote) s += 'This is an ' + rc.earlyNote + ' ';
@@ -661,6 +670,25 @@
   // engine's own tier vocabulary kept for the skin, and a scored row paints from
   // the verdict's colour instead of the record's lean — the word in the slot is the
   // verdict's, so the colour must be too.
+  // HOW MANY DOCUMENTS, BESIDE HOW MANY ITEMS. `rc.depth` counts items — "6 votes"
+  // — and six roll calls on one bill print as six. `rc.docs` is the distinct
+  // instrument count from the shared accessor, so a leaf says both numbers and a
+  // reader never has to assume they are the same one.
+  //
+  // Printed on every single-document leaf that shows a verdict, not only where the
+  // two counts differ. "6 votes · 1 measure" is the case this exists for and "1
+  // vote · 1 measure" is close to a restatement — but a marker that appears only
+  // sometimes is a marker a reader cannot rely on, and its absence would then have
+  // to mean something. It means nothing here except that the leaf has more than one
+  // document under it.
+  //
+  // Verdict-bearing states only, by the same rule the percentage follows: a leaf
+  // with nothing to qualify has nothing to qualify.
+  function oneHtml(rc) {
+    if (!rc || !rc.single) return '';
+    if (rc.state !== 'scored' && rc.state !== 'direction') return '';
+    return '<i class="pdxtree-one" data-pdxtree-docs="1"> · 1 measure</i>';
+  }
   function recHtml(rc) {
     if (!rc) return '';
     var scored = (rc.state === 'scored');
@@ -671,6 +699,7 @@
         ((scored && rc.color) ? ' style="--pdx-rc:' + escAttr(rc.color) + '"' : '') + '>' +
         '<b>🏛 Record:</b> ' + esc(rc.label) +
         (rc.depth ? '<i class="pdxtree-depth"> · ' + esc(rc.depth) + '</i>' : '') +
+        oneHtml(rc) +
         early +
       '</span>';
   }

@@ -152,6 +152,11 @@
 /* Depth is the smaller half of the same sentence: how much is behind the label.
    It never outweighs the label and it is never coloured on its own. */
 .pdxtree-depth { font-style: normal; opacity: .8; }
+/* ONE DOCUMENT UNDER A DEPTH THAT READS LIKE SEVERAL. Printed at full opacity in
+   the amber this product uses for limits on a finding, beside the item count it
+   qualifies — the leaves that carry it are the ones the count makes look deepest,
+   so it is the one thing on the line that must not be dimmed. */
+.pdxtree-one { font-style: normal; font-weight: 700; color: #d8bd85; }
 /* The one-item horizon. Printed, not hidden — including on a phone, where it is
    the row most likely to be misread as a settled finding. */
 .pdxtree-early { font-style: italic; font-size: .68rem; color: #9fb4d4; opacity: .95; }

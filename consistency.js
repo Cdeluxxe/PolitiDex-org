@@ -1642,6 +1642,20 @@
       // "Record: …" chip. Slightly wider tracking than a bare verdict chip because it
       // now carries a label AND a value, and the two must not run together.
       '.pdxor-recchip{cursor:help;}' +
+      // The ledger standing. Same muted plate as a thin chip — it is not a worse
+      // result and must not look like one — with a dashed edge borrowed from the
+      // "no position on record" chip beside it, because both are saying the same
+      // thing about the same missing side of the comparison.
+      '.pdxor-recchip-led{border-style:dashed;letter-spacing:0.01em;}' +
+      // The split, under the reason. Reads as a continuation of it rather than as a
+      // second claim: same plate, no top margin, one hairline between them.
+      '.pdxor-why-led{margin-top:0;border-top:none;border-top-left-radius:0;border-top-right-radius:0;' +
+        'color:#8fa2c0;}' +
+      // Which way one instrument cut. A pill, not a verdict chip: the arrows are the
+      // issue's own direction and carry no colour of their own, so no row can be read
+      // as good or bad from across the page.
+      '.pdxor-proof-dir{font-size:0.62rem;color:#9fb4d4;border:1px solid rgba(159,180,212,0.22);' +
+        'border-radius:999px;padding:0.02rem 0.34rem;white-space:nowrap;}' +
       // The proof line: which bill, which question, which way they voted. Always
       // visible — this is the whole point of the row, not a detail behind a tap.
       '.pdxor-proofs{margin-top:0.35rem;display:flex;flex-direction:column;gap:0.2rem;}' +
@@ -1756,6 +1770,13 @@
       '.pdxor-comp-solid .pdxor-comp-bar i.pdxor-comp-on{background:#7fbf9a;}' +
       '.pdxor-comp-note{font-family:"Barlow Condensed",sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;line-height:1.2;color:#c6a15b;}' +
       '.pdxor-comp-solid .pdxor-comp-note{color:#8fa2c0;}' +
+      // One document under the percentage, beside the meter that counts items.
+      // Same amber as the composition note it qualifies, boxed so it reads as a
+      // fact about the row rather than as a continuation of the meter's caption.
+      '.pdxor-one{font-family:"Barlow Condensed",sans-serif;font-size:0.56rem;font-weight:700;' +
+        'letter-spacing:0.07em;text-transform:uppercase;line-height:1.2;color:#d8bd85;' +
+        'border:1px solid currentColor;border-radius:999px;padding:0.05rem 0.32rem;' +
+        'white-space:nowrap;cursor:help;}' +
       // Composition, not just depth: mark the reads that are mainly multi-issue bills
       // with the same 🧩 the omnibus surfaces already use.
       '.pdxor-comp-omni .pdxor-comp-note::before{content:"\\01F9E9 ";}' +
@@ -2070,6 +2091,28 @@
       '.pdxdos-rec-id{font-weight:700;font-size:0.76rem;color:#e8eefc;}' +
       '.pdxdos-rec-act{font-size:0.72rem;color:#c6d4ec;}' +
       '.pdxdos-rec-vd{font-size:0.68rem;}' +
+      // The ledger standing on a row face. Muted and dashed-underlined rather than
+      // coloured, so it cannot be mistaken for one of the four verdicts; it sits in
+      // the same slot because it answers the same question a reader asks there.
+      '.pdxdos-rec-led{color:#9fb4d4;font-weight:700;border-bottom:1px dashed rgba(159,180,212,0.4);' +
+        'cursor:help;}' +
+      // Direction on the issue, beside the identity. Same pill as the Official
+      // Record proof line so the two surfaces read as one vocabulary.
+      '.pdxdos-rec-dir{font-size:0.62rem;color:#9fb4d4;border:1px solid rgba(159,180,212,0.22);' +
+        'border-radius:999px;padding:0.02rem 0.34rem;white-space:nowrap;}' +
+      // The standing of the whole list, above the rows. Same weight as the coverage
+      // note it sits beside — this is disclosure, not a warning.
+      '.pdxdos-led{font-size:0.68rem;color:#9fb4d4;line-height:1.5;padding:0.4rem 0.55rem;' +
+        'margin:0.35rem 0 0.1rem;border-radius:0.45rem;background:rgba(159,180,212,0.06);' +
+        'border:1px solid rgba(159,180,212,0.16);}' +
+      '.pdxdos-led-split{display:block;margin-top:0.3rem;color:#c6d4ec;font-weight:600;}' +
+      // The door out of the sheet into the full record, filtered to this issue.
+      // Deliberately identical to .pdxor-vrlink: one door, two places.
+      '.pdxdos-vrlink{display:inline-block;margin-top:0.5rem;background:none;border:none;' +
+        'padding:0.2rem 0;cursor:pointer;font-family:inherit;font-size:0.68rem;font-weight:700;' +
+        'letter-spacing:0.02em;color:#7fb4ff;text-align:left;}' +
+      '.pdxdos-vrlink:hover{color:#a9ceff;text-decoration:underline;text-underline-offset:2px;}' +
+      '.pdxdos-vrlink:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.3rem;}' +
       '.pdxdos-rec-st{font-size:0.66rem;color:#9fb4d4;}' +
       '.pdxdos-rec-tag{font-size:0.61rem;color:#8fa2c0;border:1px solid rgba(255,255,255,0.14);' +
         'border-radius:999px;padding:0.02rem 0.36rem;}' +
@@ -3107,6 +3150,147 @@
     // voice across surfaces is that it loads rather than checks.
     pending:     { ico: '⏳', label: 'Loading…', cls: 'pending' }
   };
+  // ── THE LEDGER LANE — ON RECORD, OUTSIDE THE SCORE ───────────────────
+  // A large part of the formal record sits on issues this figure has never spoken
+  // on. The engine is right not to score those: Direction Match tests a stated
+  // position against a formal act, and with nothing stated there is nothing to test.
+  // What was wrong was the SURFACE. A row holding six roll calls and no stated
+  // position wore the same "Limited" word a row holding one ambiguous vote wears — a
+  // said-vs-did verdict borrowed for a comparison that was never run — and the six
+  // votes underneath it showed as six identical shrugs, so the pattern in them (five
+  // one way, one the other) was invisible on every surface that listed them.
+  //
+  // This lane says the true thing instead: the instruments are ON RECORD, they are
+  // NOT in Direction Match, and the reason is ours to state — no stated position to
+  // test them against. Nothing here scores, ranks, weights or aggregates. It
+  // enumerates, and it counts.
+  //
+  // THE WALL THIS LANE NEEDS MORE THAN ANY OTHER. Everywhere else a reader has a
+  // quoted position to anchor on; here they have none, so a direction printed
+  // carelessly reads as a personal creed. A mapped direction is what the MEASURE
+  // does to the issue — never what the figure believes, never what their party
+  // believes. Every string below is record-relative for exactly that reason: "mapped
+  // as advancing", never "they support".
+  var _LED = {
+    // Not a verdict glyph. The four verdict icons are the said-vs-did vocabulary and
+    // borrowing one here would put this standing back in the pile it does not belong
+    // to; a ledger is a list, and this is the list's mark.
+    ico: '📋',
+    // The row's standing where a said-vs-did word used to be. One string, used
+    // verbatim by every surface, so the dossier and the Official Record can never
+    // drift into two names for the same fact.
+    status: 'On record · not in Direction Match',
+    full: 'On record · not in Direction Match (no stated position to test)',
+    // Direction on THIS issue, from the mapping already on file. Short forms for a
+    // row face; the long form is the sentence, and both name the mapping rather than
+    // the person on purpose.
+    advShort: '▲ Advances', oppShort: '▼ Cuts against',
+    // Said once, wherever a count of directions is printed, so no reader has to infer
+    // from context that the split is not the score.
+    notScore: 'Counts of mapped directions, not a score.'
+  };
+  // Is this row on record and outside Direction Match FOR LACK OF A STATED POSITION?
+  // Four gates, all of which must agree, because the one thing this must never do is
+  // tell a reader that a scored row is unscored. A token that scores disqualifies it
+  // outright; either hasStance flag disqualifies it; and there has to be something on
+  // record for it to be outside the score WITH. Everything else — thin-but-tested,
+  // still loading, nothing on file at all — returns false and keeps the wording it
+  // already had. Fails closed in the direction that costs a reader the least.
+  function _ledOnRecord(ov) {
+    if (!ov) return false;
+    if (ov.record && ov.record.total > 0) return true;
+    if (ov.officialActions && ov.officialActions.total > 0) return true;
+    return _orExecTouched(ov);
+  }
+  function _ledUnscored(ov) {
+    if (!ov) return false;
+    var tok = ov.token;
+    if (tok === 'consistent' || tok === 'contradicts' || tok === 'mixed' || tok === 'pending') return false;
+    if (ov.hasStance) return false;
+    if (ov.record && ov.record.hasStance) return false;
+    return _ledOnRecord(ov);
+  }
+  // Which way ONE executive document cuts on this issue. Lifted out of _dosItems so
+  // the dossier row, the Official Record proof line and the ledger split all read the
+  // same two lines — including `advanceInverted`, the correction a blocking class (a
+  // veto) needs, which is precisely the step a second copy of this would get wrong.
+  function _ledExecDir(it, issueKey) {
+    var m = _dosMapping(it, issueKey);
+    if (!m) return '';
+    var adv = (m.supportMeaning !== 'yea_opposes');
+    if (it && it.advanceInverted) adv = !adv;
+    return adv ? 'advances' : 'opposes';
+  }
+  // …and one instrument of either lane, from a raw record rather than from a built
+  // dossier entry, so a surface that never assembled _dosItems can still print the
+  // direction. The roll-call arm delegates to _dosItemDir: one primitive, one answer,
+  // and no second place for the Yea/Nay × support-meaning flip to be got wrong.
+  function _ledItemDir(item, lane, issueKey) {
+    if (!item) return '';
+    if (lane === 'exec') return _ledExecDir(item, issueKey);
+    var m = _dosMapping(item, issueKey);
+    if (!m) return '';
+    return _dosItemDir({ lane: 'record', support: m.supportMeaning || '', item: item, held: '' });
+  }
+  function _ledDirShort(dir) {
+    return dir === 'advances' ? _LED.advShort : dir === 'opposes' ? _LED.oppShort : '';
+  }
+  // The clause, lower-case so it can be joined onto a sentence, and the standalone
+  // sentence built from it. Requirement B's wording, kept in one place.
+  function _ledDirPhrase(dir, issueKey) {
+    if (!dir) return '';
+    return (dir === 'advances' ? 'mapped as advancing ' : 'mapped as opposing ') +
+      (_issueLabel(issueKey) || 'this issue');
+  }
+  function _ledDirLong(dir, issueKey) {
+    var ph = _ledDirPhrase(dir, issueKey);
+    return ph ? (ph.charAt(0).toUpperCase() + ph.slice(1) + '.') : '';
+  }
+  // THE PATTERN, AS COUNTS AND ONLY AS COUNTS. How the mapped directions among these
+  // instruments split. Deliberately not a percentage and deliberately not derived
+  // from one: a votes-only figure printed anywhere near Direction Match would read as
+  // a second score no matter what it was captioned, and a second score is the thing
+  // this product spent a whole pass removing.
+  //   Denominated by what it actually counted — the rows in this list, the same rows
+  // the enumeration prints — never by the row's claimed total, so the split can never
+  // assert coverage the list below it does not show.
+  function _ledSplit(pid, issueKey, ov) {
+    var items = [];
+    try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { items = []; }
+    var s = { listed: items.length, advances: 0, opposes: 0, unclear: 0, held: 0 };
+    for (var i = 0; i < items.length; i++) {
+      var d = items[i];
+      if (d.held) { s.held++; continue; }
+      var dir = _dosItemDir(d);
+      if (dir === 'advances') s.advances++;
+      else if (dir === 'opposes') s.opposes++;
+      else s.unclear++;
+    }
+    s.directional = s.advances + s.opposes;
+    return s;
+  }
+  // "5 advancing · 1 opposing" — the chip-length form, for a closed face.
+  function _ledSplitSay(sp) {
+    if (!sp || !sp.directional) return '';
+    var parts = [];
+    if (sp.advances) parts.push(sp.advances + ' advancing');
+    if (sp.opposes) parts.push(sp.opposes + ' opposing');
+    return parts.join(' · ');
+  }
+  // …and the sentence form, which names the issue, accounts for every row it did not
+  // put on a side, and says in as many words what the split is not.
+  function _ledSplitLine(sp, issueKey) {
+    if (!sp || !sp.directional) return '';
+    var parts = [];
+    if (sp.advances) parts.push(sp.advances + (sp.advances === 1 ? ' advances it' : ' advance it'));
+    if (sp.opposes) parts.push(sp.opposes + (sp.opposes === 1 ? ' cuts against it' : ' cut against it'));
+    var rest = [];
+    if (sp.unclear) rest.push(sp.unclear + ' with no direction mapped');
+    if (sp.held) rest.push(sp.held + ' not scorable');
+    return 'Mapped directions on ' + (_issueLabel(issueKey) || 'this issue') + ': ' +
+      parts.join(', ') + (rest.length ? ', ' + rest.join(', ') : '') + '. ' + _LED.notScore;
+  }
+
   // Pure: an officialIssue() read → what the row's record chip should say, plus the
   // one-line reason when the verdict is a shrug. `why` is the piece that used to be
   // missing entirely: "Limited" has several distinct causes and they are not
@@ -3157,15 +3341,54 @@
         : (m === _OR_ROW.no_stance) ? n.noWord
         : n.unscorable;
     }
+    // THE LEDGER STANDING, DECIDED ONCE. Every surface that reads this row verdict —
+    // the chip, the why line, the dossier's row faces — takes the answer from here, so
+    // two of them cannot disagree about whether this row is in the score.
+    //   The reason line is rewritten with it. The old sentence ("…so there is nothing
+    // to check them against") was true and stopped one beat short of the fact a reader
+    // most needs: the votes are still here, listed in full, and their absence from the
+    // score is coverage rather than a finding about the record. Suppressed when the
+    // count is zero — a held-only executive row has its own reason above, which is the
+    // accurate one, and "0 actions are on record" would not be.
+    var led = _ledUnscored(ov);
+    if (led && total > 0) {
+      why = (total === 1 ? 'One ' + n.one : total + ' ' + n.many) + ' on this issue ' +
+        (total === 1 ? 'is' : 'are') + ' on record and listed in full below. ' +
+        _LED.status + ': they have not stated a position on this issue, so there is ' +
+        'nothing to test ' + (total === 1 ? 'it' : 'them') + ' against. ' +
+        'That is our coverage, not a verdict.';
+    }
     return {
       key: token, ico: m.ico, label: label,
       cls: m.cls, why: why, total: total,
+      // Additive. `ledger` is the standing; the two strings ride with it so a caller
+      // never has to reach for _LED itself and never has to phrase it again.
+      ledger: led, ledgerStatus: _LED.status, ledgerFull: _LED.full,
       // "1 vote" / "3 votes" beside a thin label turns a shrug into a fact.
       count: total ? (total + ' ' + (total === 1 ? n.one : n.many)) : ''
     };
   }
   function _orRecordChipHtml(ov) {
     var rv = _orRowVerdict(ov);
+    // ON RECORD, AND NOT SCORED — the chip has to say both. Until now this slot read
+    // "Record: Limited" on a row where no said-vs-did comparison had been run at all:
+    // "Limited" is a finding about the depth of a record that WAS tested, and lending
+    // it to an untested one told a reader their record is thin when it may be six
+    // votes deep. The count rides along for the same reason it does on the thin chip —
+    // "6 votes" turns a standing into a fact a reader can go and check.
+    if (rv.ledger) {
+      // ONE OF THESE LABELS WAS ALREADY RIGHT AND ONE WAS NOT, so only the wrong one
+      // is replaced. "Limited" is a said-vs-did finding and it is the whole bug: it
+      // describes a record that was tested and found shallow, on a row where nothing
+      // was tested. The ✒️ lane's own empty-side captions — "No stated position yet",
+      // "On file, not scorable" — already name the missing side correctly and are more
+      // specific than anything this lane could say, so they are kept and the standing
+      // is appended to them rather than written over them.
+      var lead = (rv.key === 'limited') ? _LED.status : (rv.label + ' · not in Direction Match');
+      return '<span class="pdxc-chip pdxc-limited pdxor-recchip pdxor-recchip-led"' +
+        ' title="' + escAttr(rv.ledgerFull + (rv.why ? ' — ' + rv.why : '')) + '">' +
+        _LED.ico + ' ' + esc(lead) + esc(rv.count ? ' · ' + rv.count : '') + '</span>';
+    }
     var tail = (rv.key === 'limited' && rv.count) ? ' · ' + rv.count : '';
     var tip = rv.why || 'What their formal record shows on this issue, checked against the position they state.';
     return '<span class="pdxc-chip pdxc-' + rv.cls + ' pdxor-recchip" title="' + escAttr(tip) + '">' +
@@ -3425,6 +3648,13 @@
     // because the destination the congressional line offers — this figure's roll-call
     // list — does not exist for a president. The primary source is one tap away in
     // the expanded row instead, where it can be a real button.
+    // A LEDGER ROW'S PROOF LINES ARE NOT SHRUGS. On an unscored row every line took
+    // the verdict icon of the row it sits under — six identical "…" glyphs for six
+    // different votes — which is the visual claim that nothing here is known. What is
+    // not known is how these landed against a position; which way each one cut on the
+    // issue is on file for every one of them. So the icon becomes the ledger's mark
+    // and each line prints its own direction.
+    var led = _ledUnscored(ov);
     if (ov && ov.lane === 'exec') {
       var xl = execProofLines(pid, issueKey, limit || 1);
       if (!xl.length) return '';
@@ -3441,9 +3671,12 @@
           ? doc + (bits.length ? ' · ' + bits.join(' · ') : '')
           : esc(l.text);
         var xMulti = _orExecOmniNote(l.item, issueKey);
+        var xDir = _ledDirShort(_ledExecDir(l.item, issueKey));
         return '<div class="pdxor-proof">' +
-            '<span class="pdxor-proof-ico" style="color:' + xv.color + '" aria-hidden="true">' + xv.ico + '</span>' +
+            '<span class="pdxor-proof-ico" style="color:' + (led ? '#9fb4d4' : xv.color) + '" aria-hidden="true">' +
+              (led ? _LED.ico : xv.ico) + '</span>' +
             '<span class="pdxor-proof-txt">' + body +
+              (xDir ? ' <span class="pdxor-proof-dir">' + esc(xDir) + '</span>' : '') +
               (xMulti ? '<span class="pdxor-proof-multi">🧩 ' + esc(xMulti) + '</span>' : '') +
             '</span>' +
           '</div>';
@@ -3465,12 +3698,19 @@
       // the enactment verb on an executive action. Never 'Voted' + an action type.
       if (b.act) restBits.push(b.isPosition ? '<b>' + esc(b.act) + '</b>' : 'Voted <b>' + esc(b.act.replace(/^Voted /, '')) + '</b>');
       var rest = restBits.length ? (bill ? ' · ' : '') + restBits.join(' · ') : '';
+      // Which way this ballot cut on THIS issue, read through the one primitive the
+      // dossier row uses. Printed on every row, scored or not: it is a fact about the
+      // measure and the mapping, and it is the only thing on the line that tells a
+      // reader what a Yea meant here.
+      var pDir = _ledDirShort(_ledItemDir(p.item, 'record', issueKey));
       return '<div class="pdxor-proof pdxor-proof-act"' +
           ' data-pdxc-vrvote="' + escAttr(_orVoteKey(p.item)) + '"' +
           ' data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
           ' title="' + escAttr('Open ' + (txt || 'this vote') + ' in the full voting record') + '">' +
-          '<span class="pdxor-proof-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
+          '<span class="pdxor-proof-ico" style="color:' + (led ? '#9fb4d4' : mv.color) + '" aria-hidden="true">' +
+            (led ? _LED.ico : mv.ico) + '</span>' +
           '<span class="pdxor-proof-txt">' + bill + rest +
+            (pDir ? ' <span class="pdxor-proof-dir">' + esc(pDir) + '</span>' : '') +
             (multi ? '<span class="pdxor-proof-multi">🧩 ' + esc(multi) + '</span>' : '') +
           '</span>' +
           '<span class="pdxor-proof-go" aria-hidden="true">→</span>' +
@@ -3493,7 +3733,7 @@
     unmapped_direction: 'On file — its effect on this issue is not cleanly mapped yet'
   };
   function _orRowEvidenceHtml(pid, issueKey, ov) {
-    var lines = [], extra = '';
+    var lines = [], extra = '', led = _ledUnscored(ov);
     // ✒️ executive lane: the documents behind this row, each with its class of power,
     // its date and where it stands, linking to the Federal Register / GPO page rather
     // than to a roll call. Held actions (circular, unmapped direction, no citable
@@ -3507,11 +3747,14 @@
         xPool.items.forEach(function (it) {
           var clsD = (E0 && E0.CLASSES && E0.CLASSES[it.actionClass]) || null;
           var stD = (E0 && E0.STANDING && E0.STANDING[it.standing]) || null;
-          var metaX = [clsD ? clsD.verb : '', stD ? stD.label : '', it.date || ''].filter(Boolean).join(' · ');
+          // The direction joins the meta strip rather than getting a slot of its own:
+          // this list is the full enumeration and it has to stay one line per item.
+          var metaX = [clsD ? clsD.verb : '', stD ? stD.label : '', it.date || '',
+            _ledDirShort(_ledExecDir(it, issueKey))].filter(Boolean).join(' · ');
           lines.push(_orActLine(_orItemVerdict(it, issueKey, stanceX),
             it.documentId || it.title || 'Executive action',
             metaX, it.sourceUrl, it.sourceLabel, '', null,
-            _orExecWhyHtml(it, issueKey)));
+            _orExecWhyHtml(it, issueKey), led));
         });
         xPool.held.forEach(function (h) {
           lines.push(_orActLine('limited',
@@ -3546,12 +3789,13 @@
     }
     picks.forEach(function (p) {
       var b = _orProofBits(p.item);
-      var meta = [b.question, b.act, b.date].filter(Boolean).join(' · ');
+      var meta = [b.question, b.act, b.date,
+        _ledDirShort(_ledItemDir(p.item, 'record', issueKey))].filter(Boolean).join(' · ');
       lines.push(_orActLine(p.verdict, b.bill || b.title || (b.isPosition ? 'Formal action' : 'Recorded vote'),
         meta, b.url, b.label, _orOmniNote(p.item, issueKey),
         // Every mapped vote in the open row is a button to that exact roll call —
         // the keyboard-reachable version of the collapsed row's proof-line shortcut.
-        { issue: issueKey, key: _orVoteKey(p.item) }));
+        { issue: issueKey, key: _orVoteKey(p.item) }, '', led));
     });
     if (!lines.length) lines = _orEvidenceItems(ov);
     if (!lines.length) return '';
@@ -3584,9 +3828,19 @@
       ' data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
       ' data-pdxc-vrpid="' + escAttr(pid) + '">' + esc(label) + '</button>';
   }
-  function _orWhyHtml(ov) {
+  function _orWhyHtml(pid, issueKey, ov) {
     var rv = _orRowVerdict(ov);
-    return rv.why ? '<div class="pdxor-why">' + esc(rv.why) + '</div>' : '';
+    var out = rv.why ? '<div class="pdxor-why">' + esc(rv.why) + '</div>' : '';
+    // THE VOTING PATTERN, WHERE THERE IS NO SCORE TO CARRY IT. On a scored row the
+    // percentage and the said-vs-did chip already say which way the record ran; on a
+    // ledger row nothing did, and a reader could read six lines one at a time without
+    // ever being told that five went the same way. Counts, both sides, every row
+    // accounted for, and the disclaimer attached — never a rate, never a rank.
+    if (rv.ledger) {
+      var line = _ledSplitLine(_ledSplit(pid, issueKey, ov), issueKey);
+      if (line) out += '<div class="pdxor-why pdxor-why-led">' + esc(line) + '</div>';
+    }
+    return out;
   }
 
   // ── Official Record share affordance (receipt-cards.js) ─────────────────────
@@ -3688,6 +3942,30 @@
     '</span>';
   }
   // Per-issue indicator, rendered immediately after that issue's %.
+  // ── THE SINGLE-MEASURE CHIP, ON THE OFFICIAL RECORD ROW FACE ────────────────
+  // The composition meter beside it answers "how much record is behind this
+  // percentage" in ITEMS, which is the number this row was already good at. It has
+  // no answer for "and how many separate things are those items", and a row reading
+  // three lit bars over six votes that are all one bill is the specific shape a
+  // hostile reader goes looking for.
+  //
+  // Scored rows only — there is nothing to qualify without a percentage — and only
+  // where the two counts differ, so the chip always tells a reader something the
+  // meter next to it did not. It changes no verdict, no percentage and no meter:
+  // this is one more disclosure on the closed face, in the amber the surface
+  // already uses for limits on a finding.
+  function _orOneMeasureChip(pid, issueKey, ov) {
+    try {
+      if (!ov || typeof ov.score !== 'number') return '';
+      var sp = _insSpread(pid, issueKey, ov);
+      if (!sp.single || sp.judged < 2) return '';
+      var say = 'All ' + sp.judged + ' judged items behind this percentage are the same measure' +
+        (sp.ident ? ': ' + sp.ident : '') + '.';
+      return '<span class="pdxor-one" data-pdxor-docs="1" title="' + esc(say) +
+        '" aria-label="' + esc(say) + '">1 measure</span>';
+    } catch (e) { return ''; }
+  }
+
   function _orCompositionHtml(pid, issueKey, ov) {
     try {
       if (typeof window._recordComposition !== 'function') return '';
@@ -3746,8 +4024,16 @@
         esc(parts.join(' · ')) + '</span>';
     } catch (e) { return ''; }
   }
-  function _orActLine(verdict, title, meta, url, label, omniNote, focus, omniHtml) {
+  function _orActLine(verdict, title, meta, url, label, omniNote, focus, omniHtml, led) {
     var mv = VERDICTS[verdict] || VERDICTS.limited;
+    // `led` (optional) marks a line in a list that is on record and outside Direction
+    // Match. The verdict icon is the said-vs-did vocabulary and it is wrong here in
+    // the specific way that matters: a "…" against a named bill and a recorded ballot
+    // says we do not know what happened, when what we do not have is the other side
+    // of a comparison nobody ran. The ledger mark replaces it and the line keeps every
+    // other thing it printed, including the direction now in its meta strip.
+    var ico = led ? _LED.ico : mv.ico;
+    var col = led ? '#9fb4d4' : mv.color;
     var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc(label || 'Source') + ' ↗</a>' : '';
     // `omniNote` (optional) discloses that this line came from a multi-issue bill —
     // calm and factual, so a contradiction from an omnibus never reads like a
@@ -3767,7 +4053,7 @@
         ' data-pdxc-vrissue="' + escAttr(focus.issue) + '"' +
         ' title="' + escAttr('Open ' + title + ' in the full voting record') + '">' + esc(title) + '</button>';
     }
-    return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
+    return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + col + '" aria-hidden="true">' + ico + '</span>' +
       '<span>' + head + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + omni + '</span></div>';
   }
   // "This came from an omnibus, not a single-issue vote" for ONE vr_* record, read
@@ -4591,13 +4877,14 @@
                 '<span class="pdxor-issue-lbl">' + _icDot(skin) + esc(issueLabel(s.key)) + '</span>' +
                 _orSaysChipHtml(pid, s.key, s.ov) +
                 _orRecordChipHtml(s.ov) + pct + comp +
+                _orOneMeasureChip(pid, s.key, s.ov) +
                 _orOmniChip(pid, s.key) +
                 '<span class="pdxor-caret" aria-hidden="true">▾</span>' +
               '</div>' +
               _orProofHtml(pid, s.key, s.ov, inline) +
             '</summary>' +
             '<div class="pdxor-row-body">' +
-              _orWhyHtml(s.ov) +
+              _orWhyHtml(pid, s.key, s.ov) +
               _orRowEvidenceHtml(pid, s.key, s.ov) +
               _orRowVrLinkHtml(pid, s.key, s.ov) +
               _gapLinkHtml(pid, s.key) +
@@ -5226,7 +5513,7 @@
   function _stRecordDisplay(r) {
     var noun = _stNoun(r || {});
     var out = { state: 'none', label: _ST_REC_NONE, depth: '', counts: '',
-                items: 0, judged: 0, noun: noun, onRecord: false,
+                items: 0, judged: 0, docs: 0, single: false, noun: noun, onRecord: false,
                 tier: 'none', weight: 'flat', tone: 'muted', color: '',
                 directional: false, early: false, partial: false, display: false,
                 earlyNote: '', pct: null, scored: false, metric: '', token: '',
@@ -5258,6 +5545,17 @@
     // direction was read from fewer items than are on file, so the two figures are
     // never one figure and the smaller one never stands in for the file.
     out.depth = items ? (items + ' ' + (items === 1 ? noun.one : noun.many)) : '';
+    // …AND THE DEPTH BEHIND THE DEPTH. `items` above is an inventory count: six
+    // roll calls on one bill are six items and one document, and the inventory
+    // alone cannot tell those apart. `docs` is the distinct-instrument count over
+    // the judged set, from the shared accessor — so a leaf that shows a verdict can
+    // say the finding rests on a single measure without recomputing what that means.
+    // Read-only: nothing below branches on it and no verdict, tier, tone or
+    // percentage on this slot moves because of it.
+    if (items) {
+      var _spr = _insSpread(r.pid, r.key, null);
+      out.docs = _spr.docs; out.single = !!_spr.single;
+    }
     if (out.early || items === 1) {
       out.early = true;
       out.earlyNote = _stRecEarly(noun);
@@ -7761,9 +8059,10 @@
         // measure and `advanceInverted` is the correction a blocking class (a veto)
         // needs — the same field the shared summariser applies, read here rather
         // than re-derived, so a veto cannot read one way in the ledger and the
-        // other way in the dossier.
-        var adv = m ? (m.supportMeaning !== 'yea_opposes') : null;
-        if (adv !== null && it.advanceInverted) adv = !adv;
+        // other way in the dossier. Now read through _ledExecDir, which is those
+        // two lines lifted out verbatim, so the Official Record's proof line and
+        // this row cannot come apart on the inversion.
+        var _xd = _ledExecDir(it, issueKey);
         out.push(withMapping(it, {
           lane: 'exec',
           verdict: _orItemVerdict(it, issueKey, xStance),
@@ -7783,7 +8082,7 @@
           date: it.date || '',
           standing: _dosStandingFor(it.actionClass, it.standing),
           power: _dosPower(it.actionClass),
-          effect: (adv === null) ? '' : (adv ? 'advances' : 'opposes'),
+          effect: _xd,
           // Which way the STATED POSITION points on this issue. Carried because the
           // direction line has to say how the document's direction and the stated
           // direction combine into the verdict on the chip — and `effect` alone
@@ -7861,6 +8160,79 @@
       });
     }
     return out;
+  }
+
+  // ── HOW MANY DISTINCT DOCUMENTS ARE ACTUALLY UNDER A ROW ────────────────────
+  // A row's `evidence.strength` and a leaf's `depth` both count ITEMS: six recorded
+  // votes on one bill read as "6 votes on file", and nothing on the open face tells
+  // a reader that all six are the same measure. That is the gap this closes. The
+  // number below counts DOCUMENTS — distinct instruments in the judged evidence set
+  // — which is what a hostile reader means when they ask how much a finding rests
+  // on, and what the fragility audit already measures behind a lid.
+  //
+  // DERIVED, NEVER STORED, AND PRESENTATION ONLY. Nothing here is read by read(),
+  // by a publishability floor, by a weight or by a verdict, and adding it changed
+  // no score. A row that rests on one document says so beside a verdict that is
+  // unchanged by its saying so — the marker is depth, not a different outcome.
+  //
+  // THE IDENTITY IS THE ONE THE DOSSIER ALREADY PRINTS. `ident` off _dosItems is
+  // the instrument name a reader sees when they open the list, so the marker and
+  // the list they open to check it cannot disagree about what "one document" means:
+  // bill number on the 🏛️ lane, document id on ✒️, headline on the migrated formal
+  // lane. HELD ITEMS ARE EXCLUDED — "judged evidence set" means the items that
+  // produced the verdict, and an unjudged document neither supports the finding nor
+  // thickens it.
+  //
+  // FAILS CLOSED IN THE DIRECTION THAT MATTERS. The wall is "no false single-measure
+  // tag", so an item whose identity is only a lane fallback ("Recorded vote",
+  // "Executive action") is counted as its own document rather than folded in with
+  // another anonymous one, and any throw returns a spread that claims nothing. The
+  // failure mode is a missing marker, never an invented one.
+  var _INS_ANON = { 'recorded vote': 1, 'formal action': 1, 'executive action': 1 };
+  function _insSpreadRaw(pid, issueKey, ov) {
+    var out = { docs: 0, judged: 0, single: false, ident: '' };
+    var items;
+    try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { return out; }
+    var seen = Object.create(null), anon = 0, first = '';
+    for (var i = 0; i < items.length; i++) {
+      var d = items[i];
+      if (!d || d.held) continue;
+      out.judged++;
+      var raw = String(d.ident || '').trim();
+      var k = raw.toLowerCase();
+      if (!k || _INS_ANON[k]) { anon++; if (!first) first = raw; continue; }
+      if (!seen[k]) { seen[k] = 1; if (!first) first = raw; }
+    }
+    out.docs = Object.keys(seen).length + anon;
+    out.single = out.docs === 1 && out.judged > 0;
+    out.ident = out.single ? first : '';
+    return out;
+  }
+  // Memoised on the house epoch idiom, because the marker is asked for once per row
+  // on a dense index and _dosItems walks a whole issue to answer it. Keyed on the
+  // term scope as well as the epoch for the reason execRecordsForMemo is: the
+  // current-term slice sits beside the all-time figure and holds a different set of
+  // documents. `ov` is deliberately NOT part of the key — every caller derives it
+  // from officialIssue(pid, issueKey), which is a fresh object on every call but the
+  // same overlay for the same (pid, issue, scope, epoch).
+  var _insSprCache = {}, _insSprEpoch = -1;
+  function _insSpread(pid, issueKey, ov) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_insSprEpoch !== ep) { _insSprCache = {}; _insSprEpoch = ep; }
+    var sc = '';
+    try { sc = execTermScope().key; } catch (e) { sc = ''; }
+    var k = norm(pid) + '||' + String(issueKey || '') + '||' + sc;
+    if (Object.prototype.hasOwnProperty.call(_insSprCache, k)) return _insSprCache[k];
+    var v = _insSpreadRaw(pid, issueKey, ov);
+    _insSprCache[k] = v;
+    return v;
+  }
+  // The row-shaped front door, for the surfaces that hold a row rather than a pid
+  // and an issue key. Formal lane only: the public lane is not in the tested-row
+  // count and is not in this either.
+  function _insSpreadRow(r) {
+    if (!r || !r.key) return { docs: 0, judged: 0, single: false, ident: '' };
+    return _insSpread(r.pid, r.key, null);
   }
 
   // ── THE MECHANISM LINES — what it did, and why it counts HERE ───────────────
@@ -7975,11 +8347,22 @@
   // So the line now states the two facts separately and names the chip they produce.
   // The chip's own label is quoted verbatim rather than paraphrased, which is what
   // makes it structurally impossible for this sentence and that chip to disagree.
-  function _dosDirLine(d, issueKey) {
+  //
+  // AND WHERE NOTHING WAS SAID, THERE IS NO LESSON TO TEACH. The tail names the chip
+  // this row wears and calls it the consequence of the direction — exactly right when
+  // a stated position was tested, and actively misleading when none exists. On an
+  // unscored row it was ending every sentence with "which is why this row reads
+  // 'Limited record'", teaching a reader that the RECORD was found wanting when the
+  // record had never been tested at all. A ledger row ends record-relative instead,
+  // in the mapping's own voice and about the measure rather than the person.
+  function _dosDirLine(d, issueKey, led) {
     if (d.held) return '';
     var lbl = _issueLabel(issueKey) || 'this issue';
     var v = VERDICTS[d.verdict];
-    var tail = (v && v.label) ? ' — which is why this row reads “' + v.label + '”.' : '.';
+    var ldir = led ? _dosItemDir(d) : '';
+    var tail = led
+      ? (ldir ? ' — ' + _ledDirPhrase(ldir, issueKey) + '.' : '.')
+      : (v && v.label) ? ' — which is why this row reads “' + v.label + '”.' : '.';
     // A ballot needs the support meaning spelled out. "A Yea here counts as support"
     // is not obvious, and it is the single step where a reader most often assumes the
     // opposite of what the mapping says.
@@ -7992,7 +8375,7 @@
     if (!d.effect) return '';
     var dir = (d.effect === 'advances') ? 'advances' : 'cuts against';
     var s = 'On ' + lbl + ' this ' + _dosNoun(d) + ' ' + dir + ' the issue’s direction';
-    if (d.stance === 'support' || d.stance === 'oppose') {
+    if (!led && (d.stance === 'support' || d.stance === 'oppose')) {
       s += ', and the position they stated runs ' +
         (d.stance === 'oppose' ? 'against' : 'with') + ' that direction';
     }
@@ -8141,7 +8524,7 @@
     return head + ' That ' + (agrees ? 'match' : 'gap') + ' is what this row records as “' +
       v.label + '”.';
   }
-  function _dosMechanism(d, issueKey, teach) {
+  function _dosMechanism(d, issueKey, teach, led) {
     return {
       said: _dosSaidLine(teach),
       did: _dosDidLine(d),
@@ -8151,7 +8534,7 @@
       // two say how it was produced, which is what the row face now prints.
       countsBy: _dosCountsBy(d),
       needsCurator: _dosNeedsCurator(d),
-      dir: _dosDirLine(d, issueKey),
+      dir: _dosDirLine(d, issueKey, led),
       gap: _dosGapLine(d, issueKey, teach),
       veto: _dosVetoLine(d, issueKey),
       multi: _dosMultiLine(d, issueKey)
@@ -8209,16 +8592,30 @@
   // and the mechanism lines. No percentage: a per-item weight printed as a number
   // reads as a second score, and "primary / supporting / narrow link" is the same
   // fact in the vocabulary the ✒️ section already uses.
-  function _dosRowHtml(d, i, pid, issueKey, teach) {
+  function _dosRowHtml(d, i, pid, issueKey, teach, led) {
     var v = d.held ? null : (VERDICTS[d.verdict] || VERDICTS.limited);
+    // THREE STANDINGS, NOT TWO. A row is scored, or it is held back for a stated
+    // reason, or — the case this adds — it is on record and outside Direction Match
+    // because there is no stated position to test it against. Until now the third
+    // collapsed into the first and wore "Limited record": nine votes on one issue
+    // produced nine identical said-vs-did verdicts about a comparison nobody had run.
+    //   The direction rides beside it on every row. It is what makes the list a
+    // ledger rather than a pile — the reader can now see five of these went one way
+    // and one went the other by scanning the faces, without opening anything.
+    var ledRow = !!led && !d.held;
+    var dir = _dosItemDir(d);
     var head =
-      (v ? '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>'
-         : '<span class="pdxdos-rec-ico pdxdos-rec-hold" aria-hidden="true">⊘</span>') +
+      (d.held ? '<span class="pdxdos-rec-ico pdxdos-rec-hold" aria-hidden="true">⊘</span>'
+        : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
+        : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
       '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
       (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
-      (v ? '<span class="pdxdos-rec-vd" style="color:' + v.color + '">' + esc(v.label) + '</span>'
-         : '<span class="pdxdos-rec-vd pdxdos-rec-hold">Not scored</span>') +
+      (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
+      (d.held ? '<span class="pdxdos-rec-vd pdxdos-rec-hold">Not scored</span>'
+        : ledRow ? '<span class="pdxdos-rec-vd pdxdos-rec-led" title="' + escAttr(_LED.full) + '">' +
+            esc(_LED.status) + '</span>'
+        : '<span class="pdxdos-rec-vd" style="color:' + v.color + '">' + esc(v.label) + '</span>') +
       (d.standing ? '<span class="pdxdos-rec-st">' + esc(d.standing.ico + ' ' + d.standing.label) + '</span>' : '') +
       (d.multi ? '<span class="pdxdos-rec-tag">🧩 ' + d.item.issues.length + ' issues</span>' : '') +
       (d.date ? '<span class="pdxdos-rec-st">' + esc(d.date) + '</span>' : '');
@@ -8227,7 +8624,7 @@
     // It still gets a "What it did" line: a document on file with its mechanism
     // withheld is exactly the title-only row this pass exists to remove, and the
     // reason it was held is easier to judge when a reader can see what was held.
-    var m = _dosMechanism(d, issueKey, teach);
+    var m = _dosMechanism(d, issueKey, teach, ledRow);
     var wk = function (label, text, cls) {
       return text
         ? '<span class="pdxdos-rec-why' + (cls ? ' ' + cls : '') + '">' +
@@ -8592,11 +8989,27 @@
     // Decided once here from the row verdict and the judged depth, then handed to
     // every row, so the answer cannot differ between two rows of the same list.
     var teach = _dosTeach(pid, issueKey, r || issueRow(pid, issueKey), cov);
+    // Is this whole list on record and outside the score? Asked once, from the same
+    // predicate the Official Record chip uses, and handed to every row — so the sheet
+    // and the profile row can never disagree about whether this issue is scored.
+    var led = _ledUnscored(ov);
+    var split = _ledSplit(pid, issueKey, ov);
     // THE HEADLINE COUNT IS THE ROW COUNT. Whatever else this line says, the number
     // in front of the noun is the number of rows underneath it — so the expander can
     // never open onto fewer than it advertised.
+    // …AND WHETHER THAT NUMBER IS AS BROAD AS IT LOOKS. The count in front of the
+    // noun is an item count; the enumeration below repeats one name when they are
+    // one document. Stated on the CLOSED face, because the closed face is what a
+    // reader who does not open this level takes away.
+    var spread = _insSpread(pid, issueKey, ov);
+    // …AND WHICH WAY THEY CUT. The closed face already carried the depth of the list
+    // and whether that depth is one measure wearing several names; what it never
+    // carried was the shape of the record — five one way, one the other. A count of
+    // mapped directions, on both sides, never a rate.
     var sum = cov.listed + ' ' + (cov.listed === 1 ? n.one : n.many) + ' listed here' +
-      (cov.held ? ' — ' + cov.held + ' of them not scorable' : '');
+      (cov.held ? ' — ' + cov.held + ' of them not scorable' : '') +
+      ((spread.single && spread.judged > 1) ? ' · all one measure' : '') +
+      (_ledSplitSay(split) ? ' · ' + _ledSplitSay(split) : '');
     // AND THE COUNT IS ENUMERATED, not merely asserted. A collapsed "9 actions listed
     // here" is a number a reader has to take on trust and then open a drawer to
     // audit; naming every instrument on the closed face turns it into something they
@@ -8616,6 +9029,22 @@
           cov.missing + ' are counted in the verdict; their detail arrives with this member’s full ' +
           'roll-call record and this list fills in when it lands. Nothing has been dropped.') + '</div>'
       : '';
+    // THE STANDING OF THE WHOLE LIST, ONCE, ABOVE THE ROWS. Each row says it for
+    // itself, but a reader who opens a nine-row drawer meets the reason nine times
+    // and the sentence explaining it never — so it is said here in full, in the same
+    // words the profile row's chip uses, with the split attached.
+    var ledNote = led
+      ? '<div class="pdxdos-led">' + _LED.ico + ' ' + esc(_LED.full) + '. ' +
+          esc((cov.listed === 1 ? 'This ' + n.one + ' is' : 'These ' + n.many + ' are') +
+            ' on record and mapped to ' + (_issueLabel(issueKey) || 'this issue') + ', ' +
+            (cov.listed === 1 ? 'listed' : 'listed in full') + ' and left out of Direction Match ' +
+            'rather than counted either way. The direction' + (cov.listed === 1 ? '' : 's') +
+            ' below ' + (cov.listed === 1 ? 'is' : 'are') + ' what each measure does to the issue — ' +
+            'not a position anyone has stated.') +
+          (_ledSplitLine(split, issueKey) ? '<span class="pdxdos-led-split">' +
+            esc(_ledSplitLine(split, issueKey)) + '</span>' : '') +
+        '</div>'
+      : '';
     // The lane asymmetry, stated once rather than papered over row by row.
     var note = (items[0] && items[0].lane === 'record')
       ? '<div class="pdxdos-note">A roll call carries its question, its ballot and its source. It does not ' +
@@ -8631,10 +9060,30 @@
         '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
           ' <span aria-hidden="true">▾</span>' +
           '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
-        gap +
-        items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey, teach); }).join('') +
-        note +
+        gap + ledNote +
+        items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey, teach, led); }).join('') +
+        note + _dosVrLinkHtml(pid, issueKey, ov) +
       '</details>';
+  }
+
+  // ── THE WAY OUT INTO THE FULL LEDGER ────────────────────────────────────────
+  // The Official Record row has offered "See all N mapped votes on <issue> →" for a
+  // while; the dossier — the deeper surface, the one a reader reaches by asking for
+  // more — offered no such door at all, so the trail ran out exactly where it should
+  // have kept going. Same destination, same delegated hook, same wording, so the two
+  // doors are recognisably one door. The ✒️ lane is excluded for the same reason it is
+  // there: a president's roll-call list is empty by definition, and the primary
+  // sources are already linked on each row.
+  function _dosVrLinkHtml(pid, issueKey, ov) {
+    if (!ov || ov.lane === 'exec') return '';
+    var total = (ov.record && ov.record.total) || 0;
+    if (!total) return '';
+    var label = total === 1
+      ? 'Open this vote in the full record →'
+      : 'See all ' + total + ' mapped votes on ' + (_issueLabel(issueKey) || 'this issue') + ' →';
+    return '<button type="button" class="pdxdos-vrlink"' +
+      ' data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
+      ' data-pdxc-vrpid="' + escAttr(pid) + '">' + esc(label) + '</button>';
   }
 
   // Is the profile actually on the page behind this sheet? A dossier opened from a
@@ -8766,6 +9215,22 @@
           ' arrive with this member’s full roll-call record.';
       } else if (cov.listed) {
         lane += ' ' + cov.listed + ' item' + (cov.listed === 1 ? ' is' : 's are') + ' listed below.';
+      }
+      // ── AND HOW MANY DOCUMENTS THAT COUNT IS SPREAD ACROSS ──────────────────
+      // Every count in this sentence is an ITEM count. "6 judged votes on this
+      // issue. All 6 are listed below." is true, checkable, and reads as six
+      // independent tests — when six roll calls on one bill are one. The reader who
+      // opens L2 finds that out; the reader who stops at the assembled answer, which
+      // is the level that is open by default, does not.
+      //
+      // Said in the same sentence as the count it qualifies, rather than in the
+      // caveat below, because the caveat fires only at a judged depth of two or
+      // fewer — which is precisely the wrong place for a disclosure whose whole
+      // subject is a row that looks deep. The verdict above is untouched.
+      var _one = _insSpread(pid, issueKey, r.ov);
+      if (_one.single && _one.judged > 1) {
+        lane += ' All of them are the same measure' +
+          (_one.ident ? ' — ' + _one.ident : '') + '.';
       }
     } else {
       lane = 'No lane has been able to decide this one yet.';
@@ -9683,6 +10148,26 @@
     FRAME: FRAME,
     SCOPES: SCOPES,
     VERDICTS: VERDICTS,
+    // ── THE LEDGER LANE, EXPOSED READ-ONLY ─────────────────────────────────
+    // Same reason saydoScore is exposed: the copy and the walls around this lane are
+    // the product, so scripts/test-vote-ledger.mjs probes the real functions rather
+    // than scraping source for the strings. `ledger.unscored` is the predicate every
+    // surface gates on, `ledger.split` is the only aggregation this pass performs,
+    // and LED is the one copy table all of them read.
+    ledger: {
+      LED: _LED,
+      unscored: _ledUnscored,
+      onRecord: _ledOnRecord,
+      itemDir: _ledItemDir,
+      execDir: _ledExecDir,
+      dirShort: _ledDirShort,
+      dirPhrase: _ledDirPhrase,
+      dirLong: _ledDirLong,
+      split: _ledSplit,
+      splitSay: _ledSplitSay,
+      splitLine: _ledSplitLine,
+      rowVerdict: _orRowVerdict
+    },
     // Two scoped reads — the locked product model. Pass an issueKey for a single
     // issue, or omit it for the politician's overall roll-up in that scope.
     officialRecord: function (pid, issue) { return issue ? officialIssue(pid, issue) : scopedOverall('official', pid); },
@@ -9755,6 +10240,20 @@
       NONE: _ST_REC_NONE,
       PENDING: _ST_REC_PENDING,
       NOTE_SCORED: _ST_REC_NOTE_SCORED
+    },
+    // 🧾 HOW BROAD THE JUDGED EVIDENCE IS, in documents rather than in items.
+    // `spread(pid, issueKey)` and `row(r)` both return { docs, judged, single,
+    // ident }. `single` is the marker's whole contract: this tested finding rests
+    // on ONE distinct measure. Exposed because four open surfaces need the same
+    // answer — the issue-index face, the stance-tree leaf, the dossier's assembled
+    // answer and the Official Record face — and four private copies of "is it one
+    // document" is exactly how a marker ends up on a row that has two. Presentation
+    // only; see the long note over _insSpreadRaw for what it counts and why it
+    // refuses to guess.
+    instruments: {
+      spread: _insSpread,
+      row: _insSpreadRow,
+      ANON: _INS_ANON
     },
     // 🏛 THE FULL FORMAL-PATTERN ISSUE INDEX. `rows` is the list — one entry per
     // issue with a pattern read or formal instruments on file, sorted strongest

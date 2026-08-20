@@ -82,6 +82,41 @@ function isPlaceholderTitle(title, number) {
   return !!number && t === String(number).trim();
 }
 
+// A special rule is not policy. The House disposes of most legislation by first
+// adopting an H.Res. that sets the terms of debate for some other bill; the rule
+// itself says nothing about immigration or defence or spending, and mapping it to an
+// issue key would attribute a member's procedural vote to a policy position they
+// never took. These carry a LOT of member-votes — a rule is voted by the whole
+// chamber, twice (previous question, then adoption) — so left in Gap 1 they dominate
+// the mapping backlog and make it look like the biggest coverage win available is
+// work that must never be done.
+//
+// So they are separated, on the same precedent as Gap 0: a different KIND of gap,
+// counted apart so nobody mistakes it for a mapping opportunity. Two signals, both
+// from data the database already carries — no new column, no migration, and no
+// invented issue mapping:
+//
+//   1. Every yea/nay roll call on the measure is action_type 'procedural'
+//      (the previous-question votes are already tagged this way).
+//   2. The measure is a simple resolution whose title is the standard rule
+//      formula — "Providing for consideration of…" / "Rule providing for
+//      consideration of…". Adoption of a rule is recorded as action_type
+//      'passage' (agreeing to the resolution IS its passage), so the roll-call
+//      tag alone cannot catch it; the measure is what is procedural here, and
+//      there is no measure-level flag to read.
+//
+// Deliberately narrow. A substantive resolution (a censure, a war-powers
+// resolution, a budget resolution) matches neither test and stays in Gap 1 where
+// it belongs.
+const RULE_TITLE = /^(?:h\.?res\.?\s*\d+\s*[—–-]\s*)?(?:rule\s+)?providing for consideration of\b/i;
+function isProceduralMeasure(m, rollTypes) {
+  const types = rollTypes || [];
+  if (types.length && types.every(t => t === 'procedural')) return true;
+  const number = String(m.number || '').trim();
+  if (!/^(?:H|S)\.Res\.\s/i.test(number)) return false;
+  return RULE_TITLE.test(String(m.title || '').trim());
+}
+
 // Curated identities (db/vr-measure-identity.json) are applied to the database by a
 // migration and re-applied on every ingest, but a snapshot taken between committing
 // that file and its deploy would still read the old placeholders and under-report what
@@ -178,6 +213,19 @@ async function main() {
       FROM vr_measures m`)).rows;
   const measureById = new Map(measures.map(m => [m.id, m]));
 
+  // Roll-call action types per measure, for the procedural classifier. Only roll
+  // calls that actually carry a directional vote count — a procedural roll call
+  // nobody was recorded on cannot make a measure look procedural.
+  const rollTypesByMeasure = new Map();
+  for (const r of (await client.query(`
+    SELECT DISTINCT r.measure_id AS mid, r.action_type AS t
+      FROM vr_rollcalls r
+      JOIN vr_member_votes v ON v.rollcall_id = r.id
+     WHERE v.position IN ('yea','nay')`)).rows) {
+    if (!rollTypesByMeasure.has(r.mid)) rollTypesByMeasure.set(r.mid, []);
+    rollTypesByMeasure.get(r.mid).push(r.t);
+  }
+
   // Overlay the committed identity seed over any still-placeholder title.
   const identitySeed = loadIdentitySeed();
   for (const m of measures) {
@@ -256,10 +304,17 @@ async function main() {
   for (const v of votes) mvByMeasure.set(v.mid, (mvByMeasure.get(v.mid) || 0) + 1);
 
   // ── Gap 1: measures carrying votes with no issue mapping at all ───────────
-  const unmapped = [...mvByMeasure.entries()]
+  // Procedural rules are pulled out first: they are unmapped and must STAY
+  // unmapped, so counting them as backlog overstates the work by the largest
+  // single block in the table.
+  const allUnmapped = [...mvByMeasure.entries()]
     .filter(([mid]) => !mapping.has(mid) || mapping.get(mid).size === 0)
-    .map(([mid, mv]) => ({ mv, m: measureById.get(mid) || { id: mid, number: '(unknown)', title: '' } }))
+    .map(([mid, mv]) => ({ mv, m: measureById.get(mid) || { id: mid, number: '(unknown)', title: '' },
+                           procedural: isProceduralMeasure(measureById.get(mid) || {}, rollTypesByMeasure.get(mid)) }))
     .sort((a, b) => b.mv - a.mv);
+  const procedural = allUnmapped.filter(r => r.procedural);
+  const unmapped = allUnmapped.filter(r => !r.procedural);
+  const proceduralMv = procedural.reduce((a, b) => a + b.mv, 0);
 
   // ── Gap 1b: mapped, but thinly — a single non-primary key is weak evidence ─
   const weak = [...mvByMeasure.entries()]
@@ -409,9 +464,38 @@ async function main() {
     if (placeholders.length > 40) p(`| … | _${placeholders.length - 40} more_ | |`);
   }
   p('');
+  p('## Procedural rules — unmapped on purpose, not backlog');
+  p('');
+  p('The House adopts a special rule (an H.Res. "providing for consideration of…")');
+  p('before most floor business. The rule sets debate terms for some *other* bill; it');
+  p('is not a position on any issue, and mapping it to an issue key would credit a');
+  p('member with a policy stance they never took. Each one is voted twice by the whole');
+  p('chamber, so they carry more member-votes than most real bills — which is exactly');
+  p('why they are counted here instead of in Gap 1, where their volume would make the');
+  p('mapping backlog look larger than it is and point the next pass at work that must');
+  p('never be done. Nothing here is a mapping opportunity. Leave them unmapped.');
+  p('');
+  if (!procedural.length) {
+    p('No procedural rule is carrying votes right now.');
+  } else {
+    p(`${procedural.length} measure(s), ${num(proceduralMv)} member-votes — excluded from Gap 1 below.`);
+    p('');
+    p('| member-votes | measure | title |');
+    p('|---:|---|---|');
+    for (const r of procedural.slice(0, 40)) {
+      p(`| ${r.mv} | ${r.m.number || '(no number)'} | ${(r.m.title || '').replace(/\|/g, '\\|').slice(0, 90)} |`);
+    }
+    if (procedural.length > 40) p(`| … | _${procedural.length - 40} more_ | |`);
+  }
+  p('');
   p('## Gap 1 — measures with votes and no issue mapping');
   p('');
   p(`${unmapped.length} measure(s), ${num(unmapped.reduce((a, b) => a + b.mv, 0))} member-votes at stake.`);
+  if (procedural.length) {
+    p('');
+    p(`Procedural rules are **not** in this count — ${procedural.length} measure(s) / `
+      + `${num(proceduralMv)} member-votes are listed in the section above instead.`);
+  }
   if (pendingMapRows.length) {
     p('');
     p(`${pendingMapRows.length} measure(s) carrying ${num(pendingMapMv)} member-votes are not on this`);

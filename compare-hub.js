@@ -1823,20 +1823,28 @@
         if (opts.pid && wa && typeof wa.read === 'function') r = wa.read(opts.pid, p);
       } catch (e) { r = null; }
       if (r && r.publishable && r.verdict && r.verdict.label) {
+        // TESTED RIDES WITH PCT, ALWAYS. A caller that prints the figure has to be
+        // able to print its denominator without a second read of its own, and pairing
+        // them here is what guarantees the two describe the same tested set. Every
+        // other branch returns pct null and tested 0 together: there is no shape this
+        // returns where a number arrives without its depth. The wording lives in
+        // testedOf() and depthCaption() over in word-action.js.
+        var wt = window.PDXWordAction;
         return { state: 'wa', glyph: r.verdict.ico || '⚖', label: 'Word vs Action', sub: r.verdict.label,
-                 tint: r.verdict.color || '', pct: (typeof r.pct === 'number') ? r.pct : null };
+                 tint: r.verdict.color || '', pct: (typeof r.pct === 'number') ? r.pct : null,
+                 tested: (wt && typeof wt.testedOf === 'function') ? wt.testedOf(r) : (r.coverage && r.coverage.tested) || 0 };
       }
       var cov = (r && r.coverage) || null;
       if (opts.status === 'candidate') {
-        return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '', pct: null };
+        return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '', pct: null, tested: 0 };
       }
       if (cov && cov.tested > 0) {
-        return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '', pct: null };
+        return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '', pct: null, tested: 0 };
       }
       if (cov && cov.word > 0) {
-        return { state: 'wa', glyph: '…', label: 'Word vs Action', sub: 'No matched votes yet', tint: '', pct: null };
+        return { state: 'wa', glyph: '…', label: 'Word vs Action', sub: 'No matched votes yet', tint: '', pct: null, tested: 0 };
       }
-      return { state: 'empty', glyph: '—', label: 'Word vs Action', sub: (opts.status === 'former') ? 'Record archived' : 'No stated positions yet', tint: '', pct: null };
+      return { state: 'empty', glyph: '—', label: 'Word vs Action', sub: (opts.status === 'former') ? 'Record archived' : 'No stated positions yet', tint: '', pct: null, tested: 0 };
     };
 
     // Consistent "Office • District • State" line for every compact card. District
@@ -3179,7 +3187,12 @@
             slThemeMed +
             slPatternMed +
             slRows +
-            '<button type="button" class="pdx-med-spot-more" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeId + '\')">View full accountability analysis →</button>' +
+            // SCORING CLEANUP: the "View full accountability analysis →" button used
+            // to open #accountability-overlay, which prints an Accountability Score
+            // of N/100 — a second composite competing with Direction Match. The badge
+            // and the profile ring were retired earlier; this was the last reader-facing
+            // door into the overlay from the medium card. The sourced Spotlight rows
+            // above stay: they are evidence, not a score.
           '</div>';
       } else if (slThemeMed) {
         // Theme authored but no individual drivers tagged yet — show the overall
@@ -3189,8 +3202,10 @@
             '<div class="pdx-med-sec-title pdx-med-sec-title--acct">🛡️ Accountability Spotlight</div>' +
             '<div class="pdx-med-sec-sub">Personal integrity &amp; consistency — words vs. actions and public conduct, beyond the formal record</div>' +
             slThemeMed +
-            '<p class="pdx-med-spot-thin">Individual integrity highlights are still being gathered for this official. The overall read above reflects their record so far.</p>' +
-            '<button type="button" class="pdx-med-spot-more" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeId + '\')">View full accountability analysis →</button>' +
+            '<p class="pdx-med-spot-thin">Individual integrity highlights are still being gathered for this official.</p>' +
+            // SCORING CLEANUP: second door into #accountability-overlay, removed with
+            // the one above. The trailing "the overall read above reflects their record
+            // so far" went with it — it referred to the retired composite.
           '</div>';
       }
 
@@ -5517,16 +5532,19 @@
       var _status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
       if (_status !== 'office') return _renderCandidateBrowseCard(pid);
 
-      // Personalized "Your Match" bar + the lazy Accountability analysis expander
-      // ride in the extra slot, below the unified snapshot.
+      // Personalized "Your Match" bar rides in the extra slot, below the unified
+      // snapshot.
+      //
+      // SCORING CLEANUP: this slot also carried a "View Accountability Analysis"
+      // expander (toggleCardAccountability) on every incumbent card in the browse
+      // grid. Expanding it printed the retired Accountability of Truth composite —
+      // an overall 0–100, per-category 0–100 bars — and ended in a "View Full
+      // Analysis →" button into #accountability-overlay. It was the widest of the
+      // four doors into the second score, and the last one found. Removed: Direction
+      // Match is the product's only headline metric. Do not re-add an entry point.
+      // See scripts/test-no-second-score.mjs.
       var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
-      var acctExpander =
-        '<button type="button" id="acctbtn-' + pid + '" onclick="event.stopPropagation();toggleCardAccountability(\'' + pid + '\')" style="width:100%;margin-top:0.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);border-radius:0.5rem;padding:0.45rem 0.6rem;color:#c4b5fd;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(139,92,246,0.16)\'" onmouseout="this.style.background=\'rgba(139,92,246,0.08)\'">' +
-          '<span>🛡️</span><span class="acct-exp-label">View Accountability Analysis</span>' +
-          '<span id="acctchev-' + pid + '" style="display:inline-block;transition:transform 0.25s;font-size:0.55rem;">▼</span>' +
-        '</button>' +
-        '<div id="acctexp-' + pid + '" data-open="0" data-loaded="0" style="max-height:0;opacity:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;"></div>';
-      var extra = (alignBar ? '<div style="margin-bottom:0.1rem;">' + alignBar + '</div>' : '') + acctExpander;
+      var extra = alignBar ? '<div style="margin-bottom:0.1rem;">' + alignBar + '</div>' : '';
 
       var actions = _pdxTeamActions(pid);
 
