@@ -91,10 +91,14 @@
   //   record-vs-public-picture bridge that used to occupy stages of their own are
   //   inputs to its rows now, not neighbours of it.
   //
-  //   WHAT THEY STAND FOR COMES SECOND. `signature` is 🧭 Stances & Connections —
-  //   the map of claims, ranked so the claims something can test come first. It sits
-  //   between the verdict and the record because it is the bridge: every row points
-  //   back at the score and forward at the actions.
+  //   WHAT THEY STAND FOR IS READ IN THE VERDICT STAGE, NOT HERE. `signature` was
+  //   🧭 Stances & Connections — a second, tension-ranked browser over the same
+  //   person×issue set 🌳 All Issues by Topic already lists, mounted below it as a
+  //   peer. One browse surface and one deep dive is the rule now: the tree is the
+  //   browse (it carries a Topic | Tension order control for the ranking the flat
+  //   list used to own) and the issue dossier is the depth. What is left in this
+  //   stage is the deferred "every documented position" drawer, which is an archive
+  //   of the full text rather than a second index of it.
   //
   //   THEN THE ACTIONS. `record` is one office-aware gateway — executive actions,
   //   roll-call votes, or both lanes for someone who has served in both kinds of
@@ -166,10 +170,13 @@
     // "their stated positions" should now land on.
     'pdxsec-stancetree': 'verdict',
     'pdxsec-glance': 'verdict',
-    // signature — what they stand for. #pdxsec-stances is emitted by consistency.js
-    // (stancesSectionHtml) and is the stage's entry point; the full position set
-    // sits under it.
-    'pdxsec-stances': 'signature',
+    // …and so is `pdxsec-stances`, for exactly the same reason. 🧭 Stances &
+    // Connections is unmounted — it was a second issue browser below the tree — and
+    // the tree emits that id as an alias too, so a jump or a deep link naming it
+    // resolves to the surface that actually holds those positions rather than being
+    // demoted to a stage whose only remaining content is a closed drawer.
+    'pdxsec-stances': 'verdict',
+    // signature — the deferred archive of every documented position, in full text.
     'pdxsec-positions': 'signature',
     // record — the formal apparatus behind the verdict
     'pdxsec-exec-record': 'record',

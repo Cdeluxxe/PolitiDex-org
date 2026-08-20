@@ -865,7 +865,11 @@ section("11 · filters are views — they hide rows and touch nothing else");
     const keys = [...h.matchAll(/data-pdxtree-issue="([^"]*)"/g)].map((m) => m[1]);
     eq(keys.length, got.length, `${f.key}: renders exactly the rows it selected`);
     keys.forEach((k) => ok(PRED[f.key](byKey[k]), `${f.key}: ${k} belongs in this view`));
-    eq((h.match(/aria-pressed="true"/g) || []).length, 1,
+    // Scoped to the FILTER bar: the order control beside it carries aria-pressed
+    // too, and the two groups answer different questions — which rows are on
+    // screen, and in what arrangement. Exactly one of each is pressed.
+    const fbar = (h.match(/<div class="pdxtree-filters"[\s\S]*?<\/div>/) || [""])[0];
+    eq((fbar.match(/aria-pressed="true"/g) || []).length, 1,
       `${f.key}: exactly one chip is pressed`);
     ok(new RegExp(`data-pdxtree-filter="${f.key}" aria-pressed="true"`).test(h),
       `${f.key}: …and it is this one`);

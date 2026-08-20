@@ -254,6 +254,38 @@
   background: #cfe0f5; border-color: #cfe0f5;
 }
 
+/* ── THE ORDER CONTROL ─────────────────────────────────────────────────────
+   Topic or sharpest-first, as a pair of chips beside the filters. Deliberately
+   quieter than a filter chip and labelled with the word "Order", because the two
+   controls do different things and a reader must never read this one as hiding
+   rows: the filters change WHICH issues are on screen, this changes only the
+   arrangement. It replaces a whole second, tension-ranked issue section that used
+   to sit below this tree — see the note over SORTS in stance-tree.js. */
+.pdxtree-sort {
+  margin: -.2rem .1rem .5rem; display: flex; flex-wrap: wrap;
+  align-items: center; gap: .3rem;
+}
+.pdxtree-sort-k {
+  font-size: .62rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: #7e93b3;
+}
+.pdxtree-schip {
+  font: inherit; font-size: .68rem; font-weight: 700; line-height: 1;
+  padding: .3rem .55rem; border-radius: 999px; cursor: pointer;
+  color: #9fb4d4; background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+}
+.pdxtree-schip:hover { color: #eaf2ff; border-color: rgba(148, 163, 184, 0.42); }
+.pdxtree-schip:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 1px; }
+.pdxtree-schip.is-on {
+  color: #eaf2ff; background: rgba(148, 163, 184, 0.16);
+  border-color: rgba(148, 163, 184, 0.44);
+}
+/* The one line tension order owes a reader: what "sharpest" means, and that
+   nothing has been removed or re-scored to produce it. Above the rows, not below
+   them, because it explains the arrangement they are about to read. */
+.pdxtree-ordernote { margin: 0 .1rem .45rem; }
+
 /* The honest empty view. It states the filter, the answer and the way back. */
 .pdxtree-empty {
   margin: .2rem .1rem .1rem; padding: .6rem .7rem; border-radius: 10px;
@@ -288,6 +320,7 @@
   .pdxtree-bsumbit.is-extra { display: none; }
   .pdxtree-bsum { flex: 1 1 100%; }
   .pdxtree-fchip { padding: .4rem .62rem; }
+  .pdxtree-schip { padding: .38rem .58rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pdxtree-caret { transition: none; }

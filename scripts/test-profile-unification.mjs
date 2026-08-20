@@ -935,9 +935,19 @@ section("12 · stances & connections — what they stand for, ranked and connect
   ok(/\d+ vote(s)? on record/.test(CS.stancesSectionHtml(REP)) ||
      CS.issueRows(REP).every((r) => r.evidence.actions === 0),
     "the member's stance rows do not count his record in votes");
-  // Mounted once, in the signature stage, above Stance at a Glance.
-  eq((BODY.match(/PDXConsistency\.stancesSectionHtml\(id\)/g) || []).length, 1,
-    "the stance layer is mounted zero or twice in the profile body");
+  // NOT MOUNTED — and that is the assertion now. Every row face checked above is
+  // still built by this renderer and still has to hold together, because the tree's
+  // leaves, the issue dossier and the harnesses all read the same row model through
+  // it. What is gone is the SECTION: a second, tension-ranked, full-height browser
+  // over the same person×issue set 🌳 All Issues by Topic already lists, mounted
+  // below it as a peer. The ranking survives as a view of the tree (Order: Topic |
+  // Tension); the browse path is the tree and the deep dive is the dossier.
+  eq((BODY.match(/PDXConsistency\.stancesSectionHtml\(id\)/g) || []).length, 0,
+    "the stance layer is mounted in the profile body again — that is a second full issue\n" +
+    "    browser beside the topic tree, over the same rows");
+  // …and the tree is what the profile mounts in its place.
+  eq((BODY.match(/PDXStanceTree\.sectionHtml\(id\)/g) || []).length, 1,
+    "the topic tree — the one browse surface — is not mounted exactly once");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

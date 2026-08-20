@@ -47,7 +47,13 @@
 // the cache makes the shell cache empty on activate, so the first navigation
 // after this worker takes control goes to the network and the fix is visible on
 // the refresh that was supposed to show it.
-const CACHE_VERSION = 'v58';
+// v59 — ONE BROWSE PATH. 🧭 Stances & Connections is unmounted (it was a second
+// full issue browser over the same rows 🌳 All Issues by Topic lists), the tree
+// gained an Order control, and the tree now answers to #pdxsec-stances. Bumped for
+// the reason stated above: a phone holding the v58 shell is served the previous
+// profiles-full.js and stance-tree.js on a hard refresh, which looks exactly like
+// the second section never having been removed.
+const CACHE_VERSION = 'v59';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

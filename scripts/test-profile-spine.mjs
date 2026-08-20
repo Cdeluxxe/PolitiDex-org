@@ -421,7 +421,16 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     "dedupe: the Promise Tracker gateway is mounted in the modal body again — that is a\n" +
     "    second integrity product competing with Word vs Action for the same reader");
   once("PDXConsistency.officialRecordSectionHtml(id)", "the Official Record feed");
-  once("PDXConsistency.stancesSectionHtml(id)", "the Stances & Connections layer");
+  // 🧭 Stances & Connections is mounted ZERO times by design, for the same reason
+  // Stance at a Glance is: it published the same person×issue set the topic tree
+  // publishes — said, record result, a percentage, a door into the same dossier —
+  // ranked sharpest-first instead of grouped, as a second full-height issue browser
+  // below the gateway. The ranking is a VIEW of the tree now (Order: Topic |
+  // Tension); the renderer stays defined and exported for the archive and for the
+  // harnesses that read a row's full face. Only the mount is gone.
+  ok(!/PDXConsistency\.stancesSectionHtml\(id\)/.test(PF),
+    "dedupe: 🧭 Stances & Connections is mounted in the modal body again — that is a second\n" +
+    "    full issue browser competing with 🌳 All Issues by Topic over the same rows");
   // Say-vs-Do and the record-vs-public-picture bridge are mounted ZERO times by
   // design. Say-vs-Do was a second per-issue verdict for the same issue, and the
   // bridge existed only to referee the disagreement between the two. The public
@@ -1075,14 +1084,15 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   }
   // Several anchors are emitted by other modules, so the template only shows the
   // call. The stage of the call is the stage of the anchor. One call may emit more
-  // than one anchor — the topic tree carries its own plus the legacy #pdxsec-glance
-  // alias the unmounted flat index used to own — so every entry naming a call is
-  // credited with that call's stage, not just the first.
+  // than one anchor — the topic tree carries its own plus BOTH legacy aliases, the
+  // #pdxsec-glance the unmounted flat index used to own and the #pdxsec-stances the
+  // unmounted 🧭 Stances & Connections section used to own — so every entry naming a
+  // call is credited with that call's stage, not just the first.
   const external = [
     ["pdxsec-wordaction", "PDXWordAction.sectionHtml", "word-action.js"],
     ["pdxsec-stancetree", "PDXStanceTree.sectionHtml", "stance-tree.js"],
     ["pdxsec-glance", "PDXStanceTree.sectionHtml", "stance-tree.js"],
-    ["pdxsec-stances", "PDXConsistency.stancesSectionHtml", "consistency.js"],
+    ["pdxsec-stances", "PDXStanceTree.sectionHtml", "stance-tree.js"],
     ["pdxsec-controversies", "_renderControversies", "controversies.js"],
     ["pdxsec-funding", "_pdxFundingSection", "index.html"],
   ];
@@ -1104,6 +1114,10 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ok(/id="pdxsec-glance"/.test(ST),
        "rail: stance-tree.js still carries the legacy #pdxsec-glance alias, so every existing\n" +
        "    jump into \"their stated positions\" lands on the surface that now holds them");
+    ok(/id="pdxsec-stances"/.test(ST),
+       "rail: stance-tree.js does not carry the #pdxsec-stances alias — 🧭 Stances &\n" +
+       "    Connections is unmounted, so a jump or a deep link naming that anchor lands\n" +
+       "    nowhere unless the tree answers to it");
   }
   // The voting anchor is emitted by voting-record.js into the votes drawer.
   ok(/<span id="pdxsec-voting"/.test(read("voting-record.js")),

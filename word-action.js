@@ -1496,8 +1496,8 @@
   // able to test it. Its subtitle can say "Stated, but…" and stay true because
   // outcomeBuckets() admits no wordless row into this bucket (see the `!r.stance.label`
   // guard there): a row we hold instruments for and no position of theirs is not a
-  // result this index can file, and it is answered on the Stances & Connections face
-  // instead, which states the inventory and says whose gap it is. It is listed,
+  // result this index can file, and it is answered on 🌳 All Issues by Topic and in
+  // the issue dossier instead, which state the inventory and say whose gap it is. It is listed,
   // counted and reachable like every other bucket, and it is drawn quieter and
   // ordered last, because a reader scanning results should not have to work out
   // which pile is a result.
@@ -2166,8 +2166,8 @@
   // line, and the only way to tell them apart was to open both.
   //
   // IT IS THE STANCE ROW'S FIGURE, NOT A NEW ONE. Read from
-  // PDXConsistency.rowResult — the same helper the Stances & Connections rows
-  // print from — so one issue cannot carry two percentages on one profile. Fail
+  // PDXConsistency.rowResult — the same helper the tree's leaves and the issue
+  // dossier print from — so one issue cannot carry two percentages on one profile. Fail
   // closed: no helper, or a row that is not tested, prints nothing at all rather
   // than a zero or a dash that would read as a result.
   //

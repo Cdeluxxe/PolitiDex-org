@@ -9262,6 +9262,26 @@
     items.push('<button type="button" class="pdxgap-nx" data-pdxc-profile="' + esc(pid) + '">' +
       '<span class="pdxgap-nx-ico" aria-hidden="true">🏛️</span>' +
       '<span>Open the full profile <span aria-hidden="true">→</span></span></button>');
+    // 🔍 THE SAME ISSUE, ACROSS EVERYONE. This used to be the last link on a
+    // 🧭 Stances & Connections row and nowhere else. That section is unmounted —
+    // the tree is the one browse surface and this sheet is the one deep dive — so
+    // the jump out to the Issue View comes here, where the reader is already
+    // holding the issue it would open. It is a `[data-pdxst-go]` button so it runs
+    // the SAME _stNav('issue') route the stance rows ran: one door, one handler.
+    //   FAIL CLOSED, TWICE. Only for a key the Issue View can actually rank (a Core
+    // National Issue), and only when the overlay module is on the page. A link into
+    // an empty ranking, or a link to a module that never loaded, is worse than no
+    // link — so where either test fails the row simply has three exits instead of
+    // four, exactly as it did before.
+    var ivOn = false;
+    try { ivOn = !!(window.PDXIssueView && typeof window.PDXIssueView.open === 'function'); } catch (e) {}
+    if (ivOn && _icSkin(issueKey).on) {
+      items.push('<button type="button" class="pdxgap-nx" data-pdxst-go="issue"' +
+        ' data-pdxst-target="" data-pdxst-pid="' + escAttr(pid) + '"' +
+        ' data-pdxst-key="' + escAttr(issueKey) + '">' +
+        '<span class="pdxgap-nx-ico" aria-hidden="true">🔍</span>' +
+        '<span>Everyone on this issue <span aria-hidden="true">→</span></span></button>');
+    }
     items.push('<a class="pdxgap-nx" href="#voter-hub" data-pdxc-gapclose="1">' +
       '<span class="pdxgap-nx-ico" aria-hidden="true">📍</span>' +
       '<span>Find your own reps <span aria-hidden="true">→</span></span></a>');
@@ -9818,6 +9838,15 @@
     // 🧭 Stances & Connections — the "what they stand for" layer. A consumer of the
     // row model above, not a second one: it ranks with rankIssueRows() and prints the
     // verdict the row already resolved.
+    //   UNMOUNTED, STILL EXPORTED — the same disposition Stance at a Glance and
+    // Connecting the Dots have. Nothing on a profile renders it: it published the
+    // same person×issue set as 🌳 All Issues by Topic, in a different sort, as a
+    // second full-height issue browser below the gateway. The one thing it could do
+    // that the tree could not — rank across topics — is a view of the tree now
+    // (PDXStanceTree SORTS: Topic | Tension), and its one unique exit, 🔍 Everyone
+    // on this issue, is a step in the dossier's "Where to next" row. The renderer
+    // stays defined and exported so the harnesses that read a row's full face, and
+    // anything embedding this list outside a profile, keep working.
     stancesSectionHtml: stancesSectionHtml,
     // UNMOUNTED, STILL EXPORTED. Nothing on a profile renders saydoSectionHtml() or
     // divergenceSectionHtml() any more — the public record is an input to issueRow()

@@ -5227,17 +5227,28 @@
       ${(typeof window._renderIssueComparison === 'function') ? window._renderIssueComparison(id, p) : ''}
 
       <!--PDXSP:signature-->
-      <!-- Stances & Connections — the "what they stand for" layer, and the entry
-           point to everything below it. Ranked issue rows off the shared
-           PDXConsistency row model: tested-and-contested first, then tested-and-
-           consistent, then stated-with-evidence, then stated-only, then record-only,
-           with "nothing on file" folded away. Each row carries its connections —
-           into ⚖️ Word vs Action where the score already reached a verdict, into
-           🏛️ Official Record where formal actions exist, into the Evidence drawer
-           where the public record is what backs it. It publishes no percentage: the
-           verdict on a row is the one the row model resolved, so this section and the
-           score can never disagree about the same issue. -->
-      ${(window.PDXConsistency && typeof window.PDXConsistency.stancesSectionHtml === 'function') ? (function(){ try { var _st = window.PDXConsistency.stancesSectionHtml(id); return _st ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _st + '</div>') : ''; } catch(e){ return ''; } })() : ''}
+      <!-- 🧭 STANCES & CONNECTIONS IS UNMOUNTED. ONE BROWSE PATH.
+           It listed the same person×issue set 🌳 All Issues by Topic lists — said,
+           record result, often a percentage, and a door into the same dossier —
+           ranked sharpest-first instead of grouped by topic. On a full profile that
+           was well over a hundred thousand characters of second issue browser
+           sitting below the gateway, re-teaching rows the reader had just met in a
+           different sort; on a thin profile it restated a tree that already carries
+           untested positions. The overlap matrix marked the tree primary, so this
+           is the peer section that had no job.
+           WHERE ITS PARTS WENT. The global tension ranking is now a VIEW OF THE
+           TREE — the Order control (Topic | Tension) in stance-tree.js reorders the
+           same leaves with the same comparator, no second section. "⚖️ Where this
+           lands in the score" was already level 1 of the issue dossier. "🔍 Everyone
+           on this issue" is now a step in the dossier's "Where to next" row, which
+           is the only place it lived outside these rows. Everything else on a row —
+           the stance text, the composition split, the public-lane tally, the lane
+           disagreement, the evidence depth — is in the dossier at full length rather
+           than truncated to 190 characters.
+           The renderer is left defined and exported, the same way Stance at a Glance
+           and Connecting the Dots were; only the mount is gone, and the
+           #pdxsec-stances nav anchor now rides on the tree so every existing jump
+           still lands on the surface that holds these positions. -->
 
       <!-- STANCE AT A GLANCE IS UNMOUNTED. It was a collapsible flat index of
            documented positions with a per-issue evidence dot — one alphabetised
