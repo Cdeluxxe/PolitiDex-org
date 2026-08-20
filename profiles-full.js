@@ -4970,15 +4970,18 @@
         ? (function(){ try { return window.PDXStanceTree.sectionHtml(id); } catch(e){ return ''; } })()
         : ''}
 
-      <!-- 🧩 MULTI-ISSUE READING — the splitting lesson, with one worked pair.
+      <!-- 🧩 TWO AXES — one declared pair, read side by side.
            IT SITS DIRECTLY UNDER THE TREE ON PURPOSE. The tree is where a reader
-           browses issue by issue; this is the one place that says WHY two rows in
-           it can come from the same bill and still be read in opposite directions.
-           Concept first (one instrument, several issues, each direction its own —
-           copy that names no topic), then this person's status on the declared
-           pair, then two compact columns whose only control is the door into the
-           issue's existing dossier — the same PDXConsistency.openGap sheet a tree
-           leaf opens. No stance prose, no second report surface, no percentage
+           browses issue by issue; this is where the two halves of one pair are
+           held against each other. STATUS FIRST: this person's reading on the
+           pair (same direction / split / mixed on one side / one side on record /
+           not enough yet), then two compact columns whose only control is the door
+           into the issue's existing dossier — the same PDXConsistency.openGap
+           sheet a tree leaf opens — then one footer line pointing at that
+           dossier's list of every issue a measure counted for. The splitting rule
+           itself is taught where a reader meets it (multi-issue row notes, the
+           dossier, the glossary), not as an essay at the top of this card.
+           No stance prose, no second report surface, no percentage
            except the per-issue one Direction Match already resolved.
            Rendered by ballot-axes.js. Visible only where BOTH halves of a pair are
            on this profile's browse set; the host stays hidden and empty otherwise

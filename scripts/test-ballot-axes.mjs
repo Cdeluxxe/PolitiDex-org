@@ -2,17 +2,18 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // test-ballot-axes.mjs — 🧩 the splitting lesson, with one worked pair under it
 // ─────────────────────────────────────────────────────────────────────────────
-// ballot-axes.js is a TEACHING block that happens to have an elections pair in
-// it, not an elections widget that happens to teach. Its three jobs, in order:
-// teach the general rule (one instrument, several issues, each direction read on
-// its own), show this person on each half of one declared pair, and open the door
-// into each issue's normal dossier. Every gate below defends that order or the
-// wall around it:
+// ballot-axes.js holds ONE DECLARED PAIR up side by side. Its three jobs, in
+// order: say what the pair is doing on this profile, show this person on each
+// half of it, and open the door into each issue's normal dossier. Every gate
+// below defends that order or the wall around it:
 //
-//   1. THE CONCEPT STRIP LEADS, AND IT NAMES NO TOPIC. Concept, then status, then
-//      the two columns, then the footer — in the markup, on every profile. Copy
-//      that says "election" in the lead is the regression that turns the lesson
-//      back into a one-off widget, so the words are asserted, not just the order.
+//   1. THE STATUS LEADS, AND NO ESSAY RUNS AHEAD OF IT. Status, then the two
+//      columns, then at most one pointer footer — in the markup, on every
+//      profile. The concept strip that used to lead the block is gone and must
+//      not come back: the splitting rule is taught where a reader meets it (the
+//      multi-issue row notes, the dossier, the glossary), and repeating it here
+//      buried the one reading only this block produces. The footer that remains
+//      is asserted to be a POINTER at the dossier, and to name no topic.
 //   2. THE STATUS IS DERIVED FROM THE LIVE ROW STATE. Five states, resolved from
 //      the shared row model and nothing else, and the two that COMPARE may only
 //      compare like with like: two stated positions, or — where neither side has
@@ -374,41 +375,46 @@ section("3 · facet identity: the legacy keys are NOT axes");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · concept first, on every profile");
+section("4 · status first, on every profile — and no concept strip");
 // ═════════════════════════════════════════════════════════════════════════════
-// The reader must get the SPLITTING RULE before any pair detail. That is an order
-// in the markup, not a claim in a comment.
+// The reader must get THIS PAIR'S READING before anything else in the block. That
+// is an order in the markup, not a claim in a comment — and the general lesson
+// that used to sit above it is gone, in the module and in the stylesheet.
 {
   for (const [label, html] of [["split", SPLIT_HTML], ["same", SAME_HTML], ["mixed", MIXED_HTML]]) {
-    const iConcept = html.indexOf("bax-concept");
     const iStatus = html.indexOf("bax-status");
     const iCols = html.indexOf("bax-cols");
     const iFoot = html.indexOf("bax-foot");
-    ok(iConcept > -1 && iStatus > -1 && iCols > -1 && iFoot > -1,
-      label + ": the block carries concept, status, columns and footer");
-    ok(iConcept < iStatus, label + ": the concept strip precedes the pair status");
+    ok(iStatus > -1 && iCols > -1, label + ": the block carries the status band and the two columns");
     ok(iStatus < iCols, label + ": the pair status precedes the two columns");
-    ok(iCols < iFoot, label + ": the columns precede the footer");
-    // …and before the first thing that names a topic at all.
+    ok(iFoot === -1 || iCols < iFoot, label + ": any footer comes last, under the columns");
+    // The status is the FIRST thing in the body — nothing renders ahead of it.
+    const iBody = html.indexOf('<div class="bax-body">');
+    ok(iBody > -1, label + ": the host body is emitted");
+    eq(html.slice(iBody + '<div class="bax-body">'.length, iBody + 60).indexOf('<div class="bax-status'), 0,
+      label + ": the status band opens the block body");
+    // …and it precedes the first thing that names a topic at all.
     const iAxis = Math.min(...[html.indexOf("🔐"), html.indexOf("📩")].filter((n) => n > -1));
-    ok(iConcept < iAxis, label + ": the concept strip precedes the first axis on screen");
+    ok(iStatus < iAxis, label + ": the status precedes the first axis on screen");
+    lacks(html, "bax-concept", label + ": no concept strip leads the block");
   }
-  // THE LEAD IS PAIR-AGNOSTIC. One instrument, several issues — a rule that is
-  // true of every multi-issue measure on the site, stated without a topic word.
-  const lead = (BA.CONCEPT.eyebrow + " " + BA.CONCEPT.lead + " " + BA.CONCEPT.tail).toLowerCase();
+  // The retired strip is gone from the module and leaves no orphan CSS rule.
+  lacks(read(AXES), "function conceptHtml", "the concept renderer is deleted, not just unmounted");
+  ok(!("CONCEPT" in BA), "…and CONCEPT is no longer exported");
+  const CSSFILE = read("ballot-axes.css");
+  ok(!/^\.bax-concept/m.test(CSSFILE), "the stylesheet carries no .bax-concept rule");
+  // WHAT SURVIVES IS A POINTER, NOT A LESSON. One line, out of the block, at the
+  // dossier — and pair-agnostic, so it can never become a topic essay again.
+  const iF = SAME_HTML.indexOf('<p class="bax-foot">');
+  ok(iF > -1, "the block keeps one footer line");
+  const foot = SAME_HTML.slice(iF, SAME_HTML.indexOf("</p>", iF));
+  has(foot, "dossier", "the footer says where the full list of a measure's issues lives");
+  ok(foot.replace(/<[^>]*>/g, "").length < 160, "…in one line, not a paragraph");
   for (const w of ["election", "ballot", "voting", "voter", "party", "democrat", "republican"]) {
-    ok(lead.indexOf(w) === -1, `the concept copy does not say "${w}"`);
+    ok(foot.toLowerCase().indexOf(w) === -1, `the footer copy does not say "${w}"`);
   }
-  ok(!/only|just|unique/i.test(BA.CONCEPT.lead),
-    "the lead does not imply this rule applies to one topic alone");
-  ok(BA.CONCEPT.lead.length < 220 && BA.CONCEPT.tail.length < 220,
-    "the lead is two short sentences, not an essay");
-  // The same concept strip renders for every profile: it describes the SITE's
-  // rule, so it cannot vary with whose profile it is on.
-  const strip = (h) => h.slice(h.indexOf('<div class="bax-concept">'), h.indexOf("</div>", h.indexOf("bax-concept-lead")));
-  eq(strip(SPLIT_HTML), strip(SAME_HTML), "the concept strip is identical across profiles");
-  has(SAME_HTML, BA.CONCEPT.foot, "the footer points at the broader multi-issue system");
-  has(SAME_HTML, "dossier", "…and says where the full list of a measure's issues lives");
+  const footOf = (h) => h.slice(h.indexOf('<p class="bax-foot">'), h.indexOf("</p>", h.indexOf('<p class="bax-foot">')));
+  eq(footOf(SPLIT_HTML), footOf(SAME_HTML), "the footer is identical across profiles");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -596,7 +602,7 @@ section("7 · one mount rule, tested on both sides of it");
   ok(BA.PAIRS.every((d) => d.id && d.axes && d.axes.length === 2), "…each entry declaring two axes");
   eq(BA.pairDef("elections").id, "elections", "…reachable by id");
   eq(BA.pairDef("__nope__"), null, "…and unknown ids resolve to nothing");
-  const shell = read(AXES).slice(read(AXES).indexOf("function conceptHtml"), read(AXES).indexOf("function companionHtml"));
+  const shell = read(AXES).slice(read(AXES).indexOf("function statusHtml"), read(AXES).indexOf("function companionHtml"));
   for (const w of ["election", "ballot", "voting", "voter"]) {
     ok(shell.toLowerCase().indexOf("'" + w) === -1 && shell.toLowerCase().indexOf('"' + w) === -1,
       `the shell renderer hard-codes no "${w}" copy`);
@@ -795,7 +801,7 @@ section("11 · degradation and escaping");
     },
   }).PDXBallotAxes;
   const plain = noLearn.profileHtml("x", { name: "Test" });
-  has(plain, noLearn.CONCEPT.lead, "without PDXLearn the concept copy is still printed");
+  has(plain, "the dossier behind each column", "without PDXLearn the footer copy is still printed");
   lacks(plain, "data-pdx-term", "…with no dead glossary control");
   const withLearn = lightSandbox({
     bareData: true, stanceList: () => [],
@@ -805,8 +811,9 @@ section("11 · degradation and escaping");
     },
   }).PDXBallotAxes;
   const rich = withLearn.profileHtml("x", { name: "Test" });
-  has(rich, 'data-pdx-term="omnibus"', "with the glossary loaded the lead links the general multi-issue term");
-  has(rich, 'data-pdx-term="twoaxis"', "…and the pair's own note links the two-axis term");
+  has(rich, 'data-pdx-term="omnibus"', "with the glossary loaded the footer links the multi-issue term");
+  eq((rich.match(/data-pdx-term=/g) || []).length, 1,
+    "…and that is the block's only glossary control — the card teaches by pointing, once");
 
   // Escaping. Topics, record labels and display names are curated, but they reach
   // innerHTML, and an ampersand in a title is routine.
@@ -930,8 +937,8 @@ section("13 · host wiring");
   ok(/two separate axes/.test(SPOT), "the Spotlight's what-this-is-not section names the two-axis model");
 
   const LEARN = read("pdx-learn.js");
-  ok(/twoaxis:\s*\{/.test(LEARN), "the glossary defines the 'twoaxis' term the pair note links");
-  ok(/omnibus:\s*\{/.test(LEARN), "…and the 'omnibus' term the concept strip links");
+  ok(/twoaxis:\s*\{/.test(LEARN), "the glossary defines the 'twoaxis' term the Library explainer links");
+  ok(/omnibus:\s*\{/.test(LEARN), "…and the 'omnibus' term the block's footer links");
 
   const SW = read("sw.js");
   const shell = /SHELL_ASSETS\s*=\s*\[([\s\S]*?)\n\];/.exec(SW);

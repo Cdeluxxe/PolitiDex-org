@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    BALLOT AXES  ·  the multi-issue teaching block (see ballot-axes.js)
    ────────────────────────────────────────────────────────────────────────────
-   Styles the shared surface wherever it appears: the profile block (concept →
-   status → two columns → footer), the Stance Library explainer at the top of
+   Styles the shared surface wherever it appears: the profile block (status →
+   two columns → one pointer footer), the Stance Library explainer at the top of
    either axis, and the compact "other axis" companion line on an issue-first
    card.
 
@@ -22,8 +22,8 @@
       existing "look at this" tone, not a warning about the official.
 
    Two columns on a wide screen, stacked on a phone with the pair read intact:
-   the status band above them says what the pair is doing before either card is
-   read, so the relation survives the stack.
+   the status band above them is the block's first line and says what the pair is
+   doing before either card is read, so the relation survives the stack.
    Prefix: `.bax-`  (BallotAXes).
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -32,23 +32,14 @@
 .bax-sec[hidden] { display: none; }
 .bax-body { display: block; }
 
-/* ── 1. The concept strip — always the lead ─────────────────────────────────
-   Pair-agnostic copy, so the block reads as the rule (one instrument, several
-   issues) rather than as a topic widget. It sits above the status band and the
-   columns on every viewport; nothing may reorder it. */
-.bax-concept {
-  border-left: 3px solid rgba(147, 197, 253, 0.5);
-  background: linear-gradient(90deg, rgba(96, 165, 250, 0.1), rgba(10, 15, 30, 0.35) 72%);
-  border-radius: 0 0.75rem 0.75rem 0; padding: 0.75rem 0.9rem; margin-bottom: 0.7rem;
-}
-.bax-concept-eyebrow {
-  display: block; font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: #93c5fd; margin-bottom: 0.3rem;
-}
-.bax-concept-lead { margin: 0; font-size: 0.82rem; line-height: 1.65; color: #c7d7ef; }
+/* RETIRED: `.bax-concept`, `.bax-concept-eyebrow`, `.bax-concept-lead` — the
+   pair-agnostic concept strip that used to lead this block. The splitting rule it
+   taught is stated where a reader meets it (the multi-issue chip and note on an
+   Official Record row, the dossier's own list of every issue a vote counted for,
+   and the glossary), so the block now opens on the status band. Nothing renders
+   these classes; re-adding a lead here re-buries the finding. */
 
-/* ── 2. The status band — this politician, on this pair ─────────────────── */
+/* ── 1. The status band — this politician, on this pair, and the LEAD ───── */
 .bax-status {
   display: flex; flex-direction: column; gap: 0.28rem;
   border-radius: 0.75rem; padding: 0.65rem 0.8rem; margin-bottom: 0.75rem;
@@ -76,7 +67,7 @@
 .bax-status.tone-quiet .bax-status-txt { color: #b9cae3; }
 .bax-status.tone-loud .bax-status-txt { color: #e7d9b0; }
 
-/* ── 3. The two columns ─────────────────────────────────────────────────────
+/* ── 2. The two columns ─────────────────────────────────────────────────────
    Side by side where there is room; stacked on a phone in the pair's declared
    order (`order` rather than a grid position, so the stack cannot scramble). */
 .bax-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
@@ -162,7 +153,7 @@
 /* The door failing is said out loud, in the column, rather than swallowed. */
 .bax-fail { margin: 0.35rem 0 0; font-size: 0.72rem; line-height: 1.5; color: #fca5a5; }
 
-/* ── 4. The footer — the rule, pointed back at the wider system ─────────── */
+/* ── 3. The footer — one line, pointing out of the block at the dossier ─── */
 .bax-foot {
   margin: 0.7rem 0 0; padding-top: 0.6rem; font-size: 0.73rem; line-height: 1.6;
   color: #9fb4d4; border-top: 1px solid rgba(255, 255, 255, 0.07);

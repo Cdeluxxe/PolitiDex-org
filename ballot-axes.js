@@ -1,20 +1,26 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    BALLOT AXES  ·  ballot-axes.js
    ---------------------------------------------------------------------------
-   THE SPLITTING LESSON, with one worked pair under it.
+   ONE DECLARED PAIR, READ SIDE BY SIDE.
 
    WHAT THIS BLOCK IS FOR, IN ORDER:
 
-     1. TEACH THE RULE. One law or order can move more than one issue. PolitiDex
-        reads each issue on its own record and in its own direction, so a single
-        vote can count FOR one issue and AGAINST another, and two issues pointing
-        the same way is a finding rather than one merged score. That rule is not
-        an elections rule — it is how every multi-issue instrument on the site is
-        scored — so the lead copy names no topic (see CONCEPT).
-     2. SHOW THIS PERSON on each half of one declared pair.
+     1. SAY WHAT THE PAIR IS DOING. The status band leads: same direction, split,
+        mixed on one side, one side on record, or not enough to compare yet —
+        resolved from the live row state and nothing else.
+     2. SHOW THIS PERSON on each half of the pair, in two compact columns.
      3. OPEN THE DOOR into each issue's normal dossier. Nothing here is a second
         report surface: the columns are summaries, and the tap is
         PDXConsistency.openGap — the same sheet a tree leaf opens.
+
+   IT DOES NOT TEACH THE SPLITTING RULE AT LENGTH. That one instrument can move
+   several issues, each read in its own direction, is true of every multi-issue
+   measure on the site, and it is already said where a reader meets one: on the
+   multi-issue chip and note on an Official Record row, in the issue dossier's own
+   list of every issue a vote counted for, and in the glossary (omnibus, twoaxis).
+   Repeating it as an essay at the top of a block that mounts on a few dozen
+   profiles buried the one thing only this block can say — the status. One footer
+   line points at the dossier list; that is the whole lesson this card carries.
 
    The pair that ships is elections, on two INDEPENDENT ISSUE_MAP keys:
 
@@ -65,7 +71,7 @@
    Public API (window.PDXBallotAxes):
      KEYS                    → { security, access }
      PAIRS / pairDef(id)     → the declared pairs, as data
-     CONCEPT / STATUS        → the concept copy and the five status states
+     STATUS                  → the five status states, as data
      axisMeta(which)         → label/icon/chip/direction copy for one axis
      axisState(pid, which)   → one axis's live row state (null when off-browse)
      pairState(pid, id, p)   → both halves + the resolved status
@@ -147,24 +153,22 @@
   function whichFor(k) { return k === SECURITY ? 'security' : k === ACCESS ? 'access' : ''; }
   function otherKey(k) { return k === SECURITY ? ACCESS : k === ACCESS ? SECURITY : ''; }
 
-  // ── THE CONCEPT, IN ONE PLACE ─────────────────────────────────────────────
-  // Pair-agnostic on purpose: nothing in this copy says "elections", because the
-  // rule it teaches is not an elections rule. It is the splitting rule the whole
-  // record model runs on — one instrument, several issues, each issue read in its
-  // own direction and scored on its own record — and elections is simply the pair
-  // that makes it visible on a profile today.
-  var CONCEPT = {
-    eyebrow: '🧩 One measure, more than one issue',
-    lead: 'One bill or order can move several issues at once, and PolitiDex reads each issue on its own record, in its own direction.',
-    tail: 'So one vote can count for an issue and against another — and where two of them point the same way, that agreement is a finding, not a merged score.',
-    foot: 'Where a measure touches more than one issue, its dossier lists every issue that vote counted for. The pair below is one example of the same rule.'
-  };
+  // ── THE FOOTER, IN ONE PLACE ──────────────────────────────────────────────
+  // The block's only line of general copy, and it is a POINTER, not a lesson: it
+  // says where the full list of a measure's issues actually lives — the dossier
+  // each column already opens — instead of restating the splitting rule the row
+  // notes, the dossier and the glossary all state at the point of use. Pair-
+  // agnostic on purpose: nothing here names a topic.
+  var FOOT_LINK = 'A measure that moved both';
+  var FOOT_TAIL = ' is listed under every issue it counted for — the dossier behind each column has that list.';
 
   // ── THE PAIR REGISTRY ─────────────────────────────────────────────────────
-  // A pair is DATA: an id, the two axes it joins, and one optional orientation
-  // clause. The shell above knows nothing about elections — it renders whatever
-  // pairs are declared here — so a second pair is a row in this array plus its two
-  // axis definitions, not a second component. Exactly one pair ships today.
+  // A pair is DATA: an id, the two axes it joins, and — for the registry's own
+  // readers, not for the card — a label and an orientation clause. Neither string
+  // is rendered: the block prints the two axes' own copy and one pointer footer.
+  // The shell above knows nothing about elections — it renders whatever pairs are
+  // declared here — so a second pair is a row in this array plus its two axis
+  // definitions, not a second component. Exactly one pair ships today.
   var PAIRS = [
     { id: 'elections', axes: ['security', 'access'],
       label: 'Election security ⇄ ballot access',
@@ -454,16 +458,11 @@
   }
 
   // ── THE BLOCK ─────────────────────────────────────────────────────────────
-  // Concept first, every time. The lead teaches the GENERAL rule — one instrument,
-  // several issues, each direction its own — before the reader meets any pair, so
-  // the block reads as the lesson it is rather than as an elections widget.
-  function conceptHtml() {
-    return '<div class="bax-concept">' +
-      '<span class="bax-concept-eyebrow">' + CONCEPT.eyebrow + '</span>' +
-      '<p class="bax-concept-lead">' + learnLink('omnibus', CONCEPT.lead) + ' ' +
-        esc(CONCEPT.tail) + '</p>' +
-    '</div>';
-  }
+  // STATUS FIRST, every time. The first thing on screen is what this pair is
+  // doing on this profile — the one reading no other surface produces — and the
+  // columns under it are the evidence for that sentence. No preamble runs ahead
+  // of it: a general lesson at the top pushed the finding below the fold and
+  // repeated what the row notes and the dossier already say in place.
   function statusHtml(st, a, b, who) {
     var meta = STATUS[st.key] || STATUS.thin;
     return '<div class="bax-status is-' + esc(meta.key) + ' tone-' + esc(meta.tone) + '"' +
@@ -472,18 +471,18 @@
         '<span class="bax-status-txt">' + statusText(st, a, b, who) + '</span>' +
       '</div>';
   }
-  function footHtml(def) {
-    return '<p class="bax-foot">' + esc(CONCEPT.foot) +
-      (def && def.note ? ' ' + learnLink('twoaxis', def.note) : '') + '</p>';
+  // One line, and it earns its place by pointing OUT of the block: the dossier a
+  // column opens is where every issue a single measure counted for is listed.
+  function footHtml() {
+    return '<p class="bax-foot">' + learnLink('omnibus', FOOT_LINK) + esc(FOOT_TAIL) + '</p>';
   }
   function bodyHtml(pid, p, def, states) {
     var uid = def.uid;
     var a = states[0], b = states[1];
     var who = esc((p && p.name) ? String(p.name).split(' ')[0] : 'This official');
-    return conceptHtml() +
-      statusHtml(statusFor(a, b), a, b, who) +
+    return statusHtml(statusFor(a, b), a, b, who) +
       '<div class="bax-cols">' + colHtml(a, pid, uid) + colHtml(b, pid, uid) + '</div>' +
-      footHtml(def);
+      footHtml();
   }
 
   // ── PAIR STATE, AND THE MOUNT RULE ────────────────────────────────────────
@@ -711,12 +710,23 @@
       d.axes.forEach(function (w) { ok(!!axisMeta(w), d.id + ': axis "' + w + '" is defined'); });
       ok(pairDef(d.id) === d, d.id + ': is reachable by id');
     });
-    // CONCEPT IS THE LEAD AND IT IS PAIR-AGNOSTIC. A topic word in this copy is the
-    // regression that turns the lesson back into a one-off widget.
-    var lead = (CONCEPT.eyebrow + ' ' + CONCEPT.lead + ' ' + CONCEPT.tail).toLowerCase();
-    ['election', 'ballot', 'voting', 'voter'].forEach(function (w) {
-      ok(lead.indexOf(w) === -1, 'the concept strip does not name "' + w + '"');
-    });
+    // THE STATUS IS THE LEAD. Built here from two synthetic axis states so the
+    // order is checked without the row model: status band, then the columns, then
+    // the one pointer footer — and no concept strip ahead of any of it.
+    var probeAxis = function (w, dir) {
+      var m = axisMeta(w);
+      return { which: w, key: m.key, meta: m, record: null, pct: null, topic: '',
+        said: { key: dir || 'none', label: dir ? 'Supports' : 'No stated position', stated: !!dir },
+        dir: dir || '', mixed: false, recDir: '', patternOnly: false, signal: !!dir };
+    };
+    var probe = bodyHtml('__pdx_probe__', { name: 'Test Person' }, { uid: 'pdxbax-probe' },
+      [probeAxis('security', 'support'), probeAxis('access', 'support')]);
+    ok(probe.indexOf('<div class="bax-status') === 0, 'the block opens with the pair status band');
+    ok(probe.indexOf('bax-status') < probe.indexOf('bax-cols'), 'status precedes the two columns');
+    ok(probe.indexOf('bax-cols') < probe.indexOf('bax-foot'), 'the columns precede the footer');
+    ok(probe.indexOf('bax-concept') === -1, 'no concept strip leads the block');
+    ok((FOOT_LINK + FOOT_TAIL).toLowerCase().indexOf('election') === -1,
+      'the footer copy names no topic');
     // The status rule, as a table. Nothing here reads the DOM or the live data:
     // these are the five answers the block is allowed to give.
     var A = function (o) {
@@ -744,12 +754,11 @@
 
   window.PDXBallotAxes = {
     KEYS: { security: SECURITY, access: ACCESS },
-    // The pairs and the copy, as data — so a test can assert the concept leads and
-    // the status vocabulary is what it says, instead of scraping markup for
-    // literals, and so a second pair never needs a second component.
+    // The pairs and the status vocabulary, as data — so a test can assert what the
+    // block is allowed to say instead of scraping markup for literals, and so a
+    // second pair never needs a second component.
     PAIRS: PAIRS,
     pairDef: pairDef,
-    CONCEPT: CONCEPT,
     STATUS: STATUS,
     DOOR_FAIL: DOOR_FAIL,
     axisMeta: axisMeta,
