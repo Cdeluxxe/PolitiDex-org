@@ -4801,7 +4801,10 @@
       <!-- The formal tally, attached to the letterhead. The ring above prints one
            average; these four integers print the shape it averages — contradicted,
            mixed, backed up, thin record — and each one is a door into that bucket's
-           full list in the issue index below.
+           full list. That list now sits behind the closed "Issues in this score"
+           control inside ⚖️ Word vs Action, so a tap here opens the control and
+           selects the bucket in one move; the full map of every issue, browsable
+           by topic or by tension, is 🌳 All Issues by Topic further down.
 
            WHY IT IS HERE AND NOT ONLY IN §1. The phone already had it: the ring
            drops to a full-width hero row and ⚖️ Word vs Action is the next screen,
@@ -4935,7 +4938,8 @@
            a member, ✒️ formal actions for an executive) and the term-scope strip,
            which is exec-only because a member's roll-call record is not
            term-scoped anywhere in this engine. The Direction Match framing, the
-           shape strip, the one-bucket-at-a-time issue index, the formal + public
+           shape strip, the one-bucket-at-a-time issue index (closed by default —
+           🌳 All Issues by Topic is the browse-all surface), the formal + public
            lanes on each row and the dossier entry from those rows are one
            renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}

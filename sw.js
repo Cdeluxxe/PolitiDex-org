@@ -53,7 +53,15 @@
 // the reason stated above: a phone holding the v58 shell is served the previous
 // profiles-full.js and stance-tree.js on a hard refresh, which looks exactly like
 // the second section never having been removed.
-const CACHE_VERSION = 'v59';
+// v60 — WORD VS ACTION FOLDS ITS APPARATUS. The score argument stays open (the
+// figure, the tally, what it measures, the term slice, the shape graph and the
+// sentence that reads it); the score's own tabbed issue index and the whole of the
+// machinery behind the number — basis table, sample rows, coverage ask, feed map,
+// method note — sit behind two closed controls, so 🌳 All Issues by Topic is the
+// next thing after the shape. Bumped because word-action.js, gaps.js and
+// word-action.css all changed together: a phone holding v59 that picks up only one
+// of the three gets a method block styled as a <details> that is no longer one.
+const CACHE_VERSION = 'v60';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

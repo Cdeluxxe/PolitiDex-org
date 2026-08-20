@@ -1078,16 +1078,19 @@ section("9 · Axis B reaches the reader — a matched action that did not surviv
   has(plain(comp), "issue", "the composition strip counts nothing");
   ok(!/%/.test(plain(comp)),
     "the composition strip prints a percentage — one score per profile, and it is above it");
-  // The tension sentence itself now renders BELOW the index rather than between
-  // the strip and the list — the strip hands straight to the bucket it opens, and
-  // its prose is read by someone who has already arrived. The claim is unchanged
-  // and still has to be on the card; only where it sits moved.
+  // The tension sentence closes the OPEN part of the card. It used to render below
+  // the index, back when the index was the open block the strip handed to; the
+  // index is behind a control now, so the note is the last thing a reader meets
+  // before the two folds and 🌳 All Issues by Topic. The claim is unchanged and
+  // still has to be on the card; only where it sits moved.
   const note = card.slice(card.indexOf('class="pdxwa-shapenote"'));
   ok(card.indexOf('class="pdxwa-shapenote"') !== -1,
     "the shape note is gone from the card — the strip's reading of the record must still\n" +
-    "    be printed somewhere, just not in the gap between the strip and its list");
-  ok(card.indexOf('class="pdxwa-shapenote"') > card.indexOf('class="pdxwa-oc"'),
-    "the shape note is back above the issue index, which is the gap this pass cleared");
+    "    be printed somewhere");
+  ok(card.indexOf('class="pdxwa-shapenote"') > card.indexOf('class="pdxwa-comp"') &&
+     card.indexOf('class="pdxwa-shapenote"') < card.indexOf('class="pdxwa-oc"'),
+    "the shape note no longer closes the open findings — it belongs between the graph it\n" +
+    "    reads and the first closed control");
   has(plain(note), "carry tension",
     "the strip does not count tension against the whole record");
 

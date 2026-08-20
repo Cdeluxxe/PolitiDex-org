@@ -160,6 +160,14 @@
   // The id-safe half of a per-issue DOM id. Kept next to esc() because both ends of
   // a cross-section jump have to sanitise identically or the link points at nothing.
   function _idPart(v) { return String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, ''); }
+  // THE TWO LID KEYS THIS SECTION OWNS, in one place, because two of them are
+  // written as a string into an HTML comment and read back as a DOM id by three
+  // different callers. `wa-index` holds the tabbed issue index; applyLids() mints
+  // its body as `pdxsp-lid-wa-index`, and revealIndex() has to name that id
+  // BEFORE the index exists on the page — a deferred body cannot be found by
+  // walking up from content that has not been mounted yet.
+  var LID_INDEX_KEY = 'wa-index';
+  var LID_INDEX_ID = 'pdxsp-lid-' + LID_INDEX_KEY;
   // The shared Mixed rule, borrowed rather than restated. Same function the issue
   // rows use, so the pooled read at the top of a profile and the per-issue rows
   // under it apply one definition of "split" — including its floor of two
@@ -878,19 +886,16 @@
       // rows saying so), but a digest of three zeroes is furniture, not a summary.
       : '';
 
-    // Numbers and ASCII only, like every other lid label in this codebase — the
-    // sentinel is parsed out of a comment by applyLids(), which escapes the label
-    // when it emits it, so pre-escaping here would double-encode.
-    var label = 'What this score is built from · ' +
-      r.coverage.tested + ' of ' + r.coverage.scorable + ' tested';
-
+    // NO LID OF ITS OWN ANY MORE. The basis used to carry a `wa-basis` sentinel and
+    // fold itself, which was right when it was one of three separate disclosures
+    // stacked between the shape graph and the tree. All three now sit inside ONE
+    // control (see apparatusHtml), and applyLids() refuses to fold any region
+    // holding another PDXSP sentinel — a nested marker here would silently unfold
+    // the whole apparatus and put the tier table back in the default read path.
+    // The tested count it used to carry in its label moved to that outer label.
     return '<div class="pdxwa-basis">' +
+        '<div class="pdxwa-basis-h">What this score is built from</div>' +
         digestHtml +
-        // defer: the three tier rows carry the longest prose on the card outside the
-        // method note, and nothing outside this block reaches into it — no ids, no
-        // canvas, no post-render registration — so it is safe to hold as a string
-        // until a reader asks for it.
-        '<!--PDXSP:lid id="wa-basis" label="' + label + '" defer-->' +
         '<ul class="pdxwa-tiers">' + TIER_ORDER.map(function (t) { return tierRowHtml(t, r.tiers[t], r); }).join('') + '</ul>' +
         '<div class="pdxwa-cov">' +
           '<span class="pdxwa-cov-n">' + r.coverage.tested + ' of ' + r.coverage.scorable + '</span> testable statement' +
@@ -904,12 +909,6 @@
             : '') +
           '.' +
         '</div>' +
-        // Closed HERE, before the coverage panel the caller appends after this
-        // block. applyLids() refuses to fold any region containing another PDXSP
-        // sentinel, and that panel is a sibling with its own control — a lid left
-        // open across it would silently render inline and look like this change
-        // never landed.
-        '<!--PDXSP:/lid-->' +
       '</div>';
   }
 
@@ -992,9 +991,14 @@
         'the whole record, not a rival to it, and the two can read differently because the whole record has ' +
         'more action behind it to test the same word against.</p>'
       : '';
+    // NOT A <details> ANY MORE. The method prose was the third of three separate
+    // disclosures a reader had to get past — or decide to ignore — before the issue
+    // tree. It is now inside the one apparatus control, and a fold inside a fold is
+    // a second tap for the reader who has already said yes once. The class name is
+    // kept because gaps.js aims its "How this is counted" row at it.
     return '' +
-      '<details class="pdxwa-method">' +
-        '<summary>How this is counted</summary>' +
+      '<div class="pdxwa-method">' +
+        '<div class="pdxwa-method-h">How this is counted</div>' +
         '<div class="pdxwa-method-body">' +
           '<p><b>Word</b> is weighted by how firmly it was said: a pledge counts ' + TIERS.pledge.weight +
             ', a stated position ' + TIERS.position.weight + ', a signature issue they campaign on ' + TIERS.branding.weight +
@@ -1025,13 +1029,13 @@
             'popular, that it achieved what it set out to, or that it is still standing today — ' +
             (ex ? 'an order can be signed exactly as promised and struck down the month after, and the direction it pointed in does not change either way. '
                 : 'a position can be backed exactly as stated and go nowhere afterwards, and the direction it pointed in does not change either way. ') +
-            (ex ? 'Where the standing of a supporting action is contested — blocked, struck down, overridden, rescinded or under an unresolved challenge — the issue row below says so beside its verdict rather than in place of it. '
+            (ex ? 'Where the standing of a supporting action is contested — blocked, struck down, overridden, rescinded or under an unresolved challenge — that issue’s row says so beside its verdict rather than in place of it, both in this score’s index and on 🌳 All Issues by Topic. '
                 : '') +
             'A record that reads as one long agreement is a fact about the record, not a grade for it: the ' +
-            'issue-by-issue composition above the rows is there so the shape behind the average is visible.</p>' +
+            'issue-by-issue composition under the score is there so the shape behind the average is visible.</p>' +
           scopeP +
         '</div>' +
-      '</details>';
+      '</div>';
   }
 
   // ── WHAT WE DO NOT HAVE YET ────────────────────────────────────────────────
@@ -1048,6 +1052,77 @@
       }
     } catch (e) {}
     return '';
+  }
+
+  // ── ONE CONTROL FOR THE WHOLE APPARATUS ────────────────────────────────────
+  // ⚖️ Word vs Action is the last thing between a reader and 🌳 All Issues by
+  // Topic, and on a dense profile most of its height was never the score: it was
+  // the machinery behind the score. The basis table, the sharpest-first sample
+  // rows, the coverage ask, the feed map and the method essay are all real and all
+  // stay — but they answer questions a reader asks AFTER the figure, not before
+  // the issue list, and each of them used to arrive as its own disclosure. Three
+  // separate folds stacked in a row read as a wall whether or not any of them is
+  // open.
+  //
+  // So they collapse into ONE lid. What is above it is the score argument — the
+  // figure, the tally, what it measures, the term slice, the shape graph and the
+  // sentence that explains the shape. What is below it is the tree.
+  //
+  // NOT DEFERRED, deliberately, and this is the one place the cost is worth
+  // naming. A deferred lid unmounts its body, and three things inside this one
+  // need to exist as DOM from first paint: gaps.js hydrates its lead rows and
+  // hands its own rows to the thread observer on render, its "How this is counted"
+  // row resolves .pdxwa-method by query, and the feed rows are jump targets. The
+  // index above it IS deferred, because it is 80% of the section's markup and
+  // nothing reaches into it except a bucket tap that can mount it first.
+  function apparatusHtml(pid, p, r) {
+    try {
+      var inner = basisHtml(r) + topRowsHtml(pid) + gapsHtml(pid, p, r) +
+                  feedsHtml(pid, p, r) + methodHtml(r, pid);
+      if (!inner) return '';
+      // Numbers and ASCII only: the sentinel is parsed out of an HTML comment by
+      // applyLids(), which escapes the label when it emits it. The tested count is
+      // the one the basis lid used to carry in its own label — it is the honest
+      // promise of what opening this shows, and it is the reason the control is
+      // worth a tap.
+      var label = 'How this score is built · basis, method and sources · ' +
+        r.coverage.tested + ' of ' + r.coverage.scorable + ' tested';
+      return '<div class="pdxwa-how">' +
+          '<!--PDXSP:lid id="wa-how" label="' + label + '"-->' + inner + '<!--PDXSP:/lid-->' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  // ── THE SCORE'S OWN INDEX, BEHIND ONE CONTROL ──────────────────────────────
+  // The tabbed index below used to be the largest single thing on a profile — on a
+  // dense record it is four fifths of this section's markup — and it browses the
+  // same person × issue population the tree browses one section later. Two open
+  // full issue browsers, one above the other, is the duplication this pass removes:
+  // the tree owns browse-all, and the label on this control says so.
+  //
+  // It is DEMOTED, NOT DELETED, because it answers a question the tree does not:
+  // "which issues produced this number, sorted by what the record did to them."
+  // The shape graph and the letterhead tally above are navigators INTO it, and
+  // those still work — see revealIndex(), which mounts and opens this fold before
+  // it selects a bucket.
+  //
+  // Deferred: nothing outside reaches in by id except that bucket tap, and holding
+  // it as a string is the difference between a hundred thousand characters of DOM
+  // before the tree and twenty.
+  function indexLidHtml(pid) {
+    try {
+      var oc = outcomesHtml(pid);
+      if (!oc) return '';
+      var b = outcomeBuckets(pid);
+      var n = (b && b.total) || 0;
+      var label = 'Issues in this score · ' + n + ' issue' + (n === 1 ? '' : 's') +
+        ' by result — the full map is All Issues by Topic, below';
+      return '<div class="pdxwa-idxlid">' +
+          '<!--PDXSP:lid id="' + LID_INDEX_KEY + '" label="' + label + '" defer-->' +
+          oc +
+          '<!--PDXSP:/lid-->' +
+        '</div>';
+    } catch (e) { return ''; }
   }
 
   // ── WHAT FEEDS THIS SCORE ──────────────────────────────────────────────────
@@ -1144,18 +1219,17 @@
       } catch (e) {}
       return '' +
         '<div class="pdxwa-feeds">' +
-          // The lid label IS the heading this panel used to print, so folding it costs
-          // no wording. What it does cost is a tap, and that is the right trade: the
-          // rows are a map of the profile, not the verdict, and the verdict has to be
-          // the first thing a reader meets. Every row here is also reachable from the
-          // jump rail, so nothing about the proof path depends on opening this.
-          '<!--PDXSP:lid id="wa-feeds" label="What feeds this score" defer-->' +
+          // NO LID OF ITS OWN ANY MORE. This panel used to fold behind a `wa-feeds`
+          // sentinel whose label was its heading. It now sits inside the one
+          // apparatus control with the basis and the method, so the heading comes
+          // back as a heading — and the sentinel has to go, because applyLids()
+          // leaves any region holding a nested PDXSP marker fully open.
+          '<h4 class="pdxwa-feeds-h">What feeds this score</h4>' +
           '<ul class="pdxwa-feeds-l">' + rows.map(feedRowHtml).join('') + '</ul>' +
           '<p class="pdxwa-feeds-foot">One score, several layers of evidence. The solid rows are what the ' +
             'percentage is made of; the faded ones are the receipt and context layers that document it and ' +
             'change no number. Each section below shows its own working — counts, verdicts and sources — and ' +
             'this is the only place any of it is pooled into a percentage.</p>' +
-          '<!--PDXSP:/lid-->' +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -1778,9 +1852,13 @@
       // count of "issues with something wrong".
       var notes = [];
       if (b.tension) {
+        // "the rows below" used to mean the index directly under this paragraph.
+        // The index is behind a control now and the full issue list is the tree in
+        // the next section, so the sentence names where tension-first actually
+        // lives: the tree's own Tension order.
         notes.push(b.tension + ' of these ' + b.total + ' issue' + (b.total === 1 ? '' : 's') +
           ' carr' + (b.tension === 1 ? 'ies' : 'y') + ' tension — a contradiction, a mixed result, or an action whose standing is contested. ' +
-          'Tension leads the rows below, ahead of the agreement.');
+          'Tension leads every list that prints these issues, and 🌳 All Issues by Topic below can be ordered that way in one tap.');
       } else {
         notes.push('No contradictions, no mixed results and no contested standings on the tested issues. That is what the record shows, not a verdict on it.');
       }
@@ -2377,6 +2455,13 @@
         ((buckets.limited || []).length
           ? ', ' + buckets.limited.length + ' stated but not testable yet' : '') +
         '. Tap any issue for its full record.';
+      // WHICH SURFACE IS THE MAP. This index is the score's own working — the same
+      // issues, filed by what the record did to them. The browse-all surface is the
+      // tree one section down, and saying so here is the difference between a
+      // demoted index and a second, competing one.
+      var mapFoot = '<p class="pdxwa-oc-map">' + esc('This is the score\u2019s own index, filed by result. ' +
+        '\ud83c\udf33 All Issues by Topic below is the full map of what they stand for \u2014 every issue, ' +
+        'grouped by topic or ordered by tension, with the same door into each record.') + '</p>';
       // THE OUTSIDE-THE-SCORE LANE'S DENOMINATOR, once, in words. The rows say what
       // is on file per issue; this says how much of the index the reported record
       // reaches at all, which is the question a reader who has just skimmed twelve
@@ -2427,6 +2512,7 @@
             '</button>' +
           '</div>' +
           '<p class="pdxwa-oc-foot">' + esc(foot) + '</p>' +
+          mapFoot +
           pubFoot +
         '</div>';
     } catch (e) { return ''; }
@@ -2520,6 +2606,39 @@
   // bound to the block would be a listener on a node that no longer exists, and
   // per-render binding on a surface that repaints is how duplicate handlers
   // accumulate. Delegation costs one listener and survives every repaint.
+  // ── MOUNTING AND OPENING THE INDEX A COUNT POINTS AT ───────────────────────
+  // The tally and the shape strip are navigators into the index, and the index is
+  // now behind a closed, deferred lid. So a tap on a count has three things to do
+  // before it can select anything: mount the stashed body, open the fold, and only
+  // then move the selection — a panel that is not on the page cannot be selected,
+  // and a selection inside a shut box cannot be seen.
+  //
+  // toggleDD() already does the first two together (it calls
+  // PDXProfileSpine.materialize before it flips the open class, and it corrects the
+  // scroll position so the control the reader aimed at stays put), which is why
+  // this reaches for the lid BY ID rather than walking up from the index: while the
+  // body is still a string there is nothing to walk up from.
+  //
+  // Fails open in both directions that matter. No lid on the page — applyLids never
+  // ran, or the payload was too small to fold — means the index is already inline
+  // and there is nothing to open. An already-open lid is left alone rather than
+  // toggled shut under a reader who is aiming at a bucket inside it.
+  function revealIndex(uid) {
+    try {
+      if (typeof document === 'undefined' || !document.getElementById) return;
+      var lid = document.getElementById(LID_INDEX_ID);
+      if (lid) {
+        var shut = !(lid.classList && lid.classList.contains('dd-open'));
+        if (shut && typeof window.toggleDD === 'function') { window.toggleDD(LID_INDEX_ID); return; }
+      }
+      // No lid, or a lid already open whose body is somehow still stashed: ask the
+      // spine directly for whatever drawer holds this id.
+      if (!document.getElementById(uid) && typeof window._pdxRevealTarget === 'function') {
+        window._pdxRevealTarget(uid);
+      }
+    } catch (e) {}
+  }
+
   var _ocArmed = false;
   function armIndex() {
     try {
@@ -2554,6 +2673,14 @@
           // root is then widened to the section wrapper, so one tap in the
           // letterhead still moves the strip, the bar, the in-card tally, the chips
           // and the panel in one pass, exactly as a tap inside the section does.
+          // A GATED CONTROL IS A CONTROL OUTSIDE THE FOLD. `gate` is set on exactly
+          // the copies that sit above the index — the strip's counts and bar
+          // segments, and the letterhead tally — so it is also the exact signal
+          // that the index may still be shut or stashed. Chips inside the index
+          // carry no gate and need no reveal: they are only reachable once it is
+          // open. Done before the root lookup, because the root of a control in the
+          // letterhead is resolved DOWN from the index's id.
+          if (gate) revealIndex(uid);
           if (!root && uid) {
             try {
               var live = document.getElementById(uid);
@@ -2805,37 +2932,21 @@
         // from a record that agrees with itself everywhere or one pulling apart,
         // and the composition strip is the cheapest place to make that visible.
         //
-        // IT HANDS STRAIGHT TO THE LIST IT OPENS. Nothing renders between these two
-        // blocks. The strip is a navigator — every count and every bar segment
-        // selects a bucket in the index directly below — and a navigator with two
-        // panels of prose under it is a navigator whose destination is off-screen on
-        // a phone at the moment it is tapped. The basis table and the three sharpest
-        // rows used to sit in this gap; both now follow the index (see below), which
-        // is where a reader who has already picked a bucket wants them. The strip's
-        // own closing prose went the same way — see shapeNotesHtml, which is the
-        // FIRST thing after the list rather than the last thing before it.
+        // IT HANDS STRAIGHT TO THE SENTENCE THAT READS IT. The strip is still a
+        // navigator — every count and every bar segment selects a bucket in the
+        // index — but the index is behind one control now, so what follows the strip
+        // is the one short paragraph that says what the shape means, and then the
+        // section stops.
         compositionHtml(pid) +
-        outcomesHtml(pid) +
         shapeNotesHtml(pid) +
-        // THE SUPPORTING READS, UNDER THE THING THEY SUPPORT. `basisHtml` is the
-        // count and table behind the percentage; `topRowsHtml` is the three sharpest
-        // rows. Both are still here in full and neither changed — they moved below
-        // the index rather than above it, because both answer questions a reader asks
-        // AFTER the shape and the issues, and on a phone each one was a screen
-        // between the strip and the list it controls. The three rows are also, by
-        // construction, rows the index lists again; leading with them meant meeting
-        // the same issues twice before reaching the navigator.
-        basisHtml(r) +
-        topRowsHtml(pid) +
-        // What we do NOT have yet, named out loud. It used to sit directly under the
-        // digest, which put a second block of coverage furniture in front of the
-        // first issue row — the exact thing the trim was supposed to remove. It is
-        // still said in full, one screen lower, where a reader who has taken the
-        // read is ready to ask what is missing from it. Guarded: no gaps module, or
-        // a well-documented record, means no extra furniture at all.
-        gapsHtml(pid, p, r) +
-        feedsHtml(pid, p, r) +
-        methodHtml(r, pid);
+        // ─────────────────────────────────────────────────────────────────────
+        // EVERYTHING BELOW THIS LINE IS CLOSED BY DEFAULT. Two controls, in the
+        // order a reader asks for them: which issues made this number, and how the
+        // number is built. Nothing else renders between the shape above and 🌳 All
+        // Issues by Topic in the next section — which is the whole point of the
+        // pass. The blocks themselves are unchanged and none of them lost a word.
+        indexLidHtml(pid) +
+        apparatusHtml(pid, p, r);
 
       return '' +
         '<span id="pdxsec-wordaction" class="pdx-nav-anchor" aria-hidden="true"></span>' +
@@ -2902,18 +3013,27 @@
           wasFlat = !!(liveOc && liveOc.classList && liveOc.classList.contains('is-flat'));
         } catch (e5) {}
         liveBody.innerHTML = freshBody.innerHTML;
-        try {
-          if (wasBucket) selectBucket(liveBody, ocUid(pid), wasBucket);
-          if (wasFlat) {
-            var newOc = liveBody.querySelector('.pdxwa-oc');
-            if (newOc && newOc.classList) newOc.classList.add('is-flat');
-            var allBtn = liveBody.querySelector('[data-pdxwa-oc-all]');
-            if (allBtn) allBtn.setAttribute('aria-pressed', 'true');
-          }
-        } catch (e6) {}
+        // THE FOLDS COME BACK BEFORE THE SELECTION DOES. The index lives inside a
+        // deferred lid now, so a reader who had opened it and picked a bucket is
+        // looking at panels that this innerHTML swap just re-stashed as a string.
+        // Restoring the bucket first would run selectBucket against a body with no
+        // panels in it, find nothing, and silently drop them back on the default —
+        // so the reopen runs first and the selection is put back after it, in the
+        // same tick, against whatever is actually mounted.
+        var restoreSel = function () {
+          try {
+            if (wasBucket) selectBucket(liveBody, ocUid(pid), wasBucket);
+            if (wasFlat) {
+              var newOc = liveBody.querySelector('.pdxwa-oc');
+              if (newOc && newOc.classList) newOc.classList.add('is-flat');
+              var allBtn = liveBody.querySelector('[data-pdxwa-oc-all]');
+              if (allBtn) allBtn.setAttribute('aria-pressed', 'true');
+            }
+          } catch (e6) {}
+        };
         setTimeout(function () {
           try {
-            if (typeof window._pdxRestoreDD === 'function') { window._pdxRestoreDD(liveBody); return; }
+            if (typeof window._pdxRestoreDD === 'function') { window._pdxRestoreDD(liveBody); restoreSel(); return; }
           } catch (e4) {}
           wasOpen.forEach(function (id) {
             try {
@@ -2921,6 +3041,7 @@
               if (b && !b.classList.contains('dd-open') && typeof window.toggleDD === 'function') window.toggleDD(id);
             } catch (e3) {}
           });
+          restoreSel();
         }, 0);
       } catch (e) {}
     };
