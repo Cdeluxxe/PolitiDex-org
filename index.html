@@ -20326,11 +20326,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        PDX_ELECTION_DATA, PDXImpact and PDXStore (all defined earlier) for a
        private, opt-in contact + deadline-reminder layer. -->
   <script defer src="ballot-actions.js"></script>
-  <!-- Ballot Axes — the shared two-axis elections read (🔐 election security ·
-       📩 ballot access). `defer` places it after the data + engine layer, so
-       window._resolveStanceList and ISSUE_MAP exist by the time a profile opens
-       or the Stance Library mounts. Owns no data — pure read-only lens. -->
-  <script defer src="ballot-axes.js"></script>
   <!-- Stance Library — issue-first browse view. `defer` places it after the
        data + engine layer (politician-stances-core/ext.js, alignment-tool.js) and the
        inline PDXStance/PDXForum modules have all run, so every global it lenses
@@ -20377,6 +20372,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        percentage, and has no write path into a position map or into Direction
        Match — see the five walls at the top of the file. -->
   <script defer src="stance-tree.js"></script>
+  <!-- Ballot Axes — the multi-issue reading block (🧩 one measure, several
+       issues) and the shared two-axis elections lens under it (🔐 election
+       security · 📩 ballot access). `defer` places it after the data + engine
+       layer AND after stance-tree.js, whose leaf model supplies both columns'
+       Said / 🏛 Record slots; PDXConsistency.openGap is the one door it offers.
+       Owns no data — pure read-only lens. -->
+  <script defer src="ballot-axes.js"></script>
   <script defer src="receipt-cards.js"></script>
   <!-- Claim check (window.PDXClaimCheck) — the paste-a-claim adapter. It owns no
        verdict logic and no renderer of its own: it POSTs a pasted claim to

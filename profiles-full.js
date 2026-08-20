@@ -5006,6 +5006,23 @@
         ? (function(){ try { return window.PDXStanceTree.sectionHtml(id); } catch(e){ return ''; } })()
         : ''}
 
+      <!-- 🧩 MULTI-ISSUE READING — the splitting lesson, with one worked pair.
+           IT SITS DIRECTLY UNDER THE TREE ON PURPOSE. The tree is where a reader
+           browses issue by issue; this is the one place that says WHY two rows in
+           it can come from the same bill and still be read in opposite directions.
+           Concept first (one instrument, several issues, each direction its own —
+           copy that names no topic), then this person's status on the declared
+           pair, then two compact columns whose only control is the door into the
+           issue's existing dossier — the same PDXConsistency.openGap sheet a tree
+           leaf opens. No stance prose, no second report surface, no percentage
+           except the per-issue one Direction Match already resolved.
+           Rendered by ballot-axes.js. Visible only where BOTH halves of a pair are
+           on this profile's browse set; the host stays hidden and empty otherwise
+           so the post-paint record lane can fill it. -->
+      ${(window.PDXBallotAxes && typeof window.PDXBallotAxes.profileHtml === 'function')
+        ? (function(){ try { return window.PDXBallotAxes.profileHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
       <!-- CONNECTING THE DOTS IS UNMOUNTED. It rendered a full-width card here —
            the eyebrow "Connecting the Dots", the title "Where <name>'s word met
            their record", a four-line summary paragraph ("Every row below follows
@@ -5246,18 +5263,6 @@
            same way Connecting the Dots was; only the mount is gone, and the
            #pdxsec-glance nav anchor now rides on the tree so every existing jump
            into "their stated positions" still lands on the surface holding them. -->
-
-      <!-- Elections — Two Axes. 🔐 election security and 📩 ballot access are
-           separate ISSUE_MAP keys scored in their own directions, so a member can
-           back tighter safeguards AND narrower access (or the reverse) without
-           contradicting themselves. This puts both sourced positions side by side
-           and names the relation — split / same direction / one axis on record —
-           right above the per-issue stance cards, where a reader would otherwise
-           meet the two halves pages apart. Rendered by ballot-axes.js; self-gates
-           to '' for anyone with no documented position on either axis. -->
-      ${(window.PDXBallotAxes && typeof window.PDXBallotAxes.profileHtml === 'function')
-        ? (function(){ try { return window.PDXBallotAxes.profileHtml(id, p); } catch(e){ return ''; } })()
-        : ''}
 
       <!--PDXSP:dw:positions-->
       <!-- Key Issue Stances — every documented position with its own evidence. The
