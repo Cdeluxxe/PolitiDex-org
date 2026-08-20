@@ -76,6 +76,28 @@
         record the engine will not characterise is still not given a direction: it
         prints the inventory it holds and the reason no direction is claimed.
 
+   ─────────────────────────────────────────────────────────────────────────────
+   THIS SURFACE IS A GATEWAY, NOT A SECOND REPORT. Three steps, and the language
+   gets more precise at every one of them:
+
+     1 · BROAD TOPIC (a closed branch face). Direct language and numbers only —
+         the topic's own name, how many issues are filed under it, and the state
+         of those issues in the bands' own words, worst first. "Economy,
+         Inflation & Cost of Living · 9 issues · 4 mixed". No per-issue prose
+         belongs on a closed face; a reader at this level is choosing a topic.
+     2 · SUB-TOPICS (the leaves inside an open branch). The precise issue name and
+         a denser summary of it: what they SAID, what the formal RECORD did, the
+         depth behind that read, the early-signal horizon when the depth is one,
+         Direction Match's own % where that issue was scored, and the alignment
+         cue. Enough to decide WHICH ONE TO OPEN, and deliberately not more.
+     3 · THE DOSSIER (a tap on a leaf). The existing issue dossier for this
+         politician × this issue — the full deep dive, unchanged, opened through
+         the same public entry every other surface opens it through.
+
+   THERE IS NO FOURTH SURFACE. This module renders no report of its own, opens no
+   view of its own and navigates to no route: the deepest thing it can do is hand
+   a pid and an issue key to the dossier that already exists.
+
    NO PARTY FRAMING. Party is not read, not mapped and not mentioned; the only
    grouping axis is the issue taxonomy the site already ships.
 
@@ -925,6 +947,166 @@
     return out;
   }
 
+  // ── OPENING A BRANCH MUST NOT MOVE IT OFF THE SCREEN ──────────────────────
+  // The one-branch-at-a-time rule has a cost nobody sees on a desktop: opening
+  // branch seven CLOSES branch one, the document above the reader's thumb gets
+  // shorter by the height of that panel, and the branch they just tapped travels
+  // upward out of the viewport. The tap worked; the tree looks like it ignored it.
+  // On a phone, where the panel that closed is routinely taller than the screen,
+  // that is indistinguishable from a dead control — which is the "expand does
+  // nothing" report this pass exists to answer.
+  //
+  // So a toggle does two things after it writes the open state, in this order:
+  //
+  //   1 · PIN. The face a reader tapped stays under the thumb that tapped it. The
+  //       branch's own top edge is measured before the write and again after, and
+  //       the scroll container is moved by exactly the drift. Nothing "animates"
+  //       here — this is the correction that makes the layout hold still.
+  //   2 · REVEAL. Only then, if the branch sits under the sticky rail or its panel
+  //       runs past the bottom of the scrolling box, it is brought into the visible
+  //       band — never so far that the face it belongs to is pushed out of sight.
+  //
+  // Step 2 is a pure function of five numbers (revealDelta) so the rule is testable
+  // without a browser, the same way the open/close rule is. It moves a scroll
+  // position and nothing else: no row, no count, no record read and no score.
+  var REVEAL = { pad: 8, navId: 'pdx-profile-nav' };
+  function num(v) { return (typeof v === 'number' && isFinite(v)) ? v : null; }
+  function revealDelta(m) {
+    m = m || {};
+    var faceTop = num(m.faceTop), faceBottom = num(m.faceBottom);
+    var panelBottom = num(m.panelBottom);
+    var viewTop = num(m.viewTop), viewBottom = num(m.viewBottom);
+    if (faceTop === null || viewTop === null || viewBottom === null) return 0;
+    if (faceBottom === null) faceBottom = faceTop;
+    if (panelBottom === null) panelBottom = faceBottom;
+    var band = viewBottom - viewTop;
+    if (band <= 0) return 0;
+    // Above the band, or hidden under the sticky rail: bring the face down to the
+    // top of the band. This is the only case that scrolls the reader backwards.
+    if (faceTop < viewTop + REVEAL.pad) return Math.round(faceTop - viewTop - REVEAL.pad);
+    // Below it: show the face and as much of its panel as the band can hold, and
+    // stop at the point where the face itself would leave the top of the band. A
+    // panel taller than the screen is read by scrolling, not by being jumped past.
+    var wantBottom = Math.min(panelBottom + REVEAL.pad, faceTop + band);
+    var need = Math.max(0, wantBottom - viewBottom);
+    if (need <= 0) return 0;
+    return Math.round(Math.min(need, faceTop - viewTop - REVEAL.pad));
+  }
+  // The scrolling box the tree is actually inside — the profile modal's body on
+  // every surface that mounts this today. Null means the document scrolls.
+  function scrollBox(el) {
+    var n = el && el.parentNode;
+    while (n && n.nodeType === 1) {
+      var ov = '';
+      try { ov = String((window.getComputedStyle(n) || {}).overflowY || ''); } catch (e) { ov = ''; }
+      if ((ov === 'auto' || ov === 'scroll') &&
+          (n.scrollHeight || 0) > (n.clientHeight || 0) + 1) return n;
+      n = n.parentNode;
+    }
+    return null;
+  }
+  // The band a reader can actually see inside that box: its own edges, less the
+  // sticky jump rail that floats over the top of it. The modal's footer deck is a
+  // FLEX SIBLING of the scrolling body rather than an overlay, so the box's own
+  // bottom edge is already clear of it.
+  function viewBand(box) {
+    var top, bottom;
+    if (box && box.getBoundingClientRect) {
+      var r = box.getBoundingClientRect();
+      top = r.top; bottom = r.bottom;
+    } else {
+      top = 0;
+      bottom = num(window.innerHeight);
+      if (bottom === null) return null;
+    }
+    try {
+      var nav = document.getElementById(REVEAL.navId);
+      if (nav && nav.offsetHeight) top += nav.offsetHeight;
+    } catch (e) {}
+    if (num(top) === null || num(bottom) === null) return null;
+    return { top: top, bottom: bottom };
+  }
+  function scrollByPx(box, d, smooth) {
+    if (!d) return 0;
+    try {
+      if (box) {
+        if (smooth && box.scrollTo) box.scrollTo({ top: Math.max(0, (box.scrollTop || 0) + d), behavior: 'smooth' });
+        else box.scrollTop = Math.max(0, (box.scrollTop || 0) + d);
+      } else if (window.scrollBy) {
+        window.scrollBy(smooth ? { top: d, behavior: 'smooth' } : 0, smooth ? undefined : d);
+      }
+    } catch (e) { return 0; }
+    return d;
+  }
+  function rectOf(el) {
+    try { return (el && el.getBoundingClientRect) ? el.getBoundingClientRect() : null; } catch (e) { return null; }
+  }
+  // Called with the branch's top edge as it was BEFORE the open state was written.
+  // Fails silently on any surface that cannot measure — a tree in a sandbox, a
+  // print stylesheet — because a scroll position is the only thing at stake.
+  function revealBranch(branch, wasTop) {
+    if (!branch) return 0;
+    var box = scrollBox(branch);
+    var moved = 0;
+    var r = rectOf(branch);
+    if (r && num(wasTop) !== null && num(r.top) !== null) {
+      moved += scrollByPx(box, Math.round(r.top - wasTop), false);
+    }
+    var face = branch.querySelector ? branch.querySelector('[data-pdxtree-toggle]') : null;
+    var panel = branch.querySelector ? branch.querySelector('.pdxtree-panel') : null;
+    var fr = rectOf(face) || rectOf(branch);
+    var open = branch.getAttribute && branch.getAttribute('data-pdxtree-open') === '1';
+    var pr = (open && panel) ? rectOf(panel) : null;
+    var band = viewBand(box);
+    if (!fr || !band) return moved;
+    moved += scrollByPx(box, revealDelta({
+      faceTop: fr.top, faceBottom: fr.bottom,
+      panelBottom: pr ? pr.bottom : fr.bottom,
+      viewTop: band.top, viewBottom: band.bottom
+    }), true);
+    return moved;
+  }
+
+  // ── A DOOR THAT CANNOT OPEN SAYS SO ───────────────────────────────────────
+  // The dossier assembles itself from the shared engines and it is allowed to be
+  // unavailable — the module that owns it may not have loaded, or the sheet may
+  // refuse to mount. What is NOT allowed is silence. A leaf that eats the tap
+  // teaches a reader that the issue behind it holds nothing, and the row directly
+  // above it just told them it holds a formal record; so the failure is printed on
+  // the row itself, in a live region, and the row keeps working the moment the
+  // dossier can. Nothing here writes to a record, a count or a score.
+  var DOOR_FAIL = 'The full report for this issue could not open just now. ' +
+    'Nothing on this row has changed — reload the profile and tap again.';
+  function leafOfEl(el) {
+    try { return (el && el.closest) ? el.closest('.pdxtree-leaf') : null; } catch (e) { return null; }
+  }
+  function doorFailed(btn) {
+    var leaf = leafOfEl(btn);
+    if (!leaf) return false;
+    try {
+      leaf.setAttribute('data-pdxtree-failed', '1');
+      var note = leaf.querySelector('.pdxtree-fail');
+      if (!note) {
+        note = document.createElement('p');
+        note.className = 'pdxtree-fail';
+        note.setAttribute('role', 'status');
+        leaf.appendChild(note);
+      }
+      note.textContent = DOOR_FAIL;
+    } catch (e) { return false; }
+    return true;
+  }
+  function clearDoorFail(btn) {
+    var leaf = leafOfEl(btn);
+    if (!leaf || leaf.getAttribute('data-pdxtree-failed') !== '1') return false;
+    try {
+      leaf.removeAttribute('data-pdxtree-failed');
+      var note = leaf.querySelector('.pdxtree-fail');
+      if (note && note.parentNode) note.parentNode.removeChild(note);
+    } catch (e) { return false; }
+    return true;
+  }
+
   var _bound = false;
   function bindOnce() {
     if (_bound || !document.addEventListener) return;
@@ -938,7 +1120,18 @@
       // the DOM: the tally, the branch counts, the summaries, the mode and the
       // default-open branch therefore all describe the set that is on screen,
       // and no leaf is ever left saying something that was true of another view.
-      var fc = e.target.closest('[data-pdxtree-filter]');
+      //
+      // THE CHIP IS A BUTTON, AND THE SELECTOR SAYS SO. The tree's own root
+      // element carries data-pdxtree-filter too — that is where the ACTIVE VIEW
+      // is recorded, and it is what the re-render reads back. So an unqualified
+      // closest('[data-pdxtree-filter]') walking up from a branch face finds the
+      // ROOT, and every tap anywhere inside the tree — every expand, every leaf —
+      // was answered by re-rendering the tree in the view it was already in. The
+      // branch a reader opened came back closed, the dossier never opened, and
+      // the whole surface read as dead on a phone. A chip is a button; the state
+      // on the root is not. Qualifying the selector is the whole fix, and it is
+      // why the toggle and the door below can be reached at all.
+      var fc = e.target.closest('button[data-pdxtree-filter]');
       if (fc) {
         var froot = fc.closest('.pdxtree');
         if (!froot) return;
@@ -968,12 +1161,19 @@
         return;
       }
 
-      // The branch toggle.
+      // The branch toggle. STEP ONE OF THE FUNNEL: the topic row is a real control
+      // whose only job is to reveal the issues filed under it. It opens nothing
+      // else, navigates nowhere, and states nothing a closed face did not.
       var tg = e.target.closest('[data-pdxtree-toggle]');
       if (tg) {
         var tree = tg.closest('.pdxtree');
         if (!tree) return;
         var key = tg.getAttribute('data-pdxtree-toggle') || '';
+        var self = tg.closest('[data-pdxtree-branch]');
+        // Where the branch sits right now, before anything above it can collapse.
+        var wasTop = null;
+        var pre = rectOf(self);
+        if (pre && num(pre.top) !== null) wasTop = pre.top;
         // Read the current state off the DOM, ask the rule, write the answer back.
         // The phone test is made HERE rather than at mount, so a rotation or a
         // window resize changes the behaviour without needing a repaint.
@@ -982,28 +1182,38 @@
         for (var i = 0; i < sibs.length; i++) {
           setOpen(sibs[i], want.indexOf(sibs[i].getAttribute('data-pdxtree-branch')) !== -1);
         }
+        // …and put it back under the thumb that tapped it, then into view. See
+        // revealBranch: this moves a scroll position and nothing else.
+        try { revealBranch(self, wasTop); } catch (e3) {}
         e.preventDefault();
         return;
       }
 
       // ── THE LEAF IS THE DOOR ────────────────────────────────────────────
-      // One door, one dossier: this routes to PDXConsistency.openGap — the same
-      // public entry the stance rows, the Official Record rows and the formal-
-      // pattern index all use — so the dossier a leaf opens is the dossier that
-      // issue already had. There is no second dossier, no tree-only detail view
-      // and no second landing vocabulary. `origin` is the leaf's own id so the
-      // dossier's back pill returns the reader to the row they tapped.
+      // STEP THREE OF THE FUNNEL, and the last one: a leaf's primary tap opens the
+      // ISSUE DOSSIER, through PDXConsistency.openGap — the same public entry the
+      // stance rows, the Official Record rows and the formal-pattern index all use,
+      // so the deep dive a leaf reaches is the deep dive that issue already had. There is no second dossier, no
+      // tree-only report surface and no new route: this module navigates nowhere.
+      // A leaf carries exactly one control, so nothing on it can steal that tap.
+      // `origin` is the leaf's own id, which is how closing the dossier returns the
+      // reader to the leaf they opened it from rather than the top of the profile.
       var dos = e.target.closest('[data-pdxtree-dos]');
       if (dos) {
         var CS = window.PDXConsistency;
-        if (!CS || typeof CS.openGap !== 'function') return;
-        var res;
+        var opened = false;
         try {
-          res = CS.openGap(dos.getAttribute('data-pdxtree-pid') || '',
-                           dos.getAttribute('data-pdxtree-dos') || '',
-                           { arrival: false, origin: dos.getAttribute('data-pdxtree-origin') || '' });
-        } catch (e2) { res = false; }
-        if (res !== false) e.preventDefault();
+          opened = !!(CS && typeof CS.openGap === 'function') &&
+            CS.openGap(dos.getAttribute('data-pdxtree-pid') || '',
+                       dos.getAttribute('data-pdxtree-dos') || '',
+                       { arrival: false, origin: dos.getAttribute('data-pdxtree-origin') || '' }) !== false;
+        } catch (e2) { opened = false; }
+        // FAIL CLOSED, OUT LOUD. A door that swallows the tap and shows nothing is
+        // the worst outcome available here: the reader is left believing the issue
+        // has no report behind it, which is false. So the tap is always consumed and
+        // the row says what happened, in place, where the thumb already is.
+        e.preventDefault();
+        if (opened) clearDoorFail(dos); else doorFailed(dos);
       }
     }, false);
   }
@@ -1073,6 +1283,15 @@
     // The open/close rule, exposed so the mobile behaviour is asserted as a rule
     // rather than inferred from the markup.
     nextOpen: nextOpen,
+    // The second half of a toggle, and the reason an expand on a phone is visible:
+    // where the scroll container has to move so the branch a reader opened is the
+    // branch they can see. A pure function of five measurements, exposed for the
+    // same reason nextOpen is — it is a rule, not an accident of a layout.
+    REVEAL: REVEAL,
+    revealDelta: revealDelta,
+    // What a leaf says when the dossier will not open. There is no state in which
+    // the door is silent; see doorFailed.
+    DOOR_FAIL: DOOR_FAIL,
     // The data layer: one leaf, all leaves, the mid gate, the branches, the count.
     leaf: function (pid, issueKey) {
       var CS = window.PDXConsistency;
