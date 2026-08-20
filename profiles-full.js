@@ -1035,12 +1035,16 @@
           : ((_lrSpot.total > 1) ? (_lrSpot.total + ' updates') : 'Latest update');
         _lrChips.push('<span class="lr-chip lr-chip-spot"><span class="lr-chip-ico" aria-hidden="true">🔦</span>' + _lrSpotV + '</span>');
       }
-      // Honest pointer — to the shared index when the limited-record card is on this
-      // profile (the card sits under it), otherwise to the sections that ARE here, so
-      // the cross-reference is always real. It named "the Candidate Snapshot at the
-      // top" until that card was renamed and moved below ⚖️ Word vs Action.
+      // Honest pointer — to the browse gateway when the limited-record card is on
+      // this profile (the card now sits directly under the tree, at the foot of the
+      // verdict stage), otherwise to the sections that ARE here, so the
+      // cross-reference is always real. It named "the Candidate Snapshot at the
+      // top" until that card was renamed and moved below ⚖️ Word vs Action, and
+      // then named ⚖️ Word vs Action's own issue index — which is gated on a
+      // two-issue floor and does not draw at all on the profiles this panel
+      // describes. It names the one surface that is always there instead.
       var _lrRef = _lrSnap
-        ? ' <strong style="color:#d8b4fe;">⚖️ Word vs Action</strong> above indexes them by outcome, and the card under it explains why the record is still thin.'
+        ? ' <strong style="color:#d8b4fe;">🌳 All Issues by Topic</strong> above groups them by topic, and the card under it explains why the record is still thin.'
         : (' Your <strong style="color:#a78bfa;">How You Compare</strong> match' +
             (_lrSpot ? ' and the <strong style="color:#f5c842;">Spotlight</strong> are' : ' is') + ' on this profile too.');
       _limitedBanner =
@@ -2805,10 +2809,24 @@
   //
   // Those four halves are retired here rather than restyled: the shared shell
   // renders them for members exactly as it does for executives. What survives is
-  // the half the shell has no way to produce. The card is also DEMOTED — it
-  // mounts under ⚖️ Word vs Action now, in the verdict stage, so the reading
-  // order on a thin member is the same as on Trump: identity, then Direction
-  // Match, then the shape, then the issues, then the context for the gap.
+  // the half the shell has no way to produce.
+  //
+  // THE CARD IS DEMOTED TWICE. First under ⚖️ Word vs Action; now under 🌳 All
+  // Issues by Topic as well, at the foot of the verdict stage. The first demotion
+  // stopped it from answering the score's question before the score did. The
+  // second stopped it from standing between a reader and the browse gateway —
+  // and this card fires ONLY on the profiles where that gateway is the whole of
+  // the substance, so it was delaying the tree on exactly the profiles that had
+  // nothing else to offer. The reading order on a thin member is now the reading
+  // order on Trump: identity, Direction Match, the issues by topic, and then —
+  // where there is a gap to explain — the context for the gap.
+  //
+  // WHAT IT CARRIES IS ONLY WHAT NOTHING ELSE CAN. Four blocks, not eight: why
+  // the record is thin, where the positions are browsed, what the alignment match
+  // actually rests on, and what is being gathered. The at-a-glance facts row, the
+  // Spotlight sub-card, the duplicate action pair and the foot hint were all
+  // restatements of the letterhead, the banners, the rail or the Spotlight, and
+  // each one is tombstoned at its old position below.
   //
   // Returns '' for a full record (or on any error) so it never shows there and
   // the caller can cleanly fall back to the plain thin notice.
@@ -2864,30 +2882,24 @@
         lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — a thin record here is normal at this stage. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
       }
 
-      // ── At-a-glance facts ─────────────────────────────────────────────
-      var facts = [];
-      if (p.office) facts.push({ k: 'Seat', v: p.office });
-      if (p.party) facts.push({ k: 'Party', v: p.party });
-      if (p.nextElection) {
-        var ed = new Date(p.nextElection + 'T00:00:00');
-        if (!isNaN(ed.getTime())) facts.push({ k: (p.electionLabel || 'Next election'), v: ed.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) });
-      }
-      // NO COVERAGE OR PLEDGE TALLIES HERE. This block used to carry "Issue
-      // positions: N", "Vote/bill-backed: N" and "Promise record: Begins in
-      // office / Building". All three are counts of the same material ⚖️ Word vs
-      // Action counts one section below, in its own vocabulary and against its
-      // own denominator — a reader met "12 issue positions, 3 vote/bill-backed"
-      // here and "0 of 6 testable statements have a formal action behind them"
-      // there, and had no way to reconcile them. The shared shell owns coverage.
-      // What survives is identity: the seat, the party, the date, and — when the
-      // candidate is off the ballot — the fact that they are.
-      if (_inactiveCand) {
-        facts.push({ k: 'Race status', v: _lostPrimaryCand ? 'Lost primary' : (_candStatus === 'withdrew' || _candStatus === 'withdrawn' || _candStatus === 'suspended') ? 'Withdrew' : 'Did not advance', muted: true });
-      }
-      var factsHtml = '<div class="cs-facts">' + facts.map(function(f) {
-        return '<div class="cs-fact"><div class="cs-fact-k">' + f.k + '</div>' +
-          '<div class="cs-fact-v' + (f.accent ? ' cs-accent' : '') + (f.muted ? ' cs-muted' : '') + '">' + f.v + '</div></div>';
-      }).join('') + '</div>';
+      // ── THE AT-A-GLANCE FACTS ROW IS RETIRED ──────────────────────────
+      // It printed Seat, Party, the next-election date and — for a candidate off
+      // the ballot — a Race status chip. Every one of the four is already on the
+      // screen above this card, in a surface that owns it:
+      //
+      //   • Seat      → the letterhead's office eyebrow and district·state line.
+      //   • Party     → the letterhead's party chip. Identity, in one place.
+      //   • Next election → the election-status banner in the identity stage,
+      //     which prints the same label, the same date and a countdown besides.
+      //   • Race status  → the candidacy status banner in the identity stage,
+      //     which is the loudest thing on the profile when someone is out of the
+      //     race, AND this card's own lede, which already says they lost the
+      //     primary or left the ballot in a whole sentence.
+      //
+      // This card had earlier lost its coverage and pledge tallies for the same
+      // reason: a count restated in a second vocabulary is a second answer. The
+      // facts row was the same mistake in identity data. What is left here is the
+      // one thing nothing else on the profile can derive — WHY the record is thin.
 
       // ── What they stand for ───────────────────────────────────────────
       // THE PER-ISSUE LIST THAT USED TO LIVE HERE IS RETIRED. It rendered every
@@ -2913,19 +2925,27 @@
 
       // ── Issue positions (the centerpiece) ─────────────────────────────
       // The heart of a thin profile USED to be a full per-issue list here. It is
-      // now a pointer: when documented positions exist they are browsed by
-      // outcome in the shared issue index under ⚖️ Word vs Action, and read in
-      // full — with sources and evidence depth — in 🧭 Key Issue Stances. This
-      // branch only says which door to use. The two branches below it are the
-      // honest blanks, and they stay, because when there is nothing to point at
-      // this card is the only place that says so.
+      // now a pointer — and the pointer has to name a door that is actually open
+      // on THIS profile, which is why it changed.
+      //
+      // It used to send the reader two places, and on a thin profile neither one
+      // was there. "The issue index under ⚖️ Word vs Action" is gated on the
+      // two-issue floor, so on the profiles this card renders for it does not
+      // draw at all. "Key Issue Stances" stopped being a heading a reader can see
+      // when the positions list moved into a deferred drawer whose lid reads
+      // "📋 Every documented position" — the named section was gone, sealed and
+      // renamed, at the very bottom of the spine.
+      //
+      // It now names 🌳 All Issues by Topic, which sits directly ABOVE this card,
+      // renders on exactly the profiles this card renders on, and opens each
+      // issue into the same dossier. One door, and it is open.
       var standsHead, standsBody, posCountPill = '';
       if (stanceList.length) {
         standsHead = '📌 Where ' + first + ' stands';
         posCountPill = '<span class="cs-count-pill">' + stanceList.length + ' position' + (stanceList.length === 1 ? '' : 's') + '</span>';
         standsBody = '<p class="cs-stance-text">' + first + ' has <strong>' + stanceList.length + ' documented position' + (stanceList.length === 1 ? '' : 's') + '</strong> on file. ' +
-          'They are browsed by outcome in the issue index under <strong style="color:#d8b4fe;">⚖️ Word vs Action</strong> above — including the ones nothing on the formal record can test yet — and read in full, with sources, in <strong style="color:#d8b4fe;">Key Issue Stances</strong> below' +
-          (alignHasUser ? ', matched issue-by-issue to your picks in <strong style="color:#d8b4fe;">How You Compare</strong>.' : '.') + '</p>';
+          'They are grouped by topic in <strong style="color:#d8b4fe;">🌳 All Issues by Topic</strong> just above — including the ones nothing on the formal record can test yet — and each one opens its full record, with sources' +
+          (alignHasUser ? ', and is matched issue-by-issue to your picks in <strong style="color:#d8b4fe;">How You Compare</strong> below.' : '.') + '</p>';
       } else if (keyIssues.length) {
         standsHead = '🎯 ' + first + '\'s campaign priorities';
         posCountPill = '<span class="cs-count-pill">' + keyIssues.length + ' issue' + (keyIssues.length === 1 ? '' : 's') + '</span>';
@@ -3010,81 +3030,34 @@
         alignCtaHtml = '<button type="button" class="cs-align-cta" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Pick your issues to compare <span aria-hidden="true">→</span></button>';
       }
 
-      // Light guidance for the new-visitor / thin-candidate case: explain that
-      // alignment leans on stated positions when a voting record isn't there yet,
-      // so the tool reads as useful rather than empty on early candidates.
-      var alignGuideHtml = alignHasUser
-        ? ''
-        : '<p class="cs-align-guide">💡 <strong>New to a candidate?</strong> Officials this early rarely have a long voting record — the Alignment Tool compares them on their <strong>stated positions</strong> instead, so you can still judge fit by your values, not their party.</p>';
-
+      // THE "NEW TO A CANDIDATE?" TIP IS RETIRED. It explained that officials this
+      // early rarely have a long voting record, so the Alignment Tool compares them
+      // on stated positions instead. That is the card's own lede, one paragraph up,
+      // said again in a tip box — and on a card trimmed to the gap it explains, the
+      // repetition was the loudest thing left in it. The basis line below carries
+      // the honest part (what the match actually rests on) and keeps it.
       var alignBlock = '<div class="cs-align" id="cs-block-align">' +
         '<div class="cs-align-top"><span class="cs-align-h">🤝 Compare on your values</span>' + matchChip + '</div>' +
         '<p class="cs-align-text">' + alignText + '</p>' +
         basisHtml +
-        alignGuideHtml +
         alignCtaHtml +
       '</div>';
 
-      // ── Spotlight linkage ─────────────────────────────────────────────
-      var spot = (typeof window._krBuildSpotlight === 'function') ? window._krBuildSpotlight(id) : null;
-      var spotBlock = '';
-      if (spot) {
-        var spotText = (spot.teaser || spot.title || '').toString();
-        // When the lead Spotlight item is tagged with an Alignment issue, surface
-        // the tie. If the candidate also holds a documented position on that exact
-        // issue above, say so explicitly — that is the Snapshot↔Spotlight link the
-        // whole card is built around: the news below is about a value stated above.
-        var spotTiedToPosition = !!(spot.issueKey) && keyed.some(function(s) { return s.issueKey === spot.issueKey; });
-        var spotTie = (spot.issueKey && typeof window._issueTagHtml === 'function')
-          ? window._issueTagHtml(spot.issueKey, spotTiedToPosition ? 'Connects to their position on' : 'On the issue:')
-          : '';
-        var spotTieRow = spotTie ? '<div class="cs-spot-tie-row">' + spotTie + '</div>' : '';
-        // Cross-story bridge: even when the LEAD item isn't about a documented
-        // position, a more recent Spotlight update further down the timeline might
-        // be. Scan every story for one whose issue matches a position shown above,
-        // so the Snapshot can always point out "this news is about a value stated
-        // here" — the connection holds across the whole record, not just the top item.
-        var keyedByIssue = {};
-        keyed.forEach(function(s) { if (s.issueKey) keyedByIssue[s.issueKey] = s; });
-        var tiedStories = (spot.stories || []).filter(function(st) { return st && st.issueKey && keyedByIssue[st.issueKey]; });
-        // A secondary bridge note, shown when the lead itself isn't tied to a
-        // position but another recent update is — names the issue and points into
-        // the Spotlight so the rhetoric-vs-record link is never lost off the top.
-        var spotCrossNote = '';
-        if (!spotTiedToPosition && tiedStories.length && typeof window._issueLabel === 'function') {
-          var xKeys = {};
-          tiedStories.forEach(function(st) { xKeys[st.issueKey] = true; });
-          var xLabel = window._issueLabel(tiedStories[0].issueKey);
-          var xCount = 0; for (var xk in xKeys) { if (xKeys.hasOwnProperty(xk)) xCount++; }
-          if (xLabel) {
-            spotCrossNote = '<p class="cs-spot-note">🔗 A recent Spotlight update connects to ' + first + '\'s position on <strong style="color:#c4b5fd;">' + xLabel + '</strong>' +
-              (xCount > 1 ? ' (and ' + (xCount - 1) + ' other tracked issue' + (xCount - 1 === 1 ? '' : 's') + ')' : '') +
-              ' — open the Spotlight to see how the record matches the rhetoric.</p>';
-          }
-        }
-        if (spot.kind === 'newcomer' || spot.kind === 'monitoring') {
-          // No real story to open yet — show the honest status note and explain
-          // that the Spotlight is where future statements/events get logged, tied
-          // to the very issues this candidate is being tracked on.
-          spotBlock = '<div class="cs-spot" id="cs-block-spot"><div class="cs-block-h">🔦 Spotlight</div>' +
-            '<div class="cs-spot-card">' +
-              '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + '</span>' +
-              '<span class="cs-spot-text">' + spotText + '</span></span>' +
-            '</div>' +
-            '<p class="cs-spot-note">As ' + first + ' makes news, the Spotlight logs each statement, vote and key moment here — tied to the issue positions above, so you can see how the record matches the rhetoric.</p>' +
-          '</div>';
-        } else {
-          spotBlock = '<div class="cs-spot" id="cs-block-spot"><div class="cs-block-h">🔦 In the Spotlight</div>' +
-            '<button type="button" class="cs-spot-card" onclick="event.stopPropagation();window.keyRacesSpotlight && window.keyRacesSpotlight(\'' + id + '\');">' +
-              '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + (spot.date ? ' · ' + spot.date : '') + '</span>' +
-              '<span class="cs-spot-text">' + spotText + '</span></span>' +
-              '<span class="cs-spot-cta" aria-hidden="true">→</span>' +
-            '</button>' +
-            spotTieRow +
-            (spotTiedToPosition ? '<p class="cs-spot-note">This Spotlight item ties to a position above — open it to see the news, sources and why it matters for that issue.</p>' : spotCrossNote) +
-          '</div>';
-        }
-      }
+      // ── THE SPOTLIGHT SUB-CARD IS RETIRED ─────────────────────────────
+      // It rendered the lead Spotlight item inside this card — a badge, a teaser,
+      // an issue tag, and a bridge note pointing out when a recent update touched
+      // an issue the candidate holds a position on — plus a "Monitoring"
+      // placeholder when there was no story to show at all.
+      //
+      // The Spotlight is its own surface on this profile and it is a better one:
+      // it carries every story, not the top one, with dates and sources. Repeating
+      // its lead here bought a duplicate at the cost of two more screens between a
+      // thin-record explanation and the end of it — and the placeholder variant
+      // spent a whole sub-card saying that nothing had happened yet, on the one
+      // card whose entire subject is that nothing has happened yet.
+      //
+      // Nothing moved and nothing was deleted: window._krBuildSpotlight and the
+      // Spotlight surface it feeds are untouched.
 
       // ── "We're actively gathering" transparency ───────────────────────
       var gatherItems = [];
@@ -3102,23 +3075,20 @@
       var gatherBlock = '<div class="cs-gather"><div class="cs-gather-h">⏳ We\'re actively gathering</div>' +
         '<ul class="cs-gather-list">' + gatherItems.map(function(g) { return '<li>' + g + '</li>'; }).join('') + '</ul></div>';
 
-      // ── Actions (mirror the thin-notice CTAs) ─────────────────────────
-      var onTeam = (typeof _myPoliticians !== 'undefined' && _myPoliticians && _myPoliticians.has(id));
-      // When the visitor already has Alignment picks, the primary action keeps
-      // them on the profile and jumps to the in-modal "How You Compare"
-      // breakdown — connecting the snapshot's positions directly to their
-      // alignment. Otherwise it opens the Alignment Tool so they can set picks.
-      var alignActionBtn = alignHasUser
-        ? '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();var el=document.getElementById(\'cs-howcompare-anchor\');if(el){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}else{closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var a=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(a)a.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);}">🤝 Open the full breakdown</button>'
-        : '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Compare on the issues</button>';
-      var actions = '<div class="cs-actions">' +
-        alignActionBtn +
-        '<button type="button" class="cs-act-btn cs-act-team' + (onTeam ? ' is-on' : '') + '" onclick="event.stopPropagation();window.mypolToggleAnimated&&window.mypolToggleAnimated(this,\'' + id + '\');">' +
-          (onTeam ? '✓ On your team' : '★ Add to my team') + '</button>' +
-      '</div>';
-
-      var hint = '<div class="cs-foot-hint">↓ ' +
-        ((keyIssues.length || stanceList.length) ? 'The full positions, the record and your alignment are below' : 'More detail is below') + '</div>';
+      // ── THE ACTION BUTTON PAIR AND THE FOOT HINT ARE RETIRED ──────────
+      // The pair was 🎯 Compare on the issues / ★ Add to my team, and it was the
+      // profile's THIRD offer of the same two actions: the sticky rail carries a
+      // 🤝 Match pill to the same breakdown, the 🤝 Compare on your values block
+      // directly above this carries its own single control into the live match,
+      // and the roster card that opened this modal carries the team star. Three
+      // buttons for two jobs, stacked inside one card, on the profiles with the
+      // least to say.
+      //
+      // The ↓ foot hint ("The full positions, the record and your alignment are
+      // below") went with them, and it had to: this card now mounts UNDER 🌳 All
+      // Issues by Topic, so the positions it promised below the reader are above
+      // them. A pointer that is wrong about its own direction is worse than none,
+      // and the spine's numbered rail already says what follows.
 
       // ── THE "ONE READ, THREE WAYS" INDEX IS RETIRED ───────────────────
       // It rendered a row of jump chips — 📌 Positions · 🤝 Your match · 🔦
@@ -3152,17 +3122,13 @@
         '<div class="cs-head">' +
           '<div class="cs-head-ico">' + (isChallenger ? '🗳️' : '🌱') + '</div>' +
           '<div class="cs-head-main">' +
-            '<div class="cs-title">Why this record is thin<span class="cs-pill" title="Not a knock on the candidate — it means there is not yet enough formal action on file to test their word against. The positions themselves are above and below; this explains the gap.">' + csPillLabel + '</span></div>' +
+            '<div class="cs-title">Why this record is thin<span class="cs-pill" title="Not a knock on the candidate — it means there is not yet enough formal action on file to test their word against. The positions themselves are in 🌳 All Issues by Topic above; this explains the gap.">' + csPillLabel + '</span></div>' +
             '<p class="cs-lede">' + lede + '</p>' +
           '</div>' +
         '</div>' +
-        factsHtml +
         standsBlock +
         alignBlock +
-        spotBlock +
         gatherBlock +
-        actions +
-        hint +
       '</div>';
     } catch (e) {
       return '';
@@ -4477,24 +4443,19 @@
       ? (_is2026 ? '2026 Candidate — no voting record yet' : 'Candidate — no voting record yet')
       : 'Early in term — limited record';
     const _onTeamAlready = (typeof _myPoliticians !== 'undefined' && _myPoliticians && _myPoliticians.has(id));
-    // Actionable "what you can do now" guidance for a low-data profile. Rather than
-    // leaving the visitor at a dead end, it offers the two honest next steps that
-    // work without a voting record: compare on values via the Alignment Tool, and
-    // save the candidate to revisit as the record fills in.
+    // THE FALLBACK'S BUTTON PAIR IS RETIRED. It offered 🎯 Compare on the issues
+    // and ★ Add to my team, the same two actions the sticky rail and the roster
+    // card already carry, and the same pair the limited-record card carried until
+    // this pass took it out of there for the same reason. This notice only renders
+    // when the card itself fails, so the two had to move together or the fallback
+    // would have been the louder of the two. What is left is the sentence that
+    // says what a reader can still do without a record — no button row, no third
+    // offer of a control that is two taps away in the chrome.
     const _thinNext =
       '<div class="ptn-next">' +
-        '<div class="ptn-next-label">What you can do now</div>' +
-        '<div class="ptn-actions">' +
-          '<button type="button" class="ptn-act-btn ptn-act-align" ' +
-            'onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">' +
-            '🎯 Compare on the issues</button>' +
-          '<button type="button" class="ptn-act-btn ptn-act-team' + (_onTeamAlready ? ' is-on' : '') + '" ' +
-            'onclick="event.stopPropagation();window.mypolToggleAnimated&&window.mypolToggleAnimated(this,\'' + id + '\');">' +
-            (_onTeamAlready ? '✓ On your team' : '★ Add to my team') + '</button>' +
-        '</div>' +
-        '<p class="ptn-text" style="margin-top:0.55rem;font-size:0.74rem;">No tracked promises yet — but you can still ' +
+        '<p class="ptn-text" style="margin-top:0;font-size:0.74rem;">No tracked promises yet — but you can still ' +
           '<strong style="color:#c4b5fd;">compare ' + (p.name ? p.name.split(' ')[0] : 'them') + ' on the issues you care about</strong> with the Alignment Tool, or ' +
-          '<strong style="color:#fbbf24;">add ' + (_onTeamAlready ? 'them to your team' : 'them to your team and check back later') + '</strong> as the record fills in.</p>' +
+          '<strong style="color:#fbbf24;">' + (_onTeamAlready ? 'keep them on your team' : 'add them to your team and check back later') + '</strong> as the record fills in.</p>' +
       '</div>';
     const thinNotice = _isThinProfile ? (
       '<div class="profile-thin-notice">' +
@@ -4504,16 +4465,21 @@
           '<p class="ptn-text">' + (_isChallenger
             ? ('This politician is running as a ' + (_is2026 ? '2026 challenger' : 'challenger') + ' and does not yet have a legislative voting record in this office, so there is nothing to score yet. We are tracking their stated positions now and will log kept-and-broken promises as the race develops.')
             : 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
-          '<div class="ptn-hint">↓ ' + (window._pdxKeyIssues(p).length ? 'Their key issues and stated positions are below' : 'Their stated positions are below') + '</div>' +
+          // ↑ NOT ↓. This notice mounts at the FOOT of the verdict stage now, under
+          // 🌳 All Issues by Topic — the positions it used to promise "below" are
+          // above the reader by the time they get here.
+          '<div class="ptn-hint">↑ ' + (window._pdxKeyIssues(p).length ? 'Their issues are grouped by topic in 🌳 All Issues by Topic above' : 'Their stated positions are grouped by topic in 🌳 All Issues by Topic above') + '</div>' +
           _thinNext +
         '</div>' +
       '</div>'
     ) : '';
 
-    // Candidate Snapshot — a structured overview that supersedes the bare thin
-    // notice on low-data profiles, leading with stated positions, the Alignment
-    // Tool linkage and the latest Spotlight item. Returns '' for a full record
-    // (or on error), so the template cleanly falls back to thinNotice.
+    // The limited-record card — supersedes the bare thin notice on low-data
+    // profiles with the four things nothing else on the page can derive: why the
+    // record is thin, where the positions are browsed, what an alignment match
+    // rests on without a voting record behind it, and what is being gathered.
+    // Returns '' for a full record (or on error), so the template cleanly falls
+    // back to thinNotice. Both mount at the foot of the verdict stage.
     const candidateSnapshot = (typeof window._renderCandidateSnapshot === 'function')
       ? window._renderCandidateSnapshot(id, p, { isThin: _isThinProfile })
       : '';
@@ -4835,7 +4801,10 @@
       <!-- The formal tally, attached to the letterhead. The ring above prints one
            average; these four integers print the shape it averages — contradicted,
            mixed, backed up, thin record — and each one is a door into that bucket's
-           full list in the issue index below.
+           full list. That list now sits behind the closed "Issues in this score"
+           control inside ⚖️ Word vs Action, so a tap here opens the control and
+           selects the bucket in one move; the full map of every issue, browsable
+           by topic or by tension, is 🌳 All Issues by Topic further down.
 
            WHY IT IS HERE AND NOT ONLY IN §1. The phone already had it: the ring
            drops to a full-width hero row and ⚖️ Word vs Action is the next screen,
@@ -4969,21 +4938,20 @@
            a member, ✒️ formal actions for an executive) and the term-scope strip,
            which is exec-only because a member's roll-call record is not
            term-scoped anywhere in this engine. The Direction Match framing, the
-           shape strip, the one-bucket-at-a-time issue index, the formal + public
+           shape strip, the one-bucket-at-a-time issue index (closed by default —
+           🌳 All Issues by Topic is the browse-all surface), the formal + public
            lanes on each row and the dossier entry from those rows are one
            renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
-      <!-- The limited-record card — shown only when there is no scorable record
-           yet. It answers the one question the shared shell above it cannot
-           derive: WHY the record is thin (a challenger who has never held the
-           seat, an official early in a first term, a candidate who left the
-           ballot), plus the paths that still work without a record and an honest
-           list of what is being gathered. It carries no score, no shape, no
-           per-issue list and no navigation index of its own — all four now come
-           from the section above, identically on both lanes. Falls back to the
-           plain thin notice if the card can't render. -->
-      ${candidateSnapshot || thinNotice}
+      <!-- THE LIMITED-RECORD CARD USED TO MOUNT HERE, between ⚖️ Word vs Action
+           and the tree. It is gated on _isThinProfile, which means it fires only
+           on the profiles where 🌳 All Issues by Topic is the entire substance of
+           the page — so at this position it spent several screens explaining a
+           gap in front of the one surface that had something to show. It now
+           mounts at the FOOT of the verdict stage, under the tree and under the
+           multi-issue block. Nothing about when it renders changed: same gate,
+           same fallback. -->
 
       <!-- 🌳 ALL ISSUES BY TOPIC — the browse-all-stances surface, and the reason
            Stance at a Glance below is unmounted. The glance was a FLAT WALL: every
@@ -5005,6 +4973,47 @@
       ${(window.PDXStanceTree && typeof window.PDXStanceTree.sectionHtml === 'function')
         ? (function(){ try { return window.PDXStanceTree.sectionHtml(id); } catch(e){ return ''; } })()
         : ''}
+
+      <!-- 🧩 TWO AXES — one declared pair, read side by side.
+           IT SITS DIRECTLY UNDER THE TREE ON PURPOSE. The tree is where a reader
+           browses issue by issue; this is where the two halves of one pair are
+           held against each other. STATUS FIRST: this person's reading on the
+           pair (same direction / split / mixed on one side / one side on record /
+           not enough yet), then two compact columns whose only control is the door
+           into the issue's existing dossier — the same PDXConsistency.openGap
+           sheet a tree leaf opens — then one footer line pointing at that
+           dossier's list of every issue a measure counted for. The splitting rule
+           itself is taught where a reader meets it (multi-issue row notes, the
+           dossier, the glossary), not as an essay at the top of this card.
+           No stance prose, no second report surface, no percentage
+           except the per-issue one Direction Match already resolved.
+           Rendered by ballot-axes.js. Visible only where BOTH halves of a pair are
+           on this profile's browse set; the host stays hidden and empty otherwise
+           so the post-paint record lane can fill it. -->
+      ${(window.PDXBallotAxes && typeof window.PDXBallotAxes.profileHtml === 'function')
+        ? (function(){ try { return window.PDXBallotAxes.profileHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
+      <!-- 🌱 WHY THIS RECORD IS THIN — the last thing in the verdict stage, and
+           only when there is a gap to explain. It answers the one question the
+           three surfaces above it cannot derive: WHY the record is thin (a
+           challenger who has never held the seat, an official early in a first
+           term, a candidate who left the ballot), what the alignment match rests
+           on when there is no voting record behind it, and an honest list of what
+           is being gathered.
+
+           IT SITS LAST ON PURPOSE. ⚖️ Word vs Action has already said, in its own
+           thin copy, that there is documented word on file and no formal action to
+           test it against — and that a gap in the record is not a mark against the
+           person. Every leaf of the tree above already reads as pending, or as
+           nothing at all, in its record slot. A reader arriving here has therefore met the state
+           twice before meeting the reason for it, which is the right order: the
+           browse gateway first, the explanation of its emptiness after.
+
+           It carries no score, no shape, no per-issue list and no navigation index
+           of its own — those come from the sections above, identically on both
+           lanes. Falls back to the plain thin notice if the card can't render. -->
+      ${candidateSnapshot || thinNotice}
 
       <!-- CONNECTING THE DOTS IS UNMOUNTED. It rendered a full-width card here —
            the eyebrow "Connecting the Dots", the title "Where <name>'s word met
@@ -5222,17 +5231,28 @@
       ${(typeof window._renderIssueComparison === 'function') ? window._renderIssueComparison(id, p) : ''}
 
       <!--PDXSP:signature-->
-      <!-- Stances & Connections — the "what they stand for" layer, and the entry
-           point to everything below it. Ranked issue rows off the shared
-           PDXConsistency row model: tested-and-contested first, then tested-and-
-           consistent, then stated-with-evidence, then stated-only, then record-only,
-           with "nothing on file" folded away. Each row carries its connections —
-           into ⚖️ Word vs Action where the score already reached a verdict, into
-           🏛️ Official Record where formal actions exist, into the Evidence drawer
-           where the public record is what backs it. It publishes no percentage: the
-           verdict on a row is the one the row model resolved, so this section and the
-           score can never disagree about the same issue. -->
-      ${(window.PDXConsistency && typeof window.PDXConsistency.stancesSectionHtml === 'function') ? (function(){ try { var _st = window.PDXConsistency.stancesSectionHtml(id); return _st ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _st + '</div>') : ''; } catch(e){ return ''; } })() : ''}
+      <!-- 🧭 STANCES & CONNECTIONS IS UNMOUNTED. ONE BROWSE PATH.
+           It listed the same person×issue set 🌳 All Issues by Topic lists — said,
+           record result, often a percentage, and a door into the same dossier —
+           ranked sharpest-first instead of grouped by topic. On a full profile that
+           was well over a hundred thousand characters of second issue browser
+           sitting below the gateway, re-teaching rows the reader had just met in a
+           different sort; on a thin profile it restated a tree that already carries
+           untested positions. The overlap matrix marked the tree primary, so this
+           is the peer section that had no job.
+           WHERE ITS PARTS WENT. The global tension ranking is now a VIEW OF THE
+           TREE — the Order control (Topic | Tension) in stance-tree.js reorders the
+           same leaves with the same comparator, no second section. "⚖️ Where this
+           lands in the score" was already level 1 of the issue dossier. "🔍 Everyone
+           on this issue" is now a step in the dossier's "Where to next" row, which
+           is the only place it lived outside these rows. Everything else on a row —
+           the stance text, the composition split, the public-lane tally, the lane
+           disagreement, the evidence depth — is in the dossier at full length rather
+           than truncated to 190 characters.
+           The renderer is left defined and exported, the same way Stance at a Glance
+           and Connecting the Dots were; only the mount is gone, and the
+           #pdxsec-stances nav anchor now rides on the tree so every existing jump
+           still lands on the surface that holds these positions. -->
 
       <!-- STANCE AT A GLANCE IS UNMOUNTED. It was a collapsible flat index of
            documented positions with a per-issue evidence dot — one alphabetised
@@ -5246,18 +5266,6 @@
            same way Connecting the Dots was; only the mount is gone, and the
            #pdxsec-glance nav anchor now rides on the tree so every existing jump
            into "their stated positions" still lands on the surface holding them. -->
-
-      <!-- Elections — Two Axes. 🔐 election security and 📩 ballot access are
-           separate ISSUE_MAP keys scored in their own directions, so a member can
-           back tighter safeguards AND narrower access (or the reverse) without
-           contradicting themselves. This puts both sourced positions side by side
-           and names the relation — split / same direction / one axis on record —
-           right above the per-issue stance cards, where a reader would otherwise
-           meet the two halves pages apart. Rendered by ballot-axes.js; self-gates
-           to '' for anyone with no documented position on either axis. -->
-      ${(window.PDXBallotAxes && typeof window.PDXBallotAxes.profileHtml === 'function')
-        ? (function(){ try { return window.PDXBallotAxes.profileHtml(id, p); } catch(e){ return ''; } })()
-        : ''}
 
       <!--PDXSP:dw:positions-->
       <!-- Key Issue Stances — every documented position with its own evidence. The

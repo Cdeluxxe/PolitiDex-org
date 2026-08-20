@@ -47,7 +47,29 @@
 // the cache makes the shell cache empty on activate, so the first navigation
 // after this worker takes control goes to the network and the fix is visible on
 // the refresh that was supposed to show it.
-const CACHE_VERSION = 'v58';
+// v59 — ONE BROWSE PATH. 🧭 Stances & Connections is unmounted (it was a second
+// full issue browser over the same rows 🌳 All Issues by Topic lists), the tree
+// gained an Order control, and the tree now answers to #pdxsec-stances. Bumped for
+// the reason stated above: a phone holding the v58 shell is served the previous
+// profiles-full.js and stance-tree.js on a hard refresh, which looks exactly like
+// the second section never having been removed.
+// v60 — WORD VS ACTION FOLDS ITS APPARATUS. The score argument stays open (the
+// figure, the tally, what it measures, the term slice, the shape graph and the
+// sentence that reads it); the score's own tabbed issue index and the whole of the
+// machinery behind the number — basis table, sample rows, coverage ask, feed map,
+// method note — sit behind two closed controls, so 🌳 All Issues by Topic is the
+// next thing after the shape. Bumped because word-action.js, gaps.js and
+// word-action.css all changed together: a phone holding v59 that picks up only one
+// of the three gets a method block styled as a <details> that is no longer one.
+// v61 — THE LETTERHEAD TALLY GETS A PUBLIC LINE AND A LANDING. The four formal
+// counts beside Direction Match now route their tap through the page's own
+// chrome-aware jump, so a bucket opened from the letterhead lands below the sticky
+// section rail rather than under it; a counts-only public line sits under them,
+// tagged Not in Direction Match. Bumped because consistency.js, word-action.js and
+// word-action.css all changed together: a phone holding v60 that picks up only
+// word-action.js calls a publicShape() its consistency.js does not export, and one
+// that picks up only the CSS reserves space under a line that never renders.
+const CACHE_VERSION = 'v61';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

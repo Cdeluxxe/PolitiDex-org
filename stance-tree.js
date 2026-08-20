@@ -347,6 +347,37 @@
   var FLAT = { maxLeaves: 5 };
   function modeFor(n) { return ((n || 0) <= FLAT.maxLeaves) ? 'flat' : 'tree'; }
 
+  // ── THE ORDER CONTROL: TOPIC, OR SHARPEST FIRST ───────────────────────────
+  // 🧭 Stances & Connections used to publish the same person×issue set as one
+  // globally tension-ranked wall, below this tree. Two full browsers of the same
+  // rows in one scroll is what that section cost, and the only thing it could do
+  // that the tree could not was rank ACROSS topics — "show me the sharpest thing
+  // about this person" is a real question and a topic accordion cannot answer it.
+  //
+  // So it is a view of this tree, not a second surface: `tension` drops the
+  // branches and prints every visible leaf in the shared sortLeaves() order —
+  // the SAME comparator the branch panels and the flat mode already use. Nothing
+  // is re-scored, nothing is filtered, no leaf says anything different in one
+  // order than in the other; only the arrangement changes.
+  //
+  // FAIL CLOSED. The control is drawn only where the two orders can differ — a
+  // view already rendering as one flat list is already in tension order, and an
+  // empty view gets the empty note and no controls at all.
+  var SORT_TOPIC = 'topic';
+  var SORT_TENSION = 'tension';
+  var SORTS = [
+    { key: 'topic', label: 'Topic', title: 'Grouped by topic, the way the tree files them.' },
+    { key: 'tension', label: 'Tension',
+      title: 'One list across every topic, sharpest first: where the record pushes back, then mixed, then aligned.' }
+  ];
+  var SORT_NOTE = 'Sharpest first, across every topic — where the formal record pushes back on ' +
+    'what they said, then mixed, then aligned, then what nothing has tested. Same issues, same ' +
+    'rows; only the order is different.';
+  function sortOf(key) {
+    for (var i = 0; i < SORTS.length; i++) if (SORTS[i].key === key) return SORTS[i];
+    return SORTS[0];
+  }
+
   function IC() { return window.PDXIssueColors || null; }
   // A key with no core issue is NOT left unstyled: styleFor() answers with the
   // colour system's own neutral (FALLBACK), which is the whole reason that token
@@ -817,6 +848,25 @@
           ' title="' + escAttr(f.title) + '">' + esc(f.label) + '</button>';
       }).join('') + '</div>';
   }
+  // The order bar. One control, two states, drawn beside the filters rather than
+  // above the tree, because it narrows nothing and adds no destination: it is the
+  // same block, re-rendered in a different arrangement.
+  function sortHtml(shownN, active, byCount) {
+    // Nothing to choose between: a view that is already one flat list is already
+    // in tension order, and an empty view has no rows to arrange.
+    if (!shownN) return '';
+    if (byCount !== 'tree' && active !== SORT_TENSION) return '';
+    return '<div class="pdxtree-sort" role="group" aria-label="Order these issues">' +
+      '<span class="pdxtree-sort-k">Order</span>' +
+      SORTS.map(function (o) {
+        var on = (o.key === active);
+        return '<button type="button" class="pdxtree-schip' + (on ? ' is-on' : '') + '"' +
+          ' data-pdxtree-sort="' + escAttr(o.key) + '"' +
+          ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+          ' title="' + escAttr(o.title) + '">' + esc(o.label) + '</button>';
+      }).join('') + '</div>';
+  }
+
   // The honest empty view: what was asked, that the answer is none, and one control
   // back to the full set. Never an empty tree, and never a filter silently ignored.
   function emptyHtml(active) {
@@ -839,21 +889,30 @@
     if (!all.length) return '';
     var uid = opts.uid || uidFor(pid);
     var active = filterOf(opts.filter || FILTER_ALL).key;
+    var order = sortOf(opts.sort || SORT_TOPIC).key;
     var shown = filterLeaves(all, active);
-    var mode = modeFor(shown.length);
+    // Two inputs to one shape: how many leaves are visible, and which order the
+    // reader asked for. Tension order is always the flat list — a global ranking
+    // inside topic accordions would be a ranking a reader cannot see.
+    var byCount = modeFor(shown.length);
+    var mode = (order === SORT_TENSION) ? 'flat' : byCount;
     var head = '<div class="pdxtree" data-pdxtree-pid="' + escAttr(pid) + '"' +
       ' data-pdxtree-uid="' + escAttr(uid) + '"' +
       ' data-pdxtree-filter="' + escAttr(active) + '"' +
+      ' data-pdxtree-sort="' + escAttr(order) + '"' +
       ' data-pdxtree-mode="' + escAttr(shown.length ? mode : 'empty') + '">' +
       tallyHtml(pid, shown.length, active) +
-      filtersHtml(all, active);
+      filtersHtml(all, active) +
+      sortHtml(shown.length, order, byCount);
     var body;
     if (!shown.length) {
       body = emptyHtml(active);
     } else if (mode === 'flat') {
       // FLAT MODE: one list, tension order, no accordions. Same leaf markup, so the
       // dossier door, the slots, the disclosures and the ids are the tree's.
-      body = '<div class="pdxtree-flat" data-pdxtree-flat="1">' +
+      body = ((order === SORT_TENSION && byCount === 'tree')
+          ? '<p class="pdxtree-note pdxtree-ordernote">' + esc(SORT_NOTE) + '</p>' : '') +
+        '<div class="pdxtree-flat" data-pdxtree-flat="1">' +
         shown.map(function (lf) { return leafHtml(lf, uid); }).join('') + '</div>';
     } else {
       var gs = groups(pid, shown);
@@ -880,9 +939,12 @@
   }
 
   // ── THE SECTION ───────────────────────────────────────────────────────────
-  // Mounts under the Word vs Action summary. It carries the nav anchor the old
-  // flat wall carried (pdxsec-glance) as well as its own, so every existing jump
-  // into "their stated positions" lands on the surface that now holds them.
+  // Mounts under the Word vs Action summary. It carries the nav anchors of the two
+  // browse-all-stances surfaces it replaced as well as its own — `pdxsec-glance`
+  // (the old flat Stance at a Glance index) and `pdxsec-stances` (🧭 Stances &
+  // Connections, unmounted in the one-browse-path pass) — so every existing jump
+  // into "their stated positions", from the rail, a deep link or a shared hash,
+  // lands on the surface that now holds them instead of on nothing.
   function sectionHtml(pid) {
     // ONE id for the section and for the leaves inside it. The warm repaint re-renders
     // the body with this same uid, so a leaf's id — which is the `origin` the dossier's
@@ -894,6 +956,7 @@
     try { setTimeout(function () { bindHost(host, pid); }, 0); } catch (e) {}
     return '<span id="pdxsec-stancetree" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<span id="pdxsec-glance" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+      '<span id="pdxsec-stances" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<section class="modal-block pdxtree-sec" data-pdxtree-host="' + escAttr(host) + '">' +
         '<h3 class="pdxtree-h">🌳 All Issues by Topic</h3>' +
         '<p class="pdxtree-sub">Every issue we track for them, grouped by topic — what they ' +
@@ -1143,7 +1206,13 @@
         var fuid = froot.getAttribute('data-pdxtree-uid') || '';
         var next;
         try {
-          next = treeHtml(froot.getAttribute('data-pdxtree-pid') || '', { uid: fuid, filter: fkey });
+          // The ORDER rides across a filter change for the same reason the filter
+          // rides across a warm repaint: a reader who chose sharpest-first and then
+          // narrowed to "cuts against" did not ask to be put back into topic order.
+          next = treeHtml(froot.getAttribute('data-pdxtree-pid') || '', {
+            uid: fuid, filter: fkey,
+            sort: froot.getAttribute('data-pdxtree-sort') || SORT_TOPIC
+          });
         } catch (e1) { next = ''; }
         if (next) {
           froot.outerHTML = next;
@@ -1156,6 +1225,40 @@
               '[data-pdxtree-filter="' + fkey + '"]');
             if (back && back.focus) back.focus();
           } catch (e2) {}
+        }
+        e.preventDefault();
+        return;
+      }
+
+      // ── THE ORDER CHIPS ─────────────────────────────────────────────────
+      // The same re-render the filter chips do, for the same reason: the tally,
+      // the branch counts, the mode and the notes all describe what is actually
+      // on screen, so the only safe way to change the arrangement is to rebuild
+      // the block from the builder. The reader's FILTER and their open branches
+      // ride across the swap — switching to sharpest-first and back must not
+      // silently widen the view or collapse the topic they were reading.
+      var sc = e.target.closest('button[data-pdxtree-sort]');
+      if (sc) {
+        var sroot = sc.closest('.pdxtree');
+        if (!sroot) return;
+        var shost = sroot.parentNode;
+        var skey = sortOf(sc.getAttribute('data-pdxtree-sort') || SORT_TOPIC).key;
+        var suid = sroot.getAttribute('data-pdxtree-uid') || '';
+        var snext;
+        try {
+          snext = treeHtml(sroot.getAttribute('data-pdxtree-pid') || '', {
+            uid: suid, sort: skey,
+            filter: sroot.getAttribute('data-pdxtree-filter') || FILTER_ALL,
+            open: openBranches(sroot)
+          });
+        } catch (e4) { snext = ''; }
+        if (snext) {
+          sroot.outerHTML = snext;
+          try {
+            var sback = shost && shost.querySelector('.pdxtree[data-pdxtree-uid="' + suid + '"] ' +
+              '[data-pdxtree-sort="' + skey + '"]');
+            if (sback && sback.focus) sback.focus();
+          } catch (e5) {}
         }
         e.preventDefault();
         return;
@@ -1238,7 +1341,8 @@
         var root = el.querySelector('.pdxtree');
         var next = treeHtml(pid, {
           open: openBranches(el), uid: host,
-          filter: (root && root.getAttribute('data-pdxtree-filter')) || FILTER_ALL
+          filter: (root && root.getAttribute('data-pdxtree-filter')) || FILTER_ALL,
+          sort: (root && root.getAttribute('data-pdxtree-sort')) || SORT_TOPIC
         });
         if (next) el.innerHTML = next;
       } catch (e) {}
@@ -1276,6 +1380,17 @@
     // The flat-mode threshold and the rule that reads it, in one place each.
     FLAT: FLAT,
     modeFor: modeFor,
+    // The orders. `SORTS` is the chip set; `sortOf` normalises anything a caller
+    // or an attribute hands over, so an unknown value renders topic order rather
+    // than nothing. `order` is the shared comparator sharpest-first uses — the same
+    // one the branch panels sort with, exported so a test can assert that the flat
+    // tension list and a branch cannot disagree about what comes first.
+    SORTS: SORTS,
+    SORT_DEFAULT: SORT_TOPIC,
+    SORT_TENSION: SORT_TENSION,
+    SORT_NOTE: SORT_NOTE,
+    sortOf: sortOf,
+    order: sortLeaves,
     NOTE: TREE_NOTE,
     PATTERN_ONLY_NOTE: PATTERN_ONLY_NOTE,
     PATTERN_ONLY_TAG: PATTERN_ONLY_TAG,

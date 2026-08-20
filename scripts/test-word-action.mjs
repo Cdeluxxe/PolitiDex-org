@@ -970,8 +970,9 @@ const voteNarration = (issueKey, extra = {}) => ({
   ok(!/%/.test(withReceipts.split('What feeds this score')[1] || ''),
     'a feed row emits a percentage — there is exactly one score on a profile');
 
-  // The panel travels with the section body, so warm re-renders refresh its counts.
-  const body = WA_SRC.slice(WA_SRC.indexOf('function headlineHtml'), WA_SRC.indexOf('function heroRead'));
+  // The panel travels with the section body — inside the apparatus fold now, which
+  // is itself assembled into `var body` — so warm re-renders refresh its counts.
+  const body = WA_SRC.slice(WA_SRC.indexOf('function apparatusHtml'), WA_SRC.indexOf('function heroRead'));
   ok(/feedsHtml\(pid, p, r\)/.test(body),
     'the section body no longer includes the feeds panel, so its counts freeze at first paint while\n' +
     '    the number above them updates');
@@ -1304,61 +1305,125 @@ const voteNarration = (issueKey, extra = {}) => ({
 // here by the actual applyLids(), not asserted against source text.
 {
   const SPINE_SRC = read('profile-spine.js');
+  // Every issue tested, so the card renders BOTH folds: the apparatus exists on any
+  // profile with word on file, but the issue index only exists once there are
+  // buckets to index. A build that produces one and not the other would let half
+  // of this section pass vacuously.
   const b = build({
     stances: [quoted('gun_rights'), quoted('healthcare'), quoted('immigration')],
     record: {
       gun_rights: { score: 100, token: 'consistent', judged: 2 },
-      healthcare: { score: 0, token: 'contradicts', judged: 2 }
+      healthcare: { score: 0, token: 'contradicts', judged: 2 },
+      immigration: { score: 50, token: 'mixed', judged: 2 }
     }
   });
+  // The index only renders over a row model with buckets in it, so this build gets
+  // the same stubbed rows section 15 uses. Without them outcomesHtml returns '' and
+  // every index assertion below would pass by rendering nothing at all.
+  const ocRow = (key, token) => ({
+    pid: 'p1', key, label: 'Issue ' + key, tier: token === 'consistent' ? 1 : 0,
+    stance: { label: 'Pledge', key, text: 'said a thing' },
+    lane: 'record', tested: true, scored: true,
+    actions: { count: 1, lane: 'record', judged: 1 },
+    verdict: { token, label: token, cls: 'x', ico: '•', color: '#fff', score: null, basis: 'action' },
+    public: { token: 'no_record', count: 0, judged: false },
+    evidence: { count: 1, actions: 1, public: 0, total: 1, strength: 'thin', sources: [] }
+  });
+  b.win.PDXConsistency.issueRows = () => [
+    ocRow('gun_rights', 'consistent'), ocRow('healthcare', 'contradicts'), ocRow('immigration', 'mixed')
+  ];
+  b.win.PDXConsistency.rankIssueRows = (rs) => rs;
   vm.runInContext(SPINE_SRC, b.ctx, { filename: 'profile-spine.js' });
   const SP = b.win.PDXProfileSpine;
   must(SP && typeof SP.applyLids === 'function',
     'profile-spine.js no longer publishes applyLids on window.PDXProfileSpine');
 
   const raw = b.WA.headlineHtml('p1', { name: 'Basis' });
-  must(/PDXSP:lid id="wa-basis"/.test(raw), 'headlineHtml no longer emits the wa-basis sentinel');
+  must(/PDXSP:lid id="wa-how"/.test(raw), 'headlineHtml no longer emits the wa-how sentinel');
+  must(/PDXSP:lid id="wa-index"/.test(raw), 'headlineHtml no longer emits the wa-index sentinel');
 
-  // The digest survives, the bulk does not, and the fold is a real control.
+  // EXACTLY TWO SENTINELS, AND NEITHER INSIDE THE OTHER. applyLids() leaves any
+  // region holding another PDXSP marker fully open — a nested sentinel is the one
+  // failure mode of this whole mechanism, and it looks identical to a change that
+  // never shipped.
+  eq((raw.match(/<!--PDXSP:lid /g) || []).length, 2,
+    'the card emits a number of lid sentinels other than the two it owns');
+  const idxOpen = raw.indexOf('<!--PDXSP:lid id="wa-index"');
+  const idxShut = raw.indexOf('<!--PDXSP:/lid-->', idxOpen);
+  const howOpen = raw.indexOf('<!--PDXSP:lid id="wa-how"');
+  ok(howOpen > idxShut,
+    'the apparatus lid opens inside the index lid — nested markers unfold both regions');
+
   const out = SP.applyLids(raw);
   ok(!/PDXSP:/.test(out),
     'a PDXSP sentinel survived into the output — it would sit in the page as an HTML\n' +
     '    comment, which is what an unresolved marker looks like from the outside');
-  ok(/pdxwa-basis-d/.test(out) && !/pdxwa-tiers/.test(out) && !/pdxwa-cov\b/.test(out),
-    'the wa-basis lid rendered inline: the tier table and coverage sentence are still in the\n' +
-    '    first paint, so the trim did not happen');
-  ok(/id="pdxsp-lid-wa-basis"/.test(out) && /toggleDD\('pdxsp-lid-wa-basis'\)/.test(out) &&
-     /aria-expanded="false"/.test(out),
-    'the basis fold does not use the shared toggle contract');
-  ok(/data-pdxsp-defer="pdxsp-lid-wa-basis"/.test(out) &&
-     SP._deferredIds().indexOf('pdxsp-lid-wa-basis') !== -1,
-    'wa-basis is not deferred — the tier rows are built into the DOM on a paint nobody asked for');
-  ok(SP.hasTarget('pdxsp-lid-wa-basis'),
-    'the spine cannot see the stashed basis body, so anything jumping to it concludes the\n' +
+
+  // ── The index: deferred, and out of the default path to the tree ────────────
+  ok(!/class="pdxwa-oc"/.test(out) && !/data-pdxwa-oc-panel=/.test(out),
+    'the tabbed issue index rendered inline: a second full issue browser is back above\n' +
+    '    🌳 All Issues by Topic, which is the duplication this pass removed');
+  ok(/id="pdxsp-lid-wa-index"/.test(out) && /toggleDD\('pdxsp-lid-wa-index'\)/.test(out),
+    'the index fold does not use the shared toggle contract');
+  ok(/data-pdxsp-defer="pdxsp-lid-wa-index"/.test(out) &&
+     SP._deferredIds().indexOf('pdxsp-lid-wa-index') !== -1,
+    'wa-index is not deferred — it is the largest single block on a profile and holding it\n' +
+    '    as a string is the whole reason the tree arrives sooner');
+  ok(SP.hasTarget('pdxsp-lid-wa-index'),
+    'the spine cannot see the stashed index body, so anything jumping to it concludes the\n' +
     '    content was deleted');
 
-  // The label names its payload with counts, per the lid rule. Never "See more".
-  const label = (out.match(/pdxsp-lid-label">([^<]*)</) || [])[1] || '';
-  ok(/What this score is built from/.test(label) && /\d+ of \d+ tested/.test(label),
-    `the wa-basis label does not state its payload with a count — got ${JSON.stringify(label)}`);
+  // ── The apparatus: one control, closed, holding all five blocks ─────────────
+  ok(/id="pdxsp-lid-wa-how"/.test(out) && /toggleDD\('pdxsp-lid-wa-how'\)/.test(out),
+    'the apparatus fold does not use the shared toggle contract');
+  eq((out.match(/aria-expanded="false"/g) || []).length >= 2, true,
+    'a Word vs Action lid renders open on arrival');
+  ok(!/data-pdxsp-defer="pdxsp-lid-wa-how"/.test(out),
+    'wa-how is deferred — gaps.js hydrates its lead rows and resolves .pdxwa-method by query\n' +
+    '    on render, and an unmounted body breaks both');
+  // Not deferred means the markup IS in the string; what matters is that all of it
+  // is INSIDE the collapsed body rather than above it.
+  const howAt = out.indexOf('id="pdxsp-lid-wa-how"');
+  for (const cls of ['pdxwa-basis-h', 'pdxwa-tiers', 'pdxwa-cov', 'pdxwa-feeds-l', 'pdxwa-method-body']) {
+    ok(out.indexOf(cls) > howAt,
+      `${cls} renders above the apparatus fold instead of inside it — the point of one control\n` +
+      '    is that nothing it holds is in the default read path');
+  }
+  // And the three disclosures it replaced are gone as disclosures, not as content.
+  ok(!/id="pdxsp-lid-wa-basis"/.test(out) && !/id="pdxsp-lid-wa-feeds"/.test(out) &&
+     !/<details class="pdxwa-method"/.test(out),
+    'a block inside the apparatus still folds itself — three stacked disclosures is the wall\n' +
+    '    this pass replaced with one control');
 
-  // It lives inside the body the warm re-render swaps. If it drifted outside,
+  // The labels name their payloads, per the lid rule. Never "See more".
+  const labels = (out.match(/pdxsp-lid-label">([^<]*)</g) || [])
+    .map((m) => m.replace(/^pdxsp-lid-label">/, '').replace(/<$/, ''));
+  eq(labels.length, 2, 'the card no longer renders exactly two lid labels');
+  const howLabel = labels.filter((l) => /How this score is built/.test(l))[0] || '';
+  ok(/\d+ of \d+ tested/.test(howLabel),
+    `the apparatus label does not state its payload with a count — got ${JSON.stringify(howLabel)}`);
+  const idxLabel = labels.filter((l) => /Issues in this score/.test(l))[0] || '';
+  ok(/All Issues by Topic/.test(idxLabel),
+    'the index label does not name the tree as the full map, so a closed index reads as the\n' +
+    `    only browse surface there is — got ${JSON.stringify(idxLabel)}`);
+
+  // Both live inside the body the warm re-render swaps. If either drifted outside,
   // the repaint would drop the fold and the reader would get the dense block back
   // the moment the voting record warmed.
   const bodyAt = out.indexOf('data-pdxwa-body');
-  ok(bodyAt !== -1 && bodyAt < out.indexOf('id="pdxsp-lid-wa-basis"'),
-    'the wa-basis lid is outside [data-pdxwa-body] — the warm re-render replaces that\n' +
-    '    subtree, so the fold would not survive the record arriving');
+  ok(bodyAt !== -1 && bodyAt < out.indexOf('id="pdxsp-lid-wa-index"') &&
+     bodyAt < out.indexOf('id="pdxsp-lid-wa-how"'),
+    'a lid is outside [data-pdxwa-body] — the warm re-render replaces that subtree, so the\n' +
+    '    fold would not survive the record arriving');
 
-  // And it rebuilds under reclaim, which is the mode lidify() uses on that repaint.
-  // Without this the second render hits the duplicate-id guard and falls back to
-  // inline — the fold would work exactly once per profile.
+  // And they rebuild under reclaim, which is the mode lidify() uses on that repaint.
   const warmOut = SP.applyLids(raw, true);
-  ok(/id="pdxsp-lid-wa-basis"/.test(warmOut) && !/pdxwa-tiers/.test(warmOut),
-    'wa-basis does not survive a reclaim repaint — the fold opens once and then the dense\n' +
-    '    block comes back for the rest of the session');
+  ok(/id="pdxsp-lid-wa-how"/.test(warmOut) && /id="pdxsp-lid-wa-index"/.test(warmOut) &&
+     !/class="pdxwa-oc"/.test(warmOut),
+    'the folds do not survive a reclaim repaint — they open once and then the dense blocks\n' +
+    '    come back for the rest of the session');
   const plain = SP.applyLids(raw);
-  ok(!/id="pdxsp-lid-wa-basis"/.test(plain) && /pdxwa-tiers/.test(plain),
+  ok(!/id="pdxsp-lid-wa-how"/.test(plain) && /pdxwa-tiers/.test(plain),
     'a second non-reclaim render claimed the same id — two nodes answering to one control');
 }
 
@@ -1480,10 +1545,15 @@ const voteNarration = (issueKey, extra = {}) => ({
   // arithmetic, because it weighs nothing and the score weighs testability.
   ok(txt(note(calm)).includes('The two do not have to line up'),
     'the strip does not warn that its counts and the weighted score are different arithmetic');
-  // …and the whole note sits BELOW the list, not between the strip and the list.
-  ok(calm.indexOf('class="pdxwa-shapenote"') > calm.indexOf('class="pdxwa-oc"'),
-    'the shape note renders between the strip and the issue index again — that gap is the\n' +
-    '    one thing this block is not allowed to occupy');
+  // …and it closes the OPEN part of the card. It used to sit below the index,
+  // because the index was the open block the strip handed straight to; the index is
+  // behind a control now, so the note is the last thing read before the two folds
+  // and 🌳 All Issues by Topic. Either way it is not furniture between a navigator
+  // and something the reader can already see.
+  ok(calm.indexOf('class="pdxwa-shapenote"') > calm.indexOf('class="pdxwa-comp"') &&
+     calm.indexOf('class="pdxwa-shapenote"') < calm.indexOf('class="pdxwa-oc"'),
+    'the shape note is no longer the paragraph that closes the open findings — it belongs\n' +
+    '    between the graph it reads and the first closed control');
 
   const tense = withRows([
     row('a', 'contradicts'), row('b', 'mixed'), row('c', 'consistent'),

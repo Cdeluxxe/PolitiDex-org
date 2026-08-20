@@ -6083,21 +6083,26 @@
     try { G = window.PDXGaps; } catch (e) {}
     return (G && typeof G.publicRecordGap === 'function') ? '＋ Suggest a lead' : '🧾 The public side';
   }
+  // The directions, in words, in one place. Both the per-row line and the
+  // profile-wide glance print these clauses, and a second copy of them is how a
+  // header and the rows under it start describing the same feed differently.
+  //
+  // Tension first. A reader scanning a column of these is looking for the rows
+  // where the public record disagrees, and putting the agreements first buries
+  // exactly the thing this line was added to surface.
+  function _pubBits(count, against, backs, flags) {
+    if (!count) return [PUB_EMPTY];
+    var bits = [against + (against === 1 ? ' cuts against' : ' cut against'),
+                backs + (backs === 1 ? ' backs it up' : ' back it up')];
+    if (flags) bits.push(flags + ' red flag' + (flags === 1 ? '' : 's'));
+    return bits;
+  }
   function publicTally(r) {
     var p = (r && r.public) || {};
     var against = p.contradicting || 0, backs = p.supporting || 0, flags = p.flags || 0;
     var count = p.count || 0;
     var decided = !!(r && r.verdict && r.verdict.basis === 'public_record');
-    var bits;
-    if (!count) bits = [PUB_EMPTY];
-    else {
-      // Tension first. A reader scanning a column of these is looking for the rows
-      // where the public record disagrees, and putting the agreements first buries
-      // exactly the thing this line was added to surface.
-      bits = [against + (against === 1 ? ' cuts against' : ' cut against'),
-              backs + (backs === 1 ? ' backs it up' : ' back it up')];
-      if (flags) bits.push(flags + ' red flag' + (flags === 1 ? '' : 's'));
-    }
+    var bits = _pubBits(count, against, backs, flags);
     var t = {
       lane: OTS_LANE, laneSub: OTS_SUB, laneFull: OTS_FULL,
       count: count, against: against, backs: backs, flags: flags,
@@ -6124,6 +6129,36 @@
       if (list[i] && list[i].public && list[i].public.count > 0) n++;
     }
     return { issues: n, total: list.length };
+  }
+  // The same lane, summed across a profile rather than read off one row — the
+  // glance version of the line every row already prints. It exists because the
+  // letterhead needed one, and a surface up there deriving its own public numbers
+  // is exactly how two counts of the same feed start disagreeing: this walks
+  // publicTally(), which is the one place the directions are named and counted.
+  //
+  // COUNTS, AND NEVER ANYTHING ELSE. No percentage, no ratio, no verdict, and it
+  // carries PUB_TAG out with the numbers so no caller has to remember to say that
+  // none of this is in Direction Match. `directional` is what a caller should gate
+  // on: a profile with items on file but nothing pointing either way has no shape
+  // to show, and four zeroes under a letterhead read as findings.
+  function publicShape(pid, rows) {
+    var list = rows || issueRows(pid) || [];
+    var out = { issues: 0, total: list.length, count: 0, against: 0, backs: 0,
+                flags: 0, directional: 0, tag: PUB_TAG, note: PUB_NOTE, lane: OTS_LANE };
+    for (var i = 0; i < list.length; i++) {
+      var r = list[i];
+      if (!r || !r.public) continue;
+      var t = publicTally(r);
+      if (t.empty) continue;
+      out.issues++;
+      out.count += t.count;
+      out.against += t.against;
+      out.backs += t.backs;
+      out.flags += t.flags;
+    }
+    out.directional = out.against + out.backs;
+    out.text = _pubBits(out.count, out.against, out.backs, out.flags).join(' \u00b7 ');
+    return out;
   }
   // The row's public line: the lane, the tally, the standing disclosure, and one tap
   // that lands on the public column of this issue's dossier rather than the top of
@@ -9262,6 +9297,26 @@
     items.push('<button type="button" class="pdxgap-nx" data-pdxc-profile="' + esc(pid) + '">' +
       '<span class="pdxgap-nx-ico" aria-hidden="true">🏛️</span>' +
       '<span>Open the full profile <span aria-hidden="true">→</span></span></button>');
+    // 🔍 THE SAME ISSUE, ACROSS EVERYONE. This used to be the last link on a
+    // 🧭 Stances & Connections row and nowhere else. That section is unmounted —
+    // the tree is the one browse surface and this sheet is the one deep dive — so
+    // the jump out to the Issue View comes here, where the reader is already
+    // holding the issue it would open. It is a `[data-pdxst-go]` button so it runs
+    // the SAME _stNav('issue') route the stance rows ran: one door, one handler.
+    //   FAIL CLOSED, TWICE. Only for a key the Issue View can actually rank (a Core
+    // National Issue), and only when the overlay module is on the page. A link into
+    // an empty ranking, or a link to a module that never loaded, is worse than no
+    // link — so where either test fails the row simply has three exits instead of
+    // four, exactly as it did before.
+    var ivOn = false;
+    try { ivOn = !!(window.PDXIssueView && typeof window.PDXIssueView.open === 'function'); } catch (e) {}
+    if (ivOn && _icSkin(issueKey).on) {
+      items.push('<button type="button" class="pdxgap-nx" data-pdxst-go="issue"' +
+        ' data-pdxst-target="" data-pdxst-pid="' + escAttr(pid) + '"' +
+        ' data-pdxst-key="' + escAttr(issueKey) + '">' +
+        '<span class="pdxgap-nx-ico" aria-hidden="true">🔍</span>' +
+        '<span>Everyone on this issue <span aria-hidden="true">→</span></span></button>');
+    }
     items.push('<a class="pdxgap-nx" href="#voter-hub" data-pdxc-gapclose="1">' +
       '<span class="pdxgap-nx-ico" aria-hidden="true">📍</span>' +
       '<span>Find your own reps <span aria-hidden="true">→</span></span></a>');
@@ -9764,6 +9819,7 @@
     // hand-count what the row model already counted.
     publicTally: publicTally,
     publicCoverage: publicCoverage,
+    publicShape: publicShape,
     // ── THE TWO LANES' LABELS, AS DATA ──────────────────────────────────────
     // Published so no surface has to spell "Outside the score" for itself. The
     // strings ARE the wall: a second surface writing its own version of them is how
@@ -9818,6 +9874,15 @@
     // 🧭 Stances & Connections — the "what they stand for" layer. A consumer of the
     // row model above, not a second one: it ranks with rankIssueRows() and prints the
     // verdict the row already resolved.
+    //   UNMOUNTED, STILL EXPORTED — the same disposition Stance at a Glance and
+    // Connecting the Dots have. Nothing on a profile renders it: it published the
+    // same person×issue set as 🌳 All Issues by Topic, in a different sort, as a
+    // second full-height issue browser below the gateway. The one thing it could do
+    // that the tree could not — rank across topics — is a view of the tree now
+    // (PDXStanceTree SORTS: Topic | Tension), and its one unique exit, 🔍 Everyone
+    // on this issue, is a step in the dossier's "Where to next" row. The renderer
+    // stays defined and exported so the harnesses that read a row's full face, and
+    // anything embedding this list outside a profile, keep working.
     stancesSectionHtml: stancesSectionHtml,
     // UNMOUNTED, STILL EXPORTED. Nothing on a profile renders saydoSectionHtml() or
     // divergenceSectionHtml() any more — the public record is an input to issueRow()

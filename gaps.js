@@ -590,9 +590,14 @@
   window._pdxGapsShowMethod = function (btn) {
     try {
       var host = btn.closest('.pdxwa') || document;
-      var det = host.querySelector('details.pdxwa-method');
+      // NO LONGER A <details>. The method note used to be its own disclosure; it is
+      // now a plain block inside the one apparatus fold, which this panel is also
+      // inside — so by the time this button is tappable the fold is already open and
+      // there is nothing to expand, only somewhere to go. The `open` line is kept and
+      // guarded so a <details> here would still work.
+      var det = host.querySelector('.pdxwa-method');
       if (!det) return;
-      det.open = true;
+      if ('open' in det) det.open = true;
       if (det.scrollIntoView) det.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (e) {}
   };

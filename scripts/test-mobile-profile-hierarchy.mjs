@@ -84,10 +84,17 @@ const bodySrc = WA.slice(bodyStart, WA.indexOf('\n      return ', bodyStart))
   .replace(/\/\/[^\n]*/g, '');
 must(bodySrc.length > 100 && bodySrc.length < 4000, 'the headlineHtml body block did not slice cleanly');
 
-const ORDER = ['tallyHtml', 'meansHtml', 'scopeStripHtml', 'compositionHtml', 'outcomesHtml',
-               'shapeNotesHtml', 'basisHtml', 'topRowsHtml', 'gapsHtml', 'feedsHtml', 'methodHtml'];
+// THE OPEN PATH IS THE SCORE ARGUMENT AND NOTHING ELSE. ⚖️ Word vs Action is the
+// last section before 🌳 All Issues by Topic, so every block it renders open is
+// scroll a reader pays before reaching the issue list. What stays open is the
+// figure, the four counts, what the score measures, the term slice, the shape
+// graph and the one paragraph that reads that graph. Everything else — the score's
+// own tabbed index, and the whole apparatus behind the number — is behind one of
+// two closed controls, declared last.
+const OPEN = ['tallyHtml', 'meansHtml', 'scopeStripHtml', 'compositionHtml', 'shapeNotesHtml'];
+const CLOSED = ['indexLidHtml', 'apparatusHtml'];
 const seq = (bodySrc.match(/\b[a-zA-Z]+Html\s*\(/g) || []).map((s) => s.replace(/\s*\($/, ''));
-for (const name of ORDER) {
+for (const name of OPEN.concat(CLOSED)) {
   must(seq.indexOf(name) !== -1, `headlineHtml no longer calls ${name}`);
 }
 const pos = (n) => seq.indexOf(n);
@@ -110,29 +117,64 @@ ok(pos('tallyHtml') < pos('compositionHtml'),
   'order: the tally is declared below the graph, where it repeats a picture the reader has\n' +
   '    already seen instead of previewing one they have not');
 
-// THE ONE THAT KEEPS BREAKING: nothing between the navigator and its destination.
-eq(pos('outcomesHtml'), pos('compositionHtml') + 1,
-  'order: a block is declared between the shape strip and the issue index. The strip is a\n' +
-  '    navigator — its segments and counts select a bucket in that index — and on a phone\n' +
-  '    anything in this gap is a screen the reader crosses between tapping and arriving\n' +
+// THE ONE THAT KEEPS BREAKING, RESTATED FOR THE FOLD. Nothing renders between the
+// shape graph and the sentence that reads it, and nothing at all renders between
+// that sentence and the first closed control. The gap the strip's navigator used
+// to shout about is now the whole tail of the section.
+eq(pos('shapeNotesHtml'), pos('compositionHtml') + 1,
+  'order: a block is declared between the shape strip and the paragraph that reads it\n' +
   `    (sequence: ${seq.join(' → ')})`);
 
-// The strip's own prose is part of that gap, and it went the same way as the rest.
-ok(pos('shapeNotesHtml') > pos('outcomesHtml'),
-  'order: the shape note is back above the issue index. It is three or four lines of reading\n' +
-  '    between a control and the list it opens, which is the same failure as the basis table —\n' +
-  '    it was simply inside compositionHtml rather than beside it, so the order check passed\n' +
-  '    while the phone still showed the gap');
+// THE TWO CONTROLS ARE THE LAST TWO THINGS, IN THAT ORDER. Which issues made the
+// number is the question a reader asks first; how the number is built is the one
+// they ask second.
+eq(pos('indexLidHtml'), seq.length - 2,
+  'order: the score\u2019s issue index is not the second-to-last term of the card. Anything after\n' +
+  `    it is open markup between the shape and the tree (sequence: ${seq.join(' → ')})`);
+eq(pos('apparatusHtml'), seq.length - 1,
+  'order: the apparatus fold is not the last term of the card — something renders after the\n' +
+  `    machinery behind the score (sequence: ${seq.join(' → ')})`);
+for (const name of OPEN) {
+  ok(pos(name) < pos('indexLidHtml'),
+    `order: ${name} is declared after a closed control, so an open finding is stranded below a fold`);
+}
 
-// The supporting reads follow the thing they support.
-ok(pos('basisHtml') > pos('outcomesHtml'),
-  'order: the basis table is back above the issue index — it answers a question a reader asks\n' +
-  '    after the issues, and it used to be the block sitting in the navigator gap');
-ok(pos('topRowsHtml') > pos('outcomesHtml'),
-  'order: the three sharpest rows are back above the issue index. They are rows the index\n' +
-  '    lists again, so leading with them meets the same issues twice before the navigator');
-ok(pos('methodHtml') === seq.length - 1 || pos('methodHtml') > pos('feedsHtml'),
-  'order: the method note is no longer last');
+// NEITHER CONTROL IS OPEN. Both are PDXSP lid sentinels, and the index is deferred
+// on top of that — it is four fifths of this section's markup on a dense profile.
+must(WA.indexOf('function indexLidHtml') !== -1, 'word-action.js no longer has indexLidHtml');
+must(WA.indexOf('function apparatusHtml') !== -1, 'word-action.js no longer has apparatusHtml');
+const idxSrc = WA.slice(WA.indexOf('function indexLidHtml'), WA.indexOf('function indexLidHtml') + 1600);
+const appSrc = WA.slice(WA.indexOf('function apparatusHtml'), WA.indexOf('function apparatusHtml') + 1800);
+ok(/PDXSP:lid id="' \+ LID_INDEX_KEY \+ '"/.test(idxSrc) && / defer-->/.test(idxSrc),
+  'the issue index is not behind a DEFERRED lid — it is the largest single block on a profile\n' +
+  '    and holding it as a string is the whole reason the tree arrives sooner');
+ok(/<!--PDXSP:lid id="wa-how"/.test(appSrc),
+  'the apparatus is not behind a lid sentinel');
+ok(!/defer/.test(appSrc.slice(appSrc.indexOf('PDXSP:lid'), appSrc.indexOf('PDXSP:/lid'))),
+  'the apparatus lid is deferred — gaps.js hydrates its lead rows and resolves .pdxwa-method\n' +
+  '    by query on render, and an unmounted body breaks both');
+
+// ONE DISCLOSURE, NOT THREE. The basis and the feed map used to carry lid
+// sentinels of their own and the method note used to be a <details>. applyLids()
+// leaves any region holding a nested PDXSP marker fully open, so a stray sentinel
+// inside the apparatus would silently unfold every one of these blocks back into
+// the default read path.
+eq((WA.match(/<!--PDXSP:lid /g) || []).length, 2,
+  'word-action.js emits a number of lid sentinels other than the two this section owns');
+ok(!/PDXSP:lid id="wa-basis"/.test(WA) && !/PDXSP:lid id="wa-feeds"/.test(WA),
+  'the basis or the feed map still folds itself — three stacked disclosures is the wall this\n' +
+  '    pass replaced with one control');
+ok(!/<details class="pdxwa-method"/.test(WA),
+  'the method note is still a <details> inside the apparatus fold — a fold inside a fold is a\n' +
+  '    second tap for a reader who already said yes');
+
+// THE APPARATUS KEPT EVERY BLOCK IT INHERITED. Demoted, never dropped.
+for (const name of ['basisHtml', 'topRowsHtml', 'gapsHtml', 'feedsHtml', 'methodHtml']) {
+  ok(appSrc.indexOf(name + '(') !== -1,
+    `the apparatus fold no longer renders ${name} — the fold is a demotion, not a deletion`);
+}
+// And the index kept its own renderer.
+ok(idxSrc.indexOf('outcomesHtml(') !== -1, 'the index lid no longer renders outcomesHtml');
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 2. The row face — a summary, with the issue's own figure on it

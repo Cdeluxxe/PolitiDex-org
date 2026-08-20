@@ -313,6 +313,31 @@
 .pdxwa-basis-i { display: inline-flex; align-items: baseline; gap: 0.28rem; }
 .pdxwa-basis-ico { font-size: 0.78rem; line-height: 1; }
 .pdxwa-basis-n { color: #cbd9ec; font-weight: 700; }
+/* The heading the basis lid's label used to carry. It gave that label up when the
+   three separate disclosures collapsed into one, so the block says its own name
+   again — same typography as the feed map's heading, because inside the fold the
+   two are peers. */
+.pdxwa-basis-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #7f97bb;
+  margin-bottom: 0.4rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE TWO CLOSED CONTROLS AT THE FOOT OF THE SECTION
+   ────────────────────────────────────────────────────────────────────────────
+   ⚖️ Word vs Action is the last thing between a reader and 🌳 All Issues by
+   Topic. Everything that is not the score argument now sits behind one of two
+   lids — the score's own issue index, and the machinery behind the number — and
+   both are closed on arrival. These wrappers exist only to give the .pdxsp-lid
+   the spine mints inside them a little air; the lid chrome itself is styled in
+   profile-spine's stylesheet, so nothing here re-describes a control. */
+.pdxwa-idxlid { margin-top: 0.65rem; }
+.pdxwa-how { margin-top: 0.45rem; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    COVERAGE GAPS  ·  rendered by gaps.js (window.PDXGaps.panelHtml)
@@ -1163,20 +1188,38 @@
   margin: 0.3rem 0 0;
 }
 .pdxwa-oc-pubfoot b { color: #a9bdd8; font-weight: 600; }
+/* Which surface is the map. Sits between the index's own denominator and the
+   outside-the-score wall, quieter than both — it is a signpost, not a finding. */
+.pdxwa-oc-map {
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: #7f97bb;
+  margin: 0.3rem 0 0;
+}
 
-/* ── Method disclosure ──────────────────────────────────────────────────── */
+/* ── Method note ────────────────────────────────────────────────────────────
+   No longer a <details> of its own: the basis, the sample rows, the coverage
+   ask, the feed map and this note all sit inside ONE fold now, and a disclosure
+   inside a disclosure is a second tap for a reader who already said yes. The
+   heading keeps the summary's typography so nothing about the block's rhythm
+   changed — it simply does not open or close any more. */
 .pdxwa-method { margin-top: 0.6rem; }
+.pdxwa-method-h,
 .pdxwa-method > summary {
-  cursor: pointer;
-  display: inline-block;
-  min-height: 2.75rem;      /* ≥44px tap target on mobile */
-  line-height: 2.75rem;
+  display: block;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #7596c0;
+  margin-bottom: 0.35rem;
+}
+.pdxwa-method > summary {
+  cursor: pointer;
+  display: inline-block;
+  min-height: 2.75rem;      /* ≥44px tap target on mobile */
+  line-height: 2.75rem;
 }
 .pdxwa-method > summary:hover,
 .pdxwa-method > summary:focus-visible { color: #a9c4e8; }
@@ -1890,6 +1933,44 @@
   margin-top: 0;
   padding-top: 0.6rem;
   border-top: 1px solid rgba(120, 150, 190, 0.18);
+}
+
+/* The other lane, one line, counts only. It sits under the four formal counts
+   and has to read as a different KIND of thing from them: no bucket colour, no
+   button chrome, no tap affordance, and the boundary tag carried in the line
+   rather than left to a tooltip. See headerPublicHtml() in word-action.js for
+   the four rules it renders under. */
+.pdxwa-hpub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.45rem;
+  margin: 0.45rem 0 0;
+  padding-top: 0.4rem;
+  border-top: 1px dashed rgba(120, 150, 190, 0.16);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: #93a9c8;
+}
+.pdxwa-hpub-k {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6f88ab;
+}
+.pdxwa-hpub-v { color: #c3d4ea; }
+/* Quieter than the counts it qualifies, and never coloured: a tag that read as a
+   verdict would be doing the exact thing it exists to deny. */
+.pdxwa-hpub-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.02em;
+  color: #7f97b8;
+  border: 1px solid rgba(120, 150, 190, 0.22);
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.32rem;
+  white-space: nowrap;
 }
 
 /* ── The tail of the header stack: how much record, over what span ──────────── */

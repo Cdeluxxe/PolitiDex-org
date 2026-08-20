@@ -421,7 +421,16 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     "dedupe: the Promise Tracker gateway is mounted in the modal body again — that is a\n" +
     "    second integrity product competing with Word vs Action for the same reader");
   once("PDXConsistency.officialRecordSectionHtml(id)", "the Official Record feed");
-  once("PDXConsistency.stancesSectionHtml(id)", "the Stances & Connections layer");
+  // 🧭 Stances & Connections is mounted ZERO times by design, for the same reason
+  // Stance at a Glance is: it published the same person×issue set the topic tree
+  // publishes — said, record result, a percentage, a door into the same dossier —
+  // ranked sharpest-first instead of grouped, as a second full-height issue browser
+  // below the gateway. The ranking is a VIEW of the tree now (Order: Topic |
+  // Tension); the renderer stays defined and exported for the archive and for the
+  // harnesses that read a row's full face. Only the mount is gone.
+  ok(!/PDXConsistency\.stancesSectionHtml\(id\)/.test(PF),
+    "dedupe: 🧭 Stances & Connections is mounted in the modal body again — that is a second\n" +
+    "    full issue browser competing with 🌳 All Issues by Topic over the same rows");
   // Say-vs-Do and the record-vs-public-picture bridge are mounted ZERO times by
   // design. Say-vs-Do was a second per-issue verdict for the same issue, and the
   // bridge existed only to referee the disagreement between the two. The public
@@ -832,8 +841,23 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(/PDXSP:lid id="or-rest"/.test(CJL) && /PDXSP:lid id="sd-rest"/.test(CJL) &&
      /PDXSP:lid id="dv-aligned"/.test(CJL),
      "lid: the Official Record, Say-vs-Do and divergence sections each fold their bulk list");
-  ok(/PDXSP:lid id="wa-feeds"/.test(WAL) && !/pdxwa-feeds-h">What feeds/.test(WAL),
-     "lid: the What-feeds-this-score explainer folds, and its heading became the lid label rather than being printed twice");
+  // ⚖️ Word vs Action now folds at the SECTION level rather than block by block.
+  // The basis, the sample rows, the coverage ask, the feed map and the method note
+  // used to be three separate disclosures and a <details> stacked between the shape
+  // graph and 🌳 All Issues by Topic; they are one control now, and the score's own
+  // tabbed index is a second, deferred one. Nested markers are the failure mode:
+  // applyLids() leaves any region holding another PDXSP sentinel fully open, so a
+  // surviving wa-basis or wa-feeds marker would unfold the whole apparatus.
+  ok(/PDXSP:lid id="wa-how"/.test(WAL) && /PDXSP:lid id="' \+ LID_INDEX_KEY \+ '"/.test(WAL),
+     "lid: Word vs Action no longer folds its apparatus and its issue index behind one control each");
+  ok(!/PDXSP:lid id="wa-basis"/.test(WAL) && !/PDXSP:lid id="wa-feeds"/.test(WAL) &&
+     (WAL.match(/<!--PDXSP:lid /g) || []).length === 2,
+     "lid: a block inside the apparatus fold still carries a lid sentinel of its own — a nested\n" +
+     "    marker makes applyLids() leave the whole region open, which puts the tier table, the\n" +
+     "    feed map and the method essay back in the default path to the tree");
+  ok(/pdxwa-feeds-h">What feeds/.test(WAL),
+     "lid: the feed map gave its heading to a lid label it no longer has, so the block is now\n" +
+     "    unlabelled inside the apparatus fold");
   ok(/PDXSP:lid id="ev-rest"/.test(PFL) && /PDXSP:lid id="ev-thin"/.test(PFL),
      "lid: the Connected Evidence grid folds its tail of cards and its no-record stances separately");
   ok(!/evd-more-btn/.test(PFL) && !/display:none;margin-top:0\.7rem/.test(PFL),
@@ -857,25 +881,26 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "the coverage line is back in headlineHtml — this assertion was rewritten on the\n" +
      "    premise that it lives inside the wa-basis lid, and would now pass for the wrong\n" +
      "    reason (indexOf returns -1, and -1 is less than everything)");
-  ok(hl.indexOf("pdxwa-num-v") < hl.indexOf("basisHtml(r)") &&
-     hl.indexOf("basisHtml(r)") < hl.indexOf("feedsHtml(pid, p, r)"),
-     "lid: the primary Word vs Action number and verdict are still emitted before the basis,\n" +
-     "    and the basis before the feeds, so the one score is the first thing read");
-  const bh = WAL.slice(WAL.indexOf("function basisHtml"), WAL.indexOf("function basisHtml") + 2600);
-  ok(bh.indexOf("pdxwa-basis-d") < bh.indexOf('PDXSP:lid id="wa-basis"'),
-     "lid: the basis digest fell behind its own lid — the one-line summary has to stay\n" +
-     "    visible or the fold removes information instead of deferring it");
-  ok(bh.indexOf('PDXSP:lid id="wa-basis"') < bh.indexOf("pdxwa-tiers") &&
-     bh.indexOf("pdxwa-tiers") < bh.indexOf("pdxwa-cov") &&
-     bh.indexOf("pdxwa-cov") < bh.indexOf("PDXSP:/lid"),
-     "lid: the tier table and the coverage sentence are not both inside the wa-basis lid");
-  ok(/defer-->/.test(bh.slice(bh.indexOf('PDXSP:lid id="wa-basis"'), bh.indexOf("pdxwa-tiers"))),
-     "lid: wa-basis stopped deferring — the tier rows are the longest prose on the card and\n" +
-     "    should not be built on a paint nobody asked for");
-  ok(/var label = 'What this score is built from · ' \+\s*\n\s*r\.coverage\.tested \+ ' of ' \+ r\.coverage\.scorable \+ ' tested';/.test(bh) &&
-     /label="' \+ label \+ '"/.test(bh),
-     "lid: the wa-basis label stopped naming its payload — a lid label must say what opening\n" +
+  ok(hl.indexOf("pdxwa-num-v") < hl.indexOf("indexLidHtml(pid)") &&
+     hl.indexOf("indexLidHtml(pid)") < hl.indexOf("apparatusHtml(pid, p, r)"),
+     "lid: the primary Word vs Action number and verdict are still emitted before both closed\n" +
+     "    controls, and the issue index before the apparatus, so the one score is the first\n" +
+     "    thing read and the machinery behind it is the last");
+  const ap = WAL.slice(WAL.indexOf("function apparatusHtml"), WAL.indexOf("function indexLidHtml"));
+  ok(ap.indexOf("basisHtml(r)") < ap.indexOf("feedsHtml(pid, p, r)") &&
+     ap.indexOf("feedsHtml(pid, p, r)") < ap.indexOf("methodHtml(r, pid)"),
+     "lid: inside the apparatus fold the basis no longer comes before the feed map and the\n" +
+     "    method note — the order a reader asks these in is what is built, what feeds it, how\n" +
+     "    it is counted");
+  ok(/r\.coverage\.tested \+ ' of ' \+ r\.coverage\.scorable \+ ' tested'/.test(ap) &&
+     /label="' \+ label \+ '"/.test(ap),
+     "lid: the apparatus label stopped naming its payload — a lid label must say what opening\n" +
      "    it shows, with a count, never a bare 'See more'");
+  const bh = WAL.slice(WAL.indexOf("function basisHtml"), WAL.indexOf("function basisHtml") + 2600);
+  ok(bh.indexOf("pdxwa-basis-d") !== -1 && bh.indexOf("pdxwa-basis-d") < bh.indexOf("pdxwa-tiers") &&
+     bh.indexOf("pdxwa-tiers") < bh.indexOf("pdxwa-cov"),
+     "lid: the basis digest no longer leads its own block — the one-line summary is what makes\n" +
+     "    the tier table below it scannable");
 
   // 10h. The repaint paths. Both of these hand HTML to innerHTML directly, so both
   //      have to resolve markers themselves or the fold silently disappears.
@@ -1075,14 +1100,15 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   }
   // Several anchors are emitted by other modules, so the template only shows the
   // call. The stage of the call is the stage of the anchor. One call may emit more
-  // than one anchor — the topic tree carries its own plus the legacy #pdxsec-glance
-  // alias the unmounted flat index used to own — so every entry naming a call is
-  // credited with that call's stage, not just the first.
+  // than one anchor — the topic tree carries its own plus BOTH legacy aliases, the
+  // #pdxsec-glance the unmounted flat index used to own and the #pdxsec-stances the
+  // unmounted 🧭 Stances & Connections section used to own — so every entry naming a
+  // call is credited with that call's stage, not just the first.
   const external = [
     ["pdxsec-wordaction", "PDXWordAction.sectionHtml", "word-action.js"],
     ["pdxsec-stancetree", "PDXStanceTree.sectionHtml", "stance-tree.js"],
     ["pdxsec-glance", "PDXStanceTree.sectionHtml", "stance-tree.js"],
-    ["pdxsec-stances", "PDXConsistency.stancesSectionHtml", "consistency.js"],
+    ["pdxsec-stances", "PDXStanceTree.sectionHtml", "stance-tree.js"],
     ["pdxsec-controversies", "_renderControversies", "controversies.js"],
     ["pdxsec-funding", "_pdxFundingSection", "index.html"],
   ];
@@ -1104,6 +1130,10 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ok(/id="pdxsec-glance"/.test(ST),
        "rail: stance-tree.js still carries the legacy #pdxsec-glance alias, so every existing\n" +
        "    jump into \"their stated positions\" lands on the surface that now holds them");
+    ok(/id="pdxsec-stances"/.test(ST),
+       "rail: stance-tree.js does not carry the #pdxsec-stances alias — 🧭 Stances &\n" +
+       "    Connections is unmounted, so a jump or a deep link naming that anchor lands\n" +
+       "    nowhere unless the tree answers to it");
   }
   // The voting anchor is emitted by voting-record.js into the votes drawer.
   ok(/<span id="pdxsec-voting"/.test(read("voting-record.js")),
