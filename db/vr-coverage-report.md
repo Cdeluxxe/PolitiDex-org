@@ -8,12 +8,22 @@ titles come from the live database, overlaid with the curated seeds committed he
 wherever the live row has not caught up — so a pass that has landed in the repo but
 not yet deployed is counted, and every row it accounts for is marked `pending`.
 
-> **Hand note, not regenerated (2026-08-20).** This snapshot predates
-> `20260911000000_vr_ndaa_israel_keys_and_rule22.sql`, which adds `israel_support` to
-> H.R. 8800, S. 1071 and S. 1605 and `immig_fentanyl` to S. 1605. Three of the Gap 1b
-> rows below — H.R. 8800 (215 member-votes), S. 1605 (179) and the S. 1071 entry — are
-> answered by that pass. Regenerating needs `NETLIFY_DB_URL`, which this checkout does
-> not have; re-run `node scripts/vr-coverage-report.mjs --write` after the deploy.
+> **Hand note, not regenerated (2026-08-20).** This snapshot predates two passes.
+> `20260911000000_vr_ndaa_israel_keys_and_rule22.sql` adds `israel_support` to H.R. 8800,
+> S. 1071 and S. 1605 and `immig_fentanyl` to S. 1605, answering the Gap 1b rows for
+> H.R. 8800 (215 member-votes), S. 1605 (179) and S. 1071.
+> `20260912000000_vr_formal_densification_multi_issue.sql` adds nine more rows across six
+> measures: H.R. 2670 → `israel_support`, H.R. 1 of the 117th → `campaign_finance` /
+> `gov_transparency` / `scotus_reform`, H.R. 4 of the 117th → `states_federal_power`,
+> H.R. 1181 → `privacy_rights` / `states_federal_power`, H.R. 8404 →
+> `states_federal_power`, and H.R. 36 → `foreign_balance`. That clears the Gap 1 row for
+> H.R. 36 (101 member-votes) outright and takes the Gap 1b rows for H.R. 2670 (197) and
+> H.R. 8404 (178) off the single-key list, along with the H.R. 1, H.R. 4 and H.R. 1181
+> entries inside "33 more". Five Gap 1 rows are refusals, not backlog, and are recorded as
+> such in that migration's header: H.R. 973 and S. 2503 (runbook rule 3), H.R. 139 and
+> H.R. 1069 (vocabulary gaps), H.R. 1402 (rule 2). Regenerating needs `NETLIFY_DB_URL`,
+> which this checkout does not have; re-run `node scripts/vr-coverage-report.mjs --write`
+> after the deploy.
 
 ## Where the ranking stands
 

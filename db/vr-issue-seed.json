@@ -530,6 +530,22 @@
      "supportMeaning": "yea_supports",
      "rationale": "Protecting Privacy in Purchases Act bars payment-card networks from requiring or assigning a merchant category code that singles out firearms retailers; a yea blocks a gun-purchase tracking mechanism that gun-rights groups oppose.",
      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181"
+    },
+    {
+     "issueKey": "privacy_rights",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 2(a) bars a payment card network from requiring, and a covered entity from assigning, any merchant category code used only or primarily for firearms retailers or identifying a retailer as selling firearms, and Sec. 2(b) makes the Attorney General enforce it through a public complaint process, investigations and injunctions. The effect on the data question is direct: card networks and processors may not build a transaction record that flags a customer as having bought at a gun store. A yea imposes that limit on what payment processors may record about a purchase. Weighted 55: the same prohibition the gun_rights row reads from the firearms side, read here on the purchase-data side.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1181eh/html/BILLS-119hr1181eh.htm"
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Sec. 2(c)(1) expressly preempts any law of a State or local government regulating the assignment, use or disclosure of merchant category codes for firearms retailers. A yea replaces whatever a State has enacted on that subject — in either direction — with the federal rule; a nay leaves each State's own choice standing. Weighted 40: one subsection of a one-section Act, but an express preemption clause is the whole of the question this issue asks.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1181eh/html/BILLS-119hr1181eh.htm"
     }
    ]
   },
@@ -1416,6 +1432,14 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "The act repeals DOMA's man/woman definitions and requires interstate recognition of same-sex marriages. Mapped as a single key deliberately: a religious_liberty contradiction row would be false, because the enacted text expressly states it does not affect religious liberties and does not require religious organizations to provide goods or services for a marriage."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Sec. 4 inserts a new 28 U.S.C. 1738C providing that no person acting under color of State law may deny full faith and credit to another State's marriage record on the basis of the sex, race, ethnicity or national origin of the spouses, or deny a right or claim arising from such a marriage on the ground that the State would not itself recognize it, and it backs that with Attorney General enforcement and a private right of action. A yea overrides a State's own marriage-recognition rule with a federal one; a nay leaves each State's rule governing. Coded on the preemption question only — the merits are the lgbtq_rights row. Weighted 40 for the one section that does the overriding.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-117publ228/html/PLAW-117publ228.htm"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr8404.xml"
@@ -1548,6 +1572,14 @@
      "supportMeaning": "yea_opposes",
      "rationale": "Section 7902 of the enacted act reauthorizes Title VII of the Foreign Intelligence Surveillance Act of 1978, the authority under which section 702 collection against targets outside the United States runs, through April 19, 2024. A yea extends that authority. Weighted as a provision-level slice rather than as the bill's headline: this is one section of a whole defense authorization.",
      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title XII, Subtitle D of the enacted act is headed \"Matters Relating to Israel\" and runs eight sections: Sec. 1252 extends United States-Israel anti-tunnel cooperation, Sec. 1253 improves cooperation to counter unmanned aerial systems, Sec. 1254 modifies the authority for cooperation on directed energy capabilities, Sec. 1256 authorizes assistance to Israel for aerial refueling and Sec. 1257 sets the rules governing transfer of aerial refueling tankers to Israel. Sec. 1665 makes available not more than $80,000,000 to the Government of Israel to procure Iron Dome components, not more than $40,000,000 for the David's Sling Weapon System and not more than $80,000,000 for the Arrow 3 Upper Tier Interceptor Program, each through co-production in the United States. A yea enacts all of it and keeps the security aid and the joint weapons programs running; a nay blocks the bill that carries them. Weighted 40 rather than the 35 carried by the FY2022 and FY2026 NDAAs: this is the widest Israel subtitle of the three, eight sections plus a $200,000,000 co-production section.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-118hr2670enr/html/BILLS-118hr2670enr.htm"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
@@ -1952,6 +1984,30 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "For the People Act of 2021. Title I requires every state to offer automatic voter registration through motor-vehicle and other designated agencies, same-day registration and online registration, and restricts voter-roll purges; Title II requires at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage, and restores voting rights to citizens released from incarceration. Every one of those provisions widens a registration or casting pathway, so a yea is a vote to expand access. The bill's election-security title is deliberately NOT mapped: it mandates durable paper ballots and risk-limiting audits while the same bill permits a sworn statement in lieu of documentary ID and restricts list maintenance, so one yea covers both directions of the safeguard facet and records neither."
+    },
+    {
+     "issueKey": "campaign_finance",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division B of the bill is titled \"Campaign Finance\" and is the largest of its three divisions. Sec. 4111 requires any organization making campaign-related disbursements aggregating more than $10,000 to report the donors behind them, the Honest Ads provisions beginning at Sec. 4201 extend the broadcast disclaimer and public-file rules to paid internet political advertising, and Sec. 4401 restricts the exchange of campaign information between candidates and outside spending groups so that a coordinating super PAC is treated as making a contribution. Sec. 5111 sets up a voluntary public financing system for House candidates paying 600 percent of each qualified small contribution out of a Freedom From Influence Fund. A yea enacts that whole structure; a nay leaves current law. Weighted 70 for share of the bill: an entire division of a three-division act.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr1eh/html/BILLS-117hr1eh.htm"
+    },
+    {
+     "issueKey": "gov_transparency",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division C is titled \"Ethics\" and is about disclosure by and conduct of officeholders. Sec. 9101 bars Members of the House from serving on the board of a for-profit entity, Sec. 9102 writes conflict-of-interest rules for Members and senior staff, Sec. 8012 requires the President and Vice President to divest personal financial interests that pose a conflict, Sec. 10001 requires presidential and vice-presidential candidates to file their income tax returns for the 10 most recent taxable years, and Sec. 7201 expands the range of individuals and activities that have to register and report under the lobbying disclosure laws. A yea enacts all five. Weighted 55 for share of the bill: one division of three, and the campaign-money titles are carried separately by the campaign_finance row rather than counted twice here.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr1eh/html/BILLS-117hr1eh.htm"
+    },
+    {
+     "issueKey": "scotus_reform",
+     "weight": 25,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 7001 requires the Judicial Conference of the United States to issue a code of conduct that applies to each justice and judge of the United States — the Supreme Court included, which no statute has ever reached. A yea enacts that requirement. It is the ethics half of this issue and none of the tenure half: the bill says nothing about term limits for justices. Weighted 25, the floor of this record, for one section of a three-division act.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr1eh/html/BILLS-117hr1eh.htm"
     }
    ]
   },
@@ -1968,6 +2024,14 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "John R. Lewis Voting Rights Advancement Act of 2021. Restores the Voting Rights Act preclearance regime with a rolling twenty-five-year coverage formula and adds a practice-based review list that gates specific access-narrowing changes — new documentary or photo-ID requirements, polling-place closures and consolidations, and voter-roll purges — behind federal review before they take effect, and restores a private right of action. The bill adds no verification requirement, ballot-handling rule or audit provision of its own, so it is mapped to the access facet only; mapping it to election_security would score members on a question the text does not ask."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Secs. 4 through 6 restore Voting Rights Act preclearance. Sec. 5 rewrites the coverage formula in 52 U.S.C. 10303(b) so that a State is covered for a calendar year when fifteen or more voting rights violations occurred there during the previous 25 calendar years, on a rolling basis. Sec. 6 inserts a new section 4A applying nationwide: every State and political subdivision must identify any newly enacted law, regulation or policy that is a covered practice and may not implement it until it has been cleared federally. A yea puts a State's own enacted election law behind federal approval before it can take effect; a nay leaves the State's rule governing on its own. Coded against this issue's direction on that preemption question only — the merits of the Voting Rights Act are the voting_access row, not this one. Weighted 55 for the three sections that carry the preclearance machinery.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr4eh/html/BILLS-117hr4eh.htm"
     }
    ]
   },
@@ -2565,6 +2629,23 @@
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3486eh/xml/BILLS-119hr3486eh.xml",
      "rationale": "Illegal entry and reentry are the two federal offences the immigration-enforcement system rests on, and this bill raises the penalty for both — the axis the border_security chip labels 'Strong Border & Enforcement'. Coded secondary at 65 rather than primary because the bill adds no barrier, no agent, no detention bed and no removal authority: it is enforcement severity, not enforcement capacity. The related deportations key is declined outright for the same reason."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 36",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr36eh/html/BILLS-119hr36eh.htm",
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 6 requires the President to determine, within 90 days, whether Georgian parliamentarians, senior party officials, leadership figures in the security and judicial services and their benefiting family members have knowingly engaged in significant corruption or in violence or intimidation connected to blocking Georgia's Euro-Atlantic integration, and to impose property-blocking sanctions under the International Emergency Economic Powers Act and visa ineligibility on each person identified. Sec. 4 states a policy of backing Georgia's integration with NATO and the European Union, and Sec. 7 conditions expanded exchanges and expanded military cooperation, including equipment suited to territorial defense against Russian aggression, on a presidential certification that Georgia has made sustained progress back toward that track. A yea puts United States sanctions and security cooperation behind an allied integration effort run with European partners; a nay leaves the tools unused. Sec. 8 sunsets the whole Act after five years.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr36eh/html/BILLS-119hr36eh.htm"
     }
    ]
   }

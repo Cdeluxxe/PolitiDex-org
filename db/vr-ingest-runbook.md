@@ -705,6 +705,21 @@ depth — 428 more judged votes standing behind positions that previously rested
    the key stays off. Direction is what the instrument does on K, not what motivated any bloc.
    `20260911000000` applied this to the three NDAAs that all carry a "Matters relating to Israel"
    subtitle and none of which carried the key: H.R. 8800 (40), S. 1071 (35) and S. 1605 (35).
+   `20260912000000` applied it to the rest of the heavy single-key measures — H.R. 2670 (40,
+   closing that trail at four NDAAs), H.R. 1 of the 117th onto `campaign_finance`,
+   `gov_transparency` and `scotus_reform`, H.R. 4 of the 117th and H.R. 1181 and H.R. 8404 onto
+   `states_federal_power`, and H.R. 36 onto `foreign_balance` from no mapping at all. Two things
+   that pass settled and this rule should carry forward. **A provision may answer two chips.**
+   H.R. 1181 Sec. 2(a) is both the gun-purchase-tracking question and the purchase-data question,
+   and both rows are honest; the duplicate bar is about a rider that got its own roll call, not
+   about a section that genuinely speaks to two keys. **A key with mappings running only one way
+   is not a one-way key.** Every `states_federal_power` row was `yea_supports` until this pass,
+   which is a fact about which votes had been read, not about the key; the chip is directional and
+   the schema is bidirectional, so a vote that overrides the state's rule earns a `yea_opposes`
+   row. What still bars a key is the chip's own SCOPE: `gov_transparency` is scoped in
+   `alignment-tool.js` to disclosure BY members, so H.R. 4's Sec. 7 notice duty on state election
+   administrators is not a mapping however transparent it is. Read the scope comment, not the
+   label.
 
 ### Best remaining follow-ups after this pass
 
@@ -721,12 +736,26 @@ depth — 428 more judged votes standing behind positions that previously rested
      Division E title L is still unresolved for a different reason (direction, per
      `20260910000000`). One pass should settle both.
    · **`foreign_balance` across the NDAAs.** S. 1605 Sec. 1232 extends the Ukraine Security
-     Assistance Initiative and Title XIII Subtitle A carries NATO matters. It goes on all three
-     NDAAs or none; putting it on the oldest alone would recreate the inconsistency this pass
-     removed.
+     Assistance Initiative and Title XIII Subtitle A carries NATO matters. It goes on all four
+     NDAAs or none — H.R. 2670 joined the `israel_support` trail in `20260912000000`, so the
+     consistency set is H.R. 8800, S. 1071, S. 1605 and H.R. 2670. Putting it on one alone would
+     recreate the inconsistency the Israel pass removed.
    · **S. 1605's `strong_defense` weight of 100** is out of line with H.R. 8800 and S. 1071 at 80
      for the same kind of bill. Rule 21 makes that a guarded `UPDATE` with its own argument, not
      a side effect of an additive pass.
+0c. *(Opened by `20260912000000`, the formal densification pass.)* Two vocabulary gaps and one
+   scope question that pass named rather than filled:
+   · **No key for foreign influence in domestic institutions.** H.R. 1069 (PROTECT Our Kids Act,
+     247-164, 99 member-votes) cuts federal education funds from any K-12 school partnered with a
+     PRC-funded institute. `tariffs_china` is trade, `america_first_fp` is foreign aid, and
+     `public_schools` is a funding-level chip. The bill stays unmapped until the vocabulary
+     question is decided on its own; do not invent a key for one measure.
+   · **No key for a time standard.** H.R. 139 (Sunshine Protection Act, 308-117) has no chip and
+     should not grow one. Its state-exemption clause is a savings clause, not a preemption, so it
+     is not a `states_federal_power` vote either.
+   · **Rule 3 is now the reason two contested bills stay dark**: H.R. 973 (105 member-votes) and
+     S. 2503 (98). Both were re-read in this pass and left where rule 3 put them. If rule 3 is
+     ever revisited, these are the two measures that change.
 1. **H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53). The strongest
    remaining candidate and the one deliberately deferred here: real, decisive, heavily
    attributable, and a genuine multi-axis omnibus that needs a division-by-division read before

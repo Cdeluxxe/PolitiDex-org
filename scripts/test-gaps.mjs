@@ -613,12 +613,12 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260911000000_vr_ndaa_israel_keys_and_rule22',
+  eq(versions[versions.length - 1], '20260912000000_vr_formal_densification_multi_issue',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by the August 2026 pass that
-  // retired runbook rule 22's "section inside a vehicle" bar and put israel_support
-  // on the three NDAAs whose text carries it. What it guards
+  // whenever a later migration lands — updated here by the August 2026 formal
+  // densification pass, which applied the product rule to the rest of the heavy
+  // single-key measures and added nine second keys across six of them. What it guards
   // does not move: whatever was added most recently has to sort after everything
   // already applied, or the deploy is rejected. The check below is the one that pins THIS test's migration, and it
   // stays put.
