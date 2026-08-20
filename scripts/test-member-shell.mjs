@@ -400,11 +400,16 @@ must(thinCard.length > 500, "the limited-record card renders nothing for a thin 
 has(text(thinCard), "Why this record is thin",
   "the card no longer says what it is for — explaining the gap is the only job it kept");
 has(text(thinCard), "Limited Record", "the card dropped its limited-record badge");
-has(thinCard, "Word vs Action",
-  "the card stopped pointing at the shared section — a demoted card that names no path\n" +
-  "    is just a dead end");
-has(text(thinCard), "Key Issue Stances",
-  "the card stopped pointing at where the positions themselves are read in full");
+// It points at ONE door, and at the one that is open on these profiles. It used to
+// name ⚖️ Word vs Action's issue index (gated on a two-issue floor, so absent here)
+// and "Key Issue Stances" (a heading that now lives sealed inside a deferred drawer
+// titled "📋 Every documented position"). Both are stale; the tree is not.
+has(text(thinCard), "All Issues by Topic",
+  "the card stopped pointing at 🌳 All Issues by Topic — the browse gateway it sits\n" +
+  "    directly under, and the only issue surface that renders on a thin profile");
+lacks(text(thinCard), "Key Issue Stances",
+  "the card is pointing at \"Key Issue Stances\" again — that heading is inside a closed,\n" +
+  "    deferred drawer with a different lid, so a reader who follows the pointer finds nothing");
 lacks(text(thinCard), "Contradicted", "the card is grading issues again in bucket words");
 lacks(text(thinCard), "Backed up", "the card is grading issues again in bucket words");
 
@@ -462,9 +467,11 @@ must(CARD_SRC.length > 2000, "the isolated card source is implausibly short");
 // The pointer copy the card kept must speak the shell's language, not its own.
 const pointer = text(win._renderCandidateSnapshot("massie", win.CMP_DATA.massie, { isThin: true }) || "");
 has(pointer, "documented position", "the card stopped naming what it counts");
-has(pointer, "browsed by outcome",
-  "the card no longer tells the reader the positions are browsed by outcome — the sentence\n" +
-  "    that hands the job to the shared index");
+has(pointer, "grouped by topic",
+  "the card no longer tells the reader where the positions are browsed — the sentence that\n" +
+  "    hands the job to 🌳 All Issues by Topic, which is the surface directly above it");
+has(pointer, "All Issues by Topic",
+  "the card's pointer names no destination — it must name the tree, by the tree's own heading");
 
 // And the sibling surfaces point at the same place by the same name.
 has(R("stance-helpers.js"), "Word vs Action",

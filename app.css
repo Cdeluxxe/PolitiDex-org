@@ -1423,47 +1423,22 @@
       margin-top: 0.75rem; padding-top: 0.7rem;
       border-top: 1px solid rgba(159,180,212,0.16);
     }
-    .profile-thin-notice .ptn-next-label {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
-      color: #f5c842; margin-bottom: 0.5rem;
-    }
-    .profile-thin-notice .ptn-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .profile-thin-notice .ptn-act-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
-      border-radius: 0.65rem; padding: 0.5rem 0.85rem; cursor: pointer;
-      border: 1px solid transparent; color: #fff;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-    .profile-thin-notice .ptn-act-btn:hover { transform: translateY(-1px); }
-    .profile-thin-notice .ptn-act-align {
-      background: linear-gradient(135deg, rgba(124,58,237,0.9), rgba(109,40,217,0.9));
-      border-color: rgba(167,139,250,0.5);
-      box-shadow: 0 4px 14px rgba(139,92,246,0.28);
-    }
-    .profile-thin-notice .ptn-act-team {
-      background: linear-gradient(135deg, rgba(192,21,42,0.9), rgba(124,15,30,0.92));
-      border-color: rgba(245,158,11,0.45);
-      box-shadow: 0 4px 14px rgba(192,21,42,0.28);
-    }
-    .profile-thin-notice .ptn-act-team.is-on {
-      background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,80,40,0.42));
-      border-color: rgba(74,222,128,0.5); color: #4ade80; box-shadow: none;
-    }
-    .profile-thin-notice .ptn-act-btn.just-added {
-      background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(16,80,40,0.5));
-      border-color: rgba(74,222,128,0.6); color: #4ade80;
-    }
+    /* RETIRED with the fallback's button pair: .ptn-next-label, .ptn-actions and
+       .ptn-act-* (align / team / is-on / just-added). The notice offered the same
+       two actions the sticky rail and the roster card already carry; the sentence
+       that survives needs no label and no buttons. */
 
     /* ── Candidate Snapshot ───────────────────────────────────────────
-       A structured overview shown at the top of thin / early-record
-       profiles. Instead of a stack of empty placeholders, it leads with
-       what IS known — stated positions, the issues a candidate can be
-       compared on, the latest Spotlight item — and is transparent about
-       what is still being gathered. Supersedes the bare thin notice and
-       ties together the Alignment Tool, the Spotlight and the bio. */
+       The limited-record card — .cand-snapshot is the class it was born
+       with. It mounts LAST in the verdict stage, under 🌳 All Issues by
+       Topic, and only on a profile with no scorable record. Four blocks:
+       why the record is thin, where the positions are browsed, what an
+       alignment match rests on when there is no voting record behind it,
+       and what is still being gathered. It carries no score, no shape, no
+       per-issue list and no navigation index — those are the shared
+       shell's, on both lanes. Everything the card once restated from the
+       letterhead, the banners, the rail or the Spotlight is tombstoned in
+       place below. */
     .cand-snapshot {
       background: linear-gradient(135deg, rgba(30,53,96,0.55), rgba(10,15,30,0.42));
       border: 1px solid rgba(159,180,212,0.22);
@@ -1498,28 +1473,11 @@
        ⚖️ Word vs Action issue index for the same job. Members and executives
        now share one path: shape strip → bucket → issue row → dossier. */
 
-    /* At-a-glance facts */
-    .cand-snapshot .cs-facts {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
-      gap: 0.5rem; margin-top: 0.95rem;
-    }
-    .cand-snapshot .cs-fact {
-      background: rgba(10,15,30,0.5); border: 1px solid rgba(159,180,212,0.16);
-      border-radius: 0.6rem; padding: 0.55rem 0.65rem; min-width: 0;
-    }
-    .cand-snapshot .cs-fact-k {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: #7596c0; margin-bottom: 0.2rem;
-    }
-    .cand-snapshot .cs-fact-v {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
-      font-size: 0.86rem; color: #e6eefb; line-height: 1.25;
-    }
-    .cand-snapshot .cs-fact-v.cs-accent { color: #a78bfa; }
-    /* Muted fact value — an honest status word ("Monitoring", "Building") in
-       place of a bare, low-value "0" count. */
-    .cand-snapshot .cs-fact-v.cs-muted { color: #8ba6c9; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; text-transform: uppercase; }
+    /* RETIRED: the at-a-glance facts row (.cs-facts, .cs-fact, .cs-fact-k,
+       .cs-fact-v, .cs-accent, .cs-muted). Seat and Party are the letterhead's;
+       the next-election date is the election-status banner's, countdown and all;
+       Race status is the candidacy banner's AND the card's own lede. Four facts,
+       four surfaces that already own them. */
 
     /* Generic divided block (e.g. "What they stand for") */
     .cand-snapshot .cs-block {
@@ -1600,12 +1558,8 @@
       transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
     }
     @media (hover: hover) { .cand-snapshot .cs-align-cta:hover { transform: translateY(-1px); border-color: rgba(167,139,250,0.85); background: linear-gradient(135deg, rgba(139,92,246,0.45), rgba(99,102,241,0.4)); } }
-    /* Light "how to use this for a thin candidate" guidance — shown before the
-       visitor has set any picks, so a new/thin profile teaches the tool's value. */
-    .cand-snapshot .cs-align-guide {
-      font-size: 0.71rem; color: #9a8cc9; line-height: 1.5; margin: 0.55rem 0 0;
-    }
-    .cand-snapshot .cs-align-guide strong { color: #c4b5fd; }
+    /* RETIRED: .cs-align-guide — the "New to a candidate?" tip. It said what the
+       card's lede says one paragraph above it. */
 
     /* RETIRED: the card's own per-issue list (.cs-pos*), its source tags
        (.cs-src-rec / .cs-src-stated), its per-issue match verdicts (.cs-vd*)
@@ -1642,25 +1596,10 @@
       padding: 0.1rem 0.45rem; line-height: 1; white-space: nowrap;
     }
 
-    /* Spotlight linkage */
-    .cand-snapshot .cs-spot { margin-top: 1rem; }
-    .cand-snapshot .cs-spot-card {
-      width: 100%; text-align: left; display: flex; align-items: center; gap: 0.65rem;
-      background: rgba(10,15,30,0.5); border: 1px solid rgba(159,180,212,0.18);
-      border-radius: 0.7rem; padding: 0.6rem 0.7rem; color: inherit;
-      transition: border-color 0.15s ease, transform 0.15s ease;
-    }
-    .cand-snapshot button.cs-spot-card { cursor: pointer; }
-    @media (hover: hover) { .cand-snapshot button.cs-spot-card:hover { border-color: rgba(245,200,66,0.42); transform: translateY(-1px); } }
-    .cand-snapshot .cs-spot-main { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; flex: 1; }
-    .cand-snapshot .cs-spot-badge {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
-      color: #f5c842;
-    }
-    .cand-snapshot .cs-spot-text { font-size: 0.76rem; color: #cbd9ec; line-height: 1.45; }
-    .cand-snapshot .cs-spot-cta { margin-left: auto; flex-shrink: 0; font-size: 1.05rem; color: #7596c0; }
-    .cand-snapshot .cs-spot-note { font-size: 0.72rem; color: #7596c0; line-height: 1.5; margin: 0.45rem 0 0; }
+    /* RETIRED: the Spotlight sub-card (.cs-spot, .cs-spot-card, .cs-spot-main,
+       .cs-spot-badge, .cs-spot-text, .cs-spot-cta, .cs-spot-note). The Spotlight is
+       its own surface on this profile and carries every story with dates and
+       sources; the card repeated its lead item for two extra screens. */
 
     /* Issue-tie chip — the connective tissue that ties a Spotlight item back to a
        specific issue position shown in the Snapshot (and tracked by the Alignment
@@ -1680,7 +1619,8 @@
       padding: 0.12rem 0.5rem; line-height: 1.3; white-space: nowrap;
       max-width: 100%; overflow: hidden; text-overflow: ellipsis;
     }
-    .cand-snapshot .cs-spot-tie-row { margin-top: 0.5rem; }
+    /* .cs-spot-tie-row went with the Spotlight sub-card above. .pdx-issue-tie
+       itself stays — the full Spotlight modal is its other caller. */
 
     /* "We're actively gathering" transparency block */
     .cand-snapshot .cs-gather {
@@ -1700,38 +1640,10 @@
     }
     .cand-snapshot .cs-gather-list li::before { content: '○'; color: #f5c842; flex-shrink: 0; opacity: 0.8; }
 
-    /* Snapshot actions (mirror the thin-notice CTA buttons) */
-    .cand-snapshot .cs-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-    .cand-snapshot .cs-act-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
-      border-radius: 0.65rem; padding: 0.5rem 0.85rem; cursor: pointer;
-      border: 1px solid transparent; color: #fff;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-    .cand-snapshot .cs-act-btn:hover { transform: translateY(-1px); }
-    .cand-snapshot .cs-act-align {
-      background: linear-gradient(135deg, rgba(124,58,237,0.9), rgba(109,40,217,0.9));
-      border-color: rgba(167,139,250,0.5); box-shadow: 0 4px 14px rgba(139,92,246,0.28);
-    }
-    .cand-snapshot .cs-act-team {
-      background: linear-gradient(135deg, rgba(192,21,42,0.9), rgba(124,15,30,0.92));
-      border-color: rgba(245,158,11,0.45); box-shadow: 0 4px 14px rgba(192,21,42,0.28);
-    }
-    .cand-snapshot .cs-act-team.is-on {
-      background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,80,40,0.42));
-      border-color: rgba(74,222,128,0.5); color: #4ade80; box-shadow: none;
-    }
-    .cand-snapshot .cs-act-btn.just-added {
-      background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(16,80,40,0.5));
-      border-color: rgba(74,222,128,0.6); color: #4ade80;
-    }
-    .cand-snapshot .cs-foot-hint {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem;
-      letter-spacing: 0.07em; text-transform: uppercase; color: #7596c0;
-      margin-top: 0.9rem; display: flex; align-items: center; gap: 0.35rem;
-    }
+    /* RETIRED: the card's action pair (.cs-actions, .cs-act-btn, .cs-act-align,
+       .cs-act-team, .just-added) and its .cs-foot-hint. The pair was the profile's
+       third offer of Compare / Add to team; the hint pointed "↓ below" at positions
+       that now sit ABOVE this card, which mounts under 🌳 All Issues by Topic. */
 
     /* ── Profile section empty state — a clean, intentional placeholder for
        sections (e.g. the Promise Tracker) that have no entries yet. */
