@@ -1990,6 +1990,48 @@
   // actually true is that the engine has not tested enough to have a shape. The
   // card's own limited-record notice is where a thin profile is explained, and it
   // says so in words.
+  // ── AND THE OTHER LANE, AS COUNTS, ON ONE LINE ─────────────────────────────
+  // The four counts above are the FORMAL shape. The reported record is a separate
+  // test of the same stances and it is already counted on every row and in the
+  // dossier — but not anywhere a reader who never opens ⚖️ Word vs Action would
+  // meet it, which meant the letterhead's summary of a profile silently ended at
+  // one lane.
+  //
+  // FOUR RULES, and they are the same four that let the counts above sit under a
+  // percentage at all:
+  //   · COUNTS ONLY. No percentage, no rate, no ratio. The wall between the lanes
+  //     is that one of them is rated and the other is not, and a public figure up
+  //     here would erase it in a single glance.
+  //   · NOT A SECOND SCORE, AND IT SAYS SO. PDXConsistency's own boundary tag —
+  //     "Not in Direction Match" — is printed with the numbers, not left to a
+  //     tooltip, because this line sits closer to the ring than anything else on
+  //     the page that is not in the ring.
+  //   · NOT DERIVED HERE. publicShape() walks publicTally(), which is the one
+  //     place the directions are named and counted. This file does no arithmetic
+  //     on the public lane and invents no vocabulary for it.
+  //   · NOTHING TO SAY, NOTHING PRINTED. Gated on `directional`: a profile with
+  //     items on file but nothing pointing either way has no shape to show, and
+  //     "0 cut against · 0 back it up" under a letterhead reads as a finding.
+  //
+  // It is deliberately NOT a control. The four counts above are the header's one
+  // gateway into a list; a second door up here — into a lane that has no bucket
+  // index to land in — would be a jump with nowhere honest to arrive.
+  function headerPublicHtml(pid) {
+    try {
+      var CS = window.PDXConsistency;
+      if (!CS || typeof CS.publicShape !== 'function') return '';
+      var t = CS.publicShape(pid);
+      if (!t || !t.directional || !t.text) return '';
+      var span = t.issues + ' issue' + (t.issues === 1 ? '' : 's');
+      return '<p class="pdxwa-hpub" title="' +
+          esc(t.note + ' Counted across ' + span + ' with something on file.') + '">' +
+          '<span class="pdxwa-hpub-k">' + esc(t.lane) + '</span>' +
+          '<span class="pdxwa-hpub-v">' + esc(t.text) + '</span>' +
+          '<span class="pdxwa-hpub-tag">' + esc(t.tag) + '</span>' +
+        '</p>';
+    } catch (e) { return ''; }
+  }
+
   function headerTallyHtml(pid) {
     try {
       var b = outcomeBuckets(pid);
@@ -2006,6 +2048,7 @@
           '<ul class="pdxwa-tally-l">' +
             tallyItemsHtml(b, uid, openTok, 'header', ' data-pdxwa-outside="' + esc(uid) + '"') +
           '</ul>' +
+          headerPublicHtml(pid) +
         '</div>';
     } catch (e) { return ''; }
   }
@@ -2698,8 +2741,28 @@
           // Tapped from the summary — a screen above the list on a phone — so bring
           // the index to the top of the viewport. The reader lands on the bucket
           // heading with its rows under it, rather than wherever the strip left them.
-          if (gate && idx && idx.scrollIntoView) {
-            idx.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          //
+          // THROUGH THE PAGE'S OWN JUMP, NOT scrollIntoView. `block: 'start'` puts
+          // the index at y=0 of the scroller, which on a profile is UNDER the sticky
+          // section rail — a reader who taps a count in the letterhead lands on a
+          // bucket heading hidden behind the nav and has to scroll back up to read
+          // the thing they asked for. _pdxNavJump measures the rail, opens any shut
+          // control above the target and offsets by both, which is the same landing
+          // every other jump on the page gets. It scrolls #modal-body, so it is used
+          // only where that scroller exists; everywhere else the plain scroll is
+          // still correct and still fires.
+          if (gate && idx) {
+            var jumped = false;
+            try {
+              if (idx.id && typeof window._pdxNavJump === 'function' &&
+                  document.getElementById && document.getElementById('modal-body')) {
+                window._pdxNavJump(idx.id);
+                jumped = true;
+              }
+            } catch (e6) {}
+            if (!jumped && idx.scrollIntoView) {
+              idx.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
           }
         } catch (e2) {}
         return;

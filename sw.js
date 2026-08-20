@@ -61,7 +61,15 @@
 // next thing after the shape. Bumped because word-action.js, gaps.js and
 // word-action.css all changed together: a phone holding v59 that picks up only one
 // of the three gets a method block styled as a <details> that is no longer one.
-const CACHE_VERSION = 'v60';
+// v61 — THE LETTERHEAD TALLY GETS A PUBLIC LINE AND A LANDING. The four formal
+// counts beside Direction Match now route their tap through the page's own
+// chrome-aware jump, so a bucket opened from the letterhead lands below the sticky
+// section rail rather than under it; a counts-only public line sits under them,
+// tagged Not in Direction Match. Bumped because consistency.js, word-action.js and
+// word-action.css all changed together: a phone holding v60 that picks up only
+// word-action.js calls a publicShape() its consistency.js does not export, and one
+// that picks up only the CSS reserves space under a line that never renders.
+const CACHE_VERSION = 'v61';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
