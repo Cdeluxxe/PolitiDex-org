@@ -156,10 +156,14 @@
         if (typeof window._pdxLedgerSlot === 'function') {
           var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
           var s = window._pdxLedgerSlot(d, { pid: pid, status: status });
-          if (s) return { pct: (typeof s.pct === 'number') ? s.pct : null, sub: s.sub || '' };
+          // `tested` travels with `pct` from the slot down to the card. A published
+          // figure with no denominator beside it is the one thing this pass exists to
+          // stop, and a card cannot print a denominator it was never handed.
+          if (s) return { pct: (typeof s.pct === 'number') ? s.pct : null, sub: s.sub || '',
+                          tested: (typeof s.tested === 'number') ? s.tested : 0 };
         }
       } catch (e) {}
-      return { pct: null, sub: '' };
+      return { pct: null, sub: '', tested: 0 };
     }
 
     function _ballotCandidates(raceKey) {
@@ -957,6 +961,9 @@
           party: d.party || '',
           photoUrl: (typeof window._getPhotoUrl === 'function') ? (window._getPhotoUrl(pid) || '') : '',
           score: slot.pct,
+          // How many tested issues that number is over — printed beside it, never
+          // withheld. Same read, same instant, same tested set.
+          scoreTested: slot.tested || 0,
           // What to say when there is no number. Straight from the ledger slot, so
           // the card never has to invent a reason of its own.
           scoreNote: slot.sub

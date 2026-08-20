@@ -1386,14 +1386,74 @@
     var t = r && r.verdict && r.verdict.token;
     return t === 'contradicts' || t === 'mixed' || isContested(r);
   }
-  // The two friction chips a row can carry, beside its verdict rather than instead
-  // of it. Short and uniform on purpose: the detail is one line down, and a chip
-  // long enough to need its own line stops being a chip.
+  // ── ONE MEASURE, SAID IN THE OPEN ───────────────────────────────────────────
+  // `isThin` above counts ITEMS. A finding built on six recorded votes is not thin
+  // by that measure — and if all six are roll calls on the same bill, it rests on
+  // exactly one document, which is the thing a hostile reader will find first and
+  // the thing this row was not saying anywhere a reader could see it. The dossier
+  // knew; the face did not.
+  //
+  // THE DEFINITION IS NOT RESTATED HERE. PDXConsistency.instruments owns it — one
+  // distinct instrument across the judged evidence set, by the same identity the
+  // dossier prints — so the chip and the list a reader opens to check the chip
+  // cannot disagree.
+  //
+  // TESTED, FORMAL ROWS ONLY. rowResult()'s ('tested' + 'Direction match') pair is
+  // the same gate the per-issue percentage uses, so the marker appears on exactly
+  // the rows that carry a formal figure and never on a row the public lane
+  // resolved. The public lane is not in the score and it is not in this.
+  //
+  // IT IS DEPTH, NOT A DIFFERENT OUTCOME. Nothing below reads it: the verdict, its
+  // word, its colour and its percentage are identical with and without the chip. A
+  // single-measure `contradicts` still says contradicts, in the same red, at the
+  // same size.
+  function _rowResult(r) {
+    try {
+      var CS = window.PDXConsistency;
+      return (CS && typeof CS.rowResult === 'function') ? CS.rowResult(r) : null;
+    } catch (e) { return null; }
+  }
+  function singleMeasure(r) {
+    if (!r || !r.verdict || r.verdict.basis === 'public_record') return null;
+    var res = _rowResult(r);
+    if (!res || res.state !== 'tested' || res.metric !== 'Direction match') return null;
+    var CS = window.PDXConsistency;
+    var sp = null;
+    try {
+      if (CS && CS.instruments && typeof CS.instruments.row === 'function') sp = CS.instruments.row(r);
+    } catch (e) { sp = null; }
+    return (sp && sp.single) ? sp : null;
+  }
+  // The friction chips a row can carry, beside its verdict rather than instead of
+  // it. Short and uniform on purpose: the detail is one line down, and a chip long
+  // enough to need its own line stops being a chip.
+  //
+  // "Single measure" STANDS IN FOR "Thin evidence" when both apply, and only then.
+  // A one-item row is a one-document row by construction, so printing both says one
+  // fact twice — and the document sentence is the stronger of the two, because it
+  // is also true of the six-votes-on-one-bill row that the item count calls deep.
+  // Nothing is softened by the swap: every row that used to carry a thin chip still
+  // carries a chip, and it names a narrower limit than the one it replaced.
   function flagsHtml(r, cls) {
     var out = '';
+    var one = singleMeasure(r);
     if (isContested(r)) out += '<span class="' + cls + ' ' + cls + '-x">Standing contested</span>';
-    if (isThin(r)) out += '<span class="' + cls + ' ' + cls + '-thin">Thin evidence</span>';
+    if (one) {
+      out += '<span class="' + cls + ' ' + cls + '-one" data-pdxwa-docs="1"' +
+        ' title="' + esc(oneMeasureTitle(one)) + '">Single measure</span>';
+    } else if (isThin(r)) {
+      out += '<span class="' + cls + ' ' + cls + '-thin">Thin evidence</span>';
+    }
     return out;
+  }
+  // The chip's own long form, for the title and for anywhere with room for a
+  // sentence. It names the document when the file carries a name for it, because
+  // "one document" a reader cannot identify is a claim they cannot check.
+  function oneMeasureTitle(sp) {
+    var n = (sp && sp.judged) || 0;
+    var base = 'This finding rests on a single measure' +
+      (n > 1 ? ' — ' + n + ' judged actions, all on the same document' : '') + '.';
+    return (sp && sp.ident) ? base + ' ' + sp.ident : base;
   }
   // What tested this row, in the row's own terms. A row resolved on the formal record
   // counts the formal record; a row the formal record could not test counts the public
@@ -2360,7 +2420,11 @@
     // bucket — and the whole point of a bucket is that a reader can stop reading
     // closely inside it.
     var flags = flagsHtml(r, 'pdxwa-oc-flag');
-    var friction = (isContested(r) ? ' pdxwa-oc-row-x' : '') + (isThin(r) ? ' pdxwa-oc-row-thin' : '');
+    // The spine restyle follows the chip, including when the chip is the new
+    // single-measure one — a row that reads deep by item count and rests on one
+    // document gets the same dashed spine a thin row does.
+    var friction = (isContested(r) ? ' pdxwa-oc-row-x' : '') +
+      ((isThin(r) || singleMeasure(r)) ? ' pdxwa-oc-row-thin' : '');
     // A stable per-issue id, so another surface can land a reader on THIS issue's
     // line in the score rather than on the top of the section. Built from the same
     // (pid, key) pair every surface already agrees on; see wordActionRowId() in
@@ -2881,7 +2945,11 @@
       rel = rel.charAt(0).toUpperCase() + rel.slice(1);
     }
 
-    var counted = c.coverage.tested + ' of ' + c.coverage.scorable + ' tested';
+    // The slice's own denominator, for the slice's own read — never the all-time
+    // count, which is the whole point of a scoped figure. Same noun as the caption
+    // under the big number above so a reader comparing the two is comparing like
+    // with like.
+    var counted = c.coverage.tested + ' of ' + c.coverage.scorable + ' issues tested';
 
     // The containment sentence — the one line that stops the two figures being read
     // as rival systems. Its tail is the "why they can differ" answer, and it is only
@@ -2895,7 +2963,8 @@
                'every term — this one counted inside it' + why;
 
     return '' +
-      '<div class="pdxwa-slice" style="--pdxwa-col:' + col + ';">' +
+      '<div class="pdxwa-slice" data-pdxwa-slice-tested="' + (c.coverage.tested || 0) + '"' +
+        ' style="--pdxwa-col:' + col + ';">' +
         // One glyph doing what a paragraph would otherwise have to: this row hangs
         // off the number above it. Decorative, so it is hidden from a screen reader,
         // which gets the same relationship spelled out in the note below.
@@ -2908,6 +2977,45 @@
         '</span>' +
       '</div>';
   }
+
+  // ── HOW MANY TESTS SIT UNDER THE NUMBER ─────────────────────────────────────
+  // A percentage with no denominator is the easiest number in this product to
+  // unmask. "100%" over three tested issues and "100%" over forty are the same
+  // three characters, and until now only the tree leaves — behind a lid — said
+  // which one a reader was looking at. The thin ones look strongest, which is
+  // exactly backwards, and a hostile reader who opens the tree finds it out in one
+  // click. So every surface that publishes the figure now publishes its depth in
+  // the same chrome, unconditionally.
+  //
+  // ALWAYS ON WHENEVER A % IS SHOWN. There is no threshold and no gate: gating on
+  // depth would hide the denominator precisely where it matters most. A thin score
+  // and a deep one carry the caption in the same words, the same place and the
+  // same weight.
+  //
+  // THE INTEGER IS THE ENGINE'S OWN. `coverage.tested` is the count read() already
+  // uses for the tested set — the same rows that produced the weighted average —
+  // so the caption cannot drift from the number it captions. Nothing here computes
+  // anything: no second score, no ratio, no grade. It is the denominator, said out
+  // loud.
+  //
+  // SCOPE FOLLOWS THE FIGURE. Callers pass the read whose percentage they are
+  // printing, so the current-term slice captions its own tested count and never
+  // the all-time one.
+  //
+  // PUBLIC LANE IS NOT IN IT, for the same reason it is not in the percentage.
+  function testedOf(r) {
+    var n = r && r.coverage && r.coverage.tested;
+    return (typeof n === 'number' && isFinite(n) && n > 0) ? Math.round(n) : 0;
+  }
+  function depthCaption(n) {
+    n = (typeof n === 'number' && isFinite(n) && n > 0) ? Math.round(n) : 0;
+    return n ? (n + ' issue' + (n === 1 ? '' : 's') + ' tested') : '';
+  }
+  // The one-line explainer under the caption, offered to surfaces with room for it.
+  // It is not a second score and it is not a hedge: it says what the figure counted
+  // and names the two things it is not.
+  var DEPTH_NOTE = 'How often the formal record matched the positions they stated, ' +
+    'across the issues we could test. Not an approval rating.';
 
   // The primary accountability surface on a profile.
   var _seq = 0;
@@ -2958,12 +3066,20 @@
       var scopeTag = sr.lane === 'exec'
         ? '<div class="pdxwa-num-scope">' + esc(sr.scope ? sr.scope.label : 'All time') + '</div>'
         : '';
+      // The denominator, in the number block, whenever there is a numerator. See
+      // depthCaption(): no gate, no threshold, and read off the same `r` the
+      // percentage above came from so the two always describe the same tested set.
+      var depthTag = hasPct
+        ? '<div class="pdxwa-num-n" data-pdxwa-tested="' + testedOf(r) + '">' +
+            esc(depthCaption(testedOf(r))) + '</div>'
+        : '';
 
       var body = '' +
         '<div class="pdxwa-top">' +
           '<div class="pdxwa-num pdxwa-num-' + cls + '" style="--pdxwa-col:' + col + ';">' +
             '<div class="pdxwa-num-v">' + (hasPct ? r.pct + '%' : '—') + '</div>' +
             '<div class="pdxwa-num-l">' + esc(FRAME.metric) + '</div>' +
+            depthTag +
             scopeTag +
           '</div>' +
           '<div class="pdxwa-say">' +
@@ -3350,6 +3466,16 @@
     scopedRead: scopedRead,
     issueRead: issueRead,
     heroRead: heroRead,
+    // 📏 THE DENOMINATOR, IN ONE VOCABULARY. Every surface that publishes the
+    // engine's percentage prints the tested count beside it, and they all print it
+    // in these words — a caption that reads "32 issues tested" here and "over 32"
+    // somewhere else is two captions, and one of them will rot. `testedOf(read)`
+    // pulls the integer off whichever read the caller is publishing, so scope
+    // follows the figure; `depthCaption(n)` turns it into the phrase. See the note
+    // over testedOf().
+    testedOf: testedOf,
+    depthCaption: depthCaption,
+    DEPTH_NOTE: DEPTH_NOTE,
     dots: dots,
     brandingIssueKey: brandingIssueKey,
     isIndependentWord: isIndependentWord,

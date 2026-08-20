@@ -85,6 +85,31 @@
   margin-top: 0.2rem;
   line-height: 1.25;
 }
+/* ── The denominator, under the metric caption ────────────────────────────── */
+/* HOW MANY TESTS THE BIG NUMBER IS OVER. It sits inside the number block, not
+   beside it in the prose, because a percentage and its denominator are one fact
+   and a reader who scans only the loud part has to leave with both halves.
+
+   Set one notch smaller than the metric caption above it and in the same steel,
+   so it reads as the caption's second line rather than as a competing label — and
+   NOT dimmed further than that. This is the line that stops "100%" being read as
+   a strong record when it is three tested issues; styling it as fine print would
+   undo the entire reason it exists.
+
+   Printed whenever a percentage is. There is no thin-score variant, no threshold
+   and no hidden state: see the note over testedOf() in word-action.js. */
+.pdxwa-num-n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.52rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  margin-top: 0.22rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 .pdxwa-say { flex: 1 1 auto; min-width: 0; }
 
 /* Which record the big number is over. Last line of the number block, on its own
@@ -2059,6 +2084,14 @@
 .pdxwa-oc-flag-thin { color: #d8bd85; }
 .pdxwa-row-flag-x,
 .pdxwa-oc-flag-x { color: #e3a08a; }
+/* ONE DOCUMENT UNDER THE FINDING. Same amber as the thin chip, because it is the
+   same KIND of statement — a limit on how much is under a verdict, not a change to
+   the verdict — and because it stands in for that chip wherever both would apply.
+   It is deliberately not dimmed relative to it: the rows this appears on are the
+   ones whose item count makes them look deepest, and a marker a reader's eye skips
+   is the same as no marker. */
+.pdxwa-row-flag-one,
+.pdxwa-oc-flag-one { color: #d8bd85; }
 /* Axis B in words, on the row it qualifies. Tinted like the counter line for
    the same reason: disclosure on the row, never a second verdict. */
 .pdxwa-row-standing .pdxwa-row-v { color: #e3a08a; }
@@ -2076,6 +2109,7 @@
   .pdxwa-num { min-width: 6rem; }
   .pdxwa-num-v { font-size: 2.5rem; }
   .pdxwa-num-scope { font-size: 0.52rem; }
+  .pdxwa-num-n { font-size: 0.55rem; }
   .pdxwa-verdict { font-size: 1.45rem; }
   .pdxwa-line { font-size: 0.78rem; }
   /* Room to breathe, not a size jump: the phone already reads this strip at a

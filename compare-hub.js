@@ -1823,20 +1823,28 @@
         if (opts.pid && wa && typeof wa.read === 'function') r = wa.read(opts.pid, p);
       } catch (e) { r = null; }
       if (r && r.publishable && r.verdict && r.verdict.label) {
+        // TESTED RIDES WITH PCT, ALWAYS. A caller that prints the figure has to be
+        // able to print its denominator without a second read of its own, and pairing
+        // them here is what guarantees the two describe the same tested set. Every
+        // other branch returns pct null and tested 0 together: there is no shape this
+        // returns where a number arrives without its depth. The wording lives in
+        // testedOf() and depthCaption() over in word-action.js.
+        var wt = window.PDXWordAction;
         return { state: 'wa', glyph: r.verdict.ico || '⚖', label: 'Word vs Action', sub: r.verdict.label,
-                 tint: r.verdict.color || '', pct: (typeof r.pct === 'number') ? r.pct : null };
+                 tint: r.verdict.color || '', pct: (typeof r.pct === 'number') ? r.pct : null,
+                 tested: (wt && typeof wt.testedOf === 'function') ? wt.testedOf(r) : (r.coverage && r.coverage.tested) || 0 };
       }
       var cov = (r && r.coverage) || null;
       if (opts.status === 'candidate') {
-        return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '', pct: null };
+        return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '', pct: null, tested: 0 };
       }
       if (cov && cov.tested > 0) {
-        return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '', pct: null };
+        return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '', pct: null, tested: 0 };
       }
       if (cov && cov.word > 0) {
-        return { state: 'wa', glyph: '…', label: 'Word vs Action', sub: 'No matched votes yet', tint: '', pct: null };
+        return { state: 'wa', glyph: '…', label: 'Word vs Action', sub: 'No matched votes yet', tint: '', pct: null, tested: 0 };
       }
-      return { state: 'empty', glyph: '—', label: 'Word vs Action', sub: (opts.status === 'former') ? 'Record archived' : 'No stated positions yet', tint: '', pct: null };
+      return { state: 'empty', glyph: '—', label: 'Word vs Action', sub: (opts.status === 'former') ? 'Record archived' : 'No stated positions yet', tint: '', pct: null, tested: 0 };
     };
 
     // Consistent "Office • District • State" line for every compact card. District

@@ -1756,6 +1756,13 @@
       '.pdxor-comp-solid .pdxor-comp-bar i.pdxor-comp-on{background:#7fbf9a;}' +
       '.pdxor-comp-note{font-family:"Barlow Condensed",sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;line-height:1.2;color:#c6a15b;}' +
       '.pdxor-comp-solid .pdxor-comp-note{color:#8fa2c0;}' +
+      // One document under the percentage, beside the meter that counts items.
+      // Same amber as the composition note it qualifies, boxed so it reads as a
+      // fact about the row rather than as a continuation of the meter's caption.
+      '.pdxor-one{font-family:"Barlow Condensed",sans-serif;font-size:0.56rem;font-weight:700;' +
+        'letter-spacing:0.07em;text-transform:uppercase;line-height:1.2;color:#d8bd85;' +
+        'border:1px solid currentColor;border-radius:999px;padding:0.05rem 0.32rem;' +
+        'white-space:nowrap;cursor:help;}' +
       // Composition, not just depth: mark the reads that are mainly multi-issue bills
       // with the same 🧩 the omnibus surfaces already use.
       '.pdxor-comp-omni .pdxor-comp-note::before{content:"\\01F9E9 ";}' +
@@ -3688,6 +3695,30 @@
     '</span>';
   }
   // Per-issue indicator, rendered immediately after that issue's %.
+  // ── THE SINGLE-MEASURE CHIP, ON THE OFFICIAL RECORD ROW FACE ────────────────
+  // The composition meter beside it answers "how much record is behind this
+  // percentage" in ITEMS, which is the number this row was already good at. It has
+  // no answer for "and how many separate things are those items", and a row reading
+  // three lit bars over six votes that are all one bill is the specific shape a
+  // hostile reader goes looking for.
+  //
+  // Scored rows only — there is nothing to qualify without a percentage — and only
+  // where the two counts differ, so the chip always tells a reader something the
+  // meter next to it did not. It changes no verdict, no percentage and no meter:
+  // this is one more disclosure on the closed face, in the amber the surface
+  // already uses for limits on a finding.
+  function _orOneMeasureChip(pid, issueKey, ov) {
+    try {
+      if (!ov || typeof ov.score !== 'number') return '';
+      var sp = _insSpread(pid, issueKey, ov);
+      if (!sp.single || sp.judged < 2) return '';
+      var say = 'All ' + sp.judged + ' judged items behind this percentage are the same measure' +
+        (sp.ident ? ': ' + sp.ident : '') + '.';
+      return '<span class="pdxor-one" data-pdxor-docs="1" title="' + esc(say) +
+        '" aria-label="' + esc(say) + '">1 measure</span>';
+    } catch (e) { return ''; }
+  }
+
   function _orCompositionHtml(pid, issueKey, ov) {
     try {
       if (typeof window._recordComposition !== 'function') return '';
@@ -4591,6 +4622,7 @@
                 '<span class="pdxor-issue-lbl">' + _icDot(skin) + esc(issueLabel(s.key)) + '</span>' +
                 _orSaysChipHtml(pid, s.key, s.ov) +
                 _orRecordChipHtml(s.ov) + pct + comp +
+                _orOneMeasureChip(pid, s.key, s.ov) +
                 _orOmniChip(pid, s.key) +
                 '<span class="pdxor-caret" aria-hidden="true">▾</span>' +
               '</div>' +
@@ -5226,7 +5258,7 @@
   function _stRecordDisplay(r) {
     var noun = _stNoun(r || {});
     var out = { state: 'none', label: _ST_REC_NONE, depth: '', counts: '',
-                items: 0, judged: 0, noun: noun, onRecord: false,
+                items: 0, judged: 0, docs: 0, single: false, noun: noun, onRecord: false,
                 tier: 'none', weight: 'flat', tone: 'muted', color: '',
                 directional: false, early: false, partial: false, display: false,
                 earlyNote: '', pct: null, scored: false, metric: '', token: '',
@@ -5258,6 +5290,17 @@
     // direction was read from fewer items than are on file, so the two figures are
     // never one figure and the smaller one never stands in for the file.
     out.depth = items ? (items + ' ' + (items === 1 ? noun.one : noun.many)) : '';
+    // …AND THE DEPTH BEHIND THE DEPTH. `items` above is an inventory count: six
+    // roll calls on one bill are six items and one document, and the inventory
+    // alone cannot tell those apart. `docs` is the distinct-instrument count over
+    // the judged set, from the shared accessor — so a leaf that shows a verdict can
+    // say the finding rests on a single measure without recomputing what that means.
+    // Read-only: nothing below branches on it and no verdict, tier, tone or
+    // percentage on this slot moves because of it.
+    if (items) {
+      var _spr = _insSpread(r.pid, r.key, null);
+      out.docs = _spr.docs; out.single = !!_spr.single;
+    }
     if (out.early || items === 1) {
       out.early = true;
       out.earlyNote = _stRecEarly(noun);
@@ -7863,6 +7906,79 @@
     return out;
   }
 
+  // ── HOW MANY DISTINCT DOCUMENTS ARE ACTUALLY UNDER A ROW ────────────────────
+  // A row's `evidence.strength` and a leaf's `depth` both count ITEMS: six recorded
+  // votes on one bill read as "6 votes on file", and nothing on the open face tells
+  // a reader that all six are the same measure. That is the gap this closes. The
+  // number below counts DOCUMENTS — distinct instruments in the judged evidence set
+  // — which is what a hostile reader means when they ask how much a finding rests
+  // on, and what the fragility audit already measures behind a lid.
+  //
+  // DERIVED, NEVER STORED, AND PRESENTATION ONLY. Nothing here is read by read(),
+  // by a publishability floor, by a weight or by a verdict, and adding it changed
+  // no score. A row that rests on one document says so beside a verdict that is
+  // unchanged by its saying so — the marker is depth, not a different outcome.
+  //
+  // THE IDENTITY IS THE ONE THE DOSSIER ALREADY PRINTS. `ident` off _dosItems is
+  // the instrument name a reader sees when they open the list, so the marker and
+  // the list they open to check it cannot disagree about what "one document" means:
+  // bill number on the 🏛️ lane, document id on ✒️, headline on the migrated formal
+  // lane. HELD ITEMS ARE EXCLUDED — "judged evidence set" means the items that
+  // produced the verdict, and an unjudged document neither supports the finding nor
+  // thickens it.
+  //
+  // FAILS CLOSED IN THE DIRECTION THAT MATTERS. The wall is "no false single-measure
+  // tag", so an item whose identity is only a lane fallback ("Recorded vote",
+  // "Executive action") is counted as its own document rather than folded in with
+  // another anonymous one, and any throw returns a spread that claims nothing. The
+  // failure mode is a missing marker, never an invented one.
+  var _INS_ANON = { 'recorded vote': 1, 'formal action': 1, 'executive action': 1 };
+  function _insSpreadRaw(pid, issueKey, ov) {
+    var out = { docs: 0, judged: 0, single: false, ident: '' };
+    var items;
+    try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { return out; }
+    var seen = Object.create(null), anon = 0, first = '';
+    for (var i = 0; i < items.length; i++) {
+      var d = items[i];
+      if (!d || d.held) continue;
+      out.judged++;
+      var raw = String(d.ident || '').trim();
+      var k = raw.toLowerCase();
+      if (!k || _INS_ANON[k]) { anon++; if (!first) first = raw; continue; }
+      if (!seen[k]) { seen[k] = 1; if (!first) first = raw; }
+    }
+    out.docs = Object.keys(seen).length + anon;
+    out.single = out.docs === 1 && out.judged > 0;
+    out.ident = out.single ? first : '';
+    return out;
+  }
+  // Memoised on the house epoch idiom, because the marker is asked for once per row
+  // on a dense index and _dosItems walks a whole issue to answer it. Keyed on the
+  // term scope as well as the epoch for the reason execRecordsForMemo is: the
+  // current-term slice sits beside the all-time figure and holds a different set of
+  // documents. `ov` is deliberately NOT part of the key — every caller derives it
+  // from officialIssue(pid, issueKey), which is a fresh object on every call but the
+  // same overlay for the same (pid, issue, scope, epoch).
+  var _insSprCache = {}, _insSprEpoch = -1;
+  function _insSpread(pid, issueKey, ov) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_insSprEpoch !== ep) { _insSprCache = {}; _insSprEpoch = ep; }
+    var sc = '';
+    try { sc = execTermScope().key; } catch (e) { sc = ''; }
+    var k = norm(pid) + '||' + String(issueKey || '') + '||' + sc;
+    if (Object.prototype.hasOwnProperty.call(_insSprCache, k)) return _insSprCache[k];
+    var v = _insSpreadRaw(pid, issueKey, ov);
+    _insSprCache[k] = v;
+    return v;
+  }
+  // The row-shaped front door, for the surfaces that hold a row rather than a pid
+  // and an issue key. Formal lane only: the public lane is not in the tested-row
+  // count and is not in this either.
+  function _insSpreadRow(r) {
+    if (!r || !r.key) return { docs: 0, judged: 0, single: false, ident: '' };
+    return _insSpread(r.pid, r.key, null);
+  }
+
   // ── THE MECHANISM LINES — what it did, and why it counts HERE ───────────────
   // Two sentences per instrument, on the face of the row, in the same two slots for
   // every lane. Before this existed a reader got a document number, a verdict chip
@@ -8595,8 +8711,14 @@
     // THE HEADLINE COUNT IS THE ROW COUNT. Whatever else this line says, the number
     // in front of the noun is the number of rows underneath it — so the expander can
     // never open onto fewer than it advertised.
+    // …AND WHETHER THAT NUMBER IS AS BROAD AS IT LOOKS. The count in front of the
+    // noun is an item count; the enumeration below repeats one name when they are
+    // one document. Stated on the CLOSED face, because the closed face is what a
+    // reader who does not open this level takes away.
+    var spread = _insSpread(pid, issueKey, ov);
     var sum = cov.listed + ' ' + (cov.listed === 1 ? n.one : n.many) + ' listed here' +
-      (cov.held ? ' — ' + cov.held + ' of them not scorable' : '');
+      (cov.held ? ' — ' + cov.held + ' of them not scorable' : '') +
+      ((spread.single && spread.judged > 1) ? ' · all one measure' : '');
     // AND THE COUNT IS ENUMERATED, not merely asserted. A collapsed "9 actions listed
     // here" is a number a reader has to take on trust and then open a drawer to
     // audit; naming every instrument on the closed face turns it into something they
@@ -8766,6 +8888,22 @@
           ' arrive with this member’s full roll-call record.';
       } else if (cov.listed) {
         lane += ' ' + cov.listed + ' item' + (cov.listed === 1 ? ' is' : 's are') + ' listed below.';
+      }
+      // ── AND HOW MANY DOCUMENTS THAT COUNT IS SPREAD ACROSS ──────────────────
+      // Every count in this sentence is an ITEM count. "6 judged votes on this
+      // issue. All 6 are listed below." is true, checkable, and reads as six
+      // independent tests — when six roll calls on one bill are one. The reader who
+      // opens L2 finds that out; the reader who stops at the assembled answer, which
+      // is the level that is open by default, does not.
+      //
+      // Said in the same sentence as the count it qualifies, rather than in the
+      // caveat below, because the caveat fires only at a judged depth of two or
+      // fewer — which is precisely the wrong place for a disclosure whose whole
+      // subject is a row that looks deep. The verdict above is untouched.
+      var _one = _insSpread(pid, issueKey, r.ov);
+      if (_one.single && _one.judged > 1) {
+        lane += ' All of them are the same measure' +
+          (_one.ident ? ' — ' + _one.ident : '') + '.';
       }
     } else {
       lane = 'No lane has been able to decide this one yet.';
@@ -9755,6 +9893,20 @@
       NONE: _ST_REC_NONE,
       PENDING: _ST_REC_PENDING,
       NOTE_SCORED: _ST_REC_NOTE_SCORED
+    },
+    // 🧾 HOW BROAD THE JUDGED EVIDENCE IS, in documents rather than in items.
+    // `spread(pid, issueKey)` and `row(r)` both return { docs, judged, single,
+    // ident }. `single` is the marker's whole contract: this tested finding rests
+    // on ONE distinct measure. Exposed because four open surfaces need the same
+    // answer — the issue-index face, the stance-tree leaf, the dossier's assembled
+    // answer and the Official Record face — and four private copies of "is it one
+    // document" is exactly how a marker ends up on a row that has two. Presentation
+    // only; see the long note over _insSpreadRaw for what it counts and why it
+    // refuses to guess.
+    instruments: {
+      spread: _insSpread,
+      row: _insSpreadRow,
+      ANON: _INS_ANON
     },
     // 🏛 THE FULL FORMAL-PATTERN ISSUE INDEX. `rows` is the list — one entry per
     // issue with a pattern read or formal instruments on file, sorted strongest

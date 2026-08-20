@@ -188,10 +188,21 @@
     var kicker = (d && d.metric) ? d.metric : '';
     // The score leads; the plain-language verdict sits directly under it so the
     // number is never left to speak for itself.
+    // …AND ITS DENOMINATOR, carried through brief() exactly as the kicker above is.
+    // The homepage is the one surface where a bare "100%" reaches a reader who has
+    // no way yet to check it, so the caption is unconditional whenever there is a
+    // percentage — gating it on depth would hide it precisely where it matters
+    // most. This renderer deliberately does not reach PDXWordAction for the wording
+    // (see the one-language rule pinned in scripts/test-hero-showcase.mjs): brief()
+    // phrases it once, off the same read that produced the figure.
+    var depth = (pct === null) ? '' : String((d && d.testedSay) || '');
+    var tested = (d && d.coverage && typeof d.coverage.tested === 'number') ? d.coverage.tested : 0;
     var scoreHtml = (pct === null) ? '' :
       '<div class="pdx-hs-sig-score"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
         '<span class="pdx-hs-sig-pct">' + pct + '<span class="pdx-hs-sig-pct-u">%</span></span>' +
         (kicker ? '<span class="pdx-hs-sig-pct-k">' + esc(kicker) + '</span>' : '') +
+        (depth ? '<span class="pdx-hs-sig-pct-n" data-pdx-tested="' + tested + '">' +
+                   esc(depth) + '</span>' : '') +
       '</div>';
     return '' +
       '<div class="pdx-hs-signal' + (d && d.publishable ? ' is-pub' : '') + (pct === null ? '' : ' has-score') + '">' +
