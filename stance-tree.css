@@ -37,8 +37,13 @@
   overflow: hidden;
 }
 .pdxtree-branch.pdxtree-ic { background: linear-gradient(90deg, var(--pdx-ic-soft, transparent), rgba(10, 15, 30, 0.36) 70%); }
+/* STEP ONE OF THE FUNNEL IS A CONTROL, AND IT IS SIZED LIKE ONE. The whole row is
+   the button, it is never shorter than the 44px a thumb needs, and
+   touch-action: manipulation drops the double-tap-zoom wait that makes a phone tap
+   feel like it was ignored. */
 .pdxtree-bface {
   display: flex; align-items: center; gap: .5rem; width: 100%;
+  min-height: 44px; touch-action: manipulation;
   padding: .55rem .7rem; background: none; border: 0; cursor: pointer;
   text-align: left; font: inherit; color: #eaf2ff;
 }
@@ -96,9 +101,14 @@
   background: rgba(255, 255, 255, 0.022);
 }
 .pdxtree-leaf.pdxtree-ic { background: var(--pdx-ic-soft, rgba(255, 255, 255, 0.022)); }
+/* THE LEAF'S ONE CONTROL — the primary tap, and on a phone the only one, so it
+   carries the same 44px floor and the same tap latency fix as the branch face
+   above it. Nothing else on a leaf is tappable: there is no secondary affordance
+   here to compete with "open the full report". */
 .pdxtree-face {
   display: flex; align-items: baseline; flex-wrap: wrap; gap: .3rem .5rem;
-  width: 100%; padding: .42rem .5rem; background: none; border: 0; cursor: pointer;
+  width: 100%; min-height: 44px; touch-action: manipulation;
+  padding: .42rem .5rem; background: none; border: 0; cursor: pointer;
   text-align: left; font: inherit; color: #dce8f8;
 }
 .pdxtree-face:hover { background: rgba(255, 255, 255, 0.045); border-radius: 6px; }
@@ -182,6 +192,19 @@
   border: 1px dashed rgba(148, 163, 184, 0.5);
 }
 
+/* ── A DOOR THAT COULD NOT OPEN ────────────────────────────────────────────
+   Printed on the row itself rather than as a toast, because the row is where the
+   reader's attention and thumb already are, and because a message that floats away
+   after three seconds is a message a reader on a bus does not get. It is a live
+   region in the markup, so a screen reader hears it without moving focus. */
+.pdxtree-fail {
+  margin: 0 .5rem .4rem; padding: .38rem .5rem; border-radius: 6px;
+  font-size: .72rem; line-height: 1.45; color: #fecaca;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px dashed rgba(252, 165, 165, 0.5);
+}
+.pdxtree-leaf[data-pdxtree-failed="1"] { border-left-color: #fca5a5; }
+
 /* ── pattern-only: visibly not a stance ────────────────────────────────────── */
 .pdxtree-leaf.is-patternonly {
   border-left-style: dashed;
@@ -254,6 +277,9 @@
 @media (max-width: 639px) {
   .pdxtree-name { flex: 1 1 100%; }
   .pdxtree-face { padding: .5rem .45rem; }
+  /* The two controls a reader drives this surface with keep their full tap target
+     on the screen where taps are least precise. */
+  .pdxtree-face, .pdxtree-bface { min-height: 44px; }
   .pdxtree-slots { font-size: .7rem; }
   .pdxtree-bface { padding: .62rem .6rem; flex-wrap: wrap; }
   /* NARROW: THE COUNT AND THE WORST SIGNAL FIRST. Only the leading summary bit is
