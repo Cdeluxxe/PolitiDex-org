@@ -673,13 +673,13 @@ depth — 428 more judged votes standing behind positions that previously rested
    not "does this provision exist in the text" — it is "is the nay bloc's vote honestly described
    as opposition to this issue". The August 2026 densification pass drafted twelve rows against
    real, verified provisions and shipped three; the nine refusals all failed the backwards read
-   and none failed the forwards one. Three shapes recur, each an extension of rule 5:
+   and none failed the forwards one. Two shapes recur, each an extension of rule 5 — and a third
+   shape that used to sit here, "the section inside a vehicle", was retired by `20260911000000`
+   because it was not a backwards-read failure at all; the product rule that replaced it closes
+   this entry.
    · **The two-flank nay.** H.R. 8404 → `religious_liberty`: Secs. 6(b) and 7(a) are genuine
      affirmative protections, but a bloc voted no *because those protections were too weak*, so
      `yea_supports` records them as opposing the very thing they wanted more of.
-   · **The section inside a vehicle.** H.R. 8800 → `israel_support`: Subtitle C and Sec. 219 are
-     real, but three sections inside a defense authorization are not a referendum on them, and
-     a nay on the vehicle is not a nay on the sections.
    · **The conviction already carried.** H.R. 8034 → `strong_defense` and `cut_spending`: the
      emergency designation is real and the nays were not fiscal hawks; the conviction that vote
      actually records is already carried correctly by `israel_support`. A second key here is
@@ -688,6 +688,24 @@ depth — 428 more judged votes standing behind positions that previously rested
    list in the migration header — written down, with the reason, so the next pass does not
    rediscover it as an opportunity.
 
+   **The section inside a vehicle is still the section you voted for.** A provision does not stop
+   counting because it travelled inside a larger bill. If the primary text contains a provision
+   that clearly implicates key K, the measure belongs on K's formal ledger: a yea advances the
+   package as written, including that provision, and a nay blocks it. Weight the row for the
+   share of the bill the provision actually represents — a subtitle inside a defense
+   authorization is a secondary key at low weight, not a primary one — and say in the rationale
+   which sections carry it. Refuse only where the text contains no provision for K, where the
+   same conviction is already carried by another mapping *on that same measure*, or where the
+   measure is procedural. "Omnibus", "vehicle", and "members may have cared about a different
+   title" are not grounds; the original position of this record, written in
+   `20260720000000_hr1_omnibus_component_issues.sql`, is that an omnibus "should light up under
+   MANY issues at once", and the vehicle bar had drifted away from it. Where a rider was
+   separately voted, map the rider and not the parent — that is the duplicate rule, not the
+   vehicle rule. Where the nay bloc split two ways for opposite reasons, rule 5 still governs and
+   the key stays off. Direction is what the instrument does on K, not what motivated any bloc.
+   `20260911000000` applied this to the three NDAAs that all carry a "Matters relating to Israel"
+   subtitle and none of which carried the key: H.R. 8800 (40), S. 1071 (35) and S. 1605 (35).
+
 ### Best remaining follow-ups after this pass
 
 0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
@@ -695,6 +713,20 @@ depth — 428 more judged votes standing behind positions that previously rested
    `gov_regulation` / `econ_corp_account` and `privacy_rights` respectively, and corrected the
    H.R. 2670 `strong_defense` rationale, which asserted the enacted summary carried no FISA
    section 702 provision. Sec. 7902 reauthorizes Title VII through April 19, 2024.
+0b. *(Opened by `20260911000000`, the pass that retired the vehicle bar.)* Three follow-ups the
+   NDAA Israel pass wrote down rather than took:
+   · **`veterans` across the NDAAs.** S. 1605 Secs. 6601 (Laos irregular-forces cemetery
+     eligibility) and 6602 (Egypt and Syria added to the burn pit registry) are real and both
+     point the same way, but weigh in below this record's floor of 25 on their own. H.R. 2670's
+     Division E title L is still unresolved for a different reason (direction, per
+     `20260910000000`). One pass should settle both.
+   · **`foreign_balance` across the NDAAs.** S. 1605 Sec. 1232 extends the Ukraine Security
+     Assistance Initiative and Title XIII Subtitle A carries NATO matters. It goes on all three
+     NDAAs or none; putting it on the oldest alone would recreate the inconsistency this pass
+     removed.
+   · **S. 1605's `strong_defense` weight of 100** is out of line with H.R. 8800 and S. 1071 at 80
+     for the same kind of bill. Rule 21 makes that a guarded `UPDATE` with its own argument, not
+     a side effect of an additive pass.
 1. **H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53). The strongest
    remaining candidate and the one deliberately deferred here: real, decisive, heavily
    attributable, and a genuine multi-axis omnibus that needs a division-by-division read before

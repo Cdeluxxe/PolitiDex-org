@@ -505,6 +505,14 @@
      "supportMeaning": "yea_supports",
      "rationale": "FY2027 National Defense Authorization Act — authorizes DoD military activities, military construction, DOE defense activities, and personnel strengths; a yea funds and authorizes the armed forces. Weighted 80 rather than 100 because this NDAA also carries unrelated social-policy riders (see H.Amdt. 254-256), so passage is not a pure defense-posture signal.",
      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800"
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title XII, Subtitle C is headed \"Matters relating to Israel\": Sec. 1221 extends the war reserve stockpile authority for Israel, Sec. 1222 extends United States-Israel anti-tunnel and subterranean warfare cooperation, and Sec. 1223 extends cooperation on countering unmanned aerial systems. Sec. 219 establishes a United States-Israel Defense Technology Cooperation Initiative. A yea enacts all four and keeps U.S. security aid and joint weapons development flowing; a nay blocks the bill that carries them. Weighted 40 for share of the vehicle: this is a subtitle plus one section inside a defense authorization, not the bill's purpose.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800rh/xml/BILLS-119hr8800rh.xml"
     }
    ]
   },
@@ -1447,6 +1455,22 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "Annual defense authorization: end strengths, procurement, military construction and DOE national security programs. No national_debt row, because the BILLSTATUS summary lists programs without a topline figure and asserting one would be unsourced — the same reason H.R. 3838 carries a debt slice (its summary cites a topline) and this one does not."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 1669 makes available not more than $108,000,000 to the Government of Israel to procure Iron Dome components through co-production in the United States, not more than $30,000,000 for David's Sling Weapon System co-production on a one-for-one cash match, and not more than $62,000,000 for the Arrow 3 Upper Tier Interceptor Program — $200,000,000 of missile-defense co-production in one section. Sec. 1551 establishes a Department of Homeland Security United States-Israel cybersecurity grant program and authorizes not less than $6,000,000 for each of fiscal years 2022 through 2026. Sec. 1316 establishes the Cyprus, Greece, Israel and United States 3+1 Interparliamentary Group. A yea funds and continues that backing. Weighted 35 for share of the vehicle: the enacted act also carries the Department of State Authorization Act of 2021 and a division of non-Defense matters.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117s1605enr/html/BILLS-117s1605enr.htm"
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 25,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 6610, the Blocking Deadly Fentanyl Imports Act, amends section 481(e) of the Foreign Assistance Act of 1961 (22 U.S.C. 2291(e)) to add a majors-list category for a country that is a significant source of illicit synthetic opioids significantly affecting the United States, and amends 22 U.S.C. 2291h(a) with a new paragraph (10) requiring the International Narcotics Control Strategy Report to identify the most significant source countries for illicit fentanyl and describe how far each is cooperating. A yea enacts that listing authority and that reporting duty. Weighted 25, the floor of this record: one section working through a designation criterion and a report, against the four-section BUST Fentanyl Act subtitle that carries the same key on S. 1071 at 40.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117s1605enr/html/BILLS-117s1605enr.htm"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s1605.xml"
@@ -2332,7 +2356,7 @@
    "congress": 119,
    "chamber": "senate",
    "number": "S. 1071",
-   "_comment": "National Defense Authorization Act for Fiscal Year 2026, Public Law 119-60 (signed 2025-12-18). Easy to mis-identify three ways. S. 1071 was introduced 2025-03-14 as a bill to disinter the remains of Fernando V. Cota from Fort Sam Houston National Cemetery and passed the Senate by unanimous consent; the House struck the entire text, substituted the NDAA, and passed it 312-112 (house 119/1/320), after which the Senate agreed to the House amendment 77-20 (senate 119/1/648). The Clerk's vote-desc for House rolls 319 and 320 STILL PRINTS the disinterment title, so nothing here may be written from the roll-call page's description. S. 2296 (the Senate's own FY2026 NDAA, passed 77-20 on 2025-10-09) and H.R. 3838 (the House vehicle) are not the enacted law, and the H.R. 8800 already in the record is the FY2027 NDAA. Cornyn sponsored the shell vehicle and is NOT the NDAA's author. 'S. 1071' matches more than one row in vr_measures, so the migration applies this mapping to every row with that number. Three axes are mapped and six are declined with reasons — see declinedFacets in db/vr-landmark-vote-seed.json.",
+   "_comment": "National Defense Authorization Act for Fiscal Year 2026, Public Law 119-60 (signed 2025-12-18). Easy to mis-identify three ways. S. 1071 was introduced 2025-03-14 as a bill to disinter the remains of Fernando V. Cota from Fort Sam Houston National Cemetery and passed the Senate by unanimous consent; the House struck the entire text, substituted the NDAA, and passed it 312-112 (house 119/1/320), after which the Senate agreed to the House amendment 77-20 (senate 119/1/648). The Clerk's vote-desc for House rolls 319 and 320 STILL PRINTS the disinterment title, so nothing here may be written from the roll-call page's description. S. 2296 (the Senate's own FY2026 NDAA, passed 77-20 on 2025-10-09) and H.R. 3838 (the House vehicle) are not the enacted law, and the H.R. 8800 already in the record is the FY2027 NDAA. Cornyn sponsored the shell vehicle and is NOT the NDAA's author. 'S. 1071' matches more than one row in vr_measures, so the migration applies this mapping to every row with that number. Four axes are mapped and five are declined with reasons — see declinedFacets in db/vr-landmark-vote-seed.json. The israel_support axis was declined in that pass and mapped by 20260911000000 once runbook rule 22's \"section inside a vehicle\" bar was retired; the old refusal is preserved in reversedFacets.",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
    "issues": [
     {
@@ -2358,6 +2382,14 @@
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
      "rationale": "Section 512 inserts a new 32 U.S.C. 328a: the chief executive of a State that has declared an emergency due to a disaster may order a member of that State's National Guard who is serving on Active Guard and Reserve duty to perform State disaster-response duty. A yea hands a governor direct authority over federally paid Guard personnel. Weighted 25 — the lowest mapping in that pass — because the authority is gated on the Secretary of Defense's consent, is reimbursable by the State, and is capped at 14 days per member per calendar year (extendable by 7 days, or by 46 for a catastrophic incident). It is a real Title 32 shift toward the states, but it is one narrow section of a 312-112 defence authorisation and must not be read as a referendum on who commands the Guard. Re-keyed from states_federal_power in the August 2026 taxonomy split."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
+     "rationale": "Six provisions of the enacted text back Israel militarily. Sec. 864 establishes a United States-Israel Defense Industrial Base Working Group. Title XII, Subtitle D is headed \"Matters Relating to Israel\": Sec. 1231 extends and modifies anti-tunnel cooperation, Sec. 1232 extends and modifies cooperation to counter unmanned systems in all warfighting domains, and Sec. 1235 requires a report on joint United States-Israel military exercises. Sec. 1657 makes available not more than $60,000,000 to the Government of Israel for Iron Dome components, $40,000,000 for the David's Sling Weapon System and $100,000,000 for the Arrow 3 Upper Tier Interceptor Program, each through co-production in the United States. Sec. 1706 requires a continual assessment of the impact of international state arms embargoes on Israel. A yea enacts all of it. Weighted 35 rather than the FY2027 NDAA's 40 because this text folds in fourteen separately titled Acts across eight divisions, so the same subtitle is a smaller share of what was voted on."
     }
    ]
   },

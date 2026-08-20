@@ -235,10 +235,14 @@ const AMENDMENTS = [
 // bill it actually represents. The rest are recorded here with the provision that
 // tempted them, so the skip reads as a judgement and not as an oversight, and so a later
 // pass can revisit any of them with provision-level rolls.
-const DECLINED_FACETS = [
+// A facet that was declined here and has since been mapped anyway. Kept, rather than deleted,
+// because the reason it was declined was doctrine that has since been retired — runbook rule 22's
+// "section inside a vehicle" bar — and a reader who finds the old refusal quoted in an applied
+// migration needs to be able to see what happened to it.
+const REVERSED_FACETS = [
   {
     measure: "S. 1071 (119th, FY2026 NDAA)", facet: "israel_support",
-    why:
+    declinedWhy:
       "The enacted text carries six Israel provisions — Sec. 864 (US-Israel Defense Industrial Base "
       + "Working Group), Secs. 1231 and 1232 (extending anti-tunnel and counter-unmanned-systems "
       + "cooperation), Sec. 1235 (report on joint exercises), Sec. 1657 (Iron Dome and cooperative "
@@ -248,7 +252,20 @@ const DECLINED_FACETS = [
       + "of the 112 members who voted against the NDAA as opposing Israel aid, which is a verdict the "
       + "roll call does not support. The record already tests this axis directly through amendment "
       + "rolls (H.Amdt. 235, H.Amdt. 478), which is the right instrument for it.",
+    reversedBy: "20260911000000_vr_ndaa_israel_keys_and_rule22.sql",
+    reversedWhy:
+      "Mapped, secondary, weight 35, yea_supports. The provisions were never in doubt; the bar was. "
+      + "The product rule now in runbook rule 22 is that a provision in the primary text counts even "
+      + "when it travelled inside a larger bill: a yea advances the package as written and a nay "
+      + "blocks it, and the weight — not the refusal — is where the share of the vehicle is "
+      + "recorded. \"None of it was separately voted\" was the vehicle argument, not the duplicate "
+      + "argument; no separately-voted Israel rider exists on this bill, so nothing is counted twice. "
+      + "H.R. 8800 (FY2027 NDAA) and S. 1605 (FY2022 NDAA) were mapped in the same pass so the three "
+      + "NDAAs read alike.",
   },
+];
+
+const DECLINED_FACETS = [
   {
     measure: "S. 1071 (119th, FY2026 NDAA)", facet: "econ_trade",
     why:
@@ -770,6 +787,7 @@ const seed = {
   enactedLawFinding: ENACTED_LAW_FINDING,
   marginCaveats: MARGIN_CAVEATS,
   declinedFacets: DECLINED_FACETS,
+  reversedFacets: REVERSED_FACETS,
   declinedRollCalls: DECLINED,
   votes,
 };

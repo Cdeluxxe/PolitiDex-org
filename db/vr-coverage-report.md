@@ -8,6 +8,13 @@ titles come from the live database, overlaid with the curated seeds committed he
 wherever the live row has not caught up — so a pass that has landed in the repo but
 not yet deployed is counted, and every row it accounts for is marked `pending`.
 
+> **Hand note, not regenerated (2026-08-20).** This snapshot predates
+> `20260911000000_vr_ndaa_israel_keys_and_rule22.sql`, which adds `israel_support` to
+> H.R. 8800, S. 1071 and S. 1605 and `immig_fentanyl` to S. 1605. Three of the Gap 1b
+> rows below — H.R. 8800 (215 member-votes), S. 1605 (179) and the S. 1071 entry — are
+> answered by that pass. Regenerating needs `NETLIFY_DB_URL`, which this checkout does
+> not have; re-run `node scripts/vr-coverage-report.mjs --write` after the deploy.
+
 ## Where the ranking stands
 
 | | member-votes |
