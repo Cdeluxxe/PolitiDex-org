@@ -12,16 +12,16 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 
 | | member-votes |
 |---|---|
-| Recorded yea/nay votes | 7,614 |
+| Recorded yea/nay votes | 20,323 |
 | …of which the votes themselves are seeded but not yet deployed | 0 |
-| …on a measure with at least one issue mapping | 6,077 |
+| …on a measure with at least one issue mapping | 17,465 |
 | …of which the mapping is curated but not yet deployed | 0 |
-| …**and** the member holds a stated position on that key (rankable) | 3,441 |
+| …**and** the member holds a stated position on that key (rankable) | 6,287 |
 | …of which awaiting deploy | 0 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **816**. People with at least one rankable record: **193**.
+Rankable (member, issue) pairs: **1,200**. People with at least one rankable record: **214**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -32,47 +32,63 @@ separately from Gap 1 so an identity backfill is never mistaken for mapping work
 
 No measure carrying a vote is left without a title.
 
+## Procedural rules — unmapped on purpose, not backlog
+
+The House adopts a special rule (an H.Res. "providing for consideration of…")
+before most floor business. The rule sets debate terms for some *other* bill; it
+is not a position on any issue, and mapping it to an issue key would credit a
+member with a policy stance they never took. Each one is voted twice by the whole
+chamber, so they carry more member-votes than most real bills — which is exactly
+why they are counted here instead of in Gap 1, where their volume would make the
+mapping backlog look larger than it is and point the next pass at work that must
+never be done. Nothing here is a mapping opportunity. Leave them unmapped.
+
+7 measure(s), 1,041 member-votes — excluded from Gap 1 below.
+
+| member-votes | measure | title |
+|---:|---|---|
+| 212 | H.Res. 682 | H.Res. 682 — Rule providing for consideration of H.R. 3838 and H.R. 3486 |
+| 210 | H.Res. 916 | H.Res. 916 — Rule providing for consideration of H.R. 4312, H.R. 1005, H.R. 1049, H.R. 106 |
+| 209 | H.Res. 377 | Providing for consideration of the bill (H.R. 276) to rename the Gulf of Mexico as the "Gu |
+| 192 | H.Res. 1075 | H.Res. 1075 — Rule providing for consideration of H.R. 4626 and H.R. 4758 |
+| 74 | H.Res. 1423 | Providing for consideration of the bill (H.R. 139) to make daylight savings time permanent |
+| 74 | H.Res. 1438 | Providing for consideration of the bill (H.R. 8800) to authorize appropriations for fiscal |
+| 70 | H.Res. 1398 | Providing for consideration of the bill (H.R. 8800) to authorize appropriations for fiscal |
+
 ## Gap 1 — measures with votes and no issue mapping
 
-36 measure(s), 1,537 member-votes at stake.
+27 measure(s), 1,817 member-votes at stake.
+
+Procedural rules are **not** in this count — 7 measure(s) / 1,041 member-votes are listed in the section above instead.
 
 | member-votes | measure | title | |
 |---:|---|---|---|
-| 74 | H.Res. 916 | H.Res. 916 — Rule providing for consideration of H.R. 4312, H.R. 1005, H.R. 1049, H.R. 106 |  |
-| 74 | H.Res. 1423 | Providing for consideration of the bill (H.R. 139) to make daylight savings time permanent |  |
-| 74 | H.Res. 1438 | Providing for consideration of the bill (H.R. 8800) to authorize appropriations for fiscal |  |
-| 73 | H.Res. 682 | H.Res. 682 — Rule providing for consideration of H.R. 3838 and H.R. 3486 |  |
-| 71 | H.Res. 377 | Providing for consideration of the bill (H.R. 276) to rename the Gulf of Mexico as the "Gu |  |
-| 70 | H.Res. 1398 | Providing for consideration of the bill (H.R. 8800) to authorize appropriations for fiscal |  |
-| 66 | H.Res. 1075 | H.Res. 1075 — Rule providing for consideration of H.R. 4626 and H.R. 4758 |  |
-| 38 | S. 1071 | National Defense Authorization Act for Fiscal Year 2026 |  |
-| 38 | H.R. 36 | H.R. 36 — MEGOBARI Act |  |
-| 38 | H.R. 530 | ACES Act |  |
-| 38 | H.R. 1402 | TICKET Act |  |
-| 38 | H.Amdt. 259 | H.Amdt. 259 (Issa) to H.R. 8800 — authorize the Secretary to approve any eligible investor |  |
-| 37 | H.R. 1503 | Stop Forced Organ Harvesting Act of 2025 |  |
+| 106 | H.R. 1402 | TICKET Act |  |
+| 105 | H.R. 973 | Setting Consumer Standards for Lithium-Ion Batteries Act |  |
+| 104 | H.R. 3425 | H.R. 3425 — Personnel Oversight and Shift Tracking Act of 2025 |  |
+| 104 | H.R. 1503 | Stop Forced Organ Harvesting Act of 2025 |  |
+| 103 | H.R. 3424 | H.R. 3424 — SPACE Act of 2025 |  |
+| 102 | S. 356 | Secure Rural Schools Reauthorization Act of 2025 |  |
+| 101 | H.R. 36 | H.R. 36 — MEGOBARI Act |  |
+| 101 | H.R. 1676 | Make SWAPs Efficient Act of 2025 |  |
+| 99 | H.R. 530 | ACES Act |  |
+| 99 | H.R. 1069 | PROTECT Our Kids Act |  |
+| 98 | H.R. 4423 | H.R. 4423 — No New Burma Funds Act |  |
+| 98 | H.R. 5348 | H.R. 5348 — Social Security Child Protection Act of 2025 |  |
+| 98 | S. 2503 | ROTOR Act |  |
 | 37 | H.R. 7401 | Small Business Lending Fraud Prevention Act |  |
 | 37 | H.R. 1118 | Value Over Cost Act of 2026 |  |
-| 37 | H.Amdt. 243 | H.Amdt. 243 (Boebert) to H.R. 8800 — strike section 521 and replace it with a prohibition  |  |
-| 37 | H.Amdt. 245 | H.Amdt. 245 (Boebert) to H.R. 8800 — strike section 518, relating to the pilot program on  |  |
-| 36 | H.R. 973 | Setting Consumer Standards for Lithium-Ion Batteries Act |  |
+| 37 | H.Amdt. 259 | H.Amdt. 259 (Issa) to H.R. 8800 — authorize the Secretary to approve any eligible investor |  |
 | 36 | H.R. 915 | Small Business Technological Advancement Act |  |
 | 36 | H.R. 2478 | Financial Exploitation Prevention Act of 2025 |  |
 | 36 | H.R. 3106 | Weatherizing Infrastructure in the North and Terrorism Emergency Readiness Act of 2025 |  |
 | 36 | H.R. 8897 | Improving Travel for American Families Act |  |
 | 36 | H.R. 139 | Sunshine Protection Act of 2025 |  |
-| 36 | H.Amdt. 244 | H.Amdt. 244 (Boebert) to H.R. 8800 — strike section 524, which removes the existing statut |  |
-| 35 | H.R. 1069 | PROTECT Our Kids Act |  |
+| 36 | H.Amdt. 245 | H.Amdt. 245 (Boebert) to H.R. 8800 — strike section 518, relating to the pilot program on  |  |
 | 35 | H.R. 5362 | To name the Department of Veterans Affairs multispecialty clinic in Marietta, Georgia, as  |  |
 | 35 | H.R. 4541 | To reauthorize the Young Women’s Breast Health Education and Awareness Requires Learning Y |  |
 | 35 | H.R. 8823 | Putting Patients First by Strengthening Provider Accountability in FECA Act |  |
-| 34 | H.R. 3424 | H.R. 3424 — SPACE Act of 2025 |  |
-| 34 | H.R. 3425 | H.R. 3425 — Personnel Oversight and Shift Tracking Act of 2025 |  |
-| 34 | S. 2503 | ROTOR Act |  |
-| 34 | H.R. 1676 | Make SWAPs Efficient Act of 2025 |  |
-| 34 | S. 356 | Secure Rural Schools Reauthorization Act of 2025 |  |
-| 33 | H.R. 4423 | H.R. 4423 — No New Burma Funds Act |  |
-| 33 | H.R. 5348 | H.R. 5348 — Social Security Child Protection Act of 2025 |  |
+| 35 | H.Amdt. 244 | H.Amdt. 244 (Boebert) to H.R. 8800 — strike section 524, which removes the existing statut |  |
 | 32 | H.R. 7128 | TRIA Program Reauthorization Act of 2026 |  |
 
 ## Gap 1b — measures mapped to exactly one issue
@@ -82,135 +98,135 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 | member-votes | measure | key |
 |---:|---|---|
-| 90 | H.R. 2670 | strong_defense |
-| 83 | PN11-7 | strong_defense |
-| 83 | Kennedy — HHS | healthcare |
-| 81 | S. 1605 | strong_defense |
-| 79 | H.R. 8404 | lgbtq_rights |
-| 74 | H.R. 6955 | econ_smallbiz |
-| 73 | H.R. 8800 | strong_defense |
-| 58 | H.R. 8034 | israel_support |
-| 57 | H.Amdt. 478 | israel_support |
-| 56 | H.R. 7217 | israel_support |
-| 55 | H.R. 8369 | israel_support |
-| 49 | H.R. 5323 | israel_support |
-| 40 | H.R. 276 | america_first |
-| 38 | H.Amdt. 87 | lgbtq_rights |
-| 38 | H.Amdt. 97 | lands_preserve |
-| 38 | H.Amdt. 85 | lgbtq_rights |
-| 38 | H.Amdt. 253 | gun_rights |
-| 38 | H.Amdt. 257 | school_choice |
-| 38 | H.Amdt. 261 | privacy_rights |
-| 37 | H.Amdt. 242 | gov_transparency |
-| 37 | H.Amdt. 254 | lgbtq_rights |
-| 37 | H.Amdt. 256 | lgbtq_rights |
-| 37 | H.Amdt. 258 | religious_liberty |
-| 37 | H.Con.Res. 113 | national_debt |
-| 37 | S.J.Res. 33 | israel_support |
-| … | _20 more_ | |
+| 216 | H.R. 6955 | econ_smallbiz |
+| 215 | H.R. 8800 | strong_defense |
+| 197 | H.R. 2670 | strong_defense |
+| 179 | S. 1605 | strong_defense |
+| 178 | H.R. 8404 | lgbtq_rights |
+| 111 | H.R. 8034 | israel_support |
+| 110 | H.R. 7217 | israel_support |
+| 109 | H.Amdt. 478 | israel_support |
+| 108 | H.Amdt. 87 | lgbtq_rights |
+| 108 | H.Amdt. 85 | lgbtq_rights |
+| 108 | H.Amdt. 253 | gun_rights |
+| 108 | H.Amdt. 257 | school_choice |
+| 108 | H.Con.Res. 113 | national_debt |
+| 108 | H.R. 4405 | gov_transparency |
+| 107 | H.Amdt. 97 | lands_preserve |
+| 107 | H.Amdt. 242 | gov_transparency |
+| 107 | H.Amdt. 254 | lgbtq_rights |
+| 107 | H.Amdt. 258 | religious_liberty |
+| 107 | H.Amdt. 261 | privacy_rights |
+| 107 | H.R. 8369 | israel_support |
+| 106 | H.Amdt. 247 | judicial_check |
+| 106 | H.Amdt. 249 | states_federal_power |
+| 106 | H.Amdt. 250 | states_federal_power |
+| 105 | H.R. 276 | america_first |
+| 104 | H.R. 1005 | gov_transparency |
+| … | _33 more_ | |
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-7,030 (member, issue) pairs, 14,590 member-votes.
+12,793 (member, issue) pairs, 39,274 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
 | member-votes | member | issue key | profile exists |
 |---:|---|---|---|
-| 15 | mike_simpson | strong_defense | yes |
-| 15 | jason_smith | strong_defense | yes |
-| 15 | kclark | strong_defense | yes |
-| 14 | jim_jordan | strong_defense | yes |
-| 14 | french_hill | strong_defense | yes |
-| 14 | maxine_waters | strong_defense | yes |
-| 14 | bruce_westerman | strong_defense | yes |
-| 13 | frank_lucas | strong_defense | yes |
-| 13 | crockett | strong_defense | yes |
-| 13 | boebert | strong_defense | yes |
-| 12 | khanna | gov_regulation | yes |
-| 12 | grassley | strong_defense | yes |
-| 12 | hawley | strong_defense | yes |
-| 12 | rand_paul | strong_defense | yes |
-| 12 | warren | strong_defense | yes |
-| 12 | lee | strong_defense | yes |
-| 12 | booker | strong_defense | yes |
-| 12 | durbin | strong_defense | yes |
-| 12 | jon_ossoff | strong_defense | yes |
-| 12 | josh_brecheen | strong_defense | yes |
-| 11 | thune | strong_defense | yes |
-| 11 | schumer | strong_defense | yes |
-| 11 | aoc | national_debt | yes |
-| 11 | murkowski | strong_defense | yes |
-| 11 | barrasso | strong_defense | yes |
-| 11 | lankford | strong_defense | yes |
-| 11 | mark_kelly | strong_defense | yes |
-| 11 | rosen | strong_defense | yes |
-| 11 | chris_murphy | strong_defense | yes |
-| 11 | van_hollen | strong_defense | yes |
-| 11 | schiff | strong_defense | yes |
-| 11 | rick_crawford | cut_spending | yes |
-| 11 | mike_ezell | cut_spending | yes |
-| 11 | trent_kelly | cut_spending | yes |
-| 10 | massie | national_debt | yes |
-| 10 | crockett | cut_spending | yes |
-| 10 | crockett | gov_regulation | yes |
-| 10 | cruz | strong_defense | yes |
-| 10 | warnock | strong_defense | yes |
-| 10 | andy_kim | strong_defense | yes |
-| 10 | rob_bresnahan | cut_spending | yes |
-| 10 | bennie_thompson | america_first_fp | yes |
-| 10 | bruce_westerman | america_first_fp | yes |
-| 10 | crockett | america_first_fp | yes |
-| 10 | jason_smith | america_first_fp | yes |
-| 10 | michael_guest | america_first_fp | yes |
-| 10 | mike_collins | america_first_fp | yes |
-| 10 | mike_ezell | america_first_fp | yes |
-| 10 | mike_flood | america_first_fp | yes |
-| 10 | mike_simpson | america_first_fp | yes |
-| 10 | scalise | america_first_fp | yes |
-| 10 | stephanie_bice | america_first_fp | yes |
-| 10 | trent_kelly | america_first_fp | yes |
-| 9 | schumer | national_debt | yes |
-| 9 | emmer | climate_action | yes |
-| 9 | jim_jordan | climate_action | yes |
-| 9 | grassley | national_debt | yes |
-| 9 | warren | national_debt | yes |
-| 9 | lee | national_debt | yes |
-| 9 | cruz | national_debt | yes |
-| … | _6,970 more_ | | |
+| 20 | mike_simpson | strong_defense | yes |
+| 20 | jeffries | strong_defense | yes |
+| 20 | jason_smith | strong_defense | yes |
+| 20 | kclark | strong_defense | yes |
+| 20 | raskin | strong_defense | yes |
+| 20 | chip_roy | strong_defense | yes |
+| 20 | kevin_hern | strong_defense | yes |
+| 20 | donalds | strong_defense | yes |
+| 20 | stefanik | strong_defense | yes |
+| 20 | ayanna_pressley | strong_defense | yes |
+| 20 | raja_krishnamoorthi | strong_defense | yes |
+| 20 | brendan_boyle | strong_defense | yes |
+| 20 | rick_larsen | strong_defense | yes |
+| 20 | jan_schakowsky | strong_defense | yes |
+| 20 | steny_hoyer | strong_defense | yes |
+| 20 | torres | strong_defense | yes |
+| 20 | omar | strong_defense | yes |
+| 20 | clyburn | strong_defense | yes |
+| 20 | french_hill | strong_defense | yes |
+| 20 | bruce_westerman | strong_defense | yes |
+| 20 | maxine_waters | strong_defense | yes |
+| 20 | brian_mast | strong_defense | yes |
+| 20 | haley_stevens | strong_defense | yes |
+| 20 | aguilar | strong_defense | yes |
+| 20 | angie_craig | strong_defense | yes |
+| 20 | arrington | strong_defense | yes |
+| 20 | bryan_steil | strong_defense | yes |
+| 20 | chellie_pingree | strong_defense | yes |
+| 20 | comer | strong_defense | yes |
+| 20 | delauro | strong_defense | yes |
+| 20 | foxx | strong_defense | yes |
+| 20 | glenn_thompson | strong_defense | yes |
+| 20 | guthrie | strong_defense | yes |
+| 20 | jared_huffman | strong_defense | yes |
+| 20 | mike_bost | strong_defense | yes |
+| 20 | neal | strong_defense | yes |
+| 20 | neguse | strong_defense | yes |
+| 20 | pallone | strong_defense | yes |
+| 20 | roger_williams | strong_defense | yes |
+| 20 | takano | strong_defense | yes |
+| 20 | ted_lieu | strong_defense | yes |
+| 20 | walberg | strong_defense | yes |
+| 20 | zoe_lofgren | strong_defense | yes |
+| 19 | tom_suozzi | strong_defense | yes |
+| 19 | jim_mcgovern | strong_defense | yes |
+| 19 | diana_degette | strong_defense | yes |
+| 19 | frank_lucas | strong_defense | yes |
+| 19 | boebert | strong_defense | yes |
+| 19 | andy_harris | strong_defense | yes |
+| 19 | brian_babin | strong_defense | yes |
+| 19 | sam_graves | strong_defense | yes |
+| 18 | jim_jordan | strong_defense | yes |
+| 18 | luna | strong_defense | yes |
+| 18 | mike_lawler | strong_defense | yes |
+| 18 | delia_ramirez | strong_defense | yes |
+| 18 | greg_landsman | strong_defense | yes |
+| 18 | marie_gluesenkamp_perez | strong_defense | yes |
+| 18 | debbie_dingell | strong_defense | yes |
+| 18 | summer_lee | strong_defense | yes |
+| 18 | maxwell_frost | strong_defense | yes |
+| … | _12,733 more_ | | |
 
 ## Gap 2 rolled up by issue
 
 | member-votes | issue key | members missing a position |
 |---:|---|---:|
-| 774 | climate_action | 206 |
-| 738 | gov_regulation | 191 |
-| 730 | strong_defense | 107 |
-| 699 | national_debt | 137 |
-| 659 | energy_production | 175 |
-| 639 | states_federal_power | 199 |
-| 589 | cost_living | 212 |
-| 472 | gov_transparency | 135 |
-| 456 | cut_spending | 122 |
-| 430 | gov_services | 143 |
-| 410 | america_first_fp | 120 |
-| 401 | lgbtq_rights | 119 |
-| 374 | foreign_balance | 134 |
-| 318 | healthcare | 135 |
-| 289 | public_schools | 161 |
-| 286 | tough_on_crime | 106 |
-| 271 | restraint | 142 |
-| 256 | family_support | 165 |
-| 253 | school_choice | 157 |
-| 244 | privacy_rights | 115 |
-| 243 | deportations | 135 |
-| 229 | lower_taxes | 142 |
-| 226 | checks_balances | 105 |
-| 225 | econ_smallbiz | 90 |
-| 224 | edu_college_cost | 167 |
-| 194 | econ_corp_account | 137 |
-| 182 | border_security | 93 |
-| 180 | lands_energy | 136 |
-| 171 | tech_balance | 133 |
-| 170 | tech_innovation | 132 |
+| 2,141 | strong_defense | 138 |
+| 1,732 | national_debt | 169 |
+| 1,388 | climate_action | 206 |
+| 1,327 | cut_spending | 157 |
+| 1,267 | tough_on_crime | 198 |
+| 1,122 | energy_production | 175 |
+| 1,083 | gov_transparency | 191 |
+| 1,079 | america_first_fp | 193 |
+| 1,067 | gun_rights | 190 |
+| 1,067 | gov_services | 205 |
+| 1,009 | immig_fentanyl | 206 |
+| 1,002 | lgbtq_rights | 203 |
+| 966 | deportations | 197 |
+| 932 | gun_safety | 185 |
+| 892 | israel_support | 119 |
+| 862 | states_federal_power | 200 |
+| 848 | cost_living | 213 |
+| 835 | gov_regulation | 198 |
+| 792 | healthcare | 166 |
+| 705 | foreign_balance | 191 |
+| 697 | privacy_rights | 187 |
+| 636 | voting_access | 86 |
+| 607 | border_security | 124 |
+| 591 | health_mental | 209 |
+| 589 | econ_smallbiz | 197 |
+| 586 | restraint | 202 |
+| 575 | family_support | 204 |
+| 509 | tech_balance | 175 |
+| 493 | edu_college_cost | 206 |
+| 489 | school_choice | 201 |
 

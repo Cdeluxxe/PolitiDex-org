@@ -6219,12 +6219,14 @@
           '</div>';
         }
 
-        // Connective sub-header that names the link to the accountability analysis
-        // and offers a one-tap jump into it.
+        // Sub-header for the sourced integrity highlights below.
+        // SCORING CLEANUP: this used to carry a "View Score Analysis →" button into
+        // #accountability-overlay, which prints an Accountability Score of N/100 —
+        // a second composite competing with Direction Match. Removed with the two
+        // compare-hub doors; the highlights themselves are evidence and stay.
         function _slDriverHeader() {
-          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin:0.2rem 0 0.6rem;">' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Driving the accountability read</span>' +
-              '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeSlId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.25rem 0.6rem;border-radius:999px;white-space:nowrap;">View Score Analysis →</button>' +
+          return '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:0.2rem 0 0.6rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Integrity &amp; consistency highlights</span>' +
             '</div>';
         }
         function _slNewsHeader() {

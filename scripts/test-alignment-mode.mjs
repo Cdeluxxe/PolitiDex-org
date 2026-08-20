@@ -254,8 +254,13 @@ section("4 · no invented sides, and no silent fallback");
   ok(unc.indexOf(NONE) >= 0, "…as is the no-pattern issue");
   eq(unc.length + REC.issues.length, PICKS.length,
     "every issue the visitor picked is either matched or named as uncovered — none vanish");
-  // And the stated lane still scores what it always scored.
-  ok(rowOf(SAID, DARK), "the stated lane still covers the issue the record cannot");
+  // The stated lane now applies the SAME rule to its own silence. DARK is an issue
+  // with no documented position AND no votes; it used to be scored anyway, from the
+  // candidate's party. Both lanes now decline it and both report it.
+  ok(!rowOf(SAID, DARK),
+    "the stated lane also drops an issue it has no documented position on");
+  ok((SAID.uncovered || []).some((u) => u.key === DARK),
+    "…and names it as uncovered rather than dropping it silently");
   // A documented position with no votes behind it is the sharpest version of the
   // same rule: record mode must refuse it even though a stance is right there.
   const S2 = pick(warm(boot()), [SAID_ONLY]);
@@ -293,8 +298,15 @@ section("5 · coverage is stated out loud");
   eq(A._alignCoverageNoteHtml(PID, REC).indexOf("%") >= 0, false,
     "the coverage note is a count, not a score");
   A.alignSetMatchMode("stated");
-  eq(A._alignCoverageNoteHtml(PID, SAID), "",
-    "in stated mode the record-coverage note does not render at all");
+  const snote = A._alignCoverageNoteHtml(PID, SAID);
+  has(snote, "have a documented position to match against",
+    "the stated lane states its own coverage fraction, in its own vocabulary");
+  has(snote, "Not counted", "…names the issues it left out");
+  has(snote, "not</b> estimated from their party",
+    "…and says in as many words that the gap was NOT filled from party");
+  lacks(snote, "formal-record pattern",
+    "…without borrowing the record lane's words for it");
+  eq(snote.indexOf("%") >= 0, false, "the stated coverage note is a count, not a score");
 
   // Sparse: one covered issue against a pile of uncoverable ones.
   const SPARSE = pick(warm(boot()), [STRONG, DARK, NONE, SAID_ONLY]);
@@ -308,14 +320,21 @@ section("5 · coverage is stated out loud");
   const DRY = pick(warm(boot()), [DARK, NONE]);
   DRY.alignSetMatchMode("record");
   eq(bdOf(DRY, "record"), null, "with nothing readable, record mode returns no score at all");
-  ok(bdOf(DRY, "stated"), "…while the stated lane still has an answer, unasked-for");
+  eq(bdOf(DRY, "stated"), null,
+    "…and the stated lane comes up dry too rather than inventing an answer from party");
   const gap = DRY._alignModeGapBarHtml(PID);
   has(gap, "No formal-record pattern on your issues", "the card says which lane came up dry");
   has(gap, "nothing to match in this mode", "…that it is this mode, not the person");
   has(gap, "alignSetMatchMode('stated')", "…and offers the other question as a tap");
   lacks(gap, "%", "the dry state never shows a number");
   DRY.alignSetMatchMode("stated");
-  eq(DRY._alignModeGapBarHtml(PID), "", "…and it does not render in stated mode");
+  const sgap = DRY._alignModeGapBarHtml(PID);
+  has(sgap, "No documented position on your issues",
+    "the stated lane's dry card says which lane came up dry");
+  has(sgap, "will not guess one from their party",
+    "…and refuses the party guess out loud rather than silently");
+  has(sgap, "alignSetMatchMode('record')", "…and offers the other question as a tap");
+  lacks(sgap, "%", "the dry stated state never shows a number either");
 
   // Cold record ≠ empty record: a pack that has not landed yet says "reading".
   COLD.alignSetMatchMode("record");

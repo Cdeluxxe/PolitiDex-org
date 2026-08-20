@@ -1100,10 +1100,18 @@
     window._renderAccountabilityCard = function(id, p){
       // SCORING CLEANUP: the Accountability of Truth composite is retired as a
       // headline number. This inline profile card (the big purple score ring)
-      // no longer renders. The underlying accountability analysis remains
-      // reachable via viewAccountabilityAnalysis() from the record/spotlight
-      // sections, and the evidence data is untouched. Returning '' cleanly
-      // removes the headline ring from the profile with no layout break.
+      // no longer renders. Returning '' cleanly removes the headline ring from the
+      // profile with no layout break.
+      //
+      // RETIREMENT COMPLETED: the analysis overlay this used to tap through to is
+      // no longer reachable from any reader-facing surface either — the last four
+      // doors (two in compare-hub's medium card, one in profiles-full's spotlight
+      // sub-header, and the "View Accountability Analysis" expander on every
+      // incumbent browse card) were unmounted, because the overlay prints an
+      // Accountability Score of N/100 and Direction Match is the only headline.
+      // The engine, the evidence data and this module all stay; nothing in the UI
+      // calls into them. Do not re-add an entry point, and do not reintroduce a
+      // composite 0–100 anywhere. See scripts/test-no-second-score.mjs.
       return '';
       // eslint-disable-next-line no-unreachable
       p = p || getProfile(id) || {};
@@ -1396,9 +1404,10 @@
       // SCORING CLEANUP: the Accountability of Truth composite has been retired as a
       // headline number/badge. This helper now renders nothing, which removes the
       // purple accountability chip from every card, slot and roster surface in one
-      // place — the underlying accountability data and the full analysis modal are
-      // untouched and still reachable from the profile. Returning '' keeps all
-      // call sites (which wrap this output) working with no layout break.
+      // place — the underlying accountability data is untouched, but the full
+      // analysis modal is no longer reachable from any reader-facing surface (see
+      // the note on _renderAccountabilityCard above). Returning '' keeps all call
+      // sites (which wrap this output) working with no layout break.
       return '';
       // eslint-disable-next-line no-unreachable
       var p = getProfile(id) || {};
@@ -1454,6 +1463,14 @@
 
     // Condensed, card-sized accountability breakdown (kept short by design).
     window._acctCardCondensed = function(id, a){
+      // SCORING CLEANUP: this rendered the condensed second score — an overall
+      // 0-100, per-category 0-100 bars, and a "View Full Analysis →" button into
+      // #accountability-overlay. Its only caller was toggleCardAccountability,
+      // driven by the browse-card expander removed from compare-hub.js. Returning
+      // '' retires the renderer as well as the door, so a future caller cannot
+      // resurrect the composite by accident. See scripts/test-no-second-score.mjs.
+      return '';
+      // eslint-disable-next-line no-unreachable
       if (!a || typeof a.overallScore !== 'number') return '<div style="padding:0.6rem;color:#9fb4d4;font-size:0.72rem;">Analysis unavailable.</div>';
       var s = a.overallScore;
       var lvl = a.color || acctLevelColor(s);

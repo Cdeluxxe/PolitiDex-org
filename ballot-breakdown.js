@@ -4173,35 +4173,46 @@
       // explain here. Left as an empty string so the render concat below is a no-op.
       var acctNote = '';
 
-      // Confidence cue — how much of this score rests on a documented record vs.
-      // an early read from stated priorities. Critical for fresh 2026 candidates,
-      // who otherwise show a confident-looking number with nothing behind it.
+      // Confidence cue — what this score rests on. Since the party/keyword fill-in
+      // was retired, every row in bd.issues is grounded in a real signal (a documented
+      // position, or a formal-record pattern) and the issues neither lane could answer
+      // are in bd.uncovered instead of being quietly estimated. So the honest cue is
+      // no longer "how much is inferred" — it is "how many of the issues you picked
+      // are in this number at all".
       // `nDirect` counts the visitor's issues backed by an explicit, sourced position
       // on the exact issue — the strongest grounding — so the messaging leads with it.
       var nDirect = bd.issues.filter(function(it) { return it.direct; }).length;
       var nEvidence = bd.issues.filter(function(it) { return it.hasEvidence; }).length;
       var nTotal = bd.issues.length;
+      var nDropped = (bd.uncovered || []).length;
+      var nPicked = nTotal + nDropped;
+      // One clause, reused: names the issues that fell out and refuses the guess.
+      var droppedClause = nDropped
+        ? ' The other <b>' + nDropped + '</b> issue' + (nDropped === 1 ? '' : 's') + ' you picked ' +
+          (nDropped === 1 ? 'is' : 'are') + ' not counted — we have no signal there and will not ' +
+          'estimate one from their party.'
+        : '';
       var firstName = (d.name || 'This candidate').split(' ')[0];
       var confHtml;
       if (nDirect > 0 && nDirect === nTotal) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.28);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📍</span>' +
-            '<p style="font-size:0.66rem;color:#a7d8c1;line-height:1.5;margin:0;">Every one of your <b style="color:#6ee7b7;">' + nTotal + '</b> selected issue' + (nTotal === 1 ? ' has a' : 's has a') + ' documented, sourced position from ' + firstName + ' — this match is grounded directly in where they stand, not inferred.</p>' +
+            '<p style="font-size:0.66rem;color:#a7d8c1;line-height:1.5;margin:0;">This match is built on <b style="color:#6ee7b7;">' + nTotal + '</b> of your <b style="color:#6ee7b7;">' + nPicked + '</b> selected issue' + (nPicked === 1 ? '' : 's') + ', each one a documented, sourced position from ' + firstName + ' — grounded directly in where they stand, not inferred.' + droppedClause + '</p>' +
           '</div>';
       } else if (nDirect > 0) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📍</span>' +
-            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nDirect + ' of ' + nTotal + '</b> of your issues match a documented position ' + firstName + ' has stated (marked <b style="color:#5eead4;">📍 Stated</b> below); the rest are estimated from their broader record.</p>' +
+            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nDirect + ' of ' + nPicked + '</b> of your issues match a documented position ' + firstName + ' has stated (marked <b style="color:#5eead4;">📍 Stated</b> below).' + droppedClause + '</p>' +
           '</div>';
       } else if (nEvidence === 0) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.32);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.95rem;line-height:1.2;flex:none;">🌱</span>' +
-            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Early read.</b> We don\'t have a documented position or voting record from ' + firstName + ' on the issues you picked yet, so this is estimated from their stated priorities. It sharpens as positions are verified — and the profile\'s \u2696\ufe0f Word vs Action index shows what ' + firstName + ' <em>has</em> stated so far.</p>' +
+            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Thin read.</b> This rests on <b style="color:#fbbf24;">' + nTotal + '</b> of your <b>' + nPicked + '</b> issue' + (nPicked === 1 ? '' : 's') + ' — a real signal, but a narrow one.' + droppedClause + ' It sharpens as positions are verified — and the profile\'s \u2696\ufe0f Word vs Action index shows what ' + firstName + ' <em>has</em> stated so far.</p>' +
           '</div>';
       } else {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📋</span>' +
-            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nEvidence + ' of ' + nTotal + '</b> of your issues are backed by ' + firstName + '\'s broader record; the rest are estimated from their stated priorities until more is verified.</p>' +
+            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nEvidence + ' of ' + nPicked + '</b> of your issues are backed by ' + firstName + '\'s formal record.' + droppedClause + '</p>' +
           '</div>';
       }
 

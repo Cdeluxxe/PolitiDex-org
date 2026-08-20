@@ -89,12 +89,14 @@
     // middle-ground option for people who don't fall neatly on one end.
     //
     // Each option carries the keywords/stanceKeys the engine already understands.
-    // An optional `lean: 'R' | 'D'` is used only internally by the scoring engine
-    // to nudge the per-position match toward candidates with a matching record
-    // (see _alignApplyLean); it is intentionally NOT shown in the UI anymore, so
-    // the tool reads as policy positions rather than party branding. Options with
-    // no lean (including every balanced option) score purely on the candidate's
-    // own record and behave exactly as the original non-directional issues did.
+    // An optional `lean: 'R' | 'D'` survives on some options as DATA ONLY. No
+    // match-scoring path reads it — the party nudge it used to feed is retired
+    // (see the RETIRED _alignApplyLean note below), and an issue the candidate has
+    // no documented position on is now dropped from the match rather than filled
+    // in from their party. The field is kept because word-action.js reads it when
+    // disambiguating which issue a bill's branding points at, which is what stops
+    // opposed facets like gun_rights / gun_safety collapsing into one key. Do not
+    // wire it back into a score.
     //
     // `cat` assigns each option to one of the ALIGN_CATEGORIES below, which groups
     // the positions into the collapsible topic sections of the picker. `label` is
@@ -214,13 +216,12 @@
       // thing the two-facet split exists to avoid. It remains a legacy middle key for
       // the members whose stated position really is that blend; its cards count toward
       // NEITHER facet's coverage, and no card was re-keyed off it.
-      // KNOWN ASYMMETRY: gun_rights carries lean:'R' and gun_safety lean:'D', so the two
-      // facets are not scored symmetrically — the same asymmetry election_security /
-      // voting_access carries. Both leans are left in place deliberately:
-      // _alignApplyLean multiplies lean into every Alignment score, so dropping either
-      // would silently move published percentages for every member already carrying a
-      // gun card. Removing them is a scoring change and belongs in its own pass, not in
-      // an additive content pass.
+      // gun_rights carries lean:'R' and gun_safety lean:'D'. This is no longer a
+      // scoring asymmetry: nothing in the match reads `lean` since the party nudge was
+      // retired. The values stay because word-action.js's branding disambiguator reads
+      // them, and it is exactly this pair it needs them for — same category, opposite
+      // leans, so a bill whose branding hits both resolves to neither instead of
+      // silently picking one.
       gun_rights:         { label: '🔫 Protect Gun Rights', chip: 'Protect Second Amendment and the right to bear arms', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry','carry','right to carry','reciprocity','concealed carry reciprocity','self-defense','self defense','right to bear arms','magazine ban','gun ban','firearm registry','no registry','suppressor','hearing protection','atf','gun owner','law-abiding'] },
       gun_balance:        { label: '⚖️ Rights + Common-Sense Safety', chip: 'Keep legal gun ownership but require universal background checks and red-flag laws', cat: 'guns', stanceKeys: ['gun'], keywords: ['background check','gun safety','second amendment','firearm','responsible','red flag','mental health','common sense','gun reform'] },
       gun_safety:         { label: '🦺 Stronger Gun Safety Laws', chip: 'Pass stronger gun safety laws to reduce gun violence', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','universal background check','red flag','extreme risk','assault weapon','assault-style','high-capacity','high capacity magazine','safe storage','secure storage','gun trafficking','straw purchase','ghost gun','untraceable firearm','bump stock','gun violence','gun reform','boyfriend loophole'] },
@@ -464,12 +465,9 @@
       // POLARITY: the chip states the PRO-ACCESS direction — issueStance:'support' =
       // backs easier registration and more ways to cast a ballot, 'oppose' = backs
       // narrowing them, 'mixed' = backs access with conditions.
-      // KNOWN ASYMMETRY: this key carries lean:'D' while election_security carries no
-      // lean, so the two facets are not scored symmetrically. The lean is left in
-      // place deliberately — _alignApplyLean multiplies it into every Alignment score,
-      // so dropping it would silently move published percentages for every member
-      // already carrying a voting_access card. Removing it is a scoring change and
-      // belongs in its own pass, not in an additive content pass.
+      // This key carries lean:'D' while election_security carries none. No longer a
+      // scoring asymmetry — nothing in the match reads `lean` since the party nudge was
+      // retired. Left in place as branding-disambiguation data for word-action.js.
       voting_access:      { label: '📩 Expand Voting Access', chip: 'Protect and expand access to the ballot box', cat: 'democracy', lean: 'D', stanceKeys: [], keywords: ['voting rights','voting access','ballot access','mail voting','early voting','automatic registration','john lewis','enfranchise','expand voting','democracy'] },
 
       // ── Government Reform & Term Limits ──
@@ -584,9 +582,9 @@
       // issueStance 'support' = backs reclassifying career policy jobs out of the
       // competitive service and its removal procedures, 'oppose' = backs keeping
       // those civil-service protections in place, 'mixed' = backs some of each.
-      // Carries no `lean`, on the checks_balances precedent directly above: _alignApplyLean
-      // multiplies into every Alignment score, so adding one is a scoring change and
-      // does not belong in a taxonomy pass.
+      // Carries no `lean`, on the checks_balances precedent directly above. `lean` is
+      // branding-disambiguation data for word-action.js and nothing else; it is not a
+      // scoring input and must never become one again.
       civil_service_control: { label: '🗂 Control of the Civil Service', chip: 'Let the President reclassify policy-influencing career jobs so those employees can be hired and removed without the usual civil-service procedures', cat: 'reform', stanceKeys: [], keywords: ['civil service','civil service protections','civil service rules','schedule f','schedule policy/career','schedule g','excepted service','competitive service','merit system principles','career civil service','career employee','policy-influencing','at-will','adverse action','removal procedures','chapter 75','office of personnel management','opm','tenure','federal employee'] }
     };
 
@@ -1325,18 +1323,28 @@
       } catch(e) {}
     }
 
-    // Directional nudge for positions that carry an internal lean. It pulls the
-    // per-position match gently toward candidates whose record matches the position
-    // and away from the opposite, but the candidate's own record (already baked into
-    // `score`) stays the dominant factor — so the tool reads on policy substance, not
-    // party. The pull is deliberately light (record weighted 0.78) and balanced
-    // options carry no lean at all, so they score purely on the candidate's record.
-    function _alignApplyLean(score, lean, d) {
-      var party = (d && d.party ? String(d.party) : '').toUpperCase().charAt(0);
-      if (party !== 'R' && party !== 'D') return score;
-      var target = (party === lean) ? 80 : 38;
-      return score * 0.78 + target * 0.22;
-    }
+    // RETIRED — _alignApplyLean. Do not reintroduce this, or anything shaped like it.
+    //
+    // It used to fill the gap when a candidate had neither a documented position nor
+    // a formal-record pattern on one of the visitor's issues, by pulling the cell
+    // toward a party target (aligned 80 / opposed 38, blended at 0.22). It read as a
+    // light touch. Measured against the shipped roster it was not: only 6.2% of
+    // (candidate × leaning-issue) cells carried a documented position, so 82.6% of
+    // them were being answered by the letter next to the person's name. Independents
+    // were exempt, which made the shape of the guess plain.
+    //
+    // The fix is not a better prior. There is no prior — ideology, caucus, state
+    // lean, chamber, incumbency, or anything else — that belongs here. An issue the
+    // candidate has not spoken to and the record has not answered is now DROPPED
+    // from the match and reported in the coverage line, exactly as record mode has
+    // always handled an issue its lane cannot answer. A smaller honest match beats
+    // a complete guessed one.
+    //
+    // ISSUE_MAP still carries `lean` on some options. Nothing in the match score
+    // reads it; word-action.js's branding disambiguator does (it is what keeps
+    // gun_rights and gun_safety from collapsing into one key), so the field stays
+    // as data. See scripts/test-match-no-party.mjs, which fails if any match-scoring
+    // path starts reading it again.
 
     // ── Accountability as a matching signal ───────────────────────────────────
     // The Accountability of Truth Score is a personal-integrity / consistency read
@@ -1447,10 +1455,11 @@
            derivation of the vote pack) and writes to no map. _polPositionMap is
            never touched, so Direction Match — which reads it — cannot move.
          • No side is invented. An issue with no readable pattern is EXCLUDED
-           from the record-mode score and reported as uncovered, rather than
-           quietly scored from the keyword/lean inference the stated lane uses
-           when a position is missing. A mode that silently borrowed the other
-           mode's answer would be the one dishonest thing this feature could do.
+           from the record-mode score and reported as uncovered. This wall now
+           runs both ways: the stated lane's keyword/party fill-in has been
+           retired, so an issue with no documented position is excluded and
+           reported too. Neither mode borrows the other's answer, and neither
+           substitutes a guess for a silence.
          • Thin counts less. The pattern engine already ranks its own
            confidence; record mode multiplies the issue weight by that rank, so
            a one-vote lean moves the match about half as far as a uniform run.
@@ -1574,6 +1583,39 @@
     }
     window._alignRecordCoverage = _alignRecordCoverage;
 
+    // The same question asked of the stated lane: how many of the visitor's issues
+    // does this candidate actually have a documented position on? Since the party
+    // fill-in was retired, an issue with no position is dropped from the match
+    // rather than guessed, so this is the number the coverage line has to say out
+    // loud — otherwise a match built on 2 of 9 issues reads exactly like one built
+    // on 9 of 9.
+    function _alignStatedCoverage(pid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      var polMap = (d && typeof window._polPositionMap === 'function')
+        ? (window._polPositionMap(pid, d) || {}) : {};
+      var total = (typeof _alignIssues !== 'undefined' && _alignIssues) ? _alignIssues.size : 0;
+      var covered = 0, missing = [];
+      if (total) {
+        _alignIssues.forEach(function (key) {
+          if (polMap[key]) { covered++; return; }
+          missing.push({ key: key, label: (ISSUE_MAP[key] && ISSUE_MAP[key].label) || key });
+        });
+      }
+      return {
+        covered: covered, total: total, missing: missing,
+        // Same claim as record mode's: about the match, never about the person.
+        sparse: covered > 0 && covered * 2 < total
+      };
+    }
+    window._alignStatedCoverage = _alignStatedCoverage;
+
+    // Coverage for whichever lane is live, so a caller that does not care which
+    // mode it is in can still tell the visitor what the number rests on.
+    function _alignMatchCoverage(pid) {
+      return _alignModeIsRecord() ? _alignRecordCoverage(pid) : _alignStatedCoverage(pid);
+    }
+    window._alignMatchCoverage = _alignMatchCoverage;
+
     // Switch modes. Repaints every alignment surface through the same refresh
     // path a chip toggle uses, so the whole page answers the new question at
     // once rather than half-answering the old one.
@@ -1691,12 +1733,51 @@
     }
     window._alignSignalChipHtml = _alignSignalChipHtml;
 
-    // COVERAGE HONESTY. Record mode only. Says how much of what the voter asked
-    // about the record actually answers, names the issues it does not, and says
-    // in as many words that those are not scored from the stated positions
-    // instead. Returns '' in stated mode (its own confidence note already runs).
+    // The stated lane's own coverage line. Before the party fill-in was retired
+    // this did not need to exist: every issue got a number whether or not the
+    // candidate had ever spoken to it, so there was nothing to disclose and
+    // nothing honest to say. Now an unanswered issue is genuinely absent from the
+    // match, which is only better than guessing if the visitor is told.
+    function _alignStatedCoverageNoteHtml(pid, bd) {
+      var c = _alignStatedCoverage(pid);
+      if (!c.total) return '';
+      var miss = c.missing.map(function (m) { return m.label; });
+      var missLine = miss.length
+        ? '<span class="align-cov-miss"><b>Not counted</b> (no documented position on file): ' +
+            miss.slice(0, 6).join(' · ') + (miss.length > 6 ? ' · +' + (miss.length - 6) + ' more' : '') +
+          '</span>'
+        : '';
+      // The wall, stated plainly: we would rather show a thinner match than fill
+      // the hole with their party, their caucus, or a keyword guess.
+      var wall = '<span class="align-cov-wall">These are left out of the match — they are <b>not</b> ' +
+        'estimated from their party or their broader record. Nothing here is inferred.</span>';
+      if (!c.covered) {
+        return '<div class="align-cov-note is-none" data-align-cov="none">' +
+            '<span class="align-cov-ico" aria-hidden="true">💬</span>' +
+            '<span class="align-cov-txt"><b>No documented position on your issues.</b> ' +
+              'We have no sourced position from them on any of the ' + c.total + ' issue' +
+              (c.total === 1 ? '' : 's') + ' you picked, so there is nothing to match in this mode. ' + wall +
+            '</span>' +
+          '</div>';
+      }
+      var cls = c.sparse ? 'is-sparse' : 'is-ok';
+      var lead = (c.sparse ? '<b>Sparse coverage</b> · ' : '') +
+        '<b>' + c.covered + ' of your ' + c.total + ' issue' + (c.total === 1 ? '' : 's') + '</b>';
+      return '<div class="align-cov-note ' + cls + '" data-align-cov="' + (c.sparse ? 'sparse' : 'ok') + '">' +
+          '<span class="align-cov-ico" aria-hidden="true">' + (c.sparse ? '⚠️' : '💬') + '</span>' +
+          '<span class="align-cov-txt">' + lead + ' have a documented position to match against.' +
+            ' ' + (miss.length ? wall : '') +
+            missLine +
+          '</span>' +
+        '</div>';
+    }
+    window._alignStatedCoverageNoteHtml = _alignStatedCoverageNoteHtml;
+
+    // COVERAGE HONESTY. Both lanes. Says how much of what the voter asked the
+    // active lane actually answers, names the issues it does not, and says in as
+    // many words that those are not quietly scored from somewhere else instead.
     function _alignCoverageNoteHtml(pid, bd) {
-      if (!_alignModeIsRecord()) return '';
+      if (!_alignModeIsRecord()) return _alignStatedCoverageNoteHtml(pid, bd);
       var c = _alignRecordCoverage(pid);
       if (!c.total) return '';
       var miss = c.missing.map(function (m) { return m.label; });
@@ -1740,12 +1821,23 @@
     }
     window._alignCoverageNoteHtml = _alignCoverageNoteHtml;
 
-    // What a card says in record mode when the record says nothing on the
-    // voter's issues. The alternative was returning '' — a blank space where a
-    // match used to be, which reads as "we have no opinion" when the truth is
-    // "this mode has no input here". Never a number, never a fallback.
+    // What a card says when the active lane says nothing on the voter's issues.
+    // The alternative was returning '' — a blank space where a match used to be,
+    // which reads as "we have no opinion" when the truth is "this lane has no
+    // input here". Never a number, never a fallback. Since the party fill-in was
+    // retired the stated lane can run dry too, so it gets the same treatment
+    // rather than a silently missing card.
     function _alignModeGapBarHtml(pid) {
-      if (!_alignModeIsRecord()) return '';
+      if (!_alignModeIsRecord()) {
+        var sc = _alignStatedCoverage(pid);
+        if (!sc.total || sc.covered > 0) return '';
+        return '<div class="align-mode-gap" data-align-mode-gap="none">' +
+            '<span aria-hidden="true">💬</span>' +
+            '<span>No documented position on your issues — nothing to match, and we will not ' +
+              'guess one from their party. ' + _alignModeSwapHtml('record') +
+            '</span>' +
+          '</div>';
+      }
       var c = _alignRecordCoverage(pid);
       if (!c.total || c.covered > 0) return '';
       if (c.pending) {
@@ -1938,19 +2030,14 @@
           issueScore = _verdict === 'match' ? 90 : _verdict === 'partial' ? 55 : 12;
           issueWeight = Math.max(issueWeight, 2.6) * _model.weight;
         } else {
-          if (issueDef.lean) {
-            issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
-          }
-          issueScore = Math.min(100, Math.max(0, issueScore));
-          // Apply the 5-point stance model. The default 'support' (weight 1.0, no
-          // inversion) leaves the score and weight untouched, so signatures saved
-          // before this feature score identically. oppose/strongly_oppose invert the
-          // match (a candidate who holds the position now scores LOW for this voter);
-          // neutral pulls the score toward the midpoint and counts lightly; stronger
-          // levels weight the issue more heavily.
-          if (_model.agree === false) { issueScore = 100 - issueScore; }
-          else if (_model.agree === null) { issueScore = issueScore * 0.35 + 50 * 0.65; }
-          issueWeight *= _model.weight;
+          // NO POSITION, NO PATTERN → NO SCORE. Neither lane can answer this issue
+          // for this candidate, so it leaves the weighted average untouched and is
+          // reported instead (see _alignStatedCoverage / the coverage note). This is
+          // the same fail-closed rule record mode has always applied to an issue its
+          // own lane cannot answer; it now applies to both lanes. Nothing is
+          // inferred here — not from party, not from keyword overlap, not from the
+          // candidate's overall score.
+          return;
         }
 
         // My Stances priority multiplier: the voter's own importance weighting on
@@ -2083,9 +2170,11 @@
         var _userIntensity = _alignMigrateLevel(_alignIntensity[issueKey] || ALIGN_DEFAULT_LEVEL);
         var _model = _alignLevelModel(_userIntensity);
         var recSig = _recMap ? (_recMap.sides[issueKey] || null) : null;
-        // An issue the record says nothing about is REPORTED, not scored: it
+        // An issue the active lane says nothing about is REPORTED, not scored: it
         // leaves the weighted average untouched and lands in bd.uncovered, which
-        // is what the coverage note is built from.
+        // is what the coverage note is built from. True of both lanes — a record
+        // with no pattern, and a candidate with no documented position, are the
+        // same kind of silence and get the same treatment.
         if (_recMode && !recSig) {
           _uncovered.push({ key: issueKey, label: issueDef.label, intensity: _userIntensity });
           return;
@@ -2104,14 +2193,11 @@
           issueScore = _verdict === 'match' ? 90 : _verdict === 'partial' ? 55 : 12;
           issueWeight = Math.max(issueWeight, 2.6) * _model.weight;
         } else {
-          if (issueDef.lean) {
-            issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
-          }
-          issueScore = Math.min(100, Math.max(0, issueScore));
-          // Same 5-point stance model as _calcAlignmentScore (kept in lock-step).
-          if (_model.agree === false) { issueScore = 100 - issueScore; }
-          else if (_model.agree === null) { issueScore = issueScore * 0.35 + 50 * 0.65; }
-          issueWeight *= _model.weight;
+          // Neither lane can answer — reported, never guessed (kept in lock-step
+          // with _calcAlignmentScore, which drops the same issue from the same
+          // weighted average).
+          _uncovered.push({ key: issueKey, label: issueDef.label, intensity: _userIntensity });
+          return;
         }
 
         // My Stances priority multiplier (kept in lock-step with _calcAlignmentScore).
@@ -2134,7 +2220,7 @@
         // a pattern cannot be rendered as a claim even by a caller that has not
         // heard of modes.
         perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _userIntensity, record: _record,
-          source: recSig ? 'record' : (directPos ? 'stated' : 'inferred'),
+          source: recSig ? 'record' : 'stated',
           pattern: recSig ? { side: recSig.side, tier: recSig.tier, tone: recSig.tone, label: recSig.label, counts: recSig.counts, judged: recSig.judged, advances: recSig.advances, opposes: recSig.opposes, conf: recSig.conf, rank: recSig.rank } : null });
       });
 
@@ -2876,10 +2962,14 @@
       var label = score >= 85 ? '⭐ Best Match for You' : score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
       var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 2) : '';
       var modeTag = _alignModeTagHtml({ compact: true });
-      var _cov = _alignModeIsRecord() ? _alignRecordCoverage(pid) : null;
-      var subLine = _cov
+      // Both lanes now name what the number actually rests on. "Based on your 9
+      // selected issues" was true when every issue got a number one way or
+      // another; with the party fill-in gone it would overstate a match built on
+      // two documented positions and seven silences.
+      var _cov = _alignMatchCoverage(pid);
+      var subLine = _alignModeIsRecord()
         ? 'From their <b>formal record</b> on <b>' + _cov.covered + ' of your ' + _cov.total + ' issue' + (_cov.total > 1 ? 's' : '') + '</b> · tap for breakdown'
-        : 'Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown';
+        : 'From their <b>stated positions</b> on <b>' + _cov.covered + ' of your ' + _cov.total + ' issue' + (_cov.total > 1 ? 's' : '') + '</b> · tap for breakdown';
       return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues, matched on ' + _alignModeMeta().label.toLowerCase() + '. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
           '<span class="align-card-main">' +
