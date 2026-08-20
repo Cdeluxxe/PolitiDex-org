@@ -1,0 +1,924 @@
+{
+ "_comment": "The decisive House roll call on H.R. 7148, the Consolidated Appropriations Act, 2026 (P.L. 119-75). Built by scripts/vr-build-consolidated-approps-vote-seed.mjs from clerk.house.gov/evs XML. The measure was runbook follow-up #1 and sat declined in db/vr-fiscal-enforcement-vote-seed.json pending a division-by-division read of the enrolled text; that read has now been done against govinfo PLAW-119publ75 and is summarised in scanCoverage. ONE roll is carried, not two: runbook rule 8 admits a single decisive roll per chamber, and roll 53 is the one that voted the ENROLLED text whose divisions produced the mappings — roll 45, taken 22-Jan-2026, cannot have contained Division H, which covers a lapse beginning on or about 31-Jan-2026. memberVotes is already filtered to db/vr-member-map.json; unmapped members are counted in rosterSkipped and never guessed. isParty is computed from the full chamber tally before roster filtering, and totals is the full chamber tally, not the roster subset. declinedDivisions records what was read and NOT mapped, with the bucket.",
+ "builtBy": "scripts/vr-build-consolidated-approps-vote-seed.mjs",
+ "issueKeys": [
+  "strong_defense",
+  "israel_support",
+  "health_rural",
+  "health_drug_prices",
+  "foreign_balance",
+  "pro_life"
+ ],
+ "congresses": [
+  119
+ ],
+ "parents": [],
+ "rollCallCount": 1,
+ "memberVoteCount": 108,
+ "scanCoverage": "The enrolled text of P.L. 119-75 was read at govinfo (PLAW-119publ75, 34,584 lines) division by division: Division A general provisions and the Israel and Taiwan sections; Division B structure and Secs. 506-507; Division D structure; Division E Titles VI, VII and VIII in full section index with Secs. 613, 747, 748, 749, 809 and 810 read in full; Division F title structure, every account heading with its level, the Title VII section index, and Secs. 7018, 7041(c), 7047, 7048 and the UNHRC conditions read in full; Divisions G and H in full; Division I Secs. 5001-5021; Division J's full section index with Secs. 6105 and 6702 read in full. Keyword sweeps over the whole act returned abortion 38, Israel 49, Taiwan 23, Palestin 36, Ukraine 10, vaccine 10, gender 5, E-Verify 1, sanctuary 1, and zero for climate, greenhouse, transgender, marijuana, Planned Parenthood, net neutrality, border wall, Second Amendment, 'diversity, equity' and 'critical race'. The Ukraine hits are the standing Crimea non-recognition rider only: the act carries no Ukraine Security Assistance Initiative money, so no Ukraine axis is mapped. H.R. 8595 was read from BILLS-119hr8595eh (6,360 lines) and H.R. 9770 from BILLS-119hr9770eh (357 lines).",
+ "rollFinding": "Both House rolls were verified live against clerk.house.gov/evs/2026 before anything was written. Roll 45: legis-num 'H R 7148', 'On Passage', Passed, 22-Jan-2026 4:58 PM, 341-88-0-2, 431 recorded. Roll 53: legis-num 'H R 7148', 'On Motion to Concur in the Senate Amendments', Passed, 3-Feb-2026 2:09 PM, 217-214-0-1 (R 196-21-0-1, D 21-193), 432 recorded. 108 of the 213 members in db/vr-member-map.json are recorded on each. Before this pass H.R. 7148 had no vr_measures row, no roll calls and no member votes anywhere in the repository, and does not appear in db/vr-coverage-report.md — mapping it without ingesting it would have been inert.",
+ "declinedDivisions": [
+  {
+   "where": "Divisions A, B, D, E, F — routine agency operating accounts",
+   "bucket": "routine_ops",
+   "why": "The great majority of every division is salaries, expenses and program accounts for agencies that carry on regardless of who wins the vote. Funding the Federal Aviation Administration, the Bureau of Prisons or the Employment and Training Administration at roughly last year's level is not a position on transportation, crime or labour policy — it is the appropriation existing. Mapping account titles to chips would put an infrastructure, a public_schools and a housing receipt on all 108 attributed members for provisions none of them argued about."
+  },
+  {
+   "where": "Whole act — gov_services, national_debt, cut_spending, gov_balance, audit_spending",
+   "bucket": "two_flank",
+   "why": "Runbook rule 5. Roll 53's 214 nays are 193 Democrats and 21 Republicans, and the two blocs wanted opposite things: the Democratic nays objected to the levels and riders as too austere and too restrictive, the Republican nays to the topline as too high. On the spending axis support_meaning has no honest value — gov_services carries lean 'D' and a yea_supports row would hand it to the 196 Republican yeas and take it from the 193 Democratic nays, inverting the very bloc the chip describes. The keys the two flanks disagree about are the ones rule 5 disqualifies; it does not disqualify the Israel, abortion, defence or health axes, where the nay blocs are not opposed to each other."
+  },
+  {
+   "where": "Whole act — america_first_fp",
+   "bucket": "duplicate",
+   "why": "The Division G UNRWA bar and the Division F UN Human Rights Council conditions would each support it, but the same conviction is already carried the other way on this measure by foreign_balance, which is mapped from the Division F Titles I, IV and V accounts those riders condition. Two chips on one set of provisions, pointing in opposite directions, is a manufactured contradiction for every attributed member."
+  },
+  {
+   "where": "Division E Sec. 747 — Executive Schedule, Vice-Presidential and noncareer-SES pay freeze",
+   "bucket": "no_provision",
+   "why": "Reads as a civil-service provision and is not one. civil_service_control's scope comment in alignment-tool.js is Schedule F reclassification and at-will conversion of the career service — the question of who can be removed. A pay freeze for political appointees touches none of it."
+  },
+  {
+   "where": "Division E Secs. 748-749 — Impoundment Control Act and apportionment reporting",
+   "bucket": "below_floor",
+   "why": "Genuine power_of_purse provisions, whose keyword list in alignment-tool.js names 'impoundment' and 'apportionment' outright: Sec. 748 requires an Impoundment Control Act violation to be reported immediately to Congress, the Appropriations Committees and the Comptroller General, and Sec. 749 requires notice when an apportionment is late or conditioned. But they are two reporting requirements inside an eleven-division act, and the record's practical weight floor is 25. A row below that is noise on 108 ledgers; the honest place for this axis is a measure where the purse question is the operative purpose, which is what 20260823000000_vr_fiscal_enforcement_rollcalls.sql already covers."
+  },
+  {
+   "where": "Division E Sec. 809 — District of Columbia schedule I and THC-derivative bar",
+   "bucket": "below_floor",
+   "why": "A single D.C.-scoped rider. There is no cannabis mapping anywhere in the record to be consistent with, and a rider confined to one city's local law does not carry a national drug-policy conviction at or above weight 25."
+  },
+  {
+   "where": "Division H — Further Continuing Appropriations Act, 2026",
+   "bucket": "two_flank",
+   "why": "Secs. 101-104 move the continuing resolution date to February 13, 2026 and ratify pay and obligations incurred during the lapse that began on or about January 31, 2026. This is the shutdown-ending division, and it is exactly the material rule 5 disqualifies: the two nay blocs wanted the shutdown resolved on opposite terms. Sec. 105 repeals section 213 of title II of division C of P.L. 119-37 (2 U.S.C. 6628); the repealed section is a legislative-branch administrative provision and is not mapped."
+  },
+  {
+   "where": "Division I Secs. 5013, 5014, 5015, 5016 — Conrad 30, E-Verify, non-minister religious workers, H-2B",
+   "bucket": "below_floor",
+   "why": "Four one-line date extensions of existing immigration authorities. immig_legal was drafted and set aside: each is a continuation of current law rather than a change to it, together they are a fraction of one division of eleven, and they run against the grain of both nay flanks rather than separating them. Below the record's practical weight floor of 25."
+  },
+  {
+   "where": "Division I Secs. 5004, 5008, 5019, 5020 — NFIP, Cybersecurity Information Sharing Act, AGOA, Haiti HELP",
+   "bucket": "below_floor",
+   "why": "Same class. Sec. 5008's extension of the Cybersecurity Information Sharing Act of 2015 to September 30, 2026 is the one with a live key behind it (privacy_rights, on the information-sharing liability shield), but a bare date extension of an expiring authority inside a one-line extenders division does not carry a privacy conviction at weight 25."
+  },
+  {
+   "where": "Division J Titles I-VII — gov_regulation on the PBM provisions",
+   "bucket": "rule_3",
+   "why": "Runbook rule 3: gov_regulation is applied only where the regulatory question is the primary operative purpose of the measure. Secs. 6701-6703 and 6223-6224 do regulate pharmacy benefit managers, and they are mapped — as health_drug_prices, which is what they are about. The regulatory form is the mechanism, not the subject."
+  },
+  {
+   "where": "H.R. 8595 — america_first_fp",
+   "bucket": "two_flank",
+   "why": "Settled from the two primary texts rather than from the bill's reputation, by comparing the FY2027 account levels against P.L. 119-75 Division F. The bill genuinely winds down multilateral commitments — International Organizations and Programs eliminated (FY26 $339,000,000), the Inter-American Foundation and the U.S. African Development Foundation eliminated, the International Development Association cut from $1,066,184,000 to $503,973,000, global health from $3,531,975,000 to $3,350,000,000. It also does the opposite: diplomatic programs rise from $9,358,236,000 to $9,761,523,000, Foreign Military Financing from $6,158,397,000 to $6,752,500,000, and it RESTORES two accounts FY2026 carried no heading for at all — Contributions to International Organizations at $310,200,000 and Contributions for International Peacekeeping Activities at $489,519,000, which are UN assessed dues and assessed peacekeeping. An instrument that both defunds the UN Human Rights Council and restores $799,719,000 of UN assessments has no honest support_meaning on this axis. Documented, not forced."
+  },
+  {
+   "where": "H.R. 8595 — foreign_balance",
+   "bucket": "duplicate",
+   "why": "The allied-military-cooperation material in this bill is Title IV — Foreign Military Financing, International Military Education and Training, Security Sector Programs — and the conviction it carries is already live on this measure as strong_defense 60 from 20260725000000_vr_multi_issue_mappings_wave2.sql. Unlike H.R. 7148, which has a whole Department of Defense division for strong_defense to describe, H.R. 8595 has no defence division: the two keys would be reading the same accounts twice."
+  },
+  {
+   "where": "H.R. 9770 — Continuing Appropriations Act, 2027",
+   "bucket": "no_provision",
+   "why": "Read in full from the engrossed text (BILLS-119hr9770eh, 357 lines) as the brief's sibling rule requires. Sec. 101 sets rates for operations by reference to twelve FY2026 acts and Secs. 102-128 are standard CR provisos. Nothing in it implicates a live key above the floor that its existing gov_services 100 primary and national_debt 35 yea_opposes pair does not already carry honestly. Sec. 127's payments to the widow of Rep. David A. Scott and the heirs of Sen. Lindsey O. Graham, and Sec. 128's Member COLA freeze, are not issue axes."
+  }
+ ],
+ "declinedRollCalls": [
+  {
+   "number": "H.R. 7148",
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 45,
+   "totals": "341-88",
+   "why": "On Passage, 22-Jan-2026, 341-88-0-2 (R 192-24-0-2, D 149-64). Runbook rule 8 admits one decisive roll per chamber per measure, and the tie-breaker here is textual, not chronological. Roll 53 voted the enrolled text — the text whose divisions were read to produce every mapping in this pass. Roll 45 cannot have voted that text: Division H of the enrolled act moves the P.L. 119-37 continuing resolution date to February 13, 2026 and ratifies pay and obligations incurred during a lapse that began on or about January 31, 2026 — nine days after this roll was taken. Admitting it would attribute the enrolled bill's six axes to members voting on a materially different bill, and would score the same 108 rostered members twice on all six."
+  },
+  {
+   "number": "H.R. 8595",
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 246,
+   "totals": "209-216",
+   "why": "On Motion to Recommit, failed. Procedural, and yeaBlocksMeasure() in netlify/lib/vr-pack.ts treats the bare recommit form as blocking, so admitting it would score the same members twice with the direction inverted. H.R. 8595's own passage roll 119/2/247 is already live from 20260724140000_seed_house_119_s2_voting_record.sql; this pass adds two mappings to that measure and no rolls."
+  }
+ ],
+ "votes": [
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 53,
+   "voteDate": "2026-02-03T14:09:00-05:00",
+   "question": "On Motion to Concur in the Senate Amendments",
+   "voteDesc": "Consolidated Appropriations Act, 2026",
+   "actionType": "concurrence",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 217,
+    "nay": 214,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 21,
+     "nay": 193
+    },
+    "R": {
+     "yea": 196,
+     "nay": 21
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2026/roll053.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 119,
+    "chamber": "house",
+    "number": "H.R. 7148",
+    "parent": null,
+    "title": "Consolidated Appropriations Act, 2026",
+    "create": {
+     "title": "Consolidated Appropriations Act, 2026",
+     "shortTitle": "Consolidated Appropriations Act, 2026",
+     "summary": "Full-year consolidated appropriations for fiscal year 2026, enacted February 3, 2026 as P.L. 119-75. Official title: 'Making further consolidated appropriations for the fiscal year ending September 30, 2026, and for other purposes.' Eleven divisions and no Division C: A Department of Defense (Titles I-VIII); B Labor, Health and Human Services, and Education (I-V); D Transportation, Housing and Urban Development (I-IV); E Financial Services and General Government (I-VIII, including Title VIII District of Columbia); F National Security, Department of State, and Related Programs (I-VII); G Other Matters (a single section barring payments to UNRWA); H Further Continuing Appropriations Act, 2026 (moving the P.L. 119-37 date to February 13, 2026 and covering the lapse that began on or about January 31, 2026); I Authorizing Extenders (Secs. 5001-5021); J Health Care Extenders (Secs. 6001-6703 across seven titles). Section 3 makes 'this Act' division-scoped, so each division's general provisions bind only that division. Summary written from the enrolled text at govinfo, not from a secondary description.",
+     "introducedAt": "2026-01-15",
+     "status": "enacted",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ75/html/PLAW-119publ75.htm",
+     "sourceLabel": "govinfo (enrolled text, P.L. 119-75)",
+     "externalIds": {
+      "publicLaw": "119-75",
+      "govinfo": "PLAW-119publ75"
+     },
+     "textUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ75/html/PLAW-119publ75.htm"
+    }
+   },
+   "chamberVoting": 432,
+   "rosterSkipped": 324,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000371",
+     "politicianId": "aguilar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001052",
+     "politicianId": "andy_harris",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001119",
+     "politicianId": "angie_craig",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000375",
+     "politicianId": "arrington",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000617",
+     "politicianId": "ayanna_pressley",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001296",
+     "politicianId": "brendan_boyle",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001291",
+     "politicianId": "brian_babin",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001213",
+     "politicianId": "bryan_steil",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000597",
+     "politicianId": "chellie_pingree",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000614",
+     "politicianId": "chip_roy",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C000537",
+     "politicianId": "clyburn",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001108",
+     "politicianId": "comer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001120",
+     "politicianId": "dan_crenshaw",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000624",
+     "politicianId": "debbie_dingell",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000216",
+     "politicianId": "delauro",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "R000617",
+     "politicianId": "delia_ramirez",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000197",
+     "politicianId": "diana_degette",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "D000032",
+     "politicianId": "donalds",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000466",
+     "politicianId": "fitzpatrick",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000450",
+     "politicianId": "foxx",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000597",
+     "politicianId": "garbarino",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000467",
+     "politicianId": "glenn_thompson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000558",
+     "politicianId": "guthrie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001145",
+     "politicianId": "jan_schakowsky",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000592",
+     "politicianId": "jared_golden",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "H001068",
+     "politicianId": "jared_huffman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001047",
+     "politicianId": "jim_himes",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "F000482",
+     "politicianId": "julie_fedorchak",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000403",
+     "politicianId": "kennedy",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001082",
+     "politicianId": "kevin_hern",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000596",
+     "politicianId": "luna",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001228",
+     "politicianId": "maloy",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000600",
+     "politicianId": "marie_gluesenkamp_perez",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000476",
+     "politicianId": "maxwell_frost",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001136",
+     "politicianId": "mcclain",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001295",
+     "politicianId": "mike_bost",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "N000002",
+     "politicianId": "nadler",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000194",
+     "politicianId": "nancy_mace",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "N000015",
+     "politicianId": "neal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "N000191",
+     "politicianId": "neguse",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000034",
+     "politicianId": "pallone",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000391",
+     "politicianId": "raja_krishnamoorthi",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000606",
+     "politicianId": "raskin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000560",
+     "politicianId": "rick_larsen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001327",
+     "politicianId": "rob_bresnahan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000816",
+     "politicianId": "roger_williams",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001230",
+     "politicianId": "ryan_mackenzie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000546",
+     "politicianId": "sam_graves",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001238",
+     "politicianId": "sarah_mcbride",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000472",
+     "politicianId": "takano",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000582",
+     "politicianId": "ted_lieu",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000634",
+     "politicianId": "troy_downing",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000798",
+     "politicianId": "walberg",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000397",
+     "politicianId": "zoe_lofgren",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    }
+   ]
+  }
+ ]
+}

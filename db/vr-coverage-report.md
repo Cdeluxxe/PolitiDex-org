@@ -8,7 +8,7 @@ titles come from the live database, overlaid with the curated seeds committed he
 wherever the live row has not caught up — so a pass that has landed in the repo but
 not yet deployed is counted, and every row it accounts for is marked `pending`.
 
-> **Hand note, not regenerated (2026-08-20).** This snapshot predates two passes.
+> **Hand note, not regenerated (2026-08-20).** This snapshot predates three passes.
 > `20260911000000_vr_ndaa_israel_keys_and_rule22.sql` adds `israel_support` to H.R. 8800,
 > S. 1071 and S. 1605 and `immig_fentanyl` to S. 1605, answering the Gap 1b rows for
 > H.R. 8800 (215 member-votes), S. 1605 (179) and S. 1071.
@@ -21,7 +21,19 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 > H.R. 8404 (178) off the single-key list, along with the H.R. 1, H.R. 4 and H.R. 1181
 > entries inside "33 more". Five Gap 1 rows are refusals, not backlog, and are recorded as
 > such in that migration's header: H.R. 973 and S. 2503 (runbook rule 3), H.R. 139 and
-> H.R. 1069 (vocabulary gaps), H.R. 1402 (rule 2). Regenerating needs `NETLIFY_DB_URL`,
+> H.R. 1069 (vocabulary gaps), H.R. 1402 (rule 2).
+> `20260913000000_vr_consolidated_approps_2026.sql` adds a measure this snapshot does not
+> contain at all: **H.R. 7148, the Consolidated Appropriations Act, 2026 (P.L. 119-75)**,
+> which had no `vr_measures` row, no roll calls and no member votes anywhere in the
+> repository before that pass. It arrives with House roll 119/2/53 (217-214 on the motion
+> to concur, 108 of 432 recorded members on the roster) and six axes read from the enrolled
+> text division by division: `strong_defense` 70 primary, `israel_support` 50,
+> `health_rural` 45, `foreign_balance` 40, `health_drug_prices` 40, `pro_life` 35. It also
+> takes H.R. 8595 off the two-key list by adding `israel_support` 55 and `pro_life` 35 from
+> its engrossed text. Every one of the 108 attributed members gains six new axes at once, so
+> the Gap 2 rolled-up counts for `health_rural`, `health_drug_prices`, `foreign_balance` and
+> `pro_life` all move — `pro_life` in particular had only three mapped rows in the whole
+> record before this pass and now has five. Regenerating needs `NETLIFY_DB_URL`,
 > which this checkout does not have; re-run `node scripts/vr-coverage-report.mjs --write`
 > after the deploy.
 

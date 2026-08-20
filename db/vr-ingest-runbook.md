@@ -721,6 +721,47 @@ depth — 428 more judged votes standing behind positions that previously rested
    administrators is not a mapping however transparent it is. Read the scope comment, not the
    label.
 
+### Two rules from the consolidated-appropriations pass (`20260913000000`)
+
+23. **A two-flank nay bloc disqualifies the keys the two flanks disagree about — not every key
+   on the measure.** Rule 5's own test is "did the two blocs of nays want opposite things," and
+   that question has to be asked *per key*, not once for the whole bill. H.R. 7148's 214 nays are
+   193 Democrats and 21 Republicans, and on the SPENDING axis they are genuinely opposed: the
+   Democratic nays objected to the levels and riders, the Republican nays to the topline. So
+   `gov_services`, `national_debt`, `cut_spending`, `gov_balance` and `audit_spending` are all
+   off, and `gov_services` is the sharpest case — it carries `lean: 'D'` in `alignment-tool.js`,
+   so a `yea_supports` row would hand it to the 196 Republican yeas and take it from the 193
+   Democratic nays, inverting the bloc the chip describes. But the same bloc is *not* internally
+   opposed on Israel, on the abortion riders, on the defence appropriation or on the Medicare
+   extenders, and on those axes the instrument does one thing and rule 5 has nothing to say. The
+   failure mode this rule exists to stop is using one true observation about a bill's fiscal
+   politics to void a whole division-by-division read. Read the nay bloc per key.
+24. **When a measure has two decisive rolls in one chamber, rule 8's tie-breaker is which text
+   was voted, not which vote came last.** The House passed H.R. 7148 on 22-Jan-2026 (roll 45,
+   341-88) and concurred in the Senate amendments on 3-Feb-2026 (roll 53, 217-214). Roll 53 is
+   the one ingested because it voted the ENROLLED text, and the enrolled text is what the
+   mappings were read from. This is checkable rather than a preference: Division H of the enrolled
+   act moves the P.L. 119-37 continuing-resolution date to 13-Feb-2026 and ratifies pay and
+   obligations incurred during a lapse that began on or about 31-Jan-2026 — nine days after roll
+   45. A division that did not exist yet cannot have been voted on, so attaching the enrolled
+   bill's axes to roll 45 would score members on provisions they never saw. Where the two texts
+   are the same, the later roll still wins on rule 8; where they differ, say which text each roll
+   voted and ingest the one the mappings describe.
+
+#### A bucket this pass needed: `below_floor`
+
+   `20260913000000` declines eleven divisions and titles, and five of them are declined for a
+   reason none of the existing buckets named: the provision is real, it clearly implicates a live
+   key, and it is still too small a share of the vehicle to carry a row. The record's practical
+   weight floor is 25 — every one of the 235 rows in `db/vr-issue-seed.json` is at or above it —
+   and a one-line date extension inside one of eleven divisions does not reach it. Division I's
+   Conrad 30, E-Verify, religious-worker and H-2B extensions (`immig_legal`), its NFIP and
+   Cybersecurity Information Sharing Act extensions (`privacy_rights`), Division E Secs. 748-749
+   on impoundment and apportionment reporting (`power_of_purse`, whose keyword list names both
+   words outright) and Sec. 809's D.C. schedule I bar all sit here. `below_floor` is not a softer
+   `no_provision`: it records that the provision exists and was read, so a later pass over a
+   measure where the same axis IS the operative purpose can find it.
+
 ### Best remaining follow-ups after this pass
 
 0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
@@ -756,10 +797,19 @@ depth — 428 more judged votes standing behind positions that previously rested
    · **Rule 3 is now the reason two contested bills stay dark**: H.R. 973 (105 member-votes) and
      S. 2503 (98). Both were re-read in this pass and left where rule 3 put them. If rule 3 is
      ever revisited, these are the two measures that change.
-1. **H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53). The strongest
-   remaining candidate and the one deliberately deferred here: real, decisive, heavily
-   attributable, and a genuine multi-axis omnibus that needs a division-by-division read before
-   any key is coded, exactly as rule 10 requires.
+1. ~~**H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53).~~ **Closed by
+   `20260913000000_vr_consolidated_approps_2026.sql`.** The division-by-division read was done
+   against the enrolled text (govinfo `PLAW-119publ75`, 34,584 lines) and the measure was ingested
+   with roll 119/2/53 (217-214, 108 attributed) and six axes: `strong_defense` 70 primary,
+   `israel_support` 50, `health_rural` 45, `foreign_balance` 40, `health_drug_prices` 40,
+   `pro_life` 35. Two corrections to the record this follow-up was written from:
+   · The fiscal pass's decline note said the act "separates far fewer members than its size
+     suggests." That is wrong. Roll 45 is 341-88 and roll 53 is **217-214 with the parties
+     inverted** — R 196-21, D 21-193. It is one of the most separating rolls of the session.
+   · Only ONE of the two rolls was ingestable, and the tie-breaker is textual rather than
+     chronological. Roll 53 voted the enrolled text; roll 45, taken 22-Jan-2026, cannot have
+     contained Division H, whose continuing-resolution date is 13-Feb-2026 and whose lapse
+     coverage begins on or about 31-Jan-2026. See rule 23.
 2. **The twelve H.R. 1 Senate amendment rolls** (358, 360–370). Single-axis tests inside the
    omnibus — wind and solar credits, rural hospitals, SNAP, Medicaid, the AI moratorium — each
    of which would need its own amendment measure row with a strict subset of the parent's keys.

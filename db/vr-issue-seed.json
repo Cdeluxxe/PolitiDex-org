@@ -2648,6 +2648,96 @@
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr36eh/html/BILLS-119hr36eh.htm"
     }
    ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 7148",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ75/html/PLAW-119publ75.htm",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A is the entire FY2026 Department of Defense appropriation, Titles I-VIII, and is the largest division of the act by dollars. Sec. 8143 adds $1,000,000,000 in Defense-Wide operation and maintenance for the Taiwan Security Cooperation Initiative. A yea enacts those levels; a nay blocks the package that carries them."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A Sec. 8071 appropriates $500,000,000 for Israeli Cooperative Programs: $60,000,000 Iron Dome, $127,000,000 Short-Range Ballistic Missile Defense, $40,000,000 SRBMD co-production, $100,000,000 upper-tier Israeli Missile Defense Architecture and Arrow 3 co-production, and $173,000,000 Arrow System Improvement Program. Division F Sec. 7041(c) directs not less than $3,300,000,000 in Foreign Military Financing grants only for Israel, disbursed within 30 days of enactment, plus not less than $250,300,000 for procurement in Israel. Division G Sec. 101 bars any contribution, grant or other payment to UNRWA."
+    },
+    {
+     "issueKey": "health_rural",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division J extends the rural and safety-net health authorities that were otherwise expiring: Sec. 6105(b) eliminates the scheduled Medicaid disproportionate share hospital allotment reductions, Sec. 6201 continues the increased inpatient adjustment for low-volume hospitals, Sec. 6202 extends the Medicare-Dependent Hospital program, Sec. 6203 extends the ground ambulance add-on payments, Sec. 6209 extends the Medicare telehealth flexibilities, and Sec. 6401 funds community health centers, the National Health Service Corps and teaching health center graduate medical education."
+    },
+    {
+     "issueKey": "foreign_balance",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division F Titles I, IV and V fund the diplomatic and allied-military instruments and the multilateral institutions: diplomatic programs $9,358,236,000, Foreign Military Financing $6,158,397,000, International Military Education and Training $119,152,000, peacekeeping operations $335,458,000, International Development Association $1,066,184,000, International Organizations and Programs $339,000,000, Global Environment Facility $150,200,000, and contributions to the Asian Development Fund and the African Development Bank. Scoped to allied military cooperation and multilateral institutions, per the rule recorded in 20260726120000_vr_coverage_pass_mappings.sql; general aid levels are not read as this axis."
+    },
+    {
+     "issueKey": "health_drug_prices",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division J regulates pharmacy benefit managers directly. Sec. 6702 requires a PBM to pass 100 percent of rebates through to the plan and makes a non-conforming arrangement a prohibited transaction under ERISA section 408(b)(2), with a 30-month effective date and an innocent-fiduciary exception; Sec. 6701 imposes oversight and reporting on PBM services; Sec. 6703 requires generic drug application transparency; and Secs. 6223-6224 add pharmacy access and choice protections and further PBM accountability requirements."
+    },
+    {
+     "issueKey": "pro_life",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act carries abortion-funding restrictions across four divisions: Division B Secs. 506-507 bar Labor-HHS funds for abortion with the standing life, rape and incest exceptions; Division E Sec. 613 bars abortion coverage in federal employee health plans; Division E Sec. 810 applies the same bar to District of Columbia funds; and Division F Sec. 7018 bars part I Foreign Assistance Act funds for abortion as a method of family planning. Recorded neutrally and weighted low, following the treatment of the same rider class on H.R. 6703 in 20260721160000_seed_legislation_deepdive3.sql: these are continuations of long-standing riders, not a new position taken on this vote."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 8595",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8595",
+   "issues": [
+    {
+     "issueKey": "gov_services",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Full-year appropriations bill funding the Department of State and related international programs; a yea keeps those federal operations and programs funded for FY2027."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The same Act makes the FY2027 appropriations for national security programs; a yea funds them."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr8595eh/html/BILLS-119hr8595eh.htm",
+     "rationale": "Sec. 7048(d) bars funds for the United Nations Human Rights Council, the Commission of Inquiry on the Occupied Palestinian Territory, East Jerusalem and Israel, and the Office of the High Commissioner for Human Rights. Sec. 7048(e) makes the bar on UNRWA permanent across this and prior Acts and extends it to soliciting UNRWA funds from other donors. Sec. 7049 conditions United Nations Secretariat funding on written assurance that UNRWA staff immunities will not be asserted for terrorism, material support or gross human-rights violations, and on inspector-general oversight of Gaza activities and the October 7, 2023 attacks. Sec. 7004(e) bars moving the United States embassy to Israel out of Jerusalem, and Sec. 7041(c) directs not less than $3,300,000,000 in Foreign Military Financing grants only for Israel."
+    },
+    {
+     "issueKey": "pro_life",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr8595eh/html/BILLS-119hr8595eh.htm",
+     "rationale": "Sec. 7018 bars funds made available to carry out part I of the Foreign Assistance Act of 1961 from paying for abortion as a method of family planning or from motivating or coercing any person to practice abortion. Recorded neutrally and weighted low on the H.R. 6703 precedent: a continuation of a long-standing rider rather than a new position taken on this vote."
+    }
+   ]
   }
  ],
  "_phase12_overlap_priority": {
