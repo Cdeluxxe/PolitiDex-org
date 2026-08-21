@@ -320,10 +320,28 @@ const EMPTY = { name: "Empty", score: null };
   ok(/_renderFollowThrough\([\s\S]{0,220}?pledgeItemized/.test(PROFILES),
     "the profile calls _renderFollowThrough without the itemized flag, so the pledge\n" +
     "    lane silently reverts to publishing the rate");
-  ok(/window\._pdxDisplayScore/.test(PROFILES.slice(
-      PROFILES.indexOf("var promiseScore ="), PROFILES.indexOf("var promiseScore =") + 500)),
-    "the mandate principles read p.score raw, so 'Keeps Promises' publishes a rate the\n" +
-    "    profile's own pledge lane refuses to print");
+  // This used to pin the People's Mandate scorecard's "Keeps Promises" tile to
+  // the display guard: `var promiseScore = window._pdxDisplayScore(p)`, so the
+  // tile could not print a rate the pledge lane on the same profile withholds.
+  // The scorecard is gone — it also carried two tiles fed by the retired
+  // Accountability composite and an averaged overall on top of them — so there is
+  // no tile left to guard. The stronger invariant is that the publisher itself
+  // cannot come back: no promiseScore local, and no N/100 tile in the block that
+  // replaced it.
+  ok(PROFILES.indexOf("var promiseScore =") === -1,
+    "profiles-full.js computes a promiseScore local again — that variable existed only\n" +
+    "    to feed a scorecard tile with a pledge rate");
+  {
+    const i = PROFILES.indexOf("window._renderMandateAlignment = function");
+    ok(i > 0, "profiles-full.js no longer defines _renderMandateAlignment");
+    const body = PROFILES.slice(i, PROFILES.indexOf("window._ftMeta =", i));
+    ok(!/\/100/.test(body),
+      "the Follow the Money block prints an N/100 again — the scorecard's rated tiles\n" +
+      "    are retired and nothing there may publish a 0-100 grade");
+    ok(!/accountability/i.test(body.replace(/^\s*\/\/.*$/gm, "")),
+      "the Follow the Money block reads the accountability object again — it is a\n" +
+      "    funding lens, and the composite it used to average in is retired");
+  }
 
   // The compare table had three independent publishers: the sticky column header,
   // the Promise Follow-Through row, and the Bottom Line verdict's prose. All three

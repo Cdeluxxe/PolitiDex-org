@@ -3136,89 +3136,34 @@
   };
 
 
-  // The People's Mandate Alignment — a scorecard of core good-government
-  // principles, derived from the Promise %, Accountability score and funding
-  // signals PolitiDex already tracks (curated overrides supported).
+  // ── Follow the Money — the campaign-finance funding lens ──────────────────
+  // Historically "The People's Mandate Alignment": a four-tile scorecard of
+  // good-government principles (Keeps Promises / Accountability / Transparency /
+  // Constituents Over Special Interests), each printed as an N/100 with a filled
+  // bar, plus an averaged `overall` across the rated tiles.
+  //
+  // Two of those tiles were the retired Accountability of Truth composite — one
+  // read `accountability.overallScore` straight, the other pulled a category
+  // score out of the same analysis object — and the average on top of them was a
+  // second overall percentage about a person, built from a grade PolitiDex no
+  // longer publishes. An earlier pass stopped the scorecard rendering but left
+  // the whole computation in place, unused, "to keep the diff minimal". A dormant
+  // grade with a live accessor is how a retired score comes back, so this pass
+  // deletes the computation as well as the markup: the principle list, the
+  // per-category lookup into the composite, the 0-100 colour ramp, the rows and
+  // the averaged overall are all gone.
+  //
+  // What renders is what was never a grade — the Constituents-First funding
+  // signal, computed live from itemized FEC and Utah disclosure filings, and
+  // deliberately framed as a money lens rather than a record score. Nothing shows
+  // when there is no filing. MANDATE_OVERRIDES and the curated FINANCE_INTEGRITY
+  // seed remain as data; no display path reads them any more.
+  // See scripts/test-acct-not-ranked.mjs.
   window._renderMandateAlignment = function(id, p) {
     p = p || {};
-    var ov = MANDATE_OVERRIDES[id] || {};
-    var acct = (p.accountability && typeof p.accountability.overallScore === 'number') ? p.accountability : null;
-    // Honesty gate: only let the Accountability of Truth Score feed this
-    // scorecard when there's enough verified record to stand behind it. On very
-    // thin profiles the row falls back to "Monitoring" instead of showing a
-    // precise number we can't explain. Curated overrides always win.
-    var acctShowable = !!acct && ((typeof window._pdxScoreExplainable !== 'function') || window._pdxScoreExplainable(p, id));
-    function acctCat(re) {
-      if (!acctShowable || !acct.categories) return null;
-      for (var i = 0; i < acct.categories.length; i++) {
-        if (re.test(acct.categories[i].label || '')) return acct.categories[i].score;
-      }
-      return null;
-    }
-    // The 'Keeps Promises' principle below publishes this as a percentage, so it
-    // has to obey the same display guard as every other pledge surface — reading
-    // `p.score` raw here is how the mandate block ended up asserting a rate that
-    // the pledge lane on the same profile refuses to print. The principles list
-    // filters out null scores, so a withheld figure simply drops its row rather
-    // than showing a zero. An explicit admin override (`ov.promises`, applied at
-    // the pick() below) still wins: that is a human deliberately publishing a
-    // number.
-    var promiseScore = (typeof window._pdxDisplayScore === 'function')
-      ? window._pdxDisplayScore(p)
-      : ((typeof p.score === 'number') ? p.score : null);
-    if (promiseScore === undefined) promiseScore = null;
-    // Prefer the live, transparent Constituents-First finance signal (computed
-    // from itemized FEC / Utah-disclosure buckets, with its reasons shown below);
-    // fall back to the curated FINANCE_INTEGRITY seed for anyone without a filing.
+    // Live, transparent Constituents-First finance signal (computed from itemized
+    // FEC / Utah-disclosure buckets, with its reasons shown below).
     var finSig = (typeof window._pdxFinanceSignal === 'function') ? window._pdxFinanceSignal(id) : null;
-    var integ = finSig ? finSig.score : ((typeof FINANCE_INTEGRITY[id] === 'number') ? FINANCE_INTEGRITY[id] : null);
-    var pick = function() {
-      for (var i = 0; i < arguments.length; i++) {
-        var v = arguments[i];
-        if (typeof v === 'number' && !isNaN(v)) return Math.round(v);
-      }
-      return null;
-    };
-    var principles = [
-      { label:'Keeps Promises', icon:'🤝',
-        score: pick(ov.promises, promiseScore),
-        desc:'Tracked campaign promises kept versus broken — counts on file, no rate published.' },
-      { label:'Accountability', icon:'🛡️',
-        score: pick(ov.accountability, acctShowable ? acct.overallScore : null, acctCat(/account/i)),
-        desc:'Independent Accountability of Truth score for honesty and consistency.' },
-      { label:'Transparency', icon:'🔍',
-        score: pick(ov.transparency, acctCat(/transparen/i), integ),
-        desc:'Openness about finances, votes and decisions — seeded by the campaign-finance Constituents-First signal below.' },
-      { label:'Constituents Over Special Interests', icon:'🏛️',
-        score: pick(ov.constituents, integ, acctCat(/integrity|independ|interest/i)),
-        desc: finSig
-          ? ('Funded ' + finSig.shares.smallDollar + '% by small-dollar donors vs ' + finSig.shares.concentrated + '% large-individual & PAC money — see the transparent breakdown below.')
-          : 'How much funding and action favor everyday constituents over corporate and PAC money.' }
-    ];
-    var mcol = function(s) { return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171'; };
-    var rated = principles.filter(function(pr) { return pr.score !== null; });
-    var overall = rated.length ? Math.round(rated.reduce(function(a, pr) { return a + pr.score; }, 0) / rated.length) : null;
-    var rows = principles.map(function(pr) {
-      var has = pr.score !== null;
-      var col = has ? mcol(pr.score) : '#5b7196';
-      var valTxt = has ? pr.score + '<span style="font-size:0.65rem;color:#7596c0;">/100</span>' : '<span style="font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;">Monitoring</span>';
-      return '<div class="mandate-row">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.3rem;">' +
-          '<span style="display:flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.02em;color:#cbd9ec;"><span style="font-size:0.85rem;">' + pr.icon + '</span>' + pr.label + '</span>' +
-          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;color:' + col + ';line-height:1;">' + valTxt + '</span>' +
-        '</div>' +
-        '<div class="mandate-track"><div class="mandate-fill" style="width:' + (has ? pr.score : 0) + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></div>' +
-        '<p style="font-size:0.66rem;color:#7596c0;line-height:1.45;margin:0.28rem 0 0;">' + pr.desc + '</p>' +
-      '</div>';
-    }).join('');
-    // SCORING CLEANUP: the 4-tile People's Mandate scorecard (Keeps Promises /
-    // Accountability / Transparency / Constituents) re-presented signals shown
-    // elsewhere — the promise receipts have their own section, the retired Accountability
-    // composite is gone, and the finance tiles duplicated the money lens. This
-    // section now renders ONLY the Follow-the-Money / Constituents-First funding
-    // lens, kept deliberately separate from the record scores. The scorecard
-    // computations above are left intact (unused) to keep the diff minimal; they
-    // no longer render. When there's no finance signal, nothing shows.
     if (!finSig) return '';
     return '<div class="modal-section" id="alignment-modal-section">' +
       '<div class="modal-section-title">💰 Follow the Money</div>' +

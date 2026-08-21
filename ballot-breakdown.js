@@ -2802,25 +2802,36 @@
       var btn = _krPickBtn(race, pid, isPick);
 
       // ── Score strip ──────────────────────────────────────────────────────
-      // Row 1 — the two objective scores, side by side and easy to scan across
-      // candidates: Promise % (gold, prominent campaign-promise record) and the
-      // Accountability of Truth Score (purple, the objective integrity rating).
-      // Row 2 — the personalized Alignment %, kept visually distinct so the two
-      // scoring systems never blur together.
-      // We only show a Truth Score where there is a real record to ground it — for
-      // challengers with no record yet we say so plainly rather than inventing a number.
-      // Does this candidate have any objective record to ground a score? A 2026
-      // challenger who has never held office has neither a Promise % nor a Truth
-      // Score, and stacking two big "No record yet" cells made the card read as
-      // broken. So we detect the no-record case up front and replace the two empty
-      // cells with a single, clean, intentional notice — while still showing the
-      // real score strip the moment either score exists.
+      // Row 1 — the one published read, ⚖️ Word vs Action. This row used to carry
+      // two cells side by side: the gold Promise % and the purple Accountability
+      // of Truth Score. Both are retired; see _krScoreCells below.
+      // Row 2 — the personalized Alignment %, kept visually distinct so the
+      // personal-fit read never blurs into the record read.
+      // Does this candidate have any record on file at all? A 2026 challenger who
+      // has never held office has no pledge receipts and nothing formal to read,
+      // and a card of empty cells reads as broken. So we detect the no-record case
+      // up front and replace the strip with a single, clean, intentional notice —
+      // while showing the real strip the moment anything exists to show.
+      //
+      // SCORING CLEANUP: the second half of this test used to be "…and has no
+      // Accountability of Truth composite either", which additionally called
+      // window._acctEnsureScore to COMPUTE one on the spot. That grade is retired
+      // and its getter is deleted, so the question is asked of the two things this
+      // card actually renders: the pledge ledger, and the formal record behind
+      // ⚖️ Word vs Action. Both are counts and evidence, not a grade — and unlike
+      // the composite, neither can be conjured for a candidate who has no record.
       var hasPromise = window._pdxDisplayScore(d) !== null;
-      var acctObj = (d.accountability && typeof d.accountability.overallScore === 'number')
-        ? d.accountability
-        : ((hasPromise && typeof window._acctEnsureScore === 'function') ? window._acctEnsureScore(pid) : null);
-      var hasAcct = !!(acctObj && typeof acctObj.overallScore === 'number');
-      var noObjectiveRecord = !isIncumbent && !hasPromise && !hasAcct;
+      var hasFormalRecord = (function () {
+        try {
+          var wa = window.PDXWordAction;
+          var r = (wa && typeof wa.read === 'function') ? wa.read(pid, d) : null;
+          if (r && r.coverage && r.coverage.word > 0) return true;
+          var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+          if (FPI && typeof FPI.count === 'function' && FPI.count(pid) > 0) return true;
+        } catch (e) {}
+        return false;
+      })();
+      var noObjectiveRecord = !isIncumbent && !hasPromise && !hasFormalRecord;
       // ── Personalized alignment — shown INLINE on the card ────────────────
       // When the visitor has chosen issues we surface their match % right here so
       // it can be scanned and compared across candidates at a glance, with a tap

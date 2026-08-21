@@ -1160,13 +1160,9 @@
           '</div>';
       }
 
-      // Eagerly compute (and cache) the Accountability of Truth Score so the
-      // percentage + rating label are visible by default in the profile modal —
-      // never hidden behind a "Run Analysis" click. Falls back to the prompt
-      // card only if the engine genuinely can't produce a score.
-      if (!(a && typeof a.overallScore === 'number') && typeof window._acctEnsureScore === 'function') {
-        try { a = window._acctEnsureScore(id, p) || a; } catch (e) {}
-      }
+      // A call to the on-demand composite getter stood here, computing the score
+      // so the profile modal never showed a "Run Analysis" placeholder. The getter
+      // is retired; this renderer returns '' long before this line.
 
       // ── Honesty gate: a score with no verified basis to explain it ────────
       // Even once the engine can emit a number, showing a precise percentage we
@@ -1412,12 +1408,8 @@
       // eslint-disable-next-line no-unreachable
       var p = getProfile(id) || {};
       var a = p.accountability;
-      // Eagerly compute (and cache) the Accountability of Truth Score so the metric
-      // is visible by default on every card — on equal footing with the Promise %,
-      // never hidden behind a click. Falls back gracefully if the engine isn't ready.
-      if (!(a && typeof a.overallScore === 'number') && typeof window._acctEnsureScore === 'function'){
-        try { a = window._acctEnsureScore(id, p); } catch (e) { a = null; }
-      }
+      // Same retired on-demand compute as in _renderAccountabilityCard above; the
+      // badge returns '' before it could reach this line.
       // Honesty gate: only show a specific percentage when there is enough
       // verified record to stand behind (and explain) it. See _pdxScoreExplainable.
       var _badgeExplainable = (typeof window._pdxScoreExplainable === 'function')
@@ -1753,26 +1745,30 @@
       }, 220);
     };
 
-    // Synchronous score getter for compact surfaces (e.g. the Key Races candidate
-    // cards). Returns the stored analysis, or computes one on the fly and caches it
-    // in memory only — no Firestore write — so the same Accountability of Truth
-    // Score shows on the card and in the profile without the user running it by hand.
-    // A full re-run (with persistence) still happens when the user clicks Re-run.
-    window._acctEnsureScore = function(id, p){
-      p = p || getProfile(id) || {};
-      if (p.accountability && typeof p.accountability.overallScore === 'number') return p.accountability;
-      try {
-        var a = AccountabilityAnalyzer.analyze(id, p);
-        if (typeof PROFILES !== 'undefined' && PROFILES[id]) PROFILES[id].accountability = a;
-        if (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) CMP_DATA[id].accountability = a;
-        // A freshly computed score can change this politician's matching/sort value.
-        if (typeof window._acctMatchCacheBust === 'function') window._acctMatchCacheBust(id);
-        return a;
-      } catch (e) { return null; }
-    };
-
-    // The accountability engine is defined after the Key Races script runs, so
-    // repaint Key Races now that scores can be computed for each candidate card.
-    try { if (window.renderKeyRaces) window.renderKeyRaces(); } catch (e) {}
+    // ── window._acctEnsureScore — RETIRED ────────────────────────────────────
+    // This was the composite's back door. It was a synchronous getter that, for
+    // any politician without a stored analysis, ran AccountabilityAnalyzer.analyze
+    // on the spot, wrote the result onto PROFILES[id] and CMP_DATA[id], and busted
+    // the alignment memo so the new number could take effect in sort order. Its
+    // callers were the compact surfaces that showed the composite: the Key Races
+    // score cell, the medium card's dual-score header, the card badge — and,
+    // through _acctMatchScore, the browse comparator.
+    //
+    // Every one of those surfaces retired the composite. What was left was an
+    // exported function that computed and persisted a 0-100 moral grade on demand,
+    // reachable from any module by name. That is exactly the thing a future sort
+    // key would reach for, so the export is deleted.
+    //
+    // The engine itself (AccountabilityAnalyzer) is untouched and still reachable
+    // from openAccountabilityAnalysis / viewAccountabilityAnalysis above, neither
+    // of which any reader-facing surface can open — scripts/test-no-second-score.mjs
+    // keeps those doors shut. The two dead call sites inside the retired renderers
+    // above went with the export, so the name appears nowhere in this file's code.
+    //
+    // A repaint call — `if (window.renderKeyRaces) window.renderKeyRaces()` —
+    // followed this definition, existing solely so Key Races could recompute
+    // candidate scores once the engine had loaded. Key Races reads nothing from
+    // this module any more, so it went with the getter.
+    // See scripts/test-acct-not-ranked.mjs.
   })();
   

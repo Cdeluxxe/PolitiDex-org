@@ -1346,62 +1346,39 @@
     // as data. See scripts/test-match-no-party.mjs, which fails if any match-scoring
     // path starts reading it again.
 
-    // ── Accountability as a matching signal ───────────────────────────────────
-    // The Accountability of Truth Score is a personal-integrity / consistency read
-    // (does their record back up their word?). It is deliberately SEPARATE from the
-    // issue-alignment math below, but it should still move "Best Match for You" — a
-    // candidate who lines up on the issues AND has a strong accountability pattern
-    // is a better match than one who lines up but has a concerning one. We fold it
-    // in as a small, bounded, transparent nudge so it complements Promise % and
-    // issue alignment without ever dominating them.
+    // ── Accountability as a matching signal — RETIRED ─────────────────────────
+    // This block folded the Accountability of Truth composite into "Best Match
+    // for You" as a bounded nudge (ACCT_MATCH_WEIGHT 0.2 around a neutral 50, so
+    // at most a ±10-point swing). The nudge was switched off in an earlier pass —
+    // see _acctMatchInfo below, which has been a pass-through ever since — but the
+    // machinery survived it: _acctMatchScore(pid) still resolved the profile, ran
+    // the honesty gate, called window._acctEnsureScore to compute and persist a
+    // composite on demand, and memoized the 0-100 result. Nothing in the match
+    // read it any more; what read it was the browse/compare comparator, which
+    // sorted the entire roster by that number. With that comparator gone, this is
+    // the accessor the composite would need to rank people again, so it is deleted
+    // rather than left dormant:
     //
-    //   • Centered on a neutral midpoint (50): a middling record neither rewards
-    //     nor penalizes. Strong records (>50) lift the match; weak/concerning ones
-    //     (<50) lower it.
-    //   • Capped at ±(50 · WEIGHT) points — with WEIGHT = 0.2 that is ≤±10, so the
-    //     issue-by-issue fit always leads.
-    //   • Thin data is treated as NEUTRAL, not negative: when there isn't enough
-    //     verified record to score a politician honestly (_pdxScoreExplainable is
-    //     false, or the engine can't produce a number), _acctMatchScore returns
-    //     null and the match is left exactly as the issue alignment computed it.
-    var ACCT_MATCH_WEIGHT = 0.2;   // max ±10-pt swing on the final match %
-    var ACCT_MATCH_NEUTRAL = 50;   // the score that neither helps nor hurts
+    //     ACCT_MATCH_WEIGHT / ACCT_MATCH_NEUTRAL   (dead constants)
+    //     _acctMatchCache / window._acctMatchCacheBust
+    //     _acctMatchScore / window._acctMatchScore
+    //
+    // The composite data on the profile object is untouched. There is simply no
+    // longer a function that turns it into a rankable number. Callers of the
+    // cache-buster (accountability-score.js, firebase-boot.js) dropped their calls
+    // in the same pass. See scripts/test-acct-not-ranked.mjs.
 
-    // The numeric Accountability of Truth Score for matching/sorting (0–100), or
-    // null when the record is too thin to score fairly (→ treated as neutral).
-    // Memoized per pid: this is read in sort comparators and on every card, and the
-    // underlying curated record is stable within a session. _acctMatchCacheBust()
-    // clears it if scores are (re)computed elsewhere.
-    var _acctMatchCache = {};
-    window._acctMatchCacheBust = function (pid) { if (pid) delete _acctMatchCache[pid]; else _acctMatchCache = {}; };
-    function _acctMatchScore(pid) {
-      if (Object.prototype.hasOwnProperty.call(_acctMatchCache, pid)) return _acctMatchCache[pid];
-      var p = (typeof getProfile === 'function') ? (getProfile(pid) || null) : null;
-      if (!p && typeof CMP_DATA !== 'undefined') p = CMP_DATA[pid] || null;
-      if (!p) { _acctMatchCache[pid] = null; return null; }
-      // Never score a record we couldn't honestly explain on the profile itself —
-      // this is the same honesty gate the Accountability chip/modal already use, so
-      // thin profiles stay neutral here instead of being silently penalized.
-      if (typeof window._pdxScoreExplainable === 'function' && !window._pdxScoreExplainable(p, pid)) { _acctMatchCache[pid] = null; return null; }
-      var a = p.accountability;
-      if (!(a && typeof a.overallScore === 'number') && typeof window._acctEnsureScore === 'function') {
-        try { a = window._acctEnsureScore(pid, p); } catch (e) { a = null; }
-      }
-      var out = (a && typeof a.overallScore === 'number') ? a.overallScore : null;
-      _acctMatchCache[pid] = out;
-      return out;
-    }
-    window._acctMatchScore = _acctMatchScore;
-
-    // Fold the Accountability Score into a raw issue-alignment value, returning the
-    // detail (so callers can both use the adjusted number AND explain the nudge).
+    // Round a raw issue-alignment value and report it in the shape the breakdown
+    // modal expects. The name is historical: this used to fold the Accountability
+    // composite into the match and hand back the nudge so callers could explain it.
     //
     // ── SCORING CLEANUP (simplified system) ─────────────────────────────────────
     // Your Match is now PURELY issue-fit: the Accountability composite no longer
     // nudges it. This is a deliberate pass-through — it keeps the return shape
     // (base/acct/delta/adjusted) so every caller and the breakdown modal keep
-    // working unchanged, but the adjustment is always zero. The underlying
-    // accountability data is untouched; it simply no longer bends the match.
+    // working unchanged, but `acct` is always null and `delta` always zero. With
+    // _acctMatchScore deleted above, there is no longer any code path that could
+    // put a number back in them.
     function _acctMatchInfo(pid, base) {
       if (base === null || base === undefined) return { base: base, acct: null, delta: 0, adjusted: base };
       var rounded = Math.round(base);
@@ -1409,7 +1386,7 @@
     }
     window._acctMatchInfo = _acctMatchInfo;
 
-    // Convenience: just the accountability-adjusted match %.
+    // Convenience: just the match % (see the pass-through note above).
     function _applyAcctToMatch(pid, base) { return _acctMatchInfo(pid, base).adjusted; }
     window._applyAcctToMatch = _applyAcctToMatch;
 
