@@ -2422,7 +2422,7 @@
           : 'See every issue + gaps');
       return '<button type="button" class="pdx-fsr-mini" ' +
         'onclick="event.stopPropagation();window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
-        'aria-label="Open the full stance record — every issue, its evidence, and what is still missing">' +
+        'aria-label="Open the full record on the issues — every issue the formal record touched, the documented positions beside it, and what is still missing">' +
         label + ' <span aria-hidden="true">→</span></button>';
     } catch (e) { return ''; }
   };

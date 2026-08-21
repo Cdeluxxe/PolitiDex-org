@@ -835,11 +835,18 @@
       // index's hardest words, so a record the index reads as Mixed was announced
       // in search as "Says One Thing · Does Another".
       //
-      // The receipt verdict is still the fallback, and it is a real one: it covers
-      // people the formal index cannot reach — no stances scored, or a record that
-      // is public rather than legislative. It is only ever shown where there is no
-      // index to disagree with. Coverage is the last resort, so a person we know and
-      // have not documented reads as "not yet documented" rather than as silence.
+      // Where the index has no result to name, searchBadgeHTML answers with the size
+      // of the formal record instead of with nothing — a count of issues with votes
+      // or formal actions on file, no score and no direction. Silence about an issue
+      // is not absence of a record, and this row is where that used to be published
+      // as though it were.
+      //
+      // The receipt verdict is still the next fallback, and it is a real one: it
+      // covers people the formal lane cannot reach — a record that is public rather
+      // than legislative. It is only ever shown where there is no formal answer to
+      // disagree with. Coverage is the last resort, and now genuinely last: a person
+      // we know, hold no formal record for and have not documented reads as "not yet
+      // documented" rather than as silence.
       var receipt = '';
       try {
         if (window.PDXWordAction && window.PDXWordAction.searchBadgeHTML) {

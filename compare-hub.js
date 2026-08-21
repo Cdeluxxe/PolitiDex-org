@@ -2886,19 +2886,12 @@
       var base = (typeof _pdxCleanOfficeLine === 'function') ? _pdxCleanOfficeLine(d, null) : (d.office || '');
       return base || (d.office || '');
     }
-    // Accountability of Truth Score for the dual-score header — the INTEGRITY
-    // read (consistency between words and actions, public conduct), distinct
-    // from the formal in-office Promise %. Returns the analysis object only when
-    // there is enough verified record to show an honest number; null otherwise,
-    // so the card can fall back to a "builds as record grows" state.
-    function _medAcctScore(id, p) {
-      var a = (p && p.accountability) || null;
-      if (!(a && typeof a.overallScore === 'number') && typeof window._acctEnsureScore === 'function') {
-        try { a = window._acctEnsureScore(id, p) || a; } catch (e) {}
-      }
-      var explainable = (typeof window._pdxScoreExplainable === 'function') ? window._pdxScoreExplainable(p, id) : true;
-      return (a && typeof a.overallScore === 'number' && explainable) ? a : null;
-    }
+    // SCORING CLEANUP: _medAcctScore lived here — it read (and, via
+    // _acctEnsureScore, computed on demand) the retired Accountability of Truth
+    // composite for the medium card's old dual-score header. That header now
+    // publishes one read, so the helper had no reader left; it was deleted
+    // rather than left behind, because a live accessor is how a retired grade
+    // finds its way back onto a card. See scripts/test-acct-not-ranked.mjs.
 
     // "Why this might fit you" — a short, plain-language read of the strongest
     // agreements (and the sharpest disagreement) between this official's record
@@ -3073,19 +3066,11 @@
       // quick-view leads with the same status context as the full profile.
       if (typeof window._pdxMedStatusStrip === 'function') html += window._pdxMedStatusStrip(rec);
 
-      // ── Dual score header — two deliberately distinct metrics ────────────
-      // Promise %      = the FORMAL, in-office record — what they did with their
-      //                  power (votes, bills, official promises). Framed gold.
-      // Accountability = the INTEGRITY read — consistency between words and
-      //                  actions and conduct beyond formal power (statements,
-      //                  rhetoric vs. reality). Framed purple. The contrasting
-      //                  color + label + one-line descriptor make it instantly
-      //                  clear the two scores measure different things.
-      var acctA = _medAcctScore(id, p);
-      var acctHasScore = !!(acctA && typeof acctA.overallScore === 'number');
-      var acctS = acctHasScore ? acctA.overallScore : null;
-      var acctRatingTxt = acctHasScore && acctA.rating ? String(acctA.rating) : '';
-      var acctCol = acctHasScore ? (acctA.color || '#c4b5fd') : '#9fb4d4';
+      // ── Score header — one read, plus the receipts that feed it ──────────
+      // This was a DUAL header: pledge receipts in gold beside the purple
+      // Accountability of Truth composite. The composite is retired, so the
+      // header carries the pledge-receipt glyph and a line pointing at the one
+      // published read (⚖️ Word vs Action). Nothing here computes a grade.
       var safeId = _medEsc(id);
       html += '<div class="pdx-med-scores" id="pdxmed-scores">' +
           '<button type="button" class="pdx-med-sc pdx-med-sc--promise" onclick="window._mediumViewFull()" ' +
@@ -7324,7 +7309,6 @@
       if (statusF) activeCount++;
       if (stateFilter) activeCount++;
       if (score) activeCount++;
-      if (window._acctHighOnly) activeCount++;
       if (show && show !== 'all') activeCount++;
 
       var collapsedCountBadge = document.getElementById('collapsed-filter-count-badge');
@@ -7357,7 +7341,6 @@
         if (party) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-party\').value=\'\';myteamBrowseFilter();">🎗 ' + (partyLabels[party] || party) + '<span class="chip-x">&times;</span></span>');
         if (stateFilter) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-state\').value=\'\';myteamBrowseFilter();">📍 ' + stateFilter + '<span class="chip-x">&times;</span></span>');
         if (score) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-score\').value=\'\';myteamBrowseFilter();">📊 ' + (scoreLabels[score] || score) + '<span class="chip-x">&times;</span></span>');
-        if (window._acctHighOnly) chips.push('<span class="browse-chip" onclick="window._acctHighOnly=false;myteamBrowseFilter();">🛡️ High Accountability<span class="chip-x">&times;</span></span>');
         if (show && show !== 'all') chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-show\').value=\'all\';myteamBrowseFilter();">👥 ' + (showLabels[show] || show) + '<span class="chip-x">&times;</span></span>');
 
         if (chips.length > 0) {
@@ -7437,13 +7420,12 @@
       if (stateFilter) pids = pids.filter(function(pid) { return _chubStateMatch(pid, stateFilter); });
       if (effScore) pids = pids.filter(function(pid) { return _chubScoreMatch(pid, effScore); });
 
-      // "High Accountability" quick filter — keep only politicians whose
-      // Accountability of Truth Score is strong (≥65, the green / "Mostly
-      // Accountable" band). Thin-record politicians (null) are naturally excluded
-      // from this opt-in view; they are never penalized in the default ranking.
-      if (window._acctHighOnly && typeof window._acctMatchScore === 'function') {
-        pids = pids.filter(function(pid) { var a = window._acctMatchScore(pid); return typeof a === 'number' && a >= 65; });
-      }
+      // SCORING CLEANUP: a "High Accountability" quick filter used to live here,
+      // keeping only politicians whose retired Accountability of Truth composite
+      // was >= 65 — the band the engine labelled "Mostly Accountable". Filtering a
+      // roster by a moral grade is the same act as sorting by it, so it went with
+      // the sort below. Readers who want depth use the pledge-receipt filter and
+      // the Word vs Action ordering, both of which are counts and evidence.
 
       // 'score-desc' means the strongest ⚖️ Word vs Action read first — the one
       // published rating. It used to order by pledge receipts; see _waDepth(). The
@@ -7457,11 +7439,13 @@
         pids.sort(function(a, b) { return (CMP_DATA[a].name || '').localeCompare(CMP_DATA[b].name || ''); });
       } else if (sort === 'align-desc' && typeof _calcAlignmentScore === 'function') {
         pids.sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); });
-      } else if (sort === 'acct-desc' && typeof window._acctMatchScore === 'function') {
-        // Accountability of Truth Score, high → low. Politicians with too thin a
-        // record to score (null) sort to the bottom rather than being treated as 0.
-        pids.sort(function(a, b) { return (window._acctMatchScore(b) ?? -1) - (window._acctMatchScore(a) ?? -1); });
       }
+      // SCORING CLEANUP: a fifth branch, `sort === 'acct-desc'`, ordered the whole
+      // roster by the retired Accountability of Truth composite (a 0-100 grade with
+      // moral bands from "Highly Accountable" down to "Low Accountability"). It was
+      // the last place a moralized composite still ranked people. Both the branch
+      // and the <option> that produced the value are gone; the surviving keys order
+      // by Word vs Action depth, issue match, or name.
 
       // Location prioritization: when a search is active and the voter has saved
       // a location, float the people who actually represent them to the top —
@@ -7536,7 +7520,7 @@
 
       if (pids.length > 0) {
         // Start fully minimized; auto-expand all levels only while a search/filter is active so matches stay visible.
-        var _browseHasFilters = !!(_searchText || effOffice || party || effStatus || stateFilter || effScore || window._acctHighOnly || _intent.district != null || (show && show !== 'all') || effScope === 'relevant');
+        var _browseHasFilters = !!(_searchText || effOffice || party || effStatus || stateFilter || effScore || _intent.district != null || (show && show !== 'all') || effScope === 'relevant');
         browseGrid.innerHTML = _renderGroupedBrowse(pids, '', { forceOpen: _browseHasFilters, defaultOpen: false, stateScope: stateFilter });
         if (browseEmpty) browseEmpty.classList.add('hidden');
       } else {
@@ -7628,7 +7612,6 @@
       if (scoreEl) scoreEl.value = '';
       if (showEl) showEl.value = 'all';
       if (sortEl) sortEl.value = 'score-desc';
-      window._acctHighOnly = false;
       window._myteamBrowseSortAuto = true;
       var suggestBox = document.getElementById('browse-search-suggest');
       if (suggestBox) { suggestBox.classList.remove('open'); suggestBox.innerHTML = ''; }
@@ -7917,7 +7900,6 @@
         { cls: 'qc-match', on: !!window._alignBrowseSortActive, html: '🎯 Best match for me', act: 'match' },
         { cls: 'qc-loc', on: (typeof _browseScope !== 'undefined' && _browseScope === 'relevant'), html: hasLoc ? '📍 My district' : '📍 Set my location', act: 'loc' },
         { cls: '', on: scoreV === 'receipts', html: '🤝 Has pledge receipts', act: 'score-receipts' },
-        { cls: 'qc-acct', on: !!window._acctHighOnly, html: '🛡️ High accountability', act: 'acct-high' },
         { cls: '', on: statusV === 'candidate', html: '🗳️ 2026 candidates', act: 'candidates' },
         { cls: '', on: searchV === 'guns', html: '🔫 Guns', act: 'topic:guns' },
         { cls: '', on: searchV === 'education', html: '🎓 Education', act: 'topic:education' },
@@ -7956,16 +7938,10 @@
         myteamBrowseFilter();
         return;
       }
-      if (act === 'acct-high') {
-        // "Strong Character Signals" — narrow to politicians with a high
-        // Accountability of Truth Score and rank them by it. Toggles off cleanly.
-        window._acctHighOnly = !window._acctHighOnly;
-        window._myteamBrowseSortAuto = false;
-        if (sortEl) sortEl.value = window._acctHighOnly ? 'acct-desc'
-          : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0) ? 'align-desc' : 'score-desc');
-        myteamBrowseFilter();
-        return;
-      }
+      // SCORING CLEANUP: 'acct-high' was handled here — it flipped
+      // window._acctHighOnly and forced the sort to 'acct-desc', so one tap both
+      // filtered and ranked the roster by the retired composite. The chip, the
+      // flag, the filter and the sort are all gone; no branch below reads a grade.
       if (act === 'candidates') {
         if (statusEl) statusEl.value = (statusEl.value === 'candidate' ? '' : 'candidate');
         myteamBrowseFilter();

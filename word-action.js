@@ -1114,9 +1114,16 @@
       var oc = outcomesHtml(pid);
       if (!oc) return '';
       var b = outcomeBuckets(pid);
-      var n = (b && b.total) || 0;
-      var label = 'Issues in this score · ' + n + ' issue' + (n === 1 ? '' : 's') +
-        ' by result — the full map is All Issues by Topic, below';
+      // TWO COUNTS WHEN THERE ARE TWO POPULATIONS. The lid used to promise "N
+      // issues by result" over a total that, since Phase 4, can contain rows with
+      // no result at all — opening the fold on a record-only member would have
+      // shown eighteen issues under a label that said all eighteen had been
+      // judged. The word count keeps the old clause and the old number; the
+      // formal count gets its own, and only appears when it is non-zero.
+      var w = (b && b.word) || 0, fm = (b && b.formal) || 0;
+      var label = 'Issues in this score · ' + w + ' issue' + (w === 1 ? '' : 's') +
+        ' by result' + (fm ? ' · ' + fm + ' on the formal record only' : '') +
+        ' — the full map is All Issues by Topic, below';
       return '<div class="pdxwa-idxlid">' +
           '<!--PDXSP:lid id="' + LID_INDEX_KEY + '" label="' + label + '" defer-->' +
           oc +
@@ -1625,16 +1632,54 @@
   // index below it does not have, and the dossier can never open under a word the
   // index did not use to get there.
   //
-  // `secondary` marks the one bucket that is not a finding. "Not enough record yet"
-  // is coverage — an issue we track, a position they stated, and nothing on file
-  // able to test it. Its subtitle can say "Stated, but…" and stay true because
-  // outcomeBuckets() admits no wordless row into this bucket (see the `!r.stance.label`
-  // guard there): a row we hold instruments for and no position of theirs is not a
-  // result this index can file, and it is answered on 🌳 All Issues by Topic and in
-  // the issue dossier instead, which state the inventory and say whose gap it is. It is listed,
-  // counted and reachable like every other bucket, and it is drawn quieter and
-  // ordered last, because a reader scanning results should not have to work out
-  // which pile is a result.
+  // THE SHORT NOUN IS THE ONE THAT TRAVELS ALONE. `label` and `sub` are printed
+  // together, so the heading has a clause under it saying whose gap this is. `short`
+  // is printed by itself — on the composition strip, on the bucket switcher, on the
+  // row-level cue, in the dossier header and on the profile rail — and for a long
+  // time that word was "Thin record". Over a member with four hundred votes on file
+  // and no statement we could test, that is a claim about THEIR record made out of a
+  // shortfall in OURS, and it is the same false sentence the row faces already refuse
+  // to print (see _stResult's 'Not scored yet' and scripts/test-thin-record-honesty).
+  // "Not enough on file" says the true thing in the same space. The token, its colour,
+  // its ordering and everything it counts are untouched — this is the noun only.
+  //
+  // `secondary` marks the TWO buckets that are not findings. Neither is a verdict
+  // on the person; both are statements about which half of the file is missing, and
+  // they are opposite halves:
+  //
+  //   · 'limited' — "Not enough on file". They stated a position; nothing on the
+  //     formal record can test it yet. The WORD is there, the RECORD is the gap.
+  //   · 'record'  — "Record only". Something formal is on file — roll calls, formal
+  //     actions — and no documented position of theirs on that issue to test it
+  //     against. The RECORD is there, the WORD is the gap.
+  //
+  // THE SECOND ONE IS NEW AND IT EXISTS BECAUSE THE OLD SHAPE LIED BY OMISSION.
+  // outcomeBuckets() used to drop every wordless row on the floor (`if
+  // (!r.stance.label && r.verdict.token === 'limited') return;`). The reasoning was
+  // sound for what the index was then — a row with no stated position is not a
+  // said-vs-did result — but the consequence was not: a member with eighteen issues
+  // on the formal record and nothing quotable produced NO buckets at all, so the
+  // composition strip, the letterhead tally and the issue index all rendered empty
+  // over a hero that had just said "18 issues on the formal record". Three surfaces
+  // on one profile disagreeing with a fourth about whether the record exists.
+  // Silence in our word ledger was being published as absence in their record —
+  // which is precisely the sentence the whole formal-first pass was written to stop
+  // printing. So the rows are admitted, under their own name, in their own pile.
+  //
+  // WHAT THE NEW BUCKET IS NOT, and each of these is load-bearing:
+  //   · NOT A RESULT. `secondary: true`, so searchBadgeHTML skips it when it looks
+  //     for the strongest result on a record, and OUTCOME_OPEN never opens on it.
+  //   · NOT FOLDED INTO 'limited'. "Stated, but nothing can test it" is false of
+  //     these rows — nothing was stated. Two different gaps, two different piles.
+  //   · NOT FOLDED INTO A WORD-TEST TOKEN. Nothing here has been compared against
+  //     anything they said, so Contradicted / Mixed / Backed up would each be a
+  //     verdict this index has not earned.
+  //   · NOT A PERCENTAGE. It changes no arithmetic. Direction Match reads
+  //     `read()`, which never touched these buckets and still does not.
+  //
+  // Both secondary buckets are listed, counted and reachable like every other
+  // bucket, drawn quieter, and ordered last — because a reader scanning results
+  // should not have to work out which pile is a result.
   var OUTCOMES = [
     { token: 'contradicts', label: 'Says one thing, does another', short: 'Contradicted', col: '#f89b9b',
       sub: 'The record pushes back on what they said.' },
@@ -1642,8 +1687,11 @@
       sub: 'The record goes both ways on this one.' },
     { token: 'consistent',  label: 'Backed it up',                 short: 'Backed up',    col: '#6ee7a0',
       sub: 'The record points the same way as the word.' },
-    { token: 'limited',     label: 'Not enough record yet',        short: 'Thin record',  col: '#9fb4d4',
-      secondary: true, sub: 'Stated, but nothing on file yet can test it. Coverage, not a result.' }
+    { token: 'limited',     label: 'Not enough record yet',        short: 'Not enough on file',  col: '#9fb4d4',
+      secondary: true, sub: 'Stated, but nothing on file yet can test it. Coverage, not a result.' },
+    { token: 'record',      label: 'On the formal record only',    short: 'Record only', col: '#b7a6e6',
+      secondary: true, formal: true,
+      sub: 'Something formal is on file and no documented position of theirs to test it against. The record\u2019s own pattern, not a result.' }
   ];
   function outcomeFor(token) {
     for (var i = 0; i < OUTCOMES.length; i++) if (OUTCOMES[i].token === token) return OUTCOMES[i];
@@ -1652,13 +1700,18 @@
   // The strip reads worst-first for the same reason the rows do: a reader who stops
   // after the first chip should have stopped on the sharpest thing on file, not on
   // the largest. OUTCOMES is already in that order and the strip follows it.
-  var COMP_ORDER = ['contradicts', 'mixed', 'consistent', 'limited'];
+  // The two coverage piles bring up the rear in the order they were added, so the
+  // strip reads results first, then "we have their word and not the record", then
+  // "we have the record and not their word".
+  var COMP_ORDER = ['contradicts', 'mixed', 'consistent', 'limited', 'record'];
   // WHICH BUCKET IS SELECTED WHEN THE INDEX FIRST PAINTS. A TOKEN SET, not a count
   // of live buckets: "the first live bucket" quietly promoted whatever survived, so
   // a figure with no contradictions and no mixed rows opened on the "not enough
   // record yet" pile. Keyed on the outcome instead, an empty bucket above can never
-  // promote the coverage pile — with one fallback, below, so the index never opens
-  // on nothing.
+  // promote either coverage pile — with one fallback, below, so the index never opens
+  // on nothing. A record-only member has nothing but coverage, and the fallback
+  // lands them on it; that is the correct door, because it is the only one with
+  // anything behind it.
   var OUTCOME_OPEN = { contradicts: 1, mixed: 1 };
 
   // ── ONE OPEN BUCKET, DECIDED ONCE ──────────────────────────────────────────
@@ -1685,13 +1738,70 @@
   // two people on one page get two namespaces; the same card repainted keeps its.
   function ocUid(pid) { return 'pdxwa-ocb-' + _idPart(pid); }
 
+  // ── WHICH ISSUES THE FORMAL INDEX HOLDS ─────────────────────────────────
+  // The set of issue keys PDXConsistency.formalPatternIndex admits for this
+  // politician, as a lookup. THE PREDICATE IS NOT REIMPLEMENTED HERE — it is
+  // "a readable pattern, or at least one instrument held", and it lives in
+  // _fpiRows() in consistency.js. Copying it would give the tally and the atlas
+  // two different ideas of how big the same record is, which is the exact class
+  // of bug this pass exists to close: the browse chip, the shape hero and the
+  // buckets all count the formal record by asking the same function.
+  //
+  // Epoch-keyed on the same (pid, scope, derivation-epoch) triple as everything
+  // downstream, so a warm roll-call fetch cannot leave one surface counting the
+  // cold inventory while its neighbour counts the warm one. Returns null — not an
+  // empty set — when the index cannot be reached, and outcomeBuckets treats null
+  // as "admit nothing", reproducing the old behaviour exactly rather than
+  // promoting every wordless row on an engine that is still booting.
+  function formalKeySet(pid) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_fkEpoch !== ep) { _fkCache = {}; _fkEpoch = ep; }
+    var ck = String(pid == null ? '' : pid) + '||' + scopeKey();
+    if (_fkCache.hasOwnProperty(ck)) return _fkCache[ck];
+    var out = null;
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      var rows = (FPI && typeof FPI.rows === 'function') ? FPI.rows(pid) : null;
+      if (rows) {
+        out = {};
+        for (var i = 0; i < rows.length; i++) if (rows[i] && rows[i].key) out[rows[i].key] = 1;
+      }
+    } catch (e) { out = null; }
+    _fkCache[ck] = out;
+    return out;
+  }
+  var _fkCache = {}, _fkEpoch = 0;
+
+
   // ── ONE BUCKETING, TWO SURFACES ────────────────────────────────────────────
   // The composition strip and the outcomes section must agree about what counts,
-  // or the strip becomes a fifth opinion on the record. Both now read this. The two
-  // exclusions are the ones outcomesHtml has always applied, moved rather than
-  // rewritten: an outcome we do not name is not counted, and a "not enough record
-  // yet" row with nothing stated is coverage — an issue we track and they have not
-  // spoken on — which is a gap in the map, not a shape in the record.
+  // or the strip becomes a fifth opinion on the record. Both now read this.
+  //
+  // ONE EXCLUSION SURVIVES: an outcome we do not name is not counted. The other
+  // one — "drop every 'not enough record yet' row with nothing stated" — is gone,
+  // and its removal is the whole of this pass. Those rows are not noise; they are
+  // the formal record of a member nobody has quoted, and the atlas, the browse
+  // chip and the shape hero were all already counting them while this function
+  // pretended they did not exist. They are now admitted under the 'record' token
+  // (see the long note over OUTCOMES) — but only if the formal index actually
+  // holds the issue. A row with no stated position AND nothing formal on file is
+  // still a gap in the map rather than a shape in the record, and it is still
+  // dropped; formalKeySet() below is the gate, and it is the atlas's own.
+  //
+  // FOUR POPULATIONS, COUNTED SEPARATELY, because captions downstream need to say
+  // which one they mean:
+  //   · `total`  — every row in the index. What "N issues in this index" means.
+  //   · `word`   — rows that arrived with a documented stated position. This is
+  //                exactly the old `total`, so every existing caption keyed to
+  //                the word ledger keeps its old number to the digit.
+  //   · `judged` — rows carrying a real said-vs-did result.
+  //   · `formal` — record-only rows. total === word + formal, always.
+  //
+  // The friction counters (thin / contested / contestedClean / tension) stay on
+  // the `word` population ALONE. They are readings of how a word-test went, and a
+  // row with no word in it cannot have gone any way at all; folding record-only
+  // rows into their denominator would quietly dilute every tension sentence on
+  // every deep-record profile in the product.
   function outcomeBuckets(pid) {
     var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
     if (_obEpoch !== ep) { _obCache = {}; _obEpoch = ep; }
@@ -1701,14 +1811,30 @@
     // Keyed on the row set it grouped, not just the politician: rankedRows above
     // rebuilds when its source changes, and a bucketing held over a rebuilt row
     // set would describe rows that are no longer on the card.
+    // Keyed on the formal index too, for the same reason and against the same
+    // failure: the record-only population below is drawn from it, and a bucketing
+    // held over a stale key set would report a different inventory size than the
+    // browse chip and the shape hero, which read the index directly.
+    var keys = formalKeySet(pid);
     var hit = _obCache[ck];
-    if (hit && hit.ranked === ranked) return hit.val;
-    var b = { buckets: {}, total: 0, contested: 0, contestedClean: 0, thin: 0, tension: 0, ranked: ranked };
+    if (hit && hit.ranked === ranked && hit.keys === keys) return hit.val;
+    var b = { buckets: {}, total: 0, word: 0, judged: 0, formal: 0,
+              contested: 0, contestedClean: 0, thin: 0, tension: 0, ranked: ranked };
     ranked.forEach(function (r) {
       if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
-      if (!r.stance.label && r.verdict.token === 'limited') return;
-      (b.buckets[r.verdict.token] = b.buckets[r.verdict.token] || []).push(r);
+      // RECORD-ONLY. Nothing of theirs to test, something of the record's to show.
+      // Re-filed, not dropped, and re-filed under a token that carries no verdict.
+      var recordOnly = (!r.stance.label && r.verdict.token === 'limited');
+      if (recordOnly && !(keys && keys[r.key])) return;
+      var tok = recordOnly ? 'record' : r.verdict.token;
+      (b.buckets[tok] = b.buckets[tok] || []).push(r);
       b.total++;
+      if (recordOnly) { b.formal++; return; }
+      // Below this line every row has a documented stated position behind it, and
+      // every counter below is a reading of how testing it went. Record-only rows
+      // returned above rather than being guarded four times.
+      b.word++;
+      if (tok !== 'limited') b.judged++;
       if (isThin(r)) b.thin++;
       if (isContested(r)) {
         b.contested++;
@@ -1722,7 +1848,7 @@
       if (isTension(r)) b.tension++;
     });
     var res = b.total ? b : null;
-    _obCache[ck] = { ranked: ranked, val: res };
+    _obCache[ck] = { ranked: ranked, keys: keys, val: res };
     return res;
   }
   // The bucketed index, memoized alongside the ranked rows it groups — see THE
@@ -1751,28 +1877,103 @@
   // Strongest means OUTCOMES order — contradicts, then mixed, then consistent —
   // and only a bucket that actually HAS rows can be it, so "Mixed" is reachable and
   // is never rendered as the hard negative. The coverage bucket is never the chip:
-  // "not enough record yet" is not a result, and PDXCoverage already has a chip for
-  // exactly that, so this returns '' and lets the honest coverage signal through.
+  // "not enough record yet" is not a result.
+  //
+  // AND WHERE THERE IS NO RESULT, THE RECORD STILL ANSWERS. Falling straight through
+  // to PDXCoverage was right when the only thing this module could see was the word
+  // ledger, and wrong the moment the formal atlas existed: it meant a member whose
+  // roll-call record runs to sixty-odd issues, and who has simply never been quoted,
+  // was published on the busiest surface in the product as "Still documenting". The
+  // second answer is recordBadgeHTML — how many issues the formal record touched,
+  // as a count, with no score and no direction in it. PDXCoverage keeps the third
+  // and last word, which is now reserved for the people it was written about: the
+  // ones with nothing on file at all.
   //
   // Counts ride in the tooltip, not in the chip. One word on a search row.
   function searchBadgeHTML(pid) {
     try {
       var b = outcomeBuckets(pid);
-      if (!b || !b.total) return '';
-      var o = null, n = 0;
-      for (var i = 0; i < OUTCOMES.length && !o; i++) {
-        if (OUTCOMES[i].secondary) continue;       // coverage is not a result
-        var c = (b.buckets[OUTCOMES[i].token] || []).length;
-        if (c) { o = OUTCOMES[i]; n = c; }
+      if (b && b.total) {
+        var o = null, n = 0;
+        for (var i = 0; i < OUTCOMES.length && !o; i++) {
+          if (OUTCOMES[i].secondary) continue;     // coverage is not a result
+          var c = (b.buckets[OUTCOMES[i].token] || []).length;
+          if (c) { o = OUTCOMES[i]; n = c; }
+        }
+        if (o) {
+          var issues = n + ' issue' + (n === 1 ? '' : 's');
+          return '<span class="pdxwa-eye-badge" data-pdxwa-eye="' + esc(o.token) + '"' +
+            ' style="--pdxwa-col:' + o.col + ';"' +
+            ' title="' + esc('Issue index: ' + issues + ' of ' + b.total + ' read ' + o.short +
+              ' — the strongest result on this record. ' + o.sub) + '">' +
+            esc(o.short) + '</span>';
+        }
       }
-      if (!o) return '';
-      var issues = n + ' issue' + (n === 1 ? '' : 's');
-      return '<span class="pdxwa-eye-badge" data-pdxwa-eye="' + esc(o.token) + '"' +
-        ' style="--pdxwa-col:' + o.col + ';"' +
-        ' title="' + esc('Issue index: ' + issues + ' of ' + b.total + ' read ' + o.short +
-          ' — the strongest result on this record. ' + o.sub) + '">' +
-        esc(o.short) + '</span>';
+      // NO RESULT IS NOT NO RECORD. Everything above needs a stated position: the
+      // index is built from the word ledger, so a member with four hundred mapped
+      // roll calls and nothing quotable produces no bucket, and this used to return
+      // '' — which handed the row to PDXCoverage, whose honest-for-its-own-purpose
+      // chip then announced "Still documenting" over a deep formal record. On the
+      // browse surface, where most readers form their only impression, silence was
+      // being reported as absence. See recordBadgeHTML.
+      return recordBadgeHTML(pid);
     } catch (e) { return ''; }
+  }
+
+  // ── THE FORMAL-INVENTORY CHIP ──────────────────────────────────────────────
+  // WHAT IT SAYS, and it is the whole claim: this many issues have something formal
+  // on file. Roll-call votes and formal actions, counted by the same index the
+  // profile's formal atlas renders (PDXConsistency.formalPatternIndex), so the chip
+  // and the list it leads to cannot disagree about how many issues there are.
+  //
+  // WHAT IT IS NOT, and each of these is deliberate:
+  //   · NOT A PERCENTAGE. Direction Match is the one formal percentage and nothing
+  //     here has been tested against a stated position, so there is no score to
+  //     print and none is printed. A count is not a rival measurement of a record;
+  //     it is the size of the record.
+  //   · NOT A DIRECTION. No tier, no lean, no "supports"/"opposes" — those need the
+  //     issue's own pole label beside them to stay neutral, and a search row has no
+  //     room for it. How many issues, and how many of those the index could read a
+  //     pattern on. Both are counts.
+  //   · NOT A GRADE, AND NOT PARTY. There is no word here that ranks the person and
+  //     no reference to anyone else's record.
+  //
+  // Empty when there is genuinely nothing formal on file, so the receipt chip and
+  // then PDXCoverage still get their turn — "not yet documented" stays reachable and
+  // stays true.
+  function recordBadgeHTML(pid) {
+    try {
+      var r = recordDepth(pid);
+      if (!r || !r.issues) return '';
+      var lb = r.issues + ' issue' + (r.issues === 1 ? '' : 's') + ' on record';
+      var tip = 'Formal record: ' + r.issues + ' issue' + (r.issues === 1 ? '' : 's') +
+        ' with roll-call votes or formal actions on file' +
+        (r.read ? ', ' + r.read + ' with a pattern the record index could read' : '') + '. ' +
+        'No stated position of theirs has been tested against it yet, so there is no ' +
+        'Direction Match score here — this is the size of the record, not a reading of it.';
+      return '<span class="pdxwa-eye-badge" data-pdxwa-eye="record"' +
+        ' style="--pdxwa-col:#8fa6c6;"' +
+        ' title="' + esc(tip) + '">🏛 ' + esc(lb) + '</span>';
+    } catch (e) { return ''; }
+  }
+  // Memoized on the derivation epoch and the term scope, like every other read on
+  // this card: a browse list asks for ten of these while one keystroke paints, and
+  // the underlying row model is the expensive part of the profile.
+  var _rdCache = {}, _rdEpoch = 0;
+  function recordDepth(pid) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_rdEpoch !== ep) { _rdCache = {}; _rdEpoch = ep; }
+    var ck = String(pid == null ? '' : pid) + '||' + scopeKey();
+    if (_rdCache[ck]) return _rdCache[ck];
+    var out = { issues: 0, read: 0 };
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      var rows = (FPI && typeof FPI.rows === 'function' && pid) ? (FPI.rows(pid) || []) : [];
+      out.issues = rows.length;
+      for (var i = 0; i < rows.length; i++) if (rows[i] && rows[i].read) out.read++;
+    } catch (e) { out = { issues: 0, read: 0 }; }
+    _rdCache[ck] = out;
+    return out;
   }
 
   // ── THE SHAPE BEHIND THE AVERAGE ───────────────────────────────────────────
@@ -1881,7 +2082,7 @@
       return '' +
         '<div class="pdxwa-comp">' +
           '<div class="pdxwa-comp-h">The shape behind the average' +
-            '<span class="pdxwa-comp-sub">' + esc(b.total + ' issue' + (b.total === 1 ? '' : 's') + ' with a verdict') + '</span>' +
+            '<span class="pdxwa-comp-sub">' + esc(bucketSub(b)) + '</span>' +
           '</div>' +
           '<p class="pdxwa-comp-hint">' +
             esc('Tap a count — or a segment of the bar — to open that bucket’s issues below.') +
@@ -1911,16 +2112,34 @@
       // easiest to lose, so it is said in its own clause rather than folded into a
       // count of "issues with something wrong".
       var notes = [];
-      if (b.tension) {
+      // NOTHING WAS TESTED, so nothing can be reported about how the testing went.
+      // The old copy below said "no contradictions, no mixed results and no
+      // contested standings on the tested issues", which over a member with zero
+      // tested issues reads as a clean bill of health issued by an exam that was
+      // never sat. Record-only profiles get the true sentence instead.
+      if (!b.word) {
+        notes.push('Nothing here has been tested against a stated position — no documented word of theirs on these issues is on file, so there is no contradiction, no match and no mixed result to report. What is below is the formal record on its own.');
+      } else if (b.tension) {
         // "the rows below" used to mean the index directly under this paragraph.
         // The index is behind a control now and the full issue list is the tree in
         // the next section, so the sentence names where tension-first actually
         // lives: the tree's own Tension order.
-        notes.push(b.tension + ' of these ' + b.total + ' issue' + (b.total === 1 ? '' : 's') +
+        // OF THE TESTED ISSUES, not of the index. Record-only rows joined the
+        // index in Phase 4 and cannot carry tension — nothing of theirs was said
+        // for the record to be in tension WITH — so counting them in this
+        // denominator would report a calmer record every time the formal
+        // inventory grew, which is the wrong direction for that number to move.
+        notes.push(b.tension + ' of these ' + _plural(b.word, 'issue') +
           ' carr' + (b.tension === 1 ? 'ies' : 'y') + ' tension — a contradiction, a mixed result, or an action whose standing is contested. ' +
           'Tension leads every list that prints these issues, and 🌳 All Issues by Topic below can be ordered that way in one tap.');
       } else {
         notes.push('No contradictions, no mixed results and no contested standings on the tested issues. That is what the record shows, not a verdict on it.');
+      }
+      // The other half of the file, named rather than left to be inferred from a
+      // chip. Said after the tension line because it is coverage, not a finding.
+      if (b.formal && b.word) {
+        notes.push('A further ' + _plural(b.formal, 'issue') + ' carr' + (b.formal === 1 ? 'ies' : 'y') +
+          ' something on the formal record with no documented position of theirs to test it against. Counted here, never scored.');
       }
       if (b.contestedClean) {
         notes.push(b.contestedClean + ' issue' + (b.contestedClean === 1 ? '' : 's') +
@@ -1975,6 +2194,29 @@
   // the one attribute a copy mounted OUTSIDE the ⚖️ section needs; everything
   // that carries meaning — the counts, the order, the vocabulary, the colours,
   // the panel each control addresses — is identical by construction.
+  // ── SAYING WHICH POPULATION A NUMBER IS ABOUT ──────────────────────────────
+  // Every caption under a count on this card used to be able to say "issues with
+  // a verdict" and be right, because every row in the index had a stated position
+  // behind it. Half of them no longer do. A record-only row has no verdict and
+  // never will until someone quotes the member, so a caption that calls it one is
+  // the same false sentence in the other direction — inventing a said-vs-did
+  // result out of a roll call nobody has been asked about.
+  //
+  // So the captions are built here, once, from the three counts outcomeBuckets
+  // keeps apart, and they name whichever populations are actually present:
+  //   word only   → "3 issues with a verdict"        (unchanged, to the digit)
+  //   record only → "18 issues on the formal record only"
+  //   both        → "3 issues with a verdict, 18 on the formal record only"
+  // Nothing is added to a profile that has no record-only rows, which is why
+  // every existing caption on every existing member reads exactly as it did.
+  function _plural(n, one) { return n + ' ' + one + (n === 1 ? '' : 's'); }
+  function bucketSub(b) {
+    var bits = [];
+    if (b.word) bits.push(_plural(b.word, 'issue') + ' with a verdict');
+    if (b.formal) bits.push((b.word ? b.formal : _plural(b.formal, 'issue')) + ' on the formal record only');
+    return bits.join(', ') || _plural(b.total, 'issue');
+  }
+
   function tallyItemsHtml(b, uid, openTok, gate, extra) {
     return COMP_ORDER.map(function (t) {
       var o = outcomeFor(t);
@@ -2538,8 +2780,12 @@
           // The empty state says which of the two zeroes this is: nothing on this
           // pile, out of a stated denominator. It is the sentence the missing chip
           // used to withhold.
+          // "Checked" is only true of the word-tested population, so the record-only
+          // rows are named separately rather than being folded into a count of
+          // issues we tested. Absent entirely when there are none.
           : '<p class="pdxwa-oc-empty">' + esc('None. No issue in this index landed here — ' +
-              b.total + ' issue' + (b.total === 1 ? '' : 's') + ' checked.') + '</p>';
+              _plural(b.word, 'issue') + ' checked' +
+              (b.formal ? ', ' + b.formal + ' on the formal record only' : '') + '.') + '</p>';
         return '<section class="pdxwa-oc-grp' + (o === sel ? ' is-on' : '') +
             (o.secondary ? ' pdxwa-oc-grp-2nd' : '') + (list.length ? '' : ' is-zero') +
             '" role="tabpanel"' +
@@ -2556,11 +2802,18 @@
       // number above — the score weighs statements by testability and this counts
       // issues. Judged and untested are separated here for the same reason the
       // coverage bucket is drawn quieter: they are not the same claim.
-      var judged = b.total - ((buckets.limited || []).length);
-      var foot = b.total + ' issue' + (b.total === 1 ? '' : 's') + ' in this index — ' +
-        judged + ' with a result on the record' +
+      //
+      // THREE CLAUSES, THREE POPULATIONS, and the arithmetic is outcomeBuckets'
+      // rather than this function's — `judged` used to be computed here as
+      // "total minus limited", which silently became wrong the moment a fifth
+      // bucket joined the index. The two coverage clauses are printed only when
+      // they have rows, so a profile with nothing record-only reads exactly as it
+      // did before Phase 4, and the three counts always sum to the denominator.
+      var foot = _plural(b.total, 'issue') + ' in this index — ' +
+        b.judged + ' with a result on the record' +
         ((buckets.limited || []).length
           ? ', ' + buckets.limited.length + ' stated but not testable yet' : '') +
+        (b.formal ? ', ' + b.formal + ' on the formal record with nothing stated to test' : '') +
         '. Tap any issue for its full record.';
       // WHICH SURFACE IS THE MAP. This index is the score's own working — the same
       // issues, filed by what the record did to them. The browse-all surface is the
@@ -2599,7 +2852,8 @@
 
       return '<div class="pdxwa-oc" id="' + esc(uid) + '">' +
           '<div class="pdxwa-oc-t">Issue by issue — did the record back the word?</div>' +
-          '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.') + '</div>' +
+          '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.' +
+            (b.formal ? ' The last bucket carries no verdict: those issues have a formal record and no documented word of theirs to test it against.' : '')) + '</div>' +
           '<div class="pdxwa-oc-seg" role="tablist" aria-label="Results by issue — pick a result">' + tabs + '</div>' +
           '<div class="pdxwa-oc-panels">' + panels + '</div>' +
           // FLAT MODE, KEPT AND DEMOTED. One bucket at a time is the reading order
@@ -3296,6 +3550,231 @@
     } catch (e) { return null; }
   }
 
+  // ── 🏛 THE SHAPE HERO ───────────────────────────────────────────────────────
+  // WHAT WAS WRONG. heroRead() above answers one question — did their words match
+  // their record — and it is a good question. It is not the only one, and on a
+  // large class of officeholders it is the one we cannot answer: a member with a
+  // wide roll-call record and a thin stance ledger has nothing quotable to test,
+  // so the ring failed closed to "—" under the caption "Monitoring". That is a
+  // true statement about our word ledger printed in the position a reader reads
+  // as a verdict on the person, at the top of a profile that holds sixty issues
+  // of formal record. Phase 1 stopped browse doing it. This stops the profile.
+  //
+  // WHAT LEADS INSTEAD. Not another number — the SHAPE of the formal record, in
+  // four facts the pattern engine already computed: how much is on file, the
+  // strongest characterised patterns, the issues that ran both ways, and how much
+  // is too thin to characterise. No mean of issue leans, no moral band, no grade.
+  // Every tier word and every count is the atlas's own, rendered by the atlas's
+  // own chip renderer, so the hero and the list below it cannot drift.
+  //
+  // WHAT HAPPENS TO DIRECTION MATCH. Nothing, except placement. Same read(), same
+  // floors, same percentage, same ring — one block down, at secondary size, under
+  // a heading that asks the question the metric actually answers. Where it cannot
+  // publish, it says WHICH HALF is missing rather than printing an em-dash that
+  // reads as "no record".
+  //
+  // THE GATE. Two constants, both on the formal index that Phase 1's recordDepth()
+  // already reads, so browse and the profile agree about what "deep record" means:
+  //
+  //   SHAPE_MIN       issues with formal inventory on file. The face atlas is
+  //                   useful as a LIST from 8 up (FACE_MIN in profiles-full.js);
+  //                   a summary of a shape needs more than a list does, because
+  //                   under about a dozen issues "tops / splits / thin" is three
+  //                   buckets holding one row each and the browse chip already
+  //                   said the only thing there was to say.
+  //   SHAPE_MIN_READ  of those, how many the pattern engine could actually read.
+  //                   Twelve issues of held instruments with no readable pattern
+  //                   is inventory, not a shape, and leading with it would be the
+  //                   same empty gesture in a new typeface.
+  //
+  // Below either bar, heroInner() is byte-for-byte what it was: candidates, new
+  // members and thin inventory keep the ring they had. Fail closed on top of
+  // that — no PDXConsistency, no formalPatternIndex, no shape() accessor, or any
+  // throw anywhere in the read, and the whole branch declines.
+  var SHAPE_MIN = 12;
+  var SHAPE_MIN_READ = 4;
+  // The face atlas's own anchor, so "see all N" lands on the list this summarises
+  // rather than on the overlay a reader has to open.
+  var SHAPE_JUMP = 'pdxsec-formalatlas';
+
+  function shapeRead(pid) {
+    try {
+      if (!pid) return null;
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (!FPI || typeof FPI.shape !== 'function') return null;
+      var sh = FPI.shape(pid);
+      if (!sh || sh.issues < SHAPE_MIN || sh.read < SHAPE_MIN_READ) return null;
+      return sh;
+    } catch (e) { return null; }
+  }
+  // Published so the profile builder can ask the question without rendering the
+  // answer twice — there is exactly one hero mount on a profile and this keeps it
+  // that way.
+  function shapeApplies(pid) { return !!shapeRead(pid); }
+
+  // ONE PIECE OF RING ARITHMETIC, TWO RINGS. The primary ring and the demoted one
+  // are different sizes and the same maths; a second copy of `pct / 100 * circ` is
+  // how two rings on one page end up drawing two different arcs for one figure.
+  function ringDash(pct, radius) {
+    var circ = 2 * Math.PI * radius;
+    return { circ: circ, dash: (pct === null ? 0 : pct / 100) * circ };
+  }
+
+  // ── DIRECTION MATCH, DEMOTED ────────────────────────────────────────────────
+  // Secondary size, secondary position, and a heading that is a question rather
+  // than a noun: "the score" is what this used to be called in the position it
+  // used to occupy, and it is not what the number means.
+  //
+  // THE MISSING-HALF RULE. This metric needs two things — something they said,
+  // and a formal record to test it against. Under the shape hero the second is
+  // never the problem, so an unpublishable read here is always the word ledger,
+  // and it says so. A naked "—" in this slot, under a block that just listed
+  // twenty-four issues of record, would read as "no record" about the one thing
+  // on the page that is demonstrably there.
+  function shapeMatchHtml(pid, p) {
+    var h = heroRead(pid, p);
+    var head = '<div class="pdxwa-shape-dm-hd">⚖️ Did their words match this record?</div>';
+    var gap = function (msg) {
+      return '<div class="pdxwa-shape-dm">' + head +
+        '<p class="pdxwa-shape-dm-gap">' + esc(msg) + '</p>' +
+        '<p class="pdxwa-shape-dm-note">' + esc(FRAME.label + ' tests documented positions against ' +
+          'the formal record. The record above is the half we hold.') + '</p>' +
+        '</div>';
+    };
+    if (!h) return gap('Direction Match is not available on this profile.');
+    var c = h.read.coverage;
+    if (c.warming) return gap('Still loading the roll-call record — the match cannot be read until it lands.');
+    if (!c.word) {
+      return gap('Nothing they have said is on file yet, so there is nothing to test against this ' +
+        'record. The missing half is their word, not their record.');
+    }
+    if (!c.scorable) {
+      // WHY, NOT JUST THAT. "Nothing said independently on file" is the hero
+      // sub-line's four-word version and it is opaque under a block that just
+      // listed two dozen issues of record. The coverage read already knows which
+      // of the two disqualifications applied, so it says so.
+      var bits = [];
+      if (c.recordDerived) {
+        bits.push(c.recordDerived + ' restate' + (c.recordDerived === 1 ? 's' : '') +
+          ' a formal action, which cannot test itself');
+      }
+      if (c.notIssueLinked) {
+        bits.push(c.notIssueLinked + ' ' + (c.notIssueLinked === 1 ? 'is' : 'are') +
+          ' not tied to an issue this record covers');
+      }
+      return gap('None of the ' + c.word + ' documented position' + (c.word === 1 ? '' : 's') +
+        ' we hold can be tested against this record' + (bits.length ? ' — ' + bits.join('; ') : '') + '.');
+    }
+    if (!c.tested) {
+      return gap(c.scorable + ' documented position' + (c.scorable === 1 ? '' : 's') + ' could be tested, ' +
+        'but nothing in the record has been matched against ' + (c.scorable === 1 ? 'it' : 'them') + ' yet.');
+    }
+    if (h.pct === null) {
+      return gap(c.tested + ' of the ' + h.read.floors.items + ' tested issues needed for a reading. ' +
+        'The record is deep enough; the word ledger is not yet.');
+    }
+    // Publishable: the same figure, the same colour, the same denominator caption
+    // the primary ring prints — drawn small.
+    var radius = 18, r = ringDash(h.pct, radius);
+    return '<div class="pdxwa-shape-dm">' + head +
+      '<button type="button" class="pdxwa-shape-dm-btn"' + jumpAttr('pdxsec-wordaction') +
+        ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric +
+          '. ' + h.sub + '. Open the full breakdown.') + '">' +
+        '<span class="pdxwa-shape-dm-ring">' +
+          '<svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true">' +
+            '<circle cx="26" cy="26" r="' + radius + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>' +
+            (r.dash > 0
+              ? '<circle cx="26" cy="26" r="' + radius + '" fill="none" stroke="' + h.color + '" stroke-width="5" ' +
+                'stroke-dasharray="' + r.dash.toFixed(1) + ' ' + r.circ.toFixed(1) + '" stroke-linecap="round"/>'
+              : '') +
+          '</svg>' +
+          '<span class="pdxwa-shape-dm-v" style="color:' + h.color + ';">' + esc(h.text) + '</span>' +
+        '</span>' +
+        '<span class="pdxwa-shape-dm-txt">' +
+          '<span class="pdxwa-shape-dm-lb">' + esc(FRAME.caption) + '</span>' +
+          '<span class="pdxwa-shape-dm-sub">' + esc(h.sub) + '</span>' +
+        '</span>' +
+      '</button>' +
+      '</div>';
+  }
+
+  // ── THE BLOCK ───────────────────────────────────────────────────────────────
+  // Depth, tops, splits, thin — in that order, because that is the order the
+  // claims get weaker in, and a reader who stops after two lines should have
+  // stopped on the two strongest facts rather than on the caveat.
+  function shapeRowHtml(x) {
+    return '<li class="pdxwa-shape-row">' +
+      '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>' +
+      (x.chip || '') +
+      '</li>';
+  }
+  function shapeHeroHtml(pid, p) {
+    try {
+      var sh = shapeRead(pid);
+      if (!sh) return '';
+      var FPI = window.PDXConsistency.formalPatternIndex;
+      var total = (typeof FPI.count === 'function') ? (FPI.count(pid) || sh.issues) : sh.issues;
+      // The lane wall, in the sentence every tier chip in the product already
+      // carries. Taken from the engine rather than typed here so the hero cannot
+      // become a second wording of the one rule that keeps these labels out of
+      // the score.
+      var wall = window._PDX_RD_TIER_NOTE || '';
+      var depth = '<b>' + sh.issues + '</b> issue' + (sh.issues === 1 ? '' : 's') + ' on the formal record' +
+        ' · <b>' + sh.judged + '</b> vote' + (sh.judged === 1 ? '' : 's') + ' and formal action' +
+          (sh.judged === 1 ? '' : 's') + ' read' +
+        ' · <b>' + sh.characterised + '</b> deep enough to characterise';
+      var tops = sh.tops.length
+        ? '<div class="pdxwa-shape-grp">' +
+            '<div class="pdxwa-shape-grp-h">Strongest patterns</div>' +
+            '<ul class="pdxwa-shape-list">' + sh.tops.map(shapeRowHtml).join('') + '</ul>' +
+            (sh.strongN > sh.tops.length
+              ? '<p class="pdxwa-shape-more">' + (sh.strongN - sh.tops.length) +
+                ' more one-sided pattern' + ((sh.strongN - sh.tops.length) === 1 ? '' : 's') +
+                ' in the full list.</p>' : '') +
+          '</div>'
+        // Fail closed rather than filling the slot: twelve issues of readable
+        // record and nothing one-sided enough to characterise is a finding, and
+        // it is not the same finding as "no record".
+        : '<div class="pdxwa-shape-grp"><div class="pdxwa-shape-grp-h">Strongest patterns</div>' +
+            '<p class="pdxwa-shape-none">No issue yet has a record one-sided enough to characterise.</p>' +
+          '</div>';
+      // NOT BURIED. The splits are the least flattering thing in the block and
+      // they get the same heading treatment as the tops, immediately after them,
+      // with their counts — not folded into the thin line at the bottom.
+      var splits = sh.splitN
+        ? '<div class="pdxwa-shape-grp">' +
+            '<div class="pdxwa-shape-grp-h">Ran both ways</div>' +
+            '<ul class="pdxwa-shape-list">' + sh.splits.map(shapeRowHtml).join('') + '</ul>' +
+            (sh.splitN > sh.splits.length
+              ? '<p class="pdxwa-shape-more">' + (sh.splitN - sh.splits.length) +
+                ' more split issue' + ((sh.splitN - sh.splits.length) === 1 ? '' : 's') +
+                ' in the full list.</p>' : '') +
+          '</div>'
+        : '';
+      // THE HONESTY VALVE, COUNTED OUT LOUD. Every issue the engine declined to
+      // characterise is in this number, and the number is printed whatever it is
+      // — including when it is most of the list.
+      var thin = sh.thinN
+        ? '<p class="pdxwa-shape-thin"><b>' + sh.thinN + '</b> more issue' + (sh.thinN === 1 ? '' : 's') +
+            ' ha' + (sh.thinN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
+            'characterise a pattern yet.</p>'
+        : '';
+      return '<div class="pdxwa-shape">' +
+          '<div class="pdxwa-shape-hd">' +
+            '<span aria-hidden="true">🏛</span> The formal record — what it looks like' +
+          '</div>' +
+          '<p class="pdxwa-shape-depth">' + depth + '</p>' +
+          tops + splits + thin +
+          '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
+            ' aria-label="' + esc('See all ' + total + ' issues on the formal record') + '">' +
+            'See all ' + total + ' issues on the record <span aria-hidden="true">↓</span>' +
+          '</button>' +
+          shapeMatchHtml(pid, p) +
+          (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
   // THE HERO PLEDGE CHIP IS GONE. It rendered "🤝 6 kept · 6 broken · 2 pending"
   // directly beneath the one percentage, in the header, above the fold — promise
   // counts as the second thing a reader met on the profile. Counts are not a
@@ -3308,6 +3787,13 @@
 
   function heroInner(pid, p, opts) {
     opts = opts || {};
+    // 🏛 SHAPE FIRST, WHERE THERE IS A SHAPE. Above the depth gate the lead is
+    // what the formal record looks like and Direction Match rides inside it, one
+    // block down at secondary size. Below the gate — candidates, new members,
+    // thin inventory — nothing here changes: shapeHeroHtml() returns '' and the
+    // rest of this function is the function it has always been, byte for byte.
+    var shaped = shapeHeroHtml(pid, p);
+    if (shaped) return shaped;
     var h = heroRead(pid, p);
     // No word on file at all: there is nothing to test, so there is no primary
     // number — not a zero, and never the pledge rate standing in for one. The
@@ -3328,8 +3814,7 @@
           '<div class="pdxwa-hero-cap">Monitoring</div>' +
         '</div>';
     }
-    var radius = 28, circ = 2 * Math.PI * radius;
-    var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
+    var radius = 28, _r = ringDash(h.pct, radius), circ = _r.circ, dash = _r.dash;
     return '' +
       '<button type="button" class="pdxwa-hero-jump"' + jumpAttr('pdxsec-wordaction') +
         ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric +
@@ -3360,10 +3845,26 @@
       if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
       try {
         var fresh = heroInner(pid, p, opts);
-        if (fresh) host.innerHTML = fresh;
+        // The shape gate reads the roll-call index, which is exactly what this
+        // event says has just arrived — so the COMMON case is a cold open that
+        // rendered the ring and a warm refresh that qualifies for the shape. The
+        // wrapper's modifier has to move with the content or the hero lays out
+        // as an 80px column with a letterhead stuffed into it.
+        if (fresh) { host.innerHTML = fresh; heroFlag(host, fresh); }
       } catch (e) {}
     };
     window.addEventListener('pdx-consistency-warm', handler);
+  }
+
+  // ONE MARKER, ONE PLACE. `is-shape` is what the stylesheet keys the full-width
+  // letterhead off, and it is set from the rendered markup rather than by asking
+  // the gate a second time — two independent answers to "is this the shape hero"
+  // is how a wrapper ends up disagreeing with its contents.
+  function heroFlag(host, inner) {
+    try {
+      if (!host || !host.classList) return;
+      host.classList.toggle('is-shape', inner.indexOf('class="pdxwa-shape"') !== -1);
+    } catch (e) {}
   }
 
   // Mountable hero: the stack markup plus its warm-refresh, so the ring turns
@@ -3376,7 +3877,8 @@
       var inner = heroInner(pid, p, opts);
       if (!inner) return '';
       try { setTimeout(function () { bindHero(uid, pid, p, opts); }, 0); } catch (e) {}
-      return '<div class="profile-score-stack pdxwa-hero" data-pdxwa-hero="' + uid + '">' + inner + '</div>';
+      var mod = (inner.indexOf('class="pdxwa-shape"') !== -1) ? ' is-shape' : '';
+      return '<div class="profile-score-stack pdxwa-hero' + mod + '" data-pdxwa-hero="' + uid + '">' + inner + '</div>';
     } catch (e) { return ''; }
   }
 
@@ -3457,7 +3959,15 @@
     // The All-Seeing Eye politician chip, in the buckets' own vocabulary. See
     // searchBadgeHTML(): one meaning — the strongest result in this politician's
     // issue index — so the chip and the profile can never name different things.
+    // Where there is no result to name because nothing of theirs was ever quotable,
+    // it falls through to recordBadgeHTML rather than to silence: the formal record
+    // is still a record, and browse is where that used to be denied.
     searchBadgeHTML: searchBadgeHTML,
+    // The formal-inventory fallback, published on its own so a surface that wants
+    // "how big is the formal record" can ask for exactly that without going through
+    // the result chip. Counts only — no percentage, no direction, no grade.
+    recordBadgeHTML: recordBadgeHTML,
+    recordDepth: recordDepth,
     // Pure reads — no DOM, no fetch, safe to call from anywhere.
     wordLedger: wordLedger,
     read: read,
@@ -3466,6 +3976,16 @@
     scopedRead: scopedRead,
     issueRead: issueRead,
     heroRead: heroRead,
+    // 🏛 The depth gate, published so tests and callers read the same two numbers
+    // the hero does rather than a copy of them.
+    SHAPE_MIN: SHAPE_MIN,
+    SHAPE_MIN_READ: SHAPE_MIN_READ,
+    shapeRead: shapeRead,
+    // Deliberately NOT a second hero mount. A profile has one hero; this only
+    // answers whether that hero is the shape, for chrome that has to get out of
+    // its way.
+    shapeApplies: shapeApplies,
+    shapeHtml: shapeHeroHtml,
     // 📏 THE DENOMINATOR, IN ONE VOCABULARY. Every surface that publishes the
     // engine's percentage prints the tested count beside it, and they all print it
     // in these words — a caption that reads "32 issues tested" here and "over 32"

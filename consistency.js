@@ -4301,7 +4301,11 @@
       (i === 1 ? ' on 1 issue' : ' across ' + i + ' issues');
     // One or two votes cannot carry a pattern. Saying so keeps the count from reading
     // as depth it does not have — the same honesty the row-level "Limited" chip owes.
-    if (v <= 2) txt += ' so far — still a thin record';
+    // The count is of records WE have mapped to an issue, so the caveat has to be
+    // about the mapping. "Still a thin record" over two mapped votes said their
+    // record was thin when the tip directly below it was busy listing the further
+    // records in the same list that carry no issue mapping yet.
+    if (v <= 2) txt += ' so far — not enough mapped yet to read a pattern';
     return txt;
   }
   function _orMappedSummaryTip(counts) {
@@ -5418,7 +5422,7 @@
   //
   //   scored     Direction Match already tested this issue from the FORMAL lane —
   //              so the slot prefers that verdict's own word (Backed up / Mixed /
-  //              Contradicted / Thin record) over a second vocabulary for the same
+  //              Contradicted / Not enough on file) over a second vocabulary for the same
   //              finding, and carries the percentage with it.
   //   direction  ≥1 formal item and a direction the display bar could read →
   //              _RD_TIERS' own label plus the count it was read from.
@@ -5855,7 +5859,7 @@
     var tok = v.token;
     var pubBasis = (v.basis === 'public_record');
     // ONE RESULT VOCABULARY. The word on this row is the word the issue index filed
-    // it under — Backed up, Mixed, Contradicted, Thin record — read from the module
+    // it under — Backed up, Mixed, Contradicted, Not enough on file — read from the module
     // that publishes those four, not restated here. The row used to print the engine's
     // long verdict label instead ("Backs it up" against the index's "Backed up"), which
     // is two names for one finding on one profile. Falls back to the engine label if
@@ -5982,13 +5986,13 @@
         lwhy = 'Not enough record to judge this one yet.';
       }
       return { state: 'thin', pct: null, metric: metric,
-               // THE WORD FOLLOWS THE SHAPE. "Thin record" is the issue index's name
-               // for a pile this row is not in — the index drops wordless rows before
+               // THE WORD FOLLOWS THE SHAPE. The index's coverage noun names a pile
+               // this row is not in — the index drops wordless rows before
                // bucketing — so _dosBucket returns nothing here and the row says what
                // is actually true of it instead: it is not scored. It is not a verdict,
                // it does not rank, and it is the one label on this face that is about
                // OUR coverage rather than their conduct. `part_judged` joins it for
-               // the same reason: "Thin record" over a row that has just printed
+               // the same reason: the index's coverage noun over a row that has just printed
                // fourteen votes and what they did is the false sentence this pass
                // exists to remove, and the word has to agree with the line under it.
                label: (lshape === 'no_stance' || lshape === 'part_judged') ? 'Not scored yet' : word,
@@ -7073,7 +7077,26 @@
   var _FPI_WALL = 'Every issue here is drawn from the formal record only — roll-call votes and ' +
     'formal actions on file. A pattern is what that record did; it is never treated as a ' +
     'stated position, and none of it enters Direction Match.';
-  function _fpiRowId(pid, key) { return 'pdxfpi-row-' + _stSlug(pid) + '-' + _stSlug(key); }
+  // ── ONE INDEX, MORE THAN ONE MOUNT ──────────────────────────────────────────
+  // The index now renders in two places on one politician: the profile face (the
+  // discovery surface) and the full-record overlay above it (the expanded view).
+  // Both can be in the DOM at the same time, so two things that used to be global
+  // are keyed on the mount instead:
+  //
+  //   · ROW IDS. Two elements cannot share one id, and the row id is what
+  //     `data-pdxst-origin` uses to send a reader back to the row they tapped. An
+  //     unkeyed id would have sent every overlay tap back to the face's copy of
+  //     the row, underneath the overlay.
+  //   · THE REMEMBERED FILTER. Filtering the overlay to "Pattern only" must not
+  //     silently re-filter the face behind it, and vice versa.
+  //
+  // The default mount keeps the exact id shape it had, so nothing that already
+  // addresses these rows has to learn a new one.
+  function _fpiMount(v) { var s = _stSlug(v || ''); return s || 'default'; }
+  function _fpiRowId(mount, pid, key) {
+    var m = _fpiMount(mount);
+    return 'pdxfpi-row-' + (m === 'default' ? '' : m + '-') + _stSlug(pid) + '-' + _stSlug(key);
+  }
 
   // ── THE ROWS ────────────────────────────────────────────────────────────────
   // Pure. Reads the shared row model and the shared pattern engine and derives
@@ -7135,6 +7158,75 @@
     return out;
   }
 
+  // ── 🏛 THE SHAPE OF THE RECORD, IN FOUR FACTS ───────────────────────────────
+  // The index above is the LIST. This is its summary, and it exists because a
+  // surface that has room for four lines cannot mount sixty rows — the profile
+  // hero, specifically, which used to lead a member with a wide roll-call record
+  // and no stance ledger with "— Monitoring".
+  //
+  // IT IS A SUMMARY, NOT A SECOND READING. Every field is a count or a slice of
+  // _fpiRows() — the same rows, in the same strongest-first order the atlas below
+  // renders them in, carrying the same chip from the same _stPatternHtml(). There
+  // is no mean of issue leans here, no rollup of tiers into a figure, and no
+  // ranking of this member against any other. Four buckets and their sizes:
+  //
+  //   tops    the strongest characterised patterns (strong / mostly)
+  //   splits  issues where the record ran both ways
+  //   thin    inventory the engine refused to characterise — the honesty valve,
+  //           counted out loud rather than dropped
+  //   depth   how much record all of that was read from
+  //
+  // WHY THERE IS NO PERCENTAGE IN IT. Anything of the form "18 of 24 issues are
+  // one-sided" is a number between 0 and 100 attached to a person's name, which
+  // is the definition of the second score this product retired. The bucket sizes
+  // are published; the division is not, here or anywhere downstream.
+  //
+  // AND WHY THERE IS NO "N OF M ISSUE KEYS" COVERAGE FIGURE EITHER. It was on the
+  // table and it is deliberately not here. The denominator would be every key in
+  // ISSUE_MAP — including the balance keys the pattern engine is *required* to
+  // refuse — so the honest reading of "20 of 118" is a fact about how much of the
+  // map has roll-call traffic, and the reading a person actually takes off a
+  // profile is that this official covers a sixth of the issues. That is the exact
+  // silence-means-absence framing this whole migration exists to undo, and no
+  // wording of the line survives being read fast.
+  var _FPI_TOPS_CAP = 4;
+  var _FPI_SPLITS_CAP = 3;
+  var _FPI_CHARACTERISED = { strong: 1, mostly: 1 };
+  // One row, flattened for a caller that wants to print it and nothing else. The
+  // chip is the atlas's own chip, rendered here rather than described, so the
+  // summary and the list cannot drift into two vocabularies for one tier.
+  function _fpiShapeRow(x) {
+    return {
+      key: x.key, label: x.label, tier: x.tier, tone: x.tone,
+      patLabel: x.patLabel, counts: x.counts, judged: x.judged,
+      said: !!x.said, chip: _stPatternHtml(x.row, x.pat)
+    };
+  }
+  function _fpiShape(pid) {
+    try {
+      if (!pid) return null;
+      ensureStyles();
+      var rows = _fpiRows(pid, { sort: 'strength' }) || [];
+      var out = {
+        issues: rows.length, read: 0, judged: 0,
+        characterised: 0, strongN: 0, splitN: 0, thinN: 0,
+        tops: [], splits: []
+      };
+      var tops = [], splits = [];
+      rows.forEach(function (x) {
+        if (x.read) out.read++;
+        out.judged += (x.judged || 0);
+        if (_FPI_CHARACTERISED[x.tier]) { out.strongN++; tops.push(x); }
+        else if (x.tier === 'split') { out.splitN++; splits.push(x); }
+        else out.thinN++;
+      });
+      out.characterised = out.strongN + out.splitN;
+      out.tops = tops.slice(0, _FPI_TOPS_CAP).map(_fpiShapeRow);
+      out.splits = splits.slice(0, _FPI_SPLITS_CAP).map(_fpiShapeRow);
+      return out;
+    } catch (e) { return null; }
+  }
+
   // ── THE FILTERS ─────────────────────────────────────────────────────────────
   // Six views, and the two that matter are `stated` and `pattern`: the curated
   // list's "Gaps only" folds an issue with a deep formal record and no stance card
@@ -7153,9 +7245,12 @@
   var _FPI_VIEW_ORDER = ['all', 'stated', 'pattern', 'supports', 'opposes', 'split'];
   // Session-level, deliberately: the surface it mounts in re-renders itself whole
   // on a sort change and on the warm repaint, and a reader's chosen filter
-  // surviving that is the difference between a control and a surprise.
-  var _fpiView = 'all';
+  // surviving that is the difference between a control and a surprise. Keyed by
+  // mount, so two live indexes on one politician remember two filters rather than
+  // fighting over one — see _fpiRowId above.
+  var _fpiView = {};
   function _fpiViewOf(v) { return (v && _FPI_VIEWS[v]) ? v : 'all'; }
+  function _fpiViewAt(mount) { return _fpiViewOf(_fpiView[_fpiMount(mount)]); }
 
   // ── ONE ROW ─────────────────────────────────────────────────────────────────
   // The issue name is the door, exactly as it is on a stance row: same delegated
@@ -7164,7 +7259,7 @@
   // The row carries its OWN id (never stanceRowId) because the stance section may
   // be on the page at the same time and two elements cannot share one id; the back
   // pill then returns the reader to the row they tapped inside this index.
-  function _fpiRowHtml(x) {
+  function _fpiRowHtml(x, mount) {
     var skin = _icSkin(x.key);
     // The pattern, then their word — the same reading order the row faces use, for
     // the same reason: the chip is the fact every row here has, and "Says: …" is
@@ -7175,13 +7270,13 @@
       ? (x.held + ' ' + (x.held === 1 ? x.noun.one : x.noun.many) + ' on file')
       : '';
     return '<div class="pdxfpi-row' + skin.cls + '" style="' + skin.style + '"' +
-        ' id="' + escAttr(_fpiRowId(x.pid, x.key)) + '"' +
+        ' id="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
         ' data-pdxfpi-issue="' + escAttr(x.key) + '"' +
         ' data-pdxfpi-tier="' + escAttr(x.tier) + '"' +
         ' data-pdxfpi-said="' + (x.said ? '1' : '0') + '">' +
         '<button type="button" class="pdxfpi-lbl pdxst-open"' +
           ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
-          ' data-pdxst-origin="' + escAttr(_fpiRowId(x.pid, x.key)) + '"' +
+          ' data-pdxst-origin="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
           ' aria-label="' + escAttr(_dosDoorLabel(x.label, null, x.stance)) + '">' +
           _icDot(skin) + esc(x.label) +
           '<span class="pdxfpi-go" aria-hidden="true">›</span>' +
@@ -7279,10 +7374,11 @@
     bindGateway();
     _fpiBind();
     var sort = (opts.sort === 'az') ? 'az' : 'strength';
+    var mount = _fpiMount(opts.mount);
     var all = _fpiRows(pid, { sort: sort });
     if (!all.length) return '';
-    if (opts.view) _fpiView = _fpiViewOf(opts.view);
-    var view = _fpiViewOf(_fpiView);
+    if (opts.view) _fpiView[mount] = _fpiViewOf(opts.view);
+    var view = _fpiViewAt(mount);
     var shown = all.filter(_FPI_VIEWS[view].test);
     // A filter with nothing behind it is a dead control, so a view is only offered
     // where it would change what is on screen — and `all` is always offered, so a
@@ -7323,6 +7419,7 @@
     var patternOnly = all.length - stated;
     var viewNote = (view === 'all') ? '' : ' · ' + _FPI_VIEWS[view].lb.toLowerCase();
     return '<div class="pdxfpi" data-pdxfpi-host="' + escAttr(pid) + '"' +
+        ' data-pdxfpi-mount="' + escAttr(mount) + '"' +
         ' data-pdxfpi-sort="' + escAttr(sort) + '" data-pdxfpi-view="' + escAttr(view) + '"' +
         ' aria-label="Every issue on the formal record">' +
         '<div class="pdxfpi-head">' +
@@ -7339,7 +7436,7 @@
         '<p class="pdxfpi-shown">Showing <b>' + shown.length + '</b> of ' + all.length +
           ' issue' + (all.length === 1 ? '' : 's') + ' on the formal record' + viewNote + '</p>' +
         '<div class="pdxfpi-list">' +
-          (shown.length ? shown.map(_fpiRowHtml).join('')
+          (shown.length ? shown.map(function (x) { return _fpiRowHtml(x, mount); }).join('')
             : '<p class="pdxfpi-none">No issue on the formal record matches this filter.</p>') +
         '</div>' +
         '<p class="pdxfpi-foot">' + esc(_FPI_WALL) + '</p>' +
@@ -7361,7 +7458,11 @@
       e.preventDefault();
       var pid = host.getAttribute('data-pdxfpi-host') || '';
       var sort = host.getAttribute('data-pdxfpi-sort') || 'strength';
-      var html = formalPatternIndexHtml(pid, { sort: sort, view: b.getAttribute('data-pdxfpi-set') || 'all' });
+      // The mount rides on the host, so a filter tap re-renders THAT index with
+      // THAT index's remembered state — the other one on the page is untouched.
+      var mount = host.getAttribute('data-pdxfpi-mount') || 'default';
+      var html = formalPatternIndexHtml(pid, { sort: sort, mount: mount,
+        view: b.getAttribute('data-pdxfpi-set') || 'all' });
       if (html) host.outerHTML = html;
     }, false);
   }
@@ -9579,7 +9680,7 @@
   // ── THE BUCKET THE INDEX FILED THIS ROW UNDER ───────────────────────────────
   // The issue index in ⚖️ Word vs Action sorts every issue into one of four result
   // buckets and names each one in a short, fixed vocabulary — Contradicted, Mixed,
-  // Backed up, Thin record. A reader who tapped a row got here from inside one of
+  // Backed up, Not enough on file. A reader who tapped a row got here from inside one of
   // those buckets, and this line is what tells them the sheet they landed on is the
   // same finding at greater depth rather than a different reading of it.
   //
@@ -9589,7 +9690,7 @@
   // no record, nothing stated — prints nothing either, because it was never in the
   // index to be filed anywhere. And neither was a row we hold instruments for and no
   // stated position of theirs: the index drops those before bucketing (see the
-  // `!r.stance.label` guard in outcomeBuckets), so calling one "Thin record" here
+  // `!r.stance.label` guard in outcomeBuckets), so filing one under the coverage noun here
   // borrowed a word from a pile it was never in, and hung it on a record whose only
   // defect is that WE have nothing of theirs to test it against. No percentage: the
   // bucket is a name, not a score.
@@ -10554,7 +10655,7 @@
       row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes or actions sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
       row('⚖️', 'Why the lanes stay separate', 'Formal actions and public statements answer different questions, so pooling them into one figure would hide more than it reveals. The formal record is what <b>tests</b> a stated position; the public record is what <b>surrounds</b> it. Both appear on the issue, labelled for what they are — but one issue gets <b>one verdict</b>, from one engine, on every surface it appears on.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
-      row('↔️', 'What the divergence labels mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Same story</b> — the two agree. <b>Some daylight</b> — mostly, with a gap. <b>Different stories</b> — they disagree. These deliberately avoid the words the issue index uses for a result (Backed up · Mixed · Contradicted · Thin record): those say whether the record backed what was <b>said</b>, which is a different question from whether the two records agree with <b>each other</b>. Neither of these is a score.') +
+      row('↔️', 'What the divergence labels mean', 'They compare the <b>two records</b> — formal and public — and nothing more. <b>Same story</b> — the two agree. <b>Some daylight</b> — mostly, with a gap. <b>Different stories</b> — they disagree. These deliberately avoid the words the issue index uses for a result (Backed up · Mixed · Contradicted · Not enough on file): those say whether the record backed what was <b>said</b>, which is a different question from whether the two records agree with <b>each other</b>. Neither of these is a score.') +
       // The procedural down-weight is a real scoring decision a reader can check
       // us on, so it belongs in the methodology sheet rather than only in a
       // tooltip on the card that happens to carry the tag.
@@ -10735,14 +10836,26 @@
     // 🏛 THE FULL FORMAL-PATTERN ISSUE INDEX. `rows` is the list — one entry per
     // issue with a pattern read or formal instruments on file, sorted strongest
     // first — and `html` is the mounted surface with its own filters. `count` is
-    // what the Full Stance Record's CTA promises, so the button and the list it
-    // opens cannot disagree about how many issues there are. Presentation only:
+    // what the Full Record on the Issues CTA promises, so the button and the list
+    // it opens cannot disagree about how many issues there are. Presentation only:
     // every field on a row is read off the shared row model or the shared pattern
     // engine, nothing here writes to a position map, and no scoring path reads it.
+    //
+    // `opts.mount` names the instance. Two of them are live on one politician now
+    // — the profile face and the overlay above it — and the key is what keeps
+    // their row ids distinct and their remembered filters separate. Omit it and
+    // you get the original single 'default' instance, ids and all.
     formalPatternIndex: {
       rows: _fpiRows,
       html: formalPatternIndexHtml,
       count: function (pid) { try { return _fpiRows(pid).length; } catch (e) { return 0; } },
+      // The four-fact summary of the same rows — depth, tops, splits, thin —
+      // for a surface with room for four lines instead of sixty. Counts and
+      // slices only; see the long note over _fpiShape for why there is no
+      // percentage in it and why there cannot be one.
+      shape: _fpiShape,
+      TOPS_CAP: _FPI_TOPS_CAP,
+      SPLITS_CAP: _FPI_SPLITS_CAP,
       VIEWS: _FPI_VIEW_ORDER,
       WALL: _FPI_WALL
     },

@@ -611,7 +611,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   const railRec = PROFILES.indexOf("target: 'pdxsec-official-record'");
   ok(railWA !== -1 && railRec !== -1 && railWA < railRec,
     'the rail lists the record ahead of the primary read');
-  ok(/Checking…|Thin record|Untested/.test(PROFILES),
+  ok(/Checking…|Not enough on file|Untested/.test(PROFILES),
     'the rail pill shows a bare number even when the read has failed closed — the honest state\n' +
     '    has to reach the rail too, or a blank section sits behind a confident pill');
 }
@@ -1216,15 +1216,15 @@ const voteNarration = (issueKey, extra = {}) => ({
   // whole claim of the switcher: the SHAPE of the record is on the face whether or
   // not anything is opened.
   const tabs = ocIdx.match(/data-pdxwa-seg="([a-z_]+)"/g) || [];
-  eq(tabs.length, 4, 'the bucket switcher does not offer one chip per live bucket');
-  for (const t of ['contradicts', 'mixed', 'consistent', 'limited']) {
+  eq(tabs.length, 5, 'the bucket switcher does not offer one chip per live bucket');
+  for (const t of ['contradicts', 'mixed', 'consistent', 'limited', 'record']) {
     ok(ocIdx.includes(`data-pdxwa-seg="${t}"`), `the switcher has no chip for the "${t}" bucket`);
   }
-  for (const s of ['Contradicted', 'Mixed', 'Backed up', 'Thin record']) {
+  for (const s of ['Contradicted', 'Mixed', 'Backed up', 'Not enough on file', 'Record only']) {
     ok(ocIdx.includes(s), `the switcher does not print the short bucket name "${s}"`);
   }
-  eq((ocIdx.match(/data-pdxwa-oc-panel="/g) || []).length, 4,
-    'the four buckets are not four distinct panels — one combined stack is what this replaced');
+  eq((ocIdx.match(/data-pdxwa-oc-panel="/g) || []).length, 5,
+    'the five buckets are not five distinct panels — one combined stack is what this replaced');
   // Exactly one selected, and it is the sharpest live bucket, never the coverage pile.
   eq((ocIdx.match(/aria-selected="true"/g) || []).length, 1,
     'the switcher has no single selected bucket, or has more than one');

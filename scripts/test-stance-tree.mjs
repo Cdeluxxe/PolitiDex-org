@@ -350,7 +350,7 @@ section("2 · leaf states — said and record, side by side");
   // Every rung of the vocabulary the fixture reaches is a shared engine's own
   // word: the pattern index's where the slot DESCRIBES a record, Direction
   // Match's where it REPORTS a score. Nothing is paraphrased here.
-  const SCORE_WORDS = ["Contradicted", "Mixed", "Backed up", "Thin record"];
+  const SCORE_WORDS = ["Contradicted", "Mixed", "Backed up", "Not enough on file"];
   const WA_SRC = R("word-action.js");
   SCORE_WORDS.forEach((w) =>
     has(WA_SRC, "short: '" + w + "'", `${w} is Direction Match's own short word, not the tree's`));

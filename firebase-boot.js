@@ -237,9 +237,11 @@
       }
       window._pdxFullIds.add(id);
       delete window._pdxFullPending[id];
-      // Newly arrived depth invalidates memoized search text & accountability.
+      // Newly arrived depth invalidates the memoized search text. It used to
+      // invalidate window._acctMatchCacheBust too — the memo behind the retired
+      // Accountability of Truth composite, which ranked the browse roster. That
+      // memo and its buster are gone; see alignment-tool.js.
       if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache();
-      if (typeof window._acctMatchCacheBust === 'function') window._acctMatchCacheBust(id);
       // …and every derived read of this profile. One of the two places the data
       // under the scoring lanes can actually change; see THE DERIVATION EPOCH in
       // stance-helpers.js. Bumped even when the doc did not exist, because

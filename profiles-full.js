@@ -2275,7 +2275,7 @@
       var thinRecord = !s.tracked;
       // Thin profiles still get the button — the label simply tells the honest
       // truth that the record is in progress (and the overlay shows the gaps).
-      var title = thinRecord ? 'View Full Record — still being built' : 'View Full Stance Record';
+      var title = thinRecord ? 'View Full Record — still being built' : 'View the Full Record on the Issues';
       // TWO NUMBERS, EACH NAMED FOR THE LIST IT COUNTS. The formal one leads where
       // it is larger — it is the reason this button is worth pressing on an
       // officeholder — and the curated one follows, so neither is mistaken for the
@@ -2290,7 +2290,7 @@
       return '<div class="modal-section pdx-fsr-wrap">' +
           '<button type="button" class="pdx-fsr-btn" ' +
             'onclick="window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
-            'aria-label="Open the full stance record — every issue, its evidence depth, and what is still missing">' +
+            'aria-label="Open the full record on the issues — every issue the formal record touched, the documented positions beside it, and what is still missing">' +
             '<span class="pdx-fsr-ico" aria-hidden="true">📋</span>' +
             '<span class="pdx-fsr-main">' +
               '<span class="pdx-fsr-kicker">The complete picture</span>' +
@@ -2689,10 +2689,10 @@
         '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
     }
 
-    return '<div class="fsrec" role="dialog" aria-modal="true" aria-label="Full stance record for ' + esc(name) + '" onclick="event.stopPropagation();">' +
+    return '<div class="fsrec" role="dialog" aria-modal="true" aria-label="Full record on the issues for ' + esc(name) + '" onclick="event.stopPropagation();">' +
         '<div class="fsrec-head">' +
           '<div class="fsrec-headwrap">' +
-            '<div class="fsrec-eyebrow">📑 Full Stance Record</div>' +
+            '<div class="fsrec-eyebrow">📑 Full Record on the Issues</div>' +
             '<div class="fsrec-title">' + esc(name) + '</div>' +
             (p.office ? '<div class="fsrec-office">' + esc(p.office) + '</div>' : '') +
             headLocker +
@@ -2879,7 +2879,7 @@
       } else if (isChallenger) {
         lede = first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so <strong>there is no formal record yet to test their word against</strong> — and that\'s expected this early. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding votes and sources as the race develops.';
       } else {
-        lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — a thin record here is normal at this stage. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
+        lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — having little on file to test this early is normal. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
       }
 
       // ── THE AT-A-GLANCE FACTS ROW IS RETIRED ──────────────────────────
@@ -3136,89 +3136,34 @@
   };
 
 
-  // The People's Mandate Alignment — a scorecard of core good-government
-  // principles, derived from the Promise %, Accountability score and funding
-  // signals PolitiDex already tracks (curated overrides supported).
+  // ── Follow the Money — the campaign-finance funding lens ──────────────────
+  // Historically "The People's Mandate Alignment": a four-tile scorecard of
+  // good-government principles (Keeps Promises / Accountability / Transparency /
+  // Constituents Over Special Interests), each printed as an N/100 with a filled
+  // bar, plus an averaged `overall` across the rated tiles.
+  //
+  // Two of those tiles were the retired Accountability of Truth composite — one
+  // read `accountability.overallScore` straight, the other pulled a category
+  // score out of the same analysis object — and the average on top of them was a
+  // second overall percentage about a person, built from a grade PolitiDex no
+  // longer publishes. An earlier pass stopped the scorecard rendering but left
+  // the whole computation in place, unused, "to keep the diff minimal". A dormant
+  // grade with a live accessor is how a retired score comes back, so this pass
+  // deletes the computation as well as the markup: the principle list, the
+  // per-category lookup into the composite, the 0-100 colour ramp, the rows and
+  // the averaged overall are all gone.
+  //
+  // What renders is what was never a grade — the Constituents-First funding
+  // signal, computed live from itemized FEC and Utah disclosure filings, and
+  // deliberately framed as a money lens rather than a record score. Nothing shows
+  // when there is no filing. MANDATE_OVERRIDES and the curated FINANCE_INTEGRITY
+  // seed remain as data; no display path reads them any more.
+  // See scripts/test-acct-not-ranked.mjs.
   window._renderMandateAlignment = function(id, p) {
     p = p || {};
-    var ov = MANDATE_OVERRIDES[id] || {};
-    var acct = (p.accountability && typeof p.accountability.overallScore === 'number') ? p.accountability : null;
-    // Honesty gate: only let the Accountability of Truth Score feed this
-    // scorecard when there's enough verified record to stand behind it. On very
-    // thin profiles the row falls back to "Monitoring" instead of showing a
-    // precise number we can't explain. Curated overrides always win.
-    var acctShowable = !!acct && ((typeof window._pdxScoreExplainable !== 'function') || window._pdxScoreExplainable(p, id));
-    function acctCat(re) {
-      if (!acctShowable || !acct.categories) return null;
-      for (var i = 0; i < acct.categories.length; i++) {
-        if (re.test(acct.categories[i].label || '')) return acct.categories[i].score;
-      }
-      return null;
-    }
-    // The 'Keeps Promises' principle below publishes this as a percentage, so it
-    // has to obey the same display guard as every other pledge surface — reading
-    // `p.score` raw here is how the mandate block ended up asserting a rate that
-    // the pledge lane on the same profile refuses to print. The principles list
-    // filters out null scores, so a withheld figure simply drops its row rather
-    // than showing a zero. An explicit admin override (`ov.promises`, applied at
-    // the pick() below) still wins: that is a human deliberately publishing a
-    // number.
-    var promiseScore = (typeof window._pdxDisplayScore === 'function')
-      ? window._pdxDisplayScore(p)
-      : ((typeof p.score === 'number') ? p.score : null);
-    if (promiseScore === undefined) promiseScore = null;
-    // Prefer the live, transparent Constituents-First finance signal (computed
-    // from itemized FEC / Utah-disclosure buckets, with its reasons shown below);
-    // fall back to the curated FINANCE_INTEGRITY seed for anyone without a filing.
+    // Live, transparent Constituents-First finance signal (computed from itemized
+    // FEC / Utah-disclosure buckets, with its reasons shown below).
     var finSig = (typeof window._pdxFinanceSignal === 'function') ? window._pdxFinanceSignal(id) : null;
-    var integ = finSig ? finSig.score : ((typeof FINANCE_INTEGRITY[id] === 'number') ? FINANCE_INTEGRITY[id] : null);
-    var pick = function() {
-      for (var i = 0; i < arguments.length; i++) {
-        var v = arguments[i];
-        if (typeof v === 'number' && !isNaN(v)) return Math.round(v);
-      }
-      return null;
-    };
-    var principles = [
-      { label:'Keeps Promises', icon:'🤝',
-        score: pick(ov.promises, promiseScore),
-        desc:'Tracked campaign promises kept versus broken — counts on file, no rate published.' },
-      { label:'Accountability', icon:'🛡️',
-        score: pick(ov.accountability, acctShowable ? acct.overallScore : null, acctCat(/account/i)),
-        desc:'Independent Accountability of Truth score for honesty and consistency.' },
-      { label:'Transparency', icon:'🔍',
-        score: pick(ov.transparency, acctCat(/transparen/i), integ),
-        desc:'Openness about finances, votes and decisions — seeded by the campaign-finance Constituents-First signal below.' },
-      { label:'Constituents Over Special Interests', icon:'🏛️',
-        score: pick(ov.constituents, integ, acctCat(/integrity|independ|interest/i)),
-        desc: finSig
-          ? ('Funded ' + finSig.shares.smallDollar + '% by small-dollar donors vs ' + finSig.shares.concentrated + '% large-individual & PAC money — see the transparent breakdown below.')
-          : 'How much funding and action favor everyday constituents over corporate and PAC money.' }
-    ];
-    var mcol = function(s) { return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171'; };
-    var rated = principles.filter(function(pr) { return pr.score !== null; });
-    var overall = rated.length ? Math.round(rated.reduce(function(a, pr) { return a + pr.score; }, 0) / rated.length) : null;
-    var rows = principles.map(function(pr) {
-      var has = pr.score !== null;
-      var col = has ? mcol(pr.score) : '#5b7196';
-      var valTxt = has ? pr.score + '<span style="font-size:0.65rem;color:#7596c0;">/100</span>' : '<span style="font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;">Monitoring</span>';
-      return '<div class="mandate-row">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.3rem;">' +
-          '<span style="display:flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.02em;color:#cbd9ec;"><span style="font-size:0.85rem;">' + pr.icon + '</span>' + pr.label + '</span>' +
-          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;color:' + col + ';line-height:1;">' + valTxt + '</span>' +
-        '</div>' +
-        '<div class="mandate-track"><div class="mandate-fill" style="width:' + (has ? pr.score : 0) + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></div>' +
-        '<p style="font-size:0.66rem;color:#7596c0;line-height:1.45;margin:0.28rem 0 0;">' + pr.desc + '</p>' +
-      '</div>';
-    }).join('');
-    // SCORING CLEANUP: the 4-tile People's Mandate scorecard (Keeps Promises /
-    // Accountability / Transparency / Constituents) re-presented signals shown
-    // elsewhere — the promise receipts have their own section, the retired Accountability
-    // composite is gone, and the finance tiles duplicated the money lens. This
-    // section now renders ONLY the Follow-the-Money / Constituents-First funding
-    // lens, kept deliberately separate from the record scores. The scorecard
-    // computations above are left intact (unused) to keep the diff minimal; they
-    // no longer render. When there's no finance signal, nothing shows.
     if (!finSig) return '';
     return '<div class="modal-section" id="alignment-modal-section">' +
       '<div class="modal-section-title">💰 Follow the Money</div>' +
@@ -3727,7 +3672,7 @@
           var waWarm = !!wa.coverage.warming;
           out.wordaction = {
             value: (wa.pct !== null) ? (wa.pct + '%')
-              : (waWarm ? _NAV_PEND : (wa.coverage.tested ? 'Thin record' : 'Untested')),
+              : (waWarm ? _NAV_PEND : (wa.coverage.tested ? 'Not enough on file' : 'Untested')),
             color: (wa.verdict && wa.verdict.color) || '#9fb4d4',
             pending: waWarm,
             note: 'Direction Match, tested on ' + (wa.coverage.tested || 0) + ' of ' +
@@ -4712,7 +4657,7 @@
               // scroll-spy cleanly ignores it and it never steals the active state.
               if (n.action === 'stance') {
                 return '<button type="button" class="pdx-pnav-pill pdx-pnav-action" ' +
-                  'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + ' — opens the full stance record" ' +
+                  'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + ' — opens the full record on the issues" ' +
                   'onclick="window._pdxOpenStanceRecord && window._pdxOpenStanceRecord(\'' + n.stanceId + '\')">' +
                   '<span class="pdx-pnav-ico" aria-hidden="true">' + n.icon + '</span>' +
                   '<span class="pdx-pnav-txt">' +
@@ -4943,6 +4888,59 @@
            lanes on each row and the dossier entry from those rows are one
            renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
+
+      <!-- 🏛 EVERY ISSUE ON THE FORMAL RECORD — the formal atlas, on the face.
+           WHAT IT IS. PDXConsistency.formalPatternIndex: one row per issue this
+           person's formal record actually touched, each carrying the same 🏛 Record
+           pattern chip the row faces carry, the same counts, and the same door into
+           the same issue dossier. Nothing here is new information and nothing here
+           is new arithmetic — it is the shared row model, filtered to the formal
+           lane, sorted by how much the record said.
+
+           WHY IT MOVED. It has existed for a while and it rendered in exactly one
+           place: inside the full-record overlay, behind a button. So the longer and
+           more complete answer to "where does this person actually sit" was one tap
+           down and behind a control named after stances, while the face carried the
+           surfaces that need a stated position before they can say anything. On a
+           senator that is seven issues in front and sixty-four behind the button.
+           This is the same list, on the face, as the discovery surface. The overlay
+           keeps it as the expanded view.
+
+           IT DOES NOT COMPETE WITH THE SCORE ABOVE IT. No percentage — the engine
+           publishes tiers and counts and refuses to return a ratio (see
+           _recordDirectionIndex in stance-helpers.js), so there is no second formal
+           number on this page and scripts/test-no-second-score.mjs still holds.
+           ⚖️ Word vs Action is unchanged, keeps its ring and keeps its position
+           above this. A pattern read here is never a stated position and never
+           enters Direction Match; the index prints that wall at its own foot.
+
+           THE DEPTH GATE. Below FACE_MIN issues the atlas is a third short list
+           behind two surfaces that already showed the same rows, so it does not
+           mount — the overlay still has it, and the CTA still counts it. -->
+      ${(function () {
+        try {
+          var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+          if (!FPI || typeof FPI.html !== 'function') return '';
+          // A SIMPLE DEPTH GATE, AND IT COUNTS ISSUES RATHER THAN ITEMS. The point
+          // of this surface is breadth — that the formal record reaches further
+          // than the written-up positions do — and a member with a handful of
+          // issues on file has no breadth to show that the tree below is not
+          // already showing.
+          var FACE_MIN = 8;
+          var n = (typeof FPI.count === 'function') ? (FPI.count(id) || 0) : 0;
+          if (n < FACE_MIN) return '';
+          // `mount` names this instance. The overlay renders the same index for the
+          // same person, and both can be in the DOM at once — the key is what keeps
+          // their row ids distinct and stops a filter tap in one from re-filtering
+          // the other. Strongest-first here always: the face has no Sort control of
+          // its own, and the overlay owns that state.
+          var html = FPI.html(id, { sort: 'strength', mount: 'face' }) || '';
+          if (!html) return '';
+          // Anchored: the shape hero's "see all N issues on the record" jumps
+          // here, to the list on the face, rather than opening the overlay.
+          return '<div id="pdxsec-formalatlas" class="modal-section pdxfpi-face">' + html + '</div>';
+        } catch (e) { return ''; }
+      })()}
 
       <!-- THE LIMITED-RECORD CARD USED TO MOUNT HERE, between ⚖️ Word vs Action
            and the tree. It is gated on _isThinProfile, which means it fires only

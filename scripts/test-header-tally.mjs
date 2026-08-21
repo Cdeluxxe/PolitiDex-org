@@ -186,9 +186,14 @@ ctx.PDXVotingRecord._records[PID] = [
 ];
 ctx.PDXVotingRecord._records[THIN] = [];
 
-// The row model, stubbed, so all four buckets exist at once on one profile —
-// which no single real seed produces and which is exactly the case the four
-// counts are for. `pub` is the shipped per-row public shape, not an invention.
+// The row model, stubbed, so every bucket exists at once on one profile — which
+// no single real seed produces and which is exactly the case the counts are for.
+// `pub` is the shipped per-row public shape, not an invention.
+//
+// FOUR OF THE FIVE ROWS CARRY A STATED POSITION. The fifth does not, and it is
+// the Phase 4 case: a wordless row with a formal record behind it, which used to
+// be dropped from the bucketing entirely and left the letterhead counting four
+// issues on a profile whose atlas counted five.
 const stubRow = (key, label, token, pub) => ({
   pid: PID, key, label, tier: 1, category: "econ", categoryLabel: "Economy",
   stance: { key, label: "Said a thing", direction: "support", text: "said a thing", source: "" },
@@ -205,18 +210,32 @@ const ROWS = [
   stubRow("healthcare", "Health Care", "mixed"),
   stubRow("border_security", "Border Security", "consistent"),
   stubRow("guns", "Gun Rights", "limited"),
+  // No stance, a 'limited' verdict, and an issue the formal index holds — the
+  // three conditions that put a row in the record-only pile.
+  { ...stubRow("energy", "Energy", "limited"), stance: { key: "energy", label: "", direction: "", text: "", source: "" } },
 ];
+// outcomeBuckets admits a wordless row only if PDXConsistency.formalPatternIndex
+// says the formal record actually touches that issue — the atlas's own predicate,
+// asked rather than copied. The stub row model above has no roll calls behind it,
+// so the index is stubbed to agree with it for the length of each render.
+const realFpiRows = C.formalPatternIndex.rows;
+const withFormal = (keys, fn) => {
+  C.formalPatternIndex.rows = () => keys.map((k) => ({ key: k }));
+  try { return fn(); } finally { C.formalPatternIndex.rows = realFpiRows; }
+};
 const realRows = C.issueRows, realRank = C.rankIssueRows;
 const withRows = (rows, fn) => {
   C.issueRows = (p) => (p === PID || p === QUIET ? rows : []);
   C.rankIssueRows = (rs) => rs;
-  try { return fn(); } finally { C.issueRows = realRows; C.rankIssueRows = realRank; }
+  try {
+    return withFormal(rows.map((r) => r.key), fn);
+  } finally { C.issueRows = realRows; C.rankIssueRows = realRank; }
 };
 
 const HTALLY = withRows(ROWS, () => WA.headerTallyHtml(PID));
 const HMOUNT = withRows(ROWS, () => WA.headerTallyMount(PID));
 const SECTION = withRows(ROWS, () => WA.headlineHtml(PID, ctx.PROFILES[PID]));
-must(HTALLY && HTALLY.length > 200, "the header tally rendered nothing on a four-bucket profile");
+must(HTALLY && HTALLY.length > 200, "the header tally rendered nothing on an all-buckets profile");
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 1. It mounts, and the mount survives a cold record
@@ -234,20 +253,24 @@ has(COLD, 'class="pdxwa-htally-host"', "floor: no host at all on a profile with 
 ok(/data-pdxwa-htally="[^"]+"><\/div>$/.test(COLD.trim()),
   `floor: the host is not empty below the floor — four grey zeroes under a letterhead read as findings\n    (${JSON.stringify(COLD)})`);
 eq(WA.headerTallyHtml(THIN), "", "floor: a profile below the two-issue floor still renders a tally");
-for (const word of ["Contradicted", "Mixed", "Backed up", "Thin record", "pdxwa-tally-b"]) {
+for (const word of ["Contradicted", "Mixed", "Backed up", "Not enough on file", "Record only", "pdxwa-tally-b"]) {
   hasnt(COLD, word, `floor: the empty host still carries "${word}" — that is a shape the engine has not measured`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 2. Four controls, four buckets, zeros printed
+// 2. One control per bucket, zeros printed
 // ═════════════════════════════════════════════════════════════════════════════
-eq((HTALLY.match(/data-pdxwa-seg="/g) || []).length, 4,
-  "controls: the header does not offer exactly four buckets");
-eq((HTALLY.match(/<button /g) || []).length, 4,
+// Counted against the published vocabulary rather than a literal, so adding a
+// bucket without giving it a door is a failure and not a silent omission.
+const NB = WA.OUTCOMES.length;
+eq((HTALLY.match(/data-pdxwa-seg="/g) || []).length, NB,
+  "controls: the header does not offer exactly one control per published bucket");
+eq((HTALLY.match(/<button /g) || []).length, NB,
   "controls: a count is not a button — the tally is a navigator, and a caption that looks like one is worse\n" +
   "    than a caption that does not");
 for (const [tok, short] of [["contradicts", "Contradicted"], ["mixed", "Mixed"],
-                            ["consistent", "Backed up"], ["limited", "Thin record"]]) {
+                            ["consistent", "Backed up"], ["limited", "Not enough on file"],
+                            ["record", "Record only"]]) {
   has(HTALLY, `data-pdxwa-seg="${tok}"`, `controls: the "${short}" bucket has no control in the header`);
   has(HTALLY, `>${short}<`, `controls: the header does not use the index's own word for "${tok}" — two vocabularies\n` +
     `    for one bucket is how a header and the list it opens stop being about the same thing`);
@@ -260,7 +283,7 @@ hasnt(HTALLY, "Avoided", "controls: the thin bucket is editorialised in the lett
 // Zero is printed, not dropped: "nothing contradicted" is a finding.
 const ZEROS = withRows([ROWS[2], stubRow("healthcare", "Health Care", "consistent")],
   () => WA.headerTallyHtml(PID));
-eq((ZEROS.match(/data-pdxwa-seg="/g) || []).length, 4,
+eq((ZEROS.match(/data-pdxwa-seg="/g) || []).length, NB,
   "controls: an empty bucket is dropped from the header — a reader cannot tell 0 contradicted from\n" +
   "    a bucket the engine does not have");
 has(ZEROS, '<span class="pdxwa-tally-n">0</span>', "controls: an empty bucket prints no zero");
@@ -290,11 +313,13 @@ const countsOf = (html) => {
 };
 const headCounts = countsOf(HTALLY);
 const cardCounts = countsOf(SECTION);
-eq(Object.keys(headCounts).length, 4, "parity: the header's four counts could not be read back");
+eq(Object.keys(headCounts).length, NB, "parity: the header's counts could not all be read back");
 eq(JSON.stringify(headCounts), JSON.stringify(cardCounts),
   "parity: the letterhead tally and the in-card tally print different integers for the same profile");
-eq(JSON.stringify(headCounts), JSON.stringify({ contradicts: 1, mixed: 1, consistent: 1, limited: 1 }),
-  "parity: the four counts are not the four rows the row model handed over");
+eq(JSON.stringify(headCounts),
+   JSON.stringify({ contradicts: 1, mixed: 1, consistent: 1, limited: 1, record: 1 }),
+  "parity: the counts are not the rows the row model handed over — in particular the wordless row\n" +
+  "    is either missing (the Phase 4 drop is back) or filed under a word-test bucket");
 // …and the graph the card draws is bucketed off the same object.
 const segs = (SECTION.match(/data-pdxwa-seg="([a-z]+)"/g) || []).map((s) => s.slice(16, -1));
 for (const tok of Object.keys(headCounts)) {
@@ -306,12 +331,12 @@ for (const tok of Object.keys(headCounts)) {
 // ═════════════════════════════════════════════════════════════════════════════
 const uid = (HTALLY.match(/data-pdxwa-seg-uid="([^"]+)"/) || [])[1] || "";
 must(uid.length > 0, "the header controls declare no index namespace");
-eq((HTALLY.match(/data-pdxwa-seg-uid="/g) || []).length, 4,
+eq((HTALLY.match(/data-pdxwa-seg-uid="/g) || []).length, NB,
   "wiring: not every header count names the index it addresses");
-eq((HTALLY.match(/data-pdxwa-gate="header"/g) || []).length, 4,
+eq((HTALLY.match(/data-pdxwa-gate="header"/g) || []).length, NB,
   "wiring: a header count is not gated — the gate is what tells the switcher this control sits outside the\n" +
   "    fold, so its target may still be shut or stashed");
-eq((HTALLY.match(new RegExp('data-pdxwa-outside="' + uid + '"', "g")) || []).length, 4,
+eq((HTALLY.match(new RegExp('data-pdxwa-outside="' + uid + '"', "g")) || []).length, NB,
   "wiring: a header count does not declare itself outside the section, so the switcher cannot resolve its\n" +
   "    index by walking up and cannot move it back on a repaint");
 has(SECTION, `id="${uid}"`, "wiring: the index the header addresses carries no id of that name");
