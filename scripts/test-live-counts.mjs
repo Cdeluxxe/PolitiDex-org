@@ -204,7 +204,7 @@ section("1 · the chips are live, and they match the section they jump to");
   if (wa && wa.pct !== null) {
     eq(chips.wordaction.value, wa.pct + "%", "…and prints Direction Match's own percentage");
   } else {
-    ok(/Checking|Thin record|Untested/.test(chips.wordaction.value),
+    ok(/Checking|Not enough on file|Untested/.test(chips.wordaction.value),
       "…and where there is no percentage it prints the engine's own honest state");
   }
   has(chips.wordaction.note, "Direction Match", "…with the metric named in its accessible note");
@@ -280,7 +280,7 @@ section("2 · one formal item is already a record — for display only");
   if (rc.scored) {
     eq(typeof rc.pct, "number", "…a scored one-item row carries the score's own percentage");
     eq(rc.metric, "Direction match", "…named as Direction Match");
-    ok(["Contradicted", "Mixed", "Backed up", "Thin record"].indexOf(rc.label) !== -1,
+    ok(["Contradicted", "Mixed", "Backed up", "Not enough on file"].indexOf(rc.label) !== -1,
       `…and the score's own word for it (got ${JSON.stringify(rc.label)})`);
   } else {
     eq(rc.pct, null, "…an unscored one-item row carries no percentage");

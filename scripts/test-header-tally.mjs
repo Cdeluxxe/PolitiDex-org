@@ -234,7 +234,7 @@ has(COLD, 'class="pdxwa-htally-host"', "floor: no host at all on a profile with 
 ok(/data-pdxwa-htally="[^"]+"><\/div>$/.test(COLD.trim()),
   `floor: the host is not empty below the floor — four grey zeroes under a letterhead read as findings\n    (${JSON.stringify(COLD)})`);
 eq(WA.headerTallyHtml(THIN), "", "floor: a profile below the two-issue floor still renders a tally");
-for (const word of ["Contradicted", "Mixed", "Backed up", "Thin record", "pdxwa-tally-b"]) {
+for (const word of ["Contradicted", "Mixed", "Backed up", "Not enough on file", "pdxwa-tally-b"]) {
   hasnt(COLD, word, `floor: the empty host still carries "${word}" — that is a shape the engine has not measured`);
 }
 
@@ -247,7 +247,7 @@ eq((HTALLY.match(/<button /g) || []).length, 4,
   "controls: a count is not a button — the tally is a navigator, and a caption that looks like one is worse\n" +
   "    than a caption that does not");
 for (const [tok, short] of [["contradicts", "Contradicted"], ["mixed", "Mixed"],
-                            ["consistent", "Backed up"], ["limited", "Thin record"]]) {
+                            ["consistent", "Backed up"], ["limited", "Not enough on file"]]) {
   has(HTALLY, `data-pdxwa-seg="${tok}"`, `controls: the "${short}" bucket has no control in the header`);
   has(HTALLY, `>${short}<`, `controls: the header does not use the index's own word for "${tok}" — two vocabularies\n` +
     `    for one bucket is how a header and the list it opens stop being about the same thing`);

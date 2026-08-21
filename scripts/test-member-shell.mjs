@@ -272,7 +272,7 @@ SHELL.forEach(([needle, what]) => {
 
 // The bucket words are one published vocabulary. A member must be told the same four
 // things a president is, in the same words.
-["Contradicted", "Mixed", "Backed up", "Thin record"].forEach((word) => {
+["Contradicted", "Mixed", "Backed up", "Not enough on file"].forEach((word) => {
   has(execHtml, word, `the executive index dropped the "${word}" bucket`);
   has(memberHtml.massie, word, `the member index dropped the "${word}" bucket — the shared\n` +
     `    four-outcome vocabulary is not shared any more`);

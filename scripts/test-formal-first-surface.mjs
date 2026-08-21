@@ -1,0 +1,445 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// test-formal-first-surface.mjs — silence is not "no record", on the surfaces
+// that most people actually see
+// ─────────────────────────────────────────────────────────────────────────────
+// Three shipped changes, one premise. The premise: a member can have sixty-four
+// issues of roll-call record and seven documented stance cards, and every surface
+// we built reads the seven. Browse called that person undocumented. The profile
+// face offered a control labelled after stances. The word we used for "we have
+// not mapped enough of this yet" was a word about THEIR record being thin.
+//
+//   PHASE 0 — the overlay is not named after stances any more, and the coverage
+//             token's short noun no longer makes a claim about the subject.
+//   PHASE 1 — the browse/search chip falls through to the size of the formal
+//             record instead of to "Still documenting", and only says nothing
+//             when there is genuinely nothing on file.
+//   PHASE 2 — the formal pattern atlas mounts on the profile FACE behind a depth
+//             gate, with per-mount view state so the face and the overlay can be
+//             alive at the same time without sharing a filter or an element id.
+//
+// And one fence around all three: none of it is a second percentage. The record
+// chip counts, the atlas ranks ordinally, and Direction Match is byte-identical
+// with the whole formal-first surface rendered or not.
+//
+//   node scripts/test-formal-first-surface.mjs
+//
+// Real shipped modules in a node:vm sandbox, real profile data, votes seeded the
+// way a completed /api/voting-record fetch leaves the cache.
+
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+import { makeSandbox } from "./gen-hero-showcase.mjs";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const R = (f) => readFileSync(join(ROOT, f), "utf8");
+
+// coverage.js is on this list and on almost no other engine harness's: phase 1 is
+// defined against what coverage USED to answer on these rows, and asserting the
+// new chip without the old one in the sandbox would only prove the new chip exists.
+const FILES = [
+  "cmp-data.js",
+  "politician-stances-core.js",
+  "politician-stances-ext.js",
+  "state-senate-stances.js",
+  "stance-helpers.js",
+  "alignment-tool.js",
+  "acct-spotlight-data.js",
+  "say-vs-do.js",
+  "exec-action-data.js",
+  "exec-record.js",
+  "exec-record-ui.js",
+  "consistency.js",
+  "voting-record.js",
+  "word-action.js",
+  "coverage.js",
+  "profile-spine.js",
+  "profiles-full.js",
+];
+const SRC = FILES.map((f) => [f, R(f)]);
+function boot() {
+  const win = makeSandbox();
+  const sandbox = vm.createContext(win);
+  win.PROFILES = win.CMP_DATA;
+  for (const [f, src] of SRC) vm.runInContext(src, sandbox, { filename: f });
+  win.PROFILES = win.CMP_DATA;
+  return win;
+}
+
+const PF_RAW = R("profiles-full.js");
+const EYE_RAW = R("all-seeing-eye.js");
+
+let passed = 0;
+const failures = [];
+const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
+const eq = (a, b, msg) =>
+  ok(a === b, `${msg} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
+const has = (hay, needle, msg) =>
+  ok(String(hay).indexOf(needle) >= 0, `${msg} — "${needle}" missing`);
+const lacks = (hay, needle, msg) =>
+  ok(String(hay).indexOf(needle) < 0, `${msg} — "${needle}" present and must not be`);
+const hasI = (hay, needle, msg) =>
+  ok(String(hay).toLowerCase().indexOf(String(needle).toLowerCase()) >= 0,
+    `${msg} — "${needle}" missing`);
+const lacksI = (hay, needle, msg) =>
+  ok(String(hay).toLowerCase().indexOf(String(needle).toLowerCase()) < 0,
+    `${msg} — "${needle}" present and must not be`);
+const section = (t) => console.log(`\n   ── ${t}`);
+// A fixture that no longer offers a case is a silent pass, so the probes that
+// establish one are fatal rather than counted.
+const must = (cond, msg) => {
+  if (cond) return;
+  console.error(`✗ formal-first surface: ${msg}`);
+  process.exit(1);
+};
+
+// ── The fixture ──────────────────────────────────────────────────────────────
+// DEEP  — a sitting senator with documented stance cards AND a wide roll-call
+//         record: the seven-vs-sixty-four class this whole migration is about.
+// QUIET — a member with a real formal record and NO documented stance at all.
+//         Browse used to publish this person as "not yet documented".
+// COLD  — the same QUIET member, no votes fetched. Nothing on file is still
+//         nothing on file, and the chip has to stay quiet there.
+const DEEP = "schumer";
+const QUIET = "doug_mastriano";
+
+const probe = boot();
+must(probe.PDXConsistency && probe.PDXConsistency.formalPatternIndex,
+  "PDXConsistency.formalPatternIndex is not exposed");
+must(probe.PDXWordAction && typeof probe.PDXWordAction.searchBadgeHTML === "function",
+  "PDXWordAction.searchBadgeHTML is gone");
+must(typeof probe.PDXWordAction.recordBadgeHTML === "function" &&
+     typeof probe.PDXWordAction.recordDepth === "function",
+  "word-action.js no longer publishes recordBadgeHTML / recordDepth");
+must(probe.PDXCoverage && typeof probe.PDXCoverage.badgeHTML === "function",
+  "coverage.js no longer publishes badgeHTML — the fallback under test cannot be compared");
+must(probe.CMP_DATA[DEEP] && probe.CMP_DATA[QUIET],
+  "the fixture subjects are not in the bundled roster");
+must((probe._resolveStanceList(QUIET, probe.CMP_DATA[QUIET]) || []).length === 0,
+  `${QUIET} now has documented stances — the no-word-ledger case needs a different subject`);
+
+const stanceKeys = new Set(
+  (probe._resolveStanceList(DEEP, probe.CMP_DATA[DEEP]) || [])
+    .map((s) => s && s.issueKey).filter(Boolean));
+const ISSUE_KEYS = Object.keys(probe.ISSUE_MAP || {}).filter((k) => !/_balance$/.test(k));
+const SILENT = ISSUE_KEYS.filter((k) => !stanceKeys.has(k));
+const SPOKEN = ISSUE_KEYS.filter((k) => stanceKeys.has(k) && !(probe._PDX_RD_NO_POLE || {})[k]);
+must(SILENT.length >= 24 && SPOKEN.length >= 2,
+  "the fixture roster no longer offers both silent and spoken-for issues");
+
+const vote = (n, issueKey, position) => ({
+  kind: "vote", rollcallId: 700 + n, measureId: 800 + n, number: "S. " + (100 + n),
+  date: "2025-0" + ((n % 9) + 1) + "-11", action: "On Passage", position: position,
+  isProcedural: false, title: "Measure " + n,
+  source: { url: "https://www.congress.gov/roll-call-vote/" + (700 + n), label: "Congress.gov" },
+  issues: [{ issueKey: issueKey, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+});
+// A deep one-way run on twenty-four issues, two of which they have also written
+// a position on — so the atlas has both a "pattern only" pile and a "stated" pile
+// and the two views under test are each non-empty.
+function seedFor(keys) {
+  const out = [];
+  let n = 0;
+  keys.forEach((k) => { for (let i = 0; i < 12; i++) out.push(vote(n++, k, "yea")); });
+  return out;
+}
+const DEEP_KEYS = SILENT.slice(0, 22).concat(SPOKEN.slice(0, 2));
+const QUIET_KEYS = SILENT.slice(0, 20);
+
+const A = boot();
+A.PDXVotingRecord.noteMember(DEEP, seedFor(DEEP_KEYS));
+A.PDXVotingRecord.noteMember(QUIET, seedFor(QUIET_KEYS));
+// COLD: identical build, no vote pack anywhere.
+const COLD = boot();
+
+const WA = A.PDXWordAction;
+const FPI = A.PDXConsistency.formalPatternIndex;
+const ROWS = FPI.rows(DEEP);
+must(ROWS.length >= 20, `the seeded fixture produced only ${ROWS.length} atlas rows`);
+must(ROWS.some((x) => x.said) && ROWS.some((x) => !x.said),
+  "the seeded fixture no longer produces both stated and pattern-only rows");
+
+const countRows = (html) => (html.match(/class="pdxfpi-row/g) || []).length;
+const text = (h) => String(h || "")
+  .replace(/<style[\s\S]*?<\/style>/g, " ")
+  .replace(/<[^>]+>/g, " ")
+  .replace(/\s+/g, " ");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("1 · phase 0 — the overlay is not a stance appendix");
+// ═════════════════════════════════════════════════════════════════════════════
+// The overlay's contents were always formal-primary: the atlas leads, the curated
+// cards follow. The NAME said otherwise, and a reader deciding whether to tap
+// reads the name. Every string on the way in, and the dialog itself, is renamed
+// to the thing behind the door — the record on the issues.
+{
+  const cta = A._pdxStanceRecordCta(DEEP, A.CMP_DATA[DEEP]);
+  const mini = A._pdxStanceRecordMiniLink(DEEP, A.CMP_DATA[DEEP]);
+  const body = A._pdxStanceRecordBody(DEEP, A.CMP_DATA[DEEP]);
+  must(cta && mini && body, "the record overlay's entry points no longer render");
+
+  for (const [name, html] of [["the profile CTA", cta], ["the in-context mini link", mini],
+                              ["the overlay body", body]]) {
+    lacksI(html, "Full Stance Record",
+      `${name} still calls the overlay a stance record — the contents are formal-primary`);
+    lacksI(html, "stance record",
+      `${name} still says "stance record" somewhere in its visible markup`);
+  }
+  hasI(cta, "record on the issues", "the CTA names the record, not the stances");
+  hasI(mini, "on the record", "the mini link names the record");
+
+  // The dialog shell and the rail entry — the two places a screen-reader user is
+  // told what they are opening.
+  has(PF_RAW, 'aria-label="Full record on the issues for',
+    "the overlay dialog still announces itself under the retired name");
+  has(PF_RAW, '📑 Full Record on the Issues',
+    "the overlay eyebrow no longer carries the new name");
+  ok(!/aria-label="Open the full stance record/i.test(PF_RAW),
+    "an aria-label still opens a 'full stance record'");
+  ok(!/>\s*View the Full Stance Record\s*</.test(PF_RAW),
+    "the CTA title string is still the retired name");
+
+  // The name is one name. A second wording on a sibling surface is how a rename
+  // half-lands and then rots.
+  for (const f of ["stance-helpers.js", "evidence-locker.js", "index.html"]) {
+    const src = R(f);
+    const visible = src
+      .replace(/\/\/[^\n]*/g, " ")
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/<!--[\s\S]*?-->/g, " ");
+    lacksI(visible, "Full Stance Record",
+      `${f} still ships the retired overlay name outside a comment`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("2 · phase 0 — the coverage token stops describing their record");
+// ═════════════════════════════════════════════════════════════════════════════
+// `limited` fires when WE have not mapped enough to test what they said. Its long
+// label prints with a subtitle that says so. Its SHORT noun prints alone — on the
+// composition strip, the bucket switcher, the dossier header, the profile rail —
+// and there "Thin record" is a claim about the subject built out of a shortfall
+// in our own inventory. Same falsehood test-thin-record-honesty already refuses
+// on the row face.
+{
+  const lim = WA.outcomeFor("limited");
+  must(lim, "the `limited` outcome token is gone");
+  eq(lim.short, "Not enough on file",
+    "the coverage token's short noun is not the shipped word");
+  ok(!/thin/i.test(lim.short),
+    "the short noun is a 'thin' word again — it travels with no subtitle to correct it");
+  ok(lim.secondary === true,
+    "`limited` is no longer flagged secondary — coverage would be ranked as a result");
+  hasI(lim.sub, "Coverage, not a result",
+    "the token's subtitle no longer says which of the two it is");
+
+  // No shipped surface may print the retired noun as a rendered word. Comments are
+  // allowed to remember it; markup is not.
+  const UI = ["word-action.js", "consistency.js", "profiles-full.js", "stance-helpers.js",
+              "say-vs-do.js", "issue-view.js", "index.html"];
+  for (const f of UI) {
+    const src = R(f)
+      .replace(/\/\/[^\n]*/g, " ")
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/<!--[\s\S]*?-->/g, " ");
+    ok(!/>\s*Thin record\s*</.test(src) && !/["'`]Thin record["'`]/.test(src),
+      `${f} still renders "Thin record" as a coverage label`);
+  }
+
+  // The index's own glossary and its low-count summary line had to move with it.
+  const CJS = R("consistency.js");
+  lacks(CJS, "still a thin record",
+    "the mapped-count summary still calls a short mapping list a thin record");
+  has(CJS, "not enough mapped yet to read a pattern",
+    "the mapped-count summary no longer says whose shortfall it is");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("3 · phase 1 — a formal record is not an absence of one");
+// ═════════════════════════════════════════════════════════════════════════════
+// The headline case: a member with a real roll-call record and not one documented
+// stance. The issue index has no result to name, because nothing of theirs was
+// ever quotable — and that used to fall all the way through to coverage, which
+// answers a different question and answered it with "Not yet documented".
+{
+  const depth = WA.recordDepth(QUIET);
+  must(depth && depth.issues >= 12,
+    `the QUIET fixture only produced ${depth && depth.issues} issues of formal record`);
+  eq(depth.issues, FPI.count(QUIET),
+    "recordDepth and the atlas disagree about how many issues are on file");
+
+  const chip = WA.searchBadgeHTML(QUIET);
+  ok(!!chip, "a member with a deep formal record and no stance ledger still gets no browse chip");
+  has(chip, 'data-pdxwa-eye="record"', "the fallback chip is not the record chip");
+  has(chip, "🏛", "the record chip does not carry the formal-lane mark");
+  hasI(chip, "on record", "the record chip does not say what it is counting");
+  has(chip, String(depth.issues), "the record chip does not print the inventory count");
+
+  // What the chip is NOT. Each of these is a different product claiming a
+  // different thing, and the whole point of this fallback is that we can say
+  // "there is a record here" without saying any of them.
+  ok(!/\d\s*%/.test(chip), "the record chip prints a percentage — that is a second score");
+  lacksI(chip, "Accountable", "the record chip grades them");
+  lacksI(chip, "Democrat", "the record chip names a party");
+  lacksI(chip, "Republican", "the record chip names a party");
+  lacksI(chip, "Still documenting", "the record chip is still the coverage phrase");
+  lacksI(chip, "Not yet documented", "the record chip is still the coverage phrase");
+  // Direction Match may only appear as the disclaimer that there ISN'T one.
+  ok(!/Direction Match/.test(chip) || /no Direction Match score/.test(chip),
+    "the record chip mentions Direction Match as though something had been tested");
+  hasI(chip, "size of the record", "the chip's tooltip no longer says what kind of fact it is");
+
+  // The counterfactual, in the same sandbox: this is precisely what browse said
+  // about this person before, and it is still what coverage says.
+  const cov = A.PDXCoverage.badgeHTML(QUIET) || "";
+  ok(/Not yet documented|Still documenting/.test(text(cov)),
+    "coverage no longer produces the phrase this fallback exists to outrank — " +
+    "the regression this pins can no longer be demonstrated");
+
+  // Fails closed. No formal inventory, no chip: the fallback is a record chip,
+  // not a participation trophy.
+  eq(COLD.PDXWordAction.recordDepth(QUIET).issues, 0, "the COLD fixture is not actually cold");
+  eq(COLD.PDXWordAction.searchBadgeHTML(QUIET), "",
+    "a member with nothing on file now gets a record chip anyway");
+  eq(COLD.PDXWordAction.recordBadgeHTML(QUIET), "",
+    "recordBadgeHTML invents a chip out of an empty inventory");
+
+  // A real index result still wins. The record chip is the fallback, never the
+  // headline — a person whose word WAS tested reads as the test, not as inventory.
+  const RESULT_PID = Object.keys(A.CMP_DATA).filter((id) => {
+    const b = A.PDXWordAction.searchBadgeHTML(id);
+    return b && b.indexOf('data-pdxwa-eye="record"') < 0;
+  })[0];
+  must(RESULT_PID, "no member in the roster produces an issue-index result chip any more");
+  const rb = A.PDXWordAction.searchBadgeHTML(RESULT_PID);
+  hasI(rb, "Issue index:", "a tested member's chip is no longer the index result");
+  lacks(rb, 'data-pdxwa-eye="record"',
+    "the inventory fallback outranked a real result — the chip order is inverted");
+
+  // And the eye's own chain: formal before public before coverage.
+  const iIndex = EYE_RAW.indexOf("PDXWordAction.searchBadgeHTML");
+  const iReceipt = EYE_RAW.indexOf("PDXReceipts.rowBadge");
+  const iCoverage = EYE_RAW.indexOf("PDXCoverage.badgeHTML");
+  ok(iIndex > 0 && iIndex < iReceipt && iReceipt < iCoverage,
+    "the browse row's badge chain is no longer index → receipts → coverage");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("4 · phase 2 — the atlas mounts on the profile face");
+// ═════════════════════════════════════════════════════════════════════════════
+// It shipped inside the overlay, behind a control that was named after stances.
+// Nobody who did not already know it existed was going to find it. It now renders
+// on the profile body itself for anyone with enough record to warrant a long list.
+{
+  const BODY_AT = PF_RAW.indexOf("const _profileBody = ");
+  must(BODY_AT !== -1, "the profile body template moved");
+  const BODY = PF_RAW.slice(BODY_AT);
+  must(BODY.length > 5000, "the isolated profile body is implausibly short");
+
+  has(BODY, "pdxfpi-face", "the atlas does not mount on the profile body at all");
+  has(BODY, "mount: 'face'", "the face mount does not pass its own mount key");
+  ok(/FACE_MIN\s*=\s*(\d+)/.test(BODY), "the face mount has no depth gate");
+  const gate = Number((BODY.match(/FACE_MIN\s*=\s*(\d+)/) || [])[1]);
+  ok(gate >= 2, `the face depth gate is implausibly low (${gate})`);
+  ok(/n\s*<\s*FACE_MIN/.test(BODY), "the depth gate is declared but never enforced");
+  // It is a discovery surface, not a replacement: it sits BELOW the word-versus-
+  // action section, which still owns the score.
+  const iWA = BODY.indexOf("PDXWordAction.sectionHtml");
+  const iFace = BODY.indexOf("pdxfpi-face");
+  ok(iWA > 0 && iWA < iFace,
+    "the atlas mounts above the Direction Match section — this phase does not reorder the read");
+
+  // The rendered face index itself.
+  const face = FPI.html(DEEP, { sort: "strength", mount: "face" });
+  const overlay = FPI.html(DEEP, { sort: "strength" });
+  must(face && overlay, "one of the two mounts renders nothing");
+  eq(countRows(face), ROWS.length, "the face index does not show the whole atlas");
+  has(face, 'data-pdxfpi-mount="face"', "the face host does not carry its mount key");
+  has(overlay, 'data-pdxfpi-mount="default"', "the overlay host lost its mount key");
+  has(face, FPI.WALL, "the face index drops the formal/public lane wall");
+  hasI(face, "Pattern only", "the face index loses the pattern-only view");
+
+  // Two mounts, two sets of element ids. _fpiRowId feeds data-pdxst-origin, so an
+  // unkeyed id does not merely duplicate an id — it sends every tap inside the
+  // overlay back to the copy of that row on the face underneath it.
+  const faceIds = (face.match(/id="pdxfpi-row-[^"]*"/g) || []);
+  const overlayIds = (overlay.match(/id="pdxfpi-row-[^"]*"/g) || []);
+  must(faceIds.length && overlayIds.length, "the atlas rows no longer carry ids");
+  eq(faceIds.filter((x) => overlayIds.indexOf(x) >= 0).length, 0,
+    "the face and the overlay emit colliding row ids");
+  ok(faceIds.every((x) => x.indexOf('id="pdxfpi-row-face-') === 0),
+    "the face's row ids are not namespaced by mount");
+  ok(overlayIds.every((x) => x.indexOf('id="pdxfpi-row-face-') !== 0),
+    "the overlay's row ids picked up the face's namespace");
+  const faceOrigins = (face.match(/data-pdxst-origin="[^"]*"/g) || []);
+  ok(faceOrigins.length > 0 &&
+     faceOrigins.every((x) => x.indexOf('data-pdxst-origin="pdxfpi-row-face-') === 0),
+    "the face's dossier return targets point at the other mount's rows");
+
+  // Two mounts, two filters. A reader who narrows the face to "Pattern only" has
+  // not narrowed the overlay, and vice versa.
+  const statedN = ROWS.filter((x) => x.said).length;
+  const patternN = ROWS.length - statedN;
+  must(statedN > 0 && patternN > 0 && statedN !== ROWS.length,
+    "the fixture cannot distinguish the two views");
+  FPI.html(DEEP, { mount: "face", view: "pattern" });
+  eq(countRows(FPI.html(DEEP, { mount: "face" })), patternN,
+    "the face forgot the view it was set to");
+  eq(countRows(FPI.html(DEEP, {})), ROWS.length,
+    "setting a view on the face narrowed the overlay too — the mounts share one filter");
+  FPI.html(DEEP, { view: "stated" });
+  eq(countRows(FPI.html(DEEP, {})), statedN, "the overlay forgot the view it was set to");
+  eq(countRows(FPI.html(DEEP, { mount: "face" })), patternN,
+    "setting a view on the overlay overwrote the face's — the mounts share one filter");
+  // Back to a clean slate for anything below.
+  FPI.html(DEEP, { view: "all" });
+  FPI.html(DEEP, { mount: "face", view: "all" });
+
+  // The gate does its job: a member with a shallow inventory gets no third short
+  // list on their face.
+  ok(COLD.PDXConsistency.formalPatternIndex.count(DEEP) < gate,
+    "the COLD fixture clears the face depth gate — the gate cannot be shown to bite");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("5 · none of it is a second score");
+// ═════════════════════════════════════════════════════════════════════════════
+// The one sanctioned percentage in the product is Direction Match. This phase adds
+// a chip, an atlas and four renames, and not one of them is allowed to publish a
+// competing figure or to move the sanctioned one by a single point.
+{
+  const face = FPI.html(DEEP, { sort: "strength", mount: "face" });
+  const chip = WA.searchBadgeHTML(QUIET);
+  for (const [name, html] of [["the face atlas", face], ["the record chip", chip]]) {
+    ok(!/\d\s*%/.test(html), `${name} prints a percentage`);
+    ok(!/advanceScore|advance\s*\/\s*\(/.test(html), `${name} publishes an advance ratio`);
+    lacksI(html, "out of 100", `${name} publishes a hundred-point figure`);
+  }
+
+  // Direction Match, with the formal-first surface rendered and with it never
+  // touched. Same sandbox shape, same seeds — the figure has to be identical.
+  const B = boot();
+  B.PDXVotingRecord.noteMember(DEEP, seedFor(DEEP_KEYS));
+  const before = JSON.stringify(B.PDXWordAction.read(DEEP));
+  // …now render every new surface at it.
+  B.PDXConsistency.formalPatternIndex.html(DEEP, { mount: "face" });
+  B.PDXWordAction.searchBadgeHTML(DEEP);
+  B.PDXWordAction.recordDepth(DEEP);
+  const after = JSON.stringify(B.PDXWordAction.read(DEEP));
+  eq(after, before, "rendering the formal-first surfaces moved Direction Match");
+
+  const A2 = boot();
+  A2.PDXVotingRecord.noteMember(DEEP, seedFor(DEEP_KEYS));
+  eq(JSON.stringify(A2.PDXWordAction.read(DEEP)), before,
+    "Direction Match is not deterministic across identical seeds");
+}
+
+// ── Result ───────────────────────────────────────────────────────────────────
+if (failures.length) {
+  console.error(`\n✗ formal-first surface — ${failures.length} of ${passed + failures.length} assertions failed:\n`);
+  failures.forEach((f) => console.error("  · " + f));
+  process.exit(1);
+}
+console.log(`\n✓ formal-first surface — ${passed} assertions passed\n`);

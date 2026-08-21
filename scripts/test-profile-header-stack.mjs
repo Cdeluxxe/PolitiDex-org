@@ -276,7 +276,7 @@ ok(/data-pdxwa-hstack="[^"]+"><\/div>$/.test(COLD_MOUNT.trim()),
   "cold: the host below the floor is not empty — anything inside it is chrome asserting a record\n" +
   "    we do not hold");
 
-has(T_STACK, "still a thin record",
+has(T_STACK, "not enough mapped yet to read a pattern",
   "thin: two mapped votes are reported as a plain count. A count with no caveat reads as depth,\n" +
   "    which is the whole reason the shipped builder appends one");
 eq((/(\d+) mapped vote/.exec(text(T_STACK)) || [])[1], "2",

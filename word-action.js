@@ -1625,6 +1625,17 @@
   // index below it does not have, and the dossier can never open under a word the
   // index did not use to get there.
   //
+  // THE SHORT NOUN IS THE ONE THAT TRAVELS ALONE. `label` and `sub` are printed
+  // together, so the heading has a clause under it saying whose gap this is. `short`
+  // is printed by itself — on the composition strip, on the bucket switcher, on the
+  // row-level cue, in the dossier header and on the profile rail — and for a long
+  // time that word was "Thin record". Over a member with four hundred votes on file
+  // and no statement we could test, that is a claim about THEIR record made out of a
+  // shortfall in OURS, and it is the same false sentence the row faces already refuse
+  // to print (see _stResult's 'Not scored yet' and scripts/test-thin-record-honesty).
+  // "Not enough on file" says the true thing in the same space. The token, its colour,
+  // its ordering and everything it counts are untouched — this is the noun only.
+  //
   // `secondary` marks the one bucket that is not a finding. "Not enough record yet"
   // is coverage — an issue we track, a position they stated, and nothing on file
   // able to test it. Its subtitle can say "Stated, but…" and stay true because
@@ -1642,7 +1653,7 @@
       sub: 'The record goes both ways on this one.' },
     { token: 'consistent',  label: 'Backed it up',                 short: 'Backed up',    col: '#6ee7a0',
       sub: 'The record points the same way as the word.' },
-    { token: 'limited',     label: 'Not enough record yet',        short: 'Thin record',  col: '#9fb4d4',
+    { token: 'limited',     label: 'Not enough record yet',        short: 'Not enough on file',  col: '#9fb4d4',
       secondary: true, sub: 'Stated, but nothing on file yet can test it. Coverage, not a result.' }
   ];
   function outcomeFor(token) {
@@ -1751,28 +1762,103 @@
   // Strongest means OUTCOMES order — contradicts, then mixed, then consistent —
   // and only a bucket that actually HAS rows can be it, so "Mixed" is reachable and
   // is never rendered as the hard negative. The coverage bucket is never the chip:
-  // "not enough record yet" is not a result, and PDXCoverage already has a chip for
-  // exactly that, so this returns '' and lets the honest coverage signal through.
+  // "not enough record yet" is not a result.
+  //
+  // AND WHERE THERE IS NO RESULT, THE RECORD STILL ANSWERS. Falling straight through
+  // to PDXCoverage was right when the only thing this module could see was the word
+  // ledger, and wrong the moment the formal atlas existed: it meant a member whose
+  // roll-call record runs to sixty-odd issues, and who has simply never been quoted,
+  // was published on the busiest surface in the product as "Still documenting". The
+  // second answer is recordBadgeHTML — how many issues the formal record touched,
+  // as a count, with no score and no direction in it. PDXCoverage keeps the third
+  // and last word, which is now reserved for the people it was written about: the
+  // ones with nothing on file at all.
   //
   // Counts ride in the tooltip, not in the chip. One word on a search row.
   function searchBadgeHTML(pid) {
     try {
       var b = outcomeBuckets(pid);
-      if (!b || !b.total) return '';
-      var o = null, n = 0;
-      for (var i = 0; i < OUTCOMES.length && !o; i++) {
-        if (OUTCOMES[i].secondary) continue;       // coverage is not a result
-        var c = (b.buckets[OUTCOMES[i].token] || []).length;
-        if (c) { o = OUTCOMES[i]; n = c; }
+      if (b && b.total) {
+        var o = null, n = 0;
+        for (var i = 0; i < OUTCOMES.length && !o; i++) {
+          if (OUTCOMES[i].secondary) continue;     // coverage is not a result
+          var c = (b.buckets[OUTCOMES[i].token] || []).length;
+          if (c) { o = OUTCOMES[i]; n = c; }
+        }
+        if (o) {
+          var issues = n + ' issue' + (n === 1 ? '' : 's');
+          return '<span class="pdxwa-eye-badge" data-pdxwa-eye="' + esc(o.token) + '"' +
+            ' style="--pdxwa-col:' + o.col + ';"' +
+            ' title="' + esc('Issue index: ' + issues + ' of ' + b.total + ' read ' + o.short +
+              ' — the strongest result on this record. ' + o.sub) + '">' +
+            esc(o.short) + '</span>';
+        }
       }
-      if (!o) return '';
-      var issues = n + ' issue' + (n === 1 ? '' : 's');
-      return '<span class="pdxwa-eye-badge" data-pdxwa-eye="' + esc(o.token) + '"' +
-        ' style="--pdxwa-col:' + o.col + ';"' +
-        ' title="' + esc('Issue index: ' + issues + ' of ' + b.total + ' read ' + o.short +
-          ' — the strongest result on this record. ' + o.sub) + '">' +
-        esc(o.short) + '</span>';
+      // NO RESULT IS NOT NO RECORD. Everything above needs a stated position: the
+      // index is built from the word ledger, so a member with four hundred mapped
+      // roll calls and nothing quotable produces no bucket, and this used to return
+      // '' — which handed the row to PDXCoverage, whose honest-for-its-own-purpose
+      // chip then announced "Still documenting" over a deep formal record. On the
+      // browse surface, where most readers form their only impression, silence was
+      // being reported as absence. See recordBadgeHTML.
+      return recordBadgeHTML(pid);
     } catch (e) { return ''; }
+  }
+
+  // ── THE FORMAL-INVENTORY CHIP ──────────────────────────────────────────────
+  // WHAT IT SAYS, and it is the whole claim: this many issues have something formal
+  // on file. Roll-call votes and formal actions, counted by the same index the
+  // profile's formal atlas renders (PDXConsistency.formalPatternIndex), so the chip
+  // and the list it leads to cannot disagree about how many issues there are.
+  //
+  // WHAT IT IS NOT, and each of these is deliberate:
+  //   · NOT A PERCENTAGE. Direction Match is the one formal percentage and nothing
+  //     here has been tested against a stated position, so there is no score to
+  //     print and none is printed. A count is not a rival measurement of a record;
+  //     it is the size of the record.
+  //   · NOT A DIRECTION. No tier, no lean, no "supports"/"opposes" — those need the
+  //     issue's own pole label beside them to stay neutral, and a search row has no
+  //     room for it. How many issues, and how many of those the index could read a
+  //     pattern on. Both are counts.
+  //   · NOT A GRADE, AND NOT PARTY. There is no word here that ranks the person and
+  //     no reference to anyone else's record.
+  //
+  // Empty when there is genuinely nothing formal on file, so the receipt chip and
+  // then PDXCoverage still get their turn — "not yet documented" stays reachable and
+  // stays true.
+  function recordBadgeHTML(pid) {
+    try {
+      var r = recordDepth(pid);
+      if (!r || !r.issues) return '';
+      var lb = r.issues + ' issue' + (r.issues === 1 ? '' : 's') + ' on record';
+      var tip = 'Formal record: ' + r.issues + ' issue' + (r.issues === 1 ? '' : 's') +
+        ' with roll-call votes or formal actions on file' +
+        (r.read ? ', ' + r.read + ' with a pattern the record index could read' : '') + '. ' +
+        'No stated position of theirs has been tested against it yet, so there is no ' +
+        'Direction Match score here — this is the size of the record, not a reading of it.';
+      return '<span class="pdxwa-eye-badge" data-pdxwa-eye="record"' +
+        ' style="--pdxwa-col:#8fa6c6;"' +
+        ' title="' + esc(tip) + '">🏛 ' + esc(lb) + '</span>';
+    } catch (e) { return ''; }
+  }
+  // Memoized on the derivation epoch and the term scope, like every other read on
+  // this card: a browse list asks for ten of these while one keystroke paints, and
+  // the underlying row model is the expensive part of the profile.
+  var _rdCache = {}, _rdEpoch = 0;
+  function recordDepth(pid) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_rdEpoch !== ep) { _rdCache = {}; _rdEpoch = ep; }
+    var ck = String(pid == null ? '' : pid) + '||' + scopeKey();
+    if (_rdCache[ck]) return _rdCache[ck];
+    var out = { issues: 0, read: 0 };
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      var rows = (FPI && typeof FPI.rows === 'function' && pid) ? (FPI.rows(pid) || []) : [];
+      out.issues = rows.length;
+      for (var i = 0; i < rows.length; i++) if (rows[i] && rows[i].read) out.read++;
+    } catch (e) { out = { issues: 0, read: 0 }; }
+    _rdCache[ck] = out;
+    return out;
   }
 
   // ── THE SHAPE BEHIND THE AVERAGE ───────────────────────────────────────────
@@ -3457,7 +3543,15 @@
     // The All-Seeing Eye politician chip, in the buckets' own vocabulary. See
     // searchBadgeHTML(): one meaning — the strongest result in this politician's
     // issue index — so the chip and the profile can never name different things.
+    // Where there is no result to name because nothing of theirs was ever quotable,
+    // it falls through to recordBadgeHTML rather than to silence: the formal record
+    // is still a record, and browse is where that used to be denied.
     searchBadgeHTML: searchBadgeHTML,
+    // The formal-inventory fallback, published on its own so a surface that wants
+    // "how big is the formal record" can ask for exactly that without going through
+    // the result chip. Counts only — no percentage, no direction, no grade.
+    recordBadgeHTML: recordBadgeHTML,
+    recordDepth: recordDepth,
     // Pure reads — no DOM, no fetch, safe to call from anywhere.
     wordLedger: wordLedger,
     read: read,

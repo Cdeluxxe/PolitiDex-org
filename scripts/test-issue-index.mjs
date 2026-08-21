@@ -267,7 +267,7 @@ ok(Array.isArray(WA.OUTCOMES) && WA.OUTCOMES.length === 4,
   "vocabulary: PDXWordAction no longer publishes the four result buckets");
 ok(typeof WA.outcomeFor === "function", "vocabulary: outcomeFor() is not published");
 for (const [tok, short] of [["contradicts", "Contradicted"], ["mixed", "Mixed"],
-                            ["consistent", "Backed up"], ["limited", "Thin record"]]) {
+                            ["consistent", "Backed up"], ["limited", "Not enough on file"]]) {
   const o = WA.outcomeFor(tok);
   ok(o && o.short === short, `vocabulary: "${tok}" no longer resolves to the short name "${short}"`);
   ok(o && /^#[0-9a-f]{6}$/i.test(o.col), `vocabulary: "${tok}" has no colour for the index and the dossier to share`);
@@ -299,7 +299,7 @@ has(IDX, '<span class="pdxwa-oc-tab-n">2</span>', "index: a chip does not carry 
 for (const label of ["Says one thing, does another", "Mixed", "Backed it up", "Not enough record yet"]) {
   has(IDX, label, `index: the bucket heading "${label}" is missing`);
 }
-for (const short of ["Contradicted", "Mixed", "Backed up", "Thin record"]) {
+for (const short of ["Contradicted", "Mixed", "Backed up", "Not enough on file"]) {
   has(IDX, short, `index: the switcher does not print the short bucket name "${short}"`);
 }
 // Each panel says what its bucket MEANS, once, under the heading.

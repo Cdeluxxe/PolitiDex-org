@@ -2275,7 +2275,7 @@
       var thinRecord = !s.tracked;
       // Thin profiles still get the button — the label simply tells the honest
       // truth that the record is in progress (and the overlay shows the gaps).
-      var title = thinRecord ? 'View Full Record — still being built' : 'View Full Stance Record';
+      var title = thinRecord ? 'View Full Record — still being built' : 'View the Full Record on the Issues';
       // TWO NUMBERS, EACH NAMED FOR THE LIST IT COUNTS. The formal one leads where
       // it is larger — it is the reason this button is worth pressing on an
       // officeholder — and the curated one follows, so neither is mistaken for the
@@ -2290,7 +2290,7 @@
       return '<div class="modal-section pdx-fsr-wrap">' +
           '<button type="button" class="pdx-fsr-btn" ' +
             'onclick="window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
-            'aria-label="Open the full stance record — every issue, its evidence depth, and what is still missing">' +
+            'aria-label="Open the full record on the issues — every issue the formal record touched, the documented positions beside it, and what is still missing">' +
             '<span class="pdx-fsr-ico" aria-hidden="true">📋</span>' +
             '<span class="pdx-fsr-main">' +
               '<span class="pdx-fsr-kicker">The complete picture</span>' +
@@ -2689,10 +2689,10 @@
         '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
     }
 
-    return '<div class="fsrec" role="dialog" aria-modal="true" aria-label="Full stance record for ' + esc(name) + '" onclick="event.stopPropagation();">' +
+    return '<div class="fsrec" role="dialog" aria-modal="true" aria-label="Full record on the issues for ' + esc(name) + '" onclick="event.stopPropagation();">' +
         '<div class="fsrec-head">' +
           '<div class="fsrec-headwrap">' +
-            '<div class="fsrec-eyebrow">📑 Full Stance Record</div>' +
+            '<div class="fsrec-eyebrow">📑 Full Record on the Issues</div>' +
             '<div class="fsrec-title">' + esc(name) + '</div>' +
             (p.office ? '<div class="fsrec-office">' + esc(p.office) + '</div>' : '') +
             headLocker +
@@ -2879,7 +2879,7 @@
       } else if (isChallenger) {
         lede = first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so <strong>there is no formal record yet to test their word against</strong> — and that\'s expected this early. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding votes and sources as the race develops.';
       } else {
-        lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — a thin record here is normal at this stage. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
+        lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — having little on file to test this early is normal. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
       }
 
       // ── THE AT-A-GLANCE FACTS ROW IS RETIRED ──────────────────────────
@@ -3727,7 +3727,7 @@
           var waWarm = !!wa.coverage.warming;
           out.wordaction = {
             value: (wa.pct !== null) ? (wa.pct + '%')
-              : (waWarm ? _NAV_PEND : (wa.coverage.tested ? 'Thin record' : 'Untested')),
+              : (waWarm ? _NAV_PEND : (wa.coverage.tested ? 'Not enough on file' : 'Untested')),
             color: (wa.verdict && wa.verdict.color) || '#9fb4d4',
             pending: waWarm,
             note: 'Direction Match, tested on ' + (wa.coverage.tested || 0) + ' of ' +
@@ -4712,7 +4712,7 @@
               // scroll-spy cleanly ignores it and it never steals the active state.
               if (n.action === 'stance') {
                 return '<button type="button" class="pdx-pnav-pill pdx-pnav-action" ' +
-                  'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + ' — opens the full stance record" ' +
+                  'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + ' — opens the full record on the issues" ' +
                   'onclick="window._pdxOpenStanceRecord && window._pdxOpenStanceRecord(\'' + n.stanceId + '\')">' +
                   '<span class="pdx-pnav-ico" aria-hidden="true">' + n.icon + '</span>' +
                   '<span class="pdx-pnav-txt">' +
@@ -4943,6 +4943,57 @@
            lanes on each row and the dossier entry from those rows are one
            renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
+
+      <!-- 🏛 EVERY ISSUE ON THE FORMAL RECORD — the formal atlas, on the face.
+           WHAT IT IS. PDXConsistency.formalPatternIndex: one row per issue this
+           person's formal record actually touched, each carrying the same 🏛 Record
+           pattern chip the row faces carry, the same counts, and the same door into
+           the same issue dossier. Nothing here is new information and nothing here
+           is new arithmetic — it is the shared row model, filtered to the formal
+           lane, sorted by how much the record said.
+
+           WHY IT MOVED. It has existed for a while and it rendered in exactly one
+           place: inside the full-record overlay, behind a button. So the longer and
+           more complete answer to "where does this person actually sit" was one tap
+           down and behind a control named after stances, while the face carried the
+           surfaces that need a stated position before they can say anything. On a
+           senator that is seven issues in front and sixty-four behind the button.
+           This is the same list, on the face, as the discovery surface. The overlay
+           keeps it as the expanded view.
+
+           IT DOES NOT COMPETE WITH THE SCORE ABOVE IT. No percentage — the engine
+           publishes tiers and counts and refuses to return a ratio (see
+           _recordDirectionIndex in stance-helpers.js), so there is no second formal
+           number on this page and scripts/test-no-second-score.mjs still holds.
+           ⚖️ Word vs Action is unchanged, keeps its ring and keeps its position
+           above this. A pattern read here is never a stated position and never
+           enters Direction Match; the index prints that wall at its own foot.
+
+           THE DEPTH GATE. Below FACE_MIN issues the atlas is a third short list
+           behind two surfaces that already showed the same rows, so it does not
+           mount — the overlay still has it, and the CTA still counts it. -->
+      ${(function () {
+        try {
+          var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+          if (!FPI || typeof FPI.html !== 'function') return '';
+          // A SIMPLE DEPTH GATE, AND IT COUNTS ISSUES RATHER THAN ITEMS. The point
+          // of this surface is breadth — that the formal record reaches further
+          // than the written-up positions do — and a member with a handful of
+          // issues on file has no breadth to show that the tree below is not
+          // already showing.
+          var FACE_MIN = 8;
+          var n = (typeof FPI.count === 'function') ? (FPI.count(id) || 0) : 0;
+          if (n < FACE_MIN) return '';
+          // `mount` names this instance. The overlay renders the same index for the
+          // same person, and both can be in the DOM at once — the key is what keeps
+          // their row ids distinct and stops a filter tap in one from re-filtering
+          // the other. Strongest-first here always: the face has no Sort control of
+          // its own, and the overlay owns that state.
+          var html = FPI.html(id, { sort: 'strength', mount: 'face' }) || '';
+          if (!html) return '';
+          return '<div class="modal-section pdxfpi-face">' + html + '</div>';
+        } catch (e) { return ''; }
+      })()}
 
       <!-- THE LIMITED-RECORD CARD USED TO MOUNT HERE, between ⚖️ Word vs Action
            and the tree. It is gated on _isThinProfile, which means it fires only

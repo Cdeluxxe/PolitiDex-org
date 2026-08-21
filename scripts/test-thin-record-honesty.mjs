@@ -191,11 +191,14 @@ section("2 · inventory on the face, and no score anywhere near it");
   ok(/\d+ votes on file/.test(chunk), "the count is stated as votes on file");
   lacks(chunk, "% on file", "the count is never dressed as a match rate");
 
-  // THE WORD IS NOT A VERDICT EITHER. "Thin record" is the issue index's name for
-  // a pile this row is not in, and printing it here says the record fell short
-  // when what fell short is our documentation. The label states the actual fact.
+  // THE WORD IS NOT A VERDICT EITHER. The issue index's coverage noun names a pile
+  // this row is not in, and printing it here says the record fell short when what
+  // fell short is our documentation. The label states the actual fact. Both the
+  // retired noun and the shipped one are refused, so neither can come back by way
+  // of this face.
   eq(res.label, "Not scored yet", "the verdict word says what is true — the row is unscored");
-  lacks(chunk, "Thin record", "…and never borrows the index's name for a thin record");
+  lacks(chunk, "Thin record", "…and never borrows the index's retired name for a thin record");
+  lacks(chunk, "Not enough on file", "…and never borrows the index's coverage noun either");
   eq(res.bucket, null, "the row claims no place in the issue index's buckets");
   // The empty slot is read aloud on its own, so it carries the distinction too.
   const slot = (chunk.match(/<span class="pdxst-pct pdxst-pct-na"[^>]*>/) || [])[0] || "";
@@ -267,7 +270,7 @@ section("5 · the issue index never had this row to mis-word");
   // The two faces read the same rowResult, so a change in the classification
   // reaches both. They do not hold the same rows: ⚖️ Word vs Action is an index of
   // word-versus-action findings, and outcomeBuckets() admits no wordless row into
-  // its "Thin record" pile (the `!r.stance.label` guard). That is why the false
+  // its "Not enough on file" pile (the `!r.stance.label` guard). That is why the false
   // sentence only ever appeared on the stance face — and why the index's own
   // "Stated, but nothing on file yet can test it" subtitle is true of every row it
   // actually shows. Pinned here so a later change to that guard cannot quietly
@@ -323,7 +326,8 @@ section("7 · the dossier behind the door tells the same story");
     "…and does not tell the reader their record was too thin");
   has(l1, "no stated position here to test",
     "…saying instead why the pooled figure did not move");
-  lacks(l1, "Thin record", "…and never prints the index's word for a thin record");
+  lacks(l1, "Thin record", "…and never prints the index's retired word for a thin record");
+  lacks(l1, "Not enough on file", "…nor the coverage noun that replaced it");
 
   // The control keeps every sentence it had.
   const cl1 = CS.dossierSummaryHtml(PID, SPOKEN, spoken) || "";

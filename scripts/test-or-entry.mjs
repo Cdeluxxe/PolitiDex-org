@@ -130,11 +130,11 @@ eq(S({ votes: 12, issues: 5, total: 12 }), "12 mapped votes across 5 issues",
 eq(S({ votes: 7, issues: 1, total: 7 }), "7 mapped votes on 1 issue",
   "copy: one issue reads 'on 1 issue', not 'across 1 issues'");
 // Thin records must not borrow the authority of a deep one.
-has(S({ votes: 2, issues: 1, total: 2 }), "still a thin record",
+has(S({ votes: 2, issues: 1, total: 2 }), "not enough mapped yet to read a pattern",
   "copy: two votes are labelled thin");
 has(S({ votes: 1, issues: 1, total: 1 }), "1 mapped vote on 1 issue",
   "copy: a single vote is singular throughout");
-has(S({ votes: 1, issues: 1, total: 1 }), "still a thin record",
+has(S({ votes: 1, issues: 1, total: 1 }), "not enough mapped yet to read a pattern",
   "copy: one vote is labelled thin");
 hasnt(S({ votes: 3, issues: 2, total: 3 }), "thin",
   "copy: three votes are not called thin");
@@ -172,7 +172,7 @@ has(html, 'class="pdxor-act-go"',
 // ── 4. The rendered summary line ────────────────────────────────────────────
 has(html, "2 mapped votes across 3 issues",
   "render: the section leads with the count of mapped votes it can actually show");
-has(html, "still a thin record", "render: and admits the record is thin");
+has(html, "not enough mapped yet to read a pattern", "render: and admits how little is mapped");
 has(html, "data-pdxc-vrall", "render: the line is the entry point into the whole record");
 has(html, "See full record →", "render: with the destination named in the copy");
 // Wide enough to matter, small enough to scan: the count line is one line of text.

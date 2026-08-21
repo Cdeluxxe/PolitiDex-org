@@ -611,7 +611,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   const railRec = PROFILES.indexOf("target: 'pdxsec-official-record'");
   ok(railWA !== -1 && railRec !== -1 && railWA < railRec,
     'the rail lists the record ahead of the primary read');
-  ok(/Checking…|Thin record|Untested/.test(PROFILES),
+  ok(/Checking…|Not enough on file|Untested/.test(PROFILES),
     'the rail pill shows a bare number even when the read has failed closed — the honest state\n' +
     '    has to reach the rail too, or a blank section sits behind a confident pill');
 }
@@ -1220,7 +1220,7 @@ const voteNarration = (issueKey, extra = {}) => ({
   for (const t of ['contradicts', 'mixed', 'consistent', 'limited']) {
     ok(ocIdx.includes(`data-pdxwa-seg="${t}"`), `the switcher has no chip for the "${t}" bucket`);
   }
-  for (const s of ['Contradicted', 'Mixed', 'Backed up', 'Thin record']) {
+  for (const s of ['Contradicted', 'Mixed', 'Backed up', 'Not enough on file']) {
     ok(ocIdx.includes(s), `the switcher does not print the short bucket name "${s}"`);
   }
   eq((ocIdx.match(/data-pdxwa-oc-panel="/g) || []).length, 4,

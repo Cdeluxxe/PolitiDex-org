@@ -1693,8 +1693,8 @@
           '<span><b class="el-pol-ctx-comm-n"></b> active community discussion<span class="el-pol-ctx-comm-s"></span></span></span>';
       var back = (typeof window._pdxOpenStanceRecord === 'function')
         ? '<button type="button" class="el-pol-ctx-back" data-pol-record="' + _esc(id) + '" ' +
-            'title="Return to ' + _esc(r.name) + '’s Full Stance Record">' +
-            '<span aria-hidden="true">←</span> Back to ' + _esc(r.name) + '’s Full Stance Record</button>'
+            'title="Return to ' + _esc(r.name) + '’s full record on the issues">' +
+            '<span aria-hidden="true">←</span> Back to ' + _esc(r.name) + '’s record on the issues</button>'
         : '';
       return '<div class="el-pol-ctx-card">' +
           '<div class="el-pol-ctx-avatar">' + avatar + '</div>' +

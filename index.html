@@ -25900,7 +25900,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (p.pledge) meta += '<span class="pdxis-badge pdxis-pledge" title="A campaign pledge, not yet a governing record">Pledge</span>';
       var src = st && st.source ? srcLink(st.source) : '';
       return '<button type="button" class="pdxis-person" data-pid="' + esc(p.id) + '" ' +
-          'aria-label="Open the full stance record for ' + esc(nameFor(p)) + '">' +
+          'aria-label="Open the full record on the issues for ' + esc(nameFor(p)) + '">' +
         '<div class="pdxis-p-top">' +
           '<div class="pdxis-p-ico">' + esc(iconFor(p)) + '</div>' +
           '<div class="pdxis-p-id">' +
@@ -25915,7 +25915,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="pdxis-p-pos">' + pos + '</div>' +
         '<div class="pdxis-p-foot">' +
           (src || '<span></span>') +
-          '<span class="pdxis-p-cta">Full Stance Record →</span>' +
+          '<span class="pdxis-p-cta">Record on the issues →</span>' +
         '</div>' +
       '</button>';
     }
@@ -26373,7 +26373,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<span class="pdxis-vr-verdict pdxis-vr-v-' + esc(p.verdict.cls || 'mixed') + '">' + esc(p.verdict.label) + '</span>'
         : '';
       return '<button type="button" class="pdxis-person pdxis-stperson' + (isRep ? ' is-yourrep' : '') + '" ' +
-          'data-pid="' + esc(p.id) + '" aria-label="Open the full stance record for ' + esc(nameFor(p)) + '">' +
+          'data-pid="' + esc(p.id) + '" aria-label="Open the full record on the issues for ' + esc(nameFor(p)) + '">' +
         '<div class="pdxis-p-top">' +
           '<div class="pdxis-p-ico">' + esc(iconFor(p)) + '</div>' +
           '<div class="pdxis-p-id">' +
@@ -26386,7 +26386,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="pdxis-stverd" data-svd-pid="' + esc(p.id) + '">' + authoredVerdict + '</div>' +
         '<div class="pdxis-p-foot">' +
           (srcHtml || '<span></span>') +
-          '<span class="pdxis-p-cta">' + (authored ? 'View profile →' : 'Full Stance Record →') + '</span>' +
+          '<span class="pdxis-p-cta">' + (authored ? 'View profile →' : 'Record on the issues →') + '</span>' +
         '</div>' +
       '</button>';
     }
@@ -26539,7 +26539,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         renderStandsOnIssue(sp) +
         renderCommunity(sp) +
         '<div class="pdxis-foot">PolitiDex Issue Spotlight — a calm, sourced lens over what we already track. ' +
-          'Every position links to that official’s Full Stance Record; every receipt links to its original source. ' +
+          'Every position links to that official’s full record on the issues; every receipt links to its original source. ' +
           'Positions marked <b>Pledge</b> are campaign promises, not yet a governing record.</div>';
       wireWrap(sp);
     }
