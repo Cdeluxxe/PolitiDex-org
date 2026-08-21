@@ -376,6 +376,46 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "Authorizes FY2026 appropriations for Department of Defense military activities, military construction, and Department of Energy defense activities (the NDAA); a yea funds and authorizes the armed forces."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A, title XII, subtitle E: sec. 1255 extends United States-Israel anti-tunnel cooperation through December 31, 2028 and raises its annual ceiling from $50,000,000 to $80,000,000, and sec. 1256 extends United States-Israel cooperation to counter unmanned aerial systems on the same terms, from $55,000,000 to $75,000,000. Division A, title XV, subtitle C, sec. 1534 makes up to $60,000,000 of Missile Defense Agency procurement available to the Government of Israel for Iron Dome co-production in the United States and up to $40,000,000 for the David's Sling Weapon System. A yea enacts all three and keeps joint missile-defense and tunnel-detection work funded; a nay blocks the bill that carries them. Weighted 40 for share of the vehicle — two sections in one subtitle plus one missile-defense section inside a ten-division authorization, the same weight the FY2027 NDAA (H.R. 8800) carries for the same kind of provision.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2296es/html/BILLS-119s2296es.htm"
+    },
+    {
+     "issueKey": "housing_build",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division I is the Road to Housing Act, a full housing act carried inside the defense authorization. Title II (Building More in America) enacts the Housing Supply Frameworks Act at sec. 5203, whose findings state that state and local zoning and land-use regulation inhibits the creation of new housing and which funds model frameworks for reforming it; the Build Now Act at sec. 5206; Unlocking Housing Supply Through Streamlined and Modernized Reviews at sec. 5208; the Accelerating Home Building Act at sec. 5210, reaching accessory dwelling units, infill development, duplexes, triplexes, fourplexes, cottage courts, courtyard buildings, townhouses and multiplexes; Build More Housing Near Transit at sec. 5211; and the RESIDE Act at sec. 5212. Title III strikes the \"on a permanent chassis\" requirement from the federal manufactured-home definition at sec. 5301 and adds modular production at sec. 5302. A yea enacts the division; a nay blocks it. Weighted 35: one of ten divisions, and the largest one that is not defense.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2296es/html/BILLS-119s2296es.htm"
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 30,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division G, title LXI is the BUST FENTANYL Act. Sec. 6105 expands the Fentanyl Sanctions Act (21 U.S.C. 2312) to reach any foreign person the President determines has knowingly engaged in a significant activity or financial transaction that materially contributed to opioid trafficking, and anyone knowingly providing significant financial, material or technological support to such a person; sec. 6106 extends sanctions to agencies and instrumentalities of foreign states; secs. 6103 and 6104 direct study of, and prioritised identification of, traffickers in the People's Republic of China; sec. 6107 requires annual reporting on methamphetamine smuggling from Mexico. A yea enacts the title. Weighted 30 for share of the bill: one title inside one division.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2296es/html/BILLS-119s2296es.htm"
+    },
+    {
+     "issueKey": "back_police",
+     "weight": 20,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A, title X, subtitle H is the Law Enforcement and Crime Victims Support Package: sec. 1091 addresses first-responder secondary exposure to fentanyl, sec. 1092 reauthorises support and treatment for officers in crisis, sec. 1094 brings certain retired officers into the public safety officers' death benefits program, sec. 1095 adds a COPS Strong Communities Program to sec. 1701 of the Omnibus Crime Control and Safe Streets Act of 1968 funding law enforcement training run by local agencies and by institutions of higher education, sec. 1096 provides for retired officers' continuing service and sec. 1097 sets trauma kit standards. A yea funds and expands support for police. Weighted 20: one subtitle of one title.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2296es/html/BILLS-119s2296es.htm"
+    },
+    {
+     "issueKey": "homeless",
+     "weight": 20,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division I, title V: sec. 5505 (Reducing Homelessness Through Program Reform Act) raises the Emergency Solutions Grants administrative cost cap in sec. 418 of the McKinney-Vento Homeless Assistance Act from 7.5 percent to 10 percent and rewrites the Continuum of Care program, and sec. 5506 lets a recipient waive the sec. 415(b) spending cap for fiscal years 2026 through 2029 while requiring the Secretary to deny that waiver to any recipient that relocates people or their property without providing emergency shelter, rapid rehousing, transitional housing or other permanent housing. Title VI, sec. 5603 is the Housing Unhoused Disabled Veterans Act; title VII, sec. 5703 adds oversight of the United States Interagency Council on Homelessness. A yea enacts them. Weighted 20: a handful of sections inside one division.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2296es/html/BILLS-119s2296es.htm"
     }
    ]
   },
@@ -505,6 +545,14 @@
      "supportMeaning": "yea_supports",
      "rationale": "FY2027 National Defense Authorization Act — authorizes DoD military activities, military construction, DOE defense activities, and personnel strengths; a yea funds and authorizes the armed forces. Weighted 80 rather than 100 because this NDAA also carries unrelated social-policy riders (see H.Amdt. 254-256), so passage is not a pure defense-posture signal.",
      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800"
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title XII, Subtitle C is headed \"Matters relating to Israel\": Sec. 1221 extends the war reserve stockpile authority for Israel, Sec. 1222 extends United States-Israel anti-tunnel and subterranean warfare cooperation, and Sec. 1223 extends cooperation on countering unmanned aerial systems. Sec. 219 establishes a United States-Israel Defense Technology Cooperation Initiative. A yea enacts all four and keeps U.S. security aid and joint weapons development flowing; a nay blocks the bill that carries them. Weighted 40 for share of the vehicle: this is a subtitle plus one section inside a defense authorization, not the bill's purpose.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr8800rh/xml/BILLS-119hr8800rh.xml"
     }
    ]
   },
@@ -522,6 +570,22 @@
      "supportMeaning": "yea_supports",
      "rationale": "Protecting Privacy in Purchases Act bars payment-card networks from requiring or assigning a merchant category code that singles out firearms retailers; a yea blocks a gun-purchase tracking mechanism that gun-rights groups oppose.",
      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181"
+    },
+    {
+     "issueKey": "privacy_rights",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 2(a) bars a payment card network from requiring, and a covered entity from assigning, any merchant category code used only or primarily for firearms retailers or identifying a retailer as selling firearms, and Sec. 2(b) makes the Attorney General enforce it through a public complaint process, investigations and injunctions. The effect on the data question is direct: card networks and processors may not build a transaction record that flags a customer as having bought at a gun store. A yea imposes that limit on what payment processors may record about a purchase. Weighted 55: the same prohibition the gun_rights row reads from the firearms side, read here on the purchase-data side.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1181eh/html/BILLS-119hr1181eh.htm"
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Sec. 2(c)(1) expressly preempts any law of a State or local government regulating the assignment, use or disclosure of merchant category codes for firearms retailers. A yea replaces whatever a State has enacted on that subject — in either direction — with the federal rule; a nay leaves each State's own choice standing. Weighted 40: one subsection of a one-section Act, but an express preemption clause is the whole of the question this issue asks.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1181eh/html/BILLS-119hr1181eh.htm"
     }
    ]
   },
@@ -733,6 +797,22 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "Amends the Federal banking laws to widen small-business and Main Street access to capital; a yea backs that expansion of access."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 85,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Lessens and modifies Federal banking regulation as its operative purpose: new banks get a three-year phase-in to meet certain capital requirements, certain rural community banks get a reduced leverage ratio, financial regulators must tailor regulatory actions to an institution's risk profile and business model and review their regulations more often and more widely, and higher asset thresholds exempt more financial companies and banks from various fees and reporting requirements while letting more small banks qualify for a longer examination cycle. A yea enacts that relief.",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr6955.xml"
+    },
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Eases the competition review that bank mergers currently pass through: it allows financial regulators to approve certain bank mergers without considering whether the merger is noncompetitive or monopolistic, and raises the asset threshold above which a financial holding company needs Federal Reserve Board approval to acquire a company, so more acquisitions close without that approval. A yea removes those checks.",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr6955.xml"
     }
    ]
   },
@@ -1392,6 +1472,14 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "The act repeals DOMA's man/woman definitions and requires interstate recognition of same-sex marriages. Mapped as a single key deliberately: a religious_liberty contradiction row would be false, because the enacted text expressly states it does not affect religious liberties and does not require religious organizations to provide goods or services for a marriage."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Sec. 4 inserts a new 28 U.S.C. 1738C providing that no person acting under color of State law may deny full faith and credit to another State's marriage record on the basis of the sex, race, ethnicity or national origin of the spouses, or deny a right or claim arising from such a marriage on the ground that the State would not itself recognize it, and it backs that with Attorney General enforcement and a private right of action. A yea overrides a State's own marriage-recognition rule with a federal one; a nay leaves each State's rule governing. Coded on the preemption question only — the merits are the lgbtq_rights row. Weighted 40 for the one section that does the overriding.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-117publ228/html/PLAW-117publ228.htm"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr8404.xml"
@@ -1431,6 +1519,22 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "Annual defense authorization: end strengths, procurement, military construction and DOE national security programs. No national_debt row, because the BILLSTATUS summary lists programs without a topline figure and asserting one would be unsourced — the same reason H.R. 3838 carries a debt slice (its summary cites a topline) and this one does not."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 1669 makes available not more than $108,000,000 to the Government of Israel to procure Iron Dome components through co-production in the United States, not more than $30,000,000 for David's Sling Weapon System co-production on a one-for-one cash match, and not more than $62,000,000 for the Arrow 3 Upper Tier Interceptor Program — $200,000,000 of missile-defense co-production in one section. Sec. 1551 establishes a Department of Homeland Security United States-Israel cybersecurity grant program and authorizes not less than $6,000,000 for each of fiscal years 2022 through 2026. Sec. 1316 establishes the Cyprus, Greece, Israel and United States 3+1 Interparliamentary Group. A yea funds and continues that backing. Weighted 35 for share of the vehicle: the enacted act also carries the Department of State Authorization Act of 2021 and a division of non-Defense matters.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117s1605enr/html/BILLS-117s1605enr.htm"
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 25,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 6610, the Blocking Deadly Fentanyl Imports Act, amends section 481(e) of the Foreign Assistance Act of 1961 (22 U.S.C. 2291(e)) to add a majors-list category for a country that is a significant source of illicit synthetic opioids significantly affecting the United States, and amends 22 U.S.C. 2291h(a) with a new paragraph (10) requiring the International Narcotics Control Strategy Report to identify the most significant source countries for illicit fentanyl and describe how far each is cooperating. A yea enacts that listing authority and that reporting duty. Weighted 25, the floor of this record: one section working through a designation criterion and a report, against the four-section BUST Fentanyl Act subtitle that carries the same key on S. 1071 at 40.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117s1605enr/html/BILLS-117s1605enr.htm"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s1605.xml"
@@ -1499,7 +1603,23 @@
      "weight": 100,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Annual defense authorization. Mapped to a single key: the enacted summary contains no Foreign Intelligence Surveillance Act section 702 provision (a search of the Public Law summary returns zero hits), so no privacy_rights slice is asserted."
+     "rationale": "Annual defense authorization. A yea authorizes the fiscal year 2024 defense topline and the personnel, procurement, research, military-construction and Department of Energy national-security programs under it."
+    },
+    {
+     "issueKey": "privacy_rights",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Section 7902 of the enacted act reauthorizes Title VII of the Foreign Intelligence Surveillance Act of 1978, the authority under which section 702 collection against targets outside the United States runs, through April 19, 2024. A yea extends that authority. Weighted as a provision-level slice rather than as the bill's headline: this is one section of a whole defense authorization.",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title XII, Subtitle D of the enacted act is headed \"Matters Relating to Israel\" and runs eight sections: Sec. 1252 extends United States-Israel anti-tunnel cooperation, Sec. 1253 improves cooperation to counter unmanned aerial systems, Sec. 1254 modifies the authority for cooperation on directed energy capabilities, Sec. 1256 authorizes assistance to Israel for aerial refueling and Sec. 1257 sets the rules governing transfer of aerial refueling tankers to Israel. Sec. 1665 makes available not more than $80,000,000 to the Government of Israel to procure Iron Dome components, not more than $40,000,000 for the David's Sling Weapon System and not more than $80,000,000 for the Arrow 3 Upper Tier Interceptor Program, each through co-production in the United States. A yea enacts all of it and keeps the security aid and the joint weapons programs running; a nay blocks the bill that carries them. Weighted 40 rather than the 35 carried by the FY2022 and FY2026 NDAAs: this is the widest Israel subtitle of the three, eight sections plus a $200,000,000 co-production section.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-118hr2670enr/html/BILLS-118hr2670enr.htm"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
@@ -1546,6 +1666,14 @@
      "isPrimary": false,
      "supportMeaning": "yea_supports",
      "rationale": "The act preserves a foreign intelligence collection authority the intelligence community identifies as a core counterterrorism and counterintelligence tool; a yea sustains it."
+    },
+    {
+     "issueKey": "congress_oversight",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act creates reporting and notification duties running to Congress where none existed. Section 11(a) revokes the Federal Bureau of Investigation's statutory reporting exemption under 50 U.S.C. 1873 and adds a mandatory annual report from the Director to the House Permanent Select Committee on Intelligence and Judiciary Committee and their Senate counterparts, plus a new quarterly report. Section 9 directs the Department of Justice Inspector General to report to the appropriate congressional committees on Bureau querying practices, including compliance with the United States person query procedures. Section 18(a) requires the Director of National Intelligence to notify the congressional intelligence committees within 7 days of any significant unauthorized disclosure of section 702 information, and section 18(b) sends a feasibility study on near-real-time compliance monitoring to the same committees. Section 14(b) adds the Foreign Intelligence Surveillance Court's use of its new contempt authority to the annual transparency report. A yea enacts all of that; a nay blocks it. Nothing in the act reduces an existing reporting duty to Congress, so one direction describes the instrument. Weighted at 45 because the act's operative purpose is the two-year section 702 extension in section 19, not the oversight machinery built around it.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-118publ49/html/PLAW-118publ49.htm"
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr7888.xml"
@@ -1699,6 +1827,14 @@
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr7217.xml",
      "rationale": "FY2024 emergency supplemental of roughly $17.6 billion for Israel and for U.S. Central Command operations in the region, with no offset, brought up under suspension as a standalone alternative to the combined Ukraine/Israel/Indo-Pacific package. Failed 250-180 against the two-thirds a suspension requires. A yea appropriates the aid."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title I appropriates across the United States military accounts: Military Personnel for the Army, Navy, Marine Corps and Air Force; Operation and Maintenance for each service and $5,035,750,000 Defense-Wide; Procurement, including service missile and ammunition accounts and $5,341,516,000 Defense-Wide; Research, Development, Test and Evaluation for all four services; and $549,800,000 in Revolving and Management Funds. The money replaces defense articles drawn from Department of Defense stocks and sustains United States force operations in the region. A yea funds those accounts. Weighted 50: the Department of Defense title is the bulk of the $17.6 billion bill, and the israel_support row already on this measure carries the aid.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-118hr7217ih/html/BILLS-118hr7217ih.htm"
     }
    ]
   },
@@ -1717,6 +1853,22 @@
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8034.xml",
      "rationale": "FY2024 emergency supplemental of roughly $26.4 billion for the situation in Israel: Israeli cooperative missile-defense programs including Iron Dome and David's Sling, Iron Beam procurement, Foreign Military Financing for Israel, replacement of U.S. defense articles and services provided to Israel, U.S. Central Command operations, and humanitarian assistance for Gaza. Enacted as Division A of P.L. 118-50. The 58 nays are members who declined to fund Israel's defense on a bill that asked nothing else of them, which makes this the most direct enacted test of the issue in the window. A yea funds it."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title I appropriates to United States accounts rather than to Israel: $4,400,000,000 to Operation and Maintenance, Defense-Wide, transferable to operation and maintenance, procurement and revolving fund accounts to replace defense articles drawn from the stocks of the Department of Defense and to reimburse Department of Defense services; $801,400,000 to Procurement of Ammunition, Army; $198,600,000 for Defense Production Act Purchases under sections 108 and 301 through 303 of the Defense Production Act of 1950; and, at sec. 101, $2,440,000,000 transferable to military personnel, operation and maintenance, procurement and research accounts only for United States operations, force protection, deterrence and the replacement of combat expenditures in the United States Central Command region. A yea funds U.S. forces in the region and refills U.S. stocks. Weighted 55: roughly $7.8 billion of the $26.4 billion Act, with the israel_support row already on this measure carrying the aid itself.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-118hr8034ih/html/BILLS-118hr8034ih.htm"
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Title III appropriates foreign assistance that is not assistance to Israel: $5,655,000,000 to International Disaster Assistance and $3,495,000,000 to Migration and Refugee Assistance, both to address humanitarian needs, including emergency food and shelter, of vulnerable populations and communities; $75,000,000 to International Narcotics Control and Law Enforcement for the Middle East; and $10,000,000 to Peacekeeping Operations, including a United States contribution to the Multinational Force and Observers mission in the Sinai. Every dollar is designated by Congress as an emergency requirement under sec. 251(b)(2)(A)(i) of the Balanced Budget and Emergency Deficit Control Act of 1985 and is unoffset. The chip's support direction is cutting, conditioning or winding down U.S. funding and commitments abroad, so a yea is coded as opposing it. The Foreign Military Financing for Israel in the same title is deliberately left out of this reading: the chip's scope note carves Israel aid out to israel_support. Weighted 50: about $9.2 billion of the $26.4 billion Act.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-118hr8034ih/html/BILLS-118hr8034ih.htm"
     }
    ]
   },
@@ -1726,7 +1878,7 @@
    "chamber": "house",
    "number": "H.R. 8369",
    "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8369",
-   "_note": "Not mapped to checks_balances, though it does constrain executive discretion. That key is for separation-of-powers questions between the branches as such; a member voting to force out bombs the administration had paused is voting about Israel. Filing it under checks_balances would move percentages on an issue the vote was not about.",
+   "_note": "Not mapped to checks_balances, though it does constrain executive discretion. That key is for separation-of-powers questions between the branches as such; a member voting to force out bombs the administration had paused is voting about Israel. Filing it under checks_balances would move percentages on an issue the vote was not about. Re-read August 2026 and now mapped to power_of_purse: the ground above was motive (\"a member ... is voting about Israel\"), which the product rule excludes, and the mechanism key did not exist when the note was written. checks_balances itself stays off — it is the general key and takes no roll-call mappings.",
    "issues": [
     {
      "issueKey": "israel_support",
@@ -1735,6 +1887,14 @@
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8369.xml",
      "rationale": "Requires the President to deliver to Israel the defense articles and services Congress has already authorized and appropriated, and withholds salaries-and-expenses funding from the Office of the Secretary of Defense, the Office of the Secretary of State and the National Security Council until the withheld shipments go out. Introduced after the administration paused a shipment of 2,000-pound and 500-pound bombs. A yea forces the transfer."
+    },
+    {
+     "issueKey": "power_of_purse",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Every operative section of the bill is a spend-what-was-appropriated instrument. Section 4 bars any funds appropriated to the Departments of Defense or State for fiscal year 2024 or earlier from being used \"to withhold, halt, reverse, or cancel the delivery of defense articles or defense services\", or to pay the salary of any officer or employee who acts to support such a withholding. Section 5 requires the Secretaries of Defense and State to ensure prompt delivery of articles supported by prior appropriations Acts and gives already-withheld items a 15-day deadline. Section 6 freezes the unobligated Operation and Maintenance, Defense-Wide balances for the immediate Office of the Secretary of Defense and the Diplomatic Programs balances for the Office of the Secretary of State until each Secretary certifies and reports to the Appropriations Committees that the deadline was met. Section 3(3) states the purpose in the same terms, calling on the administration \"to utilize all congressionally appropriated funds ... as Congress intended\". A yea compels obligation and delivery of appropriated assistance the executive had paused. This measure had been left off the checks-and-balances axis in the seed on the ground that a member forcing out the paused shipments was voting about Israel; that was a reading of motive rather than of the instrument, and it predates the August 2026 split that created this mechanism key. Weighted at 60 rather than at the primary because the compulsion runs to one partner's arms transfers rather than to appropriations practice generally.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-118hr8369eh/html/BILLS-118hr8369eh.htm"
     }
    ]
   },
@@ -1904,6 +2064,30 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "For the People Act of 2021. Title I requires every state to offer automatic voter registration through motor-vehicle and other designated agencies, same-day registration and online registration, and restricts voter-roll purges; Title II requires at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage, and restores voting rights to citizens released from incarceration. Every one of those provisions widens a registration or casting pathway, so a yea is a vote to expand access. The bill's election-security title is deliberately NOT mapped: it mandates durable paper ballots and risk-limiting audits while the same bill permits a sworn statement in lieu of documentary ID and restricts list maintenance, so one yea covers both directions of the safeguard facet and records neither."
+    },
+    {
+     "issueKey": "campaign_finance",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division B of the bill is titled \"Campaign Finance\" and is the largest of its three divisions. Sec. 4111 requires any organization making campaign-related disbursements aggregating more than $10,000 to report the donors behind them, the Honest Ads provisions beginning at Sec. 4201 extend the broadcast disclaimer and public-file rules to paid internet political advertising, and Sec. 4401 restricts the exchange of campaign information between candidates and outside spending groups so that a coordinating super PAC is treated as making a contribution. Sec. 5111 sets up a voluntary public financing system for House candidates paying 600 percent of each qualified small contribution out of a Freedom From Influence Fund. A yea enacts that whole structure; a nay leaves current law. Weighted 70 for share of the bill: an entire division of a three-division act.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr1eh/html/BILLS-117hr1eh.htm"
+    },
+    {
+     "issueKey": "gov_transparency",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division C is titled \"Ethics\" and is about disclosure by and conduct of officeholders. Sec. 9101 bars Members of the House from serving on the board of a for-profit entity, Sec. 9102 writes conflict-of-interest rules for Members and senior staff, Sec. 8012 requires the President and Vice President to divest personal financial interests that pose a conflict, Sec. 10001 requires presidential and vice-presidential candidates to file their income tax returns for the 10 most recent taxable years, and Sec. 7201 expands the range of individuals and activities that have to register and report under the lobbying disclosure laws. A yea enacts all five. Weighted 55 for share of the bill: one division of three, and the campaign-money titles are carried separately by the campaign_finance row rather than counted twice here.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr1eh/html/BILLS-117hr1eh.htm"
+    },
+    {
+     "issueKey": "scotus_reform",
+     "weight": 25,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 7001 requires the Judicial Conference of the United States to issue a code of conduct that applies to each justice and judge of the United States — the Supreme Court included, which no statute has ever reached. A yea enacts that requirement. It is the ethics half of this issue and none of the tenure half: the bill says nothing about term limits for justices. Weighted 25, the floor of this record, for one section of a three-division act.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr1eh/html/BILLS-117hr1eh.htm"
     }
    ]
   },
@@ -1920,6 +2104,14 @@
      "isPrimary": true,
      "supportMeaning": "yea_supports",
      "rationale": "John R. Lewis Voting Rights Advancement Act of 2021. Restores the Voting Rights Act preclearance regime with a rolling twenty-five-year coverage formula and adds a practice-based review list that gates specific access-narrowing changes — new documentary or photo-ID requirements, polling-place closures and consolidations, and voter-roll purges — behind federal review before they take effect, and restores a private right of action. The bill adds no verification requirement, ballot-handling rule or audit provision of its own, so it is mapped to the access facet only; mapping it to election_security would score members on a question the text does not ask."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Secs. 4 through 6 restore Voting Rights Act preclearance. Sec. 5 rewrites the coverage formula in 52 U.S.C. 10303(b) so that a State is covered for a calendar year when fifteen or more voting rights violations occurred there during the previous 25 calendar years, on a rolling basis. Sec. 6 inserts a new section 4A applying nationwide: every State and political subdivision must identify any newly enacted law, regulation or policy that is a covered practice and may not implement it until it has been cleared federally. A yea puts a State's own enacted election law behind federal approval before it can take effect; a nay leaves the State's rule governing on its own. Coded against this issue's direction on that preemption question only — the merits of the Voting Rights Act are the voting_access row, not this one. Weighted 55 for the three sections that carry the preclearance machinery.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr4eh/html/BILLS-117hr4eh.htm"
     }
    ]
   },
@@ -1982,6 +2174,14 @@
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
      "rationale": "The documentary requirement must be satisfied in person at a registration office, which as a practical matter closes registration by mail and online to any applicant who cannot present documents there, and the acceptable-document list does not accommodate a citizen whose current legal name differs from the name on their birth certificate. The bill adds a barrier at the registration step, so a yea is a vote against easier registration. This is the opposite direction from the same measure's election_security row on purpose: the two facets are scored independently and this bill genuinely pulls them apart."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Section 2(b) inserts a new National Voter Registration Act section 4(b) reading \"Under any method of voter registration in a State, the State shall not accept and process an application to register to vote in an election for Federal office unless the applicant presents documentary proof of United States citizenship\", and section 2(f)(3)'s new section 8(j) repeats the command \"[n]otwithstanding any other provision of this Act\". Section 2(a) fixes the list of acceptable documents in federal law rather than leaving it to the State, and section 2(c) subordinates the State motor-vehicle registration channel to the same section 8(j). Section 2(k) reaches the States that had been outside the Act entirely: it narrows the section 4(c) exemption so the new section 8(i) and (j) requirements apply to them, and new section 4(d) lets such a State escape only by adopting requirements \"identical to\" the federal ones within 60 days of its next federal election. Enforcement is federal too: section 2(i) opens a private right of action against an election official who registers an applicant without the proof, section 2(j) makes that act a federal crime, and section 3 has the Election Assistance Commission transmit implementing guidance to every chief State election official within 10 days. Coded yea_opposes because a yea substitutes a uniform federal rule for the State's own registration procedure. The provisions running the other way were read and weighed rather than ignored: section 2(f)(1) adds non-compliance with \"applicable State law\" as a removal ground, section 2(g) clarifies State authority to remove noncitizens, and section 7 preserves State exemptions from federal laws other than the NVRA. Each accommodates the federal mandate rather than leaving the State's choice standing, which is why the row is directional and why it is weighted at 45 rather than at the level of the citizenship purpose itself.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-118hr8281eh/html/BILLS-118hr8281eh.htm"
     }
    ]
   },
@@ -2308,7 +2508,7 @@
    "congress": 119,
    "chamber": "senate",
    "number": "S. 1071",
-   "_comment": "National Defense Authorization Act for Fiscal Year 2026, Public Law 119-60 (signed 2025-12-18). Easy to mis-identify three ways. S. 1071 was introduced 2025-03-14 as a bill to disinter the remains of Fernando V. Cota from Fort Sam Houston National Cemetery and passed the Senate by unanimous consent; the House struck the entire text, substituted the NDAA, and passed it 312-112 (house 119/1/320), after which the Senate agreed to the House amendment 77-20 (senate 119/1/648). The Clerk's vote-desc for House rolls 319 and 320 STILL PRINTS the disinterment title, so nothing here may be written from the roll-call page's description. S. 2296 (the Senate's own FY2026 NDAA, passed 77-20 on 2025-10-09) and H.R. 3838 (the House vehicle) are not the enacted law, and the H.R. 8800 already in the record is the FY2027 NDAA. Cornyn sponsored the shell vehicle and is NOT the NDAA's author. 'S. 1071' matches more than one row in vr_measures, so the migration applies this mapping to every row with that number. Three axes are mapped and six are declined with reasons — see declinedFacets in db/vr-landmark-vote-seed.json.",
+   "_comment": "National Defense Authorization Act for Fiscal Year 2026, Public Law 119-60 (signed 2025-12-18). Easy to mis-identify three ways. S. 1071 was introduced 2025-03-14 as a bill to disinter the remains of Fernando V. Cota from Fort Sam Houston National Cemetery and passed the Senate by unanimous consent; the House struck the entire text, substituted the NDAA, and passed it 312-112 (house 119/1/320), after which the Senate agreed to the House amendment 77-20 (senate 119/1/648). The Clerk's vote-desc for House rolls 319 and 320 STILL PRINTS the disinterment title, so nothing here may be written from the roll-call page's description. S. 2296 (the Senate's own FY2026 NDAA, passed 77-20 on 2025-10-09) and H.R. 3838 (the House vehicle) are not the enacted law, and the H.R. 8800 already in the record is the FY2027 NDAA. Cornyn sponsored the shell vehicle and is NOT the NDAA's author. 'S. 1071' matches more than one row in vr_measures, so the migration applies this mapping to every row with that number. Four axes are mapped and five are declined with reasons — see declinedFacets in db/vr-landmark-vote-seed.json. The israel_support axis was declined in that pass and mapped by 20260911000000 once runbook rule 22's \"section inside a vehicle\" bar was retired; the old refusal is preserved in reversedFacets.",
    "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
    "issues": [
     {
@@ -2334,6 +2534,14 @@
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
      "rationale": "Section 512 inserts a new 32 U.S.C. 328a: the chief executive of a State that has declared an emergency due to a disaster may order a member of that State's National Guard who is serving on Active Guard and Reserve duty to perform State disaster-response duty. A yea hands a governor direct authority over federally paid Guard personnel. Weighted 25 — the lowest mapping in that pass — because the authority is gated on the Secretary of Defense's consent, is reimbursable by the State, and is capped at 14 days per member per calendar year (extendable by 7 days, or by 46 for a catastrophic incident). It is a real Title 32 shift toward the states, but it is one narrow section of a 312-112 defence authorisation and must not be read as a referendum on who commands the Guard. Re-keyed from states_federal_power in the August 2026 taxonomy split."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1071enr/html/BILLS-119s1071enr.htm",
+     "rationale": "Six provisions of the enacted text back Israel militarily. Sec. 864 establishes a United States-Israel Defense Industrial Base Working Group. Title XII, Subtitle D is headed \"Matters Relating to Israel\": Sec. 1231 extends and modifies anti-tunnel cooperation, Sec. 1232 extends and modifies cooperation to counter unmanned systems in all warfighting domains, and Sec. 1235 requires a report on joint United States-Israel military exercises. Sec. 1657 makes available not more than $60,000,000 to the Government of Israel for Iron Dome components, $40,000,000 for the David's Sling Weapon System and $100,000,000 for the Arrow 3 Upper Tier Interceptor Program, each through co-production in the United States. Sec. 1706 requires a continual assessment of the impact of international state arms embargoes on Israel. A yea enacts all of it. Weighted 35 rather than the FY2027 NDAA's 40 because this text folds in fourteen separately titled Acts across eight divisions, so the same subtitle is a smaller share of what was voted on."
     }
    ]
   },
@@ -2509,6 +2717,113 @@
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3486eh/xml/BILLS-119hr3486eh.xml",
      "rationale": "Illegal entry and reentry are the two federal offences the immigration-enforcement system rests on, and this bill raises the penalty for both — the axis the border_security chip labels 'Strong Border & Enforcement'. Coded secondary at 65 rather than primary because the bill adds no barrier, no agent, no detention bed and no removal authority: it is enforcement severity, not enforcement capacity. The related deportations key is declined outright for the same reason."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 36",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr36eh/html/BILLS-119hr36eh.htm",
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 6 requires the President to determine, within 90 days, whether Georgian parliamentarians, senior party officials, leadership figures in the security and judicial services and their benefiting family members have knowingly engaged in significant corruption or in violence or intimidation connected to blocking Georgia's Euro-Atlantic integration, and to impose property-blocking sanctions under the International Emergency Economic Powers Act and visa ineligibility on each person identified. Sec. 4 states a policy of backing Georgia's integration with NATO and the European Union, and Sec. 7 conditions expanded exchanges and expanded military cooperation, including equipment suited to territorial defense against Russian aggression, on a presidential certification that Georgia has made sustained progress back toward that track. A yea puts United States sanctions and security cooperation behind an allied integration effort run with European partners; a nay leaves the tools unused. Sec. 8 sunsets the whole Act after five years.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr36eh/html/BILLS-119hr36eh.htm"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 7148",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ75/html/PLAW-119publ75.htm",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A is the entire FY2026 Department of Defense appropriation, Titles I-VIII, and is the largest division of the act by dollars. Sec. 8143 adds $1,000,000,000 in Defense-Wide operation and maintenance for the Taiwan Security Cooperation Initiative. A yea enacts those levels; a nay blocks the package that carries them."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A Sec. 8071 appropriates $500,000,000 for Israeli Cooperative Programs: $60,000,000 Iron Dome, $127,000,000 Short-Range Ballistic Missile Defense, $40,000,000 SRBMD co-production, $100,000,000 upper-tier Israeli Missile Defense Architecture and Arrow 3 co-production, and $173,000,000 Arrow System Improvement Program. Division F Sec. 7041(c) directs not less than $3,300,000,000 in Foreign Military Financing grants only for Israel, disbursed within 30 days of enactment, plus not less than $250,300,000 for procurement in Israel. Division G Sec. 101 bars any contribution, grant or other payment to UNRWA."
+    },
+    {
+     "issueKey": "health_rural",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division J extends the rural and safety-net health authorities that were otherwise expiring: Sec. 6105(b) eliminates the scheduled Medicaid disproportionate share hospital allotment reductions, Sec. 6201 continues the increased inpatient adjustment for low-volume hospitals, Sec. 6202 extends the Medicare-Dependent Hospital program, Sec. 6203 extends the ground ambulance add-on payments, Sec. 6209 extends the Medicare telehealth flexibilities, and Sec. 6401 funds community health centers, the National Health Service Corps and teaching health center graduate medical education."
+    },
+    {
+     "issueKey": "foreign_balance",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division F Titles I, IV and V fund the diplomatic and allied-military instruments and the multilateral institutions: diplomatic programs $9,358,236,000, Foreign Military Financing $6,158,397,000, International Military Education and Training $119,152,000, peacekeeping operations $335,458,000, International Development Association $1,066,184,000, International Organizations and Programs $339,000,000, Global Environment Facility $150,200,000, and contributions to the Asian Development Fund and the African Development Bank. Scoped to allied military cooperation and multilateral institutions, per the rule recorded in 20260726120000_vr_coverage_pass_mappings.sql; general aid levels are not read as this axis."
+    },
+    {
+     "issueKey": "health_drug_prices",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division J regulates pharmacy benefit managers directly. Sec. 6702 requires a PBM to pass 100 percent of rebates through to the plan and makes a non-conforming arrangement a prohibited transaction under ERISA section 408(b)(2), with a 30-month effective date and an innocent-fiduciary exception; Sec. 6701 imposes oversight and reporting on PBM services; Sec. 6703 requires generic drug application transparency; and Secs. 6223-6224 add pharmacy access and choice protections and further PBM accountability requirements."
+    },
+    {
+     "issueKey": "pro_life",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act carries abortion-funding restrictions across four divisions: Division B Secs. 506-507 bar Labor-HHS funds for abortion with the standing life, rape and incest exceptions; Division E Sec. 613 bars abortion coverage in federal employee health plans; Division E Sec. 810 applies the same bar to District of Columbia funds; and Division F Sec. 7018 bars part I Foreign Assistance Act funds for abortion as a method of family planning. Recorded neutrally and weighted low, following the treatment of the same rider class on H.R. 6703 in 20260721160000_seed_legislation_deepdive3.sql: these are continuations of long-standing riders, not a new position taken on this vote."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 8595",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8595",
+   "issues": [
+    {
+     "issueKey": "gov_services",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Full-year appropriations bill funding the Department of State and related international programs; a yea keeps those federal operations and programs funded for FY2027."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The same Act makes the FY2027 appropriations for national security programs; a yea funds them."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr8595eh/html/BILLS-119hr8595eh.htm",
+     "rationale": "Sec. 7048(d) bars funds for the United Nations Human Rights Council, the Commission of Inquiry on the Occupied Palestinian Territory, East Jerusalem and Israel, and the Office of the High Commissioner for Human Rights. Sec. 7048(e) makes the bar on UNRWA permanent across this and prior Acts and extends it to soliciting UNRWA funds from other donors. Sec. 7049 conditions United Nations Secretariat funding on written assurance that UNRWA staff immunities will not be asserted for terrorism, material support or gross human-rights violations, and on inspector-general oversight of Gaza activities and the October 7, 2023 attacks. Sec. 7004(e) bars moving the United States embassy to Israel out of Jerusalem, and Sec. 7041(c) directs not less than $3,300,000,000 in Foreign Military Financing grants only for Israel."
+    },
+    {
+     "issueKey": "pro_life",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr8595eh/html/BILLS-119hr8595eh.htm",
+     "rationale": "Sec. 7018 bars funds made available to carry out part I of the Foreign Assistance Act of 1961 from paying for abortion as a method of family planning or from motivating or coercing any person to practice abortion. Recorded neutrally and weighted low on the H.R. 6703 precedent: a continuation of a long-standing rider rather than a new position taken on this vote."
     }
    ]
   }

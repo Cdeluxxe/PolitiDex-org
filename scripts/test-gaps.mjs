@@ -613,14 +613,14 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260909000000_vr_vote_corrections',
+  eq(versions[versions.length - 1], '20260915000000_vr_formal_densification_save_risaa_isasa',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by the August 2026 pass that
-  // corrected eighteen stored votes against their official documents. What it
-  // guards does not move: whatever was added
-  // most recently has to sort after everything already applied, or the deploy is
-  // rejected. The check below is the one that pins THIS test's migration, and it
+  // whenever a later migration lands — updated here by the SAVE / RISAA / ISASA pass,
+  // which read the voted text of H.R. 8281, H.R. 7888 and H.R. 8369 (118th) and added
+  // states_federal_power, congress_oversight and power_of_purse to them respectively. What it guards does not move:
+  // whatever was added most recently has to sort after everything already applied, or
+  // the deploy is rejected. The check below is the one that pins THIS test's migration, and it
   // stays put.
   const gapIdx = versions.findIndex((v) => /cee_posts_gap_and_politician_links/.test(v));
   ok(gapIdx >= 0 && versions.slice(0, gapIdx).every((v) => v < versions[gapIdx]),

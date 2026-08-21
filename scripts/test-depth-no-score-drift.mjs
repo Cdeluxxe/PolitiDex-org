@@ -100,7 +100,31 @@ const READ_KEYS = ["pct", "publishable", "word", "testedWeight"];
 const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked",
                   "notIssueLinked", "recordDerived", "warming"];
 
-let published = 0, thinPerfect = 0;
+// ── Profiles this pass curated, and what that is allowed to move ─────────────
+// Comparing the working tree to HEAD catches a formula that drifted. Read
+// literally it also catches a curator who added a sourced position, because a
+// profile with one more stated position has one more word row — and that is the
+// work, not the drift. Freezing coverage forever would make this file a freeze on
+// curation, which is not what it was written to protect.
+//
+// So a named profile may move its COVERAGE, and nothing else. `pct`,
+// `publishable` and `testedWeight` are still held bit-for-bit for everyone, every
+// row that exists in both trees is still compared in full, and a curated profile
+// has the extra burden of showing that its rows only ever GREW: same rows, same
+// order, additions at the end. A floor lowered or a row quietly dropped still
+// fails here, on this list or off it.
+//
+// August 2026 densification pass — scripts/vr-densify-stances-aug2026.mjs:
+//   french_hill / gov_regulation  · re-sourced off a vote-derived sentence
+//   massie      / privacy_rights  · re-sourced off a vote-derived sentence
+//   boebert     / privacy_rights  · first sourced position on the key
+const CURATED = {
+  french_hill: "gov_regulation re-sourced from a Financial Services letter",
+  massie: "privacy_rights re-sourced from the Surveillance Accountability Act release",
+  boebert: "privacy_rights added from her own quoted statement",
+};
+
+let published = 0, thinPerfect = 0, curated = 0;
 for (const pid of PIDS) {
   const p = before.CMP_DATA[pid];
   let a = null, b = null;
@@ -115,8 +139,25 @@ for (const pid of PIDS) {
     eq(JSON.stringify(b[k]), JSON.stringify(a[k]), `${pid}: read().${k} is unchanged`);
   }
   const ca = a.coverage || {}, cb = b.coverage || {};
-  for (const k of COV_KEYS) {
-    eq(cb[k], ca[k], `${pid}: coverage.${k} is unchanged`);
+  if (CURATED[pid]) {
+    // Coverage may move — the score may not, and it is held above with READ_KEYS.
+    // What is checked instead is that the movement is depth: the pool of positions
+    // this profile can be tested on never shrank.
+    // Not `word` on its own: re-sourcing a vote-derived sentence can retire a
+    // branding placeholder the engine only emitted because the key had no real
+    // position, which drops the raw count while improving the record. The
+    // invariant that holds is the one that matters — the number of positions
+    // standing on their OWN evidence never falls.
+    ok((cb.word - cb.recordDerived) >= (ca.word - ca.recordDerived),
+      `${pid}: curated (${CURATED[pid]}) — independently-sourced positions did not fall away`);
+    ok(cb.scorable >= ca.scorable, `${pid}: curated (${CURATED[pid]}) — the scorable pool did not shrink`);
+    ok(cb.recordDerived <= ca.recordDerived, `${pid}: curated (${CURATED[pid]}) — no position became record-derived`);
+    eq(cb.warming, ca.warming, `${pid}: curated (${CURATED[pid]}) — warming state is unchanged`);
+    curated++;
+  } else {
+    for (const k of COV_KEYS) {
+      eq(cb[k], ca[k], `${pid}: coverage.${k} is unchanged`);
+    }
   }
 
   if (a.publishable && typeof a.pct === "number") {
@@ -136,7 +177,9 @@ for (const pid of PIDS) {
       `${pid}: an unpublishable read did not become publishable`);
   }
 }
-console.log(`      (published figures compared: ${published}; of them thin-and-near-perfect: ${thinPerfect})`);
+console.log(`      (published figures compared: ${published}; of them thin-and-near-perfect: ${thinPerfect}; curated this pass: ${curated})`);
+eq(curated, Object.keys(CURATED).length,
+  "every profile on the curated list was actually reached — a stale name would hide a real freeze");
 ok(published > 0, "there were published figures to compare");
 ok(thinPerfect > 0, "…including the thin, near-perfect ones this pass is about");
 
@@ -161,8 +204,13 @@ for (const pid of PIDS) {
     if (!sa || !sb) continue;
     eq(sb.pct, sa.pct, `${pid}: ${slice}.pct is unchanged`);
     eq(sb.publishable, sa.publishable, `${pid}: ${slice}.publishable is unchanged`);
-    eq(sb.coverage.tested, sa.coverage.tested, `${pid}: ${slice} tested count is unchanged`);
-    eq(sb.coverage.scorable, sa.coverage.scorable, `${pid}: ${slice} scorable pool is unchanged`);
+    if (CURATED[pid]) {
+      ok(sb.coverage.tested >= sa.coverage.tested, `${pid}: ${slice} tested count did not fall`);
+      ok(sb.coverage.scorable >= sa.coverage.scorable, `${pid}: ${slice} scorable pool did not shrink`);
+    } else {
+      eq(sb.coverage.tested, sa.coverage.tested, `${pid}: ${slice} tested count is unchanged`);
+      eq(sb.coverage.scorable, sa.coverage.scorable, `${pid}: ${slice} scorable pool is unchanged`);
+    }
   }
 }
 console.log(`      (scoped reads compared: ${scoped})`);
@@ -177,9 +225,17 @@ for (const pid of PIDS) {
   let ra = [], rb = [];
   try { ra = before.PDXConsistency.issueRows(pid) || []; } catch (e) { continue; }
   try { rb = after.PDXConsistency.issueRows(pid) || []; } catch (e) { rb = []; }
-  eq(rb.length, ra.length, `${pid}: the same number of issue rows`);
-  eq(rb.map((r) => r.key).join("|"), ra.map((r) => r.key).join("|"),
-    `${pid}: the same issue rows, in the same order`);
+  const keysA = ra.map((r) => r.key), keysB = rb.map((r) => r.key);
+  if (CURATED[pid]) {
+    // Same rows, same order, additions only. A row that vanished or moved would
+    // still fail — this is a superset check, not a waiver.
+    ok(keysB.length >= keysA.length, `${pid}: curated — the row list did not shrink`);
+    eq(keysB.slice(0, keysA.length).join("|"), keysA.join("|"),
+      `${pid}: curated — every pre-existing row is still there, in the same order`);
+  } else {
+    eq(rb.length, ra.length, `${pid}: the same number of issue rows`);
+    eq(keysB.join("|"), keysA.join("|"), `${pid}: the same issue rows, in the same order`);
+  }
   const byKey = {};
   for (const r of rb) byKey[r.key] = r;
   for (const r of ra) {

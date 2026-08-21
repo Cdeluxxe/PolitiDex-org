@@ -148,6 +148,7 @@
             "isPrimary": true,
             "weight": 90,
             "plain": "Told every agency with authority under the Affordable Care Act to waive, delay or grant exemptions from any of its requirements that impose a cost or a penalty, while repeal was pursued. That loosens the coverage law's reach without Congress changing it.",
+            "counts": "This issue is about the reach of the coverage law. The order works on that reach without repealing anything: every agency holding authority under the Affordable Care Act is told to waive, defer or exempt wherever a requirement imposes a cost or a penalty.",
             "rationale": "Section 1 states the policy of seeking the prompt repeal of the Patient Protection and Affordable Care Act, and section 2 directs the Secretary of Health and Human Services and every other agency with authority under the Act to 'waive, defer, grant exemptions from, or delay the implementation of' any provision imposing a cost, fee, tax, penalty or regulatory burden. Narrowing the reach of the coverage law is what this direction means on this issue."
           }
         ],
@@ -244,6 +245,7 @@
             "isPrimary": false,
             "weight": 85,
             "plain": "Directed the EPA to review the Clean Power Plan — the rule limiting power-plant carbon emissions — and suspend, revise or rescind it. Pulling back the main federal carbon rule cuts against this issue.",
+            "counts": "Filed here as the second reading of an energy order. The rule it sends back for review, the Clean Power Plan, was the federal government's principal limit on power-plant carbon, which is the subject this issue tracks.",
             "rationale": "Section 4 directs the Administrator of the Environmental Protection Agency to take all steps necessary to review the Clean Power Plan and its related rules and guidance for consistency with section 1, and as soon as practicable to suspend, revise or rescind them if appropriate."
           }
         ],
@@ -322,6 +324,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Stood up a presidential commission to study how people register and cast ballots in federal elections, and to report on the weaknesses that could put ineligible people on the rolls.",
+            "counts": "This issue is about proving eligibility at registration and at the ballot. The commission's remit was narrower — the records and practices that let ineligible registrations stand — so the link here is secondary to the election-integrity one.",
             "rationale": "Section 1 establishes the Presidential Advisory Commission on Election Integrity. Section 3 gives it the mission of studying the registration and balloting processes used in Federal elections, reporting on practices that enhance or undermine confidence in them, and reporting on the vulnerabilities in those systems and practices that could lead to improper registrations and improper ballots, including fraudulent ones. Section 4 defines both of those terms by reference to legal eligibility. It is an advisory body: it studies and reports, and section 3 gives it no power to change any State’s eligibility rules. Mapped at reduced weight and filed as a secondary reading for that reason — the chip is about requiring photo identification, and a commission charged with examining eligibility safeguards moves toward that position without imposing one."
           },
           {
@@ -497,6 +500,7 @@
             "isPrimary": true,
             "weight": 90,
             "plain": "Vetoed the resolution that would have terminated the February 2019 border national emergency, keeping the emergency — and the authorities it opened for barrier construction — in place.",
+            "counts": "Terminating the February 2019 national emergency would have closed off the authorities being used to build barrier along the southern border. That is what files the resolution on border security rather than on emergency powers alone.",
             "rationale": "The direction recorded here describes the RESOLUTION, not the action taken against it: H.J. Res. 46 would have terminated the national emergency related to the U.S.-Mexico border declared on February 15, 2019, which cuts against this issue. The record engine inverts a blocking action, so the veto itself reads the other way — it kept that emergency in place."
           }
         ],
@@ -541,6 +545,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "The blocked resolution would have required congressional authorization for the forces committed to that conflict; the veto left them there without it.",
+            "counts": "War powers is the constitutional question underneath the Yemen resolution: whether forces already committed need authorization from Congress to stay committed. The resolution put that question directly, which is why it is filed here as well as under restraint.",
             "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split: this row was always about who authorizes the use of force, not about what the United States funds abroad, and the narrowed america_first_fp key covers aid and commitments only. Same inversion as the restraint row above — the direction is the resolution’s. A resolution directing removal of forces from hostilities Congress had not authorized advances the claim that Congress must authorize them, so the veto is read against it."
           }
         ],
@@ -657,6 +662,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "A second resolution asserting that this engagement lacked congressional authorization was blocked thirteen months after the first, leaving that question unanswered.",
+            "counts": "The same constitutional question, asked about the hostilities with Iran. It is filed here because the resolution's assertion that the engagement lacked congressional authorization, rather than the deployment itself, is what the instrument was for.",
             "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split, on the same reasoning as S.J. Res. 7: the claim under test is who authorizes hostilities, which the narrowed america_first_fp key no longer covers. The direction is the resolution’s and the veto is read against it. Filed separately from S.J. Res. 7 because it concerns a different country and has its own returned-resolution history."
           }
         ],
@@ -711,6 +717,7 @@
             "isPrimary": false,
             "weight": 50,
             "plain": "Aimed the deferral at workers earning under roughly $104,000 annually, so the relief it delivered was bounded to middle- and lower-income paychecks.",
+            "counts": "This issue is about where tax relief lands rather than how large it is. The deferral's eligibility ceiling, roughly $104,000 in annual pay, is what puts it here alongside the lower-taxes filing.",
             "rationale": "Section 2 limits the deferral to employees \"generally less than $4,000 during a bi-weekly pay period, or the equivalent threshold amount with respect to other pay periods,\" which is the income bound that makes this a household-side mapping rather than a general rate mapping. Weighted level with the lower_taxes mapping rather than above it: the income bound is what makes this a household-side reading, but it is the same single act of deferral, and the primary mapping is the one that names the mechanism."
           }
         ]
@@ -1036,6 +1043,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Tells agencies to prioritize developing Alaska's liquefied natural gas, including moving it to other states and to allied nations — added supply is the point.",
+            "counts": "Alaska is the order's subject; output is this issue's. They meet at the liquefied natural gas directive, where agencies are told to prioritize developing it and moving it to other states and allied nations.",
             "rationale": "Section 3 directs agencies to prioritise the development of Alaska's liquefied natural gas potential, including the transport of that gas to other regions of the United States and to allied nations."
           }
         ],
@@ -1081,6 +1089,7 @@
             "isPrimary": false,
             "weight": 55,
             "plain": "Revoked the previous administration's climate executive orders, including the ones setting federal emissions and clean-energy direction.",
+            "counts": "The order's own subject is domestic energy. It reaches this issue by revocation rather than by rulemaking: the previous administration's climate orders, including those setting federal emissions and clean-energy direction, are withdrawn.",
             "rationale": "Revokes the previous administration's climate executive orders. The Federal Register disposition record for this document lists the revocations by number, including EO 13990 and EO 14008."
           }
         ],
@@ -1127,6 +1136,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Puts Clean Water Act and Endangered Species Act reviews for energy projects on federal land and water onto emergency timelines.",
+            "counts": "This issue is about energy development on federal land and water. The emergency reaches it procedurally rather than by opening acreage — Clean Water Act and Endangered Species Act reviews for those projects move onto emergency timelines.",
             "rationale": "Sections 4 and 5 direct emergency Clean Water Act and Rivers and Harbors Act permitting by the Army Corps of Engineers and emergency Endangered Species Act consultation procedures for energy projects on federal land and water."
           },
           {
@@ -1135,6 +1145,7 @@
             "isPrimary": false,
             "weight": 55,
             "plain": "The emergency's own definition of energy lists oil, gas, coal, uranium, hydropower and critical minerals but leaves out wind and solar, so the fast-track procedures are unavailable to them.",
+            "counts": "What the order leaves out is why it is filed here. Its definition of energy runs to oil, gas, coal, uranium, hydropower and critical minerals and stops, so wind and solar cannot reach the fast-track procedures it creates.",
             "rationale": "Section 8(a) defines the 'energy' the emergency covers as crude oil, natural gas, lease condensates, natural gas liquids, refined petroleum products, uranium, coal, biofuels, geothermal heat, the kinetic movement of flowing water and critical minerals — wind and solar are absent from the definition, so the emergency's expedited procedures are unavailable to them."
           }
         ],
@@ -1209,6 +1220,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Builds out the detention and expedited-removal machinery behind the border regime, so people apprehended are held rather than released inland.",
+            "counts": "The order's subject is interior enforcement and this issue is about the border itself. They meet at detention capacity and expedited removal, which is the machinery the border regime depends on downstream of an apprehension.",
             "rationale": "Directs the enforcement machinery behind the border regime, including expanded detention and the use of expedited removal to the extent the statute allows."
           }
         ],
@@ -1244,6 +1256,7 @@
             "isPrimary": true,
             "weight": 100,
             "plain": "Ordered immediate written notice of U.S. withdrawal from the Paris Agreement and from other commitments made under the UN climate convention.",
+            "counts": "The Paris Agreement is the framework this issue is organized around. Giving written notice of withdrawal from it, and from other commitments under the UN climate convention, is action on the issue itself rather than on any single rule.",
             "rationale": "Section 3 directs the United States Ambassador to the United Nations to submit immediate written notice of withdrawal from the Paris Agreement and from any other commitment made under the United Nations Framework Convention on Climate Change.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue gives its evidence as \"Executive Order withdrawing from the Paris Agreement\", which is a description of this document and nothing else. The issue keeps two independent tests it does not name — Executive Order 14261 and Public Law 119-21."
@@ -1324,6 +1337,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Directs removal of apprehended entrants and ends the practices that released them into the interior while their cases were pending.",
+            "counts": "Border security is the order's subject; this issue is about what happens to people already apprehended. The order answers that directly — removal, and an end to the practices that released them into the interior while cases were pending.",
             "rationale": "Directs removal of apprehended entrants and termination of practices that released them into the interior pending proceedings."
           }
         ],
@@ -1739,6 +1753,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Removes enforcement discretion at the point of arrest, so covered people are held for immigration proceedings instead of released.",
+            "counts": "This issue is about control at the border, and the law operates after entry. It is filed here because it closes the discretion that returned covered people to the interior, which is the part of border policy the statute actually changes.",
             "rationale": "Tightens immigration enforcement."
           },
           {
@@ -1747,6 +1762,7 @@
             "isPrimary": false,
             "weight": 55,
             "plain": "The trigger list is criminal: burglary, theft, larceny, shoplifting, assault of a police officer, or any offense causing death or serious bodily injury.",
+            "counts": "The trigger list is what files an immigration statute under crime: burglary, theft, larceny, shoplifting, assault of a police officer, or any offense causing death or serious bodily injury.",
             "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury."
           },
           {
@@ -1755,6 +1771,7 @@
             "isPrimary": false,
             "weight": 40,
             "plain": "Gives state attorneys general standing to sue the federal government over certain immigration detention and enforcement decisions — a narrow grant inside an immigration law, not a general shift of power.",
+            "counts": "State authority to sue the federal government is the subject here, and the grant is narrow: state attorneys general may challenge certain detention and enforcement decisions. It is filed as one provision inside an immigration law, not a general shift of power.",
             "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions. Re-keyed from states_federal_power in the August 2026 taxonomy split: a cause of action against the federal government is a different question from whose rule governs a shared subject, and it now has its own key."
           }
         ],
@@ -1790,6 +1807,7 @@
             "isPrimary": true,
             "weight": 70,
             "plain": "Set the tariff rates himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+            "counts": "This issue is about who sets tariff rates, not about whether tariffs are used. Here the rates were fixed by executive order under emergency economic powers, with no rate schedule enacted by Congress behind them.",
             "rationale": "The order is issued \"by the authority vested in me as President by the Constitution and the laws of the United States of America, including the International Emergency Economic Powers Act (50 U.S.C. 1701 et seq.), the National Emergencies Act (50 U.S.C. 1601 et seq.), section 604 of the Trade Act of 1974 (19 U.S.C. 2483), and section 301 of title 3, United States Code,\" and imposes additional ad valorem duties on articles that are products of Canada. Mapped opposes because the chip states the guardrail position — keeping Congress’s constitutional role over tariffs — and setting rates unilaterally under an emergency statute runs against it. The mapping is about WHO SET THE RATE, not about whether the rate was wise."
           }
         ],
@@ -1833,6 +1851,7 @@
             "isPrimary": true,
             "weight": 70,
             "plain": "Set the tariff rates himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+            "counts": "The question this issue asks is where tariff-setting power sits. On the southern-border duties it sat inside the executive branch: rates fixed by order under emergency economic powers rather than by statute.",
             "rationale": "Same authority clause and same mechanism as Executive Order 14193, applied to articles that are products of Mexico: additional ad valorem duties imposed under the International Emergency Economic Powers Act and the National Emergencies Act by executive order. Filed as its own row rather than folded into the northern-border order because it is a separate instrument with its own citation and its own amendment history — Executive Order 14227 of March 2, 2025, Executive Order 14289 of April 29, 2025 and Proclamation 10962 of July 30, 2025."
           }
         ],
@@ -1886,6 +1905,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Extends the border emergency to China's failure to stop precursor-chemical suppliers and cartel money laundering, and uses the new duties as the lever against that supply chain.",
+            "counts": "Fentanyl is the order's stated reason for the duty. It names precursor-chemical suppliers and cartel money laundering as the target and uses the tariff as the lever against that supply chain, which is what files a trade instrument here.",
             "rationale": "Expands the national emergency declared in Proclamation 10886 to cover the failure of the PRC government to intercept chemical precursor suppliers, money launderers and transnational criminal organisations, and imposes the duties as the measure against that supply chain."
           },
           {
@@ -1894,6 +1914,7 @@
             "isPrimary": false,
             "weight": 65,
             "plain": "Set the China duty rate himself by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+            "counts": "Filed here for the same reason as the two same-day border orders: the China rate was fixed by executive order under emergency economic powers rather than under a rate schedule enacted by Congress.",
             "rationale": "The order is issued under the International Emergency Economic Powers Act and the National Emergencies Act and imposes an additional ad valorem duty on articles that are products of the PRC, with section 3 reserving to the President the determination whether the PRC has taken adequate steps. Mapped opposes on the guardrail chip, on the same ground as Executive Orders 14193, 14194, 14245 and 14257: the mapping is about who set the rate, not about whether the rate was wise. Added in wave 11; this document was already in the record for its tariffs_china and immig_fentanyl mappings, and leaving the authority question off it while filing three sibling orders for exactly that question would have been selection."
           }
         ],
@@ -1946,6 +1967,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Uses a duty on one industrial input to rebuild domestic steel capacity, and closes the side doors named partners had been shipping through.",
+            "counts": "Trade posture is the second reading of a steel action. Ending the country arrangements, exemptions and quotas is aimed at the shape of import flows as a whole, not only at the one industry the duty was built to protect.",
             "rationale": "Uses import duties on a single industrial input as the instrument for rebuilding domestic steel capacity, and removes the alternative arrangements that had let named partners ship outside the duty."
           },
           {
@@ -2168,6 +2190,7 @@
             "isPrimary": true,
             "weight": 70,
             "plain": "Claimed the power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen by the executive branch alone.",
+            "counts": "The claim made in this order is the reason it is filed here: a power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen inside the executive branch alone.",
             "rationale": "Issued under the International Emergency Economic Powers Act and the National Emergencies Act, the order authorizes a 25 percent ad valorem duty on goods from any country determined to import Venezuelan oil, directly or indirectly, with the determination left to the Secretary of State in consultation with named officials. Mapped opposes on the same ground as the other two duty orders in this wave: the chip is about who sets tariffs, and this instrument places both the rate and the choice of target inside the executive branch."
           }
         ],
@@ -2220,6 +2243,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Directs federal agencies to share data to identify ineligible registrants and to enforce ballot-receipt deadlines against states that count late-arriving ballots.",
+            "counts": "Voter identification is this order's primary file; this issue covers the administration of elections around it. The pieces that land here are federal data-sharing aimed at identifying ineligible registrants and enforcement of ballot-receipt deadlines against states.",
             "rationale": "Directs federal agencies to share data to identify ineligible registrants and directs enforcement of ballot-receipt deadlines against States that count late-arriving ballots."
           },
           {
@@ -2305,6 +2329,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "Sets the rates by executive order under emergency economic powers rather than under a rate schedule enacted by Congress.",
+            "counts": "The reciprocal-tariff program is filed here on its authority rather than its rates. They were set by executive order under emergency economic powers, not under a rate schedule enacted by Congress.",
             "rationale": "Sets tariff rates by executive order under the International Emergency Economic Powers Act rather than under a rate schedule enacted by Congress.",
             "_circularNote": "The circular hold on this mapping was lifted. It was held because the tariffs_authority stance card was written about the litigation over this very order — it described the first presidential invocation of IEEPA to set tariffs and cited the Supreme Court opinion in the case challenging it — and, no identifier matching mechanically, the declared flag was the only thing holding the pair. That card has been re-authored from his own September 2024 campaign remarks that he does not need Congress to impose tariffs, a statement that predates this order and does not depend on it, so this document can test it."
           },
@@ -2332,6 +2357,7 @@
             "isPrimary": false,
             "weight": 55,
             "plain": "Uses import duties as the instrument for reshoring manufacturing and rebuilding supply chains.",
+            "counts": "This issue is about the trade balance and where goods are made. The order treats import duties as the instrument for reshoring manufacturing and rebuilding supply chains, which is the aim it is filed under here.",
             "rationale": "Uses import duties as the instrument for reshoring domestic manufacturing and rebuilding supply chains."
           },
           {
@@ -2394,6 +2420,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Directs Interior, Agriculture and Energy to report on coal resources on federal lands and on the obstacles to leasing and mining them.",
+            "counts": "Coal production is the order's subject; this issue is about the federal estate. The link is the reporting directive to Interior, Agriculture and Energy on coal resources on federal lands and the obstacles to leasing and mining them.",
             "rationale": "Section 4 directs the Secretaries of the Interior, Agriculture and Energy to report on coal resources and reserves on federal lands and on obstacles to leasing and mining them."
           }
         ],
@@ -2507,6 +2534,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Treats the manufacturing rules it removes as obstacles to an affordable drug supply chain; any price effect is indirect, through supply.",
+            "counts": "This issue is about what medicines cost. The order reaches it only through supply, treating the manufacturing rules it removes as obstacles to a domestic production base, so it is filed here as an indirect route aimed at price rather than one that sets a price.",
             "rationale": "Sets as policy the restoration of a domestic pharmaceutical manufacturing base on the stated ground that the barriers it removes stand in the way of an affordable pharmaceutical supply chain for American patients."
           }
         ],
@@ -2585,6 +2613,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Locks in the 2017 rate schedule and adds temporary deductions for tip and overtime income.",
+            "counts": "Lower taxes is the law's primary file; this issue is about who the relief reaches. The provisions that land here are the locked-in 2017 rate schedule and the temporary deductions for tip and overtime income.",
             "rationale": "Makes the 2017 individual income-tax rates permanent and adds temporary deductions for tips and overtime pay."
           },
           {
@@ -2612,6 +2641,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Pays for part of its cost with Medicaid and SNAP reductions that CBO estimates leave millions more people without insurance.",
+            "counts": "Coverage is not the subject of a reconciliation law, but it is where part of the cost is found. The Medicaid and SNAP reductions that pay for the tax provisions are estimated by CBO to leave millions more people without insurance.",
             "rationale": "Offsets part of its cost with Medicaid and SNAP reductions the CBO estimates leave millions more people uninsured.",
             "circularWithStance": true,
             "circularNote": "The stance card on this issue is titled \"H.R.1: Medicaid & SNAP\" and exists to report this law's projected coverage effect. The card is downstream of this document, so this document cannot test it."
@@ -2622,6 +2652,7 @@
             "isPrimary": false,
             "weight": 55,
             "plain": "Appropriates money for border-barrier construction and for border enforcement personnel.",
+            "counts": "One title of the law reaches this issue directly, appropriating money for barrier construction and for border enforcement personnel. It is filed as a section of a broad law rather than as border legislation.",
             "rationale": "Funds border-barrier construction and border enforcement personnel."
           },
           {
@@ -2630,6 +2661,7 @@
             "isPrimary": false,
             "weight": 55,
             "plain": "Phases out and repeals the clean-energy and electric-vehicle tax credits enacted in 2022.",
+            "counts": "The law touches this issue through the tax code rather than through environmental rules: the clean-energy and electric-vehicle credits enacted in 2022 are phased out and repealed.",
             "rationale": "Phases out and repeals clean-energy and electric-vehicle tax credits enacted in 2022."
           },
           {
@@ -2638,6 +2670,7 @@
             "isPrimary": false,
             "weight": 50,
             "plain": "Appropriates tens of billions of dollars for immigration detention and removal operations.",
+            "counts": "Removal operations are funded here rather than authorized here. Tens of billions of dollars are appropriated for immigration detention and removal, which is what files a reconciliation law on this issue.",
             "rationale": "Appropriates tens of billions of dollars for immigration detention and removal operations."
           },
           {
@@ -2646,6 +2679,7 @@
             "isPrimary": false,
             "weight": 45,
             "plain": "Raises the child tax credit to $2,200 per child and makes that level permanent — one provision inside a broad reconciliation law, not a family-policy bill.",
+            "counts": "This issue is about direct support to households raising children. The single provision that reaches it is the child tax credit, raised to $2,200 per child and made permanent at that level.",
             "rationale": "Raises the child tax credit to $2,200 per child and makes it permanent."
           },
           {
@@ -2654,6 +2688,7 @@
             "isPrimary": false,
             "weight": 45,
             "plain": "Expands onshore and offshore oil, gas and coal leasing and speeds fossil-fuel permitting — a section of a broad law rather than its purpose.",
+            "counts": "Output is the question this issue asks, and the law answers it in one title: expanded onshore and offshore oil, gas and coal leasing, and faster permitting for fossil-fuel projects.",
             "rationale": "Expands onshore and offshore oil, gas, and coal leasing and speeds fossil-fuel permitting."
           },
           {
@@ -2662,6 +2697,7 @@
             "isPrimary": false,
             "weight": 45,
             "plain": "Adds a large increase in defense and military spending.",
+            "counts": "Defense is not this law's subject and it is filed here for one reason: a large increase in defense and military spending, carried alongside the tax provisions rather than through the annual authorization.",
             "rationale": "Adds a large increase in defense and military spending."
           },
           {
@@ -2670,6 +2706,7 @@
             "isPrimary": false,
             "weight": 40,
             "plain": "Opens additional federal lands and waters to energy leasing — one title of a broad law, not its subject.",
+            "counts": "The federal estate is the subject here. One title of the law opens additional federal lands and waters to energy leasing, which is a narrower claim than the law's own purpose.",
             "rationale": "Opens additional federal lands and waters to energy leasing."
           },
           {
@@ -2687,6 +2724,7 @@
             "isPrimary": false,
             "weight": 35,
             "plain": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations — a single provision, and an indirect route to the goal.",
+            "counts": "This issue is about routing public support to schools families pick for themselves. The law's route is indirect — a federal tax credit for donations to K-12 private-school scholarship organizations — and it is one provision, not a program.",
             "rationale": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations."
           }
         ],
@@ -2730,6 +2768,7 @@
             "isPrimary": false,
             "weight": 75,
             "plain": "Class scheduling brings schedule I offenses and penalties to bear on a whole family of related compounds at once.",
+            "counts": "Fentanyl scheduling is the law's subject; this issue is about penalties. Class-wide scheduling is what connects them, bringing schedule I offenses and their penalties to bear on a whole family of related compounds at once.",
             "rationale": "Class scheduling brings the offences and penalties attached to schedule I to bear on a whole family of related substances."
           }
         ],
@@ -2876,6 +2915,7 @@
             "isPrimary": true,
             "weight": 85,
             "plain": "Committed the United States in advance to defend another country by military means if that country is attacked, and set up standing joint war planning to carry it out — a forward commitment made by order alone, with no congressional authorization named in it.",
+            "counts": "War powers asks who may commit the country to fight. This order answers by making the commitment itself: a promise to defend another country by military means, with standing joint war planning behind it and no congressional authorization named.",
             "rationale": "Section 1 makes it the policy of the United States “to guarantee the security and territorial integrity of the State of Qatar against external attack.” Section 2(a) provides that the United States “shall regard any armed attack on the territory, sovereignty, or critical infrastructure of the State of Qatar as a threat to the peace and security of the United States,” and section 2(b) that in that event the United States “shall take all lawful and appropriate measures—including diplomatic, economic, and, if necessary, military—to defend the interests of the United States and of the State of Qatar and to restore peace and stability.” Section 2(c) directs the Secretary of War, in coordination with the Secretary of State and the Director of National Intelligence, to “maintain joint contingency planning” with Qatar for a rapid and coordinated response. The order rests on “the authority vested in me as President by the Constitution and the laws of the United States” and identifies no treaty, statute or authorization for the use of military force. Mapped as opposing the congressional war-power chip because the instrument is itself the whole authorization for what it promises."
           },
           {
@@ -3209,6 +3249,7 @@
             "isPrimary": false,
             "weight": 85,
             "plain": "Re-imposed broad import duties on the day the previous, differently authorized program ended, under a statute chosen for that purpose, so the trade-barrier posture continued without a gap.",
+            "counts": "Trade posture, rather than any single duty, is the subject here. The surcharge landed on the day the earlier program ended and rested on a different statute, so the barrier stayed up without a gap.",
             "rationale": "Re-imposes broad-based import duties across nearly the whole tariff schedule on the day the previous, differently-authorized program ended, so the trade-barrier posture continues without interruption under a statute the President selected for that purpose."
           },
           {
@@ -3263,6 +3304,7 @@
             "isPrimary": true,
             "weight": 80,
             "plain": "Committed the United States to an armed campaign across the Western Hemisphere and to mobilizing partner militaries for it, by proclamation, with no congressional authorization named in the text.",
+            "counts": "The commitment is why this is filed here rather than under crime or drugs: an armed campaign across the Western Hemisphere, with partner militaries mobilized for it, declared by proclamation and naming no authorization from Congress.",
             "rationale": "The preamble recites that the Secretary of War convened a coalition of military leaders and representatives from seventeen countries “demonstrating that the region is ready to operationalize hard power to defeat these threats,” and states that the United States “will address these grave dangers by use of any necessary resources and legally available authorities, together with our partner nations.” Numbered paragraph (1) proclaims that the covered organizations “should be demolished to the fullest extent possible,” qualified in the same clause by applicable law; paragraph (3) that the United States “will train and mobilize partner nation militaries” to dismantle them; paragraph (4) that the United States and its allies “should keep external threats at bay.” The proclamation issues “by virtue of the authority vested in me by the Constitution and the laws of the United States” and identifies no authorization for the use of military force. Mapped as opposing the congressional war-power chip because a hemisphere-wide commitment to armed action is asserted here as an executive act on its own authority."
           },
           {
@@ -3359,6 +3401,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Checks eligibility against existing federal citizenship records and puts a unique tracking barcode on outbound ballot mail so a ballot can be traced to the person it was sent to.",
+            "counts": "This issue is about establishing that the person casting a ballot is eligible to. The order does it through records rather than documents at the polls: federal citizenship files checked against registrations, and a barcode tying outbound ballot mail to its addressee.",
             "rationale": "Builds federal citizenship verification for election eligibility on existing SSA and SAVE records, and requires unique Intelligent Mail barcode identifiers on outbound ballot mail so that ballots can be traced to an identified recipient."
           }
         ],
@@ -3403,6 +3446,7 @@
             "isPrimary": true,
             "weight": 80,
             "plain": "Put a 100 percent border duty on imported patented medicines and their listed ingredients, with lower rates for named countries and for firms whose onshoring plans are approved. Generics, biosimilars and a list of specialty therapies are exempt, but the charge lands on patented drugs at the border.",
+            "counts": "This issue is about what patients pay for medicine. A 100 percent duty at the border on patented drugs and their listed ingredients is a charge on that supply, whatever onshoring it is meant to induce.",
             "rationale": "Clause (3)(a) subjects imports of patented pharmaceuticals and associated pharmaceutical ingredients listed in Annex I to a 100 percent ad valorem duty rate. Clause (3)(b) sets that rate at 20 percent for products of companies whose onshoring plans the Secretary has approved, rising to 100 percent on April 2, 2030; clause (3)(c) sets 15 percent for products of Japan, the European Union, the Republic of Korea, and Switzerland and Liechtenstein jointly, and 10 percent for the United Kingdom. Paragraph 11 records that generic and biosimilar products are not subject to section 232 duties at this time, and clause (3)(d) sets a zero rate for orphan drugs, nuclear medicines, plasma derived therapies, fertility treatments, cell and gene therapies and antibody drug conjugates. The charge therefore falls on the patented medicines the proclamation names, and it is collected at the border on the imported article."
           },
           {
@@ -3420,6 +3464,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Rests on a national-security finding about foreign dependence for medicines and directs continued negotiation of agreements to address it.",
+            "counts": "The trade reading is the proclamation's own: a national-security finding about foreign dependence for medicines, and a direction to keep negotiating agreements to address that dependence.",
             "rationale": "The action rests on the Secretary of Commerce's section 232 finding, recited in paragraph 1, that pharmaceuticals and associated active pharmaceutical ingredients are being imported in such quantities and under such circumstances as to threaten to impair the national security of the United States, and clause (1) directs continued negotiation of agreements under 19 U.S.C. 1862(c)(3)(A)(i) to address that threatened impairment."
           },
           {
@@ -3510,6 +3555,7 @@
             "isPrimary": false,
             "weight": 65,
             "plain": "Aims the same advisory at small cross-border transfers tied to cartel fentanyl money and at the financial signatures of labor trafficking.",
+            "counts": "The order's subject is the financial system; this issue is about the fentanyl trade's money. The advisory is aimed at small cross-border transfers tied to cartel proceeds and at the financial signatures of labor trafficking.",
             "rationale": "Section 1 gives as a reason for the order that low-dollar cross-border funds transfers have been used to facilitate or commit terrorist financing, narcotics trafficking and human trafficking, and that financial trend analyses have uncovered hubs of fentanyl-related financial activity in the United States related to Mexico-based cartels. Section 3(a)(v) directs the Advisory to describe financial activity indicative of labor trafficking or forced labor as defined in 18 U.S.C. 1589."
           }
         ],
@@ -3636,6 +3682,7 @@
             "isPrimary": true,
             "weight": 85,
             "plain": "Declared an emergency and let Moroccan phosphate fertilizer enter duty-free for up to eight months, waiving the countervailing duties that otherwise applied.",
+            "counts": "Filed here as an exception to a trade posture rather than an extension of one: an emergency declaration letting Moroccan phosphate fertilizer enter duty-free for up to eight months, waiving the countervailing duties that otherwise applied.",
             "rationale": "Directs the Secretary of the Treasury and the Secretary of Commerce, under section 318 of the Tariff Act of 1930 (19 U.S.C. 1318(a)), to permit importation of phosphate fertilizers of the Kingdom of Morocco free of the collection of duties and of deposits of estimated duties under sections 1671, 1675 and 1677j of title 19 — the countervailing-duty provisions — for up to eight months or until the declared emergency terminates."
           },
           {
@@ -3689,6 +3736,7 @@
             "isPrimary": true,
             "weight": 75,
             "plain": "Exempted the chemical plants named in its annex from the 2024 hazardous air pollutant standards for an additional two-year period past their compliance dates, leaving the older, looser limits in force for them.",
+            "counts": "Air rules are where this issue meets industrial policy. The proclamation gives the chemical plants named in its annex two more years past their compliance dates, leaving the older, looser hazardous air pollutant limits in force for them.",
             "rationale": "The proclamation exempts stationary sources identified in Annex I from compliance with those aspects of the 2024 rule at 89 FR 42932 that were promulgated under section 112 of the Clean Air Act, 42 U.S.C. 7412, for a period of two years beyond the rule's relevant compliance dates, using the exemption power in section 112(i)(4). Its stated effect is that during each such two-year period those sources remain subject to the emissions and compliance obligations that applied under the standard as it existed before that rule."
           }
         ],
@@ -3732,6 +3780,7 @@
             "isPrimary": false,
             "weight": 60,
             "plain": "Shrinking the monument returns that federal acreage to the general land rules, subject to valid existing rights, rather than monument protection.",
+            "counts": "Monument boundaries are the proclamation's subject; this issue is about what may be developed on federal land. Shrinking the monument returns that acreage to the general land rules, subject to valid existing rights.",
             "rationale": "The proclamation acts under section 320301 of title 54, United States Code, to modify the boundaries of the Bears Ears National Monument, and provides that any lands reserved by Proclamations 9558, 9681 or 10285 that fall outside the boundaries on the accompanying map are excluded from the Monument, with the exclusion taking effect at 9:00 a.m. eastern daylight time on the date 60 days after the proclamation, subject to valid existing rights and the provisions of existing withdrawals."
           }
         ],
@@ -3812,6 +3861,7 @@
             "isPrimary": false,
             "weight": 70,
             "plain": "Delegates the President's entry-control power so State and Homeland Security can refuse or revoke visas, bar entry and act against the people and entities that arrange such travel.",
+            "counts": "Immigration status is this order's primary file; this issue is about controlling entry. The delegation is what lands here — State and Homeland Security may refuse or revoke visas, bar entry, and act against the people and entities arranging such travel.",
             "rationale": "Section 2 delegates to the Secretary of State and the Secretary of Homeland Security the President's authority under section 215(a) of the Immigration and Nationality Act, 8 U.S.C. 1185(a), to the extent necessary to implement the order. Section 4(a) provides that action may include preventing entry or the granting of any visa or travel authorization to an alien entering or attempting to enter for the purpose of engaging in birth tourism, revoking the visa or travel authorization and permanently barring entry of such an alien, denial of entry to or removal of an alien who previously engaged or plans to engage in birth tourism, and action against entities or individuals inside or outside the United States responsible for facilitating it."
           },
           {
@@ -3820,6 +3870,7 @@
             "isPrimary": false,
             "weight": 65,
             "plain": "Names removal among the tools available against a foreign national who engaged or plans to engage in birth tourism, with humanitarian and national-interest exemptions.",
+            "counts": "Removal is one of the tools the order names, not its purpose. It is filed here because a foreign national who engaged or plans to engage in birth tourism is placed within reach of it, with humanitarian and national-interest exemptions.",
             "rationale": "Section 4(a) names removal among the actions the Secretaries may take within their respective discretion and authority, applying it to any alien who previously engaged or plans to engage in birth tourism. Section 5 provides that the Secretary of State or the Secretary of Homeland Security may exempt a foreign national from actions taken pursuant to the order on humanitarian grounds or where entry is in the national interest."
           }
         ],

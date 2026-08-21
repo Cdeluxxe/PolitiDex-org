@@ -667,13 +667,238 @@ depth — 428 more judged votes standing behind positions that previously rested
    actually read. Corollary: grep **every** migration for a measure before adding a key to it.
    H.R. 4 looked like a three-key measure in the migration that created it and is a seven-key
    measure once `20260721140000` is counted.
+22. **Read every candidate mapping backwards before you write it.** `support_meaning` is not a
+   statement about the yea bloc; it tells `_voteEffectiveSupport` that a yea advances the issue
+   **and** that a nay cuts against it, and the nay side is scored just as hard. So the test is
+   not "does this provision exist in the text" — it is "is the nay bloc's vote honestly described
+   as opposition to this issue". The August 2026 densification pass drafted twelve rows against
+   real, verified provisions and shipped three; the nine refusals all failed the backwards read
+   and none failed the forwards one. Two shapes recur, each an extension of rule 5 — and a third
+   shape that used to sit here, "the section inside a vehicle", was retired by `20260911000000`
+   because it was not a backwards-read failure at all; the product rule that replaced it closes
+   this entry.
+   · **The two-flank nay.** H.R. 8404 → `religious_liberty`: Secs. 6(b) and 7(a) are genuine
+     affirmative protections, but a bloc voted no *because those protections were too weak*, so
+     `yea_supports` records them as opposing the very thing they wanted more of.
+   · **The conviction already carried.** H.R. 8034 → `strong_defense` and `cut_spending`: the
+     emergency designation is real and the nays were not fiscal hawks; the conviction that vote
+     actually records is already carried correctly by `israel_support`. A second key here is
+     double-counting one belief, not new coverage.
+   When a provision is real but the backwards read fails, the honest home for it is the refusal
+   list in the migration header — written down, with the reason, so the next pass does not
+   rediscover it as an opportunity.
+
+   **The section inside a vehicle is still the section you voted for.** A provision does not stop
+   counting because it travelled inside a larger bill. If the primary text contains a provision
+   that clearly implicates key K, the measure belongs on K's formal ledger: a yea advances the
+   package as written, including that provision, and a nay blocks it. Weight the row for the
+   share of the bill the provision actually represents — a subtitle inside a defense
+   authorization is a secondary key at low weight, not a primary one — and say in the rationale
+   which sections carry it. Refuse only where the text contains no provision for K, where the
+   same conviction is already carried by another mapping *on that same measure*, or where the
+   measure is procedural. "Omnibus", "vehicle", and "members may have cared about a different
+   title" are not grounds; the original position of this record, written in
+   `20260720000000_hr1_omnibus_component_issues.sql`, is that an omnibus "should light up under
+   MANY issues at once", and the vehicle bar had drifted away from it. Where a rider was
+   separately voted, map the rider and not the parent — that is the duplicate rule, not the
+   vehicle rule. Where the nay bloc split two ways for opposite reasons, rule 5 still governs and
+   the key stays off. Direction is what the instrument does on K, not what motivated any bloc.
+   `20260911000000` applied this to the three NDAAs that all carry a "Matters relating to Israel"
+   subtitle and none of which carried the key: H.R. 8800 (40), S. 1071 (35) and S. 1605 (35).
+   `20260912000000` applied it to the rest of the heavy single-key measures — H.R. 2670 (40,
+   closing that trail at four NDAAs), H.R. 1 of the 117th onto `campaign_finance`,
+   `gov_transparency` and `scotus_reform`, H.R. 4 of the 117th and H.R. 1181 and H.R. 8404 onto
+   `states_federal_power`, and H.R. 36 onto `foreign_balance` from no mapping at all. Two things
+   that pass settled and this rule should carry forward. **A provision may answer two chips.**
+   H.R. 1181 Sec. 2(a) is both the gun-purchase-tracking question and the purchase-data question,
+   and both rows are honest; the duplicate bar is about a rider that got its own roll call, not
+   about a section that genuinely speaks to two keys. **A key with mappings running only one way
+   is not a one-way key.** Every `states_federal_power` row was `yea_supports` until this pass,
+   which is a fact about which votes had been read, not about the key; the chip is directional and
+   the schema is bidirectional, so a vote that overrides the state's rule earns a `yea_opposes`
+   row. What still bars a key is the chip's own SCOPE: `gov_transparency` is scoped in
+   `alignment-tool.js` to disclosure BY members, so H.R. 4's Sec. 7 notice duty on state election
+   administrators is not a mapping however transparent it is. Read the scope comment, not the
+   label.
+
+### Two rules from the consolidated-appropriations pass (`20260913000000`)
+
+23. **A two-flank nay bloc disqualifies the keys the two flanks disagree about — not every key
+   on the measure.** Rule 5's own test is "did the two blocs of nays want opposite things," and
+   that question has to be asked *per key*, not once for the whole bill. H.R. 7148's 214 nays are
+   193 Democrats and 21 Republicans, and on the SPENDING axis they are genuinely opposed: the
+   Democratic nays objected to the levels and riders, the Republican nays to the topline. So
+   `gov_services`, `national_debt`, `cut_spending`, `gov_balance` and `audit_spending` are all
+   off, and `gov_services` is the sharpest case — it carries `lean: 'D'` in `alignment-tool.js`,
+   so a `yea_supports` row would hand it to the 196 Republican yeas and take it from the 193
+   Democratic nays, inverting the bloc the chip describes. But the same bloc is *not* internally
+   opposed on Israel, on the abortion riders, on the defence appropriation or on the Medicare
+   extenders, and on those axes the instrument does one thing and rule 5 has nothing to say. The
+   failure mode this rule exists to stop is using one true observation about a bill's fiscal
+   politics to void a whole division-by-division read. Read the nay bloc per key.
+24. **When a measure has two decisive rolls in one chamber, rule 8's tie-breaker is which text
+   was voted, not which vote came last.** The House passed H.R. 7148 on 22-Jan-2026 (roll 45,
+   341-88) and concurred in the Senate amendments on 3-Feb-2026 (roll 53, 217-214). Roll 53 is
+   the one ingested because it voted the ENROLLED text, and the enrolled text is what the
+   mappings were read from. This is checkable rather than a preference: Division H of the enrolled
+   act moves the P.L. 119-37 continuing-resolution date to 13-Feb-2026 and ratifies pay and
+   obligations incurred during a lapse that began on or about 31-Jan-2026 — nine days after roll
+   45. A division that did not exist yet cannot have been voted on, so attaching the enrolled
+   bill's axes to roll 45 would score members on provisions they never saw. Where the two texts
+   are the same, the later roll still wins on rule 8; where they differ, say which text each roll
+   voted and ingest the one the mappings describe.
+
+#### A bucket this pass needed: `below_floor`
+
+   `20260913000000` declines eleven divisions and titles, and five of them are declined for a
+   reason none of the existing buckets named: the provision is real, it clearly implicates a live
+   key, and it is still too small a share of the vehicle to carry a row. The record's practical
+   weight floor was 25 when this was written; the heavy-vehicle pass (`20260914000000`) took it to
+   20 with the S. 2296 `back_police` and `homeless` rows, which are the two lowest in
+   `db/vr-issue-seed.json`. Either way a one-line date extension inside one of eleven divisions
+   does not reach it — the floor is a share-of-the-bill judgement, not a number to be argued down. Division I's
+   Conrad 30, E-Verify, religious-worker and H-2B extensions (`immig_legal`), its NFIP and
+   Cybersecurity Information Sharing Act extensions (`privacy_rights`), Division E Secs. 748-749
+   on impoundment and apportionment reporting (`power_of_purse`, whose keyword list names both
+   words outright) and Sec. 809's D.C. schedule I bar all sit here. `below_floor` is not a softer
+   `no_provision`: it records that the provision exists and was read, so a later pass over a
+   measure where the same axis IS the operative purpose can find it.
+
+### Two rules from the heavy-vehicle densification pass (`20260914000000`)
+
+25. **Two bills on the same subject may honestly carry different key sets, and the difference is
+   the finding.** H.R. 7217 (118th, 366-58) and H.R. 8034 (118th, 366-58 on the same axis a
+   month later) are both Israel security supplementals, and the temptation is to code the second
+   like the first for consistency. The texts are not the same. H.R. 7217 is defence articles,
+   Iron Dome and David's Sling procurement, and CENTCOM operations — `israel_support` primary and
+   `strong_defense` secondary, and nothing else. H.R. 8034 keeps all of that and adds title III:
+   $5.655B International Disaster Assistance, $3.495B Migration and Refugee Assistance, $75M
+   INCLE, $10M for the Sinai MFO. That money is what `america_first_fp` is about, so H.R. 8034
+   carries a third row and H.R. 7217 does not. Coding the pair alike — in either direction —
+   would erase the substantive change between the two attempts, which is exactly the thing a
+   member's two votes are supposed to be able to show. Consistency is owed to the TEXT, not to
+   the pair.
+26. **When a chip's scope note carves a subject out to another key, the row rests only on what is
+   left.** `america_first_fp` was narrowed in August 2026 and its OUT list names aid to Israel
+   specifically, handing it to `israel_support`. So the H.R. 8034 `america_first_fp` row cites the
+   non-Israel humanitarian accounts and nothing else, and its weight of 50 is a share of those
+   accounts, not of the bill. Its `support_meaning` is `yea_opposes`, because the chip's stated
+   polarity is "'support' = cut, condition or wind down U.S. funding and commitments abroad" — a
+   yea here increases them. Read the polarity line before choosing `support_meaning`; on the
+   chips that are framed as a position rather than a subject, the intuitive direction is the
+   wrong one about half the time. The migration's verification block asserts this row is still
+   `yea_opposes`, because a later well-meaning "correction" to `yea_supports` would silently
+   invert every member's score on the axis.
+
+### Three rules from the SAVE / RISAA / ISASA pass (`20260915000000`)
+
+27. **A refusal note written before a key existed is not precedent; re-read it when the taxonomy
+   moves.** H.R. 8369's seed entry carried a `_note` declining the old `checks_balances` umbrella
+   because "a member voting to force out bombs the administration had paused is voting about
+   Israel." That is a reading of MOTIVE, which the product rule excludes, and it was written
+   before the August 2026 split created `power_of_purse`. The bill's whole operative text —
+   sec. 4 barring appropriated DoD and State funds from being used to withhold a delivery,
+   sec. 5's 15-day delivery deadline, sec. 6 freezing the unobligated Office of the Secretary
+   balances until each Secretary certifies to the Appropriations Committees — is a
+   spend-what-was-appropriated instrument. It is now mapped `power_of_purse` 60 `yea_supports`.
+   The general lesson: when a key splits, walk the refusal notes that cited the old umbrella.
+   H.R. 8369 was the only `_note` in `db/vr-issue-seed.json` still citing `checks_balances` by
+   name, and it is now annotated in place rather than rewritten — the original ground stays
+   readable next to the re-read, so the reversal is auditable.
+28. **`checks_balances` takes no roll-call mappings, by its own scope comment — refuse it on
+   scope before reaching for rule 5.** `alignment-tool.js` says the key "has no roll-call mappings
+   and is expected to keep none — a general-posture claim cannot be settled by any single vote,"
+   and it sits on the receipt-card hold list for that reason. Anything with a named mechanism goes
+   to one of the five mechanism keys. So for RISAA the answer was `congress_oversight`, not
+   `checks_balances`, and the two-flank question — asked anyway, because the 147 nays are 88
+   Republicans and 59 Democrats, exactly rule 5's shape — came back NO: both flanks wanted MORE
+   constraint on executive querying (the thing they wanted added was the Biggs warrant amendment,
+   house 118/2 roll 114, failed 212-212 the same day), and no provision of the act reduces a
+   reporting duty to Congress. Cross-party nays are the trigger for the question, not the answer
+   to it.
+29. **A bill can be a preemption instrument and a subject-matter instrument at once, and the
+   preemption row runs the opposite way from the sponsor's usual posture.** The SAVE Act's new
+   NVRA sections 4(b) and 8(j) tell every State it may not register a federal-election applicant
+   without documentary proof "[u]nder any method of voter registration," sec. 2(k) narrows the
+   section 4(c) exemption that had kept the Act off certain States entirely, and secs. 2(i),
+   2(j) and 3 make the enforcement federal too. That is `states_federal_power` coded
+   `yea_opposes` — a yea substitutes a federal rule for the State's own procedure — even though
+   the yea bloc was 216-0 Republican. Direction is what the instrument does, not who voted for
+   it. Name the state-side counterweights in the rationale (here secs. 2(f)(1), 2(g) and 7) so
+   the reader can see they were weighed rather than missed.
+
+#### Two scope answers this pass needed
+
+   **Pairing chips need both halves.** `immig_balance` is "Pair strong border security with earned
+   legal pathways." The SAVE Act has neither: no border measure, no pathway, only
+   noncitizen-registration enforcement. Mapping it because the word "immigration" appears in the
+   bill's orbit is the slogan-level fit that gets refused. Same test killed `border_security` and
+   `deportations` on the same measure — nothing in the text removes anyone from the country.
+
+   **A specialised court's contempt power is not `judicial_check`.** RISAA sec. 5's FISC amicus
+   changes and sec. 14's contempt authority do strengthen a court against the executive, but the
+   key as scoped is about federal courts halting unlawful executive action, including nationwide.
+   Filing FISA rolls there would put them in the nationwide-injunction percentage.
 
 ### Best remaining follow-ups after this pass
 
-1. **H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53). The strongest
-   remaining candidate and the one deliberately deferred here: real, decisive, heavily
-   attributable, and a genuine multi-axis omnibus that needs a division-by-division read before
-   any key is coded, exactly as rule 10 requires.
+0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
+   the two heaviest single-key measures in the record; `20260910000000` widened them onto
+   `gov_regulation` / `econ_corp_account` and `privacy_rights` respectively, and corrected the
+   H.R. 2670 `strong_defense` rationale, which asserted the enacted summary carried no FISA
+   section 702 provision. Sec. 7902 reauthorizes Title VII through April 19, 2024.
+0b. *(Opened by `20260911000000`, the pass that retired the vehicle bar.)* Three follow-ups the
+   NDAA Israel pass wrote down rather than took:
+   · **`veterans` across the NDAAs.** S. 1605 Secs. 6601 (Laos irregular-forces cemetery
+     eligibility) and 6602 (Egypt and Syria added to the burn pit registry) are real and both
+     point the same way, but weigh in below this record's floor of 25 on their own. H.R. 2670's
+     Division E title L is still unresolved for a different reason (direction, per
+     `20260910000000`). One pass should settle both.
+   · **`foreign_balance` across the NDAAs.** S. 1605 Sec. 1232 extends the Ukraine Security
+     Assistance Initiative and Title XIII Subtitle A carries NATO matters. It goes on all four
+     NDAAs or none — H.R. 2670 joined the `israel_support` trail in `20260912000000`, so the
+     consistency set is H.R. 8800, S. 1071, S. 1605 and H.R. 2670. Putting it on one alone would
+     recreate the inconsistency the Israel pass removed.
+   · **S. 1605's `strong_defense` weight of 100** is out of line with H.R. 8800 and S. 1071 at 80
+     for the same kind of bill. Rule 21 makes that a guarded `UPDATE` with its own argument, not
+     a side effect of an additive pass.
+0c. *(Opened by `20260912000000`, the formal densification pass.)* Two vocabulary gaps and one
+   scope question that pass named rather than filled:
+   · **No key for foreign influence in domestic institutions.** H.R. 1069 (PROTECT Our Kids Act,
+     247-164, 99 member-votes) cuts federal education funds from any K-12 school partnered with a
+     PRC-funded institute. `tariffs_china` is trade, `america_first_fp` is foreign aid, and
+     `public_schools` is a funding-level chip. The bill stays unmapped until the vocabulary
+     question is decided on its own; do not invent a key for one measure.
+   · **No key for a time standard.** H.R. 139 (Sunshine Protection Act, 308-117) has no chip and
+     should not grow one. Its state-exemption clause is a savings clause, not a preemption, so it
+     is not a `states_federal_power` vote either.
+   · **Rule 3 is now the reason two contested bills stay dark**: H.R. 973 (105 member-votes) and
+     S. 2503 (98). Both were re-read in this pass and left where rule 3 put them. If rule 3 is
+     ever revisited, these are the two measures that change.
+0d. *(Opened by `20260914000000`, the heavy-vehicle pass.)* Two more vocabulary gaps, named and
+   not filled:
+   · **No key for economic-security sanctions or outbound investment screening.** S. 2296's
+     Division A title XVII and Division E carry export-control and investment-screening matter
+     aimed at the PRC. `tariffs_china` is a TARIFF chip by its own scope note and `strong_defense`
+     is force structure; neither is this. The measure carries five other axes without it.
+   · **No key for domestic protective-security grants.** H.R. 8034's Nonprofit Security Grant
+     Program money protects houses of worship and community institutions against targeted
+     violence. `back_police` is police funding and tougher penalties, `tough_on_crime` is
+     sentencing, and `religious_liberty` is a rights chip rather than a grant chip — there is no
+     homeland-security key at all. Left unmapped rather than approximated.
+1. ~~**H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53).~~ **Closed by
+   `20260913000000_vr_consolidated_approps_2026.sql`.** The division-by-division read was done
+   against the enrolled text (govinfo `PLAW-119publ75`, 34,584 lines) and the measure was ingested
+   with roll 119/2/53 (217-214, 108 attributed) and six axes: `strong_defense` 70 primary,
+   `israel_support` 50, `health_rural` 45, `foreign_balance` 40, `health_drug_prices` 40,
+   `pro_life` 35. Two corrections to the record this follow-up was written from:
+   · The fiscal pass's decline note said the act "separates far fewer members than its size
+     suggests." That is wrong. Roll 45 is 341-88 and roll 53 is **217-214 with the parties
+     inverted** — R 196-21, D 21-193. It is one of the most separating rolls of the session.
+   · Only ONE of the two rolls was ingestable, and the tie-breaker is textual rather than
+     chronological. Roll 53 voted the enrolled text; roll 45, taken 22-Jan-2026, cannot have
+     contained Division H, whose continuing-resolution date is 13-Feb-2026 and whose lapse
+     coverage begins on or about 31-Jan-2026. See rule 23.
 2. **The twelve H.R. 1 Senate amendment rolls** (358, 360–370). Single-axis tests inside the
    omnibus — wind and solar credits, rural hospitals, SNAP, Medicaid, the AI moratorium — each
    of which would need its own amendment measure row with a strict subset of the parent's keys.
@@ -681,7 +906,25 @@ depth — 428 more judged votes standing behind positions that previously rested
 3. **The DC crime and policing package** (H.R. 2056 / 5103 / 5125 / 5140 / 5143 / 5214, rolls
    171, 271, 274, 275, 298 and 119/2/101). Six separately-voted bills on one theme; declined
    here on scope, not on merit.
-4. **H.R. 4016** (DoD Appropriations Act, 2026) and **S. 2296** (the Senate's own FY2026 NDAA
-   position, which the existing NDAA ingest does not cover).
+4. **H.R. 4016** (DoD Appropriations Act, 2026). ~~**S. 2296** (the Senate's own FY2026 NDAA
+   position).~~ **S. 2296 closed by `20260914000000`** — five secondary axes read off the
+   engrossed text division by division: `israel_support` 40 (Div A tit. XII subtit. E),
+   `housing_build` 35 and `homeless` 20 (Div I, the Road to Housing Act), `immig_fentanyl` 30
+   (Div G tit. LXI, the BUST FENTANYL Act) and `back_police` 20 (Div A tit. X subtit. H).
 5. **H.R. 6409, FENCES Act** — border-barrier construction, the capacity axis H.R. 3486
    explicitly does not carry.
+6. *(Opened by `20260915000000`.)* **H.R. 6126** (118th, 61 member-votes, `israel_support` +
+   `cut_spending`) was the runner-up for that pass's third slot. It is the first of the three
+   118th-Congress Israel supplementals and, under rule 25, has to be read on its own text rather
+   than coded from its siblings: it pairs the security appropriation with a $14.3B rescission of
+   Inflation Reduction Act IRS enforcement funding, which is why `cut_spending` is already on it.
+   `strong_defense` is the likely third and `power_of_purse` should be checked against the
+   rescission title.
+7. **Schedule the cross-NDAA pass now.** `foreign_balance` and `veterans` across S. 1605,
+   S. 1071, H.R. 8800, H.R. 2670 and now H.R. 5009 (118th, FY2025 NDAA, 59 member-votes, two
+   keys) are all-or-none by construction — putting either key on one NDAA alone recreates the
+   inconsistency the Israel pass removed. Five measures is too many for an opportunistic slot at
+   the end of a densification pass, and every densification pass since `20260911000000` has
+   deferred it for that reason. It wants a dedicated pass whose entire subject is the consistency
+   set, taken together with the S. 1605 `strong_defense` weight correction (rule 21, guarded
+   `UPDATE`) since both touch the same five rows.

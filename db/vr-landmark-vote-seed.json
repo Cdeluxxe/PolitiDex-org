@@ -33,11 +33,6 @@
  "declinedFacets": [
   {
    "measure": "S. 1071 (119th, FY2026 NDAA)",
-   "facet": "israel_support",
-   "why": "The enacted text carries six Israel provisions — Sec. 864 (US-Israel Defense Industrial Base Working Group), Secs. 1231 and 1232 (extending anti-tunnel and counter-unmanned-systems cooperation), Sec. 1235 (report on joint exercises), Sec. 1657 (Iron Dome and cooperative missile defence co-development and co-production) and Sec. 1706 (assessment of arms embargoes on Israel). All are extensions of long-standing, uncontested cooperation programmes, and none was the subject of a recorded vote. Mapping the bill to israel_support would score every one of the 112 members who voted against the NDAA as opposing Israel aid, which is a verdict the roll call does not support. The record already tests this axis directly through amendment rolls (H.Amdt. 235, H.Amdt. 478), which is the right instrument for it."
-  },
-  {
-   "measure": "S. 1071 (119th, FY2026 NDAA)",
    "facet": "econ_trade",
    "why": "Sec. 351 (Army organic industrial base), Sec. 865 (domestic textile and industrial base), Sec. 867 (defense industrial base fund) and Sec. 1019 (maritime industrial base) all concern domestic sourcing, but they set defence procurement and production capacity, not trade policy. A yea is a vote for military readiness through domestic manufacture; reading it as a position on tariffs or trade agreements would be a category error."
   },
@@ -65,6 +60,15 @@
    "measure": "S.Amdt. 23 (119th, Coons)",
    "facet": "deportations",
    "why": "The amendment strikes the State attorney general cause of action and nothing else. It does not narrow the offence list, shorten detention or change who is removable, so a yea is not a vote against deportation — it is a vote against a particular litigation mechanism. Mapping it to deportations would score 46 senators as softening an enforcement standard the amendment does not touch. states_federal_power carries it, in the yea_opposes direction."
+  }
+ ],
+ "reversedFacets": [
+  {
+   "measure": "S. 1071 (119th, FY2026 NDAA)",
+   "facet": "israel_support",
+   "declinedWhy": "The enacted text carries six Israel provisions — Sec. 864 (US-Israel Defense Industrial Base Working Group), Secs. 1231 and 1232 (extending anti-tunnel and counter-unmanned-systems cooperation), Sec. 1235 (report on joint exercises), Sec. 1657 (Iron Dome and cooperative missile defence co-development and co-production) and Sec. 1706 (assessment of arms embargoes on Israel). All are extensions of long-standing, uncontested cooperation programmes, and none was the subject of a recorded vote. Mapping the bill to israel_support would score every one of the 112 members who voted against the NDAA as opposing Israel aid, which is a verdict the roll call does not support. The record already tests this axis directly through amendment rolls (H.Amdt. 235, H.Amdt. 478), which is the right instrument for it.",
+   "reversedBy": "20260911000000_vr_ndaa_israel_keys_and_rule22.sql",
+   "reversedWhy": "Mapped, secondary, weight 35, yea_supports. The provisions were never in doubt; the bar was. The product rule now in runbook rule 22 is that a provision in the primary text counts even when it travelled inside a larger bill: a yea advances the package as written and a nay blocks it, and the weight — not the refusal — is where the share of the vehicle is recorded. \"None of it was separately voted\" was the vehicle argument, not the duplicate argument; no separately-voted Israel rider exists on this bill, so nothing is counted twice. H.R. 8800 (FY2027 NDAA) and S. 1605 (FY2022 NDAA) were mapped in the same pass so the three NDAAs read alike."
   }
  ],
  "declinedRollCalls": [
