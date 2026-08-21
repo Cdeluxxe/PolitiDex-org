@@ -668,6 +668,10 @@
         // procedural inversion — not a second copy of the recommit/table rule.
         var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
         if (eff === null || typeof eff === 'undefined') return; // present / not voting
+        // THE CURATOR-WEIGHT SUMS ARE A DISCLOSURE, NOT A DECISION. They are still
+        // computed — a surface that wants to say "the curation calls this a narrow
+        // link" can, and the exec index publishes the same two fields — but no gate
+        // below reads them any more. See LEDGER-FIRST directly beneath this loop.
         var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
         if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
         out.judged++;
@@ -693,10 +697,28 @@
         return stop('record_thin', 'coverage_floor');
       }
 
-      var tw = out.advanceScore + out.opposeScore;
+      // ── LEDGER-FIRST: THE PATTERN IS READ OFF THE LIST, NOT OFF A SCOREBOARD ──
+      // What follows used to divide advanceScore by (advanceScore + opposeScore) —
+      // curator weight, procedurally discounted. That made the chip a weighted
+      // scoreboard sitting on top of a ledger, and the two could disagree out loud:
+      // a row printing "5 advanced · 1 against" could be labelled Split because the
+      // five were rider-weight mappings and the one was not. A reader cannot check a
+      // number they cannot see, and PolitiDex does not publish curator mass.
+      //   So the dominance test and the lead are the ACT COUNTS a reader can count
+      // for themselves on the ledger below the chip. Every act is one act: a 35-
+      // weight title of a reconciliation bill and a 100-weight standalone are each
+      // one recorded act on this issue, and the ledger row for each says which it is
+      // in words ("narrow link", "part of a larger measure"). Where the mappings all
+      // carry the same weight — the ordinary case — this changes nothing at all; it
+      // only stops the unequal cases from being resolved by a number nobody prints.
+      //   NOT TOUCHED: the two MEANING walls below (a poleless issue, and a record
+      // connected to the issue only incidentally). Those are about what the record is
+      // about, not about how much of it there is, and counting instead of weighing is
+      // not licence to lower either.
+      var tw = out.advances + out.opposes; // === out.judged, named for the ratio below
       var uniform = (out.advances === 0 || out.opposes === 0);
       var dominant = tw > 0 &&
-        (out.advanceScore >= tw * _RD_DOMINANCE || out.opposeScore >= tw * _RD_DOMINANCE);
+        (out.advances >= tw * _RD_DOMINANCE || out.opposes >= tw * _RD_DOMINANCE);
 
       if (out.judged >= _RD_MIN_JUDGED) {
         if (!dominant) {
@@ -720,7 +742,7 @@
           return stop('record_thin', 'no_primary');
         } else {
           out.token = 'record_direction';
-          out.lead = (out.advanceScore >= out.opposeScore) ? 'advances' : 'opposes';
+          out.lead = (out.advances >= out.opposes) ? 'advances' : 'opposes';
         }
       } else if (out.judged >= _RD_THIN_MIN && uniform) {
         // A run, not a tendency. Two or three votes that all went the same way is
@@ -968,9 +990,14 @@
       var partial = (sup === 'coverage_floor');
       var deep = !partial && judged >= _RD_MIN_JUDGED;
       var uniform = (adv === 0 || opp === 0);
-      var tw = (idx.advanceScore || 0) + (idx.opposeScore || 0);
+      // Act counts, not curator weight — the same ledger-first rule as the index
+      // above. The chip sits directly on top of a list of acts; the number it is
+      // reasoning from has to be the number under it. (idx.advanceScore and
+      // idx.opposeScore are still carried for disclosure and are still read by
+      // nothing that decides anything.)
+      var tw = adv + opp;
       var dominant = tw > 0 &&
-        (idx.advanceScore >= tw * _RD_DOMINANCE || idx.opposeScore >= tw * _RD_DOMINANCE);
+        (adv >= tw * _RD_DOMINANCE || opp >= tw * _RD_DOMINANCE);
 
       var key, weight, tone, label, dir = null;
       if (!uniform && !(deep && dominant)) {
@@ -983,7 +1010,7 @@
         label = _RD_TIERS.split.label;
       } else {
         var leadKey = uniform ? (adv ? 'advances' : 'opposes')
-          : (((idx.advanceScore || 0) >= (idx.opposeScore || 0)) ? 'advances' : 'opposes');
+          : ((adv >= opp) ? 'advances' : 'opposes');
         dir = _RD_TIER_DIR[leadKey];
         key = deep ? (uniform ? 'strong' : 'mostly') : 'thin';
         weight = deep ? _RD_TIERS[key].weight : 'thin';

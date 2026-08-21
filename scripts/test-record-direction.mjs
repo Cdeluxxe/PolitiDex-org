@@ -108,7 +108,9 @@ const SPOKEN = ISSUE_KEYS.filter((k) => stanceKeys.has(k))[0];
 // SHALLOW: four votes, two each — a real split, under the counting depth, so it
 //   keeps the five-word sentence.
 // LOPSIDED: five procedural votes one way and one full-weight vote the other —
-//   non-dominant by WEIGHT, so it is a split, but one item is not a side.
+//   six acts, five of them one way. Non-dominant by curator WEIGHT (the
+//   procedural five were discounted to a quarter each), dominant by ACT COUNT,
+//   which is the number printed under the chip. See section 5.
 const [DEEP, UNIFORM, MIXED3, SOLO, SPLIT, SHALLOW, LOPSIDED] = SILENT;
 if (!DEEP || !UNIFORM || !MIXED3 || !SOLO || !SPLIT || !SHALLOW || !LOPSIDED ||
     !BALANCE || !SPOKEN) {
@@ -139,10 +141,10 @@ for (let i = 0; i < 6; i++) SEED.push(vote(50 + i, SPLIT, i % 2 ? "nay" : "yea")
 // material; the record simply is not deep enough for two numbers to be worth
 // more than the plain sentence.
 for (let i = 0; i < 4; i++) SEED.push(vote(56 + i, SHALLOW, i % 2 ? "nay" : "yea"));
-// A split by WEIGHT and not by shape: five procedural votes advancing it
-// (halved weight) against one full-weight vote cutting against it. Six judged
-// items, neither side dominant — and a single item on the minority side, which
-// is an exception rather than a side.
+// The unequal-weight case, kept as the fixture that proves the rule changed:
+// five procedural votes advancing it (each discounted to a quarter of its
+// curator weight) against one full-weight vote cutting against it. Six judged
+// acts, five of them the same way.
 for (let i = 0; i < 5; i++) SEED.push(vote(60 + i, LOPSIDED, "yea", { proc: true }));
 SEED.push(vote(65, LOPSIDED, "nay"));
 SEED.push(vote(70, BALANCE, "nay"), vote(71, BALANCE, "nay"),
@@ -291,7 +293,7 @@ section("5 · the thresholds, one case each");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   eq(A._PDX_RD_MIN_JUDGED, 4, "the characterisation floor is four judged items");
-  eq(A._PDX_RD_DOMINANCE, 0.75, "…and three quarters of the weight one way");
+  eq(A._PDX_RD_DOMINANCE, 0.75, "…and three quarters of the ACTS one way");
 
   // n = 14, 11 one way (79% of weight) → characterised.
   const deep = idx(DEEP);
@@ -348,15 +350,30 @@ section("5 · the thresholds, one case each");
   eq(shallow.clause, "they ran both ways", "…so it reads exactly as it always did");
   ok(!/\d/.test(shallow.clause), "…without a count on the face of the row");
 
-  // Non-dominant by weight, but one item on the minority side. A single vote
-  // against a run is an exception, and headlining it as a side would be the
-  // arithmetic making a claim the record does not.
+  // LEDGER-FIRST. Five acts advanced it, one cut against it, and the chip says
+  // so — because that is the count a reader can make for themselves off the list
+  // of six rows sitting directly beneath it. This used to read "Split": the five
+  // were procedural and were discounted to a quarter of their curator weight
+  // each, which put five acts' worth of weight barely ahead of one act's and
+  // cleared no dominance bar. That verdict
+  // was unfalsifiable on its face — nothing on the page printed 125, or 100, or
+  // the quarter — and it contradicted the very rows it was standing on.
+  //   Weight is not gone: it is disclosed rather than decisive. advanceScore and
+  // opposeScore are still computed and still carried on the index, the ledger row
+  // for a thin mapping still reads "narrow link", and a procedural act now says
+  // "procedural vote" on its own row so the reader doing the counting can see
+  // which of the five they are counting. What no longer happens is a number the
+  // reader cannot see overruling the numbers they can.
   const lop = idx(LOPSIDED);
   eq(lop.judged, 6, "the lopsided fixture clears the depth floor too");
-  eq(lop.opposes, 1, "…with exactly one item on the minority side");
-  eq(lop.token, "record_split", "…so it is a split that may not state its counts");
-  eq(lop.counted, false, "…and says so");
-  eq(lop.clause, "they ran both ways", "…keeping the plain sentence");
+  eq(lop.opposes, 1, "…with exactly one act on the minority side");
+  eq(lop.advances, 5, "…and five on the other");
+  eq(lop.token, "record_direction", "…so five acts out of six is a direction, not a split");
+  eq(lop.lead, "advances", "…led by the side with five acts on it");
+  eq(lop.clause, "5 advanced it, 1 cut against it",
+    "…and the sentence is the two counts, which are the two counts on the ledger");
+  ok(lop.advanceScore / (lop.advanceScore + lop.opposeScore) < A._PDX_RD_DOMINANCE,
+    "…while the curator-weight sums, which clear no bar at all, decided nothing");
 
   eq(A._PDX_RD_SPLIT_MIN_JUDGED, 6, "the split counting floor is six judged items");
   eq(A._PDX_RD_SPLIT_MIN_SIDE, 2, "…and two items on the smaller side");

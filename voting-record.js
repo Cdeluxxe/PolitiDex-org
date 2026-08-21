@@ -918,11 +918,27 @@
     var byMeasure = {};
     items.forEach(function (it) { byMeasure[it.measureId] = it; });
 
-    // Bucket by primary issueKey ('_none' for unmapped records).
+    // Bucket by primary issueKey ('_none' for unmapped records) — EXCEPT when the
+    // reader is looking at one issue. A vote reaches this list because it is mapped
+    // to the filtered issue, and the mapping that got it here may be a supporting
+    // one; bucketing it by issues[0] then files it under a heading for some OTHER
+    // issue, so the reader who asked "what did they do on housing" gets a housing
+    // vote sitting under a "Taxes" header with a housing count that does not match
+    // the rows. Nothing was ever dropped by this, but the act was shown as belonging
+    // to the issue the curation ranked first rather than the one being read. Under a
+    // filter, the filtered issue IS the ledger, so every row files under it.
+    var filterKey = (_state && _state.filters && _state.filters.issue) || '';
+    var mappedTo = function (it, key) {
+      var ms = (it && it.issues) || [];
+      for (var i = 0; i < ms.length; i++) if (ms[i] && ms[i].issueKey === key) return true;
+      return false;
+    };
     var groups = {};
     var order = [];
     items.forEach(function (it) {
-      var key = (it.issues && it.issues[0] && it.issues[0].issueKey) || '_none';
+      var key = (filterKey && mappedTo(it, filterKey))
+        ? filterKey
+        : ((it.issues && it.issues[0] && it.issues[0].issueKey) || '_none');
       if (!groups[key]) { groups[key] = []; order.push(key); }
       groups[key].push(it);
     });

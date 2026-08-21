@@ -8578,6 +8578,13 @@
       var m = _dosMapping(item, issueKey);
       base.primary = m ? !!m.isPrimary : null;
       base.narrow = !!(m && typeof m.weight === 'number' && m.weight <= narrowAt);
+      // PROCEDURAL, IN WORDS, ON THE ROW. The formal pattern used to discount a
+      // procedural act to a quarter of its curator weight before deciding what to
+      // call the record; it now counts acts, so a cloture vote and a passage vote
+      // are one act each. That is only honest if the row says which it is, so it
+      // does — the same way "narrow link" says how much of the document the link
+      // rests on. Label, never a filter: the act is listed either way.
+      base.procedural = !!(item && item.isProcedural);
       // The raw support meaning, carried rather than re-derived. It is what turns a
       // ballot into a direction on THIS issue ("a Yea here counts as support"), and
       // the mechanism line below has to be able to say that in words.
@@ -9433,6 +9440,7 @@
     if (d.primary === true) tags.push('<span class="pdxdos-tag pdxdos-tag-p">primary link</span>');
     else if (d.primary === false) tags.push('<span class="pdxdos-tag">supporting link</span>');
     if (d.narrow) tags.push('<span class="pdxdos-tag pdxdos-tag-n">narrow link</span>');
+    if (d.procedural) tags.push('<span class="pdxdos-tag">procedural vote</span>');
     if (tags.length) out.push('<div class="pdxdos-tags">' + tags.join('') + '</div>');
     // The primary source, always, whenever there is one.
     if (d.url) {

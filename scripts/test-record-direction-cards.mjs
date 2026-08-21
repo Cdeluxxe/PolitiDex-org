@@ -68,7 +68,9 @@ const EVEN_SPLIT  = "gov_regulation";        // 6 judged, 3/3 — no dominant si
 const SHORT_SPLIT = "immigration";           // 4 judged, 2/2 — a split, under the
                                              //   depth at which counts are stated
 const LOPSIDED    = "gun_rights";            // 6 judged, 5 procedural / 1 full —
-                                             //   split by weight, one item a side
+                                             //   a direction by ACT COUNT (5-1),
+                                             //   a split by the old curator-weight
+                                             //   sums, and uncitable either way
 const BALANCE_KEY = "rights_safety_balance"; // suppressed: no pole to advance
 const NO_POLE_KEY = "war_powers";            // suppressed: contested authority
 const SPOKEN_KEY  = "healthcare";            // a stated position exists
@@ -581,10 +583,19 @@ for (const key of Object.keys(LABELS)) {
   eq(row.advances, i.advances, `eligibility: ${key} — and the row's own advanced-it count`);
   eq(row.opposes, i.opposes, `eligibility: ${key} — and the row's own cut-against-it count`);
   // The whole rule, in one line: a card exists exactly where the row may state
-  // its counts AND no stated position owns the row. `counted`, not
-  // `characterised` — a deep split has no direction to characterise and two
-  // real numbers to state, and the card reports the second.
-  const wantCard = !!i.counted && key !== SPOKEN_KEY;
+  // its counts AND no stated position owns the row AND the feed could cite an
+  // example for the side it prints first. `counted`, not `characterised` — a
+  // deep split has no direction to characterise and two real numbers to state,
+  // and the card reports the second.
+  //   The third clause is the LOPSIDED row, and it is a citation guard rather
+  // than a counting one: five of its six acts are procedural, and the feed
+  // refuses to headline a cloture motion as the example of what someone did,
+  // because the question does not read plainly off-app. The ROW still states
+  // its counts — the record is still five acts to one on the profile and in the
+  // dossier. Only the shareable card, which must quote one measure by name,
+  // has nothing it can honestly quote. Nothing is hidden by this; a card is not
+  // a ledger, and the ledger is unaffected.
+  const wantCard = !!i.counted && key !== SPOKEN_KEY && key !== LOPSIDED;
   eq(!!RC.recordDirection("recrep", key), wantCard,
     `eligibility: ${key} — a card exists iff the row may state its counts and nothing was said`);
   // And the weaker flag never smuggles in the stronger claim.
@@ -614,11 +625,21 @@ eq(idx("recrep", SHORT_SPLIT).token, "record_split",
 ok(!rdEligible(SHORT_SPLIT), "eligibility: …so it gets no card");
 has(rdReason(SHORT_SPLIT), "ran both ways", "eligibility: and the audit names the split");
 
+// LEDGER-FIRST: five acts one way and one the other is a direction, and it is a
+// direction because five and one are the numbers printed on the ledger under it.
+// It used to be a split — the five were procedural, discounted to a quarter of
+// their curator weight each, and the resulting sums cleared no dominance bar. A
+// reader could not check that; they could only count the rows, and the rows said
+// five to one. So the row now says what the rows say.
 eq(idx("recrep", LOPSIDED).judged, 6, "eligibility: the lopsided record is six deep");
-eq(idx("recrep", LOPSIDED).opposes, 1, "eligibility: …with one item on the minority side");
-eq(idx("recrep", LOPSIDED).token, "record_split",
-  "eligibility: …which is an exception, not a side");
-ok(!rdEligible(LOPSIDED), "eligibility: …so a one-item side ships no both-ways card");
+eq(idx("recrep", LOPSIDED).opposes, 1, "eligibility: …with one act on the minority side");
+eq(idx("recrep", LOPSIDED).advances, 5, "eligibility: …and five on the other");
+eq(idx("recrep", LOPSIDED).token, "record_direction",
+  "eligibility: …which the row reads as a direction, off the counts a reader can make");
+// And the card feed still declines — on citation grounds, not counting ones.
+ok(!rdEligible(LOPSIDED), "eligibility: …while the shareable card has no plain example to quote");
+has(rdReason(LOPSIDED), "procedural vote",
+  "eligibility: and the audit names the citation guard, not a weight");
 
 eq(idx("recrep", BALANCE_KEY).suppressed, "balance_key",
   "eligibility: a *_balance key has no pole to advance");
