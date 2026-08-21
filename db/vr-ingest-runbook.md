@@ -753,8 +753,10 @@ depth — 428 more judged votes standing behind positions that previously rested
    `20260913000000` declines eleven divisions and titles, and five of them are declined for a
    reason none of the existing buckets named: the provision is real, it clearly implicates a live
    key, and it is still too small a share of the vehicle to carry a row. The record's practical
-   weight floor is 25 — every one of the 235 rows in `db/vr-issue-seed.json` is at or above it —
-   and a one-line date extension inside one of eleven divisions does not reach it. Division I's
+   weight floor was 25 when this was written; the heavy-vehicle pass (`20260914000000`) took it to
+   20 with the S. 2296 `back_police` and `homeless` rows, which are the two lowest in
+   `db/vr-issue-seed.json`. Either way a one-line date extension inside one of eleven divisions
+   does not reach it — the floor is a share-of-the-bill judgement, not a number to be argued down. Division I's
    Conrad 30, E-Verify, religious-worker and H-2B extensions (`immig_legal`), its NFIP and
    Cybersecurity Information Sharing Act extensions (`privacy_rights`), Division E Secs. 748-749
    on impoundment and apportionment reporting (`power_of_purse`, whose keyword list names both
@@ -787,6 +789,56 @@ depth — 428 more judged votes standing behind positions that previously rested
    wrong one about half the time. The migration's verification block asserts this row is still
    `yea_opposes`, because a later well-meaning "correction" to `yea_supports` would silently
    invert every member's score on the axis.
+
+### Three rules from the SAVE / RISAA / ISASA pass (`20260915000000`)
+
+27. **A refusal note written before a key existed is not precedent; re-read it when the taxonomy
+   moves.** H.R. 8369's seed entry carried a `_note` declining the old `checks_balances` umbrella
+   because "a member voting to force out bombs the administration had paused is voting about
+   Israel." That is a reading of MOTIVE, which the product rule excludes, and it was written
+   before the August 2026 split created `power_of_purse`. The bill's whole operative text —
+   sec. 4 barring appropriated DoD and State funds from being used to withhold a delivery,
+   sec. 5's 15-day delivery deadline, sec. 6 freezing the unobligated Office of the Secretary
+   balances until each Secretary certifies to the Appropriations Committees — is a
+   spend-what-was-appropriated instrument. It is now mapped `power_of_purse` 60 `yea_supports`.
+   The general lesson: when a key splits, walk the refusal notes that cited the old umbrella.
+   H.R. 8369 was the only `_note` in `db/vr-issue-seed.json` still citing `checks_balances` by
+   name, and it is now annotated in place rather than rewritten — the original ground stays
+   readable next to the re-read, so the reversal is auditable.
+28. **`checks_balances` takes no roll-call mappings, by its own scope comment — refuse it on
+   scope before reaching for rule 5.** `alignment-tool.js` says the key "has no roll-call mappings
+   and is expected to keep none — a general-posture claim cannot be settled by any single vote,"
+   and it sits on the receipt-card hold list for that reason. Anything with a named mechanism goes
+   to one of the five mechanism keys. So for RISAA the answer was `congress_oversight`, not
+   `checks_balances`, and the two-flank question — asked anyway, because the 147 nays are 88
+   Republicans and 59 Democrats, exactly rule 5's shape — came back NO: both flanks wanted MORE
+   constraint on executive querying (the thing they wanted added was the Biggs warrant amendment,
+   house 118/2 roll 114, failed 212-212 the same day), and no provision of the act reduces a
+   reporting duty to Congress. Cross-party nays are the trigger for the question, not the answer
+   to it.
+29. **A bill can be a preemption instrument and a subject-matter instrument at once, and the
+   preemption row runs the opposite way from the sponsor's usual posture.** The SAVE Act's new
+   NVRA sections 4(b) and 8(j) tell every State it may not register a federal-election applicant
+   without documentary proof "[u]nder any method of voter registration," sec. 2(k) narrows the
+   section 4(c) exemption that had kept the Act off certain States entirely, and secs. 2(i),
+   2(j) and 3 make the enforcement federal too. That is `states_federal_power` coded
+   `yea_opposes` — a yea substitutes a federal rule for the State's own procedure — even though
+   the yea bloc was 216-0 Republican. Direction is what the instrument does, not who voted for
+   it. Name the state-side counterweights in the rationale (here secs. 2(f)(1), 2(g) and 7) so
+   the reader can see they were weighed rather than missed.
+
+#### Two scope answers this pass needed
+
+   **Pairing chips need both halves.** `immig_balance` is "Pair strong border security with earned
+   legal pathways." The SAVE Act has neither: no border measure, no pathway, only
+   noncitizen-registration enforcement. Mapping it because the word "immigration" appears in the
+   bill's orbit is the slogan-level fit that gets refused. Same test killed `border_security` and
+   `deportations` on the same measure — nothing in the text removes anyone from the country.
+
+   **A specialised court's contempt power is not `judicial_check`.** RISAA sec. 5's FISC amicus
+   changes and sec. 14's contempt authority do strengthen a court against the executive, but the
+   key as scoped is about federal courts halting unlawful executive action, including nationwide.
+   Filing FISA rolls there would put them in the nationwide-injunction percentage.
 
 ### Best remaining follow-ups after this pass
 
@@ -861,3 +913,18 @@ depth — 428 more judged votes standing behind positions that previously rested
    (Div G tit. LXI, the BUST FENTANYL Act) and `back_police` 20 (Div A tit. X subtit. H).
 5. **H.R. 6409, FENCES Act** — border-barrier construction, the capacity axis H.R. 3486
    explicitly does not carry.
+6. *(Opened by `20260915000000`.)* **H.R. 6126** (118th, 61 member-votes, `israel_support` +
+   `cut_spending`) was the runner-up for that pass's third slot. It is the first of the three
+   118th-Congress Israel supplementals and, under rule 25, has to be read on its own text rather
+   than coded from its siblings: it pairs the security appropriation with a $14.3B rescission of
+   Inflation Reduction Act IRS enforcement funding, which is why `cut_spending` is already on it.
+   `strong_defense` is the likely third and `power_of_purse` should be checked against the
+   rescission title.
+7. **Schedule the cross-NDAA pass now.** `foreign_balance` and `veterans` across S. 1605,
+   S. 1071, H.R. 8800, H.R. 2670 and now H.R. 5009 (118th, FY2025 NDAA, 59 member-votes, two
+   keys) are all-or-none by construction — putting either key on one NDAA alone recreates the
+   inconsistency the Israel pass removed. Five measures is too many for an opportunistic slot at
+   the end of a densification pass, and every densification pass since `20260911000000` has
+   deferred it for that reason. It wants a dedicated pass whose entire subject is the consistency
+   set, taken together with the S. 1605 `strong_defense` weight correction (rule 21, guarded
+   `UPDATE`) since both touch the same five rows.

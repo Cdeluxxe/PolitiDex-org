@@ -8,7 +8,7 @@ titles come from the live database, overlaid with the curated seeds committed he
 wherever the live row has not caught up — so a pass that has landed in the repo but
 not yet deployed is counted, and every row it accounts for is marked `pending`.
 
-> **Hand note, not regenerated (2026-08-21).** This snapshot predates four passes.
+> **Hand note, not regenerated (2026-08-21).** This snapshot predates five passes.
 > `20260911000000_vr_ndaa_israel_keys_and_rule22.sql` adds `israel_support` to H.R. 8800,
 > S. 1071 and S. 1605 and `immig_fentanyl` to S. 1605, answering the Gap 1b rows for
 > H.R. 8800 (215 member-votes), S. 1605 (179) and S. 1071.
@@ -54,7 +54,26 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 > Program (a second named vocabulary gap). One row this snapshot's Gap 1 list gets wrong:
 > **H.R. 9770** is not unmapped — it carries `gov_services` 100 and `national_debt` 35 from
 > `20260725000000` and is merely absent from `db/vr-issue-seed.json`, a partial-mirror gap
-> rather than a mapping gap. Regenerating needs `NETLIFY_DB_URL`,
+> rather than a mapping gap.
+> `20260915000000_vr_formal_densification_save_risaa_isasa.sql` adds three secondary rows to the
+> three highest-vote 118th-Congress measures still thin after the heavy-vehicle pass.
+> **H.R. 8281**, the SAVE Act (house 118/2 roll 345, 221-198, 62 member-votes), gains
+> `states_federal_power` 45 coded `yea_opposes` — the engrossed text's new NVRA sections 4(b)
+> and 8(j) bar a State from registering a federal-election applicant without documentary proof
+> under any registration method, and section 2(k) narrows the exemption that had kept the Act off
+> certain States entirely. **H.R. 7888**, RISAA / P.L. 118-49 (house 118/2 roll 119, 273-147),
+> gains `congress_oversight` 45; that is the mechanism key, and `checks_balances` was declined
+> because its own scope comment reserves it as the general key with no roll-call mappings.
+> **H.R. 8369**, the Israel Security Assistance Support Act (house 118/2 roll 217, 224-187, 62
+> member-votes), comes off the single-key list with `power_of_purse` 60 — a reversal of the
+> documented refusal in its seed `_note`, which rested on motive and predated the key. Gap 2
+> rolled-up counts move most for `power_of_purse` and `congress_oversight`, which had few formal
+> rows before this. Declined and recorded rather than left as backlog: `immig_balance`,
+> `border_security` and `deportations` on the SAVE Act (no provision — the chip is a pairing chip
+> and the bill has neither half), `judicial_check` on RISAA (no provision — a specialised court's
+> contempt power is not the nationwide-injunction question), `civil_service_control` on RISAA
+> (below floor), and `war_powers`, `restraint` and `congress_oversight` on H.R. 8369 (the last as
+> a duplicate of the same sec. 6 purse freeze). Regenerating needs `NETLIFY_DB_URL`,
 > which this checkout does not have; re-run `node scripts/vr-coverage-report.mjs --write`
 > after the deploy.
 
