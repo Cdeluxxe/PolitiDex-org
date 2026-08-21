@@ -1066,8 +1066,11 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
 .align-sig-rec.is-oppose  { color: #fca5a5; border-color: rgba(248,113,113,0.46); background: rgba(248,113,113,0.12); }
 .align-sig-rec.is-mixed   { color: #f5c842; border-color: rgba(245,200,66,0.44); background: rgba(245,200,66,0.12); }
 .align-sig-rec.w-strong { background: rgba(10,15,30,0.4); }
-.align-sig-rec.w-thin { border-style: dashed; background: none; opacity: 0.8; font-weight: 700; }
-.align-sig-rec.w-flat { border-style: dotted; border-color: rgba(159,180,212,0.34); color: #9fb4d4; background: none; opacity: 0.84; }
+/* Thin and flat are told apart by border style and fill, not by opacity — the same
+   correction made in stance-tree.css. A one-vote read is a weaker finding, which the
+   dashed edge says; it is not a less readable fact. */
+.align-sig-rec.w-thin { border-style: dashed; background: none; font-weight: 700; }
+.align-sig-rec.w-flat { border-style: dotted; border-color: rgba(159,180,212,0.34); color: #9fb4d4; background: none; }
 
 /* ── coverage honesty note — how much of what you asked this mode can answer,
       which issues it cannot, and that they are NOT quietly scored from words. */

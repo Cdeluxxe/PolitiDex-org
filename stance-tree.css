@@ -140,9 +140,13 @@
 .pdxtree-pat.tone-oppose  { color: #fca5a5; }
 .pdxtree-pat.tone-mixed   { color: #fbe08a; }
 .pdxtree-pat.tone-muted   { color: #8fa6c6; }
-/* Thin and no-clear-pattern are quieter, in the pattern engine's own weight
-   classes — never a bolder face than a read that earned its direction. */
-.pdxtree-pat.w-thin, .pdxtree-pat.w-flat { opacity: .72; font-size: .7rem; }
+/* Thin and no-clear-pattern are marked, not muffled. They used to be dialled to
+   .72 opacity and a smaller face, which put a true statement about a real record
+   behind the same veil a browser uses for a disabled control — and a reader who
+   cannot comfortably read a row cannot audit it. The border already carries the
+   distinction: dashed for thin, dotted for flat, in the pattern engine's own
+   weight classes. That is the honest signal; the fade was only volume. */
+.pdxtree-pat.w-thin, .pdxtree-pat.w-flat { opacity: 1; }
 /* A SCORED SLOT PAINTS FROM THE VERDICT, not from the record's lean. The word in
    the slot is Direction Match's ("Backed up", "Contradicted"), so its colour is
    Direction Match's too — taken from the verdict the row already resolved and
@@ -161,9 +165,12 @@
    the row most likely to be misread as a settled finding. */
 .pdxtree-early { font-style: italic; font-size: .68rem; color: #9fb4d4; opacity: .95; }
 /* On file with no direction read, still warming, nothing on file: three true
-   states, all of them quiet, none of them absent. */
+   states, none of them absent and none of them faded. The muted slate and the
+   italic say "this is inventory, not a finding" while keeping the row as legible
+   as a scored one — the opacity that used to sit here said "this control is
+   broken" instead, which is the one thing none of the three means. */
 .pdxtree-pat.st-onfile, .pdxtree-pat.st-pending, .pdxtree-pat.st-none {
-  color: #8fa6c6; font-style: italic; opacity: .82;
+  color: #8fa6c6; font-style: italic;
 }
 
 /* THE ONE PERCENTAGE A LEAF MAY CARRY. It belongs to the Record slot it sits
@@ -220,10 +227,15 @@
   background: none; border: 1px dashed var(--pdx-ic, #94A3B8);
 }
 .pdxtree-leaf.is-patternonly .pdxtree-name { font-weight: 600; color: #cfdcf0; }
-/* Quiet = a pattern-only row whose read is thin. True, admitted, and not dressed
-   up: it is the smallest, dimmest thing in the panel. */
-.pdxtree-leaf.is-quiet { opacity: .78; }
-.pdxtree-leaf.is-quiet .pdxtree-name { font-size: .8rem; font-weight: 600; }
+/* Quiet = a pattern-only row whose read is thin. Admitted, and no longer dressed
+   DOWN: it used to be the smallest, dimmest thing in the panel, which made a real
+   record on file read as a greyed-out dead control rather than as inventory. The
+   class is still emitted and still filterable; what it no longer does is take
+   contrast away. Everything that distinguishes the row is earned copy the reader
+   can act on — the "Pattern only" cue, the "Not in Direction Match" tag, the item
+   counts, and the dashed border and dot .is-patternonly already draws. */
+.pdxtree-leaf.is-quiet { opacity: 1; }
+.pdxtree-leaf.is-quiet .pdxtree-name { font-weight: 600; }
 
 /* ── THE HEADER TALLY ──────────────────────────────────────────────────────
    Four figures, each one a field of the shared counts object, each carrying the

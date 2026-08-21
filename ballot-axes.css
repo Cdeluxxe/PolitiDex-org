@@ -110,8 +110,11 @@
    custom property rather than restated here. */
 .bax-rec.tone-verdict { color: var(--bax-rc, #b9cbe6); }
 .bax-rec.st-scored b { color: var(--bax-rc, #8fa6c6); opacity: 0.8; }
+/* Three unscored states, at the same readable contrast as a scored slot. The slate
+   and the italic mark them; the .82 opacity that used to be here dimmed them, and a
+   record on file is not a disabled control. Same change as stance-tree.css. */
 .bax-rec.st-onfile, .bax-rec.st-pending, .bax-rec.st-none {
-  color: #8fa6c6; font-style: italic; opacity: 0.82;
+  color: #8fa6c6; font-style: italic;
 }
 .bax-depth { font-style: normal; opacity: 0.8; }
 .bax-early { font-style: italic; font-size: 0.68rem; color: #9fb4d4; }

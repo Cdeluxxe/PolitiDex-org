@@ -2159,7 +2159,13 @@
       '.pdxins-adv{color:#6ee7a0;}' +
       '.pdxins-opp{color:#ff9f9f;}' +
       '.pdxins-neu{color:#8fa2c0;}' +
-      '.pdxins-off{opacity:0.5;}' +
+      // A MAPPED DIRECTION THAT WAS NOT SCORED, MARKED RATHER THAN HALVED. This used to
+      // be opacity 0.5 — a direction word at 50% strength beside a "Not scored" badge
+      // that already said the same thing in words, so the row paid twice for one fact
+      // and paid the second time in legibility. The dotted underline is the same
+      // idiom the ledger's own "on record · not in Direction Match" chip uses, and it
+      // marks the word without taking it away.
+      '.pdxins-off{text-decoration:underline dotted currentColor;text-underline-offset:3px;}' +
       '.pdxins-lbl{color:#e8eefc;font-weight:700;}' +
       '.pdxins-v{font-size:0.64rem;}' +
       '.pdxins-hold{color:#f0cd8c;}' +
@@ -2187,6 +2193,12 @@
       // lines between them. `said` is quoted speech and leans italic; `gap` is the
       // sentence that does the actual comparing and gets full contrast, because on
       // these rows it is the single most load-bearing line on the face.
+      // WHICH DOCUMENT THIS IS. Not a caveat and not an aside — it is the row's own
+      // name, said properly, and it leads. Full contrast and its own rule, in the
+      // neutral slate this file uses for citation rather than for a finding, so it
+      // reads as identification and never as a hedge on the verdict beside it.
+      '.pdxdos-rec-idn{color:#cfe0f8;border-left:2px solid rgba(147,180,230,0.42);' +
+        'padding-left:0.45rem;}' +
       '.pdxdos-rec-said{color:#9fb4d4;font-style:italic;}' +
       '.pdxdos-rec-said .pdxdos-rec-wk{font-style:normal;}' +
       '.pdxdos-rec-gap{color:#e8eefc;border-left:2px solid rgba(127,180,255,0.45);' +
@@ -2274,9 +2286,16 @@
       '.pdxst-pat-lane{font-size:0.55rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;opacity:0.72;}' +
       // The counts are the evidence, not the headline: same colour, lighter type.
       '.pdxst-pat-n{font-weight:600;font-size:0.6rem;opacity:0.86;}' +
-      '.pdxst-pat.w-thin{border-style:dashed;border-color:var(--c);font-weight:700;opacity:0.78;}' +
+      // …AND THE DIALLING BACK IS THE BORDER, NOT THE OPACITY. Both weights used to
+      // carry a fade as well (.78 and .82). A dashed edge says "this is one to three
+      // votes"; a fade says "this control is unavailable", which is the message a
+      // browser reserves for something the reader cannot use — and these rows are
+      // exactly the ones they most need to read, because the caveat IS the content.
+      // Border style and fill keep the whole distinction; nothing is louder than it
+      // was, and nothing is quieter than legible.
+      '.pdxst-pat.w-thin{border-style:dashed;border-color:var(--c);font-weight:700;}' +
       '.pdxst-pat.w-thin .pdxst-pat-lb{font-weight:700;}' +
-      '.pdxst-pat.w-flat{border-style:dotted;border-color:rgba(159,180,212,0.34);font-weight:700;opacity:0.82;}' +
+      '.pdxst-pat.w-flat{border-style:dotted;border-color:rgba(159,180,212,0.34);font-weight:700;}' +
       // ── THE FULL FORMAL-PATTERN ISSUE INDEX ────────────────────────────────
       // A flat, dense list, not a stack of cards: sixty-four issues is a table's
       // job, and every ornament repeated sixty-four times is a scroll the reader
@@ -3455,15 +3474,42 @@
     } catch (e) { cls = null; }
     return (cls && cls.verb) ? cls.verb : '';
   }
+  // HOW A BALLOT IS SAID OUT LOUD. 'Voted ' + the slug is right for the six ballots a
+  // member can actually cast and wrong for the four that record an ABSENCE: "Voted
+  // Not Voting" is not English, and worse, it is not true — nobody voted. Those get
+  // the phrase voting-record.js's own card list already uses for them, so one fact
+  // reads the same way on both surfaces, and a reader can tell an abstention from a
+  // cast ballot without opening anything.
+  var _BALLOT_SAID = {
+    yea: 'Voted Yea', aye: 'Voted Aye', yes: 'Voted Yes',
+    nay: 'Voted Nay', no: 'Voted No', present: 'Voted Present',
+    not_voting: 'Did not vote', notvoting: 'Did not vote', 'not voting': 'Did not vote',
+    abstain: 'Abstained', absent: 'Did not vote (absent)', excused: 'Did not vote (excused)'
+  };
   function _orActionPhrase(item) {
     if (!item) return '';
+    // THE BALLOT IS ASKED FIRST, AND IT IS ASKED OF `position` ALONE. The note above
+    // says the test is the ballot itself; what the code did was fold actionType,
+    // position and action into one string and test THAT — which is not the same
+    // thing, because every roll call the API sends carries `actionType: 'passage'`.
+    // actionType therefore always won and the ballot was never printed: a yea and a
+    // nay on the SAVE Act both rendered "H.R. 8281 · On Passage · Passage", and the
+    // direction line trailed off into "and they passage". The fixtures that covered
+    // this function omitted actionType entirely, so the fallback fired in tests and
+    // only production ever saw the bug.
+    var ballot = String(item.position || '').toLowerCase();
+    if (item.kind !== 'position' && _BALLOTS[ballot] === 1) {
+      return _BALLOT_SAID[ballot] || ('Voted ' + _tc(ballot));
+    }
     // `action` last: hydrateIssueRecords copies the actionType into all three, but a
     // curated position may only carry `action` ("cosponsored"), and that slug is the
     // only thing the row has to say about what was actually done.
     var key = String(item.actionType || item.position || item.action || '');
     if (!key) return '';
     var lower = key.toLowerCase();
-    if (item.kind !== 'position' && _BALLOTS[lower] === 1) return 'Voted ' + _tc(key);
+    if (item.kind !== 'position' && _BALLOTS[lower] === 1) {
+      return _BALLOT_SAID[lower] || ('Voted ' + _tc(key));
+    }
     // Not a ballot → an action, whatever the wire called it. Known class → its own
     // verb; unknown → the slug, title-cased and unprefixed. Still never a vote.
     return _execVerb(lower) || _tc(key);
@@ -8028,6 +8074,394 @@
     return lead + '…';
   }
 
+  // ── WHAT THE BILL DID, AND WHY THAT LANDS ON THIS CHIP ──────────────────────
+  // The roll-call lane's mechanism gap, closed by curation rather than by inference.
+  //
+  // A roll call carries three facts and no prose: a bill number, a floor question and
+  // a ballot. Assembled, those give "Voted Yea on the question “On Passage”" over
+  // "Counted on 🔐 Election Security & Ballot Safeguards because that is the primary
+  // subject of this measure" — two true sentences that between them never say what
+  // the measure does or why a yea on it counts the way it counts. On the SAVE family
+  // that is the whole reader problem: five rows, five different bills, one identical
+  // pair of sentences, and nothing on the face a reader could use to check the chip.
+  //
+  // WHAT THIS IS. A per-(measure, congress, issue) table of curator-written lines,
+  // read from the measure text, filling the two slots the dossier already has:
+  // `did` → "What it did" (the ≤2-sentence face line), `why` → "Why it counts here"
+  // (the curated second slot, which turns the row bright — see _dosCountsBy), and an
+  // optional `more` → the L4 fold, for the detail that does not belong on a row face.
+  //
+  // WHAT IT IS NOT. Not a mapping. Nothing here decides which items are counted,
+  // which way they cut, what they weigh, or what any verdict says — the direction on
+  // every row still comes from the mapping's own `supportMeaning` and the ballot, and
+  // an entry that disagreed with the engine would be a wrong entry, not a new reading.
+  // Not a backfill either: it is keyed tightly enough to fail closed, and a measure
+  // with no entry keeps exactly the derived rendering it has today, visibly derived,
+  // so nothing that is only metadata is ever dressed up as a curator's sentence.
+  //
+  // THE KEY IS NUMBER + CONGRESS, AND THE CONGRESS IS NOT OPTIONAL. Bill numbers are
+  // reused every two years and the low ones are reused deliberately: "H.R. 1" is the
+  // For the People Act in the 117th and a reconciliation vehicle in the 119th, and
+  // "H.R. 22" carries the SAVE Act only in the 119th. An item with no congress on it
+  // — a curated position, anything that arrives short of the vote shape — matches
+  // nothing, which is the failure this direction is meant to have.
+  //
+  // RULES THESE LINES ARE WRITTEN UNDER. `did` says what the text does and nothing
+  // about who liked it: no "supporters say", no "critics warn", no motive. `why` is
+  // per issue, never one blurb reused across a bill's chips — a bill that pulls the
+  // two election facets apart has to say so on each of them in that facet's own
+  // terms, which is why H.R. 8281's two entries read as opposites. And where a
+  // mapping carries a known confound, the confound is on the face rather than one
+  // level down: a Home Rule Act vehicle means a nay may be a home-rule vote.
+  //
+  // WHAT DECIDES WHETHER A MEASURE GETS AN ENTRY. Two things, and reach is only the
+  // second. First: the repo has to hold the text. db/vr-measure-identity.json carries
+  // the enacted-law or as-passed summary for the measures it covers, and a `did` line
+  // is written from that summary and from the mapping's own section citations — never
+  // from recollection. A measure the corpus knows only by title and roll number gets
+  // no entry, however many members voted on it, because the alternative is a sentence
+  // that sounds curated and is not sourced. Second, among the measures whose text IS
+  // on file: how many roster members carry a row for it, how many of those faces read
+  // Contradicted or Mixed, and how many rest on a single scored vote — the three
+  // places where a reader most needs to be told what the bill did before the verdict
+  // means anything. That ordering is why several of the highest-volume rolls in the
+  // corpus are still derived below and should stay that way until their text lands.
+  var _DOS_MECH = {
+    // ── The SAVE family: three separate instruments, one recurring short title ──
+    'H.R. 8281|118|election_security': {
+      did: 'Amended the National Voter Registration Act to require documentary proof of U.S. citizenship — a passport, a REAL ID that shows citizenship, or a birth certificate with photo ID — before a state may register anyone to vote in a federal election.',
+      why: 'Verifying who is eligible before they are added to the roll is the core of what this chip measures, so a yea on this bill counts as a vote for tighter verification and a nay counts against it.',
+      more: 'The bill also directed every state to run its existing rolls against federal immigration and Social Security databases to identify and remove non-citizens already registered, and created criminal penalties for an election official who registers an applicant without the documentation. Passed the House 221-198 on 2024-07-10 (roll 345); the Senate did not take it up.'
+    },
+    'H.R. 8281|118|voting_access': {
+      did: 'Required proof of citizenship to be presented in person at an election office, which as a practical matter closes mail and online registration to any applicant who cannot appear there with documents.',
+      why: 'This chip measures how hard it is to get on the roll and cast a ballot, and the bill adds a document and a trip at the registration step — so a yea counts against easier registration here, the opposite of how the same yea reads on the safeguards chip.',
+      more: 'The acceptable-document list also makes no accommodation for a citizen whose current legal name differs from the name on their birth certificate — a mismatch that falls hardest on anyone who changed their name on marriage. The two election facets are scored independently on purpose, and this measure is the clearest case of why: one yea genuinely tightens verification and genuinely narrows registration, and a single combined reading would have to suppress one of those to report the other.'
+    },
+    'H.R. 22|119|election_security': {
+      did: 'The SAVE Act as reintroduced in the 119th Congress: documentary proof of United States citizenship before a state may register an applicant for a federal election, plus a state program to check existing rolls against federal databases and remove non-citizens found on them.',
+      why: 'Eligibility verification at registration and maintenance of the roll already in place are the two things this chip is about, so a yea is a vote for tighter verification.',
+      more: 'Substantially the same text as H.R. 8281 in the 118th Congress, which passed the House and died in the Senate. Officials who register an applicant without the required documentation face criminal penalties. Passed the House 220-208 on 2025-04-10 (roll 102).'
+    },
+    'H.R. 22|119|voting_access': {
+      did: 'Made documentary proof of citizenship a precondition of federal voter registration under every registration method, including applications made by mail and online.',
+      why: 'A document a would-be voter has to produce before they can be registered is a narrowing of the path onto the roll, and this chip measures that path — so a yea reads here as a vote against easier access.'
+    },
+    'H.R. 22|119|election_integrity': {
+      did: 'The SAVE Act as reintroduced in the 119th Congress: documentary proof of United States citizenship before a state may register an applicant for a federal election, plus a required program to remove non-citizens from rolls already in place.',
+      why: 'This is the combined elections key the mapping was originally published under. It reads the measure the same way the safeguards chip does: a documentary citizenship check in front of registration is a verification rule, so a yea counts as support for one.'
+    },
+    'H.R. 22|119|voter_id': {
+      did: 'Required an applicant to present a passport, a REAL ID that shows citizenship, or a birth certificate together with a photo ID before a state may register them for a federal election.',
+      why: 'The document is demanded at the registration desk rather than at the ballot box, but it is still an identity document required of the voter, which is what this chip tracks — so a yea counts as support for one.'
+    },
+    'S. 1383|119|election_security': {
+      did: 'The House substituted the SAVE America Act text into S. 1383 and passed it 218-213: no state may process a federal registration application without documentary proof of citizenship, and no official may hand an in-person voter a ballot without a valid physical photo ID.',
+      why: 'Verification at registration, identification at the ballot box, roll maintenance and fraud enforcement are the four things this chip covers, and the substitute moves all four the same way — so a yea is a vote for tighter safeguards.',
+      more: 'The substitute also requires a mail voter to enclose a copy of a photo ID or the last four digits of their Social Security number with an affidavit, requires states to submit their full voter lists to the Department of Homeland Security for comparison against the SAVE system and to remove non-citizens on verified information, and extends criminal penalties to an official who registers an applicant without the documentation. The Clerk’s record for roll 69 still shows the Senate short title "Veterans Accessibility Advisory Committee Act" because S. 1383 was the vehicle; the substituted House text is what was voted on and what this reading is made from.'
+    },
+    'S. 1383|119|voting_access': {
+      did: 'A mail-form applicant must bring proof of citizenship in person to an election office by the registration deadline, and an in-person voter without photo ID may only cast a provisional ballot and has three days to cure it.',
+      why: 'This chip measures the registration step and the casting step, and the substitute adds a condition to both — so a yea counts against access here, and it counts more heavily than H.R. 8281 did because that bill reached only registration.',
+      more: 'The bill’s easing provisions were read and weighed rather than ignored: an alternative-evidence pathway on a sworn attestation, a required process for applicants whose documents carry a former name, free public access to a copier or scanner in government buildings, and exemptions for uniformed-services and certain elderly and disabled voters. Each of those accommodates the new requirement rather than widening access on its own, which is why the access facet is scored here instead of being declined the way it is on H.R. 1 and H.R. 5746.'
+    },
+    // ── The District of Columbia pair: same text, two congresses ───────────────
+    'H.R. 884|119|election_security': {
+      did: 'Amended the District of Columbia Home Rule Act to bar anyone who is not a United States citizen from voting in a District election, repealing the effect of the Local Resident Voting Rights Amendment Act of 2022.',
+      why: 'Citizenship as a condition of casting a ballot is an eligibility safeguard, so a yea is a vote for tighter verification of who may vote. The confound is recorded rather than hidden: because the vehicle amends the Home Rule Act, a nay may be opposition to Congress overriding a local District enactment rather than a position on non-citizen voting.'
+    },
+    'H.R. 884|119|voting_access': {
+      did: 'Took the municipal vote away from non-citizen District residents who had registered under the District’s own 2022 law.',
+      why: 'This chip measures who can cast a ballot, and the bill removes a casting pathway that existed — so a yea narrows access. Same Home Rule Act confound as the safeguards row above.'
+    },
+    'H.R. 192|118|election_security': {
+      did: 'Amended the District of Columbia Home Rule Act to bar non-citizens from voting in District elections. Same text as H.R. 884 in the 119th Congress, which passed the House a year later.',
+      why: 'Citizenship as a condition of voting is an eligibility safeguard, so a yea counts as support on this chip. Same Home Rule Act confound: a nay may be a vote about Congress overriding a local District law rather than about non-citizen voting.'
+    },
+    'H.R. 192|118|voting_access': {
+      did: 'Repealed the District law that let non-citizen residents vote in District municipal elections.',
+      why: 'It removes a casting pathway that existed, so on the access chip a yea narrows who may vote. Same Home Rule Act confound as the safeguards row above.'
+    },
+    // ── The three access bills of the 117th ────────────────────────────────────
+    'H.R. 1|117|voting_access': {
+      did: 'The For the People Act: required every state to offer automatic voter registration through motor-vehicle and other agencies, same-day registration and online registration, and restricted voter-roll purges. It also required at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage.',
+      why: 'Every one of those provisions widens a registration or a casting pathway, which is exactly what this chip measures — so a yea is a vote to expand access.',
+      more: 'The bill also restored voting rights to citizens released from incarceration, and later titles cover redistricting commissions, small-donor public financing and ethics. Its election-security title is deliberately NOT mapped to the safeguards chip: the same bill mandates durable paper ballots and risk-limiting audits while permitting a sworn statement in lieu of documentary ID and restricting list maintenance, so one yea covers both directions of that facet and can honestly record neither. Passed the House 220-210 on 2021-03-03 (roll 62).'
+    },
+    'H.R. 4|117|voting_access': {
+      did: 'The John R. Lewis Voting Rights Advancement Act: restored Voting Rights Act preclearance on a rolling twenty-five-year coverage formula, and added a practice-based review list holding specific access-narrowing changes — new documentary or photo-ID rules, polling-place closures, voter-roll purges — behind federal review before they take effect.',
+      why: 'The bill’s whole operative effect is to gate changes that would narrow registration or casting, so a yea counts as a vote to protect access.',
+      more: 'It also restored a private right of action. The bill adds no verification requirement, ballot-handling rule or audit provision of its own, which is why it is mapped to the access facet only — scoring it on the safeguards chip would test members on a question the text does not ask. Passed the House 219-212 on 2021-08-24 (roll 260).'
+    },
+    'H.R. 5746|117|voting_access': {
+      did: 'The Freedom to Vote: John R. Lewis Act, moved as a House amendment to a Senate shell bill: automatic and same-day registration, at least two weeks of early voting including weekends, no-excuse mail voting with ballot tracking and a minimum number of drop boxes, and Election Day as a public holiday.',
+      why: 'Each of those provisions widens a registration or a casting pathway, so a yea is a vote to expand access.',
+      more: 'The Clerk’s vote description for this roll still reads "NASA Enhanced Use Leasing Extension Act of 2021" because H.R. 5746 was the vehicle the House used, which is why the row is identified by citation and question rather than by title. The measure incorporates H.R. 1’s text, and its election-security title is unmapped for the same internal-split reason. Passed the House 220-203 on 2022-01-13 (roll 9).'
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // BEYOND THE ELECTION FAMILY. Ten measures, twenty-three pairs, chosen the way the
+    // note above describes: text on file first, then reach. Every one of them is a
+    // bill a member's dossier opens on for one of the busiest chips in the taxonomy,
+    // and every one of them was rendering: Passage on the question "On Passage".
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ── Reconciliation, 117th: relief, then climate-and-drugs ──────────────────
+    'H.R. 1319|117|family_support': {
+      did: 'The American Rescue Plan: $1,400-per-person recovery rebates, and a child tax credit raised to $3,000 per child — $3,600 under age six — made fully refundable and paid out in advance instalments. It also funded child care stabilisation, Head Start, and emergency rental and homeowner assistance.',
+      why: 'Cash and credits paid directly to households with children are the largest single line of the act, and this chip measures federal support for families — so a yea is a vote to expand it.',
+      more: 'The credit expansion and the advance payments were written for one year only and lapsed at the end of 2021, so the row records a vote to create the expansion rather than to make it permanent. Enacted as Public Law 117-2 on 2021-03-11.'
+    },
+    'H.R. 1319|117|econ_workers': {
+      did: 'Extended the pandemic unemployment compensation programs — the federal weekly supplement, Pandemic Unemployment Assistance and Pandemic Emergency Unemployment Compensation — through September 2021, and exempted a portion of 2020 unemployment benefits from income tax.',
+      why: 'Both provisions put money in the hands of people who had lost work, which is what this chip measures, so a yea counts as support here.'
+    },
+    'H.R. 1319|117|national_debt': {
+      did: 'Roughly $1.9 trillion of pandemic relief, moved through budget reconciliation as emergency spending with no offsetting revenue or cuts.',
+      why: 'This chip measures whether a vote reduces federal borrowing, and an unoffset act increases it — so a yea counts against. The confound is named rather than smoothed: the deficit effect is a consequence of the relief, not its stated purpose, which is why this mapping sits well below the family-support row that carries the same vote.'
+    },
+    'H.R. 5376|117|climate_action': {
+      did: 'The Inflation Reduction Act extended and expanded the production and investment tax credits for wind, solar, geothermal, biomass and hydropower, and funded home efficiency, clean vehicles and industrial decarbonisation — the act’s largest spending component.',
+      why: 'Paying for lower-carbon generation and equipment at that scale is the core of what this chip measures, so a yea counts as support. The same act’s offshore-leasing mandates cut the other way; they are recorded on the energy-production row rather than netted out of this one.'
+    },
+    'H.R. 5376|117|energy_production': {
+      did: 'Raised offshore royalty rates, but also directed Interior to accept the highest bid for Gulf of Mexico Lease Sale 257 and to hold Lease Sales 258, 259 and 261, and conditioned new wind and solar rights-of-way on first offering oil and gas leases.',
+      why: 'Those sections require federal acreage to be offered for oil and gas, so on production a yea counts as support — the same yea that counts as support on climate action, because the enacted text does both and the record shows both.'
+    },
+    'H.R. 5376|117|health_drug_prices': {
+      did: 'Required Medicare to negotiate maximum prices for high-spend brand-name drugs from 2026, scaling from 10 drugs to 20 by 2029, and capped insulin cost sharing and Medicare Part D out-of-pocket spending.',
+      why: 'Setting a ceiling on what Medicare pays and on what a beneficiary pays at the counter is exactly what this chip measures, so a yea is a vote to lower drug prices.'
+    },
+
+    // ── Infrastructure, 117th ──────────────────────────────────────────────────
+    'H.R. 5376|117|national_debt': {
+      did: 'Title I, Subtitle A of the same act is captioned “Deficit Reduction”: a 15% corporate alternative minimum tax, a 1% excise on stock repurchases, and multi-year funding for Internal Revenue Service enforcement.',
+      why: 'Those three raise revenue against the act’s spending, so on this chip a yea counts as support — the opposite reading from the unoffset packages elsewhere on this list, and it comes from the enacted text rather than from a preference. The confound is the reason the mapping is weighted 45: the net fiscal effect of the whole act is contested, and only the subtitle heading and its contents are being read here.'
+    },
+    'H.R. 3684|117|infrastructure': {
+      did: 'The Infrastructure Investment and Jobs Act authorised and appropriated funds for roads and bridges, rail, transit, ports, airports, the electric grid, drinking water and wastewater systems, and broadband. Division A is the surface transportation reauthorisation.',
+      why: 'Funding the physical networks is the whole subject of the act and of this chip, so a yea counts as support.'
+    },
+    'H.R. 3684|117|national_debt': {
+      did: 'The act’s new spending was only partially offset, so it was scored as adding to the deficit.',
+      why: 'A yea increases federal borrowing, which is what this chip counts against. Same confound as the other unoffset packages on this list: the deficit effect is a by-product of the infrastructure spending rather than the act’s purpose, which is why the mapping is weighted low.'
+    },
+
+    // ── The 118th debt-limit deal ──────────────────────────────────────────────
+    'H.R. 3746|118|permitting_reform': {
+      did: 'Division C, Title III narrowed the scope of National Environmental Policy Act administrative review, set page and time limits on environmental impact statements, and designated a single lead agency for each project.',
+      why: 'This chip measures how long a federal review takes before a project can proceed, and every one of those changes shortens it — so a yea counts as support.'
+    },
+    'H.R. 3746|118|energy_production': {
+      did: 'Sec. 324 ratified every existing federal authorisation for the Mountain Valley Pipeline, directed the issuance of any that remained, and removed them from judicial review.',
+      why: 'Clearing a named pipeline to be built is a vote for production on this chip. The confound is real and on the face: Sec. 324 is one section of a debt-limit deal, so a nay may be about the spending caps, the IRS rescission or the SNAP work requirements rather than about the pipeline.'
+    },
+
+    // ── CHIPS, 117th ───────────────────────────────────────────────────────────
+    'H.R. 4346|117|tech_innovation': {
+      did: 'The CHIPS and Science Act: Division A created the CHIPS for America Fund and its financial assistance for semiconductor fabrication, assembly, testing and packaging, and Division B authorised research and innovation programs across NSF, NIST, DOE and NASA.',
+      why: 'Paying to build domestic chip capacity and to fund the federal science agencies is the act’s named subject and this chip’s, so a yea counts as support.'
+    },
+    'H.R. 4346|117|national_debt': {
+      did: 'The CHIPS funds were appropriated as new spending without offsetting revenue or cuts.',
+      why: 'A yea increases federal borrowing, which this chip counts against. Named rather than smoothed: the deficit effect is a by-product of the semiconductor programme, not its purpose.'
+    },
+
+    // ── Two defence authorisations, two congresses ─────────────────────────────
+    'H.R. 2670|118|strong_defense': {
+      did: 'The annual defence authorisation for fiscal year 2024: the topline, and the procurement, research, operation and maintenance, military personnel, military construction and Department of Energy national-security programs under it.',
+      why: 'Authorising and equipping the armed forces for the year is what this chip measures, so a yea counts as support.'
+    },
+    'H.R. 2670|118|privacy_rights': {
+      did: 'Section 7902 of the enacted act extended Title VII of the Foreign Intelligence Surveillance Act — the authority section 702 collection against targets outside the United States runs under — through April 19, 2024.',
+      why: 'Extending warrantless collection cuts against this chip, so a yea counts against it. The confound is on the face: this is one section of a whole defence authorisation, which is why it is weighted as a provision-level slice and not as the bill’s headline.'
+    },
+    'S. 1071|119|strong_defense': {
+      did: 'The annual defence authorisation for fiscal year 2026: Divisions A through H authorise Department of Defense activities, military construction, Department of Energy national security programs, personnel strengths, and the Intelligence Authorization Act for the same year.',
+      why: 'Authorising and equipping the armed forces for the year is what this chip measures, so a yea counts as support. The confound is on the face: the enacted text folds in fourteen separately titled Acts, several of them unrelated to defence posture, so passage is not a pure defence signal — which is why this mapping is weighted 80 rather than 100.'
+    },
+    'S. 1071|119|israel_support': {
+      did: 'Title XII, Subtitle D — headed "Matters Relating to Israel" — extended anti-tunnel and counter-unmanned-systems cooperation and required a report on joint exercises, and Sec. 1657 made available up to $60,000,000 for Iron Dome components, $40,000,000 for David’s Sling and $100,000,000 for Arrow 3, each through co-production in the United States.',
+      why: 'Money and joint programs for Israeli missile defence are what this chip measures, so a yea enacts them. The confound: that subtitle is a small share of an eight-division omnibus, so a nay may be about the rest of the bill — which is why the mapping is weighted 35.'
+    },
+
+    // ── Firearms, 117th: one yea, two chips, opposite directions ───────────────
+    'S. 2938|117|gun_safety': {
+      did: 'Required an enhanced background check review for buyers aged 18 to 20, created federal straw purchasing and firearms trafficking offences, and extended the domestic violence possession prohibitor to dating partners. It also funded state crisis intervention programmes.',
+      why: 'Each of those narrows who may acquire or keep a firearm, which is what this chip measures, so a yea counts as support.'
+    },
+    'S. 2938|117|gun_rights': {
+      did: 'The same Title II provisions hold an under-21 purchase while the enhanced review runs, and bar a new class of person — a dating partner with a qualifying domestic violence conviction — from possessing a firearm.',
+      why: 'This chip measures whether a vote widens or narrows lawful access, and the act narrows it — so the same yea that counts as support on gun safety counts against here. Both readings are recorded because the enacted text does both.'
+    },
+
+    // ── Surveillance, 118th ────────────────────────────────────────────────────
+    'H.R. 7888|118|privacy_rights': {
+      did: 'Reauthorised Title VII of the Foreign Intelligence Surveillance Act, including section 702, for two years and widened the definition of an electronic communications service provider. The same act repealed "abouts" collection authority, required FBI supervisory and attorney approval for U.S.-person queries, and added penalties and 180-day Justice Department audits.',
+      why: 'The net effect is an extension of warrantless collection, so a yea counts against this chip. The countervailing reforms in the second sentence are why the mapping is held at 85 rather than 100 — calling this one unmixed would misstate the text.'
+    },
+    'H.R. 7888|118|congress_oversight': {
+      did: 'Revoked the FBI’s statutory reporting exemption and added mandatory annual and quarterly reports to the intelligence and judiciary committees, required a Justice Department Inspector General report on querying practices, and required the Director of National Intelligence to notify the intelligence committees within seven days of any significant unauthorised disclosure of section 702 information.',
+      why: 'Every one of those creates a reporting duty running to Congress where none existed, and nothing in the act reduces one, so a yea counts as support on this chip. Weighted 45 because the act’s operative purpose is the two-year section 702 extension, not the oversight machinery built around it.'
+    },
+
+    // ── Marriage, 117th: the merits and the preemption question, kept apart ────
+    'H.R. 8404|117|lgbtq_rights': {
+      did: 'Repealed the Defense of Marriage Act’s definitions of marriage as between one man and one woman and of spouse as a person of the opposite sex, and required every state to give full faith and credit to a marriage valid where it was performed.',
+      why: 'Federal recognition and interstate recognition of same-sex marriage are what this chip measures, so a yea counts as support. No religious-liberty contradiction is scored against the same vote, because the enacted text expressly states it does not affect religious liberties and does not require a religious organisation to serve a marriage.'
+    },
+    'H.R. 8404|117|states_federal_power': {
+      did: 'Sec. 4 added a new 28 U.S.C. 1738C barring any person acting under colour of state law from denying full faith and credit to another state’s marriage record, or denying a right arising from such a marriage, backed by Attorney General enforcement and a private right of action.',
+      why: 'That section replaces a state’s own recognition rule with a federal one, so on the preemption question a yea counts against state authority. This row is coded on preemption alone — the merits of the marriage question are the LGBTQ rights row on the same vote.'
+    },
+
+    // ═════════════════════════════════════════════════════════════════════════════
+    // THE SIX PAIRS THE SEPTEMBER 2026 DENSIFICATION MAPPED. Not a new pass over the
+    // corpus: exactly the six mappings written by
+    // 20260917000000_vr_identity_and_thin_key_densification.sql, which arrived with
+    // section citations and an identity summary already read out of primary text and
+    // then rendered on the face as "Voted Yea on the question “On Passage”" over
+    // "because that is one of the subjects this measure was mapped to". Two of the
+    // three H.R. 8595 rows and both H.R. 1968 rows hang off ONE division of a much
+    // larger vehicle, so each line says which division it is reading — a reader who
+    // cannot tell an appropriations bill from the elections division inside it cannot
+    // check the chip, which is the whole point of this lane.
+    // ═════════════════════════════════════════════════════════════════════════════
+
+    // ── H.R. 8595: an appropriations vehicle carrying the SAVE America Act as Division B
+    'H.R. 8595|119|election_security': {
+      did: 'Division B of the fiscal 2027 national security and State Department appropriations bill is the Safeguard American Voter Eligibility Act. Sec. 102 amends the National Voter Registration Act so that no state may accept and process a federal registration application under any method — mail, motor-vehicle or agency — unless the applicant presents documentary proof of United States citizenship, and it fixes the acceptable-document list in federal law.',
+      why: 'Verifying citizenship before an applicant is added to the roll is the core of what this chip measures, so a yea counts as support for tighter verification.',
+      more: 'The document list is a REAL ID-compliant credential indicating citizenship, a United States passport, a military identification card whose service record shows a United States place of birth, or a Federal, State or Tribal photo identification showing the same. Sec. 102 also requires a voter registration agency to record receipt of the proof for each applicant. Passed the House 217-209 on 2026-07-15 (roll 247); received in the Senate and not enacted.'
+    },
+    'H.R. 8595|119|voter_id': {
+      did: 'Sec. 103 of the same Division B adds a new section 303A to the Help America Vote Act: an election official may not hand an in-person voter a federal ballot without a valid physical photo identification, and a mail voter must enclose a copy of one, or the last four digits of a Social Security number with an affidavit.',
+      why: 'This chip tracks identity documents demanded of the voter, and this is the first instrument in the record to demand one at the casting step rather than at registration — so a yea counts as support.',
+      more: 'Section 303A(c) fixes what counts: a state driver’s licence or motor-vehicle identification card bearing a photo and an expiration date, a United States passport, a military identification, or a Tribal photo identification with an expiration date. Section 303A(d) requires every state to notify a registrant of the requirement when they apply, and online registration systems to do so before the application is completed.'
+    },
+    'H.R. 8595|119|voting_access': {
+      did: 'Both steps of casting a federal ballot are gated by Division B: documentary proof of citizenship before a state may put an applicant on the roll under Sec. 102, and photo identification before an official may issue or count a ballot under Sec. 103.',
+      why: 'This chip measures how hard it is to get registered and to vote, and the division adds a document at each step — so the same yea that counts as support on the safeguards chip counts against here, and both readings are recorded because the text does both.',
+      more: 'The provisions running the other way were read and are named rather than dropped: a three-day cure for a provisional ballot, a state affidavit of religious objection to being photographed, an alternative-evidence process for an applicant who cannot produce a listed document, disability accommodations on the mail form, a substitute of the last four digits of a Social Security number for a mail voter who cannot obtain a copy after reasonable efforts, outright exemption for absent uniformed-services voters and for voters covered by the Voting Accessibility for the Elderly and Handicapped Act, and free public access to a copier or scanner in courts, libraries and police stations. Each of those accommodates the new requirement rather than removing it, which is why the row is scored directional instead of being declined.'
+    },
+
+    // ── H.J.Res. 44: the instrument, not the firearms merits
+    'H.J.Res. 44|118|gov_regulation': {
+      did: 'One operative clause: Congress disapproves the Bureau of Alcohol, Tobacco, Firearms, and Explosives final rule “Factoring Criteria for Firearms with Attached ‘Stabilizing Braces’” (2021R-08F, 88 Fed. Reg. 6478), and “such rule shall have no force or effect.”',
+      why: 'This chip measures whether a vote strikes a federal rule off the books, and a Congressional Review Act disapproval does exactly that — so a yea counts as support here, and under chapter 8 of title 5 it also bars the agency from reissuing the rule in substantially the same form without new legislation. The firearms merits of the rule are the gun chips on the same vote; this row is about the instrument.',
+      more: 'Passed the House 219-210 on 2023-06-13 (roll 252) and failed in the Senate 49-50 on 2023-06-22 (roll 171), so no enrolled or enacted text exists and the engrossed House text is what both chambers voted on.'
+    },
+
+    // ── H.R. 1968: a full-year CR whose divisions B and C are not appropriations
+    'H.R. 1968|119|health_rural': {
+      did: 'Division B extended the health authorities due to lapse on March 31, 2025, and they are disproportionately the rural ones: the Medicare-Dependent Hospital Program for small rural hospitals (Sec. 2202), the low-volume inpatient adjustment (Sec. 2201), the ground-ambulance payment add-on (Sec. 2203), the telehealth flexibilities that let rural health clinics and federally qualified health centers act as the distant site (Sec. 2207), and funding for community health centers, the National Health Service Corps and teaching health centers (Sec. 2101).',
+      why: 'Keeping the payment adjustments small rural hospitals run on is what this chip measures, so a yea counts as support and a nay lets them expire. The confound is on the face and is why the mapping is narrow: this is one division of a government-funding bill, so a nay may be about the appropriations rather than the extenders.',
+      more: 'Title IV of the same division also delayed the Medicaid disproportionate-share hospital allotment reductions to FY2026. Enacted as Public Law 119-4 on 2025-03-15.'
+    },
+    'H.R. 1968|119|immig_fentanyl': {
+      did: 'Division C, Sec. 3105 extended the Drug Enforcement Administration’s temporary order placing fentanyl-related substances in schedule I as a class, striking “March 31, 2025” and inserting “September 30, 2025”.',
+      why: 'Class-wide scheduling is the federal handle on fentanyl analogues that this chip measures, and it would have lapsed that month without the extension — so a yea counts as support. Same confound as the rural row on this bill, and the same reason the mapping is narrow: one section of a funding vehicle is not the vehicle.',
+      more: 'Permanent class-wide placement did not arrive until the HALT Fentanyl Act (S. 331), enacted in July 2025, which may be its own row on this list. H.R. 1968 was enacted as Public Law 119-4 on 2025-03-15.'
+    }
+  };
+  // Fails closed in three places, on purpose: a position (no congress, no ballot), a
+  // missing number, and a missing or non-numeric congress all return null and leave
+  // the row on its derived rendering.
+  function _dosMechFor(item, issueKey) {
+    if (!item || item.kind === 'position') return null;
+    var num = String(item.number == null ? '' : item.number).trim();
+    var cong = item.congress;
+    if (!num || typeof cong !== 'number' || !isFinite(cong)) return null;
+    return _DOS_MECH[num + '|' + cong + '|' + issueKey] || null;
+  }
+
+  // ── WHICH OF THE SIMILARLY-NAMED MEASURES THIS ROW IS ───────────────────────
+  // A bill number is not a name and a short title is not unique. On the elections
+  // face both failures land at once: three separate instruments answer to some form
+  // of "SAVE", two of them are one word apart, and a member can have a vote on all
+  // three sitting in the same list. Worse, two of the rolls here are SUBSTITUTES
+  // into unrelated Senate shells, so the Clerk link under the row opens a page whose
+  // title has nothing to do with what was voted on — a reader who checks the citation
+  // the way this product keeps asking them to gets a bill about veterans' accessibility.
+  //
+  // This is the sentence that answers "which measure is this, exactly". Keyed on
+  // number + congress rather than per issue, because it is a fact about the document
+  // and not about the chip. It corrects no vote and moves no mapping: every row still
+  // points at the roll it was always stored under, and the note says out loud what
+  // that roll is.
+  var _DOS_IDENT_NOTE = {
+    'H.R. 8281|118': 'This is the SAVE Act as first passed by the House, in the 118th Congress. ' +
+      'H.R. 22 in the 119th is the reintroduction of the same text, and S. 1383’s SAVE America Act ' +
+      'is a separate, broader bill — all three can appear on this list.',
+    'H.R. 22|119': 'This is the SAVE Act of the 119th Congress — the reintroduction of H.R. 8281, ' +
+      'which the House passed in the 118th and which may be its own row on this list. Neither is ' +
+      'the SAVE America Act (S. 1383).',
+    'S. 1383|119': 'S. 1383 began as a Senate bill titled the Veterans Accessibility Advisory ' +
+      'Committee Act. The House replaced its text with the SAVE America Act and passed that on ' +
+      'roll 69 — the substitute is what this row is about, and it is why the Clerk’s page for the ' +
+      'roll still shows the vehicle’s Senate title.',
+    'H.R. 5746|117': 'H.R. 5746 was a shell, and the Clerk’s description for this roll still reads ' +
+      '“NASA Enhanced Use Leasing Extension Act of 2021”. The House substituted the Freedom to ' +
+      'Vote: John R. Lewis Act into it, and that substitute is the text that was voted on.',
+
+    // Two more shell vehicles, from the same habit and with the same consequence: the
+    // citation a reader follows lands on a title that has nothing to do with the vote.
+    'H.R. 4346|117': 'H.R. 4346 began as the Legislative Branch Appropriations Act for fiscal ' +
+      '2022, and its official title still says so. The CHIPS and Science Act text was substituted ' +
+      'into it, and that substitute is what was voted on here.',
+    'S. 2938|117': 'S. 2938 began as a bill to name a federal courthouse in Tallahassee, and the ' +
+      'official title still reads that way. The Bipartisan Safer Communities Act text was ' +
+      'substituted into it, which is why a citation for this roll can look unrelated to firearms.',
+
+    // The two reconciliation bills, whose official titles name the budget resolution
+    // they moved under and never the bill anyone knows them by.
+    'H.R. 1319|117': 'H.R. 1319 is the American Rescue Plan Act. Its official title — “To provide ' +
+      'for reconciliation pursuant to title II of S. Con. Res. 5” — names the budget resolution ' +
+      'the bill moved under rather than the bill, so a citation for this roll may not look like ' +
+      'a relief measure.',
+    'H.R. 5376|117': 'H.R. 5376 is the Inflation Reduction Act, and its official title likewise ' +
+      'names only a budget resolution. The same bill number carried the far larger Build Back ' +
+      'Better Act through the House in 2021; the narrower text the Senate amended and both ' +
+      'chambers passed in August 2022 is what this row is about.',
+
+    // Six annual defence authorisations are on this list. They are different bills with
+    // different contents, and only the fiscal year tells them apart.
+    'H.R. 2670|118': 'This is the National Defense Authorization Act for fiscal year 2024. Five ' +
+      'other annual defence authorisations can appear on this list — S. 1605 (FY2022), H.R. 7776 ' +
+      '(FY2023), H.R. 5009 (FY2025), S. 1071 (FY2026) and H.R. 8800 (FY2027) — and each ' +
+      'authorises a different year and carries different provisions.',
+    'S. 1071|119': 'This is the National Defense Authorization Act for fiscal year 2026, a Senate ' +
+      'bill. It is not the FY2027 authorisation (H.R. 8800), which may be its own row on this ' +
+      'list, and not the FY2024 or FY2025 acts from the 118th Congress.',
+
+    // The fourth SAVE instrument, and the only one whose own title says nothing about
+    // elections. Without this the elections rows read as an appropriations vote and
+    // the appropriations rows read as an elections vote, depending on which chip the
+    // reader arrived from.
+    'H.R. 8595|119': 'H.R. 8595 is on the record under its appropriations title — the fiscal 2027 ' +
+      'national security, State Department and related programs bill. Division B of the same ' +
+      'vehicle is the Safeguard American Voter Eligibility Act, and the election rows on this ' +
+      'list read Division B rather than the appropriation. That makes it a fourth SAVE ' +
+      'instrument, distinct from H.R. 8281 (118th), H.R. 22 (119th) and the SAVE America Act ' +
+      'substituted into S. 1383.'
+  };
+  function _dosIdentNote(item) {
+    if (!item || item.kind === 'position') return '';
+    var num = String(item.number == null ? '' : item.number).trim();
+    var cong = item.congress;
+    if (!num || typeof cong !== 'number' || !isFinite(cong)) return '';
+    return _DOS_IDENT_NOTE[num + '|' + cong] || '';
+  }
+  // "119th Congress". Ordinary English ordinals, so 121st and 122nd come out right
+  // when someone reads this in 2029 — the 11x block is the exception every naive
+  // implementation gets wrong.
+  function _dosCongressLabel(n) {
+    if (typeof n !== 'number' || !isFinite(n) || n <= 0) return '';
+    var t = n % 100, u = n % 10;
+    var suf = (t >= 11 && t <= 13) ? 'th' : (u === 1) ? 'st' : (u === 2) ? 'nd' : (u === 3) ? 'rd' : 'th';
+    return n + suf + ' Congress';
+  }
+
   // ── L2's data ───────────────────────────────────────────────────────────────
   // One normalised entry per instrument behind this issue — DATA, no markup — so the
   // summary rows, the lazily-mounted detail and the tests all read one list. Lane
@@ -8100,6 +8534,10 @@
       var _recStance = positionStance(pid, issueKey) || '';
       _orProofPicks(pid, issueKey, ov).forEach(function (p) {
         var b = _orProofBits(p.item) || {};
+        // The curated mechanism for THIS measure on THIS issue, where one is written.
+        // Null everywhere else, which is the common case and stays the common case —
+        // see _DOS_MECH.
+        var mech = _dosMechFor(p.item, issueKey);
         out.push(withMapping(p.item, {
           lane: 'record',
           verdict: p.verdict,
@@ -8109,11 +8547,22 @@
           act: b.act || '', question: b.question || '',
           date: b.date || '',
           standing: null, power: null, effect: '', stance: _recStance,
-          // A roll call carries no curated prose, so both mechanism lines are
-          // DERIVED — see _dosMechanism. What it did is the question and the ballot,
-          // which the record does carry; why it counts here is a restatement of the
-          // issue mapping. Neither invents anything the record does not record.
-          plain: '', counts: '', rationale: '',
+          // Curated when the measure has an entry in _DOS_MECH, derived when it does
+          // not. Derived means the question plus the ballot for "what it did" and a
+          // restatement of the mapping for "why it counts here" — both true, both
+          // labelled as the derivations they are, and neither one inventing anything
+          // the record does not record. The curated pair says what the measure does
+          // and why that lands on this chip, which is the thing the record itself
+          // cannot say. `more` rides down to L4 rather than onto the row face.
+          plain: (mech && mech.did) || '',
+          counts: (mech && mech.why) || '',
+          rationale: (mech && mech.more) || '',
+          // Which of the similarly-named measures this is, and — always, on this lane
+          // — which congress the roll belongs to. The row's identity is a bare bill
+          // number and bill numbers are reused every two years, so the congress is
+          // part of the citation rather than decoration on it.
+          identNote: _dosIdentNote(p.item),
+          congress: _dosCongressLabel(p.item && p.item.congress),
           url: b.url || '', srcLabel: b.label || 'Congress.gov',
           voteKey: _orVoteKey(p.item)
         }));
@@ -8314,15 +8763,19 @@
     if (!d || d.held) return '';
     return (d.counts && String(d.counts).trim()) ? 'curated' : 'derived';
   }
-  // WHICH LANES HAVE A CURATION SLOT AT ALL. `exec` and `formal` items carry a
-  // per-issue sentence in the seed, so a derived line there means the slot is empty
-  // and a curator can fill it — that is a real, closeable piece of work. A roll call
-  // carries no such slot by construction (see _dosItems: plain/counts/rationale are
-  // all '' on that lane, on purpose, because inventing prose the record does not
-  // record is the worse failure). Its line is still labelled as the derivation it
-  // is, and the list's own lane note already explains why — but it is NOT queued,
-  // because a queue nobody can ever action is not a queue, it is a permanent
-  // apology.
+  // WHICH LANES HAVE A CURATION SLOT THE QUEUE CAN COUNT. `exec` and `formal` items
+  // carry a per-issue sentence in the seed, so a derived line there means an empty
+  // slot in a file a curator owns — a real, closeable piece of work, and the queue's
+  // whole subject.
+  //   The roll-call lane is the third case, and it stays out of the queue. It CAN carry
+  // a curated pair — _DOS_MECH holds hand-written lines for the measures that have
+  // been read, and a row that matches one renders in the curated voice like any other
+  // — but the population behind it is every roll call the API can return, most of
+  // them on measures nobody has written a line for and many of them procedural. A
+  // queue counting all of those would report a backlog in the thousands that no
+  // curator is working from, which is not a queue, it is a permanent apology. The
+  // derived rows there are still labelled as the derivations they are; they are just
+  // not counted as debt.
   var _DOS_CURATABLE = { exec: 1, formal: 1 };
   function _dosNeedsCurator(d) {
     return _dosCountsBy(d) === 'derived' && !!(d && _DOS_CURATABLE[d.lane]);
@@ -8368,7 +8821,11 @@
     // opposite of what the mapping says.
     if (d.lane === 'record' && d.support) {
       var meaning = (d.support === 'yea_opposes') ? 'opposition to' : 'support for';
-      var cast = d.act ? String(d.act).toLowerCase() : '';
+      // Only the FIRST letter is lowered, never the whole phrase. The clause reads
+      // "and they ___", so "Voted Yea" has to become "voted Yea" and not "voted yea":
+      // the ballot is a proper term the rest of the row prints capitalised, and an
+      // absence phrase ("Did not vote") has to survive the same transform intact.
+      var cast = d.act ? String(d.act).charAt(0).toLowerCase() + String(d.act).slice(1) : '';
       return 'On ' + lbl + ' a Yea counts as ' + meaning + ' the issue’s direction' +
         (cast ? ', and they ' + cast : '') + tail;
     }
@@ -8526,6 +8983,10 @@
   }
   function _dosMechanism(d, issueKey, teach, led) {
     return {
+      // Which document this is. First in the object because it is first on the face:
+      // every other line is a claim ABOUT an instrument, and a reader cannot weigh any
+      // of them until they know which instrument is being talked about.
+      ident: (d && d.identNote) || '',
       said: _dosSaidLine(teach),
       did: _dosDidLine(d),
       counts: _dosCountsLine(d, issueKey),
@@ -8609,6 +9070,9 @@
         : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
         : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
       '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
+      // The congress sits with the number because it is part of the number's meaning:
+      // "H.R. 22" names one bill in the 119th and a different one in every other.
+      (d.congress ? '<span class="pdxdos-rec-st">' + esc(d.congress) + '</span>' : '') +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
       (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
       (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
@@ -8643,10 +9107,17 @@
     // line on purpose: it is the sentence that explains the inversion the direction
     // line is about to assert, and a reader who meets them the other way round has to
     // hold an apparent contradiction in mind for a sentence before it resolves.
+    //   AND ONE LINE COMES BEFORE ALL OF THAT. "Which measure this is" leads wherever
+    // it exists, ahead even of the stated position, because it is not part of the
+    // argument — it is the answer to which document the argument is about. On a list
+    // where two rows are called SAVE Act and the next is called SAVE America Act, a
+    // reader who meets the claim before the identity has to re-read the claim.
     var why = d.held
-      ? (wk('What it did:', m.did) +
+      ? (wk('Which measure this is:', m.ident, 'pdxdos-rec-idn') +
+         wk('What it did:', m.did) +
          '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
-      : (wk('They said:', m.said, 'pdxdos-rec-said') +
+      : (wk('Which measure this is:', m.ident, 'pdxdos-rec-idn') +
+         wk('They said:', m.said, 'pdxdos-rec-said') +
          wk('What it did:', m.did) +
          wk('', m.veto, 'pdxdos-rec-veto') +
          _dosWhyHtml(m) +
@@ -8763,8 +9234,10 @@
       '<div class="pdxins-rh">' +
         // The direction is the mapping's, and it is the same one the chip list this
         // replaces already printed — including on an issue whose verdict is withheld.
-        // Those get the direction dimmed, so the row reads as "mapped this way, not
-        // scored" rather than as a judgement that quietly happened anyway.
+        // Those get the direction marked with the ledger's dotted rule, so the row
+        // reads as "mapped this way, not scored" rather than as a judgement that
+        // quietly happened anyway — and reads it at full contrast, beside the badge
+        // and the sentence that say the same thing in words.
         '<span class="pdxins-dir ' + dir.cls + ((r.held || !r.listed) ? ' pdxins-off' : '') + '">' +
           '<span aria-hidden="true">' + dir.ico + '</span> ' + esc(dir.word) + '</span>' +
         '<span class="pdxins-lbl">' + esc(r.label) + '</span>' +
@@ -8837,13 +9310,17 @@
       // one level up, and printing it twice made the expanded body read as if it had
       // found something new to say.
     } else if (d.lane === 'record') {
-      // A roll call carries the question and the ballot, and no curated per-issue
-      // sentence — so it gets the question and the ballot. Padding this to match the
-      // ✒️ lane's depth would be inventing detail the record does not have.
+      // What the RECORD itself holds: the question and the ballot. The curated
+      // mechanism, where there is one, is already the row face one level up, and its
+      // long form is the L4 fold below — so this block stays the record's own two
+      // facts rather than repeating either of them. Padding it to match the ✒️ lane's
+      // depth would be inventing detail the record does not have.
       var recBits = [];
       if (d.question) {
         recBits.push('The question on the floor: <b>' + esc(d.question) + '</b>');
-        if (d.act) recBits.push('They ' + esc(String(d.act).toLowerCase()));
+        // First letter only — "They voted Yea", not "They voted yea", and an absence
+        // phrase ("Did not vote") has to survive the same transform intact.
+        if (d.act) recBits.push('They ' + esc(String(d.act).charAt(0).toLowerCase() + String(d.act).slice(1)));
       } else if (d.act) {
         recBits.push(esc(d.act));
       }
