@@ -176,6 +176,12 @@
     // resolves to the surface that actually holds those positions rather than being
     // demoted to a stage whose only remaining content is a closed drawer.
     'pdxsec-stances': 'verdict',
+    // 🏛 The formal pattern atlas on the profile face — the full issue-by-issue
+    // list the hero's shape block summarises. It sits in the verdict stage
+    // because it IS the record half of "did their words match their record",
+    // mounted immediately under the hero rather than down in the drawers.
+    // Anchor emitted by profiles-full.js.
+    'pdxsec-formalatlas': 'verdict',
     // signature — the deferred archive of every documented position, in full text.
     'pdxsec-positions': 'signature',
     // record — the formal apparatus behind the verdict

@@ -1770,6 +1770,21 @@
     /* The phone-only caption above the ring. Hidden on wide screens, where the
        ring sits beside the name and its own inner caption is enough context. */
     .profile-hero-score-lbl { display: none; }
+    /* ── 🏛 When the hero is the shape of the formal record ──────────────
+       On a deep-record member the hero is not an 80px tile that can sit in a
+       column beside the name — it is four lines of counts, a short list of
+       pattern chips, and Direction Match demoted underneath. So the letterhead
+       wraps and the hero takes the full width below the photo and the name,
+       which is also the reading order the pass is arguing for: who they are,
+       then what their record looks like, then how well their word matched it.
+       Keyed off :has() rather than a class on the wrapper, because the gate
+       depends on the roll-call index and can flip from ring to shape when that
+       fetch lands — the layout has to follow the content, not a first-paint
+       guess. (word-action.js still sets .is-shape on the hero itself; that one
+       is doing a different job, overriding display:contents on a phone.) */
+    .profile-hero:has(.pdxwa-shape) { flex-wrap: wrap; }
+    .profile-hero-score:has(.pdxwa-shape) { flex: 1 0 100%; margin-top: 0.9rem; }
+    .pdxwa-hero.is-shape { align-items: stretch; width: 100%; gap: 0; }
     @media (max-width: 480px) {
       /* PHONES: the hero becomes a two-column grid with a full-width third row,
          so the primary read sits INSIDE the letterhead — directly under the name,
@@ -1820,6 +1835,18 @@
         font-size: 0.58rem; letter-spacing: 0.13em; text-transform: uppercase;
         color: #9fb4d4; margin: 0;
       }
+      /* The shape hero keeps the card — same fill, same left rule, and the
+         summary rows below still attach to it — but not the card's two-column
+         grid, which exists to seat a ring beside a caption. One full-width
+         column, and the block titles itself, so the eyebrow that names the
+         ring stands down rather than announcing a score that is no longer the
+         headline here. */
+      .profile-hero-score:has(.pdxwa-shape) {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0;
+        margin-top: 0.1rem;
+      }
+      .profile-hero-score:has(.pdxwa-shape) .profile-hero-score-lbl { display: none; }
 
       /* ── The summary rows, attached to that card ──────────────────
          The evidence tally and the depth/scope stack are mounted as siblings of

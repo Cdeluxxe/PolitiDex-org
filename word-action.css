@@ -1638,6 +1638,178 @@
   color: #7596c0;
   overflow-wrap: break-word;
 }
+/* ── 🏛 The shape hero ───────────────────────────────────────────────────────
+   What a deep formal record LOOKS like, in the slot that used to hold a ring or
+   an em-dash. It is a letterhead block, not a tile: the layout rules that make
+   it full-width live in app.css beside the rest of .profile-hero, and what this
+   file owns is the component itself.
+
+   Nothing in here is sized like a verdict. The largest type in the block is the
+   heading, the counts inside the depth line are bolded body text, and the one
+   percentage anywhere near it — Direction Match, demoted to the foot — is drawn
+   in a 52px ring against the old hero's 80px. That ordering is the entire point
+   of the pass, so it is expressed in type scale and not only in DOM order. */
+.pdxwa-shape {
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+}
+.pdxwa-shape-hd {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  margin-bottom: 0.35rem;
+}
+/* Depth. The first line a reader meets, and the one that has to survive being
+   read alone: three counts, no rate, no adjective. */
+.pdxwa-shape-depth {
+  margin: 0 0 0.7rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #b9cae3;
+  overflow-wrap: break-word;
+}
+.pdxwa-shape-depth b { color: #fff; font-weight: 700; }
+.pdxwa-shape-grp { margin-bottom: 0.7rem; }
+.pdxwa-shape-grp-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #7596c0;
+  margin-bottom: 0.3rem;
+}
+.pdxwa-shape-list { list-style: none; margin: 0; padding: 0; }
+/* Issue name and its tier chip on one row where there is width, stacked where
+   there is not — the chip carries the counts and the lane marker, so it must
+   never be truncated to keep the row on one line. */
+.pdxwa-shape-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.5rem;
+  padding: 0.3rem 0;
+  border-top: 1px solid rgba(159, 180, 212, 0.1);
+}
+.pdxwa-shape-row:first-child { border-top: 0; }
+.pdxwa-shape-iss {
+  flex: 1 1 8rem;
+  min-width: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: #dbe6f5;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
+.pdxwa-shape-more,
+.pdxwa-shape-none,
+.pdxwa-shape-thin {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #7596c0;
+  overflow-wrap: break-word;
+}
+.pdxwa-shape-thin { margin: 0 0 0.75rem; }
+.pdxwa-shape-thin b { color: #b9cae3; font-weight: 700; }
+.pdxwa-shape-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(159, 180, 212, 0.08);
+  border: 1px solid rgba(159, 180, 212, 0.22);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+}
+
+/* ── Direction Match, demoted ────────────────────────────────────────────────
+   Same read, same floors, same figure — a rule above it, smaller type, and a
+   heading that is the question rather than the noun. Where it cannot publish,
+   the gap sentence occupies this space instead of a dash. */
+.pdxwa-shape-dm {
+  margin-top: 0.85rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(159, 180, 212, 0.16);
+}
+.pdxwa-shape-dm-hd {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #7596c0;
+  margin-bottom: 0.35rem;
+}
+.pdxwa-shape-dm-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+.pdxwa-shape-dm-ring { position: relative; flex-shrink: 0; display: block; line-height: 0; }
+.pdxwa-shape-dm-v {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Bebas Neue', sans-serif;
+  /* Capped well under the shape heading's optical weight and under the 1.4rem
+     the primary ring used, so the demotion is legible without reading the DOM. */
+  font-size: 0.92rem;
+  line-height: 1;
+}
+.pdxwa-shape-dm-txt { min-width: 0; }
+.pdxwa-shape-dm-lb,
+.pdxwa-shape-dm-sub {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+.pdxwa-shape-dm-lb { font-size: 0.66rem; color: #b9cae3; }
+.pdxwa-shape-dm-sub { font-size: 0.58rem; color: #7596c0; }
+.pdxwa-shape-dm-gap {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #b9cae3;
+  overflow-wrap: break-word;
+}
+.pdxwa-shape-dm-note,
+.pdxwa-shape-wall {
+  margin: 0.4rem 0 0;
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: #6f88ac;
+  overflow-wrap: break-word;
+}
+.pdxwa-shape-wall { margin-top: 0.65rem; }
+
 /* THE HERO PLEDGE CHIP IS GONE — see pledgeChipHtml's obituary in word-action.js.
    "🤝 6 kept · 6 broken · 2 pending" no longer renders under the ring on any
    screen, so the ~44px tap target it reserved in the letterhead, and the
@@ -2228,6 +2400,13 @@
 @media (max-width: 480px) {
   .profile-hero-score .pdxwa-hero {
     display: contents;
+  }
+  /* …except the shape hero, which is not a ring with a caption beside it — it is
+     one block that wants the whole card. Promoting its children into the card's
+     two-column grid would deal the depth line, the pattern rows and the demoted
+     ring into separate cells. One grid item, full width. */
+  .profile-hero-score .pdxwa-hero.is-shape {
+    display: block;
   }
   /* Whichever of the three possible left-hand tiles rendered — the real ring,
      the "monitoring" dash, or the tracked-but-unresolved hourglass — occupies

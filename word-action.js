@@ -3382,6 +3382,231 @@
     } catch (e) { return null; }
   }
 
+  // ── 🏛 THE SHAPE HERO ───────────────────────────────────────────────────────
+  // WHAT WAS WRONG. heroRead() above answers one question — did their words match
+  // their record — and it is a good question. It is not the only one, and on a
+  // large class of officeholders it is the one we cannot answer: a member with a
+  // wide roll-call record and a thin stance ledger has nothing quotable to test,
+  // so the ring failed closed to "—" under the caption "Monitoring". That is a
+  // true statement about our word ledger printed in the position a reader reads
+  // as a verdict on the person, at the top of a profile that holds sixty issues
+  // of formal record. Phase 1 stopped browse doing it. This stops the profile.
+  //
+  // WHAT LEADS INSTEAD. Not another number — the SHAPE of the formal record, in
+  // four facts the pattern engine already computed: how much is on file, the
+  // strongest characterised patterns, the issues that ran both ways, and how much
+  // is too thin to characterise. No mean of issue leans, no moral band, no grade.
+  // Every tier word and every count is the atlas's own, rendered by the atlas's
+  // own chip renderer, so the hero and the list below it cannot drift.
+  //
+  // WHAT HAPPENS TO DIRECTION MATCH. Nothing, except placement. Same read(), same
+  // floors, same percentage, same ring — one block down, at secondary size, under
+  // a heading that asks the question the metric actually answers. Where it cannot
+  // publish, it says WHICH HALF is missing rather than printing an em-dash that
+  // reads as "no record".
+  //
+  // THE GATE. Two constants, both on the formal index that Phase 1's recordDepth()
+  // already reads, so browse and the profile agree about what "deep record" means:
+  //
+  //   SHAPE_MIN       issues with formal inventory on file. The face atlas is
+  //                   useful as a LIST from 8 up (FACE_MIN in profiles-full.js);
+  //                   a summary of a shape needs more than a list does, because
+  //                   under about a dozen issues "tops / splits / thin" is three
+  //                   buckets holding one row each and the browse chip already
+  //                   said the only thing there was to say.
+  //   SHAPE_MIN_READ  of those, how many the pattern engine could actually read.
+  //                   Twelve issues of held instruments with no readable pattern
+  //                   is inventory, not a shape, and leading with it would be the
+  //                   same empty gesture in a new typeface.
+  //
+  // Below either bar, heroInner() is byte-for-byte what it was: candidates, new
+  // members and thin inventory keep the ring they had. Fail closed on top of
+  // that — no PDXConsistency, no formalPatternIndex, no shape() accessor, or any
+  // throw anywhere in the read, and the whole branch declines.
+  var SHAPE_MIN = 12;
+  var SHAPE_MIN_READ = 4;
+  // The face atlas's own anchor, so "see all N" lands on the list this summarises
+  // rather than on the overlay a reader has to open.
+  var SHAPE_JUMP = 'pdxsec-formalatlas';
+
+  function shapeRead(pid) {
+    try {
+      if (!pid) return null;
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (!FPI || typeof FPI.shape !== 'function') return null;
+      var sh = FPI.shape(pid);
+      if (!sh || sh.issues < SHAPE_MIN || sh.read < SHAPE_MIN_READ) return null;
+      return sh;
+    } catch (e) { return null; }
+  }
+  // Published so the profile builder can ask the question without rendering the
+  // answer twice — there is exactly one hero mount on a profile and this keeps it
+  // that way.
+  function shapeApplies(pid) { return !!shapeRead(pid); }
+
+  // ONE PIECE OF RING ARITHMETIC, TWO RINGS. The primary ring and the demoted one
+  // are different sizes and the same maths; a second copy of `pct / 100 * circ` is
+  // how two rings on one page end up drawing two different arcs for one figure.
+  function ringDash(pct, radius) {
+    var circ = 2 * Math.PI * radius;
+    return { circ: circ, dash: (pct === null ? 0 : pct / 100) * circ };
+  }
+
+  // ── DIRECTION MATCH, DEMOTED ────────────────────────────────────────────────
+  // Secondary size, secondary position, and a heading that is a question rather
+  // than a noun: "the score" is what this used to be called in the position it
+  // used to occupy, and it is not what the number means.
+  //
+  // THE MISSING-HALF RULE. This metric needs two things — something they said,
+  // and a formal record to test it against. Under the shape hero the second is
+  // never the problem, so an unpublishable read here is always the word ledger,
+  // and it says so. A naked "—" in this slot, under a block that just listed
+  // twenty-four issues of record, would read as "no record" about the one thing
+  // on the page that is demonstrably there.
+  function shapeMatchHtml(pid, p) {
+    var h = heroRead(pid, p);
+    var head = '<div class="pdxwa-shape-dm-hd">⚖️ Did their words match this record?</div>';
+    var gap = function (msg) {
+      return '<div class="pdxwa-shape-dm">' + head +
+        '<p class="pdxwa-shape-dm-gap">' + esc(msg) + '</p>' +
+        '<p class="pdxwa-shape-dm-note">' + esc(FRAME.label + ' tests documented positions against ' +
+          'the formal record. The record above is the half we hold.') + '</p>' +
+        '</div>';
+    };
+    if (!h) return gap('Direction Match is not available on this profile.');
+    var c = h.read.coverage;
+    if (c.warming) return gap('Still loading the roll-call record — the match cannot be read until it lands.');
+    if (!c.word) {
+      return gap('Nothing they have said is on file yet, so there is nothing to test against this ' +
+        'record. The missing half is their word, not their record.');
+    }
+    if (!c.scorable) {
+      // WHY, NOT JUST THAT. "Nothing said independently on file" is the hero
+      // sub-line's four-word version and it is opaque under a block that just
+      // listed two dozen issues of record. The coverage read already knows which
+      // of the two disqualifications applied, so it says so.
+      var bits = [];
+      if (c.recordDerived) {
+        bits.push(c.recordDerived + ' restate' + (c.recordDerived === 1 ? 's' : '') +
+          ' a formal action, which cannot test itself');
+      }
+      if (c.notIssueLinked) {
+        bits.push(c.notIssueLinked + ' ' + (c.notIssueLinked === 1 ? 'is' : 'are') +
+          ' not tied to an issue this record covers');
+      }
+      return gap('None of the ' + c.word + ' documented position' + (c.word === 1 ? '' : 's') +
+        ' we hold can be tested against this record' + (bits.length ? ' — ' + bits.join('; ') : '') + '.');
+    }
+    if (!c.tested) {
+      return gap(c.scorable + ' documented position' + (c.scorable === 1 ? '' : 's') + ' could be tested, ' +
+        'but nothing in the record has been matched against ' + (c.scorable === 1 ? 'it' : 'them') + ' yet.');
+    }
+    if (h.pct === null) {
+      return gap(c.tested + ' of the ' + h.read.floors.items + ' tested issues needed for a reading. ' +
+        'The record is deep enough; the word ledger is not yet.');
+    }
+    // Publishable: the same figure, the same colour, the same denominator caption
+    // the primary ring prints — drawn small.
+    var radius = 18, r = ringDash(h.pct, radius);
+    return '<div class="pdxwa-shape-dm">' + head +
+      '<button type="button" class="pdxwa-shape-dm-btn"' + jumpAttr('pdxsec-wordaction') +
+        ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric +
+          '. ' + h.sub + '. Open the full breakdown.') + '">' +
+        '<span class="pdxwa-shape-dm-ring">' +
+          '<svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true">' +
+            '<circle cx="26" cy="26" r="' + radius + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>' +
+            (r.dash > 0
+              ? '<circle cx="26" cy="26" r="' + radius + '" fill="none" stroke="' + h.color + '" stroke-width="5" ' +
+                'stroke-dasharray="' + r.dash.toFixed(1) + ' ' + r.circ.toFixed(1) + '" stroke-linecap="round"/>'
+              : '') +
+          '</svg>' +
+          '<span class="pdxwa-shape-dm-v" style="color:' + h.color + ';">' + esc(h.text) + '</span>' +
+        '</span>' +
+        '<span class="pdxwa-shape-dm-txt">' +
+          '<span class="pdxwa-shape-dm-lb">' + esc(FRAME.caption) + '</span>' +
+          '<span class="pdxwa-shape-dm-sub">' + esc(h.sub) + '</span>' +
+        '</span>' +
+      '</button>' +
+      '</div>';
+  }
+
+  // ── THE BLOCK ───────────────────────────────────────────────────────────────
+  // Depth, tops, splits, thin — in that order, because that is the order the
+  // claims get weaker in, and a reader who stops after two lines should have
+  // stopped on the two strongest facts rather than on the caveat.
+  function shapeRowHtml(x) {
+    return '<li class="pdxwa-shape-row">' +
+      '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>' +
+      (x.chip || '') +
+      '</li>';
+  }
+  function shapeHeroHtml(pid, p) {
+    try {
+      var sh = shapeRead(pid);
+      if (!sh) return '';
+      var FPI = window.PDXConsistency.formalPatternIndex;
+      var total = (typeof FPI.count === 'function') ? (FPI.count(pid) || sh.issues) : sh.issues;
+      // The lane wall, in the sentence every tier chip in the product already
+      // carries. Taken from the engine rather than typed here so the hero cannot
+      // become a second wording of the one rule that keeps these labels out of
+      // the score.
+      var wall = window._PDX_RD_TIER_NOTE || '';
+      var depth = '<b>' + sh.issues + '</b> issue' + (sh.issues === 1 ? '' : 's') + ' on the formal record' +
+        ' · <b>' + sh.judged + '</b> vote' + (sh.judged === 1 ? '' : 's') + ' and formal action' +
+          (sh.judged === 1 ? '' : 's') + ' read' +
+        ' · <b>' + sh.characterised + '</b> deep enough to characterise';
+      var tops = sh.tops.length
+        ? '<div class="pdxwa-shape-grp">' +
+            '<div class="pdxwa-shape-grp-h">Strongest patterns</div>' +
+            '<ul class="pdxwa-shape-list">' + sh.tops.map(shapeRowHtml).join('') + '</ul>' +
+            (sh.strongN > sh.tops.length
+              ? '<p class="pdxwa-shape-more">' + (sh.strongN - sh.tops.length) +
+                ' more one-sided pattern' + ((sh.strongN - sh.tops.length) === 1 ? '' : 's') +
+                ' in the full list.</p>' : '') +
+          '</div>'
+        // Fail closed rather than filling the slot: twelve issues of readable
+        // record and nothing one-sided enough to characterise is a finding, and
+        // it is not the same finding as "no record".
+        : '<div class="pdxwa-shape-grp"><div class="pdxwa-shape-grp-h">Strongest patterns</div>' +
+            '<p class="pdxwa-shape-none">No issue yet has a record one-sided enough to characterise.</p>' +
+          '</div>';
+      // NOT BURIED. The splits are the least flattering thing in the block and
+      // they get the same heading treatment as the tops, immediately after them,
+      // with their counts — not folded into the thin line at the bottom.
+      var splits = sh.splitN
+        ? '<div class="pdxwa-shape-grp">' +
+            '<div class="pdxwa-shape-grp-h">Ran both ways</div>' +
+            '<ul class="pdxwa-shape-list">' + sh.splits.map(shapeRowHtml).join('') + '</ul>' +
+            (sh.splitN > sh.splits.length
+              ? '<p class="pdxwa-shape-more">' + (sh.splitN - sh.splits.length) +
+                ' more split issue' + ((sh.splitN - sh.splits.length) === 1 ? '' : 's') +
+                ' in the full list.</p>' : '') +
+          '</div>'
+        : '';
+      // THE HONESTY VALVE, COUNTED OUT LOUD. Every issue the engine declined to
+      // characterise is in this number, and the number is printed whatever it is
+      // — including when it is most of the list.
+      var thin = sh.thinN
+        ? '<p class="pdxwa-shape-thin"><b>' + sh.thinN + '</b> more issue' + (sh.thinN === 1 ? '' : 's') +
+            ' ha' + (sh.thinN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
+            'characterise a pattern yet.</p>'
+        : '';
+      return '<div class="pdxwa-shape">' +
+          '<div class="pdxwa-shape-hd">' +
+            '<span aria-hidden="true">🏛</span> The formal record — what it looks like' +
+          '</div>' +
+          '<p class="pdxwa-shape-depth">' + depth + '</p>' +
+          tops + splits + thin +
+          '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
+            ' aria-label="' + esc('See all ' + total + ' issues on the formal record') + '">' +
+            'See all ' + total + ' issues on the record <span aria-hidden="true">↓</span>' +
+          '</button>' +
+          shapeMatchHtml(pid, p) +
+          (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
   // THE HERO PLEDGE CHIP IS GONE. It rendered "🤝 6 kept · 6 broken · 2 pending"
   // directly beneath the one percentage, in the header, above the fold — promise
   // counts as the second thing a reader met on the profile. Counts are not a
@@ -3394,6 +3619,13 @@
 
   function heroInner(pid, p, opts) {
     opts = opts || {};
+    // 🏛 SHAPE FIRST, WHERE THERE IS A SHAPE. Above the depth gate the lead is
+    // what the formal record looks like and Direction Match rides inside it, one
+    // block down at secondary size. Below the gate — candidates, new members,
+    // thin inventory — nothing here changes: shapeHeroHtml() returns '' and the
+    // rest of this function is the function it has always been, byte for byte.
+    var shaped = shapeHeroHtml(pid, p);
+    if (shaped) return shaped;
     var h = heroRead(pid, p);
     // No word on file at all: there is nothing to test, so there is no primary
     // number — not a zero, and never the pledge rate standing in for one. The
@@ -3414,8 +3646,7 @@
           '<div class="pdxwa-hero-cap">Monitoring</div>' +
         '</div>';
     }
-    var radius = 28, circ = 2 * Math.PI * radius;
-    var dash = (h.pct === null ? 0 : h.pct / 100) * circ;
+    var radius = 28, _r = ringDash(h.pct, radius), circ = _r.circ, dash = _r.dash;
     return '' +
       '<button type="button" class="pdxwa-hero-jump"' + jumpAttr('pdxsec-wordaction') +
         ' aria-label="' + esc(FRAME.label + ': ' + h.text + ' ' + FRAME.metric +
@@ -3446,10 +3677,26 @@
       if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
       try {
         var fresh = heroInner(pid, p, opts);
-        if (fresh) host.innerHTML = fresh;
+        // The shape gate reads the roll-call index, which is exactly what this
+        // event says has just arrived — so the COMMON case is a cold open that
+        // rendered the ring and a warm refresh that qualifies for the shape. The
+        // wrapper's modifier has to move with the content or the hero lays out
+        // as an 80px column with a letterhead stuffed into it.
+        if (fresh) { host.innerHTML = fresh; heroFlag(host, fresh); }
       } catch (e) {}
     };
     window.addEventListener('pdx-consistency-warm', handler);
+  }
+
+  // ONE MARKER, ONE PLACE. `is-shape` is what the stylesheet keys the full-width
+  // letterhead off, and it is set from the rendered markup rather than by asking
+  // the gate a second time — two independent answers to "is this the shape hero"
+  // is how a wrapper ends up disagreeing with its contents.
+  function heroFlag(host, inner) {
+    try {
+      if (!host || !host.classList) return;
+      host.classList.toggle('is-shape', inner.indexOf('class="pdxwa-shape"') !== -1);
+    } catch (e) {}
   }
 
   // Mountable hero: the stack markup plus its warm-refresh, so the ring turns
@@ -3462,7 +3709,8 @@
       var inner = heroInner(pid, p, opts);
       if (!inner) return '';
       try { setTimeout(function () { bindHero(uid, pid, p, opts); }, 0); } catch (e) {}
-      return '<div class="profile-score-stack pdxwa-hero" data-pdxwa-hero="' + uid + '">' + inner + '</div>';
+      var mod = (inner.indexOf('class="pdxwa-shape"') !== -1) ? ' is-shape' : '';
+      return '<div class="profile-score-stack pdxwa-hero' + mod + '" data-pdxwa-hero="' + uid + '">' + inner + '</div>';
     } catch (e) { return ''; }
   }
 
@@ -3560,6 +3808,16 @@
     scopedRead: scopedRead,
     issueRead: issueRead,
     heroRead: heroRead,
+    // 🏛 The depth gate, published so tests and callers read the same two numbers
+    // the hero does rather than a copy of them.
+    SHAPE_MIN: SHAPE_MIN,
+    SHAPE_MIN_READ: SHAPE_MIN_READ,
+    shapeRead: shapeRead,
+    // Deliberately NOT a second hero mount. A profile has one hero; this only
+    // answers whether that hero is the shape, for chrome that has to get out of
+    // its way.
+    shapeApplies: shapeApplies,
+    shapeHtml: shapeHeroHtml,
     // 📏 THE DENOMINATOR, IN ONE VOCABULARY. Every surface that publishes the
     // engine's percentage prints the tested count beside it, and they all print it
     // in these words — a caption that reads "32 issues tested" here and "over 32"

@@ -7158,6 +7158,75 @@
     return out;
   }
 
+  // ── 🏛 THE SHAPE OF THE RECORD, IN FOUR FACTS ───────────────────────────────
+  // The index above is the LIST. This is its summary, and it exists because a
+  // surface that has room for four lines cannot mount sixty rows — the profile
+  // hero, specifically, which used to lead a member with a wide roll-call record
+  // and no stance ledger with "— Monitoring".
+  //
+  // IT IS A SUMMARY, NOT A SECOND READING. Every field is a count or a slice of
+  // _fpiRows() — the same rows, in the same strongest-first order the atlas below
+  // renders them in, carrying the same chip from the same _stPatternHtml(). There
+  // is no mean of issue leans here, no rollup of tiers into a figure, and no
+  // ranking of this member against any other. Four buckets and their sizes:
+  //
+  //   tops    the strongest characterised patterns (strong / mostly)
+  //   splits  issues where the record ran both ways
+  //   thin    inventory the engine refused to characterise — the honesty valve,
+  //           counted out loud rather than dropped
+  //   depth   how much record all of that was read from
+  //
+  // WHY THERE IS NO PERCENTAGE IN IT. Anything of the form "18 of 24 issues are
+  // one-sided" is a number between 0 and 100 attached to a person's name, which
+  // is the definition of the second score this product retired. The bucket sizes
+  // are published; the division is not, here or anywhere downstream.
+  //
+  // AND WHY THERE IS NO "N OF M ISSUE KEYS" COVERAGE FIGURE EITHER. It was on the
+  // table and it is deliberately not here. The denominator would be every key in
+  // ISSUE_MAP — including the balance keys the pattern engine is *required* to
+  // refuse — so the honest reading of "20 of 118" is a fact about how much of the
+  // map has roll-call traffic, and the reading a person actually takes off a
+  // profile is that this official covers a sixth of the issues. That is the exact
+  // silence-means-absence framing this whole migration exists to undo, and no
+  // wording of the line survives being read fast.
+  var _FPI_TOPS_CAP = 4;
+  var _FPI_SPLITS_CAP = 3;
+  var _FPI_CHARACTERISED = { strong: 1, mostly: 1 };
+  // One row, flattened for a caller that wants to print it and nothing else. The
+  // chip is the atlas's own chip, rendered here rather than described, so the
+  // summary and the list cannot drift into two vocabularies for one tier.
+  function _fpiShapeRow(x) {
+    return {
+      key: x.key, label: x.label, tier: x.tier, tone: x.tone,
+      patLabel: x.patLabel, counts: x.counts, judged: x.judged,
+      said: !!x.said, chip: _stPatternHtml(x.row, x.pat)
+    };
+  }
+  function _fpiShape(pid) {
+    try {
+      if (!pid) return null;
+      ensureStyles();
+      var rows = _fpiRows(pid, { sort: 'strength' }) || [];
+      var out = {
+        issues: rows.length, read: 0, judged: 0,
+        characterised: 0, strongN: 0, splitN: 0, thinN: 0,
+        tops: [], splits: []
+      };
+      var tops = [], splits = [];
+      rows.forEach(function (x) {
+        if (x.read) out.read++;
+        out.judged += (x.judged || 0);
+        if (_FPI_CHARACTERISED[x.tier]) { out.strongN++; tops.push(x); }
+        else if (x.tier === 'split') { out.splitN++; splits.push(x); }
+        else out.thinN++;
+      });
+      out.characterised = out.strongN + out.splitN;
+      out.tops = tops.slice(0, _FPI_TOPS_CAP).map(_fpiShapeRow);
+      out.splits = splits.slice(0, _FPI_SPLITS_CAP).map(_fpiShapeRow);
+      return out;
+    } catch (e) { return null; }
+  }
+
   // ── THE FILTERS ─────────────────────────────────────────────────────────────
   // Six views, and the two that matter are `stated` and `pattern`: the curated
   // list's "Gaps only" folds an issue with a deep formal record and no stance card
@@ -10780,6 +10849,13 @@
       rows: _fpiRows,
       html: formalPatternIndexHtml,
       count: function (pid) { try { return _fpiRows(pid).length; } catch (e) { return 0; } },
+      // The four-fact summary of the same rows — depth, tops, splits, thin —
+      // for a surface with room for four lines instead of sixty. Counts and
+      // slices only; see the long note over _fpiShape for why there is no
+      // percentage in it and why there cannot be one.
+      shape: _fpiShape,
+      TOPS_CAP: _FPI_TOPS_CAP,
+      SPLITS_CAP: _FPI_SPLITS_CAP,
       VIEWS: _FPI_VIEW_ORDER,
       WALL: _FPI_WALL
     },

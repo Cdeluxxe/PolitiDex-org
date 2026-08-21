@@ -4991,7 +4991,9 @@
           // its own, and the overlay owns that state.
           var html = FPI.html(id, { sort: 'strength', mount: 'face' }) || '';
           if (!html) return '';
-          return '<div class="modal-section pdxfpi-face">' + html + '</div>';
+          // Anchored: the shape hero's "see all N issues on the record" jumps
+          // here, to the list on the face, rather than opening the overlay.
+          return '<div id="pdxsec-formalatlas" class="modal-section pdxfpi-face">' + html + '</div>';
         } catch (e) { return ''; }
       })()}
 
