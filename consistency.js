@@ -2159,7 +2159,13 @@
       '.pdxins-adv{color:#6ee7a0;}' +
       '.pdxins-opp{color:#ff9f9f;}' +
       '.pdxins-neu{color:#8fa2c0;}' +
-      '.pdxins-off{opacity:0.5;}' +
+      // A MAPPED DIRECTION THAT WAS NOT SCORED, MARKED RATHER THAN HALVED. This used to
+      // be opacity 0.5 — a direction word at 50% strength beside a "Not scored" badge
+      // that already said the same thing in words, so the row paid twice for one fact
+      // and paid the second time in legibility. The dotted underline is the same
+      // idiom the ledger's own "on record · not in Direction Match" chip uses, and it
+      // marks the word without taking it away.
+      '.pdxins-off{text-decoration:underline dotted currentColor;text-underline-offset:3px;}' +
       '.pdxins-lbl{color:#e8eefc;font-weight:700;}' +
       '.pdxins-v{font-size:0.64rem;}' +
       '.pdxins-hold{color:#f0cd8c;}' +
@@ -2187,6 +2193,12 @@
       // lines between them. `said` is quoted speech and leans italic; `gap` is the
       // sentence that does the actual comparing and gets full contrast, because on
       // these rows it is the single most load-bearing line on the face.
+      // WHICH DOCUMENT THIS IS. Not a caveat and not an aside — it is the row's own
+      // name, said properly, and it leads. Full contrast and its own rule, in the
+      // neutral slate this file uses for citation rather than for a finding, so it
+      // reads as identification and never as a hedge on the verdict beside it.
+      '.pdxdos-rec-idn{color:#cfe0f8;border-left:2px solid rgba(147,180,230,0.42);' +
+        'padding-left:0.45rem;}' +
       '.pdxdos-rec-said{color:#9fb4d4;font-style:italic;}' +
       '.pdxdos-rec-said .pdxdos-rec-wk{font-style:normal;}' +
       '.pdxdos-rec-gap{color:#e8eefc;border-left:2px solid rgba(127,180,255,0.45);' +
@@ -2274,9 +2286,16 @@
       '.pdxst-pat-lane{font-size:0.55rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;opacity:0.72;}' +
       // The counts are the evidence, not the headline: same colour, lighter type.
       '.pdxst-pat-n{font-weight:600;font-size:0.6rem;opacity:0.86;}' +
-      '.pdxst-pat.w-thin{border-style:dashed;border-color:var(--c);font-weight:700;opacity:0.78;}' +
+      // …AND THE DIALLING BACK IS THE BORDER, NOT THE OPACITY. Both weights used to
+      // carry a fade as well (.78 and .82). A dashed edge says "this is one to three
+      // votes"; a fade says "this control is unavailable", which is the message a
+      // browser reserves for something the reader cannot use — and these rows are
+      // exactly the ones they most need to read, because the caveat IS the content.
+      // Border style and fill keep the whole distinction; nothing is louder than it
+      // was, and nothing is quieter than legible.
+      '.pdxst-pat.w-thin{border-style:dashed;border-color:var(--c);font-weight:700;}' +
       '.pdxst-pat.w-thin .pdxst-pat-lb{font-weight:700;}' +
-      '.pdxst-pat.w-flat{border-style:dotted;border-color:rgba(159,180,212,0.34);font-weight:700;opacity:0.82;}' +
+      '.pdxst-pat.w-flat{border-style:dotted;border-color:rgba(159,180,212,0.34);font-weight:700;}' +
       // ── THE FULL FORMAL-PATTERN ISSUE INDEX ────────────────────────────────
       // A flat, dense list, not a stack of cards: sixty-four issues is a table's
       // job, and every ornament repeated sixty-four times is a scroll the reader
@@ -3455,15 +3474,42 @@
     } catch (e) { cls = null; }
     return (cls && cls.verb) ? cls.verb : '';
   }
+  // HOW A BALLOT IS SAID OUT LOUD. 'Voted ' + the slug is right for the six ballots a
+  // member can actually cast and wrong for the four that record an ABSENCE: "Voted
+  // Not Voting" is not English, and worse, it is not true — nobody voted. Those get
+  // the phrase voting-record.js's own card list already uses for them, so one fact
+  // reads the same way on both surfaces, and a reader can tell an abstention from a
+  // cast ballot without opening anything.
+  var _BALLOT_SAID = {
+    yea: 'Voted Yea', aye: 'Voted Aye', yes: 'Voted Yes',
+    nay: 'Voted Nay', no: 'Voted No', present: 'Voted Present',
+    not_voting: 'Did not vote', notvoting: 'Did not vote', 'not voting': 'Did not vote',
+    abstain: 'Abstained', absent: 'Did not vote (absent)', excused: 'Did not vote (excused)'
+  };
   function _orActionPhrase(item) {
     if (!item) return '';
+    // THE BALLOT IS ASKED FIRST, AND IT IS ASKED OF `position` ALONE. The note above
+    // says the test is the ballot itself; what the code did was fold actionType,
+    // position and action into one string and test THAT — which is not the same
+    // thing, because every roll call the API sends carries `actionType: 'passage'`.
+    // actionType therefore always won and the ballot was never printed: a yea and a
+    // nay on the SAVE Act both rendered "H.R. 8281 · On Passage · Passage", and the
+    // direction line trailed off into "and they passage". The fixtures that covered
+    // this function omitted actionType entirely, so the fallback fired in tests and
+    // only production ever saw the bug.
+    var ballot = String(item.position || '').toLowerCase();
+    if (item.kind !== 'position' && _BALLOTS[ballot] === 1) {
+      return _BALLOT_SAID[ballot] || ('Voted ' + _tc(ballot));
+    }
     // `action` last: hydrateIssueRecords copies the actionType into all three, but a
     // curated position may only carry `action` ("cosponsored"), and that slug is the
     // only thing the row has to say about what was actually done.
     var key = String(item.actionType || item.position || item.action || '');
     if (!key) return '';
     var lower = key.toLowerCase();
-    if (item.kind !== 'position' && _BALLOTS[lower] === 1) return 'Voted ' + _tc(key);
+    if (item.kind !== 'position' && _BALLOTS[lower] === 1) {
+      return _BALLOT_SAID[lower] || ('Voted ' + _tc(key));
+    }
     // Not a ballot → an action, whatever the wire called it. Known class → its own
     // verb; unknown → the slug, title-cased and unprefixed. Still never a vote.
     return _execVerb(lower) || _tc(key);
@@ -8028,6 +8074,175 @@
     return lead + '…';
   }
 
+  // ── WHAT THE BILL DID, AND WHY THAT LANDS ON THIS CHIP ──────────────────────
+  // The roll-call lane's mechanism gap, closed by curation rather than by inference.
+  //
+  // A roll call carries three facts and no prose: a bill number, a floor question and
+  // a ballot. Assembled, those give "Voted Yea on the question “On Passage”" over
+  // "Counted on 🔐 Election Security & Ballot Safeguards because that is the primary
+  // subject of this measure" — two true sentences that between them never say what
+  // the measure does or why a yea on it counts the way it counts. On the SAVE family
+  // that is the whole reader problem: five rows, five different bills, one identical
+  // pair of sentences, and nothing on the face a reader could use to check the chip.
+  //
+  // WHAT THIS IS. A per-(measure, congress, issue) table of curator-written lines,
+  // read from the measure text, filling the two slots the dossier already has:
+  // `did` → "What it did" (the ≤2-sentence face line), `why` → "Why it counts here"
+  // (the curated second slot, which turns the row bright — see _dosCountsBy), and an
+  // optional `more` → the L4 fold, for the detail that does not belong on a row face.
+  //
+  // WHAT IT IS NOT. Not a mapping. Nothing here decides which items are counted,
+  // which way they cut, what they weigh, or what any verdict says — the direction on
+  // every row still comes from the mapping's own `supportMeaning` and the ballot, and
+  // an entry that disagreed with the engine would be a wrong entry, not a new reading.
+  // Not a backfill either: it is keyed tightly enough to fail closed, and a measure
+  // with no entry keeps exactly the derived rendering it has today, visibly derived,
+  // so nothing that is only metadata is ever dressed up as a curator's sentence.
+  //
+  // THE KEY IS NUMBER + CONGRESS, AND THE CONGRESS IS NOT OPTIONAL. Bill numbers are
+  // reused every two years and the low ones are reused deliberately: "H.R. 1" is the
+  // For the People Act in the 117th and a reconciliation vehicle in the 119th, and
+  // "H.R. 22" carries the SAVE Act only in the 119th. An item with no congress on it
+  // — a curated position, anything that arrives short of the vote shape — matches
+  // nothing, which is the failure this direction is meant to have.
+  //
+  // RULES THESE LINES ARE WRITTEN UNDER. `did` says what the text does and nothing
+  // about who liked it: no "supporters say", no "critics warn", no motive. `why` is
+  // per issue, never one blurb reused across a bill's chips — a bill that pulls the
+  // two election facets apart has to say so on each of them in that facet's own
+  // terms, which is why H.R. 8281's two entries read as opposites. And where a
+  // mapping carries a known confound, the confound is on the face rather than one
+  // level down: a Home Rule Act vehicle means a nay may be a home-rule vote.
+  var _DOS_MECH = {
+    // ── The SAVE family: three separate instruments, one recurring short title ──
+    'H.R. 8281|118|election_security': {
+      did: 'Amended the National Voter Registration Act to require documentary proof of U.S. citizenship — a passport, a REAL ID that shows citizenship, or a birth certificate with photo ID — before a state may register anyone to vote in a federal election.',
+      why: 'Verifying who is eligible before they are added to the roll is the core of what this chip measures, so a yea on this bill counts as a vote for tighter verification and a nay counts against it.',
+      more: 'The bill also directed every state to run its existing rolls against federal immigration and Social Security databases to identify and remove non-citizens already registered, and created criminal penalties for an election official who registers an applicant without the documentation. Passed the House 221-198 on 2024-07-10 (roll 345); the Senate did not take it up.'
+    },
+    'H.R. 8281|118|voting_access': {
+      did: 'Required proof of citizenship to be presented in person at an election office, which as a practical matter closes mail and online registration to any applicant who cannot appear there with documents.',
+      why: 'This chip measures how hard it is to get on the roll and cast a ballot, and the bill adds a document and a trip at the registration step — so a yea counts against easier registration here, the opposite of how the same yea reads on the safeguards chip.',
+      more: 'The acceptable-document list also makes no accommodation for a citizen whose current legal name differs from the name on their birth certificate — a mismatch that falls hardest on anyone who changed their name on marriage. The two election facets are scored independently on purpose, and this measure is the clearest case of why: one yea genuinely tightens verification and genuinely narrows registration, and a single combined reading would have to suppress one of those to report the other.'
+    },
+    'H.R. 22|119|election_security': {
+      did: 'The SAVE Act as reintroduced in the 119th Congress: documentary proof of United States citizenship before a state may register an applicant for a federal election, plus a state program to check existing rolls against federal databases and remove non-citizens found on them.',
+      why: 'Eligibility verification at registration and maintenance of the roll already in place are the two things this chip is about, so a yea is a vote for tighter verification.',
+      more: 'Substantially the same text as H.R. 8281 in the 118th Congress, which passed the House and died in the Senate. Officials who register an applicant without the required documentation face criminal penalties. Passed the House 220-208 on 2025-04-10 (roll 102).'
+    },
+    'H.R. 22|119|voting_access': {
+      did: 'Made documentary proof of citizenship a precondition of federal voter registration under every registration method, including applications made by mail and online.',
+      why: 'A document a would-be voter has to produce before they can be registered is a narrowing of the path onto the roll, and this chip measures that path — so a yea reads here as a vote against easier access.'
+    },
+    'H.R. 22|119|election_integrity': {
+      did: 'The SAVE Act as reintroduced in the 119th Congress: documentary proof of United States citizenship before a state may register an applicant for a federal election, plus a required program to remove non-citizens from rolls already in place.',
+      why: 'This is the combined elections key the mapping was originally published under. It reads the measure the same way the safeguards chip does: a documentary citizenship check in front of registration is a verification rule, so a yea counts as support for one.'
+    },
+    'H.R. 22|119|voter_id': {
+      did: 'Required an applicant to present a passport, a REAL ID that shows citizenship, or a birth certificate together with a photo ID before a state may register them for a federal election.',
+      why: 'The document is demanded at the registration desk rather than at the ballot box, but it is still an identity document required of the voter, which is what this chip tracks — so a yea counts as support for one.'
+    },
+    'S. 1383|119|election_security': {
+      did: 'The House substituted the SAVE America Act text into S. 1383 and passed it 218-213: no state may process a federal registration application without documentary proof of citizenship, and no official may hand an in-person voter a ballot without a valid physical photo ID.',
+      why: 'Verification at registration, identification at the ballot box, roll maintenance and fraud enforcement are the four things this chip covers, and the substitute moves all four the same way — so a yea is a vote for tighter safeguards.',
+      more: 'The substitute also requires a mail voter to enclose a copy of a photo ID or the last four digits of their Social Security number with an affidavit, requires states to submit their full voter lists to the Department of Homeland Security for comparison against the SAVE system and to remove non-citizens on verified information, and extends criminal penalties to an official who registers an applicant without the documentation. The Clerk’s record for roll 69 still shows the Senate short title "Veterans Accessibility Advisory Committee Act" because S. 1383 was the vehicle; the substituted House text is what was voted on and what this reading is made from.'
+    },
+    'S. 1383|119|voting_access': {
+      did: 'A mail-form applicant must bring proof of citizenship in person to an election office by the registration deadline, and an in-person voter without photo ID may only cast a provisional ballot and has three days to cure it.',
+      why: 'This chip measures the registration step and the casting step, and the substitute adds a condition to both — so a yea counts against access here, and it counts more heavily than H.R. 8281 did because that bill reached only registration.',
+      more: 'The bill’s easing provisions were read and weighed rather than ignored: an alternative-evidence pathway on a sworn attestation, a required process for applicants whose documents carry a former name, free public access to a copier or scanner in government buildings, and exemptions for uniformed-services and certain elderly and disabled voters. Each of those accommodates the new requirement rather than widening access on its own, which is why the access facet is scored here instead of being declined the way it is on H.R. 1 and H.R. 5746.'
+    },
+    // ── The District of Columbia pair: same text, two congresses ───────────────
+    'H.R. 884|119|election_security': {
+      did: 'Amended the District of Columbia Home Rule Act to bar anyone who is not a United States citizen from voting in a District election, repealing the effect of the Local Resident Voting Rights Amendment Act of 2022.',
+      why: 'Citizenship as a condition of casting a ballot is an eligibility safeguard, so a yea is a vote for tighter verification of who may vote. The confound is recorded rather than hidden: because the vehicle amends the Home Rule Act, a nay may be opposition to Congress overriding a local District enactment rather than a position on non-citizen voting.'
+    },
+    'H.R. 884|119|voting_access': {
+      did: 'Took the municipal vote away from non-citizen District residents who had registered under the District’s own 2022 law.',
+      why: 'This chip measures who can cast a ballot, and the bill removes a casting pathway that existed — so a yea narrows access. Same Home Rule Act confound as the safeguards row above.'
+    },
+    'H.R. 192|118|election_security': {
+      did: 'Amended the District of Columbia Home Rule Act to bar non-citizens from voting in District elections. Same text as H.R. 884 in the 119th Congress, which passed the House a year later.',
+      why: 'Citizenship as a condition of voting is an eligibility safeguard, so a yea counts as support on this chip. Same Home Rule Act confound: a nay may be a vote about Congress overriding a local District law rather than about non-citizen voting.'
+    },
+    'H.R. 192|118|voting_access': {
+      did: 'Repealed the District law that let non-citizen residents vote in District municipal elections.',
+      why: 'It removes a casting pathway that existed, so on the access chip a yea narrows who may vote. Same Home Rule Act confound as the safeguards row above.'
+    },
+    // ── The three access bills of the 117th ────────────────────────────────────
+    'H.R. 1|117|voting_access': {
+      did: 'The For the People Act: required every state to offer automatic voter registration through motor-vehicle and other agencies, same-day registration and online registration, and restricted voter-roll purges. It also required at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage.',
+      why: 'Every one of those provisions widens a registration or a casting pathway, which is exactly what this chip measures — so a yea is a vote to expand access.',
+      more: 'The bill also restored voting rights to citizens released from incarceration, and later titles cover redistricting commissions, small-donor public financing and ethics. Its election-security title is deliberately NOT mapped to the safeguards chip: the same bill mandates durable paper ballots and risk-limiting audits while permitting a sworn statement in lieu of documentary ID and restricting list maintenance, so one yea covers both directions of that facet and can honestly record neither. Passed the House 220-210 on 2021-03-03 (roll 62).'
+    },
+    'H.R. 4|117|voting_access': {
+      did: 'The John R. Lewis Voting Rights Advancement Act: restored Voting Rights Act preclearance on a rolling twenty-five-year coverage formula, and added a practice-based review list holding specific access-narrowing changes — new documentary or photo-ID rules, polling-place closures, voter-roll purges — behind federal review before they take effect.',
+      why: 'The bill’s whole operative effect is to gate changes that would narrow registration or casting, so a yea counts as a vote to protect access.',
+      more: 'It also restored a private right of action. The bill adds no verification requirement, ballot-handling rule or audit provision of its own, which is why it is mapped to the access facet only — scoring it on the safeguards chip would test members on a question the text does not ask. Passed the House 219-212 on 2021-08-24 (roll 260).'
+    },
+    'H.R. 5746|117|voting_access': {
+      did: 'The Freedom to Vote: John R. Lewis Act, moved as a House amendment to a Senate shell bill: automatic and same-day registration, at least two weeks of early voting including weekends, no-excuse mail voting with ballot tracking and a minimum number of drop boxes, and Election Day as a public holiday.',
+      why: 'Each of those provisions widens a registration or a casting pathway, so a yea is a vote to expand access.',
+      more: 'The Clerk’s vote description for this roll still reads "NASA Enhanced Use Leasing Extension Act of 2021" because H.R. 5746 was the vehicle the House used, which is why the row is identified by citation and question rather than by title. The measure incorporates H.R. 1’s text, and its election-security title is unmapped for the same internal-split reason. Passed the House 220-203 on 2022-01-13 (roll 9).'
+    }
+  };
+  // Fails closed in three places, on purpose: a position (no congress, no ballot), a
+  // missing number, and a missing or non-numeric congress all return null and leave
+  // the row on its derived rendering.
+  function _dosMechFor(item, issueKey) {
+    if (!item || item.kind === 'position') return null;
+    var num = String(item.number == null ? '' : item.number).trim();
+    var cong = item.congress;
+    if (!num || typeof cong !== 'number' || !isFinite(cong)) return null;
+    return _DOS_MECH[num + '|' + cong + '|' + issueKey] || null;
+  }
+
+  // ── WHICH OF THE SIMILARLY-NAMED MEASURES THIS ROW IS ───────────────────────
+  // A bill number is not a name and a short title is not unique. On the elections
+  // face both failures land at once: three separate instruments answer to some form
+  // of "SAVE", two of them are one word apart, and a member can have a vote on all
+  // three sitting in the same list. Worse, two of the rolls here are SUBSTITUTES
+  // into unrelated Senate shells, so the Clerk link under the row opens a page whose
+  // title has nothing to do with what was voted on — a reader who checks the citation
+  // the way this product keeps asking them to gets a bill about veterans' accessibility.
+  //
+  // This is the sentence that answers "which measure is this, exactly". Keyed on
+  // number + congress rather than per issue, because it is a fact about the document
+  // and not about the chip. It corrects no vote and moves no mapping: every row still
+  // points at the roll it was always stored under, and the note says out loud what
+  // that roll is.
+  var _DOS_IDENT_NOTE = {
+    'H.R. 8281|118': 'This is the SAVE Act as first passed by the House, in the 118th Congress. ' +
+      'H.R. 22 in the 119th is the reintroduction of the same text, and S. 1383’s SAVE America Act ' +
+      'is a separate, broader bill — all three can appear on this list.',
+    'H.R. 22|119': 'This is the SAVE Act of the 119th Congress — the reintroduction of H.R. 8281, ' +
+      'which the House passed in the 118th and which may be its own row on this list. Neither is ' +
+      'the SAVE America Act (S. 1383).',
+    'S. 1383|119': 'S. 1383 began as a Senate bill titled the Veterans Accessibility Advisory ' +
+      'Committee Act. The House replaced its text with the SAVE America Act and passed that on ' +
+      'roll 69 — the substitute is what this row is about, and it is why the Clerk’s page for the ' +
+      'roll still shows the vehicle’s Senate title.',
+    'H.R. 5746|117': 'H.R. 5746 was a shell, and the Clerk’s description for this roll still reads ' +
+      '“NASA Enhanced Use Leasing Extension Act of 2021”. The House substituted the Freedom to ' +
+      'Vote: John R. Lewis Act into it, and that substitute is the text that was voted on.'
+  };
+  function _dosIdentNote(item) {
+    if (!item || item.kind === 'position') return '';
+    var num = String(item.number == null ? '' : item.number).trim();
+    var cong = item.congress;
+    if (!num || typeof cong !== 'number' || !isFinite(cong)) return '';
+    return _DOS_IDENT_NOTE[num + '|' + cong] || '';
+  }
+  // "119th Congress". Ordinary English ordinals, so 121st and 122nd come out right
+  // when someone reads this in 2029 — the 11x block is the exception every naive
+  // implementation gets wrong.
+  function _dosCongressLabel(n) {
+    if (typeof n !== 'number' || !isFinite(n) || n <= 0) return '';
+    var t = n % 100, u = n % 10;
+    var suf = (t >= 11 && t <= 13) ? 'th' : (u === 1) ? 'st' : (u === 2) ? 'nd' : (u === 3) ? 'rd' : 'th';
+    return n + suf + ' Congress';
+  }
+
   // ── L2's data ───────────────────────────────────────────────────────────────
   // One normalised entry per instrument behind this issue — DATA, no markup — so the
   // summary rows, the lazily-mounted detail and the tests all read one list. Lane
@@ -8100,6 +8315,10 @@
       var _recStance = positionStance(pid, issueKey) || '';
       _orProofPicks(pid, issueKey, ov).forEach(function (p) {
         var b = _orProofBits(p.item) || {};
+        // The curated mechanism for THIS measure on THIS issue, where one is written.
+        // Null everywhere else, which is the common case and stays the common case —
+        // see _DOS_MECH.
+        var mech = _dosMechFor(p.item, issueKey);
         out.push(withMapping(p.item, {
           lane: 'record',
           verdict: p.verdict,
@@ -8109,11 +8328,22 @@
           act: b.act || '', question: b.question || '',
           date: b.date || '',
           standing: null, power: null, effect: '', stance: _recStance,
-          // A roll call carries no curated prose, so both mechanism lines are
-          // DERIVED — see _dosMechanism. What it did is the question and the ballot,
-          // which the record does carry; why it counts here is a restatement of the
-          // issue mapping. Neither invents anything the record does not record.
-          plain: '', counts: '', rationale: '',
+          // Curated when the measure has an entry in _DOS_MECH, derived when it does
+          // not. Derived means the question plus the ballot for "what it did" and a
+          // restatement of the mapping for "why it counts here" — both true, both
+          // labelled as the derivations they are, and neither one inventing anything
+          // the record does not record. The curated pair says what the measure does
+          // and why that lands on this chip, which is the thing the record itself
+          // cannot say. `more` rides down to L4 rather than onto the row face.
+          plain: (mech && mech.did) || '',
+          counts: (mech && mech.why) || '',
+          rationale: (mech && mech.more) || '',
+          // Which of the similarly-named measures this is, and — always, on this lane
+          // — which congress the roll belongs to. The row's identity is a bare bill
+          // number and bill numbers are reused every two years, so the congress is
+          // part of the citation rather than decoration on it.
+          identNote: _dosIdentNote(p.item),
+          congress: _dosCongressLabel(p.item && p.item.congress),
           url: b.url || '', srcLabel: b.label || 'Congress.gov',
           voteKey: _orVoteKey(p.item)
         }));
@@ -8314,15 +8544,19 @@
     if (!d || d.held) return '';
     return (d.counts && String(d.counts).trim()) ? 'curated' : 'derived';
   }
-  // WHICH LANES HAVE A CURATION SLOT AT ALL. `exec` and `formal` items carry a
-  // per-issue sentence in the seed, so a derived line there means the slot is empty
-  // and a curator can fill it — that is a real, closeable piece of work. A roll call
-  // carries no such slot by construction (see _dosItems: plain/counts/rationale are
-  // all '' on that lane, on purpose, because inventing prose the record does not
-  // record is the worse failure). Its line is still labelled as the derivation it
-  // is, and the list's own lane note already explains why — but it is NOT queued,
-  // because a queue nobody can ever action is not a queue, it is a permanent
-  // apology.
+  // WHICH LANES HAVE A CURATION SLOT THE QUEUE CAN COUNT. `exec` and `formal` items
+  // carry a per-issue sentence in the seed, so a derived line there means an empty
+  // slot in a file a curator owns — a real, closeable piece of work, and the queue's
+  // whole subject.
+  //   The roll-call lane is the third case, and it stays out of the queue. It CAN carry
+  // a curated pair — _DOS_MECH holds hand-written lines for the measures that have
+  // been read, and a row that matches one renders in the curated voice like any other
+  // — but the population behind it is every roll call the API can return, most of
+  // them on measures nobody has written a line for and many of them procedural. A
+  // queue counting all of those would report a backlog in the thousands that no
+  // curator is working from, which is not a queue, it is a permanent apology. The
+  // derived rows there are still labelled as the derivations they are; they are just
+  // not counted as debt.
   var _DOS_CURATABLE = { exec: 1, formal: 1 };
   function _dosNeedsCurator(d) {
     return _dosCountsBy(d) === 'derived' && !!(d && _DOS_CURATABLE[d.lane]);
@@ -8368,7 +8602,11 @@
     // opposite of what the mapping says.
     if (d.lane === 'record' && d.support) {
       var meaning = (d.support === 'yea_opposes') ? 'opposition to' : 'support for';
-      var cast = d.act ? String(d.act).toLowerCase() : '';
+      // Only the FIRST letter is lowered, never the whole phrase. The clause reads
+      // "and they ___", so "Voted Yea" has to become "voted Yea" and not "voted yea":
+      // the ballot is a proper term the rest of the row prints capitalised, and an
+      // absence phrase ("Did not vote") has to survive the same transform intact.
+      var cast = d.act ? String(d.act).charAt(0).toLowerCase() + String(d.act).slice(1) : '';
       return 'On ' + lbl + ' a Yea counts as ' + meaning + ' the issue’s direction' +
         (cast ? ', and they ' + cast : '') + tail;
     }
@@ -8526,6 +8764,10 @@
   }
   function _dosMechanism(d, issueKey, teach, led) {
     return {
+      // Which document this is. First in the object because it is first on the face:
+      // every other line is a claim ABOUT an instrument, and a reader cannot weigh any
+      // of them until they know which instrument is being talked about.
+      ident: (d && d.identNote) || '',
       said: _dosSaidLine(teach),
       did: _dosDidLine(d),
       counts: _dosCountsLine(d, issueKey),
@@ -8609,6 +8851,9 @@
         : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
         : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
       '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
+      // The congress sits with the number because it is part of the number's meaning:
+      // "H.R. 22" names one bill in the 119th and a different one in every other.
+      (d.congress ? '<span class="pdxdos-rec-st">' + esc(d.congress) + '</span>' : '') +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
       (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
       (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
@@ -8643,10 +8888,17 @@
     // line on purpose: it is the sentence that explains the inversion the direction
     // line is about to assert, and a reader who meets them the other way round has to
     // hold an apparent contradiction in mind for a sentence before it resolves.
+    //   AND ONE LINE COMES BEFORE ALL OF THAT. "Which measure this is" leads wherever
+    // it exists, ahead even of the stated position, because it is not part of the
+    // argument — it is the answer to which document the argument is about. On a list
+    // where two rows are called SAVE Act and the next is called SAVE America Act, a
+    // reader who meets the claim before the identity has to re-read the claim.
     var why = d.held
-      ? (wk('What it did:', m.did) +
+      ? (wk('Which measure this is:', m.ident, 'pdxdos-rec-idn') +
+         wk('What it did:', m.did) +
          '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
-      : (wk('They said:', m.said, 'pdxdos-rec-said') +
+      : (wk('Which measure this is:', m.ident, 'pdxdos-rec-idn') +
+         wk('They said:', m.said, 'pdxdos-rec-said') +
          wk('What it did:', m.did) +
          wk('', m.veto, 'pdxdos-rec-veto') +
          _dosWhyHtml(m) +
@@ -8763,8 +9015,10 @@
       '<div class="pdxins-rh">' +
         // The direction is the mapping's, and it is the same one the chip list this
         // replaces already printed — including on an issue whose verdict is withheld.
-        // Those get the direction dimmed, so the row reads as "mapped this way, not
-        // scored" rather than as a judgement that quietly happened anyway.
+        // Those get the direction marked with the ledger's dotted rule, so the row
+        // reads as "mapped this way, not scored" rather than as a judgement that
+        // quietly happened anyway — and reads it at full contrast, beside the badge
+        // and the sentence that say the same thing in words.
         '<span class="pdxins-dir ' + dir.cls + ((r.held || !r.listed) ? ' pdxins-off' : '') + '">' +
           '<span aria-hidden="true">' + dir.ico + '</span> ' + esc(dir.word) + '</span>' +
         '<span class="pdxins-lbl">' + esc(r.label) + '</span>' +
@@ -8837,13 +9091,17 @@
       // one level up, and printing it twice made the expanded body read as if it had
       // found something new to say.
     } else if (d.lane === 'record') {
-      // A roll call carries the question and the ballot, and no curated per-issue
-      // sentence — so it gets the question and the ballot. Padding this to match the
-      // ✒️ lane's depth would be inventing detail the record does not have.
+      // What the RECORD itself holds: the question and the ballot. The curated
+      // mechanism, where there is one, is already the row face one level up, and its
+      // long form is the L4 fold below — so this block stays the record's own two
+      // facts rather than repeating either of them. Padding it to match the ✒️ lane's
+      // depth would be inventing detail the record does not have.
       var recBits = [];
       if (d.question) {
         recBits.push('The question on the floor: <b>' + esc(d.question) + '</b>');
-        if (d.act) recBits.push('They ' + esc(String(d.act).toLowerCase()));
+        // First letter only — "They voted Yea", not "They voted yea", and an absence
+        // phrase ("Did not vote") has to survive the same transform intact.
+        if (d.act) recBits.push('They ' + esc(String(d.act).charAt(0).toLowerCase() + String(d.act).slice(1)));
       } else if (d.act) {
         recBits.push(esc(d.act));
       }
