@@ -8313,6 +8313,55 @@
     'H.R. 8404|117|states_federal_power': {
       did: 'Sec. 4 added a new 28 U.S.C. 1738C barring any person acting under colour of state law from denying full faith and credit to another state’s marriage record, or denying a right arising from such a marriage, backed by Attorney General enforcement and a private right of action.',
       why: 'That section replaces a state’s own recognition rule with a federal one, so on the preemption question a yea counts against state authority. This row is coded on preemption alone — the merits of the marriage question are the LGBTQ rights row on the same vote.'
+    },
+
+    // ═════════════════════════════════════════════════════════════════════════════
+    // THE SIX PAIRS THE SEPTEMBER 2026 DENSIFICATION MAPPED. Not a new pass over the
+    // corpus: exactly the six mappings written by
+    // 20260917000000_vr_identity_and_thin_key_densification.sql, which arrived with
+    // section citations and an identity summary already read out of primary text and
+    // then rendered on the face as "Voted Yea on the question “On Passage”" over
+    // "because that is one of the subjects this measure was mapped to". Two of the
+    // three H.R. 8595 rows and both H.R. 1968 rows hang off ONE division of a much
+    // larger vehicle, so each line says which division it is reading — a reader who
+    // cannot tell an appropriations bill from the elections division inside it cannot
+    // check the chip, which is the whole point of this lane.
+    // ═════════════════════════════════════════════════════════════════════════════
+
+    // ── H.R. 8595: an appropriations vehicle carrying the SAVE America Act as Division B
+    'H.R. 8595|119|election_security': {
+      did: 'Division B of the fiscal 2027 national security and State Department appropriations bill is the Safeguard American Voter Eligibility Act. Sec. 102 amends the National Voter Registration Act so that no state may accept and process a federal registration application under any method — mail, motor-vehicle or agency — unless the applicant presents documentary proof of United States citizenship, and it fixes the acceptable-document list in federal law.',
+      why: 'Verifying citizenship before an applicant is added to the roll is the core of what this chip measures, so a yea counts as support for tighter verification.',
+      more: 'The document list is a REAL ID-compliant credential indicating citizenship, a United States passport, a military identification card whose service record shows a United States place of birth, or a Federal, State or Tribal photo identification showing the same. Sec. 102 also requires a voter registration agency to record receipt of the proof for each applicant. Passed the House 217-209 on 2026-07-15 (roll 247); received in the Senate and not enacted.'
+    },
+    'H.R. 8595|119|voter_id': {
+      did: 'Sec. 103 of the same Division B adds a new section 303A to the Help America Vote Act: an election official may not hand an in-person voter a federal ballot without a valid physical photo identification, and a mail voter must enclose a copy of one, or the last four digits of a Social Security number with an affidavit.',
+      why: 'This chip tracks identity documents demanded of the voter, and this is the first instrument in the record to demand one at the casting step rather than at registration — so a yea counts as support.',
+      more: 'Section 303A(c) fixes what counts: a state driver’s licence or motor-vehicle identification card bearing a photo and an expiration date, a United States passport, a military identification, or a Tribal photo identification with an expiration date. Section 303A(d) requires every state to notify a registrant of the requirement when they apply, and online registration systems to do so before the application is completed.'
+    },
+    'H.R. 8595|119|voting_access': {
+      did: 'Both steps of casting a federal ballot are gated by Division B: documentary proof of citizenship before a state may put an applicant on the roll under Sec. 102, and photo identification before an official may issue or count a ballot under Sec. 103.',
+      why: 'This chip measures how hard it is to get registered and to vote, and the division adds a document at each step — so the same yea that counts as support on the safeguards chip counts against here, and both readings are recorded because the text does both.',
+      more: 'The provisions running the other way were read and are named rather than dropped: a three-day cure for a provisional ballot, a state affidavit of religious objection to being photographed, an alternative-evidence process for an applicant who cannot produce a listed document, disability accommodations on the mail form, a substitute of the last four digits of a Social Security number for a mail voter who cannot obtain a copy after reasonable efforts, outright exemption for absent uniformed-services voters and for voters covered by the Voting Accessibility for the Elderly and Handicapped Act, and free public access to a copier or scanner in courts, libraries and police stations. Each of those accommodates the new requirement rather than removing it, which is why the row is scored directional instead of being declined.'
+    },
+
+    // ── H.J.Res. 44: the instrument, not the firearms merits
+    'H.J.Res. 44|118|gov_regulation': {
+      did: 'One operative clause: Congress disapproves the Bureau of Alcohol, Tobacco, Firearms, and Explosives final rule “Factoring Criteria for Firearms with Attached ‘Stabilizing Braces’” (2021R-08F, 88 Fed. Reg. 6478), and “such rule shall have no force or effect.”',
+      why: 'This chip measures whether a vote strikes a federal rule off the books, and a Congressional Review Act disapproval does exactly that — so a yea counts as support here, and under chapter 8 of title 5 it also bars the agency from reissuing the rule in substantially the same form without new legislation. The firearms merits of the rule are the gun chips on the same vote; this row is about the instrument.',
+      more: 'Passed the House 219-210 on 2023-06-13 (roll 252) and failed in the Senate 49-50 on 2023-06-22 (roll 171), so no enrolled or enacted text exists and the engrossed House text is what both chambers voted on.'
+    },
+
+    // ── H.R. 1968: a full-year CR whose divisions B and C are not appropriations
+    'H.R. 1968|119|health_rural': {
+      did: 'Division B extended the health authorities due to lapse on March 31, 2025, and they are disproportionately the rural ones: the Medicare-Dependent Hospital Program for small rural hospitals (Sec. 2202), the low-volume inpatient adjustment (Sec. 2201), the ground-ambulance payment add-on (Sec. 2203), the telehealth flexibilities that let rural health clinics and federally qualified health centers act as the distant site (Sec. 2207), and funding for community health centers, the National Health Service Corps and teaching health centers (Sec. 2101).',
+      why: 'Keeping the payment adjustments small rural hospitals run on is what this chip measures, so a yea counts as support and a nay lets them expire. The confound is on the face and is why the mapping is narrow: this is one division of a government-funding bill, so a nay may be about the appropriations rather than the extenders.',
+      more: 'Title IV of the same division also delayed the Medicaid disproportionate-share hospital allotment reductions to FY2026. Enacted as Public Law 119-4 on 2025-03-15.'
+    },
+    'H.R. 1968|119|immig_fentanyl': {
+      did: 'Division C, Sec. 3105 extended the Drug Enforcement Administration’s temporary order placing fentanyl-related substances in schedule I as a class, striking “March 31, 2025” and inserting “September 30, 2025”.',
+      why: 'Class-wide scheduling is the federal handle on fentanyl analogues that this chip measures, and it would have lapsed that month without the extension — so a yea counts as support. Same confound as the rural row on this bill, and the same reason the mapping is narrow: one section of a funding vehicle is not the vehicle.',
+      more: 'Permanent class-wide placement did not arrive until the HALT Fentanyl Act (S. 331), enacted in July 2025, which may be its own row on this list. H.R. 1968 was enacted as Public Law 119-4 on 2025-03-15.'
     }
   };
   // Fails closed in three places, on purpose: a position (no congress, no ballot), a
@@ -8383,7 +8432,18 @@
       'authorises a different year and carries different provisions.',
     'S. 1071|119': 'This is the National Defense Authorization Act for fiscal year 2026, a Senate ' +
       'bill. It is not the FY2027 authorisation (H.R. 8800), which may be its own row on this ' +
-      'list, and not the FY2024 or FY2025 acts from the 118th Congress.'
+      'list, and not the FY2024 or FY2025 acts from the 118th Congress.',
+
+    // The fourth SAVE instrument, and the only one whose own title says nothing about
+    // elections. Without this the elections rows read as an appropriations vote and
+    // the appropriations rows read as an elections vote, depending on which chip the
+    // reader arrived from.
+    'H.R. 8595|119': 'H.R. 8595 is on the record under its appropriations title — the fiscal 2027 ' +
+      'national security, State Department and related programs bill. Division B of the same ' +
+      'vehicle is the Safeguard American Voter Eligibility Act, and the election rows on this ' +
+      'list read Division B rather than the appropriation. That makes it a fourth SAVE ' +
+      'instrument, distinct from H.R. 8281 (118th), H.R. 22 (119th) and the SAVE America Act ' +
+      'substituted into S. 1383.'
   };
   function _dosIdentNote(item) {
     if (!item || item.kind === 'position') return '';

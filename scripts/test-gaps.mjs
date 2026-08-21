@@ -613,13 +613,14 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260917000000_vr_identity_and_thin_key_densification',
+  eq(versions[versions.length - 1], '20260918000000_vr_identity_densification_wave2',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by the identity densification pass,
-  // which wrote as-passed summaries for eighteen 118th/119th measures and added
-  // election_security, voter_id and voting_access to H.R. 8595, gov_regulation to
-  // H.J.Res. 44, and health_rural and immig_fentanyl to H.R. 1968. What it guards does not move:
+  // whenever a later migration lands — updated here by the second identity densification
+  // wave, which wrote as-passed summaries for thirteen more 118th/119th measures and added
+  // strong_defense to H.Con.Res. 113 and H.R. 6126, veterans to H.R. 1041,
+  // permitting_reform and crypto_cbdc to H.R. 6644, privacy_rights to H.R. 7757, and
+  // health_mental and health_rural to H.R. 9237. What it guards does not move:
   // whatever was added most recently has to sort after everything already applied, or
   // the deploy is rejected. The check below is the one that pins THIS test's migration, and it
   // stays put.

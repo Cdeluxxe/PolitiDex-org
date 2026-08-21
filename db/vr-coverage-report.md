@@ -8,7 +8,7 @@ titles come from the live database, overlaid with the curated seeds committed he
 wherever the live row has not caught up — so a pass that has landed in the repo but
 not yet deployed is counted, and every row it accounts for is marked `pending`.
 
-> **Hand note, not regenerated (2026-08-21).** This snapshot predates five passes.
+> **Hand note, not regenerated (2026-08-21).** This snapshot predates seven passes.
 > `20260911000000_vr_ndaa_israel_keys_and_rule22.sql` adds `israel_support` to H.R. 8800,
 > S. 1071 and S. 1605 and `immig_fentanyl` to S. 1605, answering the Gap 1b rows for
 > H.R. 8800 (215 member-votes), S. 1605 (179) and S. 1071.
@@ -73,7 +73,46 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 > and the bill has neither half), `judicial_check` on RISAA (no provision — a specialised court's
 > contempt power is not the nationwide-injunction question), `civil_service_control` on RISAA
 > (below floor), and `war_powers`, `restraint` and `congress_oversight` on H.R. 8369 (the last as
-> a duplicate of the same sec. 6 purse freeze). Regenerating needs `NETLIFY_DB_URL`,
+> a duplicate of the same sec. 6 purse freeze).
+> `20260917000000_vr_identity_and_thin_key_densification.sql` is the first pass whose larger half
+> is not SQL. Eighteen 118th/119th measures that were carrying roll-call votes with no plain
+> identity got as-passed or as-enrolled summaries in `db/vr-measure-identity.json` (34 measures to
+> 52), read out of primary text on govinfo; that file feeds `applyCuratedMeasureIdentity()`, which
+> fills a provisional title and an empty summary and carries no issue mappings, so it moves the
+> "no real title yet" line rather than the Gap 1 line. Six new mapping rows followed —
+> **H.R. 8595** gains `election_security` 100, `voter_id` 70 and `voting_access` 60 from Division B,
+> the Safeguard American Voter Eligibility Act; **H.J.Res. 44** gains `gov_regulation` 60 as a CRA
+> disapproval under runbook rule 3; **H.R. 1968** gains `health_rural` 45 and `immig_fentanyl` 30
+> from Divisions B and C. `voter_id` had exactly one instrument in the whole corpus before this.
+> Six further rows are re-assertions, not new authorship: they were written inside an
+> `IF m_id IS NULL THEN` branch in the July 2026 seeds and may never have run, so S. 331's three
+> and H.R. 82's three are re-emitted byte-identical with `ON CONFLICT DO NOTHING`.
+> `20260918000000_vr_identity_densification_wave2.sql` runs the same doctrine on the band
+> underneath. Thirteen more measures, each carrying 108-116 attributed member-votes on a
+> title-only or single-key record, got summaries (52 measures to 65), and eight new secondary rows
+> followed. **H.Con.Res. 113** (FY2027 budget resolution) gains `strong_defense` 45 from the sec.
+> 102(1) function-050 levels and the sec. 201(b)(2) Armed Services reconciliation instruction;
+> **H.R. 1041** gains `veterans` 55, because every operative section amends title 38 chapter 55;
+> **H.R. 6644** / P.L. 119-101 gains `permitting_reform` 60 from the secs. 205 and 213 NEPA
+> narrowing, on the precedent `20260904000000` set for H.R. 3746, and `crypto_cbdc` 40 from the
+> sec. 1101 CBDC prohibition; **H.R. 7757** gains `privacy_rights` 65 from title VI, COPPA 2.0 and
+> data-broker registration; **H.R. 9237** gains `health_mental` 55 and `health_rural` 35; and
+> **H.R. 6126** gains `strong_defense` 50, matching the weight H.R. 7217 already carries, which
+> resolves the last of the three same-titled 118th Israel supplementals. Seven of the thirteen are
+> identity-only — their existing mappings were checked against primary text and found correct.
+> Two Gap-list corrections fall out of it. **H.R. 9237's only roll is the motion to recommit** of
+> July 16, 2026, so a yea blocks the bill; `yeaBlocksMeasure()` inverts it and both new rows are
+> coded in bill terms. And the war-powers pair **H.Con.Res. 89 and H.Con.Res. 108** read as
+> unmapped on that axis to any static scan of `INSERT` statements, but `20260904000000` re-keyed
+> both from `checks_balances` to `war_powers` at weight 75 with an `UPDATE`; they are mapped.
+> Declined and recorded rather than left as backlog: `deportations` on H.R. 3486 (rule 22),
+> `health_mental` on H.R. 1041 (rule 25), `america_first_fp` on H.R. 7217 and H.R. 6126 (rule 23 —
+> both nay blocs were Democrats, on the missing humanitarian title and on the IRS offset
+> respectively), `cut_spending` on H.R. 7217 (no offset provision), `veterans` and `homeless` on
+> H.R. 6644, `health_mental` and `immig_fentanyl` on H.R. 7757 (study-only, below floor),
+> `disaster_resilience` on H.R. 9770 (a CR continuing NFIP at existing levels enacts no policy),
+> a second key on H.R. 8884, `power_of_purse` on H.Con.Res. 113 (direction unreadable), and
+> `checks_balances` anywhere (rule 28). Regenerating needs `NETLIFY_DB_URL`,
 > which this checkout does not have; re-run `node scripts/vr-coverage-report.mjs --write`
 > after the deploy.
 
