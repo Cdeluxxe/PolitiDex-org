@@ -8113,6 +8113,19 @@
   // terms, which is why H.R. 8281's two entries read as opposites. And where a
   // mapping carries a known confound, the confound is on the face rather than one
   // level down: a Home Rule Act vehicle means a nay may be a home-rule vote.
+  //
+  // WHAT DECIDES WHETHER A MEASURE GETS AN ENTRY. Two things, and reach is only the
+  // second. First: the repo has to hold the text. db/vr-measure-identity.json carries
+  // the enacted-law or as-passed summary for the measures it covers, and a `did` line
+  // is written from that summary and from the mapping's own section citations — never
+  // from recollection. A measure the corpus knows only by title and roll number gets
+  // no entry, however many members voted on it, because the alternative is a sentence
+  // that sounds curated and is not sourced. Second, among the measures whose text IS
+  // on file: how many roster members carry a row for it, how many of those faces read
+  // Contradicted or Mixed, and how many rest on a single scored vote — the three
+  // places where a reader most needs to be told what the bill did before the verdict
+  // means anything. That ordering is why several of the highest-volume rolls in the
+  // corpus are still derived below and should stay that way until their text lands.
   var _DOS_MECH = {
     // ── The SAVE family: three separate instruments, one recurring short title ──
     'H.R. 8281|118|election_security': {
@@ -8184,6 +8197,122 @@
       did: 'The Freedom to Vote: John R. Lewis Act, moved as a House amendment to a Senate shell bill: automatic and same-day registration, at least two weeks of early voting including weekends, no-excuse mail voting with ballot tracking and a minimum number of drop boxes, and Election Day as a public holiday.',
       why: 'Each of those provisions widens a registration or a casting pathway, so a yea is a vote to expand access.',
       more: 'The Clerk’s vote description for this roll still reads "NASA Enhanced Use Leasing Extension Act of 2021" because H.R. 5746 was the vehicle the House used, which is why the row is identified by citation and question rather than by title. The measure incorporates H.R. 1’s text, and its election-security title is unmapped for the same internal-split reason. Passed the House 220-203 on 2022-01-13 (roll 9).'
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // BEYOND THE ELECTION FAMILY. Ten measures, twenty-three pairs, chosen the way the
+    // note above describes: text on file first, then reach. Every one of them is a
+    // bill a member's dossier opens on for one of the busiest chips in the taxonomy,
+    // and every one of them was rendering: Passage on the question "On Passage".
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ── Reconciliation, 117th: relief, then climate-and-drugs ──────────────────
+    'H.R. 1319|117|family_support': {
+      did: 'The American Rescue Plan: $1,400-per-person recovery rebates, and a child tax credit raised to $3,000 per child — $3,600 under age six — made fully refundable and paid out in advance instalments. It also funded child care stabilisation, Head Start, and emergency rental and homeowner assistance.',
+      why: 'Cash and credits paid directly to households with children are the largest single line of the act, and this chip measures federal support for families — so a yea is a vote to expand it.',
+      more: 'The credit expansion and the advance payments were written for one year only and lapsed at the end of 2021, so the row records a vote to create the expansion rather than to make it permanent. Enacted as Public Law 117-2 on 2021-03-11.'
+    },
+    'H.R. 1319|117|econ_workers': {
+      did: 'Extended the pandemic unemployment compensation programs — the federal weekly supplement, Pandemic Unemployment Assistance and Pandemic Emergency Unemployment Compensation — through September 2021, and exempted a portion of 2020 unemployment benefits from income tax.',
+      why: 'Both provisions put money in the hands of people who had lost work, which is what this chip measures, so a yea counts as support here.'
+    },
+    'H.R. 1319|117|national_debt': {
+      did: 'Roughly $1.9 trillion of pandemic relief, moved through budget reconciliation as emergency spending with no offsetting revenue or cuts.',
+      why: 'This chip measures whether a vote reduces federal borrowing, and an unoffset act increases it — so a yea counts against. The confound is named rather than smoothed: the deficit effect is a consequence of the relief, not its stated purpose, which is why this mapping sits well below the family-support row that carries the same vote.'
+    },
+    'H.R. 5376|117|climate_action': {
+      did: 'The Inflation Reduction Act extended and expanded the production and investment tax credits for wind, solar, geothermal, biomass and hydropower, and funded home efficiency, clean vehicles and industrial decarbonisation — the act’s largest spending component.',
+      why: 'Paying for lower-carbon generation and equipment at that scale is the core of what this chip measures, so a yea counts as support. The same act’s offshore-leasing mandates cut the other way; they are recorded on the energy-production row rather than netted out of this one.'
+    },
+    'H.R. 5376|117|energy_production': {
+      did: 'Raised offshore royalty rates, but also directed Interior to accept the highest bid for Gulf of Mexico Lease Sale 257 and to hold Lease Sales 258, 259 and 261, and conditioned new wind and solar rights-of-way on first offering oil and gas leases.',
+      why: 'Those sections require federal acreage to be offered for oil and gas, so on production a yea counts as support — the same yea that counts as support on climate action, because the enacted text does both and the record shows both.'
+    },
+    'H.R. 5376|117|health_drug_prices': {
+      did: 'Required Medicare to negotiate maximum prices for high-spend brand-name drugs from 2026, scaling from 10 drugs to 20 by 2029, and capped insulin cost sharing and Medicare Part D out-of-pocket spending.',
+      why: 'Setting a ceiling on what Medicare pays and on what a beneficiary pays at the counter is exactly what this chip measures, so a yea is a vote to lower drug prices.'
+    },
+
+    // ── Infrastructure, 117th ──────────────────────────────────────────────────
+    'H.R. 5376|117|national_debt': {
+      did: 'Title I, Subtitle A of the same act is captioned “Deficit Reduction”: a 15% corporate alternative minimum tax, a 1% excise on stock repurchases, and multi-year funding for Internal Revenue Service enforcement.',
+      why: 'Those three raise revenue against the act’s spending, so on this chip a yea counts as support — the opposite reading from the unoffset packages elsewhere on this list, and it comes from the enacted text rather than from a preference. The confound is the reason the mapping is weighted 45: the net fiscal effect of the whole act is contested, and only the subtitle heading and its contents are being read here.'
+    },
+    'H.R. 3684|117|infrastructure': {
+      did: 'The Infrastructure Investment and Jobs Act authorised and appropriated funds for roads and bridges, rail, transit, ports, airports, the electric grid, drinking water and wastewater systems, and broadband. Division A is the surface transportation reauthorisation.',
+      why: 'Funding the physical networks is the whole subject of the act and of this chip, so a yea counts as support.'
+    },
+    'H.R. 3684|117|national_debt': {
+      did: 'The act’s new spending was only partially offset, so it was scored as adding to the deficit.',
+      why: 'A yea increases federal borrowing, which is what this chip counts against. Same confound as the other unoffset packages on this list: the deficit effect is a by-product of the infrastructure spending rather than the act’s purpose, which is why the mapping is weighted low.'
+    },
+
+    // ── The 118th debt-limit deal ──────────────────────────────────────────────
+    'H.R. 3746|118|permitting_reform': {
+      did: 'Division C, Title III narrowed the scope of National Environmental Policy Act administrative review, set page and time limits on environmental impact statements, and designated a single lead agency for each project.',
+      why: 'This chip measures how long a federal review takes before a project can proceed, and every one of those changes shortens it — so a yea counts as support.'
+    },
+    'H.R. 3746|118|energy_production': {
+      did: 'Sec. 324 ratified every existing federal authorisation for the Mountain Valley Pipeline, directed the issuance of any that remained, and removed them from judicial review.',
+      why: 'Clearing a named pipeline to be built is a vote for production on this chip. The confound is real and on the face: Sec. 324 is one section of a debt-limit deal, so a nay may be about the spending caps, the IRS rescission or the SNAP work requirements rather than about the pipeline.'
+    },
+
+    // ── CHIPS, 117th ───────────────────────────────────────────────────────────
+    'H.R. 4346|117|tech_innovation': {
+      did: 'The CHIPS and Science Act: Division A created the CHIPS for America Fund and its financial assistance for semiconductor fabrication, assembly, testing and packaging, and Division B authorised research and innovation programs across NSF, NIST, DOE and NASA.',
+      why: 'Paying to build domestic chip capacity and to fund the federal science agencies is the act’s named subject and this chip’s, so a yea counts as support.'
+    },
+    'H.R. 4346|117|national_debt': {
+      did: 'The CHIPS funds were appropriated as new spending without offsetting revenue or cuts.',
+      why: 'A yea increases federal borrowing, which this chip counts against. Named rather than smoothed: the deficit effect is a by-product of the semiconductor programme, not its purpose.'
+    },
+
+    // ── Two defence authorisations, two congresses ─────────────────────────────
+    'H.R. 2670|118|strong_defense': {
+      did: 'The annual defence authorisation for fiscal year 2024: the topline, and the procurement, research, operation and maintenance, military personnel, military construction and Department of Energy national-security programs under it.',
+      why: 'Authorising and equipping the armed forces for the year is what this chip measures, so a yea counts as support.'
+    },
+    'H.R. 2670|118|privacy_rights': {
+      did: 'Section 7902 of the enacted act extended Title VII of the Foreign Intelligence Surveillance Act — the authority section 702 collection against targets outside the United States runs under — through April 19, 2024.',
+      why: 'Extending warrantless collection cuts against this chip, so a yea counts against it. The confound is on the face: this is one section of a whole defence authorisation, which is why it is weighted as a provision-level slice and not as the bill’s headline.'
+    },
+    'S. 1071|119|strong_defense': {
+      did: 'The annual defence authorisation for fiscal year 2026: Divisions A through H authorise Department of Defense activities, military construction, Department of Energy national security programs, personnel strengths, and the Intelligence Authorization Act for the same year.',
+      why: 'Authorising and equipping the armed forces for the year is what this chip measures, so a yea counts as support. The confound is on the face: the enacted text folds in fourteen separately titled Acts, several of them unrelated to defence posture, so passage is not a pure defence signal — which is why this mapping is weighted 80 rather than 100.'
+    },
+    'S. 1071|119|israel_support': {
+      did: 'Title XII, Subtitle D — headed "Matters Relating to Israel" — extended anti-tunnel and counter-unmanned-systems cooperation and required a report on joint exercises, and Sec. 1657 made available up to $60,000,000 for Iron Dome components, $40,000,000 for David’s Sling and $100,000,000 for Arrow 3, each through co-production in the United States.',
+      why: 'Money and joint programs for Israeli missile defence are what this chip measures, so a yea enacts them. The confound: that subtitle is a small share of an eight-division omnibus, so a nay may be about the rest of the bill — which is why the mapping is weighted 35.'
+    },
+
+    // ── Firearms, 117th: one yea, two chips, opposite directions ───────────────
+    'S. 2938|117|gun_safety': {
+      did: 'Required an enhanced background check review for buyers aged 18 to 20, created federal straw purchasing and firearms trafficking offences, and extended the domestic violence possession prohibitor to dating partners. It also funded state crisis intervention programmes.',
+      why: 'Each of those narrows who may acquire or keep a firearm, which is what this chip measures, so a yea counts as support.'
+    },
+    'S. 2938|117|gun_rights': {
+      did: 'The same Title II provisions hold an under-21 purchase while the enhanced review runs, and bar a new class of person — a dating partner with a qualifying domestic violence conviction — from possessing a firearm.',
+      why: 'This chip measures whether a vote widens or narrows lawful access, and the act narrows it — so the same yea that counts as support on gun safety counts against here. Both readings are recorded because the enacted text does both.'
+    },
+
+    // ── Surveillance, 118th ────────────────────────────────────────────────────
+    'H.R. 7888|118|privacy_rights': {
+      did: 'Reauthorised Title VII of the Foreign Intelligence Surveillance Act, including section 702, for two years and widened the definition of an electronic communications service provider. The same act repealed "abouts" collection authority, required FBI supervisory and attorney approval for U.S.-person queries, and added penalties and 180-day Justice Department audits.',
+      why: 'The net effect is an extension of warrantless collection, so a yea counts against this chip. The countervailing reforms in the second sentence are why the mapping is held at 85 rather than 100 — calling this one unmixed would misstate the text.'
+    },
+    'H.R. 7888|118|congress_oversight': {
+      did: 'Revoked the FBI’s statutory reporting exemption and added mandatory annual and quarterly reports to the intelligence and judiciary committees, required a Justice Department Inspector General report on querying practices, and required the Director of National Intelligence to notify the intelligence committees within seven days of any significant unauthorised disclosure of section 702 information.',
+      why: 'Every one of those creates a reporting duty running to Congress where none existed, and nothing in the act reduces one, so a yea counts as support on this chip. Weighted 45 because the act’s operative purpose is the two-year section 702 extension, not the oversight machinery built around it.'
+    },
+
+    // ── Marriage, 117th: the merits and the preemption question, kept apart ────
+    'H.R. 8404|117|lgbtq_rights': {
+      did: 'Repealed the Defense of Marriage Act’s definitions of marriage as between one man and one woman and of spouse as a person of the opposite sex, and required every state to give full faith and credit to a marriage valid where it was performed.',
+      why: 'Federal recognition and interstate recognition of same-sex marriage are what this chip measures, so a yea counts as support. No religious-liberty contradiction is scored against the same vote, because the enacted text expressly states it does not affect religious liberties and does not require a religious organisation to serve a marriage.'
+    },
+    'H.R. 8404|117|states_federal_power': {
+      did: 'Sec. 4 added a new 28 U.S.C. 1738C barring any person acting under colour of state law from denying full faith and credit to another state’s marriage record, or denying a right arising from such a marriage, backed by Attorney General enforcement and a private right of action.',
+      why: 'That section replaces a state’s own recognition rule with a federal one, so on the preemption question a yea counts against state authority. This row is coded on preemption alone — the merits of the marriage question are the LGBTQ rights row on the same vote.'
     }
   };
   // Fails closed in three places, on purpose: a position (no congress, no ballot), a
@@ -8224,7 +8353,37 @@
       'roll still shows the vehicle’s Senate title.',
     'H.R. 5746|117': 'H.R. 5746 was a shell, and the Clerk’s description for this roll still reads ' +
       '“NASA Enhanced Use Leasing Extension Act of 2021”. The House substituted the Freedom to ' +
-      'Vote: John R. Lewis Act into it, and that substitute is the text that was voted on.'
+      'Vote: John R. Lewis Act into it, and that substitute is the text that was voted on.',
+
+    // Two more shell vehicles, from the same habit and with the same consequence: the
+    // citation a reader follows lands on a title that has nothing to do with the vote.
+    'H.R. 4346|117': 'H.R. 4346 began as the Legislative Branch Appropriations Act for fiscal ' +
+      '2022, and its official title still says so. The CHIPS and Science Act text was substituted ' +
+      'into it, and that substitute is what was voted on here.',
+    'S. 2938|117': 'S. 2938 began as a bill to name a federal courthouse in Tallahassee, and the ' +
+      'official title still reads that way. The Bipartisan Safer Communities Act text was ' +
+      'substituted into it, which is why a citation for this roll can look unrelated to firearms.',
+
+    // The two reconciliation bills, whose official titles name the budget resolution
+    // they moved under and never the bill anyone knows them by.
+    'H.R. 1319|117': 'H.R. 1319 is the American Rescue Plan Act. Its official title — “To provide ' +
+      'for reconciliation pursuant to title II of S. Con. Res. 5” — names the budget resolution ' +
+      'the bill moved under rather than the bill, so a citation for this roll may not look like ' +
+      'a relief measure.',
+    'H.R. 5376|117': 'H.R. 5376 is the Inflation Reduction Act, and its official title likewise ' +
+      'names only a budget resolution. The same bill number carried the far larger Build Back ' +
+      'Better Act through the House in 2021; the narrower text the Senate amended and both ' +
+      'chambers passed in August 2022 is what this row is about.',
+
+    // Six annual defence authorisations are on this list. They are different bills with
+    // different contents, and only the fiscal year tells them apart.
+    'H.R. 2670|118': 'This is the National Defense Authorization Act for fiscal year 2024. Five ' +
+      'other annual defence authorisations can appear on this list — S. 1605 (FY2022), H.R. 7776 ' +
+      '(FY2023), H.R. 5009 (FY2025), S. 1071 (FY2026) and H.R. 8800 (FY2027) — and each ' +
+      'authorises a different year and carries different provisions.',
+    'S. 1071|119': 'This is the National Defense Authorization Act for fiscal year 2026, a Senate ' +
+      'bill. It is not the FY2027 authorisation (H.R. 8800), which may be its own row on this ' +
+      'list, and not the FY2024 or FY2025 acts from the 118th Congress.'
   };
   function _dosIdentNote(item) {
     if (!item || item.kind === 'position') return '';
