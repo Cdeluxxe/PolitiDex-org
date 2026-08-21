@@ -250,14 +250,16 @@ for (const [who, stack] of [["exec", X_STACK], ["member", M_STACK]]) {
                        "data-pdxwa-seg", "data-pdxwa-gate", "data-pdxwa-outside", "data-pdxst-open"]) {
     lacks(stack, probe,
       `${who}: the depth tail carries ${JSON.stringify(probe)} — it is a display-only mirror, and the\n` +
-      "    four counts above it are the header's one set of doors");
+      "    counts above it are the header's one set of doors");
   }
 }
-// …and the doors themselves are untouched: still four, still gated, still pointed
-// at the index below.
+// …and the doors themselves are untouched: one per bucket, still gated, still
+// pointed at the index below. Five since Phase 4 admitted the record-only pile,
+// and the number is read off the published vocabulary rather than hard-coded, so
+// a sixth bucket cannot slip in without a door.
 const TALLY = WA.headerTallyHtml(MEMBER);
-eq((TALLY.match(/data-pdxwa-gate="header"/g) || []).length, 4,
-  "header: the four counts are no longer the gated gateway they were before this pass");
+eq((TALLY.match(/data-pdxwa-gate="header"/g) || []).length, WA.OUTCOMES.length,
+  "header: the counts are no longer one gated gateway per bucket, as they were before this pass");
 eq((WA.headerStackMount(MEMBER).match(/<button/g) || []).length, 0,
   "header: the mounted tail introduces a control of its own");
 

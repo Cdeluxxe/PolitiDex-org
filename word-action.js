@@ -1114,9 +1114,16 @@
       var oc = outcomesHtml(pid);
       if (!oc) return '';
       var b = outcomeBuckets(pid);
-      var n = (b && b.total) || 0;
-      var label = 'Issues in this score · ' + n + ' issue' + (n === 1 ? '' : 's') +
-        ' by result — the full map is All Issues by Topic, below';
+      // TWO COUNTS WHEN THERE ARE TWO POPULATIONS. The lid used to promise "N
+      // issues by result" over a total that, since Phase 4, can contain rows with
+      // no result at all — opening the fold on a record-only member would have
+      // shown eighteen issues under a label that said all eighteen had been
+      // judged. The word count keeps the old clause and the old number; the
+      // formal count gets its own, and only appears when it is non-zero.
+      var w = (b && b.word) || 0, fm = (b && b.formal) || 0;
+      var label = 'Issues in this score · ' + w + ' issue' + (w === 1 ? '' : 's') +
+        ' by result' + (fm ? ' · ' + fm + ' on the formal record only' : '') +
+        ' — the full map is All Issues by Topic, below';
       return '<div class="pdxwa-idxlid">' +
           '<!--PDXSP:lid id="' + LID_INDEX_KEY + '" label="' + label + '" defer-->' +
           oc +
@@ -1636,16 +1643,43 @@
   // "Not enough on file" says the true thing in the same space. The token, its colour,
   // its ordering and everything it counts are untouched — this is the noun only.
   //
-  // `secondary` marks the one bucket that is not a finding. "Not enough record yet"
-  // is coverage — an issue we track, a position they stated, and nothing on file
-  // able to test it. Its subtitle can say "Stated, but…" and stay true because
-  // outcomeBuckets() admits no wordless row into this bucket (see the `!r.stance.label`
-  // guard there): a row we hold instruments for and no position of theirs is not a
-  // result this index can file, and it is answered on 🌳 All Issues by Topic and in
-  // the issue dossier instead, which state the inventory and say whose gap it is. It is listed,
-  // counted and reachable like every other bucket, and it is drawn quieter and
-  // ordered last, because a reader scanning results should not have to work out
-  // which pile is a result.
+  // `secondary` marks the TWO buckets that are not findings. Neither is a verdict
+  // on the person; both are statements about which half of the file is missing, and
+  // they are opposite halves:
+  //
+  //   · 'limited' — "Not enough on file". They stated a position; nothing on the
+  //     formal record can test it yet. The WORD is there, the RECORD is the gap.
+  //   · 'record'  — "Record only". Something formal is on file — roll calls, formal
+  //     actions — and no documented position of theirs on that issue to test it
+  //     against. The RECORD is there, the WORD is the gap.
+  //
+  // THE SECOND ONE IS NEW AND IT EXISTS BECAUSE THE OLD SHAPE LIED BY OMISSION.
+  // outcomeBuckets() used to drop every wordless row on the floor (`if
+  // (!r.stance.label && r.verdict.token === 'limited') return;`). The reasoning was
+  // sound for what the index was then — a row with no stated position is not a
+  // said-vs-did result — but the consequence was not: a member with eighteen issues
+  // on the formal record and nothing quotable produced NO buckets at all, so the
+  // composition strip, the letterhead tally and the issue index all rendered empty
+  // over a hero that had just said "18 issues on the formal record". Three surfaces
+  // on one profile disagreeing with a fourth about whether the record exists.
+  // Silence in our word ledger was being published as absence in their record —
+  // which is precisely the sentence the whole formal-first pass was written to stop
+  // printing. So the rows are admitted, under their own name, in their own pile.
+  //
+  // WHAT THE NEW BUCKET IS NOT, and each of these is load-bearing:
+  //   · NOT A RESULT. `secondary: true`, so searchBadgeHTML skips it when it looks
+  //     for the strongest result on a record, and OUTCOME_OPEN never opens on it.
+  //   · NOT FOLDED INTO 'limited'. "Stated, but nothing can test it" is false of
+  //     these rows — nothing was stated. Two different gaps, two different piles.
+  //   · NOT FOLDED INTO A WORD-TEST TOKEN. Nothing here has been compared against
+  //     anything they said, so Contradicted / Mixed / Backed up would each be a
+  //     verdict this index has not earned.
+  //   · NOT A PERCENTAGE. It changes no arithmetic. Direction Match reads
+  //     `read()`, which never touched these buckets and still does not.
+  //
+  // Both secondary buckets are listed, counted and reachable like every other
+  // bucket, drawn quieter, and ordered last — because a reader scanning results
+  // should not have to work out which pile is a result.
   var OUTCOMES = [
     { token: 'contradicts', label: 'Says one thing, does another', short: 'Contradicted', col: '#f89b9b',
       sub: 'The record pushes back on what they said.' },
@@ -1654,7 +1688,10 @@
     { token: 'consistent',  label: 'Backed it up',                 short: 'Backed up',    col: '#6ee7a0',
       sub: 'The record points the same way as the word.' },
     { token: 'limited',     label: 'Not enough record yet',        short: 'Not enough on file',  col: '#9fb4d4',
-      secondary: true, sub: 'Stated, but nothing on file yet can test it. Coverage, not a result.' }
+      secondary: true, sub: 'Stated, but nothing on file yet can test it. Coverage, not a result.' },
+    { token: 'record',      label: 'On the formal record only',    short: 'Record only', col: '#b7a6e6',
+      secondary: true, formal: true,
+      sub: 'Something formal is on file and no documented position of theirs to test it against. The record\u2019s own pattern, not a result.' }
   ];
   function outcomeFor(token) {
     for (var i = 0; i < OUTCOMES.length; i++) if (OUTCOMES[i].token === token) return OUTCOMES[i];
@@ -1663,13 +1700,18 @@
   // The strip reads worst-first for the same reason the rows do: a reader who stops
   // after the first chip should have stopped on the sharpest thing on file, not on
   // the largest. OUTCOMES is already in that order and the strip follows it.
-  var COMP_ORDER = ['contradicts', 'mixed', 'consistent', 'limited'];
+  // The two coverage piles bring up the rear in the order they were added, so the
+  // strip reads results first, then "we have their word and not the record", then
+  // "we have the record and not their word".
+  var COMP_ORDER = ['contradicts', 'mixed', 'consistent', 'limited', 'record'];
   // WHICH BUCKET IS SELECTED WHEN THE INDEX FIRST PAINTS. A TOKEN SET, not a count
   // of live buckets: "the first live bucket" quietly promoted whatever survived, so
   // a figure with no contradictions and no mixed rows opened on the "not enough
   // record yet" pile. Keyed on the outcome instead, an empty bucket above can never
-  // promote the coverage pile — with one fallback, below, so the index never opens
-  // on nothing.
+  // promote either coverage pile — with one fallback, below, so the index never opens
+  // on nothing. A record-only member has nothing but coverage, and the fallback
+  // lands them on it; that is the correct door, because it is the only one with
+  // anything behind it.
   var OUTCOME_OPEN = { contradicts: 1, mixed: 1 };
 
   // ── ONE OPEN BUCKET, DECIDED ONCE ──────────────────────────────────────────
@@ -1696,13 +1738,70 @@
   // two people on one page get two namespaces; the same card repainted keeps its.
   function ocUid(pid) { return 'pdxwa-ocb-' + _idPart(pid); }
 
+  // ── WHICH ISSUES THE FORMAL INDEX HOLDS ─────────────────────────────────
+  // The set of issue keys PDXConsistency.formalPatternIndex admits for this
+  // politician, as a lookup. THE PREDICATE IS NOT REIMPLEMENTED HERE — it is
+  // "a readable pattern, or at least one instrument held", and it lives in
+  // _fpiRows() in consistency.js. Copying it would give the tally and the atlas
+  // two different ideas of how big the same record is, which is the exact class
+  // of bug this pass exists to close: the browse chip, the shape hero and the
+  // buckets all count the formal record by asking the same function.
+  //
+  // Epoch-keyed on the same (pid, scope, derivation-epoch) triple as everything
+  // downstream, so a warm roll-call fetch cannot leave one surface counting the
+  // cold inventory while its neighbour counts the warm one. Returns null — not an
+  // empty set — when the index cannot be reached, and outcomeBuckets treats null
+  // as "admit nothing", reproducing the old behaviour exactly rather than
+  // promoting every wordless row on an engine that is still booting.
+  function formalKeySet(pid) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_fkEpoch !== ep) { _fkCache = {}; _fkEpoch = ep; }
+    var ck = String(pid == null ? '' : pid) + '||' + scopeKey();
+    if (_fkCache.hasOwnProperty(ck)) return _fkCache[ck];
+    var out = null;
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      var rows = (FPI && typeof FPI.rows === 'function') ? FPI.rows(pid) : null;
+      if (rows) {
+        out = {};
+        for (var i = 0; i < rows.length; i++) if (rows[i] && rows[i].key) out[rows[i].key] = 1;
+      }
+    } catch (e) { out = null; }
+    _fkCache[ck] = out;
+    return out;
+  }
+  var _fkCache = {}, _fkEpoch = 0;
+
+
   // ── ONE BUCKETING, TWO SURFACES ────────────────────────────────────────────
   // The composition strip and the outcomes section must agree about what counts,
-  // or the strip becomes a fifth opinion on the record. Both now read this. The two
-  // exclusions are the ones outcomesHtml has always applied, moved rather than
-  // rewritten: an outcome we do not name is not counted, and a "not enough record
-  // yet" row with nothing stated is coverage — an issue we track and they have not
-  // spoken on — which is a gap in the map, not a shape in the record.
+  // or the strip becomes a fifth opinion on the record. Both now read this.
+  //
+  // ONE EXCLUSION SURVIVES: an outcome we do not name is not counted. The other
+  // one — "drop every 'not enough record yet' row with nothing stated" — is gone,
+  // and its removal is the whole of this pass. Those rows are not noise; they are
+  // the formal record of a member nobody has quoted, and the atlas, the browse
+  // chip and the shape hero were all already counting them while this function
+  // pretended they did not exist. They are now admitted under the 'record' token
+  // (see the long note over OUTCOMES) — but only if the formal index actually
+  // holds the issue. A row with no stated position AND nothing formal on file is
+  // still a gap in the map rather than a shape in the record, and it is still
+  // dropped; formalKeySet() below is the gate, and it is the atlas's own.
+  //
+  // FOUR POPULATIONS, COUNTED SEPARATELY, because captions downstream need to say
+  // which one they mean:
+  //   · `total`  — every row in the index. What "N issues in this index" means.
+  //   · `word`   — rows that arrived with a documented stated position. This is
+  //                exactly the old `total`, so every existing caption keyed to
+  //                the word ledger keeps its old number to the digit.
+  //   · `judged` — rows carrying a real said-vs-did result.
+  //   · `formal` — record-only rows. total === word + formal, always.
+  //
+  // The friction counters (thin / contested / contestedClean / tension) stay on
+  // the `word` population ALONE. They are readings of how a word-test went, and a
+  // row with no word in it cannot have gone any way at all; folding record-only
+  // rows into their denominator would quietly dilute every tension sentence on
+  // every deep-record profile in the product.
   function outcomeBuckets(pid) {
     var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
     if (_obEpoch !== ep) { _obCache = {}; _obEpoch = ep; }
@@ -1712,14 +1811,30 @@
     // Keyed on the row set it grouped, not just the politician: rankedRows above
     // rebuilds when its source changes, and a bucketing held over a rebuilt row
     // set would describe rows that are no longer on the card.
+    // Keyed on the formal index too, for the same reason and against the same
+    // failure: the record-only population below is drawn from it, and a bucketing
+    // held over a stale key set would report a different inventory size than the
+    // browse chip and the shape hero, which read the index directly.
+    var keys = formalKeySet(pid);
     var hit = _obCache[ck];
-    if (hit && hit.ranked === ranked) return hit.val;
-    var b = { buckets: {}, total: 0, contested: 0, contestedClean: 0, thin: 0, tension: 0, ranked: ranked };
+    if (hit && hit.ranked === ranked && hit.keys === keys) return hit.val;
+    var b = { buckets: {}, total: 0, word: 0, judged: 0, formal: 0,
+              contested: 0, contestedClean: 0, thin: 0, tension: 0, ranked: ranked };
     ranked.forEach(function (r) {
       if (!OUTCOMES.some(function (o) { return o.token === r.verdict.token; })) return;
-      if (!r.stance.label && r.verdict.token === 'limited') return;
-      (b.buckets[r.verdict.token] = b.buckets[r.verdict.token] || []).push(r);
+      // RECORD-ONLY. Nothing of theirs to test, something of the record's to show.
+      // Re-filed, not dropped, and re-filed under a token that carries no verdict.
+      var recordOnly = (!r.stance.label && r.verdict.token === 'limited');
+      if (recordOnly && !(keys && keys[r.key])) return;
+      var tok = recordOnly ? 'record' : r.verdict.token;
+      (b.buckets[tok] = b.buckets[tok] || []).push(r);
       b.total++;
+      if (recordOnly) { b.formal++; return; }
+      // Below this line every row has a documented stated position behind it, and
+      // every counter below is a reading of how testing it went. Record-only rows
+      // returned above rather than being guarded four times.
+      b.word++;
+      if (tok !== 'limited') b.judged++;
       if (isThin(r)) b.thin++;
       if (isContested(r)) {
         b.contested++;
@@ -1733,7 +1848,7 @@
       if (isTension(r)) b.tension++;
     });
     var res = b.total ? b : null;
-    _obCache[ck] = { ranked: ranked, val: res };
+    _obCache[ck] = { ranked: ranked, keys: keys, val: res };
     return res;
   }
   // The bucketed index, memoized alongside the ranked rows it groups — see THE
@@ -1967,7 +2082,7 @@
       return '' +
         '<div class="pdxwa-comp">' +
           '<div class="pdxwa-comp-h">The shape behind the average' +
-            '<span class="pdxwa-comp-sub">' + esc(b.total + ' issue' + (b.total === 1 ? '' : 's') + ' with a verdict') + '</span>' +
+            '<span class="pdxwa-comp-sub">' + esc(bucketSub(b)) + '</span>' +
           '</div>' +
           '<p class="pdxwa-comp-hint">' +
             esc('Tap a count — or a segment of the bar — to open that bucket’s issues below.') +
@@ -1997,16 +2112,34 @@
       // easiest to lose, so it is said in its own clause rather than folded into a
       // count of "issues with something wrong".
       var notes = [];
-      if (b.tension) {
+      // NOTHING WAS TESTED, so nothing can be reported about how the testing went.
+      // The old copy below said "no contradictions, no mixed results and no
+      // contested standings on the tested issues", which over a member with zero
+      // tested issues reads as a clean bill of health issued by an exam that was
+      // never sat. Record-only profiles get the true sentence instead.
+      if (!b.word) {
+        notes.push('Nothing here has been tested against a stated position — no documented word of theirs on these issues is on file, so there is no contradiction, no match and no mixed result to report. What is below is the formal record on its own.');
+      } else if (b.tension) {
         // "the rows below" used to mean the index directly under this paragraph.
         // The index is behind a control now and the full issue list is the tree in
         // the next section, so the sentence names where tension-first actually
         // lives: the tree's own Tension order.
-        notes.push(b.tension + ' of these ' + b.total + ' issue' + (b.total === 1 ? '' : 's') +
+        // OF THE TESTED ISSUES, not of the index. Record-only rows joined the
+        // index in Phase 4 and cannot carry tension — nothing of theirs was said
+        // for the record to be in tension WITH — so counting them in this
+        // denominator would report a calmer record every time the formal
+        // inventory grew, which is the wrong direction for that number to move.
+        notes.push(b.tension + ' of these ' + _plural(b.word, 'issue') +
           ' carr' + (b.tension === 1 ? 'ies' : 'y') + ' tension — a contradiction, a mixed result, or an action whose standing is contested. ' +
           'Tension leads every list that prints these issues, and 🌳 All Issues by Topic below can be ordered that way in one tap.');
       } else {
         notes.push('No contradictions, no mixed results and no contested standings on the tested issues. That is what the record shows, not a verdict on it.');
+      }
+      // The other half of the file, named rather than left to be inferred from a
+      // chip. Said after the tension line because it is coverage, not a finding.
+      if (b.formal && b.word) {
+        notes.push('A further ' + _plural(b.formal, 'issue') + ' carr' + (b.formal === 1 ? 'ies' : 'y') +
+          ' something on the formal record with no documented position of theirs to test it against. Counted here, never scored.');
       }
       if (b.contestedClean) {
         notes.push(b.contestedClean + ' issue' + (b.contestedClean === 1 ? '' : 's') +
@@ -2061,6 +2194,29 @@
   // the one attribute a copy mounted OUTSIDE the ⚖️ section needs; everything
   // that carries meaning — the counts, the order, the vocabulary, the colours,
   // the panel each control addresses — is identical by construction.
+  // ── SAYING WHICH POPULATION A NUMBER IS ABOUT ──────────────────────────────
+  // Every caption under a count on this card used to be able to say "issues with
+  // a verdict" and be right, because every row in the index had a stated position
+  // behind it. Half of them no longer do. A record-only row has no verdict and
+  // never will until someone quotes the member, so a caption that calls it one is
+  // the same false sentence in the other direction — inventing a said-vs-did
+  // result out of a roll call nobody has been asked about.
+  //
+  // So the captions are built here, once, from the three counts outcomeBuckets
+  // keeps apart, and they name whichever populations are actually present:
+  //   word only   → "3 issues with a verdict"        (unchanged, to the digit)
+  //   record only → "18 issues on the formal record only"
+  //   both        → "3 issues with a verdict, 18 on the formal record only"
+  // Nothing is added to a profile that has no record-only rows, which is why
+  // every existing caption on every existing member reads exactly as it did.
+  function _plural(n, one) { return n + ' ' + one + (n === 1 ? '' : 's'); }
+  function bucketSub(b) {
+    var bits = [];
+    if (b.word) bits.push(_plural(b.word, 'issue') + ' with a verdict');
+    if (b.formal) bits.push((b.word ? b.formal : _plural(b.formal, 'issue')) + ' on the formal record only');
+    return bits.join(', ') || _plural(b.total, 'issue');
+  }
+
   function tallyItemsHtml(b, uid, openTok, gate, extra) {
     return COMP_ORDER.map(function (t) {
       var o = outcomeFor(t);
@@ -2624,8 +2780,12 @@
           // The empty state says which of the two zeroes this is: nothing on this
           // pile, out of a stated denominator. It is the sentence the missing chip
           // used to withhold.
+          // "Checked" is only true of the word-tested population, so the record-only
+          // rows are named separately rather than being folded into a count of
+          // issues we tested. Absent entirely when there are none.
           : '<p class="pdxwa-oc-empty">' + esc('None. No issue in this index landed here — ' +
-              b.total + ' issue' + (b.total === 1 ? '' : 's') + ' checked.') + '</p>';
+              _plural(b.word, 'issue') + ' checked' +
+              (b.formal ? ', ' + b.formal + ' on the formal record only' : '') + '.') + '</p>';
         return '<section class="pdxwa-oc-grp' + (o === sel ? ' is-on' : '') +
             (o.secondary ? ' pdxwa-oc-grp-2nd' : '') + (list.length ? '' : ' is-zero') +
             '" role="tabpanel"' +
@@ -2642,11 +2802,18 @@
       // number above — the score weighs statements by testability and this counts
       // issues. Judged and untested are separated here for the same reason the
       // coverage bucket is drawn quieter: they are not the same claim.
-      var judged = b.total - ((buckets.limited || []).length);
-      var foot = b.total + ' issue' + (b.total === 1 ? '' : 's') + ' in this index — ' +
-        judged + ' with a result on the record' +
+      //
+      // THREE CLAUSES, THREE POPULATIONS, and the arithmetic is outcomeBuckets'
+      // rather than this function's — `judged` used to be computed here as
+      // "total minus limited", which silently became wrong the moment a fifth
+      // bucket joined the index. The two coverage clauses are printed only when
+      // they have rows, so a profile with nothing record-only reads exactly as it
+      // did before Phase 4, and the three counts always sum to the denominator.
+      var foot = _plural(b.total, 'issue') + ' in this index — ' +
+        b.judged + ' with a result on the record' +
         ((buckets.limited || []).length
           ? ', ' + buckets.limited.length + ' stated but not testable yet' : '') +
+        (b.formal ? ', ' + b.formal + ' on the formal record with nothing stated to test' : '') +
         '. Tap any issue for its full record.';
       // WHICH SURFACE IS THE MAP. This index is the score's own working — the same
       // issues, filed by what the record did to them. The browse-all surface is the
@@ -2685,7 +2852,8 @@
 
       return '<div class="pdxwa-oc" id="' + esc(uid) + '">' +
           '<div class="pdxwa-oc-t">Issue by issue — did the record back the word?</div>' +
-          '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.') + '</div>' +
+          '<div class="pdxwa-oc-sub">' + esc('One verdict per issue. Where a formal action could test the claim it decided; where none could, the public record did — never both.' +
+            (b.formal ? ' The last bucket carries no verdict: those issues have a formal record and no documented word of theirs to test it against.' : '')) + '</div>' +
           '<div class="pdxwa-oc-seg" role="tablist" aria-label="Results by issue — pick a result">' + tabs + '</div>' +
           '<div class="pdxwa-oc-panels">' + panels + '</div>' +
           // FLAT MODE, KEPT AND DEMOTED. One bucket at a time is the reading order

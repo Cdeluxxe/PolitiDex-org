@@ -263,11 +263,16 @@ const IDX = ocOf(withRows(ROWS));
 // The dossier header has to name the bucket a row was filed under. It reads that
 // name from here. If this stops being published, the header silently drops the
 // continuity line — which looks exactly like a design choice rather than a break.
-ok(Array.isArray(WA.OUTCOMES) && WA.OUTCOMES.length === 4,
-  "vocabulary: PDXWordAction no longer publishes the four result buckets");
+ok(Array.isArray(WA.OUTCOMES) && WA.OUTCOMES.length === 5,
+  "vocabulary: PDXWordAction no longer publishes the five buckets — three results and the two\n" +
+  "    coverage piles that say which half of the file is missing");
+// Counted off the published list everywhere below, so a sixth bucket that never
+// gets a chip, a panel or a door fails here rather than shipping half-wired.
+const NB = WA.OUTCOMES.length;
 ok(typeof WA.outcomeFor === "function", "vocabulary: outcomeFor() is not published");
 for (const [tok, short] of [["contradicts", "Contradicted"], ["mixed", "Mixed"],
-                            ["consistent", "Backed up"], ["limited", "Not enough on file"]]) {
+                            ["consistent", "Backed up"], ["limited", "Not enough on file"],
+                            ["record", "Record only"]]) {
   const o = WA.outcomeFor(tok);
   ok(o && o.short === short, `vocabulary: "${tok}" no longer resolves to the short name "${short}"`);
   ok(o && /^#[0-9a-f]{6}$/i.test(o.col), `vocabulary: "${tok}" has no colour for the index and the dossier to share`);
@@ -279,6 +284,16 @@ eq(WA.outcomeFor("pending"), null,
   "    loading row acquires a result");
 ok(WA.outcomeFor("limited").secondary === true,
   "vocabulary: the coverage bucket is not marked secondary, so nothing downstream can draw it quieter");
+// The two coverage piles are opposite halves of the same missing file: 'limited'
+// is word without record, 'record' is record without word. Neither is a finding,
+// and `secondary` is the single flag that keeps both out of the All-Seeing Eye's
+// "strongest result" scan and out of the bucket the index opens on.
+ok(WA.outcomeFor("record").secondary === true,
+  "vocabulary: the record-only bucket is not marked secondary — a pile of untested roll calls is one\n" +
+  "    flag away from being published on the browse surface as this member's strongest result");
+ok(!/\b(contradict|backed|mixed|verdict)\b/i.test(WA.outcomeFor("record").sub),
+  "vocabulary: the record-only bucket's subtitle borrows word-test language for rows that were\n" +
+  "    never compared against anything they said");
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 1. Four distinct buckets, nothing behind a fold
@@ -287,12 +302,12 @@ ok(IDX.length > 0, "index: the issue index did not render — every assertion be
 hasnt(IDX, "PDXSP:lid", "index: a bucket is still behind a spine lid");
 hasnt(IDX, "<select", "index: the bucket switcher is a dropdown — three of the four counts would be\n" +
   "    hidden behind a tap, which is the partial reveal this replaced");
-eq((IDX.match(/data-pdxwa-oc-panel="/g) || []).length, 4,
+eq((IDX.match(/data-pdxwa-oc-panel="/g) || []).length, NB,
   "index: the four outcomes are not four distinct panels");
-eq((IDX.match(/data-pdxwa-seg="/g) || []).length, 4,
+eq((IDX.match(/data-pdxwa-seg="/g) || []).length, NB,
   "index: the switcher does not offer one chip per live bucket");
 has(IDX, 'role="tablist"', "index: the switcher is not announced as a set of choices");
-eq((IDX.match(/role="tabpanel"/g) || []).length, 4, "index: the bucket panels are not announced as panels");
+eq((IDX.match(/role="tabpanel"/g) || []).length, NB, "index: the bucket panels are not announced as panels");
 // Counts are on the chips, so the shape of the record is legible without opening
 // anything — which is the entire reason the fold went.
 has(IDX, '<span class="pdxwa-oc-tab-n">2</span>', "index: a chip does not carry its own count");
@@ -336,9 +351,9 @@ const CLEAN = ocOf(withRows([
   stubRow("energy", "Energy", "limited"),
 ]));
 ok(CLEAN.length > 0, "zero: the clean-record index did not render — the assertions below are vacuous");
-eq((CLEAN.match(/data-pdxwa-seg="/g) || []).length, 4,
+eq((CLEAN.match(/data-pdxwa-seg="/g) || []).length, NB,
   "zero: a clean record drops chips instead of showing them at zero");
-eq((CLEAN.match(/data-pdxwa-oc-panel="/g) || []).length, 4,
+eq((CLEAN.match(/data-pdxwa-oc-panel="/g) || []).length, NB,
   "zero: a clean record drops whole panels, so the check that was run leaves no trace");
 for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
   has(CLEAN, 'data-pdxwa-seg="' + tok + '"', `zero: the "${tok}" chip vanished on a clean record`);
@@ -529,10 +544,10 @@ for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
 }
 
 // ── Every count is a button, including the zeroes ───────────────────────────
-eq((STRIP.match(/<button type="button" class="pdxwa-comp-b/g) || []).length, 4,
+eq((STRIP.match(/<button type="button" class="pdxwa-comp-b/g) || []).length, NB,
   "gateway: the four totals are not four controls — a count a reader cannot tap is the picture\n" +
   "    this replaced");
-eq((CLEAN_STRIP.match(/<button type="button" class="pdxwa-comp-b/g) || []).length, 4,
+eq((CLEAN_STRIP.match(/<button type="button" class="pdxwa-comp-b/g) || []).length, NB,
   "gateway: a clean record drops the empty buckets from the strip, so a reader cannot open\n" +
   "    \"Contradicted: 0\" and read the honest empty state behind it");
 ok(!/disabled/.test(CLEAN_STRIP),
@@ -607,16 +622,16 @@ ok(CARD.indexOf('class="pdxwa-num-v"') < CARD.indexOf('class="pdxwa-tally"'),
   "    integers with nothing to qualify");
 
 // Four controls, one per bucket, addressing the same panels as everything else.
-eq((TALLY.match(/<button type="button" class="pdxwa-tally-b/g) || []).length, 4,
+eq((TALLY.match(/<button type="button" class="pdxwa-tally-b/g) || []).length, NB,
   "tally: the four counts are not four controls");
 for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
   has(TALLY, 'data-pdxwa-seg="' + tok + '"', `tally: no control for the "${tok}" bucket`);
   has(TALLY, 'aria-controls="' + UID + "-p-" + tok + '"',
     `tally: the "${tok}" count does not name the panel it opens`);
 }
-eq((TALLY.match(new RegExp('data-pdxwa-seg-uid="' + UID + '"', "g")) || []).length, 4,
+eq((TALLY.match(new RegExp('data-pdxwa-seg-uid="' + UID + '"', "g")) || []).length, NB,
   "tally: a control points at an index id that is not the index on this card");
-eq((TALLY.match(/data-pdxwa-gate="tally"/g) || []).length, 4,
+eq((TALLY.match(/data-pdxwa-gate="tally"/g) || []).length, NB,
   "tally: a count is not gated, so tapping it switches the bucket without bringing the list it\n" +
   "    opened into view — which on a phone is a tap that appears to do nothing");
 
@@ -640,7 +655,7 @@ const countsFrom = (html, nCls) => {
 };
 const tallyCounts = countsFrom(TALLY, "pdxwa-tally-n");
 const stripCounts = countsFrom(STRIP, "pdxwa-comp-n");
-eq(Object.keys(tallyCounts).length, 4, "tally: fewer than four counts could be read out of the tally");
+eq(Object.keys(tallyCounts).length, NB, "tally: fewer than four counts could be read out of the tally");
 eq(JSON.stringify(tallyCounts), JSON.stringify(stripCounts),
   "tally: the tally and the graph print different numbers for the same buckets — they read the\n" +
   "    same derivation, so a difference here is two answers to one question");
@@ -702,24 +717,24 @@ has(HTALLY, 'class="pdxwa-tally pdxwa-htally"',
   "    apart and stop looking like one statement");
 
 // Four controls, the same four panels, the same index.
-eq((HTALLY.match(/<button type="button" class="pdxwa-tally-b/g) || []).length, 4,
+eq((HTALLY.match(/<button type="button" class="pdxwa-tally-b/g) || []).length, NB,
   "header: the four counts are not four controls");
 for (const tok of ["contradicts", "mixed", "consistent", "limited"]) {
   has(HTALLY, 'data-pdxwa-seg="' + tok + '"', `header: no control for the "${tok}" bucket`);
   has(HTALLY, 'aria-controls="' + UID + "-p-" + tok + '"',
     `header: the "${tok}" count does not name the panel it opens`);
 }
-eq((HTALLY.match(new RegExp('data-pdxwa-seg-uid="' + UID + '"', "g")) || []).length, 4,
+eq((HTALLY.match(new RegExp('data-pdxwa-seg-uid="' + UID + '"', "g")) || []).length, NB,
   "header: a control points at an index id that is not this profile's index");
 
 // The two attributes that are only true up here. Without the first, the switcher
 // walks up from the tap looking for a [data-pdxwa] section it will never find,
 // and the count is inert; without the second, a tap several thousand characters
 // above the index switches the bucket and leaves the reader in the header.
-eq((HTALLY.match(new RegExp('data-pdxwa-outside="' + UID + '"', "g")) || []).length, 4,
+eq((HTALLY.match(new RegExp('data-pdxwa-outside="' + UID + '"', "g")) || []).length, NB,
   "header: a count in the letterhead does not declare which index it drives — it has no section\n" +
   "    ancestor to be found by, so an undeclared control is a control that does nothing");
-eq((HTALLY.match(/data-pdxwa-gate="header"/g) || []).length, 4,
+eq((HTALLY.match(/data-pdxwa-gate="header"/g) || []).length, NB,
   "header: a count is not gated, so tapping it opens a bucket a whole page below without bringing\n" +
   "    the list into view");
 
@@ -735,7 +750,7 @@ lacks(HTALLY.replace(/<[^>]+>/g, " "), "Public",
 // SAME NUMBERS AS THE GRAPH AND AS THE IN-CARD TALLY. Read all three and compare
 // rather than trusting that they call the same function.
 const headerCounts = countsFrom(HTALLY, "pdxwa-tally-n");
-eq(Object.keys(headerCounts).length, 4, "header: fewer than four counts could be read out of the letterhead tally");
+eq(Object.keys(headerCounts).length, NB, "header: fewer than four counts could be read out of the letterhead tally");
 eq(JSON.stringify(headerCounts), JSON.stringify(stripCounts),
   "header: the letterhead tally and the graph print different numbers for the same buckets — a\n" +
   "    reader who scrolls from one to the other meets two answers to one question");
@@ -1304,4 +1319,4 @@ if (failures.length) {
   failures.forEach((f, i) => console.error(`  ${i + 1}. ${f}\n`));
   process.exit(1);
 }
-console.log(`✓ issue index: all ${passed} assertions passed — four buckets, every row a door, one vocabulary`);
+console.log(`✓ issue index: all ${passed} assertions passed — five buckets, every row a door, one vocabulary`);

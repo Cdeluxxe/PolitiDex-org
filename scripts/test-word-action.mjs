@@ -1216,15 +1216,15 @@ const voteNarration = (issueKey, extra = {}) => ({
   // whole claim of the switcher: the SHAPE of the record is on the face whether or
   // not anything is opened.
   const tabs = ocIdx.match(/data-pdxwa-seg="([a-z_]+)"/g) || [];
-  eq(tabs.length, 4, 'the bucket switcher does not offer one chip per live bucket');
-  for (const t of ['contradicts', 'mixed', 'consistent', 'limited']) {
+  eq(tabs.length, 5, 'the bucket switcher does not offer one chip per live bucket');
+  for (const t of ['contradicts', 'mixed', 'consistent', 'limited', 'record']) {
     ok(ocIdx.includes(`data-pdxwa-seg="${t}"`), `the switcher has no chip for the "${t}" bucket`);
   }
-  for (const s of ['Contradicted', 'Mixed', 'Backed up', 'Not enough on file']) {
+  for (const s of ['Contradicted', 'Mixed', 'Backed up', 'Not enough on file', 'Record only']) {
     ok(ocIdx.includes(s), `the switcher does not print the short bucket name "${s}"`);
   }
-  eq((ocIdx.match(/data-pdxwa-oc-panel="/g) || []).length, 4,
-    'the four buckets are not four distinct panels — one combined stack is what this replaced');
+  eq((ocIdx.match(/data-pdxwa-oc-panel="/g) || []).length, 5,
+    'the five buckets are not five distinct panels — one combined stack is what this replaced');
   // Exactly one selected, and it is the sharpest live bucket, never the coverage pile.
   eq((ocIdx.match(/aria-selected="true"/g) || []).length, 1,
     'the switcher has no single selected bucket, or has more than one');

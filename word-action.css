@@ -2340,13 +2340,19 @@
      the desktop card would rather spend the other 30px on the list. */
   .pdxwa-comp-seg { min-height: 0.9rem; min-width: 0.6rem; }
   .pdxwa-comp-bar { border-radius: 999px; }
-  /* Four counts on one row beside the number rather than a 2×2 block. */
+  /* The counts sit on one row beside the number rather than in a block. */
   .pdxwa-tally-i { flex: 0 1 auto; }
   .pdxwa-tally-n { font-size: 1.1rem; }
   /* The letterhead copy has the whole modal width to work with and one job —
-     being read at a glance — so its four counts divide that width evenly rather
-     than shrink-wrapping their labels and leaving a ragged tail. */
-  .pdxwa-htally .pdxwa-tally-i { flex: 1 1 0; }
+     being read at a glance — so its counts divide that width evenly rather than
+     shrink-wrapping their labels and leaving a ragged tail.
+
+     THE BASIS IS NOT ZERO. At `flex: 1 1 0` five buckets each got a fifth of a
+     phone-width modal, which is narrower than the word "Contradicted" and put
+     every label on two or three lines. A real basis lets the row break into two
+     tidy lines instead of five squeezed columns, and still divides evenly
+     whenever the width is there. */
+  .pdxwa-htally .pdxwa-tally-i { flex: 1 1 4.2rem; }
   /* The stack's tail gains leading, not size: it is context on the figure above
      and has to stay quieter than the counts it follows on every layout. */
   .pdxwa-hdepth { font-size: 0.72rem; }

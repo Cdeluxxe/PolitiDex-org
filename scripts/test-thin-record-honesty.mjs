@@ -24,6 +24,12 @@
 //      already existed, the invitation did not.
 //   4. A TRULY THIN ROW IS UNTOUCHED. A row with a stated position and one
 //      judged vote keeps its own reason and is never told it has no position.
+//   6. THE INDEX HOLDS THE ROW, THE WRONG BUCKET DOES NOT. Since Phase 4 a
+//      wordless row with a formal record on file IS listed in ⚖️ Word vs Action —
+//      dropping it made three aggregate surfaces disagree with the hero above
+//      them. It is listed under "On the formal record only", never under "Not
+//      enough on file" (whose subtitle asserts a stated position) and never under
+//      a word-test verdict.
 //   5. A ROW NEVER DENIES A RECORD IT HOLDS. The mirror-image case: a stated
 //      position IS on file, the formal record IS on file, and nothing joined
 //      them — so the row fell to `limited` and printed the same false sentence
@@ -264,22 +270,46 @@ section("4 · a truly thin row keeps its own reason");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · the issue index never had this row to mis-word");
+section("5 · the index lists the row, and files it under the honest bucket");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // The two faces read the same rowResult, so a change in the classification
-  // reaches both. They do not hold the same rows: ⚖️ Word vs Action is an index of
-  // word-versus-action findings, and outcomeBuckets() admits no wordless row into
-  // its "Not enough on file" pile (the `!r.stance.label` guard). That is why the false
-  // sentence only ever appeared on the stance face — and why the index's own
-  // "Stated, but nothing on file yet can test it" subtitle is true of every row it
-  // actually shows. Pinned here so a later change to that guard cannot quietly
-  // push 8,000 wordless rows into a bucket whose subtitle says they stated a
-  // position.
+  // reaches both — and since Phase 4 they hold the SAME ROWS. outcomeBuckets()
+  // used to drop every wordless row on the floor, which kept the false sentence
+  // off the index by keeping the row off the index, and left a member with a deep
+  // formal record and nothing quotable rendering an empty tally beside a hero
+  // that had just counted eighteen issues. The rows are admitted now.
+  //
+  // WHAT IS PINNED HERE IS THE THING THAT ACTUALLY MATTERED: the bucket whose
+  // subtitle says "Stated, but nothing on file yet can test it" must never
+  // contain a row where nothing was stated. Admitting the row is fine. Admitting
+  // it into THAT pile is the false sentence, at index scale.
   const idx = WA.headlineHtml(PID, win.PROFILES[PID]) || "";
   ok(!!idx, "the issue index renders");
-  lacks(idx, 'data-pdxwa-issue="' + SILENT + '"',
-    "a row with no stated position is not filed as a word-versus-action result");
+  has(idx, 'data-pdxwa-issue="' + SILENT + '"',
+    "a wordless row with a formal record on file is missing from the index — the Phase 4\n" +
+    "    drop is back, and the tally is pretending those issues do not exist");
+
+  // The panel slice, so "which bucket" is a question this test can actually ask.
+  const panelOf = (tok) => {
+    const i = idx.indexOf('data-pdxwa-oc-panel="' + tok + '"');
+    if (i === -1) return "";
+    const e = idx.indexOf("</section>", i);
+    return idx.slice(i, e === -1 ? idx.length : e);
+  };
+  const limitedPanel = panelOf("limited");
+  const recordPanel = panelOf("record");
+  ok(!!recordPanel, "there is no 'record only' panel, so a wordless row has nowhere honest to land");
+  lacks(limitedPanel, 'data-pdxwa-issue="' + SILENT + '"',
+    "a wordless row is filed under \"Not enough on file\", whose subtitle says they stated a\n" +
+    "    position — the false sentence, moved from the row face to the bucket heading");
+  has(recordPanel, 'data-pdxwa-issue="' + SILENT + '"',
+    "the wordless row is in the index but not in the record-only bucket");
+  // And it is not dressed as a said-vs-did verdict on the way in.
+  for (const tok of ["contradicts", "mixed", "consistent"]) {
+    lacks(panelOf(tok), 'data-pdxwa-issue="' + SILENT + '"',
+      `a wordless row is filed under "${tok}" — a verdict on a comparison that was never made`);
+  }
   const guard = R("word-action.js");
   ok(/!r\.stance\.label && r\.verdict\.token === 'limited'/.test(guard),
     "the index still refuses wordless rows, which is what keeps its bucket subtitle true");
