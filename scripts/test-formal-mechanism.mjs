@@ -349,15 +349,34 @@ console.log("   ── 6 · identity notes fire only where the confusion is real
 console.log("   ── 7 · what this pass skipped is still visibly derived");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // These are the highest-reach derived pairs left in the corpus — bigger than
-  // anything curated above. They are skipped because the repo holds no text for
-  // them, and they must keep saying so on the face.
-  const SKIPPED = [
+  // These were the highest-reach derived pairs when this pass ran, skipped then
+  // because they were out of its scope. Every one of them now has measure text on
+  // file and has been written by the existing-inventory pass, so they are asserted
+  // closed rather than dropped — the list is the audit trail of the boundary moving.
+  const CLOSED_LATER = [
     ["H.R. 1", 119, "cut_spending"],
     ["H.R. 4758", 119, "cut_spending"],
     ["H.R. 6955", 119, "gov_regulation"],
     ["H.R. 8595", 119, "pro_life"],
     ["H.R. 8800", 119, "strong_defense"],
+  ];
+  for (const [num, cong, key] of CLOSED_LATER) {
+    const hit = holderOf(num, cong, key);
+    if (!hit) continue;
+    ok(CS.dossierMechanism(hit.row, key, null, false).countsBy === "curated",
+      `${num}|${cong}|${key} was skipped by this pass and has since been curated`);
+  }
+  // What is still skipped, and why: the repo holds no summary text for these, so
+  // there is nothing a curator could write from and the face must keep saying so.
+  // The derived treatment is asserted on these rather than on the list above, so
+  // the check cannot be satisfied by curating everything in sight.
+  const SKIPPED = [
+    ["H.R. 8369", 118, "israel_support"],
+    ["H.R. 8369", 118, "power_of_purse"],
+    ["H.R. 8281", 118, "states_federal_power"],
+    ["H.R. 29", 119, "border_security"],
+    ["H.Amdt. 478", 118, "israel_support"],
+    ["H.Amdt. 248", 119, "strong_defense"],
   ];
   let checked = 0;
   for (const [num, cong, key] of SKIPPED) {

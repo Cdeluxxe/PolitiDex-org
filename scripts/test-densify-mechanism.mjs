@@ -319,8 +319,20 @@ console.log("   ── 6 · the identity note answers “which measure is this�
   if (gs) {
     has(faceFor(gs.pid, "gov_services"), "Safeguard American Voter Eligibility Act",
       "the identity note also reaches the gov_services row, where a reader would otherwise never learn the vehicle carries an elections division");
-    ok(CS.dossierMechanism(gs.row, "gov_services", null, false).countsBy === "derived",
-      "gov_services on H.R. 8595 is NOT one of the six pairs and stays visibly derived — an identity note is not a curated mechanism");
+    ok(CS.dossierMechanism(gs.row, "gov_services", null, false).countsBy === "curated",
+      "gov_services on H.R. 8595 was outside this pass's six and has since been curated by the existing-inventory pass");
+  }
+  // The claim that block is really making — an identity note is not a curated
+  // mechanism — needs a row where the note exists and the mechanism still does not,
+  // or it stops being testable the moment a later pass curates the example. H.R. 8281
+  // carries a note (it is the first of the three SAVE instruments) and its
+  // states_federal_power chip has no entry in _DOS_MECH.
+  const nb = holderOf("H.R. 8281", 118, "states_federal_power");
+  if (nb) {
+    has(faceFor(nb.pid, "states_federal_power"), "SAVE Act",
+      "the identity note reaches a chip that has no curated mechanism of its own");
+    ok(CS.dossierMechanism(nb.row, "states_federal_power", null, false).countsBy === "derived",
+      "a row can carry an identity note and still render derived — a note is not a mechanism");
   }
   // H.J.Res. 44 and H.R. 1968 collide with nothing, so neither got a note.
   for (const [num, cong, key] of [["H.J.Res. 44", 118, "gov_regulation"], ["H.R. 1968", 119, "health_rural"]]) {
@@ -335,21 +347,42 @@ console.log("   ── 6 · the identity note answers “which measure is this�
 console.log("   ── 7 · the pairs outside this pass are untouched");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // The brief was six pairs. Anything else on these three measures, and every other
-  // mapping H.R. 8595 carries, must still render derived.
-  const OUTSIDE = [
+  // The brief was six pairs, and these five were the ones deliberately left out of
+  // it. The existing-inventory pass has since written all five — which is the point
+  // of that pass and not a regression here — so the assertion inverts rather than
+  // disappears: what one pass declared out of scope, a later pass closed, and the
+  // list stays in the file as the record of that.
+  const CLOSED_LATER = [
     ["H.R. 8595", 119, "strong_defense"],
     ["H.R. 8595", 119, "israel_support"],
     ["H.R. 8595", 119, "pro_life"],
     ["H.J.Res. 44", 118, "gun_rights"],
     ["H.J.Res. 44", 118, "gun_safety"],
   ];
-  for (const [num, cong, key] of OUTSIDE) {
+  for (const [num, cong, key] of CLOSED_LATER) {
     const h = holderOf(num, cong, key);
     if (!h) continue;
-    ok(CS.dossierMechanism(h.row, key, null, false).countsBy === "derived",
-      `${num}|${cong}|${key} was outside this pass's six and must still be visibly derived`);
+    ok(CS.dossierMechanism(h.row, key, null, false).countsBy === "curated",
+      `${num}|${cong}|${key} was outside this pass's six and has since been curated by the existing-inventory pass`);
   }
+  // The derived rendering itself still has to exist and still has to be reachable,
+  // or "everything is curated now" would pass this file by deleting the distinction
+  // instead of earning it. These pairs carry no measure text in the repo and must
+  // stay visibly derived until one arrives.
+  const STILL_DERIVED = [
+    ["H.R. 8369", 118, "israel_support"],
+    ["H.R. 8281", 118, "states_federal_power"],
+    ["H.R. 29", 119, "border_security"],
+  ];
+  let stillN = 0;
+  for (const [num, cong, key] of STILL_DERIVED) {
+    const h = holderOf(num, cong, key);
+    if (!h) continue;
+    stillN++;
+    ok(CS.dossierMechanism(h.row, key, null, false).countsBy === "derived",
+      `${num}|${cong}|${key} has no text on file and must still be visibly derived`);
+  }
+  ok(stillN >= 1, `the derived rendering is still exercised by a real row — ${stillN} checked`);
   // The count is pinned too: this pass added six entries and one note, no more.
   const src = R("consistency.js");
   const mechBody = (src.match(/var _DOS_MECH = \{[\s\S]*?\n  \};/) || [""])[0];

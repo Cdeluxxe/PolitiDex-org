@@ -8412,8 +8412,9 @@
       why: 'Federal recognition and interstate recognition of same-sex marriage are what this chip measures, so a yea counts as support. No religious-liberty contradiction is scored against the same vote, because the enacted text expressly states it does not affect religious liberties and does not require a religious organisation to serve a marriage.'
     },
     'H.R. 8404|117|states_federal_power': {
-      did: 'Sec. 4 added a new 28 U.S.C. 1738C barring any person acting under colour of state law from denying full faith and credit to another state’s marriage record, or denying a right arising from such a marriage, backed by Attorney General enforcement and a private right of action.',
-      why: 'That section replaces a state’s own recognition rule with a federal one, so on the preemption question a yea counts against state authority. This row is coded on preemption alone — the merits of the marriage question are the LGBTQ rights row on the same vote.'
+      did: 'Barred anyone acting under colour of state law from refusing to honour another state’s marriage record, or from denying a right that arises from such a marriage, enforceable by the Attorney General and by the couple themselves.',
+      why: 'That rule replaces a state’s own recognition law with a federal one, so on the preemption question a yea counts against state authority. This row is coded on preemption alone — the merits of the marriage question are the LGBTQ rights row on the same vote.',
+      more: 'The provision is section 4 of the act, which adds a new 28 U.S.C. 1738C. The private right of action runs to the person harmed by the refusal, alongside the Attorney General’s.'
     },
 
     // ═════════════════════════════════════════════════════════════════════════════
@@ -8463,6 +8464,547 @@
       did: 'Division C, Sec. 3105 extended the Drug Enforcement Administration’s temporary order placing fentanyl-related substances in schedule I as a class, striking “March 31, 2025” and inserting “September 30, 2025”.',
       why: 'Class-wide scheduling is the federal handle on fentanyl analogues that this chip measures, and it would have lapsed that month without the extension — so a yea counts as support. Same confound as the rural row on this bill, and the same reason the mapping is narrow: one section of a funding vehicle is not the vehicle.',
       more: 'Permanent class-wide placement did not arrive until the HALT Fentanyl Act (S. 331), enacted in July 2025, which may be its own row on this list. H.R. 1968 was enacted as Public Law 119-4 on 2025-03-15.'
+    },
+
+    // ══ Existing-inventory cleanup: measures already mapped and already listed on the
+    // Official Record face, but carrying only the derived fallback line. Written from the
+    // vr-measure-identity summary and the mapping’s own rationale — same sourcing law as above.
+    // ── S. 1071 · 119th Congress ──
+    'S. 1071|119|immig_fentanyl': {
+      did: 'A subtitle inside the FY2026 defense authorization — the BUST Fentanyl Act — extended the Fentanyl Sanctions Act, added fentanyl trafficking to the annual international narcotics-control report, and ordered a study of trafficking originating in China.',
+      why: 'This chip tracks measures aimed at the fentanyl supply, and a yea enacts new sanctions authority and reporting directed at traffickers. Narrow link: one named subtitle inside a defence omnibus, working through sanctions and reporting rather than a change to enforcement on the ground.'
+    },
+    'S. 1071|119|guard_authority': {
+      did: 'One section of the FY2026 defense authorization let the governor of a state that has declared a disaster emergency order that state’s full-time National Guard members onto state disaster-response duty.',
+      why: 'This chip asks who directs the Guard, and the section hands a governor direct use of federally paid Guard personnel. Narrow link: the authority needs the Defense Secretary’s consent, the state reimburses it, and it is capped at fourteen days a member each year — a real shift, not a referendum on Guard command.'
+    },
+    // ── H.R. 1 · 119th Congress ──
+    'H.R. 1|119|border_security': {
+      did: 'The 2025 reconciliation act appropriated new funding for border enforcement and immigration operations.',
+      why: 'Money for enforcement staffing and operations is what this chip measures, so a yea funds it. Supporting link: one appropriation inside an act whose main business is taxes and spending.'
+    },
+    'H.R. 1|119|lower_taxes': {
+      did: 'Made permanent and extended the individual and business tax provisions of the 2017 tax act, and raised the maximum child tax credit to $2,200 per child, indexed for inflation from 2026.',
+      why: 'Lower income and business taxes are this chip’s subject and they are the act’s headline title, so a yea is a direct vote to cut and extend them.'
+    },
+    'H.R. 1|119|cut_spending': {
+      did: 'Reduced federal Medicaid spending, tightened Medicaid enrolment and eligibility, and raised the SNAP able-bodied-adult work-requirement age from 55 to 65.',
+      why: 'This chip measures votes that cut federal outlays, and those provisions are where the act does it, so a yea counts as support. Supporting link: the same act’s tax title is read on its own chip rather than netted out here.'
+    },
+    'H.R. 1|119|healthcare': {
+      did: 'Reduced federal Medicaid spending and tightened Medicaid enrolment and eligibility processes.',
+      why: 'This chip measures whether coverage gets easier to obtain and keep, and tighter eligibility with less federal money behind it moves the other way — so the same yea that counts for the act’s tax title counts against the issue here.'
+    },
+    'H.R. 1|119|lands_energy': {
+      did: 'Loosened restrictions on oil, gas and coal leasing on federal land and lowered the minimum royalty rates paid on it.',
+      why: 'Opening more federal acreage to extraction is what this chip tracks, so a yea counts as support for development. Narrow link: the leasing title is one part of a reconciliation act built mainly around taxes and spending.'
+    },
+    // ── H.R. 8800 · 119th Congress ──
+    'H.R. 8800|119|strong_defense': {
+      did: 'The FY2027 defense authorization: procurement including aircraft and ships, active-duty and reserve strength levels, military pay and health care, and the Energy Department’s nuclear-security programs. Passed the House 216-212 and was not enacted.',
+      why: 'Authorising what the armed forces may buy and field is this chip’s core question, so a yea authorises them. The same bill also carried unrelated social-policy riders, so passage is not a pure defence-posture signal.'
+    },
+    'H.R. 8800|119|israel_support': {
+      did: 'A subtitle headed "Matters relating to Israel" extended the U.S. war reserve stockpile there, anti-tunnel cooperation and joint work against drones, and set up a U.S.–Israel defense technology initiative.',
+      why: 'This chip tracks U.S. security cooperation with Israel and a yea enacts all four. Narrow link: one subtitle inside a defence authorisation, not the bill’s purpose.'
+    },
+    // ── H.R. 8595 · 119th Congress ──
+    'H.R. 8595|119|strong_defense': {
+      did: 'Made the FY2027 appropriations for national security and State Department programs — the money behind those accounts for the year.',
+      why: 'This chip measures whether security programs get funded, and a yea funds them. Supporting link: an appropriations bill for State and related programs decides amounts, not defence posture.'
+    },
+    'H.R. 8595|119|israel_support': {
+      did: 'Directed not less than $3.3 billion in Foreign Military Financing grants to Israel alone and barred moving the U.S. embassy out of Jerusalem, while cutting off funds to UNRWA and to the U.N. human-rights bodies investigating Israel.',
+      why: 'Money and diplomatic backing are the two things this chip reads, and the text moves both the same way — so a yea counts as support.'
+    },
+    'H.R. 8595|119|pro_life': {
+      did: 'Carried the standing foreign-aid rider barring U.S. development funds from paying for abortion as a method of family planning or from coercing anyone into one.',
+      why: 'Restricting federal money for abortion is what this chip reads as a pro-life provision, so a yea keeps that restriction in force. Narrow link, recorded neutrally: a long-standing rider carried forward, not a new position taken on this vote.'
+    },
+    'H.R. 8595|119|gov_services': {
+      did: 'A full-year appropriations act funding the State Department, international organisations and commissions, related programs and independent agencies through FY2027.',
+      why: 'Keeping federal operations and programs funded is what this chip measures, and a yea is the appropriation that does it.'
+    },
+    // ── H.R. 7008 · 119th Congress ──
+    'H.R. 7008|119|gov_transparency': {
+      did: 'Required a Member to file public notice with the Clerk seven to fourteen days before selling a covered investment, published online, and to withdraw the notice if the sale did not happen.',
+      why: 'The bill enforces itself through disclosure a reader can look up, so a yea widens what is public about a Member’s finances. Supporting link: it is a stock-trading bill, not a general transparency measure.'
+    },
+    'H.R. 7008|119|stock_trading_ban': {
+      did: 'Barred Members of Congress, their spouses and dependent children from buying individual stocks, with a penalty of at least $2,000 or 10% of the trade and forced sale of a barred purchase.',
+      why: 'This chip is the ban itself, so a yea is a direct vote for it.'
+    },
+    // ── H.R. 1181 · 119th Congress ──
+    'H.R. 1181|119|states_federal_power': {
+      did: 'Expressly pre-empted any state or local law regulating how merchant category codes are assigned to firearms retailers, replacing whatever a state had enacted with the federal rule.',
+      why: 'This chip asks whose rule governs, and an express pre-emption clause moves the answer to Washington whichever way the state had legislated. Narrow link: one subsection — but pre-emption is the whole of the question this chip asks.'
+    },
+    'H.R. 1181|119|gun_rights': {
+      did: 'Barred payment-card networks from requiring or assigning a merchant category code that singles out a firearms retailer, and told the Justice Department to enforce it.',
+      why: 'That code is what would let a card network flag a firearms purchase, so a yea removes a gun-purchase tracking mechanism — this chip’s direct subject.'
+    },
+    'H.R. 1181|119|privacy_rights': {
+      did: 'Stopped card networks and processors from building a transaction record that flags a customer as having shopped at a gun store, enforced by the Attorney General through complaints, investigations and injunctions.',
+      why: 'This chip measures limits on what companies may record about a person, and the ban is one — the same prohibition the gun-rights row reads from the firearms side, read here on the purchase-data side.'
+    },
+    // ── H.R. 6955 · 119th Congress ──
+    'H.R. 6955|119|econ_smallbiz': {
+      did: 'Rewrote parts of federal banking law to widen small-bank and Main Street lending capacity: a three-year capital phase-in for new banks, a lower leverage ratio for certain rural community banks, and higher asset thresholds before a range of requirements bite.',
+      why: 'Small businesses borrow from the banks this bill loosens the rules on, and widening that access to capital is the bill’s stated purpose — so a yea backs it.'
+    },
+    'H.R. 6955|119|gov_regulation': {
+      did: 'Required financial regulators to tailor their actions to an institution’s size, risk profile and business model, to review their own rules more often, and to leave more small banks outside various fees, reporting duties and examination cycles.',
+      why: 'This chip measures whether federal rules on business get lighter, and easing bank regulation is what the bill operatively does — so a yea enacts that relief. Supporting link: the relief runs to banks, not to business generally.'
+    },
+    'H.R. 6955|119|econ_corp_account': {
+      did: 'Let regulators approve certain bank mergers without considering whether the merger is non-competitive or monopolistic, and raised the asset threshold above which a financial holding company needs Federal Reserve approval to buy another company.',
+      why: 'This chip measures the checks a large firm has to clear, and both changes remove one — so the same yea that counts as relief on the red-tape chip counts against accountability here.'
+    },
+    // ── S. 331 · 119th Congress ──
+    'S. 331|119|immig_fentanyl': {
+      did: 'Permanently placed fentanyl-related substances as a class in Schedule I, replacing the temporary scheduling order that had been renewed by Congress since 2018.',
+      why: 'Making the class-wide ban permanent is the federal response to the fentanyl supply this chip tracks, so a yea is a direct vote for it.'
+    },
+    'S. 331|119|tough_on_crime': {
+      did: 'Applied the quantity thresholds and mandatory-minimum sentences already carried by fentanyl analogues to the whole class of fentanyl-related substances — 100 grams or more triggers a ten-year mandatory minimum.',
+      why: 'Longer mandatory sentences reached by a lower threshold is what this chip measures, so a yea counts as support. Supporting link: the act’s subject is scheduling; the sentencing effect follows from it.'
+    },
+    'S. 331|119|health_mental': {
+      did: 'Set the federal answer to fentanyl-related substances in criminal-penalty terms — permanent Schedule I placement with mandatory minimums — while adding a registration pathway so researchers can still study them.',
+      why: 'This chip reads addiction as a health question, and an enforcement-first answer moves away from treatment, so a yea counts against it here. Narrow link: the research-registration provisions cut the other way and are part of why this link is held narrow.'
+    },
+    // ── S. 2 · 119th Congress ──
+    'S. 2|119|deportations': {
+      did: 'Appropriated $44 billion through FY2029 for interior immigration enforcement — ICE and CBP staffing, removal transportation, detention facilities and fleet, government lawyers for removal proceedings, and at least $350 million for detainers, custodial transfers and arrests.',
+      why: 'Removal operations are this chip’s subject and they are 63% of the act, so a yea funds them. The detention money comes with a bar on using it to release anyone encountered into the community.'
+    },
+    'S. 2|119|border_security': {
+      did: 'Appropriated $9.55 billion to hire, pay, train and equip Border Patrol agents and support staff, and $3.45 billion for inspection equipment at ports of entry, air and marine response platforms, surveillance technology and the biometric entry-exit system.',
+      why: 'Personnel and technology at the border are what this chip measures, and a yea funds both — around $26 billion of the act counting the CBP hiring in its enforcement title.'
+    },
+    'S. 2|119|immig_fentanyl': {
+      did: 'Two of the six purposes in the act’s border-technology section name narcotics: new inspection equipment to catch illicit drugs entering at ports of entry, and money for combating drug trafficking "including fentanyl and its precursor chemicals".',
+      why: 'This chip tracks interdiction capability aimed at fentanyl, and a yea funds detection equipment at the crossings. Supporting link: that section is 5% of the act and fentanyl is two of its six purposes.'
+    },
+    'S. 2|119|tough_on_crime': {
+      did: 'Appropriated $7.45 billion for Homeland Security Investigations agents — money the act expressly reserves for work OTHER than immigration and customs enforcement — including $108.5 million for child-exploitation investigators, forensic analysts and training for state and local police.',
+      why: 'That is federal criminal investigative capacity rather than immigration money, which is what this chip counts, so a yea funds it. Narrow link: it adds investigators rather than changing any offence or sentence, and the act’s immigration titles are read on their own chips.'
+    },
+    // ── H.R. 7888 · 118th Congress ──
+    'H.R. 7888|118|strong_defense': {
+      did: 'Reauthorised section 702 of the Foreign Intelligence Surveillance Act for two years — the warrantless collection of foreign targets’ communications — while repealing "abouts" collection and adding FBI approval requirements, penalties and audits for U.S.-person queries.',
+      why: 'This chip counts votes that sustain the tools the national-security agencies rely on, and a yea keeps a core collection authority alive. Supporting link: it is an intelligence authority, not a force-structure or funding vote — and the same bill is read on the privacy chip from the other side.'
+    },
+    // ── H.R. 5009 · 118th Congress ──
+    'H.R. 5009|118|strong_defense': {
+      did: 'The FY2025 defense authorization: Pentagon programs and military construction, Energy Department nuclear-security programs, and a servicemember quality-of-life title covering pay, housing, health care and family support.',
+      why: 'Authorising what the armed forces may field and what they pay their people is this chip’s core question, so a yea is a vote for it.'
+    },
+    'H.R. 5009|118|lgbtq_rights': {
+      did: 'Barred TRICARE from covering treatment for gender dysphoria that could result in sterilisation for a military dependent under 18.',
+      why: 'This chip measures whether federal policy protects or restricts LGBTQ+ people, and removing a category of care for transgender minors restricts it — so a yea counts against the issue here even on a bill that otherwise funds the force. This provision is the reason the roll split against party lines.'
+    },
+    // ── H.R. 2670 · 118th Congress ──
+    'H.R. 2670|118|israel_support': {
+      did: 'A subtitle headed "Matters Relating to Israel" ran eight sections — anti-tunnel and counter-drone cooperation, directed-energy work, aerial refuelling assistance and tanker transfer rules — and a further section made up to $200 million available for co-production of Iron Dome, David’s Sling and Arrow 3 components in the United States.',
+      why: 'Joint weapons programs and security aid are what this chip reads, and a yea enacts all of them. Narrow link: it is one subtitle inside a defence authorisation — the widest of the three NDAAs on file, but still not the bill’s purpose.'
+    },
+    // ── H.R. 3746 · 118th Congress ──
+    'H.R. 3746|118|gov_services': {
+      did: 'Tightened work requirements for Temporary Assistance for Needy Families and raised the SNAP work-requirement age for able-bodied adults without dependents to 54, while shrinking the pool of discretionary exemptions states may grant.',
+      why: 'This chip measures whether the safety net reaches more people or fewer, and narrower eligibility moves it the other way — so a yea counts against the issue here, notwithstanding the bill’s new exemptions for homeless people, veterans and former foster youth.'
+    },
+    'H.R. 3746|118|edu_college_cost': {
+      did: 'Ended the pause on federal student-loan payments, restarted interest accrual, and barred the Education Secretary from extending the pause again without new authority from Congress.',
+      why: 'What a borrower pays is what this chip measures, and restarting payments and interest raises it — so a yea counts against the issue. Supporting link: it is one division of a debt-ceiling deal, not a student-loan bill.'
+    },
+    // ── H.J.Res. 44 · 118th Congress ──
+    'H.J.Res. 44|118|gun_safety': {
+      did: 'Voided the ATF rule that had brought pistols with stabilising braces under the National Firearms Act, and — under the Congressional Review Act — barred a substantially similar rule without new authority from Congress.',
+      why: 'The rule it voids was a registration and background-check instrument, so removing it loosens the regime this chip measures and a yea counts as opposition here. Supporting link: no statute this chip tracks is touched — no background check, no storage rule, no trafficking provision — and the all-or-nothing form of a disapproval resolution gave members no way to split the rule from the regime.'
+    },
+    'H.J.Res. 44|118|gun_rights': {
+      did: 'Disapproved the ATF rule that reclassified braced pistols as short-barrelled rifles, which had required owners to register a lawfully held configuration, pay a tax stamp, permanently alter it or surrender it.',
+      why: 'Protection against registry and licensing burdens is inside this chip’s scope, so a yea is a vote for the right as the chip defines it — and it forecloses a similar rule in future. The resolution passed the House and failed in the Senate 49-50, so it never took effect.'
+    },
+    // ── H.R. 4346 · 117th Congress ──
+    'H.R. 4346|117|strong_defense': {
+      did: 'Set up the CHIPS for America Defense Fund for the national microelectronics research network, and an International Technology Security and Innovation Fund aimed at securing semiconductor supply chains.',
+      why: 'Supply of the chips defence systems are built from is what those two funds address, so a yea backs it. Narrow link: this is an industrial-policy act, and the defence funds are two of its four.'
+    },
+    'H.R. 4346|117|econ_growth': {
+      did: 'Expanded federal financial assistance for building and equipping semiconductor plants in the United States, including a dedicated program for mature technology nodes.',
+      why: 'This chip reads measures meant to grow domestic industry, and the incentives are the act’s operative mechanism — so a yea counts as support. Supporting link: the act works by subsidy rather than by removing regulation.'
+    },
+    // ── H.R. 5376 · 117th Congress ──
+    'H.R. 5376|117|lower_taxes': {
+      did: 'Imposed a 15% minimum tax on the reported income of corporations earning over $1 billion and a 1% excise tax on stock buybacks.',
+      why: 'On their face those are corporate tax increases, which is what this chip measures — so a yea counts against it. The same two sections are read as accountability measures on the corporate chip; the record shows both readings rather than picking the flattering one.'
+    },
+    'H.R. 5376|117|econ_corp_account': {
+      did: 'Imposed a 15% minimum tax on the adjusted financial-statement income of corporations above $1 billion, and a 1% excise tax on publicly traded companies’ stock repurchases.',
+      why: 'Both reach large firms that report high profits and pay little, which is this chip’s subject — so a yea counts as support here, the opposite reading of the same sections from the tax chip.'
+    },
+    'H.R. 5376|117|healthcare_costs': {
+      did: 'Extended the enlarged Affordable Care Act premium tax credits through 2025, including for households above 400% of the poverty line, and capped insulin and out-of-pocket costs for Medicare enrollees.',
+      why: 'What a household pays for coverage and medicine is what this chip measures, and those provisions lower it — so a yea counts as support.'
+    },
+    // ── S. 3373 · 117th Congress ──
+    'S. 3373|117|healthcare': {
+      did: 'Opened VA health-care enrolment and treatment to veterans exposed to toxic substances, and set presumptions of service connection for conditions tied to burn pits and Agent Orange.',
+      why: 'This chip measures whether care becomes easier to get, and the act adds a population to a health system rather than only paying cash benefits — so a yea counts as support. Supporting link: it widens one federal system, not coverage generally.'
+    },
+    'S. 3373|117|veterans': {
+      did: 'Expanded VA eligibility, presumptions of service connection and benefits for veterans exposed to toxic substances, and ordered improvements to VA screening, research and claims processing.',
+      why: 'The act’s whole subject is what veterans are owed and how quickly they get it, so a yea is a direct vote for the issue.'
+    },
+    // ── S. 1605 · 117th Congress ──
+    'S. 1605|117|strong_defense': {
+      did: 'The FY2022 defense authorization: personnel end strengths, procurement, military construction, Energy Department nuclear-security programs and intelligence activities.',
+      why: 'Authorising what the armed forces may field is this chip’s core question, so a yea is a vote for it.'
+    },
+    'S. 1605|117|israel_support': {
+      did: 'Made up to $200 million available for U.S. co-production of Iron Dome, David’s Sling and Arrow 3 components, set up a joint U.S.–Israel cybersecurity grant program at Homeland Security, and created the Cyprus–Greece–Israel–U.S. interparliamentary group.',
+      why: 'Missile-defence co-production and joint security programs are what this chip reads, and a yea funds and continues them. Narrow link: the same act also carries a State Department authorisation and a division of unrelated matters.'
+    },
+    'S. 1605|117|immig_fentanyl': {
+      did: 'One section — the Blocking Deadly Fentanyl Imports Act — added synthetic-opioid source countries to the narcotics "majors list" and required the annual narcotics report to name the biggest fentanyl source countries and say how far each is cooperating.',
+      why: 'This chip tracks pressure on the fentanyl supply, and a yea enacts a listing authority and a reporting duty aimed at it. Narrow link: one section working through a designation and a report, inside a defence authorisation.'
+    },
+    // ── H.R. 3076 · 117th Congress ──
+    'H.R. 3076|117|gov_transparency': {
+      did: 'Required the Postal Service to publish an online public dashboard of service-performance data, broken down by delivery unit.',
+      why: 'This chip measures what the public can check for itself, and the dashboard is a standing disclosure anyone can open. Narrow link: the act is a postal-finance bill, and the dashboard is one of its provisions.'
+    },
+    'H.R. 3076|117|gov_services': {
+      did: 'Removed the requirement that the Postal Service prepay decades of future retiree health benefits, moved postal retirees onto a plan coordinated with Medicare, and wrote six-day delivery into law.',
+      why: 'Keeping a universal public service running is what this chip measures, and the act removes the obligation behind the Postal Service’s reported losses — so a yea counts as support.'
+    },
+    // ── S. 2938 · 117th Congress ──
+    'S. 2938|117|health_mental': {
+      did: 'Funded children’s and family mental-health services, extended the Certified Community Behavioral Health Clinic demonstration, funded paediatric mental-health access grants, and issued guidance on Medicaid telehealth.',
+      why: 'Capacity to treat mental illness is this chip’s subject, and a yea funds it. Supporting link: the act is known for its firearms title, which is read on its own chips — this one reads the mental-health title alongside it, not instead of it.'
+    },
+    'S. 2938|117|public_schools': {
+      did: 'Funded school safety programs and school-based mental-health capacity, including Medicaid guidance aimed specifically at services delivered inside schools.',
+      why: 'Money and staff reaching public schools is what this chip measures, so a yea counts as support. Narrow link: school provisions are one part of a bill whose main titles are mental health and firearms.'
+    },
+    // ── H.R. 3684 · 117th Congress ──
+    'H.R. 3684|117|climate_action': {
+      did: 'Funded clean school buses, a national electric-vehicle charging network, home weatherisation and legacy pollution remediation.',
+      why: 'Paying to cut emissions and clean up pollution is what this chip measures, so a yea counts as support. Narrow link: these are components of an infrastructure package rather than its organising purpose.'
+    },
+    'H.R. 3684|117|transit': {
+      did: 'Reauthorised the federal public transportation programs and funded passenger and freight rail, including the largest single investment in Amtrak since it was created.',
+      why: 'Whether buses and trains get federal money is this chip’s question, and a yea provides it.'
+    },
+    'H.R. 3684|117|broadband': {
+      did: 'Created the Broadband Equity, Access, and Deployment program and the Affordable Connectivity Program to extend service into unserved and underserved areas.',
+      why: 'Getting service to households that have none is exactly what this chip measures, so a yea funds it.'
+    },
+    'H.R. 3684|117|water': {
+      did: 'Funded drinking-water and wastewater systems, lead service line replacement, and Western water infrastructure including storage and drought resilience.',
+      why: 'This chip reads investment in water supply and its resilience, and a yea provides it. Supporting link: water is one division of a wider infrastructure act.'
+    },
+    'H.R. 3684|117|disaster_resilience': {
+      did: 'Funded coastal resiliency work, wildfire risk reduction, and hardening of the electric grid against extreme weather.',
+      why: 'Spending ahead of a disaster to reduce its damage is what this chip measures, so a yea counts as support. Supporting link: resilience runs through two divisions of a wider infrastructure act.'
+    },
+    // ── H.R. 1319 · 117th Congress ──
+    'H.R. 1319|117|econ_smallbiz': {
+      did: 'Funded the Restaurant Revitalization Fund, added Paycheck Protection Program and Economic Injury Disaster Loan support, and funded the Shuttered Venue Operators Grant program.',
+      why: 'Direct aid to small firms is what this chip measures, so a yea counts as support. Narrow link: one title of a pandemic relief act built mainly around households, states and schools.'
+    },
+    'H.R. 1319|117|cost_living': {
+      did: 'Sent recovery rebate payments to households, expanded the child and earned-income tax credits for the year, and funded emergency rental and utility assistance.',
+      why: 'Money reaching households against their bills is this chip’s subject, so a yea counts as support.'
+    },
+    'H.R. 1319|117|healthcare_costs': {
+      did: 'Expanded Affordable Care Act premium tax credits for 2021 and 2022, removed the 400%-of-poverty eligibility cliff, and subsidised COBRA continuation coverage.',
+      why: 'What a household pays in premiums is what this chip measures, and each of those lowers it — so a yea counts as support.'
+    },
+    'H.R. 1319|117|child_care': {
+      did: 'Provided child-care stabilisation funding, supplemental Child Care and Development Block Grant money, and Head Start funding.',
+      why: 'Whether care is available and affordable is this chip’s question, and a yea funds the providers and the subsidy. Supporting link: it is one title of a wider relief act.'
+    },
+    'H.R. 1319|117|public_schools': {
+      did: 'Created the Elementary and Secondary School Emergency Relief Fund for reopening and learning-loss work — the largest single federal appropriation to K-12 schools in this record.',
+      why: 'Federal money reaching public schools is what this chip measures, so a yea counts as support.'
+    },
+    // ── H.R. 4758 · 119th Congress ──
+    'H.R. 4758|119|climate_action': {
+      did: 'Repealed three Energy Department programs created by the 2022 climate law: rebates for electrifying low- and moderate-income homes, grants to train home-energy contractors, and help for states adopting modern building energy codes.',
+      why: 'Those programs are the federal push to cut household emissions this chip measures, and the bill cancels them — so a yea counts against the issue. It passed the House 210-199 and was not enacted.'
+    },
+    'H.R. 4758|119|cut_spending': {
+      did: 'Rescinded the unobligated balances still available for the home-electrification rebates and for building-energy-code adoption.',
+      why: 'Cancelling money already appropriated is what this chip counts as a spending cut, so a yea counts as support. Supporting link: the bill’s purpose is the repeal itself, and the rescission follows from it.'
+    },
+    // ── H.R. 4405 · 119th Congress ──
+    'H.R. 4405|119|gov_transparency': {
+      did: 'Required the Justice Department to publish, searchable and downloadable, all unclassified records from the Epstein investigation — including material on Ghislaine Maxwell, flight and travel logs, and the people named in them — and to report to Congress within fifteen days what was released, what was withheld and why.',
+      why: 'Compelling disclosure the executive branch had withheld is this chip’s whole subject, and it is the whole of the act: it creates no offence and changes no penalty. Victims’ personal information and material that would jeopardise an active investigation may still be withheld.'
+    },
+    // ── S. 5 · 119th Congress ──
+    'S. 5|119|deportations': {
+      did: 'Required Homeland Security to take into custody any non-citizen unlawfully present who has been charged with, arrested for or convicted of burglary, theft, larceny, shoplifting, assault of a police officer, or any crime causing death or serious injury — and to put them into removal proceedings.',
+      why: 'Mandatory detention leading to removal is this chip’s subject, and the act makes it a duty rather than a discretion, so a yea is a direct vote for it.'
+    },
+    'S. 5|119|border_security': {
+      did: 'Tightened immigration enforcement by removing the discretion to release a covered non-citizen from custody once they have been charged.',
+      why: 'This chip reads enforcement of the immigration laws generally, and the detention mandate tightens it — so a yea counts as support. Supporting link: the act adds no border personnel, technology or funding; it works through custody.'
+    },
+    'S. 5|119|tough_on_crime': {
+      did: 'Made an arrest or charge — not a conviction — for theft, burglary, shoplifting, assault of a police officer, or a crime causing death or serious injury the trigger for mandatory federal custody.',
+      why: 'Attaching a hard consequence to that list of offences is what this chip measures, so a yea counts as support. Supporting link: the consequence is immigration detention, not a criminal penalty.'
+    },
+    'S. 5|119|state_standing': {
+      did: 'Let a state sue the federal government for an injunction over immigration decisions that harm the state or its residents by more than $100 — including a release from custody, a missed asylum interview, a parole decision, or a failure to remove someone already ordered removed.',
+      why: 'This chip asks whether states can take Washington to court, and the act creates a cause of action where none existed — so a yea expands that standing. Narrow link: the standing runs to immigration decisions only.'
+    },
+    // ── H.R. 4 · 119th Congress ──
+    'H.R. 4|119|cut_spending': {
+      did: 'Cancelled unobligated balances Congress had already appropriated to the State Department, USAID, several related agencies and the Corporation for Public Broadcasting, acting on rescissions the President proposed in June 2025.',
+      why: 'Taking back money already appropriated is the most direct form of the spending cut this chip measures, so a yea is a vote for it.'
+    },
+    'H.R. 4|119|gov_waste': {
+      did: 'Returned roughly $9 billion of enacted budget authority to the Treasury unspent, drawn from foreign-assistance accounts and public broadcasting.',
+      why: 'This chip asks whether money is cut where it is not doing work, and a rescission of unobligated balances is that claim in statutory form — so a yea counts as support. What counts as waste rather than service is the reader’s call; the ledger records which accounts were struck.'
+    },
+    'H.R. 4|119|national_debt': {
+      did: 'Reduced federal outlays by the amount of the rescinded balances — a smaller set than the $9.4 billion the House passed, after the Senate carved out global health, food aid and several other accounts.',
+      why: 'This chip measures the deficit, and a rescission lowers outlays against it. Narrow link: the amounts are small next to the deficit, and the act changes no revenue or entitlement.'
+    },
+    'H.R. 4|119|america_first_fp': {
+      did: 'Nineteen of the act’s twenty rescission paragraphs struck foreign-assistance balances — about $7.9 billion — including development assistance, the Economic Support Fund, refugee and disaster assistance, the Clean Technology Fund and the U.S. Institute of Peace.',
+      why: 'Cutting and winding down U.S. funding commitments abroad is this chip’s own stated content, so a yea counts as support. Supporting link: the measure’s controlling axis is still spending rather than foreign policy.'
+    },
+    // ── H.R. 8034 · 118th Congress ──
+    'H.R. 8034|118|strong_defense': {
+      did: 'Appropriated roughly $7.8 billion to U.S. accounts rather than to Israel: replacing defence articles drawn from American stocks, Army ammunition procurement, Defense Production Act purchases, and U.S. force protection and operations in the Central Command region.',
+      why: 'Refilling American stocks and funding American forces is what this chip measures, so a yea counts as support. Supporting link: about $7.8 billion of a $26.4 billion act, with the aid itself read on the Israel chip.'
+    },
+    'H.R. 8034|118|israel_support': {
+      did: 'A $26.4 billion emergency supplemental: Iron Dome and David’s Sling, Iron Beam procurement, Foreign Military Financing for Israel, replacement of U.S. articles already transferred, and humanitarian assistance for Gaza. Enacted as a division of Public Law 118-50.',
+      why: 'This is the most direct enacted test of the issue in this record — the 58 nays declined to fund Israel’s defence on a bill that asked nothing else of them — so a yea funds it.'
+    },
+    'H.R. 8034|118|america_first_fp': {
+      did: 'Appropriated about $9.2 billion of foreign assistance that is not aid to Israel: international disaster assistance and migration and refugee assistance for humanitarian needs, narcotics enforcement in the Middle East, and the Sinai peacekeeping mission — all designated emergency spending and unoffset.',
+      why: 'This chip’s support direction is cutting or conditioning U.S. commitments abroad, so a yea — which appropriates them, unoffset — is coded as opposing it. The Israel funding in the same title is deliberately left out of this reading and carried on its own chip.'
+    },
+    // ── H.R. 8035 · 118th Congress ──
+    'H.R. 8035|118|foreign_balance': {
+      did: 'A FY2024 emergency supplemental for Ukraine: Defense Department accounts, the Ukraine Security Assistance Initiative, replacement of defence articles already transferred, and State and USAID programs in the region.',
+      why: 'Sustaining an alliance commitment under fire is what this chip measures, so a yea funds it. It passed the House 311-112 and reached law only as a division of the combined package.'
+    },
+    'H.R. 8035|118|america_first_fp': {
+      did: 'The standalone Ukraine-aid vote, stripped of the Israel, Indo-Pacific and sanctions divisions that carried the rest of the package.',
+      why: 'This chip’s support direction is keeping the resources at home, so a yea — which sends them abroad — is coded as opposing it. Stripping the other divisions is what makes this roll a clean read of that question.'
+    },
+    'H.R. 8035|118|restraint': {
+      did: 'Funded current U.S. military operations in the region and sustained American military support to an active war.',
+      why: 'This chip measures whether the United States steps back from military engagement, and the appropriation sustains one — so a yea counts against restraint. Supporting link: the bill funds an ally’s defence rather than committing U.S. forces to combat.'
+    },
+    // ── H.R. 7217 · 118th Congress ──
+    'H.R. 7217|118|strong_defense': {
+      did: 'Appropriated across the U.S. military accounts — personnel, operations and maintenance, procurement, research, and revolving funds — to replace defence articles drawn from Pentagon stocks and sustain American forces in the region.',
+      why: 'Funding and refilling the U.S. force is this chip’s question, so a yea counts as support. Supporting link: the defence title is the bulk of the $17.6 billion bill, and the aid itself is read on the Israel chip.'
+    },
+    'H.R. 7217|118|israel_support': {
+      did: 'A $17.6 billion emergency supplemental for Israel and for U.S. Central Command operations, with no offset, offered as a standalone alternative to the combined Ukraine–Israel–Indo-Pacific package. It was brought up under suspension and failed 250-180, short of two-thirds.',
+      why: 'A yea appropriates the aid, which is this chip’s subject. The measure got a majority and still failed, because suspension of the rules requires two thirds — so the row records a yea, not an enactment.'
+    },
+    // ── H.R. 6126 · 118th Congress ──
+    'H.R. 6126|118|israel_support': {
+      did: 'A $14.3 billion emergency supplemental for Israel: cooperative missile-defence programs, Foreign Military Financing, and replacement of U.S. defence articles transferred after October 7.',
+      why: 'A yea appropriates the aid, which is this chip’s subject.'
+    },
+    'H.R. 6126|118|cut_spending': {
+      did: 'Offset every dollar of the Israel supplemental by rescinding $14.3 billion of IRS enforcement funding appropriated by the 2022 climate and tax law.',
+      why: 'Cancelling an existing appropriation is what this chip counts as a spending cut, so a yea counts as support. The offset, not the Israel aid, is what drew the 196 nays — which is why the row records it rather than letting the Israel reading stand as the only meaning of the vote.'
+    },
+    // ── H.R. 1041 · 119th Congress ──
+    'H.R. 1041|119|gun_safety': {
+      did: 'Barred the VA from reporting a veteran to the background-check system merely because the department decided their benefits should be paid to a fiduciary, and required the VA to tell the Attorney General that every such report filed since 1993 no longer applies.',
+      why: 'Removing a class of record from the background-check system loosens the screening this chip measures, so a yea counts against it. Supporting link: the change reaches only VA fiduciary determinations, leaves every other mental-health prohibitor intact, and keeps reporting where a judge has found the person dangerous.'
+    },
+    'H.R. 1041|119|gun_rights': {
+      did: 'Stopped the VA from sending a beneficiary’s name to the background-check system on the strength of an administrative finding that they cannot manage their own benefit payments, unless a judge has found them a danger to themselves or others.',
+      why: 'Restoring eligibility taken away by an administrative determination rather than a judicial finding is this chip’s direct subject, so a yea is a vote for it. It passed the House 216-201 and went to the Senate.'
+    },
+    // ── H.R. 3486 · 119th Congress ──
+    'H.R. 3486|119|border_security': {
+      did: 'Raised the penalties for entering the country unlawfully and for coming back after removal — the improper-entry maximum from two years to five, and the reentry maximum from two years to ten, or fifteen after three or more specified misdemeanours.',
+      why: 'These are the two federal offences immigration enforcement rests on, so raising their penalties is support on this chip. Supporting link: the bill adds no barrier, agent, detention bed or removal authority — it is enforcement severity, not enforcement capacity.'
+    },
+    'H.R. 3486|119|tough_on_crime': {
+      did: 'Set a five-year mandatory minimum, up to life, for someone who entered unlawfully and is later convicted of a felony, and a ten-year mandatory minimum for someone with a prior felony or two prior reentry convictions who enters again.',
+      why: 'This chip’s own text is tougher sentences for offenders, and sentence length is the bill’s entire substance, so a yea is a vote for it. It passed the House 226-197 and went to the Senate.'
+    },
+    // ── H.R. 7148 · 119th Congress ──
+    'H.R. 7148|119|strong_defense': {
+      did: 'Carried the whole FY2026 Department of Defense appropriation as Division A — the act’s largest division by dollars — including $1 billion in Defense-Wide operation and maintenance for the Taiwan Security Cooperation Initiative.',
+      why: 'A yea enacts those defence levels and a nay blocks the package carrying them, which is what this chip reads.'
+    },
+    'H.R. 7148|119|israel_support': {
+      did: 'Appropriated $500 million for Israeli cooperative missile-defence programs — Iron Dome, Short-Range Ballistic Missile Defense, Arrow 3 and the Arrow System Improvement Program — and directed not less than $3.3 billion in Foreign Military Financing grants for Israel, to be disbursed within 30 days of enactment.',
+      why: 'Funding Israel’s defence is this chip’s subject, so a yea funds it. Supporting link: those lines sit inside a five-bill consolidated appropriations act whose controlling subject is federal spending.'
+    },
+    'H.R. 7148|119|health_rural': {
+      did: 'Extended the rural and safety-net health authorities that were about to lapse: eliminated the scheduled Medicaid disproportionate share hospital cuts, continued the low-volume hospital adjustment and the Medicare-Dependent Hospital program, extended ground ambulance add-on payments and telehealth flexibilities, and funded community health centers and the National Health Service Corps.',
+      why: 'Those payment adjustments are what keeps small and rural hospitals solvent, which is this chip’s subject, so a yea extends them. Narrow link: it is one division of a five-bill appropriations act, and the provisions continue existing programs rather than create new ones.'
+    },
+    'H.R. 7148|119|foreign_balance': {
+      did: 'Funded the diplomatic and allied-military instruments and the multilateral institutions — $9.4 billion for diplomatic programs, $6.2 billion in Foreign Military Financing, military education and training, peacekeeping operations, and contributions to the International Development Association and the regional development banks.',
+      why: 'This chip reads allied military cooperation and multilateral institutions specifically, and the act funds both, so a yea counts as support. Narrow link: general foreign-aid levels are deliberately not read on this axis.'
+    },
+    'H.R. 7148|119|health_drug_prices': {
+      did: 'Required pharmacy benefit managers to pass 100 percent of drug rebates through to the health plan, made a non-conforming arrangement a prohibited transaction under federal benefits law, and added PBM reporting, generic-application transparency and pharmacy access requirements.',
+      why: 'Rebates kept by the middleman are money that does not reach the plan or the patient, and this chip measures what is done about drug costs — so a yea imposes the pass-through. Narrow link: it is one title of a five-bill appropriations act and it regulates the middleman, not the manufacturer’s price.'
+    },
+    'H.R. 7148|119|pro_life': {
+      did: 'Carried the standing abortion-funding restrictions across four divisions: the Labor-HHS bar with the life, rape and incest exceptions, the bar on abortion coverage in federal employee health plans, the same bar applied to District of Columbia funds, and the foreign-assistance family-planning bar.',
+      why: 'These riders are the federal funding line this chip reads, and a yea enacts them for another year. Narrow link, recorded neutrally: they are continuations of long-standing riders carried by every appropriations act, not a new position taken on this vote.'
+    },
+    // ── H.Con.Res. 113 · 119th Congress ──
+    'H.Con.Res. 113|119|national_debt': {
+      did: 'Adopted the FY2027 congressional budget blueprint and instructed four House committees to report reconciliation legislation increasing the deficit over FY2027-FY2036 by up to stated amounts — $60 billion for Armed Services, $13 billion for Intelligence, $12 billion for Agriculture, and a further amount for House Administration.',
+      why: 'This chip measures the deficit, and the resolution’s own reconciliation instructions authorise increases to it, so a yea is coded against the chip. A budget resolution is not presented to the President and appropriates nothing; it sets the levels that later appropriations and reconciliation bills are enforced against.'
+    },
+    // ── H.R. 6644 · 119th Congress ──
+    'H.R. 6644|119|housing_build': {
+      did: 'A twelve-title housing-supply act: grants for permitting single-staircase apartment buildings up to six stories, an environmental-review exemption for specified rural infill projects, a database of publicly owned land, higher FHA multifamily loan limits with affordable construction as an eligible activity, and streamlined federal environmental review for HUD-assisted projects.',
+      why: 'Every one of those provisions removes a regulatory or financing barrier to new residential construction, which is this chip’s subject, so a yea is a vote to build. It became Public Law 119-101; the vote held here is the 358-32 House concurrence in the Senate amendment.'
+    },
+    'H.R. 6644|119|housing': {
+      did: 'Reauthorized and reformed the HOME Investment Partnerships Program, the Rural Housing Service and disaster recovery, revised housing counseling oversight, addressed small-dollar mortgages and appraisal practice, and excluded VA disability benefits from the income test for HUD-VASH eligibility.',
+      why: 'This chip reads cost and access to housing assistance rather than new construction, and the act carries both, so a yea advances affordability too. Supporting link: the package’s controlling purpose is supply, read on its own chip.'
+    },
+    // ── H.R. 7757 · 119th Congress ──
+    'H.R. 7757|119|tech_balance': {
+      did: 'Required platforms where one-third of the content is sexual material harmful to minors to verify age, defaulted minors’ accounts to settings limiting compulsive-usage features and adult contact, gave parents account and privacy controls, made AI chatbots disclose to a minor that they are not human and surface crisis-line information, and extended children’s online privacy law to teens.',
+      why: 'Age verification, social media defaults and AI disclosure are this chip’s own vocabulary, so a yea imposes those guardrails. It passed the House 267-117 under suspension and went to the Senate Commerce Committee.'
+    },
+    // ── H.Con.Res. 89 · 119th Congress ──
+    'H.Con.Res. 89|119|restraint': {
+      did: 'Directed the President under the War Powers Resolution to remove U.S. Armed Forces from hostilities against Iran unless Congress declares war or specifically authorises force — while expressly preserving self-defence, a defensive presence in the region, and intelligence collection and sharing.',
+      why: 'Ending U.S. participation in an undeclared conflict is exactly what this chip measures, so a yea is a vote for restraint. The House agreed to it 214-208 and it went to the Senate Foreign Relations Committee; a concurrent resolution is not presented to the President.'
+    },
+    // ── H.Con.Res. 108 · 119th Congress ──
+    'H.Con.Res. 108|119|restraint': {
+      did: 'Directed the President under the War Powers Resolution to remove U.S. Armed Forces from any hostilities in Lebanon within seven days, while preserving security cooperation with the Lebanese Armed Forces and protection of diplomatic facilities.',
+      why: 'Withdrawing forces from an undeclared conflict is this chip’s subject, so a yea is a vote for restraint. The House rejected it 189-235, so the vote records a position rather than a change in the law.'
+    },
+    // ── H.R. 9237 · 119th Congress ──
+    'H.R. 9237|119|veterans': {
+      did: 'An omnibus veterans package: concurrent receipt of disability compensation and retired pay for certain combat-related retirees, benefits for remarried surviving spouses, extended dependency and indemnity compensation, claims-processing and rural examination access, a rural critical-access-hospital reimbursement pilot under community care, and free opioid rescue medication in high-overdose areas.',
+      why: 'Expanding veterans’ benefits and VA administration is this chip’s subject, so the bill sits squarely on it. Procedural row: the only roll call held here is the motion to recommit, which failed 210-211 — a yea on that motion is a vote against advancing the bill, and the engine reads it that way.'
+    },
+    // ── H.R. 8884 · 119th Congress ──
+    'H.R. 8884|119|social_security': {
+      did: 'Reauthorized the Social Security Administration’s authority to run disability-insurance demonstration projects, which lapsed at the end of 2022, through 2030, and required that a participant’s total income not be reduced by taking part in one.',
+      why: 'Keeping a Social Security program authority alive is support on this chip. Supporting link: this is program administration — it changes no benefit level and no eligibility rule. It passed the House 232-188 and went to Senate Finance.'
+    },
+    // ── H.R. 815 · 118th Congress ──
+    'H.R. 815|118|immig_fentanyl': {
+      did: 'Carried the FEND Off Fentanyl Act as Division E: sanctions in response to the declared national emergency on fentanyl trafficking, plus anti-money-laundering measures aimed at the transnational organizations moving the proceeds.',
+      why: 'Sanctions and money-laundering controls on trafficking organizations are this chip’s mechanism, so a yea enacts them. Narrow link: Division E is one of five divisions in a package whose bulk is security assistance.'
+    },
+    'H.R. 815|118|america_first_fp': {
+      did: 'The largest single foreign-aid appropriation of the 118th Congress — Israel, Ukraine and Indo-Pacific security supplementals in three divisions — enacted as Public Law 118-50.',
+      why: 'This chip’s support direction is redirecting resources from foreign commitments to domestic priorities, so a yea is coded as opposing it. Supporting link: the package also carries the TikTok divest-or-ban and fentanyl sanctions divisions, read on their own chips.'
+    },
+    'H.R. 815|118|foreign_balance': {
+      did: 'Appropriated security assistance across three theatres at once: Division A for Israel, Division B for Ukraine, Division C for the Indo-Pacific.',
+      why: 'Funding alliance commitments is what this chip measures, and this vote funded three of them in one instrument, so a yea is support.'
+    },
+    'H.R. 815|118|restraint': {
+      did: 'Sustained U.S. military support to two active wars and a deterrence posture in the Pacific through the same three security-assistance divisions.',
+      why: 'This chip measures stepping back from military engagement, so a yea — which deepens it — is coded against restraint. Supporting link: the package funds allies and replenishes U.S. stocks; it commits no American forces to combat.'
+    },
+    'H.R. 815|118|tech_balance': {
+      did: 'Carried the Protecting Americans from Foreign Adversary Controlled Applications Act in Division D, requiring divestiture of a foreign-adversary-controlled application or barring its distribution in the United States.',
+      why: 'A binding federal rule on who may operate a consumer platform is this chip’s subject, so a yea imposes it. Supporting link: one division of a five-division emergency supplemental.'
+    },
+    // ── H.R. 7776 · 117th Congress ──
+    'H.R. 7776|117|strong_defense': {
+      did: 'Carried the FY2023 National Defense Authorization Act: end strengths for the Armed Forces and authorisations for procurement, operation and maintenance, military personnel and other defense programs.',
+      why: 'Authorising the force is this chip’s subject, so the enacted content is read as support. Identity note: the roll call attached to this vehicle is the earlier suspension vote on the rivers-and-harbors bill whose text the NDAA later replaced, so the mapping is read off the enacted content and no House margin is claimed for it.'
+    },
+    // ── S. 2296 · 119th Congress ──
+    'S. 2296|119|israel_support': {
+      did: 'Extended U.S.-Israel anti-tunnel cooperation through 2028 and raised its annual ceiling from $50 million to $80 million, extended counter-drone cooperation from $55 million to $75 million, and made up to $60 million of Missile Defense Agency procurement available for Iron Dome co-production in the United States and $40 million for David’s Sling.',
+      why: 'Keeping joint missile-defence and tunnel-detection work funded is this chip’s subject, so a yea enacts it. Narrow link: two sections in one subtitle plus one missile-defence section inside a ten-division authorization.'
+    },
+    'S. 2296|119|immig_fentanyl': {
+      did: 'Carried the BUST FENTANYL Act, widening the Fentanyl Sanctions Act to reach any foreign person who knowingly made a significant financial or material contribution to opioid trafficking, extending sanctions to foreign state agencies, and prioritising identification of traffickers in China.',
+      why: 'Sanctions reaching the financiers as well as the traffickers are this chip’s mechanism, so a yea enacts them. Narrow link: one title inside one division of the defense authorization.'
+    },
+    'S. 2296|119|strong_defense': {
+      did: 'The Senate’s FY2026 National Defense Authorization Act: aircraft, ship and missile procurement, active and reserve personnel strengths, military construction, Energy Department defense programs, an extension of the Pacific Deterrence Initiative, and repeal of the department’s diversity, equity and inclusion provisions including the Chief Diversity Officer post.',
+      why: 'Authorising and shaping the armed forces is this chip’s subject, so a yea is support. The Senate passed it 77-20; it was held at the desk in the House and never enacted — S. 1071 is the vehicle that became law.'
+    },
+    'S. 2296|119|back_police': {
+      did: 'Carried the Law Enforcement and Crime Victims Support Package: protections against first-responder fentanyl exposure, reauthorised support and treatment for officers in crisis, death benefits for certain retired officers, trauma-kit standards, and a new COPS Strong Communities Program funding local and university-run police training.',
+      why: 'Funding and supporting police is this chip’s subject, so a yea enacts it. Narrow link: one subtitle of one title inside a ten-division bill.'
+    },
+    'S. 2296|119|housing_build': {
+      did: 'Carried the Road to Housing Act as Division I — model frameworks for reforming state and local zoning, streamlined environmental review, and provisions reaching accessory dwelling units, duplexes through fourplexes, cottage courts, townhouses and transit-adjacent development — and struck the permanent-chassis requirement from the federal manufactured-home definition.',
+      why: 'Removing the land-use and review barriers to new construction is this chip’s subject, so a yea enacts the division. Narrow link: one of ten divisions, though the largest that is not defense.'
+    },
+    'S. 2296|119|homeless': {
+      did: 'Raised the Emergency Solutions Grants administrative cost cap from 7.5 to 10 percent, rewrote the Continuum of Care program, allowed a spending-cap waiver through 2029 while denying it to any recipient that displaces people without providing shelter or rehousing, and added the Housing Unhoused Disabled Veterans Act and oversight of the Interagency Council on Homelessness.',
+      why: 'How homelessness assistance money may be spent and who may receive it is this chip’s subject, so a yea enacts these changes. Narrow link: a handful of sections inside one division of the defense authorization.'
+    },
+    // ── H.R. 1049 · 119th Congress ──
+    'H.R. 1049|119|gov_transparency': {
+      did: 'Made federal elementary and secondary education funding conditional on each school notifying parents that they may request and receive information about foreign influence in the school.',
+      why: 'This chip reads what institutions must reveal, and the bill creates a disclosure-on-request regime where none existed. Supporting link: the disclosure runs to parents about one subject, not to the public about government generally.'
+    },
+    'H.R. 1049|119|edu_parental': {
+      did: 'Required every school served by a local educational agency receiving federal funds to tell parents of their right to request and receive information about foreign influence — China is the named example — in their child’s school.',
+      why: 'Creating a parental notification right that does not exist today is exactly what this chip measures, so a yea establishes it.'
+    },
+    // ── H.R. 1005 · 119th Congress ──
+    'H.R. 1005|119|gov_transparency': {
+      did: 'Required public elementary and secondary schools to disclose funds they receive from, or contracts they hold with, a foreign source.',
+      why: 'Compelling disclosure that is not required today is this chip’s subject, so a yea creates it. Identity note: the bill was rewritten on the floor and no summary was published for the text the House passed, so this reads only what the official title as passed states.'
+    },
+    // ── H.R. 2965 · 119th Congress ──
+    'H.R. 2965|119|econ_smallbiz': {
+      did: 'Required the Small Business Administration to hold its annual small-business regulatory budget at no more than zero — meaning the net compliance cost its new rules impose on a small business must be offset by the cost removed through modifying or repealing existing rules.',
+      why: 'The budget is scoped to the compliance burden small businesses carry, and a yea caps it. Supporting link: the bill’s controlling subject is the regulatory cap itself, read on the red-tape chip.'
+    },
+    'H.R. 2965|119|gov_regulation': {
+      did: 'Established a small-business regulatory budget capping the regulatory cost the SBA may impose in a fiscal year at zero net, counting both the cost of new rules and the cost removed by repealing or modifying old ones.',
+      why: 'A hard cap on the cost of new regulation is exactly what this chip measures, so a yea constrains it.'
+    },
+    // ── H.R. 4305 · 119th Congress ──
+    'H.R. 4305|119|econ_smallbiz': {
+      did: 'Required the SBA Office of Advocacy to keep operating the Red Tape Hotline, the channel through which small entities report the burden of complying with a federal rule, guidance document or policy statement, and to report annually to the SBA and Congress on what comes in.',
+      why: 'Giving small businesses a standing channel to Washington about compliance costs is support on this chip, so a yea backs it.'
+    },
+    'H.R. 4305|119|gov_regulation': {
+      did: 'Made the Red Tape Hotline a statutory duty of the SBA Office of Advocacy and required an annual report to Congress on the rules small entities flag through it.',
+      why: 'The hotline exists to surface federal rules for repeal or revision, which is this chip’s direction, so a yea advances that review. Supporting link: it creates a reporting channel, not a repeal.'
+    },
+    // ── S.J.Res. 18 · 119th Congress ──
+    'S.J.Res. 18|119|econ_corp_account': {
+      did: 'Nullified the Consumer Financial Protection Bureau’s overdraft rule, which had required very large financial institutions to cap overdraft charges at $5, justify any higher cap, or treat the overdraft as credit subject to Truth in Lending disclosure.',
+      why: 'This chip measures constraints on what large firms may charge, and the resolution removes one, so a yea is coded against it. Supporting link: the vehicle’s controlling subject is the rule-striking power itself, read on the red-tape chip.'
+    },
+    'S.J.Res. 18|119|gov_regulation': {
+      did: 'A Congressional Review Act resolution whose entire operative effect is to strike the CFPB’s December 2024 overdraft rule off the books and bar a substantially similar rule.',
+      why: 'Nullifying a federal rule is this chip’s direct subject, so a yea removes the regulation.'
+    },
+    // ── H.J.Res. 78 · 119th Congress ──
+    'H.J.Res. 78|119|gov_regulation': {
+      did: 'A Congressional Review Act resolution striking the Fish and Wildlife Service rule published in July 2024 that listed the San Francisco Bay-Delta longfin smelt as endangered.',
+      why: 'Nullifying an agency rule is this chip’s subject, so a yea removes it. Supporting link: what the rule did is read on the public-lands chip.'
+    },
+    'H.J.Res. 78|119|lands_preserve': {
+      did: 'Removed Endangered Species Act protection from the San Francisco Bay-Delta population of longfin smelt by nullifying the listing rule.',
+      why: 'This chip’s support direction is keeping federal conservation protections in place, so a yea — which strips one — is coded against it. Mapped here because the issue vocabulary has no dedicated wildlife or endangered-species chip.'
     }
   };
   // Fails closed in three places, on purpose: a position (no congress, no ballot), a
@@ -8474,6 +9016,18 @@
     var cong = item.congress;
     if (!num || typeof cong !== 'number' || !isFinite(cong)) return null;
     return _DOS_MECH[num + '|' + cong + '|' + issueKey] || null;
+  }
+
+  // The mapping's own rationale, for the L4 fold on record rows with no curated
+  // `more`. Read straight off the mapping and never rewritten — the curator wrote it
+  // as the justification for the link, which is exactly what the fold is labelled.
+  // Length-gated at the low end only: a rationale shorter than the "why it counts
+  // here" line already on the face would be a second copy of the face rather than
+  // the detail behind it.
+  function _dosMechRationale(item, issueKey) {
+    var m = _dosMapping(item, issueKey);
+    var r = (m && typeof m.rationale === 'string') ? m.rationale.trim() : '';
+    return r.length >= 40 ? r : '';
   }
 
   // ── WHICH OF THE SIMILARLY-NAMED MEASURES THIS ROW IS ───────────────────────
@@ -8646,6 +9200,13 @@
         // Null everywhere else, which is the common case and stays the common case —
         // see _DOS_MECH.
         var mech = _dosMechFor(p.item, issueKey);
+        // The curator's own note on WHY this measure was mapped to this issue lives on
+        // the mapping row and, until now, was read only by the scorer. It is the one
+        // piece of curated prose that exists for every mapped act, curated mechanism
+        // or not — so where no `more` is written it rides down to L4 under its own
+        // label. Not onto the face: these run to citation length and the face is
+        // capped at two plain sentences on purpose.
+        var mrat = (mech && mech.more) ? '' : _dosMechRationale(p.item, issueKey);
         out.push(withMapping(p.item, {
           lane: 'record',
           verdict: p.verdict,
@@ -8664,7 +9225,8 @@
           // cannot say. `more` rides down to L4 rather than onto the row face.
           plain: (mech && mech.did) || '',
           counts: (mech && mech.why) || '',
-          rationale: (mech && mech.more) || '',
+          rationale: (mech && mech.more) || mrat || '',
+          fineFromMapping: !!(mrat && !(mech && mech.more)),
           // Which of the similarly-named measures this is, and — always, on this lane
           // — which congress the roll belongs to. The row's identity is a bare bill
           // number and bill numbers are reused every two years, so the congress is
@@ -9475,7 +10037,14 @@
     if (d.rationale && d.rationale !== d.plain) {
       var fineLabel = (d.lane === 'formal')
         ? 'The full account on file ▾'
-        : 'What the document actually says ▾';
+        // Third label, third promise. Mapping rationale is the curator explaining the
+        // LINK, not the document explaining itself, and filing it under "what the
+        // document actually says" would put a curator's sentence in the document's
+        // mouth. Same voice separation the face already keeps between curated and
+        // derived, carried one level down.
+        : d.fineFromMapping
+          ? 'Why this measure is on this list ▾'
+          : 'What the document actually says ▾';
       out.push('<details class="pdxdos-fine"><summary>' + esc(fineLabel) + '</summary>' +
         '<div class="pdxdos-fine-b">' + esc(d.rationale) + '</div></details>');
     }
