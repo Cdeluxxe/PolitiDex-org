@@ -613,14 +613,14 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260913000000_vr_consolidated_approps_2026',
+  eq(versions[versions.length - 1], '20260914000000_vr_formal_densification_heavy_vehicles',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by the consolidated-appropriations
-  // pass, which read the enrolled text of P.L. 119-75 division by division, ingested
-  // H.R. 7148 with House roll 119/2/53 and 108 attributed members, and added six axes to
-  // it plus two to H.R. 8595. What it guards does not move: whatever was added most
-  // recently has to sort after everything already applied, or the deploy is rejected. The check below is the one that pins THIS test's migration, and it
+  // whenever a later migration lands — updated here by the heavy-vehicle densification
+  // pass, which read the voted text of S. 2296 (119th), H.R. 8034 and H.R. 7217 (118th)
+  // and added eight secondary axes across the three. What it guards does not move:
+  // whatever was added most recently has to sort after everything already applied, or
+  // the deploy is rejected. The check below is the one that pins THIS test's migration, and it
   // stays put.
   const gapIdx = versions.findIndex((v) => /cee_posts_gap_and_politician_links/.test(v));
   ok(gapIdx >= 0 && versions.slice(0, gapIdx).every((v) => v < versions[gapIdx]),

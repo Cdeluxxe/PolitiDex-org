@@ -762,6 +762,32 @@ depth — 428 more judged votes standing behind positions that previously rested
    `no_provision`: it records that the provision exists and was read, so a later pass over a
    measure where the same axis IS the operative purpose can find it.
 
+### Two rules from the heavy-vehicle densification pass (`20260914000000`)
+
+25. **Two bills on the same subject may honestly carry different key sets, and the difference is
+   the finding.** H.R. 7217 (118th, 366-58) and H.R. 8034 (118th, 366-58 on the same axis a
+   month later) are both Israel security supplementals, and the temptation is to code the second
+   like the first for consistency. The texts are not the same. H.R. 7217 is defence articles,
+   Iron Dome and David's Sling procurement, and CENTCOM operations — `israel_support` primary and
+   `strong_defense` secondary, and nothing else. H.R. 8034 keeps all of that and adds title III:
+   $5.655B International Disaster Assistance, $3.495B Migration and Refugee Assistance, $75M
+   INCLE, $10M for the Sinai MFO. That money is what `america_first_fp` is about, so H.R. 8034
+   carries a third row and H.R. 7217 does not. Coding the pair alike — in either direction —
+   would erase the substantive change between the two attempts, which is exactly the thing a
+   member's two votes are supposed to be able to show. Consistency is owed to the TEXT, not to
+   the pair.
+26. **When a chip's scope note carves a subject out to another key, the row rests only on what is
+   left.** `america_first_fp` was narrowed in August 2026 and its OUT list names aid to Israel
+   specifically, handing it to `israel_support`. So the H.R. 8034 `america_first_fp` row cites the
+   non-Israel humanitarian accounts and nothing else, and its weight of 50 is a share of those
+   accounts, not of the bill. Its `support_meaning` is `yea_opposes`, because the chip's stated
+   polarity is "'support' = cut, condition or wind down U.S. funding and commitments abroad" — a
+   yea here increases them. Read the polarity line before choosing `support_meaning`; on the
+   chips that are framed as a position rather than a subject, the intuitive direction is the
+   wrong one about half the time. The migration's verification block asserts this row is still
+   `yea_opposes`, because a later well-meaning "correction" to `yea_supports` would silently
+   invert every member's score on the axis.
+
 ### Best remaining follow-ups after this pass
 
 0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
@@ -797,6 +823,17 @@ depth — 428 more judged votes standing behind positions that previously rested
    · **Rule 3 is now the reason two contested bills stay dark**: H.R. 973 (105 member-votes) and
      S. 2503 (98). Both were re-read in this pass and left where rule 3 put them. If rule 3 is
      ever revisited, these are the two measures that change.
+0d. *(Opened by `20260914000000`, the heavy-vehicle pass.)* Two more vocabulary gaps, named and
+   not filled:
+   · **No key for economic-security sanctions or outbound investment screening.** S. 2296's
+     Division A title XVII and Division E carry export-control and investment-screening matter
+     aimed at the PRC. `tariffs_china` is a TARIFF chip by its own scope note and `strong_defense`
+     is force structure; neither is this. The measure carries five other axes without it.
+   · **No key for domestic protective-security grants.** H.R. 8034's Nonprofit Security Grant
+     Program money protects houses of worship and community institutions against targeted
+     violence. `back_police` is police funding and tougher penalties, `tough_on_crime` is
+     sentencing, and `religious_liberty` is a rights chip rather than a grant chip — there is no
+     homeland-security key at all. Left unmapped rather than approximated.
 1. ~~**H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53).~~ **Closed by
    `20260913000000_vr_consolidated_approps_2026.sql`.** The division-by-division read was done
    against the enrolled text (govinfo `PLAW-119publ75`, 34,584 lines) and the measure was ingested
@@ -817,7 +854,10 @@ depth — 428 more judged votes standing behind positions that previously rested
 3. **The DC crime and policing package** (H.R. 2056 / 5103 / 5125 / 5140 / 5143 / 5214, rolls
    171, 271, 274, 275, 298 and 119/2/101). Six separately-voted bills on one theme; declined
    here on scope, not on merit.
-4. **H.R. 4016** (DoD Appropriations Act, 2026) and **S. 2296** (the Senate's own FY2026 NDAA
-   position, which the existing NDAA ingest does not cover).
+4. **H.R. 4016** (DoD Appropriations Act, 2026). ~~**S. 2296** (the Senate's own FY2026 NDAA
+   position).~~ **S. 2296 closed by `20260914000000`** — five secondary axes read off the
+   engrossed text division by division: `israel_support` 40 (Div A tit. XII subtit. E),
+   `housing_build` 35 and `homeless` 20 (Div I, the Road to Housing Act), `immig_fentanyl` 30
+   (Div G tit. LXI, the BUST FENTANYL Act) and `back_police` 20 (Div A tit. X subtit. H).
 5. **H.R. 6409, FENCES Act** — border-barrier construction, the capacity axis H.R. 3486
    explicitly does not carry.

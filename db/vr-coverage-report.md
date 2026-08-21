@@ -8,7 +8,7 @@ titles come from the live database, overlaid with the curated seeds committed he
 wherever the live row has not caught up — so a pass that has landed in the repo but
 not yet deployed is counted, and every row it accounts for is marked `pending`.
 
-> **Hand note, not regenerated (2026-08-20).** This snapshot predates three passes.
+> **Hand note, not regenerated (2026-08-21).** This snapshot predates four passes.
 > `20260911000000_vr_ndaa_israel_keys_and_rule22.sql` adds `israel_support` to H.R. 8800,
 > S. 1071 and S. 1605 and `immig_fentanyl` to S. 1605, answering the Gap 1b rows for
 > H.R. 8800 (215 member-votes), S. 1605 (179) and S. 1071.
@@ -33,7 +33,28 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 > its engrossed text. Every one of the 108 attributed members gains six new axes at once, so
 > the Gap 2 rolled-up counts for `health_rural`, `health_drug_prices`, `foreign_balance` and
 > `pro_life` all move — `pro_life` in particular had only three mapped rows in the whole
-> record before this pass and now has five. Regenerating needs `NETLIFY_DB_URL`,
+> record before this pass and now has five.
+> `20260914000000_vr_formal_densification_heavy_vehicles.sql` takes the three heaviest
+> remaining under-mapped vehicles off the single-key list with eight secondary rows, each
+> read off the text the chamber actually voted. **S. 2296** (119th, Senate roll 119/1/570,
+> 77-20, 100 attributed member-votes) held only `strong_defense` 100 and gains
+> `israel_support` 40, `housing_build` 35, `immig_fentanyl` 30, `back_police` 20 and
+> `homeless` 20 from Divisions A, G and I of the engrossed text — `housing_build` and
+> `homeless` had almost no formal rows in the record before this, so their Gap 2 rolled-up
+> counts move the furthest. **H.R. 8034** (118th, 62 member-votes) held only
+> `israel_support` 100 and gains `strong_defense` 55 and `america_first_fp` 50, the latter
+> coded `yea_opposes` and resting only on title III's non-Israel humanitarian accounts.
+> **H.R. 7217** (118th, 61) held only `israel_support` 100 and gains `strong_defense` 50;
+> it deliberately does NOT gain `america_first_fp`, because its text carries no humanitarian
+> money (runbook rule 25). Refusals recorded in that migration's header rather than left as
+> backlog: `guard_authority` and `tariffs_china` on S. 2296 (no provision; the second names a
+> vocabulary gap for economic-security sanctions), `tech_innovation` (two-flank),
+> `tough_on_crime` (below floor), `restraint` on H.R. 8034 (duplicate of the sec. 101 CENTCOM
+> money already read under `strong_defense`), and the H.R. 8034 Nonprofit Security Grant
+> Program (a second named vocabulary gap). One row this snapshot's Gap 1 list gets wrong:
+> **H.R. 9770** is not unmapped — it carries `gov_services` 100 and `national_debt` 35 from
+> `20260725000000` and is merely absent from `db/vr-issue-seed.json`, a partial-mirror gap
+> rather than a mapping gap. Regenerating needs `NETLIFY_DB_URL`,
 > which this checkout does not have; re-run `node scripts/vr-coverage-report.mjs --write`
 > after the deploy.
 
