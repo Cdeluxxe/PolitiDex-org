@@ -1,5 +1,5 @@
 {
-  "_comment": "Resolved identities for measures the roll-call feeds could only label \"Roll call N\". The vote endpoints carry no measure title, so a measure first seen through a vote lands with a placeholder and stays unmappable until someone says what it is. Every entry here was read from the GPO BILLSTATUS bulk-data record for that measure's own (congress, type, number) — the Library of Congress feed congress.gov renders — and verified against the bill number, roll-call number and vote date already held in vr_rollcalls before being written. Nothing is inferred from the vote question or from the bill number alone. Applied by applyCuratedMeasureIdentity() in netlify/lib/vr-ingest.ts, which matches on (congress, canonical number) across EVERY matching row — not measureType, because the roll-call feeds and Congress.gov disagree about how to type a resolution, and not LIMIT 1, because the same number can exist twice while a merge is pending. It only ever replaces a provisional title and only fills a summary or introduced date that is currently empty, so a better human-written title is never overwritten and re-running is a no-op. It carries no issue mappings: identity and mapping are separate judgements, and db/vr-issue-seed.json owns the second one.",
+  "_comment": "Resolved identities for measures the roll-call feeds could only label \"Roll call N\". The vote endpoints carry no measure title, so a measure first seen through a vote lands with a placeholder and stays unmappable until someone says what it is. Every entry here was read from the GPO BILLSTATUS bulk-data record for that measure's own (congress, type, number) — the Library of Congress feed congress.gov renders — and verified against the bill number, roll-call number and vote date already held in vr_rollcalls before being written. Nothing is inferred from the vote question or from the bill number alone. Applied by applyCuratedMeasureIdentity() in netlify/lib/vr-ingest.ts, which matches on (congress, canonical number) across EVERY matching row — not measureType, because the roll-call feeds and Congress.gov disagree about how to type a resolution, and not LIMIT 1, because the same number can exist twice while a merge is pending. It only ever replaces a provisional title and only fills a summary or introduced date that is currently empty, so a better human-written title is never overwritten and re-running is a no-op. It carries no issue mappings: identity and mapping are separate judgements, and db/vr-issue-seed.json owns the second one. Where the record carries no CRS summary at any stage (H.J.Res. 44 in the 118th, H.R. 82 in the 118th) or none for the text actually voted (H.R. 1181 in the 119th), the summary was written from the primary text itself — the engrossed bill text or the public law on govinfo — and summarySource says which stage was read rather than implying a summary that does not exist. identityTitleType names the exact BILLSTATUS title type the title was taken from, in enacted-first order: Short Titles as Enacted, then the enrolled-text short title, then Official Title as Enacted, then the as-passed short title, then Display Title. Some entries carry a Disambiguation sentence at the end of the summary; it is there because the measure collides with another one in this corpus by title, number or vehicle, and it states only what the record shows.",
   "measures": [
     {
       "congress": 119,
@@ -668,6 +668,360 @@
         "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8035.xml"
       },
       "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8035"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1",
+      "title": "An act to provide for reconciliation pursuant to title II of H. Con. Res. 14.",
+      "officialTitle": "To provide for reconciliation pursuant to title II of H. Con. Res. 14.",
+      "identityTitleType": "Official Title as Enacted",
+      "summary": "Budget reconciliation act for FY2025, enacted as Public Law 119-21 on July 4, 2025. On taxes it makes permanent and extends individual and business provisions of the 2017 tax act; Sec. 70104 raises the maximum child tax credit to $2,200 per qualifying child beginning in 2025, indexes it for inflation from 2026, makes permanent the phase-out thresholds and the refundable portion, and extends the identification requirement to the taxpayer and spouse. Sec. 70204 creates Trump accounts, a new individual retirement account for individuals under 18. Sec. 70304 makes the employer paid family and medical leave credit permanent. Chapter 4 Subchapter A, captioned Permanent Investments in Families and Children, raises the employer-provided child care credit (Sec. 70401), makes up to $5,000 of the adoption credit refundable (Sec. 70402), and raises the dependent care assistance exclusion to $7,500 (Sec. 70404). Sec. 10102 raises the SNAP able-bodied-adult work-requirement age from 55 to 65 and extends it to certain parents. Subtitle B Chapter 1 reduces federal Medicaid spending and tightens enrollment and eligibility processes. Sec. 50101 reduces restrictions on onshore federal oil and gas leasing and lowers minimum royalty rates; Sec. 70512 terminates the clean electricity production tax credit for wind and solar facilities placed in service after December 31, 2027. The act also appropriates new funding for border enforcement and immigration operations. Disambiguation: this act has no overall short title as enacted. The Official Title as Enacted is \"An act to provide for reconciliation pursuant to title II of H. Con. Res. 14.\"; \"One Big Beautiful Bill Act\" appears in the record only as a popular title and as the short title of the House-passed and Placed-on-Senate-Calendar texts, and the sole Short Title as Enacted for a portion of the bill is the FEHB Protection Act of 2025.",
+      "introducedAt": "2025-05-20",
+      "sponsorName": "Rep. Arrington, Jodey C. [R-TX-19]",
+      "policyArea": "Economics and Public Finance",
+      "laws": [
+        "Public Law 119-21"
+      ],
+      "summarySource": "Public Law @ 2025-07-04",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 2",
+      "title": "Secure America Act",
+      "officialTitle": "An original bill to provide for reconciliation pursuant to title II of S. Con. Res. 33.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "FY2026 budget reconciliation act, enacted as Public Law 119-98 on June 10, 2026, providing $70 billion to the Department of Homeland Security, U.S. Customs and Border Protection and U.S. Immigration and Customs Enforcement through FY2029 for immigration enforcement, border security and related activities. Title I, reported under S. Con. Res. 33, funds CBP to hire, pay, train and equip Border Patrol agents and support personnel (Sec. 101), funds ICE Homeland Security Investigations agents and support personnel including additional child exploitation investigators and forensic analysts (Sec. 102), and funds CBP border security, technology and screening, including non-intrusive inspection equipment at ports of entry and along the southwest, northern and maritime borders and upgraded air and marine response platforms (Sec. 103). The act also funds ICE personnel, transportation, information technology, facility and fleet sustainment, 287(g) agreements with state and local law enforcement, the Office of the Principal Legal Advisor, and immigration-related arrests, and provides DHS funding for state and local participation in homeland security efforts. Funds generally remain available through FY2029.",
+      "introducedAt": "2026-05-20",
+      "sponsorName": "Sen. Graham, Lindsey [R-SC]",
+      "policyArea": "Immigration",
+      "laws": [
+        "Public Law 119-98"
+      ],
+      "summarySource": "Public Law @ 2026-06-10",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s2.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1181",
+      "title": "Protecting Privacy in Purchases Act",
+      "officialTitle": "To prohibit payment card networks and covered entities from requiring the use of or assigning merchant category codes that distinguish a firearms retailer from general-merchandise retailer or sporting-goods retailer, and for other purposes.",
+      "identityTitleType": "Short Title(s) as Passed House",
+      "summary": "Bill prohibiting payment card networks and covered entities from requiring the use of, or assigning, a merchant category code that distinguishes a firearms retailer from a general-merchandise retailer or a sporting-goods retailer, and directing the Department of Justice to enforce the prohibition and report annually on the resulting investigations and cases. Passed the House 221-201 on July 14, 2026 (119/2 roll 240) and was referred to the Senate Banking Committee; not enacted. The short title is the same at every stage, and the engrossed House text carries the same operative prohibition as the introduced text; CRS issued a summary only for the introduced version, which is the stage cited here.",
+      "introducedAt": "2025-02-11",
+      "sponsorName": "Rep. Moore, Riley [R-WV-2]",
+      "policyArea": "Finance and Financial Sector",
+      "summarySource": "Introduced in House @ 2025-02-11 (no CRS summary was issued for the text as passed)",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1181.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 8595",
+      "title": "Making appropriations for national security, Department of State, and related programs for the fiscal year ending September 30, 2027, and for other purposes.",
+      "officialTitle": "Making appropriations for national security, Department of State, and related programs for the fiscal year ending September 30, 2027, and for other purposes.",
+      "identityTitleType": "Display Title",
+      "summary": "Two-division vehicle as passed by the House 217-209 on July 15, 2026 (119/2 roll 247); received in the Senate and not enacted. Division A is the National Security, Department of State, and Related Programs Appropriations Act, 2027: FY2027 appropriations for the State Department's Administration of Foreign Affairs, international organizations and commissions, related programs and independent agencies, bilateral economic assistance, international security assistance, multilateral assistance, and export and investment assistance, with the usual requirements and restrictions on the use of funds. Division B is the Safeguard American Voter Eligibility Act, also cited as the SAVE America Act: Sec. 102 amends the National Voter Registration Act to define documentary proof of United States citizenship and bar a state from accepting and processing a federal voter-registration application under any registration method unless the applicant presents it, and Sec. 103 adds a new Help America Vote Act section 303A barring an election official from providing an in-person federal ballot to a voter who does not present a valid physical photo identification, requiring a mail voter to enclose a copy of a photo ID or the last four digits of a Social Security number with an affidavit, allowing a three-day provisional-ballot cure, and requiring states to provide free public access to a copier or scanner in government buildings. Disambiguation: this measure carries the SAVE Act short titles for a portion of the bill even though its display title is the appropriations title, so it is a second SAVE instrument distinct from H.R. 8281 (118th), H.R. 22 (119th) and the S. 1383 substitute.",
+      "introducedAt": "2026-04-30",
+      "sponsorName": "Rep. Diaz-Balart, Mario [R-FL-26]",
+      "policyArea": "Economics and Public Finance",
+      "summarySource": "Reported to House @ 2026-04-30 for Division A; Division B summarized from the engrossed House text",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr8595.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8595"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 6955",
+      "title": "Main Street Capital Access Act",
+      "officialTitle": "To make improvements to the Federal banking laws, and for other purposes.",
+      "identityTitleType": "Short Title(s) as Passed House",
+      "summary": "Bill, also cited as the Main Street Act, making changes to federal banking law. It gives new banks a three-year phase-in period for certain capital requirements, reduces the leverage ratio for certain rural community banks, requires financial regulators to tailor regulatory actions to institutions' risk profiles and business models and to review their regulations more frequently and more broadly, eases bank merger review including by allowing regulators to approve certain mergers without considering whether the merger is noncompetitive or monopolistic, and raises dollar asset thresholds for a range of fees, reporting requirements and other regulatory requirements, including the threshold above which a financial holding company needs Federal Reserve Board approval to acquire a company. It also changes rules on reciprocal deposits and the resolution of failed banks. Passed the House 270-155 with 1 present on July 22, 2026 (119/2 roll 271) and was referred to the Senate Banking Committee; not enacted.",
+      "introducedAt": "2026-01-07",
+      "sponsorName": "Rep. Hill, J. French [R-AR-2]",
+      "policyArea": "Finance and Financial Sector",
+      "summarySource": "Reported to House @ 2026-04-20",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr6955.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6955"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 8800",
+      "title": "National Defense Authorization Act for Fiscal Year 2027",
+      "officialTitle": "To authorize appropriations for fiscal year 2027 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+      "identityTitleType": "Display Title",
+      "summary": "National Defense Authorization Act for Fiscal Year 2027, as passed by the House 216-212 on July 22, 2026 (119/2 roll 278); not enacted. It sets FY2027 policies and authorities for Department of Defense programs, activities and military construction and for the national security programs of the Department of Energy: authorizes procurement including aircraft and ships, sets active-duty and reserve personnel strength levels, sets military health care and compensation policy, sets acquisition and contracting policy, sets policy on Department interactions with foreign nations including Israel, Europe and the Indo-Pacific, sets cybersecurity and artificial-intelligence policy, requires projected foreign military sales demand to be included in munitions production and sustainment planning, requires an expedited qualification process for new domestic and allied sources of specified strategic materials, authorizes military construction projects, and authorizes the National Nuclear Security Administration, the Defense Nuclear Facilities Safety Board, the Naval Petroleum Reserves and the Maritime Administration. Disambiguation: this is the FY2027 NDAA and is a different measure from S. 1071 (FY2026, enacted as Public Law 119-60) and S. 2296 (FY2026, Senate-passed and held at the desk).",
+      "introducedAt": "2026-05-13",
+      "sponsorName": "Rep. Rogers, Mike D. [R-AL-3]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Reported to House @ 2026-06-15",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr8800.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 7008",
+      "title": "Stop Insider Trading Act",
+      "officialTitle": "To amend chapter 131 of title 5 to require certain restrictions on stocks for Members of Congress and their spouses and dependents, and for other purposes.",
+      "identityTitleType": "Short Title(s) as Passed House",
+      "summary": "Bill barring Members of Congress and their spouses and dependent children from purchasing covered investments, and requiring public notice before they may sell one. Between 7 and 14 days before such a sale the Member must file notice of intent to sell with the Clerk of the House or the Secretary of the Senate, who must publish it online; the notice must be withdrawn if the sale does not occur. A covered investment is a security issued by a publicly traded company or a comparable economic interest, with exemptions for widely held investment funds and certain trust holdings. A violation carries a fee equal to the greater of $2,000 or 10% of the transaction value plus any net gain realized in a specified period, may not be paid from campaign donations or official allowances, and in the case of a purchase requires the investment to be sold. Passed the House 232-198 on July 22, 2026 (119/2 roll 280) and placed on the Senate Legislative Calendar; not enacted.",
+      "introducedAt": "2026-01-12",
+      "sponsorName": "Rep. Steil, Bryan [R-WI-1]",
+      "policyArea": "Congress",
+      "summarySource": "Reported to House @ 2026-02-03",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr7008.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 331",
+      "title": "HALT Fentanyl Act",
+      "officialTitle": "A bill to amend the Controlled Substances Act with respect to the scheduling of fentanyl-related substances, and for other purposes.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Halt All Lethal Trafficking of Fentanyl Act, enacted as Public Law 119-26 on July 16, 2025. It permanently places fentanyl-related substances as a class into schedule I of the Controlled Substances Act, replacing the temporary class-wide scheduling order. Offenses involving fentanyl-related substances are triggered by the same quantity thresholds and carry the same penalties as offenses involving fentanyl analogues, so that 100 grams or more triggers a 10-year mandatory minimum prison term. The act also establishes an alternative registration process for certain schedule I research, permits a single registration for related research sites in specified circumstances, waives a new inspection in some situations, and allows a registered researcher to perform certain small-quantity manufacturing without a separate manufacturing registration. It expresses the sense of Congress agreeing with the interpretation of the Controlled Substances Act in United States v. McCray (W.D.N.Y. 2018).",
+      "introducedAt": "2025-01-30",
+      "sponsorName": "Sen. Cassidy, Bill [R-LA]",
+      "policyArea": "Crime and Law Enforcement",
+      "laws": [
+        "Public Law 119-26"
+      ],
+      "summarySource": "Public Law @ 2025-07-17",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s331.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/331"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4758",
+      "title": "Homeowner Energy Freedom Act",
+      "officialTitle": "To repeal provisions of Public Law 117-169 relating to taxpayer subsidies for home electrification, and for other purposes.",
+      "identityTitleType": "Short Title(s) as Passed House",
+      "summary": "Bill repealing three Department of Energy programs created by Public Law 117-169: the high-efficiency electric home rebate program for electrification projects in low- and moderate-income households, state-based home energy efficiency contractor training grants, and assistance to states and local governments for adopting specified building energy codes. It also rescinds unobligated balances available for the rebates and for building energy code adoption; the unobligated balances for the contractor training grants had already been rescinded by the 2025 reconciliation act. Passed the House 210-199 with 1 present on February 25, 2026 (119/2 roll 78) and was referred to the Senate Energy and Natural Resources Committee; not enacted.",
+      "introducedAt": "2025-07-25",
+      "sponsorName": "Rep. Goldman, Craig A. [R-TX-12]",
+      "policyArea": "Energy",
+      "summarySource": "Reported to House @ 2026-02-04",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4758.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4758"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4405",
+      "title": "Epstein Files Transparency Act",
+      "officialTitle": "To require the Attorney General to release all documents and records in possession of the Department of Justice relating to Jeffrey Epstein, and for other purposes.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Epstein Files Transparency Act, enacted as Public Law 119-38 on November 19, 2025. It requires the Department of Justice to publish, in a searchable and downloadable format, all unclassified records, documents, communications and investigative materials in its possession relating to the investigation and prosecution of Jeffrey Epstein, including materials relating to Ghislaine Maxwell, flight logs and travel records, and individuals named or referenced in connection with the investigation, including government officials. The Department may withhold specified information such as victims' personal information and material that would jeopardize an active federal investigation. Within 15 days after publication it must report to Congress the categories of information released and withheld, a summary of redactions, and a list of government officials and politically exposed individuals named or referenced in the published materials.",
+      "introducedAt": "2025-07-15",
+      "sponsorName": "Rep. Khanna, Ro [D-CA-17]",
+      "policyArea": "Crime and Law Enforcement",
+      "laws": [
+        "Public Law 119-38"
+      ],
+      "summarySource": "Public Law @ 2025-11-19",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4405.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4405"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 5",
+      "title": "Laken Riley Act",
+      "officialTitle": "A bill to require the Secretary of Homeland Security to take into custody aliens who have been charged in the United States with theft, and for other purposes.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Laken Riley Act, enacted as Public Law 119-1 on January 29, 2025. It requires the Department of Homeland Security to detain a non-U.S. national who is unlawfully present or lacked the necessary documents when applying for admission and who has been charged with, arrested for, convicted of, or admits to the essential elements of burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury. It also authorizes a state government to sue the federal government for injunctive relief over specified immigration decisions or failures that cause the state or its residents harm of more than $100, including a decision to release a non-U.S. national from custody, a failure to meet inspection or asylum-interview requirements, a failure to stop issuing visas to nationals of a country that unreasonably refuses to accept its nationals, a violation of the case-by-case limits on immigration parole, and a failure to detain an individual ordered removed. Disambiguation: the enacted text reaches assault of a law enforcement officer and death or serious bodily injury, which the introduced text did not.",
+      "introducedAt": "2025-01-06",
+      "sponsorName": "Sen. Britt, Katie Boyd [R-AL]",
+      "policyArea": "Immigration",
+      "laws": [
+        "Public Law 119-1"
+      ],
+      "summarySource": "Public Law @ 2025-01-29",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s5.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 2296",
+      "title": "National Defense Authorization Act for Fiscal Year 2026",
+      "officialTitle": "An original bill to authorize appropriations for fiscal year 2026 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+      "identityTitleType": "Short Title(s) as Passed Senate",
+      "summary": "National Defense Authorization Act for Fiscal Year 2026 as reported by the Senate Armed Services Committee and passed by the Senate on October 10, 2025 (119/1 roll 570). It sets FY2026 policies and authorities for Department of Defense programs and activities, military construction and the national security programs of the Department of Energy, and authorizes the Defense Nuclear Facilities Safety Board for FY2026; it authorizes appropriations but does not provide budget authority. Among other elements it authorizes procurement of aircraft, ships and missiles, authorizes active-duty and reserve personnel strength levels, authorizes military construction projects, requires a strategy on the national security implications of emerging biotechnologies, requires the Navy to improve the material condition and combat readiness of surface ships maintained at private shipyards, extends the Pacific Deterrence Initiative through FY2026, and repeals statutory provisions on diversity, equity and inclusion within the Department including the position of Chief Diversity Officer. Disambiguation: S. 2296 and S. 1071 carry the same title. S. 1071 is the vehicle that became Public Law 119-60; S. 2296 was held at the desk on November 12, 2025 and was never enacted, and it carries roughly thirty short titles for portions of the bill.",
+      "introducedAt": "2025-07-15",
+      "sponsorName": "Sen. Wicker, Roger F. [R-MS]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Reported to Senate @ 2025-07-15",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s2296.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2296"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4",
+      "title": "Rescissions Act of 2025",
+      "officialTitle": "To rescind certain budget authority proposed to be rescinded in special messages transmitted to the Congress by the President on June 3, 2025, in accordance with section 1012(a) of the Congressional Budget and Impoundment Control Act of 1974.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Rescissions Act of 2025, enacted as Public Law 119-28 on July 24, 2025. It rescinds specified unobligated balances that had been provided to the Department of State, the U.S. Agency for International Development, several independent and related agencies, and the Corporation for Public Broadcasting, acting on rescissions the President proposed on June 3, 2025 under section 1012(a) of the Congressional Budget and Impoundment Control Act of 1974, which take effect only if enacted. The rescinded accounts include Contributions to International Organizations; Contributions for International Peacekeeping Activities; Global Health Programs, excluding funds for HIV/AIDS, tuberculosis, malaria, nutrition and maternal and child health; Migration and Refugee Assistance; the Complex Crises Fund; the Democracy Fund; the Economic Support Fund, excluding assistance to Jordan and Egypt and the Countering PRC Influence Fund; Contributions to the Clean Technology Fund; International Organization and Programs; Development Assistance, excluding Feed the Future Innovation Labs, the Countering PRC Influence Fund and commodity-based food aid; Assistance for Europe, Eurasia and Central Asia; International Disaster Assistance, excluding commodity-based food aid; Transition Initiatives; USAID Operating Expenses; the Inter-American Foundation; the U.S. African Development Foundation; the U.S. Institute of Peace; and the Corporation for Public Broadcasting. Disambiguation: the House-passed text rescinded $9.4 billion; the enacted text rescinds a smaller set after the Senate carved out the exclusions listed above.",
+      "introducedAt": "2025-06-06",
+      "sponsorName": "Rep. Scalise, Steve [R-LA-1]",
+      "policyArea": "Economics and Public Finance",
+      "laws": [
+        "Public Law 119-28"
+      ],
+      "summarySource": "Public Law @ 2025-07-24",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 7148",
+      "title": "Consolidated Appropriations Act, 2026",
+      "officialTitle": "Making further consolidated appropriations for the fiscal year ending September 30, 2026, and for other purposes.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Consolidated Appropriations Act, 2026, enacted as Public Law 119-75 on February 3, 2026. As agreed to, it carries five of the twelve regular FY2026 appropriations bills — Defense; Labor, Health and Human Services, and Education; Transportation, Housing and Urban Development; Financial Services and General Government; and National Security, Department of State, and Related Programs — and a continuing resolution funding most Department of Homeland Security programs at FY2025 levels through the earlier of February 13, 2026 or enactment of the DHS appropriations act. It also extends expiring programs and authorities including the U.S. Grain Standards Act, the CFTC whistleblower program, the National Flood Insurance Program, the Agriculture Conservation Experienced Services Program, the TSA Reimbursable Screening Services Program, the Motor Carrier Safety Advisory Committee, several cybersecurity authorities, the Technology Modernization Fund and Board, the U.S. Parole Commission, the special assessment on persons convicted of certain sexual abuse and human trafficking offenses, several immigration programs and authorities, certain bankruptcy fees, trade preferences for Haiti and sub-Saharan Africa, the TANF program, and several health care authorities. Disambiguation: the House-passed text (119/2 roll 45) carried three appropriations bills; the text the House agreed to on the Senate amendment (119/2 roll 53) carried five plus the DHS continuing resolution, and roll 53 is the decisive House question.",
+      "introducedAt": "2026-01-20",
+      "sponsorName": "Rep. Cole, Tom [R-OK-4]",
+      "policyArea": "Economics and Public Finance",
+      "laws": [
+        "Public Law 119-75"
+      ],
+      "summarySource": "House agreed to Senate amendment @ 2026-02-03",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr7148.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7148"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1968",
+      "title": "Full-Year Continuing Appropriations and Extensions Act, 2025",
+      "officialTitle": "Making further continuing appropriations and other extensions for the fiscal year ending September 30, 2025, and for other purposes.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Full-Year Continuing Appropriations and Extensions Act, 2025, enacted as Public Law 119-4 on March 15, 2025. Division A provides continuing FY2025 appropriations for the remainder of the fiscal year, funding most programs and activities at FY2024 levels with named increases and decreases, and averting the shutdown that would otherwise have followed the March 14, 2025 expiration of the existing continuing resolution. Division B extends health authorities through FY2025: Sec. 2101 extends funding for the Teaching Health Center Graduate Medical Education Program, the Community Health Center Fund and the National Health Service Corps; Sec. 2102 extends the Special Diabetes Program for Type I Diabetes and the Special Diabetes Program for Indians; Sec. 2201 extends the Medicare inpatient payment adjustment for low-volume hospitals; Sec. 2202 extends the Medicare-Dependent Hospital Program for small rural hospitals; Sec. 2203 extends the increased Medicare payment adjustment for ground ambulance services in rural and other areas; Sec. 2207 extends Medicare telehealth flexibilities, including allowing federally qualified health centers and rural health clinics to serve as the distant site; and Title IV delays Medicaid disproportionate-share hospital allotment reductions until FY2026. Division C extends other expiring authorities, including the CFTC whistleblower program (Sec. 3101), counter-drone authority for DHS and DOJ (Sec. 3102), the special assessment funding human trafficking survivor programs (Sec. 3103), the DHS National Cybersecurity Protection System (Sec. 3104), and the Drug Enforcement Administration's temporary scheduling order placing fentanyl-related substances in schedule I (Sec. 3105); Sec. 3106 exempts the budgetary effects of Divisions B and C from Statutory PAYGO, the Senate PAYGO rule and certain scorekeeping rules.",
+      "introducedAt": "2025-03-10",
+      "sponsorName": "Rep. Cole, Tom [R-OK-4]",
+      "policyArea": "Economics and Public Finance",
+      "laws": [
+        "Public Law 119-4"
+      ],
+      "summarySource": "Public Law @ 2025-03-15",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1968.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1968"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 1582",
+      "title": "GENIUS Act",
+      "officialTitle": "A bill to provide for the regulation of payment stablecoins, and for other purposes.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Guiding and Establishing National Innovation for U.S. Stablecoins Act, enacted as Public Law 119-27 on July 18, 2025. Sec. 3(a) makes it unlawful for anyone other than a permitted payment stablecoin issuer to issue a payment stablecoin in the United States. Sec. 4(a)(1)(A) requires reserves of at least one-to-one backing in cash, insured deposits, short-dated Treasury bills and comparable instruments; Sec. 4(a)(1)(C) requires monthly public disclosure of reserve composition; Sec. 4(a)(2) requires a monthly certification by the chief executive and chief financial officer, examined by a registered public accounting firm. Sec. 4(a)(11)(B) routes a non-financial public company seeking to issue through a Stablecoin Certification Review Committee. Sec. 8 imposes anti-money-laundering and sanctions-compliance duties on issuers. Sec. 10(c)(3) gives holders priority in the issuer's insolvency and Sec. 11 sets the insolvency treatment. An issuer with $10 billion or less outstanding may opt into a state regime certified as substantially similar to the federal one. Sec. 19 adds payment stablecoins to the financial disclosure line at 5 U.S.C. 13104(a)(3).",
+      "introducedAt": "2025-05-01",
+      "sponsorName": "Sen. Hagerty, Bill [R-TN]",
+      "policyArea": "Finance and Financial Sector",
+      "laws": [
+        "Public Law 119-27"
+      ],
+      "summarySource": "Public Law @ 2025-07-18",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s1582.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/1582"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.J.Res. 44",
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Alcohol, Tobacco, Firearms, and Explosives relating to \"Factoring Criteria for Firearms with Attached 'Stabilizing Braces'\".",
+      "officialTitle": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Alcohol, Tobacco, Firearms, and Explosives relating to \"Factoring Criteria for Firearms with Attached 'Stabilizing Braces'\".",
+      "identityTitleType": "Display Title",
+      "summary": "Joint resolution of congressional disapproval under chapter 8 of title 5, United States Code, of the Bureau of Alcohol, Tobacco, Firearms, and Explosives final rule 2021R-08F, \"Factoring Criteria for Firearms with Attached 'Stabilizing Braces'\" (88 Fed. Reg. 6478, January 31, 2023). The single operative clause provides that Congress disapproves the rule and that \"such rule shall have no force or effect.\" Disambiguation: this resolution was not enacted and was not vetoed. It passed the House 219-210 on June 13, 2023 (118/1 roll 252) and FAILED in the Senate 49-50 on June 22, 2023 (118/1 roll 171), so no enrolled or enacted text exists and the engrossed House text is the text both chambers voted on.",
+      "introducedAt": "2023-03-17",
+      "sponsorName": "Rep. Clyde, Andrew S. [R-GA-9]",
+      "policyArea": "Crime and Law Enforcement",
+      "summarySource": "no CRS summary was issued at any stage; summarized from the engrossed House text",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hjres/BILLSTATUS-118hjres44.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-joint-resolution/44"
+    },
+    {
+      "congress": 118,
+      "chamber": "house",
+      "number": "H.R. 82",
+      "title": "Social Security Fairness Act of 2023",
+      "officialTitle": "To amend title II of the Social Security Act to repeal the Government pension offset and windfall elimination provisions.",
+      "identityTitleType": "Short Titles from ENR (Enrolled) bill text",
+      "summary": "Social Security Fairness Act of 2023, enacted as Public Law 118-273 on January 5, 2025. Sec. 2 repeals the Government Pension Offset by striking section 202(k)(5) of the Social Security Act, which had reduced Social Security spousal and survivor benefits for people receiving a pension from employment not covered by Social Security. Sec. 3 repeals the Windfall Elimination Provision by striking section 215(a)(7), (d)(3) and (f)(9) of that Act, which had reduced a worker's own retired or disabled worker benefit on the same ground. Sec. 4 applies both repeals to benefits payable for months after December 2023. Disambiguation: the act retains \"of 2023\" in its title as enacted although it became law on January 5, 2025; it passed the House 327-75 on November 12, 2024 (118/2 roll 456) and the Senate 76-20 on December 21, 2024 (118/2 roll 338).",
+      "introducedAt": "2023-01-09",
+      "sponsorName": "Rep. Graves, Garret [R-LA-6]",
+      "policyArea": "Social Welfare",
+      "laws": [
+        "Public Law 118-273"
+      ],
+      "summarySource": "no CRS summary was issued at any stage; summarized from Public Law 118-273",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr82.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/118th-congress/house-bill/82"
     }
   ]
 }
