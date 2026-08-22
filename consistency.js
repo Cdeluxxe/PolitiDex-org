@@ -1596,6 +1596,8 @@
       '.pdxor-q{font-style:italic;font-size:0.76rem;color:#c6d4ec;margin:0.2rem 0 0.6rem;line-height:1.3;}' +
       // Phase 10 honest coverage disclosure line (Official Record / Say-vs-Do / divergence).
       '.pdxcov{font-size:0.68rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.6rem;padding:0.3rem 0.5rem;border-radius:0.5rem;background:rgba(159,180,212,0.06);border:1px solid rgba(159,180,212,0.14);cursor:help;}' +
+      '.pdxcov b{color:#cfe0ff;}' +
+      '.pdxcov-sub{display:block;margin-top:0.16rem;color:#7f97b8;font-size:0.64rem;}' +
       '.pdxcov b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-overall{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 0.6rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);margin-left:auto;}' +
       '.pdxor-overall .pdxor-pct{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;line-height:0.9;}' +
@@ -2296,6 +2298,39 @@
       '.pdxst-pat.w-thin{border-style:dashed;border-color:var(--c);font-weight:700;}' +
       '.pdxst-pat.w-thin .pdxst-pat-lb{font-weight:700;}' +
       '.pdxst-pat.w-flat{border-style:dotted;border-color:rgba(159,180,212,0.34);font-weight:700;}' +
+      // ── THE STANDOUT STRIP ─────────────────────────────────────────────────
+      // Four chips at the top of a profile, so the sizing rule is the whole design:
+      // the ISSUE NAME is the biggest thing (it is what a reader is scanning for),
+      // the record's word is second and carries the only colour, and the counts and
+      // the depth are small grey facts under it. Two columns on a wide screen, one
+      // on a phone, because two chips side by side on 360px is two truncated issue
+      // names.
+      '.pdxso{margin:0.6rem 0 0.9rem;border:1px solid rgba(96,165,250,0.24);border-radius:0.85rem;' +
+        'background:linear-gradient(180deg,rgba(14,22,44,0.72),rgba(9,14,28,0.5));padding:0.8rem 0.85rem 0.65rem;}' +
+      '.pdxso-head{display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;}' +
+      '.pdxso-ico{font-size:1rem;}' +
+      '.pdxso-t{font-family:"Bebas Neue",sans-serif;font-size:1.12rem;letter-spacing:0.03em;color:#e8f0ff;}' +
+      '.pdxso-depth{margin-left:auto;font-family:"Barlow Condensed",sans-serif;font-weight:700;' +
+        'font-size:0.72rem;letter-spacing:0.03em;color:#93b4e6;}' +
+      '.pdxso-grps{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-top:0.6rem;}' +
+      '.pdxso-grp-h{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.74rem;' +
+        'letter-spacing:0.07em;text-transform:uppercase;color:#cfe0f8;}' +
+      '.pdxso-grp-note{font-size:0.68rem;color:#8fa6c6;line-height:1.4;margin:0.12rem 0 0.34rem;}' +
+      '.pdxso-chips{display:flex;flex-direction:column;gap:0.36rem;}' +
+      '.pdxso-chip{display:flex;flex-direction:column;align-items:flex-start;gap:0.06rem;width:100%;' +
+        'text-align:left;cursor:pointer;background:rgba(10,15,30,0.5);color:inherit;font:inherit;' +
+        'border:1px solid rgba(159,180,212,0.18);border-left:3px solid var(--c,#8fa6c6);' +
+        'border-radius:0.45rem;padding:0.36rem 0.5rem;}' +
+      '.pdxso-chip:hover,.pdxso-chip:focus-visible{background:rgba(18,28,52,0.72);border-color:rgba(159,180,212,0.4);' +
+        'border-left-color:var(--c,#8fa6c6);}' +
+      '.pdxso-chip-iss{font-weight:800;font-size:0.84rem;color:#e8f0ff;line-height:1.2;}' +
+      '.pdxso-chip-v{font-weight:800;font-size:0.76rem;letter-spacing:0.01em;}' +
+      '.pdxso-chip-n{font-size:0.68rem;font-weight:700;color:#9fb4d4;}' +
+      '.pdxso-chip-d{font-size:0.63rem;color:#7f97b8;}' +
+      '.pdxso-more{font-size:0.66rem;color:#7f97b8;margin:0.3rem 0 0;}' +
+      '.pdxso-wall{font-size:0.66rem;color:#7f97b8;line-height:1.45;margin:0.6rem 0 0;' +
+        'border-top:1px solid rgba(159,180,212,0.14);padding-top:0.4rem;}' +
+      '@media (max-width:560px){.pdxso-grps{grid-template-columns:1fr;}}' +
       // ── THE FULL FORMAL-PATTERN ISSUE INDEX ────────────────────────────────
       // A flat, dense list, not a stack of cards: sixty-four issues is a table's
       // job, and every ornament repeated sixty-four times is a scroll the reader
@@ -2379,6 +2414,29 @@
       '.pdxst-pct-na{font-family:"Bebas Neue",sans-serif;font-size:0.95rem;line-height:0.95;color:#7e93b3;}' +
       '.pdxst-vd{font-weight:800;font-size:0.72rem;letter-spacing:0.01em;}' +
       '.pdxst-vd-none{font-weight:700;font-size:0.68rem;color:#8fa6c6;}' +
+      // ── THE RECORD LEAD, AND THE DEMOTED METRIC UNDER IT ───────────────────
+      // The lead is the loud thing on an unscored row and the metric line beneath
+      // it is quiet, which is the whole hierarchy change stated in two rules. Both
+      // are still full-width, still wrap, still keep their spans — a reader who
+      // wants the Direction Match state finds it in the same words in the same
+      // place, one step further down the page than it used to be.
+      '.pdxst-leadwrap{margin-top:0.24rem;}' +
+      '.pdxst-lead{display:flex;align-items:baseline;gap:0.34rem;flex-wrap:wrap;width:100%;text-align:left;' +
+        'background:rgba(10,15,30,0.34);border:1px solid rgba(159,180,212,0.16);border-radius:0.4rem;' +
+        'padding:0.26rem 0.42rem;color:inherit;font:inherit;}' +
+      '.pdxst-lead-go{cursor:pointer;}' +
+      '.pdxst-lead-go:hover,.pdxst-lead-go:focus-visible{border-color:rgba(159,180,212,0.4);background:rgba(16,24,44,0.6);}' +
+      '.pdxst-lead-lb{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;' +
+        'letter-spacing:0.06em;text-transform:uppercase;color:#7f97b8;}' +
+      '.pdxst-lead-v{font-weight:800;font-size:0.86rem;letter-spacing:0.01em;}' +
+      // A record with no direction read from it must not look like one that has a
+      // direction, so the open states drop to the muted weight of the counts beside
+      // them rather than wearing the finding's type size.
+      '.pdxst-lead-open .pdxst-lead-v{font-weight:700;font-size:0.74rem;}' +
+      '.pdxst-lead-n{font-size:0.68rem;font-weight:700;color:#9fb4d4;}' +
+      '.pdxst-lead .pdxst-lbl-go{margin-left:auto;color:#7f97b8;font-weight:800;}' +
+      '.pdxst-r-demoted{opacity:0.82;margin-top:0.14rem;}' +
+      '.pdxst-r-demoted .pdxst-pct,.pdxst-r-demoted .pdxst-pct-na{font-size:0.8rem;}' +
       // ── THE SPLIT, ON THE FORMAL LINE ITSELF ───────────────────────────────
       // The percentage and the counts it divides used to sit on two lines, and two
       // lines is one line too many: the reader met "67%" on the formal line and a
@@ -5567,6 +5625,11 @@
                 tier: 'none', weight: 'flat', tone: 'muted', color: '',
                 directional: false, early: false, partial: false, display: false,
                 earlyNote: '', pct: null, scored: false, metric: '', token: '',
+                // The plain-language read, from the shared vocabulary. Null until a
+                // tier is resolved — a slot with nothing on file indicates nothing,
+                // and 'No clear pattern yet' printed over an empty file would be a
+                // claim about a record that is not there.
+                says: null,
                 note: '', why: null };
     if (!r || !r.key) return out;
     var idx = _stDisplayIndex(r);
@@ -5588,6 +5651,7 @@
       out.counts = t.counts || ''; out.directional = !!t.directional;
       out.display = !!t.display; out.partial = !!t.partial;
       out.early = !!t.early; out.note = _stRecNote(r, t);
+      out.says = t.says || null;
     }
     // DEPTH IS THE INVENTORY, always — the number of formal items this row holds,
     // which is the number its dossier lists and the number _stResult prints. The
@@ -6054,6 +6118,106 @@
     }
     return '<' + t + ' class="pdxst-why">' + _stTeach(esc(res.why)) + door + '</' + t + '>';
   }
+  // ── 🏛 THE RECORD LEADS THE ROW ─────────────────────────────────────────────
+  // WHAT CHANGED IS AN ORDER, NOT A FACT. Every figure on this line was already on
+  // this line. What was wrong was which one came first: a row with eleven mapped
+  // votes and no stated position on file opened with "Direction match · this issue
+  // · — · Not scored yet", so the reader met OUR coverage gap before THEIR record,
+  // and an empty percentage above a full ledger reads as "nothing to see here".
+  //
+  // So where there is a formal record and no score, the record's own read opens the
+  // line — in the shared five-word vocabulary published by the engine, with the
+  // counts it was read from — and the metric that could not run is demoted to the
+  // tail of the same line, saying exactly what it said before. Nothing is hidden,
+  // nothing is dropped, and the why line underneath is untouched.
+  //
+  // THE FRAME IS THE WHOLE REASON THIS IS SAFE TO PRINT. The lead word is
+  // _PDX_RD_SAYS_LEAD — "The record indicates" — and it is read from the engine
+  // rather than typed here, so no surface can quietly turn it into "they support".
+  // No percentage, nothing ordinal, no write-back to a position map, and no scoring
+  // path reads this function.
+  //
+  // FAILS CLOSED IN BOTH DIRECTIONS. A row with nothing formal on file gets no lead
+  // at all — silence about an empty file is the honest state, and "No clear pattern
+  // yet" over it would be a claim about a record that does not exist. A row the
+  // score DID reach keeps the percentage in front, because there the metric ran and
+  // the record's read is already on the chip above.
+  var _ST_LEAD_ONFILE = 'Formal acts on file · no clear direction yet';
+  function _stLeadSlot(r, res) {
+    if (!r || (res && res.state === 'tested')) return null;
+    var d;
+    try { d = _stRecordDisplay(r); } catch (e) { return null; }
+    if (!d || !d.onRecord || d.state === 'pending' || d.state === 'scored') return null;
+    // AND IT READS THE GATED TIER, NOT THE DISPLAY ONE. Two reads of the same index
+    // ship: _recordPatternTier characterises and holds the floors — four judged
+    // items, three-quarters one way — while _recordDisplayTier deliberately starts
+    // one item lower, because a display bar exists to show what is there and a bar
+    // that refuses to draw until the fourth vote lands shows nothing at all.
+    // Promoted to the row's lead sentence those floors stop being cosmetic: three
+    // votes split one-and-two are "Mixed" to the display read, and the same row's
+    // own evidence line one line down says "3 votes on file — too thin to
+    // characterise". A row must not contradict itself in two lines about the same
+    // three votes, and of the two it is the characterisation that this line is
+    // making — so the characterisation's floors are the ones that bind it. Below
+    // them the lead still renders, still counts, still opens the acts, and says
+    // "Too early to say" or "No clear pattern yet" instead of a direction.
+    //
+    // The executive lane keeps the display read, because it has no other: directions
+    // there are not read by _stDirRaw at all, so _stPatternTier returns nothing and
+    // the alternative to the display slot's own word is silence about instruments
+    // that are on file and do take sides.
+    var pat = null;
+    try { pat = _stPatternTier(r); } catch (e) { pat = null; }
+    var says = pat ? (pat.says || null) : (d.says || null);
+    return {
+      d: d,
+      word: says ? says.label : _ST_LEAD_ONFILE,
+      tone: (says && says.tone) || d.tone || 'muted',
+      characterising: !!(says && says.characterising)
+    };
+  }
+  function _stLeadHtml(r, res, slot) {
+    slot = slot || _stLeadSlot(r, res);
+    if (!slot) return '';
+    var d = slot.d;
+    var tone = _ST_PAT_TONE[slot.tone] || _ST_PAT_TONE.muted;
+    var frame = window._PDX_RD_SAYS_LEAD || 'The record indicates';
+    // THE DIRECTION COUNTS, AND NOT THE INVENTORY. "8 advanced · 3 against" is the
+    // judged subset and it is the only pair of numbers this line prints. The
+    // inventory — how many formal items the row holds in total — is stated twice
+    // already: in the evidence line under the row, and on the dossier door beside
+    // it. A twice-stated number restated once more here bought nothing but a
+    // collision, and it is the collision that decided this. The result
+    // line one row down says "Not enough on file" when Direction Match could not
+    // divide, and a lead reading "4 actions on file" directly above it makes the
+    // row argue with itself over the same four words — while meaning two entirely
+    // different things by them: the formal file is not thin, the said-versus-did
+    // pairing is. Depth stays on the surfaces that already own it and the door
+    // still opens the enumeration; this line stays the direction and its split.
+    var say = frame + ': ' + slot.word + (d.counts ? ' — ' + d.counts : '') + '. ' +
+      (d.note || '');
+    var body =
+      '<span class="pdxst-lead-lb" aria-hidden="true">🏛 ' + esc(frame) + '</span>' +
+      '<span class="pdxst-lead-v" style="color:' + tone.c + '">' + esc(slot.word) + '</span>' +
+      (d.counts ? '<span class="pdxst-lead-n">' + esc(d.counts) + '</span>' : '');
+    // THE DOOR IS THE LINE. A signal a reader cannot check is a claim, so the whole
+    // lead opens this issue's dossier on the Official Record enumeration — the same
+    // (pid, issue) pair, the same origin hand-back, the same accessible name the
+    // issue-name tap above it uses.
+    if (r.pid && r.key) {
+      return '<button type="button" class="pdxst-lead pdxst-lead-go' +
+        (slot.characterising ? '' : ' pdxst-lead-open') + '"' +
+        ' data-pdxst-says="' + escAttr((d.says && d.says.key) || 'onfile') + '"' +
+        ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
+        ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
+        ' data-pdxst-focus="record"' +
+        ' title="' + escAttr(say) + '" aria-label="' + escAttr(say + ' Open the acts behind it.') + '">' +
+        body + '<span class="pdxst-lbl-go" aria-hidden="true">→</span></button>';
+    }
+    return '<div class="pdxst-lead" data-pdxst-says="' + escAttr((d.says && d.says.key) || 'onfile') + '"' +
+      ' role="img" aria-label="' + escAttr(say) + '" title="' + escAttr(say) + '">' + body + '</div>';
+  }
+
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
     var n = _stNoun(r);
@@ -6094,7 +6258,9 @@
     // number looks evasive until you can find out, in place, why. The icon stays
     // outside the control: it is decoration, not a word to define.
     if (res.state === 'untested') {
-      return '<div class="pdxst-result pdxst-r-untested">' + lane +
+      var uLead = _stLeadHtml(r, res);
+      return (uLead ? '<div class="pdxst-leadwrap">' + uLead + '</div>' : '') +
+        '<div class="pdxst-result pdxst-r-untested' + (uLead ? ' pdxst-r-demoted' : '') + '">' + lane +
           '<span class="pdxst-vd pdxst-vd-none">' + esc(res.ico) + ' ' +
             LT('notscored', res.label) + '</span>' +
           _stWhyHtml(r, res, 'span') +
@@ -6171,7 +6337,10 @@
     var inlineSplit = comp
       ? '<span class="pdxst-rsep" aria-hidden="true">·</span>' + comp
       : '';
-    return '<div class="pdxst-result pdxst-r-' + res.cls + '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
+    var tLead = _stLeadHtml(r, res);
+    return (tLead ? '<div class="pdxst-leadwrap">' + tLead + '</div>' : '') +
+      '<div class="pdxst-result pdxst-r-' + res.cls + (tLead ? ' pdxst-r-demoted' : '') +
+        '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
         '<span class="pdxst-metric">' + LT(metricKey, res.metric) + '</span>' +
         '<span class="pdxst-scope">this issue</span>' +
@@ -6879,7 +7048,20 @@
           // of them. Neither replaces the other and neither is derived from the
           // other; where both are present and they disagree, that disagreement is
           // the point and it is visible on the row's first line.
-          _stPatternHtml(r) +
+          //
+          // ONE VOICE PER ROW FOR THE RECORD, THOUGH. Where the record LEAD renders
+          // below — an unscored row holding formal acts — the chip and the lead are
+          // the same finding in two vocabularies, read from the same index one after
+          // the other: "🏛 Record · Strongly supports · 12 advanced · 0 against" and
+          // then "The record indicates: Supports — 12 advanced · 0 against". A row
+          // that states its one fact twice teaches a reader that one of the two is
+          // decoration, and they are not wrong. The lead wins that tie because it is
+          // the promoted line, it carries the frame that keeps this layer from
+          // reading as a stated position, and it is the door into the acts. The chip
+          // stays everywhere the lead stands down — on scored rows, where the score
+          // leads and the chip is the record's only voice, and on rows with nothing
+          // formal on file, where neither prints anything.
+          (_stLeadSlot(r, res) ? '' : _stPatternHtml(r)) +
           (r.stance.label ? _orStanceChip(r.pid, r.key) : '') +
         '</div>' +
         _stResultHtml(r, res) +
@@ -7008,9 +7190,55 @@
         ' with nothing to test them yet" defer-->' +
         restGrps.map(function (g) { return blockOf(g, 0); }).join('') + '<!--PDXSP:/lid-->';
     }
-    var cov = '<div class="pdxcov">📊 <b>' + tested + '</b> of <b>' + ranked.length + '</b> tracked position' +
-      (ranked.length === 1 ? '' : 's') + ' ' + (tested === 1 ? 'has' : 'have') + ' a formal or public record behind ' +
-      (tested === 1 ? 'it' : 'them') + '.</div>';
+    // COVERAGE, IN TWO NUMBERS, BECAUSE IT WAS ALWAYS TWO FACTS. This line used to
+    // read "2 of 30 tracked positions have a formal or public record behind them",
+    // which on a member with a deep ledger is not a caveat — it is false. Massie
+    // has formal acts on twenty-eight of the issues that sentence excluded; what
+    // those rows lack is a STATED position to test them against, which is a fact
+    // about what they have stated, not about the record. Conflating the two is the
+    // exact shape of the problem this pass exists to fix: a reader who trusts that
+    // sentence concludes there is nothing on file, closes the section, and never
+    // reaches the ledger sitting one line below it.
+    //
+    // So the line now states them separately and puts the record first: how many
+    // issues have formal acts on file, then how many of those Direction Match was
+    // able to score. Both are read from the published profileCounts rather than
+    // recomputed here, so the section cannot disagree with the atlas about the
+    // same person. Neither number is new, neither is a percentage, and no row's
+    // placement, tier or verdict moves because of this.
+    var _pc = null;
+    try { _pc = profileCounts(pid) || null; } catch (e) { _pc = null; }
+    var onFile = _pc ? _pc.onRecord : 0;
+    // THE SECOND NUMBER IS THE ONE A READER CAN COUNT. `tested` above is the size
+    // of the two said-plus-did GROUPS, which includes rows the action lane reached
+    // but Direction Match could not divide — eleven of Massie's seventeen, printing
+    // an em dash where the percentage would be. A reader who counts percentages
+    // down the section and gets a different answer than the line at the top of it
+    // has caught the page in an inconsistency, so the line counts what they count:
+    // rows carrying an actual result, read off the row model's own `tested` flag,
+    // which is the same flag the row uses to decide whether to print one.
+    var hasScore = 0;
+    ranked.forEach(function (r) { if (r && r.tested) hasScore++; });
+    // AND IT DOES NOT COUNT A LANE THAT HAS NOT LANDED. The roll-call fetch settles
+    // after first paint, and "1 of 14 have formal acts on file" printed over
+    // thirteen rows still saying "Loading the record…" is a false negative with a
+    // number attached to it — worse than the vague sentence it replaced. While the
+    // lane is outstanding the line says so and states nothing it cannot yet stand
+    // behind. profileCounts already refuses to cache a warming read, so the first
+    // render after the votes arrive prints the real figures.
+    var cov = _pc && _pc.warming
+      ? '<div class="pdxcov">🏛 Still reading the formal record for this profile — the counts below ' +
+        'fill in as it lands.</div>'
+      : '<div class="pdxcov">🏛 <b>' + onFile + '</b> of <b>' + ranked.length + '</b> tracked issue' +
+        (ranked.length === 1 ? '' : 's') + ' ' + (onFile === 1 ? 'has' : 'have') + ' formal acts on file' +
+        ' · <b>' + hasScore + '</b> ' + (hasScore === 1 ? 'carries' : 'carry') +
+        ' a Direction Match score.' +
+        (onFile > hasScore
+          ? ' <span class="pdxcov-sub">The rest still show what the record did — either nothing ' +
+            'was stated to test it against, or the record on it could not be divided into a ' +
+            'score.</span>'
+          : '') +
+        '</div>';
     // THE WALL, IN FULL, ONCE. Every row carries the short form of this ("Not in
     // Direction Match") because a reader can land on any single row from a deep link
     // and must not have to scroll for the caveat. The whole sentence is stated here,
@@ -7225,6 +7453,226 @@
       out.splits = splits.slice(0, _FPI_SPLITS_CAP).map(_fpiShapeRow);
       return out;
     } catch (e) { return null; }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 🏛 THE STANDOUT STRIP — WHAT THE RECORD POINTS TO, IN FOUR CHIPS
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT IT IS. Up to two issues where this politician's formal record ran one way
+  // and up to two where it ran both ways, at the top of the profile, each chip a
+  // door into that issue's dossier. It answers the question a reader actually
+  // arrives with — what does their record point to — before the page asks whether
+  // anybody wrote down what they said about it.
+  //
+  // WHY IT EXISTS. The profile's first substantive surface was Word vs Action, a
+  // metric that needs a stated position on file to run. On a member with a deep
+  // roll-call ledger and a thin stance ledger it prints "Not scored yet", and the
+  // whole page reads as though there were nothing to see. The formal record was
+  // always there; it was just three sections down. This is that record, promoted.
+  //
+  // IT SELECTS; IT DOES NOT DERIVE. Every chip is one row of _fpiRows(), carrying
+  // that row's own tier, its own counts and its own chip markup. The only decision
+  // made here is WHICH rows, and that decision is two sorts and one floor:
+  //
+  //   consistent  tier strong or mostly — the pattern engine's own characterised
+  //               set. Strong before mostly, then the deeper record, then the label.
+  //   mixed       tier split. Ranked by the size of the SMALLER side first, because
+  //               that is what makes a split a real conflict rather than a rounding
+  //               error: nine-to-eight is a tension, ten-to-one is not a split at
+  //               all and the engine would not have called it one.
+  //
+  // THE FLOOR IS BORROWED, NEVER INVENTED. `_PDX_RD_MIN_JUDGED` is the number of
+  // judged acts the pattern engine already requires before it will characterise a
+  // record at all, and it is the same bar here. Publishing a second, higher floor
+  // would be this surface quietly disagreeing with the chip it renders.
+  //
+  // FAIL CLOSED, AND NO FILLER. A bucket with no qualifying row prints nothing —
+  // not a placeholder, not the next-best issue, not a thin row dressed as a
+  // finding. Both buckets empty and the strip does not mount. A profile with a
+  // shallow formal record therefore sees the page it always saw, rather than a
+  // headline made out of one vote.
+  //
+  // WHAT IT IS NOT. No percentage and nothing ordinal — there is no "consistency
+  // score" here and no ranking of this person against another. No party framing:
+  // the subject of every string is one person's own record. No stance: the frame
+  // word is the engine's published "The record indicates", these labels are never
+  // written to a position map, and Direction Match neither reads this nor is read
+  // by it.
+  var _SO_CAP = 2;
+  // …AND A FLOOR ON THE SET IT SELECTS FROM, not just on each issue in it. Every
+  // chip already has to clear _soMinJudged() acts before it can be characterised
+  // at all, which is the depth rule. This is the other rule: "most one-sided" and
+  // "most conflicted" are superlatives, and a superlative over a set of one or two
+  // is not a finding — it is the whole record wearing the word "most". A profile
+  // with two readable issues has an Official Record; it does not have standouts,
+  // and the atlas below says everything the strip would have said. Three is the
+  // smallest set where picking two leaves something unpicked.
+  var _SO_MIN_ISSUES = 3;
+  var _SO_CHARACTERISED = _FPI_CHARACTERISED;
+  function _soMinJudged() {
+    var n = window._PDX_RD_MIN_JUDGED;
+    return (typeof n === 'number' && n > 0) ? n : 4;
+  }
+  // The smaller of the two sides, which is the whole measure of how split a split
+  // is. Read off the tier the row already carries; zero when the tier did not
+  // count sides, which sorts such a row last rather than first.
+  function _soMinority(x) {
+    var t = x && x.pat;
+    if (!t) return 0;
+    var a = t.advances || 0, o = t.opposes || 0;
+    return Math.min(a, o);
+  }
+  function _soPick(pid) {
+    var out = { consistent: [], mixed: [], consistentN: 0, mixedN: 0,
+                issues: 0, judged: 0, cap: _SO_CAP, floor: _soMinJudged(),
+                minIssues: _SO_MIN_ISSUES, enough: false };
+    var rows;
+    try { rows = _fpiRows(pid, { sort: 'strength' }) || []; } catch (e) { return out; }
+    var floor = out.floor;
+    var cons = [], mixed = [];
+    rows.forEach(function (x) {
+      if (!x || !x.read) return;
+      out.issues++;
+      out.judged += (x.judged || 0);
+      if ((x.judged || 0) < floor) return;
+      if (_SO_CHARACTERISED[x.tier] && x.directional) cons.push(x);
+      else if (x.tier === 'split') mixed.push(x);
+    });
+    cons.sort(function (a, b) {
+      var ar = (a.tier === 'strong') ? 0 : 1, br = (b.tier === 'strong') ? 0 : 1;
+      if (ar !== br) return ar - br;
+      if (a.judged !== b.judged) return b.judged - a.judged;
+      if (a.held !== b.held) return b.held - a.held;
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    });
+    mixed.sort(function (a, b) {
+      var am = _soMinority(a), bm = _soMinority(b);
+      if (am !== bm) return bm - am;
+      if (a.judged !== b.judged) return b.judged - a.judged;
+      if (a.held !== b.held) return b.held - a.held;
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    });
+    out.consistentN = cons.length;
+    out.mixedN = mixed.length;
+    // The set floor, applied last so the caller can still see what WAS found and
+    // why it was withheld. `enough` is the published reason the strip is empty on
+    // a profile that plainly has a record: not "we found nothing", but "we found
+    // too little to call any of it a standout".
+    out.enough = out.issues >= _SO_MIN_ISSUES;
+    out.minIssues = _SO_MIN_ISSUES;
+    if (!out.enough) return out;
+    out.consistent = cons.slice(0, _SO_CAP);
+    out.mixed = mixed.slice(0, _SO_CAP);
+    return out;
+  }
+  // Published shape: the same rows, flattened, with the plain-language word from
+  // the shared vocabulary attached. `says` is the five-word read; `patLabel` is the
+  // depth-qualified chip label the atlas prints. Both are on the object because
+  // they are two namings of one tier and a caller should never have to pick.
+  function _soRow(x) {
+    var says = (x.pat && x.pat.says) || null;
+    return {
+      pid: x.pid, key: x.key, label: x.label, tier: x.tier, tone: x.tone,
+      says: says ? says.key : null, saysLabel: says ? says.label : x.patLabel,
+      patLabel: x.patLabel, counts: x.counts, judged: x.judged, held: x.held,
+      minority: _soMinority(x), noun: x.noun, said: !!x.said
+    };
+  }
+  function recordStandout(pid) {
+    var p = _soPick(pid);
+    return {
+      issues: p.issues, judged: p.judged, cap: p.cap, floor: p.floor,
+      minIssues: p.minIssues, enough: !!p.enough,
+      consistentN: p.consistentN, mixedN: p.mixedN,
+      consistent: p.consistent.map(_soRow),
+      mixed: p.mixed.map(_soRow),
+      any: !!(p.consistent.length || p.mixed.length)
+    };
+  }
+  var _SO_HEAD = { icon: '🏛', title: 'What the record points to' };
+  var _SO_GROUPS = {
+    consistent: { id: 'consistent', lb: 'Most one-sided',
+      note: 'Issues where every act on file, or nearly every one, pushed the same way.' },
+    mixed: { id: 'mixed', lb: 'Most conflicted',
+      note: 'Issues where the acts on file ran both ways in real numbers.' }
+  };
+  // The strip's own wall, which is the engine's sentence rather than a second
+  // wording of it, plus the one thing that sentence does not cover: this is a
+  // SELECTION, and the reader is told where the rest of it is.
+  var _SO_WALL_TAIL = 'These are the standouts, not the whole record — the full ' +
+    'issue-by-issue list is below.';
+  var _SO_WALL_WHOLE = 'That is every issue the record could be read on so far — the full issue-by-issue list is below.';
+  function _soChipHtml(x, grp) {
+    var tone = _ST_PAT_TONE[x.tone] || _ST_PAT_TONE.muted;
+    var says = (x.pat && x.pat.says) || null;
+    var word = says ? says.label : x.patLabel;
+    var frame = window._PDX_RD_SAYS_LEAD || 'The record indicates';
+    var depth = x.held ? (x.held + ' ' + (x.held === 1 ? x.noun.one : x.noun.many) + ' on file') : '';
+    var say = x.label + ' — ' + frame + ': ' + word +
+      (x.counts ? ' (' + x.counts + ')' : '') + (depth ? '. ' + depth : '') +
+      '. Open the acts behind it.';
+    var skin = _icSkin(x.key);
+    return '<button type="button" class="pdxso-chip' + skin.cls + '" style="' + skin.style +
+        ';--c:' + tone.c + '"' +
+        ' data-pdxso-grp="' + escAttr(grp) + '"' +
+        ' data-pdxso-says="' + escAttr(says ? says.key : x.tier) + '"' +
+        ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
+        ' data-pdxst-origin="' + escAttr(_soStripId(x.pid)) + '"' +
+        ' data-pdxst-focus="record"' +
+        ' aria-label="' + escAttr(say) + '">' +
+        '<span class="pdxso-chip-iss">' + _icDot(skin) + esc(x.label) + '</span>' +
+        '<span class="pdxso-chip-v" style="color:' + tone.c + '">' + esc(word) + '</span>' +
+        (x.counts ? '<span class="pdxso-chip-n">' + esc(x.counts) + '</span>' : '') +
+        (depth ? '<span class="pdxso-chip-d">' + esc(depth) + '</span>' : '') +
+      '</button>';
+  }
+  function _soStripId(pid) { return 'pdxso-strip-' + _stSlug(pid); }
+  function recordStandoutHtml(pid) {
+    if (!pid) return '';
+    ensureStyles();
+    // The strip is a bank of dossier doors and nothing else, so it arms the one
+    // delegated listener every other [data-pdxst-dos] surface here arms.
+    bindGateway();
+    var p;
+    try { p = _soPick(pid); } catch (e) { return ''; }
+    if (!p || (!p.consistent.length && !p.mixed.length)) return '';
+    var grpHtml = function (key, list, total) {
+      if (!list.length) return '';
+      var g = _SO_GROUPS[key];
+      var more = total > list.length
+        ? '<p class="pdxso-more">' + (total - list.length) + ' more in the full list.</p>' : '';
+      return '<div class="pdxso-grp pdxso-grp-' + escAttr(g.id) + '">' +
+          '<div class="pdxso-grp-h">' + esc(g.lb) + '</div>' +
+          '<p class="pdxso-grp-note">' + esc(g.note) + '</p>' +
+          '<div class="pdxso-chips">' +
+            list.map(function (x) { return _soChipHtml(x, g.id); }).join('') +
+          '</div>' + more +
+        '</div>';
+    };
+    // THE TAIL ONLY CLAIMS A SELECTION WHEN ONE HAPPENED. "These are the standouts,
+    // not the whole record" is true on a member with forty readable issues and
+    // false on one with four, where the four chips ARE the whole readable record —
+    // and a sentence promising more below, on a profile that has no more below, is
+    // the kind of small lie that costs a reader their trust in the large ones.
+    var picked = p.consistent.length + p.mixed.length;
+    var whole = picked >= (p.consistentN + p.mixedN);
+    var wall = (window._PDX_RD_TIER_NOTE || '') + ' ' +
+      (whole ? _SO_WALL_WHOLE : _SO_WALL_TAIL);
+    return '<span id="pdxsec-standout" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+      '<section class="pdxso" id="' + escAttr(_soStripId(pid)) + '"' +
+        ' aria-label="What the formal record points to">' +
+        '<div class="pdxso-head">' +
+          '<span class="pdxso-ico" aria-hidden="true">' + _SO_HEAD.icon + '</span>' +
+          '<span class="pdxso-t">' + esc(_SO_HEAD.title) + '</span>' +
+          '<span class="pdxso-depth">' + p.issues + ' issue' + (p.issues === 1 ? '' : 's') +
+            ' read · ' + p.judged + ' act' + (p.judged === 1 ? '' : 's') + ' behind them</span>' +
+        '</div>' +
+        '<div class="pdxso-grps">' +
+          grpHtml('consistent', p.consistent, p.consistentN) +
+          grpHtml('mixed', p.mixed, p.mixedN) +
+        '</div>' +
+        '<p class="pdxso-wall">' + esc(wall) + '</p>' +
+      '</section>';
   }
 
   // ── THE FILTERS ─────────────────────────────────────────────────────────────
@@ -11422,6 +11870,23 @@
     // — the profile face and the overlay above it — and the key is what keeps
     // their row ids distinct and their remembered filters separate. Omit it and
     // you get the original single 'default' instance, ids and all.
+    // 🏛 THE STANDOUT STRIP. `pick(pid)` is the selection — up to two one-sided
+    // issues and up to two conflicted ones, each carrying the tier, the counts and
+    // the plain-language word from the shared vocabulary — and `html(pid)` mounts
+    // it. Selection only: every field is read off _fpiRows(), the depth floor is
+    // the pattern engine's own (_PDX_RD_MIN_JUDGED), and an empty bucket renders
+    // nothing rather than a filler issue. No percentage, no ranking against anyone
+    // else, no party framing, and no path from here into Direction Match.
+    recordStandout: {
+      pick: recordStandout,
+      html: recordStandoutHtml,
+      CAP: _SO_CAP,
+      MIN_ISSUES: _SO_MIN_ISSUES,
+      GROUPS: _SO_GROUPS,
+      HEAD: _SO_HEAD,
+      WALL_TAIL: _SO_WALL_TAIL,
+      WALL_WHOLE: _SO_WALL_WHOLE
+    },
     formalPatternIndex: {
       rows: _fpiRows,
       html: formalPatternIndexHtml,

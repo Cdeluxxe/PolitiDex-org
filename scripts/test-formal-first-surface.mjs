@@ -344,12 +344,23 @@ section("4 · phase 2 — the atlas mounts on the profile face");
   const gate = Number((BODY.match(/FACE_MIN\s*=\s*(\d+)/) || [])[1]);
   ok(gate >= 2, `the face depth gate is implausibly low (${gate})`);
   ok(/n\s*<\s*FACE_MIN/.test(BODY), "the depth gate is declared but never enforced");
-  // It is a discovery surface, not a replacement: it sits BELOW the word-versus-
-  // action section, which still owns the score.
+  // PHASE 3 REORDERED THE READ ON PURPOSE. The atlas used to sit BELOW the word-
+  // versus-action section, as a discovery surface hanging off the score. The
+  // record-first pass inverted that: the formal ledger is the default lens, so the
+  // standout strip and the atlas it leads into are both read BEFORE Direction
+  // Match, which stays on the page and stays strong but stops being the thing
+  // every row waits on. What is pinned now is that inversion — strip, then atlas,
+  // then the score — not the old subordination.
   const iWA = BODY.indexOf("PDXWordAction.sectionHtml");
   const iFace = BODY.indexOf("pdxfpi-face");
-  ok(iWA > 0 && iWA < iFace,
-    "the atlas mounts above the Direction Match section — this phase does not reorder the read");
+  const iStrip = BODY.indexOf("pdxso-face");
+  ok(iStrip > 0, "the standout strip does not mount on the profile body at all");
+  ok(iFace > 0 && iFace < iWA,
+    "the atlas mounts below the Direction Match section — the record-first read puts the ledger first");
+  ok(iStrip < iFace,
+    "the standout strip mounts below the atlas — the two-chip summary is the door into the long list, not a footnote to it");
+  ok(iWA > 0,
+    "the Direction Match section stopped mounting on the profile body — demoted is not deleted");
 
   // The rendered face index itself.
   const face = FPI.html(DEEP, { sort: "strength", mount: "face" });

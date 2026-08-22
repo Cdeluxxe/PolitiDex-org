@@ -82,14 +82,26 @@
   // The sequence below is an ACCOUNTABILITY PATH, not a catalogue of systems. Its
   // shape is five claims, in this order:
   //
-  //   THE JUDGMENT COMES FIRST. `verdict` holds one thing — the Word vs Action
-  //   read — and it is the first major surface after the letterhead and the brief.
-  //   It used to be the opening block of `record`, which meant the primary finding
-  //   arrived as the header of a system rather than as the site's answer. There is
-  //   still exactly one score; giving it its own stage is what makes that legible.
-  //   Word vs Action is also the ONLY integrity section: the say-vs-do read and the
-  //   record-vs-public-picture bridge that used to occupy stages of their own are
-  //   inputs to its rows now, not neighbours of it.
+  //   THE RECORD COMES FIRST. `standout` is the formal ledger's own stage — the
+  //   standout strip (up to two one-sided issues, up to two conflicted ones) and
+  //   the full formal atlas beneath it — and it holds the slot Word vs Action used
+  //   to hold. That swap is the whole of this stage's reason to exist. Word vs
+  //   Action needs a documented position on file before it can say anything, so on
+  //   a profile with a deep roll-call ledger and a thin stance ledger it opened the
+  //   page with "Not scored yet" — a fact about our coverage, printed above dozens
+  //   of issues of their record. The record is what we hold most of, so the record
+  //   leads. It is a selection and a list, never a score: no percentage is
+  //   published at this stage and none can be derived from it.
+  //
+  //   THEN THE JUDGMENT. `verdict` holds one thing — the Word vs Action read — and
+  //   it is the first SCORED surface, immediately under the record it is scoring
+  //   against. It used to be the opening block of `record`, which meant the primary
+  //   finding arrived as the header of a system rather than as the site's answer.
+  //   There is still exactly one score; giving it its own stage is what makes that
+  //   legible, and demoting it one place is what stops the page reading as though
+  //   an unscored issue were an empty one. Word vs Action is also the ONLY integrity
+  //   section: the say-vs-do read and the record-vs-public-picture bridge that used
+  //   to occupy stages of their own are inputs to its rows now, not neighbours of it.
   //
   //   WHAT THEY STAND FOR IS READ IN THE VERDICT STAGE, NOT HERE. `signature` was
   //   🧭 Stances & Connections — a second, tension-ranked browser over the same
@@ -117,6 +129,7 @@
   var STAGES = [
     { key: 'identity',  label: 'Identity',            ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
+    { key: 'standout',  label: 'The record',          ask: 'What does their record point to?' },
     { key: 'verdict',   label: 'Word vs Action',      ask: 'Do they stand by what they said?' },
     { key: 'signature', label: 'Stances & connections', ask: 'What do they stand for?' },
     { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
@@ -176,12 +189,18 @@
     // resolves to the surface that actually holds those positions rather than being
     // demoted to a stage whose only remaining content is a closed drawer.
     'pdxsec-stances': 'verdict',
+    // standout — the formal ledger, ahead of the score. Two anchors, one stage:
+    // the strip is the summary and the atlas is the list it was selected from, so
+    // a jump aimed at either lands in the same block. Both emitted by
+    // profiles-full.js.
+    //
     // 🏛 The formal pattern atlas on the profile face — the full issue-by-issue
-    // list the hero's shape block summarises. It sits in the verdict stage
-    // because it IS the record half of "did their words match their record",
-    // mounted immediately under the hero rather than down in the drawers.
-    // Anchor emitted by profiles-full.js.
-    'pdxsec-formalatlas': 'verdict',
+    // list the hero's shape block summarises. It sat in the verdict stage while
+    // the verdict stage was the first thing on the page; now that the record has a
+    // stage of its own, the record's list belongs in it rather than under the
+    // heading of the metric it is being tested by.
+    'pdxsec-standout': 'standout',
+    'pdxsec-formalatlas': 'standout',
     // signature — the deferred archive of every documented position, in full text.
     'pdxsec-positions': 'signature',
     // record — the formal apparatus behind the verdict

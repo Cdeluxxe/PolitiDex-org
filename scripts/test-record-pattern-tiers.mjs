@@ -546,19 +546,66 @@ section("8 · acceptance — Schumer and a control member");
     eq(JSON.stringify(P.verdictTally(pid)), JSON.stringify(PB.verdictTally(pid)),
       `${pid}: the verdict tally is byte-identical`);
 
-    // The rendered section: chips present, honest disclosures intact, and the
-    // rows with a record but no stated word no longer read as leftovers.
+    // The rendered section. ONE RECORD VOICE PER ROW, as of the record-first pass.
+    // An unscored row holding formal acts used to print the tier chip in the row
+    // top AND — after that pass added it — the promoted record lead underneath, so
+    // the same index was read out twice in two vocabularies: "🏛 Record · Strongly
+    // opposes · 0 advanced · 12 against", then "The record indicates: Opposes — 0
+    // advanced · 12 against". The lead won that tie (it carries the frame, the
+    // published reading and the door into the acts) and the chip now stands down on
+    // exactly those rows.
+    //
+    // WHAT IS PINNED HERE IS THAT THE ROW STILL SPEAKS, not which of the two says
+    // it. The tier vocabulary itself is unchanged and still renders — the formal
+    // atlas draws a pdxst-pat chip per issue, the receipt cards quote the labels
+    // verbatim, and the chip returns on this surface the moment the lead stands
+    // down. The engine assertions above are the tier vocabulary's real contract and
+    // none of them moved.
     const html = P.stancesSectionHtml(pid);
-    has(html, 'class="pdxst-pat', `${pid}: the chip renders in the section`);
-    has(html, "Strongly", `${pid}: …including a deep one-way pattern`);
-    has(html, "Thin", `${pid}: …and the thin one-vote lean`);
+    const oneVoice = (chunk, what) => {
+      const chip = /class="pdxst-pat/.test(chunk);
+      const lead = /class="pdxst-lead/.test(chunk);
+      ok(chip !== lead, `${what}: the record is stated ${chip && lead ? "twice" : "not at all"} on this row`);
+    };
+    // Every rung reaches the reader, in whichever voice that row uses.
+    // Visible words only — a label surviving in a title= attribute is not the row
+    // speaking to a reader.
+    const plain = (h) =>
+      String(h || "").replace(/<[^>]*>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ");
+    const say = (k) => plain(chunkOf(html, k));
+    for (const [k, tierLabel, saysLabel] of [
+      [sStrong, "Strongly opposes", "Opposes"],
+      [sMostly, "Mostly supports", "Mostly supports"],
+      [sSplit, "Split", "Mixed"],
+      [sNone, "No clear pattern yet", "No clear pattern yet"],
+    ]) {
+      const chunk = chunkOf(html, k);
+      ok(!!chunk, `${pid}/${k}: the row renders`);
+      if (!chunk) continue;
+      oneVoice(chunk, `${pid}/${k}`);
+      const t = say(k);
+      ok(t.includes(tierLabel) || t.includes(saysLabel),
+        `${pid}/${k}: the row states neither "${tierLabel}" nor "${saysLabel}"`);
+    }
+    // The chip's vocabulary is still what the ATLAS speaks, on the same profile.
+    const atlas = P.formalPatternIndex.html(pid, { mount: "face" });
+    has(atlas, 'class="pdxst-pat', `${pid}: the tier chip stopped rendering anywhere on the profile`);
+    has(atlas, "Strongly", `${pid}: …including a deep one-way pattern`);
+    has(atlas, "Thin", `${pid}: …and the thin one-vote lean`);
+
     has(html, "Not in Direction Match", `${pid}: the public-lane disclosure survives`);
     has(html, "On the formal record", `${pid}: the no-stated-position heading survives`);
-    has(html, "not a stated position", `${pid}: …and the chip's own disclosure travels with it`);
+    has(html, "not a stated position", `${pid}: …and the record layer's own disclosure travels with it`);
     const sc = chunkOf(html, sThin);
     ok(!!sc, `${pid}: the one-vote row renders`);
-    has(sc, "Thin opposes", `${pid}: …and says which way that one vote went`);
-    has(sc, "1 vote against", `${pid}: …with the count beside it`);
+    oneVoice(sc, `${pid}/${sThin}`);
+    // n = 1. The engine calls this "Thin opposes"; the published reading declines to
+    // characterise a record of one vote at all and says "Too early to say". Either
+    // is honest, and BOTH are useless without the count, so the count is what this
+    // pins — the direction is on the row either way.
+    has(sc, "1 vote against", `${pid}: the one-vote row drops the count that is its whole content`);
+    ok(/Thin opposes|Too early to say/.test(plain(sc)),
+      `${pid}: the one-vote row characterises its single vote as something stronger than it is`);
   }
 }
 
