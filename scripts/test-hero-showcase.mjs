@@ -809,10 +809,21 @@ for (const c of seed) {
   // that drops candidates whose read cannot complete. That is ~900 B gzipped, over
   // half of it the comments explaining why each of the three exists — the cost of a
   // card that cannot show a figure the profile disagrees with, or spin forever.
+  //
+  // BUDGET NOTE · raised again to 14 KB / 15.5 KB for the formal-first pass. Three
+  // things landed: the lane's formal strip (formalHtml — heading, depth line and up
+  // to two issue chips, all of it PDXProfileCard's `formal` payload printed, nothing
+  // decided here), the record landing (openProfile → _pdxNavJump on the profile's
+  // record section) and the issue-scoped door (openIssue → #record=<pid>~<issue>).
+  // ~1.4 KB gzipped, most of it prose. The trade is the whole point of the card: a
+  // reader who taps a Direction Match figure lands on the record that produced it,
+  // and an executive card stops printing roll-call nouns for a lane that has no
+  // roll calls. Nothing new is fetched, parsed or derived on the critical path —
+  // the strip rides the read() the visible card was already paying for.
   ok(dataGz < 3 * 1024, `payload: seed is ${dataGz} B gzipped (budget 3 KB)`);
-  ok(rendGz < 12.5 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 12.5 KB)`);
-  ok(dataGz + rendGz < 14 * 1024,
-    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 14 KB)`);
+  ok(rendGz < 14 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 14 KB)`);
+  ok(dataGz + rendGz < 15.5 * 1024,
+    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 15.5 KB)`);
   console.log(`  critical path: ${dataGz} B + ${rendGz} B = ${dataGz + rendGz} B gzipped`);
 }
 

@@ -2102,6 +2102,23 @@ window.PDXLazy = (function () {
     .pdx-hr-consistent  { border-color: rgba(74,222,128,.28); }
     .pdx-hr-consistent  .pdx-hr-stamp { color: #86efac; background: rgba(22,163,74,.12); }
 
+    /* Which lane this receipt is, and the boundary that goes with it. Both strings
+       are consistency.js's; the card prints them because a front-page verdict has
+       no row around it to carry the disclosure. */
+    .pdx-hr-lane {
+      display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap;
+      margin: -.25rem 0 .55rem;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .62rem; letter-spacing: .08em;
+    }
+    .pdx-hr-lane-k { color: #7f92ad; }
+    .pdx-hr-lane-tag {
+      color: #cbd5e1; text-transform: uppercase; letter-spacing: .12em;
+      font-weight: 700; font-size: .57rem;
+      padding: .1rem .34rem; border-radius: .25rem;
+      border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05);
+    }
+
     .pdx-hr-who { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
     .pdx-hr-name {
       font-family: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
@@ -2347,6 +2364,40 @@ window.PDXLazy = (function () {
     .pdx-hs-bd-chip.is-good b { color: #6ee7a0; }
     .pdx-hs-bd-chip.is-mixed b { color: #93c5fd; }
     .pdx-hs-bd-chip.is-bad b { color: #f89b9b; }
+
+    /* The formal record, in its lane's own words — the profile's recordStandout /
+       execRecordSummary pick, printed on the card. Chips are dossier doors, so they
+       look tappable; the heading's count is the depth behind them. */
+    .pdx-hs-fm { margin-top: .6rem; }
+    .pdx-hs-fm-h {
+      display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap; margin: 0;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .62rem; letter-spacing: .14em; text-transform: uppercase;
+      font-weight: 700; color: #64748b;
+    }
+    .pdx-hs-fm-t { color: #94a3b8; }
+    .pdx-hs-fm-n {
+      letter-spacing: .03em; text-transform: none; font-weight: 400; color: #7f92ad;
+      font-size: .66rem;
+    }
+    .pdx-hs-fm-inv {
+      margin: .2rem 0 0; color: #7f92ad; letter-spacing: .03em;
+      font-family: 'Barlow Condensed', system-ui, sans-serif; font-size: .68rem;
+    }
+    .pdx-hs-fm-row { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .35rem; }
+    .pdx-hs-fm-chip {
+      display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0;
+      padding: .22rem .5rem; border-radius: 999px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
+      color: #d3dcea; font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .7rem; line-height: 1.3; text-align: left;
+    }
+    .pdx-hs-fm-chip:hover, .pdx-hs-fm-chip:focus-visible {
+      border-color: rgba(245,200,66,.5); background: rgba(255,255,255,.09);
+    }
+    .pdx-hs-fm-iss { font-weight: 700; color: #fff; }
+    .pdx-hs-fm-v { color: #cbd5e1; }
+    .pdx-hs-fm-d { color: #7f92ad; font-size: .64rem; }
 
     /* Coverage, stated outright — the card says how much of the record it could
        actually test, in the same words the shared image uses. */
