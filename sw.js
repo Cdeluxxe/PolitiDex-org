@@ -94,7 +94,7 @@
 // the member strip and feeds the rail pill. A shell holding v63 would pair a new
 // consistency.js with an exec-record.js that publishes no rows, so the summary
 // would silently decline to mount.
-const CACHE_VERSION = 'v67';
+const CACHE_VERSION = 'v68';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
