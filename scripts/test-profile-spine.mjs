@@ -105,9 +105,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 
 // ── 1. The order is the product ──────────────────────────────────────────────
 {
-  const want = ["identity", "brief", "verdict", "signature", "record", "tension", "receipts", "money", "you", "drawers"];
+  const want = ["identity", "brief", "standout", "verdict", "signature", "record", "tension", "receipts", "money", "you", "drawers"];
   ok(JSON.stringify(SP.STAGES.map((s) => s.key)) === JSON.stringify(want),
-     "order: STAGES is exactly the promised spine — identity, short version, Word vs Action, stances, official record, flashpoints, evidence, money, you, full record");
+     "order: STAGES is exactly the promised spine — identity, short version, the record, Word vs Action, stances, official record, flashpoints, evidence, money, you, full record");
   ok(SP.STAGES.every((s) => s.label && s.ask && /\?|\./.test(s.ask)),
      "order: every stage carries both a label and the reader question it answers");
   // Two rails asking the same question is a rail that has stopped orienting
@@ -120,8 +120,17 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const kAt = (k) => SP.STAGES.findIndex((s) => s.key === k);
   ok(kAt("verdict") < kAt("record") && kAt("verdict") < kAt("receipts") && kAt("verdict") < kAt("drawers"),
      "path: the judgment comes before the apparatus that produced it — findings before methods");
-  ok(kAt("verdict") === kAt("brief") + 1,
-     "path: the verdict is the first major surface after the letterhead and the brief");
+  // THE RECORD LEADS. `standout` holds the slot Word vs Action used to hold: the
+  // first major surface after the letterhead and the brief is what the formal
+  // ledger points to, not what a said-versus-did score made of it. The verdict
+  // did not fall down the page — it moved back exactly one seat, and it still
+  // precedes every apparatus that produced it, which the assertion above pins.
+  ok(kAt("standout") === kAt("brief") + 1,
+     "path: what the record points to is the first major surface after the letterhead and the brief");
+  ok(kAt("standout") < kAt("verdict"),
+     "path: the formal record leads the judgment built on top of it");
+  ok(kAt("verdict") === kAt("standout") + 1,
+     "path: and the verdict follows it immediately — demoted by one seat, not buried");
   // What they stand for now sits between the score and the record: the stances
   // layer is what the Official Record is a test OF, so it has to be read first,
   // and the flashpoints that follow are heat about specific stances rather than
@@ -963,8 +972,16 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const bodyFrom = PFL.indexOf("const _profileBody = ");
   ok(bodyFrom !== -1, "verdict: the profile body template is where this file says it is");
   const firstTag = (PFL.slice(bodyFrom).match(/<!--PDXSP:([a-z0-9:_-]+)-->/) || [])[1];
-  ok(firstTag === "verdict",
-     "verdict: it is the first sentinel in the body, so the letterhead ahead of it still defaults to identity");
+  ok(firstTag === "standout",
+     "standout: it is the first sentinel in the body, so the letterhead ahead of it still defaults to identity");
+  // …and the verdict is the one directly behind it. The record-first pass moved a
+  // stage in FRONT of Word vs Action for the first time since the spine existed,
+  // so "first sentinel" alone no longer pins the verdict's position; this does.
+  const tagOrder = (PFL.slice(bodyFrom).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [])
+    .map((t) => t.replace(/<!--PDXSP:|-->/g, ""))
+    .filter((t) => t[0] !== "/" && !/^lid/.test(t));
+  ok(tagOrder.indexOf("verdict") === tagOrder.indexOf("standout") + 1,
+     "verdict: the score sits immediately behind the record standouts in the template, not adrift from them");
 
   // 11c. The rail has to read in page order or the scroll-spy walks backwards.
   //      Pills are pushed in one block; their push order IS the rail order.
@@ -1322,9 +1339,10 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //      order; it must not have quietly restated it.
   ok(!/var RAIL_ORDER|railSequence|PILL_ORDER/.test(SPS),
      "keep: there is no second ordered list of pills anywhere in the spine — STAGES plus the anchor registry is the whole declaration");
-  ok(SP.STAGE_KEYS.join(">") === "identity>brief>verdict>signature>record>tension>receipts>money>you>drawers",
-     "keep: and the stage order is the locked spine — the score, then what they stand for, then the\n" +
-     "    record that tests it, then the heat, then the proof, and money stays a lens of its own at the tail");
+  ok(SP.STAGE_KEYS.join(">") === "identity>brief>standout>verdict>signature>record>tension>receipts>money>you>drawers",
+     "keep: and the stage order is the locked spine — what the record points to, then the score built\n" +
+     "    on it, then what they stand for, then the record that tests it, then the heat, then the\n" +
+     "    proof, and money stays a lens of its own at the tail");
 }
 
 

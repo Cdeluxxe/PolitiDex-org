@@ -42,19 +42,26 @@
 //      nothing else — the verdict on every gated row is re-derived here and must
 //      match what the shared row model already said.
 //
+//   7 · AND THE ROLL-CALL LANE IS IN THE POPULATION NOW. It used to be out of it
+//      for a mechanical reason — the lane is an API in a live browser and there
+//      was no way to reach it from node — not because a judged roll call needs
+//      less explaining than a judged executive order. vr-record-corpus.mjs
+//      rebuilds the lane offline from the shipped seeds, so this file now holds
+//      the same gate over it, at the coverage the existing-inventory pass reached
+//      rather than at 100%: the measures with no text on file stay derived on
+//      purpose and are counted, not waived.
+//
 //   node scripts/test-mechanism-completeness.mjs
 //
 // Runs the shipped renderer over the shipped data in one node:vm sandbox. No
-// database, no network, no DOM beyond gen-hero-showcase.mjs's stub. The member
-// roll-call lane is an API in a live browser and cold here, so the rows this
-// harness reaches are the curated ones — executive documents and migrated formal
-// actions — which is exactly the population the curation gate is about.
+// database, no network, no DOM beyond gen-hero-showcase.mjs's stub.
 
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { buildCorpus } from "./vr-record-corpus.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -83,6 +90,12 @@ for (const f of FILES) vm.runInContext(R(f), sandbox, { filename: f });
 win.PROFILES = win.CMP_DATA;
 
 const CS = win.PDXConsistency;
+
+// The roll-call lane, rebuilt offline. Seeding it here is what puts record rows
+// into the gated population below; without it every record-lane assertion in this
+// file is vacuously true and says so in its own count.
+const { byMember } = buildCorpus(ROOT);
+for (const [pid, items] of byMember) if (win.CMP_DATA[pid]) win.PDXVotingRecord.noteMember(pid, items);
 
 let pass = 0;
 const fails = [];
@@ -156,22 +169,42 @@ for (const r of rows) {
 section("3 · local link before the multi-issue caveat, on the rendered row");
 const multi = rows.filter((r) => r.d.multi);
 ok(multi.length > 0, "no multi-issue instrument reached — the ordering check has no subject");
+// PER ROW, NOT PER FACE. Reading the four offsets off the whole face takes the
+// first occurrence of each label anywhere on it, so on a face whose first row is
+// derived and whose third is curated the check compares row 1's "What it did"
+// against row 3's "Why it counts here" and reports an ordering bug that is really
+// two different rows. Split on the row container first — the same <details> the
+// reader opens — and the check means what it says.
+const faceRows = new Map();
+const rowsOfFace = (pid, key) => {
+  const k = pid + "|" + key;
+  if (faceRows.has(k)) return faceRows.get(k);
+  const html = CS.dossierRecordsHtml ? CS.dossierRecordsHtml(pid, key) : "";
+  const parts = html ? html.split('<details class="pdxdos-rec"').slice(1) : [];
+  faceRows.set(k, parts);
+  return parts;
+};
+let ordered = 0;
 for (const r of multi) {
   const at = `${r.pid}/${r.key} [${r.d.ident}]`;
-  const html = CS.dossierRecordsHtml
-    ? CS.dossierRecordsHtml(r.pid, r.key)
-    : "";
-  if (!html) continue;
-  const did = html.indexOf("What it did:");
-  const why = html.indexOf("Why it counts here:");
-  const cut = html.indexOf("Which way it cut:");
-  const cav = html.indexOf("Multi-issue ");
-  ok(did !== -1 && why !== -1 && cut !== -1,
+  const part = rowsOfFace(r.pid, r.key)[r.i];
+  if (!part) continue;
+  const did = part.indexOf("What it did:");
+  const why = part.indexOf("Why it counts here:");
+  const derivedWhy = part.indexOf("How it was linked:");
+  const cut = part.indexOf("Which way it cut:");
+  const cav = part.indexOf("Multi-issue ");
+  // Either voice fills the second slot; the ordering claim is about the slots.
+  const second = why === -1 ? derivedWhy : why;
+  ok(did !== -1 && second !== -1 && cut !== -1,
     `${at}: the rendered row is missing one of the three mechanism labels`);
-  ok(did < why && why < cut && cut < cav,
+  if (did === -1 || second === -1 || cut === -1) continue;
+  ordered++;
+  ok(did < second && second < cut && (cav === -1 || cut < cav),
     `${at}: the multi-issue caveat is printed before the row explains the local link\n` +
-    `    (did=${did} why=${why} cut=${cut} caveat=${cav})`);
+    `    (did=${did} why=${second} cut=${cut} caveat=${cav})`);
 }
+ok(ordered > 40, `only ${ordered} rendered rows were ordering-checked — the row split stopped matching the markup`);
 
 /* ═══════════════════════════════════════════════════════════════════════════
    4 · the sentence earns its slot
@@ -237,10 +270,61 @@ for (const r of rows) {
     `${r.pid}/${r.key} [${r.d.ident}]: the direction line stopped quoting the chip it sits under`);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   7 · the roll-call lane is held to the same gate, at the coverage it reached
+   ═══════════════════════════════════════════════════════════════════════════ */
+section("7 · judged roll-call acts teach too — or are counted as debt, not waived");
+{
+  const rec = rows.filter((r) => r.d.lane === "record");
+  ok(rec.length > 50,
+    `only ${rec.length} judged roll-call acts reached — the offline corpus stopped feeding this file,\n` +
+    "    and every assertion in this section is passing on an empty set");
+  let curated = 0;
+  const openDebt = new Map();
+  for (const r of rec) {
+    const at = `${r.pid}/${r.key} [${r.d.ident}]`;
+    // The two slots are never empty on this lane either — derived counts, blank
+    // does not.
+    ok((r.m.did || "").trim().length > 0, `${at}: no "what it did" line at all`);
+    ok((r.m.counts || "").trim().length > 0, `${at}: no "why it counts here" line at all`);
+    if (r.m.countsBy === "curated") {
+      curated++;
+      ok(!DERIVED.test(r.m.counts), `${at}: rendered as curated but the sentence is the derived restatement`);
+      ok(r.d.counts.trim() !== String(r.d.plain || "").trim(),
+        `${at}: "why it counts here" repeats "what it did" verbatim`);
+    } else {
+      const it = r.d.item || {};
+      const k = `${it.number}|${it.congress}|${r.key}`;
+      openDebt.set(k, (openDebt.get(k) || 0) + 1);
+    }
+  }
+  const rate = rec.length ? curated / rec.length : 0;
+  console.log(`   judged roll-call acts: ${rec.length} · curated ${curated} (${Math.round(rate * 100)}%) · ${openDebt.size} (measure, issue) pairs still owed`);
+  // A ratchet on the two verdicts a reader comes to argue with. It is not 100%
+  // and must not be written as if it were: the measures behind the remainder have
+  // no summary text in the repo, so a curator has nothing to write from and a
+  // confident sentence there would be invention.
+  ok(rate >= 0.7,
+    `curated coverage of judged roll-call acts fell to ${Math.round(rate * 100)}% — it was 83% when this gate was written`);
+  // Every pair still owed is named, so the debt is a work list rather than a mood.
+  const worst = [...openDebt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+  if (worst.length) console.log(`   still owed, worst first: ${worst.map(([k, n]) => `${k} (${n})`).join(" · ")}`);
+  // And the debt is bounded by what the repo can actually source. A pair with
+  // measure text on file and no curated line is a gap somebody can close today.
+  const ident = new Set(JSON.parse(R("db/vr-measure-identity.json")).measures.map((m) => m.number + "|" + m.congress));
+  const writable = [...openDebt.keys()].filter((k) => {
+    const p = k.split("|");
+    return ident.has(p[0] + "|" + p[1]);
+  });
+  ok(writable.length === 0,
+    `${writable.length} judged pair(s) have measure text on file and still render derived — ` +
+    `nothing is stopping these being written: ${writable.slice(0, 6).join(", ")}`);
+}
+
 // ── Report ──────────────────────────────────────────────────────────────────
 if (fails.length) {
   console.error(`\n✗ mechanism completeness: ${fails.length} failed, ${pass} passed\n`);
   fails.forEach((f, i) => console.error(`  ${i + 1}. ${f}\n`));
   process.exit(1);
 }
-console.log(`\n✓ mechanism completeness: all ${pass} assertions passed — ${rows.length} judged instruments, every one of them teaches why it counts`);
+console.log(`\n✓ mechanism completeness: all ${pass} assertions passed — ${rows.length} judged instruments; every curated one teaches why it counts and every derived one is counted as debt rather than dressed up as curation`);

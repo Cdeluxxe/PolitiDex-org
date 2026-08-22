@@ -668,6 +668,10 @@
         // procedural inversion — not a second copy of the recommit/table rule.
         var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
         if (eff === null || typeof eff === 'undefined') return; // present / not voting
+        // THE CURATOR-WEIGHT SUMS ARE A DISCLOSURE, NOT A DECISION. They are still
+        // computed — a surface that wants to say "the curation calls this a narrow
+        // link" can, and the exec index publishes the same two fields — but no gate
+        // below reads them any more. See LEDGER-FIRST directly beneath this loop.
         var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
         if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
         out.judged++;
@@ -693,10 +697,28 @@
         return stop('record_thin', 'coverage_floor');
       }
 
-      var tw = out.advanceScore + out.opposeScore;
+      // ── LEDGER-FIRST: THE PATTERN IS READ OFF THE LIST, NOT OFF A SCOREBOARD ──
+      // What follows used to divide advanceScore by (advanceScore + opposeScore) —
+      // curator weight, procedurally discounted. That made the chip a weighted
+      // scoreboard sitting on top of a ledger, and the two could disagree out loud:
+      // a row printing "5 advanced · 1 against" could be labelled Split because the
+      // five were rider-weight mappings and the one was not. A reader cannot check a
+      // number they cannot see, and PolitiDex does not publish curator mass.
+      //   So the dominance test and the lead are the ACT COUNTS a reader can count
+      // for themselves on the ledger below the chip. Every act is one act: a 35-
+      // weight title of a reconciliation bill and a 100-weight standalone are each
+      // one recorded act on this issue, and the ledger row for each says which it is
+      // in words ("narrow link", "part of a larger measure"). Where the mappings all
+      // carry the same weight — the ordinary case — this changes nothing at all; it
+      // only stops the unequal cases from being resolved by a number nobody prints.
+      //   NOT TOUCHED: the two MEANING walls below (a poleless issue, and a record
+      // connected to the issue only incidentally). Those are about what the record is
+      // about, not about how much of it there is, and counting instead of weighing is
+      // not licence to lower either.
+      var tw = out.advances + out.opposes; // === out.judged, named for the ratio below
       var uniform = (out.advances === 0 || out.opposes === 0);
       var dominant = tw > 0 &&
-        (out.advanceScore >= tw * _RD_DOMINANCE || out.opposeScore >= tw * _RD_DOMINANCE);
+        (out.advances >= tw * _RD_DOMINANCE || out.opposes >= tw * _RD_DOMINANCE);
 
       if (out.judged >= _RD_MIN_JUDGED) {
         if (!dominant) {
@@ -720,7 +742,7 @@
           return stop('record_thin', 'no_primary');
         } else {
           out.token = 'record_direction';
-          out.lead = (out.advanceScore >= out.opposeScore) ? 'advances' : 'opposes';
+          out.lead = (out.advances >= out.opposes) ? 'advances' : 'opposes';
         }
       } else if (out.judged >= _RD_THIN_MIN && uniform) {
         // A run, not a tendency. Two or three votes that all went the same way is
@@ -852,6 +874,74 @@
     // about the member's record instead of a true one about the issue's shape.
     var _RD_TIER_MUTE = { no_issue: 1, balance_key: 1, no_pole: 1 };
 
+    // ── THE READER-FACING RECORD VOCABULARY ────────────────────────────────────
+    // FIVE WORDS FOR WHAT A FORMAL RECORD DID, and they are the words a reader
+    // gets. The tiers above are the ENGINE's vocabulary: they carry a depth
+    // qualifier ("Strongly", "Thin") because the surfaces that print them are
+    // arguing about how much record there is. A profile face asking the plainer
+    // question — which way does this record point — needs a plainer answer, and it
+    // needs the SAME answer everywhere, so it is fixed here and never typed at a
+    // call site.
+    //
+    //   Supports · Mostly supports · Mixed · Mostly opposes · Opposes
+    //
+    // THE MERGE, STATED ONCE. This is not a second reading of the record; it is a
+    // renaming of the read that already happened, one tier to one word:
+    //
+    //   strong + advances → Supports          strong + opposes → Opposes
+    //   mostly + advances → Mostly supports   mostly + opposes → Mostly opposes
+    //   split             → Mixed
+    //
+    // WHY "MIXED" HERE AND "SPLIT" ON THE CHIP. They are the same bucket and they
+    // are deliberately worded differently, because the chip sits on a row that can
+    // ALSO be showing a Direction Match verdict, and that vocabulary already owns
+    // the word "Mixed". Two "Mixed"es on one row meaning two different things is
+    // the collision this vocabulary exists to avoid, so the depth-qualified chip
+    // keeps "Split" and the plain-language lead — which never appears beside a
+    // Direction Match word, because it only renders where there is no score — says
+    // "Mixed". Same tier, same arithmetic, one of them is never in the room with
+    // the other.
+    //
+    // AND TWO STATES THAT ARE NOT IN THE FIVE, on purpose. A record too thin to
+    // characterise and a record the engine could read nothing from are not weak
+    // versions of "Supports"; they are refusals, and they are worded as refusals.
+    // Nothing promotes into the five: `characterising` is the flag a surface gates
+    // on, and it is false for both.
+    //
+    // WHAT THIS IS NOT. Not a stance — the frame words below are the whole reason
+    // this layer is safe to print, and they never say "their position is". Not a
+    // score: no percentage, nothing ordinal, and Direction Match does not read it.
+    // Not a party read: the only subject of every one of these words is one
+    // person's own formal record.
+    var _RD_SAYS_LEAD = 'The record indicates';
+    var _RD_SAYS_ON = 'Record on this issue';
+    var _RD_SAYS = {
+      supports:        { key: 'supports',        label: 'Supports',        tone: 'support', characterising: true,  rank: 0 },
+      mostly_supports: { key: 'mostly_supports', label: 'Mostly supports', tone: 'support', characterising: true,  rank: 1 },
+      mixed:           { key: 'mixed',           label: 'Mixed',           tone: 'mixed',   characterising: true,  rank: 2 },
+      mostly_opposes:  { key: 'mostly_opposes',  label: 'Mostly opposes',  tone: 'oppose',  characterising: true,  rank: 1 },
+      opposes:         { key: 'opposes',         label: 'Opposes',         tone: 'oppose',  characterising: true,  rank: 0 },
+      early:           { key: 'early',           label: 'Too early to say', tone: 'muted',  characterising: false, rank: 8 },
+      unread:          { key: 'unread',          label: 'No clear pattern yet', tone: 'muted', characterising: false, rank: 9 }
+    };
+    // tier key + direction word → one of the seven above. Fails closed on anything
+    // it does not recognise, which is the same direction every other read here
+    // fails in: an unrecognised state is unread, never a lean.
+    function _recordSays(tierKey, dirWord) {
+      if (tierKey === 'split') return _RD_SAYS.mixed;
+      if (tierKey === 'thin') return _RD_SAYS.early;
+      if (tierKey === 'strong' || tierKey === 'mostly') {
+        var pre = (tierKey === 'strong') ? '' : 'mostly_';
+        if (dirWord === 'supports') return _RD_SAYS[pre + 'supports'] || _RD_SAYS.supports;
+        if (dirWord === 'opposes') return _RD_SAYS[pre + 'opposes'] || _RD_SAYS.opposes;
+      }
+      return _RD_SAYS.unread;
+    }
+    window._PDX_RD_SAYS = _RD_SAYS;
+    window._PDX_RD_SAYS_LEAD = _RD_SAYS_LEAD;
+    window._PDX_RD_SAYS_ON = _RD_SAYS_ON;
+    window._recordSays = _recordSays;
+
     // Word the two counts. Printed only where the index permits counts, or where the
     // tier's own label already denies depth (thin) — a shallow split still withholds
     // its margin, exactly as the index does.
@@ -903,6 +993,9 @@
         weight: t.weight,
         tone: t.directional ? dir.tone : t.tone,
         label: t.directional ? (t.lead + ' ' + dir.word) : t.label,
+        // The plain-language name for this same read. Derived, never chosen: one
+        // tier and one direction word in, one of the seven fixed words out.
+        says: _recordSays(t.key, dir ? dir.word : ''),
         counts: showCounts ? _rdTierCounts(idx, noun, t.key) : '',
         judged: idx.judged, advances: idx.advances, opposes: idx.opposes,
         directional: !!t.directional,
@@ -968,9 +1061,14 @@
       var partial = (sup === 'coverage_floor');
       var deep = !partial && judged >= _RD_MIN_JUDGED;
       var uniform = (adv === 0 || opp === 0);
-      var tw = (idx.advanceScore || 0) + (idx.opposeScore || 0);
+      // Act counts, not curator weight — the same ledger-first rule as the index
+      // above. The chip sits directly on top of a list of acts; the number it is
+      // reasoning from has to be the number under it. (idx.advanceScore and
+      // idx.opposeScore are still carried for disclosure and are still read by
+      // nothing that decides anything.)
+      var tw = adv + opp;
       var dominant = tw > 0 &&
-        (idx.advanceScore >= tw * _RD_DOMINANCE || idx.opposeScore >= tw * _RD_DOMINANCE);
+        (adv >= tw * _RD_DOMINANCE || opp >= tw * _RD_DOMINANCE);
 
       var key, weight, tone, label, dir = null;
       if (!uniform && !(deep && dominant)) {
@@ -983,7 +1081,7 @@
         label = _RD_TIERS.split.label;
       } else {
         var leadKey = uniform ? (adv ? 'advances' : 'opposes')
-          : (((idx.advanceScore || 0) >= (idx.opposeScore || 0)) ? 'advances' : 'opposes');
+          : ((adv >= opp) ? 'advances' : 'opposes');
         dir = _RD_TIER_DIR[leadKey];
         key = deep ? (uniform ? 'strong' : 'mostly') : 'thin';
         weight = deep ? _RD_TIERS[key].weight : 'thin';
@@ -992,6 +1090,7 @@
       }
       return {
         tier: key, weight: weight, tone: tone, label: label,
+        says: _recordSays(key, dir ? dir.word : ''),
         // A uniform record counts itself the way the thin tier does — "3 actions
         // advanced" — because "3 advanced · 0 against" spends a number on a side
         // with nothing on it.

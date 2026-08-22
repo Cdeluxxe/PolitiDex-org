@@ -4861,33 +4861,53 @@
            below. Nothing about when it renders changed: it is still gated on
            _isThinProfile and still falls back to the plain thin notice. -->
 
-      <!--PDXSP:verdict-->
-      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the whole of the
-           verdict stage. One question ("do they stand by what they said?") over
-           one pool of documented word in three weighted tiers: explicit pledges,
-           stated positions, and the issues they campaign on. Tested only against the
-           Official Record. See word-action.js for the model, its five rules and the
-           fail-closed floors.
+      <!--PDXSP:standout-->
+      <!-- 🏛 WHAT THE RECORD POINTS TO — the standout strip, and the first
+           substantive surface on the profile.
 
-           It used to open the record stage, which made the site's primary finding
-           read as the header of one system among several. It now has a stage of its
-           own, directly under the brief, and it is the only score there. The
-           supporting lanes did not move relative to each other: the Promise
-           Receipts block is still the pledge tier's evidence, and the
-           Official Record and Say-vs-Do sections are still the two scoped feeds
-           underneath. Renders '' when no word is on file at all — an empty frame
-           would imply the record should be here.
+           WHY IT IS HERE AND NOT UNDER THE SCORE. Everything below this used to
+           open with ⚖️ Word vs Action, which needs a documented position of theirs
+           on file before it can say anything at all. On the many profiles where the
+           roll-call ledger is deep and the stance ledger is thin, the first thing a
+           reader met was "Not scored yet" — a fact about OUR coverage, printed
+           above a formal record that runs to dozens of issues. The record was
+           always there. It was three sections down.
 
-           IT IS THE SAME SECTION ON BOTH LANES. Nothing in it is office-aware
-           except the vocabulary of the formal lane itself (🏛️ roll-call votes for
-           a member, ✒️ formal actions for an executive) and the term-scope strip,
-           which is exec-only because a member's roll-call record is not
-           term-scoped anywhere in this engine. The Direction Match framing, the
-           shape strip, the one-bucket-at-a-time issue index (closed by default —
-           🌳 All Issues by Topic is the browse-all surface), the formal + public
-           lanes on each row and the dossier entry from those rows are one
-           renderer for both. -->
-      ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
+           So the record leads. Up to two issues where the formal acts on file ran
+           one way, up to two where they ran both ways, each chip a door into that
+           issue's dossier, above the full atlas of every issue the record touched
+           — and Word vs Action follows, unchanged, with its ring and its
+           percentage, as the second thing rather than the first.
+
+           IT ADDS NO ARITHMETIC. PDXConsistency.recordStandout selects from the
+           same _fpiRows() the atlas below renders, using the pattern engine's own
+           depth floor, and prints the tier and counts those rows already carry.
+           No percentage, no ranking against anybody else, no party framing, and
+           no path from any of it into Direction Match.
+
+           FAIL CLOSED. A profile with no issue deep enough to characterise gets no
+           strip — not a placeholder and not a filler issue.
+
+           ONE STANDOUT BLOCK PER PROFILE, NEVER TWO. A profile deep enough for the
+           shape hero (12+ issues on the formal record, 4+ of them readable) already
+           opens with that block, in the hero itself, listing the same rows from the
+           same engine at its own caps of 4 and 3 — so the strip stands down there
+           rather than printing a second, shorter copy of a list already on screen.
+           The two surfaces are one finding at two depths, and which one a reader
+           gets is decided by how much record there is, not by how much word.
+           PDXWordAction.shapeApplies() is that question, asked rather than
+           re-derived, so the two can never both mount. -->
+      ${(function () {
+        try {
+          var SO = window.PDXConsistency && window.PDXConsistency.recordStandout;
+          if (!SO || typeof SO.html !== 'function') return '';
+          var WA = window.PDXWordAction;
+          if (WA && typeof WA.shapeApplies === 'function' && WA.shapeApplies(id)) return '';
+          var html = SO.html(id) || '';
+          return html ? '<div class="modal-section pdxso-face">' + html + '</div>' : '';
+        } catch (e) { return ''; }
+      })()}
+
 
       <!-- 🏛 EVERY ISSUE ON THE FORMAL RECORD — the formal atlas, on the face.
            WHAT IT IS. PDXConsistency.formalPatternIndex: one row per issue this
@@ -4941,6 +4961,34 @@
           return '<div id="pdxsec-formalatlas" class="modal-section pdxfpi-face">' + html + '</div>';
         } catch (e) { return ''; }
       })()}
+
+      <!--PDXSP:verdict-->
+      <!-- ⚖️ WORD VS ACTION — the primary accountability read, and the whole of the
+           verdict stage. One question ("do they stand by what they said?") over
+           one pool of documented word in three weighted tiers: explicit pledges,
+           stated positions, and the issues they campaign on. Tested only against the
+           Official Record. See word-action.js for the model, its five rules and the
+           fail-closed floors.
+
+           It used to open the record stage, which made the site's primary finding
+           read as the header of one system among several. It now has a stage of its
+           own, directly under the brief, and it is the only score there. The
+           supporting lanes did not move relative to each other: the Promise
+           Receipts block is still the pledge tier's evidence, and the
+           Official Record and Say-vs-Do sections are still the two scoped feeds
+           underneath. Renders '' when no word is on file at all — an empty frame
+           would imply the record should be here.
+
+           IT IS THE SAME SECTION ON BOTH LANES. Nothing in it is office-aware
+           except the vocabulary of the formal lane itself (🏛️ roll-call votes for
+           a member, ✒️ formal actions for an executive) and the term-scope strip,
+           which is exec-only because a member's roll-call record is not
+           term-scoped anywhere in this engine. The Direction Match framing, the
+           shape strip, the one-bucket-at-a-time issue index (closed by default —
+           🌳 All Issues by Topic is the browse-all surface), the formal + public
+           lanes on each row and the dossier entry from those rows are one
+           renderer for both. -->
+      ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
       <!-- THE LIMITED-RECORD CARD USED TO MOUNT HERE, between ⚖️ Word vs Action
            and the tree. It is gated on _isThinProfile, which means it fires only

@@ -386,11 +386,18 @@
       if (d === 'advances') adv.push(m);
       else if (d === 'opposes') opp.push(m);
     }
-    var byWeight = function (a, b) {
-      if (!!b.isPrimary !== !!a.isPrimary) return b.isPrimary ? 1 : -1;
-      return (b.weight || 0) - (a.weight || 0);
+    // ORDERED BY NAME, NOT BY CURATOR WEIGHT. This list folds after four rows per
+    // direction, so whatever sorts it decides which issues a reader sees without
+    // opening anything — and sorting by isPrimary then weight put every supporting
+    // and narrow mapping behind the fold by construction. The rows still SAY
+    // "supporting" and "narrow link"; the curation just no longer gets to choose
+    // which of a document's issues are the visible ones. Alphabetical is arbitrary
+    // and that is the point: it is arbitrary in a way no reader will mistake for a
+    // judgement about which issues this document really touched.
+    var byLabel = function (a, b) {
+      return String(issueLabel(a.issueKey)).localeCompare(String(issueLabel(b.issueKey)));
     };
-    adv.sort(byWeight); opp.sort(byWeight);
+    adv.sort(byLabel); opp.sort(byLabel);
     if (!adv.length && !opp.length) return '';
     // Short lists render whole; long ones keep four per direction visible and the rest
     // one tap away. The counts in the headers never shrink, so nothing is hidden in the
