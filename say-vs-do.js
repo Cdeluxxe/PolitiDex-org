@@ -334,7 +334,32 @@
     'gwynn_h6||a working law enforcement officer legislating public safety': 'back_police',
     'gwynn_h6||pattern legislates the public safety work he does on duty': 'back_police',
     'jferry||a farmer with water interests now oversees water policy': 'gov_transparency',
-    'james_dunnigan||an insurance industry insider who writes insurance law': 'gov_transparency'
+    'james_dunnigan||an insurance industry insider who writes insurance law': 'gov_transparency',
+
+    // ── August 2026, third pass: the residue, read one more time ─────────────
+    // The two passes above keyed 276 of 452 receipts and left 176. Those 176 were
+    // read again end-to-end against the live ISSUE_MAP under the same three tests
+    // and the same tiebreak. THREE were keyable. That is the finding, not a
+    // shortfall: the residue is what the earlier comments predicted it would be —
+    // conduct and candor, electoral and career biography, and "Pattern:" rows that
+    // deliberately span two or more issues because spanning them is the point.
+    // Keying those would either invent a subject the item does not have or force a
+    // second plausible key, and both are worse than an honest blank.
+    //
+    // One thing IS narrowed here, and only narrowed. The second pass wrote that
+    // "RFK Jr.'s vaccine items stay unkeyed", with test 3 as the reason: a
+    // negative item on an issue he campaigns on would be tallied as cutting
+    // against his own stated position. That reason is exactly right for a
+    // DIRECTIONAL verdict — 'contradicts' lands in row.public.contradicting and
+    // prints a side. It does not reach a 'flag': _rowPublic() counts flags in
+    // their own bucket, publicTally() prints them as flags, and consistency.js
+    // refuses to let a flag decide a row's verdict at all. So the vaccine-CLAIMS
+    // item (impact negative, verdict contradicts) stays unkeyed exactly as before,
+    // and the advisory-panel item (impact negative, verdict flag) can land: it
+    // prints "1 flag" on the one lane it is actually about, and no side.
+    'dhinkins||quiet child welfare work alongside the energy bills': 'family_support',
+    'tgabbard||2017 assad meeting drew bipartisan criticism': 'restraint',
+    'rfkjr||overhauled federal vaccine advisory panels': 'medical_freedom'
   };
   function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   // Resolve a receipt's issueKey: its own, else the Phase 10 backfill (validated
