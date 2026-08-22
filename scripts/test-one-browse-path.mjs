@@ -148,7 +148,14 @@ section("2 · every old way in still lands on the tree");
     "the tree does not answer to #pdxsec-stances — the demoted section owned that anchor,\n" +
     "    so every jump and deep link naming it now lands nowhere");
   // …and the spine's registry agrees, so the rail demotes none of the three.
-  eq(SP.targetStage("pdxsec-stancetree"), "verdict", "the tree is not registered in the verdict stage");
+  // The tree used to be registered into the verdict stage, riding under the score
+  // it was the browse surface for. It has its own stage now — the gateway — and it
+  // reads AHEAD of the score rather than under it, because browsing the record is
+  // not a footnote to being told a number about it.
+  eq(SP.targetStage("pdxsec-stancetree"), "explore", "the tree is not registered in the gateway stage");
+  const keys = SP.STAGE_KEYS;
+  ok(keys.indexOf("explore") < keys.indexOf("verdict"),
+    "the gateway stage no longer precedes the score — the one browse path is back under the number");
   eq(SP.targetStage("pdxsec-stances"), SP.targetStage("pdxsec-stancetree"),
     "#pdxsec-stances resolves to a different stage than the surface that now emits it");
   eq(SP.targetStage("pdxsec-glance"), SP.targetStage("pdxsec-stancetree"),
@@ -182,6 +189,22 @@ section("3 · Order: Topic | Tension — one control, no second section");
     has(topic, 'data-pdxtree-sort="topic"', `${pid}: the tree does not record its order`);
     has(tension, 'data-pdxtree-sort="tension"', `${pid}: the tension view does not record its order`);
     has(topic, 'data-pdxtree-mode="tree"', `${pid}: topic order is not the topic tree`);
+    // ONE BROWSE PATH STARTS WITH ONE SHORT LIST. In topic order — the default a
+    // reader arrives in — the first screen is the core-issue map and nothing else:
+    // no issue row until they choose a topic, and never more doors than the
+    // taxonomy has entries. Tension order is the opposite bargain by design, and
+    // is reached only by pressing for it.
+    const shownLeaves = (h) => String(h).split('<div class="pdxtree-branch').slice(1)
+      .filter((b) => /data-pdxtree-open="1"/.test(b))
+      .reduce((n, b) => n + (b.match(/data-pdxtree-issue="/g) || []).length, 0);
+    eq(shownLeaves(topic), 0,
+      `${pid}: the default topic view paints issue rows before a topic is opened`);
+    const doors = [...topic.matchAll(/data-pdxtree-branch="([^"]*)"/g)].map((m) => m[1]);
+    ok(doors.length <= (win.CORE_NATIONAL_ISSUES || []).length + 1,
+      `${pid}: the first screen offers ${doors.length} doors — more than 13 cores + Other`);
+    eq(doors.filter((k) => k !== "other" &&
+      !(win.CORE_NATIONAL_ISSUES || []).some((c) => c.key === k)).join(","), "",
+      `${pid}: a first-screen door is not a core national issue`);
     has(tension, 'data-pdxtree-mode="flat"',
       `${pid}: tension order still renders branches — a ranking across topics inside topic\n` +
       "    accordions is a ranking a reader cannot see");

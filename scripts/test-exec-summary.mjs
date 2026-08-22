@@ -170,6 +170,50 @@ eq(Object.keys(SUMKEYS.buckets.actions.keys).length, 9,
 eq(A.byClass.signed_law + A.byClass.vetoed_law + A.byClass.executive_order + A.byClass.directive,
   A.actions.total + A.unstatedStanding, "invariant 3: class counts do not sum to the actions on file");
 
+// ── 3b · the per-issue rows are the same pass the counts came from ───────────
+// The compact formal summary at the head of an executive profile names a few issues,
+// and it reads these rows to do it. They exist so that naming an issue and counting
+// it are one derivation: rebuild the universe a second time and the block at the top
+// of the page and the ledger below it can come to disagree about the same file.
+ok(Array.isArray(A.rows), "the summary no longer carries its per-issue reads");
+// One row per issue in the universe, and the universe is stance ∪ mapped — so every
+// row lands in a bucket and the two totals are the same number. A row that fell out
+// of the buckets would be an issue the summary counted but could not name.
+eq(A.rows.length, A.issues.total,
+  "the rows are not one per issue in the universe the counts were made over");
+{
+  const BUCKET = { acted_on_it: "aligned", acted_against: "against", acted_both_ways: "bothWays",
+                   said_not_done: "noActionFound", acted_no_stance: "noStance" };
+  const tally = { aligned: 0, against: 0, bothWays: 0, noActionFound: 0, noStance: 0 };
+  const keys = new Set();
+  for (const r of A.rows) {
+    ok(!!r.issueKey, "a row carries no issue key");
+    ok(!keys.has(r.issueKey), `${r.issueKey} appears twice in the summary rows`);
+    keys.add(r.issueKey);
+    eq(r.score, null, `row ${r.issueKey} published a score`);
+    ok(!("percent" in r) && !("pct" in r), `row ${r.issueKey} carries a percentage field`);
+    // The row is a projection of the card's own read, so it can never claim more
+    // than the card holds.
+    const card = EX.issue("trump", r.issueKey);
+    eq(r.token, card.token, `row ${r.issueKey} carries a token the card does not`);
+    eq(r.acts, card.actions.length, `row ${r.issueKey} counts acts the card does not hold`);
+    eq(r.advances + r.opposes, r.acts,
+      `row ${r.issueKey} splits into more or fewer directions than it holds acts`);
+    // standingN is how many acts carry the issue's most contested standing — never
+    // more than it holds, and never zero while a standing is named.
+    if (r.standing) {
+      ok(r.standingN >= 1 && r.standingN <= r.acts,
+        `row ${r.issueKey} counts ${r.standingN} acts at its standing out of ${r.acts}`);
+    } else {
+      eq(r.standingN, 0, `row ${r.issueKey} counts acts at a standing it does not have`);
+    }
+    if (BUCKET[r.token]) tally[BUCKET[r.token]]++;
+  }
+  for (const b of Object.keys(tally)) {
+    eq(tally[b], A.issues[b], `the rows and the ${b} count disagree about the same pass`);
+  }
+}
+
 // ── 4 · noActionFound is coverage, never folded into against ─────────────────
 // Prove it behaviourally: remove every action and the stated positions must land in
 // noActionFound with `against` still at zero.

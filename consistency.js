@@ -2331,6 +2331,21 @@
       '.pdxso-wall{font-size:0.66rem;color:#7f97b8;line-height:1.45;margin:0.6rem 0 0;' +
         'border-top:1px solid rgba(159,180,212,0.14);padding-top:0.4rem;}' +
       '@media (max-width:560px){.pdxso-grps{grid-template-columns:1fr;}}' +
+      // ── THE EXECUTIVE VARIANT ──────────────────────────────────────────────
+      // Same shell, same chips, three extra lines: the lane's volume clause, the
+      // per-class inventory under it, and the one control out to the topic tree.
+      // The inventory is the loudest plain fact on the block, so it gets the
+      // condensed face the counts elsewhere use; the volume clause above it is
+      // prose and stays prose.
+      '.pdxxs-vol{font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.45rem 0 0.2rem;}' +
+      '.pdxxs-inv{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.86rem;' +
+        'letter-spacing:0.02em;color:#cfe0f8;margin:0 0 0.1rem;}' +
+      '.pdxxs-quiet{font-size:0.7rem;color:#8fa6c6;line-height:1.5;margin:0.5rem 0 0;}' +
+      '.pdxxs-go{display:block;width:100%;margin-top:0.6rem;min-height:44px;cursor:pointer;' +
+        'background:rgba(16,26,48,0.7);color:#cfe0f8;font-family:"Barlow Condensed",sans-serif;' +
+        'font-weight:800;font-size:0.82rem;letter-spacing:0.05em;text-transform:uppercase;' +
+        'border:1px solid rgba(96,165,250,0.3);border-radius:0.55rem;padding:0.5rem 0.6rem;}' +
+      '.pdxxs-go:hover,.pdxxs-go:focus-visible{background:rgba(24,38,68,0.85);border-color:rgba(96,165,250,0.55);}' +
       // ── THE FULL FORMAL-PATTERN ISSUE INDEX ────────────────────────────────
       // A flat, dense list, not a stack of cards: sixty-four issues is a table's
       // job, and every ornament repeated sixty-four times is a scroll the reader
@@ -7599,9 +7614,15 @@
   // The strip's own wall, which is the engine's sentence rather than a second
   // wording of it, plus the one thing that sentence does not cover: this is a
   // SELECTION, and the reader is told where the rest of it is.
-  var _SO_WALL_TAIL = 'These are the standouts, not the whole record — the full ' +
-    'issue-by-issue list is below.';
-  var _SO_WALL_WHOLE = 'That is every issue the record could be read on so far — the full issue-by-issue list is below.';
+  // WHERE THE REST OF IT IS. Both tails point at 🌳 All Issues by Topic, which is
+  // the gateway a reader explores the record issue by issue from. They used to
+  // point at "the full issue-by-issue list below", meaning the flat formal atlas
+  // that mounted open directly beneath this strip; that list is now collapsed
+  // under the tree, so naming it here would send a reader past the index to the
+  // wall behind it.
+  var _SO_WALL_TAIL = 'These are the standouts, not the whole record — explore it ' +
+    'issue by issue in the topic tree below.';
+  var _SO_WALL_WHOLE = 'That is every issue the record could be read on so far — the topic tree below is how you explore them.';
   function _soChipHtml(x, grp) {
     var tone = _ST_PAT_TONE[x.tone] || _ST_PAT_TONE.muted;
     var says = (x.pat && x.pat.says) || null;
@@ -7640,7 +7661,7 @@
       if (!list.length) return '';
       var g = _SO_GROUPS[key];
       var more = total > list.length
-        ? '<p class="pdxso-more">' + (total - list.length) + ' more in the full list.</p>' : '';
+        ? '<p class="pdxso-more">' + (total - list.length) + ' more in the topic tree below.</p>' : '';
       return '<div class="pdxso-grp pdxso-grp-' + escAttr(g.id) + '">' +
           '<div class="pdxso-grp-h">' + esc(g.lb) + '</div>' +
           '<p class="pdxso-grp-note">' + esc(g.note) + '</p>' +
@@ -7672,6 +7693,301 @@
           grpHtml('mixed', p.mixed, p.mixedN) +
         '</div>' +
         '<p class="pdxso-wall">' + esc(wall) + '</p>' +
+      '</section>';
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ✒️ THE COMPACT FORMAL SUMMARY — EXECUTIVE LANE
+  // ═══════════════════════════════════════════════════════════════════════════
+  // The strip above is the member's answer to "what does the formal record say
+  // about this person" and it is built out of roll-call patterns. An executive has
+  // no roll calls, and _stDirRaw() says so in one line — `if (r.lane === 'exec')
+  // return null` — so every exec row reaches _fpiRows() as `unread`, _soPick()
+  // selects nothing, and a president's profile opened on the spine's record slot
+  // with nothing in it. Not a thin strip: no strip, and no pill pointing at one.
+  //
+  // This is that slot's exec-native occupant. It answers the two questions the
+  // member strip answers, in the vocabulary this lane already uses on the page:
+  //
+  //   WHAT DO WE HOLD?  The inventory — the lane's own volume clause, then the
+  //                     per-class counts (PDXExecRecord.inventory), which are
+  //                     never summed into one headline figure because signing a
+  //                     bill Congress wrote and issuing an order alone are
+  //                     different claims about power.
+  //   WHERE DO I LOOK?  Up to _XS_CAP issues per bucket where the acts on file all
+  //                     ran one way, and up to _XS_CAP where they ran both — each
+  //                     chip a door into the same dossier the topic tree opens —
+  //                     and then one control into the tree itself.
+  //
+  // IT IS NOT A ROLL-CALL ATLAS AND IT INVENTS NOTHING. Every figure is lifted off
+  // PDXExecRecord.summary(pid).rows — the same pass the ledger's own count rows are
+  // built from, so the summary at the top of the page and the panel further down
+  // cannot state different totals. No pattern tier is fabricated for a lane that
+  // does not have one, no vote language, no stance is written anywhere, and the
+  // buckets are the lane's published verdict tokens (acted on it / acted against it
+  // / acted both ways), not a second vocabulary invented here.
+  //
+  // NO SECOND SCORE. There is no percentage on this block and no ordinal anything:
+  // the single Direction Match figure on an executive profile lives where it always
+  // did, in the letterhead and in Word vs Action. Counts and issue names only.
+  //
+  // NOTHING IS CLEANED. An issue whose actions are enjoined, rescinded or overridden
+  // carries that standing on its chip, exactly as the dossier and the ledger carry
+  // it. A summary that reported only alignment would imply the whole record is
+  // operative, which is the failure Axis B exists to prevent, reintroduced one
+  // level up.
+  //
+  // THIN IS A STATE, NOT AN ABSENCE. A president with two orders on file gets the
+  // inventory and a sentence saying two actions cannot carry a pattern — not
+  // padding from the public lane, and not a blank where the record slot should be.
+  var _XS_CAP = 2;
+  // The set floor, for the same reason _SO_MIN_ISSUES exists: "every act ran one
+  // way" and "the acts ran both ways" are comparative claims, and a comparison over
+  // a set of one or two is the whole record wearing a superlative. Three readable
+  // issues is the smallest set where picking two leaves something unpicked.
+  var _XS_MIN_ISSUES = 3;
+  // The depth floor for a single chip, taken from the lane's OWN published
+  // thinness threshold rather than a number chosen here: PDXExecRecord.THIN_MAX is
+  // "one or two actions cannot carry a pattern", so the first count that can is one
+  // more than it. Read live so the two can never drift apart.
+  function _xsFloor() {
+    try {
+      var t = window.PDXExecRecord && window.PDXExecRecord.THIN_MAX;
+      if (typeof t === 'number' && t >= 0) return t + 1;
+    } catch (e) {}
+    return 3;
+  }
+  var _XS_HEAD = { icon: '✒️', title: 'What the formal record holds' };
+  var _XS_GROUPS = {
+    oneway: { id: 'oneway', lb: 'Every act ran one way',
+      note: 'Issues where every formal action on file pushed the same direction.' },
+    both: { id: 'both', lb: 'Acts ran both ways',
+      note: 'Issues where the formal actions on file ran in both directions.' }
+  };
+  // The lane's verdict tones, mapped onto the tones the chips in this file already
+  // paint with. One mapping, so an exec chip and a member chip meaning the same
+  // thing are the same colour.
+  var _XS_TONE = { good: 'support', bad: 'oppose', warn: 'mixed', muted: 'muted' };
+  // Only the three FINDING tokens can be a standout. said_not_done, acted_no_stance
+  // and no_record are coverage — they report the state of our file, not a reading of
+  // the record — and EXEC_VERDICTS marks them isCoverage for exactly this reason.
+  var _XS_ONEWAY = { acted_on_it: 1, acted_against: 1 };
+  var _XS_BOTH = { acted_both_ways: 1 };
+  var _XS_JUMP = 'pdxsec-stancetree';
+  // The same two-line jump the shape hero's "Explore all N by topic" button uses
+  // (word-action.js jumpAttr), including its no-JS-router fallback, so the one
+  // control out of this block behaves like the one control out of that one.
+  function _xsJumpAttr(target) {
+    var t = String(target).replace(/[^A-Za-z0-9_-]/g, '');
+    return ' onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
+           'else{var e=document.getElementById(\'' + t + '\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}"';
+  }
+  // How split a split is: the smaller of the two directions, which is the only
+  // honest measure of it. Same shape as _soMinority one lane over.
+  function _xsMinority(r) { return Math.min(r.advances || 0, r.opposes || 0); }
+  function _xsStripId(pid) { return 'pdxxs-strip-' + _stSlug(pid); }
+  // The contested-standing clause for one issue, counted. Empty when nothing behind
+  // the issue is contested — an uncontested record needs no clause, and printing
+  // "3 in force" here would spend the block's shortest line on the absence of news.
+  function _xsStanding(r) {
+    if (!r || !r.standing || !r.standing.contested) return '';
+    var n = r.standingN || 0;
+    if (!n) return String(r.standing.label || '');
+    return n + ' ' + String(r.standing.label || '').toLowerCase();
+  }
+
+  function _xsPick(pid) {
+    var out = { on: false, pid: pid || '', sum: null, volume: '', inventory: [],
+                acts: 0, issues: 0, readable: 0, thin: false, contested: false,
+                oneway: [], both: [], onewayN: 0, bothN: 0,
+                cap: _XS_CAP, floor: _xsFloor(), minIssues: _XS_MIN_ISSUES,
+                enough: false, any: false };
+    var EX;
+    try { EX = window.PDXExecRecord || null; } catch (e) { EX = null; }
+    if (!EX || !pid || typeof EX.eligible !== 'function' || !EX.eligible(pid)) return out;
+    var sum;
+    try { sum = EX.summary(pid, { allTerms: true }); } catch (e) { sum = null; }
+    // No summary means nothing on file or a failed invariant, and both of those are
+    // reasons to render nothing at all rather than a frame around an absence.
+    if (!sum || !sum.rows) return out;
+    out.on = true;
+    out.sum = sum;
+    out.acts = (sum.actions.total || 0) + (sum.unstatedStanding || 0);
+    out.issues = sum.issues.total || 0;
+    out.thin = !!sum.thin;
+    out.contested = !!sum.contested;
+    try { out.volume = (typeof EX.volumeText === 'function') ? (EX.volumeText(sum) || '') : ''; } catch (e) {}
+    try { out.inventory = (typeof EX.inventory === 'function') ? (EX.inventory(sum) || []) : []; } catch (e) {}
+
+    var one = [], both = [];
+    sum.rows.forEach(function (r) {
+      if (!r || !r.issueKey) return;
+      if (!_XS_ONEWAY[r.token] && !_XS_BOTH[r.token]) return;
+      out.readable++;
+      if ((r.acts || 0) < out.floor) return;
+      (_XS_BOTH[r.token] ? both : one).push(r);
+    });
+    // Deepest first in the one-way bucket: "every one of nine orders pushed the same
+    // way" is a finding and "the one order did" is a document. Most-split first in
+    // the both-ways bucket, by the smaller side. The issue label breaks the last tie
+    // so two renders of one profile never disagree about the order.
+    var byLabel = function (a, b) {
+      var al = _issueLabel(a.issueKey), bl = _issueLabel(b.issueKey);
+      return al < bl ? -1 : al > bl ? 1 : 0;
+    };
+    one.sort(function (a, b) {
+      if (a.acts !== b.acts) return b.acts - a.acts;
+      return byLabel(a, b);
+    });
+    both.sort(function (a, b) {
+      var am = _xsMinority(a), bm = _xsMinority(b);
+      if (am !== bm) return bm - am;
+      if (a.acts !== b.acts) return b.acts - a.acts;
+      return byLabel(a, b);
+    });
+    out.onewayN = one.length;
+    out.bothN = both.length;
+    // The set floor last, so a caller can still see what WAS found and why it was
+    // withheld — the honest reason an obviously deep record shows no chips.
+    out.enough = out.readable >= _XS_MIN_ISSUES;
+    if (out.enough) {
+      out.oneway = one.slice(0, _XS_CAP);
+      out.both = both.slice(0, _XS_CAP);
+    }
+    out.any = !!(out.oneway.length || out.both.length);
+    return out;
+  }
+
+  function _xsChipHtml(pid, r, grp) {
+    var v = r.verdict || {};
+    var tone = _ST_PAT_TONE[_XS_TONE[v.tone] || 'muted'] || _ST_PAT_TONE.muted;
+    var label = _issueLabel(r.issueKey);
+    var word = v.label || '';
+    // The composition, in the acts' own directions — never a ratio and never a
+    // percentage. A one-way issue has one direction to report, so it reports depth
+    // instead of a split that does not exist.
+    var counts = _XS_BOTH[r.token]
+      ? (r.advances + ' advancing · ' + r.opposes + ' opposing')
+      : '';
+    var depth = r.acts + ' ' + (r.acts === 1 ? 'action' : 'actions') + ' on file';
+    // NON-DROPPABLE, AND COUNTED. If any act behind this issue is enjoined,
+    // rescinded or overridden, the chip says so — the compact rendering is exactly
+    // where that clause is most easily lost, and losing it turns a contested record
+    // into a settled one. It carries the COUNT because the issue's standing is the
+    // most contested one among its actions, not the standing of all of them: a bare
+    // "Struck down" beside "9 actions on file" would make a claim about eight
+    // documents it is not true of.
+    var st = _xsStanding(r);
+    var skin = _icSkin(r.issueKey);
+    var say = label + ' — ' + word + (counts ? ' (' + counts + ')' : '') + '. ' + depth +
+      (st ? '. ' + st : '') + '. Open the acts behind it.';
+    return '<button type="button" class="pdxso-chip" style="' + skin.style +
+        ';--c:' + tone.c + '"' +
+        ' data-pdxxs-grp="' + escAttr(grp) + '"' +
+        ' data-pdxxs-token="' + escAttr(r.token) + '"' +
+        ' data-pdxst-dos="' + escAttr(r.issueKey) + '" data-pdxst-pid="' + escAttr(pid) + '"' +
+        ' data-pdxst-origin="' + escAttr(_xsStripId(pid)) + '"' +
+        ' data-pdxst-focus="record"' +
+        ' aria-label="' + escAttr(say) + '">' +
+        '<span class="pdxso-chip-iss">' + _icDot(skin) + esc(label) + '</span>' +
+        '<span class="pdxso-chip-v" style="color:' + tone.c + '">' + esc(word) + '</span>' +
+        (counts ? '<span class="pdxso-chip-n">' + esc(counts) + '</span>' : '') +
+        '<span class="pdxso-chip-d">' + esc(depth + (st ? ' · ' + st : '')) + '</span>' +
+      '</button>';
+  }
+
+  // The published data shape. Counts, issue keys and the lane's own words — no
+  // percentage, no tier invented for a lane that has none, and no field a caller
+  // could mistake for a rating.
+  function execRecordSummary(pid) {
+    var p = _xsPick(pid);
+    var row = function (r) {
+      return { pid: p.pid, key: r.issueKey, label: _issueLabel(r.issueKey),
+               token: r.token, word: (r.verdict && r.verdict.label) || '',
+               acts: r.acts, advances: r.advances, opposes: r.opposes,
+               minority: _xsMinority(r),
+               standing: (r.standing && r.standing.key) || '',
+               contested: !!(r.standing && r.standing.contested) };
+    };
+    return { on: p.on, pid: p.pid, acts: p.acts, issues: p.issues, readable: p.readable,
+             inventory: p.inventory.slice(), volume: p.volume,
+             thin: p.thin, contested: p.contested,
+             cap: p.cap, floor: p.floor, minIssues: p.minIssues, enough: p.enough,
+             onewayN: p.onewayN, bothN: p.bothN,
+             oneway: p.oneway.map(row), both: p.both.map(row), any: p.any };
+  }
+
+  // The thin / withheld sentences. Each names the rule that produced it rather than
+  // reporting an absence, because "nothing to show" on a profile with eighty
+  // documents on file reads as a bug.
+  var _XS_THIN = 'Two actions or fewer cannot carry a pattern, so nothing here is called a standout yet — the ledger below is the whole of what we hold.';
+  var _XS_TOO_FEW = 'Not enough issues can be read one way or the other yet to call any of them a standout. Every issue we do hold is in the topic tree below.';
+  var _XS_SHALLOW = 'No issue yet holds enough actions to be called a standout on its own. Every issue we hold is in the topic tree below.';
+  var _XS_WALL = 'These are the standouts, not the whole record — the topic tree below is how you explore it issue by issue, and the ledger further down holds every document.';
+
+  function execRecordSummaryHtml(pid) {
+    if (!pid) return '';
+    var p;
+    try { p = _xsPick(pid); } catch (e) { return ''; }
+    if (!p.on) return '';
+    ensureStyles();
+    // The chips are dossier doors, so this arms the one delegated listener every
+    // other [data-pdxst-dos] surface here arms.
+    bindGateway();
+    var grpHtml = function (key, list, total) {
+      if (!list.length) return '';
+      var g = _XS_GROUPS[key];
+      var more = total > list.length
+        ? '<p class="pdxso-more">' + (total - list.length) + ' more in the topic tree below.</p>' : '';
+      return '<div class="pdxso-grp pdxso-grp-' + escAttr(g.id) + '">' +
+          '<div class="pdxso-grp-h">' + esc(g.lb) + '</div>' +
+          '<p class="pdxso-grp-note">' + esc(g.note) + '</p>' +
+          '<div class="pdxso-chips">' +
+            list.map(function (r) { return _xsChipHtml(p.pid, r, g.id); }).join('') +
+          '</div>' + more +
+        '</div>';
+    };
+    var body = p.any
+      ? '<div class="pdxso-grps">' +
+          grpHtml('oneway', p.oneway, p.onewayN) +
+          grpHtml('both', p.both, p.bothN) +
+        '</div>'
+      : '<p class="pdxxs-quiet">' +
+          esc(p.thin ? _XS_THIN : (!p.enough ? _XS_TOO_FEW : _XS_SHALLOW)) +
+        '</p>';
+    // The route out. One control, one destination, and the figure on it is the
+    // number of issues the tree actually lists — read off the tree rather than
+    // counted a second time here, so the button and the section it opens cannot
+    // disagree about how much is behind the door.
+    var treeN = 0;
+    try {
+      var TR = window.PDXStanceTree;
+      if (TR && typeof TR.count === 'function') treeN = TR.count(p.pid) || 0;
+    } catch (e) { treeN = 0; }
+    var goText = treeN
+      ? ('Explore all ' + treeN + ' issue' + (treeN === 1 ? '' : 's') + ' by topic')
+      : 'Explore this record by topic';
+    return '<span id="pdxsec-standout" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+      '<section class="pdxso pdxxs" id="' + escAttr(_xsStripId(p.pid)) + '"' +
+        ' aria-label="What the formal record holds">' +
+        // NO DEPTH FIGURE IN THE HEAD. The member strip carries one there because
+        // it has nothing else to state a denominator with. Here the volume clause
+        // on the next line already says "80 across 37 issues", with the framing
+        // that makes the figure honest attached to it, and the same counts twice in
+        // four lines is how a compact block stops being compact.
+        '<div class="pdxso-head">' +
+          '<span class="pdxso-ico" aria-hidden="true">' + _XS_HEAD.icon + '</span>' +
+          '<span class="pdxso-t">' + esc(_XS_HEAD.title) + '</span>' +
+        '</div>' +
+        (p.volume ? '<p class="pdxxs-vol">' + esc(p.volume) + '</p>' : '') +
+        (p.inventory.length
+          ? '<p class="pdxxs-inv">' + esc(p.inventory.join(' · ')) + '</p>' : '') +
+        body +
+        '<button type="button" class="pdxxs-go"' + _xsJumpAttr(_XS_JUMP) +
+          ' aria-label="' + escAttr(goText + ', in the topic tree below') + '">' +
+          esc(goText) + ' <span aria-hidden="true">↓</span>' +
+        '</button>' +
+        '<p class="pdxso-wall">' + esc(_XS_WALL) + '</p>' +
       '</section>';
   }
 
@@ -11886,6 +12202,24 @@
       HEAD: _SO_HEAD,
       WALL_TAIL: _SO_WALL_TAIL,
       WALL_WHOLE: _SO_WALL_WHOLE
+    },
+    // ✒️ The same spine slot on the executive lane. `pick(pid)` reports what the
+    // formal record holds — the inventory, and up to two issues per bucket where
+    // the acts ran one way or both ways — and `html(pid)` mounts it. Empty string
+    // for anyone PDXExecRecord does not cover, so the two record blocks can never
+    // both appear. Every figure is lifted off PDXExecRecord.summary().rows: no
+    // pattern tier invented for a lane that has none, no vote language, no stance
+    // written anywhere, no percentage, and no path from here into Direction Match.
+    execRecordSummary: {
+      pick: execRecordSummary,
+      html: execRecordSummaryHtml,
+      CAP: _XS_CAP,
+      MIN_ISSUES: _XS_MIN_ISSUES,
+      floor: _xsFloor,
+      GROUPS: _XS_GROUPS,
+      HEAD: _XS_HEAD,
+      JUMP: _XS_JUMP,
+      WALL: _XS_WALL
     },
     formalPatternIndex: {
       rows: _fpiRows,

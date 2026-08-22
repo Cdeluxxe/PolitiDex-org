@@ -16,6 +16,9 @@
                         for a short deep-dive and silently clips a full voting
                         record, which is a worse failure than no drawer at all.
      3. .pdxbr        — the brief: the first screen under the letterhead.
+     4. .pdxfpi-flat  — the one closed control the flat formal list lives behind,
+                        under the topic tree. The tree is the index; this is its
+                        alternate view, and it is chrome-sized until it is opened.
 
    Mobile-first throughout: the base rules ARE the phone layout, and the only
    media query widens things for tablets and up. Every interactive element is
@@ -495,4 +498,87 @@
   .pdxbr-t-act,
   .pdxbr-jump,
   .pdxsp-lid-btn { transition: none; }
+}
+
+/* ── The flat formal list, collapsed ─────────────────────────────────────────
+
+   🌳 All Issues by Topic is the gateway: every leaf carries a RECORD pattern
+   chip and opens the same dossier. The flat atlas — one row per issue on the
+   formal record — used to mount OPEN above it, so a member with a deep ledger
+   put fifty-odd rows between the summary at the top of the page and the surface
+   built to be browsed. It is the same list; it is now one summary line until a
+   reader asks for it.
+
+   Sized as a control, not as a section: the whole closed cost is a 44px row.
+   The disclosure is native <details>, so there is no state to re-arm and a
+   screen reader announces it as one expandable thing. */
+
+.pdxfpi-flat {
+  border: 1px solid rgba(159, 180, 212, 0.22);
+  border-radius: 0.6rem;
+  background: rgba(14, 24, 44, 0.45);
+  padding: 0;
+  overflow: hidden;
+}
+
+.pdxfpi-flat-s {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.6rem;
+  min-height: 44px;
+  padding: 0.72rem 0.85rem;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pdxfpi-flat-s::-webkit-details-marker { display: none; }
+
+.pdxfpi-flat-s:hover,
+.pdxfpi-flat-s:focus-visible {
+  background: rgba(30, 53, 96, 0.4);
+}
+
+.pdxfpi-flat-t {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9fc6e8;
+}
+
+/* The count is the reason to open it or leave it shut, so it is never truncated
+   away on a narrow phone — it wraps onto its own line, below the label and the
+   Show/Hide cue rather than between them. */
+.pdxfpi-flat-n {
+  order: 3;
+  font-size: 0.68rem;
+  color: #7f97b8;
+  flex: 1 1 100%;
+}
+
+.pdxfpi-flat-s::after {
+  content: 'Show';
+  order: 2;
+  margin-left: auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #7fb4ff;
+}
+
+.pdxfpi-flat[open] > .pdxfpi-flat-s::after { content: 'Hide'; }
+
+.pdxfpi-flat[open] > .pdxfpi-flat-s {
+  border-bottom: 1px solid rgba(159, 180, 212, 0.18);
+}
+
+.pdxfpi-flat-b { padding: 0.85rem; }
+
+@media (min-width: 641px) {
+  .pdxfpi-flat-n { order: 1; flex: 0 1 auto; }
 }

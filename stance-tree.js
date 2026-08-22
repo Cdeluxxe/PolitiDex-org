@@ -565,9 +565,10 @@
   // BRANCH ORDER IS THE TAXONOMY'S, ON EVERY PROFILE. Sorting branches by how much
   // tension is under them would make the same tree read differently for every
   // person and would turn the topic list itself into a ranking of topics — so the
-  // declared core-issue order stands, and the two things that answer "where do I
-  // look first" instead are the LEAF order inside each branch (tension first) and
-  // which branch is open when the tree first paints (see defaultOpenKey).
+  // declared core-issue order stands, and the things that answer "where do I look
+  // first" instead are the STATE SUMMARY on each closed face (which core holds the
+  // rows that cut against), the LEAF order inside each branch (tension first), and
+  // the Tension sort, which is a flat sharpest-first list a reader asks for.
   //
   // `list` is an optional pre-filtered set of leaves: a filter is a view, so it is
   // applied once, here, and every figure the branch prints — its count, its state
@@ -594,22 +595,25 @@
   }
   function count(pid) { try { return leaves(pid).length; } catch (e) { return 0; } }
 
-  // ── WHICH BRANCH IS OPEN WHEN THE TREE FIRST PAINTS ───────────────────────
-  // The one holding the highest-tension row that is currently visible — not
-  // taxonomy #1, which on a deep profile is routinely a quiet branch while the
-  // contradiction sits in branch seven behind a closed header. Ties keep taxonomy
-  // order (the first branch that holds a row of that band wins), so the answer is
-  // deterministic. Leaves are already in band order inside a branch, so a branch's
-  // best row is its first one.
-  function defaultOpenKey(gs) {
-    gs = gs || [];
-    var best = null, bestRank = Infinity;
-    gs.forEach(function (g) {
-      var r = (g.leaves && g.leaves.length) ? g.leaves[0].rank : Infinity;
-      if (r < bestRank) { bestRank = r; best = g.key; }
-    });
-    return best || (gs.length ? gs[0].key : '');
-  }
+  // ── WALL 4 · NOTHING IS OPEN WHEN THE TREE FIRST PAINTS ───────────────────
+  // The tree is the profile's explore gateway, and the first thing it owes a reader
+  // is the MAP: the core national issues this person has a record on, all of them,
+  // in one short list they can take in without scrolling. Fourteen doors is a map.
+  // Thirteen doors with one of them hanging open — the shape this tree shipped with,
+  // where the highest-tension branch auto-expanded — is a map with a paragraph
+  // stapled over it: the leaves of one core push every core below it off the first
+  // screen, and the reader meets an issue list before they have met the topics.
+  //
+  // So a cold paint opens NOTHING. `opts.open` is the only thing that expands a
+  // branch, and the only caller that passes it is the warm repaint handing back
+  // what the reader themselves had open. There is no "we picked one for you" state,
+  // which also means a reader who closes every branch stays closed across a repaint
+  // instead of having one silently reopened under them.
+  //
+  // What this does NOT do is hide where the tension is. A closed face still carries
+  // its state summary ("2 cut against · 1 mixed"), which is the same answer the
+  // auto-open branch was giving less legibly, and Tension sort is a one-tap flat
+  // sharpest-first list for the reader who wants the ranking rather than the map.
 
   // ─────────────────────────────────────────────────────────────────────────
   // MARKUP
@@ -945,12 +949,13 @@
         shown.map(function (lf) { return leafHtml(lf, uid); }).join('') + '</div>';
     } else {
       var gs = groups(pid, shown);
-      // Whatever the reader had open, minus branches this view no longer holds; if
-      // that leaves nothing open, the tension rule picks the branch.
+      // Whatever the reader had open, minus branches this view no longer holds. If
+      // that leaves nothing open, nothing is open: see wall 4. A filter that empties
+      // the reader's branch hands them the map of what the filter left, not a
+      // different branch we chose for them.
       var openKeys = (opts.open || []).filter(function (k) {
         return gs.some(function (g) { return g.key === k; });
       });
-      if (!openKeys.length) openKeys = [defaultOpenKey(gs)];
       body = gs.map(function (g) {
         return branchHtml(g, uid, openKeys.indexOf(g.key) !== -1);
       }).join('');
@@ -988,8 +993,9 @@
       '<span id="pdxsec-stances" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<section class="modal-block pdxtree-sec" data-pdxtree-host="' + escAttr(host) + '">' +
         '<h3 class="pdxtree-h">🌳 All Issues by Topic</h3>' +
-        '<p class="pdxtree-sub">Every issue we track for them, grouped by topic — what they ' +
-          '<b>said</b> beside what their formal <b>record</b> did. Tap an issue for the full dossier.</p>' +
+        '<p class="pdxtree-sub">Every issue we track for them, filed under the core national ' +
+          'issues. Open a topic to see the issues under it — what they <b>said</b> beside what ' +
+          'their formal <b>record</b> did — then tap an issue for the full dossier.</p>' +
         '<div class="pdxtree-body">' + body + '</div>' +
       '</section>';
   }
@@ -1453,8 +1459,6 @@
     midsFor: midsFor,
     groups: groups,
     count: count,
-    // Which branch opens first, as a rule rather than an accident of taxonomy order.
-    defaultOpen: defaultOpenKey,
     // The markup layer.
     html: treeHtml,
     sectionHtml: sectionHtml,

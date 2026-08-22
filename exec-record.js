@@ -324,6 +324,37 @@
     directive:       { key: 'directive',       verb: 'Issued a directive',    authorship: 'sole',   label: 'directive' }
   };
 
+  // Countable nouns for the per-class inventory line. CLASSES carry a verb
+  // ("Signed into law") for the card and a singular label for prose; a line that
+  // prints "8 laws signed · 4 vetoes" needs a noun that works in both numbers, and
+  // "2 signed into laws" is not one. It lives here, beside the classes themselves,
+  // because two surfaces now print this line — the ledger's scope line and the
+  // compact formal summary at the head of an executive profile — and a second copy
+  // of the nouns is how the two start naming one file differently.
+  var CLASS_NOUN = {
+    signed_law:      ['law signed', 'laws signed'],
+    vetoed_law:      ['veto', 'vetoes'],
+    executive_order: ['executive order', 'executive orders'],
+    directive:       ['directive', 'directives']
+  };
+
+  // The inventory, as an array of counted phrases in class order. Zero-count classes
+  // are omitted — a president with no vetoes has not "0 vetoes", they have a record
+  // that this class is not part of — and the phrases are NEVER summed into one
+  // figure here, for the reason CLASSES states above: signing a bill Congress wrote
+  // and issuing an order alone are different claims about power.
+  function execInventory(sum) {
+    var out = [];
+    if (!sum || !sum.byClass) return out;
+    Object.keys(sum.byClass).forEach(function (k) {
+      var n = sum.byClass[k];
+      if (!n) return;
+      var noun = CLASS_NOUN[k] || [k, k];
+      out.push(n + ' ' + noun[n === 1 ? 0 : 1]);
+    });
+    return out;
+  }
+
   // A BLOCKING CLASS INVERTS ITS MAPPING, and this flag is why. An issue mapping
   // states what the DOCUMENT does to the issue, because that is what the column means
   // in the congressional lane it is shared with: vr_measure_issues.support_meaning has
@@ -586,6 +617,42 @@
     return res;
   }
 
+  // ── One issue's read, in the compact form a summary carries ────────────────
+  // executiveIssue() returns the whole per-issue card: every mapped action with its
+  // title, its citation and its standing. A summary that carried all of that would
+  // be the ledger again under a different name, so this is the projection a caller
+  // needs to NAME an issue and say how much sits behind it — the token and its
+  // verdict, how many actions were counted, how they split by direction, and the
+  // issue's most contested standing. Nothing here is derived: every field is lifted
+  // off the read, so a chip built from a row and a card built from the same issue
+  // cannot say different things.
+  //
+  // `advances` / `opposes` are the ACTS' directions, already inverted for blocking
+  // classes by issueDirection(), and they are the acts' own directions rather than
+  // agreement with a stated position — a caller that wants "how split is this" wants
+  // the smaller of the two, and that is the same number either way round.
+  function summaryRow(res, key) {
+    var adv = 0, opp = 0, st = 0;
+    var stKey = (res.standing && res.standing.key) || '';
+    for (var i = 0; i < res.actions.length; i++) {
+      if (res.actions[i].direction === 'advances') adv++;
+      else if (res.actions[i].direction === 'opposes') opp++;
+      if (stKey && res.actions[i].standing === stKey) st++;
+    }
+    return {
+      issueKey: key, token: res.token, verdict: res.verdict,
+      // `standing` is the issue's MOST CONTESTED standing, not the standing of
+      // everything under it — see executiveIssue(). `standingN` is how many of this
+      // issue's actions actually carry it, and a compact rendering needs that number
+      // or it will print "Struck down" beside "9 actions on file" and say something
+      // about eight documents that is not true of them.
+      standing: res.standing, standingN: st, stance: res.stance,
+      acts: res.actions.length, advances: adv, opposes: opp,
+      counts: res.counts,
+      score: null // structurally null here too — a row is not a rating of an issue
+    };
+  }
+
   // ── The count summary ──────────────────────────────────────────────────────
   // Two labelled totals that are NEVER added together. Axis A counts issues; Axis B
   // counts documents. One signed law can touch five issues and one issue can have
@@ -623,11 +690,21 @@
       acted_on_it: 'aligned', acted_against: 'against', acted_both_ways: 'bothWays',
       said_not_done: 'noActionFound', acted_no_stance: 'noStance'
     };
+    // The per-issue reads this loop already makes, KEPT rather than counted and
+    // thrown away. A surface that wants to name a few issues — the compact formal
+    // summary at the head of an executive profile does — would otherwise have to
+    // rebuild this universe and re-read every issue, and the moment there are two
+    // derivations of "which issues does this record touch" they can disagree. Same
+    // pass, same feeder, so the counts above and any list built from these rows are
+    // the same reading of the same file.
+    var rows = [];
     for (i = 0; i < keys.length; i++) {
       // Same feeder as the individual cards — one pass, so the summary and the cards
       // can never disagree about an issue.
-      var b = TOKEN_BUCKET[executiveIssue(pid, keys[i], opts).token];
+      var read = executiveIssue(pid, keys[i], opts);
+      var b = TOKEN_BUCKET[read.token];
       if (b) { issues[b]++; issues.total++; }
+      rows.push(summaryRow(read, keys[i]));
     }
 
     var actions = {
@@ -654,6 +731,10 @@
       termScope: opts.allTerms ? 'all_time' : 'current_term',
       term: opts.allTerms ? '' : currentTerm(pid),
       issues: issues, actions: actions, byClass: byClass,
+      // Every issue in the universe above, in key order, with the read that produced
+      // its bucket. Counts and directions only — no score, and no ranking: this is
+      // the same row the individual card renders from, not a league table.
+      rows: rows,
       // Disclosed, never hidden: actions whose standing has no citation, and actions
       // excluded by the source rule.
       unstatedStanding: unstated,
@@ -831,13 +912,18 @@
     // than only through the token it produces three layers up.
     issueDirection: issueDirection,
     // Politician-level count summary, or null when nothing is on file / an invariant
-    // fails. Never a percentage.
+    // fails. Never a percentage. `.rows` carries the per-issue reads the counts were
+    // made from, so a surface that names a few issues reads the same pass the totals
+    // came from instead of rebuilding the universe.
     summary: execSummary,
     // Pure, DOM-free, directly unit-testable.
     summaryText: execSummaryText,
     // The label's volume clause alone — for surfaces with one line to spend. Same
     // builder the label uses, so the two can never name one file differently.
     volumeText: execVolumeText,
+    // The per-class counts as counted phrases, in class order, zero classes omitted.
+    // The one place those nouns live; see CLASS_NOUN.
+    inventory: execInventory,
     summaryTip: execSummaryTip,
     // Exposed so the tests gate the SHIPPED source rule rather than a copy of it.
     sourceOk: sourceOk,

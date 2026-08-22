@@ -69,7 +69,32 @@
 // word-action.css all changed together: a phone holding v60 that picks up only
 // word-action.js calls a publicShape() its consistency.js does not export, and one
 // that picks up only the CSS reserves space under a line that never renders.
-const CACHE_VERSION = 'v61';
+// v62 — PROFILE IA MERGE. The topic tree became the gateway: it holds a stage of
+// its own between the record summary and Word vs Action, and the flat "every issue
+// on the formal record" list stopped being a wall above it and became a collapsed
+// control under it. Bumped because profiles-full.js, profile-spine.js,
+// profile-spine.css, word-action.js and consistency.js all changed together: a
+// phone holding v61 that picks up only profiles-full.js emits an <!--PDXSP:explore-->
+// sentinel its profile-spine.js has no stage for, and one that picks up only the
+// markup renders the new disclosure with no .pdxfpi-flat rules to style it.
+// v63 — THE TOPIC TREE ROOTS AT THE 13 CORE NATIONAL ISSUES. The tree now paints
+// fully collapsed: the first screen is the core-issue map — one row per core the
+// person has a tracked issue under, plus Other — and no issue row appears until a
+// reader opens the core it is filed under. The auto-open branch is gone. Only
+// stance-tree.js changed, so this bump is about the served file rather than a
+// cross-file contract: a phone holding v62 keeps serving the cached tree and would
+// go on expanding a branch nobody asked it to.
+// v64 — THE EXECUTIVE LANE GETS A FORMAL SUMMARY OF ITS OWN. The slot above the
+// topic tree is filled on the one profile that casts no votes: an inventory line
+// (orders · signed laws · vetoes, only the classes on file), at most two standout
+// issue chips, and one control into the tree. Four files moved together —
+// exec-record.js now publishes the per-issue rows its own counting pass already
+// made, exec-record-ui.js reads the class nouns from there instead of keeping a
+// copy, consistency.js renders the block, and profiles-full.js mounts it ahead of
+// the member strip and feeds the rail pill. A shell holding v63 would pair a new
+// consistency.js with an exec-record.js that publishes no rows, so the summary
+// would silently decline to mount.
+const CACHE_VERSION = 'v64';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

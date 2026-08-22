@@ -344,23 +344,70 @@ section("4 · phase 2 — the atlas mounts on the profile face");
   const gate = Number((BODY.match(/FACE_MIN\s*=\s*(\d+)/) || [])[1]);
   ok(gate >= 2, `the face depth gate is implausibly low (${gate})`);
   ok(/n\s*<\s*FACE_MIN/.test(BODY), "the depth gate is declared but never enforced");
-  // PHASE 3 REORDERED THE READ ON PURPOSE. The atlas used to sit BELOW the word-
-  // versus-action section, as a discovery surface hanging off the score. The
-  // record-first pass inverted that: the formal ledger is the default lens, so the
-  // standout strip and the atlas it leads into are both read BEFORE Direction
-  // Match, which stays on the page and stays strong but stops being the thing
-  // every row waits on. What is pinned now is that inversion — strip, then atlas,
-  // then the score — not the old subordination.
-  const iWA = BODY.indexOf("PDXWordAction.sectionHtml");
-  const iFace = BODY.indexOf("pdxfpi-face");
-  const iStrip = BODY.indexOf("pdxso-face");
-  ok(iStrip > 0, "the standout strip does not mount on the profile body at all");
-  ok(iFace > 0 && iFace < iWA,
-    "the atlas mounts below the Direction Match section — the record-first read puts the ledger first");
-  ok(iStrip < iFace,
-    "the standout strip mounts below the atlas — the two-chip summary is the door into the long list, not a footnote to it");
-  ok(iWA > 0,
+  // PHASE 3 REORDERED THE READ ON PURPOSE, AND THE IA MERGE REORDERED IT AGAIN.
+  // The atlas used to sit BELOW the word-versus-action section, as a discovery
+  // surface hanging off the score. The record-first pass inverted that. This pass
+  // finished the job: a flat, alphabetised, every-issue-on-the-formal-record list
+  // is not a browse surface, it is a wall, and it was standing directly between a
+  // two-chip summary and the topic tree built to do the same job properly. The
+  // tree is the gateway now. The flat list survives as a COLLAPSED control under
+  // it, for the reader who wants one long sortable column — the sort, the lane
+  // wall, the per-mount filters and the dossier doors are all unchanged.
+  //
+  // Read position, not source position. The spine assembles the body by stage, so
+  // a mount can move up the page without moving up the file, and that is exactly
+  // what happened to the tree. Comparing raw string offsets here would now pin the
+  // file layout while the page reordered underneath it.
+  const SPINE = probe.PDXProfileSpine;
+  must(!!SPINE, "the profile spine did not boot, so reading order cannot be resolved");
+  const rank = (needle) => {
+    const at = BODY.indexOf(needle);
+    if (at === -1) return null;
+    const tags = BODY.slice(0, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
+    const last = tags.length ? tags[tags.length - 1].replace(/<!--PDXSP:|-->/g, "") : "identity";
+    const si = SPINE.STAGE_KEYS.indexOf(last);
+    return si === -1 ? null : si * 1e9 + at;
+  };
+  const iWA = rank("PDXWordAction.sectionHtml");
+  const iFace = rank("pdxfpi-face");
+  const iStrip = rank("pdxso-face");
+  const iTree = rank("PDXStanceTree.sectionHtml(id)");
+  ok(iStrip !== null, "the standout strip does not mount on the profile body at all");
+  ok(iTree !== null, "the topic tree does not mount on the profile body at all");
+  ok(iFace !== null, "the atlas does not mount on the profile body at all");
+  ok(iWA !== null,
     "the Direction Match section stopped mounting on the profile body — demoted is not deleted");
+  ok(iStrip < iTree,
+    "the standout strip reads below the topic tree — the two-chip summary is the door into the browse, not a footnote to it");
+  ok(iTree < iFace,
+    "the flat formal list still reads above the topic tree — that is the parallel wall, and the tree is the gateway");
+  ok(iFace < iWA,
+    "the atlas reads below the Direction Match section — the record-first read puts the ledger first");
+  // Collapsed, and honest about it. A <details> that ships open is the wall again
+  // with a hinge drawn on it.
+  const flat = BODY.slice(BODY.indexOf("<details id=\"pdxsec-formalatlas\""));
+  has(BODY, "<details id=\"pdxsec-formalatlas\"",
+    "the flat formal list is not a disclosure — the default profile prints every issue on the record above the fold");
+  ok(!/^<details id="pdxsec-formalatlas"[^>]*\sopen[\s>]/.test(flat),
+    "the flat formal list ships open, which is the flat wall with extra markup");
+  has(flat.slice(0, 700), "View the flat formal list",
+    "the control does not say what opening it shows");
+  has(flat.slice(0, 700), "Every issue on the formal record",
+    "the control dropped the label the old wall carried, so the rows it holds are now unfindable by name");
+  // AND THE THING IT NOW SITS UNDER IS ALSO SHUT. Folding the flat wall into a
+  // <details> only buys a short first screen if the gateway above it is short
+  // too: a tree that auto-expands a branch puts one topic's issue rows between
+  // the summary and this control, which is the wall's own failure at half length.
+  const TREE_SRC = R("stance-tree.js");
+  ok(!/defaultOpenKey/.test(TREE_SRC),
+    "the topic tree auto-expands a branch again, so the explore stage opens on an issue list rather than on the map of topics");
+  const openSrc = (TREE_SRC.match(/openKeys\s*=[^;]*/g) || []);
+  eq(openSrc.length, 1,
+    "the topic tree assigns its open-branch list more than once — only opts.open, the reader's own state, may expand anything");
+  has(openSrc[0], "opts.open",
+    "the tree's open branches no longer come from what the reader had open");
+  has(TREE_SRC, 'data-pdxtree-open="' + "' + (open ? '1' : '0') + '",
+    "a branch's open state stopped being the flag the caller passed it");
 
   // The rendered face index itself.
   const face = FPI.html(DEEP, { sort: "strength", mount: "face" });
@@ -445,6 +492,74 @@ section("5 · none of it is a second score");
   A2.PDXVotingRecord.noteMember(DEEP, seedFor(DEEP_KEYS));
   eq(JSON.stringify(A2.PDXWordAction.read(DEEP)), before,
     "Direction Match is not deterministic across identical seeds");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · the executive lane's summary is not a roll-call wall in disguise");
+// ═════════════════════════════════════════════════════════════════════════════
+// The formal-first pass gave members a summary at the top and folded the flat atlas
+// under the tree. The executive lane got the reorder and nothing to put in the slot,
+// because the pattern engine declines that lane by design. The block that fills it
+// now has one job and a short list of things it may not become: a second atlas, a
+// fabricated roll-call read, or a place where public-lane tallies are printed as if
+// they were formal.
+{
+  const CJS = R("consistency.js");
+  const from = CJS.indexOf("✒️ THE COMPACT FORMAL SUMMARY — EXECUTIVE LANE");
+  must(from > 0, "the executive formal summary moved — this source slice is stale");
+  const XSRC = CJS.slice(from, CJS.indexOf("── THE FILTERS ──", from));
+  must(XSRC.length > 2000, "the executive summary slice is too small to be the block");
+  // Comments carry the reasoning and name the things the code must not do, so the
+  // prohibitions are checked against the CODE with the comments stripped.
+  const code = XSRC.replace(/\/\/.*$/gm, "");
+
+  // ── It reads the exec lane, and only the exec lane ────────────────────────
+  has(code, "PDXExecRecord", "the executive summary does not read the executive record");
+  has(code, "sum.rows", "the executive summary rebuilds the issue universe instead of reading the one pass");
+  ok(!/_fpiRows|_stPatternTier|_soPick|formalPatternIndex/.test(code),
+    "the executive summary reaches into the member pattern engine — that engine returns null for this\n" +
+    "    lane by design, and anything it produced here would be a tier invented for a record with no votes");
+  ok(!/\bvote|roll[ -]?call|judged/i.test(code),
+    "the executive summary borrowed roll-call vocabulary for a lane that casts no votes");
+  ok(!/publicTally|_stPublic|receipt/i.test(code),
+    "the executive summary reads the public lane — a formal summary padded with public receipts is\n" +
+    "    the one thing the exec lane's own thinness caveat exists to prevent");
+
+  // ── It is a summary, not a second atlas ───────────────────────────────────
+  has(code, "var _XS_CAP = 2", "the chip cap left the code, so the summary can grow back into a list");
+  has(code, "slice(0, _XS_CAP)", "the buckets are no longer sliced to the declared cap");
+  ok(!/<details/.test(code), "the executive summary mounts a disclosure — this block is four lines, not a drawer");
+  ok(!/pdxsec-formalatlas/.test(code), "the executive summary mounts the flat formal atlas");
+  ok(!/pdxfpi/.test(code), "the executive summary renders formal-pattern-index rows");
+  // One route out, and it is the gateway — the same destination the shape hero's
+  // "Explore all N by topic" button uses, so there is one browse surface, not two.
+  has(code, "'pdxsec-stancetree'", "the executive summary's route control does not aim at the topic tree");
+  eq((code.match(/pdxsec-stancetree/g) || []).length, 1,
+    "the executive summary names the tree anchor more than once — one route, one destination");
+  has(R("word-action.js"), "var SHAPE_JUMP = 'pdxsec-stancetree'",
+    "the shape hero's route moved, so the two summaries no longer send readers to the same place");
+
+  // ── No second score ───────────────────────────────────────────────────────
+  ok(!/'%'|"%"|pct|percent/i.test(code), "the executive summary computes or prints a percentage");
+  ok(!/\bscore\b|\brating\b|\bgrade\b/i.test(code.replace(/score:\s*null/g, "")),
+    "the executive summary publishes a score, a rating or a grade");
+  ok(!/loyalty|\bparty\b|republican|democrat/i.test(code),
+    "the executive summary reintroduced party framing on the one lane with no caucus to frame it against");
+
+  // ── Rendered, on the lane's own figure ────────────────────────────────────
+  const W = boot();
+  const XS = W.PDXConsistency.execRecordSummary;
+  const html = XS.html("trump");
+  ok(html.length > 0, "the executive summary renders nothing on the executive fixture");
+  ok(!/\d\s*%/.test(html), "the executive summary prints a percentage");
+  lacksI(html, "out of 100", "the executive summary publishes a hundred-point figure");
+  // Rendering it must not move the sanctioned figure.
+  const before = JSON.stringify(W.PDXWordAction.read("trump"));
+  XS.html("trump"); XS.pick("trump");
+  eq(JSON.stringify(W.PDXWordAction.read("trump")), before,
+    "rendering the executive formal summary moved Direction Match");
+  // …and it must not have opened anything in the gateway below it.
+  ok(!/pdxtree-open="1"/.test(html), "the executive summary expands a topic-tree branch");
 }
 
 // ── Result ───────────────────────────────────────────────────────────────────

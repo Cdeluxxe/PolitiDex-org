@@ -214,13 +214,22 @@ ok(VERDICT_AT < SECTION_AT && SECTION_AT < CARD_AT,
   "    products; it must sit UNDER the shared section, inside the same verdict stage");
 
 // The spine restages the body by sentinel, so "under the section" is only true while
-// the card is still inside the VERDICT stage — one sentinel further down and it would
-// reappear under the Official Record, a stage away from the thing it explains.
-const NEXT_STAGE_AT = BODY.indexOf("<!--PDXSP:", VERDICT_AT + 4);
-must(NEXT_STAGE_AT !== -1, "the verdict stage has no following stage sentinel any more");
-ok(CARD_AT < NEXT_STAGE_AT,
+// the card is still inside the VERDICT stage — tagged into another stage it would
+// reappear a stage away from the thing it exists to explain. The verdict stage is
+// no longer one contiguous run of the file: the topic tree was promoted in front of
+// the score without leaving the neighbourhood, so the body re-declares the verdict
+// after it. What matters is the sentinel GOVERNING the card, not the distance to
+// the next one.
+const stageOf = (at) => {
+  const tags = BODY.slice(0, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
+  return tags.length ? tags[tags.length - 1].replace(/<!--PDXSP:|-->/g, "") : "identity";
+};
+eq(stageOf(CARD_AT), "verdict",
   "the limited-record card fell out of the verdict stage — the spine will restage it away\n" +
   "    from the section whose gap it exists to explain");
+eq(stageOf(SECTION_AT), "verdict",
+  "⚖️ Word vs Action is no longer tagged into the verdict stage, so the card and the section\n" +
+  "    it explains can now be separated by the assembler");
 
 // One mount, not two: a card that renders in both places is worse than either.
 eq(BODY.split("${candidateSnapshot || thinNotice}").length - 1, 1,

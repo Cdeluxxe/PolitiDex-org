@@ -105,9 +105,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 
 // ── 1. The order is the product ──────────────────────────────────────────────
 {
-  const want = ["identity", "brief", "standout", "verdict", "signature", "record", "tension", "receipts", "money", "you", "drawers"];
+  const want = ["identity", "brief", "standout", "explore", "verdict", "signature", "record", "tension", "receipts", "money", "you", "drawers"];
   ok(JSON.stringify(SP.STAGES.map((s) => s.key)) === JSON.stringify(want),
-     "order: STAGES is exactly the promised spine — identity, short version, the record, Word vs Action, stances, official record, flashpoints, evidence, money, you, full record");
+     "order: STAGES is exactly the promised spine — identity, short version, the record, explore by topic, Word vs Action, stances, official record, flashpoints, evidence, money, you, full record");
   ok(SP.STAGES.every((s) => s.label && s.ask && /\?|\./.test(s.ask)),
      "order: every stage carries both a label and the reader question it answers");
   // Two rails asking the same question is a rail that has stopped orienting
@@ -122,15 +122,22 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "path: the judgment comes before the apparatus that produced it — findings before methods");
   // THE RECORD LEADS. `standout` holds the slot Word vs Action used to hold: the
   // first major surface after the letterhead and the brief is what the formal
-  // ledger points to, not what a said-versus-did score made of it. The verdict
-  // did not fall down the page — it moved back exactly one seat, and it still
-  // precedes every apparatus that produced it, which the assertion above pins.
+  // ledger points to, not what a said-versus-did score made of it. But `standout`
+  // is a SUMMARY, not an atlas — so the gateway comes next. `explore` carries the
+  // topic tree, which is where a reader actually browses issue by issue, and it
+  // sits between the summary and the score. The verdict did not fall down the
+  // page — it moved back two seats, and it still precedes every apparatus that
+  // produced it, which the assertion above pins.
   ok(kAt("standout") === kAt("brief") + 1,
      "path: what the record points to is the first major surface after the letterhead and the brief");
   ok(kAt("standout") < kAt("verdict"),
      "path: the formal record leads the judgment built on top of it");
-  ok(kAt("verdict") === kAt("standout") + 1,
-     "path: and the verdict follows it immediately — demoted by one seat, not buried");
+  ok(kAt("explore") === kAt("standout") + 1,
+     "path: the topic tree is the gateway — it follows the summary immediately, with no flat wall between them");
+  ok(kAt("verdict") === kAt("explore") + 1,
+     "path: and the verdict follows the tree immediately — demoted by one seat, not buried");
+  ok(kAt("standout") < kAt("explore") && kAt("explore") < kAt("verdict"),
+     "path: summary, then gateway, then the score built on them — the browse surface outranks the judgment");
   // What they stand for now sits between the score and the record: the stances
   // layer is what the Official Record is a test OF, so it has to be read first,
   // and the flashpoints that follow are heat about specific stances rather than
@@ -929,8 +936,17 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok((PFL.match(/^\s+_pdxOpenClosedChain\(el\);/gm) || []).length === 2 &&
      /function _pdxOpenClosedChain/.test(PFL),
      "lid: the jump rail and the evidence anchors share one chain-opening walk rather than keeping two copies of it");
-  ok(/dd-body'\) && !node\.classList\.contains\('dd-open'\)/.test(PFL),
+  ok(/dd-body'\) &&\s*!node\.classList\.contains\('dd-open'\)/.test(PFL),
      "lid: that walk keys off .dd-body without .dd-open, which is why it opens lids and drawers alike with no list to maintain");
+  // The flat formal list is a native <details> now, not a .dd-body drawer, and a
+  // jump that lands on a shut <summary> shows the reader a label with nothing
+  // under it. The same walk has to open those too — by tag, not by an id list.
+  ok(/node\.tagName === 'DETAILS' && !node\.open\) node\.open = true/.test(PFL),
+     "lid: and the same walk opens any native <details> on the way down, so the collapsed flat formal list is reachable from the rail rather than a dead anchor");
+  const chainFn = PFL.slice(PFL.indexOf("function _pdxOpenClosedChain"), PFL.indexOf("function _pdxOpenClosedChain") + 900);
+  ok(chainFn.indexOf("var chain = [], node = el") < chainFn.indexOf("DETAILS") &&
+     /node !== el && node\.classList/.test(chainFn),
+     "lid: the walk starts at the target itself so a target that IS a disclosure opens, while the drawer branch still skips the target — one walk, two jobs, no behaviour change for drawers");
 }
 
 // ── 11. The verdict stage, and the rail that has to agree with it ────────────
@@ -980,8 +996,83 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const tagOrder = (PFL.slice(bodyFrom).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [])
     .map((t) => t.replace(/<!--PDXSP:|-->/g, ""))
     .filter((t) => t[0] !== "/" && !/^lid/.test(t));
-  ok(tagOrder.indexOf("verdict") === tagOrder.indexOf("standout") + 1,
-     "verdict: the score sits immediately behind the record standouts in the template, not adrift from them");
+  ok(tagOrder.indexOf("explore") !== -1,
+     "explore: the body declares the gateway stage the tree now lives in");
+
+  // Source order is NOT reading order — that is the entire point of the spine, and
+  // this pass moved the tree in front of a score that still sits above it in the
+  // file. So adjacency is asserted where the reader meets it: each mount is placed
+  // by the stage governing it, ties broken by source position, exactly as the
+  // assembler does. Comparing raw sentinel positions here would have pinned the
+  // file layout and let the page reorder underneath it.
+  const readRank = (marker) => {
+    const at = PFL.indexOf(marker, bodyFrom);
+    if (at === -1) return null;
+    const before = PFL.slice(bodyFrom, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
+    const last = before.length ? before[before.length - 1].replace(/<!--PDXSP:|-->/g, "") : "identity";
+    const si = SP.STAGE_KEYS.indexOf(last);
+    return si === -1 ? null : [si, at];
+  };
+  const reads = (a, b) => {
+    const ra = readRank(a), rb = readRank(b);
+    if (!ra || !rb) return false;
+    return ra[0] !== rb[0] ? ra[0] < rb[0] : ra[1] < rb[1];
+  };
+  ok(reads("pdxso-face", "PDXStanceTree.sectionHtml(id)"),
+     "explore: the reader meets the record summary before the topic tree — the standouts orient the browse, not the other way round");
+  ok(reads("PDXStanceTree.sectionHtml(id)", "PDXWordAction.sectionHtml(id, p)"),
+     "explore: and the topic tree before Word vs Action — the gateway is not the third story on the page");
+  ok(reads("PDXStanceTree.sectionHtml(id)", 'id="pdxsec-formalatlas"'),
+     "explore: the flat formal list reads BELOW the tree, whatever the file says — a full issue inventory\n" +
+     "    ahead of the browse surface is the parallel wall this pass removed");
+  // 11a2. The executive lane fills the same slot, not a slot of its own. The member
+  //       strip is driven by a pattern engine that declines the exec lane outright,
+  //       so on that one profile the standout stage rendered nothing and the reader
+  //       met the gateway with no orientation at all. The exec block is a second
+  //       renderer for ONE stage, and both emit #pdxsec-standout — so it has to live
+  //       inside the same mount, ahead of the member attempt, and it must not add a
+  //       sentinel or an anchor of its own anywhere else in the body.
+  const soMount = PFL.indexOf("<!--PDXSP:standout-->", bodyFrom);
+  ok(soMount !== -1, "standout: the profile body still declares a standout stage");
+  const soBlock = PFL.slice(soMount, PFL.indexOf("<!--PDXSP:", soMount + 10));
+  ok(/execRecordSummary/.test(soBlock),
+     "standout: the executive formal summary is not mounted in the standout stage — that stage is the\n" +
+     "    one slot both lanes share, and the exec lane renders nothing without it");
+  const soCode = soBlock.slice(soBlock.indexOf("${(function ()"));
+  ok(soCode.indexOf("execRecordSummary") < soCode.indexOf("recordStandout"),
+     "standout: the member strip is attempted before the executive summary. Both emit #pdxsec-standout,\n" +
+     "    so whichever runs first owns the anchor and the other must be the fallback");
+  ok((PFL.slice(bodyFrom).match(/execRecordSummary/g) || []).length === 1,
+     "standout: the executive summary is mounted more than once in the body — two mounts of one anchor");
+  ok(SP.targetStage("pdxsec-standout") === "standout",
+     "standout: the shared anchor no longer resolves to the standout stage, so the rail's first pill\n" +
+     "    would rank against the wrong slot");
+  ok(reads("execRecordSummary", "PDXStanceTree.sectionHtml(id)"),
+     "standout: the executive summary reads below the topic tree — on the one profile with no votes it\n" +
+     "    is the only thing that says what the record holds before the map appears");
+
+
+  // 11b2. The gateway, and the wall that used to stand beside it. The default
+  //       read must NOT be a long flat "every issue on the formal record" list
+  //       above the tree — that is a parallel inventory competing with the
+  //       browse surface for the same job. The list still exists, because the
+  //       rows are real and deleting them would cost the reader a sort they
+  //       use; it is COLLAPSED, and it sits BELOW the tree it used to outrank.
+  const exploreAt = PFL.indexOf("<!--PDXSP:explore-->");
+  ok(exploreAt !== -1, "explore: the profile body declares an explore stage");
+  const exploreBlock = PFL.slice(exploreAt, PFL.indexOf("<!--PDXSP:verdict-->", exploreAt));
+  ok(/PDXStanceTree\.sectionHtml\(id\)/.test(exploreBlock),
+     "explore: the topic tree is what the explore stage carries — the gateway is the stage, not a chip on one");
+  ok(/id="pdxsec-formalatlas"/.test(exploreBlock),
+     "explore: the flat formal list travels with the tree into the gateway stage rather than keeping a stage of its own");
+  ok(/<details id="pdxsec-formalatlas"/.test(exploreBlock) &&
+     !/<details id="pdxsec-formalatlas"[^>]*\sopen/.test(exploreBlock),
+     "explore: and it ships CLOSED — a <details> with no open attribute, so the default view is the tree");
+  ok(/View the flat formal list/.test(exploreBlock),
+     "explore: the control says what opening it shows, so the collapsed list is a choice rather than a hidden surface");
+  const atlasAt = PFL.indexOf('id="pdxsec-formalatlas"');
+  ok(atlasAt > exploreAt,
+     "explore: there is no second formal-atlas mount left in an earlier stage — the wall moved, it was not copied");
 
   // 11c. The rail has to read in page order or the scroll-spy walks backwards.
   //      Pills are pushed in one block; their push order IS the rail order.
@@ -991,6 +1082,8 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const rail = PFL.slice(railFrom, railTo);
   const pillAt = (t) => rail.indexOf("'" + t + "'");
   const pills = [
+    ["pdxsec-standout", "standout"],
+    ["pdxsec-stancetree", "explore"],
     ["pdxsec-wordaction", "verdict"],
     ["pdxsec-positions", "signature"],
     ["pdxsec-official-record", "record"],
@@ -1008,7 +1101,19 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     if (pillAt(pills[i][0]) < pillAt(pills[i - 1][0])) monotonic = false;
   }
   ok(monotonic,
-     "rail: pills are pushed in the order a reader meets their sections — verdict, stances, record, flashpoints, receipts, money, you, drawers");
+     "rail: pills are pushed in the order a reader meets their sections — the record, by topic, verdict,\n" +
+     "    stances, record, flashpoints, receipts, money, you, drawers");
+  // The two new destinations are the two the reordered page needs: the summary at
+  // the top and the gateway under it. Neither is a duplicate list — "The record"
+  // lands on the standout strip, "By topic" on the tree, and the flat formal list
+  // deliberately gets NO pill of its own, because a rail entry pointing at a
+  // collapsed copy of the tree is exactly the parallel destination this pass cut.
+  ok(pillAt("pdxsec-standout") < pillAt("pdxsec-stancetree") &&
+     pillAt("pdxsec-stancetree") < pillAt("pdxsec-wordaction"),
+     "rail: the rail reads summary → gateway → score, the same order the page does");
+  ok(pillAt("pdxsec-formalatlas") === -1,
+     "rail: the collapsed flat formal list has a pill — that is a rail destination that only ever\n" +
+     "    shows a second copy of the list the tree already renders");
   // The stances pill aims at #pdxsec-positions, not #pdxsec-stances. Stances &
   // Connections renders only when the row model has something to say, while the
   // positions anchor is always mounted in the same stage — and _pdxNavJump bails
@@ -1059,14 +1164,27 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const chipSrc = PFL.slice(chipFrom, chipTo);
   const pctAt = chipSrc.indexOf("+ '%'");
   ok((chipSrc.match(/\+ '%'/g) || []).length === 1 &&
-     pctAt > chipSrc.indexOf("out.wordaction =") && pctAt < chipSrc.indexOf("out.positions ="),
+     pctAt > chipSrc.indexOf("out.wordaction =") && pctAt < chipSrc.indexOf("out.standout ="),
      "rail: exactly one pill reports a percentage — the reorder did not reintroduce a rival score");
+  // The two new chips count things. Neither may report a share, a rate or a
+  // grade: "18 issues read" and "33 issues" are inventory, and inventory beside
+  // the one percentage is a map legend, not a second scoreboard.
+  const soChip = chipSrc.slice(chipSrc.indexOf("out.standout ="), chipSrc.indexOf("out.positions ="));
+  ok(soChip.indexOf("%") === -1 && !/\/ *(total|n|issues)/.test(soChip),
+     "rail: the record and by-topic chips count issues and nothing else — a ratio there would be a\n" +
+     "    second score sitting one pill from the first");
+  // The standout strip stands down when the shape hero takes the letterhead, so a
+  // pill aimed at it would dead-end on exactly the deepest profiles. One
+  // derivation has to decide the chip and the pill together.
+  ok(/shapeApplies/.test(chipSrc),
+     "rail: the record chip is derived without asking whether the shape hero already replaced the strip —\n" +
+     "    on a deep profile that pill points at an anchor that never mounts");
   ok(!/value: scoreNum \+ '%'/.test(rail) && !/keptCount/.test(rail),
      "rail: a pill computes the pledge rate inside the pill list — every live figure comes from\n" +
      "    window._pdxNavChips, so a figure derived here is one the warm repaint cannot correct");
   // Every pill that carries a figure which can arrive late carries the key the
   // repaint writes back into. A live figure with no `live` key is a frozen string.
-  for (const k of ["wordaction", "positions", "record", "evidence"]) {
+  for (const k of ["wordaction", "standout", "topics", "positions", "record", "evidence"]) {
     ok(rail.indexOf("_navChips." + k + ".value") !== -1 && rail.indexOf("live: '" + k + "'") !== -1,
        "rail: the " + k + " pill is not wired to the live chip derivation — it either builds its own\n" +
        "    figure or has no repaint key, and either way it can outlive the number it prints");
@@ -1339,10 +1457,10 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //      order; it must not have quietly restated it.
   ok(!/var RAIL_ORDER|railSequence|PILL_ORDER/.test(SPS),
      "keep: there is no second ordered list of pills anywhere in the spine — STAGES plus the anchor registry is the whole declaration");
-  ok(SP.STAGE_KEYS.join(">") === "identity>brief>standout>verdict>signature>record>tension>receipts>money>you>drawers",
-     "keep: and the stage order is the locked spine — what the record points to, then the score built\n" +
-     "    on it, then what they stand for, then the record that tests it, then the heat, then the\n" +
-     "    proof, and money stays a lens of its own at the tail");
+  ok(SP.STAGE_KEYS.join(">") === "identity>brief>standout>explore>verdict>signature>record>tension>receipts>money>you>drawers",
+     "keep: and the stage order is the locked spine — what the record points to, then the gateway that\n" +
+     "    lets them browse it, then the score built on both, then what they stand for, then the record\n" +
+     "    that tests it, then the heat, then the proof, and money stays a lens of its own at the tail");
 }
 
 

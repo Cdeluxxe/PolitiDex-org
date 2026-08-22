@@ -3593,9 +3593,15 @@
   // throw anywhere in the read, and the whole branch declines.
   var SHAPE_MIN = 12;
   var SHAPE_MIN_READ = 4;
-  // The face atlas's own anchor, so "see all N" lands on the list this summarises
-  // rather than on the overlay a reader has to open.
-  var SHAPE_JUMP = 'pdxsec-formalatlas';
+  // WHERE "SEE ALL N" GOES, AND WHY IT MOVED. It used to aim at #pdxsec-formalatlas
+  // — the flat atlas that mounted open, directly under this hero, listing every
+  // issue on the formal record. That list is now collapsed and sits below 🌳 All
+  // Issues by Topic, because the tree is the index: every leaf carries the same
+  // RECORD pattern chip these rows do and opens the same dossier. So the route out
+  // of the summary is the gateway, not a second catalogue. #pdxsec-formalatlas
+  // still exists and still resolves; it is simply not where a reader who wants to
+  // see the rest of the record should be sent first.
+  var SHAPE_JUMP = 'pdxsec-stancetree';
 
   function shapeRead(pid) {
     try {
@@ -3730,7 +3736,7 @@
             (sh.strongN > sh.tops.length
               ? '<p class="pdxwa-shape-more">' + (sh.strongN - sh.tops.length) +
                 ' more one-sided pattern' + ((sh.strongN - sh.tops.length) === 1 ? '' : 's') +
-                ' in the full list.</p>' : '') +
+                ' in the topic tree below.</p>' : '') +
           '</div>'
         // Fail closed rather than filling the slot: twelve issues of readable
         // record and nothing one-sided enough to characterise is a finding, and
@@ -3748,7 +3754,7 @@
             (sh.splitN > sh.splits.length
               ? '<p class="pdxwa-shape-more">' + (sh.splitN - sh.splits.length) +
                 ' more split issue' + ((sh.splitN - sh.splits.length) === 1 ? '' : 's') +
-                ' in the full list.</p>' : '') +
+                ' in the topic tree below.</p>' : '') +
           '</div>'
         : '';
       // THE HONESTY VALVE, COUNTED OUT LOUD. Every issue the engine declined to
@@ -3766,8 +3772,8 @@
           '<p class="pdxwa-shape-depth">' + depth + '</p>' +
           tops + splits + thin +
           '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
-            ' aria-label="' + esc('See all ' + total + ' issues on the formal record') + '">' +
-            'See all ' + total + ' issues on the record <span aria-hidden="true">↓</span>' +
+            ' aria-label="' + esc('Explore all ' + total + ' issues on the formal record, by topic') + '">' +
+            'Explore all ' + total + ' issues by topic <span aria-hidden="true">↓</span>' +
           '</button>' +
           shapeMatchHtml(pid, p) +
           (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +

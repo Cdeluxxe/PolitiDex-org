@@ -54,10 +54,18 @@ const FILES = [
   "alignment-tool.js",
   "acct-spotlight-data.js",
   "say-vs-do.js",
+  // Added for section 10: the exec summary's route control prints the topic tree's
+  // OWN leaf count and its chips take the shared issue colours, and neither can be
+  // checked against a sandbox that does not hold those two modules. Both load
+  // additively in index.html (issue-colors before consistency, stance-tree after),
+  // and the neutered control below boots the same list, so the snapshot compares
+  // like with like.
+  "issue-colors.js",
   "exec-action-data.js",
   "exec-record.js",
   "exec-record-ui.js",
   "consistency.js",
+  "stance-tree.js",
   "voting-record.js",
   "word-action.js",
   "coverage.js",
@@ -90,6 +98,12 @@ function neuter(f, src) {
     cut("function _soPick(pid) {");
     cut("function recordStandout(pid) {");
     cut("function recordStandoutHtml(pid) {");
+    // The executive lane's compact formal summary, added the same way and held to
+    // the same promise: it reads the exec record and prints counts, and if any
+    // scoring path ever reached through it the snapshot below would move.
+    cut("function _xsPick(pid) {");
+    cut("function execRecordSummary(pid) {");
+    cut("function execRecordSummaryHtml(pid) {");
   }
   return src;
 }
@@ -133,7 +147,7 @@ const must = (cond, what) => {
   process.exit(2);
 };
 
-must(hits === 6, `the control boot neutered ${hits} of 6 targets — one was renamed`);
+must(hits === 9, `the control boot neutered ${hits} of 9 targets — one was renamed`);
 
 const base = boot();
 const CS = base.PDXConsistency;
@@ -477,9 +491,23 @@ section("6 · one standout block per profile, and it mounts ahead of the score")
     "the strip does not mount on a profile the shape hero declines");
   // The stand-down is in the mount, not in the module: the strip stays callable so
   // the hero and the strip can never disagree about the selection.
-  const mount = PF_SRC.slice(PF_SRC.indexOf("<!--PDXSP:standout-->"));
-  has(mount.slice(0, 2500), "shapeApplies",
+  // Bounded to the stage block itself rather than a character count: the standout
+  // stage is a summary now, not an atlas, so its prose grew and its markup shrank,
+  // and a fixed window would have measured the comment instead of the mount.
+  const soFrom = PF_SRC.indexOf("<!--PDXSP:standout-->");
+  const mount = PF_SRC.slice(soFrom, PF_SRC.indexOf("<!--PDXSP:", soFrom + 8));
+  has(mount, "shapeApplies",
     "the profile body mounts the strip without asking whether the shape hero already did this");
+  has(mount, "recordStandout",
+    "the standout stage stopped mounting the standout strip");
+  // AND NOTHING ELSE. The stage carries one summary. The 33-row formal atlas used
+  // to mount here too, directly under a strip capped at two chips — a flat wall of
+  // every issue on the record, printed above the tree that exists to browse it.
+  lacks(mount, "formalPatternIndex",
+    "the flat formal atlas is mounted in the standout stage again — the summary stage is a summary, and\n" +
+    "    an every-issue inventory beside a two-chip strip is the parallel wall this pass removed");
+  lacks(mount, "pdxsec-formalatlas",
+    "the standout stage carries the formal-atlas anchor again");
 
   // The spine. The record's own stage sits between the brief and the verdict.
   const keys = SP.STAGE_KEYS;
@@ -489,8 +517,27 @@ section("6 · one standout block per profile, and it mounts ahead of the score")
     "the record stage does not precede the said-versus-did score");
   eq(SP.targetStage("pdxsec-standout"), "standout",
     "the strip's anchor is not routed to its own stage");
-  eq(SP.targetStage("pdxsec-formalatlas"), "standout",
-    "the formal atlas did not move with the stage it belongs to");
+  eq(SP.targetStage("pdxsec-formalatlas"), "explore",
+    "the formal atlas did not move with the stage it belongs to — it is a way of exploring the record,\n" +
+    "    and it now sits collapsed under the topic tree rather than flat above it");
+  eq(SP.targetStage("pdxsec-stancetree"), "explore",
+    "the topic tree is not routed to the gateway stage it now leads");
+  ok(keys.indexOf("explore") === keys.indexOf("standout") + 1 &&
+     keys.indexOf("explore") < keys.indexOf("verdict"),
+    "the gateway does not follow the summary directly and lead the score — summary, browse, then judgment");
+  // WHAT THE CAPPED SUMMARY POINTS AT HAS TO BE THE WHOLE RECORD. The strip prints
+  // two chips and tells the reader the rest is in the topic tree below. That
+  // sentence is only true if the tree lists every issue — so the pointer and the
+  // completeness of what it points at are asserted together, not separately.
+  const CJ = R("consistency.js");
+  ok(/pdxso-more/.test(CJ) && /topic tree below/.test(CJ),
+    "the standout strip stopped naming where the rest of the record is, so two chips read as all of it");
+  const TREE_SRC = R("stance-tree.js");
+  ok(!/slice\(0,\s*\d+\)/.test((TREE_SRC.match(/function leaves\([\s\S]*?\n  \}/) || [""])[0]),
+    "the tree caps its own leaf list — the summary points at it as the complete record");
+  ok(!/defaultOpenKey/.test(TREE_SRC),
+    "the tree auto-expands a branch again, so the surface the strip points at opens on one topic's\n" +
+    "    rows instead of on the map of every topic it promises");
   // Demoted is not deleted.
   ok(keys.indexOf("verdict") >= 0, "the Word vs Action stage was removed rather than demoted");
   const stage = SP.STAGES.find((x) => x.key === "standout");
@@ -622,6 +669,201 @@ section("9 · ledger-first still holds, and no new number was invented");
   ok(!/\.stance\s*=|\.verdict\s*=|\.score\s*=|\.pct\s*=/.test(lead),
     "the record lead writes back into a row's stance, verdict, score or percentage");
   has(SH_SRC, "_recordSays", "the vocabulary resolver is no longer in stance-helpers.js");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · the executive lane gets the same slot, in its own vocabulary");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // WHY THIS SECTION EXISTS. consistency.js's _stDirRaw() returns null for the exec
+  // lane by design — a president casts no roll-call votes, so the pattern engine has
+  // nothing to read and every exec row reaches _fpiRows() as `unread`. The member
+  // strip therefore selects nothing on a president, and until this pass the spine's
+  // record slot on an executive profile rendered empty while the jump bar's "The
+  // record" pill vanished with it. The block below is that slot's exec-native
+  // occupant, and every assertion here is about it saying only what the exec lane
+  // can support.
+  const XS = CS.execRecordSummary;
+  ok(XS && typeof XS.pick === "function" && typeof XS.html === "function",
+    "PDXConsistency.execRecordSummary is not published — the executive record slot has no occupant");
+
+  const EXEC = "trump";
+  ok(base.PDXExecRecord.eligible(EXEC),
+    "the exec fixture is no longer on the executive lane — this section tests nothing");
+  const x = XS.pick(EXEC);
+  ok(x.on, "the exec summary declines the one figure the executive lane covers");
+
+  // ── The inventory is the lane's own, not a second count of the same file ────
+  const sum = base.PDXExecRecord.summary(EXEC, { allTerms: true });
+  eq(x.acts, sum.actions.total + (sum.unstatedStanding || 0),
+    "the summary's document total is not the ledger's own");
+  eq(x.issues, sum.issues.total, "the summary's issue total is not the ledger's own");
+  eq(x.volume, base.PDXExecRecord.volumeText(sum),
+    "the volume clause is authored here rather than taken from the lane that owns it");
+  eq(JSON.stringify(x.inventory), JSON.stringify(base.PDXExecRecord.inventory(sum)),
+    "the per-class inventory is rebuilt here instead of read from PDXExecRecord.inventory");
+  ok(x.inventory.length > 1,
+    "the fixture holds only one class of instrument — the never-summed rule is untested");
+  // NEVER SUMMED. The classes are reported side by side and no combined figure is
+  // built out of them: signing a bill Congress wrote and issuing an order alone are
+  // different claims about power.
+  const classTotal = Object.keys(sum.byClass).reduce((n, k) => n + sum.byClass[k], 0);
+  ok(!x.inventory.some((t) => t.startsWith(String(classTotal) + " ")),
+    "the inventory prints one combined figure across the classes");
+
+  // ── The chips are capped in code, and the cap is the reason ────────────────
+  eq(XS.CAP, 2, "the executive standout cap left the code");
+  has(CS_SRC, "var _XS_CAP = 2;",
+    "the cap is no longer a declared constant — a cap that lives in a call site grows back into a list");
+  ok(x.oneway.length <= XS.CAP && x.both.length <= XS.CAP,
+    `the exec summary printed more than the cap (${x.oneway.length} / ${x.both.length} against ${XS.CAP})`);
+  ok(x.onewayN > XS.CAP,
+    "the fixture has no more one-way issues than the cap — the selection is untested");
+  // …and the depth floor is the lane's published thinness threshold, not a number
+  // chosen here.
+  eq(XS.floor(), base.PDXExecRecord.THIN_MAX + 1,
+    "the chip depth floor drifted from PDXExecRecord.THIN_MAX");
+  [...x.oneway, ...x.both].forEach((r) => {
+    ok(r.acts >= XS.floor(), `${r.key} is a standout on ${r.acts} action(s), under the floor`);
+  });
+
+  // ── Every chip is a real reading of the exec record ────────────────────────
+  const ROWS = {};
+  sum.rows.forEach((r) => { ROWS[r.issueKey] = r; });
+  x.oneway.forEach((r) => {
+    ok(r.token === "acted_on_it" || r.token === "acted_against",
+      `${r.key} is in the one-way bucket carrying ${r.token}`);
+    ok(r.advances === 0 || r.opposes === 0,
+      `${r.key} is called one-way with acts running both ways`);
+    eq(r.word, base.PDXExecRecord.VERDICTS[r.token].label,
+      `${r.key} prints a word the exec vocabulary does not publish`);
+  });
+  x.both.forEach((r) => {
+    eq(r.token, "acted_both_ways", `${r.key} is in the split bucket carrying ${r.token}`);
+    ok(r.advances > 0 && r.opposes > 0, `${r.key} is called split with one direction empty`);
+  });
+  // Coverage is never a standout. said_not_done and acted_no_stance report the state
+  // of OUR file, not a reading of the record, and EXEC_VERDICTS marks them so.
+  [...x.oneway, ...x.both].forEach((r) => {
+    ok(!base.PDXExecRecord.VERDICTS[r.token].isCoverage,
+      `${r.key} was promoted to a standout off a coverage token`);
+    eq(ROWS[r.key].acts, r.acts, `${r.key} states a depth the ledger's own row does not`);
+  });
+
+  // ── Nothing is cleaned ─────────────────────────────────────────────────────
+  // A chip whose issue holds an enjoined, rescinded or overridden act says so, and
+  // says how many — the issue's standing is the most contested one among its
+  // actions, not the standing of all of them.
+  const HTML = XS.html(EXEC);
+  ok(HTML.length > 0, "the exec summary renders nothing for the lane's own figure");
+  const contested = [...x.oneway, ...x.both].filter((r) => r.contested);
+  ok(contested.length > 0,
+    "no chip on the fixture carries a contested standing — the non-droppable clause is untested");
+  contested.forEach((r) => {
+    const st = base.PDXExecRecord.STANDING[r.standing];
+    has(text(HTML), st.label.toLowerCase(),
+      `${r.key} is contested and the chip does not carry its standing`);
+    ok(ROWS[r.key].standingN >= 1 && ROWS[r.key].standingN <= r.acts,
+      `${r.key} counts more acts at its standing than it holds acts`);
+  });
+
+  // ── No second score, anywhere on the block ─────────────────────────────────
+  eq((HTML.match(/%/g) || []).length, 0, "the executive formal summary prints a percentage");
+  const T = text(HTML);
+  ["score", "rating", "grade", "rank", "%"].forEach((w) => {
+    lacksI(T, w, `the executive formal summary calls itself a ${w}`);
+  });
+  // No vote language on a lane that casts none, and no party framing.
+  ["vote", "voted", "roll call", "party", "republican", "democrat"].forEach((w) => {
+    lacksI(T, w, `the executive formal summary borrowed "${w}" from the member lane`);
+  });
+  // The nouns it DOES use are the lane's.
+  ok(/law|veto|executive order|directive/i.test(T),
+    "the inventory line names no formal instrument class");
+
+  // ── Every chip opens the same dossier the tree opens ───────────────────────
+  const doors = [...HTML.matchAll(/data-pdxst-dos="([^"]+)"/g)].map((m) => m[1]);
+  eq(doors.length, x.oneway.length + x.both.length,
+    "the chips are not all dossier doors");
+  doors.forEach((k) => {
+    ok(CS.issueRows(EXEC).some((r) => r.key === k),
+      `${k} is a chip on the summary and not an issue on the profile`);
+  });
+  ok(/data-pdxst-pid="trump"/.test(HTML), "the chips do not carry the profile they belong to");
+  ok(/data-pdxst-origin="pdxxs-strip-trump"/.test(HTML),
+    "the chips do not remember where the reader came from, so closing the dossier loses their place");
+  // …and they wear the issue colours, through the one colour path.
+  eq(doors.length, (HTML.match(/--pdx-ic:/g) || []).length,
+    "a chip names an issue without taking its colour from PDXIssueColors");
+
+  // ── One route out, and it is the topic tree ────────────────────────────────
+  eq(XS.JUMP, "pdxsec-stancetree", "the route out of the exec summary is not the topic tree");
+  eq((HTML.match(/pdxxs-go/g) || []).length, 1,
+    "the exec summary carries more or fewer than one route control");
+  has(HTML, "_pdxNavJump('pdxsec-stancetree')",
+    "the route control does not jump to the topic tree");
+  // The figure on the button is the tree's own leaf count, not a second count.
+  const treeN = base.PDXStanceTree.count(EXEC);
+  ok(treeN > 0, "the tree lists nothing for the exec fixture — the route leads nowhere");
+  has(T, `Explore all ${treeN} issues by topic`,
+    "the route control's figure is not the number of issues the tree actually lists");
+  // AND IT DOES NOT OPEN ANYTHING. The tree roots at the 13 core issues, collapsed;
+  // a summary that expanded a branch on the way past would undo that.
+  lacks(HTML, "pdxtree-open", "the exec summary reaches into the topic tree's open state");
+  lacks(HTML, "<details", "the exec summary mounts a disclosure of its own");
+
+  // ── ONE record block per profile, and the lane decides which ───────────────
+  const soFrom2 = PF_SRC.indexOf("<!--PDXSP:standout-->");
+  const mount2 = PF_SRC.slice(soFrom2, PF_SRC.indexOf("<!--PDXSP:", soFrom2 + 8));
+  has(mount2, "execRecordSummary",
+    "the standout stage does not mount the executive summary, so a president's record slot is empty");
+  // Measured over the MOUNT EXPRESSION, not the stage's prose: the doc block above
+  // it has named PDXConsistency.recordStandout since the strip shipped.
+  const code2 = mount2.slice(mount2.indexOf("${(function ()"));
+  ok(code2.indexOf("execRecordSummary") > 0 &&
+     code2.indexOf("execRecordSummary") < code2.indexOf("recordStandout"),
+    "the member strip is tried before the exec summary — on an executive profile the strip selects\n" +
+    "    nothing and the slot renders empty behind it");
+  eq((mount2.match(/pdxso-face/g) || []).length, 2,
+    "the standout stage grew a third record block, or lost one — this slot holds exactly one, and\n" +
+    "    which one is decided by the lane");
+  // Structurally: both blocks emit #pdxsec-standout, so exactly one of them may ever
+  // return a non-empty string for one person.
+  eq(CS.recordStandout.html(EXEC).length, 0,
+    "the member standout strip now also mounts on the executive lane — two blocks would emit the\n" +
+    "    same anchor id and the jump bar would land on whichever the DOM found first");
+  eq(XS.html(SUBJECT).length, 0,
+    "the executive summary mounts on a member profile");
+  eq(XS.pick(SUBJECT).on, false, "the executive summary claims a member figure");
+
+  // ── The jump bar's "The record" pill is a real destination again ───────────
+  const chips = base._pdxNavChips(EXEC, base.CMP_DATA[EXEC]);
+  ok(chips.standout, "the executive profile has no 🏛 The record pill, so the first spine slot is unreachable");
+  eq(chips.standout.value, `${x.acts} on file`,
+    "the record pill's figure is not the count the block it jumps to states");
+  ok(!/%/.test(String(chips.standout.value) + String(chips.standout.note)),
+    "the record pill carries a percentage on the executive lane");
+  ok(chips.topics, "the executive profile lost its 🌳 By topic pill");
+  eq(SP.targetStage("pdxsec-standout"), "standout",
+    "the anchor both record blocks emit is no longer routed to the record stage");
+
+  // ── Thin is a state, not an absence ────────────────────────────────────────
+  // A president with two actions on file cannot clear the depth floor, so the block
+  // has no chips to print. It still prints the inventory and says why — an empty
+  // record slot on a profile with documents on file reads as a bug.
+  has(CS_SRC, "_XS_THIN", "the thin state lost its copy");
+  const quiet = CS_SRC.slice(CS_SRC.indexOf("var _XS_THIN"), CS_SRC.indexOf("function execRecordSummaryHtml"));
+  ok(/pattern/i.test(quiet) && !/%/.test(quiet),
+    "the thin copy either stopped naming the rule or grew a percentage");
+  has(CS_SRC, "p.thin ? _XS_THIN",
+    "the renderer no longer chooses the thin sentence off the lane's own thinness flag");
+  // …and the inventory prints in that state too, because it is the answer to "what
+  // do we hold" and it does not depend on any issue being deep enough to name.
+  const beforeBody = CS_SRC.slice(CS_SRC.indexOf("var body = p.any"), CS_SRC.indexOf("var treeN = 0"));
+  ok(beforeBody.indexOf("pdxxs-quiet") > 0, "the thin branch stopped rendering a sentence");
+  const shell = CS_SRC.slice(CS_SRC.indexOf("return '<span id=\"pdxsec-standout\"", CS_SRC.indexOf("function execRecordSummaryHtml")));
+  has(shell, "pdxxs-inv", "the inventory is inside the chip branch — a thin record would print no inventory");
+  has(shell, "pdxxs-go", "the route control is inside the chip branch — a thin record would have no way out");
 }
 
 if (failures.length) {

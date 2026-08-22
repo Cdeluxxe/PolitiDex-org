@@ -82,16 +82,33 @@
   // The sequence below is an ACCOUNTABILITY PATH, not a catalogue of systems. Its
   // shape is five claims, in this order:
   //
-  //   THE RECORD COMES FIRST. `standout` is the formal ledger's own stage — the
-  //   standout strip (up to two one-sided issues, up to two conflicted ones) and
-  //   the full formal atlas beneath it — and it holds the slot Word vs Action used
-  //   to hold. That swap is the whole of this stage's reason to exist. Word vs
-  //   Action needs a documented position on file before it can say anything, so on
-  //   a profile with a deep roll-call ledger and a thin stance ledger it opened the
-  //   page with "Not scored yet" — a fact about our coverage, printed above dozens
-  //   of issues of their record. The record is what we hold most of, so the record
-  //   leads. It is a selection and a list, never a score: no percentage is
-  //   published at this stage and none can be derived from it.
+  //   THE RECORD COMES FIRST, AS A SUMMARY. `standout` is the formal ledger's own
+  //   stage, and it holds the slot Word vs Action used to hold. That swap is the
+  //   whole of this stage's reason to exist. Word vs Action needs a documented
+  //   position on file before it can say anything, so on a profile with a deep
+  //   roll-call ledger and a thin stance ledger it opened the page with "Not scored
+  //   yet" — a fact about our coverage, printed above dozens of issues of their
+  //   record. The record is what we hold most of, so the record leads. It is a
+  //   selection, never a score: no percentage is published at this stage and none
+  //   can be derived from it.
+  //
+  //   IT IS A SUMMARY AND NOT AN ATLAS, AND THAT IS NEW. This stage used to carry
+  //   the standout strip AND the full issue-by-issue formal list beneath it — on a
+  //   member with a deep ledger, fifty-odd rows between the reader and everything
+  //   else on the page. The strip stays; the flat list moved down into `explore`,
+  //   behind one closed control, because the topic tree is already an index of the
+  //   same rows and a page does not need two. What is left here is counts plus a
+  //   handful of chips.
+  //
+  //   THEN THE GATEWAY. `explore` is 🌳 All Issues by Topic and nothing that
+  //   competes with it: the one surface a reader browses the record issue by issue
+  //   from, sitting between the summary that says what the record points to and the
+  //   score that tests it against their word. It is deliberately AHEAD of the
+  //   verdict now. Word vs Action is a strong read and a narrow one — it can only
+  //   speak where a stated position is on file — so putting the browse-everything
+  //   surface behind it made the widest door the third one a reader met. The flat
+  //   formal list rides in this stage too, collapsed, as the alternate view of the
+  //   index rather than as a second one.
   //
   //   THEN THE JUDGMENT. `verdict` holds one thing — the Word vs Action read — and
   //   it is the first SCORED surface, immediately under the record it is scoring
@@ -103,7 +120,7 @@
   //   section: the say-vs-do read and the record-vs-public-picture bridge that used
   //   to occupy stages of their own are inputs to its rows now, not neighbours of it.
   //
-  //   WHAT THEY STAND FOR IS READ IN THE VERDICT STAGE, NOT HERE. `signature` was
+  //   WHAT THEY STAND FOR IS READ IN THE EXPLORE STAGE, NOT HERE. `signature` was
   //   🧭 Stances & Connections — a second, tension-ranked browser over the same
   //   person×issue set 🌳 All Issues by Topic already lists, mounted below it as a
   //   peer. One browse surface and one deep dive is the rule now: the tree is the
@@ -130,6 +147,7 @@
     { key: 'identity',  label: 'Identity',            ask: 'Who is this?' },
     { key: 'brief',     label: 'The short version',   ask: 'What should I look at first?' },
     { key: 'standout',  label: 'The record',          ask: 'What does their record point to?' },
+    { key: 'explore',   label: 'Explore by topic',    ask: 'Where do they land, issue by issue?' },
     { key: 'verdict',   label: 'Word vs Action',      ask: 'Do they stand by what they said?' },
     { key: 'signature', label: 'Stances & connections', ask: 'What do they stand for?' },
     { key: 'record',    label: 'Official record',     ask: 'What did they actually do?' },
@@ -176,31 +194,33 @@
     // verdict — the one primary score, and the only integrity section. Anchor
     // emitted by word-action.js.
     'pdxsec-wordaction': 'verdict',
-    // 🌳 All Issues by Topic, mounted directly under the score. Anchor emitted by
-    // stance-tree.js. `pdxsec-glance` is its LEGACY ALIAS and lives in this stage
-    // for that reason: the flat Stance at a Glance index it used to name is
-    // unmounted, and the tree is the browse-all-stances surface every jump into
-    // "their stated positions" should now land on.
-    'pdxsec-stancetree': 'verdict',
-    'pdxsec-glance': 'verdict',
+    // explore — 🌳 All Issues by Topic, the browse gateway, now mounted ABOVE the
+    // score rather than under it. Anchor emitted by stance-tree.js.
+    // `pdxsec-glance` is its LEGACY ALIAS and lives in this stage for that reason:
+    // the flat Stance at a Glance index it used to name is unmounted, and the tree
+    // is the browse-all-stances surface every jump into "their stated positions"
+    // should now land on.
+    'pdxsec-stancetree': 'explore',
+    'pdxsec-glance': 'explore',
     // …and so is `pdxsec-stances`, for exactly the same reason. 🧭 Stances &
     // Connections is unmounted — it was a second issue browser below the tree — and
     // the tree emits that id as an alias too, so a jump or a deep link naming it
     // resolves to the surface that actually holds those positions rather than being
     // demoted to a stage whose only remaining content is a closed drawer.
-    'pdxsec-stances': 'verdict',
-    // standout — the formal ledger, ahead of the score. Two anchors, one stage:
-    // the strip is the summary and the atlas is the list it was selected from, so
-    // a jump aimed at either lands in the same block. Both emitted by
-    // profiles-full.js.
-    //
-    // 🏛 The formal pattern atlas on the profile face — the full issue-by-issue
-    // list the hero's shape block summarises. It sat in the verdict stage while
-    // the verdict stage was the first thing on the page; now that the record has a
-    // stage of its own, the record's list belongs in it rather than under the
-    // heading of the metric it is being tested by.
+    'pdxsec-stances': 'explore',
+    // 🏛 The flat formal atlas — every issue on the formal record, one row each.
+    // IT IS IN `explore` AND NOT IN `standout`, WHICH IS THE POINT OF THIS PASS. It
+    // spent a pass sitting between the standout strip and the score as an open
+    // fifty-row wall: a second full inventory of exactly the rows the tree below it
+    // was about to index again. It is now the tree's ALTERNATE VIEW — same stage,
+    // directly under the tree, behind one closed control — so the anchor still
+    // resolves for every existing deep link and the list is still one tap from the
+    // page, but the default read is the gateway rather than the wall.
+    'pdxsec-formalatlas': 'explore',
+    // standout — the compact formal summary, ahead of the gateway: inventory
+    // counts and a handful of strongest/split chips, each a door into the same
+    // dossier the tree opens. Emitted by consistency.js.
     'pdxsec-standout': 'standout',
-    'pdxsec-formalatlas': 'standout',
     // signature — the deferred archive of every documented position, in full text.
     'pdxsec-positions': 'signature',
     // record — the formal apparatus behind the verdict

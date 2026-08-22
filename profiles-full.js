@@ -3555,9 +3555,15 @@
     try {
       var body = document.getElementById('modal-body');
       if (!body || !el) return;
-      var chain = [], node = el.parentElement;
+      // The target itself may BE a disclosure — the flat formal list is one closed
+      // <details> under the tree — and scrolling to a shut control lands the reader
+      // on a summary line with nothing under it. Opening it is the same promise the
+      // drawer chain keeps: reveal, then measure.
+      var chain = [], node = el;
       while (node && node !== body) {
-        if (node.classList && node.classList.contains('dd-body') && !node.classList.contains('dd-open') && node.id) chain.push(node.id);
+        if (node.tagName === 'DETAILS' && !node.open) node.open = true;
+        if (node !== el && node.classList && node.classList.contains('dd-body') &&
+            !node.classList.contains('dd-open') && node.id) chain.push(node.id);
         node = node.parentElement;
       }
       if (typeof window.toggleDD === 'function') {
@@ -3678,6 +3684,58 @@
             note: 'Direction Match, tested on ' + (wa.coverage.tested || 0) + ' of ' +
               (wa.coverage.scorable || 0) + ' ' + (of.scorable || 'issues it counts')
           };
+        }
+      }
+    } catch (e) {}
+    // 🏛 The record — the compact formal summary at the head of the page: how many
+    // issues the formal ledger could be read on, and how many acts sit behind them.
+    // Both figures are the strip's own (PDXConsistency.recordStandout), so the pill
+    // and the block it jumps to cannot state different totals. Counts only — this
+    // lane publishes tiers and never a ratio.
+    try {
+      var SO = window.PDXConsistency && window.PDXConsistency.recordStandout;
+      // The same two questions the mount asks, in the same order: is there a
+      // standout to show, and has the shape hero already shown it? On a deep
+      // profile the hero IS the compact formal summary and it sits above the rail,
+      // so the strip stands down and #pdxsec-standout is never emitted — a pill
+      // aimed at it there would be a pill aimed at nothing.
+      var WAS = window.PDXWordAction;
+      var shaped = !!(WAS && typeof WAS.shapeApplies === 'function' && WAS.shapeApplies(id));
+      // The executive lane first, in the same order the mount checks: on a
+      // president the block in this slot is PDXConsistency.execRecordSummary, and
+      // the pill's figures are that block's own — how much is on file and what it
+      // is made of. Counts, never a ratio, and never the second percentage this
+      // rail is not allowed to carry.
+      var XSC = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+      var xsc = null;
+      try { xsc = (XSC && typeof XSC.pick === 'function') ? XSC.pick(id) : null; } catch (e) { xsc = null; }
+      if (xsc && xsc.on) {
+        out.standout = { value: xsc.acts + ' on file', pending: false,
+          color: xsc.contested ? '#f5c842' : '#9fdbd0',
+          note: xsc.inventory.length
+            ? xsc.inventory.join(' · ') + ' — across ' + xsc.issues +
+              ' issue' + (xsc.issues === 1 ? '' : 's')
+            : 'formal actions on file' };
+      } else if (!shaped && SO && typeof SO.pick === 'function') {
+        var so = SO.pick(id);
+        if (so && so.any) {
+          out.standout = { value: so.issues + ' issue' + (so.issues === 1 ? '' : 's') + ' read',
+            color: '#9fdbd0', pending: false,
+            note: so.judged + ' vote' + (so.judged === 1 ? '' : 's') +
+              ' and formal action' + (so.judged === 1 ? '' : 's') + ' behind them' };
+        }
+      }
+    } catch (e) {}
+    // 🌳 By topic — the browse gateway, and the widest door on the profile. The
+    // figure is the number of issues the tree actually lists for this person, taken
+    // from the tree's own leaf count rather than counted a second time here.
+    try {
+      var TR = window.PDXStanceTree;
+      if (TR && typeof TR.count === 'function') {
+        var trN = TR.count(id) || 0;
+        if (trN > 0) {
+          out.topics = { value: trN + ' issue' + (trN === 1 ? '' : 's'), color: '#8fe0a8',
+            pending: false, note: 'every issue we track for them, grouped by topic' };
         }
       }
     } catch (e) {}
@@ -4546,6 +4604,28 @@
     // the same derivation, not two copies of it. `live` is the key the repaint writes
     // back into; a pill without one is a static destination (no figure to keep up).
     const _navChips = window._pdxNavChips(id, p);
+    // 🏛 The record — the compact formal summary, and the first destination on the
+    // page, so it is the first pill. Pushed ahead of ⚖️ because the standout stage
+    // is ahead of the verdict stage; railOrder would put it there anyway, and the
+    // push order is written to agree with the derivation rather than to test it.
+    // Self-gating through the chip: no chip, no pill, and the chip is absent
+    // exactly when the strip does not mount.
+    if (_navChips.standout) {
+      _navItems.push({ target: 'pdxsec-standout', icon: '🏛', label: 'The record',
+        live: 'standout', value: _navChips.standout.value,
+        color: _navChips.standout.color, note: _navChips.standout.note,
+        pending: _navChips.standout.pending });
+    }
+    // 🌳 By topic — the browse gateway, and the reason this pass exists. It is the
+    // one surface a reader explores the record issue by issue from, so it gets a
+    // rail entry of its own rather than being something you find by scrolling past
+    // the score. Second, because the explore stage is second.
+    if (_navChips.topics) {
+      _navItems.push({ target: 'pdxsec-stancetree', icon: '🌳', label: 'By topic',
+        live: 'topics', value: _navChips.topics.value,
+        color: _navChips.topics.color, note: _navChips.topics.note,
+        pending: _navChips.topics.pending });
+    }
     if (_navChips.wordaction) {
       _navItems.push({ target: 'pdxsec-wordaction', icon: '⚖️', label: 'Word vs Action',
         live: 'wordaction', value: _navChips.wordaction.value,
@@ -4873,14 +4953,23 @@
            above a formal record that runs to dozens of issues. The record was
            always there. It was three sections down.
 
-           So the record leads. Up to two issues where the formal acts on file ran
-           one way, up to two where they ran both ways, each chip a door into that
-           issue's dossier, above the full atlas of every issue the record touched
-           — and Word vs Action follows, unchanged, with its ring and its
-           percentage, as the second thing rather than the first.
+           So the record leads — as a SUMMARY. Inventory counts, then up to two
+           issues where the formal acts on file ran one way and up to two where they
+           ran both ways, each chip a door into that issue's dossier. Then 🌳 All
+           Issues by Topic, which is how a reader explores the rest of it, and then
+           Word vs Action with its ring and its percentage.
+
+           IT IS NOT THE LIST ANY MORE. The full issue-by-issue formal atlas used to
+           mount directly under this strip, open, and on a member with a deep ledger
+           that was fifty-odd rows standing between the summary and every other
+           surface on the page — an inventory of exactly the issues the tree below
+           was about to index a second time. The atlas moved down into the explore
+           stage, under the tree, behind one closed control. This block is counts and
+           a handful of chips, and it stays that way: the cap is in the engine
+           (_SO_CAP) and growing it back into a roster is what this pass undid.
 
            IT ADDS NO ARITHMETIC. PDXConsistency.recordStandout selects from the
-           same _fpiRows() the atlas below renders, using the pattern engine's own
+           same _fpiRows() the flat list renders, using the pattern engine's own
            depth floor, and prints the tier and counts those rows already carry.
            No percentage, no ranking against anybody else, no party framing, and
            no path from any of it into Direction Match.
@@ -4899,66 +4988,26 @@
            re-derived, so the two can never both mount. -->
       ${(function () {
         try {
+          // ONE RECORD BLOCK IN THIS SLOT, AND THE LANE DECIDES WHICH. The strip
+          // below is built out of roll-call patterns, and consistency.js's
+          // _stDirRaw() returns null for the exec lane by design — so on a
+          // president it selected nothing and this slot rendered empty, which is
+          // how an executive profile came to open on a missing record summary and
+          // a jump-bar pill with nowhere to land. The exec lane gets its own
+          // compact summary, in its own vocabulary, in the same place. Checked
+          // first and returned from, so the two can never both emit
+          // #pdxsec-standout.
+          var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+          if (XS && typeof XS.html === 'function') {
+            var xh = XS.html(id) || '';
+            if (xh) return '<div class="modal-section pdxso-face">' + xh + '</div>';
+          }
           var SO = window.PDXConsistency && window.PDXConsistency.recordStandout;
           if (!SO || typeof SO.html !== 'function') return '';
           var WA = window.PDXWordAction;
           if (WA && typeof WA.shapeApplies === 'function' && WA.shapeApplies(id)) return '';
           var html = SO.html(id) || '';
           return html ? '<div class="modal-section pdxso-face">' + html + '</div>' : '';
-        } catch (e) { return ''; }
-      })()}
-
-
-      <!-- 🏛 EVERY ISSUE ON THE FORMAL RECORD — the formal atlas, on the face.
-           WHAT IT IS. PDXConsistency.formalPatternIndex: one row per issue this
-           person's formal record actually touched, each carrying the same 🏛 Record
-           pattern chip the row faces carry, the same counts, and the same door into
-           the same issue dossier. Nothing here is new information and nothing here
-           is new arithmetic — it is the shared row model, filtered to the formal
-           lane, sorted by how much the record said.
-
-           WHY IT MOVED. It has existed for a while and it rendered in exactly one
-           place: inside the full-record overlay, behind a button. So the longer and
-           more complete answer to "where does this person actually sit" was one tap
-           down and behind a control named after stances, while the face carried the
-           surfaces that need a stated position before they can say anything. On a
-           senator that is seven issues in front and sixty-four behind the button.
-           This is the same list, on the face, as the discovery surface. The overlay
-           keeps it as the expanded view.
-
-           IT DOES NOT COMPETE WITH THE SCORE ABOVE IT. No percentage — the engine
-           publishes tiers and counts and refuses to return a ratio (see
-           _recordDirectionIndex in stance-helpers.js), so there is no second formal
-           number on this page and scripts/test-no-second-score.mjs still holds.
-           ⚖️ Word vs Action is unchanged, keeps its ring and keeps its position
-           above this. A pattern read here is never a stated position and never
-           enters Direction Match; the index prints that wall at its own foot.
-
-           THE DEPTH GATE. Below FACE_MIN issues the atlas is a third short list
-           behind two surfaces that already showed the same rows, so it does not
-           mount — the overlay still has it, and the CTA still counts it. -->
-      ${(function () {
-        try {
-          var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
-          if (!FPI || typeof FPI.html !== 'function') return '';
-          // A SIMPLE DEPTH GATE, AND IT COUNTS ISSUES RATHER THAN ITEMS. The point
-          // of this surface is breadth — that the formal record reaches further
-          // than the written-up positions do — and a member with a handful of
-          // issues on file has no breadth to show that the tree below is not
-          // already showing.
-          var FACE_MIN = 8;
-          var n = (typeof FPI.count === 'function') ? (FPI.count(id) || 0) : 0;
-          if (n < FACE_MIN) return '';
-          // `mount` names this instance. The overlay renders the same index for the
-          // same person, and both can be in the DOM at once — the key is what keeps
-          // their row ids distinct and stops a filter tap in one from re-filtering
-          // the other. Strongest-first here always: the face has no Sort control of
-          // its own, and the overlay owns that state.
-          var html = FPI.html(id, { sort: 'strength', mount: 'face' }) || '';
-          if (!html) return '';
-          // Anchored: the shape hero's "see all N issues on the record" jumps
-          // here, to the list on the face, rather than opening the overlay.
-          return '<div id="pdxsec-formalatlas" class="modal-section pdxfpi-face">' + html + '</div>';
         } catch (e) { return ''; }
       })()}
 
@@ -4999,6 +5048,7 @@
            multi-issue block. Nothing about when it renders changed: same gate,
            same fallback. -->
 
+      <!--PDXSP:explore-->
       <!-- 🌳 ALL ISSUES BY TOPIC — the browse-all-stances surface, and the reason
            Stance at a Glance below is unmounted. The glance was a FLAT WALL: every
            documented position in one alphabetised column, no grouping, no colour,
@@ -5009,19 +5059,29 @@
            and what their formal RECORD did in adjacent slots on one line, and an
            alignment cue only where both slots are filled.
 
-           IT SITS HERE, DIRECTLY UNDER THE WORD VS ACTION SUMMARY, on purpose: the
-           section above states the one headline finding, and this is the surface a
-           reader browses to check that finding issue by issue. It publishes no
-           percentage of its own, and a broad node publishes no verdict — a topic is
-           not something a person can be scored on. See the five walls at the top of
-           stance-tree.js. Renders '' when neither a stated position nor a readable
-           formal pattern exists anywhere on the profile. -->
+           IT IS THE PRIMARY EXPLORE GATEWAY, AND IT SITS ABOVE THE SCORE. It used
+           to mount directly UNDER ⚖️ Word vs Action, as the surface a reader browsed
+           to check that section's finding. That was the wrong way round on most
+           profiles: Direction Match can only speak where a stated position is on
+           file, so on a member with a deep ledger and a thin stance shelf the
+           browse-everything surface was the third thing they met, behind a score
+           and behind a fifty-row flat list of the same issues. The order is now
+           summary → tree → score. This is the one place a reader expands a topic and
+           opens an issue, and every other door on the profile — a standout chip, a
+           shape row, a "see all" control — lands here or in the dossier it opens,
+           never in a second index.
+
+           It publishes no percentage of its own, and a broad node publishes no
+           verdict — a topic is not something a person can be scored on. See the five
+           walls at the top of stance-tree.js. Renders '' when neither a stated
+           position nor a readable formal pattern exists anywhere on the profile. -->
       ${(window.PDXStanceTree && typeof window.PDXStanceTree.sectionHtml === 'function')
         ? (function(){ try { return window.PDXStanceTree.sectionHtml(id); } catch(e){ return ''; } })()
         : ''}
 
       <!-- 🧩 TWO AXES — one declared pair, read side by side.
-           IT SITS DIRECTLY UNDER THE TREE ON PURPOSE. The tree is where a reader
+           IT SITS DIRECTLY UNDER THE TREE ON PURPOSE, and it travelled with the tree
+           into the explore stage rather than being left behind under the score. The tree is where a reader
            browses issue by issue; this is where the two halves of one pair are
            held against each other. STATUS FIRST: this person's reading on the
            pair (same direction / split / mixed on one side / one side on record /
@@ -5040,6 +5100,74 @@
         ? (function(){ try { return window.PDXBallotAxes.profileHtml(id, p); } catch(e){ return ''; } })()
         : ''}
 
+      <!-- 🏛 THE FLAT FORMAL LIST — every issue on the formal record, one row each,
+           BEHIND ONE CLOSED CONTROL AND BELOW THE TREE.
+
+           WHAT IT IS. PDXConsistency.formalPatternIndex: one row per issue this
+           person's formal record actually touched, each carrying the same 🏛 Record
+           pattern chip the row faces carry, the same counts, and the same door into
+           the same issue dossier. Nothing here is new information and nothing here
+           is new arithmetic — it is the shared row model, filtered to the formal
+           lane, sorted by how much the record said.
+
+           WHY IT IS COLLAPSED, AND WHY IT IS HERE. It shipped open, directly under
+           the standout strip, ahead of everything else on the page. That was right
+           when it was the only complete index of the formal record and the tree
+           still waited on stated positions. It is not right now: 🌳 All Issues by
+           Topic above carries a RECORD pattern chip on every leaf and opens the same
+           dossier, so the flat list had become a SECOND full inventory of the same
+           issues, printed first — fifty-odd rows a phone reader scrolled past before
+           reaching the surface built to be scrolled. Two complete catalogues of one
+           person's record is not twice the depth; it is one catalogue and one wall.
+
+           So the tree is the index and this is its alternate view: same stage,
+           directly beneath it, closed on arrival, one line of chrome that says how
+           many rows are inside. Nothing was deleted and nothing moved behind a
+           different product — #pdxsec-formalatlas still resolves, every deep link
+           into it still lands, the overlay still holds the expanded copy, and
+           _pdxNavJump opens the control before it scrolls.
+
+           IT DOES NOT COMPETE WITH THE SCORE. No percentage — the engine publishes
+           tiers and counts and refuses to return a ratio (see _recordDirectionIndex
+           in stance-helpers.js), so there is no second formal number on this page and
+           scripts/test-no-second-score.mjs still holds. A pattern read here is never
+           a stated position and never enters Direction Match; the list prints that
+           wall at its own foot. -->
+      ${(function () {
+        try {
+          var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+          if (!FPI || typeof FPI.html !== 'function') return '';
+          // A SIMPLE DEPTH GATE, AND IT COUNTS ISSUES RATHER THAN ITEMS. The point
+          // of this surface is breadth — that the formal record reaches further
+          // than the written-up positions do — and a member with a handful of
+          // issues on file has no breadth to show that the tree above is not
+          // already showing.
+          var FACE_MIN = 8;
+          var n = (typeof FPI.count === 'function') ? (FPI.count(id) || 0) : 0;
+          if (n < FACE_MIN) return '';
+          // `mount` names this instance. The overlay renders the same index for the
+          // same person, and both can be in the DOM at once — the key is what keeps
+          // their row ids distinct and stops a filter tap in one from re-filtering
+          // the other. Strongest-first here always: the face has no Sort control of
+          // its own, and the overlay owns that state.
+          var html = FPI.html(id, { sort: 'strength', mount: 'face' }) || '';
+          if (!html) return '';
+          // THE SUMMARY LINE IS THE WHOLE COST OF THIS BLOCK WHEN CLOSED. It states
+          // what is inside and how much of it there is, in the same breath, so a
+          // reader deciding whether to open it never has to open it to find out.
+          // <details> because it is a native, keyboard-operable disclosure that a
+          // screen reader announces as one — no JS, no state, nothing to re-arm.
+          return '<details id="pdxsec-formalatlas" class="modal-section pdxfpi-flat">' +
+              '<summary class="pdxfpi-flat-s">' +
+                '<span class="pdxfpi-flat-t"><span aria-hidden="true">🏛</span> View the flat formal list</span>' +
+                '<span class="pdxfpi-flat-n">Every issue on the formal record · ' + n + '</span>' +
+              '</summary>' +
+              '<div class="pdxfpi-flat-b pdxfpi-face">' + html + '</div>' +
+            '</details>';
+        } catch (e) { return ''; }
+      })()}
+
+      <!--PDXSP:verdict-->
       <!-- 🌱 WHY THIS RECORD IS THIN — the last thing in the verdict stage, and
            only when there is a gap to explain. It answers the one question the
            three surfaces above it cannot derive: WHY the record is thin (a

@@ -274,16 +274,29 @@ section("the shape hero itself");
     lacks(QUIET_HERO, "pdxwa-shape-thin", "a thin line rendered with nothing thin to report");
   }
 
-  // A SUMMARY, NOT THE ATLAS. The full list stays below and is linked, not copied.
+  // A SUMMARY, NOT THE ATLAS. The full record stays below and is linked, not
+  // copied. It routes into the TOPIC TREE rather than the flat list: the tree is
+  // the browse surface now, it holds the same population grouped rather than
+  // alphabetised, and it is the one destination that is always mounted — the flat
+  // list is gated on depth and ships collapsed, so a hero that jumped there would
+  // hand the reader a shut summary line on exactly the profiles with most to show.
   const rows = FPI.rows(QUIET).length;
   ok(topN < rows,
     `the hero rendered ${topN} of ${rows} atlas rows — it is duplicating the list, not summarising it`);
-  has(QUIET_HERO, `See all ${rows} issues on the record`,
-    "the shape hero does not route to the full atlas");
-  has(QUIET_HERO, "pdxsec-formalatlas",
-    "the 'see all' control does not jump to the atlas anchor");
-  has(PF_SRC, 'id="pdxsec-formalatlas"',
-    "profiles-full.js does not emit the anchor the shape hero jumps to");
+  has(QUIET_HERO, `Explore all ${rows} issues by topic`,
+    "the shape hero does not route to the browse surface");
+  has(QUIET_HERO, "pdxsec-stancetree",
+    "the 'explore all' control does not jump to the topic tree anchor");
+  has(R("stance-tree.js"), 'id="pdxsec-stancetree"',
+    "the topic tree does not emit the anchor the shape hero jumps to");
+  has(PF_SRC, "PDXStanceTree.sectionHtml(id)",
+    "profiles-full.js does not mount the topic tree, so the hero's jump has nowhere to land");
+  lacks(QUIET_HERO, "pdxsec-formalatlas",
+    "the shape hero still routes into the flat formal list — that anchor is depth-gated and collapsed, so\n" +
+    "    it is a jump that can land on nothing, and it is not the surface a reader browses from");
+  // Whatever the hero says is below it has to actually be below it.
+  has(QUIET_HERO, "in the topic tree below",
+    "the hero's overflow line still points at a 'full list' that is no longer what sits under it");
 
   // The lane wall, in the product's own sentence rather than a second wording.
   has(t, A._PDX_RD_TIER_NOTE || "never counted in Direction Match",

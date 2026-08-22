@@ -582,10 +582,157 @@ ok(/\.pdxwa-hstack-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
   'header: an empty depth host still occupies space, so a profile with nothing warm carries a gap\n' +
   '    under its name saying nothing');
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 12. The phone read above the tree
+// ═════════════════════════════════════════════════════════════════════════════
+// The measurement that started this: on Massie, a phone reader met the letterhead,
+// the brief, a two-chip summary — and then thirty-three rows of "every issue on the
+// formal record", one flat alphabetised column, before reaching the topic tree that
+// exists to make that same population browsable. Two inventories of one record,
+// stacked, the worse one first. The tree is the gateway now and the flat list is a
+// collapsed control beneath it, so what is above the tree is summary only.
+//
+// Reading position, not file position: the spine assembles the body by stage, so a
+// mount can move up the page without moving up the file, and the tree did exactly
+// that. These resolve each mount the way the assembler does.
+{
+  const bodyAt = PF.indexOf('const _profileBody = ');
+  must(bodyAt !== -1, 'the profile body template moved');
+  const STAGE_KEYS = (/STAGE_KEYS\s*=\s*STAGES\.map/.test(SPINE)
+    ? (SPINE.match(/\{\s*key:\s*'([a-z]+)'/g) || []).map((m) => /'([a-z]+)'/.exec(m)[1])
+    : []);
+  must(STAGE_KEYS.length > 5 && STAGE_KEYS[0] === 'identity',
+    'the stage list could not be read out of profile-spine.js');
+  const rank = (needle) => {
+    const at = PF.indexOf(needle, bodyAt);
+    if (at === -1) return null;
+    const tags = PF.slice(bodyAt, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
+    const last = tags.length ? tags[tags.length - 1].replace(/<!--PDXSP:|-->/g, '') : 'identity';
+    const si = STAGE_KEYS.indexOf(last);
+    return si === -1 ? null : si * 1e9 + at;
+  };
+  const rTree = rank('PDXStanceTree.sectionHtml(id)');
+  const rStrip = rank('pdxso-face');
+  const rFlat = rank('id="pdxsec-formalatlas"');
+  const rWA = rank('PDXWordAction.sectionHtml(');
+  must(rTree !== null && rStrip !== null && rFlat !== null && rWA !== null,
+    'one of the four surfaces this section orders no longer mounts on the profile body');
+  ok(rStrip < rTree,
+    'above: the record summary reads below the topic tree — the summary is what orients the browse');
+  ok(rTree < rFlat,
+    'above: the flat "every issue on the formal record" list reads ABOVE the topic tree again. That is\n' +
+    '    the wall this pass removed: on a phone it is the entire scroll between the summary and the\n' +
+    '    one surface built to be browsed');
+  ok(rTree < rWA,
+    'above: Word vs Action reads above the topic tree — the score is not the first content story');
+
+  // ── THE GATEWAY'S FIRST SCREEN IS SHORT ───────────────────────────────────
+  // Reading order is only half of it on a phone. A tree that opens a branch for
+  // the reader spends the first screen on one topic's issue rows and pushes the
+  // rest of the map below the fold, which is the same wall the flat list was —
+  // shorter, and inside the gateway. So the tree paints its cores collapsed, and
+  // the number of doors is bounded by the taxonomy rather than by how much record
+  // a person happens to have.
+  const TREE_SRC = read('stance-tree.js');
+  ok(!/defaultOpenKey/.test(TREE_SRC),
+    'tree: the auto-open rule is back — one branch expands itself at first paint and the map\n' +
+    '    below it goes off the first screen');
+  ok(!/openKeys\s*=\s*\[/.test(TREE_SRC),
+    'tree: something assigns a first-paint open branch that the reader did not ask for');
+  ok(/if \(!shown\.length\)|var openKeys = \(opts\.open \|\| \[\]\)/.test(TREE_SRC),
+    'tree: opts.open is no longer the only thing that expands a branch');
+  ok(/window\.CORE_NATIONAL_ISSUES/.test(TREE_SRC),
+    'tree: the door list stopped coming from the shared core-issue taxonomy, so nothing bounds\n' +
+    '    how many rows the first screen can hold');
+  const CORES = (read('alignment-tool.js')
+    .match(/var CORE_NATIONAL_ISSUES\s*=\s*\[[\s\S]*?\n\s*\];/) || [''])[0]
+    .match(/\{\s*key:\s*'/g) || [];
+  ok(CORES.length === 13,
+    `tree: the core national issue set is ${CORES.length}, not the 13 the map is sized for`);
+  const TREE_CSS = read('stance-tree.css');
+  const face = /\.pdxtree-bface\s*\{([^}]*)\}/.exec(TREE_CSS);
+  must(face, 'the branch face rule moved out of stance-tree.css');
+  ok(/min-height:\s*44px/.test(face[1]),
+    'tap: a core row is under the 44px threshold. It is the only control on the first screen of\n' +
+    '    the gateway, and every reader has to hit one to get anywhere');
+
+  // Nothing between the summary and the tree. A third surface slotted in there is
+  // the wall again under a different name, whatever it renders.
+  const between = PF.slice(PF.indexOf('pdxso-face', bodyAt), PF.indexOf('<!--PDXSP:', PF.indexOf('pdxso-face', bodyAt)));
+  ok(!/formalPatternIndex|PDXReceipts\.|_pdxConnectDots/.test(between),
+    'above: a second inventory surface was mounted between the summary and the gateway');
+
+  // The summary stays a summary. Its cap lives in the engine, so that is where it
+  // is read — a strip that grows a row per issue is the wall wearing chips.
+  const CJ = read('consistency.js');
+  const cap = Number((/_SO_CAP\s*=\s*(\d+)/.exec(CJ) || [])[1]);
+  ok(cap >= 1 && cap <= 4,
+    `above: the standout strip's chip cap is ${cap || 'gone'} — bounded and small is what makes it a\n` +
+    '    summary rather than a second list');
+  ok(/pdxso-more/.test(CJ) && /topic tree below/.test(CJ),
+    'above: the strip does not tell the reader where the rest of the record is, so a capped summary\n' +
+    '    reads as the whole record');
+
+  // Both new destinations are real anchors, and both are 44px targets.
+  const railFrom = PF.indexOf('const _navItems = [];');
+  must(railFrom !== -1, 'the jump rail pill list moved');
+  const rail = PF.slice(railFrom, PF.indexOf('function _pdxNavJump'));
+  const targets = [...rail.matchAll(/target:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]);
+  must(targets.length >= 8, 'the jump rail lost most of its pills');
+  ok(targets.indexOf('pdxsec-standout') !== -1 && targets.indexOf('pdxsec-stancetree') !== -1,
+    'above: the rail has no pill for the summary or the tree, so a reader who lands mid-profile has\n' +
+    '    no way back to either without scrolling');
+  // Anchors are emitted by whichever module owns the section, and that is spread
+  // across the renderers and index.html alike — so the haystack is the shipped
+  // front end, not a hand-kept list that would rot the first time a section moved.
+  const EMITTERS = fs.readdirSync(ROOT)
+    .filter((f) => (/\.js$/.test(f) || f === 'index.html') && !/^(sw|gen-|test-)/.test(f))
+    .map((f) => { try { return read(f); } catch (e) { return ''; } })
+    .join('\n');
+  targets.forEach((t) => {
+    ok(EMITTERS.indexOf('id="' + t + '"') !== -1 || EMITTERS.indexOf("id='" + t + "'") !== -1,
+      `above: the rail pill for #${t} points at an anchor nothing emits — _pdxNavJump no-ops on a\n` +
+      '    missing target, so that pill is a control that does nothing');
+  });
+  const flatS = /\.pdxfpi-flat-s\s*\{([^}]*)\}/.exec(SPINECSS);
+  must(flatS, 'profile-spine.css no longer has a .pdxfpi-flat-s rule');
+  ok(/min-height:\s*44px/.test(flatS[1]),
+    'above: the collapsed flat-list control is under 44px — it is the only way into those rows now');
+  ok(/list-style:\s*none/.test(flatS[1]),
+    'above: the disclosure still paints the default marker, which on a phone sits outside the padding');
+  // ── THE EXECUTIVE LANE'S FIRST SCREEN ─────────────────────────────────────
+  // One profile in the roster has no votes, so the member strip fails closed and
+  // the slot above the tree was blank on a phone — a reader met identity, then a
+  // gap, then the map. The block that fills it is held to the same shape as the
+  // member strip it sits in for: a few lines, a capped set of chips, one control
+  // out, and nothing that grows a row per issue.
+  const xsAt = CJ.indexOf('THE COMPACT FORMAL SUMMARY — EXECUTIVE LANE');
+  must(xsAt > 0, 'the executive formal summary moved out of consistency.js');
+  const xcap = Number((/_XS_CAP\s*=\s*(\d+)/.exec(CJ) || [])[1]);
+  ok(xcap >= 1 && xcap <= 4,
+    `above: the executive summary's chip cap is ${xcap || 'gone'} — the block sits above the gateway on\n` +
+    '    a phone, so an uncapped one is the flat wall the tree replaced');
+  ok(/topic tree below/.test(CJ.slice(xsAt)),
+    'above: the executive summary does not tell the reader the rest of the record is below it');
+  // Its route out is the only control in the block, and it is a real target.
+  const goRule = /\.pdxxs-go\{([^}]*)\}/.exec(CJ);
+  must(goRule, 'the .pdxxs-go rule moved out of consistency.js');
+  ok(/min-height:\s*44px/.test(goRule[1]),
+    'tap: the executive summary\'s route into the topic tree is under the 44px threshold — it is the\n' +
+    '    one control the block offers, and on a phone it is how the reader leaves the first screen');
+  ok(/'pdxsec-stancetree'/.test(CJ.slice(xsAt)),
+    'above: the executive summary\'s route control no longer aims at the gateway');
+  // And it stays four lines: no drawer of its own above the tree.
+  ok(!/<details/.test(CJ.slice(xsAt, CJ.indexOf('── THE FILTERS ──', xsAt))),
+    'above: the executive summary grew a disclosure of its own, which on a phone is a second wall\n' +
+    '    between the reader and the map');
+
+}
+
 console.log(
   failures.length
     ? ''
-    : `✓ mobile profile hierarchy: all ${passed} assertions passed — strip → list with nothing between them`
+    : `✓ mobile profile hierarchy: all ${passed} assertions passed — summary → tree, and the flat wall is folded under it`
 );
 if (failures.length) {
   console.error(`\n✗ mobile profile hierarchy: ${failures.length} failure(s)`);
