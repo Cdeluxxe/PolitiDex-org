@@ -3701,7 +3701,22 @@
       // aimed at it there would be a pill aimed at nothing.
       var WAS = window.PDXWordAction;
       var shaped = !!(WAS && typeof WAS.shapeApplies === 'function' && WAS.shapeApplies(id));
-      if (!shaped && SO && typeof SO.pick === 'function') {
+      // The executive lane first, in the same order the mount checks: on a
+      // president the block in this slot is PDXConsistency.execRecordSummary, and
+      // the pill's figures are that block's own — how much is on file and what it
+      // is made of. Counts, never a ratio, and never the second percentage this
+      // rail is not allowed to carry.
+      var XSC = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+      var xsc = null;
+      try { xsc = (XSC && typeof XSC.pick === 'function') ? XSC.pick(id) : null; } catch (e) { xsc = null; }
+      if (xsc && xsc.on) {
+        out.standout = { value: xsc.acts + ' on file', pending: false,
+          color: xsc.contested ? '#f5c842' : '#9fdbd0',
+          note: xsc.inventory.length
+            ? xsc.inventory.join(' · ') + ' — across ' + xsc.issues +
+              ' issue' + (xsc.issues === 1 ? '' : 's')
+            : 'formal actions on file' };
+      } else if (!shaped && SO && typeof SO.pick === 'function') {
         var so = SO.pick(id);
         if (so && so.any) {
           out.standout = { value: so.issues + ' issue' + (so.issues === 1 ? '' : 's') + ' read',
@@ -4973,6 +4988,20 @@
            re-derived, so the two can never both mount. -->
       ${(function () {
         try {
+          // ONE RECORD BLOCK IN THIS SLOT, AND THE LANE DECIDES WHICH. The strip
+          // below is built out of roll-call patterns, and consistency.js's
+          // _stDirRaw() returns null for the exec lane by design — so on a
+          // president it selected nothing and this slot rendered empty, which is
+          // how an executive profile came to open on a missing record summary and
+          // a jump-bar pill with nowhere to land. The exec lane gets its own
+          // compact summary, in its own vocabulary, in the same place. Checked
+          // first and returned from, so the two can never both emit
+          // #pdxsec-standout.
+          var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+          if (XS && typeof XS.html === 'function') {
+            var xh = XS.html(id) || '';
+            if (xh) return '<div class="modal-section pdxso-face">' + xh + '</div>';
+          }
           var SO = window.PDXConsistency && window.PDXConsistency.recordStandout;
           if (!SO || typeof SO.html !== 'function') return '';
           var WA = window.PDXWordAction;

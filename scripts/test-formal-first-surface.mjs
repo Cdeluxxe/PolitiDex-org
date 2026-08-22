@@ -494,6 +494,74 @@ section("5 · none of it is a second score");
     "Direction Match is not deterministic across identical seeds");
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · the executive lane's summary is not a roll-call wall in disguise");
+// ═════════════════════════════════════════════════════════════════════════════
+// The formal-first pass gave members a summary at the top and folded the flat atlas
+// under the tree. The executive lane got the reorder and nothing to put in the slot,
+// because the pattern engine declines that lane by design. The block that fills it
+// now has one job and a short list of things it may not become: a second atlas, a
+// fabricated roll-call read, or a place where public-lane tallies are printed as if
+// they were formal.
+{
+  const CJS = R("consistency.js");
+  const from = CJS.indexOf("✒️ THE COMPACT FORMAL SUMMARY — EXECUTIVE LANE");
+  must(from > 0, "the executive formal summary moved — this source slice is stale");
+  const XSRC = CJS.slice(from, CJS.indexOf("── THE FILTERS ──", from));
+  must(XSRC.length > 2000, "the executive summary slice is too small to be the block");
+  // Comments carry the reasoning and name the things the code must not do, so the
+  // prohibitions are checked against the CODE with the comments stripped.
+  const code = XSRC.replace(/\/\/.*$/gm, "");
+
+  // ── It reads the exec lane, and only the exec lane ────────────────────────
+  has(code, "PDXExecRecord", "the executive summary does not read the executive record");
+  has(code, "sum.rows", "the executive summary rebuilds the issue universe instead of reading the one pass");
+  ok(!/_fpiRows|_stPatternTier|_soPick|formalPatternIndex/.test(code),
+    "the executive summary reaches into the member pattern engine — that engine returns null for this\n" +
+    "    lane by design, and anything it produced here would be a tier invented for a record with no votes");
+  ok(!/\bvote|roll[ -]?call|judged/i.test(code),
+    "the executive summary borrowed roll-call vocabulary for a lane that casts no votes");
+  ok(!/publicTally|_stPublic|receipt/i.test(code),
+    "the executive summary reads the public lane — a formal summary padded with public receipts is\n" +
+    "    the one thing the exec lane's own thinness caveat exists to prevent");
+
+  // ── It is a summary, not a second atlas ───────────────────────────────────
+  has(code, "var _XS_CAP = 2", "the chip cap left the code, so the summary can grow back into a list");
+  has(code, "slice(0, _XS_CAP)", "the buckets are no longer sliced to the declared cap");
+  ok(!/<details/.test(code), "the executive summary mounts a disclosure — this block is four lines, not a drawer");
+  ok(!/pdxsec-formalatlas/.test(code), "the executive summary mounts the flat formal atlas");
+  ok(!/pdxfpi/.test(code), "the executive summary renders formal-pattern-index rows");
+  // One route out, and it is the gateway — the same destination the shape hero's
+  // "Explore all N by topic" button uses, so there is one browse surface, not two.
+  has(code, "'pdxsec-stancetree'", "the executive summary's route control does not aim at the topic tree");
+  eq((code.match(/pdxsec-stancetree/g) || []).length, 1,
+    "the executive summary names the tree anchor more than once — one route, one destination");
+  has(R("word-action.js"), "var SHAPE_JUMP = 'pdxsec-stancetree'",
+    "the shape hero's route moved, so the two summaries no longer send readers to the same place");
+
+  // ── No second score ───────────────────────────────────────────────────────
+  ok(!/'%'|"%"|pct|percent/i.test(code), "the executive summary computes or prints a percentage");
+  ok(!/\bscore\b|\brating\b|\bgrade\b/i.test(code.replace(/score:\s*null/g, "")),
+    "the executive summary publishes a score, a rating or a grade");
+  ok(!/loyalty|\bparty\b|republican|democrat/i.test(code),
+    "the executive summary reintroduced party framing on the one lane with no caucus to frame it against");
+
+  // ── Rendered, on the lane's own figure ────────────────────────────────────
+  const W = boot();
+  const XS = W.PDXConsistency.execRecordSummary;
+  const html = XS.html("trump");
+  ok(html.length > 0, "the executive summary renders nothing on the executive fixture");
+  ok(!/\d\s*%/.test(html), "the executive summary prints a percentage");
+  lacksI(html, "out of 100", "the executive summary publishes a hundred-point figure");
+  // Rendering it must not move the sanctioned figure.
+  const before = JSON.stringify(W.PDXWordAction.read("trump"));
+  XS.html("trump"); XS.pick("trump");
+  eq(JSON.stringify(W.PDXWordAction.read("trump")), before,
+    "rendering the executive formal summary moved Direction Match");
+  // …and it must not have opened anything in the gateway below it.
+  ok(!/pdxtree-open="1"/.test(html), "the executive summary expands a topic-tree branch");
+}
+
 // ── Result ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ formal-first surface — ${failures.length} of ${passed + failures.length} assertions failed:\n`);

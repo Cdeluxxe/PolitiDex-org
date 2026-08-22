@@ -700,6 +700,33 @@ ok(/\.pdxwa-hstack-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
     'above: the collapsed flat-list control is under 44px — it is the only way into those rows now');
   ok(/list-style:\s*none/.test(flatS[1]),
     'above: the disclosure still paints the default marker, which on a phone sits outside the padding');
+  // ── THE EXECUTIVE LANE'S FIRST SCREEN ─────────────────────────────────────
+  // One profile in the roster has no votes, so the member strip fails closed and
+  // the slot above the tree was blank on a phone — a reader met identity, then a
+  // gap, then the map. The block that fills it is held to the same shape as the
+  // member strip it sits in for: a few lines, a capped set of chips, one control
+  // out, and nothing that grows a row per issue.
+  const xsAt = CJ.indexOf('THE COMPACT FORMAL SUMMARY — EXECUTIVE LANE');
+  must(xsAt > 0, 'the executive formal summary moved out of consistency.js');
+  const xcap = Number((/_XS_CAP\s*=\s*(\d+)/.exec(CJ) || [])[1]);
+  ok(xcap >= 1 && xcap <= 4,
+    `above: the executive summary's chip cap is ${xcap || 'gone'} — the block sits above the gateway on\n` +
+    '    a phone, so an uncapped one is the flat wall the tree replaced');
+  ok(/topic tree below/.test(CJ.slice(xsAt)),
+    'above: the executive summary does not tell the reader the rest of the record is below it');
+  // Its route out is the only control in the block, and it is a real target.
+  const goRule = /\.pdxxs-go\{([^}]*)\}/.exec(CJ);
+  must(goRule, 'the .pdxxs-go rule moved out of consistency.js');
+  ok(/min-height:\s*44px/.test(goRule[1]),
+    'tap: the executive summary\'s route into the topic tree is under the 44px threshold — it is the\n' +
+    '    one control the block offers, and on a phone it is how the reader leaves the first screen');
+  ok(/'pdxsec-stancetree'/.test(CJ.slice(xsAt)),
+    'above: the executive summary\'s route control no longer aims at the gateway');
+  // And it stays four lines: no drawer of its own above the tree.
+  ok(!/<details/.test(CJ.slice(xsAt, CJ.indexOf('── THE FILTERS ──', xsAt))),
+    'above: the executive summary grew a disclosure of its own, which on a phone is a second wall\n' +
+    '    between the reader and the map');
+
 }
 
 console.log(

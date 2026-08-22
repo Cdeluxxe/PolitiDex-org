@@ -1025,6 +1025,32 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(reads("PDXStanceTree.sectionHtml(id)", 'id="pdxsec-formalatlas"'),
      "explore: the flat formal list reads BELOW the tree, whatever the file says — a full issue inventory\n" +
      "    ahead of the browse surface is the parallel wall this pass removed");
+  // 11a2. The executive lane fills the same slot, not a slot of its own. The member
+  //       strip is driven by a pattern engine that declines the exec lane outright,
+  //       so on that one profile the standout stage rendered nothing and the reader
+  //       met the gateway with no orientation at all. The exec block is a second
+  //       renderer for ONE stage, and both emit #pdxsec-standout — so it has to live
+  //       inside the same mount, ahead of the member attempt, and it must not add a
+  //       sentinel or an anchor of its own anywhere else in the body.
+  const soMount = PFL.indexOf("<!--PDXSP:standout-->", bodyFrom);
+  ok(soMount !== -1, "standout: the profile body still declares a standout stage");
+  const soBlock = PFL.slice(soMount, PFL.indexOf("<!--PDXSP:", soMount + 10));
+  ok(/execRecordSummary/.test(soBlock),
+     "standout: the executive formal summary is not mounted in the standout stage — that stage is the\n" +
+     "    one slot both lanes share, and the exec lane renders nothing without it");
+  const soCode = soBlock.slice(soBlock.indexOf("${(function ()"));
+  ok(soCode.indexOf("execRecordSummary") < soCode.indexOf("recordStandout"),
+     "standout: the member strip is attempted before the executive summary. Both emit #pdxsec-standout,\n" +
+     "    so whichever runs first owns the anchor and the other must be the fallback");
+  ok((PFL.slice(bodyFrom).match(/execRecordSummary/g) || []).length === 1,
+     "standout: the executive summary is mounted more than once in the body — two mounts of one anchor");
+  ok(SP.targetStage("pdxsec-standout") === "standout",
+     "standout: the shared anchor no longer resolves to the standout stage, so the rail's first pill\n" +
+     "    would rank against the wrong slot");
+  ok(reads("execRecordSummary", "PDXStanceTree.sectionHtml(id)"),
+     "standout: the executive summary reads below the topic tree — on the one profile with no votes it\n" +
+     "    is the only thing that says what the record holds before the map appears");
+
 
   // 11b2. The gateway, and the wall that used to stand beside it. The default
   //       read must NOT be a long flat "every issue on the formal record" list

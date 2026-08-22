@@ -84,7 +84,17 @@
 // stance-tree.js changed, so this bump is about the served file rather than a
 // cross-file contract: a phone holding v62 keeps serving the cached tree and would
 // go on expanding a branch nobody asked it to.
-const CACHE_VERSION = 'v63';
+// v64 — THE EXECUTIVE LANE GETS A FORMAL SUMMARY OF ITS OWN. The slot above the
+// topic tree is filled on the one profile that casts no votes: an inventory line
+// (orders · signed laws · vetoes, only the classes on file), at most two standout
+// issue chips, and one control into the tree. Four files moved together —
+// exec-record.js now publishes the per-issue rows its own counting pass already
+// made, exec-record-ui.js reads the class nouns from there instead of keeping a
+// copy, consistency.js renders the block, and profiles-full.js mounts it ahead of
+// the member strip and feeds the rail pill. A shell holding v63 would pair a new
+// consistency.js with an exec-record.js that publishes no rows, so the summary
+// would silently decline to mount.
+const CACHE_VERSION = 'v64';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

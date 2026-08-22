@@ -410,15 +410,11 @@
   }
 
   // ── One action card ────────────────────────────────────────────────────────
-  // Class nouns for the per-class breakdown line. exec-record.js's CLASSES carry a
-  // verb ("Signed into law") for the card and a singular label; the summary line needs
-  // a countable noun in both numbers, and "2 signed into laws" is not one.
-  var CLASS_NOUN = {
-    signed_law:      ['law signed', 'laws signed'],
-    vetoed_law:      ['veto', 'vetoes'],
-    executive_order: ['executive order', 'executive orders'],
-    directive:       ['directive', 'directives']
-  };
+  // THE CLASS NOUNS MOVED. They used to live here, because this file was the only
+  // one printing the per-class breakdown line. The compact formal summary at the
+  // head of an executive profile prints it too now, so the nouns sit with the
+  // classes themselves — PDXExecRecord.inventory() — and both callers read the one
+  // list rather than keeping two that can drift.
 
   // How many action cards print inline before the ledger folds. Three is enough
   // to show what the cards are and what the newest ones say; the count rows above
@@ -660,16 +656,10 @@
         scope.push(curN + ' of ' + pool.kept.length + ' in the current term (' + term + ')');
       }
     }
-    var byClass = [];
-    Object.keys(sum.byClass).forEach(function (k) {
-      var n = sum.byClass[k];
-      if (!n) return;
-      // Reported per class and never summed into one headline figure: signing a bill
-      // Congress wrote and issuing an order alone are different claims about power,
-      // and "5 actions" flattens shared authorship into sole authorship.
-      var noun = CLASS_NOUN[k] || [k, k];
-      byClass.push(n + ' ' + noun[n === 1 ? 0 : 1]);
-    });
+    // Reported per class and never summed into one headline figure: signing a bill
+    // Congress wrote and issuing an order alone are different claims about power,
+    // and "5 actions" flattens shared authorship into sole authorship.
+    var byClass = (typeof ex.inventory === 'function') ? ex.inventory(sum) : [];
     if (byClass.length) scope.push(byClass.join(' · '));
 
     return {
