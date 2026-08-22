@@ -118,10 +118,28 @@ const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked",
 //   french_hill / gov_regulation  · re-sourced off a vote-derived sentence
 //   massie      / privacy_rights  · re-sourced off a vote-derived sentence
 //   boebert     / privacy_rights  · first sourced position on the key
+//
+// August 2026 circular-stance rewrite — scripts/vr-audit-share-eligibility-aug2026.mjs:
+//   87 stance sentences that were a restatement of the roll call under them were
+//   rewritten as the stated position instead, so the share layer's circularity
+//   guard stops refusing them. Votes, mappings, issue keys and directions were not
+//   touched. Where the rewrite made a card independent word for the first time, the
+//   engine reclassifies it out of recordDerived and into the scorable pool — the
+//   movement below is that reclassification and nothing else.
 const CURATED = {
   french_hill: "gov_regulation re-sourced from a Financial Services letter",
   massie: "privacy_rights re-sourced from the Surveillance Accountability Act release",
   boebert: "privacy_rights added from her own quoted statement",
+  aoc: "strong_defense re-worded off a vote-derived sentence",
+  bennie_thompson: "gun_safety re-worded off a vote-derived sentence",
+  bruce_westerman: "lands_balance re-worded off a vote-derived sentence",
+  curtis: "infrastructure re-worded off a vote-derived sentence",
+  deb_fischer: "states_federal_power re-worded off a vote-derived sentence",
+  mike_collins: "border_security re-worded off a vote-derived sentence",
+  mike_flood: "housing_build re-worded off a vote-derived sentence",
+  rick_crawford: "gun_rights and border_security re-worded off vote-derived sentences",
+  trent_kelly: "gun_rights re-worded off a vote-derived sentence",
+  troy_downing: "enviro_energy re-worded off a vote-derived sentence",
 };
 
 let published = 0, thinPerfect = 0, curated = 0;
