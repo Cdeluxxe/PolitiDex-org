@@ -400,6 +400,12 @@ const openKeys = () =>
   TREE_EL.querySelectorAll('[data-pdxtree-branch][data-pdxtree-open="1"]')
     .map((b) => b.getAttribute("data-pdxtree-branch"));
 const faceOf = (b) => b.querySelector("[data-pdxtree-toggle]");
+// Issue rows a reader can actually see: the ones inside a panel that is not
+// hidden. Everything else is markup behind a shut door.
+const onScreenLeaves = () =>
+  [...TREE_EL.querySelectorAll("[data-pdxtree-branch]")]
+    .filter((b) => !b.querySelector(".pdxtree-panel").hasAttribute("hidden"))
+    .reduce((n, b) => n + b.querySelectorAll("[data-pdxtree-issue]").length, 0);
 const bandTop = GEO.boxTop + GEO.navH;
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -486,7 +492,17 @@ section("2 · a branch really opens, really closes, one at a time on a phone");
     "…so the chip handler qualifies its selector to the control, not the state");
   const kFirst = first.getAttribute("data-pdxtree-branch");
   const kLast = last.getAttribute("data-pdxtree-branch");
-  eq(openKeys().length, 1, "the tree mounts with exactly one branch open");
+  // WALL 4, IN A REAL DOM. The tree mounts as the map: every core shut, not one
+  // issue row on the screen, and every panel genuinely hidden rather than merely
+  // collapsed. The reader's first move is choosing a topic.
+  eq(openKeys().length, 0, "the tree mounts with every branch closed");
+  eq(onScreenLeaves(), 0, "…so no issue row is on the screen before one is opened");
+  eq([...BRANCHES].filter((b) => !b.querySelector(".pdxtree-panel").hasAttribute("hidden")).length,
+     0, "…and no panel is left revealed");
+  ok(BRANCHES.length <= (A.CORE_NATIONAL_ISSUES || []).length + 1,
+    `…across at most 13 cores + Other (${BRANCHES.length} rows)`);
+  ok(TREE_EL.querySelectorAll("[data-pdxtree-issue]").length > BRANCHES.length,
+    "…while the issue rows themselves are all in the document, waiting behind a core");
 
   // ── DESKTOP: nothing is closed for you ────────────────────────────────────
   PHONE = false;
@@ -512,8 +528,12 @@ section("2 · a branch really opens, really closes, one at a time on a phone");
   tap(doc, faceOf(first));
   if (openKeys().indexOf(kFirst) === -1) tap(doc, faceOf(first));
   eq(openKeys().join(","), kFirst, "on a phone the tapped branch is the only one open");
+  eq(onScreenLeaves(), first.querySelectorAll("[data-pdxtree-issue]").length,
+    "…and the only issue rows on the screen are the ones filed under it");
   tap(doc, faceOf(last));
   eq(openKeys().join(","), kLast, "…and opening another closes the first");
+  eq(onScreenLeaves(), last.querySelectorAll("[data-pdxtree-issue]").length,
+    "…taking its issue rows off the screen with it, so one topic is open at a time");
   eq(faceOf(first).getAttribute("aria-expanded"), "false", "…which the closed face announces");
   tap(doc, faceOf(last));
   eq(openKeys().length, 0, "…and a reader may collapse the tree entirely");

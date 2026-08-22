@@ -101,6 +101,21 @@ const has = (hay, needle, msg) =>
 const lacks = (hay, needle, msg) =>
   ok(!String(hay).includes(needle), `${msg} — ${JSON.stringify(needle)} present`);
 const section = (t) => console.log(`  · ${t}`);
+// HOW MANY ISSUE ROWS A READER CAN ACTUALLY SEE. A leaf inside a `hidden` panel is
+// in the markup but not on the screen, and the whole point of the L0 map is the
+// difference between those two numbers — so the count is taken by walking the
+// branches and only totalling the ones whose panel is open.
+const visibleLeaves = (html) =>
+  String(html).split('<div class="pdxtree-branch').slice(1)
+    .filter((b) => /data-pdxtree-open="1"/.test(b))
+    .reduce((n, b) => n + (b.match(/data-pdxtree-issue="/g) || []).length, 0) +
+  // flat mode has no branches at all: its leaves sit in the open document
+  (String(html).split('<div class="pdxtree-flat')[1] || "")
+    .split('<div class="pdxtree-branch')[0]
+    .split(/data-pdxtree-issue="/).length - 1;
+const visibleLeafCount = (html, want, msg) =>
+  eq(visibleLeaves(html), want,
+    msg || `${want} issue row${want === 1 ? "" : "s"} are visible before anything is expanded`);
 // A stale probe is not a pass: if the fixture stops offering a case, the file
 // says so and stops rather than reporting green over an empty assertion.
 const must = (cond, msg) => {
@@ -203,6 +218,12 @@ const chunkOf = (key) => {
 // Branch faces only — everything from the toggle button to the panel it controls.
 const FACES = [...HTML.matchAll(/<button type="button" class="pdxtree-bface"[\s\S]*?<\/button>/g)]
   .map((m) => m[0]);
+const faceOf = (html, key) =>
+  [...String(html).matchAll(/<button type="button" class="pdxtree-bface"[\s\S]*?<\/button>/g)]
+    .map((m) => m[0]).filter((f) => f.includes(`data-pdxtree-toggle="${key}"`))[0] || "";
+// The module's own escaping, so a label with an ampersand in it can be matched
+// against the markup rather than asserted around.
+const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 must(LEAVES.length >= 10, `the fixture produced too few leaves (${LEAVES.length})`);
 must(FACES.length >= 5, `the fixture produced too few branches (${FACES.length})`);
@@ -617,28 +638,28 @@ section("6 · colours come from PDXIssueColors");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · mobile opens one branch at a time");
+section("7 · the first paint is the map — collapsed, one branch at a time");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   eq(T.PHONE, "(max-width: 639px)", "the phone test is the site's own phone breakpoint");
-  // Default state: exactly one branch open, and it is the branch holding the
-  // highest-tension row on the profile — not taxonomy #1, which is where the old
-  // rule left a reader when the contradiction sat in branch seven.
+  // WALL 4. A cold paint is the L0 map and nothing else: the core national issues
+  // this person has a record on, in taxonomy order, every one of them shut. The
+  // tree used to auto-expand its highest-tension branch, which pushed the cores
+  // below it off the first screen and made a reader meet an issue list before they
+  // had met the topics.
   const open = [...HTML.matchAll(/data-pdxtree-branch="([^"]*)" data-pdxtree-open="1"/g)]
     .map((m) => m[1]);
-  eq(open.length, 1, "a freshly rendered tree has exactly one branch open");
-  eq(open[0], T.defaultOpen(GROUPS), "…and it is the branch the default-open rule names");
-  const topRank = Math.min(...LEAVES.map((lf) => lf.rank));
-  const opened = GROUPS.filter((g) => g.key === open[0])[0];
-  eq(Math.min(...opened.leaves.map((lf) => lf.rank)), topRank,
-    "…which is a branch holding the highest-tension row on the profile");
-  GROUPS.slice(0, GROUPS.indexOf(opened)).forEach((g) =>
-    ok(Math.min(...g.leaves.map((lf) => lf.rank)) > topRank,
-      `${g.key}: an earlier branch is skipped only because nothing in it ranks higher`));
-  eq((HTML.match(/aria-expanded="true"/g) || []).length, 1,
-    "…which is the one branch reporting itself expanded");
-  eq((HTML.match(/<div class="pdxtree-panel"[^>]* hidden>/g) || []).length, GROUPS.length - 1,
-    "every other panel is really hidden, not just visually collapsed");
+  eq(open.length, 0, "a freshly rendered tree has no branch open at all");
+  eq((HTML.match(/aria-expanded="true"/g) || []).length, 0,
+    "…and nothing reports itself expanded");
+  eq((HTML.match(/<div class="pdxtree-panel"[^>]* hidden>/g) || []).length, GROUPS.length,
+    "every panel is really hidden, not just visually collapsed");
+  eq((HTML.match(/data-pdxtree-issue="/g) || []).length, LEAVES.length,
+    "the leaves are all still in the markup — hidden under their core, not dropped");
+  // The reader-facing consequence, stated as the row count it produces: what the
+  // first screen of the tree holds is branch faces, and only branch faces.
+  visibleLeafCount(HTML, 0);
+  ok(!T.defaultOpen, "the auto-open rule is gone from the surface, not just unused");
   eq((HTML.match(/aria-controls="/g) || []).length, GROUPS.length,
     "every toggle names the panel it controls");
 
@@ -663,7 +684,17 @@ section("7 · mobile opens one branch at a time");
   has(kept, `data-pdxtree-branch="${b1}" data-pdxtree-open="1"`,
     "a repaint honours the branch the reader had open");
   lacks(kept, `data-pdxtree-branch="${b0}" data-pdxtree-open="1"`,
-    "…and does not silently re-open the default one");
+    "…and opens nothing the reader did not open");
+  eq([...kept.matchAll(/data-pdxtree-open="1"/g)].length, 1,
+    "…exactly one, because that is what it was handed");
+  // And the reader who shut every branch stays shut across the swap: `open: []` is
+  // an answer, not a missing argument the tree may fill in for them.
+  visibleLeafCount(T.html(PID, { uid: "t", open: [] }), 0);
+  // A filter that empties the branch they had open hands back the map of what is
+  // left, rather than picking a different branch on their behalf.
+  const gone = T.html(PID, { uid: "t", open: ["__no_such_branch__"] });
+  eq([...gone.matchAll(/data-pdxtree-open="1"/g)].length, 0,
+    "a stale open key expands nothing");
   has(R("stance-tree.js"), "pdx-consistency-warm",
     "the tree rebinds on the same warm event the rest of the profile repaints on");
 }
@@ -970,11 +1001,6 @@ section("11 · filters are views — they hide rows and touch nothing else");
 section("12 · a closed branch summarises the state under it");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const faceOf = (html, key) => {
-    const all = [...html.matchAll(/<button type="button" class="pdxtree-bface"[\s\S]*?<\/button>/g)]
-      .map((m) => m[0]);
-    return all.filter((f) => f.includes(`data-pdxtree-toggle="${key}"`))[0] || "";
-  };
   GROUPS.forEach((g) => {
     const sm = g.summary;
     eq(sm.total, g.count, `${g.key}: the summary describes exactly the rows filed under it`);
@@ -1008,11 +1034,14 @@ section("12 · a closed branch summarises the state under it");
   must(!!tense, "the fixture no longer files a contradiction under any branch");
   const tf = faceOf(HTML, tense.key);
   has(tf, "cuts against", "a branch holding a contradiction says so on its face");
-  const closed = GROUPS.filter((g) => g.key !== T.defaultOpen(GROUPS) && g.summary.bits.length)[0];
-  must(!!closed, "the fixture no longer has a closed branch to read");
-  const cf = faceOf(HTML, closed.key);
-  has(cf, 'aria-expanded="false"', `${closed.key}: is closed`);
-  has(cf, "pdxtree-bsum", "…and still summarises its own state, count-only never being enough");
+  // On a cold paint EVERY branch is closed (wall 4), so this is the state a reader
+  // meets on all of them: shut, and still saying what is under it.
+  GROUPS.filter((g) => g.summary.bits.length).forEach((g) => {
+    const cf = faceOf(HTML, g.key);
+    has(cf, 'aria-expanded="false"', `${g.key}: is closed on the first paint`);
+    has(cf, "pdxtree-bsum",
+      `${g.key}: …and still summarises its own state, count-only never being enough`);
+  });
 
   // THE SUMMARY DESCRIBES THE VISIBLE SET, so it cannot disagree with the panel.
   const TP = "trump";
@@ -1074,7 +1103,20 @@ section("13 · a handful of leaves renders flat");
     "…each one still the door to its own dossier");
   has(th, 'data-pdxtree-mode="tree"', `${TREEPID}: one leaf more, and the tree is back`);
   has(th, "pdxtree-branch", "…with its branches");
-  eq((th.match(/aria-expanded="true"/g) || []).length, 1, "…one of them open");
+  eq((th.match(/aria-expanded="true"/g) || []).length, 0, "…all of them shut (wall 4)");
+  // WHERE THE COLLAPSED-MAP RULE DOES NOT APPLY, AND WHY. Flat mode is the two
+  // views that have no L0 to show: a profile with FLAT.maxLeaves issues or fewer,
+  // where the map would be longer than the list it hides, and Tension sort, which
+  // a reader asks for by name to get a sharpest-first ranking. Both are shorter
+  // than the map itself, so neither can bury it.
+  visibleLeafCount(fh, T.FLAT.maxLeaves,
+    `${FLATPID}: under the flat threshold the leaves ARE the first screen`);
+  ok(T.FLAT.maxLeaves < (A.CORE_NATIONAL_ISSUES || []).length,
+    "…and that only ever happens below the number of core issues, never above it");
+  const tens = T.html(TREEPID, { uid: "te", sort: T.SORTS[1].key });
+  has(tens, 'data-pdxtree-mode="flat"', "Tension order is the flat sharpest-first list");
+  visibleLeafCount(tens, T.count(TREEPID),
+    "…which a reader chose, so all of it is on screen");
 
   // Tension order, and the same leaf chrome as the tree.
   const fl = T.leaves(FLATPID);
@@ -1100,6 +1142,94 @@ section("13 · a handful of leaves renders flat");
     "…and exactly the narrowed rows on screen");
   has(T.html(TP, { uid: "nn" }), 'data-pdxtree-mode="tree"',
     "…while the unfiltered view of the same profile is still a tree");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("14 · the first screen is the 13 core issues and Other, and nothing else");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const CORE = A.CORE_NATIONAL_ISSUES || [];
+  eq(CORE.length, 13, "the core national issue set is the thirteen the tree roots on");
+
+  // THE ROW BUDGET. What a reader meets is a short list of broad doors: one per
+  // core issue they have a record on, plus Other. Never a leaf, never a second
+  // list, and never more rows than the taxonomy has entries.
+  const rows = (html) => [...String(html).matchAll(/data-pdxtree-branch="([^"]*)"/g)].map((m) => m[1]);
+  const L0 = rows(HTML);
+  ok(L0.length <= CORE.length + 1,
+    `the first screen is at most 13 cores + Other (${L0.length} rows)`);
+  visibleLeafCount(HTML, 0);
+  L0.slice(0, -1).forEach((k) =>
+    ok(CORE.some((c) => c.key === k), `${k}: an L0 row is a core national issue`));
+  eq(L0[L0.length - 1], "other", "…and the one row that is not a core is the trailing Other");
+
+  // THE CHOICE ON EMPTY BUCKETS, PINNED. A core issue this person has no tracked
+  // row under does not get a door: `groups()` drops it, the same rule that drops
+  // an empty Other. A door with nothing behind it is the failure this whole IA
+  // pass exists to remove, so the map shows the cores that are real for THIS
+  // person, in the taxonomy's order, and no placeholder rows.
+  const absent = CORE.filter((c) => !L0.includes(c.key));
+  must(absent.length > 0, "the fixture no longer has a core issue with nothing under it");
+  absent.forEach((c) => {
+    lacks(HTML, `data-pdxtree-branch="${c.key}"`,
+      `${c.key}: a core with no tracked row paints no empty door`);
+    eq(T.leaves(PID).filter((lf) => lf.topic === c.key).length, 0,
+      `${c.key}: …and it really is empty, not hidden`);
+  });
+  const noOther = T.groups(PID, LEAVES.filter((lf) => !!lf.topic));
+  eq(noOther.some((g) => g.key === "other"), false,
+    "an empty Other is dropped by the same rule, not special-cased");
+
+  // EVERY L0 ROW IS THE SAME SHAPE: label, count, state summary, expand control.
+  // No percentage, no verdict word, no direction of the branch's own — wall 2.
+  L0.forEach((k) => {
+    const g = GROUPS.filter((x) => x.key === k)[0];
+    const face = faceOf(HTML, k);
+    has(face, `>${esc(g.label)}<`, `${k}: the row is the topic's own label`);
+    has(face, `${g.count} issue`, `${k}: …with a count of the rows under it`);
+    lacks(face, "%", `${k}: …and no percentage anywhere on it`);
+    has(face, `data-pdxtree-toggle="${k}"`, `${k}: …and one control, which expands it`);
+    const branch = HTML.split(`data-pdxtree-branch="${k}"`)[1].split("</div></div>")[0];
+    has(branch, "--pdx-ic", `${k}: the row paints from the shared issue-colour property`);
+    if (k !== "other") {
+      eq(IC.styleFor(k), g.skin.style, `${k}: …the exact style PDXIssueColors hands out`);
+      ok(g.skin.on, `${k}: …and a core row is a coloured one`);
+    } else {
+      has(g.skin.style, IC.FALLBACK.color, "Other takes the neutral fallback, borrowing no topic");
+    }
+  });
+
+  // THE WALK: L0 → L1 → L2. Expanding one core shows that core's issues and no
+  // other core's, and every issue it shows is the same dossier door the rest of
+  // the profile uses. Three levels, one deep target.
+  const target = GROUPS.filter((g) => g.count >= 2)[0];
+  must(!!target, "the fixture has no core holding more than one issue to expand");
+  const opened = T.html(PID, { uid: "t", open: [target.key] });
+  visibleLeafCount(opened, target.count,
+    `expanding ${target.key} reveals its ${target.count} issues and nothing else`);
+  const shown = [...opened.split(`data-pdxtree-branch="${target.key}"`)[1]
+    .matchAll(/data-pdxtree-issue="([^"]*)"/g)].map((m) => m[1]);
+  eq(shown.slice(0, target.count).join(","), target.leaves.map((lf) => lf.key).join(","),
+    "…in the branch's own tension order");
+  target.leaves.forEach((lf) => {
+    const row = rowIn(opened, lf.key);
+    has(row, `data-pdxtree-dos="${lf.key}"`, `${lf.key}: an L1 row opens the issue dossier`);
+    has(row, `data-pdxtree-pid="${PID}"`, `${lf.key}: …for this person`);
+    eq((row.match(/data-pdxtree-dos="/g) || []).length, 1,
+      `${lf.key}: …through exactly one door, the same one every other surface uses`);
+  });
+  // openGap is that door, and it is PDXConsistency's, not the tree's.
+  ok(typeof CS.openGap === "function", "the door the L1 rows call is the shared dossier entry");
+  lacks(R("stance-tree.js"), "function openGap",
+    "…which the tree calls rather than reimplementing");
+
+  // THE COPY DESCRIBES THE WALK AND CLAIMS NO SCORE.
+  has(SECTION, "core national", "the section says the tree is filed under the core issues");
+  has(SECTION, "Open a topic", "…and tells a reader the first move is opening one");
+  const sub = (SECTION.match(/<p class="pdxtree-sub">[\s\S]*?<\/p>/) || [""])[0];
+  lacks(sub, "%", "…without a percentage in the promise");
+  ["score", "rating", "grade", "rank"].forEach((w) =>
+    lacks(sub.toLowerCase(), w, `…and without claiming a ${w}`));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

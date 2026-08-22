@@ -511,6 +511,19 @@ section("6 · one standout block per profile, and it mounts ahead of the score")
   ok(keys.indexOf("explore") === keys.indexOf("standout") + 1 &&
      keys.indexOf("explore") < keys.indexOf("verdict"),
     "the gateway does not follow the summary directly and lead the score — summary, browse, then judgment");
+  // WHAT THE CAPPED SUMMARY POINTS AT HAS TO BE THE WHOLE RECORD. The strip prints
+  // two chips and tells the reader the rest is in the topic tree below. That
+  // sentence is only true if the tree lists every issue — so the pointer and the
+  // completeness of what it points at are asserted together, not separately.
+  const CJ = R("consistency.js");
+  ok(/pdxso-more/.test(CJ) && /topic tree below/.test(CJ),
+    "the standout strip stopped naming where the rest of the record is, so two chips read as all of it");
+  const TREE_SRC = R("stance-tree.js");
+  ok(!/slice\(0,\s*\d+\)/.test((TREE_SRC.match(/function leaves\([\s\S]*?\n  \}/) || [""])[0]),
+    "the tree caps its own leaf list — the summary points at it as the complete record");
+  ok(!/defaultOpenKey/.test(TREE_SRC),
+    "the tree auto-expands a branch again, so the surface the strip points at opens on one topic's\n" +
+    "    rows instead of on the map of every topic it promises");
   // Demoted is not deleted.
   ok(keys.indexOf("verdict") >= 0, "the Word vs Action stage was removed rather than demoted");
   const stage = SP.STAGES.find((x) => x.key === "standout");

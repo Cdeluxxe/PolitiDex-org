@@ -77,7 +77,14 @@
 // phone holding v61 that picks up only profiles-full.js emits an <!--PDXSP:explore-->
 // sentinel its profile-spine.js has no stage for, and one that picks up only the
 // markup renders the new disclosure with no .pdxfpi-flat rules to style it.
-const CACHE_VERSION = 'v62';
+// v63 — THE TOPIC TREE ROOTS AT THE 13 CORE NATIONAL ISSUES. The tree now paints
+// fully collapsed: the first screen is the core-issue map — one row per core the
+// person has a tracked issue under, plus Other — and no issue row appears until a
+// reader opens the core it is filed under. The auto-open branch is gone. Only
+// stance-tree.js changed, so this bump is about the served file rather than a
+// cross-file contract: a phone holding v62 keeps serving the cached tree and would
+// go on expanding a branch nobody asked it to.
+const CACHE_VERSION = 'v63';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

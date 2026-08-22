@@ -626,6 +626,36 @@ ok(/\.pdxwa-hstack-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
   ok(rTree < rWA,
     'above: Word vs Action reads above the topic tree — the score is not the first content story');
 
+  // ── THE GATEWAY'S FIRST SCREEN IS SHORT ───────────────────────────────────
+  // Reading order is only half of it on a phone. A tree that opens a branch for
+  // the reader spends the first screen on one topic's issue rows and pushes the
+  // rest of the map below the fold, which is the same wall the flat list was —
+  // shorter, and inside the gateway. So the tree paints its cores collapsed, and
+  // the number of doors is bounded by the taxonomy rather than by how much record
+  // a person happens to have.
+  const TREE_SRC = read('stance-tree.js');
+  ok(!/defaultOpenKey/.test(TREE_SRC),
+    'tree: the auto-open rule is back — one branch expands itself at first paint and the map\n' +
+    '    below it goes off the first screen');
+  ok(!/openKeys\s*=\s*\[/.test(TREE_SRC),
+    'tree: something assigns a first-paint open branch that the reader did not ask for');
+  ok(/if \(!shown\.length\)|var openKeys = \(opts\.open \|\| \[\]\)/.test(TREE_SRC),
+    'tree: opts.open is no longer the only thing that expands a branch');
+  ok(/window\.CORE_NATIONAL_ISSUES/.test(TREE_SRC),
+    'tree: the door list stopped coming from the shared core-issue taxonomy, so nothing bounds\n' +
+    '    how many rows the first screen can hold');
+  const CORES = (read('alignment-tool.js')
+    .match(/var CORE_NATIONAL_ISSUES\s*=\s*\[[\s\S]*?\n\s*\];/) || [''])[0]
+    .match(/\{\s*key:\s*'/g) || [];
+  ok(CORES.length === 13,
+    `tree: the core national issue set is ${CORES.length}, not the 13 the map is sized for`);
+  const TREE_CSS = read('stance-tree.css');
+  const face = /\.pdxtree-bface\s*\{([^}]*)\}/.exec(TREE_CSS);
+  must(face, 'the branch face rule moved out of stance-tree.css');
+  ok(/min-height:\s*44px/.test(face[1]),
+    'tap: a core row is under the 44px threshold. It is the only control on the first screen of\n' +
+    '    the gateway, and every reader has to hit one to get anywhere');
+
   // Nothing between the summary and the tree. A third surface slotted in there is
   // the wall again under a different name, whatever it renders.
   const between = PF.slice(PF.indexOf('pdxso-face', bodyAt), PF.indexOf('<!--PDXSP:', PF.indexOf('pdxso-face', bodyAt)));

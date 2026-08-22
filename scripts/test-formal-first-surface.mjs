@@ -394,6 +394,20 @@ section("4 · phase 2 — the atlas mounts on the profile face");
     "the control does not say what opening it shows");
   has(flat.slice(0, 700), "Every issue on the formal record",
     "the control dropped the label the old wall carried, so the rows it holds are now unfindable by name");
+  // AND THE THING IT NOW SITS UNDER IS ALSO SHUT. Folding the flat wall into a
+  // <details> only buys a short first screen if the gateway above it is short
+  // too: a tree that auto-expands a branch puts one topic's issue rows between
+  // the summary and this control, which is the wall's own failure at half length.
+  const TREE_SRC = R("stance-tree.js");
+  ok(!/defaultOpenKey/.test(TREE_SRC),
+    "the topic tree auto-expands a branch again, so the explore stage opens on an issue list rather than on the map of topics");
+  const openSrc = (TREE_SRC.match(/openKeys\s*=[^;]*/g) || []);
+  eq(openSrc.length, 1,
+    "the topic tree assigns its open-branch list more than once — only opts.open, the reader's own state, may expand anything");
+  has(openSrc[0], "opts.open",
+    "the tree's open branches no longer come from what the reader had open");
+  has(TREE_SRC, 'data-pdxtree-open="' + "' + (open ? '1' : '0') + '",
+    "a branch's open state stopped being the flag the caller passed it");
 
   // The rendered face index itself.
   const face = FPI.html(DEEP, { sort: "strength", mount: "face" });
