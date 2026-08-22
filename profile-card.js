@@ -136,6 +136,106 @@
     } catch (e) { return null; }
   }
 
+  // ── WHICH FORMAL LANE IS TESTING THEM ──────────────────────────────────────
+  // A member's word is tested by roll-call votes; a president's is tested by the
+  // instruments they signed, ordered and vetoed. The two lanes do not share a
+  // countable noun, and a card that borrows the wrong one is not a wording slip —
+  // "14 mapped votes on record" under a president is a claim about a record that
+  // does not exist, and an inventory of executive orders under a senator is the
+  // same error pointed the other way.
+  //
+  // The gate is PDXExecRecord.eligible(), which is the SAME gate consistency.js
+  // opens its executive standout strip on (_xsPick). One gate means a card and the
+  // profile it links to can never disagree about which lane they are in — which is
+  // the only way the copy on both can stay lane-correct without either of them
+  // re-deciding it. Absent module, or anyone it does not claim: the roll-call lane,
+  // which is what every other surface here already assumes.
+  function laneOf(pid) {
+    try {
+      var EX = window.PDXExecRecord;
+      if (EX && typeof EX.eligible === 'function' && EX.eligible(pid)) return 'exec';
+    } catch (e) {}
+    return 'record';
+  }
+
+  // ── THE FORMAL STORY, IN THE LANE'S OWN WORDS ──────────────────────────────
+  // What the profile's formal-first strip found, reduced to the two or three lines
+  // a card has room for: the lane's heading, its depth line, and up to two issue
+  // chips. NOTHING IS DECIDED HERE. Both branches read the published pick() of the
+  // block the profile itself renders — PDXConsistency.recordStandout for the member
+  // lane, execRecordSummary for the executive one — so a chip on a card and the
+  // chip on the profile are the same finding, selected by the same rules, under the
+  // same floors. If the profile withholds a standout (too thin, too few readable
+  // issues), pick() returns nothing and so does this: the card gets no strip rather
+  // than a strip the profile would not print.
+  //
+  // No percentage travels through here. The one figure is Direction Match, it comes
+  // off the same read() as everything else in brief(), and a second number sitting
+  // beside it — even a true one — is the beginning of a second score.
+  function formalStrip(pid, lane) {
+    var cs = CS();
+    if (!cs || !pid) return null;
+    var chip = function (key, label, word, depth) {
+      if (!label || !word) return null;
+      return { key: String(key || ''), label: String(label), word: String(word), depth: String(depth || '') };
+    };
+    if (lane === 'exec') {
+      var xs = null;
+      try {
+        xs = (cs.execRecordSummary && typeof cs.execRecordSummary.pick === 'function')
+          ? cs.execRecordSummary.pick(pid) : null;
+      } catch (e) { xs = null; }
+      if (!xs || !xs.on) return null;
+      // `volume` and `inventory` are both PDXExecRecord's own — the lane's volume
+      // clause ("… — 80 across 37 issues") and its per-class counts ("58 executive
+      // orders", "3 signed laws"), which are deliberately never summed into one
+      // headline figure because signing a bill Congress wrote and issuing an order
+      // alone are different claims about power. Printed here exactly as the
+      // profile's strip prints them, and never a roll call: this lane has none.
+      return {
+        lane: 'exec',
+        head: cs.execRecordSummary.HEAD || null,
+        depth: String(xs.volume || ''),
+        inventory: (xs.inventory || []).slice(),
+        thin: !!xs.thin,
+        chips: (xs.oneway || []).concat(xs.both || []).slice(0, 2).map(function (r) {
+          return chip(r.key, r.label, r.word,
+            (r.acts || 0) + ' act' + (r.acts === 1 ? '' : 's') + ' on file');
+        }).filter(Boolean)
+      };
+    }
+    var so = null;
+    try {
+      so = (cs.recordStandout && typeof cs.recordStandout.pick === 'function')
+        ? cs.recordStandout.pick(pid) : null;
+    } catch (e) { so = null; }
+    if (!so || !so.any) return null;
+    return {
+      lane: 'record',
+      head: cs.recordStandout.HEAD || null,
+      // The member strip's own depth line, in its own words — "6 issues read · 18
+      // acts behind them". Composed from the same two counts recordStandoutHtml
+      // puts in .pdxso-depth, in the same order, because a card and a profile
+      // stating the same denominator two different ways is the same failure as
+      // stating two different denominators. scripts/test-homepage-card-lane.mjs
+      // pins this string against the profile's rendered strip.
+      depth: so.issues
+        ? (so.issues + ' issue' + (so.issues === 1 ? '' : 's') + ' read · ' +
+           so.judged + ' act' + (so.judged === 1 ? '' : 's') + ' behind them')
+        : '',
+      inventory: [],
+      thin: false,
+      // x.noun is the row's own lane noun ("vote" / "votes"), carried through
+      // _soRow so the depth line here cannot pick a different one than the chip on
+      // the profile does.
+      chips: (so.consistent || []).concat(so.mixed || []).slice(0, 2).map(function (x) {
+        var n = x.noun || {};
+        return chip(x.key, x.label, x.saysLabel,
+          x.held ? (x.held + ' ' + (x.held === 1 ? (n.one || 'vote') : (n.many || 'votes')) + ' on file') : '');
+      }).filter(Boolean)
+    };
+  }
+
   // NO pledgeTally() HERE, DELIBERATELY. There used to be one, wrapping
   // _pdxPromiseTally so the footer could print kept / broken / open. The accessor
   // and the data it reads are both still there and still published in the app —
@@ -252,7 +352,13 @@
     if (!r || !r.coverage || !r.coverage.word) return null;
 
     var counts = r.counts || {};
-    var vc = voteCoverage(pid);
+    var lane = laneOf(pid);
+    // Roll-call coverage belongs to the roll-call lane and to nothing else. The
+    // accessor already returns null for a figure with no congressional record, but
+    // "already returns null" is a property of today's data, not a rule — and the
+    // rule is what keeps "0 mapped votes on record" off a president's card the day
+    // a stray row appears under their pid.
+    var vc = (lane === 'exec') ? null : voteCoverage(pid);
     var items = r.items || [];
     var nPledges = items.filter(function (it) { return it.kind === 'pledge-tracked'; }).length;
     var nBranding = items.filter(function (it) { return it.kind === 'branding'; }).length;
@@ -270,6 +376,11 @@
       name: String(p.name || pid),
       office: officeLine(p),
       party: partyChip(p.party),
+      // Which formal record is doing the testing — 'record' (roll call) or 'exec'
+      // (signed and ordered instruments). Cheap enough for the eligibility pass,
+      // and every surface that prints a countable noun needs it before it can pick
+      // one. See laneOf().
+      lane: lane,
       // ── the one signal ──
       verdict: v,
       accent: (v && v.color) || TONE[tone] || TONE.muted,
@@ -382,6 +493,12 @@
     d.lowlights = against.length ? against.slice(0, 2) : mixed.slice(0, 1);
     d.lowlightKind = against.length ? 'contradicts' : (mixed.length ? 'mixed' : 'gap');
     d.gaps = gapsOf(d._r);
+    // The lane's formal story, for the card that is actually being drawn. It costs
+    // a pick() pass over the profile's issue rows, which is the same class of work
+    // dots() above already does and the same reason it lives in read() rather than
+    // brief(): eligibility does not need it, and eight candidates paying for it
+    // would put seven of the passes on the floor.
+    d.formal = formalStrip(pid, d.lane);
     return d;
   }
 
@@ -1195,6 +1312,8 @@
     // Exposed for scripts/test-profile-card.mjs. The card's promises — never a
     // pledge percentage, always an honest thin state, counts that match the
     // caption — are worth what the test that measures real output is worth.
+    _laneOf: laneOf,
+    _formalStrip: formalStrip,
     _caption: caption,
     _shortPost: shortPost,
     _signalLine: signalLine,

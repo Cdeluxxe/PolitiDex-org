@@ -18,6 +18,18 @@
 // once the engine has loaded; before then it falls back to navigating to the
 // full Say-vs-Do section, which is what triggers that load anyway.
 //
+// WHICH LANE THIS IS, SAID ON THE CARD
+// A say-vs-do receipt is the PUBLIC lane: a sourced statement checked against
+// what they then did. It is not the formal record and it is deliberately not
+// inside Direction Match, the one percentage the profile publishes. On a profile
+// that boundary is drawn by the row the receipt sits in; on the front page there
+// is no row, so the card carries the boundary itself — a stranger who meets a
+// verdict stamp here and a percentage on the profile must not read the second as
+// a score for the first. The two strings are consistency.js's own (OTS_FULL and
+// PUB_TAG, published as PDXConsistency.LANE_LABELS); this file loads before
+// consistency.js does, so it mirrors them rather than reading them, and
+// scripts/test-hero-receipt.mjs pins the mirror byte-for-byte.
+//
 // FAIL CLOSED
 // Missing seed, empty seed, malformed entry, or an entry without a checkable
 // source URL → the slot stays hidden and the hero renders exactly as it did
@@ -47,6 +59,11 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
+
+  // consistency.js's OTS_FULL and PUB_TAG, mirrored — see the header. Never edit
+  // one of these without editing the owner; the test compares them to the source.
+  var LANE_FULL = 'Outside the score · statements & coverage';
+  var LANE_TAG  = 'Not in Direction Match';
 
   // ENTRY BEHAVIOUR — stable within a visit, rotating between days.
   //
@@ -83,6 +100,12 @@
     return '' +
       '<article class="pdx-hr-card pdx-hr-' + esc(vkey) + '">' +
         '<div class="pdx-hr-stamp"><span aria-hidden="true">' + esc(r.verdict.ico || '') + '</span>' + esc(r.verdict.label) + '</div>' +
+        // The disclosure travels with the verdict, not with the section — this card
+        // is one tap from being the only thing a reader saw.
+        '<p class="pdx-hr-lane">' +
+          '<span class="pdx-hr-lane-k">' + esc(LANE_FULL) + '</span>' +
+          '<span class="pdx-hr-lane-tag">' + esc(LANE_TAG) + '</span>' +
+        '</p>' +
         '<div class="pdx-hr-who">' +
           '<h2 class="pdx-hr-name">' + esc(r.name) + '</h2>' + party +
         '</div>' +

@@ -26,6 +26,11 @@
 // featured pids are warmed, never the roster; brief() decides eligibility and the
 // expensive read() runs for the visible card only. See .netlify/results.md for the
 // full rationale, rotation rules and performance notes.
+//
+// WHERE A TAP GOES. The card is a door into the ledger, so it opens on the ledger:
+// the body and "Full record →" open the profile and jump to its record section; an
+// issue chip opens that issue's dossier at #record=<pid>~<issue>. Both addresses
+// are the app's own, not invented here.
 // ─────────────────────────────────────────────────────────────────────────────
 (function () {
   'use strict';
@@ -245,6 +250,44 @@
       '</div>';
   }
 
+  // ── THE FORMAL RECORD, IN ITS OWN LANE'S WORDS ─────────────────────────────
+  // What the formal record holds, headed and worded by the lane doing the testing:
+  // roll calls for a member, signed and ordered instruments for a president.
+  // Neither can print the other's nouns because neither is composed here —
+  // PDXProfileCard.read() hands over `formal`, which IS the profile's own
+  // recordStandout / execRecordSummary pick, under the profile's own floors. So
+  // this slot is empty exactly when the profile's strip is: a record too thin to
+  // carry a standout gets no chips here either.
+  function formalHtml(d) {
+    var f = d && d.formal;
+    if (!f) return '';
+    var head = f.head || {};
+    var chips = (f.chips || []).map(function (x) {
+      // Issue-scoped chip, issue-scoped door — see openIssue().
+      return '<button type="button" class="pdx-hs-fm-chip" data-pid="' + esc(d.pid) + '" ' +
+          'data-iss="' + esc(x.key) + '" aria-label="' +
+          esc('Open the ' + x.label + ' record for ' + (d.name || '')) + '">' +
+          '<span class="pdx-hs-fm-iss">' + esc(x.label) + '</span>' +
+          '<span class="pdx-hs-fm-v">' + esc(x.word) + '</span>' +
+          (x.depth ? '<span class="pdx-hs-fm-d">' + esc(x.depth) + '</span>' : '') +
+        '</button>';
+    }).join('');
+    var inv = (f.inventory || []).join(' · ');
+    if (!chips && !f.depth && !inv) return '';
+    return '' +
+      '<div class="pdx-hs-fm">' +
+        '<p class="pdx-hs-fm-h">' +
+          (head.icon ? '<span aria-hidden="true">' + esc(head.icon) + '</span>' : '') +
+          '<span class="pdx-hs-fm-t">' + esc(head.title || '') + '</span>' +
+          (f.depth ? '<span class="pdx-hs-fm-n">' + esc(f.depth) + '</span>' : '') +
+        '</p>' +
+        // The executive lane's per-class counts, on their own line as on the
+        // profile: never summed, because the classes are different claims.
+        (inv ? '<p class="pdx-hs-fm-inv">' + esc(inv) + '</p>' : '') +
+        (chips ? '<div class="pdx-hs-fm-row">' + chips + '</div>' : '') +
+      '</div>';
+  }
+
   // Same words the shared image's caption uses, so a reader who sees both cannot
   // find two accounts of the same profile.
   function coverageHtml(d) {
@@ -309,13 +352,19 @@
   // pending state. Deliberately NO breakdown, NO coverage figures and NO proof rows:
   // an empty bar and a row of zeroes read as a finding of nothing, which is the one
   // thing a card that has not looked yet must not say.
+  //
+  // The waiting line names no lane, because the seed carries identity only and the
+  // card does not yet know whether a roll-call or an enactment record is being
+  // read. "Pulling their voting record" over a president asserted the wrong one
+  // before it had looked.
   function pendingCard(c) {
     return headHtml(c, null) + signalHtml(null) +
-      '<p class="pdx-hs-cov pdx-hs-cov-wait">Pulling their voting record to test what they have said.</p>';
+      '<p class="pdx-hs-cov pdx-hs-cov-wait">Reading their formal record to test what they have said.</p>';
   }
 
   function fullCard(c, d) {
-    return headHtml(c, d) + signalHtml(d) + breakdownHtml(d) + coverageHtml(d) + proofHtml(d);
+    return headHtml(c, d) + signalHtml(d) + breakdownHtml(d) +
+           formalHtml(d) + coverageHtml(d) + proofHtml(d);
   }
 
   // ── FRAME · chrome that does not change between slides ─────────────────────
@@ -462,6 +511,43 @@
   host.addEventListener('focusout', function () { if (!paused) startAuto(); });
   host.addEventListener('touchstart', pause, { passive: true });
 
+  // ── LANDING · a card about the record opens on the record ──────────────────
+  // showProfile() lands at the top of the profile, which is the bio: a reader who
+  // tapped a Direction Match figure arrives two screens above the thing that
+  // produced it, and a card that agrees with the profile still reads as a different
+  // product. So open, then jump to the profile's record section via _pdxNavJump()
+  // — its own in-page navigator, on the same short deferral receipt-cards.js uses
+  // after showProfile(), because the modal must exist before anything can scroll
+  // inside it. Both calls are guarded: an older profile module still opens, and the
+  // hash fallback still runs when nothing opened at all.
+  var RECORD_ANCHOR = 'pdxsec-standout';
+  function openProfile(pid) {
+    if (!pid) return;
+    var opened = false;
+    if (typeof window.showProfile === 'function') {
+      try { window.showProfile(pid); opened = true; } catch (err) {}
+    }
+    if (opened) {
+      if (typeof window._pdxNavJump === 'function') {
+        setTimeout(function () { try { window._pdxNavJump(RECORD_ANCHOR); } catch (err) {} }, 250);
+      }
+      return;
+    }
+    location.hash = '#compare-hub';
+  }
+
+  // `#record=<pid>~<issue>` is the dossier address receipt-cards.js already routes
+  // — the same one a shared card carries and the live-proof strip opens — so a chip
+  // lands on that issue's acts rather than on a profile to be searched.
+  function openIssue(pid, issueKey) {
+    if (!pid || !issueKey) return false;
+    var want = '#record=' + encodeURIComponent(pid) + '~' + encodeURIComponent(issueKey);
+    // An identical hash fires no hashchange, so a second tap would do nothing.
+    if (location.hash === want) { location.hash = ''; }
+    location.hash = want;
+    return true;
+  }
+
   host.addEventListener('click', function (e) {
     var t = e.target;
     var hit = function (sel) { return t.closest && t.closest(sel); };
@@ -486,12 +572,15 @@
       return;
     }
 
-    var open = hit('.pdx-hs-open') || hit('.pdx-hs-card');
-    if (open) {
-      var pid = open.getAttribute('data-pid');
-      if (typeof window.showProfile === 'function') { window.showProfile(pid); return; }
-      location.hash = '#compare-hub';
+    var fm = hit('.pdx-hs-fm-chip');
+    if (fm) {
+      e.stopPropagation();
+      pause();
+      if (openIssue(fm.getAttribute('data-pid'), fm.getAttribute('data-iss'))) return;
     }
+
+    var open = hit('.pdx-hs-open') || hit('.pdx-hs-card');
+    if (open) { openProfile(open.getAttribute('data-pid')); }
   });
 
   host.addEventListener('keydown', function (e) {
@@ -499,7 +588,7 @@
     if (card && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       pause();
-      if (typeof window.showProfile === 'function') window.showProfile(card.getAttribute('data-pid'));
+      openProfile(card.getAttribute('data-pid'));
       return;
     }
     if (e.key === 'ArrowLeft') { pause(); step(-1); }

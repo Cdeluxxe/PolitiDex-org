@@ -235,16 +235,16 @@
       }
     },
     {
-      "pid": "tlaib",
-      "name": "Rashida Tlaib",
-      "office": "U.S. Representative · Michigan",
+      "pid": "aoc",
+      "name": "Alexandria Ocasio-Cortez",
+      "office": "U.S. Representative · New York",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
         "scorable": 9,
-        "word": 12,
+        "word": 14,
         "actionIssues": 0
       }
     },
@@ -263,17 +263,17 @@
       }
     },
     {
-      "pid": "aromero",
-      "name": "Angela Romero",
-      "office": "UT State Representative · UT District 25 (West Salt Lake City, Salt Lake County)",
+      "pid": "tlaib",
+      "name": "Rashida Tlaib",
+      "office": "U.S. Representative · Michigan",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "_coverage": {
-        "scorable": 7,
-        "word": 9,
-        "actionIssues": 1
+        "scorable": 9,
+        "word": 12,
+        "actionIssues": 0
       }
     }
   ];

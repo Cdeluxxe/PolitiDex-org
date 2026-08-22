@@ -2102,6 +2102,23 @@ window.PDXLazy = (function () {
     .pdx-hr-consistent  { border-color: rgba(74,222,128,.28); }
     .pdx-hr-consistent  .pdx-hr-stamp { color: #86efac; background: rgba(22,163,74,.12); }
 
+    /* Which lane this receipt is, and the boundary that goes with it. Both strings
+       are consistency.js's; the card prints them because a front-page verdict has
+       no row around it to carry the disclosure. */
+    .pdx-hr-lane {
+      display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap;
+      margin: -.25rem 0 .55rem;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .62rem; letter-spacing: .08em;
+    }
+    .pdx-hr-lane-k { color: #7f92ad; }
+    .pdx-hr-lane-tag {
+      color: #cbd5e1; text-transform: uppercase; letter-spacing: .12em;
+      font-weight: 700; font-size: .57rem;
+      padding: .1rem .34rem; border-radius: .25rem;
+      border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05);
+    }
+
     .pdx-hr-who { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
     .pdx-hr-name {
       font-family: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
@@ -2347,6 +2364,40 @@ window.PDXLazy = (function () {
     .pdx-hs-bd-chip.is-good b { color: #6ee7a0; }
     .pdx-hs-bd-chip.is-mixed b { color: #93c5fd; }
     .pdx-hs-bd-chip.is-bad b { color: #f89b9b; }
+
+    /* The formal record, in its lane's own words — the profile's recordStandout /
+       execRecordSummary pick, printed on the card. Chips are dossier doors, so they
+       look tappable; the heading's count is the depth behind them. */
+    .pdx-hs-fm { margin-top: .6rem; }
+    .pdx-hs-fm-h {
+      display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap; margin: 0;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .62rem; letter-spacing: .14em; text-transform: uppercase;
+      font-weight: 700; color: #64748b;
+    }
+    .pdx-hs-fm-t { color: #94a3b8; }
+    .pdx-hs-fm-n {
+      letter-spacing: .03em; text-transform: none; font-weight: 400; color: #7f92ad;
+      font-size: .66rem;
+    }
+    .pdx-hs-fm-inv {
+      margin: .2rem 0 0; color: #7f92ad; letter-spacing: .03em;
+      font-family: 'Barlow Condensed', system-ui, sans-serif; font-size: .68rem;
+    }
+    .pdx-hs-fm-row { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .35rem; }
+    .pdx-hs-fm-chip {
+      display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0;
+      padding: .22rem .5rem; border-radius: 999px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
+      color: #d3dcea; font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .7rem; line-height: 1.3; text-align: left;
+    }
+    .pdx-hs-fm-chip:hover, .pdx-hs-fm-chip:focus-visible {
+      border-color: rgba(245,200,66,.5); background: rgba(255,255,255,.09);
+    }
+    .pdx-hs-fm-iss { font-weight: 700; color: #fff; }
+    .pdx-hs-fm-v { color: #cbd5e1; }
+    .pdx-hs-fm-d { color: #7f92ad; font-size: .64rem; }
 
     /* Coverage, stated outright — the card says how much of the record it could
        actually test, in the same words the shared image uses. */
@@ -19188,7 +19239,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <!-- Beyond left-vs-right framing — the core premise, stated plainly -->
       <div class="rounded-xl px-4 py-3 mb-6 text-center" style="background:linear-gradient(135deg, rgba(76,29,149,0.30) 0%, rgba(15,23,42,0.55) 100%); border:1px solid rgba(139,92,246,0.35);">
         <p class="font-condensed text-xs sm:text-sm text-purple-100 tracking-wide leading-relaxed">
-          Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/70">party</span>. Judge them by their <strong class="text-white">record</strong> and <strong class="text-purple-200">your values</strong>. Every politician earns a clear Accountability Score, one Word vs Action read from sourced records, and a personal match to you.
+          Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/70">party</span>. Judge them by their <strong class="text-white">record</strong> and <strong class="text-purple-200">your values</strong>. One figure — <strong class="text-white">Direction Match</strong>: what they said, measured against the votes and official acts on file. It publishes only where the record runs deep enough to test; where it doesn't, we say so instead of guessing. Matching your own values is a separate tool, and it's yours alone.
         </p>
       </div>
 
@@ -19213,14 +19264,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <span class="text-xl leading-none mt-0.5">🪪</span>
           <div>
             <div class="font-condensed text-xs tracking-wide uppercase text-white">Politician Profiles</div>
-            <p class="text-steel-400 text-xs font-body leading-snug mt-0.5">Open anyone for a transparent Word vs Action read built from real, sourced records.</p>
+            <p class="text-steel-400 text-xs font-body leading-snug mt-0.5">Open anyone for their formal record — votes, official acts and the sources behind them. Deep enough to test what they said, and it becomes a Direction Match read.</p>
           </div>
         </div>
         <div class="flex items-start gap-3 bg-navy-900/50 border border-white/5 rounded-xl px-3.5 py-3">
           <span class="text-xl leading-none mt-0.5">🧭</span>
           <div>
             <div class="font-condensed text-xs tracking-wide uppercase text-white">Alignment Tool</div>
-            <p class="text-steel-400 text-xs font-body leading-snug mt-0.5">Mark the positions you believe in and every politician gets a personal match score.</p>
+            <p class="text-steel-400 text-xs font-body leading-snug mt-0.5">Mark the positions you believe in and see how closely each politician's stated positions line up with yours. Your match, not a public grade.</p>
           </div>
         </div>
       </div>
@@ -21128,7 +21179,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         sel: '#tracker',
         emoji: '📊',
         title: 'See Their Record',
-        body: 'Every politician gets one transparent Word vs Action read built from real, sourced records. Search by name or issue, filter by office or record, and use Compare to put candidates side-by-side before you decide.'
+        body: 'Every profile opens on the formal record — votes, official acts and the sources behind them. Where there is enough of it to test what someone said, that becomes one Direction Match read of word against action; where there is not, the profile says so. Search by name or issue, filter by office or record, and use Compare to put candidates side-by-side before you decide.'
       }
     ];
 

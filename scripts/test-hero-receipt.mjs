@@ -165,6 +165,44 @@ for (const [label, s] of Object.entries(bad)) {
   ok(/rel="noopener noreferrer"/.test(host.innerHTML), "render: outbound source links are rel-protected");
 }
 
+// ── 4b. The lane boundary travels with the verdict ───────────────────────────
+// A say-vs-do receipt is the PUBLIC lane and is deliberately outside Direction
+// Match, the one percentage this product publishes. On a profile the row the
+// receipt sits in draws that boundary; on the front page there is no row, and a
+// stranger who meets a verdict stamp here and a percentage on a profile must not
+// read the second as a score for the first.
+//
+// hero-receipt.js loads before consistency.js, so it mirrors the two canonical
+// strings rather than reading PDXConsistency.LANE_LABELS. This is the pin on the
+// mirror: the strings are lifted out of consistency.js's source and compared, so
+// a rename there fails here instead of silently forking the vocabulary.
+{
+  const CONSISTENCY = readFileSync(join(ROOT, "consistency.js"), "utf8");
+  const grab = (name) => {
+    const m = new RegExp("var\\s+" + name + "\\s*=\\s*'([^']*)'").exec(CONSISTENCY);
+    return m ? m[1] : null;
+  };
+  const LANE = grab("OTS_LANE"), SUB = grab("OTS_SUB"), TAG = grab("PUB_TAG");
+  ok(!!LANE && !!SUB && !!TAG,
+    "lane: consistency.js no longer declares OTS_LANE / OTS_SUB / PUB_TAG as plain strings — the mirror cannot be checked");
+  const want = LANE + " · " + SUB;
+  ok(RENDERER.includes("var LANE_FULL = '" + want + "';"),
+    `lane: hero-receipt.js's mirrored lane name has drifted from consistency.js — expected "${want}"`);
+  ok(RENDERER.includes("var LANE_TAG  = '" + TAG + "';"),
+    `lane: hero-receipt.js's mirrored boundary tag has drifted from consistency.js — expected "${TAG}"`);
+
+  const host = render(seed);
+  ok(host.innerHTML.includes(want.replace(/&/g, "&amp;")),
+    "lane: the card does not name the lane it belongs to");
+  ok(host.innerHTML.includes(TAG), "lane: the card does not say the receipt is outside Direction Match");
+  // The disclosure has to sit with the verdict, not below the fold of the card.
+  ok(host.innerHTML.indexOf("pdx-hr-lane") > host.innerHTML.indexOf("pdx-hr-stamp") &&
+     host.innerHTML.indexOf("pdx-hr-lane") < host.innerHTML.indexOf("pdx-hr-who"),
+    "lane: the boundary is not printed with the verdict it qualifies");
+  // And it stays count-free: this lane never carries a figure.
+  ok(!/\d\s*%/.test(host.innerHTML), "lane: a percentage reached a public-lane card");
+}
+
 // One bad entry alongside good ones is dropped, not rendered.
 {
   const host = render([{ name: "Unsourced", sub: "S", did: "d", verdict: { key: "contradicts", label: "L" } }, seed[0]]);
