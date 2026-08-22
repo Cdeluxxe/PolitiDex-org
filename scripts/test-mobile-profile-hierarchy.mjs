@@ -582,10 +582,100 @@ ok(/\.pdxwa-hstack-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
   'header: an empty depth host still occupies space, so a profile with nothing warm carries a gap\n' +
   '    under its name saying nothing');
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 12. The phone read above the tree
+// ═════════════════════════════════════════════════════════════════════════════
+// The measurement that started this: on Massie, a phone reader met the letterhead,
+// the brief, a two-chip summary — and then thirty-three rows of "every issue on the
+// formal record", one flat alphabetised column, before reaching the topic tree that
+// exists to make that same population browsable. Two inventories of one record,
+// stacked, the worse one first. The tree is the gateway now and the flat list is a
+// collapsed control beneath it, so what is above the tree is summary only.
+//
+// Reading position, not file position: the spine assembles the body by stage, so a
+// mount can move up the page without moving up the file, and the tree did exactly
+// that. These resolve each mount the way the assembler does.
+{
+  const bodyAt = PF.indexOf('const _profileBody = ');
+  must(bodyAt !== -1, 'the profile body template moved');
+  const STAGE_KEYS = (/STAGE_KEYS\s*=\s*STAGES\.map/.test(SPINE)
+    ? (SPINE.match(/\{\s*key:\s*'([a-z]+)'/g) || []).map((m) => /'([a-z]+)'/.exec(m)[1])
+    : []);
+  must(STAGE_KEYS.length > 5 && STAGE_KEYS[0] === 'identity',
+    'the stage list could not be read out of profile-spine.js');
+  const rank = (needle) => {
+    const at = PF.indexOf(needle, bodyAt);
+    if (at === -1) return null;
+    const tags = PF.slice(bodyAt, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
+    const last = tags.length ? tags[tags.length - 1].replace(/<!--PDXSP:|-->/g, '') : 'identity';
+    const si = STAGE_KEYS.indexOf(last);
+    return si === -1 ? null : si * 1e9 + at;
+  };
+  const rTree = rank('PDXStanceTree.sectionHtml(id)');
+  const rStrip = rank('pdxso-face');
+  const rFlat = rank('id="pdxsec-formalatlas"');
+  const rWA = rank('PDXWordAction.sectionHtml(');
+  must(rTree !== null && rStrip !== null && rFlat !== null && rWA !== null,
+    'one of the four surfaces this section orders no longer mounts on the profile body');
+  ok(rStrip < rTree,
+    'above: the record summary reads below the topic tree — the summary is what orients the browse');
+  ok(rTree < rFlat,
+    'above: the flat "every issue on the formal record" list reads ABOVE the topic tree again. That is\n' +
+    '    the wall this pass removed: on a phone it is the entire scroll between the summary and the\n' +
+    '    one surface built to be browsed');
+  ok(rTree < rWA,
+    'above: Word vs Action reads above the topic tree — the score is not the first content story');
+
+  // Nothing between the summary and the tree. A third surface slotted in there is
+  // the wall again under a different name, whatever it renders.
+  const between = PF.slice(PF.indexOf('pdxso-face', bodyAt), PF.indexOf('<!--PDXSP:', PF.indexOf('pdxso-face', bodyAt)));
+  ok(!/formalPatternIndex|PDXReceipts\.|_pdxConnectDots/.test(between),
+    'above: a second inventory surface was mounted between the summary and the gateway');
+
+  // The summary stays a summary. Its cap lives in the engine, so that is where it
+  // is read — a strip that grows a row per issue is the wall wearing chips.
+  const CJ = read('consistency.js');
+  const cap = Number((/_SO_CAP\s*=\s*(\d+)/.exec(CJ) || [])[1]);
+  ok(cap >= 1 && cap <= 4,
+    `above: the standout strip's chip cap is ${cap || 'gone'} — bounded and small is what makes it a\n` +
+    '    summary rather than a second list');
+  ok(/pdxso-more/.test(CJ) && /topic tree below/.test(CJ),
+    'above: the strip does not tell the reader where the rest of the record is, so a capped summary\n' +
+    '    reads as the whole record');
+
+  // Both new destinations are real anchors, and both are 44px targets.
+  const railFrom = PF.indexOf('const _navItems = [];');
+  must(railFrom !== -1, 'the jump rail pill list moved');
+  const rail = PF.slice(railFrom, PF.indexOf('function _pdxNavJump'));
+  const targets = [...rail.matchAll(/target:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]);
+  must(targets.length >= 8, 'the jump rail lost most of its pills');
+  ok(targets.indexOf('pdxsec-standout') !== -1 && targets.indexOf('pdxsec-stancetree') !== -1,
+    'above: the rail has no pill for the summary or the tree, so a reader who lands mid-profile has\n' +
+    '    no way back to either without scrolling');
+  // Anchors are emitted by whichever module owns the section, and that is spread
+  // across the renderers and index.html alike — so the haystack is the shipped
+  // front end, not a hand-kept list that would rot the first time a section moved.
+  const EMITTERS = fs.readdirSync(ROOT)
+    .filter((f) => (/\.js$/.test(f) || f === 'index.html') && !/^(sw|gen-|test-)/.test(f))
+    .map((f) => { try { return read(f); } catch (e) { return ''; } })
+    .join('\n');
+  targets.forEach((t) => {
+    ok(EMITTERS.indexOf('id="' + t + '"') !== -1 || EMITTERS.indexOf("id='" + t + "'") !== -1,
+      `above: the rail pill for #${t} points at an anchor nothing emits — _pdxNavJump no-ops on a\n` +
+      '    missing target, so that pill is a control that does nothing');
+  });
+  const flatS = /\.pdxfpi-flat-s\s*\{([^}]*)\}/.exec(SPINECSS);
+  must(flatS, 'profile-spine.css no longer has a .pdxfpi-flat-s rule');
+  ok(/min-height:\s*44px/.test(flatS[1]),
+    'above: the collapsed flat-list control is under 44px — it is the only way into those rows now');
+  ok(/list-style:\s*none/.test(flatS[1]),
+    'above: the disclosure still paints the default marker, which on a phone sits outside the padding');
+}
+
 console.log(
   failures.length
     ? ''
-    : `✓ mobile profile hierarchy: all ${passed} assertions passed — strip → list with nothing between them`
+    : `✓ mobile profile hierarchy: all ${passed} assertions passed — summary → tree, and the flat wall is folded under it`
 );
 if (failures.length) {
   console.error(`\n✗ mobile profile hierarchy: ${failures.length} failure(s)`);

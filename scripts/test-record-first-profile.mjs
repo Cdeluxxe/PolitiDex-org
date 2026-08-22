@@ -477,9 +477,23 @@ section("6 · one standout block per profile, and it mounts ahead of the score")
     "the strip does not mount on a profile the shape hero declines");
   // The stand-down is in the mount, not in the module: the strip stays callable so
   // the hero and the strip can never disagree about the selection.
-  const mount = PF_SRC.slice(PF_SRC.indexOf("<!--PDXSP:standout-->"));
-  has(mount.slice(0, 2500), "shapeApplies",
+  // Bounded to the stage block itself rather than a character count: the standout
+  // stage is a summary now, not an atlas, so its prose grew and its markup shrank,
+  // and a fixed window would have measured the comment instead of the mount.
+  const soFrom = PF_SRC.indexOf("<!--PDXSP:standout-->");
+  const mount = PF_SRC.slice(soFrom, PF_SRC.indexOf("<!--PDXSP:", soFrom + 8));
+  has(mount, "shapeApplies",
     "the profile body mounts the strip without asking whether the shape hero already did this");
+  has(mount, "recordStandout",
+    "the standout stage stopped mounting the standout strip");
+  // AND NOTHING ELSE. The stage carries one summary. The 33-row formal atlas used
+  // to mount here too, directly under a strip capped at two chips — a flat wall of
+  // every issue on the record, printed above the tree that exists to browse it.
+  lacks(mount, "formalPatternIndex",
+    "the flat formal atlas is mounted in the standout stage again — the summary stage is a summary, and\n" +
+    "    an every-issue inventory beside a two-chip strip is the parallel wall this pass removed");
+  lacks(mount, "pdxsec-formalatlas",
+    "the standout stage carries the formal-atlas anchor again");
 
   // The spine. The record's own stage sits between the brief and the verdict.
   const keys = SP.STAGE_KEYS;
@@ -489,8 +503,14 @@ section("6 · one standout block per profile, and it mounts ahead of the score")
     "the record stage does not precede the said-versus-did score");
   eq(SP.targetStage("pdxsec-standout"), "standout",
     "the strip's anchor is not routed to its own stage");
-  eq(SP.targetStage("pdxsec-formalatlas"), "standout",
-    "the formal atlas did not move with the stage it belongs to");
+  eq(SP.targetStage("pdxsec-formalatlas"), "explore",
+    "the formal atlas did not move with the stage it belongs to — it is a way of exploring the record,\n" +
+    "    and it now sits collapsed under the topic tree rather than flat above it");
+  eq(SP.targetStage("pdxsec-stancetree"), "explore",
+    "the topic tree is not routed to the gateway stage it now leads");
+  ok(keys.indexOf("explore") === keys.indexOf("standout") + 1 &&
+     keys.indexOf("explore") < keys.indexOf("verdict"),
+    "the gateway does not follow the summary directly and lead the score — summary, browse, then judgment");
   // Demoted is not deleted.
   ok(keys.indexOf("verdict") >= 0, "the Word vs Action stage was removed rather than demoted");
   const stage = SP.STAGES.find((x) => x.key === "standout");

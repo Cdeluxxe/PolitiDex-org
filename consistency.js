@@ -7599,9 +7599,15 @@
   // The strip's own wall, which is the engine's sentence rather than a second
   // wording of it, plus the one thing that sentence does not cover: this is a
   // SELECTION, and the reader is told where the rest of it is.
-  var _SO_WALL_TAIL = 'These are the standouts, not the whole record — the full ' +
-    'issue-by-issue list is below.';
-  var _SO_WALL_WHOLE = 'That is every issue the record could be read on so far — the full issue-by-issue list is below.';
+  // WHERE THE REST OF IT IS. Both tails point at 🌳 All Issues by Topic, which is
+  // the gateway a reader explores the record issue by issue from. They used to
+  // point at "the full issue-by-issue list below", meaning the flat formal atlas
+  // that mounted open directly beneath this strip; that list is now collapsed
+  // under the tree, so naming it here would send a reader past the index to the
+  // wall behind it.
+  var _SO_WALL_TAIL = 'These are the standouts, not the whole record — explore it ' +
+    'issue by issue in the topic tree below.';
+  var _SO_WALL_WHOLE = 'That is every issue the record could be read on so far — the topic tree below is how you explore them.';
   function _soChipHtml(x, grp) {
     var tone = _ST_PAT_TONE[x.tone] || _ST_PAT_TONE.muted;
     var says = (x.pat && x.pat.says) || null;
@@ -7640,7 +7646,7 @@
       if (!list.length) return '';
       var g = _SO_GROUPS[key];
       var more = total > list.length
-        ? '<p class="pdxso-more">' + (total - list.length) + ' more in the full list.</p>' : '';
+        ? '<p class="pdxso-more">' + (total - list.length) + ' more in the topic tree below.</p>' : '';
       return '<div class="pdxso-grp pdxso-grp-' + escAttr(g.id) + '">' +
           '<div class="pdxso-grp-h">' + esc(g.lb) + '</div>' +
           '<p class="pdxso-grp-note">' + esc(g.note) + '</p>' +

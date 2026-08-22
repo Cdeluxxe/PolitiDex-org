@@ -723,18 +723,27 @@ section("9 · the mount");
   ok(/PDXStanceTree\.sectionHtml\(id\)/.test(PF), "the profile mounts the tree");
   ok(!/window\._renderStanceGlance\(id, p\)/.test(PF),
     "…and the flat Stance at a Glance wall it replaced is unmounted");
-  const verdictStage = PF.slice(PF.indexOf("<!--PDXSP:verdict-->"), PF.indexOf("<!--PDXSP:record-->"));
-  ok(verdictStage.indexOf("PDXStanceTree.sectionHtml(id)") > 0,
-    "the tree mounts in the verdict stage, under the Word vs Action summary");
-  ok(verdictStage.indexOf("PDXWordAction.sectionHtml(id, p)") <
-     verdictStage.indexOf("PDXStanceTree.sectionHtml(id)"),
-    "…after it, not before: the headline score still leads the stage");
+  // THE TREE IS THE GATEWAY NOW. It used to mount inside the verdict stage, under
+  // the Word vs Action summary — a browse surface subordinated to the score it
+  // exists to let a reader check. It has a stage of its own between the record
+  // summary and the score, so the reader browses the record before being handed a
+  // number about it. The stage sentinel directly above the mount is the whole
+  // claim: that is what the assembler reads.
+  const exploreStage = PF.slice(PF.indexOf("<!--PDXSP:explore-->"),
+                                PF.indexOf("<!--PDXSP:", PF.indexOf("<!--PDXSP:explore-->") + 8));
+  ok(exploreStage.indexOf("PDXStanceTree.sectionHtml(id)") > 0,
+    "the tree mounts in the gateway stage of its own, not folded under another section");
   ok(/PDXWordAction\.sectionHtml\(id, p\)/.test(PF),
     "…and the headline Direction Match section is still mounted");
-  eq(A.PDXProfileSpine.targetStage("pdxsec-stancetree"), "verdict",
+  const SPINE = A.PDXProfileSpine;
+  eq(SPINE.targetStage("pdxsec-stancetree"), "explore",
     "the rail registers the tree against the stage it really sits in");
-  eq(A.PDXProfileSpine.targetStage("pdxsec-glance"), "verdict",
+  eq(SPINE.targetStage("pdxsec-glance"), "explore",
     "…and the legacy anchor with it");
+  eq(SPINE.targetStage("pdxsec-stances"), "explore",
+    "…and the anchor the demoted flat section owned, so no old jump lands a stage away");
+  ok(SPINE.STAGE_KEYS.indexOf("explore") < SPINE.STAGE_KEYS.indexOf("verdict"),
+    "the gateway stage reads after the score again — the tree is back to being a footnote to it");
   has(R("sw.js"), "'/stance-tree.js'", "the service worker precaches the module");
   has(R("sw.js"), "'/stance-tree.css'", "…and its stylesheet");
   has(R("index.html"), 'src="stance-tree.js"', "the page loads the module");

@@ -344,23 +344,56 @@ section("4 · phase 2 — the atlas mounts on the profile face");
   const gate = Number((BODY.match(/FACE_MIN\s*=\s*(\d+)/) || [])[1]);
   ok(gate >= 2, `the face depth gate is implausibly low (${gate})`);
   ok(/n\s*<\s*FACE_MIN/.test(BODY), "the depth gate is declared but never enforced");
-  // PHASE 3 REORDERED THE READ ON PURPOSE. The atlas used to sit BELOW the word-
-  // versus-action section, as a discovery surface hanging off the score. The
-  // record-first pass inverted that: the formal ledger is the default lens, so the
-  // standout strip and the atlas it leads into are both read BEFORE Direction
-  // Match, which stays on the page and stays strong but stops being the thing
-  // every row waits on. What is pinned now is that inversion — strip, then atlas,
-  // then the score — not the old subordination.
-  const iWA = BODY.indexOf("PDXWordAction.sectionHtml");
-  const iFace = BODY.indexOf("pdxfpi-face");
-  const iStrip = BODY.indexOf("pdxso-face");
-  ok(iStrip > 0, "the standout strip does not mount on the profile body at all");
-  ok(iFace > 0 && iFace < iWA,
-    "the atlas mounts below the Direction Match section — the record-first read puts the ledger first");
-  ok(iStrip < iFace,
-    "the standout strip mounts below the atlas — the two-chip summary is the door into the long list, not a footnote to it");
-  ok(iWA > 0,
+  // PHASE 3 REORDERED THE READ ON PURPOSE, AND THE IA MERGE REORDERED IT AGAIN.
+  // The atlas used to sit BELOW the word-versus-action section, as a discovery
+  // surface hanging off the score. The record-first pass inverted that. This pass
+  // finished the job: a flat, alphabetised, every-issue-on-the-formal-record list
+  // is not a browse surface, it is a wall, and it was standing directly between a
+  // two-chip summary and the topic tree built to do the same job properly. The
+  // tree is the gateway now. The flat list survives as a COLLAPSED control under
+  // it, for the reader who wants one long sortable column — the sort, the lane
+  // wall, the per-mount filters and the dossier doors are all unchanged.
+  //
+  // Read position, not source position. The spine assembles the body by stage, so
+  // a mount can move up the page without moving up the file, and that is exactly
+  // what happened to the tree. Comparing raw string offsets here would now pin the
+  // file layout while the page reordered underneath it.
+  const SPINE = probe.PDXProfileSpine;
+  must(!!SPINE, "the profile spine did not boot, so reading order cannot be resolved");
+  const rank = (needle) => {
+    const at = BODY.indexOf(needle);
+    if (at === -1) return null;
+    const tags = BODY.slice(0, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
+    const last = tags.length ? tags[tags.length - 1].replace(/<!--PDXSP:|-->/g, "") : "identity";
+    const si = SPINE.STAGE_KEYS.indexOf(last);
+    return si === -1 ? null : si * 1e9 + at;
+  };
+  const iWA = rank("PDXWordAction.sectionHtml");
+  const iFace = rank("pdxfpi-face");
+  const iStrip = rank("pdxso-face");
+  const iTree = rank("PDXStanceTree.sectionHtml(id)");
+  ok(iStrip !== null, "the standout strip does not mount on the profile body at all");
+  ok(iTree !== null, "the topic tree does not mount on the profile body at all");
+  ok(iFace !== null, "the atlas does not mount on the profile body at all");
+  ok(iWA !== null,
     "the Direction Match section stopped mounting on the profile body — demoted is not deleted");
+  ok(iStrip < iTree,
+    "the standout strip reads below the topic tree — the two-chip summary is the door into the browse, not a footnote to it");
+  ok(iTree < iFace,
+    "the flat formal list still reads above the topic tree — that is the parallel wall, and the tree is the gateway");
+  ok(iFace < iWA,
+    "the atlas reads below the Direction Match section — the record-first read puts the ledger first");
+  // Collapsed, and honest about it. A <details> that ships open is the wall again
+  // with a hinge drawn on it.
+  const flat = BODY.slice(BODY.indexOf("<details id=\"pdxsec-formalatlas\""));
+  has(BODY, "<details id=\"pdxsec-formalatlas\"",
+    "the flat formal list is not a disclosure — the default profile prints every issue on the record above the fold");
+  ok(!/^<details id="pdxsec-formalatlas"[^>]*\sopen[\s>]/.test(flat),
+    "the flat formal list ships open, which is the flat wall with extra markup");
+  has(flat.slice(0, 700), "View the flat formal list",
+    "the control does not say what opening it shows");
+  has(flat.slice(0, 700), "Every issue on the formal record",
+    "the control dropped the label the old wall carried, so the rows it holds are now unfindable by name");
 
   // The rendered face index itself.
   const face = FPI.html(DEEP, { sort: "strength", mount: "face" });

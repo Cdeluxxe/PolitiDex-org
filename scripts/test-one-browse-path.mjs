@@ -148,7 +148,14 @@ section("2 · every old way in still lands on the tree");
     "the tree does not answer to #pdxsec-stances — the demoted section owned that anchor,\n" +
     "    so every jump and deep link naming it now lands nowhere");
   // …and the spine's registry agrees, so the rail demotes none of the three.
-  eq(SP.targetStage("pdxsec-stancetree"), "verdict", "the tree is not registered in the verdict stage");
+  // The tree used to be registered into the verdict stage, riding under the score
+  // it was the browse surface for. It has its own stage now — the gateway — and it
+  // reads AHEAD of the score rather than under it, because browsing the record is
+  // not a footnote to being told a number about it.
+  eq(SP.targetStage("pdxsec-stancetree"), "explore", "the tree is not registered in the gateway stage");
+  const keys = SP.STAGE_KEYS;
+  ok(keys.indexOf("explore") < keys.indexOf("verdict"),
+    "the gateway stage no longer precedes the score — the one browse path is back under the number");
   eq(SP.targetStage("pdxsec-stances"), SP.targetStage("pdxsec-stancetree"),
     "#pdxsec-stances resolves to a different stage than the surface that now emits it");
   eq(SP.targetStage("pdxsec-glance"), SP.targetStage("pdxsec-stancetree"),

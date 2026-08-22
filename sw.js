@@ -69,7 +69,15 @@
 // word-action.css all changed together: a phone holding v60 that picks up only
 // word-action.js calls a publicShape() its consistency.js does not export, and one
 // that picks up only the CSS reserves space under a line that never renders.
-const CACHE_VERSION = 'v61';
+// v62 — PROFILE IA MERGE. The topic tree became the gateway: it holds a stage of
+// its own between the record summary and Word vs Action, and the flat "every issue
+// on the formal record" list stopped being a wall above it and became a collapsed
+// control under it. Bumped because profiles-full.js, profile-spine.js,
+// profile-spine.css, word-action.js and consistency.js all changed together: a
+// phone holding v61 that picks up only profiles-full.js emits an <!--PDXSP:explore-->
+// sentinel its profile-spine.js has no stage for, and one that picks up only the
+// markup renders the new disclosure with no .pdxfpi-flat rules to style it.
+const CACHE_VERSION = 'v62';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

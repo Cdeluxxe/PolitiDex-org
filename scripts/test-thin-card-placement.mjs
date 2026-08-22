@@ -12,10 +12,14 @@
 //
 // This harness pins the correction, and the three ways it could quietly rot:
 //
-//   1. THE ORDER. Word vs Action → the tree → the multi-issue block → the card,
-//      all inside one verdict stage. The spine restages the body by sentinel, so
-//      "after the tree" is only true while the card is still tagged verdict; one
-//      sentinel further down and it reappears a stage away from what it explains.
+//   1. THE ORDER. The tree → the multi-issue block → Word vs Action → the card.
+//      The tree was promoted again since: it holds a gateway stage of its own
+//      ahead of the score, while the card stays at the foot of the verdict stage.
+//      The spine restages the body by sentinel, so "after the tree" is only true
+//      while the card is still tagged verdict; one sentinel further down and it
+//      reappears a stage away from what it explains. Source position proves none
+//      of this on its own — the mounts are ordered here the way the assembler
+//      orders them, by governing stage first.
 //   2. THE TRIM. Four blocks, not eight. The at-a-glance facts row, the Spotlight
 //      sub-card, the Compare/Add-to-team pair and the ↓ foot hint were each a
 //      restatement of the letterhead, the banners, the rail or the Spotlight, and
@@ -120,28 +124,47 @@ const BODY_AT = PF_RAW.indexOf("const _profileBody = ");
 must(BODY_AT !== -1, "the profile body template moved");
 const BODY = PF_RAW.slice(BODY_AT);
 
+// Source position is not read position: the spine assembles the body by stage, and
+// the tree was promoted out of the verdict stage into a gateway stage of its own
+// without moving in the file. Every order claim below is resolved the way the
+// assembler resolves it — governing stage first, source position only to break a
+// tie inside one stage.
+const SPINE = win.PDXProfileSpine;
+must(SPINE && SPINE.STAGE_KEYS && SPINE.STAGE_KEYS.length > 5,
+  "the profile spine did not boot, so reading order cannot be resolved");
+const stageOf = (at) => {
+  const tags = BODY.slice(0, at).match(/<!--PDXSP:([a-z0-9:_-]+)-->/g) || [];
+  return tags.length ? tags[tags.length - 1].replace(/<!--PDXSP:|-->/g, "") : "identity";
+};
+const rank = (at) => SPINE.STAGE_KEYS.indexOf(stageOf(at)) * 1e9 + at;
+
 const VERDICT = BODY.indexOf("<!--PDXSP:verdict-->");
 const WA_AT = BODY.indexOf("PDXWordAction.sectionHtml(id, p)");
 const TREE_AT = BODY.indexOf("PDXStanceTree.sectionHtml(id)");
 const AXES_AT = BODY.indexOf("PDXBallotAxes.profileHtml(id, p)");
 const CARD_AT = BODY.indexOf("${candidateSnapshot || thinNotice}");
-const NEXT_STAGE = BODY.indexOf("<!--PDXSP:", VERDICT + 4);
-must(VERDICT !== -1 && WA_AT !== -1 && TREE_AT !== -1 && AXES_AT !== -1 && CARD_AT !== -1 && NEXT_STAGE !== -1,
-  "one of the verdict-stage mounts was renamed — order cannot be read");
+must(VERDICT !== -1 && WA_AT !== -1 && TREE_AT !== -1 && AXES_AT !== -1 && CARD_AT !== -1,
+  "one of the mounts this section orders was renamed — order cannot be read");
 
-ok(VERDICT < WA_AT && WA_AT < TREE_AT,
-  "order: ⚖️ Word vs Action is no longer the first thing in the verdict stage");
-ok(TREE_AT < CARD_AT,
-  "order: the limited-record card is mounted ABOVE 🌳 All Issues by Topic again. It renders\n" +
+ok(rank(TREE_AT) < rank(WA_AT),
+  "order: 🌳 All Issues by Topic no longer reads ahead of ⚖️ Word vs Action. On a thin profile\n" +
+  "    the tree is the entire substance of the page, and the score is a number about a record\n" +
+  "    the reader has not been shown yet");
+ok(rank(TREE_AT) < rank(CARD_AT),
+  "order: the limited-record card reads ABOVE 🌳 All Issues by Topic again. It renders\n" +
   "    only on profiles where the tree is the entire substance of the page, so at that\n" +
   "    position it delays the browse gateway on exactly the profiles that have nothing else");
-ok(AXES_AT < CARD_AT,
+ok(rank(AXES_AT) < rank(CARD_AT),
   "order: the card slid above the multi-issue block. The card is the FOOT of the verdict\n" +
   "    stage — everything that shows a reader something goes before the thing that explains\n" +
   "    why there is not more to show");
-ok(CARD_AT < NEXT_STAGE,
+eq(stageOf(CARD_AT), "verdict",
   "the card fell out of the verdict stage — the spine restages the body by sentinel, so it\n" +
   "    would reappear under the Official Record, a stage away from the gap it explains");
+eq(stageOf(TREE_AT), "explore",
+  "the tree fell out of the gateway stage, which is the only reason it reads ahead of the score");
+eq(stageOf(AXES_AT), "explore",
+  "the multi-issue block was separated from the tree it annotates");
 eq(BODY.split("${candidateSnapshot || thinNotice}").length - 1, 1,
   "the card is mounted more than once in the profile body");
 
