@@ -516,8 +516,15 @@ section("5 · every scored row states what its percentage divides");
   // tooltip and the dossier cannot state different denominators for one verdict.
   const compFn = CS_SRC.slice(CS_SRC.indexOf("function _stCompHtml"));
   const compBody = compFn.slice(0, compFn.indexOf("\n  function "));
-  must(compBody.length > 400 && compBody.length < 6000,
+  // The bound is a SLICE-SANITY guard, not a budget for the function: it catches a
+  // slice that ran past its own closing brace to the end of the file (~200k), not a
+  // function that grew. Raised 6000 -> 8000 when the honesty pack added the
+  // current-term scope clause and its tooltip sentence. Braces are checked too, so a
+  // slice that stops in the middle of the body cannot pass on length alone.
+  must(compBody.length > 400 && compBody.length < 8000,
     `the _stCompHtml slice looks wrong (${compBody.length} chars)`);
+  must(compBody.split("{").length === compBody.split("}").length,
+    "the _stCompHtml slice does not close its own braces — it is not one whole function");
   has(compBody, "_stSplit(r)", "_stCompHtml stopped reading the shared split and now tallies for itself");
   lacks(compBody, "verdict.score", "_stCompHtml reads the score — the denominator must not be derived from the number it explains");
   lacks(compBody, "rowResult", "_stCompHtml reaches into the scoring path");

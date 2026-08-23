@@ -852,7 +852,7 @@
     if (!n) {
       return '<div class="ms-summary is-empty">' +
         '<div class="ms-sum-emptytitle">You haven’t taken any positions yet</div>' +
-        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you, and whether their record backs it up. Set stances → see matches → build your team.</div>' +
+        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you — and, where their formal record is deep enough to test, whether it backs them up. Set stances → see matches → build your team.</div>' +
         '</div>';
     }
     var chips = items.map(function (r) {
@@ -889,8 +889,8 @@
     return '<div class="ms-powers' + (live ? ' is-live' : '') + '">' +
       '<div class="ms-pow-title">What your stances power</div>' +
       '<p class="ms-pow-body">' + (live
-        ? 'These <strong>' + n + '</strong> stance' + (n > 1 ? 's' : '') + ' now power the <strong>Alignment Tool</strong>: every politician gets a <strong>🎯 Your Match</strong> (how their stated positions fit yours) paired with <strong>⚖️ Say-vs-Do</strong> (whether their record backs it up), wherever they appear. <strong>High-priority</strong> stances count more toward the match; <strong>Low</strong> count less.'
-        : 'Set a stance and the <strong>Alignment Tool</strong> starts working: it shows <em>who matches what you stand for</em> — and whether their record backs it up — turning your values into a yardstick you can point at anyone’s record.') +
+        ? 'These <strong>' + n + '</strong> stance' + (n > 1 ? 's' : '') + ' now power the <strong>Alignment Tool</strong>: every politician gets a <strong>🎯 Your Match</strong> (how their stated positions fit yours), wherever they appear. Where their formal record is deep enough to test, a <strong>⚖️ Say-vs-Do</strong> read sits beside it — and where it is not, the profile says so rather than grading them anyway. <strong>High-priority</strong> stances count more toward the match; <strong>Low</strong> count less.'
+        : 'Set a stance and the <strong>Alignment Tool</strong> starts working: it shows <em>who matches what you stand for</em> — and, where the formal record runs deep enough to test, whether it backs them up — turning your values into a yardstick you can point at a record.') +
       '</p>' +
       (actions ? '<div class="ms-pow-actions">' + actions + '</div>' : '') +
       '</div>';

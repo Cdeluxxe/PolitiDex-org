@@ -6127,7 +6127,8 @@
         ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
         ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
         ' data-pdxst-focus="record"' +
-        ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance && r.stance.label)) + '">' +
+        ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance && r.stance.label,
+          _stDoorDepth(r, res))) + '">' +
         esc(res.invite.cta) + '<span class="pdxst-lbl-go" aria-hidden="true">→</span>' +
       '</button>';
     }
@@ -6412,13 +6413,82 @@
   // unscored-but-tense row there is no number up there to sit beside and it stays a
   // line of its own. `opts.formalKey` prints the lane/metric/scope key the row face
   // carries in its own column, for the faces that have no such column.
+  // HOW THIN, IN ONE PHRASE — and ONE definition of "thin" for every surface that
+  // states it. The composition line prints this under the percentage; the door's
+  // accessible name now repeats it, because a reader who HEARS "Backed up" and never
+  // hears "one action" has been handed the confident half of a row whose other half
+  // is on screen. Keyed on the JUDGED count, which is the denominator of the number
+  // it qualifies — not on evidence depth, which the dossier keys its own longer
+  // caveat on one level down.
+  var _ST_THIN_AT = 2;
+  function _stThinNote(r, res) {
+    if (!r || !res || res.state !== 'tested' || !r.verdict) return null;
+    var split = _stSplit(r);
+    if (!split || !(split.judged > 0) || split.judged > _ST_THIN_AT) return null;
+    // A Mixed row must not be told "the direction is real" — it is the one bucket
+    // that declined to reach a direction. Same fork the dossier makes.
+    return { judged: split.judged, note: (r.verdict.token === 'mixed')
+      ? 'a split, not yet a pattern' : 'a direction, not yet a pattern' };
+  }
+
+  // TWO SCOPES, ONE ISSUE — and never only the flattering slice. The executive lane
+  // leads with all_time (EXEC_SCOPE_DEFAULT) and that is the right headline: it is
+  // the whole record. But where the CURRENT TERM reads a different shape from the
+  // whole — one direction this term against a split across every term — a reader
+  // shown only the headline has been shown one slice of a record that has two, and
+  // which slice they got is an accident of the default. This returns the other
+  // slice's word so the row can name it. It decides nothing: the percentage, the
+  // verdict token and the bucket are all still the all-time read's.
+  //
+  // Reuses EXEC_TERM_SCOPES and PDXExecRecord.issue rather than inventing a scope,
+  // so this cannot disagree with the Executive Enactment Record about what a term is.
+  // Silent for a former officeholder — execServing() — because "this term" is last
+  // term under a label that says otherwise, which is the same reason scopedRead()
+  // declines for them.
+  function _stExecScopeSplit(r) {
+    try {
+      if (!r || r.lane !== 'exec' || !r.pid || !r.key) return null;
+      if (!execServing(r.pid)) return null;
+      var E = window.PDXExecRecord;
+      if (!E || typeof E.issue !== 'function') return null;
+      var all = E.issue(r.pid, r.key, { allTerms: true });
+      var cur = E.issue(r.pid, r.key, { allTerms: false });
+      if (!all || !cur) return null;
+      var curN = (cur.actions || []).length, allN = (all.actions || []).length;
+      // A slice identical to the whole is not a second read of anything, and an
+      // empty slice is a coverage fact the row already states elsewhere.
+      if (!curN || !allN || curN >= allN) return null;
+      if (all.token === cur.token) return null;
+      var word = cur.verdict && cur.verdict.label;
+      if (!word) return null;
+      return { label: word, curN: curN, allN: allN,
+               scope: (EXEC_TERM_SCOPES.current_term || {}).label || 'Current term' };
+    } catch (e) { return null; }
+  }
+
+  // The depth clause an accessible name carries, or ''. Built from the two helpers
+  // above so the door and the visible line cannot drift apart.
+  function _stDoorDepth(r, res) {
+    var out = [];
+    var t = _stThinNote(r, res);
+    if (t) {
+      var n = _stNoun(r || {});
+      out.push(t.judged + ' judged ' + (t.judged === 1 ? n.one : n.many) + ' — ' + t.note);
+    }
+    var f = _stExecScopeSplit(r);
+    if (f) out.push('this term alone: ' + String(f.label).toLowerCase() +
+      ' (' + f.curN + ' of ' + f.allN + ')');
+    return out.join(' · ');
+  }
+
   function _stCompHtml(r, res, opts) {
     if (res.state === 'untested') return '';
     var split = _stSplit(r);
     if (!split) return '';
     var st = _stStanding(r);
+    var scopeSplit = _stExecScopeSplit(r);
     var aside = r.setAside;
-    var tense = (r.verdict.token === 'mixed') || !!aside || !!st;
+    var tense = (r.verdict.token === 'mixed') || !!aside || !!st || !!scopeSplit;
     // A scored row always states its denominator; an unscored one only where it
     // carries tension worth naming. This is the widened condition, and the whole
     // of the change: everything below already worked, on 15% of the rows.
@@ -6462,11 +6532,17 @@
     // It is a qualifier on the counts, not a second verdict — no icon, no colour
     // of its own, and it never appears on an unscored row, which has no
     // percentage for depth to qualify.
-    var thin = (res.state === 'tested' && split.judged > 0 && split.judged <= 2);
-    var thinNote = (r.verdict.token === 'mixed')
-      ? 'a split, not yet a pattern'
-      : 'a direction, not yet a pattern';
+    var thinR = _stThinNote(r, res);
+    var thin = !!thinR;
+    var thinNote = thinR ? thinR.note : '';
     if (thin) parts.push('<span class="pdxst-comp-thin">' + esc(thinNote) + '</span>');
+    // THE OTHER SCOPE, WHERE IT READS DIFFERENTLY. Sits with the set-aside and
+    // standing clauses because it is the same kind of fact: something true about
+    // this record that the headline number does not carry. Never replaces the
+    // headline — the all-time read still owns the percentage and the verdict.
+    if (scopeSplit) parts.push('<span class="pdxst-comp-x">' + esc('this term alone: ' +
+      String(scopeSplit.label).toLowerCase() + ' (' + scopeSplit.curN + ' of ' +
+      scopeSplit.allN + ' actions)') + '</span>');
     // "0 ran against it" is arithmetic read aloud; "none ran against it" is the
     // same fact in the sentence a person would write. The clean rows this line
     // now reaches are overwhelmingly the zero case, so it is worth the branch.
@@ -6476,7 +6552,11 @@
       (thin ? ' That is the whole of the record judged against this claim — ' + thinNote + '.' : '') +
       (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
         aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
-      (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '');
+      (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '') +
+      (scopeSplit ? ' Across every term this reads ' + String(r.verdict.label || '').toLowerCase() +
+        '; the ' + scopeSplit.curN + ' action' + (scopeSplit.curN === 1 ? '' : 's') +
+        ' taken in the current term alone read ' + String(scopeSplit.label).toLowerCase() +
+        '. The figure above is the all-time record.' : '');
     var key = '';
     if (opts && opts.formalKey) {
       // WHICH LANE THESE COUNTS BELONG TO, said before the counts. On a face with no
@@ -7052,7 +7132,8 @@
           '<button type="button" class="pdxst-lbl pdxst-open"' +
             ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
             ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
-            ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance.label)) + '">' +
+            ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance.label,
+              _stDoorDepth(r, res))) + '">' +
             _icDot(skin) + esc(r.label) +
             '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
           '</button>' +
@@ -11222,9 +11303,10 @@
   // ONE ACCESSIBLE NAME FOR ONE DOOR. Read aloud identically in the issue index, on a
   // stance row, inside an Official Record row and in the divergence list, because in
   // all four places it is the same destination carrying the same finding.
-  function _dosDoorLabel(label, o, said) {
+  function _dosDoorLabel(label, o, said, depth) {
     return 'Open the issue dossier: ' + String(label == null ? '' : label) +
-      (o ? ' — ' + o.short : '') + (said ? ' · they said: ' + said : '');
+      (o ? ' — ' + o.short : '') + (said ? ' · they said: ' + said : '') +
+      (depth ? ' · ' + depth : '');
   }
 
   // ── L1 — the assembled answer ───────────────────────────────────────────────

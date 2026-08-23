@@ -94,7 +94,17 @@
 // the member strip and feeds the rail pill. A shell holding v63 would pair a new
 // consistency.js with an exec-record.js that publishes no rows, so the summary
 // would silently decline to mount.
-const CACHE_VERSION = 'v68';
+// v69 — HONESTY PACK. Two surfaces stopped claiming more than the data carries.
+// my-stances.js and alignment-tool.js no longer promise a record-backed reading
+// for "every politician … wherever they appear" — 181 of 756 profiles publish a
+// Direction Match and the rest fail closed, so the promise now names the floor.
+// consistency.js grew one shared definition of "thin" (_stThinNote) that the
+// composition line and the dossier door's accessible name both read, and one
+// scope-comparison helper (_stExecScopeSplit) that names the current-term read on
+// an exec row whose two scopes disagree. Presentation only — no score moved. The
+// three files ship together: a shell holding v68 would pair the new consistency.js
+// with the old copy, which is the exact inconsistency this pass exists to remove.
+const CACHE_VERSION = 'v69';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
