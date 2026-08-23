@@ -127,7 +127,7 @@
       var sub = lv.statewide
         ? 'We&rsquo;d rather leave this blank than name the wrong person.'
         : 'We&rsquo;d rather leave this blank than guess at your seat.';
-      return '<div class="wrm-row wrm-row--unresolved" style="border-left-color:' + color + '66;">' +
+      return '<div class="wrm-row wrm-row--unresolved" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + '66;">' +
         '<span class="wrm-avatar wrm-avatar--empty" aria-hidden="true">🏛</span>' +
         '<span class="wrm-rowtext">' +
           '<span class="wrm-rowlevel" style="color:' + color + 'cc;">' + esc(lv.distLabel) + '</span>' +
@@ -145,7 +145,7 @@
       ? '<span class="wrm-avatar" style="border-color:' + color + ';"><img src="' + esc(photo) + '" alt="" loading="lazy"></span>'
       : '<span class="wrm-avatar wrm-avatar--empty" style="border-color:' + color + '99;" aria-hidden="true">🏛</span>';
 
-    return '<div class="wrm-row" role="button" tabindex="0" style="border-left-color:' + color + ';"' +
+    return '<div class="wrm-row" role="button" tabindex="0" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
         ' onclick="' + go + '"' +
         ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + go + '}"' +
         ' title="See ' + esc(person.name) + '&rsquo;s full record">' +
@@ -178,6 +178,17 @@
   // with no positions — so this file, the Voter Hub strip and any future seat
   // list cannot drift apart on it. Falls back to the bare entry button if only
   // the older helper is present, and to nothing at all if neither is.
+  // The race key this seat maps onto, taken from the race sheet's own alias table
+  // rather than a second copy of it here. Used only as a target for the shared-
+  // link fallback: a reader whose shared race could not mount lands on their own
+  // seat list with the seat they were sent marked, instead of on a generic page.
+  function rkOf(lv) {
+    try {
+      var sm = (window.PDXRaceSheet && window.PDXRaceSheet._seat) ? window.PDXRaceSheet._seat(lv.key) : null;
+      return (sm && sm.key) || '';
+    } catch (e) { return ''; }
+  }
+
   function seatCompare(lv) {
     if (!lv) return '';
     var html = '';
@@ -310,7 +321,26 @@
     sec.setAttribute('data-located', '1');
   }
 
-  window.PDXWhoRepresentsMe = { sync: sync, focus: function () { window.pdxFindMyReps(); } };
+  // focus() with no argument is the old behaviour: scroll here, and open the
+  // location modal if we still do not know where the reader is. With a race key
+  // it also marks the seat that was asked for — the honest landing for a shared
+  // race link whose sheet could not mount.
+  window.PDXWhoRepresentsMe = {
+    sync: sync,
+    focus: function (seatKey) {
+      window.pdxFindMyReps();
+      var rk = String(seatKey || '').replace(/[^a-z0-9_]/gi, '');
+      if (!rk) return;
+      setTimeout(function () {
+        try {
+          var el = document.querySelector('.wrm-row[data-rk="' + rk + '"]');
+          if (!el) return;
+          el.classList.add('wrm-row--focus');
+          if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (e) {}
+      }, 180);
+    }
+  };
 
   // The Voter Hub calls sync() directly from _vhSyncBanner on every location
   // change; these are only for the first paint and for anything that sets a

@@ -37,7 +37,13 @@
   // (the formal-pattern index for the person vs one issue's gap view), and a
   // share link that resolves to the wrong one of those is a link that changes the
   // claim it was sent to make.
-  var PARAMS = ['bill', 'receipt', 'record', 'rank', 'wordrecord'];
+  // `race` is a SEAT address, not a person address. It is listed here rather
+  // than parsed inside race-sheet.js the way `team` is parsed inside
+  // ballot-breakdown.js, because that second arrangement is the one this file
+  // exists to replace: a private parser gets its own idea of the canonical URL,
+  // and ?team= duly grew one built on location.pathname. One list, one strip,
+  // one honest-failure path.
+  var PARAMS = ['bill', 'receipt', 'record', 'rank', 'wordrecord', 'race'];
 
   function param(name) {
     try { return new URLSearchParams(location.search).get(name) || ''; }
@@ -68,6 +74,21 @@
       if (!pid || pid !== String(value)) return '';
       return '#wordrecord=' + encodeURIComponent(pid);
     }
+    if (name === 'race') {
+      // The seat key is the address. The two things that shape what the sheet
+      // paints — which candidates the sender's ballot actually held, and which
+      // ruler was active — ride along as extra hash segments, exactly the way
+      // #issue= has always carried key/mode/scope. Neither is required: a bare
+      // #race=house is a valid, openable link.
+      var seat = String(value).toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (!seat) return '';
+      var rh = '#race=' + encodeURIComponent(seat);
+      ['cands', 'rmode'].forEach(function (k) {
+        var v = param(k);
+        if (v) rh += '&' + k + '=' + encodeURIComponent(v);
+      });
+      return rh;
+    }
     if (name === 'rank') {
       // The ranking view keeps its extra state (sub-issue, lens, scope) in the
       // same hash it always used; only the issue itself moved to the query.
@@ -89,7 +110,7 @@
     try {
       var sp = new URLSearchParams(location.search);
       var touched = false;
-      PARAMS.concat(['key', 'mode', 'scope']).forEach(function (k) {
+      PARAMS.concat(['key', 'mode', 'scope', 'cands', 'rmode']).forEach(function (k) {
         if (sp.has(k)) { sp.delete(k); touched = true; }
       });
       if (!touched) return null;
@@ -262,6 +283,40 @@
         }
       });
       return u;
+    },
+    // ── One seat, the whole field ──────────────────────────────────────────
+    // What a race share has to survive is the recipient standing somewhere else.
+    // The seat key alone opens the right sheet but resolves THEIR field, which
+    // for a district office is a different set of people — so the sender's field
+    // travels as `cands`, a plain list of ids the race sheet pins back in. Ids,
+    // not names: a name in a URL is a claim about a person that nothing on
+    // arrival can check, while an id either resolves against the roster or is
+    // reported missing.
+    //
+    // What deliberately does NOT travel is the sender's stance list or their
+    // computed order. `rmode` names which RULER was in use, never a result. The
+    // recipient re-ranks with their own positions, or — having none — gets the
+    // sheet's existing unranked state. A share cannot hand someone else's
+    // politics over as if it were their match.
+    race: function (seatKey, opts) {
+      if (!seatKey) return origin() + '/';
+      opts = opts || {};
+      var u = origin() + '/?race=' + encodeURIComponent(seatKey);
+      var c = opts.cands;
+      if (c && c.length) u += '&cands=' + encodeURIComponent([].concat(c).join(','));
+      if (opts.rmode === 'record' || opts.rmode === 'stated') u += '&rmode=' + opts.rmode;
+      return u;
+    },
+    // A saved slate. The token shape is ballot-breakdown.js's own base64url
+    // payload and is passed through untouched, so every link already in the wild
+    // keeps working; what changes is only the anchor. This used to be
+    // location.origin + location.pathname, which is the exact defect the note
+    // above describes — a team shared from /vote/119/house/12 came out as a
+    // roll-call address carrying a team token, and voteFallback() then apologised
+    // over the top of the slate that had loaded correctly underneath.
+    team: function (token) {
+      if (!token) return '';
+      return origin() + '/?team=' + encodeURIComponent(token) + '#my-politicians';
     },
     // Same links, on the public share domain — for anything leaving the device.
     on: function (base, url) {

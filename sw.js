@@ -143,7 +143,22 @@
 // never appear) or the new race-sheet.js styles against hosts that never render the
 // strip. index.html and app.css also changed — the Door-2 spine line and the
 // research-list handoff — and both are precached.
-const CACHE_VERSION = 'v72';
+// v73 — SHARE THIS RACE / SHARE MY TEAM. A compared seat and a filled slate can
+// now leave the device as a link that opens the same thing on arrival. The new
+// ?race= address is parsed in share-links.js (PARAMS, hashFor, cleanedSearch) and
+// opened in race-sheet.js (openFromHash, pinned candidate ids, the "opened from a
+// shared link" note); the existing ?team= address kept its wire format and lost
+// its location.pathname anchor. The bump matters because the halves are split
+// across the precache boundary AGAIN, and this time in the direction that fails
+// loudest: share-links.js and race-sheet.js ARE shell assets, ballot-breakdown.js
+// and who-represents-me.js are not. A shell holding v72 would serve a fresh
+// ballot-breakdown.js calling PDXShareLinks.team() against a share-links.js that
+// has no team() — it falls back, so links still build, but the ?race= param would
+// be neither stripped nor converted, and a shared race link would land on the
+// front page with a stale query hanging off it. index.html and app.css also
+// changed (import-banner seat rows, the shared-race landing mark) and both are
+// precached.
+const CACHE_VERSION = 'v73';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

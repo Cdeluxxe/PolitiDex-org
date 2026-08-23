@@ -129,7 +129,11 @@
       tab: 'Record',
       sub: 'Their votes and formal actions vs the positions you set.',
       rankLine: 'Ranked by their <b>formal record</b> on the issues you set — not by party, and not by Direction Match.',
-      gap: 'No formal record on your issues yet'
+      gap: 'No formal record on your issues yet',
+      // What a share is allowed to say about this ruler. Plain text, no markup,
+      // no percentage, and it names WHOSE positions did the ranking — so a
+      // reader who receives it cannot read it as their own match.
+      share: 'ranked by formal record vs my positions'
     },
     stated: {
       key: 'stated', ico: '\u{1F4AC}',
@@ -137,7 +141,8 @@
       tab: 'Stated',
       sub: 'What they have said vs the positions you set.',
       rankLine: 'Ranked by their <b>stated positions</b> on the issues you set — not by party, and not by Direction Match.',
-      gap: 'No stated position on your issues yet'
+      gap: 'No stated position on your issues yet',
+      share: 'ranked by stated positions'
     }
   };
 
@@ -224,20 +229,53 @@
   // order is re-decided by rank() from the visitor's own match, and the DM figure
   // is re-read through the ledger slot that owns the publishable floor — so a
   // number that never cleared that floor cannot leak in here as a rank.
-  function field(rk) {
+  // The one roster read. Two stores answer it and they are tried in the same
+  // order everywhere, so "who is this pid" cannot mean two things on one sheet.
+  function recOf(pid) {
+    var d = null;
+    if (!pid) return null;
+    try { if (fn('_pdxBallotRecord')) d = window._pdxBallotRecord(pid); } catch (e) {}
+    if (!d) { try { d = window.CMP_DATA ? window.CMP_DATA[pid] : null; } catch (e) {} }
+    return d || null;
+  }
+
+  function field(rk, pins) {
     var raw = [];
     try { if (fn('_ballotCandidates')) raw = window._ballotCandidates(rk) || []; } catch (e) { raw = []; }
     var inc = incumbents(rk), seen = {}, out = [];
     raw.forEach(function (c) {
       if (!c || !c.pid || seen[c.pid]) return;
       seen[c.pid] = 1;
-      var d = fn('_pdxBallotRecord') ? window._pdxBallotRecord(c.pid) : null;
-      if (!d) { try { d = window.CMP_DATA ? window.CMP_DATA[c.pid] : null; } catch (e) {} }
+      var d = recOf(c.pid);
       out.push({ pid: c.pid, name: c.name || (d && d.name) || c.pid, d: d,
                  office: c.office || (d && d.office) || '', icon: c.icon || (d && d.icon) || '\u{1F3DB}',
                  incumbent: !!inc[c.pid] });
     });
+
+    // PINNED CANDIDATES — the sender's field, carried by a shared link.
+    // _ballotCandidates() resolves a field from the READER's districts, so a
+    // House race shared across a state line otherwise opens the right office
+    // and the wrong people. The ids in the link are added back on top of
+    // whatever the reader's own ballot resolved, never instead of it: the
+    // reader still sees their own field, plus the people the link was actually
+    // about. A pinned id the roster cannot resolve is NOT quietly dropped —
+    // bodyHtml counts it and says so, because a field silently one person short
+    // is the failure this whole surface exists to refuse.
+    (pins || []).forEach(function (pid) {
+      if (!pid || seen[pid]) return;
+      var d = recOf(pid);
+      if (!d) return;
+      seen[pid] = 1;
+      out.push({ pid: pid, name: d.name || pid, d: d,
+                 office: d.office || '', icon: d.icon || '\u{1F3DB}',
+                 incumbent: !!inc[pid], pinned: true });
+    });
     return out;
+  }
+
+  // Ids in a shared link that resolve against nothing we hold. Reported, per id.
+  function missingPins(pins) {
+    return (pins || []).filter(function (pid) { return pid && !recOf(pid); });
   }
 
   // The order a field sits in when nothing is ranking it: officeholder first
@@ -498,6 +536,149 @@
       '</div>';
   }
 
+  // ── Share this race ────────────────────────────────────────────────────────
+  // WHAT LEAVES THE APP, AND WHAT NEVER DOES
+  // ────────────────────────────────────────
+  // What travels: the office, the candidate ids the sender's ballot actually
+  // resolved, and which of the two rulers was active. That is enough for the
+  // link to open the SAME race — not a profile, not the front page.
+  //
+  // What does not travel: the sender's stance list, and the order this sheet
+  // computed from it. Those are the two things that would turn a share into a
+  // claim about the recipient. The recipient re-ranks with their own positions;
+  // with none, the sheet opens in its existing unranked state and says so. There
+  // is therefore no "sender's ranking at share time" snapshot to label, because
+  // there is no snapshot.
+  //
+  // What is forbidden on the artifact and enforced by the composer below: no
+  // party, no blended formal+public figure, no percentage of any kind, and no
+  // sentence that implies every candidate on the sheet carries a score.
+  function scopeLabel(rk) {
+    var reps = null;
+    try { reps = fn('pdxRepsForMe') ? window.pdxRepsForMe() : null; } catch (e) { reps = null; }
+    if (!reps || !reps.located) return '';
+    var st = String(reps.state || '').trim();
+    if (!st || st === 'National') return '';
+    // A statewide seat IS the state. A district seat is only honestly described
+    // as the sender's own districts — naming the state would overclaim the reach
+    // of a single House or legislative seat.
+    if (rk === 'senate' || rk === 'governor' || rk === 'president') return st;
+    return reps.districtsResolvable ? 'your districts' : st;
+  }
+
+  // The composed payload, or null when there is no open sheet to describe.
+  function shareBits() {
+    if (!_state) return null;
+    var sm = seatMeta(_state.seatKey);
+    if (!sm) return null;
+    var mode = readMode(), mm = meta(mode);
+    var all = field(sm.key, _state.pins);
+    if (!all.length) return null;
+
+    var pids = all.map(function (c) { return c.pid; });
+    var names = all.map(function (c) { return String(c.name || c.pid); });
+    var shownNames = names.length > 8
+      ? names.slice(0, 8).join(', ') + ' +' + (names.length - 8) + ' more'
+      : names.join(', ');
+
+    // The ruler clause is only true when something was actually ranked. With no
+    // positions set the sheet is in a fixed order, and a share that borrowed the
+    // mode label anyway would be describing a ranking that never happened.
+    var ruler = axis().length ? mm.share : 'in a fixed order — no positions set, so nobody here is ranked';
+    var scope = scopeLabel(sm.key);
+
+    return {
+      title: sm.label + ' — the field, side by side',
+      text: shownNames + '\n' + ruler.charAt(0).toUpperCase() + ruler.slice(1) + (scope ? ' · ' + scope : ''),
+      url: (window.PDXShareLinks && typeof window.PDXShareLinks.race === 'function')
+        ? window.PDXShareLinks.race(sm.key, { cands: pids, rmode: mode })
+        : '',
+      pids: pids,
+      names: names
+    };
+  }
+
+  function copyText(str) {
+    try {
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+        return Promise.resolve(navigator.clipboard.writeText(str)).then(
+          function () { return true; }, function () { return legacyCopy(str); });
+      }
+    } catch (e) {}
+    return Promise.resolve(legacyCopy(str));
+  }
+  function legacyCopy(str) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = str;
+      ta.setAttribute('readonly', 'readonly');
+      ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      var done = document.execCommand ? document.execCommand('copy') : false;
+      document.body.removeChild(ta);
+      return !!done;
+    } catch (e) { return false; }
+  }
+
+  // Visible, dismissible, and re-showable: notice() is idempotent by id, so a
+  // second failed attempt would otherwise be silent — which is the exact defect.
+  function shareFail(msg) {
+    try {
+      var old = document.getElementById('pdx-race-share-failed');
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+      if (window.PDXShareLinks && typeof window.PDXShareLinks.notice === 'function') {
+        window.PDXShareLinks.notice('pdx-race-share-failed', 'Share this race', msg);
+      }
+    } catch (e) {}
+  }
+  function flashShare(label) {
+    try {
+      var btn = document.getElementById('rs-share-btn');
+      if (!btn) return;
+      var was = btn.innerHTML;
+      btn.innerHTML = '<span class="rs-share-ico" aria-hidden="true">✓</span><span class="rs-share-txt">' + esc(label) + '</span>';
+      setTimeout(function () {
+        var b2 = document.getElementById('rs-share-btn');
+        if (b2) b2.innerHTML = was;
+      }, 2200);
+    } catch (e) {}
+  }
+
+  window.pdxRaceSheetShare = function () {
+    var b = shareBits();
+    if (!b || !b.url) {
+      shareFail('We could not build a link for this seat, so nothing was shared. Rather than hand you a link to the front page, here is the plain answer: there is nothing addressable here yet.');
+      return Promise.resolve({ ok: false, outcome: 'invalid' });
+    }
+    var payload = b.title + '\n' + b.text + '\n' + b.url;
+    var copyOrSay = function () {
+      return copyText(payload).then(function (done) {
+        if (done) { flashShare('Link copied'); return { ok: true, outcome: 'copied' }; }
+        shareFail('This browser would not open a share sheet and would not take the link to the clipboard either. The link is: ' + b.url);
+        return { ok: false, outcome: 'failed' };
+      });
+    };
+    var SL = window.PDXShareLinks;
+    if (!SL || typeof SL.native !== 'function') return copyOrSay();
+    return SL.native({ title: b.title, text: b.text, url: b.url }).then(function (res) {
+      if (res && res.ok) { flashShare('Shared'); return res; }
+      // A reader who dismissed the sheet chose that. Nothing is said and nothing
+      // is copied behind their back.
+      if (res && res.outcome === 'cancelled') return res;
+      return copyOrSay();
+    });
+  };
+
+  function shareBtnHtml() {
+    return '<button type="button" class="rs-share" id="rs-share-btn"' +
+      ' onclick="window.pdxRaceSheetShare()"' +
+      ' aria-label="Share this race — sends the seat and this field, not your positions">' +
+      '<span class="rs-share-ico" aria-hidden="true">↱</span>' +
+      '<span class="rs-share-txt">Share this race</span>' +
+    '</button>';
+  }
+
   // ── Empty / no-stance states ───────────────────────────────────────────────
   function ctaHtml() {
     var open = fn('_krAlignGuideToPicker') ? 'window._krAlignGuideToPicker()'
@@ -523,7 +704,7 @@
     if (!sm) return '<div class="rs-empty">That seat is not one this sheet can compare yet.</div>';
 
     var mode = readMode(), mm = meta(mode);
-    var all = field(sm.key);
+    var all = field(sm.key, _state.pins);
     var rows = axis();
     var hasIssues = rows.length > 0;
     var shown = _state.expanded ? rows : rows.slice(0, AXIS_SHOWN);
@@ -537,7 +718,12 @@
           '<span><span class="rs-hd-kicker">Compare the field</span>' +
           '<h2 class="rs-hd-seat">' + esc(sm.label) + '</h2></span>' +
         '</div>' +
-        '<button type="button" class="rs-close" onclick="window.pdxRaceSheetClose()" aria-label="Close the race sheet">×</button>' +
+        '<div class="rs-hd-acts">' +
+          // Only on an open sheet with a field to describe. A share control over
+          // "no candidates on file" would emit a link to an empty comparison.
+          (all.length ? shareBtnHtml() : '') +
+          '<button type="button" class="rs-close" onclick="window.pdxRaceSheetClose()" aria-label="Close the race sheet">×</button>' +
+        '</div>' +
       '</div>';
 
     // HONEST EMPTY STATES. A field of zero and a field of one are different
@@ -597,7 +783,28 @@
       ? '<p class="rs-rankline">' + mm.rankLine + starLine + '</p>'
       : '<p class="rs-rankline">Nothing is ranking this field yet — it is in a fixed order: officeholder first, then alphabetical.</p>';
 
+    // ARRIVED FROM A SHARED LINK. Three separate admissions, and the third is
+    // said every time: what came over the wire was a seat, a list of ids and the
+    // name of a ruler. No stance of the sender's travelled, so nothing on this
+    // sheet is their match — it is the reader's, or it is nobody's.
+    var sharedNote = '';
+    if (_state.shared) {
+      var pinnedN = all.filter(function (c) { return c.pinned; }).length;
+      var missN = missingPins(_state.pins).length;
+      sharedNote = '<p class="rs-shared">' +
+        '<b>Opened from a shared link.</b> ' +
+        (pinnedN ? pinnedN + ' candidate' + (pinnedN === 1 ? '' : 's') +
+          ' from the sender\u2019s ballot ' + (pinnedN === 1 ? 'was' : 'were') +
+          ' added to the field your own location resolves. ' : '') +
+        (missN ? missN + ' name' + (missN === 1 ? '' : 's') + ' in that link ' +
+          (missN === 1 ? 'is' : 'are') + ' no longer on file and ' +
+          (missN === 1 ? 'is' : 'are') + ' not shown. ' : '') +
+        'Nothing about the sender\u2019s positions came with it \u2014 this order is yours, not theirs.' +
+      '</p>';
+    }
+
     return head +
+      sharedNote +
       '<div class="rs-controls">' +
         toggleHtml(mode) +
         rankLine +
@@ -635,16 +842,23 @@
     ov.innerHTML = '<div class="rs-sheet">' + bodyHtml() + '</div>';
   }
 
-  function open(seatKey) {
+  function open(seatKey, opts) {
     var sm = seatMeta(seatKey);
     if (!sm) return;
-    _state = { seatKey: sm.key, expanded: false };
+    opts = opts || {};
+    // pins/shared are per-OPEN, never sticky. A sheet opened normally after
+    // following a shared link must not still be showing the sender's field.
+    _state = {
+      seatKey: sm.key, expanded: false,
+      pins: (opts.pins || []).filter(Boolean),
+      shared: !!opts.shared
+    };
     var ov = ensureOverlay();
     ov.style.display = 'flex';
     // Record mode needs vote packs the stated lane never fetched. Queue the
     // field before the first paint so the warmer's own settle path repaints us
     // with real patterns instead of a sheet full of "no pattern".
-    warmField(field(sm.key));
+    warmField(field(sm.key, _state.pins));
     render();
     try { document.body.style.overflow = 'hidden'; } catch (e) {}
     try { requestAnimationFrame(function () { ov.classList.add('is-open'); }); } catch (e) { ov.classList.add('is-open'); }
@@ -652,6 +866,15 @@
 
   function close() {
     var ov = document.getElementById(OVERLAY_ID);
+    // A shared link put #race= in the address bar. Leaving it there means a
+    // refresh re-opens a sheet the reader just closed, and every onward link
+    // they copy still claims to be about this seat. Strip it, without a history
+    // entry, and touch nothing else in the URL.
+    try {
+      if (/^#race=/.test(location.hash || '')) {
+        history.replaceState(history.state, '', location.pathname + location.search);
+      }
+    } catch (e) {}
     _state = null;
     if (!ov) return;
     ov.classList.remove('is-open');
@@ -720,9 +943,7 @@
   // voter's own decision is the fact; the button is the next action; the stance
   // line is a footnote and never outranks either.
   function nameOf(pid) {
-    var d = null;
-    try { if (fn('_pdxBallotRecord')) d = window._pdxBallotRecord(pid); } catch (e) {}
-    if (!d) { try { d = window.CMP_DATA ? window.CMP_DATA[pid] : null; } catch (e) {} }
+    var d = recOf(pid);
     return (d && d.name) || '';
   }
 
@@ -755,6 +976,72 @@
     return '<div class="rs-seat-strip">' + team + entry + stanceLine + '</div>';
   };
 
+  // ── Arrival from a shared race link ────────────────────────────────────────
+  // share-links.js turns /?race=house&cands=…&rmode=record into #race=house&…
+  // and fires a synthetic hashchange. It is deferred earlier in the document
+  // than this file, so that event has already gone by the time we run — hence
+  // both a boot read and a listener. Neither can open the same sheet twice: open()
+  // replaces _state outright.
+  function readRaceHash() {
+    var h = String(location.hash || '');
+    var m = h.match(/^#race=([^&]*)(.*)$/);
+    if (!m) return null;
+    var seat = '';
+    try { seat = decodeURIComponent(m[1] || ''); } catch (e) { seat = m[1] || ''; }
+    if (!seat) return null;
+    var rest = m[2] || '';
+    var g = function (k) {
+      var mm = rest.match(new RegExp('[&]' + k + '=([^&]*)'));
+      if (!mm) return '';
+      try { return decodeURIComponent(mm[1] || ''); } catch (e) { return mm[1] || ''; }
+    };
+    var rmode = g('rmode');
+    return {
+      seat: seat,
+      pins: g('cands').split(',').map(function (x) { return x.trim(); }).filter(Boolean),
+      rmode: (rmode === 'record' || rmode === 'stated') ? rmode : ''
+    };
+  }
+
+  // THE HONEST FALLBACK. Two ways a race link cannot mount: a seat key this
+  // sheet does not speak, and a seat with nothing on file for this reader that
+  // the link's own ids could not fill either. Both land the reader on their own
+  // seats with the one they were sent marked — never on a random profile, and
+  // never on a silent front page.
+  function raceFallback(rk, label) {
+    try {
+      if (window.PDXShareLinks && typeof window.PDXShareLinks.notice === 'function') {
+        window.PDXShareLinks.notice('pdx-race-unresolved', 'Shared race',
+          'We couldn’t open ' + (label || 'that seat') + ' as a comparison here — ' +
+          'nothing is on file for it against your location, and the candidates named in the link ' +
+          'aren’t on our roster either. Your own seats are below.');
+      }
+    } catch (e) {}
+    try {
+      if (window.PDXWhoRepresentsMe && typeof window.PDXWhoRepresentsMe.focus === 'function') {
+        window.PDXWhoRepresentsMe.focus(rk || '');
+      }
+    } catch (e) {}
+  }
+
+  function openFromHash() {
+    var r = readRaceHash();
+    if (!r) return false;
+    var sm = seatMeta(r.seat);
+    if (!sm) { raceFallback('', ''); return false; }
+    if (r.rmode) writeMode(r.rmode);
+    // Checked BEFORE opening: an overlay that mounts onto "no candidates on
+    // file" is a worse answer than the seat list, because it looks like the
+    // shared race arrived and turned out to be empty.
+    if (!field(sm.key, r.pins).length) { raceFallback(sm.key, sm.label); return false; }
+    open(sm.key, { pins: r.pins, shared: true });
+    return true;
+  }
+
+  window.addEventListener('hashchange', function () {
+    if (/^#race=/.test(location.hash || '')) openFromHash();
+  });
+
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && _state) close();
   });
@@ -766,7 +1053,10 @@
     // Exposed for the harness and for any caller that wants the model without
     // the markup. Pure reads; nothing here writes.
     seatStrip: window.pdxSeatStrip,
-    _field: field, _axis: axis, _rank: rank, _seat: seatMeta
+    share: window.pdxRaceSheetShare,
+    _field: field, _axis: axis, _rank: rank, _seat: seatMeta,
+    _shareBits: shareBits, _openFromHash: openFromHash, _readRaceHash: readRaceHash,
+    _missingPins: missingPins, _scope: scopeLabel
   };
 
   // Hosts call pdxRaceSheetEntry() defensively (it returns '' when this file has
@@ -784,6 +1074,10 @@
       try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
       try { if (typeof window._ballotRender === 'function') window._ballotRender(); } catch (e) {}
       try { if (window.PDXWhoRepresentsMe && typeof window.PDXWhoRepresentsMe.sync === 'function') window.PDXWhoRepresentsMe.sync(); } catch (e) {}
+      // AFTER the hosts have painted, never before: the shared-link fallback
+      // sends the reader to the Who Represents Me list, and that list has to
+      // exist before we point at a row in it.
+      try { openFromHash(); } catch (e) {}
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
     else go();

@@ -416,3 +416,35 @@
 @media (max-width: 640px) {
   .rs-seat-stance { min-height: 44px; }
 }
+
+/* ── Header actions: share, then close ───────────────────────────────────────
+   A row of its own so the share control cannot squeeze the close target below
+   44px on a narrow phone. Share sits left of close because close is the last
+   thing on the row everywhere else in the app and moving it would cost more
+   than it buys. */
+.rs-hd-acts { flex: 0 0 auto; display: flex; align-items: center; gap: 0.4rem; }
+.rs-share {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  min-height: 44px; padding: 0 0.7rem;
+  background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.34);
+  border-radius: 0.6rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #cfe3ff; white-space: nowrap;
+}
+.rs-share:hover, .rs-share:focus-visible { background: rgba(96, 165, 250, 0.22); color: #fff; }
+.rs-share-ico { font-size: 0.95rem; line-height: 1; }
+/* Under ~420px the seat name needs the room more than the word does; the icon
+   keeps a full 44px target and the aria-label still says what it is. */
+@media (max-width: 420px) { .rs-share-txt { display: none; } .rs-share { padding: 0 0.55rem; min-width: 44px; justify-content: center; } }
+
+/* ── Arrived from a shared link ──────────────────────────────────────────────
+   Sits above the controls, not inside them: it is a statement about where this
+   sheet came from, and the last clause — that none of the sender's positions
+   travelled — is the one thing a recipient must not have to infer. */
+.rs-shared {
+  margin: 0; padding: 0.7rem 1rem;
+  background: rgba(96, 165, 250, 0.08);
+  border-bottom: 1px solid rgba(96, 165, 250, 0.16);
+  font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.5; color: #bcd0ee;
+}
+.rs-shared b { color: #dbeafe; }
