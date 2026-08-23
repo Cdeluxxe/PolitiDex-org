@@ -3147,6 +3147,14 @@
       if (typeof window._pdxRaceSheetRefresh === 'function') window._pdxRaceSheetRefresh();
     }
 
+    // Exposed for the one class of change that happens OUTSIDE this file and still
+    // moves every match number: a My Stances priority edit. Direction changes
+    // already arrive here through alignSetIntensity, but a star is pure weight —
+    // positionToLevel deliberately ignores priority — so nothing in the projection
+    // path fires, and without this the race sheet would keep the order it had
+    // before the visitor said which issue matters most. See _msPriorityWeight.
+    window._alignRefreshAll = _alignRefreshAll;
+
     function syncRelevantAlignmentUI() {
       // Chip active-state is handled centrally by _alignSyncAllChips; here we only
       // keep the "My Key Alignments" status line in step with the selection.

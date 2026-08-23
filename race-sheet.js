@@ -586,8 +586,15 @@
         '</button>'
       : '';
 
+    // If the visitor has starred anything, say so on the rank line. Without it the
+    // order looks like it is treating every issue the same, and the one control
+    // that changes it lives on another page. Five words, and only when true.
+    var starLine = rows.some(function (r) { return r.starred; })
+      ? ' <span class="rs-rankstar">Weighted toward your starred issues.</span>'
+      : '';
+
     var rankLine = hasIssues
-      ? '<p class="rs-rankline">' + mm.rankLine + '</p>'
+      ? '<p class="rs-rankline">' + mm.rankLine + starLine + '</p>'
       : '<p class="rs-rankline">Nothing is ranking this field yet — it is in a fixed order: officeholder first, then alphabetical.</p>';
 
     return head +

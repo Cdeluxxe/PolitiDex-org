@@ -378,3 +378,8 @@
    candidate grid, so the offer to compare arrives before the unranked list the
    voter would otherwise have to judge by name alone. */
 .bb-seatcompare { margin: 0.15rem 0 0.6rem; }
+
+/* Only rendered when the visitor actually has a High-priority issue, so it can
+   afford to be emphatic — it is explaining why this order is not the same order
+   another voter would see. */
+.rs-rankstar { color: #fde68a; font-weight: 600; }

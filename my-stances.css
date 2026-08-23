@@ -221,11 +221,42 @@
 
 /* Active-row controls */
 .ms-row-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.7rem; padding-top: 0.65rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); }
-.ms-prio { display: inline-flex; align-items: center; gap: 0.4rem; color: #90a4c4; font-size: 0.82rem; }
-.ms-prio select {
-  background: rgba(13, 21, 38, 0.9); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 0.5rem;
-  color: #dbe6f7; font: inherit; font-size: 0.82rem; padding: 0.3rem 0.5rem; cursor: pointer;
+/* Weight control. Segmented rather than a <select> because this is the one input
+   that decides how hard an issue pulls on every match ranking the visitor sees -
+   buried in a dropdown, almost nobody found it. Borrows .ms-pos-group's shape on
+   purpose: same row, same idiom, one tap per level. */
+.ms-prio { display: inline-flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; color: #90a4c4; font-size: 0.82rem; }
+.ms-prio-cap { letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.7rem; color: #6f83a6; margin-right: 0.15rem; }
+.ms-prio-btn {
+  display: inline-flex; align-items: center; gap: 0.28rem; cursor: pointer;
+  background: rgba(13, 21, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem; padding: 0.34rem 0.55rem; min-height: 32px;
+  color: #9fb4d4; font: inherit; font-size: 0.78rem; font-weight: 600;
+  transition: all 0.12s;
 }
+.ms-prio-btn:hover { color: #e7ecf6; border-color: rgba(255, 255, 255, 0.28); }
+.ms-prio-ic { font-size: 0.9rem; line-height: 1; }
+.ms-prio-btn.is-high.is-on { background: rgba(250, 204, 21, 0.18); border-color: #facc15; color: #fde68a; }
+.ms-prio-btn.is-medium.is-on { background: rgba(148, 163, 184, 0.18); border-color: rgba(203, 213, 225, 0.6); color: #e2e8f0; }
+.ms-prio-btn.is-low.is-on { background: rgba(100, 116, 139, 0.16); border-color: rgba(148, 163, 184, 0.45); color: #b6c4d8; }
+
+/* One-time prompt for people who set directions and never weighted them. Inline
+   and dismissible - it must never sit between the visitor and their stances. */
+.ms-nudge {
+  display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.9rem;
+  padding: 0.6rem 0.8rem; border-radius: 0.7rem;
+  border: 1px solid rgba(250, 204, 21, 0.3); background: rgba(250, 204, 21, 0.08);
+}
+.ms-nudge-ic { font-size: 1rem; line-height: 1; }
+.ms-nudge-txt { flex: 1; color: #fde68a; font-size: 0.86rem; line-height: 1.45; }
+.ms-nudge-x {
+  flex: none; cursor: pointer; background: transparent; border: 0; padding: 0.35rem 0.4rem;
+  min-width: 34px; min-height: 34px; color: #b9a15a; font: inherit; font-size: 0.9rem; line-height: 1;
+}
+.ms-nudge-x:hover { color: #fde68a; }
+
+.ms-browse-sub { margin: 0.35rem 0 0; color: #90a4c4; font-size: 0.82rem; line-height: 1.5; max-width: 46rem; }
+.ms-browse-sub strong { color: #cfe0fb; font-weight: 600; }
 .ms-notebtn {
   cursor: pointer; background: rgba(13, 21, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 0.5rem; padding: 0.3rem 0.6rem; color: #a9bdda; font: inherit; font-size: 0.8rem;
@@ -253,7 +284,13 @@
   #my-stances { padding: 2.8rem 0.75rem 3.5rem; }
   .ms-issue-main { flex-direction: column; }
   .ms-pos-group { width: 100%; }
-  .ms-pos { flex: 1; justify-content: center; }
+  .ms-pos { flex: 1; justify-content: center; min-height: 44px; }
+  /* 44px targets: the weight control is the one people miss, so it gets a full
+     tap row of its own rather than sharing a line with the note button. */
+  .ms-prio { width: 100%; }
+  .ms-prio-cap { width: 100%; margin: 0 0 0.15rem; }
+  .ms-prio-btn { flex: 1; justify-content: center; min-height: 44px; }
+  .ms-nudge-x { min-width: 44px; min-height: 44px; }
   .ms-showcase { flex-direction: column; align-items: flex-start; }
 }
 

@@ -117,7 +117,18 @@
 // would serve the new hosts (their entry helper returns '' with no sheet loaded,
 // so the button silently never appears) or the new alignment-tool.js against no
 // race-sheet.js at all — a feature that half-exists reads as a broken one.
-const CACHE_VERSION = 'v70';
+// v71 — THE STAR IS A REAL CONTROL. My Stances' priority moved out of a <select>
+// nobody found and into a visible one-tap High / Normal / Low group, and a star now
+// actually propagates: setPriority calls the newly-exported window._alignRefreshAll,
+// which repaints every alignment surface and, at its tail, an already-open race
+// sheet. The bump matters because the halves ship in different files — a shell
+// holding v70 would pair the new my-stances.js with an alignment-tool.js that never
+// exported _alignRefreshAll (stars would set a weight nothing re-read, which is the
+// exact bug this pass fixes) or the new race-sheet.js rank line with an old
+// my-stances.js that cannot produce a star to justify it. my-stances.js and
+// my-stances.css are not shell assets, so they arrive fresh on their own; the two
+// that ARE precached, alignment-tool.js and race-sheet.js, both changed.
+const CACHE_VERSION = 'v71';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
