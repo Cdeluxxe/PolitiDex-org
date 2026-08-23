@@ -2374,6 +2374,14 @@
       _consistReq[pid] = true; _consistQueue.push(pid);
       if (!_consistTimer) _consistTimer = setTimeout(_alignFlushConsistWarm, 140);
     }
+    // Exposed for surfaces that live in another file and open onto record mode
+    // cold — the race sheet defaults to the formal lane, so the field it is about
+    // to rank needs the vote packs the stated lane never fetched. Handing them to
+    // THIS queue rather than fetching per surface is the point: one debounced
+    // /compare per batch of 24, the settled-pid map shared, and _alignRefreshAll
+    // repainting every listener at once when it lands. A caller that reaches for
+    // its own fetch would re-request records this queue already has.
+    window._alignQueueConsistWarm = _alignQueueConsistWarm;
 
     // Rich "Team Alignment Overview" rendered into #myteam-alignment-bar. Gives the
     // visitor a plain-language read on how aligned their current team is, a per-member
@@ -3132,6 +3140,11 @@
       // Keep the inline alignment % on the Your Key Races candidate cards in sync
       // with the issues the visitor just changed.
       if (typeof window.renderKeyRaces === 'function') window.renderKeyRaces();
+
+      // The race sheet ranks a field by these same two numbers, so a stance
+      // change — or a vote pack landing from the warmer above — has to re-order
+      // it. No-op until race-sheet.js has loaded AND a sheet is actually open.
+      if (typeof window._pdxRaceSheetRefresh === 'function') window._pdxRaceSheetRefresh();
     }
 
     function syncRelevantAlignmentUI() {

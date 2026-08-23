@@ -104,7 +104,20 @@
 // an exec row whose two scopes disagree. Presentation only — no score moved. The
 // three files ship together: a shell holding v68 would pair the new consistency.js
 // with the old copy, which is the exact inconsistency this pass exists to remove.
-const CACHE_VERSION = 'v69';
+// v70 — THE RACE SHEET. A voter can now open one office on their ballot and see
+// every candidate the roster knows for that seat side by side, ordered BY DEFAULT
+// on how each one's formal record fits the positions the voter set — Direction
+// Match stays on the sheet as an integrity read and never as the sort key. Two new
+// files (race-sheet.js / race-sheet.css) plus four wired hosts: alignment-tool.js
+// exports its vote-pack warmer and repaints an open sheet from _alignRefreshAll,
+// and who-represents-me.js, voter-hub-location.js and ballot-breakdown.js each
+// render the one "Compare field for this seat" entry. Nothing was scored twice:
+// the sheet calls the shipped _calcAlignmentScore / _calcAlignmentBreakdown with a
+// mode flag and adds no arithmetic. The bump matters because a shell holding v69
+// would serve the new hosts (their entry helper returns '' with no sheet loaded,
+// so the button silently never appears) or the new alignment-tool.js against no
+// race-sheet.js at all — a feature that half-exists reads as a broken one.
+const CACHE_VERSION = 'v70';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -134,6 +147,10 @@ const SHELL_ASSETS = [
   '/app-2.css',
   '/alignment-tool.css',
   '/stance-library.css',
+  // The race sheet overlay's stylesheet. Precached with its script below for the
+  // same reason the two are shipped together: the sheet is a comparison grid, and
+  // an unstyled one is a vertical wall of text that compares nothing.
+  '/race-sheet.css',
   // The two-axis elections lens (🔐 safeguards / 📩 access). Tiny, and it renders a
   // section inside the profile and a header inside the Stance Library — both of which
   // are precached — so leaving it to the runtime cache would mean the first offline
@@ -172,6 +189,12 @@ const SHELL_ASSETS = [
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".
   '/issue-colors.js',
+  // "Compare field for this seat" — one office, the whole field, ranked by the
+  // formal record against the visitor's own positions. Precached alongside
+  // alignment-tool.js because it is that engine's ballot-side surface: the entry
+  // button its three hosts render returns nothing at all when this file is
+  // missing, so an offline repeat visit would lose the feature without a trace.
+  '/race-sheet.js',
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',

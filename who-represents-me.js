@@ -134,7 +134,7 @@
           '<span class="wrm-rowname wrm-rowname--muted">' + headline + '</span>' +
           '<span class="wrm-rowsub">' + sub + '</span>' +
         '</span>' +
-      '</div>';
+      '</div>' + seatCompare(lv);
     }
 
     var photo = (typeof window._getPhotoUrl === 'function') ? (window._getPhotoUrl(lv.pid) || '') : '';
@@ -156,7 +156,27 @@
         '<span class="wrm-rowsub">' + esc(person.office || lv.tierLabel) + '</span>' +
       '</span>' +
       '<span class="wrm-rowgo" style="color:' + color + ';">See their record ›</span>' +
-    '</div>';
+    '</div>' + seatCompare(lv);
+  }
+
+  // ── "Compare field for this seat" ──────────────────────────────────────────
+  // The row answers "who holds this seat". This answers the question a voter
+  // asks next and could not ask here before: "and who else is running for it?"
+  // It is a SIBLING of the row rather than a control inside it, because the row
+  // is already a role="button" and nesting an interactive element inside one is
+  // both invalid and unreachable by keyboard. .wrm-rows is a flex column, so a
+  // sibling simply becomes the next item in the list.
+  //
+  // Rendered from window.pdxRaceSheetEntry, which returns '' for any seat the
+  // sheet cannot enumerate a field for — so this file never paints a button that
+  // leads nowhere, and it degrades to exactly today's markup if race-sheet.js
+  // has not loaded. It states no verdict and no number, which keeps this file's
+  // standing promise (see the header) intact.
+  function seatCompare(lv) {
+    if (!lv || typeof window.pdxRaceSheetEntry !== 'function') return '';
+    var html = window.pdxRaceSheetEntry(lv.key, { compact: true });
+    if (!html) return '';
+    return '<div class="wrm-seatcompare">' + html + '</div>';
   }
 
   function partyMark(p) {

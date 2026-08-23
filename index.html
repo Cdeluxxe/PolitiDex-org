@@ -1951,6 +1951,11 @@ window.PDXLazy = (function () {
   <!-- Issue Comparison — compare politicians on one issue (stated position + Say-vs-Do). -->
   <link rel="stylesheet" href="/issue-compare.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/issue-compare.css" /></noscript>
+  <!-- Race sheet — one office, every candidate we know for it, side by side,
+       ranked by how their formal record lines up with the visitor's own stances.
+       Overlay-only, so it loads non-blocking like the rest of the modal CSS. -->
+  <link rel="stylesheet" href="/race-sheet.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/race-sheet.css" /></noscript>
   <!-- Chart.js (profile finance charts) and Leaflet (the interactive Utah
        district-picker map) are CODE-SPLIT: they used to load render-blocking here
        in <head> (~350 KB combined) even though the home page and Your Ballot never
@@ -20614,6 +20619,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        _polPositionMap (alignment-tool + stance-helpers), _pdxRecordIssueSummary
        (voting-record), PDXTeamView, CMP_DATA. Owns no data; additive. -->
   <script defer src="issue-compare.js"></script>
+  <!-- Race sheet — "Compare field for this seat." Presentation only: it computes
+       no match of its own, it calls the one match brain (_calcAlignmentScore /
+       _calcAlignmentBreakdown, alignment-tool.js) once per lane per candidate.
+       Loads last because it reads across nearly everything: _ballotCandidates /
+       _pdxVoterBallot / ballotPickCard (ballot-breakdown.js), pdxRepsForMe
+       (voter-hub-location.js), _pdxLedgerSlot (compare-hub.js), ISSUE_MAP and
+       _msPriorityWeight (my-stances.js), _alignSignalChipHtml, PDXConsistency. -->
+  <script defer src="race-sheet.js"></script>
   <script>
   /* Evidence Locker density switch — additive, self-contained. Toggles a compact
      layout on the results grid (#el-results) and remembers the choice, so a

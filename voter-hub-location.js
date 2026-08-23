@@ -1489,8 +1489,22 @@
         '</div>';
     };
 
+    // Each seat row is followed by its own "compare the field" entry, rendered by
+    // race-sheet.js and dropped in unchanged. It is a SIBLING of the row, never a
+    // child: the row itself is role="button" and opens the officeholder's profile,
+    // so nesting a second button inside it would be both invalid and ambiguous.
+    // pdxRaceSheetEntry returns '' for any seat it cannot actually compare, so a
+    // seat with no rostered field simply gets no button — meeting the officeholder
+    // stays the whole job of the row, exactly as it is today.
+    var _wrCompare = function (lv) {
+      if (!lv || typeof window.pdxRaceSheetEntry !== 'function') return '';
+      var h = window.pdxRaceSheetEntry(lv.key, { compact: true });
+      return h ? '<div class="wrm-seatcompare">' + h + '</div>' : '';
+    };
+
     var _wrRows = _wrReps.levels.map(function (lv) {
-      return _wrRow({ pid: lv.pid, color: lv.color, tierLabel: lv.tierLabel, distLabel: lv.distLabel, statewide: lv.statewide });
+      return _wrRow({ pid: lv.pid, color: lv.color, tierLabel: lv.tierLabel, distLabel: lv.distLabel, statewide: lv.statewide }) +
+             _wrCompare(lv);
     }).join('');
 
     // Same two-speed truth the homepage band states: statewide seats resolve from

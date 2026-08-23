@@ -629,6 +629,12 @@
       return issues.slice(0, 2).join(' · ');
     }
 
+    function _bbSeatCompare(raceKey) {
+      if (typeof window.pdxRaceSheetEntry !== 'function') return '';
+      var h = window.pdxRaceSheetEntry(raceKey, { compact: true }) || '';
+      return h ? '<div class="bb-seatcompare">' + h + '</div>' : '';
+    }
+
     function _renderBallotRaces(selections) {
       var container = document.getElementById('ballot-races');
       if (!container) return;
@@ -647,6 +653,15 @@
             (isFilled ? '<span class="font-condensed text-xs text-green-400 tracking-wider" style="font-size:0.7rem;">&#10003; PICKED</span>' : '<span class="font-condensed text-xs text-steel-600 tracking-wider" style="font-size:0.65rem;">&larr; Choose one</span>') +
           '</div>' +
           '<p class="ballot-race-edu-desc">' + (race.edu || '') + '</p>' +
+          // "Compare field for this seat." — the seat card lists this race's
+          // candidates as an unranked set; the race sheet is where the same field
+          // gets put side by side and ordered by how each one's formal record fits
+          // the positions the visitor set. It matters most on an EMPTY seat (the
+          // voter has no basis for a pick yet) but is offered on a filled one too,
+          // because the sheet is also where a pick gets replaced. Markup and
+          // behaviour belong to race-sheet.js, which returns '' for any seat it
+          // cannot compare — so a race with no rostered field paints nothing here.
+          _bbSeatCompare(race.key) +
           '<div class="ballot-cand-grid">';
         if (candidates.length === 0) {
           html += '<div class="kr-cand-empty"><span class="kr-cand-empty-ico">🗳️</span><span>No candidates are in the database for this race yet. We add them as filings are certified — check back soon, or pick from another race above.</span></div>';
