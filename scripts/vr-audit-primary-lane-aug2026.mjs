@@ -425,7 +425,8 @@ if (SIM) {
   let collateral = 0;
   for (const k of allKeys) {
     let gained = 0, lostRead = 0, changedDir = 0, toAdvance = 0, toOppose = 0, stillBlocked = 0, splitOpened = 0;
-    const gainedUtah = [];
+    let splitStuck = 0, houseMoved = 0, senateMoved = 0;
+    const gainedUtah = [], splitUtah = [];
     for (const pid of MEMBERS) {
       const before = BASE.get(pid + "|" + k);
       if (!before) continue;
@@ -448,8 +449,17 @@ if (SIM) {
       // record_split (counts withheld) → record_split_deep (counts shown) is the same
       // flag doing the same work on a mixed record; counted separately because it is
       // not a direction, it is a disclosure.
-      if (before.token === "record_split" && after.token === "record_split_deep") splitOpened++;
+      if (before.token === "record_split" && after.token === "record_split_deep") {
+        splitOpened++;
+        if (isUtah(pid)) splitUtah.push(nameOf(pid));
+      } else if (before.token === "record_split" && after.token === "record_split") splitStuck++;
       if (wasRead && nowRead && before.lead !== after.lead) changedDir++;
+      // Chamber of every member the flip actually moved. A promote on a House bill
+      // cannot reach a senator, and "House-reachable" is a claim worth counting
+      // rather than asserting from the bill number.
+      if ((!wasRead && nowRead) || (before.token === "record_split" && after.token === "record_split_deep")) {
+        if (/^sen/i.test(officeOf(pid))) senateMoved++; else houseMoved++;
+      }
     }
     const moved = gained || lostRead || changedDir || splitOpened;
     if (!targetKeys.has(k)) {
@@ -459,6 +469,9 @@ if (SIM) {
     console.log(`  ${k}: +${gained} members gain a direction (${toAdvance} advanced-side, ${toOppose} opposed-side) · ` +
                 `${lostRead} lose a read · ${changedDir} change direction · ${splitOpened} split counts open up · ${stillBlocked} still no_primary` +
                 (gainedUtah.length ? ` · UT gained: ${gainedUtah.join(", ")}` : ""));
+    console.log(`    moved by chamber: ${houseMoved} house · ${senateMoved} senate · ` +
+                `${splitStuck} still split-withheld` +
+                (splitUtah.length ? ` · UT counts opened: ${[...new Set(splitUtah)].join(", ")}` : " · UT counts opened: none"));
   }
   console.log(`  swept ${allKeys.length} issue keys · ${collateral} non-target keys moved` +
               (collateral ? "  ← INVESTIGATE" : "  (none, as the per-key index requires)"));

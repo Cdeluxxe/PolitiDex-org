@@ -1,0 +1,123 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Voting Record — healthcare primary-lane promote, in the S. 2 pattern
+-- ─────────────────────────────────────────────────────────────────────────────
+-- THE PROBLEM, RESTATED
+-- `is_primary` on vr_measure_issues has exactly one consumer: _recordDirectionIndex()
+-- in stance-helpers.js. Once a member has four or more judged items on an issue
+-- (_RD_MIN_JUDGED), the index will not say what that record DID unless at least one of
+-- those items was primary-mapped (_RD_MIN_PRIMARY = 1), because
+--
+--     "an incidental omnibus brush is not a lean, it is a coincidence"
+--
+-- The same floor gates a second, quieter thing. A record that ran both ways is a split,
+-- and a split only PRINTS ITS TWO COUNTS when out.primary >= _RD_MIN_PRIMARY as well
+-- (stance-helpers.js, the record_split_deep branch). Short of a primary the row still
+-- says the member ran both ways — it just refuses to say how many times each way. So on
+-- an issue with no member-lane primary, a deep mixed record is not merely uncharacterised;
+-- it is uncounted.
+--
+-- WHAT THE AUDIT MEASURED, BEFORE
+-- healthcare was the largest remaining primary-lane deficit in the corpus, and almost
+-- all of it was that second, quieter kind:
+--
+--   212 members hold at least one healthcare item · 109 are deep (>= 4 judged)
+--     1 member refused outright with suppressed = 'no_primary'
+--   108 members on record_split WITH THEIR COUNTS WITHHELD
+--   all 109 deep members are House members; zero senators are deep on this issue
+--
+--   4 primary mappings existed, and not one was reachable by a House member:
+--     [member] Kennedy — HHS confirmation   w100 — a SENATE vote. A House member can
+--              never hold it, so it cannot lift a single one of the 109.
+--     [exec  ] MAHA Commission EO           w100
+--     [exec  ] Domestic medicines EO        w 80
+--     [exec  ] ACA burden-minimising EO     w 90 — all three are executive actions, and
+--              _stDirRaw() returns null for lane 'exec', so they are not member evidence.
+--
+-- So the deficit was not a scoring problem and not a floor problem. It was a corpus with
+-- no House-reachable healthcare primary at all.
+--
+-- THE FIX
+-- One row. H.R. 6703 (119, house) — Lower Health Care Premiums for All Americans Act,
+-- House roll 349, On Passage, 2025-12-17, 55 yea / 53 nay / 1 not voting. The bill is a
+-- broad restructuring of individual and small-group health-coverage rules: who may buy
+-- which plans, on what terms, with what pharmacy-benefit-manager transparency attached.
+-- Every one of its four issue mappings is a health key — healthcare_costs, healthcare,
+-- healthcare_market, health_drug_prices — so there is no non-health cargo to launder a
+-- healthcare reading out of. This is not an omnibus with a health title. It is a health
+-- bill, and `healthcare` is the second axis of its own operative text.
+--
+-- Nothing else about the mapping moves. weight stays 70, support_meaning stays
+-- yea_supports, issue_key stays healthcare. The rationale gains one appended clause
+-- stating that the relation is the instrument's own subject and that the weight — not
+-- the flag — is what ranks it below the healthcare_costs primary.
+--
+-- The measure's existing healthcare_costs primary (w100) is untouched and still outranks
+-- it, so vr-pack.ts's primary-first-then-weight-desc sort produces the identical issue
+-- order before and after, and bill-detail.js still reads healthcare_costs as the bill's
+-- headline issue. Two primaries on one measure is the S. 2 pattern: two axes that are
+-- both the instrument's own subject, ranked by weight.
+--
+-- THE DRIFT, STATED UP FRONT
+-- Measured with the shipped _recordDirectionIndex() over the live corpus via
+-- scripts/vr-audit-primary-lane-aug2026.mjs --simulate:
+--
+--   healthcare   +1 member gains a direction (1 advanced-side, 0 opposed-side)
+--                107 split records have their two counts published
+--                108 members moved — 108 House, 0 Senate
+--                  1 member still split-withheld: the one not_voting on roll 349.
+--                  An absence, not a flag.
+--                  0 lose a read · 0 change direction · 0 still no_primary
+--   93 issue keys swept · 0 non-target keys moved
+--
+-- Utah members whose counts are now published: Blake Moore, Mike Kennedy.
+--
+-- NO SEED MIRROR IS REQUIRED, AND THAT IS CHECKED
+-- H.R. 6703 is not in db/vr-issue-seed.json. Its mappings were authored by
+-- 20260721160000_seed_legislation_deepdive3.sql. applyCuratedIssueSeed() in
+-- netlify/lib/vr-ingest.ts is upsert-only — it never deletes and never touches a
+-- (measure, issue) pair it does not name — so a row absent from the curated seed cannot
+-- be reverted by a re-ingest, and there is nothing to mirror. scripts/test-healthcare-
+-- primary-lane.mjs pins that condition rather than assuming it: if a later curation pass
+-- adds H.R. 6703 to the seed, the test fails unless the healthcare row carries the flag.
+--
+-- WHAT THIS DOES NOT TOUCH — the candidates that were measured and refused
+--   H.R. 1 (119) healthcare w60 — would have moved all 109, the largest number on offer,
+--     and is refused for exactly the reason the flag exists. It is a fourteen-key
+--     reconciliation act; its healthcare mapping is a Medicaid-spending consequence of a
+--     tax-and-spending vehicle. Promoting it would turn an omnibus into a healthcare
+--     pattern for every member who voted on it. Needs package-lens visibility, not a core
+--     primary.
+--   H.R. 2483 (119) healthcare w70 — SUPPORT for Patients and Communities Reauthorization
+--     Act. An honest health bill, but its subject is addiction and mental-health treatment
+--     and its health_mental primary (w100) already carries that precisely; the general
+--     healthcare axis is a broader read of a narrowly scoped instrument. It also carries
+--     immig_fentanyl (w60), which is the kind of cargo the first candidate does not have.
+--     Moves 105 to H.R. 6703's 108. Refused as the weaker of two honest options.
+--   H.Amdt. 255 (119) healthcare w55 — prohibits gender-related medical care under
+--     TRICARE. The coverage effect is real, but it is the MECHANISM of an lgbtq_rights
+--     vote (its w100 primary), not the subject. Refused: healthcare is how this amendment
+--     acts, not what it is about.
+--   H.R. 21 (119) healthcare w40 — Born-Alive Abortion Survivors Protection Act. Its
+--     subject is pro_life (w100 primary); the care requirement is downstream. It also
+--     unblocks +0 directions, since the one blocked member's vote on it is not judged.
+--   S. 3373 (117) healthcare w50 — PACT Act. Its subject is veterans (w100 primary) and
+--     the health provisions are the benefit being extended. Reaches only 87 of the 109.
+--   Every other refuse standing from the August 2026 pack: cost_living, voter_id,
+--     national_debt CBO side-effects, energy_production, border_security leftovers,
+--     absence-only cases, pure procedure, Speaker elections, coverage vehicles.
+--
+-- No floor moves. _RD_MIN_JUDGED stays 4, _RD_MIN_PRIMARY stays 1, _RD_DOMINANCE stays
+-- 0.75, _RD_THIN_MIN stays 2, _RD_SPLIT_MIN_JUDGED stays 6, _RD_SPLIT_MIN_SIDE stays 2,
+-- _RD_MEMBER_FLOOR stays 12. Wrong flag, not wrong floor.
+--
+-- Append-only and idempotent. Re-running sets the same row to the same values.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+UPDATE vr_measure_issues
+   SET is_primary = TRUE,
+       rationale = 'A broad restructuring of individual and small-group health-coverage rules. Primary: the coverage rules are the bill''s own operative text — which individual and small-group plans may be sold, on what terms, and with what pharmacy-benefit-manager transparency — so the healthcare relation is the instrument''s subject rather than a by-product of a vehicle carrying other cargo; every one of this measure''s four mappings is a health key. Weighted 70 rather than 100 because healthcare_costs carries the larger share and outranks it; the weight is what ranks the axes.'
+ WHERE issue_key = 'healthcare'
+   AND measure_id IN (
+     SELECT id FROM vr_measures
+      WHERE number = 'H.R. 6703' AND congress = 119 AND chamber = 'house'
+   );
