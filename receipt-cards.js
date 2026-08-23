@@ -1927,6 +1927,12 @@
   // primary mapping first (the index already requires at least one, and an issue
   // the measure was actually about illustrates the direction better than an
   // incidental mapping does), then curated weight, then recency.
+  //   THIS IS THE INTERNAL ANTI-NOISE USE OF `isPrimary`, AND IT IS THE WHOLE OF IT
+  // HERE. It picks WHICH ONE of several already-eligible items gets quoted as an
+  // example; it hides no row, demotes no topic and reaches no Big Picture surface.
+  // The citizen-facing instrument faces — bill-detail.js and exec-record-ui.js —
+  // ignore the flag as a visibility rule entirely. Any future use of it beyond
+  // example selection is an engine decision, not a rendering one.
   var RD_SIDE_WORD = { advances: 'advanced-it', opposes: 'cut-against-it' };
   function rdStrongest(pid, issueKey, items, records, want) {
     var pool = items.filter(function (it) { return rdSide(it, issueKey) === want; });

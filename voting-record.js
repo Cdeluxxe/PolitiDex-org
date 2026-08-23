@@ -615,8 +615,9 @@
     var brk = window._measureComponentBreakdown(item, positionMap || {}, { labelFn: issueLabel });
     if (!brk.isOmnibus) return ''; // single-issue vote → nothing extra to show
 
-    // Layer 1 — the split, stated plainly. Issue labels only, primary first, so the
-    // reader sees what one vote covered before any verdict language.
+    // Layer 1 — the split, stated plainly. Issue labels only, in the order the
+    // engine hands them over, so the reader sees what one vote covered before any
+    // verdict language. Every mapped topic appears; none is marked as the real one.
     var touched = brk.components.map(function (c) {
       return '<b>' + esc(c.label) + '</b>';
     }).join('<span class="vr-omni-sep" aria-hidden="true"> · </span>');
@@ -667,11 +668,16 @@
 
     // Name the issue the badge is actually about, so the badge stops reading as the
     // verdict on the whole bill. Only shown when there IS a badge to qualify.
+    //   IT DISCLOSES THE BADGE'S SCOPE; IT DOES NOT RANK THE TOPICS. This used to
+    // read "(main issue of 5)", which told a reader the other four were the lesser
+    // four — a ranking, printed by default, on topics the same vote decided just as
+    // really. The scope is the honest part and it stays; the word "main" was the
+    // claim, and the count alone makes it without ranking anything.
     var scope = '';
-    var primaryIssue = (item.issues && item.issues[0]) || null;
-    if (verdictHtml && primaryIssue) {
-      scope = '<span class="vr-verdict-scope">on ' + esc(issueLabel(primaryIssue.issueKey)) +
-        ' <span class="vr-verdict-scope-q">(main issue of ' + sp.count + ')</span></span>';
+    var scopedIssue = (item.issues && item.issues[0]) || null;
+    if (verdictHtml && scopedIssue) {
+      scope = '<span class="vr-verdict-scope">on ' + esc(issueLabel(scopedIssue.issueKey)) +
+        ' <span class="vr-verdict-scope-q">(1 of ' + sp.count + ' topics this vote touched)</span></span>';
     }
 
     var tip = sp.stanceBased

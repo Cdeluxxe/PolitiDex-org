@@ -30,9 +30,11 @@
 //      member-by-member half needs the live corpus and lives in
 //      scripts/vr-audit-primary-lane-aug2026.mjs --simulate.
 //   6. NOTHING THAT READS issues[0] MOVES. vr-pack.ts sorts a measure's issues
-//      primary-first then weight-desc, and bill-detail.js takes the first primary as
-//      the bill's issue. On all three measures the promoted row already sat directly
-//      below the primary it now joins, so the order is unchanged.
+//      primary-first then weight-desc, and callers downstream of the pack read that
+//      order. (The citizen bill face no longer does — bill-detail.js reorders every
+//      mapping for itself and shows all of them — but the pack order is still the
+//      shape the API ships.) On all three measures the promoted row already sat
+//      directly below the primary it now joins, so the order is unchanged.
 //
 //   node scripts/test-primary-lane-promotes.mjs
 
@@ -266,7 +268,7 @@ for (const [number, congress, chamber, key, , , joins] of PROMOTES) {
   const after = packSort(m.issues);
   const before = packSort(m.issues.map((i) => (i.issueKey === key ? { ...i, isPrimary: false } : i)));
   eq(after.join(" > "), before.join(" > "),
-    `${number}: promoting ${key} reordered the issue list — bill-detail.js reads the first primary as the bill's issue`);
+    `${number}: promoting ${key} reordered the issue list the API ships`);
   eq(after[0], joins, `${number}: the measure's leading issue is no longer ${joins}`);
 }
 

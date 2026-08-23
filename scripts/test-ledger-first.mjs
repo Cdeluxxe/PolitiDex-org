@@ -461,45 +461,61 @@ section("6 · counts, never a share");
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-section("7 · the folds and the groupings are not weight‑decided either");
+section("7 · the groupings are not weight-decided, and there is no fold to decide");
 // ══════════════════════════════════════════════════════════════════════════════
-// The presidential record's per-action issue list folds after four rows in each
-// direction. Whatever ORDERS that list therefore chooses which of a document's
-// issues a reader sees without opening anything — and it used to be sorted by
-// isPrimary and then by curator weight, which put every supporting and every
-// narrow mapping behind the fold by construction. Nothing was dropped then and
-// nothing is dropped now; what changed is that the curation no longer picks the
-// visible ones.
+// The presidential record's per-action issue list used to fold after four rows in
+// each direction, so whatever ORDERED that list chose which of a document's issues
+// a reader saw without opening anything — and it was sorted by isPrimary and then
+// by curator weight, which put every low-weight mapping behind the fold by
+// construction. The sort was fixed first (alphabetical, arbitrary on purpose). The
+// Big Picture pass finished the job and removed the fold: on the surface whose
+// entire purpose is to show what an instrument touched, the DEFAULT view has to be
+// the full map, not a smaller view of it with the rest one tap away. So this
+// section now asserts the stronger property — every issue the group header counts
+// is rendered inline, in name order, with nothing folded and no rank badge on it.
 {
   const html = A.PDXExecRecordUI.sectionHtml("trump");
   must(html && html.length > 5000,
     "the presidential record section rendered nothing — the ordering cannot be checked");
   const groups = html.split('class="pdxer-grp"').slice(1);
   must(groups.length > 10, "the fixture president has too few issue groups to probe");
-  let multi = 0, folds = 0, narrow = 0;
+  let multi = 0, folds = 0, narrow = 0, big = 0;
   for (const g of groups) {
     const head = (g.match(/^>([^<]*)</) || [])[1] || "";
-    const claimed = parseInt((head.match(/\u2014 (\d+) issue/) || [])[1], 10);
+    const claimed = parseInt((head.match(/— (\d+) issue/) || [])[1], 10);
     const labels = [...g.matchAll(/pdxer-iss-lbl">([^<]*)</g)].map((m) => m[1]);
-    // NOTHING HIDDEN: the header states a count and the group renders that many
-    // rows. A folded row is one tap away, not absent — the fold is a scroll
-    // control, and this is the assertion that keeps it one.
+    // NOTHING HIDDEN AND NOTHING FOLDED: the header states a count and the group
+    // renders that many rows, inline, in the view the reader is given by default.
     eq(labels.length, claimed, `${head}: every issue the header counts is rendered`);
-    // NOT WEIGHT‑ORDERED: alphabetical by label, which is arbitrary in a way no
+    // NOT WEIGHT-ORDERED: alphabetical by label, which is arbitrary in a way no
     // reader will mistake for a judgement about which issues really counted.
     const sorted = [...labels].sort((a, b) => a.localeCompare(b));
     eq(JSON.stringify(labels), JSON.stringify(sorted),
       `${head}: the issues are ordered by name, not by curator weight`);
     if (labels.length > 1) multi++;
-    if (g.indexOf("pdxer-more") !== -1) folds++;
-    if (g.indexOf("pdxer-narrow") !== -1) narrow++;
+    if (labels.length > 4) big++;
+    // Scope the fold probe to the group's OWN rows. The chunk runs to the next
+    // group header, so it also catches the card's standing-log fold, which sits
+    // below every row and is a different surface with a different argument.
+    const lastRow = g.lastIndexOf("pdxer-issrow");
+    if (g.slice(0, lastRow < 0 ? g.length : lastRow).indexOf("pdxer-more") !== -1) folds++;
+    if (g.indexOf("pdxer-iss-scope") !== -1) narrow++;
   }
-  ok(multi > 5, "the probe saw real multi‑issue documents, so the ordering claim is not vacuous");
-  ok(folds > 0, "…and real folds, so the ordering actually decides something");
+  ok(multi > 5, "the probe saw real multi-issue documents, so the ordering claim is not vacuous");
+  ok(big > 0,
+    "…and at least one group bigger than the old four-row cap, so 'no fold' is not vacuous either");
+  eq(folds, 0,
+    "an issue group still folds — the default view of an instrument must be every topic it touches");
   ok(narrow > 0, "…and real narrow links, which is the row the old sort buried");
-  // The labels still ship. Ordering changed; the vocabulary did not.
-  has(html, "narrow link", "a narrow mapping still says so on its own row");
-  has(html, "supporting", "…and a secondary mapping still says so on its own");
+  // The disclosure still ships; what changed is where it sits. The scope of a
+  // low-weight mapping is a sentence in the explanation now, not a chip in the row
+  // head, and the primary/supporting rank badge is gone outright.
+  has(html, "rather than the whole document",
+    "a mapping that rests on one part of a document no longer says so anywhere");
+  ok(!/pdxer-narrow|pdxer-primary|pdxer-second/.test(html),
+    "a rank or narrowness BADGE is back in the row head — this pass moved that disclosure into the explanation sentence on purpose");
+  ok(!/>\s*supporting\s*</.test(html),
+    "a row is marked 'supporting' — no default UI string may mark a mapped topic as second-class");
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

@@ -171,15 +171,14 @@
         '.pdxer-iss-dir{font-size:0.62rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;}' +
         '.pdxer-dir-adv{color:#6ee7a0;}' +
         '.pdxer-dir-opp{color:#f89b9b;}' +
-        '.pdxer-primary{font-size:0.58rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;}' +
-        // Its own muted colour, and always printed. Marking only the primary link left
-        // "no badge" doing the work of "this is a side effect of a large law", which is
-        // a thing a reader has to already know to notice.
-        '.pdxer-second{font-size:0.58rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8fa2c0;}' +
-        '.pdxer-narrow{font-size:0.58rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#d8bd85;}' +
         // The explanation line. Full-width, own line, normal sentence case — this is the
         // part a first-time reader is meant to learn the row from.
         '.pdxer-iss-why{display:block;color:#c6d4ec;font-size:0.7rem;line-height:1.5;margin-top:0.1rem;}' +
+        // The scope sentence, for a mapping that rests on one part of the document.
+        // A sentence under the explanation, not a badge beside the issue name: it is a
+        // fact about how much of the document the link covers, and reading it as a
+        // demotion of the topic was exactly the failure mode of the old chip.
+        '.pdxer-iss-scope{display:block;color:#c3ad7d;font-size:0.66rem;line-height:1.45;margin-top:0.15rem;}' +
         '.pdxer-iss-inv{display:block;color:#d8bd85;font-size:0.64rem;line-height:1.45;margin-top:0.15rem;}' +
         // The curation rationale, one tap down. It quotes the sections the mapping rests
         // on and can run to a paragraph; it is the receipt, not the explanation.
@@ -318,15 +317,28 @@
   function inverted(action, m) { return effDir(action, m) !== m.direction; }
 
   // Below this weight a mapping is a real link but a narrow one — a single title of a
-  // reconciliation law, a report requirement, a delegated authority. Saying so is
-  // cheaper than letting a reader read a 35-weight row with the same force as a 100.
+  // reconciliation law, a report requirement, a delegated authority.
+  //   THIS IS A FACT ABOUT THE MAPPING, SO IT IS WRITTEN AS ONE. It used to print as
+  // a chip in the row head, sitting beside the issue name in the same slot a status
+  // badge occupies — which is how a true statement about scope became a mark that
+  // read the row down before the reader got to what the document did. It now lands
+  // in the explanation line, as a sentence, where it can be read instead of ranked.
   var NARROW_AT = 45;
+  var NARROW_NOTE = 'What this document does here is one part of it — a title, a ' +
+    'requirement, an authority — rather than the whole document.';
 
-  // What the reader gets per row: the issue, the direction on THIS issue, how much of
-  // this document the link rests on, one plain sentence of mechanism, and the curation
-  // rationale one tap down. The plain sentence FAILS CLOSED — a mapping with no `plain`
-  // renders with no explanation line rather than falling back to dumping the rationale,
-  // which is a paragraph of quoted subsections and belongs behind the tap.
+  // What the reader gets per row: the issue, the direction on THIS issue, one plain
+  // sentence of mechanism, how much of this document that link rests on when the
+  // answer is "one part of it", and the curation rationale one tap down. The plain
+  // sentence FAILS CLOSED — a mapping with no `plain` renders with no explanation
+  // line rather than falling back to dumping the rationale, which is a paragraph of
+  // quoted subsections and belongs behind the tap.
+  //   NO RANK BADGE. `isPrimary` used to print here as "primary" / "supporting" on
+  // every single row — a two-way ranking of a document's own topics, stamped on the
+  // citizen face by default. The flag is untouched in the data and still read by the
+  // internal anti-noise floor in stance-helpers.js (_RD_MIN_PRIMARY: an incidental
+  // omnibus brush is not a lean); it is simply not a thing this face says about a
+  // topic any more. Every issue this document touches gets the same row.
   function issueRowHtml(action, m) {
     var adv = effDir(action, m) === 'advances';
     var dcls = adv ? 'pdxer-dir-adv' : 'pdxer-dir-opp';
@@ -338,12 +350,9 @@
           '<span class="pdxer-iss-lbl">' + esc(issueLabel(m.issueKey)) + '</span> ' +
           '<span class="pdxer-iss-dir ' + dcls + '">' +
             (adv ? 'advances' : 'cuts against') + '</span>' +
-          (m.isPrimary
-            ? ' <span class="pdxer-primary">primary</span>'
-            : ' <span class="pdxer-second">supporting</span>') +
-          (narrow ? ' <span class="pdxer-narrow">narrow link</span>' : '') +
         '</span>' +
         (m.plain ? '<span class="pdxer-iss-why">' + esc(m.plain) + '</span>' : '') +
+        (narrow ? '<span class="pdxer-iss-scope">' + esc(NARROW_NOTE) + '</span>' : '') +
         (inverted(action, m)
           ? '<span class="pdxer-iss-inv">Direction shown is the action’s. The measure it blocked pointed the other way.</span>'
           : '') +
@@ -357,17 +366,17 @@
       '</span></div>';
   }
 
-  function issueGroupHtml(action, label, rows, cap) {
+  // Every row in the group, always. THERE IS NO LONGER A FOLD HERE. The list used to
+  // keep four rows per direction visible and put the rest one tap down, which was
+  // defensible when the header counts stayed honest — but a fold is still a default
+  // view that is smaller than the act, and on the surface whose whole job is to show
+  // what an instrument touched, the default has to be the full map. The group header
+  // keeps its count so the size of the list is legible before it is read.
+  function issueGroupHtml(action, label, rows) {
     if (!rows.length) return '';
-    var one = function (m) { return issueRowHtml(action, m); };
     var head = '<div class="pdxer-grp">' + esc(label) + ' — ' + rows.length + ' ' +
       plural(rows.length, 'issue', 'issues') + '</div>';
-    if (rows.length <= cap) return head + rows.map(one).join('');
-    var shown = rows.slice(0, cap).map(one).join('');
-    var rest = rows.slice(cap);
-    return head + shown + '<details class="pdxer-more"><summary>➕ ' + rest.length +
-      ' more ' + plural(rest.length, 'issue', 'issues') + ' in this direction ▾</summary>' +
-      rest.map(one).join('') + '</details>';
+    return head + rows.map(function (m) { return issueRowHtml(action, m); }).join('');
   }
 
   // Every issue this document touches, in BOTH directions, each named. The group
@@ -386,27 +395,21 @@
       if (d === 'advances') adv.push(m);
       else if (d === 'opposes') opp.push(m);
     }
-    // ORDERED BY NAME, NOT BY CURATOR WEIGHT. This list folds after four rows per
-    // direction, so whatever sorts it decides which issues a reader sees without
-    // opening anything — and sorting by isPrimary then weight put every supporting
-    // and narrow mapping behind the fold by construction. The rows still SAY
-    // "supporting" and "narrow link"; the curation just no longer gets to choose
-    // which of a document's issues are the visible ones. Alphabetical is arbitrary
-    // and that is the point: it is arbitrary in a way no reader will mistake for a
-    // judgement about which issues this document really touched.
+    // ORDERED BY NAME, NOT BY CURATOR WEIGHT. Sorting by isPrimary then weight let
+    // the curation decide which of a document's issues led the list — and, while the
+    // list still folded, which ones a reader saw without opening anything. The fold
+    // is gone and the sort stayed alphabetical: arbitrary, and arbitrary in a way no
+    // reader will mistake for a judgement about which issues this document really
+    // touched.
     var byLabel = function (a, b) {
       return String(issueLabel(a.issueKey)).localeCompare(String(issueLabel(b.issueKey)));
     };
     adv.sort(byLabel); opp.sort(byLabel);
     if (!adv.length && !opp.length) return '';
-    // Short lists render whole; long ones keep four per direction visible and the rest
-    // one tap away. The counts in the headers never shrink, so nothing is hidden in the
-    // sense that matters.
-    var cap = (adv.length + opp.length) <= 6 ? 99 : 4;
     // Against first when present: the direction a reader is least likely to expect from
     // a figure's own signature is the one that must not be buried.
-    return issueGroupHtml(action, 'Cuts against', opp, cap) +
-           issueGroupHtml(action, 'Advances', adv, cap);
+    return issueGroupHtml(action, 'Cuts against', opp) +
+           issueGroupHtml(action, 'Advances', adv);
   }
 
   // ── One action card ────────────────────────────────────────────────────────

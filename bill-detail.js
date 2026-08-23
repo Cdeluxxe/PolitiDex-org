@@ -7,11 +7,16 @@
 
    Sections (each degrades gracefully when its data is absent):
      • Header — number, title, status, chamber/congress, source, omnibus marker.
-     • Omnibus breakdown — every component issue, whether a Yea advances or cuts
-       against it (support_meaning), and the rationale. The core "what's bundled".
+     • Every topic this act touches — EVERY component issue mapping, enumerated,
+       whether a Yea advances or cuts against it (support_meaning), and the
+       rationale. The core "what's bundled", and the whole of it: no truncation,
+       no primary-first sort, no rank badge. An optional view filter can slice the
+       same rows, and its default is and stays All topics.
      • Roll calls — each vote event with totals, and a per-member vote table. Each
-       member row can expand to their say-vs-do on THIS bill, computed from the
-       shared _measureComponentBreakdown engine (one vote → many per-issue verdicts).
+       member row can expand to what their vote did on EVERY topic this act maps
+       to, computed from the shared _measureComponentBreakdown engine (one vote →
+       many per-issue effects), with the say-vs-do verdict added on the topics
+       where a stated stance exists.
      • Sponsors / cosponsors — from vr_positions.
      • Key actions — a lightweight timeline synthesized from introducedAt + the
        roll calls + status (a real vr_measure_actions table is a Phase-3 add).
@@ -58,46 +63,125 @@
     catch (e) { return String(iso).slice(0, 10); }
   }
 
-  // ── say-vs-do for one member on this bill ───────────────────────────────────
-  // Uses the shared engine: {position, issues} × the member's stance map → a
-  // per-issue verdict list plus a compact consistent/contradicts summary.
+  // ── BIG PICTURE ORDER: THE WHOLE MENU, UNRANKED ─────────────────────────────
+  // THE CITIZEN BIG PICTURE IGNORES `isPrimary` AS A VISIBILITY RULE. A mapping's
+  // primary flag and its curated `weight` decide nothing on this face: not whether
+  // a topic appears, not where it appears, not how loudly. Both still travel in the
+  // payload and both are still read by the INTERNAL anti-noise machinery that
+  // already depends on them — _recordDirectionIndex()'s not-incidental floor in
+  // stance-helpers.js, the strongest-citable-example pick in receipt-cards.js — and
+  // that is the only use either flag has until a later engine decision retires or
+  // repurposes them. Nothing in this file may reintroduce them as a rank.
+  //   WHAT ORDERS THE LIST INSTEAD, in order of preference:
+  //     1. the reader's own picked issues (window._alignIssues). The one legitimate
+  //        reason to move a row up the page is that this reader asked for it.
+  //     2. the shipped category order (_pdxIssueCatOf → _pdxIssueCategories), so the
+  //        same act reads the same way down the page every time and related topics
+  //        sit together instead of scattering.
+  //     3. the display label alphabetically, then the raw key. Both are arbitrary,
+  //        and arbitrary is the point: no reader mistakes alphabetical order for a
+  //        judgement about which topic this act was really about.
+  //   Every step fails open — an unknown category sorts last, it never hides a row.
+  function alignSet() {
+    try {
+      var s = window._alignIssues;
+      return (s && typeof s.has === 'function' && s.size) ? s : null;
+    } catch (e) { return null; }
+  }
+  var _CAT_RANK = null;
+  function catRank(key) {
+    if (!_CAT_RANK) {
+      var built = {}, n = 0;
+      try {
+        var cats = (typeof window._pdxIssueCategories === 'function') ? window._pdxIssueCategories() : [];
+        for (var i = 0; i < cats.length; i++) { if (cats[i] && cats[i].key) { built[cats[i].key] = i; n++; } }
+      } catch (e) {}
+      if (!n) return 999; // taxonomy not loaded yet — don't cache an empty table
+      _CAT_RANK = built;
+    }
+    var cat = '';
+    try { if (typeof window._pdxIssueCatOf === 'function') cat = window._pdxIssueCatOf(key) || ''; } catch (e) {}
+    var r = _CAT_RANK[cat];
+    return (typeof r === 'number') ? r : 999;
+  }
+  function bigPictureOrder(list) {
+    var mine = alignSet();
+    return (list || []).slice().sort(function (a, b) {
+      var ka = (a && a.issueKey) || '', kb = (b && b.issueKey) || '';
+      var ma = (mine && mine.has(ka)) ? 0 : 1, mb = (mine && mine.has(kb)) ? 0 : 1;
+      if (ma !== mb) return ma - mb;
+      var ca = catRank(ka), cb = catRank(kb);
+      if (ca !== cb) return ca - cb;
+      var cmp = String(issueLabel(ka)).localeCompare(String(issueLabel(kb)));
+      if (cmp) return cmp;
+      return ka < kb ? -1 : ka > kb ? 1 : 0;
+    });
+  }
+
+  // ── one member's vote, topic by topic ───────────────────────────────────────
+  // A Yea is a Yea on every topic the act maps to, so every mapped topic is listed
+  // here as a real effect of this member's vote. The say-vs-do verdict is an EXTRA
+  // that lands on the rows where a stated stance exists — its ABSENCE no longer
+  // deletes the topic from the member's row, which is how a fourteen-topic act used
+  // to shrink to the two topics we happened to hold a stance on. Disclosure, not
+  // deletion: the caption says "On this act" rather than stamping a pattern badge
+  // on what may be the member's only item on any of these keys.
   var VERDICT = {
     consistent: { cls: 'bd-v-consistent', label: '✓ matches stance' },
     contradicts: { cls: 'bd-v-contradicts', label: '⚠ against stance' },
     mixed: { cls: 'bd-v-mixed', label: 'mixed' },
     no_position: { cls: 'bd-v-neutral', label: 'no position' }
   };
-  function memberSayVsDo(pid, position, issues) {
-    if (typeof window._measureComponentBreakdown !== 'function' || typeof window._polPositionMap !== 'function') return null;
-    var pm = window._polPositionMap(pid, prof(pid)) || {};
+  function memberOnAct(pid, position, issues) {
+    if (typeof window._measureComponentBreakdown !== 'function') return null;
+    var pm = {};
+    try { if (typeof window._polPositionMap === 'function') pm = window._polPositionMap(pid, prof(pid)) || {}; } catch (e) {}
     var brk = window._measureComponentBreakdown({ position: position, issues: issues }, pm, { labelFn: issueLabel });
-    var withStance = brk.components.filter(function (c) { return c.hasStance; });
-    if (!withStance.length) return null;
+    var comps = bigPictureOrder(brk.components);
+    if (!comps.length) return null;
     var con = 0, against = 0;
-    withStance.forEach(function (c) { if (c.verdict === 'consistent') con++; else if (c.verdict === 'contradicts') against++; });
-    var rows = withStance.map(function (c) {
-      var v = VERDICT[c.verdict];
-      return '<div class="bd-svd-row"><span class="bd-svd-issue">' + esc(c.label) + '</span>' +
-        (v ? '<span class="bd-v ' + v.cls + '">' + esc(v.label) + '</span>' : '') + '</div>';
+    comps.forEach(function (c) {
+      if (!c.hasStance) return;
+      if (c.verdict === 'consistent') con++; else if (c.verdict === 'contradicts') against++;
+    });
+    var rows = comps.map(function (c) {
+      var eff = c.effect === 'advances'
+        ? '<span class="bd-eff bd-eff-adv">their vote advances this</span>'
+        : c.effect === 'opposes'
+          ? '<span class="bd-eff bd-eff-opp">their vote cuts against this</span>' : '';
+      var v = (c.hasStance && VERDICT[c.verdict])
+        ? '<span class="bd-v ' + VERDICT[c.verdict].cls + '">' + esc(VERDICT[c.verdict].label) + '</span>' : '';
+      return '<div class="bd-svd-row"><span class="bd-svd-issue">' + esc(c.label) + '</span>' + eff + v + '</div>';
     }).join('');
-    var summary = (con ? '<span class="bd-v bd-v-consistent">✓ ' + con + '</span>' : '') +
+    var summary = '<span class="bd-svd-count">' + comps.length + ' topic' + (comps.length !== 1 ? 's' : '') + '</span>' +
+      (con ? '<span class="bd-v bd-v-consistent">✓ ' + con + '</span>' : '') +
       (against ? '<span class="bd-v bd-v-contradicts">⚠ ' + against + '</span>' : '');
-    return { summary: summary, rows: rows, hasContradiction: against > 0 };
+    return {
+      summary: summary,
+      rows: '<div class="bd-svd-cap">On this act — every topic it maps to, and what this vote did to each:</div>' + rows,
+      hasContradiction: against > 0
+    };
   }
 
   // ── section builders ────────────────────────────────────────────────────────
+  // THE LEDGER IS THE ACT. Every issue this instrument is mapped to, enumerated —
+  // no truncation, no rank badge, no primary-first sort. Each row gets the same
+  // structure and the same access to mechanism, because a citizen opening an act
+  // is owed the whole menu it enacted, topic by topic, before anyone tells them
+  // which parts mattered. Copy that would minimise a row — "secondary",
+  // "supporting only", "narrow" as a STATUS — does not belong here; where
+  // narrowness is a fact about a mapping it belongs in that row's explanation
+  // sentence, which is the one place it can be read rather than ranked.
   function omnibusSection(m, issues) {
     if (!issues || !issues.length) return '';
-    // Primary first, then heaviest-weighted, so the breakdown reads in order of import.
-    var ordered = issues.slice().sort(function (a, b) {
-      return (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0) || (b.weight || 0) - (a.weight || 0);
-    });
+    var ordered = bigPictureOrder(issues);
     var adv = 0, opp = 0;
     ordered.forEach(function (it) { if (it.supportMeaning === 'yea_opposes') opp++; else adv++; });
     var lead = ordered.length >= 2
-      ? 'This bill bundles <strong>' + ordered.length + ' issues</strong> into one vote — so a single Yea or Nay is really a decision on each of these.'
-      : 'This is a single-issue measure.';
-    // At-a-glance summary of which way a Yea cuts across the bundle.
+      ? 'This act is mapped to <strong>' + ordered.length + ' topics</strong>, and every one of them is listed below — so a single Yea or Nay is really a decision on each of these.'
+      : 'This act is mapped to one topic.';
+    // At-a-glance summary of which way a Yea cuts across the act. A count of
+    // directions, never a ranking of them.
     var summary = ordered.length >= 2
       ? '<div class="bd-omni-summary">' +
           '<span class="bd-eff bd-eff-adv">▲ Advances ' + adv + '</span>' +
@@ -108,17 +192,53 @@
       var opposes = it.supportMeaning === 'yea_opposes';
       var effCls = opposes ? 'bd-eff-opp' : 'bd-eff-adv';
       var effTxt = opposes ? 'A Yea cuts against this' : 'A Yea advances this';
-      return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '">' +
+      // `data-bd-lane` is a FILTER KEY AND NOTHING ELSE. It carries the curated
+      // primary flag so the optional view control below has something to slice on;
+      // it sets no default, hides nothing on its own, and no styling reads it
+      // except the two display rules the filter itself installs.
+      return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '"' +
+          ' data-bd-lane="' + (it.isPrimary ? 'main' : 'other') + '">' +
         '<div class="bd-omni-head">' +
           '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
-          (it.isPrimary ? '<span class="bd-omni-primary">Primary</span>' : '') +
           '<span class="bd-eff ' + effCls + '">' + effTxt + '</span>' +
         '</div>' +
         (it.rationale ? '<div class="bd-omni-why">' + esc(it.rationale) + '</div>' : '') +
       '</div>';
     }).join('');
-    return '<section class="bd-sec"><h3 class="bd-h">📦 What’s inside this vote</h3>' +
-      '<p class="bd-lead">' + lead + '</p>' + summary + rows + '</section>';
+    return '<section class="bd-sec"><h3 class="bd-h">📦 Every topic this act touches</h3>' +
+      '<p class="bd-lead">' + lead + '</p>' + summary +
+      '<div class="bd-omni-view">' + viewFilter(ordered) +
+        '<div class="bd-omni-list" data-bd-view="all">' + rows + '</div>' +
+      '</div></section>';
+  }
+
+  // ── the optional view filter ────────────────────────────────────────────────
+  // A VIEW FILTER, NOT A RANKING. These buttons slice a list the reader already
+  // has in front of them; they never decide which rows exist. Three properties
+  // hold that line and the tests pin all three:
+  //   · "All topics" is the default and the only state the panel ever opens in.
+  //   · The slice labels describe what a slice CONTAINS ("titles often described
+  //     as the vehicle's main jobs") rather than promoting one over the other. No
+  //     button says primary, secondary or supporting.
+  //   · The control is only drawn when both slices are non-empty, so it can never
+  //     appear as a filter that filters to everything or to nothing.
+  // It fails open: with scripting unavailable the buttons are inert and every row
+  // stays on screen, because the visible state lives in one attribute whose
+  // shipped value is "all".
+  function viewFilter(ordered) {
+    var main = 0, other = 0;
+    ordered.forEach(function (it) { if (it.isPrimary) main++; else other++; });
+    if (!main || !other) return '';
+    var btn = function (key, label, on) {
+      return '<button type="button" class="bd-vf-btn" data-bd-view-set="' + key + '"' +
+        ' aria-pressed="' + (on ? 'true' : 'false') + '">' + esc(label) + '</button>';
+    };
+    return '<div class="bd-viewfilter" role="group" aria-label="Filter the topic list">' +
+      '<span class="bd-vf-lab">View</span>' +
+      btn('all', 'All topics (' + ordered.length + ')', true) +
+      btn('main', 'Titles often described as the vehicle’s main jobs (' + main + ')', false) +
+      btn('other', 'Other provisions in this act (' + other + ')', false) +
+    '</div>';
   }
 
   function rollcallsSection(m, issues, rollcalls) {
@@ -155,7 +275,7 @@
           var pcls = pos === 'yea' ? 'bd-pos-yea' : pos === 'nay' ? 'bd-pos-nay' : 'bd-pos-neutral';
           var plabel = pos === 'yea' ? 'Yea' : pos === 'nay' ? 'Nay' : pos === 'present' ? 'Present' : pos === 'not_voting' ? 'Not voting' : pos;
           var relTag = isLocal(v.politicianId) ? '<span class="bd-rel">Your rep</span>' : '';
-          var svd = heavy ? null : memberSayVsDo(v.politicianId, pos, issues);
+          var svd = heavy ? null : memberOnAct(v.politicianId, pos, issues);
           var nameBtn = '<button type="button" class="bd-vote-name" data-pid="' + escAttr(v.politicianId) + '">' + esc(nameFor(v.politicianId)) + '</button>';
           if (svd) {
             return '<details class="bd-vote-row bd-vote-exp' + (svd.hasContradiction ? ' bd-vote-contra' : '') + '">' +
@@ -168,7 +288,7 @@
           }
           return '<div class="bd-vote-row">' + nameBtn + relTag + '<span class="bd-pos ' + pcls + '">' + plabel + '</span></div>';
         }).join('');
-        if (heavy) rows = '<p class="bd-note">Say-vs-do per member is available on smaller roll calls; open a profile for the full picture.</p>' + rows;
+        if (heavy) rows = '<p class="bd-note">The per-member topic breakdown is available on smaller roll calls; the full topic list for this act is above, and a profile carries the same breakdown per member.</p>' + rows;
       } else {
         rows = '<p class="bd-empty">Individual member votes for this roll call are not in the record yet.</p>';
       }
@@ -413,17 +533,24 @@
       parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Find everything connected</div>' +
         '<button type="button" class="bd-btn bd-eye" data-eye="' + escAttr(m.number) + '">🔍 Search this in the All-Seeing Eye</button></div>');
     }
-    // Explore-these-issues jump chips + a link back into the Legislation library,
-    // filtered to this bill's primary issue. Always available when the bill has issues.
+    // Explore-these-issues jump chips + a link back into the Legislation library.
+    // EVERY MAPPED TOPIC GETS A CHIP. This list used to be cut at eight, which on a
+    // reconciliation vehicle silently deleted the tail of the act from the one place
+    // a reader could jump into those topics — and, because the list arrived
+    // primary-first, the eight that survived were the eight the curation had already
+    // called the important ones. It is enumerated in the same Big Picture order the
+    // ledger above uses, and the library button follows the first row of THAT order
+    // rather than reaching past it for a primary flag.
     if (issues && issues.length) {
-      var primaryKey = (issues.find(function (i) { return i.isPrimary; }) || issues[0] || {}).issueKey || '';
-      var chips = issues.slice(0, 8).map(function (it) {
+      var ordered = bigPictureOrder(issues);
+      var leadKey = (ordered[0] || {}).issueKey || '';
+      var chips = ordered.map(function (it) {
         return '<button type="button" class="bd-person bd-issuejump" data-issue="' + escAttr(it.issueKey) + '">' +
           '<span class="bd-person-name">🔎 ' + esc(issueLabel(it.issueKey)) + '</span>' +
           '<span class="bd-person-role">Issue spotlight</span></button>';
       }).join('');
       parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Explore these issues</div><div class="bd-people">' + chips + '</div>' +
-        (primaryKey ? '<button type="button" class="bd-btn bd-legis" data-legis="' + escAttr(primaryKey) + '">🏛️ Browse related bills in the Legislation library</button>' : '') +
+        (leadKey ? '<button type="button" class="bd-btn bd-legis" data-legis="' + escAttr(leadKey) + '">🏛️ Browse related bills in the Legislation library</button>' : '') +
       '</div>');
     }
     // Issue Spotlights tied to any of this bill's component issues (when available).
@@ -448,6 +575,21 @@
     } catch (e) {}
     if (!parts.length) return '';
     return '<section class="bd-sec"><h3 class="bd-h">🔗 Related &amp; explore</h3>' + parts.join('') + '</section>';
+  }
+
+  // Apply a view filter to the topic ledger. Presentation only: it flips one
+  // attribute that two display rules read, and it can reach nothing but the list
+  // it was clicked inside. The rows are never rebuilt, so no slice can drop one.
+  function setOmniView(btn) {
+    var wrap = btn.closest ? btn.closest('.bd-omni-view') : null;
+    if (!wrap) return;
+    var view = btn.getAttribute('data-bd-view-set') || 'all';
+    var list = wrap.querySelector('.bd-omni-list');
+    if (list) list.setAttribute('data-bd-view', view);
+    var btns = wrap.querySelectorAll('[data-bd-view-set]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].getAttribute('data-bd-view-set') === view));
+    }
   }
 
   // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
@@ -558,7 +700,9 @@
       if (pb) { var pid = pb.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') { close(); window.showProfile(pid); } return; }
       var sb = e.target.closest ? e.target.closest('[data-slug]') : null;
       if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
-      var ib = e.target.closest ? e.target.closest('[data-issue]') : null;
+      var ib = e.target.closest ? e.target.closest('[data-bd-view-set]') : null;
+      if (ib) { setOmniView(ib); return; }
+      ib = e.target.closest ? e.target.closest('[data-issue]') : null;
       if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
       var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
       if (lb) { browseLegislation(lb.getAttribute('data-legis')); return; }
@@ -811,7 +955,18 @@
       '.bd-issuejump .bd-person-name{color:#9ec8ff;}' +
       '.bd-legis{margin-top:.6rem;display:inline-block;}' +
       '.bd-eye{margin-top:.2rem;display:inline-block;}' +
-      '.bd-omni-primary{font:800 .54rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.14rem .4rem;}' +
+      '.bd-viewfilter{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:-.2rem 0 .7rem;}' +
+      '.bd-vf-lab{font:800 .56rem/1 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#7f93b4;margin-right:.15rem;}' +
+      '.bd-vf-btn{font:600 .66rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#bcd0f0;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.3rem .6rem;cursor:pointer;}' +
+      '.bd-vf-btn:hover{color:#e6eefc;border-color:rgba(159,180,212,.4);}' +
+      '.bd-vf-btn[aria-pressed="true"]{color:#0a0f1e;background:#9ec8ff;border-color:#9ec8ff;font-weight:800;}' +
+      '.bd-vf-btn:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      // The whole filter, in two rules. "all" matches neither, which is why the
+      // default state shows every row and why a missing/unknown value does too.
+      '.bd-omni-list[data-bd-view="main"] .bd-omni-row[data-bd-lane="other"]{display:none;}' +
+      '.bd-omni-list[data-bd-view="other"] .bd-omni-row[data-bd-lane="main"]{display:none;}' +
+      '.bd-svd-cap{font:700 .6rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;margin:.1rem 0 .3rem;}' +
+      '.bd-svd-count{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.16rem .45rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
       '.bd-eff-adv{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);}' +
       '.bd-eff-opp{color:#fdba74;background:rgba(251,146,60,.14);border:1px solid rgba(251,146,60,.32);}' +
@@ -838,8 +993,8 @@
       '.bd-pos-neutral{color:#cbd9ec;background:rgba(159,180,212,.12);border:1px solid rgba(159,180,212,.28);}' +
       '.bd-svd-mini{display:inline-flex;gap:.25rem;margin-left:.2rem;}' +
       '.bd-svd-body{padding:.35rem 0 .5rem 1rem;display:flex;flex-direction:column;gap:.2rem;}' +
-      '.bd-svd-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}' +
-      '.bd-svd-issue{font:500 .78rem/1.3 "Barlow",sans-serif;color:#b9c8e0;}' +
+      '.bd-svd-row{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;}' +
+      '.bd-svd-issue{font:500 .78rem/1.3 "Barlow",sans-serif;color:#b9c8e0;margin-right:auto;}' +
       '.bd-v{font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;border-radius:999px;padding:.14rem .4rem;white-space:nowrap;}' +
       '.bd-v-consistent{color:#6ee7a0;background:rgba(74,222,128,.16);border:1px solid rgba(74,222,128,.35);}' +
       '.bd-v-contradicts{color:#fca5a5;background:rgba(248,113,113,.18);border:1px solid rgba(248,113,113,.4);}' +
