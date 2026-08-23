@@ -73,6 +73,13 @@ const VHL = read('voter-hub-location.js');
 // checked against the same string rather than against its own paraphrase.
 const CTA = '📍 See who represents me';
 const LEAD = 'Find the officials with power over you';
+// The nav entries carry a DIFFERENT line from the band. The band is already
+// headed "SEE WHO REPRESENTS ME", so its lead only has to finish the sentence;
+// a nav pill has three words of label and has to sell the whole spine — your
+// seats, and the field running for each one — because it is the first click of
+// the election path and not only a lookup. Both are checked, neither is assumed
+// to be the other.
+const NAV_LEAD = 'who holds power over you';
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 1 · The front door is in the HTML, above Door 1, cold-state and all
@@ -170,7 +177,7 @@ for (const [i, entry] of navEntries.entries()) {
   has(entry, 'event.preventDefault()',
     `chrome: the ${where} lets the anchor jump fire alongside the handler, which fights the\n` +
     '    handler\'s own smooth scroll');
-  has(entry, LEAD,
+  has(entry, NAV_LEAD,
     `chrome: the ${where} has no title explaining the lookup — the label alone is a section name,\n` +
     '    not an offer');
 }

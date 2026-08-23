@@ -1431,11 +1431,55 @@
     // disagree with the districts shown above or the team builder below. Kept
     // deliberately compact (three rows + one link) so it informs without recreating
     // the full team-builder cockpit that lives further down the page.
-    if (!window._hasUserLocation) { host.style.display = 'none'; host.innerHTML = ''; return; }
+    // ── No location yet ───────────────────────────────────────────────────────
+    // This used to hide the strip outright, which meant the hub's first
+    // substantive block simply was not there for the visitor who most needs it —
+    // and the only way to find the seat list was to scroll past the location card
+    // into the team builder. Now the block holds its place and states the one
+    // thing standing between them and their seats. It names NO officeholder: with
+    // no location there is no honest answer to "who is my House member", and a
+    // national placeholder would be a guess dressed as a fact.
+    if (!window._hasUserLocation) {
+      host.style.display = '';
+      host.innerHTML =
+        '<div style="background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(10,15,30,0.35));border:1px dashed rgba(96,165,250,0.4);border-radius:1rem;padding:0.9rem 0.95rem;">' +
+          '<div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">' +
+            '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.1rem;color:#fff;">🏛️ Who Represents You Now</span>' +
+          '</div>' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.3rem;">' +
+            'Set your location and we map your <strong style="color:#93c5fd;">U.S. House</strong>, <strong style="color:#c4b5fd;">State Senate</strong> &amp; <strong style="color:#5eead4;">State House</strong> seats — then show who holds each one. Until then we will not guess: no location, no representative.' +
+          '</div>' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your team.</div>' +
+          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">' +
+            '<button type="button" onclick="window.toggleChangeLocation&&window.toggleChangeLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;">📍 Set my location →</button>' +
+            '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#5eead4;background:none;border:1px solid rgba(45,212,191,0.5);border-radius:0.7rem;padding:0.5rem 0.85rem;cursor:pointer;white-space:nowrap;min-height:44px;">🗺️ Open map</button>' +
+          '</div>' +
+        '</div>';
+      return;
+    }
 
     // Districts + officeholders come from the shared resolver above, which the
     // homepage front door reads too. The rows below only present what it returns.
     var _wrReps = window.pdxRepsForMe();
+
+    // National focus is a location, but not a place with seats: the resolver
+    // returns six blank rows for it. Painting those under "the people who hold
+    // power in your state" would read as a coverage failure rather than what it
+    // is — a scope the visitor chose. Ask for the state instead of listing blanks.
+    if (_wrReps && _wrReps.national) {
+      host.style.display = '';
+      host.innerHTML =
+        '<div style="background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(10,15,30,0.35));border:1px dashed rgba(96,165,250,0.4);border-radius:1rem;padding:0.9rem 0.95rem;">' +
+          '<div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">' +
+            '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.1rem;color:#fff;">🏛️ Who Represents You Now</span>' +
+          '</div>' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.7rem;">' +
+            'You are focused on <strong style="color:#93c5fd;">federal offices</strong> nationally, so there are no seats to list here yet. Pick a state and we will name your senators and governor — and your U.S. House, State Senate and State House seats wherever we map districts.' +
+          '</div>' +
+          '<button type="button" onclick="window.toggleChangeLocation&&window.toggleChangeLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;min-height:44px;">📍 Pick my state →</button>' +
+        '</div>';
+      return;
+    }
     var _wrEsc = function(s) {
       return String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -1496,9 +1540,15 @@
     // pdxRaceSheetEntry returns '' for any seat it cannot actually compare, so a
     // seat with no rostered field simply gets no button — meeting the officeholder
     // stays the whole job of the row, exactly as it is today.
+    // pdxSeatStrip is the shared seat contract (team slot + compare + the stance
+    // line for a visitor with no positions); the bare entry button is the older
+    // fallback, so this strip degrades rather than breaking if race-sheet.js is
+    // an older build in someone's service-worker cache.
     var _wrCompare = function (lv) {
-      if (!lv || typeof window.pdxRaceSheetEntry !== 'function') return '';
-      var h = window.pdxRaceSheetEntry(lv.key, { compact: true });
+      if (!lv) return '';
+      var h = '';
+      if (typeof window.pdxSeatStrip === 'function') h = window.pdxSeatStrip(lv.key, { compact: true });
+      else if (typeof window.pdxRaceSheetEntry === 'function') h = window.pdxRaceSheetEntry(lv.key, { compact: true });
       return h ? '<div class="wrm-seatcompare">' + h + '</div>' : '';
     };
 
@@ -1522,7 +1572,10 @@
         '<div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">' +
           '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.1rem;color:#fff;">🏛️ Who Represents You Now</span>' +
         '</div>' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.7rem;">' + _wrLede + '</div>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.3rem;">' + _wrLede + '</div>' +
+        // The spine, in six words, above the rows it describes. A voter who reads
+        // only this line still knows what the next two taps are for.
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your team.</div>' +
         '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + _wrRows + '</div>' +
         // Local seats are curated for the same areas the district seats are, so the
         // handoff is only offered where it can actually answer for this visitor.
@@ -1532,6 +1585,12 @@
       '</div>';
     return;
 
+    // ── Unreachable below ─────────────────────────────────────────────────────
+    // Everything past this return is the pre-"Who Represents You Now" version of
+    // this strip. It is left in place rather than deleted because removing ~180
+    // lines is not this pass's job, but nothing below runs: the no-location and
+    // National branches above are the live ones. Do not edit copy down here
+    // expecting to see it.
     var btnLink = 'font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;transition:transform .15s,box-shadow .15s;';
 
     // ── No location yet: make the first step obvious and motivating. ──────────

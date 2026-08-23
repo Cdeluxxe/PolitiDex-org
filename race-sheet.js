@@ -681,7 +681,15 @@
   };
   // Called by _alignRefreshAll (alignment-tool.js) whenever the visitor's issues,
   // stances or a freshly warmed vote pack change what these numbers are.
-  window._pdxRaceSheetRefresh = function () { if (_state) render(); };
+  window._pdxRaceSheetRefresh = function () {
+    if (_state) render();
+    // The seat strips carry "Set stances to rank this race", which is only true
+    // while the visitor has no positions. Setting one has to clear it wherever it
+    // is painted, not just in an open sheet — otherwise the hub keeps telling
+    // someone to do a thing they already did. Guarded, read-only repaints.
+    try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
+    try { if (window.PDXWhoRepresentsMe && typeof window.PDXWhoRepresentsMe.sync === 'function') window.PDXWhoRepresentsMe.sync(); } catch (e) {}
+  };
 
   // ── The one entry control every host renders ───────────────────────────────
   // Returns '' for a seat this sheet cannot compare, so a host can drop it in
@@ -700,6 +708,53 @@
     '</button>';
   };
 
+  // ── The seat row contract ──────────────────────────────────────────────────
+  // One helper, three hosts. Who Represents Me, the Voter Hub district strip and
+  // anything else that lists seats all need the SAME three things under a seat:
+  // where the team slot stands, the way into the field, and — only for someone
+  // who has not set positions yet — the one line that explains why the field
+  // will not be ranked. Writing that markup three times is how the three copies
+  // drift, so it lives here, next to the store reads it depends on.
+  //
+  // Order is deliberate: team state, then compare, then the stance line. The
+  // voter's own decision is the fact; the button is the next action; the stance
+  // line is a footnote and never outranks either.
+  function nameOf(pid) {
+    var d = null;
+    try { if (fn('_pdxBallotRecord')) d = window._pdxBallotRecord(pid); } catch (e) {}
+    if (!d) { try { d = window.CMP_DATA ? window.CMP_DATA[pid] : null; } catch (e) {} }
+    return (d && d.name) || '';
+  }
+
+  window.pdxSeatStrip = function (seatKey, opts) {
+    var sm = seatMeta(seatKey);
+    // No seat key this sheet understands means no race key, which means there is
+    // no team slot to report and nothing to compare. Say nothing rather than
+    // paint an empty slot for an office we cannot name.
+    if (!sm) return '';
+    opts = opts || {};
+
+    var pid = pickedFor(sm.key);
+    var nm = pid ? nameOf(pid) : '';
+    var team = pid
+      ? '<span class="rs-seat-team is-on"><span class="rs-seat-team-ic" aria-hidden="true">\u2b50</span>' +
+          '<span>On your team: <b>' + esc(nm || pid) + '</b></span></span>'
+      : '<span class="rs-seat-team"><span class="rs-seat-team-ic" aria-hidden="true">\u2606</span>' +
+          '<span>No pick yet</span></span>';
+
+    var entry = window.pdxRaceSheetEntry(sm.key, { compact: opts.compact !== false });
+
+    // Only when the field could be ranked and the visitor has given it nothing
+    // to rank on. A link, not a lecture: one line, one destination.
+    var stanceLine = (entry && axis().length === 0)
+      ? '<button type="button" class="rs-seat-stance"' +
+          ' onclick="event.stopPropagation();if(window.PDXStances&&window.PDXStances.open)window.PDXStances.open();else location.hash=\'#my-stances\';">' +
+          'Set stances to rank this race \u203a</button>'
+      : '';
+
+    return '<div class="rs-seat-strip">' + team + entry + stanceLine + '</div>';
+  };
+
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && _state) close();
   });
@@ -710,6 +765,7 @@
     MODES: MODES, ASK_ISSUES: ASK_ISSUES, AXIS_SHOWN: AXIS_SHOWN,
     // Exposed for the harness and for any caller that wants the model without
     // the markup. Pure reads; nothing here writes.
+    seatStrip: window.pdxSeatStrip,
     _field: field, _axis: axis, _rank: rank, _seat: seatMeta
   };
 

@@ -383,3 +383,36 @@
    afford to be emphatic — it is explaining why this order is not the same order
    another voter would see. */
 .rs-rankstar { color: #fde68a; font-weight: 600; }
+
+/* ── Seat strip ──────────────────────────────────────────────────────────────
+   The three-part contract every seat row carries: where the team slot stands,
+   the way into the field, the stance footnote. Column on purpose — on a phone
+   these must never compete for one line, and the compare control has to keep
+   its full 44px whatever sits above it. */
+.rs-seat-strip {
+  display: flex; flex-direction: column; align-items: stretch; gap: 0.3rem;
+  margin: -0.35rem 0 0.15rem;
+}
+.rs-seat-team {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #7f93b4;
+}
+.rs-seat-team-ic { font-size: 0.85rem; line-height: 1; }
+/* Filled reads gold because it is the one fact on this row the voter put there
+   themselves — it should be findable at a glance down a list of six seats. */
+.rs-seat-team.is-on { color: #fde68a; }
+.rs-seat-team.is-on b { color: #fff7dd; font-weight: 700; }
+/* Footnote weight, deliberately: it explains an absence, it is not the CTA. */
+.rs-seat-stance {
+  align-self: flex-start; min-height: 32px; padding: 0.25rem 0;
+  background: none; border: 0; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.74rem; font-weight: 600; letter-spacing: 0.04em;
+  color: #8fb3e6; text-align: left;
+}
+.rs-seat-stance:hover, .rs-seat-stance:focus-visible { color: #cfe3ff; text-decoration: underline; }
+@media (max-width: 640px) {
+  .rs-seat-stance { min-height: 44px; }
+}

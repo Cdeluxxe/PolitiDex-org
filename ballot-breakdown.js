@@ -5084,6 +5084,15 @@
 
       _ballotRender();
 
+      // The seat lists carry a team-state chip now ("No pick yet" / "On your team:
+      // Name"), and they are painted by other files, so a pick made anywhere —
+      // a race sheet, a district card, this grid — has to reach them or the chip
+      // silently lies until the next location change. Both are guarded idempotent
+      // full re-renders that only READ the ballot store, so neither can re-enter
+      // this function.
+      try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
+      try { if (window.PDXWhoRepresentsMe && typeof window.PDXWhoRepresentsMe.sync === 'function') window.PDXWhoRepresentsMe.sync(); } catch (e) {}
+
       // Premium feedback: named toast + counter pop on every team change.
       try {
         var _filled = 0;

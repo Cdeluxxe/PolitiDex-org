@@ -2970,7 +2970,7 @@ window.PDXLazy = (function () {
                away in the account chip on the right, and it is a returning-visitor
                destination — exactly the kind of item that should yield a slot to a
                first-visit one. -->
-          <a href="#who-represents-me" title="Find the officials with power over you — then see their records" onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#07101f;background:linear-gradient(135deg,#a8d4ff,#5ea2f5);border:1.5px solid rgba(167,212,255,0.9);box-shadow:0 0 16px rgba(96,165,250,0.4),inset 0 1px 0 rgba(255,255,255,0.3);text-shadow:0 1px 1px rgba(255,255,255,0.2);">🏛️ Who Represents Me</a>
+          <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#07101f;background:linear-gradient(135deg,#a8d4ff,#5ea2f5);border:1.5px solid rgba(167,212,255,0.9);box-shadow:0 0 16px rgba(96,165,250,0.4),inset 0 1px 0 rgba(255,255,255,0.3);text-shadow:0 1px 1px rgba(255,255,255,0.2);">🏛️ Who Represents Me</a>
           <!-- href is a real destination, not a decoration: if the helper has not
                loaded yet the click is left alone and lands on the receipts band, so
                the control is never dead. When the helper is there it takes over and
@@ -3481,7 +3481,7 @@ window.PDXLazy = (function () {
            the desktop row — this menu has the vertical room the bar does not.
            Local Issues follows, and only resolves once a location is confirmed. -->
       <div class="mnav-group-label">Your Vote</div>
-      <a href="#who-represents-me" title="Find the officials with power over you — then see their records" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
+      <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
       <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Voting Team</a>
       <a href="#my-stances" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎯 My Stances</a>
@@ -4445,6 +4445,9 @@ window.PDXLazy = (function () {
       .wrm-resultkicker{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:0.05em;color:#fff;}
       .wrm-resultcount{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;
         letter-spacing:0.08em;text-transform:uppercase;color:#8fa8c8;}
+      /* Legend for the seat list: the same three steps every strip below repeats. */
+      .wrm-spine{margin:-0.25rem 0 0.6rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;
+        font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;}
       .wrm-rows{display:flex;flex-direction:column;gap:0.45rem;}
       .wrm-row{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.55rem;border-radius:0.7rem;
         background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.07);border-left:3px solid #60a5fa;
@@ -4694,6 +4697,7 @@ window.PDXLazy = (function () {
       #start-here .sh-title .sh-accent{color:#f87171;}
       #start-here .sh-lead{font-family:'Barlow',sans-serif;font-size:clamp(0.92rem,2.1vw,1.08rem);color:#cbd5e1;font-weight:500;max-width:38rem;margin:0 auto;line-height:1.5;}
       #start-here .sh-lead strong{color:#fff;font-weight:700;}
+      #start-here .sh-spine{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8fa8c8;margin:0.75rem auto 0;}
       /* Action row: one prominent primary CTA + a light tour link */
       #start-here .sh-cta-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;margin-top:1.15rem;}
       #start-here .sh-cta-primary{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;cursor:pointer;
@@ -4735,6 +4739,11 @@ window.PDXLazy = (function () {
       <div class="sh-eyebrow"><span>🗳️ Election tools · 30 seconds to set up</span></div>
       <h2 class="sh-title">SEE WHO <span class="sh-accent">REPRESENTS YOU</span></h2>
       <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex names the officials with power over you and the seats you actually decide &mdash; so you can read their records first, and pick a team on <strong>receipts rather than party lines</strong> if you want one.</p>
+
+      <!-- The path in six words, on the block that starts it. It is the same
+           sentence the seat lists carry, so the promise made here is the one the
+           visitor recognises two taps later. -->
+      <p class="sh-spine">Your seats → compare the field → pick for your team.</p>
 
       <div class="sh-cta-row">
         <button type="button" class="sh-cta-primary btn-tap" onclick="pdxStartHereGo()">📍 See who represents me</button>
@@ -12187,8 +12196,15 @@ window.PDXLazy = (function () {
           <div class="chub-flow-steps">
             <div class="chub-flow-step">
               <span class="chub-flow-step-num"><span class="chub-flow-dot">1</span> Discover</span>
-              <span class="chub-flow-step-title">Find the people on your ballot</span>
-              <span class="chub-flow-step-desc">Search or filter the list below by office, state, party or score to see who represents — or wants to represent — you.</span>
+              <span class="chub-flow-step-title">Look anyone up</span>
+              <!-- This step used to say "find the people on your ballot" and point at
+                   a sortable list of everyone. That is not how a voter finds their
+                   ballot — it is how a researcher browses ours. The ballot job now
+                   starts at Who Represents Me, which knows the seats; this list keeps
+                   the job it is actually good at, which is looking up a specific
+                   person. "or score" is gone with it: ranking strangers by a number
+                   was never the first step of deciding a race. -->
+              <span class="chub-flow-step-desc">Search or filter the list below by office, state or party to pull up anyone in the record. Working out <em>your</em> ballot? Start at <button type="button" onclick="if(window.pdxFindMyReps)window.pdxFindMyReps();else location.hash='#who-represents-me';" class="chub-flow-link">🏛️ Who Represents Me</button> — it names your seats and opens the field for each one.</span>
             </div>
             <div class="chub-flow-arrow" aria-hidden="true">→</div>
             <div class="chub-flow-step">

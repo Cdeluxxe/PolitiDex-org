@@ -4549,6 +4549,13 @@
     }
     .chub-flow-step-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; color: #fff; }
     .chub-flow-step-desc { font-family: 'Barlow Condensed', sans-serif; font-size: 0.76rem; line-height: 1.4; color: #9fb4d4; }
+    /* Inline handoff out of the research list and back to the seat spine. Styled
+       as text, not a button, because it sits mid-sentence — but it keeps a real
+       tap target on a phone. */
+    .chub-flow-link { display: inline; padding: 0; background: none; border: 0; cursor: pointer;
+      font: inherit; color: #93c5fd; font-weight: 700; text-decoration: underline;
+      text-underline-offset: 2px; }
+    .chub-flow-link:hover, .chub-flow-link:focus-visible { color: #dbeafe; }
     .chub-flow-arrow { display: flex; align-items: center; justify-content: center; color: #4e72a0; font-size: 1.1rem; }
     .chub-flow-foot {
       display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; justify-content: space-between;

@@ -172,9 +172,17 @@
   // leads nowhere, and it degrades to exactly today's markup if race-sheet.js
   // has not loaded. It states no verdict and no number, which keeps this file's
   // standing promise (see the header) intact.
+  //
+  // The strip itself comes from window.pdxSeatStrip, which owns the whole seat
+  // contract — team slot, compare control, and the one stance line for a visitor
+  // with no positions — so this file, the Voter Hub strip and any future seat
+  // list cannot drift apart on it. Falls back to the bare entry button if only
+  // the older helper is present, and to nothing at all if neither is.
   function seatCompare(lv) {
-    if (!lv || typeof window.pdxRaceSheetEntry !== 'function') return '';
-    var html = window.pdxRaceSheetEntry(lv.key, { compact: true });
+    if (!lv) return '';
+    var html = '';
+    if (typeof window.pdxSeatStrip === 'function') html = window.pdxSeatStrip(lv.key, { compact: true });
+    else if (typeof window.pdxRaceSheetEntry === 'function') html = window.pdxRaceSheetEntry(lv.key, { compact: true });
     if (!html) return '';
     return '<div class="wrm-seatcompare">' + html + '</div>';
   }
@@ -288,6 +296,10 @@
           '<span class="wrm-resultkicker">Your representatives' + (area ? ' · ' + area : '') + '</span>' +
           '<span class="wrm-resultcount">' + resolved + ' of ' + reps.levels.length + ' seats resolved</span>' +
         '</div>' +
+        // The whole election path in six words, above the rows it describes.
+        // Every seat below carries the same three-part strip, so this line is a
+        // legend for the list rather than a slogan.
+        '<p class="wrm-spine">Your seats \u2192 compare the field \u2192 pick for your team.</p>' +
         '<div class="wrm-rows">' + rows + '</div>' +
         (reps.redrawn
           ? '<p class="wrm-redrawn">Your U.S. House district was redrawn for 2026. The name above is who represents you <strong>right now</strong>; the Voter Hub shows the district you&rsquo;ll actually vote in.</p>'

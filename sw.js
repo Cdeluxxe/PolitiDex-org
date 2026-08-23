@@ -128,7 +128,22 @@
 // my-stances.js that cannot produce a star to justify it. my-stances.js and
 // my-stances.css are not shell assets, so they arrive fresh on their own; the two
 // that ARE precached, alignment-tool.js and race-sheet.js, both changed.
-const CACHE_VERSION = 'v71';
+// v72 — THE SEAT SPINE. Every surface that lists a voter's seats now paints the
+// same three-part strip under each one — team state, "Compare field for this seat",
+// and (only for a visitor with no positions) one line saying how to rank the race —
+// from a single new helper, window.pdxSeatStrip in race-sheet.js. The Voter Hub's
+// seat block also stopped hiding itself when no location is set: it holds its place
+// and asks for one, naming no officeholder, because with no location there is no
+// honest answer to "who is my House member". The bump matters because the halves
+// are split across the precache boundary: race-sheet.js and race-sheet.css (which
+// own the helper and its styles) ARE shell assets, while who-represents-me.js,
+// voter-hub-location.js and ballot-breakdown.js are not — a shell holding v71 would
+// serve fresh hosts calling a pdxSeatStrip that does not exist yet (they fall back
+// to the bare compare button, so the team chip and the stance line would silently
+// never appear) or the new race-sheet.js styles against hosts that never render the
+// strip. index.html and app.css also changed — the Door-2 spine line and the
+// research-list handoff — and both are precached.
+const CACHE_VERSION = 'v72';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
