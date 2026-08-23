@@ -47,9 +47,11 @@
 //      was no way to reach it from node — not because a judged roll call needs
 //      less explaining than a judged executive order. vr-record-corpus.mjs
 //      rebuilds the lane offline from the shipped seeds, so this file now holds
-//      the same gate over it, at the coverage the existing-inventory pass reached
-//      rather than at 100%: the measures with no text on file stay derived on
-//      purpose and are counted, not waived.
+//      the same gate over it — and since the roll-call mechanism pass, at 100%:
+//      every judged act on a Contradicted or Mixed row carries a written line
+//      naming what in the measure is about THIS issue. The escape hatch that
+//      remains is the debt list, which names any pair that falls back, not a
+//      percentage that lets one hide.
 //
 //   node scripts/test-mechanism-completeness.mjs
 //
@@ -300,25 +302,40 @@ section("7 · judged roll-call acts teach too — or are counted as debt, not wa
   }
   const rate = rec.length ? curated / rec.length : 0;
   console.log(`   judged roll-call acts: ${rec.length} · curated ${curated} (${Math.round(rate * 100)}%) · ${openDebt.size} (measure, issue) pairs still owed`);
-  // A ratchet on the two verdicts a reader comes to argue with. It is not 100%
-  // and must not be written as if it were: the measures behind the remainder have
-  // no summary text in the repo, so a curator has nothing to write from and a
-  // confident sentence there would be invention.
-  ok(rate >= 0.7,
-    `curated coverage of judged roll-call acts fell to ${Math.round(rate * 100)}% — it was 83% when this gate was written`);
+  // The roll-call mechanism pass closed the last of it. The gate that used to read
+  // "at the coverage the pass reached" now reads what the brief asked for: every
+  // judged act on a Contradicted or Mixed row says what the measure did on THIS
+  // issue and why the ballot cuts the way the verdict says. A new mapping arriving
+  // with no curated pair fails here, which is the point — the debt is visible at
+  // the moment it is taken on rather than at the next audit.
+  ok(rate >= 1,
+    `curated coverage of judged roll-call acts is ${Math.round(rate * 100)}% — every judged act must carry a written ` +
+    `mechanism line, and ${openDebt.size} (measure, issue) pair(s) do not: ` +
+    `${[...openDebt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, n]) => `${k} (${n} rows)`).join(", ")}`);
   // Every pair still owed is named, so the debt is a work list rather than a mood.
   const worst = [...openDebt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
   if (worst.length) console.log(`   still owed, worst first: ${worst.map(([k, n]) => `${k} (${n})`).join(" · ")}`);
-  // And the debt is bounded by what the repo can actually source. A pair with
-  // measure text on file and no curated line is a gap somebody can close today.
+  // And the debt is bounded by what the repo can actually source. A pair is
+  // writable when the repo holds text to write FROM — either a measure summary on
+  // file, or the mapping's own rationale where that rationale states an effect
+  // rather than a category. The identity file was the whole test until the
+  // roll-call pass; it let 33 pairs sit as debt whose mapping rationale already
+  // named the struck section, the zeroed account and the reduced programme. A
+  // rationale long enough to open the L4 fold is long enough to write a face from.
   const ident = new Set(JSON.parse(R("db/vr-measure-identity.json")).measures.map((m) => m.number + "|" + m.congress));
+  const rationale = new Map();
+  for (const m of JSON.parse(R("db/vr-issue-seed.json")).measures || []) {
+    for (const i of m.issues || []) {
+      rationale.set(`${m.number}|${m.congress}|${i.issueKey}`, String(i.rationale || "").trim());
+    }
+  }
   const writable = [...openDebt.keys()].filter((k) => {
     const p = k.split("|");
-    return ident.has(p[0] + "|" + p[1]);
+    return ident.has(p[0] + "|" + p[1]) || (rationale.get(k) || "").length >= 120;
   });
   ok(writable.length === 0,
-    `${writable.length} judged pair(s) have measure text on file and still render derived — ` +
-    `nothing is stopping these being written: ${writable.slice(0, 6).join(", ")}`);
+    `${writable.length} judged pair(s) have measure text or a provision-level mapping rationale on file and still ` +
+    `render derived — nothing is stopping these being written: ${writable.slice(0, 6).join(", ")}`);
 }
 
 // ── Report ──────────────────────────────────────────────────────────────────

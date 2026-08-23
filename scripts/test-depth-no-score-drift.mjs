@@ -253,8 +253,24 @@ for (const pid of PIDS) {
     const pmA = before._polPositionMap(pid, p) || {};
     const pmB = after._polPositionMap(pid, after.CMP_DATA[pid]) || {};
     for (const k of LIFTED[pid].split(" — ")[0].split(", ")) {
-      ok(!pmA[k], `${pid}: lifted — ${k} held no stated position before the pass`);
-      ok(!!pmB[k], `${pid}: lifted — ${k} holds one now, which is what cleared the floor`);
+      // This used to also assert `!pmA[k]` — that the key held no stated position in
+      // the baseline tree. That is true exactly once, while the lift is still
+      // uncommitted. The moment the pass lands, HEAD *is* the after-state, pmA and
+      // pmB become the same map, and the assertion inverts: the file reports one
+      // failure per lifted key describing nothing that is wrong. It is not
+      // recoverable by picking an older baseline either, because the baseline is
+      // deliberately HEAD and this file never reaches into .git.
+      //
+      // So the witness changes with the tree. Before the lift is committed, pmB
+      // gaining the key is the evidence. After, what remains testable — and what an
+      // accidental revert or a quietly narrowed sourcing rule would still break — is
+      // that the key is STILL carrying a stated position in the tree under test.
+      // The claim the block exists to make, that a position is not a score, is
+      // unaffected: READ_KEYS above holds every published figure identical across
+      // both trees, so a floor lowered to manufacture one of these would fail there.
+      ok(!!pmB[k], `${pid}: lifted (${LIFTED[pid]}) — ${k} no longer holds a stated position`);
+      ok(!pmA[k] || !!pmB[k],
+        `${pid}: lifted — ${k} held a stated position in the baseline and lost it in this tree`);
     }
     ok((cb.word - cb.recordDerived) >= (ca.word - ca.recordDerived),
       `${pid}: lifted (${LIFTED[pid]}) — positions standing on their own evidence did not fall away`);

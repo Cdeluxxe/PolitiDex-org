@@ -167,11 +167,12 @@ section("3 · curated pair, or the derived pair in the derived voice — never e
     }
   }
   console.log(`   curated ${curated} · derived ${derived} · ${Math.round((curated / acts.length) * 100)}% of the face is written`);
-  // A ratchet, not a target. This pass took the record face from 20% to 79%; the
-  // number may only go up, and a regression that quietly re-derives curated rows
-  // has to break something.
-  ok(curated / acts.length >= 0.75,
-    `curated coverage of the record face fell to ${Math.round((curated / acts.length) * 100)}% — it was 79% when this harness was written`);
+  // A ratchet, not a target. This pass took the record face from 20% to 79%, and
+  // the roll-call mechanism pass took it to 89% by closing every judged act on a
+  // Contradicted or Mixed row. The number may only go up, and a regression that
+  // quietly re-derives curated rows has to break something.
+  ok(curated / acts.length >= 0.88,
+    `curated coverage of the record face fell to ${Math.round((curated / acts.length) * 100)}% — it was 89% after the roll-call mechanism pass`);
   ok(derived > 0,
     "every act is curated, which means the derived rendering below is no longer exercised by real data — point the derived assertions at a fixture before deleting them");
 }
@@ -283,8 +284,13 @@ section("5 · narrow, secondary and procedural acts are labelled and still liste
   // A narrow or secondary link says so in the sentence a reader actually reads.
   const narrowCur = narrow.filter((a) => a.m.countsBy === "curated");
   const said = narrowCur.filter((a) => /narrow link/i.test(a.m.counts)).length;
-  ok(narrowCur.length === 0 || said / narrowCur.length >= 0.5,
+  ok(narrowCur.length === 0 || said / narrowCur.length >= 0.78,
     `only ${said} of ${narrowCur.length} curated narrow acts say "narrow link" on the face`);
+  // The rest disclose their reach in the sentence's own words rather than in that
+  // phrase — "one section of", "weighted 45", "it reaches military installations
+  // only". test-rollcall-mechanism.mjs holds every curated narrow (measure, issue)
+  // pair to the wider vocabulary at 100%; this line is the floor on the phrase
+  // itself, which is the one a reader scanning the face will actually catch.
 }
 
 /* ═══ 6 · the L4 fold, and whose voice is in it ═══════════════════════════ */

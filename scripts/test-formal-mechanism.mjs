@@ -366,17 +366,38 @@ console.log("   ── 7 · what this pass skipped is still visibly derived");
     ok(CS.dossierMechanism(hit.row, key, null, false).countsBy === "curated",
       `${num}|${cong}|${key} was skipped by this pass and has since been curated`);
   }
-  // What is still skipped, and why: the repo holds no summary text for these, so
-  // there is nothing a curator could write from and the face must keep saying so.
-  // The derived treatment is asserted on these rather than on the list above, so
-  // the check cannot be satisfied by curating everything in sight.
-  const SKIPPED = [
+  // Five of the six pairs this list used to hold were closed by the roll-call
+  // mechanism pass, which scoped itself to acts judged on a Contradicted or Mixed
+  // member row. Same inversion as CLOSED_LATER above — a pass reaching a pair this
+  // one skipped is the system working, so the pairs move lists rather than leaving.
+  const CLOSED_BY_ROLLCALL_PASS = [
     ["H.R. 8369", 118, "israel_support"],
-    ["H.R. 8369", 118, "power_of_purse"],
     ["H.R. 8281", 118, "states_federal_power"],
     ["H.R. 29", 119, "border_security"],
     ["H.Amdt. 478", 118, "israel_support"],
     ["H.Amdt. 248", 119, "strong_defense"],
+  ];
+  for (const [num, cong, key] of CLOSED_BY_ROLLCALL_PASS) {
+    const hit = holderOf(num, cong, key);
+    if (!hit) continue;
+    ok(CS.dossierMechanism(hit.row, key, null, false).countsBy === "curated",
+      `${num}|${cong}|${key} is judged on a Contradicted or Mixed row and the roll-call mechanism pass wrote it`);
+  }
+  // What is still skipped, and why. The earlier note here said the repo held no
+  // summary text for these — that was never quite the reason and is plainly not the
+  // reason now: every pair below carries a mapping rationale in db/vr-issue-seed.json
+  // long enough to write from. They are uncurated because no pass has reached them.
+  // Each sits only on Limited or Consistent member rows, which the roll-call pass
+  // deliberately left rather than blocking itself on perfecting every agreeing row.
+  // The derived treatment is asserted on these rather than on the lists above, so
+  // the check cannot be satisfied by curating everything in sight.
+  const SKIPPED = [
+    ["H.R. 8369", 118, "power_of_purse"],
+    ["H.Amdt. 253", 119, "gun_rights"],
+    ["H.Amdt. 234", 119, "climate_action"],
+    ["H.Amdt. 258", 119, "religious_liberty"],
+    ["H.Amdt. 266", 119, "gov_waste"],
+    ["H.R. 1808", 117, "gun_safety"],
   ];
   let checked = 0;
   for (const [num, cong, key] of SKIPPED) {
