@@ -92,6 +92,8 @@
       '.vr-bar{display:flex;height:.5rem;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);}',
       '.vr-bar-seg{height:100%;}',
       '.vr-bar-consistent{background:#4ade80;}.vr-bar-contradicts{background:#f87171;}.vr-bar-mixed{background:#60a5fa;}',
+      /* depth disclosure beside a group verdict that rests on one instrument */
+      '.vr-group-depth{font-size:.7rem;color:#fbbf24;border:1px solid rgba(251,191,36,.34);background:rgba(251,191,36,.1);border-radius:999px;padding:.08rem .42rem;white-space:nowrap;}',
       '.vr-legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.5rem;font-size:.72rem;color:#9fb4d4;}',
       '.vr-legend b{color:#eef4ff;font-weight:700;}',
       '.vr-dot{display:inline-block;width:.55rem;height:.55rem;border-radius:50%;margin-right:.3rem;vertical-align:middle;}',
@@ -693,11 +695,16 @@
     // permitted use of the flag: an example pick for a single summary token, next to
     // an explicit pointer at the complete list — never the thing that decides which
     // topics a reader gets to see.
+    //   AND IT IS SCOPED TO THIS VOTE. "Compares the stated stance on Health care"
+    // reads, next to a green tick, as a finding about their health-care record. It
+    // is not: it is one roll call on one day, judged against one sentence they said.
+    // The scope line names the instrument first, so the badge can never be read as
+    // a career pattern on the topic it happens to be about.
     var scope = '';
     var scopedIssue = (item.issues && item.issues[0]) || null;
     if (verdictHtml && scopedIssue) {
-      scope = '<span class="vr-verdict-scope">compares the stated stance on ' +
-        esc(issueLabel(scopedIssue.issueKey)) +
+      scope = '<span class="vr-verdict-scope">on this vote — stated stance on ' +
+        esc(issueLabel(scopedIssue.issueKey)) + ' vs this one roll call' +
         ' <span class="vr-verdict-scope-q">· all ' + sp.count + ' topics are judged below</span></span>';
     }
 
@@ -835,8 +842,9 @@
     // other topics are the same vote, decided at the same moment, by the same member.
     var scopedIssue = (item.issues && item.issues[0]) || null;
     var vbTitle = (vb && isOmnibusItem(item) && scopedIssue)
-      ? ' title="' + escAttr('This badge compares the member’s stated stance on ' +
-          issueLabel(scopedIssue.issueKey) + ' with how they voted. The same vote is judged ' +
+      ? ' title="' + escAttr('On this act: this badge compares the member’s stated stance on ' +
+          issueLabel(scopedIssue.issueKey) + ' with how they voted here. It is one roll call, ' +
+          'not their record on ' + issueLabel(scopedIssue.issueKey) + '. The same vote is judged ' +
           'separately on every issue it touched — the full split is below.') + '"'
       : '';
     var verdictHtml = vb ? '<span class="vr-verdict ' + vb.cls + '"' + vbTitle + '>' + esc(vb.label) + '</span>' : '';
@@ -916,6 +924,10 @@
   // Exported for the same reason _vrTeachHtml is: a pure item → HTML function that a
   // node harness can render without a DOM, so the card's markup is testable.
   window._vrCardHtml = cardHtml;
+  // Exposed for scripts/test-act-scope-copy.mjs: the grouped issue list, so the
+  // depth disclosure beside a group verdict can be rendered and pinned at both
+  // depths — one instrument, and several.
+  window._vrGroupsHtml = function (items, positionMap) { return renderGroups(items || [], positionMap || {}); };
 
   // ── Empty / no-match state ─────────────────────────────────────────────────
   // Any filter narrowing the set beyond the member's full record (sort is a view
@@ -1032,6 +1044,37 @@
             os.omnibus + ' of ' + os.total + ' from multi-issue bills</span>';
         }
       }
+      // ── HOW MUCH RECORD IS UNDER THE GROUP VERDICT ────────────────────────────
+      // "Backs it up" over an issue heading is pattern voice: it says the record
+      // points one way on this issue. That sentence is earned when the record has
+      // items to point with, and it is not earned when the whole group is one
+      // omnibus yea. The verdict, its class and the engine that produced it are
+      // untouched — this adds the inventory beside it so the word is read at the
+      // size of the evidence: how many judged records, and how many separate
+      // measures they are. Shown only when the judged evidence is a single
+      // instrument, which is exactly the case where the badge alone overclaims.
+      //   FAILS CLOSED, AND COUNTS WHAT IS THERE. The measure count is taken over
+      // the WHOLE group rather than the judged subset — an over-count, never an
+      // under-count, so the marker can only appear when the group genuinely holds
+      // one instrument. Anonymous records fall back to their own row key rather
+      // than collapsing into each other. The inventory is the group's record count,
+      // which is the number the heading beside it already prints, so the two can
+      // never disagree about how much is here.
+      var depthNote = '';
+      if (summary && summary.hasStance && summary.label) {
+        var seenM = {}, nM = 0, ident = '';
+        list.forEach(function (it, i) {
+          if (!it) return;
+          var mk = String(it.measureId || it.number || it.rollcallId || ('#' + i));
+          if (!seenM[mk]) { seenM[mk] = 1; nM++; if (!ident) ident = String(it.number || ''); }
+        });
+        if (list.length > 0 && nM === 1) {
+          var dTxt = 'On ' + (list.length === 1 ? 'one record' : list.length + ' records, all the same measure') +
+            (ident ? ' — ' + ident : '') + '. That is one instrument on this issue, not a pattern across the rest of their record.';
+          depthNote = '<span class="vr-group-depth" title="' + escAttr(dTxt) + '">📍 ' +
+            esc(list.length === 1 ? 'on 1 record' : 'on 1 measure') + '</span>';
+        }
+      }
       var head = '<div class="vr-group-head">' +
         '<span class="vr-group-title">' + esc(key === '_none' ? '📄 Other records' : issueLabel(key)) + '</span>' +
         '<span class="vr-group-n">' + list.length + ' record' + (list.length === 1 ? '' : 's') + '</span>' +
@@ -1043,6 +1086,7 @@
                 : summary.netVerdict === 'mixed' ? 'vr-v-mixed' : 'vr-v-neutral') +
               '">' + esc(summary.label) + '</span>'
           : '') +
+        depthNote +
         '</div>';
 
       var cards = list.filter(function (it) { return !nested[it.measureId]; }).map(function (it) {

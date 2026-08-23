@@ -4109,17 +4109,26 @@
     // flag. Because this compact card has no room for the per-topic split the full
     // record card carries, the badge names its own scope in a tooltip instead of
     // floating unqualified above a row of chips it does not speak for.
+    //   AND THE SCOPE IS ON THE FACE, NOT ONLY IN THE TOOLTIP. A tooltip is dead on
+    // touch, and the thing it was carrying is the one thing that stops "✓ Matches
+    // stance" reading as a verdict on the member's whole record on that topic. So
+    // the scope is a printed line: it names the instrument first, names the topic
+    // the comparison is against, and says plainly that one vote is one vote.
     var scoped = (it.issues && it.issues[0]) || null;
-    var verdict = '';
+    var verdict = '', vScope = '';
     try {
       if (scoped && posMap[scoped.issueKey] && window._voteEffectiveSupport && window._stanceVoteVerdict) {
         var eff = window._voteEffectiveSupport(it, scoped.supportMeaning);
         var v = _VRHI_VERDICT[window._stanceVoteVerdict(posMap[scoped.issueKey].stance, eff)];
         if (v) {
-          var vTip = 'Compares the stated stance on ' + _lbl(scoped.issueKey) + ' with this vote.' +
+          var vTip = 'On this act: compares the stated stance on ' + _lbl(scoped.issueKey) +
+            ' with this one vote. It is not their record on ' + _lbl(scoped.issueKey) + '.' +
             (topics.length > 1 ? ' This vote also decided ' + (topics.length - 1) + ' other topic' +
               (topics.length > 2 ? 's' : '') + ', listed below and judged in the full record.' : '');
           verdict = '<span class="vr-verdict ' + v.cls + '" title="' + _pdxEyeEsc(vTip) + '">' + v.label + '</span>';
+          vScope = '<div class="pdx-vrhi-scope">On this vote — stated stance on ' +
+            _pdxEyeEsc(_lbl(scoped.issueKey)) + ' vs this one roll call' +
+            (topics.length > 1 ? ', one of ' + topics.length + ' topics it decided' : '') + '</div>';
         }
       }
     } catch (e) {}
@@ -4128,6 +4137,7 @@
           '<span class="pdx-vrhi-card-ref">' + num + when + '</span>' + verdict +
         '</div>' +
         (it.title ? '<div class="pdx-vrhi-card-title">' + _pdxEyeEsc(it.title) + '</div>' : '') +
+        vScope +
         '<div class="pdx-vrhi-card-meta">' + pill + issue + '</div>' +
       '</div>';
   }

@@ -183,9 +183,12 @@ section("3 · the profile highlight: no '+N more'");
   const want = W._pdxBigPictureOrder(MAPPINGS, { labelFn: label }).map((m) => esc(label(m.issueKey)));
   eq(JSON.stringify(chips), JSON.stringify(want),
     "the profile highlight's chips are not in the shared Big Picture order");
-  // Its one badge names its own scope rather than floating over chips it cannot speak for.
+  // Its one badge names its own scope rather than floating over chips it cannot speak
+  // for — and since the act-scope pass, that scope is printed on the card as well as
+  // carried in the tooltip. scripts/test-act-scope-copy.mjs owns the wording; this
+  // only holds the badge to having a scope at all.
   if (/class="vr-verdict /.test(hi)) {
-    has(hi, "Compares the stated stance on",
+    has(hi, "compares the stated stance on",
       "the highlight's verdict badge claims the whole vote without naming what it compares");
   }
 }

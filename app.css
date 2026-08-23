@@ -18869,6 +18869,12 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
   font-size: 0.8rem; line-height: 1.35; color: white;
   margin-top: 0.3rem;
 }
+/* Act scope for the highlight card's verdict badge — printed, not hover-only,
+   so a single roll call never reads as a standing record on the topic. */
+.pdx-vrhi-scope {
+  font-size: 0.62rem; line-height: 1.35; color: #8ea4c6;
+  margin-top: 0.28rem;
+}
 .pdx-vrhi-card-meta {
   display: flex; align-items: center; flex-wrap: wrap;
   gap: 0.3rem 0.35rem; margin-top: 0.4rem;

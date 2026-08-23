@@ -490,7 +490,7 @@
         { b: 'The number and date', t: 'Which measure this was — H.R. for a House bill, S. for a Senate one — and when the vote happened.', keys: ['hr', 's', 'congress'] },
         { b: 'How they voted', t: 'Yea is yes, Nay is no. What that Yea actually accomplished depends on the question being asked, so we read the question first.', keys: ['yea', 'rollcall'] },
         { b: 'The tags', t: 'Chamber, the roll-call question, whether it passed, and whether it was an amendment or a procedural vote.', keys: ['procedural', 'amendment', 'house', 'senate'] },
-        { b: 'The verdict badge', t: 'Shown only when the member has also stated a position on the issue — it compares the two. On a multi-issue bill it refers to that bill’s main issue; the split below covers the rest.', keys: ['saydo', 'contradiction'] },
+        { b: 'The verdict badge', t: 'Shown only when the member has also stated a position on the issue — it compares the two, on this act alone. A badge can only carry one comparison, so on a multi-issue bill it names which topic it is about; the split below judges every other topic the same vote decided. One vote is one vote: it is not their record on that topic.', keys: ['saydo', 'contradiction'] },
         { b: '🧩 Multi-issue bills', t: 'One vote, several issues, each scored on its own. The same Yea can keep one promise and break another.', keys: ['omnibus', 'reconciliation'] },
         { b: 'The source link', t: 'Every card links to the official roll call or filing. Nothing here asks you to take our word for it.', keys: [] }
       ],
