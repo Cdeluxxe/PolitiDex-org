@@ -261,6 +261,88 @@
     '</div>';
   }
 
+  // ── the bag: what travelled with what ───────────────────────────────────────
+  // MENU TRANSPARENCY, NOT A HIERARCHY. The ledger above answers "what is in this
+  // act?", one row per mapping. This panel answers the question a reader asks
+  // immediately afterwards and that no surface here answered before: "did all of
+  // that really go through on one vote?" It is a PACKAGING FACT — how Congress
+  // assembled the instrument — and it is derived from nothing but the same
+  // measure→issue mappings the ledger is built from. No new keys, no new
+  // curation, no score of any kind, and not one topic treated as the reason the
+  // others were carried.
+  //
+  // Three rules hold the panel to that:
+  //   · SAME LIST, SAME ORDER. Every chip is a topic already on the face, in the
+  //     shared Big Picture order the ledger uses. The count it prints is the row
+  //     count, so the panel can never quietly claim a different-sized act.
+  //   · EQUAL TREATMENT. isPrimary is not read here at all: no chip is styled,
+  //     sorted, badged or worded differently from any other, because "which of
+  //     these was the act really about" is not a fact this codebase has.
+  //   · IT ADDS A FACT, NOT A VERDICT. Bag size, how many areas of the shipped
+  //     topic map those mappings fall into, and how many roll calls carried the
+  //     whole bag. All three are counts of things already on the page.
+  //
+  // The area grouping is the taxonomy's own grouping, printed in the taxonomy's
+  // own order rather than by size, so a big group reads as more mappings and not
+  // as the act's "real" subject. A single-topic measure gets no panel: a bag of
+  // one is not a bag, and the ledger already says so in plain words.
+  function coTravelSection(m, issues, rollcalls) {
+    if (!issues || issues.length < 2) return '';
+    var ordered = bigPictureOrder(issues);
+    var n = ordered.length;
+    var rcs = (rollcalls || []).length;
+    var enacted = m && m.status === 'enacted';
+    var unit = rcs ? 'vote' : (enacted ? 'act' : 'measure');
+
+    // Which areas of the shipped topic map these mappings fall into. `ordered` is
+    // already in taxonomy order, so first-seen order is taxonomy order — the
+    // groups are never re-sorted by how many mappings landed in them.
+    var areas = [], byCat = {};
+    ordered.forEach(function (it) {
+      var ck = '';
+      try { if (typeof window._pdxIssueCatOf === 'function') ck = window._pdxIssueCatOf(it.issueKey) || ''; } catch (e) {}
+      var lab = '';
+      try {
+        var c = (typeof window._pdxIssueCategory === 'function') ? window._pdxIssueCategory(ck) : null;
+        if (c && c.label) lab = (c.icon ? c.icon + ' ' : '') + c.label;
+      } catch (e) {}
+      if (!lab) { ck = '_unmapped'; lab = 'Elsewhere in the topic map'; }
+      if (!byCat[ck]) { byCat[ck] = { label: lab, n: 0 }; areas.push(byCat[ck]); }
+      byCat[ck].n++;
+    });
+
+    var carried = rcs === 1
+      ? 'One roll call decided every one of them. A member could take the whole bag or refuse the whole bag; there was no separate vote on any single topic in it.'
+      : rcs > 1
+        ? rcs + ' roll calls each decided every one of them at once. None of them was a vote on one topic.'
+        : enacted
+          ? 'They were signed into law as one instrument, so they arrived together or not at all.'
+          : 'They ride on one measure, so they move together for as long as it does.';
+
+    var chips = ordered.map(function (it) {
+      return '<button type="button" class="bd-bag-chip" data-issue="' + escAttr(it.issueKey) + '"' +
+        ' title="Open ' + escAttr(issueLabel(it.issueKey)) + '">' + esc(issueLabel(it.issueKey)) + '</button>';
+    }).join('');
+
+    var stats = '<span class="bd-bag-stat">📦 ' + n + ' topics on this instrument</span>' +
+      '<span class="bd-bag-stat">🗂 ' + areas.length + ' area' + (areas.length !== 1 ? 's' : '') + ' of the topic map</span>' +
+      (rcs ? '<span class="bd-bag-stat">🗳️ ' + (rcs === 1 ? '1 roll call on all ' + n : rcs + ' roll calls, each on all ' + n) + '</span>' : '');
+
+    var areaRow = '<div class="bd-bag-areas">' + areas.map(function (a) {
+      return '<span class="bd-bag-area">' + esc(a.label) + ' <b>' + a.n + '</b></span>';
+    }).join('') + '</div>';
+
+    return '<section class="bd-sec bd-bag"><h3 class="bd-h">🎒 Topics that shared this ' + esc(unit) + '</h3>' +
+      '<p class="bd-lead">All <strong>' + n + ' topics</strong> listed above rode the same instrument. ' + esc(carried) + '</p>' +
+      '<div class="bd-bag-stats">' + stats + '</div>' +
+      '<div class="bd-bag-strip" role="group" aria-label="Every topic carried on this instrument">' + chips + '</div>' +
+      areaRow +
+      '<p class="bd-note bd-bag-note">These are the same ' + n + ' mappings as the list above, in the same order, ' +
+        'grouped only to show they arrived as one bag. Nothing here is a ranking: the areas are printed in the topic ' +
+        'map’s own order, and a bigger group means more mappings landed in it, not that the act mattered more there.</p>' +
+    '</section>';
+  }
+
   function rollcallsSection(m, issues, rollcalls) {
     if (!rollcalls || !rollcalls.length) {
       return '<section class="bd-sec"><h3 class="bd-h">🗳️ Roll-call votes</h3><p class="bd-empty">No recorded roll-call votes for this measure yet.</p></section>';
@@ -688,6 +770,7 @@
       '</div>' +
       glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
+      coTravelSection(m, issues, data.rollcalls) +
       provisionsSection(m, data.provisions) +
       impactLedgerSection(data) +
       rollcallsSection(m, issues, data.rollcalls) +
@@ -990,6 +1073,16 @@
       // default state shows every row and why a missing/unknown value does too.
       '.bd-omni-list[data-bd-view="main"] .bd-omni-row[data-bd-lane="other"]{display:none;}' +
       '.bd-omni-list[data-bd-view="other"] .bd-omni-row[data-bd-lane="main"]{display:none;}' +
+      '.bd-bag-stats{display:flex;flex-wrap:wrap;gap:.4rem;margin:-.3rem 0 .7rem;}' +
+      '.bd-bag-stat{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.09);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.26rem .55rem;}' +
+      '.bd-bag-strip{display:flex;flex-wrap:wrap;gap:.4rem;}' +
+      '.bd-bag-chip{font:600 .74rem/1.2 "Barlow",sans-serif;color:#e6eefc;background:rgba(126,180,255,.09);border:1px solid rgba(126,180,255,.24);border-radius:.5rem;padding:.34rem .6rem;min-height:34px;cursor:pointer;text-align:left;}' +
+      '.bd-bag-chip:hover{background:rgba(126,180,255,.16);border-color:rgba(126,180,255,.45);}' +
+      '.bd-bag-chip:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.bd-bag-areas{display:flex;flex-wrap:wrap;gap:.35rem;margin:.6rem 0 .5rem;}' +
+      '.bd-bag-area{font:600 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#9fb4d4;background:rgba(255,255,255,.03);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.26rem .55rem;}' +
+      '.bd-bag-area b{color:#e6eefc;font-weight:800;}' +
+      '.bd-bag-note{margin-top:.2rem;}' +
       '.bd-svd-cap{font:700 .6rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;margin:.1rem 0 .3rem;}' +
       '.bd-svd-count{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.16rem .45rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
