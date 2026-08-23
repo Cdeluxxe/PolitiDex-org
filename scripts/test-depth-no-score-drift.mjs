@@ -85,10 +85,39 @@ if (failures.length) {
 
 const PIDS = Object.keys(before.CMP_DATA || {});
 ok(PIDS.length > 100, `the roster booted (${PIDS.length} profiles)`);
+
+// ── Roster identity: additions are work, removals and reorders are drift ─────
+// Read literally, "the roster is byte-identical" is a freeze on identity repair.
+// A pid can sit in the ballot resolver as a district's officeholder with no
+// record behind it, and the seat then paints "no candidates on file" — a claim
+// about the world, and a false one. Fixing that means ADDING a roster record, and
+// a guard that forbids it would be protecting the bug.
+//
+// So an addition is allowed, named here, and required to be inert: it must be a
+// pid HEAD did not have, and everyone HEAD did have must still be present, in the
+// same relative order, with every score below unchanged. A removal or a reorder
+// still fails, because neither can be a repair.
+//
+// August 2026 ballot seat pack:
+//   kstratton · Keven J. Stratton, Utah Senate District 24 (Provo / Orem), the
+//               seat's officeholder since Jan 2025. He was already SD-24's
+//               incumbent in ballot-breakdown.js with no record behind the id.
+const ADDED = { kstratton: "SD-24 officeholder — pid existed in the ballot resolver with no roster record" };
 {
   const now = Object.keys(after.CMP_DATA || {});
-  eq(now.length, PIDS.length, "the pass added and removed nobody");
-  eq(now.join("|"), PIDS.join("|"), "…and reordered nobody");
+  const nowSet = new Set(now);
+  const gone = PIDS.filter((p) => !nowSet.has(p));
+  eq(gone.join("|"), "", "the pass removed someone from the roster");
+
+  const added = now.filter((p) => PIDS.indexOf(p) < 0);
+  const unnamed = added.filter((p) => !ADDED[p]);
+  eq(unnamed.join("|"), "",
+    "the pass added a profile that is not named in ADDED above");
+
+  // Everyone HEAD had, in HEAD's order, ignoring where the new ids landed.
+  eq(now.filter((p) => PIDS.indexOf(p) >= 0).join("|"), PIDS.join("|"),
+    "the pass reordered the existing roster");
+  eq(now.length, PIDS.length + added.length, "the roster count does not add up");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -253,8 +282,24 @@ for (const pid of PIDS) {
     const pmA = before._polPositionMap(pid, p) || {};
     const pmB = after._polPositionMap(pid, after.CMP_DATA[pid]) || {};
     for (const k of LIFTED[pid].split(" — ")[0].split(", ")) {
-      ok(!pmA[k], `${pid}: lifted — ${k} held no stated position before the pass`);
-      ok(!!pmB[k], `${pid}: lifted — ${k} holds one now, which is what cleared the floor`);
+      // This used to also assert `!pmA[k]` — that the key held no stated position in
+      // the baseline tree. That is true exactly once, while the lift is still
+      // uncommitted. The moment the pass lands, HEAD *is* the after-state, pmA and
+      // pmB become the same map, and the assertion inverts: the file reports one
+      // failure per lifted key describing nothing that is wrong. It is not
+      // recoverable by picking an older baseline either, because the baseline is
+      // deliberately HEAD and this file never reaches into .git.
+      //
+      // So the witness changes with the tree. Before the lift is committed, pmB
+      // gaining the key is the evidence. After, what remains testable — and what an
+      // accidental revert or a quietly narrowed sourcing rule would still break — is
+      // that the key is STILL carrying a stated position in the tree under test.
+      // The claim the block exists to make, that a position is not a score, is
+      // unaffected: READ_KEYS above holds every published figure identical across
+      // both trees, so a floor lowered to manufacture one of these would fail there.
+      ok(!!pmB[k], `${pid}: lifted (${LIFTED[pid]}) — ${k} no longer holds a stated position`);
+      ok(!pmA[k] || !!pmB[k],
+        `${pid}: lifted — ${k} held a stated position in the baseline and lost it in this tree`);
     }
     ok((cb.word - cb.recordDerived) >= (ca.word - ca.recordDerived),
       `${pid}: lifted (${LIFTED[pid]}) — positions standing on their own evidence did not fall away`);

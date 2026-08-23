@@ -1951,6 +1951,11 @@ window.PDXLazy = (function () {
   <!-- Issue Comparison — compare politicians on one issue (stated position + Say-vs-Do). -->
   <link rel="stylesheet" href="/issue-compare.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/issue-compare.css" /></noscript>
+  <!-- Race sheet — one office, every candidate we know for it, side by side,
+       ranked by how their formal record lines up with the visitor's own stances.
+       Overlay-only, so it loads non-blocking like the rest of the modal CSS. -->
+  <link rel="stylesheet" href="/race-sheet.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/race-sheet.css" /></noscript>
   <!-- Chart.js (profile finance charts) and Leaflet (the interactive Utah
        district-picker map) are CODE-SPLIT: they used to load render-blocking here
        in <head> (~350 KB combined) even though the home page and Your Ballot never
@@ -2965,7 +2970,7 @@ window.PDXLazy = (function () {
                away in the account chip on the right, and it is a returning-visitor
                destination — exactly the kind of item that should yield a slot to a
                first-visit one. -->
-          <a href="#who-represents-me" title="Find the officials with power over you — then see their records" onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#07101f;background:linear-gradient(135deg,#a8d4ff,#5ea2f5);border:1.5px solid rgba(167,212,255,0.9);box-shadow:0 0 16px rgba(96,165,250,0.4),inset 0 1px 0 rgba(255,255,255,0.3);text-shadow:0 1px 1px rgba(255,255,255,0.2);">🏛️ Who Represents Me</a>
+          <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#07101f;background:linear-gradient(135deg,#a8d4ff,#5ea2f5);border:1.5px solid rgba(167,212,255,0.9);box-shadow:0 0 16px rgba(96,165,250,0.4),inset 0 1px 0 rgba(255,255,255,0.3);text-shadow:0 1px 1px rgba(255,255,255,0.2);">🏛️ Who Represents Me</a>
           <!-- href is a real destination, not a decoration: if the helper has not
                loaded yet the click is left alone and lands on the receipts band, so
                the control is never dead. When the helper is there it takes over and
@@ -3476,7 +3481,7 @@ window.PDXLazy = (function () {
            the desktop row — this menu has the vertical room the bar does not.
            Local Issues follows, and only resolves once a location is confirmed. -->
       <div class="mnav-group-label">Your Vote</div>
-      <a href="#who-represents-me" title="Find the officials with power over you — then see their records" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
+      <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
       <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Voting Team</a>
       <a href="#my-stances" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎯 My Stances</a>
@@ -4440,6 +4445,9 @@ window.PDXLazy = (function () {
       .wrm-resultkicker{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:0.05em;color:#fff;}
       .wrm-resultcount{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;
         letter-spacing:0.08em;text-transform:uppercase;color:#8fa8c8;}
+      /* Legend for the seat list: the same three steps every strip below repeats. */
+      .wrm-spine{margin:-0.25rem 0 0.6rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;
+        font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;}
       .wrm-rows{display:flex;flex-direction:column;gap:0.45rem;}
       .wrm-row{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.55rem;border-radius:0.7rem;
         background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.07);border-left:3px solid #60a5fa;
@@ -4448,6 +4456,10 @@ window.PDXLazy = (function () {
       .wrm-row:focus-visible{outline:2px solid #f5c842;outline-offset:2px;}
       .wrm-row--unresolved{cursor:default;opacity:0.8;}
       .wrm-row--unresolved:hover{background:rgba(10,15,30,0.45);transform:none;}
+      /* The landing mark for a shared race link whose sheet could not mount.
+         Persistent rather than a flash: the reader arrived looking for one seat
+         and needs to still be able to find it after the scroll settles. */
+      .wrm-row--focus{background:rgba(96,165,250,0.14);box-shadow:0 0 0 2px rgba(96,165,250,0.45) inset;}
       .wrm-avatar{width:42px;height:42px;flex:none;border-radius:50%;overflow:hidden;display:block;
         border:2px solid #60a5fa;background:#0a0f1e;}
       .wrm-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -4689,6 +4701,7 @@ window.PDXLazy = (function () {
       #start-here .sh-title .sh-accent{color:#f87171;}
       #start-here .sh-lead{font-family:'Barlow',sans-serif;font-size:clamp(0.92rem,2.1vw,1.08rem);color:#cbd5e1;font-weight:500;max-width:38rem;margin:0 auto;line-height:1.5;}
       #start-here .sh-lead strong{color:#fff;font-weight:700;}
+      #start-here .sh-spine{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8fa8c8;margin:0.75rem auto 0;}
       /* Action row: one prominent primary CTA + a light tour link */
       #start-here .sh-cta-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;margin-top:1.15rem;}
       #start-here .sh-cta-primary{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;cursor:pointer;
@@ -4730,6 +4743,11 @@ window.PDXLazy = (function () {
       <div class="sh-eyebrow"><span>🗳️ Election tools · 30 seconds to set up</span></div>
       <h2 class="sh-title">SEE WHO <span class="sh-accent">REPRESENTS YOU</span></h2>
       <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex names the officials with power over you and the seats you actually decide &mdash; so you can read their records first, and pick a team on <strong>receipts rather than party lines</strong> if you want one.</p>
+
+      <!-- The path in six words, on the block that starts it. It is the same
+           sentence the seat lists carry, so the promise made here is the one the
+           visitor recognises two taps later. -->
+      <p class="sh-spine">Your seats → compare the field → pick for your team.</p>
 
       <div class="sh-cta-row">
         <button type="button" class="sh-cta-primary btn-tap" onclick="pdxStartHereGo()">📍 See who represents me</button>
@@ -11988,8 +12006,8 @@ window.PDXLazy = (function () {
             <div id="myteam-import-sub" class="myteam-import-sub"></div>
           </div>
           <div class="myteam-import-actions">
-            <button class="myteam-import-load" onclick="myteamImportShared(false)">Load This Team</button>
-            <button class="myteam-import-merge" onclick="myteamImportShared(true)">Merge With Mine</button>
+            <button id="myteam-import-load" class="myteam-import-load" onclick="myteamImportShared(false)">Load This Team</button>
+            <button id="myteam-import-merge" class="myteam-import-merge" onclick="myteamImportShared(true)">Merge With Mine</button>
             <button class="myteam-import-dismiss" onclick="myteamDismissImport()" aria-label="Dismiss">✕</button>
           </div>
         </div>
@@ -12006,9 +12024,9 @@ window.PDXLazy = (function () {
               <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
             </div>
             <div class="myteam-summary-actions" id="myteam-summary-actions">
-              <button id="myteam-share-btn" class="myteam-share-btn myteam-share-btn-primary" onclick="ballotShareTeamLink()" title="Copy a link that loads this exact team for anyone you send it to">
+              <button id="myteam-share-btn" class="myteam-share-btn myteam-share-btn-primary" onclick="ballotShareTeamLink()" title="Share a link that opens this exact team — offices and names, no scores">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                Share Link
+                Share Team
               </button>
               <button id="myteam-sharetext-btn" class="myteam-share-btn myteam-share-btn-text" onclick="ballotShareTeam()" title="Copy your picks as plain text to paste anywhere">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -12182,8 +12200,15 @@ window.PDXLazy = (function () {
           <div class="chub-flow-steps">
             <div class="chub-flow-step">
               <span class="chub-flow-step-num"><span class="chub-flow-dot">1</span> Discover</span>
-              <span class="chub-flow-step-title">Find the people on your ballot</span>
-              <span class="chub-flow-step-desc">Search or filter the list below by office, state, party or score to see who represents — or wants to represent — you.</span>
+              <span class="chub-flow-step-title">Look anyone up</span>
+              <!-- This step used to say "find the people on your ballot" and point at
+                   a sortable list of everyone. That is not how a voter finds their
+                   ballot — it is how a researcher browses ours. The ballot job now
+                   starts at Who Represents Me, which knows the seats; this list keeps
+                   the job it is actually good at, which is looking up a specific
+                   person. "or score" is gone with it: ranking strangers by a number
+                   was never the first step of deciding a race. -->
+              <span class="chub-flow-step-desc">Search or filter the list below by office, state or party to pull up anyone in the record. Working out <em>your</em> ballot? Start at <button type="button" onclick="if(window.pdxFindMyReps)window.pdxFindMyReps();else location.hash='#who-represents-me';" class="chub-flow-link">🏛️ Who Represents Me</button> — it names your seats and opens the field for each one.</span>
             </div>
             <div class="chub-flow-arrow" aria-hidden="true">→</div>
             <div class="chub-flow-step">
@@ -20614,6 +20639,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        _polPositionMap (alignment-tool + stance-helpers), _pdxRecordIssueSummary
        (voting-record), PDXTeamView, CMP_DATA. Owns no data; additive. -->
   <script defer src="issue-compare.js"></script>
+  <!-- Race sheet — "Compare field for this seat." Presentation only: it computes
+       no match of its own, it calls the one match brain (_calcAlignmentScore /
+       _calcAlignmentBreakdown, alignment-tool.js) once per lane per candidate.
+       Loads last because it reads across nearly everything: _ballotCandidates /
+       _pdxVoterBallot / ballotPickCard (ballot-breakdown.js), pdxRepsForMe
+       (voter-hub-location.js), _pdxLedgerSlot (compare-hub.js), ISSUE_MAP and
+       _msPriorityWeight (my-stances.js), _alignSignalChipHtml, PDXConsistency. -->
+  <script defer src="race-sheet.js"></script>
   <script>
   /* Evidence Locker density switch — additive, self-contained. Toggles a compact
      layout on the results grid (#el-results) and remembers the choice, so a

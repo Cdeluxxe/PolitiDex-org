@@ -323,16 +323,41 @@ console.log("   ── 6 · the identity note answers “which measure is this�
       "gov_services on H.R. 8595 was outside this pass's six and has since been curated by the existing-inventory pass");
   }
   // The claim that block is really making — an identity note is not a curated
-  // mechanism — needs a row where the note exists and the mechanism still does not,
-  // or it stops being testable the moment a later pass curates the example. H.R. 8281
-  // carries a note (it is the first of the three SAVE instruments) and its
-  // states_federal_power chip has no entry in _DOS_MECH.
-  const nb = holderOf("H.R. 8281", 118, "states_federal_power");
-  if (nb) {
-    has(faceFor(nb.pid, "states_federal_power"), "SAVE Act",
-      "the identity note reaches a chip that has no curated mechanism of its own");
-    ok(CS.dossierMechanism(nb.row, "states_federal_power", null, false).countsBy === "derived",
-      "a row can carry an identity note and still render derived — a note is not a mechanism");
+  // mechanism — used to be pinned on H.R. 8281|118|states_federal_power, a row that
+  // carried a note and had no entry in _DOS_MECH. The roll-call mechanism pass wrote
+  // that entry (it is a judged act on a Contradicted row), and the comment here
+  // already predicted the problem: an example chosen for being uncurated stops being
+  // an example the moment somebody curates it. So the claim is now made structurally
+  // instead of by example. Blank the prose table and leave the note table standing:
+  // if a note were doing a mechanism's job, the row would still read curated.
+  {
+    const noteOnly = R("consistency.js").replace(/var _DOS_MECH = \{[\s\S]*?\n  \};/, "var _DOS_MECH = {};");
+    ok(noteOnly.indexOf("var _DOS_MECH = {};") !== -1 && /var _DOS_IDENT_NOTE = \{\s*\n/.test(noteOnly),
+      "the note-only control really empties the prose table and really keeps the note table");
+    const nwin = makeSandbox();
+    const nsb = vm.createContext(nwin);
+    nwin.PROFILES = nwin.CMP_DATA;
+    for (const f of FILES) vm.runInContext(f === "consistency.js" ? noteOnly : R(f), nsb, { filename: f });
+    nwin.PROFILES = nwin.CMP_DATA;
+    for (const [pid, items] of seated) nwin.PDXVotingRecord.noteMember(pid, items);
+    const NC = nwin.PDXConsistency;
+    const h = held.get("H.R. 8595|119|election_security");
+    if (h) {
+      const nrow = (NC.dossierItems(h.pid, "election_security") || [])
+        .filter((d) => d.lane === "record")
+        .find((d) => d.item.number === "H.R. 8595" && String(d.item.congress) === "119");
+      ok(nrow, "the note-only control still seats H.R. 8595 on the election_security row");
+      if (nrow) {
+        const nm = NC.dossierMechanism(nrow, "election_security", null, false);
+        has(String(NC.dossierRecordsHtml(h.pid, "election_security") || ""),
+          "Safeguard American Voter Eligibility Act",
+          "with the prose table emptied the identity note is still on the face");
+        ok(nm.countsBy === "derived",
+          "a row can carry an identity note and still render derived — a note is not a mechanism");
+        ok(String(nm.ident || "").length > 0,
+          "the derived row is the one carrying the note, not a neighbour of it");
+      }
+    }
   }
   // H.J.Res. 44 and H.R. 1968 collide with nothing, so neither got a note.
   for (const [num, cong, key] of [["H.J.Res. 44", 118, "gov_regulation"], ["H.R. 1968", 119, "health_rural"]]) {
@@ -369,10 +394,31 @@ console.log("   ── 7 · the pairs outside this pass are untouched");
   // or "everything is curated now" would pass this file by deleting the distinction
   // instead of earning it. These pairs carry no measure text in the repo and must
   // stay visibly derived until one arrives.
-  const STILL_DERIVED = [
+  // The roll-call mechanism pass closed these three. Each is a judged act on a
+  // Contradicted or Mixed member row, and each was written from the mapping's own
+  // rationale in db/vr-issue-seed.json rather than from an identity summary — which
+  // is why they read as having "no text on file" when this list was drawn up, and
+  // why they are no longer derived now. Same inversion as CLOSED_LATER above.
+  const CLOSED_BY_ROLLCALL_PASS = [
     ["H.R. 8369", 118, "israel_support"],
     ["H.R. 8281", 118, "states_federal_power"],
     ["H.R. 29", 119, "border_security"],
+  ];
+  for (const [num, cong, key] of CLOSED_BY_ROLLCALL_PASS) {
+    const h = holderOf(num, cong, key);
+    if (!h) continue;
+    ok(CS.dossierMechanism(h.row, key, null, false).countsBy === "curated",
+      `${num}|${cong}|${key} is a judged act on a Contradicted or Mixed row and the roll-call mechanism pass wrote it`);
+  }
+  // Replacements, drawn from what is still derived after that pass: acts that sit
+  // only on Limited or Consistent rows, which the roll-call pass deliberately left
+  // alone rather than blocking itself on perfecting every agreeing row. When one of
+  // these is written too, invert it into a list above — do not delete the check.
+  const STILL_DERIVED = [
+    ["H.R. 8369", 118, "power_of_purse"],
+    ["H.Amdt. 253", 119, "gun_rights"],
+    ["H.Amdt. 234", 119, "climate_action"],
+    ["H.R. 1808", 117, "gun_safety"],
   ];
   let stillN = 0;
   for (const [num, cong, key] of STILL_DERIVED) {
@@ -382,7 +428,10 @@ console.log("   ── 7 · the pairs outside this pass are untouched");
     ok(CS.dossierMechanism(h.row, key, null, false).countsBy === "derived",
       `${num}|${cong}|${key} has no text on file and must still be visibly derived`);
   }
-  ok(stillN >= 1, `the derived rendering is still exercised by a real row — ${stillN} checked`);
+  ok(stillN >= 2,
+    `the derived rendering is still exercised by real rows — ${stillN} of ${STILL_DERIVED.length} reachable. ` +
+    "If this falls to zero the distinction between a written line and a derived one has stopped being tested, " +
+    "which is not the same as it having stopped mattering");
   // The count is pinned too: this pass added six entries and one note, no more.
   const src = R("consistency.js");
   const mechBody = (src.match(/var _DOS_MECH = \{[\s\S]*?\n  \};/) || [""])[0];

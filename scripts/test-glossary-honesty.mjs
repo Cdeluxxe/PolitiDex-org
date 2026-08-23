@@ -160,8 +160,21 @@ const has = (hay, needle) => hay.indexOf(String(needle).toLowerCase()) !== -1;
   }
 
   // The same number is stated on two product surfaces. Both must agree with the code.
+  //
+  // Read the SHEET, not the whole file. consistency.js also holds _DOS_MECH, the
+  // curated prose describing what several hundred measures did — and ordinary
+  // English about a bill ("the precision half of the same air campaign", "a third of
+  // the account") collides with the fraction vocabulary below. Grepping the file
+  // entire reported drift in the methodology copy whenever a curator wrote a
+  // fraction into a bill description, which is a false alarm pointing at the wrong
+  // place. Scoping to methodologyHtml() is what this block always claimed to check
+  // and is stricter, not looser: a stale fraction anywhere in the sheet still fails.
+  const consSrc = read("consistency.js");
+  const sheet = (consSrc.match(/function methodologyHtml\(pid\) \{[\s\S]*?\n  \}\n/) || [""])[0];
+  must(sheet && sheet.indexOf("Why some votes count less") !== -1,
+    "methodologyHtml() could not be isolated from consistency.js — the procedural-weight copy is unprobeable");
   const surfaces = [
-    ["consistency.js", "methodology sheet", read("consistency.js")],
+    ["consistency.js", "methodology sheet", sheet],
     ["voting-record.js", "procedural teaching note", read("voting-record.js")],
   ];
   for (const [file, where, src] of surfaces) {

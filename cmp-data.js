@@ -8875,6 +8875,24 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "State Budget"
   ]
  },
+ "kstratton": {
+  "name": "Keven Stratton",
+  "office": "Utah State Senator",
+  "state": "UT District 24 (Provo / Orem)",
+  "party": "R",
+  "termStart": "2025-01",
+  "score": null,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "\ud83c\udfdb",
+  "issues": [
+   "Utah Senate District 24",
+   "Provo / Orem",
+   "Public Lands & Federalism",
+   "Water Conservation"
+  ]
+ },
  "amillner": {
   "name": "Ann Millner",
   "office": "Utah State Senator",

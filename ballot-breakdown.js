@@ -629,6 +629,12 @@
       return issues.slice(0, 2).join(' · ');
     }
 
+    function _bbSeatCompare(raceKey) {
+      if (typeof window.pdxRaceSheetEntry !== 'function') return '';
+      var h = window.pdxRaceSheetEntry(raceKey, { compact: true }) || '';
+      return h ? '<div class="bb-seatcompare">' + h + '</div>' : '';
+    }
+
     function _renderBallotRaces(selections) {
       var container = document.getElementById('ballot-races');
       if (!container) return;
@@ -647,6 +653,15 @@
             (isFilled ? '<span class="font-condensed text-xs text-green-400 tracking-wider" style="font-size:0.7rem;">&#10003; PICKED</span>' : '<span class="font-condensed text-xs text-steel-600 tracking-wider" style="font-size:0.65rem;">&larr; Choose one</span>') +
           '</div>' +
           '<p class="ballot-race-edu-desc">' + (race.edu || '') + '</p>' +
+          // "Compare field for this seat." — the seat card lists this race's
+          // candidates as an unranked set; the race sheet is where the same field
+          // gets put side by side and ordered by how each one's formal record fits
+          // the positions the visitor set. It matters most on an EMPTY seat (the
+          // voter has no basis for a pick yet) but is offered on a filled one too,
+          // because the sheet is also where a pick gets replaced. Markup and
+          // behaviour belong to race-sheet.js, which returns '' for any seat it
+          // cannot compare — so a race with no rostered field paints nothing here.
+          _bbSeatCompare(race.key) +
           '<div class="ballot-cand-grid">';
         if (candidates.length === 0) {
           html += '<div class="kr-cand-empty"><span class="kr-cand-empty-ico">🗳️</span><span>No candidates are in the database for this race yet. We add them as filings are certified — check back soon, or pick from another race above.</span></div>';
@@ -5069,6 +5084,15 @@
 
       _ballotRender();
 
+      // The seat lists carry a team-state chip now ("No pick yet" / "On your team:
+      // Name"), and they are painted by other files, so a pick made anywhere —
+      // a race sheet, a district card, this grid — has to reach them or the chip
+      // silently lies until the next location change. Both are guarded idempotent
+      // full re-renders that only READ the ballot store, so neither can re-enter
+      // this function.
+      try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
+      try { if (window.PDXWhoRepresentsMe && typeof window.PDXWhoRepresentsMe.sync === 'function') window.PDXWhoRepresentsMe.sync(); } catch (e) {}
+
       // Premium feedback: named toast + counter pop on every team change.
       try {
         var _filled = 0;
@@ -5245,6 +5269,39 @@
       }
     };
 
+    // ── One reading of a slate ───────────────────────────────────────────────
+    // Both directions of a team share used to read politidex_my_team their own
+    // way, and both used the same shortcut: `if (CMP_DATA[pid])`. A pick whose id
+    // the roster no longer carries simply vanished — out of the shared text, out
+    // of the arrival banner, out of the count — so a five-pick slate arrived
+    // announcing four and nobody could tell which one had gone or that one had.
+    //
+    // This returns every stored slot, in ballot order, each either resolved to a
+    // name or explicitly marked missing. Nothing is dropped on the way past. The
+    // office label is the ballot's own, so a share names offices the way the
+    // builder does, and there is no match figure anywhere in the shape: a slate
+    // is a list of choices, not a score.
+    function _teamRoster(slots) {
+      slots = slots || {};
+      var rows = [], seen = {};
+      var push = function (key, label) {
+        var pid = slots[key];
+        if (!pid) return;
+        seen[key] = 1;
+        var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+        rows.push({ key: key, label: label || key, pid: pid,
+                    name: (d && d.name) || '', missing: !d });
+      };
+      try { BALLOT_RACES.forEach(function (r) { if (r && r.key) push(r.key, r.label); }); } catch (e) {}
+      // Anything stored under a key this build's ballot no longer lists still
+      // gets a row. An office we cannot label is named by its key rather than
+      // silently discarded.
+      for (var k in slots) { if (slots[k] && !seen[k]) push(k, k); }
+      var filled = 0, missing = 0;
+      rows.forEach(function (r) { r.missing ? missing++ : filled++; });
+      return { rows: rows, filled: filled, missing: missing, total: rows.length };
+    }
+
     window.ballotShareTeam = function() {
       var selections = _ballotLoad();
       var picks = [];
@@ -5273,8 +5330,16 @@
           picks.push(entry);
         }
       });
+      // Say what is missing, per seat. A slate that quietly prints four of five
+      // picks is the same lie the arrival banner used to tell.
+      var gone = _teamRoster(selections).rows.filter(function (r) { return r.missing; });
+      gone.forEach(function (r) { picks.push(r.label + ': pick no longer on file'); });
+
+      // The link opens THIS team, not the front page. A share that ends at the
+      // homepage asks the reader to rebuild by hand what they were just sent.
+      var url = _teamShareUrl('My 2026 Voting Team', selections) || 'https://politidex.fyi';
       var text = filled > 0
-        ? '🗳️ My 2026 Voting Team (' + filled + '/6 picked):\n\n' + picks.join('\n') + '\n\nBuild yours → https://politidex.fyi #PolitiDex #2026Ballot'
+        ? '🗳️ My 2026 Voting Team (' + filled + '/6 picked):\n\n' + picks.join('\n') + '\n\nOpen this team → ' + url + '\n#PolitiDex #2026Ballot'
         : 'Build your 2026 Voting Team at https://politidex.fyi #PolitiDex';
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -5414,18 +5479,77 @@
         return { name: (obj.n || obj.name || '').toString().slice(0, 60), slots: clean };
       } catch (e) { return null; }
     }
+    // ROOT-ANCHORED, never location.pathname. The app is served from several
+    // addresses that all rewrite to this document — '/', '/vote/<c>/<ch>/<roll>'
+    // and whatever netlify.toml grows next — so pasting a query onto "wherever
+    // the reader happens to be standing" produced /vote/119/house/12?team=…:
+    // the team loaded correctly and share-links.js then put a "we couldn't open
+    // that roll call" notice on top of it. PDXShareLinks.team owns the shape;
+    // the local fallback exists only because this file is a plain sync script
+    // and share-links.js is deferred, and it is anchored the same way.
     function _teamShareUrl(name, slots) {
-      return location.origin + location.pathname + '?team=' + _encodeTeam(name, slots) + '#my-politicians';
+      var token = _encodeTeam(name, slots);
+      if (!token) return '';
+      try {
+        if (window.PDXShareLinks && typeof window.PDXShareLinks.team === 'function') {
+          return window.PDXShareLinks.team(token);
+        }
+      } catch (e) {}
+      return location.origin + '/?team=' + token + '#my-politicians';
     }
+
+    // What a slate says when it leaves the device. Office labels and names, one
+    // pick per office, every missing id named — and no figure of any kind. There
+    // is no "match %" for a slate because there is no such measurement: the six
+    // picks were made against six different fields.
+    function _teamSharePayload(name, slots) {
+      var r = _teamRoster(slots);
+      var lines = r.rows.map(function (row) {
+        return row.label + ': ' + (row.missing ? 'pick no longer on file' : row.name);
+      });
+      return {
+        title: name || 'My 2026 Voting Team',
+        text: lines.join('\n'),
+        url: _teamShareUrl(name, slots)
+      };
+    }
+    // Resolves to true only when something actually reached the clipboard.
+    // _fallbackCopy toasts its own outcome and is left alone; this wrapper exists
+    // so the CALLER can stop announcing "Link Copied!" over a copy that failed.
+    function _copyText(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return Promise.resolve(navigator.clipboard.writeText(text))
+            .then(function() { return true; }, function() { _fallbackCopy(text); return false; });
+        }
+      } catch (e) {}
+      _fallbackCopy(text);
+      return Promise.resolve(false);
+    }
+
     function _copyShareLink(name, slots) {
       var url = _teamShareUrl(name, slots);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url)
-          .then(function() { _showShareToast('Share link copied — anyone who opens it loads this exact team.'); })
-          .catch(function() { _fallbackCopy(url); });
-      } else {
-        _fallbackCopy(url);
-      }
+      if (!url) { _showShareToast('We could not build a link for this team.'); return Promise.resolve(false); }
+      return _copyText(url).then(function(done) {
+        if (done) _showShareToast('Share link copied — anyone who opens it loads this exact team.');
+        return done;
+      });
+    }
+
+    // Native share first, clipboard second, an honest failure third. Routed
+    // through PDXShareLinks.native so the outcome is classified in the one place
+    // that knows the difference between "the reader cancelled" (say nothing) and
+    // "the platform refused" (owe them a fallback).
+    function _shareTeam(name, slots) {
+      var p = _teamSharePayload(name, slots);
+      if (!p.url) { _showShareToast('We could not build a link for this team.'); return Promise.resolve(false); }
+      var SL = window.PDXShareLinks;
+      if (!SL || typeof SL.native !== 'function') return _copyShareLink(name, slots);
+      return SL.native({ title: p.title, text: p.text, url: p.url }).then(function(res) {
+        if (res && res.ok) { _showShareToast('Team shared — the link opens this exact slate.'); return true; }
+        if (res && res.outcome === 'cancelled') return false;
+        return _copyShareLink(name, slots);
+      });
     }
 
     // ── Firestore mirror (signed-in members only) ──────────────────────────
@@ -5578,15 +5702,28 @@
     // Primary share: copies a link that re-creates the live ballot for anyone.
     window.ballotShareTeamLink = function() {
       var slots = _ballotLoad();
-      if (_slotsFilledCount(slots) === 0) { _showShareToast('Add some picks first, then share your link.'); return; }
-      _copyShareLink('My 2026 Voting Team', slots);
-      var btn = document.getElementById('myteam-share-btn');
-      if (btn) {
-        btn.classList.add('copied');
-        var orig = btn.innerHTML;
-        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Link Copied!';
-        setTimeout(function() { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2500);
+      // The honest empty state: nothing resolvable to share, so nothing is
+      // shared and no link is emitted. Checked against the roster, not against
+      // the raw key count, so a slate of ids we can no longer name does not
+      // travel as a slate of blanks.
+      if (_teamRoster(slots).filled === 0) {
+        _showShareToast('Add at least one pick, then share your team.');
+        return Promise.resolve(false);
       }
+      // The button confirms AFTER the platform does. It used to flip to
+      // "Link Copied!" the moment it was pressed, which is a success signal
+      // printed over a share that may never have happened.
+      return _shareTeam('My 2026 Voting Team', slots).then(function(done) {
+        if (!done) return false;
+        var btn = document.getElementById('myteam-share-btn');
+        if (btn) {
+          btn.classList.add('copied');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Shared!';
+          setTimeout(function() { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2500);
+        }
+        return true;
+      });
     };
 
     function _renderSavedTeams() {
@@ -5670,7 +5807,12 @@
       if (token) { try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} }
       if (!token) return;
       var decoded = _decodeTeam(token);
-      if (!decoded || _slotsFilledCount(decoded.slots) === 0) return;
+      // A slate whose ids the roster can no longer resolve is still a slate that
+      // was sent. It gets the banner and a per-seat "no longer on file" line,
+      // because the alternative — the reader following a link and finding the
+      // ordinary page, with no sign anything arrived — is the silent failure this
+      // pass exists to remove. Only a link carrying no slots at all is ignored.
+      if (!decoded || _teamRoster(decoded.slots).total === 0) return;
       _pendingSharedTeam = decoded;
       _renderImportBanner(decoded);
     }
@@ -5678,17 +5820,39 @@
     function _renderImportBanner(team) {
       var banner = document.getElementById('myteam-import-banner');
       if (!banner) return;
-      var filled = _slotsFilledCount(team.slots);
-      var names = [];
-      for (var k in team.slots) {
-        var d = typeof CMP_DATA !== 'undefined' ? CMP_DATA[team.slots[k]] : null;
-        if (d) names.push(d.name);
-      }
+      var r = _teamRoster(team.slots);
+
       var titleEl = document.getElementById('myteam-import-title');
       var subEl = document.getElementById('myteam-import-sub');
       if (titleEl) titleEl.innerHTML = '🔗 ' + (team.name ? _esc(team.name) : 'A shared team') + ' was shared with you';
-      if (subEl) subEl.textContent = filled + ' pick' + (filled === 1 ? '' : 's') +
-        (names.length ? ' · ' + names.slice(0, 4).join(', ') + (names.length > 4 ? ' +' + (names.length - 4) + ' more' : '') : '');
+
+      // OFFICE LABEL, THEN NAME, ONE ROW PER SEAT — and a seat whose id no longer
+      // resolves says so in place rather than disappearing from the list. The old
+      // banner printed a bare count and up to four names, so a five-pick slate
+      // with one retired id arrived as "4 picks" and the reader had no way to
+      // know a seat had gone missing, let alone which one.
+      if (subEl) {
+        subEl.innerHTML = r.rows.map(function(row) {
+          return '<span class="myteam-import-seat' + (row.missing ? ' is-gone' : '') + '">' +
+            '<span class="myteam-import-office">' + _esc(row.label) + '</span>' +
+            '<span class="myteam-import-pick">' + (row.missing ? 'pick no longer on file' : _esc(row.name)) + '</span>' +
+          '</span>';
+        }).join('') +
+        (r.missing
+          ? '<span class="myteam-import-note">' + r.missing + ' of ' + r.total +
+            ' pick' + (r.total === 1 ? '' : 's') + ' in this link ' + (r.missing === 1 ? 'is' : 'are') +
+            ' not on our roster any more. The rest load normally.</span>'
+          : '');
+      }
+
+      // Nothing resolvable means nothing to load. The banner still appears — the
+      // reader is owed the news that a link arrived and could not be honoured —
+      // but the two actions that would write an unreadable slate into their
+      // ballot are withdrawn rather than left to fail quietly.
+      var loadBtn = document.getElementById('myteam-import-load');
+      var mergeBtn = document.getElementById('myteam-import-merge');
+      [loadBtn, mergeBtn].forEach(function(b) { if (b) b.style.display = r.filled ? '' : 'none'; });
+
       banner.style.display = '';
       setTimeout(function() { banner.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200);
     }

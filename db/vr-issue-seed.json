@@ -13,28 +13,28 @@
      "weight": 100,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Extends and expands the 2017 individual and business tax cuts."
+     "rationale": "The act makes permanent and extends the individual and business tax provisions of the 2017 tax act and raises the maximum child tax credit to $2,200 per child, indexed for inflation from 2026. Lower income and business taxes are this chip's subject and they are the act's headline title, so a yea is a direct vote to cut and extend them."
     },
     {
      "issueKey": "cut_spending",
      "weight": 70,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Enacts net spending reductions through budget reconciliation."
+     "rationale": "The act's spending reductions sit in the Medicaid title — lower federal Medicaid spending with tighter enrolment and eligibility processes — and in raising the SNAP able-bodied-adult work-requirement age from 55 to 65; a yea enacts them. Weighted 70 rather than at the primary because the same act's tax title runs the other way on the fiscal total and is read on its own chip rather than netted out here."
     },
     {
      "issueKey": "healthcare",
      "weight": 60,
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
-     "rationale": "Reduces federal Medicaid spending and tightens eligibility; a yea vote cuts against expanding healthcare access."
+     "rationale": "The act reduces federal Medicaid spending and tightens Medicaid enrolment and eligibility processes, so fewer applicants qualify and the federal share behind those who do is smaller. This chip's support direction is coverage getting easier to obtain and keep, so the same yea that counts for the act's tax title is coded against the issue here."
     },
     {
      "issueKey": "border_security",
      "weight": 55,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Provides new funding for border enforcement and immigration operations."
+     "rationale": "The act appropriates new funding for border enforcement and immigration operations — the staffing and operational money this chip measures — so a yea funds them. Weighted 55 because it is one appropriation inside a reconciliation act whose controlling business is taxes and spending, so a nay may be about the rest of the bill."
     },
     {
      "issueKey": "lands_energy",
@@ -64,7 +64,7 @@
      "weight": 70,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Tightens immigration enforcement."
+     "rationale": "Section 2 requires the Department of Homeland Security to detain an inadmissible alien charged with, arrested for, convicted of or admitting burglary, theft, larceny or shoplifting, to issue a detainer and take custody from state or local police, and to place them in removal proceedings. Detaining and removing people already found inadmissible is interior enforcement of the same immigration line this chip measures at the border, so a yea tightens it. Weighted 70 rather than at the primary because the bill adds no border infrastructure, personnel or asylum change of its own."
     },
     {
      "issueKey": "tough_on_crime",
@@ -104,7 +104,7 @@
      "weight": 70,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Tightens immigration enforcement."
+     "rationale": "The Senate vehicle for the Laken Riley Act removes the discretion to release a covered non-citizen from custody once they have been charged, so the immigration laws are enforced through mandatory custody rather than at the line itself; a yea tightens that enforcement. Weighted 70 rather than at the primary because the act adds no border personnel, technology or funding."
     },
     {
      "issueKey": "tough_on_crime",
@@ -944,7 +944,7 @@
      "weight": 80,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "The regulatory budget is scoped to the compliance burden borne by small businesses; a yea reduces that burden."
+     "rationale": "The bill requires the Small Business Administration to hold its annual regulatory budget at no more than zero: the net compliance cost its new rules impose on a small business must be offset by cost removed through modifying or repealing existing rules. The budget is scoped to the burden small businesses carry, so a yea caps it. Weighted 80 rather than at the primary because the bill's controlling subject is the regulatory cap itself, which is read on the red-tape chip."
     }
    ]
   },
@@ -1337,7 +1337,7 @@
      "weight": 45,
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
-     "rationale": "The act appropriates new unoffset funding for the CHIPS funds; a yea increases the deficit."
+     "rationale": "The act appropriates new budget authority for the CHIPS funds with no offsetting revenue or spending reduction, so a yea adds to the deficit. Weighted 45 because the deficit effect is a by-product of the semiconductor programme rather than its purpose, and the act changes no revenue baseline, entitlement or fiscal rule."
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr4346.xml"
@@ -1455,7 +1455,7 @@
      "weight": 50,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "The mechanism is an expansion of VA health care enrolment and treatment eligibility, not only cash benefits."
+     "rationale": "The act opens VA health-care enrolment and treatment to veterans exposed to toxic substances and sets presumptions of service connection for conditions tied to burn pits and Agent Orange, so the mechanism is an expansion of who a federal health system will treat rather than only cash benefits; a yea counts as support. Weighted 50 because it widens one federal system for one population rather than coverage generally."
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s3373.xml"
@@ -1502,7 +1502,7 @@
      "weight": 45,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "The act requires the Postal Service to publish an online public dashboard of service-performance data by delivery unit."
+     "rationale": "The act requires the Postal Service to publish an online public dashboard of service-performance data broken down by delivery unit — a standing disclosure any member of the public can open, not a report to Congress. Weighted 45 because the act's controlling subject is postal finance and service standards, and the dashboard is one provision inside it."
     }
    ],
    "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr3076.xml"
@@ -2564,10 +2564,10 @@
     {
      "issueKey": "border_security",
      "weight": 90,
-     "isPrimary": false,
+     "isPrimary": true,
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
-     "rationale": "Sec. 101 appropriates $9.550 billion to hire, pay, train and equip Border Patrol agents and Border Patrol support personnel; Sec. 103 appropriates $3.450 billion for nonintrusive inspection equipment at ports of entry and along the southwest, northern and maritime borders, Air and Marine platforms for rapid response, border surveillance technology upgrades, and the biometric entry and exit system under 8 U.S.C. 1365b; and Secs. 104 and 203 add $5.000 billion for the purposes of their respective titles. A yea funds border personnel and border technology at $26.020 billion counting Sec. 201's CBP hiring. Weighted 90 rather than 100 only because deportations carries the larger share and is the primary; this is far more border-specific than the Laken Riley Act's border_security mapping (70), which rested on a detention mandate rather than on any border appropriation."
+     "rationale": "Sec. 101 appropriates $9.550 billion to hire, pay, train and equip Border Patrol agents and Border Patrol support personnel; Sec. 103 appropriates $3.450 billion for nonintrusive inspection equipment at ports of entry and along the southwest, northern and maritime borders, Air and Marine platforms for rapid response, border surveillance technology upgrades, and the biometric entry and exit system under 8 U.S.C. 1365b; and Secs. 104 and 203 add $5.000 billion for the purposes of their respective titles. A yea funds border personnel and border technology at $26.020 billion counting Sec. 201's CBP hiring. Primary: the border relation is the instrument's own subject, not an omnibus by-product — it is one of the two things the Act is. Weighted 90 rather than 100 because deportations carries the larger share and outranks it; the weight is what ranks the two axes. This is far more border-specific than the Laken Riley Act's border_security mapping (70), which rested on a detention mandate rather than on any border appropriation and stays secondary for that reason."
     },
     {
      "issueKey": "immig_fentanyl",
@@ -2636,7 +2636,7 @@
      "weight": 100,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Rescinds previously appropriated funds, cutting federal spending."
+     "rationale": "The act cancels unobligated balances Congress had already appropriated to the State Department, USAID, several related agencies and the Corporation for Public Broadcasting, acting on the rescissions the President proposed in June 2025. Taking back money already appropriated is the most direct form of the spending cut this chip measures, so a yea is a vote for one."
     },
     {
      "issueKey": "gov_waste",
@@ -2650,7 +2650,7 @@
      "weight": 40,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Modestly reduces outlays against the federal deficit."
+     "rationale": "Cancelling unobligated balances lowers federal outlays by the amount rescinded, so a yea reduces the deficit by that amount. Weighted 40 because the enacted total is small against the deficit — smaller again than the version the House passed, after the Senate carved out global health, food aid and several other accounts — and because the act changes no revenue source, entitlement or fiscal rule."
     },
     {
      "issueKey": "america_first_fp",
@@ -2683,7 +2683,7 @@
      "weight": 75,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "Attaches mandatory-minimum penalties and quantity triggers to fentanyl-analogue offenses."
+     "rationale": "The act applies the quantity thresholds and mandatory-minimum sentences already carried by individual fentanyl analogues to the whole class of fentanyl-related substances, so 100 grams or more triggers a ten-year mandatory minimum. Longer mandatory sentences reached through a lower threshold is what this chip measures, so a yea counts as support. Weighted 75 rather than at the primary because the act's subject is scheduling and the sentencing effect follows from it."
     },
     {
      "issueKey": "health_mental",
@@ -2807,7 +2807,7 @@
      "weight": 60,
      "isPrimary": false,
      "supportMeaning": "yea_supports",
-     "rationale": "The same Act makes the FY2027 appropriations for national security programs; a yea funds them."
+     "rationale": "The Act makes the fiscal 2027 appropriations for national security, State Department and related programs, so a yea funds those accounts for the year. Weighted 60 rather than at the primary because an appropriations vehicle sets amounts for programs already authorised elsewhere and takes no position on force structure, procurement or posture — and because the same bill carries the SAVE Act, which is scored on the elections rows rather than here."
     },
     {
      "issueKey": "israel_support",

@@ -448,11 +448,15 @@
   }
 
   // ── State model ───────────────────────────────────────────────────────────
-  // { version, updatedAt, settings:{public, publicUpdatedAt},
+  // { version, updatedAt, settings:{public, publicUpdatedAt, starNudge},
   //   items: { issueKey: {issueKey, position, priority, note, createdAt, updatedAt} },
   //   tombstones: { issueKey: deletedAtMs } }
   function blank() {
-    return { version: VERSION, updatedAt: 0, settings: { public: false, publicUpdatedAt: 0 }, items: {}, tombstones: {} };
+    // starNudge: 'seen' once the visitor has dismissed the one-time prompt to star
+    // what matters most. It lives in settings rather than a private localStorage
+    // flag so it rides the same account sync the stances do - being nudged again on
+    // a second device would read as the app forgetting them.
+    return { version: VERSION, updatedAt: 0, settings: { public: false, publicUpdatedAt: 0, starNudge: '' }, items: {}, tombstones: {} };
   }
 
   function normalize(raw) {
@@ -462,6 +466,7 @@
     if (raw.settings && typeof raw.settings === 'object') {
       s.settings.public = !!raw.settings.public;
       s.settings.publicUpdatedAt = (typeof raw.settings.publicUpdatedAt === 'number') ? raw.settings.publicUpdatedAt : 0;
+      s.settings.starNudge = (raw.settings.starNudge === 'seen') ? 'seen' : '';
     }
     var items = (raw.items && typeof raw.items === 'object') ? raw.items : {};
     Object.keys(items).forEach(function (k) {
@@ -670,6 +675,53 @@
     return rec;
   }
 
+  // Priority on its own. Deliberately NOT routed through setStance: a star is a
+  // weight, not a direction, and rebuilding the record would touch the note and
+  // the direction for no reason. Two things make this a separate mutation rather
+  // than a one-line setter:
+  //
+  //   - It is a no-op when the level already matches, so tapping "Normal" on a
+  //     Normal issue does not stamp updatedAt and win a cross-device merge it had
+  //     no business winning.
+  //   - It has to refresh the alignment surfaces itself. positionToLevel ignores
+  //     priority by design (direction and weight are kept apart so they cannot
+  //     double-count), which means projectOne never fires for a star and NOTHING
+  //     downstream would learn the weights moved - including the race sheet, whose
+  //     whole default ranking reads _msPriorityWeight.
+  function setPriority(issueKey, priority) {
+    if (priority !== 'high' && priority !== 'medium' && priority !== 'low') return null;
+    var s = load();
+    var rec = s.items[issueKey];
+    if (!rec) return null;                                   // no position, no weight
+    if ((s.tombstones[issueKey] || 0) >= (rec.updatedAt || 0)) return null;
+    if (rec.priority === priority) return rec;               // nothing moved
+    rec.priority = priority;
+    rec.updatedAt = now();
+    s.updatedAt = rec.updatedAt;
+    save(s, true);
+    if (s.settings.public) pushPublicSnapshot(s);            // the badge is public too
+    refreshMatchSurfaces();
+    return rec;
+  }
+
+  // Every surface that ranks by the visitor's issues re-reads the weights. The
+  // alignment tool owns that sweep (and it is the hop that reaches an open race
+  // sheet, via _pdxRaceSheetRefresh at its tail), so we call it rather than keeping
+  // a second list of surfaces here that would drift out of date.
+  // The star nudge is shown at most once per person, so the dismissal has to be
+  // stored, not just forgotten on re-render. It is a settings flag rather than a
+  // stance, so it never lands in items and can never leak into a public showcase.
+  function markStarNudgeSeen() {
+    var s = load();
+    if (s.settings.starNudge === 'seen') return;
+    s.settings.starNudge = 'seen';
+    save(s, true);
+  }
+
+  function refreshMatchSurfaces() {
+    try { if (typeof window._alignRefreshAll === 'function') window._alignRefreshAll(); } catch (e) {}
+  }
+
   function setNote(issueKey, note) {
     var s = load();
     var rec = s.items[issueKey];
@@ -819,6 +871,7 @@
     var html = '<div class="ms-wrap">';
     html += renderAccount(s, items);
     html += renderSummary(s, items);
+    html += renderStarNudge(s, items);
     html += renderPowers(items);
     html += renderShowcase(s, items);
     html += renderBrowse(s, byKey);
@@ -852,7 +905,7 @@
     if (!n) {
       return '<div class="ms-summary is-empty">' +
         '<div class="ms-sum-emptytitle">You haven’t taken any positions yet</div>' +
-        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you, and whether their record backs it up. Set stances → see matches → build your team.</div>' +
+        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you — and, where their formal record is deep enough to test, whether it backs them up. Set stances → see matches → build your team.</div>' +
         '</div>';
     }
     var chips = items.map(function (r) {
@@ -876,6 +929,23 @@
       '</div>';
   }
 
+  // Shown once, to the one group it can help: people who have taken positions but
+  // never touched the weight control, so every issue pulls the same and a ranked
+  // field looks flat for a reason they cannot see. Nobody with zero stances sees it
+  // - they get the existing "set a position" CTA, and stars would be noise before
+  // there is anything to star. Inline and dismissible; never a modal.
+  function renderStarNudge(s, items) {
+    if (!items.length) return '';
+    if (s.settings.starNudge === 'seen') return '';
+    var anyHigh = items.some(function (r) { return r.priority === 'high'; });
+    if (anyHigh) return '';
+    return '<div class="ms-nudge" role="note">' +
+      '<span class="ms-nudge-ic" aria-hidden="true">⭐</span>' +
+      '<span class="ms-nudge-txt">Star the issues that matter most — candidates in your races will be ranked harder on those.</span>' +
+      '<button type="button" class="ms-nudge-x" data-ms-nudgeclose="1" aria-label="Dismiss">✕</button>' +
+      '</div>';
+  }
+
   function renderPowers(items) {
     var n = items.length;
     var live = n > 0;
@@ -889,8 +959,8 @@
     return '<div class="ms-powers' + (live ? ' is-live' : '') + '">' +
       '<div class="ms-pow-title">What your stances power</div>' +
       '<p class="ms-pow-body">' + (live
-        ? 'These <strong>' + n + '</strong> stance' + (n > 1 ? 's' : '') + ' now power the <strong>Alignment Tool</strong>: every politician gets a <strong>🎯 Your Match</strong> (how their stated positions fit yours) paired with <strong>⚖️ Say-vs-Do</strong> (whether their record backs it up), wherever they appear. <strong>High-priority</strong> stances count more toward the match; <strong>Low</strong> count less.'
-        : 'Set a stance and the <strong>Alignment Tool</strong> starts working: it shows <em>who matches what you stand for</em> — and whether their record backs it up — turning your values into a yardstick you can point at anyone’s record.') +
+        ? 'These <strong>' + n + '</strong> stance' + (n > 1 ? 's' : '') + ' now power the <strong>Alignment Tool</strong>: every politician gets a <strong>🎯 Your Match</strong> (how their stated positions fit yours), wherever they appear. Where their formal record is deep enough to test, a <strong>⚖️ Say-vs-Do</strong> read sits beside it — and where it is not, the profile says so rather than grading them anyway. <strong>High-priority</strong> stances count more toward the match; <strong>Low</strong> count less.'
+        : 'Set a stance and the <strong>Alignment Tool</strong> starts working: it shows <em>who matches what you stand for</em> — and, where the formal record runs deep enough to test, whether it backs them up — turning your values into a yardstick you can point at a record.') +
       '</p>' +
       (actions ? '<div class="ms-pow-actions">' + actions + '</div>' : '') +
       '</div>';
@@ -1098,6 +1168,7 @@
     return '<div class="ms-browse">' +
       '<div class="ms-browse-head">' +
       '<h3 class="ms-browse-title">Browse issues &amp; set your position</h3>' +
+      '<p class="ms-browse-sub">⭐ <strong>Counts: High</strong> weights <strong>Your Match</strong> ranking for races and browse — how a record or a stated position lines up with what you care about most. It does not change <strong>Direction Match</strong>, party filters, or formal verdicts.</p>' +
       '<div class="ms-search"><span class="ms-search-ic">🔎</span>' +
       '<input type="search" class="ms-search-in" placeholder="Search issues…" value="' + esc(uiState.query) + '" data-ms-search="1" aria-label="Search issues" /></div>' +
       '</div>' +
@@ -1116,12 +1187,25 @@
 
     var controls = '';
     if (active) {
-      var prioOpts = PRIORITIES.map(function (p) {
-        return '<option value="' + p.key + '"' + (rec.priority === p.key ? ' selected' : '') + '>' + p.short + '</option>';
+      // One tap per level, always on screen. This used to be a <select>, which hid
+      // the single control that decides how hard an issue pulls on every match the
+      // visitor sees - most people set a direction and never found it, so every
+      // issue weighed the same and ranked fields came out flat. Ternary, so raising
+      // and lowering are both one tap; the star is drawn filled/hollow because the
+      // state has to be readable without opening anything.
+      var prioBtns = PRIORITIES.map(function (p) {
+        var on = rec.priority === p.key;
+        var ico = (p.key === 'high') ? (on ? '⭐' : '☆') : p.icon;
+        return '<button type="button" class="ms-prio-btn is-' + p.key + (on ? ' is-on' : '') + '"' +
+          ' data-ms-prio="' + p.key + '" data-issue="' + esc(k) + '" aria-pressed="' + (on ? 'true' : 'false') + '"' +
+          ' title="' + esc(p.label) + ' — weights Your Match ranking, not Direction Match">' +
+          '<span class="ms-prio-ic" aria-hidden="true">' + ico + '</span>' +
+          '<span class="ms-prio-lbl">' + esc(p.short) + '</span></button>';
       }).join('');
       var hasNote = rec.note && rec.note.length;
       controls = '<div class="ms-row-controls">' +
-        '<label class="ms-prio"><span>Priority</span><select data-ms-prio="1" data-issue="' + esc(k) + '" aria-label="Priority">' + prioOpts + '</select></label>' +
+        '<div class="ms-prio" role="group" aria-label="How much ' + esc(d.label || k) + ' counts toward your matches">' +
+        '<span class="ms-prio-cap">Counts</span>' + prioBtns + '</div>' +
         '<button type="button" class="ms-notebtn' + (hasNote ? ' has-note' : '') + '" data-ms-notetoggle="' + esc(k) + '">' + (hasNote ? '📝 Note' : '＋ Add note') + '</button>' +
         '<button type="button" class="ms-remove" data-ms-remove="' + esc(k) + '" title="Remove this stance">✕</button>' +
         '</div>' +
@@ -1162,6 +1246,16 @@
       afterMutate();
       return;
     }
+    if ((b = t.closest('[data-ms-prio]'))) {
+      // setPriority, not setStance: the direction and the note are none of this
+      // control's business, and it refreshes the match surfaces itself so an open
+      // race sheet re-ranks on the new weights without a reload.
+      setPriority(b.getAttribute('data-issue'), b.getAttribute('data-ms-prio'));
+      _flash = b.getAttribute('data-issue');
+      afterMutate();
+      return;
+    }
+    if ((b = t.closest('[data-ms-nudgeclose]'))) { markStarNudgeSeen(); afterMutate(); return; }
     if ((b = t.closest('[data-ms-remove]'))) { removeStance(b.getAttribute('data-ms-remove')); afterMutate(); return; }
     if ((b = t.closest('[data-ms-notetoggle]'))) {
       var wrap = el(MOUNT).querySelector('[data-ms-notewrap="' + cssEsc(b.getAttribute('data-ms-notetoggle')) + '"]');
@@ -1187,12 +1281,6 @@
   function onChange(e) {
     var t = e.target;
     if (!t) return;
-    if (t.matches && t.matches('[data-ms-prio]')) {
-      var key = t.getAttribute('data-issue');
-      var cur = load().items[key];
-      if (cur) { setStance(key, cur.position, t.value, cur.note); _flash = key; afterMutate(); }
-      return;
-    }
     if (t.matches && t.matches('[data-ms-public]')) { setPublic(t.checked); render(); return; }
   }
 
@@ -1429,6 +1517,7 @@
     isPublic: function () { return !!load().settings.public; },
     // mutations
     set: function (issueKey, position, priority, note) { var r = setStance(issueKey, position, priority, note); afterMutate(); return r; },
+    setPriority: function (issueKey, priority) { var r = setPriority(issueKey, priority); afterMutate(); return r; },
     remove: function (issueKey) { removeStance(issueKey); afterMutate(); },
     setPublic: function (on) { setPublic(on); if (_inited) render(); },
     // public showcase / My Views

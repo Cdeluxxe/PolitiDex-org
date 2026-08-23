@@ -1,0 +1,450 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   race-sheet.css — one office, the whole field, side by side
+   ────────────────────────────────────────────────────────────────────────────
+   Two layouts, one markup. The pane list is a flex column on a phone (stacked
+   cards, each with a sticky header so the name and the score stay on screen
+   while the issue rows scroll past) and a horizontal track on a wide screen
+   (true side-by-side panes, each column a candidate).
+
+   Issue labels repeat inside every pane rather than living in a shared left
+   gutter. A gutter reads beautifully at 1400px and collapses into nonsense the
+   moment one pane wraps; repeating the label costs a line of type and means the
+   cell is never orphaned from the issue it answers, at any width, in any
+   reading order, including a screen reader going pane by pane.
+
+   Colour discipline: the only good/bad ramp on this surface is the match score
+   (from _alignScoreColor, the app's own) and the per-issue verdict tint on a
+   cell. Issue hues come from PDXIssueColors via inline --pdx-ic* custom
+   properties, so this file contains no per-issue rules. Nothing is coloured by
+   party, because nothing here reads party.
+
+   Targets are 44px minimum on every control, per the mobile brief.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rs-overlay {
+  position: fixed; inset: 0; z-index: 9600;
+  display: none; align-items: flex-start; justify-content: center;
+  background: rgba(3, 7, 18, 0.86);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity 0.18s ease;
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 0;
+}
+.rs-overlay.is-open { opacity: 1; }
+
+.rs-sheet {
+  width: 100%; max-width: 1240px;
+  background: linear-gradient(180deg, #0b1220 0%, #070c16 100%);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 0;
+  padding: 0 0 2rem;
+  min-height: 100%;
+}
+@media (min-width: 900px) {
+  .rs-overlay { align-items: center; padding: 1.5rem; }
+  .rs-sheet { border-radius: 1rem; min-height: 0; max-height: calc(100vh - 3rem); overflow-y: auto; }
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.rs-hd {
+  position: sticky; top: 0; z-index: 6;
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(180deg, rgba(11, 18, 32, 0.98), rgba(11, 18, 32, 0.92));
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.rs-hd-title { display: flex; align-items: center; gap: 0.65rem; flex: 1; min-width: 0; }
+.rs-hd-ico {
+  width: 2.5rem; height: 2.5rem; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; border-radius: 0.7rem;
+  /* The seat's own hue as a flat tint. Deliberately not color-mix(): this file
+     has to render identically in every browser the rest of the app supports, and
+     an opacity wrapper gets the same result with none of the support question. */
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid currentColor; color: var(--rs-seat, #60a5fa);
+}
+.rs-hd-kicker {
+  display: block; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--rs-seat, #60a5fa);
+}
+.rs-hd-seat {
+  margin: 0; font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem; letter-spacing: 0.03em; color: #fff; line-height: 1.1;
+}
+.rs-close {
+  flex: 0 0 auto; min-width: 44px; min-height: 44px;
+  font-size: 1.5rem; line-height: 1; color: #9fb4d4;
+  background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem; cursor: pointer;
+}
+.rs-close:hover { color: #fff; background: rgba(148, 163, 184, 0.2); }
+
+/* ── Controls: the toggle, the rank line, the explainer ───────────────────── */
+.rs-controls { padding: 0.9rem 1rem 0.2rem; }
+.rs-modes {
+  display: inline-flex; gap: 0.25rem; padding: 0.25rem;
+  background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(96, 165, 250, 0.2);
+  border-radius: 0.7rem; flex-wrap: wrap;
+}
+.rs-mode {
+  min-height: 44px; padding: 0.4rem 0.85rem;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem;
+  letter-spacing: 0.04em; color: #9fb4d4;
+  background: transparent; border: 1px solid transparent; border-radius: 0.5rem;
+  cursor: pointer; white-space: nowrap;
+}
+.rs-mode:hover { color: #e2e8f0; }
+.rs-mode.is-on {
+  color: #0b1220; font-weight: 700;
+  background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  border-color: #60a5fa;
+}
+.rs-rankline, .rs-explain, .rs-thinaxis, .rs-onlyone, .rs-foot {
+  font-family: 'Barlow Condensed', sans-serif; line-height: 1.45; margin: 0.55rem 0 0;
+}
+.rs-rankline { font-size: 0.82rem; color: #cbd5e1; }
+.rs-rankline b { color: #93c5fd; }
+.rs-explain {
+  font-size: 0.74rem; color: #7596c0;
+  padding: 0.45rem 0.6rem; border-left: 2px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.06); border-radius: 0 0.4rem 0.4rem 0;
+}
+.rs-explain b { color: #bfdbfe; }
+.rs-thinaxis { font-size: 0.74rem; color: #fbbf24; }
+.rs-onlyone {
+  font-size: 0.8rem; color: #cbd5e1; margin: 0.6rem 1rem 0;
+  padding: 0.6rem 0.7rem; border-radius: 0.5rem;
+  background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.25);
+}
+.rs-foot {
+  font-size: 0.72rem; color: #64748b; margin: 1rem 1rem 0;
+  padding-top: 0.7rem; border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+.rs-foot b { color: #94a3b8; }
+
+/* ── No-stance CTA ────────────────────────────────────────────────────────── */
+.rs-cta {
+  margin: 0.9rem 1rem 0; padding: 0.9rem;
+  background: linear-gradient(135deg, rgba(94, 234, 212, 0.1), rgba(94, 234, 212, 0.03));
+  border: 1px solid rgba(94, 234, 212, 0.3); border-radius: 0.75rem;
+}
+.rs-cta-hd {
+  margin: 0; font-family: 'Oswald', sans-serif; font-size: 0.95rem;
+  letter-spacing: 0.02em; color: #5eead4;
+}
+.rs-cta-sub {
+  margin: 0.35rem 0 0.7rem; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem; line-height: 1.45; color: #cbd5e1;
+}
+.rs-cta-btn {
+  min-height: 44px; padding: 0.5rem 1rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.78rem;
+  color: #042f2e; background: linear-gradient(135deg, #5eead4, #2dd4bf);
+  border: none; border-radius: 0.55rem; cursor: pointer;
+}
+
+/* ── The field ────────────────────────────────────────────────────────────── */
+.rs-grid { display: flex; flex-direction: column; gap: 0.7rem; padding: 0.9rem 1rem 0; }
+
+.rs-band {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  margin-top: 0.6rem; padding: 0.6rem 0.7rem;
+  background: rgba(148, 163, 184, 0.07);
+  border: 1px dashed rgba(148, 163, 184, 0.3); border-radius: 0.6rem;
+}
+.rs-band-hd {
+  font-family: 'Oswald', sans-serif; font-size: 0.8rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #cbd5e1;
+}
+.rs-band-sub {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem;
+  line-height: 1.45; color: #94a3b8;
+}
+
+.rs-pane {
+  display: flex; flex-direction: column;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 0.8rem; overflow: hidden;
+}
+.rs-pane.is-gap { border-style: dashed; border-color: rgba(148, 163, 184, 0.28); background: rgba(15, 23, 42, 0.5); }
+
+/* STICKY CANDIDATE HEADER. On a phone the pane is tall and the reader scrolls
+   through six issue rows; without this they lose track of whose row they are
+   reading two swipes in. */
+.rs-panehd {
+  position: sticky; top: 3.9rem; z-index: 4;
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+  padding: 0.7rem 0.8rem;
+  background: linear-gradient(180deg, rgba(17, 26, 44, 0.99), rgba(15, 23, 42, 0.96));
+  border-bottom: 1px solid rgba(96, 165, 250, 0.16);
+}
+.rs-rank {
+  flex: 0 0 auto; width: 1.9rem; height: 1.9rem;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Oswald', sans-serif; font-size: 0.9rem; font-weight: 700;
+  color: #0b1220; background: linear-gradient(135deg, #bfdbfe, #60a5fa);
+  border-radius: 0.5rem;
+}
+.rs-rank--gap { color: #64748b; background: rgba(148, 163, 184, 0.14); }
+.rs-scorewrap { display: flex; flex-direction: column; gap: 0.1rem; min-width: 7.5rem; }
+.rs-score { font-family: 'Oswald', sans-serif; font-size: 1.45rem; line-height: 1; }
+.rs-pct { font-size: 0.85rem; }
+.rs-scorelbl {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #7596c0;
+}
+.rs-bar { display: block; height: 3px; border-radius: 2px; background: rgba(148, 163, 184, 0.2); overflow: hidden; }
+.rs-bar i { display: block; height: 100%; border-radius: 2px; }
+.rs-gapword {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem;
+  font-weight: 700; color: #94a3b8; line-height: 1.2;
+}
+.rs-alt {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
+  color: #7596c0; letter-spacing: 0.03em;
+}
+
+.rs-who { display: flex; align-items: center; gap: 0.5rem; flex: 1 1 9rem; min-width: 0; }
+.rs-face {
+  width: 2.1rem; height: 2.1rem; flex: 0 0 auto; border-radius: 50%;
+  overflow: hidden; border: 1px solid rgba(148, 163, 184, 0.4);
+  display: flex; align-items: center; justify-content: center;
+}
+.rs-face img { width: 100%; height: 100%; object-fit: cover; }
+.rs-face--empty { color: #9fb4d4; font-size: 0.9rem; }
+.rs-whotext { display: flex; flex-direction: column; min-width: 0; }
+.rs-name {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.92rem; font-weight: 700;
+  letter-spacing: 0.02em; color: #fff; text-align: left;
+  background: none; border: none; padding: 0.15rem 0; cursor: pointer;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rs-name:hover { color: #93c5fd; text-decoration: underline; }
+.rs-inc {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #fbbf24;
+}
+
+/* ── Direction Match chip ─────────────────────────────────────────────────── */
+.rs-dm {
+  display: flex; align-items: flex-start; gap: 0.35rem;
+  flex: 1 1 11rem; min-width: 0;
+  padding: 0.3rem 0.5rem; border-radius: 0.5rem;
+  background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.22);
+}
+.rs-dm-k { font-size: 0.75rem; line-height: 1.3; }
+.rs-dm-body { display: flex; flex-direction: column; min-width: 0; }
+.rs-dm-label {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem;
+  letter-spacing: 0.07em; text-transform: uppercase; color: #94a3b8;
+}
+.rs-dm-hint { text-transform: none; letter-spacing: 0.02em; color: #64748b; }
+.rs-dm-val {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.76rem;
+  color: #cbd5e1; line-height: 1.25;
+}
+.rs-dm-pct { color: #e2e8f0; }
+.rs-dm-n { color: #64748b; font-size: 0.68rem; }
+
+/* ── Team control ─────────────────────────────────────────────────────────── */
+.rs-team {
+  flex: 0 0 auto; min-height: 44px; padding: 0.4rem 0.8rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #fbbf24; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.07));
+  border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 0.55rem; cursor: pointer;
+  white-space: nowrap;
+}
+.rs-team.is-on {
+  color: #4ade80; background: linear-gradient(135deg, rgba(74, 222, 128, 0.22), rgba(74, 222, 128, 0.08));
+  border-color: rgba(74, 222, 128, 0.55);
+}
+
+/* ── Issue cells ──────────────────────────────────────────────────────────── */
+.rs-cells { display: flex; flex-direction: column; }
+.rs-issuecell {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  padding: 0.5rem 0.8rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  border-left: 3px solid var(--pdx-ic, #64748b);
+}
+.rs-issuecell-lbl {
+  display: flex; align-items: center; gap: 0.3rem;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--pdx-ic-ink, #9fb4d4);
+}
+.rs-star { font-size: 0.7rem; }
+.rs-cell { display: flex; flex-direction: column; gap: 0.15rem; }
+.rs-cell-lead { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; color: #e2e8f0; }
+.rs-cell-other { opacity: 0.52; font-size: 0.72rem; }
+.rs-cell-none { color: #64748b; font-style: italic; font-size: 0.76rem; }
+.rs-cell[data-rs-v="match"] .rs-cell-lead { color: #86efac; }
+.rs-cell[data-rs-v="partial"] .rs-cell-lead { color: #fcd34d; }
+.rs-cell[data-rs-v="mismatch"] .rs-cell-lead { color: #fca5a5; }
+
+.rs-morewrap { padding: 0.8rem 1rem 0; }
+.rs-more {
+  min-height: 44px; width: 100%; padding: 0.5rem 0.9rem;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #93c5fd;
+  background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.32);
+  border-radius: 0.55rem; cursor: pointer;
+}
+
+.rs-empty {
+  margin: 1rem; padding: 1rem;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem;
+  line-height: 1.5; color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.07);
+  border: 1px dashed rgba(148, 163, 184, 0.3); border-radius: 0.7rem;
+}
+.rs-empty p { margin: 0 0 0.4rem; }
+.rs-empty p:last-child { margin-bottom: 0; color: #94a3b8; font-size: 0.8rem; }
+
+/* ── Desktop: true side by side ───────────────────────────────────────────── */
+@media (min-width: 900px) {
+  /* TRUE SIDE BY SIDE. Each track is one row of equal-width candidate columns;
+     four or fewer fit the sheet, more scroll horizontally rather than shrinking
+     into unreadable slivers. align-items:stretch keeps every pane the height of
+     the tallest so the Nth issue row lines up across the field, which is the
+     whole reason a voter opened a comparison. */
+  .rs-grid {
+    display: grid; align-items: stretch;
+    grid-auto-flow: column; grid-auto-columns: minmax(17rem, 1fr);
+    overflow-x: auto; overscroll-behavior-x: contain;
+    padding-bottom: 0.6rem;
+  }
+  .rs-band { margin: 0.2rem 1rem 0; }
+  .rs-pane { height: 100%; }
+  /* The sticky pane header is a phone affordance. Side by side, the header is
+     already the top of a short column and sticking it only fights the sheet's
+     own sticky title bar. */
+  .rs-panehd { position: static; }
+  /* One issue row per candidate, all the same height, so the rows read across
+     the field as rows. */
+  .rs-issuecell { min-height: 4.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-overlay { transition: none; }
+}
+
+/* ── The entry control ───────────────────────────────────────────────────────
+   pdxRaceSheetEntry() returns one button and every host drops it in as-is, so
+   the button owns its own look here rather than each host restyling it. It sits
+   inside rows that are themselves clickable (a Who Represents Me seat row is
+   role="button"), hence the onclick's stopPropagation and the visually distinct
+   outlined treatment — it has to read as a second, separate action. */
+.rs-entry {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%;
+  min-height: 44px; padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 0.7rem;
+  background: rgba(30, 58, 96, 0.28);
+  color: #bfdbfe; cursor: pointer; text-align: left;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.rs-entry:hover, .rs-entry:focus-visible {
+  background: rgba(37, 78, 130, 0.42);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #e0edff;
+}
+.rs-entry-ico { font-size: 0.95rem; line-height: 1; flex: 0 0 auto; }
+.rs-entry-txt { flex: 1 1 auto; }
+.rs-entry-go { flex: 0 0 auto; opacity: 0.75; font-size: 1.05rem; line-height: 1; }
+/* Compact = inside a list of seats, where the button repeats once per row and
+   should not out-shout the seat it belongs to. */
+.rs-entry--compact {
+  min-height: 44px; padding: 0.45rem 0.7rem;
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  border-radius: 0.55rem;
+}
+
+/* Host hook: Who Represents Me. .wrm-rows is a flex column, so the entry is
+   simply the next flex item after its seat row — never nested inside it, since
+   that row is itself role="button". The negative top margin closes the column
+   gap so the button reads as attached to the seat above it. */
+.wrm-seatcompare { margin: -0.35rem 0 0.15rem; }
+
+/* Host hook: My Voting Team seat card. Sits between the seat's explainer and its
+   candidate grid, so the offer to compare arrives before the unranked list the
+   voter would otherwise have to judge by name alone. */
+.bb-seatcompare { margin: 0.15rem 0 0.6rem; }
+
+/* Only rendered when the visitor actually has a High-priority issue, so it can
+   afford to be emphatic — it is explaining why this order is not the same order
+   another voter would see. */
+.rs-rankstar { color: #fde68a; font-weight: 600; }
+
+/* ── Seat strip ──────────────────────────────────────────────────────────────
+   The three-part contract every seat row carries: where the team slot stands,
+   the way into the field, the stance footnote. Column on purpose — on a phone
+   these must never compete for one line, and the compare control has to keep
+   its full 44px whatever sits above it. */
+.rs-seat-strip {
+  display: flex; flex-direction: column; align-items: stretch; gap: 0.3rem;
+  margin: -0.35rem 0 0.15rem;
+}
+.rs-seat-team {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #7f93b4;
+}
+.rs-seat-team-ic { font-size: 0.85rem; line-height: 1; }
+/* Filled reads gold because it is the one fact on this row the voter put there
+   themselves — it should be findable at a glance down a list of six seats. */
+.rs-seat-team.is-on { color: #fde68a; }
+.rs-seat-team.is-on b { color: #fff7dd; font-weight: 700; }
+/* Footnote weight, deliberately: it explains an absence, it is not the CTA. */
+.rs-seat-stance {
+  align-self: flex-start; min-height: 32px; padding: 0.25rem 0;
+  background: none; border: 0; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.74rem; font-weight: 600; letter-spacing: 0.04em;
+  color: #8fb3e6; text-align: left;
+}
+.rs-seat-stance:hover, .rs-seat-stance:focus-visible { color: #cfe3ff; text-decoration: underline; }
+@media (max-width: 640px) {
+  .rs-seat-stance { min-height: 44px; }
+}
+
+/* ── Header actions: share, then close ───────────────────────────────────────
+   A row of its own so the share control cannot squeeze the close target below
+   44px on a narrow phone. Share sits left of close because close is the last
+   thing on the row everywhere else in the app and moving it would cost more
+   than it buys. */
+.rs-hd-acts { flex: 0 0 auto; display: flex; align-items: center; gap: 0.4rem; }
+.rs-share {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  min-height: 44px; padding: 0 0.7rem;
+  background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.34);
+  border-radius: 0.6rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #cfe3ff; white-space: nowrap;
+}
+.rs-share:hover, .rs-share:focus-visible { background: rgba(96, 165, 250, 0.22); color: #fff; }
+.rs-share-ico { font-size: 0.95rem; line-height: 1; }
+/* Under ~420px the seat name needs the room more than the word does; the icon
+   keeps a full 44px target and the aria-label still says what it is. */
+@media (max-width: 420px) { .rs-share-txt { display: none; } .rs-share { padding: 0 0.55rem; min-width: 44px; justify-content: center; } }
+
+/* ── Arrived from a shared link ──────────────────────────────────────────────
+   Sits above the controls, not inside them: it is a statement about where this
+   sheet came from, and the last clause — that none of the sender's positions
+   travelled — is the one thing a recipient must not have to infer. */
+.rs-shared {
+  margin: 0; padding: 0.7rem 1rem;
+  background: rgba(96, 165, 250, 0.08);
+  border-bottom: 1px solid rgba(96, 165, 250, 0.16);
+  font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.5; color: #bcd0ee;
+}
+.rs-shared b { color: #dbeafe; }

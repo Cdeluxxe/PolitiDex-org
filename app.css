@@ -4549,6 +4549,13 @@
     }
     .chub-flow-step-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; color: #fff; }
     .chub-flow-step-desc { font-family: 'Barlow Condensed', sans-serif; font-size: 0.76rem; line-height: 1.4; color: #9fb4d4; }
+    /* Inline handoff out of the research list and back to the seat spine. Styled
+       as text, not a button, because it sits mid-sentence — but it keeps a real
+       tap target on a phone. */
+    .chub-flow-link { display: inline; padding: 0; background: none; border: 0; cursor: pointer;
+      font: inherit; color: #93c5fd; font-weight: 700; text-decoration: underline;
+      text-underline-offset: 2px; }
+    .chub-flow-link:hover, .chub-flow-link:focus-visible { color: #dbeafe; }
     .chub-flow-arrow { display: flex; align-items: center; justify-content: center; color: #4e72a0; font-size: 1.1rem; }
     .chub-flow-foot {
       display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; justify-content: space-between;
@@ -10600,6 +10607,16 @@
     .myteam-import-body { flex: 1; min-width: 180px; }
     .myteam-import-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: #fad96a; font-size: 1rem; letter-spacing: 0.02em; }
     .myteam-import-sub { font-family: 'Barlow Condensed', sans-serif; color: #bcd0ee; font-size: 0.82rem; margin-top: 2px; }
+    /* One row per seat: office label, then the pick. The banner used to be a
+       count plus four names, which could not say WHICH seat a dropped id came
+       from — so a shared slate lost a pick and read as complete. */
+    .myteam-import-seat { display: flex; align-items: baseline; gap: 0.4rem; margin-top: 3px; }
+    .myteam-import-office { flex: 0 0 auto; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #7f93b4; }
+    .myteam-import-pick { color: #eaf2ff; font-weight: 600; }
+    /* An absence, styled as one — never as a name. */
+    .myteam-import-seat.is-gone .myteam-import-pick { color: #f0a4a4; font-weight: 500; font-style: italic; }
+    .myteam-import-note { display: block; margin-top: 5px; font-size: 0.76rem; color: #f0a4a4; }
     .myteam-import-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .myteam-import-load, .myteam-import-merge {
       cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;

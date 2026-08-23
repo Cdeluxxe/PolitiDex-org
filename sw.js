@@ -94,7 +94,85 @@
 // the member strip and feeds the rail pill. A shell holding v63 would pair a new
 // consistency.js with an exec-record.js that publishes no rows, so the summary
 // would silently decline to mount.
-const CACHE_VERSION = 'v68';
+// v69 — HONESTY PACK. Two surfaces stopped claiming more than the data carries.
+// my-stances.js and alignment-tool.js no longer promise a record-backed reading
+// for "every politician … wherever they appear" — 181 of 756 profiles publish a
+// Direction Match and the rest fail closed, so the promise now names the floor.
+// consistency.js grew one shared definition of "thin" (_stThinNote) that the
+// composition line and the dossier door's accessible name both read, and one
+// scope-comparison helper (_stExecScopeSplit) that names the current-term read on
+// an exec row whose two scopes disagree. Presentation only — no score moved. The
+// three files ship together: a shell holding v68 would pair the new consistency.js
+// with the old copy, which is the exact inconsistency this pass exists to remove.
+// v70 — THE RACE SHEET. A voter can now open one office on their ballot and see
+// every candidate the roster knows for that seat side by side, ordered BY DEFAULT
+// on how each one's formal record fits the positions the voter set — Direction
+// Match stays on the sheet as an integrity read and never as the sort key. Two new
+// files (race-sheet.js / race-sheet.css) plus four wired hosts: alignment-tool.js
+// exports its vote-pack warmer and repaints an open sheet from _alignRefreshAll,
+// and who-represents-me.js, voter-hub-location.js and ballot-breakdown.js each
+// render the one "Compare field for this seat" entry. Nothing was scored twice:
+// the sheet calls the shipped _calcAlignmentScore / _calcAlignmentBreakdown with a
+// mode flag and adds no arithmetic. The bump matters because a shell holding v69
+// would serve the new hosts (their entry helper returns '' with no sheet loaded,
+// so the button silently never appears) or the new alignment-tool.js against no
+// race-sheet.js at all — a feature that half-exists reads as a broken one.
+// v71 — THE STAR IS A REAL CONTROL. My Stances' priority moved out of a <select>
+// nobody found and into a visible one-tap High / Normal / Low group, and a star now
+// actually propagates: setPriority calls the newly-exported window._alignRefreshAll,
+// which repaints every alignment surface and, at its tail, an already-open race
+// sheet. The bump matters because the halves ship in different files — a shell
+// holding v70 would pair the new my-stances.js with an alignment-tool.js that never
+// exported _alignRefreshAll (stars would set a weight nothing re-read, which is the
+// exact bug this pass fixes) or the new race-sheet.js rank line with an old
+// my-stances.js that cannot produce a star to justify it. my-stances.js and
+// my-stances.css are not shell assets, so they arrive fresh on their own; the two
+// that ARE precached, alignment-tool.js and race-sheet.js, both changed.
+// v72 — THE SEAT SPINE. Every surface that lists a voter's seats now paints the
+// same three-part strip under each one — team state, "Compare field for this seat",
+// and (only for a visitor with no positions) one line saying how to rank the race —
+// from a single new helper, window.pdxSeatStrip in race-sheet.js. The Voter Hub's
+// seat block also stopped hiding itself when no location is set: it holds its place
+// and asks for one, naming no officeholder, because with no location there is no
+// honest answer to "who is my House member". The bump matters because the halves
+// are split across the precache boundary: race-sheet.js and race-sheet.css (which
+// own the helper and its styles) ARE shell assets, while who-represents-me.js,
+// voter-hub-location.js and ballot-breakdown.js are not — a shell holding v71 would
+// serve fresh hosts calling a pdxSeatStrip that does not exist yet (they fall back
+// to the bare compare button, so the team chip and the stance line would silently
+// never appear) or the new race-sheet.js styles against hosts that never render the
+// strip. index.html and app.css also changed — the Door-2 spine line and the
+// research-list handoff — and both are precached.
+// v73 — SHARE THIS RACE / SHARE MY TEAM. A compared seat and a filled slate can
+// now leave the device as a link that opens the same thing on arrival. The new
+// ?race= address is parsed in share-links.js (PARAMS, hashFor, cleanedSearch) and
+// opened in race-sheet.js (openFromHash, pinned candidate ids, the "opened from a
+// shared link" note); the existing ?team= address kept its wire format and lost
+// its location.pathname anchor. The bump matters because the halves are split
+// across the precache boundary AGAIN, and this time in the direction that fails
+// loudest: share-links.js and race-sheet.js ARE shell assets, ballot-breakdown.js
+// and who-represents-me.js are not. A shell holding v72 would serve a fresh
+// ballot-breakdown.js calling PDXShareLinks.team() against a share-links.js that
+// has no team() — it falls back, so links still build, but the ?race= param would
+// be neither stripped nor converted, and a shared race link would land on the
+// front page with a stale query hanging off it. index.html and app.css also
+// changed (import-banner seat rows, the shared-race landing mark) and both are
+// precached.
+// v74 — BALLOT SEAT PACK. Two shell assets moved for it. cmp-data.js gained the
+// roster record for SD-24's officeholder, who held the seat in the ballot
+// resolver with no record behind the id, so that field painted "no candidates on
+// file" — a claim about the world, and a false one. race-sheet.js narrowed its
+// officeholder-only line to fields whose one candidate actually IS the
+// incumbent, so a lone challenger is no longer described as the sitting member.
+// The bump matters because these two are the SAME fact seen from two sides: a
+// shell holding v73 would serve the old cmp-data.js, SD-24 would resolve to a pid
+// the roster still cannot find, and the field would read empty — or, with a fresh
+// cmp-data.js against a stale race-sheet.js, the one person now on file would be
+// announced as the officeholder without the check that says so. Both are
+// precached, so neither half arrives alone. The mapping half of this pass is
+// database-side (S. 2's border_security relation becomes primary) and ships
+// through the migration, not the shell.
+const CACHE_VERSION = 'v74';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -124,6 +202,10 @@ const SHELL_ASSETS = [
   '/app-2.css',
   '/alignment-tool.css',
   '/stance-library.css',
+  // The race sheet overlay's stylesheet. Precached with its script below for the
+  // same reason the two are shipped together: the sheet is a comparison grid, and
+  // an unstyled one is a vertical wall of text that compares nothing.
+  '/race-sheet.css',
   // The two-axis elections lens (🔐 safeguards / 📩 access). Tiny, and it renders a
   // section inside the profile and a header inside the Stance Library — both of which
   // are precached — so leaving it to the runtime cache would mean the first offline
@@ -162,6 +244,12 @@ const SHELL_ASSETS = [
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".
   '/issue-colors.js',
+  // "Compare field for this seat" — one office, the whole field, ranked by the
+  // formal record against the visitor's own positions. Precached alongside
+  // alignment-tool.js because it is that engine's ballot-side surface: the entry
+  // button its three hosts render returns nothing at all when this file is
+  // missing, so an offline repeat visit would lose the feature without a trace.
+  '/race-sheet.js',
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',

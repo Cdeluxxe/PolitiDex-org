@@ -2374,6 +2374,14 @@
       _consistReq[pid] = true; _consistQueue.push(pid);
       if (!_consistTimer) _consistTimer = setTimeout(_alignFlushConsistWarm, 140);
     }
+    // Exposed for surfaces that live in another file and open onto record mode
+    // cold — the race sheet defaults to the formal lane, so the field it is about
+    // to rank needs the vote packs the stated lane never fetched. Handing them to
+    // THIS queue rather than fetching per surface is the point: one debounced
+    // /compare per batch of 24, the settled-pid map shared, and _alignRefreshAll
+    // repainting every listener at once when it lands. A caller that reaches for
+    // its own fetch would re-request records this queue already has.
+    window._alignQueueConsistWarm = _alignQueueConsistWarm;
 
     // Rich "Team Alignment Overview" rendered into #myteam-alignment-bar. Gives the
     // visitor a plain-language read on how aligned their current team is, a per-member
@@ -3132,7 +3140,20 @@
       // Keep the inline alignment % on the Your Key Races candidate cards in sync
       // with the issues the visitor just changed.
       if (typeof window.renderKeyRaces === 'function') window.renderKeyRaces();
+
+      // The race sheet ranks a field by these same two numbers, so a stance
+      // change — or a vote pack landing from the warmer above — has to re-order
+      // it. No-op until race-sheet.js has loaded AND a sheet is actually open.
+      if (typeof window._pdxRaceSheetRefresh === 'function') window._pdxRaceSheetRefresh();
     }
+
+    // Exposed for the one class of change that happens OUTSIDE this file and still
+    // moves every match number: a My Stances priority edit. Direction changes
+    // already arrive here through alignSetIntensity, but a star is pure weight —
+    // positionToLevel deliberately ignores priority — so nothing in the projection
+    // path fires, and without this the race sheet would keep the order it had
+    // before the visitor said which issue matters most. See _msPriorityWeight.
+    window._alignRefreshAll = _alignRefreshAll;
 
     function syncRelevantAlignmentUI() {
       // Chip active-state is handled centrally by _alignSyncAllChips; here we only
@@ -3335,7 +3356,7 @@
         el.innerHTML =
           '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
-          '<div class="align-profile-empty">You haven\'t set any stances yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each. These are your stances (also saved in <b>My Stances</b>), and every politician then gets a <b>🎯 Your Match</b> — plus <b>🏛️ Official Record</b>, whether their record backs it up.</div>';
+          '<div class="align-profile-empty">You haven\'t set any stances yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each. These are your stances (also saved in <b>My Stances</b>), and every politician then gets a <b>🎯 Your Match</b>. Where their formal record is deep enough to test, a <b>🏛️ Official Record</b> read sits beside it.</div>';
         return;
       }
 

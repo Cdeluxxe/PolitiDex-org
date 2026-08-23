@@ -6127,7 +6127,8 @@
         ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
         ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
         ' data-pdxst-focus="record"' +
-        ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance && r.stance.label)) + '">' +
+        ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance && r.stance.label,
+          _stDoorDepth(r, res))) + '">' +
         esc(res.invite.cta) + '<span class="pdxst-lbl-go" aria-hidden="true">→</span>' +
       '</button>';
     }
@@ -6412,13 +6413,82 @@
   // unscored-but-tense row there is no number up there to sit beside and it stays a
   // line of its own. `opts.formalKey` prints the lane/metric/scope key the row face
   // carries in its own column, for the faces that have no such column.
+  // HOW THIN, IN ONE PHRASE — and ONE definition of "thin" for every surface that
+  // states it. The composition line prints this under the percentage; the door's
+  // accessible name now repeats it, because a reader who HEARS "Backed up" and never
+  // hears "one action" has been handed the confident half of a row whose other half
+  // is on screen. Keyed on the JUDGED count, which is the denominator of the number
+  // it qualifies — not on evidence depth, which the dossier keys its own longer
+  // caveat on one level down.
+  var _ST_THIN_AT = 2;
+  function _stThinNote(r, res) {
+    if (!r || !res || res.state !== 'tested' || !r.verdict) return null;
+    var split = _stSplit(r);
+    if (!split || !(split.judged > 0) || split.judged > _ST_THIN_AT) return null;
+    // A Mixed row must not be told "the direction is real" — it is the one bucket
+    // that declined to reach a direction. Same fork the dossier makes.
+    return { judged: split.judged, note: (r.verdict.token === 'mixed')
+      ? 'a split, not yet a pattern' : 'a direction, not yet a pattern' };
+  }
+
+  // TWO SCOPES, ONE ISSUE — and never only the flattering slice. The executive lane
+  // leads with all_time (EXEC_SCOPE_DEFAULT) and that is the right headline: it is
+  // the whole record. But where the CURRENT TERM reads a different shape from the
+  // whole — one direction this term against a split across every term — a reader
+  // shown only the headline has been shown one slice of a record that has two, and
+  // which slice they got is an accident of the default. This returns the other
+  // slice's word so the row can name it. It decides nothing: the percentage, the
+  // verdict token and the bucket are all still the all-time read's.
+  //
+  // Reuses EXEC_TERM_SCOPES and PDXExecRecord.issue rather than inventing a scope,
+  // so this cannot disagree with the Executive Enactment Record about what a term is.
+  // Silent for a former officeholder — execServing() — because "this term" is last
+  // term under a label that says otherwise, which is the same reason scopedRead()
+  // declines for them.
+  function _stExecScopeSplit(r) {
+    try {
+      if (!r || r.lane !== 'exec' || !r.pid || !r.key) return null;
+      if (!execServing(r.pid)) return null;
+      var E = window.PDXExecRecord;
+      if (!E || typeof E.issue !== 'function') return null;
+      var all = E.issue(r.pid, r.key, { allTerms: true });
+      var cur = E.issue(r.pid, r.key, { allTerms: false });
+      if (!all || !cur) return null;
+      var curN = (cur.actions || []).length, allN = (all.actions || []).length;
+      // A slice identical to the whole is not a second read of anything, and an
+      // empty slice is a coverage fact the row already states elsewhere.
+      if (!curN || !allN || curN >= allN) return null;
+      if (all.token === cur.token) return null;
+      var word = cur.verdict && cur.verdict.label;
+      if (!word) return null;
+      return { label: word, curN: curN, allN: allN,
+               scope: (EXEC_TERM_SCOPES.current_term || {}).label || 'Current term' };
+    } catch (e) { return null; }
+  }
+
+  // The depth clause an accessible name carries, or ''. Built from the two helpers
+  // above so the door and the visible line cannot drift apart.
+  function _stDoorDepth(r, res) {
+    var out = [];
+    var t = _stThinNote(r, res);
+    if (t) {
+      var n = _stNoun(r || {});
+      out.push(t.judged + ' judged ' + (t.judged === 1 ? n.one : n.many) + ' — ' + t.note);
+    }
+    var f = _stExecScopeSplit(r);
+    if (f) out.push('this term alone: ' + String(f.label).toLowerCase() +
+      ' (' + f.curN + ' of ' + f.allN + ')');
+    return out.join(' · ');
+  }
+
   function _stCompHtml(r, res, opts) {
     if (res.state === 'untested') return '';
     var split = _stSplit(r);
     if (!split) return '';
     var st = _stStanding(r);
+    var scopeSplit = _stExecScopeSplit(r);
     var aside = r.setAside;
-    var tense = (r.verdict.token === 'mixed') || !!aside || !!st;
+    var tense = (r.verdict.token === 'mixed') || !!aside || !!st || !!scopeSplit;
     // A scored row always states its denominator; an unscored one only where it
     // carries tension worth naming. This is the widened condition, and the whole
     // of the change: everything below already worked, on 15% of the rows.
@@ -6462,11 +6532,17 @@
     // It is a qualifier on the counts, not a second verdict — no icon, no colour
     // of its own, and it never appears on an unscored row, which has no
     // percentage for depth to qualify.
-    var thin = (res.state === 'tested' && split.judged > 0 && split.judged <= 2);
-    var thinNote = (r.verdict.token === 'mixed')
-      ? 'a split, not yet a pattern'
-      : 'a direction, not yet a pattern';
+    var thinR = _stThinNote(r, res);
+    var thin = !!thinR;
+    var thinNote = thinR ? thinR.note : '';
     if (thin) parts.push('<span class="pdxst-comp-thin">' + esc(thinNote) + '</span>');
+    // THE OTHER SCOPE, WHERE IT READS DIFFERENTLY. Sits with the set-aside and
+    // standing clauses because it is the same kind of fact: something true about
+    // this record that the headline number does not carry. Never replaces the
+    // headline — the all-time read still owns the percentage and the verdict.
+    if (scopeSplit) parts.push('<span class="pdxst-comp-x">' + esc('this term alone: ' +
+      String(scopeSplit.label).toLowerCase() + ' (' + scopeSplit.curN + ' of ' +
+      scopeSplit.allN + ' actions)') + '</span>');
     // "0 ran against it" is arithmetic read aloud; "none ran against it" is the
     // same fact in the sentence a person would write. The clean rows this line
     // now reaches are overwhelmingly the zero case, so it is worth the branch.
@@ -6476,7 +6552,11 @@
       (thin ? ' That is the whole of the record judged against this claim — ' + thinNote + '.' : '') +
       (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
         aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
-      (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '');
+      (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '') +
+      (scopeSplit ? ' Across every term this reads ' + String(r.verdict.label || '').toLowerCase() +
+        '; the ' + scopeSplit.curN + ' action' + (scopeSplit.curN === 1 ? '' : 's') +
+        ' taken in the current term alone read ' + String(scopeSplit.label).toLowerCase() +
+        '. The figure above is the all-time record.' : '');
     var key = '';
     if (opts && opts.formalKey) {
       // WHICH LANE THESE COUNTS BELONG TO, said before the counts. On a face with no
@@ -7052,7 +7132,8 @@
           '<button type="button" class="pdxst-lbl pdxst-open"' +
             ' data-pdxst-dos="' + escAttr(r.key) + '" data-pdxst-pid="' + escAttr(r.pid) + '"' +
             ' data-pdxst-origin="' + escAttr(stanceRowId(r.pid, r.key)) + '"' +
-            ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance.label)) + '">' +
+            ' aria-label="' + escAttr(_dosDoorLabel(r.label, res.bucket, r.stance.label,
+              _stDoorDepth(r, res))) + '">' +
             _icDot(skin) + esc(r.label) +
             '<span class="pdxst-lbl-go" aria-hidden="true">›</span>' +
           '</button>' +
@@ -9033,7 +9114,7 @@
     // ── The District of Columbia pair: same text, two congresses ───────────────
     'H.R. 884|119|election_security': {
       did: 'Amended the District of Columbia Home Rule Act to bar anyone who is not a United States citizen from voting in a District election, repealing the effect of the Local Resident Voting Rights Amendment Act of 2022.',
-      why: 'Citizenship as a condition of casting a ballot is an eligibility safeguard, so a yea is a vote for tighter verification of who may vote. The confound is recorded rather than hidden: because the vehicle amends the Home Rule Act, a nay may be opposition to Congress overriding a local District enactment rather than a position on non-citizen voting.'
+      why: 'Citizenship as a condition of casting a ballot is an eligibility safeguard, so a yea is a vote for tighter verification of who may vote. The confound is recorded rather than hidden: the vehicle amends the Home Rule Act, so a nay may be opposition to Congress overriding a local District enactment.'
     },
     'H.R. 884|119|voting_access': {
       did: 'Took the municipal vote away from non-citizen District residents who had registered under the District’s own 2022 law.',
@@ -9079,7 +9160,7 @@
     },
     'H.R. 1319|117|econ_workers': {
       did: 'Extended the pandemic unemployment compensation programs — the federal weekly supplement, Pandemic Unemployment Assistance and Pandemic Emergency Unemployment Compensation — through September 2021, and exempted a portion of 2020 unemployment benefits from income tax.',
-      why: 'Both provisions put money in the hands of people who had lost work, which is what this chip measures, so a yea counts as support here.'
+      why: 'Both provisions put money in the hands of people who had lost work, which is what this chip measures, so a yea counts as support here. Narrow link: one title of a $1.9 trillion relief act, extending programmes already running rather than changing anything about wages, bargaining or job protection.'
     },
     'H.R. 1319|117|national_debt': {
       did: 'Roughly $1.9 trillion of pandemic relief, moved through budget reconciliation as emergency spending with no offsetting revenue or cuts.',
@@ -9091,7 +9172,7 @@
     },
     'H.R. 5376|117|energy_production': {
       did: 'Raised offshore royalty rates, but also directed Interior to accept the highest bid for Gulf of Mexico Lease Sale 257 and to hold Lease Sales 258, 259 and 261, and conditioned new wind and solar rights-of-way on first offering oil and gas leases.',
-      why: 'Those sections require federal acreage to be offered for oil and gas, so on production a yea counts as support — the same yea that counts as support on climate action, because the enacted text does both and the record shows both.'
+      why: 'Those sections require federal acreage to be offered for oil and gas, so on production a yea counts as support — the same yea that counts as support on climate action, because the enacted text does both. Narrow link: a few leasing sections inside a reconciliation act whose energy weight is overwhelmingly clean.'
     },
     'H.R. 5376|117|health_drug_prices': {
       did: 'Required Medicare to negotiate maximum prices for high-spend brand-name drugs from 2026, scaling from 10 drugs to 20 by 2029, and capped insulin cost sharing and Medicare Part D out-of-pocket spending.',
@@ -9101,7 +9182,7 @@
     // ── Infrastructure, 117th ──────────────────────────────────────────────────
     'H.R. 5376|117|national_debt': {
       did: 'Title I, Subtitle A of the same act is captioned “Deficit Reduction”: a 15% corporate alternative minimum tax, a 1% excise on stock repurchases, and multi-year funding for Internal Revenue Service enforcement.',
-      why: 'Those three raise revenue against the act’s spending, so on this chip a yea counts as support — the opposite reading from the unoffset packages elsewhere on this list, and it comes from the enacted text rather than from a preference. The confound is the reason the mapping is weighted 45: the net fiscal effect of the whole act is contested, and only the subtitle heading and its contents are being read here.'
+      why: 'Those three raise revenue against the act’s spending, so a yea counts as support here — the opposite reading from the unoffset packages elsewhere on this list. Narrow link, weighted 45: the act’s net fiscal effect is contested and only that subtitle is read here.'
     },
     'H.R. 3684|117|infrastructure': {
       did: 'The Infrastructure Investment and Jobs Act authorised and appropriated funds for roads and bridges, rail, transit, ports, airports, the electric grid, drinking water and wastewater systems, and broadband. Division A is the surface transportation reauthorisation.',
@@ -9129,7 +9210,7 @@
     },
     'H.R. 4346|117|national_debt': {
       did: 'The CHIPS funds were appropriated as new spending without offsetting revenue or cuts.',
-      why: 'A yea increases federal borrowing, which this chip counts against. Named rather than smoothed: the deficit effect is a by-product of the semiconductor programme, not its purpose.'
+      why: 'A yea increases federal borrowing, which this chip counts against. Narrow link, named rather than smoothed: the deficit effect is a by-product of the semiconductor programme rather than its purpose, and the act changes no fiscal rule.'
     },
 
     // ── Two defence authorisations, two congresses ─────────────────────────────
@@ -9143,7 +9224,7 @@
     },
     'S. 1071|119|strong_defense': {
       did: 'The annual defence authorisation for fiscal year 2026: Divisions A through H authorise Department of Defense activities, military construction, Department of Energy national security programs, personnel strengths, and the Intelligence Authorization Act for the same year.',
-      why: 'Authorising and equipping the armed forces for the year is what this chip measures, so a yea counts as support. The confound is on the face: the enacted text folds in fourteen separately titled Acts, several of them unrelated to defence posture, so passage is not a pure defence signal — which is why this mapping is weighted 80 rather than 100.'
+      why: 'Authorising and equipping the armed forces for the year is what this chip measures, so a yea counts as support. The confound is on the face: the enacted text folds in fourteen separately titled Acts, several unrelated to defence posture, which is why the mapping is weighted 80 rather than 100.'
     },
     'S. 1071|119|israel_support': {
       did: 'Title XII, Subtitle D — headed "Matters Relating to Israel" — extended anti-tunnel and counter-unmanned-systems cooperation and required a report on joint exercises, and Sec. 1657 made available up to $60,000,000 for Iron Dome components, $40,000,000 for David’s Sling and $100,000,000 for Arrow 3, each through co-production in the United States.',
@@ -9667,7 +9748,7 @@
     // ── H.R. 8884 · 119th Congress ──
     'H.R. 8884|119|social_security': {
       did: 'Reauthorized the Social Security Administration’s authority to run disability-insurance demonstration projects, which lapsed at the end of 2022, through 2030, and required that a participant’s total income not be reduced by taking part in one.',
-      why: 'Keeping a Social Security program authority alive is support on this chip. Supporting link: this is program administration — it changes no benefit level and no eligibility rule. It passed the House 232-188 and went to Senate Finance.'
+      why: 'Keeping a Social Security program authority alive is support on this chip. Supporting link: this is program administration — it changes no benefit level and no eligibility rule, and it passed the House 232-188.'
     },
     // ── H.R. 815 · 118th Congress ──
     'H.R. 815|118|immig_fentanyl': {
@@ -9769,6 +9850,159 @@
     'H.J.Res. 78|119|lands_preserve': {
       did: 'Removed Endangered Species Act protection from the San Francisco Bay-Delta population of longfin smelt by nullifying the listing rule.',
       why: 'This chip’s support direction is keeping federal conservation protections in place, so a yea — which strips one — is coded against it. Mapped here because the issue vocabulary has no dedicated wildlife or endangered-species chip.'
+    },
+
+    // ══ Judged roll-call debt: the (measure, issue) pairs that a Contradicted or
+    // Mixed member row still rendered with the derived pair. These are the rows a
+    // reader opens to argue with, and "counted on X because that is the primary
+    // subject" is not an argument. Each line below is written from the mapping's own
+    // rationale and the measure text on file — the amendment's operative words, the
+    // account it moves, the section it strikes — and from nothing else. Where the
+    // link is a narrow one the sentence says so, because a reader who cannot see the
+    // reach of a link cannot judge the weight it was given.
+
+    // ── FY2026/FY2027 appropriations and defence-authorisation amendments. The
+    // "one vote, many issues" case: a single floor amendment to a vehicle carrying
+    // dozens of unrelated accounts. The per-issue line has to name the account or
+    // the section, because the bill's short title names none of them.
+    'H.Amdt. 235|119|israel_support': {
+      did: 'A floor amendment to the fiscal 2026 national security and State Department appropriations bill barring any of its funds from being used for Israel and cutting the Foreign Military Financing Program account by $3.3 billion to match. Failed 104-314.',
+      why: 'Foreign Military Financing is the account U.S. security assistance to Israel is paid out of, and the amendment zeroes it out, so a yea ends the assistance and a nay leaves it in place.'
+    },
+    'H.Amdt. 235|119|america_first_fp': {
+      did: 'Prohibited the funds appropriated by the fiscal 2026 national security and State Department appropriations Act from being used for Israel — a standing foreign-aid commitment put to the floor as an amendment rather than as a review.',
+      why: 'Whether long-running overseas commitments should continue is what this chip measures, and the amendment ends one of the largest of them inside the appropriation itself, so a yea counts as support for pulling back.'
+    },
+    'H.Amdt. 235|119|cut_spending': {
+      did: 'The amendment paid for itself by reducing the Foreign Military Financing Program account by $3.3 billion — the same money it barred from going to Israel.',
+      why: 'That offset is the operative spending change on this chip: a yea takes an appropriated account down by $3.3 billion. Its reach is one account in one bill, with no change to any spending rule.'
+    },
+    'H.Amdt. 236|119|america_first_fp': {
+      did: 'Barred the funds appropriated by the same national security and State Department appropriations Act from being used for Jordan, with matching reductions to the National Security Investment Programs and Foreign Military Financing accounts.',
+      why: 'Aid to Jordan is a standing commitment renewed year on year, and the amendment ends it in the appropriation rather than through a review, so a yea counts as support for winding such commitments down.'
+    },
+    'H.Amdt. 236|119|cut_spending': {
+      did: 'Cut the National Security Investment Programs and Foreign Military Financing accounts by the amounts the amendment barred from being spent on Jordan.',
+      why: 'Two appropriated accounts come down by the amount withheld, which is the spending effect this chip reads, so a yea cuts spending. It moves those two accounts in one bill and changes no spending rule.'
+    },
+    'H.Amdt. 242|119|gov_transparency': {
+      did: 'Struck section 1213 of the fiscal 2027 defence authorisation, which would have moved the Afghanistan War Commission’s final-report deadline from three years to four; striking it leaves the original three-year deadline standing.',
+      why: 'The commission’s report is the public accounting of that war, and a yea holds it to the schedule Congress first set instead of letting it slip a year. What the amendment reaches is when the report is delivered, not what has to be disclosed.'
+    },
+    'H.Amdt. 243|119|america_first_fp': {
+      did: 'Struck the fiscal 2027 defence authorisation’s section on foreign cadets and replaced it with a prohibition on foreign nationals attending the United States Military Academies.',
+      why: 'Training partner-nation officers at U.S. expense is one of the standing commitments this chip measures, and the amendment ends it, so a yea counts as support for narrowing them.'
+    },
+    'H.Amdt. 248|119|energy_production': {
+      did: 'Kept the Santa Ynez production unit off the California coast operating rather than letting it shut down, as an amendment to the fiscal 2027 defence authorisation.',
+      why: 'Whether domestic oil keeps flowing is what this chip measures, and the amendment holds one producing asset online, so a yea counts as support.'
+    },
+    'H.Amdt. 248|119|strong_defense': {
+      did: 'The amendment’s stated purpose is protecting a critical component of the military’s fuel supply chain — the Santa Ynez unit — by keeping it in production.',
+      why: 'The link here is the fuel the armed forces buy: holding a domestic source open is read as backing supply-chain security, so a yea counts as support. It changes no force structure, procurement programme or readiness authority, which is why it is weighted below a full defence mapping.'
+    },
+    'H.Amdt. 261|119|privacy_rights': {
+      did: 'Barred federal funds from buying, installing, operating or maintaining an automated speed-enforcement camera system on a military installation, and required any already running to be decommissioned and removed within 180 days.',
+      why: 'How much automated monitoring of ordinary people the government runs is what this chip measures, and the amendment switches one system off and takes down the installed base, so a yea counts as support. It reaches military installations only and expressly preserves security, access-control and criminal-investigation cameras.'
+    },
+    'H.Amdt. 266|119|cut_spending': {
+      did: 'Required the Secretary of Defense to report within 180 days on options for cutting 200,000 civilian positions from the Department, including an analysis of the cost savings each option would produce.',
+      why: 'The savings analysis is what puts a 200,000-position federal payroll reduction on the table as a spending measure, so a yea backs studying the cut. Narrow link: the amendment commissions a report and reduces nothing.'
+    },
+    'H.Amdt. 478|118|israel_support': {
+      did: 'Prohibited the fiscal 2024 State and foreign operations appropriations bill’s funds from being used to relocate the United States Embassy in Israel out of Jerusalem. Agreed to 360-67.',
+      why: 'The funding limitation locks in U.S. recognition of Jerusalem as Israel’s capital by denying the money to reverse it, so a yea entrenches that recognition and a nay leaves it reversible.'
+    },
+    'S.Amdt. 5813|119|immigration_reform': {
+      did: 'An amendment to the border and immigration enforcement bill making funds available for the timely adjudication of DACA renewal applications. Rejected 47-52, so no renewal funding is in the enacted law.',
+      why: 'A DACA recipient loses work authorisation and protection from removal when a renewal lapses in the backlog, so a yea funds keeping long-settled recipients in status. The amendment pays to process an existing policy and creates no pathway of its own.'
+    },
+
+    // ── Arms Export Control Act disapprovals. Eight near-identical vehicles whose
+    // faces used to differ only by number: the articles in the resolving clause are
+    // what tells a reader which transfer their senator voted on.
+    'S.J.Res. 26|119|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked the certified transfer to Israel of bulldozers and related equipment. The Senate refused to discharge it from the Foreign Relations Committee 15-83 on 2025-04-03, and the sale proceeded.',
+      why: 'Stopping a certified arms transfer is the sharpest vote available against the security relationship this chip measures, so a yea — here, to hold back the bulldozers — is coded against support and a nay for it.'
+    },
+    'S.J.Res. 32|119|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked a certified transfer to Israel of defense articles and services. The Senate refused to discharge it from the Foreign Relations Committee 40-59 on 2026-04-15, and the sale proceeded.',
+      why: 'The resolution’s only operative effect is to stop the sale, so a yea withholds the articles and a nay lets them go — which is why a yea counts against support on this chip. The 40 votes to discharge are the largest yet recorded on one of these.'
+    },
+    'S.J.Res. 33|119|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked the certified transfer to Israel of bomb bodies and guidance kits. The Senate refused to discharge it from the Foreign Relations Committee 15-82 on 2025-04-03, and the sale proceeded.',
+      why: 'Bomb bodies and guidance kits are munitions for the air campaign, and a yea would have kept them from being delivered, so a yea is coded against support on this chip and a nay for it.'
+    },
+    'S.J.Res. 34|119|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked a certified transfer to Israel of defense articles and services. The Senate refused to discharge it from the Foreign Relations Committee 24-73 on 2025-07-30, and the sale proceeded.',
+      why: 'A senator voting to discharge this resolution is voting to stop the transfer, which is the direction this chip reads as against support — a nay leaves the certified sale on track.'
+    },
+    'S.J.Res. 41|119|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked the certified transfer to Israel of assault rifles. The Senate refused to discharge it from the Foreign Relations Committee 27-70 on 2025-07-30, and the sale proceeded.',
+      why: 'Small arms rather than munitions, but the vote works the same way: a yea holds the rifles back and a nay releases them, so a yea is coded against support for the security relationship.'
+    },
+    'S.J.Res. 138|119|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked a certified transfer to Israel of defense articles and services. The Senate refused to discharge it from the Foreign Relations Committee 36-63 on 2026-04-15, and the sale proceeded.',
+      why: 'The vote is on the transfer and nothing else in the relationship, so a yea holds the articles back and a nay releases them — which puts a yea against support on this chip. It was taken on the same day as a second disapproval covering a separate certification.'
+    },
+    'S.J.Res. 111|118|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked the certified transfer to Israel of tank rounds and 120mm mortar cartridges. The Senate refused to discharge it from the Foreign Relations Committee 18-79 on 2024-11-20, and the sale proceeded.',
+      why: 'Tank rounds and mortar cartridges are ground-war ammunition, and a yea would have stopped them shipping, so a yea is coded against support on this chip and a nay for it.'
+    },
+    'S.J.Res. 113|118|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked the certified transfer to Israel of JDAM guidance kits and small-diameter bombs. The Senate refused to discharge it from the Foreign Relations Committee 19-78 on 2024-11-20, and the sale proceeded.',
+      why: 'Guidance kits and small-diameter bombs are the precision half of the same air campaign, and a yea withholds them, so a yea reads against support and a nay for it.'
+    },
+    'S.J.Res. 115|118|israel_support': {
+      did: 'A resolution of disapproval under the Arms Export Control Act that would have blocked an export-licence amendment covering defense articles, services and technical data for Israel. The Senate refused to discharge it from the Foreign Relations Committee 17-80 on 2024-11-20, and the sale proceeded.',
+      why: 'This one reaches the licence rather than a single munition, but the effect is the same: a yea closes the channel the articles move through, so a yea is coded against support.'
+    },
+
+    // ── The rest of the judged debt: standalone bills and resolutions whose faces
+    // carried the roll-call question and nothing about the issue they were scored on.
+    'H.R. 5323|117|israel_support': {
+      did: 'Appropriated $1 billion to replace the Iron Dome interceptors and components Israel expended in the May 2021 conflict and for Israeli cooperative missile-defense procurement, designated as an emergency requirement.',
+      why: 'The bill was introduced as a standalone after the same money was stripped from a continuing resolution, so this vote is about Israeli missile defence and nothing else — a yea funds it.'
+    },
+    'H.R. 8369|118|israel_support': {
+      did: 'Required the President to deliver to Israel the defense articles and services Congress had already authorized and appropriated, and froze salaries-and-expenses money at the Defense and State secretariats and the National Security Council until the withheld shipments went out.',
+      why: 'The bill was introduced after the administration paused a shipment of 2,000-pound and 500-pound bombs and exists to force it out, so a yea compels the transfer and a nay leaves the pause standing.'
+    },
+    'H.R. 8281|118|states_federal_power': {
+      did: 'Wrote the documentary-proof-of-citizenship rule into federal law for every registration channel a state runs, fixed the acceptable-document list federally, and extended the requirement to states that had been outside the National Voter Registration Act altogether.',
+      why: 'On this chip the question is who sets the rule rather than whether the rule is good, and a yea swaps each state’s own registration procedure for a uniform federal one. Narrow link: preemption here is a by-product of the citizenship mandate, which the elections rows score.'
+    },
+    'H.R. 4|117|states_federal_power': {
+      did: 'Restored Voting Rights Act preclearance on a rolling twenty-five-year coverage formula and added a nationwide step: a state must identify each newly enacted covered election practice and may not implement it until it has been cleared federally.',
+      why: 'A yea puts a state’s own enacted election law behind federal approval before it can take effect, and a nay leaves the state’s rule governing on its own. Only that preemption question is coded here — the merits of the Voting Rights Act are the access row on the same bill.'
+    },
+    'H.R. 1|117|gov_transparency': {
+      did: 'Division C, titled Ethics, barred House members from for-profit boards, wrote conflict-of-interest rules for members and senior staff, required the President and Vice President to divest conflicted holdings, required presidential candidates to publish ten years of tax returns, and widened lobbying registration.',
+      why: 'Every one of those is a disclosure or conduct duty on officeholders, which is what this chip measures, so a yea enacts them. It is one division of a three-division act, and the campaign-money titles are counted on the campaign-finance row rather than twice here.'
+    },
+    'H.Res. 1399|119|gov_transparency': {
+      did: 'Directed the House Committee on Ethics to preserve and publicly release its records of monetary settlements involving acts of sexual harassment.',
+      why: 'Those settlements stay sealed unless the House opens them, and the resolution opens them, so a yea forces out disclosure the institution would otherwise keep to itself.'
+    },
+    'H.R. 6329|119|gov_transparency': {
+      did: 'The Information Quality Assurance Act required agencies to publish the critical factual material they rely on when issuing a rule or a guidance document, and to use the best reasonably available evidence.',
+      why: 'What the public can see of how a decision was reached is what this chip measures, and the bill puts the factual basis for a rule on the record, so a yea widens that disclosure.'
+    },
+    'H.R. 29|119|border_security': {
+      did: 'Required the Department of Homeland Security to detain an inadmissible immigrant charged with, arrested for or convicted of burglary, theft, larceny or shoplifting, put them into removal proceedings, and issue a detainer to take custody from state or local police.',
+      why: 'Detaining and removing people already found inadmissible is interior enforcement of the same immigration line this chip measures at the border, so a yea tightens it. The bill adds no barrier, personnel or asylum change of its own.'
+    },
+    'H.R. 29|119|tough_on_crime': {
+      did: 'Attached a mandatory federal custodial consequence to four property offences — burglary, theft, larceny and shoplifting — for an inadmissible immigrant charged with, arrested for or convicted of one of them.',
+      why: 'Whether an offence carries a firmer consequence is this chip’s question, and the bill turns a charge for one of those four into mandatory detention, so a yea counts as support. The House text reaches only those four: assault of an officer and injury crimes entered the statute later, through the Senate.'
+    },
+    'S.J.Res. 37|119|tariffs_prices': {
+      did: 'Terminated the national emergency declaration that is the legal basis for the tariffs on Canadian imports, ending those duties. Passed the Senate 51-48 and did not advance in the House.',
+      why: 'A tariff is paid at the border and carried into the shelf price of the goods it covers, so ending the duties on a top trading partner’s imports reads as price relief and a yea counts as support. It reaches one country’s tariffs, not tariff policy generally.'
+    },
+    'S.J.Res. 59|119|strong_defense': {
+      did: 'A privileged war-powers resolution directing the removal of U.S. forces from hostilities against Iran that Congress has not authorized, and requiring an authorization before they continue.',
+      why: 'Pulling forces out of an engagement already under way is read on this chip as cutting against a forward posture, so a yea is coded against it. What the resolution changes is who authorizes the operation — not any force level, budget or capability.'
     }
   };
   // Fails closed in three places, on purpose: a position (no congress, no ballot), a
@@ -11069,9 +11303,10 @@
   // ONE ACCESSIBLE NAME FOR ONE DOOR. Read aloud identically in the issue index, on a
   // stance row, inside an Official Record row and in the divergence list, because in
   // all four places it is the same destination carrying the same finding.
-  function _dosDoorLabel(label, o, said) {
+  function _dosDoorLabel(label, o, said, depth) {
     return 'Open the issue dossier: ' + String(label == null ? '' : label) +
-      (o ? ' — ' + o.short : '') + (said ? ' · they said: ' + said : '');
+      (o ? ' — ' + o.short : '') + (said ? ' · they said: ' + said : '') +
+      (depth ? ' · ' + depth : '');
   }
 
   // ── L1 — the assembled answer ───────────────────────────────────────────────
