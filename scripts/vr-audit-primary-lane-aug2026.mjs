@@ -417,8 +417,13 @@ if (SIM) {
       console.log(`  flip  #${m.id} ${t.number.padEnd(16)} ${t.key.padEnd(20)} w${map.weight} ${map.supportMeaning} → is_primary = true`);
     }
   }
-  const keys = new Set(targets.map((t) => t.key));
-  for (const k of keys) {
+  // Sweep EVERY issue key, not just the ones named. The index is computed per key so a
+  // flip cannot mathematically reach another key — but "cannot" is a claim, and the
+  // point of a drift section is to measure it. Non-target keys print only if they move.
+  const targetKeys = new Set(targets.map((t) => t.key));
+  const allKeys = [...perIssue.keys()].sort();
+  let collateral = 0;
+  for (const k of allKeys) {
     let gained = 0, lostRead = 0, changedDir = 0, toAdvance = 0, toOppose = 0, stillBlocked = 0, splitOpened = 0;
     const gainedUtah = [];
     for (const pid of MEMBERS) {
@@ -446,8 +451,15 @@ if (SIM) {
       if (before.token === "record_split" && after.token === "record_split_deep") splitOpened++;
       if (wasRead && nowRead && before.lead !== after.lead) changedDir++;
     }
+    const moved = gained || lostRead || changedDir || splitOpened;
+    if (!targetKeys.has(k)) {
+      if (moved) { collateral++; console.log(`  !! COLLATERAL ${k}: +${gained} direction · ${lostRead} lost · ${changedDir} flipped · ${splitOpened} split opened`); }
+      continue;
+    }
     console.log(`  ${k}: +${gained} members gain a direction (${toAdvance} advanced-side, ${toOppose} opposed-side) · ` +
                 `${lostRead} lose a read · ${changedDir} change direction · ${splitOpened} split counts open up · ${stillBlocked} still no_primary` +
                 (gainedUtah.length ? ` · UT gained: ${gainedUtah.join(", ")}` : ""));
   }
+  console.log(`  swept ${allKeys.length} issue keys · ${collateral} non-target keys moved` +
+              (collateral ? "  ← INVESTIGATE" : "  (none, as the per-key index requires)"));
 }

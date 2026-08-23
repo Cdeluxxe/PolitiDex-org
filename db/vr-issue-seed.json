@@ -872,10 +872,10 @@
     {
      "issueKey": "israel_support",
      "weight": 95,
-     "isPrimary": false,
+     "isPrimary": true,
      "supportMeaning": "yea_opposes",
      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr8595.xml",
-     "rationale": "Prohibits funds appropriated by the FY2026 National Security and State Department appropriations Act from being used for Israel and reduces the Foreign Military Financing Program account by $3.3 billion accordingly — a direct floor attempt to zero out U.S. security assistance to Israel. Failed 104-314 with 10 members voting present. A yea ends the assistance."
+     "rationale": "Prohibits funds appropriated by the FY2026 National Security and State Department appropriations Act from being used for Israel and reduces the Foreign Military Financing Program account by $3.3 billion accordingly — a direct floor attempt to zero out U.S. security assistance to Israel. Failed 104-314 with 10 members voting present. A yea ends the assistance. Primary: the amendment's entire operative text is Israel funding — prohibiting it and cutting the Foreign Military Financing account by the corresponding amount — so the relation is the instrument's own subject, not an appropriations by-product. Weighted 95 rather than 100 because the standing-commitment axis carries the larger share and outranks it; the weight is what ranks the two axes."
     }
    ]
   },
@@ -988,9 +988,9 @@
     {
      "issueKey": "econ_corp_account",
      "weight": 75,
-     "isPrimary": false,
+     "isPrimary": true,
      "supportMeaning": "yea_opposes",
-     "rationale": "The nullified rule required very large financial institutions to cap overdraft charges at $5, justify a higher cap, or treat overdrafts as credit subject to Truth in Lending Act disclosure; a yea removes that constraint on what the largest banks may charge."
+     "rationale": "The nullified rule required very large financial institutions to cap overdraft charges at $5, justify a higher cap, or treat overdrafts as credit subject to Truth in Lending Act disclosure; a yea removes that constraint on what the largest banks may charge. Primary: what the largest banks may charge their customers is the resolution's own subject — the rule it nullifies is that rule and no other — not a by-product of a broader vehicle. Weighted 75 rather than 100 because the Congressional Review Act framing carries the larger share and outranks it; the weight is what ranks the two axes."
     }
    ]
   },
@@ -2225,9 +2225,9 @@
     {
      "issueKey": "voting_access",
      "weight": 80,
-     "isPrimary": false,
+     "isPrimary": true,
      "supportMeaning": "yea_opposes",
-     "rationale": "The substitute adds a barrier at both steps this facet measures. At registration, a mail-form applicant must present proof \"in person to the office of the appropriate election official\" by the registration deadline, which closes mail and online registration to anyone who cannot appear; at casting, photo identification becomes a precondition for receiving an in-person ballot, and an in-person voter without one may only cast a provisional ballot and must cure it within three days. The bill's easing provisions were read and weighed rather than ignored: an alternative-evidence pathway on a perjury attestation, a required process for applicants whose documents carry a former name, free public access to a copier or scanner in government buildings, and exemptions for uniformed-services and certain elderly and disabled voters. Each of those accommodates the new requirement rather than widening access on its own, so the yea does not point both ways here and the facet is not declined the way it is on H.R. 1 and H.R. 5746. Weighted above H.R. 8281's 70 because that bill reached only the registration step while this one also conditions casting."
+     "rationale": "The substitute adds a barrier at both steps this facet measures. At registration, a mail-form applicant must present proof \"in person to the office of the appropriate election official\" by the registration deadline, which closes mail and online registration to anyone who cannot appear; at casting, photo identification becomes a precondition for receiving an in-person ballot, and an in-person voter without one may only cast a provisional ballot and must cure it within three days. The bill's easing provisions were read and weighed rather than ignored: an alternative-evidence pathway on a perjury attestation, a required process for applicants whose documents carry a former name, free public access to a copier or scanner in government buildings, and exemptions for uniformed-services and certain elderly and disabled voters. Each of those accommodates the new requirement rather than widening access on its own, so the yea does not point both ways here and the facet is not declined the way it is on H.R. 1 and H.R. 5746. Weighted above H.R. 8281's 70 because that bill reached only the registration step while this one also conditions casting. Primary: the substitute's operative provisions ARE the registration and casting steps this facet measures, so the access relation is the instrument's own subject rather than an incidental brush — the two-facet model records the same text as security-supporting and access-opposing at once. Weighted 80 rather than 100 because election_security carries the larger share and outranks it; the weight is what ranks the two axes."
     }
    ]
   },

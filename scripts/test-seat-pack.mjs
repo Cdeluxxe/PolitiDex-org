@@ -486,14 +486,16 @@ section("7 · The curated seed and the migration agree");
     eq(bs.supportMeaning, "yea_supports", "S. 2's border_security support meaning moved");
   }
 
-  // Exactly one primary per measure is the corpus convention everywhere EXCEPT
-  // here, where two axes are both the instrument's own subject. Assert the
-  // exception is deliberate and confined to this one measure.
+  // Exactly one primary per measure is the corpus convention everywhere EXCEPT on
+  // these four, where two axes are both the instrument's own subject. S. 2 set the
+  // pattern; the August 2026 primary-lane audit found three more and promoted only
+  // those (see scripts/test-primary-lane-promotes.mjs for the pack's own guards).
+  // Assert the exception stays deliberate and confined to this set.
   const multi = (seed.measures || [])
     .filter((m) => (m.issues || []).filter((i) => i.isPrimary).length > 1)
     .map((m) => `${m.number} (${m.congress})`);
-  eq(multi.join(", "), "S. 2 (119)",
-    "a second measure gained a second primary mapping — the flag is drifting back into a ranking");
+  eq(multi.join(", "), "H.Amdt. 235 (119), S.J.Res. 18 (119), S. 1383 (119), S. 2 (119)",
+    "the set of measures with two primaries changed — the flag is drifting back into a ranking");
 
   const mig = R("netlify/database/migrations/20260920000000_vr_s2_border_security_primary_lane.sql");
   has(mig, "is_primary = TRUE", "the migration does not set the primary flag");
