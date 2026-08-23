@@ -1154,6 +1154,79 @@
     }
     window._measureComponentBreakdown = _measureComponentBreakdown;
 
+    // ── Big Picture presentation order (a fork, not a change) ─────────────────
+    // _measureComponentBreakdown sorts primary-first then weight-desc. That order is
+    // load-bearing for the SCORE path — the API ships issues in it, and surfaces that
+    // pick a single internal example read the head of that list — so it does not move.
+    //
+    // But a citizen list is a different question. When a reader opens an act, every
+    // topic it maps to is equally something the vote decided; handing them the
+    // curator's ranking as the reading order tells them, by position alone, which
+    // topics matter. bill-detail.js forked its own order for exactly this reason.
+    // This is that fork, lifted to one place so the record card, the profile
+    // highlight and the library card cannot each drift back to the score sort.
+    //
+    // The order is the SHIPPED TAXONOMY'S OWN INDEX — the category sequence a reader
+    // already meets in the Alignment Tool — then the issue label alphabetically, then
+    // the key. It is derived from the vocabulary, stable, and carries no judgement
+    // about which topic the act was really about, because that is not a fact this
+    // codebase has. Nothing here reads isPrimary or weight, so no presentation
+    // decision can be inherited from a curation decision.
+    //
+    //   list   — anything with an `issueKey` (mappings, or breakdown components)
+    //   opts.labelFn  — key → label; defaults to window._issueLabel then the key
+    //   opts.firstKeys — keys to float to the top (bill-detail floats the reader's
+    //                    own aligned issues). A personalisation, never a rank.
+    var _BP_CAT_RANK = null;
+    function _bpCatRank(key) {
+      if (!_BP_CAT_RANK) {
+        var built = {}, n = 0;
+        try {
+          var cats = (typeof window._pdxIssueCategories === 'function') ? window._pdxIssueCategories() : [];
+          for (var i = 0; i < cats.length; i++) { if (cats[i] && cats[i].key) { built[cats[i].key] = i; n++; } }
+        } catch (e) {}
+        if (!n) return 999; // taxonomy not loaded yet — don't cache an empty table
+        _BP_CAT_RANK = built;
+      }
+      var cat = '';
+      try { if (typeof window._pdxIssueCatOf === 'function') cat = window._pdxIssueCatOf(key) || ''; } catch (e) {}
+      var r = _BP_CAT_RANK[cat];
+      return (typeof r === 'number') ? r : 999;
+    }
+    function _pdxBigPictureOrder(list, opts) {
+      opts = opts || {};
+      var labelFn = (typeof opts.labelFn === 'function') ? opts.labelFn : function (k) {
+        try { if (typeof window._issueLabel === 'function') return window._issueLabel(k) || k; } catch (e) {}
+        return k;
+      };
+      var first = null;
+      if (opts.firstKeys) {
+        first = {};
+        var fk = opts.firstKeys;
+        if (typeof fk.forEach === 'function') fk.forEach(function (k) { first[k] = 1; });
+        else Object.keys(fk).forEach(function (k) { first[k] = 1; });
+      }
+      return (list || []).slice().sort(function (a, b) {
+        var ka = (a && a.issueKey) || '', kb = (b && b.issueKey) || '';
+        if (first) {
+          var fa = first[ka] ? 0 : 1, fb = first[kb] ? 0 : 1;
+          if (fa !== fb) return fa - fb;
+        }
+        var ca = _bpCatRank(ka), cb = _bpCatRank(kb);
+        if (ca !== cb) return ca - cb;
+        var cmp = String(labelFn(ka)).localeCompare(String(labelFn(kb)));
+        if (cmp) return cmp;
+        return ka < kb ? -1 : ka > kb ? 1 : 0;
+      });
+    }
+    window._pdxBigPictureOrder = _pdxBigPictureOrder;
+    // Same order for a bare list of issue KEYS (the library and search cards hold
+    // keys, not mappings), so a chip row and a ledger row never disagree.
+    window._pdxBigPictureKeys = function (keys, opts) {
+      return _pdxBigPictureOrder((keys || []).filter(Boolean).map(function (k) { return { issueKey: k }; }), opts)
+        .map(function (o) { return o.issueKey; });
+    };
+
     // ── Omnibus PROVENANCE (presentation metadata — changes no verdict) ────────
     // The breakdown above answers "what did this one vote do to each issue?". These
     // two helpers answer the companion question a voter asks on a comparison surface:
@@ -1178,6 +1251,16 @@
         if (self === null && c.issueKey === issueKey) self = c;
         else others.push(c);
       });
+      // The sibling issues are a CITIZEN-FACING LIST — every consumer of this
+      // function renders them as prose, chips or a trail — and they were inheriting
+      // _measureComponentBreakdown's is_primary-first, weight-descending order,
+      // which is the scoring path's order. Nothing here can move a verdict, a count
+      // or a percentage (see the note above), so the sequence is pure presentation
+      // and is forked to the shared Big Picture order. `self` keeps its place at the
+      // head of the trail — that is the issue the reader is standing on, not a rank —
+      // and identity is preserved, so callers comparing against ctx.thisIssue still
+      // match. Same members, same count; only the reading order changes.
+      others = _pdxBigPictureOrder(others, opts);
       var advances = [], opposes = [], neutral = [];
       others.forEach(function (c) {
         if (c.effect === 'advances') advances.push(c);
@@ -1188,7 +1271,7 @@
         count: brk.count,
         thisIssue: self,             // null when the record doesn't map to issueKey
         others: others,
-        labels: brk.components.map(function (c) { return c.label; }),
+        labels: (self ? [self] : []).concat(others).map(function (c) { return c.label; }),
         otherLabels: others.map(function (c) { return c.label; }),
         advances: advances,          // sibling issues this action pushed forward
         opposes: opposes,            // sibling issues this action cut against

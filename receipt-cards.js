@@ -1923,14 +1923,29 @@
 
   // The strongest CITABLE item on one side, by the same step-down the split card
   // uses: rank, ask the whole item chain, and on a refusal move to the next one
-  // rather than either loosening the chain or losing the card. Ranked on a
-  // primary mapping first (the index already requires at least one, and an issue
-  // the measure was actually about illustrates the direction better than an
-  // incidental mapping does), then curated weight, then recency.
-  //   THIS IS THE INTERNAL ANTI-NOISE USE OF `isPrimary`, AND IT IS THE WHOLE OF IT
-  // HERE. It picks WHICH ONE of several already-eligible items gets quoted as an
+  // rather than either loosening the chain or losing the card.
+  //   RANKED ON EVIDENCE STRENGTH FIRST, AND ON THE FLAG ONLY TO BREAK A TIE. The
+  // first key used to be `isPrimary`, which meant a procedural motion-to-table on a
+  // flagged mapping outranked a recorded vote on final passage — the flag deciding
+  // what got QUOTED, ahead of every property that actually makes one vote better
+  // evidence than another. The order is now:
+  //     1. not procedural. Procedural votes count at a quarter weight in the index
+  //        and on some questions (recommit, table) a Yea is a vote against the bill;
+  //        a reader shown one as "what the record did" has been handed the weakest
+  //        thing in the pool.
+  //     2. not an amendment. A vote on the measure itself is a plainer illustration
+  //        of a direction than a vote on one of its amendments.
+  //     3. curated weight, descending — the explicit statement of how much this
+  //        mapping bears on the issue.
+  //     4. `isPrimary`, as a tiebreak between items that are otherwise equally good
+  //        evidence, because an issue the measure was actually about does illustrate
+  //        a direction better than an incidental mapping.
+  //     5. recency.
+  //   THIS REMAINS THE INTERNAL ANTI-NOISE USE OF `isPrimary`, AND IT IS THE WHOLE OF
+  // IT HERE. It picks WHICH ONE of several already-eligible items gets quoted as an
   // example; it hides no row, demotes no topic and reaches no Big Picture surface.
-  // The citizen-facing instrument faces — bill-detail.js and exec-record-ui.js —
+  // The citizen-facing instrument faces — bill-detail.js, exec-record-ui.js, the
+  // record cards in voting-record.js, the library shelf and the search index —
   // ignore the flag as a visibility rule entirely. Any future use of it beyond
   // example selection is an engine decision, not a rendering one.
   var RD_SIDE_WORD = { advances: 'advanced-it', opposes: 'cut-against-it' };
@@ -1938,10 +1953,12 @@
     var pool = items.filter(function (it) { return rdSide(it, issueKey) === want; });
     pool.sort(function (a, b) {
       var ma = mappingOn(a, issueKey) || {}, mb = mappingOn(b, issueKey) || {};
-      if (!!ma.isPrimary !== !!mb.isPrimary) return ma.isPrimary ? -1 : 1;
+      if (!!a.isProcedural !== !!b.isProcedural) return a.isProcedural ? 1 : -1;
+      if (!!a.isAmendment !== !!b.isAmendment) return a.isAmendment ? 1 : -1;
       var wa = (typeof ma.weight === 'number') ? ma.weight : 100;
       var wb = (typeof mb.weight === 'number') ? mb.weight : 100;
       if (wa !== wb) return wb - wa;
+      if (!!ma.isPrimary !== !!mb.isPrimary) return ma.isPrimary ? -1 : 1;
       return String(b.date || '') < String(a.date || '') ? -1
            : String(b.date || '') > String(a.date || '') ? 1 : 0;
     });

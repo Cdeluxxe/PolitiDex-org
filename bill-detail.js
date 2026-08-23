@@ -104,8 +104,19 @@
     var r = _CAT_RANK[cat];
     return (typeof r === 'number') ? r : 999;
   }
+  //   THIS ORDER IS NOW SHARED. It was written here first, and it is the same
+  // question the record card, the profile highlight and the library card were each
+  // answering with the score sort. window._pdxBigPictureOrder in stance-helpers.js
+  // is the one copy; this delegates to it and keeps the local sort as the fallback
+  // for the case where that file has not loaded, so the page can lose the helper
+  // without silently regaining a primary-first list.
   function bigPictureOrder(list) {
     var mine = alignSet();
+    try {
+      if (typeof window._pdxBigPictureOrder === 'function') {
+        return window._pdxBigPictureOrder(list, { labelFn: issueLabel, firstKeys: mine });
+      }
+    } catch (e) {}
     return (list || []).slice().sort(function (a, b) {
       var ka = (a && a.issueKey) || '', kb = (b && b.issueKey) || '';
       var ma = (mine && mine.has(ka)) ? 0 : 1, mb = (mine && mine.has(kb)) ? 0 : 1;
@@ -116,6 +127,15 @@
       if (cmp) return cmp;
       return ka < kb ? -1 : ka > kb ? 1 : 0;
     });
+  }
+
+  // The same order for a bare list of issue KEYS. The light index and the lite
+  // fallback below hold keys rather than mappings, and a chip row built from keys
+  // must read in the same sequence as the ledger built from mappings.
+  function bigPictureKeys(keys) {
+    var seen = {}, objs = [];
+    (keys || []).forEach(function (k) { if (k && !seen[k]) { seen[k] = 1; objs.push({ issueKey: k }); } });
+    return bigPictureOrder(objs).map(function (o) { return o.issueKey; });
   }
 
   // ── one member's vote, topic by topic ───────────────────────────────────────
@@ -833,10 +853,15 @@
   // links to its Spotlight) and the official record — instead of a dead end.
   function liteBodyHtml(card) {
     var status = card.status ? '<span class="bd-status bd-s-' + esc(card.status) + '">' + esc(statusLabel(card.status)) + '</span>' : '';
+    // THE FALLBACK IS NOT A LESSER LEDGER. This body renders when the live measure
+    // cannot be fetched, and it used to put `primaryIssue` at the head of the chip
+    // row — the same crowning the live path stopped doing, surviving in the path a
+    // reader only ever meets when something is already broken. The flag still
+    // decides MEMBERSHIP (the light index sometimes names a primary the issueKeys
+    // array omits, and dropping it would lose a topic), but not position.
     var keys = (card.issueKeys || []).filter(Boolean);
-    var primary = card.primaryIssue || keys[0] || '';
-    var ordered = [];
-    (primary ? [primary] : []).concat(keys).forEach(function (k) { if (k && ordered.indexOf(k) < 0) ordered.push(k); });
+    if (card.primaryIssue && keys.indexOf(card.primaryIssue) < 0) keys = keys.concat([card.primaryIssue]);
+    var ordered = bigPictureKeys(keys);
     var omni = ordered.length >= 2 ? '<span class="bd-omnibadge">📦 ' + ordered.length + ' issues</span>' : '';
     var meta = [chamberLabel(card.chamber), card.congress ? (card.congress + 'th Congress') : ''].filter(Boolean).join(' · ');
     var src = (card.source && card.source.url)

@@ -560,8 +560,12 @@
       '.dlib-sec-chip{cursor:pointer;font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--cat,#9ec8ff);' +
         'background:rgba(96,165,250,.08);border:1px solid var(--cat,rgba(96,165,250,.28));border-radius:.4rem;padding:.24rem .5rem;transition:background .15s,border-color .15s,filter .15s;}' +
       '.dlib-sec-chip:hover{filter:brightness(1.15);background:rgba(96,165,250,.16);}' +
-      '.dlib-sec-chip.is-primary{color:#0a0f1e;background:var(--cat,#7fb4ff);border-color:var(--cat,#7fb4ff);}' +
-      '.dlib-sec-more{font:600 .58rem/1 "Barlow Condensed",sans-serif;color:#8aa0c4;align-self:center;}' +
+      // Two rules were deleted here along with the markup that used them: the filled,
+      // inverted chip that marked one topic of a bundle as the real one, and the
+      // greyed tail that rolled the rest of a long list up into a count. Neither
+      // has a name in this stylesheet any more, on purpose — a class that does not
+      // exist cannot be reintroduced by accident. Every chip is now the same chip.
+      '' +
       // Category-colored spine so the grid is scannable by topic at a glance; the
       // omnibus/megabill tiers override this below with their gold accent.
       '.dlib-billcard{border-left-width:4px;border-left-color:var(--cat,rgba(74,222,128,.7));}' +
@@ -764,12 +768,28 @@
     }
     return _issueCatIndex[key] || null;
   }
-  // The bill's headline category (from its primary issue), for the card label.
+  // The bill's headline category, for the card's colour and one-word label.
+  //   A CARD NEEDS ONE COLOUR; IT DOES NOT NEED A CROWN. This used to resolve the
+  // category from `primaryIssue`, which made the scoring flag decide what a bill
+  // "is" on the shelf — an eight-topic reconciliation act filed under whichever
+  // topic happened to carry the flag. The label is unavoidably singular, so it now
+  // resolves the same way for every bill: the earliest category in the shipped
+  // taxonomy order that the bill actually touches. No flag is read. The complete
+  // topic list is one tap away on the card's expand, and the topic FILTER has
+  // always used billCatSet(), which counts every category the bill touches.
   function billCategory(b) {
     var keys = (b.issueKeys || []).filter(Boolean);
-    var c = issueCatOf(b.primaryIssue || keys[0] || '');
-    for (var i = 0; i < keys.length && !c; i++) c = issueCatOf(keys[i]);
-    return c ? { key: c, label: ISSUE_CAT[c].label, icon: ISSUE_CAT[c].icon, color: ISSUE_CAT[c].color } : null;
+    if (b.primaryIssue && keys.indexOf(b.primaryIssue) < 0) keys = keys.concat([b.primaryIssue]);
+    var best = -1;
+    for (var i = 0; i < keys.length; i++) {
+      var c = issueCatOf(keys[i]);
+      if (!c) continue;
+      var rank = ISSUE_CAT_ORDER.indexOf(c);
+      if (rank >= 0 && (best < 0 || rank < best)) best = rank;
+    }
+    if (best < 0) return null;
+    var k = ISSUE_CAT_ORDER[best];
+    return { key: k, label: ISSUE_CAT[k].label, icon: ISSUE_CAT[k].icon, color: ISSUE_CAT[k].color };
   }
   // Every category a bill touches — for the topic filter.
   function billCatSet(b) {
@@ -891,22 +911,31 @@
     // Section breakdown: each of the bill's issue categories becomes a chip that jumps
     // to that Issue Spotlight. Chips carry their topic-category color so the bundle
     // reads at a glance. These live in the expand now, so we can afford to show more.
+    //   THE SHELF SHOWS THE WHOLE BILL. Two rankings used to sit on this row: the
+    // flagged issue was pulled to the front and drawn as a filled, inverted chip,
+    // and the row was cut at eight with the remainder rolled into "+N more". On the
+    // biggest bills — exactly the ones a reader comes to the library to understand —
+    // that meant the ninth topic onward existed only as a number, and which topics
+    // survived the cut was decided by a flag that is supposed to be a filter key.
+    // Both are gone. Every mapped topic is a chip, every chip is the same chip, and
+    // the order is the shared Big Picture order (taxonomy category, then label), so
+    // this row reads in the same sequence as the bill's own page. The chips live in
+    // the card's expand and the container already wraps, so length costs height, not
+    // truth.
     var keys = (b.issueKeys || []).filter(Boolean);
-    var primary = b.primaryIssue || keys[0] || '';
-    // Primary issue first, then the rest, de-duplicated.
-    var ordered = [];
-    (primary ? [primary] : []).concat(keys).forEach(function (k) { if (k && ordered.indexOf(k) < 0) ordered.push(k); });
-    var shownKeys = ordered.slice(0, 8);
-    var extra = ordered.length - shownKeys.length;
-    var chips = shownKeys.map(function (k, i) {
+    if (b.primaryIssue && keys.indexOf(b.primaryIssue) < 0) keys = keys.concat([b.primaryIssue]);
+    var ordered = (typeof window._pdxBigPictureKeys === 'function')
+      ? window._pdxBigPictureKeys(keys, { labelFn: issueLabel })
+      : keys.filter(function (k, i) { return keys.indexOf(k) === i; });
+    var chips = ordered.map(function (k) {
       var ic = issueCatOf(k);
       var cico = ic ? ISSUE_CAT[ic].icon + ' ' : '';
       var ccol = ic ? ISSUE_CAT[ic].color : '';
-      return '<button type="button" class="dlib-sec-chip' + (i === 0 && k === primary ? ' is-primary' : '') +
+      return '<button type="button" class="dlib-sec-chip' +
         '" data-issue="' + escAttr(k) + '"' + (ccol ? ' style="--cat:' + ccol + '"' : '') +
         ' title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' +
         cico + esc(issueLabel(k)) + '</button>';
-    }).join('') + (extra > 0 ? '<span class="dlib-sec-more">+' + extra + ' more</span>' : '');
+    }).join('');
 
     // Omnibus / flagship badge — makes the bundled, high-stakes bills read at a glance.
     var tier = billTier(b);

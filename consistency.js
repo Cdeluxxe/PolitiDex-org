@@ -10834,8 +10834,11 @@
     } catch (e) {}
     return null;
   }
-  // One row per issue the document was mapped to, in the order the omnibus context
-  // already sorts them (primary first, then weight) with this issue lifted to front.
+  // One row per issue the document was mapped to — every one of them, never a slice.
+  // The order is whatever the omnibus context hands over, which is now the shared Big
+  // Picture order (taxonomy category, then label) rather than the old primary-first,
+  // weight-descending score sort, with the issue the reader is standing on lifted to
+  // the front. That lift is orientation, not rank: it is the row they arrived from.
   function _insTrail(pid, d, issueKey) {
     if (!d || !d.item || !pid || typeof window._measureOmnibusContext !== 'function') return null;
     var ctx;
