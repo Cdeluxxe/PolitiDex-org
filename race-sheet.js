@@ -737,7 +737,14 @@
     }
 
     var ranked = rank(all, mode, hasIssues);
-    var only = (all.length === 1);
+
+    // A field of one gets the officeholder-only line ONLY when the one person is
+    // the officeholder. A lone challenger on file — a filing certified before the
+    // incumbent's, or a seat whose holder is not in the roster — is a different
+    // fact, and telling that voter "only the officeholder is on file" would name
+    // the wrong person as the sitting member. When the one is not the incumbent,
+    // the sheet says nothing extra: the panes already show who is there.
+    var only = (all.length === 1 && !!all[0].incumbent);
 
     // TWO TRACKS, NOT ONE. The ranked field and the band the active lane cannot
     // answer for are separate grids with the band's explanation between them as

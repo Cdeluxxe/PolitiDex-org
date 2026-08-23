@@ -2564,10 +2564,10 @@
     {
      "issueKey": "border_security",
      "weight": 90,
-     "isPrimary": false,
+     "isPrimary": true,
      "supportMeaning": "yea_supports",
      "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s2enr/html/BILLS-119s2enr.htm",
-     "rationale": "Sec. 101 appropriates $9.550 billion to hire, pay, train and equip Border Patrol agents and Border Patrol support personnel; Sec. 103 appropriates $3.450 billion for nonintrusive inspection equipment at ports of entry and along the southwest, northern and maritime borders, Air and Marine platforms for rapid response, border surveillance technology upgrades, and the biometric entry and exit system under 8 U.S.C. 1365b; and Secs. 104 and 203 add $5.000 billion for the purposes of their respective titles. A yea funds border personnel and border technology at $26.020 billion counting Sec. 201's CBP hiring. Weighted 90 rather than 100 only because deportations carries the larger share and is the primary; this is far more border-specific than the Laken Riley Act's border_security mapping (70), which rested on a detention mandate rather than on any border appropriation."
+     "rationale": "Sec. 101 appropriates $9.550 billion to hire, pay, train and equip Border Patrol agents and Border Patrol support personnel; Sec. 103 appropriates $3.450 billion for nonintrusive inspection equipment at ports of entry and along the southwest, northern and maritime borders, Air and Marine platforms for rapid response, border surveillance technology upgrades, and the biometric entry and exit system under 8 U.S.C. 1365b; and Secs. 104 and 203 add $5.000 billion for the purposes of their respective titles. A yea funds border personnel and border technology at $26.020 billion counting Sec. 201's CBP hiring. Primary: the border relation is the instrument's own subject, not an omnibus by-product — it is one of the two things the Act is. Weighted 90 rather than 100 because deportations carries the larger share and outranks it; the weight is what ranks the two axes. This is far more border-specific than the Laken Riley Act's border_security mapping (70), which rested on a detention mandate rather than on any border appropriation and stays secondary for that reason."
     },
     {
      "issueKey": "immig_fentanyl",

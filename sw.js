@@ -158,7 +158,21 @@
 // front page with a stale query hanging off it. index.html and app.css also
 // changed (import-banner seat rows, the shared-race landing mark) and both are
 // precached.
-const CACHE_VERSION = 'v73';
+// v74 — BALLOT SEAT PACK. Two shell assets moved for it. cmp-data.js gained the
+// roster record for SD-24's officeholder, who held the seat in the ballot
+// resolver with no record behind the id, so that field painted "no candidates on
+// file" — a claim about the world, and a false one. race-sheet.js narrowed its
+// officeholder-only line to fields whose one candidate actually IS the
+// incumbent, so a lone challenger is no longer described as the sitting member.
+// The bump matters because these two are the SAME fact seen from two sides: a
+// shell holding v73 would serve the old cmp-data.js, SD-24 would resolve to a pid
+// the roster still cannot find, and the field would read empty — or, with a fresh
+// cmp-data.js against a stale race-sheet.js, the one person now on file would be
+// announced as the officeholder without the check that says so. Both are
+// precached, so neither half arrives alone. The mapping half of this pass is
+// database-side (S. 2's border_security relation becomes primary) and ships
+// through the migration, not the shell.
+const CACHE_VERSION = 'v74';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

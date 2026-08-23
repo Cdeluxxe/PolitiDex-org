@@ -85,10 +85,39 @@ if (failures.length) {
 
 const PIDS = Object.keys(before.CMP_DATA || {});
 ok(PIDS.length > 100, `the roster booted (${PIDS.length} profiles)`);
+
+// ── Roster identity: additions are work, removals and reorders are drift ─────
+// Read literally, "the roster is byte-identical" is a freeze on identity repair.
+// A pid can sit in the ballot resolver as a district's officeholder with no
+// record behind it, and the seat then paints "no candidates on file" — a claim
+// about the world, and a false one. Fixing that means ADDING a roster record, and
+// a guard that forbids it would be protecting the bug.
+//
+// So an addition is allowed, named here, and required to be inert: it must be a
+// pid HEAD did not have, and everyone HEAD did have must still be present, in the
+// same relative order, with every score below unchanged. A removal or a reorder
+// still fails, because neither can be a repair.
+//
+// August 2026 ballot seat pack:
+//   kstratton · Keven J. Stratton, Utah Senate District 24 (Provo / Orem), the
+//               seat's officeholder since Jan 2025. He was already SD-24's
+//               incumbent in ballot-breakdown.js with no record behind the id.
+const ADDED = { kstratton: "SD-24 officeholder — pid existed in the ballot resolver with no roster record" };
 {
   const now = Object.keys(after.CMP_DATA || {});
-  eq(now.length, PIDS.length, "the pass added and removed nobody");
-  eq(now.join("|"), PIDS.join("|"), "…and reordered nobody");
+  const nowSet = new Set(now);
+  const gone = PIDS.filter((p) => !nowSet.has(p));
+  eq(gone.join("|"), "", "the pass removed someone from the roster");
+
+  const added = now.filter((p) => PIDS.indexOf(p) < 0);
+  const unnamed = added.filter((p) => !ADDED[p]);
+  eq(unnamed.join("|"), "",
+    "the pass added a profile that is not named in ADDED above");
+
+  // Everyone HEAD had, in HEAD's order, ignoring where the new ids landed.
+  eq(now.filter((p) => PIDS.indexOf(p) >= 0).join("|"), PIDS.join("|"),
+    "the pass reordered the existing roster");
+  eq(now.length, PIDS.length + added.length, "the roster count does not add up");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
