@@ -37,8 +37,21 @@
   background: linear-gradient(180deg, #0b1220 0%, #070c16 100%);
   border: 1px solid rgba(96, 165, 250, 0.18);
   border-radius: 0;
-  padding: 0 0 2rem;
+  /* THE BOTTOM GAP IS RESERVED ONCE, HERE. On a phone this sheet runs edge to
+     edge, so the last thing in it — the final candidate card, or the footer that
+     promises party is never read — ends where the device does: under the home
+     indicator on an iPhone, under whatever bar the browser is currently showing
+     everywhere else. env() resolves to 0 on a desktop, so the same declaration
+     serves both and there is no second number to keep in sync. */
+  padding: 0 0 calc(2rem + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
+  /* The height of .rs-hd, written down once, because two sticky things stack on
+     this sheet and the lower one has to know how tall the upper one is. It is
+     0.9rem of padding twice over a row whose tallest child is the 44px close
+     button (2.75rem) — 4.55rem, rounded up so the pane header clears the border
+     rather than kissing it. Guessing this number is how a sticky header ends up
+     tucked under the one above it, which is exactly what it used to do. */
+  --rs-hd-h: 4.6rem;
 }
 @media (min-width: 900px) {
   .rs-overlay { align-items: center; padding: 1.5rem; }
@@ -195,7 +208,7 @@
    through six issue rows; without this they lose track of whose row they are
    reading two swipes in. */
 .rs-panehd {
-  position: sticky; top: 3.9rem; z-index: 4;
+  position: sticky; top: var(--rs-hd-h, 4.6rem); z-index: 4;
   display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
   padding: 0.7rem 0.8rem;
   background: linear-gradient(180deg, rgba(17, 26, 44, 0.99), rgba(15, 23, 42, 0.96));
@@ -557,6 +570,10 @@
   font-family: 'Barlow Condensed', sans-serif; color: #cbd5e1; cursor: pointer;
   position: relative;
 }
+/* The go arrow is absolutely positioned, so the cell has to reserve its column
+   or a long candidate name runs underneath it. Only the cells that HAVE an arrow
+   pay for it. */
+.rs-snap-cell:not(.is-empty) { padding-right: 1.75rem; }
 .rs-snap-cell.is-empty { cursor: default; opacity: 0.72; }
 .rs-snap-cell:not(.is-empty):hover { border-color: rgba(96, 165, 250, 0.45); }
 .rs-snap-who { font-size: 0.72rem; color: #8ea4c6; }
@@ -642,4 +659,71 @@
 @media (min-width: 700px) {
   .rs-snap-cells { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
   .rs-ovgrid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PHONE — ≤640px
+   ────────────────────────────────────────────────────────────────────────────
+   Everything above already stacks: the field is a flex column below 900px, the
+   snapshot cells and the Overview cards are single-column below 700px, and no
+   rule on this sheet turns on a horizontal scroller until 900px. So this block
+   is not a second layout. It is the four places where a design that is correct
+   at 1240px stops being usable at 360.
+
+   Last in the file on purpose. These are all equal-specificity overrides of
+   rules declared above, and "last one wins" is the only thing making them win.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* ── The tab row: three tabs, one width ───────────────────────────────────
+     inline-flex + wrap does not clip the third tab, but it does something
+     almost as bad: "Overview" is short, "Your Match · record" is not, so the
+     row breaks into a 2 + 1 stack of unequal buttons and the third one reads
+     as an afterthought rather than a peer. These three are peers — one shows
+     the race, two rank it — so on a phone they are three equal columns of a
+     grid, each free to wrap its own label onto a second line. Equal width,
+     equal height, nothing clipped, nothing sideways. */
+  .rs-modes {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    width: 100%; gap: 0.25rem;
+  }
+  .rs-vtab, .rs-mode {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.25rem; flex-wrap: wrap;
+    padding: 0.4rem 0.3rem;
+    white-space: normal; text-align: center; line-height: 1.15;
+    font-size: 0.78rem; letter-spacing: 0.02em;
+  }
+  /* A GATED RULER HAS TO READ AS GATED AT ARM'S LENGTH. Dimmed italic is a
+     desktop cue: at 0.78rem on a phone held at reading distance, 62% opacity
+     is just "slightly grey text" and the reader learns nothing until they tap.
+     The dashed amber edge is the same vocabulary the gate note below it uses,
+     so the tab and the sentence explaining it are visibly the same subject. */
+  .rs-mode.is-gated {
+    opacity: 0.78;
+    border-style: dashed; border-color: rgba(251, 191, 36, 0.42);
+  }
+
+  /* ── Touch targets that were sized for a cursor ───────────────────────────
+     Both of these are real doors — the name opens a full profile, the compare
+     entry opens this sheet — and both were under the 44px this file's own
+     header promises. */
+  .rs-name { min-height: 44px; }
+  .rs-seat-stance { min-height: 44px; }
+
+  /* ── Density, not deletion ────────────────────────────────────────────────
+     The blocks between the header and the first candidate are context. They
+     keep every fact they have on a desktop; they just stop spending a full
+     1rem gutter each to say it, so the tab row and the first card both land
+     within reach of the top of the screen. */
+  .rs-controls { padding: 0.7rem 0.8rem 0.2rem; }
+  .rs-ctx, .rs-gate, .rs-snap, .rs-h2h { margin-left: 0.8rem; margin-right: 0.8rem; }
+  .rs-grid, .rs-ovgrid { padding-left: 0.8rem; padding-right: 0.8rem; }
+  .rs-cta { margin-left: 0.8rem; margin-right: 0.8rem; }
+  .rs-foot { margin-left: 0.8rem; margin-right: 0.8rem; }
+
+  /* The last card must not end under the home indicator. .rs-sheet already
+     reserves the inset; this adds the breathing room the desktop gets from the
+     overlay's own 1.5rem of padding, which a full-bleed phone sheet has none
+     of. */
+  .rs-sheet { padding-bottom: calc(2.6rem + env(safe-area-inset-bottom, 0px)); }
 }

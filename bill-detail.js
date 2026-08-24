@@ -1166,7 +1166,46 @@
         'text-transform:uppercase;color:#8aa0c4;}' +
       '.bd-stand-more[open]>summary{color:#cbd9ec;}' +
       '.bd-glance-contested{color:#f5c842;border-color:rgba(245,200,66,.36);}' +
-      '@media(max-width:520px){.bd-stand{white-space:normal;text-align:left;}.bd-stand-head{gap:.3rem;}}';
+      '@media(max-width:520px){.bd-stand{white-space:normal;text-align:left;}.bd-stand-head{gap:.3rem;}}' +
+
+      // ══ THE PHONE ══════════════════════════════════════════════════════════
+      // Last in the sheet on purpose: every rule here is an equal-specificity
+      // override of something declared above, and "last one wins" is the only
+      // thing making it win.
+      //
+      // Nothing in this block hides, folds or truncates anything. The ledger
+      // still lists every mapped topic, the filter still opens on all of them,
+      // and the bag panel still leads with the sentence about one instrument.
+      // What changes is the size of the things a thumb has to hit and the space
+      // reserved at the bottom of the sheet for the hardware.
+      //
+      // EVERY POINTER ON THIS FACE, AT 44px. The act face was built with a mouse
+      // in mind and it showed: the filter pills were about 22px tall, the bag
+      // chips 34, the close button 32, and the topic name in each ledger row —
+      // the door into the dossier, the single most-tapped thing on the page —
+      // was bare text with no padding at all. A door you have to aim at is a
+      // door most people do not open. These are the same controls doing the same
+      // things; they are just now the size of a fingertip.
+      '@media (max-width:640px){' +
+        // 100dvh, not 100vh: on a phone browser the visual viewport shrinks and
+        // grows as the URL bar hides, and 100vh is the TALL one — so the bottom
+        // of a 100vh panel sits behind the bar the moment it comes back. The
+        // 100vh above stays as the fallback for anything that cannot parse dvh.
+        '.bd-panel{max-height:100dvh;}' +
+        // The last bag chip, the last provision, the last source link: none of
+        // them should end underneath the home indicator. env() is 0 everywhere
+        // that has no inset, so this is the same declaration on every device.
+        '.bd-scroll{padding-bottom:calc(2rem + env(safe-area-inset-bottom,0px));}' +
+        '.bd-close{width:44px;height:44px;top:.35rem;right:.4rem;}' +
+        '.bd-vf-btn{min-height:44px;display:inline-flex;align-items:center;padding:.3rem .85rem;font-size:.72rem;}' +
+        '.bd-bag-chip{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-omni-link{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}' +
+        '.bd-person{min-height:44px;justify-content:center;}' +
+        '.bd-vote-row,.bd-vote-sum{min-height:44px;}' +
+        '.bd-vote-name{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-stand-more>summary{min-height:44px;display:flex;align-items:center;}' +
+      '}';
     var st = document.createElement('style');
     st.id = 'bd-css';
     st.textContent = css;

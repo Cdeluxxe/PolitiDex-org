@@ -639,6 +639,50 @@ section("11 · the line is at zero, not at three");
     "the view resolver no longer reads 'one position is enough' at a glance");
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("12 · the order a one-column reader meets it in");
+// ═════════════════════════════════════════════════════════════════════════════
+// On a phone the sheet is one column, so the order things are written in IS the
+// hierarchy — there is no "off to the side". The race has to arrive before the
+// control that reshapes it, or the first thing a reader meets is three tabs
+// about a contest they have not been shown yet. This is asserted against the
+// rendered markup rather than the source, because a CSS reorder that looked
+// right on a wide screen and a source order that reads right are two different
+// promises and only one of them survives a narrow viewport.
+{
+  const at = (n) => (n ? withPicks(seeded(), KEYS.slice(0, n)) : seeded());
+  const posOf = (html, re, what) => {
+    const i = html.search(re);
+    ok(i >= 0, `${what} is missing from the rendered sheet`);
+    return i;
+  };
+
+  for (const [label, n] of [["overview", 0], ["thin rank", 1], ["full rank", 4]]) {
+    const html = sheetHtml(at(n));
+    const ctx = posOf(html, /class="rs-ctx[\s"]/, `${label}: the context strip`);
+    const tabs = posOf(html, /class="rs-controls"/, `${label}: the tab row`);
+    const field = posOf(html, /class="rs-(?:grid|ovgrid|snap)[\s"]/, `${label}: the field`);
+    ok(ctx < tabs, `${label}: the tabs come before the race they reshape`);
+    ok(tabs < field, `${label}: the field comes before the control that orders it`);
+  }
+
+  // The thin-axis disclosure belongs between the rank line and the field: it is
+  // a caveat on the order, and a caveat that arrives after the thing it
+  // qualifies has already been read is not a caveat.
+  const thin = sheetHtml(at(1));
+  const iRank = posOf(thin, /class="rs-rankline"|rs-ovline/, "1 position: the line naming the ruler");
+  const iThin = posOf(thin, /class="rs-thinaxis"/, "1 position: the thin-axis note");
+  const iField = posOf(thin, /class="rs-(?:grid|ovgrid)[\s"]/, "1 position: the ranked field");
+  ok(iRank < iThin && iThin < iField,
+    "the thin-axis note no longer sits between the ruler and the order it produced");
+
+  // …and it is absent once the ask is met, rather than nagging forever.
+  ok(!/class="rs-thinaxis"/.test(sheetHtml(at(4))),
+    "the thin-axis note still shows on an axis that is no longer thin");
+  ok(!/class="rs-thinaxis"/.test(sheetHtml(at(0))),
+    "the thin-axis note shows on Overview, where nothing has been ranked");
+}
+
 // ── Report ───────────────────────────────────────────────────────────────────
 console.log("");
 if (failures.length) {

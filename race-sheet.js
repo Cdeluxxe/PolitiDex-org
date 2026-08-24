@@ -1263,12 +1263,19 @@
       var cards = '<div class="rs-ovgrid" data-rs-cols="' + all.length + '">' +
         stableSort(all).map(function (c) { return ovCard(c, rk, picked, snap, sm); }).join('') +
       '</div>';
+      // RUNNING ORDER, AND WHY THE RACE COMES BEFORE THE CONTROL. On a phone this
+      // column IS the hierarchy. The first thing a reader should meet under the
+      // seat name is the race — who is in it, who holds it now, how much of each
+      // file has actually been tested — because that is the question they opened
+      // the sheet with. The tabs come next, as the answer to "and how do I want
+      // this shown", which is a question you can only have after you know what
+      // "this" is. Everything below is the chosen view.
       return head +
         sharedNote +
+        ctx +
         '<div class="rs-controls">' + toggleHtml(view, rows.length) + ovLine + explainHtml + '</div>' +
         gate +
         onlyHtml +
-        ctx +
         snapshotHtml(snap) +
         h2hHtml(all, snap) +
         cards +
@@ -1331,8 +1338,13 @@
     // positions is real and is shown (the sheet has never had a floor and does
     // not gain one here), but the CTA rides along under it, because three is
     // where the same ask is made everywhere else in the product.
+    // Same running order as Overview: the race, then the control, then the view.
+    // The thin-axis disclosure rides inside the control block, directly under the
+    // rank line it qualifies, so a reader on a phone cannot meet the order before
+    // they meet how much it rests on.
     return head +
       sharedNote +
+      ctx +
       '<div class="rs-controls">' +
         toggleHtml(view, rows.length) +
         rankLine +
@@ -1341,7 +1353,6 @@
       '</div>' +
       onlyHtml +
       (hasIssues ? '' : ctaHtml()) +
-      ctx +
       panes +
       (moreBtn ? '<div class="rs-morewrap">' + moreBtn + '</div>' : '') +
       (hasIssues && rows.length < ASK_ISSUES ? ctaHtml() : '') +
