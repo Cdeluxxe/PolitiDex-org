@@ -7440,45 +7440,63 @@
     return 'pdxfpi-row-' + (m === 'default' ? '' : m + '-') + _stSlug(pid) + '-' + _stSlug(key);
   }
 
-  // ── ONE ITEM, AND IT WENT ONE WAY ───────────────────────────────────────────
-  // WHAT IT IS. The index's answer for a row holding exactly ONE judged formal
-  // item whose mapping resolved to a side. _recordPatternTier refuses that row —
-  // correctly, for the question IT is asking, which is "may this record be
-  // characterised" — and the refusal arrives as tier `none`, tone `muted`, label
-  // "No clear pattern yet". Printed over a mapped roll call that went one way,
-  // that sentence is false in the only direction that matters: the reader is told
-  // there is nothing to read next to a count saying there is exactly one thing,
-  // and the one thing has an answer on it.
+  // ── A RUN THAT ALL WENT ONE WAY ─────────────────────────────────────────────
+  // WHAT IT IS. The index's answer for a row the characterisation engine refused
+  // where every judged item on file went the SAME way. _recordPatternTier refuses
+  // those rows — correctly, for the question IT is asking, which is "may this
+  // record be characterised" — and the refusal arrives as tier `none`, tone
+  // `muted`, label "No clear pattern yet". Printed over mapped roll calls that all
+  // went one way, that sentence is false in the only direction that matters: the
+  // reader is told there is nothing to read next to a count saying there is
+  // something, and the something has an answer on it.
   //
-  // SO THE CASE IS SPLIT, and split is all it is. Direction known → the thin
-  // directional read. Direction absent → the row keeps every word it had. The
-  // read handed back is _recordDisplayTier's, which already exists for exactly
-  // this reason and already carries the two rules that must not move:
+  // SO THE CASE IS SPLIT, and split is all it is. One side on the ledger → the
+  // thin directional read. Two sides, or none → the row keeps every word it had.
+  // The read handed back is _recordDisplayTier's, which already exists for exactly
+  // this reason and already carries the rules that must not move:
   //   · AN ISSUE WITH NO POLE IS STILL SILENT. _RD_TIER_MUTE returns null there,
   //     at any depth, because "advanced it" is meaningless without a curated
   //     proposition to advance.
   //   · AN INCIDENTAL MAPPING IS STILL A COINCIDENCE. Below _RD_MIN_PRIMARY the
   //     display read returns null too — an omnibus that brushed this issue is not
-  //     a vote on it, and one of them is not a vote on it either.
+  //     a vote on it, and five of them are not a vote on it either.
+  //   · A RECORD THAT RAN BOTH WAYS IS NEVER GIVEN A LEAD. The display read words
+  //     those as `split`, `directional: false`, and the guard below drops them —
+  //     so no knife-edge acquires a side through this door.
+  //   · AND IT NEVER PROMOTES. `d.tier !== 'thin'` is asserted rather than
+  //     assumed: whatever arrives here is a row the characterisation engine
+  //     declined, and the only tier it may re-enter the index at is the quiet one.
   // What IS lowered, and only here, is depth: the member coverage floor and the
-  // two-item run floor, both of which are floors about SIZE, and at n = 1 there
-  // is no size question left to ask — there is one item and it either has a side
-  // or it does not.
+  // two-item run floor, both of which are floors about SIZE.
   //
-  // AND IT STOPS AT ONE. `judged !== 1` returns null, so a two- or three-item
-  // record under the coverage floor is untouched and reads exactly as it read
-  // before. The legislative lane only: _stDirRaw declines on exec by design and
-  // the scoring path depends on that refusal, so the exec lane keeps its own
-  // slice rather than being annexed by this one.
-  function _stSingleDirRead(r) {
+  // WHY IT IS NOT CAPPED AT ONE ITEM, which is where it started. The cap was the
+  // bug. Below the member coverage floor a single mapped vote read as "Thin
+  // supports · 1 vote advanced" and scored the issue, while TWO votes the same way
+  // fell back to "No clear pattern yet" and were dropped from the match outright —
+  // so a second act agreeing with the first deleted the signal the first one
+  // earned. Any cap re-creates that cliff one item further along, so there is no
+  // cap: below the floor, `_recordDisplayTier` already marks every one of these
+  // `partial: true` and holds them at `thin` however one-sided the arithmetic
+  // looks, which is the honest handling and was always the intent.
+  //   THE INVARIANT THIS RESTORES: adding one act in a row's already-leading
+  // direction may never lower its tier, its confidence, or its inclusion in the
+  // match. test-clarity-before-depth.mjs asserts it across n = 1…6.
+  //
+  // The legislative lane only: _stDirRaw declines on exec by design and the
+  // scoring path depends on that refusal, so the exec lane keeps its own slice
+  // rather than being annexed by this one.
+  function _stThinDirRead(r) {
     if (!r || r.lane === 'exec') return null;
     if (typeof window._recordDisplayTier !== 'function') return null;
     var idx;
     try { idx = _stDirRaw(r); } catch (e) { return null; }
-    if (!idx || (idx.judged || 0) !== 1) return null;
+    if (!idx || (idx.judged || 0) < 1) return null;
+    // Uniform, read off the act counts the reader can count for themselves — the
+    // same ledger-first rule the index itself uses. Nothing mixed comes through.
+    if ((idx.advances || 0) > 0 && (idx.opposes || 0) > 0) return null;
     var d;
     try { d = window._recordDisplayTier(idx, { noun: _stNoun(r) }) || null; } catch (e) { return null; }
-    if (!d || !d.directional) return null;
+    if (!d || !d.directional || d.tier !== 'thin') return null;
     return d;
   }
 
@@ -7495,19 +7513,34 @@
       var res = _stResult(r);
       var held = res.held || 0;
       var t = _stPatternTier(r);
-      // THE ONE-ITEM SPLIT. Where the characterisation read declined and the row
-      // holds a single judged item with a known side, the index carries that side
-      // rather than the refusal — see _stSingleDirRead above for the walls this
-      // does not lower. `single` marks the rows that only exist because of it, so
-      // a surface can say "one item, not a pattern" in its own words.
+      // THE UNIFORM-RUN SPLIT. Where the characterisation read declined and every
+      // judged item on the row went the same way, the index carries that side
+      // rather than the refusal — see _stThinDirRead above for the walls this does
+      // not lower. `single` still means exactly one judged item, so a surface can
+      // say "one item, not a pattern" in its own words; a two- or three-item run
+      // through the same door is a run and is not marked as one item.
       var single = false;
       if (!t || t.tier === 'none') {
-        var one = _stSingleDirRead(r);
-        if (one) { t = one; single = true; }
+        var one = _stThinDirRead(r);
+        if (one) { t = one; single = (one.judged || 0) === 1; }
       }
+      // A REFUSAL IS NOT A READ. The characterisation engine's `none` tier is a
+      // refusal wearing a chip: tone `muted`, no side, and the words "No clear
+      // pattern yet" over a ledger whose reason for being unreadable is knowable
+      // and specific. Every row that reaches here as `none` has already been
+      // offered the thin door above and declined by it, so what is left is genuinely
+      // unread — and it says WHY, in _fpiUnreadWhy's own vocabulary, through the
+      // same grey chip the other refusals use.
+      //   This also makes `read` mean what it says. It was `!!t`, and the `none`
+      // tier is a truthy object, so unreadable rows reported `read: true` and were
+      // kept out of the match only because tone `muted` has no entry in the side
+      // table — fail-closed by a missing key rather than by the flag that names the
+      // condition. Now the flag carries it.
+      var refused = !!(t && t.tier === 'none');
+      if (refused) t = null;
       // FAIL CLOSED. No pattern and nothing formal on file means no formal signal,
       // and an issue with no formal signal is not part of the formal record index.
-      if (!t && held <= 0) return;
+      if (!t && !refused && held <= 0) return;
       var why = t ? null : _fpiUnreadWhy(r);
       out.push({
         pid: r.pid, key: r.key, label: r.label,
@@ -8265,6 +8298,47 @@
         note: 'This issue has no for-or-against side in our own issue mapping, so we do not claim a ' +
           'direction for these ' + n.many + '. That is a gap in our mapping, not a finding about ' +
           'their record — the ' + n.many + ' themselves are in the dossier.' };
+    }
+    // ── AND FOUR REFUSALS THAT ARE ABOUT THIS ROW'S OWN LEDGER ────────────────
+    // Everything above answers "this issue has no side" or "this lane is not read
+    // yet". What follows answers the harder question: the index LOOKED at mapped
+    // items on a poled issue and still would not name a direction — and there are
+    // four different reasons for that, which the row used to report with one
+    // sentence ("No clear pattern yet"). One of the four is not even a shortfall in
+    // their record; two of them sit over a ledger where the side is perfectly
+    // visible and we are declining to read it, which is a thing a reader is owed
+    // the reason for. So each says which of the four it is, and — as everywhere in
+    // this table — none of them borrows a direction word.
+    //   ORDER IS BY WALL, OUTERMOST FIRST: nothing took a side, then the mapping is
+    // not about this issue, then we hold too little of the member's file, then the
+    // items on file ran both ways. A row that trips more than one is named by the
+    // outer wall, because that is the one that would still hold if the others were
+    // cleared.
+    if (idx && (idx.total || 0) > 0) {
+      if ((idx.judged || 0) < 1) {
+        return { id: 'no_side_taken', lb: 'No ' + n.one + ' here took a side',
+          note: 'The ' + n.many + ' mapped to this issue were Present, Not Voting, or otherwise ' +
+            'resolved to neither side, so there is nothing to read a direction from. They are in ' +
+            'the dossier exactly as they are.' };
+      }
+      if ((idx.primary || 0) < 1) {
+        return { id: 'incidental', lb: 'Not about this issue',
+          note: 'The ' + n.many + ' on file here touched this issue as part of a larger measure ' +
+            'rather than being about it. A bill that brushed the subject is not a ' + n.one + ' on ' +
+            'the subject, so no direction is claimed — however one-sided the arithmetic looks.' };
+      }
+      if (idx.suppressed === 'coverage_floor') {
+        return { id: 'coverage_floor', lb: 'Too little of their file held',
+          note: 'We hold too few mapped ' + n.many + ' for this member overall to read any of them ' +
+            'as a pattern. That is a shortfall in OUR coverage, not a finding about their record — ' +
+            'the ' + n.many + ' we do hold are in the dossier.' };
+      }
+      if ((idx.advances || 0) > 0 && (idx.opposes || 0) > 0) {
+        return { id: 'mixed_thin', lb: 'Ran both ways, too few to weigh',
+          note: 'The ' + n.many + ' on file here went both ways, and there are too few of them for ' +
+            'the margin to mean anything. No lead is derived from a record this size, and the ' +
+            n.many + ' themselves are in the dossier.' };
+      }
     }
     return { id: 'no_rollcall', lb: 'No roll-call pattern on file yet',
       note: 'These ' + n.many + ' are on file and open in the dossier, but no roll call mapped to ' +

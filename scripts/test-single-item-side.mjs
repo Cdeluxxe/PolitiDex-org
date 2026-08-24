@@ -14,11 +14,15 @@
 //   1. THE ENGINE. n = 1 with a known side resolves to the thin directional read,
 //      and the plain-language layer names the side without borrowing a deep
 //      tier's voice.
-//   2. THE INDEX. The formal-pattern index carries that side instead of "No clear
-//      pattern yet", and marks the row as the single item it is.
+//   2. THE INDEX. The formal-pattern index carries that side instead of a blanket
+//      refusal, and marks the row as the single item it is.
 //   3. THE WALLS THAT DO NOT MOVE. A poleless issue, an incidental mapping, and an
 //      item with no readable direction are all still silent — at n = 1 as at any
-//      other depth. What was lowered is depth, and only depth.
+//      other depth. What was lowered is depth, and only depth. (The depth door has
+//      since been widened from n = 1 to any uniform run below the coverage floor,
+//      because stopping at one made a second agreeing vote delete the first one's
+//      side. That contract is scripts/test-clarity-before-depth.mjs; this file
+//      still owns the n = 1 case and every wall around it.)
 //   4. RANKING. A single directional item on a reader's axis is a live axis and
 //      moves the match, at the pattern engine's own thin confidence, on the
 //      shipped verdict ladder. No new arithmetic.
@@ -245,7 +249,9 @@ section("3 · the walls that did not move — depth was lowered, meaning was not
     must(!!x, "the unreadable single item fell out of the index entirely");
     eq(x.directional, false, "an item with no readable side was given one");
     eq(x.tone, "muted", "…and a colour to go with it");
-    has(x.patLabel, "No clear pattern yet", "…instead of the honest refusal");
+    has(x.patLabel, "No vote here took a side", "…instead of the honest refusal");
+    lacks(x.patLabel, "No clear pattern yet",
+      "…and the refusal names its own reason rather than the blanket one");
     eq(w._calcAlignmentScore(A_PID, { mode: "record" }), null,
       "…and it must not make the axis live");
   }
@@ -270,15 +276,25 @@ section("3 · the walls that did not move — depth was lowered, meaning was not
     eq(w._calcAlignmentScore(A_PID, { mode: "record" }), null,
       "…and a poleless issue must not make the axis live either");
   }
-  // (d) TWO items under the coverage floor are NOT this change. The floor is a
-  //     wall about how much of the member we hold, and only the n = 1 case — where
-  //     there is no sample question left to ask — was taken out from behind it.
+  // (d) TWO items under the coverage floor read the same way the one item does,
+  //     and this is the wall that DID move — deliberately, and only for depth.
+  //     Holding the door at n = 1 made a second vote agreeing with the first
+  //     delete the side the first one earned: 1–0 read "Thin supports" and scored,
+  //     2–0 fell back to a refusal. A reader cannot be told that more evidence
+  //     pointing the same way is less evidence. The floor still governs what may
+  //     be CHARACTERISED — nothing here promotes past thin — and the meaning walls
+  //     above are untouched. The full monotonicity contract, n = 1 through 6, is
+  //     scripts/test-clarity-before-depth.mjs.
   {
     const w = stage({ a: [vote(5, K, "yea"), vote(6, K, "yea")] });
     const x = fpiRow(w, A_PID, K);
     must(!!x, "the two-item floored row fell out of the index entirely");
-    eq(x.directional, false,
-      "the coverage floor was lowered past one item — this change stops at n = 1");
+    eq(x.directional, true,
+      "a second vote agreeing with the first deleted the side the first one earned");
+    eq(x.tier, "thin", "…and two items below the floor are still only a thin read");
+    eq(x.single, false, "…and a run of two is not reported as a single item");
+    lacks(x.patLabel, "No clear pattern",
+      "…and the reader is not told there is no pattern over a side that is on the ledger");
   }
 }
 
@@ -405,10 +421,10 @@ section("8 · the mutations — putting n = 1 back behind silence must break thi
 
   // M1 — the index: refuse the one-item read and go back to the characterisation
   // read alone. This is the exact line the whole change turns on.
-  const G1 = "if (one) { t = one; single = true; }";
+  const G1 = "if (one) { t = one; single = (one.judged || 0) === 1; }";
   must(R("consistency.js").indexOf(G1) > 0,
     "the one-item split in _fpiRows has moved — M1 can no longer be applied");
-  const m1 = mutant({ "consistency.js": (s) => s.replace(G1, "if (false) { t = one; single = true; }") },
+  const m1 = mutant({ "consistency.js": (s) => s.replace(G1, "if (false) { t = one; }") },
     (w) => ({
       dir: (fpiRow(w, A_PID, K) || {}).directional,
       score: w._calcAlignmentScore(A_PID, { mode: "record" }),
@@ -416,7 +432,7 @@ section("8 · the mutations — putting n = 1 back behind silence must break thi
     }));
   eq(m1.dir, false, "M1: reverting the split leaves the single item side-less — as it should");
   eq(m1.score, null, "M1: …and un-scores the candidate, which section 4 would catch");
-  has(m1.html, "no clear pattern yet",
+  has(m1.html, "vote on file · too little of their file held",
     "M1: …and puts the refusal back over a mapped item, which section 5 would catch");
 
   // M2 — the vocabulary: send a thin directional record back to the wordless

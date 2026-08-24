@@ -1472,10 +1472,28 @@
     // no side, so it maps to nothing and the issue drops out.
     var _ALIGN_TONE_SIDE = { support: 'support', oppose: 'oppose', mixed: 'mixed' };
     // TIER → CONFIDENCE. A weight multiplier, never a direction and never a
-    // score: thin still counts, and counts about half. Split is a real finding
-    // (they went both ways) that resolves to a partial verdict, so it carries a
-    // little less than a one-sided run of the same depth.
-    var _ALIGN_PAT_CONF = { strong: 1, mostly: 0.85, split: 0.6, thin: 0.5 };
+    // score: thin still counts, and counts about half.
+    //
+    // CLARITY BEFORE DEPTH — THE ONE ORDERING THIS TABLE MUST KEEP:
+    //
+    //     conf(split) ≤ conf(thin) ≤ conf(mostly) ≤ conf(strong)
+    //
+    // The multiplier decides how much of the weighted average an issue occupies,
+    // and it is the only place in the record lane where HOW READABLE a record is
+    // gets priced. Split used to sit at 0.6, above thin's 0.5, on the reasoning
+    // that a deep split is a real finding while one vote is barely anything. Both
+    // halves of that are true and the conclusion was still wrong, because the
+    // finding a split reports is "we cannot say which way this went" — and paying
+    // MORE for it than for a record that went one way plainly means the least
+    // readable rows carry the most of the number. Measured on a two-issue basket
+    // (a clear 1–0 and a 3–3 coin flip) the coin flip took 54.5% of the weighted
+    // average against the clear vote's 45.5%: a record with no direction
+    // outweighing a record with one, purely through this table.
+    //   0.45 is the smallest value that restores the ordering. Nothing else moves:
+    // the 90/55/12 ladder is untouched, split still resolves through tone `mixed`
+    // to a `partial` verdict and can never reach a full match or mismatch, and a
+    // deep split still counts — it just no longer counts for more than clarity.
+    var _ALIGN_PAT_CONF = { strong: 1, mostly: 0.85, split: 0.45, thin: 0.5 };
     window._PDX_ALIGN_PAT_CONF = _ALIGN_PAT_CONF;
 
     function _alignRecordWarm(pid) {
