@@ -10,11 +10,21 @@
    It derives a coverage level for any politician id from data ALREADY on the
    client (no new data, no schema): stated stances (window.ISSUE_STANCE_DATA),
    curated accountability items (window.ACCT_SPOTLIGHT, via window.ACCT_ALIAS),
-   and tracked promises (window.PROFILES / CMP_DATA). Everything is defensive —
-   any missing source just lowers the count, never throws.
+   tracked promises (window.PROFILES / CMP_DATA), and the formal record itself
+   (PDXConsistency.formalPatternIndex). Everything is defensive — any missing
+   source just lowers the count, never throws.
+
+   THE FORMAL LANE COUNTS. It was left out once, and the omission pointed the
+   module at the one conclusion it exists to prevent: a member with sixty issues
+   of roll-call pattern and no quote we could source scored records:0 and was
+   told "isn't documented on PolitiDex yet" over a file that is anything but.
+   The missing quote is our gap to name, not their missing record. Counting the
+   formal lane routes that person to the thin-word copy in gaps.js instead, which
+   already says so. It stays a separate field so nothing downstream mistakes a
+   pattern for a stated position — 'formal' is votes and actions, never words.
 
    API:
-     PDXCoverage.assess(pid)      → { key, records, stances, spotlight, promises }
+     PDXCoverage.assess(pid)      → { key, records, stances, spotlight, promises, formal }
                                      key ∈ 'rich' | 'partial' | 'thin' | 'none'
      PDXCoverage.badgeHTML(pid)   → tiny "still documenting" chip for thin/none
                                      (empty string for rich/partial — no clutter)
@@ -45,9 +55,9 @@
 
   // Count every kind of documented record we hold for this person, client-side.
   function assess(pid) {
-    if (!pid) return { key: 'none', records: 0, stances: 0, spotlight: 0, promises: 0 };
+    if (!pid) return { key: 'none', records: 0, stances: 0, spotlight: 0, promises: 0, formal: 0 };
     var al = alias(pid);
-    var stances = 0, spotlight = 0, promises = 0;
+    var stances = 0, spotlight = 0, promises = 0, formal = 0;
     try {
       var SD = window.ISSUE_STANCE_DATA || {};
       stances = countArr(SD[pid]) || countArr(SD[al]);
@@ -60,9 +70,13 @@
       var d = polRec(pid) || polRec(al);
       if (d) promises = countArr(d.promises);
     } catch (e) {}
-    var records = stances + spotlight + promises;
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (FPI && typeof FPI.count === 'function') formal = FPI.count(pid) || FPI.count(al) || 0;
+    } catch (e) {}
+    var records = stances + spotlight + promises + formal;
     var key = records === 0 ? 'none' : records <= 2 ? 'thin' : records <= 5 ? 'partial' : 'rich';
-    return { key: key, records: records, stances: stances, spotlight: spotlight, promises: promises };
+    return { key: key, records: records, stances: stances, spotlight: spotlight, promises: promises, formal: formal };
   }
 
   // Tiny chip for search rows / cards — only where coverage is thin or absent, so

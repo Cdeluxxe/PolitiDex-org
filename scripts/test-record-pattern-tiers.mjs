@@ -599,12 +599,17 @@ section("8 · acceptance — Schumer and a control member");
     const sc = chunkOf(html, sThin);
     ok(!!sc, `${pid}: the one-vote row renders`);
     oneVoice(sc, `${pid}/${sThin}`);
-    // n = 1. The engine calls this "Thin opposes"; the published reading declines to
-    // characterise a record of one vote at all and says "Too early to say". Either
-    // is honest, and BOTH are useless without the count, so the count is what this
-    // pins — the direction is on the row either way.
+    // n = 1, AND THE SIDE IS PART OF THE ANSWER. The engine calls this "Thin
+    // opposes" and the published reading now calls it "Opposes, on a thin record":
+    // one mapped vote that resolved to a side is a fact, and a count printed with
+    // the direction withheld is the count with the answer taken out of it. The row
+    // must carry BOTH — the depth, because one vote is one vote, and the side,
+    // because it went one way. What it may still never do is sound like a career.
     has(sc, "1 vote against", `${pid}: the one-vote row drops the count that is its whole content`);
-    ok(/Thin opposes|Too early to say/.test(plain(sc)),
+    const st = plain(sc);
+    ok(/Thin opposes|Opposes, on a thin record/.test(st),
+      `${pid}: the one-vote row withholds the side its single mapped vote took`);
+    ok(!/Strongly|Mostly|career/.test(st),
       `${pid}: the one-vote row characterises its single vote as something stronger than it is`);
   }
 }

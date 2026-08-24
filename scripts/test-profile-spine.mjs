@@ -326,6 +326,70 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   ok(/not a guarantee about the future/.test(clean),
      "brief: and it scopes that to today, so a clean record is not read as a permanent clearance");
 
+  // 4d-bis. …but "nothing contested" has to be TRUE, and for 59 profiles it was not.
+  //
+  //     tension() read _pdxControversyItems alone. A profile whose contradiction
+  //     was found by the record rather than curated by an editor therefore printed
+  //     "no issue where what they said and what they did came out against them"
+  //     above the fold, while the Word vs Action section on the same page counted
+  //     exactly those issues. Ryan Mackenzie's profile said "1 CONTRADICTED" and
+  //     "NO DOCUMENTED GAP" at once. That is not an empty state, it is a wrong one,
+  //     and a reader who stops at the fold leaves with a clearance we did not earn.
+  //
+  //     So: with no flashpoint but a contradicted row on file, the card is the row.
+  ctx.window.PDXConsistency = {
+    divergence: () => ({ both: [] }),
+    issueRows: () => ([
+      { key: "trade", label: "🚢 Trade", verdict: { token: "consistent", label: "Matches", basis: "action" } },
+      { key: "national_debt", label: "📉 National Debt", verdict: { token: "contradicts", label: "Says one thing, does another", basis: "action" } },
+      { key: "housing", label: "🏘 Housing", verdict: { token: "contradicts", label: "Says one thing, does another", basis: "action" } },
+    ]),
+    rankIssueRows: (rows) => rows.slice().reverse(),
+  };
+  const rt = SP._tension("massie", MASSIE);
+  ok(rt && rt.kind === "flag" && rt.issueKey === "housing",
+     "brief: with no curated flashpoint, a contradicted row on the record becomes the tension card — the false all-clear is gone");
+  ok(rt && rt.issueKey === "housing",
+     "brief: and the row it names is the one rankIssueRows puts first, so the fold and the list below it lead with the same issue");
+  ok(rt && rt.headline === "Says one thing, does another",
+     "brief: the headline is the row's OWN verdict label — the brief restates the finding, it does not author a second one");
+  ok(rt && / 1 other issue\b/.test(rt.detail) && !/other issues/.test(rt.detail),
+     "brief: the remaining contradicted rows are counted, singular and plural both, so 'the tension' never reads as the only one");
+  ok(rt && !/%/.test(JSON.stringify(rt)),
+     "brief: no percentage rides along — recordTension counts rows, it does not score them");
+
+  // The curated item still wins when there is one. This is a fallback, not a race.
+  ctx.window._pdxControversyItems = () => ([{ kind: "flag", title: "A flashpoint", summary: "s" }]);
+  ok(SP._tension("massie", MASSIE).headline === "A flashpoint",
+     "brief: an editor's flashpoint still outranks a derived row — the record source is consulted only when the curated one is empty");
+  ctx.window._pdxControversyItems = () => ([]);
+
+  // FORMAL LANE ONLY. The public lane is not in Direction Match and is not the
+  // person's own word, so a row the reported record decided is not "what they
+  // said against what they did" and cannot be claimed as a contradiction here.
+  ctx.window.PDXConsistency = {
+    divergence: () => ({ both: [] }),
+    issueRows: () => ([
+      { key: "ethics", label: "⚖ Ethics", verdict: { token: "contradicts", label: "Says one thing, does another", basis: "public_record" } },
+    ]),
+  };
+  ok(SP._tension("massie", MASSIE) === null,
+     "brief: a contradiction resolved by the PUBLIC lane is not promoted above the fold — that lane never enters Direction Match and it is not their word");
+
+  // And the button has somewhere to land. The old else-arm jumped to
+  // pdxsec-controversies, which does not mount on a profile with no flashpoints —
+  // which is every profile this branch reaches. That is a dead control by
+  // construction, so the derived card routes to the section that prints its rows.
+  const CARD = CODE.slice(CODE.indexOf("function tensionCard"), CODE.indexOf("function briefHtml"));
+  ok(/t\.open === 'wordaction'/.test(CARD) && /_pdxNavJump\(\\?'pdxsec-wordaction\\?'\)/.test(CARD),
+     "brief: the derived card's CTA jumps to Word vs Action, the section that actually prints the row it names");
+  ok(CARD.indexOf("'wordaction'") < CARD.indexOf("pdxsec-controversies"),
+     "brief: and it is checked BEFORE the flashpoint fallback, so it can never fall through to an anchor that is absent on exactly these profiles");
+  ok(!/recordTension[\s\S]{0,600}(officialRecord|sayVsDo|pct|score\s*\()/.test(CODE),
+     "brief: recordTension reads rows and ranks them — it computes no score, which is the wall the rest of this module keeps");
+
+  ctx.window.PDXConsistency = { divergence: () => ({ both: [] }) };
+
   // 4e. The share row is share-anywhere.js's control, unmodified, and the jump
   //     chips aim at rails rather than at self-gating section anchors.
   ctx.window.PDXShareAnywhere = { buttonHtml: (o) => "<button class='pdxsa-share-btn' data-pid='" + o.pid + "'></button>" };

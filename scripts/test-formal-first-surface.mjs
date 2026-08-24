@@ -291,12 +291,38 @@ section("3 · phase 1 — a formal record is not an absence of one");
     "the record chip mentions Direction Match as though something had been tested");
   hasI(chip, "size of the record", "the chip's tooltip no longer says what kind of fact it is");
 
-  // The counterfactual, in the same sandbox: this is precisely what browse said
-  // about this person before, and it is still what coverage says.
+  // The counterfactual, in the same sandbox. This block used to end by asserting
+  // that coverage STILL said "Not yet documented" here — the phrase the record
+  // chip was built to outrank. Outranking it was only ever half the repair: the
+  // chip fixed the browse row, and left the sentence itself intact for every
+  // other surface that asks coverage the same question. coverage.js now counts
+  // the formal lane, so the phrase is not outranked on this member, it is not
+  // produced. Twenty issues of roll call is a record; the thing we are short of
+  // is a quote, and that is our gap to name.
+  //
+  // The old formula is kept here as the demonstration, so the regression stays
+  // reproducible: score the same member on words alone and the sentence returns.
+  const cv = A.PDXCoverage.assess(QUIET);
+  const wordsOnly = cv.stances + cv.spotlight + cv.promises;
+  must(wordsOnly === 0 && cv.formal >= 12,
+    "the QUIET fixture is no longer words-empty and formally deep — the regression cannot be demonstrated");
+  ok(cv.records === cv.formal && cv.key === "rich",
+    "coverage still scores a twenty-issue roll-call record as no record at all");
   const cov = A.PDXCoverage.badgeHTML(QUIET) || "";
-  ok(/Not yet documented|Still documenting/.test(text(cov)),
-    "coverage no longer produces the phrase this fallback exists to outrank — " +
-    "the regression this pins can no longer be demonstrated");
+  ok(!/Not yet documented|Still documenting/.test(text(cov)),
+    "coverage still calls a member with a deep formal record undocumented — " +
+    "the phrase the record chip outranks is still being produced underneath it");
+  ok(A.PDXCoverage.note(QUIET, "They") === "",
+    "the coverage NOTE still describes this record as thin or absent, on every surface that asks for a sentence rather than a chip");
+  has(R("coverage.js"), "THE FORMAL LANE COUNTS",
+    "coverage.js does not record why the formal lane is in the count, so it can be dropped again");
+  ok(/formal:\s*formal/.test(R("coverage.js")),
+    "assess() no longer reports the formal count as its own field — a pattern folded into 'records' with no way to read it back is a stated position waiting to happen");
+
+  // COLD proves it is the record doing the work and not a blanket suppression:
+  // same member, no votes fetched, and the sentence is correct and comes back.
+  ok(/Not yet documented/.test(text(COLD.PDXCoverage.badgeHTML(QUIET) || "")),
+    "with nothing on file at all coverage has gone quiet too — 'not yet documented' is true there and must still be said");
 
   // Fails closed. No formal inventory, no chip: the fallback is a record chip,
   // not a participation trophy.
@@ -560,6 +586,111 @@ section("6 · the executive lane's summary is not a roll-call wall in disguise")
     "rendering the executive formal summary moved Direction Match");
   // …and it must not have opened anything in the gateway below it.
   ok(!/pdxtree-open="1"/.test(html), "the executive summary expands a topic-tree branch");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the stance section stops calling a deep record an absent one");
+// ═════════════════════════════════════════════════════════════════════════════
+// Key Issue Stances falls back to the curated key-issue list when no sourced
+// position is on file, and every one of those placeholder rows read the same
+// way: pill "No Clear Position", line "A detailed position is being researched",
+// note "Detailed stances for this official are still being documented". On a
+// candidate that is the truth. On QUIET — twenty issues of roll call, printed
+// further down this same profile — it is four cards of nothing over a full
+// record, and "no clear position" is a claim about their clarity rather than
+// about our sourcing.
+//
+// WHAT IT MAY NOT DO. The curated key-issue list is free text, so no card here
+// can be bound to an issue key and no card may therefore carry a per-issue
+// pattern — that would print one issue's votes under another issue's heading.
+// The record is described at section level, in depth and characterisation only,
+// and the row says the one thing it can say honestly: we have no quote.
+{
+  // PDXStance lives inline in index.html, so it is stubbed — faithfully enough
+  // for the pill markup under test, and no further. The assertion is about which
+  // WORD this module chooses, not about the four-state vocabulary itself.
+  const stubStance = (win) => {
+    win.PDXStance = {
+      isTopPriority: () => false,
+      resolveStance: () => "none",
+      stanceState: () => ({ cls: "none", label: "No Clear Position" }),
+      stancePill: () => '<span class="pdxis-stance pdxis-stance-none">' +
+        '<span class="pdxis-stance-k">Stance</span>No Clear Position</span>',
+    };
+  };
+  stubStance(A); stubStance(COLD);
+
+  const qp = A.CMP_DATA[QUIET];
+  must((A._pdxKeyIssues(qp) || []).length > 0,
+    "the QUIET fixture has no curated key issues — the derived-card branch is unreachable");
+  const deep = text(A._renderIssueStances(QUIET, qp) || "");
+  must(deep.length > 0, "the stance section renders nothing on the QUIET fixture");
+
+  ok(/20 issues of votes and formal actions/.test(deep),
+    "the derived stance section never says how much formal record is on file — the reader is left with four blanks over twenty issues");
+  ok(!/still being documented/i.test(deep),
+    "the section still says positions are 'still being documented' with the record already on the page");
+  ok(!/A detailed position is being researched/.test(deep),
+    "the placeholder row still reads as though nothing about this person were known");
+  ok(!/No Clear Position/.test(deep),
+    "the row is still headed 'No Clear Position' — a claim about their clarity, over a record we have simply not quoted");
+  ok(/No stance on file/.test(deep),
+    "the row does not name the gap as OURS — 'no stance on file' is a fact about our sourcing, which is what this is");
+  ok(/our documentation rather than their record/.test(deep),
+    "the section note no longer carries the standing disclosure about whose gap this is");
+
+  // The lane wall, on a surface that just started talking about votes.
+  ok(/not a stated position/.test(deep) && /not in Direction Match/.test(deep),
+    "the section now describes a voting record beside a stance pill without saying that a pattern is neither a stated position nor a scored one");
+  ok(!/\d\s*%/.test(deep),
+    "a percentage appeared on the stance section — the record is described in counts, never scored here");
+  ok(!/(?:votes?|record)[^.]{0,40}\b(?:supports?|opposes?|backs?|favou?rs?)\b/i.test(deep),
+    "the copy reads the formal pattern as a support or oppose — that is the stated-position claim this whole pass exists to refuse");
+
+  // The ask changes with the gap. "Several issues still have no record" is the
+  // one thing that is not true of this profile.
+  ok(!/Several issues still have no record/.test(deep),
+    "the contribution cue still asks for a record on a profile with twenty issues of one");
+  ok(/stated a position in their own words/.test(deep),
+    "the contribution cue does not ask for the thing that is actually missing");
+
+  // COLD: same member, no votes fetched. Nothing on file is nothing on file, and
+  // the original wording is correct there and must survive intact.
+  const cold = text(COLD._renderIssueStances(QUIET, COLD.CMP_DATA[QUIET]) || "");
+  must(cold.length > 0, "the COLD stance section renders nothing — the fallback cannot be compared");
+  ok(/A detailed position is being researched/.test(cold) && /still being documented/i.test(cold),
+    "with no record on file the original wording is gone — it was correct there, and only there");
+  ok(/Several issues still have no record/.test(cold),
+    "the record-shaped ask leaked onto a profile that genuinely has no record");
+  ok(!/issues of votes and formal actions/.test(cold),
+    "the formal sentence rendered over an empty formal file");
+
+  // A DOCUMENTED record is untouched. This is a fallback for the derived branch
+  // and must not reach a member whose positions we actually hold.
+  const docPid = Object.keys(A.CMP_DATA).find((x) =>
+    (A._resolveStanceList(x, A.CMP_DATA[x]) || []).length >= 3);
+  must(docPid, "no member in the roster carries three documented stances — the negative case is untestable");
+  const doc = text(A._renderIssueStances(docPid, A.CMP_DATA[docPid]) || "");
+  ok(!/No stance on file/.test(doc) && !/issues of votes and formal actions/.test(doc),
+    "the no-stance wording reached a member whose stances are documented — this is a fallback, not a replacement");
+
+  // The empty state one level up: no stances AND no curated issues, on a member
+  // whose promise ledger is empty (which is what _pdxRecordDepth reads) and whose
+  // formal file is not. This is the branch that used to print "Stated positions
+  // being documented" over a full roll-call record.
+  A._pdxRecordDepth = (d) => (d && d.__thin ? "none" : "full");
+  const bare = Object.assign({}, qp, { __thin: true, issues: [], keyIssues: [], promises: [], score: null });
+  A.CMP_DATA.__bare = bare; A.PROFILES.__bare = bare;
+  A.PDXVotingRecord.noteMember("__bare", seedFor(QUIET_KEYS));
+  const es = text(A._renderIssueStances("__bare", bare) || "");
+  must(es.length > 0, "the no-key-issues empty state does not render — the branch under test is dead");
+  ok(/issues of formal record on file/.test(es) && !/Stated positions being documented/.test(es),
+    "the empty state still headlines 'stated positions being documented' over a full formal file");
+  ok(/gap is in our stance research, not in their record/.test(es),
+    "the empty state does not say whose gap this is");
+  ok(/does not enter Direction Match/.test(es),
+    "the empty state describes a formal record without the lane wall");
+  ok(!/\d\s*%/.test(es), "the empty state prints a percentage");
 }
 
 // ── Result ───────────────────────────────────────────────────────────────────

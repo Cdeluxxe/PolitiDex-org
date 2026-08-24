@@ -490,13 +490,74 @@
       '</div>';
   }
 
+  // ── WHAT A SILENT RECORD LANE IS ALLOWED TO SAY ────────────────────────────
+  // "No readable vote pattern" is a true sentence about a member the pattern
+  // engine declined to characterise. It was also the sentence printed over a
+  // member who HAS votes on the issue — one wording covering both "we hold
+  // nothing" and "we hold a file the engine would not read a direction off",
+  // which a reader cannot tell apart and will read as the first. The second is a
+  // fact about the engine's floor, not about their record being empty, and a cell
+  // that prints it as emptiness is the dead cell over a live file.
+  //
+  // READ, NEVER DERIVED. The depth is the formal-pattern index's own inventory
+  // count (`held`) in the index's own countable noun; the clause after it is the
+  // index's own published label for why it declined to characterise. Nothing here
+  // computes a tier, a direction or a number, and nothing it returns is reachable
+  // from rank(), scoreOf() or any tally — it is the words in one grey line.
+  //
+  // AND IT NEVER SWALLOWS A SIDE. This branch is normally reached only where the
+  // match brain found no scoreable pattern — rows labelled "No clear pattern yet"
+  // or with an unread reason — but "normally" is not a guarantee this function is
+  // entitled to make about its own caller. A row the index gave a direction to,
+  // including the one-item read, states that direction here rather than being
+  // filed under silence: the whole failure this line exists to end is a live file
+  // reported as an empty one, and a KNOWN SIDE reported as no side is the same
+  // failure one step further in.
+  function recSilence(fRow) {
+    var none = 'No readable vote pattern';
+    var held = fRow ? (fRow.held || 0) : 0;
+    if (held <= 0) return none;
+    if (fRow.directional && fRow.patLabel) {
+      return '\u{1F3DB} ' + fRow.patLabel + (fRow.counts ? ' \u00b7 ' + fRow.counts : '');
+    }
+    var noun = fRow.noun || {};
+    var word = (held === 1) ? (noun.one || 'item on file') : (noun.many || 'items on file');
+    var why = String(fRow.patLabel || '');
+    why = why ? (why.charAt(0).toLowerCase() + why.slice(1)) : 'no direction read yet';
+    return '\u{1F3DB} ' + held + ' ' + word + ' on file \u00b7 ' + why;
+  }
+
+  // The stated lane's silence, said quietly, on a cell the RECORD is answering.
+  // Two facts and a reader needs both: we hold no position of theirs in their own
+  // words on this issue, and the pattern above therefore is not — and could never
+  // have been — something Direction Match tested. Without it a record cell with
+  // nothing beneath it reads as a cell whose second line was dropped, and the
+  // pattern sits one shade closer to a claim than it is.
+  var NO_SAID = 'No stance on file \u00b7 not in Direction Match';
+  // THE SAME TWO FACTS, PLUS THE SIZE OF THE THING ABOVE THEM. A chip reading
+  // "Thin supports · 1 vote advanced" is a direction the reader is entitled to,
+  // and it is one recorded act. Left to the ordinary disclosure the cell would
+  // state what we do not hold and say nothing about the depth of what we do, and
+  // a directional chip with no depth beside it is read as a career. So the
+  // single-item cell names itself as one item and refuses the word "pattern" in
+  // the same line that refuses the stance.
+  var NO_SAID_ONE = 'Single formal item \u00b7 not a pattern \u00b7 no stance on file \u00b7 not in Direction Match';
+  function noSaidLine(fRow) {
+    return (fRow && fRow.directional && (fRow.judged || 0) === 1) ? NO_SAID_ONE : NO_SAID;
+  }
+
   // ── One candidate × one issue ──────────────────────────────────────────────
   // Both lanes are reported in every cell, whichever mode is live: the stated
   // chip when a documented position exists, the record chip when the formal lane
   // reads a pattern. The ACTIVE lane's chip leads and carries the verdict tint;
   // the other rides behind it, greyed, as context. A lane with nothing to say
   // prints its silence in words. There is no branch here that produces a number.
-  function cell(key, sRow, rRow, mode) {
+  //
+  // `fRow` is this candidate's formal-pattern index row for this issue, or null.
+  // It is passed in rather than fetched so one read per pane answers every cell,
+  // and it is used for ONE thing: telling an empty formal file apart from a full
+  // one the engine would not characterise.
+  function cell(key, sRow, rRow, mode, fRow) {
     var lead = (mode === 'record') ? rRow : sRow;
     var other = (mode === 'record') ? sRow : rRow;
     var chip = fn('_alignSignalChipHtml');
@@ -505,7 +566,7 @@
     var v = lead ? (lead.verdict || '') : '';
     var alt = '';
     if (!leadHtml) {
-      var silence = (mode === 'record') ? 'No readable vote pattern' : 'No documented position';
+      var silence = (mode === 'record') ? recSilence(fRow) : 'No documented position';
       if (otherHtml) {
         // ── THE SPEAKING LANE TAKES THE SLOT ──────────────────────────────────
         // The active lane has nothing here and the other one does. Leading with
@@ -526,12 +587,20 @@
         // cell is marked `data-rs-alt` instead, which is styling only — rank(),
         // scoreOf() and every tally read the rows, never this function.
         leadHtml = otherHtml;
-        otherHtml = '<span class="rs-cell-none">' + silence + '</span>';
+        otherHtml = '<span class="rs-cell-none">' + esc(silence) + '</span>';
         alt = (mode === 'record') ? 'stated' : 'record';
         v = '';
       } else {
-        leadHtml = '<span class="rs-cell-none">' + silence + '</span>';
+        leadHtml = '<span class="rs-cell-none">' + esc(silence) + '</span>';
       }
+    } else if (!otherHtml && mode === 'record') {
+      // THE RECORD ANSWERED AND WE HOLD NO QUOTE. Every other combination of the
+      // two lanes already prints two lines; this one printed one, so the single
+      // case this whole pass is about — a pattern standing in for a stance that
+      // was never sourced — was the one case that disclosed nothing. It gets the
+      // same second line as the rest, and it is the disclosure, not the chip,
+      // that changes: the chip above is untouched and still says 🏛 Record.
+      otherHtml = '<span class="rs-cell-none">' + esc(noSaidLine(fRow)) + '</span>';
     }
     return '<div class="rs-cell" data-rs-v="' + esc(v || 'none') + '"' +
         (alt ? ' data-rs-alt="' + esc(alt) + '"' : '') + '>' +
@@ -574,6 +643,22 @@
     } catch (e) {}
     return m;
   }
+  // HOW MUCH FORMAL FILE THEY HOLD ON THE READER'S OWN ISSUES — a count of issues,
+  // not a score, and never an input to one. rank() attaches it so the unranked
+  // band can tell its two cases apart: a candidate with nothing formal on the
+  // issues you set, and a candidate with votes on them the pattern engine would
+  // not read a direction off. "No formal record on your issues yet" is true of
+  // the first and false of the second, and a false admission printed over a real
+  // file is the thing this band existed to avoid in the first place.
+  function filedOnAxis(pid, ax) {
+    var m = fpiOf(pid), n = 0;
+    (ax || []).forEach(function (r) {
+      var x = m[r.key];
+      if (x && (x.held || 0) > 0) n++;
+    });
+    return n;
+  }
+
   // The row's own display slot — state, plain-language label, inventory depth and
   // the single-instrument marker. Read, never derived: this file computes no
   // depth, no tier and no percentage of its own.
@@ -897,9 +982,15 @@
   // a header that says exactly which lane came up empty.
   function rank(list, mode, hasIssues) {
     var ranked = [], gap = [];
+    var ax = hasIssues ? axis() : [];
     list.forEach(function (c) {
       c.score = hasIssues ? scoreOf(c.pid, mode) : null;
       c.altScore = hasIssues ? scoreOf(c.pid, mode === 'record' ? 'stated' : 'record') : null;
+      // Reported, never ranked on. `filed` decides which sentence the band prints
+      // about a candidate it cannot score; it is not read by either sort below and
+      // it is not a tie-break — the order here is the active lane's number and
+      // nothing else, exactly as it was.
+      c.filed = hasIssues ? filedOnAxis(c.pid, ax) : 0;
       (c.score === null ? gap : ranked).push(c);
     });
     if (!hasIssues) return { ranked: [], gap: stableSort(list), unranked: true };
@@ -936,8 +1027,17 @@
             meta(mode === 'record' ? 'stated' : 'record').ico + ' ' +
             esc(meta(mode === 'record' ? 'stated' : 'record').tab.toLowerCase()) + ' ' + c.altScore + '%</span>'
         : '';
+      // THE WORD IN THE NUMBER SLOT IS A CLAIM ABOUT THEM, SO IT HAS TO BE TRUE OF
+      // THEM. The mode's gap word says their formal record holds nothing on the
+      // issues you set. For a candidate who has votes on those issues that the
+      // pattern engine would not characterise, that is false — the file exists, is
+      // on their profile, and the reason there is no number is the engine's floor,
+      // not an empty record. Same absence of a percentage either way.
+      var gapWord = (mode === 'record' && c.filed)
+        ? 'Formal file on your issues \u00b7 no readable direction'
+        : mm.gap;
       head = '<span class="rs-rank rs-rank--gap" aria-hidden="true">—</span>' +
-        '<span class="rs-scorewrap"><span class="rs-gapword">' + esc(mm.gap) + '</span>' + alt + '</span>';
+        '<span class="rs-scorewrap"><span class="rs-gapword">' + esc(gapWord) + '</span>' + alt + '</span>';
     } else {
       var col = scoreColor(c.score);
       head = '<span class="rs-rank">' + (i + 1) + '</span>' +
@@ -955,13 +1055,17 @@
       return m;
     };
     var S = byKey(sBd), R = byKey(rBd);
+    // One index read per pane, shared by every cell. The same rows the snapshot
+    // above is built from, so a cell and a snapshot row cannot disagree about
+    // whether there is a file behind this person on this issue.
+    var F = fpiOf(c.pid);
 
     var cells = rows.map(function (r) {
       return '<div class="rs-issuecell" data-rs-issue="' + esc(r.key) + '" style="' + issueStyle(r.key) + '">' +
         '<span class="rs-issuecell-lbl" aria-hidden="true">' +
           (r.starred ? '<span class="rs-star">⭐</span>' : '') + esc(r.label) +
         '</span>' +
-        cell(r.key, S[r.key], R[r.key], mode) +
+        cell(r.key, S[r.key], R[r.key], mode, F[r.key] || null) +
       '</div>';
     }).join('');
 
@@ -1323,14 +1427,48 @@
         list.map(function (c, i) { return pane(c, i, shown, mode, rk, picked, banded); }).join('') +
       '</div>';
     };
+    // ── THE BAND, AND THE TWO DIFFERENT ADMISSIONS IT HAS TO MAKE ─────────────
+    // One header used to cover both of the record lane's silences. "No formal
+    // record on your issues yet" is exactly right for a candidate whose file is
+    // empty on everything the reader set. It is FALSE for a candidate who has
+    // votes on those issues that the pattern engine would not read a direction
+    // off — that file exists, it is on their profile, and the reason there is no
+    // number is a confidence floor, not an absence. `filed` is a count of issues,
+    // read from the same formal-pattern index the cells and the snapshot use, and
+    // it changes nothing but the wording: no candidate moves band, no candidate
+    // gains a number, and the other lane's figure is still labelled as the other
+    // lane's.
+    var filed = ranked.gap.filter(function (c) { return c.filed; }).length;
+    var bandHd = (mode === 'record' && filed) ? 'Not ranked on your issues yet' : mm.gap;
+    var bandSub;
+    if (mode !== 'record') {
+      bandSub = 'They have no documented position on the issues you set, so there is no stated match to give them. They are not ranked here and they are not scored from their votes instead.';
+    } else if (!filed) {
+      bandSub = 'Their votes and formal actions do not read a direction on the issues you set, so there is no record match to give them. They are not ranked here and they are not scored from their words instead.';
+    } else {
+      bandSub = (filed === ranked.gap.length
+          ? 'There is a formal file here on the issues you set'
+          : filed + ' of them ' + (filed === 1 ? 'has' : 'have') + ' a formal file on the issues you set') +
+        ' and too little of it took a side for the record engine to characterise, so there is no record match to give them. ' +
+        'The file itself is real and is laid out in full on the profile. They are not ranked here and they are not scored from their words instead.';
+    }
+    // THE ONE-LINE POINTER, AND ONLY WHERE IT IS TRUE. On the stated ruler a
+    // candidate we hold no sourced quote for is banded, correctly. When their
+    // FORMAL record can answer the very same issues, a real ranking is one tab
+    // away and nothing on screen said so. rank() has already read that lane's
+    // figure into altScore, so this costs one boolean and claims nothing: it names
+    // the tab, never a number, and the two rulers stay as separate as they were.
+    var toRecord = (mode === 'stated' && ranked.gap.some(function (c) {
+        return c.altScore !== null && c.altScore !== undefined;
+      }))
+      ? '<button type="button" class="rs-band-go" onclick="window.pdxRaceSheetMode(\'record\')">' +
+          'Their formal record can answer these issues \u2014 open Your Match \u00b7 record \u203a</button>'
+      : '';
     var bandHtml = ranked.gap.length && !ranked.unranked
       ? '<div class="rs-band">' +
-          '<span class="rs-band-hd">' + esc(mm.gap) + '</span>' +
-          '<span class="rs-band-sub">' +
-            (mode === 'record'
-              ? 'Their votes and formal actions do not read a direction on the issues you set, so there is no record match to give them. They are not ranked here and they are not scored from their words instead.'
-              : 'They have no documented position on the issues you set, so there is no stated match to give them. They are not ranked here and they are not scored from their votes instead.') +
-          '</span>' +
+          '<span class="rs-band-hd">' + esc(bandHd) + '</span>' +
+          '<span class="rs-band-sub">' + bandSub + '</span>' +
+          toRecord +
         '</div>'
       : '';
     var panes = ranked.unranked

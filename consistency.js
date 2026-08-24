@@ -6194,6 +6194,15 @@
     var pat = null;
     try { pat = _stPatternTier(r); } catch (e) { pat = null; }
     var says = pat ? (pat.says || null) : (d.says || null);
+    // EXCEPT AT n = 1, WHERE THERE IS NOTHING TO CONTRADICT. The paragraph above
+    // binds this line to the characterisation floors because a lead saying "Mixed"
+    // over an evidence line saying "3 votes on file — too thin to characterise" is
+    // a row arguing with itself. One item cannot produce that argument: the lead
+    // says which way the single item went, the evidence line says there is one of
+    // it, and both are the same fact. So where the display read named a side off a
+    // single judged item, the side is what this line leads with — still uncounted,
+    // still uncharacterised, still `characterising: false`.
+    if (pat && pat.tier === 'none' && d.directional && d.judged === 1 && d.says) says = d.says;
     return {
       d: d,
       word: says ? says.label : _ST_LEAD_ONFILE,
@@ -7431,6 +7440,48 @@
     return 'pdxfpi-row-' + (m === 'default' ? '' : m + '-') + _stSlug(pid) + '-' + _stSlug(key);
   }
 
+  // ── ONE ITEM, AND IT WENT ONE WAY ───────────────────────────────────────────
+  // WHAT IT IS. The index's answer for a row holding exactly ONE judged formal
+  // item whose mapping resolved to a side. _recordPatternTier refuses that row —
+  // correctly, for the question IT is asking, which is "may this record be
+  // characterised" — and the refusal arrives as tier `none`, tone `muted`, label
+  // "No clear pattern yet". Printed over a mapped roll call that went one way,
+  // that sentence is false in the only direction that matters: the reader is told
+  // there is nothing to read next to a count saying there is exactly one thing,
+  // and the one thing has an answer on it.
+  //
+  // SO THE CASE IS SPLIT, and split is all it is. Direction known → the thin
+  // directional read. Direction absent → the row keeps every word it had. The
+  // read handed back is _recordDisplayTier's, which already exists for exactly
+  // this reason and already carries the two rules that must not move:
+  //   · AN ISSUE WITH NO POLE IS STILL SILENT. _RD_TIER_MUTE returns null there,
+  //     at any depth, because "advanced it" is meaningless without a curated
+  //     proposition to advance.
+  //   · AN INCIDENTAL MAPPING IS STILL A COINCIDENCE. Below _RD_MIN_PRIMARY the
+  //     display read returns null too — an omnibus that brushed this issue is not
+  //     a vote on it, and one of them is not a vote on it either.
+  // What IS lowered, and only here, is depth: the member coverage floor and the
+  // two-item run floor, both of which are floors about SIZE, and at n = 1 there
+  // is no size question left to ask — there is one item and it either has a side
+  // or it does not.
+  //
+  // AND IT STOPS AT ONE. `judged !== 1` returns null, so a two- or three-item
+  // record under the coverage floor is untouched and reads exactly as it read
+  // before. The legislative lane only: _stDirRaw declines on exec by design and
+  // the scoring path depends on that refusal, so the exec lane keeps its own
+  // slice rather than being annexed by this one.
+  function _stSingleDirRead(r) {
+    if (!r || r.lane === 'exec') return null;
+    if (typeof window._recordDisplayTier !== 'function') return null;
+    var idx;
+    try { idx = _stDirRaw(r); } catch (e) { return null; }
+    if (!idx || (idx.judged || 0) !== 1) return null;
+    var d;
+    try { d = window._recordDisplayTier(idx, { noun: _stNoun(r) }) || null; } catch (e) { return null; }
+    if (!d || !d.directional) return null;
+    return d;
+  }
+
   // ── THE ROWS ────────────────────────────────────────────────────────────────
   // Pure. Reads the shared row model and the shared pattern engine and derives
   // nothing of its own: `tier`, `tone`, `weight`, `label` and `counts` all arrive
@@ -7444,6 +7495,16 @@
       var res = _stResult(r);
       var held = res.held || 0;
       var t = _stPatternTier(r);
+      // THE ONE-ITEM SPLIT. Where the characterisation read declined and the row
+      // holds a single judged item with a known side, the index carries that side
+      // rather than the refusal — see _stSingleDirRead above for the walls this
+      // does not lower. `single` marks the rows that only exist because of it, so
+      // a surface can say "one item, not a pattern" in its own words.
+      var single = false;
+      if (!t || t.tier === 'none') {
+        var one = _stSingleDirRead(r);
+        if (one) { t = one; single = true; }
+      }
       // FAIL CLOSED. No pattern and nothing formal on file means no formal signal,
       // and an issue with no formal signal is not part of the formal record index.
       if (!t && held <= 0) return;
@@ -7459,6 +7520,7 @@
         judged: t ? t.judged : 0,
         directional: !!(t && t.directional),
         read: !!t,
+        single: single,
         held: held,
         noun: _stNoun(r),
         said: _stSaid(r),
@@ -12761,4 +12823,11 @@
   };
 
   try { if (document.readyState !== 'loading') ensureStyles(); else document.addEventListener('DOMContentLoaded', ensureStyles); } catch (e) {}
+  // The dossier door is a document-level listener, and until now it was only ever
+  // installed as a side effect of rendering some profile section. Surfaces outside
+  // this module mark their own doors with [data-pdxc-gap] — a race-sheet snapshot
+  // cell, a peek chip — and on a session that never opened a profile first, those
+  // doors were dead. Binding here costs one idempotent call and makes the gateway a
+  // property of the module being loaded rather than of what happened to be drawn.
+  try { bindGateway(); } catch (e) {}
 })();

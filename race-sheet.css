@@ -195,6 +195,17 @@
   font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem;
   line-height: 1.45; color: #94a3b8;
 }
+/* The pointer out of the band and onto the other ruler. Deliberately NOT styled
+   like the two tab buttons above it: it is a link out of an admission, not a
+   third control, and a reader must not read it as a ruler this band is ranked
+   by. Full tap target because it is an action on a phone. */
+.rs-band-go {
+  align-self: flex-start; margin-top: 0.35rem; min-height: 44px;
+  padding: 0.3rem 0; background: none; border: none; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.76rem;
+  letter-spacing: 0.03em; color: #93c5fd; text-align: left;
+}
+.rs-band-go:hover { color: #bfdbfe; text-decoration: underline; }
 
 .rs-pane {
   display: flex; flex-direction: column;

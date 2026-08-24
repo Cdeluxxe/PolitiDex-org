@@ -902,11 +902,14 @@
     // "Mixed". Same tier, same arithmetic, one of them is never in the room with
     // the other.
     //
-    // AND TWO STATES THAT ARE NOT IN THE FIVE, on purpose. A record too thin to
+    // AND FOUR STATES THAT ARE NOT IN THE FIVE, on purpose. A record too thin to
     // characterise and a record the engine could read nothing from are not weak
     // versions of "Supports"; they are refusals, and they are worded as refusals.
-    // Nothing promotes into the five: `characterising` is the flag a surface gates
-    // on, and it is false for both.
+    // Two of the four name a side anyway — a thin record that all went one way did
+    // go one way, and withholding that while printing its count is a refusal only
+    // in form. What none of the four do is promote: `characterising` is the flag a
+    // surface gates on, and it is false for all four, so a thin side can be read
+    // and can never be counted as a characterisation of the record.
     //
     // WHAT THIS IS NOT. Not a stance — the frame words below are the whole reason
     // this layer is safe to print, and they never say "their position is". Not a
@@ -922,14 +925,33 @@
       mostly_opposes:  { key: 'mostly_opposes',  label: 'Mostly opposes',  tone: 'oppose',  characterising: true,  rank: 1 },
       opposes:         { key: 'opposes',         label: 'Opposes',         tone: 'oppose',  characterising: true,  rank: 0 },
       early:           { key: 'early',           label: 'Too early to say', tone: 'muted',  characterising: false, rank: 8 },
+      // A THIN RECORD WITH A KNOWN SIDE IS STILL A SIDE. "Too early to say" is the
+      // right refusal for a record that ran both ways too shallowly to weigh, and it
+      // was the wrong one for a record of one mapped vote that went one way: the row
+      // beside it was already printing "1 vote advanced", so the reader was handed
+      // the depth and denied the direction — a count with the answer removed. These
+      // two say which way the items on file went and, in the same phrase, how little
+      // of it there is. They never say Strongly, Mostly or "pattern".
+      //   THEY DO NOT PROMOTE. `characterising` stays false, exactly as it is on
+      // `early`, so every surface that gates on that flag still sees a refusal, and
+      // `_RD_TOKENS.characterised` / `.counted` on the index are untouched.
+      early_supports:  { key: 'early_supports',  label: 'Supports, on a thin record', tone: 'support', characterising: false, rank: 8 },
+      early_opposes:   { key: 'early_opposes',   label: 'Opposes, on a thin record',  tone: 'oppose',  characterising: false, rank: 8 },
       unread:          { key: 'unread',          label: 'No clear pattern yet', tone: 'muted', characterising: false, rank: 9 }
     };
-    // tier key + direction word → one of the seven above. Fails closed on anything
+    // tier key + direction word → one of the nine above. Fails closed on anything
     // it does not recognise, which is the same direction every other read here
     // fails in: an unrecognised state is unread, never a lean.
     function _recordSays(tierKey, dirWord) {
       if (tierKey === 'split') return _RD_SAYS.mixed;
-      if (tierKey === 'thin') return _RD_SAYS.early;
+      if (tierKey === 'thin') {
+        // The thin tier is directional by construction (_RD_TIERS.thin), so the
+        // side is normally known; the wordless fallback is kept because a caller
+        // that loses the direction must not be handed one back.
+        if (dirWord === 'supports') return _RD_SAYS.early_supports;
+        if (dirWord === 'opposes') return _RD_SAYS.early_opposes;
+        return _RD_SAYS.early;
+      }
       if (tierKey === 'strong' || tierKey === 'mostly') {
         var pre = (tierKey === 'strong') ? '' : 'mostly_';
         if (dirWord === 'supports') return _RD_SAYS[pre + 'supports'] || _RD_SAYS.supports;
