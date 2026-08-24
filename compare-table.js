@@ -143,8 +143,13 @@
   // works out where the picks who actually hold a position agree or differ.
   // This is what lets a thin/new 2026 candidate — who has no promise score —
   // still be compared meaningfully: their stances are the comparison.
+  // Lineup key of the one rebuild the record lane is allowed (see the note at the
+  // bottom of _buildCmpTable). Module-scoped so re-opening the same lineup in one
+  // session cannot re-trigger it.
+  let _cmpRecWarmed = null;
+
   function _cmpIssueData(pids) {
-    const out = { anyDocumented:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, nMine:0, nMineShared:0, mineActive:false, docByPid:{} };
+    const out = { anyDocumented:false, anyRecord:false, recCold:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, nMine:0, nMineShared:0, mineActive:false, docByPid:{}, recByPid:{} };
     const resolve = (typeof window._resolveStanceList === 'function') ? window._resolveStanceList : null;
     if (!resolve) return out;
     // ISSUE_MAP lives inside the Alignment IIFE and is published as
@@ -206,7 +211,46 @@
       out.docByPid[pid] = docCount;
       if (docCount) out.anyDocumented = true;
     });
-    if (!out.anyDocumented) return out;
+
+    // ── 🏛 THE SECOND LANE, AS A ROW SOURCE ────────────────────────────────
+    // Everything above is the STATED lane and it stays exactly as it is. This adds
+    // the formal one — not to the cells' arithmetic, which never sees it, but to
+    // the list of issues the table is allowed to have a row for.
+    //
+    // WHY. The section below was gated on `anyDocumented`, so a lineup where
+    // nobody had a sourced quote got no issue comparison at all — however many
+    // roll calls the picks had on file. The per-cell record-direction pass has
+    // been filling stance-less cells for a while, and it could never fire here,
+    // because the gate meant there were no cells to fill. Missing stance is not
+    // missing record.
+    //
+    // WHAT IT MAY NOT DO. It does not touch `dir`, so `agreement`, nAgree,
+    // nDiffer, nPartial and `count` are stated-lane figures exactly as before; a
+    // record-only row lands on the new `record` state, which those tallies skip.
+    // No entry is written into byPid, so no cell can print a record as a stance.
+    const recOf = (typeof window._pdxSeatFormalMap === 'function') ? window._pdxSeatFormalMap : null;
+    const recByPid = {};
+    pids.forEach(pid => {
+      const rm = recOf ? (recOf(pid) || {}) : {};
+      recByPid[pid] = rm;
+      const n = Object.keys(rm).length;
+      out.recByPid[pid] = n;
+      if (n) out.anyRecord = true;
+      // Cold means the batched /compare fetch has not landed for this member yet,
+      // so the index above is reading an empty file rather than an empty record.
+      // The caller uses this to decide whether a second look is worth taking.
+      try {
+        if (window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function' &&
+            window.PDXVotingRecord.memberRecords(pid) === null) out.recCold = true;
+      } catch (e) {}
+      Object.keys(rm).forEach(k => {
+        const key = 'k:' + k;
+        if (meta[key]) return;                    // the stated lane already opened this row
+        meta[key] = { label: (mapOK && issueMap[k] && issueMap[k].label) ? issueMap[k].label : (rm[k].issueLabel || k), issueKey: k };
+        order.push(key);
+      });
+    });
+    if (!out.anyDocumented && !out.anyRecord) return out;
 
     // Assemble one record per issue, with each pick's cell + an agreement read.
     // The read is computed from the canonical four-state stance (window.PDXStance)
@@ -222,8 +266,13 @@
       const sup = real.filter(k => k === 'supported').length;
       const opp = real.filter(k => k === 'opposed').length;
       const mixed = real.filter(k => k === 'mixed').length;
+      const recCells = pids.map(pid => (recByPid[pid] && recByPid[pid][meta[key].issueKey]) || null);
+      const recCount = recCells.filter(Boolean).length;
       let agreement;
-      if (real.length < 2) agreement = 'solo';
+      // A row nobody stated anything on is not "1 documented" and it is not a
+      // disagreement — it is the formal lane alone, and it says so.
+      if (present.length === 0) agreement = 'record';
+      else if (real.length < 2) agreement = 'solo';
       else if (sup > 0 && opp > 0) agreement = 'differ';
       else if (mixed > 0) agreement = 'partial';       // a clear side + a mixed read
       else agreement = 'agree';                        // all on the same clear side
@@ -233,19 +282,22 @@
       // Record" — your direction in the label column, their record in the cells.
       let myDir = null;
       try { if (meta[key].issueKey && window.PDXStances && typeof window.PDXStances.myDirection === 'function') myDir = window.PDXStances.myDirection(meta[key].issueKey); } catch (e) { myDir = null; }
-      out.issues.push({ key, label: meta[key].label, issueKey: meta[key].issueKey || '', cells, count: present.length, agreement, mine, myPosition: myDir ? myDir.position : null, myPriority: myDir ? myDir.priority : null });
+      out.issues.push({ key, label: meta[key].label, issueKey: meta[key].issueKey || '', cells, count: present.length, recCells, recCount, agreement, mine, myPosition: myDir ? myDir.position : null, myPriority: myDir ? myDir.priority : null });
     });
 
     // Shared issues (2+ documented) lead; within those, the visitor's own flagged
     // issues come first so a values-driven voter sees their priorities up top, then
     // differences before agreements so contrasts are easy to find, then single-
     // documented rows.
-    const rank = { differ:0, partial:1, agree:2, solo:3 };
+    // Record-only rows rank last of the five — behind every row where somebody
+    // actually said something — but they rank, and they are no longer absent.
+    const rank = { differ:0, partial:1, agree:2, solo:3, record:4 };
     out.issues.sort((a, b) => {
       if ((b.count >= 2) !== (a.count >= 2)) return (b.count >= 2) - (a.count >= 2);
       if (b.mine !== a.mine) return (b.mine ? 1 : 0) - (a.mine ? 1 : 0);
       if (rank[a.agreement] !== rank[b.agreement]) return rank[a.agreement] - rank[b.agreement];
-      return b.count - a.count;
+      if (b.count !== a.count) return b.count - a.count;
+      return (b.recCount || 0) - (a.recCount || 0);
     });
     out.total = out.issues.length;
     out.issues.forEach(iss => {
@@ -305,9 +357,35 @@
     // agreement maths above reads iss.cells and has never seen this.
     if (!entry) {
       const nonePill = PDX ? PDX.stancePill('none') : '<span class="cmp-issue-none-lbl">No clear position</span>';
+      // WHAT THE RECORD DID, PRINTED AT PAINT WHERE IT IS ALREADY KNOWN. The slot
+      // below is the exact one the hydration pass renders — same accessor, same
+      // compact form, same lane mark — so warming the fetch upgrades this cell
+      // rather than contradicting it, and a cold cell still shows the batched
+      // answer a moment later. Refused unless the slot has something to say:
+      // `only` keeps the "no formal record yet" state out, because at paint that
+      // state cannot tell an empty record from an unfetched one, and the hydration
+      // pass will say it properly if it still holds once the fetch has landed.
+      let recHtml = '';
+      if (pid && issueKey) {
+        try {
+          const RD = window.PDXConsistency && window.PDXConsistency.recordDirection;
+          if (RD && typeof RD.for === 'function') {
+            recHtml = RD.for(pid, issueKey, { compact: true, only: ['speaks', 'thin'] }) || '';
+          }
+        } catch (e) { recHtml = ''; }
+      }
       const rdir = (pid && issueKey)
-        ? `<span class="cmp-issue-rdir" data-vrdir="${String(pid).replace(/"/g, '&quot;')}|${String(issueKey).replace(/"/g, '&quot;')}" data-vrdir-compact="1"></span>`
+        ? `<span class="cmp-issue-rdir" data-vrdir="${String(pid).replace(/"/g, '&quot;')}|${String(issueKey).replace(/"/g, '&quot;')}" data-vrdir-compact="1">${recHtml}</span>`
         : '';
+      // ORDER FOLLOWS WHAT IS ACTUALLY THERE. With a readable record the record
+      // leads and the missing quote is the quiet second line; with nothing on
+      // file the grey pill leads exactly as it always has. The old cell led with
+      // "No clear position / Not documented yet" over a full voting file, which
+      // read as evasion and was our gap, not theirs.
+      if (recHtml) {
+        return '<div class="cmp-issue-cell is-none cmp-issue-emptycell cmp-issue-reclead">' + rdir +
+          '<span class="cmp-issue-none-note">No stated position on file — this is the record</span></div>';
+      }
       return '<div class="cmp-issue-cell is-none cmp-issue-emptycell">' + nonePill +
         '<span class="cmp-issue-none-note">Not documented yet</span>' + rdir + '</div>';
     }
@@ -552,6 +630,13 @@
             + `<span class="cmp-insight-sub">Across ${overlap} issue${overlap !== 1 ? 's' : ''} both have a documented stance on${issueCmp.nPartial ? ' · ' + issueCmp.nPartial + ' mixed' : ''}${mineBit}</span>`;
         } else if (issueCmp.anyDocumented) {
           issueHtml = `<span class="cmp-insight-sub">No issue is documented for two of these picks yet — see each one's positions below.</span>`;
+        } else if (issueCmp.anyRecord) {
+          // NOT A VOID. There is no stated position to find common ground in, and
+          // there is a formal file on every issue listed below, so the line says
+          // which of those two facts it is rather than implying the second.
+          const _recIssues = issueCmp.issues.filter(i => i.recCount > 0).length;
+          issueHtml = `<span class="cmp-insight-lead">Records on file, no sourced positions</span>`
+            + `<span class="cmp-insight-sub">Nobody here has a position we can quote yet — but ${_recIssues} issue${_recIssues !== 1 ? 's' : ''} below carry a formal record, compared as 🏛 what the record did.</span>`;
         } else {
           issueHtml = `<span class="cmp-insight-sub">Issue positions are still being documented for this lineup.</span>`;
         }
@@ -816,13 +901,15 @@
     const _anyScore = pids.some((pid, i) => _psVals[i] !== null && _psVals[i] !== undefined);
     const thinLineup = pids.length >= 2 && issueCmp.anyDocumented && !_anyScore;
 
-    if (issueCmp.anyDocumented) {
+    if (issueCmp.anyDocumented || issueCmp.anyRecord) {
       // ── Where They Stand — issue-by-issue, from documented ISSUE_STANCE_DATA.
       // This is the heart of comparing thin/new candidates: it lines up each
       // pick's real positions on the same issue so agreement and contrast are
       // obvious, with no fabricated stances — a pick with nothing on file simply
       // reads "Not documented yet".
-      standBlock += sectionRow('🏛 Where They Stand — Issue by Issue');
+      standBlock += sectionRow(issueCmp.anyDocumented
+        ? '🏛 Where They Stand — Issue by Issue'
+        : '🏛 What Their Records Did — Issue by Issue');
       const nCols = pids.length + 1;
       // Lead-in adapts: when the visitor has set Alignment, point out that their
       // own flagged issues are pulled to the top; otherwise the standard read.
@@ -832,10 +919,18 @@
       const thinLead = thinLineup
         ? `<strong style="color:#cbd9ec;">These are new candidates with no record to test yet</strong>, so their documented positions are the clearest way to compare them. `
         : '';
+      // Two lanes, named. The 🏛 line only appears when a record row is actually
+      // on the board, and it says out loud that a record is not a stance — the one
+      // sentence that keeps an outlined cell from being read as a quote.
+      const recLead = issueCmp.anyRecord
+        ? ` Where a pick has no sourced position but does have a formal file, the cell shows <strong>what their record did</strong> under a 🏛 mark — that is the record, not a stated position, and it is never counted as agreement or difference.`
+        : '';
+      const standLead = issueCmp.anyDocumented
+        ? `Real positions from each one's public record — so even a new candidate with nothing settled can still be compared on where they stand. `
+          + `<strong><span class="cmp-issue-agree-ico">✓ Agree</span></strong> and <strong><span class="cmp-issue-differ-ico">✗ Differ</span></strong> mark issues where two or more picks each have a documented position.`
+        : `None of these picks has a sourced position we can quote yet — but their formal records are on file, so this compares what those records actually did.`;
       standBlock += `<tr class="cmp-issue-intro"><td colspan="${nCols}">`
-        + thinLead + mineLead
-        + `Real positions from each one's public record — so even a new candidate with nothing settled can still be compared on where they stand. `
-        + `<strong><span class="cmp-issue-agree-ico">✓ Agree</span></strong> and <strong><span class="cmp-issue-differ-ico">✗ Differ</span></strong> mark issues where two or more picks each have a documented position.`
+        + thinLead + mineLead + standLead + recLead
         + `</td></tr>`;
 
       // ── Four-state stance legend — decodes the canonical window.PDXStance pills
@@ -855,7 +950,8 @@
       // ── Overlap meter: turns the agree / differ / mixed counts into one bar so
       // the shape of where these picks line up is readable before a single row.
       const _mShared = issueCmp.nAgree + issueCmp.nDiffer + issueCmp.nPartial;
-      const _mSolo = issueCmp.issues.filter(i => i.count < 2).length;
+      const _mSolo = issueCmp.issues.filter(i => i.count === 1).length;
+      const _mRec = issueCmp.issues.filter(i => i.count === 0).length;
       if (_mShared > 0) {
         const pct = (n) => (100 * n / _mShared).toFixed(1) + '%';
         const seg = (n, cls) => n > 0 ? `<div class="seg ${cls}" style="width:${pct(n)}"></div>` : '';
@@ -868,6 +964,7 @@
           + leg(issueCmp.nAgree, 'k-agree', 'agree')
           + leg(issueCmp.nPartial, 'k-partial', 'mixed')
           + leg(_mSolo, 'k-solo', 'one side only')
+          + leg(_mRec, 'k-record', 'record only')
           + `</div></div></td></tr>`;
       }
 
@@ -891,6 +988,7 @@
         differ:  { cls:'is-differ',  ico:'✗', lbl:'Differ' },
         partial: { cls:'is-partial', ico:'~', lbl:'Mixed' },
         solo:    { cls:'is-solo',    ico:'•', lbl:'1 documented' },
+        record:  { cls:'is-record',  ico:'🏛', lbl:'Record only' },
       };
       // Render every documented issue (no longer capped to a dead-end). Rows past
       // the cap start hidden and are revealed by the inline "Show all" toggle, so
@@ -1020,6 +1118,31 @@
     }
     if (typeof window._pdxHydrateRecordDirection === 'function') {
       setTimeout(function () { try { window._pdxHydrateRecordDirection(document.getElementById('compare-overlay')); } catch (e) {} }, 0);
+    }
+
+    // ── ONE SECOND LOOK, AND ONLY WHERE THERE IS NOTHING TO DISTURB ───────────
+    // The hydration passes above fill cells that are already on screen. They
+    // cannot help the one case where the issue section is absent entirely: no
+    // pick has a sourced position AND the formal index was cold, so the model
+    // could not see the records either and there were no rows to hydrate.
+    //
+    // So when exactly that happened, warm the batched fetch once and rebuild.
+    // Guarded per lineup and never repeated, because a rebuild throws away the
+    // visitor's filter and scroll — which is why it is refused in every other
+    // state, including the far more common one where the section IS showing and
+    // a few more rows would be nice. Nothing was on screen here to throw away.
+    if (issueCmp && issueCmp.recCold && !issueCmp.anyDocumented && !issueCmp.anyRecord &&
+        pids.length >= 2 && window.PDXVotingRecord && typeof window.PDXVotingRecord.fetchCompare === 'function') {
+      const warmKey = pids.slice().sort().join(',');
+      if (_cmpRecWarmed !== warmKey) {
+        _cmpRecWarmed = warmKey;
+        window.PDXVotingRecord.fetchCompare(pids).then(function () {
+          try {
+            const ov = document.getElementById('compare-overlay');
+            if (ov && ov.style.display !== 'none') _buildCmpTable();
+          } catch (e) {}
+        });
+      }
     }
   }
 

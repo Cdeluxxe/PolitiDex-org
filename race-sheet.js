@@ -503,12 +503,38 @@
     var leadHtml = (lead && chip) ? chip(lead) : '';
     var otherHtml = (other && chip) ? chip(other) : '';
     var v = lead ? (lead.verdict || '') : '';
+    var alt = '';
     if (!leadHtml) {
-      leadHtml = '<span class="rs-cell-none">' +
-        ((mode === 'record') ? 'No readable vote pattern' : 'No documented position') +
-        '</span>';
+      var silence = (mode === 'record') ? 'No readable vote pattern' : 'No documented position';
+      if (otherHtml) {
+        // ── THE SPEAKING LANE TAKES THE SLOT ──────────────────────────────────
+        // The active lane has nothing here and the other one does. Leading with
+        // the silence and greying the real signal behind it made the stated
+        // column of a member with sixty roll calls read as a wall of "No
+        // documented position", which is a fact about OUR sourcing printed over
+        // theirs. So the chip that has something to say moves up, and the
+        // silence becomes the second line.
+        //
+        // NOTHING ELSE MOVES. The chip is _alignSignalChipHtml's own and it
+        // arrives already stamped with the lane it came from — "🏛 Record
+        // pattern:" or "💬 Says:" — so a promoted cell states which lane it is
+        // in on its face, and the column header still means what it said.
+        //
+        // AND IT CARRIES NO VERDICT. `data-rs-v` stays "none": the tint on this
+        // sheet is the ACTIVE lane's match read, and painting a cell green off
+        // the other lane's verdict is the blend this surface refuses. A promoted
+        // cell is marked `data-rs-alt` instead, which is styling only — rank(),
+        // scoreOf() and every tally read the rows, never this function.
+        leadHtml = otherHtml;
+        otherHtml = '<span class="rs-cell-none">' + silence + '</span>';
+        alt = (mode === 'record') ? 'stated' : 'record';
+        v = '';
+      } else {
+        leadHtml = '<span class="rs-cell-none">' + silence + '</span>';
+      }
     }
-    return '<div class="rs-cell" data-rs-v="' + esc(v || 'none') + '">' +
+    return '<div class="rs-cell" data-rs-v="' + esc(v || 'none') + '"' +
+        (alt ? ' data-rs-alt="' + esc(alt) + '"' : '') + '>' +
       '<span class="rs-cell-lead">' + leadHtml + '</span>' +
       (otherHtml ? '<span class="rs-cell-other">' + otherHtml + '</span>' : '') +
     '</div>';

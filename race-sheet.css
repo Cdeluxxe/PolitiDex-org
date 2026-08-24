@@ -318,6 +318,15 @@
 .rs-cell[data-rs-v="match"] .rs-cell-lead { color: #86efac; }
 .rs-cell[data-rs-v="partial"] .rs-cell-lead { color: #fcd34d; }
 .rs-cell[data-rs-v="mismatch"] .rs-cell-lead { color: #fca5a5; }
+/* A cell whose ACTIVE lane is silent and whose other lane is not. The chip that
+   spoke sits in the lead slot at full opacity — it is the only signal here, and
+   dimming the only signal is what made these columns read as empty — while the
+   left edge marks that it came from the other lane, and the silence rides
+   underneath in the quiet slot. No verdict tint: data-rs-v is "none" here by
+   construction, so none of the three colour rules above can reach it. */
+.rs-cell[data-rs-alt] { box-shadow: inset 2px 0 0 rgba(148,163,184,0.34); padding-left: 0.4rem; }
+.rs-cell[data-rs-alt] .rs-cell-lead { opacity: 0.92; }
+.rs-cell[data-rs-alt] .rs-cell-other { opacity: 0.6; font-style: italic; }
 
 .rs-morewrap { padding: 0.8rem 1rem 0; }
 .rs-more {
