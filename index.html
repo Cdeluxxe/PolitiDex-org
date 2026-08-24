@@ -28894,6 +28894,150 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   </style>
 
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MOBILE BOTTOM CHROME — the team call-to-action stops fighting the viewport
+       ══════════════════════════════════════════════════════════════════════
+       Every "Add to My Team" control on a phone is pinned to the bottom edge of
+       something, and on a phone the bottom edge is the single most contested
+       strip of the screen: the browser's own toolbar lives there, the home
+       indicator lives there, and both of them move. This block is only about
+       that strip. It changes no markup, no script, no scoring and no desktop
+       rule — every declaration below is inside a phone-width media query.
+
+       THE ONE BUG, IN THREE PLACES. A `position: fixed; inset: 0` overlay is
+       laid out against the FIXED-POSITION viewport, which on iOS Safari is the
+       LARGE viewport — the height the page would have if the browser toolbar
+       were hidden. It is the same viewport `100vh` reports, and it is taller
+       than the screen the reader is actually looking at whenever the toolbar is
+       showing. app.css already fixed this for #modal-panel by sizing the panel
+       in `dvh`. It did not fix the BOX THE PANEL SITS IN, and that box is what
+       decides where the panel lands:
+
+         · #modal-overlay is `inset: 0` with `items-center`. A 100dvh panel
+           centred inside a 100lvh box hangs (lvh − dvh) / 2 below the visible
+           bottom — roughly half a toolbar's worth of the Add-to-My-Team deck,
+           off-screen, on every iPhone with the toolbar up.
+         · .pdx-med-overlay is the same box, and below 480px it switches to
+           `align-items: flex-end` to become a bottom sheet. Flex-end against a
+           large-viewport box puts the sheet's footer — which is the ⭐ Add to My
+           Team button, the primary action of the surface a voter meets most —
+           directly underneath the toolbar.
+         · .pdx-record-overlay (All Stances) IS the scroller. Its content ends
+           1.5rem above a bottom that the toolbar and the home indicator both
+           cover, so the last rows of a deep formal record — the Mike Lee case —
+           are the ones a reader cannot reach or tap.
+
+       THE FIX IS ONE IDEA APPLIED THREE TIMES: give the overlay itself an
+       explicit dynamic-viewport height. `height` on an `inset: 0` box wins over
+       `bottom` (an over-constrained absolutely-positioned box drops `bottom`),
+       so the overlay becomes exactly the screen the reader can see, and every
+       alignment inside it — centre, stretch, flex-end — resolves against the
+       real bottom. `100vh` is declared first as the fallback for engines without
+       `dvh`, which is exactly the pattern app.css already uses on #modal-panel.
+
+       THE SAFE AREA IS PAID ONCE, WITH max(). The floating page chrome
+       (the team dock, the alignment launcher, the compare pill, the first-run
+       companion, the roster status pill) sits a fixed gap above the bottom edge
+       and reserves nothing for the home indicator, so on a notched iPhone it
+       renders inside the system gesture strip, where taps are swallowed. Each
+       one becomes `max(its own gap, env(safe-area-inset-bottom))` rather than
+       `calc(gap + inset)`: the control needs air under it and a notched device
+       needs the indicator clear, and those are the same gap, not two gaps. This
+       is the rule app.css already states on #modal-footer; it is applied here
+       for the same reason. env() resolves to 0 where there is no notch, so a
+       flat-bottomed Android keeps precisely the spacing it has today.
+
+       WHAT DOES NOT CHANGE: no control is hidden, moved off the primary axis,
+       shrunk, or restyled. #modal-addteam-btn and .pdx-med-act-team keep their
+       full width, their gold treatment and their 44px+ height, so adding someone
+       to the Voting Team is exactly as prominent as it was — it is simply on
+       screen now. Add and remove are untouched: this block contains no
+       display, visibility, pointer-events or z-index declaration.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <style id="pdx-mobile-bottom-chrome">
+    /* ── 1 · FULL PROFILE MODAL — the deck lands on the true bottom ───────
+       The panel is already 100dvh (app.css, "Modal: full-screen on mobile").
+       This sizes the box it is centred in to match, so "centred" and "flush"
+       become the same position. The gutter goes to zero across the whole phone
+       band because the panel is ALREADY declared full-bleed there — app.css
+       sets max-width:100%, border-radius:0 and margin:0 on it at this exact
+       breakpoint — so between 640 and 768px Tailwind's `sm:p-4` was drawing a
+       1rem black frame around a square-cornered, border-less panel and pushing
+       2rem of it past the bottom of the screen. Specificity does the work: an
+       id outranks the utility class, so no !important is needed. */
+    @media (max-width: 768px) {
+      #modal-overlay {
+        height: 100vh;
+        height: 100dvh;
+        align-items: stretch;
+        padding: 0;
+      }
+    }
+
+    /* ── 2 · MEDIUM MODAL — the bottom sheet's footer clears the toolbar ──
+       The quick-view is the most-opened politician surface on the site and its
+       ⭐ Add to My Team button is the last element in it, so it is the control
+       that pays for the large-viewport box. Sizing the overlay in dvh fixes
+       both alignments at once: the centred card at 481px+ stops overflowing,
+       and the flex-end sheet at 480px and below pins to a bottom the reader can
+       see. The panel's own max-heights move to dvh for the same reason — 88vh
+       and 92vh are 88% and 92% of a screen that is taller than the screen.
+       .pdx-med-foot already reserves the home indicator (see the bottom-sheet
+       note in pdx-medium-and-compact-team); nothing here touches it. */
+    @media (max-width: 640px) {
+      .pdx-med-overlay {
+        height: 100vh;
+        height: 100dvh;
+      }
+      .pdx-med-panel {
+        max-height: 88vh;
+        max-height: 88dvh;
+      }
+    }
+    @media (max-width: 480px) {
+      .pdx-med-panel {
+        max-height: 92vh;
+        max-height: 92dvh;
+      }
+    }
+
+    /* ── 3 · ALL STANCES / FULL RECORD — the last row is reachable ────────
+       This overlay is its own scroller, so the bottom of the list is the bottom
+       of the scroll container, and the container ran to a bottom edge sitting
+       behind the toolbar and the home indicator. Two changes, both additive:
+       the scroller becomes the visible screen, and its end padding reserves the
+       indicator on top of the 1.5rem it already had. It is a flex container, so
+       the end padding is honoured at the end of the scroll range rather than
+       collapsed — which is what makes the final issue row scrollable clear of
+       the chrome instead of merely existing underneath it. */
+    @media (max-width: 640px) {
+      .pdx-record-overlay {
+        height: 100vh;
+        height: 100dvh;
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+        overscroll-behavior: contain;
+      }
+    }
+
+    /* ── 4 · FLOATING PAGE CHROME — above the gesture strip, not in it ────
+       Five fixed, bottom-anchored controls follow the reader down the page.
+       None of them reserved the home indicator, so on a notched iPhone they
+       render inside the strip iOS reserves for the system swipe — the reader
+       sees the control, taps it, and the gesture takes the tap instead. Each
+       gap becomes max(gap, inset) so the air under the control and the
+       indicator clearance are the same gap rather than two stacked ones. All
+       five keep their existing z-index, size, colour and hide-on-modal rule. */
+    @media (max-width: 640px) {
+      .align-fab { bottom: max(0.85rem, env(safe-area-inset-bottom, 0px)); }
+      #compare-float-btn { bottom: max(1rem, env(safe-area-inset-bottom, 0px)); }
+      .pdx-roster-status { bottom: max(18px, env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (max-width: 639px) {
+      .team-dock { bottom: max(0.7rem, env(safe-area-inset-bottom, 0px)); }
+      .pdx-fr { bottom: max(0.7rem, env(safe-area-inset-bottom, 0px)); }
+    }
+  </style>
+
   <script>
   (function () {
     'use strict';
