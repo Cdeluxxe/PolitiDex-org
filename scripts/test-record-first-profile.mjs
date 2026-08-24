@@ -207,7 +207,7 @@ section("1 · a fixed vocabulary, published, and merged from the engine's own ti
   eq(SAYS.mostly_opposes.label, "Mostly opposes", "the qualified opposing reading is mislabelled");
   eq(SAYS.opposes.label, "Opposes", "the strongest opposing reading is mislabelled");
 
-  // The two honest non-readings. They are in the vocabulary rather than outside it
+  // The four honest non-readings. They are in the vocabulary rather than outside it
   // because a surface that has to invent its own word for "we cannot say" is a
   // surface that will eventually invent a sixth grade.
   ok(SAYS.early && SAYS.early.characterising === false,
@@ -215,10 +215,25 @@ section("1 · a fixed vocabulary, published, and merged from the engine's own ti
   ok(SAYS.unread && SAYS.unread.characterising === false,
     "the no-pattern state is missing, or is published as if it characterised the record");
 
-  // Exactly seven. A vocabulary that can grow a member without a test failing is
+  // AND THE TWO THAT NAME A SIDE WITHOUT CHARACTERISING. A thin record that went
+  // one way went one way, and the count beside it was already saying so; what
+  // these two may never do is graduate. They are held to the same flag as the two
+  // refusals above precisely because they are the ones that could be mistaken for
+  // the five.
+  for (const k of ["early_supports", "early_opposes"]) {
+    ok(SAYS[k] && SAYS[k].key === k, `the thin directional reading "${k}" is missing`);
+    ok(SAYS[k] && SAYS[k].characterising === false,
+      `"${k}" is published as characterising — a thin side is not a characterisation`);
+    ok(SAYS[k] && !/Strongly|Mostly|pattern|trend/i.test(SAYS[k].label),
+      `"${k}" borrows a deep tier's voice — its label is "${SAYS[k] && SAYS[k].label}"`);
+  }
+  eq(SAYS.early_supports.tone, "support", "the thin supporting reading lost its direction");
+  eq(SAYS.early_opposes.tone, "oppose", "the thin opposing reading lost its direction");
+
+  // Exactly nine. A vocabulary that can grow a member without a test failing is
   // not a fixed vocabulary.
-  eq(Object.keys(SAYS).length, 7,
-    "the published vocabulary is no longer exactly five readings plus two non-readings");
+  eq(Object.keys(SAYS).length, 9,
+    "the published vocabulary is no longer exactly five readings plus four non-readings");
 
   // THE MERGE, ASSERTED AS A TABLE. Each of the engine's (tier, direction) pairs
   // resolves to exactly one published reading, and the resolver is the only thing
@@ -229,7 +244,12 @@ section("1 · a fixed vocabulary, published, and merged from the engine's own ti
     ["split", "", "mixed"],
     ["mostly", "opposes", "mostly_opposes"],
     ["strong", "opposes", "opposes"],
-    ["thin", "supports", "early"],
+    ["thin", "supports", "early_supports"],
+    ["thin", "opposes", "early_opposes"],
+    // A thin tier that arrives with no direction word at all is the one case that
+    // still resolves to the wordless refusal — the resolver hands back a side only
+    // when it was given one.
+    ["thin", "", "early"],
     ["none", "", "unread"],
   ];
   for (const [tier, dir, want] of M) {

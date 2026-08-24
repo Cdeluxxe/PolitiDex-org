@@ -171,11 +171,12 @@ must(SILENT.length >= 3,
   `the fixture needs 3+ issues neither candidate has stated, has ${SILENT.length}`);
 const [K, K2, DARK] = SILENT;
 
-const vote = (n, key, position) => ({
+const vote = (n, key, position, o) => ({
   kind: "vote", rollcallId: 8000 + n, measureId: 8500 + n, number: "S. " + (200 + n),
   date: "2025-0" + ((n % 9) + 1) + "-14", action: "On Passage", position,
   isProcedural: false, title: "Measure " + n,
-  issues: [{ issueKey: key, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+  issues: [{ issueKey: key, weight: 100,
+             isPrimary: !(o && o.incidental), supportMeaning: "yea_supports" }],
   source: { url: "https://www.congress.gov/roll-call-vote/" + (8000 + n), label: "Congress.gov" },
 });
 const runOf = (n, key, position, from) => {
@@ -288,10 +289,16 @@ section("3 · the order is the record's direction, and nobody with a file is a v
 section("4 · votes on file that the engine will not characterise are not 'no record'");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // B holds ONE vote on the reader's issue. That is a real formal file and it is
-  // below the pattern engine's characterisation floor, so B cannot be scored —
-  // correctly. What B must not be told is that there is nothing there.
-  const thin = stage({ b: [vote(90, K, "yea")], keys: [K] });
+  // B's only item on the reader's issue is an omnibus that brushed it — the issue
+  // was never what the measure was about. That is a real formal file and it is
+  // behind a MEANING wall, not a depth one, so no direction may be read off it at
+  // any depth and B cannot be scored — correctly. What B must not be told is that
+  // there is nothing there.
+  //   (A single item that IS about the issue is a different fixture and a
+  //   different contract: it reads a side and it scores. That contract lives in
+  //   scripts/test-single-item-side.mjs, which also pins this wall from the other
+  //   direction — that lowering the depth floor to one item left it standing.)
+  const thin = stage({ b: [vote(90, K, "yea", { incidental: true })], keys: [K] });
   const html = sheetHtml(thin);
   const idx = thin.PDXConsistency.formalPatternIndex.rows(B_PID).filter((x) => x.key === K)[0];
   must(idx && (idx.held || 0) > 0,

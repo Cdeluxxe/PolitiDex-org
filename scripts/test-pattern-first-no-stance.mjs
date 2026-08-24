@@ -308,19 +308,27 @@ section("2 · every record tile is marked as the record, on its own face");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · the board never reads a direction the engine refused to read");
+section("3 · a thin side is shown as a side, and never styled as a characterisation");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // K_THIN is a single vote. The pattern engine's plain-language layer files a
-  // one-vote lean as "Too early to say" and declines to characterise it, and
-  // this surface does not get a second opinion about that.
+  // K_THIN is a single mapped vote that went one way. Two things have to be true
+  // of that tile at once, and they pull in opposite directions: the reader is owed
+  // the SIDE, because one recorded vote for or against is the whole of what the
+  // file says and printing only "1 vote on file" withholds the answer — and the
+  // tile must not LOOK like the eight-vote tile two rows up, because one vote is
+  // not a career. So the word names the side and the styling stays the lane mark:
+  // no direction class, no ✓/✗, the depth still beside it.
   const thin = FMAP_A[K_THIN];
   must(!!thin, `the single-vote issue ${K_THIN} is not in the formal index at all`);
   eq(thin.cls, "is-onfile", "a record the engine would not characterise gets no direction class");
   eq(thin.lane, false, "…and the 🏛 mark IS its glyph, so it is not stamped twice");
   eq(thin.ico, "🏛", "…which is what the tile shows");
-  has(thin.counts, "on file", "…beside the depth it was refused from");
-  lacks(thin.dir, "Supports", "…and the word is the engine's refusal, not a lean");
+  has(thin.counts, "on file", "…beside the depth it is read at");
+  has(thin.dir, "Supports", "…and the word names the side the single vote took");
+  ok(!/Strongly|Mostly/.test(thin.dir),
+    `…without a deep tier's voice — the tile says "${thin.dir}"`);
+  ok(/thin/i.test(thin.dir),
+    `…and says how little of it there is in the same breath — the tile says "${thin.dir}"`);
 
   // And the characterising case is the engine's word, verbatim — not one this
   // surface chose from the tone.
@@ -330,7 +338,7 @@ section("3 · the board never reads a direction the engine refused to read");
   must(!!SAYS, "the engine's plain-language vocabulary is not exported");
   const words = Object.keys(SAYS).map((k) => SAYS[k].label);
   ok(words.indexOf(strong.dir) >= 0,
-    `the tile's direction word "${strong.dir}" is one of the engine's own seven`);
+    `the tile's direction word "${strong.dir}" is one of the engine's own nine`);
   for (const k of Object.keys(FMAP_A)) {
     ok(words.indexOf(FMAP_A[k].dir) >= 0,
       `${k}: "${FMAP_A[k].dir}" comes from the engine's vocabulary`);

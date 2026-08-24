@@ -505,14 +505,21 @@
   // computes a tier, a direction or a number, and nothing it returns is reachable
   // from rank(), scoreOf() or any tally — it is the words in one grey line.
   //
-  // AND IT NEVER CARRIES A SIDE. This branch is only reached when the match brain
-  // found no scoreable pattern, which is exactly the set of rows whose label is
-  // "No clear pattern yet" or an unread reason; a tier confident enough to name a
-  // direction has already been scored and rendered as a chip, not as silence.
+  // AND IT NEVER SWALLOWS A SIDE. This branch is normally reached only where the
+  // match brain found no scoreable pattern — rows labelled "No clear pattern yet"
+  // or with an unread reason — but "normally" is not a guarantee this function is
+  // entitled to make about its own caller. A row the index gave a direction to,
+  // including the one-item read, states that direction here rather than being
+  // filed under silence: the whole failure this line exists to end is a live file
+  // reported as an empty one, and a KNOWN SIDE reported as no side is the same
+  // failure one step further in.
   function recSilence(fRow) {
     var none = 'No readable vote pattern';
     var held = fRow ? (fRow.held || 0) : 0;
     if (held <= 0) return none;
+    if (fRow.directional && fRow.patLabel) {
+      return '\u{1F3DB} ' + fRow.patLabel + (fRow.counts ? ' \u00b7 ' + fRow.counts : '');
+    }
     var noun = fRow.noun || {};
     var word = (held === 1) ? (noun.one || 'item on file') : (noun.many || 'items on file');
     var why = String(fRow.patLabel || '');
@@ -527,6 +534,17 @@
   // nothing beneath it reads as a cell whose second line was dropped, and the
   // pattern sits one shade closer to a claim than it is.
   var NO_SAID = 'No stance on file \u00b7 not in Direction Match';
+  // THE SAME TWO FACTS, PLUS THE SIZE OF THE THING ABOVE THEM. A chip reading
+  // "Thin supports · 1 vote advanced" is a direction the reader is entitled to,
+  // and it is one recorded act. Left to the ordinary disclosure the cell would
+  // state what we do not hold and say nothing about the depth of what we do, and
+  // a directional chip with no depth beside it is read as a career. So the
+  // single-item cell names itself as one item and refuses the word "pattern" in
+  // the same line that refuses the stance.
+  var NO_SAID_ONE = 'Single formal item \u00b7 not a pattern \u00b7 no stance on file \u00b7 not in Direction Match';
+  function noSaidLine(fRow) {
+    return (fRow && fRow.directional && (fRow.judged || 0) === 1) ? NO_SAID_ONE : NO_SAID;
+  }
 
   // ── One candidate × one issue ──────────────────────────────────────────────
   // Both lanes are reported in every cell, whichever mode is live: the stated
@@ -582,7 +600,7 @@
       // was never sourced — was the one case that disclosed nothing. It gets the
       // same second line as the rest, and it is the disclosure, not the chip,
       // that changes: the chip above is untouched and still says 🏛 Record.
-      otherHtml = '<span class="rs-cell-none">' + esc(NO_SAID) + '</span>';
+      otherHtml = '<span class="rs-cell-none">' + esc(noSaidLine(fRow)) + '</span>';
     }
     return '<div class="rs-cell" data-rs-v="' + esc(v || 'none') + '"' +
         (alt ? ' data-rs-alt="' + esc(alt) + '"' : '') + '>' +
