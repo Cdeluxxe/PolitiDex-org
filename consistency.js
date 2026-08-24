@@ -12761,4 +12761,11 @@
   };
 
   try { if (document.readyState !== 'loading') ensureStyles(); else document.addEventListener('DOMContentLoaded', ensureStyles); } catch (e) {}
+  // The dossier door is a document-level listener, and until now it was only ever
+  // installed as a side effect of rendering some profile section. Surfaces outside
+  // this module mark their own doors with [data-pdxc-gap] — a race-sheet snapshot
+  // cell, a peek chip — and on a session that never opened a profile first, those
+  // doors were dead. Binding here costs one idempotent call and makes the gateway a
+  // property of the module being loaded rather than of what happened to be drawn.
+  try { bindGateway(); } catch (e) {}
 })();

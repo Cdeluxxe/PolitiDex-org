@@ -898,8 +898,13 @@
     // documented issue position, and NONE has a settled pledge record, the
     // traditional record rows are empty — so we lead with where they actually
     // stand. (`_psVals` is the has-a-ledger flag here, not a score.)
+    // A missing pledge ledger is not a missing record: a sitting member with a
+    // hundred roll calls on file has no settled ledger either, and calling that
+    // person a new candidate with no record to test is simply false. So the thin
+    // lead also requires that nobody in the lineup has a formal file — when one
+    // does, `recLead` below explains the 🏛 record cells instead.
     const _anyScore = pids.some((pid, i) => _psVals[i] !== null && _psVals[i] !== undefined);
-    const thinLineup = pids.length >= 2 && issueCmp.anyDocumented && !_anyScore;
+    const thinLineup = pids.length >= 2 && issueCmp.anyDocumented && !_anyScore && !issueCmp.anyRecord;
 
     if (issueCmp.anyDocumented || issueCmp.anyRecord) {
       // ── Where They Stand — issue-by-issue, from documented ISSUE_STANCE_DATA.
