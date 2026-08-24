@@ -5472,6 +5472,41 @@
   }
   function _stPatternHtml(r, t) {
     t = t || _stPatternTier(r);
+    // ── THE REFUSAL DOOR, ON THE ROW CHIP TOO ─────────────────────────────────
+    // The formal-record index already stopped printing "No clear pattern yet" over
+    // a ledger with a visible side: _fpiRows offers a declined row the thin door
+    // first (_stThinDirRead) and, where that also declines, prints WHICH of the
+    // refusals it is (_fpiUnreadWhy). This chip — the one on every stance row on
+    // the profile face and in the All Stances overlay — was the surface that never
+    // got that pass, so the same row could read "Thin supports" in the index above
+    // and "No clear pattern yet" in the list below it. Same engine, same member,
+    // same issue, two answers.
+    //
+    // So it is the same two steps, in the same order, calling the same two
+    // functions rather than a second copy of their rules:
+    //   1. A row the characterisation engine declined is offered the thin door.
+    //      Every wall that door holds is unchanged and is documented over
+    //      _stThinDirRead: a poleless issue stays silent, an incidental mapping
+    //      stays a coincidence, a record that ran both ways is never given a lead,
+    //      and nothing may re-enter above the quiet tier.
+    //   2. What is left is genuinely unread, and it says which unread it is.
+    //      _fpiUnreadWhy owns that vocabulary — no side to read on this issue, no
+    //      vote here took a side, not about this issue, too little of their file
+    //      held, ran both ways too few to weigh — and none of its sentences
+    //      borrows a direction word.
+    //
+    // A ROW WITH NOTHING FORMAL ON FILE STILL PRINTS NOTHING. `_stPatternTier`
+    // returns null there and this returns '' on null exactly as it always has:
+    // silence over an empty file is the honest state, and a grey chip explaining
+    // an absence would be a claim about a record that is not there.
+    if (t && t.tier === 'none') {
+      t = _stThinDirRead(r) || null;
+      if (!t) {
+        var why = null;
+        try { why = _fpiUnreadWhy(r); } catch (e) { why = null; }
+        return why ? _fpiUnreadHtml({ why: why }) : '';
+      }
+    }
     if (!t) return '';
     var tone = _ST_PAT_TONE[t.tone] || _ST_PAT_TONE.muted;
     var bg = (t.weight === 'full') ? tone.full
@@ -5532,7 +5567,8 @@
   // `items` is the row's FORMAL inventory only, and the scored branch is refused to
   // a public-record verdict however well evidenced it is, because a public-record
   // percentage under a 🏛 Record label would be two lanes reading as one.
-  var _ST_REC_ONFILE = 'Formal items on file · direction not clear yet';
+  var _ST_REC_ONFILE_LEAD = 'Formal items on file';
+  var _ST_REC_ONFILE = _ST_REC_ONFILE_LEAD + ' · direction not clear yet';
   var _ST_REC_NONE = 'No formal record on this issue yet';
   var _ST_REC_PENDING = 'Checking the formal record…';
   // The scored slot's own sentence. It may NOT borrow the pattern engine's note,
@@ -5742,8 +5778,25 @@
     if (t) { out.state = 'direction'; out.label = t.label; return out; }
     // ── onfile ──────────────────────────────────────────────────────────────
     out.state = 'onfile';
-    out.label = _ST_REC_ONFILE;
     out.why = _stRecordWhy(r, idx, items);
+    // ── THE REASON GOES IN THE SLOT, NOT ONLY IN THE TOOLTIP ──────────────────
+    // "Formal items on file · direction not clear yet" is true of every row that
+    // reaches here and distinguishes none of them. The reason was already computed
+    // one line above and was already read out in the accessible name; a reader
+    // looking at the chip could see THAT there was no direction and had to hover to
+    // learn WHY, which is the wrong half to hide — "we hold too little of their
+    // file" is a statement about our coverage and "they ran both ways" is a
+    // statement about their record, and a reader who cannot tell those apart has
+    // been told nothing. So the short reason label joins the state in the chip and
+    // the full sentence stays where it was.
+    //   THE GENERIC SURVIVES AS A FALLBACK, for the lanes whose own `why` has no
+    // reason more specific than the state name (the executive lane says "formal
+    // items on file" and means exactly that), and for anything new that arrives
+    // here without one.
+    var _why = (out.why && out.why.lb) ? String(out.why.lb) : '';
+    out.label = (_why && _why !== _ST_REC_ONFILE_LEAD)
+      ? (_ST_REC_ONFILE_LEAD + ' · ' + _why.charAt(0).toLowerCase() + _why.slice(1))
+      : _ST_REC_ONFILE;
     out.note = (out.why && out.why.note) || out.note;
     return out;
   }
@@ -8355,6 +8408,20 @@
           note: 'We hold too few mapped ' + n.many + ' for this member overall to read any of them ' +
             'as a pattern. That is a shortfall in OUR coverage, not a finding about their record — ' +
             'the ' + n.many + ' we do hold are in the dossier.' };
+      }
+      // ONLY PROCEDURAL. The index publishes a procedural tally beside the judged
+      // one, and where the two are equal every act this row holds was a motion to
+      // proceed, a cloture vote or a recommit — machinery of the floor rather than
+      // a vote on the thing. That is a materially different sentence from "we hold
+      // too few of their file", and it is the one that is true here. It names no
+      // direction: the acts are real and one-sided arithmetic on them is still not
+      // a position on the subject.
+      if ((idx.judged || 0) > 0 && (idx.procedural || 0) >= (idx.judged || 0)) {
+        return { id: 'procedural_only', lb: 'Procedural ' + n.many + ' only',
+          note: 'Every ' + n.one + ' on file here was procedural — a motion to proceed, a ' +
+            'cloture vote or similar — rather than a ' + n.one + ' on the substance of this ' +
+            'issue. No direction is read from floor machinery, and the ' + n.many + ' are in ' +
+            'the dossier.' };
       }
       if ((idx.advances || 0) > 0 && (idx.opposes || 0) > 0) {
         return { id: 'mixed_thin', lb: 'Ran both ways, too few to weigh',

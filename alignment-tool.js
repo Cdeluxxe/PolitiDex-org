@@ -1496,6 +1496,42 @@
     var _ALIGN_PAT_CONF = { strong: 1, mostly: 0.85, split: 0.45, thin: 0.5 };
     window._PDX_ALIGN_PAT_CONF = _ALIGN_PAT_CONF;
 
+    // ── AND THE GUARD, BECAUSE A TABLE OF FOUR NUMBERS IS EASY TO EDIT ────────
+    // The literal above is correct today. It was ALSO correct the day it was
+    // written the first time, and it drifted anyway — split crept to 0.6 in an
+    // unrelated pass and nothing on the running site noticed, because a weight
+    // multiplier has no smell: every row still rendered, every percentage still
+    // resolved, and the only symptom was that the least readable issues quietly
+    // held the most of the number. A test caught it months later.
+    //
+    // So the ordering is enforced at RUNTIME rather than only asserted in the
+    // harness, and it is enforced on the READ (below) rather than once at load —
+    // a table repaired at load can be re-inverted at any point afterwards by
+    // anything holding the published reference. Four comparisons per issue row is
+    // not a cost worth optimising away.
+    //
+    // IT CLAMPS DOWNWARD, NEVER UPWARD. An out-of-order value is pulled down to
+    // its neighbour's ceiling: an inverted split becomes exactly thin, never more.
+    // Repairing upward would let a typo in a low slot RAISE the confidence of the
+    // tier above it, which is the same class of silent drift with the sign
+    // flipped. Down is the fail-closed direction — the worst a repair can do is
+    // price two adjacent tiers the same.
+    //
+    // NOTE WHAT IT DOES NOT DO. It sets no direction, reads no record, and knows
+    // nothing about any member. It is arithmetic about four constants.
+    function _alignPatConfLock(t) {
+      if (!t || typeof t !== 'object') return t;
+      if (typeof t.strong !== 'number' || !isFinite(t.strong)) t.strong = 1;
+      if (typeof t.mostly !== 'number' || !isFinite(t.mostly) || t.mostly > t.strong) t.mostly = t.strong;
+      if (typeof t.thin !== 'number' || !isFinite(t.thin) || t.thin > t.mostly) t.thin = t.mostly;
+      // CLARITY BEFORE DEPTH, IN ONE LINE: a record we could not read a direction
+      // from may never be priced above one we could.
+      if (typeof t.split !== 'number' || !isFinite(t.split) || t.split > t.thin) t.split = t.thin;
+      return t;
+    }
+    _alignPatConfLock(_ALIGN_PAT_CONF);
+    window._pdxAlignPatConfLock = _alignPatConfLock;
+
     function _alignRecordWarm(pid) {
       try {
         return !!(window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function'
@@ -1521,7 +1557,7 @@
             if (!x || !x.key) return;
             out.rows++;
             var side = _ALIGN_TONE_SIDE[x.tone];
-            var conf = _ALIGN_PAT_CONF[x.tier];
+            var conf = _alignPatConfLock(_ALIGN_PAT_CONF)[x.tier];
             // FAIL CLOSED: unread lane, no readable pole, or a tier this does
             // not know is not a side. It is an issue we say nothing about.
             if (!x.read || !side || !conf) return;
