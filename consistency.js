@@ -2385,9 +2385,13 @@
       '.pdxfpi-shown{font-size:0.68rem;color:#6f88ab;margin:0.45rem 0 0.2rem;}' +
       '.pdxfpi-shown b{color:#cfe0f8;}' +
       '.pdxfpi-list{display:flex;flex-direction:column;}' +
-      '.pdxfpi-row{display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem 0.45rem;'
-        + 'padding:0.42rem 0.1rem;border-top:1px solid rgba(147,180,230,0.12);}' +
+      // THE WHOLE ROW IS THE DOOR (see _fpiRowHtml). It gets the pointer and the
+      // 44px thumb target, not just the name inside it — a reader who taps the
+      // pattern chip is tapping the thing they were reading.
+      '.pdxfpi-row{display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem 0.45rem;cursor:pointer;'
+        + 'min-height:2.75rem;padding:0.42rem 0.1rem;border-top:1px solid rgba(147,180,230,0.12);}' +
       '.pdxfpi-row:first-child{border-top:none;}' +
+      '.pdxfpi-row:hover{background:rgba(147,180,230,0.05);}' +
       // The issue name is the door, so it is a real target — full-height, its own
       // hover, and the chevron only appears when the row is pointed at.
       '.pdxfpi-lbl{flex:1 1 11rem;min-width:0;display:flex;align-items:center;gap:0.3rem;text-align:left;'
@@ -2396,7 +2400,14 @@
         + 'letter-spacing:0.01em;color:#e8f0ff;}' +
       '.pdxfpi-lbl:hover,.pdxfpi-lbl:focus-visible{color:#9fdbd0;}' +
       '.pdxfpi-go{color:#6f88ab;font-size:0.9rem;opacity:0;transition:opacity 0.12s ease;}' +
-      '.pdxfpi-lbl:hover .pdxfpi-go,.pdxfpi-lbl:focus-visible .pdxfpi-go{opacity:1;}' +
+      '.pdxfpi-row:hover .pdxfpi-go,.pdxfpi-lbl:hover .pdxfpi-go,'
+        + '.pdxfpi-lbl:focus-visible .pdxfpi-go{opacity:1;}' +
+      // A chevron that only exists on hover does not exist on a touch screen, and
+      // this list was hiding it everywhere except phones under 480px — tablets,
+      // touch laptops and phones held sideways got a row with no sign it opened
+      // anything. Ask the pointer, not the width.
+      '@media (hover:none),(pointer:coarse){.pdxfpi-go{opacity:1;margin-left:auto;}' +
+        '.pdxfpi-lbl{min-height:2.4rem;}}' +
       '.pdxfpi-chips{display:flex;align-items:center;flex-wrap:wrap;gap:0.26rem;}' +
       '.pdxfpi-meta{font-size:0.63rem;color:#6f88ab;white-space:nowrap;}' +
       '.pdxfpi-none{font-size:0.74rem;color:#8fa6c6;padding:0.5rem 0;}' +
@@ -8208,6 +8219,16 @@
   // The row carries its OWN id (never stanceRowId) because the stance section may
   // be on the page at the same time and two elements cannot share one id; the back
   // pill then returns the reader to the row they tapped inside this index.
+  //   THE WHOLE ROW IS THE DOOR, not just the name. The chips and the "N votes on
+  // file" meta used to be inert siblings of the label button, which on a phone is
+  // most of the row's height — the reader taps the pattern chip they are reading
+  // and nothing happens. The row div carries the SAME three data-pdxst-* values,
+  // so the delegated handler's closest() finds a door wherever inside the row the
+  // tap landed. Deliberately no role/tabindex on the div: the <button> inside is
+  // still the one focus stop and the one accessible name, so this adds a pointer
+  // target without adding a second thing to tab through or a control nested in a
+  // control. Both carry the same key, so which one closest() reaches cannot
+  // change what opens.
   function _fpiRowHtml(x, mount) {
     var skin = _icSkin(x.key);
     // The pattern, then their word — the same reading order the row faces use, for
@@ -8222,6 +8243,8 @@
         ' id="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
         ' data-pdxfpi-issue="' + escAttr(x.key) + '"' +
         ' data-pdxfpi-tier="' + escAttr(x.tier) + '"' +
+        ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
+        ' data-pdxst-origin="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
         ' data-pdxfpi-said="' + (x.said ? '1' : '0') + '">' +
         '<button type="button" class="pdxfpi-lbl pdxst-open"' +
           ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +

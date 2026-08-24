@@ -2559,8 +2559,14 @@
       if (r.media) chips.push('<span class="fsrec-chip is-video">▶ ' + r.media + ' clip' + (r.media === 1 ? '' : 's') + '</span>');
       var rec = hasRecord(r);
       var noRec = !rec && !depthPill;
-      var jsIk = String(r.issueKey == null ? '' : r.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      var clickable = (rec || r.receipts) && r.issueKey;
+      // EVERY ISSUE-KEYED ROW IS A DOOR. This used to read `(rec || r.receipts)`,
+      // where every term counts CURATED material — so an issue the official has a
+      // formal voting record on, but that nobody has written up yet, rendered as an
+      // inert <div>. Those are exactly the record-only, thin and split rows, and
+      // exactly the ones whose dossier has the most to show. The dossier exists for
+      // any issueKey; the row's job is to reach it.
+      var clickable = !!r.issueKey;
+      var rowId = 'pdxfsrec-' + String(id) + '-' + String(r.issueKey || '');
       var tag = noRec ? '<span class="fsrec-norec">○ No record yet</span>' : '';
       // A row that carries evidence but no summarised position is itself a gap —
       // label it honestly so the adjacent suggest cue reads in context.
@@ -2577,18 +2583,33 @@
             'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();this.click();}" ' +
             'title="Suggest a receipt or track this issue for ' + esc(first) + ' on ' + esc(lbl) + ' in the Community Exchange">＋ Suggest a receipt</span>'
         : '';
+      // The NAME is the accessible door — a real <button>, one focus stop, one
+      // accessible name — and the row around it is the pointer target. That split
+      // is not cosmetic: the row used to BE the <button>, and the evidence depth
+      // pill inside it is itself a <button>. HTML forbids that nesting, so the
+      // parser closed the row button at the pill and threw everything after it —
+      // the chips, the "No record yet" tag, the suggest cue and the ↗ chevron —
+      // out of the row as loose siblings. The rows that broke were precisely the
+      // ones with receipts, which is why the failure looked intermittent and why
+      // it was worst on the deepest profiles. Nothing interactive nests here now.
+      var door = clickable
+        ? ' data-pdxst-dos="' + esc(r.issueKey) + '" data-pdxst-pid="' + esc(id) + '"' +
+          ' data-pdxst-origin="' + esc(rowId) + '"'
+        : '';
+      var nameHtml = clickable
+        ? '<button type="button" class="fsrec-row-label fsrec-row-door"' + door +
+            ' aria-label="Open the issue dossier: ' + esc(lbl) + ' — ' + esc(first) + '">' + esc(lbl) + '</button>'
+        : '<span class="fsrec-row-label">' + esc(lbl) + '</span>';
       var inner = '<span class="fsrec-row-ico" aria-hidden="true">' + ico + '</span>' +
         '<span class="fsrec-row-main">' +
-          '<span class="fsrec-row-top"><span class="fsrec-row-label">' + esc(lbl) + '</span>' +
+          '<span class="fsrec-row-top">' + nameHtml +
             (r.stance ? '<span class="fsrec-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</span>' : '') + '</span>' +
           (r.text ? '<span class="fsrec-row-text">' + esc(r.text) + '</span>' : '') +
           '<span class="fsrec-row-meta">' + (depthPill || '') + chips.join('') + tag + unsum + suggest + '</span>' +
         '</span>' +
         (clickable ? '<span class="fsrec-row-go" aria-hidden="true">↗</span>' : '');
       if (clickable) {
-        return '<button type="button" class="fsrec-row is-click" ' +
-          'onclick="window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\',issue:\'' + jsIk + '\'});" ' +
-          'aria-label="Open the Evidence Locker filtered to ' + esc(first) + ' on ' + esc(lbl) + '">' + inner + '</button>';
+        return '<div class="fsrec-row is-click" id="' + esc(rowId) + '"' + door + '>' + inner + '</div>';
       }
       return '<div class="fsrec-row">' + inner + '</div>';
     }
