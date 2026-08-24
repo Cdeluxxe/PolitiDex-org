@@ -28894,6 +28894,367 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   </style>
 
+  <!-- ══════════════════════════════════════════════════════════════════════
+       TOP NAV LAYOUT — the bar is a row again, not a pile
+       ══════════════════════════════════════════════════════════════════════
+       Two reports, one mechanism. "✊ Mandate covers 🔦 Local Issues" and
+       "Community hides behind the notification bell" are not two collisions
+       that happen to look alike; they are the two seams of the same overflow,
+       and they are visible at EVERY desktop width — including a 2560px monitor
+       — because the bar is capped at `max-w-7xl` (1280px) no matter how much
+       window is behind it.
+
+       WHY IT PILES INSTEAD OF OVERFLOWING. The top row is
+
+         div.max-w-7xl  ·  flex, justify-between, gap-3
+           ├─ div.min-w-0   brand + six voter tools   (hidden lg:flex)
+           └─ div.min-w-0   ├─ div.min-w-0  four gateways (hidden lg:flex)
+                            ├─ button#wc-bell
+                            ├─ div#nav-auth-desktop
+                            └─ button (hamburger, lg:hidden)
+
+       Every LEAF in there refuses to shrink — the pills carry
+       `white-space: nowrap`, the account button carries it too, the bell and
+       the brand mark are `flex-shrink-0`. Every BOX around them carries
+       `min-w-0`, which replaces flexbox's automatic minimum size (min-content)
+       with zero and so lets the box be squeezed to any width at all. A box
+       narrower than its own contents does not clip them — `overflow` is
+       `visible` — it lets them spill, and the spill lands on whatever the next
+       box paints, with DOM order deciding who is on top:
+
+         · the left group spills right → its last item, 🔦 Local Issues, ends up
+           under the first item of the right group, ✊ Mandate;
+         · the gateway group spills right → its last item, Community, ends up
+           under the next sibling in the right group, the #wc-bell notification
+           button.
+
+       Exactly the two seams that were reported, in exactly the two places the
+       spill has to land. Nothing is "hidden" in the CSS sense — it is painted
+       over, which is why the controls underneath are still clickable in some
+       spots and not in others.
+
+       THE ARITHMETIC, because it decides what the fix can be. Laid out at their
+       natural size the row's contents come to roughly 1730px (≈935 on the left
+       with the brand, ≈790 on the right, plus the gap). `max-w-7xl` less its
+       `px-4` gutters offers 1248px. The bar is about 480px over its box on a
+       1280px laptop AND on a 5K display, because the cap does not move. No
+       amount of gap-trimming closes a 40% gap, so this does three things in
+       order and stops as soon as the row fits:
+
+         1. The box stops lying about its minimum. `min-width: auto` restores
+            the min-content floor, so no group can be squeezed under its own
+            contents and the spill — the overlap itself — cannot happen.
+         2. The bar gets the window it is running in. The cap goes from 80rem to
+            112rem, so a wide screen actually hands the row the width it needs
+            instead of centring it inside a 1280px column.
+         3. Where it still does not fit, the row WRAPS. `flex-wrap: wrap` turns
+            the shortfall into a second tier — brand + voter tools above,
+            gateways + bell + account below, right-aligned so the cluster still
+            reads as the right-hand end of the bar. Everything stays visible,
+            in its original order, at its original size and colour. Nothing is
+            moved into a dropdown and nothing is hidden behind a hamburger,
+            because the report is that controls are unreachable and answering it
+            by removing controls is not an answer.
+
+       A taller nav is already a case this app handles rather than a surprise:
+       --pdx-chrome is MEASURED off the bottom of .pdx-eye-row by the script
+       under the nav, with a ResizeObserver on the nav box, and a "wrapped nav
+       row" is named in that script's own comments as one of the terms its audit
+       exists to catch. #hero's clearance, html{scroll-padding-top} and the two
+       sticky jump rails all follow the measurement, so a second tier pushes the
+       page down by exactly its own height and nothing lands under the bar.
+
+       ── THE PHONE ─────────────────────────────────────────────────────────
+       The same squeeze is live on a phone, where the row is brand + bell +
+       account + hamburger. At their natural size those come to ≈344px against
+       343px of usable width on a 375px screen and 328px on a 360px one, so on
+       every phone at or below 375px the row is over its box: POLITIDEX runs
+       under the bell, and the hamburger — the only way into the menu that
+       carries every destination — is pushed off the right edge of the screen.
+
+       So the phone row is made to fit rather than allowed to spill, in tiers:
+       gutters and gaps first (they cost nothing visually), then the brand mark
+       and wordmark by a step on screens under 370px, then the account button's
+       own padding and tracking. And as a floor under all of it the wordmark —
+       not the controls — is what yields: the brand link may shrink and the
+       wordmark ellipsizes, so however the arithmetic drifts later, the bell,
+       the account button and the hamburger are always whole and always on
+       screen. The tile keeps the brand legible while that happens.
+
+       WHAT THIS DOES NOT TOUCH. No href, no onclick, no id, no aria, no
+       dropdown behaviour, no colour, no font, no border, no shadow, no
+       z-index. Nothing here declares --pdx-chrome, --pdx-hero-*, or any
+       padding on #hero: the clearance stays measured, which is the only reason
+       a wrapping bar is safe. ══════════════════════════════════════════════ -->
+  <style id="pdx-topnav-layout">
+    /* ── 1 · NO BOX IN THE BAR IS NARROWER THAN WHAT IT HOLDS ──────────────
+       This is the overlap, and it is the whole of the overlap. Tailwind's
+       `min-w-0` sets `min-width: 0`, which removes the automatic minimum size a
+       flex item gets from its own content; restoring `auto` puts the min-content
+       floor back, so a group runs out of room by pushing the line rather than by
+       painting on top of its neighbour. Stated for the right-hand cluster at
+       every width because that is where the bell and the account live; the left
+       group and the gateway group get it inside the desktop query below, where
+       their links exist at all. */
+    #pdx-topnav > div.max-w-7xl > div:last-child {
+      min-width: auto;
+      flex-shrink: 0;
+    }
+
+    /* ── 2 · DESKTOP: the window, then the wrap ────────────────────────────
+       The three steps in order. Nothing here changes a size, a colour or an
+       order — only how much room the row is allowed to occupy and what it does
+       when that is not enough. */
+    @media (min-width: 1024px) {
+      #pdx-topnav > div.max-w-7xl {
+        /* 80rem could not hold the row on any screen. 112rem can, from about a
+           1600px window up; below that the wrap below takes over. */
+        max-width: 112rem;
+        flex-wrap: wrap;
+        row-gap: 0.45rem;
+        column-gap: 0.75rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+      /* On its own line the control cluster still belongs to the right-hand end
+         of the bar. With both groups on one line this is what justify-between
+         was already doing, so the unwrapped bar is unchanged. */
+      #pdx-topnav > div.max-w-7xl > div:last-child { margin-left: auto; }
+
+      /* The other two squeezed boxes: the voter-tools group and the gateway
+         group. Both are `hidden lg:flex`, so this is the width at which they
+         exist. */
+      #pdx-topnav > div.max-w-7xl > div:first-child,
+      #pdx-topnav > div.max-w-7xl > div:first-child > div,
+      #pdx-topnav > div.max-w-7xl > div:last-child > div:first-child {
+        min-width: auto;
+      }
+
+      /* Tighter spacing buys the single row a few hundred more pixels of range
+         before it has to wrap. Gaps and gutters only — every control keeps its
+         own padding, weight and glow. */
+      #pdx-topnav > div.max-w-7xl > div:first-child { column-gap: 0.85rem; }
+      #pdx-topnav > div.max-w-7xl > div:first-child > div { column-gap: 0.55rem; }
+      #pdx-topnav > div.max-w-7xl > div:last-child { column-gap: 0.55rem; }
+      #pdx-topnav > div.max-w-7xl > div:last-child > div:first-child { column-gap: 0.45rem; }
+      /* tracking-widest is 0.1em on ~105 characters of nav label — about 105px
+         of pure letter-spacing across the bar. 0.07em is still visibly tracked
+         uppercase and is worth roughly a third of the shortfall. */
+      #pdx-topnav > div.max-w-7xl > div:first-child > div > a,
+      #pdx-topnav > div.max-w-7xl > div:last-child > div:first-child a {
+        letter-spacing: 0.07em;
+      }
+    }
+
+    /* ── 3 · PHONE: the row fits the screen ────────────────────────────────
+       Gutters and gaps first — invisible, and enough on their own for a 375px
+       screen. */
+    @media (max-width: 639px) {
+      #pdx-topnav > div.max-w-7xl {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        column-gap: 0.5rem;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child { column-gap: 0.5rem; }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a { column-gap: 0.5rem; }
+      #pdx-topnav > div.max-w-7xl > div:last-child { column-gap: 0.4rem; }
+    }
+
+    /* One step down on the screens that are genuinely short of width — 360px
+       Androids and the 320-375px iPhones — and not on the 390-430px phones that
+       already have room to spare. */
+    @media (max-width: 370px) {
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > div:first-child {
+        width: 1.6rem;
+        height: 1.6rem;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > span:last-child {
+        font-size: 1.05rem;
+      }
+      #nav-auth-desktop > button {
+        padding-left: 7px;
+        padding-right: 7px;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    /* The narrowest screens still in the wild — a 320px SE, a folded cover
+       display. The account button's "FREE" chip is decoration on a control that
+       already says JOIN THE PEOPLE; dropping it there is the last ~30px, and it
+       is what lets even a 320px bar carry the whole wordmark and every control
+       at full size. The button, its label, its icon and its handler are
+       untouched. */
+    @media (max-width: 340px) {
+      #nav-auth-desktop > button > span:last-child { display: none; }
+    }
+
+    /* ── 4 · AND THE FLOOR: the wordmark yields, never the controls ─────────
+       Under everything above, so that no future label, font swap or font-scale
+       setting can put the menu button off the edge of a phone again. The brand
+       link is the one thing in the bar allowed to shrink; the 🏠 tile inside it
+       is not, so the brand stays identifiable at any width, and the bell, the
+       account button and the hamburger are whole on every screen. */
+    @media (max-width: 1023px) {
+      #pdx-topnav > div.max-w-7xl > div:first-child > a {
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > div:first-child {
+        flex-shrink: 0;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > span:last-child {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  </style>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MOBILE BOTTOM CHROME — the team call-to-action stops fighting the viewport
+       ══════════════════════════════════════════════════════════════════════
+       Every "Add to My Team" control on a phone is pinned to the bottom edge of
+       something, and on a phone the bottom edge is the single most contested
+       strip of the screen: the browser's own toolbar lives there, the home
+       indicator lives there, and both of them move. This block is only about
+       that strip. It changes no markup, no script, no scoring and no desktop
+       rule — every declaration below is inside a phone-width media query.
+
+       THE ONE BUG, IN THREE PLACES. A `position: fixed; inset: 0` overlay is
+       laid out against the FIXED-POSITION viewport, which on iOS Safari is the
+       LARGE viewport — the height the page would have if the browser toolbar
+       were hidden. It is the same viewport `100vh` reports, and it is taller
+       than the screen the reader is actually looking at whenever the toolbar is
+       showing. app.css already fixed this for #modal-panel by sizing the panel
+       in `dvh`. It did not fix the BOX THE PANEL SITS IN, and that box is what
+       decides where the panel lands:
+
+         · #modal-overlay is `inset: 0` with `items-center`. A 100dvh panel
+           centred inside a 100lvh box hangs (lvh − dvh) / 2 below the visible
+           bottom — roughly half a toolbar's worth of the Add-to-My-Team deck,
+           off-screen, on every iPhone with the toolbar up.
+         · .pdx-med-overlay is the same box, and below 480px it switches to
+           `align-items: flex-end` to become a bottom sheet. Flex-end against a
+           large-viewport box puts the sheet's footer — which is the ⭐ Add to My
+           Team button, the primary action of the surface a voter meets most —
+           directly underneath the toolbar.
+         · .pdx-record-overlay (All Stances) IS the scroller. Its content ends
+           1.5rem above a bottom that the toolbar and the home indicator both
+           cover, so the last rows of a deep formal record — the Mike Lee case —
+           are the ones a reader cannot reach or tap.
+
+       THE FIX IS ONE IDEA APPLIED THREE TIMES: give the overlay itself an
+       explicit dynamic-viewport height. `height` on an `inset: 0` box wins over
+       `bottom` (an over-constrained absolutely-positioned box drops `bottom`),
+       so the overlay becomes exactly the screen the reader can see, and every
+       alignment inside it — centre, stretch, flex-end — resolves against the
+       real bottom. `100vh` is declared first as the fallback for engines without
+       `dvh`, which is exactly the pattern app.css already uses on #modal-panel.
+
+       THE SAFE AREA IS PAID ONCE, WITH max(). The floating page chrome
+       (the team dock, the alignment launcher, the compare pill, the first-run
+       companion, the roster status pill) sits a fixed gap above the bottom edge
+       and reserves nothing for the home indicator, so on a notched iPhone it
+       renders inside the system gesture strip, where taps are swallowed. Each
+       one becomes `max(its own gap, env(safe-area-inset-bottom))` rather than
+       `calc(gap + inset)`: the control needs air under it and a notched device
+       needs the indicator clear, and those are the same gap, not two gaps. This
+       is the rule app.css already states on #modal-footer; it is applied here
+       for the same reason. env() resolves to 0 where there is no notch, so a
+       flat-bottomed Android keeps precisely the spacing it has today.
+
+       WHAT DOES NOT CHANGE: no control is hidden, moved off the primary axis,
+       shrunk, or restyled. #modal-addteam-btn and .pdx-med-act-team keep their
+       full width, their gold treatment and their 44px+ height, so adding someone
+       to the Voting Team is exactly as prominent as it was — it is simply on
+       screen now. Add and remove are untouched: this block contains no
+       display, visibility, pointer-events or z-index declaration.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <style id="pdx-mobile-bottom-chrome">
+    /* ── 1 · FULL PROFILE MODAL — the deck lands on the true bottom ───────
+       The panel is already 100dvh (app.css, "Modal: full-screen on mobile").
+       This sizes the box it is centred in to match, so "centred" and "flush"
+       become the same position. The gutter goes to zero across the whole phone
+       band because the panel is ALREADY declared full-bleed there — app.css
+       sets max-width:100%, border-radius:0 and margin:0 on it at this exact
+       breakpoint — so between 640 and 768px Tailwind's `sm:p-4` was drawing a
+       1rem black frame around a square-cornered, border-less panel and pushing
+       2rem of it past the bottom of the screen. Specificity does the work: an
+       id outranks the utility class, so no !important is needed. */
+    @media (max-width: 768px) {
+      #modal-overlay {
+        height: 100vh;
+        height: 100dvh;
+        align-items: stretch;
+        padding: 0;
+      }
+    }
+
+    /* ── 2 · MEDIUM MODAL — the bottom sheet's footer clears the toolbar ──
+       The quick-view is the most-opened politician surface on the site and its
+       ⭐ Add to My Team button is the last element in it, so it is the control
+       that pays for the large-viewport box. Sizing the overlay in dvh fixes
+       both alignments at once: the centred card at 481px+ stops overflowing,
+       and the flex-end sheet at 480px and below pins to a bottom the reader can
+       see. The panel's own max-heights move to dvh for the same reason — 88vh
+       and 92vh are 88% and 92% of a screen that is taller than the screen.
+       .pdx-med-foot already reserves the home indicator (see the bottom-sheet
+       note in pdx-medium-and-compact-team); nothing here touches it. */
+    @media (max-width: 640px) {
+      .pdx-med-overlay {
+        height: 100vh;
+        height: 100dvh;
+      }
+      .pdx-med-panel {
+        max-height: 88vh;
+        max-height: 88dvh;
+      }
+    }
+    @media (max-width: 480px) {
+      .pdx-med-panel {
+        max-height: 92vh;
+        max-height: 92dvh;
+      }
+    }
+
+    /* ── 3 · ALL STANCES / FULL RECORD — the last row is reachable ────────
+       This overlay is its own scroller, so the bottom of the list is the bottom
+       of the scroll container, and the container ran to a bottom edge sitting
+       behind the toolbar and the home indicator. Two changes, both additive:
+       the scroller becomes the visible screen, and its end padding reserves the
+       indicator on top of the 1.5rem it already had. It is a flex container, so
+       the end padding is honoured at the end of the scroll range rather than
+       collapsed — which is what makes the final issue row scrollable clear of
+       the chrome instead of merely existing underneath it. */
+    @media (max-width: 640px) {
+      .pdx-record-overlay {
+        height: 100vh;
+        height: 100dvh;
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+        overscroll-behavior: contain;
+      }
+    }
+
+    /* ── 4 · FLOATING PAGE CHROME — above the gesture strip, not in it ────
+       Five fixed, bottom-anchored controls follow the reader down the page.
+       None of them reserved the home indicator, so on a notched iPhone they
+       render inside the strip iOS reserves for the system swipe — the reader
+       sees the control, taps it, and the gesture takes the tap instead. Each
+       gap becomes max(gap, inset) so the air under the control and the
+       indicator clearance are the same gap rather than two stacked ones. All
+       five keep their existing z-index, size, colour and hide-on-modal rule. */
+    @media (max-width: 640px) {
+      .align-fab { bottom: max(0.85rem, env(safe-area-inset-bottom, 0px)); }
+      #compare-float-btn { bottom: max(1rem, env(safe-area-inset-bottom, 0px)); }
+      .pdx-roster-status { bottom: max(18px, env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (max-width: 639px) {
+      .team-dock { bottom: max(0.7rem, env(safe-area-inset-bottom, 0px)); }
+      .pdx-fr { bottom: max(0.7rem, env(safe-area-inset-bottom, 0px)); }
+    }
+  </style>
+
   <script>
   (function () {
     'use strict';

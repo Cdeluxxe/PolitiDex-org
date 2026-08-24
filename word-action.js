@@ -2509,6 +2509,70 @@
     } catch (e) { return ''; }
   }
 
+  // ── THE LETTERHEAD BADGE — THE FIGURE, THE WORD, AND A WAY DOWN ──────────
+  // One chip in the identity block: the percentage, the verdict in the same words
+  // the section below prints, and nothing else. It is what is left of the header
+  // stack — the four-count tally and the record-depth lines used to hang off the
+  // letterhead as full-width strips, and both of them said, above the fold, what
+  // ⚖️ Word vs Action says in full further down. Three blocks of the same finding
+  // stood between the top of a profile and 🌳 All Issues by Topic. One chip does not.
+  //
+  // SECONDARY BY CONSTRUCTION. It takes the size, weight and shape of the status
+  // pills it sits beside (.profile-status-monitoring, the depth badge), not the
+  // ring's. The ring is still the headline read; this is the one-line version of
+  // it, and the colour on the numeral is the only thing it borrows from the
+  // verdict. Its job beyond naming the figure is to be a door: tapping it scrolls
+  // to #pdxsec-wordaction, the section that explains where the figure came from.
+  //
+  // NO SECOND ARITHMETIC. read() is the same call the ring and the section make,
+  // against the same ledger, so the three cannot disagree by construction. Below
+  // the tested floor read() returns a null pct, and a chip reading "—%" beside a
+  // person's name is worse than no chip at all — so nothing renders.
+  function compactBadgeHtml(pid, p) {
+    try {
+      var r = read(pid, p);
+      if (!r || r.pct === null || r.pct === undefined) return '';
+      var v = r.verdict;
+      var label = (v && v.label) ? v.label : FRAME.metric;
+      var col = (v && v.color) || '#9fb4d4';
+      return '<button type="button" class="pdxwa-cbadge" data-pdxwa-cbadge="' + esc(String(pid)) + '"' +
+        jumpAttr('pdxsec-wordaction') +
+        ' aria-label="' + esc(r.pct + '% ' + FRAME.metric + ' — ' + label + '. Open ' + FRAME.label + '.') + '">' +
+          '<span class="pdxwa-cbadge-pct" style="color:' + col + ';">' + r.pct + '%</span>' +
+          '<span class="pdxwa-cbadge-sep" aria-hidden="true">·</span>' +
+          '<span class="pdxwa-cbadge-lbl">' + esc(label) + '</span>' +
+        '</button>';
+    } catch (e) { return ''; }
+  }
+
+  // Same host discipline as the two strips above, and for the same reason: the
+  // letterhead is built from the synchronous word ledger while the roll-call
+  // record is still in flight, so on a member profile read() has no percentage yet
+  // at first paint and compactBadgeHtml() correctly returns nothing. A bare string
+  // mount would leave no node for the figure to arrive into a moment later, and
+  // the chip would be a thing that only ever appeared on profiles whose record was
+  // already warm. Empty host, no chrome — `.pdxwa-cbadge-host:empty` collapses it
+  // so a cold letterhead carries no stray gap between its badges.
+  function bindCompactBadge(uid, pid, p) {
+    if (!window.addEventListener) return;
+    var handler = function (ev) {
+      var host = document.querySelector('[data-pdxwa-cbadge-host="' + uid + '"]');
+      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
+      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+      try { host.innerHTML = compactBadgeHtml(pid, p); } catch (e) {}
+    };
+    window.addEventListener('pdx-consistency-warm', handler);
+  }
+
+  function compactBadgeMount(pid, p) {
+    try {
+      var uid = ('cbadge-' + String(pid) + '-' + (++_seq)).replace(/[^A-Za-z0-9_-]/g, '');
+      var inner = compactBadgeHtml(pid, p);
+      try { setTimeout(function () { bindCompactBadge(uid, pid, p); }, 0); } catch (e) {}
+      return '<span class="pdxwa-cbadge-host" data-pdxwa-cbadge-host="' + esc(uid) + '">' + inner + '</span>';
+    } catch (e) { return ''; }
+  }
+
   // ── THE ROW IS THE TAP TARGET ──────────────────────────────────────────────
   // Every row in the index opens the issue dossier for that politician and that
   // issue — the same assembled sheet the stance rows open, built once in
@@ -4025,6 +4089,11 @@
     // of its own — the tally above it is the header's one set of doors.
     headerStackMount: headerStackMount,
     headerStackHtml: headerStackHtml,
+    // The letterhead chip that replaced both of the strips above on the profile:
+    // percentage + verdict word, sized like the status pills it sits among, and a
+    // scroll down to the full section. See compactBadgeHtml().
+    compactBadgeHtml: compactBadgeHtml,
+    compactBadgeMount: compactBadgeMount,
     heroHtml: heroInner,
     dotsHtml: dotsHtml
   };

@@ -420,18 +420,49 @@ ok(tailRules.length > 0, "mobile: no rules for the tail were found to check at a
 ok(!/@media[^{]*max-width[^{]*\{[^}]*pdxwa-h(stack|depth|scope)/.test(CSS.replace(/\n/g, " ")),
   "mobile: the tail is styled inside a max-width query. Section 14 of test-word-action.mjs allows\n" +
   "    those for two component families only, and this is authored mobile-first");
-// A full-width strip under the letterhead, not a fourth child inside its grid.
+// WHERE IT IS MOUNTED — WHICH IS NOWHERE, NOW.
+// This block used to pin the tail as a full-width strip under the letterhead,
+// declared after the four counts so the header read score → shape → depth. The
+// profile does not mount either strip any more: all three were tellings of ⚖️
+// Word vs Action stacked above ⚖️ Word vs Action, and above 🌳 All Issues by
+// Topic. The letterhead carries one chip instead, and the depth line and the span
+// are read inside the section that explains them — unchanged, in their place.
+//
+// Everything above this line still drives headerStackHtml on real profiles, so the
+// builder stays guaranteed correct wherever it is mounted. What is pinned here is
+// only that the profile is not the one mounting it, and that the chip that stands
+// in its place is a chip: in the identity block, sized like the badges beside it,
+// and a door down rather than a summary in the way.
 const hStack = PF.indexOf("PDXWordAction.headerStackMount(");
 const hTally = PF.indexOf("PDXWordAction.headerTallyMount(");
-must(hStack !== -1 && hTally !== -1, "profiles-full.js no longer mounts both header blocks");
-ok(hStack > hTally,
-  "mobile: the depth tail is declared before the four counts — the stack reads score → shape →\n" +
-  "    depth, and the shape is the part a reader acts on");
-const heroBlock = PF.slice(PF.indexOf('<div class="profile-hero">'), hStack);
-eq((heroBlock.match(/<div/g) || []).length - (heroBlock.match(/<\/div>/g) || []).length, 0,
-  "mobile: the tail is mounted INSIDE the .profile-hero grid rather than under it — the hero is a\n" +
-  "    flex row on a desktop and a two-column grid on a phone, and an extra child is crushed on\n" +
-  "    one layout and stranded on the other");
+eq(hStack, -1,
+  "the depth tail is mounted on the profile again. It says above the fold what ⚖️ Word vs Action\n" +
+  "    says in place, and it says it in the scroll between the reader and the topic tree");
+eq(hTally, -1,
+  "the four-count strip is mounted on the profile again — same objection, one line above");
+must(R("word-action.js").indexOf("function headerStackHtml") !== -1,
+  "word-action.js no longer has headerStackHtml — this pass unmounted the strip, it did not\n" +
+  "    delete the builder");
+
+const chip = PF.indexOf("PDXWordAction.compactBadgeMount(");
+must(chip !== -1, "profiles-full.js no longer mounts the letterhead chip");
+const heroOpen = PF.indexOf('<div class="profile-hero">');
+const ringAt = PF.indexOf('class="profile-hero-score"');
+must(heroOpen !== -1 && ringAt !== -1, "the letterhead moved out of profiles-full.js");
+ok(chip > heroOpen && chip < ringAt,
+  "the chip is not in the identity block ahead of the ring. Under the letterhead it is a fourth\n" +
+  "    strip, which is the shape of the three this pass reduced to one");
+// Inside the grid, unlike the strips — it is a badge among badges, and .profile-meta
+// is a flex row that already wraps them.
+const upToChip = PF.slice(heroOpen, chip);
+ok((upToChip.match(/<div/g) || []).length - (upToChip.match(/<\/div>/g) || []).length > 0,
+  "the chip is mounted OUTSIDE the .profile-hero grid. The strips were siblings of the letterhead\n" +
+  "    because they needed the full page width; a chip needs the row of badges it belongs to");
+ok(/\.pdxwa-cbadge\s*\{/.test(CSS), "the letterhead chip has no skin in word-action.css");
+const cbSize = fs(".pdxwa-cbadge");
+ok(!Number.isNaN(cbSize) && cbSize <= dSize,
+  `the chip is set louder than the depth line it replaced (chip ${cbSize}rem, depth ${dSize}rem) —\n` +
+  "    it sits beside a name under a ring, and the ring is the one headline");
 
 console.log(
   failures.length

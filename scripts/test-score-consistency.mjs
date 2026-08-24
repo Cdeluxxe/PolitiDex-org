@@ -476,6 +476,35 @@ const [displayScore, promiseState] = (() => {
   eq(countOf(PROFILES, "${scoreRing}"), 1,
     "the hero score stack is inserted more than once — one header, one primary score");
 
+  // THE COMPACT CHIP. The letterhead also carries a one-line ⚖️ Word vs Action chip
+  // among the status pills — the figure and the verdict word, and a scroll down to
+  // the section. It is allowed to name the number the ring names because it does not
+  // work one out: compactBadgeHtml() runs the same read(), so a chip that disagreed
+  // with the ring beside it is not reachable. The rule above is unchanged and still
+  // binding — profiles-full.js may not assemble a percentage in the header itself,
+  // which is why the chip is a mount and not markup.
+  eq(countOf(PROFILES, "PDXWordAction.compactBadgeMount("), 1,
+    "expected exactly one compactBadgeHtml mount in profiles-full.js — a second chip\n" +
+    "    would print the same score twice in one letterhead");
+  ok(/PDXWordAction\.compactBadgeMount\(/.test(heroMarkup),
+    "the compact ⚖️ chip is no longer mounted inside .profile-hero. Out of the identity\n" +
+    "    block it is just another strip hanging under the letterhead, which is the thing\n" +
+    "    it was built to replace");
+  const cbAt = wa0.indexOf("function compactBadgeHtml");
+  must(cbAt !== -1, "word-action.js no longer has compactBadgeHtml");
+  const cbSrc = wa0.slice(cbAt, cbAt + 1400);
+  ok(/\bread\(pid, p\)/.test(cbSrc),
+    "the compact chip does not go through read() — it is deriving a headline figure of its\n" +
+    "    own beside the ring, which is exactly how the header and the section come to\n" +
+    "    print different findings");
+  ok(/r\.pct === null/.test(cbSrc),
+    "the compact chip does not fail closed on a null read. Below the tested floor there is\n" +
+    "    no percentage, and a chip beside a person's name saying so in dashes is a finding\n" +
+    "    about them that the engine has not made");
+  ok(/pdxsec-wordaction/.test(cbSrc),
+    "the compact chip does not lead to ⚖️ Word vs Action. A summary with no way to the\n" +
+    "    working is a number a reader has to take on trust");
+
   // Promises are OUT of the header entirely. Phase 5 allowed them there as counts —
   // "🤝 6 kept · 6 broken · 2 pending" under the ring — on the reasoning that counts
   // are not a rate and so cannot rival a percentage. In practice three numbers sitting

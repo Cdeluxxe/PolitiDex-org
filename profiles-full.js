@@ -2559,8 +2559,14 @@
       if (r.media) chips.push('<span class="fsrec-chip is-video">▶ ' + r.media + ' clip' + (r.media === 1 ? '' : 's') + '</span>');
       var rec = hasRecord(r);
       var noRec = !rec && !depthPill;
-      var jsIk = String(r.issueKey == null ? '' : r.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      var clickable = (rec || r.receipts) && r.issueKey;
+      // EVERY ISSUE-KEYED ROW IS A DOOR. This used to read `(rec || r.receipts)`,
+      // where every term counts CURATED material — so an issue the official has a
+      // formal voting record on, but that nobody has written up yet, rendered as an
+      // inert <div>. Those are exactly the record-only, thin and split rows, and
+      // exactly the ones whose dossier has the most to show. The dossier exists for
+      // any issueKey; the row's job is to reach it.
+      var clickable = !!r.issueKey;
+      var rowId = 'pdxfsrec-' + String(id) + '-' + String(r.issueKey || '');
       var tag = noRec ? '<span class="fsrec-norec">○ No record yet</span>' : '';
       // A row that carries evidence but no summarised position is itself a gap —
       // label it honestly so the adjacent suggest cue reads in context.
@@ -2577,18 +2583,33 @@
             'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();this.click();}" ' +
             'title="Suggest a receipt or track this issue for ' + esc(first) + ' on ' + esc(lbl) + ' in the Community Exchange">＋ Suggest a receipt</span>'
         : '';
+      // The NAME is the accessible door — a real <button>, one focus stop, one
+      // accessible name — and the row around it is the pointer target. That split
+      // is not cosmetic: the row used to BE the <button>, and the evidence depth
+      // pill inside it is itself a <button>. HTML forbids that nesting, so the
+      // parser closed the row button at the pill and threw everything after it —
+      // the chips, the "No record yet" tag, the suggest cue and the ↗ chevron —
+      // out of the row as loose siblings. The rows that broke were precisely the
+      // ones with receipts, which is why the failure looked intermittent and why
+      // it was worst on the deepest profiles. Nothing interactive nests here now.
+      var door = clickable
+        ? ' data-pdxst-dos="' + esc(r.issueKey) + '" data-pdxst-pid="' + esc(id) + '"' +
+          ' data-pdxst-origin="' + esc(rowId) + '"'
+        : '';
+      var nameHtml = clickable
+        ? '<button type="button" class="fsrec-row-label fsrec-row-door"' + door +
+            ' aria-label="Open the issue dossier: ' + esc(lbl) + ' — ' + esc(first) + '">' + esc(lbl) + '</button>'
+        : '<span class="fsrec-row-label">' + esc(lbl) + '</span>';
       var inner = '<span class="fsrec-row-ico" aria-hidden="true">' + ico + '</span>' +
         '<span class="fsrec-row-main">' +
-          '<span class="fsrec-row-top"><span class="fsrec-row-label">' + esc(lbl) + '</span>' +
+          '<span class="fsrec-row-top">' + nameHtml +
             (r.stance ? '<span class="fsrec-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</span>' : '') + '</span>' +
           (r.text ? '<span class="fsrec-row-text">' + esc(r.text) + '</span>' : '') +
           '<span class="fsrec-row-meta">' + (depthPill || '') + chips.join('') + tag + unsum + suggest + '</span>' +
         '</span>' +
         (clickable ? '<span class="fsrec-row-go" aria-hidden="true">↗</span>' : '');
       if (clickable) {
-        return '<button type="button" class="fsrec-row is-click" ' +
-          'onclick="window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\',issue:\'' + jsIk + '\'});" ' +
-          'aria-label="Open the Evidence Locker filtered to ' + esc(first) + ' on ' + esc(lbl) + '">' + inner + '</button>';
+        return '<div class="fsrec-row is-click" id="' + esc(rowId) + '"' + door + '>' + inner + '</div>';
       }
       return '<div class="fsrec-row">' + inner + '</div>';
     }
@@ -4894,6 +4915,26 @@
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
             ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
+            <!-- The one-line form of ⚖️ Word vs Action, sized like the pills it sits
+                 among: the figure, the verdict word, and a tap that scrolls to the
+                 section further down that shows the working. It is here, in the
+                 identity block, because this is where a reader is already looking,
+                 and it is small here because the ring beside it is the headline
+                 read and there must not be two of those. It is what replaced the
+                 two full-width strips that used to hang under the letterhead
+                 saying the same thing at length.
+
+                 It builds no number of its own: compactBadgeHtml() in
+                 word-action.js runs the same read() the ring and the section run,
+                 so the three cannot disagree, and below the tested floor that read
+                 has no figure and the chip does not render.
+
+                 Mounted rather than interpolated, for the reason the two strips
+                 were: on a member profile the letterhead is built while the
+                 roll-call record is still in flight, so the first read has no
+                 percentage and the chip has to have somewhere to arrive. The host
+                 is worth zero pixels until it holds something. -->
+            ${(window.PDXWordAction && typeof window.PDXWordAction.compactBadgeMount === 'function') ? window.PDXWordAction.compactBadgeMount(id, p) : ''}
             ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (
               // 'counts' is a record with a real, closed pledge ledger that simply
               // is not itemized. It must NOT wear "No voting record yet" — that chip
@@ -4918,54 +4959,23 @@
         </div>
       </div>
 
-      <!-- The formal tally, attached to the letterhead. The ring above prints one
-           average; these four integers print the shape it averages — contradicted,
-           mixed, backed up, thin record — and each one is a door into that bucket's
-           full list. That list now sits behind the closed "Issues in this score"
-           control inside ⚖️ Word vs Action, so a tap here opens the control and
-           selects the bucket in one move; the full map of every issue, browsable
-           by topic or by tension, is 🌳 All Issues by Topic further down.
+      <!-- WHAT USED TO BE HERE. Two full-width strips hung off the letterhead: the
+           four-count ⚖️ Word vs Action tally ("the shape behind it — contradicted,
+           mixed, backed up, thin"), and under it the record-depth and term-span
+           lines. Both were summaries of the section they sat above, printed before
+           a reader had been given the thing they summarise, and together they put
+           three renderings of one score between the top of a profile and the first
+           thing a reader comes here to browse — 🌳 All Issues by Topic.
 
-           WHY IT IS HERE AND NOT ONLY IN §1. The phone already had it: the ring
-           drops to a full-width hero row and ⚖️ Word vs Action is the next screen,
-           so the number and its shape were within a scroll of each other. On a
-           desktop they were not. The ring sits in the letterhead beside the photo
-           and the name, and the shape behind it was a section away — which meant
-           the glance most visitors actually take showed an average with nothing
-           said about whether the record it averages agrees with itself. 82% over
-           four backed-up issues and 82% over two contradictions and two thin rows
-           are the same figure and not the same finding.
+           The figure is not lost: it is in the ring, and now also in the chip in
+           the identity block above, which says the percentage and the verdict in
+           one line and scrolls to ⚖️ Word vs Action on a tap. The shape, the depth
+           and the span are all still printed, in full, inside that section — which
+           is unchanged and in its original place in the spine.
 
-           A SIBLING OF THE HERO, NOT A FOURTH COLUMN IN IT. The letterhead is a
-           flex row on a desktop and a two-column grid with a full-width score row
-           on a phone; a fourth child would be squeezed beside the ring on one
-           layout and stranded on the other. As its own full-width strip directly
-           under the block it belongs to, it reads as attached to the letterhead on
-           both, and the four counts get a real tap target on the narrow one.
-
-           It carries no percentage — see headerTallyHtml() in word-action.js for
-           the four rules that let counts sit under a headline figure at all — and
-           it renders NOTHING below the two-issue floor, rather than four zeroes
-           that would read as findings on a profile the engine has not tested. -->
-      ${(window.PDXWordAction && typeof window.PDXWordAction.headerTallyMount === 'function') ? window.PDXWordAction.headerTallyMount(id) : ''}
-
-      <!-- …and the last two lines of the same summary stack: HOW MUCH record is
-           behind the figure, and WHAT SPAN it covers.
-
-           The ring says how much of their word the record backs up and how much of
-           it was tested; the tally above says what shape that average came out of;
-           this says how big the file is — "12 mapped votes across 5 issues", or on
-           an executive profile "Of the formal actions on file — 23 across 8 issues"
-           — and, only where a term scope is a real distinction, that the current
-           term is counted inside the score rather than shown against it.
-
-           Both lines are printed by the builders the sections below use (the
-           Official Record's entry line and PDXExecRecord's own label), so the
-           header cannot describe our file in words the section it summarises would
-           not use. Display-only: the four counts above are the header's one
-           gateway, and this pass adds no second one. No percentage in either line —
-           see headerStackHtml() in word-action.js. -->
-      ${(window.PDXWordAction && typeof window.PDXWordAction.headerStackMount === 'function') ? window.PDXWordAction.headerStackMount(id) : ''}
+           headerTallyMount/headerStackMount and their builders remain exported from
+           word-action.js, and their skins remain in word-action.css and in the phone
+           block in app.css; nothing on the profile calls them. -->
 
       <!-- Quick-jump navigation — a sticky, glanceable map of the profile.
            Each pill summarizes a section (score, record, positions, evidence,

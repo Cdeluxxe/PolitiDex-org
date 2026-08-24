@@ -311,8 +311,10 @@ section("4 · votes on file that the engine will not characterise are not 'no re
   ok(r.gap[0].filed > 0,
     "…flagged as holding a formal file on the reader's issues, for the wording only");
   // The three places the old copy claimed an empty record.
-  has(html, "vote on file · no clear pattern yet",
+  has(html, "vote on file · not about this issue",
     "the cell prints the depth of the file and the engine's own reason");
+  lacks(html, "no clear pattern yet",
+    "…and the reason is the mapping one, not the blanket sentence that fits four cases");
   lacks(html.slice(html.indexOf('class="rs-band"')), "No formal record on your issues yet",
     "the band no longer claims an empty record over a real one");
   has(html, "Not ranked on your issues yet", "…it says what is actually true instead");
@@ -346,7 +348,7 @@ section("5 · honest empty is still honest empty");
     "the original admission survives, word for word, where it is true");
   has(html, "No readable vote pattern",
     "…and the empty cell still says the lane is silent, with no depth claim attached");
-  lacks(html, "on file · no clear pattern yet",
+  lacks(html, "vote on file ·",
     "…and does not dress a genuinely empty file up as a thin one");
   lacks(html, 'class="rs-score"', "no percentage is invented out of two silences");
 }
@@ -388,7 +390,7 @@ section("7 · no new arithmetic — the record half is the shipped ladder");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const AT = R("alignment-tool.js");
-  has(AT, "_ALIGN_PAT_CONF = { strong: 1, mostly: 0.85, split: 0.6, thin: 0.5 }",
+  has(AT, "_ALIGN_PAT_CONF = { strong: 1, mostly: 0.85, split: 0.45, thin: 0.5 }",
     "the confidence table the record weight is scaled by is the shipped one");
   has(AT, "issueScore = _rVerdict === 'match' ? 90 : _rVerdict === 'partial' ? 55 : 12;",
     "…and the record branch uses the same 90/55/12 ladder a documented position does");
@@ -468,10 +470,10 @@ section("8 · the mutations — re-requiring a stance must break this file");
     "race-sheet.js": (s) =>
       s.replace(G4, "var silence = (mode === 'record') ? 'No readable vote pattern' : 'No documented position';"),
   }, (w) => {
-    w.PDXVotingRecord.noteMember(B_PID, [vote(90, K, "yea")]);
+    w.PDXVotingRecord.noteMember(B_PID, [vote(90, K, "yea", { incidental: true })]);
     return { html: sheetHtml(w) };
   });
-  lacks(m3.html, "vote on file · no clear pattern yet",
+  lacks(m3.html, "vote on file · not about this issue",
     "M3: collapsing the two silences hides a live file behind an empty-file sentence");
 }
 

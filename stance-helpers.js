@@ -655,8 +655,17 @@
         issueKey: issueKey || null,
         token: 'record_none', lead: null, characterised: false, counted: false,
         judged: 0, advances: 0, opposes: 0,
-        advanceScore: 0, opposeScore: 0, primary: 0, total: 0,
-        suppressed: null, clause: '', summary: '', label: ''
+        advanceScore: 0, opposeScore: 0, primary: 0, total: 0, procedural: 0,
+        // `suppressed` IS A GATE. `reason` IS COPY. They were one field, and one
+        // field could not carry both jobs: the branches that refuse a row without
+        // setting a gate (one judged item; two or three that ran both ways) had
+        // nowhere to say WHY, so every surface downstream printed the same
+        // catch-all sentence over four different situations. `reason` is always
+        // set on a refusal, is read by nothing that decides anything, and — the
+        // point of splitting it — setting it can never turn a readable row into a
+        // suppressed one. Callers that gate still gate on `suppressed`; callers
+        // that write a sentence read `reason` and fall back to `suppressed`.
+        suppressed: null, reason: null, clause: '', summary: '', label: ''
       };
 
       var suppressed = _rdSuppressedKey(issueKey);
@@ -675,6 +684,10 @@
         var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
         if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
         out.judged++;
+        // Disclosure, not a gate: no branch below reads it. It exists so a row
+        // that refuses can say "and all of them were procedural", which is a
+        // materially different fact about a record than "we hold too few".
+        if (item && item.isProcedural) out.procedural++;
         if (mapping.isPrimary) out.primary++;
         if (eff) { out.advances++; out.advanceScore += w; }
         else { out.opposes++; out.opposeScore += w; }
@@ -684,13 +697,20 @@
       // Each one returns the row to its inventory copy rather than degrading to a
       // weaker claim, because a weaker claim about a record we should not be
       // characterising is still a claim.
-      var stop = function (token, why) {
+      var stop = function (token, why, reason) {
         out.token = token; out.suppressed = why || null;
+        out.reason = reason || why || null;
         out.characterised = false; out.counted = false;
         out.label = _RD_TOKENS[token].label;
         return out;
       };
-      if (!out.judged) return stop('record_none', suppressed);
+      if (!out.judged) {
+        // Nothing on file at all, or items on file that all resolved to neither
+        // side (Present, Not Voting, a vehicle that never got a vote). Two
+        // different facts, and the row is entitled to know which.
+        return stop('record_none', suppressed,
+          suppressed || (out.total ? 'no_side_taken' : 'no_vehicle'));
+      }
       if (suppressed) return stop('record_thin', suppressed);
       var held = opts.memberRecordCount;
       if (typeof held !== 'number' || !isFinite(held) || held < _RD_MEMBER_FLOOR) {
@@ -748,10 +768,38 @@
         // A run, not a tendency. Two or three votes that all went the same way is
         // a fact worth stating and is stated as a fact — never as a lean, which
         // is a claim about a sample this size cannot carry.
+        //   AND THE PRIMARY WALL IS DELIBERATELY NOT ON THIS BRANCH. Below
+        // _RD_MIN_JUDGED the primary rule does not apply at all, which is what
+        // test-primary-lane-promotes.mjs pins: it is how that file proves a
+        // promoted instrument cannot be what makes a shallow record readable. The
+        // consequence is worth stating plainly, because it looks like an oversight
+        // and is not one — two or three incidental mappings that all went the same
+        // way DO read as a thin run here, while _recordDisplayTier and the formal
+        // index refuse the same shape at _RD_MIN_PRIMARY. Reconciling the two is a
+        // real question about what an omnibus brush is worth; it is not this pass's
+        // question, and closing it here would quietly shrink what the record lane
+        // covers.
         out.token = 'record_uniform_thin';
         out.lead = out.advances ? 'advances' : 'opposes';
       } else {
-        return stop('record_thin', null);
+        // ── THE LAST REFUSAL, AND IT NAMES ITSELF NOW ────────────────────────
+        // Everything that reaches here is judged, poled, above the coverage floor
+        // and still not characterisable. There are exactly three ways to be here
+        // and they are three different sentences, not one:
+        //   · the mapping is incidental — a bill that brushed the issue,
+        //   · one judged item — a beginning, and the thin read may still word it,
+        //   · two or three that ran both ways — too few for the margin to mean
+        //     anything, which is the one that genuinely has no side.
+        // `suppressed` stays null on the last two on purpose: they are refusals
+        // to CHARACTERISE, not gates, and the thin read above them is allowed to
+        // speak. Only `reason` is set, and only a sentence reads it.
+        var why = (out.primary < _RD_MIN_PRIMARY) ? 'no_primary'
+          : (out.judged === 1) ? 'single_item' : 'mixed_thin';
+        if (why === 'no_primary') return stop('record_thin', 'no_primary');
+        // …and where every judged act on the row was procedural, that is the more
+        // specific true thing to say about why it will not resolve.
+        if (out.procedural >= out.judged) why = 'procedural_only';
+        return stop('record_thin', null, why);
       }
       out.characterised = !!_RD_TOKENS[out.token].characterised;
       out.counted = !!_RD_TOKENS[out.token].counted;
@@ -2094,7 +2142,12 @@
               dir: says.label, issueLabel: base.issueLabel, issueIco: base.issueIco,
               counts: base.counts, held: held }
           : { tone: 'muted', cls: 'is-onfile', ico: '🏛', lane: false,
-              dir: (says && says.label) || x.patLabel || 'No clear pattern yet',
+              // THE LAST-RESORT WORD IS AN ADMISSION, NOT A FINDING. The index
+              // hands every unread row a specific reason label (`patLabel`), so
+              // this fallback fires only if a row arrives with neither a says
+              // word nor a reason — and in that state the true thing to say is
+              // that we have not read it, not that their record has no pattern.
+              dir: (says && says.label) || x.patLabel || 'Pattern not read yet',
               issueLabel: base.issueLabel, issueIco: base.issueIco,
               counts: depth, held: held };
       });

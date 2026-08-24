@@ -2187,6 +2187,47 @@
    has somewhere to land, and worth zero pixels until it holds something. */
 .pdxwa-hstack-host { margin: -0.9rem 0 1.2rem; }
 .pdxwa-hstack-host:empty { display: none; margin: 0; }
+
+/* ── The letterhead chip ───────────────────────────────────────────────────
+   The compact form of this score, mounted among the status pills in the identity
+   block (.profile-meta in app.css). It deliberately borrows its metrics from
+   .profile-status-monitoring next to it rather than from anything in this file:
+   a chip that out-weighed the badges around it would be a second headline beside
+   a name, and the ring above is already the headline. The only concession to
+   emphasis is the numeral, one step larger and carrying the verdict colour, so
+   the figure is legible at a glance without the chip itself shouting.
+
+   It is a button because it goes somewhere — down to ⚖️ Word vs Action. The
+   coarse-pointer rule gives it a real thumb target without changing how it reads
+   sideways.
+
+   The host is emitted on every profile, warm or cold, so the figure has somewhere
+   to arrive when the roll-call record lands. Empty, it must be worth nothing at
+   all — .profile-meta is a flex row with a gap, and an empty inline box there is a
+   visible hole between two badges. */
+.pdxwa-cbadge-host { display: contents; }
+.pdxwa-cbadge-host:empty { display: none; }
+.pdxwa-cbadge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  border-radius: 999px; padding: 0.16rem 0.55rem;
+  background: rgba(159, 180, 212, 0.1);
+  border: 1px solid rgba(159, 180, 212, 0.3);
+  color: #9fb4d4;
+  line-height: 1.15; white-space: nowrap; cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.pdxwa-cbadge:hover {
+  background: rgba(159, 180, 212, 0.18);
+  border-color: rgba(159, 180, 212, 0.5);
+}
+.pdxwa-cbadge:focus-visible { outline: 2px solid rgba(96, 165, 250, 0.8); outline-offset: 2px; }
+.pdxwa-cbadge-pct { font-size: 0.74rem; letter-spacing: 0.02em; }
+.pdxwa-cbadge-sep { opacity: 0.45; }
+@media (hover: none), (pointer: coarse) {
+  .pdxwa-cbadge { min-height: 1.9rem; padding: 0.22rem 0.6rem; }
+}
 .pdxwa-hstack {
   padding-top: 0.5rem;
   border-top: 1px solid rgba(120, 150, 190, 0.14);

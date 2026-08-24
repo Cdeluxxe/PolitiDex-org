@@ -641,15 +641,37 @@ section("11. agreement with the formal pattern index");
   ok(fpi.length > 0, "index: the formal pattern index has rows for this member");
   const byKey = {};
   fpi.forEach((r) => { byKey[r.key] = r; });
-  let checked = 0;
+  // Where the index READ a pattern, the two must be the same pattern, word for
+  // word — that is the anti-second-engine check and it is unchanged.
+  //
+  // Where the index REFUSED, the two must refuse together. They part company only
+  // on wording: the index asks _fpiUnreadWhy which of the four unreadable cases
+  // this is and prints that, while the card prints the pattern engine's own
+  // one-size refusal. A more specific sentence about the same non-answer is not a
+  // second opinion about the record; claiming a direction the other one does not
+  // would be, and that is what is asserted here.
+  let checked = 0, refused = 0;
   for (const r of rows) {
     const f = byKey[r.key];
     if (!f) continue;
-    checked++;
-    eq(r.tier, f.tier, `index: the ${r.key} pattern tier matches the index row`);
-    eq(r.patLabel, f.patLabel, `index: the ${r.key} pattern label matches the index row`);
+    if (f.read) {
+      checked++;
+      eq(r.tier, f.tier, `index: the ${r.key} pattern tier matches the index row`);
+      eq(r.patLabel, f.patLabel, `index: the ${r.key} pattern label matches the index row`);
+      const claims = ["backed", "against", "thin"].includes(r.shape);
+      eq(claims, !!f.directional,
+        `index: the ${r.key} card and index disagree about whether a side was read`);
+    } else {
+      refused++;
+      eq(r.shape, "unread",
+        `index: the ${r.key} index refused the row but the card claims a reading`);
+      eq(r.tier, "none", `index: …and the card's refusal is the engine's own none tier`);
+      ok(!!(f.why && f.why.id),
+        `index: …and the index's refusal on ${r.key} names which of the four cases it is`);
+    }
   }
-  ok(checked >= 5, `index: at least five rows were compared (was ${checked})`);
+  ok(checked >= 5, `index: at least five read rows were compared (was ${checked})`);
+  ok(refused >= 1, `index: no refused row was compared (was ${refused})`);
 }
 
 // ══ 12. ARRIVAL ══════════════════════════════════════════════════════════════

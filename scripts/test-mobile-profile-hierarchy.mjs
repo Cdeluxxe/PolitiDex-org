@@ -464,123 +464,103 @@ ok(parseFloat(footFloor[1]) <= 0.2,
   `    padding already separates the last button from the edge (found: ${footFloor[1]}rem)`);
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 11. The shape is in the letterhead, on both layouts
+// 11. One chip in the letterhead, and nothing else above the tree
 // ═════════════════════════════════════════════════════════════════════════════
-// Section 1 pins the tally's place INSIDE the card, which is what a phone reader
-// meets: the ring drops to a full-width hero row and ⚖️ Word vs Action is the
-// next screen. A desktop reader meets neither. The ring sits in the letterhead
-// beside the photo and the name and the shape behind it was a section away, so
-// the first glance — the only glance most visitors take — showed an average with
-// nothing said about whether the record it averages agrees with itself.
+// The letterhead used to answer three questions in three blocks: the ring said
+// how much of their word the record backs up, a four-count strip under it said
+// what shape that average came out of, and a third strip said how much record
+// was behind both. Every one of those is a summary of ⚖️ Word vs Action, printed
+// above ⚖️ Word vs Action — and on the layout this file exists to protect, above
+// 🌳 All Issues by Topic as well. Section 12 below is the whole argument: what is
+// above the tree is summary only, and three summaries of one score is not summary,
+// it is the wall again in smaller type.
 //
-// The counts, their equality with the graph and the taps are all driven in
-// scripts/test-issue-index.mjs against the real modules. What is a property of
-// the SOURCE, and pinned here, is where it mounts and what it refuses to do.
+// So the strips came out and one chip went in — the figure, the verdict word, and
+// a tap that scrolls to the section that shows the working. The shape, the depth
+// and the span are all still printed, in full, inside that section.
+//
+// The builders are untouched and still published; scripts/test-issue-index.mjs and
+// scripts/test-header-tally.mjs still drive them on real profiles. What is pinned
+// here is that the PROFILE no longer mounts them, and what took their place.
 must(WA.indexOf('function headerTallyHtml') !== -1, 'word-action.js no longer has headerTallyHtml');
-ok(/headerTallyMount:\s*headerTallyMount/.test(WA),
-  'header: the letterhead tally is not published on PDXWordAction, so the profile builder has\n' +
-  '    nothing to mount');
-const htMount = PF.indexOf('PDXWordAction.headerTallyMount(');
-must(htMount !== -1, 'profiles-full.js no longer mounts headerTallyMount');
+must(WA.indexOf('function headerStackHtml') !== -1, 'word-action.js no longer has headerStackHtml');
+ok(/headerTallyMount:\s*headerTallyMount/.test(WA) && /headerStackMount:\s*headerStackMount/.test(WA),
+  'header: the letterhead strips were unpublished from PDXWordAction rather than unmounted. This\n' +
+  '    pass removed them from ONE surface; the builders are still tested and still available');
+eq(PF.indexOf('PDXWordAction.headerTallyMount('), -1,
+  'header: the four-count strip is mounted on the profile again — a second telling of the ring\n' +
+  '    above it and the section below it, in the scroll between the reader and the tree');
+eq(PF.indexOf('PDXWordAction.headerStackMount('), -1,
+  'header: the depth-and-span strip is mounted on the profile again — same objection, one line down');
 
-// Placement: after the letterhead closes, before the quick-jump rail, and long
-// before the section it drives. "Near the ring" is the whole requirement — a
-// tally that renders below the nav rail is just a second copy of §1's block.
+// WHAT REPLACED THEM. One chip, in the identity block, between the name and the
+// ring — not a fourth full-width strip hanging under the letterhead, which is the
+// shape of the thing being removed.
+const chipMount = PF.indexOf('PDXWordAction.compactBadgeMount(');
+must(chipMount !== -1, 'profiles-full.js no longer mounts the letterhead chip');
 const heroScore = PF.indexOf('class="profile-hero-score"');
 const navMount = PF.indexOf('${_navBar}');
 const sectionMount = PF.indexOf('PDXWordAction.sectionHtml(');
 must(heroScore !== -1 && navMount !== -1 && sectionMount !== -1,
   'the hero score block, the nav rail or the ⚖️ section mount moved out of profiles-full.js');
-ok(htMount > heroScore,
-  'header: the letterhead tally is declared before the ring it qualifies — four counts arriving\n' +
-  '    ahead of the number they are the shape of');
-ok(htMount < navMount,
-  'header: the letterhead tally renders below the quick-jump rail, which is not the letterhead —\n' +
-  '    it is the top of the body, and the reader has already left the header zone');
-ok(htMount < sectionMount,
-  'header: the letterhead tally renders after ⚖️ Word vs Action, which is the position it exists\n' +
-  '    to avoid');
+const heroTop = PF.indexOf('<div class="profile-hero">');
+must(heroTop !== -1, 'profiles-full.js no longer renders the .profile-hero header');
+ok(chipMount > heroTop && chipMount < heroScore,
+  'header: the chip is not inside the identity block. It belongs where the reader is already\n' +
+  '    looking — among the status pills beside the name — and anywhere below the ring it is a\n' +
+  '    strip under the letterhead by another name');
+ok(chipMount < navMount && chipMount < sectionMount,
+  'header: the chip renders below the quick-jump rail or below the section it summarises, either\n' +
+  '    of which makes it a second copy rather than a glance');
 
-// A SIBLING OF THE LETTERHEAD, NOT A FOURTH COLUMN IN IT. .profile-hero is a flex
-// row on a desktop and a two-column grid with a full-width score row on a phone.
-// Mounted inside it, the strip is squeezed beside the ring on one layout and
-// orphaned on the other; mounted under it, both layouts get the same thing.
-const heroBlock = PF.slice(PF.indexOf('<div class="profile-hero">'), htMount);
-const heroCloses = (heroBlock.match(/<div/g) || []).length - (heroBlock.match(/<\/div>/g) || []).length;
-eq(heroCloses, 0,
-  'header: the tally is mounted INSIDE the .profile-hero grid rather than under it. The hero is a\n' +
-  '    flex row on a desktop and a two-column grid on a phone, and a fourth child is crushed on\n' +
-  '    one layout and stranded on the other');
+// SECONDARY BY CONSTRUCTION. It is sized like the pills it sits among, not like
+// the ring beside it — the ring is the headline read and there must not be two.
+ok(/\.pdxwa-cbadge\s*\{/.test(WACSS), 'header: the letterhead chip has no skin');
+const cbadge = /\.pdxwa-cbadge\s*\{([^}]*)\}/.exec(WACSS);
+must(cbadge, 'the .pdxwa-cbadge rule moved out of word-action.css');
+ok(/font-size:\s*0\.[0-6]/.test(cbadge[1]),
+  'header: the chip is set at headline size. Beside a name, at the weight of the ring, it is the\n' +
+  '    second score this section removed');
+ok(/border-radius:\s*999px/.test(cbadge[1]),
+  'header: the chip is not drawn as a pill, so it does not read as one of the badges around it');
+ok(/@media \(hover: none\), \(pointer: coarse\) \{[^@]*\.pdxwa-cbadge \{[^}]*min-height:/.test(WACSS),
+  'header: the chip has no thumb target on a coarse pointer. It is a door — a word-wide door on a\n' +
+  '    phone is a door that misses');
 
-// NO INVENTED SHAPE. Same floor as the graph, so a profile the engine has not
-// tested gets nothing rather than four zeroes under its name.
-const htSrc = WA.slice(WA.indexOf('function headerTallyHtml'), WA.indexOf('function bindHeaderTally'));
-must(htSrc.length > 200, 'headerTallyHtml is no longer a readable function body');
-ok(/if \(!b \|\| b\.total < 2\) return '';/.test(htSrc),
-  'header: the letterhead tally does not fail closed below the two-issue floor. Four greyed zeroes\n' +
-  '    under a letterhead read as four findings about the person, when what is true is that the\n' +
-  '    engine has not tested enough of the record to have a shape at all');
-ok(/outcomeBuckets\(pid\)/.test(htSrc) && !/rankedRows|read\(|scopedRead/.test(htSrc),
-  'header: the letterhead tally derives its own numbers instead of reading the one bucketing the\n' +
-  '    graph and the index read — which is how the header comes to disagree with the card');
-ok(!/%/.test(htSrc),
-  'header: a percent sign appears in the letterhead tally. One score per profile, and it is the\n' +
-  '    ring this block sits directly beneath');
+// IT SAYS THE NUMBER; IT DOES NOT WORK IT OUT. Same read() as the ring and the
+// section, so the letterhead cannot come to disagree with what it links to. And
+// it must lead somewhere: a summary with no way to the working is a figure the
+// reader has to take on trust.
+const cbAt = WA.indexOf('function compactBadgeHtml');
+must(cbAt !== -1, 'word-action.js no longer has compactBadgeHtml');
+const cbSrc = WA.slice(cbAt, cbAt + 1400);
+ok(/\bread\(pid, p\)/.test(cbSrc) && !/outcomeBuckets\(/.test(cbSrc),
+  'header: the chip derives a figure of its own instead of running the read the ring and the\n' +
+  '    section run — which is how a letterhead comes to print a number its own section denies');
+ok(/pdxsec-wordaction/.test(cbSrc),
+  'header: the chip does not lead to ⚖️ Word vs Action. It is the whole reason a strip could be\n' +
+  '    replaced by a chip — the detail is one tap away rather than in the way');
+ok(/r\.pct === null/.test(cbSrc),
+  'header: the chip does not fail closed on a null read. Below the tested floor there is no\n' +
+  '    percentage, and a chip beside a name saying so in dashes is a finding the engine has not made');
 
-// The plumbing that makes a control mounted outside the section work at all.
-ok(/selectDetached\(uid, tok\);/.test(WA.slice(WA.indexOf('function selectBucket'), WA.indexOf('function armIndex'))),
-  'header: selectBucket no longer moves the controls mounted outside the section, so the\n' +
-  '    letterhead keeps reporting whichever bucket it painted with while the list shows another');
-ok(/document\.getElementById\(uid\)/.test(WA.slice(WA.indexOf('function armIndex'), WA.indexOf('function armIndex') + 4000)),
-  'header: the click handler cannot resolve an index from a uid, so a count with no section\n' +
-  '    ancestor is inert — it reports a state and moves nothing');
-
-// It is the shared tally component, so its 44px targets and its colours are the
-// ones section 8 already pins. What this file adds is that an empty host takes up
-// no room: the host is emitted on every profile, shape or not, so the warm
-// repaint has somewhere to land.
+// ═════════════════════════════════════════════════════════════════════════════
+// 12. …and the strips' own skins stay dormant, not deleted
+// ═════════════════════════════════════════════════════════════════════════════
+// Both hosts keep their rules — including the phone block in app.css that draws
+// them as continuations of the letterhead card. Every one of those selectors is
+// guarded on a host that is no longer in the DOM, so all of it is inert; keeping
+// it means the builders remain mountable by anything that wants them, and means
+// this removal is one line of profiles-full.js to reverse rather than a rewrite.
 ok(/\.pdxwa-htally-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
-  'header: an empty letterhead-tally host still occupies space, so a profile with no shape yet\n' +
-  '    carries a gap and a rule under its name saying nothing');
-ok(/\.pdxwa-htally\s*\{/.test(WACSS),
-  'header: the letterhead tally has no layout rule of its own');
-ok(!/\.pdxwa-htally[^{]*\{[^}]*min-height:\s*[01](\.\d+)?rem/.test(WACSS),
-  'header: the letterhead copy shrinks the shared tap target below the threshold section 8 pins');
-
-// ═════════════════════════════════════════════════════════════════════════════
-// 12. …and the depth line sits under the shape, in its own host
-// ═════════════════════════════════════════════════════════════════════════════
-// The letterhead reads score → shape → depth. The third line is driven against
-// the real modules in scripts/test-profile-header-stack.mjs; what belongs here is
-// the same two source properties the tally has — where it mounts, and that it is
-// STRUCTURALLY separate from the tally rather than folded into it.
-//
-// Separate matters twice over. The tally fails closed below a two-issue floor and
-// emits an exactly-empty host when it does (pinned above and in test-issue-index)
-// — a depth line sharing that host would either vanish with the shape it does not
-// depend on, or fill a host another test requires to be empty. And the slice
-// checked at line 467 is bounded by the next function in the file, so a depth
-// builder declared inside those bounds would drag reads and percentages into a
-// window pinned to contain neither.
-const hsMount = PF.indexOf('PDXWordAction.headerStackMount(');
-must(hsMount !== -1, 'profiles-full.js no longer mounts headerStackMount');
-must(WA.indexOf('function headerStackHtml') !== -1, 'word-action.js no longer has headerStackHtml');
-ok(/headerStackMount:\s*headerStackMount/.test(WA),
-  'header: the depth tail is not published on PDXWordAction, so the profile builder has nothing\n' +
-  '    to mount');
-ok(hsMount > htMount && hsMount < navMount,
-  'header: the depth line is not between the four counts and the quick-jump rail — the stack reads\n' +
-  '    score → shape → depth, and all three belong above the body');
-ok(WA.indexOf('function headerDepthHtml') > WA.indexOf('function bindHeaderTally'),
-  'header: the depth builder is declared inside the window section 11 slices for the tally, which\n' +
-  '    pins that window to hold no read() and no percent sign — both of which the surrounding\n' +
-  '    letterhead legitimately needs elsewhere');
-ok(/data-pdxwa-hstack=/.test(WA) && !/data-pdxwa-htally="[^"]*"[^>]*>\s*'\s*\+\s*(depth|headerDepth)/.test(WA),
-  'header: the depth line shares the tally\'s host. Below the two-issue floor that host must be\n' +
-  '    exactly empty, and depth does not depend on having a shape');
+  'header: the tally host lost the rule that collapses it when empty — the builder still emits an\n' +
+  '    empty host on a cold profile wherever it is mounted');
 ok(/\.pdxwa-hstack-host:empty\s*\{[^}]*display:\s*none/.test(WACSS),
-  'header: an empty depth host still occupies space, so a profile with nothing warm carries a gap\n' +
-  '    under its name saying nothing');
+  'header: the depth host lost the rule that collapses it when empty');
+ok(!/pdxwa-htally-host/.test(CSS) || /DORMANT/.test(CSS),
+  'header: app.css still draws the letterhead strips as part of the hero card with nothing saying\n' +
+  '    they are no longer mounted — a reader of that block would go looking for markup that is\n' +
+  '    not emitted any more');
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 12. The phone read above the tree
