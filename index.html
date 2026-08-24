@@ -28895,6 +28895,223 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   </style>
 
   <!-- ══════════════════════════════════════════════════════════════════════
+       TOP NAV LAYOUT — the bar is a row again, not a pile
+       ══════════════════════════════════════════════════════════════════════
+       Two reports, one mechanism. "✊ Mandate covers 🔦 Local Issues" and
+       "Community hides behind the notification bell" are not two collisions
+       that happen to look alike; they are the two seams of the same overflow,
+       and they are visible at EVERY desktop width — including a 2560px monitor
+       — because the bar is capped at `max-w-7xl` (1280px) no matter how much
+       window is behind it.
+
+       WHY IT PILES INSTEAD OF OVERFLOWING. The top row is
+
+         div.max-w-7xl  ·  flex, justify-between, gap-3
+           ├─ div.min-w-0   brand + six voter tools   (hidden lg:flex)
+           └─ div.min-w-0   ├─ div.min-w-0  four gateways (hidden lg:flex)
+                            ├─ button#wc-bell
+                            ├─ div#nav-auth-desktop
+                            └─ button (hamburger, lg:hidden)
+
+       Every LEAF in there refuses to shrink — the pills carry
+       `white-space: nowrap`, the account button carries it too, the bell and
+       the brand mark are `flex-shrink-0`. Every BOX around them carries
+       `min-w-0`, which replaces flexbox's automatic minimum size (min-content)
+       with zero and so lets the box be squeezed to any width at all. A box
+       narrower than its own contents does not clip them — `overflow` is
+       `visible` — it lets them spill, and the spill lands on whatever the next
+       box paints, with DOM order deciding who is on top:
+
+         · the left group spills right → its last item, 🔦 Local Issues, ends up
+           under the first item of the right group, ✊ Mandate;
+         · the gateway group spills right → its last item, Community, ends up
+           under the next sibling in the right group, the #wc-bell notification
+           button.
+
+       Exactly the two seams that were reported, in exactly the two places the
+       spill has to land. Nothing is "hidden" in the CSS sense — it is painted
+       over, which is why the controls underneath are still clickable in some
+       spots and not in others.
+
+       THE ARITHMETIC, because it decides what the fix can be. Laid out at their
+       natural size the row's contents come to roughly 1730px (≈935 on the left
+       with the brand, ≈790 on the right, plus the gap). `max-w-7xl` less its
+       `px-4` gutters offers 1248px. The bar is about 480px over its box on a
+       1280px laptop AND on a 5K display, because the cap does not move. No
+       amount of gap-trimming closes a 40% gap, so this does three things in
+       order and stops as soon as the row fits:
+
+         1. The box stops lying about its minimum. `min-width: auto` restores
+            the min-content floor, so no group can be squeezed under its own
+            contents and the spill — the overlap itself — cannot happen.
+         2. The bar gets the window it is running in. The cap goes from 80rem to
+            112rem, so a wide screen actually hands the row the width it needs
+            instead of centring it inside a 1280px column.
+         3. Where it still does not fit, the row WRAPS. `flex-wrap: wrap` turns
+            the shortfall into a second tier — brand + voter tools above,
+            gateways + bell + account below, right-aligned so the cluster still
+            reads as the right-hand end of the bar. Everything stays visible,
+            in its original order, at its original size and colour. Nothing is
+            moved into a dropdown and nothing is hidden behind a hamburger,
+            because the report is that controls are unreachable and answering it
+            by removing controls is not an answer.
+
+       A taller nav is already a case this app handles rather than a surprise:
+       --pdx-chrome is MEASURED off the bottom of .pdx-eye-row by the script
+       under the nav, with a ResizeObserver on the nav box, and a "wrapped nav
+       row" is named in that script's own comments as one of the terms its audit
+       exists to catch. #hero's clearance, html{scroll-padding-top} and the two
+       sticky jump rails all follow the measurement, so a second tier pushes the
+       page down by exactly its own height and nothing lands under the bar.
+
+       ── THE PHONE ─────────────────────────────────────────────────────────
+       The same squeeze is live on a phone, where the row is brand + bell +
+       account + hamburger. At their natural size those come to ≈344px against
+       343px of usable width on a 375px screen and 328px on a 360px one, so on
+       every phone at or below 375px the row is over its box: POLITIDEX runs
+       under the bell, and the hamburger — the only way into the menu that
+       carries every destination — is pushed off the right edge of the screen.
+
+       So the phone row is made to fit rather than allowed to spill, in tiers:
+       gutters and gaps first (they cost nothing visually), then the brand mark
+       and wordmark by a step on screens under 370px, then the account button's
+       own padding and tracking. And as a floor under all of it the wordmark —
+       not the controls — is what yields: the brand link may shrink and the
+       wordmark ellipsizes, so however the arithmetic drifts later, the bell,
+       the account button and the hamburger are always whole and always on
+       screen. The tile keeps the brand legible while that happens.
+
+       WHAT THIS DOES NOT TOUCH. No href, no onclick, no id, no aria, no
+       dropdown behaviour, no colour, no font, no border, no shadow, no
+       z-index. Nothing here declares --pdx-chrome, --pdx-hero-*, or any
+       padding on #hero: the clearance stays measured, which is the only reason
+       a wrapping bar is safe. ══════════════════════════════════════════════ -->
+  <style id="pdx-topnav-layout">
+    /* ── 1 · NO BOX IN THE BAR IS NARROWER THAN WHAT IT HOLDS ──────────────
+       This is the overlap, and it is the whole of the overlap. Tailwind's
+       `min-w-0` sets `min-width: 0`, which removes the automatic minimum size a
+       flex item gets from its own content; restoring `auto` puts the min-content
+       floor back, so a group runs out of room by pushing the line rather than by
+       painting on top of its neighbour. Stated for the right-hand cluster at
+       every width because that is where the bell and the account live; the left
+       group and the gateway group get it inside the desktop query below, where
+       their links exist at all. */
+    #pdx-topnav > div.max-w-7xl > div:last-child {
+      min-width: auto;
+      flex-shrink: 0;
+    }
+
+    /* ── 2 · DESKTOP: the window, then the wrap ────────────────────────────
+       The three steps in order. Nothing here changes a size, a colour or an
+       order — only how much room the row is allowed to occupy and what it does
+       when that is not enough. */
+    @media (min-width: 1024px) {
+      #pdx-topnav > div.max-w-7xl {
+        /* 80rem could not hold the row on any screen. 112rem can, from about a
+           1600px window up; below that the wrap below takes over. */
+        max-width: 112rem;
+        flex-wrap: wrap;
+        row-gap: 0.45rem;
+        column-gap: 0.75rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+      /* On its own line the control cluster still belongs to the right-hand end
+         of the bar. With both groups on one line this is what justify-between
+         was already doing, so the unwrapped bar is unchanged. */
+      #pdx-topnav > div.max-w-7xl > div:last-child { margin-left: auto; }
+
+      /* The other two squeezed boxes: the voter-tools group and the gateway
+         group. Both are `hidden lg:flex`, so this is the width at which they
+         exist. */
+      #pdx-topnav > div.max-w-7xl > div:first-child,
+      #pdx-topnav > div.max-w-7xl > div:first-child > div,
+      #pdx-topnav > div.max-w-7xl > div:last-child > div:first-child {
+        min-width: auto;
+      }
+
+      /* Tighter spacing buys the single row a few hundred more pixels of range
+         before it has to wrap. Gaps and gutters only — every control keeps its
+         own padding, weight and glow. */
+      #pdx-topnav > div.max-w-7xl > div:first-child { column-gap: 0.85rem; }
+      #pdx-topnav > div.max-w-7xl > div:first-child > div { column-gap: 0.55rem; }
+      #pdx-topnav > div.max-w-7xl > div:last-child { column-gap: 0.55rem; }
+      #pdx-topnav > div.max-w-7xl > div:last-child > div:first-child { column-gap: 0.45rem; }
+      /* tracking-widest is 0.1em on ~105 characters of nav label — about 105px
+         of pure letter-spacing across the bar. 0.07em is still visibly tracked
+         uppercase and is worth roughly a third of the shortfall. */
+      #pdx-topnav > div.max-w-7xl > div:first-child > div > a,
+      #pdx-topnav > div.max-w-7xl > div:last-child > div:first-child a {
+        letter-spacing: 0.07em;
+      }
+    }
+
+    /* ── 3 · PHONE: the row fits the screen ────────────────────────────────
+       Gutters and gaps first — invisible, and enough on their own for a 375px
+       screen. */
+    @media (max-width: 639px) {
+      #pdx-topnav > div.max-w-7xl {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        column-gap: 0.5rem;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child { column-gap: 0.5rem; }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a { column-gap: 0.5rem; }
+      #pdx-topnav > div.max-w-7xl > div:last-child { column-gap: 0.4rem; }
+    }
+
+    /* One step down on the screens that are genuinely short of width — 360px
+       Androids and the 320-375px iPhones — and not on the 390-430px phones that
+       already have room to spare. */
+    @media (max-width: 370px) {
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > div:first-child {
+        width: 1.6rem;
+        height: 1.6rem;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > span:last-child {
+        font-size: 1.05rem;
+      }
+      #nav-auth-desktop > button {
+        padding-left: 7px;
+        padding-right: 7px;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    /* The narrowest screens still in the wild — a 320px SE, a folded cover
+       display. The account button's "FREE" chip is decoration on a control that
+       already says JOIN THE PEOPLE; dropping it there is the last ~30px, and it
+       is what lets even a 320px bar carry the whole wordmark and every control
+       at full size. The button, its label, its icon and its handler are
+       untouched. */
+    @media (max-width: 340px) {
+      #nav-auth-desktop > button > span:last-child { display: none; }
+    }
+
+    /* ── 4 · AND THE FLOOR: the wordmark yields, never the controls ─────────
+       Under everything above, so that no future label, font swap or font-scale
+       setting can put the menu button off the edge of a phone again. The brand
+       link is the one thing in the bar allowed to shrink; the 🏠 tile inside it
+       is not, so the brand stays identifiable at any width, and the bell, the
+       account button and the hamburger are whole on every screen. */
+    @media (max-width: 1023px) {
+      #pdx-topnav > div.max-w-7xl > div:first-child > a {
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > div:first-child {
+        flex-shrink: 0;
+      }
+      #pdx-topnav > div.max-w-7xl > div:first-child > a > span:last-child {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  </style>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
        MOBILE BOTTOM CHROME — the team call-to-action stops fighting the viewport
        ══════════════════════════════════════════════════════════════════════
        Every "Add to My Team" control on a phone is pinned to the bottom edge of
