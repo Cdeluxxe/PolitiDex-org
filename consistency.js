@@ -1641,6 +1641,10 @@
       // The "Says: Supports" chip's honest counterpart — no stated position to check
       // the mapped votes against. Dashed so it never reads as a stated stance.
       '.pdxor-stance-none{border-style:dashed;font-weight:600;}' +
+      // The baseline wears the absence on its face: dashed like the none-chip it
+      // replaces, never the solid outline a stated position gets.
+      '.pdxor-baseline{border-style:dashed;font-weight:700;}' +
+      '.pdxor-basetag{margin-left:0.3rem;font-style:normal;font-size:0.54rem;letter-spacing:0.04em;text-transform:uppercase;font-weight:800;opacity:0.85;}' +
       // "Record: …" chip. Slightly wider tracking than a bare verdict chip because it
       // now carries a label AND a value, and the two must not run together.
       '.pdxor-recchip{cursor:help;}' +
@@ -3081,6 +3085,30 @@
     var m = _OR_STANCE[s]; if (!m) return '';
     return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' Says: ' + m.lb + '</span>';
   }
+  // ── THE BASELINE CHIP ───────────────────────────────────────────────────────
+  // The same slot _orStanceChip fills for a stated position, filled from the
+  // formal record instead when there is no stated position to fill it with. Three
+  // rules hold it apart from the chip above it, and all three are visible:
+  // the label is "Baseline", not "Says"; the words are the record lane's own read
+  // (_RD_SAYS, via the baseline projection) rather than the stance vocabulary; and
+  // the chip states in its own accessible name that it is not counted in Direction
+  // Match. It is grey because it is not a side anyone took in words.
+  function _blChipHtml(x) { return _blChipOf(_blEntry(x)); }
+  // The same chip, addressed by (pid, issue) for callers that hold a key rather
+  // than a formal-pattern row. Both doors reach one projection, so a baseline
+  // cannot read one way in the index and another way on the record row.
+  function _blChipAt(pid, issueKey) {
+    try { return _blChipOf(baselineFor(pid, issueKey)); } catch (e) { return ''; }
+  }
+  function _blChipOf(b) {
+    if (!b) return '';
+    return '<span class="pdxor-stance pdxor-baseline" style="--c:#9fb4d4"' +
+      ' data-pdxor-baseline="' + escAttr(b.stance) + '"' +
+      ' title="' + escAttr(_BL_NOTE) + '"' +
+      ' aria-label="' + escAttr('Baseline from the formal record: ' + b.word + '. ' + _BL_NOTE) + '">' +
+      '\uD83C\uDFDB Baseline: ' + esc(b.word) +
+      '<i class="pdxor-basetag">' + esc(_BL_NOT_DM) + '</i></span>';
+  }
   // Omnibus provenance chip for one (pid, issue): how much of this issue's verdict
   // rests on votes that were also about other things. Reads the shared helper the
   // Voting Record exposes (window._pdxRecordOmnibusStats), which in turn reads the
@@ -3516,6 +3544,13 @@
   function _orSaysChipHtml(pid, issueKey, ov) {
     var chip = _orStanceChip(pid, issueKey);
     if (chip) return chip;
+    // Before naming the absence, ask whether the record itself reads a side. Where
+    // it does, that direction is the baseline and it belongs in this slot — a
+    // reader looking at a row of mapped votes is better served by "the record
+    // leans this way, and it is not scored" than by "no position on record".
+    // Where it does not, the sentence below is still the honest one.
+    var bl = _blChipAt(pid, issueKey);
+    if (bl) return bl;
     var n = _orNoun(ov);
     var has = !!(ov && ov.record && ov.record.total) || _orExecTouched(ov);
     if (!has) return '';
@@ -7650,6 +7685,161 @@
     return out;
   }
 
+  // ── 🏛 THE RECORD-DERIVED BASELINE ──────────────────────────────────────────
+  // WHAT IT IS. An issue with no stated position on file is not an issue with
+  // nothing known about it. Where the formal record has a readable side, the
+  // BASELINE is that side — worded in the record lane's own vocabulary, and marked
+  // on every surface that prints it as coming from the record rather than from the
+  // person's mouth. It exists because "No stance on file" was being printed over
+  // twenty mapped roll calls that all went the same way, and that sentence is a
+  // statement about our curation which readers take as a statement about them.
+  //
+  // WHERE IT COMES FROM: _fpiRows() and nothing else. Every field below is lifted
+  // off a row of the formal-pattern index — its tier, its tone, its label, its
+  // counts, its `says` word — so a baseline can never characterise a record
+  // differently from the chip printed beside it. There is no second engine here,
+  // no second vocabulary, and no threshold of its own. A row the pattern engine
+  // declined to read (`read: false`) has no baseline; so does a poleless issue and
+  // an incidental omnibus brush, because those refusals already happened upstream
+  // in _recordDirectionIndex and this function is never handed a side for them.
+  // Two absences are still not a finding: an issue with no stated position and no
+  // readable record produces nothing at all, exactly as it did before.
+  //
+  // STATED ALWAYS WINS. A row carrying a stated position (`said`) is skipped
+  // outright, so a baseline can only ever fill a hole. When a stance is later
+  // curated for that issue the row gains `said`, this function stops emitting for
+  // it on the next epoch, and the stated position takes the slot back — no
+  // migration, no precedence table, nothing to clean up.
+  //
+  // AND IT NEVER TOUCHES DIRECTION MATCH. This is the whole reason the derivation
+  // lives here and not in the position map. Direction Match reads the CURATED LIST
+  // directly — window._resolveStanceList, through PDXWordAction.wordLedger — and
+  // nothing below writes to that list, to ISSUE_STANCE_DATA, to _polPositionMap or
+  // to positionStance. The baseline is published BESIDE the stated map and is
+  // never merged into it, so a derived side cannot become its own "stated"
+  // position and score itself against the record it was read from. That
+  // circularity is the one failure mode this feature could have had, and the fix
+  // is structural rather than conditional: there is no write path.
+  // scripts/test-record-baseline-stance.mjs holds the percentage and its tested
+  // count byte-identical with the baseline read and unread.
+  var _BL_TAG = 'From the record';
+  var _BL_NOT_DM = 'Not in Direction Match';
+  var _BL_NOTE = 'No stated position on file — this is the direction of the formal ' +
+    'record itself, not a quoted stance, and it is not counted in Direction Match.';
+  // tone → the three-word stance vocabulary the rest of the app already speaks
+  // (SAID in stance-tree.js, the position map, the alignment side table). `muted`
+  // has no entry and never gets one: a record with no read has no baseline.
+  var _BL_SIDE = { support: 'support', oppose: 'oppose', mixed: 'mixed' };
+  function _blLead() { return window._PDX_RD_SAYS_LEAD || 'The record indicates'; }
+  // One index row → one baseline entry, or null. Every refusal here is a refusal
+  // the row already carried; nothing is re-decided.
+  function _blEntry(x) {
+    if (!x || !x.read || x.said) return null;
+    var side = _BL_SIDE[x.tone];
+    if (!side) return null;
+    var says = (x.pat && x.pat.says) || null;
+    var word = says ? says.label : (x.patLabel || '');
+    if (!word) return null;
+    var lead = _blLead();
+    return {
+      pid: x.pid, key: x.key, label: x.label,
+      // The stance vocabulary, so a surface can drop this in where a stated stance
+      // would have gone. `basis` is what stops it being mistaken for one.
+      stance: side,
+      basis: 'record', derived: true, stated: false,
+      // The reader-facing word, from the engine's own nine states, and the framed
+      // sentence a surface can print without composing one of its own.
+      word: word,
+      says: says ? says.key : '',
+      text: lead + ': ' + word + (x.counts ? ' — ' + x.counts : ''),
+      patLabel: x.patLabel || '',
+      tier: x.tier, weight: x.weight, tone: x.tone,
+      directional: !!x.directional,
+      counts: x.counts || '', judged: x.judged || 0, held: x.held || 0,
+      single: !!x.single, noun: x.noun,
+      lead: lead, tag: _BL_TAG, notInDm: _BL_NOT_DM, note: _BL_NOTE,
+      pat: x.pat || null
+    };
+  }
+  // MEMOIZED per politician per epoch, on the same key shape issueRows() uses —
+  // the exec term scope is part of the answer because it is part of the row model
+  // this reads. Callers treat the array and its entries as read-only.
+  var _blCache = {}, _blEpoch = 0;
+  function baselineRows(pid) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_blEpoch !== ep) { _blCache = {}; _blMerged = {}; _blEpoch = ep; }
+    var k = norm(pid) + '||' + execTermScope().key;
+    if (Object.prototype.hasOwnProperty.call(_blCache, k)) return _blCache[k];
+    var out = [];
+    try {
+      (_fpiRows(pid) || []).forEach(function (x) {
+        var e = _blEntry(x);
+        if (e) out.push(e);
+      });
+    } catch (e) { out = []; }
+    _blCache[k] = out;
+    return out;
+  }
+  function baselineMap(pid) {
+    var out = {};
+    baselineRows(pid).forEach(function (e) { out[e.key] = e; });
+    return out;
+  }
+  function baselineFor(pid, issueKey) {
+    if (!issueKey) return null;
+    var rows = baselineRows(pid);
+    for (var i = 0; i < rows.length; i++) if (rows[i].key === issueKey) return rows[i];
+    return null;
+  }
+  // ── THE MERGED POSITION READ ────────────────────────────────────────────────
+  // The stated map with the baseline filling its holes, and the drop-in a surface
+  // reaches for when it was calling _polPositionMap only to print "no stance" half
+  // the time. Same key space, same `stance` vocabulary; `basis` says which lane an
+  // entry came from and is the field a surface MUST branch on before it words the
+  // line. Stated entries keep every curated field they had.
+  //
+  // This is a SECOND map, not a replacement: _polPositionMap is untouched, still
+  // memoized, still the only thing the scoring lanes read. Nothing here is written
+  // back to it.
+  var _blMerged = {};
+  function baselinePositions(pid, p) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_blEpoch !== ep) { _blCache = {}; _blMerged = {}; _blEpoch = ep; }
+    var k = norm(pid) + '||' + execTermScope().key + '||' + String((p && p.name) || '');
+    if (Object.prototype.hasOwnProperty.call(_blMerged, k)) return _blMerged[k];
+    var out = {};
+    var stated = {};
+    try {
+      if (typeof window._polPositionMap === 'function') stated = window._polPositionMap(pid, p) || {};
+    } catch (e) { stated = {}; }
+    Object.keys(stated).forEach(function (key) {
+      var s = stated[key] || {};
+      out[key] = {
+        key: key, stance: s.stance, basis: 'stated', derived: false, stated: true,
+        word: '', text: s.text, topic: s.topic, icon: s.icon,
+        evidence: s.evidence, source: s.source
+      };
+    });
+    baselineRows(pid).forEach(function (e) {
+      // Belt and braces. `said` on the row already excluded these; this second
+      // guard is what makes "stated always wins" true of the MAP rather than only
+      // of the row model that fed it.
+      if (Object.prototype.hasOwnProperty.call(out, e.key)) return;
+      out[e.key] = e;
+    });
+    _blMerged[k] = out;
+    return out;
+  }
+  // Published as siblings of window._polPositionMap so a surface can switch one
+  // call and get coverage, and so nothing has to reach through PDXConsistency to
+  // do it. Read-only, memoized, and — see the wall above — with no path back into
+  // the stated map or into Direction Match.
+  window._polBaselineMap = function (id, p) { return baselinePositions(id, p); };
+  window._polBaselineStance = function (id, issueKey, p) {
+    if (!issueKey) return null;
+    var m = baselinePositions(id, p);
+    return m[issueKey] || null;
+  };
   // ── 🏛 THE SHAPE OF THE RECORD, IN FOUR FACTS ───────────────────────────────
   // The index above is the LIST. This is its summary, and it exists because a
   // surface that has room for four lines cannot mount sixty rows — the profile
@@ -8288,7 +8478,14 @@
     // the same reason: the chip is the fact every row here has, and "Says: …" is
     // the one only some of them do.
     var chip = x.read ? _stPatternHtml(x.row, x.pat) : _fpiUnreadHtml(x);
-    var says = x.stance ? _orStanceChip(x.pid, x.key) : '';
+    // NOTHING SAID, AND A RECORD THAT READS A SIDE. The says slot used to go
+    // empty here, which left the index printing a pattern with no position beside
+    // it on exactly the rows where the pattern is the only position there is. The
+    // baseline fills that slot with the record's own direction — in the record
+    // lane's own words, under its own label, never "Says:" — and says on the chip
+    // itself that it is not in Direction Match. Stated always wins the slot: the
+    // baseline is only ever consulted when `x.stance` is empty.
+    var says = x.stance ? _orStanceChip(x.pid, x.key) : _blChipHtml(x);
     var meta = x.held > 0
       ? (x.held + ' ' + (x.held === 1 ? x.noun.one : x.noun.many) + ' on file')
       : '';
@@ -8298,7 +8495,8 @@
         ' data-pdxfpi-tier="' + escAttr(x.tier) + '"' +
         ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
         ' data-pdxst-origin="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
-        ' data-pdxfpi-said="' + (x.said ? '1' : '0') + '">' +
+        ' data-pdxfpi-said="' + (x.said ? '1' : '0') + '"' +
+        (says && !x.stance ? ' data-pdxfpi-baseline="1"' : '') + '>' +
         '<button type="button" class="pdxfpi-lbl pdxst-open"' +
           ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
           ' data-pdxst-origin="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
@@ -12757,6 +12955,28 @@
       HEAD: _XS_HEAD,
       JUMP: _XS_JUMP,
       WALL: _XS_WALL
+    },
+    // 🏛 THE RECORD-DERIVED BASELINE STANCE. `map(pid)` is the derived-only set
+    // (issue key → entry) and `rows(pid)` the same in strongest-first order;
+    // `for(pid, key)` is one issue; `positions(pid, p)` is the stated map with
+    // those entries filling its holes, which is the drop-in for a surface that
+    // was calling _polPositionMap only to print "no stance" half the time. Every
+    // entry carries `basis` ('stated' | 'record'), `derived`, and the marking copy
+    // — LEAD / TAG / NOT_DM / NOTE — so no surface has to compose its own wording
+    // for "this came from the record, not from them". Read-only, memoized per
+    // epoch, and with no write path into the stated lane: see the long wall over
+    // _blEntry for why Direction Match cannot see any of it.
+    baseline: {
+      rows: baselineRows,
+      map: baselineMap,
+      for: baselineFor,
+      positions: baselinePositions,
+      count: function (pid) { try { return baselineRows(pid).length; } catch (e) { return 0; } },
+      LEAD: _blLead(),
+      TAG: _BL_TAG,
+      NOT_DM: _BL_NOT_DM,
+      NOTE: _BL_NOTE,
+      SIDE: _BL_SIDE
     },
     formalPatternIndex: {
       rows: _fpiRows,

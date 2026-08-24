@@ -172,8 +172,8 @@
       key: 'stated', ico: '\u{1F4AC}',
       label: 'Your Match · stated',
       tab: 'Stated',
-      sub: 'What they have said vs the positions you set.',
-      rankLine: 'Ranked by their <b>stated positions</b> on the issues you set — not by party, and not by Direction Match.',
+      sub: 'What they have said vs the positions you set — and, where they have said nothing, what their formal record did.',
+      rankLine: 'Ranked by their <b>stated positions</b> on the issues you set — falling back to the direction of their <b>formal record</b> where no stance is on file — not by party, and not by Direction Match.',
       gap: 'No stated position on your issues yet',
       share: 'ranked by stated positions'
     }
@@ -560,6 +560,15 @@
   function cell(key, sRow, rRow, mode, fRow) {
     var lead = (mode === 'record') ? rRow : sRow;
     var other = (mode === 'record') ? sRow : rRow;
+    // ── A BASELINE IS NOT A SECOND LANE ────────────────────────────────────
+    // The stated lane now falls back to the record's own direction on an issue
+    // we hold no quote for. That row is the SAME READING as the record row
+    // beside it, so pairing the two would print one fact twice — and, worse,
+    // would satisfy the "the other lane spoke" branch below and delete the
+    // no-stance-on-file disclosure that is the whole point of the second line.
+    // A baseline therefore never occupies the other slot in either mode; the
+    // cell falls through to the silence, which is what it is.
+    if (sRow && sRow.baseline) other = null;
     var chip = fn('_alignSignalChipHtml');
     var leadHtml = (lead && chip) ? chip(lead) : '';
     var otherHtml = (other && chip) ? chip(other) : '';
@@ -593,7 +602,7 @@
       } else {
         leadHtml = '<span class="rs-cell-none">' + esc(silence) + '</span>';
       }
-    } else if (!otherHtml && mode === 'record') {
+    } else if (!otherHtml && (mode === 'record' || (sRow && sRow.baseline))) {
       // THE RECORD ANSWERED AND WE HOLD NO QUOTE. Every other combination of the
       // two lanes already prints two lines; this one printed one, so the single
       // case this whole pass is about — a pattern standing in for a stance that
@@ -1442,7 +1451,7 @@
     var bandHd = (mode === 'record' && filed) ? 'Not ranked on your issues yet' : mm.gap;
     var bandSub;
     if (mode !== 'record') {
-      bandSub = 'They have no documented position on the issues you set, so there is no stated match to give them. They are not ranked here and they are not scored from their votes instead.';
+      bandSub = 'They have no documented position on the issues you set, and their formal record does not read a direction on those issues either, so there is no match to give them. They are not ranked here and nothing is estimated from their party.';
     } else if (!filed) {
       bandSub = 'Their votes and formal actions do not read a direction on the issues you set, so there is no record match to give them. They are not ranked here and they are not scored from their words instead.';
     } else {

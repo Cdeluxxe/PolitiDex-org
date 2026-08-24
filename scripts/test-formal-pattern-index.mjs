@@ -474,11 +474,26 @@ section("9 · it is not a score, and not a stance");
   FPI.rows(PID); FPI.html(PID, { view: "all" }); A._pdxStanceRecordBody(PID, A.CMP_DATA[PID]);
   const after = JSON.stringify(A._polPositionMap ? A._polPositionMap(PID, A.CMP_DATA[PID]) : {});
   eq(after, before, "the position map is untouched by building or rendering the index");
+  // A ROW WITH NOTHING STATED ON IT STILL MAY NOT CLAIM A QUOTE. What it may do —
+  // since the baseline pass — is print the record's OWN direction in the slot the
+  // stated chip would have used, under its own label and behind its own denial.
+  // The line that must not be crossed is the wording, not the pixel: `stance` stays
+  // empty, "Says:" is never printed, and anything in that slot is marked baseline.
+  const CSB = CS.baseline || null;
   for (const x of ROWS) {
     if (x.said) continue;
     eq(x.stance, "", `${x.key}: a pattern read never becomes a stated position`);
-    lacks(chunkOf(INDEX, x.key), "pdxor-stance",
-      `${x.key}: …and no "Says:" chip is invented for it`);
+    const chunk = chunkOf(INDEX, x.key);
+    lacks(chunk, "Says:", `${x.key}: …and no "Says:" chip is invented for it`);
+    const bl = CSB ? CSB.for(PID, x.key) : null;
+    if (chunk.indexOf("pdxor-stance") >= 0) {
+      ok(!!bl, `${x.key}: a chip in the stated slot is there because the record read a side`);
+      has(chunk, "pdxor-baseline", `${x.key}: …and is marked as the baseline it is`);
+      has(chunk, "Baseline:", `${x.key}: …under the Baseline label`);
+      has(chunk, "Not in Direction Match", `${x.key}: …disowning the score on its face`);
+    } else {
+      eq(bl, null, `${x.key}: …and the slot is empty exactly when the record read no side`);
+    }
   }
   // Nothing in the row model changed either: the index is a reader of it.
   const shape = CS.issueRows(PID).map((r) => `${r.key}:${r.tier}:${r.verdict.token}`).join("|");
@@ -492,8 +507,13 @@ section("10 · formal lane only, and no party framing");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   has(INDEX, "formal record only", "the index states which lane it is");
-  lacks(INDEX, "Not in Direction Match",
+  // The public lane is absent from this surface entirely — no tag of its own, no
+  // evidence tag, no items. Checked on the classes rather than on the sentence,
+  // because the record-derived baseline denies Direction Match in the same words
+  // and it is a formal-lane thing saying a formal-lane thing.
+  lacks(INDEX, "pdxst-pub-tag",
     "…and carries no public-lane tag, because it holds no public-lane items");
+  lacks(INDEX, "pdxst-ev-tag", "…nor a public-lane evidence tag");
   for (const bad of ["Democrat", "Republican", "GOP", "party line", "party-line", "their party"]) {
     lacks(INDEX, bad, `no party framing: "${bad}"`);
   }

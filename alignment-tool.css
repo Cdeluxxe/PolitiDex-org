@@ -1071,6 +1071,17 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
    dashed edge says; it is not a less readable fact. */
 .align-sig-rec.w-thin { border-style: dashed; background: none; font-weight: 700; }
 .align-sig-rec.w-flat { border-style: dotted; border-color: rgba(159,180,212,0.34); color: #9fb4d4; background: none; }
+/* THE BASELINE MARK. A record-derived stand-in for an issue with no stated
+   position on file: same record colours, but dashed and tagged, so a reader
+   scanning a column of chips can see at a glance which sides were spoken and
+   which were read off the votes. Never rendered on a stated row. */
+.align-sig-rec.is-baseline { border-style: dashed; }
+.align-sig-base {
+  margin-left: 0.3rem; padding: 0 0.28rem; border-radius: 0.28rem;
+  font-size: 0.54rem; letter-spacing: 0.045em; text-transform: uppercase; font-weight: 800;
+  color: #9fb4d4; background: rgba(148,163,184,0.16); border: 1px solid rgba(148,163,184,0.3);
+}
+.align-cov-base { display: block; margin-top: 0.28rem; font-size: 0.68rem; line-height: 1.45; color: #8ea2c0; }
 
 /* ── coverage honesty note — how much of what you asked this mode can answer,
       which issues it cannot, and that they are NOT quietly scored from words. */

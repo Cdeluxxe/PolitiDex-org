@@ -131,6 +131,14 @@
 .pdxtree-said.s-oppose  { color: #fca5a5; }
 .pdxtree-said.s-mixed   { color: #fbe08a; }
 .pdxtree-said.s-none    { color: #8fa6c6; font-style: italic; }
+/* THE BASELINE IN THE SAID SLOT. Tinted by the side the record read, but dashed
+   and trailed by "· from the record" so it is never scanned as a quote. The
+   leaf still carries the "Not in Direction Match" tag beside it. */
+.pdxtree-said.is-baseline {
+  border-bottom: 1px dashed rgba(148,163,184,0.45); font-style: normal;
+}
+.pdxtree-said.is-baseline b { color: #8fa6c6; }
+.pdxtree-basefrom { color: #8fa6c6; font-style: italic; opacity: 0.9; }
 
 /* Record — the formal record's, never theirs. The lane marker (🏛) is part of
    the label in the markup for exactly that reason. */
