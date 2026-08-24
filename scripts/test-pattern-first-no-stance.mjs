@@ -609,7 +609,7 @@ section("9 · the promoted cell drops the verdict, in the source");
   const src = R("race-sheet.js")
     .replace(/\/\*[\s\S]*?\*\//g, " ")
     .split("\n").map((l) => l.replace(/(^|[^:'"\\])\/\/.*$/, "$1")).join("\n");
-  const at = src.indexOf("function cell(key, sRow, rRow, mode)");
+  const at = src.indexOf("function cell(key, sRow, rRow, mode, fRow)");
   must(at > 0, "race-sheet's cell() has been renamed — the promotion guard is unreadable");
   const body = src.slice(at, src.indexOf("\n  }", at));
   const promo = body.indexOf("leadHtml = otherHtml;");
