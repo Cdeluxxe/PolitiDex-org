@@ -1860,7 +1860,13 @@
 
          Each host is emitted even when its builder returns nothing, so every
          rule here is guarded on :not(:empty); an empty host keeps the base
-         `display: none` and the card closes above it. */
+         `display: none` and the card closes above it.
+
+         DORMANT. The profile no longer mounts either host — the letterhead now
+         carries the one-line .pdxwa-cbadge chip instead, and the shape and depth
+         lines are read inside ⚖️ Word vs Action itself. Every selector below is
+         guarded on a host that is not in the DOM, so all of it is inert; it is
+         kept intact against the builders (still exported) being mounted again. */
       .profile-hero:has(~ .pdxwa-htally-host:not(:empty)),
       .profile-hero:has(~ .pdxwa-hstack-host:not(:empty)) { margin-bottom: 0; }
       .profile-hero:has(~ .pdxwa-htally-host:not(:empty)) .profile-hero-score,

@@ -532,20 +532,67 @@ eq(JSON.stringify(withRows(ROWS, () => WA.read(PID, ctx.PROFILES[PID])).coverage
   "drift: summing the public lane moved the formal coverage — the two lanes are not separate");
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 10. Placement and tap targets
+// 10. Where it is — and where it no longer is
 // ═════════════════════════════════════════════════════════════════════════════
+// This block used to pin the tally's placement in the letterhead: mounted under
+// the ring, above the depth stack, a full-width sibling of .profile-hero. It is
+// not mounted there any more. Three renderings of one score — the ring, the
+// four-count strip, the depth-and-span strip — stood between the top of a profile
+// and the first thing a reader comes here to browse, and every one of them was a
+// summary of ⚖️ Word vs Action printed above the section that justifies it. The
+// letterhead carries one chip now, and the shape, the depth and the span are read
+// where they are explained.
+//
+// The builder is untouched and still exported, and every section above this line
+// still drives it on a real profile — so this file goes on being the guarantee
+// that the header tally is correct wherever it is mounted. What changed is the
+// answer to "is the profile mounting it", and that answer is pinned here so it
+// cannot drift back unnoticed.
 const PF = read("profiles-full.js");
 const CSS = read("word-action.css");
+const heroOpen = PF.indexOf('<div class="profile-hero">');
 const heroEnd = PF.indexOf('<div class="profile-hero-score">');
-const mountAt = PF.indexOf("PDXWordAction.headerTallyMount(");
-must(heroEnd !== -1 && mountAt !== -1, "the letterhead or its tally mount is gone from profiles-full.js");
-ok(mountAt > heroEnd,
-  "placement: the tally is mounted above the ring — it is the shape BEHIND the figure and reads as a\n" +
-  "    random block mid-page anywhere else");
-const stackAt = PF.indexOf("PDXWordAction.headerStackMount(");
-ok(stackAt === -1 || mountAt < stackAt,
-  "placement: the header stack's context lines now come between the ring and its shape");
-// A full-width sibling of the hero, not a fifth child crushed beside the ring.
+must(heroOpen !== -1 && heroEnd !== -1, "the letterhead is gone from profiles-full.js");
+eq(PF.indexOf("PDXWordAction.headerTallyMount("), -1,
+  "placement: the four-count strip is mounted on the profile again — a summary of ⚖️ Word vs\n" +
+  "    Action standing above ⚖️ Word vs Action, and above 🌳 All Issues by Topic, which is the\n" +
+  "    stack the letterhead chip replaced");
+eq(PF.indexOf("PDXWordAction.headerStackMount("), -1,
+  "placement: the depth-and-span strip is mounted on the profile again — same reason, one\n" +
+  "    line lower");
+
+// What stands in their place: one chip, in the identity block, beside the status
+// pills — not a fourth strip hanging under the letterhead.
+const chipAt = PF.indexOf("PDXWordAction.compactBadgeMount(");
+must(chipAt !== -1, "the letterhead chip is gone from profiles-full.js");
+ok(chipAt > heroOpen && chipAt < heroEnd,
+  "placement: the chip is not in the identity block between the name and the ring. Anywhere\n" +
+  "    else on the page it is a strip under the letterhead, which is the shape of the thing it\n" +
+  "    was built to replace");
+ok(/\.pdxwa-cbadge\s*\{/.test(CSS), "placement: the letterhead chip has no style of its own");
+ok(/\.pdxwa-cbadge\s*\{[^}]*font-size:\s*0\.[0-6]/.test(CSS),
+  "weight: the chip is sized above the status pills it sits among. The ring is the headline\n" +
+  "    read; a chip that rivals it is the second score this pass removed");
+ok(/@media \(hover: none\), \(pointer: coarse\) \{[^@]*\.pdxwa-cbadge \{[^}]*min-height:/.test(CSS),
+  "mobile: the chip has no thumb-sized target on a coarse pointer — it is a door, and a door\n" +
+  "    the width of a word is not one on a phone");
+// Same host discipline the tally has, and for the same reason: on a member profile
+// the letterhead is built while the roll-call record is still in flight, so the
+// first read has no percentage and the chip has to have somewhere to arrive.
+ok(/PDXWordAction\.compactBadgeMount\(/.test(PF),
+  "placement: the profile interpolates the chip's HTML directly instead of mounting a host. On a\n" +
+  "    member the record is still in flight when the letterhead is built, so that chip renders\n" +
+  "    empty and stays empty — it would only ever appear on an already-warm profile");
+ok(/function bindCompactBadge/.test(read("word-action.js")),
+  "placement: the chip host is not repainted by pdx-consistency-warm, so a figure that lands a\n" +
+  "    moment after first paint never reaches the letterhead");
+ok(/\.pdxwa-cbadge-host:empty\s*\{[^}]*display:\s*none/.test(CSS),
+  "placement: an empty chip host still takes room. .profile-meta is a flex row with a gap, so a\n" +
+  "    cold letterhead would carry a visible hole between two badges");
+
+// The builder's own skin stays pinned: sections 1-9 still drive headerTallyHtml
+// on a real profile, and a mount that is re-enabled later must still land in a
+// host that collapses when empty and counts that can be tapped.
 ok(/\.pdxwa-htally-host\s*\{/.test(CSS), "placement: the host has no layout rule of its own");
 ok(/\.pdxwa-htally-host:empty\s*\{[^}]*display:\s*none/.test(CSS),
   "placement: an empty host still occupies the header — a cold profile gets a gap where a shape is not");
