@@ -4084,26 +4084,52 @@
     } else if (pos) {
       pill = '<span class="vr-vote-pill vr-vote-notvoting">' + _pdxEyeEsc(_vrhiTitleCase(pos)) + '</span>';
     }
-    var primary = (it.issues && it.issues[0]) || null;
-    var issue = '';
-    if (primary && primary.issueKey) {
-      var lbl = (typeof window._issueLabel === 'function') ? (window._issueLabel(primary.issueKey) || primary.issueKey) : primary.issueKey;
-      issue = '<span class="pdx-vrhi-issue">' + _pdxEyeEsc(lbl) + '</span>';
-      // A single vote on an omnibus is a verdict on several issues at once; say so
-      // rather than letting the primary issue read as the whole of it.
-      if (it.issues.length > 1) {
-        issue += '<span class="pdx-vrhi-issue is-more">+' + (it.issues.length - 1) + ' more</span>';
-      }
+    // EVERY TOPIC THE VOTE DECIDED, AS A ROW OF EQUALS. This printed the flagged
+    // issue as a full label and then folded the rest into "+4 more" — a grey,
+    // unreadable count standing in for four real policies the same vote settled,
+    // with the flag choosing which one got a name. The fold is gone: each mapped
+    // topic gets its own chip, all the same chip, in the shared Big Picture order
+    // (taxonomy category, then label). The meta row already wraps, so a five-topic
+    // omnibus costs a line of height and buys back four named policies.
+    var _lbl = function (k) {
+      return (typeof window._issueLabel === 'function') ? (window._issueLabel(k) || k) : k;
+    };
+    var topics = (it.issues || []).filter(function (is) { return is && is.issueKey; });
+    if (typeof window._pdxBigPictureOrder === 'function') {
+      topics = window._pdxBigPictureOrder(topics, { labelFn: _lbl });
     }
+    var issue = topics.map(function (is) {
+      return '<span class="pdx-vrhi-issue">' + _pdxEyeEsc(_lbl(is.issueKey)) + '</span>';
+    }).join('');
     // Per-vote stance verdict, from the SAME shared engine the full record card
     // uses — so a highlight never disagrees with the row it links to. Absent when
     // the member has no stated stance on the issue, which is the honest answer.
-    var verdict = '';
+    //   One badge can only hold one stance comparison, and the topic it is built
+    // from is the measure's flagged one — the permitted example-pick use of the
+    // flag. Because this compact card has no room for the per-topic split the full
+    // record card carries, the badge names its own scope in a tooltip instead of
+    // floating unqualified above a row of chips it does not speak for.
+    //   AND THE SCOPE IS ON THE FACE, NOT ONLY IN THE TOOLTIP. A tooltip is dead on
+    // touch, and the thing it was carrying is the one thing that stops "✓ Matches
+    // stance" reading as a verdict on the member's whole record on that topic. So
+    // the scope is a printed line: it names the instrument first, names the topic
+    // the comparison is against, and says plainly that one vote is one vote.
+    var scoped = (it.issues && it.issues[0]) || null;
+    var verdict = '', vScope = '';
     try {
-      if (primary && posMap[primary.issueKey] && window._voteEffectiveSupport && window._stanceVoteVerdict) {
-        var eff = window._voteEffectiveSupport(it, primary.supportMeaning);
-        var v = _VRHI_VERDICT[window._stanceVoteVerdict(posMap[primary.issueKey].stance, eff)];
-        if (v) verdict = '<span class="vr-verdict ' + v.cls + '">' + v.label + '</span>';
+      if (scoped && posMap[scoped.issueKey] && window._voteEffectiveSupport && window._stanceVoteVerdict) {
+        var eff = window._voteEffectiveSupport(it, scoped.supportMeaning);
+        var v = _VRHI_VERDICT[window._stanceVoteVerdict(posMap[scoped.issueKey].stance, eff)];
+        if (v) {
+          var vTip = 'On this act: compares the stated stance on ' + _lbl(scoped.issueKey) +
+            ' with this one vote. It is not their record on ' + _lbl(scoped.issueKey) + '.' +
+            (topics.length > 1 ? ' This vote also decided ' + (topics.length - 1) + ' other topic' +
+              (topics.length > 2 ? 's' : '') + ', listed below and judged in the full record.' : '');
+          verdict = '<span class="vr-verdict ' + v.cls + '" title="' + _pdxEyeEsc(vTip) + '">' + v.label + '</span>';
+          vScope = '<div class="pdx-vrhi-scope">On this vote — stated stance on ' +
+            _pdxEyeEsc(_lbl(scoped.issueKey)) + ' vs this one roll call' +
+            (topics.length > 1 ? ', one of ' + topics.length + ' topics it decided' : '') + '</div>';
+        }
       }
     } catch (e) {}
     return '<div class="pdx-vrhi-card">' +
@@ -4111,9 +4137,16 @@
           '<span class="pdx-vrhi-card-ref">' + num + when + '</span>' + verdict +
         '</div>' +
         (it.title ? '<div class="pdx-vrhi-card-title">' + _pdxEyeEsc(it.title) + '</div>' : '') +
+        vScope +
         '<div class="pdx-vrhi-card-meta">' + pill + issue + '</div>' +
       '</div>';
   }
+  // Exposed for scripts/test-big-picture-surfaces.mjs, matching the convention in
+  // voting-record.js (window._vrCardHtml): a pure item → HTML function a node
+  // harness can render without a DOM, so the highlight card's topic list is
+  // testable and cannot quietly go back to naming one topic and counting the rest.
+  window._pdxVoteHighlightCard = _vrhiCard;
+
   // Retires the cold-open "loading" line. Called when the live panel paints, and
   // when a load has landed and yielded nothing — either way the line has stopped
   // being true, and a permanent "loading…" is its own small lie.
@@ -4169,8 +4202,11 @@
       // stated position can be checked against, which is what this profile is for.
       // Nothing mapped yet → show the most recent records anyway rather than an
       // empty slot, since "here is the file" is still true and still useful.
+      // "Is this record mapped to anything?" — asked of the whole mapping list, not
+      // of issues[0]. A record whose first mapping happened to be malformed while
+      // four others were fine used to count as unmapped.
       var mapped = recs.filter(function (it) {
-        return it && it.issues && it.issues.length && it.issues[0] && it.issues[0].issueKey;
+        return !!(it && it.issues && it.issues.some(function (is) { return is && is.issueKey; }));
       });
       var pick = (mapped.length ? mapped : recs.slice()).sort(_vrhiByDateDesc).slice(0, 3);
 

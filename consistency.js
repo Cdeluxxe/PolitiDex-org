@@ -1831,6 +1831,15 @@
       '.pdxdos-door{text-transform:none;letter-spacing:0.01em;font-size:0.7rem;min-height:2.15rem;padding:0.3rem 0.7rem;}' +
       '.pdxdos-door .pdxdos-door-b{font-weight:800;}' +
       '.pdxdos-door .pdxdos-door-r{color:#c6d4ec;font-weight:600;}' +
+      // Depth markers on the result faces. One shared amber pill in three places —
+      // the divergence row's reason line, the dossier door and the bucket head —
+      // because they are all the same disclosure: this result rests on one
+      // instrument. Amber is the colour this surface already uses for a limit on a
+      // finding, never for a verdict of its own.
+      '.pdxdv-row-1,.pdxdos-door-1,.pdxdos-bucket-d{display:inline-block;margin-left:0.35rem;' +
+        'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;' +
+        'text-transform:uppercase;color:#fbbf24;border:1px solid rgba(251,191,36,0.34);' +
+        'background:rgba(251,191,36,0.1);border-radius:999px;padding:0.02rem 0.4rem;white-space:nowrap;}' +
       '.pdxgap-back{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,16,0.72);backdrop-filter:blur(2px);}' +
       '.pdxgap-back[hidden]{display:none;}' +
       // Top padding is deliberately tight (0.65rem, not 1rem): this sheet is the
@@ -8685,6 +8694,10 @@
     // from "did the record back the word" — the bucket word is carried on the door
     // instead, so the two never sit side by side pretending to be the same claim.
     var o = _bucketAt(pid, p.key);
+    // The bucket word on this door is a result name; when the row rests on one
+    // instrument the door says so too, so the reader knows the size of the finding
+    // before they open it rather than after.
+    var _oneIns = _oneInstrumentVoice(pid, p.key, p.off);
     var skin = _icSkin(p.key);
     var body =
         '<div class="pdxdv-row-lbl">' + _icDot(skin) + esc(_issueLabel(p.key)) + '</div>' +
@@ -8708,8 +8721,10 @@
           ' id="' + escAttr(dvRowId(pid, p.key)) + '"' +
           ' data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
           ' data-pdxc-gap-origin="' + escAttr(dvRowId(pid, p.key)) + '"' +
-          ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(p.key), o, '')) + '">' +
+          ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(p.key), o, '', _oneIns ? _oneIns.chip : '')) + '">' +
           body + '<span class="pdxdv-row-why">' + esc(o.short) +
+          (_oneIns ? ' <span class="pdxdv-row-1" title="' + escAttr(_oneIns.sentence) + '">' +
+            esc(_oneIns.chip) + '</span>' : '') +
           ' — open the issue dossier <span aria-hidden="true">→</span></span></button>';
     }
     return '<div class="pdxdv-row' + skin.cls + '" style="' + skin.style + '"' +
@@ -10352,6 +10367,54 @@
     return _insSpread(r.pid, r.key, null);
   }
 
+  // ── ONE INSTRUMENT IS NOT A PATTERN ─────────────────────────────────────────
+  // The bucket words this profile files an issue under — Backed up, Contradicted,
+  // Mixed — are honest names for a result. The SENTENCES under them are not always
+  // honest at every depth: "The record points the same way as the word" describes a
+  // record, and a row whose entire judged evidence is one omnibus yea does not have
+  // one yet. It has an act. Same finding, wrong size.
+  //
+  // So every face that prints a bucket over a single-instrument row prints the
+  // inventory with it: how many judged items, what the one instrument is, and the
+  // flat statement that this is that act rather than a pattern across the issue.
+  // Nothing here is a downgrade — the token, the colour, the bucket name, the
+  // percentage and every floor in _recordDirectionIndex are untouched, and a row
+  // that clears the depth the engine already requires is not annotated at all.
+  // This only ever ADDS scope to copy that was speaking above its evidence.
+  //
+  // Reads _insSpread, which is the same memoised document count the Official
+  // Record row face already shows as its "1 measure" chip, and which fails closed:
+  // an unnameable instrument is counted as its own document rather than folded in
+  // with another, so the marker can be missing but never invented.
+  //   THE WORDING IS SPLIT FROM THE LOOKUP so a test can pin the sentence without
+  // standing up a politician: _oneInstrumentSay is a pure function of a spread, and
+  // _oneInstrumentVoice is that function over the memoised real one.
+  function _oneInstrumentSay(sp) {
+    if (!sp || !sp.single || !(sp.judged > 0)) return null;
+    var inv = sp.judged === 1
+      ? 'one judged item on file'
+      : sp.judged + ' judged items on file, all the same measure';
+    return {
+      judged: sp.judged,
+      ident: sp.ident || '',
+      chip: sp.judged === 1 ? 'on 1 item' : 'on 1 measure',
+      sentence: 'On ' + inv + (sp.ident ? ' — ' + sp.ident : '') +
+        '. That is this instrument on its own — not a pattern across the issue.'
+    };
+  }
+  function _oneInstrumentVoice(pid, issueKey, ov) {
+    try { return _oneInstrumentSay(_insSpread(pid, issueKey, ov || null)); }
+    catch (e) { return null; }
+  }
+  // The row-shaped front door, matching _insSpreadRow.
+  function _oneInstrumentVoiceRow(r) {
+    if (!r || !r.key) return null;
+    return _oneInstrumentVoice(r.pid, r.key, null);
+  }
+  // Exposed for scripts/test-act-scope-copy.mjs: the sentence a face prints over a
+  // single-instrument row, as a pure function of the spread behind it.
+  try { window._pdxOneInstrumentSay = _oneInstrumentSay; } catch (e) {}
+
   // ── THE MECHANISM LINES — what it did, and why it counts HERE ───────────────
   // Two sentences per instrument, on the face of the row, in the same two slots for
   // every lane. Before this existed a reader got a document number, a verdict chip
@@ -10834,8 +10897,11 @@
     } catch (e) {}
     return null;
   }
-  // One row per issue the document was mapped to, in the order the omnibus context
-  // already sorts them (primary first, then weight) with this issue lifted to front.
+  // One row per issue the document was mapped to — every one of them, never a slice.
+  // The order is whatever the omnibus context hands over, which is now the shared Big
+  // Picture order (taxonomy category, then label) rather than the old primary-first,
+  // weight-descending score sort, with the issue the reader is standing on lifted to
+  // the front. That lift is orientation, not rank: it is the row they arrived from.
   function _insTrail(pid, d, issueKey) {
     if (!d || !d.item || !pid || typeof window._measureOmnibusContext !== 'function') return null;
     var ctx;
@@ -11282,13 +11348,20 @@
     } catch (e) {}
     return null;
   }
+  //   AND THE SUB-LINE IS SIZED TO THE EVIDENCE. The bucket's own sub-line speaks
+  // about "the record" — which is right for a row with a record and wrong for a row
+  // holding one instrument. On those rows the inventory replaces it: same bucket,
+  // same colour, same word, with the scope stated instead of a pattern implied.
   function _dosBucketHtml(r) {
     var o = _dosBucket(r);
     if (!o) return '';
+    var one = _oneInstrumentVoiceRow(r);
+    var sub = one ? one.sentence : (o.sub || '');
     return '<div class="pdxdos-bucket" style="--c:' + o.col + ';">' +
         '<span class="pdxdos-bucket-k">In the issue index</span>' +
-        '<span class="pdxdos-bucket-v">' + esc(o.short) + '</span>' +
-        (o.sub ? '<span class="pdxdos-bucket-s">' + esc(o.sub) + '</span>' : '') +
+        '<span class="pdxdos-bucket-v">' + esc(o.short) +
+          (one ? '<span class="pdxdos-bucket-d">' + esc(one.chip) + '</span>' : '') + '</span>' +
+        (sub ? '<span class="pdxdos-bucket-s">' + esc(sub) + '</span>' : '') +
       '</div>';
   }
   // The same lookup from OUTSIDE the sheet. Every surface on the profile that shows a
@@ -11955,13 +12028,16 @@
   function _gapLinkHtml(pid, issueKey) {
     var o = _bucketAt(pid, issueKey);
     if (!o) return '';
+    var one = _oneInstrumentVoice(pid, issueKey, null);
     return '<button type="button" class="pdxdv-open pdxdos-door" data-pdxc-gap="' + esc(issueKey) +
       '" data-pdxc-gap-pid="' + esc(pid) + '"' +
       ' data-pdxc-gap-origin="' + escAttr(orRowId(pid, issueKey)) + '"' +
       ' style="--c:' + o.col + '"' +
-      ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(issueKey), o, '')) + '"' +
-      ' title="Everything on the record for this issue, in one place">' +
-      '<span class="pdxdos-door-b">' + esc(o.short) + '</span>' +
+      ' aria-label="' + escAttr(_dosDoorLabel(_issueLabel(issueKey), o, '', one ? one.chip : '')) + '"' +
+      ' title="' + escAttr(one ? one.sentence + ' Everything on the record for this issue, in one place.'
+        : 'Everything on the record for this issue, in one place') + '">' +
+      '<span class="pdxdos-door-b">' + esc(o.short) +
+        (one ? '<span class="pdxdos-door-1">' + esc(one.chip) + '</span>' : '') + '</span>' +
       '<span class="pdxdos-door-r">— open the issue dossier <span aria-hidden="true">→</span></span>' +
       '</button>';
   }

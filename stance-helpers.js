@@ -1154,6 +1154,79 @@
     }
     window._measureComponentBreakdown = _measureComponentBreakdown;
 
+    // ── Big Picture presentation order (a fork, not a change) ─────────────────
+    // _measureComponentBreakdown sorts primary-first then weight-desc. That order is
+    // load-bearing for the SCORE path — the API ships issues in it, and surfaces that
+    // pick a single internal example read the head of that list — so it does not move.
+    //
+    // But a citizen list is a different question. When a reader opens an act, every
+    // topic it maps to is equally something the vote decided; handing them the
+    // curator's ranking as the reading order tells them, by position alone, which
+    // topics matter. bill-detail.js forked its own order for exactly this reason.
+    // This is that fork, lifted to one place so the record card, the profile
+    // highlight and the library card cannot each drift back to the score sort.
+    //
+    // The order is the SHIPPED TAXONOMY'S OWN INDEX — the category sequence a reader
+    // already meets in the Alignment Tool — then the issue label alphabetically, then
+    // the key. It is derived from the vocabulary, stable, and carries no judgement
+    // about which topic the act was really about, because that is not a fact this
+    // codebase has. Nothing here reads isPrimary or weight, so no presentation
+    // decision can be inherited from a curation decision.
+    //
+    //   list   — anything with an `issueKey` (mappings, or breakdown components)
+    //   opts.labelFn  — key → label; defaults to window._issueLabel then the key
+    //   opts.firstKeys — keys to float to the top (bill-detail floats the reader's
+    //                    own aligned issues). A personalisation, never a rank.
+    var _BP_CAT_RANK = null;
+    function _bpCatRank(key) {
+      if (!_BP_CAT_RANK) {
+        var built = {}, n = 0;
+        try {
+          var cats = (typeof window._pdxIssueCategories === 'function') ? window._pdxIssueCategories() : [];
+          for (var i = 0; i < cats.length; i++) { if (cats[i] && cats[i].key) { built[cats[i].key] = i; n++; } }
+        } catch (e) {}
+        if (!n) return 999; // taxonomy not loaded yet — don't cache an empty table
+        _BP_CAT_RANK = built;
+      }
+      var cat = '';
+      try { if (typeof window._pdxIssueCatOf === 'function') cat = window._pdxIssueCatOf(key) || ''; } catch (e) {}
+      var r = _BP_CAT_RANK[cat];
+      return (typeof r === 'number') ? r : 999;
+    }
+    function _pdxBigPictureOrder(list, opts) {
+      opts = opts || {};
+      var labelFn = (typeof opts.labelFn === 'function') ? opts.labelFn : function (k) {
+        try { if (typeof window._issueLabel === 'function') return window._issueLabel(k) || k; } catch (e) {}
+        return k;
+      };
+      var first = null;
+      if (opts.firstKeys) {
+        first = {};
+        var fk = opts.firstKeys;
+        if (typeof fk.forEach === 'function') fk.forEach(function (k) { first[k] = 1; });
+        else Object.keys(fk).forEach(function (k) { first[k] = 1; });
+      }
+      return (list || []).slice().sort(function (a, b) {
+        var ka = (a && a.issueKey) || '', kb = (b && b.issueKey) || '';
+        if (first) {
+          var fa = first[ka] ? 0 : 1, fb = first[kb] ? 0 : 1;
+          if (fa !== fb) return fa - fb;
+        }
+        var ca = _bpCatRank(ka), cb = _bpCatRank(kb);
+        if (ca !== cb) return ca - cb;
+        var cmp = String(labelFn(ka)).localeCompare(String(labelFn(kb)));
+        if (cmp) return cmp;
+        return ka < kb ? -1 : ka > kb ? 1 : 0;
+      });
+    }
+    window._pdxBigPictureOrder = _pdxBigPictureOrder;
+    // Same order for a bare list of issue KEYS (the library and search cards hold
+    // keys, not mappings), so a chip row and a ledger row never disagree.
+    window._pdxBigPictureKeys = function (keys, opts) {
+      return _pdxBigPictureOrder((keys || []).filter(Boolean).map(function (k) { return { issueKey: k }; }), opts)
+        .map(function (o) { return o.issueKey; });
+    };
+
     // ── Omnibus PROVENANCE (presentation metadata — changes no verdict) ────────
     // The breakdown above answers "what did this one vote do to each issue?". These
     // two helpers answer the companion question a voter asks on a comparison surface:
@@ -1178,6 +1251,16 @@
         if (self === null && c.issueKey === issueKey) self = c;
         else others.push(c);
       });
+      // The sibling issues are a CITIZEN-FACING LIST — every consumer of this
+      // function renders them as prose, chips or a trail — and they were inheriting
+      // _measureComponentBreakdown's is_primary-first, weight-descending order,
+      // which is the scoring path's order. Nothing here can move a verdict, a count
+      // or a percentage (see the note above), so the sequence is pure presentation
+      // and is forked to the shared Big Picture order. `self` keeps its place at the
+      // head of the trail — that is the issue the reader is standing on, not a rank —
+      // and identity is preserved, so callers comparing against ctx.thisIssue still
+      // match. Same members, same count; only the reading order changes.
+      others = _pdxBigPictureOrder(others, opts);
       var advances = [], opposes = [], neutral = [];
       others.forEach(function (c) {
         if (c.effect === 'advances') advances.push(c);
@@ -1188,7 +1271,7 @@
         count: brk.count,
         thisIssue: self,             // null when the record doesn't map to issueKey
         others: others,
-        labels: brk.components.map(function (c) { return c.label; }),
+        labels: (self ? [self] : []).concat(others).map(function (c) { return c.label; }),
         otherLabels: others.map(function (c) { return c.label; }),
         advances: advances,          // sibling issues this action pushed forward
         opposes: opposes,            // sibling issues this action cut against
@@ -1912,13 +1995,92 @@
   // issues rather than each person's own top tags, a voter can scan straight
   // ACROSS a row to compare the field head-to-head.
   //
-  // Everything is drawn from documented ISSUE_STANCE_DATA via _polPositionMap,
-  // so nothing is fabricated: a person with no record on an issue simply reads
-  // "—". Rows are prioritized by what actually decides the race — the visitor's
-  // own Alignment Tool issues first, then issues the field openly disagrees on
-  // (support AND oppose both present), then the most widely-held — so the few
-  // rows shown are the most distinctive and relevant. Returns '' unless at least
-  // two people in the field carry documented positions (no field, no comparison).
+  // TWO LANES, MARKED, NEVER MIXED. The board reads documented ISSUE_STANCE_DATA
+  // via _polPositionMap AND the formal-pattern index via PDXConsistency, and it
+  // keeps them apart on every axis it has: a filled tile is a STATED position, an
+  // outlined tile under a 🏛 lane mark is what that person's FORMAL RECORD did,
+  // and the two are never averaged, never promoted into one another and never
+  // counted in the same tally. Nothing here is fabricated: a person with nothing
+  // in either lane still reads "·".
+  //
+  // WHY THE RECORD LANE IS HERE AT ALL. It used to not be, and the cost was a
+  // board that went dark over a full file. A candidate with sixty roll calls on
+  // housing and no quote we could source printed a column of "·", and — worse —
+  // the whole board was suppressed unless two people had documented positions, so
+  // a race between two members with deep voting records and no stance ledger got
+  // no comparison surface at all. Missing stance is not missing record. The gate
+  // below now asks for two people with a signal in EITHER lane.
+  //
+  // WHAT THE RECORD TILE MAY SAY. Only what the pattern engine already published
+  // for that issue — _recordPatternTier's own plain-language word, via `says` —
+  // and only when that word is characterising. A thin or unread record shows the
+  // 🏛 mark and its depth and no direction, because the engine declined to read
+  // one and this surface does not get a second opinion. No tile ever says "their
+  // position is": the row tooltip leads with the engine's own frame, "Record on
+  // this issue".
+  //
+  // Rows are prioritized by what actually decides the race — the visitor's own
+  // Alignment Tool issues first, then issues the field openly disagrees on
+  // (support AND oppose both present, within the stated lane), then issues whose
+  // RECORDS diverge (within the formal lane), then the most widely-held.
+  // ── 🏛 THE BOARD'S FORMAL LANE ────────────────────────────────────────────
+  // One person's readable formal record, keyed by issueKey, in the shape the grid
+  // cell wants. It is a PROJECTION of PDXConsistency's formal-pattern index and
+  // nothing more — every direction word below is `pat.says`, the engine's own
+  // seven-word plain-language layer, and this function never picks one. It cannot
+  // widen the engine's read either: where `says.characterising` is false (a thin
+  // record, or one the engine could read no direction from) the tile carries the
+  // lane mark and the depth and NO direction, which is the same refusal the
+  // profile prints.
+  //
+  // Fails closed on everything — no index, no rows, a throw — because a board that
+  // guesses a lean is worse than a board with a "·" in it.
+  var _SIB_REC_LEAD = 'Record on this issue';
+  // The index's labels arrive as "🏠 Housing Supply" — one emoji, one space, the
+  // name. The board keeps those in two columns, so they come apart here rather
+  // than in the row builder. Anything that does not match is left whole.
+  function _sibSplitLabel(s) {
+    var m = /^(\S{1,2})\s+(\S.*)$/.exec(String(s || '').trim());
+    if (m && !/[\w(]/.test(m[1])) return { ico: m[1], text: m[2] };
+    return { ico: '', text: String(s || '').trim() };
+  }
+  var _SIB_REC_TONE = {
+    support: { cls: 'is-support', ico: '✓' },
+    oppose:  { cls: 'is-oppose',  ico: '✗' },
+    mixed:   { cls: 'is-mixed',   ico: '~' }
+  };
+  function _sibFormalMap(pid) {
+    var out = {};
+    try {
+      var C = window.PDXConsistency;
+      if (!C || !C.formalPatternIndex || typeof C.formalPatternIndex.rows !== 'function') return out;
+      (C.formalPatternIndex.rows(pid) || []).forEach(function(x) {
+        if (!x || !x.key) return;
+        var says = (x.pat && x.pat.says) || null;
+        var m = (says && says.characterising) ? _SIB_REC_TONE[says.tone] : null;
+        var noun = x.noun || { one: 'item', many: 'items' };
+        var held = x.held || 0;
+        var depth = held + ' ' + (held === 1 ? noun.one : noun.many) + ' on file';
+        // `dir` is the DIRECTION word and `issueLabel` is the name of the issue.
+        // They are separate fields because they are separate facts, and a row
+        // that took the direction word for its heading would print a board of
+        // four issues all called "Supports".
+        var lb = _sibSplitLabel(x.label || '');
+        var base = { issueLabel: lb.text, issueIco: lb.ico, counts: x.counts || depth, held: held };
+        out[x.key] = m
+          ? { tone: says.tone, cls: m.cls, ico: m.ico, lane: true,
+              dir: says.label, issueLabel: base.issueLabel, issueIco: base.issueIco,
+              counts: base.counts, held: held }
+          : { tone: 'muted', cls: 'is-onfile', ico: '🏛', lane: false,
+              dir: (says && says.label) || x.patLabel || 'No clear pattern yet',
+              issueLabel: base.issueLabel, issueIco: base.issueIco,
+              counts: depth, held: held };
+      });
+    } catch (e) {}
+    return out;
+  }
+  window._pdxSeatFormalMap = _sibFormalMap;
+
   window._pdxSeatIssueBoard = function(fieldPids, opts) {
     opts = opts || {};
     if (typeof window._polPositionMap !== 'function' || typeof CMP_DATA === 'undefined') return '';
@@ -1930,28 +2092,45 @@
       var d = CMP_DATA[pid];
       if (!d) return;
       var map = window._polPositionMap(pid, d) || {};
-      people.push({ pid: pid, d: d, map: map, n: Object.keys(map).length });
+      var rec = _sibFormalMap(pid);
+      people.push({ pid: pid, d: d, map: map, rec: rec,
+        n: Object.keys(map).length, rn: Object.keys(rec).length });
     });
     if (people.length < 2) return '';
-    // A genuine comparison needs documented positions from at least two people —
-    // otherwise the grid would be one filled column beside a wall of "—".
-    if (people.filter(function(p) { return p.n > 0; }).length < 2) return '';
+    // A genuine comparison needs a readable signal from at least two people —
+    // otherwise the grid would be one filled column beside a wall of "·". It does
+    // NOT need two stance ledgers: two formal records compare perfectly well, and
+    // refusing to draw the board over a missing quote was the bug.
+    if (people.filter(function(p) { return p.n > 0 || p.rn > 0; }).length < 2) return '';
 
     var hasAlign = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
 
     // Aggregate every documented issue across the field, keyed by canonical
     // issueKey so the same topic from different people lands on one shared row.
     var issues = {};
+    function slot(k) {
+      if (!issues[k]) issues[k] = { key: k, topics: [], icon: '', byPid: {}, txt: {}, recByPid: {}, recLbl: '' };
+      return issues[k];
+    }
     people.forEach(function(p) {
       Object.keys(p.map).forEach(function(k) {
         var e = p.map[k] || {};
         var st = String(e.stance || 'mixed').toLowerCase();
         if (st !== 'support' && st !== 'oppose') st = 'mixed';
-        if (!issues[k]) issues[k] = { key: k, topics: [], icon: e.icon || '', byPid: {}, txt: {} };
-        issues[k].byPid[p.pid] = st;
-        issues[k].txt[p.pid] = e.text || '';
-        if (e.topic) issues[k].topics.push(String(e.topic).trim());
-        if (!issues[k].icon && e.icon) issues[k].icon = e.icon;
+        var it = slot(k);
+        it.byPid[p.pid] = st;
+        it.txt[p.pid] = e.text || '';
+        if (e.topic) it.topics.push(String(e.topic).trim());
+        if (!it.icon && e.icon) it.icon = e.icon;
+      });
+      // The formal lane lands in its OWN map on the same row. Same issueKey, same
+      // column, separate storage — so a stance and a record on one cell can never
+      // be read as one signal, and the tallies below can each stay inside a lane.
+      Object.keys(p.rec).forEach(function(k) {
+        var it = slot(k);
+        it.recByPid[p.pid] = p.rec[k];
+        if (!it.recLbl && p.rec[k].issueLabel) it.recLbl = p.rec[k].issueLabel;
+        if (!it.icon && p.rec[k].issueIco) it.icon = p.rec[k].issueIco;
       });
     });
 
@@ -1963,20 +2142,39 @@
       it.cov = stances.length;
       it.contested = it.cov >= 2 && distinct.support && distinct.oppose;   // open disagreement
       it.divergent = it.cov >= 2 && Object.keys(distinct).length > 1;      // any difference
+      // THE SAME TWO READS, TAKEN AGAIN INSIDE THE FORMAL LANE. Deliberately a
+      // second pair of counters rather than a wider one: a stated "support"
+      // against a record that mostly opposed is a said-vs-did finding, it is
+      // Direction Match's to make on a profile, and it is not a disagreement
+      // between two candidates. Nothing crosses.
+      var tones = Object.keys(it.recByPid)
+        .map(function(pid) { return it.recByPid[pid].tone; })
+        .filter(function(t) { return t === 'support' || t === 'oppose' || t === 'mixed'; });
+      var rdist = {};
+      tones.forEach(function(t) { rdist[t] = 1; });
+      it.rcov = Object.keys(it.recByPid).length;
+      it.recContested = tones.length >= 2 && rdist.support && rdist.oppose;
+      it.recDivergent = tones.length >= 2 && Object.keys(rdist).length > 1;
       it.mine = !!(hasAlign && _alignIssues.has(k));
       // Representative label: the shortest topic phrasing seen for this issue
-      // (keeps the row compact); fall back to a de-slugged key.
+      // (keeps the row compact); then the pattern index's own label for a row
+      // that only the formal lane put here; then a de-slugged key.
       it.label = it.topics.slice().sort(function(a, b) { return a.length - b.length; })[0] ||
+        it.recLbl ||
         k.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
       if (!it.icon) it.icon = '📌';
       return it;
     });
 
     // Most decision-relevant first: your issues → openly contested → any
-    // divergence → widest coverage → stable alphabetical.
+    // divergence → widest coverage → stable alphabetical. The formal lane's two
+    // reads sit directly under the stated lane's, in the same order, so a row
+    // that only the record put on the board still competes for the four slots —
+    // it just never outranks an equally-interesting stated one.
     arr.sort(function(a, b) {
       return (b.mine - a.mine) || (b.contested - a.contested) || (b.divergent - a.divergent) ||
-        (b.cov - a.cov) || a.label.localeCompare(b.label);
+        (b.recContested - a.recContested) || (b.recDivergent - a.recDivergent) ||
+        (b.cov - a.cov) || (b.rcov - a.rcov) || a.label.localeCompare(b.label);
     });
 
     var max = opts.max || 4;
@@ -2020,12 +2218,27 @@
       oppose:  { cls: 'is-oppose',  ico: '✗', verb: 'Opposes' },
       mixed:   { cls: 'is-mixed',   ico: '~', verb: 'Mixed record on' }
     };
+    var anyRec = false;
     var bodyRows = rows.map(function(it) {
       var cells = people.map(function(p) {
         var st = it.byPid[p.pid];
-        if (!st) return '<td class="pdx-sib-cell is-none" title="No documented position on this issue">·</td>';
-        var m = DIR[st] || DIR.mixed;
         var who = p.d.name ? String(p.d.name).split(/\s+/)[0] : 'They';
+        if (!st) {
+          // NO STATED POSITION IS NOT AN EMPTY CELL WHEN THERE IS A FILE. The
+          // record tile is outlined rather than filled and wears the 🏛 lane mark,
+          // and it prints the pattern engine's own word — or, where the engine
+          // declined to characterise, the depth alone and no direction.
+          var rc = it.recByPid[p.pid];
+          if (!rc) return '<td class="pdx-sib-cell is-none" title="Nothing on file for ' + esc(who) + ' on this issue — no documented position and no formal record">·</td>';
+          anyRec = true;
+          var rtip = who + ' — ' + _SIB_REC_LEAD + ' ' + it.label + ': ' + rc.dir +
+            (rc.counts ? ' (' + rc.counts + ')' : '') +
+            ' · no stated position on file, so this is the record, not a stance.';
+          return '<td class="pdx-sib-cell is-rec ' + rc.cls + '" title="' + esc(rtip) + '" aria-label="' + esc(rtip) + '">' +
+            '<span class="pdx-sib-ico">' + rc.ico + '</span>' +
+            (rc.lane ? '<span class="pdx-sib-lane" aria-hidden="true">🏛</span>' : '') + '</td>';
+        }
+        var m = DIR[st] || DIR.mixed;
         var tip = who + ' — ' + m.verb + ' ' + it.label + (it.txt[p.pid] ? ': ' + it.txt[p.pid] : '');
         // Consistency dot placeholder — hydrated from /api/voting-record/compare so
         // a stated stance can be checked against how they actually voted. Blank
@@ -2033,10 +2246,14 @@
         return '<td class="pdx-sib-cell ' + m.cls + '" title="' + esc(tip) + '"><span class="pdx-sib-ico">' + m.ico + '</span>' +
           '<span class="pdx-sib-vdot" data-vrdot="' + esc(p.pid) + '|' + esc(it.key) + '"></span></td>';
       }).join('');
-      var rowCls = 'pdx-sib-row' + (it.mine ? ' is-mine' : (it.contested ? ' is-contested' : ''));
+      var rowCls = 'pdx-sib-row' + (it.mine ? ' is-mine' : (it.contested ? ' is-contested' : (it.recContested ? ' is-reccontested' : '')));
       var flag = it.mine
         ? '<span class="pdx-sib-flag is-mine" title="One of your Alignment Tool issues">🎯 yours</span>'
-        : (it.contested ? '<span class="pdx-sib-flag" title="The field openly disagrees here">⚡ split</span>' : '');
+        : (it.contested
+            ? '<span class="pdx-sib-flag" title="The field openly disagrees here">⚡ split</span>'
+            : (it.recContested
+                ? '<span class="pdx-sib-flag is-rec" title="Their formal records ran opposite ways here — this is the record, not a stated disagreement">🏛 records differ</span>'
+                : ''));
       return '<tr class="' + rowCls + '">' +
           '<th class="pdx-sib-issue" scope="row">' +
             '<span class="pdx-sib-issue-ico" aria-hidden="true">' + (it.icon || '📌') + '</span>' +
@@ -2045,6 +2262,11 @@
         '</tr>';
     }).join('');
 
+    var anyStated = rows.some(function(it) { return Object.keys(it.byPid).length > 0; });
+    // The heading has to be true of what is under it. "Where they stand" over a
+    // board of nothing but record tiles would be the exact claim the lane marks
+    // exist to prevent, so a record-only board says what it actually shows.
+    var title = anyStated ? 'Where they stand' : 'What their records did';
     var sub = moreIssues > 0
       ? rows.length + ' of ' + arr.length + ' issues · most distinctive first'
       : rows.length + ' issue' + (rows.length === 1 ? '' : 's') + ' across this race';
@@ -2057,7 +2279,7 @@
     return '<div class="pdx-seat-board" onclick="event.stopPropagation();">' +
         '<div class="pdx-seat-board-head">' +
           '<span class="pdx-seat-board-ico" aria-hidden="true">📊</span>' +
-          '<span class="pdx-seat-board-title">Where they stand</span>' +
+          '<span class="pdx-seat-board-title">' + esc(title) + '</span>' +
           '<span class="pdx-seat-board-sub">' + sub + '</span>' +
         '</div>' +
         '<div class="pdx-seat-board-scroll">' +
@@ -2068,7 +2290,8 @@
           '<span class="pdx-sib-lg is-support">✓ Supports</span>' +
           '<span class="pdx-sib-lg is-oppose">✗ Opposes</span>' +
           '<span class="pdx-sib-lg is-mixed">~ Mixed</span>' +
-          '<span class="pdx-sib-lg is-none">· No position on record</span>' +
+          '<span class="pdx-sib-lg is-none">· Nothing on file yet</span>' +
+          (anyRec ? '<span class="pdx-sib-lg is-rec"><span class="pdx-sib-lg-rec" aria-hidden="true">🏛</span> outlined = formal record, no stated position</span>' : '') +
           '<span class="pdx-sib-lg pdx-sib-lg-vdot">✓/⚠ vote matches / contradicts stance</span>' +
           (moreIssues > 0 ? '<span class="pdx-sib-lg-more">Open a profile for the full record</span>' : '') +
         '</div>' +

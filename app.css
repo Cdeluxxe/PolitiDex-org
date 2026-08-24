@@ -4244,6 +4244,7 @@
     .cmp-issue-agree-badge.is-differ  { color:#fca5a5; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.32); }
     .cmp-issue-agree-badge.is-partial { color:#fcd34d; background:rgba(245,200,66,0.12);  border:1px solid rgba(245,200,66,0.3); }
     .cmp-issue-agree-badge.is-solo    { color:#7596c0; background:rgba(96,165,250,0.1);   border:1px solid rgba(96,165,250,0.25); }
+    .cmp-issue-agree-badge.is-record  { color:#93a9c8; background:rgba(148,163,184,0.1);  border:1px solid rgba(148,163,184,0.28); }
     /* A row where the documented picks line up gets a subtle green wash */
     #cmp-table tr.cmp-issue-agree-row td { background: rgba(74,222,128,0.045); }
     #cmp-table tr.cmp-issue-differ-row td { background: rgba(248,113,113,0.045); }
@@ -4319,6 +4320,13 @@
        verdict, and it takes no part in the row's agreement badge. */
     .cmp-issue-rdir:empty { display: none; }
     .cmp-issue-rdir { display: block; margin-top: 0.12rem; text-align: center; }
+    /* …and when the record is what the cell HAS, it leads instead of trailing.
+       The grey "No Clear Position" pill is dropped entirely there — printing a
+       blank above a full voting file is the claim this whole pass removes — and
+       the missing quote becomes the quiet line underneath. */
+    .cmp-issue-reclead { gap: 0.16rem; }
+    .cmp-issue-reclead .cmp-issue-rdir { margin-top: 0; }
+    .cmp-issue-reclead .cmp-issue-none-note { color: #566f92; text-transform: none; letter-spacing: 0.02em; }
     .cmp-issue-rdir .pdx-rdir { justify-content: center; font-size: 0.6rem; line-height: 1.35; }
     .cmp-issue-more td {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.06em;
@@ -4386,6 +4394,7 @@
     .cmp-issue-meter-legend i.k-partial { background: #f5c842; }
     .cmp-issue-meter-legend i.k-agree   { background: #4ade80; }
     .cmp-issue-meter-legend i.k-solo    { background: #60a5fa; }
+    .cmp-issue-meter-legend i.k-record  { background: #94a3b8; }
     .cmp-issue-meter-legend b { color: #cbd9ec; font-weight: 700; }
 
     .cmp-issue-toolbar td { padding: 0.55rem 1rem; background: rgba(13,21,38,0.5); border-bottom: 1px solid rgba(59,130,246,0.1); }
@@ -7708,6 +7717,7 @@
       color: #fcd34d; background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.28);
     }
     .pdx-sib-flag.is-mine { color: #d8b4fe; background: rgba(139,92,246,0.14); border-color: rgba(139,92,246,0.34); }
+    .pdx-sib-flag.is-rec { color: #b8c8de; background: rgba(148,163,184,0.12); border-color: rgba(148,163,184,0.3); }
     .pdx-sib-cell { text-align: center; padding: 0.3rem 0.4rem; min-width: 62px; }
     .pdx-sib-ico {
       display: inline-flex; align-items: center; justify-content: center;
@@ -7717,7 +7727,28 @@
     .pdx-sib-cell.is-oppose  .pdx-sib-ico { color: #f87171; background: rgba(248,113,113,0.12); box-shadow: inset 0 0 0 1px rgba(248,113,113,0.32); }
     .pdx-sib-cell.is-mixed   .pdx-sib-ico { color: #f5c842; background: rgba(245,200,66,0.12); box-shadow: inset 0 0 0 1px rgba(245,200,66,0.32); }
     .pdx-sib-cell.is-none { color: #46587a; font-weight: 700; }
+    /* 🏛 THE FORMAL LANE, DRAWN AS A DIFFERENT THING. A stated position is a
+       FILLED tile; a record pattern is an OUTLINED one with a dashed edge and a
+       small lane mark riding its corner. The tone stays the same (green advanced,
+       red against, amber mixed) because the direction is the same fact — what
+       changes is the claim being made about it, and the fill is what carries
+       that. A reader who never reads the legend still sees two kinds of tile. */
+    .pdx-sib-cell.is-rec { position: relative; }
+    .pdx-sib-cell.is-rec .pdx-sib-ico { background: transparent; box-shadow: none; }
+    .pdx-sib-cell.is-rec.is-support .pdx-sib-ico { color: #34d399; border: 1px dashed rgba(52,211,153,0.55); }
+    .pdx-sib-cell.is-rec.is-oppose  .pdx-sib-ico { color: #f87171; border: 1px dashed rgba(248,113,113,0.55); }
+    .pdx-sib-cell.is-rec.is-mixed   .pdx-sib-ico { color: #f5c842; border: 1px dashed rgba(245,200,66,0.55); }
+    /* On file, no direction the engine would read. The lane mark IS the glyph
+       here, so there is no second one, and there is no colour to imply a lean. */
+    .pdx-sib-cell.is-rec.is-onfile .pdx-sib-ico {
+      color: #8aa0c0; border: 1px dashed rgba(148,163,184,0.42); font-size: 0.66rem;
+    }
+    .pdx-sib-lane {
+      position: absolute; top: 0.12rem; right: 0.26rem;
+      font-size: 0.46rem; line-height: 1; opacity: 0.7; pointer-events: none;
+    }
     .pdx-sib-row.is-contested th.pdx-sib-issue { box-shadow: inset 3px 0 0 rgba(245,200,66,0.6); }
+    .pdx-sib-row.is-reccontested th.pdx-sib-issue { box-shadow: inset 3px 0 0 rgba(148,163,184,0.5); }
     .pdx-sib-row.is-mine th.pdx-sib-issue { box-shadow: inset 3px 0 0 rgba(139,92,246,0.72); }
     .pdx-seat-board-legend {
       display: flex; flex-wrap: wrap; align-items: center; gap: 0.28rem 0.7rem;
@@ -7729,6 +7760,8 @@
     .pdx-sib-lg.is-oppose { color: #fca5a5; }
     .pdx-sib-lg.is-mixed { color: #fcd34d; }
     .pdx-sib-lg.is-none { color: #5f7aa0; }
+    .pdx-sib-lg.is-rec { color: #93a9c8; }
+    .pdx-sib-lg-rec { opacity: 0.8; }
     .pdx-sib-lg-more { margin-left: auto; color: #7596c0; font-style: italic; }
     @media (max-width: 640px) {
       .pdx-sib-corner { min-width: 104px; }
@@ -18868,6 +18901,12 @@ button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulati
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
   font-size: 0.8rem; line-height: 1.35; color: white;
   margin-top: 0.3rem;
+}
+/* Act scope for the highlight card's verdict badge — printed, not hover-only,
+   so a single roll call never reads as a standing record on the topic. */
+.pdx-vrhi-scope {
+  font-size: 0.62rem; line-height: 1.35; color: #8ea4c6;
+  margin-top: 0.28rem;
 }
 .pdx-vrhi-card-meta {
   display: flex; align-items: center; flex-wrap: wrap;

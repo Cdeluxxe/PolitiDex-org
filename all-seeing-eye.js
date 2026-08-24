@@ -192,9 +192,25 @@
             var numRaw = String(b.number);
             var numCompact = numRaw.replace(/[^a-z0-9]/gi, '');          // "hr7567"
             var numDigits = (numRaw.match(/\d+/g) || []).join(' ');       // "7567"
+            // The flagged issue joins the set when the index omits it — that is a
+            // MEMBERSHIP fix, and it used to `unshift`, which also made it the topic
+            // a searcher read first. Membership is kept; the queue-jump is not. The
+            // list is then put in the shared Big Picture order so a search result
+            // names a bill's topics in the same sequence as the bill's own page.
             var ikeys = (b.issueKeys || []).slice();
-            if (b.primaryIssue && ikeys.indexOf(b.primaryIssue) === -1) ikeys.unshift(b.primaryIssue);
+            if (b.primaryIssue && ikeys.indexOf(b.primaryIssue) === -1) ikeys.push(b.primaryIssue);
+            if (typeof window._pdxBigPictureKeys === 'function') {
+              try { ikeys = window._pdxBigPictureKeys(ikeys, { labelFn: issLabel }); } catch (e) {}
+            }
             var issueLabels = ikeys.map(function (k) { try { return issLabel(k) || ''; } catch (e) { return ''; } });
+            // A result row is one line, so a bundle of twelve topics genuinely does
+            // not fit. What it must not do is print three of them and stop, which
+            // reads as "this bill is about these three". It now names what it can
+            // and states the total it could not, so the number a reader carries to
+            // the bill page is the real one.
+            var namedLbls = issueLabels.filter(Boolean);
+            var descTxt = namedLbls.slice(0, 3).join(' · ');
+            if (namedLbls.length > 3) descTxt += ' · +' + (namedLbls.length - 3) + ' more of ' + namedLbls.length + ' topics';
             var kw = b.keywords || inlineKw[natKey] || '';
             var disp = b.shortTitle || b.title || numRaw;
             var chamberW = b.chamber === 'senate' ? 'senate' : b.chamber === 'house' ? 'house' : (b.chamber || '');
@@ -209,7 +225,7 @@
               titleLc: norm(numRaw + ' ' + disp),
               tokens: norm(numRaw + ' ' + numCompact + ' ' + disp + ' ' + kw).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
               sub: numRaw + (chamberLbl ? ' · ' + chamberLbl : '') + (b.isOmnibus ? ' · omnibus' : ''),
-              desc: issueLabels.filter(Boolean).slice(0, 3).join(' · '),
+              desc: descTxt,
               icon: '🏛️', issueKey: b.primaryIssue || (ikeys[0] || ''), issueKeys: ikeys,
               status: b.status || '',
               hay: parts.filter(Boolean).join(' ').toLowerCase()

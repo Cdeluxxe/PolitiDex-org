@@ -87,12 +87,45 @@
   // the rest are one tap away and nothing is dropped.
   var AXIS_SHOWN = 6;
 
-  // The number of positions the empty-state CTA asks for. Not a floor on this
-  // sheet — a voter with one stance still gets a real, honestly-thin ranking,
-  // exactly as the Alignment Tool would give them. It is the same 3 the
+  // The number of positions the empty-state CTA asks for. It is the same 3 the
   // consistency layer uses for _SO_MIN_ISSUES: below it a "pattern" is an
   // anecdote, so it is what we ask for rather than what we require.
+  //
+  // IT IS AN ASK AND NOTHING ELSE. It does not gate the ranking, it does not
+  // gate which tab opens, and it never has — a voter with one stance gets a
+  // real, honestly-thin ranking, exactly as the Alignment Tool would give them.
+  // The only three things that read this number are the CTA copy, the thin-axis
+  // note that rides under a short ranking, and whether that CTA is still worth
+  // showing. If it ever appears in a condition that decides whether the field is
+  // ordered, that is the bug: the line between ranked and unranked is ZERO
+  // positions versus one, not two versus three.
   var ASK_ISSUES = 3;
+
+  // ── THE OVERVIEW, AND WHY THE SHEET NO LONGER OPENS ON A WALL ──────────────
+  // Both Your Match rulers need the visitor's own positions, and a first-time
+  // visitor has none. The sheet used to answer that by painting the whole field
+  // under "No formal record on your issues yet" with every issue cell missing —
+  // which is a true sentence about a question nobody asked, sitting where the
+  // comparison should be. It read as a broken product and it taught the reader
+  // nothing about the race.
+  //
+  // Overview is the answer that needs nothing from the reader: the formal-lane
+  // integrity figures the profiles already publish, the seat and who holds it,
+  // the issues this field actually has a record on, and a rules-based read of how
+  // those files compare in DEPTH. Every one of those is a fact about the
+  // candidates. None of them is a match to the reader, and this view never claims
+  // to be one — the word "match" appears here only as Direction Match, which is
+  // their word against their own record, with the reader nowhere in it.
+  //
+  // The ranking still waits for positions. That is the whole division of labour:
+  // Overview shows the race, the two match tabs show the reader.
+  var VIEW_KEY = 'politidex_racesheet_view';
+
+  // How many issues the shared-topic snapshot shows. The rule that picks them is
+  // in snapshot() and is public in every sense: it reads the candidates' formal
+  // files, not the visitor's stance list, so two readers with opposite politics
+  // open the same seat and see the same six rows.
+  var SNAP_CAP = 6;
 
   // Seat vocabulary is three-way split across the app: pdxRepsForMe() emits
   // ussenate1/ussenate2/house/governor/statesenate/statehouse, _pdxVoterBallot()
@@ -146,6 +179,30 @@
     }
   };
 
+  // The third tab. Deliberately NOT a third entry in MODES: MODES is the set of
+  // rulers that can order this field, and Overview orders nothing. Keeping it out
+  // of that table is what stops a later loop over MODES from handing the field a
+  // sort key that does not exist.
+  var OVERVIEW = {
+    key: 'overview', ico: '\u{1F9ED}',
+    label: 'Overview · public record',
+    tab: 'Overview',
+    sub: 'The formal record of this whole field, side by side. Nothing in it is a match to you.',
+    line: 'This is the <b>public formal record</b> — Direction Match, tested depth, and the issues this field has a record on. ' +
+      'It is not ranked and it is not agreement with you: your own match lives on the two tabs beside it.'
+  };
+
+  // WHAT THE UNSET STATE IS ALLOWED TO SAY. The old copy — "No formal record on
+  // your issues yet" — is a true sentence about a candidate once the reader HAS
+  // issues, and it still says exactly that in the band below a ranked field. As
+  // the FIRST thing a visitor with no positions reads, it is the wrong subject:
+  // it blames the candidate's file for the reader's empty stance list. This is
+  // the reader-scoped version, and it is the only one the unset state prints.
+  var UNSET = {
+    hd: 'Set your positions to score how their formal record lines up with you.',
+    sub: 'Until then, Overview is Direction Match + shared issues — not agreement with you.'
+  };
+
   // Said once per sheet, under the toggle. The whole point of showing three
   // rulers is lost if the reader cannot tell which is which.
   var EXPLAINER =
@@ -176,6 +233,56 @@
     return next;
   }
   function meta(m) { return MODES[(m === 'stated') ? 'stated' : 'record']; }
+
+  // ── Which of the three tabs is live ────────────────────────────────────────
+  // Two stored keys, on purpose. MODE_KEY is the RULER (record | stated) and is
+  // what travels on a shared link, what pdxRaceSheetMatchMode() reports and what
+  // the share composer names; it means the same thing it always did. VIEW_KEY is
+  // which TAB the reader last chose, which is a different question the moment a
+  // tab exists that is not a ruler. Folding Overview into MODE_KEY would have
+  // made "the active ruler" answerable with a non-ruler.
+  function readView() {
+    try {
+      var v = window.sessionStorage && window.sessionStorage.getItem(VIEW_KEY);
+      if (v === 'overview' || v === 'record' || v === 'stated') return v;
+    } catch (e) {}
+    return '';
+  }
+  function writeView(v) {
+    var next = (v === 'overview' || v === 'record' || v === 'stated') ? v : '';
+    try { if (window.sessionStorage && next) window.sessionStorage.setItem(VIEW_KEY, next); } catch (e) {}
+    return next;
+  }
+  // THE ONE LINE THAT DIVIDES THE TWO STATES, AND WHERE IT SITS
+  // ──────────────────────────────────────────────────
+  // It sits between zero positions and one. Not between two and three.
+  //
+  // Zero is a different KIND of state, not a thinner version of the same one.
+  // With nothing set there is no ruler to apply, so a personal ranking is not
+  // thin — it does not exist, and any order the sheet printed would be a claim
+  // about the reader that the reader never made. That is what Overview is for.
+  //
+  // One position is thin, and thin is a real answer. The reader said something;
+  // the formal files either line up with it or they do not; the sheet can say
+  // which and can say how little it rests on. Withholding that until a third
+  // stance arrives would be the product deciding a citizen's own stated view is
+  // not yet worth acting on — and it would do it silently, by opening on a tab
+  // that never mentions the positions they just set. A short ranking labelled as
+  // short beats a hidden one every time, so the ask for three lives in the CTA
+  // and in the thin-axis note, where an ask belongs, and never here.
+  //
+  // Chosen, the reader's choice stands — with one refusal: a match tab with ZERO
+  // positions cannot rank anybody in either lane, and honouring it would re-paint
+  // the exact wall Overview exists to remove. That case lands on Overview and
+  // prints the gate note saying what would change it.
+  function activeView() {
+    var n = 0;
+    try { n = axis().length; } catch (e) { n = 0; }
+    var v = readView();
+    if (!v) v = n ? readMode() : 'overview';
+    if (v !== 'overview' && n === 0) return 'overview';
+    return v;
+  }
 
   // ── Seat ───────────────────────────────────────────────────────────────────
   function seatMeta(seatKey) {
@@ -352,12 +459,23 @@
   // The profile's own vocabulary, via the slot that owns the publishable floor.
   // Labelled "Direction Match" and subtitled with the question it answers, so it
   // cannot be misread as a match to the reader. Never sortable on this sheet.
-  function dmChip(c) {
-    var slot = null;
+  function dmSlot(c) {
     try {
       var st = fn('_pdxOfficeStatus') ? window._pdxOfficeStatus(c.d) : 'office';
-      if (fn('_pdxLedgerSlot')) slot = window._pdxLedgerSlot(c.d, { pid: c.pid, status: st });
+      if (fn('_pdxLedgerSlot')) return window._pdxLedgerSlot(c.d, { pid: c.pid, status: st }) || null;
     } catch (e) {}
+    return null;
+  }
+  // The same slot, reduced to the three things a compact face prints. pct is null
+  // on every branch the ledger has not published, and tested rides with it — so
+  // there is no shape here where a figure arrives without its denominator.
+  function dmFacts(c) {
+    var s = dmSlot(c);
+    if (!s) return { pct: null, tested: 0, sub: '' };
+    return { pct: (typeof s.pct === 'number') ? s.pct : null, tested: s.tested || 0, sub: s.sub || '' };
+  }
+  function dmChip(c) {
+    var slot = dmSlot(c);
     if (!slot) return '';
     var num = (typeof slot.pct === 'number')
       ? '<b class="rs-dm-pct">' + slot.pct + '%</b><span class="rs-dm-n"> of ' + (slot.tested || 0) + ' tested</span>'
@@ -385,15 +503,359 @@
     var leadHtml = (lead && chip) ? chip(lead) : '';
     var otherHtml = (other && chip) ? chip(other) : '';
     var v = lead ? (lead.verdict || '') : '';
+    var alt = '';
     if (!leadHtml) {
-      leadHtml = '<span class="rs-cell-none">' +
-        ((mode === 'record') ? 'No readable vote pattern' : 'No documented position') +
-        '</span>';
+      var silence = (mode === 'record') ? 'No readable vote pattern' : 'No documented position';
+      if (otherHtml) {
+        // ── THE SPEAKING LANE TAKES THE SLOT ──────────────────────────────────
+        // The active lane has nothing here and the other one does. Leading with
+        // the silence and greying the real signal behind it made the stated
+        // column of a member with sixty roll calls read as a wall of "No
+        // documented position", which is a fact about OUR sourcing printed over
+        // theirs. So the chip that has something to say moves up, and the
+        // silence becomes the second line.
+        //
+        // NOTHING ELSE MOVES. The chip is _alignSignalChipHtml's own and it
+        // arrives already stamped with the lane it came from — "🏛 Record
+        // pattern:" or "💬 Says:" — so a promoted cell states which lane it is
+        // in on its face, and the column header still means what it said.
+        //
+        // AND IT CARRIES NO VERDICT. `data-rs-v` stays "none": the tint on this
+        // sheet is the ACTIVE lane's match read, and painting a cell green off
+        // the other lane's verdict is the blend this surface refuses. A promoted
+        // cell is marked `data-rs-alt` instead, which is styling only — rank(),
+        // scoreOf() and every tally read the rows, never this function.
+        leadHtml = otherHtml;
+        otherHtml = '<span class="rs-cell-none">' + silence + '</span>';
+        alt = (mode === 'record') ? 'stated' : 'record';
+        v = '';
+      } else {
+        leadHtml = '<span class="rs-cell-none">' + silence + '</span>';
+      }
     }
-    return '<div class="rs-cell" data-rs-v="' + esc(v || 'none') + '">' +
+    return '<div class="rs-cell" data-rs-v="' + esc(v || 'none') + '"' +
+        (alt ? ' data-rs-alt="' + esc(alt) + '"' : '') + '>' +
       '<span class="rs-cell-lead">' + leadHtml + '</span>' +
       (otherHtml ? '<span class="rs-cell-other">' + otherHtml + '</span>' : '') +
     '</div>';
+  }
+
+  // ── THE SHARED TOPIC SNAPSHOT ──────────────────────────────────────────────
+  // THE RULE THAT PICKS THESE ISSUES IS PUBLIC, AND IT IS THIS ONE.
+  //
+  //   1. For every candidate in the field, read the formal-pattern index
+  //      (PDXConsistency.formalPatternIndex.rows) — the shipped list of issues a
+  //      person has a readable formal pattern on OR formal items on file for. It
+  //      already fails closed: an issue with no formal signal is not in it.
+  //   2. Union those lists. An issue counts if ANY candidate in the field has a
+  //      formal file on it, because an issue one of them has legislated on and
+  //      the other has not is one of the more useful rows on this sheet.
+  //   3. Keep the ones the field SHARES first: sort by how many candidates hold a
+  //      file on the issue, then by total judged items, then by the site's own
+  //      topic order as the tie-break. Cap at SNAP_CAP.
+  //   4. Re-sort the survivors into the site's topic order for display, so the
+  //      rows read in the same sequence as every other Big Picture surface.
+  //
+  // WHAT THE RULE DOES NOT READ: the visitor's stance list, their starred issues,
+  // their location, any party, and any public-lane statement. Two readers who
+  // disagree about everything open this seat and get the same rows in the same
+  // order — which is the only way a "shared issues" table is worth printing.
+  function labelOf(k) {
+    var IM = window.ISSUE_MAP || {};
+    return (IM[k] && IM[k].label) || k;
+  }
+  function fpiOf(pid) {
+    var m = {};
+    try {
+      var C = window.PDXConsistency;
+      if (C && C.formalPatternIndex && typeof C.formalPatternIndex.rows === 'function') {
+        (C.formalPatternIndex.rows(pid) || []).forEach(function (r) { if (r && r.key) m[r.key] = r; });
+      }
+    } catch (e) {}
+    return m;
+  }
+  // The row's own display slot — state, plain-language label, inventory depth and
+  // the single-instrument marker. Read, never derived: this file computes no
+  // depth, no tier and no percentage of its own.
+  function recDisplay(fr) {
+    try {
+      var C = window.PDXConsistency;
+      if (fr && fr.row && C && C.recordPattern && typeof C.recordPattern.display === 'function') {
+        return C.recordPattern.display(fr.row) || null;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // THE AT-A-GLANCE, AND WHY IT NAMES NO WINNER. This compares FILES, not people:
+  // how much judged formal evidence each candidate has on one issue. A deeper file
+  // is more evidence, and more evidence is not a better politician — a reader who
+  // wants that judgement has the dossier one tap away and their own positions two.
+  // "Thin" is the pattern engine's own read (it declined to characterise the
+  // issue), not a floor invented here.
+  var GLANCE = {
+    thin: {
+      two: 'Both thin', many: 'All thin',
+      why: 'Nobody in this field has enough judged formal items here for the record engine to read a pattern on this issue. A cell can still say what one item did — one item is not a pattern, and thin is not a tie.'
+    },
+    similar: {
+      word: 'Similar depth',
+      why: 'Every candidate here has a readable formal pattern on this issue and the judged files are close in size. It says how much evidence there is, not who is right.'
+    },
+    different: {
+      word: 'Different depth',
+      why: 'The formal files on this issue are not the same size — one candidate has a readable pattern the other does not, or holds several times as many judged items.'
+    }
+  };
+  function glanceFor(cells) {
+    var n = cells.length;
+    var read = cells.filter(function (c) { return c.read; });
+    if (!read.length) return { token: 'thin', word: (n === 2 ? GLANCE.thin.two : GLANCE.thin.many), why: GLANCE.thin.why };
+    if (read.length < n) return { token: 'different', word: GLANCE.different.word, why: GLANCE.different.why };
+    var hi = 0, lo = -1;
+    read.forEach(function (c) {
+      if (c.judged > hi) hi = c.judged;
+      if (lo < 0 || c.judged < lo) lo = c.judged;
+    });
+    if (lo > 0 && hi <= lo * 2) return { token: 'similar', word: GLANCE.similar.word, why: GLANCE.similar.why };
+    return { token: 'different', word: GLANCE.different.word, why: GLANCE.different.why };
+  }
+
+  function snapshot(all) {
+    var per = (all || []).map(function (c) { return { pid: c.pid, name: c.name, rows: fpiOf(c.pid) }; });
+    var IM = window.ISSUE_MAP || {};
+    var tally = {};
+    per.forEach(function (p) {
+      Object.keys(p.rows).forEach(function (k) {
+        if (!IM[k]) return;                       // shared taxonomy only; nothing is coined here
+        var t = tally[k] || (tally[k] = { cover: 0, judged: 0 });
+        t.cover++;
+        t.judged += (p.rows[k].judged || 0);
+      });
+    });
+    var keys = Object.keys(tally);
+    if (!keys.length) return { rows: [], total: 0, shown: 0, dropped: 0, cap: SNAP_CAP };
+    var tax = keys.slice();
+    try {
+      if (typeof window._pdxBigPictureKeys === 'function') {
+        tax = window._pdxBigPictureKeys(keys, { labelFn: labelOf }) || keys;
+      }
+    } catch (e) { tax = keys; }
+    var taxRank = {};
+    tax.forEach(function (k, i) { taxRank[k] = i; });
+    var rankOf = function (k) { return (typeof taxRank[k] === 'number') ? taxRank[k] : 999; };
+    var picked = keys.slice().sort(function (a, b) {
+      if (tally[b].cover !== tally[a].cover) return tally[b].cover - tally[a].cover;
+      if (tally[b].judged !== tally[a].judged) return tally[b].judged - tally[a].judged;
+      return rankOf(a) - rankOf(b);
+    }).slice(0, SNAP_CAP);
+    picked.sort(function (a, b) { return rankOf(a) - rankOf(b); });
+
+    var rows = picked.map(function (k) {
+      var cells = per.map(function (p) {
+        var fr = p.rows[k] || null;
+        var d = fr ? recDisplay(fr) : null;
+        return {
+          pid: p.pid, name: p.name, key: k,
+          onFile: !!fr,
+          read: !!(fr && fr.read),
+          judged: fr ? (fr.judged || 0) : 0,
+          items: d ? (d.items || 0) : (fr ? (fr.held || 0) : 0),
+          label: d ? (d.label || '') : '',
+          depth: d ? (d.depth || '') : '',
+          single: !!(d && d.single)
+        };
+      });
+      return { key: k, label: labelOf(k), cells: cells, glance: glanceFor(cells) };
+    });
+    return { rows: rows, total: keys.length, shown: rows.length,
+             dropped: Math.max(0, keys.length - picked.length), cap: SNAP_CAP };
+  }
+
+  // Every cell that has a file behind it is a door into the SHIPPED dossier for
+  // that person on that issue — the same [data-pdxc-gap] contract the profile's
+  // own rows use, handled by consistency.js's delegated listener. No second
+  // opening path, so a snapshot cell cannot show one thing and the dossier
+  // another.
+  function snapCell(c, issueLabel) {
+    var body =
+      '<span class="rs-snap-who">' + esc(c.name) + '</span>' +
+      '<span class="rs-snap-lbl">' + esc(c.onFile ? (c.label || 'On the record') : 'Nothing formal on file') + '</span>' +
+      (c.onFile && c.depth
+        ? '<span class="rs-snap-dep">' + esc(c.depth) + (c.read ? '' : ' · no pattern read yet') + '</span>'
+        : '') +
+      ((c.onFile && c.single)
+        ? '<span class="rs-snap-1" title="Every judged item here sits on one measure. One instrument is one instrument — it is not a pattern across the issue.">📍 on 1 measure</span>'
+        : '');
+    if (!c.onFile) {
+      return '<div class="rs-snap-cell is-empty">' + body +
+        '<span class="rs-snap-dep">Nothing is inferred from what they have said.</span></div>';
+    }
+    return '<button type="button" class="rs-snap-cell"' +
+      ' data-pdxc-gap="' + esc(c.key) + '" data-pdxc-gap-pid="' + esc(c.pid) + '"' +
+      ' aria-label="' + esc('Open ' + c.name + '’s formal record on ' + issueLabel) + '">' +
+      body + '<span class="rs-snap-go" aria-hidden="true">›</span></button>';
+  }
+
+  function snapshotHtml(snap) {
+    if (!snap.rows.length) {
+      return '<section class="rs-snap" aria-label="Issues this field has a formal record on">' +
+        '<h3 class="rs-snap-hd">Issues this field has a record on · side by side</h3>' +
+        '<p class="rs-snap-none">Nobody in this field has a formal record on file yet, so there is no shared issue to lay out. ' +
+          'The gap is not filled in with their statements.</p></section>';
+    }
+    var rows = snap.rows.map(function (r) {
+      return '<div class="rs-snap-row" style="' + issueStyle(r.key) + '">' +
+        '<div class="rs-snap-issue">' +
+          '<span class="rs-snap-name">' + esc(r.label) + '</span>' +
+          '<span class="rs-snap-glance" data-rs-g="' + esc(r.glance.token) + '" title="' + esc(r.glance.why) + '">' +
+            esc(r.glance.word) + '</span>' +
+        '</div>' +
+        '<div class="rs-snap-cells">' +
+          r.cells.map(function (c) { return snapCell(c, r.label); }).join('') +
+        '</div>' +
+      '</div>';
+    }).join('');
+    return '<section class="rs-snap" aria-label="Issues this field has a formal record on">' +
+      '<h3 class="rs-snap-hd">Issues this field has a record on · side by side</h3>' +
+      '<p class="rs-snap-rule">Picked by a public rule, not from your positions: every issue anyone in this field has a formal file on, ' +
+        'most widely shared first, capped at ' + snap.cap + ' and laid out in the site’s own topic order. ' +
+        (snap.dropped
+          ? snap.dropped + ' more ' + (snap.dropped === 1 ? 'issue is' : 'issues are') + ' on file and not shown here — a profile carries the whole index. '
+          : '') +
+        'Depth is the formal items on file; the at-a-glance compares how much of that file the record engine could judge. ' +
+        'Tap any cell for that person’s dossier on that issue.</p>' +
+      rows +
+    '</section>';
+  }
+
+  // ── The head-to-head blurb ─────────────────────────────────────────────────
+  // Assembled from three formal-lane facts and nothing else: how much has been
+  // tested, what Direction Match said about it, and how many snapshot rows are
+  // thin. There is no sentence in here that ranks the field, and there cannot be:
+  // the only comparative words it owns are about the size of a file.
+  function h2hHtml(all, snap) {
+    var facts = all.map(function (c) { return { name: c.name, dm: dmFacts(c) }; });
+    var tested = facts.map(function (f) {
+      return '<span class="rs-h2h-n">' + esc(f.name) + ' <b>' + f.dm.tested + '</b></span>';
+    }).join(' · ');
+    var band = facts.map(function (f) {
+      return '<span class="rs-h2h-n">' + esc(f.name) + ' ' +
+        (f.dm.pct === null ? esc(f.dm.sub || 'not published yet')
+                           : esc(f.dm.sub || 'tested') + ' <b>' + f.dm.pct + '%</b>') + '</span>';
+    }).join(' · ');
+    var n = snap.rows.length;
+    var thin = snap.rows.filter(function (r) { return r.glance.token === 'thin'; }).length;
+    var shared = n
+      ? (n - thin) + ' of ' + n + ' shared issue' + (n === 1 ? '' : 's') +
+        ' read a formal direction for at least one of them' +
+        (thin ? ', and ' + thin + ' ' + (thin === 1 ? 'is' : 'are') + ' thin for everyone in this field' : '') + '.'
+      : 'No issue in this field has a formal file behind it yet.';
+    return '<section class="rs-h2h" aria-label="How this field compares on the formal record">' +
+      '<h3 class="rs-h2h-hd">How this field compares, on the record alone</h3>' +
+      '<p class="rs-h2h-l"><b>Tested formal items:</b> ' + tested +
+        '. A bigger file is more evidence, not a better candidate.</p>' +
+      '<p class="rs-h2h-l"><b>Direction Match:</b> ' + band +
+        '. That is each of them against their own word — the reader is not in it.</p>' +
+      '<p class="rs-h2h-l"><b>Issues in common:</b> ' + shared + '</p>' +
+      '<p class="rs-h2h-cta">None of the above is agreement with you. ' +
+        '<button type="button" class="rs-h2h-btn" onclick="' + ctaOpen() + '">Set your positions for your own record match →</button></p>' +
+    '</section>';
+  }
+
+  // ── The Overview candidate card ────────────────────────────────────────────
+  // Identity, seat, Direction Match with its denominator, up to three topic peeks
+  // into the dossier, and the two actions. The number slot on this card can only
+  // ever hold Direction Match, and it is labelled as such — there is no branch
+  // here that prints a match to the reader, because this view has none to print.
+  function ovCard(c, rk, picked, snap, sm) {
+    var photo = '';
+    try { if (fn('_getPhotoUrl')) photo = window._getPhotoUrl(c.pid) || ''; } catch (e) {}
+    var avatar = photo
+      ? '<span class="rs-face"><img src="' + esc(photo) + '" alt="" loading="lazy" decoding="async"></span>'
+      : '<span class="rs-face rs-face--empty" aria-hidden="true">' + c.icon + '</span>';
+    var d = dmFacts(c);
+
+    // The peeks come out of the snapshot the whole sheet is already showing, so a
+    // chip on a card and a cell in the table can never disagree. Readable
+    // patterns first, then the deeper file, then alphabetical — deterministic.
+    var mine = [];
+    snap.rows.forEach(function (r) {
+      r.cells.forEach(function (cl) { if (cl.pid === c.pid && cl.onFile) mine.push({ r: r, c: cl }); });
+    });
+    mine.sort(function (a, b) {
+      if (a.c.read !== b.c.read) return a.c.read ? -1 : 1;
+      if (b.c.judged !== a.c.judged) return b.c.judged - a.c.judged;
+      return String(a.r.label).localeCompare(String(b.r.label));
+    });
+    var peeks = mine.slice(0, 3).map(function (m) {
+      return '<button type="button" class="rs-peek" style="' + issueStyle(m.c.key) + '"' +
+        ' data-pdxc-gap="' + esc(m.c.key) + '" data-pdxc-gap-pid="' + esc(c.pid) + '"' +
+        ' aria-label="' + esc(c.name + ' on ' + m.r.label + ' — open the formal dossier') + '">' +
+        '<span class="rs-peek-i">' + esc(m.r.label) + '</span>' +
+        '<span class="rs-peek-o">' + esc(m.c.label || 'On the record') +
+          (m.c.judged ? ' · ' + m.c.judged + ' judged' : '') + '</span>' +
+      '</button>';
+    }).join('');
+    if (!peeks) {
+      peeks = '<span class="rs-peek-none">No formal file on any issue yet. Nothing here is filled in from what they have said.</span>';
+    }
+
+    return '<article class="rs-ovcard" data-align-pid="' + esc(c.pid) + '">' +
+      '<header class="rs-ovhd">' + avatar +
+        '<span class="rs-whotext">' +
+          '<button type="button" class="rs-name" onclick="if(window.showProfile)window.showProfile(\'' + jsq(c.pid) + '\')"' +
+            ' aria-label="Open ' + esc(c.name) + '’s full record">' + esc(c.name) + '</button>' +
+          '<span class="rs-ovseat">' + (sm ? sm.icon + ' ' + esc(sm.label) : '') + '</span>' +
+          (c.incumbent ? '<span class="rs-inc">Holds this seat now</span>' : '') +
+        '</span>' +
+      '</header>' +
+      '<div class="rs-ovdm" data-rs-dm="' + esc((dmSlot(c) || {}).state || 'empty') + '"' +
+        ' title="Direction Match asks whether this person kept their OWN word — their stated positions against their own formal record. It is not a match to you, and it does not order this list.">' +
+        (d.pct === null
+          ? '<span class="rs-ovdm-s">' + esc(d.sub || 'No Direction Match published yet') + '</span>'
+          : '<b class="rs-ovdm-p">' + d.pct + '%</b><span class="rs-ovdm-s">Direction Match · ' + esc(d.sub || '') + '</span>') +
+        '<span class="rs-ovdm-n">' + (d.tested ? d.tested + ' tested item' + (d.tested === 1 ? '' : 's') : 'nothing tested yet') + '</span>' +
+      '</div>' +
+      '<div class="rs-ovpeek">' + peeks + '</div>' +
+      '<div class="rs-ovacts">' +
+        teamBtn(rk, c, picked, !!picked && picked !== c.pid) +
+        '<button type="button" class="rs-ovprof" onclick="if(window.showProfile)window.showProfile(\'' + jsq(c.pid) + '\')">Open profile ›</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  // ── The race context strip ─────────────────────────────────────────────────
+  // Painted on every tab, including the ranked ones, because the question it
+  // answers — what seat is this, who holds it, and how much of each candidate has
+  // actually been tested — does not change when the reader picks a ruler.
+  function contextStrip(sm, all) {
+    var scope = scopeLabel(sm.key);
+    var incs = all.filter(function (c) { return c.incumbent; });
+    var chips = all.map(function (c) {
+      var d = dmFacts(c);
+      return '<span class="rs-ctx-chip">' +
+        '<span class="rs-ctx-who">' + esc(c.name) + (c.incumbent ? ' <span class="rs-ctx-i">holds it</span>' : '') + '</span>' +
+        '<span class="rs-ctx-dm">' +
+          (d.pct === null
+            ? esc(d.sub || 'No Direction Match yet')
+            : '<b class="rs-ctx-pct">' + d.pct + '%</b> Direction Match') +
+        '</span>' +
+        '<span class="rs-ctx-n">' + (d.tested ? d.tested + ' tested' : 'nothing tested yet') + '</span>' +
+      '</span>';
+    }).join('');
+    return '<section class="rs-ctx" aria-label="Race context">' +
+      '<div class="rs-ctx-top">' +
+        '<span class="rs-ctx-seat">' + sm.icon + ' ' + esc(sm.label) + (scope ? ' · ' + esc(scope) : '') + '</span>' +
+        '<span class="rs-ctx-count">' + all.length + ' candidate' + (all.length === 1 ? '' : 's') + ' on file</span>' +
+        '<span class="rs-ctx-inc">' + (incs.length
+          ? 'Holds this seat now: ' + esc(incs.map(function (c) { return c.name; }).join(', '))
+          : 'Nobody in this field currently holds the seat') + '</span>' +
+      '</div>' +
+      '<div class="rs-ctx-chips">' + chips + '</div>' +
+      '<p class="rs-ctx-caveat">Direction Match is the <b>formal lane only</b> — their own word against their own record. ' +
+        'It is not a personal match to you, and it orders nothing on this sheet.</p>' +
+    '</section>';
   }
 
   // ── Team control ───────────────────────────────────────────────────────────
@@ -521,18 +983,32 @@
   }
 
   // ── Toggle + explainer ─────────────────────────────────────────────────────
-  function toggleHtml(mode) {
+  // THREE TABS, TWO OF THEM RULERS. The Overview control deliberately does not
+  // carry the .rs-mode class the other two share: that class means "this button
+  // can order the field", the sheet's own contract test counts it, and Overview
+  // orders nothing. A gated ruler still renders and is still pressable — pressing
+  // it is how a reader with no positions finds out what would change.
+  function toggleHtml(view, axisN) {
+    var gated = (axisN === 0);
+    var ovOn = (view === 'overview');
+    var ov = '<button type="button" class="rs-vtab' + (ovOn ? ' is-on' : '') + '"' +
+      ' role="tab" aria-selected="' + (ovOn ? 'true' : 'false') + '"' +
+      ' onclick="window.pdxRaceSheetMode(\'overview\')"' +
+      ' aria-label="' + esc(OVERVIEW.label + ' — ' + OVERVIEW.sub) + '">' +
+      '<span aria-hidden="true">' + OVERVIEW.ico + '</span> ' + esc(OVERVIEW.tab) +
+    '</button>';
     var btn = function (m) {
-      var mm = MODES[m], on = (m === mode);
-      return '<button type="button" class="rs-mode' + (on ? ' is-on' : '') + '"' +
+      var mm = MODES[m], on = (m === view);
+      return '<button type="button" class="rs-mode' + (on ? ' is-on' : '') + (gated ? ' is-gated' : '') + '"' +
         ' role="tab" aria-selected="' + (on ? 'true' : 'false') + '"' +
         ' onclick="window.pdxRaceSheetMode(\'' + m + '\')"' +
-        ' aria-label="' + esc(mm.label + ' — ' + mm.sub) + '">' +
+        (gated ? ' title="' + esc(UNSET.hd + ' ' + UNSET.sub) + '"' : '') +
+        ' aria-label="' + esc(mm.label + ' — ' + mm.sub + (gated ? ' Waiting on your positions: ' + UNSET.hd : '')) + '">' +
         '<span aria-hidden="true">' + mm.ico + '</span> ' + esc(mm.label) +
       '</button>';
     };
-    return '<div class="rs-modes" role="tablist" aria-label="Rank this field by">' +
-        btn('record') + btn('stated') +
+    return '<div class="rs-modes" role="tablist" aria-label="How this field is shown">' +
+        ov + btn('record') + btn('stated') +
       '</div>';
   }
 
@@ -584,7 +1060,15 @@
     // The ruler clause is only true when something was actually ranked. With no
     // positions set the sheet is in a fixed order, and a share that borrowed the
     // mode label anyway would be describing a ranking that never happened.
-    var ruler = axis().length ? mm.share : 'in a fixed order — no positions set, so nobody here is ranked';
+    // Three states now, because there is a tab on which a reader WITH positions is
+    // still looking at an unranked sheet. Borrowing the ruler's clause there would
+    // describe an ordering the sender was not looking at.
+    var v = activeView();
+    var ruler = (v !== 'overview' && axis().length)
+      ? mm.share
+      : (axis().length
+        ? 'shown side by side on the formal record — an overview, not a ranking'
+        : 'in a fixed order — no positions set, so nobody here is ranked');
     var scope = scopeLabel(sm.key);
 
     return {
@@ -680,9 +1164,12 @@
   }
 
   // ── Empty / no-stance states ───────────────────────────────────────────────
-  function ctaHtml() {
-    var open = fn('_krAlignGuideToPicker') ? 'window._krAlignGuideToPicker()'
+  function ctaOpen() {
+    return fn('_krAlignGuideToPicker') ? 'window._krAlignGuideToPicker()'
       : (fn('openAlignBoard') ? 'window.openAlignBoard()' : 'window.pdxRaceSheetClose()');
+  }
+  function ctaHtml() {
+    var open = ctaOpen();
     return '<div class="rs-cta">' +
         '<p class="rs-cta-hd">\u{1F3AF} Set your positions and this field re-orders itself.</p>' +
         '<p class="rs-cta-sub">Pick at least <b>' + ASK_ISSUES + '</b> issues and say where you stand. ' +
@@ -692,10 +1179,18 @@
       '</div>';
   }
 
+  // THE DISCLOSURE THAT REPLACES THE GATE. A ranking on one or two positions now
+  // opens by default, so the sheet owes the reader the size of what it is
+  // ranking on before they read the order — not a warning, not a hedge, and
+  // certainly not a refusal: the count they set, in their words, followed by
+  // what it does and does not buy them. Naming it as POSITIONS rather than
+  // issues matters here, because on this tab the number is a fact about the
+  // reader's own input, not about the candidates' files.
   function thinAxisNote(n) {
     if (n >= ASK_ISSUES) return '';
-    return '<p class="rs-thinaxis">This ranking rests on <b>' + n + ' issue' + (n === 1 ? '' : 's') +
-      '</b>. Add a few more and the order gets a lot harder to move by accident.</p>';
+    return '<p class="rs-thinaxis">Ranked on the <b>' + n + ' position' + (n === 1 ? '' : 's') +
+      '</b> you\u2019ve set. That is enough to order this field and not enough to be sure of it \u2014 ' +
+      'add ' + (n === 1 ? 'a couple' : 'one') + ' more and the order gets a lot harder to move by accident.</p>';
   }
 
   // ── Paint ──────────────────────────────────────────────────────────────────
@@ -703,7 +1198,9 @@
     var sm = seatMeta(_state.seatKey);
     if (!sm) return '<div class="rs-empty">That seat is not one this sheet can compare yet.</div>';
 
-    var mode = readMode(), mm = meta(mode);
+    var view = activeView();
+    var mode = (view === 'stated') ? 'stated' : 'record';
+    var mm = meta(mode);
     var all = field(sm.key, _state.pins);
     var rows = axis();
     var hasIssues = rows.length > 0;
@@ -736,8 +1233,6 @@
       '</div>';
     }
 
-    var ranked = rank(all, mode, hasIssues);
-
     // A field of one gets the officeholder-only line ONLY when the one person is
     // the officeholder. A lone challenger on file — a filing certified before the
     // incumbent's, or a seat whose holder is not in the roster — is a different
@@ -745,6 +1240,76 @@
     // the wrong person as the sitting member. When the one is not the incumbent,
     // the sheet says nothing extra: the panes already show who is there.
     var only = (all.length === 1 && !!all[0].incumbent);
+    var onlyHtml = only
+      ? '<p class="rs-onlyone">Only the officeholder is on file for this seat so far — there is no field to compare yet. Their record is below, and challengers appear here as filings are certified.</p>'
+      : '';
+
+    // ARRIVED FROM A SHARED LINK. Three separate admissions, and the third is
+    // said every time: what came over the wire was a seat, a list of ids and the
+    // name of a ruler. No stance of the sender's travelled, so nothing on this
+    // sheet is their match — it is the reader's, or it is nobody's.
+    var sharedNote = '';
+    if (_state.shared) {
+      var pinnedN = all.filter(function (c) { return c.pinned; }).length;
+      var missN = missingPins(_state.pins).length;
+      sharedNote = '<p class="rs-shared">' +
+        '<b>Opened from a shared link.</b> ' +
+        (pinnedN ? pinnedN + ' candidate' + (pinnedN === 1 ? '' : 's') +
+          ' from the sender\u2019s ballot ' + (pinnedN === 1 ? 'was' : 'were') +
+          ' added to the field your own location resolves. ' : '') +
+        (missN ? missN + ' name' + (missN === 1 ? '' : 's') + ' in that link ' +
+          (missN === 1 ? 'is' : 'are') + ' no longer on file and ' +
+          (missN === 1 ? 'is' : 'are') + ' not shown. ' : '') +
+        'Nothing about the sender\u2019s positions came with it \u2014 this order is yours, not theirs.' +
+      '</p>';
+    }
+
+    var explainHtml = '<p class="rs-explain">' + EXPLAINER + '</p>';
+    var footHtml = '<p class="rs-foot">Only the <b>formal</b> lane — roll-call votes and formal actions — feeds the record ruler. ' +
+      'Public statements are never added into it. Party is not read, printed or ranked anywhere on this sheet.</p>';
+    var ctx = contextStrip(sm, all);
+
+    // ── OVERVIEW ───────────────────────────────────────────────────────────
+    // Everything on this branch is a fact about the candidates. The reader's
+    // stance list is not read by any of it — snapshot() picks its issues from the
+    // candidates' formal files, the cards carry Direction Match and nothing else
+    // numeric, and the only ordering is the same fixed one the unranked field has
+    // always used. What the reader gets by setting positions is stated, once, and
+    // in their own terms rather than as a complaint about a candidate's file.
+    if (view === 'overview') {
+      var snap = snapshot(all);
+      var gate = hasIssues
+        ? ''
+        : '<div class="rs-gate"><p class="rs-gate-hd">' + esc(UNSET.hd) + '</p>' +
+            '<p class="rs-gate-sub">' + esc(UNSET.sub) + '</p></div>';
+      var ovLine = '<p class="rs-rankline">' + OVERVIEW.line + '</p>' +
+        (hasIssues
+          ? '<p class="rs-rankline">Overview is never ranked — it is in a fixed order: officeholder first, then alphabetical. Your ranking is on the two tabs beside it.</p>'
+          : '<p class="rs-rankline">Nothing is ranking this field yet — it is in a fixed order: officeholder first, then alphabetical.</p>');
+      var cards = '<div class="rs-ovgrid" data-rs-cols="' + all.length + '">' +
+        stableSort(all).map(function (c) { return ovCard(c, rk, picked, snap, sm); }).join('') +
+      '</div>';
+      // RUNNING ORDER, AND WHY THE RACE COMES BEFORE THE CONTROL. On a phone this
+      // column IS the hierarchy. The first thing a reader should meet under the
+      // seat name is the race — who is in it, who holds it now, how much of each
+      // file has actually been tested — because that is the question they opened
+      // the sheet with. The tabs come next, as the answer to "and how do I want
+      // this shown", which is a question you can only have after you know what
+      // "this" is. Everything below is the chosen view.
+      return head +
+        sharedNote +
+        ctx +
+        '<div class="rs-controls">' + toggleHtml(view, rows.length) + ovLine + explainHtml + '</div>' +
+        gate +
+        onlyHtml +
+        snapshotHtml(snap) +
+        h2hHtml(all, snap) +
+        cards +
+        (rows.length < ASK_ISSUES ? ctaHtml() : '') +
+        footHtml;
+    }
+
+    var ranked = rank(all, mode, hasIssues);
 
     // TWO TRACKS, NOT ONE. The ranked field and the band the active lane cannot
     // answer for are separate grids with the band's explanation between them as
@@ -790,42 +1355,34 @@
       ? '<p class="rs-rankline">' + mm.rankLine + starLine + '</p>'
       : '<p class="rs-rankline">Nothing is ranking this field yet — it is in a fixed order: officeholder first, then alphabetical.</p>';
 
-    // ARRIVED FROM A SHARED LINK. Three separate admissions, and the third is
-    // said every time: what came over the wire was a seat, a list of ids and the
-    // name of a ruler. No stance of the sender's travelled, so nothing on this
-    // sheet is their match — it is the reader's, or it is nobody's.
-    var sharedNote = '';
-    if (_state.shared) {
-      var pinnedN = all.filter(function (c) { return c.pinned; }).length;
-      var missN = missingPins(_state.pins).length;
-      sharedNote = '<p class="rs-shared">' +
-        '<b>Opened from a shared link.</b> ' +
-        (pinnedN ? pinnedN + ' candidate' + (pinnedN === 1 ? '' : 's') +
-          ' from the sender\u2019s ballot ' + (pinnedN === 1 ? 'was' : 'were') +
-          ' added to the field your own location resolves. ' : '') +
-        (missN ? missN + ' name' + (missN === 1 ? '' : 's') + ' in that link ' +
-          (missN === 1 ? 'is' : 'are') + ' no longer on file and ' +
-          (missN === 1 ? 'is' : 'are') + ' not shown. ' : '') +
-        'Nothing about the sender\u2019s positions came with it \u2014 this order is yours, not theirs.' +
-      '</p>';
-    }
-
+    // A RANKED FIELD STILL GETS THE RACE CONTEXT. Direction Match, the seat and
+    // the tested inventories are facts about the candidates, and they do not stop
+    // being useful because the reader has told us what they believe — brief 7:
+    // Overview stays available, and Direction Match stays as secondary context.
+    //
+    // AND THE ASK IS STILL MADE ON A THIN AXIS. A ranking built on one or two
+    // positions is real and is shown (the sheet has never had a floor and does
+    // not gain one here), but the CTA rides along under it, because three is
+    // where the same ask is made everywhere else in the product.
+    // Same running order as Overview: the race, then the control, then the view.
+    // The thin-axis disclosure rides inside the control block, directly under the
+    // rank line it qualifies, so a reader on a phone cannot meet the order before
+    // they meet how much it rests on.
     return head +
       sharedNote +
+      ctx +
       '<div class="rs-controls">' +
-        toggleHtml(mode) +
+        toggleHtml(view, rows.length) +
         rankLine +
-        '<p class="rs-explain">' + EXPLAINER + '</p>' +
+        explainHtml +
         (hasIssues ? thinAxisNote(rows.length) : '') +
       '</div>' +
-      (only
-        ? '<p class="rs-onlyone">Only the officeholder is on file for this seat so far — there is no field to compare yet. Their record is below, and challengers appear here as filings are certified.</p>'
-        : '') +
+      onlyHtml +
       (hasIssues ? '' : ctaHtml()) +
       panes +
       (moreBtn ? '<div class="rs-morewrap">' + moreBtn + '</div>' : '') +
-      '<p class="rs-foot">Only the <b>formal</b> lane — roll-call votes and formal actions — feeds the record ruler. ' +
-        'Public statements are never added into it. Party is not read, printed or ranked anywhere on this sheet.</p>';
+      (hasIssues && rows.length < ASK_ISSUES ? ctaHtml() : '') +
+      footHtml;
   }
 
   function ensureOverlay() {
@@ -902,8 +1459,19 @@
   // ── Public surface ─────────────────────────────────────────────────────────
   window.pdxOpenRaceSheet = open;
   window.pdxRaceSheetClose = close;
-  window.pdxRaceSheetMode = function (m) { writeMode(m); render(); return readMode(); };
+  // One control, three tabs. Overview writes only the VIEW key — the active ruler
+  // is a separate fact and picking a non-ruler must not silently change it, or a
+  // reader who looked at the overview and then shared the race would send a link
+  // naming a ruler they never chose.
+  window.pdxRaceSheetMode = function (m) {
+    if (m === 'overview') { writeView('overview'); render(); return readMode(); }
+    writeMode(m);
+    writeView(m === 'stated' ? 'stated' : 'record');
+    render();
+    return readMode();
+  };
   window.pdxRaceSheetMatchMode = readMode;
+  window.pdxRaceSheetView = activeView;
   window.pdxRaceSheetMore = function () { if (_state) { _state.expanded = !_state.expanded; render(); } };
   window.pdxRaceSheetPick = function (rk, pid) {
     try { if (fn('ballotPickCard')) window.ballotPickCard(rk, pid); } catch (e) {}
@@ -1061,6 +1629,11 @@
     // the markup. Pure reads; nothing here writes.
     seatStrip: window.pdxSeatStrip,
     share: window.pdxRaceSheetShare,
+    // The Overview model, without its markup: `_view` is the resolved tab,
+    // `_snapshot` the shared-issue table the harness pins, `_dm` the ledger facts
+    // a card prints. Pure reads.
+    view: activeView, OVERVIEW: OVERVIEW, UNSET: UNSET, SNAP_CAP: SNAP_CAP,
+    _view: activeView, _snapshot: snapshot, _dm: dmFacts, _glance: glanceFor,
     _field: field, _axis: axis, _rank: rank, _seat: seatMeta,
     _shareBits: shareBits, _openFromHash: openFromHash, _readRaceHash: readRaceHash,
     _missingPins: missingPins, _scope: scopeLabel

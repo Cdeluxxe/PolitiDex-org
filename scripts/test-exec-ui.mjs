@@ -414,7 +414,14 @@ for (const card of CARDS) {
     }
     eq((hr1.match(/pdxer-issrow/g) || []).length, seeded.issues.length,
       "the H.R. 1 card does not render one row per issue mapping");
-    has(hr1, "primary", "the primary issue is not marked on the omnibus card");
+    // H.R. 1 is the omnibus case and therefore the whole point: a law that rewrote
+    // tax, health coverage, food assistance, immigration enforcement and energy in
+    // one signature must arrive as all of those at once. Every mapping is a row, no
+    // row is folded away, and none of them is stamped as the lesser topic.
+    ok(hr1.indexOf("pdxer-more") === -1,
+      "the omnibus card folds part of its issue list away — the whole menu is the point of this card");
+    ok(!/pdxer-primary|pdxer-second|pdxer-narrow/.test(hr1),
+      "the omnibus card ranks one of its topics above the others — this act enacted all of them");
   }
   // The sole-authored order that also runs both ways.
   const eo = CARDS.find((c) => c.includes("Executive Order 14154"));
@@ -539,8 +546,11 @@ for (const card of CARDS) {
 // A citation is not an explanation. "Executive Order 14418 · In force" tells a reader
 // who already knows the order what it is; it tells everyone else nothing. Each row
 // carries one curated sentence of mechanism, the direction the SCORING ENGINE reads
-// (not the raw mapping — a veto inverts), an honest marker when the link is
-// secondary or narrow, and the audit rationale one tap down rather than in the way.
+// (not the raw mapping — a veto inverts), an honest sentence about scope when the
+// link rests on one part of the document, and the audit rationale one tap down
+// rather than in the way. Scope is a SENTENCE now, not a chip: the Big Picture pass
+// took the rank badges off these rows, because a reader scanning what a document
+// touched should not be told which of its topics are the lesser ones by default.
 {
   const byDoc = {};
   for (const c of CARDS) {
@@ -548,13 +558,12 @@ for (const card of CARDS) {
     if (id) byDoc[id.replace(/&#39;/g, "'").replace(/&amp;/g, "&")] = c;
   }
   const mapped = SEED.actions.trump.flatMap((a) => (a.issues || []).map((m) => ({ a, m })));
-  let withPlain = 0, secondary = 0, narrow = 0, invert = 0, ratBehindTap = 0;
+  let withPlain = 0, narrow = 0, invert = 0, ratBehindTap = 0;
   for (const { a, m } of mapped) {
     const card = byDoc[a.documentId];
     ok(!!card, `${a.documentId} has no card to explain itself on`);
     if (!card) continue;
     if (m.plain) { withPlain++; hasText(card, m.plain, `${a.documentId} · ${m.issueKey}: the explanation line is not rendered`); }
-    if (!m.isPrimary) secondary++;
     if (typeof m.weight === "number" && m.weight <= 45) narrow++;
     // The direction on the row is the one the engine scores, so a card can never
     // disagree with the number it feeds. For a blocking class the two differ.
@@ -566,10 +575,10 @@ for (const card of CARDS) {
     "the number of rendered explanation lines does not match the number of curated ones");
   ok(withPlain === mapped.length,
     `${mapped.length - withPlain} of ${mapped.length} rendered action-issue pairs carry no explanation`);
-  eq((HTML.match(/pdxer-second/g) || []).length, secondary,
-    "supporting-link markers do not match the non-primary mappings");
-  eq((HTML.match(/pdxer-narrow/g) || []).length, narrow,
-    "narrow-link markers do not match the low-weight mappings");
+  eq((HTML.match(/pdxer-iss-scope/g) || []).length, narrow,
+    "scope sentences do not match the low-weight mappings");
+  ok(!/pdxer-narrow|pdxer-primary|pdxer-second/.test(HTML),
+    "a rank or narrowness badge is back on the rows — scope belongs in the explanation, and 'primary' is not a visibility rule here");
   ok(invert > 0, "fixture drift: no blocking action remains, so the inversion path is untested");
   eq((HTML.match(/pdxer-iss-inv/g) || []).length, invert,
     "a row whose scored direction differs from its mapping does not disclose the inversion");

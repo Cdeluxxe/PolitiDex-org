@@ -92,6 +92,8 @@
       '.vr-bar{display:flex;height:.5rem;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);}',
       '.vr-bar-seg{height:100%;}',
       '.vr-bar-consistent{background:#4ade80;}.vr-bar-contradicts{background:#f87171;}.vr-bar-mixed{background:#60a5fa;}',
+      /* depth disclosure beside a group verdict that rests on one instrument */
+      '.vr-group-depth{font-size:.7rem;color:#fbbf24;border:1px solid rgba(251,191,36,.34);background:rgba(251,191,36,.1);border-radius:999px;padding:.08rem .42rem;white-space:nowrap;}',
       '.vr-legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.5rem;font-size:.72rem;color:#9fb4d4;}',
       '.vr-legend b{color:#eef4ff;font-weight:700;}',
       '.vr-dot{display:inline-block;width:.55rem;height:.55rem;border-radius:50%;margin-right:.3rem;vertical-align:middle;}',
@@ -615,14 +617,28 @@
     var brk = window._measureComponentBreakdown(item, positionMap || {}, { labelFn: issueLabel });
     if (!brk.isOmnibus) return ''; // single-issue vote → nothing extra to show
 
-    // Layer 1 — the split, stated plainly. Issue labels only, primary first, so the
-    // reader sees what one vote covered before any verdict language.
-    var touched = brk.components.map(function (c) {
+    // THE SCORE'S ORDER IS NOT THE READER'S ORDER. _measureComponentBreakdown hands
+    // its components back sorted is_primary-first, then weight-descending, because
+    // that is the order the scoring path wants — and this citizen-facing list was
+    // reading straight off it, so the flag that is supposed to be a filter key was
+    // deciding which of a bill's topics a voter met first. The engine sort stays
+    // exactly where it is (the API's order is load-bearing and byte-stable); the
+    // presentation forks here, into the shared Big Picture order that bill-detail
+    // already uses: taxonomy category, then label. Same components, same count,
+    // none dropped — only the sequence changes, and it no longer encodes a rank.
+    var comps = (typeof window._pdxBigPictureOrder === 'function')
+      ? window._pdxBigPictureOrder(brk.components, { labelFn: issueLabel })
+      : brk.components;
+
+    // Layer 1 — the split, stated plainly. Issue labels only, so the reader sees
+    // what one vote covered before any verdict language. Every mapped topic
+    // appears; none is marked as the real one.
+    var touched = comps.map(function (c) {
       return '<b>' + esc(c.label) + '</b>';
     }).join('<span class="vr-omni-sep" aria-hidden="true"> · </span>');
 
-    // Layer 2 — what this vote did to each of them.
-    var rows = brk.components.map(function (c) {
+    // Layer 2 — what this vote did to each of them, in the same order.
+    var rows = comps.map(function (c) {
       var eff = '';
       if (c.effect === 'advances') eff = '<span class="vr-omni-eff vr-omni-eff-adv">this vote advances it</span>';
       else if (c.effect === 'opposes') eff = '<span class="vr-omni-eff vr-omni-eff-opp">this vote cuts against it</span>';
@@ -667,11 +683,29 @@
 
     // Name the issue the badge is actually about, so the badge stops reading as the
     // verdict on the whole bill. Only shown when there IS a badge to qualify.
+    //   IT DISCLOSES THE BADGE'S SCOPE; IT DOES NOT RANK THE TOPICS. First this read
+    // "(main issue of 5)", which told a reader the other four were the lesser four.
+    // Then it read "(1 of 5 topics this vote touched)", which dropped the word but
+    // kept the shape: an ordinal, and this topic holding the 1. Both are rankings
+    // printed by default over topics the same vote decided just as really. What is
+    // actually true is narrower and says itself without any ordinal — ONE badge can
+    // only carry ONE stance comparison, the rest are carried in full a few lines
+    // below, and the count of them is stated here so nothing looks hidden.
+    //   The topic the badge lands on is still the measure's flagged one. That is the
+    // permitted use of the flag: an example pick for a single summary token, next to
+    // an explicit pointer at the complete list — never the thing that decides which
+    // topics a reader gets to see.
+    //   AND IT IS SCOPED TO THIS VOTE. "Compares the stated stance on Health care"
+    // reads, next to a green tick, as a finding about their health-care record. It
+    // is not: it is one roll call on one day, judged against one sentence they said.
+    // The scope line names the instrument first, so the badge can never be read as
+    // a career pattern on the topic it happens to be about.
     var scope = '';
-    var primaryIssue = (item.issues && item.issues[0]) || null;
-    if (verdictHtml && primaryIssue) {
-      scope = '<span class="vr-verdict-scope">on ' + esc(issueLabel(primaryIssue.issueKey)) +
-        ' <span class="vr-verdict-scope-q">(main issue of ' + sp.count + ')</span></span>';
+    var scopedIssue = (item.issues && item.issues[0]) || null;
+    if (verdictHtml && scopedIssue) {
+      scope = '<span class="vr-verdict-scope">on this vote — stated stance on ' +
+        esc(issueLabel(scopedIssue.issueKey)) + ' vs this one roll call' +
+        ' <span class="vr-verdict-scope-q">· all ' + sp.count + ' topics are judged below</span></span>';
     }
 
     var tip = sp.stanceBased
@@ -800,13 +834,18 @@
     var num = item.number ? '<span class="vr-num">' + LNUM(item.number) + '</span>' : '';
     var date = item.date ? '<span class="vr-date-txt">' + esc(fmtDate(item.date)) + '</span>' : '';
     var vb = verdictBadge(item, positionMap);
-    // The badge judges the measure's PRIMARY issue. On a multi-issue bill that is one
-    // of several answers, so say which issue it belongs to rather than letting it read
+    // The badge carries one stance comparison. On a multi-issue bill that is one of
+    // several answers, so say which issue it belongs to rather than letting it read
     // as the verdict on the whole vote — the breakdown below carries the others.
-    var primaryIssue = (item.issues && item.issues[0]) || null;
-    var vbTitle = (vb && isOmnibusItem(item) && primaryIssue)
-      ? ' title="' + escAttr('Verdict on ' + issueLabel(primaryIssue.issueKey) +
-          ' — this bill’s main issue. This one vote is judged separately on each issue it touched; see the split below.') + '"'
+    // The tooltip used to call that issue "this bill's main issue", which is the one
+    // thing it is not: it is the issue the badge happened to be built from, and the
+    // other topics are the same vote, decided at the same moment, by the same member.
+    var scopedIssue = (item.issues && item.issues[0]) || null;
+    var vbTitle = (vb && isOmnibusItem(item) && scopedIssue)
+      ? ' title="' + escAttr('On this act: this badge compares the member’s stated stance on ' +
+          issueLabel(scopedIssue.issueKey) + ' with how they voted here. It is one roll call, ' +
+          'not their record on ' + issueLabel(scopedIssue.issueKey) + '. The same vote is judged ' +
+          'separately on every issue it touched — the full split is below.') + '"'
       : '';
     var verdictHtml = vb ? '<span class="vr-verdict ' + vb.cls + '"' + vbTitle + '>' + esc(vb.label) + '</span>' : '';
     // On a multi-issue card, wrap the badge with the always-visible scope + spread
@@ -847,13 +886,27 @@
     }
 
     // A one-line "they said X, they did Y" note when we have both sides.
+    //   EVERY STANCE THE VOTE MET, NOT THE FLAGGED ONE. This read only issues[0], so
+    // a member who had campaigned on four of a bill's topics saw one of them quoted
+    // back and the other three silently dropped — and which one survived was decided
+    // by is_primary. Now every mapped topic the member has a stance on is listed, in
+    // the shared Big Picture order, so the note covers the same ground the breakdown
+    // below does. A single-stance card renders exactly the sentence it always did.
     var note = '';
-    var primary = (item.issues && item.issues[0]) || null;
-    if (primary && positionMap[primary.issueKey]) {
-      var stance = positionMap[primary.issueKey].stance;
-      var stanceWord = stance === 'support' ? 'supports' : stance === 'oppose' ? 'opposes' : 'is mixed on';
-      note = '<div class="vr-stance-note">Stated stance: <b>' + esc(stanceWord) + '</b> ' +
-        esc(issueLabel(primary.issueKey)) + '</div>';
+    var stated = (item.issues || []).filter(function (is) {
+      return is && is.issueKey && positionMap[is.issueKey] && positionMap[is.issueKey].stance;
+    });
+    if (typeof window._pdxBigPictureOrder === 'function') {
+      stated = window._pdxBigPictureOrder(stated, { labelFn: issueLabel });
+    }
+    if (stated.length) {
+      var parts = stated.map(function (is) {
+        var stance = positionMap[is.issueKey].stance;
+        var stanceWord = stance === 'support' ? 'supports' : stance === 'oppose' ? 'opposes' : 'is mixed on';
+        return '<b>' + esc(stanceWord) + '</b> ' + esc(issueLabel(is.issueKey));
+      });
+      note = '<div class="vr-stance-note">Stated stance' + (parts.length > 1 ? 's' : '') + ': ' +
+        parts.join('<span class="vr-omni-sep" aria-hidden="true"> · </span>') + '</div>';
     }
 
     var src = (item.source && item.source.url)
@@ -871,6 +924,10 @@
   // Exported for the same reason _vrTeachHtml is: a pure item → HTML function that a
   // node harness can render without a DOM, so the card's markup is testable.
   window._vrCardHtml = cardHtml;
+  // Exposed for scripts/test-act-scope-copy.mjs: the grouped issue list, so the
+  // depth disclosure beside a group verdict can be rendered and pinned at both
+  // depths — one instrument, and several.
+  window._vrGroupsHtml = function (items, positionMap) { return renderGroups(items || [], positionMap || {}); };
 
   // ── Empty / no-match state ─────────────────────────────────────────────────
   // Any filter narrowing the set beyond the member's full record (sort is a view
@@ -987,6 +1044,37 @@
             os.omnibus + ' of ' + os.total + ' from multi-issue bills</span>';
         }
       }
+      // ── HOW MUCH RECORD IS UNDER THE GROUP VERDICT ────────────────────────────
+      // "Backs it up" over an issue heading is pattern voice: it says the record
+      // points one way on this issue. That sentence is earned when the record has
+      // items to point with, and it is not earned when the whole group is one
+      // omnibus yea. The verdict, its class and the engine that produced it are
+      // untouched — this adds the inventory beside it so the word is read at the
+      // size of the evidence: how many judged records, and how many separate
+      // measures they are. Shown only when the judged evidence is a single
+      // instrument, which is exactly the case where the badge alone overclaims.
+      //   FAILS CLOSED, AND COUNTS WHAT IS THERE. The measure count is taken over
+      // the WHOLE group rather than the judged subset — an over-count, never an
+      // under-count, so the marker can only appear when the group genuinely holds
+      // one instrument. Anonymous records fall back to their own row key rather
+      // than collapsing into each other. The inventory is the group's record count,
+      // which is the number the heading beside it already prints, so the two can
+      // never disagree about how much is here.
+      var depthNote = '';
+      if (summary && summary.hasStance && summary.label) {
+        var seenM = {}, nM = 0, ident = '';
+        list.forEach(function (it, i) {
+          if (!it) return;
+          var mk = String(it.measureId || it.number || it.rollcallId || ('#' + i));
+          if (!seenM[mk]) { seenM[mk] = 1; nM++; if (!ident) ident = String(it.number || ''); }
+        });
+        if (list.length > 0 && nM === 1) {
+          var dTxt = 'On ' + (list.length === 1 ? 'one record' : list.length + ' records, all the same measure') +
+            (ident ? ' — ' + ident : '') + '. That is one instrument on this issue, not a pattern across the rest of their record.';
+          depthNote = '<span class="vr-group-depth" title="' + escAttr(dTxt) + '">📍 ' +
+            esc(list.length === 1 ? 'on 1 record' : 'on 1 measure') + '</span>';
+        }
+      }
       var head = '<div class="vr-group-head">' +
         '<span class="vr-group-title">' + esc(key === '_none' ? '📄 Other records' : issueLabel(key)) + '</span>' +
         '<span class="vr-group-n">' + list.length + ' record' + (list.length === 1 ? '' : 's') + '</span>' +
@@ -998,6 +1086,7 @@
                 : summary.netVerdict === 'mixed' ? 'vr-v-mixed' : 'vr-v-neutral') +
               '">' + esc(summary.label) + '</span>'
           : '') +
+        depthNote +
         '</div>';
 
       var cards = list.filter(function (it) { return !nested[it.measureId]; }).map(function (it) {

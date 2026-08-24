@@ -7,11 +7,16 @@
 
    Sections (each degrades gracefully when its data is absent):
      • Header — number, title, status, chamber/congress, source, omnibus marker.
-     • Omnibus breakdown — every component issue, whether a Yea advances or cuts
-       against it (support_meaning), and the rationale. The core "what's bundled".
+     • Every topic this act touches — EVERY component issue mapping, enumerated,
+       whether a Yea advances or cuts against it (support_meaning), and the
+       rationale. The core "what's bundled", and the whole of it: no truncation,
+       no primary-first sort, no rank badge. An optional view filter can slice the
+       same rows, and its default is and stays All topics.
      • Roll calls — each vote event with totals, and a per-member vote table. Each
-       member row can expand to their say-vs-do on THIS bill, computed from the
-       shared _measureComponentBreakdown engine (one vote → many per-issue verdicts).
+       member row can expand to what their vote did on EVERY topic this act maps
+       to, computed from the shared _measureComponentBreakdown engine (one vote →
+       many per-issue effects), with the say-vs-do verdict added on the topics
+       where a stated stance exists.
      • Sponsors / cosponsors — from vr_positions.
      • Key actions — a lightweight timeline synthesized from introducedAt + the
        roll calls + status (a real vr_measure_actions table is a Phase-3 add).
@@ -58,46 +63,145 @@
     catch (e) { return String(iso).slice(0, 10); }
   }
 
-  // ── say-vs-do for one member on this bill ───────────────────────────────────
-  // Uses the shared engine: {position, issues} × the member's stance map → a
-  // per-issue verdict list plus a compact consistent/contradicts summary.
+  // ── BIG PICTURE ORDER: THE WHOLE MENU, UNRANKED ─────────────────────────────
+  // THE CITIZEN BIG PICTURE IGNORES `isPrimary` AS A VISIBILITY RULE. A mapping's
+  // primary flag and its curated `weight` decide nothing on this face: not whether
+  // a topic appears, not where it appears, not how loudly. Both still travel in the
+  // payload and both are still read by the INTERNAL anti-noise machinery that
+  // already depends on them — _recordDirectionIndex()'s not-incidental floor in
+  // stance-helpers.js, the strongest-citable-example pick in receipt-cards.js — and
+  // that is the only use either flag has until a later engine decision retires or
+  // repurposes them. Nothing in this file may reintroduce them as a rank.
+  //   WHAT ORDERS THE LIST INSTEAD, in order of preference:
+  //     1. the reader's own picked issues (window._alignIssues). The one legitimate
+  //        reason to move a row up the page is that this reader asked for it.
+  //     2. the shipped category order (_pdxIssueCatOf → _pdxIssueCategories), so the
+  //        same act reads the same way down the page every time and related topics
+  //        sit together instead of scattering.
+  //     3. the display label alphabetically, then the raw key. Both are arbitrary,
+  //        and arbitrary is the point: no reader mistakes alphabetical order for a
+  //        judgement about which topic this act was really about.
+  //   Every step fails open — an unknown category sorts last, it never hides a row.
+  function alignSet() {
+    try {
+      var s = window._alignIssues;
+      return (s && typeof s.has === 'function' && s.size) ? s : null;
+    } catch (e) { return null; }
+  }
+  var _CAT_RANK = null;
+  function catRank(key) {
+    if (!_CAT_RANK) {
+      var built = {}, n = 0;
+      try {
+        var cats = (typeof window._pdxIssueCategories === 'function') ? window._pdxIssueCategories() : [];
+        for (var i = 0; i < cats.length; i++) { if (cats[i] && cats[i].key) { built[cats[i].key] = i; n++; } }
+      } catch (e) {}
+      if (!n) return 999; // taxonomy not loaded yet — don't cache an empty table
+      _CAT_RANK = built;
+    }
+    var cat = '';
+    try { if (typeof window._pdxIssueCatOf === 'function') cat = window._pdxIssueCatOf(key) || ''; } catch (e) {}
+    var r = _CAT_RANK[cat];
+    return (typeof r === 'number') ? r : 999;
+  }
+  //   THIS ORDER IS NOW SHARED. It was written here first, and it is the same
+  // question the record card, the profile highlight and the library card were each
+  // answering with the score sort. window._pdxBigPictureOrder in stance-helpers.js
+  // is the one copy; this delegates to it and keeps the local sort as the fallback
+  // for the case where that file has not loaded, so the page can lose the helper
+  // without silently regaining a primary-first list.
+  function bigPictureOrder(list) {
+    var mine = alignSet();
+    try {
+      if (typeof window._pdxBigPictureOrder === 'function') {
+        return window._pdxBigPictureOrder(list, { labelFn: issueLabel, firstKeys: mine });
+      }
+    } catch (e) {}
+    return (list || []).slice().sort(function (a, b) {
+      var ka = (a && a.issueKey) || '', kb = (b && b.issueKey) || '';
+      var ma = (mine && mine.has(ka)) ? 0 : 1, mb = (mine && mine.has(kb)) ? 0 : 1;
+      if (ma !== mb) return ma - mb;
+      var ca = catRank(ka), cb = catRank(kb);
+      if (ca !== cb) return ca - cb;
+      var cmp = String(issueLabel(ka)).localeCompare(String(issueLabel(kb)));
+      if (cmp) return cmp;
+      return ka < kb ? -1 : ka > kb ? 1 : 0;
+    });
+  }
+
+  // The same order for a bare list of issue KEYS. The light index and the lite
+  // fallback below hold keys rather than mappings, and a chip row built from keys
+  // must read in the same sequence as the ledger built from mappings.
+  function bigPictureKeys(keys) {
+    var seen = {}, objs = [];
+    (keys || []).forEach(function (k) { if (k && !seen[k]) { seen[k] = 1; objs.push({ issueKey: k }); } });
+    return bigPictureOrder(objs).map(function (o) { return o.issueKey; });
+  }
+
+  // ── one member's vote, topic by topic ───────────────────────────────────────
+  // A Yea is a Yea on every topic the act maps to, so every mapped topic is listed
+  // here as a real effect of this member's vote. The say-vs-do verdict is an EXTRA
+  // that lands on the rows where a stated stance exists — its ABSENCE no longer
+  // deletes the topic from the member's row, which is how a fourteen-topic act used
+  // to shrink to the two topics we happened to hold a stance on. Disclosure, not
+  // deletion: the caption says "On this act" rather than stamping a pattern badge
+  // on what may be the member's only item on any of these keys.
   var VERDICT = {
     consistent: { cls: 'bd-v-consistent', label: '✓ matches stance' },
     contradicts: { cls: 'bd-v-contradicts', label: '⚠ against stance' },
     mixed: { cls: 'bd-v-mixed', label: 'mixed' },
     no_position: { cls: 'bd-v-neutral', label: 'no position' }
   };
-  function memberSayVsDo(pid, position, issues) {
-    if (typeof window._measureComponentBreakdown !== 'function' || typeof window._polPositionMap !== 'function') return null;
-    var pm = window._polPositionMap(pid, prof(pid)) || {};
+  function memberOnAct(pid, position, issues) {
+    if (typeof window._measureComponentBreakdown !== 'function') return null;
+    var pm = {};
+    try { if (typeof window._polPositionMap === 'function') pm = window._polPositionMap(pid, prof(pid)) || {}; } catch (e) {}
     var brk = window._measureComponentBreakdown({ position: position, issues: issues }, pm, { labelFn: issueLabel });
-    var withStance = brk.components.filter(function (c) { return c.hasStance; });
-    if (!withStance.length) return null;
+    var comps = bigPictureOrder(brk.components);
+    if (!comps.length) return null;
     var con = 0, against = 0;
-    withStance.forEach(function (c) { if (c.verdict === 'consistent') con++; else if (c.verdict === 'contradicts') against++; });
-    var rows = withStance.map(function (c) {
-      var v = VERDICT[c.verdict];
-      return '<div class="bd-svd-row"><span class="bd-svd-issue">' + esc(c.label) + '</span>' +
-        (v ? '<span class="bd-v ' + v.cls + '">' + esc(v.label) + '</span>' : '') + '</div>';
+    comps.forEach(function (c) {
+      if (!c.hasStance) return;
+      if (c.verdict === 'consistent') con++; else if (c.verdict === 'contradicts') against++;
+    });
+    var rows = comps.map(function (c) {
+      var eff = c.effect === 'advances'
+        ? '<span class="bd-eff bd-eff-adv">their vote advances this</span>'
+        : c.effect === 'opposes'
+          ? '<span class="bd-eff bd-eff-opp">their vote cuts against this</span>' : '';
+      var v = (c.hasStance && VERDICT[c.verdict])
+        ? '<span class="bd-v ' + VERDICT[c.verdict].cls + '">' + esc(VERDICT[c.verdict].label) + '</span>' : '';
+      return '<div class="bd-svd-row"><span class="bd-svd-issue">' + esc(c.label) + '</span>' + eff + v + '</div>';
     }).join('');
-    var summary = (con ? '<span class="bd-v bd-v-consistent">✓ ' + con + '</span>' : '') +
+    var summary = '<span class="bd-svd-count">' + comps.length + ' topic' + (comps.length !== 1 ? 's' : '') + '</span>' +
+      (con ? '<span class="bd-v bd-v-consistent">✓ ' + con + '</span>' : '') +
       (against ? '<span class="bd-v bd-v-contradicts">⚠ ' + against + '</span>' : '');
-    return { summary: summary, rows: rows, hasContradiction: against > 0 };
+    return {
+      summary: summary,
+      rows: '<div class="bd-svd-cap">On this act — every topic it maps to, and what this vote did to each:</div>' + rows,
+      hasContradiction: against > 0
+    };
   }
 
   // ── section builders ────────────────────────────────────────────────────────
+  // THE LEDGER IS THE ACT. Every issue this instrument is mapped to, enumerated —
+  // no truncation, no rank badge, no primary-first sort. Each row gets the same
+  // structure and the same access to mechanism, because a citizen opening an act
+  // is owed the whole menu it enacted, topic by topic, before anyone tells them
+  // which parts mattered. Copy that would minimise a row — "secondary",
+  // "supporting only", "narrow" as a STATUS — does not belong here; where
+  // narrowness is a fact about a mapping it belongs in that row's explanation
+  // sentence, which is the one place it can be read rather than ranked.
   function omnibusSection(m, issues) {
     if (!issues || !issues.length) return '';
-    // Primary first, then heaviest-weighted, so the breakdown reads in order of import.
-    var ordered = issues.slice().sort(function (a, b) {
-      return (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0) || (b.weight || 0) - (a.weight || 0);
-    });
+    var ordered = bigPictureOrder(issues);
     var adv = 0, opp = 0;
     ordered.forEach(function (it) { if (it.supportMeaning === 'yea_opposes') opp++; else adv++; });
     var lead = ordered.length >= 2
-      ? 'This bill bundles <strong>' + ordered.length + ' issues</strong> into one vote — so a single Yea or Nay is really a decision on each of these.'
-      : 'This is a single-issue measure.';
-    // At-a-glance summary of which way a Yea cuts across the bundle.
+      ? 'This act is mapped to <strong>' + ordered.length + ' topics</strong>, and every one of them is listed below — so a single Yea or Nay is really a decision on each of these.'
+      : 'This act is mapped to one topic.';
+    // At-a-glance summary of which way a Yea cuts across the act. A count of
+    // directions, never a ranking of them.
     var summary = ordered.length >= 2
       ? '<div class="bd-omni-summary">' +
           '<span class="bd-eff bd-eff-adv">▲ Advances ' + adv + '</span>' +
@@ -108,17 +212,135 @@
       var opposes = it.supportMeaning === 'yea_opposes';
       var effCls = opposes ? 'bd-eff-opp' : 'bd-eff-adv';
       var effTxt = opposes ? 'A Yea cuts against this' : 'A Yea advances this';
-      return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '">' +
+      // `data-bd-lane` is a FILTER KEY AND NOTHING ELSE. It carries the curated
+      // primary flag so the optional view control below has something to slice on;
+      // it sets no default, hides nothing on its own, and no styling reads it
+      // except the two display rules the filter itself installs.
+      return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '"' +
+          ' data-bd-lane="' + (it.isPrimary ? 'main' : 'other') + '">' +
         '<div class="bd-omni-head">' +
           '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
-          (it.isPrimary ? '<span class="bd-omni-primary">Primary</span>' : '') +
           '<span class="bd-eff ' + effCls + '">' + effTxt + '</span>' +
         '</div>' +
         (it.rationale ? '<div class="bd-omni-why">' + esc(it.rationale) + '</div>' : '') +
       '</div>';
     }).join('');
-    return '<section class="bd-sec"><h3 class="bd-h">📦 What’s inside this vote</h3>' +
-      '<p class="bd-lead">' + lead + '</p>' + summary + rows + '</section>';
+    return '<section class="bd-sec"><h3 class="bd-h">📦 Every topic this act touches</h3>' +
+      '<p class="bd-lead">' + lead + '</p>' + summary +
+      '<div class="bd-omni-view">' + viewFilter(ordered) +
+        '<div class="bd-omni-list" data-bd-view="all">' + rows + '</div>' +
+      '</div></section>';
+  }
+
+  // ── the optional view filter ────────────────────────────────────────────────
+  // A VIEW FILTER, NOT A RANKING. These buttons slice a list the reader already
+  // has in front of them; they never decide which rows exist. Three properties
+  // hold that line and the tests pin all three:
+  //   · "All topics" is the default and the only state the panel ever opens in.
+  //   · The slice labels describe what a slice CONTAINS ("titles often described
+  //     as the vehicle's main jobs") rather than promoting one over the other. No
+  //     button says primary, secondary or supporting.
+  //   · The control is only drawn when both slices are non-empty, so it can never
+  //     appear as a filter that filters to everything or to nothing.
+  // It fails open: with scripting unavailable the buttons are inert and every row
+  // stays on screen, because the visible state lives in one attribute whose
+  // shipped value is "all".
+  function viewFilter(ordered) {
+    var main = 0, other = 0;
+    ordered.forEach(function (it) { if (it.isPrimary) main++; else other++; });
+    if (!main || !other) return '';
+    var btn = function (key, label, on) {
+      return '<button type="button" class="bd-vf-btn" data-bd-view-set="' + key + '"' +
+        ' aria-pressed="' + (on ? 'true' : 'false') + '">' + esc(label) + '</button>';
+    };
+    return '<div class="bd-viewfilter" role="group" aria-label="Filter the topic list">' +
+      '<span class="bd-vf-lab">View</span>' +
+      btn('all', 'All topics (' + ordered.length + ')', true) +
+      btn('main', 'Titles often described as the vehicle’s main jobs (' + main + ')', false) +
+      btn('other', 'Other provisions in this act (' + other + ')', false) +
+    '</div>';
+  }
+
+  // ── the bag: what travelled with what ───────────────────────────────────────
+  // MENU TRANSPARENCY, NOT A HIERARCHY. The ledger above answers "what is in this
+  // act?", one row per mapping. This panel answers the question a reader asks
+  // immediately afterwards and that no surface here answered before: "did all of
+  // that really go through on one vote?" It is a PACKAGING FACT — how Congress
+  // assembled the instrument — and it is derived from nothing but the same
+  // measure→issue mappings the ledger is built from. No new keys, no new
+  // curation, no score of any kind, and not one topic treated as the reason the
+  // others were carried.
+  //
+  // Three rules hold the panel to that:
+  //   · SAME LIST, SAME ORDER. Every chip is a topic already on the face, in the
+  //     shared Big Picture order the ledger uses. The count it prints is the row
+  //     count, so the panel can never quietly claim a different-sized act.
+  //   · EQUAL TREATMENT. isPrimary is not read here at all: no chip is styled,
+  //     sorted, badged or worded differently from any other, because "which of
+  //     these was the act really about" is not a fact this codebase has.
+  //   · IT ADDS A FACT, NOT A VERDICT. Bag size, how many areas of the shipped
+  //     topic map those mappings fall into, and how many roll calls carried the
+  //     whole bag. All three are counts of things already on the page.
+  //
+  // The area grouping is the taxonomy's own grouping, printed in the taxonomy's
+  // own order rather than by size, so a big group reads as more mappings and not
+  // as the act's "real" subject. A single-topic measure gets no panel: a bag of
+  // one is not a bag, and the ledger already says so in plain words.
+  function coTravelSection(m, issues, rollcalls) {
+    if (!issues || issues.length < 2) return '';
+    var ordered = bigPictureOrder(issues);
+    var n = ordered.length;
+    var rcs = (rollcalls || []).length;
+    var enacted = m && m.status === 'enacted';
+    var unit = rcs ? 'vote' : (enacted ? 'act' : 'measure');
+
+    // Which areas of the shipped topic map these mappings fall into. `ordered` is
+    // already in taxonomy order, so first-seen order is taxonomy order — the
+    // groups are never re-sorted by how many mappings landed in them.
+    var areas = [], byCat = {};
+    ordered.forEach(function (it) {
+      var ck = '';
+      try { if (typeof window._pdxIssueCatOf === 'function') ck = window._pdxIssueCatOf(it.issueKey) || ''; } catch (e) {}
+      var lab = '';
+      try {
+        var c = (typeof window._pdxIssueCategory === 'function') ? window._pdxIssueCategory(ck) : null;
+        if (c && c.label) lab = (c.icon ? c.icon + ' ' : '') + c.label;
+      } catch (e) {}
+      if (!lab) { ck = '_unmapped'; lab = 'Elsewhere in the topic map'; }
+      if (!byCat[ck]) { byCat[ck] = { label: lab, n: 0 }; areas.push(byCat[ck]); }
+      byCat[ck].n++;
+    });
+
+    var carried = rcs === 1
+      ? 'One roll call decided every one of them. A member could take the whole bag or refuse the whole bag; there was no separate vote on any single topic in it.'
+      : rcs > 1
+        ? rcs + ' roll calls each decided every one of them at once. None of them was a vote on one topic.'
+        : enacted
+          ? 'They were signed into law as one instrument, so they arrived together or not at all.'
+          : 'They ride on one measure, so they move together for as long as it does.';
+
+    var chips = ordered.map(function (it) {
+      return '<button type="button" class="bd-bag-chip" data-issue="' + escAttr(it.issueKey) + '"' +
+        ' title="Open ' + escAttr(issueLabel(it.issueKey)) + '">' + esc(issueLabel(it.issueKey)) + '</button>';
+    }).join('');
+
+    var stats = '<span class="bd-bag-stat">📦 ' + n + ' topics on this instrument</span>' +
+      '<span class="bd-bag-stat">🗂 ' + areas.length + ' area' + (areas.length !== 1 ? 's' : '') + ' of the topic map</span>' +
+      (rcs ? '<span class="bd-bag-stat">🗳️ ' + (rcs === 1 ? '1 roll call on all ' + n : rcs + ' roll calls, each on all ' + n) + '</span>' : '');
+
+    var areaRow = '<div class="bd-bag-areas">' + areas.map(function (a) {
+      return '<span class="bd-bag-area">' + esc(a.label) + ' <b>' + a.n + '</b></span>';
+    }).join('') + '</div>';
+
+    return '<section class="bd-sec bd-bag"><h3 class="bd-h">🎒 Topics that shared this ' + esc(unit) + '</h3>' +
+      '<p class="bd-lead">All <strong>' + n + ' topics</strong> listed above rode the same instrument. ' + esc(carried) + '</p>' +
+      '<div class="bd-bag-stats">' + stats + '</div>' +
+      '<div class="bd-bag-strip" role="group" aria-label="Every topic carried on this instrument">' + chips + '</div>' +
+      areaRow +
+      '<p class="bd-note bd-bag-note">These are the same ' + n + ' mappings as the list above, in the same order, ' +
+        'grouped only to show they arrived as one bag. Nothing here is a ranking: the areas are printed in the topic ' +
+        'map’s own order, and a bigger group means more mappings landed in it, not that the act mattered more there.</p>' +
+    '</section>';
   }
 
   function rollcallsSection(m, issues, rollcalls) {
@@ -155,7 +377,7 @@
           var pcls = pos === 'yea' ? 'bd-pos-yea' : pos === 'nay' ? 'bd-pos-nay' : 'bd-pos-neutral';
           var plabel = pos === 'yea' ? 'Yea' : pos === 'nay' ? 'Nay' : pos === 'present' ? 'Present' : pos === 'not_voting' ? 'Not voting' : pos;
           var relTag = isLocal(v.politicianId) ? '<span class="bd-rel">Your rep</span>' : '';
-          var svd = heavy ? null : memberSayVsDo(v.politicianId, pos, issues);
+          var svd = heavy ? null : memberOnAct(v.politicianId, pos, issues);
           var nameBtn = '<button type="button" class="bd-vote-name" data-pid="' + escAttr(v.politicianId) + '">' + esc(nameFor(v.politicianId)) + '</button>';
           if (svd) {
             return '<details class="bd-vote-row bd-vote-exp' + (svd.hasContradiction ? ' bd-vote-contra' : '') + '">' +
@@ -168,7 +390,7 @@
           }
           return '<div class="bd-vote-row">' + nameBtn + relTag + '<span class="bd-pos ' + pcls + '">' + plabel + '</span></div>';
         }).join('');
-        if (heavy) rows = '<p class="bd-note">Say-vs-do per member is available on smaller roll calls; open a profile for the full picture.</p>' + rows;
+        if (heavy) rows = '<p class="bd-note">The per-member topic breakdown is available on smaller roll calls; the full topic list for this act is above, and a profile carries the same breakdown per member.</p>' + rows;
       } else {
         rows = '<p class="bd-empty">Individual member votes for this roll call are not in the record yet.</p>';
       }
@@ -413,17 +635,24 @@
       parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Find everything connected</div>' +
         '<button type="button" class="bd-btn bd-eye" data-eye="' + escAttr(m.number) + '">🔍 Search this in the All-Seeing Eye</button></div>');
     }
-    // Explore-these-issues jump chips + a link back into the Legislation library,
-    // filtered to this bill's primary issue. Always available when the bill has issues.
+    // Explore-these-issues jump chips + a link back into the Legislation library.
+    // EVERY MAPPED TOPIC GETS A CHIP. This list used to be cut at eight, which on a
+    // reconciliation vehicle silently deleted the tail of the act from the one place
+    // a reader could jump into those topics — and, because the list arrived
+    // primary-first, the eight that survived were the eight the curation had already
+    // called the important ones. It is enumerated in the same Big Picture order the
+    // ledger above uses, and the library button follows the first row of THAT order
+    // rather than reaching past it for a primary flag.
     if (issues && issues.length) {
-      var primaryKey = (issues.find(function (i) { return i.isPrimary; }) || issues[0] || {}).issueKey || '';
-      var chips = issues.slice(0, 8).map(function (it) {
+      var ordered = bigPictureOrder(issues);
+      var leadKey = (ordered[0] || {}).issueKey || '';
+      var chips = ordered.map(function (it) {
         return '<button type="button" class="bd-person bd-issuejump" data-issue="' + escAttr(it.issueKey) + '">' +
           '<span class="bd-person-name">🔎 ' + esc(issueLabel(it.issueKey)) + '</span>' +
           '<span class="bd-person-role">Issue spotlight</span></button>';
       }).join('');
       parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Explore these issues</div><div class="bd-people">' + chips + '</div>' +
-        (primaryKey ? '<button type="button" class="bd-btn bd-legis" data-legis="' + escAttr(primaryKey) + '">🏛️ Browse related bills in the Legislation library</button>' : '') +
+        (leadKey ? '<button type="button" class="bd-btn bd-legis" data-legis="' + escAttr(leadKey) + '">🏛️ Browse related bills in the Legislation library</button>' : '') +
       '</div>');
     }
     // Issue Spotlights tied to any of this bill's component issues (when available).
@@ -448,6 +677,21 @@
     } catch (e) {}
     if (!parts.length) return '';
     return '<section class="bd-sec"><h3 class="bd-h">🔗 Related &amp; explore</h3>' + parts.join('') + '</section>';
+  }
+
+  // Apply a view filter to the topic ledger. Presentation only: it flips one
+  // attribute that two display rules read, and it can reach nothing but the list
+  // it was clicked inside. The rows are never rebuilt, so no slice can drop one.
+  function setOmniView(btn) {
+    var wrap = btn.closest ? btn.closest('.bd-omni-view') : null;
+    if (!wrap) return;
+    var view = btn.getAttribute('data-bd-view-set') || 'all';
+    var list = wrap.querySelector('.bd-omni-list');
+    if (list) list.setAttribute('data-bd-view', view);
+    var btns = wrap.querySelectorAll('[data-bd-view-set]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].getAttribute('data-bd-view-set') === view));
+    }
   }
 
   // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
@@ -526,6 +770,7 @@
       '</div>' +
       glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
+      coTravelSection(m, issues, data.rollcalls) +
       provisionsSection(m, data.provisions) +
       impactLedgerSection(data) +
       rollcallsSection(m, issues, data.rollcalls) +
@@ -558,7 +803,9 @@
       if (pb) { var pid = pb.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') { close(); window.showProfile(pid); } return; }
       var sb = e.target.closest ? e.target.closest('[data-slug]') : null;
       if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
-      var ib = e.target.closest ? e.target.closest('[data-issue]') : null;
+      var ib = e.target.closest ? e.target.closest('[data-bd-view-set]') : null;
+      if (ib) { setOmniView(ib); return; }
+      ib = e.target.closest ? e.target.closest('[data-issue]') : null;
       if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
       var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
       if (lb) { browseLegislation(lb.getAttribute('data-legis')); return; }
@@ -689,10 +936,15 @@
   // links to its Spotlight) and the official record — instead of a dead end.
   function liteBodyHtml(card) {
     var status = card.status ? '<span class="bd-status bd-s-' + esc(card.status) + '">' + esc(statusLabel(card.status)) + '</span>' : '';
+    // THE FALLBACK IS NOT A LESSER LEDGER. This body renders when the live measure
+    // cannot be fetched, and it used to put `primaryIssue` at the head of the chip
+    // row — the same crowning the live path stopped doing, surviving in the path a
+    // reader only ever meets when something is already broken. The flag still
+    // decides MEMBERSHIP (the light index sometimes names a primary the issueKeys
+    // array omits, and dropping it would lose a topic), but not position.
     var keys = (card.issueKeys || []).filter(Boolean);
-    var primary = card.primaryIssue || keys[0] || '';
-    var ordered = [];
-    (primary ? [primary] : []).concat(keys).forEach(function (k) { if (k && ordered.indexOf(k) < 0) ordered.push(k); });
+    if (card.primaryIssue && keys.indexOf(card.primaryIssue) < 0) keys = keys.concat([card.primaryIssue]);
+    var ordered = bigPictureKeys(keys);
     var omni = ordered.length >= 2 ? '<span class="bd-omnibadge">📦 ' + ordered.length + ' issues</span>' : '';
     var meta = [chamberLabel(card.chamber), card.congress ? (card.congress + 'th Congress') : ''].filter(Boolean).join(' · ');
     var src = (card.source && card.source.url)
@@ -811,7 +1063,28 @@
       '.bd-issuejump .bd-person-name{color:#9ec8ff;}' +
       '.bd-legis{margin-top:.6rem;display:inline-block;}' +
       '.bd-eye{margin-top:.2rem;display:inline-block;}' +
-      '.bd-omni-primary{font:800 .54rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.14rem .4rem;}' +
+      '.bd-viewfilter{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:-.2rem 0 .7rem;}' +
+      '.bd-vf-lab{font:800 .56rem/1 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#7f93b4;margin-right:.15rem;}' +
+      '.bd-vf-btn{font:600 .66rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#bcd0f0;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.3rem .6rem;cursor:pointer;}' +
+      '.bd-vf-btn:hover{color:#e6eefc;border-color:rgba(159,180,212,.4);}' +
+      '.bd-vf-btn[aria-pressed="true"]{color:#0a0f1e;background:#9ec8ff;border-color:#9ec8ff;font-weight:800;}' +
+      '.bd-vf-btn:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      // The whole filter, in two rules. "all" matches neither, which is why the
+      // default state shows every row and why a missing/unknown value does too.
+      '.bd-omni-list[data-bd-view="main"] .bd-omni-row[data-bd-lane="other"]{display:none;}' +
+      '.bd-omni-list[data-bd-view="other"] .bd-omni-row[data-bd-lane="main"]{display:none;}' +
+      '.bd-bag-stats{display:flex;flex-wrap:wrap;gap:.4rem;margin:-.3rem 0 .7rem;}' +
+      '.bd-bag-stat{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.09);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.26rem .55rem;}' +
+      '.bd-bag-strip{display:flex;flex-wrap:wrap;gap:.4rem;}' +
+      '.bd-bag-chip{font:600 .74rem/1.2 "Barlow",sans-serif;color:#e6eefc;background:rgba(126,180,255,.09);border:1px solid rgba(126,180,255,.24);border-radius:.5rem;padding:.34rem .6rem;min-height:34px;cursor:pointer;text-align:left;}' +
+      '.bd-bag-chip:hover{background:rgba(126,180,255,.16);border-color:rgba(126,180,255,.45);}' +
+      '.bd-bag-chip:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.bd-bag-areas{display:flex;flex-wrap:wrap;gap:.35rem;margin:.6rem 0 .5rem;}' +
+      '.bd-bag-area{font:600 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#9fb4d4;background:rgba(255,255,255,.03);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.26rem .55rem;}' +
+      '.bd-bag-area b{color:#e6eefc;font-weight:800;}' +
+      '.bd-bag-note{margin-top:.2rem;}' +
+      '.bd-svd-cap{font:700 .6rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;margin:.1rem 0 .3rem;}' +
+      '.bd-svd-count{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.16rem .45rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
       '.bd-eff-adv{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);}' +
       '.bd-eff-opp{color:#fdba74;background:rgba(251,146,60,.14);border:1px solid rgba(251,146,60,.32);}' +
@@ -838,8 +1111,8 @@
       '.bd-pos-neutral{color:#cbd9ec;background:rgba(159,180,212,.12);border:1px solid rgba(159,180,212,.28);}' +
       '.bd-svd-mini{display:inline-flex;gap:.25rem;margin-left:.2rem;}' +
       '.bd-svd-body{padding:.35rem 0 .5rem 1rem;display:flex;flex-direction:column;gap:.2rem;}' +
-      '.bd-svd-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}' +
-      '.bd-svd-issue{font:500 .78rem/1.3 "Barlow",sans-serif;color:#b9c8e0;}' +
+      '.bd-svd-row{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;}' +
+      '.bd-svd-issue{font:500 .78rem/1.3 "Barlow",sans-serif;color:#b9c8e0;margin-right:auto;}' +
       '.bd-v{font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;border-radius:999px;padding:.14rem .4rem;white-space:nowrap;}' +
       '.bd-v-consistent{color:#6ee7a0;background:rgba(74,222,128,.16);border:1px solid rgba(74,222,128,.35);}' +
       '.bd-v-contradicts{color:#fca5a5;background:rgba(248,113,113,.18);border:1px solid rgba(248,113,113,.4);}' +
@@ -893,7 +1166,46 @@
         'text-transform:uppercase;color:#8aa0c4;}' +
       '.bd-stand-more[open]>summary{color:#cbd9ec;}' +
       '.bd-glance-contested{color:#f5c842;border-color:rgba(245,200,66,.36);}' +
-      '@media(max-width:520px){.bd-stand{white-space:normal;text-align:left;}.bd-stand-head{gap:.3rem;}}';
+      '@media(max-width:520px){.bd-stand{white-space:normal;text-align:left;}.bd-stand-head{gap:.3rem;}}' +
+
+      // ══ THE PHONE ══════════════════════════════════════════════════════════
+      // Last in the sheet on purpose: every rule here is an equal-specificity
+      // override of something declared above, and "last one wins" is the only
+      // thing making it win.
+      //
+      // Nothing in this block hides, folds or truncates anything. The ledger
+      // still lists every mapped topic, the filter still opens on all of them,
+      // and the bag panel still leads with the sentence about one instrument.
+      // What changes is the size of the things a thumb has to hit and the space
+      // reserved at the bottom of the sheet for the hardware.
+      //
+      // EVERY POINTER ON THIS FACE, AT 44px. The act face was built with a mouse
+      // in mind and it showed: the filter pills were about 22px tall, the bag
+      // chips 34, the close button 32, and the topic name in each ledger row —
+      // the door into the dossier, the single most-tapped thing on the page —
+      // was bare text with no padding at all. A door you have to aim at is a
+      // door most people do not open. These are the same controls doing the same
+      // things; they are just now the size of a fingertip.
+      '@media (max-width:640px){' +
+        // 100dvh, not 100vh: on a phone browser the visual viewport shrinks and
+        // grows as the URL bar hides, and 100vh is the TALL one — so the bottom
+        // of a 100vh panel sits behind the bar the moment it comes back. The
+        // 100vh above stays as the fallback for anything that cannot parse dvh.
+        '.bd-panel{max-height:100dvh;}' +
+        // The last bag chip, the last provision, the last source link: none of
+        // them should end underneath the home indicator. env() is 0 everywhere
+        // that has no inset, so this is the same declaration on every device.
+        '.bd-scroll{padding-bottom:calc(2rem + env(safe-area-inset-bottom,0px));}' +
+        '.bd-close{width:44px;height:44px;top:.35rem;right:.4rem;}' +
+        '.bd-vf-btn{min-height:44px;display:inline-flex;align-items:center;padding:.3rem .85rem;font-size:.72rem;}' +
+        '.bd-bag-chip{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-omni-link{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}' +
+        '.bd-person{min-height:44px;justify-content:center;}' +
+        '.bd-vote-row,.bd-vote-sum{min-height:44px;}' +
+        '.bd-vote-name{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-stand-more>summary{min-height:44px;display:flex;align-items:center;}' +
+      '}';
     var st = document.createElement('style');
     st.id = 'bd-css';
     st.textContent = css;

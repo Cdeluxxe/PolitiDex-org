@@ -1,0 +1,357 @@
+{
+  "measure": {
+    "number": "H.R. 1",
+    "congress": 119,
+    "chamber": "house",
+    "title": "One Big Beautiful Bill Act"
+  },
+  "pass": "20260923000000_vr_hr1_citation_integrity.sql",
+  "priorMigration": "20260922000000_vr_hr6703_healthcare_primary_lane.sql",
+  "note": "Derived from the committed migration corpus by scripts/vr-audit-hr1-citations.mjs. vr_measure_provisions is display-only; no scoring path reads it.",
+  "before": {
+    "mappings": 14,
+    "provisions": 11,
+    "mappingsWithProvisionRow": 8,
+    "mappingsWithoutProvisionRow": [
+      "cut_spending",
+      "deportations",
+      "energy_production",
+      "family_support",
+      "lands_energy",
+      "lower_taxes"
+    ],
+    "provisionsWithoutIssueKey": [
+      "SNAP food-aid changes"
+    ],
+    "nationalDebtCitation": {
+      "sourceUrl": "https://www.cbo.gov/publication/61461",
+      "anchor": null,
+      "citesCbo": true
+    }
+  },
+  "after": {
+    "mappings": 14,
+    "provisions": 13,
+    "mappingsWithProvisionRow": 11,
+    "mappingsOwningNoProvision": [
+      "deportations",
+      "energy_production",
+      "lower_taxes"
+    ],
+    "mappingsWithCoReadNote": [
+      "cut_spending",
+      "deportations",
+      "energy_production",
+      "lower_taxes"
+    ],
+    "mappingsCited": 14,
+    "mappingsStillUncited": [],
+    "provisionsWithoutIssueKey": [],
+    "nationalDebtCitation": {
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm",
+      "anchor": "Sec. 72001",
+      "citesCbo": false
+    }
+  },
+  "ownershipBefore": [
+    {
+      "label": "Permanent 2017 tax cuts",
+      "owner": "tax_middle_class"
+    },
+    {
+      "label": "Medicaid spending cut",
+      "owner": "healthcare"
+    },
+    {
+      "label": "SNAP food-aid changes",
+      "owner": null
+    },
+    {
+      "label": "Border & immigration enforcement",
+      "owner": "border_security"
+    },
+    {
+      "label": "Clean-energy credit rollback",
+      "owner": "climate_action"
+    },
+    {
+      "label": "Deficit impact",
+      "owner": "national_debt"
+    },
+    {
+      "label": "Student-loan overhaul",
+      "owner": "edu_college_cost"
+    },
+    {
+      "label": "Defense increase",
+      "owner": "strong_defense"
+    },
+    {
+      "label": "K-12 scholarship tax credit",
+      "owner": "school_choice"
+    },
+    {
+      "label": "SALT deduction cap increase",
+      "owner": "tax_middle_class"
+    },
+    {
+      "label": "Debt-limit increase",
+      "owner": "national_debt"
+    }
+  ],
+  "ownership": [
+    {
+      "label": "Permanent 2017 tax cuts",
+      "owner": "tax_middle_class",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": "Cut Income & Business Taxes",
+      "source": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm",
+      "anchor": null
+    },
+    {
+      "label": "Child tax credit increase",
+      "owner": "family_support",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": "Cut Income & Business Taxes",
+      "source": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm",
+      "anchor": "Sec. 70104"
+    },
+    {
+      "label": "Medicaid spending cut",
+      "owner": "healthcare",
+      "supportMeaning": "yea_opposes",
+      "alsoReadUnder": "Cut Federal Spending & Reduce Debt",
+      "source": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm",
+      "anchor": null
+    },
+    {
+      "label": "SNAP food-aid changes",
+      "owner": "cut_spending",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": null,
+      "source": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm",
+      "anchor": "Sec. 10102"
+    },
+    {
+      "label": "Border & immigration enforcement",
+      "owner": "border_security",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": "Mass Deportations & Border Security",
+      "source": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+      "anchor": null
+    },
+    {
+      "label": "Clean-energy credit rollback",
+      "owner": "climate_action",
+      "supportMeaning": "yea_opposes",
+      "alsoReadUnder": null,
+      "source": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+      "anchor": null
+    },
+    {
+      "label": "Onshore oil and gas leasing",
+      "owner": "lands_energy",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": "Expand Domestic Energy Production",
+      "source": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm",
+      "anchor": "Sec. 50101"
+    },
+    {
+      "label": "Deficit impact",
+      "owner": "national_debt",
+      "supportMeaning": "yea_opposes",
+      "alsoReadUnder": null,
+      "source": "https://www.cbo.gov/publication/61461",
+      "anchor": null
+    },
+    {
+      "label": "Student-loan overhaul",
+      "owner": "edu_college_cost",
+      "supportMeaning": "yea_opposes",
+      "alsoReadUnder": null,
+      "source": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+      "anchor": null
+    },
+    {
+      "label": "Defense increase",
+      "owner": "strong_defense",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": null,
+      "source": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+      "anchor": null
+    },
+    {
+      "label": "K-12 scholarship tax credit",
+      "owner": "school_choice",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": null,
+      "source": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+      "anchor": null
+    },
+    {
+      "label": "SALT deduction cap increase",
+      "owner": "tax_middle_class",
+      "supportMeaning": "yea_supports",
+      "alsoReadUnder": null,
+      "source": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+      "anchor": null
+    },
+    {
+      "label": "Debt-limit increase",
+      "owner": "national_debt",
+      "supportMeaning": "yea_opposes",
+      "alsoReadUnder": null,
+      "source": "https://www.govinfo.gov/content/pkg/PLAW-119publ21/html/PLAW-119publ21.htm",
+      "anchor": "Sec. 72001"
+    }
+  ],
+  "sharedAnchors": [
+    {
+      "provision": "Permanent 2017 tax cuts",
+      "owner": "tax_middle_class",
+      "alsoReadBy": "lower_taxes",
+      "alsoReadLabel": "Cut Income & Business Taxes",
+      "duplicateRowsCreated": 0
+    },
+    {
+      "provision": "Child tax credit increase",
+      "owner": "family_support",
+      "alsoReadBy": "lower_taxes",
+      "alsoReadLabel": "Cut Income & Business Taxes",
+      "duplicateRowsCreated": 0
+    },
+    {
+      "provision": "Medicaid spending cut",
+      "owner": "healthcare",
+      "alsoReadBy": "cut_spending",
+      "alsoReadLabel": "Cut Federal Spending & Reduce Debt",
+      "duplicateRowsCreated": 0
+    },
+    {
+      "provision": "Border & immigration enforcement",
+      "owner": "border_security",
+      "alsoReadBy": "deportations",
+      "alsoReadLabel": "Mass Deportations & Border Security",
+      "duplicateRowsCreated": 0
+    },
+    {
+      "provision": "Onshore oil and gas leasing",
+      "owner": "lands_energy",
+      "alsoReadBy": "energy_production",
+      "alsoReadLabel": "Expand Domestic Energy Production",
+      "duplicateRowsCreated": 0
+    }
+  ],
+  "scoring": [
+    {
+      "issueKey": "border_security",
+      "weight": 55,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "climate_action",
+      "weight": 55,
+      "isPrimary": false,
+      "supportMeaning": "yea_opposes",
+      "unchanged": true
+    },
+    {
+      "issueKey": "cut_spending",
+      "weight": 70,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "deportations",
+      "weight": 50,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "edu_college_cost",
+      "weight": 40,
+      "isPrimary": false,
+      "supportMeaning": "yea_opposes",
+      "unchanged": true
+    },
+    {
+      "issueKey": "energy_production",
+      "weight": 45,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "family_support",
+      "weight": 45,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "healthcare",
+      "weight": 60,
+      "isPrimary": false,
+      "supportMeaning": "yea_opposes",
+      "unchanged": true
+    },
+    {
+      "issueKey": "lands_energy",
+      "weight": 40,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "lower_taxes",
+      "weight": 100,
+      "isPrimary": true,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "national_debt",
+      "weight": 65,
+      "isPrimary": false,
+      "supportMeaning": "yea_opposes",
+      "unchanged": true
+    },
+    {
+      "issueKey": "school_choice",
+      "weight": 35,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "strong_defense",
+      "weight": 45,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    },
+    {
+      "issueKey": "tax_middle_class",
+      "weight": 60,
+      "isPrimary": false,
+      "supportMeaning": "yea_supports",
+      "unchanged": true
+    }
+  ],
+  "residuals": [
+    {
+      "issueKeys": [
+        "lands_energy",
+        "energy_production"
+      ],
+      "claim": "onshore and offshore oil, gas, and coal leasing",
+      "cited": "Sec. 50101 (onshore oil and gas leasing) only",
+      "status": "open",
+      "why": "Only the onshore oil and gas provision is verifiable from the enacted text checked in this pass. The offshore and coal readings stay asserted by the rationale and uncited by a provision row rather than being widened into a row that overstates what was checked."
+    }
+  ]
+}
