@@ -751,7 +751,56 @@
         open: it.kind === 'receipt' ? 'receipt' : 'jump'
       };
     }
-    return null;
+    return recordTension(pid);
+  }
+
+  // ── The second source, and only when the first is empty ────────────────────
+  // tension() read flashpoints alone. A profile with no curated flashpoint
+  // therefore printed "no issue where what they said and what they did came out
+  // against them" above the fold while the Word vs Action section below it
+  // counted exactly those issues — 59 profiles in the current roster, 89 rows
+  // between them. The brief was not empty there, it was wrong, and a reader who
+  // never scrolled left with a clean bill of health the record does not support.
+  //
+  // NOTHING IS RE-DERIVED HERE. It reads the rows the one verdict system already
+  // published, keeps that row's own verdict label, and lands on the section that
+  // prints them. No percentage and no second score: the badge is the same heat
+  // word controversies.js hands a contradicts-class item (see heatChip), and the
+  // only number is a count of rows.
+  //
+  // FORMAL LANE ONLY. A row the reported record decided (basis 'public_record')
+  // is not "what they said against what they did", and the public lane is not in
+  // Direction Match — so it is not a tension this card may claim. The ranking is
+  // the module's own rankIssueRows, so the issue named up here is the same one
+  // that leads the list down there.
+  function recordTension(pid) {
+    var C = window.PDXConsistency;
+    if (!C || typeof C.issueRows !== 'function') return null;
+    var hits = [];
+    try {
+      hits = (C.issueRows(pid) || []).filter(function (r) {
+        return r && r.verdict && r.verdict.token === 'contradicts' &&
+               r.verdict.basis !== 'public_record';
+      });
+      if (typeof C.rankIssueRows === 'function') hits = C.rankIssueRows(hits) || hits;
+    } catch (e) { return null; }
+    if (!hits.length) return null;
+    var top = hits[0];
+    var label = String(top.label || 'this issue');
+    var more = hits.length - 1;
+    return {
+      kind: 'flag',
+      issueKey: top.key || '',
+      label: label,
+      badge: 'Contradiction On Record',
+      headline: String((top.verdict && top.verdict.label) || 'Says one thing, does another'),
+      detail: 'On ' + label + ' the formal record ran against the position on file' +
+        (more ? ' — and on ' + more + ' other issue' + (more === 1 ? '' : 's') : '') +
+        '. That is the Word vs Action result for ' + (more ? 'those rows' : 'that row') +
+        ', not a second finding on top of it.',
+      cta: 'See it in Word vs Action',
+      open: 'wordaction'
+    };
   }
 
   function tensionCard(pid, p, t) {
@@ -771,7 +820,13 @@
     var act = '';
     // No 'gap' arm. The brief no longer produces one — see tension() above — and an
     // unreachable route into the divergence sheet is how that surface comes back.
-    if (t.open === 'receipt' && t.issueKey) {
+    if (t.open === 'wordaction') {
+      // recordTension()'s rows are printed by the Word vs Action section, not by
+      // the flashpoint list, so that is where its button lands. Same jump helper,
+      // same mounted anchor the section nav already uses.
+      act = '<button type="button" class="pdxbr-t-act" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-wordaction\');">' +
+        esc(t.cta) + ' <span aria-hidden="true">↓</span></button>';
+    } else if (t.open === 'receipt' && t.issueKey) {
       act = '<button type="button" class="pdxbr-t-act" onclick="if(window.PDXReceipts&&window.PDXReceipts.open)window.PDXReceipts.open(\'' +
         jsStr(pid) + '\',\'' + jsStr(t.issueKey) + '\');">' + esc(t.cta) + ' <span aria-hidden="true">→</span></button>';
     } else {

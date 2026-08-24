@@ -920,6 +920,34 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
   });
   ok(/research queue/.test(G0.forPolitician('booker', {})[0].detail),
     'a record with nothing at all must keep the research-queue wording');
+  // A DEEP FORMAL RECORD AND NO QUOTE. Same branch, and the sentence has to turn
+  // around: the file is not thin, our stance research is. Saying "we hold 57
+  // items but nothing in their own words" is true and useless — it does not tell
+  // the reader that the fifty-seven are votes, that they are printed in full on
+  // this page, or why none of it reaches Direction Match.
+  {
+    const { G: GF } = build({
+      coverage: { word: 0, scorable: 0, tested: 0, untested: 0, issueLinked: 0 },
+      assess: { key: 'rich', records: 57, stances: 0, spotlight: 0, promises: 0, formal: 57 }
+    });
+    const g = GF.forPolitician('quiet', { name: 'Quiet Member' })[0];
+    eq(g.type, 'no_record', 'a deep formal record with no word still belongs in the no-word branch');
+    ok(/57 issues of votes and formal actions/.test(g.detail),
+      'the gap must lead with the size of the formal file, not with what is missing from it');
+    ok(/set out in full on this profile/.test(g.detail),
+      'and it must say the file is already on the page — otherwise the reader reads the gap as the whole record');
+    ok(/no independent stance to test that file against/.test(g.detail),
+      'the missing thing is named as a missing STANCE, which is ours to source, not as a missing record');
+    ok(/nothing here enters Direction Match/.test(g.detail),
+      'a pattern with no stance is not scored, and the gap is the honest place to say so');
+    ok(/That is our documentation, not their record/.test(g.detail),
+      'the standing disclosure survives the formal wording');
+    ok(!/they have no record|no record for|nothing on file/i.test(g.detail),
+      'no phrasing that turns our missing quote into their missing record');
+    ok(!/%|Direction Match score of|support|oppose/i.test(g.detail.replace(/enters Direction Match/, '')),
+      'the gap prints no score and never reads the pattern as a stated support or oppose');
+  }
+
   // Still fails closed when we did not actually assess: "not yet documented" is a
   // claim about our coverage, and without the coverage module we do not have one.
   const { win, G: G1 } = build({ coverage: { word: 0, scorable: 0, tested: 0, untested: 0, issueLinked: 0 } });

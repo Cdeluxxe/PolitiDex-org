@@ -729,6 +729,28 @@
       ((typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(p) === 'candidate') ||
       /candidat|challenger|nominee|running/i.test(((p.office || '') + ' ' + (p.state || '')));
     var _firstName = (p.name ? String(p.name).split(' ')[0] : 'this candidate');
+    // ── THE FORMAL FILE, READ ONCE ──────────────────────────────────────────
+    // Three strings below used to describe a member with no sourced quote as a
+    // person we were "still documenting". On a candidate that is true. On a
+    // sitting member with twenty issues of roll call already printed further
+    // down the same page it is not: the thing being documented is our stance
+    // research, and saying otherwise hands the reader an emptiness that the
+    // record beneath it contradicts. So the derived branch asks the formal
+    // index how deep the file is before it picks its words.
+    //
+    // DEPTH AND CHARACTERISATION ONLY, AND ONLY AT SECTION LEVEL. The curated
+    // key-issue list is free text — "2020 Election Denial", not an ISSUE_MAP
+    // key — so there is no honest way to bind THIS card to THAT pattern, and a
+    // fuzzy match would print one issue's votes under another issue's heading.
+    // The record therefore speaks about the file as a whole and the per-card
+    // line says what it can: we have no quote, and a vote is not a quote.
+    var _fpiShapeES = null;
+    try {
+      var _FPIES = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (_FPIES && typeof _FPIES.shape === 'function') _fpiShapeES = _FPIES.shape(id);
+    } catch (e) { _fpiShapeES = null; }
+    var _formalES = (_fpiShapeES && _fpiShapeES.issues) ? _fpiShapeES.issues : 0;
+    var _formalNounES = (_formalES === 1) ? 'issue' : 'issues';
     if (!stances || !stances.length) {
       // Fall back to the politician's tracked key issues so the section is
       // still informative. For a sitting official the position is flagged as
@@ -769,6 +791,18 @@
           _esIco   = '🗳️';
           _esHead  = 'Campaign priorities being added';
           _esSub   = 'As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a voting record. We are gathering their stated priorities from public campaign materials and will add detailed positions and sources as they are published — until then, you can still compare ' + _firstName + ' to your own values with the Alignment Tool.';
+        } else if (_formalES) {
+          // Not an empty profile — a profile with a record and no quote. Lead
+          // with the file, then name the gap as ours, then keep the lane wall:
+          // a pattern of votes is not a stated position and is not scored.
+          _esTitle = '🎯 Key Issue Stances';
+          _esIco   = '🏛';
+          _esHead  = _formalES + ' ' + _formalNounES + ' of formal record on file';
+          _esSub   = _firstName + '’s votes and formal actions are set out in full further down this profile' +
+            ((_fpiShapeES && _fpiShapeES.characterised)
+              ? ', and the record reads clearly enough to characterise on ' + _fpiShapeES.characterised + ' of them'
+              : '') +
+            '. What we do not yet hold is a position stated in their own words, so there is nothing here for that record to be tested against — a pattern of votes is not a stated position, and it does not enter Direction Match. The gap is in our stance research, not in their record.';
         } else {
           _esTitle = '🎯 Key Issue Stances';
           _esIco   = '🧭';
@@ -788,7 +822,9 @@
             // where the community can help. Skipped for concluded candidacies
             // (a closed book, where suggesting more would be misleading).
             ((!_inactiveES && typeof window._pdxSuggestCueHtml === 'function')
-              ? ('<div style="margin-top:0.85rem;">' + window._pdxSuggestCueHtml(p.name, { label: 'Several issues still have no record. Help build it' }) + '</div>')
+              ? ('<div style="margin-top:0.85rem;">' + window._pdxSuggestCueHtml(p.name, { label: _formalES
+                    ? 'Know somewhere they stated a position in their own words? Help us source it'
+                    : 'Several issues still have no record. Help build it' }) + '</div>')
               : '') +
           '</div>' +
         '</div>';
@@ -799,7 +835,9 @@
           pos: _isCandidate ? 'priority' : 'tracking',
           text: _isCandidate
             ? ('A core priority of ' + _firstName + '\'s campaign. Detailed positions are added as the campaign publishes statements and, once in office, a voting record begins.')
-            : 'A detailed position is being researched and will be added as statements and votes are verified.' };
+            : (_formalES
+              ? ('No position from ' + _firstName + ' on this in their own words yet — their formal record is on file below. A pattern of votes is not a stated position, and is not in Direction Match.')
+              : 'A detailed position is being researched and will be added as statements and votes are verified.') };
       });
     }
     var _derivedCand = derived && _isCandidate;
@@ -850,6 +888,20 @@
       var _isPriority = _placeholderPriority || window.PDXStance.isTopPriority(s);
       var _stanceKey = window.PDXStance.resolveStance(_placeholderPriority ? { issueStance: s.issueStance } : s);
       var _stancePill = window.PDXStance.stancePill(_stanceKey);
+      // On a DERIVED row for a sitting member with a formal file, "No Clear
+      // Position" is the wrong sentence in the wrong direction: nothing about
+      // their position is unclear to them, we simply have not sourced a quote.
+      // Same canonical state, same colour, same markup — one word swapped, and
+      // only here. The four-state vocabulary is untouched for every surface
+      // that reads a real stance, which is why this is built from stanceState()
+      // rather than by adding a fifth state to PDXStance.
+      if (derived && !_isCandidate && _formalES) {
+        var _noneState = window.PDXStance.stanceState('none');
+        _stancePill = '<span class="pdxis-stance pdxis-stance-' + _noneState.cls + '"' +
+          ' title="We have not sourced a position from this official on this issue in their own words">' +
+          '<span class="pdxis-stance-dot" aria-hidden="true"></span>' +
+          '<span class="pdxis-stance-k">Stance</span>No stance on file</span>';
+      }
       // Canonical key → the card's existing left-border tint, so the card edge
       // stays in the pill's colour family. Reuses sc-* CSS — no new colours.
       var _sc = ({ supported:'sc-support', opposed:'sc-oppose', mixed:'sc-mixed', none:'sc-tracking' })[_stanceKey] || 'sc-tracking';
@@ -998,7 +1050,9 @@
     var note = _derivedCand
       ? ('As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a record to score. The priorities above are drawn from their public campaign — PolitiDex logs kept-and-broken promises once they take office.')
       : (derived
-        ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and formal actions are verified.'
+        ? (_formalES
+          ? ('The formal record here runs to ' + _formalES + ' ' + _formalNounES + ' of votes and formal actions, listed in full further down. The issues above are the ones tracked on ' + _firstName + '’s profile; what is still missing is a position in their own words for that record to be tested against, and that is our documentation rather than their record.')
+          : 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and formal actions are verified.')
         : 'Stances summarize public statements and ' + _recordNoun + ' on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.');
     var _countWord = _derivedCand
       ? (stances.length === 1 ? ' priority' : ' priorities')
@@ -1146,7 +1200,9 @@
       var _csTS = String(p.candidacyStatus || p.status || '').toLowerCase();
       var _closedTS = /eliminated|lost|withdrew|withdrawn|defeated|suspended|conceded/.test(_csTS);
       if (derived && !_closedTS && typeof window._pdxSuggestCueHtml === 'function') {
-        _thinSuggest = '<div style="margin-top:0.5rem;">' + window._pdxSuggestCueHtml(p.name, { label: 'Several issues still have no record. Help build it' }) + '</div>';
+        _thinSuggest = '<div style="margin-top:0.5rem;">' + window._pdxSuggestCueHtml(p.name, { label: (_formalES && !_isCandidate)
+          ? 'Know somewhere they stated a position in their own words? Help us source it'
+          : 'Several issues still have no record. Help build it' }) + '</div>';
       }
     } catch (e) { _thinSuggest = ''; }
     return '<div class="modal-section">' +
@@ -1159,6 +1215,9 @@
       '</div>' +
       '<p class="modal-section-sub">' + (_derivedCand
         ? ('The core priorities of ' + _firstName + '\'s campaign — drawn from public campaign materials, with detailed positions and sources added as they are published.')
+        : (derived && _formalES)
+          ? ('The issues tracked on ' + _firstName + '’s profile. No position in their own words is on file for these yet — what is on file is ' +
+             _formalES + ' ' + _formalNounES + ' of votes and formal actions, set out in full further down.')
         : ('Where ' + (p.name ? String(p.name).split(' ')[0] : 'they') + ' stand' + (p.name ? 's' : '') + ' on the issues — grouped by topic, with the record and sources shown where available.')) + '</p>' +
       _limitedBanner +
       (sumChips ? '<div class="stance-summary">' + sumChips + '</div>' : '') +

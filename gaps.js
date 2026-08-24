@@ -197,12 +197,19 @@
     // default.
     //
     // The two branches exist because our two counters do not count the same
-    // things. PDXCoverage.assess() counts everything we hold on a record,
-    // including spotlight items; wordLedger only reads sourced positions and
-    // pledges. So a spotlight-only profile lands here with word === 0 while
-    // assess() reports "thin" rather than "none". That combination used to return
-    // an empty list, which hid the panel on exactly the profiles with the least
-    // documentation — the thinnest records looked as settled as the fullest ones.
+    // things. PDXCoverage.assess() counts everything we hold on a record —
+    // spotlight items, pledges, and the formal lane; wordLedger only reads
+    // sourced positions and pledges. So a spotlight-only or votes-only profile
+    // lands here with word === 0 while assess() reports held records rather than
+    // "none". That combination used to return an empty list, which hid the panel
+    // on exactly the profiles with the least documentation — the thinnest records
+    // looked as settled as the fullest ones.
+    //
+    // The second branch names the file before it names the gap, and it is the
+    // formal lane that makes that worth doing: a member can carry sixty issues of
+    // roll-call pattern and still have no quote we could source. The missing
+    // thing there is our stance research, not their record, and the sentence has
+    // to read that way round.
     var noWord = !r || !r.coverage || !r.coverage.word;
     if (noWord) {
       if (cov && cov.key === 'none') {
@@ -213,9 +220,15 @@
         });
       } else if (cov) {
         var held = cov.records || 0;
+        var formal = cov.formal || 0;
         push('no_record', {
           count: held,
-          detail: (held
+          detail: (formal
+                    ? 'The formal record here runs to ' + formal + ' ' + plural(formal, 'issue') +
+                      ' of votes and formal actions, and it is set out in full on this profile. What we do not yet hold is ' +
+                      'a position stated in ' + nameOf(pid, p) + '’s own words — so there is no independent stance to test that file against, ' +
+                      'and nothing here enters Direction Match. '
+                    : held
                     ? 'We hold ' + held + ' ' + plural(held, 'item') + ' on this record, but nothing yet that states a position in ' +
                       nameOf(pid, p) + '’s own words — so there is no documented word here for a formal action to be tested against. '
                     : 'We hold nothing yet that states a position in ' + nameOf(pid, p) + '’s own words. ') +
