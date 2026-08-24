@@ -87,11 +87,18 @@
   // the rest are one tap away and nothing is dropped.
   var AXIS_SHOWN = 6;
 
-  // The number of positions the empty-state CTA asks for. Not a floor on this
-  // sheet — a voter with one stance still gets a real, honestly-thin ranking,
-  // exactly as the Alignment Tool would give them. It is the same 3 the
+  // The number of positions the empty-state CTA asks for. It is the same 3 the
   // consistency layer uses for _SO_MIN_ISSUES: below it a "pattern" is an
   // anecdote, so it is what we ask for rather than what we require.
+  //
+  // IT IS AN ASK AND NOTHING ELSE. It does not gate the ranking, it does not
+  // gate which tab opens, and it never has — a voter with one stance gets a
+  // real, honestly-thin ranking, exactly as the Alignment Tool would give them.
+  // The only three things that read this number are the CTA copy, the thin-axis
+  // note that rides under a short ranking, and whether that CTA is still worth
+  // showing. If it ever appears in a condition that decides whether the field is
+  // ordered, that is the bug: the line between ranked and unranked is ZERO
+  // positions versus one, not two versus three.
   var ASK_ISSUES = 3;
 
   // ── THE OVERVIEW, AND WHY THE SHEET NO LONGER OPENS ON A WALL ──────────────
@@ -246,17 +253,33 @@
     try { if (window.sessionStorage && next) window.sessionStorage.setItem(VIEW_KEY, next); } catch (e) {}
     return next;
   }
-  // THE GATE. Unchosen, the sheet opens on Overview until the visitor has enough
-  // positions for a ranking to mean something, and on the stored ruler after
-  // that. Chosen, the reader's choice stands — with one refusal: a match tab with
-  // ZERO positions cannot rank anybody in either lane, and honouring it would
-  // re-paint the exact wall this view exists to remove. That case lands on
-  // Overview and prints the gate note saying what would change it.
+  // THE ONE LINE THAT DIVIDES THE TWO STATES, AND WHERE IT SITS
+  // ──────────────────────────────────────────────────
+  // It sits between zero positions and one. Not between two and three.
+  //
+  // Zero is a different KIND of state, not a thinner version of the same one.
+  // With nothing set there is no ruler to apply, so a personal ranking is not
+  // thin — it does not exist, and any order the sheet printed would be a claim
+  // about the reader that the reader never made. That is what Overview is for.
+  //
+  // One position is thin, and thin is a real answer. The reader said something;
+  // the formal files either line up with it or they do not; the sheet can say
+  // which and can say how little it rests on. Withholding that until a third
+  // stance arrives would be the product deciding a citizen's own stated view is
+  // not yet worth acting on — and it would do it silently, by opening on a tab
+  // that never mentions the positions they just set. A short ranking labelled as
+  // short beats a hidden one every time, so the ask for three lives in the CTA
+  // and in the thin-axis note, where an ask belongs, and never here.
+  //
+  // Chosen, the reader's choice stands — with one refusal: a match tab with ZERO
+  // positions cannot rank anybody in either lane, and honouring it would re-paint
+  // the exact wall Overview exists to remove. That case lands on Overview and
+  // prints the gate note saying what would change it.
   function activeView() {
     var n = 0;
     try { n = axis().length; } catch (e) { n = 0; }
     var v = readView();
-    if (!v) v = (n >= ASK_ISSUES) ? readMode() : 'overview';
+    if (!v) v = n ? readMode() : 'overview';
     if (v !== 'overview' && n === 0) return 'overview';
     return v;
   }
@@ -1130,10 +1153,18 @@
       '</div>';
   }
 
+  // THE DISCLOSURE THAT REPLACES THE GATE. A ranking on one or two positions now
+  // opens by default, so the sheet owes the reader the size of what it is
+  // ranking on before they read the order — not a warning, not a hedge, and
+  // certainly not a refusal: the count they set, in their words, followed by
+  // what it does and does not buy them. Naming it as POSITIONS rather than
+  // issues matters here, because on this tab the number is a fact about the
+  // reader's own input, not about the candidates' files.
   function thinAxisNote(n) {
     if (n >= ASK_ISSUES) return '';
-    return '<p class="rs-thinaxis">This ranking rests on <b>' + n + ' issue' + (n === 1 ? '' : 's') +
-      '</b>. Add a few more and the order gets a lot harder to move by accident.</p>';
+    return '<p class="rs-thinaxis">Ranked on the <b>' + n + ' position' + (n === 1 ? '' : 's') +
+      '</b> you\u2019ve set. That is enough to order this field and not enough to be sure of it \u2014 ' +
+      'add ' + (n === 1 ? 'a couple' : 'one') + ' more and the order gets a lot harder to move by accident.</p>';
   }
 
   // ── Paint ──────────────────────────────────────────────────────────────────

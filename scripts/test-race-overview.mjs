@@ -538,6 +538,107 @@ section("10 · no party, no blend, no drift");
   }
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · the line is at zero, not at three");
+// ═════════════════════════════════════════════════════════════════════════════
+// The sheet asks for three positions and requires one. Those are different
+// numbers doing different jobs, and the failure mode this section exists to
+// catch is the ask quietly becoming the requirement: a reader who set one
+// stance opening on a tab that never mentions it, and concluding the product
+// ignored them. So the boundary is walked one position at a time.
+{
+  const view = (w) => w.PDXRaceSheet.view();
+  const at = (n) => {
+    const w = n ? withPicks(seeded(), KEYS.slice(0, n)) : seeded();
+    return { w, n, html: sheetHtml(w) };
+  };
+  const RANKED = /<span class="rs-rank">1<\/span>/;
+
+  // ── zero: a different kind of state, not a thinner one ────────────────────
+  const s0 = at(0);
+  eq(s0.w.PDXRaceSheet._axis().length, 0, "0 positions: the fixture reader really has none");
+  eq(view(s0.w), "overview", "0 positions: the sheet opens on Overview");
+  ok(!RANKED.test(s0.html), "0 positions: nothing on the page is numbered into an order");
+  lacks(s0.html, 'class="rs-score"', "0 positions: no personal match figure anywhere");
+  has(s0.html, "Nothing is ranking this field yet", "0 positions: and the sheet says so plainly");
+  has(s0.html, "Set my positions →", "0 positions: the ask is the call to action, not a verdict");
+  // Asking for a ruler with nothing to rule still refuses — and explains itself
+  // in the reader's terms rather than blaming a candidate's file.
+  for (const m of ["record", "stated"]) {
+    s0.w.pdxRaceSheetMode(m);
+    eq(view(s0.w), "overview", `0 positions: choosing ${m} still resolves to Overview`);
+    const h = sheetHtml(s0.w);
+    ok(!RANKED.test(h), `0 positions: choosing ${m} orders nobody`);
+    has(h, "Set my positions →", `0 positions: choosing ${m} says what would change it`);
+  }
+  s0.w.pdxRaceSheetMode("overview");
+
+  // ── one and two: thin, real, and labelled as thin ─────────────────────────
+  for (const n of [1, 2]) {
+    const s = at(n);
+    eq(s.w.PDXRaceSheet._axis().length, n, `${n} position(s): the fixture set exactly that many`);
+    eq(view(s.w), "record", `${n} position(s): the sheet opens on the reader's ruler, not Overview`);
+    ok(RANKED.test(s.html), `${n} position(s): the field is actually ordered`);
+    has(s.html, 'class="rs-score"', `${n} position(s): and carries a real match figure`);
+    has(s.html, "Ranked by their <b>formal record</b> on the issues you set",
+      `${n} position(s): the rank line names what ordered it`);
+    const ranked = s.w.PDXRaceSheet._rank(s.w.PDXRaceSheet._field(SEAT), "record", true);
+    ok(ranked.ranked.length >= 1, `${n} position(s): the record lane scores somebody`);
+    ok(!ranked.unranked, `${n} position(s): the lane does not declare itself unranked`);
+    // The disclosure that replaces the gate: the size of the axis, in the
+    // reader's own terms, above the order it produced.
+    has(s.html, `Ranked on the <b>${n} position${n === 1 ? "" : "s"}</b> you’ve set`,
+      `${n} position(s): the sheet discloses how thin the ranking is`);
+    has(s.html, "not enough to be sure of it", `${n} position(s): …and what that does not buy`);
+    has(s.html, "Set my positions →", `${n} position(s): the ask for three still rides along`);
+    // Thin is disclosed, never withheld: the words that would mean "we are not
+    // showing you this yet" must not appear.
+    for (const w of ["not enough positions", "at least 3", "at least three",
+                     "Set 3", "Set three", "need 3 ", "need three "]) {
+      lacks(s.html, w, `${n} position(s): the sheet imposes a floor in words`);
+    }
+    // Overview is still one tap away and still is not a ranking.
+    s.w.pdxRaceSheetMode("overview");
+    const ov = sheetHtml(s.w);
+    eq(view(s.w), "overview", `${n} position(s): Overview stays reachable`);
+    lacks(ov, 'class="rs-score"', `${n} position(s): Overview still prints no personal figure`);
+    has(ov, "Overview is never ranked", `${n} position(s): …and still says it is not one`);
+  }
+
+  // ── three: unchanged in spirit, and the note steps aside ──────────────────
+  const s3 = at(3);
+  eq(view(s3.w), "record", "3 positions: unchanged — the sheet opens on the ruler");
+  ok(RANKED.test(s3.html), "3 positions: still ranks");
+  lacks(s3.html, "Ranked on the <b>3 positions</b>", "3 positions: the thin note steps aside at the ask");
+  lacks(s3.html, "Set my positions →", "3 positions: and so does the ask");
+
+  // ── the boundary is monotone: once it ranks, it keeps ranking ─────────────
+  const ranks = [0, 1, 2, 3, 4].map((n) => RANKED.test(at(n).html));
+  eq(JSON.stringify(ranks), JSON.stringify([false, true, true, true, true]),
+    `ranking should begin at one position and never switch back off — got ${JSON.stringify(ranks)}`);
+  const views = [0, 1, 2, 3, 4].map((n) => view(at(n).w));
+  eq(JSON.stringify(views), JSON.stringify(["overview", "record", "record", "record", "record"]),
+    `the default view should flip once, at the first position — got ${JSON.stringify(views)}`);
+
+  // ── and no floor of three survives in the source ──────────────────────────
+  // ASK_ISSUES is a copy constant. If it turns up in a condition that decides
+  // whether the field is ordered or which tab opens, the ask has become a gate.
+  const code = SHEET.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const uses = code.split("\n").filter((l) => l.includes("ASK_ISSUES"));
+  ok(uses.length > 0, "ASK_ISSUES is still the one place the ask is written down");
+  for (const line of uses) {
+    ok(/ASK_ISSUES\s*=\s*3|ASK_ISSUES: ASK_ISSUES|rs-cta-sub|ctaHtml\(\)|return ''/.test(line),
+      `ASK_ISSUES decides something other than the CTA or the thin note: ${line.trim()}`);
+    ok(!/readMode\(\)|activeView|view\s*=|'overview'/.test(line),
+      `the ask for three is gating which view opens: ${line.trim()}`);
+  }
+  ok(!/(axis\(\)\.length|rows\.length|axisN|\bn\b)\s*[<>]=?\s*3\b/.test(
+      code.replace(/rows\.length < ASK_ISSUES/g, "").replace(/n >= ASK_ISSUES/g, "")),
+    "a literal three-position threshold is hard-coded somewhere in the sheet");
+  ok(/if \(!v\) v = n \? readMode\(\) : 'overview';/.test(code),
+    "the view resolver no longer reads 'one position is enough' at a glance");
+}
+
 // ── Report ───────────────────────────────────────────────────────────────────
 console.log("");
 if (failures.length) {
