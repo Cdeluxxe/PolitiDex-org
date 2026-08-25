@@ -1956,6 +1956,11 @@ window.PDXLazy = (function () {
        Overlay-only, so it loads non-blocking like the rest of the modal CSS. -->
   <link rel="stylesheet" href="/race-sheet.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/race-sheet.css" /></noscript>
+  <!-- The Door 2 ballot workspace. Same low-priority load as the race sheet it
+       reads its model from: neither is above the fold, and neither is allowed to
+       block the first paint. -->
+  <link rel="stylesheet" href="/ballot-workspace.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/ballot-workspace.css" /></noscript>
   <!-- Chart.js (profile finance charts) and Leaflet (the interactive Utah
        district-picker map) are CODE-SPLIT: they used to load render-blocking here
        in <head> (~350 KB combined) even though the home page and Your Ballot never
@@ -4542,6 +4547,20 @@ window.PDXLazy = (function () {
       .wrm-next-btn:hover{color:#fff;background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.5);}
       .wrm-next-btn--lead{color:#eaf3ff;background:rgba(59,130,246,0.16);border-color:rgba(96,165,250,0.5);}
       .wrm-next-btn em{font-style:normal;opacity:0.72;font-weight:600;}
+      /* The lead action now stands alone in this row, so it gets the gold of a
+         ballot decision rather than the blue of a navigation jump — it is the
+         handoff into the workspace where the pick actually happens. */
+      .wrm-next-btn--lead{color:#fde68a;background:rgba(251,191,36,0.13);border-color:rgba(251,191,36,0.42);}
+      .wrm-next-btn--lead:hover{color:#fff7dd;background:rgba(251,191,36,0.22);border-color:rgba(251,191,36,0.66);}
+      .wrm-nexthint{font-size:0.72rem;line-height:1.5;color:#8fa2bd;margin:0.5rem 0 0;}
+      .wrm-nexthint b{color:#d7e3f4;font-weight:700;}
+      /* The three older destinations, one weight down. Still real controls at 44px,
+         but visibly secondary to the lead above them, so the end of the seat list
+         reads as one next step with references beside it rather than four peers. */
+      .wrm-nextrow--sub{margin-top:0.5rem;gap:0.35rem;}
+      .wrm-next-btn--sub{flex:1 1 8.5rem;font-size:0.68rem;letter-spacing:0.04em;color:#9db2cd;
+        background:rgba(255,255,255,0.03);border-color:rgba(148,163,184,0.2);padding:0.45rem 0.55rem;}
+      .wrm-next-btn--sub:hover{color:#dbe8f7;background:rgba(96,165,250,0.11);border-color:rgba(96,165,250,0.36);}
       .wrm-changeloc{display:block;width:100%;margin-top:0.45rem;cursor:pointer;background:none;border:none;
         font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.72rem;letter-spacing:0.08em;
         text-transform:uppercase;color:#7e93b4;min-height:40px;transition:color .15s ease;}
@@ -5790,6 +5809,26 @@ window.PDXLazy = (function () {
           <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.9rem;border-radius:2px;opacity:0.7;"></div>
         </div>
       </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════
+           YOUR BALLOT WORKSPACE — the whole election loop on one surface
+           ──────────────────────────────────────────────────────────────────
+           Door 2 already had every piece of this: the seat list at the top of
+           the page, the field comparison in a full-screen overlay, the team
+           store two thousand lines below. What it did not have was the loop.
+           This section holds it — a persistent rail of every seat with its pick
+           state and a running count, plus one open seat carrying who holds it,
+           the field on the formal record, and the pick button. Painted by
+           ballot-workspace.js; the mount is static so the section exists at
+           first paint even if that file is slow, and the file itself renders a
+           one-line "set my location" state until there is a ballot to work.
+           Placed directly under the location card because that card is the one
+           input the workspace needs, and above the countdown because a deadline
+           is context for a decision, not a step in making one.
+      ════════════════════════════════════════════════════════════════════ -->
+      <section id="ballot-workspace" class="bw animate-on-scroll" aria-label="Your ballot workspace — one seat at a time" style="transition-delay:0.045s;">
+        <div id="bw-body"></div>
+      </section>
 
       <!-- ══════════════════════════════════════════════════════════════════
            ELECTION COUNTDOWN — live countdowns to Utah's key 2026 voting
@@ -7228,7 +7267,21 @@ window.PDXLazy = (function () {
             .rf-cards { grid-template-columns: 1fr; }
           }
         </style>
-        <section id="race-focus" class="race-focus animate-on-scroll" aria-label="See who's running in my races — one race at a time">
+        <!-- ── DEMOTED: the second one-race-at-a-time tool ────────────────────
+             This section did the same job as the ballot workspace up top — pick
+             one of your races, see who holds it and who is running — and did it
+             a second time, in a second vocabulary, from a second data source
+             (the curated Key Races tables rather than the seat resolver), with a
+             party pill beside every name. Two "focus on one race" tools on one
+             page is the list-of-tools energy this pass exists to remove, and the
+             one that survives is the one that can also take the pick.
+
+             Hidden rather than deleted: window.pdxRaceFocusShow / Init / Add and
+             the engine that paints #race-focus-body are all still here and still
+             harmless (they write into a hidden subtree), so nothing that calls
+             them breaks, and restoring the section is removing one attribute.
+        ───────────────────────────────────────────────────────────────────── -->
+        <section id="race-focus" class="race-focus animate-on-scroll" aria-label="See who's running in my races — one race at a time" hidden>
           <div class="race-focus__head">
             <div class="race-focus__title-wrap">
               <span class="race-focus__ico" aria-hidden="true">🔎</span>
@@ -20993,6 +21046,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        (voter-hub-location.js), _pdxLedgerSlot (compare-hub.js), ISSUE_MAP and
        _msPriorityWeight (my-stances.js), _alignSignalChipHtml, PDXConsistency. -->
   <script defer src="race-sheet.js"></script>
+    <script defer src="ballot-workspace.js"></script>
   <script>
   /* Evidence Locker density switch — additive, self-contained. Toggles a compact
      layout on the results grid (#el-results) and remembers the choice, so a

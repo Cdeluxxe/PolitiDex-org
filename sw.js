@@ -172,7 +172,7 @@
 // precached, so neither half arrives alone. The mapping half of this pass is
 // database-side (S. 2's border_security relation becomes primary) and ships
 // through the migration, not the shell.
-const CACHE_VERSION = 'v74';
+const CACHE_VERSION = 'v75';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -206,6 +206,11 @@ const SHELL_ASSETS = [
   // same reason the two are shipped together: the sheet is a comparison grid, and
   // an unstyled one is a vertical wall of text that compares nothing.
   '/race-sheet.css',
+  // The Door 2 ballot workspace's stylesheet. Same rule as the sheet above and
+  // the same reason: the workspace is a rail plus a seat panel, and unstyled it
+  // is a list of buttons with no rail and no sense of progress — which is the
+  // exact failure the feature exists to fix. Shipped with its script below.
+  '/ballot-workspace.css',
   // The two-axis elections lens (🔐 safeguards / 📩 access). Tiny, and it renders a
   // section inside the profile and a header inside the Stance Library — both of which
   // are precached — so leaving it to the runtime cache would mean the first offline
@@ -250,6 +255,12 @@ const SHELL_ASSETS = [
   // button its three hosts render returns nothing at all when this file is
   // missing, so an offline repeat visit would lose the feature without a trace.
   '/race-sheet.js',
+  // Door 2's ballot workspace: the seat rail, the running "N of 6 decided"
+  // count, and the one-seat-at-a-time panel that carries the field and the pick.
+  // Precached with race-sheet.js because it reads that file's model helpers for
+  // every fact it prints — offline with one and not the other, the mount paints
+  // nothing at all.
+  '/ballot-workspace.js',
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',

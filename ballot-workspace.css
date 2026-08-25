@@ -1,0 +1,348 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ballot-workspace.css — Door 2 as one continuous ballot binder
+   ────────────────────────────────────────────────────────────────────────────
+   Door 2 already held every piece of the ballot loop: Who Represents Me
+   resolved the seats, Compare the Field ranked one seat's roster on the formal
+   record, My Voting Team stored the picks. What it did not hold was the loop —
+   those three lived hundreds of lines apart, each with its own heading, its own
+   "what now?" stack and its own way out of the other two. This file styles the
+   one surface that carries all three at once: a persistent seat rail plus one
+   open seat.
+
+   LAYOUT CONTRACT
+   ───────────────
+   Two regions, and only two. The rail (.bw-rail) is the ballot — every seat,
+   its pick state, and how many are decided — and it never scrolls away from the
+   seat it introduces on a phone, because losing it is exactly how the old
+   surface lost the reader's sense of progress. The desk (.bw-desk) is one seat:
+   who holds it, the field on formal record, the pick control, the next seat.
+   Wide screens put them side by side; a phone stacks rail over desk. Same
+   markup either way — the rail is a horizontal scroll strip below 900px and a
+   column above it, and nothing in the JS knows which.
+
+   COLOUR DISCIPLINE
+   ─────────────────
+   The only good/bad ramp here is the match score, and it arrives as an inline
+   colour from the app's own _alignScoreColor — so this file contains no score
+   ramp of its own. Seat accents come from TEAM_POSITIONS' own colours, inline,
+   per seat. Direction Match is deliberately grey on every branch: it is a
+   secondary reading and a coloured DM chip would compete with the ruler that
+   actually orders the field. Nothing here is coloured by party, because nothing
+   in this feature reads party.
+
+   Targets are 44px minimum on every control, per the mobile brief.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#ballot-workspace { margin: 0 0 1.5rem; }
+#ballot-workspace[hidden] { display: none !important; }
+
+.bw {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 2px solid rgba(96, 165, 250, 0.2);
+  background:
+    linear-gradient(135deg, rgba(26, 58, 107, 0.2) 0%, rgba(8, 12, 24, 0.94) 46%, rgba(192, 21, 42, 0.1) 100%);
+  box-shadow: 0 12px 46px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.bw::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, #ef4444 20%, #fff 50%, #3b82f6 80%, transparent);
+  opacity: 0.55;
+}
+
+/* ── Head ─────────────────────────────────────────────────────────────────── */
+.bw-hd { padding: 1.1rem 1.15rem 0.9rem; }
+.bw-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #93c5fd;
+}
+.bw-title {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1.35rem; letter-spacing: 0.02em; color: #fff; margin: 0.15rem 0 0;
+}
+.bw-sub { font-size: 0.82rem; line-height: 1.5; color: #9fb0c8; margin: 0.35rem 0 0; }
+.bw-sub b { color: #e8eefb; font-weight: 700; }
+
+/* The progress figure. One number, and it counts the same six slots the team
+   builder's own meter counts — they read TEAM_POSITIONS through the same list,
+   so the workspace cannot say "2 of 6" over a builder that says 3. */
+.bw-prog { display: flex; align-items: center; gap: 0.7rem; margin-top: 0.8rem; }
+.bw-prog-n {
+  font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.5rem;
+  line-height: 1; color: #fbbf24; flex: none;
+}
+.bw-prog-n small { font-size: 0.85rem; color: #8fa2bd; font-weight: 400; }
+.bw-prog-bar {
+  position: relative; flex: 1 1 auto; height: 8px; border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08); overflow: hidden;
+}
+.bw-prog-bar i {
+  position: absolute; inset: 0 auto 0 0; display: block; border-radius: 99px;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  transition: width 0.28s ease;
+}
+.bw-prog-lbl { font-size: 0.72rem; color: #8fa2bd; flex: none; }
+
+/* ── Body: rail + desk ────────────────────────────────────────────────────── */
+.bw-body { display: block; }
+@media (min-width: 900px) {
+  .bw-body { display: grid; grid-template-columns: 15.5rem minmax(0, 1fr); align-items: start; }
+}
+
+/* ── The rail ─────────────────────────────────────────────────────────────── */
+.bw-rail {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 0.75rem 1.15rem 0.9rem;
+}
+@media (min-width: 900px) {
+  .bw-rail {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 0.9rem 0.85rem 1.1rem 1.15rem;
+    position: sticky; top: 1rem; align-self: start;
+  }
+}
+.bw-rail-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #7f93b0; margin-bottom: 0.5rem;
+}
+/* Phone: a horizontal strip that keeps every seat one thumb away. Desktop: a
+   column. Same buttons. */
+.bw-seats {
+  display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.35rem;
+  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+}
+.bw-seats::-webkit-scrollbar { height: 4px; }
+.bw-seats::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 99px; }
+@media (min-width: 900px) {
+  .bw-seats { flex-direction: column; overflow: visible; gap: 0.4rem; }
+}
+
+.bw-seat {
+  position: relative; flex: 0 0 auto; scroll-snap-align: start;
+  min-height: 44px; min-width: 8.5rem; max-width: 13rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.6rem; border-radius: 0.8rem; cursor: pointer; text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cbd5e1; transition: background 0.16s ease, border-color 0.16s ease;
+  border-left: 3px solid var(--bw-accent, rgba(255, 255, 255, 0.18));
+}
+@media (min-width: 900px) { .bw-seat { min-width: 0; max-width: none; width: 100%; } }
+.bw-seat:hover { background: rgba(96, 165, 250, 0.1); border-color: rgba(96, 165, 250, 0.32); }
+.bw-seat.is-open {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #fff;
+}
+.bw-seat-ic { font-size: 1rem; flex: none; }
+.bw-seat-txt { min-width: 0; display: block; }
+.bw-seat-t {
+  display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.8rem; letter-spacing: 0.03em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bw-seat-s {
+  display: block; font-size: 0.68rem; line-height: 1.3; color: #8fa2bd;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bw-seat.is-picked .bw-seat-s { color: #fcd34d; }
+.bw-seat-tick {
+  position: absolute; top: 0.3rem; right: 0.4rem; font-size: 0.6rem; color: #fbbf24;
+}
+
+/* ── The desk: one seat ───────────────────────────────────────────────────── */
+.bw-desk {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom, 0px));
+  min-width: 0;
+}
+.bw-deskhd { display: flex; align-items: flex-start; gap: 0.7rem; flex-wrap: wrap; }
+.bw-deskhd-ic {
+  width: 2.5rem; height: 2.5rem; flex: none; border-radius: 0.75rem;
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--bw-accent, rgba(255, 255, 255, 0.16));
+}
+.bw-deskhd-t {
+  font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.1rem;
+  color: #fff; margin: 0; letter-spacing: 0.02em;
+}
+.bw-deskhd-s { font-size: 0.74rem; color: #8fa2bd; margin: 0.1rem 0 0; }
+
+/* Who holds the seat, and what the reader has decided about it. Two facts on
+   one line, because they are the two facts the seat is about. */
+.bw-facts {
+  display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.8rem 0 0;
+}
+.bw-fact {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0.6rem; border-radius: 0.65rem; font-size: 0.76rem;
+  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #b8c6da;
+}
+.bw-fact b { color: #fff; font-weight: 700; }
+.bw-fact.is-team { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.32); color: #fde68a; }
+.bw-fact.is-team b { color: #fff; }
+.bw-fact-btn { cursor: pointer; min-height: 34px; }
+.bw-fact-btn:hover { border-color: rgba(96, 165, 250, 0.45); color: #dbeafe; }
+
+/* ── The ruler line ───────────────────────────────────────────────────────── */
+/* One sentence naming what ordered the field, above the field. The formal
+   record is the ruler on this surface; the line says so, and says what is not
+   doing the ordering, in the same breath. */
+.bw-ruler {
+  margin: 0.9rem 0 0; padding: 0.55rem 0.7rem; border-radius: 0.7rem;
+  font-size: 0.74rem; line-height: 1.5; color: #a9bad2;
+  background: rgba(96, 165, 250, 0.07); border: 1px solid rgba(96, 165, 250, 0.18);
+}
+.bw-ruler b { color: #dbeafe; }
+.bw-ruler-alt {
+  display: block; margin-top: 0.3rem; color: #7f93b0; font-size: 0.7rem;
+}
+
+/* The seat-level finding: how many shared issues these formal records part
+   company on. Counts of rows, never a score. */
+.bw-diverge {
+  margin: 0.7rem 0 0; padding: 0.6rem 0.7rem; border-radius: 0.7rem;
+  font-size: 0.76rem; line-height: 1.55; color: #b6c5da;
+  background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.bw-diverge b { color: #fff; }
+.bw-diverge .bw-d-hot { color: #fca5a5; }
+.bw-diverge .bw-d-keys { color: #93a7c2; }
+
+/* ── Candidate rows ───────────────────────────────────────────────────────── */
+.bw-field { list-style: none; margin: 0.85rem 0 0; padding: 0; display: grid; gap: 0.55rem; }
+.bw-cand {
+  display: grid; gap: 0.5rem 0.7rem; align-items: center;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  padding: 0.65rem 0.7rem; border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.bw-cand.is-mine { background: rgba(251, 191, 36, 0.09); border-color: rgba(251, 191, 36, 0.38); }
+.bw-cand.is-gap { background: rgba(255, 255, 255, 0.02); border-style: dashed; }
+
+.bw-score { grid-row: span 2; text-align: center; }
+.bw-score-n {
+  display: block; font-family: 'Oswald', sans-serif; font-weight: 700;
+  font-size: 1.3rem; line-height: 1;
+}
+.bw-score-n i { font-style: normal; font-size: 0.7rem; opacity: 0.75; }
+.bw-score-l {
+  display: block; font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #7f93b0; margin-top: 0.15rem;
+}
+.bw-score-dash { display: block; font-size: 1.1rem; color: #64748b; line-height: 1; }
+
+.bw-cand-who { min-width: 0; }
+.bw-cand-name {
+  display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1rem; letter-spacing: 0.02em; color: #fff; cursor: pointer;
+  background: none; border: 0; padding: 0; text-align: left;
+}
+.bw-cand-name:hover { color: #93c5fd; text-decoration: underline; }
+.bw-cand-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.2rem; }
+.bw-tag {
+  font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.15rem 0.4rem; border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.06); color: #9fb0c8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.bw-tag.is-inc { background: rgba(96, 165, 250, 0.14); color: #bfdbfe; border-color: rgba(96, 165, 250, 0.3); }
+.bw-tag.is-mine { background: rgba(251, 191, 36, 0.16); color: #fde68a; border-color: rgba(251, 191, 36, 0.36); }
+/* The gap word: why this candidate has no number. Never a placeholder figure. */
+.bw-gapword { display: block; font-size: 0.7rem; color: #94a3b8; margin-top: 0.25rem; line-height: 1.45; }
+
+/* Direction Match, and every reason it looks like this. Grey, small, under the
+   name, prefixed with the question it answers — never in the number slot, never
+   a sort key, and never coloured like the ruler above it. */
+.bw-dm {
+  display: block; margin-top: 0.3rem; font-size: 0.68rem; line-height: 1.45; color: #8b9cb5;
+}
+.bw-dm b { color: #b6c5da; font-weight: 700; }
+.bw-dm-k { color: #7f93b0; }
+
+.bw-cand-act { grid-column: 2; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.bw-pick {
+  min-height: 44px; padding: 0.45rem 0.85rem; border-radius: 0.7rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb); color: #fff;
+  border: 1px solid rgba(147, 197, 253, 0.4);
+}
+.bw-pick:hover { filter: brightness(1.12); }
+.bw-pick.is-on {
+  background: linear-gradient(135deg, #b45309, #f59e0b); color: #1a1206;
+  border-color: rgba(253, 224, 71, 0.7);
+}
+.bw-pick.is-alt {
+  background: rgba(255, 255, 255, 0.05); color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* ── Honest states ────────────────────────────────────────────────────────── */
+/* Zero on file, one on file, and "we do not map this area" are three different
+   facts and they get three different paragraphs. None of them is a dead end and
+   none of them is dressed up as a comparison. */
+.bw-honest {
+  margin: 0.9rem 0 0; padding: 0.85rem 0.9rem; border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.035); border: 1px dashed rgba(255, 255, 255, 0.16);
+  font-size: 0.8rem; line-height: 1.6; color: #b0c0d6;
+}
+.bw-honest b { color: #fff; }
+.bw-honest p { margin: 0 0 0.5rem; }
+.bw-honest p:last-child { margin-bottom: 0; }
+
+/* ── Footer: the loop's next step ─────────────────────────────────────────── */
+.bw-foot {
+  display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center;
+  margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.bw-go {
+  min-height: 44px; display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.5rem 0.9rem; border-radius: 0.7rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.78rem;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.05); color: #dbeafe;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.bw-go:hover { background: rgba(96, 165, 250, 0.14); border-color: rgba(96, 165, 250, 0.4); }
+.bw-go.is-lead {
+  background: linear-gradient(135deg, #0f2f6b, #1e40af); color: #fff;
+  border-color: rgba(147, 197, 253, 0.42);
+}
+.bw-go.is-next { margin-left: auto; }
+.bw-note { flex: 1 1 100%; font-size: 0.7rem; color: #7f93b0; line-height: 1.5; margin: 0; }
+
+/* ── Not located yet ──────────────────────────────────────────────────────── */
+/* One line and one button. The old Door 2 answered this state with a three-step
+   explainer, a party-vs-person comparison panel and two competing CTAs; the
+   workspace answers it with the single action that unblocks everything else. */
+.bw-locate { padding: 1.1rem 1.15rem 1.2rem; }
+.bw-locate p { margin: 0.4rem 0 0.8rem; font-size: 0.85rem; line-height: 1.6; color: #a9bad2; }
+.bw-locate p b { color: #fff; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DEMOTING THE BROCHURE
+   ────────────────────────────────────────────────────────────────────────────
+   Once a location is set, the Voter Hub's opening pitch has been answered: the
+   reader is not deciding whether to use the tool, they are working a ballot in
+   it. The party-vs-person panel, the three-step "your path" explainer, the two
+   start CTAs and the reassurance line all stay in the document — they are the
+   correct content for a cold arrival, and every one of them is still painted by
+   its own code — but they stop occupying the top of the workspace's own screen.
+   One attribute on #voter-hub, set by ballot-workspace.js from the same
+   located/not-located read the workspace itself uses, so the two can never
+   disagree. Remove the attribute and the brochure is back, unchanged.
+   ═══════════════════════════════════════════════════════════════════════════ */
+#voter-hub[data-bw-working="1"] .vh-compare-frame,
+#voter-hub[data-bw-working="1"] .vh-path-section,
+#voter-hub[data-bw-working="1"] .vh-cta-row,
+#voter-hub[data-bw-working="1"] .vh-reassure { display: none; }
+/* The heading and its one-paragraph promise stay — that is the section's title,
+   not brochure copy — but they stop being a full screen of hero. */
+#voter-hub[data-bw-working="1"] .vh-intro { margin-bottom: 1.5rem; }

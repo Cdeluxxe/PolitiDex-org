@@ -1994,7 +1994,29 @@
           'Set stances to rank this race \u203a</button>'
       : '';
 
-    return '<div class="rs-seat-strip">' + team + entry + stanceLine + '</div>';
+    // ── INTO THE WORKSPACE, WHERE THE PICK ACTUALLY HAPPENS ────────────────
+    // The compare control above opens this seat's full sheet, which is the right
+    // control for "show me everything" and the wrong one for "I am working down
+    // my ballot" — it is a full-screen overlay, so using it as the loop's second
+    // step costs the reader the list they were working. This third control opens
+    // the SAME seat inside the ballot workspace instead: the field, the pick
+    // button and the rest of the ballot on one surface, with no context reset.
+    //
+    // Rendered only when the workspace is loaded, so a host that paints this
+    // strip before ballot-workspace.js has run — or with that file absent
+    // entirely — shows exactly the two controls it always did. No percentage and
+    // no verdict, same as the rest of this strip.
+    var work = (entry && fn('pdxBallotWorkspaceOpen'))
+      ? '<button type="button" class="rs-seat-work"' +
+          ' onclick="event.stopPropagation();window.pdxBallotWorkspaceOpen(\'' + jsq(sm.key) + '\')"' +
+          ' aria-label="Open ' + esc(sm.label) + ' in your ballot workspace, where you can pick for this seat">' +
+          '<span class="rs-seat-work-ic" aria-hidden="true">\u{1F5F3}</span>' +
+          '<span>Work this seat</span>' +
+          '<span class="rs-seat-work-go" aria-hidden="true">\u203a</span>' +
+        '</button>'
+      : '';
+
+    return '<div class="rs-seat-strip">' + team + entry + work + stanceLine + '</div>';
   };
 
   // ── Arrival from a shared race link ────────────────────────────────────────
@@ -2083,7 +2105,11 @@
     _diverge: divergeFor, _tally: tallyOf,
     _field: field, _axis: axis, _rank: rank, _seat: seatMeta,
     _shareBits: shareBits, _openFromHash: openFromHash, _readRaceHash: readRaceHash,
-    _missingPins: missingPins, _scope: scopeLabel
+    _missingPins: missingPins, _scope: scopeLabel,
+    // The team store, read through the one helper that knows the local_<key>
+    // rule. Exposed so the ballot workspace counts picks from the same read this
+    // sheet's own buttons do, rather than keeping a second copy of that rule.
+    _picked: pickedFor, _rec: recOf
   };
 
   // Hosts call pdxRaceSheetEntry() defensively (it returns '' when this file has
