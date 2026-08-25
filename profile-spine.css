@@ -513,6 +513,18 @@
    The disclosure is native <details>, so there is no state to re-arm and a
    screen reader announces it as one expandable thing. */
 
+/* 🚂 THE PACKAGE ROLL-UP, WHEN IT RIDES ABOVE THE ATLAS RATHER THAN INSIDE IT.
+
+   The index prints this line under its own lede; on the profile face the index
+   is closed by default, so the face lifts the line out and prints it here. The
+   two are one block — the note, then the list it is a note about — so the
+   roll-up takes the section gap and the atlas beneath it takes almost none.
+   Everything about how the line LOOKS is in consistency.js beside the row tag it
+   aggregates; this only places it. */
+
+.pdxvru-solo > .pdxvru { margin-top: 0; }
+.pdxvru-solo + .pdxfpi-flat { margin-top: 0.5rem; padding-top: 0; border-top: none; }
+
 .pdxfpi-flat {
   border: 1px solid rgba(159, 180, 212, 0.22);
   border-radius: 0.6rem;

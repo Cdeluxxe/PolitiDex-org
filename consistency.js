@@ -2495,6 +2495,18 @@
       '.pdxfpi-veh{flex:0 0 100%;font-size:0.63rem;line-height:1.35;color:#d0ab6e;' +
         'display:block;letter-spacing:0.01em;}' +
       '.pdxfpi-veh b{font-weight:400;opacity:0.9;}' +
+      // The profile roll-up. Same amber as the row tag it aggregates, so a reader
+      // who has learned one has learned the other — and one size step down from
+      // the lede above it, because this is context and not a headline.
+      '.pdxvru{font-size:0.68rem;line-height:1.5;color:#c8a76b;margin:0.45rem 0 0;' +
+        'padding:0.4rem 0.55rem;border-radius:0.4rem;' +
+        'background:rgba(208,171,110,0.07);border:1px solid rgba(208,171,110,0.2);}' +
+      '.pdxvru b{font-weight:700;color:#e8c98a;}' +
+      '.pdxvru-t{opacity:0.85;}' +
+      '.pdxvru-n{color:#9a8355;font-size:0.94em;}' +
+      '.pdxvru-s{color:#b2955f;}' +
+      '.pdxvru-w{display:block;margin-top:0.22rem;font-size:0.63rem;color:#7f8fa8;' +
+        'line-height:1.42;}' +
       '.pdxfpi-none{font-size:0.74rem;color:#8fa6c6;padding:0.5rem 0;}' +
       '.pdxfpi-foot{font-size:0.66rem;color:#6f88ab;line-height:1.45;margin:0.5rem 0 0;'
         + 'border-top:1px solid rgba(147,180,230,0.12);padding-top:0.45rem;}' +
@@ -8330,6 +8342,170 @@
     return m[issueKey] || _VEH_NONE;
   }
 
+  // ── 🚂 THE SAME DISCLOSURE, ASKED OF THE WHOLE PROFILE ──────────────────────
+  // The row tag answers "did THIS issue's formal signal ride inside something
+  // bigger". A reader who has met that tag three or four times down one list asks
+  // the obvious next question — "overall, how much of this person's record was
+  // package-borne?" — and until now had to count the 🚂 lines themselves.
+  //
+  // NOTHING NEW IS DETECTED HERE. This counts rows that already wear the tag. The
+  // numerator is `x.vehicle.stowaway`, which is _recordVehicleStats' own decision
+  // behind its own threshold; the denominator is `x.read`, which is the pattern
+  // engine's own decision about whether it would name a direction at all. If a
+  // future change moves either of those, this moves with it and cannot drift from
+  // what the rows below it say, because it is literally reading them.
+  //
+  // WHY THE DENOMINATOR IS `read` AND NOT `all`. The claim is about how a formal
+  // POSITION travelled, and an issue the engine refused to read has no position to
+  // have travelled anywhere — the vehicle field is null on exactly those rows for
+  // exactly that reason (see the gate over `vehicle:` in _fpiRows). Dividing into
+  // the whole index instead would put every executive action, every balance key
+  // and every "no side taken" row in the denominator, which would make the number
+  // smaller on every profile and mean nothing on any of them.
+  //
+  // WHAT IT MAY NOT BECOME. Not a score, not a grade, not a verdict, and not a
+  // percentage — the brief asks for counts and named bills, and a percentage is
+  // the exact shape that invites a league table. Nothing here is comparative,
+  // nothing is coloured by size, and no threshold turns a count into a word like
+  // "high". A vote cast on a package is a vote the member cast: this sentence sits
+  // beside the record and the per-row tags, never in place of them, and it changes
+  // no tier, no count, no confidence and nothing in Direction Match.
+  //
+  // AND IT STAYS QUIET WHERE IT WOULD BE OVER-READ. Three walls, all of them
+  // about honesty rather than tidiness — see _VRU_MIN_READ / _VRU_MIN_ISSUES and
+  // the `none` case below.
+  // TEN, AND THE REASON IS NOT ROUNDNESS. "3 of 6" is arithmetic about a sample
+  // printed in the grammar of a fact about a person, and a reader cannot un-see a
+  // ratio once it has been shown to them. Below ten readable issues the per-row
+  // tags are the honest carrier of this information — there are few enough of them
+  // to count by eye — and the aggregate adds a denominator without adding a fact.
+  var _VRU_MIN_READ = 10;
+  // TWO, BECAUSE ONE IS A ROW. See the `one_issue` silence below.
+  var _VRU_MIN_ISSUES = 2;
+  var _VRU_NAME_CAP = 3;
+  // The tail sentence, and the reason it is not optional: a bare "7 of 31" is a
+  // statistic, and a statistic with no frame is read as a mark out of ten.
+  var _VRU_WALL = 'This describes how the record travelled, not how good it is. ' +
+    'The votes are real, they are counted in full above, and each of these issues ' +
+    'carries the same note on its own row.';
+  var _vruCache = {}, _vruEpoch = 0;
+  function vehicleRollup(pid) {
+    if (!pid) return null;
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_vruEpoch !== ep) { _vruCache = {}; _vruEpoch = ep; }
+    var ck = norm(pid) + '||' + execTermScope().key;
+    if (Object.prototype.hasOwnProperty.call(_vruCache, ck)) return _vruCache[ck];
+    var rows = [];
+    try { rows = _fpiRows(pid) || []; } catch (e) { rows = []; }
+    var read = 0, marked = [], every = 0, byVeh = {}, order = [];
+    rows.forEach(function (x) {
+      if (!x || !x.read) return;
+      read++;
+      if (!(x.vehicle && x.vehicle.stowaway)) return;
+      marked.push(x);
+      // `only` is the exact case, not the majority one: every mapped instrument on
+      // that issue was a package. It is reported as a subset of the same rows
+      // rather than as a second, competing figure.
+      if (x.vehicle.only) every++;
+      (x.vehicle.vehicles || []).forEach(function (name) {
+        if (!name) return;
+        if (!Object.prototype.hasOwnProperty.call(byVeh, name)) { byVeh[name] = 0; order.push(name); }
+        byVeh[name]++;
+      });
+    });
+    // Most-carrying first, then alphabetically so the order is stable across
+    // renders and across members — not "most important", which is not a fact we
+    // hold. The count beside each name is ISSUES it carried for this member, which
+    // is the only sense in which one vehicle here is bigger than another.
+    order.sort(function (a, b) { return (byVeh[b] - byVeh[a]) || (a < b ? -1 : 1); });
+    var out = {
+      pid: pid, read: read, issues: marked.length, every: every,
+      keys: marked.map(function (x) { return x.key; }),
+      labels: marked.map(function (x) { return x.label; }),
+      vehicles: order.map(function (n) { return { name: n, issues: byVeh[n] }; }),
+      enough: false, quiet: ''
+    };
+    // ── THE THREE SILENCES ────────────────────────────────────────────────────
+    //   none        Nothing rode. Saying "0 of 31" would be a clean bill of health
+    //               in the shape of a statistic, and a clean bill of health is a
+    //               grade — the one thing this must not be. The per-row tags are
+    //               already the ground truth for "did this one ride"; their
+    //               absence is the answer, and it does not need announcing.
+    //   thin_file   Too few readable issues for a ratio to characterise anyone.
+    //               See the note over _VRU_MIN_READ.
+    //   one_issue   One marked issue is a ROW, and the row already says it. A
+    //               roll-up over a single item is the same sentence twice, the
+    //               second time with a denominator attached to make it look larger.
+    if (!marked.length) out.quiet = 'none';
+    else if (read < _VRU_MIN_READ) out.quiet = 'thin_file';
+    else if (marked.length < _VRU_MIN_ISSUES) out.quiet = 'one_issue';
+    else out.enough = true;
+    _vruCache[ck] = out;
+    return out;
+  }
+  // "H.R. 2617 (4 issues), H.R. 7148 (2)" — named, because a bill number is
+  // something a reader can go and check and "a larger measure" is not. Capped,
+  // because past three the line stops being readable, and the overflow is COUNTED
+  // rather than dropped silently.
+  function _vruVehicleList(v) {
+    var vs = v.vehicles || [];
+    if (!vs.length) return '';
+    var head = vs.slice(0, _VRU_NAME_CAP), more = vs.length - head.length;
+    var named = head.map(function (e) {
+      return esc(e.name) + (e.issues > 1 ? ' <span class="pdxvru-n">(' + e.issues + ' issues)</span>' : '');
+    });
+    var s = named.length === 1 ? named[0]
+      : named.slice(0, -1).join(', ') + ' and ' + named[named.length - 1];
+    return s + (more ? ' <span class="pdxvru-n">+ ' + more + ' more measure' +
+      (more === 1 ? '' : 's') + '</span>' : '');
+  }
+  // THE EXACT CASE INSIDE THE MAJORITY ONE. `only` means provision === total on
+  // that issue: not "mostly a package" but "nothing but". It is worth its own
+  // clause because it is the difference between a record that also voted on the
+  // subject directly and one that never did, and it is stated as the mechanical
+  // fact it is — no standalone instrument on file — rather than as a shortfall.
+  function _vruEveryText(v) {
+    if (!v || !v.every) return '';
+    return (v.every === v.issues ? 'On all ' + v.every + ' of them' : 'On ' + v.every + ' of those ' + v.issues) +
+      ', no standalone instrument was on file at all.';
+  }
+  // Plain-text twin of the sentence, for a title and an accessible name. Same
+  // numbers, same order, no markup.
+  function _vruText(v) {
+    if (!v || !v.enough) return '';
+    var s = v.issues + ' of ' + v.read + ' readable formal issues — the ones where the record ' +
+      'was clear enough to name a direction — were advanced or opposed primarily as provisions ' +
+      'inside larger packages.';
+    if (v.vehicles.length) {
+      s += ' The measures that carried them include ' +
+        v.vehicles.slice(0, _VRU_NAME_CAP).map(function (e) {
+          return e.name + (e.issues > 1 ? ' (' + e.issues + ' issues)' : '');
+        }).join(', ') + '.';
+    }
+    if (v.every) s += ' ' + _vruEveryText(v);
+    return s + ' ' + _VRU_WALL;
+  }
+  function vehicleRollupHtml(pid) {
+    var v = vehicleRollup(pid);
+    if (!v || !v.enough) return '';
+    ensureStyles();
+    var list = _vruVehicleList(v);
+    return '<p class="pdxvru" data-pdxvru-issues="' + v.issues + '"' +
+        ' data-pdxvru-read="' + v.read + '"' +
+        ' title="' + escAttr(_vruText(v)) + '"' +
+        ' aria-label="' + escAttr('Package-borne formal record: ' + _vruText(v)) + '">' +
+        '<span class="pdxvru-t" aria-hidden="true">🚂</span> ' +
+        '<b>' + v.issues + '</b> of ' + v.read + ' readable formal issues were advanced or ' +
+        'opposed primarily as provisions inside larger packages' +
+        (list ? ' — carried by ' + list : '') + '.' +
+        (v.every ? ' <span class="pdxvru-s">' +
+          (v.every === v.issues ? 'On all <b>' + v.every + '</b> of them'
+                                : 'On <b>' + v.every + '</b> of those ' + v.issues) +
+          ', no standalone instrument was on file at all.</span>' : '') +
+        ' <span class="pdxvru-w">' + esc(_VRU_WALL) + '</span>' +
+      '</p>';
+  }
+
   // ── 🏛 THE SHAPE OF THE RECORD, IN FOUR FACTS ───────────────────────────────
   // The index above is the LIST. This is its summary, and it exists because a
   // surface that has room for four lines cannot mount sixty rows — the profile
@@ -9389,6 +9565,17 @@
             ' nothing formal on file at all, so ' + (bare === 1 ? 'it is' : 'they are') +
             ' not on this list.' : '') +
           ' Tap any issue for its dossier.</p>' +
+        // THE ROLL-UP SITS UNDER THE LEDE AND ABOVE THE FILTERS, and it is built
+        // from `pid` rather than from `shown` on purpose: it is a fact about the
+        // whole formal record, so it must not change when a reader filters the
+        // list to "Opposes-leaning" and back. It renders '' on every profile the
+        // three silences in vehicleRollup() cover, which is most of them.
+        //   `rollup: false` IS FOR ONE CALLER. The profile face mounts this index
+        // inside a CLOSED <details>, and a disclosure a reader has to go looking
+        // for is a disclosure most readers never meet. So that surface lifts the
+        // roll-up out and prints it above the fold itself, and switches this copy
+        // off rather than printing the same sentence twice in one block.
+        (opts.rollup === false ? '' : vehicleRollupHtml(pid)) +
         (segs ? '<div class="pdxfpi-segs" role="group" aria-label="Filter the formal record index">' + segs + '</div>' : '') +
         '<p class="pdxfpi-shown">Showing <b>' + shown.length + '</b> of ' + all.length +
           ' issue' + (all.length === 1 ? '' : 's') + ' on the formal record' + viewNote + '</p>' +
@@ -13682,6 +13869,17 @@
           });
         } catch (e) { return []; }
       },
+      // ── THE PROFILE-LEVEL ROLL-UP ─────────────────────────────────────────
+      // Counts of the rows directly above, never a percentage and never a grade.
+      // `rollup()` always answers — `enough` says whether it is sayable and
+      // `quiet` says which silence applies — so a surface can ask without having
+      // to know the thresholds. `rollupHtml()` returns '' whenever it is not.
+      rollup: vehicleRollup,
+      rollupHtml: vehicleRollupHtml,
+      rollupText: function (pid) { return _vruText(vehicleRollup(pid)); },
+      MIN_READ: _VRU_MIN_READ,
+      MIN_ISSUES: _VRU_MIN_ISSUES,
+      ROLLUP_WALL: _VRU_WALL,
       TAG: _VEH_TAG,
       NOTE: _VEH_NOTE,
       NARROW_AT: (window._PDX_RD_NARROW_AT || 45),

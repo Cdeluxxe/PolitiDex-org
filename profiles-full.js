@@ -5277,14 +5277,30 @@
           // their row ids distinct and stops a filter tap in one from re-filtering
           // the other. Strongest-first here always: the face has no Sort control of
           // its own, and the overlay owns that state.
-          var html = FPI.html(id, { sort: 'strength', mount: 'face' }) || '';
+          var html = FPI.html(id, { sort: 'strength', mount: 'face', rollup: false }) || '';
           if (!html) return '';
+          // 🚂 THE PROFILE ROLL-UP RIDES ABOVE THE FOLD, NOT INSIDE IT. The index
+          // below is closed by default, and a note about how much of this record
+          // travelled inside larger packages is worth exactly nothing to a reader
+          // who never opens it. So it is lifted out here and the index is told not
+          // to print its own copy (`rollup: false`), which keeps one sentence in
+          // one place in this block.
+          //   IT IS ALLOWED TO BE ABSENT AND USUALLY IS. vehicleRollupHtml()
+          // returns '' unless the file is deep enough to divide into and more than
+          // one issue is actually marked — see the three silences over
+          // vehicleRollup(). Nothing here forces a line where there is none.
+          var vru = '';
+          try {
+            var V = window.PDXConsistency && window.PDXConsistency.vehicle;
+            if (V && typeof V.rollupHtml === 'function') vru = V.rollupHtml(id) || '';
+          } catch (e) { vru = ''; }
           // THE SUMMARY LINE IS THE WHOLE COST OF THIS BLOCK WHEN CLOSED. It states
           // what is inside and how much of it there is, in the same breath, so a
           // reader deciding whether to open it never has to open it to find out.
           // <details> because it is a native, keyboard-operable disclosure that a
           // screen reader announces as one — no JS, no state, nothing to re-arm.
-          return '<details id="pdxsec-formalatlas" class="modal-section pdxfpi-flat">' +
+          return (vru ? '<div class="modal-block pdxvru-solo">' + vru + '</div>' : '') +
+            '<details id="pdxsec-formalatlas" class="modal-section pdxfpi-flat">' +
               '<summary class="pdxfpi-flat-s">' +
                 '<span class="pdxfpi-flat-t"><span aria-hidden="true">🏛</span> View the flat formal list</span>' +
                 '<span class="pdxfpi-flat-n">Every issue on the formal record · ' + n + '</span>' +
