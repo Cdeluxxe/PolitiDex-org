@@ -1620,20 +1620,28 @@
     // rather than guessed, so this is the number the coverage line has to say out
     // loud — otherwise a match built on 2 of 9 issues reads exactly like one built
     // on 9 of 9.
+    // `said` is what they are on record as SAYING; `baseline` is what the formal
+    // record itself did on an issue they have never been quoted on. The two are
+    // counted apart and reported apart, because a visitor told "5 of your 6 issues
+    // are covered" is owed the split between the five that are quotes and the ones
+    // that are a reading of the votes.
     function _alignStatedCoverage(pid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       var polMap = (d && typeof window._polPositionMap === 'function')
         ? (window._polPositionMap(pid, d) || {}) : {};
+      var rec = _alignRecordSideMap(pid);
       var total = (typeof _alignIssues !== 'undefined' && _alignIssues) ? _alignIssues.size : 0;
-      var covered = 0, missing = [];
+      var covered = 0, said = 0, baseline = 0, missing = [];
       if (total) {
         _alignIssues.forEach(function (key) {
-          if (polMap[key]) { covered++; return; }
+          if (polMap[key]) { covered++; said++; return; }
+          if (rec && rec.sides[key]) { covered++; baseline++; return; }
           missing.push({ key: key, label: (ISSUE_MAP[key] && ISSUE_MAP[key].label) || key });
         });
       }
       return {
         covered: covered, total: total, missing: missing,
+        said: said, baseline: baseline,
         // Same claim as record mode's: about the match, never about the person.
         sparse: covered > 0 && covered * 2 < total
       };
@@ -1742,15 +1750,26 @@
     // (which are withheld when the index withholds them), never a stance verb
     // borrowed from the stated lane.
     var _ALIGN_SIDE_WORD = { support: 'Supports', oppose: 'Opposes', mixed: 'Mixed' };
+    // The baseline tag, worded so the shortest possible read of the chip still
+    // lands the two things a reader must not get wrong: it came from the record,
+    // and it is not part of the integrity percentage.
+    var _ALIGN_BASE_TAG = 'From the record';
+    var _ALIGN_BASE_NOTE = 'No stated position on file for this issue, so the direction of the ' +
+      'formal record stands in. A reading of the votes, not a quoted stance, and never counted ' +
+      'in Direction Match.';
     function _alignSignalChipHtml(it) {
       if (!it) return '';
       if (it.source === 'record' && it.pattern) {
         var p = it.pattern;
         var counts = p.counts ? '<span class="align-sig-n"> · ' + p.counts + '</span>' : '';
-        return '<span class="align-sig align-sig-rec is-' + p.tone + ' w-' + (p.rank || 'flat') + '"' +
-            ' title="' + (window._PDX_RD_TIER_NOTE || 'What the formal record did.') + '">' +
+        var baseTag = it.baseline
+          ? '<span class="align-sig-base">' + _ALIGN_BASE_TAG + '</span>' : '';
+        return '<span class="align-sig align-sig-rec is-' + p.tone + ' w-' + (p.rank || 'flat') +
+            (it.baseline ? ' is-baseline' : '') + '"' +
+            ' title="' + (it.baseline ? _ALIGN_BASE_NOTE
+                          : (window._PDX_RD_TIER_NOTE || 'What the formal record did.')) + '">' +
             '<span aria-hidden="true">🏛</span><span class="align-sig-k">Record pattern:</span> ' +
-            '<b>' + p.label + '</b>' + counts +
+            '<b>' + p.label + '</b>' + counts + baseTag +
           '</span>';
       }
       if (it.source === 'stated' && it.stance) {
@@ -1763,6 +1782,8 @@
       return '';
     }
     window._alignSignalChipHtml = _alignSignalChipHtml;
+    window._PDX_ALIGN_BASE_TAG = _ALIGN_BASE_TAG;
+    window._PDX_ALIGN_BASE_NOTE = _ALIGN_BASE_NOTE;
 
     // The stated lane's own coverage line. Before the party fill-in was retired
     // this did not need to exist: every issue got a number whether or not the
@@ -1774,9 +1795,17 @@
       if (!c.total) return '';
       var miss = c.missing.map(function (m) { return m.label; });
       var missLine = miss.length
-        ? '<span class="align-cov-miss"><b>Not counted</b> (no documented position on file): ' +
+        ? '<span class="align-cov-miss"><b>Not counted</b> (no documented position and no readable record): ' +
             miss.slice(0, 6).join(' · ') + (miss.length > 6 ? ' · +' + (miss.length - 6) + ' more' : '') +
           '</span>'
+        : '';
+      // The baseline, disclosed in the same breath as the number it moved. Worded
+      // as what the RECORD did, never as what they said, and it names the wall.
+      var blLine = c.baseline
+        ? '<span class="align-cov-base">🏛 <b>' + c.baseline + ' of them</b> ' +
+            (c.baseline === 1 ? 'has no stated position' : 'have no stated position') +
+            ' on file, so the direction of their <b>formal record</b> stands in. That is a ' +
+            'reading of the votes, not a quote — and it is <b>not</b> counted in Direction Match.</span>'
         : '';
       // The wall, stated plainly: we would rather show a thinner match than fill
       // the hole with their party, their caucus, or a keyword guess.
@@ -1794,10 +1823,14 @@
       var cls = c.sparse ? 'is-sparse' : 'is-ok';
       var lead = (c.sparse ? '<b>Sparse coverage</b> · ' : '') +
         '<b>' + c.covered + ' of your ' + c.total + ' issue' + (c.total === 1 ? '' : 's') + '</b>';
+      var tail = c.baseline
+        ? ' have a position to match against — ' + c.said + ' documented, ' + c.baseline + ' from the formal record.'
+        : ' have a documented position to match against.';
       return '<div class="align-cov-note ' + cls + '" data-align-cov="' + (c.sparse ? 'sparse' : 'ok') + '">' +
           '<span class="align-cov-ico" aria-hidden="true">' + (c.sparse ? '⚠️' : '💬') + '</span>' +
-          '<span class="align-cov-txt">' + lead + ' have a documented position to match against.' +
+          '<span class="align-cov-txt">' + lead + tail +
             ' ' + (miss.length ? wall : '') +
+            blLine +
             missLine +
           '</span>' +
         '</div>';
@@ -1864,7 +1897,8 @@
         if (!sc.total || sc.covered > 0) return '';
         return '<div class="align-mode-gap" data-align-mode-gap="none">' +
             '<span aria-hidden="true">💬</span>' +
-            '<span>No documented position on your issues — nothing to match, and we will not ' +
+            '<span>No documented position on your issues, and no formal record that reads a ' +
+              'direction on them either — nothing to match, and we will not ' +
               'guess one from their party. ' + _alignModeSwapHtml('record') +
             '</span>' +
           '</div>';
@@ -1920,7 +1954,12 @@
       // specific one (the Say-vs-Do score always asks the stated question);
       // otherwise the visitor's own choice decides.
       var _recMode = _alignModeIsRecord(opts);
-      var _recMap = _recMode ? _alignRecordSideMap(pid) : null;
+      // THE SIDE MAP IS READ IN BOTH LANES NOW. In record mode it IS the lane. In
+      // stated mode it is the BASELINE — the record-derived fallback that fills an
+      // issue the candidate has never been quoted on, and only such an issue (see
+      // the baseline resolution below the intensity model). It is memoized per
+      // politician per epoch, so asking for it in the stated lane costs one lookup.
+      var _recMap = _alignRecordSideMap(pid);
 
       var profile = (typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
 
@@ -2041,6 +2080,23 @@
         var recSig = _recMap ? (_recMap.sides[issueKey] || null) : null;
         if (_recMode && !recSig) return;
         var directPos = _recMode ? null : (polMap[issueKey] || null);
+        // ── THE BASELINE, AND THE ORDER THAT MAKES IT SAFE ──────────────────
+        // A DOCUMENTED POSITION ALWAYS WINS. In the stated lane the record side is
+        // consulted only where the candidate has no documented position on this
+        // exact issue: it fills a hole, it never overrides a quote, and the moment
+        // a stance is curated for that issue the baseline stops being consulted
+        // for it — no precedence table, no migration, one line.
+        //   It is scored through the SAME ladder and the SAME confidence tier
+        // record mode uses, so a baseline can never weigh more than the record
+        // mode reading of the identical pattern. And it is marked, all the way
+        // down: `baseline: true`, `source: 'record'`, `direct: false`, and no
+        // stance / topic / prose — the fields every quoting renderer reads stay
+        // null, exactly as they do on a record-mode row.
+        var _baseline = false;
+        if (!_recMode) {
+          if (directPos) recSig = null;
+          else if (recSig) _baseline = true;
+        }
 
         if (recSig) {
           // The formal record's own direction on this issue, read through the
@@ -2098,7 +2154,9 @@
       // Kept in lock-step with _calcAlignmentScore: same mode resolution, same
       // record-side map, same early-out for an issue the record cannot answer.
       var _recMode = _alignModeIsRecord(opts);
-      var _recMap = _recMode ? _alignRecordSideMap(pid) : null;
+      // Both lanes, for the reason given in _calcAlignmentScore: record mode reads
+      // this AS the lane, stated mode reads it as the baseline behind the quotes.
+      var _recMap = _alignRecordSideMap(pid);
       var _uncovered = [];
 
       // Same authoritative curated positions used by _calcAlignmentScore (kept in
@@ -2211,6 +2269,13 @@
           return;
         }
         var directPos = _recMode ? null : (polMap[issueKey] || null);
+        // The baseline, in lock-step with _calcAlignmentScore: a documented
+        // position wins outright, and the record side only ever fills a hole.
+        var _baseline = false;
+        if (!_recMode) {
+          if (directPos) recSig = null;
+          else if (recSig) _baseline = true;
+        }
         var _verdict = null;
 
         if (recSig) {
@@ -2252,6 +2317,13 @@
         // heard of modes.
         perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _userIntensity, record: _record,
           source: recSig ? 'record' : 'stated',
+          // `baseline` is the one field that separates "the visitor asked the
+          // record question" from "the visitor asked the stated question and this
+          // issue had no answer in that lane". Both are record-sourced rows and
+          // both render through the record chip; only the second is a fallback,
+          // and only the second carries the extra disclosure.
+          baseline: _baseline,
+          basis: recSig ? 'record' : 'stated',
           pattern: recSig ? { side: recSig.side, tier: recSig.tier, tone: recSig.tone, label: recSig.label, counts: recSig.counts, judged: recSig.judged, advances: recSig.advances, opposes: recSig.opposes, conf: recSig.conf, rank: recSig.rank } : null });
       });
 
@@ -2990,9 +3062,13 @@
             '<span class="align-card-chev">›</span>' +
           '</button>';
       }
-      // Record mode reads a vote pack the stated lane never needed. This is a
-      // render path, so the warm is bounded by what is actually on screen.
-      if (_alignModeIsRecord() && !_alignRecordWarm(pid)) _alignQueueConsistWarm(pid);
+      // Record mode reads a vote pack the stated lane never needed — and the stated
+      // lane now needs it too, because its BASELINE is read off the same pack. Same
+      // warmer, same batch of 24, same debounce; this is a render path, so the warm
+      // stays bounded by what is actually on screen. A pack that never lands costs
+      // nothing: the baseline simply does not appear and the stated lane behaves
+      // exactly as it did before it existed.
+      if (!_alignRecordWarm(pid)) _alignQueueConsistWarm(pid);
       var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
       // No score in record mode means the record answered none of the visitor's
       // issues — said out loud, with the way back, never as a blank.

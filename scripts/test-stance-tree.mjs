@@ -419,12 +419,26 @@ section("3 · pattern-only rows are disclosed, three ways");
   const oh = chunkOf(ONLY_STRONG);
   has(oh, 'data-pdxtree-only="1"', "the row carries the pattern-only flag as data");
   has(oh, "is-patternonly", "…and its own skin class, so it cannot look like a stance");
-  has(oh, "<b>Said:</b> No stated position", "…prints the absence rather than implying one");
+  // The Said slot is where the baseline lands: with nothing stated and a record the
+  // engine reads a side from, the row prints the record's own direction as a marked
+  // baseline instead of an empty "Said" — never as a quoted stance.
+  eq(!!o.baseline, true, "…and the readable record stands in as the row's baseline");
+  eq(o.baseline.word, CS.baseline.for(PID, ONLY_STRONG).word,
+    "…in the shared record vocabulary, not a second one invented for the tree");
+  eq(o.baseline.stance, "oppose", "…on the side the record itself read");
+  ok(oh.indexOf("<b>Said:</b>") === -1, "…so the row never claims they said anything");
+  has(oh, "<b>Baseline:</b> " + o.baseline.word,
+    "…it prints the record's direction under the Baseline label instead");
+  has(oh, "from the record", "…and names where that baseline came from, inline");
+  has(oh, 'data-pdxtree-baseline="' + o.baseline.stance + '"',
+    "…and carries the baseline side as data");
   has(oh, ">Not in Direction Match<", "…and prints the disclosure tag on the row itself");
   // The full sentence — three separate denials — in the accessible name, because a
   // screen reader given only the tag loses two of the three.
   const say = (oh.match(/aria-label="([^"]*)"/) || [])[1] || "";
   has(say, "No stated position on file", "the accessible name states the absence");
+  has(say, "Baseline from the formal record: " + o.baseline.word,
+    "…then names the record-derived baseline as exactly that");
   has(say, "not a quoted stance", "…denies that it is a stance");
   has(say, "not counted in Direction Match", "…and denies that it is scored");
   has(oh, "title=", "…and the same sentence rides the row's title for pointer users");
@@ -867,8 +881,8 @@ section("10 · tension order is a sort key and nothing else");
 section("11 · filters are views — they hide rows and touch nothing else");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  eq(T.FILTERS.map((f) => f.key).join(","), "all,stance,cuts,aligns,only,onfile",
-    "the chip set is the six the brief names, in that order");
+  eq(T.FILTERS.map((f) => f.key).join(","), "all,stance,cuts,aligns,only,baseline,onfile",
+    "the chip set is the seven the brief names, in that order");
   eq(T.FILTER_ALL, "all", "…and the default is the full set");
   eq(T.FILTERS[0].test, null, "…which has no predicate at all, so it can hide nothing");
   T.FILTERS.forEach((f) => ok(!!f.label && !!f.title,
@@ -882,6 +896,9 @@ section("11 · filters are views — they hide rows and touch nothing else");
     cuts: (lf) => lf.band === "cuts_against",
     aligns: (lf) => lf.band === "aligns",
     only: (lf) => !!lf.patternOnly,
+    // The record-derived baseline: no stated position on file, and the formal
+    // record reads a side. A subset of `only` by construction.
+    baseline: (lf) => !!lf.baseline,
     onfile: (lf) => !!(lf.record && lf.record.onRecord),
   };
   const leavesBefore = JSON.stringify(LEAVES);

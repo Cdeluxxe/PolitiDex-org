@@ -20,7 +20,10 @@
 //      the two modes return different numbers and opposite per-issue verdicts.
 //   4. NO INVENTED SIDES. An issue with no readable pattern is dropped from the
 //      record-mode match — not guessed, and NOT quietly scored from the stated
-//      position instead. Fail closed.
+//      position instead. Fail closed. The stated lane fails closed the other way:
+//      it will fall back to the record's own direction as a BASELINE where there
+//      is no documented position, but only where the record actually reads one,
+//      and never over a position the candidate is on record as holding.
 //   5. COVERAGE IS STATED OUT LOUD. Sparse coverage says "sparse", zero coverage
 //      says there is nothing to match, and both name what fell out.
 //   6. A PATTERN IS NEVER A QUOTE. Record rows carry `Record pattern:` and the
@@ -270,6 +273,41 @@ section("4 · no invented sides, and no silent fallback");
   ok(!r2 || !r2.issues.length,
     "record mode returns NO match for it rather than borrowing the stated stance");
   if (r2) eq((r2.uncovered || []).length, 1, "…and names it as uncovered instead");
+
+  // ── THE BASELINE, AND WHAT IT MAY NOT DO ──────────────────────────────────
+  // The stated lane fills a silent issue from the record's own direction. It is
+  // the fallback that has to be checked hardest, because it is the one place a
+  // reading of the votes gets printed on a surface a visitor came to for words.
+  const bStrong = rowOf(SAID, STRONG);
+  ok(bStrong, "the stated lane now answers a silent issue the record reads clearly");
+  eq(bStrong.baseline, true, "…and flags it as a baseline rather than a quote");
+  eq(bStrong.source, "record", "…names the record as its source…");
+  eq(bStrong.direct, false, "…is not flagged as a documented position…");
+  eq(bStrong.stance, null, "…carries no stance string…");
+  eq(bStrong.text, null, "…and no stated prose, so no quoting renderer can fire");
+  ok(rowOf(SAID, THIN) && rowOf(SAID, SPLIT),
+    "…and the thin and split readings stand in on their issues too");
+  // The two things it must never do.
+  const sFlip = rowOf(SAID, FLIP);
+  eq(sFlip.baseline, false,
+    "a documented position is NEVER replaced by the record — the baseline only fills holes");
+  eq(sFlip.source, "stated", "…and that row still reads as stated");
+  ok(!rowOf(SAID, NONE), "an unreadable record produces no baseline…");
+  ok(!rowOf(SAID, DARK), "…and neither does an empty one");
+  // A baseline can never outweigh the same pattern read in record mode: same
+  // ladder, same confidence tier, same number.
+  eq(bStrong.score, rowOf(REC, STRONG).score,
+    "a baseline scores on the same 90/55/12 rung the record lane gives it");
+  eq(bStrong.pattern.conf, rowOf(REC, STRONG).pattern.conf,
+    "…and carries the same confidence, so it cannot weigh more as a fallback");
+  // And it is marked on the face, not just in the data.
+  const bChip = A._alignSignalChipHtml(bStrong);
+  has(bChip, "Record pattern:", "the baseline chip names the record as its source");
+  has(bChip, "From the record", "…carries the baseline tag…");
+  lacks(bChip, "Says:", "…and never says they said it");
+  has(bChip, "never counted", "…and its own title states the Direction Match wall");
+  lacks(A._alignSignalChipHtml(sFlip), "From the record",
+    "a documented row carries no baseline tag");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -299,8 +337,12 @@ section("5 · coverage is stated out loud");
     "the coverage note is a count, not a score");
   A.alignSetMatchMode("stated");
   const snote = A._alignCoverageNoteHtml(PID, SAID);
-  has(snote, "have a documented position to match against",
+  has(snote, "have a position to match against",
     "the stated lane states its own coverage fraction, in its own vocabulary");
+  has(snote, "documented,", "…and splits it into the documented half…");
+  has(snote, "from the formal record", "…and the record-derived half");
+  has(snote, "not</b> counted in Direction Match",
+    "…and the baseline disclosure names the wall it sits behind");
   has(snote, "Not counted", "…names the issues it left out");
   has(snote, "not</b> estimated from their party",
     "…and says in as many words that the gap was NOT filled from party");

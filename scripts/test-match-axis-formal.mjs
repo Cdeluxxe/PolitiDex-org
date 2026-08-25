@@ -31,6 +31,13 @@
 //   8. THE MUTATIONS. Re-requiring a stated position for axis eligibility — in
 //      either of the two places it could be reimposed — must fail this file.
 //
+// THE STATED LANE'S BASELINE. Since the record-derived baseline shipped, the
+// stated ruler answers an issue it holds no quote for with the record's own
+// direction — the same reading, the same confidence, marked on every face as
+// record-derived and never as something they said. This file pins that too: the
+// fallback must equal the record lane's answer exactly, must never displace a
+// real quote, and must never appear without its disclosure.
+//
 //   node scripts/test-match-axis-formal.mjs
 //
 // Real shipped modules in a node:vm sandbox, real profile data, real ballot
@@ -217,8 +224,19 @@ must(!(LIVE._polPositionMap(B_PID, LIVE.CMP_DATA[B_PID]) || {})[K],
 section("1 · a formal file makes the axis live, with no stance anywhere");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  eq(LIVE._calcAlignmentScore(A_PID, { mode: "stated" }), null,
-    "the stated lane can say nothing about this candidate on these issues");
+  // THE STATED LANE HAS A BASELINE NOW. It holds no quote from this candidate on
+  // these issues — the `must` above asserts that — so what it answers with is the
+  // direction of the formal record itself, and it answers with EXACTLY the record
+  // lane's own reading rather than a softened or a second one.
+  const sBase = LIVE._calcAlignmentScore(A_PID, { mode: "stated" });
+  const rBase = LIVE._calcAlignmentScore(A_PID, { mode: "record" });
+  eq(sBase, rBase,
+    "with no quote anywhere, the stated lane falls back to the record's own reading");
+  const sbd = LIVE._calcAlignmentBreakdown(A_PID, { mode: "stated" });
+  ok(sbd && sbd.issues.every((r) => r.baseline === true),
+    "…and every row it produced is flagged as a baseline, not as a quote");
+  ok(sbd && sbd.issues.every((r) => r.stance === null && r.text === null && !r.direct),
+    "…carrying no stance, no prose and no documented-position flag");
   const rec = LIVE._calcAlignmentScore(A_PID, { mode: "record" });
   ok(typeof rec === "number" && isFinite(rec),
     `the record lane scores them anyway — got ${JSON.stringify(rec)}`);
@@ -375,14 +393,27 @@ section("6 · zero positions is still Overview, and the stated tab still leads o
   const shtml = sheetHtml(st);
   eq(st.PDXRaceSheet.mode(), "stated", "the reader is on the stated ruler");
   const sr = st.PDXRaceSheet._rank(st.PDXRaceSheet._field(SEAT), "stated", true);
-  eq(sr.ranked.length, 0,
-    "no pattern is promoted into the stated ruler's ranking — it stays quote-led");
-  has(shtml, "No stated position on your issues yet",
-    "…and the stated band keeps its own admission");
-  // The one cheap pointer: their record CAN answer these issues, one tab away.
-  has(shtml, "open Your Match · record",
-    "…while pointing at the ruler that can answer, since it demonstrably can");
-  has(shtml, "pdxRaceSheetMode('record')", "…wired to the sheet's own tab control");
+  // THE STATED RULER IS QUOTE-LED, NOT QUOTE-ONLY. It leads on what they said and
+  // falls back to what the record did where they said nothing — so a field with a
+  // full formal file and no sourced quote is now rankable on this tab too, where
+  // it used to be one undifferentiated band of "no stated position".
+  eq(sr.ranked.length, FIELD.length,
+    "the stated ruler ranks a field the record can answer, rather than banding all of it");
+  eq(sr.gap.length, 0, "…so nobody is banded as unanswerable");
+  lacks(shtml, "No stated position on your issues yet",
+    "…and the admission is not printed over a sheet that demonstrably has an answer");
+  // …and every one of those answers is marked, on the face, as record-derived.
+  has(shtml, "From the record",
+    "each stood-in cell carries the baseline tag rather than passing as a quote");
+  has(shtml, "No stance on file · not in Direction Match",
+    "…over the same two-fact disclosure the record ruler prints");
+  lacks(shtml, "Says:",
+    "…and the word \"Says\" appears nowhere, because nothing here was said");
+  // The pointer to the other tab is gone BECAUSE it is no longer needed: the
+  // record already answered, in this tab. It survives for the case it was written
+  // for — a candidate the record cannot answer either — which section 5 covers.
+  lacks(shtml, "open Your Match · record",
+    "…and the cross-tab pointer is not printed where this tab already answered");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

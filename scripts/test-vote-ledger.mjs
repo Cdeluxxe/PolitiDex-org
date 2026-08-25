@@ -328,7 +328,17 @@ has(orTxt, "on record and listed in full below", "…and points at the record it
 // sentence fails in the file that owns it as well as in the one that guards it.
 has(LED.rowVerdict(ovDark).why, "not stated a position",
   "the reason names the absent stated position, not a defect in the record");
-has(orTxt, "no position on record", "the says-chip states the missing side plainly");
+// …and the chip beside it fills the stated slot the only honest way it can. With
+// no quote and a record that reads five-to-one in one direction, the slot carries
+// that direction as a BASELINE — the record's own word, under its own label, with
+// the Direction Match denial printed on the chip. It is never "Says:", and where
+// the record reads no side at all the chip falls back to naming the absence.
+has(orTxt, "Baseline:", "the says-chip stands the record's own direction in the empty slot");
+lacks(orTxt, "Says: no position on record",
+  "…rather than leaving the reader an absence over six listed instruments");
+has(orRow, "pdxor-baseline", "…marked as a baseline in the markup, not as a stance");
+has(orTxt, "Not in Direction Match", "…and disowning the score on its face");
+lacks(orRow, "💬 Says:", "no chip on this row claims a quoted position");
 
 // ── 6 · the scored issue is untouched ────────────────────────────────────────
 section("6 · a scored issue still teaches said-vs-did");

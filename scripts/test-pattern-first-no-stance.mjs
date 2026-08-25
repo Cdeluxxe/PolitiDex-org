@@ -541,30 +541,42 @@ section("7 · the race sheet lets the lane that has something to say lead");
   must(sheet.length > 800, "the race sheet painted nothing");
   eq(RS.pdxRaceSheetMatchMode(), "stated", "the reader is on the stated ruler");
 
-  const alt = (sheet.match(/data-rs-alt="record"/g) || []).length;
-  ok(alt >= 2, `${alt} stated-lane cells hand the slot to the record that does speak`);
-  must(alt >= 2, "no promoted cell to read — the rest of this section is untestable");
-
-  const cellRe = /<div class="rs-cell" data-rs-v="([^"]*)" data-rs-alt="([^"]*)">([\s\S]*?)<\/div><\/div>/g;
-  let n = 0, tinted = 0, unmarked = 0, silenceLed = 0;
+  // THE BASELINE OCCUPIES THE SLOT DIRECTLY NOW. This used to be a PROMOTION —
+  // the stated lane had nothing, so the record chip was lifted into the lead slot
+  // and marked data-rs-alt="record". Since the record-derived baseline shipped the
+  // stated lane's own answer on a silent issue IS the record's direction, so the
+  // chip is in the lead slot as the active lane's read rather than as a borrowed
+  // one. The observable contract is the same one, and it is asserted the same way:
+  // the lane that has something to say leads, it is stamped with the lane it came
+  // from, it is tagged as record-derived, and the missing quote is still stated —
+  // second, in words, with the Direction Match wall named.
+  const cellRe = /<div class="rs-cell" data-rs-v="([^"]*)"[^>]*>([\s\S]*?)<\/div><\/div>/g;
+  let n = 0, unmarked = 0, untagged = 0, silenceLed = 0, undisclosed = 0;
   let mm;
   while ((mm = cellRe.exec(sheet)) !== null) {
+    const lead = /<span class="rs-cell-lead">([\s\S]*?)<\/span><span class="rs-cell-other">/.exec(mm[2]);
+    const leadHtml = lead ? lead[1] : mm[2];
+    if (leadHtml.indexOf("Record pattern:") < 0) continue;   // not a record-led cell
     n++;
-    if (mm[1] !== "none") tinted++;
-    const lead = /<span class="rs-cell-lead">([\s\S]*?)<\/span><span class="rs-cell-other">/.exec(mm[3]);
-    const leadHtml = lead ? lead[1] : mm[3];
-    if (mm[2] === "record" && leadHtml.indexOf("Record pattern:") < 0) unmarked++;
+    if (leadHtml.indexOf("🏛") < 0) unmarked++;
+    if (leadHtml.indexOf("From the record") < 0) untagged++;
     if (leadHtml.indexOf("rs-cell-none") >= 0) silenceLed++;
+    if (mm[2].indexOf("not in Direction Match") < 0) undisclosed++;
   }
-  ok(n >= 2, `${n} promoted cells parsed`);
-  eq(tinted, 0,
-    "a promoted cell carries no verdict tint — the tint belongs to the ACTIVE lane's read");
+  ok(n >= 2, `${n} record-led cells on the stated ruler`);
+  must(n >= 2, "no record-led cell to read — the rest of this section is untestable");
   eq(unmarked, 0,
-    "every promoted record chip still says \"Record pattern:\" on its face");
+    "every record chip on the stated ruler still says \"🏛 Record pattern:\" on its face");
+  eq(untagged, 0,
+    "…and every one of them is tagged as coming from the record, not from them");
   eq(silenceLed, 0,
     "the silence never leads a cell that has a signal behind it");
-  has(sheet, "No documented position",
+  eq(undisclosed, 0,
+    "…and every one of them names the Direction Match wall in its second line");
+  has(sheet, "No stance on file",
     "…and the missing quote is still stated, just no longer first");
+  lacks(sheet, "Says:",
+    "…while nothing on a sheet with no quote in it claims anything was said");
 
   // The one thing that must NOT have moved: what the sheet ranks on.
   const part = RS.PDXRaceSheet._rank(RS.PDXRaceSheet._field("senate"), "stated", true);

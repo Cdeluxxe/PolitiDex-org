@@ -188,6 +188,34 @@
   var PATTERN_ONLY_NOTE = 'Inferred from the formal record pattern — this is not a quoted stance, ' +
     'and it is not counted in Direction Match.';
   var PATTERN_ONLY_TAG = 'Not in Direction Match';
+  // ── THE BASELINE, IN THE SAID SLOT ────────────────────────────────────────
+  // The Said slot on a pattern-only leaf used to be one grey word: "No stated
+  // position". True, and a statement about OUR FILE that reads as a statement
+  // about them — printed directly beside a Record chip carrying twelve roll calls
+  // that all went the same way. Where the shared derivation (PDXConsistency
+  // .baseline) reads a side off that record, the slot carries THAT side instead,
+  // under its own label so it can never be mistaken for something they said:
+  // "Baseline: Supports · from the record".
+  //   IT IS THE SAME READ AS THE CHIP BESIDE IT. The word comes from the shared
+  // baseline, which comes from the formal-pattern index, which is what the Record
+  // chip is already printing — one derivation, two projections of it, so the two
+  // halves of a leaf cannot disagree. `said.stated` stays false, `patternOnly`
+  // stays true, the "Not in Direction Match" tag stays on the row, and the
+  // With-stance filter still means what it always meant.
+  var BASELINE_LABEL = 'Baseline';
+  var BASELINE_FROM = 'from the record';
+  var BASELINE_NOTE = 'No stated position on file, so the direction of the formal record itself ' +
+    'stands in as the baseline. It is a reading of the votes, not a quoted stance, and it is not ' +
+    'counted in Direction Match.';
+  // ── AND WHAT THE RECORD RODE IN ON ──────────────────────────────────────────
+  // A leaf is one line, so this is the shortest true form of the disclosure: a
+  // tag saying the formal signal on this issue travelled inside a larger measure
+  // rather than as a vote on the issue. The full sentence and the bill numbers are
+  // on the title and in the accessible name, and the row's own dossier holds the
+  // instruments. Nothing is derived here — PDXConsistency.vehicle.read is the same
+  // read the index row and the record chip use, so a leaf cannot disagree with the
+  // row it opens. It changes no slot, no cue, no band and no ordering.
+  var VEHICLE_TAG = 'In a package';
   var TREE_NOTE = 'Said is their own stated position. 🏛 Record is what the formal record on file ' +
     'did — one item is enough to show a line, and the depth beside it says how much is behind it. ' +
     'Where Direction Match has tested an issue the slot carries that verdict and its %; a record with ' +
@@ -318,6 +346,9 @@
     { key: 'only', label: 'Pattern only',
       title: 'A formal record on file with no stated position to compare it against.',
       test: function (lf) { return !!lf.patternOnly; } },
+    { key: 'baseline', label: 'From record',
+      title: 'No stated position on file — the formal record\'s own direction stands in as the baseline.',
+      test: function (lf) { return !!lf.baseline; } },
     { key: 'onfile', label: 'Formal on file',
       title: 'At least one formal item on the record for that issue.',
       test: function (lf) { return !!(lf.record && lf.record.onRecord); } }
@@ -454,6 +485,27 @@
     if (!stanceKey && !onRecord) return null;
 
     var patternOnly = !stanceKey;
+    // The baseline, from the shared derivation and never re-derived here. Only on
+    // a leaf with no stated position — a quote always wins, and the accessor
+    // enforces that on its own side too.
+    var baseline = null;
+    if (patternOnly) {
+      try {
+        if (CS && CS.baseline && typeof CS.baseline.for === 'function') {
+          baseline = CS.baseline.for(row.pid, row.key) || null;
+        }
+      } catch (e) { baseline = null; }
+    }
+    // The vehicle read is NOT gated on patternOnly: a stated position does not
+    // make the votes behind it standalone, and a row with a quote is exactly where
+    // a package-borne record most looks like a clean one.
+    var vehicle = null;
+    try {
+      if (CS && CS.vehicle && typeof CS.vehicle.read === 'function') {
+        var vr = CS.vehicle.read(row.pid, row.key);
+        if (vr && vr.line) vehicle = { line: vr.line, short: vr.short || '', note: vr.note || '' };
+      }
+    } catch (e) { vehicle = null; }
     // The cue needs two directional facts. A stated Mixed, a Split record, a
     // record with no direction read from it yet, or no record at all all land on
     // `split`/no-cue rather than being forced into agreement or disagreement.
@@ -506,6 +558,14 @@
       } : null,
       cue: cue,
       patternOnly: patternOnly,
+      // { stance, word, tier, tone, counts } or null — the projection this file
+      // prints, so nothing downstream reaches into the shared entry's internals.
+      baseline: baseline ? {
+        stance: baseline.stance, word: baseline.word, tier: baseline.tier,
+        tone: baseline.tone, counts: baseline.counts || ''
+      } : null,
+      // { line, short, note } or null. Presentation only; see VEHICLE_TAG above.
+      vehicle: vehicle,
       quiet: quiet,
       band: band,
       rank: rank,
@@ -634,6 +694,11 @@
     var s = lf.label + '. ';
     s += lf.said.stated ? ('Their stated position: ' + lf.said.label + '. ')
                         : 'No stated position on file. ';
+    // The baseline is read out in the same breath as the absence it fills, so a
+    // screen reader never hears a side without hearing where it came from.
+    if (!lf.said.stated && lf.baseline) {
+      s += 'Baseline from the formal record: ' + lf.baseline.word + '. ';
+    }
     // THE RECORD HALF, IN THE STATE IT IS ACTUALLY IN. Five states, five sentences,
     // and none of them is silence: a screen reader that hears the Said half and
     // then nothing cannot tell "we hold no formal record" apart from "we did not
@@ -664,6 +729,10 @@
     if (rc && rc.why && rc.why.note) s += rc.why.note + ' ';
     if (lf.cue && lf.said.stated && rc && rc.onRecord) s += lf.cue.label + ' — ' + lf.cue.note + ' ';
     if (lf.patternOnly) s += PATTERN_ONLY_NOTE + ' ';
+    // The vehicle, in full, after the record it qualifies — a screen reader that
+    // heard "Thin opposes, 3 on file" and nothing else has been told the same
+    // half-truth the printed tag exists to end.
+    if (lf.vehicle) s += lf.vehicle.line + '. ';
     return s + 'Opens the issue dossier.';
   }
 
@@ -718,7 +787,8 @@
   function leafHtml(lf, uid) {
     var id = leafId(uid, lf.key);
     var rc = lf.record;
-    var title = lf.patternOnly ? PATTERN_ONLY_NOTE : ((rc && rc.note) || '');
+    var title = lf.baseline ? BASELINE_NOTE
+      : lf.patternOnly ? PATTERN_ONLY_NOTE : ((rc && rc.note) || '');
     return '<div class="pdxtree-leaf' + (lf.skin.on ? ' pdxtree-ic' : '') +
         (lf.patternOnly ? ' is-patternonly' : '') + (lf.quiet ? ' is-quiet' : '') + '"' +
         ' style="' + escAttr(lf.skin.style) + '"' +
@@ -728,7 +798,9 @@
         ' data-pdxtree-pat="' + escAttr(rc ? rc.tier : 'none') + '"' +
         ' data-pdxtree-rec="' + escAttr(rc ? rc.state : 'none') + '"' +
         ' data-pdxtree-cue="' + escAttr(lf.cue ? lf.cue.key : '') + '"' +
-        ' data-pdxtree-only="' + (lf.patternOnly ? '1' : '0') + '">' +
+        ' data-pdxtree-only="' + (lf.patternOnly ? '1' : '0') + '"' +
+        ' data-pdxtree-baseline="' + escAttr(lf.baseline ? lf.baseline.stance : '') + '"' +
+        (lf.vehicle ? ' data-pdxtree-vehicle="1"' : '') + '>' +
         '<button type="button" class="pdxtree-face" id="' + escAttr(id) + '"' +
           ' data-pdxtree-dos="' + escAttr(lf.key) + '"' +
           ' data-pdxtree-pid="' + escAttr(lf.pid) + '"' +
@@ -738,13 +810,20 @@
           '<span class="pdxtree-dot" aria-hidden="true"></span>' +
           '<span class="pdxtree-name">' + esc(lf.label) + '</span>' +
           '<span class="pdxtree-slots" aria-hidden="true">' +
-            '<span class="pdxtree-said s-' + escAttr(lf.said.key) + '">' +
-              '<b>Said:</b> ' + esc(lf.said.label) + '</span>' +
+            (lf.baseline
+              ? '<span class="pdxtree-said s-' + escAttr(lf.baseline.stance) + ' is-baseline"' +
+                  ' title="' + escAttr(BASELINE_NOTE) + '">' +
+                  '<b>' + esc(BASELINE_LABEL) + ':</b> ' + esc(lf.baseline.word) +
+                  '<i class="pdxtree-basefrom"> \u00b7 ' + esc(BASELINE_FROM) + '</i></span>'
+              : '<span class="pdxtree-said s-' + escAttr(lf.said.key) + '">' +
+                  '<b>Said:</b> ' + esc(lf.said.label) + '</span>') +
             recHtml(rc) +
             pctHtml(rc) +
             (lf.cue ? '<span class="pdxtree-cue c-' + escAttr(lf.cue.key) + '">' +
                         esc(lf.cue.label) + '</span>' : '') +
             (lf.patternOnly ? '<span class="pdxtree-tag">' + esc(PATTERN_ONLY_TAG) + '</span>' : '') +
+            (lf.vehicle ? '<span class="pdxtree-veh" title="' + escAttr(lf.vehicle.note) + '">' +
+                            '\uD83D\uDE82 ' + esc(VEHICLE_TAG) + '</span>' : '') +
           '</span>' +
           '<span class="pdxtree-go" aria-hidden="true">›</span>' +
         '</button>' +
@@ -960,8 +1039,11 @@
         return branchHtml(g, uid, openKeys.indexOf(g.key) !== -1);
       }).join('');
     }
-    var anyOnly = false;
-    shown.forEach(function (lf) { if (lf.patternOnly) anyOnly = true; });
+    var anyOnly = false, anyBase = false;
+    shown.forEach(function (lf) {
+      if (lf.patternOnly) anyOnly = true;
+      if (lf.baseline) anyBase = true;
+    });
     // The notes live INSIDE the tree element: a filter chip re-renders this whole
     // block in place, and a disclosure that was a sibling of it would survive a
     // repaint that removed the rows it was disclosing.
@@ -969,6 +1051,8 @@
       '<p class="pdxtree-note">' + esc(TREE_NOTE) + '</p>' +
       (anyOnly ? '<p class="pdxtree-note pdxtree-note-only"><span class="pdxtree-tag">' +
         esc(PATTERN_ONLY_TAG) + '</span> ' + esc(PATTERN_ONLY_NOTE) + '</p>' : '') +
+      (anyBase ? '<p class="pdxtree-note pdxtree-note-only"><span class="pdxtree-tag">' +
+        esc(BASELINE_LABEL) + '</span> ' + esc(BASELINE_NOTE) + '</p>' : '') +
       '</div>';
   }
 
@@ -1429,6 +1513,8 @@
     NOTE: TREE_NOTE,
     PATTERN_ONLY_NOTE: PATTERN_ONLY_NOTE,
     PATTERN_ONLY_TAG: PATTERN_ONLY_TAG,
+    BASELINE_LABEL: BASELINE_LABEL,
+    BASELINE_NOTE: BASELINE_NOTE,
     PHONE: PHONE,
     // The open/close rule, exposed so the mobile behaviour is asserted as a rule
     // rather than inferred from the markup.

@@ -1625,6 +1625,10 @@
       '.pdxor-why-act{display:block;font-size:0.68rem;color:#c6d4ec;line-height:1.5;margin-top:0.25rem;}' +
       '.pdxor-omni b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-omnichip{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.6rem;font-weight:700;color:#93a6c4;border:1px dashed rgba(147,166,196,0.4);border-radius:999px;padding:0.05rem 0.4rem;white-space:nowrap;cursor:help;}' +
+      // Warmer than the omnibus chip and allowed to wrap: this one is a sentence,
+      // not a count, and truncating it to one line would lose the bill number that
+      // makes it checkable.
+      '.pdxor-vehchip{display:inline-flex;align-items:center;gap:0.22rem;font-size:0.6rem;font-weight:700;color:#d0ab6e;border:1px dashed rgba(208,171,110,0.45);border-radius:999px;padding:0.05rem 0.45rem;white-space:normal;cursor:help;}' +
       // ── Stance-row proof (Says · Record · which vote) ────────────────────────
       // The row is a <details>: the summary carries the scannable answer (stated
       // position, what the record shows, the decisive bill), the body carries every
@@ -1641,6 +1645,10 @@
       // The "Says: Supports" chip's honest counterpart — no stated position to check
       // the mapped votes against. Dashed so it never reads as a stated stance.
       '.pdxor-stance-none{border-style:dashed;font-weight:600;}' +
+      // The baseline wears the absence on its face: dashed like the none-chip it
+      // replaces, never the solid outline a stated position gets.
+      '.pdxor-baseline{border-style:dashed;font-weight:700;}' +
+      '.pdxor-basetag{margin-left:0.3rem;font-style:normal;font-size:0.54rem;letter-spacing:0.04em;text-transform:uppercase;font-weight:800;opacity:0.85;}' +
       // "Record: …" chip. Slightly wider tracking than a bare verdict chip because it
       // now carries a label AND a value, and the two must not run together.
       '.pdxor-recchip{cursor:help;}' +
@@ -2410,6 +2418,9 @@
         '.pdxfpi-lbl{min-height:2.4rem;}}' +
       '.pdxfpi-chips{display:flex;align-items:center;flex-wrap:wrap;gap:0.26rem;}' +
       '.pdxfpi-meta{font-size:0.63rem;color:#6f88ab;white-space:nowrap;}' +
+      '.pdxfpi-veh{flex:0 0 100%;font-size:0.63rem;line-height:1.35;color:#d0ab6e;' +
+        'display:block;letter-spacing:0.01em;}' +
+      '.pdxfpi-veh b{font-weight:400;opacity:0.9;}' +
       '.pdxfpi-none{font-size:0.74rem;color:#8fa6c6;padding:0.5rem 0;}' +
       '.pdxfpi-foot{font-size:0.66rem;color:#6f88ab;line-height:1.45;margin:0.5rem 0 0;'
         + 'border-top:1px solid rgba(147,180,230,0.12);padding-top:0.45rem;}' +
@@ -2456,6 +2467,10 @@
       // wants the Direction Match state finds it in the same words in the same
       // place, one step further down the page than it used to be.
       '.pdxst-leadwrap{margin-top:0.24rem;}' +
+      // Indented under the lead it qualifies, warm rather than alarming: this is
+      // context about the vehicle, not a warning about the member.
+      '.pdxst-veh{margin:0.2rem 0 0;padding-left:0.5rem;border-left:2px solid rgba(208,171,110,0.45);' +
+        'font-size:0.66rem;line-height:1.4;color:#d0ab6e;}' +
       '.pdxst-lead{display:flex;align-items:baseline;gap:0.34rem;flex-wrap:wrap;width:100%;text-align:left;' +
         'background:rgba(10,15,30,0.34);border:1px solid rgba(159,180,212,0.16);border-radius:0.4rem;' +
         'padding:0.26rem 0.42rem;color:inherit;font:inherit;}' +
@@ -3081,6 +3096,30 @@
     var m = _OR_STANCE[s]; if (!m) return '';
     return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' Says: ' + m.lb + '</span>';
   }
+  // ── THE BASELINE CHIP ───────────────────────────────────────────────────────
+  // The same slot _orStanceChip fills for a stated position, filled from the
+  // formal record instead when there is no stated position to fill it with. Three
+  // rules hold it apart from the chip above it, and all three are visible:
+  // the label is "Baseline", not "Says"; the words are the record lane's own read
+  // (_RD_SAYS, via the baseline projection) rather than the stance vocabulary; and
+  // the chip states in its own accessible name that it is not counted in Direction
+  // Match. It is grey because it is not a side anyone took in words.
+  function _blChipHtml(x) { return _blChipOf(_blEntry(x)); }
+  // The same chip, addressed by (pid, issue) for callers that hold a key rather
+  // than a formal-pattern row. Both doors reach one projection, so a baseline
+  // cannot read one way in the index and another way on the record row.
+  function _blChipAt(pid, issueKey) {
+    try { return _blChipOf(baselineFor(pid, issueKey)); } catch (e) { return ''; }
+  }
+  function _blChipOf(b) {
+    if (!b) return '';
+    return '<span class="pdxor-stance pdxor-baseline" style="--c:#9fb4d4"' +
+      ' data-pdxor-baseline="' + escAttr(b.stance) + '"' +
+      ' title="' + escAttr(_BL_NOTE) + '"' +
+      ' aria-label="' + escAttr('Baseline from the formal record: ' + b.word + '. ' + _BL_NOTE) + '">' +
+      '\uD83C\uDFDB Baseline: ' + esc(b.word) +
+      '<i class="pdxor-basetag">' + esc(_BL_NOT_DM) + '</i></span>';
+  }
   // Omnibus provenance chip for one (pid, issue): how much of this issue's verdict
   // rests on votes that were also about other things. Reads the shared helper the
   // Voting Record exposes (window._pdxRecordOmnibusStats), which in turn reads the
@@ -3099,6 +3138,26 @@
       // this chip would be hover-only and dead on touch.
       return '<span class="pdxor-omnichip" title="' + esc(tip) + '">🧩 ' + st.omnibus + ' of ' + st.total +
         ' from ' + LT('omnibus', 'multi-issue bills') + '</span>';
+    } catch (e) { return ''; }
+  }
+  // ── AND WHETHER THE POLICY WAS DRIVING THE BILL ─────────────────────────────
+  // The chip beside the one above, and the distinction between them is the whole
+  // point. 🧩 says this verdict shares roll calls with other issues — true of a
+  // great deal of ordinary legislating, and by itself no criticism of anything.
+  // 🚂 says something narrower and rarer: that on THIS issue the formal signal is
+  // mostly or wholly provisions carried inside larger measures, so there was no
+  // clean up-or-down vote to point at. Most multi-issue rows get 🧩 and not 🚂;
+  // the ones that get both are the ones worth reading twice.
+  //   The sentence is the index row's own — _vehLineAt reads it off _fpiRows — so
+  // the chip here and the line there can never word the same record differently.
+  function _orVehChip(pid, issueKey) {
+    try {
+      var got = _vehLineAt(pid, issueKey);
+      if (!got || !got.line) return '';
+      return '<span class="pdxor-vehchip" title="' + escAttr(got.note) + '"' +
+        ' data-pdxor-vehicle="' + escAttr((got.v && got.v.sole) || 'multiple') + '"' +
+        ' aria-label="' + escAttr(got.line + '. ' + got.note) + '">' +
+        '\uD83D\uDE82 ' + esc(got.line) + '</span>';
     } catch (e) { return ''; }
   }
 
@@ -3516,6 +3575,13 @@
   function _orSaysChipHtml(pid, issueKey, ov) {
     var chip = _orStanceChip(pid, issueKey);
     if (chip) return chip;
+    // Before naming the absence, ask whether the record itself reads a side. Where
+    // it does, that direction is the baseline and it belongs in this slot — a
+    // reader looking at a row of mapped votes is better served by "the record
+    // leans this way, and it is not scored" than by "no position on record".
+    // Where it does not, the sentence below is still the honest one.
+    var bl = _blChipAt(pid, issueKey);
+    if (bl) return bl;
     var n = _orNoun(ov);
     var has = !!(ov && ov.record && ov.record.total) || _orExecTouched(ov);
     if (!has) return '';
@@ -5022,6 +5088,7 @@
                 _orRecordChipHtml(s.ov) + pct + comp +
                 _orOneMeasureChip(pid, s.key, s.ov) +
                 _orOmniChip(pid, s.key) +
+                _orVehChip(pid, s.key) +
                 '<span class="pdxor-caret" aria-hidden="true">▾</span>' +
               '</div>' +
               _orProofHtml(pid, s.key, s.ov, inline) +
@@ -6315,6 +6382,22 @@
     return '<div class="pdxst-lead" data-pdxst-says="' + escAttr((d.says && d.says.key) || 'onfile') + '"' +
       ' role="img" aria-label="' + escAttr(say) + '" title="' + escAttr(say) + '">' + body + '</div>';
   }
+  // THE LINE DIRECTLY UNDER THE LEAD, and directly under it on purpose. The lead
+  // says what the record did; this says what the record was ATTACHED TO, which is
+  // the sentence a reader needs before they decide how deliberate the lead looks.
+  // It does not modify the lead, contradict it, or soften its word — the direction
+  // above stands exactly as it stood, and the counts beside it are the same counts.
+  // Rows whose record is ordinary votes render nothing here at all.
+  function _stVehHtml(r) {
+    if (!r || !r.pid || !r.key) return '';
+    var got;
+    try { got = _vehLineAt(r.pid, r.key); } catch (e) { return ''; }
+    if (!got || !got.line) return '';
+    return '<div class="pdxst-veh" role="note" title="' + escAttr(got.note) + '"' +
+      ' data-pdxst-vehicle="' + escAttr((got.v && got.v.sole) || 'multiple') + '"' +
+      ' aria-label="' + escAttr(got.line + '. ' + got.note) + '">' +
+      '<span aria-hidden="true">\uD83D\uDE82</span> ' + esc(got.line) + '</div>';
+  }
 
   // The result line: the number, what it is a percentage OF, and the outcome word.
   function _stResultHtml(r, res) {
@@ -6437,6 +6520,7 @@
       : '';
     var tLead = _stLeadHtml(r, res);
     return (tLead ? '<div class="pdxst-leadwrap">' + tLead + '</div>' : '') +
+      _stVehHtml(r) +
       '<div class="pdxst-result pdxst-r-' + res.cls + (tLead ? ' pdxst-r-demoted' : '') +
         '" title="' + escAttr(tip) + '" aria-label="' + escAttr(tip) + '">' +
         lane +
@@ -7624,6 +7708,21 @@
         stance: (r.stance && r.stance.label) ? r.stance.label : '',
         pat: t,
         row: r,
+        // THE VEHICLE. Presentation only. Nothing above this line was computed
+        // from it, nothing below it reads it as a gate, and no tier, count,
+        // confidence or percentage changes because it is or is not set. See the
+        // wall over _vehLine for what it is allowed to say.
+        //   AND ONLY ON A ROW THAT READ SOMETHING. `t` is the gate, and it is the
+        // gate because the disclosure is a sentence about HOW this issue's formal
+        // support or opposition travelled — which presupposes there is some. A row
+        // the engine refused already says the stronger, truer thing in its own
+        // words ("Not about this issue", "No side to read on this issue"), and
+        // hanging "carried as a provision inside H.R. 1319" under that would be
+        // this feature over-claiming on exactly the population it has least to say
+        // about. Across the shipped corpus the gate is the difference between
+        // 1,954 marked rows and 386: four fifths of what the raw tally would have
+        // flagged are refusals, and not one of them is a finding.
+        vehicle: t ? vehicleRead(r.pid, r.key) : null,
         rank: t ? (_FPI_RANK.hasOwnProperty(t.tier) ? _FPI_RANK[t.tier] : _FPI_RANK.none)
                 : _FPI_UNREAD_RANK
       });
@@ -7648,6 +7747,294 @@
       });
     }
     return out;
+  }
+
+  // ── 🏛 THE RECORD-DERIVED BASELINE ──────────────────────────────────────────
+  // WHAT IT IS. An issue with no stated position on file is not an issue with
+  // nothing known about it. Where the formal record has a readable side, the
+  // BASELINE is that side — worded in the record lane's own vocabulary, and marked
+  // on every surface that prints it as coming from the record rather than from the
+  // person's mouth. It exists because "No stance on file" was being printed over
+  // twenty mapped roll calls that all went the same way, and that sentence is a
+  // statement about our curation which readers take as a statement about them.
+  //
+  // WHERE IT COMES FROM: _fpiRows() and nothing else. Every field below is lifted
+  // off a row of the formal-pattern index — its tier, its tone, its label, its
+  // counts, its `says` word — so a baseline can never characterise a record
+  // differently from the chip printed beside it. There is no second engine here,
+  // no second vocabulary, and no threshold of its own. A row the pattern engine
+  // declined to read (`read: false`) has no baseline; so does a poleless issue and
+  // an incidental omnibus brush, because those refusals already happened upstream
+  // in _recordDirectionIndex and this function is never handed a side for them.
+  // Two absences are still not a finding: an issue with no stated position and no
+  // readable record produces nothing at all, exactly as it did before.
+  //
+  // STATED ALWAYS WINS. A row carrying a stated position (`said`) is skipped
+  // outright, so a baseline can only ever fill a hole. When a stance is later
+  // curated for that issue the row gains `said`, this function stops emitting for
+  // it on the next epoch, and the stated position takes the slot back — no
+  // migration, no precedence table, nothing to clean up.
+  //
+  // AND IT NEVER TOUCHES DIRECTION MATCH. This is the whole reason the derivation
+  // lives here and not in the position map. Direction Match reads the CURATED LIST
+  // directly — window._resolveStanceList, through PDXWordAction.wordLedger — and
+  // nothing below writes to that list, to ISSUE_STANCE_DATA, to _polPositionMap or
+  // to positionStance. The baseline is published BESIDE the stated map and is
+  // never merged into it, so a derived side cannot become its own "stated"
+  // position and score itself against the record it was read from. That
+  // circularity is the one failure mode this feature could have had, and the fix
+  // is structural rather than conditional: there is no write path.
+  // scripts/test-record-baseline-stance.mjs holds the percentage and its tested
+  // count byte-identical with the baseline read and unread.
+  var _BL_TAG = 'From the record';
+  var _BL_NOT_DM = 'Not in Direction Match';
+  var _BL_NOTE = 'No stated position on file — this is the direction of the formal ' +
+    'record itself, not a quoted stance, and it is not counted in Direction Match.';
+  // tone → the three-word stance vocabulary the rest of the app already speaks
+  // (SAID in stance-tree.js, the position map, the alignment side table). `muted`
+  // has no entry and never gets one: a record with no read has no baseline.
+  var _BL_SIDE = { support: 'support', oppose: 'oppose', mixed: 'mixed' };
+  function _blLead() { return window._PDX_RD_SAYS_LEAD || 'The record indicates'; }
+  // One index row → one baseline entry, or null. Every refusal here is a refusal
+  // the row already carried; nothing is re-decided.
+  function _blEntry(x) {
+    if (!x || !x.read || x.said) return null;
+    var side = _BL_SIDE[x.tone];
+    if (!side) return null;
+    var says = (x.pat && x.pat.says) || null;
+    var word = says ? says.label : (x.patLabel || '');
+    if (!word) return null;
+    var lead = _blLead();
+    return {
+      pid: x.pid, key: x.key, label: x.label,
+      // The stance vocabulary, so a surface can drop this in where a stated stance
+      // would have gone. `basis` is what stops it being mistaken for one.
+      stance: side,
+      basis: 'record', derived: true, stated: false,
+      // The reader-facing word, from the engine's own nine states, and the framed
+      // sentence a surface can print without composing one of its own.
+      word: word,
+      says: says ? says.key : '',
+      text: lead + ': ' + word + (x.counts ? ' — ' + x.counts : ''),
+      patLabel: x.patLabel || '',
+      tier: x.tier, weight: x.weight, tone: x.tone,
+      directional: !!x.directional,
+      counts: x.counts || '', judged: x.judged || 0, held: x.held || 0,
+      single: !!x.single, noun: x.noun,
+      lead: lead, tag: _BL_TAG, notInDm: _BL_NOT_DM, note: _BL_NOTE,
+      // THE VEHICLE, CARRIED NOT RE-DERIVED. A baseline read off a record made of
+      // riders must be able to say so wherever it is printed — the tree, the
+      // alignment breakdown, the race sheet — without each of those surfaces
+      // learning the detection. Empty strings on an ordinary row, so a surface can
+      // print `vehicleLine` unconditionally and get nothing when there is nothing.
+      vehicle: x.vehicle || null,
+      vehicleLine: _vehLine(x.vehicle, x.tone),
+      vehicleShort: _vehShort(x.vehicle),
+      vehicleNote: _vehNote(x.vehicle),
+      pat: x.pat || null
+    };
+  }
+  // MEMOIZED per politician per epoch, on the same key shape issueRows() uses —
+  // the exec term scope is part of the answer because it is part of the row model
+  // this reads. Callers treat the array and its entries as read-only.
+  var _blCache = {}, _blEpoch = 0;
+  function baselineRows(pid) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_blEpoch !== ep) { _blCache = {}; _blMerged = {}; _blEpoch = ep; }
+    var k = norm(pid) + '||' + execTermScope().key;
+    if (Object.prototype.hasOwnProperty.call(_blCache, k)) return _blCache[k];
+    var out = [];
+    try {
+      (_fpiRows(pid) || []).forEach(function (x) {
+        var e = _blEntry(x);
+        if (e) out.push(e);
+      });
+    } catch (e) { out = []; }
+    _blCache[k] = out;
+    return out;
+  }
+  function baselineMap(pid) {
+    var out = {};
+    baselineRows(pid).forEach(function (e) { out[e.key] = e; });
+    return out;
+  }
+  function baselineFor(pid, issueKey) {
+    if (!issueKey) return null;
+    var rows = baselineRows(pid);
+    for (var i = 0; i < rows.length; i++) if (rows[i].key === issueKey) return rows[i];
+    return null;
+  }
+  // ── THE MERGED POSITION READ ────────────────────────────────────────────────
+  // The stated map with the baseline filling its holes, and the drop-in a surface
+  // reaches for when it was calling _polPositionMap only to print "no stance" half
+  // the time. Same key space, same `stance` vocabulary; `basis` says which lane an
+  // entry came from and is the field a surface MUST branch on before it words the
+  // line. Stated entries keep every curated field they had.
+  //
+  // This is a SECOND map, not a replacement: _polPositionMap is untouched, still
+  // memoized, still the only thing the scoring lanes read. Nothing here is written
+  // back to it.
+  var _blMerged = {};
+  function baselinePositions(pid, p) {
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_blEpoch !== ep) { _blCache = {}; _blMerged = {}; _blEpoch = ep; }
+    var k = norm(pid) + '||' + execTermScope().key + '||' + String((p && p.name) || '');
+    if (Object.prototype.hasOwnProperty.call(_blMerged, k)) return _blMerged[k];
+    var out = {};
+    var stated = {};
+    try {
+      if (typeof window._polPositionMap === 'function') stated = window._polPositionMap(pid, p) || {};
+    } catch (e) { stated = {}; }
+    Object.keys(stated).forEach(function (key) {
+      var s = stated[key] || {};
+      out[key] = {
+        key: key, stance: s.stance, basis: 'stated', derived: false, stated: true,
+        word: '', text: s.text, topic: s.topic, icon: s.icon,
+        evidence: s.evidence, source: s.source
+      };
+    });
+    baselineRows(pid).forEach(function (e) {
+      // Belt and braces. `said` on the row already excluded these; this second
+      // guard is what makes "stated always wins" true of the MAP rather than only
+      // of the row model that fed it.
+      if (Object.prototype.hasOwnProperty.call(out, e.key)) return;
+      out[e.key] = e;
+    });
+    _blMerged[k] = out;
+    return out;
+  }
+  // Published as siblings of window._polPositionMap so a surface can switch one
+  // call and get coverage, and so nothing has to reach through PDXConsistency to
+  // do it. Read-only, memoized, and — see the wall above — with no path back into
+  // the stated map or into Direction Match.
+  window._polBaselineMap = function (id, p) { return baselinePositions(id, p); };
+  window._polBaselineStance = function (id, issueKey, p) {
+    if (!issueKey) return null;
+    var m = baselinePositions(id, p);
+    return m[issueKey] || null;
+  };
+  // ── 🚂 THE VEHICLE, AND WHETHER THE POLICY WAS DRIVING IT ───────────────────
+  // A row reading "Thin opposes — 0 advanced · 3 against" over three appropriations
+  // riders looks exactly like a row reading the same thing over three votes on the
+  // subject. It is not the same record, and until now nothing on the face said so.
+  //
+  // The detection is _recordVehicleStats in stance-helpers.js — three conditions,
+  // all required (multi-issue instrument, non-primary mapping, narrow curator
+  // weight), and then a row-level share threshold before the ROW claims anything.
+  // The long note over that function explains why each condition is there and what
+  // happens to the population without it. Nothing is detected here; this half is
+  // the copy and the caching.
+  //
+  // WHAT THIS MAY NOT DO. It may not weaken the record. The pattern still reads,
+  // the tier is still the tier, the counts are still the counts, and the chip still
+  // says what it said — a vote cast on a package is a vote the member cast, and
+  // burying it would be the mirror of the dishonesty this fixes. The disclosure
+  // sits BESIDE the finding, never in place of it. And it touches no gate: no tier,
+  // no floor, no percentage and nothing in Direction Match reads a single field
+  // below.
+  var _VEH_TAG = 'Rode inside a package';
+  var _VEH_NOTE = 'This issue\u2019s formal record here is made of provisions carried inside ' +
+    'larger measures rather than votes on the issue itself. The votes are real and are ' +
+    'listed in full \u2014 what they were votes ON was the package.';
+  // The face line, and the reason it is a function rather than a string: it names
+  // the vehicle where there is exactly one to name, and stays general where the
+  // policy rode several. `dir` is the row's own direction word if it has one, so the
+  // sentence matches the chip above it instead of arguing with it.
+  //   'support' -> "Advanced as a provision inside H.R. 7148, not as a standalone vote"
+  //   'oppose'  -> "Opposed as a provision inside H.R. 7148, not as a standalone vote"
+  //   null      -> "Carried as provisions inside larger measures, not as standalone votes"
+  // `tone` is the ROW's tone, taken from the row — this sentence never decides a
+  // direction of its own, and on a split or unread row it stays neutral.
+  function _vehLine(v, tone) {
+    if (!v || !v.stowaway) return '';
+    var verb = (tone === 'support') ? 'Advanced' : (tone === 'oppose') ? 'Opposed' : 'Carried';
+    var one = v.provision === 1;
+    var noun = one ? 'a provision' : 'provisions';
+    var tail = one ? ', not as a standalone vote' : ', not as standalone votes';
+    return verb + ' as ' + noun + ' ' + _vehWhere(v) + tail;
+  }
+  // NAME THE BILL WHERE NAMING IT FITS. "a larger measure" is a shape; "H.R. 7148"
+  // is something a reader can go and look up, and the brief asks for the name. Two
+  // fit on a row; beyond that the line stops being readable, so the count leads and
+  // the full list stays one hover (and one accessible name) away in _vehNote.
+  function _vehWhere(v) {
+    var n = v.vehicles.length;
+    if (n === 1) return 'inside ' + v.vehicles[0];
+    if (n === 2) return 'inside ' + v.vehicles[0] + ' and ' + v.vehicles[1];
+    return 'inside ' + n + ' larger measures';
+  }
+  // The same fact at chip length, for a slot that cannot hold a sentence.
+  function _vehShort(v) {
+    if (!v || !v.stowaway) return '';
+    return v.sole ? ('Inside ' + v.sole) : 'Inside larger measures';
+  }
+  // The full disclosure, for a title and an accessible name. Names the vehicles it
+  // can name, because "a larger measure" is not checkable and a bill number is.
+  function _vehNote(v) {
+    if (!v || !v.stowaway) return '';
+    var lead = v.only
+      ? 'Every mapped instrument on this issue was a larger measure carrying it as a provision.'
+      : (v.provision + ' of ' + v.total + ' mapped instruments on this issue carried it as a provision ' +
+         'inside a larger measure.');
+    var named = v.vehicles.length
+      ? (' The ' + (v.vehicles.length === 1 ? 'vehicle was ' : 'vehicles were ') + v.vehicles.join(', ') + '.')
+      : '';
+    return lead + named + ' ' + _VEH_NOTE;
+  }
+  // MEMOIZED per (pid, issue) per epoch, on the same counter every other derived
+  // read here uses. The underlying tally walks the member's whole record once per
+  // issue and a profile asks for it once per row.
+  var _vehCache = {}, _vehEpoch = 0;
+  function vehicleRead(pid, issueKey) {
+    if (!pid || !issueKey) return null;
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_vehEpoch !== ep) { _vehCache = {}; _vehEpoch = ep; }
+    var k = norm(pid) + '||' + issueKey;
+    if (Object.prototype.hasOwnProperty.call(_vehCache, k)) return _vehCache[k];
+    var v = null;
+    try {
+      if (typeof window._pdxRecordVehicleStats === 'function') {
+        v = window._pdxRecordVehicleStats(pid, issueKey) || null;
+      }
+    } catch (e) { v = null; }
+    _vehCache[k] = v;
+    return v;
+  }
+  // True only when the row should WEAR it. Every caller below gates on this rather
+  // than on the raw counts, so "when does this show" is one decision in one place.
+  function vehicleStowaway(pid, issueKey) {
+    var v = vehicleRead(pid, issueKey);
+    return !!(v && v.stowaway);
+  }
+  // THE ROW'S OWN SENTENCE, ADDRESSED BY KEY. Surfaces that hold a (pid, issue)
+  // rather than an index row — the Official Record list, a stance row — need the
+  // same wording the index prints, including its direction word, and must not
+  // compose a second one. So this reads the index once per politician per epoch
+  // and hands back what that row already says. Empty object when there is nothing
+  // to disclose, so every caller can print unconditionally.
+  var _vehLines = {}, _vehLinesEpoch = 0, _VEH_NONE = { line: '', short: '', note: '', v: null };
+  function _vehLineAt(pid, issueKey) {
+    if (!pid || !issueKey) return _VEH_NONE;
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_vehLinesEpoch !== ep) { _vehLines = {}; _vehLinesEpoch = ep; }
+    var mk = norm(pid) + '||' + execTermScope().key;
+    var m = _vehLines[mk];
+    if (!m) {
+      m = {};
+      try {
+        (_fpiRows(pid) || []).forEach(function (x) {
+          if (!x || !x.vehicle || !x.vehicle.stowaway) return;
+          m[x.key] = {
+            line: _vehLine(x.vehicle, x.tone),
+            short: _vehShort(x.vehicle),
+            note: _vehNote(x.vehicle),
+            v: x.vehicle
+          };
+        });
+      } catch (e) { m = {}; }
+      _vehLines[mk] = m;
+    }
+    return m[issueKey] || _VEH_NONE;
   }
 
   // ── 🏛 THE SHAPE OF THE RECORD, IN FOUR FACTS ───────────────────────────────
@@ -8288,7 +8675,19 @@
     // the same reason: the chip is the fact every row here has, and "Says: …" is
     // the one only some of them do.
     var chip = x.read ? _stPatternHtml(x.row, x.pat) : _fpiUnreadHtml(x);
-    var says = x.stance ? _orStanceChip(x.pid, x.key) : '';
+    // NOTHING SAID, AND A RECORD THAT READS A SIDE. The says slot used to go
+    // empty here, which left the index printing a pattern with no position beside
+    // it on exactly the rows where the pattern is the only position there is. The
+    // baseline fills that slot with the record's own direction — in the record
+    // lane's own words, under its own label, never "Says:" — and says on the chip
+    // itself that it is not in Direction Match. Stated always wins the slot: the
+    // baseline is only ever consulted when `x.stance` is empty.
+    var says = x.stance ? _orStanceChip(x.pid, x.key) : _blChipHtml(x);
+    // AND WHAT IT RODE IN ON. Below the chips, full width, only on the rows where
+    // the formal signal is mostly or wholly provisions inside larger measures.
+    // A clean standalone record gets nothing here — the absence of this line is
+    // what keeps the two kinds of row distinguishable at a glance.
+    var veh = _vehLine(x.vehicle, x.tone);
     var meta = x.held > 0
       ? (x.held + ' ' + (x.held === 1 ? x.noun.one : x.noun.many) + ' on file')
       : '';
@@ -8298,7 +8697,9 @@
         ' data-pdxfpi-tier="' + escAttr(x.tier) + '"' +
         ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
         ' data-pdxst-origin="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
-        ' data-pdxfpi-said="' + (x.said ? '1' : '0') + '">' +
+        ' data-pdxfpi-said="' + (x.said ? '1' : '0') + '"' +
+        (veh ? ' data-pdxfpi-vehicle="' + escAttr(x.vehicle.sole || 'multiple') + '"' : '') +
+        (says && !x.stance ? ' data-pdxfpi-baseline="1"' : '') + '>' +
         '<button type="button" class="pdxfpi-lbl pdxst-open"' +
           ' data-pdxst-dos="' + escAttr(x.key) + '" data-pdxst-pid="' + escAttr(x.pid) + '"' +
           ' data-pdxst-origin="' + escAttr(_fpiRowId(mount, x.pid, x.key)) + '"' +
@@ -8308,6 +8709,10 @@
         '</button>' +
         '<span class="pdxfpi-chips">' + chip + says + '</span>' +
         (meta ? '<span class="pdxfpi-meta">' + esc(meta) + '</span>' : '') +
+        (veh
+          ? '<span class="pdxfpi-veh" title="' + escAttr(_vehNote(x.vehicle)) + '">' +
+              '<b aria-hidden="true">\uD83D\uDE82</b> ' + esc(veh) + '</span>'
+          : '') +
       '</div>';
   }
   // A ROW WITH A RECORD AND NO VERB FOR IT. The executive lane is the population
@@ -12757,6 +13162,53 @@
       HEAD: _XS_HEAD,
       JUMP: _XS_JUMP,
       WALL: _XS_WALL
+    },
+    // 🏛 THE RECORD-DERIVED BASELINE STANCE. `map(pid)` is the derived-only set
+    // (issue key → entry) and `rows(pid)` the same in strongest-first order;
+    // `for(pid, key)` is one issue; `positions(pid, p)` is the stated map with
+    // those entries filling its holes, which is the drop-in for a surface that
+    // was calling _polPositionMap only to print "no stance" half the time. Every
+    // entry carries `basis` ('stated' | 'record'), `derived`, and the marking copy
+    // — LEAD / TAG / NOT_DM / NOTE — so no surface has to compose its own wording
+    // for "this came from the record, not from them". Read-only, memoized per
+    // epoch, and with no write path into the stated lane: see the long wall over
+    // _blEntry for why Direction Match cannot see any of it.
+    baseline: {
+      rows: baselineRows,
+      map: baselineMap,
+      for: baselineFor,
+      positions: baselinePositions,
+      count: function (pid) { try { return baselineRows(pid).length; } catch (e) { return 0; } },
+      LEAD: _blLead(),
+      TAG: _BL_TAG,
+      NOT_DM: _BL_NOT_DM,
+      NOTE: _BL_NOTE,
+      SIDE: _BL_SIDE
+    },
+    // ── THE VEHICLE READ ────────────────────────────────────────────────────
+    // Read-only, memoized, presentation-only. Published so a surface can ask
+    // "did this issue's formal signal ride inside something bigger" and get the
+    // same answer and the same sentence the index prints, rather than counting
+    // riders for itself. Nothing here is a gate: no caller of this changes a
+    // tier, a count, a confidence or a percentage.
+    vehicle: {
+      stats: vehicleRead,
+      isStowaway: vehicleStowaway,
+      line: function (pid, key) { return _vehLineAt(pid, key).line; },
+      short: function (pid, key) { return _vehLineAt(pid, key).short; },
+      note: function (pid, key) { return _vehLineAt(pid, key).note; },
+      read: _vehLineAt,
+      rows: function (pid) {
+        try {
+          return (_fpiRows(pid) || []).filter(function (x) {
+            return !!(x.vehicle && x.vehicle.stowaway);
+          });
+        } catch (e) { return []; }
+      },
+      TAG: _VEH_TAG,
+      NOTE: _VEH_NOTE,
+      NARROW_AT: (window._PDX_RD_NARROW_AT || 45),
+      SHARE_AT: (window._PDX_RD_STOWAWAY_AT || 0.6)
     },
     formalPatternIndex: {
       rows: _fpiRows,
