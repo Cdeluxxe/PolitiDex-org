@@ -5046,6 +5046,28 @@
            below. Nothing about when it renders changed: it is still gated on
            _isThinProfile and still falls back to the plain thin notice. -->
 
+      <!-- 🧭 THE TWO JOBS — the frame, mounted in the identity zone, above every
+           surface that makes a claim.
+
+           A profile publishes two different things and readers were collapsing
+           them into one. The formal record below is an inventory with a
+           direction — every issue where votes or formal actions are on file, and
+           which way those acts pointed. ⚖️ Word vs Action is a test, and a test
+           needs a stated position on file before it can run at all, so it speaks
+           about a fraction of the issues the record covers. Read as one thing,
+           the percentage in the letterhead becomes "the score for this person"
+           and every issue the test could not reach reads as something withheld.
+
+           It is a PDXLearn note: dismissible, remembered per visitor through
+           PDXStore, and gone for good on the next visit once the × is tapped —
+           so it never becomes permanent chrome for a returning reader. It scores
+           nothing and characterises nobody; the two counts it prints are read
+           back off the accessors the two surfaces publish. Built by
+           profile-spine.js — see twoJobsMount(). -->
+      ${(window.PDXProfileSpine && typeof window.PDXProfileSpine.twoJobsMount === 'function')
+        ? (function(){ try { return window.PDXProfileSpine.twoJobsMount(id, p); } catch(e){ return ''; } })()
+        : ''}
+
       <!--PDXSP:standout-->
       <!-- 🏛 WHAT THE RECORD POINTS TO — the standout strip, and the first
            substantive surface on the profile.

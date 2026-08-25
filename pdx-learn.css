@@ -189,6 +189,14 @@ button.pdxl-link:disabled { color: #8fa8c8; cursor: default; text-decoration: no
 .pdxl-note-ico { flex: 0 0 auto; font-size: 0.95rem; line-height: 1.3; }
 .pdxl-note b { color: #e6eefc; }
 .pdxl-note-body { padding-right: 1.2rem; }
+/* A note that teaches TWO things needs the seam between them. Generic to the
+   primitive rather than to one caller: any note may pass paragraphs in `html`.
+   The empty rule matters — a note whose last paragraph is a host waiting for a
+   figure that never arrives must not leave a gap where the figure would be. */
+.pdxl-note-body p { margin: 0 0 0.34rem; }
+.pdxl-note-body p:first-of-type { margin-top: 0.3rem; }
+.pdxl-note-body p:last-child { margin-bottom: 0; }
+.pdxl-note-body p:empty { display: none; }
 .pdxl-note-x {
   position: absolute; top: 0.3rem; right: 0.3rem;
   width: 1.4rem; height: 1.4rem; border: 0; border-radius: 50%;
