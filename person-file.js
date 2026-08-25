@@ -36,7 +36,9 @@
      PDXPerson.stamp(pid)        put that address in the bar while the file is open
      PDXPerson.restore()         put back whatever the reader was on before
      PDXPerson.fromPath()        read a person out of location.pathname
+     PDXPerson.resolve(pid)      the roster id an arriving pid means, or ''
      PDXPerson.adopt()           open the person named by the current URL
+     PDXPerson.bootAdopt()       wait for the roster, then adopt a cold /p/<pid>
 
    WHY /p/<pid> AND NOT A NAME SLUG
 
@@ -75,7 +77,16 @@
      /vote/… and now /p/…, so stamping an address has to be reversible. The path
      in the bar when the file opened is remembered and put back on close, which
      is why a profile opened from an Issue Spotlight returns to that spotlight's
-     address instead of to the front page.
+     address instead of to the front page. A COLD arrival straight onto /p/<pid>
+     is the one case with no earlier surface to remember, and it returns to the
+     front door rather than to the address of the file it just closed.
+
+   · AN ARRIVAL IS UNTRUSTED INPUT, AND A SLOW ROSTER IS NOT AN ANSWER. The id
+     in the bar is whatever a citation, a bookmark or a hand-typed name says, so
+     it is resolved through the app's own alias tables before anything opens
+     (resolve(), below) — and the resolution is retried until the roster reports
+     it has finished loading, because "we don't carry that person" said while the
+     roster is still in flight is a lie about a record that exists.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -110,6 +121,78 @@
       if (window.CMP_DATA && window.CMP_DATA[pid]) return window.CMP_DATA[pid];
     } catch (e) {}
     return null;
+  }
+
+  // ── The record an arriving pid MEANS ──────────────────────────────────────
+  // record() answers "is there a record filed under exactly this id". That is
+  // the right question for the app's own calls, where the id came out of the
+  // roster in the first place. It is the wrong question for an id that arrived
+  // in the ADDRESS BAR, which is where /p/mike_lee came from: a citation, a
+  // bookmark, a link minted by an older build, or a name typed by hand. The
+  // roster files Mike Lee under `lee`; `mike_lee` is the display-name spelling
+  // of the same person, and the repo already says so in two places
+  // (stance-helpers.js STANCE_ALIASES, and every name-slug bridge in
+  // PDX_PROFILE_ALIAS).
+  //
+  // Every in-app door already closes that gap: openModal() resolves through
+  // PDXProfilePid() before it looks anything up, which is why `kivory` and
+  // `ray_ward` open from a card. The arrival path did not, so /p/<alias> was
+  // the one door in the app that could not open a person the rest of it opens
+  // fine — it failed closed at the record() gate and never reached the renderer
+  // that would have resolved it.
+  //
+  // Three steps, each reading a table the repo already keeps, none of them
+  // inventing an identity:
+  //   1 · PDXProfilePid — the app's own alias tables (PDX_PROFILE_ALIAS, ACCT_ALIAS)
+  //   2 · case — an address that came back through something that lower-cased it
+  //   3 · the display-name slug, the same convention PDX_PROFILE_ALIAS's own
+  //       stance bridges use (`bridger_bolinder` → `bolinder_h68`), accepted
+  //       ONLY when exactly one record answers to it. Two people share a name
+  //       more often than a slug table expects, so an ambiguous name resolves to
+  //       nothing rather than to a coin flip.
+  function slug(s) {
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+
+  // '' for no match AND for an ambiguous one — a name that two records answer to
+  // is not an address, so it does not get to pick one of them.
+  var AMBIGUOUS = '\u0000';
+  function bySlug(pid) {
+    var want = slug(pid);
+    if (!want) return '';
+    var hit = '';
+    function scan(roster) {
+      if (!roster || hit === AMBIGUOUS) return;
+      for (var id in roster) {
+        if (!Object.prototype.hasOwnProperty.call(roster, id)) continue;
+        var rec = roster[id];
+        if (!rec || slug(rec.name) !== want) continue;
+        if (hit && hit !== id) { hit = AMBIGUOUS; return; }
+        hit = id;
+      }
+    }
+    try { scan(window.PROFILES); } catch (e) {}
+    try { scan(window.CMP_DATA); } catch (e) {}
+    return hit === AMBIGUOUS ? '' : hit;
+  }
+
+  // The roster id for whatever a caller (or a URL) named, or '' when nothing in
+  // either roster answers to it. Never throws, and never guesses.
+  function resolve(pid) {
+    pid = pid ? String(pid) : '';
+    if (!pid) return '';
+    if (record(pid)) return pid;
+    try {
+      if (fn(window.PDXProfilePid)) {
+        var aliased = window.PDXProfilePid(pid);
+        if (aliased && aliased !== pid && record(aliased)) return aliased;
+      }
+    } catch (e) {}
+    var lower = pid.toLowerCase();
+    if (lower !== pid && record(lower)) return lower;
+    var named = bySlug(pid);
+    return named && record(named) ? named : '';
   }
 
   function origin() {
@@ -155,7 +238,16 @@
   function stamp(pid) {
     if (!pid) return;
     try {
-      if (_return === null) _return = location.pathname + location.search;
+      if (_return === null) {
+        // A COLD ARRIVAL on /p/<pid> has no earlier surface to return to, and
+        // capturing the path we are about to re-stamp would make "close" a
+        // no-op that leaves a closed person's address in the bar. The front
+        // door is the honest destination — the same answer restore() already
+        // gives when nothing was captured at all.
+        _return = fromPath(location.pathname)
+          ? '/'
+          : location.pathname + location.search;
+      }
       // The hash is a section within the app and survives; the ?p= param does
       // not, because the path now carries what it used to.
       var search = '';
@@ -245,6 +337,14 @@
     if (opts.event && fn(opts.event.stopPropagation)) opts.event.stopPropagation();
     pid = pid ? String(pid) : '';
     if (!pid) return false;
+    // The id the ROSTER uses, when it differs from the id the caller had. The
+    // renderer resolves this for itself (openModal → PDXProfilePid), but the
+    // address and the kicker are written HERE, so without this step a person
+    // opened under an alias got one id's file under another id's address and a
+    // blank kicker. Falls back to the caller's own id when nothing resolves, so
+    // a genuinely unknown id still reaches openModal and still gets its honest
+    // error state instead of being silently swallowed here.
+    pid = resolve(pid) || pid;
 
     // The renderer. _pdxOpenFullModal is the internal name; showProfile is the
     // public one and does the journey bookkeeping, so it is preferred — but
@@ -278,15 +378,20 @@
   // '' — including when the URL names someone the roster does not carry, which
   // is reported rather than swallowed, the same way _pdxOpenFromUrl reports it.
   function adopt() {
-    var pid = fromUrl();
-    if (!pid) return '';
-    if (!record(pid)) {
+    var asked = fromUrl();
+    if (!asked) return '';
+    // Strict, unlike open(): an id out of the address bar is untrusted input,
+    // so an arrival that resolves to nobody says so instead of handing openModal
+    // an id it will only fail on. Fails CLOSED — no modal, no blank shell
+    // pretending the record loaded.
+    var pid = resolve(asked);
+    if (!pid) {
       try {
         var L = window.PDXShareLinks;
         if (L && fn(L.notice)) {
           L.notice('pdx-person-unresolved', 'Person file',
             'We couldn’t open the record that link named. Rather than quietly show ' +
-            'you the front page, here’s the plain answer: “' + pid + '” isn’t ' +
+            'you the front page, here’s the plain answer: “' + asked + '” isn’t ' +
             'someone we currently carry a record for.');
         }
       } catch (e) {}
@@ -309,6 +414,8 @@
     fromUrl: fromUrl,
     adopt: adopt,
     record: record,
+    resolve: resolve,
+    bootAdopt: function () { return bootAdopt(); },
     publishable: function (pid) {
       var F = floor();
       return !!(F && fn(F.clears) && F.clears(pid));
@@ -318,17 +425,97 @@
   // ── Cold deep link ────────────────────────────────────────────────────────
   // /p/<pid> is served by a netlify.toml rewrite, so the document that arrives
   // is the same index.html the front page is. Nothing in it knows a person was
-  // asked for until this runs. Deferred past the roster build for the same
-  // reason _pdxOpenFromUrl is: PROFILES and CMP_DATA are populated by deferred
-  // scripts, and a file opened before them renders empty.
-  function bootAdopt() {
-    if (!fromPath()) return;   // ?p= is still owned by _pdxOpenFromUrl
-    setTimeout(function () { try { adopt(); } catch (e) {} }, 420);
+  // asked for until this runs.
+  //
+  // WHAT WAS WRONG WITH THE FIRST VERSION
+  //
+  // One line: `setTimeout(adopt, 420)`, started the moment this deferred script
+  // executed. Two things were wrong with that number, and both surfaced as the
+  // same symptom — the app shell, no file, no explanation.
+  //
+  //   · 420ms is a GUESS about when the roster exists. PROFILES is fetched from
+  //     Firestore over the network, behind an anonymous-sign-in wait that
+  //     firebase-boot.js allows five whole seconds for. A pid that lives only in
+  //     the live roster is therefore unresolvable at 420ms — so adopt() took its
+  //     "isn't someone we currently carry a record for" branch about a person the
+  //     app carries perfectly well, and then never looked again.
+  //   · 420ms was also measured from the WRONG MOMENT, and measured by the wrong
+  //     test. `document.readyState === 'loading'` is FALSE inside a deferred
+  //     script — the spec sets readyState to 'interactive' before deferred
+  //     scripts run — so the DOMContentLoaded branch above was dead code and the
+  //     timer always started here, while the fifty deferred scripts after this
+  //     one (profile-spine.js, word-action.js, the file's own stages) were still
+  //     to execute.
+  //
+  // So arrival is now a WAIT rather than a bet. It retries until the roster
+  // reports it has finished loading — window._pdxRosterState, the flag
+  // firebase-boot.js already maintains for its own status pill — and only a
+  // settled roster earns the not-found notice. The one thing this can no longer
+  // do is call a real person unknown because the network was slow.
+  var STEP = 120;           // ms between attempts
+  var EARLY = 2000;         // a bundled-roster pid need not wait on a stalled fetch
+  var SETTLED_GRACE = 240;  // one beat after the roster lands, before answering
+  var CEILING = 15000;      // hard stop: this polls a flag, it does not poll forever
+  var _adoptSettled = false;
+
+  // firebase-boot.js sets this to 'loading', then to 'done' or 'error' — every
+  // one of its load paths reaches one of the two, including the no-Firebase and
+  // failed-fetch branches, so this cannot hang on a missing flag. An app served
+  // without firebase-boot.js at all leaves it undefined, which is why EARLY and
+  // CEILING exist.
+  function rosterSettled() {
+    var s = window._pdxRosterState;
+    return s === 'done' || s === 'error';
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootAdopt);
-  } else {
-    bootAdopt();
+
+  function attempt(pid, waited, settledAt) {
+    if (_adoptSettled) return;
+    // The reader moved on, or something else opened a file first. Either way the
+    // arrival is no longer the thing deciding what is on screen.
+    if (fromPath() !== pid) { _adoptSettled = true; return; }
+    if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }
+
+    if (settledAt === null && rosterSettled()) settledAt = waited;
+
+    var ready = (settledAt !== null || waited >= EARLY);
+    var canOpen = ready && !!resolve(pid) && fn(window.openModal);
+    // Give the honest not-found answer only once the roster has actually
+    // arrived (plus a beat for _checkAndTrigger's merge and the alias tables),
+    // or once this has waited long enough that no answer is coming.
+    var outOfTime = waited >= CEILING ||
+      (settledAt !== null && waited - settledAt >= SETTLED_GRACE);
+
+    if (canOpen || outOfTime) {
+      _adoptSettled = true;
+      try { adopt(); } catch (e) {}
+      return;
+    }
+    setTimeout(function () { attempt(pid, waited + STEP, settledAt); }, STEP);
+  }
+
+  // Returns the pid it is going to try for, or '' when this URL names nobody —
+  // the open itself is asynchronous, because the data it needs is.
+  function bootAdopt() {
+    var pid = fromPath();
+    if (!pid) return '';      // ?p= is still owned by _pdxOpenFromUrl
+    _adoptSettled = false;
+    attempt(pid, 0, null);
+    return pid;
+  }
+
+  // Started from a timer rather than from a readyState branch. A macrotask
+  // scheduled inside a deferred script cannot run until every remaining deferred
+  // script has executed and DOMContentLoaded has been dispatched, so this is the
+  // earliest moment at which the whole client exists — and unlike
+  // document.addEventListener('DOMContentLoaded'), it does not depend on
+  // index.html's wrapper, which holds those listeners back until the roster
+  // lands. 'load' is a second trigger for the case where this file is evaluated
+  // late (injected, or re-run after the document is complete).
+  if (fromPath()) {
+    var _kicked = false;
+    var kick = function () { if (_kicked) return; _kicked = true; bootAdopt(); };
+    setTimeout(kick, 0);
+    try { window.addEventListener('load', kick); } catch (e) {}
   }
 
   // Back/forward across person files. The path form makes this meaningful for
@@ -337,10 +524,14 @@
   // one open under a URL that no longer names it.
   window.addEventListener('popstate', function () {
     try {
-      var pid = fromPath();
+      var raw = fromPath();
+      var pid = raw ? resolve(raw) : '';
       var openNow = window._pdxCurrentProfileId || '';
       if (pid && pid !== openNow) { open(pid); return; }
-      if (!pid && openNow && fn(window.closeModal)) window.closeModal();
+      // Only an address that names no person at all closes the file. A person
+      // path that resolves to nobody is a bad link, not an instruction to close
+      // whatever the reader was looking at.
+      if (!raw && openNow && fn(window.closeModal)) window.closeModal();
     } catch (e) {}
   });
 })();
