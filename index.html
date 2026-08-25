@@ -18873,6 +18873,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.1em;color:white;line-height:1.1;">SIDE-BY-SIDE COMPARISON</div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-top:0.15rem;" id="cmp-header-sub">Select 2–4 politicians to compare</div>
           <div id="cmp-selected-pills" style="display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.4rem;min-height:0;"></div>
+          <!-- Inline add — the "＋ Add" pill used to CLOSE the comparison and
+               scroll the page to the browse list, which is the most expensive way
+               to add a fourth name: the reader loses the board, the filter and
+               their place in it. This drops a search box in under the pills
+               instead, so a lineup can be built without ever leaving the
+               side-by-side. Rendered by _cmpRenderAddPop(); the browse escape is
+               still offered inside it for anyone who wants the full list. -->
+          <div id="cmp-addpop" class="cmp-addpop" style="display:none;"></div>
+          <!-- 📌 The focused-issue rail. A persistent table of contents for the
+               small set of issues the reader pinned, so the thing they said they
+               came for stays on screen while they scroll a long grid. Filled by
+               _cmpRenderFocusRail(); hidden outright when nothing is pinned. -->
+          <div id="cmp-focus-rail" class="cmp-focus-rail" style="display:none;"></div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;">

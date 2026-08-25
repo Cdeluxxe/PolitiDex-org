@@ -1592,6 +1592,28 @@
         'background:rgba(159,180,212,0.07);border:1px dashed rgba(159,180,212,0.28);' +
         'border-radius:8px;padding:0.28rem 0.5rem;}' +
       '.pdx-rdcmp .pdx-rdcmp-ico{opacity:0.75;}' +
+      // ── THE ROW'S FORMAL-RECORD STATE, AS ONE BADGE ─────────────────────────
+      // Four states, and the colour rule is not "green good / red bad" — it is
+      // "solid means we read something, dashed means we did not". Diverge and
+      // align are both findings and both get a solid border; they differ in hue
+      // only so the eye can tell a split row from a matching one while scanning.
+      // The GAP is the state that matters most here: dashed, desaturated and
+      // slightly transparent, so a row with nothing on file cannot be mistaken
+      // for the calm of a row where everyone agreed. That is the whole reason
+      // this badge exists.
+      '.pdx-rdctr{display:inline-flex;align-items:center;gap:0.28rem;' +
+        'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.58rem;' +
+        'letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;' +
+        'padding:0.16rem 0.5rem;border-radius:999px;}' +
+      '.pdx-rdctr .pdx-rdctr-ico{font-size:0.8em;opacity:0.9;}' +
+      '.pdx-rdctr.is-diverge{color:#f0b6b6;background:rgba(248,113,113,0.13);' +
+        'border:1px solid rgba(248,113,113,0.4);}' +
+      '.pdx-rdctr.is-align{color:#8fd9b0;background:rgba(74,222,128,0.11);' +
+        'border:1px solid rgba(74,222,128,0.34);}' +
+      '.pdx-rdctr.is-mixed{color:#e2c88a;background:rgba(245,200,66,0.1);' +
+        'border:1px solid rgba(245,200,66,0.32);}' +
+      '.pdx-rdctr.is-thin{color:#8fa6c6;background:transparent;' +
+        'border:1px dashed rgba(159,180,212,0.45);opacity:0.92;}' +
       // Promise Tracker gateway — the section name (no %) + two dive-in cards.
       '.pdxc-gate{border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.6),rgba(10,15,30,0.35));}' +
       '.pdxc-gate-h{display:flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.15rem;letter-spacing:0.03em;color:#e8eefc;line-height:1;}' +
@@ -6297,6 +6319,113 @@
       '" title="' + esc(read.why) + '">' +
       '<span class="pdx-rdcmp-ico" aria-hidden="true">🏛️</span>' +
       '<span class="pdx-rdcmp-txt">' + esc(read.note) + '</span></div>';
+  }
+
+  // ── WHERE THE RECORDS DIVERGE, AND WHERE THE FILE IS SIMPLY THIN ─────────
+  // The floor above answers one question — "is there enough here to compare?" —
+  // and stops. That was the right first answer, and on a screen where a reader is
+  // choosing between two people it is half of one. The other half is the question
+  // they came with: WHERE do these records actually part company, and where does
+  // the row only LOOK settled because our file is empty?
+  //
+  // Those two states are the ones a grid confuses. A row where every record ran
+  // the same way and a row where no record can be read both present as calm —
+  // nothing red, nothing shouting — and a reader scanning a column of calm rows
+  // takes the calm as agreement. It is not agreement. One is a finding and the
+  // other is a gap, and the whole point of naming them separately is that a gap
+  // must never be allowed to read as a tie.
+  //
+  // WHAT IT READS. Nothing new. It takes the slots _rdCompareRead already built
+  // — same pids, same issue, same one call — and sorts them by the two fields the
+  // slot already carries: `state` (speaks / thin / none, or absent for cold) and
+  // `characterised`, which is the record engine's own word for "this record ran
+  // one way and I will say which way". A SPLIT RECORD IS NOT A SIDE. A record that
+  // ran both ways has a `lead`, because arithmetic always has a larger number, and
+  // counting that lead as a side would manufacture a divergence out of a coin
+  // landing 3–2. So only characterised records contribute a direction here, which
+  // is the same rule the profile row uses to decide whether it may name one.
+  //
+  // WHAT IT MAY NOT DO. It may not hide, weaken or reword a single cell — every
+  // slot in the row still prints its own state and its own counts, exactly as it
+  // did before the row was read. It may not become ordinal: the shape carries
+  // counts of states and a state word, never a share, a score, a rank or a
+  // percentage, and no caller may sort a lineup on it. It is not a verdict about
+  // anybody — "these two records ran opposite ways" is a description of two votes,
+  // not a claim about either person's character — and it says nothing at all about
+  // party, because the record does not know which party cast it.
+  var _RD_CTR_ORDER = ['diverge', 'mixed', 'align', 'thin', 'cold'];
+  var _RD_CTR = {
+    // A real contrast: at least one record ran one way and at least one ran the
+    // other, and both of those records were readable enough to name a direction.
+    diverge: { key: 'diverge', ico: '⇄', label: 'Records diverge',
+      why: 'At least one record here advanced this and at least one cut against it. ' +
+           'Each cell below still shows its own counts.' },
+    // Readable, but not a clean two-sided read — somebody in the lineup ran both
+    // ways, so the row cannot be called a difference or a match without lying
+    // about one of the cells in it.
+    mixed:   { key: 'mixed',   ico: '⇌', label: 'One record ran both ways',
+      why: 'At least one record here went both ways on this, so the row is not a ' +
+           'clean split and it is not a match either. Read the cells.' },
+    // The genuine match, and the only state allowed to look like one.
+    align:   { key: 'align',   ico: '⇉', label: 'Records ran the same way',
+      why: 'Every readable record here ran the same way on this issue. ' +
+           'That is what the cells show, not a rating of anyone.' },
+    // The gap. Named, marked and deliberately not calm.
+    thin:    { key: 'thin',    ico: '◌', label: 'Not enough on file',
+      why: 'Fewer than two records here can be read on this issue, so this row is ' +
+           'a gap in our file rather than a finding. It is not agreement.' },
+    // Mid-fetch. Says nothing, because we have not looked yet.
+    cold:    { key: 'cold',    ico: '', label: '', why: '' }
+  };
+  function _rdContrastRead(pids, issueKey, opts) {
+    var out = { state: 'cold', issueKey: issueKey || null,
+                speaks: 0, thin: 0, none: 0, cold: 0, total: 0,
+                oneWay: 0, bothWays: 0, advances: 0, opposes: 0,
+                comparable: false, gap: false, label: '', ico: '', why: '' };
+    try {
+      var read = _rdCompareRead(pids, issueKey, opts);
+      out.speaks = read.speaks; out.thin = read.thin; out.none = read.none;
+      out.cold = read.cold; out.total = read.total; out.comparable = read.comparable;
+      var slots = read.slots || {};
+      Object.keys(slots).forEach(function (pid) {
+        var s = slots[pid];
+        if (!s || s.state !== 'speaks') return;
+        if (s.characterised) {
+          out.oneWay++;
+          if (s.lead === 'opposes') out.opposes++; else out.advances++;
+        } else {
+          out.bothWays++;                 // ran both ways: readable, but not a side
+        }
+      });
+      // Mid-fetch and short of the floor — a row we have not finished looking at
+      // may not announce a gap it has not verified. This is the same silence the
+      // floor note keeps, for the same reason.
+      if (out.cold && !out.comparable) out.state = 'cold';
+      else if (!out.comparable) out.state = 'thin';
+      else if (out.advances > 0 && out.opposes > 0) out.state = 'diverge';
+      else if (out.bothWays > 0) out.state = 'mixed';
+      else if (out.oneWay >= _RD_CMP_FLOOR) out.state = 'align';
+      else out.state = 'mixed';
+      var m = _RD_CTR[out.state] || _RD_CTR.cold;
+      out.label = m.label; out.ico = m.ico; out.why = m.why;
+      out.gap = (out.state === 'thin');
+    } catch (e) {}
+    return out;
+  }
+  // The badge. '' while cold, so a caller can concatenate it unconditionally and
+  // a half-loaded row stays blank rather than blinking a claim.
+  //   The gap state is the one that is allowed to look different from the rest,
+  // and it looks different by being DASHED and unsaturated rather than by being
+  // louder. It is an admission about our file; it should read as a hole in the
+  // page, which is exactly what it is.
+  function _rdContrastHtml(read, opts) {
+    if (!read || !read.state || read.state === 'cold' || !read.label) return '';
+    try { ensureStyles(); } catch (e) {}
+    var o = opts || {};
+    return '<span class="pdx-rdctr is-' + esc(read.state) + (o.cls ? ' ' + esc(o.cls) : '') +
+      '" title="' + esc(read.why) + '" aria-label="' + esc(read.label + '. ' + read.why) + '">' +
+      '<span class="pdx-rdctr-ico" aria-hidden="true">' + esc(read.ico) + '</span>' +
+      '<span class="pdx-rdctr-txt">' + esc(read.label) + '</span></span>';
   }
   // The row's result, as data. One place decides what a row concluded, so the
   // markup below and the tests both read the same answer.
@@ -13731,6 +13860,15 @@
       // and never a sort key.
       compare: _rdCompareRead,
       compareHtml: _rdCompareNoteHtml,
+      // The row-level "where does this actually diverge, and where is the file
+      // simply thin?" read and its badge. Built ON TOP of compare() above — same
+      // slots, one call — so a surface cannot end up with a floor that says one
+      // thing and a badge that says another. Counts of states plus one state
+      // word; see the long note over _rdContrastRead for what it refuses to be.
+      contrast: _rdContrastRead,
+      contrastHtml: _rdContrastHtml,
+      CTR: _RD_CTR,
+      CTR_ORDER: _RD_CTR_ORDER,
       CMP_FLOOR: _RD_CMP_FLOOR,
       CMP_NONE: _RD_CMP_NONE,
       CMP_ONE: _RD_CMP_ONE,
