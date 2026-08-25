@@ -1,8 +1,9 @@
 /* ============================================================================
    Your Ballot — the unified, address-driven entry point.
 
-   One inline, guided flow: set your address → see every contest on YOUR real
-   ballot → for each seat, weigh the candidates (Promise %, top stances, funding
+   One inline, guided flow: set your address → see the contests PolitiDex holds
+   for YOUR districts (a subset of the official ballot, and the section says so)
+   → for each seat, weigh the candidates (record, top stances, funding
    at a glance) → save picks to your team. This file styles that single section
    (#your-ballot). It deliberately reuses the app's existing tokens — navy field,
    amber "team" accent, Bebas/Barlow type — so it reads as native, not bolted on.
@@ -87,6 +88,18 @@
   display: block; margin-top: 0.9rem; font-family: 'Barlow', sans-serif;
   font-size: 0.76rem; color: #7f8db0; line-height: 1.45;
 }
+
+/* The official-ballot boundary. Deliberately quiet — it is a limit, not a
+   warning — but it appears in BOTH states of the section (the set-location card
+   and the located ballot), because a voter who never sets a location and a voter
+   who scrolls to the bottom of their races need the same fact: this is the set
+   of contests we hold records for, and the county clerk holds the real list. */
+.yb-official {
+  display: block; margin-top: 0.9rem; font-family: 'Barlow', sans-serif;
+  font-size: 0.74rem; color: #78859f; line-height: 1.5;
+}
+.yb-official a { color: #9ec8ff; text-decoration: underline; text-underline-offset: 2px; }
+.yb-official a:hover { color: #c9e0ff; }
 
 /* ── Located state: location bar + progress ─────────────────────────────── */
 .yb-locbar {
@@ -192,6 +205,9 @@
 }
 .yb-score b { font-size: 1.05rem; font-weight: 800; }
 .yb-score span { font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.85; }
+/* The kicker: what the chip measures, said before what it found. Quieter than
+   the finding beside it — it is a label, not a second verdict. */
+.yb-score .yb-score-job { font-size: 0.54rem; font-weight: 700; opacity: 0.62; letter-spacing: 0.06em; }
 .yb-score.yb-noscore { color: #9fb4d4; border-color: rgba(159, 180, 212, 0.4); }
 .yb-score.yb-noscore b { font-size: 0.82rem; }
 

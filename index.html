@@ -2973,19 +2973,26 @@ window.PDXLazy = (function () {
           <div class="w-8 h-8 rounded-lg bg-crimson-600 flex items-center justify-center text-sm shadow-lg shadow-crimson-600/20 transition-transform duration-200 group-hover:scale-110">🏠</div>
           <span class="font-display text-xl tracking-wider text-white">POLITI<span class="text-crimson-400">DEX</span></span>
         </a>
-        <!-- THREE PILLS, THREE DOORS. The bar carried exactly one emphasised
+        <!-- THREE PILLS, TWO DOORS. The bar carried exactly one emphasised
              control for a long time — the gold ⭐ My Voting Team — which made the
              seasonal door the only thing in the chrome with any weight. It gained
-             a matched blue peer (👁️ Check a Claim, the record door), and now a
-             third that comes before either of them:
+             a matched blue peer (👁️ Find the Record, the way into Door 1), and
+             now a third that comes before either of them:
 
                🏛️ WHO REPRESENTS ME · light-blue-filled, the front step. Scrolls to
                                        the homepage front door and, when no location
                                        is set yet, opens the same picker the rest of
                                        the app uses.
-               👁️ CHECK A CLAIM      · blue-filled, the record door. Wakes the
-                                       All-Seeing Eye sitting directly below this bar.
-               ⭐ MY VOTING TEAM     · gold-filled, unchanged, the ballot door.
+               👁️ FIND THE RECORD    · blue-filled, Door 1. Wakes the All-Seeing
+                                       Eye sitting directly below this bar.
+               ⭐ MY VOTING TEAM     · gold-filled, unchanged, Door 2.
+
+             Three pills, but not three doors — the product has two. Door 1 is The
+             Record (year-round) and Door 2 is Your Ballot (an election utility).
+             WHO REPRESENTS ME is the step in FRONT of both, which is why it leads
+             the row and why it is described here as the front step rather than as
+             a door of its own. Counting it as a third door would promise a third
+             destination that does not exist.
 
              Same geometry, same border weight, same glow budget; different hue, so
              they read as peers rather than as a primary and its shadows. Voting lost
@@ -2998,9 +3005,14 @@ window.PDXLazy = (function () {
              click away on desktop in the account chip — because a seven-item row
              plus three dropdowns is how a nav stops being usable at 1280px.
 
+             The middle pill used to read "Check a Claim", which named a verdict
+             the eye does not deliver — it does not rule a claim true or false. What
+             it actually does is find the formal record behind the claim and show the
+             receipts either way, so the label says that instead.
+
              Order follows the flow, with the lookup now in front of all of it:
-             Who Represents Me (find) → Check a Claim (verify) → Voter Hub (learn) →
-             My Voting Team (build) → Your Ballot (decide) → Mandate (act, on the
+             Who Represents Me (find) → Find the Record (Door 1) → Voter Hub (learn) →
+             My Voting Team (build) → Your Ballot (Door 2) → Mandate (act, on the
              right cluster). -->
         <div class="hidden lg:flex items-center gap-2.5 lg:gap-4 font-condensed font-600 text-xs lg:text-sm tracking-widest uppercase text-steel-300">
           <!-- 🏛️ WHO REPRESENTS ME leads the row. Representative lookup is the
@@ -3021,10 +3033,10 @@ window.PDXLazy = (function () {
                the control is never dead. When the helper is there it takes over and
                focuses the eye in place — no scroll, because the eye is already on
                screen at every scroll position. -->
-          <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye checks it against the voting record" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Check a Claim</a>
+          <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Find the Record</a>
           <a href="#voter-hub" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">Voter Hub</a>
           <a href="#my-politicians" title="Your voting team — the slate of politicians you're building and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Voting Team</a>
-          <a href="#your-ballot" title="Enter your address and see every contest on your real ballot" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🗳️ Your Ballot</a>
+          <a href="#your-ballot" title="Enter your address and see the contests PolitiDex tracks for your districts" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🗳️ Your Ballot</a>
           <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🔦 Local Issues</a>
           <!-- The former research/reference links (Evidence Locker, Compare,
                Spotlight, Library, Exchange, All Politicians and the admin tools)
@@ -3507,7 +3519,7 @@ window.PDXLazy = (function () {
           <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
         </button>
       </div>
-      <!-- The record door leads on mobile too, above "Your Vote", because the menu
+      <!-- Door 1 leads on mobile too, above "Your Vote", because the menu
            is read top-down and whatever sits first is what the product looks like it
            is for. One item, not a group: everything else behind this door already
            has a home under "Track & Compare" below, and a menu that repeats itself
@@ -3515,7 +3527,7 @@ window.PDXLazy = (function () {
            The eye lives in the bar this menu drops out of, so closing the menu and
            focusing it puts the cursor exactly where the label promised. -->
       <div class="mnav-group-label">The Record</div>
-      <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye checks it against the voting record" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Check a Claim</a>
+      <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Find the Record</a>
       <!-- Core voter tools — same onboarding flow as the desktop bar, and the same
            reordering: Who Represents Me (find) → Voter Hub (learn) → My Voting Team
            (build) → Your Ballot (decide). The lookup leads because this menu is read
@@ -6908,7 +6920,7 @@ window.PDXLazy = (function () {
       </div>
 
 
-      <!-- ── KNOW YOUR OFFICES — plain-English guide to every seat on your ballot ── -->
+      <!-- ── KNOW YOUR OFFICES — plain-English guide to the seats on the slate ── -->
       <!-- Moved up from the Educational Library so it sits right where voters see
            their ballot and are about to fill their six team slots: knowing what
            each office actually does is exactly what they need at this moment. -->
@@ -6945,7 +6957,7 @@ window.PDXLazy = (function () {
             <div class="ko-head-ico">🏛️</div>
             <div>
               <h3>Know Your Offices</h3>
-              <p>What every seat on your ballot actually does</p>
+              <p>What each seat on your slate actually does</p>
               <span class="ko-hint">Optional · tap to expand a plain-English guide to each office</span>
             </div>
             <span class="ko-chev" aria-hidden="true">⌄</span>
@@ -7070,7 +7082,7 @@ window.PDXLazy = (function () {
               </div>
               <div class="flex gap-2 items-center flex-wrap">
                 <button onclick="window._myteamGuideGo && window._myteamGuideGo('pick')" class="font-condensed text-xs text-amber-300 hover:text-amber-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-amber-500/12 border border-amber-500/30 hover:border-amber-400/55" style="background:rgba(245,158,11,0.07);" title="Jump to your next open race and keep building">➕ Add more picks</button>
-                <button onclick="window.openBallotSummary && window.openBallotSummary()" id="myteam-ballot-top-btn" class="font-condensed text-xs text-amber-200 hover:text-white tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-amber-400/45 hover:border-amber-300/70" style="background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(230,184,0,0.08));display:none;" title="See, print, or copy your full ballot">📋 My Ballot</button>
+                <button onclick="window.openBallotSummary && window.openBallotSummary()" id="myteam-ballot-top-btn" class="font-condensed text-xs text-amber-200 hover:text-white tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-amber-400/45 hover:border-amber-300/70" style="background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(230,184,0,0.08));display:none;" title="See, print, or copy the slate you’ve built">📋 My Ballot</button>
                 <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
                 <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/75 hover:text-red-300 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-red-500/25 hover:border-red-400/50 hover:bg-red-500/12" style="background:rgba(239,68,68,0.06);">🗑 Clear All</button>
               </div>
@@ -13871,15 +13883,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     </div>
   </section>
 
-  <!-- Admin politician-manager controller — extracted to /admin-politician-manager.js (first-paint pass). Plain sync script at
-       the original inline position: same execution order, same global scope.
-       The preload scanner fetches it in parallel long before the parser gets here. -->
-  <script src="/admin-politician-manager.js"></script>
+  <!-- ────────────────────────────────────────────────────────────────
+       CRITICAL-PATH STRIP: the two admin controllers no longer load here.
 
-  <!-- Database expansion controller + coverage suggestions — extracted to /expansion-controller.js (first-paint pass). Plain sync script at
-       the original inline position: same execution order, same global scope.
-       The preload scanner fetches it in parallel long before the parser gets here. -->
-  <script src="/expansion-controller.js"></script>
+       /admin-politician-manager.js (191 KB) and /expansion-controller.js
+       (260 KB) used to sit at this position as plain parser-blocking scripts —
+       451 KB of JavaScript downloaded, parsed and compiled on every visit, by
+       every visitor, to drive two <section>s that are display:none for everyone
+       except one hardcoded admin email. The admin gate below now injects them,
+       in the same order, the first time an admin is actually recognized. An
+       anonymous reader never fetches either file.
+
+       The one piece of this pair that was NOT admin-only — the data-hygiene
+       layer behind window._cleanProfiles(), which the public directory and the
+       dashboard counts read through — was lifted out first and still loads on
+       every visit, immediately below. Gating it away would have quietly put
+       duplicate people and stub records back on the public roster.
+
+       Everything that calls into the admin controllers is either inside those
+       gated sections or already typeof-guarded (index.html's data-load path
+       calls updateExpansionStats() that way), so their absence is a no-op for
+       a reader rather than an error. scripts/test-admin-not-on-critical-path.mjs
+       fails the build if either file returns to a synchronous script tag.
+       ──────────────────────────────────────────────────────────────── -->
+  <script src="/data-hygiene.js"></script>
 
   <!-- ────────────────────────────────────────────────────────────────
        ADMIN GATE for the Bulk Import / Database Expansion tool.
@@ -13933,11 +13960,47 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         for (var i = 0; i < links.length; i++) {
           links[i].style.display = allowed ? '' : 'none';
         }
-        // When the admin is allowed in, make sure the Politician Manager list
-        // reflects the latest loaded data.
-        if (allowed && typeof window.pmRenderList === 'function') {
-          window.pmRenderList();
+        // When the admin is allowed in, fetch the tools (once) and then make
+        // sure the Politician Manager list reflects the latest loaded data. The
+        // callback runs after both modules have executed, so this is also what
+        // paints the list on the very first admin load.
+        if (allowed) {
+          loadAdminModules(function () {
+            if (typeof window.pmRenderList === 'function') window.pmRenderList();
+          });
+          if (typeof window.pmRenderList === 'function') window.pmRenderList();
         }
+      }
+
+      // ── Admin-only code is fetched on demand, never on the critical path ──
+      // These two controllers are 451 KB together and drive nothing a reader can
+      // see. They are injected the first time an admin is recognized, in the same
+      // order they used to appear in the document, and sequentially rather than in
+      // parallel because expansion-controller reads helpers the politician manager
+      // defines (window._pmIsUtah and friends). Everything is typeof-guarded on
+      // both sides, so a slow or failed fetch degrades to "tool not ready yet"
+      // instead of throwing.
+      var ADMIN_MODULES = ['/admin-politician-manager.js', '/expansion-controller.js'];
+      var adminModulesRequested = false;
+
+      function loadAdminModules(done) {
+        if (adminModulesRequested) return;
+        adminModulesRequested = true;
+        var i = 0;
+        (function next() {
+          if (i >= ADMIN_MODULES.length) { if (done) done(); return; }
+          var el = document.createElement('script');
+          el.src = ADMIN_MODULES[i++];
+          el.async = false;
+          // A failure here must not strand the chain: the next module still gets
+          // its chance, and the admin sees a partly-loaded tool rather than none.
+          el.onload = next;
+          el.onerror = function () {
+            try { console.warn('Admin module failed to load: ' + el.src); } catch (e) {}
+            next();
+          };
+          document.head.appendChild(el);
+        })();
       }
 
       // React to Firebase auth changes. Adding our own listener leaves the
@@ -19592,49 +19655,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     </div>
   </div>
 
-  <!-- ═══════════════════ ACCOUNTABILITY SCORE — DEEP ANALYSIS MODAL ═══════ -->
-  <div id="accountability-overlay" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md items-center justify-center p-4" style="display:none;" onclick="if(event.target===this)closeAccountabilityModal()">
-    <div class="relative w-full max-w-3xl bg-navy-800 rounded-2xl border border-white/10 overflow-hidden flex flex-col" style="box-shadow:0 28px 72px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.04),0 0 28px rgba(139,92,246,0.2);max-height:92vh;">
-      <!-- Purple accent bar -->
-      <div style="height:3px;width:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa,#7c3aed);opacity:0.95;"></div>
-
-      <!-- Modal Header -->
-      <div class="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/8 bg-navy-900/70" style="backdrop-filter:blur(8px);">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:rgba(139,92,246,0.18);border:1px solid rgba(167,139,250,0.4);">🛡️</div>
-          <div class="min-w-0">
-            <div class="font-display text-lg tracking-wider text-white leading-none">Accountability Deep Analysis</div>
-            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mt-0.5 truncate" id="acct-subtitle">Dual-perspective verification</div>
-          </div>
-        </div>
-        <button onclick="closeAccountabilityModal()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-steel-300 hover:text-white transition-all flex items-center justify-center flex-shrink-0" style="min-height:unset;">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="flex-1 overflow-y-auto p-5 sm:p-6" style="overscroll-behavior:contain;">
-        <!-- Loading State -->
-        <div id="acct-loading" class="text-center py-12">
-          <div class="inline-block w-10 h-10 border-[3px] border-purple-500/25 rounded-full animate-spin" style="border-top-color:#a78bfa;"></div>
-          <h3 class="font-display text-2xl tracking-wider text-white mt-4">RUNNING ACCOUNTABILITY ANALYSIS</h3>
-          <p class="text-steel-300 text-sm font-condensed tracking-wider mt-1">Analyst &amp; Fact-Checker perspectives are reviewing the record…</p>
-          <div class="max-w-md mx-auto mt-6 bg-navy-900/40 border border-white/5 rounded-xl p-3.5 text-left text-xs text-steel-400 font-body leading-relaxed space-y-2">
-            <div class="flex items-center gap-2"><span style="color:#a78bfa;">◆</span> Auditing the tracked promise ledger and voting record</div>
-            <div class="flex items-center gap-2"><span style="color:#a78bfa;">◆</span> Weighing stated positions against documented action</div>
-            <div class="flex items-center gap-2"><span style="color:#a78bfa;">◆</span> Surfacing truths, myths, strengths and red flags</div>
-          </div>
-        </div>
-
-        <!-- Loaded Content (Hidden initially) -->
-        <div id="acct-content" class="hidden">
-          <div id="acct-panel-body" class="space-y-5">
-            <!-- Dynamic breakdown inserted here -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- The Accountability Score deep-analysis modal stood here: #accountability-overlay,
+       with #acct-subtitle, #acct-loading, #acct-content and #acct-panel-body inside it,
+       opened by viewAccountabilityAnalysis() and its two sibling openers. The composite
+       0–100 model is retired — engine, curated overrides, rating vocabulary, badges and
+       this overlay. The markup is deleted rather than hidden, because a hidden overlay is
+       a door someone re-opens as a fix. scripts/test-accountability-retired.mjs fails the
+       build if any of it returns. -->
 
   <!-- ═══════════════════ GUIDED TOUR — WELCOME MODAL ═══════ -->
   <div id="pdx-welcome-overlay" class="fixed inset-0 z-[110] bg-black/85 backdrop-blur-md flex items-center justify-center p-4" style="display:none;" onclick="if(event.target===this)pdxCloseWelcome()">
@@ -22453,11 +22480,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   })();
   </script>
 
-  <!-- ═══════════════════ ACCOUNTABILITY SCORE ENGINE ═══════════════════ -->
-  <!-- Accountability Score engine — extracted to /accountability-score.js (first-paint pass). Plain sync script at
-       the original inline position: same execution order, same global scope.
-       The preload scanner fetches it in parallel long before the parser gets here. -->
-  <script src="/accountability-score.js"></script>
+  <!-- ═══════════════════ SPOTLIGHT EVIDENCE LAYER ═══════════════════ -->
+  <!-- The Spotlight ↔ evidence presentation layer. This tag used to load
+       /accountability-score.js — the retired composite 0–100 Accountability
+       Score, its curated overrides, its rating vocabulary and its deep-analysis
+       overlay. That model is gone from the publish set entirely; what is left is
+       the evidence layer the rest of the app reads, at the same document
+       position so execution order and global scope are unchanged. See
+       scripts/test-accountability-retired.mjs — it fails the build if the score
+       comes back. -->
+  <script src="/profile-evidence.js"></script>
 
   <!-- ── Team Builder dock controller ──────────────────────────────────────────
        Renders and shows/hides the persistent progress pill defined above. State is
@@ -23333,7 +23365,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ov.style.opacity='0';
       setTimeout(function(){
         ov.style.display='none';
-        var others=['modal-overlay','accountability-overlay','compare-overlay','auth-overlay','kr-align-overlay','kr-spot-overlay'];
+        var others=['modal-overlay','compare-overlay','auth-overlay','kr-align-overlay','kr-spot-overlay'];
         var any=others.some(function(id){var el=document.getElementById(id); return el&&el.style.display&&el.style.display!=='none';});
         if(!any) document.body.style.overflow='';
       },200);
@@ -27138,6 +27170,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var el = document.querySelector(sel);
           _meta[n] = el ? el.getAttribute(n === 'description' || n.indexOf('twitter') === 0 ? 'content' : 'content') : null;
         });
+        // The document's single hardcoded canonical href, saved so closing the
+        // Spotlight puts it back exactly as the server sent it.
+        var _canon = document.querySelector('link[rel="canonical"]');
+        _meta.canonical = _canon ? _canon.getAttribute('href') : null;
       }
       document.title = sp.title + ' — PolitiDex Issue Spotlight';
       setMetaTag('meta[property="og:title"]', document.title);
@@ -27146,8 +27182,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       setMetaTag('meta[name="twitter:description"]', sp.metaDescription);
       setMetaTag('meta[name="description"]', sp.metaDescription);
       setMetaTag('meta[property="og:url"]', spotlightUrl(sp.slug));
+      // og:url without rel=canonical is half the job. index.html ships ONE
+      // canonical href for the whole single-page app, so an open Spotlight was
+      // telling anything that reads the live DOM — a crawler that executes JS, a
+      // reader-mode extension, a "copy canonical link" tool — that this record is
+      // really the homepage. The edge function fixes the served HTML for scrapers
+      // (netlify/edge-functions/share-preview.ts); this fixes the live document.
+      setCanonicalHref(spotlightUrl(sp.slug));
     }
     function setMetaTag(sel, val) { var el = document.querySelector(sel); if (el && val != null) el.setAttribute('content', val); }
+    function setCanonicalHref(val) {
+      var el = document.querySelector('link[rel="canonical"]');
+      if (el && val != null) el.setAttribute('href', val);
+    }
     function restoreMeta() {
       if (!_meta) return;
       document.title = _meta.title;
@@ -27157,6 +27204,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       setMetaTag('meta[name="twitter:description"]', _meta['twitter:description']);
       setMetaTag('meta[name="description"]', _meta['description']);
       setMetaTag('meta[property="og:url"]', _meta['og:url']);
+      setCanonicalHref(_meta.canonical);
       _meta = null;
     }
 

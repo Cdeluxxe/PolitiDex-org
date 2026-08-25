@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // test-match-axis-formal.mjs — your issues × their formal pattern, with no quote
 // ─────────────────────────────────────────────────────────────────────────────
-// Your Match · record asks one question: do this person's VOTES AND FORMAL
+// Your Record Match asks one question: do this person's VOTES AND FORMAL
 // ACTIONS line up with the positions I set? Whether we ever sourced a quote from
 // them on the same issue is a fact about our stance corpus, not about their
 // record, and it must not decide whether they can be ranked, whether an axis is
@@ -412,7 +412,7 @@ section("6 · zero positions is still Overview, and the stated tab still leads o
   // The pointer to the other tab is gone BECAUSE it is no longer needed: the
   // record already answered, in this tab. It survives for the case it was written
   // for — a candidate the record cannot answer either — which section 5 covers.
-  lacks(shtml, "open Your Match · record",
+  lacks(shtml, "open Your Record Match",
     "…and the cross-tab pointer is not printed where this tab already answered");
 }
 

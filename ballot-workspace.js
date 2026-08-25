@@ -53,7 +53,7 @@
 
    THE HARD RULES, AND HOW THIS SURFACE KEEPS THEM
    ───────────────────────────────────────────────
-   · FORMAL RECORD IS THE RULER. The field is ordered by Your Match · record and
+   · FORMAL RECORD IS THE RULER. The field is ordered by Your Record Match and
      the line above it says so. That is the local default everywhere on the seat
      spine, and this surface has no toggle that could change it — a reader who
      wants the stated lane opens the full sheet, which owns that choice.
@@ -568,7 +568,7 @@
     return '<div class="bw-locate">' +
       '<div class="bw-eyebrow">Your ballot workspace</div>' +
       '<h3 class="bw-title">One seat at a time</h3>' +
-      '<p>Set where you vote and this becomes <b>your</b> ballot — every seat on it, the field ' +
+      '<p>Set where you vote and this fills with <b>your</b> races — every seat we track, the field ' +
       'for each one on the formal record, and your pick saved as you go.</p>' +
       '<button type="button" class="bw-go is-lead"' +
         ' onclick="(window.openLocationModal||window.toggleChangeLocation||function(){})()">' +

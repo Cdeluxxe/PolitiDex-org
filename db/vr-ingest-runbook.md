@@ -31,7 +31,7 @@ were fabricated to fake the result.
 ## Run the wave
 
 ```sh
-export VR_SITE_URL=https://politidex.org        # or http://localhost:8889 for `netlify dev`
+export VR_SITE_URL=https://politidex.fyi        # or http://localhost:8889 for `netlify dev`
 export VR_INGEST_TOKEN=…                          # the operator token (matches the Function env)
 # CONGRESS_GOV_API_KEY must be set in the Function's Netlify environment.
 

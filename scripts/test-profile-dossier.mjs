@@ -76,7 +76,9 @@ const DO_CSS = read("profile-dossier.css");
 const WA_SRC = read("word-action.js");
 const CONNECT = read("profile-connect.js");
 const PF = read("profiles-full.js");
-const ACCT = read("accountability-score.js");
+// The spotlight evidence layer, which outlived the Accountability Score engine it
+// used to share a file with (see scripts/test-accountability-retired.mjs).
+const EVID = read("profile-evidence.js");
 const INDEX = read("index.html");
 const SW = read("sw.js");
 
@@ -515,11 +517,11 @@ const dot = (issueKey, over = {}) => ({
      "the driver and news cards are no longer both carried into the drawer — one of the two layers was dropped rather than compressed");
   ok(/anchorId: anc/.test(PF),
      "the spotlight cards no longer carry their own anchors, so digest rows have nothing to jump to");
-  // The accountability score's own jump into a spotlight driver has to open the lid.
-  const focus = ACCT.slice(ACCT.indexOf("_slFocusSpotlight"), ACCT.indexOf("_slFocusSpotlight") + 1400);
-  must(focus.length > 300, "accountability-score.js no longer defines _slFocusSpotlight");
+  // The deep-link into a single spotlight driver has to open the lid.
+  const focus = EVID.slice(EVID.indexOf("_slFocusSpotlight"), EVID.indexOf("_slFocusSpotlight") + 1400);
+  must(focus.length > 300, "profile-evidence.js no longer defines _slFocusSpotlight");
   ok(/_pdxNavJump\('sl-driver-'/.test(focus),
-     "the accountability→spotlight jump does not use the drawer-aware jump, so clicking a score driver now scrolls to a collapsed drawer and looks broken");
+     "the spotlight jump does not use the drawer-aware jump, so clicking a driver now scrolls to a collapsed drawer and looks broken");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

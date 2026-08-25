@@ -503,7 +503,7 @@ section("6 · Privacy — positions do not travel, and neither does the order");
   has(rh, "this order is yours, not theirs",
       "recipient with no stances: the sheet says the sender's positions did not come with the link");
   has(rh, "Set my positions", "recipient with no stances: the CTA is still the way forward");
-  lacks(rh, "Your Match · record</span><span class=\"rs-pct\">",
+  lacks(rh, "Your Record Match</span><span class=\"rs-pct\">",
       "recipient with no stances: no match figure was fabricated for them");
   ok(!/sender.s ranking/i.test(rh),
       "there is no 'sender's ranking at share time' snapshot to label, because none is sent");

@@ -188,6 +188,35 @@ export function parseTarget(url: URL): Target | null {
   return null;
 }
 
+// ── canonicalPath ────────────────────────────────────────────────────────────
+// The one clean address for a record, derived from the TARGET rather than from
+// the request. This is what rel="canonical" and og:url are for, and it is the
+// reason both used to be wrong: index.html carries a single hardcoded
+// `<link rel="canonical" href="https://politidex.fyi/">`, so every share link —
+// every profile, Spotlight, roll call, bill and receipt — told search engines it
+// was really the homepage, and og:url unfurled with whatever the reader happened
+// to have in their address bar (`?utm_source=…`, a stale `?p=` layered on an
+// /issue/ path, a share tracker).
+//
+// Deriving it from the parsed target normalizes all of that away: the same record
+// reached three different ways resolves to one address, and it is an address that
+// actually opens the record. Where a surface has a clean path (Spotlight, roll
+// call) that path wins over the query form.
+export function canonicalPath(t: Target): string {
+  const e = encodeURIComponent;
+  switch (t.kind) {
+    // ?p= is how the app itself addresses an open profile.
+    case "profile":   return `/?p=${e(t.id)}`;
+    // Both /issue/<slug> and ?issue=<slug> resolve here; the path is the canonical one.
+    case "spotlight": return `/issue/${e(t.slug)}`;
+    case "vote":      return `/vote/${e(t.congress)}/${e(t.chamber)}/${e(t.roll)}`;
+    case "bill":      return `/?bill=${e(t.congress + "/" + t.number)}`;
+    case "receipt":
+    case "record":    return `/?${t.kind}=${e(t.pid + (t.issue ? "~" + t.issue : ""))}`;
+    case "rank":      return `/?rank=${e(t.core)}` + (t.focus ? `&key=${e(t.focus)}` : "");
+  }
+}
+
 // ── Per-surface chrome ───────────────────────────────────────────────────────
 // Each surface gets a visibly different eyebrow and accent so two PolitiDex links
 // in the same feed never read as the same thing. The Spotlight row is the one that

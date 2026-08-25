@@ -150,7 +150,11 @@ export function verifyUnsubToken(token: string): string | null {
   try { return crypto.timingSafeEqual(a, b) ? userId : null; } catch { return null; }
 }
 
-const SITE_URL = "https://politidex.org";
+// The single public origin. Every other surface in the repo already uses this
+// apex host; the digest was one of the last places still naming the old
+// .org domain, which meant every emailed unsubscribe link pointed at a host we
+// do not serve. There is exactly one origin, and it is written here once.
+const SITE_URL = "https://politidex.fyi";
 export function unsubscribeUrl(userId: string): string {
   return `${SITE_URL}/api/pdx-digest/unsubscribe?u=${encodeURIComponent(makeUnsubToken(userId))}`;
 }

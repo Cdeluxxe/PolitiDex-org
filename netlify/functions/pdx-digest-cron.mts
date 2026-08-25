@@ -58,7 +58,7 @@ function esc(s: unknown): string {
 // at send time) so opting out is always one tap away.
 function renderEmail(digest: Digest, unsubUrl: string): { subject: string; html: string; text: string } {
   const total = digest.counts.total;
-  const site = "https://politidex.org";
+  const site = "https://politidex.fyi";
 
   const evRows = digest.evidence
     .map(

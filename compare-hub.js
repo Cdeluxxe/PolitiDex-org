@@ -1562,7 +1562,7 @@
         var next = _pdxNextOpenSeat();
         hint.innerHTML = next
           ? '✓ Saved to <strong style="color:#86efac;">My Team</strong>. Keep going — your <strong style="color:#cbd9ee;">' + next.label + '</strong> seat is still open. Browse that race next.'
-          : '🎉 Saved — that fills <strong style="color:#86efac;">every seat</strong> on your ballot. Compare your full team to lock it in.';
+          : '🎉 Saved — that fills <strong style="color:#86efac;">every seat</strong> PolitiDex tracks for you. Compare your team to lock it in.';
         return;
       }
 
@@ -2021,12 +2021,10 @@
       var d = CMP_DATA[pid];
       if (!d) return '';
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
-      // `hasScore` is a DATA predicate — "this record has a closed, itemized
-      // pledge ledger" — and nothing more. Nothing below prints it, and no colour
-      // scale is derived from it: colouring a slot by a rate is publishing the
-      // rate. It survives only to gate the Accountability badge, which needs a
-      // record substantial enough to be worth a second read.
-      var hasScore = window._pdxDisplayScore(d) !== null && window._pdxDisplayScore(d) !== undefined;
+      // `hasScore` — a DATA predicate ("this record has a closed, itemized pledge
+      // ledger") — was read here for exactly one purpose: gating the Accountability
+      // Score badge. The badge is retired, so the predicate has no reader and is
+      // gone with it. Nothing on this card is coloured or ordered by a rate.
 
       // Resolve this politician's real district / county so the office line can
       // state the seat clearly even where the card sits outside the browse tree
@@ -2163,8 +2161,11 @@
       // verdict rests on, never a grade. Only published when the read is, because
       // below the floor the rail's own sub-line is already the coverage statement.
       var covPill = (_waSayable && typeof window._pdxCoveragePill === 'function') ? window._pdxCoveragePill(_waRead) : '';
-      var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
-        ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
+      // The Accountability Score badge (#acctbadge-<pid>) rode here. The whole
+      // composite is retired — module, badge, rating bands and overlay — so there is
+      // no renderer to call and no `opts.acct` to honour. The integrity evidence is
+      // still on the card: it is the Spotlight rows, which are sourced items.
+      var acct = '';
       var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
       var voteChip = (typeof window._pdxVoteChip === 'function') ? window._pdxVoteChip(pid) : '';
       // Compact People's Mandate cue — shows the count of connected reforms and,
@@ -2522,10 +2523,11 @@
       // behind when the pledge percentage was retired, so this whole function
       // threw a ReferenceError before it could return. Removing the tally removes
       // the last reader of `sc`.) The counts still live on the profile.
-      // Accountability of Truth chip — the integrity signal for this teammate, shown
-      // front-and-center on the slot so a voter can weigh how well they keep their word.
-      var acctBadgeHtml = (typeof window._acctCardBadge === 'function')
-        ? '<div class="myteam-slot-acct" style="display:flex;justify-content:center;margin:0.1rem 0 0.5rem;" onclick="event.stopPropagation();">' + window._acctCardBadge(pid) + '</div>' : '';
+      // The Accountability of Truth chip sat here, centred on the slot. Retired with
+      // the rest of the composite: a 0–100 grade printed on a ballot slot is a second
+      // headline the voter has to arbitrate against the formal record. The slot's
+      // formal-record read is the one that stays.
+      var acctBadgeHtml = '';
 
       // Keyboard + screen-reader access: the card is a clickable summary, so
       // expose it as a focusable button with a descriptive label and Enter/Space
@@ -3172,12 +3174,12 @@
             slThemeMed +
             slPatternMed +
             slRows +
-            // SCORING CLEANUP: the "View full accountability analysis →" button used
-            // to open #accountability-overlay, which prints an Accountability Score
-            // of N/100 — a second composite competing with Direction Match. The badge
-            // and the profile ring were retired earlier; this was the last reader-facing
-            // door into the overlay from the medium card. The sourced Spotlight rows
-            // above stay: they are evidence, not a score.
+            // SCORING CLEANUP: the "View full accountability analysis →" button used to
+            // open the Accountability Score deep-analysis overlay, which printed a
+            // composite N/100 — a second headline competing with the formal record. The
+            // badge and the profile ring went first, this button next, and the overlay
+            // and its engine are now deleted from the publish set outright. The sourced
+            // Spotlight rows above stay: they are evidence, not a score.
           '</div>';
       } else if (slThemeMed) {
         // Theme authored but no individual drivers tagged yet — show the overall
@@ -3188,9 +3190,10 @@
             '<div class="pdx-med-sec-sub">Personal integrity &amp; consistency — words vs. actions and public conduct, beyond the formal record</div>' +
             slThemeMed +
             '<p class="pdx-med-spot-thin">Individual integrity highlights are still being gathered for this official.</p>' +
-            // SCORING CLEANUP: second door into #accountability-overlay, removed with
+            // SCORING CLEANUP: second door into the deep-analysis overlay, removed with
             // the one above. The trailing "the overall read above reflects their record
-            // so far" went with it — it referred to the retired composite.
+            // so far" went with it — it referred to the retired composite. The overlay
+            // itself no longer exists.
           '</div>';
       }
 
@@ -3206,7 +3209,7 @@
       if (matchBar) {
         var whyFit = (typeof window._medWhyFit === 'function') ? window._medWhyFit(id) : '';
         html += '<div class="pdx-med-section pdx-med-match">' +
-            '<div class="pdx-med-sec-title">🎯 Your Match</div>' + matchBar + whyFit +
+            '<div class="pdx-med-sec-title">🎯 ' + ((typeof window.pdxMatchLabel === 'function') ? window.pdxMatchLabel() : 'Your Match') + '</div>' + matchBar + whyFit +
           '</div>';
       }
 
@@ -3583,7 +3586,7 @@
             '</div>' +
             '<p class="myteam-guide-sub">Every seat is filled with someone who reflects <strong>your values</strong>, and it\'s <strong>saved on this device</strong> for election day. View your finished ballot to print or share it, compare your slate, or keep refining.</p>' +
             '<div class="myteam-guide-steps">' +
-              '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">📋</span><span class="myteam-guide-txt"><span class="myteam-guide-label">See your finished ballot</span><span class="myteam-guide-desc">Your whole slate on one card — print it or copy it to take to the polls.</span></span><button type="button" class="myteam-guide-go" onclick="window.openBallotSummary && window.openBallotSummary()">📋 My Ballot</button></div>' +
+              '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">📋</span><span class="myteam-guide-txt"><span class="myteam-guide-label">See your finished slate</span><span class="myteam-guide-desc">Your whole slate on one card — print it or copy it to take to the polls.</span></span><button type="button" class="myteam-guide-go" onclick="window.openBallotSummary && window.openBallotSummary()">📋 My Ballot</button></div>' +
               (filledCount >= 2
                 ? '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">✓</span><span class="myteam-guide-txt"><span class="myteam-guide-label">Compare your team</span><span class="myteam-guide-desc">See all your picks head-to-head on record &amp; values.</span></span><button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'compare\')">⚖️ Compare</button></div>'
                 : '') +
@@ -4593,7 +4596,7 @@
       // one of the voter's own voting districts it's framed in district terms.
       var msg, cta = '';
       if (done) {
-        msg = '\u{1F389} <strong>Every seat on your ballot has a pick</strong>' + (distTotal ? ', including all ' + distTotal + ' of your voting districts' : '') + '. Compare your slate below to weigh your picks side by side.';
+        msg = '\u{1F389} <strong>Every seat we track has a pick</strong>' + (distTotal ? ', including all ' + distTotal + ' of your voting districts' : '') + '. Compare your slate below to weigh your picks side by side.';
       } else if (firstOpen) {
         var lvlId = _myteamSeatLevel(firstOpen.key);
         var lvl = _MYTEAM_LEVELS.filter(function(l) { return l.id === lvlId; })[0];
@@ -5153,7 +5156,10 @@
           '.bs-seat-meta{font-family:"Barlow",sans-serif;font-size:0.78rem;color:#9fb4d4;margin-top:0.05rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;}' +
           '.bs-seat-score{flex:none;text-align:center;}' +
           '.bs-seat-score-num{font-family:"Bebas Neue",sans-serif;font-size:1.25rem;line-height:1;}' +
-          '.bs-seat-score-lbl{font-family:"Barlow Condensed",sans-serif;font-size:0.5rem;letter-spacing:0.06em;text-transform:uppercase;color:#647a9c;}' +
+          '.bs-seat-score{max-width:6.5rem;}' +
+          '.bs-seat-score-job,.bs-seat-score-lbl{display:block;font-family:"Barlow Condensed",sans-serif;letter-spacing:0.06em;text-transform:uppercase;}' +
+          '.bs-seat-score-job{font-size:0.44rem;color:#55688a;}' +
+          '.bs-seat-score-lbl{font-size:0.5rem;color:#647a9c;}' +
           '.bs-seat-act{flex:none;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:none;border-radius:0.6rem;padding:0.45rem 0.7rem;cursor:pointer;white-space:nowrap;}' +
           '.bs-seat-swap{flex:none;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.04em;text-transform:uppercase;color:#9fb4d4;background:none;border:1px solid rgba(255,255,255,0.14);border-radius:0.55rem;padding:0.38rem 0.55rem;cursor:pointer;white-space:nowrap;transition:all 0.16s ease;}' +
           '.bs-seat-swap:hover{color:#fff;border-color:rgba(255,255,255,0.3);}' +
@@ -5223,7 +5229,7 @@
           });
           lines.push('');
         });
-        lines.push('Built free & nonpartisan at politidex.org');
+        lines.push('Built free & nonpartisan at politidex.fyi');
         return lines.join('\n');
       }
 
@@ -5272,7 +5278,14 @@
             var _slot = window._pdxLedgerSlot
               ? window._pdxLedgerSlot(d, { pid: pid, status: (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office' })
               : { state: 'empty', glyph: '—', label: 'Word vs Action', sub: 'No record yet', tint: '' };
-            var scoreHtml = '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:' + (_slot.tint || '#647a9c') + ';font-size:0.8rem;">' + _slot.glyph + '</span><span class="bs-seat-score-lbl">' + _bsEsc(_slot.sub) + '</span></span>';
+            // The kicker names the job. Without it this tile printed a glyph and
+            // a verdict word ("Kept their word") with nothing saying what was
+            // measured — on a seat tile, next to a name, that reads like a score
+            // of the person or a match to the reader. It is neither.
+            var scoreHtml = '<span class="bs-seat-score" title="⚖️ Word vs Action — their own stated positions against their own formal record. Not a match to you, and not what orders this list.">' +
+              '<span class="bs-seat-score-num" style="color:' + (_slot.tint || '#647a9c') + ';font-size:0.8rem;">' + _slot.glyph + '</span>' +
+              '<span class="bs-seat-score-job">' + _bsEsc(_slot.label || 'Word vs Action') + '</span>' +
+              '<span class="bs-seat-score-lbl">' + _bsEsc(_slot.sub) + '</span></span>';
             return '<div class="bs-seat is-filled">' + photoHtml +
               '<span class="bs-seat-body">' +
                 '<span class="bs-seat-office">✓ ' + _bsEsc(p.label) + ' ' + scopeHtml + '</span>' +
@@ -5432,13 +5445,9 @@
       var localBadge = isLocal ? '<span class="chub-your-badge" style="font-size:0.6rem;">📍 Local Rep</span>' : '';
       var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:1.15rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
       var alignHtml = typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '';
-      // Accountability of Truth chip — shown right alongside the ⚖️ Word vs Action
-      // rail so a voter sees the integrity signal without opening the profile.
-      // (The `sc !== null` gate this used to carry read an undeclared identifier
-      // left behind when the pledge percentage was retired, which threw a
-      // ReferenceError before the card could render.)
-      var acctBadgeHtml = (typeof window._acctCardBadge === 'function')
-        ? '<span style="display:inline-flex;flex-shrink:0;">' + window._acctCardBadge(pid) + '</span>' : '';
+      // The Accountability of Truth chip sat beside the ⚖️ Word vs Action rail. Retired
+      // with the composite it read from; ⚖️ Word vs Action is the integrity read here.
+      var acctBadgeHtml = '';
       // Documented positions for this teammate — replaces the bare topic tags
       // when present (same labels, plus where they stand) on their own row.
       var mtStances = (typeof window._pdxStanceChips === 'function') ? window._pdxStanceChips(pid, d, { max: 4 }) : '';
@@ -5524,10 +5533,10 @@
       // expander (toggleCardAccountability) on every incumbent card in the browse
       // grid. Expanding it printed the retired Accountability of Truth composite —
       // an overall 0–100, per-category 0–100 bars — and ended in a "View Full
-      // Analysis →" button into #accountability-overlay. It was the widest of the
-      // four doors into the second score, and the last one found. Removed: Direction
-      // Match is the product's only headline metric. Do not re-add an entry point.
-      // See scripts/test-no-second-score.mjs.
+      // Analysis →" button into the deep-analysis overlay. It was the widest of the
+      // four doors into the second score, and the last one found. All of it — doors,
+      // engine, overlay, rating bands — is now gone from the publish set. Do not
+      // re-add an entry point. See scripts/test-accountability-retired.mjs.
       var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
       var extra = alignBar ? '<div style="margin-bottom:0.1rem;">' + alignBar + '</div>' : '';
 
@@ -5567,7 +5576,6 @@
         controls: _pdxHeartCtrl(pid),
         badges: badges,
         maxIssues: 2,
-        acct: false,
         extra: alignBar,
         actions: actions
       });
@@ -8351,19 +8359,17 @@
           controls: _pdxHeartCtrl(pid),
           badges: badges,
           maxIssues: 2,
-          acct: false,
           statusEmphasis: 'high',
           extra: candAlign,
           actions: actions
         });
       }
 
-      // Sitting officeholder: the premium hero card. The two signals a voter weighs
-      // here — the formal in-office record (Promise %) and the character/consistency
-      // read (Accountability) — are presented together as one paired, equal-weight
-      // scorecard (so neither is buried), with the combined "Your Match" bar below it.
-      // hideScore + acct:false suppress the old lopsided corner score and stray chip
-      // so the dual scorecard is the single, scannable home for both numbers.
+      // Sitting officeholder: the premium hero card. The formal in-office record is
+      // the signal a voter weighs here, with the personalized match bar below it.
+      // (This used to pair the record against an Accountability composite as an
+      // "equal-weight scorecard"; that second number is retired, so the record is
+      // simply the read.) hideScore suppresses the old lopsided corner score.
       var dual = (typeof _relevantDualSignal === 'function') ? _relevantDualSignal(pid) : '';
       // Explicit "holds this seat now" marker so the sitting officeholder reads
       // instantly on the Relevant-to-Me ballot, not just via the green card color.
@@ -8372,7 +8378,6 @@
         cardClass: 'is-incumbent',
         controls: _pdxHeartCtrl(pid),
         badges: incBadge + badges,
-        acct: false,
         hideScore: true,
         statusEmphasis: 'high',
         topExtra: dual,
@@ -10365,7 +10370,7 @@
         var _gNext = _covDistOpen[0] || _covOpen[0];
         var _gNextLine, _gPrimaryBtn = '';
         if (_guidedComplete) {
-          _gNextLine = '🎉 <strong>Every seat on your ballot has a pick.</strong> See your finished ballot to print or share it, or review your slate up top.';
+          _gNextLine = '🎉 <strong>Every seat we track has a pick.</strong> See your finished slate to print or share it, or review it up top.';
           _gPrimaryBtn = '<button type="button" class="rel-guide-btn is-primary" onclick="window.openBallotSummary && window.openBallotSummary()">📋 See My Ballot</button>';
         } else if (_gNext) {
           var _gShort = _relTxt(_RELEVANT_OFFICE_SHORT[_gNext] || _gNext);

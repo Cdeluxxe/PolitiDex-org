@@ -254,7 +254,7 @@ section("1 · Record is the default; DM is display, never rank");
   eq(M.mode(), "record", "a cold sheet does not open in record mode");
 
   const html = sheetHtml(w, "ussenate1");
-  has(html, "Your Match · record", "the sheet does not name the record lane");
+  has(html, "Your Record Match", "the sheet does not name the record lane");
   has(html, "formal record</b> on the issues you set",
     "the rank line does not say the rank is the formal record");
 

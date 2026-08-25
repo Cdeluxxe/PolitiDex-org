@@ -1462,6 +1462,30 @@
       return m === 'record';
     }
     function _alignModeMeta(m) { return ALIGN_MODE_META[_alignModeOf(m || _alignMode)]; }
+
+    // ── ONE NAME FOR THE VOTER-ALIGNMENT READ ────────────────────────────────
+    // "Your Match" and "Direction Match" were two different measurements with
+    // one word in common, printed side by side on the same cards, and a reader
+    // had no way to tell from the labels alone that one compares a politician to
+    // THEM and the other compares a politician to THEMSELVES. The fix is to name
+    // the lane in the label: the formal-record lane is "Your Record Match".
+    //
+    // It is a function, not a constant, because this read has two lanes and only
+    // one of them is a record match. In stated mode the number is built from
+    // documented positions, not from votes — calling that "Your Record Match"
+    // would trade one ambiguity for a plain falsehood. So the record lane gets
+    // the locked name and the stated lane keeps the generic one, which is what
+    // the mode toggle beside it already says out loud.
+    //
+    // Exposed on window because four other files print this label (compare-hub,
+    // compare-table, profiles-full, and race-sheet's record lane) and a copy of
+    // the string in each of them is how a name drifts. Every caller guards with
+    // typeof and falls back to 'Your Match', which is the correct answer when
+    // this module has not loaded: no mode has been resolved yet.
+    function _pdxMatchLabel(opts) {
+      return _alignModeIsRecord(opts) ? 'Your Record Match' : 'Your Match';
+    }
+    window.pdxMatchLabel = _pdxMatchLabel;
     window.alignMatchMode = function () { return _alignMode; };
     window.alignMatchModeMeta = function (m) { return _alignModeMeta(m || _alignMode); };
 
@@ -3519,7 +3543,7 @@
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
           '<span class="align-card-main">' +
             '<span class="align-card-titlerow">' +
-              '<span class="align-card-title" style="color:' + col + ';">🎯 Your Match</span>' +
+              '<span class="align-card-title" style="color:' + col + ';">🎯 ' + _pdxMatchLabel() + '</span>' +
               '<span class="align-card-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
               modeTag +
             '</span>' +
@@ -3554,7 +3578,7 @@
       return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="myteam-slot-match" title="Your match on your selected issues — tap for the issue-by-issue breakdown" style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1f;">' +
           '<span class="myteam-slot-match-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.85rem;">%</span></span>' +
           '<span class="myteam-slot-match-mid">' +
-            '<span class="myteam-slot-match-label">🎯 Your Match · <b style="color:' + col + ';">' + label + '</b></span>' +
+            '<span class="myteam-slot-match-label">🎯 ' + _pdxMatchLabel() + ' · <b style="color:' + col + ';">' + label + '</b></span>' +
             '<span class="myteam-slot-match-bar"><span style="width:' + score + '%;background:linear-gradient(90deg,' + col + '99,' + col + ');"></span></span>' +
           '</span>' +
         '</button>' + _alignConsistencyBar(pid) + drivers + _alignMatchActions(pid, { receiptsOnly: true });
@@ -3596,7 +3620,7 @@
       var _openBd = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
       if (size === 'small') {
         var _mm = _alignModeMeta();
-        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues, matched on ' + _mm.label.toLowerCase() + ' — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%' + (_alignModeIsRecord() ? ' <span class="align-score-mode" aria-hidden="true">' + _mm.ico + '</span>' : '') + '</button>' + _alignConsistencyBadge(pid);
+        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues, matched on ' + _mm.label.toLowerCase() + ' — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 ' + _pdxMatchLabel() + ' ' + score + '%' + (_alignModeIsRecord() ? ' <span class="align-score-mode" aria-hidden="true">' + _mm.ico + '</span>' : '') + '</button>' + _alignConsistencyBadge(pid);
       }
 
       if (usePurpleTheme) {
@@ -3604,7 +3628,7 @@
           '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
           '<div style="text-align:center;background:rgba(10,15,30,0.65);border:1px solid rgba(139,92,246,0.45);border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
             '<div style="color:#c084fc;font-size:2.2rem;text-shadow:0 0 12px rgba(139,92,246,0.4);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + score + '%</div>' +
-            '<div class="font-condensed text-xs text-purple-300 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">🎯 Your Match</div>' +
+            '<div class="font-condensed text-xs text-purple-300 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">🎯 ' + _pdxMatchLabel() + '</div>' +
           '</div>' +
         '</button>' + (typeof _alignConsistencyBadge === 'function' ? _alignConsistencyBadge(pid) : '') + '</span>';
       }
@@ -3612,7 +3636,7 @@
       return '<span class="align-ring-wrap">' +
         '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
         '<div class="align-score-ring ' + cls + '" style="border-color:' + col + '99;color:' + col + ';background:' + col + '14;box-shadow:0 0 14px ' + col + '22;">' + score + '%</div>' +
-        '<div class="align-pct-label" style="color:' + col + '99;">🎯 Your Match</div>' +
+        '<div class="align-pct-label" style="color:' + col + '99;">🎯 ' + _pdxMatchLabel() + '</div>' +
       '</button>' + (typeof _alignConsistencyBadge === 'function' ? _alignConsistencyBadge(pid) : '') + '</span>';
     }
 
