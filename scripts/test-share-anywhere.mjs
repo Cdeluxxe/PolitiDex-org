@@ -532,7 +532,7 @@ const run = async () => {
 // ── 5. The wiring — the four surfaces the affordance was built for ───────────
 {
   const html = read("index.html");
-  ok(/<script defer src="share-anywhere\.js"><\/script>/.test(html),
+  ok(/<script defer src="\/share-anywhere\.js"><\/script>/.test(html),
      "wiring: index.html loads share-anywhere.js");
   ok(html.indexOf('id="pdx-share-artifact"') !== -1,
      "wiring: the share sheet has an artifact row — the one row every compact card and the profile modal header inherit");

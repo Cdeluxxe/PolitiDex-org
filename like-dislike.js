@@ -23,6 +23,41 @@
   var _commentsListenerActive = false;
   var _votesDataLoaded = false;
 
+  // ── Boot-health guards ──────────────────────────────────────────────────────
+  // `_fbAuthReady` and `db` are both created by firebase-boot.js, which is a
+  // DEFERRED script. This file is a SYNCHRONOUS one, so it executes first and
+  // neither global exists yet when the top-level statements below run. A bare
+  // `_fbAuthReady.then(...)` was therefore a ReferenceError on load, and because
+  // `_startVotesListener()` is called at the bottom of this section that error
+  // aborted the whole file — taking every function defined after it (the entire
+  // comment and chat system) with it. These two shims resolve the globals at CALL
+  // time instead of load time, which is when Firebase has actually booted.
+
+  // Resolves against the real auth promise as soon as it exists. Polls briefly
+  // because the deferred boot script may not have run yet at first call; if auth
+  // never arrives the promise simply stays pending, so cloud writes are skipped
+  // rather than attempted against a Firebase that is not there.
+  function _ldAuthReady() {
+    if (typeof _fbAuthReady !== 'undefined' && _fbAuthReady && typeof _fbAuthReady.then === 'function') {
+      return _fbAuthReady;
+    }
+    return new Promise(function (resolve, reject) {
+      var waited = 0;
+      (function poll() {
+        if (typeof _fbAuthReady !== 'undefined' && _fbAuthReady && typeof _fbAuthReady.then === 'function') {
+          _fbAuthReady.then(resolve, reject);
+          return;
+        }
+        waited += 50;
+        if (waited > 15000) {
+          try { console.warn('like-dislike: auth never became ready; skipping cloud sync.'); } catch (e) {}
+          return;
+        }
+        setTimeout(poll, 50);
+      })();
+    });
+  }
+
   var _voteSaveTimer = null;
   function _showVoteSaveToast() {
     var toast = document.getElementById('vote-save-toast');
@@ -77,7 +112,7 @@
       _dislikedPids.delete(basePid);
       _dislikeCounts[basePid] = Math.max(0, (_dislikeCounts[basePid] || 0) - 1);
       localStorage.setItem('pdx_disliked_pids', JSON.stringify(Array.from(_dislikedPids)));
-      _fbAuthReady.then(function() {
+      _ldAuthReady().then(function() {
         setDoc(db.collection('votes').doc(basePid), {
           dislikes: firebase.firestore.FieldValue.increment(-1)
         }, { merge: true }).catch(function(e) { console.warn('votes undo dislike error:', e); });
@@ -90,7 +125,7 @@
 
     localStorage.setItem('pdx_liked_pids', JSON.stringify(Array.from(_likedPids)));
 
-    _fbAuthReady.then(function() {
+    _ldAuthReady().then(function() {
       setDoc(db.collection('votes').doc(basePid), {
         likes: firebase.firestore.FieldValue.increment(1)
       }, { merge: true }).catch(function(e) {
@@ -122,7 +157,7 @@
       _likedPids.delete(basePid);
       _likeCounts[basePid] = Math.max(0, (_likeCounts[basePid] || 0) - 1);
       localStorage.setItem('pdx_liked_pids', JSON.stringify(Array.from(_likedPids)));
-      _fbAuthReady.then(function() {
+      _ldAuthReady().then(function() {
         setDoc(db.collection('votes').doc(basePid), {
           likes: firebase.firestore.FieldValue.increment(-1)
         }, { merge: true }).catch(function(e) { console.warn('votes undo like error:', e); });
@@ -135,7 +170,7 @@
 
     localStorage.setItem('pdx_disliked_pids', JSON.stringify(Array.from(_dislikedPids)));
 
-    _fbAuthReady.then(function() {
+    _ldAuthReady().then(function() {
       setDoc(db.collection('votes').doc(basePid), {
         dislikes: firebase.firestore.FieldValue.increment(1)
       }, { merge: true }).catch(function(e) {
@@ -1067,7 +1102,7 @@
     });
 
     // Also load comments from Firestore to update counts on load
-    _commentsCollection.get().then(function(snapshot) {
+    _commentsColl().get().then(function(snapshot) {
       var counts = {};
       var list = [];
       snapshot.forEach(function(doc) {
@@ -1103,7 +1138,7 @@
     if (_votesListenerActive) return;
     _votesListenerActive = true;
 
-    _fbAuthReady.then(function() {
+    _ldAuthReady().then(function() {
       db.collection('votes').onSnapshot(function(snapshot) {
         // Only react to documents that actually changed. The first snapshot
         // reports every doc as "added" (so the initial load still fills in all
@@ -1183,7 +1218,7 @@
   }
 
   _startVotesListener();
-  _fbAuthReady.then(function() {
+  _ldAuthReady().then(function() {
     setTimeout(_refreshAllVoteUI, 300);
     setTimeout(_refreshAllVoteUI, 1000);
     setTimeout(_refreshAllVoteUI, 3000);
@@ -1193,7 +1228,38 @@
   // COMMENT SYSTEM — Real-time Firestore + Local Storage Sync
   // Public, instant, threaded with likes/dislikes/replies
   // ════════════════════════════════════════════════════════
-  var _commentsCollection = db.collection('comments_v2');
+  // Resolved on first use rather than at load (see the boot-health note above:
+  // `db` does not exist yet while this file is executing). Until Firebase boots,
+  // callers get an inert stub with the same shape, so the comment surfaces run on
+  // localStorage instead of throwing: reads report "no documents", writes reject
+  // into the fallback handlers each call site already has, and onSnapshot hands
+  // back a no-op unsubscribe.
+  var _commentsCollectionRef = null;
+  var _commentsCollStub = null;
+  function _commentsCollFallback() {
+    if (_commentsCollStub) return _commentsCollStub;
+    var self = function () { return _commentsCollStub; };
+    var notReady = function () { return Promise.reject(new Error('Firestore not ready')); };
+    _commentsCollStub = {
+      doc: self, where: self, orderBy: self, limit: self,
+      get: function () {
+        return Promise.resolve({ exists: false, empty: true, size: 0, docs: [], forEach: function () {} });
+      },
+      set: notReady, update: notReady, add: notReady, delete: notReady,
+      onSnapshot: function () { return function () {}; }
+    };
+    return _commentsCollStub;
+  }
+  function _commentsColl() {
+    if (_commentsCollectionRef) return _commentsCollectionRef;
+    try {
+      if (typeof db !== 'undefined' && db && typeof db.collection === 'function') {
+        _commentsCollectionRef = db.collection('comments_v2');
+        return _commentsCollectionRef;
+      }
+    } catch (e) {}
+    return _commentsCollFallback();
+  }
   var _currentCommentPolitician = '';
   var _replyToCommentId = null;
   var _commentUserIdentifier = localStorage.getItem('pdx_comment_uid') || ('anon_' + Math.random().toString(36).slice(2, 10));
@@ -1298,7 +1364,7 @@
     }
 
     try {
-      _commentsUnsubscribe = _commentsCollection
+      _commentsUnsubscribe = _commentsColl()
         .where('pid', '==', _currentCommentPolitician)
         .onSnapshot(function(snapshot) {
           var list = [];
@@ -1540,7 +1606,7 @@
 
     _updateLocalVoteOnly(commentId, likeChange, dislikeChange);
 
-    _commentsCollection.doc(commentId).get().then(function(doc) {
+    _commentsColl().doc(commentId).get().then(function(doc) {
       if (doc.exists) {
         var d = doc.data();
         var currentLikes = typeof d.likes === 'number' ? d.likes : 0;
@@ -1650,7 +1716,7 @@
     });
 
     // Write to Firestore
-    _commentsCollection.doc(commentId).set(newComment).then(function() {
+    _commentsColl().doc(commentId).set(newComment).then(function() {
       console.log("Firestore comment created.");
     }).catch(function(err) {
       console.warn("Firestore write fallback:", err);
@@ -1728,7 +1794,7 @@
     _loadCommentsAndRender();
 
     // Save to Firestore
-    _commentsCollection.doc(commentId).set(newEvidence).catch(function(e) {
+    _commentsColl().doc(commentId).set(newEvidence).catch(function(e) {
       console.warn("Firestore evidence write fallback:", e);
     });
   }

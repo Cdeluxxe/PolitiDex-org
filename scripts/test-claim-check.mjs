@@ -390,11 +390,11 @@ const CCcode = CC.split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join(
 const html = read("index.html");
 const eye = read("all-seeing-eye.js");
 {
-  ok(/<script defer src="claim-check\.js"><\/script>/.test(html),
+  ok(/<script defer src="\/claim-check\.js"><\/script>/.test(html),
      "wiring: index.html loads claim-check.js deferred");
-  ok(html.indexOf('src="claim-check.js"') > html.indexOf('src="receipt-cards.js"'),
+  ok(html.indexOf('src="/claim-check.js"') > html.indexOf('src="/receipt-cards.js"'),
      "wiring: claim-check.js loads AFTER receipt-cards.js, whose API it calls");
-  ok(html.indexOf('src="claim-check.js"') > html.indexOf('src="say-vs-do.js"'),
+  ok(html.indexOf('src="/claim-check.js"') > html.indexOf('src="/say-vs-do.js"'),
      "wiring: claim-check.js loads AFTER say-vs-do.js, whose renderer it calls");
 
   // The eye calls in defensively and is unchanged if the module is absent.

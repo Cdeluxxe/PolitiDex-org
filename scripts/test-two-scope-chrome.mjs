@@ -258,7 +258,7 @@ has(hubIntro, "For each seat PolitiDex can resolve for you",
     "the Door 2 opening still promises to fill every seat rather than the ones it can resolve");
 has(hubIntro, "says so instead of filling in a stranger",
     "the Door 2 opening does not state what happens to a seat it cannot resolve");
-has(INDEX, 'src="scope-chrome.js"', "index.html does not load scope-chrome.js");
+has(INDEX, 'src="/scope-chrome.js"', "index.html does not load scope-chrome.js");
 has(INDEX, "scope-chrome.css", "index.html does not load scope-chrome.css");
 
 console.log("");

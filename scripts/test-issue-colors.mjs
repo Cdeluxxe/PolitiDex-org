@@ -522,14 +522,14 @@ const SOFT = {
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const INDEX = read('index.html');
-  ok(/<script defer src="issue-colors\.js"><\/script>/.test(INDEX),
+  ok(/<script defer src="\/issue-colors\.js"><\/script>/.test(INDEX),
     'index.html must load issue-colors.js');
-  const icAt = INDEX.indexOf('src="issue-colors.js"');
-  const alignAt = INDEX.indexOf('src="alignment-tool.js"');
+  const icAt = INDEX.indexOf('src="/issue-colors.js"');
+  const alignAt = INDEX.indexOf('src="/alignment-tool.js"');
   must(alignAt !== -1, 'index.html no longer loads alignment-tool.js');
   ok(icAt > alignAt, 'issue-colors.js must load after alignment-tool.js, which publishes the taxonomy');
   ['stance-library.js', 'gaps.js', 'spotlight-hub.js', 'word-action.js'].forEach((f) => {
-    const at = INDEX.indexOf('src="' + f + '"');
+    const at = INDEX.indexOf('src="/' + f + '"');   // srcs are root-absolute
     if (at === -1) return;                       // not every consumer is a tag in this file
     ok(icAt < at, `issue-colors.js must load before ${f}, which asks it for colours`);
   });

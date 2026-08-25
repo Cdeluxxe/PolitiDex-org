@@ -746,11 +746,11 @@ const dot = (issueKey, over = {}) => ({
 // 11. Shipping + mobile
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  ok(/<script defer src="profile-dossier\.js"><\/script>/.test(INDEX),
+  ok(/<script defer src="\/profile-dossier\.js"><\/script>/.test(INDEX),
      "ship: the join is not loaded, so every surface that reads it silently falls back");
-  ok(INDEX.indexOf('src="word-action.js"') < INDEX.indexOf('src="profile-dossier.js"'),
+  ok(INDEX.indexOf('src="/word-action.js"') < INDEX.indexOf('src="/profile-dossier.js"'),
      "ship: the join loads before the score it reads finished rows from");
-  ok(INDEX.indexOf('src="profile-dossier.js"') < INDEX.indexOf('src="profile-connect.js"'),
+  ok(INDEX.indexOf('src="/profile-dossier.js"') < INDEX.indexOf('src="/profile-connect.js"'),
      "ship: Connecting the Dots loads before the join it renders, so its first paint would miss the chain");
   ok(/<link rel="stylesheet" href="\/profile-dossier\.css" media="print" onload="this\.media='all'" \/>/.test(INDEX),
      "ship: the join's stylesheet is not non-blocking — the blocking-CSS budget is full and a profile is never the first paint");

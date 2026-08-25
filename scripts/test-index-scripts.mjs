@@ -25,6 +25,10 @@
 //   4. RENDER-BLOCKING CSS is not silently added to.
 //   5. THE FIXED CHROME IS MEASURED ONCE — everything that has to start below the
 //      nav + search stack reads one variable instead of carrying its own guess.
+//   6. EVERY SAME-ORIGIN ASSET REFERENCE IS ROOT-ABSOLUTE. A path-relative
+//      src/href resolves against the current path, so under the /p/*, /issue/*
+//      and /vote/* SPA rewrites it 404s into index.html and the browser is asked
+//      to parse HTML as JavaScript. See the section for the full story.
 //
 //   node scripts/test-index-scripts.mjs
 //
@@ -259,6 +263,58 @@ ok(html.indexOf('id="hero-receipt"') < html.indexOf('<section id="say-vs-do"'),
       `    \`#hero > .${cls}\` override — including the clearance that keeps the brand lockup out from under\n` +
       "    the search bar — stops applying to it");
   }
+}
+
+// ── 6. Same-origin asset references are ROOT-ABSOLUTE ────────────────────────
+// This is the one that took the person file down in production. netlify.toml
+// rewrites /p/*, /issue/* and /vote/* to this document with HTTP 200 so the
+// client-side router can read the slug out of location.pathname. A tag written
+// as src="person-file.js" — no leading slash — resolves RELATIVE TO THE CURRENT
+// PATH, so on /p/lee the browser asks for /p/person-file.js. No such file
+// exists, the /p/* rewrite catches the request, and the browser is handed
+// index.html and told to parse 2 MB of HTML as JavaScript:
+//
+//     Uncaught SyntaxError: Unexpected token '<'
+//
+// Every module referenced that way dies at once, so the shell paints and nothing
+// on the page works — and none of it reproduces at the site root, where the
+// relative path happens to resolve correctly. Root-absolute paths are correct at
+// every depth, which is why this is a hard rule and not a preference.
+//
+// The check is deliberately stricter than the bug: it covers stylesheets and
+// preloads too, since a relative <link href> fails exactly the same way, just
+// silently.
+{
+  const rooted = (v) => /^(\/|https?:|\/\/|data:|#|mailto:)/.test(v);
+
+  const relScripts = srcs.filter((v) => !rooted(v));
+  ok(relScripts.length === 0,
+    `assets: ${relScripts.length} <script src> are path-relative and will 404-into-index.html on /p/<pid>, ` +
+    `/issue/<slug> and /vote/<…> — write them as "/file.js": ${relScripts.join(", ")}`);
+
+  const linkRefs = [...html.matchAll(/<link\b[^>]*>/gi)]
+    .map((m) => (m[0].match(/\bhref\s*=\s*["']([^"']+)["']/) || [])[1])
+    .filter(Boolean);
+  const relLinks = linkRefs.filter((v) => !rooted(v));
+  ok(relLinks.length === 0,
+    `assets: ${relLinks.length} <link href> are path-relative and break under the SPA rewrites the same ` +
+    `way — write them as "/file.css": ${relLinks.join(", ")}`);
+
+  // Scripts built at runtime are the same hazard with no tag to grep for, so the
+  // string literals that feed them are held to the same rule.
+  const dynamic = [
+    ...html.matchAll(/\.src\s*=\s*["']([^"'`]+)["']/g),
+    ...html.matchAll(/loadScript\(\s*["']([^"'`]+)["']/g),
+    ...html.matchAll(/ADMIN_MODULES\s*=\s*\[([^\]]*)\]/g),
+  ].flatMap((m) => (m[1].includes(",") || m[1].includes("'") ? [...m[1].matchAll(/["']([^"']+)["']/g)].map((x) => x[1]) : [m[1]]))
+    .filter((v) => /\.(js|mjs|css)(\?|$)/.test(v));
+  const relDynamic = dynamic.filter((v) => !rooted(v));
+  ok(relDynamic.length === 0,
+    `assets: ${relDynamic.length} dynamically loaded script path(s) are path-relative: ${relDynamic.join(", ")}`);
+
+  const relTotal = relScripts.length + relLinks.length + relDynamic.length;
+  console.log(`  same-origin asset refs: ${srcs.length} script + ${linkRefs.length} link, ` +
+    (relTotal === 0 ? "all root-absolute" : `${relTotal} PATH-RELATIVE`));
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────

@@ -182,7 +182,11 @@ function lightSandbox(opts) {
     const tagRe = /<script[^>]*\bsrc="([^"]*stances[^"]*\.js)"/g;
     let tag;
     while ((tag = tagRe.exec(html))) {
-      const f = tag[1];
+      // Script srcs are root-absolute in the document ("/politician-stances-core.js");
+      // strip the slash so the name comparison and the disk read below both work on a
+      // repo-relative path. Without the strip, "/my-stances.js" no longer matched the
+      // exclusion and the UI module was loaded into a sandbox with no real window.
+      const f = tag[1].replace(/^\//, "");
       if (f === "my-stances.js" || shards.includes(f)) continue;
       try { readFileSync(join(ROOT, f)); } catch (e) { continue; }   // not shipped
       shards.push(f);
@@ -894,11 +898,11 @@ section("13 · host wiring");
 // and the goal it serves.
 {
   const INDEX = read("index.html");
-  ok(/<script[^>]*src="ballot-axes\.js"/.test(INDEX), "index.html loads ballot-axes.js");
-  ok(/<script[^>]*\bdefer\b[^>]*src="ballot-axes\.js"/.test(INDEX),
+  ok(/<script[^>]*src="\/ballot-axes\.js"/.test(INDEX), "index.html loads ballot-axes.js");
+  ok(/<script[^>]*\bdefer\b[^>]*src="\/ballot-axes\.js"/.test(INDEX),
     "ballot-axes.js is deferred, so ISSUE_MAP and the resolver exist before it runs");
   ok(INDEX.indexOf("ballot-axes.css") !== -1, "index.html links ballot-axes.css");
-  ok(INDEX.indexOf('src="stance-tree.js"') < INDEX.indexOf('src="ballot-axes.js"'),
+  ok(INDEX.indexOf('src="/stance-tree.js"') < INDEX.indexOf('src="/ballot-axes.js"'),
     "…after stance-tree.js, whose row model both columns read");
   const noscripts = [...INDEX.matchAll(/<noscript>[\s\S]*?<\/noscript>/g)].map((m) => m[0]).join("");
   ok(noscripts.indexOf("ballot-axes.css") !== -1, "ballot-axes.css has a <noscript> fallback like its siblings");

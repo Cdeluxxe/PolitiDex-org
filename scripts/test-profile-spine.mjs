@@ -600,9 +600,9 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 // ── 7. Shipping ──────────────────────────────────────────────────────────────
 {
   const html = read("index.html");
-  ok(/<script defer src="profile-spine\.js"><\/script>/.test(html),
+  ok(/<script defer src="\/profile-spine\.js"><\/script>/.test(html),
      "ship: the spine is loaded on every page that can open a profile");
-  ok(html.indexOf('src="share-anywhere.js"') < html.indexOf('src="profile-spine.js"'),
+  ok(html.indexOf('src="/share-anywhere.js"') < html.indexOf('src="/profile-spine.js"'),
      "ship: it loads after share-anywhere.js, whose control the brief renders");
   ok(/<link rel="stylesheet" href="\/profile-spine\.css" media="print" onload="this\.media='all'" \/>/.test(html),
      "ship: its stylesheet is non-blocking — the blocking-CSS budget is already full and a profile is never the first paint");
