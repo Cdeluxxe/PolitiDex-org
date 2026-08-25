@@ -2284,35 +2284,90 @@ window.PDXLazy = (function () {
       border-radius: .35rem; padding: .1rem .4rem; background: rgba(255,255,255,.04);
     }
 
-    /* THE SIGNAL — the one integrity read on the card, and the only place any
-       verdict language appears. There is no second score here and no pledge
-       tally; a pledge is one form of "said" and is already inside this read. */
+    /* ── THE FORMAL RECORD · THE LEAD ─────────────────────────────────────
+       The profile's recordStandout / execRecordSummary pick, printed on the card,
+       and now the first thing under the name. This is the primary lane everywhere
+       else in the app — what the votes and the signed instruments actually point
+       to — so it carries the card's largest type after the name. Each chip is a
+       full-width dossier door: issue, what the record says, and the depth behind
+       it, in that reading order, so three of them scan as a pattern rather than
+       as a row of tags. */
+    .pdx-hs-fm { margin-top: .8rem; }
+    .pdx-hs-fm-h {
+      display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; margin: 0;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+      font-weight: 700; color: #8fa2bd;
+    }
+    .pdx-hs-fm-t { color: #e7eefb; }
+    .pdx-hs-fm-n {
+      letter-spacing: .03em; text-transform: none; font-weight: 400; color: #7f92ad;
+      font-size: .7rem;
+    }
+    .pdx-hs-fm-inv {
+      margin: .22rem 0 0; color: #8fa2bd; letter-spacing: .03em;
+      font-family: 'Barlow Condensed', system-ui, sans-serif; font-size: .72rem;
+    }
+    .pdx-hs-fm-row { display: grid; gap: .3rem; margin-top: .45rem; }
+    /* Wraps rather than truncates. Issue labels are the scan target and some of
+       them are long ("✂️ Cut Federal Spending & Reduce Debt"); on a card too narrow
+       for one line the depth drops to a second line flush right instead of the
+       label losing its last three words to an ellipsis. */
+    .pdx-hs-fm-chip {
+      display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 .5rem;
+      width: 100%; min-width: 0;
+      padding: .34rem .6rem; border-radius: .45rem; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.13); background: rgba(255,255,255,.05);
+      color: #d3dcea; font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .84rem; line-height: 1.35; text-align: left;
+    }
+    .pdx-hs-fm-chip:hover, .pdx-hs-fm-chip:focus-visible {
+      border-color: rgba(245,200,66,.5); background: rgba(255,255,255,.09);
+    }
+    .pdx-hs-fm-iss { font-weight: 700; color: #fff; flex: 0 1 auto; min-width: 0; }
+    /* The finding itself — the words the record's own lane chose. The depth trails
+       at the far end so the chips line their denominators up under one another. */
+    .pdx-hs-fm-v { color: #e7eefb; flex: none; }
+    .pdx-hs-fm-d {
+      color: #7f92ad; font-size: .68rem; flex: none; margin-left: auto;
+      white-space: nowrap; font-variant-numeric: tabular-nums;
+    }
+
+    /* ── ⚖️ WORD VS ACTION · THE SECONDARY CHECK ──────────────────────────
+       A badge, not a panel. This is the one integrity read on the card and the
+       only place any verdict language appears — there is no second score here and
+       no pledge tally; a pledge is one form of "said" and is already inside this
+       read. It used to open the card at 2rem, which made the cross-check look like
+       the finding. Everything in it now sits on one line at footnote scale:
+       eyebrow, figure, verdict, and the metric name with its denominator. */
     .pdx-hs-signal {
-      margin-top: .75rem; padding: .6rem .65rem;
-      background: rgba(255,255,255,.035);
-      border: 1px solid rgba(255,255,255,.1); border-radius: .6rem;
+      margin-top: .7rem; padding: .45rem .6rem;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08); border-radius: .5rem;
+    }
+    .pdx-hs-sig-row {
+      display: flex; align-items: baseline; flex-wrap: wrap; gap: .18rem .5rem;
     }
     .pdx-hs-sig-eyebrow {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
-      color: #7f92ad; font-weight: 700;
+      font-size: .6rem; letter-spacing: .16em; text-transform: uppercase;
+      color: #7f92ad; font-weight: 700; flex: none;
     }
     /* The score. Same Word vs Action percentage the profile leads with, so the card
        and the profile read as one product rather than two summaries of one person.
        Hidden entirely below the publishable floor — the renderer omits it — and the
-       plain-language verdict below always carries it. */
+       plain-language verdict beside it always carries it. */
     .pdx-hs-sig-score {
-      display: flex; align-items: baseline; gap: .4rem; margin-top: .15rem;
-      color: #9fb4d4; flex-wrap: wrap;
+      display: inline-flex; align-items: baseline; color: #9fb4d4; flex: none;
     }
     .pdx-hs-sig-pct {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -.01em;
+      font-size: 1.1rem; font-weight: 800; line-height: 1; letter-spacing: -.01em;
     }
-    .pdx-hs-sig-pct-u { font-size: 1.05rem; font-weight: 700; margin-left: .05em; }
+    .pdx-hs-sig-pct-u { font-size: .74rem; font-weight: 700; margin-left: .05em; }
     .pdx-hs-sig-pct-k {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
+      font-size: .62rem; letter-spacing: .06em; text-transform: uppercase;
       color: #7f92ad; font-weight: 700; min-width: 0;
     }
     /* HOW MANY TESTS THE PERCENTAGE IS OVER, on the same line as the figure it
@@ -2324,35 +2379,46 @@ window.PDXLazy = (function () {
        an absent metric caption cannot leave a dangling middot. */
     .pdx-hs-sig-pct-n {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
+      font-size: .62rem; letter-spacing: .06em; text-transform: uppercase;
       color: #7f92ad; font-weight: 700; min-width: 0;
     }
     .pdx-hs-sig-pct-k + .pdx-hs-sig-pct-n::before { content: '· '; }
-
-    /* With a score above it the verdict line is the caption, not the headline. */
-    .pdx-hs-signal.has-score .pdx-hs-sig-read { font-size: .92rem; margin-top: .28rem; }
+    /* Metric name and denominator ride the far end of the badge line. */
+    .pdx-hs-sig-cap {
+      display: inline-flex; align-items: baseline; gap: .25rem;
+      margin-left: auto; min-width: 0;
+    }
 
     /* Uncolored until publishable — an unfilled read must not look like a finding.
        The inline color comes from the verdict's own accent, set by the renderer. */
     .pdx-hs-sig-read {
-      display: flex; align-items: baseline; gap: .4rem; margin-top: .2rem;
+      display: inline-flex; align-items: baseline; gap: .3rem; min-width: 0;
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: 1.05rem; font-weight: 700; line-height: 1.2; color: #9fb4d4;
+      font-size: .9rem; font-weight: 700; line-height: 1.2; color: #9fb4d4;
     }
-    .pdx-hs-sig-ico { flex: none; font-size: .95rem; }
+    /* With no figure beside it the verdict words are the whole badge, so they get
+       the room the percentage would have taken. */
+    .pdx-hs-signal:not(.has-score) .pdx-hs-sig-read { font-size: .98rem; }
+    .pdx-hs-sig-ico { flex: none; font-size: .85rem; }
     .pdx-hs-sig-label { min-width: 0; }
     .pdx-hs-sig-line {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .74rem; line-height: 1.4; color: #b6c6de; margin: .25rem 0 0;
+      font-size: .72rem; line-height: 1.35; color: #93a6c0; margin: .25rem 0 0;
     }
 
     /* Breakdown: counts, plus a bar proportional to those counts. These are issue
        rows from the shared tally in consistency.js — the same rows and the same
        verdicts the profile prints — so the card's split and the profile's cannot
-       disagree. The rate itself lives above; this is its denominator, shown. */
-    .pdx-hs-bd { margin-top: .6rem; }
+       disagree. The rate itself sits on the line above; this is its denominator,
+       shown, and it stays inside the badge so the figure and its working can never
+       drift apart on the card the way they did when this was its own panel. */
+    .pdx-hs-bd {
+      display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .45rem;
+      margin-top: .3rem;
+    }
     .pdx-hs-bar {
-      display: flex; height: 6px; border-radius: 999px; overflow: hidden;
+      display: flex; height: 4px; width: 58px; flex: none;
+      border-radius: 999px; overflow: hidden;
       background: rgba(255,255,255,.07); gap: 1px;
     }
     .pdx-hs-bar-seg { display: block; min-width: 3px; }
@@ -2360,49 +2426,15 @@ window.PDXLazy = (function () {
     .pdx-hs-bar-seg.is-mixed { background: #93c5fd; }
     .pdx-hs-bar-seg.is-bad { background: #f89b9b; }
     .pdx-hs-bd-chips {
-      display: flex; flex-wrap: wrap; gap: .3rem .55rem; margin-top: .35rem;
+      display: inline-flex; flex-wrap: wrap; gap: .1rem .45rem;
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .68rem; letter-spacing: .04em;
+      font-size: .66rem; letter-spacing: .04em;
     }
     .pdx-hs-bd-chip { color: #8fa2bd; font-variant-numeric: tabular-nums; }
     .pdx-hs-bd-chip b { font-weight: 700; }
     .pdx-hs-bd-chip.is-good b { color: #6ee7a0; }
     .pdx-hs-bd-chip.is-mixed b { color: #93c5fd; }
     .pdx-hs-bd-chip.is-bad b { color: #f89b9b; }
-
-    /* The formal record, in its lane's own words — the profile's recordStandout /
-       execRecordSummary pick, printed on the card. Chips are dossier doors, so they
-       look tappable; the heading's count is the depth behind them. */
-    .pdx-hs-fm { margin-top: .6rem; }
-    .pdx-hs-fm-h {
-      display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap; margin: 0;
-      font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .62rem; letter-spacing: .14em; text-transform: uppercase;
-      font-weight: 700; color: #64748b;
-    }
-    .pdx-hs-fm-t { color: #94a3b8; }
-    .pdx-hs-fm-n {
-      letter-spacing: .03em; text-transform: none; font-weight: 400; color: #7f92ad;
-      font-size: .66rem;
-    }
-    .pdx-hs-fm-inv {
-      margin: .2rem 0 0; color: #7f92ad; letter-spacing: .03em;
-      font-family: 'Barlow Condensed', system-ui, sans-serif; font-size: .68rem;
-    }
-    .pdx-hs-fm-row { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .35rem; }
-    .pdx-hs-fm-chip {
-      display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0;
-      padding: .22rem .5rem; border-radius: 999px; cursor: pointer;
-      border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
-      color: #d3dcea; font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .7rem; line-height: 1.3; text-align: left;
-    }
-    .pdx-hs-fm-chip:hover, .pdx-hs-fm-chip:focus-visible {
-      border-color: rgba(245,200,66,.5); background: rgba(255,255,255,.09);
-    }
-    .pdx-hs-fm-iss { font-weight: 700; color: #fff; }
-    .pdx-hs-fm-v { color: #cbd5e1; }
-    .pdx-hs-fm-d { color: #7f92ad; font-size: .64rem; }
 
     /* Coverage, stated outright — the card says how much of the record it could
        actually test, in the same words the shared image uses. */
@@ -2485,9 +2517,14 @@ window.PDXLazy = (function () {
       .pdx-hs-face { width: 72px; height: 72px; }
       .pdx-hs-face-mono { font-size: 1.7rem; }
       .pdx-hs-name { font-size: 1.6rem; }
-      .pdx-hs-sig-read { font-size: 1.2rem; }
+      /* The badge steps up by a hair, never back into a headline: the formal
+         chips below are what gains size on a wide card. */
+      .pdx-hs-sig-read { font-size: .98rem; }
+      .pdx-hs-sig-pct { font-size: 1.2rem; }
+      .pdx-hs-fm-chip { font-size: .9rem; padding: .38rem .7rem; }
       .pdx-hs-sig-line, .pdx-hs-proof-txt { font-size: .84rem; }
-      .pdx-hs-cov, .pdx-hs-bd-chip { font-size: .74rem; }
+      .pdx-hs-cov { font-size: .74rem; }
+      .pdx-hs-bd-chip { font-size: .7rem; }
       .pdx-hs-intro { font-size: .8rem; }
     }
 
@@ -2831,6 +2868,9 @@ window.PDXLazy = (function () {
       /* Hit targets grow on phones even as type shrinks — the arrows and dots are
          the primary way through the set on a touch screen (swipe is the other),
          and a 34px arrow that is comfortable with a mouse is not with a thumb. */
+      /* Wrapped, the metric caption belongs under the figure it qualifies, not
+         pinned to the far edge of a line it no longer shares with it. */
+      .pdx-hs-sig-cap { margin-left: 0; }
       .pdx-hs-arrow { width: 40px; height: 40px; font-size: 1.05rem; }
       .pdx-hs-dot { width: 22px; height: 22px; }
       .pdx-hs-act { min-height: 36px; padding: .4rem .65rem; }
@@ -29023,9 +29063,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         /* 80rem could not hold the row on any screen. 112rem can, from about a
            1600px window up; below that the wrap below takes over. */
         max-width: 112rem;
+        /* …but 112rem is a CEILING, not a target. Left as a plain block the row
+           filled it, and `justify-between` poured every spare pixel into the one
+           seam between the tool group and the control cluster — about 210px of
+           empty air on a 1920 screen, which is what made the bar read as two
+           distant clusters instead of one toolbar. `fit-content` sizes the row
+           to what it actually holds and `mx-auto` centres it, so the seam is
+           whatever column-gap says it is and nothing else. When the contents no
+           longer fit, fit-content resolves to the available width and the wrap
+           below takes over exactly as before. */
+        width: fit-content;
         flex-wrap: wrap;
         row-gap: 0.45rem;
-        column-gap: 0.75rem;
+        column-gap: 1.05rem;
         padding-left: 0.75rem;
         padding-right: 0.75rem;
       }
@@ -29045,10 +29095,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       /* Tighter spacing buys the single row a few hundred more pixels of range
          before it has to wrap. Gaps and gutters only — every control keeps its
-         own padding, weight and glow. */
-      #pdx-topnav > div.max-w-7xl > div:first-child { column-gap: 0.85rem; }
-      #pdx-topnav > div.max-w-7xl > div:first-child > div { column-gap: 0.55rem; }
-      #pdx-topnav > div.max-w-7xl > div:last-child { column-gap: 0.55rem; }
+         own padding, weight and glow.
+
+         One rhythm, three steps, and nothing in the bar is spaced at a value
+         that is not one of them:
+           0.45rem  between sibling controls inside a group
+           0.75rem  between groups inside a half
+           1.05rem  the single seam between the two halves (column-gap above)
+         Before this the four gaps were 0.85 / 0.55 / 0.55 / 0.45rem, which put
+         the gateway buttons closer together than the tool links and the brand
+         further from its own links than the bell is from the account — the
+         unevenness the bar was being read for. */
+      #pdx-topnav > div.max-w-7xl > div:first-child { column-gap: 0.75rem; }
+      #pdx-topnav > div.max-w-7xl > div:first-child > div { column-gap: 0.45rem; }
+      #pdx-topnav > div.max-w-7xl > div:last-child { column-gap: 0.75rem; }
       #pdx-topnav > div.max-w-7xl > div:last-child > div:first-child { column-gap: 0.45rem; }
       /* tracking-widest is 0.1em on ~105 characters of nav label — about 105px
          of pure letter-spacing across the bar. 0.07em is still visibly tracked

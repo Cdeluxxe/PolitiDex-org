@@ -153,6 +153,32 @@ ok(/row-gap:\s*[\d.]+rem/.test(R), 'a wrapped bar gets a row-gap so the two tier
 ok(/#pdx-topnav > div\.max-w-7xl > div:last-child\s*\{\s*margin-left:\s*auto/.test(D),
   'wrapped, the control cluster still sits at the right-hand end of the bar');
 
+/* ── THE SEAM IS A GAP, NOT A LEFTOVER ─────────────────────────────────────
+   A row that fills 112rem hands every spare pixel to justify-between, and all
+   of it lands in the single seam between the tool group and the control
+   cluster. Sizing the row to its contents means the seam is column-gap and
+   nothing else, at every width the bar does not wrap at. */
+ok(/width:\s*fit-content/.test(R),
+  'the row is sized to what it holds, so the wide-screen bar cannot grow a gulf in its middle');
+const seam = parseFloat((R.match(/column-gap:\s*([\d.]+)rem/) || [])[1]);
+ok(seam > 0, 'the two halves are separated by a stated column-gap');
+
+/* One rhythm, three steps: sibling < group < seam, and every gap in the bar is
+   one of the three. An even bar is not a matter of taste once it is written
+   down as an ordering. */
+const gapOf = (sel) => {
+  const r = D.match(new RegExp('\\n\\s*' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    + '\\s*\\{\\s*column-gap:\\s*([\\d.]+)rem'));
+  return r ? parseFloat(r[1]) : NaN;
+};
+const ROW = '#pdx-topnav > div.max-w-7xl';
+const sibling = [gapOf(ROW + ' > div:first-child > div'), gapOf(ROW + ' > div:last-child > div:first-child')];
+const group = [gapOf(ROW + ' > div:first-child'), gapOf(ROW + ' > div:last-child')];
+eq(sibling[0], sibling[1], 'the tool links and the gateway buttons are spaced identically — one sibling step');
+eq(group[0], group[1], 'brand-to-links and gateways-to-controls are spaced identically — one group step');
+ok(sibling[0] < group[0], 'controls inside a group sit closer together than the groups do');
+ok(group[0] < seam, 'and the groups sit closer together than the two halves of the bar do');
+
 /* ───────────────────────────────────────────────────────────────────────────
    4 · NOTHING WAS ANSWERED BY REMOVING A CONTROL
    ─────────────────────────────────────────────────────────────────────────── */
@@ -268,10 +294,10 @@ const auth = (padX, track, free) =>
 function desktopBar(after) {
   const t = after ? 0.07 : 0.10;
   const L = leftLinks(t), G = gateways(t);
-  const gOuter = 12;
-  const gLeft = after ? 13.6 : 20;      // gap-3 lg:gap-5  → 0.85rem
-  const gLinks = after ? 8.8 : 16;      // gap-2.5 lg:gap-4 → 0.55rem
-  const gRight = after ? 8.8 : 14;      // gap-2 lg:gap-3.5 → 0.55rem
+  const gOuter = after ? 16.8 : 12;     // the one seam between the halves → 1.05rem
+  const gLeft = after ? 12 : 20;        // gap-3 lg:gap-5  → 0.75rem
+  const gLinks = after ? 7.2 : 16;      // gap-2.5 lg:gap-4 → 0.45rem
+  const gRight = after ? 12 : 14;       // gap-2 lg:gap-3.5 → 0.75rem
   const gGate = after ? 7.2 : 12;       // gap-2.5 lg:gap-3 → 0.45rem
   const left = brand(32, 20, 10) + gLeft + L.sum + gLinks * (L.items.length - 1);
   const right = G.sum + gGate * (G.items.length - 1) + gRight + BELL + gRight + auth(10, 0.1, true);

@@ -191,32 +191,38 @@
     // hardcoded here is how the card came to label this number one way while the
     // profile labelled the same number another.
     var kicker = (d && d.metric) ? d.metric : '';
-    // The score leads; the plain-language verdict sits directly under it so the
-    // number is never left to speak for itself.
-    // …AND ITS DENOMINATOR, carried through brief() exactly as the kicker above is.
-    // The homepage is the one surface where a bare "100%" reaches a reader who has
-    // no way yet to check it, so the caption is unconditional whenever there is a
-    // percentage — gating it on depth would hide it precisely where it matters
-    // most. This renderer deliberately does not reach PDXWordAction for the wording
-    // (see the one-language rule pinned in scripts/test-hero-showcase.mjs): brief()
-    // phrases it once, off the same read that produced the figure.
+    // …AND ITS DENOMINATOR, carried through brief() exactly as the kicker is. The
+    // homepage is the one surface where a bare "100%" reaches a reader who has no
+    // way yet to check it, so the caption is unconditional whenever there is a
+    // percentage. The renderer never reaches PDXWordAction for the wording (the
+    // one-language rule in scripts/test-hero-showcase.mjs): brief() phrases it once.
     var depth = (pct === null) ? '' : String((d && d.testedSay) || '');
     var tested = (d && d.coverage && typeof d.coverage.tested === 'number') ? d.coverage.tested : 0;
+    var tintAttr = tint ? ' style="color:' + esc(tint) + ';"' : '';
     var scoreHtml = (pct === null) ? '' :
-      '<div class="pdx-hs-sig-score"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
+      '<span class="pdx-hs-sig-score"' + tintAttr + '>' +
         '<span class="pdx-hs-sig-pct">' + pct + '<span class="pdx-hs-sig-pct-u">%</span></span>' +
-        (kicker ? '<span class="pdx-hs-sig-pct-k">' + esc(kicker) + '</span>' : '') +
-        (depth ? '<span class="pdx-hs-sig-pct-n" data-pdx-tested="' + tested + '">' +
-                   esc(depth) + '</span>' : '') +
-      '</div>';
+      '</span>';
+    // On the figure's own line, not stacked under it: this is a badge now.
+    var capHtml = (pct === null) ? '' :
+      ((kicker ? '<span class="pdx-hs-sig-pct-k">' + esc(kicker) + '</span>' : '') +
+       (depth ? '<span class="pdx-hs-sig-pct-n" data-pdx-tested="' + tested + '">' +
+                  esc(depth) + '</span>' : ''));
     return '' +
       '<div class="pdx-hs-signal' + (d && d.publishable ? ' is-pub' : '') + (pct === null ? '' : ' has-score') + '">' +
-        '<div class="pdx-hs-sig-eyebrow">⚖️ Word vs Action</div>' +
-        scoreHtml +
-        '<div class="pdx-hs-sig-read"' + (tint ? ' style="color:' + esc(tint) + ';"' : '') + '>' +
-          '<span class="pdx-hs-sig-ico" aria-hidden="true">' + esc(ico) + '</span>' +
-          '<span class="pdx-hs-sig-label">' + esc(label) + '</span>' +
+        '<div class="pdx-hs-sig-row">' +
+          '<span class="pdx-hs-sig-eyebrow">⚖️ Word vs Action</span>' +
+          scoreHtml +
+          '<div class="pdx-hs-sig-read"' + tintAttr + '>' +
+            '<span class="pdx-hs-sig-ico" aria-hidden="true">' + esc(ico) + '</span>' +
+            '<span class="pdx-hs-sig-label">' + esc(label) + '</span>' +
+          '</div>' +
+          (capHtml ? '<span class="pdx-hs-sig-cap">' + capHtml + '</span>' : '') +
         '</div>' +
+        // The split lives INSIDE the badge, at the badge's weight. It cannot be
+        // dropped for compactness: the percentage is the one figure here a reader
+        // cannot check from anything else on the card, and these are its terms.
+        breakdownHtml(d) +
         (d && d.signal ? '<p class="pdx-hs-sig-line">' + esc(d.signal) + '</p>' : '') +
       '</div>';
   }
@@ -224,7 +230,7 @@
   // Counts plus a proportional bar — the score showing its work. These are ISSUE
   // rows from the shared tally in consistency.js, the same rows and the same
   // verdicts the profile prints, so the card cannot report a different split than
-  // the page it links to.
+  // the page it links to. One line, hairline bar first: the badge's working.
   function breakdownHtml(d) {
     var b = d && d.breakdown;
     if (!b) return '';
@@ -238,26 +244,24 @@
     };
     return '' +
       '<div class="pdx-hs-bd">' +
-        '<div class="pdx-hs-bar" role="img" aria-label="' +
+        '<span class="pdx-hs-bar" role="img" aria-label="' +
           esc(b.consistent + ' backed up, ' + b.mixed + ' mixed, ' + b.contradicts + ' contradicted') + '">' +
           seg(b.consistent, 'is-good') + seg(b.mixed, 'is-mixed') + seg(b.contradicts, 'is-bad') +
-        '</div>' +
-        '<div class="pdx-hs-bd-chips">' +
+        '</span>' +
+        '<span class="pdx-hs-bd-chips">' +
           chip(b.consistent || 0, 'is-good', 'backed up') +
           chip(b.mixed || 0, 'is-mixed', 'mixed') +
           chip(b.contradicts || 0, 'is-bad', 'contradicted') +
-        '</div>' +
+        '</span>' +
       '</div>';
   }
 
-  // ── THE FORMAL RECORD, IN ITS OWN LANE'S WORDS ─────────────────────────────
-  // What the formal record holds, headed and worded by the lane doing the testing:
-  // roll calls for a member, signed and ordered instruments for a president.
-  // Neither can print the other's nouns because neither is composed here —
-  // PDXProfileCard.read() hands over `formal`, which IS the profile's own
-  // recordStandout / execRecordSummary pick, under the profile's own floors. So
-  // this slot is empty exactly when the profile's strip is: a record too thin to
-  // carry a standout gets no chips here either.
+  // ── THE FORMAL RECORD, IN ITS OWN LANE'S WORDS · THE CARD'S LEAD ───────────
+  // Headed and worded by the lane doing the testing: roll calls for a member,
+  // signed and ordered instruments for a president. Neither can print the other's
+  // nouns because neither is composed here — PDXProfileCard.read() hands over
+  // `formal`, which IS the profile's own recordStandout / execRecordSummary pick,
+  // under the profile's own floors. Empty exactly when the profile's strip is.
   function formalHtml(d) {
     var f = d && d.formal;
     if (!f) return '';
@@ -362,9 +366,14 @@
       '<p class="pdx-hs-cov pdx-hs-cov-wait">Reading their formal record to test what they have said.</p>';
   }
 
+  // THE FORMAL RECORD LEADS, as it does on every other surface in the app: the
+  // strip, the named acts that prove it, then ⚖️ Word vs Action as the secondary
+  // check on all of it, then the coverage the whole card rests on. Reversed — as
+  // it was — the card opened on a 2rem percentage, which read as the finding
+  // rather than as the cross-check on the finding.
   function fullCard(c, d) {
-    return headHtml(c, d) + signalHtml(d) + breakdownHtml(d) +
-           formalHtml(d) + coverageHtml(d) + proofHtml(d);
+    return headHtml(c, d) + formalHtml(d) + proofHtml(d) +
+           signalHtml(d) + coverageHtml(d);
   }
 
   // ── FRAME · chrome that does not change between slides ─────────────────────
