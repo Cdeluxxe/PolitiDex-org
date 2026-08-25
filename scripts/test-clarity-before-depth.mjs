@@ -438,7 +438,9 @@ section("5b · the ROW CHIP — the surface the last pass missed");
   const refusals = {
     [DEEP_FIX.no_side.key]: "no vote here took a side",
     [DEEP_FIX.incidental.key]: "not about this issue",
-    [DEEP_FIX.proc_only.key]: "procedural votes only",
+    // The locked menu phrasing, not "procedural votes only": what is true here
+    // is what came up, not what the member cast. See _MENU in consistency.js.
+    [DEEP_FIX.proc_only.key]: "procedural gate rather than a policy vote",
     [DEEP_FIX.mixed_thin.key]: "ran both ways, too few to weigh",
   };
   Object.keys(refusals).forEach((k) => {

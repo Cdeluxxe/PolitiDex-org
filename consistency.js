@@ -6158,7 +6158,26 @@
     'not a stated stance and not a score.';
   var _RD_SLOT_NOTE_SAID = 'None of it has been judged against their stated position, ' +
     'so this is what the record itself did — not a score.';
-  var _RD_SLOT_NOTE_THIN = 'Too little on file to say which way it ran, so no direction is stated.';
+  var _RD_SLOT_NOTE_THIN = 'Too little on file to say which way it ran, so no direction is stated. ' +
+    'Few chances to vote on the issue can leave a lane short, so this is not read as reluctance.';
+  // THE EMPTY LANE, AND WHY IT NOW HAS A SENTENCE. It used to have none: the slot
+  // printed "No record on file yet" and stopped. That blank is the most ambiguous
+  // thing this lane renders — it is equally the shape of a member with chances
+  // they did not take and of an issue on which no clean vehicle ever reached the
+  // floor — and a blank with no sentence under it is read as the first one.
+  //   So the sentence names the ambiguity instead of resolving it. We do not yet
+  // hold the chamber-level data that would tell the two apart (see the menu
+  // vocabulary block by _MENU), and this copy is deliberately written so that
+  // when we do, the true reason drops in beside it without any of the surrounding
+  // words having to change their claim.
+  //   IT IS TWO STRINGS FOR THE SAME REASON THE REST OF THIS SLOT IS: the visible
+  // line sits inside a comparison cell and a ballot row, so it stays one short
+  // sentence; the full admission — that we cannot yet tell the two cases apart —
+  // is always in the title and the accessible name, never dropped.
+  var _RD_SLOT_NOTE_NONE = 'Nothing on this issue has reached their formal record yet — which ' +
+    'can mean a limited record, or no clean vehicle on the issue reaching the floor.';
+  var _RD_SLOT_NOTE_NONE_FULL = _RD_SLOT_NOTE_NONE +
+    ' This lane cannot yet tell the two apart, so it reads the blank as neither.';
   // The disclosure is the SHARE CARD'S fixed disclosure wherever receipt-cards.js
   // is loaded, so the sentence a reader meets on a compare cell is the sentence
   // they meet on the card they share from it. The literal above is pinned equal to
@@ -6208,8 +6227,9 @@
         aria = text + '. ' + note;
       } else {
         text = 'No record on file yet';
-        note = '';
-        aria = 'No formal record on file yet' + (label ? ' on ' + label : '') + '.';
+        note = _RD_SLOT_NOTE_NONE;
+        aria = 'No formal record on file yet' + (label ? ' on ' + label : '') + '. ' +
+          _RD_SLOT_NOTE_NONE_FULL;
       }
       return {
         state: state, token: idx.token, issueKey: issueKey, pid: pid, lane: lane,
@@ -8366,6 +8386,135 @@
   // sits BESIDE the finding, never in place of it. And it touches no gate: no tier,
   // no floor, no percentage and nothing in Direction Match reads a single field
   // below.
+  // ── 🏛️ TWO DIFFERENT FACTS: THE RECORD, AND THE MENU ────────────────────────
+  // Everything above this line describes a MEMBER'S FORMAL RECORD — what they
+  // did with the chances they had. It is the primary lane and it stays primary.
+  //
+  // But an empty or thin lane is ambiguous in a way we have never said out loud.
+  // Sometimes a member had clean floor vehicles on an issue and the record is
+  // genuinely limited. Sometimes no clean vehicle on that issue reached the floor
+  // at all, and the only way the policy was ever tested was as a provision inside
+  // something that had to pass anyway. Those are different facts about different
+  // things, and today both of them render as the same quiet blank.
+  //
+  // THIS BLOCK IS THE VOCABULARY FOR THE SECOND FACT, AND ONLY THE VOCABULARY.
+  // It ships no analytics. There is no chamber-level denominator here, no count
+  // of what never received a vote, and nothing that attributes a calendar to a
+  // person or a caucus — that is later work and it cannot be inferred from one
+  // member's own record. What exists here is a small locked set of phrasings so
+  // that when the data does arrive, the sentence it goes into is already written,
+  // already reviewed, and already the right shape.
+  //
+  //   THE ONE RULE THE PHRASINGS ENFORCE: the subject of a menu sentence is the
+  // floor, the vehicle or the record's shape — never the member. "No clean
+  // vehicle reached the floor" is a fact about the calendar. "They dodged the
+  // vote" is an accusation about a person, and one we have no evidence for: a
+  // member does not schedule the floor, and absence of a vote is not evidence of
+  // anything a member chose. _MENU_AVOID is that rule written as a list a test
+  // can run, and _menuScan is the runner. Anything on that list — evasion verbs,
+  // obstruction verbs, party framing, or a named scheduling office — turns a gap
+  // in the calendar into a moral failure by a person, which is the exact failure
+  // this vocabulary exists to make impossible.
+  var _MENU_LANES = {
+    // Said in this order wherever both are on screen, because the personal record
+    // is the primary lane and the menu is context for reading it.
+    record: 'What the member did',
+    menu: 'What the floor offered to vote on'
+  };
+  var _MENU_ORDER = ['no_vehicle', 'provision_only', 'procedural_gate'];
+  var _MENU = {
+    // "No clean vehicle reached the floor" — the empty case. Reserved: nothing
+    // ships this yet, because knowing it requires chamber-level data we do not
+    // hold. The empty states below are worded so that it can be dropped in.
+    no_vehicle: {
+      key: 'no_vehicle',
+      lb: 'No clean vehicle reached the floor',
+      note: 'No standalone measure on this issue came up for a recorded vote in this ' +
+        'chamber during the period we hold. An empty lane here is a fact about the ' +
+        'calendar rather than about the member, and no direction is read from it.'
+    },
+    // "Only tested as a provision inside larger packages" — the case the stowaway
+    // detector already sees, and the only one with live data behind it today.
+    provision_only: {
+      key: 'provision_only',
+      lb: 'Only tested as a provision inside larger packages',
+      note: 'The only chances on file to act on this issue arrived folded inside larger ' +
+        'measures rather than as a vote on the issue itself. Those measures are real, ' +
+        'dated and in the dossier — but a package is not a position on everything ' +
+        'inside it, so no direction is claimed from one.'
+    },
+    // "Procedural gate rather than a policy vote" — the case the procedural tally
+    // already sees: the chance that existed was floor machinery, not the thing.
+    procedural_gate: {
+      key: 'procedural_gate',
+      lb: 'Procedural gate rather than a policy vote',
+      note: 'What came up here was floor machinery — a motion to proceed, a cloture ' +
+        'vote, a special rule — rather than a vote on the substance. Those are ' +
+        'recorded and listed in full; they are not a position on the issue.'
+    }
+  };
+  // The tail sentence every menu surface carries, for the same reason _VRU_WALL
+  // exists: a sentence about what the floor did, printed next to a person's face,
+  // is read as a sentence about the person unless it says otherwise.
+  var _MENU_WALL = 'This describes what was available to vote on, not what the member ' +
+    'chose to do. It is context for the record above, not a mark against it.';
+  // The banned list, kept beside the phrasings it constrains rather than in a
+  // test file, so a future edit to the copy meets the rule in the same screen.
+  // Three families: evasion or obstruction verbs, which assign intent nobody has
+  // evidence for; party framing, which turns a calendar into a team sport; and
+  // named scheduling offices, which is personal attribution for agenda power and
+  // is explicitly out of scope.
+  var _MENU_AVOID = [
+    'blocked', 'block', 'blocking', 'dodged', 'dodge', 'ducked', 'evaded', 'evasion',
+    'refused to vote', 'refused to act', 'refuse to vote', 'stonewall', 'obstruct',
+    'obstruction', 'buried', 'shelved', 'sat on', 'killed the', 'would not allow',
+    'never allowed', 'denied a vote', 'failed to act', 'failed to vote', 'avoided a vote',
+    'republican', 'democrat', 'democratic', 'gop', 'partisan', 'party leadership',
+    'majority leader', 'minority leader', 'the speaker', 'leadership decided'
+  ];
+  // Returns the banned phrases present in a string, lowercased, in list order.
+  // Empty array is the pass. Exported so a harness can walk every menu surface
+  // with the same list the copy was written against.
+  function _menuScan(text) {
+    var t = String(text || '').toLowerCase();
+    var hits = [];
+    for (var i = 0; i < _MENU_AVOID.length; i++) {
+      if (t.indexOf(_MENU_AVOID[i]) >= 0) hits.push(_MENU_AVOID[i]);
+    }
+    return hits;
+  }
+  // One menu phrasing by key, with the wall attached. `null` for an unknown key,
+  // so a caller cannot silently print nothing where it meant to print context.
+  function _menuSay(key, opts) {
+    var m = _MENU[key];
+    if (!m) return null;
+    var o = opts || {};
+    return {
+      key: m.key, lb: m.lb,
+      note: m.note + (o.wall === false ? '' : ' ' + _MENU_WALL),
+      lane: _MENU_LANES.menu
+    };
+  }
+  // THE VEHICLE'S FAMILY, IN WORDS, where the light classifier recognised one.
+  // "inside H.R. 7148" is a bill number; "inside H.R. 7148, an omnibus
+  // appropriations act" is the reason there may have been nowhere else to put it.
+  // '' when nothing on the fixed list matched, because an unrecognised measure is
+  // an unrecognised measure and guessing at its family would be inventing data.
+  function _menuVehicleKinds(v) {
+    if (!v || !v.classes || !v.classes.length) return '';
+    var all = window._PDX_RD_VEHICLE_CLASSES || [];
+    var words = [];
+    v.classes.forEach(function (k) {
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].key === k) { words.push(all[i].label); return; }
+      }
+    });
+    if (!words.length) return '';
+    if (words.length === 1) return words[0];
+    if (words.length === 2) return words[0] + ' and ' + words[1];
+    return words.slice(0, -1).join(', ') + ' and ' + words[words.length - 1];
+  }
+
   var _VEH_TAG = 'Rode inside a package';
   var _VEH_NOTE = 'This issue\u2019s formal record here is made of provisions carried inside ' +
     'larger measures rather than votes on the issue itself. The votes are real and are ' +
@@ -8413,6 +8562,11 @@
     var named = v.vehicles.length
       ? (' The ' + (v.vehicles.length === 1 ? 'vehicle was ' : 'vehicles were ') + v.vehicles.join(', ') + '.')
       : '';
+    // …and its family, where the light classifier recognised one. A must-pass
+    // measure is context for why a policy travelled the way it did; an
+    // unrecognised bill gets no guess.
+    var kinds = _menuVehicleKinds(v);
+    if (kinds) named += ' That is ' + kinds + '.';
     return lead + named + ' ' + _VEH_NOTE;
   }
   // MEMOIZED per (pid, issue) per epoch, on the same counter every other derived
@@ -8516,7 +8670,8 @@
   // statistic, and a statistic with no frame is read as a mark out of ten.
   var _VRU_WALL = 'This describes how the record travelled, not how good it is. ' +
     'The votes are real, they are counted in full above, and each of these issues ' +
-    'carries the same note on its own row.';
+    'carries the same note on its own row. Which measures carry which policy is ' +
+    'set by what reaches the floor, not by the member.';
   var _vruCache = {}, _vruEpoch = 0;
   function vehicleRollup(pid) {
     if (!pid) return null;
@@ -9420,11 +9575,23 @@
       var _veh = null;
       try { _veh = vehicleRead(r && r.pid, r && r.key); } catch (e) { _veh = null; }
       if (_veh && _veh.stowaway && _veh.only) {
-        return { id: 'vehicle_only', lb: 'Only carried inside larger packages',
+        // THE LOCKED MENU PHRASING, because this is the one refusal on the list
+        // that is already a statement about the menu rather than about the
+        // member: every chance on file to act here was a package. "Only carried
+        // inside larger packages" described the record; "Only tested as a
+        // provision inside larger packages" describes the chances, which is the
+        // truer and narrower claim and the one the vocabulary block locks.
+        //   Where the light classifier recognises the family the packages
+        // belonged to, it is named — "an omnibus appropriations act" is the
+        // reason there may have been nowhere else to put the policy, and a bill
+        // number alone is not. It stays silent on an unrecognised measure.
+        var _kinds = _menuVehicleKinds(_veh);
+        return { id: 'vehicle_only', lb: _MENU.provision_only.lb, menu: 'provision_only',
           note: 'Every mapped instrument on this issue arrived as a provision ' + _vehWhere(_veh) +
-            ' rather than as a ' + n.one + ' on the issue itself. Those measures are real, dated ' +
+            (_kinds ? ' — ' + _kinds + ' — ' : ' ') +
+            'rather than as a ' + n.one + ' on the issue itself. Those measures are real, dated ' +
             'and in the dossier — but a package is not a position on everything inside it, so no ' +
-            'direction is claimed from one.' };
+            'direction is claimed from one. ' + _MENU_WALL };
       }
       if ((idx.primary || 0) < 1) {
         return { id: 'incidental', lb: 'Not about this issue',
@@ -9446,11 +9613,15 @@
       // direction: the acts are real and one-sided arithmetic on them is still not
       // a position on the subject.
       if ((idx.judged || 0) > 0 && (idx.procedural || 0) >= (idx.judged || 0)) {
-        return { id: 'procedural_only', lb: 'Procedural ' + n.many + ' only',
+        // Locked menu phrasing again, and for the same reason: "Procedural votes
+        // only" put the emphasis on what the member cast, when the fact is what
+        // came up. A member cannot vote on the substance of a bill that only ever
+        // reached the floor as a motion to proceed.
+        return { id: 'procedural_only', lb: _MENU.procedural_gate.lb, menu: 'procedural_gate',
           note: 'Every ' + n.one + ' on file here was procedural — a motion to proceed, a ' +
             'cloture vote or similar — rather than a ' + n.one + ' on the substance of this ' +
             'issue. No direction is read from floor machinery, and the ' + n.many + ' are in ' +
-            'the dossier.' };
+            'the dossier. ' + _MENU_WALL };
       }
       // ── AND THE FIFTH: THE ACTS ARE REAL, THEY AGREE, AND THEY ARE LIGHT ───
       // The newest of these, and the only one that exists because we started
@@ -13874,7 +14045,27 @@
       CMP_ONE: _RD_CMP_ONE,
       NOTE: _RD_SLOT_NOTE,
       NOTE_SAID: _RD_SLOT_NOTE_SAID,
-      NOTE_THIN: _RD_SLOT_NOTE_THIN
+      NOTE_THIN: _RD_SLOT_NOTE_THIN,
+      NOTE_NONE: _RD_SLOT_NOTE_NONE,
+      NOTE_NONE_FULL: _RD_SLOT_NOTE_NONE_FULL
+    },
+    // 🏛️ THE MENU VOCABULARY. Not a reading, not a score and not yet a feature:
+    // the locked words for saying that a chance to vote did not exist, or existed
+    // only inside something larger, or existed only as floor machinery. `say()`
+    // hands back one phrasing with the wall attached; `scan()` runs the banned
+    // list over a string and returns what it found, and an empty array is the
+    // pass. See the long note over _MENU for the one rule all of it enforces —
+    // the subject of a menu sentence is never the member.
+    menu: {
+      say: _menuSay,
+      scan: _menuScan,
+      kinds: _menuVehicleKinds,
+      PHRASES: _MENU,
+      ORDER: _MENU_ORDER,
+      LANES: _MENU_LANES,
+      WALL: _MENU_WALL,
+      AVOID: _MENU_AVOID,
+      CLASSES: (window._PDX_RD_VEHICLE_CLASSES || [])
     },
     // 🏛 FORMAL-RECORD PATTERN TIERS, for the row faces. `tier` returns the shape
     // (tier / weight / tone / label / counts) for one row, `html` the chip. Both

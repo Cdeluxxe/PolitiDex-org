@@ -1841,6 +1841,66 @@
     }
     window._rdIsProvision = _rdIsProvision;
 
+    // ── WHAT KIND OF PACKAGE WAS IT? (light vehicle awareness) ────────────────
+    // The detector above answers "did this issue ride inside something larger?"
+    // and names the something by number. That is enough for a per-row disclosure
+    // and not enough for the question underneath it: some vehicles are the ONLY
+    // train that leaves the station. An omnibus, a defence authorization, a
+    // reconciliation act and a full-year CR are the measures that must pass, and
+    // policy that cannot get a floor date of its own gets attached to one of them.
+    // A reader who is told "this rode inside H.R. 7148" learns a bill number; a
+    // reader who is told "inside a defence authorization" learns why there may
+    // have been nowhere else for it to go.
+    //
+    // THIS IS THE WHOLE OF THE AWARENESS AND IT IS DELIBERATELY SMALL. It reads
+    // the title we already ship, matches it against a fixed list of recognised
+    // must-pass families, and hands back a class word. It does not count what the
+    // chamber scheduled, it does not hold a denominator of bills that never got a
+    // vote, and it does not know who set the calendar — all of that is later work
+    // and none of it can be inferred from a member's own record. Unrecognised is
+    // the default and stays silent: `null` means "we do not classify this", never
+    // "this was an ordinary bill".
+    //
+    // PRESENTATION ONLY, on the same terms as everything else in this section: no
+    // gate, tier, count, floor, percentage or Direction Match input reads a class.
+    // A vehicle's class changes the WORDS a surface may use about a record it has
+    // already read; it can never change the reading.
+    var _RD_VEHICLE_CLASSES = [
+      // Order is match order, and it matters: a special rule "providing for
+      // consideration of" an appropriations bill is a procedural gate, not an
+      // appropriations act, so the rule pattern is tested first. Likewise a
+      // reconciliation act and an NDAA are named as themselves before the generic
+      // appropriations catch-all can claim them.
+      { key: 'rule', label: 'a special rule', article: 'a',
+        re: /providing for consideration of|special rule|^h\.?\s?res\.?\s/i,
+        gate: true },
+      { key: 'reconciliation', label: 'a reconciliation act', article: 'a',
+        re: /reconciliation|inflation reduction act|american rescue plan|build back better|one big beautiful/i },
+      { key: 'ndaa', label: 'a defence authorization', article: 'a',
+        re: /national defense authorization|defense authorization act/i },
+      { key: 'cr', label: 'a continuing resolution', article: 'a',
+        re: /continuing appropriations|continuing resolution|further continuing|full-year continuing/i },
+      { key: 'omnibus', label: 'an omnibus appropriations act', article: 'an',
+        re: /omnibus|consolidated appropriations/i },
+      { key: 'supplemental', label: 'a supplemental appropriations act', article: 'a',
+        re: /supplemental appropriations/i },
+      { key: 'approps', label: 'an appropriations act', article: 'an',
+        re: /appropriations act|making appropriations|division [a-z]{1,2}\b/i }
+    ];
+    // title/identity → class object, or null when nothing on the list matches.
+    // Both strings are searched because the corpus names some measures fully in
+    // the title and some only in the identity line.
+    function _rdVehicleClass(title, ident) {
+      var hay = String(title || '') + ' ' + String(ident || '');
+      if (!hay.replace(/\s/g, '')) return null;
+      for (var i = 0; i < _RD_VEHICLE_CLASSES.length; i++) {
+        if (_RD_VEHICLE_CLASSES[i].re.test(hay)) return _RD_VEHICLE_CLASSES[i];
+      }
+      return null;
+    }
+    window._rdVehicleClass = _rdVehicleClass;
+    window._PDX_RD_VEHICLE_CLASSES = _RD_VEHICLE_CLASSES;
+
     // The row-level read. Same records _recordOmnibusStats takes, same shape of
     // answer, and `null` is never returned for a real record — a row with no
     // provisions reports `stowaway: false` rather than nothing, so a caller cannot
@@ -1858,8 +1918,17 @@
         issueKey: issueKey || null,
         total: 0, provision: 0, standalone: 0,
         vehicles: [], titles: [], sole: null, soleTitle: null,
+        // Light vehicle awareness, added beside the counts rather than folded
+        // into them: `classes` are the recognised must-pass families among the
+        // vehicles above, in first-seen order; `major` is true when at least one
+        // vehicle was recognised; `gate` is true when at least one was a special
+        // rule rather than a policy measure. Every one of these is a word for a
+        // surface to use — `stowaway`, `only` and `share` are computed exactly as
+        // they were and read none of them.
+        classes: [], major: false, gate: false,
         share: 0, stowaway: false, only: false, threshold: _RD_STOWAWAY_AT
       };
+      var seenClass = {};
       var seen = {};
       records.forEach(function (item) {
         var m = _findIssueMapping(item, issueKey);
@@ -1871,7 +1940,10 @@
         if (id && !seen[id]) {
           seen[id] = 1;
           out.vehicles.push(id);
-          out.titles.push(String((item && item.title) || '').trim() || id);
+          var ttl = String((item && item.title) || '').trim() || id;
+          out.titles.push(ttl);
+          var cls = _rdVehicleClass(ttl, id);
+          if (cls && !seenClass[cls.key]) { seenClass[cls.key] = 1; out.classes.push(cls.key); }
         }
       });
       if (!out.total) return out;
@@ -1881,6 +1953,8 @@
       out.only = out.provision > 0 && out.provision === out.total;
       out.stowaway = out.provision > 0 && out.share >= _RD_STOWAWAY_AT;
       if (out.vehicles.length === 1) { out.sole = out.vehicles[0]; out.soleTitle = out.titles[0]; }
+      out.major = out.classes.length > 0;
+      out.gate = out.classes.indexOf('rule') >= 0;
       return out;
     }
     window._recordVehicleStats = _recordVehicleStats;

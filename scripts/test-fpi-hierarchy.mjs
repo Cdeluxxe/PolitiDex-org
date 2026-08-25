@@ -313,7 +313,13 @@ section("5 · six refusals, six sentences");
   eq(veh.only, true, "the stowaway detector says every instrument here was a provision");
   eq(pkg.why && pkg.why.id, "vehicle_only",
     "…and the row says so, rather than calling the record incidental");
-  eq(pkg.why.lb, "Only carried inside larger packages", "the package refusal has its own words");
+  // The locked menu phrasing (consistency.js, _MENU.provision_only): the claim is
+  // about the chances that existed, not about how the member's record "carried".
+  eq(pkg.why.lb, "Only tested as a provision inside larger packages",
+    "the package refusal has its own words");
+  eq(pkg.why.menu, "provision_only", "…and tags itself as a menu fact, not a verdict");
+  has(pkg.why.note, "not what the member chose to do",
+    "…and carries the wall that keeps a floor fact off the member");
   has(pkg.why.note, "a package is not a position on everything inside it",
     "…and explains why no direction follows from one");
   ok(!pkg.tier || pkg.tier === "unread", `the package row claims no tier (${pkg.tier})`);
