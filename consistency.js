@@ -2135,6 +2135,14 @@
         'font-size:0.66rem;letter-spacing:0;color:#8fa2c0;line-height:1.45;' +
         'overflow-wrap:break-word;padding-bottom:0.2rem;}' +
       '.pdxdos-recs[open]>summary{color:#9fdbff;}' +
+      // THE INSTITUTIONAL NOTE, when the dossier's own list is the surface carrying
+      // it. Deliberately quieter than .pdxdos-gap and .pdxdos-led — both of those
+      // are about the record being incomplete or unscored, which is a caveat the
+      // reader has to act on; this is context they may take or leave.
+      '.pdxdos-menu{font-size:0.68rem;color:#93a6c4;line-height:1.5;padding:0.35rem 0.55rem;' +
+        'margin:0.3rem 0 0.15rem;border-left:2px solid rgba(147,166,196,0.3);' +
+        'background:#ffffff06;border-radius:0.2rem;}' +
+      '.pdxdos-menu b{color:#cfe0f8;font-weight:600;}' +
       '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
       // ── The continuity line, directly under the issue title ────────────────
       // Named in the index's colour, in the index's word, so the header the tap
@@ -8514,6 +8522,19 @@
     if (words.length === 2) return words[0] + ' and ' + words[1];
     return words.slice(0, -1).join(', ') + ' and ' + words[words.length - 1];
   }
+  // …and the sentence that carries it, so two surfaces cannot phrase the same fact
+  // two different ways. "That is a reconciliation act" is only true when every
+  // named vehicle is one; where four measures between them produced one recognised
+  // family, the honest verb is "include". '' when nothing was recognised.
+  function _menuKindSay(v) {
+    var kinds = _menuVehicleKinds(v);
+    if (!kinds) return '';
+    var named = (v && v.vehicles) ? v.vehicles.length : 0;
+    var fams = (v && v.classes) ? v.classes.length : 0;
+    return (named <= 1 || named === fams)
+      ? (' That is ' + kinds + '.')
+      : (' Those include ' + kinds + '.');
+  }
 
   var _VEH_TAG = 'Rode inside a package';
   var _VEH_NOTE = 'This issue\u2019s formal record here is made of provisions carried inside ' +
@@ -8565,8 +8586,7 @@
     // …and its family, where the light classifier recognised one. A must-pass
     // measure is context for why a policy travelled the way it did; an
     // unrecognised bill gets no guess.
-    var kinds = _menuVehicleKinds(v);
-    if (kinds) named += ' That is ' + kinds + '.';
+    named += _menuKindSay(v);
     return lead + named + ' ' + _VEH_NOTE;
   }
   // MEMOIZED per (pid, issue) per epoch, on the same counter every other derived
@@ -8593,6 +8613,128 @@
   function vehicleStowaway(pid, issueKey) {
     var v = vehicleRead(pid, issueKey);
     return !!(v && v.stowaway);
+  }
+
+  // ── THE MENU, BESIDE THE RECORD ─────────────────────────────────────────────
+  // What a thin formal record MEANS depends partly on what there was to vote on,
+  // and the issue dossier has never said anything at all about that half. It shows
+  // the member's file and stops, so a lane holding two package votes reads as a
+  // member who barely engaged, when what the file may actually record is an issue
+  // that only ever came up folded inside something else.
+  //
+  // This reads the two things already on hand and turns whichever one the data
+  // genuinely supports into one short phrase from the locked vocabulary:
+  //
+  //   · the stowaway tally (_recordVehicleStats, via vehicleRead) — was every
+  //     mapped instrument on this issue a provision inside a larger measure?
+  //   · the direction index's procedural count — was every judged act on file
+  //     floor machinery rather than a vote on the substance?
+  //
+  // WHAT IT DELIBERATELY WILL NOT SAY. _MENU.no_vehicle — "No clean vehicle
+  // reached the floor" — is a claim about the whole chamber's calendar, and
+  // nothing here counts the chamber. One member's empty lane is not evidence for
+  // it. It stays reserved and unwired, and silence is the honest output when the
+  // only thing on hand is that this member's file is thin.
+  //
+  // AND WHY "Only" IS NOT USED LOOSELY. The locked phrase says "Only tested as a
+  // provision", so it prints only where v.only is true — every mapped instrument
+  // on the issue was a package. Where packages merely dominated, the phrase falls
+  // back to the vehicle wording already shipped on the rows (_VEH_TAG) and the
+  // counts underneath say exactly how far the claim goes.
+  //
+  // The subject of every sentence here is the measure or the floor. Never the
+  // member, never a party, never anyone's scheduling power — _menuScan is run over
+  // the assembled output by scripts/test-menu-context.mjs with the same banned
+  // list the copy was written against.
+  var _MENU_CTX_ICO = '📋';
+  function _menuContext(pid, issueKey, opts) {
+    if (!pid || !issueKey) return null;
+    var o = opts || {};
+    // The exec lane is out of scope for the same reason _rdSlot skips it: "carried
+    // as a provision inside a larger measure" is a legislative-vehicle idea, and an
+    // executive order has no vehicle to ride.
+    if ((o.lane || '') === 'exec') return null;
+    var v = null, idx = null;
+    try { v = vehicleRead(pid, issueKey); } catch (e) { v = null; }
+    try {
+      if (typeof window._pdxRecordDirection === 'function') {
+        idx = window._pdxRecordDirection(pid, issueKey, {
+          noun: { one: 'vote', many: 'votes' },
+          label: _issueLabel(issueKey) || ''
+        });
+      }
+    } catch (e) { idx = null; }
+    var kinds = _menuVehicleKinds(v);
+    var kindSay = _menuKindSay(v);
+
+    // ① Every mapped instrument was a package. The strongest thing this data
+    //    supports, and the one case the locked "Only tested…" phrase fits exactly.
+    if (v && v.stowaway && v.only) {
+      var say = _menuSay('provision_only');
+      // Names the vehicles while there are few enough to name, the same way the
+      // row's own sentence does; past two, "inside 8 larger measures" beside a
+      // count of 8 instruments reads like a coincidence, so the shape is stated
+      // instead and the full list stays one line down in the note.
+      var nveh = (v.vehicles && v.vehicles.length) || 0;
+      var subj = (v.total === 1)
+        ? 'The one mapped instrument on this issue arrived '
+        : 'All ' + v.total + ' mapped instruments on this issue arrived ';
+      var facts = !nveh
+        ? 'Every mapped instrument on this issue arrived inside a larger measure.'
+        : (nveh > 2)
+          ? subj + 'inside a larger measure, across ' + nveh + ' of them.'
+          : subj + _vehWhere(v) + '.';
+      return {
+        state: 'provision_only', menu: 'provision_only', lb: say.lb,
+        facts: facts + kindSay, note: say.note, kinds: kinds, v: v
+      };
+    }
+    // ② Everything on file was floor machinery. Read from the same comparison the
+    //    formal pattern's own `procedural_only` refusal uses, so the dossier and
+    //    the refusal ledger cannot describe the same lane two different ways.
+    if (idx && (idx.judged || 0) > 0 && (idx.procedural || 0) >= (idx.judged || 0)) {
+      var sayP = _menuSay('procedural_gate');
+      return {
+        state: 'procedural_gate', menu: 'procedural_gate', lb: sayP.lb,
+        facts: (idx.judged === 1)
+          ? 'The one judged act on this issue was procedural.'
+          : 'All ' + idx.judged + ' judged acts on this issue were procedural.',
+        note: sayP.note, kinds: kinds, v: v
+      };
+    }
+    // ③ Packages dominated but did not exhaust the file. `menu: null` because no
+    //    locked phrase is being asserted — this is the shipped row vocabulary
+    //    saying the smaller, checkable thing.
+    if (v && v.stowaway) {
+      return {
+        state: 'provision_mostly', menu: null, lb: _VEH_TAG,
+        facts: '', note: _vehNote(v) + ' ' + _MENU_WALL, kinds: kinds, v: v
+      };
+    }
+    return null;
+  }
+  // Two shapes, one read. The sheet's 🏛️ column gets the same collapsed disclosure
+  // the multi-issue provenance count already uses there, so the institutional half
+  // arrives at exactly the weight of the provenance half and not a pixel more —
+  // context sitting beside the record, closed by default, never a verdict. `flat`
+  // is for a surface that is already inside a drawer, where a second <details> is
+  // something a reader has to find twice.
+  function _menuContextHtml(pid, issueKey, opts) {
+    var c = _menuContext(pid, issueKey, opts);
+    if (!c) return '';
+    var o = opts || {};
+    var body = (c.facts ? c.facts + ' ' : '') + c.note;
+    if (o.mode === 'flat') {
+      return '<div class="pdxdos-menu" data-pdxdos-menu="' + esc(c.state) + '">' +
+        '<span aria-hidden="true">' + _MENU_CTX_ICO + '</span> <b>' + esc(c.lb) +
+        '</b> — ' + esc(body) + '</div>';
+    }
+    return '<details class="pdxgap-side-sub pdxgap-omni pdxgap-menu" ' +
+        'data-pdxgap-menu="' + esc(c.state) + '">' +
+      '<summary><span aria-hidden="true">' + _MENU_CTX_ICO + '</span> <b>' +
+        esc(c.lb) + '</b></summary>' +
+      '<div class="pdxgap-omni-b">' + esc(body) + '</div>' +
+    '</details>';
   }
   // THE ROW'S OWN SENTENCE, ADDRESSED BY KEY. Surfaces that hold a (pid, issue)
   // rather than an index row — the Official Record list, a stance row — need the
@@ -13369,6 +13511,11 @@
           ' A multi-issue bill is scored separately on each issue it touched.</div>' +
       '</details>';
     }
+    // …and the other half of the same question. The disclosure above says where the
+    // listed records CAME FROM; this one says what there was to vote on in the first
+    // place, where the record itself supports saying so. Same drawer, same weight,
+    // directly underneath — see _menuContext for what it refuses to claim.
+    var offMenu = _menuContextHtml(pid, issueKey, { lane: off.lane });
     var offSide =
       '<div class="pdxgap-side">' +
         '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> ' +
@@ -13377,6 +13524,7 @@
         '<div class="pdxgap-side-sub">Formal ' + LT('rollcall', 'roll-call votes') +
           ' &amp; actions — the institutional record</div>' +
         offOmni +
+        offMenu +
         offBody +
         // Full-width because this sheet is a mobile bottom sheet first.
         '<div class="pdxgap-share">' + _rcShareHtml(pid, issueKey, { block: true }) + '</div>' +
@@ -14057,6 +14205,12 @@
     // pass. See the long note over _MENU for the one rule all of it enforces —
     // the subject of a menu sentence is never the member.
     menu: {
+      // Phase C: the dossier's institutional context, as data and as the two
+      // shapes that print it. Exported so a harness can hold the gate to the data
+      // that licenses it rather than assert on rendered markup alone.
+      context: _menuContext,
+      contextHtml: _menuContextHtml,
+      kindSay: _menuKindSay,
       say: _menuSay,
       scan: _menuScan,
       kinds: _menuVehicleKinds,
