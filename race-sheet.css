@@ -484,6 +484,25 @@
    themselves — it should be findable at a glance down a list of six seats. */
 .rs-seat-team.is-on { color: #fde68a; }
 .rs-seat-team.is-on b { color: #fff7dd; font-weight: 700; }
+/* ── "Work this seat" ────────────────────────────────────────────────────────
+   The loop's own control, so it reads as the primary action on the row while the
+   compare button beside it reads as the reference lookup it is. Gold, because
+   gold is this app's colour for a ballot decision — the same colour the filled
+   team slot above it uses. 44px on every width. */
+.rs-seat-work {
+  display: inline-flex; align-self: flex-start; align-items: center; gap: 0.4rem;
+  min-height: 44px; padding: 0 0.75rem; border-radius: 0.6rem; cursor: pointer;
+  background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.36);
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #fde68a;
+  white-space: nowrap; text-align: left;
+}
+.rs-seat-work:hover, .rs-seat-work:focus-visible {
+  background: rgba(251, 191, 36, 0.2); border-color: rgba(251, 191, 36, 0.6); color: #fff7dd;
+}
+.rs-seat-work-ic { font-size: 0.9rem; line-height: 1; }
+.rs-seat-work-go { opacity: 0.7; }
+
 /* Footnote weight, deliberately: it explains an absence, it is not the CTA. */
 .rs-seat-stance {
   align-self: flex-start; min-height: 32px; padding: 0.25rem 0;

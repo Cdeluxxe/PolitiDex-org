@@ -245,7 +245,8 @@
   function localButton(cov) {
     if (!cov || !cov.resolved || !cov.ok) return '';
     var n = (cov.pids && cov.pids.length) || 0;
-    return '<button type="button" class="wrm-next-btn"' +
+    var sub = (typeof window.pdxBallotWorkspaceOpen === 'function') ? ' wrm-next-btn--sub' : '';
+    return '<button type="button" class="wrm-next-btn' + sub + '"' +
       ' onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')">' +
       '🏙️ My local officials <em>(' + n + ')</em></button>';
   }
@@ -261,20 +262,59 @@
     '</p>';
   }
 
-  // ── After the lookup: the three next steps, in the stated order ────────────
-  // Records first, because that is what the supporting line promised. Team
-  // building is present and clearly optional, which is the reorder this whole
-  // pass is about — it is a step the visitor may take, not the price of entry.
+  // ── After the lookup: ONE lead, and the rest demoted ───────────────────────
+  // This used to be a "What now?" label over three equal-weight buttons —
+  // compare on an issue, build a team (optional), my local officials — plus a
+  // change-location control, sitting under a list that had already offered a
+  // compare control on every single row. Four peers at the end of a list of six
+  // seats is not guidance; it is the reader being handed the product's own org
+  // chart and asked to route themselves, and it is a large part of why Door 2
+  // read as a brochure wrapped around a list.
+  //
+  // What changed is the HIERARCHY, not the inventory. There is now exactly one
+  // lead action and it is the next step of the actual loop: continue into the
+  // ballot workspace, where these same seats carry the field, the pick and a
+  // running count. Everything that was here before is still here, one weight
+  // down, because each of those three is a real destination and two of them are
+  // load-bearing promises:
+  //
+  //   · "Compare them on an issue" is what the band's own supporting line
+  //     promised, and it must keep preceding team-building — accountability
+  //     before list-building is the order this band was reordered into.
+  //   · "Build my voting team" stays marked optional. A visitor who came to look
+  //     up their representatives is not required to build anything, and a band
+  //     that hides the optionality funnels instead of offering.
+  //   · "My local officials (N)" is the destination the scope note above depends
+  //     on, and the count is what makes the promise checkable BEFORE the tap.
+  //     Removing it turned that note into a dead end.
+  //
+  // The lead degrades to the team-builder jump when ballot-workspace.js has not
+  // loaded, so the way forward never depends on a deferred file.
   function nextActions(cov) {
+    // With the workspace loaded there is a lead and the older three sit under it.
+    // Without it there is no lead to invent — the row falls back to EXACTLY the
+    // shape that shipped before, compare-first, rather than promoting one of the
+    // three into a slot it was never written for.
+    var hasWs = (typeof window.pdxBallotWorkspaceOpen === 'function');
+    var subCls = hasWs ? ' wrm-next-btn--sub' : '';
+    var lead = hasWs
+      ? '<div class="wrm-nextrow">' +
+          '<button type="button" class="wrm-next-btn wrm-next-btn--lead"' +
+            ' onclick="window.pdxBallotWorkspaceOpen(\'senate\')">' +
+            '\u{1F5F3} Work my ballot \u2014 seat by seat</button>' +
+        '</div>' +
+        '<p class="wrm-nexthint">Every seat above has a <b>Work this seat</b> control \u2014 or take them ' +
+          'in order, one at a time, and your picks save as you go.</p>'
+      : '';
     return '<div class="wrm-next">' +
-      '<div class="wrm-nextlabel">What now?</div>' +
-      '<div class="wrm-nextrow">' +
-        '<button type="button" class="wrm-next-btn wrm-next-btn--lead"' +
+      lead +
+      '<div class="wrm-nextrow' + (hasWs ? ' wrm-nextrow--sub' : '') + '">' +
+        '<button type="button" class="wrm-next-btn' + (hasWs ? subCls : ' wrm-next-btn--lead') + '"' +
           ' onclick="var e=document.getElementById(\'issue-compare\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});">' +
-          '⚖️ Compare them on an issue</button>' +
-        '<button type="button" class="wrm-next-btn"' +
+          '\u2696\ufe0f Compare them on an issue</button>' +
+        '<button type="button" class="wrm-next-btn' + subCls + '"' +
           ' onclick="var e=document.getElementById(\'my-politicians\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});">' +
-          '⭐ Build my voting team <em>(optional)</em></button>' +
+          '\u2b50 Build my voting team <em>(optional)</em></button>' +
         localButton(cov) +
       '</div>' +
       localGapNote(cov) +
