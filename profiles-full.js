@@ -3552,6 +3552,13 @@
         window.PDXJourney.record('profile', { label: _jn, icon: '👤', nav: { type: 'profile', pid: id } });
       }
     } catch (e) {}
+    // One funnel. PDXPerson.open resolves the record, opens this same renderer,
+    // stamps /p/<id> and sets the file kicker — so a person opened from search,
+    // from a ballot seat, from a share link or from a Direction Match card is
+    // the same act with the same address, not five near-identical ones.
+    if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
+      if (window.PDXPerson.open(id)) return;
+    }
     openModal(id);
   }
 
@@ -5369,11 +5376,12 @@
            #pdxsec-score now lives. Nothing was deleted; it stopped being a
            section. -->
 
-      <!-- Accountability of Truth Score — retired as a headline number; the renderer
-           returns '' (see accountability-score.js). The container stays so
-           _refreshAccountabilityCard() keeps a valid target and the underlying
-           analysis remains reachable from the Spotlight section below. -->
-      <div id="acct-inline-card">${(typeof window._renderAccountabilityCard === 'function') ? window._renderAccountabilityCard(id, p) : ''}</div>
+      <!-- The inline Accountability Score card stood here (#acct-inline-card, rendered by
+           window._renderAccountabilityCard). The composite 0–100 model is retired
+           outright — engine, curated overrides, rating bands, badges and overlay — so
+           there is no renderer left to call and no empty container to keep a target for.
+           The evidence it drew on is unaffected: it is the integrity-highlights list in
+           the Spotlight section below, which shows sourced items rather than a grade. -->
 
       <!-- SCORING CLEANUP: the "🤝 Promise Follow-Through · In-office record" bar that
            used to sit here rendered the same window._pdxDisplayScore() percentage as the
@@ -5456,7 +5464,7 @@
             <div style="display:flex;align-items:center;gap:0.85rem;">
               <div style="flex-shrink:0;text-align:center;min-width:62px;">
                 <div style="font-family:'Bebas Neue',sans-serif;font-weight:900;line-height:1;font-size:2.4rem;color:${aCol};text-shadow:0 0 14px ${aCol}55;">${alignScore}<span style="font-size:1.1rem;">%</span></div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#a78bfa;margin-top:0.1rem;">🎯 Your Match</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#a78bfa;margin-top:0.1rem;">🎯 ${typeof window.pdxMatchLabel === 'function' ? window.pdxMatchLabel() : 'Your Match'}</div>
               </div>
               <div style="flex:1;min-width:0;">
                 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.35rem;">
@@ -6382,16 +6390,12 @@
             }
           }
 
+          // `linked` used to make the row tappable: it jumped to the inline
+          // Accountability Score card and pulsed the contribution row that this item
+          // fed. That card is retired along with the rest of the composite, so the
+          // destination no longer exists and the row is plain text again. The item's
+          // own sourcing below is what it was always the evidence for.
           var open = '<div' + idAttr + ' style="';
-          if (linked) {
-            // Tap jumps to the Accountability card and pulses the matching
-            // contribution row — keeping the cause→effect link inside one modal.
-            var jump = 'if(window._slFocusAccountability)window._slFocusAccountability(\'' + safeSlId + '\',' + (o.contribIndex || 0) + ');';
-            open = '<div' + idAttr + ' role="button" tabindex="0"' +
-              ' onclick="' + jump + '"' +
-              ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + jump + '}"' +
-              ' style="cursor:pointer;';
-          }
           // Clear, tappable sourcing for the claim — a structured {label,url}
           // source renders as a small linked chip; legacy items keep any source
           // links embedded inline in the body text. When the item carries
@@ -6537,10 +6541,11 @@
         }
 
         // Sub-header for the sourced integrity highlights below.
-        // SCORING CLEANUP: this used to carry a "View Score Analysis →" button into
-        // #accountability-overlay, which prints an Accountability Score of N/100 —
-        // a second composite competing with Direction Match. Removed with the two
-        // compare-hub doors; the highlights themselves are evidence and stay.
+        // SCORING CLEANUP: this used to carry a "View Score Analysis →" button into the
+        // Accountability Score deep-analysis overlay, which printed a composite N/100 —
+        // a second headline competing with the formal record. The button went first, and
+        // the whole model has since been deleted from the publish set: engine, overlay,
+        // rating bands and badges. The highlights themselves are evidence and stay.
         function _slDriverHeader() {
           return '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:0.2rem 0 0.6rem;">' +
               '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Integrity &amp; consistency highlights</span>' +
@@ -7051,7 +7056,17 @@
     // Track which profile is open (used by the top-bar Share button) and reflect
     // it in the address bar so the link can be copied or shared directly.
     window._pdxCurrentProfileId = id;
-    try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(id) + location.hash); } catch (e) {}
+    // The canonical address for a person is the path form /p/<id>, owned by
+    // person-file.js so that every entry point — this one, a share link, a
+    // back-button pop — puts the same string in the bar. The ?p=<id> fallback
+    // below is what shipped before it and is kept for the case where that file
+    // has not loaded: a stale address is survivable, a missing one is not.
+    if (window.PDXPerson && typeof window.PDXPerson.stamp === 'function') {
+      window.PDXPerson.stamp(id);
+      if (typeof window.PDXPerson.kicker === 'function') window.PDXPerson.kicker(id);
+    } else {
+      try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(id) + location.hash); } catch (e) {}
+    }
     // Arm the quick-jump nav (smooth-scroll + scroll-spy) now that the content
     // is in the DOM and the body has been scrolled back to the top.
     if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav();
@@ -7160,9 +7175,18 @@
       overlay.style.overscrollBehavior = 'contain';
     }
     document.body.style.overflow = '';
-    // Drop the ?p=<id> deep-link param from the address bar on close.
+    // Put back the address the reader was on before the file opened. This is
+    // person-file.js's job because it is the thing that changed the address in
+    // the first place, and because /p/<id> — unlike the old ?p= param — is a
+    // PATH, so "just drop the query string" would leave the closed person's
+    // address in the bar.
     window._pdxCurrentProfileId = null;
-    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    if (window.PDXPerson && typeof window.PDXPerson.restore === 'function') {
+      window.PDXPerson.restore();
+      if (typeof window.PDXPerson.kicker === 'function') window.PDXPerson.kicker(null);
+    } else {
+      try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    }
     // Refresh the comment + vote counts on listing cards so anything added inside
     // the profile shows live the moment the modal closes.
     if (typeof window._pdxRefreshCommentChips === 'function') window._pdxRefreshCommentChips();
@@ -7372,8 +7396,11 @@
   // ════════════════════════════════════════════════════════════
   // SHARE — direct links to a specific politician profile
   // ════════════════════════════════════════════════════════════
-  // A shared link looks like  https://<site>/?p=<id>  and re-opens that
-  // politician's profile modal automatically on load (see _pdxOpenFromUrl).
+  // A shared link looks like  https://<site>/p/<id>  and re-opens that
+  // politician's profile modal automatically on load (PDXPerson.bootAdopt).
+  // The older  ?p=<id>  form still arrives and still works — _pdxOpenFromUrl
+  // has not moved — it is simply no longer the form we hand out, because the
+  // path form is what canonicalPath() and the sitemap use for the same person.
   //
   // …unless the reader was looking at ONE ISSUE, in which case the sheet emits
   // https://<site>/?record=<id>~<issueKey> instead, which lands on the Official
@@ -7395,7 +7422,7 @@
       var u = L.profile(id);
       if (u) return u;
     }
-    return location.origin + '/?p=' + encodeURIComponent(id);
+    return location.origin + '/p/' + encodeURIComponent(id);
   };
 
   // The link for whatever the reader actually had open. `issueKey` is optional and

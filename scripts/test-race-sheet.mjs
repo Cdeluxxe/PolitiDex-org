@@ -10,7 +10,7 @@
 // candidate and presents the answer. This file guards the presentation, because
 // a ranking is exactly the kind of surface that lies quietly.
 //
-//   1. THREE RULERS, NEVER COLLAPSED. Your Match · record, Your Match · stated,
+//   1. THREE RULERS, NEVER COLLAPSED. Your Record Match, Your Match · stated,
 //      and Direction Match are separately named, separately explained, and only
 //      the first two can order the field.
 //   2. RECORD IS THE DEFAULT, and it says so on screen. A corrupt stored mode
@@ -239,7 +239,7 @@ must(HTML.length > 500, "the sheet painted nothing at all");
 section("1 · three rulers, never collapsed");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  has(HTML, "Your Match · record", "the record ruler is named");
+  has(HTML, "Your Record Match", "the record ruler is named");
   has(HTML, "Your Match · stated", "…the stated ruler is named");
   has(HTML, "Direction Match", "…and Direction Match is named");
   has(HTML, "Record match</b> = their votes/actions vs your positions",
@@ -344,8 +344,10 @@ section("4 · Direction Match is present and does not rank");
   ok((HTML.match(/class="rs-dm"/g) || []).length >= 2,
     "the chip is on the whole field, not just the leader");
 
-  // The proof it is not the sort key: _ballotCandidates hands the sheet a field
-  // ALREADY sorted by Direction Match, and the sheet throws that order away.
+  // The proof it is not the sort key. The roster no longer arrives DM-sorted
+  // (ballot-breakdown.js orders it officeholder-then-alphabetical now), so this
+  // checks the two things that still matter: field() passes the roster through
+  // untouched, and the painted order is rank()'s work.
   const raw = LIVE._ballotCandidates(SEAT);
   const rosterOrder = raw.map((c) => c.pid);
   const shown = paneOrder(HTML);

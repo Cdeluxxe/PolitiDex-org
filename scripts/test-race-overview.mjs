@@ -206,7 +206,7 @@ section("1 · Overview is what a reader with no positions gets");
   has(OVHTML, "Overview · public record", "the tab is named for what it shows");
   // The two rulers are still offered — pressing one is how a reader finds out
   // what it needs — and they say what they are waiting for.
-  has(OVHTML, "Your Match · record", "the record ruler is still on the tablist");
+  has(OVHTML, "Your Record Match", "the record ruler is still on the tablist");
   has(OVHTML, "Your Match · stated", "…and so is the stated ruler");
   eq((OVHTML.match(/class="rs-mode[ "]/g) || []).length, 2,
     "exactly two controls can order this field, and Overview is not one of them");

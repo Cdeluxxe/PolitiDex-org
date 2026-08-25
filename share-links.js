@@ -325,10 +325,31 @@
         return String(base).replace(/\/$/, '') + u.pathname + u.search + u.hash;
       } catch (e) { return url; }
     },
-    // A politician profile. Root-anchored on purpose — see the note above.
+    // A politician profile. Root-anchored on purpose — see the note above, and
+    // now PATH-anchored too: /p/<pid> rather than /?p=<pid>.
+    //
+    // Why the change. A person file is a record, and a record that is worth
+    // citing needs an address that looks like one. ?p= worked — it still does,
+    // on arrival, for every link already in the wild — but it reads as a
+    // parameter handed to the front page rather than as the address of a thing,
+    // and it is the one form of the address that a reader cannot tell from a
+    // tracking tag. /p/<pid> is what canonicalPath() and the sitemap emit
+    // (netlify/lib/share-target.ts, scripts/gen-sitemap.mjs), so a shared link
+    // and the canonical link for the same person are now the same string.
+    //
+    // Note what does NOT gate this: the publication floor. The floor decides
+    // what PolitiDex advertises to a search engine, not what a reader is
+    // allowed to link to. Handing out a second address shape for thin records
+    // would recreate exactly the "a different summary product each time"
+    // problem the person file exists to end — so every person file has one
+    // address, and the sitemap simply does not list all of them.
     profile: function (pid) {
       if (!pid) return '';
-      return origin() + '/?p=' + encodeURIComponent(pid);
+      try {
+        var P = window.PDXPerson;
+        if (P && typeof P.path === 'function') return origin() + P.path(pid);
+      } catch (e) {}
+      return origin() + '/p/' + encodeURIComponent(pid);
     },
     // ── The one answer to "what URL opens what this reader is looking at?" ─────
     // Share controls live on two kinds of surface and used to emit one kind of

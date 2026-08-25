@@ -62,7 +62,7 @@
 //   node scripts/test-score-consistency.mjs
 //
 // No DB, no network, no build step.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -92,7 +92,7 @@ function must(cond, what) {
 
 const PROFILES = read("profiles-full.js");
 const CONSISTENCY = read("consistency.js");
-const ACCT = read("accountability-score.js");
+
 const EXEC_UI = read("exec-record-ui.js");
 const INDEX = read("index.html");
 
@@ -698,19 +698,25 @@ const [displayScore, promiseState] = (() => {
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Contract 7 — the retired composites stay retired
-// Both renderers must return '' as their FIRST statement, so no call site can
-// resurrect a headline number by accident.
+// These renderers used to survive as stubs returning '' on their first statement.
+// They are now deleted along with the whole Accountability Score engine, so the
+// contract is stronger and simpler: the symbols exist nowhere in shipped code.
+// scripts/test-accountability-retired.mjs owns the full boundary (engine, model,
+// vocabulary, overlay); this keeps the score-consistency suite honest about the
+// headline numbers it audits.
 // ═════════════════════════════════════════════════════════════════════════════
-for (const name of ["_renderAccountabilityCard", "_acctCardBadge"]) {
-  const fn = extractFn(ACCT, name, "accountability-score.js");
-  const firstStmt = fn
-    .slice(fn.indexOf("{") + 1)
-    .split("\n")
-    .map((l) => l.trim())
-    .find((l) => l && !l.startsWith("//"));
-  eq(firstStmt, "return '';",
-    `${name} no longer returns '' first — the retired Accountability of Truth\n` +
-    "    composite is rendering as a headline number again");
+{
+  const shipped = readdirSync(ROOT)
+    .filter((f) => f.endsWith(".js") && !f.startsWith("sw") && !f.includes(".min."));
+  must(shipped.length > 40, `the composite sweep sees the shipped module set (${shipped.length} files)`);
+  const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")
+                        .replace(/<!--[\s\S]*?-->/g, "");
+  for (const name of ["_renderAccountabilityCard", "_acctCardBadge", "acctRating"]) {
+    const hits = shipped.filter((f) => strip(read(f)).includes(name));
+    eq(hits.length, 0,
+      `${name} is back in shipped code (${hits.join(", ")}) — the retired Accountability\n` +
+      "    of Truth composite can render as a headline number again");
+  }
 }
 {
   const mandate = extractFn(PROFILES, "_renderMandateAlignment", "profiles-full.js");

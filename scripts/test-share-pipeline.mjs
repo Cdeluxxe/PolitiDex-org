@@ -16,7 +16,8 @@
 //      its own signature.
 //
 //   2. DEAD LINK. The person-level share control is mounted inside issue dossiers,
-//      where it knows the issue — and it threw the issue away, emitting /?p=<pid>.
+//      where it knows the issue — and it threw the issue away, emitting the bare
+//      person-file address.
 //      A reader following a share taken from Scalise / Secure & Accessible Voting
 //      landed on the profile shell with no way to tell which of nineteen issues had
 //      been sent. The app already had the address (#record=<pid>~<issue>, in
@@ -156,8 +157,15 @@ const run = async () => {
   const away = onVote.window.PDXShareLinks;
   must(away, "the /vote/ sandbox did not register PDXShareLinks");
 
-  ok(away.profile("scalise") === "https://politidex.fyi/?p=scalise",
+  ok(away.profile("scalise") === "https://politidex.fyi/p/scalise",
      "link: a profile link is rooted at '/' even when built from a /vote/ page — the address must name the profile, not the page the reader happened to be on");
+  // The shape moved from ?p=<pid> to /p/<pid> in the product-spine pass, so a
+  // shared person link and the canonical link for the same person are now the
+  // same string (netlify/lib/share-target.ts canonicalPath). The old query form
+  // still ARRIVES — _pdxOpenFromUrl and parseTarget both still read it — it is
+  // simply no longer what we hand out.
+  ok(!/\?p=/.test(away.profile("scalise")),
+     "link: the person-file share link is the path form, not the query form it used to be");
   ok(away.profile("scalise").indexOf("/vote/") === -1,
      "link: no share link carries the /vote/ path it was built on, which is what made the arrival apologise for a roll call nobody asked about");
   ok(away.record("scalise", "voting_rights").indexOf("/vote/") === -1,
@@ -174,8 +182,10 @@ const run = async () => {
   ok(SL.forTarget({ pid: "jayapal", issueKey: "healthcare" })
        === "https://politidex.fyi/?record=jayapal~healthcare",
      "link: the same holds for any (member, issue) pair, not just the reported one");
-  ok(SL.forTarget({ pid: "scalise" }) === "https://politidex.fyi/?p=scalise",
+  ok(SL.forTarget({ pid: "scalise" }) === "https://politidex.fyi/p/scalise",
      "link: with no issue in play the target is the profile, unchanged");
+  ok(SL.forTarget({ pid: "scalise" }) === SL.profile("scalise"),
+     "link: forTarget does not invent a second person-file address either");
   ok(SL.forTarget({}) === "" && SL.forTarget() === "",
      "link: an unreconstructable target returns nothing, so a caller cannot ship a link to the front page and call it a share");
 

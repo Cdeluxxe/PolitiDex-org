@@ -44,7 +44,7 @@
 //   node scripts/test-promise-honesty.mjs
 //
 // No DB, no network, no browser.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -75,7 +75,7 @@ const PROFILES = read("profiles-full.js");
 const CMP_TABLE = read("compare-table.js");
 const CMP_HUB = read("compare-hub.js");
 const LIKE = read("like-dislike.js");
-const ACCT = read("accountability-score.js");
+
 
 // ── Pull real function bodies out of the sources ────────────────────────────
 function braceScan(src, head, label, file) {
@@ -367,14 +367,17 @@ const EMPTY = { name: "Empty", score: null };
     "the compare table's sticky column header carries a score ring again — the header\n" +
     "    was the table's loudest percentage and it reports pledge counts now");
 
-  // The Accountability of Truth report quotes the keep rate in three sentences.
-  ok(/pkQuotable/.test(ACCT),
-    "accountability-score.js quotes the kept/resolved keep rate unconditionally");
-  const quoted = ACCT.split("promiseKeeping + \"%\"").length - 1
-                + ACCT.split("promiseKeeping + '%'").length - 1;
-  eq(quoted, 0,
-    "a keep-rate percentage is still concatenated unguarded in accountability-score.js —\n" +
-    "    every quotation of it has to sit behind pkQuotable");
+  // The Accountability of Truth report used to quote the keep rate in three
+  // sentences, each guarded by a pkQuotable thinness check. The report and its
+  // engine are deleted, so there is no guard to maintain — the whole quoting
+  // surface is gone. This asserts it stays gone rather than returning ungated.
+  const shipped = readdirSync(ROOT)
+    .filter((f) => f.endsWith(".js") && !f.startsWith("sw") && !f.includes(".min."));
+  must(shipped.length > 40, `the keep-rate sweep sees the shipped module set (${shipped.length} files)`);
+  for (const sym of ["pkQuotable", "promiseKeeping"]) {
+    const hits = shipped.filter((f) => read(f).includes(sym));
+    eq(hits.length, 0, `no shipped module reintroduces ${sym} — found in ${hits.join(", ")}`);
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

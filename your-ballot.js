@@ -10,7 +10,8 @@
    builder — the Hub stays the primary teaching flow, and this is the "ready to
    vote" consolidated view a step further down the page:
 
-        set your address  →  see EVERY contest on your real ballot
+        set your address  →  see every contest PolitiDex has on file for
+                                your districts
         →  for each seat, weigh the candidates (pledge receipts, top stances,
            funding at a glance)  →  save picks to your team (auto-synced)
 
@@ -107,6 +108,37 @@
     return where;
   }
 
+  /* ── the official-ballot boundary ─────────────────────────────────────── */
+  /* This section is a research workspace, not a sample ballot. It shows the
+     contests PolitiDex has candidate records for in the voter's districts —
+     which is a subset of what will be printed on the real thing, and always
+     will be: judicial retention, bond and school-board questions, special
+     districts and write-ins are not in the corpus. Saying so is the difference
+     between a tool a voter can trust and one that quietly loses them a vote on
+     a race they never knew was coming.
+
+     It reuses the app's existing election-authority table
+     (window.PDX_ELECTION_DATA.links, keyed by full state name, vote.org as the
+     national fallback) rather than introducing a second list of official links
+     to keep in sync, and it borrows the same closing phrasing the Key Dates
+     footer already uses — "your county clerk's office" — so a reader meets one
+     voice, not two. No new doctrine: only the boundary the app already draws
+     on dates, drawn here on contests too. */
+  function officialLink() {
+    var loc = window._currentVoterLocation || {};
+    var state = String(loc.state || '').trim();
+    var links = (window.PDX_ELECTION_DATA && window.PDX_ELECTION_DATA.links) || {};
+    return links[state] || { label: 'vote.org', url: 'https://www.vote.org/' };
+  }
+  function officialNote() {
+    var lk = officialLink();
+    return '<span class="yb-official">ℹ️ Not an official ballot. PolitiDex covers the ' +
+      'contests it has candidate records for — measures, judicial retention and some local ' +
+      'seats won’t appear here. For the official list, check <a href="' + esc(lk.url) +
+      '" target="_blank" rel="noopener noreferrer">' + esc(lk.label) +
+      '</a> or your county clerk’s office.</span>';
+  }
+
   /* ── mount the section AFTER the team builder (Voter Hub) ─────────────── */
   function ensureMounted() {
     if (_mounted && el(MOUNT_ID)) return el(MOUNT_ID);
@@ -150,10 +182,20 @@
     var slot = fn('_pdxLedgerSlot')
       ? window._pdxLedgerSlot(rec, { pid: pid, status: (c.status || rec.status || '') === 'candidate' ? 'candidate' : 'office' })
       : null;
+    // The chip used to print a glyph and a verdict word and never name itself, so
+    // "Kept their word" sat on a ballot card with nothing saying what had been
+    // measured or against whom. A kicker fixes that in one line: the chip states
+    // its job (Word vs Action — their own word against their own record) before it
+    // states its finding, which is also what keeps it from being misread as a
+    // match to the voter. It stays grey and small either way; this read is
+    // secondary to the formal record and it is never what orders a field.
     var scoreHtml = !slot
-      ? '<span class="yb-score yb-noscore" title="No record on file yet"><b>No record yet</b></span>'
-      : '<span class="yb-score yb-noscore" title="⚖️ Word vs Action — how often their record backs up what they said. Campaign pledges are measured inside this read.">'
-          + '<b' + (slot.tint ? ' style="color:' + slot.tint + ';"' : '') + '>' + slot.glyph + '</b><span>' + esc(slot.sub) + '</span></span>';
+      ? '<span class="yb-score yb-noscore" title="No record on file yet"><b>No record yet</b>'
+          + '<span class="yb-score-job">Word vs Action</span></span>'
+      : '<span class="yb-score yb-noscore" title="⚖️ Word vs Action — their own stated positions against their own formal record. It is not a match to you, and it does not order this field. Campaign pledges are measured inside this read.">'
+          + '<b' + (slot.tint ? ' style="color:' + slot.tint + ';"' : '') + '>' + slot.glyph + '</b>'
+          + '<span class="yb-score-job">' + esc(slot.label || 'Word vs Action') + ' ·</span>'
+          + '<span>' + esc(slot.sub) + '</span></span>';
 
     var party = fn('_pdxPartyChip') ? window._pdxPartyChip(rec.party) : '';
     var stances = fn('_pdxStanceChips') ? window._pdxStanceChips(pid, rec, { max: 3 }) : '';
@@ -276,18 +318,19 @@
   /* ── empty state: inline address prompt (no pop-up) ───────────────────── */
   function renderEmpty(section) {
     section.innerHTML = '<div class="yb-wrap">' +
-      headerHtml('Your complete ballot in one place — every contest you’ll actually vote on, with each candidate’s promise record, where they stand, and who funds them, side by side. Set your location to fill it in.') +
+      headerHtml('The contests we have on file for your districts, in one place — each candidate’s promise record, where they stand, and who funds them, side by side. Set your location to fill it in.') +
       '<div class="yb-setloc">' +
         '<div class="yb-setloc-ico">📍</div>' +
-        '<div class="yb-setloc-t">See your full ballot</div>' +
+        '<div class="yb-setloc-t">See the contests we track for you</div>' +
         '<div class="yb-setloc-s">One step, no sign-up. We match your address to your real districts — U.S. Senate &amp; House, Governor, your state legislators, and local offices.</div>' +
         '<button type="button" class="yb-btn-primary" data-yb-setloc="1">📍 Enter my address</button>' +
         '<span class="yb-setloc-note">🔒 Your address stays on your device and is only used to look up your districts. Nonpartisan by design — candidates are shown by record, never by party.</span>' +
+        officialNote() +
       '</div>' +
       '</div>';
   }
 
-  /* ── located state: the full ballot ───────────────────────────────────── */
+  /* ── located state: the contests we hold for this address ─────────────── */
   function renderBallot(section) {
     var pos = positions();
     var picked = pickedSet();
@@ -324,9 +367,9 @@
     var contestsHtml = pos.map(function (p) { return contestBlock(p, picked); }).join('');
 
     section.innerHTML = '<div class="yb-wrap">' +
-      headerHtml('Every contest on your ballot, in one place. Weigh each candidate’s promise record, top stances, and funding — then add your pick. Everything you add saves to <b>My Voting Team</b> automatically.') +
+      headerHtml('The contests we have on file for your districts, in one place. Weigh each candidate’s promise record, top stances, and funding — then add your pick. Everything you add saves to <b>My Voting Team</b> automatically.') +
       '<div class="yb-locbar">' +
-        '<div class="yb-loc-here">📍 Showing your ballot for <b>' + esc(locationLine()) + '</b></div>' +
+        '<div class="yb-loc-here">📍 Showing the contests we have for <b>' + esc(locationLine()) + '</b></div>' +
         '<button type="button" class="yb-loc-change" data-yb-change="1">Change location</button>' +
       '</div>' +
       '<div class="yb-progress" id="yb-progress"></div>' +
@@ -337,6 +380,7 @@
           '<a class="yb-foot-btn is-team" href="#my-politicians">⭐ Review My Voting Team</a>' +
           '<a class="yb-foot-btn is-ghost" href="#voter-hub">🔬 Explore the research library</a>' +
         '</div>' +
+        officialNote() +
       '</div>' +
       '</div>';
 

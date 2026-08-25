@@ -14,7 +14,7 @@
    ─────────────────────────────
    The sheet shows three different measurements and refuses to blend them:
 
-     Your Match · record   YOUR positions  vs  THEIR formal record   ← ranks
+     Your Record Match     YOUR positions  vs  THEIR formal record   ← ranks
      Your Match · stated   YOUR positions  vs  THEIR stated positions
      Direction Match       THEIR words     vs  THEIR own record      ← never ranks
 
@@ -158,7 +158,12 @@
   var MODES = {
     record: {
       key: 'record', ico: '\u{1F3DB}',
-      label: 'Your Match · record',
+      // The locked name for formal-record alignment with the voter. It used to
+      // read "Your Match · record", which needed the suffix to be unambiguous and
+      // still sat one word from "Direction Match" in a sheet that prints both on
+      // every row. The name now carries the lane, and the stated ruler below
+      // keeps the suffix form because there is nothing to disambiguate it from.
+      label: 'Your Record Match',
       tab: 'Record',
       sub: 'Their votes and formal actions vs the positions you set.',
       rankLine: 'Ranked by their <b>formal record</b> on the issues you set — not by party, and not by Direction Match.',
@@ -326,16 +331,20 @@
 
   // The field for one seat: every candidate the product already knows for it.
   // _ballotCandidates() owns that question (state matching, district matching,
-  // the curated incumbent+challenger roster) and returns the list already sorted
-  // by Direction Match. That order is discarded here on purpose — DM must not
-  // decide what a voter reads first on a sheet that is not ranked by it.
-  // The roster for a seat, as the ballot builder already resolves it from the
-  // voter's districts. Two things about what comes back are deliberately thrown
-  // away: _ballotCandidates hands us the field ALREADY SORTED BY DIRECTION MATCH
-  // and each row carries that figure as `.score`. This sheet discards both. The
-  // order is re-decided by rank() from the visitor's own match, and the DM figure
-  // is re-read through the ledger slot that owns the publishable floor — so a
-  // number that never cleared that floor cannot leak in here as a rank.
+  // the curated incumbent+challenger roster) and returns the roster for a seat
+  // as the ballot builder resolves it from the voter's districts.
+  //
+  // It USED to hand this sheet a field already sorted by Direction Match, and
+  // this comment used to explain at length why the sheet threw that order away.
+  // It no longer arrives that way: ballot-breakdown.js now returns the field in
+  // the same unranked order this file's stableSort() uses (officeholder first,
+  // then alphabetical), because DM was never entitled to decide reading order
+  // anywhere, not just here. The defence is unchanged and still enforced — the
+  // order is re-decided by rank() from the visitor's own match, and each row's
+  // `.score` (the DM figure the roster still carries for cards that DISPLAY it)
+  // is dropped and re-read through the ledger slot that owns the publishable
+  // floor. This sheet discards both, so a number that never cleared that floor
+  // cannot leak in here as a rank.
   // The one roster read. Two stores answer it and they are tried in the same
   // order everywhere, so "who is this pid" cannot mean two things on one sheet.
   function recOf(pid) {
@@ -1758,7 +1767,7 @@
         return c.altScore !== null && c.altScore !== undefined;
       }))
       ? '<button type="button" class="rs-band-go" onclick="window.pdxRaceSheetMode(\'record\')">' +
-          'Their formal record can answer these issues \u2014 open Your Match \u00b7 record \u203a</button>'
+          'Their formal record can answer these issues \u2014 open Your Record Match \u203a</button>'
       : '';
     var bandHtml = ranked.gap.length && !ranked.unranked
       ? '<div class="rs-band">' +
@@ -1881,7 +1890,7 @@
       ov.innerHTML = '';
       // Same courtesy every other overlay in the app extends: only give the page
       // its scroll back if nothing else is holding it.
-      var others = ['modal-overlay', 'accountability-overlay', 'compare-overlay', 'auth-overlay', 'kr-align-overlay'];
+      var others = ['modal-overlay', 'compare-overlay', 'auth-overlay', 'kr-align-overlay'];
       var anyOpen = others.some(function (id) {
         var el = document.getElementById(id);
         return el && el.style.display && el.style.display !== 'none';

@@ -1,0 +1,138 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   door2-spine.css — the strip that says "this is a view, not another product"
+   ────────────────────────────────────────────────────────────────────────────
+   Two things are styled here and nothing else.
+
+   1. .d2-view-strip — one line at the top of each Door 2 view. It is deliberately
+      the quietest band in Door 2: flat, unfilled, one hairline above it, no
+      gradient and no glow. Every other header in this product is a heading, and
+      a heading here would be the fourth competing title the strip exists to
+      dissolve. It reads as a label ON the section, not as a section of its own.
+
+   2. .d2-demoted — the re-aimed entry CTAs. Demotion is a real visual change,
+      not a class name: the filled gold/blue button becomes an outlined control
+      in steel. It stays a comfortable tap target, because a demoted control is
+      still a control someone will use — it just stops out-shouting the workspace
+      it now points at.
+
+   The count is styled as a fact and not as an achievement. No progress bar, no
+   fill, no colour that changes as it climbs — the workspace rail owns that
+   reading, and a second animated meter down the page is precisely the "two
+   products keeping two scores" impression this file removes.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.d2-strip-slot { display: block; }
+
+.d2-view-strip {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+  padding: 0 0 0.6rem;
+  margin: 0 0 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  font-family: 'Barlow Condensed', sans-serif;
+  line-height: 1.25;
+}
+
+/* What this surface is a view of. The only uppercase element in the strip, so
+   the eye reads the relationship first and the detail second. */
+.d2-view-kick {
+  flex: none;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7f92b4;
+}
+.d2-view-kick::after {
+  content: "·";
+  margin-left: 0.55rem;
+  opacity: 0.5;
+}
+
+/* The job this view does that the workspace does not. Sentence case, normal
+   weight — it is a description, not a claim. */
+.d2-view-job {
+  flex: 1 1 14rem;
+  min-width: 0;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #9fb4d4;
+}
+
+/* The count, read from the workspace. Tabular so it does not jitter as it
+   changes, and no colour signalling: 0 of 6 and 6 of 6 look the same, because
+   the number is the message. */
+.d2-view-count {
+  flex: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8fa6c8;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.d2-view-back {
+  flex: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #cfe0f8;
+  background: rgba(96, 165, 250, 0.13);
+  border: 1px solid rgba(96, 165, 250, 0.36);
+  border-radius: 0.6rem;
+  padding: 0.34rem 0.7rem;
+  min-height: 34px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.d2-view-back:hover,
+.d2-view-back:focus-visible {
+  background: rgba(96, 165, 250, 0.24);
+  border-color: rgba(147, 197, 253, 0.6);
+  color: #fff;
+}
+
+/* ── Demoted entry points ───────────────────────────────────────────────────
+   Written with enough specificity to beat the filled-button rules these
+   elements already carry, because the whole point is that they stop looking
+   primary. Backgrounds and shadows are removed rather than overridden with
+   another colour, so a demoted control inherits whatever the surrounding band
+   is instead of introducing a fourth one. */
+a.d2-demoted,
+a.pulse-chip.d2-demoted,
+a.ht-topic-btn.d2-demoted,
+a.ht-topic-btn-primary.d2-demoted {
+  background: rgba(255, 255, 255, 0.045);
+  background-image: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: none;
+  color: #b9c9e2;
+  font-weight: 700;
+}
+a.d2-demoted:hover,
+a.d2-demoted:focus-visible {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+  transform: none;
+}
+a.d2-demoted .pc-ico { opacity: 0.75; }
+
+@media (max-width: 600px) {
+  .d2-view-strip { gap: 0.3rem 0.5rem; }
+  .d2-view-job { flex-basis: 100%; font-size: 0.76rem; }
+  .d2-view-back { flex: 1 1 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d2-view-back { transition: none; }
+}

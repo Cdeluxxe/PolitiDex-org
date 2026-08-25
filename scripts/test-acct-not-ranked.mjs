@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // test-acct-not-ranked.mjs — a retired grade may not order people
 // ─────────────────────────────────────────────────────────────────────────────
-// accountability-score.js computes a composite: one 0–100 per politician, with a
+// accountability-score.js computed a composite: one 0–100 per politician, with a
 // five-rung moral ladder over it — "Highly Accountable", "Mostly Accountable",
 // "Mixed", "Questionable", "Low Accountability". Earlier passes retired it from
 // every surface that PRINTED it: the card badge, the profile ring, the medium
@@ -11,15 +11,17 @@
 //
 // It kept ranking anyway. The number was still reachable as window._acctMatchScore
 // (a memo in alignment-tool.js), still computable on demand as
-// window._acctEnsureScore (a getter in accountability-score.js that would run the
-// analyzer and write the result onto PROFILES and CMP_DATA), and the browse
+// window._acctEnsureScore (a getter in the engine that would run the analyzer and
+// write the result onto PROFILES and CMP_DATA), and the browse
 // comparator still had a branch — `sort === 'acct-desc'`, offered in the sort
 // select as "🛡️ Accountability: High → Low" — that ordered the entire roster by
 // it. A quick chip did the same thing sideways: "🛡️ High accountability" filtered
 // the roster to composite ≥ 65 and forced that sort on.
 //
 // An unprinted grade that decides who appears first is still the grade deciding.
-// This file is the fence around its removal:
+// The engine has since been deleted outright — scripts/test-accountability-retired.mjs
+// owns that boundary. This file remains the fence around the RANKING paths, which
+// are the ones a re-introduction would quietly reuse:
 //
 //   1. THE ACCESSORS ARE GONE. No shipped module defines, exports or calls
 //      _acctMatchScore / _acctEnsureScore / _acctMatchCacheBust / _acctHighOnly.
@@ -65,7 +67,6 @@ const eq = (a, b, m) =>
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ acct not ranked: ${m}`); process.exit(1); };
 
-const OWNER = "accountability-score.js";
 const SHIPPED = readdirSync(ROOT)
   .filter((f) => f.endsWith(".js") && !f.startsWith("sw") && !f.includes(".min."));
 must(SHIPPED.length > 40, `the sweep sees the shipped module set (${SHIPPED.length} files)`);
@@ -92,20 +93,16 @@ section("1 · the accessors the composite ranked through are gone");
       `index.html does not wire up ${name}`);
   }
 
-  // The two files that used to bust the memo when new depth arrived must have
-  // dropped the call rather than kept a dangling optional one.
+  // The file that used to bust the memo when new depth arrived must have dropped
+  // the call rather than kept a dangling optional one.
   ok(!/_acctMatchCacheBust/.test(CODE("firebase-boot.js")),
     "firebase-boot.js still busts a cache that no longer exists");
-  ok(!/_acctMatchCacheBust/.test(CODE(OWNER)),
-    `${OWNER} still busts the retired match memo after computing a score`);
 
-  // The engine itself is deliberately NOT deleted — it is the same disposition as
-  // the badge and the overlay (retired, unreachable, still in the repo). What
-  // must be true is that nothing outside its own file can run it.
-  ok(/AccountabilityAnalyzer/.test(R(OWNER)),
-    `${OWNER} still contains the analyzer (retired, not deleted)`);
-  const outside = SHIPPED.filter((f) => f !== OWNER && CODE(f).includes("AccountabilityAnalyzer"));
-  eq(outside.length, 0, `no module outside the owner runs the analyzer — found in ${outside.join(", ")}`);
+  // The engine is no longer "retired but present" — accountability-score.js is
+  // deleted, so the analyzer cannot be run from anywhere, by anyone, including a
+  // future caller that reaches past the accessors above.
+  const analyzer = SHIPPED.filter((f) => CODE(f).includes("AccountabilityAnalyzer"));
+  eq(analyzer.length, 0, `no module contains the analyzer — found in ${analyzer.join(", ")}`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -312,13 +309,11 @@ section("5 · formal-first surfaces are untouched, and still counts");
 section("6 · no band label survives on a reader-facing surface");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // The engine's own ladder, verbatim from acctRating().
+  // The engine's own ladder, verbatim from the acctRating() it was deleted with.
+  // These used to be self-checked against the live engine so the gate could not
+  // rot into a regex matching nothing; the engine is gone, so there is nothing
+  // left to check them against — which is the strongest form of the guarantee.
   const BANDS = ["Highly Accountable", "Mostly Accountable", "Low Accountability", "Questionable"];
-  const ladder = CODE(OWNER);
-  for (const b of BANDS) {
-    ok(ladder.includes(b), `the ladder rung ${JSON.stringify(b)} still exists in the owner — this gate is\n` +
-      "    hunting for a real string, not a stale one");
-  }
   // Every module that can render a member row or card.
   const SURFACES = [
     "compare-hub.js", "compare-table.js", "ballot-breakdown.js", "profiles-full.js",

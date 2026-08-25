@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // test-clarity-before-depth.mjs — the formal record's one fairness rule
 // ─────────────────────────────────────────────────────────────────────────────
-// Your Match · record turns a member's formal record on an issue into a side, a
+// Your Record Match turns a member's formal record on an issue into a side, a
 // confidence and a weight. This file guards the single rule that makes those
 // three fair to each other:
 //
@@ -360,7 +360,7 @@ section("4 · the B2 class — 2–0 below the floor scores and names its side")
   eq(fr && fr.tone, "support", "…with the side the ledger shows");
   lacks(fr ? fr.patLabel : "", "no clear pattern",
     "…and never tells the reader there is no pattern over a side that is on the ledger");
-  ok(!!r, "…and it contributes to Your Match · record");
+  ok(!!r, "…and it contributes to Your Record Match");
   eq(r && r.verdict, "match", "…as a match for a reader who supports the issue");
   // The race-sheet cell reads the same row: it must not say it either.
   const one = F_SHALLOW[SHALLOW_FIX.below1.key];

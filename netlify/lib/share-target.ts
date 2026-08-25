@@ -161,6 +161,14 @@ export function parseTarget(url: URL): Target | null {
   const spot = path.match(/^\/issue\/([A-Za-z0-9_-]+)\/?$/);
   if (spot) return { kind: "spotlight", slug: clean(spot[1]) };
 
+  // /p/<pid> — the canonical person-file address. Checked AFTER ?p= above, and
+  // the order matters in exactly one case: /p/<a>?p=<b>, which the app never
+  // produces but a hand-edited link could. The query wins there because ?p= is
+  // what the app writes for "the profile currently on screen", so it is the more
+  // recent of two claims about the same reader.
+  const person = path.match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
+  if (person) return { kind: "profile", id: clean(person[1]) };
+
   // Everything else hangs off the single-page document at "/".
   const issueQ = clean(q.get("issue"));
   if (issueQ) return { kind: "spotlight", slug: issueQ };
@@ -186,6 +194,40 @@ export function parseTarget(url: URL): Target | null {
   if (rank) return { kind: "rank", core: rank, focus: clean(q.get("key")) };
 
   return null;
+}
+
+// ── canonicalPath ────────────────────────────────────────────────────────────
+// The one clean address for a record, derived from the TARGET rather than from
+// the request. This is what rel="canonical" and og:url are for, and it is the
+// reason both used to be wrong: index.html carries a single hardcoded
+// `<link rel="canonical" href="https://politidex.fyi/">`, so every share link —
+// every profile, Spotlight, roll call, bill and receipt — told search engines it
+// was really the homepage, and og:url unfurled with whatever the reader happened
+// to have in their address bar (`?utm_source=…`, a stale `?p=` layered on an
+// /issue/ path, a share tracker).
+//
+// Deriving it from the parsed target normalizes all of that away: the same record
+// reached three different ways resolves to one address, and it is an address that
+// actually opens the record. Where a surface has a clean path (Spotlight, roll
+// call) that path wins over the query form.
+export function canonicalPath(t: Target): string {
+  const e = encodeURIComponent;
+  switch (t.kind) {
+    // /p/<pid> is the canonical person address as of Phase 1. The ?p= form still
+    // RESOLVES — parseTarget reads it, _pdxOpenFromUrl opens it, and links of
+    // that shape are already in the wild — but it no longer canonicalises: two
+    // addresses for one record is exactly what rel="canonical" exists to
+    // collapse, and the path is the one a reader can cite without it looking
+    // like a tracking parameter.
+    case "profile":   return `/p/${e(t.id)}`;
+    // Both /issue/<slug> and ?issue=<slug> resolve here; the path is the canonical one.
+    case "spotlight": return `/issue/${e(t.slug)}`;
+    case "vote":      return `/vote/${e(t.congress)}/${e(t.chamber)}/${e(t.roll)}`;
+    case "bill":      return `/?bill=${e(t.congress + "/" + t.number)}`;
+    case "receipt":
+    case "record":    return `/?${t.kind}=${e(t.pid + (t.issue ? "~" + t.issue : ""))}`;
+    case "rank":      return `/?rank=${e(t.core)}` + (t.focus ? `&key=${e(t.focus)}` : "");
+  }
 }
 
 // ── Per-surface chrome ───────────────────────────────────────────────────────

@@ -206,7 +206,7 @@ for (const [needle, what] of [
   ['href="#my-politicians"', '⭐ My Voting Team'],
   ['href="#your-ballot"', '🗳️ Your Ballot'],
   ['href="#voter-hub"', 'Voter Hub'],
-  ['href="#say-vs-do"', '👁️ Check a Claim'],
+  ['href="#say-vs-do"', '👁️ Find the Record'],
 ]) ok(NAV.includes(needle), `${what} is still in the bar`);
 eq((NAV.match(/class="pdx-navmenu"/g) || []).length, 3, 'all three gateway dropdowns survive');
 eq((NAV.match(/pdx-navmenu__caret/g) || []).length, 3, 'all three carets survive');
@@ -263,7 +263,7 @@ const PILL = 24 + 3;   // px-3 gutters + 1.5px border, both sides
 const leftLinks = (track) => {
   const items = [
     text(18, 1, 12, track) + PILL,   // 🏛️ Who Represents Me   (text-xs pill)
-    text(13, 1, 12, track) + PILL,   // 👁️ Check a Claim
+    text(15, 1, 12, track) + PILL,   // 👁️ Find the Record
     text(9, 0, 14, track),           // Voter Hub              (nav-link, no gutters)
     text(14, 1, 12, track) + PILL,   // ⭐ My Voting Team
     text(12, 1, 14, track),          // 🗳️ Your Ballot

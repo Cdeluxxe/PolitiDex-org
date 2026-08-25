@@ -166,6 +166,17 @@
       return { pct: null, sub: '', tested: 0 };
     }
 
+    // Officeholder / candidate / former, read through the app's single source of
+    // truth (voter-hub-location.js) so this file cannot invent a fourth answer.
+    // Falls back to 'candidate' when that helper has not loaded — the neutral
+    // middle of the ordering below, never a promotion to the top of a race.
+    function _cStatus(d) {
+      try {
+        if (typeof window._pdxOfficeStatus === 'function') return window._pdxOfficeStatus(d);
+      } catch (e) {}
+      return 'candidate';
+    }
+
     function _ballotCandidates(raceKey) {
       if (typeof CMP_DATA === 'undefined') return [];
       var userState = (window._hasUserLocation && window._currentVoterLocation && window._currentVoterLocation.state) || '';
@@ -254,21 +265,27 @@
                         : ((/u\.s\.\s*rep|^representative/i.test(o) || /house\s*(rep|cand)/i.test(o)) && !/state/i.test(o) && !/house\s*speaker/i.test(o)
                            && polStateName.toLowerCase() === userState.toLowerCase());
           } else {
+            // OUTSIDE UTAH, A U.S. HOUSE SEAT IS ONLY ANSWERABLE WITH A DISTRICT.
+            // This branch used to start `distMatch = true` and only narrow it when
+            // BOTH the visitor's district and the record's district could be read.
+            // The common case outside Utah is that neither can — so an Ohio
+            // visitor's "U.S. House" field came back as every Ohio member of
+            // Congress the roster holds, presented as the field for their one
+            // seat. Each name was real, none of them was a guess, and fifteen of
+            // sixteen were not on that ballot: the exact "plausible stranger"
+            // failure the district blanks elsewhere exist to prevent.
+            // Now the district must actually match. No district on the visitor,
+            // or none readable on the record, means no field — and the surfaces
+            // above turn that into "this seat needs a district map", which is
+            // true, instead of a list, which is not.
             var isHouse = (/u\.s\.\s*rep|^representative/i.test(o) || /house\s*(rep|cand)/i.test(o)) && !/state/i.test(o) && !/house\s*speaker/i.test(o);
-            if (isHouse) {
-              var stateMatch = polStateName.toLowerCase() === userState.toLowerCase();
-              var distMatch = true;
-              if (userDistrict) {
-                var polDistNum = '';
-                if (d.state && d.state.includes('-')) {
-                  polDistNum = d.state.split('-')[1].replace(/[^0-9]/g, '');
-                }
-                var userDistNum = userDistrict.replace(/[^0-9]/g, '');
-                if (userDistNum && polDistNum) {
-                  distMatch = (parseInt(userDistNum) === parseInt(polDistNum));
-                }
+            if (isHouse && polStateName.toLowerCase() === userState.toLowerCase()) {
+              var polDistNum = '';
+              if (d.state && d.state.includes('-')) {
+                polDistNum = d.state.split('-')[1].replace(/[^0-9]/g, '');
               }
-              match = stateMatch && distMatch;
+              var userDistNum = String(userDistrict || '').replace(/[^0-9]/g, '');
+              match = !!(userDistNum && polDistNum && parseInt(userDistNum, 10) === parseInt(polDistNum, 10));
             }
           }
         } else if (raceKey === 'governor') {
@@ -286,14 +303,24 @@
             match = _vb ? _seatHas('state_senator', pid)
                         : (/senate\s*president|state\s*sen|utah\s*sen/i.test(o) && _pidMatchesCounty(pid, county));
           } else {
-            match = (/state\s*sen|senator/i.test(o)) && /state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+            // A STATE LEGISLATIVE SEAT IS A DISTRICT SEAT, AND WE MAP UTAH'S ONLY.
+            // Matching by state was never an approximation of this seat — it was a
+            // different question. "Who are this state's senators?" and "who is on
+            // your State Senate ballot?" have wildly different answers: Ohio has
+            // 33 State Senate districts, so the state-wide answer was ~32 people
+            // who cannot appear on the visitor's ballot and one who might.
+            // pdxRepsForMe() already leaves this row blank outside Utah and says
+            // why; this is the same refusal, applied to the field.
+            match = false;
           }
         } else if (raceKey === 'statehouse') {
           if (userState === 'Utah') {
             match = _vb ? _seatHas('state_rep', pid)
                         : ((/state\s*rep|ut\s*state\s*rep|house\s*speaker/i.test(o)) && _pidMatchesCounty(pid, county));
           } else {
-            match = (/state\s*rep|representative/i.test(o)) && /state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+            // Same refusal as the State Senate above, for the same reason: the
+            // State House is a district seat and PolitiDex draws Utah's lines only.
+            match = false;
           }
         } else if (raceKey === 'local') {
           if (userState === 'Utah') {
@@ -305,13 +332,33 @@
 
         if (match) {
           results.push({ pid: pid, name: d.name, office: d.office,
-                         score: _liveDirectionMatch(pid, d).pct, icon: d.icon });
+                         score: _liveDirectionMatch(pid, d).pct,
+                         status: _cStatus(d), icon: d.icon });
         }
       });
+      // ── ORDER: OFFICEHOLDER FIRST, THEN ALPHABETICAL ──────────────────────
+      // This list USED to come back sorted by Direction Match, descending. That
+      // made an integrity read — "did this person keep their own word" — decide
+      // which candidate a voter reads first in every seat card, every Home Team
+      // slot and every field preview that calls this function. Direction Match
+      // is a secondary read: it is not a match to the voter, it is not a grade,
+      // and a person with no testable record scores `null`, which under the old
+      // comparator sorted them to the BOTTOM of their own race. Ranking by it
+      // published an opinion the number was never entitled to make.
+      //
+      // The replacement is the order race-sheet.js already uses when nothing is
+      // ranking a field (see its stableSort): the sitting officeholder first —
+      // they are the one whose record the voter is being asked to judge — then
+      // alphabetically by name, with former officeholders last since they are
+      // reference rather than a choice. Deterministic, unopinionated, and the
+      // same order every caller now gets. `.score` still travels with each row
+      // for the cards that DISPLAY Direction Match; nothing sorts on it.
+      var STATUS_RANK = { office: 0, candidate: 1, former: 2 };
       results.sort(function(a, b) {
-        var sa = a.score !== null && a.score !== undefined ? a.score : -1;
-        var sb = b.score !== null && b.score !== undefined ? b.score : -1;
-        return sb - sa;
+        var ra = STATUS_RANK[a.status]; if (ra === undefined) ra = 1;
+        var rb = STATUS_RANK[b.status]; if (rb === undefined) rb = 1;
+        if (ra !== rb) return ra - rb;
+        return String(a.name || '').localeCompare(String(b.name || ''));
       });
       return results;
     }
@@ -842,7 +889,11 @@
     // ballot map, reusing the SAME location/district-aware candidate matcher
     // (_ballotCandidates) the Relevant-to-Me section uses, so the Home Team can
     // never drift from the races shown there. Prefers a sitting officeholder per
-    // seat; falls back to the top-scored match when none is flagged as current.
+    // seat; when none is flagged as current it takes the first row of the field,
+    // which is now the roster's own officeholder-then-alphabetical order — NOT
+    // the highest Direction Match. Auto-filling a voter's slot with whoever
+    // scored best on an integrity read would be the loudest possible way to let
+    // a secondary number make a primary decision.
     function _homeResolveSlots() {
       var out = {};
       var positions = window.TEAM_POSITIONS || [];
@@ -853,7 +904,7 @@
         if (!cands.length) return;
         var holder = null;
         for (var i = 0; i < cands.length; i++) { if (_homeIsOfficeholder(cands[i].pid)) { holder = cands[i]; break; } }
-        var pick = holder || cands[0];
+        var pick = holder || cands[0];   // cands[0] = first in the unranked field
         if (pick && pick.pid) out[pos.key] = pick.pid;
       });
       return out;
@@ -3733,7 +3784,7 @@
       ov.style.opacity = '0';
       setTimeout(function() {
         ov.style.display = 'none';
-        var others = ['modal-overlay', 'accountability-overlay', 'compare-overlay', 'auth-overlay'];
+        var others = ['modal-overlay', 'compare-overlay', 'auth-overlay'];
         var anyOpen = others.some(function(id) { var el = document.getElementById(id); return el && el.style.display && el.style.display !== 'none'; });
         if (!anyOpen) document.body.style.overflow = '';
       }, 200);
@@ -4590,7 +4641,7 @@
       ov.style.opacity = '0';
       setTimeout(function() {
         ov.style.display = 'none';
-        var others = ['modal-overlay', 'accountability-overlay', 'compare-overlay', 'auth-overlay', 'kr-align-overlay'];
+        var others = ['modal-overlay', 'compare-overlay', 'auth-overlay', 'kr-align-overlay'];
         var anyOpen = others.some(function(id) { var el = document.getElementById(id); return el && el.style.display && el.style.display !== 'none'; });
         if (!anyOpen) document.body.style.overflow = '';
       }, 200);
@@ -4937,12 +4988,12 @@
       var pct = Math.round((nCov / nTot) * 100);
       var gap = nTot - nCov;
       var headIco = complete ? '🎉' : '🗳️';
-      var title = complete ? 'Your ballot is covered' : 'Build Your Ballot Team';
+      var title = complete ? 'Every seat we track is covered' : 'Build Your Ballot Team';
       var sub;
       if (complete) {
-        sub = 'You’ve added someone for every seat on your ballot. Compare your full team, or fine-tune any pick below.';
+        sub = 'You’ve added someone for every seat PolitiDex tracks in your districts. Compare your team, or fine-tune any pick below.';
       } else if (nCov === 0) {
-        sub = 'You haven’t added anyone from your districts yet. Add a pick for each seat below to build a team that covers your whole ballot — tap any gold race to jump straight to it.';
+        sub = 'You haven’t added anyone from your districts yet. Add a pick for each seat below to build a team that covers the seats we track — tap any gold race to jump straight to it.';
       } else {
         sub = 'You’ve covered <strong style="color:#fff;">' + nCov + ' of ' + nTot + '</strong> seats — ' + gap + ' still ' +
               (gap === 1 ? 'needs' : 'need') + ' a pick. Tap a gold race below to fill the gap.';

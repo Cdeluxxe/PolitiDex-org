@@ -25,7 +25,7 @@
 // emits a query-string equivalent instead, and share-links.js turns it back into
 // the very same hash on arrival. Nothing downstream of the hash changed.
 import type { Context, Config } from "@netlify/edge-functions";
-import { parseTarget, resolveTarget, pageTitle, type Resolved } from "../lib/share-target.ts";
+import { parseTarget, resolveTarget, pageTitle, canonicalPath, type Resolved } from "../lib/share-target.ts";
 
 // Escape a value for an HTML double-quoted attribute.
 function attr(s: string): string {
@@ -42,6 +42,23 @@ function text(s: string): string {
 function setMeta(html: string, sel: "property" | "name", key: string, value: string): string {
   const re = new RegExp(`(<meta\\s+${sel}="${key}"\\s+content=")[^"]*(")`, "i");
   return html.replace(re, `$1${value}$2`);
+}
+
+// Point <link rel="canonical"> at the record instead of at the homepage.
+//
+// index.html hardcodes one canonical href for the whole single-page app, so until
+// now every shared record — every profile, Spotlight, roll call, bill, receipt —
+// declared itself a duplicate of "/". That is the strongest possible instruction
+// to a search engine to index none of them, and it was being sent on pages whose
+// title, description and card were all already record-specific.
+//
+// Attribute order is not guaranteed by anything, so match either way round rather
+// than assume rel comes first. As with setMeta, an absent tag is a no-op.
+function setCanonical(html: string, href: string): string {
+  const withRelFirst = /(<link\s+rel="canonical"\s+href=")[^"]*(")/i;
+  if (withRelFirst.test(html)) return html.replace(withRelFirst, `$1${href}$2`);
+  const withHrefFirst = /(<link\s+href=")[^"]*("\s+rel="canonical")/i;
+  return html.replace(withHrefFirst, `$1${href}$2`);
 }
 
 // The rasterised card. Scrapers vary in SVG support, so the SVG goes through the
@@ -65,6 +82,7 @@ function applyMeta(html: string, r: Resolved, origin: string, canonical: string)
   html = setMeta(html, "property", "og:title", tAttr);
   html = setMeta(html, "property", "og:description", dAttr);
   html = setMeta(html, "property", "og:url", attr(canonical));
+  html = setCanonical(html, attr(canonical));
   html = setMeta(html, "property", "og:image", attr(image));
   // Alt text should describe the IMAGE. On a comparison card the image is the two
   // facts, which is exactly what the description now carries — so a screen reader
@@ -180,7 +198,13 @@ export default async (req: Request, context: Context): Promise<Response | undefi
     const ct = res.headers.get("content-type") || "";
     if (!ct.includes("text/html")) return res;
 
-    const html = applyMeta(await res.text(), resolved, url.origin, url.toString());
+    // The canonical address of the RECORD, not of the request. Everything the
+    // reader's link happened to carry — a tracking param, a stale ?p= layered on
+    // an /issue/ path, the ?issue= form of a Spotlight that also has a clean
+    // path — normalizes to the one address that opens this record. og:url gets
+    // the same value so three shares of one record unfurl as one entity.
+    const canonical = url.origin + canonicalPath(target);
+    const html = applyMeta(await res.text(), resolved, url.origin, canonical);
     const headers = new Headers(res.headers);
     headers.set("content-type", "text/html; charset=utf-8");
     headers.set("cache-control", "public, max-age=300");
@@ -193,5 +217,8 @@ export default async (req: Request, context: Context): Promise<Response | undefi
 };
 
 export const config: Config = {
-  path: ["/", "/index.html", "/issue/*", "/vote/*"],
+  // /p/* is here for the same reason /issue/* and /vote/* are: the rewrite in
+  // netlify.toml serves index.html for it, so without this function a person
+  // file would unfurl — and canonicalise — as the homepage.
+  path: ["/", "/index.html", "/issue/*", "/vote/*", "/p/*"],
 };

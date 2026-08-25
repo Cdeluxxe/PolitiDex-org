@@ -10048,7 +10048,7 @@
     .myteam-dcov-seat.is-missing .myteam-dcov-status { color: #fca5a5; }
     .myteam-dcov-pick { font-weight: 700; color: #86efac; }
     .myteam-dcov-go { font-weight: 700; color: inherit; }
-    /* A whole ballot tier covered — quiet green wash + a celebratory frac label. */
+    /* A whole tier of tracked seats covered — green wash + a celebratory frac label. */
     .myteam-dcov-group.is-done .myteam-dcov-grouptitle { color: #bbf7d0; }
     /* Standout milestone banner: all of the voter's voting districts are filled. */
     .myteam-dcov-milestone {

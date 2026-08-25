@@ -1129,7 +1129,11 @@
       }
       const _alVals = pids.map(pid => _alignBy[pid]);
       const _alLeader = pids.map(pid => pid === _alignLeaderPid ? 'cmp-leader-cell' : '');
-      alignBlock += row('🎯 Your Match', pids.map((pid, i) => {
+      // The row names the lane it is showing: in record mode this figure is the
+      // voter's positions against a formal record, and "Your Match" alone put it
+      // one word away from Direction Match in a table that prints both.
+      const _matchRowLabel = (typeof window.pdxMatchLabel === 'function') ? window.pdxMatchLabel() : 'Your Match';
+      alignBlock += row('🎯 ' + _matchRowLabel, pids.map((pid, i) => {
         const alignScore = _alVals[i];
         if (alignScore === null || alignScore === undefined) return `<span class="cmp-na">—</span>`;
         const aCol = alignScore >= 70 ? '#4ade80' : alignScore >= 50 ? '#f5c842' : '#f87171';

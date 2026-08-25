@@ -860,7 +860,7 @@
 @media (max-width: 640px) {
   /* ── The tab row: three tabs, one width ───────────────────────────────────
      inline-flex + wrap does not clip the third tab, but it does something
-     almost as bad: "Overview" is short, "Your Match · record" is not, so the
+     almost as bad: "Overview" is short, "Your Record Match" is not, so the
      row breaks into a 2 + 1 stack of unequal buttons and the third one reads
      as an afterthought rather than a peer. These three are peers — one shows
      the race, two rank it — so on a phone they are three equal columns of a

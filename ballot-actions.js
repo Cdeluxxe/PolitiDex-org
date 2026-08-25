@@ -489,7 +489,7 @@
     var lines = [
       'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PolitiDex//Ballot Actions//EN',
       'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
-      'UID:politidex-' + fold(ev.id) + '-' + startMs + '@politidex.org',
+      'UID:politidex-' + fold(ev.id) + '-' + startMs + '@politidex.fyi',
       'DTSTAMP:' + icsDate(now()),
       'DTSTART:' + icsDate(startMs),
       'DTEND:' + icsDate(endMs),

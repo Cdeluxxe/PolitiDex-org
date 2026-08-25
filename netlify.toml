@@ -94,6 +94,35 @@
   to = "/index.html"
   status = 200
 
+# Person-file deep-links. Phase 1 gave the politician profile a durable address
+# of its own: /p/<pid>. Same arrangement as /issue/* above — the whole app is one
+# index.html, so a citable path like /p/celeste_maloy must SERVE that document
+# (HTTP 200 rewrite, not a redirect) and let person-file.js read the pid out of
+# location.pathname and open the file.
+#
+# The pid, not a name slug: a name in a URL is a claim nothing on arrival can
+# check, and the pid is the identifier the roster, the stance corpus, the
+# voting-record API and every existing share link already agree on. Every id in
+# the roster is [a-z0-9_]+, which is pinned by scripts/test-person-file.mjs so a
+# future id that would need escaping fails a test instead of shipping a broken
+# address.
+#
+# The old ?p=<pid> form is NOT retired by this — it still resolves, because links
+# of that shape are already in the wild. What changed is which of the two
+# canonicalises: netlify/lib/share-target.ts now returns /p/<pid> for a profile,
+# so the same record reached either way declares one address.
+#
+# As with /vote/*, the rewrite alone would be a trap: it returns HTTP 200 for
+# every /p/<anything>, including ids we hold no record for. The edge function
+# netlify/edge-functions/share-preview.ts runs in front of it (its config lists
+# /p/*) and gives the path meaning — record-specific title, description, card and
+# canonical — and person-file.js says so out loud on arrival when the pid does not
+# resolve, rather than showing the front page to someone who followed a citation.
+[[redirects]]
+  from = "/p/*"
+  to = "/index.html"
+  status = 200
+
 # Portrait hosts the Image CDN may fetch from.
 #
 # This exists for ONE caller: the shareable record card (profile-card.js). Every

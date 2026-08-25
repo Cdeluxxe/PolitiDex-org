@@ -1,0 +1,81 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   person-file.css — the one line of chrome that says which file you are in
+   ────────────────────────────────────────────────────────────────────────────
+   Everything here styles a single element: #modal-file-kicker, in the profile
+   modal's sticky top bar, above the name that was already there.
+
+   It is deliberately the quietest thing in that bar. The bar's job is identity
+   — name, office, close, share — and this line sits under the name at kicker
+   scale because it answers a question the reader only asks when lost ("whose
+   file is this, and what is its address"), not one they are reading for. Made
+   any louder it would compete with the name it is labelling.
+
+   The address is a link and looks like one on hover only. A permanently
+   underlined URL in a header reads as a call to action, and this is not one —
+   it is a citation, sitting where a citation belongs.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#modal-file-kicker {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+  margin-bottom: 0.1rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+#modal-file-kicker:empty { display: none; }
+
+/* "Person file" — the label. Steel, not gold: it names the surface, it does not
+   promote it. */
+.pf-kick-what {
+  color: #7f92b4;
+  flex: none;
+}
+.pf-kick-what::after {
+  content: "·";
+  margin-left: 0.4rem;
+  opacity: 0.55;
+}
+
+/* The citable address. Lower-case on purpose — it is a URL, and a URL rendered
+   in the surrounding uppercase would be a URL you cannot retype. */
+.pf-kick-addr {
+  color: #9fb4d4;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  transition: color 0.15s ease;
+}
+.pf-kick-addr:hover,
+.pf-kick-addr:focus-visible {
+  color: #dbe6f7;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Below the publication floor. Same muted register as the address it replaces,
+   so a record still being built does not read as an error state. */
+.pf-kick-thin {
+  color: #6b7c9c;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+@media (max-width: 420px) {
+  #modal-file-kicker { font-size: 0.54rem; gap: 0.3rem; }
+}
