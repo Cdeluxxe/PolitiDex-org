@@ -545,9 +545,26 @@
   }
 
   // Position pill (yea / nay / present / not voting, or a non-vote action label).
+  //
+  // ── WHY THE ACTION PILL DOES NOT TITLE-CASE THE SLUG ─────────────────────────
+  // It used to: `titleCase(item.position)` printed "Cosponsor", "Amicus",
+  // "Committee Vote". Two of those are not things a person does, they are column
+  // values — and this pill sits three inches from "Voted Yea" in the same table,
+  // where the reader is being asked to tell a floor vote apart from a signature.
+  // The act layer in stance-helpers.js publishes the four words that do that job
+  // ("Committee vote", "Lead sponsor", "Co-sponsored", "Joined amicus brief"), and
+  // the same table is what weights these acts in the record pattern. One table:
+  // the pill and the pattern chip cannot drift into naming the same act two ways.
+  // If the layer has no name for it we fall back to the old title-cased slug —
+  // an unlabelled act still appears in the ledger, it just earns no pattern weight.
   function positionPill(item) {
     if (item.kind === 'position') {
-      return '<span class="vr-pill vr-pos-action">' + esc(titleCase(item.position)) + '</span>';
+      var lb = '';
+      try {
+        if (typeof window._pdxActLabel === 'function') lb = window._pdxActLabel(item) || '';
+      } catch (e) { lb = ''; }
+      if (!lb) lb = titleCase(item.position);
+      return '<span class="vr-pill vr-pos-action">' + esc(lb) + '</span>';
     }
     var pos = item.position;
     var cls = pos === 'yea' ? 'vr-pos-yea' : pos === 'nay' ? 'vr-pos-nay' : 'vr-pos-neutral';
