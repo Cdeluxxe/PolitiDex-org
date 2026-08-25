@@ -2414,9 +2414,11 @@
       '.pdxfpi-q{font-size:0.76rem;color:#9fb4d4;font-style:italic;margin:0.25rem 0 0;}' +
       '.pdxfpi-lede{font-size:0.74rem;color:#8fa6c6;line-height:1.45;margin:0.3rem 0 0;}' +
       '.pdxfpi-lede b{color:#cfe0f8;}' +
-      // The census is a row of counts, one per tier, in that tier's own colour —
-      // the shape of the list before anyone scrolls it.
-      '.pdxfpi-census{display:flex;flex-wrap:wrap;gap:0.28rem;margin-top:0.45rem;}' +
+      // The census is a row of counts, one per printed label, in that label's own
+      // colour — the shape of a band before anyone opens it. Inline-flex because
+      // it now rides inside a band heading and inside the tail's summary line
+      // rather than standing alone under the lede.
+      '.pdxfpi-census{display:inline-flex;flex-wrap:wrap;gap:0.28rem;}' +
       '.pdxfpi-cn{font-size:0.62rem;font-weight:700;color:var(--c);border:1px solid var(--c);'
         + 'border-radius:999px;padding:0.06rem 0.44rem;opacity:0.86;}' +
       '.pdxfpi-cn b{font-size:0.7rem;}' +
@@ -2430,6 +2432,41 @@
       '.pdxfpi-shown{font-size:0.68rem;color:#6f88ab;margin:0.45rem 0 0.2rem;}' +
       '.pdxfpi-shown b{color:#cfe0f8;}' +
       '.pdxfpi-list{display:flex;flex-direction:column;}' +
+      // ── THE BANDS ─────────────────────────────────────────────────────────
+      // As little chrome as four headings can be. A band heading is one line of
+      // condensed type, a count, and its census; the note under it is one grey
+      // sentence; the rows below are drawn exactly as they were. Nothing here
+      // recolours, reweights or re-borders a row — the hierarchy is made of
+      // headings and one fold, not of making the quiet rows quieter.
+      '.pdxfpi-band{display:flex;flex-direction:column;}' +
+      '.pdxfpi-bh{display:flex;align-items:baseline;flex-wrap:wrap;gap:0.3rem 0.42rem;margin:0.85rem 0 0;}' +
+      '.pdxfpi-list>.pdxfpi-band:first-child>.pdxfpi-bh{margin-top:0.35rem;}' +
+      '.pdxfpi-bh-t{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.74rem;'
+        + 'letter-spacing:0.06em;text-transform:uppercase;color:#cfe0f8;}' +
+      '.pdxfpi-bh-n{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.66rem;'
+        + 'color:#93b4e6;border:1px solid rgba(147,180,230,0.34);border-radius:999px;'
+        + 'padding:0.02rem 0.42rem;}' +
+      '.pdxfpi-bn{font-size:0.66rem;color:#6f88ab;line-height:1.4;margin:0.16rem 0 0.12rem;}' +
+      // The band note always sits directly above the band's first row, so this is
+      // the rule that keeps the divider off the top of every band.
+      '.pdxfpi-bn+.pdxfpi-row{border-top:none;}' +
+      // ── THE TAIL ──────────────────────────────────────────────────────────
+      // One native <details>: one tap, one focus stop, one thing a screen reader
+      // announces, and nothing to re-arm after a repaint. Its summary carries the
+      // count and the census of what is inside, so opening it is a choice made
+      // with the answer already in hand.
+      '.pdxfpi-tail{margin-top:0.55rem;border-top:1px solid rgba(147,180,230,0.18);}' +
+      '.pdxfpi-tail-s{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;'
+        + 'align-items:center;gap:0.3rem 0.5rem;padding:0.6rem 0.1rem;min-height:2.5rem;}' +
+      '.pdxfpi-tail-s::-webkit-details-marker{display:none;}' +
+      '.pdxfpi-tail-t{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.76rem;'
+        + 'letter-spacing:0.02em;color:#9fb4d4;}' +
+      '.pdxfpi-tail-t::before{content:"▸ ";color:#6f88ab;}' +
+      '.pdxfpi-tail[open]>.pdxfpi-tail-s .pdxfpi-tail-t::before{content:"▾ ";}' +
+      '.pdxfpi-tail-s:hover .pdxfpi-tail-t,.pdxfpi-tail-s:focus-visible .pdxfpi-tail-t{color:#e8f0ff;}' +
+      '.pdxfpi-tail-b{display:flex;flex-direction:column;}' +
+      '.pdxfpi-tail-b>.pdxfpi-band:first-child>.pdxfpi-bh{margin-top:0.2rem;}' +
+      '.pdxfpi-cn-more{opacity:0.7;}' +
       // THE WHOLE ROW IS THE DOOR (see _fpiRowHtml). It gets the pointer and the
       // 44px thumb target, not just the name inside it — a reader who taps the
       // pattern chip is tapping the thing they were reading.
@@ -2706,6 +2743,8 @@
         // chips beneath it — because a chip and a 24-character issue name cannot
         // share a phone line without one of them being truncated.
         '.pdxfpi-row{flex-direction:column;align-items:flex-start;gap:0.24rem;padding:0.5rem 0.1rem;}' +
+        '.pdxfpi-tail-s{min-height:2.7rem;}' +
+        '.pdxfpi-bh{margin-top:0.75rem;}' +
         '.pdxfpi-lbl{flex:1 1 auto;width:100%;font-size:0.9rem;min-height:2.1rem;}' +
         '.pdxfpi-go{opacity:1;margin-left:auto;}' +
         '.pdxfpi-seg{min-height:2.2rem;padding:0.38rem 0.66rem;}' +
@@ -7738,6 +7777,54 @@
   // one is an admission we have not read it yet — the weaker of the two claims goes
   // last so the top of the list stays the part that says something.
   var _FPI_UNREAD_RANK = 5;
+  // ── THE BANDS: WHAT THE LIST LEADS WITH, AND WHAT IT LEADS AWAY FROM ────────
+  // A sixty-row list sorted strongest-first is still a sixty-row list. The sort
+  // was right and it was invisible: row 1 and row 52 are drawn identically, and
+  // nothing on the way down marks where the readable part ended. On a member with
+  // a wide record that is most of a phone screen of "too few to weigh" and "no
+  // roll-call pattern yet" arriving at the same visual weight as a twelve-vote
+  // run — which is how a reader learns that a full formal record looks like an
+  // empty one.
+  //
+  // So the same rows, in the same order, are FILED. Four bands, cut on the rank
+  // the sort already assigned — no new ordering, no new threshold, no second
+  // opinion about any row, and no row moved relative to any other row. Every band
+  // header is a COUNT of what is already underneath it; none of them is a grade.
+  //
+  //   clear  strong + mostly   the record ran mostly or wholly one way
+  //   split  split             it ran both ways, and that is a finding
+  //   thin   thin              a direction, read off too little to lean on
+  //   rest   none + unread     on file, with no direction read from it at all
+  //
+  // THE LAST TWO ARE THE TAIL, AND THE TAIL ARRIVES CLOSED. Closed is not hidden:
+  // the summary says how many rows are inside AND what kind of nothing they hold,
+  // in the rows' own words, off the same census the bands print — so a reader
+  // decides whether to open it without having to open it. Every row is in the
+  // document either way, which is what keeps a deep link, a find-in-page, a
+  // filter count and the back pill honest; _pdxOpenClosedChain already opens an
+  // ancestor <details> before it scrolls, so a return to a tail row lands on it.
+  var _FPI_BANDS = [
+    { id: 'clear', tail: false, lb: 'Clearest patterns',
+      note: 'Where the formal record ran mostly or wholly one way.',
+      test: function (x) { return x.rank <= 1; } },
+    { id: 'split', tail: false, lb: 'Ran both ways',
+      note: 'A real record on both sides of the issue. That is a finding about the record, not a gap in it.',
+      test: function (x) { return x.rank === 2; } },
+    { id: 'thin', tail: true, lb: 'A direction, but too little to lean on',
+      short: 'too little to lean on',
+      note: 'Something formal on file pointing one way — not enough of it to call a pattern.',
+      test: function (x) { return x.rank === 3; } },
+    { id: 'rest', tail: true, lb: 'On file, nothing readable yet',
+      short: 'nothing readable yet',
+      note: 'The instruments are on file and open in the dossier. No direction is claimed from ' +
+        'them, and every row says which reason it is.',
+      test: function (x) { return x.rank >= 4; } }
+  ];
+  // How short a tail has to be before folding it costs more than it saves. Three
+  // rows behind a control is a control that has to be operated in order to read
+  // three rows; the fold earns its tap somewhere above that.
+  var _FPI_TAIL_MIN = 4;
+
   // The one sentence that keeps this list out of the score, printed once at the
   // foot of the index rather than on sixty-four rows.
   var _FPI_WALL = 'Every issue here is drawn from the formal record only — roll-call votes and ' +
@@ -9008,6 +9095,32 @@
             'resolved to neither side, so there is nothing to read a direction from. They are in ' +
             'the dossier exactly as they are.' };
       }
+      // ── AND ONE OF THOSE BRUSHES IS NOT A COINCIDENCE, IT IS A VEHICLE ─────
+      // "Not about this issue" is the right sentence for a bill that happened to
+      // touch the subject on its way past. It is the WRONG sentence for a policy
+      // that was deliberately carried inside larger measures — a different fact,
+      // about a different record, and one this codebase already detects: the
+      // stowaway read in _recordVehicleStats, the same one the read rows wear as
+      // their 🚂 line. Where that detector says EVERY mapped instrument here was
+      // a package, this row says so, names the packages it can name, and still
+      // claims no direction.
+      //   IT IS A NARROWER CLAIM THAN THE ONE IT REPLACES, not a stronger one,
+      // which is the only reason it is allowed past the wall over `vehicle` in
+      // _fpiRows. That wall forbids hanging the DIRECTIONAL disclosure ("advanced
+      // as a provision inside H.R. 7148") under a refusal, because that sentence
+      // presupposes a direction the row does not have. This one presupposes
+      // nothing: it reports the shape of the ledger and stops. `x.vehicle` stays
+      // null on a refused row, so no 🚂 line and no data-pdxfpi-vehicle attribute
+      // appears here either — only the words in the grey chip change.
+      var _veh = null;
+      try { _veh = vehicleRead(r && r.pid, r && r.key); } catch (e) { _veh = null; }
+      if (_veh && _veh.stowaway && _veh.only) {
+        return { id: 'vehicle_only', lb: 'Only carried inside larger packages',
+          note: 'Every mapped instrument on this issue arrived as a provision ' + _vehWhere(_veh) +
+            ' rather than as a ' + n.one + ' on the issue itself. Those measures are real, dated ' +
+            'and in the dossier — but a package is not a position on everything inside it, so no ' +
+            'direction is claimed from one.' };
+      }
       if ((idx.primary || 0) < 1) {
         return { id: 'incidental', lb: 'Not about this issue',
           note: 'The ' + n.many + ' on file here touched this issue as part of a larger measure ' +
@@ -9072,6 +9185,26 @@
             n.many + ' themselves are in the dossier.' };
       }
     }
+    // ── AND ONE LAST ONE THAT IS NOT ABOUT THEM AT ALL ────────────────────────
+    // "No roll-call pattern on file yet" printed while the roll-call fetch is
+    // still in flight is a claim about OUR network wearing the clothes of a claim
+    // about THEIR record — and it is the sentence this row said on every first
+    // paint, because the curated formal feeder can put a row in this index before
+    // the votes that would read it have arrived. The row model one lane over
+    // already refuses to make that mistake (see the `pending` branch in
+    // _stRecordSlot), so this borrows that answer and its exact wording rather
+    // than inventing a second vocabulary for waiting.
+    //   LAST, DELIBERATELY. Everything above is a reason drawn from material we
+    // are already holding, and material in hand outranks material in flight: a
+    // row that can already say "they ran both ways" should say that, not that it
+    // is still looking. Legislative lane only — the executive lane has nothing
+    // outstanding to wait for and was answered at the top of this function.
+    if (r && r.lane !== 'exec' && !recordSettled(r.pid)) {
+      return { id: 'pending', lb: _ST_REC_PENDING,
+        note: 'Their roll-call record is still loading, so nothing here has been read for a ' +
+          'pattern yet. That is a statement about this page, not about their record — the row ' +
+          'fills in on its own as soon as the record lands.' };
+    }
     return { id: 'no_rollcall', lb: 'No roll-call pattern on file yet',
       note: 'These ' + n.many + ' are on file and open in the dossier, but no roll call mapped to ' +
         'this issue has been read for a pattern yet, so no direction is claimed here.' };
@@ -9086,6 +9219,115 @@
   // overlay hands it its own Sort control's state, so one control governs both
   // lists). `opts.view` overrides the remembered filter; the delegated handler
   // below uses it to re-render in place.
+  // ── THE CENSUS, NOW A COMPONENT RATHER THAN A STRIP ─────────────────────────
+  // THE CENSUS IS A COUNT, NOT A GRADE: how many issues landed on each printed
+  // label — the honest shape of a list before anyone scrolls it. It reports; it
+  // does not rank the person.
+  //
+  // Keyed on the printed LABEL rather than the tier, which is the whole point of
+  // it now that the refusals each say their own sentence: "too few to weigh",
+  // "procedural only", "only carried inside larger packages" and "still checking"
+  // are four different statements about four different situations, and one grey
+  // "unread × 14" would hide the only ones of them that are ours to fix.
+  //
+  // It used to print once, as a strip under the lede, over the whole list. It now
+  // prints per BAND — under each band's heading, and inside the tail's summary —
+  // because that is where each count answers a question the reader is actually
+  // asking at that moment ("what is in the part I can read", "what kind of
+  // nothing is in the part I would be opening"). Nothing was dropped: every label
+  // that appeared in the strip appears under the band that holds its rows.
+  function _fpiCensus(list) {
+    var seen = {}, order = [];
+    (list || []).forEach(function (x) {
+      var k = x.tier + '|' + x.patLabel;
+      if (!seen[k]) { seen[k] = { n: 0, x: x }; order.push(k); }
+      seen[k].n++;
+    });
+    order.sort(function (a, b) {
+      return (seen[a].x.rank - seen[b].x.rank) || (a < b ? -1 : 1);
+    });
+    return order.map(function (k) { return seen[k]; });
+  }
+  // `max` caps the strip for a slot that cannot hold every label — the tail's one
+  // summary line. What is cut is chosen by COUNT, so the pills that survive are
+  // the ones describing most of what is inside, and the remainder is stated as a
+  // number rather than silently dropped. Uncapped everywhere else.
+  function _fpiCensusHtml(list, max) {
+    var cs = _fpiCensus(list), more = 0;
+    if (max && cs.length > max) {
+      cs = cs.slice().sort(function (a, b) { return b.n - a.n; });
+      more = cs.length - max;
+      cs = cs.slice(0, max).sort(function (a, b) { return a.x.rank - b.x.rank; });
+    }
+    if (!cs.length) return '';
+    return '<span class="pdxfpi-census">' +
+      cs.map(function (c) {
+        var tone = _ST_PAT_TONE[c.x.tone] || _ST_PAT_TONE.muted;
+        return '<span class="pdxfpi-cn" style="--c:' + tone.c + '">' +
+          '<b>' + c.n + '</b> ' + esc(c.x.patLabel) + '</span>';
+      }).join('') +
+      (more ? '<span class="pdxfpi-cn pdxfpi-cn-more" style="--c:#6f88ab">+' + more + ' more</span>' : '') +
+      '</span>';
+  }
+  // One band: a heading, its count, one grey sentence saying what the band means,
+  // its census, and then the rows exactly as they were drawn before.
+  function _fpiBandHtml(b, list, mount) {
+    return '<div class="pdxfpi-band" data-pdxfpi-band="' + escAttr(b.id) + '">' +
+        '<p class="pdxfpi-bh">' +
+          '<span class="pdxfpi-bh-t">' + esc(b.lb) + '</span>' +
+          '<span class="pdxfpi-bh-n">' + list.length + '</span>' +
+          _fpiCensusHtml(list) +
+        '</p>' +
+        '<p class="pdxfpi-bn">' + esc(b.note) + '</p>' +
+        list.map(function (x) { return _fpiRowHtml(x, mount); }).join('') +
+      '</div>';
+  }
+  // The list, filed. Presentation only: `shown` arrives already sorted and already
+  // filtered, every row is rendered by the same _fpiRowHtml it always was, and the
+  // partition is _FPI_BANDS reading the rank the sort already assigned.
+  function _fpiListHtml(shown, mount) {
+    if (!shown.length) {
+      return '<div class="pdxfpi-list">' +
+        '<p class="pdxfpi-none">No issue on the formal record matches this filter.</p></div>';
+    }
+    var groups = [];
+    _FPI_BANDS.forEach(function (b) {
+      var rows = shown.filter(function (x) {
+        try { return !!b.test(x); } catch (e) { return false; }
+      });
+      if (rows.length) groups.push({ b: b, rows: rows });
+    });
+    var lead = groups.filter(function (g) { return !g.b.tail; });
+    var tail = groups.filter(function (g) { return g.b.tail; });
+    var tailN = 0, tailRows = [];
+    tail.forEach(function (g) { tailN += g.rows.length; tailRows = tailRows.concat(g.rows); });
+    // NOTHING READABLE MEANS THE TAIL IS THE RECORD. A profile whose whole formal
+    // record is thin has no strong band to lead with, and folding away the only
+    // rows it has would be a blank surface dressed as restraint — the reader would
+    // be told there is nothing when there is something and it is simply small.
+    // Thin material must not be inflated; it must also not be disappeared. So the
+    // fold exists only where there is something in front of it to fold behind,
+    // and only where the tail is long enough for folding it to be worth the tap.
+    if (!lead.length || tailN < _FPI_TAIL_MIN) {
+      return '<div class="pdxfpi-list">' +
+        groups.map(function (g) { return _fpiBandHtml(g.b, g.rows, mount); }).join('') + '</div>';
+    }
+    return '<div class="pdxfpi-list">' +
+        lead.map(function (g) { return _fpiBandHtml(g.b, g.rows, mount); }).join('') +
+        '<details class="pdxfpi-tail" data-pdxfpi-tail="' + tailN + '">' +
+          '<summary class="pdxfpi-tail-s">' +
+            '<span class="pdxfpi-tail-t">' + tailN + ' more issue' + (tailN === 1 ? '' : 's') +
+              ' — ' + esc(tail.map(function (g) {
+                return g.rows.length + ' ' + g.b.short;
+              }).join(' · ')) + '</span>' +
+            _fpiCensusHtml(tailRows, 3) +
+          '</summary>' +
+          '<div class="pdxfpi-tail-b">' +
+            tail.map(function (g) { return _fpiBandHtml(g.b, g.rows, mount); }).join('') +
+          '</div>' +
+        '</details>' +
+      '</div>';
+  }
   function formalPatternIndexHtml(pid, opts) {
     opts = opts || {};
     if (!pid) return '';
@@ -9117,28 +9359,18 @@
         ' data-pdxfpi-set="' + escAttr(v) + '"' + (on ? ' aria-pressed="true"' : '') + '>' +
         esc(_FPI_VIEWS[v].lb) + ' <span class="pdxfpi-seg-n">' + n + '</span></button>';
     }).join('');
-    // THE CENSUS IS A COUNT, NOT A GRADE. Five tiers and the unread lane, each with
-    // how many issues landed there — the honest shape of the list before anyone
-    // scrolls it. It reports; it does not rank the person.
-    var census = {}, order = [];
-    all.forEach(function (x) {
-      // Keyed on the printed label, not the tier: the three unread reasons are three
-      // different statements and collapsing them into one grey count would hide the
-      // only one of them that is ours to fix.
-      var k = x.tier + '|' + x.patLabel;
-      if (!census[k]) { census[k] = { n: 0, x: x }; order.push(k); }
-      census[k].n++;
-    });
-    order.sort(function (a, b) {
-      return (census[a].x.rank - census[b].x.rank) || (a < b ? -1 : 1);
-    });
-    var censusHtml = order.map(function (k) {
-      var c = census[k], tone = _ST_PAT_TONE[c.x.tone] || _ST_PAT_TONE.muted;
-      return '<span class="pdxfpi-cn" style="--c:' + tone.c + '">' +
-        '<b>' + c.n + '</b> ' + esc(c.x.patLabel) + '</span>';
-    }).join('');
     var stated = all.filter(function (x) { return x.said; }).length;
     var patternOnly = all.length - stated;
+    // TRULY NOTHING ON FILE IS ITS OWN ANSWER, AND IT IS NOT ON THIS LIST. Every
+    // row here has formal material of some kind; the issues that have none were
+    // dropped upstream by the fail-closed gate in _fpiRows, which is right for a
+    // list OF the formal record and leaves the reader with no way to tell a short
+    // list from a short record. So the difference is stated once, as a count,
+    // taken from the same row model these rows were filtered out of — no second
+    // source, no estimate, and no claim about why any particular issue is missing.
+    var tracked = 0;
+    try { tracked = (issueRows(pid) || []).length; } catch (e) { tracked = 0; }
+    var bare = (tracked > all.length) ? (tracked - all.length) : 0;
     var viewNote = (view === 'all') ? '' : ' · ' + _FPI_VIEWS[view].lb.toLowerCase();
     return '<div class="pdxfpi" data-pdxfpi-host="' + escAttr(pid) + '"' +
         ' data-pdxfpi-mount="' + escAttr(mount) + '"' +
@@ -9152,15 +9384,15 @@
         '<p class="pdxfpi-lede">' + all.length + ' issue' + (all.length === 1 ? '' : 's') +
           ' with something formal on file' +
           (patternOnly ? ' — <b>' + patternOnly + '</b> of them with no stated position from them yet' : '') +
-          '. Tap any issue for its dossier.</p>' +
-        (censusHtml ? '<div class="pdxfpi-census">' + censusHtml + '</div>' : '') +
+          '.' +
+          (bare ? ' <b>' + bare + '</b> more tracked issue' + (bare === 1 ? ' has' : 's have') +
+            ' nothing formal on file at all, so ' + (bare === 1 ? 'it is' : 'they are') +
+            ' not on this list.' : '') +
+          ' Tap any issue for its dossier.</p>' +
         (segs ? '<div class="pdxfpi-segs" role="group" aria-label="Filter the formal record index">' + segs + '</div>' : '') +
         '<p class="pdxfpi-shown">Showing <b>' + shown.length + '</b> of ' + all.length +
           ' issue' + (all.length === 1 ? '' : 's') + ' on the formal record' + viewNote + '</p>' +
-        '<div class="pdxfpi-list">' +
-          (shown.length ? shown.map(function (x) { return _fpiRowHtml(x, mount); }).join('')
-            : '<p class="pdxfpi-none">No issue on the formal record matches this filter.</p>') +
-        '</div>' +
+        _fpiListHtml(shown, mount) +
         '<p class="pdxfpi-foot">' + esc(_FPI_WALL) + '</p>' +
       '</div>';
   }
