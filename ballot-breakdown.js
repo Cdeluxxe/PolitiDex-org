@@ -4072,10 +4072,17 @@
       // record": a count under a heading naming a comparison that never happened.
       // Both now state what the record itself did, in the profile row's own words.
       //
-      // A SCORED READ WINS. Where the say-vs-do lane reached a verdict
-      // (consistent / contradicts / mixed) that verdict is the answer and this adds
-      // nothing — a record-direction clause beside it would be a second finding on
-      // one row. Display only: `it.score`, the bar, the bucket and the overall
+      // THE RECORD LEADS, AND A VERDICT NO LONGER SUPPRESSES IT. This used to read
+      // "a scored read wins": where the say-vs-do lane reached a verdict, the
+      // record-direction clause was dropped as a supposed second finding on one
+      // row. It is not a second finding — it is the underlying one. The verdict
+      // says whether the votes matched what this person SAID; the clause says what
+      // the votes DID. Dropping the second left the ballot card printing only a
+      // judgement on exactly the issues where the record is richest, which is the
+      // wrong way round on the surface a voter is actually standing on.
+      //
+      // Both now print, record first and verdict underneath it, in that order and
+      // never merged. Display only: `it.score`, the bar, the bucket and the overall
       // match are computed in _calcAlignmentBreakdown and none of them can see this.
       var _KRAQ_SCORED = { consistent: 1, contradicts: 1, mixed: 1 };
       function _kraqRecordDir(it) {
@@ -4088,19 +4095,20 @@
       }
       function _kraqRecordLine(it) {
         var scored = !!(it.record && it.record.total && _KRAQ_SCORED[it.record.netVerdict]);
-        var rdir = scored ? '' : _kraqRecordDir(it);
+        var rdir = _kraqRecordDir(it);
         var rdirLine = rdir
           ? '<p class="kraq-record-line kraq-rdir-line" style="margin:0.3rem 0 0;">' + rdir + '</p>'
           : '';
         if (!it.record || !it.record.total) {
-          // Stated a position here but no votes to check it against → say so plainly.
-          if (it.direct) return '<p class="kraq-record-line" style="margin:0.3rem 0 0;font-size:0.63rem;color:#8b97ad;display:flex;align-items:center;gap:0.35rem;">'
+          // Stated a position here but no votes to check it against → say so plainly,
+          // under whatever the record itself had to say.
+          if (it.direct) return rdirLine + '<p class="kraq-record-line" style="margin:0.3rem 0 0;font-size:0.63rem;color:#8b97ad;display:flex;align-items:center;gap:0.35rem;">'
             + '<span aria-hidden="true">⚖️</span><span><strong>Say-vs-Do:</strong> limited record — no votes yet to verify this stated position</span></p>';
           return rdirLine;
         }
         // Records on file and nothing scored against them: the record speaks for
-        // itself, and the Say-vs-Do frame below is not the frame for it.
-        if (!scored && rdirLine) return rdirLine;
+        // itself, and the Say-vs-Do frame is not the frame for it.
+        if (!scored) return rdirLine;
         var v = it.record.netVerdict;
         var col = v === 'consistent' ? '#6ee7a0' : v === 'contradicts' ? '#f89b9b' : v === 'mixed' ? '#93c5fd' : '#9fb4d4';
         var ico = v === 'contradicts' ? '⚠️' : v === 'consistent' ? '✅' : '🗳️';
@@ -4114,7 +4122,8 @@
         var contraTag = v === 'contradicts'
           ? '<span style="display:inline-block;margin:0.25rem 0 0;font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:#fca5a5;background:rgba(248,113,113,0.14);border:1px solid rgba(248,113,113,0.45);padding:0.05rem 0.45rem;border-radius:999px;">⚑ Record runs against stated position</span>'
           : '';
-        return '<p class="kraq-record-line" style="margin:0.3rem 0 0;font-size:0.66rem;color:' + col + ';display:flex;align-items:center;gap:0.35rem;">'
+        return rdirLine
+          + '<p class="kraq-record-line" style="margin:0.3rem 0 0;font-size:0.66rem;color:' + col + ';display:flex;align-items:center;gap:0.35rem;">'
           + '<span aria-hidden="true">' + ico + '</span><span><strong>Say-vs-Do — ' + lbl + '</strong> · ' + detail + '</span></p>' + contraTag;
       }
 

@@ -133,6 +133,15 @@
 .ic-bucket { margin-bottom: 1.3rem; }
 .ic-bucket-h { display: flex; align-items: center; gap: 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c); padding-bottom: 0.4rem; border-bottom: 2px solid color-mix(in srgb, var(--c) 40%, transparent); margin-bottom: 0.7rem; }
 .ic-bucket-n { margin-left: auto; font-size: 0.75rem; color: #9fb4d4; background: rgba(255,255,255,0.06); padding: 0.05rem 0.5rem; border-radius: 999px; }
+/* Every record group states, in a sentence, what belonging to it means — and in
+   particular what it does NOT mean. A reader who lands on "No formal record on
+   file yet" and takes it for neutrality has been misinformed by a heading, so the
+   heading gets a line of prose underneath it rather than being left to imply. */
+.ic-bucket-sub { margin: -0.35rem 0 0.7rem; color: #7d94b6; font-family: 'Barlow', sans-serif; font-size: 0.76rem; line-height: 1.45; }
+/* Record groups share one calm slate family (set inline from RECORD_GROUP_META)
+   instead of the green/amber/red the stance buckets used. A colour ramp across
+   these four would turn "how much of this record we hold" into a scoreboard. */
+.ic-bucket--rec .ic-bucket-h { border-bottom-width: 1px; }
 .ic-cards { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
 
 /* ── card ──────────────────────────────────────────────────────────────── */
@@ -161,6 +170,32 @@
    vocabulary, and this has no verdict to colour. */
 .ic-rdir { margin-top: 0.3rem; }
 .ic-cons-row .pdx-rdir { text-transform: none; letter-spacing: 0; }
+
+/* ── the two lanes ──────────────────────────────────────────────────────────
+   A card now carries two different kinds of fact, and the whole point is that a
+   reader can tell them apart at a glance. Each gets a small heading; the record
+   lane sits first and is the brighter of the two; the stated position sits
+   underneath a hairline rule, quieter, because it is a citation rather than a
+   finding. They are never merged into a single chip. */
+.ic-lane-lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.09em; text-transform: uppercase; color: #56739b; }
+.ic-lane-lbl--rec { margin-top: 0.65rem; color: #7d97bd; }
+.ic-rec-lane { margin-top: 0.2rem; }
+.ic-rec-lane .ic-rdir, .ic-rec-lane .pdx-rdir { margin-top: 0.18rem; text-transform: none; letter-spacing: 0; }
+/* Still fetching. Not an absence, and worded so it cannot be read as one. */
+.ic-rec-lane.is-cold .ic-rdir { display: inline-flex; align-items: center; gap: 0.35rem; color: #7d94b6; font-family: 'Barlow', sans-serif; font-size: 0.8rem; }
+/* One item from the file, named and nothing more — no verdict word, no claim
+   about whether it matched anything anyone said. */
+.ic-recvote { margin: 0.35rem 0 0; color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.78rem; line-height: 1.45; }
+.ic-said-lane { margin-top: 0.7rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+.ic-said-lane .ic-pos { align-self: flex-start; }
+.ic-said-lane .ic-evidence { margin-top: 0.1rem; }
+/* The rule is only drawn where a record sits above it — nothing to divide
+   otherwise. */
+.ic-card.is-reclead .ic-said-lane { padding-top: 0.6rem; border-top: 1px solid rgba(159, 180, 212, 0.13); }
+/* "Not enough on file to compare yet" — the field-level floor, shared with the
+   side-by-side row. Untinted: it is an admission about the completeness of our
+   file, not a finding about anybody in the field. */
+.ic-rdfloor { margin: 0.1rem 0 0.85rem; }
 
 .ic-evidence { margin: 0.55rem 0 0; color: #cfe0fb; font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.45; }
 .ic-evidence--vote { color: #9fb4d4; }

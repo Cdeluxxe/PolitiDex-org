@@ -8525,11 +8525,26 @@
       // the ones that most sharply separate these specific people. Topped up from a
       // short, broadly-relevant fallback so the selector is never empty for a thin
       // field; the voter's already-chosen issues lead so they read as active.
+      // THE RECORD COUNTS TOWARD COVERAGE TOO. This used to read ONLY the stated
+      // positions (_polPositionMap), which meant an issue where every candidate in
+      // the field has a formal record and nobody has a sourced quote scored zero
+      // coverage and never made the chip set — the selector then topped itself up
+      // from the hard-coded FALLBACK list below, offering issues chosen in advance
+      // instead of the ones this race actually has material on. The formal pattern
+      // index is read alongside it, through the same accessor the profile atlas
+      // and the side-by-side use, and a member holding both a quote and a record on
+      // one issue counts once (per-pid `seen`) so having both does not inflate it.
+      //   This orders CHIPS, not people. It is a measure of what our file holds on
+      //   an issue, and nothing here ranks a candidate on it.
       var cov = {};
-      if (typeof window._polPositionMap === 'function') {
+      var hasPosMap = (typeof window._polPositionMap === 'function');
+      var hasRecMap = (typeof window._pdxSeatFormalMap === 'function');
+      if (hasPosMap || hasRecMap) {
         pids.forEach(function(pid) {
-          var map = window._polPositionMap(pid, CMP_DATA[pid]) || {};
-          Object.keys(map).forEach(function(k) { if (ISSUE_MAP[k]) cov[k] = (cov[k] || 0) + 1; });
+          var seen = {};
+          function bump(k) { if (ISSUE_MAP[k] && !seen[k]) { seen[k] = 1; cov[k] = (cov[k] || 0) + 1; } }
+          if (hasPosMap) { try { Object.keys(window._polPositionMap(pid, CMP_DATA[pid]) || {}).forEach(bump); } catch (e) {} }
+          if (hasRecMap) { try { Object.keys(window._pdxSeatFormalMap(pid) || {}).forEach(bump); } catch (e) {} }
         });
       }
       var pickKeys = Object.keys(cov).sort(function(a, b) {

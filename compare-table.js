@@ -73,7 +73,51 @@
     setTimeout(() => { ov.style.display = 'none'; }, 260);
   }
 
+  // ── WARM THE RECORD BEFORE THE BOARD IS BUILT, NOT AFTER IT IS EMPTY ────────
+  // The record lane used to be warmed only as a last resort: the table painted,
+  // and if the issue section had come out completely empty — nobody with a quote
+  // AND nobody with a warm record — one rebuild was allowed. Every other lineup
+  // rendered whatever happened to be in the cache, which for a first open in a
+  // session is nothing. That made the formal record structurally second: it could
+  // only appear once the stated lane had failed outright.
+  //
+  // Now the fetch is kicked the moment a lineup opens. It is the same batched
+  // /compare call the consistency dots and the hydration pass already make, and
+  // PDXVotingRecord.fetchCompare caches by member list, so a board that does all
+  // three fetches once. The build does not WAIT on it — the table still paints
+  // immediately from whatever is warm, and the cells that arrive cold are filled
+  // by the hydration pass rather than by a rebuild, so a visitor's filter and
+  // scroll survive.
+  //
+  // One rebuild is still allowed, and only in the state it was always allowed in:
+  // the issue section did not render at all, so there is nothing on screen to
+  // throw away. Guarded per lineup and never repeated.
+  function _cmpWarmRecords(pids) {
+    try {
+      if (!pids || pids.length < 1) return;
+      if (!(window.PDXVotingRecord && typeof window.PDXVotingRecord.fetchCompare === 'function')) return;
+      const key = pids.slice().sort().join(',');
+      if (_cmpRecPrefetched === key) return;
+      _cmpRecPrefetched = key;
+      window.PDXVotingRecord.fetchCompare(pids).then(function () {
+        try {
+          const ov = document.getElementById('compare-overlay');
+          if (!ov || ov.style.display === 'none') return;
+          // Fill the placeholders in place. No rebuild: the board is on screen and
+          // the visitor may already have filtered or scrolled it.
+          if (typeof window._pdxHydrateRecordDirection === 'function') {
+            window._pdxHydrateRecordDirection(ov);
+          }
+          _cmpPaintCompareFloor(ov);
+        } catch (e) {}
+      }, function () {});
+    } catch (e) {}
+  }
+
   function openCompare() {
+    // Kicked before the build so a warm cache lands in the first paint where the
+    // network is quick, and so the hydration pass has something to fill from.
+    try { _cmpWarmRecords([..._cmpSelected].filter(pid => CMP_DATA[pid])); } catch (e) {}
     _buildCmpTable();
     const ov = document.getElementById('compare-overlay');
     ov.style.display = 'flex';
@@ -147,6 +191,39 @@
   // bottom of _buildCmpTable). Module-scoped so re-opening the same lineup in one
   // session cannot re-trigger it.
   let _cmpRecWarmed = null;
+  // Lineup key of the eager prefetch kicked at open (see _cmpWarmRecords), kept
+  // separate from the rebuild key above: the prefetch is allowed on every lineup,
+  // the rebuild on almost none.
+  let _cmpRecPrefetched = null;
+
+  // ── THE ROW-LEVEL FLOOR ─────────────────────────────────────────────────────
+  // Fills each issue row's [data-cmp-rdfloor] mount with the shared "not enough on
+  // file to compare yet" note when fewer than two records in the lineup are
+  // readable on that issue. The sentence, the floor and the reasoning all live in
+  // PDXConsistency.recordDirection.compare — this only decides where it hangs.
+  //
+  // Run after the batched fetch lands rather than at paint, for the same reason
+  // the cells are hydrated rather than rendered: before the fetch every record is
+  // COLD, and cold is not empty. The shared read returns an empty note while
+  // anything is cold, so calling this early is harmless — it simply says nothing.
+  //
+  // Display only. It reads no cell, writes no cell, and the agreement maths above
+  // never sees it.
+  function _cmpPaintCompareFloor(scope) {
+    try {
+      const root = scope || document;
+      const RD = window.PDXConsistency && window.PDXConsistency.recordDirection;
+      if (!RD || typeof RD.compare !== 'function' || typeof RD.compareHtml !== 'function') return;
+      const pids = [..._cmpSelected].filter(pid => CMP_DATA[pid]);
+      if (pids.length < 2) return;
+      const mounts = root.querySelectorAll('[data-cmp-rdfloor]');
+      for (let i = 0; i < mounts.length; i++) {
+        const key = mounts[i].getAttribute('data-cmp-rdfloor');
+        if (!key) continue;
+        mounts[i].innerHTML = RD.compareHtml(RD.compare(pids, key), { cls: 'cmp-issue-rdfloor-note' }) || '';
+      }
+    } catch (e) {}
+  }
 
   function _cmpIssueData(pids) {
     const out = { anyDocumented:false, anyRecord:false, recCold:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, nMine:0, nMineShared:0, mineActive:false, docByPid:{}, recByPid:{} };
@@ -335,53 +412,63 @@
     } catch (err) { return ''; }
   }
 
-  // Render one politician's stance cell for the issue comparison. When the Locker
-  // holds receipts for this person on this issue, the cell becomes a one-tap
-  // drill-in — closing the compare overlay and opening the Evidence Locker
-  // filtered to exactly this politician + issue, so a contrast a visitor spots
-  // here leads straight to the proof. Gated on real evidence (or a known Locker
-  // member still loading), so a tap never lands on an empty file.
+  // Render one politician's cell for the issue comparison.
+  //
+  // ── THE RECORD LEADS ────────────────────────────────────────────────────────
+  // This cell used to be stance-first: the documented position was the content,
+  // and what the record DID was a fallback printed only where no quote existed.
+  // That is backwards from the product's own priority — the formal record is the
+  // primary view of a politician's position everywhere else in the app — and it
+  // is most backwards precisely here, on the screen where two names are held side
+  // by side and a choice gets made.
+  //
+  // So the order is now fixed rather than conditional: the record slot is the top
+  // line of every cell that has one, and the stated position is the labelled
+  // second line beneath it. Where a member has a stance and no record the stance
+  // is all there is and it stands alone; where they have neither, the cell says
+  // so in the calm language it always used.
+  //
+  // WHAT DID NOT CHANGE. The agreement maths (`agreement`, nAgree, nDiffer,
+  // nPartial) reads iss.cells — the STATED lane — and has never seen the record
+  // slot; nothing below writes into it. No integrity verdict is printed here:
+  // "backs it up" / "says one thing, votes another" is a different job with a
+  // different gate, it lives on the profile, and a comparison cell is a
+  // description of the record rather than a test of anybody's honesty.
+  //
+  // When the Locker holds receipts for this person on this issue the stance line
+  // stays a one-tap drill-in, so a contrast a visitor spots here still leads
+  // straight to the proof.
   function _cmpIssueCell(entry, pid, issueKey) {
     const PDX = window.PDXStance;
-    // No documented position → the canonical grey "No Clear Position" pill, the
-    // exact same calm language every other surface uses for an honest gap.
-    //
-    // …AND WHAT THE RECORD DID, when there is a record to say it. This is the cell
-    // the whole record-direction move exists for: two picks on one issue, neither
-    // with a sourced stance, and until now two identical grey blanks — one over a
-    // member with nothing on file, one over a member with twenty mapped roll calls
-    // running the same way. Same blank, opposite facts. The clause is filled in
-    // after the batched /compare call (see _pdxHydrateRecordDirection) because at
-    // paint time nothing is warm and "no record" would be a guess; a cell whose
-    // member never lands keeps exactly the copy below. Display only — the
-    // agreement maths above reads iss.cells and has never seen this.
+    const esc = (t) => String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+    // WHAT THE RECORD DID, PRINTED AT PAINT WHERE IT IS ALREADY KNOWN. The slot
+    // below is the exact one the hydration pass renders — same accessor, same
+    // compact form, same lane mark — so warming the fetch upgrades this cell
+    // rather than contradicting it, and a cold cell still shows the batched
+    // answer a moment later. Refused unless the slot has something to say:
+    // `only` keeps the "no formal record yet" state out, because at paint that
+    // state cannot tell an empty record from an unfetched one, and the hydration
+    // pass will say it properly if it still holds once the fetch has landed.
+    let recHtml = '';
+    if (pid && issueKey) {
+      try {
+        const RD = window.PDXConsistency && window.PDXConsistency.recordDirection;
+        if (RD && typeof RD.for === 'function') {
+          recHtml = RD.for(pid, issueKey, { compact: true, only: ['speaks', 'thin'] }) || '';
+        }
+      } catch (e) { recHtml = ''; }
+    }
+    const rdir = (pid && issueKey)
+      ? `<span class="cmp-issue-rdir" data-vrdir="${esc(pid)}|${esc(issueKey)}" data-vrdir-compact="1">${recHtml}</span>`
+      : '';
+
+    // No documented position → the record is the whole cell, with the canonical
+    // grey "No Clear Position" pill demoted to the quiet second line. Where there
+    // is no record either, that pill leads exactly as it always has.
     if (!entry) {
       const nonePill = PDX ? PDX.stancePill('none') : '<span class="cmp-issue-none-lbl">No clear position</span>';
-      // WHAT THE RECORD DID, PRINTED AT PAINT WHERE IT IS ALREADY KNOWN. The slot
-      // below is the exact one the hydration pass renders — same accessor, same
-      // compact form, same lane mark — so warming the fetch upgrades this cell
-      // rather than contradicting it, and a cold cell still shows the batched
-      // answer a moment later. Refused unless the slot has something to say:
-      // `only` keeps the "no formal record yet" state out, because at paint that
-      // state cannot tell an empty record from an unfetched one, and the hydration
-      // pass will say it properly if it still holds once the fetch has landed.
-      let recHtml = '';
-      if (pid && issueKey) {
-        try {
-          const RD = window.PDXConsistency && window.PDXConsistency.recordDirection;
-          if (RD && typeof RD.for === 'function') {
-            recHtml = RD.for(pid, issueKey, { compact: true, only: ['speaks', 'thin'] }) || '';
-          }
-        } catch (e) { recHtml = ''; }
-      }
-      const rdir = (pid && issueKey)
-        ? `<span class="cmp-issue-rdir" data-vrdir="${String(pid).replace(/"/g, '&quot;')}|${String(issueKey).replace(/"/g, '&quot;')}" data-vrdir-compact="1">${recHtml}</span>`
-        : '';
-      // ORDER FOLLOWS WHAT IS ACTUALLY THERE. With a readable record the record
-      // leads and the missing quote is the quiet second line; with nothing on
-      // file the grey pill leads exactly as it always has. The old cell led with
-      // "No clear position / Not documented yet" over a full voting file, which
-      // read as evasion and was our gap, not theirs.
       if (recHtml) {
         return '<div class="cmp-issue-cell is-none cmp-issue-emptycell cmp-issue-reclead">' + rdir +
           '<span class="cmp-issue-none-note">No stated position on file — this is the record</span></div>';
@@ -389,6 +476,7 @@
       return '<div class="cmp-issue-cell is-none cmp-issue-emptycell">' + nonePill +
         '<span class="cmp-issue-none-note">Not documented yet</span>' + rdir + '</div>';
     }
+
     // Canonical four-state stance via the shared helper (window.PDXStance) — the
     // same pill Who Stands Where, the profile, and the Home Team matrix render.
     // entry.dir is 'support' | 'oppose' | 'mixed' | 'tracking'; resolveStance folds
@@ -396,9 +484,16 @@
     const stanceKey = PDX ? PDX.resolveStance(entry.dir) : (entry.dir === 'support' ? 'supported' : entry.dir === 'oppose' ? 'opposed' : 'mixed');
     const cellCls = stanceKey === 'supported' ? 'is-support' : stanceKey === 'opposed' ? 'is-oppose' : stanceKey === 'none' ? 'is-none' : 'is-mixed';
     const pill = PDX ? PDX.stancePill(stanceKey) : '';
-    const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     const text = entry.text ? `<div class="cmp-issue-text" title="${esc(entry.text)}">${esc(entry.text)}</div>` : '';
-    const inner = `<span class="cmp-issue-dir">${pill}</span>${text}`;
+
+    // THE SAID LINE IS LABELLED, AND THE LABEL IS THE POINT. Under the record the
+    // pill needs to say which lane it belongs to, or a reader scanning a column of
+    // stacked chips has no way to tell the thing they DID from the thing they
+    // SAID. One word does it, and it is the same word the profile uses.
+    const saidInner = `<span class="cmp-issue-saidlbl">Stated position</span>`
+      + `<span class="cmp-issue-dir">${pill}</span>${text}`;
+
+    let saidHtml = `<div class="cmp-issue-said">${saidInner}</div>`;
     if (pid && issueKey && typeof window._pdxOpenEvidenceLocker === 'function') {
       const counts = (typeof window._pdxEvidenceIssueCountsForPerson === 'function') ? window._pdxEvidenceIssueCountsForPerson(pid) : null;
       const n = counts ? (counts[issueKey] || 0) : null;
@@ -407,12 +502,18 @@
         const jp = String(pid).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         const jk = String(issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         const cue = `<span class="cmp-issue-ev">📂 ${n ? ('<strong>' + n + '</strong> ') : ''}Evidence ↗</span>`;
-        return `<button type="button" class="cmp-issue-cell cmp-issue-celllink ${cellCls}" `
+        saidHtml = `<button type="button" class="cmp-issue-said cmp-issue-celllink" `
           + `onclick="closeCompare();setTimeout(function(){window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:'${jp}',issue:'${jk}'});},300);" `
-          + `title="See the evidence on record in the Evidence Locker">${inner}${cue}</button>`;
+          + `title="See the evidence on record in the Evidence Locker">${saidInner}${cue}</button>`;
       }
     }
-    return `<div class="cmp-issue-cell ${cellCls}">${inner}</div>`;
+    // `cellCls` still tints the cell by the STATED position, because that is what
+    // the tint has always meant here and the agreement maths it mirrors is the
+    // stated lane's. The record carries its own state class inside its own slot
+    // and does not borrow this one — a thin record under a green cell must not
+    // pick up the green.
+    const lead = recHtml ? ' cmp-issue-reclead' : '';
+    return `<div class="cmp-issue-cell ${cellCls}${lead}">${rdir}${saidHtml}</div>`;
   }
 
   // "See everyone's evidence on this issue" — invoked from each issue row's label
@@ -912,9 +1013,12 @@
       // pick's real positions on the same issue so agreement and contrast are
       // obvious, with no fabricated stances — a pick with nothing on file simply
       // reads "Not documented yet".
-      standBlock += sectionRow(issueCmp.anyDocumented
-        ? '🏛 Where They Stand — Issue by Issue'
-        : '🏛 What Their Records Did — Issue by Issue');
+      // THE HEADING NAMES THE LANE THAT LEADS. This used to switch: "Where They
+      // Stand" normally, "What Their Records Did" only when the lineup had no
+      // sourced positions at all. Now that every cell leads with the record and
+      // demotes the quote beneath it, the stated-position heading would be naming
+      // the second line of the section — so it is gone, in both cases.
+      standBlock += sectionRow('🏛 What Their Records Did — Issue by Issue');
       const nCols = pids.length + 1;
       // Lead-in adapts: when the visitor has set Alignment, point out that their
       // own flagged issues are pulled to the top; otherwise the standard read.
@@ -924,11 +1028,12 @@
       const thinLead = thinLineup
         ? `<strong style="color:#cbd9ec;">These are new candidates with no record to test yet</strong>, so their documented positions are the clearest way to compare them. `
         : '';
-      // Two lanes, named. The 🏛 line only appears when a record row is actually
-      // on the board, and it says out loud that a record is not a stance — the one
-      // sentence that keeps an outlined cell from being read as a quote.
+      // Two lanes, named, in the order the cells now print them. The 🏛 line only
+      // appears when a record row is actually on the board, and it says out loud
+      // that a record is not a stance — the one sentence that keeps the leading
+      // line of a cell from being read as a quote.
       const recLead = issueCmp.anyRecord
-        ? ` Where a pick has no sourced position but does have a formal file, the cell shows <strong>what their record did</strong> under a 🏛 mark — that is the record, not a stated position, and it is never counted as agreement or difference.`
+        ? ` Each cell leads with <strong>what that person's record actually did</strong> on the issue, under a 🏛 mark, and their stated position — where one is on file — sits underneath it. Where a cell leads with a 🏛 line, that is the record, not a stated position, and it is never counted as agreement or difference.`
         : '';
       const standLead = issueCmp.anyDocumented
         ? `Real positions from each one's public record — so even a new candidate with nothing settled can still be compared on where they stand. `
@@ -1038,6 +1143,11 @@
           + _cmpAxisHint(iss.issueKey)
           + (mandateTag ? `<div style="margin-top:0.25rem;">${mandateTag}</div>` : '')
           + `<div><span class="cmp-issue-agree-badge ${bm.cls}">${bm.ico} ${bm.lbl}</span></div>`
+          // The floor note's mount. Empty at paint on purpose — before the batched
+          // fetch lands every record on this row is cold, and telling a reader
+          // there is "not enough on file" over a record we have not looked at yet
+          // would be the exact over-claim this note exists to prevent.
+          + (iss.issueKey ? `<div class="cmp-issue-rdfloor" data-cmp-rdfloor="${String(iss.issueKey).replace(/"/g, '&quot;')}"></div>` : '')
           + allEv + `</td>`;
         const cells = iss.cells.map((c, ci) => {
           // Consistency dot placeholder (stance vs. actual votes), hydrated from
@@ -1124,6 +1234,14 @@
     if (typeof window._pdxHydrateRecordDirection === 'function') {
       setTimeout(function () { try { window._pdxHydrateRecordDirection(document.getElementById('compare-overlay')); } catch (e) {} }, 0);
     }
+    // The row-level floor note, painted from whatever is already warm. Silent
+    // while any record on a row is still cold; _cmpWarmRecords calls it again
+    // when the batched fetch lands.
+    setTimeout(function () { try { _cmpPaintCompareFloor(document.getElementById('compare-overlay')); } catch (e) {} }, 0);
+    // Every rebuild path (a pick added or removed, a lineup restored) re-arms the
+    // eager prefetch for the NEW member list, so the record lane never waits for
+    // the stated lane to fail first.
+    try { _cmpWarmRecords(pids); } catch (e) {}
 
     // ── ONE SECOND LOOK, AND ONLY WHERE THERE IS NOTHING TO DISTURB ───────────
     // The hydration passes above fill cells that are already on screen. They
