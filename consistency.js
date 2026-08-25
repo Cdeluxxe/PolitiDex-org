@@ -1996,6 +1996,66 @@
       'details.pdxgap-omni>summary b{color:#cfe0f8;}' +
       'details.pdxgap-omni>summary:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
       '.pdxgap-omni-b{font-size:0.66rem;color:#93a6c4;line-height:1.45;margin-top:0.3rem;}' +
+      // ── The 🏛️ column's lane label, its read, and its measures roll-up ──────
+      // Quiet furniture around loud facts. The lane label is a marker, not a
+      // heading; the read block is the only thing in this column with a tinted
+      // left edge, because it is the one thing a reader should not be able to
+      // scroll past; the context frame is recessed so the calendar half cannot be
+      // mistaken for a second finding about the person.
+      '.pdxgap-lane-lb{display:flex;align-items:center;gap:0.3rem;font-size:0.6rem;font-weight:700;'+
+        'letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;margin:0.1rem 0 0.35rem;}' +
+      '.pdxgap-read{--c:#8fa6c6;border:1px solid rgba(255,255,255,0.09);border-left:3px solid var(--c);' +
+        'border-radius:0.5rem;padding:0.5rem 0.6rem;margin:0 0 0.55rem;background:rgba(10,15,30,0.5);}' +
+      '.pdxgap-read-h{font-size:0.6rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;' +
+        'color:#9fb4d4;display:flex;align-items:center;gap:0.3rem;}' +
+      '.pdxgap-read-says{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.3rem 0.45rem;margin-top:0.3rem;}' +
+      '.pdxgap-read-k{font-size:0.6rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#7e93b3;}' +
+      '.pdxgap-read-lb{font-size:0.98rem;line-height:1.15;font-weight:800;color:var(--c);}' +
+      '.pdxgap-read.is-exec .pdxgap-read-lb,.pdxgap-read.is-unread .pdxgap-read-lb{font-size:0.82rem;color:#b9c9e4;}' +
+      '.pdxgap-read-t{font-size:0.63rem;color:#93a6c4;line-height:1.3;}' +
+      '.pdxgap-read-sum{font-size:0.74rem;color:#dbe6fa;line-height:1.45;margin-top:0.3rem;}' +
+      '.pdxgap-read-inv{display:flex;flex-wrap:wrap;gap:0.22rem 0.3rem;margin-top:0.4rem;}' +
+      '.pdxgap-read-iv{font-size:0.62rem;line-height:1.3;padding:0.06rem 0.36rem;border-radius:999px;' +
+        'border:1px solid rgba(255,255,255,0.12);background:rgba(10,15,30,0.55);color:#c6d4ec;}' +
+      // The caveats sit ABOVE the evidence and are the one part of this block that
+      // is allowed to be visually louder than the sentence over it.
+      '.pdxgap-read-cav{list-style:none;margin:0.45rem 0 0;padding:0;display:grid;gap:0.3rem;}' +
+      '.pdxgap-read-cv{display:flex;gap:0.35rem;font-size:0.66rem;line-height:1.4;color:#c6d4ec;' +
+        'padding:0.28rem 0.4rem;border-radius:0.4rem;background:rgba(147,166,196,0.09);' +
+        'border:1px solid rgba(147,166,196,0.18);}' +
+      '.pdxgap-read-cv.is-package,.pdxgap-read-cv.is-single{background:rgba(245,200,66,0.09);' +
+        'border-color:rgba(245,200,66,0.28);color:#f0e0b4;}' +
+      '.pdxgap-read-cv.is-thin,.pdxgap-read-cv.is-notuniform{background:rgba(245,200,66,0.07);' +
+        'border-color:rgba(245,200,66,0.22);}' +
+      '.pdxgap-read-cvi{flex:0 0 auto;}' +
+      '.pdxgap-read-cvt{min-width:0;}' +
+      '.pdxgap-read-w{font-size:0.61rem;color:#8fa2c0;line-height:1.4;margin-top:0.45rem;' +
+        'padding-top:0.35rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      // Which measures this came from.
+      '.pdxgap-drv{margin:0 0 0.55rem;}' +
+      '.pdxgap-drv-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.3rem 0.4rem;font-size:0.6rem;' +
+        'font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;}' +
+      '.pdxgap-drv-hn{font-weight:600;letter-spacing:0.02em;text-transform:none;font-size:0.63rem;color:#7e93b3;}' +
+      '.pdxgap-drv-l{list-style:none;margin:0.35rem 0 0;padding:0;display:grid;gap:0.3rem;}' +
+      '.pdxgap-drv-r{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.2rem 0.4rem;' +
+        'padding:0.3rem 0.42rem;border-radius:0.45rem;border:1px solid rgba(255,255,255,0.09);' +
+        'background:rgba(10,15,30,0.45);}' +
+      '.pdxgap-drv-r.is-pkg{border-color:rgba(245,200,66,0.26);background:rgba(245,200,66,0.06);}' +
+      '.pdxgap-drv-id{font-weight:700;font-size:0.72rem;color:#e8eefc;}' +
+      '.pdxgap-drv-n{font-size:0.61rem;color:#7e93b3;padding:0.02rem 0.3rem;border-radius:999px;' +
+        'border:1px solid rgba(255,255,255,0.12);}' +
+      '.pdxgap-drv-c{font-size:0.63rem;color:#9fb4d4;}' +
+      '.pdxgap-drv-t{flex:1 0 100%;font-size:0.63rem;color:#93a6c4;line-height:1.35;}' +
+      '.pdxgap-drv-p{flex:1 0 100%;font-size:0.62rem;color:#e2c98a;line-height:1.35;}' +
+      '.pdxgap-drv-m{font-size:0.62rem;color:#8fa2c0;line-height:1.4;margin-top:0.32rem;}' +
+      // The institutional half, framed as such. Recessed rather than hidden: the
+      // two disclosures inside keep their own weight and their own closed state.
+      '.pdxgap-ctx{margin:0 0 0.5rem;padding:0.35rem 0.45rem 0.1rem;border-radius:0.5rem;' +
+        'border:1px dashed rgba(147,166,196,0.28);background:rgba(147,166,196,0.045);}' +
+      '.pdxgap-ctx-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.25rem 0.35rem;font-size:0.6rem;' +
+        'font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8fa2c0;}' +
+      '.pdxgap-ctx-w{font-weight:600;letter-spacing:0.01em;text-transform:none;font-size:0.62rem;color:#7e93b3;}' +
+      '.pdxgap-ctx details.pdxgap-omni{margin:0.3rem 0 0.35rem;}' +
       '.pdxgap-acts{display:flex;flex-direction:column;}' +
       '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
@@ -13111,6 +13171,400 @@
       (depth ? ' · ' + depth : '');
   }
 
+  // ── WHAT THE RECORD SHOWS — the formal side's plain-language read ───────────
+  // WHAT WAS WRONG. The 🏛️ column of an issue dossier went straight from a
+  // one-line caption ("Formal roll-call votes & actions") to two collapsed
+  // disclosures to a list of instrument cards. Every fact a reader needed in
+  // order to say what this member's formal record on this issue actually SHOWS
+  // was on the page — the direction, the depth, whether it ran both ways,
+  // whether it rode inside packages, whether it was all one measure — and not
+  // one of them was in a sentence. The reader assembled it from chips, or they
+  // did not get it. On a deep record that is a scavenger hunt; on a thin or a
+  // package-borne one it is worse, because the default reading of a column of
+  // sourced votes is "this is a solid record", and thin is not solid.
+  //
+  // WHAT THIS IS. A read, not a new reading. Every clause is printed from an
+  // engine that had already decided it and already published the words:
+  //
+  //   direction + strength  _stPatternTier (→ _recordPatternTier), and where that
+  //                         engine declined, the same thin door _fpiRows offers
+  //                         (_stThinDirRead → _recordDisplayTier). `says` is the
+  //                         locked five-word reader vocabulary; `label` is the
+  //                         engine's own depth-qualified name; `counts` is its own
+  //                         two-sided tally.
+  //   the sentence          idx.summary, composed in _recordDirectionIndex — the
+  //                         same sentence _rdSlot's accessible name already used.
+  //   why there is no read  _fpiUnreadWhy, which owns that vocabulary and names
+  //                         which of the refusals this is.
+  //   package-borne         vehicleRead / _vehLine / _menuKindSay — the shipped
+  //                         stowaway layer, quoted, not re-detected.
+  //   one instrument        _oneInstrumentVoice, the same memoised spread the
+  //                         Official Record row's "1 measure" chip is drawn from.
+  //   still arriving        _dosCoverage, the same judged-vs-listed gap L2 states.
+  //
+  // WHAT IT MAY NOT DO, and none of it does:
+  //   · NO SCORE. No percentage, no pill, nothing ordinal, nothing sortable.
+  //     Direction Match and Say-vs-Do are not read here and not written.
+  //   · NO STANCE. The subject of every sentence is the record. The stated
+  //     position lives in the header chip and in L1's "They said" line, and this
+  //     block never merges the two into a conclusion neither reached.
+  //   · NO INTENT, NO PARTY. Nothing here says why anyone voted as they did.
+  //   · IT FAILS CLOSED. Nothing warm → `cold` → the block renders nothing at
+  //     all, which is exactly what the column did before. A caveat is added only
+  //     where a shipped detector already fired.
+  //   · IT NEVER FLATTERS THIN DATA. Thin, split, package-borne, procedural-only
+  //     and single-measure records each carry their caveat ABOVE the evidence
+  //     rather than below it, so the qualifier arrives before the impression.
+  var _DOS_READ_H = 'What the record shows';
+  // The frame over the two context disclosures. Short on purpose: the full wall
+  // sentence (_MENU_WALL) is already inside the drawer it belongs to, and a
+  // paragraph repeated on the outside of a closed drawer is a paragraph a reader
+  // learns to skip past — including the drawer.
+  var _DOS_CTX_SUB = 'about the measures, not a mark against this record';
+  var _DOS_READ_K = 'Record on this issue';
+  // The caveat ladder, most load-bearing first. A reader who stops after one line
+  // should have been handed the one that most changes how the record above reads.
+  function _dosFormalRead(pid, issueKey, ov) {
+    var out = {
+      state: 'cold', tier: '', tone: 'muted', label: '', says: '', sayKey: '',
+      summary: '', counts: '', note: '', why: null, caveats: [],
+      total: 0, judged: 0, advances: 0, opposes: 0, procedural: 0, noun: null
+    };
+    try {
+      if (!pid || !issueKey) return out;
+      if (ov && ov.token === 'pending') { out.state = 'pending'; return out; }
+      var r = issueRow(pid, issueKey);
+      if (!r) return out;
+      out.noun = _stNoun(r);
+      // The executive lane has no roll-call index and the pattern read has not
+      // been extended to it. _fpiUnreadWhy already owns that sentence in the
+      // formal-pattern index, so it is borrowed rather than worded a second time.
+      if ((ov && ov.lane === 'exec') || r.lane === 'exec') {
+        out.state = 'exec';
+        try { out.why = _fpiUnreadWhy(r); } catch (e) { out.why = null; }
+        return out;
+      }
+      var idx = _stDirRaw(r);
+      if (!idx) return out;                       // nothing warm — say nothing
+      out.total = idx.total || 0;
+      out.judged = idx.judged || 0;
+      out.advances = idx.advances || 0;
+      out.opposes = idx.opposes || 0;
+      out.procedural = idx.procedural || 0;
+      out.summary = idx.summary || '';
+      // THE COUNTABLE FOLLOWS THE ACTS, on the index's own rule (see _rdTierCounts):
+      // a file holding any non-floor act counts formal acts, because "9 votes" over
+      // one vote and eight signatures is the most misleading sentence this layer
+      // could produce.
+      if ((idx.nonFloorActs || 0) > 0) out.noun = { one: 'formal act', many: 'formal acts' };
+      // The same two steps _fpiRows and the row chip take, in the same order and
+      // through the same two functions: the characterisation read, then the thin
+      // door for a row it declined. Neither is re-decided here.
+      var t = _stPatternTier(r);
+      if (!t || t.tier === 'none') t = _stThinDirRead(r) || null;
+      if (t) {
+        out.state = 'reads';
+        out.tier = t.tier || '';
+        out.tone = t.tone || 'muted';
+        out.label = t.label || '';
+        out.counts = t.counts || '';
+        out.note = t.note || '';
+        out.says = (t.says && t.says.label) || '';
+        out.sayKey = (t.says && t.says.key) || '';
+      } else {
+        out.state = 'unread';
+        try { out.why = _fpiUnreadWhy(r); } catch (e) { out.why = null; }
+      }
+      var n = out.noun || { one: 'vote', many: 'votes' };
+      var many = function (c) { return (c === 1) ? n.one : n.many; };
+      // ── AND THE ONE SENTENCE THE INDEX DOES NOT COMPOSE ───────────────────────
+      // _recordDirectionIndex writes `summary` for four of its tokens. The fifth —
+      // `record_thin`, the single judged act that the display read is allowed to
+      // give a side to — has none, so this block printed a direction word over an
+      // inventory strip and no sentence at all. The sentence is built here in the
+      // index's OWN shape (its `record_uniform_thin` form with judged = 1) and only
+      // where the ledger is uniform, so it can restate the counts beside it and can
+      // never invent a side the arithmetic does not already show.
+      if (!out.summary && t && t.directional && out.judged > 0 &&
+          (out.advances === 0 || out.opposes === 0)) {
+        var _lb = _issueLabel(issueKey) || 'this issue';
+        var _wd = out.opposes ? 'cut against it' : 'advanced it';
+        out.summary = (out.judged === 1
+          ? ('The one recorded ' + n.one + ' on ' + _lb)
+          : ((out.judged === 2 ? 'Both' : 'All ' + out.judged) + ' recorded ' + n.many + ' on ' + _lb)) +
+          ' ' + _wd + '.';
+      }
+
+      // ① PACKAGE-BORNE. The strongest qualifier this data supports, because it
+      //    changes what the votes were votes ON. Quoted from the row's own
+      //    sentence so the dossier and the stance row cannot disagree.
+      var v = null;
+      try { v = vehicleRead(pid, issueKey); } catch (e) { v = null; }
+      if (v && v.stowaway) {
+        var ln = _vehLine(v, t ? t.tone : null);
+        var howMany = v.only
+          ? 'Every mapped instrument on this issue arrived that way.'
+          : (v.provision + ' of ' + v.total + ' mapped instruments on this issue arrived that way.');
+        out.caveats.push({
+          id: 'package', ico: '🚂',
+          text: (ln ? ln + '. ' : '') + howMany + _menuKindSay(v)
+        });
+      }
+      // ② ONE INSTRUMENT IS NOT A PATTERN. Verbatim from the shipped sentence.
+      var one = null;
+      try { one = _oneInstrumentVoice(pid, issueKey, ov); } catch (e) { one = null; }
+      if (one && one.sentence) out.caveats.push({ id: 'single', ico: '📎', text: one.sentence });
+      // ③ PROCEDURAL ONLY. Same comparison _menuContext's procedural_gate uses,
+      //    and the same tail sentence, so the two cannot describe one lane twice
+      //    in two vocabularies.
+      if (out.judged > 0 && out.procedural >= out.judged) {
+        out.caveats.push({
+          id: 'procedural', ico: '⚙',
+          text: (out.judged === 1
+            ? 'The one judged act on this issue was procedural — floor machinery rather than a vote on the substance.'
+            : 'All ' + out.judged + ' judged acts on this issue were procedural — floor machinery rather than votes on the substance.') +
+            ' Those are recorded and listed in full; they are not a position on the issue.'
+        });
+      }
+      // ④ THIN. The tier already says it in one word; this says what the word is
+      //    counting, because "Thin supports" beside a column of sourced cards
+      //    reads as a modest pattern rather than as two items.
+      //    ONE JUDGED ITEM SAYS IT ONCE. Where the single-instrument caveat has
+      //    already fired over a lone judged act, "a thin record: 1 judged vote"
+      //    is the same fact in a second sentence, and a stack of two warnings
+      //    about one vote is how a real warning gets learned as ignorable.
+      var _saidThin = !!(one && out.judged <= 1);
+      if (t && t.tier === 'thin' && !_saidThin) {
+        out.caveats.push({
+          id: 'thin', ico: '◔',
+          text: 'A thin record: ' + out.judged + ' judged ' + many(out.judged) +
+            ' on this issue. The side is what the items on file show; a pattern is ' +
+            'not established at that depth.'
+        });
+      }
+      // ⑤ NOT ONE-SIDED. On a directional read that still had items the other
+      //    way. A split row says it in its own label and is not annotated again.
+      if (t && t.directional && out.advances > 0 && out.opposes > 0) {
+        var minor = Math.min(out.advances, out.opposes);
+        out.caveats.push({
+          id: 'notuniform', ico: '⇄',
+          text: 'Not one-sided — ' + minor + ' of the ' + out.judged + ' judged ' +
+            many(out.judged) + ' went the other way.'
+        });
+      }
+      // ⑥ WHAT THE ACTS ARE. Empty on a pure floor-vote row, which is most of
+      //    them; see _rdMixNote for why it grades rather than reports.
+      if (t && t.mixNote) out.caveats.push({ id: 'mix', ico: '✍', text: t.mixNote });
+      // ⑦ STILL ARRIVING. The same judged-vs-listed gap L2 discloses, said here
+      //    too, so a reader who never opens L2 is not shown a short list as a
+      //    complete one.
+      var cov = null;
+      try { cov = _dosCoverage(pid, issueKey, ov); } catch (e) { cov = null; }
+      if (cov && cov.missing) {
+        out.caveats.push({
+          id: 'partial', ico: '⏳',
+          text: cov.scored + ' of ' + cov.judged + ' judged items can be listed right now. ' +
+            'The rest are counted in the verdict and arrive with this member’s full ' +
+            'roll-call record. Nothing has been dropped.'
+        });
+      }
+    } catch (e) {}
+    return out;
+  }
+  // The block. '' on `cold`, which is the state the column was in before this
+  // existed — a dossier whose votes have not landed prints what it always did.
+  function _dosFormalReadHtml(pid, issueKey, ov) {
+    var d = _dosFormalRead(pid, issueKey, ov);
+    if (!d || d.state === 'cold') return '';
+    var head = '<div class="pdxgap-read-h"><span aria-hidden="true">🏛️</span> ' +
+      esc(_DOS_READ_H) + '</div>';
+    if (d.state === 'pending') {
+      return '<div class="pdxgap-read is-pending" data-pdxgap-read="pending">' + head +
+        '<div class="pdxgap-read-sum">⏳ Loading the record… this member’s votes arrive ' +
+        'after the profile does, and this read fills in when they land.</div></div>';
+    }
+    if (d.state === 'exec' || d.state === 'unread') {
+      var w = d.why || { lb: 'No clear pattern yet', note: '' };
+      return '<div class="pdxgap-read is-' + esc(d.state) + '" data-pdxgap-read="' + esc(d.state) + '">' +
+        head +
+        '<div class="pdxgap-read-says is-muted"><span class="pdxgap-read-k">' + esc(_DOS_READ_K) +
+          '</span><b class="pdxgap-read-lb">' + esc(w.lb || '') + '</b></div>' +
+        (w.note ? '<div class="pdxgap-read-sum">' + esc(w.note) + '</div>' : '') +
+        _dosReadCavHtml(d) +
+      '</div>';
+    }
+    var tone = _ST_PAT_TONE[d.tone] || _ST_PAT_TONE.muted;
+    // The inventory, as counts and only as counts. "On file" is the whole
+    // mapped file; "took a side" is the judged subset the direction is read
+    // from; the two sides are the two sides. No share, no rate, no ratio —
+    // a percentage here would read as a second Direction Match.
+    var dn = d.noun || { one: 'vote', many: 'votes' };
+    var inv = [];
+    inv.push(d.total + ' ' + (d.total === 1 ? dn.one : dn.many) + ' on file');
+    if (d.judged !== d.total) inv.push(d.judged + ' took a side');
+    // …AND NOT THE SAME TWO NUMBERS TWICE. The tier line one row up already
+    // carries the index's own count phrase, which on a directional read is these
+    // two sides in these words. Printing them again directly underneath is how a
+    // strip of counts starts reading as noise to be skipped rather than as the
+    // shape of the file. Where the phrase above did not say it, this does.
+    var said = String(d.counts || '');
+    var dup = d.judged > 0 &&
+      said.indexOf(d.advances + ' advanced') >= 0 && said.indexOf(d.opposes + ' against') >= 0;
+    if (d.judged > 0 && !dup) inv.push(d.advances + ' advanced', d.opposes + ' against');
+    if (d.procedural > 0) inv.push(d.procedural + ' procedural');
+    var invHtml = '<div class="pdxgap-read-inv">' + inv.map(function (s) {
+      return '<span class="pdxgap-read-iv">' + esc(s) + '</span>';
+    }).join('') + '</div>';
+    // The lane sentence, at the foot of the block, in the same words every
+    // record-pattern chip carries. It is the reason this block may say
+    // "Opposes" at all.
+    var wall = d.note
+      ? '<div class="pdxgap-read-w">' + esc(d.note) + '</div>' : '';
+    return '<div class="pdxgap-read is-reads" data-pdxgap-read="reads"' +
+        ' data-pdxgap-tier="' + escAttr(d.tier) + '" style="--c:' + tone.c + '">' +
+      head +
+      '<div class="pdxgap-read-says">' +
+        '<span class="pdxgap-read-k">' + esc(_DOS_READ_K) + '</span>' +
+        '<b class="pdxgap-read-lb">' + esc(d.says || d.label) + '</b>' +
+        (d.label ? '<span class="pdxgap-read-t">' + esc(d.label) +
+          (d.counts ? ' · ' + esc(d.counts) : '') + '</span>' : '') +
+      '</div>' +
+      (d.summary ? '<div class="pdxgap-read-sum">' + _stTeach(esc(d.summary)) + '</div>' : '') +
+      invHtml +
+      _dosReadCavHtml(d) +
+      wall +
+    '</div>';
+  }
+  function _dosReadCavHtml(d) {
+    if (!d || !d.caveats || !d.caveats.length) return '';
+    return '<ul class="pdxgap-read-cav">' + d.caveats.map(function (c) {
+      return '<li class="pdxgap-read-cv is-' + esc(c.id) + '" data-pdxgap-cav="' + escAttr(c.id) + '">' +
+        '<span class="pdxgap-read-cvi" aria-hidden="true">' + esc(c.ico) + '</span>' +
+        '<span class="pdxgap-read-cvt">' + esc(c.text) + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  // ── WHICH MEASURES THIS CAME FROM ───────────────────────────────────────────
+  // The second half of "what actually happened here". The read above says which
+  // way the record ran and how deep it is; this says WHAT it ran on — the named
+  // instruments, how many items each produced, which way each of them cut, and
+  // which of them were packages this issue rode inside. Until now that answer
+  // existed only as an enumeration on the closed face of L2 (a run of bill
+  // numbers separated by interpuncts) and as per-row cards one level further in,
+  // so "which bills drove this" was a thing a reader reconstructed rather than
+  // read.
+  //
+  // EVERY FIGURE IS A COUNT OF ROWS ALREADY ON THE PAGE. The grouping key is the
+  // instrument identity L2 prints; the direction is _dosItemDir, the same
+  // function each L2 row's own direction line uses; the package mark is the
+  // vehicle list _recordVehicleStats already named; the family word is the light
+  // classifier's, printed only over an instrument that layer named as a vehicle,
+  // because an unrecognised measure is unrecognised and guessing is inventing.
+  // Nothing is scored, weighted, ranked by importance or turned into a share.
+  //
+  // NO SILENT CAP. Long lists are clipped at _DOS_DRV_MAX, and the line that
+  // clips them says how many were dropped and where all of them are.
+  var _DOS_DRV_MAX = 6;
+  var _DOS_DRV_H = 'Which measures this came from';
+  function _dosDrivers(pid, issueKey, ov) {
+    var out = { rows: [], docs: 0, more: 0, pkg: 0, items: 0 };
+    var items = [];
+    try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { return out; }
+    if (!items.length) return out;
+    out.items = items.length;
+    var v = null;
+    try { v = vehicleRead(pid, issueKey); } catch (e) { v = null; }
+    var pkg = Object.create(null);
+    if (v && v.vehicles) {
+      v.vehicles.forEach(function (x) {
+        var k = String(x || '').trim().toLowerCase();
+        if (k) pkg[k] = 1;
+      });
+    }
+    var by = Object.create(null), order = [];
+    items.forEach(function (dItem) {
+      var id = String((dItem && dItem.ident) || '').trim() || 'Unnamed action';
+      var k = id.toLowerCase();
+      if (!by[k]) {
+        by[k] = {
+          ident: id, title: String((dItem && dItem.title) || '').trim(),
+          n: 0, adv: 0, opp: 0, held: 0, pkg: !!pkg[k], cls: ''
+        };
+        order.push(k);
+      }
+      var g = by[k];
+      g.n++;
+      if (!g.title && dItem && dItem.title) g.title = String(dItem.title).trim();
+      if (dItem && dItem.held) { g.held++; return; }
+      var dir = '';
+      try { dir = _dosItemDir(dItem); } catch (e) { dir = ''; }
+      if (dir === 'advances') g.adv++;
+      else if (dir === 'opposes') g.opp++;
+    });
+    var rows = order.map(function (k) { return by[k]; });
+    rows.forEach(function (g) {
+      if (!g.pkg) return;
+      out.pkg++;
+      try {
+        var cls = (typeof window._rdVehicleClass === 'function')
+          ? window._rdVehicleClass(g.title, g.ident) : null;
+        if (cls && cls.label) g.cls = cls.label;
+      } catch (e) {}
+    });
+    // Depth first, then how much of that depth took a side, then the name, so
+    // two renders of the same record never disagree about the order.
+    rows.sort(function (a, b) {
+      if (a.n !== b.n) return b.n - a.n;
+      if ((a.adv + a.opp) !== (b.adv + b.opp)) return (b.adv + b.opp) - (a.adv + a.opp);
+      return a.ident < b.ident ? -1 : a.ident > b.ident ? 1 : 0;
+    });
+    out.docs = rows.length;
+    out.rows = rows.slice(0, _DOS_DRV_MAX);
+    out.more = Math.max(0, rows.length - out.rows.length);
+    return out;
+  }
+  function _dosDriversHtml(pid, issueKey, ov) {
+    var d = _dosDrivers(pid, issueKey, ov);
+    // One item is already named on the card directly below it, and a roll-up of
+    // one row is a heading with nothing under it.
+    if (!d || d.items < 2 || !d.rows.length) return '';
+    var rows = d.rows.map(function (g) {
+      var bits = [];
+      if (g.adv) bits.push(g.adv + ' advanced');
+      if (g.opp) bits.push(g.opp + ' against');
+      var neutral = g.n - g.held - g.adv - g.opp;
+      if (neutral > 0) bits.push(neutral + ' took no side');
+      if (g.held) bits.push(g.held + ' not scorable');
+      var ttl = g.title && g.title.toLowerCase() !== g.ident.toLowerCase() ? g.title : '';
+      if (ttl.length > 78) ttl = ttl.slice(0, 78).replace(/\s+\S*$/, '') + '…';
+      return '<li class="pdxgap-drv-r' + (g.pkg ? ' is-pkg' : '') + '">' +
+        '<span class="pdxgap-drv-id">' + esc(g.ident) + '</span>' +
+        '<span class="pdxgap-drv-n">' + esc(g.n + ' ' + (g.n === 1 ? 'item' : 'items')) + '</span>' +
+        (bits.length ? '<span class="pdxgap-drv-c">' + esc(bits.join(' · ')) + '</span>' : '') +
+        (ttl ? '<span class="pdxgap-drv-t">' + esc(ttl) + '</span>' : '') +
+        (g.pkg ? '<span class="pdxgap-drv-p"><span aria-hidden="true">🚂</span> ' +
+          esc('this issue rode inside it as a provision' + (g.cls ? ' — ' + g.cls : '')) +
+          '</span>' : '') +
+      '</li>';
+    }).join('');
+    var more = d.more
+      ? '<div class="pdxgap-drv-m">' + esc('…and ' + d.more + ' more measure' +
+          (d.more === 1 ? '' : 's') + '. Every one of them is listed in full below.') + '</div>'
+      : '';
+    return '<div class="pdxgap-drv" data-pdxgap-drv="' + escAttr(String(d.docs)) + '">' +
+      '<div class="pdxgap-drv-h">' + esc(_DOS_DRV_H) +
+        // BOTH NUMBERS, BECAUSE THEY ARE DIFFERENT NUMBERS. The read above counts
+        // instruments on file; this counts the distinct measures they are spread
+        // across, and "1 measure" beside "2 votes on file" is only confusing if
+        // one of the two is left unlabelled.
+        '<span class="pdxgap-drv-hn">' + esc(d.docs + ' ' + (d.docs === 1 ? 'measure' : 'measures') +
+          ' · ' + d.items + ' ' + (d.items === 1 ? 'item' : 'items') +
+          (d.pkg ? ' · ' + d.pkg + ' carried it as a provision' : '')) + '</span>' +
+      '</div>' +
+      '<ul class="pdxgap-drv-l">' + rows + '</ul>' + more +
+    '</div>';
+  }
+
   // ── L1 — the assembled answer ───────────────────────────────────────────────
   // Open by default, and the only level that is. Everything here is read off the
   // row model: no arithmetic happens in this function. It prints NO percentage —
@@ -13516,6 +13970,36 @@
     // place, where the record itself supports saying so. Same drawer, same weight,
     // directly underneath — see _menuContext for what it refuses to claim.
     var offMenu = _menuContextHtml(pid, issueKey, { lane: off.lane });
+    // ── THE READ, AND THE MEASURES BEHIND IT ──────────────────────────────────
+    // Both are printed from data this column already held and are documented over
+    // _dosFormalRead and _dosDrivers. They sit ABOVE the two context disclosures
+    // and above the evidence cards for one reason: a qualifier that arrives after
+    // the impression is not a qualifier. A thin record, a split record and a
+    // record made of package provisions each say so before the reader meets a
+    // column of sourced cards that all look equally solid.
+    var offRead = _dosFormalReadHtml(pid, issueKey, off);
+    var offDrv = _dosDriversHtml(pid, issueKey, off);
+    // ── TWO LANES, NAMED, IN THE ORDER THEY WERE ALWAYS MEANT TO BE READ ──────
+    // _MENU_LANES has carried these two labels since the institutional half was
+    // written — "Said in this order wherever both are on screen, because the
+    // personal record is the primary lane and the menu is context for reading
+    // it" — and nothing had ever printed them. The column held the member's own
+    // record and two grey drawers about the calendar with nothing saying which
+    // was which, so provenance and menu context read as further findings about
+    // the person rather than as context about the measures.
+    //
+    // NOTHING MOVED AND NOTHING CHANGED WEIGHT. Both disclosures are the same
+    // <details>, in the same place — below the Official Record heading, above the
+    // record they are context for — closed by default, carrying the same words.
+    // What is new is a label above them and a recessed frame around them.
+    var offCtx = (offOmni || offMenu)
+      ? '<div class="pdxgap-ctx">' +
+          '<div class="pdxgap-ctx-h"><span aria-hidden="true">📋</span> ' +
+            esc(_MENU_LANES.menu) +
+            '<span class="pdxgap-ctx-w">' + esc(_DOS_CTX_SUB) + '</span></div>' +
+          offOmni + offMenu +
+        '</div>'
+      : '';
     var offSide =
       '<div class="pdxgap-side">' +
         '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> ' +
@@ -13523,8 +14007,11 @@
           _gapScorePill(oNum, off.score, null, off.verdict.color) + '</div>' +
         '<div class="pdxgap-side-sub">Formal ' + LT('rollcall', 'roll-call votes') +
           ' &amp; actions — the institutional record</div>' +
-        offOmni +
-        offMenu +
+        '<div class="pdxgap-lane-lb"><span aria-hidden="true">🏛️</span> ' +
+          esc(_MENU_LANES.record) + '</div>' +
+        offRead +
+        offDrv +
+        offCtx +
         offBody +
         // Full-width because this sheet is a mobile bottom sheet first.
         '<div class="pdxgap-share">' + _rcShareHtml(pid, issueKey, { block: true }) + '</div>' +
@@ -14532,6 +15019,23 @@
     dossierSummaryHtml: _dosSummaryHtml,
     dossierRecordsHtml: function (pid, issueKey) {
       return _dosRecordsHtml(pid, issueKey, issueRow(pid, issueKey), officialIssue(pid, issueKey));
+    },
+    // ── THE 🏛️ COLUMN'S READ AND ITS MEASURES ROLL-UP ────────────────────────
+    // Exported as data AND as markup so scripts/test-dossier-read.mjs can hold
+    // the read to what it is allowed to claim — the tier and the sentence come
+    // from the pattern engine, the caveats fire only where a shipped detector
+    // already fired, no percentage anywhere — without parsing HTML for it.
+    dossierRead: function (pid, issueKey) {
+      return _dosFormalRead(pid, issueKey, officialIssue(pid, issueKey));
+    },
+    dossierReadHtml: function (pid, issueKey) {
+      return _dosFormalReadHtml(pid, issueKey, officialIssue(pid, issueKey));
+    },
+    dossierDrivers: function (pid, issueKey) {
+      return _dosDrivers(pid, issueKey, officialIssue(pid, issueKey));
+    },
+    dossierDriversHtml: function (pid, issueKey) {
+      return _dosDriversHtml(pid, issueKey, officialIssue(pid, issueKey));
     },
     dossierDetailHtml: _dosDetailHtml,
     dossierStepHtml: _dosStepHtml,

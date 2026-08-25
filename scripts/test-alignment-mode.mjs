@@ -321,7 +321,18 @@ section("5 · coverage is stated out loud");
   ok(cov.missing.every((m) => m.label && m.key), "each named gap carries a human label");
   ok(cov.thin >= 1, "the thin-pattern count is surfaced");
   eq(REC.coverage.total, cov.total, "the breakdown carries the same coverage object");
-  eq(SAID.coverage, null, "…and the stated lane does not pretend to have one");
+  // The stated lane used to return `coverage: null` — the one lane with a
+  // fallback in it had nothing to disclose the fallback from. It now carries a
+  // coverage object of its own, and that object must split the quoted issues
+  // from the ones the record stood in for, or the disclosure is impossible.
+  ok(SAID.coverage && typeof SAID.coverage === "object",
+    "the stated lane carries a coverage object too");
+  eq(SAID.coverage.total, PICKS.length, "…counted against every issue the visitor picked");
+  eq(SAID.coverage.said + SAID.coverage.baseline, SAID.coverage.covered,
+    "…and every covered issue is either stated or stood in for by the record — never both, never neither");
+  ok(SAID.sources && SAID.sources.said + SAID.sources.baseline + SAID.sources.record === SAID.sources.scored,
+    "the published source tally accounts for every scored row");
+  eq(SAID.sources.record, 0, "…and nothing in the stated lane is a bare record pattern");
 
   // The note a visitor actually reads.
   A.alignSetMatchMode("record");
