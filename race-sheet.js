@@ -715,6 +715,89 @@
     return { token: 'different', word: GLANCE.different.word, why: GLANCE.different.why };
   }
 
+  // ── WHICH WAY THE FILES POINT, AND WHY THAT OUTRANKS HOW BIG THEY ARE ──────
+  // The depth glance above answers "how much evidence is there". It is a true
+  // and useful sentence and it was the loudest thing on an issue row, which made
+  // "Similar depth" — a statement that two files are the same SIZE — read as the
+  // headline of a comparison. A voter deciding a seat is asking the other
+  // question: on this issue, did these records go the same way or opposite ways?
+  //
+  // READ, NEVER DERIVED, AND NEVER SCORED. The side is _recordSays' own word,
+  // reached through the shipped display slot (recordPattern.display → .says):
+  // one of the fixed set Supports / Mostly supports / Mixed / Mostly opposes /
+  // Opposes / the two thin-record leans / no read. This file does not decide a
+  // direction, does not weigh two directions against each other, does not total
+  // anything, and produces no number. It counts how many distinct sides are on
+  // the row and words that count. Nothing it returns is reachable from rank(),
+  // scoreOf(), Direction Match or any sort — a divergent row does not move a
+  // candidate up or down anywhere on this sheet.
+  //
+  // THIN NEVER GETS PROMOTED TO FIRM. `says.characterising` is the engine's own
+  // flag for "this is a pattern" versus "this is which way the little we hold
+  // went". A row whose divergence rests on a thin read says so in its own words
+  // and carries a separate token, so the loud treatment is reserved for the case
+  // where the engine actually characterised both files.
+  var DIVERGE = {
+    diverge: {
+      word: 'Records diverge',
+      why: 'The formal records here read as pointing different ways on this issue — one supports, another opposes. Both reads are the record engine’s own characterisation of their votes and formal actions. It is a difference in what they did, not a judgement about which one is right.'
+    },
+    diverge_thin: {
+      word: 'Diverge · thin read',
+      why: 'These formal records point different ways on this issue, but at least one side of the difference rests on a record too shallow for the engine to call a pattern. The direction is real; the confidence is not the same as a characterised record.'
+    },
+    align: {
+      word: 'Records align',
+      why: 'Every readable formal record here went the same way on this issue. Same direction is not the same depth — the depth badge beside it says how much file each of them has.'
+    },
+    align_thin: {
+      word: 'Align · thin read',
+      why: 'The readable formal records here went the same way on this issue, and at least one of them is a thin record — which way the little on file went, not a pattern across the issue.'
+    },
+    one: {
+      word: 'Only one side on file',
+      why: 'Exactly one candidate here has a formal record the engine could read a direction from on this issue. That is a real difference between the files and it is not a comparison of two positions — nothing is inferred for the others from what they have said.'
+    },
+    mixed: {
+      word: 'Read as mixed',
+      why: 'The formal record read here is mixed — votes and formal actions on this issue went both ways. Mixed is a finding about the record, not a missing one.'
+    },
+    none: {
+      word: 'No direction on file yet',
+      why: 'Nobody in this field has a formal record here the engine would read a direction from. Nothing is filled in from what any of them has said.'
+    }
+  };
+  // A cell's side, in the engine's own vocabulary. '' where there is no side to
+  // report — which includes 'mixed', because mixed is a read and not a side.
+  function sideOf(c) {
+    return (c && (c.tone === 'support' || c.tone === 'oppose')) ? c.tone : '';
+  }
+  function divergeFor(cells) {
+    var sided = (cells || []).filter(function (c) { return sideOf(c); });
+    var thin = sided.some(function (c) { return !c.firm; });
+    var d;
+    if (sided.length >= 2) {
+      var sides = {};
+      sided.forEach(function (c) { sides[sideOf(c)] = 1; });
+      var many = Object.keys(sides).length > 1;
+      var k = many ? (thin ? 'diverge_thin' : 'diverge') : (thin ? 'align_thin' : 'align');
+      d = { token: k, split: many, word: DIVERGE[k].word, why: DIVERGE[k].why };
+    } else if (sided.length === 1) {
+      d = { token: 'one', split: false, word: DIVERGE.one.word, why: DIVERGE.one.why };
+    } else if ((cells || []).some(function (c) { return c.says === 'mixed'; })) {
+      d = { token: 'mixed', split: false, word: DIVERGE.mixed.word, why: DIVERGE.mixed.why };
+    } else {
+      d = { token: 'none', split: false, word: DIVERGE.none.word, why: DIVERGE.none.why };
+    }
+    // The sides themselves, named, in field order. This is the line a reader
+    // actually scans — "Curtis supports · Lee opposes" — and it is nothing but
+    // each cell's own published word next to the person it belongs to.
+    d.sides = (cells || [])
+      .filter(function (c) { return c.saysLabel; })
+      .map(function (c) { return { pid: c.pid, name: c.name, side: sideOf(c), label: c.saysLabel, firm: !!c.firm }; });
+    return d;
+  }
+
   function snapshot(all) {
     var per = (all || []).map(function (c) { return { pid: c.pid, name: c.name, rows: fpiOf(c.pid) }; });
     var IM = window.ISSUE_MAP || {};
@@ -728,7 +811,7 @@
       });
     });
     var keys = Object.keys(tally);
-    if (!keys.length) return { rows: [], total: 0, shown: 0, dropped: 0, cap: SNAP_CAP };
+    if (!keys.length) return { rows: [], total: 0, shown: 0, dropped: 0, cap: SNAP_CAP, tally: tallyOf([]) };
     var tax = keys.slice();
     try {
       if (typeof window._pdxBigPictureKeys === 'function') {
@@ -749,6 +832,12 @@
       var cells = per.map(function (p) {
         var fr = p.rows[k] || null;
         var d = fr ? recDisplay(fr) : null;
+        // THE SIDE, LIFTED WHOLE. `says` is the shipped display slot's own
+        // plain-language read — one of a fixed set — and `tone` is that read's
+        // own support / oppose / mixed / muted marker. `firm` is the engine's
+        // `characterising` flag, carried so a thin lean cannot be dressed up as
+        // a pattern by anything downstream. Nothing here is computed.
+        var says = (d && d.says) ? d.says : null;
         return {
           pid: p.pid, name: p.name, key: k,
           onFile: !!fr,
@@ -757,13 +846,40 @@
           items: d ? (d.items || 0) : (fr ? (fr.held || 0) : 0),
           label: d ? (d.label || '') : '',
           depth: d ? (d.depth || '') : '',
-          single: !!(d && d.single)
+          single: !!(d && d.single),
+          says: says ? (says.key || '') : '',
+          saysLabel: says ? (says.label || '') : '',
+          tone: says ? (says.tone || '') : '',
+          firm: !!(says && says.characterising)
         };
       });
-      return { key: k, label: labelOf(k), cells: cells, glance: glanceFor(cells) };
+      return { key: k, label: labelOf(k), cells: cells,
+               glance: glanceFor(cells), dir: divergeFor(cells) };
     });
     return { rows: rows, total: keys.length, shown: rows.length,
-             dropped: Math.max(0, keys.length - picked.length), cap: SNAP_CAP };
+             dropped: Math.max(0, keys.length - picked.length), cap: SNAP_CAP,
+             // THE SEAT-LEVEL TALLY — four counts of the rows above, and the
+             // only thing on this sheet that summarises the field as a whole.
+             // Counts of rows, nothing else: no average, no share, no score, and
+             // nothing here orders a candidate. A reader who wants the detail is
+             // looking at the rows these were counted from.
+             tally: tallyOf(rows) };
+  }
+
+  // rows → { n, diverge, align, one, quiet, keys } where the four buckets are
+  // disjoint and sum to n. `keys` is the divergent issues, in the same taxonomy
+  // order the table prints them, so the summary can name them without a second
+  // sort deciding which one matters most.
+  function tallyOf(rows) {
+    var t = { n: (rows || []).length, diverge: 0, align: 0, one: 0, quiet: 0, keys: [] };
+    (rows || []).forEach(function (r) {
+      var k = r.dir ? r.dir.token : 'none';
+      if (k === 'diverge' || k === 'diverge_thin') { t.diverge++; t.keys.push(r); }
+      else if (k === 'align' || k === 'align_thin') t.align++;
+      else if (k === 'one') t.one++;
+      else t.quiet++;
+    });
+    return t;
   }
 
   // Every cell that has a file behind it is a door into the SHIPPED dossier for
@@ -772,9 +888,20 @@
   // opening path, so a snapshot cell cannot show one thing and the dossier
   // another.
   function snapCell(c, issueLabel) {
+    // THE SIDE LEADS THE CELL. `saysLabel` is the engine's own plain word for
+    // which way this file went ("Opposes", "Supports, on a thin record"); the
+    // longer characterisation label stays underneath it as the detail. Where no
+    // side was read the cell falls back to exactly what it printed before, so
+    // nothing has been given a direction it did not have.
+    var side = c.onFile ? (c.saysLabel || '') : '';
+    var head = side
+      ? '<span class="rs-snap-side" data-rs-t="' + esc(c.tone || 'muted') + '">' + esc(side) + '</span>'
+      : '<span class="rs-snap-lbl">' + esc(c.onFile ? (c.label || 'On the record') : 'Nothing formal on file') + '</span>';
     var body =
       '<span class="rs-snap-who">' + esc(c.name) + '</span>' +
-      '<span class="rs-snap-lbl">' + esc(c.onFile ? (c.label || 'On the record') : 'Nothing formal on file') + '</span>' +
+      head +
+      (side && c.label && c.label !== side
+        ? '<span class="rs-snap-lbl is-sub">' + esc(c.label) + '</span>' : '') +
       (c.onFile && c.depth
         ? '<span class="rs-snap-dep">' + esc(c.depth) + (c.read ? '' : ' · no pattern read yet') + '</span>'
         : '') +
@@ -782,41 +909,93 @@
         ? '<span class="rs-snap-1" title="Every judged item here sits on one measure. One instrument is one instrument — it is not a pattern across the issue.">📍 on 1 measure</span>'
         : '');
     if (!c.onFile) {
-      return '<div class="rs-snap-cell is-empty">' + body +
+      return '<div class="rs-snap-cell is-empty" data-rs-t="none">' + body +
         '<span class="rs-snap-dep">Nothing is inferred from what they have said.</span></div>';
     }
-    return '<button type="button" class="rs-snap-cell"' +
+    return '<button type="button" class="rs-snap-cell" data-rs-t="' + esc(c.tone || 'muted') + '"' +
+      (c.firm ? '' : ' data-rs-thin="1"') +
       ' data-pdxc-gap="' + esc(c.key) + '" data-pdxc-gap-pid="' + esc(c.pid) + '"' +
-      ' aria-label="' + esc('Open ' + c.name + '’s formal record on ' + issueLabel) + '">' +
+      ' aria-label="' + esc('Open ' + c.name + '’s formal record on ' + issueLabel +
+        (side ? ' — the record reads ' + side.toLowerCase() : '')) + '">' +
       body + '<span class="rs-snap-go" aria-hidden="true">›</span></button>';
   }
 
+  // The named sides on one row, in field order: "Curtis · Opposes · Lee ·
+  // Supports". Each half is a person and that person's own published read; the
+  // line states no relation between them beyond putting them next to each other.
+  function sidesLine(r) {
+    var s = (r.dir && r.dir.sides) || [];
+    if (!s.length) return '';
+    return '<p class="rs-snap-sides">' + s.map(function (x) {
+      return '<span class="rs-snap-sideof" data-rs-t="' + esc(x.side || 'muted') + '">' +
+        '<b>' + esc(x.name) + '</b> ' + esc(x.label.toLowerCase()) + '</span>';
+    }).join('<span class="rs-snap-vs" aria-hidden="true">·</span>') + '</p>';
+  }
+
+  // The one line that says what the whole table found, in counts of rows. It is
+  // the seat-level story and it is why the table is above the cards: a reader who
+  // reads nothing else should still learn where these records part company. With
+  // one person on file there is nothing to part, so it counts that file instead.
+  function tallyLine(t, multi) {
+    if (!t.n) return '';
+    if (!multi) {
+      return '<p class="rs-snap-tally"><b>' + t.n + '</b> issue' + (t.n === 1 ? '' : 's') +
+        ' with a formal file behind ' + (t.n === 1 ? 'it' : 'them') +
+        '. With one person on file there is no second record to set against these — this is a record, not a comparison.</p>';
+    }
+    var bits = [];
+    if (t.diverge) {
+      bits.push('<b class="rs-snap-t-d">' + t.diverge + '</b> where the records point <b>different ways</b>' +
+        (t.keys.length ? ' <span class="rs-snap-t-k">(' +
+          t.keys.map(function (r) { return esc(r.label); }).join(', ') + ')</span>' : ''));
+    }
+    if (t.align) bits.push('<b class="rs-snap-t-a">' + t.align + '</b> where every readable record went the <b>same way</b>');
+    if (t.one) bits.push('<b>' + t.one + '</b> where only one of them has a readable direction');
+    if (t.quiet) bits.push('<b>' + t.quiet + '</b> with no direction on file for anyone yet');
+    return '<p class="rs-snap-tally">Of <b>' + t.n + '</b> shared issue' + (t.n === 1 ? '' : 's') +
+      ': ' + bits.join(' · ') + '.</p>';
+  }
+
   function snapshotHtml(snap) {
+    // ONE PERSON ON FILE IS NOT A COMPARISON, so the table does not claim to be
+    // one. Same rows, same rule, different promise in the heading.
+    var multi = !!(snap.rows.length && snap.rows[0].cells.length > 1);
+    var hd = multi
+      ? 'The seat, issue by issue · where the records part company'
+      : 'The record on file, issue by issue';
     if (!snap.rows.length) {
       return '<section class="rs-snap" aria-label="Issues this field has a formal record on">' +
-        '<h3 class="rs-snap-hd">Issues this field has a record on · side by side</h3>' +
+        '<h3 class="rs-snap-hd">The seat, issue by issue</h3>' +
         '<p class="rs-snap-none">Nobody in this field has a formal record on file yet, so there is no shared issue to lay out. ' +
           'The gap is not filled in with their statements.</p></section>';
     }
     var rows = snap.rows.map(function (r) {
-      return '<div class="rs-snap-row" style="' + issueStyle(r.key) + '">' +
+      return '<div class="rs-snap-row" data-rs-d="' + esc(r.dir.token) + '" style="' + issueStyle(r.key) + '">' +
         '<div class="rs-snap-issue">' +
           '<span class="rs-snap-name">' + esc(r.label) + '</span>' +
+          '<span class="rs-snap-dir" data-rs-d="' + esc(r.dir.token) + '" title="' + esc(r.dir.why) + '">' +
+            esc(r.dir.word) + '</span>' +
+          // THE DEPTH BADGE, STILL SAID AND NO LONGER THE HEADLINE. Same words,
+          // same rule, same tooltip — moved behind the direction read and styled
+          // as the footnote it always was.
           '<span class="rs-snap-glance" data-rs-g="' + esc(r.glance.token) + '" title="' + esc(r.glance.why) + '">' +
             esc(r.glance.word) + '</span>' +
         '</div>' +
+        sidesLine(r) +
         '<div class="rs-snap-cells">' +
           r.cells.map(function (c) { return snapCell(c, r.label); }).join('') +
         '</div>' +
       '</div>';
     }).join('');
     return '<section class="rs-snap" aria-label="Issues this field has a formal record on">' +
-      '<h3 class="rs-snap-hd">Issues this field has a record on · side by side</h3>' +
+      '<h3 class="rs-snap-hd">' + esc(hd) + '</h3>' +
+      tallyLine(snap.tally, multi) +
       '<p class="rs-snap-rule">Picked by a public rule, not from your positions: every issue anyone in this field has a formal file on, ' +
         'most widely shared first, capped at ' + snap.cap + ' and laid out in the site’s own topic order. ' +
         (snap.dropped
           ? snap.dropped + ' more ' + (snap.dropped === 1 ? 'issue is' : 'issues are') + ' on file and not shown here — a profile carries the whole index. '
           : '') +
+        'Which way a record went is the record engine’s own read of the votes and formal actions on file. ' +
         'Depth is the formal items on file; the at-a-glance compares how much of that file the record engine could judge. ' +
         'Tap any cell for that person’s dossier on that issue.</p>' +
       rows +
@@ -845,13 +1024,32 @@
         ' read a formal direction for at least one of them' +
         (thin ? ', and ' + thin + ' ' + (thin === 1 ? 'is' : 'are') + ' thin for everyone in this field' : '') + '.'
       : 'No issue in this field has a formal file behind it yet.';
+    // THE DIVERGENCE SENTENCE IS COUNTED, NOT CHARACTERISED. It reports how many
+    // rows of the table above hold records pointing different ways, and names
+    // those issues. It does not say which way is better, and it cannot: the two
+    // sides are printed as the engine read them and left there.
+    var t = snap.tally;
+    var div = t.diverge
+      ? '<b>' + t.diverge + '</b> of them ' + (t.diverge === 1 ? 'has' : 'have') +
+        ' the formal records pointing different ways' +
+        (t.keys.length ? ' — ' + t.keys.map(function (r) { return esc(r.label); }).join(', ') : '') + '. ' +
+        'That difference is the comparison; everything else on this sheet is context for it.'
+      : (t.align
+          ? 'On every issue here where more than one record could be read, those records went the same way. ' +
+            'Agreement on the record is a finding too — it is not an absence of one.'
+          : 'No issue here yet has two readable records to set against each other.');
     return '<section class="rs-h2h" aria-label="How this field compares on the formal record">' +
       '<h3 class="rs-h2h-hd">How this field compares, on the record alone</h3>' +
+      // THE ORDER IS THE ARGUMENT. What the seat's records actually say comes
+      // first, how much file each one rests on second, and their own word-versus-
+      // record score last and explicitly marked as a side reading.
+      '<p class="rs-h2h-l"><b>Issues in common:</b> ' + shared + ' ' + div + '</p>' +
       '<p class="rs-h2h-l"><b>Tested formal items:</b> ' + tested +
         '. A bigger file is more evidence, not a better candidate.</p>' +
-      '<p class="rs-h2h-l"><b>Direction Match:</b> ' + band +
-        '. That is each of them against their own word — the reader is not in it.</p>' +
-      '<p class="rs-h2h-l"><b>Issues in common:</b> ' + shared + '</p>' +
+      '<p class="rs-h2h-l is-secondary"><span class="rs-h2h-2nd">Secondary</span> ' +
+        '<b>Direction Match:</b> ' + band +
+        '. That is each of them against their own word — the reader is not in it. ' +
+        'It is not part of the comparison above and it orders nothing here.</p>' +
       '<p class="rs-h2h-cta">None of the above is agreement with you. ' +
         '<button type="button" class="rs-h2h-btn" onclick="' + ctaOpen() + '">Set your positions for your own record match →</button></p>' +
     '</section>';
@@ -883,11 +1081,12 @@
       return String(a.r.label).localeCompare(String(b.r.label));
     });
     var peeks = mine.slice(0, 3).map(function (m) {
-      return '<button type="button" class="rs-peek" style="' + issueStyle(m.c.key) + '"' +
+      return '<button type="button" class="rs-peek" data-rs-t="' + esc(m.c.tone || 'muted') + '"' +
+        ' style="' + issueStyle(m.c.key) + '"' +
         ' data-pdxc-gap="' + esc(m.c.key) + '" data-pdxc-gap-pid="' + esc(c.pid) + '"' +
         ' aria-label="' + esc(c.name + ' on ' + m.r.label + ' — open the formal dossier') + '">' +
         '<span class="rs-peek-i">' + esc(m.r.label) + '</span>' +
-        '<span class="rs-peek-o">' + esc(m.c.label || 'On the record') +
+        '<span class="rs-peek-o">' + esc(m.c.saysLabel || m.c.label || 'On the record') +
           (m.c.judged ? ' · ' + m.c.judged + ' judged' : '') + '</span>' +
       '</button>';
     }).join('');
@@ -895,6 +1094,10 @@
       peeks = '<span class="rs-peek-none">No formal file on any issue yet. Nothing here is filled in from what they have said.</span>';
     }
 
+    // WHAT THIS CARD LEADS WITH. The issue peeks — the person's own formal file,
+    // the same cells as the table above — come first, because the card exists to
+    // be a doorway into a record. Direction Match sits under them, labelled as a
+    // side reading, in the same slot and with the same classes it always had.
     return '<article class="rs-ovcard" data-align-pid="' + esc(c.pid) + '">' +
       '<header class="rs-ovhd">' + avatar +
         '<span class="rs-whotext">' +
@@ -904,14 +1107,15 @@
           (c.incumbent ? '<span class="rs-inc">Holds this seat now</span>' : '') +
         '</span>' +
       '</header>' +
+      '<div class="rs-ovpeek">' + peeks + '</div>' +
       '<div class="rs-ovdm" data-rs-dm="' + esc((dmSlot(c) || {}).state || 'empty') + '"' +
         ' title="Direction Match asks whether this person kept their OWN word — their stated positions against their own formal record. It is not a match to you, and it does not order this list.">' +
+        '<span class="rs-ovdm-2nd">Secondary · their word vs their record</span>' +
         (d.pct === null
           ? '<span class="rs-ovdm-s">' + esc(d.sub || 'No Direction Match published yet') + '</span>'
           : '<b class="rs-ovdm-p">' + d.pct + '%</b><span class="rs-ovdm-s">Direction Match · ' + esc(d.sub || '') + '</span>') +
         '<span class="rs-ovdm-n">' + (d.tested ? d.tested + ' tested item' + (d.tested === 1 ? '' : 's') : 'nothing tested yet') + '</span>' +
       '</div>' +
-      '<div class="rs-ovpeek">' + peeks + '</div>' +
       '<div class="rs-ovacts">' +
         teamBtn(rk, c, picked, !!picked && picked !== c.pid) +
         '<button type="button" class="rs-ovprof" onclick="if(window.showProfile)window.showProfile(\'' + jsq(c.pid) + '\')">Open profile ›</button>' +
@@ -921,9 +1125,11 @@
 
   // ── The race context strip ─────────────────────────────────────────────────
   // Painted on every tab, including the ranked ones, because the question it
-  // answers — what seat is this, who holds it, and how much of each candidate has
-  // actually been tested — does not change when the reader picks a ruler.
-  function contextStrip(sm, all) {
+  // answers — what seat is this, who holds it, and what do these records do when
+  // you set them next to each other — does not change when the reader picks a
+  // ruler. The snapshot is optional: the ranked tabs pass it too now, but a
+  // caller without one still gets a correct strip, minus the divergence line.
+  function contextStrip(sm, all, snap) {
     var scope = scopeLabel(sm.key);
     var incs = all.filter(function (c) { return c.incumbent; });
     var chips = all.map(function (c) {
@@ -938,6 +1144,47 @@
         '<span class="rs-ctx-n">' + (d.tested ? d.tested + ' tested' : 'nothing tested yet') + '</span>' +
       '</span>';
     }).join('');
+
+    // WHAT KIND OF FIELD THIS IS, SAID OUT LOUD. A seat where every name on file
+    // already holds it is a delegation, not a contest — two senators from one
+    // state sit side by side rather than against each other — and a reader who
+    // is not told that will read the table above as a race that does not exist.
+    // The test is arithmetic on the roster, not a judgement: incumbents vs field.
+    var shape = '';
+    if (all.length > 1 && incs.length === all.length) {
+      shape = '<p class="rs-ctx-shape">Everyone on file for this seat currently holds it — this is a <b>delegation, not a contest</b>. ' +
+        'Comparing them compares two sitting records, not two people running against each other.</p>';
+    } else if (all.length > 1 && incs.length) {
+      shape = '<p class="rs-ctx-shape">One name here holds the seat now and ' +
+        (all.length - incs.length === 1 ? 'one is' : (all.length - incs.length) + ' are') +
+        ' on file against it. A record in office and a record out of it are not the same size of file, and the sheet does not pretend otherwise.</p>';
+    }
+
+    // THE SEAT-LEVEL FINDING, ABOVE THE PEOPLE. One line of counts, lifted whole
+    // from the same table the reader is about to scroll through. Three branches,
+    // because "they disagree", "they agree" and "there is not enough on file for
+    // either to be true yet" are three different findings and the third is the
+    // one a sheet is most tempted to dress up as the second.
+    var t = snap && snap.tally;
+    var dline = '';
+    if (t && t.n && all.length > 1) {
+      var body;
+      if (t.diverge) {
+        body = 'On <b>' + t.diverge + '</b> of <b>' + t.n + '</b> shared issue' + (t.n === 1 ? '' : 's') +
+          ', the formal records here point <b>different ways</b>.';
+      } else if (t.align) {
+        body = 'On <b>' + t.align + '</b> of <b>' + t.n + '</b> shared issue' + (t.n === 1 ? '' : 's') +
+          ' — every one here with more than one readable record — those records went the <b>same way</b>.';
+      } else {
+        body = 'No issue here yet has <b>two readable records</b> to set against each other, ' +
+          'so this field cannot be said to agree or disagree on anything. ' +
+          '<b>' + t.n + '</b> shared issue' + (t.n === 1 ? ' is' : 's are') + ' on file, and the table below shows how far each one goes.';
+      }
+      dline = '<p class="rs-ctx-div" data-rs-d="' +
+        (t.diverge ? 'diverge' : (t.align ? 'align' : 'quiet')) + '">' + body +
+        ' <span class="rs-ctx-divn">Read from the formal files only — nothing here is filled in from what they have said.</span></p>';
+    }
+
     return '<section class="rs-ctx" aria-label="Race context">' +
       '<div class="rs-ctx-top">' +
         '<span class="rs-ctx-seat">' + sm.icon + ' ' + esc(sm.label) + (scope ? ' · ' + esc(scope) : '') + '</span>' +
@@ -946,6 +1193,9 @@
           ? 'Holds this seat now: ' + esc(incs.map(function (c) { return c.name; }).join(', '))
           : 'Nobody in this field currently holds the seat') + '</span>' +
       '</div>' +
+      shape +
+      dline +
+      '<p class="rs-ctx-2nd">Secondary reading · each of them against their own word</p>' +
       '<div class="rs-ctx-chips">' + chips + '</div>' +
       '<p class="rs-ctx-caveat">Direction Match is the <b>formal lane only</b> — their own word against their own record. ' +
         'It is not a personal match to you, and it orders nothing on this sheet.</p>' +
@@ -1307,6 +1557,18 @@
   }
 
   // ── Paint ──────────────────────────────────────────────────────────────────
+  // ── Ways out of a field that has nothing in it ─────────────────────────────
+  // Both of these are offers, not filler. Neither names a person the roster does
+  // not carry, and neither implies a challenger exists.
+  function seatsBtn() {
+    return '<button type="button" class="rs-onlyone-b is-alt" onclick="window.pdxRaceSheetSeats()">' +
+      'See your other seats ›</button>';
+  }
+  function seatsElsewhere() {
+    return '<p class="rs-empty-acts">' + seatsBtn() +
+      '<span class="rs-empty-note">Other seats on your ballot may already have a field on file.</span></p>';
+  }
+
   function bodyHtml() {
     var sm = seatMeta(_state.seatKey);
     if (!sm) return '<div class="rs-empty">That seat is not one this sheet can compare yet.</div>';
@@ -1338,11 +1600,17 @@
 
     // HONEST EMPTY STATES. A field of zero and a field of one are different
     // admissions and get different words: nobody on file for the seat, versus
-    // only the officeholder on file. Neither is dressed up as a comparison.
+    // only the officeholder on file. Neither is dressed up as a comparison, and
+    // neither invents a challenger to fill the hole — the only names this sheet
+    // will ever print are the ones the roster actually carries for this cycle.
     if (!all.length) {
       return head + '<div class="rs-empty">' +
         '<p><b>No candidates on file for this seat yet.</b></p>' +
         '<p>We add a field as filings are certified and sourced. Nothing is shown here rather than a guess at who is running.</p>' +
+        '<p class="rs-empty-next"><b>What would fill this in:</b> a certified filing for the current cycle, ' +
+          'with a source we can point at. When one lands, this seat gets a field and this sheet gets a comparison. ' +
+          'Until then there is nothing to compare, and a placeholder name would be worse than an empty page.</p>' +
+        seatsElsewhere() +
       '</div>';
     }
 
@@ -1354,7 +1622,22 @@
     // the sheet says nothing extra: the panes already show who is there.
     var only = (all.length === 1 && !!all[0].incumbent);
     var onlyHtml = only
-      ? '<p class="rs-onlyone">Only the officeholder is on file for this seat so far — there is no field to compare yet. Their record is below, and challengers appear here as filings are certified.</p>'
+      ? '<section class="rs-onlyone" aria-label="Only one candidate is on file for this seat">' +
+          '<p class="rs-onlyone-l"><b>Only the officeholder is on file for this seat so far</b> — there is no field to compare yet. ' +
+            'Their record is below, and challengers appear here as filings are certified.</p>' +
+          '<p class="rs-onlyone-l">A field of one is not a finding about the seat. It means nobody else has a certified filing ' +
+            'for the current cycle in our data — not that nobody else is running, and not that this person is unopposed. ' +
+            'We do not list a name here until a filing for it exists and can be sourced.</p>' +
+          '<p class="rs-onlyone-l">Meanwhile the comparison this sheet can honestly make is the one below: ' +
+            esc(all[0].name) + '’s own formal record, issue by issue, against ' +
+            (all[0].incumbent ? 'what they have said about it' : 'their own stated positions') + '. ' +
+            'That is a record you can read now, not a race you have to wait for.</p>' +
+          '<p class="rs-onlyone-a">' +
+            '<button type="button" class="rs-onlyone-b" onclick="if(window.showProfile)window.showProfile(\'' + jsq(all[0].pid) + '\')">' +
+              'Open ' + esc(all[0].name) + '’s full record ›</button>' +
+            seatsBtn() +
+          '</p>' +
+        '</section>'
       : '';
 
     // ARRIVED FROM A SHARED LINK. Three separate admissions, and the third is
@@ -1380,7 +1663,12 @@
     var explainHtml = '<p class="rs-explain">' + EXPLAINER + '</p>';
     var footHtml = '<p class="rs-foot">Only the <b>formal</b> lane — roll-call votes and formal actions — feeds the record ruler. ' +
       'Public statements are never added into it. Party is not read, printed or ranked anywhere on this sheet.</p>';
-    var ctx = contextStrip(sm, all);
+    // ONE SNAPSHOT, EVERY TAB. The strip's divergence line and the Overview
+    // table have to be the same reading of the same files, so the table is built
+    // once here and handed to both. The ranked tabs get it too — the seat's
+    // records diverge or they do not, whichever ruler the reader has picked.
+    var snap = snapshot(all);
+    var ctx = contextStrip(sm, all, snap);
 
     // ── OVERVIEW ───────────────────────────────────────────────────────────
     // Everything on this branch is a fact about the candidates. The reader's
@@ -1390,7 +1678,6 @@
     // always used. What the reader gets by setting positions is stated, once, and
     // in their own terms rather than as a complaint about a candidate's file.
     if (view === 'overview') {
-      var snap = snapshot(all);
       var gate = hasIssues
         ? ''
         : '<div class="rs-gate"><p class="rs-gate-hd">' + esc(UNSET.hd) + '</p>' +
@@ -1618,6 +1905,18 @@
     return readMode();
   };
   window.pdxRaceSheetMatchMode = readMode;
+  // AN EMPTY FIELD IS NOT A DEAD END. Closes the sheet and lands the reader on
+  // their own seat list with this seat marked — the same honest landing a shared
+  // race link that cannot mount already uses.
+  window.pdxRaceSheetSeats = function () {
+    var rk = _state ? _state.seatKey : '';
+    close();
+    try {
+      if (window.PDXWhoRepresentsMe && typeof window.PDXWhoRepresentsMe.focus === 'function') {
+        window.PDXWhoRepresentsMe.focus(rk || '');
+      }
+    } catch (e) {}
+  };
   window.pdxRaceSheetView = activeView;
   window.pdxRaceSheetMore = function () { if (_state) { _state.expanded = !_state.expanded; render(); } };
   window.pdxRaceSheetPick = function (rk, pid) {
@@ -1781,6 +2080,7 @@
     // a card prints. Pure reads.
     view: activeView, OVERVIEW: OVERVIEW, UNSET: UNSET, SNAP_CAP: SNAP_CAP,
     _view: activeView, _snapshot: snapshot, _dm: dmFacts, _glance: glanceFor,
+    _diverge: divergeFor, _tally: tallyOf,
     _field: field, _axis: axis, _rank: rank, _seat: seatMeta,
     _shareBits: shareBits, _openFromHash: openFromHash, _readRaceHash: readRaceHash,
     _missingPins: missingPins, _scope: scopeLabel
