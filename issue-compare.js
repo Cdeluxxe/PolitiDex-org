@@ -779,7 +779,12 @@
       // reflect the new membership on this card + re-rank shortly after
       setTimeout(queueRender, 30);
     },
-    openProfile: function (pid) { try { if (isFn(window.showProfile)) window.showProfile(pid); } catch (e) {} },
+    openProfile: function (pid) {
+      try {
+        if (window.PDXPerson && isFn(window.PDXPerson.open) && window.PDXPerson.open(pid)) return;
+        if (isFn(window.showProfile)) window.showProfile(pid);
+      } catch (e) {}
+    },
     compareOne: function (pid) {
       try {
         if (window._cmpSelected && isFn(window._cmpSelected.add)) window._cmpSelected.add(String(pid));

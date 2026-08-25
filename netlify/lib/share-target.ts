@@ -161,6 +161,14 @@ export function parseTarget(url: URL): Target | null {
   const spot = path.match(/^\/issue\/([A-Za-z0-9_-]+)\/?$/);
   if (spot) return { kind: "spotlight", slug: clean(spot[1]) };
 
+  // /p/<pid> — the canonical person-file address. Checked AFTER ?p= above, and
+  // the order matters in exactly one case: /p/<a>?p=<b>, which the app never
+  // produces but a hand-edited link could. The query wins there because ?p= is
+  // what the app writes for "the profile currently on screen", so it is the more
+  // recent of two claims about the same reader.
+  const person = path.match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
+  if (person) return { kind: "profile", id: clean(person[1]) };
+
   // Everything else hangs off the single-page document at "/".
   const issueQ = clean(q.get("issue"));
   if (issueQ) return { kind: "spotlight", slug: issueQ };
@@ -205,8 +213,13 @@ export function parseTarget(url: URL): Target | null {
 export function canonicalPath(t: Target): string {
   const e = encodeURIComponent;
   switch (t.kind) {
-    // ?p= is how the app itself addresses an open profile.
-    case "profile":   return `/?p=${e(t.id)}`;
+    // /p/<pid> is the canonical person address as of Phase 1. The ?p= form still
+    // RESOLVES — parseTarget reads it, _pdxOpenFromUrl opens it, and links of
+    // that shape are already in the wild — but it no longer canonicalises: two
+    // addresses for one record is exactly what rel="canonical" exists to
+    // collapse, and the path is the one a reader can cite without it looking
+    // like a tracking parameter.
+    case "profile":   return `/p/${e(t.id)}`;
     // Both /issue/<slug> and ?issue=<slug> resolve here; the path is the canonical one.
     case "spotlight": return `/issue/${e(t.slug)}`;
     case "vote":      return `/vote/${e(t.congress)}/${e(t.chamber)}/${e(t.roll)}`;

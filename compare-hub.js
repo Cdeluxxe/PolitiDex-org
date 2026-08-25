@@ -3301,10 +3301,18 @@
       if (typeof window.chubToggle === 'function') window.chubToggle(id);
       window._medSyncCmpBtn(id);
     };
+    // The quick view is a PREVIEW of the person file, not a second product, so
+    // its one job on the way out is to land the reader in the real file — same
+    // funnel, same address — rather than in a differently-shaped summary.
     window._mediumViewFull = function() {
       var id = window._pdxMediumId;
       window.closeMediumModal();
-      setTimeout(function() { if (typeof window.openFullProfile === 'function') window.openFullProfile(id); }, 180);
+      setTimeout(function() {
+        if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
+          if (window.PDXPerson.open(id)) return;
+        }
+        if (typeof window.openFullProfile === 'function') window.openFullProfile(id);
+      }, 180);
     };
     // ── Medium-modal quick-jump nav ───────────────────────────────────────
     // Smooth-scrolls the quick-view body to the Scores or Evidence section, or
@@ -3379,6 +3387,9 @@
     // the deep-dive profile renderer regardless of which script scope they're in.
     window.openFullProfile = function(id, ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
+      if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
+        if (window.PDXPerson.open(id)) return;
+      }
       if (typeof openModal === 'function') openModal(id);
       else if (typeof window.openModal === 'function') window.openModal(id);
     };

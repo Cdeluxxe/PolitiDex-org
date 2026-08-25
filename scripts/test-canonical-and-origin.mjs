@@ -15,7 +15,7 @@
 // 2. A CANONICAL THAT LIES. index.html is a single document, so it carries a
 //    single hardcoded `<link rel="canonical" href="https://politidex.fyi/">` and
 //    a single `og:url`. Every share link is a rewrite of that same document —
-//    /issue/<slug>, /vote/<congress>/<chamber>/<roll>, /?p=<id>, /?bill=…,
+//    /issue/<slug>, /vote/<congress>/<chamber>/<roll>, /p/<id>, /?bill=…,
 //    /?receipt=… — so every one of them shipped a HEAD whose title, description
 //    and card were record-specific while its canonical said "this is really the
 //    homepage." That is the strongest instruction there is to index none of them.
@@ -110,8 +110,14 @@ section("2 · canonicalPath derives the record address, not the request");
   };
 
   // Every surface gets an address that opens the record, and a clean path beats
-  // the query form wherever one exists.
-  eq(canon("/?p=mike_lee"), "/?p=mike_lee", "a profile canonicalizes to its own ?p= address");
+  // the query form wherever one exists. A person file has such a path now —
+  // /p/<pid> — so the ?p= form collapses onto it exactly the way ?issue= already
+  // collapsed onto /issue/<slug>. ?p= still RESOLVES; it just stops being the
+  // address we claim, emit or advertise.
+  eq(canon("/?p=mike_lee"), "/p/mike_lee",
+     "the ?p= form collapses onto the person file's clean /p/ path");
+  eq(canon("/p/mike_lee"), "/p/mike_lee", "a person file canonicalizes to its own /p/ path");
+  eq(canon("/p/mike_lee/"), "/p/mike_lee", "…with or without a trailing slash");
   eq(canon("/issue/box-elder-stratos-data-center"), "/issue/box-elder-stratos-data-center",
      "a Spotlight canonicalizes to its clean /issue/ path");
   eq(canon("/?issue=box-elder-stratos-data-center"), "/issue/box-elder-stratos-data-center",
@@ -130,11 +136,11 @@ section("2 · canonicalPath derives the record address, not the request");
      "/issue/box-elder-stratos-data-center", "tracking params are not part of a record's address");
   // ?p= wins over the path it was layered on, exactly as parseTarget decides —
   // the canonical follows the resolved record rather than second-guessing it.
-  eq(canon("/issue/box-elder-stratos-data-center?p=mike_lee"), "/?p=mike_lee",
+  eq(canon("/issue/box-elder-stratos-data-center?p=mike_lee"), "/p/mike_lee",
      "a profile opened on top of a Spotlight canonicalizes to the profile that is on screen");
 
   // Nothing may return a bare "/" — that is the bug this file exists to prevent.
-  for (const u of ["/?p=mike_lee", "/issue/x", "/vote/119/house/190", "/?bill=119/HR1",
+  for (const u of ["/?p=mike_lee", "/p/mike_lee", "/issue/x", "/vote/119/house/190", "/?bill=119/HR1",
                    "/?receipt=a~b", "/?record=a~b", "/?rank=healthcare"]) {
     const c = canon(u);
     ok(c && c !== "/", `${u} does not canonicalize to the homepage (got ${JSON.stringify(c)})`);

@@ -533,6 +533,12 @@
   function openProfile(pid) {
     if (!pid) return;
     var opened = false;
+    // The funnel does the open AND the section jump, which is what this function
+    // used to hand-roll below. Kept as a wrapper rather than deleted because the
+    // card markup calls it by name.
+    if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
+      try { if (window.PDXPerson.open(pid, { section: RECORD_ANCHOR })) return; } catch (err) {}
+    }
     if (typeof window.showProfile === 'function') {
       try { window.showProfile(pid); opened = true; } catch (err) {}
     }

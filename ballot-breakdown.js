@@ -265,21 +265,27 @@
                         : ((/u\.s\.\s*rep|^representative/i.test(o) || /house\s*(rep|cand)/i.test(o)) && !/state/i.test(o) && !/house\s*speaker/i.test(o)
                            && polStateName.toLowerCase() === userState.toLowerCase());
           } else {
+            // OUTSIDE UTAH, A U.S. HOUSE SEAT IS ONLY ANSWERABLE WITH A DISTRICT.
+            // This branch used to start `distMatch = true` and only narrow it when
+            // BOTH the visitor's district and the record's district could be read.
+            // The common case outside Utah is that neither can — so an Ohio
+            // visitor's "U.S. House" field came back as every Ohio member of
+            // Congress the roster holds, presented as the field for their one
+            // seat. Each name was real, none of them was a guess, and fifteen of
+            // sixteen were not on that ballot: the exact "plausible stranger"
+            // failure the district blanks elsewhere exist to prevent.
+            // Now the district must actually match. No district on the visitor,
+            // or none readable on the record, means no field — and the surfaces
+            // above turn that into "this seat needs a district map", which is
+            // true, instead of a list, which is not.
             var isHouse = (/u\.s\.\s*rep|^representative/i.test(o) || /house\s*(rep|cand)/i.test(o)) && !/state/i.test(o) && !/house\s*speaker/i.test(o);
-            if (isHouse) {
-              var stateMatch = polStateName.toLowerCase() === userState.toLowerCase();
-              var distMatch = true;
-              if (userDistrict) {
-                var polDistNum = '';
-                if (d.state && d.state.includes('-')) {
-                  polDistNum = d.state.split('-')[1].replace(/[^0-9]/g, '');
-                }
-                var userDistNum = userDistrict.replace(/[^0-9]/g, '');
-                if (userDistNum && polDistNum) {
-                  distMatch = (parseInt(userDistNum) === parseInt(polDistNum));
-                }
+            if (isHouse && polStateName.toLowerCase() === userState.toLowerCase()) {
+              var polDistNum = '';
+              if (d.state && d.state.includes('-')) {
+                polDistNum = d.state.split('-')[1].replace(/[^0-9]/g, '');
               }
-              match = stateMatch && distMatch;
+              var userDistNum = String(userDistrict || '').replace(/[^0-9]/g, '');
+              match = !!(userDistNum && polDistNum && parseInt(userDistNum, 10) === parseInt(polDistNum, 10));
             }
           }
         } else if (raceKey === 'governor') {
@@ -297,14 +303,24 @@
             match = _vb ? _seatHas('state_senator', pid)
                         : (/senate\s*president|state\s*sen|utah\s*sen/i.test(o) && _pidMatchesCounty(pid, county));
           } else {
-            match = (/state\s*sen|senator/i.test(o)) && /state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+            // A STATE LEGISLATIVE SEAT IS A DISTRICT SEAT, AND WE MAP UTAH'S ONLY.
+            // Matching by state was never an approximation of this seat — it was a
+            // different question. "Who are this state's senators?" and "who is on
+            // your State Senate ballot?" have wildly different answers: Ohio has
+            // 33 State Senate districts, so the state-wide answer was ~32 people
+            // who cannot appear on the visitor's ballot and one who might.
+            // pdxRepsForMe() already leaves this row blank outside Utah and says
+            // why; this is the same refusal, applied to the field.
+            match = false;
           }
         } else if (raceKey === 'statehouse') {
           if (userState === 'Utah') {
             match = _vb ? _seatHas('state_rep', pid)
                         : ((/state\s*rep|ut\s*state\s*rep|house\s*speaker/i.test(o)) && _pidMatchesCounty(pid, county));
           } else {
-            match = (/state\s*rep|representative/i.test(o)) && /state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+            // Same refusal as the State Senate above, for the same reason: the
+            // State House is a district seat and PolitiDex draws Utah's lines only.
+            match = false;
           }
         } else if (raceKey === 'local') {
           if (userState === 'Utah') {

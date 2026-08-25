@@ -3552,6 +3552,13 @@
         window.PDXJourney.record('profile', { label: _jn, icon: '👤', nav: { type: 'profile', pid: id } });
       }
     } catch (e) {}
+    // One funnel. PDXPerson.open resolves the record, opens this same renderer,
+    // stamps /p/<id> and sets the file kicker — so a person opened from search,
+    // from a ballot seat, from a share link or from a Direction Match card is
+    // the same act with the same address, not five near-identical ones.
+    if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
+      if (window.PDXPerson.open(id)) return;
+    }
     openModal(id);
   }
 
@@ -7049,7 +7056,17 @@
     // Track which profile is open (used by the top-bar Share button) and reflect
     // it in the address bar so the link can be copied or shared directly.
     window._pdxCurrentProfileId = id;
-    try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(id) + location.hash); } catch (e) {}
+    // The canonical address for a person is the path form /p/<id>, owned by
+    // person-file.js so that every entry point — this one, a share link, a
+    // back-button pop — puts the same string in the bar. The ?p=<id> fallback
+    // below is what shipped before it and is kept for the case where that file
+    // has not loaded: a stale address is survivable, a missing one is not.
+    if (window.PDXPerson && typeof window.PDXPerson.stamp === 'function') {
+      window.PDXPerson.stamp(id);
+      if (typeof window.PDXPerson.kicker === 'function') window.PDXPerson.kicker(id);
+    } else {
+      try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(id) + location.hash); } catch (e) {}
+    }
     // Arm the quick-jump nav (smooth-scroll + scroll-spy) now that the content
     // is in the DOM and the body has been scrolled back to the top.
     if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav();
@@ -7158,9 +7175,18 @@
       overlay.style.overscrollBehavior = 'contain';
     }
     document.body.style.overflow = '';
-    // Drop the ?p=<id> deep-link param from the address bar on close.
+    // Put back the address the reader was on before the file opened. This is
+    // person-file.js's job because it is the thing that changed the address in
+    // the first place, and because /p/<id> — unlike the old ?p= param — is a
+    // PATH, so "just drop the query string" would leave the closed person's
+    // address in the bar.
     window._pdxCurrentProfileId = null;
-    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    if (window.PDXPerson && typeof window.PDXPerson.restore === 'function') {
+      window.PDXPerson.restore();
+      if (typeof window.PDXPerson.kicker === 'function') window.PDXPerson.kicker(null);
+    } else {
+      try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    }
     // Refresh the comment + vote counts on listing cards so anything added inside
     // the profile shows live the moment the modal closes.
     if (typeof window._pdxRefreshCommentChips === 'function') window._pdxRefreshCommentChips();
@@ -7370,8 +7396,11 @@
   // ════════════════════════════════════════════════════════════
   // SHARE — direct links to a specific politician profile
   // ════════════════════════════════════════════════════════════
-  // A shared link looks like  https://<site>/?p=<id>  and re-opens that
-  // politician's profile modal automatically on load (see _pdxOpenFromUrl).
+  // A shared link looks like  https://<site>/p/<id>  and re-opens that
+  // politician's profile modal automatically on load (PDXPerson.bootAdopt).
+  // The older  ?p=<id>  form still arrives and still works — _pdxOpenFromUrl
+  // has not moved — it is simply no longer the form we hand out, because the
+  // path form is what canonicalPath() and the sitemap use for the same person.
   //
   // …unless the reader was looking at ONE ISSUE, in which case the sheet emits
   // https://<site>/?record=<id>~<issueKey> instead, which lands on the Official
@@ -7393,7 +7422,7 @@
       var u = L.profile(id);
       if (u) return u;
     }
-    return location.origin + '/?p=' + encodeURIComponent(id);
+    return location.origin + '/p/' + encodeURIComponent(id);
   };
 
   // The link for whatever the reader actually had open. `issueKey` is optional and

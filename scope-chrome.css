@@ -1,0 +1,124 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCOPE CHROME  ·  styles
+   ═══════════════════════════════════════════════════════════════════════════
+
+   A scope statement has one job and one failure mode. The job is to be read
+   before the reader spends anything. The failure mode is to look like a warning
+   banner — amber, bordered, dismissible-looking — because a reader who reads
+   "there is a limit here" as "something has gone wrong" learns the wrong thing
+   about a product that is working exactly as intended.
+
+   So this reads as a masthead, not an alert. Cool steel, hairline rules, no
+   fill, no icon badge, no colour that means "caution". The one place colour
+   appears is the Utah card's live/out state, and even there it is a thin left
+   edge rather than a background: green-ish when the reader's district lines are
+   mapped, steel when they are not. Blank is not a problem, and it does not get
+   a problem's colour.
+
+   Nothing here animates. A line of standing text that fades in on scroll reads
+   as a promotion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sc-slot { display: block; }
+
+/* ── The two-card strip (Door 2) ──────────────────────────────────────────── */
+.sc-strip {
+  max-width: 47rem;
+  margin: 1.5rem auto 0;
+  padding: 0.95rem 1rem 0.85rem;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 1.1rem;
+  background: rgba(8, 13, 28, 0.55);
+}
+
+.sc-kick {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7f9dc6;
+  margin-bottom: 0.6rem;
+}
+
+.sc-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.sc-card {
+  flex: 1 1 16rem;
+  min-width: 0;
+  padding: 0.6rem 0.7rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 2px solid rgba(148, 163, 184, 0.4);
+  background: rgba(255, 255, 255, 0.028);
+}
+/* The reader's own ballot scope, once we know it. A thin edge, not a fill: the
+   card is stating which scope the reader is in, not scoring them for it. */
+.sc-card.is-live { border-left-color: rgba(74, 222, 128, 0.7); }
+.sc-card.is-out  { border-left-color: rgba(148, 163, 184, 0.75); }
+
+.sc-card-hd {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.22rem;
+}
+.sc-ico { font-size: 0.9rem; line-height: 1.2; flex: none; }
+.sc-where {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e9f1fd;
+}
+.sc-what {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #8ba1bf;
+}
+.sc-what::before { content: "· "; color: #5a6f8d; }
+
+.sc-body {
+  margin: 0;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #b9c9e2;
+}
+
+/* The reader-specific line. Sits under the pair, hairline rule above it, so it
+   reads as "and here is your case" rather than as a third card. */
+.sc-line {
+  margin: 0.7rem 0 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.075);
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #9fb4d4;
+}
+.sc-line strong { color: #e9f1fd; font-weight: 700; }
+
+/* ── The one-line form (archive header) ───────────────────────────────────── */
+.sc-oneline {
+  margin: 0.55rem 0 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  color: #9fb4d4;
+}
+.sc-oneline strong { color: #dce7f7; font-weight: 700; }
+
+@media (max-width: 600px) {
+  .sc-strip { margin-top: 1.15rem; padding: 0.85rem 0.8rem 0.75rem; border-radius: 0.9rem; }
+  .sc-card { flex-basis: 100%; }
+}

@@ -1,0 +1,199 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// gen-sitemap.mjs — publish an address for every record that earns one
+// ─────────────────────────────────────────────────────────────────────────────
+// WHAT THIS WRITES
+//
+//   sitemap.xml   the front door, the Issue Spotlights, and one /p/<pid> entry
+//                 per person file that clears the publication floor
+//   robots.txt    points crawlers at that sitemap and at nothing else
+//
+// WHY A GENERATOR AND NOT A HAND-WRITTEN FILE
+//
+// Because the floor has to be the app's floor. A sitemap written by hand — or
+// generated from "every id in the roster" — would have advertised all 757
+// records, including the 148 that carry no cited position at all, and the app
+// would then have greeted those arrivals with the "still being built" notice
+// profiles-full.js prints for a thin profile. An index entry that lands on
+// "still being built" is the same silent lie as a /vote/ link that quietly
+// shows the front page.
+//
+// So this script does not implement a floor. It LOADS the app's floor —
+// publication-floor.js, the same file the person-file kicker reads in the
+// browser — in a VM alongside the same two data sources the app reads, and asks
+// it. If the floor changes, the sitemap changes with it, and there is no second
+// copy of the rule to drift.
+//
+// WHAT IS DELIBERATELY NOT IN HERE
+//
+//   · No measure or issue-record pages. /vote/<congress>/<chamber>/<roll> is a
+//     real, server-visible address and would belong here — except that the set
+//     of roll calls lives in the database behind /api/voting-record, not in the
+//     repo, so enumerating it would mean either a build-time database read this
+//     script has no business doing or a hardcoded list that goes stale. The
+//     Spotlights ARE included, because their slugs are in the repo where this
+//     script can see them. Nothing was invented to fill the file.
+//   · No lastmod dates. This script has no honest source for when a record last
+//     changed — the roster carries no timestamp — and a lastmod that is really
+//     "when the generator last ran" is a fabricated freshness signal.
+//   · No priority or changefreq. Both are advisory, widely ignored, and would
+//     amount to this repo ranking its own records, which is not a thing it does.
+//
+// USAGE
+//   node scripts/gen-sitemap.mjs            # write sitemap.xml + robots.txt
+//   node scripts/gen-sitemap.mjs --check    # exit 1 if either is stale
+//   node scripts/gen-sitemap.mjs --report   # what cleared, what did not, why
+// ─────────────────────────────────────────────────────────────────────────────
+import fs from "node:fs";
+import path from "node:path";
+import url from "node:url";
+import vm from "node:vm";
+
+const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
+const CHECK = process.argv.includes("--check");
+const REPORT = process.argv.includes("--report");
+
+// The single public origin, apex, as locked in Phase 0. Hardcoded rather than
+// read from an env var: a sitemap is a published claim about one site, and a
+// sitemap that changes hostname with the environment is a sitemap that can ship
+// a preview URL to a search engine.
+export const ORIGIN = "https://politidex.fyi";
+
+const SITEMAP = path.join(ROOT, "sitemap.xml");
+const ROBOTS = path.join(ROOT, "robots.txt");
+
+// ── Load the app's own modules and data, in a browser-shaped sandbox ─────────
+// Same technique the audit scripts in this directory use. The sandbox is a bare
+// `window` because that is all these four files touch: publication-floor.js is
+// pure logic over two globals, and the data files are `Object.assign(window.X,
+// {...})` blobs.
+function loadApp() {
+  const sandbox = { window: {}, console };
+  sandbox.window.window = sandbox.window;
+  const ctx = vm.createContext(sandbox);
+  for (const f of [
+    "cmp-data.js",
+    "politician-stances-core.js",
+    "politician-stances-ext.js",
+    "publication-floor.js",
+  ]) {
+    const p = path.join(ROOT, f);
+    if (!fs.existsSync(p)) throw new Error(`gen-sitemap: missing ${f}`);
+    new vm.Script(fs.readFileSync(p, "utf8"), { filename: f }).runInContext(ctx);
+  }
+  const F = sandbox.window.PDXPublicationFloor;
+  if (!F) throw new Error("gen-sitemap: publication-floor.js did not export PDXPublicationFloor");
+  return { floor: F, roster: sandbox.window.CMP_DATA || {}, stances: sandbox.window.ISSUE_STANCE_DATA || {} };
+}
+
+// ── Issue Spotlight slugs ───────────────────────────────────────────────────
+// These live in the repo, in spotlights-data.js, which is a single
+// Object.assign of `'<slug>': { slug: '<slug>', … }` entries. Read by pattern
+// rather than by executing the module: it is 1.2 MB and reaches for far more of
+// the app than a sandbox should have to fake.
+//
+// A slug is only accepted when it appears BOTH as a `slug:` value and as a
+// registry key — `'<slug>': {`. That double requirement is what keeps a nested
+// `slug:` reference (one Spotlight citing another) from being published as an
+// address of its own, which is the failure a single pattern would produce.
+function spotlightSlugs() {
+  const p = path.join(ROOT, "spotlights-data.js");
+  if (!fs.existsSync(p)) return [];
+  const src = fs.readFileSync(p, "utf8");
+  const declared = new Set();
+  for (const m of src.matchAll(/\bslug:\s*['"]([a-z0-9][a-z0-9-]{2,})['"]/g)) declared.add(m[1]);
+  const keyed = new Set();
+  for (const m of src.matchAll(/^\s*['"]([a-z0-9][a-z0-9-]{2,})['"]:\s*\{/gm)) keyed.add(m[1]);
+  return [...declared].filter((s) => keyed.has(s)).sort();
+}
+
+function xmlEscape(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
+// ── The document ────────────────────────────────────────────────────────────
+function buildSitemap(urls) {
+  const lines = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    "<!-- Generated by scripts/gen-sitemap.mjs. Do not edit by hand — regenerate.",
+    "     Person files appear here only if they clear PDXPublicationFloor: identity",
+    "     (name, office, state) plus at least two positions carrying a source URL,",
+    "     or one such position and a tracked promise. A record below that floor has",
+    "     an address that works and is deliberately not advertised, because the page",
+    "     it opens says the record is still being built. -->",
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ];
+  for (const u of urls) lines.push(`  <url><loc>${xmlEscape(ORIGIN + u)}</loc></url>`);
+  lines.push("</urlset>");
+  return lines.join("\n") + "\n";
+}
+
+function buildRobots() {
+  return [
+    "# PolitiDex — crawl rules.",
+    "#",
+    "# Everything public is allowed. The two exclusions below are not records and",
+    "# have no reason to be indexed: /.netlify/ is the platform's own function and",
+    "# image endpoints, and /api/ is JSON the app fetches for itself.",
+    "#",
+    "# Note what is NOT excluded and also not listed in the sitemap: person files",
+    "# below the publication floor. Their /p/<pid> addresses resolve, and a reader",
+    "# who has one may follow it. They are simply not advertised — the sitemap is a",
+    "# recommendation, and recommending a record that opens onto \"still being",
+    "# built\" is the thing the floor exists to prevent. Disallowing them would be a",
+    "# different and wronger claim: that the record should not be read at all.",
+    "#",
+    "# Generated by scripts/gen-sitemap.mjs. Do not edit by hand — regenerate.",
+    "User-agent: *",
+    "Allow: /",
+    "Disallow: /.netlify/",
+    "Disallow: /api/",
+    "",
+    `Sitemap: ${ORIGIN}/sitemap.xml`,
+    "",
+  ].join("\n");
+}
+
+// ── Run ─────────────────────────────────────────────────────────────────────
+const { floor, roster } = loadApp();
+const ids = Object.keys(roster);
+const publishable = floor.publishable();
+const excluded = ids.filter((id) => !floor.clears(id));
+
+const urls = [
+  "/",
+  ...spotlightSlugs().map((s) => `/issue/${s}`),
+  ...publishable.map((pid) => `/p/${pid}`),
+];
+
+const sitemap = buildSitemap(urls);
+const robots = buildRobots();
+
+if (REPORT) {
+  const why = {};
+  for (const id of excluded) {
+    for (const r of floor.read(id).reasons) why[r] = (why[r] || 0) + 1;
+  }
+  console.log(`roster            ${ids.length}`);
+  console.log(`publishable       ${publishable.length}`);
+  console.log(`below the floor   ${excluded.length}  ${JSON.stringify(why)}`);
+  console.log(`spotlights        ${spotlightSlugs().length}`);
+  console.log(`sitemap entries   ${urls.length}`);
+  console.log(`floor             >=${floor.MIN_CITED_POSITIONS} cited positions, or 1 + a tracked promise`);
+}
+
+if (CHECK) {
+  const stale = [];
+  if (!fs.existsSync(SITEMAP) || fs.readFileSync(SITEMAP, "utf8") !== sitemap) stale.push("sitemap.xml");
+  if (!fs.existsSync(ROBOTS) || fs.readFileSync(ROBOTS, "utf8") !== robots) stale.push("robots.txt");
+  if (stale.length) {
+    console.error(`stale: ${stale.join(", ")} — run: node scripts/gen-sitemap.mjs`);
+    process.exit(1);
+  }
+  console.log(`sitemap.xml and robots.txt are current (${urls.length} urls)`);
+} else if (!REPORT) {
+  fs.writeFileSync(SITEMAP, sitemap);
+  fs.writeFileSync(ROBOTS, robots);
+  console.log(`wrote sitemap.xml (${urls.length} urls) and robots.txt`);
+}
