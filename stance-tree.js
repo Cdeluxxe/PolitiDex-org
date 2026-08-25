@@ -207,6 +207,15 @@
   var BASELINE_NOTE = 'No stated position on file, so the direction of the formal record itself ' +
     'stands in as the baseline. It is a reading of the votes, not a quoted stance, and it is not ' +
     'counted in Direction Match.';
+  // ── AND WHAT THE RECORD RODE IN ON ──────────────────────────────────────────
+  // A leaf is one line, so this is the shortest true form of the disclosure: a
+  // tag saying the formal signal on this issue travelled inside a larger measure
+  // rather than as a vote on the issue. The full sentence and the bill numbers are
+  // on the title and in the accessible name, and the row's own dossier holds the
+  // instruments. Nothing is derived here — PDXConsistency.vehicle.read is the same
+  // read the index row and the record chip use, so a leaf cannot disagree with the
+  // row it opens. It changes no slot, no cue, no band and no ordering.
+  var VEHICLE_TAG = 'In a package';
   var TREE_NOTE = 'Said is their own stated position. 🏛 Record is what the formal record on file ' +
     'did — one item is enough to show a line, and the depth beside it says how much is behind it. ' +
     'Where Direction Match has tested an issue the slot carries that verdict and its %; a record with ' +
@@ -487,6 +496,16 @@
         }
       } catch (e) { baseline = null; }
     }
+    // The vehicle read is NOT gated on patternOnly: a stated position does not
+    // make the votes behind it standalone, and a row with a quote is exactly where
+    // a package-borne record most looks like a clean one.
+    var vehicle = null;
+    try {
+      if (CS && CS.vehicle && typeof CS.vehicle.read === 'function') {
+        var vr = CS.vehicle.read(row.pid, row.key);
+        if (vr && vr.line) vehicle = { line: vr.line, short: vr.short || '', note: vr.note || '' };
+      }
+    } catch (e) { vehicle = null; }
     // The cue needs two directional facts. A stated Mixed, a Split record, a
     // record with no direction read from it yet, or no record at all all land on
     // `split`/no-cue rather than being forced into agreement or disagreement.
@@ -545,6 +564,8 @@
         stance: baseline.stance, word: baseline.word, tier: baseline.tier,
         tone: baseline.tone, counts: baseline.counts || ''
       } : null,
+      // { line, short, note } or null. Presentation only; see VEHICLE_TAG above.
+      vehicle: vehicle,
       quiet: quiet,
       band: band,
       rank: rank,
@@ -708,6 +729,10 @@
     if (rc && rc.why && rc.why.note) s += rc.why.note + ' ';
     if (lf.cue && lf.said.stated && rc && rc.onRecord) s += lf.cue.label + ' — ' + lf.cue.note + ' ';
     if (lf.patternOnly) s += PATTERN_ONLY_NOTE + ' ';
+    // The vehicle, in full, after the record it qualifies — a screen reader that
+    // heard "Thin opposes, 3 on file" and nothing else has been told the same
+    // half-truth the printed tag exists to end.
+    if (lf.vehicle) s += lf.vehicle.line + '. ';
     return s + 'Opens the issue dossier.';
   }
 
@@ -774,7 +799,8 @@
         ' data-pdxtree-rec="' + escAttr(rc ? rc.state : 'none') + '"' +
         ' data-pdxtree-cue="' + escAttr(lf.cue ? lf.cue.key : '') + '"' +
         ' data-pdxtree-only="' + (lf.patternOnly ? '1' : '0') + '"' +
-        ' data-pdxtree-baseline="' + escAttr(lf.baseline ? lf.baseline.stance : '') + '">' +
+        ' data-pdxtree-baseline="' + escAttr(lf.baseline ? lf.baseline.stance : '') + '"' +
+        (lf.vehicle ? ' data-pdxtree-vehicle="1"' : '') + '>' +
         '<button type="button" class="pdxtree-face" id="' + escAttr(id) + '"' +
           ' data-pdxtree-dos="' + escAttr(lf.key) + '"' +
           ' data-pdxtree-pid="' + escAttr(lf.pid) + '"' +
@@ -796,6 +822,8 @@
             (lf.cue ? '<span class="pdxtree-cue c-' + escAttr(lf.cue.key) + '">' +
                         esc(lf.cue.label) + '</span>' : '') +
             (lf.patternOnly ? '<span class="pdxtree-tag">' + esc(PATTERN_ONLY_TAG) + '</span>' : '') +
+            (lf.vehicle ? '<span class="pdxtree-veh" title="' + escAttr(lf.vehicle.note) + '">' +
+                            '\uD83D\uDE82 ' + esc(VEHICLE_TAG) + '</span>' : '') +
           '</span>' +
           '<span class="pdxtree-go" aria-hidden="true">›</span>' +
         '</button>' +

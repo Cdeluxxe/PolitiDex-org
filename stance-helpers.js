@@ -1380,6 +1380,105 @@
     }
     window._recordOmnibusStats = _recordOmnibusStats;
 
+    // ── THE VEHICLE, AND WHETHER THE POLICY WAS DRIVING IT ─────────────────────
+    // A large amount of real policy never gets a clean up-or-down vote. It rides
+    // inside an appropriations act, an NDAA, a reconciliation package or a
+    // continuing resolution, and the member votes on the vehicle. The formal record
+    // then reads exactly like a record of standalone votes on the policy, because
+    // nothing on the row says otherwise — which makes the legislative process look
+    // more deliberate than it was, in OUR favour.
+    //
+    // This counts the difference. It adds nothing to the mapping data: every field
+    // it reads is already curated and already printed one instrument at a time in
+    // the dossier ("supporting link", "narrow link"). What is new is only the
+    // aggregate — the row-level fact that this issue's whole formal signal travelled
+    // as provisions rather than as votes on the subject.
+    //
+    // WHAT COUNTS AS A STOWAWAY MAPPING — three conditions, all required, because
+    // any two of them are ordinary:
+    //   1. the instrument is MULTI-ISSUE. A standalone bill has no vehicle to be
+    //      a stowaway on.
+    //   2. the mapping is NOT PRIMARY. Almost every measure in the corpus carries
+    //      exactly one primary issue, so this alone marks every secondary mapping
+    //      on every two-issue bill — far too many to mean anything.
+    //   3. the curator weight is NARROW (<= _RD_NARROW_AT). This is the curation
+    //      saying, in the field it already has for it, that the link rests on a
+    //      small part of the document. It is the condition that separates "the
+    //      bill also did this" from "one subtitle of the bill did this".
+    // Requiring all three takes the flag from 47% of member-issue rows down to 17%,
+    // and what is left is the real population: Hyde riders inside a consolidated
+    // appropriations act, a fentanyl subtitle inside a defence authorization, a
+    // leasing title inside a reconciliation act.
+    //
+    // AND THE ROW ONLY WEARS IT WHEN THE POLICY WAS MOSTLY OR ONLY A PASSENGER.
+    // One provision among four real votes on the subject is not a story about the
+    // vehicle; it is one footnote, and the dossier already carries it per-item.
+    // _RD_STOWAWAY_AT is the share of the issue's mapped instruments that must be
+    // provision-borne before the ROW says so.
+    //
+    // PRESENTATION ONLY, exactly like _recordOmnibusStats above it: nothing here is
+    // read by a gate, a tier, a count or a percentage. It cannot move Direction
+    // Match, it cannot move the record's characterisation, and it cannot make an
+    // unreadable row readable or a readable row unreadable. It describes.
+    var _RD_NARROW_AT = 45;      // …the ✒️ section's own narrow-link threshold
+    var _RD_STOWAWAY_AT = 0.6;   // …the share of instruments that must be provisions
+
+    // One mapping, one question: did this issue ride inside this instrument?
+    function _rdIsProvision(item, mapping) {
+      if (!item || !mapping) return false;
+      if (!item.issues || item.issues.length < 2) return false;   // no vehicle
+      if (mapping.isPrimary) return false;                        // it WAS the bill
+      var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
+      return w <= _RD_NARROW_AT;                                  // …and it is a slice
+    }
+    window._rdIsProvision = _rdIsProvision;
+
+    // The row-level read. Same records _recordOmnibusStats takes, same shape of
+    // answer, and `null` is never returned for a real record — a row with no
+    // provisions reports `stowaway: false` rather than nothing, so a caller cannot
+    // mistake "we did not look" for "it is clean".
+    //   opts.identFn — instrument → its printable identity ("H.R. 7148"), so this
+    //            module does not have to know how a measure is named. Defaults to
+    //            the record's own number.
+    function _recordVehicleStats(issueKey, records, opts) {
+      opts = opts || {};
+      records = Array.isArray(records) ? records : [];
+      var identFn = (typeof opts.identFn === 'function') ? opts.identFn : function (it) {
+        return String((it && (it.number || it.title)) || '').trim();
+      };
+      var out = {
+        issueKey: issueKey || null,
+        total: 0, provision: 0, standalone: 0,
+        vehicles: [], titles: [], sole: null, soleTitle: null,
+        share: 0, stowaway: false, only: false, threshold: _RD_STOWAWAY_AT
+      };
+      var seen = {};
+      records.forEach(function (item) {
+        var m = _findIssueMapping(item, issueKey);
+        if (!m) return;
+        out.total++;
+        if (!_rdIsProvision(item, m)) { out.standalone++; return; }
+        out.provision++;
+        var id = identFn(item);
+        if (id && !seen[id]) {
+          seen[id] = 1;
+          out.vehicles.push(id);
+          out.titles.push(String((item && item.title) || '').trim() || id);
+        }
+      });
+      if (!out.total) return out;
+      out.share = out.provision / out.total;
+      // "Only" is the stronger claim and it is exact: every mapped instrument on
+      // this issue was a vehicle. "Stowaway" is the readable-majority claim.
+      out.only = out.provision > 0 && out.provision === out.total;
+      out.stowaway = out.provision > 0 && out.share >= _RD_STOWAWAY_AT;
+      if (out.vehicles.length === 1) { out.sole = out.vehicles[0]; out.soleTitle = out.titles[0]; }
+      return out;
+    }
+    window._recordVehicleStats = _recordVehicleStats;
+    window._PDX_RD_NARROW_AT = _RD_NARROW_AT;
+    window._PDX_RD_STOWAWAY_AT = _RD_STOWAWAY_AT;
+
     // ── Multi-issue SPREAD (presentation aggregate — invents no score) ─────────
     // _measureComponentBreakdown already decides, per component issue, what one vote
     // did ('advances'/'opposes') and how that reads against the member's stance

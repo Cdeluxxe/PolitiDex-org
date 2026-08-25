@@ -1753,6 +1753,22 @@
     return st.total ? st : null;
   };
 
+  // Companion to the omnibus stats above, and the sharper question: not "did some of
+  // this come from multi-issue bills" but "did this issue ever get a vote of its
+  // own, or did it only ever ride inside one". See _recordVehicleStats in
+  // stance-helpers.js for the three conditions and why all three are required.
+  // Presentation metadata like its neighbour — it cannot move a verdict, a count or
+  // a percentage. Returns null when no record is warm.
+  window._pdxRecordVehicleStats = function (pid, issueKey) {
+    if (typeof window._recordVehicleStats !== 'function') return null;
+    var recs = PDXVotingRecord.memberRecords(pid);
+    if (!recs) return null;
+    var st = window._recordVehicleStats(issueKey, recs, {
+      identFn: function (it) { return String((it && (it.number || it.title)) || '').trim(); }
+    });
+    return st && st.total ? st : null;
+  };
+
   // One shared sentence for "this verdict rests partly on multi-issue bills", so the
   // dots, the Official Record feed and the gap sheet all phrase it identically.
   // Returns '' when there is nothing to disclose.
