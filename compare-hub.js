@@ -9574,6 +9574,126 @@
       return cache[cLower] || [];
     }
 
+    // ══ LOCAL COVERAGE — ONE RESOLVER, NO WIDENING ═══════════════════════════
+    // Every "show me my local officials" entry point on the site used to make a
+    // promise it could not check. The homepage band gated its button on
+    // `districtsResolvable` — a STATE-wide flag, true for all of Utah — and the
+    // Voter Hub strip did the same. So a Utah visitor whose county we had no
+    // curated local roster for was offered the button, tapped it, and
+    // jumpToRelevantAccordion('local') found no local group to open. Its fallback
+    // scrolled to #relevant-section, whose first groups are President and Cabinet
+    // — added BEFORE the state check — so the visitor asking for their mayor
+    // landed on a slate of national figures. That is the "generic national
+    // politician list (other states appear)" bug.
+    //
+    // The cure is that local coverage stops being inferred and becomes ANSWERED,
+    // by one function, from the same membership test the ballot itself renders
+    // with. The two callers below (band button, Hub button) and the jump guard all
+    // read this, so a button exists only where it can be honoured, and where it
+    // cannot the surface SAYS so instead of routing anywhere.
+    //
+    // Three states, all of them honest:
+    //   { resolved:false }            — no location yet; offer nothing, claim nothing
+    //   { resolved:true,  ok:false }  — located, no local roster for this area; say so
+    //   { resolved:true,  ok:true  }  — located, N local seats; open exactly those
+    //
+    // Normalizing the voter's county. Lifted out of _renderRelevantToMeImpl so the
+    // coverage answer and the rendered ballot can never disagree about which
+    // county the visitor is in.
+    function _pdxNormalizeVoterCounty() {
+      var loc = window._currentVoterLocation || {};
+      var userCounty = loc.county || loc.city || '';
+      if (!userCounty) return '';
+      var ucLower = String(userCounty).toLowerCase();
+      if (ucLower.includes('davis') || ucLower.includes('layton')) return 'Davis County';
+      if (ucLower.includes('utah') || ucLower.includes('provo') || ucLower.includes('orem')) return 'Utah County';
+      if (ucLower.includes('washington') || ucLower.includes('st. george') || ucLower.includes('st george')) return 'Washington County';
+      if (ucLower.includes('weber') || ucLower.includes('ogden')) return 'Weber County';
+      return userCounty;
+    }
+
+    // Principal cities per curated county. Local offices carry no legislative
+    // district, so this is the only signal that places a mayor or a council seat.
+    // Hoisted to module scope for the same reason as the normalizer above.
+    var _PDX_COUNTY_CITY_TOKENS = {
+      'davis':      ['davis', 'layton', 'kaysville', 'clearfield', 'bountiful', 'farmington', 'centerville', 'syracuse', 'clinton'],
+      'utah':       ['provo', 'orem', 'lehi', 'american fork', 'spanish fork', 'springville', 'pleasant grove'],
+      'washington': ['washington', 'st. george', 'st george', 'hurricane', 'ivins', 'santa clara'],
+      'weber':      ['weber', 'ogden', 'roy', 'north ogden', 'south ogden']
+    };
+    var _PDX_COUNTY_LOC_IDS = { 'Davis County': 'davis', 'Utah County': 'utah_co', 'Washington County': 'washington', 'Weber County': 'weber' };
+
+    // Does this LOCAL officeholder actually sit in the given county? Curated
+    // roster first (hand-verified, wins outright), then the county's own city
+    // tokens matched against the resolved district/county label plus office text —
+    // never the bare `state` field or free-text bio, both of which over-match.
+    // This is the exact test the ballot's local group renders with; both call it.
+    function _pdxLocalSeatMatch(pid, normalizedCounty) {
+      var d = CMP_DATA[pid];
+      if (!d || !normalizedCounty) return false;
+      var byLoc = window.KEY_RACES_BY_LOCATION || {};
+      var targetLocId = _PDX_COUNTY_LOC_IDS[normalizedCounty];
+      if (targetLocId && byLoc[targetLocId]) {
+        var inRoster = false;
+        byLoc[targetLocId].forEach(function (r) {
+          if (r.incumbentPid === pid) inRoster = true;
+          if (r.incumbentPids && r.incumbentPids.indexOf(pid) !== -1) inRoster = true;
+          if (r.candidates && r.candidates.indexOf(pid) !== -1) inRoster = true;
+        });
+        if (inRoster) return true;
+      }
+      var cLower = normalizedCounty.toLowerCase().replace(/\s*county\s*/g, '').trim();
+      var label = (_getPoliticianDistrictOrCounty(pid) + ' ' + (d.office || '')).toLowerCase();
+      var tokens = _PDX_COUNTY_CITY_TOKENS[cLower] || [cLower];
+      for (var ti = 0; ti < tokens.length; ti++) {
+        if (label.indexOf(tokens[ti]) !== -1) return true;
+      }
+      return false;
+    }
+
+    // The public answer. Deliberately computed from CMP_DATA rather than read off
+    // the last render, so a caller that paints BEFORE the ballot has rendered
+    // (the homepage band's first paint does) still gets the truth rather than a
+    // "not resolved yet" that silently degrades into an unguarded button.
+    window.pdxLocalSeatsForMe = function () {
+      var out = { resolved: false, ok: false, area: '', county: '', pids: [] };
+      try {
+        if (!window._hasUserLocation) return out;
+        var loc = window._currentVoterLocation || {};
+        var st = String(loc.state || '');
+        if (!st || st.toLowerCase() === 'national') return out;
+        out.resolved = true;
+        out.county = _pdxNormalizeVoterCounty();
+        out.area = loc.city ? (loc.city + (out.county ? ', ' + out.county : '')) : (out.county || st);
+        // No county signal at all is a real answer, not a reason to widen: we
+        // cannot place a mayor without one, so coverage is absent and said to be.
+        if (!out.county) return out;
+        Object.keys(CMP_DATA).forEach(function (pid) {
+          if (_classifyBrowseType(pid) !== 'local') return;
+          var pState = _getPoliticianState(pid);
+          // A local seat must be in the visitor's state before it can be in their
+          // county. The county tokens alone would let "Washington" match a
+          // Washington-state official for a Washington-County-Utah voter.
+          if (pState && pState.toLowerCase() !== st.toLowerCase() &&
+              !_pdxCountyStateOk(pState, out.county)) return;
+          if (_pdxLocalSeatMatch(pid, out.county)) out.pids.push(pid);
+        });
+        out.ok = out.pids.length > 0;
+      } catch (e) { return out; }
+      return out;
+    };
+
+    // Curated local records sometimes carry the COUNTY in their `state` field
+    // ("Salt Lake County" for a Salt Lake City mayor) rather than the state. That
+    // is data shape, not a different state, so accept it — but only when it names
+    // the visitor's own county, never as a general escape hatch.
+    function _pdxCountyStateOk(pState, normalizedCounty) {
+      if (!pState || !normalizedCounty) return false;
+      var a = String(pState).toLowerCase().replace(/\s*county\s*/g, '').trim();
+      var b = String(normalizedCounty).toLowerCase().replace(/\s*county\s*/g, '').trim();
+      return !!a && a === b;
+    }
+
     // Internal implementation. The public window.renderRelevantToMe wrapper
     // (defined just below) invokes this inside a try/catch so that a single
     // unexpected error can never again leave the section silently stuck on its
@@ -9657,16 +9777,11 @@
       var userCounty = (window._currentVoterLocation && (window._currentVoterLocation.county || window._currentVoterLocation.city || '')) || '';
       var userDistrict = (window._currentVoterLocation && window._currentVoterLocation.district) || '';
 
-      // Normalize county name
-      var normalizedCounty = '';
-      if (userCounty) {
-        var ucLower = userCounty.toLowerCase();
-        if (ucLower.includes('davis') || ucLower.includes('layton')) normalizedCounty = 'Davis County';
-        else if (ucLower.includes('utah') || ucLower.includes('provo') || ucLower.includes('orem')) normalizedCounty = 'Utah County';
-        else if (ucLower.includes('washington') || ucLower.includes('st. george') || ucLower.includes('st george')) normalizedCounty = 'Washington County';
-        else if (ucLower.includes('weber') || ucLower.includes('ogden')) normalizedCounty = 'Weber County';
-        else normalizedCounty = userCounty;
-      }
+      // Normalize county name. Delegated to the module-level normalizer that
+      // window.pdxLocalSeatsForMe also reads, so the coverage answer a button is
+      // gated on and the ballot this render paints can never disagree about which
+      // county the visitor is in.
+      var normalizedCounty = _pdxNormalizeVoterCounty();
 
       // Whether we hold the voter's AUTHORITATIVE exact-district ballot: a curated
       // Utah area they explicitly picked, or one inferred from their saved
@@ -9765,19 +9880,13 @@
         // 4. Local offices (mayors, county seats) carry no legislative district,
         //    so match them on their RESOLVED district/county label and office text
         //    only — plus the county's principal cities. Never the bare state field
-        //    or bio, which over-match.
-        var label = (_getPoliticianDistrictOrCounty(pid) + ' ' + (d.office || '')).toLowerCase();
-        var CITY_TOKENS = {
-          'davis':      ['davis', 'layton', 'kaysville', 'clearfield', 'bountiful', 'farmington', 'centerville', 'syracuse', 'clinton'],
-          'utah':       ['provo', 'orem', 'lehi', 'american fork', 'spanish fork', 'springville', 'pleasant grove'],
-          'washington': ['washington', 'st. george', 'st george', 'hurricane', 'ivins', 'santa clara'],
-          'weber':      ['weber', 'ogden', 'roy', 'north ogden', 'south ogden']
-        };
-        var tokens = CITY_TOKENS[cLower] || [cLower];
-        for (var ti = 0; ti < tokens.length; ti++) {
-          if (label.indexOf(tokens[ti]) !== -1) return true;
-        }
-        return false;
+        //    or bio, which over-match. Delegated to the module-level
+        //    _pdxLocalSeatMatch so this render and the coverage answer that gates
+        //    the "my local officials" buttons run the SAME membership test. If
+        //    they could drift, a button would again promise a group that renders
+        //    empty — and an empty local group is what dumped visitors into the
+        //    national slate.
+        return _pdxLocalSeatMatch(pid, normalizedCounty);
       }
 
       var picked = {}; // pid -> office groupKey (dedup)

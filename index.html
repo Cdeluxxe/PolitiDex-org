@@ -4523,6 +4523,13 @@ window.PDXLazy = (function () {
         background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.22);border-radius:0.6rem;
         padding:0.5rem 0.6rem;margin:0.55rem 0 0;}
       .wrm-scopenote strong{color:#dbe6f5;}
+      /* Local coverage we do not have, said out loud rather than left as a
+         missing button. Deliberately quieter than .wrm-scopenote's blue — this is
+         a boundary of the map, not a warning about the answer above it. */
+      .wrm-localgap{font-family:'Barlow',sans-serif;font-size:0.73rem;line-height:1.45;color:#a9b8cf;
+        background:rgba(148,163,184,0.07);border:1px solid rgba(148,163,184,0.22);border-radius:0.6rem;
+        padding:0.5rem 0.6rem;margin:0.5rem 0 0;}
+      .wrm-localgap strong{color:#d3dcea;}
       .wrm-next{margin-top:0.7rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:0.65rem;}
       .wrm-nextlabel{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:800;
         letter-spacing:0.14em;text-transform:uppercase;color:#8fa8c8;margin-bottom:0.45rem;}
@@ -4627,9 +4634,107 @@ window.PDXLazy = (function () {
       @media (max-width:480px){.pdx-chapter-bridge{padding-top:1.9rem;}.pdx-chapter-bridge .pcb-eyebrow span.pcb-line{max-width:2.5rem;}}
     </style>
     <div class="pcb-eyebrow"><span class="pcb-line l"></span><span class="pcb-kicker">Door 1 · The Record</span><span class="pcb-line r"></span></div>
-    <h2 class="pcb-title">What they said, against what they <span class="pcb-accent">actually did</span>.</h2>
-    <p class="pcb-sub">Sourced receipts, all year — no election required. Every card below sets a politician's own words next to their own recorded vote, with the source one tap away.</p>
+    <h2 class="pcb-title">Work inside the <span class="pcb-accent">record</span>.</h2>
+    <p class="pcb-sub">Pick a direction. Each one opens a working surface, not another explainer.</p>
   </div>
+
+
+  <!-- ══════════════════ DOOR 1'S FIVE DOORS · the entry system ══════════════
+       WHAT THIS REPLACED, AND WHY.
+
+       Door 1 used to be a vertical brochure. Under one header it stacked a live
+       proof strip, a single receipt card, a receipts carousel, an issue-ranking
+       grid and the H.R.1 / omnibus showcase — five full-width sections that each
+       re-explained "what they said against what they did" before letting the
+       visitor do anything with it. On a phone that is a very long scroll whose
+       every screen restates the premise and none of which is a place to work. It
+       read as overwhelming and underwhelming at the same time: a lot of reading,
+       no agency.
+
+       The surfaces were never the problem. The ORDER was: packaging first, work
+       last. So the packaging collapses into one row of doors and the surfaces
+       become what the doors open. Five intents, because these are the five things
+       a person actually arrives wanting:
+
+         Person     → the profile. The formal record first, as always.
+         Claim      → paste it, and check it against the receipts.
+         Issue      → the issue ledger: where everyone stands, ranked.
+         Bill / Vote→ one measure, split across the issues it actually touches.
+         My people  → the seats resolved for this visitor, and their records.
+
+       NOTHING WAS DELETED AND NO ENGINE CHANGED. Every door calls a module that
+       already shipped — PDXEye / PDXClaimCheck, PDXIssueView, PDXHR1 and
+       PDXBillDetail, pdxFindMyReps. The three sections that used to be mandatory
+       scroll are still in the document, in the same order, with the same ids,
+       the same modules and the same self-gating; they now live inside
+       #pdx-door-work, which the doors reveal. That keeps every inbound anchor
+       (#say-vs-do from the nav and from hero-receipt.js, #issue-front-door from
+       the digital library, #hr1-showcase from the nav) working — the hash handler
+       at the bottom of this block opens the layer for them.
+
+       WHAT IS STILL VISIBLE WITHOUT A CHOICE: the doors, and the live-proof strip
+       below them. Proof stays on the first screen because "is any of this real"
+       is a fair question to ask before committing to a direction; it is one strip
+       of three chips rather than three sections, so it is proof rather than
+       another chapter. -->
+  <nav id="pdx-door-modes" aria-label="Door 1 — pick a direction into the record">
+    <style>
+      #pdx-door-modes{max-width:64rem;margin:0 auto;padding:0.9rem 1.25rem 0.2rem;}
+      #pdx-door-modes .pdm-grid{display:grid;gap:0.55rem;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));}
+      #pdx-door-modes .pdm{display:flex;flex-direction:column;align-items:flex-start;gap:0.18rem;
+        text-align:left;cursor:pointer;min-height:5.1rem;padding:0.6rem 0.7rem;border-radius:0.75rem;
+        background:linear-gradient(160deg,rgba(30,45,80,0.5),rgba(10,15,30,0.42));
+        border:1px solid rgba(148,163,184,0.24);border-left:3px solid var(--pdm-c,#60a5fa);
+        transition:transform .12s ease,border-color .15s ease,background .15s ease;}
+      #pdx-door-modes .pdm:hover,#pdx-door-modes .pdm:focus-visible{transform:translateY(-2px);
+        border-color:var(--pdm-c,#60a5fa);background:linear-gradient(160deg,rgba(40,60,105,0.6),rgba(12,18,36,0.5));}
+      #pdx-door-modes .pdm-ico{font-size:1.05rem;line-height:1;}
+      #pdx-door-modes .pdm-lb{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:0.035em;
+        color:#fff;line-height:1.05;}
+      #pdx-door-modes .pdm-sub{font-family:'Barlow',sans-serif;font-size:0.7rem;line-height:1.3;color:#9db1d0;}
+      #pdx-door-modes .pdm-hint{font-family:'Barlow Condensed',sans-serif;font-size:0.63rem;font-weight:800;
+        letter-spacing:0.13em;text-transform:uppercase;color:#7f93b4;margin:0.55rem 0 0.35rem;}
+      /* The work layer starts closed. It is revealed by a door, or by a hash
+         that names one of the surfaces inside it — never by scrolling past. */
+      #pdx-door-work{display:none;}
+      #pdx-door-work.is-open{display:block;}
+      @media (max-width:480px){
+        #pdx-door-modes{padding:0.7rem 0.9rem 0.2rem;}
+        #pdx-door-modes .pdm-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0.45rem;}
+        #pdx-door-modes .pdm{min-height:4.6rem;padding:0.55rem 0.6rem;}
+        #pdx-door-modes .pdm-lb{font-size:0.94rem;}
+        #pdx-door-modes .pdm-sub{font-size:0.66rem;}
+      }
+    </style>
+    <div class="pdm-hint">Start where you already are</div>
+    <div class="pdm-grid">
+      <button type="button" class="pdm" style="--pdm-c:#60a5fa;" onclick="window.pdxDoor&&window.pdxDoor('person')">
+        <span class="pdm-ico" aria-hidden="true">🧑‍⚖️</span>
+        <span class="pdm-lb">A person</span>
+        <span class="pdm-sub">Look anyone up. Formal record first.</span>
+      </button>
+      <button type="button" class="pdm" style="--pdm-c:#f5c842;" onclick="window.pdxDoor&&window.pdxDoor('claim')">
+        <span class="pdm-ico" aria-hidden="true">👁️</span>
+        <span class="pdm-lb">A claim</span>
+        <span class="pdm-sub">Paste it. We check it against the receipts.</span>
+      </button>
+      <button type="button" class="pdm" style="--pdm-c:#4ade80;" onclick="window.pdxDoor&&window.pdxDoor('issue')">
+        <span class="pdm-ico" aria-hidden="true">🧭</span>
+        <span class="pdm-lb">An issue</span>
+        <span class="pdm-sub">Where everyone stands, on one issue.</span>
+      </button>
+      <button type="button" class="pdm" style="--pdm-c:#c084fc;" onclick="window.pdxDoor&&window.pdxDoor('bill')">
+        <span class="pdm-ico" aria-hidden="true">🏛️</span>
+        <span class="pdm-lb">A bill or vote</span>
+        <span class="pdm-sub">One measure, split by what it touches.</span>
+      </button>
+      <button type="button" class="pdm" style="--pdm-c:#fb923c;" onclick="window.pdxDoor&&window.pdxDoor('mine')">
+        <span class="pdm-ico" aria-hidden="true">📍</span>
+        <span class="pdm-lb">My people</span>
+        <span class="pdm-sub">Your resolved seats, and their records.</span>
+      </button>
+    </div>
+  </nav>
 
   <!-- ── LIVE PROOF · the record as this browser actually has it ──────────────
        A three-chip strip naming the newest publishable Official Record cards the
@@ -4649,6 +4754,22 @@ window.PDXLazy = (function () {
        own CSS — so an empty strip costs the page nothing at all. -->
   <div id="live-proof" hidden></div>
   <script src="/live-proof.js" defer></script>
+
+  <!-- ── THE WORK LAYER · what the doors open ─────────────────────────────────
+       The four surfaces below were the mandatory middle of Door 1. They are byte
+       for byte the same sections, in the same order, with the same ids, modules
+       and self-gating — the only change is that they now sit inside a container
+       that starts closed. A door opens it and scrolls to the surface that door
+       promised; a hash that names one of them opens it too. Nothing re-parents
+       anything at runtime and no module was told about this: each one still
+       paints into its own id on its own schedule, and Door 1's header still fails
+       closed against their own [hidden] state, not against this container.
+
+       Why closed rather than deleted: each of these is the deep layer of a door
+       above. Say-vs-Do IS how "said against did" is built, and the H.R.1 showcase
+       IS the multi-issue split of one measure. Inspectable on request is what the
+       brief asked for; a mandatory scroll past all four is what it asked to end. -->
+  <div id="pdx-door-work">
 
   <!-- ═══════════════════════ SAY vs. DO — THE RECEIPTS ════════════════════
        Bet 1: the contradiction is the hero — a rotating, sourced "say vs. do"
@@ -4687,6 +4808,132 @@ window.PDXLazy = (function () {
        H.R.1 votes exist, so it never renders empty. -->
   <section id="hr1-showcase" aria-label="H.R.1 Showcase — the contradiction engine" hidden></section>
 
+  </div><!-- /#pdx-door-work -->
+
+  <script>
+    // ── window.pdxDoor(mode) · the five doors, each into a real surface ───────
+    // One entry point for the whole mode chooser above, so the buttons carry an
+    // intent rather than a scroll target. Every branch calls a module that already
+    // shipped; nothing here computes, scores or characterises anything, and no
+    // branch invents a surface that is not already in the page.
+    //
+    // Every path is guarded and every guard degrades to something the visitor can
+    // still act on rather than to a dead button. That matters more here than
+    // anywhere else on the page: these five controls are now the whole of Door 1's
+    // navigation, so a silent failure would leave a visitor with a header, a proof
+    // strip and no way in at all.
+    (function () {
+      var WORK_IDS = ['hero-receipt', 'say-vs-do', 'issue-front-door', 'hr1-showcase'];
+
+      // Reveal the work layer and land on one surface inside it. Called by the
+      // doors, and by the hash handler below on behalf of every inbound anchor
+      // that used to point at a section sitting in the open.
+      function openWork(targetId) {
+        var work = document.getElementById('pdx-door-work');
+        if (work) work.classList.add('is-open');
+        if (!targetId) return;
+        // Give the browser one frame to lay the revealed layer out before asking
+        // it to scroll into it; scrolling to an element that was display:none a
+        // microsecond ago lands at the wrong offset.
+        var go = function () {
+          var el = document.getElementById(targetId);
+          if (el && el.scrollIntoView) { try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+        };
+        if (window.requestAnimationFrame) window.requestAnimationFrame(function () { setTimeout(go, 40); });
+        else setTimeout(go, 60);
+      }
+      window.pdxDoorWork = openWork;
+
+      // Ask a module to paint its surface now rather than whenever its own timer
+      // next fires. Each of these is idempotent in its own file, and each already
+      // self-gates to [hidden] when it has nothing sourced to show — so a door
+      // can open onto an honest empty state but never onto a fabricated one.
+      function paint(fn) { try { fn(); } catch (e) {} }
+
+      window.pdxDoor = function (mode) {
+        switch (mode) {
+          // ── PERSON · the profile, formal record first ──────────────────────
+          // The All-Seeing Eye is the person surface: type a name, get the record.
+          // It is not a Door 1 section, which is the point — the door leads out of
+          // the brochure and into the search that opens profiles.
+          case 'person':
+            paint(function () {
+              var i = document.getElementById('pdx-eye-input');
+              if (i) i.setAttribute('placeholder', 'Search any politician by name…');
+            });
+            paint(function () { if (window.pdxOpenEye) window.pdxOpenEye(); });
+            return;
+
+          // ── CLAIM · paste it, check it against the receipts ────────────────
+          // Same field, different job, and the field says which job it is doing.
+          // claim-check.js already splices its block into the Eye's results as
+          // soon as what is typed reads as a claim rather than a search, so the
+          // door's whole task is to put the visitor in front of that field with
+          // the claim-shaped prompt in it.
+          case 'claim':
+            paint(function () {
+              var i = document.getElementById('pdx-eye-input');
+              if (i) i.setAttribute('placeholder', 'Paste a claim — “X voted to gut Y”…');
+            });
+            paint(function () { if (window.pdxOpenEye) window.pdxOpenEye(); });
+            return;
+
+          // ── ISSUE · the ledger of where everyone stands ────────────────────
+          case 'issue':
+            paint(function () { if (window.PDXIssueView && window.PDXIssueView.mountFrontDoor) window.PDXIssueView.mountFrontDoor(); });
+            openWork('issue-front-door');
+            return;
+
+          // ── BILL / VOTE · one measure, split across what it touches ────────
+          // The H.R.1 showcase is exactly that view, already built, so the door
+          // opens it rather than duplicating it. PDXBillDetail stays the route for
+          // any OTHER measure and is reached from inside that surface and from the
+          // Eye's bill results — this door does not need to guess a bill number.
+          case 'bill':
+            paint(function () { if (window.PDXHR1 && window.PDXHR1.mount) window.PDXHR1.mount(); });
+            openWork('hr1-showcase');
+            return;
+
+          // ── MY PEOPLE · the seats resolved for this visitor ────────────────
+          // Straight to the lookup band, which owns its own location prompt and
+          // its own coverage honesty. Local seats route through
+          // window.pdxLocalSeatsForMe() from there, so this door cannot become
+          // another way into a national list.
+          case 'mine':
+            paint(function () {
+              if (window.PDXWhoRepresentsMe && window.PDXWhoRepresentsMe.focus) { window.PDXWhoRepresentsMe.focus(); return; }
+              if (window.pdxFindMyReps) { window.pdxFindMyReps(); return; }
+              var el = document.getElementById('who-represents-me');
+              if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+            return;
+
+          // ── RECEIPTS · the layer under "said against did" ──────────────────
+          // Not a door in the chooser. It is how the deep explanation is reached
+          // from inside the surfaces that use it, and it is what the nav's
+          // "Say vs. Do" entry resolves to now that the section starts closed.
+          case 'receipts':
+            openWork('say-vs-do');
+            return;
+        }
+      };
+
+      // Every inbound anchor keeps working. The nav menu, hero-receipt.js's
+      // "see more receipts" jump and the digital library all set a hash naming a
+      // section that now starts closed; without this they would scroll to a
+      // display:none element and appear to do nothing. Runs on load for a shared
+      // deep link and on hashchange for an in-page one.
+      function fromHash() {
+        var h = String(location.hash || '').replace(/^#/, '');
+        if (WORK_IDS.indexOf(h) !== -1) openWork(h);
+      }
+      window.addEventListener('hashchange', fromHash);
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fromHash);
+      else fromHash();
+    })();
+  </script>
+
+
   <script>
     // ── Door 1's header fails closed with the door ──────────────────────────
     // Every surface under this bridge self-gates: say-vs-do, the issue front door
@@ -4703,16 +4950,62 @@ window.PDXLazy = (function () {
     // deferred scripts, some when the voting-record engine warms — so the state is
     // tracked with a MutationObserver on exactly the attributes they flip, plus a
     // few cheap re-checks for anything that lands outside an attribute change.
+    //
+    // THE DOORS FAIL CLOSED THE SAME WAY, DOOR BY DOOR. Now that the chooser above
+    // is Door 1's navigation, two of its five doors lead to surfaces that can
+    // legitimately have nothing in them: the issue ledger needs tracked issues and
+    // the bill split needs sourced votes on the measure. A door onto an empty
+    // surface is the same broken promise as a header over an empty section — and it
+    // is exactly the failure the local-officials button was just fixed for — so
+    // each of those two doors is removed when its own surface never comes up. The
+    // other three (person, claim, my people) route to the All-Seeing Eye and the
+    // lookup band, which live outside Door 1 and are unconditional, so they are
+    // never pruned. The chooser itself hides only if every door is gone.
     (function () {
       var bridge = document.getElementById('pdx-door-truth');
       if (!bridge) return;
       var IDS = ['live-proof', 'hero-receipt', 'say-vs-do', 'issue-front-door', 'hr1-showcase'];
+      // door mode → the surface that door opens. Only modes whose surface can be
+      // empty appear here; the rest are unconditional by construction.
+      var DOOR_SURFACE = { issue: 'issue-front-door', bill: 'hr1-showcase' };
       function live(el) {
         return !!el && !el.hidden && (el.style ? el.style.display !== 'none' : true);
       }
+      function doorBtn(mode) {
+        try {
+          var host = document.getElementById('pdx-door-modes');
+          if (!host) return null;
+          var all = host.querySelectorAll('button.pdm');
+          for (var i = 0; i < all.length; i++) {
+            if (String(all[i].getAttribute('onclick') || '').indexOf("'" + mode + "'") !== -1) return all[i];
+          }
+        } catch (e) {}
+        return null;
+      }
+      // Returns how many doors are left standing, so the header above can be the
+      // header for THEM — which is what it is now — rather than for the receipt
+      // sections that moved into the closed work layer.
+      function syncDoors() {
+        var host = document.getElementById('pdx-door-modes');
+        if (!host) return 0;
+        Object.keys(DOOR_SURFACE).forEach(function (mode) {
+          var btn = doorBtn(mode);
+          if (btn) btn.style.display = live(document.getElementById(DOOR_SURFACE[mode])) ? '' : 'none';
+        });
+        var shown = 0;
+        var all = host.querySelectorAll('button.pdm');
+        for (var i = 0; i < all.length; i++) { if (all[i].style.display !== 'none') shown++; }
+        host.style.display = shown > 0 ? '' : 'none';
+        return shown;
+      }
       function sync() {
+        var doors = syncDoors();
+        // The header covers whichever of the two is actually there: a standing
+        // door, or a live proof surface. With neither, there is nothing under it
+        // to head and it goes back to display:none — the same fail-closed rule it
+        // has always had, applied to what it now sits above.
         var any = IDS.some(function (id) { return live(document.getElementById(id)); });
-        bridge.style.display = any ? '' : 'none';
+        bridge.style.display = (doors > 0 || any) ? '' : 'none';
       }
       try {
         var obs = new MutationObserver(sync);

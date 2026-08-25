@@ -444,6 +444,13 @@ const runBand = (over) => {
       'p-rep': { name: 'Ray Ward', party: 'R', office: 'State Representative' },
     }[pid] || null),
     _getPhotoUrl: () => '/img/x.jpg',
+    // Local coverage is an ANSWER from compare-hub's window.pdxLocalSeatsForMe(),
+    // not an inference from the state. The default here is a curated area WITH
+    // local seats; the cases below override it to the two other states.
+    pdxLocalSeatsForMe: () => ({
+      resolved: true, ok: true, area: 'Bountiful, Davis County', county: 'Davis County',
+      pids: ['loc-a', 'loc-b', 'loc-c'],
+    }),
     ...over,
   };
   ctx.window = ctx; ctx.globalThis = ctx;
@@ -532,6 +539,12 @@ ok(OUT.indexOf('Compare them on an issue') < OUT.indexOf('Build my voting team')
 has(OUT, 'My local officials',
   'band: the band no longer points at local offices at all, which turns its own scope note into a\n' +
   '    dead end rather than a handoff');
+has(OUT, '(3)',
+  'band: the local handoff no longer states how many local seats it will open. The count is what\n' +
+  '    makes the promise checkable BEFORE the tap rather than after it');
+lacks(OUT, 'wrm-localgap',
+  'band: a visitor who HAS local seats is told local offices are not mapped for their area — the\n' +
+  '    coverage note and the coverage button are mutually exclusive by definition');
 has(OUT, 'Change my location',
   'band: there is no way to correct a wrong address from the answer');
 has(OUT, "my-politicians",
@@ -570,6 +583,9 @@ const OHIO_LEVELS = [
 ];
 const oh = runBand({
   pdxRepsForMe: () => ({ located: true, national: false, state: 'Ohio', area: 'Columbus, Franklin County', redrawn: false, districtsResolvable: false, levels: OHIO_LEVELS }),
+  // What the real resolver returns for Columbus: located, and no local roster.
+  // Verified against compare-hub's own rendered local group.
+  pdxLocalSeatsForMe: () => ({ resolved: true, ok: false, area: 'Columbus, Franklin County', county: 'Franklin County', pids: [] }),
 });
 const OHOUT = oh.host.innerHTML;
 must(OHOUT.length > 0, 'the band painted nothing outside Utah — the non-Utah assertions below are vacuous');
@@ -600,6 +616,17 @@ has(OHOUT, 'someone else',
 lacks(OHOUT, 'My local officials',
   'band: the band offers a local-officials jump outside its curated coverage, which sends a visitor\n' +
   '    to a page that has nothing for them');
+has(OHOUT, 'Local offices aren',
+  'band: outside curated local coverage the band drops the handoff and says NOTHING, so a missing\n' +
+  '    button reads as "this site has no local layer" rather than "we have not mapped your county".\n' +
+  '    The gap has to be stated where the offer would have been');
+has(OHOUT, 'Columbus, Franklin County',
+  'band: the local-coverage note does not name the area it is missing, which makes it a generic\n' +
+  '    apology rather than a checkable statement about this visitor');
+has(OHOUT, 'don&rsquo;t represent you',
+  'band: the local-coverage note no longer says WHY the gap is left as a gap. "We would rather say so\n' +
+  '    than hand you people who do not represent you" is the whole reason this pass exists — the old\n' +
+  '    behaviour scrolled the visitor onto the President and Cabinet groups instead');
 has(OHOUT, 'No record on file yet',
   'band: the second Ohio Senate seat has no person on file and rendered as nothing — a missing\n' +
   '    statewide seat must read as blank-on-purpose, not be silently dropped from the list');
@@ -840,9 +867,75 @@ eq(JSON.stringify(realCtx._pdxStatewideSeats('Ohio · OH-3')), JSON.stringify(SW
   '    every officeholder the roster files as "Utah · UT-1" out of their own statewide lookup');
 
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 8 · LOCAL COVERAGE HAS THREE STATES, AND NONE OF THEM ROUTES ANYWHERE ELSE
+// ═══════════════════════════════════════════════════════════════════════════
+// The bug this section exists to keep fixed: the local handoff used to be gated
+// on reps.districtsResolvable, which is a STATE-wide flag. Local rosters are
+// curated county by county, so the button appeared in areas that had none, and
+// window.jumpToRelevantAccordion('local') then found no local group to open and
+// scrolled to #relevant-section — whose first two groups are President and
+// Cabinet, added before any state check. A visitor asking for their mayor landed
+// on a slate of national figures, every one of them real and none of them theirs.
+//
+// The gate is now an answer, not an inference, and it has three outcomes. Each
+// one must produce exactly one of: a counted button, a stated gap, or silence.
+// What none of them may produce is a button that cannot be honoured.
+const localCase = (cov) => runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful, Davis County',
+    redrawn: false, districtsResolvable: true, levels: LEVELS6,
+  }),
+  pdxLocalSeatsForMe: cov === undefined ? undefined : () => cov,
+}).host.innerHTML;
+
+// resolved + seats → a button that states its own count.
+const covYes = localCase({ resolved: true, ok: true, area: 'Bountiful, Davis County', county: 'Davis County', pids: ['a', 'b'] });
+has(covYes, 'My local officials',
+  'coverage: a visitor WITH local seats is not offered them, so real coverage goes unused');
+has(covYes, '(2)',
+  'coverage: the handoff does not state how many seats it opens — an uncounted promise is the shape\n' +
+  '    the old districtsResolvable gate had, and it is what broke');
+lacks(covYes, 'wrm-localgap',
+  'coverage: a visitor with local seats is ALSO told local offices are not mapped for their area');
+
+// resolved + none → the gap is stated, and there is no route out of it.
+const covNo = localCase({ resolved: true, ok: false, area: 'Ogden, Weber County', county: 'Weber County', pids: [] });
+lacks(covNo, 'My local officials',
+  'coverage: the handoff is still offered in an area with zero local seats. This is the exact\n' +
+  '    condition that dumped visitors onto the President/Cabinet groups');
+lacks(covNo, "jumpToRelevantAccordion('local')",
+  'coverage: an area with no local seats still wires the local jump somewhere in its markup. The\n' +
+  '    guard inside jumpToRelevantAccordion is a backstop, not a licence to keep firing it');
+has(covNo, 'Ogden, Weber County',
+  'coverage: the gap note does not name the area it is missing');
+has(covNo, 'Local offices aren',
+  'coverage: an area with no local seats says nothing at all about it — silence here reads as "no\n' +
+  '    local layer exists" rather than "your county is not mapped yet"');
+
+// unresolved (no location, or compare-hub not loaded) → claim nothing either way.
+// Silence is correct here and ONLY here: we do not know, so we neither offer nor
+// deny. Printing the gap note would assert a gap we have not established.
+for (const [label, cov] of [
+  ['no location', { resolved: false, ok: false, area: '', county: '', pids: [] }],
+  ['resolver absent', undefined],
+]) {
+  const OUTU = localCase(cov);
+  lacks(OUTU, 'My local officials',
+    `coverage (${label}): the handoff is offered without an answer behind it. An absent resolver must\n` +
+    '    never read as permission — that is precisely how a button outruns its coverage');
+  lacks(OUTU, 'wrm-localgap',
+    `coverage (${label}): the band asserts local offices are unmapped for this area without having\n` +
+    '    resolved whether they are. Not knowing and knowing-there-is-nothing are different claims');
+  has(OUTU, 'Compare them on an issue',
+    `coverage (${label}): the rest of the next-step row vanished along with the local handoff — one\n` +
+    '    unresolved question must not take the working steps down with it');
+}
+
+
 if (failures.length) {
   console.error(`\n✗ who represents me: ${failures.length} failure(s)`);
   failures.forEach((f) => console.error('  · ' + f));
   process.exit(1);
 }
-console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, 6 seats in two classes, gaps stated not dropped`);
+console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, 6 seats in two classes, gaps stated not dropped, local coverage answered not inferred`);
