@@ -4164,8 +4164,14 @@
       // 📍 stance / ⚡ power language so the two surfaces speak the same way.
       var nDocStance = bd.issues.filter(function(it) { return it.direct && it.stance; }).length;
       var nPowerArea = bd.issues.filter(function(it) { return it._powerTie; }).length;
+      // …and the third count that was missing. On a member with a dense record and
+      // few stance cards, most of the rows below are record-derived baselines, and
+      // the header pills were reporting only the handful that were quoted — which
+      // read as "we barely have anything" on a member we in fact have plenty on.
+      var nBaseline = (bd.sources && bd.sources.baseline) || 0;
       var sigBits = '';
       if (nDocStance) sigBits += '<span class="kraq-sig kraq-sig-doc" title="Issues backed by a documented Support / Oppose / Mixed position">📍 ' + nDocStance + ' documented stance' + (nDocStance === 1 ? '' : 's') + '</span>';
+      if (nBaseline) sigBits += '<span class="kraq-sig kraq-sig-base" title="Issues with no stated position, where the direction was read from their votes and formal actions instead. A record pattern is what they did — not something they said.">🏛 ' + nBaseline + ' from the record</span>';
       if (nPowerArea) sigBits += '<span class="kraq-sig kraq-sig-power" title="Issues where this official holds real positional power — a committee, office, leadership or sponsor role">⚡ ' + nPowerArea + ' power area' + (nPowerArea === 1 ? '' : 's') + '</span>';
       var sigHtml = sigBits ? ('<div class="kraq-sig-row">' + sigBits + '</div>') : '';
 
@@ -4234,27 +4240,36 @@
           (nDropped === 1 ? 'is' : 'are') + ' not counted — we have no signal there and will not ' +
           'estimate one from their party.'
         : '';
+      // The counterpart clause: what part of this number came from the record
+      // standing in for words nobody has on file. Appended to every branch, because
+      // every branch can contain baselines and none of them used to say so.
+      var nBase = (bd.sources && bd.sources.baseline) || 0;
+      var baseClause = nBase
+        ? ' <b>' + nBase + '</b> of them had no stated position, so the direction was read ' +
+          'from their votes and formal actions instead — marked <b>🏛 From the record</b> below. ' +
+          'A record pattern is what they did, not something they said.'
+        : '';
       var firstName = (d.name || 'This candidate').split(' ')[0];
       var confHtml;
       if (nDirect > 0 && nDirect === nTotal) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.28);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📍</span>' +
-            '<p style="font-size:0.66rem;color:#a7d8c1;line-height:1.5;margin:0;">This match is built on <b style="color:#6ee7b7;">' + nTotal + '</b> of your <b style="color:#6ee7b7;">' + nPicked + '</b> selected issue' + (nPicked === 1 ? '' : 's') + ', each one a documented, sourced position from ' + firstName + ' — grounded directly in where they stand, not inferred.' + droppedClause + '</p>' +
+            '<p style="font-size:0.66rem;color:#a7d8c1;line-height:1.5;margin:0;">This match is built on <b style="color:#6ee7b7;">' + nTotal + '</b> of your <b style="color:#6ee7b7;">' + nPicked + '</b> selected issue' + (nPicked === 1 ? '' : 's') + ', each one a documented, sourced position from ' + firstName + ' — grounded directly in where they stand, not inferred.' + droppedClause + baseClause + '</p>' +
           '</div>';
       } else if (nDirect > 0) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📍</span>' +
-            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nDirect + ' of ' + nPicked + '</b> of your issues match a documented position ' + firstName + ' has stated (marked <b style="color:#5eead4;">📍 Stated</b> below).' + droppedClause + '</p>' +
+            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nDirect + ' of ' + nPicked + '</b> of your issues match a documented position ' + firstName + ' has stated (marked <b style="color:#5eead4;">📍 Stated</b> below).' + droppedClause + baseClause + '</p>' +
           '</div>';
       } else if (nEvidence === 0) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.32);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.95rem;line-height:1.2;flex:none;">🌱</span>' +
-            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Thin read.</b> This rests on <b style="color:#fbbf24;">' + nTotal + '</b> of your <b>' + nPicked + '</b> issue' + (nPicked === 1 ? '' : 's') + ' — a real signal, but a narrow one.' + droppedClause + ' It sharpens as positions are verified — and the profile\'s \u2696\ufe0f Word vs Action index shows what ' + firstName + ' <em>has</em> stated so far.</p>' +
+            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Thin read.</b> This rests on <b style="color:#fbbf24;">' + nTotal + '</b> of your <b>' + nPicked + '</b> issue' + (nPicked === 1 ? '' : 's') + ' — a real signal, but a narrow one.' + droppedClause + ' It sharpens as positions are verified — and the profile\'s \u2696\ufe0f Word vs Action index shows what ' + firstName + ' <em>has</em> stated so far.' + baseClause + '</p>' +
           '</div>';
       } else {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📋</span>' +
-            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nEvidence + ' of ' + nPicked + '</b> of your issues are backed by ' + firstName + '\'s formal record.' + droppedClause + '</p>' +
+            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nEvidence + ' of ' + nPicked + '</b> of your issues are backed by ' + firstName + '\'s formal record.' + droppedClause + baseClause + '</p>' +
           '</div>';
       }
 
@@ -4348,6 +4363,11 @@
             // toggle to ask the other question without leaving the breakdown.
             ((typeof window._alignModeToggleHtml === 'function') ? window._alignModeToggleHtml({ compact: true }) : '') +
             ((typeof window._alignCoverageNoteHtml === 'function') ? window._alignCoverageNoteHtml(pid, bd) : '') +
+            // WHY THIS MATCH — the ranked few issues that actually moved the number,
+            // each tagged with what it was built on. The issue list below is ordered
+            // for browsing; this is ordered by influence, which is the question
+            // someone staring at a percentage is actually asking.
+            ((typeof window._alignWhyMatchHtml === 'function') ? window._alignWhyMatchHtml(pid) : '') +
             '<div class="font-condensed font-700" style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#5eead4;margin-bottom:0.6rem;">Issue-by-issue breakdown</div>' +
             tallyHtml +
             sigHtml +

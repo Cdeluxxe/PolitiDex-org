@@ -10176,6 +10176,29 @@
       button.myteam-ao-issue-ev:hover .myteam-ao-issue-ev-cue { color: #f5c842; opacity: 1; }
     }
     button.myteam-ao-issue-ev:focus-visible { outline: 2px solid rgba(245,200,66,0.75); outline-offset: 2px; border-color: rgba(245,200,66,0.6) !important; }
+
+    /* ── Honest denominators on the team aggregate. An issue four of six picks have
+       anything on file for must not look like an issue all six have on file, and an
+       issue nobody has on file must not look like a low score. Coverage badge, lane
+       glyph, dashed thin treatment, and a wholly separate "no read" chip that
+       carries no percentage at all. ── */
+    .myteam-ao-issue-cov { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.04em; color: #8fa3bf; background: rgba(255,255,255,0.06); border-radius: 0.3rem; padding: 0.02rem 0.26rem; }
+    .myteam-ao-issue-src { font-size: 0.66rem; opacity: 0.75; }
+    .myteam-ao-issue.is-partial { border-style: dashed; }
+    .myteam-ao-issue.is-thin { border-style: dashed; opacity: 0.85; }
+    .myteam-ao-issue.is-thin .myteam-ao-issue-pct { opacity: 0.8; }
+    .myteam-ao-issue-range { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; line-height: 1; color: #fcd34d; letter-spacing: 0.02em; }
+    .myteam-ao-drow.is-split .myteam-ao-issue { background: rgba(252,211,77,0.07); }
+    .myteam-ao-drow.is-overlap .myteam-ao-issue { background: rgba(125,211,252,0.07); }
+    .myteam-ao-drow.is-empty .myteam-ao-issue { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.028) 0 6px, rgba(255,255,255,0) 6px 12px); border-style: dashed; border-color: rgba(255,255,255,0.14); }
+    .myteam-ao-drow.is-empty .myteam-ao-issue-lab { color: #9fb0c6; }
+    .myteam-ao-issue-none { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: #8fa3bf; }
+    .myteam-ao-issue-more { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: #8fa3bf; }
+    .myteam-ao-mix { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; line-height: 1.5; color: #9fb4d4; letter-spacing: 0.02em; border-top: 1px solid rgba(139,92,246,0.14); padding-top: 0.55rem; }
+    .myteam-ao-mix b { color: #d7e2f2; }
+    .myteam-ao-mix-thin { color: #8fa3bf; }
+    .myteam-ao-mix-gap { color: #8fa3bf; }
+    .myteam-ao-mix-wall { display: block; margin-top: 0.3rem; font-size: 0.68rem; color: #8ea2c0; font-style: italic; }
     .myteam-ao-foot { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: #8ea2c0; letter-spacing: 0.03em; }
     .myteam-ao-foot button { background: none; border: none; padding: 0; cursor: pointer; font: inherit; color: #c4b5fd; text-decoration: underline; text-underline-offset: 2px; }
     .myteam-ao-foot button:hover { color: #e9d5ff; }
@@ -11906,6 +11929,9 @@
     .kraq-sig { display: inline-flex; align-items: center; gap: 0.28rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.03em; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
     .kraq-sig-doc   { color: #5eead4; background: rgba(45,212,191,0.12); border-color: rgba(45,212,191,0.4); }
     .kraq-sig-power { color: #ffdf7a; background: rgba(245,200,66,0.16); border-color: rgba(245,200,66,0.5); }
+    /* Record-derived rows get a deliberately cooler, dashed pill: present and
+       countable, but never dressed up to look like a quoted position. */
+    .kraq-sig-base  { color: #9fb4d4; background: rgba(143,163,191,0.12); border-color: rgba(143,163,191,0.42); border-style: dashed; }
     /* Per-row jump into the Evidence Locker for this exact position — the bridge from
        a match score to the documents behind it. Blue to read as "Evidence" (matching
        the 📂 Evidence nav + locker links) rather than the teal alignment chrome. */

@@ -1148,3 +1148,99 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
 @media (prefers-reduced-motion: reduce) {
   .align-mode-seg, .align-mode-swap { transition: none; }
 }
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PROVENANCE MARKS — the visible difference between "they said this" and
+   "their record did this". Every scored row on every alignment surface now
+   carries one, because the fallback that fills the coverage gaps is only
+   honest if it is legible as a fallback. The record glyph is 🏛 throughout;
+   a baseline row additionally gets the "From the record" tag and a dashed
+   edge, so it never reads as a spoken promise.
+   ───────────────────────────────────────────────────────────────────────── */
+.align-src-mark {
+  display: inline-flex; align-items: center; gap: 0.22rem;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  border-radius: 0.3rem; padding: 0.04rem 0.3rem; white-space: nowrap;
+}
+.align-src-mark.is-said { color: #a5b4fc; background: rgba(129,140,248,0.13); }
+.align-src-mark.is-record,
+.align-src-mark.is-baseline { color: #8fa3bf; background: rgba(143,163,191,0.12); }
+.align-src-mark.is-baseline { border: 1px dashed rgba(143,163,191,0.45); }
+.align-src-mark.is-thin { opacity: 0.82; }
+.align-src-mark-lb { letter-spacing: 0.05em; }
+.align-src-mark-thin { letter-spacing: 0.07em; opacity: 0.85; }
+
+/* Lane markers on the compact driver chips. */
+.align-driver-chip.is-baseline { border-style: dashed; }
+.align-driver-chip.is-thin { opacity: 0.86; }
+.align-driver-src { font-size: 0.62rem; opacity: 0.75; }
+.align-driver-base {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase; color: #8fa3bf;
+}
+.align-drivers-note {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; letter-spacing: 0.04em;
+  color: #8fa3bf; white-space: nowrap;
+}
+.align-card-src { color: #8fa3bf; font-size: 0.94em; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   WHY THIS MATCH — the ranked, signed, provenance-tagged answer to "which of
+   my issues actually moved this number, and what was each one built on?"
+   ───────────────────────────────────────────────────────────────────────── */
+.align-why {
+  background: rgba(10,15,30,0.42); border: 1px solid rgba(139,92,246,0.18);
+  border-radius: 0.7rem; padding: 0.65rem 0.75rem; margin-bottom: 0.9rem;
+  display: flex; flex-direction: column; gap: 0.45rem;
+}
+.align-why-head {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
+  letter-spacing: 0.06em; color: #c4b5fd; display: flex; align-items: baseline;
+  flex-wrap: wrap; gap: 0.35rem;
+}
+.align-why-head b { text-transform: uppercase; letter-spacing: 0.11em; font-size: 0.64rem; }
+.align-why-sub { font-size: 0.66rem; color: #8fa3bf; letter-spacing: 0.03em; }
+.align-why-grp { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 0.4rem; }
+.align-why-grp-lab {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem;
+  letter-spacing: 0.07em; text-transform: uppercase; padding-top: 0.22rem;
+}
+.align-why-grp-lab.is-up { color: #86efac; }
+.align-why-grp-lab.is-down { color: #fca5a5; }
+.align-why-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 0.35rem; flex: 1; min-width: 0;
+}
+.align-why-row {
+  display: inline-flex; align-items: center; gap: 0.32rem;
+  background: rgba(10,15,30,0.55); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 0.5rem; padding: 0.16rem 0.45rem;
+}
+.align-why-row.is-thin { border-style: dashed; opacity: 0.88; }
+.align-why-lab { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: #d7e2f2; }
+.align-why-star { color: #fcd34d; margin-right: 0.15rem; }
+.align-why-pct { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; line-height: 1; }
+.align-why-mix {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; line-height: 1.5;
+  color: #9fb4d4; letter-spacing: 0.02em; margin: 0;
+}
+.align-why-wall {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; line-height: 1.45;
+  color: #8ea2c0; margin: 0; font-style: italic;
+  border-top: 1px dashed rgba(255,255,255,0.12); padding-top: 0.38rem;
+}
+.align-why-wall b { font-style: normal; color: #b9c8dd; }
+
+/* Warming state: a hole we have not finished reading is not a hole we know is
+   empty, and the two must not look alike. */
+.align-cov-pend { display: block; margin-top: 0.28rem; font-size: 0.68rem; line-height: 1.45; color: #93a7c4; }
+.align-cov-note.is-pending { border-left-color: rgba(147,167,196,0.5); }
+.align-mode-gap.is-pending { opacity: 0.9; }
+
+@media (max-width: 768px) {
+  .align-why { padding: 0.55rem 0.6rem; }
+  .align-why-grp { gap: 0.3rem; }
+  .align-drivers-note { white-space: normal; }
+}

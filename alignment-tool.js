@@ -1539,6 +1539,21 @@
       } catch (e) { return false; }
     }
 
+    // ── WARM THE PACK THE BASELINE IS READ OFF ──────────────────────────────
+    // The stated lane's fallback is a reading of the formal record, so it cannot
+    // appear until that record is in cache — and for most of this file's history
+    // nothing in the stated lane ever asked for one. The collapsed card learned to
+    // (see _alignCardBar); the team surfaces did not, which is exactly where the
+    // gap was widest: a saved team is six people rendered once, off screen from any
+    // card bar, and every hole in it stayed a hole. This is the one line that makes
+    // the fallback actually reachable from those surfaces, on the same debounced
+    // batch-of-24 warmer record mode uses. A pack that never lands costs nothing:
+    // the baseline simply does not appear and the lane behaves as it did before.
+    function _alignWarmBaseline(pid) {
+      try { if (pid && !_alignRecordWarm(pid)) _alignQueueConsistWarm(pid); } catch (e) {}
+    }
+    window._alignWarmBaseline = _alignWarmBaseline;
+
     // The politician-side input for record mode: { issueKey → signal }, built
     // once per politician per derivation epoch (PDXDataEpoch bumps the moment a
     // vote pack lands, so this can never serve a stale read of a warm record).
@@ -1632,18 +1647,43 @@
       var rec = _alignRecordSideMap(pid);
       var total = (typeof _alignIssues !== 'undefined' && _alignIssues) ? _alignIssues.size : 0;
       var covered = 0, said = 0, baseline = 0, missing = [];
+      // The baseline's OWN readability, counted apart from the quotes it stands in
+      // for. A visitor told "3 of them came from the formal record" is owed the
+      // next fact too: whether those three are deep runs or single acts. Without
+      // it a thin baseline reads exactly like a twelve-vote one.
+      var baseThin = 0, baseSplit = 0, baseDeep = 0;
       if (total) {
         _alignIssues.forEach(function (key) {
           if (polMap[key]) { covered++; said++; return; }
-          if (rec && rec.sides[key]) { covered++; baseline++; return; }
+          var s = rec ? rec.sides[key] : null;
+          if (s) {
+            covered++; baseline++;
+            if (s.tier === 'thin') baseThin++;
+            else if (s.tier === 'split') baseSplit++;
+            else baseDeep++;
+            return;
+          }
           missing.push({ key: key, label: (ISSUE_MAP[key] && ISSUE_MAP[key].label) || key });
         });
       }
+      var warm = !!(rec && rec.warm);
+      // PENDING vs EMPTY, IN THE STATED LANE TOO. The baseline is read off the same
+      // vote pack record mode needs, so an unread pack is not "no record here" — it
+      // is "not read yet". Those are the two states a fallback must never blur, and
+      // until this existed the stated lane had only one of them: every hole read as
+      // a permanent silence for as long as the pack took to land. Only claimable
+      // while some picked issue actually has a hole for a baseline to fill.
+      var pending = !warm && !_consistTried[pid] && missing.length > 0;
       return {
         covered: covered, total: total, missing: missing,
         said: said, baseline: baseline,
+        baselineThin: baseThin, baselineSplit: baseSplit, baselineDeep: baseDeep,
+        warm: warm, pending: pending,
         // Same claim as record mode's: about the match, never about the person.
-        sparse: covered > 0 && covered * 2 < total
+        sparse: covered > 0 && covered * 2 < total,
+        // More of this match stood in from the record than was quoted. A statement
+        // about which lane the number came from, never a grade on the member.
+        baselineLed: baseline > 0 && baseline > said
       };
     }
     window._alignStatedCoverage = _alignStatedCoverage;
@@ -1785,6 +1825,134 @@
     window._PDX_ALIGN_BASE_TAG = _ALIGN_BASE_TAG;
     window._PDX_ALIGN_BASE_NOTE = _ALIGN_BASE_NOTE;
 
+    // ── WHERE ONE ROW'S SIDE CAME FROM, IN ONE GLYPH AND ONE WORD ────────────
+    // THREE states, and the reason it is three rather than two is the whole of
+    // this pass. `said` is a quote. `record` is the record answering the question
+    // the visitor actually asked. `baseline` is the record standing in for a quote
+    // that does not exist — the same bytes as `record`, a completely different
+    // claim, and the one a reader is most likely to mistake for a promise. Every
+    // "why this match" surface reads this table instead of composing its own
+    // wording, so the three cannot drift apart across the card, the modal and the
+    // team overview.
+    var _ALIGN_SRC_META = {
+      said:     { ico: '💬', short: 'Stated', word: 'a documented position',
+                  cls: 'said',
+                  note: 'A documented, sourced position on this exact issue — their own words.' },
+      baseline: { ico: '🏛', short: _ALIGN_BASE_TAG, word: 'the formal record, standing in',
+                  cls: 'baseline', note: _ALIGN_BASE_NOTE },
+      record:   { ico: '🏛', short: 'Record', word: 'the formal record',
+                  cls: 'record',
+                  note: 'What their votes and formal actions did on this issue. A pattern is what the record did — not a stated position.' }
+    };
+    function _alignRowSource(it) {
+      if (!it) return 'said';
+      if (it.source === 'record') return it.baseline ? 'baseline' : 'record';
+      return 'said';
+    }
+    window._alignRowSource = _alignRowSource;
+    window._PDX_ALIGN_SRC_META = _ALIGN_SRC_META;
+
+    // The source marker that rides on a compact chip — one glyph plus, for the
+    // fallback only, the words that keep it from reading as a promise. A record
+    // row in RECORD mode gets no extra tag: the visitor asked the record question,
+    // so the record answering it is not a stand-in for anything.
+    function _alignSrcMarkHtml(it) {
+      var k = _alignRowSource(it);
+      var m = _ALIGN_SRC_META[k];
+      var thin = it && it.thin;
+      return '<span class="align-src-mark is-' + m.cls + (thin ? ' is-thin' : '') + '"' +
+          ' title="' + m.note.replace(/"/g, '&quot;') + (thin ? ' Thin or split on this issue, so it counts less.' : '') + '">' +
+          '<span aria-hidden="true">' + m.ico + '</span>' +
+          (k === 'baseline' ? '<span class="align-src-mark-lb">' + _ALIGN_BASE_TAG + '</span>' : '') +
+          (thin ? '<span class="align-src-mark-thin">thin</span>' : '') +
+        '</span>';
+    }
+    window._alignSrcMarkHtml = _alignSrcMarkHtml;
+
+    // ── THE SOURCE MIX, IN ONE SENTENCE ──────────────────────────────────────
+    // Built from the breakdown's own published tally, so the sentence and the
+    // number can never disagree. Says what is in the match, what stood in, how
+    // much of what stood in is thin, and what fell out entirely — in that order,
+    // because that is the order a reader's trust drops.
+    function _alignSourceMixText(bd, cov) {
+      if (!bd || !bd.sources) return '';
+      var s = bd.sources;
+      var bits = [];
+      if (s.said) bits.push(s.said + (s.said === 1 ? ' from a documented position' : ' from documented positions'));
+      if (s.record) bits.push(s.record + ' from the formal record');
+      if (s.baseline) bits.push(s.baseline + ' stood in from the formal record');
+      if (!bits.length) return '';
+      var txt = s.scored + ' of your ' + s.picked + ' issue' + (s.picked === 1 ? '' : 's') +
+        ' are in this number — ' + bits.join(', ') + '.';
+      if (s.thin) {
+        txt += ' ' + (s.thin === 1 ? 'One of those rests on a thin or split record, so it counts less.'
+                                   : s.thin + ' of those rest on thin or split records, so they count less.');
+      }
+      if (s.uncovered) {
+        txt += ' ' + s.uncovered + ' ' + (s.uncovered === 1 ? 'is' : 'are') +
+          ' not counted — nothing on file either way, and we will not estimate one.';
+      }
+      if (cov && cov.pending) txt += ' Their formal record is still being read, so this may fill in.';
+      return txt;
+    }
+    window._alignSourceMixText = _alignSourceMixText;
+
+    // ── "WHY THIS MATCH" ─────────────────────────────────────────────────────
+    // The block that answers the question a percentage cannot: WHICH of the
+    // visitor's issues moved this number, which way, and — the part that was
+    // missing — whether each one came from something the candidate said or from a
+    // reading of what their record did. Ranked by the weight the engine actually
+    // gave the row, not by score, so the issues that moved the number most are the
+    // issues named. Returns '' when there is no grounded breakdown; it never
+    // invents a reason for a number it cannot explain.
+    function _alignWhyMatchHtml(pid, opts) {
+      opts = opts || {};
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || !_alignIssues.size) return '';
+      var bd = (typeof _calcAlignmentBreakdown === 'function')
+        ? _calcAlignmentBreakdown(pid, opts.mode ? { mode: opts.mode } : null) : null;
+      if (!bd || !bd.issues || !bd.issues.length) return '';
+      var maxUp = opts.maxUp || 3, maxDown = opts.maxDown || 2;
+      var byWeight = function (a, b) { return (b.weight || 0) - (a.weight || 0); };
+      var up = bd.issues.filter(function (i) { return i.score >= 55; }).sort(byWeight).slice(0, maxUp);
+      var down = bd.issues.filter(function (i) { return i.score < 50; }).sort(byWeight).slice(0, maxDown);
+      if (!up.length && !down.length) return '';
+      var row = function (i, kind) {
+        var c = _alignScoreColor(i.score);
+        var lvl = _alignMigrateLevel(i.intensity);
+        var star = (lvl === 'strongly_support' || lvl === 'strongly_oppose')
+          ? '<span class="align-why-star" title="You weighted this strongly — it carries extra weight">★</span>' : '';
+        return '<li class="align-why-row is-' + kind + (i.thin ? ' is-thin' : '') + '">' +
+            '<span class="align-why-lab">' + star + i.label + '</span>' +
+            _alignSrcMarkHtml(i) +
+            '<span class="align-why-pct" style="color:' + c + ';">' + i.score + '%</span>' +
+          '</li>';
+      };
+      var html = '<div class="align-why" data-align-mode="' + (bd.mode || 'stated') + '">' +
+        '<div class="align-why-head">🎯 <b>Why this match</b><span class="align-why-sub">' +
+          (bd.mode === 'record'
+            ? 'the issues their record moved most'
+            : 'the issues that moved this number most') + '</span></div>';
+      if (up.length) {
+        html += '<div class="align-why-grp"><span class="align-why-grp-lab is-up">▲ Pulling it up</span>' +
+          '<ul class="align-why-list">' + up.map(function (i) { return row(i, 'up'); }).join('') + '</ul></div>';
+      }
+      if (down.length) {
+        html += '<div class="align-why-grp"><span class="align-why-grp-lab is-down">▼ Pulling it down</span>' +
+          '<ul class="align-why-list">' + down.map(function (i) { return row(i, 'down'); }).join('') + '</ul></div>';
+      }
+      var mix = _alignSourceMixText(bd, bd.coverage);
+      if (mix) html += '<p class="align-why-mix">' + mix + '</p>';
+      // THE WALL, WHEREVER A BASELINE APPEARS. Printed only when one actually did,
+      // so it stays a disclosure rather than boilerplate.
+      if (bd.sources && bd.sources.baseline) {
+        html += '<p class="align-why-wall">🏛 <b>' + _ALIGN_BASE_TAG + '</b> means no stated position ' +
+          'was on file, so the direction of the formal record stands in. That is a reading of the ' +
+          'votes, not a quoted promise — and it is <b>not</b> counted in Direction Match.</p>';
+      }
+      return html + '</div>';
+    }
+    window._alignWhyMatchHtml = _alignWhyMatchHtml;
+
     // The stated lane's own coverage line. Before the party fill-in was retired
     // this did not need to exist: every issue got a number whether or not the
     // candidate had ever spoken to it, so there was nothing to disclose and
@@ -1801,16 +1969,42 @@
         : '';
       // The baseline, disclosed in the same breath as the number it moved. Worded
       // as what the RECORD did, never as what they said, and it names the wall.
+      // …and how readable that stand-in is, because "3 came from the record" and
+      // "3 came from the record, 2 of them off a single act" are different claims
+      // and only one of them was being made.
+      var _blThin = (c.baselineThin || 0) + (c.baselineSplit || 0);
+      var _blThinTx = _blThin
+        ? ' ' + (_blThin === 1 ? 'One of those readings is <b>thin or split</b>, so it counts less.'
+                               : _blThin + ' of those readings are <b>thin or split</b>, so they count less.')
+        : '';
       var blLine = c.baseline
         ? '<span class="align-cov-base">🏛 <b>' + c.baseline + ' of them</b> ' +
             (c.baseline === 1 ? 'has no stated position' : 'have no stated position') +
             ' on file, so the direction of their <b>formal record</b> stands in. That is a ' +
-            'reading of the votes, not a quote — and it is <b>not</b> counted in Direction Match.</span>'
+            'reading of the votes, not a quote — and it is <b>not</b> counted in Direction Match.' +
+            _blThinTx + '</span>'
+        : '';
+      // STILL READING ≠ NOTHING THERE. Appended rather than substituted, so a
+      // visitor reading a partial number is told it may still fill in without the
+      // fraction in front of them being taken away and replaced by a spinner.
+      var pendLine = c.pending && c.missing.length
+        ? '<span class="align-cov-pend">⏳ Still reading their <b>formal record</b> — issues with no stated ' +
+            'position may fill in from it once it lands.</span>'
         : '';
       // The wall, stated plainly: we would rather show a thinner match than fill
       // the hole with their party, their caucus, or a keyword guess.
       var wall = '<span class="align-cov-wall">These are left out of the match — they are <b>not</b> ' +
         'estimated from their party or their broader record. Nothing here is inferred.</span>';
+      if (!c.covered && c.pending) {
+        _alignQueueConsistWarm(pid);
+        return '<div class="align-cov-note is-pending" data-align-cov="pending">' +
+            '<span class="align-cov-ico" aria-hidden="true">⏳</span>' +
+            '<span class="align-cov-txt"><b>Reading their formal record…</b> ' +
+              'No documented position yet on the ' + c.total + ' issue' + (c.total === 1 ? '' : 's') +
+              ' you picked. Where they have never been quoted, the direction of their formal record ' +
+              'can stand in — so this may fill in once the record lands.</span>' +
+          '</div>';
+      }
       if (!c.covered) {
         return '<div class="align-cov-note is-none" data-align-cov="none">' +
             '<span class="align-cov-ico" aria-hidden="true">💬</span>' +
@@ -1831,6 +2025,7 @@
           '<span class="align-cov-txt">' + lead + tail +
             ' ' + (miss.length ? wall : '') +
             blLine +
+            pendLine +
             missLine +
           '</span>' +
         '</div>';
@@ -1895,6 +2090,16 @@
       if (!_alignModeIsRecord()) {
         var sc = _alignStatedCoverage(pid);
         if (!sc.total || sc.covered > 0) return '';
+        // The stated lane gets record mode's pending state too, for the same
+        // reason record mode has one: its fallback is read off the same pack, so
+        // "nothing to match" printed over an unfetched record is a claim we have
+        // not earned yet.
+        if (sc.pending) {
+          _alignQueueConsistWarm(pid);
+          return '<div class="align-mode-gap is-pending" data-align-mode-gap="pending">' +
+              '<span aria-hidden="true">⏳</span><span>💬 No stated position yet — reading their formal record…</span>' +
+            '</div>';
+        }
         return '<div class="align-mode-gap" data-align-mode-gap="none">' +
             '<span aria-hidden="true">💬</span>' +
             '<span>No documented position on your issues, and no formal record that reads a ' +
@@ -2324,6 +2529,14 @@
           // and only the second carries the extra disclosure.
           baseline: _baseline,
           basis: recSig ? 'record' : 'stated',
+          // HOW READABLE THIS ROW'S SIGNAL IS, hoisted out of `pattern` so a
+          // renderer can mark a thin row without learning the tier table. `thin`
+          // is true for a one-act lean AND for a deep split, because both are
+          // "we cannot say much here" and both must look different from a run
+          // that went one way. A documented position is never thin: a quote is a
+          // quote at any depth.
+          thin: !!(recSig && (recSig.tier === 'thin' || recSig.tier === 'split')),
+          conf: recSig ? recSig.conf : 1,
           pattern: recSig ? { side: recSig.side, tier: recSig.tier, tone: recSig.tone, label: recSig.label, counts: recSig.counts, judged: recSig.judged, advances: recSig.advances, opposes: recSig.opposes, conf: recSig.conf, rank: recSig.rank } : null });
       });
 
@@ -2335,10 +2548,29 @@
       // the headline % the UI shows matches the sort order. `acct`/`acctDelta` let
       // the quick-view explain how the integrity read moved the number.
       var _info = _acctMatchInfo(pid, totalScore / totalWeight);
+      // WHERE THE NUMBER CAME FROM, COUNTED ONCE AND PUBLISHED. Every surface that
+      // shows this match was recomputing some slice of it — "how many documented",
+      // "how many stood in from the record", "how many are thin" — and each one
+      // that got it slightly wrong got it wrong on its own. One tally, read by all
+      // of them, and it distinguishes the three states that must never merge:
+      // quoted, stood in from the record, and not on file at all.
+      var _src = { said: 0, baseline: 0, record: 0, thin: 0, scored: perIssue.length,
+                   uncovered: _uncovered.length, picked: perIssue.length + _uncovered.length };
+      perIssue.forEach(function (it) {
+        if (it.thin) _src.thin++;
+        if (it.source === 'record') { if (it.baseline) _src.baseline++; else _src.record++; }
+        else _src.said++;
+      });
       return { overall: _info.adjusted, issueOverall: _info.base, acct: _info.acct, acctDelta: _info.delta, issues: perIssue,
         mode: _recMode ? 'record' : 'stated',
         uncovered: _uncovered,
-        coverage: _recMode ? _alignRecordCoverage(pid) : null };
+        sources: _src,
+        // BOTH LANES NOW. This was record-mode-only, which meant the lane that
+        // actually has a fallback to disclose was the lane with no coverage object
+        // to disclose it from, and every stated-lane caller had to go back to
+        // _alignStatedCoverage by hand. Computed for the lane this breakdown
+        // actually ran in, not for whichever one the visitor last clicked.
+        coverage: _recMode ? _alignRecordCoverage(pid) : _alignStatedCoverage(pid) };
     }
 
     // Aggregate the whole 6-person team into a single alignment picture:
@@ -2347,31 +2579,105 @@
     //   • issues   — every selected issue with the team's average score on it,
     //                sorted high→low, so we can surface what's driving the match
     //                and where the team falls short of the visitor's values.
+    //
+    // WHAT THIS USED TO HIDE. The average was taken only over the members who had
+    // the issue covered, so an issue one candidate had a position on scored exactly
+    // like an issue all six had positions on. A single 82% on Housing rendered as
+    // "▲ Driving your match — Housing 82%" for a team of six, five of whom have
+    // nothing on file. That is not a wrong average; it is an average of one, printed
+    // without its denominator. We do NOT change the arithmetic — inventing a
+    // neutral 50 for absent members would be exactly the artificial strength on thin
+    // data we refuse elsewhere. We publish the denominator instead, plus where the
+    // covered members actually SPLIT, and let the renderer say so out loud.
     function _calcTeamAlignment(pids) {
       if (typeof _calcAlignmentBreakdown !== 'function') return null;
       if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return null;
       var members = [];
       var issueAgg = {};
+      var _labels = {};
+      var _src = { said: 0, baseline: 0, record: 0, thin: 0, scored: 0, picked: 0 };
+      var _seed = function (key, label) {
+        if (!issueAgg[key]) {
+          issueAgg[key] = { key: key, label: label || _labels[key] || key, total: 0, count: 0,
+                            said: 0, baseline: 0, record: 0, thin: 0,
+                            high: null, low: null, scores: [], absent: [] };
+        }
+        if (label) issueAgg[key].label = label;
+        return issueAgg[key];
+      };
       (pids || []).forEach(function(pid) {
+        // Same reason the slot band warms: a team overview can paint from a cold
+        // cache, and a cold cache means every record-derived baseline silently
+        // missing from the aggregate.
+        _alignWarmBaseline(pid);
         var bd = _calcAlignmentBreakdown(pid);
         var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
         if (!bd || !d) return;
-        members.push({ pid: pid, name: d.name, score: bd.overall });
+        var ms = (bd.sources || {});
+        members.push({ pid: pid, name: d.name, score: bd.overall,
+                       covered: (bd.issues || []).length,
+                       picked: ms.picked || ((bd.issues || []).length + (bd.uncovered || []).length),
+                       said: ms.said || 0, baseline: ms.baseline || 0, record: ms.record || 0,
+                       thin: ms.thin || 0 });
+        _src.said += ms.said || 0; _src.baseline += ms.baseline || 0;
+        _src.record += ms.record || 0; _src.thin += ms.thin || 0;
+        _src.scored += (bd.issues || []).length;
+        _src.picked += ms.picked || ((bd.issues || []).length + (bd.uncovered || []).length);
         bd.issues.forEach(function(it) {
-          if (!issueAgg[it.key]) issueAgg[it.key] = { key: it.key, label: it.label, total: 0, count: 0 };
-          issueAgg[it.key].total += it.score;
-          issueAgg[it.key].count++;
+          var a = _seed(it.key, it.label);
+          a.total += it.score; a.count++;
+          a.scores.push(it.score);
+          if (a.high === null || it.score > a.high) a.high = it.score;
+          if (a.low === null || it.score < a.low) a.low = it.score;
+          var sk = _alignRowSource(it);
+          a[sk]++;
+          if (it.thin) a.thin++;
+        });
+        // Seed the rows nobody covered too, so an issue the visitor picked and the
+        // whole team is silent on still gets a row — as a hole, not as an omission.
+        (bd.uncovered || []).forEach(function(u) {
+          _labels[u.key] = u.label;
+          _seed(u.key, u.label).absent.push(d.name);
         });
       });
       if (!members.length) return null;
       var overall = Math.round(members.reduce(function(s, m) { return s + m.score; }, 0) / members.length);
-      var issues = Object.keys(issueAgg).map(function(k) {
+      var nMembers = members.length;
+      var issues = [], uncovered = [];
+      Object.keys(issueAgg).forEach(function(k) {
         var a = issueAgg[k];
-        return { key: k, label: a.label, score: Math.round(a.total / a.count) };
+        var row = {
+          key: k, label: a.label,
+          score: a.count ? Math.round(a.total / a.count) : null,
+          covered: a.count, members: nMembers,
+          said: a.said, baseline: a.baseline, record: a.record, thin: a.thin,
+          high: a.high, low: a.low,
+          spread: (a.count > 1 && a.high !== null) ? (a.high - a.low) : 0,
+          agree: a.scores.filter(function (v) { return v >= 55; }).length,
+          differ: a.scores.filter(function (v) { return v < 50; }).length,
+          absent: a.absent,
+          // "Readable formal signal" = at least two members scored AND none of the
+          // scores leaned on a thin/split record. This is the gate for the split and
+          // overlap rows: we only claim the team divides on an issue when there is
+          // enough on file for the division to be real.
+          readable: a.count >= 2 && a.thin === 0,
+          partial: a.count > 0 && a.count < nMembers
+        };
+        if (!a.count) uncovered.push(row); else issues.push(row);
       });
       issues.sort(function(a, b) { return b.score - a.score; });
+      uncovered.sort(function(a, b) { return (a.label > b.label) ? 1 : -1; });
       members.sort(function(a, b) { return b.score - a.score; });
-      return { overall: overall, members: members, issues: issues };
+      // Where the team genuinely divides: widest readable spread first.
+      var splits = issues.filter(function (i) { return i.readable && i.spread >= 35; })
+                         .slice().sort(function (a, b) { return b.spread - a.spread; });
+      // …and where it genuinely agrees: everyone scored, everyone scored well.
+      var overlaps = issues.filter(function (i) {
+        return i.readable && i.covered === nMembers && i.spread <= 20 && i.score >= 55;
+      });
+      return { overall: overall, members: members, issues: issues,
+               uncovered: uncovered, splits: splits, overlaps: overlaps,
+               sources: _src, mode: _alignModeIsRecord() ? 'record' : 'stated' };
     }
     window._calcTeamAlignment = _calcTeamAlignment;
 
@@ -2518,7 +2824,10 @@
       if (!ta) return '';
       var col = _alignScoreColor(ta.overall);
       var word = ta.overall >= 70 ? 'strongly aligned' : ta.overall >= 50 ? 'partly aligned' : 'weakly aligned';
-      var nIssues = ta.issues.length;
+      // The visitor's pick count, not the covered count. The old number quietly
+      // shrank to whatever the team could answer, so a team with holes reported a
+      // smaller question rather than an incomplete answer to the real one.
+      var nIssues = ta.issues.length + ((ta.uncovered || []).length);
 
       var memberChips = ta.members.map(function(m) {
         var mc = _alignScoreColor(m.score);
@@ -2541,9 +2850,29 @@
       // spots where it lags (bottom, score < 50). Caps keep it scannable.
       var drivers = ta.issues.filter(function(i) { return i.score >= 55; }).slice(0, 3);
       var weak = ta.issues.filter(function(i) { return i.score < 50; }).slice(-2).reverse();
+      // The denominator, on the chip itself. "4/6" next to a percentage is the
+      // difference between "your team is 82% aligned on Housing" and "the four of
+      // your six picks with anything on file average 82% on Housing" — and it costs
+      // four characters. Thin rows get the dashed treatment so a number resting on a
+      // split record never looks as solid as one resting on six clean ones.
+      var covMark = function (i) {
+        if (!i.covered || i.covered >= i.members) return '';
+        return '<span class="myteam-ao-issue-cov" title="' + i.covered + ' of your ' + i.members +
+          ' pick' + (i.members === 1 ? '' : 's') + ' have anything on file here — the rest are not counted, not counted as neutral">' +
+          i.covered + '/' + i.members + '</span>';
+      };
+      var srcMark = function (i) {
+        if (ta.mode === 'record' || !i.baseline) return '';
+        return '<span class="myteam-ao-issue-src" aria-hidden="true" title="' +
+          i.baseline + ' of these ' + (i.baseline === 1 ? 'is' : 'are') + ' ' + _ALIGN_BASE_TAG.toLowerCase() +
+          ', not a stated position">🏛</span>';
+      };
       var issueChip = function(i, kind) {
         var ic = _alignScoreColor(i.score);
+        if (i.thin) kind += ' is-thin';
+        if (i.partial) kind += ' is-partial';
         var inner = '<span class="myteam-ao-issue-lab">' + i.label + '</span>' +
+            srcMark(i) + covMark(i) +
             '<span class="myteam-ao-issue-pct" style="color:' + ic + ';">' + i.score + '%</span>';
         // Evidence jump — only when the issue has a tracked key AND there's evidence
         // on record for it (or the Locker library hasn't loaded yet, so we can't rule
@@ -2582,6 +2911,77 @@
           ta.issues.slice(0, 3).map(function(i) { return issueChip(i, 'good'); }).join('') + '</div>';
       }
 
+      // WHERE YOUR TEAM SPLITS. The single most useful thing a team overview can
+      // tell someone assembling a slate, and the one thing an average structurally
+      // destroys: two picks at 90% and two at 20% average to the same 55% as four
+      // picks at 55%. Only shown for issues with readable signal on at least two
+      // members, so a split is never manufactured out of one thin record.
+      var splitHtml = '';
+      var _splits = (ta.splits || []).slice(0, 2);
+      if (_splits.length) {
+        splitHtml = '<div class="myteam-ao-drow is-split"><span class="myteam-ao-drow-lab" style="color:#fcd34d;">⚖ Where your team splits</span>' +
+          _splits.map(function (i) {
+            return '<span class="myteam-ao-issue split" title="Your picks range from ' + i.low + '% to ' + i.high +
+                '% here — the ' + i.score + '% average hides that" style="border-color:#fcd34d4d;">' +
+                '<span class="myteam-ao-issue-lab">' + i.label + '</span>' + srcMark(i) +
+                '<span class="myteam-ao-issue-range">' + i.low + '–' + i.high + '%</span>' +
+              '</span>';
+          }).join('') + '</div>';
+      } else {
+        var _ovl = (ta.overlaps || []).slice(0, 2);
+        if (_ovl.length) {
+          splitHtml = '<div class="myteam-ao-drow is-overlap"><span class="myteam-ao-drow-lab" style="color:#7dd3fc;">⇊ Your whole team lines up</span>' +
+            _ovl.map(function (i) {
+              return '<span class="myteam-ao-issue overlap" title="All ' + i.members +
+                  ' picks have something on file here and none of them are far apart" style="border-color:#7dd3fc4d;">' +
+                  '<span class="myteam-ao-issue-lab">' + i.label + '</span>' + srcMark(i) +
+                  '<span class="myteam-ao-issue-pct" style="color:#7dd3fc;">' + i.score + '%</span>' +
+                '</span>';
+            }).join('') + '</div>';
+        }
+      }
+      driversHtml += splitHtml;
+
+      // NOT ENOUGH ON FILE — deliberately styled as an absence, not a low score.
+      // These issues have no percentage anywhere in the row, because the failure
+      // mode we are fixing is a hole reading as a mild yes.
+      var _unc = ta.uncovered || [];
+      if (_unc.length) {
+        driversHtml += '<div class="myteam-ao-drow is-empty"><span class="myteam-ao-drow-lab" style="color:#8fa3bf;">○ Not enough on file</span>' +
+          _unc.slice(0, 4).map(function (i) {
+            return '<span class="myteam-ao-issue empty" title="None of your ' + i.members +
+                ' picks has a documented position or a readable formal record here. Not counted — not counted as neutral.">' +
+                '<span class="myteam-ao-issue-lab">' + i.label + '</span>' +
+                '<span class="myteam-ao-issue-none">no read</span>' +
+              '</span>';
+          }).join('') +
+          (_unc.length > 4 ? '<span class="myteam-ao-issue-more">+' + (_unc.length - 4) + ' more</span>' : '') +
+          '</div>';
+      }
+
+      // One sentence naming what the number is made of. Counts, never percentages —
+      // a percentage of a percentage is exactly the kind of derived confidence this
+      // tool refuses to manufacture.
+      var _s = ta.sources || {};
+      var mixBits = [];
+      if (_s.said) mixBits.push('<b>' + _s.said + '</b> from ' + (_s.said === 1 ? 'a documented position' : 'documented positions'));
+      if (_s.baseline) mixBits.push('<b>' + _s.baseline + '</b> stood in from the formal record');
+      if (_s.record) mixBits.push('<b>' + _s.record + '</b> from the formal record');
+      var mixHtml = '';
+      if (mixBits.length) {
+        mixHtml = '<div class="myteam-ao-mix"><b>' + _s.scored + '</b> issue–candidate read' +
+          (_s.scored === 1 ? '' : 's') + ' are in this number — ' +
+          (mixBits.length === 1 ? mixBits[0] : mixBits.slice(0, -1).join(', ') + ' and ' + mixBits[mixBits.length - 1]) + '.' +
+          (_s.thin ? ' <span class="myteam-ao-mix-thin">' + _s.thin + ' rest' + (_s.thin === 1 ? 's' : '') +
+            ' on a thin or split record and count' + (_s.thin === 1 ? 's' : '') + ' for less.</span>' : '') +
+          (_s.picked > _s.scored ? ' <span class="myteam-ao-mix-gap">Another <b>' + (_s.picked - _s.scored) +
+            '</b> were left out for want of anything on file — not scored as neutral.</span>' : '') +
+          (_s.baseline ? '<span class="myteam-ao-mix-wall">🏛 <b>' + _ALIGN_BASE_TAG + '</b> means no stated ' +
+            'position was on file, so the direction of that pick\'s formal record stood in — a reading of ' +
+            'the votes, not a quoted stance, and never counted in Direction Match.</span>' : '') +
+          '</div>';
+      }
+
       return '<div class="myteam-ao-top">' +
           '<div class="myteam-ao-score" style="color:' + col + ';text-shadow:0 0 22px ' + col + '55;">' + ta.overall + '<span>%</span></div>' +
           '<div class="myteam-ao-head">' +
@@ -2592,7 +2992,7 @@
           '</div>' +
         '</div>' +
         '<div class="myteam-ao-members">' + memberChips + '</div>' +
-        '<div class="myteam-ao-issues">' + driversHtml + '</div>' +
+        '<div class="myteam-ao-issues">' + driversHtml + '</div>' + mixHtml +
         '<div class="myteam-ao-foot">Tap a name for their issue-by-issue breakdown · ' +
           '<button type="button" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();">⚙ Adjust your issues</button></div>';
     }
@@ -2742,12 +3142,32 @@
         var c = _alignScoreColor(i.score);
         var _lvl = _alignMigrateLevel(i.intensity);
         var strong = (_lvl === 'strongly_support' || _lvl === 'strongly_oppose') ? '★ ' : '';
-        return '<span class="align-driver-chip" title="' + (strong ? 'You weighted this strongly · ' : '') + 'Your match on ' + i.label + '" style="border-color:' + c + '40;background:' + c + '12;">' +
+        // THE DRIVER NOW NAMES ITS OWN LANE. These chips are the most-read
+        // explanation of a match on the whole site — they sit directly under the
+        // percentage on every card — and until now they said WHICH issue drove it
+        // without saying what the claim rested on. A record-derived stand-in read
+        // exactly like a quoted promise. The mark is small; the distinction is not.
+        var _sk = _alignRowSource(i);
+        var _sm = _ALIGN_SRC_META[_sk];
+        var _thin = i.thin ? ' is-thin' : '';
+        return '<span class="align-driver-chip is-' + _sm.cls + _thin + '" title="' +
+            (strong ? 'You weighted this strongly · ' : '') + 'Your match on ' + i.label + ' · ' +
+            _sm.note.replace(/"/g, '&quot;') + (i.thin ? ' Thin or split, so it counts less.' : '') +
+            '" style="border-color:' + c + '40;background:' + c + '12;">' +
+            '<span class="align-driver-src" aria-hidden="true">' + _sm.ico + '</span>' +
             '<span style="color:#cdd9ec;">' + strong + i.label + '</span><b style="color:' + c + ';">' + i.score + '%</b>' +
+            (_sk === 'baseline' ? '<span class="align-driver-base">' + _ALIGN_BASE_TAG + '</span>' : '') +
           '</span>';
       }).join('');
       var _dLead = _alignModeIsRecord() ? '▲ Record pattern agrees on' : '▲ Driven by';
-      return '<div class="align-drivers" data-align-mode="' + _alignMode + '"><span class="align-drivers-lead">' + _dLead + '</span>' + chips + '</div>';
+      // …and the row says the mix once, so a reader who does not hover a chip still
+      // learns that some of these are readings rather than quotes.
+      var _nBase = ranked.slice(0, max).filter(function (i) { return _alignRowSource(i) === 'baseline'; }).length;
+      var _dNote = (!_alignModeIsRecord() && _nBase)
+        ? '<span class="align-drivers-note" title="' + _ALIGN_BASE_NOTE.replace(/"/g, '&quot;') + '">🏛 ' +
+            _nBase + ' from the record, not a stated position</span>'
+        : '';
+      return '<div class="align-drivers" data-align-mode="' + _alignMode + '"><span class="align-drivers-lead">' + _dLead + '</span>' + chips + _dNote + '</div>';
     }
     window._alignDriverChips = _alignDriverChips;
 
@@ -3082,9 +3502,19 @@
       // another; with the party fill-in gone it would overstate a match built on
       // two documented positions and seven silences.
       var _cov = _alignMatchCoverage(pid);
+      // …and, in the stated lane, HOW MUCH OF IT IS QUOTED. The fraction alone said
+      // how much of what the visitor asked is in the number; it did not say that
+      // part of it stood in from the record. On a member with dense formal coverage
+      // and few quotes that is most of the number, and it was going unsaid on the
+      // single most-seen alignment surface on the site.
+      var _covSplit = '';
+      if (!_alignModeIsRecord() && _cov.baseline) {
+        _covSplit = ' <span class="align-card-src" title="' + _ALIGN_BASE_NOTE.replace(/"/g, '&quot;') + '">· ' +
+          _cov.said + ' stated 🏛 ' + _cov.baseline + ' from the record</span>';
+      }
       var subLine = _alignModeIsRecord()
         ? 'From their <b>formal record</b> on <b>' + _cov.covered + ' of your ' + _cov.total + ' issue' + (_cov.total > 1 ? 's' : '') + '</b> · tap for breakdown'
-        : 'From their <b>stated positions</b> on <b>' + _cov.covered + ' of your ' + _cov.total + ' issue' + (_cov.total > 1 ? 's' : '') + '</b> · tap for breakdown';
+        : 'From their <b>stated positions</b> on <b>' + _cov.covered + ' of your ' + _cov.total + ' issue' + (_cov.total > 1 ? 's' : '') + '</b>' + _covSplit + ' · tap for breakdown';
       return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues, matched on ' + _alignModeMeta().label.toLowerCase() + '. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
           '<span class="align-card-main">' +
@@ -3110,6 +3540,12 @@
     // when there's no record to ground a score (keeps the slot clean).
     function _slotMatchBand(pid) {
       if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      // A TEAM SLOT IS THE ONE PLACE A CARD BAR NEVER RENDERS. It has its own band,
+      // so it never inherited the card bar's warm — which meant the baseline
+      // fallback, the whole point of which is to fill the holes on members with
+      // thin stated coverage, was structurally unreachable from the surface where
+      // the visitor has committed to six specific people. Same debounced batch.
+      _alignWarmBaseline(pid);
       var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
       if (score === null || score === undefined) return '';
       var col = _alignScoreColor(score);
