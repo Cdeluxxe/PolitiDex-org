@@ -293,22 +293,48 @@ for (const c of strip.chips) {
 // 4. The card and the profile agree on the same strip
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · the strip on the card is the strip on the profile");
+
+// The card's chips are a SELECTION from the profile's own pick, never a re-pick:
+// same rows, same source, same order, and never more than the card has room for.
+// The one editorial rule on top of that is the reserved slot — where the profile
+// found an issue whose acts ran both ways, the card must carry one, because a
+// record that contradicts itself is the more interesting half of "what the record
+// points to" and a straight take-the-first-N drops it whenever the one-sided
+// issues fill the card first.
+const CARD_CHIPS = 3;
+function sameStrip(lane, mine, oneSided, split) {
+  const keys = mine.chips.map((c) => c.key);
+  const pick = oneSided.concat(split).map((r) => r.key);
+  ok(keys.length > 0 && keys.length <= CARD_CHIPS,
+    `strip: the ${lane} card carries ${keys.length} chips — it must carry 1 to ${CARD_CHIPS}`);
+  for (const k of keys) {
+    ok(pick.includes(k),
+      `strip: the ${lane} card printed "${k}", which is not in the profile's own pick`);
+  }
+  const order = keys.map((k) => pick.indexOf(k));
+  ok(order.every((n, i) => i === 0 || n > order[i - 1]),
+    `strip: the ${lane} card reordered the profile's pick`);
+  if (split.length) {
+    ok(keys.some((k) => split.map((r) => r.key).includes(k)),
+      `strip: the ${lane} profile found an issue whose acts ran both ways and the card dropped it`);
+  }
+  if (oneSided.length) {
+    eq(keys[0], oneSided[0].key,
+      `strip: the ${lane} card does not lead with the profile's strongest one-sided issue`);
+  }
+}
 {
   const CS = warm.PDXConsistency;
   const xs = CS.execRecordSummary.pick(PREZ);
   const mine = warm.PDXProfileCard._formalStrip(PREZ, "exec");
   eq(mine.head, CS.execRecordSummary.HEAD, "strip: the executive heading is not the profile's");
-  const want = xs.oneway.concat(xs.both).slice(0, 2).map((r) => r.key);
-  eq(mine.chips.map((c) => c.key).join("|"), want.join("|"),
-    "strip: the card selected different executive issues than the profile's own pick");
+  sameStrip("executive", mine, xs.oneway, xs.both);
 
   const so = CS.recordStandout.pick(MEMBER);
   const mineM = warm.PDXProfileCard._formalStrip(MEMBER, "record");
   eq(mineM && mineM.head, CS.recordStandout.HEAD, "strip: the member heading is not the profile's");
   if (so.any) {
-    const wantM = so.consistent.concat(so.mixed).slice(0, 2).map((x) => x.key);
-    eq(mineM.chips.map((c) => c.key).join("|"), wantM.join("|"),
-      "strip: the card selected different member issues than the profile's own pick");
+    sameStrip("member", mineM, so.consistent, so.mixed);
   }
   // THE MIRROR. The card's depth line is not a paraphrase of the profile's — the
   // strings have to be the ones the profile's own strip renders, or two surfaces

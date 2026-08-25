@@ -37,9 +37,11 @@
    A level PolitiDex has not resolved for this area is rendered as an explicit
    "not resolved yet" row rather than dropped. Dropping it would leave a list of
    two that reads as complete. Local offices (mayor, council, school board,
-   county) are never claimed here at all — they resolve through the Relevant-to-Me
-   ballot, and the footer links out to it rather than implying coverage, and only
-   where that ballot can actually answer for this visitor.
+   county) are never claimed as ROWS here at all — they resolve through the
+   Relevant-to-Me ballot. The handoff to that ballot is offered only where
+   window.pdxLocalSeatsForMe() reports actual seats for this visitor's area, and
+   where it reports none the band says so in a sentence instead of staying quiet
+   or offering a button that cannot be honoured.
 
    WHY THE ANSWER IS TWO-SPEED, AND WHY THAT IS SAID OUT LOUD
    ──────────────────────────────────────────────────────────
@@ -212,17 +214,58 @@
     return ' <span class="wrm-party" style="color:' + m.c + ';">(' + m.l + ')</span>';
   }
 
+  // ── The local-officials handoff, gated on an ANSWER not an inference ───────
+  // This button used to be gated on reps.districtsResolvable, which is true for
+  // the whole of Utah. Local seats are not curated for the whole of Utah, so a
+  // visitor in an area with no local roster was offered the button anyway, and
+  // the jump it fired found no local group to open — landing them in the ballot
+  // section whose first groups are President and Cabinet. Asking for your mayor
+  // and being shown the federal cabinet is the worst kind of wrong answer,
+  // because every name on it is real.
+  //
+  // So the gate is now window.pdxLocalSeatsForMe(), which counts the visitor's
+  // actual local seats from the same membership test the ballot renders with, and
+  // has three states rather than two:
+  //
+  //   not resolved  → no location yet. Offer nothing, say nothing.
+  //   resolved, 0   → located, and we hold no local roster here. SAY SO.
+  //   resolved, N   → located, N seats. Offer the button, and name the count so
+  //                   the promise is checkable before it is tapped.
+  //
+  // The middle state is the point of this pass. Silence there reads as "this site
+  // has no local layer"; a button there reads as a promise and breaks. A sentence
+  // is the only honest option.
+  function localCoverage() {
+    try {
+      if (typeof window.pdxLocalSeatsForMe !== 'function') return null;
+      return window.pdxLocalSeatsForMe();
+    } catch (e) { return null; }
+  }
+
+  function localButton(cov) {
+    if (!cov || !cov.resolved || !cov.ok) return '';
+    var n = (cov.pids && cov.pids.length) || 0;
+    return '<button type="button" class="wrm-next-btn"' +
+      ' onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')">' +
+      '🏙️ My local officials <em>(' + n + ')</em></button>';
+  }
+
+  function localGapNote(cov) {
+    if (!cov || !cov.resolved || cov.ok) return '';
+    var where = cov.area ? esc(cov.area) : 'your area';
+    return '<p class="wrm-localgap">' +
+      '<strong>Local offices aren&rsquo;t mapped for ' + where + ' yet.</strong> ' +
+      'Mayor, city council, school board and county seats are curated area by area, and this one ' +
+      'isn&rsquo;t done. We would rather tell you that than hand you a list of people who don&rsquo;t ' +
+      'represent you.' +
+    '</p>';
+  }
+
   // ── After the lookup: the three next steps, in the stated order ────────────
   // Records first, because that is what the supporting line promised. Team
   // building is present and clearly optional, which is the reorder this whole
   // pass is about — it is a step the visitor may take, not the price of entry.
-  //
-  // The local-officials handoff is conditional. Local seats are curated for the
-  // same areas the district seats are, so offering it to a visitor whose district
-  // seats came back blank sends them to a surface that cannot answer for them
-  // either — a dead end dressed as a next step. Where it cannot be honoured it is
-  // not offered.
-  function nextActions(localOk) {
+  function nextActions(cov) {
     return '<div class="wrm-next">' +
       '<div class="wrm-nextlabel">What now?</div>' +
       '<div class="wrm-nextrow">' +
@@ -232,12 +275,9 @@
         '<button type="button" class="wrm-next-btn"' +
           ' onclick="var e=document.getElementById(\'my-politicians\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});">' +
           '⭐ Build my voting team <em>(optional)</em></button>' +
-        (localOk
-          ? '<button type="button" class="wrm-next-btn"' +
-            ' onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')">' +
-            '🏙️ My local officials</button>'
-          : '') +
+        localButton(cov) +
       '</div>' +
+      localGapNote(cov) +
       '<button type="button" class="wrm-changeloc"' +
         ' onclick="(window.openLocationModal||window.toggleChangeLocation||function(){})()">' +
         '📍 Change my location</button>' +
@@ -316,7 +356,7 @@
           ? '<p class="wrm-redrawn">Your U.S. House district was redrawn for 2026. The name above is who represents you <strong>right now</strong>; the Voter Hub shows the district you&rsquo;ll actually vote in.</p>'
           : '') +
         scopeNote(reps) +
-        nextActions(!!reps.districtsResolvable) +
+        nextActions(localCoverage()) +
       '</div>';
     sec.setAttribute('data-located', '1');
   }

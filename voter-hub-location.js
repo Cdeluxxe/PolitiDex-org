@@ -1562,6 +1562,12 @@
     // Without this a visitor outside Utah reads three blank district rows as "this
     // site has nothing on my state" when it has both senators and the governor.
     var _wrDistrictsOk = !!_wrReps.districtsResolvable;
+    // One resolver for "does this visitor have local seats at all", shared with the
+    // homepage band and with the jump guard below. Absent (compare-hub not loaded
+    // yet) is treated as unresolved, which offers nothing and claims nothing —
+    // never as permission to offer the handoff anyway.
+    var _wrLocalCov = { resolved: false, ok: false, area: '', pids: [] };
+    try { if (typeof window.pdxLocalSeatsForMe === 'function') _wrLocalCov = window.pdxLocalSeatsForMe(); } catch (e) {}
     var _wrLede = _wrDistrictsOk
       ? 'Meet the people who hold power in your districts today. Tap any name to see their record — <strong style="color:#cdd9ec;">promises kept, money, and how they vote</strong>.'
       : 'Meet the people who hold power in your state today. Tap any name to see their record — <strong style="color:#cdd9ec;">promises kept, money, and how they vote</strong>. Your U.S. House, State Senate and State House seats need district lines, which we map in Utah so far — those rows stay blank rather than naming someone else&rsquo;s district.';
@@ -1577,11 +1583,19 @@
         // only this line still knows what the next two taps are for.
         '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your team.</div>' +
         '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + _wrRows + '</div>' +
-        // Local seats are curated for the same areas the district seats are, so the
-        // handoff is only offered where it can actually answer for this visitor.
-        (_wrDistrictsOk
-          ? '<button type="button" onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;width:100%;margin-top:0.7rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.03em;text-transform:uppercase;color:#fcd34d;background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(245,158,11,0.06));border:1px solid rgba(245,200,66,0.4);border-radius:0.6rem;padding:0.6rem 0.7rem;min-height:44px;cursor:pointer;transition:transform .12s ease;text-align:center;line-height:1.25;" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">🏙️ See your local representatives — mayor, council, school board &amp; county →</button>'
-          : '') +
+        // Local seats are NOT curated for the same areas the district seats are —
+        // districtsResolvable is true for all of Utah, and local rosters are built
+        // county by county. Gating on it offered this button in areas where the
+        // jump had no local group to open, and the jump's own fallback then
+        // scrolled the visitor to the ballot section's first groups: President and
+        // Cabinet. So the gate is the real count from window.pdxLocalSeatsForMe(),
+        // and where that count is zero the strip says so instead of offering a
+        // button it cannot honour. Same three states as the homepage band.
+        (_wrLocalCov.ok
+          ? '<button type="button" onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;width:100%;margin-top:0.7rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.03em;text-transform:uppercase;color:#fcd34d;background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(245,158,11,0.06));border:1px solid rgba(245,200,66,0.4);border-radius:0.6rem;padding:0.6rem 0.7rem;min-height:44px;cursor:pointer;transition:transform .12s ease;text-align:center;line-height:1.25;" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">🏙️ See your local representatives — mayor, council, school board &amp; county → <span style="opacity:0.75;">(' + _wrLocalCov.pids.length + ')</span></button>'
+          : (_wrLocalCov.resolved
+            ? '<p style="font-family:\'Barlow\',sans-serif;font-size:0.73rem;line-height:1.45;color:#a9b8cf;background:rgba(148,163,184,0.07);border:1px solid rgba(148,163,184,0.22);border-radius:0.6rem;padding:0.5rem 0.6rem;margin:0.7rem 0 0;"><strong style="color:#d3dcea;">Local offices aren&rsquo;t mapped for ' + (_wrLocalCov.area ? _wrEsc(_wrLocalCov.area) : 'your area') + ' yet.</strong> Mayor, city council, school board and county seats are curated area by area, and this one isn&rsquo;t done. We would rather say so than hand you a list of people who don&rsquo;t represent you.</p>'
+            : '')) +
       '</div>';
     return;
 
@@ -2869,6 +2883,36 @@
     else if (officeKey === 'ltgovernor') categoryKey = 'governor';
     else if (officeKey === 'secstate' || officeKey === 'secretaryofstate' || officeKey === 'attorneygeneral' || officeKey === 'chiefjustice' || officeKey === 'defense' || officeKey === 'intel') categoryKey = 'cabinet';
     else categoryKey = 'other';
+
+    // ── LOCAL STOPS AT THE EDGE OF LOCAL ────────────────────────────────────
+    // The fallback at the bottom of this function scrolls to #relevant-section
+    // whenever the requested office group did not render. For every other office
+    // that is a mild miss — the section is the voter's own ballot. For 'local' it
+    // was the reported bug: the section's FIRST groups are President and Cabinet,
+    // which are added before the state check and are therefore national figures
+    // for every visitor in every state. A visitor tapping "my local officials" in
+    // an area with no local roster was scrolled onto that slate.
+    //
+    // So the local path is now closed rather than widened. If we hold no local
+    // seats for this visitor, this function routes NOWHERE — it says why, in the
+    // visitor's own area's name, and leaves them where they were. The two buttons
+    // that fire it are already gated on the same answer, so reaching this branch
+    // means a stale render or a direct call; either way, no national slate.
+    if (categoryKey === 'local') {
+      var _cov = { resolved: false, ok: false, area: '', pids: [] };
+      try { if (typeof window.pdxLocalSeatsForMe === 'function') _cov = window.pdxLocalSeatsForMe(); } catch (e) {}
+      if (!_cov.ok) {
+        var _where = _cov.area || 'your area';
+        var _msg = _cov.resolved
+          ? 'Local offices aren\u2019t mapped for ' + _where + ' yet \u2014 we\u2019d rather say so than show you someone else\u2019s officials.'
+          : 'Set your area first and we\u2019ll show the local seats we actually hold for it.';
+        try { if (typeof window._showToast === 'function') window._showToast(_msg); } catch (e) {}
+        if (!_cov.resolved) {
+          try { if (typeof window.openLocationModal === 'function') window.openLocationModal(); } catch (e) {}
+        }
+        return;
+      }
+    }
 
     // Re-render the personalized ballot against the voter's CURRENT districts
     // before opening the seat's field. This is what carries the right district

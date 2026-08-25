@@ -158,10 +158,15 @@
     return 'record';
   }
 
+  // How many issue chips a homepage record card carries. Three, not two: the card
+  // now LEADS with this strip, and two chips read as a teaser where three read as a
+  // pattern. Above three it stops being a card and starts being the profile.
+  var CARD_CHIPS = 3;
+
   // ── THE FORMAL STORY, IN THE LANE'S OWN WORDS ──────────────────────────────
   // What the profile's formal-first strip found, reduced to the two or three lines
-  // a card has room for: the lane's heading, its depth line, and up to two issue
-  // chips. NOTHING IS DECIDED HERE. Both branches read the published pick() of the
+  // a card has room for: the lane's heading, its depth line, and up to CARD_CHIPS
+  // issue chips. NOTHING IS DECIDED HERE. Both branches read the published pick() of the
   // block the profile itself renders — PDXConsistency.recordStandout for the member
   // lane, execRecordSummary for the executive one — so a chip on a card and the
   // chip on the profile are the same finding, selected by the same rules, under the
@@ -178,6 +183,16 @@
     var chip = function (key, label, word, depth) {
       if (!label || !word) return null;
       return { key: String(key || ''), label: String(label), word: String(word), depth: String(depth || '') };
+    };
+    // THREE CHIPS, AND ONE OF THEM IS RESERVED. Straight `oneSided.concat(split)`
+    // took the first two, which on anyone with two clean one-sided issues meant a
+    // conflicted issue could never reach the card — and a record that runs both
+    // ways on something is the more interesting half of "what the record points
+    // to", not the offcut. So: at most CARD_CHIPS, and if there is a conflicted
+    // issue at all it keeps the last slot.
+    var take = function (oneSided, split) {
+      var keep = (oneSided || []).slice(0, split && split.length ? Math.max(1, CARD_CHIPS - 1) : CARD_CHIPS);
+      return keep.concat((split || []).slice(0, CARD_CHIPS - keep.length));
     };
     if (lane === 'exec') {
       var xs = null;
@@ -198,7 +213,7 @@
         depth: String(xs.volume || ''),
         inventory: (xs.inventory || []).slice(),
         thin: !!xs.thin,
-        chips: (xs.oneway || []).concat(xs.both || []).slice(0, 2).map(function (r) {
+        chips: take(xs.oneway, xs.both).map(function (r) {
           return chip(r.key, r.label, r.word,
             (r.acts || 0) + ' act' + (r.acts === 1 ? '' : 's') + ' on file');
         }).filter(Boolean)
@@ -228,7 +243,7 @@
       // x.noun is the row's own lane noun ("vote" / "votes"), carried through
       // _soRow so the depth line here cannot pick a different one than the chip on
       // the profile does.
-      chips: (so.consistent || []).concat(so.mixed || []).slice(0, 2).map(function (x) {
+      chips: take(so.consistent, so.mixed).map(function (x) {
         var n = x.noun || {};
         return chip(x.key, x.label, x.saysLabel,
           x.held ? (x.held + ' ' + (x.held === 1 ? (n.one || 'vote') : (n.many || 'votes')) + ' on file') : '');
