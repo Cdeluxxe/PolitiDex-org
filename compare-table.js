@@ -18,12 +18,136 @@
   window._cmpSelected = _cmpSelected;
 
   // View state for the "Where They Stand" issue section: which filter chip is
-  // active (all / differ / agree / mine) and whether the capped overflow rows
-  // are expanded. Reset every time the table is rebuilt so a fresh comparison
-  // always opens on the full list.
+  // active (all / differ / agree / mine / focus) and whether the capped overflow
+  // rows are expanded. Reset on a FRESH open so a new comparison always starts on
+  // the full list — but deliberately NOT on an in-place rebuild; see _cmpKeepView.
   let _cmpIssueFilterMode = 'all';
   let _cmpIssueExpanded = false;
   const _CMP_ISSUE_CAP = 14;
+  // ── KEEPING THE READER'S PLACE WHEN THE LINEUP CHANGES ──────────────────────
+  // Every lineup edit — add a rival, drop a pick, toggle a team star — calls
+  // _buildCmpTable(), which threw the visitor's view away and re-opened on the
+  // unfiltered top of the list. That is fine for a fresh open and wrong for every
+  // other case: a reader who has filtered to the differences and scrolled to row
+  // nine is mid-thought, and dropping one of four names should not cost them the
+  // thought. When this flag is set the rebuild keeps the filter, the expansion and
+  // the scroll offset; openCompare() leaves it clear, so a new comparison still
+  // starts clean.
+  let _cmpKeepView = false;
+  function _cmpRebuild() {
+    const area = document.getElementById('cmp-scroll-area');
+    const top = area ? area.scrollTop : 0;
+    _cmpKeepView = true;
+    try { _buildCmpTable(); } finally { _cmpKeepView = false; }
+    if (area) { try { area.scrollTop = top; } catch (e) {} }
+  }
+
+  // ── 📌 ISSUE FOCUS · THE SMALL SET THE READER ACTUALLY CAME FOR ─────────────
+  // A comparison grid treats every issue as equally interesting because it has no
+  // way to know otherwise. A voter does know: there are usually two or three
+  // things that decide their ballot and a long tail they will never read. This is
+  // the place they say so.
+  //
+  // WHAT IT IS. An ordered list of issueKeys, capped small on purpose, held in one
+  // module and read by every comparison surface — the side-by-side pins its rows
+  // to the top, the issue-choice grid offers a one-tap way to add and drop keys,
+  // and both stay in step because neither owns the list. Persisted, so the set
+  // survives a reload; a set you have to rebuild every visit is not a priority.
+  //
+  // WHAT IT IS NOT. It is not a weight and it is not an input to anything. Nothing
+  // scores on it, nothing is ranked by it, and pinning an issue changes only WHERE
+  // its row sits and how loudly it is drawn — never what the row says about
+  // anyone. The rest of the record stays fully present underneath, unfiltered by
+  // default, because a reader narrowing their attention is not the same as a
+  // reader asking us to hide the rest.
+  //
+  // THE CAP IS THE FEATURE. Five, because a "focus" of eleven issues is a list,
+  // and the moment the pinned band is longer than the screen it stops leading and
+  // starts being the grid again.
+  const _CMP_FOCUS_MAX = 5;
+  const _CMP_FOCUS_LS = 'pdx_cmp_focus';
+  let _cmpFocus = [];
+  (function _cmpFocusLoad() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(_CMP_FOCUS_LS) || '[]');
+      if (Array.isArray(raw)) {
+        raw.forEach(k => {
+          k = String(k || '').trim();
+          if (k && _cmpFocus.indexOf(k) < 0 && _cmpFocus.length < _CMP_FOCUS_MAX) _cmpFocus.push(k);
+        });
+      }
+    } catch (e) { _cmpFocus = []; }
+  })();
+  function _cmpFocusSave() {
+    try { localStorage.setItem(_CMP_FOCUS_LS, JSON.stringify(_cmpFocus)); } catch (e) {}
+    // One event, so a surface that is not the one that was clicked still updates.
+    // Announced on window, alongside the other pdx-* app events, so any other
+    // comparison surface can lead with the same pinned issues without importing
+    // this module's store. issue-compare.js listens for exactly this.
+    try { window.dispatchEvent(new CustomEvent('pdx-compare-focus', { detail: { keys: _cmpFocus.slice() } })); } catch (e) {}
+  }
+  function _cmpFocusHas(k) { return !!k && _cmpFocus.indexOf(String(k)) >= 0; }
+  function _cmpFocusAdd(k) {
+    k = String(k || '').trim();
+    if (!k || _cmpFocusHas(k)) return false;
+    // Full means full. Silently dropping the oldest pin would move a row the
+    // reader put there on purpose, so the cap refuses instead and the control
+    // that called this says why.
+    if (_cmpFocus.length >= _CMP_FOCUS_MAX) return false;
+    _cmpFocus.push(k); _cmpFocusSave(); return true;
+  }
+  function _cmpFocusRemove(k) {
+    const i = _cmpFocus.indexOf(String(k || ''));
+    if (i < 0) return false;
+    _cmpFocus.splice(i, 1); _cmpFocusSave(); return true;
+  }
+  window.PDXCompareFocus = {
+    keys: function () { return _cmpFocus.slice(); },
+    has: _cmpFocusHas,
+    add: _cmpFocusAdd,
+    remove: _cmpFocusRemove,
+    toggle: function (k) { return _cmpFocusHas(k) ? (_cmpFocusRemove(k), false) : (_cmpFocusAdd(k) ? true : _cmpFocusHas(k)); },
+    clear: function () { if (!_cmpFocus.length) return; _cmpFocus = []; _cmpFocusSave(); },
+    size: function () { return _cmpFocus.length; },
+    full: function () { return _cmpFocus.length >= _CMP_FOCUS_MAX; },
+    MAX: _CMP_FOCUS_MAX
+  };
+  // Toggle from inside the open side-by-side. Rebuilds in place — the pinned band
+  // has to re-sort — but through _cmpRebuild(), so the filter and the scroll the
+  // reader was holding survive the re-sort they asked for.
+  window._cmpToggleFocus = function (key, btn) {
+    if (!key) return;
+    const on = _cmpFocusHas(key);
+    if (!on && _cmpFocus.length >= _CMP_FOCUS_MAX) {
+      if (btn) {
+        btn.classList.add('cmp-pin-full');
+        btn.setAttribute('title', 'Focus is full — unpin one of your ' + _CMP_FOCUS_MAX + ' issues first');
+        setTimeout(function () { try { btn.classList.remove('cmp-pin-full'); } catch (e) {} }, 1400);
+      }
+      return;
+    }
+    if (on) _cmpFocusRemove(key); else _cmpFocusAdd(key);
+    _cmpRebuild();
+  };
+  window._cmpClearFocus = function () {
+    window.PDXCompareFocus.clear();
+    if (_cmpIssueFilterMode === 'focus') _cmpIssueFilterMode = 'all';
+    _cmpRebuild();
+  };
+  // Scroll one pinned issue into view from the focus rail without disturbing the
+  // active filter — the rail is a table of contents, not a fifth filter chip.
+  window._cmpJumpToIssue = function (key) {
+    try {
+      if (!key) return;
+      const esc = (window.CSS && CSS.escape) ? CSS.escape(String(key)) : String(key).replace(/"/g, '\\"');
+      const row = document.querySelector('#cmp-tbody tr[data-cmp-issuekey="' + esc + '"]');
+      if (!row) return;
+      row.classList.remove('cmp-issue-hidden');
+      row.classList.add('cmp-issue-flash');
+      setTimeout(function () { try { row.classList.remove('cmp-issue-flash'); } catch (e) {} }, 2600);
+      if (row.scrollIntoView) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (e) {}
+  };
 
   var CMP_DATA = window.CMP_DATA || {}; window.CMP_DATA = CMP_DATA;
 
@@ -222,11 +346,98 @@
         if (!key) continue;
         mounts[i].innerHTML = RD.compareHtml(RD.compare(pids, key), { cls: 'cmp-issue-rdfloor-note' }) || '';
       }
+      _cmpPaintRecordContrast(root, pids);
+    } catch (e) {}
+  }
+
+  // ── WHERE THE RECORDS DIVERGE, AND WHERE THE FILE IS SIMPLY THIN ────────────
+  // The floor above says one thing per row and only when the row falls short:
+  // "not enough on file to compare yet". This says something on EVERY row, which
+  // is the point — a reader scanning twenty rows cannot tell a row where two
+  // records genuinely ran the same way from a row where neither record could be
+  // read, because both of them are quiet. One is a finding and the other is a
+  // hole, and until now the grid drew them identically.
+  //
+  // Every word and every threshold here comes from PDXConsistency.recordDirection
+  // .contrast() — the same primitive, reading the same slots the floor reads, in
+  // the same single call. Nothing is re-counted locally and no sentence is
+  // written here, so this badge and that note cannot end up disagreeing about a
+  // row. What this function decides is only WHERE the badge hangs, which rows
+  // carry which state as an attribute, and what the counts strip at the top says.
+  //
+  // Runs after the batched fetch, never at paint. Before the fetch every record
+  // is COLD and contrast() returns the cold state, which renders nothing — so
+  // calling this early is harmless and says nothing, exactly like the floor.
+  function _cmpPaintRecordContrast(root, pids) {
+    try {
+      const RD = window.PDXConsistency && window.PDXConsistency.recordDirection;
+      if (!RD || typeof RD.contrast !== 'function' || typeof RD.contrastHtml !== 'function') return;
+      const tally = { diverge: 0, align: 0, mixed: 0, thin: 0, cold: 0 };
+      const mounts = root.querySelectorAll('[data-cmp-rdctr]');
+      for (let i = 0; i < mounts.length; i++) {
+        const key = mounts[i].getAttribute('data-cmp-rdctr');
+        if (!key) continue;
+        const read = RD.contrast(pids, key);
+        mounts[i].innerHTML = RD.contrastHtml(read, { cls: 'cmp-issue-rdctr-badge' }) || '';
+        tally[read.state] = (tally[read.state] || 0) + 1;
+        // Stamped on the ROW, not just the badge, so the row can be tinted and
+        // filtered on its record state without any surface re-deriving it.
+        const row = mounts[i].closest ? mounts[i].closest('tr[data-cmp-issue]') : null;
+        if (row) row.setAttribute('data-rdstate', read.state);
+      }
+      _cmpPaintRecordScan(root, tally);
+    } catch (e) {}
+  }
+
+  // The counts strip and the two record filter chips. Counts, never a share —
+  // "4 of 19" is a fact about our file and "21%" is a statistic about a person.
+  //
+  // THE GAP LINE IS NOT AN AFTERTHOUGHT. It is written as its own sentence, in
+  // its own words, and it says out loud what the badge can only imply: those rows
+  // are not agreement. That sentence is the difference between a reader learning
+  // something about two politicians and a reader learning something about how much
+  // we happen to have collected.
+  function _cmpPaintRecordScan(root, tally) {
+    try {
+      const scan = root.querySelector('#cmp-rdscan');
+      const read = (tally.diverge || 0) + (tally.align || 0) + (tally.mixed || 0);
+      const gaps = tally.thin || 0;
+      if (scan) {
+        const cell = scan.querySelector('td');
+        if (!read && !gaps) { scan.classList.add('cmp-issue-hidden'); }
+        else if (cell) {
+          const bit = (n, cls, ico, lbl) => n > 0
+            ? `<span class="cmp-rds-k ${cls}"><i aria-hidden="true">${ico}</i><b>${n}</b> ${lbl}</span>` : '';
+          cell.innerHTML = `<div class="cmp-rds">`
+            + `<span class="cmp-rds-h">🏛 What the formal records did, across ${read + gaps} issue${(read + gaps) === 1 ? '' : 's'}</span>`
+            + `<div class="cmp-rds-keys">`
+            +   bit(tally.diverge, 'is-diverge', '⇄', 'diverge')
+            +   bit(tally.align, 'is-align', '⇉', 'ran the same way')
+            +   bit(tally.mixed, 'is-mixed', '⇌', 'one ran both ways')
+            +   bit(gaps, 'is-thin', '◌', 'not enough on file')
+            + `</div>`
+            + (gaps ? `<div class="cmp-rds-gap">Those <b>${gaps}</b> are a gap in our file, not a match. `
+                + `Fewer than two records there can be read on the issue, so there is nothing to hold against anything — `
+                + `every cell still shows exactly what it holds.</div>` : '')
+            + `</div>`;
+          scan.classList.remove('cmp-issue-hidden');
+        }
+      }
+      const chipHost = root.querySelector('#cmp-rd-chips');
+      if (chipHost) {
+        const chip = (mode, cls, lbl, n) => n > 0
+          ? `<button class="cmp-issue-fbtn ${cls}${_cmpIssueFilterMode === mode ? ' active' : ''}" data-cmp-fmode="${mode}" onclick="_cmpFilterIssues('${mode}')">${lbl}<span class="cmp-fb-n"> (${n})</span></button>` : '';
+        chipHost.innerHTML = chip('rddiverge', 'fb-rddiverge', '⇄ Records diverge', tally.diverge || 0)
+          + chip('rdthin', 'fb-rdthin', '◌ Not enough on file', gaps);
+      }
+      // A filter the reader had active before the fetch landed may only now have
+      // rows to match, so re-apply rather than leaving them on an empty view.
+      if (_cmpIssueFilterMode === 'rddiverge' || _cmpIssueFilterMode === 'rdthin') _cmpApplyIssueView();
     } catch (e) {}
   }
 
   function _cmpIssueData(pids) {
-    const out = { anyDocumented:false, anyRecord:false, recCold:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, nMine:0, nMineShared:0, mineActive:false, docByPid:{}, recByPid:{} };
+    const out = { anyDocumented:false, anyRecord:false, recCold:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, nMine:0, nMineShared:0, mineActive:false, nFocus:0, focusActive:false, docByPid:{}, recByPid:{} };
     const resolve = (typeof window._resolveStanceList === 'function') ? window._resolveStanceList : null;
     if (!resolve) return out;
     // ISSUE_MAP lives inside the Alignment IIFE and is published as
@@ -359,7 +570,16 @@
       // Record" — your direction in the label column, their record in the cells.
       let myDir = null;
       try { if (meta[key].issueKey && window.PDXStances && typeof window.PDXStances.myDirection === 'function') myDir = window.PDXStances.myDirection(meta[key].issueKey); } catch (e) { myDir = null; }
-      out.issues.push({ key, label: meta[key].label, issueKey: meta[key].issueKey || '', cells, count: present.length, recCells, recCount, agreement, mine, myPosition: myDir ? myDir.position : null, myPriority: myDir ? myDir.priority : null });
+      // 📌 PINNED, AND PINNED IS NOT MINE. `mine` is a topic the visitor once
+      // flagged in the Alignment Tool, which is a standing interest; `pinned` is
+      // an issue they put at the top of THIS comparison, which is a decision they
+      // are making right now. They rank differently below for exactly that
+      // reason. A row with no canonical issueKey (a free-text topic that never
+      // resolved to a tracked issue) cannot be pinned — there is nothing stable
+      // to remember it by — so it simply never carries the flag.
+      const _ik = meta[key].issueKey || '';
+      const _pinAt = _ik ? _cmpFocus.indexOf(_ik) : -1;
+      out.issues.push({ key, label: meta[key].label, issueKey: _ik, cells, count: present.length, recCells, recCount, agreement, mine, pinned: _pinAt >= 0, pinAt: _pinAt, myPosition: myDir ? myDir.position : null, myPriority: myDir ? myDir.priority : null });
     });
 
     // Shared issues (2+ documented) lead; within those, the visitor's own flagged
@@ -368,8 +588,20 @@
     // documented rows.
     // Record-only rows rank last of the five — behind every row where somebody
     // actually said something — but they rank, and they are no longer absent.
+    // 📌 THE PINNED BAND LEADS, AND IT LEADS ABSOLUTELY. Not "pinned issues rank a
+    // little higher" — a reader who pinned three issues asked for those three at
+    // the top, and an issue that slid to position six because nobody stated a
+    // position on it has quietly stopped being a focus. So the pin test comes
+    // before the documented-count test, before `mine`, before agreement. Inside
+    // the band the order is the order they pinned them in, not ours: they chose a
+    // sequence and re-sorting it would be us overruling the one explicit
+    // priority signal on the screen.
+    //   Everything below the band is untouched — same five-tier ranking, same
+    // tie-breaks, in the same order as before.
     const rank = { differ:0, partial:1, agree:2, solo:3, record:4 };
     out.issues.sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      if (a.pinned && b.pinned) return a.pinAt - b.pinAt;
       if ((b.count >= 2) !== (a.count >= 2)) return (b.count >= 2) - (a.count >= 2);
       if (b.mine !== a.mine) return (b.mine ? 1 : 0) - (a.mine ? 1 : 0);
       if (rank[a.agreement] !== rank[b.agreement]) return rank[a.agreement] - rank[b.agreement];
@@ -377,7 +609,9 @@
       return (b.recCount || 0) - (a.recCount || 0);
     });
     out.total = out.issues.length;
+    out.focusActive = _cmpFocus.length > 0;
     out.issues.forEach(iss => {
+      if (iss.pinned) out.nFocus++;
       if (iss.mine) out.nMine++;
       if (iss.count >= 2) {
         if (iss.mine) out.nMineShared++;
@@ -541,9 +775,13 @@
     const pids = [..._cmpSelected].filter(pid => CMP_DATA[pid]);
     if (pids.length === 0) { closeCompare(); return; }
 
-    // Fresh comparison always opens on the full, unfiltered issue list.
-    _cmpIssueFilterMode = 'all';
-    _cmpIssueExpanded = false;
+    // Fresh comparison always opens on the full, unfiltered issue list — but an
+    // in-place rebuild (a pick added or dropped, an issue pinned) keeps whatever
+    // the reader was looking at. See the note over _cmpKeepView.
+    if (!_cmpKeepView) {
+      _cmpIssueFilterMode = 'all';
+      _cmpIssueExpanded = false;
+    }
 
     // ── Rank by the visitor's own issue match ──────────────────────────────
     // When Alignment issues are set, the comparison should answer "who fits ME?"
@@ -594,11 +832,13 @@
           + `<span class="cmp-sel-pill-x">✕</span></button>`;
       }).join('');
       if (pids.length < 4) {
-        pillsHtml += `<button type="button" class="cmp-sel-pill cmp-sel-pill-add" onclick="closeCompare();setTimeout(function(){var b=document.getElementById('myteam-browse-search')||document.getElementById('compare-hub');if(b)b.scrollIntoView({behavior:'smooth',block:'center'});},300)" title="Add another politician to compare">`
+        pillsHtml += `<button type="button" class="cmp-sel-pill cmp-sel-pill-add" onclick="_cmpToggleAddPop()" title="Add another politician to compare — without leaving this board">`
           + `<span class="cmp-sel-pill-ico">＋</span><span class="cmp-sel-pill-name">Add</span></button>`;
       }
       pillsEl.innerHTML = pillsHtml;
     }
+    _cmpRenderFocusRail();
+    if (_cmpAddPopOpen && pids.length < 4) _cmpRenderAddPop(); else _cmpCloseAddPop();
 
     const thead = document.getElementById('cmp-thead');
     const tbody = document.getElementById('cmp-tbody');
@@ -1078,17 +1318,36 @@
           + `</div></div></td></tr>`;
       }
 
+      // 🏛 The formal-record scan strip. Mounted empty and hidden; filled by
+      // _cmpPaintRecordScan once the batched fetch lands. It sits directly under
+      // the overlap meter on purpose — the meter above it is the STATED lane's
+      // shape and this is the formal one's, and a reader needs to be able to see
+      // that they are two different pictures of the same lineup rather than one
+      // picture stated twice.
+      standBlock += `<tr class="cmp-issue-intro cmp-rdscan-row cmp-issue-hidden" id="cmp-rdscan"><td colspan="${nCols}"></td></tr>`;
+
       // ── Filter chips: jump straight to the contrasts, the common ground, or the
       // issues the visitor flagged in the Alignment Tool. Each carries a live
       // count and only appears when it would match something.
       const _chip = (mode, extraCls, label, n) =>
         `<button class="cmp-issue-fbtn${extraCls ? ' ' + extraCls : ''}${_cmpIssueFilterMode === mode ? ' active' : ''}" data-cmp-fmode="${mode}" onclick="_cmpFilterIssues('${mode}')">${label}<span class="cmp-fb-n"> (${n})</span></button>`;
       let chips = `<span class="cmp-fb-label">Show</span>` + _chip('all', '', 'All', issueCmp.total);
+      // 📌 Focus leads the chip row because it is the reader's own list; the rest
+      // are ours. Present only when they have actually pinned something that this
+      // lineup has a row for — an empty focus filter is a dead end.
+      if (issueCmp.nFocus > 0) chips += _chip('focus', 'fb-focus', '📌 Focused', issueCmp.nFocus);
       if (issueCmp.nDiffer > 0) chips += _chip('differ', 'fb-differ', '✗ Differences', issueCmp.nDiffer);
       if (issueCmp.nAgree > 0)  chips += _chip('agree', 'fb-agree', '✓ Common ground', issueCmp.nAgree);
       if (issueCmp.mineActive && issueCmp.nMine > 0) chips += _chip('mine', 'fb-mine', '🎯 Your issues', issueCmp.nMine);
-      // Only worth a toolbar when there is more than one thing to switch between.
-      const _hasFilters = (issueCmp.nDiffer > 0) || (issueCmp.nAgree > 0) || (issueCmp.mineActive && issueCmp.nMine > 0);
+      // The two record chips are appended at paint time by _cmpPaintRecordScan,
+      // because their counts are not knowable until the batched fetch lands —
+      // before it, every record in the lineup is cold.
+      chips += `<span id="cmp-rd-chips" class="cmp-rd-chips"></span>`;
+      // Worth a toolbar when there is more than one thing to switch between — or
+      // when a record is on file anywhere, since the record chips land here.
+      const _hasFilters = (issueCmp.nDiffer > 0) || (issueCmp.nAgree > 0)
+        || (issueCmp.nFocus > 0) || issueCmp.anyRecord
+        || (issueCmp.mineActive && issueCmp.nMine > 0);
       if (_hasFilters) {
         standBlock += `<tr class="cmp-issue-toolbar" id="cmp-issue-toolbar" data-cap="${_CMP_ISSUE_CAP}" data-total="${issueCmp.total}"><td colspan="${nCols}"><div class="cmp-issue-fbtns">${chips}</div></td></tr>`;
       }
@@ -1106,7 +1365,19 @@
       issueCmp.issues.forEach((iss, idx) => {
         const bm = badgeMeta[iss.agreement] || badgeMeta.solo;
         const overCap = idx >= _CMP_ISSUE_CAP;
-        const rowCls = (iss.mine ? 'cmp-issue-mine-row ' : '')
+        // 📌 THE BAND BREAK. One divider between the issues the reader pinned and
+        // the rest of the record. It exists so "secondary" is something the page
+        // SAYS rather than something the reader has to infer from row order, and
+        // so the rest is unmistakably still there — a focus that looks like a
+        // filter would leave a voter thinking we had hidden the other 20 issues.
+        if (issueCmp.nFocus && idx === issueCmp.nFocus) {
+          standBlock += `<tr class="cmp-issue-bandbreak" data-cmp-bandbreak="1"><td colspan="${nCols}">`
+            + `<span class="cmp-bb-line"></span>`
+            + `<span class="cmp-bb-txt">Everything else on the record — still here, just not first</span>`
+            + `<span class="cmp-bb-line"></span></td></tr>`;
+        }
+        const rowCls = (iss.pinned ? 'cmp-issue-pin-row ' : '')
+                     + (iss.mine ? 'cmp-issue-mine-row ' : '')
                      + (iss.agreement === 'agree' ? 'cmp-issue-agree-row'
                       : iss.agreement === 'differ' ? 'cmp-issue-differ-row' : '')
                      + (overCap ? ' cmp-issue-hidden' : '');
@@ -1138,11 +1409,34 @@
         const allEv = _allEvOk
           ? `<div><button type="button" class="cmp-issue-allev" onclick="_cmpOpenIssueEvidence('${String(iss.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" title="Open the Evidence Locker on this issue — everyone on record, with the picks you're comparing highlighted">📂 See everyone’s evidence ↗</button></div>`
           : '';
+        // 📌 The pin. One control per row, on the row itself, because the moment a
+        // reader notices an issue matters to them is the moment they are looking
+        // at it — not later, in a settings panel. Only where the row has a
+        // canonical key to remember (see the note in _cmpIssueData).
+        const pinBtn = iss.issueKey
+          ? `<button type="button" class="cmp-issue-pin${iss.pinned ? ' is-pinned' : ''}"`
+            + ` onclick="event.stopPropagation();_cmpToggleFocus('${String(iss.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}',this)"`
+            + ` aria-pressed="${iss.pinned ? 'true' : 'false'}"`
+            + ` title="${iss.pinned ? 'Unpin — stop leading the comparison with this issue' : 'Pin this issue to the top of the comparison'}">`
+            + `<span class="cmp-issue-pin-ico" aria-hidden="true">📌</span>`
+            + `<span class="cmp-issue-pin-lbl">${iss.pinned ? 'Focused' : 'Focus'}</span></button>`
+          : '';
         const labelCell = `<td class="cmp-row-label cmp-issue-label">${iss.label}`
           + mineTag
           + _cmpAxisHint(iss.issueKey)
           + (mandateTag ? `<div style="margin-top:0.25rem;">${mandateTag}</div>` : '')
+          // 🏛 WHAT THE FORMAL RECORDS DID ACROSS THIS ROW, as one badge. Mounted
+          // empty and filled by _cmpPaintCompareFloor once the batched fetch has
+          // landed, for the same reason the floor note is: at paint every record
+          // in the row is cold, and a badge that announced "not enough on file"
+          // over records nobody has looked at yet would be the exact over-claim
+          // it exists to prevent.
+          //   It sits ABOVE the stated-lane badge because the record leads every
+          // cell in the row, and a row whose cells lead with the record should
+          // not be labelled first by the lane underneath them.
+          + (iss.issueKey ? `<div class="cmp-issue-rdctr" data-cmp-rdctr="${String(iss.issueKey).replace(/"/g, '&quot;')}"></div>` : '')
           + `<div><span class="cmp-issue-agree-badge ${bm.cls}">${bm.ico} ${bm.lbl}</span></div>`
+          + (pinBtn ? `<div class="cmp-issue-pinwrap">${pinBtn}</div>` : '')
           // The floor note's mount. Empty at paint on purpose — before the batched
           // fetch lands every record on this row is cold, and telling a reader
           // there is "not enough on file" over a record we have not looked at yet
@@ -1158,7 +1452,7 @@
         // Tag the row with its topic category so the Priorities dashboard can
         // open this overlay focused on one specific issue (scroll + highlight).
         const issCat = (iss.issueKey && typeof window._pdxIssueCatOf === 'function') ? window._pdxIssueCatOf(iss.issueKey) : '';
-        standBlock += `<tr class="${rowCls.trim()}" data-cmp-issue="1" data-idx="${idx}" data-agreement="${iss.agreement}" data-mine="${iss.mine ? '1' : '0'}" data-cmp-cat="${issCat}">${labelCell}${cells}</tr>`;
+        standBlock += `<tr class="${rowCls.trim()}" data-cmp-issue="1" data-idx="${idx}" data-agreement="${iss.agreement}" data-mine="${iss.mine ? '1' : '0'}" data-pinned="${iss.pinned ? '1' : '0'}" data-cmp-issuekey="${String(iss.issueKey || '').replace(/"/g, '&quot;')}" data-cmp-cat="${issCat}">${labelCell}${cells}</tr>`;
       });
       // Empty state for when a filter matches nothing — hidden until a filter
       // applies and the rows it would show don't exist for this lineup.
@@ -1284,15 +1578,32 @@
     rows.forEach(r => {
       const agree = r.getAttribute('data-agreement');
       const mine = r.getAttribute('data-mine') === '1';
+      const pinned = r.getAttribute('data-pinned') === '1';
+      // Absent until the batched fetch has landed and _cmpPaintRecordContrast has
+      // stamped the row. Absent must not pass a record filter: a row we have not
+      // looked at is not a row with nothing on file.
+      const rdstate = r.getAttribute('data-rdstate') || '';
       const idx = parseInt(r.getAttribute('data-idx'), 10) || 0;
       let pass = true;
       if (mode === 'differ') pass = (agree === 'differ');
       else if (mode === 'agree') pass = (agree === 'agree');
       else if (mode === 'mine') pass = mine;
-      const show = pass && !(capActive && idx >= _CMP_ISSUE_CAP);
+      else if (mode === 'focus') pass = pinned;
+      else if (mode === 'rddiverge') pass = (rdstate === 'diverge');
+      else if (mode === 'rdthin') pass = (rdstate === 'thin');
+      // 📌 A PINNED ROW IS NEVER CAPPED OFF. The overflow cap exists to stop a
+      // 30-issue tail from burying the top of the list; a row the reader put at
+      // the top by hand is the last thing it should ever hide. They sort into the
+      // first few positions anyway, so this is a guarantee rather than a fix —
+      // but it is the kind of guarantee that should not depend on a sort.
+      const show = pass && !(capActive && idx >= _CMP_ISSUE_CAP && !pinned);
       r.classList.toggle('cmp-issue-hidden', !show);
       if (show) visible++;
     });
+    // The band break belongs to the unfiltered view only: inside a filter there
+    // is no "everything else" to divide the focused rows from.
+    const bb = document.querySelector('#cmp-tbody tr[data-cmp-bandbreak]');
+    if (bb) bb.classList.toggle('cmp-issue-hidden', mode !== 'all' || !visible);
     // Sync chip active state.
     document.querySelectorAll('#cmp-issue-toolbar [data-cmp-fmode]').forEach(b => {
       b.classList.toggle('active', b.getAttribute('data-cmp-fmode') === mode);
@@ -1312,11 +1623,22 @@
     // Empty-state row when a filter matches nothing in this lineup.
     const empty = document.getElementById('cmp-issue-empty');
     if (empty) {
-      const labels = { differ: 'differences', agree: 'common ground', mine: 'flagged issues' };
+      const labels = { differ: 'differences', agree: 'common ground', mine: 'flagged issues',
+                       focus: 'focused issues', rddiverge: 'issues where the formal records diverge',
+                       rdthin: 'issues short of a readable record' };
       empty.classList.toggle('cmp-issue-hidden', visible > 0);
       const cell = empty.querySelector('td');
       if (cell && visible === 0) {
-        cell.textContent = 'No ' + (labels[mode] || 'issues') + ' among these picks — switch back to All to see every documented position.';
+        // "Nothing matched" is a fact about the filter. On the two record filters
+        // it is also easy to misread as a fact about the lineup, so those two say
+        // which one it is rather than leaving the reader to guess.
+        cell.textContent = mode === 'rddiverge'
+          ? 'No issue here has two readable records that ran opposite ways — that is not the same as these records agreeing. Switch back to All and read the row badges.'
+          : mode === 'rdthin'
+          ? 'Every issue here has enough on file to compare. Switch back to All to see all of them.'
+          : mode === 'focus'
+          ? 'None of your focused issues has a row in this lineup yet. Pin an issue from a row below, or switch back to All.'
+          : 'No ' + (labels[mode] || 'issues') + ' among these picks — switch back to All to see every documented position.';
       }
     }
   }
@@ -1697,7 +2019,7 @@
     found.peers.slice(0, room || 3).forEach(p => _cmpSelectPid(p));
     _updateCmpFloat();
     _pmUpdateTray();
-    _buildCmpTable();
+    _cmpRebuild();
   };
 
   // Coaching banner shown only when a lone politician is selected. A one-person
@@ -1737,8 +2059,109 @@
     if (typeof window._showTeamToast === 'function') {
       window._showTeamToast(pid, wasOn ? 'remove' : 'add', {});
     }
-    _buildCmpTable();
+    _cmpRebuild();
   };
+
+  // ── 📌 THE FOCUS RAIL ───────────────────────────────────────────────────────
+  // The pinned issues, kept in the sticky header rather than only at the top of a
+  // grid the reader is about to scroll past. A focus that scrolls away is not a
+  // focus; it is a header row.
+  //
+  // It is a table of contents and nothing more: tapping a chip scrolls that row
+  // into view and flashes it, and tapping the ✕ unpins. It does not filter, it
+  // does not re-order, and it never says anything about a person — it names
+  // issues the reader chose, in the order they chose them.
+  function _cmpRenderFocusRail() {
+    const rail = document.getElementById('cmp-focus-rail');
+    if (!rail) return;
+    const keys = _cmpFocus.slice();
+    if (!keys.length) { rail.style.display = 'none'; rail.innerHTML = ''; return; }
+    const e = (t) => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const j = (t) => String(t == null ? '' : t).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const map = (typeof window !== 'undefined' && window._alignIssueMap) ? window._alignIssueMap : null;
+    const lbl = (k) => (map && map[k] && map[k].label) ? map[k].label : k;
+    const chips = keys.map(k =>
+      `<span class="cmp-fr-chip">`
+      + `<button type="button" class="cmp-fr-go" onclick="_cmpJumpToIssue('${j(k)}')" title="Jump to ${e(lbl(k))} in the comparison">${e(lbl(k))}</button>`
+      + `<button type="button" class="cmp-fr-x" onclick="_cmpToggleFocus('${j(k)}',this)" aria-label="Unpin ${e(lbl(k))}" title="Unpin">✕</button>`
+      + `</span>`).join('');
+    rail.innerHTML = `<span class="cmp-fr-lbl" title="These issues lead the comparison below. Everything else is still there, underneath.">📌 Focused</span>`
+      + chips
+      + `<button type="button" class="cmp-fr-clear" onclick="_cmpClearFocus()" title="Clear your focused issues">Clear</button>`;
+    rail.style.display = '';
+  }
+
+  // ── ADDING A NAME WITHOUT LOSING THE BOARD ──────────────────────────────────
+  // Searches the same roster the table is built from (CMP_DATA), adds on tap, and
+  // rebuilds in place through _cmpRebuild() — so the filter, the expansion and
+  // the scroll offset all survive the addition. Rivals from the same race lead the
+  // list when we can identify one, because that is the comparison a voter with a
+  // ballot in front of them is usually trying to build.
+  let _cmpAddPopOpen = false, _cmpAddPopQ = '';
+  window._cmpToggleAddPop = function () {
+    _cmpAddPopOpen = !_cmpAddPopOpen;
+    if (_cmpAddPopOpen) { _cmpAddPopQ = ''; _cmpRenderAddPop(); } else _cmpCloseAddPop();
+  };
+  function _cmpCloseAddPop() {
+    _cmpAddPopOpen = false;
+    const el = document.getElementById('cmp-addpop');
+    if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+  }
+  window._cmpAddPopSearch = function (v) {
+    _cmpAddPopQ = String(v || '');
+    _cmpRenderAddPop(true);
+  };
+  window._cmpAddPick = function (pid) {
+    if (!pid || !CMP_DATA[pid]) return;
+    if (_cmpSelected.size >= 4) return;
+    _cmpSelectPid(pid);
+    _updateCmpFloat();
+    try { _pmUpdateTray(); } catch (e) {}
+    _cmpAddPopQ = '';
+    if (_cmpSelected.size >= 4) _cmpAddPopOpen = false;
+    _cmpRebuild();
+  };
+  function _cmpRenderAddPop(keepFocus) {
+    const host = document.getElementById('cmp-addpop');
+    if (!host) return;
+    const e = (t) => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const q = _cmpAddPopQ.trim().toLowerCase();
+    const cur = [..._cmpSelected];
+    // Same-race rivals first, then anyone matching the query. Both lists exclude
+    // whoever is already on the board, so a tap always changes the lineup.
+    let peers = [];
+    try { if (cur.length) peers = (_cmpFindRacePeers(cur[0]).peers || []).slice(0, 4); } catch (err) { peers = []; }
+    const pool = Object.keys(CMP_DATA).filter(p => !_cmpSelected.has(p));
+    const hits = q
+      ? pool.filter(p => {
+          const d = CMP_DATA[p] || {};
+          return ((d.name || '') + ' ' + (d.office || '') + ' ' + (d.state || '')).toLowerCase().indexOf(q) >= 0;
+        }).slice(0, 8)
+      : peers.slice(0, 4);
+    const rowOf = (p) => {
+      const d = CMP_DATA[p] || {};
+      return `<button type="button" class="cmp-ap-row" onclick="_cmpAddPick('${String(p).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')">`
+        + `<span class="cmp-ap-ico">${e(d.icon || '🏛')}</span>`
+        + `<span class="cmp-ap-nm">${e(d.name || p)}</span>`
+        + `<span class="cmp-ap-off">${e(d.office || '')}</span>`
+        + `<span class="cmp-ap-plus">＋</span></button>`;
+    };
+    const listHtml = hits.length
+      ? hits.map(rowOf).join('')
+      : `<div class="cmp-ap-none">${q ? 'No one matching “' + e(_cmpAddPopQ) + '”.' : 'Type a name to search everyone we track.'}</div>`;
+    host.innerHTML = `<div class="cmp-ap-bar">`
+      +   `<input type="search" id="cmp-ap-q" class="cmp-ap-q" placeholder="Add by name, office or state…" autocomplete="off" value="${e(_cmpAddPopQ)}" aria-label="Search politicians to add to the comparison" oninput="_cmpAddPopSearch(this.value)">`
+      +   `<button type="button" class="cmp-ap-x" onclick="_cmpToggleAddPop()" aria-label="Close">✕</button>`
+      + `</div>`
+      + (!q && peers.length ? `<div class="cmp-ap-h">From this race</div>` : '')
+      + `<div class="cmp-ap-list">${listHtml}</div>`
+      + `<button type="button" class="cmp-ap-browse" onclick="closeCompare();setTimeout(function(){var b=document.getElementById('myteam-browse-search')||document.getElementById('compare-hub');if(b)b.scrollIntoView({behavior:'smooth',block:'center'});},300)">🔍 Browse the full list instead</button>`;
+    host.style.display = '';
+    if (keepFocus) {
+      const inp = document.getElementById('cmp-ap-q');
+      if (inp) { try { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (err) {} }
+    }
+  }
 
   function removeCmpPid(pid) {
     _cmpSelected.delete(pid);
@@ -1751,7 +2174,7 @@
     _updateCmpFloat();
     _pmUpdateTray();
     if (_cmpSelected.size < 1) { closeCompare(); return; }
-    _buildCmpTable();
+    _cmpRebuild();
   }
 
   function bpAddCompare(pid, btn) {

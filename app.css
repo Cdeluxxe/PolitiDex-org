@@ -4389,6 +4389,186 @@
     .cmp-issue-rdfloor:empty { display: none; }
     .cmp-issue-rdfloor { display: block; margin-top: 0.3rem; }
     .cmp-issue-rdfloor .pdx-rdcmp { font-size: 0.6rem; line-height: 1.35; }
+
+    /* ── 📌 FOCUS: PIN A FEW ISSUES, NOT A RANKING ────────────────────────────
+       The pin control lives in the row's label cell, under the badges. Pinning
+       lifts an issue to the top of the grid and puts it in the header rail. It
+       is not a weight, not a score and not an input to any calculation — the
+       cells in a pinned row print exactly what they printed unpinned. */
+    .cmp-issue-pinwrap { margin-top: 0.4rem; }
+    .cmp-issue-pin {
+      display: inline-flex; align-items: center; gap: 0.24rem;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      color: #7d99bf; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.55rem; letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 0.16rem 0.45rem; border-radius: 999px; cursor: pointer;
+      min-height: unset; white-space: nowrap;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .cmp-issue-pin:hover { background: rgba(250,204,21,0.12); border-color: rgba(250,204,21,0.4); color: #fcd34d; }
+    .cmp-issue-pin[aria-pressed="true"] {
+      background: rgba(250,204,21,0.16); border-color: rgba(250,204,21,0.5); color: #fcd34d;
+    }
+    .cmp-issue-pin .cmp-issue-pin-ico { font-size: 0.78em; }
+    /* Refusal, not eviction: the cap holds and the control says so. */
+    .cmp-issue-pin.cmp-pin-full {
+      background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.5); color: #fca5a5;
+    }
+    /* A pinned row is marked on its left edge only — a tint would compete with
+       the agree/differ washes, which mean something entirely different. */
+    #cmp-table tr.cmp-issue-pin-row td:first-child { box-shadow: inset 3px 0 0 rgba(250,204,21,0.65); }
+    #cmp-table tr.cmp-issue-flash td { animation: cmpIssueFlash 2.6s ease-out; }
+    @keyframes cmpIssueFlash {
+      0%, 30% { background: rgba(250,204,21,0.16); }
+      100%    { background: transparent; }
+    }
+    /* The divider under the pinned band. "Still here, just not first." */
+    #cmp-table tr.cmp-issue-bandbreak td {
+      padding: 0.55rem 1rem; background: transparent;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .cmp-bb-line { flex: 1; height: 1px; background: rgba(148,163,184,0.18); }
+    .cmp-bb-txt {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #66809f; white-space: nowrap;
+    }
+
+    /* ── WHERE THE RECORDS DIVERGE vs WHERE THE FILE IS THIN ──────────────────
+       The contrast badge sits above the stated-lane badge, because the formal
+       record leads. The critical rule is the last one: a "not enough on file"
+       row must never look like a calm, settled, tied outcome. Solid fill means
+       we read something; dashed and desaturated means we did not. */
+    .cmp-issue-rdctr:empty { display: none; }
+    .cmp-issue-rdctr { display: block; margin-top: 0.4rem; }
+    .cmp-issue-rdctr .pdx-rdctr { font-size: 0.56rem; }
+    /* The gap treatment: hatched, dimmed, and never washed with a verdict tint. */
+    #cmp-table tr[data-rdstate="thin"] td.cmp-issue-label {
+      background-image: repeating-linear-gradient(135deg,
+        rgba(148,163,184,0.07) 0 5px, transparent 5px 10px);
+    }
+    #cmp-table tr[data-rdstate="thin"] td { opacity: 0.86; }
+    #cmp-table tr[data-rdstate="diverge"] td:first-child { box-shadow: inset 3px 0 0 rgba(248,113,113,0.5); }
+    #cmp-table tr.cmp-issue-pin-row[data-rdstate="diverge"] td:first-child {
+      box-shadow: inset 3px 0 0 rgba(250,204,21,0.65), inset 6px 0 0 rgba(248,113,113,0.5);
+    }
+
+    /* ── THE SCAN STRIP: COUNTS, NEVER A SHARE ───────────────────────────────
+       "3 diverge · 5 ran the same way · 4 not enough on file" is a description
+       of our file. The same three numbers as a percentage would be a rating,
+       so they are never divided by anything. */
+    #cmp-table tr.cmp-rdscan-row td { padding: 0.7rem 1rem; background: rgba(13,21,38,0.45); }
+    .cmp-rds-h {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #9fb4d4; margin-bottom: 0.4rem;
+    }
+    .cmp-rds-keys { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; align-items: center; }
+    .cmp-rds-k {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      padding: 0.14rem 0.5rem; border-radius: 999px;
+    }
+    .cmp-rds-k.is-diverge { color:#f0b6b6; background:rgba(248,113,113,0.13); border:1px solid rgba(248,113,113,0.38); }
+    .cmp-rds-k.is-align   { color:#8fd9b0; background:rgba(74,222,128,0.11);  border:1px solid rgba(74,222,128,0.32); }
+    .cmp-rds-k.is-mixed   { color:#e2c88a; background:rgba(245,200,66,0.1);   border:1px solid rgba(245,200,66,0.3); }
+    .cmp-rds-k.is-thin    { color:#8fa6c6; background:transparent; border:1px dashed rgba(159,180,212,0.45); }
+    .cmp-rds-gap {
+      margin-top: 0.45rem; font-family: 'Barlow', sans-serif; font-size: 0.66rem;
+      line-height: 1.45; color: #8fa6c6; max-width: 62ch;
+    }
+
+    /* Record-scan filter chips, appended after the stated-lane chips. */
+    .cmp-rd-chips { display: contents; }
+    .cmp-issue-fbtn.fb-focus { border-color: rgba(250,204,21,0.5); color: #fcd34d; background: rgba(250,204,21,0.1); }
+    .cmp-issue-fbtn.fb-focus:hover { background: rgba(250,204,21,0.2); }
+    .cmp-issue-fbtn.fb-focus.active { color: #2a2105; background: linear-gradient(135deg,#fde68a,#facc15); border-color: rgba(250,204,21,0.85); }
+    .cmp-issue-fbtn.fb-rddiverge { border-color: rgba(248,113,113,0.4); color: #fca5a5; background: rgba(248,113,113,0.08); }
+    .cmp-issue-fbtn.fb-rddiverge:hover { background: rgba(248,113,113,0.16); }
+    .cmp-issue-fbtn.fb-rddiverge.active { color: #2a0a0a; background: linear-gradient(135deg,#fecaca,#f87171); border-color: rgba(248,113,113,0.8); }
+    /* The gap chip is deliberately the only DASHED chip in the toolbar. It is not
+       a finding, so it does not get a finding's solid edge. */
+    .cmp-issue-fbtn.fb-rdthin { border: 1px dashed rgba(159,180,212,0.5); color: #8fa6c6; background: transparent; }
+    .cmp-issue-fbtn.fb-rdthin:hover { background: rgba(148,163,184,0.12); color: #cbd9ec; }
+    .cmp-issue-fbtn.fb-rdthin.active { color: #0b1020; background: #9fb4d4; border-style: solid; border-color: rgba(159,180,212,0.9); }
+
+    /* ── THE FOCUS RAIL (sticky header) ──────────────────────────────────────── */
+    .cmp-focus-rail {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem;
+      margin-top: 0.45rem;
+    }
+    .cmp-fr-lbl {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.55rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #fcd34d; margin-right: 0.1rem;
+    }
+    .cmp-fr-chip {
+      display: inline-flex; align-items: center;
+      background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.32);
+      border-radius: 999px; overflow: hidden;
+    }
+    .cmp-fr-go, .cmp-fr-x, .cmp-fr-clear {
+      background: none; border: 0; cursor: pointer; min-height: unset;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem;
+      letter-spacing: 0.06em; color: #fcd34d; padding: 0.16rem 0.5rem;
+    }
+    .cmp-fr-go:hover { color: #fff; }
+    .cmp-fr-x { color: #b08d2f; padding-left: 0.1rem; padding-right: 0.42rem; }
+    .cmp-fr-x:hover { color: #fca5a5; }
+    .cmp-fr-clear {
+      color: #7596c0; text-transform: uppercase; letter-spacing: 0.09em;
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 999px;
+    }
+    .cmp-fr-clear:hover { color: #cbd9ec; border-color: rgba(255,255,255,0.28); }
+
+    /* ── INLINE ADD (keeps the board on screen) ─────────────────────────────── */
+    .cmp-addpop {
+      margin-top: 0.5rem; padding: 0.5rem; border-radius: 0.6rem;
+      background: rgba(10,15,30,0.96); border: 1px solid rgba(59,130,246,0.28);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45); max-width: 30rem;
+    }
+    .cmp-ap-bar { display: flex; align-items: center; gap: 0.4rem; }
+    .cmp-ap-q {
+      flex: 1; min-width: 0; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.14); border-radius: 0.45rem;
+      color: #e2ecf9; font-family: 'Barlow', sans-serif; font-size: 0.72rem;
+      padding: 0.35rem 0.55rem;
+    }
+    .cmp-ap-q:focus { outline: none; border-color: rgba(59,130,246,0.55); }
+    .cmp-ap-x {
+      background: none; border: 0; color: #7596c0; cursor: pointer;
+      font-size: 0.75rem; padding: 0.2rem 0.35rem; min-height: unset;
+    }
+    .cmp-ap-h {
+      margin: 0.45rem 0 0.25rem; font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 0.54rem; letter-spacing: 0.11em;
+      text-transform: uppercase; color: #6d8ab0;
+    }
+    .cmp-ap-list { display: flex; flex-direction: column; gap: 0.18rem; max-height: 13rem; overflow: auto; }
+    .cmp-ap-row {
+      display: flex; align-items: center; gap: 0.45rem; width: 100%; text-align: left;
+      background: rgba(255,255,255,0.03); border: 1px solid transparent;
+      border-radius: 0.45rem; padding: 0.32rem 0.45rem; cursor: pointer; min-height: unset;
+      transition: background 0.14s ease, border-color 0.14s ease;
+    }
+    .cmp-ap-row:hover { background: rgba(59,130,246,0.14); border-color: rgba(59,130,246,0.4); }
+    .cmp-ap-ico { flex-shrink: 0; }
+    .cmp-ap-nm { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 0.72rem; color: #e2ecf9; }
+    .cmp-ap-off {
+      flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem;
+      letter-spacing: 0.05em; text-transform: uppercase; color: #6d8ab0;
+    }
+    .cmp-ap-plus { flex-shrink: 0; color: #60a5fa; font-weight: 700; }
+    .cmp-ap-none {
+      padding: 0.5rem 0.2rem; font-family: 'Barlow', sans-serif;
+      font-size: 0.68rem; color: #7596c0;
+    }
+    .cmp-ap-browse {
+      margin-top: 0.4rem; width: 100%; background: none; border: 0; cursor: pointer;
+      min-height: unset; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.56rem; letter-spacing: 0.09em; text-transform: uppercase; color: #6d8ab0;
+      padding: 0.25rem;
+    }
+    .cmp-ap-browse:hover { color: #9fb4d4; }
     .cmp-issue-more td {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.06em;
       text-transform: uppercase; color: #6d8ab0; text-align: center;

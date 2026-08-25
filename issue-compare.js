@@ -336,6 +336,56 @@
     if (added && !_warmTimer) _warmTimer = setTimeout(flushWarm, 160);
   }
 
+  /* ── 📌 focused issues (shared with the side-by-side board) ──────────────
+     The pin store lives in compare-table.js and is published as
+     window.PDXCompareFocus. This surface reads it and writes to it; it does not
+     keep a second copy, because two comparison surfaces disagreeing about which
+     issues the reader cares about is worse than neither offering the control.
+
+     Pinning here does exactly what pinning there does: it lifts an issue to the
+     front of the picker and puts it in a rail. It is not a weight, it does not
+     enter any ranking, and it changes nothing about what any record says. */
+  function focusApi() { var F = window.PDXCompareFocus; return (F && isFn(F.keys)) ? F : null; }
+  function focusKeys() { var F = focusApi(); try { return F ? F.keys() : []; } catch (e) { return []; } }
+  function focusHas(k) { var F = focusApi(); try { return !!(F && k && F.has(k)); } catch (e) { return false; } }
+  window.__icToggleFocus = function (k, btn) {
+    var F = focusApi(); if (!F || !k) return;
+    try {
+      if (!F.has(k) && F.full()) {
+        // Refuse rather than evict — the reader chose those five.
+        if (btn) { btn.classList.add('is-full'); btn.title = 'Focus is full at ' + F.MAX + ' issues. Unpin one first.'; setTimeout(function () { btn.classList.remove('is-full'); }, 1600); }
+        return;
+      }
+      F.toggle(k);
+    } catch (e) {}
+    queueRender();
+  };
+  window.__icClearFocus = function () { var F = focusApi(); if (F) { try { F.clear(); } catch (e) {} } queueRender(); };
+
+  function focusPinHtml(k) {
+    if (!k || !focusApi()) return '';
+    var on = focusHas(k);
+    return '<button type="button" class="ic-pin' + (on ? ' is-on' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '"'
+      + ' onclick="window.__icToggleFocus(\'' + jsAttr(k) + '\',this)"'
+      + ' title="' + (on ? 'Unpin this issue' : 'Pin this issue so it leads your comparisons') + '">'
+      + '<span class="ic-pin-ico" aria-hidden="true">📌</span><span class="ic-pin-lbl">' + (on ? 'Focused' : 'Focus') + '</span></button>';
+  }
+
+  function renderFocusStrip() {
+    var keys = focusKeys();
+    if (!keys.length) return '';
+    var chips = keys.map(function (k) {
+      var active = (k === _state.issueKey) ? ' is-active' : '';
+      return '<span class="ic-fr-chip' + active + '">'
+        + '<button type="button" class="ic-fr-go" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(k) + '\')" title="Compare the field on ' + esc(issueLabel(k)) + '">' + esc(issueLabel(k)) + '</button>'
+        + '<button type="button" class="ic-fr-x" onclick="window.__icToggleFocus(\'' + jsAttr(k) + '\',this)" aria-label="Unpin ' + esc(issueLabel(k)) + '" title="Unpin">✕</button>'
+        + '</span>';
+    }).join('');
+    return '<div class="ic-strip ic-strip--focus">'
+      + '<div class="ic-strip-h">📌 Your focused issues <span class="ic-strip-sub">— these lead the side-by-side board too</span></div>'
+      + '<div class="ic-fr-chips">' + chips + '<button type="button" class="ic-fr-clear" onclick="window.__icClearFocus()">Clear</button></div></div>';
+  }
+
   /* ── render: head + stance strip ────────────────────────────────────── */
   function renderStanceStrip() {
     var stances = savedStances();
@@ -362,15 +412,22 @@
     var map = issueMap();
     var keys = Object.keys(map);
     // Order: quick picks first (that exist), then the rest alphabetically by label.
-    var qp = quickPicks().filter(function (k) { return map[k]; });
-    var seen = {}; qp.forEach(function (k) { seen[k] = 1; });
+    // 📌 first, then quick picks, then the rest alphabetically by label. Pinned
+    // keys are PREPENDED rather than sorted in, which keeps the reader's own pin
+    // order intact and leaves the alphabetical tail exactly as it was.
+    var pinned = focusKeys().filter(function (k) { return map[k]; });
+    var seen = {}; pinned.forEach(function (k) { seen[k] = 1; });
+    var qp = quickPicks().filter(function (k) { return map[k] && !seen[k]; });
+    qp.forEach(function (k) { seen[k] = 1; });
     var rest = keys.filter(function (k) { return !seen[k]; })
       .sort(function (a, b) { return issueLabel(a).localeCompare(issueLabel(b)); });
-    var ordered = qp.concat(rest);
+    var ordered = pinned.concat(qp, rest);
     return ordered.map(function (k) {
       var lbl = issueLabel(k);
+      var on = focusHas(k);
       var hay = (lbl + ' ' + ((map[k] && map[k].keywords) || []).join(' ')).toLowerCase();
-      return '<button type="button" class="ic-opt" data-ic-opt data-hay="' + esc(hay) + '" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(k) + '\')">'
+      return '<button type="button" class="ic-opt' + (on ? ' is-pinned' : '') + '" data-ic-opt data-hay="' + esc(hay) + '" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(k) + '\')">'
+        + (on ? '<span class="ic-opt-pin" aria-hidden="true">📌</span>' : '')
         + '<span class="ic-opt-lbl">' + esc(lbl) + '</span>' + coverageTag(k) + '</button>';
     }).join('');
   }
@@ -413,7 +470,8 @@
     return '<div class="ic-current">'
       + '<div class="ic-current-main"><span class="ic-current-eyebrow">Comparing on</span>'
       +   '<div class="ic-current-issue">' + esc(issueLabel(_state.issueKey)) + ' ' + coverageTag(_state.issueKey) + '</div>' + mineTag + '</div>'
-      + '<button type="button" class="ic-btn ic-btn--ghost" onclick="window.PDXIssueCompare.togglePicker(true)">Change issue</button>'
+      + '<div class="ic-current-acts">' + focusPinHtml(_state.issueKey)
+      +   '<button type="button" class="ic-btn ic-btn--ghost" onclick="window.PDXIssueCompare.togglePicker(true)">Change issue</button></div>'
       + '</div>'
       + axisNoteHtml(_state.issueKey);
   }
@@ -624,7 +682,8 @@
     var host = el(MOUNT);
     if (!host) return;
     host.innerHTML =
-      renderStanceStrip()
+      renderFocusStrip()
+      + renderStanceStrip()
       + renderPicker()
       + (_state.issueKey && !_state.pickerOpen ? renderFieldSelector() : '')
       + '<div class="ic-results">' + (_state.issueKey && !_state.pickerOpen ? renderResults() : '') + '</div>';
@@ -683,7 +742,7 @@
   function bindLive() {
     if (_bound) return;
     _bound = true;
-    ['pdx-team-change', 'pdx-saved-change', 'pdx-stances-change', 'pdx-evidence-ready'].forEach(function (evt) {
+    ['pdx-team-change', 'pdx-saved-change', 'pdx-stances-change', 'pdx-evidence-ready', 'pdx-compare-focus'].forEach(function (evt) {
       try { window.addEventListener(evt, queueRender); } catch (e) {}
     });
   }

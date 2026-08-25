@@ -886,6 +886,136 @@
       '</div>';
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     twoJobsMount — the frame, before either surface makes a claim
+     ───────────────────────────────────────────────────────────────────────
+     WHAT IT FIXES. A profile publishes two different things and readers were
+     collapsing them into one. 🏛 The formal record is an INVENTORY with a
+     direction: every issue where votes or formal actions are on file, and which
+     way those acts pointed. ⚖️ Word vs Action is a TEST, and it can only run
+     where a stated position is also on file — so it speaks about a fraction of
+     the issues the record covers. Read as one thing, the percentage becomes
+     "the score for this person", and every issue the test could not reach reads
+     as something withheld.
+
+     WHY THE ASYMMETRY IS SAID OUT LOUD. It is the normal shape of the data, not
+     a hole in it: most issues have a record and nothing quotable to test it
+     against. A reader who is not told that will infer the worse explanation.
+     Where both counts are known the note prints them, because "far more" is an
+     argument and "43 · 12" is the thing itself.
+
+     FOUR WALLS.
+
+       IT COMPUTES NOTHING. Both numbers come from the accessors the two
+       surfaces already publish — PDXConsistency.formalPatternIndex.count() and
+       PDXWordAction.testedOf(read()), which is the same call that prints the
+       depth caption beside the percentage — so the note cannot disagree with
+       either surface, and there is no third figure on this page.
+
+       IT JUDGES NOTHING. It names the mechanism of each read and states what
+       the narrow one is not. No position, politician or party is characterised,
+       and nothing here can be read as good or bad.
+
+       IT LEAVES. PDXLearn.note() remembers the dismissal per visitor through
+       PDXStore, so this module renders nothing at all on a later visit once the
+       × has been tapped. A returning reader is not taxed with it again.
+
+       IT FAILS CLOSED. No education layer, no note. No counts, no count line —
+       the sentence that says the asymmetry in words still stands on its own.
+       And if the tested count ever came back at or above the record count, the
+       asymmetry the line describes is not there, so the line is dropped rather
+       than printed backwards.
+
+     MOUNTED, NOT INTERPOLATED, for exactly the reason the letterhead's score
+     chip is: on a member profile the identity zone is built while the roll-call
+     record is still in flight, so neither count is knowable at first paint. The
+     prose renders immediately and never moves; the counts arrive into their own
+     span on 'pdx-consistency-warm', the same seam every other cold-start figure
+     on this page already uses.
+     ═══════════════════════════════════════════════════════════════════════ */
+  var TWO_JOBS_ID = 'profile-two-jobs';
+  var _tjSeq = 0;
+
+  // Read-only, from the two surfaces' own published accessors. Never derived here.
+  function twoJobsCounts(pid, p) {
+    var recorded = 0, tested = 0;
+    try {
+      var C = window.PDXConsistency;
+      if (C && C.formalPatternIndex && typeof C.formalPatternIndex.count === 'function') {
+        recorded = C.formalPatternIndex.count(pid) || 0;
+      }
+    } catch (e) { recorded = 0; }
+    try {
+      var W = window.PDXWordAction;
+      if (W && typeof W.read === 'function' && typeof W.testedOf === 'function') {
+        tested = W.testedOf(W.read(pid, p || {})) || 0;
+      }
+    } catch (e) { tested = 0; }
+    return { recorded: recorded, tested: tested };
+  }
+
+  // The count line, or '' when the two numbers cannot honestly carry it.
+  function twoJobsCountLine(pid, p) {
+    var c = twoJobsCounts(pid, p);
+    if (!c.recorded || !c.tested || c.tested >= c.recorded) return '';
+    return 'Here: <b>' + c.recorded + '</b> issues with a formal record · <b>' + c.tested +
+      '</b> with a position to test against it.';
+  }
+
+  function twoJobsNoteHtml(pid, p, uid) {
+    var L = window.PDXLearn;
+    // One door into the glossary, on the phrase that carries the whole point.
+    var untestable = (typeof L.term === 'function')
+      ? L.term('notscored', 'nothing quotable to test it against')
+      : 'nothing quotable to test it against';
+    return L.note(TWO_JOBS_ID, {
+      icon: '🧭',
+      title: 'This profile does two different jobs.',
+      html:
+        '<p>🏛 <b>The record</b> — the main view. Every issue where their votes or formal ' +
+          'actions are on file, and which way those acts pointed.</p>' +
+        '<p>⚖️ <b>Word vs Action</b> — the narrow one. It runs only where they also stated ' +
+          'a position, and asks: did the formal record point the same way? An integrity ' +
+          'check, not an approval rating or an overall grade.</p>' +
+        '<p>Most issues have a record and ' + untestable + ', so the record covers far more ' +
+          'ground than the percentage. That asymmetry is the honest shape of the data, not ' +
+          'a finding about them.</p>' +
+        '<p class="pdxsp-tj-counts" data-pdxsp-tj="' + escAttr(uid) + '">' +
+          twoJobsCountLine(pid, p) + '</p>'
+    });
+  }
+
+  // Warm seam. Self-removing: once the note has been dismissed its wrapper is gone
+  // from the document, so the next warm event unbinds instead of resurrecting it.
+  function bindTwoJobs(uid, pid, p) {
+    if (!window.addEventListener) return;
+    var handler = function (ev) {
+      var host = null;
+      try { host = document.querySelector('[data-pdxsp-tj="' + uid + '"]'); } catch (e) { host = null; }
+      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
+      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+      try { host.innerHTML = twoJobsCountLine(pid, p); } catch (e) {}
+    };
+    window.addEventListener('pdx-consistency-warm', handler);
+  }
+
+  function twoJobsMount(pid, p) {
+    try {
+      if (!pid) return '';
+      var L = window.PDXLearn;
+      if (!L || typeof L.note !== 'function') return '';
+      // Cheap pre-check so a returning visitor costs no uid, no listener and no
+      // read of either engine. note() would return '' anyway; this is the wall
+      // that keeps the dismissed case genuinely free.
+      if (typeof L.noteDismissed === 'function' && L.noteDismissed(TWO_JOBS_ID)) return '';
+      var uid = ('tj-' + String(pid) + '-' + (++_tjSeq)).replace(/[^A-Za-z0-9_-]/g, '');
+      var html = twoJobsNoteHtml(pid, p || {}, uid);
+      if (!html) return '';
+      try { setTimeout(function () { bindTwoJobs(uid, pid, p || {}); }, 0); } catch (e) {}
+      return '<div class="pdxsp-twojobs">' + html + '</div>';
+    } catch (e) { return ''; }
+  }
+
   // briefHtml — the first screen below the letterhead. Self-gating on substance:
   // with neither a signature issue nor a tension nor a share tier there is
   // nothing to brief, and the profile's own thin-record notice already handles
@@ -1004,6 +1134,13 @@
     assembleTagged: assembleTagged,
     drawer: drawer,
     briefHtml: briefHtml,
+    // 🧭 The two-jobs explainer, mounted in the identity zone above everything
+    // that makes a claim. Dismissible and remembered per visitor by PDXLearn; it
+    // computes nothing and reads both counts off the surfaces that publish them.
+    twoJobsMount: twoJobsMount,
+    TWO_JOBS_ID: TWO_JOBS_ID,
+    _twoJobsCounts: twoJobsCounts,
+    _twoJobsCountLine: twoJobsCountLine,
     hydrate: hydrate,
     // Progressive disclosure inside an always-open section. Renderers mark a
     // digest/bulk seam with a comment pair and stay out of the DOM; assembleTagged

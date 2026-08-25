@@ -1592,6 +1592,28 @@
         'background:rgba(159,180,212,0.07);border:1px dashed rgba(159,180,212,0.28);' +
         'border-radius:8px;padding:0.28rem 0.5rem;}' +
       '.pdx-rdcmp .pdx-rdcmp-ico{opacity:0.75;}' +
+      // ── THE ROW'S FORMAL-RECORD STATE, AS ONE BADGE ─────────────────────────
+      // Four states, and the colour rule is not "green good / red bad" — it is
+      // "solid means we read something, dashed means we did not". Diverge and
+      // align are both findings and both get a solid border; they differ in hue
+      // only so the eye can tell a split row from a matching one while scanning.
+      // The GAP is the state that matters most here: dashed, desaturated and
+      // slightly transparent, so a row with nothing on file cannot be mistaken
+      // for the calm of a row where everyone agreed. That is the whole reason
+      // this badge exists.
+      '.pdx-rdctr{display:inline-flex;align-items:center;gap:0.28rem;' +
+        'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.58rem;' +
+        'letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;' +
+        'padding:0.16rem 0.5rem;border-radius:999px;}' +
+      '.pdx-rdctr .pdx-rdctr-ico{font-size:0.8em;opacity:0.9;}' +
+      '.pdx-rdctr.is-diverge{color:#f0b6b6;background:rgba(248,113,113,0.13);' +
+        'border:1px solid rgba(248,113,113,0.4);}' +
+      '.pdx-rdctr.is-align{color:#8fd9b0;background:rgba(74,222,128,0.11);' +
+        'border:1px solid rgba(74,222,128,0.34);}' +
+      '.pdx-rdctr.is-mixed{color:#e2c88a;background:rgba(245,200,66,0.1);' +
+        'border:1px solid rgba(245,200,66,0.32);}' +
+      '.pdx-rdctr.is-thin{color:#8fa6c6;background:transparent;' +
+        'border:1px dashed rgba(159,180,212,0.45);opacity:0.92;}' +
       // Promise Tracker gateway — the section name (no %) + two dive-in cards.
       '.pdxc-gate{border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.6),rgba(10,15,30,0.35));}' +
       '.pdxc-gate-h{display:flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.15rem;letter-spacing:0.03em;color:#e8eefc;line-height:1;}' +
@@ -2113,6 +2135,14 @@
         'font-size:0.66rem;letter-spacing:0;color:#8fa2c0;line-height:1.45;' +
         'overflow-wrap:break-word;padding-bottom:0.2rem;}' +
       '.pdxdos-recs[open]>summary{color:#9fdbff;}' +
+      // THE INSTITUTIONAL NOTE, when the dossier's own list is the surface carrying
+      // it. Deliberately quieter than .pdxdos-gap and .pdxdos-led — both of those
+      // are about the record being incomplete or unscored, which is a caveat the
+      // reader has to act on; this is context they may take or leave.
+      '.pdxdos-menu{font-size:0.68rem;color:#93a6c4;line-height:1.5;padding:0.35rem 0.55rem;' +
+        'margin:0.3rem 0 0.15rem;border-left:2px solid rgba(147,166,196,0.3);' +
+        'background:#ffffff06;border-radius:0.2rem;}' +
+      '.pdxdos-menu b{color:#cfe0f8;font-weight:600;}' +
       '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
       // ── The continuity line, directly under the issue title ────────────────
       // Named in the index's colour, in the index's word, so the header the tap
@@ -2414,9 +2444,11 @@
       '.pdxfpi-q{font-size:0.76rem;color:#9fb4d4;font-style:italic;margin:0.25rem 0 0;}' +
       '.pdxfpi-lede{font-size:0.74rem;color:#8fa6c6;line-height:1.45;margin:0.3rem 0 0;}' +
       '.pdxfpi-lede b{color:#cfe0f8;}' +
-      // The census is a row of counts, one per tier, in that tier's own colour —
-      // the shape of the list before anyone scrolls it.
-      '.pdxfpi-census{display:flex;flex-wrap:wrap;gap:0.28rem;margin-top:0.45rem;}' +
+      // The census is a row of counts, one per printed label, in that label's own
+      // colour — the shape of a band before anyone opens it. Inline-flex because
+      // it now rides inside a band heading and inside the tail's summary line
+      // rather than standing alone under the lede.
+      '.pdxfpi-census{display:inline-flex;flex-wrap:wrap;gap:0.28rem;}' +
       '.pdxfpi-cn{font-size:0.62rem;font-weight:700;color:var(--c);border:1px solid var(--c);'
         + 'border-radius:999px;padding:0.06rem 0.44rem;opacity:0.86;}' +
       '.pdxfpi-cn b{font-size:0.7rem;}' +
@@ -2430,6 +2462,41 @@
       '.pdxfpi-shown{font-size:0.68rem;color:#6f88ab;margin:0.45rem 0 0.2rem;}' +
       '.pdxfpi-shown b{color:#cfe0f8;}' +
       '.pdxfpi-list{display:flex;flex-direction:column;}' +
+      // ── THE BANDS ─────────────────────────────────────────────────────────
+      // As little chrome as four headings can be. A band heading is one line of
+      // condensed type, a count, and its census; the note under it is one grey
+      // sentence; the rows below are drawn exactly as they were. Nothing here
+      // recolours, reweights or re-borders a row — the hierarchy is made of
+      // headings and one fold, not of making the quiet rows quieter.
+      '.pdxfpi-band{display:flex;flex-direction:column;}' +
+      '.pdxfpi-bh{display:flex;align-items:baseline;flex-wrap:wrap;gap:0.3rem 0.42rem;margin:0.85rem 0 0;}' +
+      '.pdxfpi-list>.pdxfpi-band:first-child>.pdxfpi-bh{margin-top:0.35rem;}' +
+      '.pdxfpi-bh-t{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.74rem;'
+        + 'letter-spacing:0.06em;text-transform:uppercase;color:#cfe0f8;}' +
+      '.pdxfpi-bh-n{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.66rem;'
+        + 'color:#93b4e6;border:1px solid rgba(147,180,230,0.34);border-radius:999px;'
+        + 'padding:0.02rem 0.42rem;}' +
+      '.pdxfpi-bn{font-size:0.66rem;color:#6f88ab;line-height:1.4;margin:0.16rem 0 0.12rem;}' +
+      // The band note always sits directly above the band's first row, so this is
+      // the rule that keeps the divider off the top of every band.
+      '.pdxfpi-bn+.pdxfpi-row{border-top:none;}' +
+      // ── THE TAIL ──────────────────────────────────────────────────────────
+      // One native <details>: one tap, one focus stop, one thing a screen reader
+      // announces, and nothing to re-arm after a repaint. Its summary carries the
+      // count and the census of what is inside, so opening it is a choice made
+      // with the answer already in hand.
+      '.pdxfpi-tail{margin-top:0.55rem;border-top:1px solid rgba(147,180,230,0.18);}' +
+      '.pdxfpi-tail-s{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;'
+        + 'align-items:center;gap:0.3rem 0.5rem;padding:0.6rem 0.1rem;min-height:2.5rem;}' +
+      '.pdxfpi-tail-s::-webkit-details-marker{display:none;}' +
+      '.pdxfpi-tail-t{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.76rem;'
+        + 'letter-spacing:0.02em;color:#9fb4d4;}' +
+      '.pdxfpi-tail-t::before{content:"▸ ";color:#6f88ab;}' +
+      '.pdxfpi-tail[open]>.pdxfpi-tail-s .pdxfpi-tail-t::before{content:"▾ ";}' +
+      '.pdxfpi-tail-s:hover .pdxfpi-tail-t,.pdxfpi-tail-s:focus-visible .pdxfpi-tail-t{color:#e8f0ff;}' +
+      '.pdxfpi-tail-b{display:flex;flex-direction:column;}' +
+      '.pdxfpi-tail-b>.pdxfpi-band:first-child>.pdxfpi-bh{margin-top:0.2rem;}' +
+      '.pdxfpi-cn-more{opacity:0.7;}' +
       // THE WHOLE ROW IS THE DOOR (see _fpiRowHtml). It gets the pointer and the
       // 44px thumb target, not just the name inside it — a reader who taps the
       // pattern chip is tapping the thing they were reading.
@@ -2458,6 +2525,18 @@
       '.pdxfpi-veh{flex:0 0 100%;font-size:0.63rem;line-height:1.35;color:#d0ab6e;' +
         'display:block;letter-spacing:0.01em;}' +
       '.pdxfpi-veh b{font-weight:400;opacity:0.9;}' +
+      // The profile roll-up. Same amber as the row tag it aggregates, so a reader
+      // who has learned one has learned the other — and one size step down from
+      // the lede above it, because this is context and not a headline.
+      '.pdxvru{font-size:0.68rem;line-height:1.5;color:#c8a76b;margin:0.45rem 0 0;' +
+        'padding:0.4rem 0.55rem;border-radius:0.4rem;' +
+        'background:rgba(208,171,110,0.07);border:1px solid rgba(208,171,110,0.2);}' +
+      '.pdxvru b{font-weight:700;color:#e8c98a;}' +
+      '.pdxvru-t{opacity:0.85;}' +
+      '.pdxvru-n{color:#9a8355;font-size:0.94em;}' +
+      '.pdxvru-s{color:#b2955f;}' +
+      '.pdxvru-w{display:block;margin-top:0.22rem;font-size:0.63rem;color:#7f8fa8;' +
+        'line-height:1.42;}' +
       '.pdxfpi-none{font-size:0.74rem;color:#8fa6c6;padding:0.5rem 0;}' +
       '.pdxfpi-foot{font-size:0.66rem;color:#6f88ab;line-height:1.45;margin:0.5rem 0 0;'
         + 'border-top:1px solid rgba(147,180,230,0.12);padding-top:0.45rem;}' +
@@ -2706,6 +2785,8 @@
         // chips beneath it — because a chip and a 24-character issue name cannot
         // share a phone line without one of them being truncated.
         '.pdxfpi-row{flex-direction:column;align-items:flex-start;gap:0.24rem;padding:0.5rem 0.1rem;}' +
+        '.pdxfpi-tail-s{min-height:2.7rem;}' +
+        '.pdxfpi-bh{margin-top:0.75rem;}' +
         '.pdxfpi-lbl{flex:1 1 auto;width:100%;font-size:0.9rem;min-height:2.1rem;}' +
         '.pdxfpi-go{opacity:1;margin-left:auto;}' +
         '.pdxfpi-seg{min-height:2.2rem;padding:0.38rem 0.66rem;}' +
@@ -6085,7 +6166,26 @@
     'not a stated stance and not a score.';
   var _RD_SLOT_NOTE_SAID = 'None of it has been judged against their stated position, ' +
     'so this is what the record itself did — not a score.';
-  var _RD_SLOT_NOTE_THIN = 'Too little on file to say which way it ran, so no direction is stated.';
+  var _RD_SLOT_NOTE_THIN = 'Too little on file to say which way it ran, so no direction is stated. ' +
+    'Few chances to vote on the issue can leave a lane short, so this is not read as reluctance.';
+  // THE EMPTY LANE, AND WHY IT NOW HAS A SENTENCE. It used to have none: the slot
+  // printed "No record on file yet" and stopped. That blank is the most ambiguous
+  // thing this lane renders — it is equally the shape of a member with chances
+  // they did not take and of an issue on which no clean vehicle ever reached the
+  // floor — and a blank with no sentence under it is read as the first one.
+  //   So the sentence names the ambiguity instead of resolving it. We do not yet
+  // hold the chamber-level data that would tell the two apart (see the menu
+  // vocabulary block by _MENU), and this copy is deliberately written so that
+  // when we do, the true reason drops in beside it without any of the surrounding
+  // words having to change their claim.
+  //   IT IS TWO STRINGS FOR THE SAME REASON THE REST OF THIS SLOT IS: the visible
+  // line sits inside a comparison cell and a ballot row, so it stays one short
+  // sentence; the full admission — that we cannot yet tell the two cases apart —
+  // is always in the title and the accessible name, never dropped.
+  var _RD_SLOT_NOTE_NONE = 'Nothing on this issue has reached their formal record yet — which ' +
+    'can mean a limited record, or no clean vehicle on the issue reaching the floor.';
+  var _RD_SLOT_NOTE_NONE_FULL = _RD_SLOT_NOTE_NONE +
+    ' This lane cannot yet tell the two apart, so it reads the blank as neither.';
   // The disclosure is the SHARE CARD'S fixed disclosure wherever receipt-cards.js
   // is loaded, so the sentence a reader meets on a compare cell is the sentence
   // they meet on the card they share from it. The literal above is pinned equal to
@@ -6135,8 +6235,9 @@
         aria = text + '. ' + note;
       } else {
         text = 'No record on file yet';
-        note = '';
-        aria = 'No formal record on file yet' + (label ? ' on ' + label : '') + '.';
+        note = _RD_SLOT_NOTE_NONE;
+        aria = 'No formal record on file yet' + (label ? ' on ' + label : '') + '. ' +
+          _RD_SLOT_NOTE_NONE_FULL;
       }
       return {
         state: state, token: idx.token, issueKey: issueKey, pid: pid, lane: lane,
@@ -6246,6 +6347,113 @@
       '" title="' + esc(read.why) + '">' +
       '<span class="pdx-rdcmp-ico" aria-hidden="true">🏛️</span>' +
       '<span class="pdx-rdcmp-txt">' + esc(read.note) + '</span></div>';
+  }
+
+  // ── WHERE THE RECORDS DIVERGE, AND WHERE THE FILE IS SIMPLY THIN ─────────
+  // The floor above answers one question — "is there enough here to compare?" —
+  // and stops. That was the right first answer, and on a screen where a reader is
+  // choosing between two people it is half of one. The other half is the question
+  // they came with: WHERE do these records actually part company, and where does
+  // the row only LOOK settled because our file is empty?
+  //
+  // Those two states are the ones a grid confuses. A row where every record ran
+  // the same way and a row where no record can be read both present as calm —
+  // nothing red, nothing shouting — and a reader scanning a column of calm rows
+  // takes the calm as agreement. It is not agreement. One is a finding and the
+  // other is a gap, and the whole point of naming them separately is that a gap
+  // must never be allowed to read as a tie.
+  //
+  // WHAT IT READS. Nothing new. It takes the slots _rdCompareRead already built
+  // — same pids, same issue, same one call — and sorts them by the two fields the
+  // slot already carries: `state` (speaks / thin / none, or absent for cold) and
+  // `characterised`, which is the record engine's own word for "this record ran
+  // one way and I will say which way". A SPLIT RECORD IS NOT A SIDE. A record that
+  // ran both ways has a `lead`, because arithmetic always has a larger number, and
+  // counting that lead as a side would manufacture a divergence out of a coin
+  // landing 3–2. So only characterised records contribute a direction here, which
+  // is the same rule the profile row uses to decide whether it may name one.
+  //
+  // WHAT IT MAY NOT DO. It may not hide, weaken or reword a single cell — every
+  // slot in the row still prints its own state and its own counts, exactly as it
+  // did before the row was read. It may not become ordinal: the shape carries
+  // counts of states and a state word, never a share, a score, a rank or a
+  // percentage, and no caller may sort a lineup on it. It is not a verdict about
+  // anybody — "these two records ran opposite ways" is a description of two votes,
+  // not a claim about either person's character — and it says nothing at all about
+  // party, because the record does not know which party cast it.
+  var _RD_CTR_ORDER = ['diverge', 'mixed', 'align', 'thin', 'cold'];
+  var _RD_CTR = {
+    // A real contrast: at least one record ran one way and at least one ran the
+    // other, and both of those records were readable enough to name a direction.
+    diverge: { key: 'diverge', ico: '⇄', label: 'Records diverge',
+      why: 'At least one record here advanced this and at least one cut against it. ' +
+           'Each cell below still shows its own counts.' },
+    // Readable, but not a clean two-sided read — somebody in the lineup ran both
+    // ways, so the row cannot be called a difference or a match without lying
+    // about one of the cells in it.
+    mixed:   { key: 'mixed',   ico: '⇌', label: 'One record ran both ways',
+      why: 'At least one record here went both ways on this, so the row is not a ' +
+           'clean split and it is not a match either. Read the cells.' },
+    // The genuine match, and the only state allowed to look like one.
+    align:   { key: 'align',   ico: '⇉', label: 'Records ran the same way',
+      why: 'Every readable record here ran the same way on this issue. ' +
+           'That is what the cells show, not a rating of anyone.' },
+    // The gap. Named, marked and deliberately not calm.
+    thin:    { key: 'thin',    ico: '◌', label: 'Not enough on file',
+      why: 'Fewer than two records here can be read on this issue, so this row is ' +
+           'a gap in our file rather than a finding. It is not agreement.' },
+    // Mid-fetch. Says nothing, because we have not looked yet.
+    cold:    { key: 'cold',    ico: '', label: '', why: '' }
+  };
+  function _rdContrastRead(pids, issueKey, opts) {
+    var out = { state: 'cold', issueKey: issueKey || null,
+                speaks: 0, thin: 0, none: 0, cold: 0, total: 0,
+                oneWay: 0, bothWays: 0, advances: 0, opposes: 0,
+                comparable: false, gap: false, label: '', ico: '', why: '' };
+    try {
+      var read = _rdCompareRead(pids, issueKey, opts);
+      out.speaks = read.speaks; out.thin = read.thin; out.none = read.none;
+      out.cold = read.cold; out.total = read.total; out.comparable = read.comparable;
+      var slots = read.slots || {};
+      Object.keys(slots).forEach(function (pid) {
+        var s = slots[pid];
+        if (!s || s.state !== 'speaks') return;
+        if (s.characterised) {
+          out.oneWay++;
+          if (s.lead === 'opposes') out.opposes++; else out.advances++;
+        } else {
+          out.bothWays++;                 // ran both ways: readable, but not a side
+        }
+      });
+      // Mid-fetch and short of the floor — a row we have not finished looking at
+      // may not announce a gap it has not verified. This is the same silence the
+      // floor note keeps, for the same reason.
+      if (out.cold && !out.comparable) out.state = 'cold';
+      else if (!out.comparable) out.state = 'thin';
+      else if (out.advances > 0 && out.opposes > 0) out.state = 'diverge';
+      else if (out.bothWays > 0) out.state = 'mixed';
+      else if (out.oneWay >= _RD_CMP_FLOOR) out.state = 'align';
+      else out.state = 'mixed';
+      var m = _RD_CTR[out.state] || _RD_CTR.cold;
+      out.label = m.label; out.ico = m.ico; out.why = m.why;
+      out.gap = (out.state === 'thin');
+    } catch (e) {}
+    return out;
+  }
+  // The badge. '' while cold, so a caller can concatenate it unconditionally and
+  // a half-loaded row stays blank rather than blinking a claim.
+  //   The gap state is the one that is allowed to look different from the rest,
+  // and it looks different by being DASHED and unsaturated rather than by being
+  // louder. It is an admission about our file; it should read as a hole in the
+  // page, which is exactly what it is.
+  function _rdContrastHtml(read, opts) {
+    if (!read || !read.state || read.state === 'cold' || !read.label) return '';
+    try { ensureStyles(); } catch (e) {}
+    var o = opts || {};
+    return '<span class="pdx-rdctr is-' + esc(read.state) + (o.cls ? ' ' + esc(o.cls) : '') +
+      '" title="' + esc(read.why) + '" aria-label="' + esc(read.label + '. ' + read.why) + '">' +
+      '<span class="pdx-rdctr-ico" aria-hidden="true">' + esc(read.ico) + '</span>' +
+      '<span class="pdx-rdctr-txt">' + esc(read.label) + '</span></span>';
   }
   // The row's result, as data. One place decides what a row concluded, so the
   // markup below and the tests both read the same answer.
@@ -7738,6 +7946,54 @@
   // one is an admission we have not read it yet — the weaker of the two claims goes
   // last so the top of the list stays the part that says something.
   var _FPI_UNREAD_RANK = 5;
+  // ── THE BANDS: WHAT THE LIST LEADS WITH, AND WHAT IT LEADS AWAY FROM ────────
+  // A sixty-row list sorted strongest-first is still a sixty-row list. The sort
+  // was right and it was invisible: row 1 and row 52 are drawn identically, and
+  // nothing on the way down marks where the readable part ended. On a member with
+  // a wide record that is most of a phone screen of "too few to weigh" and "no
+  // roll-call pattern yet" arriving at the same visual weight as a twelve-vote
+  // run — which is how a reader learns that a full formal record looks like an
+  // empty one.
+  //
+  // So the same rows, in the same order, are FILED. Four bands, cut on the rank
+  // the sort already assigned — no new ordering, no new threshold, no second
+  // opinion about any row, and no row moved relative to any other row. Every band
+  // header is a COUNT of what is already underneath it; none of them is a grade.
+  //
+  //   clear  strong + mostly   the record ran mostly or wholly one way
+  //   split  split             it ran both ways, and that is a finding
+  //   thin   thin              a direction, read off too little to lean on
+  //   rest   none + unread     on file, with no direction read from it at all
+  //
+  // THE LAST TWO ARE THE TAIL, AND THE TAIL ARRIVES CLOSED. Closed is not hidden:
+  // the summary says how many rows are inside AND what kind of nothing they hold,
+  // in the rows' own words, off the same census the bands print — so a reader
+  // decides whether to open it without having to open it. Every row is in the
+  // document either way, which is what keeps a deep link, a find-in-page, a
+  // filter count and the back pill honest; _pdxOpenClosedChain already opens an
+  // ancestor <details> before it scrolls, so a return to a tail row lands on it.
+  var _FPI_BANDS = [
+    { id: 'clear', tail: false, lb: 'Clearest patterns',
+      note: 'Where the formal record ran mostly or wholly one way.',
+      test: function (x) { return x.rank <= 1; } },
+    { id: 'split', tail: false, lb: 'Ran both ways',
+      note: 'A real record on both sides of the issue. That is a finding about the record, not a gap in it.',
+      test: function (x) { return x.rank === 2; } },
+    { id: 'thin', tail: true, lb: 'A direction, but too little to lean on',
+      short: 'too little to lean on',
+      note: 'Something formal on file pointing one way — not enough of it to call a pattern.',
+      test: function (x) { return x.rank === 3; } },
+    { id: 'rest', tail: true, lb: 'On file, nothing readable yet',
+      short: 'nothing readable yet',
+      note: 'The instruments are on file and open in the dossier. No direction is claimed from ' +
+        'them, and every row says which reason it is.',
+      test: function (x) { return x.rank >= 4; } }
+  ];
+  // How short a tail has to be before folding it costs more than it saves. Three
+  // rows behind a control is a control that has to be operated in order to read
+  // three rows; the fold earns its tap somewhere above that.
+  var _FPI_TAIL_MIN = 4;
+
   // The one sentence that keeps this list out of the score, printed once at the
   // foot of the index rather than on sixty-four rows.
   var _FPI_WALL = 'Every issue here is drawn from the formal record only — roll-call votes and ' +
@@ -8138,6 +8394,148 @@
   // sits BESIDE the finding, never in place of it. And it touches no gate: no tier,
   // no floor, no percentage and nothing in Direction Match reads a single field
   // below.
+  // ── 🏛️ TWO DIFFERENT FACTS: THE RECORD, AND THE MENU ────────────────────────
+  // Everything above this line describes a MEMBER'S FORMAL RECORD — what they
+  // did with the chances they had. It is the primary lane and it stays primary.
+  //
+  // But an empty or thin lane is ambiguous in a way we have never said out loud.
+  // Sometimes a member had clean floor vehicles on an issue and the record is
+  // genuinely limited. Sometimes no clean vehicle on that issue reached the floor
+  // at all, and the only way the policy was ever tested was as a provision inside
+  // something that had to pass anyway. Those are different facts about different
+  // things, and today both of them render as the same quiet blank.
+  //
+  // THIS BLOCK IS THE VOCABULARY FOR THE SECOND FACT, AND ONLY THE VOCABULARY.
+  // It ships no analytics. There is no chamber-level denominator here, no count
+  // of what never received a vote, and nothing that attributes a calendar to a
+  // person or a caucus — that is later work and it cannot be inferred from one
+  // member's own record. What exists here is a small locked set of phrasings so
+  // that when the data does arrive, the sentence it goes into is already written,
+  // already reviewed, and already the right shape.
+  //
+  //   THE ONE RULE THE PHRASINGS ENFORCE: the subject of a menu sentence is the
+  // floor, the vehicle or the record's shape — never the member. "No clean
+  // vehicle reached the floor" is a fact about the calendar. "They dodged the
+  // vote" is an accusation about a person, and one we have no evidence for: a
+  // member does not schedule the floor, and absence of a vote is not evidence of
+  // anything a member chose. _MENU_AVOID is that rule written as a list a test
+  // can run, and _menuScan is the runner. Anything on that list — evasion verbs,
+  // obstruction verbs, party framing, or a named scheduling office — turns a gap
+  // in the calendar into a moral failure by a person, which is the exact failure
+  // this vocabulary exists to make impossible.
+  var _MENU_LANES = {
+    // Said in this order wherever both are on screen, because the personal record
+    // is the primary lane and the menu is context for reading it.
+    record: 'What the member did',
+    menu: 'What the floor offered to vote on'
+  };
+  var _MENU_ORDER = ['no_vehicle', 'provision_only', 'procedural_gate'];
+  var _MENU = {
+    // "No clean vehicle reached the floor" — the empty case. Reserved: nothing
+    // ships this yet, because knowing it requires chamber-level data we do not
+    // hold. The empty states below are worded so that it can be dropped in.
+    no_vehicle: {
+      key: 'no_vehicle',
+      lb: 'No clean vehicle reached the floor',
+      note: 'No standalone measure on this issue came up for a recorded vote in this ' +
+        'chamber during the period we hold. An empty lane here is a fact about the ' +
+        'calendar rather than about the member, and no direction is read from it.'
+    },
+    // "Only tested as a provision inside larger packages" — the case the stowaway
+    // detector already sees, and the only one with live data behind it today.
+    provision_only: {
+      key: 'provision_only',
+      lb: 'Only tested as a provision inside larger packages',
+      note: 'The only chances on file to act on this issue arrived folded inside larger ' +
+        'measures rather than as a vote on the issue itself. Those measures are real, ' +
+        'dated and in the dossier — but a package is not a position on everything ' +
+        'inside it, so no direction is claimed from one.'
+    },
+    // "Procedural gate rather than a policy vote" — the case the procedural tally
+    // already sees: the chance that existed was floor machinery, not the thing.
+    procedural_gate: {
+      key: 'procedural_gate',
+      lb: 'Procedural gate rather than a policy vote',
+      note: 'What came up here was floor machinery — a motion to proceed, a cloture ' +
+        'vote, a special rule — rather than a vote on the substance. Those are ' +
+        'recorded and listed in full; they are not a position on the issue.'
+    }
+  };
+  // The tail sentence every menu surface carries, for the same reason _VRU_WALL
+  // exists: a sentence about what the floor did, printed next to a person's face,
+  // is read as a sentence about the person unless it says otherwise.
+  var _MENU_WALL = 'This describes what was available to vote on, not what the member ' +
+    'chose to do. It is context for the record above, not a mark against it.';
+  // The banned list, kept beside the phrasings it constrains rather than in a
+  // test file, so a future edit to the copy meets the rule in the same screen.
+  // Three families: evasion or obstruction verbs, which assign intent nobody has
+  // evidence for; party framing, which turns a calendar into a team sport; and
+  // named scheduling offices, which is personal attribution for agenda power and
+  // is explicitly out of scope.
+  var _MENU_AVOID = [
+    'blocked', 'block', 'blocking', 'dodged', 'dodge', 'ducked', 'evaded', 'evasion',
+    'refused to vote', 'refused to act', 'refuse to vote', 'stonewall', 'obstruct',
+    'obstruction', 'buried', 'shelved', 'sat on', 'killed the', 'would not allow',
+    'never allowed', 'denied a vote', 'failed to act', 'failed to vote', 'avoided a vote',
+    'republican', 'democrat', 'democratic', 'gop', 'partisan', 'party leadership',
+    'majority leader', 'minority leader', 'the speaker', 'leadership decided'
+  ];
+  // Returns the banned phrases present in a string, lowercased, in list order.
+  // Empty array is the pass. Exported so a harness can walk every menu surface
+  // with the same list the copy was written against.
+  function _menuScan(text) {
+    var t = String(text || '').toLowerCase();
+    var hits = [];
+    for (var i = 0; i < _MENU_AVOID.length; i++) {
+      if (t.indexOf(_MENU_AVOID[i]) >= 0) hits.push(_MENU_AVOID[i]);
+    }
+    return hits;
+  }
+  // One menu phrasing by key, with the wall attached. `null` for an unknown key,
+  // so a caller cannot silently print nothing where it meant to print context.
+  function _menuSay(key, opts) {
+    var m = _MENU[key];
+    if (!m) return null;
+    var o = opts || {};
+    return {
+      key: m.key, lb: m.lb,
+      note: m.note + (o.wall === false ? '' : ' ' + _MENU_WALL),
+      lane: _MENU_LANES.menu
+    };
+  }
+  // THE VEHICLE'S FAMILY, IN WORDS, where the light classifier recognised one.
+  // "inside H.R. 7148" is a bill number; "inside H.R. 7148, an omnibus
+  // appropriations act" is the reason there may have been nowhere else to put it.
+  // '' when nothing on the fixed list matched, because an unrecognised measure is
+  // an unrecognised measure and guessing at its family would be inventing data.
+  function _menuVehicleKinds(v) {
+    if (!v || !v.classes || !v.classes.length) return '';
+    var all = window._PDX_RD_VEHICLE_CLASSES || [];
+    var words = [];
+    v.classes.forEach(function (k) {
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].key === k) { words.push(all[i].label); return; }
+      }
+    });
+    if (!words.length) return '';
+    if (words.length === 1) return words[0];
+    if (words.length === 2) return words[0] + ' and ' + words[1];
+    return words.slice(0, -1).join(', ') + ' and ' + words[words.length - 1];
+  }
+  // …and the sentence that carries it, so two surfaces cannot phrase the same fact
+  // two different ways. "That is a reconciliation act" is only true when every
+  // named vehicle is one; where four measures between them produced one recognised
+  // family, the honest verb is "include". '' when nothing was recognised.
+  function _menuKindSay(v) {
+    var kinds = _menuVehicleKinds(v);
+    if (!kinds) return '';
+    var named = (v && v.vehicles) ? v.vehicles.length : 0;
+    var fams = (v && v.classes) ? v.classes.length : 0;
+    return (named <= 1 || named === fams)
+      ? (' That is ' + kinds + '.')
+      : (' Those include ' + kinds + '.');
+  }
+
   var _VEH_TAG = 'Rode inside a package';
   var _VEH_NOTE = 'This issue\u2019s formal record here is made of provisions carried inside ' +
     'larger measures rather than votes on the issue itself. The votes are real and are ' +
@@ -8185,6 +8583,10 @@
     var named = v.vehicles.length
       ? (' The ' + (v.vehicles.length === 1 ? 'vehicle was ' : 'vehicles were ') + v.vehicles.join(', ') + '.')
       : '';
+    // …and its family, where the light classifier recognised one. A must-pass
+    // measure is context for why a policy travelled the way it did; an
+    // unrecognised bill gets no guess.
+    named += _menuKindSay(v);
     return lead + named + ' ' + _VEH_NOTE;
   }
   // MEMOIZED per (pid, issue) per epoch, on the same counter every other derived
@@ -8211,6 +8613,128 @@
   function vehicleStowaway(pid, issueKey) {
     var v = vehicleRead(pid, issueKey);
     return !!(v && v.stowaway);
+  }
+
+  // ── THE MENU, BESIDE THE RECORD ─────────────────────────────────────────────
+  // What a thin formal record MEANS depends partly on what there was to vote on,
+  // and the issue dossier has never said anything at all about that half. It shows
+  // the member's file and stops, so a lane holding two package votes reads as a
+  // member who barely engaged, when what the file may actually record is an issue
+  // that only ever came up folded inside something else.
+  //
+  // This reads the two things already on hand and turns whichever one the data
+  // genuinely supports into one short phrase from the locked vocabulary:
+  //
+  //   · the stowaway tally (_recordVehicleStats, via vehicleRead) — was every
+  //     mapped instrument on this issue a provision inside a larger measure?
+  //   · the direction index's procedural count — was every judged act on file
+  //     floor machinery rather than a vote on the substance?
+  //
+  // WHAT IT DELIBERATELY WILL NOT SAY. _MENU.no_vehicle — "No clean vehicle
+  // reached the floor" — is a claim about the whole chamber's calendar, and
+  // nothing here counts the chamber. One member's empty lane is not evidence for
+  // it. It stays reserved and unwired, and silence is the honest output when the
+  // only thing on hand is that this member's file is thin.
+  //
+  // AND WHY "Only" IS NOT USED LOOSELY. The locked phrase says "Only tested as a
+  // provision", so it prints only where v.only is true — every mapped instrument
+  // on the issue was a package. Where packages merely dominated, the phrase falls
+  // back to the vehicle wording already shipped on the rows (_VEH_TAG) and the
+  // counts underneath say exactly how far the claim goes.
+  //
+  // The subject of every sentence here is the measure or the floor. Never the
+  // member, never a party, never anyone's scheduling power — _menuScan is run over
+  // the assembled output by scripts/test-menu-context.mjs with the same banned
+  // list the copy was written against.
+  var _MENU_CTX_ICO = '📋';
+  function _menuContext(pid, issueKey, opts) {
+    if (!pid || !issueKey) return null;
+    var o = opts || {};
+    // The exec lane is out of scope for the same reason _rdSlot skips it: "carried
+    // as a provision inside a larger measure" is a legislative-vehicle idea, and an
+    // executive order has no vehicle to ride.
+    if ((o.lane || '') === 'exec') return null;
+    var v = null, idx = null;
+    try { v = vehicleRead(pid, issueKey); } catch (e) { v = null; }
+    try {
+      if (typeof window._pdxRecordDirection === 'function') {
+        idx = window._pdxRecordDirection(pid, issueKey, {
+          noun: { one: 'vote', many: 'votes' },
+          label: _issueLabel(issueKey) || ''
+        });
+      }
+    } catch (e) { idx = null; }
+    var kinds = _menuVehicleKinds(v);
+    var kindSay = _menuKindSay(v);
+
+    // ① Every mapped instrument was a package. The strongest thing this data
+    //    supports, and the one case the locked "Only tested…" phrase fits exactly.
+    if (v && v.stowaway && v.only) {
+      var say = _menuSay('provision_only');
+      // Names the vehicles while there are few enough to name, the same way the
+      // row's own sentence does; past two, "inside 8 larger measures" beside a
+      // count of 8 instruments reads like a coincidence, so the shape is stated
+      // instead and the full list stays one line down in the note.
+      var nveh = (v.vehicles && v.vehicles.length) || 0;
+      var subj = (v.total === 1)
+        ? 'The one mapped instrument on this issue arrived '
+        : 'All ' + v.total + ' mapped instruments on this issue arrived ';
+      var facts = !nveh
+        ? 'Every mapped instrument on this issue arrived inside a larger measure.'
+        : (nveh > 2)
+          ? subj + 'inside a larger measure, across ' + nveh + ' of them.'
+          : subj + _vehWhere(v) + '.';
+      return {
+        state: 'provision_only', menu: 'provision_only', lb: say.lb,
+        facts: facts + kindSay, note: say.note, kinds: kinds, v: v
+      };
+    }
+    // ② Everything on file was floor machinery. Read from the same comparison the
+    //    formal pattern's own `procedural_only` refusal uses, so the dossier and
+    //    the refusal ledger cannot describe the same lane two different ways.
+    if (idx && (idx.judged || 0) > 0 && (idx.procedural || 0) >= (idx.judged || 0)) {
+      var sayP = _menuSay('procedural_gate');
+      return {
+        state: 'procedural_gate', menu: 'procedural_gate', lb: sayP.lb,
+        facts: (idx.judged === 1)
+          ? 'The one judged act on this issue was procedural.'
+          : 'All ' + idx.judged + ' judged acts on this issue were procedural.',
+        note: sayP.note, kinds: kinds, v: v
+      };
+    }
+    // ③ Packages dominated but did not exhaust the file. `menu: null` because no
+    //    locked phrase is being asserted — this is the shipped row vocabulary
+    //    saying the smaller, checkable thing.
+    if (v && v.stowaway) {
+      return {
+        state: 'provision_mostly', menu: null, lb: _VEH_TAG,
+        facts: '', note: _vehNote(v) + ' ' + _MENU_WALL, kinds: kinds, v: v
+      };
+    }
+    return null;
+  }
+  // Two shapes, one read. The sheet's 🏛️ column gets the same collapsed disclosure
+  // the multi-issue provenance count already uses there, so the institutional half
+  // arrives at exactly the weight of the provenance half and not a pixel more —
+  // context sitting beside the record, closed by default, never a verdict. `flat`
+  // is for a surface that is already inside a drawer, where a second <details> is
+  // something a reader has to find twice.
+  function _menuContextHtml(pid, issueKey, opts) {
+    var c = _menuContext(pid, issueKey, opts);
+    if (!c) return '';
+    var o = opts || {};
+    var body = (c.facts ? c.facts + ' ' : '') + c.note;
+    if (o.mode === 'flat') {
+      return '<div class="pdxdos-menu" data-pdxdos-menu="' + esc(c.state) + '">' +
+        '<span aria-hidden="true">' + _MENU_CTX_ICO + '</span> <b>' + esc(c.lb) +
+        '</b> — ' + esc(body) + '</div>';
+    }
+    return '<details class="pdxgap-side-sub pdxgap-omni pdxgap-menu" ' +
+        'data-pdxgap-menu="' + esc(c.state) + '">' +
+      '<summary><span aria-hidden="true">' + _MENU_CTX_ICO + '</span> <b>' +
+        esc(c.lb) + '</b></summary>' +
+      '<div class="pdxgap-omni-b">' + esc(body) + '</div>' +
+    '</details>';
   }
   // THE ROW'S OWN SENTENCE, ADDRESSED BY KEY. Surfaces that hold a (pid, issue)
   // rather than an index row — the Official Record list, a stance row — need the
@@ -8241,6 +8765,171 @@
       _vehLines[mk] = m;
     }
     return m[issueKey] || _VEH_NONE;
+  }
+
+  // ── 🚂 THE SAME DISCLOSURE, ASKED OF THE WHOLE PROFILE ──────────────────────
+  // The row tag answers "did THIS issue's formal signal ride inside something
+  // bigger". A reader who has met that tag three or four times down one list asks
+  // the obvious next question — "overall, how much of this person's record was
+  // package-borne?" — and until now had to count the 🚂 lines themselves.
+  //
+  // NOTHING NEW IS DETECTED HERE. This counts rows that already wear the tag. The
+  // numerator is `x.vehicle.stowaway`, which is _recordVehicleStats' own decision
+  // behind its own threshold; the denominator is `x.read`, which is the pattern
+  // engine's own decision about whether it would name a direction at all. If a
+  // future change moves either of those, this moves with it and cannot drift from
+  // what the rows below it say, because it is literally reading them.
+  //
+  // WHY THE DENOMINATOR IS `read` AND NOT `all`. The claim is about how a formal
+  // POSITION travelled, and an issue the engine refused to read has no position to
+  // have travelled anywhere — the vehicle field is null on exactly those rows for
+  // exactly that reason (see the gate over `vehicle:` in _fpiRows). Dividing into
+  // the whole index instead would put every executive action, every balance key
+  // and every "no side taken" row in the denominator, which would make the number
+  // smaller on every profile and mean nothing on any of them.
+  //
+  // WHAT IT MAY NOT BECOME. Not a score, not a grade, not a verdict, and not a
+  // percentage — the brief asks for counts and named bills, and a percentage is
+  // the exact shape that invites a league table. Nothing here is comparative,
+  // nothing is coloured by size, and no threshold turns a count into a word like
+  // "high". A vote cast on a package is a vote the member cast: this sentence sits
+  // beside the record and the per-row tags, never in place of them, and it changes
+  // no tier, no count, no confidence and nothing in Direction Match.
+  //
+  // AND IT STAYS QUIET WHERE IT WOULD BE OVER-READ. Three walls, all of them
+  // about honesty rather than tidiness — see _VRU_MIN_READ / _VRU_MIN_ISSUES and
+  // the `none` case below.
+  // TEN, AND THE REASON IS NOT ROUNDNESS. "3 of 6" is arithmetic about a sample
+  // printed in the grammar of a fact about a person, and a reader cannot un-see a
+  // ratio once it has been shown to them. Below ten readable issues the per-row
+  // tags are the honest carrier of this information — there are few enough of them
+  // to count by eye — and the aggregate adds a denominator without adding a fact.
+  var _VRU_MIN_READ = 10;
+  // TWO, BECAUSE ONE IS A ROW. See the `one_issue` silence below.
+  var _VRU_MIN_ISSUES = 2;
+  var _VRU_NAME_CAP = 3;
+  // The tail sentence, and the reason it is not optional: a bare "7 of 31" is a
+  // statistic, and a statistic with no frame is read as a mark out of ten.
+  var _VRU_WALL = 'This describes how the record travelled, not how good it is. ' +
+    'The votes are real, they are counted in full above, and each of these issues ' +
+    'carries the same note on its own row. Which measures carry which policy is ' +
+    'set by what reaches the floor, not by the member.';
+  var _vruCache = {}, _vruEpoch = 0;
+  function vehicleRollup(pid) {
+    if (!pid) return null;
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_vruEpoch !== ep) { _vruCache = {}; _vruEpoch = ep; }
+    var ck = norm(pid) + '||' + execTermScope().key;
+    if (Object.prototype.hasOwnProperty.call(_vruCache, ck)) return _vruCache[ck];
+    var rows = [];
+    try { rows = _fpiRows(pid) || []; } catch (e) { rows = []; }
+    var read = 0, marked = [], every = 0, byVeh = {}, order = [];
+    rows.forEach(function (x) {
+      if (!x || !x.read) return;
+      read++;
+      if (!(x.vehicle && x.vehicle.stowaway)) return;
+      marked.push(x);
+      // `only` is the exact case, not the majority one: every mapped instrument on
+      // that issue was a package. It is reported as a subset of the same rows
+      // rather than as a second, competing figure.
+      if (x.vehicle.only) every++;
+      (x.vehicle.vehicles || []).forEach(function (name) {
+        if (!name) return;
+        if (!Object.prototype.hasOwnProperty.call(byVeh, name)) { byVeh[name] = 0; order.push(name); }
+        byVeh[name]++;
+      });
+    });
+    // Most-carrying first, then alphabetically so the order is stable across
+    // renders and across members — not "most important", which is not a fact we
+    // hold. The count beside each name is ISSUES it carried for this member, which
+    // is the only sense in which one vehicle here is bigger than another.
+    order.sort(function (a, b) { return (byVeh[b] - byVeh[a]) || (a < b ? -1 : 1); });
+    var out = {
+      pid: pid, read: read, issues: marked.length, every: every,
+      keys: marked.map(function (x) { return x.key; }),
+      labels: marked.map(function (x) { return x.label; }),
+      vehicles: order.map(function (n) { return { name: n, issues: byVeh[n] }; }),
+      enough: false, quiet: ''
+    };
+    // ── THE THREE SILENCES ────────────────────────────────────────────────────
+    //   none        Nothing rode. Saying "0 of 31" would be a clean bill of health
+    //               in the shape of a statistic, and a clean bill of health is a
+    //               grade — the one thing this must not be. The per-row tags are
+    //               already the ground truth for "did this one ride"; their
+    //               absence is the answer, and it does not need announcing.
+    //   thin_file   Too few readable issues for a ratio to characterise anyone.
+    //               See the note over _VRU_MIN_READ.
+    //   one_issue   One marked issue is a ROW, and the row already says it. A
+    //               roll-up over a single item is the same sentence twice, the
+    //               second time with a denominator attached to make it look larger.
+    if (!marked.length) out.quiet = 'none';
+    else if (read < _VRU_MIN_READ) out.quiet = 'thin_file';
+    else if (marked.length < _VRU_MIN_ISSUES) out.quiet = 'one_issue';
+    else out.enough = true;
+    _vruCache[ck] = out;
+    return out;
+  }
+  // "H.R. 2617 (4 issues), H.R. 7148 (2)" — named, because a bill number is
+  // something a reader can go and check and "a larger measure" is not. Capped,
+  // because past three the line stops being readable, and the overflow is COUNTED
+  // rather than dropped silently.
+  function _vruVehicleList(v) {
+    var vs = v.vehicles || [];
+    if (!vs.length) return '';
+    var head = vs.slice(0, _VRU_NAME_CAP), more = vs.length - head.length;
+    var named = head.map(function (e) {
+      return esc(e.name) + (e.issues > 1 ? ' <span class="pdxvru-n">(' + e.issues + ' issues)</span>' : '');
+    });
+    var s = named.length === 1 ? named[0]
+      : named.slice(0, -1).join(', ') + ' and ' + named[named.length - 1];
+    return s + (more ? ' <span class="pdxvru-n">+ ' + more + ' more measure' +
+      (more === 1 ? '' : 's') + '</span>' : '');
+  }
+  // THE EXACT CASE INSIDE THE MAJORITY ONE. `only` means provision === total on
+  // that issue: not "mostly a package" but "nothing but". It is worth its own
+  // clause because it is the difference between a record that also voted on the
+  // subject directly and one that never did, and it is stated as the mechanical
+  // fact it is — no standalone instrument on file — rather than as a shortfall.
+  function _vruEveryText(v) {
+    if (!v || !v.every) return '';
+    return (v.every === v.issues ? 'On all ' + v.every + ' of them' : 'On ' + v.every + ' of those ' + v.issues) +
+      ', no standalone instrument was on file at all.';
+  }
+  // Plain-text twin of the sentence, for a title and an accessible name. Same
+  // numbers, same order, no markup.
+  function _vruText(v) {
+    if (!v || !v.enough) return '';
+    var s = v.issues + ' of ' + v.read + ' readable formal issues — the ones where the record ' +
+      'was clear enough to name a direction — were advanced or opposed primarily as provisions ' +
+      'inside larger packages.';
+    if (v.vehicles.length) {
+      s += ' The measures that carried them include ' +
+        v.vehicles.slice(0, _VRU_NAME_CAP).map(function (e) {
+          return e.name + (e.issues > 1 ? ' (' + e.issues + ' issues)' : '');
+        }).join(', ') + '.';
+    }
+    if (v.every) s += ' ' + _vruEveryText(v);
+    return s + ' ' + _VRU_WALL;
+  }
+  function vehicleRollupHtml(pid) {
+    var v = vehicleRollup(pid);
+    if (!v || !v.enough) return '';
+    ensureStyles();
+    var list = _vruVehicleList(v);
+    return '<p class="pdxvru" data-pdxvru-issues="' + v.issues + '"' +
+        ' data-pdxvru-read="' + v.read + '"' +
+        ' title="' + escAttr(_vruText(v)) + '"' +
+        ' aria-label="' + escAttr('Package-borne formal record: ' + _vruText(v)) + '">' +
+        '<span class="pdxvru-t" aria-hidden="true">🚂</span> ' +
+        '<b>' + v.issues + '</b> of ' + v.read + ' readable formal issues were advanced or ' +
+        'opposed primarily as provisions inside larger packages' +
+        (list ? ' — carried by ' + list : '') + '.' +
+        (v.every ? ' <span class="pdxvru-s">' +
+          (v.every === v.issues ? 'On all <b>' + v.every + '</b> of them'
+                                : 'On <b>' + v.every + '</b> of those ' + v.issues) +
+          ', no standalone instrument was on file at all.</span>' : '') +
+        ' <span class="pdxvru-w">' + esc(_VRU_WALL) + '</span>' +
+      '</p>';
   }
 
   // ── 🏛 THE SHAPE OF THE RECORD, IN FOUR FACTS ───────────────────────────────
@@ -9008,6 +9697,44 @@
             'resolved to neither side, so there is nothing to read a direction from. They are in ' +
             'the dossier exactly as they are.' };
       }
+      // ── AND ONE OF THOSE BRUSHES IS NOT A COINCIDENCE, IT IS A VEHICLE ─────
+      // "Not about this issue" is the right sentence for a bill that happened to
+      // touch the subject on its way past. It is the WRONG sentence for a policy
+      // that was deliberately carried inside larger measures — a different fact,
+      // about a different record, and one this codebase already detects: the
+      // stowaway read in _recordVehicleStats, the same one the read rows wear as
+      // their 🚂 line. Where that detector says EVERY mapped instrument here was
+      // a package, this row says so, names the packages it can name, and still
+      // claims no direction.
+      //   IT IS A NARROWER CLAIM THAN THE ONE IT REPLACES, not a stronger one,
+      // which is the only reason it is allowed past the wall over `vehicle` in
+      // _fpiRows. That wall forbids hanging the DIRECTIONAL disclosure ("advanced
+      // as a provision inside H.R. 7148") under a refusal, because that sentence
+      // presupposes a direction the row does not have. This one presupposes
+      // nothing: it reports the shape of the ledger and stops. `x.vehicle` stays
+      // null on a refused row, so no 🚂 line and no data-pdxfpi-vehicle attribute
+      // appears here either — only the words in the grey chip change.
+      var _veh = null;
+      try { _veh = vehicleRead(r && r.pid, r && r.key); } catch (e) { _veh = null; }
+      if (_veh && _veh.stowaway && _veh.only) {
+        // THE LOCKED MENU PHRASING, because this is the one refusal on the list
+        // that is already a statement about the menu rather than about the
+        // member: every chance on file to act here was a package. "Only carried
+        // inside larger packages" described the record; "Only tested as a
+        // provision inside larger packages" describes the chances, which is the
+        // truer and narrower claim and the one the vocabulary block locks.
+        //   Where the light classifier recognises the family the packages
+        // belonged to, it is named — "an omnibus appropriations act" is the
+        // reason there may have been nowhere else to put the policy, and a bill
+        // number alone is not. It stays silent on an unrecognised measure.
+        var _kinds = _menuVehicleKinds(_veh);
+        return { id: 'vehicle_only', lb: _MENU.provision_only.lb, menu: 'provision_only',
+          note: 'Every mapped instrument on this issue arrived as a provision ' + _vehWhere(_veh) +
+            (_kinds ? ' — ' + _kinds + ' — ' : ' ') +
+            'rather than as a ' + n.one + ' on the issue itself. Those measures are real, dated ' +
+            'and in the dossier — but a package is not a position on everything inside it, so no ' +
+            'direction is claimed from one. ' + _MENU_WALL };
+      }
       if ((idx.primary || 0) < 1) {
         return { id: 'incidental', lb: 'Not about this issue',
           note: 'The ' + n.many + ' on file here touched this issue as part of a larger measure ' +
@@ -9028,11 +9755,15 @@
       // direction: the acts are real and one-sided arithmetic on them is still not
       // a position on the subject.
       if ((idx.judged || 0) > 0 && (idx.procedural || 0) >= (idx.judged || 0)) {
-        return { id: 'procedural_only', lb: 'Procedural ' + n.many + ' only',
+        // Locked menu phrasing again, and for the same reason: "Procedural votes
+        // only" put the emphasis on what the member cast, when the fact is what
+        // came up. A member cannot vote on the substance of a bill that only ever
+        // reached the floor as a motion to proceed.
+        return { id: 'procedural_only', lb: _MENU.procedural_gate.lb, menu: 'procedural_gate',
           note: 'Every ' + n.one + ' on file here was procedural — a motion to proceed, a ' +
             'cloture vote or similar — rather than a ' + n.one + ' on the substance of this ' +
             'issue. No direction is read from floor machinery, and the ' + n.many + ' are in ' +
-            'the dossier.' };
+            'the dossier. ' + _MENU_WALL };
       }
       // ── AND THE FIFTH: THE ACTS ARE REAL, THEY AGREE, AND THEY ARE LIGHT ───
       // The newest of these, and the only one that exists because we started
@@ -9072,6 +9803,26 @@
             n.many + ' themselves are in the dossier.' };
       }
     }
+    // ── AND ONE LAST ONE THAT IS NOT ABOUT THEM AT ALL ────────────────────────
+    // "No roll-call pattern on file yet" printed while the roll-call fetch is
+    // still in flight is a claim about OUR network wearing the clothes of a claim
+    // about THEIR record — and it is the sentence this row said on every first
+    // paint, because the curated formal feeder can put a row in this index before
+    // the votes that would read it have arrived. The row model one lane over
+    // already refuses to make that mistake (see the `pending` branch in
+    // _stRecordSlot), so this borrows that answer and its exact wording rather
+    // than inventing a second vocabulary for waiting.
+    //   LAST, DELIBERATELY. Everything above is a reason drawn from material we
+    // are already holding, and material in hand outranks material in flight: a
+    // row that can already say "they ran both ways" should say that, not that it
+    // is still looking. Legislative lane only — the executive lane has nothing
+    // outstanding to wait for and was answered at the top of this function.
+    if (r && r.lane !== 'exec' && !recordSettled(r.pid)) {
+      return { id: 'pending', lb: _ST_REC_PENDING,
+        note: 'Their roll-call record is still loading, so nothing here has been read for a ' +
+          'pattern yet. That is a statement about this page, not about their record — the row ' +
+          'fills in on its own as soon as the record lands.' };
+    }
     return { id: 'no_rollcall', lb: 'No roll-call pattern on file yet',
       note: 'These ' + n.many + ' are on file and open in the dossier, but no roll call mapped to ' +
         'this issue has been read for a pattern yet, so no direction is claimed here.' };
@@ -9086,6 +9837,115 @@
   // overlay hands it its own Sort control's state, so one control governs both
   // lists). `opts.view` overrides the remembered filter; the delegated handler
   // below uses it to re-render in place.
+  // ── THE CENSUS, NOW A COMPONENT RATHER THAN A STRIP ─────────────────────────
+  // THE CENSUS IS A COUNT, NOT A GRADE: how many issues landed on each printed
+  // label — the honest shape of a list before anyone scrolls it. It reports; it
+  // does not rank the person.
+  //
+  // Keyed on the printed LABEL rather than the tier, which is the whole point of
+  // it now that the refusals each say their own sentence: "too few to weigh",
+  // "procedural only", "only carried inside larger packages" and "still checking"
+  // are four different statements about four different situations, and one grey
+  // "unread × 14" would hide the only ones of them that are ours to fix.
+  //
+  // It used to print once, as a strip under the lede, over the whole list. It now
+  // prints per BAND — under each band's heading, and inside the tail's summary —
+  // because that is where each count answers a question the reader is actually
+  // asking at that moment ("what is in the part I can read", "what kind of
+  // nothing is in the part I would be opening"). Nothing was dropped: every label
+  // that appeared in the strip appears under the band that holds its rows.
+  function _fpiCensus(list) {
+    var seen = {}, order = [];
+    (list || []).forEach(function (x) {
+      var k = x.tier + '|' + x.patLabel;
+      if (!seen[k]) { seen[k] = { n: 0, x: x }; order.push(k); }
+      seen[k].n++;
+    });
+    order.sort(function (a, b) {
+      return (seen[a].x.rank - seen[b].x.rank) || (a < b ? -1 : 1);
+    });
+    return order.map(function (k) { return seen[k]; });
+  }
+  // `max` caps the strip for a slot that cannot hold every label — the tail's one
+  // summary line. What is cut is chosen by COUNT, so the pills that survive are
+  // the ones describing most of what is inside, and the remainder is stated as a
+  // number rather than silently dropped. Uncapped everywhere else.
+  function _fpiCensusHtml(list, max) {
+    var cs = _fpiCensus(list), more = 0;
+    if (max && cs.length > max) {
+      cs = cs.slice().sort(function (a, b) { return b.n - a.n; });
+      more = cs.length - max;
+      cs = cs.slice(0, max).sort(function (a, b) { return a.x.rank - b.x.rank; });
+    }
+    if (!cs.length) return '';
+    return '<span class="pdxfpi-census">' +
+      cs.map(function (c) {
+        var tone = _ST_PAT_TONE[c.x.tone] || _ST_PAT_TONE.muted;
+        return '<span class="pdxfpi-cn" style="--c:' + tone.c + '">' +
+          '<b>' + c.n + '</b> ' + esc(c.x.patLabel) + '</span>';
+      }).join('') +
+      (more ? '<span class="pdxfpi-cn pdxfpi-cn-more" style="--c:#6f88ab">+' + more + ' more</span>' : '') +
+      '</span>';
+  }
+  // One band: a heading, its count, one grey sentence saying what the band means,
+  // its census, and then the rows exactly as they were drawn before.
+  function _fpiBandHtml(b, list, mount) {
+    return '<div class="pdxfpi-band" data-pdxfpi-band="' + escAttr(b.id) + '">' +
+        '<p class="pdxfpi-bh">' +
+          '<span class="pdxfpi-bh-t">' + esc(b.lb) + '</span>' +
+          '<span class="pdxfpi-bh-n">' + list.length + '</span>' +
+          _fpiCensusHtml(list) +
+        '</p>' +
+        '<p class="pdxfpi-bn">' + esc(b.note) + '</p>' +
+        list.map(function (x) { return _fpiRowHtml(x, mount); }).join('') +
+      '</div>';
+  }
+  // The list, filed. Presentation only: `shown` arrives already sorted and already
+  // filtered, every row is rendered by the same _fpiRowHtml it always was, and the
+  // partition is _FPI_BANDS reading the rank the sort already assigned.
+  function _fpiListHtml(shown, mount) {
+    if (!shown.length) {
+      return '<div class="pdxfpi-list">' +
+        '<p class="pdxfpi-none">No issue on the formal record matches this filter.</p></div>';
+    }
+    var groups = [];
+    _FPI_BANDS.forEach(function (b) {
+      var rows = shown.filter(function (x) {
+        try { return !!b.test(x); } catch (e) { return false; }
+      });
+      if (rows.length) groups.push({ b: b, rows: rows });
+    });
+    var lead = groups.filter(function (g) { return !g.b.tail; });
+    var tail = groups.filter(function (g) { return g.b.tail; });
+    var tailN = 0, tailRows = [];
+    tail.forEach(function (g) { tailN += g.rows.length; tailRows = tailRows.concat(g.rows); });
+    // NOTHING READABLE MEANS THE TAIL IS THE RECORD. A profile whose whole formal
+    // record is thin has no strong band to lead with, and folding away the only
+    // rows it has would be a blank surface dressed as restraint — the reader would
+    // be told there is nothing when there is something and it is simply small.
+    // Thin material must not be inflated; it must also not be disappeared. So the
+    // fold exists only where there is something in front of it to fold behind,
+    // and only where the tail is long enough for folding it to be worth the tap.
+    if (!lead.length || tailN < _FPI_TAIL_MIN) {
+      return '<div class="pdxfpi-list">' +
+        groups.map(function (g) { return _fpiBandHtml(g.b, g.rows, mount); }).join('') + '</div>';
+    }
+    return '<div class="pdxfpi-list">' +
+        lead.map(function (g) { return _fpiBandHtml(g.b, g.rows, mount); }).join('') +
+        '<details class="pdxfpi-tail" data-pdxfpi-tail="' + tailN + '">' +
+          '<summary class="pdxfpi-tail-s">' +
+            '<span class="pdxfpi-tail-t">' + tailN + ' more issue' + (tailN === 1 ? '' : 's') +
+              ' — ' + esc(tail.map(function (g) {
+                return g.rows.length + ' ' + g.b.short;
+              }).join(' · ')) + '</span>' +
+            _fpiCensusHtml(tailRows, 3) +
+          '</summary>' +
+          '<div class="pdxfpi-tail-b">' +
+            tail.map(function (g) { return _fpiBandHtml(g.b, g.rows, mount); }).join('') +
+          '</div>' +
+        '</details>' +
+      '</div>';
+  }
   function formalPatternIndexHtml(pid, opts) {
     opts = opts || {};
     if (!pid) return '';
@@ -9117,28 +9977,18 @@
         ' data-pdxfpi-set="' + escAttr(v) + '"' + (on ? ' aria-pressed="true"' : '') + '>' +
         esc(_FPI_VIEWS[v].lb) + ' <span class="pdxfpi-seg-n">' + n + '</span></button>';
     }).join('');
-    // THE CENSUS IS A COUNT, NOT A GRADE. Five tiers and the unread lane, each with
-    // how many issues landed there — the honest shape of the list before anyone
-    // scrolls it. It reports; it does not rank the person.
-    var census = {}, order = [];
-    all.forEach(function (x) {
-      // Keyed on the printed label, not the tier: the three unread reasons are three
-      // different statements and collapsing them into one grey count would hide the
-      // only one of them that is ours to fix.
-      var k = x.tier + '|' + x.patLabel;
-      if (!census[k]) { census[k] = { n: 0, x: x }; order.push(k); }
-      census[k].n++;
-    });
-    order.sort(function (a, b) {
-      return (census[a].x.rank - census[b].x.rank) || (a < b ? -1 : 1);
-    });
-    var censusHtml = order.map(function (k) {
-      var c = census[k], tone = _ST_PAT_TONE[c.x.tone] || _ST_PAT_TONE.muted;
-      return '<span class="pdxfpi-cn" style="--c:' + tone.c + '">' +
-        '<b>' + c.n + '</b> ' + esc(c.x.patLabel) + '</span>';
-    }).join('');
     var stated = all.filter(function (x) { return x.said; }).length;
     var patternOnly = all.length - stated;
+    // TRULY NOTHING ON FILE IS ITS OWN ANSWER, AND IT IS NOT ON THIS LIST. Every
+    // row here has formal material of some kind; the issues that have none were
+    // dropped upstream by the fail-closed gate in _fpiRows, which is right for a
+    // list OF the formal record and leaves the reader with no way to tell a short
+    // list from a short record. So the difference is stated once, as a count,
+    // taken from the same row model these rows were filtered out of — no second
+    // source, no estimate, and no claim about why any particular issue is missing.
+    var tracked = 0;
+    try { tracked = (issueRows(pid) || []).length; } catch (e) { tracked = 0; }
+    var bare = (tracked > all.length) ? (tracked - all.length) : 0;
     var viewNote = (view === 'all') ? '' : ' · ' + _FPI_VIEWS[view].lb.toLowerCase();
     return '<div class="pdxfpi" data-pdxfpi-host="' + escAttr(pid) + '"' +
         ' data-pdxfpi-mount="' + escAttr(mount) + '"' +
@@ -9152,15 +10002,26 @@
         '<p class="pdxfpi-lede">' + all.length + ' issue' + (all.length === 1 ? '' : 's') +
           ' with something formal on file' +
           (patternOnly ? ' — <b>' + patternOnly + '</b> of them with no stated position from them yet' : '') +
-          '. Tap any issue for its dossier.</p>' +
-        (censusHtml ? '<div class="pdxfpi-census">' + censusHtml + '</div>' : '') +
+          '.' +
+          (bare ? ' <b>' + bare + '</b> more tracked issue' + (bare === 1 ? ' has' : 's have') +
+            ' nothing formal on file at all, so ' + (bare === 1 ? 'it is' : 'they are') +
+            ' not on this list.' : '') +
+          ' Tap any issue for its dossier.</p>' +
+        // THE ROLL-UP SITS UNDER THE LEDE AND ABOVE THE FILTERS, and it is built
+        // from `pid` rather than from `shown` on purpose: it is a fact about the
+        // whole formal record, so it must not change when a reader filters the
+        // list to "Opposes-leaning" and back. It renders '' on every profile the
+        // three silences in vehicleRollup() cover, which is most of them.
+        //   `rollup: false` IS FOR ONE CALLER. The profile face mounts this index
+        // inside a CLOSED <details>, and a disclosure a reader has to go looking
+        // for is a disclosure most readers never meet. So that surface lifts the
+        // roll-up out and prints it above the fold itself, and switches this copy
+        // off rather than printing the same sentence twice in one block.
+        (opts.rollup === false ? '' : vehicleRollupHtml(pid)) +
         (segs ? '<div class="pdxfpi-segs" role="group" aria-label="Filter the formal record index">' + segs + '</div>' : '') +
         '<p class="pdxfpi-shown">Showing <b>' + shown.length + '</b> of ' + all.length +
           ' issue' + (all.length === 1 ? '' : 's') + ' on the formal record' + viewNote + '</p>' +
-        '<div class="pdxfpi-list">' +
-          (shown.length ? shown.map(function (x) { return _fpiRowHtml(x, mount); }).join('')
-            : '<p class="pdxfpi-none">No issue on the formal record matches this filter.</p>') +
-        '</div>' +
+        _fpiListHtml(shown, mount) +
         '<p class="pdxfpi-foot">' + esc(_FPI_WALL) + '</p>' +
       '</div>';
   }
@@ -12650,6 +13511,11 @@
           ' A multi-issue bill is scored separately on each issue it touched.</div>' +
       '</details>';
     }
+    // …and the other half of the same question. The disclosure above says where the
+    // listed records CAME FROM; this one says what there was to vote on in the first
+    // place, where the record itself supports saying so. Same drawer, same weight,
+    // directly underneath — see _menuContext for what it refuses to claim.
+    var offMenu = _menuContextHtml(pid, issueKey, { lane: off.lane });
     var offSide =
       '<div class="pdxgap-side">' +
         '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> ' +
@@ -12658,6 +13524,7 @@
         '<div class="pdxgap-side-sub">Formal ' + LT('rollcall', 'roll-call votes') +
           ' &amp; actions — the institutional record</div>' +
         offOmni +
+        offMenu +
         offBody +
         // Full-width because this sheet is a mobile bottom sheet first.
         '<div class="pdxgap-share">' + _rcShareHtml(pid, issueKey, { block: true }) + '</div>' +
@@ -13312,12 +14179,47 @@
       // and never a sort key.
       compare: _rdCompareRead,
       compareHtml: _rdCompareNoteHtml,
+      // The row-level "where does this actually diverge, and where is the file
+      // simply thin?" read and its badge. Built ON TOP of compare() above — same
+      // slots, one call — so a surface cannot end up with a floor that says one
+      // thing and a badge that says another. Counts of states plus one state
+      // word; see the long note over _rdContrastRead for what it refuses to be.
+      contrast: _rdContrastRead,
+      contrastHtml: _rdContrastHtml,
+      CTR: _RD_CTR,
+      CTR_ORDER: _RD_CTR_ORDER,
       CMP_FLOOR: _RD_CMP_FLOOR,
       CMP_NONE: _RD_CMP_NONE,
       CMP_ONE: _RD_CMP_ONE,
       NOTE: _RD_SLOT_NOTE,
       NOTE_SAID: _RD_SLOT_NOTE_SAID,
-      NOTE_THIN: _RD_SLOT_NOTE_THIN
+      NOTE_THIN: _RD_SLOT_NOTE_THIN,
+      NOTE_NONE: _RD_SLOT_NOTE_NONE,
+      NOTE_NONE_FULL: _RD_SLOT_NOTE_NONE_FULL
+    },
+    // 🏛️ THE MENU VOCABULARY. Not a reading, not a score and not yet a feature:
+    // the locked words for saying that a chance to vote did not exist, or existed
+    // only inside something larger, or existed only as floor machinery. `say()`
+    // hands back one phrasing with the wall attached; `scan()` runs the banned
+    // list over a string and returns what it found, and an empty array is the
+    // pass. See the long note over _MENU for the one rule all of it enforces —
+    // the subject of a menu sentence is never the member.
+    menu: {
+      // Phase C: the dossier's institutional context, as data and as the two
+      // shapes that print it. Exported so a harness can hold the gate to the data
+      // that licenses it rather than assert on rendered markup alone.
+      context: _menuContext,
+      contextHtml: _menuContextHtml,
+      kindSay: _menuKindSay,
+      say: _menuSay,
+      scan: _menuScan,
+      kinds: _menuVehicleKinds,
+      PHRASES: _MENU,
+      ORDER: _MENU_ORDER,
+      LANES: _MENU_LANES,
+      WALL: _MENU_WALL,
+      AVOID: _MENU_AVOID,
+      CLASSES: (window._PDX_RD_VEHICLE_CLASSES || [])
     },
     // 🏛 FORMAL-RECORD PATTERN TIERS, for the row faces. `tier` returns the shape
     // (tier / weight / tone / label / counts) for one row, `html` the chip. Both
@@ -13450,6 +14352,17 @@
           });
         } catch (e) { return []; }
       },
+      // ── THE PROFILE-LEVEL ROLL-UP ─────────────────────────────────────────
+      // Counts of the rows directly above, never a percentage and never a grade.
+      // `rollup()` always answers — `enough` says whether it is sayable and
+      // `quiet` says which silence applies — so a surface can ask without having
+      // to know the thresholds. `rollupHtml()` returns '' whenever it is not.
+      rollup: vehicleRollup,
+      rollupHtml: vehicleRollupHtml,
+      rollupText: function (pid) { return _vruText(vehicleRollup(pid)); },
+      MIN_READ: _VRU_MIN_READ,
+      MIN_ISSUES: _VRU_MIN_ISSUES,
+      ROLLUP_WALL: _VRU_WALL,
       TAG: _VEH_TAG,
       NOTE: _VEH_NOTE,
       NARROW_AT: (window._PDX_RD_NARROW_AT || 45),
