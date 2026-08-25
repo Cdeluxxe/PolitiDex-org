@@ -545,9 +545,26 @@
   }
 
   // Position pill (yea / nay / present / not voting, or a non-vote action label).
+  //
+  // ── WHY THE ACTION PILL DOES NOT TITLE-CASE THE SLUG ─────────────────────────
+  // It used to: `titleCase(item.position)` printed "Cosponsor", "Amicus",
+  // "Committee Vote". Two of those are not things a person does, they are column
+  // values — and this pill sits three inches from "Voted Yea" in the same table,
+  // where the reader is being asked to tell a floor vote apart from a signature.
+  // The act layer in stance-helpers.js publishes the four words that do that job
+  // ("Committee vote", "Lead sponsor", "Co-sponsored", "Joined amicus brief"), and
+  // the same table is what weights these acts in the record pattern. One table:
+  // the pill and the pattern chip cannot drift into naming the same act two ways.
+  // If the layer has no name for it we fall back to the old title-cased slug —
+  // an unlabelled act still appears in the ledger, it just earns no pattern weight.
   function positionPill(item) {
     if (item.kind === 'position') {
-      return '<span class="vr-pill vr-pos-action">' + esc(titleCase(item.position)) + '</span>';
+      var lb = '';
+      try {
+        if (typeof window._pdxActLabel === 'function') lb = window._pdxActLabel(item) || '';
+      } catch (e) { lb = ''; }
+      if (!lb) lb = titleCase(item.position);
+      return '<span class="vr-pill vr-pos-action">' + esc(lb) + '</span>';
     }
     var pos = item.position;
     var cls = pos === 'yea' ? 'vr-pos-yea' : pos === 'nay' ? 'vr-pos-nay' : 'vr-pos-neutral';
@@ -1892,12 +1909,23 @@
   // (fetchCompare caches by member list, so a board doing both fetches once), and a
   // cell whose member never lands keeps the copy it rendered with.
   //
-  // A SCORED RESULT WINS. Where officialRecord() reached a verdict on this pair,
-  // this leaves the placeholder empty: the dot beside it is the finding, and a
-  // record-direction clause under a verdict would be a second answer to a question
-  // already answered. Idempotent (marks filled nodes) and additive — a failure just
-  // leaves the placeholders as they were.
-  var _RD_SCORED = { consistent: 1, contradicts: 1, mixed: 1, flag: 1 };
+  // THE RECORD IS NOT SUPPRESSED BY A VERDICT. This used to hold a _RD_SCORED map
+  // — { consistent, contradicts, mixed, flag } — and skip the placeholder whenever
+  // officialRecord() had reached a verdict on the pair, on the reasoning that "the
+  // dot beside it is the finding". That reasoning had the two jobs backwards. The
+  // dot is an INTEGRITY read: it says whether a member's votes matched something
+  // they said. The clause here is a DESCRIPTION: it says what the votes did. The
+  // second is not a redundant restatement of the first — it is the fact the first
+  // one is derived FROM, and it is the fact a comparison surface exists to show.
+  // Suppressing it meant that on exactly the members we know most about, the
+  // comparison grid printed a verdict and no record, while the members we know
+  // least about got the record. That is the inversion, at its sharpest.
+  //
+  // So every placeholder is now filled with what the record did, whether or not a
+  // verdict exists for the pair. Nothing about the verdict changed: officialRecord()
+  // is not called here any more, Direction Match reads the same warm items it always
+  // did, and this writes nothing back. Idempotent (marks filled nodes) and additive
+  // — a failure just leaves the placeholders as they were.
   window._pdxHydrateRecordDirection = function (scope) {
     var root = scope || document;
     var nodes = root.querySelectorAll('[data-vrdir]:not([data-vrdone])');
@@ -1917,10 +1945,6 @@
       want.forEach(function (w) {
         w.el.setAttribute('data-vrdone', '1');
         try {
-          if (typeof PC.officialRecord === 'function') {
-            var ov = PC.officialRecord(w.pid, w.key);
-            if (ov && _RD_SCORED[ov.token]) return;   // scored: that verdict is the answer
-          }
           var html = PC.recordDirection.for(w.pid, w.key, { compact: !!w.el.getAttribute('data-vrdir-compact') });
           if (html) w.el.innerHTML = html;
         } catch (e) {}

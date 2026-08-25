@@ -839,10 +839,16 @@ async function getMemberImpacts(politicianId: string): Promise<Response> {
     present: "Voted Present",
     not_voting: "Did not vote",
   };
+  // Kept word-for-word in step with the act table in stance-helpers.js
+  // (_ACT_CLASSES[...].label), which is what the client pill and the record-pattern
+  // chip both read. The server cannot import that file — this is a hand-mirrored
+  // copy, so it is the one place a drift can start. If a label changes there,
+  // change it here in the same edit. Every entry is an act, none is a ballot verb:
+  // "Voted" belongs to VOTE_LABEL above and appears nowhere in this map.
   const POS_LABEL: Record<string, string> = {
-    sponsor: "Sponsored",
-    cosponsor: "Cosponsored",
-    amicus: "Filed amicus brief",
+    sponsor: "Lead sponsor",
+    cosponsor: "Co-sponsored",
+    amicus: "Joined amicus brief",
     plaintiff: "Party to the case",
     committee_vote: "Committee vote",
     statement: "On-record statement",

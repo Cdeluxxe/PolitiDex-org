@@ -4349,6 +4349,46 @@
     .cmp-issue-reclead .cmp-issue-rdir { margin-top: 0; }
     .cmp-issue-reclead .cmp-issue-none-note { color: #566f92; text-transform: none; letter-spacing: 0.02em; }
     .cmp-issue-rdir .pdx-rdir { justify-content: center; font-size: 0.6rem; line-height: 1.35; }
+    /* ── The stated position, demoted to the second line ──────────────────────
+       Every documented cell now stacks two different kinds of fact: what the
+       record DID (above, in .cmp-issue-rdir) and what the person SAID (here).
+       Two chips in a column are indistinguishable without a label, so the said
+       line carries one, and it is deliberately the quieter of the two — smaller
+       type, dimmer colour, a hairline rule separating it from the record. The
+       reader should be able to tell at a glance which half of the cell is the
+       voting file and which half is the quote. */
+    .cmp-issue-said {
+      display: flex; flex-direction: column; align-items: center; gap: 0.22rem;
+      width: 100%; text-align: center;
+    }
+    .cmp-issue-saidlbl {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.52rem; letter-spacing: 0.09em; text-transform: uppercase;
+      color: #56739b;
+    }
+    /* Only shown where the record is above it — a cell with no record needs no
+       divider, because there is nothing to divide it from. */
+    .cmp-issue-reclead .cmp-issue-said {
+      padding-top: 0.34rem; margin-top: 0.04rem;
+      border-top: 1px solid rgba(159,180,212,0.14);
+    }
+    /* The Evidence Locker drill-in used to wrap the whole cell, which made the
+       record clickable too and implied the locker held it. It now wraps the said
+       line only; the button chrome reset still comes from .cmp-issue-celllink
+       above, so this just restores the column layout the reset flattens. */
+    button.cmp-issue-said.cmp-issue-celllink {
+      display: flex; flex-direction: column; align-items: center; gap: 0.22rem;
+      text-align: center; font: inherit; color: inherit;
+    }
+    /* ── "Not enough on file to compare yet" ──────────────────────────────────
+       Sits in the row's label cell, under the issue name, when fewer than two
+       records in the lineup are readable. It hides nothing and weakens nothing:
+       every cell in the row still prints exactly what it printed before. It is
+       an admission about the completeness of our file, so it is untinted — no
+       red, no amber, nothing that could read as a finding about a person. */
+    .cmp-issue-rdfloor:empty { display: none; }
+    .cmp-issue-rdfloor { display: block; margin-top: 0.3rem; }
+    .cmp-issue-rdfloor .pdx-rdcmp { font-size: 0.6rem; line-height: 1.35; }
     .cmp-issue-more td {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.06em;
       text-transform: uppercase; color: #6d8ab0; text-align: center;

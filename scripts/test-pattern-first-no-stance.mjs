@@ -502,8 +502,16 @@ section("6 · nothing the record lane added is counted as agreement");
   const firstRec = seqAg.indexOf("record");
   ok(firstRec > lastStated,
     "every record-only row sorts below every row the stated lane could answer");
-  has(MTB, "Where They Stand — Issue by Issue",
-    "…and a lineup that DOES have positions keeps the stated heading");
+  // THE HEADING NAMES THE LEADING LANE, IN BOTH CASES. This used to assert the
+  // opposite — that a lineup WITH sourced positions kept the "Where They Stand"
+  // heading, and only a record-only lineup got the record heading. That split
+  // stopped being true when the cells inverted: every cell now leads with what
+  // the record did and demotes the quote to a labelled second line, so a
+  // stated-position heading would be naming the section's second line.
+  has(MTB, "What Their Records Did — Issue by Issue",
+    "…and a lineup that DOES have positions still leads on the record");
+  lacks(MTB, "Where They Stand — Issue by Issue",
+    "…with no heading left that names the demoted lane");
   has(MTB, "🏛 Record only", "…with the record rows still badged as their own lane");
 
   // The meter's legend separates the two, so "one side only" never silently

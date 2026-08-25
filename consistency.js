@@ -276,12 +276,41 @@
         ? (window._pdxRecordIssueItems(pid, issueKey) || []) : [];
     } catch (e) { return []; }
   }
-  // 'record' when a ballot is among the items on this issue, 'exec' when they are all
-  // executive actions. Falls back to the congressional lane, which is what every
-  // member surface already renders.
+  // ── AND A FORMAL ACT THAT IS NOT A BALLOT AND NOT EXECUTIVE EITHER ─────────
+  // The lane test above asks "is there a ballot", and for a long time the answer
+  // to "no" could only be a president's document, so `!_anyBallot` and "these are
+  // executive actions" were the same sentence. They stopped being the same
+  // sentence the moment the record lane learned to weigh co-sponsorships,
+  // committee votes, lead sponsorships and amicus signatures — all of which
+  // arrive as kind 'position' through the same endpoint, none of which is a
+  // ballot, and not one of which is an executive act.
+  //   The cost of the drift was precisely the population this slice exists for. A
+  // member with eleven co-sponsorships on immigration and no roll call was routed
+  // to the executive lane, where the pattern read does not run at all
+  // (_stDirRaw returns null on `lane === 'exec'`), and the row printed "Pattern
+  // not read on this lane yet" over eleven formal acts we now know how to weigh.
+  // Densifying sparse profiles would have densified nothing.
+  //   So the exec answer is named POSITIVELY, by what the record lane can weigh
+  // rather than by what it cannot: a row with no ballot AND no weighable act is
+  // executive. Presidents are untouched — 'signed', 'vetoed' and 'issued' carry no
+  // entry in the act table and never will, because signing a bill Congress wrote
+  // is a different claim about power than co-sponsoring one (see EXEC_CLASSES in
+  // exec-record.js, which counts them per class for exactly that reason).
+  function _anyWeighedAct(items) {
+    var f = window._pdxActClass;
+    if (typeof f !== 'function') return false;   // fails closed to the old behaviour
+    for (var i = 0; i < (items || []).length; i++) {
+      var it = items[i];
+      if (it && it.kind === 'position' && f(it)) return true;
+    }
+    return false;
+  }
+  // 'record' when a ballot or a weighable formal act is among the items on this
+  // issue, 'exec' when they are all executive actions. Falls back to the
+  // congressional lane, which is what every member surface already renders.
   function recordLaneFor(pid, issueKey) {
     var its = recordItems(pid, issueKey);
-    if (its.length && !_anyBallot(its)) return 'exec';
+    if (its.length && !_anyBallot(its) && !_anyWeighedAct(its)) return 'exec';
     return 'record';
   }
   function recordsWarm(pid) {
@@ -1555,6 +1584,14 @@
       '.pdx-rdir .pdx-rdir-txt{color:#c6d4ec;}' +
       '.pdx-rdir.is-none .pdx-rdir-txt,.pdx-rdir.is-thin .pdx-rdir-txt{color:#9fb4d4;}' +
       '.pdx-rdir .pdx-rdir-note{flex:1 1 100%;font-size:0.66rem;color:#7596c0;}' +
+      // The row-level "not enough on file to compare yet" note. Deliberately
+      // quiet and deliberately NOT tinted like a verdict — it is an admission
+      // about our file, not a finding about anyone in the row.
+      '.pdx-rdcmp{display:flex;align-items:center;gap:0.35rem;margin:0.35rem 0 0;' +
+        'font-family:"Barlow",sans-serif;font-size:0.66rem;line-height:1.4;color:#8fa6c6;' +
+        'background:rgba(159,180,212,0.07);border:1px dashed rgba(159,180,212,0.28);' +
+        'border-radius:8px;padding:0.28rem 0.5rem;}' +
+      '.pdx-rdcmp .pdx-rdcmp-ico{opacity:0.75;}' +
       // Promise Tracker gateway — the section name (no %) + two dive-in cards.
       '.pdxc-gate{border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.6),rgba(10,15,30,0.35));}' +
       '.pdxc-gate-h{display:flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.15rem;letter-spacing:0.03em;color:#e8eefc;line-height:1;}' +
@@ -3669,6 +3706,24 @@
     if (item.kind !== 'position' && _BALLOTS[lower] === 1) {
       return _BALLOT_SAID[lower] || ('Voted ' + _tc(key));
     }
+    // ── AND A NON-VOTE FORMAL ACT IS NAMED, NOT TITLE-CASED ──────────────────
+    // The fallback below is `_tc(key)`, which turns whatever slug the wire sent
+    // into Title Case: "Cosponsor", "Amicus", "Committee Vote". That is not a
+    // phrase, it is a column name — and on the three acts a legislator most often
+    // performs it was the only thing the row had to say about what was done. The
+    // act layer in stance-helpers.js owns those four words ("Committee vote",
+    // "Lead sponsor", "Co-sponsored", "Joined amicus brief") precisely so this
+    // file cannot keep a fifth copy of them and disagree with the pill in the
+    // voting record. Asked BEFORE the exec verb table, because an act type the act
+    // layer names is a legislative act and never an executive one.
+    //   THE ONE THING IT MAY NOT RETURN IS A BALLOT VERB. It never does: the ballot
+    // branches above are the only place "Voted" is produced, and _pdxActLabel's
+    // table has no entry that begins with it.
+    var actLb = '';
+    try {
+      if (typeof window._pdxActLabel === 'function') actLb = window._pdxActLabel(item) || '';
+    } catch (e) { actLb = ''; }
+    if (actLb) return actLb;
     // Not a ballot → an action, whatever the wire called it. Known class → its own
     // verb; unknown → the slug, title-cased and unprefixed. Still never a vote.
     return _execVerb(lower) || _tc(key);
@@ -5311,10 +5366,38 @@
   // The countable noun for the record behind THIS row. A president signs actions
   // and casts no votes; a member does the reverse. The row knows its own lane, so
   // the executive-only vocabulary can never reach a member's surface.
+  // ── AND THE COUNTABLE WHEN THE ROW IS NOT MADE OF BALLOTS ──────────────────
+  // The lane answers "roll calls, or executive documents", and for a long time
+  // that was the whole question — a legislative row could only be made of roll
+  // calls. It can now be made of co-sponsorships, committee votes, lead
+  // sponsorships and amicus signatures: legislative, not executive, and
+  // emphatically not votes. Every surface that prints a depth line ("4 votes on
+  // file"), an empty state, or one of _fpiUnreadWhy's refusal sentences ("No vote
+  // here took a side") asks HERE for its noun, so a wrong answer here is a wrong
+  // sentence in six places at once.
+  //   This is the other half of the noun swap inside _recordDirectionIndex, on
+  // the same rule and for the same reason: ANY non-floor act, not all. One roll
+  // call and eight signatures is nine FORMAL ACTS, because that is the only word
+  // true of all nine — and a row of nothing but roll calls still counts votes,
+  // which is what every existing surface already renders.
+  //   Fails closed to votes: no act layer, no row, or a throw anywhere in the
+  // lookup and the wording is exactly what it was before this table existed.
+  function _rowHasWeighedAct(r) {
+    var f = window._pdxActClass;
+    if (typeof f !== 'function' || !r || !r.pid || !r.key) return false;
+    var its = recordItems(r.pid, r.key);
+    for (var i = 0; i < its.length; i++) {
+      var it = its[i];
+      if (it && it.kind === 'position' && f(it)) return true;
+    }
+    return false;
+  }
   function _stNoun(r) {
-    return (r && r.lane === 'exec')
-      ? { one: 'action', many: 'actions' }
-      : { one: 'vote', many: 'votes' };
+    if (r && r.lane === 'exec') return { one: 'action', many: 'actions' };
+    try {
+      if (_rowHasWeighedAct(r)) return { one: 'formal act', many: 'formal acts' };
+    } catch (e) { /* fall through to the congressional wording */ }
+    return { one: 'vote', many: 'votes' };
   }
   // Is there a stated position on file to test this record against? Read off the row
   // model (issueRow.said), which uses the same test the tiering does. Hand-built rows
@@ -5582,6 +5665,16 @@
     // stance, and this chip is the record's, not theirs. The title and the
     // screen-reader label carry the same one sentence the engine publishes.
     var note = t.note || '';
+    // ── AND THE ACT MIX, WHERE THERE IS ONE ───────────────────────────────────
+    // A SECOND SENTENCE, never a rewrite of the first. `t.note` is the lane
+    // disclosure — the sentence that keeps this chip out of the integrity score —
+    // and it is pinned, quoted and tested elsewhere in exactly its current words.
+    // The mix is a different fact ("Mostly non-vote acts here — 2 lead
+    // sponsorships and 6 co-sponsorships") and it is appended, so a row whose
+    // countable reads "8 formal acts" can say which eight without the lane
+    // sentence moving an inch. Empty on a pure floor-vote row, which is most of
+    // them; see the note over _rdMixNote for why it grades rather than reports.
+    if (t.mixNote) note = note ? (note + ' ' + t.mixNote) : t.mixNote;
     // role=img + aria-label so the chip is announced as ONE thing, with its
     // disclosure attached — a screen reader reading "Record / Mostly opposes / 8
     // advanced" as three fragments loses the sentence that keeps it out of the
@@ -5956,15 +6049,29 @@
   //   · not a stance — the record is the subject of every sentence, never the
   //     person, and the disclosure says so in words;
   //   · not a sort key and not a filter key — this returns display text and
-  //     nothing ordinal. The callers rank and bucket on what they already ranked
-  //     and bucketed on (see the note over rankScore in issue-compare.js);
+  //     nothing ordinal. Where a caller groups on it, it groups on the STATE
+  //     word ('speaks' / 'thin' / 'none'), never on judged, held or any count,
+  //     and the group order is a fixed literal rather than a tally (see the note
+  //     over RECORD_GROUPS in issue-compare.js);
   //   · not an input to Direction Match / Word vs Action. It reads the same warm
   //     items those score from and writes nothing back.
   //
-  // A SCORED RESULT ALWAYS WINS. Callers ask this only where their own scored
-  // read came back empty — no verdict, no percentage, nothing judged. That
-  // ordering lives in the caller because the caller is the one holding the
-  // verdict; what lives here is the refusal to invent one.
+  // THE RECORD LEADS. This used to end "A SCORED RESULT ALWAYS WINS" — callers
+  // asked for this slot only where their own scored say-vs-did read came back
+  // empty, so on a comparison surface the formal record was a fallback for a
+  // missing quote. That is backwards from the product's own priority and from
+  // every other major surface (profile atlas, baseline, alignment record mode),
+  // and it produced the exact inversion the mission rejects: what a politician
+  // SAID leading, and what their record DID filling in underneath.
+  //
+  // So on the comparison surfaces this slot is now the PRIMARY content of a cell
+  // and the stated position is the secondary line beneath it. That is a change of
+  // ORDER, not of authority: nothing here gained the right to characterise a
+  // record it could not characterise before, no threshold moved, and the three
+  // states below still mean exactly what they meant. An integrity verdict
+  // ("backs it up", "says one thing, votes another") is a different job with a
+  // different gate and it does not belong in a comparison cell at all — those
+  // surfaces no longer print one, and the profile keeps owning it.
   //
   // THE THREE EMPTY STATES, which a single grey blank used to flatten into one:
   //   'none'   — no formal record on file for this member on this issue;
@@ -6070,6 +6177,75 @@
     if (!slot) return '';
     if (opts && opts.only && opts.only.indexOf(slot.state) < 0) return '';
     return _rdSlotHtml(slot, opts);
+  }
+
+  // ── TWO THIN CELLS ARE NOT A COMPARISON ─────────────────────────────────────
+  // Putting the record first solves one dishonesty and opens another. A row of
+  // cells each reading "3 votes on file — too thin to characterise" is, at a
+  // glance, a row: same shape, same weight, same visual promise as a row where
+  // both records ran plainly opposite ways. The reader's eye takes the ROW as the
+  // finding, and the row is not a finding — nobody's record here said anything.
+  //
+  // So a comparison row asks this before it presents itself as one. It counts the
+  // slots that actually SPEAK across the lineup and hands back the honest sentence
+  // when fewer than two do. Two is the floor because the claim a comparison row
+  // makes is a claim about a difference, and one readable record cannot differ
+  // from an unreadable one — it can only be reported on its own, which is what the
+  // cell already does.
+  //
+  // WHAT IT MAY NOT DO. It may not hide a cell, weaken one, or change a word
+  // inside one: every slot still prints its own state and its own counts, and a
+  // single readable record in a thin row is still fully readable in its own cell.
+  // This adds a sentence ABOUT the row and nothing else. It is not ordinal — the
+  // shape carries counts of states, never a share, and no caller may sort or rank
+  // on it (scripts/test-record-direction-surfaces.mjs pins both).
+  //
+  // `cold` is the state that is not an absence: the batched fetch has not landed
+  // for that member, so we have not looked. A row that is merely cold says nothing
+  // yet rather than claiming there is nothing to say.
+  var _RD_CMP_FLOOR = 2;
+  var _RD_CMP_NONE = 'Not enough on file to compare yet';
+  var _RD_CMP_ONE  = 'Only one record here is readable — not enough to compare yet';
+  var _RD_CMP_WHY  = 'Each record below still says what it holds. What is missing is a ' +
+    'second readable record to hold it against, so this row is not a finding.';
+  function _rdCompareRead(pids, issueKey, opts) {
+    var out = { speaks: 0, thin: 0, none: 0, cold: 0, total: 0,
+                comparable: false, note: '', why: '', slots: {} };
+    try {
+      if (!issueKey || !pids || !pids.length) return out;
+      var o = opts || {};
+      for (var i = 0; i < pids.length; i++) {
+        var pid = pids[i];
+        if (!pid) continue;
+        out.total++;
+        var s = null;
+        try { s = _rdSlot(pid, issueKey, o); } catch (e) { s = null; }
+        if (!s) { out.cold++; continue; }       // not looked at yet — not an absence
+        out.slots[pid] = s;
+        if (s.state === 'speaks') out.speaks++;
+        else if (s.state === 'thin') out.thin++;
+        else out.none++;
+      }
+      out.comparable = out.speaks >= _RD_CMP_FLOOR;
+      // Silent while anything is still cold: a row mid-fetch has not earned the
+      // right to tell a reader there is nothing here.
+      if (!out.comparable && !out.cold && (out.thin + out.none + out.speaks) > 0) {
+        out.note = (out.speaks === 1) ? _RD_CMP_ONE : _RD_CMP_NONE;
+        out.why = _RD_CMP_WHY;
+      }
+    } catch (e) {}
+    return out;
+  }
+  // The row note's markup. '' when the row cleared the floor or is still cold, so
+  // a caller can concatenate it unconditionally.
+  function _rdCompareNoteHtml(read, opts) {
+    if (!read || !read.note) return '';
+    try { ensureStyles(); } catch (e) {}
+    var o = opts || {};
+    return '<div class="pdx-rdcmp' + (o.cls ? ' ' + esc(o.cls) : '') +
+      '" title="' + esc(read.why) + '">' +
+      '<span class="pdx-rdcmp-ico" aria-hidden="true">🏛️</span>' +
+      '<span class="pdx-rdcmp-txt">' + esc(read.note) + '</span></div>';
   }
   // The row's result, as data. One place decides what a row concluded, so the
   // markup below and the tests both read the same answer.
@@ -7723,6 +7899,22 @@
         // 1,954 marked rows and 386: four fifths of what the raw tally would have
         // flagged are refusals, and not one of them is a finding.
         vehicle: t ? vehicleRead(r.pid, r.key) : null,
+        // THE ACT MIX. Presentation only, on exactly the same terms as the vehicle
+        // line above it, and for the same reason: it is a sentence about WHAT this
+        // row's formal signal is made of, not a quantity anything sorts, filters,
+        // gates or scores by. The tier was already decided — by the act layer in
+        // stance-helpers.js, which is the only thing that weighs these acts — and
+        // reading `mixNote` back out here changes none of it.
+        //   `mixNote` IS EMPTY ON A PURE FLOOR-VOTE ROW, which is most of them.
+        // Printing "4 floor votes" under a chip that already counts four votes
+        // would be noise, and noise is how a real disclosure gets learned as
+        // ignorable. It fills in as soon as the row holds a single non-vote act —
+        // which is also the moment the chip's countable becomes "formal acts" —
+        // and its wording grades the mix rather than merely reporting it.
+        mix: t ? (t.mix || null) : null,
+        mixNote: t ? (t.mixNote || '') : '',
+        floorLed: t ? (t.floorLed !== false) : true,
+        floorActs: t ? (t.floorActs || 0) : 0,
         rank: t ? (_FPI_RANK.hasOwnProperty(t.tier) ? _FPI_RANK[t.tier] : _FPI_RANK.none)
                 : _FPI_UNREAD_RANK
       });
@@ -7831,6 +8023,20 @@
       vehicleLine: _vehLine(x.vehicle, x.tone),
       vehicleShort: _vehShort(x.vehicle),
       vehicleNote: _vehNote(x.vehicle),
+      // THE ACT MIX, CARRIED NOT RE-DERIVED, on exactly the terms the vehicle
+      // line above it is carried on. A baseline read off fourteen co-sponsorships
+      // and no roll call is a weaker thing than a baseline read off fourteen
+      // votes, and it already SAYS so — the tier was capped at "Mostly" upstream
+      // and the countable already reads "formal acts". This carries the third
+      // sentence, so a surface printing the baseline can name the mix without
+      // learning the act table, and `mixNote` is empty on a pure floor-vote row
+      // so it can be printed unconditionally and get nothing when there is
+      // nothing. Nothing here re-decides the stance: `side` was fixed from the
+      // tone before this line, and Direction Match still cannot see any of it.
+      mix: x.mix || null,
+      mixNote: x.mixNote || '',
+      floorLed: x.floorLed !== false,
+      floorActs: x.floorActs || 0,
       pat: x.pat || null
     };
   }
@@ -8780,21 +8986,21 @@
           'direction for these ' + n.many + '. That is a gap in our mapping, not a finding about ' +
           'their record — the ' + n.many + ' themselves are in the dossier.' };
     }
-    // ── AND FOUR REFUSALS THAT ARE ABOUT THIS ROW'S OWN LEDGER ────────────────
+    // ── AND FIVE REFUSALS THAT ARE ABOUT THIS ROW'S OWN LEDGER ───────────────
     // Everything above answers "this issue has no side" or "this lane is not read
     // yet". What follows answers the harder question: the index LOOKED at mapped
     // items on a poled issue and still would not name a direction — and there are
-    // four different reasons for that, which the row used to report with one
-    // sentence ("No clear pattern yet"). One of the four is not even a shortfall in
-    // their record; two of them sit over a ledger where the side is perfectly
+    // five different reasons for that, which the row used to report with one
+    // sentence ("No clear pattern yet"). One of the five is not even a shortfall in
+    // their record; three of them sit over a ledger where the side is perfectly
     // visible and we are declining to read it, which is a thing a reader is owed
-    // the reason for. So each says which of the four it is, and — as everywhere in
+    // the reason for. So each says which of the five it is, and — as everywhere in
     // this table — none of them borrows a direction word.
     //   ORDER IS BY WALL, OUTERMOST FIRST: nothing took a side, then the mapping is
     // not about this issue, then we hold too little of the member's file, then the
-    // items on file ran both ways. A row that trips more than one is named by the
-    // outer wall, because that is the one that would still hold if the others were
-    // cleared.
+    // items on file are all light, then the items on file ran both ways. A row that
+    // trips more than one is named by the outer wall, because that is the one that
+    // would still hold if the others were cleared.
     if (idx && (idx.total || 0) > 0) {
       if ((idx.judged || 0) < 1) {
         return { id: 'no_side_taken', lb: 'No ' + n.one + ' here took a side',
@@ -8827,6 +9033,37 @@
             'cloture vote or similar — rather than a ' + n.one + ' on the substance of this ' +
             'issue. No direction is read from floor machinery, and the ' + n.many + ' are in ' +
             'the dossier.' };
+      }
+      // ── AND THE FIFTH: THE ACTS ARE REAL, THEY AGREE, AND THEY ARE LIGHT ───
+      // The newest of these, and the only one that exists because we started
+      // reading more. Sponsorships, co-sponsorships, amicus signatures and
+      // committee votes now count toward a formal pattern — at a fraction of a
+      // floor vote each, because that is what they are worth. So a row can now
+      // arrive here holding acts that ALL POINT THE SAME WAY and still not be
+      // read: four co-sponsorships and no recorded vote, or one signature on a
+      // brief. The direction is plainly visible on the ledger below, and we are
+      // declining to call it a pattern. A reader who can see the arrow is owed
+      // the reason, and "no roll-call pattern on file yet" is not it — it reads
+      // as "we hold nothing", when what we hold is signatures.
+      //   It names the mix rather than a direction, and it is the one refusal on
+      // this list that clears without our coverage changing at all: one recorded
+      // vote on the subject turns it into a pattern.
+      if (idx.reason === 'single_weak_act' || idx.reason === 'weak_acts') {
+        var _mixp = '';
+        try {
+          if (typeof window._pdxActMixPhrase === 'function') {
+            _mixp = window._pdxActMixPhrase(idx.mix) || '';
+          }
+        } catch (e) { _mixp = ''; }
+        var _one = (idx.reason === 'single_weak_act');
+        return { id: idx.reason,
+          lb: _one ? 'One formal act, and it is a light one' : 'Formal acts only, too light to weigh',
+          note: (_mixp ? 'What is on file here — ' + _mixp + ' — is formal, dated and sourced'
+                       : 'What is on file here is formal, dated and sourced') +
+            ', and it is open in the dossier. None of it is a recorded vote, though, and putting a ' +
+            'name to a measure is a lighter act than voting on one. ' +
+            (_one ? 'A single such act is not a pattern' : 'Acts this light do not add up to a pattern') +
+            ', so no direction is claimed from it here.' };
       }
       if ((idx.advances || 0) > 0 && (idx.opposes || 0) > 0) {
         return { id: 'mixed_thin', lb: 'Ran both ways, too few to weigh',
@@ -13070,6 +13307,14 @@
       slot: _rdSlot,
       html: _rdSlotHtml,
       for: _rdSlotFor,
+      // The row-level "is there enough here to compare?" read and its sentence.
+      // See the long note over _rdCompareRead: counts of states, never a share,
+      // and never a sort key.
+      compare: _rdCompareRead,
+      compareHtml: _rdCompareNoteHtml,
+      CMP_FLOOR: _RD_CMP_FLOOR,
+      CMP_NONE: _RD_CMP_NONE,
+      CMP_ONE: _RD_CMP_ONE,
       NOTE: _RD_SLOT_NOTE,
       NOTE_SAID: _RD_SLOT_NOTE_SAID,
       NOTE_THIN: _RD_SLOT_NOTE_THIN

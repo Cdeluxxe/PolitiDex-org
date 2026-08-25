@@ -516,6 +516,213 @@
     //     _issueRecordSummary, _polRecordMap, or anything either of them calls.
     //     The dependency runs one way only.
 
+    // ── 🏛 THE NON-VOTE FORMAL ACTS, AND WHAT EACH ONE IS WORTH ────────────────
+    // WHY THIS EXISTS. A floor roll call is the strongest thing a legislator does
+    // on the record, and for a long time it was the only thing this index treated
+    // as an act at all. That is honest about the votes and silent about everything
+    // else: a member who leads a bill, moves it through committee and signs an
+    // amicus brief has done three formal, dated, sourced things on an issue, and a
+    // profile reading "No formal record on this issue yet" over them is making a
+    // claim about THEM out of a gap in what WE chose to count. The 44 members whose
+    // mapped file is a handful of roll calls are exactly the population this hurts.
+    //
+    // So the acts are counted. What they are NOT is equal, and this table is the
+    // refusal to pretend otherwise. A co-sponsorship is a signature on someone
+    // else's bill: it costs little, it is often a courtesy, and it is the single
+    // easiest formal act to accumulate — a member can carry two hundred. A floor
+    // vote is a recorded, whipped, publicly attributed decision on a question that
+    // was actually put. Between them sit a committee vote (a recorded decision, in
+    // a smaller room) and the two acts of MOVING something — leading a bill,
+    // joining a filing — which are real effort and no decision at all.
+    //
+    //   floor roll call        1.00   the reference act
+    //   committee vote         0.60   a recorded decision, smaller room
+    //   lead sponsor           0.45   they moved it
+    //   party to a case        0.45   they brought it            (see the note below)
+    //   amicus brief           0.35   they signed on to a filing
+    //   co-sponsor             0.30   they signed on to a bill
+    //
+    // WHAT THE NUMBER IS, AND THE ONE THING IT MAY NEVER DO. It is a DEPTH weight.
+    // It is summed to answer "how much record is this", which is the question every
+    // floor in this file already asks, and it is never summed to answer "which way
+    // did it point". Direction and dominance still read the ACT COUNTS a reader can
+    // count for themselves on the ledger below the chip — the ledger-first rule,
+    // unchanged, and pinned structurally by test-ledger-first.mjs. Weighing which
+    // SIDE wins is the thing this product does not do. Weighing how much has been
+    // ESTABLISHED is the thing it must do, or three signatures read as a pattern.
+    //
+    // TWO REFUSALS, BOTH FAIL-CLOSED:
+    //   · `statement` — an on-record statement is WORD. It belongs to the lane
+    //     Direction Match tests things AGAINST, and letting it accrue formal-record
+    //     strength would let a person build a record out of talking. It stays on
+    //     the timeline as an item and in the inventory count; it earns no strength,
+    //     is never judged here, and cannot move a tier.
+    //   · anything this table does not name — an unrecognised action type gets no
+    //     default weight. An act we cannot classify is an act we do not understand,
+    //     and the honest handling of one is to leave it out of the arithmetic
+    //     rather than to guess what it was worth.
+    //
+    // WHY `plaintiff` IS IN THE TABLE. The four acts the brief named are the four a
+    // LEGISLATOR performs. `plaintiff` is the state attorney-general lane — 59
+    // seeded acts, and for several of those officers it is the whole of their formal
+    // record. Zeroing it would not have been failing closed, it would have been
+    // deleting a lane, so it is classed where it belongs: bringing a case is moving
+    // something, which is the lead-sponsor tier. It keeps the label the API already
+    // ships ("Party to the case"), which does not claim sole authorship.
+    var _ACT_CLASSES = {
+      floor:          { key: 'floor',          w: 1.00, floor: true,
+                        label: '',                    one: 'floor vote',      many: 'floor votes' },
+      committee_vote: { key: 'committee_vote', w: 0.60, floor: false,
+                        label: 'Committee vote',      one: 'committee vote',  many: 'committee votes' },
+      sponsor:        { key: 'sponsor',        w: 0.45, floor: false,
+                        label: 'Lead sponsor',        one: 'lead sponsorship', many: 'lead sponsorships' },
+      plaintiff:      { key: 'plaintiff',      w: 0.45, floor: false,
+                        label: 'Party to the case',   one: 'case',            many: 'cases' },
+      amicus:         { key: 'amicus',         w: 0.35, floor: false,
+                        label: 'Joined amicus brief', one: 'amicus brief',    many: 'amicus briefs' },
+      cosponsor:      { key: 'cosponsor',      w: 0.30, floor: false,
+                        label: 'Co-sponsored',        one: 'co-sponsorship',  many: 'co-sponsorships' }
+    };
+    // Named refusals, so a row can say WHICH refusal it is rather than reporting
+    // every unclassifiable act as the same shrug. Both resolve to "no class", and
+    // no caller may read either as a weak class.
+    var _ACT_REFUSED = { statement: 'word_not_action' };
+    // The order the mix is spoken in — strongest act first, so "1 committee vote
+    // and 3 co-sponsorships" never comes out backwards.
+    var _ACT_ORDER = ['floor', 'committee_vote', 'sponsor', 'plaintiff', 'amicus', 'cosponsor'];
+
+    // ONE ITEM → ONE ACT CLASS, or null for "not admitted to the pattern".
+    // A floor vote is anything the API did NOT mark as a position — the same test
+    // _voteEffectiveSupport applies, so an item can never be a vote to one function
+    // and an action to the other.
+    function _rdActClass(item) {
+      if (!item) return null;
+      if (item.kind !== 'position') return _ACT_CLASSES.floor;
+      var t = String(item.actionType || item.action || item.position || '')
+        .trim().toLowerCase().replace(/[\s-]+/g, '_');
+      if (!t || t === 'floor') return null;              // unnamed, or a vote wearing the wrong kind
+      if (_ACT_REFUSED[t]) return null;
+      return _ACT_CLASSES[t] || null;
+    }
+    // Why an item earned no class. Copy and telemetry only — nothing gates on it.
+    function _rdActRefusal(item) {
+      if (!item || item.kind !== 'position') return null;
+      var t = String(item.actionType || item.action || item.position || '')
+        .trim().toLowerCase().replace(/[\s-]+/g, '_');
+      if (_ACT_REFUSED[t]) return _ACT_REFUSED[t];
+      return _ACT_CLASSES[t] ? null : 'unmapped_act';
+    }
+    // The reader-facing name for what was done. '' for a floor vote, whose own
+    // ballot word ("Voted Yea") is already the right and stronger sentence.
+    //   THIS IS THE ONE PLACE THOSE FOUR WORDS LIVE. consistency.js's row phrasing
+    // and voting-record.js's pill both read it, so a co-sponsorship cannot be
+    // "Cosponsor" on one surface and "Co-sponsored" on another, and neither of them
+    // can ever reach for "Voted for" on an act that was not a vote.
+    function _rdActLabel(item) {
+      var c = _rdActClass(item);
+      return (c && c.label) ? c.label : '';
+    }
+
+    // ── DOUBLE COUNTING: ONE INSTRUMENT, ONE ENTRY IN THE DEPTH ───────────────
+    // A member who co-sponsors a bill and then votes for it on the floor has done
+    // two things, and the ledger shows both — that is what a ledger is for. But
+    // they have taken ONE position on ONE instrument, and admitting both would let
+    // a single bill carry 1.30 acts of depth and two entries in a dominance ratio
+    // that is supposed to be counting independent acts. That is the same bill,
+    // counted twice, with a discount on the second.
+    //
+    // So the pattern admits one act per measure, chosen in the order the record
+    // itself ranks them:
+    //   · a FLOOR VOTE on the instrument wins outright — every non-floor act on
+    //     that measure is superseded and admitted nowhere: not to the depth, not
+    //     to the act counts, not to the direction,
+    //   · with no floor vote, the STRONGEST single non-floor act stands and the
+    //     rest are superseded (lead sponsor + committee vote on one bill is 0.60,
+    //     not 1.05).
+    // A superseded act is still ON FILE — it stays in `total`, it stays on the
+    // ledger, and `superseded` counts it so a surface can say so.
+    //
+    // WHAT IS DELIBERATELY NOT DEDUPED: two FLOOR VOTES on the same measure.
+    // Passage and a motion to recommit are two separate recorded decisions on two
+    // separate questions; they have always each counted, the procedural down-weight
+    // is what handles their difference, and collapsing them here would change how
+    // vote-only records read — which this pass does not do.
+    function _rdMeasureKey(item) {
+      if (!item) return '';
+      if (item.measureId != null && item.measureId !== '') return 'm:' + item.measureId;
+      var n = String(item.number || item.title || '').trim().toLowerCase();
+      return n ? 'n:' + n : '';
+    }
+
+    // ── THE DEPTH FLOORS, ASKED TWICE ─────────────────────────────────────────
+    // _RD_MIN_JUDGED has always meant "four judged acts before this record may be
+    // characterised". With non-vote acts admitted, four acts is no longer one
+    // quantity: four floor votes and four co-sponsorships are both "four", and only
+    // one of them is four votes' worth of record. So the act count keeps its floor
+    // exactly as it was AND the summed act strength must clear the same number.
+    // Four floor votes are 4.00 and pass, as they always did — nothing about a
+    // vote-only record moves by a byte. Four co-sponsorships are 1.20 and do not;
+    // that row takes the thin door below and states what it holds instead of
+    // claiming a pattern. This is requirement 5, and it is one line of arithmetic
+    // rather than a new tier ladder.
+    var _RD_MIN_STRENGTH = 4;
+    // The thin door is the DENSIFICATION door, and it is deliberately lower — it
+    // makes the smaller claim ("all 3 advanced it", worded as a beginning, never as
+    // a tendency), and it is the whole reason a sparse profile gains anything here.
+    // 0.60 is one committee vote, or two co-sponsorships: the point at which there
+    // is something on file rather than a single signature.
+    var _RD_THIN_MIN_STRENGTH = 0.6;
+    // …and the single act that may lean. One recorded committee decision is a
+    // beginning worth wording; one signature on someone else's bill is not, and the
+    // one-act lean is the loudest thing this engine says about the least evidence.
+    var _RD_LEAN_MIN_STRENGTH = 0.6;
+    // HOW MUCH OF THE STRENGTH MUST BE FLOOR VOTES before the loudest tier is
+    // available. "Strongly opposes" is the strongest sentence this product prints
+    // about a formal record, and it should rest on recorded decisions rather than
+    // on a stack of signatures that all point one way because signing is how you
+    // point. Half is the bar: at or above it the tier is exactly what it was, below
+    // it the row is capped at "Mostly" — which is not a demotion of their record,
+    // it is the accurate depth of ours.
+    var _RD_FLOOR_LED = 0.5;
+
+    // "3 co-sponsorships and 1 committee vote" — the mix, spoken strongest-first,
+    // from counts and nothing else. No share, no percentage, no ordinal.
+    function _rdMixPhrase(mix) {
+      var parts = [];
+      _ACT_ORDER.forEach(function (k) {
+        var n = (mix && mix[k]) || 0;
+        if (!n) return;
+        var c = _ACT_CLASSES[k];
+        parts.push(n + ' ' + _rdPlural(n, c.one, c.many));
+      });
+      if (!parts.length) return '';
+      if (parts.length === 1) return parts[0];
+      return parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1];
+    }
+    // THE LIGHT DISCLOSURE (requirement 7), and the reason it is light. Where the
+    // signal is floor-led there is nothing to disclose — the reader is looking at
+    // votes and the chip says votes. Where it is not, the row names the mix in one
+    // clause so the strength of the chip is checkable against the acts under it.
+    // It is a sentence, never a badge, never a filter, and never a second tier.
+    //   THE NOTE TRACKS THE COUNTABLE, NOT JUST THE SHORTFALL. It used to fire only
+    // where the row was not floor-led, which left the other mixed shape mute: a row
+    // of four recorded votes and two co-sponsorships counts "6 formal acts" — the
+    // only word true of all six — and a reader who came for votes was shown a term
+    // they did not ask for with nothing explaining it. So any row holding a
+    // non-floor act says what the mix was, and the register does the grading:
+    // "Mostly floor votes" is reassurance, the other two are disclosure. A row of
+    // nothing but floor votes still says nothing, because its chip already counts
+    // votes and a note repeating that is noise — and noise is how a real
+    // disclosure gets learned as ignorable.
+    function _rdMixNote(out) {
+      if (!out || !out.nonFloorActs) return '';
+      var phrase = _rdMixPhrase(out.mix);
+      if (!phrase) return '';
+      if (out.floorLed) return 'Mostly floor votes here — ' + phrase + '.';
+      return out.floorActs
+        ? 'Mostly non-vote acts here — ' + phrase + '.'
+        : 'No floor vote on file here — ' + phrase + '.';
+    }
     // THE THRESHOLDS, AND WHY THEY ARE NOT THE MIXED GATE'S.
     // _MIXED_DOMINANCE (2/3) and _MIXED_MIN_ITEMS (2) are right for their own
     // job: gating a verdict that already has an independently sourced stance
@@ -656,6 +863,18 @@
         token: 'record_none', lead: null, characterised: false, counted: false,
         judged: 0, advances: 0, opposes: 0,
         advanceScore: 0, opposeScore: 0, primary: 0, total: 0, procedural: 0,
+        // ── THE ACT MIX (see THE NON-VOTE FORMAL ACTS above) ─────────────────
+        // `mix` counts the acts that were ADMITTED, by class. `actStrength` is
+        // their summed depth weight and `floorStrength` the part of it that is
+        // floor votes; `floorLed` is the one derived flag a tier may read, and it
+        // gates depth only — never a direction. `superseded` and `unclassified`
+        // are the two disclosures for acts on file that the pattern did not admit:
+        // a second act on an instrument already counted, and an act type this
+        // build does not recognise. Every one of these is a count. None of them is
+        // a share, and nothing downstream may turn one into a percentage.
+        mix: { floor: 0, committee_vote: 0, sponsor: 0, plaintiff: 0, amicus: 0, cosponsor: 0 },
+        actStrength: 0, floorStrength: 0, floorActs: 0, nonFloorActs: 0,
+        floorLed: true, superseded: 0, unclassified: 0, mixNote: '',
         // `suppressed` IS A GATE. `reason` IS COPY. They were one field, and one
         // field could not carry both jobs: the branches that refuse a row without
         // setting a gate (one judged item; two or three that ran both ways) had
@@ -669,6 +888,13 @@
       };
 
       var suppressed = _rdSuppressedKey(issueKey);
+
+      // ── PASS 1: WHAT IS ON FILE, AND WHICH ACT SPEAKS FOR EACH INSTRUMENT ────
+      // The inventory (`total`) is taken here and takes everything that maps to the
+      // issue — a refused act, a superseded act and an act with no side are all
+      // still ON FILE, and the count that says how much is on file has never meant
+      // anything else. What this pass decides is only which acts reach the pattern.
+      var admits = [], byMeasure = {};
       records.forEach(function (item) {
         var mapping = _findIssueMapping(item, issueKey);
         if (!mapping) return;
@@ -677,6 +903,34 @@
         // procedural inversion — not a second copy of the recommit/table rule.
         var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
         if (eff === null || typeof eff === 'undefined') return; // present / not voting
+        var cls = _rdActClass(item);
+        if (!cls) { out.unclassified++; return; }   // statement, or an act we cannot name
+        var mk = _rdMeasureKey(item);
+        var rec = { item: item, mapping: mapping, eff: eff, cls: cls, mk: mk };
+        admits.push(rec);
+        if (!mk) return;                            // no instrument identity: cannot dedupe, so does not
+        var b = byMeasure[mk] || (byMeasure[mk] = { floor: 0, best: 0 });
+        if (cls.floor) b.floor++;
+        else if (cls.w > b.best) b.best = cls.w;
+      });
+
+      // ── PASS 2: THE ADMITTED ACTS, ONE PER INSTRUMENT ────────────────────────
+      // See DOUBLE COUNTING above. A floor vote on a measure supersedes every
+      // non-floor act on it; with no floor vote the strongest single non-floor act
+      // stands. A superseded act is counted as superseded and enters nothing else —
+      // not the depth, not the act counts, not the direction — so the numbers the
+      // chip reasons from and the numbers a reader can tally off the ledger are the
+      // same numbers.
+      var usedNonFloor = {};
+      admits.forEach(function (rec) {
+        var b = rec.mk ? byMeasure[rec.mk] : null;
+        if (b && !rec.cls.floor) {
+          if (b.floor > 0) { out.superseded++; return; }        // the vote speaks for this bill
+          if (rec.cls.w < b.best) { out.superseded++; return; }  // a stronger act speaks for it
+          if (usedNonFloor[rec.mk]) { out.superseded++; return; } // …and only once
+          usedNonFloor[rec.mk] = 1;
+        }
+        var item = rec.item, mapping = rec.mapping, eff = rec.eff, cls = rec.cls;
         // THE CURATOR-WEIGHT SUMS ARE A DISCLOSURE, NOT A DECISION. They are still
         // computed — a surface that wants to say "the curation calls this a narrow
         // link" can, and the exec index publishes the same two fields — but no gate
@@ -684,6 +938,14 @@
         var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
         if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
         out.judged++;
+        // THE ACT'S DEPTH, AND ONLY ITS DEPTH. `actStrength` is summed here and
+        // read by the size floors below and by nothing else. It is not added to
+        // advanceScore/opposeScore, it is never compared against _RD_DOMINANCE, and
+        // no side of this row is decided by it.
+        out.mix[cls.key] = (out.mix[cls.key] || 0) + 1;
+        out.actStrength += cls.w;
+        if (cls.floor) { out.floorActs++; out.floorStrength += cls.w; }
+        else out.nonFloorActs++;
         // Disclosure, not a gate: no branch below reads it. It exists so a row
         // that refuses can say "and all of them were procedural", which is a
         // materially different fact about a record than "we hold too few".
@@ -692,6 +954,30 @@
         if (eff) { out.advances++; out.advanceScore += w; }
         else { out.opposes++; out.opposeScore += w; }
       });
+      // Floor-led is a fact about depth, computed once, read by the tier layer to
+      // cap its loudest word. A record with no admitted acts is floor-led by
+      // vacuity — there is no weaker act holding it up — which keeps every
+      // vote-only and empty row reading exactly as it did before this table existed.
+      out.floorLed = !out.actStrength ||
+        (out.floorStrength >= out.actStrength * _RD_FLOOR_LED);
+      out.mixNote = _rdMixNote(out);
+      // The countable follows the acts. "3 recorded votes" over three
+      // co-sponsorships is the exact sentence this whole pass exists to stop
+      // printing, so a row holding ANY non-floor act names formal acts instead.
+      //   ANY, NOT ALL. The first cut of this fired only where the row held no
+      // floor vote at all, and that was wrong in the most common mixed shape there
+      // is: one recorded vote and eight co-sponsorships kept the noun "votes" and
+      // printed "9 recorded votes on immigration", of which eight were signatures.
+      // The mix note was carrying that correction, and a disclosure repairing a
+      // false count is a worse design than a true count. "Formal act" is the term
+      // that is true of every admitted item including the floor votes, so a mixed
+      // row uses it and the mix note says what the mix was. A row of nothing but
+      // floor votes still counts votes — both fields must be present and non-floor
+      // acts must actually be there, so an index built by an older caller, which
+      // knows nothing of act classes and is votes by construction, is untouched.
+      if (out.nonFloorActs > 0) {
+        noun = { one: 'formal act', many: 'formal acts' };
+      }
 
       // ── The gates, outermost first ─────────────────────────────────────────
       // Each one returns the row to its inventory copy rather than degrading to a
@@ -740,7 +1026,20 @@
       var dominant = tw > 0 &&
         (out.advances >= tw * _RD_DOMINANCE || out.opposes >= tw * _RD_DOMINANCE);
 
-      if (out.judged >= _RD_MIN_JUDGED) {
+      // ── AND THE SAME FLOOR, ASKED IN STRENGTH ────────────────────────────
+      // See THE DEPTH FLOORS above. `deepEnough` is the act count's floor and the
+      // strength floor together, and it is a SIZE test — it decides whether this
+      // record is enough record to characterise, never which way it went. A
+      // vote-only row is unaffected in every case: four floor votes are 4.00.
+      var deepEnough = out.judged >= _RD_MIN_JUDGED &&
+        out.actStrength >= _RD_MIN_STRENGTH;
+      // A run that falls short of the characterisation floor may still be stated as
+      // a run — but not out of nothing. Two co-sponsorships (0.60) are the smallest
+      // thing worth saying "both advanced it" about; one is a signature.
+      var thinEnough = out.judged >= _RD_THIN_MIN &&
+        out.actStrength >= _RD_THIN_MIN_STRENGTH;
+
+      if (deepEnough) {
         if (!dominant) {
           // A RECORD THAT RAN BOTH WAYS, and how much of it may be said. There
           // is no direction here and none is manufactured — `lead` stays null
@@ -764,7 +1063,7 @@
           out.token = 'record_direction';
           out.lead = (out.advances >= out.opposes) ? 'advances' : 'opposes';
         }
-      } else if (out.judged >= _RD_THIN_MIN && uniform) {
+      } else if (thinEnough && uniform) {
         // A run, not a tendency. Two or three votes that all went the same way is
         // a fact worth stating and is stated as a fact — never as a lean, which
         // is a claim about a sample this size cannot carry.
@@ -795,6 +1094,21 @@
         // speak. Only `reason` is set, and only a sentence reads it.
         var why = (out.primary < _RD_MIN_PRIMARY) ? 'no_primary'
           : (out.judged === 1) ? 'single_item' : 'mixed_thin';
+        // …and two further ways to be here, both new with the act weights, because
+        // "one item" and "ran both ways" are the wrong sentences for them:
+        //   · ONE act, and too light a one to lean on. It is still one item, but
+        //     what stops the thin read from wording it is the act, not the count —
+        //     a single co-sponsorship, where a single recorded vote would have
+        //     been read. The row says which, or a reader is told we hold one thing
+        //     when what we hold is one signature.
+        //   · Several acts, all pointing the same way, and not enough strength
+        //     between them to state even a run. At the shipped weights that takes
+        //     more than two of the lightest act, so this is a guard rather than a
+        //     live population — but "mixed_thin" is FALSE of a uniform row and
+        //     would be printed as a fact about their record.
+        // Neither is a tier and neither is a gate; only a sentence reads them.
+        if (out.judged === 1 && !_rdLeanAllowed(out)) why = 'single_weak_act';
+        else if (uniform && out.judged >= _RD_THIN_MIN && !thinEnough) why = 'weak_acts';
         if (why === 'no_primary') return stop('record_thin', 'no_primary');
         // …and where every judged act on the row was procedural, that is the more
         // specific true thing to say about why it will not resolve.
@@ -865,6 +1179,24 @@
     window._PDX_RD_SPLIT_MIN_JUDGED = _RD_SPLIT_MIN_JUDGED;
     window._PDX_RD_SPLIT_MIN_SIDE = _RD_SPLIT_MIN_SIDE;
     window._PDX_RD_NO_POLE = _RD_NO_POLE;
+    // ── THE ACT LAYER, PUBLISHED ───────────────────────────────────────────────
+    // The classifier and the label are published because two other files must ask
+    // the same question and must get the same answer: consistency.js words a row's
+    // action phrase and voting-record.js prints the pill. Neither may keep its own
+    // table — that is how "Cosponsor" and "Co-sponsored" end up on one page — and
+    // neither may reach for a ballot verb on an act that was not a ballot.
+    //   The weights are published for tests and disclosure ONLY. Nothing outside
+    // this file sums them, and nothing anywhere divides by them.
+    window._pdxActClass = _rdActClass;
+    window._pdxActLabel = _rdActLabel;
+    window._pdxActRefusal = _rdActRefusal;
+    window._pdxActMixPhrase = _rdMixPhrase;
+    window._PDX_ACT_CLASSES = _ACT_CLASSES;
+    window._PDX_ACT_REFUSED = _ACT_REFUSED;
+    window._PDX_RD_MIN_STRENGTH = _RD_MIN_STRENGTH;
+    window._PDX_RD_THIN_MIN_STRENGTH = _RD_THIN_MIN_STRENGTH;
+    window._PDX_RD_LEAN_MIN_STRENGTH = _RD_LEAN_MIN_STRENGTH;
+    window._PDX_RD_FLOOR_LED = _RD_FLOOR_LED;
 
     // ── FORMAL-RECORD PATTERN TIERS (presentation only) ────────────────────────
     // ONE READ OF THE INDEX ABOVE, WORDED FOR A ROW FACE. This adds no arithmetic:
@@ -1021,11 +1353,34 @@
     // against", "2 votes against" — which is the smaller claim and the shorter chip.
     function _rdTierCounts(idx, noun, tier) {
       noun = noun || { one: 'vote', many: 'votes' };
+      // THE COUNTABLE FOLLOWS THE ACTS, on the same rule as the index that fed it
+      // (see the long note over the noun swap in _recordDirectionIndex): a row
+      // holding ANY non-floor act counts formal acts, because "9 votes advanced"
+      // over one vote and eight signatures is the single most misleading sentence
+      // this layer could produce. A pure floor row keeps the office's own noun, and
+      // an index from an older caller has no nonFloorActs field and so is untouched.
+      if (idx && idx.nonFloorActs > 0) {
+        noun = { one: 'formal act', many: 'formal acts' };
+      }
       if (tier === 'thin') {
         return idx.judged + ' ' + _rdPlural(idx.judged, noun.one, noun.many) + ' ' +
           (idx.advances ? 'advanced' : 'against');
       }
       return idx.advances + ' advanced · ' + idx.opposes + ' against';
+    }
+
+    // MAY ONE ACT LEAN? The one-item read is the loudest thing this engine says
+    // about the least evidence, and it was written when the only item it could ever
+    // be was a recorded floor vote. One recorded committee decision is still a
+    // beginning worth wording. One signature on someone else's bill is not — it is
+    // the cheapest formal act there is, and "Thin supports" over a single
+    // co-sponsorship would be the exact over-claim this whole pass exists to
+    // prevent. Fails open only where the index carries no act strength at all,
+    // which is the vote-only shape this rule was already correct for.
+    function _rdLeanAllowed(idx) {
+      if (!idx || typeof idx.actStrength !== 'number') return true;
+      if (idx.floorActs > 0) return true;
+      return idx.actStrength >= _RD_LEAN_MIN_STRENGTH;
     }
 
     // idx — a _recordDirectionIndex() result. Returns null when no chip should render,
@@ -1041,16 +1396,34 @@
       var t = null, dir = null;
       if (idx.token === 'record_direction') {
         dir = _RD_TIER_DIR[idx.lead] || null;
-        t = dir ? ((idx.advances === 0 || idx.opposes === 0) ? _RD_TIERS.strong : _RD_TIERS.mostly) : null;
+        // ── THE LOUDEST TIER IS FLOOR-LED, OR IT IS NOT THE LOUDEST TIER ──────
+        // "Strongly opposes" is the strongest sentence this product prints about a
+        // formal record. A uniform run of co-sponsorships can reach the depth floor
+        // — signing is how you point, and a member who signs twenty bills one way
+        // has twenty acts all pointing one way — without being twenty decisions. So
+        // the strong tier asks one further question, and it is a question about
+        // DEPTH, not about side: is at least half of this record's act-strength
+        // floor votes? Below that the row is capped at "Mostly", which is not a
+        // demotion of their record but the accurate depth of ours. The direction
+        // itself is untouched; a capped row leans exactly where it leaned.
+        //   `!== false` on purpose. An index that carries no act mix at all is a
+        // vote-only index by construction — which is what every index was before
+        // this table existed — so the absent case is floor-led and reads exactly
+        // as it did.
+        var uniformActs = (idx.advances === 0 || idx.opposes === 0);
+        t = dir ? ((uniformActs && idx.floorLed !== false) ? _RD_TIERS.strong : _RD_TIERS.mostly) : null;
       } else if (idx.token === 'record_uniform_thin') {
         dir = _RD_TIER_DIR[idx.lead] || null;
         t = dir ? _RD_TIERS.thin : null;
       } else if (idx.token === 'record_split_deep' || idx.token === 'record_split') {
         t = _RD_TIERS.split;
       } else if (idx.token === 'record_thin' && !idx.suppressed &&
-                 idx.judged === 1 && idx.primary >= _RD_MIN_PRIMARY) {
+                 idx.judged === 1 && idx.primary >= _RD_MIN_PRIMARY &&
+                 _rdLeanAllowed(idx)) {
         // The one-vote lean. Only when that vote is ON this issue (primary) — an
-        // incidental omnibus brush is not a lean, it is a coincidence.
+        // incidental omnibus brush is not a lean, it is a coincidence — and only
+        // when the single act is heavy enough to be a beginning rather than a
+        // signature (see _rdLeanAllowed).
         dir = _RD_TIER_DIR[idx.advances ? 'advances' : 'opposes'];
         t = _RD_TIERS.thin;
       }
@@ -1070,7 +1443,18 @@
         judged: idx.judged, advances: idx.advances, opposes: idx.opposes,
         directional: !!t.directional,
         token: idx.token,
-        note: _RD_TIER_NOTE
+        note: _RD_TIER_NOTE,
+        // ── THE ACT MIX, CARRIED BUT NEVER MERGED ────────────────────────────
+        // Requirement 7's light disclosure, and it is a SECOND sentence on purpose.
+        // `note` is the one fixed line every chip carries and every test pins; the
+        // mix is a fact about THIS row and belongs beside that line, not inside it.
+        // Presentation only: no surface may sort, filter, bucket or score on any of
+        // these, and none of them is a share of anything.
+        mix: idx.mix || null,
+        mixNote: idx.mixNote || '',
+        floorLed: idx.floorLed !== false,
+        floorActs: (typeof idx.floorActs === 'number') ? idx.floorActs : null,
+        actStrength: (typeof idx.actStrength === 'number') ? idx.actStrength : null
       };
     }
 
@@ -1129,7 +1513,14 @@
       var noun = opts.noun || { one: 'vote', many: 'votes' };
       var adv = idx.advances || 0, opp = idx.opposes || 0;
       var partial = (sup === 'coverage_floor');
-      var deep = !partial && judged >= _RD_MIN_JUDGED;
+      // THE SAME TWO SIZE FLOORS THE PATTERN ENGINE ASKS. This lane exists to stop
+      // a browse surface printing a blank over one real act, and lowering the DEPTH
+      // bar is exactly what it is for — but "deep" here still means the same thing
+      // it means everywhere else, and a stack of co-sponsorships is not it. Without
+      // this line the display read would hand back Strongly/Mostly on the very
+      // rows _recordDirectionIndex had just refused to characterise.
+      var deep = !partial && judged >= _RD_MIN_JUDGED &&
+        (typeof idx.actStrength !== 'number' || idx.actStrength >= _RD_MIN_STRENGTH);
       var uniform = (adv === 0 || opp === 0);
       // Act counts, not curator weight — the same ledger-first rule as the index
       // above. The chip sits directly on top of a list of acts; the number it is
@@ -1153,7 +1544,10 @@
         var leadKey = uniform ? (adv ? 'advances' : 'opposes')
           : ((adv >= opp) ? 'advances' : 'opposes');
         dir = _RD_TIER_DIR[leadKey];
-        key = deep ? (uniform ? 'strong' : 'mostly') : 'thin';
+        // …and the same floor-led cap on the loudest word. See the block in
+        // _recordPatternTier: a uniform run that is mostly non-vote acts is
+        // "Mostly", not "Strongly", on every surface that prints either.
+        key = deep ? ((uniform && idx.floorLed !== false) ? 'strong' : 'mostly') : 'thin';
         weight = deep ? _RD_TIERS[key].weight : 'thin';
         tone = dir.tone;
         label = _RD_TIERS[key].lead + ' ' + dir.word;
@@ -1169,6 +1563,20 @@
         directional: key !== 'split',
         token: idx.token,
         note: _RD_TIER_NOTE,
+        // Carried in the same shape the pattern tier carries it, so a surface that
+        // prints the mix does not have to know which of the two reads it got.
+        //   THE ONE-ACT LEAN IS NOT GATED ON THIS LANE, and that is deliberate.
+        // _recordPatternTier refuses to CHARACTERISE a record off one signature;
+        // this lane characterises nothing (`display: true`, `early: true`, and
+        // `says.characterising` false on every thin read), and its whole job is
+        // that a browse surface must not print a blank over a real, dated, sourced
+        // act. It prints the act, in the act's own countable, with the mix beside
+        // it — which is more honest than the empty slot it replaced, not less.
+        mix: idx.mix || null,
+        mixNote: idx.mixNote || '',
+        floorLed: idx.floorLed !== false,
+        floorActs: (typeof idx.floorActs === 'number') ? idx.floorActs : null,
+        actStrength: (typeof idx.actStrength === 'number') ? idx.actStrength : null,
         display: true, early: judged <= 1, partial: partial
       };
     }

@@ -127,10 +127,17 @@
     // apply party/search filters.
     var everyone = allPids();
     everyone.forEach(function (pid) {
+      // THE RECORD IS ASKED FIRST, AND ASKED ALWAYS. This line used to read
+      // `hasPos ? null : recordSummary(...)`: the formal record was consulted only
+      // for a member nobody had sourced a quote for. It admitted the same people
+      // either way, so nothing about the field changes here — but it encoded the
+      // backwards priority in the one function that decides what a comparison is
+      // even made of, and every reader of this file learned it from there.
       var pos = positionOnIssue(pid, issueKey);
+      var rec = recordSummary(pid, issueKey);
+      var hasRec = !!(rec && rec.total);
       var hasPos = !!(pos && pos.stance);
-      var rec = hasPos ? null : recordSummary(pid, issueKey);
-      if (!hasPos && !(rec && rec.total)) return;
+      if (!hasRec && !hasPos) return;
       // filters
       var d = cmp(pid) || {};
       if (_state.party !== 'all') {
@@ -147,18 +154,26 @@
     return out;
   }
 
-  /* ── verdict / position vocab (reuses the app's dual-score language) ──── */
-  var VERDICT = {
-    consistent:  { label: 'Backs it up',                    color: '#6ee7a0', ico: '✅' },
-    contradicts: { label: 'Says one thing, votes another',  color: '#f89b9b', ico: '⚠️' },
-    mixed:       { label: 'Mixed record',                   color: '#93c5fd', ico: '⚖️' },
-    no_position: { label: 'No clear record',                color: '#9fb4d4', ico: '🗳️' }
-  };
+  /* ── position vocab ───────────────────────────────────────────────────────
+     A VERDICT MAP USED TO LIVE HERE. It held 'Backs it up' / 'Says one thing,
+     votes another' / 'Mixed record', and consReadout() printed one of them on
+     every card in this grid. Both are gone, deliberately and not by accident of
+     refactoring: a comparison cell is a DESCRIPTION of a record, and an integrity
+     verdict is a JUDGEMENT of a person against their own words. They answer
+     different questions, they have different evidence gates, and stacking a
+     dozen of them in a scannable column turns Word-vs-Action into a leaderboard —
+     which is exactly the party-vs-party reading this product exists to refuse.
+     Word vs Action still runs, unchanged, where it belongs: on the profile, one
+     person at a time, against a stated position that actually exists. Do not
+     bring a verdict label back into this file. */
   var STANCE = {
     support: { bucket: 'Supports', color: '#4ade80', ico: '👍', pill: 'Supports' },
     oppose:  { bucket: 'Opposes',  color: '#f87171', ico: '👎', pill: 'Opposes' },
     mixed:   { bucket: 'Mixed',    color: '#f5c842', ico: '⚖️', pill: 'Mixed' }
   };
+  // Kept as the vocabulary of the SECONDARY line on each card — the stated
+  // position still needs its canonical label, colour and icon. It is no longer
+  // what the field is grouped by; see RECORD_GROUPS.
   var BUCKET_ORDER = ['support', 'oppose', 'mixed', 'none'];
   var BUCKET_META = {
     support: { label: 'Supports', color: '#4ade80', ico: '👍' },
@@ -166,6 +181,50 @@
     mixed:   { label: 'Mixed',    color: '#f5c842', ico: '⚖️' },
     none:    { label: 'No stated position', color: '#9fb4d4', ico: '—' }
   };
+
+  // ── RECORD_GROUPS · THE FIELD IS ORGANISED BY THE RECORD ───────────────────
+  // This field used to be grouped by stated position and ranked inside each group
+  // by consistency verdict and then by vote count. Both halves of that were the
+  // inversion: the loudest organising fact on the page was a quote, and the
+  // tie-break underneath it was how much of a record WE happen to hold — a
+  // ranking signal manufactured out of our own coverage.
+  //
+  // Cards are now grouped by what the record SAYS ABOUT ITSELF, in these four
+  // states, and sorted A–Z by name inside each one. Read the two properties this
+  // has to keep, because they are the whole reason it is allowed:
+  //
+  //   · IT IS CATEGORICAL, NOT ORDINAL. The order below is a fixed literal in
+  //     source. It is not derived from a tally, a share, a judged count or a
+  //     held count, and nothing in this file compares two members on it. 'speaks'
+  //     sits above 'thin' because a readable record is the thing the reader came
+  //     for, not because a readable record is BETTER — and no group is ever
+  //     labelled or coloured as a win. (Pinned by
+  //     scripts/test-record-direction-surfaces.mjs, which fails if a comparator
+  //     in this file reads judged/held/total/pct.)
+  //   · THE WEAK STATES STAY DISTINCT AND STAY NAMED. 'thin' and 'none' are
+  //     different facts about the world — a record we cannot read a direction
+  //     from, versus no record at all — and neither is ever folded into 'speaks'
+  //     to make the page look finished. 'unread' is the state that is not an
+  //     absence at all: still loading, or an action whose lane this view cannot
+  //     read a direction from. It never claims a gap.
+  //
+  // Colours are one calm slate family on purpose. A green→red ramp across these
+  // groups would recreate the scoreboard by other means.
+  var RECORD_GROUPS = ['speaks', 'thin', 'none', 'unread'];
+  var RECORD_GROUP_META = {
+    speaks: { label: 'Their record shows a direction', ico: '🏛️', color: '#9fb4d4',
+              sub: 'Enough on file here to say which way each record ran. What it ran toward is on the card.' },
+    thin:   { label: 'Too thin to read a direction', ico: '🏛️', color: '#8fa6c6',
+              sub: 'There is a record on file. There is not enough of it to say which way it ran, so this view does not guess.' },
+    none:   { label: 'No formal record on file yet', ico: '🏛️', color: '#7f95b5',
+              sub: 'Nothing on file for this issue. That is a gap in the record — it is not a position, and it is not neutrality.' },
+    unread: { label: 'Record not readable here yet', ico: '🏛️', color: '#6d8ab0',
+              sub: 'Either still loading, or the action on file is not one this view can read a direction from. Not a claim that anything is missing.' }
+  };
+  // Which group a card belongs to. `rd === null` is NOT an absence — it means the
+  // batched record has not landed, or the lane is out of scope here — so it goes
+  // to 'unread' and never to 'none'.
+  function recordGroup(r) { return (r && r.rd && r.rd.state) ? r.rd.state : 'unread'; }
 
   // Build the full per-politician row model for the chosen issue.
   function rowModel(pid, issueKey) {
@@ -191,41 +250,40 @@
     } else {
       cons = { state: 'pending' };
     }
+    // THE RECORD SLOT — now the leading fact on the card, so it is resolved once
+    // here rather than re-derived at paint. Same accessor the profile row, the
+    // baseline and the side-by-side use, so those four surfaces cannot disagree
+    // about what this member's record did. `null` means cold-or-out-of-lane, and
+    // is handled as 'unread' everywhere below — never as an absence.
+    var rd = null;
+    try {
+      if (window.PDXConsistency && window.PDXConsistency.recordDirection && isFn(window.PDXConsistency.recordDirection.slot)) {
+        rd = window.PDXConsistency.recordDirection.slot(pid, issueKey);
+      }
+    } catch (e) { rd = null; }
     return {
       pid: pid, name: d.name || pid, office: d.office || '', state: d.state || '',
       party: d.party || '', photo: d.photo || (d.icon || ''),
-      stance: stance, pos: pos, cons: cons, onTeam: onTeam(pid)
+      stance: stance, pos: pos, cons: cons, rd: rd, warm: warm, onTeam: onTeam(pid)
     };
   }
 
-  // Rank within a bucket: rated first (consistent > mixed > contradicts), then by
-  // vote count; pending next; no-record last.
+  // ── SORTING, AND WHAT IT IS NOT ALLOWED TO BE ──────────────────────────────
+  // rankScore() used to live here. It floated cards inside a group by consistency
+  // verdict (consistent > mixed > flag > contradicts) and broke ties on how many
+  // votes we hold. Both inputs are things this grid may no longer use: a verdict
+  // is an integrity judgement and does not belong on a comparison surface at all,
+  // and a vote count is a measure of OUR coverage, so ordering on it quietly tells
+  // the reader that the best-documented member is the best member.
   //
-  // RECORD DIRECTION IS NOT A TERM HERE, AND MUST NOT BECOME ONE. The readout below
-  // can now print what a member's record did on an issue nobody sourced a stance
-  // for, and the tempting next step — floating those cards above the genuinely
-  // empty ones — would turn an unscored inventory count into an ordering, which is
-  // a ranking signal built out of how much of a record WE happen to hold. A card
-  // with a dense record and a card with none rank identically here (0, no_record)
-  // and differ only in what they say. Same rule for the buckets: cards are grouped
-  // by stated position, and a record with no stated position stays in `none`.
-  function rankScore(r) {
-    // Unified verdict first (matches what the card shows): consistent > mixed >
-    // flag > contradicts, then by how much record backs it; pending, then none.
-    if (r.cons.uni) {
-      var t = r.cons.uni.token;
-      if (t === 'pending') return 100;
-      var b = t === 'consistent' ? 400 : t === 'mixed' ? 300 : t === 'flag' ? 260 : t === 'contradicts' ? 200 : t === 'limited' ? 150 : 0;
-      var n = (r.cons.uni.record && r.cons.uni.record.total) || (r.cons.uni.curated && r.cons.uni.curated.total) || 0;
-      return b + Math.min(n, 99);
-    }
-    if (r.cons.state === 'rated') {
-      var nv = r.cons.rec.netVerdict;
-      var base = nv === 'consistent' ? 400 : nv === 'mixed' ? 300 : nv === 'contradicts' ? 200 : 250;
-      return base + Math.min(r.cons.rec.total || 0, 99);
-    }
-    if (r.cons.state === 'pending') return 100;
-    return 0; // no_record
+  // What replaced it is deliberately boring: A–Z by name, inside a group order
+  // that is a fixed literal (see RECORD_GROUPS). Nothing in this file reads
+  // judged, held, total or a percentage to decide where a card sits. If you are
+  // about to add a comparator that does, that is the wall — the record slot is
+  // display text, and it is not a ranking signal.
+  function byName(a, b) {
+    try { return String(a.name || '').localeCompare(String(b.name || '')); }
+    catch (e) { return 0; }
   }
 
   /* ── batched voting-record warmer ──────────────────────────────────────
@@ -242,6 +300,30 @@
       settle(); paintResults();
       if (_warmQueue.length && !_warmTimer) _warmTimer = setTimeout(flushWarm, 160);
     }, function () { settle(); });
+  }
+  // ── WARM WHEN THE LINEUP OPENS ─────────────────────────────────────────────
+  // The record lane can only lead a card if the record is there to lead with, and
+  // the batched fetch used to be triggered only by renderResults() — after the
+  // field had already been computed from whatever happened to be in the cache. On
+  // a cold cache that is circular for the "All tracked" field: fieldPids() admits
+  // members with a warm record, nothing is warm, so nothing is admitted on the
+  // strength of its record and nothing gets warmed on the strength of being
+  // admitted. Only the quote-havers ever appeared.
+  //
+  // This breaks the loop from the other end. The moment an issue or a field is
+  // chosen we warm the lineups we can enumerate without the cache — the team,
+  // the people who represent this visitor, their favourites — so the field is
+  // computed against a populated record lane rather than an empty one. Bounded on
+  // purpose: "All tracked" is not enumerable, and its cards still warm through
+  // queueWarm() below as they render.
+  function warmLineup() {
+    if (!_state.issueKey) return;
+    var seen = {}, pids = [];
+    function add(p) { p = p && String(p); if (p && !seen[p]) { seen[p] = 1; pids.push(p); } }
+    try { teamPids().forEach(add); } catch (e) {}
+    try { representsMePids().forEach(add); } catch (e) {}
+    try { favoritePids().forEach(add); } catch (e) {}
+    if (pids.length) queueWarm(pids.slice(0, WARM_BATCH * 2));
   }
   function queueWarm(pids) {
     if (!(window.PDXVotingRecord && isFn(window.PDXVotingRecord.fetchCompare))) return;
@@ -362,19 +444,17 @@
   }
 
   /* ── render: a single result card ───────────────────────────────────── */
-  // WHAT THE RECORD DID, for the two branches of this readout that had nothing to
-  // say. A card in the "No stated position" bucket with a dense mapped record read
-  // "🏛️ No qualifying votes yet" — which is false where the votes exist and were
-  // simply never checkable against a stance nobody sourced. The clause comes from
-  // PDXConsistency.recordDirection, the one place that words it, so this card and
-  // the profile row cannot disagree.
+  // ── THE RECORD LANE · the leading content of every card ────────────────────
+  // recordDirHtml() is unchanged and still comes from PDXConsistency.recordDirection
+  // — the one place in the app that words "advanced it" / "cut against it" / "ran
+  // both ways" — so this card and the profile row cannot say different things
+  // about the same file. What changed is WHEN it is called.
   //
-  // ONLY WHERE NOTHING WAS SCORED. Called from the no_record / no_stance branches
-  // and nowhere else: every branch below them owns a verdict, and a verdict is the
-  // answer. Records are already warm here (queueWarm → paintResults), so this is a
-  // straight synchronous read; '' while they are still loading, which keeps the
-  // pending copy the branch already had.
-  //   Display only. rankScore() below does not read it — see the note there.
+  // It used to be called from exactly two branches: the ones where the say-vs-do
+  // read came back with nothing to print. The formal record was the consolation
+  // prize for a missing quote. It is now called on every card, first, above the
+  // stated position, because it is the thing the reader came to see.
+  //   Display only. Nothing below sorts, ranks, filters or counts on it.
   function recordDirHtml(r) {
     try {
       var PC = window.PDXConsistency;
@@ -382,37 +462,35 @@
       return PC.recordDirection.for(r.pid, _state.issueKey, { cls: 'ic-rdir' });
     } catch (e) { return ''; }
   }
-  function consReadout(r) {
-    // Unified path — same vocabulary/icons/colours as every other surface.
-    if (r.cons.uni) {
-      var uni = r.cons.uni, m = uni.verdict;
-      if (uni.token === 'pending') return '<span class="ic-cons is-muted">🏛️ Official Record <span class="ic-spin"></span> checking votes…</span>';
-      if (uni.token === 'no_record' || uni.token === 'no_stance') {
-        return '<span class="ic-cons is-muted" title="' + esc(m.short) + '">🏛️ ' + esc(m.label) + '</span>'
-          + recordDirHtml(r);
-      }
-      var recU = uni.record, parts = [];
-      if (recU && recU.total) parts.push(recU.total + ' vote' + (recU.total === 1 ? '' : 's'));
-      if (uni.curated && uni.curated.total) parts.push(uni.curated.total + ' receipt' + (uni.curated.total === 1 ? '' : 's'));
-      if (uni.contradictions) parts.push(uni.contradictions + ' against');
-      var flagU = (uni.contradictions > 0) ? '<span class="ic-flag">⚑ ' + uni.contradictions + '</span>' : '';
-      var muted = (uni.token === 'limited') ? ' is-muted' : '';
-      return '<span class="ic-cons' + muted + '" style="--c:' + m.color + '"><span class="ic-cons-ico">' + m.ico + '</span>'
-        + '<span class="ic-cons-txt"><b>🏛️ ' + esc(m.label) + '</b>' + flagU + '<span class="ic-cons-sub">' + esc(parts.join(' · ')) + '</span></span></span>';
+  // A key vote FROM the record, in the record's own lane. This used to sit in
+  // evidenceHtml() as a fallback for a member with no stated blurb, which filed a
+  // vote under "evidence for what they said" — a category error once the two
+  // lanes are drawn apart. It is a bare description of one item on file: a title,
+  // no verdict word, no claim about whether it matched anything.
+  function recordVoteHtml(r) {
+    try {
+      var rec = (r.cons && r.cons.state === 'rated') ? r.cons.rec : null;
+      if (!rec) return '';
+      var top = rec.topContradiction || rec.topConsistent;
+      if (!top || !(top.title || top.number)) return '';
+      return '<p class="ic-recvote">🗳️ On file: ' + esc(truncate(top.title || top.number, 120)) + '</p>';
+    } catch (e) { return ''; }
+  }
+  // The whole lane, including its honest empty states.
+  //   · slot present → print it, whatever it says (speaks / thin / none).
+  //   · slot null + records not warm → say we are still looking. NOT "no record".
+  //   · slot null + records warm → the lane is out of scope for this issue (e.g.
+  //     an executive action, which needs its own vocabulary and standing rules).
+  //     Say nothing at all rather than invent an absence we did not verify.
+  function recordLaneHtml(r) {
+    var body = recordDirHtml(r);
+    if (body) return '<div class="ic-rec-lane">' + body + recordVoteHtml(r) + '</div>';
+    if (!r.warm) {
+      return '<div class="ic-rec-lane is-cold"><span class="ic-rdir is-cold">'
+        + '<span class="ic-rdir-ico" aria-hidden="true">🏛️</span>'
+        + '<span class="ic-rdir-txt">Checking the voting record <span class="ic-spin"></span></span></span></div>';
     }
-    if (r.cons.state === 'pending') return '<span class="ic-cons is-muted">🏛️ Official Record <span class="ic-spin"></span> checking votes…</span>';
-    if (r.cons.state === 'no_record') {
-      return '<span class="ic-cons is-muted" title="No qualifying votes on record yet to verify this position">🏛️ No qualifying votes yet</span>'
-        + recordDirHtml(r);
-    }
-    var rec = r.cons.rec, nv = rec.netVerdict;
-    var v = VERDICT[nv] || VERDICT.no_position;
-    var counts = rec.total + ' vote' + (rec.total === 1 ? '' : 's')
-      + (rec.contradicts ? ' · ' + rec.contradicts + ' against' : '')
-      + (rec.consistent ? ' · ' + rec.consistent + ' backing' : '');
-    var flag = (nv === 'contradicts') ? '<span class="ic-flag">⚑ contradicts</span>' : '';
-    return '<span class="ic-cons" style="--c:' + v.color + '"><span class="ic-cons-ico">' + v.ico + '</span>'
-      + '<span class="ic-cons-txt"><b>🏛️ ' + esc(v.label) + '</b>' + flag + '<span class="ic-cons-sub">' + esc(counts) + '</span></span></span>';
+    return '';
   }
   function evidenceHtml(r) {
     var pos = r.pos;
@@ -422,14 +500,8 @@
         ? ' <a class="ic-src" href="' + esc(pos.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation();">' + esc(pos.source.label || 'source') + ' ↗</a>' : '';
       return '<p class="ic-evidence">' + (pos.icon ? esc(pos.icon) + ' ' : '') + esc(body) + src + '</p>';
     }
-    // fall back to a key vote from the record when there's no stated blurb
-    if (r.cons.state === 'rated') {
-      var rec = r.cons.rec;
-      var top = rec.topContradiction || rec.topConsistent;
-      if (top && (top.title || top.number)) {
-        return '<p class="ic-evidence ic-evidence--vote">🗳️ Key vote: ' + esc(truncate(top.title || top.number, 120)) + '</p>';
-      }
-    }
+    // The key-vote fallback that used to sit here moved to recordVoteHtml(), in
+    // the record's own lane. A vote is not evidence of what somebody said.
     return '';
   }
   function card(r) {
@@ -439,14 +511,22 @@
       : '<div class="ic-photo">' + esc(r.photo && !/^https?:/.test(r.photo) ? r.photo : initials(r.name)) + '</div>';
     var posPill = '<span class="ic-pos" style="--c:' + (sm.color || '#9fb4d4') + '">' + (sm.ico || '') + ' ' + esc(sm.pill || sm.label || 'No stated position') + '</span>';
     var teamBtn = '<button type="button" class="ic-act ' + (r.onTeam ? 'is-on' : '') + '" onclick="window.PDXIssueCompare.toggleTeam(this,\'' + jsAttr(r.pid) + '\')">' + (r.onTeam ? '✓ On team' : '＋ Team') + '</button>';
-    return '<div class="ic-card" data-pid="' + esc(r.pid) + '">'
+    // THE ORDER OF THE CARD IS THE ARGUMENT. Record first, under its own heading;
+    // stated position second, under its own heading; and the two are never merged
+    // into one chip, because a reader who cannot tell which half is the voting
+    // file and which half is the quote is being asked to trust the wrong one.
+    // The stated-position pill used to sit up in the header row next to the name,
+    // which made it read as an attribute of the person. It is a citation, and it
+    // now sits with its citation.
+    var rec = recordLaneHtml(r);
+    var said = posPill + evidenceHtml(r);
+    return '<div class="ic-card' + (rec ? ' is-reclead' : '') + '" data-pid="' + esc(r.pid) + '">'
       + '<div class="ic-card-top">' + face
       +   '<div class="ic-id"><button type="button" class="ic-name" onclick="window.PDXIssueCompare.openProfile(\'' + jsAttr(r.pid) + '\')">' + esc(r.name) + '</button>'
       +     '<div class="ic-office">' + esc(r.office || '') + (r.state ? ' · ' + esc(r.state) : '') + '</div></div>'
-      +   posPill
       + '</div>'
-      + '<div class="ic-cons-row">' + consReadout(r) + '</div>'
-      + evidenceHtml(r)
+      + (rec ? '<div class="ic-lane-lbl ic-lane-lbl--rec">What their record did</div>' + rec : '')
+      + '<div class="ic-said-lane"><div class="ic-lane-lbl">Stated position</div>' + said + '</div>'
       + '<div class="ic-actions">' + teamBtn
       +   '<button type="button" class="ic-act" onclick="window.PDXIssueCompare.openProfile(\'' + jsAttr(r.pid) + '\')">Profile</button>'
       +   '<button type="button" class="ic-act" onclick="window.PDXIssueCompare.compareOne(\'' + jsAttr(r.pid) + '\')">⚔ Compare</button>'
@@ -481,32 +561,51 @@
         field !== 'all' ? '<div class="ic-empty-cta"><button type="button" class="ic-btn ic-btn--gold" onclick="window.PDXIssueCompare.setField(\'all\')">Try all tracked</button></div>' : '');
     }
 
-    // Warm voting records for the (capped) field so consistency can compute.
+    // Warm voting records for the (capped) field. This is a second, narrower net:
+    // warmLineup() has already gone after the lineup as soon as the issue or the
+    // field was chosen, so by the time we get here most of this is a no-op.
     var truncated = pids.length > MAX_CARDS;
     var show = pids.slice(0, MAX_CARDS);
     queueWarm(show);
 
     var rows = show.map(function (pid) { return rowModel(pid, _state.issueKey); });
-    // bucket by stated stance
-    var buckets = { support: [], oppose: [], mixed: [], none: [] };
-    rows.forEach(function (r) { (buckets[r.stance] || buckets.none).push(r); });
-    Object.keys(buckets).forEach(function (b) { buckets[b].sort(function (a, c) { return rankScore(c) - rankScore(a); }); });
+    // Group by what the RECORD says about itself, A–Z inside each group. See the
+    // note over RECORD_GROUPS for why this order is a literal and not a tally.
+    var buckets = { speaks: [], thin: [], none: [], unread: [] };
+    rows.forEach(function (r) { (buckets[recordGroup(r)] || buckets.unread).push(r); });
+    RECORD_GROUPS.forEach(function (g) { buckets[g].sort(byName); });
 
-    var pendingCount = rows.filter(function (r) { return r.cons.state === 'pending'; }).length;
+    var coldCount = buckets.unread.filter(function (r) { return !r.warm; }).length;
+
+    // TWO THIN CARDS ARE NOT A COMPARISON. Same floor the side-by-side row uses,
+    // same wording, same primitive — it counts how many records in this field can
+    // actually be read, and says so plainly when fewer than two can. It hides
+    // nothing: every card below still prints its own state and its own counts.
+    // Silent while anything is still cold, so a half-loaded field never claims an
+    // absence it has not verified.
+    var floorHtml = '';
+    try {
+      var RD = window.PDXConsistency && window.PDXConsistency.recordDirection;
+      if (RD && isFn(RD.compare) && isFn(RD.compareHtml)) {
+        floorHtml = RD.compareHtml(RD.compare(show, _state.issueKey), { cls: 'ic-rdfloor' }) || '';
+      }
+    } catch (e) { floorHtml = ''; }
+
     var head = '<div class="ic-results-head">'
       + '<span class="ic-results-count">' + rows.length + ' politician' + (rows.length === 1 ? '' : 's') + ' on ' + esc(issueLabel(_state.issueKey)) + '</span>'
       + '<button type="button" class="ic-btn ic-btn--compare" onclick="window.PDXIssueCompare.compareField()" title="Open the full side-by-side comparison with this field">⚔ Head-to-head</button>'
       + '</div>'
-      + '<p class="ic-note">Grouped by their <b>stated position</b> on this issue. The <b>🏛️ Official Record</b> read on each shows whether their <b>votes</b> backed that stance up when it counted. The broader public picture lives in <b>🧾 Say-vs-Do</b> on each profile.</p>'
-      + (typeof window._pdxScoreLegendHtml === 'function' ? '<div class="ic-legend">' + window._pdxScoreLegendHtml({ only: ['saydo'] }) + '</div>' : '')
-      + (pendingCount ? '<div class="ic-note">⚖️ Checking voting records for ' + pendingCount + ' politician' + (pendingCount === 1 ? '' : 's') + '… consistency fills in automatically.</div>' : '');
+      + '<p class="ic-note">Grouped by <b>what each record actually did</b> on this issue, then A–Z. Their <b>stated position</b>, where one is on file, is the second line of every card. A thin record and an empty one are kept apart on purpose, and neither is rounded up into a direction.</p>'
+      + floorHtml
+      + (coldCount ? '<div class="ic-note">🏛️ Still checking the voting record for ' + coldCount + ' politician' + (coldCount === 1 ? '' : 's') + '… their cards fill in automatically.</div>' : '');
 
-    var body = BUCKET_ORDER.map(function (b) {
-      var list = buckets[b]; if (!list.length) return '';
-      var meta = BUCKET_META[b];
-      return '<div class="ic-bucket" style="--c:' + meta.color + '">'
+    var body = RECORD_GROUPS.map(function (g) {
+      var list = buckets[g]; if (!list.length) return '';
+      var meta = RECORD_GROUP_META[g];
+      return '<div class="ic-bucket ic-bucket--rec" style="--c:' + meta.color + '">'
         + '<div class="ic-bucket-h"><span class="ic-bucket-ico">' + meta.ico + '</span>' + esc(meta.label)
         +   '<span class="ic-bucket-n">' + list.length + '</span></div>'
+        + '<p class="ic-bucket-sub">' + esc(meta.sub) + '</p>'
         + '<div class="ic-cards">' + list.map(card).join('') + '</div></div>';
     }).join('');
 
@@ -577,6 +676,7 @@
     if (!el(MOUNT)) return;
     if (!_inited) { loadState(); }
     _inited = true;
+    warmLineup();
     render();
     bindLive();
   }
@@ -603,13 +703,14 @@
       if (issueKey) { _state.issueKey = String(issueKey); _state.pickerOpen = false; }
       if (field) _state.field = String(field);
       saveState();
+      warmLineup();
       window.location.hash = HASH;
       init();
       try { var s = el('issue-compare'); if (s && s.scrollIntoView) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
     },
-    selectIssue: function (k) { _state.issueKey = String(k); _state.pickerOpen = false; _state.q = ''; saveState(); render(); try { var r = el('issue-compare'); if (r && r.scrollIntoView) r.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} },
+    selectIssue: function (k) { _state.issueKey = String(k); _state.pickerOpen = false; _state.q = ''; saveState(); warmLineup(); render(); try { var r = el('issue-compare'); if (r && r.scrollIntoView) r.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} },
     togglePicker: function (on) { _state.pickerOpen = !!on; render(); },
-    setField: function (f) { _state.field = String(f); saveState(); render(); },
+    setField: function (f) { _state.field = String(f); saveState(); warmLineup(); render(); },
     setParty: function (p) { _state.party = String(p); render(); },
     toggleTeam: function (btn, pid) {
       try {
