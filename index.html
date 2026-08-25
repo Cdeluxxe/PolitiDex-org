@@ -2006,7 +2006,7 @@ window.PDXLazy = (function () {
   <link rel="stylesheet" href="/app.css">
 
   <!-- Alignment Tool styles extracted to alignment-tool.css -->
-  <link rel="stylesheet" href="alignment-tool.css" />
+  <link rel="stylesheet" href="/alignment-tool.css" />
 
   <!-- ── Mobile performance & rendering polish ──────────────────────────────
        Two cheap, high-impact wins for a very long single-page document on phones:
@@ -20825,42 +20825,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        hero needs and users search first) is precached in the SW app shell; EXT
        (the long-tail, mostly local officials) is deprioritised so it no longer
        competes with render-critical bytes and is kept fresh by the SW runtime cache. -->
-  <script defer fetchpriority="high" src="politician-stances-core.js"></script>
-  <script defer fetchpriority="low" src="politician-stances-ext.js"></script>
+  <script defer fetchpriority="high" src="/politician-stances-core.js"></script>
+  <script defer fetchpriority="low" src="/politician-stances-ext.js"></script>
   <!-- State Senate wave 1 (CA/TX/NY/FL) — additive stance data that augments the
        same window.ISSUE_STANCE_DATA object as the core/ext chunks above. -->
-  <script defer fetchpriority="low" src="state-senate-stances.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances.js"></script>
   <!-- State Senate wave 2 (PA/IL/OH) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w2.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w2.js"></script>
   <!-- State Senate wave 3 (GA/NC/MI) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w3.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w3.js"></script>
   <!-- State Senate wave 4 (NJ/VA/AZ/WA) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w4.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w4.js"></script>
   <!-- State Senate wave 5 (MA/WI/MN/CO) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w5.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w5.js"></script>
   <!-- State Senate wave 6 (TN/IN/MO/MD) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w6.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w6.js"></script>
   <!-- State Senate wave 7 (NV/NH/KY/LA) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w7.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w7.js"></script>
   <!-- State Senate wave 8 (OR/SC/AL/CT) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w8.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w8.js"></script>
   <!-- State Senate wave 9 (IA/OK/KS/AR) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w9.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w9.js"></script>
   <!-- State Senate wave 10 (MS/WV/NM/DE) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w10.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w10.js"></script>
   <!-- State Senate wave 11 (NE/MT/ID/SD) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w11.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w11.js"></script>
   <!-- State Senate wave 12 (ND/WY/AK/VT) — additive stance data, same contract. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w12.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w12.js"></script>
   <!-- State Senate wave 13 (UT/ME/HI/RI) — final coverage wave, all 50 states. -->
-  <script defer fetchpriority="low" src="state-senate-stances-w13.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w13.js"></script>
   <!-- State Senate wave 14 (depth: CA/TX/NY/FL committee chairs & notables). -->
-  <script defer fetchpriority="low" src="state-senate-stances-w14.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w14.js"></script>
   <!-- State Senate wave 15 (depth II: CA/TX/NY/FL committee chairs & notables). -->
-  <script defer fetchpriority="low" src="state-senate-stances-w15.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w15.js"></script>
   <!-- State Senate wave 16 (depth: IL & PA committee chairs & notables). -->
-  <script defer fetchpriority="low" src="state-senate-stances-w16.js"></script>
-  <script defer src="stance-helpers.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w16.js"></script>
+  <script defer src="/stance-helpers.js"></script>
   <!-- In-context education (window.PDXLearn). Must run BEFORE every surface that
        calls PDXLearn.term() / .numberHtml() / .howto() while building its markup —
        voting-record.js, consistency.js, hr1-showcase.js. It computes nothing and
@@ -20868,8 +20868,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        sheet, delegated on document so it survives each surface's innerHTML rebuild.
        Every call site is guarded, so if this file fails to load the product renders
        exactly as it did before the education layer existed. -->
-  <script defer src="pdx-learn.js"></script>
-  <script defer src="alignment-tool.js"></script>
+  <script defer src="/pdx-learn.js"></script>
+  <script defer src="/alignment-tool.js"></script>
   <!-- Core National Issue colors (window.PDXIssueColors). One source of truth for
        "what color is this issue", so a stance chip, a Word vs Action row, a
        Spotlight card and a coverage gap that all name healthcare are all the same
@@ -20878,13 +20878,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        bundle through that file's CORE_NATIONAL_ISSUES / coreIssueForKey, though it
        looks them up lazily at call time and every consumer is guarded, so the
        ordering is a convenience rather than a requirement. -->
-  <script defer src="issue-colors.js"></script>
+  <script defer src="/issue-colors.js"></script>
   <!-- The publication floor — one rule for "does this record earn a citable
        address", read by the person-file kicker here and by
        scripts/gen-sitemap.mjs in Node, so the sitemap and the app cannot
        disagree about what is publishable. Pure logic, no DOM, no data of its
        own: it reads CMP_DATA and ISSUE_STANCE_DATA at call time. -->
-  <script defer src="publication-floor.js"></script>
+  <script defer src="/publication-floor.js"></script>
   <!-- The canonical person file — the one funnel every "open this politician"
        path routes through, and the owner of the durable /p/<id> address.
        Deferred, which puts it AFTER the sync /profiles-full.js above: that is
@@ -20894,48 +20894,48 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        deep-link boot in _checkAndTrigger, both of which are after DOMContentLoaded
        and therefore after this file. Every consumer is guarded regardless, so a
        failure to load costs the canonical address and nothing else. -->
-  <script defer src="person-file.js"></script>
+  <script defer src="/person-file.js"></script>
   <!-- Your Ballot — unified, address-driven flow. `defer` guarantees it runs
        after every inline script has defined the ballot/team/location primitives it
        builds on and the onboarding functions it consolidates, so its overrides win. -->
-  <script defer src="your-ballot.js"></script>
+  <script defer src="/your-ballot.js"></script>
   <!-- Personal Impact Tracker — defer + placed AFTER your-ballot.js so the
        #your-ballot section exists when the widget mounts beside it. Depends only
        on PDXStore (defined inline near the top) for private, opt-in sync. -->
-  <script defer src="impact-tracker.js"></script>
+  <script defer src="/impact-tracker.js"></script>
   <!-- Your Ballot · Action Layer — defer + placed AFTER impact-tracker.js so it
        mounts just below the impact widget. Reuses PDXTeamView, _issueEvidenceMap,
        PDX_ELECTION_DATA, PDXImpact and PDXStore (all defined earlier) for a
        private, opt-in contact + deadline-reminder layer. -->
-  <script defer src="ballot-actions.js"></script>
+  <script defer src="/ballot-actions.js"></script>
   <!-- Stance Library — issue-first browse view. `defer` places it after the
        data + engine layer (politician-stances-core/ext.js, alignment-tool.js) and the
        inline PDXStance/PDXForum modules have all run, so every global it lenses
        over (ISSUE_STANCE_DATA, ISSUE_MAP, CORE_NATIONAL_ISSUES, PDXStance) exists
        by the time it mounts. It owns no data — pure read-only view. -->
-  <script defer src="stance-library.js"></script>
+  <script defer src="/stance-library.js"></script>
   <!-- My Stances — the signed-in visitor's own positions on issues. `defer` places
        it after alignment-tool.js (it projects into the Alignment Signature via
        window.alignSetIntensity) and the ISSUE_MAP / CORE_NATIONAL_ISSUES globals it
        browses, and after the inline PDXStore/PDXImpact modules it persists through. -->
-  <script defer src="my-stances.js"></script>
+  <script defer src="/my-stances.js"></script>
   <!-- Voting Record — profile "what they actually did" section. `defer` places it
        after stance-helpers.js (the Phase-2 stance-vs-record engine it calls) and
        the data/engine layer, so window._polPositionMap / _voteEffectiveSupport /
        _stanceVoteVerdict / _polRecordMap and ISSUE_MAP all exist when a profile
        opens and _pdxInitVotingRecord fetches /api/voting-record. -->
-  <script defer src="voting-record.js"></script>
+  <script defer src="/voting-record.js"></script>
   <!-- Say vs. Do — surfaces the strongest sourced contradictions (window.PDXReceipts).
        Loads after the stance + accountability globals it reads (ISSUE_STANCE_DATA,
        ISSUE_MAP, and the inline window.ACCT_SPOTLIGHT). -->
-  <script defer src="say-vs-do.js"></script>
+  <script defer src="/say-vs-do.js"></script>
   <!-- Unified Say-vs-Do consistency (window.PDXConsistency). Reconciliation +
        presentation only: combines the curated receipts (PDXReceipts) and the
        voting-record engine (_pdxRecordIssueSummary) into ONE verdict per
        politician-issue, with one shared vocabulary. Loads after both sources
        (voting-record.js, say-vs-do.js) and before the surfaces that render it
        (issue-compare.js and the inline profile / comparison code). -->
-  <script defer src="consistency.js"></script>
+  <script defer src="/consistency.js"></script>
   <!-- Vote-derived share cards (window.PDXReceiptCards). A SECOND FEED into the
        share-card renderer in say-vs-do.js: it turns Official Record verdicts
        (a member's own floor vote against their own stated position on the same
@@ -20953,15 +20953,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        both through guarded lookups. It computes no verdict, publishes no
        percentage, and has no write path into a position map or into Direction
        Match — see the five walls at the top of the file. -->
-  <script defer src="stance-tree.js"></script>
+  <script defer src="/stance-tree.js"></script>
   <!-- Ballot Axes — the multi-issue reading block (🧩 one measure, several
        issues) and the shared two-axis elections lens under it (🔐 election
        security · 📩 ballot access). `defer` places it after the data + engine
        layer AND after stance-tree.js, whose leaf model supplies both columns'
        Said / 🏛 Record slots; PDXConsistency.openGap is the one door it offers.
        Owns no data — pure read-only lens. -->
-  <script defer src="ballot-axes.js"></script>
-  <script defer src="receipt-cards.js"></script>
+  <script defer src="/ballot-axes.js"></script>
+  <script defer src="/receipt-cards.js"></script>
   <!-- Claim check (window.PDXClaimCheck) — the paste-a-claim adapter. It owns no
        verdict logic and no renderer of its own: it POSTs a pasted claim to
        /api/claim-resolve, which returns only an ADDRESS ({ pid, issueKey,
@@ -20972,7 +20972,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        Must load AFTER say-vs-do.js (the renderer) and receipt-cards.js (find /
        warm / buttonHtml / hydrate); all-seeing-eye.js calls into it defensively
        and works unchanged if this file is absent. -->
-  <script defer src="claim-check.js"></script>
+  <script defer src="/claim-check.js"></script>
   <!-- Profile record card (window.PDXProfileCard) — the shareable REPORT CARD for a
        person, as opposed to a single receipt. The two renderers above each print one
        fact, and one fact leaving the app reads as an anecdote; this prints the whole
@@ -20985,7 +20985,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        owns it, and PDXWordAction's own publishing floor decides whether there is a
        verdict to print at all. Avatars are drawn monograms, so the canvas is never
        tainted and the share works offline. -->
-  <script defer src="profile-card.js"></script>
+  <script defer src="/profile-card.js"></script>
   <!-- Share Anywhere (window.PDXShareAnywhere) — the one resolver that answers
        "what is the strongest shareable artifact for this person?" for every
        surface: the whole-person record card (PDXProfileCard), else the Official
@@ -20996,7 +20996,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        a row about one bill still sends that bill. Its control is fail-open and
        fixed-size, so hydrating it cannot shift the layout on the mobile surfaces it
        appears on. -->
-  <script defer src="share-anywhere.js"></script>
+  <script defer src="/share-anywhere.js"></script>
   <!-- Profile spine (window.PDXProfileSpine) — the ordering layer for the profile
        modal. It owns the canonical stage sequence (identity → the short version →
        signature issues → where it is contested → official record → receipts →
@@ -21010,7 +21010,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        because the brief's "share or inspect next" row is that control; profiles
        open on user interaction, long after this defer script has run, and the
        modal falls back to its previous unordered body if it is ever missing. -->
-  <script defer src="profile-spine.js"></script>
+  <script defer src="/profile-spine.js"></script>
   <!-- ✒️ Executive Enactment Record — the second record lane, for figures who cast
        no congressional floor votes (window.EXEC_ACTIONS → PDXExecRecord →
        PDXExecRecordUI). Three files, loaded in dependency order:
@@ -21023,52 +21023,52 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        disagree about what someone said. Nothing here touches consistency.js or the
        Official Record surfaces; with any of the three absent the section renders the
        empty string rather than a claim. -->
-  <script defer src="exec-action-data.js"></script>
-  <script defer src="exec-record.js"></script>
-  <script defer src="exec-record-ui.js"></script>
+  <script defer src="/exec-action-data.js"></script>
+  <script defer src="/exec-record.js"></script>
+  <script defer src="/exec-record-ui.js"></script>
   <!-- Issue View — the issue-first ranked view (window.PDXIssueView). Loads after
        say-vs-do.js (it reads PDXReceipts) and the stance / core-issue globals it
        ranks from (ISSUE_STANCE_DATA, ISSUE_MAP, CORE_NATIONAL_ISSUES); mounts the
        front door into <section id="issue-front-door"> and opens a ranked overlay. -->
-  <script defer src="issue-view.js"></script>
+  <script defer src="/issue-view.js"></script>
   <!-- Journey — the guided spine + per-receipt next-action rail (window.PDXJourney).
        Loads after say-vs-do.js and issue-view.js (it drives PDXReceipts /
        PDXIssueView actions) and reuses compare / team / PDXSaved / showProfile. -->
-  <script defer src="journey.js"></script>
+  <script defer src="/journey.js"></script>
   <!-- Biggest Controversies — the neutral, sourced flashpoints block on each
        profile (window._renderControversies). Loads after say-vs-do.js,
        issue-view.js and journey.js: it reads PDXReceipts for the contested,
        verdict-stamped record and links out via PDXIssueView / PDXReceipts. -->
-  <script defer src="controversies.js"></script>
+  <script defer src="/controversies.js"></script>
   <!-- H.R.1 Showcase — the flagship demo (window.PDXHR1). Loads after the
        accountability globals it scans (window.ACCT_SPOTLIGHT) and the identity /
        photo helpers it reuses; renders into <section id="hr1-showcase">. -->
-  <script defer src="hr1-showcase.js"></script>
+  <script defer src="/hr1-showcase.js"></script>
   <!-- Coverage honesty — turns thin/undocumented areas into an explicit
        "not yet documented" signal (window.PDXCoverage) instead of silence. -->
-  <script defer src="coverage.js"></script>
+  <script defer src="/coverage.js"></script>
   <!-- Coverage gaps (window.PDXGaps) — names what WE have not documented yet on
        a record, derived at render time from PDXWordAction.read() + PDXCoverage,
        never stored. Renders the collapsed "open gaps" line inside the Word vs
        Action panel and the Suggest-a-lead entry point. Loads after coverage.js
        and before word-action.js's first paint; fully guarded either way. -->
-  <script defer src="gaps.js"></script>
+  <script defer src="/gaps.js"></script>
   <!-- Spotlight Hub — the "browse every Issue Spotlight" directory
        (window.PDXSpotlightHub). Renders the full PDXSpotlight registry into the
        filterable/searchable grid in #all-spotlights, so newly added Spotlights
        always surface. Loads after the app shell that defines window.PDXSpotlight. -->
-  <script defer src="spotlight-hub.js"></script>
+  <script defer src="/spotlight-hub.js"></script>
   <!-- Federal Spending Tracker — government contracts by agency, company & state
        (window.PDXContracts). Owns the curated, sourced contracts dataset, the
        filterable tracker overlay, and the profiles' "Major Contracts in Their
        State/District" section (window._renderMajorContracts). Loads before the
        Digital Library so its "Federal Spending Tracker" collection + contract
        cards appear on the Library's first render. -->
-  <script defer src="gov-contracts.js"></script>
+  <script defer src="/gov-contracts.js"></script>
   <!-- Bills/Legislation client (window.PDXBills) — thin data source over the Voting
        Record browse route, feeding the Digital Library's Legislation tab. Tiny;
        the inline bill index + live list load on demand when that tab opens. -->
-  <script defer src="bills.js"></script>
+  <script defer src="/bills.js"></script>
   <!-- Bill detail panel (Phase 2, window.PDXBillDetail) — the rich modal a
        Legislation card opens: omnibus breakdown, roll-call table with per-member
        say-vs-do, sponsors, key-actions timeline and related links. Reads the
@@ -21078,14 +21078,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        across income/economic groups. Pure render helper the Bill-detail panel calls;
        degrades to nothing when a measure has no sourced impacts. Loaded before
        bill-detail.js so the panel can delegate to it. -->
-  <script defer src="impact-ledger.js"></script>
-  <script defer src="bill-detail.js"></script>
+  <script defer src="/impact-ledger.js"></script>
+  <script defer src="/bill-detail.js"></script>
   <!-- Digital Library — the central searchable archive (window.PDXDigitalLibrary).
        Aggregates spotlights, mandates, bills and receipts into one filterable
        browse grid, with cross-source search and collection tiles into every
        source. Loads after the data modules it reads (PDXSpotlight, PDXReceipts,
        PDXHR1, _pdxMandateItems). -->
-  <script defer src="digital-library.js"></script>
+  <script defer src="/digital-library.js"></script>
   <!-- ⚖️ Word vs Action (window.PDXWordAction) — the unified accountability model:
        one pool of documented word in three weighted tiers (explicit pledge /
        stated position / campaign branding), tested only against the Official
@@ -21093,7 +21093,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        it sits here because both of its consumers are below — the profile body
        calls sectionHtml() and profile-connect.js calls dotsHtml(), and both only
        run when a visitor opens a profile, long after these defer scripts have. -->
-  <script defer src="word-action.js"></script>
+  <script defer src="/word-action.js"></script>
   <!-- 🧩 The dossier join layer (window.PDXDossier) — the ONE place that threads a
        single issue through all five links: what they said → what they formally did
        → the receipts that document it → the issue and its Spotlights → what it
@@ -21104,22 +21104,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        _pdxEvidenceDepthForPerson, _pdxRecordIssueItems, PDXSpotlight.forIssueKey,
        PDXWordAction — adds no data and emits no second score. Loaded after
        word-action.js because it augments its rows. -->
-  <script defer src="profile-dossier.js"></script>
+  <script defer src="/profile-dossier.js"></script>
   <!-- Connecting the Dots — additive profile synthesis spine (window._pdxConnectDots).
        Loaded after the feature modules it reads at render time (PDXStances,
        PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap,
        PDXWordAction). -->
-  <script defer src="profile-connect.js"></script>
+  <script defer src="/profile-connect.js"></script>
   <!-- My Profile — the signed-in visitor's personal civic hub (window.PDXProfile).
        Read-only composition layer: loaded LAST so every personal + finance module
        it reads is already defined (PDXStances, PDXImpact, PDXTeamView/PDXTeamV2,
        PDXActions, PDXReceipts, PDXContracts, _pdxFinanceSignal/_pdxFinanceRecord). -->
-  <script defer src="my-profile.js"></script>
+  <script defer src="/my-profile.js"></script>
   <!-- Issue Comparison — issue-first comparison of politicians (stated position +
        Say-vs-Do). Loads after the systems it reads: PDXStances, ISSUE_MAP /
        _polPositionMap (alignment-tool + stance-helpers), _pdxRecordIssueSummary
        (voting-record), PDXTeamView, CMP_DATA. Owns no data; additive. -->
-  <script defer src="issue-compare.js"></script>
+  <script defer src="/issue-compare.js"></script>
   <!-- Race sheet — "Compare field for this seat." Presentation only: it computes
        no match of its own, it calls the one match brain (_calcAlignmentScore /
        _calcAlignmentBreakdown, alignment-tool.js) once per lane per candidate.
@@ -21127,18 +21127,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        _pdxVoterBallot / ballotPickCard (ballot-breakdown.js), pdxRepsForMe
        (voter-hub-location.js), _pdxLedgerSlot (compare-hub.js), ISSUE_MAP and
        _msPriorityWeight (my-stances.js), _alignSignalChipHtml, PDXConsistency. -->
-  <script defer src="race-sheet.js"></script>
-    <script defer src="ballot-workspace.js"></script>
+  <script defer src="/race-sheet.js"></script>
+    <script defer src="/ballot-workspace.js"></script>
   <!-- Door 2 spine. Reads the workspace's own seat/decided counts (never its
        own tally) and paints a one-line "this is a view of that workspace"
        header onto Your Ballot, My Voting Team and the finished-slate page, then
        demotes the in-content brochure CTAs that used to jump past the
        workspace. Must load after ballot-workspace.js, which owns the numbers. -->
-  <script defer src="door2-spine.js"></script>
+  <script defer src="/door2-spine.js"></script>
   <!-- Scope chrome. Reads pdxRepsForMe() for districtsResolvable and states both
        scopes in the chrome of Door 2 and of the archive header. Loads after the
        location resolver it reads; re-paints on _updateTeamPositionsForLocation. -->
-  <script defer src="scope-chrome.js"></script>
+  <script defer src="/scope-chrome.js"></script>
   <script>
   /* Evidence Locker density switch — additive, self-contained. Toggles a compact
      layout on the results grid (#el-results) and remembers the choice, so a

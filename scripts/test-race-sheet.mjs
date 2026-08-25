@@ -535,7 +535,7 @@ section("11 · the entry points and the wiring");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const html = R("index.html");
-  has(html, '<script defer src="race-sheet.js"></script>', "the page loads the sheet");
+  has(html, '<script defer src="/race-sheet.js"></script>', "the page loads the sheet");
   has(html, 'href="/race-sheet.css"', "…and its styles");
   // One control, three hosts, all defensive: the entry returns '' for a seat it
   // cannot compare, so no host can paint a button that leads nowhere.

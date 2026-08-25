@@ -54,7 +54,7 @@ const TO = `  ctx.localStorage = { getItem: () => null, setItem() {}, removeItem
   let tag;
   const indexSrc = read("index.html");
   while ((tag = tagRe.exec(indexSrc))) {
-    const f = tag[1];
+    const f = tag[1].replace(/^\//, "");   // srcs are root-absolute in the document
     if (f === "my-stances.js" || stanceFiles.includes(f)) continue;
     try { readFileSync(join(ROOT, f)); } catch (e) { continue; }  // not shipped
     stanceFiles.push(f);

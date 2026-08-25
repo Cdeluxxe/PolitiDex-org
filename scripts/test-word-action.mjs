@@ -681,15 +681,15 @@ const voteNarration = (issueKey, extra = {}) => ({
 }
 {
   // Wiring and precache.
-  ok(/<script defer src="word-action\.js">/.test(INDEX), 'index.html does not load word-action.js');
+  ok(/<script defer src="\/word-action\.js">/.test(INDEX), 'index.html does not load word-action.js');
   const cssTag = /<link rel="stylesheet" href="\/word-action\.css" media="print" onload="this\.media='all'"/.test(INDEX);
   ok(cssTag, 'word-action.css is not loaded with the non-blocking media="print" swap');
   ok(/<noscript><link rel="stylesheet" href="\/word-action\.css" \/><\/noscript>/.test(INDEX),
     'word-action.css has no <noscript> fallback');
   // Compare the <script> tags themselves — both filenames also appear in the
   // explanatory comments above the stylesheet links, which sit far earlier.
-  const tagWA = INDEX.indexOf('<script defer src="word-action.js">');
-  const tagPC = INDEX.indexOf('<script defer src="profile-connect.js">');
+  const tagWA = INDEX.indexOf('<script defer src="/word-action.js">');
+  const tagPC = INDEX.indexOf('<script defer src="/profile-connect.js">');
   must(tagPC !== -1, 'index.html no longer loads profile-connect.js with a deferred script tag');
   ok(tagWA < tagPC,
     'profile-connect.js is loaded before the model it renders rows from');

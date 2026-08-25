@@ -238,7 +238,7 @@ ok(!/This is the page's PRIMARY destination — the one place voters build/.test
 // legible where the old claim used to be.
 has(INDEX, "A VIEW of the Door 2 ballot workspace",
     "My Voting Team is no longer documented as a view of the workspace");
-has(INDEX, 'src="door2-spine.js"', "index.html does not load door2-spine.js");
+has(INDEX, 'src="/door2-spine.js"', "index.html does not load door2-spine.js");
 has(INDEX, "door2-spine.css", "index.html does not load door2-spine.css");
 
 console.log("");

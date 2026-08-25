@@ -215,13 +215,13 @@ section("1 · One surface, mounted in Door 2, shipped whole");
   has(HTML, 'id="bw-body"', "the workspace body mount is missing");
 
   has(HTML, 'href="/ballot-workspace.css"', "the workspace stylesheet is not linked");
-  has(HTML, 'src="ballot-workspace.js"', "the workspace script is not loaded");
+  has(HTML, 'src="/ballot-workspace.js"', "the workspace script is not loaded");
   // Deferred, like every other module on this page: the mount is static markup,
   // so nothing above the fold waits on it.
-  ok(/<script defer src="ballot-workspace\.js"><\/script>/.test(HTML),
+  ok(/<script defer src="\/ballot-workspace\.js"><\/script>/.test(HTML),
     "the workspace script is not deferred");
   // The sheet owns every model helper the workspace reads, so it must load first.
-  ok(HTML.indexOf('src="race-sheet.js"') < HTML.indexOf('src="ballot-workspace.js"'),
+  ok(HTML.indexOf('src="/race-sheet.js"') < HTML.indexOf('src="/ballot-workspace.js"'),
     "the workspace loads before the race sheet model it reads");
   // The precache comment in sw.js warns against splitting a feature's JS from its
   // CSS. Both, or the first offline visit paints an unstyled rail.

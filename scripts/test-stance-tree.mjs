@@ -791,10 +791,10 @@ section("9 · the mount");
     "the gateway stage reads after the score again — the tree is back to being a footnote to it");
   has(R("sw.js"), "'/stance-tree.js'", "the service worker precaches the module");
   has(R("sw.js"), "'/stance-tree.css'", "…and its stylesheet");
-  has(R("index.html"), 'src="stance-tree.js"', "the page loads the module");
+  has(R("index.html"), 'src="/stance-tree.js"', "the page loads the module");
   has(R("index.html"), 'href="/stance-tree.css"', "…and the stylesheet");
   const ix = R("index.html");
-  ok(ix.indexOf('src="consistency.js"') < ix.indexOf('src="stance-tree.js"'),
+  ok(ix.indexOf('src="/consistency.js"') < ix.indexOf('src="/stance-tree.js"'),
     "…after consistency.js, which owns both engines it reads");
 }
 

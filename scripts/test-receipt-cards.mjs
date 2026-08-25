@@ -750,8 +750,8 @@ has(svd, "'voting'", "renderer: the collect() boundary that drops legislative it
 const css = readFileSync(join(ROOT, "say-vs-do.css"), "utf8");
 has(css, ".svd-receipt.v-omnibus", "renderer: the omnibus verdict class has a CSS rule");
 const html = readFileSync(join(ROOT, "index.html"), "utf8");
-has(html, 'src="receipt-cards.js"', "wiring: index.html loads receipt-cards.js");
-ok(html.indexOf('src="receipt-cards.js"') > html.indexOf('src="consistency.js"'),
+has(html, 'src="/receipt-cards.js"', "wiring: index.html loads receipt-cards.js");
+ok(html.indexOf('src="/receipt-cards.js"') > html.indexOf('src="/consistency.js"'),
   "wiring: receipt-cards.js loads after the modules it reads");
 // The hooks this module depends on, so a rename fails loudly here rather than
 // silently emptying the feed.

@@ -860,7 +860,7 @@ const THIN = thin.lines.join("\n");
 // ── 7. The wiring ────────────────────────────────────────────────────────────
 {
   const html = read("index.html");
-  ok(/<script defer src="profile-card\.js"><\/script>/.test(html), "wiring: index.html loads profile-card.js");
+  ok(/<script defer src="\/profile-card\.js"><\/script>/.test(html), "wiring: index.html loads profile-card.js");
   ok(html.indexOf("share-anywhere.js") > html.indexOf("profile-card.js"),
      "wiring: the resolver loads after the card it chooses");
   const sw = read("sw.js");

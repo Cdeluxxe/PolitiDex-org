@@ -702,9 +702,9 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
 // 13 · Wiring: script tag, panel hook, mobile-first CSS
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  ok(/<script defer src="gaps\.js"><\/script>/.test(INDEX), 'gaps.js is not loaded by index.html');
+  ok(/<script defer src="\/gaps\.js"><\/script>/.test(INDEX), 'gaps.js is not loaded by index.html');
   // Loaded after the module it derives from is available on the page.
-  ok(INDEX.indexOf('src="coverage.js"') < INDEX.indexOf('src="gaps.js"'),
+  ok(INDEX.indexOf('src="/coverage.js"') < INDEX.indexOf('src="/gaps.js"'),
     'gaps.js should load after coverage.js');
   // The panel sits under the coverage sentence, not above the score.
   const covAt = WA_SRC.indexOf("'<div class=\"pdxwa-cov\">'");

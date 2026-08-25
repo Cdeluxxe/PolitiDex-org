@@ -799,7 +799,7 @@ for (const card of CARDS) {
 // ─────────────────────────────────────────────────────────────────────────────
 {
   const html = R("index.html");
-  const at = (f) => html.indexOf(`src="${f}"`);
+  const at = (f) => html.indexOf(`src="/${f}"`);   // srcs are root-absolute
 
   // The profile template used to live in an inline <script> in index.html. The
   // first-paint pass moved the big inline blocks into external files loaded from
@@ -815,9 +815,9 @@ for (const card of CARDS) {
 
   for (const f of [OUT_PATH, "exec-record.js", "exec-record-ui.js"]) {
     ok(at(f) > 0, `index.html does not load ${f}`);
-    eq((html.match(new RegExp(`src="${f.replace(/\./g, "\\.")}"`, "g")) || []).length, 1,
+    eq((html.match(new RegExp(`src="/${f.replace(/\./g, "\\.")}"`, "g")) || []).length, 1,
       `index.html loads ${f} more than once`);
-    ok(new RegExp(`<script defer src="${f.replace(/\./g, "\\.")}"`).test(html),
+    ok(new RegExp(`<script defer src="/${f.replace(/\./g, "\\.")}"`).test(html),
       `${f} is not loaded with defer — it would block the first paint`);
   }
   // stance-helpers.js defines _polPositionMap, the one shared stance source; the read

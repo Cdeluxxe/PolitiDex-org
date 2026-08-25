@@ -286,10 +286,17 @@ ok(pRewrite, "netlify.toml has no 200-rewrite for /p/* — every person-file lin
 has(R("netlify/edge-functions/share-preview.ts"), '"/p/*"',
     "the share-preview edge function does not run on /p/* — a shared person link would have no card");
 
-// And the app loads the funnel plus the floor it reads.
-has(INDEX, 'src="person-file.js"', "index.html does not load person-file.js");
-has(INDEX, 'src="publication-floor.js"', "index.html does not load publication-floor.js");
-has(INDEX, "person-file.css", "index.html does not load person-file.css");
+// And the app loads the funnel plus the floor it reads — with a LEADING SLASH.
+// The slash is the whole assertion. These tags used to be written src="person-file.js",
+// which resolves against the current path, so the /p/* rewrite above turned the
+// request on /p/lee into /p/person-file.js → no such file → served index.html →
+// "SyntaxError: Unexpected token '<'". The route was reachable and the funnel was
+// referenced, and the person file still never opened. This version of the check is
+// the one that would have caught it; scripts/test-index-scripts.mjs enforces the
+// same rule across every asset in the document.
+has(INDEX, 'src="/person-file.js"', "index.html does not load /person-file.js root-absolutely");
+has(INDEX, 'src="/publication-floor.js"', "index.html does not load /publication-floor.js root-absolutely");
+has(INDEX, 'href="/person-file.css"', "index.html does not load /person-file.css root-absolutely");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 7 · The cold arrival — the bug this section exists for

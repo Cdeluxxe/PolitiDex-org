@@ -135,7 +135,7 @@ function loadStances() {
   const files = [];
   let m;
   while ((m = re.exec(indexSrc))) {
-    const f = m[1];
+    const f = m[1].replace(/^\//, '');   // srcs are root-absolute in the document
     if (f === 'my-stances.js' || files.includes(f)) continue;
     if (!fs.existsSync(path.join(ROOT, f))) continue;   // not shipped
     files.push(f);
