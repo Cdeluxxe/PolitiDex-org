@@ -3437,7 +3437,7 @@
         '<button type="button" class="pdx-ft-primary" ' +
           'onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'pdxsec-wordaction\');}' +
           'else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
-          '⚖️ See the one score this feeds <span aria-hidden="true">→</span>' +
+          '⚖️ See the Word vs Action read this feeds <span aria-hidden="true">→</span>' +
         '</button>' +
       '</div>';
   };
@@ -4982,7 +4982,20 @@
              word-action.css). The caption below is phone-only: sideways, the ring's
              own inner caption is too small to carry the name of the score. -->
         <div class="profile-hero-score">
-          <div class="profile-hero-score-lbl">⚖️ Word vs Action — the one score</div>
+          <!-- THE EYEBROW NAMES THE RING, AND ONLY THE RING. It used to read
+               "⚖️ Word vs Action — the one score", printed above whatever the hero
+               mounted: on a deep file that put the words "the one score" over a
+               block whose subject is the formal record, and on every other file it
+               taught a reader that a percentage about our word ledger is what a
+               profile grades. Direction Match is one read of one thing and it does
+               not grade the person, so the trailing clause is gone and the label is
+               the metric's locked name and nothing else.
+
+               It is also phone-only, and it stands down entirely under either
+               letterhead — the shape hero or the record brief — because both title
+               themselves "🏛 The formal record" and carry Word vs Action one rung
+               down inside. See .profile-hero-score:has(.pdxwa-brief) in app.css. -->
+          <div class="profile-hero-score-lbl">⚖️ Word vs Action</div>
           ${scoreRing}
         </div>
       </div>
@@ -5139,8 +5152,16 @@
            rather than printing a second, shorter copy of a list already on screen.
            The two surfaces are one finding at two depths, and which one a reader
            gets is decided by how much record there is, not by how much word.
-           PDXWordAction.shapeApplies() is that question, asked rather than
-           re-derived, so the two can never both mount. -->
+           PDXWordAction.heroNamesPatterns() is that question, asked rather than
+           re-derived, so the two can never both mount.
+
+           IT IS ASKED ONE RUNG WIDER NOW. The hero no longer falls back to a bare
+           ring below the depth gate: it mounts the RECORD BRIEF, the same block in
+           fewer lines, at whatever depth is on file. Where that brief named this
+           person's strongest patterns, the strip below would be a second copy of
+           them, so heroNamesPatterns() — not shapeApplies() — is the gate. Where
+           the brief only counted, or said the record is empty, it made no claim
+           the strip duplicates and the strip is free to mount under it. -->
       ${(function () {
         try {
           // ONE RECORD BLOCK IN THIS SLOT, AND THE LANE DECIDES WHICH. The strip
@@ -5160,7 +5181,9 @@
           var SO = window.PDXConsistency && window.PDXConsistency.recordStandout;
           if (!SO || typeof SO.html !== 'function') return '';
           var WA = window.PDXWordAction;
-          if (WA && typeof WA.shapeApplies === 'function' && WA.shapeApplies(id)) return '';
+          if (WA && typeof WA.heroNamesPatterns === 'function' && WA.heroNamesPatterns(id)) return '';
+          if (WA && typeof WA.heroNamesPatterns !== 'function' &&
+              typeof WA.shapeApplies === 'function' && WA.shapeApplies(id)) return '';
           var html = SO.html(id) || '';
           return html ? '<div class="modal-section pdxso-face">' + html + '</div>' : '';
         } catch (e) { return ''; }
@@ -5400,7 +5423,7 @@
       <!-- PROMISE RECEIPTS NO LONGER MOUNTS HERE. The block that stood at this
            spot — "🤝 Promise Receipts · evidence for the pledge tier of Word vs
            Action", its count sentence, its three filter chips, its "How does this
-           lane work?" disclosure and its "⚖️ See the one score this feeds →"
+           lane work?" disclosure and its "⚖️ See the Word vs Action read this feeds →"
            button — was a whole section, high on the page, arguing about pledges
            immediately under the section that already weighs pledges. Two lanes,
            one subject, stacked. Even reworded as evidence it read as a peer

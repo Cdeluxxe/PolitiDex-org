@@ -75,6 +75,9 @@ const eq = (a, b, msg) =>
   ok(a === b, `${msg} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const has = (hay, needle, msg) =>
   ok(String(hay).indexOf(needle) >= 0, `${msg} — "${needle}" missing`);
+const hasI = (hay, needle, msg) =>
+  ok(String(hay).toLowerCase().indexOf(String(needle).toLowerCase()) >= 0,
+    `${msg} — "${needle}" missing`);
 const lacks = (hay, needle, msg) =>
   ok(String(hay).indexOf(needle) < 0, `${msg} — "${needle}" present and must not be`);
 const lacksI = (hay, needle, msg) =>
@@ -312,46 +315,79 @@ section("the shape hero itself");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 3. Below the gate: the hero that was there is the hero that stays
+// 3. Below the gate: the letterhead stays gated, but the record still leads
 // ═════════════════════════════════════════════════════════════════════════════
-section("below the gate, nothing moved");
+// THIS SECTION USED TO SAY "below the gate, nothing moved", and it pinned the 80px
+// ring byte for byte as the whole of what a below-gate reader saw. That was the
+// scope boundary of the pass that introduced the letterhead, not a doctrine: it was
+// how we promised the deep-file work would not disturb the 546 files that could not
+// support it. The person-file hierarchy pass spent that boundary deliberately. Most
+// files are below this gate, so leaving them with a large percentage and no record
+// at the top taught exactly the hierarchy the letterhead was built to correct.
+//
+// What is still fenced, and what has changed:
+//   · The DEPTH GATE is untouched. Below it, no pattern is named, no tier chip is
+//     drawn, and the letterhead's own class is absent — a thin record still cannot
+//     be described as a shape.
+//   · The RECORD STILL LEADS. Below the gate the hero is the record brief: the same
+//     heading, the same vocabulary, counts or an honest empty, and Direction Match
+//     one rung down inside it. See scripts/test-record-top.mjs for that contract.
+//   · The RING IS FAIL-CLOSED. It is what renders when the formal-pattern index is
+//     unavailable, so its arithmetic and markup are pinned here through exactly that
+//     condition rather than through a member who no longer reaches it.
+section("below the gate, the letterhead stays gated");
 {
   eq(WA.shapeApplies(THIN), false, "an unseeded member cleared the depth gate");
-  lacks(THIN_HERO, "pdxwa-shape", "an unseeded member was given the shape hero");
+  lacks(THIN_HERO, 'class="pdxwa-shape"', "an unseeded member was given the shape letterhead");
   has(THIN_HERO, "profile-score-stack", "the below-gate hero lost its wrapper class");
-  lacks(THIN_HERO, "is-shape", "the below-gate hero wrapper is flagged as a shape");
+  lacks(THIN_HERO, "pdxwa-shape-list", "an unseeded member was given a pattern list");
+  lacks(THIN_HERO, "pdxst-pat", "an unseeded member was given a pattern tier chip");
+  lacksI(THIN_HERO, "Strongest patterns", "an unseeded member was given a strongest-patterns group");
+  // …and what it gets instead is the record, above the metric.
+  has(THIN_HERO, "pdxwa-brief", "the below-gate hero is not the record brief");
+  hasI(THIN_HERO, "The formal record", "the below-gate hero does not lead with the formal record");
+  ok(THIN_HERO.indexOf("pdxwa-shape-hd") < THIN_HERO.indexOf("pdxwa-shape-dm"),
+    "the below-gate hero puts Direction Match above the record heading");
 
-  // Byte-level: rebuild the ring markup from heroRead and compare. This pins the
-  // ring arithmetic and the ring markup together, so a refactor of either that
-  // changes what a below-gate reader sees fails here rather than in review.
+  // FAIL-CLOSED RING, BYTE FOR BYTE. Rebuild the ring markup from heroRead and
+  // compare. This pins the ring arithmetic and the ring markup together, so a
+  // refactor of either that changes what a reader sees on the fallback path fails
+  // here rather than in review. The condition that reaches it is the real one: the
+  // formal-pattern index did not load, so neither letterhead can describe a record
+  // and the metric is all that is left to show.
   const cold = boot();
+  cold.PDXConsistency.formalPatternIndex = null;
   const p = cold.CMP_DATA[BOTH];
   const h = cold.PDXWordAction.heroRead(BOTH, p);
-  must(h && h.pct !== null, "the below-gate byte check needs a publishable subject");
+  must(h && h.pct !== null, "the fail-closed byte check needs a publishable subject");
   const radius = 28, circ = 2 * Math.PI * radius, dash = (h.pct / 100) * circ;
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   const inner = cold.PDXWordAction.heroHtml(BOTH, p, {});
+  lacks(inner, "pdxwa-brief",
+    "the record brief rendered with no formal-pattern index to read — it is describing a record it cannot see");
   has(inner, `<circle cx="40" cy="40" r="28" fill="none" stroke="${h.color}" stroke-width="6" ` +
     `stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round" `,
-    "the below-gate ring arc is not the arc heroRead's percentage describes");
+    "the fail-closed ring arc is not the arc heroRead's percentage describes");
   has(inner, `<span class="pdxwa-hero-v" style="color:${h.color};">${esc(h.text)}</span>`,
-    "the below-gate ring's figure markup changed");
+    "the fail-closed ring's figure markup changed");
   has(inner, `<span class="pdxwa-hero-cap">${esc(h.caption)}</span>`,
-    "the below-gate ring's caption markup changed");
+    "the fail-closed ring's caption markup changed");
   has(inner, `<div class="pdxwa-hero-sub">${esc(h.sub)}</div>`,
-    "the below-gate ring's sub-line markup changed");
+    "the fail-closed ring's sub-line markup changed");
   has(inner, 'class="score-ring w-20 h-20 flex-shrink-0"',
-    "the below-gate ring lost the 80px ring class");
+    "the fail-closed ring lost the 80px ring class");
 
-  // The two non-ring below-gate states are still reachable and unchanged.
+  // The two non-ring fallback states are still reachable and unchanged. An
+  // unresolvable pid has no record to describe, so the brief declines and these are
+  // what a caller gets.
   const tracking = cold.PDXWordAction.heroHtml("no_such_person_at_all", null,
     { trackingLabel: "Tracking", trackingNote: "3 promises on file" });
   has(tracking, "profile-score-tracking", "the tracked-but-unresolved tile is gone");
   has(tracking, "pdxwa-hero-cap-wait", "the tracking tile lost its caption class");
   const none = cold.PDXWordAction.heroHtml("no_such_person_at_all", null, {});
-  has(none, "pdxwa-hero-none", "the no-word tile is gone from below-gate members");
-  has(none, ">Monitoring<", "the no-word tile's caption changed for below-gate members");
+  has(none, "pdxwa-hero-none", "the no-word tile is gone");
+  has(none, ">Monitoring<", "the no-word tile's caption changed");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -502,8 +538,8 @@ section("fail-closed and layout");
     "app.css does not widen the letterhead for the shape hero");
   ok(/\.profile-hero-score:has\(\.pdxwa-shape\)/.test(APP_CSS),
     "app.css does not give the shape hero the full hero width");
-  ok(/\.profile-hero-score:has\(\.pdxwa-shape\) \.profile-hero-score-lbl \{[^}]*display:\s*none/.test(APP_CSS),
-    "the phone eyebrow still announces 'Word vs Action — the one score' over a shape hero");
+  ok(/\.profile-hero-score:has\(\.pdxwa-shape\) \.profile-hero-score-lbl[^{]*\{[^}]*display:\s*none/.test(APP_CSS),
+    "the phone eyebrow still names the metric over a block whose subject is the formal record");
   // display:contents promotes the ring's children into the card grid; the shape
   // is one block and must opt out of that or its four elements get dealt into cells.
   ok(/\.profile-hero-score \.pdxwa-hero\.is-shape \{\s*display:\s*block;/.test(WA_CSS),

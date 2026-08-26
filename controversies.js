@@ -292,8 +292,8 @@
       acts.push('<button type="button" class="pdx-ctv-act" ' +
         'onclick="event.stopPropagation();if(window._pdxNavJump)window._pdxNavJump(&quot;pdxsec-wordaction&quot;);" ' +
         'title="' + escAttr(_rowOut
-          ? ('Weighed across this whole issue, the one score says: ' + _rowOut)
-          : 'How this issue came out in the one score') + '">' +
+          ? ('Weighed across this whole issue, ⚖️ Word vs Action says: ' + _rowOut)
+          : 'How this issue came out in ⚖️ Word vs Action') + '">' +
         '<span aria-hidden="true">⚖️</span> Word vs Action</button>');
     }
     acts.push('<button type="button" class="pdx-ctv-act" ' +

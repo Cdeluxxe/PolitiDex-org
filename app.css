@@ -1791,8 +1791,17 @@
        fetch lands — the layout has to follow the content, not a first-paint
        guess. (word-action.js still sets .is-shape on the hero itself; that one
        is doing a different job, overriding display:contents on a phone.) */
-    .profile-hero:has(.pdxwa-shape) { flex-wrap: wrap; }
-    .profile-hero-score:has(.pdxwa-shape) { flex: 1 0 100%; margin-top: 0.9rem; }
+    /* …and the same is true of the RECORD BRIEF, which is that letterhead's
+       short form below the depth gate — the block that now leads every profile
+       the shape hero used to leave holding a ring. Same layout need, so the
+       same three rules, keyed off its own wrapper class. Both are named in
+       every selector rather than folded into one `[class*=]` match, because a
+       reader of this file should be able to see which two blocks take the full
+       width and not have to work it out from a substring. */
+    .profile-hero:has(.pdxwa-shape),
+    .profile-hero:has(.pdxwa-brief) { flex-wrap: wrap; }
+    .profile-hero-score:has(.pdxwa-shape),
+    .profile-hero-score:has(.pdxwa-brief) { flex: 1 0 100%; margin-top: 0.9rem; }
     .pdxwa-hero.is-shape { align-items: stretch; width: 100%; gap: 0; }
     @media (max-width: 480px) {
       /* PHONES: the hero becomes a two-column grid with a full-width third row,
@@ -1850,12 +1859,20 @@
          column, and the block titles itself, so the eyebrow that names the
          ring stands down rather than announcing a score that is no longer the
          headline here. */
-      .profile-hero-score:has(.pdxwa-shape) {
+      .profile-hero-score:has(.pdxwa-shape),
+      .profile-hero-score:has(.pdxwa-brief) {
         grid-template-columns: minmax(0, 1fr);
         row-gap: 0;
         margin-top: 0.1rem;
       }
-      .profile-hero-score:has(.pdxwa-shape) .profile-hero-score-lbl { display: none; }
+      /* The eyebrow names the RING. Under either letterhead the block titles
+         itself — "🏛 The formal record" — and the Word vs Action heading is one
+         rung down inside it, so an eyebrow at the top of the card announcing
+         Word vs Action would put the secondary read's name above the primary
+         block's. It stands down. The eyebrow still renders on the ring
+         fallback, which is the only state it was ever describing. */
+      .profile-hero-score:has(.pdxwa-shape) .profile-hero-score-lbl,
+      .profile-hero-score:has(.pdxwa-brief) .profile-hero-score-lbl { display: none; }
 
       /* ── The summary rows, attached to that card ──────────────────
          The evidence tally and the depth/scope stack are mounted as siblings of
