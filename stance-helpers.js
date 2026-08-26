@@ -1854,7 +1854,7 @@
     //
     // THIS IS THE WHOLE OF THE AWARENESS AND IT IS DELIBERATELY SMALL. It reads
     // the title we already ship, matches it against a fixed list of recognised
-    // must-pass families, and hands back a class word. It does not count what the
+    // instrument families, and hands back a class word. It does not count what the
     // chamber scheduled, it does not hold a denominator of bills that never got a
     // vote, and it does not know who set the calendar — all of that is later work
     // and none of it can be inferred from a member's own record. Unrecognised is
@@ -1868,12 +1868,23 @@
     var _RD_VEHICLE_CLASSES = [
       // Order is match order, and it matters: a special rule "providing for
       // consideration of" an appropriations bill is a procedural gate, not an
-      // appropriations act, so the rule pattern is tested first. Likewise a
-      // reconciliation act and an NDAA are named as themselves before the generic
-      // appropriations catch-all can claim them.
+      // appropriations act, so the rule pattern is tested first. An amendment is
+      // recognised off its instrument number, which is definitive, before any
+      // family word borrowed from the bill it was offered to can claim it.
+      // Likewise a reconciliation act and an NDAA are named as themselves before
+      // the generic appropriations catch-all (`generic: true`, tested last).
       { key: 'rule', label: 'a special rule', article: 'a',
         re: /providing for consideration of|special rule|^h\.?\s?res\.?\s/i,
         gate: true },
+      // An amendment is a provision by construction: it exists only as text
+      // offered to a measure that already had a number. Where the mapping says
+      // this issue rode inside one, "an amendment to a larger measure" is the
+      // plainest true thing that can be said about where the vote happened. The
+      // pattern reads the instrument designator (H.Amdt., S.Amdt.), never the
+      // word "amendment" in a bill's own name, so the "Privacy Amendment Act"
+      // is not swept up.
+      { key: 'amendment', label: 'an amendment to a larger measure', article: 'an',
+        re: /\b[hs]\.?\s?amdt\b|\bamendment\s+(?:no\.?|number)\s?\d/i },
       { key: 'reconciliation', label: 'a reconciliation act', article: 'a',
         re: /reconciliation|inflation reduction act|american rescue plan|build back better|one big beautiful/i },
       { key: 'ndaa', label: 'a defence authorization', article: 'a',
@@ -1884,8 +1895,25 @@
         re: /omnibus|consolidated appropriations/i },
       { key: 'supplemental', label: 'a supplemental appropriations act', article: 'a',
         re: /supplemental appropriations/i },
+      // A rescissions act and a debt-limit act are must-pass in the same way an
+      // omnibus is — a deadline measure with a floor date that policy without one
+      // can be attached to. Both are named by their own titles, which is the
+      // practice the list already follows for the reconciliation acts above.
+      { key: 'rescissions', label: 'a rescissions act', article: 'a',
+        re: /\brescissions?\s+act\b/i },
+      { key: 'debt_limit', label: 'a debt-limit act', article: 'a',
+        re: /fiscal responsibility act|\bdebt (?:limit|ceiling)\b|statutory debt limit/i },
+      // Not must-pass, and included for the other reason a family is worth naming:
+      // a resolution of disapproval is a single-target instrument whose subject is
+      // an agency rule or a specific sale, so a reader told only "S.J.Res. 33"
+      // cannot tell that the vote was never about a policy area in general. Covers
+      // both flavours the corpus carries — Congressional Review Act rule
+      // disapprovals and Arms Export Control Act sale disapprovals.
+      { key: 'disapproval', label: 'a resolution of disapproval', article: 'a',
+        re: /congressional disapproval|joint resolution disapproving|disapproving the rule submitted by|congressional review act/i },
       { key: 'approps', label: 'an appropriations act', article: 'an',
-        re: /appropriations act|making appropriations|division [a-z]{1,2}\b/i }
+        re: /appropriations act|making appropriations|division [a-z]{1,2}\b/i,
+        generic: true }
     ];
     // title/identity → class object, or null when nothing on the list matches.
     // Both strings are searched because the corpus names some measures fully in
@@ -1900,6 +1928,94 @@
     }
     window._rdVehicleClass = _rdVehicleClass;
     window._PDX_RD_VEHICLE_CLASSES = _RD_VEHICLE_CLASSES;
+
+    // ── THE EXTENSION POINT ───────────────────────────────────────────────────
+    // The list above is a list of families someone recognised by hand, and it will
+    // always be shorter than the set of things a legislature can pass. Rather than
+    // let the next family be added by editing this file — which is how a fixed list
+    // becomes a fixed list nobody dares touch — registration is a supported call
+    // with the rules written down and enforced:
+    //
+    //   PDXVehicleFamilies.register({
+    //     key: 'wrda', label: 'a water resources development act',
+    //     re: /water resources development act/i
+    //   });                                            // → true, or false and why
+    //
+    // WHAT A FAMILY IS ALLOWED TO BE. A family is a NOUN PHRASE for an instrument
+    // kind, matched off the title the corpus already ships. That is the whole
+    // contract, and the validation is there to keep it:
+    //   • `key` is a short slug, unique — a second registration under a live key is
+    //     refused rather than silently shadowing it.
+    //   • `label` is a noun phrase with its article, because the shipped sentences
+    //     read "That is <label>." — a label that is a verb, a judgement or a
+    //     percentage produces a sentence this codebase is not allowed to print.
+    //   • `re` is a RegExp over title + identity. It is the caller's evidence that
+    //     the family is READ off the record rather than assumed.
+    //   • No intent, no verdict, no number. _BAD_LABEL below refuses the words this
+    //     project has banned everywhere else ("snuck", "buried", "hidden") plus any
+    //     label carrying a digit or a percent sign, because a family is a kind of
+    //     document and a kind of document is not a measurement.
+    //
+    // WHERE IT LANDS. Registered families are spliced in ahead of the generic
+    // catch-alls (`generic: true`) and behind the specific builtins, which is the
+    // only position that cannot change an existing classification: a title that
+    // already matched `omnibus` still matches `omnibus`, and a title that only ever
+    // reached `approps` can now be recognised as itself. Nothing here can UNname a
+    // vehicle, because nothing here can remove or reorder a builtin.
+    //
+    // AND IT IS STILL PRESENTATION ONLY. A registered family has exactly the powers
+    // a builtin has: it changes the words a surface may use about a record that has
+    // already been read. There is no path from this list to Direction Match, to a
+    // formal pattern tier, to a count, a floor, a share or a sort order — and the
+    // suite asserts it (scripts/test-vehicle-families.mjs).
+    var _BAD_LABEL = /\bsnuck|\bsneak|\bburied|\bhidden\b|\bslipped\b|\bcrammed|\brammed|\bshady|\bcorrupt|%|\d/i;
+    var _FAM_KEY = /^[a-z][a-z0-9_]{0,23}$/;
+    function _famRegister(fam) {
+      if (!fam || typeof fam !== 'object') return { ok: false, why: 'no family given' };
+      var key = String(fam.key || '');
+      if (!_FAM_KEY.test(key)) return { ok: false, why: 'key must match ' + String(_FAM_KEY) };
+      for (var i = 0; i < _RD_VEHICLE_CLASSES.length; i++) {
+        if (_RD_VEHICLE_CLASSES[i].key === key) return { ok: false, why: 'key already registered: ' + key };
+      }
+      var label = String(fam.label || '').replace(/\s+/g, ' ').trim();
+      if (label.length < 3 || label.length > 60) return { ok: false, why: 'label must be 3-60 chars' };
+      if (_BAD_LABEL.test(label)) return { ok: false, why: 'label carries intent, a verdict or a number' };
+      // Branded rather than `instanceof`, so a family registered from an iframe
+      // or a test realm is not refused for holding that realm's RegExp.
+      var re = fam.re;
+      if (!re || Object.prototype.toString.call(re) !== '[object RegExp]' ||
+          typeof re.test !== 'function') return { ok: false, why: 're must be a RegExp' };
+      var art = String(fam.article || '').trim();
+      if (!art) art = /^(a|an|the)\s/i.test(label) ? label.split(/\s/)[0].toLowerCase() : 'a';
+      var entry = { key: key, label: label, article: art, re: re, registered: true };
+      if (fam.gate) entry.gate = true;
+      // …in front of the first generic catch-all, or at the end when there is none.
+      var at = _RD_VEHICLE_CLASSES.length;
+      for (var j = 0; j < _RD_VEHICLE_CLASSES.length; j++) {
+        if (_RD_VEHICLE_CLASSES[j].generic) { at = j; break; }
+      }
+      _RD_VEHICLE_CLASSES.splice(at, 0, entry);
+      return { ok: true, key: key, at: at };
+    }
+    window.PDXVehicleFamilies = {
+      // The list, copied one level deep so a caller cannot reorder match order or
+      // rewrite a builtin's label by holding the array.
+      list: function () {
+        return _RD_VEHICLE_CLASSES.map(function (c) {
+          return { key: c.key, label: c.label, article: c.article, re: c.re,
+                   gate: !!c.gate, generic: !!c.generic, registered: !!c.registered };
+        });
+      },
+      register: _famRegister,
+      classify: function (title, ident) {
+        var c = _rdVehicleClass(title, ident);
+        return c ? { key: c.key, label: c.label, article: c.article, gate: !!c.gate } : null;
+      },
+      // Declared for readers and for the suite: this lane ends at words.
+      NEVER_FEEDS: ['directionMatch', 'formalPatternTier', 'publicationFloor',
+                    'issueCounts', 'ballotSort', 'anyPercentage'],
+      scored: false
+    };
 
     // The row-level read. Same records _recordOmnibusStats takes, same shape of
     // answer, and `null` is never returned for a real record — a row with no

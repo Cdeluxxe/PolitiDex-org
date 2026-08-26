@@ -1977,6 +1977,22 @@ window.PDXLazy = (function () {
        non-blocking path as the rest of the overlay CSS. -->
   <link rel="stylesheet" href="/person-file.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/person-file.css" /></noscript>
+  <!-- ↩️ Against their own stated position — the gathered list of ⚖️ Word vs Action's
+       own `contradicts` verdicts. Its own sheet because its whole visual argument is
+       that it does NOT reuse the score section's red at list scale: a page of red
+       rows would rank a person by row count in paint. See the note at the top of
+       self-defection.css. -->
+  <link rel="stylesheet" href="/self-defection.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/self-defection.css" /></noscript>
+  <!-- 👍 The support lane's momentum labelling. Two classes, one job: say next to
+       every support count that it is momentum and not evidence. Its own sheet
+       because the sentence has to be able to appear anywhere a count does —
+       including inside the person file, where it sits in the same scroll as
+       Direction Match — and because the rules about what it may NOT look like
+       (no verdict green, nothing that scales with the count) are worth writing
+       down where the next editor will read them. See support-lane.css. -->
+  <link rel="stylesheet" href="/support-lane.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/support-lane.css" /></noscript>
   <!-- Chart.js (profile finance charts) and Leaflet (the interactive Utah
        district-picker map) are CODE-SPLIT: they used to load render-blocking here
        in <head> (~350 KB combined) even though the home page and Your Ballot never
@@ -8856,7 +8872,10 @@ window.PDXLazy = (function () {
 
         // ── prefs ──────────────────────────────────────────────────────────
         function defaultPrefs() {
-          return { inApp: true, emailEnabled: false, frequency: 'weekly', topicEvidence: true, topicPromises: true, topicCommunity: true, topicTeam: true, lastSeenAt: null };
+          // topicRecord defaults ON — it is the archive doing its job, and it is
+          // the only group where every row carries a citation. It is not an
+          // outrage group: one act, one source, one link, never an aggregate.
+          return { inApp: true, emailEnabled: false, frequency: 'weekly', topicEvidence: true, topicPromises: true, topicCommunity: true, topicTeam: true, topicRecord: true, lastSeenAt: null };
         }
         function localPrefs() { var p = readJSON(LOCAL_PREFS_KEY, null); return (p && typeof p === 'object') ? Object.assign(defaultPrefs(), p) : defaultPrefs(); }
         function effectivePrefs() { return _prefs || (signedIn() ? defaultPrefs() : localPrefs()); }
@@ -8888,7 +8907,10 @@ window.PDXLazy = (function () {
           var co = (p.topicCommunity && _digest) ? _digest.community.length : 0;
           var pr = p.topicPromises ? _promiseChanges.length : 0;
           var tm = p.topicTeam ? _teamChanges.length : 0;
-          return { evidence: ev, community: co, promises: pr, team: tm, total: ev + co + pr + tm };
+          // `!== false` rather than truthy: prefs stored before this group existed
+          // have no topicRecord key, and the default for it is on.
+          var rc = (p.topicRecord !== false && _digest && _digest.record) ? _digest.record.length : 0;
+          return { evidence: ev, community: co, promises: pr, team: tm, record: rc, total: ev + co + pr + tm + rc };
         }
         function updateBadge() {
           var n = groupCounts().total;
@@ -8919,6 +8941,16 @@ window.PDXLazy = (function () {
           return '<div class="wc-group"><div class="wc-group-h">' + esc(ico) + ' ' + esc(title) +
             '<span class="wc-count">' + count + '</span></div><div class="wc-list">' + rows + '</div></div>';
         }
+        // Kickers for record events. Descriptive labels for what happened, in the
+        // archive's own vocabulary — no verdict words, no adjectives about the
+        // person, and the same wording whatever the act was.
+        var RECORD_KICKER = { vote: 'New recorded vote', position: 'New formal action', action: 'Measure moved', mapping: 'Record updated' };
+        var RECORD_ICO = { vote: '🗳️', position: '📌', action: '📋', mapping: '✏️' };
+        function fmtRecordDate(iso) {
+          var d = new Date(String(iso).slice(0, 10) + 'T00:00:00Z');
+          if (isNaN(d.getTime())) return String(iso).slice(0, 10);
+          return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        }
         function verdictLabel(v) {
           return ({ kept: 'Now kept', broken: 'Now broken', in_progress: 'In progress', stalled: 'Stalled', compromised: 'Compromised' })[v] || ('Updated · ' + v);
         }
@@ -8939,7 +8971,7 @@ window.PDXLazy = (function () {
             '<div style="min-width:0;">' +
               '<div class="wc-eyebrow"><span class="wc-eyebrow-dot"></span>Your Digest · Since you were last here</div>' +
               '<h2 class="wc-title">What\'s <b>Changed</b></h2>' +
-              '<p class="wc-sub">Updates on the politicians and issues you follow — new evidence, promise status, and community discussion, gathered in one calm place.</p>' +
+              '<p class="wc-sub">Updates on the politicians and issues you follow — record changes, new evidence, promise status and community discussion, gathered in one calm place.</p>' +
             '</div>' + tools + '</div>';
 
           var body;
@@ -8956,6 +8988,32 @@ window.PDXLazy = (function () {
               ' and ' + interestIssues().length + ' saved ' + (interestIssues().length === 1 ? 'issue' : 'issues') + ' since your last visit. We\'ll surface changes here the moment they land.</div></div>';
           } else {
             var groups = '';
+            // ── On the record (server) ────────────────────────────────
+            // Material record events, first because they are the archive's own
+            // output: a recorded vote, a newly sourced formal action, a measure
+            // that moved, a citation or mapping correction. Every row names one
+            // act and carries the source it came from. There is deliberately
+            // nothing here that compares one person to another — no counts by
+            // party, no ranking, no score, no "worst of the week".
+            if (p.topicRecord !== false && _digest && _digest.record && _digest.record.length) {
+              var rrows = _digest.record.map(function (r) {
+                var chips = (r.issueKeys || []).slice(0, 2).map(function (k) { return { cls: 'wc-chip--issue', label: issueLabelFor(k) }; });
+                // A person-anchored event opens the person file, the spine of the
+                // archive. A measure-anchored one navigates to its own on-site
+                // address (/vote/<congress>/<chamber>/<roll>). Only when neither
+                // exists does the row fall back to the citation itself.
+                var data;
+                if (r.politicianId && String(r.path || '').indexOf('/p/') === 0) data = { wc: 'profile', pid: r.politicianId };
+                else if (r.path) data = { wc: 'url', href: r.path };
+                else data = { wc: 'url', href: r.sourceUrl || '' };
+                return itemRow({
+                  ico: RECORD_ICO[r.kind] || '📜',
+                  k: (RECORD_KICKER[r.kind] || 'Record updated') + (r.date ? ' · ' + fmtRecordDate(r.date) : ''),
+                  title: r.headline, sub: r.detail, chips: chips, data: data
+                });
+              }).join('');
+              groups += group('On The Record', '📜', _digest.record.length, rrows);
+            }
             // Promise updates (client)
             if (p.topicPromises && _promiseChanges.length) {
               var prows = _promiseChanges.slice(0, 8).map(function (ch) {
@@ -9043,6 +9101,7 @@ window.PDXLazy = (function () {
             toggleRow('inApp', 'In-app digest', 'The "What\'s Changed" panel and the bell badge in the header.') +
             emailBlock +
             '<div class="wc-sect">Topics</div>' +
+            toggleRow('topicRecord', 'Record updates', 'New recorded votes, newly sourced formal actions, and citation or mapping corrections on the people and issues you follow.') +
             toggleRow('topicEvidence', 'New evidence', 'Fresh community evidence on the issues you follow.') +
             toggleRow('topicPromises', 'Promise status changes', 'When a tracked politician keeps or breaks a promise.') +
             toggleRow('topicCommunity', 'Community discussion', 'New threads and comments about your people and issues.') +
@@ -9087,7 +9146,7 @@ window.PDXLazy = (function () {
           writeJSON(PROMISE_SNAP_KEY, currentPromiseMap(interestPids()));
           writeJSON(TEAM_SNAP_KEY, interestPids());
           _promiseChanges = []; _teamChanges = [];
-          if (_digest) { _digest.evidence = []; _digest.community = []; if (_digest.counts) _digest.counts = { evidence: 0, community: 0, total: 0 }; }
+          if (_digest) { _digest.evidence = []; _digest.community = []; _digest.record = []; if (_digest.counts) _digest.counts = { evidence: 0, community: 0, record: 0, total: 0 }; }
           if (signedIn()) { api('/seen', { method: 'POST' }).catch(function () {}); }
           render(); updateBadge();
         }
@@ -9109,6 +9168,9 @@ window.PDXLazy = (function () {
             if (a === 'signin') { ev.preventDefault(); if (typeof openAuthModal === 'function') openAuthModal(); return; }
             if (a === 'profile') { ev.preventDefault(); var pid = actEl.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') window.showProfile(pid); return; }
             if (a === 'go') { ev.preventDefault(); go(actEl.getAttribute('data-href')); return; }
+            // On-site record addresses (/vote/<congress>/<chamber>/<roll>) and, as
+            // a last resort, the citation URL. A real address, not a scroll.
+            if (a === 'url') { ev.preventDefault(); var href = actEl.getAttribute('data-href'); if (href) window.location.href = href; return; }
           }
           // toggle switches inside the modal
           var tog = t.closest ? t.closest('.wc-toggle') : null;
@@ -14793,13 +14855,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <p class="pp-subtitle font-body">
           Ideas straight from citizens like you. <span style="color:#f5c842;">Back the reforms you believe in</span> — every tap of support pushes them up the board. <strong>Your voice becomes action.</strong>
         </p>
+        <!-- Said once, at the top, in body copy rather than fine print: this
+             board's numbers are momentum. They are not part of anybody's record
+             and they feed no score. Filled at runtime from
+             PDXSupportLane.noteHtml() so the wording lives in one file; this is
+             the no-JS text. -->
+        <div id="pp-momentum-note" style="max-width:44rem;margin:0.6rem auto 0;">
+          <p class="pdxsup-note">Momentum, not evidence: support counts show how many people asked for a reform to be tracked. They are not part of any record and feed no score.</p>
+        </div>
       </div>
 
       <!-- Live stat + sort controls -->
       <div class="pp-controls">
         <div class="pp-livestat" id="pp-livestat">
           <span class="w-2 h-2 rounded-full badge-live" style="background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,0.6);"></span>
-          <span id="pp-stat-text"><span class="pp-stat-num" id="pp-count">—</span> proposals submitted <span class="pp-dot">•</span> <span class="pp-stat-num" id="pp-votes">—</span> total votes</span>
+          <!-- "shows of support", not "total votes". A vote on this site is a roll
+               call: a formal act with a date, a chamber and a citation. Spending
+               that word on a tap blurs the one distinction the archive rests on.
+               The label is owned by PDXSupportLane.WORDS.statLabel; this markup is
+               the no-JS fallback and is kept in step with it by the suite. -->
+          <span id="pp-stat-text"><span class="pp-stat-num" id="pp-count">—</span> proposals submitted <span class="pp-dot">•</span> <span class="pp-stat-num" id="pp-votes">—</span> <span id="pp-stat-label">shows of support</span></span>
         </div>
         <div class="pp-actions">
           <div class="pp-sort" role="tablist" aria-label="Sort proposals">
@@ -15407,6 +15482,44 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       try { localStorage.setItem(LS_SUPPORTED, JSON.stringify(m)); } catch (e) {}
     }
 
+    // ── The support lane's vocabulary ────────────────────────────────────────
+    // support-lane.js owns every word this board uses for a support count, so a
+    // rename happens in one file rather than in six string literals. Guarded with
+    // a fallback because this board must render even if that script is absent —
+    // the fallbacks are the same words, never "votes".
+    function _supportWord(k, fallback) {
+      try {
+        var w = window.PDXSupportLane && window.PDXSupportLane.WORDS;
+        if (w && typeof w[k] === 'string' && w[k]) return w[k];
+      } catch (e) {}
+      return fallback;
+    }
+
+    // The stronger, person-file wording. Rendered under the profile's Related
+    // Proposals block; returns '' rather than inventing copy if the lane is absent.
+    function _wallNote() {
+      try {
+        if (window.PDXSupportLane && typeof window.PDXSupportLane.noteHtml === 'function') {
+          return window.PDXSupportLane.noteHtml({ wall: true });
+        }
+      } catch (e) {}
+      return '';
+    }
+
+    // Replace the no-JS momentum note with the lane's own sentence, so the copy
+    // has exactly one home. Same text today; this keeps it that way tomorrow.
+    function _syncMomentumNote() {
+      var host = document.getElementById('pp-momentum-note');
+      if (!host) return;
+      try {
+        if (window.PDXSupportLane && typeof window.PDXSupportLane.noteHtml === 'function') {
+          host.innerHTML = window.PDXSupportLane.noteHtml();
+        }
+      } catch (e) {}
+      var lbl = document.getElementById('pp-stat-label');
+      if (lbl) lbl.textContent = _supportWord('statLabel', 'shows of support');
+    }
+
     // ── Small helpers ────────────────────────────────────────────────────────
     function esc(s) {
       return String(s == null ? '' : s)
@@ -15512,7 +15625,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</div>' +
             '<span style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0.05rem;color:#f5c842;">' +
               '<span style="font-family:\'Teko\',sans-serif;font-size:1.15rem;font-weight:700;line-height:1;">' + count.toLocaleString() + '</span>' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7a8aa8;">Backers</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7a8aa8;">' + esc(_supportWord('countLabel', 'Backing')) + '</span>' +
             '</span>' +
           '</button>';
       }).join('');
@@ -15526,6 +15639,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>' +
           '<p style="font-size:0.72rem;color:#7a8aa8;line-height:1.4;margin:-0.35rem 0 0.7rem;">Community reforms from The People\'s Mandate linked to this official. Tap one to back it on the board.</p>' +
           '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + rows + '</div>' + moreNote +
+          // THE WALL, stated on the one page where it matters most. This block
+          // sits in the same scroll as Direction Match, the formal act list and
+          // the pattern tiers, so the sentence separating momentum from record
+          // has to be here rather than only on the Mandate board.
+          _wallNote() +
         '</div>';
     }
 
@@ -15722,7 +15840,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="pp-heart">' + (supported ? '✊' : '👍') + '</span>' +
               '<span class="pp-support-label">' + (supported ? 'Supported' : 'Support') + '</span>' +
             '</button>' +
-            '<span class="pp-support-count" id="pp-count-' + p.id + '">' + count.toLocaleString() + '</span>' +
+            '<span class="pp-support-tally">' +
+              '<span class="pp-support-count" id="pp-count-' + p.id + '">' + count.toLocaleString() + '</span>' +
+              // The count never travels without its noun. "Backing" is a count of
+              // people; it is not a rating of the reform and not a score.
+              '<span class="pp-support-count-label">' + esc(_supportWord('countLabel', 'Backing')) + '</span>' +
+            '</span>' +
           '</div>' +
           ((typeof window._pdxSpotlightEngageHTML === 'function' && typeof window._pdxVoteTargetId === 'function')
             ? '<div style="padding:0 1.15rem 1rem;">' + window._pdxSpotlightEngageHTML(window._pdxVoteTargetId('reform', p.id, p.title), 'this reform', { noVote: true }) + '</div>'
@@ -15781,7 +15904,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function renderStats(stats) {
       if (!stats) return;
       animateNum(document.getElementById('pp-count'), stats.proposalCount || 0);
-      animateNum(document.getElementById('pp-votes'), stats.totalVotes || 0);
+      // `supportTotal` is the field; `totalVotes` is the deprecated alias the API
+      // still emits for older cached clients. Read the new name first.
+      var total = (stats.supportTotal != null) ? stats.supportTotal : (stats.totalVotes || 0);
+      animateNum(document.getElementById('pp-votes'), total || 0);
     }
 
     // ── Data flow ─────────────────────────────────────────────────────────────
@@ -15872,8 +15998,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (countEl) countEl.textContent = Math.max(0, count || 0).toLocaleString();
     }
 
-    // Recompute the "total votes" headline stat from the live counts on screen so
-    // it updates instantly on support without waiting for the next full refresh.
+    // Recompute the "shows of support" headline stat from the live counts on
+    // screen so it updates instantly on support without waiting for the next full
+    // refresh. (Function name predates the vocabulary and is kept to avoid
+    // touching its three call sites for a rename.)
     function refreshTotalVotesStat() {
       var total = 0;
       _proposals.forEach(function (p) { total += Math.max(0, p.supportCount || 0); });
@@ -15886,6 +16014,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function start() {
       if (_started) return;
       _started = true;
+      _syncMomentumNote();
       loadProposals();
       _refreshTimer = setInterval(function () {
         // Skip refreshes while the tab is hidden or a support is mid-flight to
@@ -16247,24 +16376,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
     </div>
 
-    <!-- Constituents-First signal methodology (transparent, not a black box) -->
-    <details class="animate-on-scroll" style="max-width:48rem;margin:1.25rem auto 0;background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:0.75rem;padding:0.5rem 1.1rem;">
-      <summary style="cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#4ade80;padding:0.35rem 0;list-style:none;">🎚 How the Constituents-First signal is scored</summary>
-      <div style="padding:0.5rem 0 0.35rem;">
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#c8d8ea;line-height:1.6;margin:0 0 0.6rem;">Every profile carries a <strong>0–100 Constituents-First signal</strong> — the money-leg sibling of the Evidence Locker's strength badge. It doesn't judge anyone's politics, only <em>where the money comes from</em>, and it lists the plain reasons behind the number. Built from itemized public filings (FEC for federal, Utah's disclosure system for state/local), split into the buckets the FEC itself reports.</p>
-        <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:0.6rem;overflow:hidden;margin-bottom:0.6rem;">
-          <div style="padding:0.4rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:#7596c0;">Starts at 50 — then</div>
-          <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.4rem 0.75rem;font-size:0.75rem;color:#c8d8ea;"><span>Small-dollar (grassroots) share of receipts</span><span style="color:#4ade80;white-space:nowrap;">up to +50</span></div>
-          <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.4rem 0.75rem;border-top:1px solid rgba(255,255,255,0.05);font-size:0.75rem;color:#c8d8ea;"><span>Large-individual + PAC share (concentrated money)</span><span style="color:#f87171;white-space:nowrap;">up to −30</span></div>
-          <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.4rem 0.75rem;border-top:1px solid rgba(255,255,255,0.05);font-size:0.75rem;color:#c8d8ea;"><span>Self-funded share (access by personal wealth)</span><span style="color:#c4a6ff;white-space:nowrap;">up to −20</span></div>
-          <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.4rem 0.75rem;border-top:1px solid rgba(255,255,255,0.05);font-size:0.75rem;color:#c8d8ea;"><span>Outside / "dark-money" exposure (high / moderate / low)</span><span style="color:#fb923c;white-space:nowrap;">−12 / −6 / −2</span></div>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
-          <span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:#4ade80;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;">65–100 Constituents-First</span>
-          <span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);color:#f5c842;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;">45–64 Mixed Funding</span>
-          <span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;">Below 45 Special-Interest Heavy</span>
-        </div>
-        <p style="font-family:'Barlow',sans-serif;font-size:0.7rem;color:#7596c0;line-height:1.55;margin:0.65rem 0 0;">Party-committee transfers are treated as neutral and left out of the math. Full methodology + worked examples: <code style="background:rgba(0,0,0,.3);padding:0 .25rem;border-radius:.2rem;">FINANCE_INTEGRITY.md</code>.</p>
+    <!-- The money lane: what the filings report, and how little of the roster
+         they cover. This panel used to document a 0-100 "Constituents-First
+         signal" with three graded levels; the score is retired (see
+         finance-lane.js for why) and what is documented now is the composition
+         and its coverage. -->
+    <details style="margin:0 0 1rem;background:rgba(10,15,30,0.4);border:1px solid rgba(159,180,212,0.18);border-radius:0.75rem;padding:0.5rem 0.9rem;">
+      <summary style="cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#7cc4ff;padding:0.35rem 0;list-style:none;">🎚 What the money lane reports — and what it refuses to</summary>
+      <div style="padding:0.4rem 0 0.6rem;">
+        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#c8d8ea;line-height:1.6;margin:0 0 0.6rem;">This lane reports <strong>composition, not a grade</strong>. For each person with an itemized filing it shows the dollars in each bucket the FEC itself reports, that bucket's share of the itemized base, and the largest reported source named as a fact about a sorted list. There is <strong>no 0&ndash;100 number, no level and no letter</strong> — the "Constituents-First signal" that used to sit here has been retired, arithmetic and all.</p>
+        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#c8d8ea;line-height:1.6;margin:0 0 0.6rem;">Sourcing is disclosure-based: itemized public filings (FEC for federal offices, Utah's disclosure system for state and local), split into the FEC's own buckets. Outside ("dark-money") spending is reported at the level the filing supports and never as a dollar figure, because outside spending is not itemized to the candidate. <strong>No motive is inferred anywhere.</strong> A filing shows where money came from. It does not show why anyone voted for anything, and this lane never says it does.</p>
+        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0 0 0.6rem;"><strong style="color:#c8d8ea;">Coverage, stated up front.</strong> Itemized filings are on file for a small minority of the people PolitiDex carries, and every profile says so. Where a filing is missing that is <em>missing data</em> — it is not a finding about the person, and no surface reads it as one.</p>
+        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0;"><strong style="color:#c8d8ea;">The wall.</strong> Nothing on this lane is an input to <strong>Direction Match</strong>, to <strong>⚖️ Word vs Action</strong>, to a formal pattern tier, to the publication floor, to any count of formal acts, to Your&nbsp;Match, or to any ordering of one person against another. It is a separate lane and it ends where it is printed.</p>
       </div>
     </details>
 
@@ -16585,73 +16708,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // (card, profile section, compare, mandate) reads from one source of truth.
     FTM_DATA.forEach(function(p) { if (FTM_FUNDING[p.id]) p.funding = FTM_FUNDING[p.id]; });
 
-    function _finPct(part, whole) { return whole > 0 ? (part / whole) : 0; }
-    function _finTitleCase(s) { s = String(s || ''); return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-    // The Constituents-First signal — the money-leg sibling of the Evidence
-    // Locker's _strength(). It does NOT judge a politician's politics, only WHERE
-    // the money comes from, and it returns the plain reasons behind the number so
-    // the badge explains itself. Starts at 50, clamps to 3..97:
-    //   + up to +50  small-dollar share of receipts        (grassroots reward)
-    //   - up to -30  large-individual + PAC share           (concentrated money)
-    //   - up to -20  self-funded share                      (access by wealth)
-    //   - 12/6/2/0   high / moderate / low / no outside ("dark") money exposure
-    // Party transfers are neutral and left out of the math.
+    // ── THE MONEY LANE: composition, not a grade ──────────────────────────────
+    // This used to be the "Constituents-First signal": a 0-100 number built from a
+    // base of 50 plus a small-dollar bonus and minus concentrated-money, self-funding
+    // and dark-money penalties, clamped to 3..97 and printed as one of three graded
+    // levels (Constituents-First / Mixed Funding / Special-Interest Heavy) in green,
+    // amber or red, with a "Why this score" list of ±point badges.
+    //
+    // It is retired, and the arithmetic is deleted rather than left computed-and-
+    // unread — a dormant grade with a live accessor is how a retired score comes
+    // back, which this file has already learned twice (see the Accountability of
+    // Truth composite in profiles-full.js). Two reasons it had to go:
+    //
+    //   1. IT READ AS A THIRD MATCH %. Beside ⚖️ Word vs Action's percentage and
+    //      Your Match's percentage, a third 0-100 tile about the same person is a
+    //      blended overall score in everything but name — and unlike those two it
+    //      rested on no formal record and cleared no publication floor.
+    //   2. THE COVERAGE MADE IT A VERDICT ON ALMOST NO DATA. Itemized filings exist
+    //      for 13 of the 757 people PolitiDex carries. A red "Special-Interest
+    //      Heavy" badge on that denominator is a judgement about a person derived
+    //      from data the site does not have, and the 744 with no badge could not
+    //      tell "checked and clear" from "never checked".
+    //
+    // What is published instead is what the filing says: dollars per bucket, each
+    // bucket's share of the itemized base, the largest reported source named as a
+    // fact about a sorted list, outside spending at the level the filing supports,
+    // and the coverage disclosure attached every time. finance-lane.js owns all of
+    // it, including the wall (NEVER_FEEDS) that keeps it out of Direction Match, the
+    // formal pattern tiers, the publication floor and every sort order.
+    //
+    // The delegation is deliberate: there is exactly ONE composition read on the
+    // site, so no surface can quietly grow a second one. Returns null when the lane
+    // has not loaded yet, which every caller already renders as a calm gap.
     function _financeSignal(p) {
-      var fu = p && p.funding;
-      if (!fu) return null;
-      var base = (Number(fu.smallDollar)||0) + (Number(fu.largeIndividual)||0) +
-                 (Number(fu.pac)||0) + (Number(fu.selfFunded)||0) + (Number(fu.party)||0);
-      if (base <= 0) return null;
-
-      var smallPct = _finPct(fu.smallDollar||0, base);
-      var concentratedPct = _finPct((fu.largeIndividual||0) + (fu.pac||0), base);
-      var selfPct = _finPct(fu.selfFunded||0, base);
-
-      var reasons = [], score = 50;
-
-      var addSmall = Math.round(smallPct * 50);
-      if (addSmall > 0) { score += addSmall; reasons.push({ sign:'+', pts:addSmall, text:Math.round(smallPct*100) + '% of receipts from small-dollar donors (grassroots-funded)' }); }
-      else reasons.push({ sign:'', pts:0, text:'No small-dollar (grassroots) money reported this cycle' });
-
-      var subBig = Math.round(concentratedPct * 30);
-      if (subBig > 0) { score -= subBig; reasons.push({ sign:'−', pts:subBig, text:Math.round(concentratedPct*100) + '% from large individual & PAC contributions' }); }
-
-      var subSelf = Math.round(selfPct * 20);
-      if (subSelf > 0) { score -= subSelf; reasons.push({ sign:'−', pts:subSelf, text:Math.round(selfPct*100) + '% self-funded — access driven by personal wealth' }); }
-
-      var out = fu.outside || null;
-      var darkMap = { high:12, moderate:6, low:2, none:0 };
-      if (out && darkMap[out.level]) {
-        var d = darkMap[out.level];
-        score -= d;
-        reasons.push({ sign:'−', pts:d, text:_finTitleCase(out.level) + ' outside / "dark-money" spending on their behalf' });
-      } else if (out && out.level === 'none') {
-        reasons.push({ sign:'', pts:0, text:'No significant outside / dark-money spending on file' });
-      }
-
-      if (score < 3) score = 3;
-      if (score > 97) score = 97;
-
-      var level, label, color;
-      if (score >= 65) { level = 'constituents'; label = 'Constituents-First'; color = '#4ade80'; }
-      else if (score >= 45) { level = 'mixed'; label = 'Mixed Funding'; color = '#f5c842'; }
-      else { level = 'special'; label = 'Special-Interest Heavy'; color = '#f87171'; }
-
-      return {
-        score: score, level: level, label: label, color: color, reasons: reasons,
-        shares: {
-          smallDollar: Math.round(smallPct * 100),
-          concentrated: Math.round(concentratedPct * 100),
-          selfFunded: Math.round(selfPct * 100),
-          pac: Math.round(_finPct(fu.pac||0, base) * 100),
-          largeIndividual: Math.round(_finPct(fu.largeIndividual||0, base) * 100),
-          party: Math.round(_finPct(fu.party||0, base) * 100)
-        },
-        cycle: fu.cycle || '', receipts: base, source: fu.source || p.source || '',
-        asOf: fu.asOf || FTM_AS_OF,
-        outside: out
-      };
+      var L = window.PDXFinanceLane;
+      if (!L || typeof L.compose !== 'function') return null;
+      return L.compose(p, { asOf: FTM_AS_OF });
     }
 
     // Public, read-only lookup keyed by politician id — used by the finance cards,
@@ -16682,86 +16775,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       };
     };
 
-    // One horizontal share bar for the signal card.
-    function _finBar(label, pct, color) {
-      return '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">' +
-        '<div style="width:96px;flex-shrink:0;font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.05em;text-transform:uppercase;color:#7596c0;text-align:right;">' + label + '</div>' +
-        '<div style="flex:1;background:rgba(10,15,30,0.6);border-radius:4px;height:12px;overflow:hidden;"><div style="width:' + Math.max(pct, 2) + '%;background:' + color + ';height:100%;border-radius:4px;"></div></div>' +
-        '<div style="width:34px;flex-shrink:0;text-align:right;font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:700;color:' + color + ';">' + pct + '%</div>' +
-      '</div>';
-    }
-
-    // A single stacked bar showing the whole receipt composition at a glance —
-    // the simplest honest "chart" for the money mix. Segments are drawn only
-    // when non-zero; a colour-keyed legend sits beneath.
-    function _finStack(shares) {
-      var segs = [
-        ['Small-dollar', shares.smallDollar, '#4ade80'],
-        ['Large indiv', shares.largeIndividual, '#f5c842'],
-        ['PAC', shares.pac, '#f87171'],
-        ['Self-funded', shares.selfFunded, '#c4a6ff'],
-        ['Party', shares.party, '#7596c0']
-      ].filter(function(s) { return s[1] > 0; });
-      if (!segs.length) return '';
-      var bar = segs.map(function(s) {
-        return '<div title="' + s[0] + ' ' + s[1] + '%" style="width:' + s[1] + '%;background:' + s[2] + ';height:100%;"></div>';
-      }).join('');
-      var legend = segs.map(function(s) {
-        return '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.04em;text-transform:uppercase;color:#9fb4d4;">' +
-          '<span style="width:8px;height:8px;border-radius:2px;background:' + s[2] + ';flex-shrink:0;"></span>' + s[0] + ' ' + s[1] + '%</span>';
-      }).join('');
-      return '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.25rem;">Where the money comes from</div>' +
-        '<div style="display:flex;height:16px;border-radius:4px;overflow:hidden;margin-bottom:0.4rem;background:rgba(10,15,30,0.6);">' + bar + '</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:0.3rem 0.65rem;margin-bottom:0.55rem;">' + legend + '</div>';
-    }
-
-    // Shared renderer for the Constituents-First signal. Mirrors the Evidence-
-    // Strength badge: a headline score, the composition, then the plain reasons
-    // behind it — so it reads as a transparent signal, never a verdict.
+    // Shared renderer for the money lane. The score tile, the graded label, the
+    // green/red share bars and the "Why this score" ±point list are gone with the
+    // score itself; finance-lane.js renders the composition — dollars first, share
+    // beside it, one categorical (non-evaluative) colour per bucket, the coverage
+    // disclosure and the source link. One renderer, so the composition cannot be
+    // phrased two ways on two surfaces.
     window._pdxFinanceSignalHTML = function(sig) {
-      if (!sig) return '';
-      var reasonsHTML = sig.reasons.map(function(r) {
-        var col = r.sign === '+' ? '#4ade80' : (r.sign === '−' ? '#f87171' : '#7596c0');
-        var badge = r.pts ? (r.sign + r.pts) : '·';
-        return '<div style="display:flex;gap:0.5rem;align-items:flex-start;padding:0.18rem 0;">' +
-          '<span style="flex-shrink:0;min-width:30px;text-align:center;font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;color:' + col + ';">' + badge + '</span>' +
-          '<span style="font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:#c8d8ea;line-height:1.45;">' + _pdxFEsc(r.text) + '</span></div>';
-      }).join('');
-      var cyc = sig.cycle ? (' · ' + _pdxFEsc(sig.cycle) + ' cycle') : '';
-      var recFmt = _fmtMoney(sig.receipts);
-      var outNote = (sig.outside && sig.outside.note)
-        ? '<div style="margin-top:0.5rem;font-family:\'Barlow\',sans-serif;font-size:0.66rem;color:#9fb4d4;line-height:1.5;">' +
-            '<span style="color:#fb923c;text-transform:uppercase;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:0.08em;font-size:0.56rem;">🕳️ Dark-money exposure — ' + _pdxFEsc(sig.outside.level) + '</span><br>' +
-            _pdxFEsc(sig.outside.note) +
-            (sig.outside.source ? ' <a href="' + _pdxFAttr(sig.outside.source) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:#7596c0;">source ↗</a>' : '') +
-          '</div>'
-        : '';
-      return '<div style="background:rgba(10,15,30,0.5);border:1px solid ' + sig.color + '44;border-radius:0.625rem;padding:0.7rem 0.8rem;margin-bottom:0.75rem;">' +
-        '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.6rem;">' +
-          '<div style="flex-shrink:0;width:52px;height:52px;border-radius:0.7rem;display:flex;flex-direction:column;align-items:center;justify-content:center;background:' + sig.color + '18;border:1px solid ' + sig.color + '55;">' +
-            '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;line-height:1;color:' + sig.color + ';">' + sig.score + '</span>' +
-            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.42rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">/100</span>' +
-          '</div>' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Constituents-First Signal' + cyc + '</div>' +
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;letter-spacing:0.03em;color:' + sig.color + ';line-height:1.15;">' + _pdxFEsc(sig.label) + '</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;color:#7596c0;">' + recFmt + ' in itemized receipts</div>' +
-          '</div>' +
-        '</div>' +
-        _finStack(sig.shares) +
-        _finBar('Small-dollar', sig.shares.smallDollar, '#4ade80') +
-        _finBar('Lg indiv + PAC', sig.shares.concentrated, '#f87171') +
-        (sig.shares.selfFunded ? _finBar('Self-funded', sig.shares.selfFunded, '#c4a6ff') : '') +
-        '<div style="margin-top:0.5rem;border-top:1px solid rgba(255,255,255,0.06);padding-top:0.45rem;">' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.15rem;">Why this score</div>' +
-          reasonsHTML +
-        '</div>' +
-        outNote +
-        '<div style="margin-top:0.55rem;padding-top:0.45rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.35rem;">' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.04em;color:#5b7196;">🕒 ' + (sig.cycle ? sig.cycle + ' filings · ' : '') + 'updated ' + _pdxFEsc(sig.asOf || '') + '</span>' +
-          (sig.source ? '<a href="' + _pdxFAttr(sig.source) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:#4ade80;text-decoration:none;">📄 Verify at source ↗</a>' : '') +
-        '</div>' +
-      '</div>';
+      var L = window.PDXFinanceLane;
+      if (!sig || !L || typeof L.compositionHtml !== 'function') return '';
+      return L.compositionHtml(sig);
     };
 
     var ftmCurrentSector = 'all';
@@ -20885,6 +20908,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        disagree about what is publishable. Pure logic, no DOM, no data of its
        own: it reads CMP_DATA and ISSUE_STANCE_DATA at call time. -->
   <script defer src="/publication-floor.js"></script>
+  <!-- The money lane. Owns the ONE composition read of a campaign-finance filing
+       and the coverage disclosure that travels with it, and owns the retirement of
+       the 0-100 "Constituents-First signal" that used to sit in its place: no
+       score, no level, no green/red ramp, no "why this score" — dollars per bucket,
+       each bucket's share of the itemized base, and the wall (NEVER_FEEDS) that
+       keeps every one of those numbers out of Direction Match, the formal pattern
+       tiers, the publication floor and every sort order. Pure logic plus its own
+       renderer; it reads the inline FTM index (_FTM_BY_ID) and CMP_DATA lazily at
+       call time, so `defer` here is safe and every consumer is guarded.
+       See FINANCE_INTEGRITY.md and scripts/test-finance-lane.mjs. -->
+  <script defer src="/finance-lane.js"></script>
   <!-- The canonical person file — the one funnel every "open this politician"
        path routes through, and the owner of the durable /p/<id> address.
        Deferred, which puts it AFTER the sync /profiles-full.js above: that is
@@ -21094,6 +21128,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        calls sectionHtml() and profile-connect.js calls dotsHtml(), and both only
        run when a visitor opens a profile, long after these defer scripts have. -->
   <script defer src="/word-action.js"></script>
+  <!-- ↩️ THE SELF-DEFECTION LIST (window.PDXSelfDefection) — the plainest question in
+       the product, published as a list: where did this person vote against something
+       they had stated? It computes no verdict of its own. Every item is a
+       `contradicts` token word-action.js already produced, on word that already
+       cleared the independence rule, against a formal act that already carries a
+       source URL — so if Direction Match would not call it a contradiction, it is not
+       in the list. Loaded straight after word-action.js because it reads its rows,
+       and before profiles-full.js, which mounts personHtml() under the score section.
+       No score, no ranking, no leaderboard, no party: the walls are listed at the top
+       of the file and fenced by scripts/test-self-defection.mjs. -->
+  <script defer src="/self-defection.js"></script>
+  <!-- 👍 THE SUPPORT LANE (window.PDXSupportLane) — the one place that owns what a
+       People's Mandate support count is CALLED, what colour it is allowed to be, and
+       what it may never feed. Momentum, not evidence: the vocabulary avoids "votes"
+       (a vote on this site is a roll call with a citation) and the palette avoids the
+       verdict green, because a social button in the good-green says a tap is a kind
+       of vindication. The wall — no support count reaching Direction Match, a formal
+       pattern tier, the publication floor, a formal-act count, ballot sort order or
+       Your Match — is declared as data on the object and fenced by
+       scripts/test-support-lane.mjs. Loaded before the Mandate board and the profile
+       body, both of which read its vocabulary. -->
+  <script defer src="/support-lane.js"></script>
   <!-- 🧩 The dossier join layer (window.PDXDossier) — the ONE place that threads a
        single issue through all five links: what they said → what they formally did
        → the receipts that document it → the issue and its Spotlights → what it

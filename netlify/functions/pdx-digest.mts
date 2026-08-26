@@ -56,6 +56,11 @@ function defaultPrefs(email: string | null = null) {
     topicPromises: true,
     topicCommunity: true,
     topicTeam: true,
+    // Material record events — a new formal act, a new sourced formal action, a
+    // mapping or citation correction, coverage expansion on a followed issue. On
+    // by default: this is the archive doing its job, and it is the one group in
+    // the digest where every item carries a source URL.
+    topicRecord: true,
     lastSeenAt: null as string | null,
     lastDigestAt: null as string | null,
   };
@@ -73,6 +78,7 @@ function shapePrefs(row: typeof pdxNotificationPrefs.$inferSelect | null, email:
     topicPromises: row.topicPromises,
     topicCommunity: row.topicCommunity,
     topicTeam: row.topicTeam,
+    topicRecord: row.topicRecord,
     lastSeenAt: row.lastSeenAt ? (row.lastSeenAt as Date).toISOString() : null,
     lastDigestAt: row.lastDigestAt ? (row.lastDigestAt as Date).toISOString() : null,
   };
@@ -120,6 +126,7 @@ async function putPrefs(userId: string, email: string | null, req: Request): Pro
     topicPromises: bool(body?.topicPromises, base.topicPromises),
     topicCommunity: bool(body?.topicCommunity, base.topicCommunity),
     topicTeam: bool(body?.topicTeam, base.topicTeam),
+    topicRecord: bool(body?.topicRecord, base.topicRecord),
     updatedAt: new Date(),
   };
 
@@ -229,6 +236,7 @@ async function digest(userId: string | null, email: string | null, req: Request)
   const topics = {
     evidence: prefs.topicEvidence,
     community: prefs.topicCommunity,
+    record: prefs.topicRecord,
   };
 
   const built = await buildDigest(interests, since, topics);

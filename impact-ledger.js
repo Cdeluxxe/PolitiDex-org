@@ -4,7 +4,7 @@
    "Who It Affects": a neutral, sourced, per-cohort read of how a measure's costs
    and benefits fall across income and economic groups. It is the class/economic
    sibling of the Evidence Locker's _strength() and Follow-the-Money's
-   _financeSignal() — a transparent, reasons-listed, SOURCED structural read, never
+   PDXFinanceLane.compose() — a SOURCED composition of the filing, never
    a verdict on whether a policy is good or bad.
 
    INPUT: the exact object GET /api/voting-record/measure/:id already returns. It
@@ -337,7 +337,7 @@
   /* ════════════════════════════════════════════════════════════════════════
      Follow the Money — side by side (profile).
      ────────────────────────────────────────────────────────────────────────
-     Pairs the existing Constituents-First finance signal (who funds them) with a
+     Pairs the money lane's composition read (who funds them) with a
      distributional summary of the measures they have a recorded vote/position on
      (who their key votes affect). The "Do" side is filled asynchronously from the
      read-only /api/voting-record/member/:id/impacts route.
@@ -358,30 +358,37 @@
     return p;
   }
 
-  // Compact, faithful recap of the finance signal for the left column (does not
-  // recompute anything — just restates the already-computed signal object).
+  // Compact, faithful recap of the money lane for the left column. It recomputes
+  // nothing — it restates the composition finance-lane.js already produced.
+  //
+  // WHAT CAME OUT OF IT. This used to print the retired 0-100 Constituents-First
+  // score in a bordered tile with its graded label, over a green "Small-dollar"
+  // bar and an amber "Large indiv + PAC" bar. The score is gone from the read, so
+  // the tile is gone with it; the palette is gone too, because green-for-grassroots
+  // beside amber-for-PAC delivered the verdict the words had stopped delivering.
+  // What is left is the largest reported source, in dollars, and the bucket rows
+  // in the lane's own categorical colours.
   function financeRecapHTML(sig) {
     if (!sig) return '';
-    var color = sig.color || '#9fb4d4';
-    var shares = sig.shares || {};
-    var sd = shares.smallDollar == null ? null : shares.smallDollar;
-    var conc = shares.concentrated == null ? null : shares.concentrated;
-    var barGrass = sd == null ? '' :
-      '<div class="pdx-ilx-fbar"><span class="pdx-ilx-fbar-lab">Small-dollar</span>' +
-        '<span class="pdx-ilx-fbar-track"><span class="pdx-ilx-fbar-fill" style="width:' + Math.max(2, sd) + '%;background:#4ade80;"></span></span>' +
-        '<span class="pdx-ilx-fbar-pct" style="color:#4ade80;">' + sd + '%</span></div>';
-    var barConc = conc == null ? '' :
-      '<div class="pdx-ilx-fbar"><span class="pdx-ilx-fbar-lab">Large indiv + PAC</span>' +
-        '<span class="pdx-ilx-fbar-track"><span class="pdx-ilx-fbar-fill" style="width:' + Math.max(2, conc) + '%;background:#f5c842;"></span></span>' +
-        '<span class="pdx-ilx-fbar-pct" style="color:#f5c842;">' + conc + '%</span></div>';
+    var rows = (sig.rows || []).slice(0, 3);
+    var lead = sig.largest
+      ? '<div class="pdx-ilx-fscore" style="border-color:rgba(159,180,212,0.33);">' +
+          '<span class="pdx-ilx-flead">' + esc(sig.largest.amountFmt || '') + '</span>' +
+          '<span class="pdx-ilx-flabel">' + esc(sig.largest.label || '') + '</span>' +
+        '</div>'
+      : '';
+    var bars = rows.map(function (r) {
+      return '<div class="pdx-ilx-fbar"><span class="pdx-ilx-fbar-lab">' + esc(r.short || '') + '</span>' +
+        '<span class="pdx-ilx-fbar-track"><span class="pdx-ilx-fbar-fill" style="width:' +
+          Math.max(2, r.share || 0) + '%;background:' + esc(r.color || '#9fb4d4') + ';"></span></span>' +
+        '<span class="pdx-ilx-fbar-pct">' + esc(r.amountFmt || '') + '</span></div>';
+    }).join('');
     return '<div class="pdx-ilx-col">' +
         '<div class="pdx-ilx-lab">Who funds them</div>' +
-        '<div class="pdx-ilx-fscore" style="border-color:' + color + '55;">' +
-          '<span class="pdx-ilx-fnum" style="color:' + color + ';">' + esc(String(sig.score)) + '</span>' +
-          '<span class="pdx-ilx-flabel">' + esc(sig.label || '') + '</span>' +
-        '</div>' +
-        barGrass + barConc +
-        (sig.cycle ? '<div class="pdx-ilx-fnote">Itemized public filings' + (sig.cycle ? ' · ' + esc(String(sig.cycle)) : '') + '</div>' : '') +
+        lead + bars +
+        '<div class="pdx-ilx-fnote">Itemized public filings' +
+          (sig.cycle ? ' · ' + esc(String(sig.cycle)) : '') +
+          ' · composition as filed, not a score</div>' +
         '<a class="pdx-ilx-morelink" href="#follow-the-money">Full finance breakdown →</a>' +
       '</div>';
   }

@@ -5836,34 +5836,55 @@
       display: flex; align-items: center; gap: 0.6rem;
       padding: 0.75rem 1.15rem 1rem;
     }
+    /* THE SUPPORT BUTTON IS NOT A VERDICT.
+       It used to be #4ade80 / #86efac on rgba(74,222,128,*) — the app's
+       good-green, which everywhere else on this site means one specific thing:
+       the formal record came out the way the person's stated position said it
+       would. Wearing that green on a social button says a tap is a kind of
+       vindication, and puts a click in the same visual class as a sourced roll
+       call. The lane wears the Mandate's own gold instead (#f5c842), which
+       carries no verdict anywhere in this codebase, and it has no red state
+       because there is no "against" here to render. Nothing below scales with
+       the count. See support-lane.js / support-lane.css. */
     .pp-support-btn {
       flex: 1;
       display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
       cursor: pointer;
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
-      color: #4ade80;
+      color: #f5c842;
       padding: 0.55rem 0.75rem;
       border-radius: 0.7rem;
-      background: rgba(74,222,128,0.07);
-      border: 1.5px solid rgba(74,222,128,0.28);
+      background: rgba(245,200,66,0.07);
+      border: 1.5px solid rgba(245,200,66,0.28);
       transition: all 0.18s ease;
     }
     @media (hover: hover) {
-      .pp-support-btn:hover { background: rgba(74,222,128,0.15); box-shadow: 0 4px 16px rgba(74,222,128,0.2); }
+      .pp-support-btn:hover { background: rgba(245,200,66,0.15); box-shadow: 0 4px 16px rgba(245,200,66,0.2); }
     }
     .pp-support-btn:active { transform: scale(0.96); }
     .pp-support-btn.is-supported {
-      background: rgba(74,222,128,0.2);
-      border-color: rgba(74,222,128,0.7);
-      color: #86efac;
+      background: rgba(245,200,66,0.2);
+      border-color: rgba(245,200,66,0.7);
+      color: #ffe08a;
     }
     .pp-support-btn .pp-heart { transition: transform 0.2s ease; }
     .pp-support-btn.is-supported .pp-heart { transform: scale(1.15); }
+    /* The count and its noun travel together — a bare tally beside a record
+       surface reads as a measurement of something. */
+    .pp-support-tally {
+      display: inline-flex; flex-direction: column; align-items: center;
+      gap: 0.02rem; min-width: 3.2ch;
+    }
     .pp-support-count {
       font-family: 'Teko', sans-serif;
       font-size: 1.05rem; font-weight: 700; min-width: 1.5ch; text-align: center;
       color: #f5c842;
+    }
+    .pp-support-count-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #7a8aa8; line-height: 1;
     }
     @media (max-width: 640px) {
       .pp-controls { flex-direction: column; align-items: stretch; }

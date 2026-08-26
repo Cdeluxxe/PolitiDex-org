@@ -1,0 +1,47 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   PolitiDex — SUPPORT LANE (momentum labelling)
+   ─────────────────────────────────────────────────────────────────────────────
+   The four rules this stylesheet exists to enforce, written down so a later edit
+   has to argue with them rather than just overwrite them:
+
+   1. NO VERDICT HUES. #4ade80 / #86efac / #6ee7a0 (the record came out the way
+      the stated position said) and #f87171 / #f89b9b (it did not) mean something
+      specific everywhere else on this site. A social button in the good-green
+      says a tap is a kind of vindication. The lane uses the Mandate's own gold,
+      which carries no verdict anywhere in this codebase.
+
+   2. NOTHING SCALES WITH THE COUNT. No threshold colour, no "trending" band, no
+      glow that intensifies. Four thousand backers and four backers are the same
+      typography in the same colour. The number does the talking; paint that
+      grades it turns momentum into a rating.
+
+   3. THE NOTE IS NOT FINE PRINT. It is set at the same size as the surrounding
+      body copy, not at caption size, because "this is not evidence" is the most
+      load-bearing sentence on the surface.
+
+   4. NO RED ANYWHERE. There is no "against" in this lane — nothing here is a
+      disapproval count — so there is no state that needs a negative colour, and
+      adding one would invent an opinion the data does not hold.
+
+   Prefix: `pdxsup-`. Checked against every other shipped file; nothing else
+   defines or references it, and the suite asserts that permanently.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.pdxsup-note {
+  margin: 0.55rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #9fb4d4;
+}
+
+/* The person-file variant. A left rail in the Mandate's gold marks it as
+   belonging to the momentum lane and not to the record above it — the same
+   device the record sections use to mark themselves, in a colour that is
+   explicitly not one of theirs. */
+.pdxsup-note-wall {
+  border-left: 3px solid rgba(245, 200, 66, 0.55);
+  padding: 0.4rem 0 0.4rem 0.65rem;
+  background: rgba(245, 200, 66, 0.05);
+  border-radius: 0 0.35rem 0.35rem 0;
+  color: #c7d3e6;
+}

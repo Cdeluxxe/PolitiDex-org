@@ -6,6 +6,16 @@
 // each one's personal "What Changed" digest from their synced interests, and mails
 // it. It shares all its logic with the interactive endpoint via netlify/lib/digest.
 //
+// WHAT IT SENDS: material record events first, then community activity. A record
+// event is a change to the ARCHIVE on something the recipient tracks — a newly
+// recorded roll-call vote, a new sourced formal action, a measure that moved a
+// stage, a citation or issue-mapping correction, new coverage on a followed issue.
+// Every one of them carries a source URL and a link to the Phase-1 address it
+// lives at (/p/<pid> for a person's act, /vote/<congress>/<chamber>/<roll> for a
+// measure's). There are no aggregates in this email: no "worst politicians this
+// week", no counts by party, no ranking of anybody against anybody, and no score.
+// One act, one citation, one link.
+//
 // STRICTLY OPT-IN & NON-SPAMMY
 //   • Only rows with email_enabled = true are ever considered.
 //   • Cadence is the user's own choice (daily | weekly), enforced against
@@ -31,6 +41,9 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { pdxNotificationPrefs } from "../../db/schema.js";
 import { buildDigest, deriveInterests, unsubscribeUrl, type Digest } from "../lib/digest.js";
+// The record group's rows are composed in the shared pure module, so the suite can
+// render them from real events instead of reading this file as text.
+import { recordEmailRows, recordTextBlock } from "../lib/digest-record-core.mjs";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -59,6 +72,12 @@ function esc(s: unknown): string {
 function renderEmail(digest: Digest, unsubUrl: string): { subject: string; html: string; text: string } {
   const total = digest.counts.total;
   const site = "https://politidex.fyi";
+
+  // Record events lead the email, because they are the only group in it that is
+  // the archive rather than the conversation about it. The kicker names the KIND
+  // of change; the body names the act; the citation is a link a reader can check
+  // without trusting this email at all. Composed by digest-record-core.mjs.
+  const recRows = recordEmailRows(digest.record, site);
 
   const evRows = digest.evidence
     .map(
@@ -94,6 +113,7 @@ function renderEmail(digest: Digest, unsubUrl: string): { subject: string; html:
     `<div style="max-width:560px;margin:0 auto;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fff;padding:24px;">` +
     `<div style="font-size:20px;font-weight:800;color:#0a0f1e;">POLITI<span style="color:#c8102e;">DEX</span> · What Changed</div>` +
     `<p style="font-size:14px;color:#48526a;margin:8px 0 0;">${total} update${total === 1 ? "" : "s"} on the people and issues you're tracking.</p>` +
+    section("On The Record", recRows) +
     section("New Evidence", evRows) +
     section("Community Discussion", coRows) +
     `<div style="margin-top:26px;text-align:center;">` +
@@ -107,6 +127,7 @@ function renderEmail(digest: Digest, unsubUrl: string): { subject: string; html:
 
   const text =
     `PolitiDex · What Changed\n${total} update(s) on what you're tracking.\n\n` +
+    recordTextBlock(digest.record, site) +
     digest.evidence.map((e) => `• ${e.headline}`).join("\n") +
     (digest.community.length ? "\n" + digest.community.map((c) => `• ${c.title}`).join("\n") : "") +
     `\n\nOpen your digest: ${site}/#whats-changed` +
@@ -198,6 +219,7 @@ export default async (): Promise<Response> => {
       const built = await buildDigest(interests, since, {
         evidence: row.topicEvidence,
         community: row.topicCommunity,
+        record: row.topicRecord,
       });
       if (built.counts.total === 0) {
         skippedEmpty++;

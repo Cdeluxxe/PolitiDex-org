@@ -9,7 +9,7 @@
 //
 //     smallDollar  largeIndividual  pac  selfFunded  party   (+ outside level)
 //
-// Those buckets feed the transparent Constituents-First signal (_financeSignal
+// Those buckets feed the money lane's composition read (PDXFinanceLane.compose
 // in index.html, documented in FINANCE_INTEGRITY.md). This script helps a
 // curator KEEP THOSE NUMBERS CURRENT against the public source of truth.
 //
@@ -58,7 +58,7 @@ const ROSTER = [
 
 // Map a raw FEC /totals row into the FTM_FUNDING bucket shape. The FEC breaks
 // individual money into itemized (large) and unitemized (small-dollar), which
-// is exactly the split the Constituents-First signal needs.
+// is exactly the split the money lane reports.
 function toBuckets(t) {
   if (!t) return null;
   return {
