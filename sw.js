@@ -172,7 +172,23 @@
 // precached, so neither half arrives alone. The mapping half of this pass is
 // database-side (S. 2's border_security relation becomes primary) and ships
 // through the migration, not the shell.
-const CACHE_VERSION = 'v75';
+// v77 — THE COVERAGE INVENTORY AND THE CITABLE GAPS SECTION. A new shell asset,
+// inventory.js, prints one line of counts beside the headline findings (formal acts
+// and issues held, stated positions held and tested, gaps still open, when the file
+// last grew) and gaps.js grew a named, linkable "What the record can't test yet"
+// section at /p/<pid>#gaps. Bumped because eight files move together and every
+// partial pickup is a visible half-feature: a phone holding v76 that takes only
+// consistency.js loses the depth chip from the record strip and gets no inventory
+// line in its place (the module it calls is not on the device); one that takes only
+// profiles-full.js emits a gaps section whose gaps.js has no sectionHtml to render;
+// one that takes only person-file.js maps a #gaps hash to an anchor no profile
+// emits. Six of the eight are precached below (inventory.js, gaps.js,
+// consistency.js, word-action.js, profile-card.js, profile-spine.js); the other two
+// — person-file.js and profiles-full.js — are stale-while-revalidate RUNTIME_CACHE
+// entries. Both cache names carry CACHE_VERSION, so this rename empties the shell
+// AND the runtime cache on activate and neither half of the feature can arrive
+// alone on the load after it.
+const CACHE_VERSION = 'v77';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -222,6 +238,15 @@ const SHELL_ASSETS = [
   // script in <body> and installs the shared scroll-lock seam that every modal
   // in the app now routes through — an offline boot must not skip it.
   '/pdx-stability.js',
+  // First run — the module that ranks the homepage for a stranger: it runs the
+  // two cold-start paths behind the hero CTAs and flips the one attribute that
+  // defers the second tier until a real task is finished. Precached rather than
+  // left to the runtime cache because an offline boot is exactly the slow, bad
+  // connection where a first-time visitor most needs the ranked homepage. Its
+  // CSS is not listed here — those rules are inline in index.html (above-the-fold
+  // critical, and the render-blocking sheet budget is full), so they ship with
+  // the '/' entry at the top of this list.
+  '/first-run.js',
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',
@@ -326,6 +351,11 @@ const SHELL_ASSETS = [
   // repeat visitor offline sees a Word vs Action panel that quietly stops saying
   // what we have not documented, which reads as fuller coverage than we have.
   '/gaps.js',
+  // The coverage inventory line. Cached with gaps.js for the same reason gaps.js is
+  // cached with coverage.js: without it a repeat visitor offline gets a record strip
+  // and a Direction Match card with no statement of how much is actually on file,
+  // which reads as fuller coverage than we have.
+  '/inventory.js',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'

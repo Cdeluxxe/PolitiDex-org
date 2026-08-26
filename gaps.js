@@ -504,12 +504,20 @@
         '<p class="pdxg-row-detail">' + esc(gap.detail) + '</p>' +
         (gap.ask ? '<p class="pdxg-row-ask"><span class="pdxg-row-ask-k">What would fill it</span> ' + esc(gap.ask) + '</p>' : '') +
         '<div class="pdxg-row-bar">' +
-          engageHtml(gap) +
+          // PLAIN MODE DROPS THE DISCUSSION BAR AND THE LEAD CARDS, and only that.
+          // The citable section below renders the same rows a second time on the
+          // same page, and an item thread is addressed by a target id — two mounts
+          // for one `gap:<pid>:<slug>` would be two comment boxes on one
+          // conversation. So discussion and lead status stay in the one place they
+          // already live (the Direction Match panel) and the citable list carries
+          // the statement plus the on-ramp, which is keyed by `_reg` rather than by
+          // anything in the DOM and is therefore safe to repeat.
+          (opts.plain ? '' : engageHtml(gap)) +
           '<button type="button" class="pdxg-ask-btn" data-pdx-gap-ask="' + k + '" ' +
             'onclick="window._pdxGapsAsk&&window._pdxGapsAsk(this)" ' +
             'title="Suggest a research lead for this gap">＋ Suggest a lead</button>' +
         '</div>' +
-        '<div class="pdxg-leads" data-pdx-gap-leads="' + k + '" hidden></div>' +
+        (opts.plain ? '' : '<div class="pdxg-leads" data-pdx-gap-leads="' + k + '" hidden></div>') +
       '</li>';
   }
 
@@ -766,6 +774,165 @@
   window.addEventListener('pdx-gap-lead-added', refreshLeadsFor);
   window.addEventListener('pdx-gap-lead-updated', refreshLeadsFor);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🕳 WHAT THE RECORD CAN'T TEST YET — the citable surface
+  // ═══════════════════════════════════════════════════════════════════════════
+  // The panel above is a fold inside the Direction Match card: a reader meets it
+  // only if they open the apparatus, and there is no way to link anyone to it. The
+  // gaps themselves are the most useful thing a thin file has to say — so they get
+  // a named section of their own, at a durable address, listing EVERY gap rather
+  // than the first six.
+  //
+  // IT IS A STATEMENT ABOUT OUR ARCHIVE, IN THE ARCHIVE'S OWN VOCABULARY. Two
+  // groups, and the split between them is the load-bearing one: what we are still
+  // looking for (askable), and what is on file and deliberately not counted (the
+  // three non-askable holds — the circularity rule, the one-scored-item-per-issue
+  // rule, and the publication floor). Every row's label comes from TYPES, so the
+  // words here are the words the panel, the queue and the tests already use.
+  //
+  // WHAT IT MUST NEVER SAY. Not "this person is incomplete", not "thin record", not
+  // a grade, not a percentage, not a count of gaps compared with anyone else's. A
+  // politician cannot be ranked by how much homework we have left. The lede says
+  // whose homework it is in the first sentence, and the section fails closed: with
+  // nothing to name it renders '' and the profile is one section shorter.
+  //
+  // THE ADDRESS. person-file.js maps the short hash `#gaps` to this anchor and
+  // hands it to open() on a cold arrival, so /p/<pid>#gaps is a real link a reader
+  // can paste — no new route, no new product.
+  function citeUrl(pid) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.sectionUrl === 'function') return P.sectionUrl(pid, 'gaps');
+      return '';
+    } catch (e) { return ''; }
+  }
+
+  function ensureSectionStyles() {
+    try {
+      if (!document.head || document.getElementById('pdx-gapsec-css')) return;
+      var css =
+        '.pdxgs-q{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:600;' +
+          'font-size:0.76rem;font-style:italic;color:#9fb4d4;letter-spacing:0.01em;margin-top:0.12rem;}' +
+        '.pdxgs-lede{font-size:0.8rem;color:#b9cae4;line-height:1.55;margin:0.5rem 0 0;}' +
+        '.pdxgs-grp{margin-top:0.9rem;}' +
+        '.pdxgs-grp-h{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.76rem;' +
+          'letter-spacing:0.07em;text-transform:uppercase;color:#cfe0f8;}' +
+        '.pdxgs-grp-h b{color:#fff;}' +
+        '.pdxgs-grp-note{font-size:0.72rem;color:#8fa6c6;line-height:1.5;margin:0.18rem 0 0.5rem;}' +
+        '.pdxgs-cite{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;margin:0.9rem 0 0;' +
+          'font-size:0.7rem;color:#8fa6c6;}' +
+        '.pdxgs-cite code{font-size:0.7rem;color:#cfe0f8;background:rgba(147,180,230,0.1);' +
+          'border:1px solid rgba(147,180,230,0.24);border-radius:0.3rem;padding:0.1rem 0.36rem;}' +
+        '.pdxgs-copy{cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;' +
+          'font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#93b4e6;' +
+          'background:rgba(147,180,230,0.08);border:1px solid rgba(147,180,230,0.28);' +
+          'border-radius:999px;padding:0.22rem 0.55rem;min-height:1.8rem;}' +
+        '.pdxgs-copy:hover,.pdxgs-copy:focus-visible{color:#e8f0ff;background:rgba(147,180,230,0.18);}';
+      var el = document.createElement('style');
+      el.id = 'pdx-gapsec-css';
+      el.textContent = css;
+      document.head.appendChild(el);
+    } catch (e) {}
+  }
+
+  function sectionHtml(pid, p, pre) {
+    try {
+      if (!pid) return '';
+      var gaps = forPolitician(pid, p, pre);
+      if (!gaps.length) return '';
+      var ask = gaps.filter(function (g) { return g.askable; });
+      var holds = gaps.filter(function (g) { return !g.askable; });
+      ensureSectionStyles();
+      var who = (p && p.name) ? p.name : 'this official';
+
+      // The inventory line, minus its own gap clause: this whole section is that
+      // clause, and printing "4 open gaps" as a chip above a list of four gaps is
+      // the same fact twice.
+      var inv = '';
+      try {
+        if (window.PDXInventory && typeof window.PDXInventory.lineHtml === 'function') {
+          inv = window.PDXInventory.lineHtml(pid, p, { omit: ['gaps'] }) || '';
+        }
+      } catch (e) { inv = ''; }
+
+      var cite = citeUrl(pid);
+      var citeShort = String(cite).replace(/^https?:\/\//, '');
+
+      return '' +
+        '<span id="pdxsec-gaps" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+        '<div class="modal-section pdxgs" data-pdxgs-pid="' + esc(String(pid)) + '">' +
+          '<div class="modal-section-title">🕳 What the record can’t test yet' +
+            '<span class="pdxgs-q">“Where does our documentation stop — and why?”</span></div>' +
+          '<p class="pdxgs-lede">This is our own homework on this file, written down. ' +
+            'Nothing below counts for or against ' + esc(who) + ' — a gap is a fact about ' +
+            'what we have documented, not about them, and it disappears by itself the day ' +
+            'the missing material lands.</p>' +
+          inv +
+          (ask.length
+            ? '<div class="pdxgs-grp">' +
+                '<div class="pdxgs-grp-h">Still looking — <b>' + ask.length + '</b> open ' +
+                  plural(ask.length, 'gap') + '</div>' +
+                '<p class="pdxgs-grp-note">A sourced tip could close any of these. Every one is ' +
+                  'listed — this section does not summarise the tail.</p>' +
+                '<ul class="pdxg-list">' +
+                  ask.map(function (g) { return rowHtml(g, { plain: true }); }).join('') +
+                '</ul>' +
+              '</div>'
+            : '<div class="pdxgs-grp">' +
+                '<div class="pdxgs-grp-h">Still looking — nothing open</div>' +
+                '<p class="pdxgs-grp-note">We are not currently missing anything we know how to ask ' +
+                  'for on this record. That is a statement about our queue, not a claim that the ' +
+                  'file is finished.</p>' +
+              '</div>') +
+          (holds.length
+            ? '<div class="pdxgs-grp">' +
+                '<div class="pdxgs-grp-h">On file, held out of the number — <b>' + holds.length + '</b></div>' +
+                '<p class="pdxgs-grp-note">Not gaps. These are our own rules doing their job: word ' +
+                  'written from the record it would be tested against, a second position on an issue ' +
+                  'already scored once, and a record too thin to publish a figure from. The material ' +
+                  'is on file; it is deliberately not counted.</p>' +
+                '<ul class="pdxg-list">' +
+                  holds.map(function (g) { return rowHtml(g, { plain: true }); }).join('') +
+                '</ul>' +
+              '</div>'
+            : '') +
+          (cite
+            ? '<p class="pdxgs-cite"><span>Cite this list:</span> <code>' + esc(citeShort) + '</code>' +
+                '<button type="button" class="pdxgs-copy" data-pdxgs-cite="' + esc(cite) + '"' +
+                  ' onclick="window._pdxGapsCopyCite&&window._pdxGapsCopyCite(this)">Copy link</button></p>'
+            : '') +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  window._pdxGapsCopyCite = function (btn) {
+    try {
+      var addr = btn && btn.getAttribute('data-pdxgs-cite');
+      if (!addr) return;
+      var done = function () {
+        try {
+          btn.textContent = 'Copied';
+          setTimeout(function () { try { btn.textContent = 'Copy link'; } catch (e) {} }, 1600);
+        } catch (e) {}
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(addr).then(done, function () {});
+        return;
+      }
+      done();
+    } catch (e) {}
+  };
+
+  // The door every other surface uses to get here.
+  function jump(pid) {
+    try {
+      if (typeof window._pdxNavJump === 'function') { window._pdxNavJump('pdxsec-gaps'); return true; }
+      var el = document.getElementById('pdxsec-gaps');
+      if (el && el.scrollIntoView) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return true; }
+    } catch (e) {}
+    return false;
+  }
+
   window.PDXGaps = {
     TYPES: TYPES,
     slug: slug,
@@ -780,6 +947,11 @@
     mappingGap: mappingGap,
     rowHtml: rowHtml,
     panelHtml: panelHtml,
+    // 🕳 The citable surface: every gap, at a durable address. See the wall above
+    // sectionHtml() for why it exists and what it is forbidden from saying.
+    sectionHtml: sectionHtml,
+    citeUrl: citeUrl,
+    jump: jump,
     // Exposed for the Exchange controller (it needs the gap a composer was
     // opened from) and for tests.
     get: function (key) { return _reg[key] || null; }

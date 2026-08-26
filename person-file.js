@@ -208,6 +208,34 @@
     if (!pid) return '';
     return origin() + PREFIX + encodeURIComponent(pid);
   }
+
+  // ── Citable sections ──────────────────────────────────────────────────────
+  // A short, stable hash per citable surface inside a person file, so a finding
+  // can be linked to at the place it is made rather than at the top of the page.
+  // The alias is deliberately shorter and more stable than the DOM id: a section
+  // can be re-anchored without breaking every link ever shared to it, and a
+  // reader can type the address.
+  //
+  // FAIL CLOSED. An unrecognised hash resolves to '' and the file opens at the
+  // top, which is what an arrival with no hash already does. Nothing here scrolls
+  // to an id that came off the address bar unmapped.
+  var SECTION_HASH = {
+    gaps: 'pdxsec-gaps',            // What the record can't test yet
+    record: 'pdxsec-standout',      // What the formal record points to
+    verdict: 'pdxsec-wordaction'    // Direction Match, where it publishes
+  };
+  function sectionFromHash(h) {
+    try {
+      var raw = String(h == null ? location.hash : h).replace(/^#/, '').toLowerCase();
+      return SECTION_HASH[raw] || '';
+    } catch (e) { return ''; }
+  }
+  // The address to cite one section of one person file at.
+  function sectionUrl(pid, alias) {
+    var base = url(pid);
+    if (!base) return '';
+    return SECTION_HASH[String(alias || '').toLowerCase()] ? base + '#' + String(alias).toLowerCase() : base;
+  }
   function path(pid) {
     if (!pid) return '';
     return PREFIX + encodeURIComponent(pid);
@@ -397,7 +425,10 @@
       } catch (e) {}
       return '';
     }
-    return open(pid) ? pid : '';
+    // A hash on a cold arrival names a section INSIDE the file, so it is handed
+    // to open() rather than left for the browser — the element it names does not
+    // exist yet at arrival time.
+    return open(pid, { section: sectionFromHash() }) ? pid : '';
   }
 
   window.PDXPerson = {
@@ -406,6 +437,9 @@
     open: open,
     url: url,
     path: path,
+    SECTION_HASH: SECTION_HASH,
+    sectionFromHash: sectionFromHash,
+    sectionUrl: sectionUrl,
     stamp: stamp,
     restore: restore,
     kicker: kicker,

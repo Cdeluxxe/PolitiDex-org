@@ -5645,6 +5645,25 @@
       ${(typeof window._renderEvidenceSummary === 'function') ? window._renderEvidenceSummary(id, p) : ''}
       ${(typeof window._renderEvidenceConnections === 'function') ? window._renderEvidenceConnections(id, p) : ''}
 
+      <!-- 🕳 WHAT THE RECORD CAN'T TEST YET — our own homework on this file, at a
+           durable address (/p/<pid>#gaps, mapped by person-file.js). Every gaps.js
+           gap, in two groups: what we are still looking for, and what is on file
+           and deliberately held out of the number by the circularity rule, the
+           one-scored-item-per-issue rule and the publication floor.
+
+           IT MOUNTS IN THE RECEIPTS STAGE, NOT BESIDE THE SCORE. The Direction
+           Match card already carries the interactive version of this list inside
+           its apparatus fold — with the discussion thread and the lead cards on
+           each row — and two lead-taking surfaces a screen apart is one too many.
+           This one is the complete, citable statement: plain rows, no thread
+           mounts (a gap:pid:slug thread target can only be addressed once per
+           page), no cap on the tail. Documentation status only: nothing in it is a
+           grade, a percentage, or a claim about the person. Renders '' when there
+           is nothing honest to name. -->
+      ${(window.PDXGaps && typeof window.PDXGaps.sectionHtml === 'function')
+        ? (function(){ try { return window.PDXGaps.sectionHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
       <!--PDXSP:record-->
       <!-- ONE record lane. Two things used to sit here and both have been folded in.
            (1) The "📋 Promise Tracker" gateway: a titled two-card product whose cards

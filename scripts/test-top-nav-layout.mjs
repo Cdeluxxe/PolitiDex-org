@@ -108,12 +108,23 @@ ok(/id="nav-auth-desktop" class="[^"]*flex-shrink-0/.test(NAV), 'the account clu
 
 /* The two reported seams, as DOM adjacency: the item that gets covered is the
    last of its group, the coverer is the first thing painted after it. */
-const iLocal = NAV.indexOf('href="#local-issues"');
+/* The left group's last item used to be 🔦 Local Issues. Phase 3 moved the three
+   ballot views into the Explore panel, so the left group now ends at ⭐ My Voting
+   Team — Door 2 itself. The seam is the same seam; only the item on this side of
+   it changed, and it is read from the markup rather than pinned by name twice. */
+const iLastLeft = NAV.indexOf('href="#my-politicians"');
 const iMandate = NAV.indexOf('nav-mandate-btn');
 const iCommunity = NAV.indexOf('#community-exchange" class="pdx-navmenu__btn');
 const iBell = NAV.indexOf('id="wc-bell"');
-must(iLocal > 0 && iMandate > 0 && iCommunity > 0 && iBell > 0, 'one of the four reported controls is gone from the nav');
-ok(iLocal < iMandate, '🔦 Local Issues is the left group\'s last item and ✊ Mandate is painted after it');
+must(iLastLeft > 0 && iMandate > 0 && iCommunity > 0 && iBell > 0, 'one of the four reported controls is gone from the nav');
+ok(iLastLeft < iMandate, '⭐ My Voting Team is the left group\'s last item and ✊ Mandate is painted after it');
+/* And the three that moved are genuinely out of the left group: each now appears
+   only AFTER the halves' seam, i.e. inside the right-hand Explore panel. */
+for (const href of ['#voter-hub', '#your-ballot', '#local-issues']) {
+  const at = NAV.indexOf('href="' + href + '"');
+  must(at > 0, `${href} vanished from the nav entirely — it should have been nested, not dropped`);
+  ok(at > iMandate, `${href} sits past the seam now, in the Explore panel rather than the left group`);
+}
 ok(iCommunity < iBell, 'Community is the gateway group\'s last item and the bell is painted after it');
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -293,7 +304,19 @@ const text = (chars, emoji, px, track, face = CONDENSED) =>
 /* ---- LEFT GROUP --------------------------------------------------------- */
 const brand = (tilePx, wordPx, gap) => tilePx + gap + text(9, 0, wordPx, 0.05, BEBAS); // 🏠 tile + POLITIDEX
 const PILL = 24 + 3;   // px-3 gutters + 1.5px border, both sides
-const leftLinks = (track) => {
+/* TWO ROWS, NOT ONE MODEL. The left group is costed twice because it is now two
+   different rows, and collapsing them into one function would quietly rewrite the
+   historical figures this file pins.
+     BEFORE — six items: three pills and the three ballot text links. This is the
+       row that produced the ~1685px natural width and the ~435px of self-overlap
+       asserted below, and it is kept verbatim so those numbers stay a record of a
+       real measurement rather than a moving target.
+     AFTER  — three items. Phase 3 nested Voter Hub, Your Ballot and Local Issues
+       into the Explore panel (they are views of the Door 2 workspace, not doors),
+       so the row is the front step plus the two doors. Removing three items is
+       ~200px of width the bar no longer has to find, which is why the single-row
+       threshold below drops rather than the wrap logic changing. */
+const leftLinksBefore = (track) => {
   const items = [
     text(18, 1, 12, track) + PILL,   // 🏛️ Who Represents Me   (text-xs pill)
     text(15, 1, 12, track) + PILL,   // 👁️ Find the Record
@@ -304,6 +327,15 @@ const leftLinks = (track) => {
   ];
   return { items, sum: items.reduce((a, b) => a + b, 0) };
 };
+const leftLinksAfter = (track) => {
+  const items = [
+    text(18, 1, 12, track) + PILL,   // 🏛️ Who Represents Me   (front step, outlined pill)
+    text(15, 1, 12, track) + PILL,   // 👁️ Find the Record     (Door 1)
+    text(14, 1, 12, track) + PILL,   // ⭐ My Voting Team       (Door 2)
+  ];
+  return { items, sum: items.reduce((a, b) => a + b, 0) };
+};
+const leftLinks = (track, after) => (after ? leftLinksAfter : leftLinksBefore)(track);
 
 /* ---- RIGHT GROUP -------------------------------------------------------- */
 const CARET = 1 + 4 + 10.9;          // margin + padding + 0.68rem svg
@@ -326,7 +358,7 @@ const auth = (padX, track, free) =>
 /* ---- THE BAR, BEFORE AND AFTER ------------------------------------------ */
 function desktopBar(after) {
   const t = after ? 0.07 : 0.10;
-  const L = leftLinks(t), G = gateways(t);
+  const L = leftLinks(t, after), G = gateways(t);
   const gOuter = after ? 16.8 : 12;     // the one seam between the halves → 1.05rem
   const gLeft = after ? 12 : 20;        // gap-3 lg:gap-5  → 0.75rem
   const gLinks = after ? 7.2 : 16;      // gap-2.5 lg:gap-4 → 0.45rem

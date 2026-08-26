@@ -9239,6 +9239,24 @@
       '</button>';
   }
   function _soStripId(pid) { return 'pdxso-strip-' + _stSlug(pid); }
+  // ── The coverage inventory line, for this file's two mounts ────────────────
+  // One line of counts — what we hold, what we have tested, what is still open,
+  // when it last grew — from window.PDXInventory, which reads it off the same
+  // shape() and the same PDXWordAction.read() these surfaces already use. Guarded
+  // on every side: inventory.js loads after this file, and a missing module means
+  // a missing line, never a broken strip.
+  //
+  // `omit` names the clauses the HOST already states in its own words, so no
+  // surface prints one fact twice. It is counts only: no percentage, no ratio over
+  // the issue vocabulary, and no grade — see the wall at the top of inventory.js.
+  function _invLine(pid, omit, cls) {
+    try {
+      var I = window.PDXInventory;
+      if (!I || typeof I.lineHtml !== 'function') return '';
+      return I.lineHtml(pid, null, { omit: omit || [], cls: cls || '' }) || '';
+    } catch (e) { return ''; }
+  }
+
   function recordStandoutHtml(pid) {
     if (!pid) return '';
     ensureStyles();
@@ -9270,15 +9288,26 @@
     var whole = picked >= (p.consistentN + p.mixedN);
     var wall = (window._PDX_RD_TIER_NOTE || '') + ' ' +
       (whole ? _SO_WALL_WHOLE : _SO_WALL_TAIL);
+    // 📋 THE COVERAGE INVENTORY REPLACED THE DEPTH CHIP THAT USED TO SIT IN THIS
+    // HEAD. The chip said "5 issues read · 12 acts behind them" — true, and half a
+    // sentence: it counted the formal lane and stopped, so a reader could not tell
+    // a file with twelve acts and no stated word on it from one with twelve acts
+    // and forty positions tested against them. PDXInventory prints the same formal
+    // counts plus what we hold them SAYING, what is still open, and when the file
+    // last grew, off the same shape() this function already read. Counts only — no
+    // percentage, no ratio, no grade, and nothing that could be mistaken for a
+    // second finding beside the chips below. It renders '' when nothing is held,
+    // which cannot happen here (this strip does not mount on an empty record), and
+    // the strip is unaffected either way.
+    var invLine = _invLine(pid, [], 'pdxso-inv');
     return '<span id="pdxsec-standout" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<section class="pdxso" id="' + escAttr(_soStripId(pid)) + '"' +
         ' aria-label="What the formal record points to">' +
         '<div class="pdxso-head">' +
           '<span class="pdxso-ico" aria-hidden="true">' + _SO_HEAD.icon + '</span>' +
           '<span class="pdxso-t">' + esc(_SO_HEAD.title) + '</span>' +
-          '<span class="pdxso-depth">' + p.issues + ' issue' + (p.issues === 1 ? '' : 's') +
-            ' read · ' + p.judged + ' act' + (p.judged === 1 ? '' : 's') + ' behind them</span>' +
         '</div>' +
+        invLine +
         '<div class="pdxso-grps">' +
           grpHtml('consistent', p.consistent, p.consistentN) +
           grpHtml('mixed', p.mixed, p.mixedN) +
@@ -10067,6 +10096,17 @@
             ' nothing formal on file at all, so ' + (bare === 1 ? 'it is' : 'they are') +
             ' not on this list.' : '') +
           ' Tap any issue for its dossier.</p>' +
+        // 📋 THE COVERAGE INVENTORY, WITHOUT THE CLAUSE THE LEDE ABOVE ALREADY
+        // SAID. The lede is this index's own formal count, in its own words, so the
+        // inventory drops its formal clause here and contributes the halves this
+        // list cannot see: what we hold them SAYING, how much of it has been tested,
+        // what is still open, and when the file last grew. Counts only — this index
+        // has refused a coverage RATIO since the day it was written, for the reason
+        // in the wall above _fpiRows, and the inventory carries no denominator at
+        // all. The atlas can mount outside a profile (an overlay, a dossier), which
+        // is where this line is doing the most work: there is no record strip above
+        // it there to have said any of it.
+        _invLine(pid, ['formal']) +
         // THE ROLL-UP SITS UNDER THE LEDE AND ABOVE THE FILTERS, and it is built
         // from `pid` rather than from `shown` on purpose: it is a fact about the
         // whole formal record, so it must not change when a reader filters the
