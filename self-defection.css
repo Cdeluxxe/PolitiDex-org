@@ -1,0 +1,126 @@
+/* ============================================================================
+   self-defection.css — the visual language of one person against their own word
+   ============================================================================
+   The finding is already published inside ⚖️ Word vs Action, in that section's
+   red `contradicts` bucket. This surface deliberately does NOT reuse that red at
+   list scale.
+
+   The reason is the same one the finance lane's palette note gives: a colour is a
+   claim. A page of red-cased rows delivers a verdict about a person before a
+   reader has read one line of it, and it makes seven rows look like a worse person
+   than one row — which is a ranking rendered in paint. So the accent is a single
+   muted amber rail on the section, the rows are the same neutral card the rest of
+   the profile uses, and the only thing that varies row to row is the text.
+
+   Nothing here scales with count. No row is bigger, redder or heavier than
+   another; there is no "severity" class to add later, and no gradient a future
+   caller could key to a number.
+
+   ── ON THE `pdxown-` PREFIX ────────────────────────────────────────────────
+   The obvious prefix for this file was `pdxsd-`, and it was already taken:
+   consistency.js injects `.pdxsd-act` and `.pdxsd-dir` for the Say-vs-Do act rows
+   in the issue dossier. A `.pdxsd-act` rule here would have silently restyled
+   those rows — a stylesheet reaching into another module's surface is exactly the
+   kind of change nothing fails on and everyone sees. scripts/test-self-defection.mjs
+   asserts that every class this file defines is defined nowhere else.
+   ========================================================================== */
+
+.pdxown-sec { border-left: 3px solid #d9a441; }
+
+.pdxown-lede {
+  margin: 0 0 .35rem;
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: 1rem;
+  color: #e8e2d6;
+}
+.pdxown-wall {
+  margin: 0 0 .9rem;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: #9aa3ad;
+  max-width: 62ch;
+}
+
+.pdxown-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; }
+
+.pdxown-item {
+  background: rgba(255, 255, 255, .028);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 8px;
+  padding: .7rem .8rem;
+}
+
+.pdxown-head { margin-bottom: .3rem; }
+.pdxown-who {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: 1.02rem;
+  color: #e8e2d6;
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(232, 226, 214, .4);
+}
+.pdxown-who:hover { border-bottom-style: solid; }
+.pdxown-office {
+  display: block;
+  font-size: .72rem;
+  color: #8b939c;
+  letter-spacing: .02em;
+}
+
+.pdxown-issue {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .5rem;
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: .95rem;
+  letter-spacing: .02em;
+  color: #d9a441;
+  margin-bottom: .45rem;
+}
+.pdxown-date { font-family: 'Barlow', system-ui, sans-serif; font-size: .72rem; color: #8b939c; letter-spacing: 0; }
+/* An undated act is listed, not hidden — and says so rather than borrowing the
+   look of a date it does not have. */
+.pdxown-nodate { font-style: italic; }
+
+.pdxown-lane { margin: 0 0 .45rem; }
+.pdxown-lane-k {
+  display: block;
+  font-size: .66rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #7d858e;
+  margin-bottom: .12rem;
+}
+.pdxown-said, .pdxown-act, .pdxown-proof, .pdxown-multi {
+  margin: 0;
+  font-size: .82rem;
+  line-height: 1.5;
+  color: #cfd5db;
+}
+.pdxown-said { color: #c9cfd6; }
+.pdxown-proof { color: #b8c0c8; }
+.pdxown-multi { color: #8b939c; font-size: .75rem; margin-top: .15rem; }
+
+.pdxown-src { color: #9fb4d4; font-size: .74rem; text-decoration: none; }
+.pdxown-src:hover { text-decoration: underline; }
+
+.pdxown-outs { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; margin-top: .5rem; }
+.pdxown-dos, .pdxown-pfile {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: .8rem;
+  letter-spacing: .02em;
+  color: #d9a441;
+  background: transparent;
+  border: 1px solid rgba(217, 164, 65, .35);
+  border-radius: 999px;
+  padding: .22rem .6rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+.pdxown-dos:hover, .pdxown-pfile:hover { background: rgba(217, 164, 65, .1); }
+
+.pdxown-more { margin: .7rem 0 0; font-size: .75rem; color: #8b939c; }
+
+@media (max-width: 560px) {
+  .pdxown-item { padding: .6rem .65rem; }
+}

@@ -7,7 +7,7 @@ benefits fall across income and economic groups.
 
 It is the third sibling of the Evidence Locker's
 [`_strength()`](./EVIDENCE_STRENGTH.md) and the Follow-the-Money
-[Constituents-First signal](./FINANCE_INTEGRITY.md): it reports a **structural fact**
+[campaign-finance lane](./FINANCE_INTEGRITY.md): it reports a **structural fact**
 — who is affected and which way — **not** whether we agree with the policy, and every
 figure lists the scorekeeper and links to the source so it never reads as a black box.
 The data lives in the `vr_distributional_impacts` table and is served, read-only, by
@@ -137,7 +137,7 @@ evidence-strength rules apply unchanged.
 On a politician profile, a dedicated section pairs the two public-record facts the
 platform already tracks:
 
-- **Who funds them** — a compact recap of the existing Constituents-First finance
+- **Who funds them** — a compact recap of the existing campaign-finance
   signal (`window._pdxFinanceSignal(id)`): the 0–100 score, its level, and the
   small-dollar vs. large-individual+PAC shares. Nothing is recomputed; it restates the
   signal object, with a "Full finance breakdown →" link to Follow the Money.

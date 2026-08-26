@@ -230,19 +230,30 @@
   }
 
   /* ── THE MONEY TREE model ───────────────────────────────────────────── */
-  // Detailed funding-mix segments (single source of truth for colours + order).
+  // Detailed funding-mix segments (order and colours come from ONE place).
+  //
+  // The colours used to be green for small-dollar, amber for large individual and
+  // red for PAC, which delivered a verdict after the words had stopped: a reader
+  // did not have to read the legend to know which bucket they were supposed to
+  // disapprove of. finance-lane.js owns the categorical palette now — five hues
+  // that distinguish buckets and rank none of them — and this view borrows it so
+  // the same bucket is never two colours on two surfaces.
+  var LANE_COLORS = (window.PDXFinanceLane && window.PDXFinanceLane.COLORS) || {
+    smallDollar: '#7cc4ff', largeIndividual: '#c4a6ff', pac: '#5efcc4',
+    selfFunded: '#ffb86c', party: '#7596c0'
+  };
   var MIX = [
-    { key: 'smallDollar',     label: 'Small-dollar', color: '#4ade80' },
-    { key: 'largeIndividual', label: 'Large indiv',  color: '#f5c842' },
-    { key: 'pac',             label: 'PAC',          color: '#f87171' },
-    { key: 'selfFunded',      label: 'Self-funded',  color: '#c4a6ff' },
-    { key: 'party',           label: 'Party',        color: '#7596c0' }
+    { key: 'smallDollar',     label: 'Small-dollar', color: LANE_COLORS.smallDollar },
+    { key: 'largeIndividual', label: 'Large indiv',  color: LANE_COLORS.largeIndividual },
+    { key: 'pac',             label: 'PAC',          color: LANE_COLORS.pac },
+    { key: 'selfFunded',      label: 'Self-funded',  color: LANE_COLORS.selfFunded },
+    { key: 'party',           label: 'Party',        color: LANE_COLORS.party }
   ];
-  // Grouped 3-way story that leads the money view — the intuitive framing.
+  // Grouped 3-way view of the same composition, for a bar too small for five.
   var MIX3 = [
-    { key: 'grassroots', label: 'Grassroots · small-dollar', color: '#4ade80' },
-    { key: 'largePac',   label: 'Large donors & PACs',       color: '#f5c842' },
-    { key: 'selfParty',  label: 'Self / party',              color: '#7596c0' }
+    { key: 'grassroots', label: 'Small-dollar',        color: LANE_COLORS.smallDollar },
+    { key: 'largePac',   label: 'Large donors & PACs', color: LANE_COLORS.largeIndividual },
+    { key: 'selfParty',  label: 'Self / party',        color: LANE_COLORS.party }
   ];
   function group3(shares) {
     shares = shares || {};
@@ -252,12 +263,18 @@
       selfParty: Math.round((shares.selfFunded || 0) + (shares.party || 0))
     };
   }
-  // Neutral, non-judgmental one-word lean based on the grouped mix.
+  // WHICH GROUP IS LARGEST — a fact about a sorted list of three numbers, and
+  // nothing more. This used to read "Leans grassroots" / "Leans large-donor &
+  // PAC" / "Mixed funding" in green, amber and blue, which is a graded label with
+  // a graded palette: three words that rate a person on money. The finding is the
+  // same and the claim is now the one the data supports — one group is the biggest,
+  // or no group is by a clear margin. `key` still drives the CSS class, so the
+  // stylesheet keeps working; the styles behind those classes are neutral now.
   function leanOf(m3) {
-    if (!m3) return { key: 'na', label: 'No filing' };
-    if (m3.grassroots >= m3.largePac + 10) return { key: 'grassroots', label: 'Leans grassroots' };
-    if (m3.largePac >= m3.grassroots + 10) return { key: 'large', label: 'Leans large-donor & PAC' };
-    return { key: 'mixed', label: 'Mixed funding' };
+    if (!m3) return { key: 'na', label: 'No filing on file' };
+    if (m3.grassroots >= m3.largePac + 10) return { key: 'grassroots', label: 'Largest group: small-dollar' };
+    if (m3.largePac >= m3.grassroots + 10) return { key: 'large', label: 'Largest group: large donors & PACs' };
+    return { key: 'mixed', label: 'No group clearly largest' };
   }
 
   function buildMoneyTree() {
@@ -372,9 +389,18 @@
     }).join('') + '</div>';
     return bar + legend;
   }
+  // The per-branch chip. It used to print the retired 0-100 finance score's graded
+  // label in that score's colour ("Special-Interest Heavy" in red). The score is
+  // gone; the chip names the largest reported source in dollars, in the lane's own
+  // neutral styling, and says nothing about the person.
   function signalChip(sig) {
     if (!sig) return '';
-    return '<span class="mp-signal" style="color:' + sig.color + ';background:' + sig.color + '1f;border:1px solid ' + sig.color + '55">' + esc(sig.label) + '</span>';
+    var L = sig.largest;
+    var txt = L ? (L.amountFmt + ' ' + L.short.toLowerCase())
+                : ((sig.receiptsFmt || '') + ' reported');
+    if (!txt.trim()) return '';
+    return '<span class="mp-signal" title="Largest reported source. Composition as filed, not a score.">' +
+      esc(txt) + '</span>';
   }
   function section(title, ico, linkHref, linkText, bodyHTML) {
     var link = linkHref ? '<a class="mp-sec-link" href="' + linkHref + '">' + esc(linkText) + ' →</a>' : '';
@@ -631,6 +657,12 @@
     // Team-level summary — lead with the intuitive grassroots-vs-big framing.
     var m3 = t.mix3;
     var leanCls = t.lean.key === 'grassroots' ? 'is-grass' : (t.lean.key === 'large' ? 'is-large' : 'is-mixed');
+    // The lane's coverage disclosure, printed with the team blend rather than a
+    // click away from it: a blend computed over "everyone on the team who happens
+    // to have a filing" is a different sentence from a blend over the team, and
+    // the reader is entitled to know which one they are looking at.
+    var cov = (window.PDXFinanceLane && typeof window.PDXFinanceLane.coverage === 'function')
+      ? window.PDXFinanceLane.coverage() : null;
     var figs = '<div class="mp-money-figs">'
       + '<div><div class="mp-fig-num">' + money(t.receipts) + '</div><span class="mp-fig-lbl">Team receipts</span></div>'
       + '<div><div class="mp-fig-num">' + t.tracked + '</div><span class="mp-fig-lbl">With money on file</span></div>'
@@ -669,7 +701,14 @@
       issueSpend = '<div class="mp-money-block"><p class="mp-block-h">Public spending tied to your issues</p><p class="mp-sub">No tracked federal spending maps to your current stances yet. As you add stances on spending-heavy issues (defense, health, energy), the dollars will surface here.</p></div>';
     }
 
-    var summary = '<div class="mp-money-summary">' + lean + figs + plain + blend + sources + sectors + issueSpend + '</div>';
+    var covNote = '<p class="mp-money-note">Composition as filed, from itemized public disclosures — '
+      + esc(t.tracked) + ' of the ' + esc(ctx.teamPids.length || t.tracked)
+      + ' on your team have a filing on file, and this blend is computed over those only. '
+      + 'A missing filing is missing data, not a finding about the person. '
+      + 'Nothing here is a score, and nothing here is read by \u2696\ufe0f Word vs Action, '
+      + 'by Direction Match, or by any ranking.'
+      + (cov ? ' ' + esc(cov.sentence) : '') + '</p>';
+    var summary = '<div class="mp-money-summary">' + lean + figs + plain + blend + covNote + sources + sectors + issueSpend + '</div>';
 
     // Per-politician branches — grouped bar first, detail beneath.
     var branches = tree.nodes.map(function (n) {

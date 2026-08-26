@@ -32,10 +32,26 @@
 //   POST /:id/support          toggle support for a proposal
 //                                body: { voterKey }  → { supported, supportCount }
 
+// WHAT SUPPORT IS, AND IS NOT
+//
+// A support tap is momentum: a count of people who said "this matters, track it".
+// It is NOT evidence, and it is walled off from every scored surface on the site.
+// No value produced by this function is read by Direction Match, by Word vs
+// Action, by a formal pattern tier, by the publication floor, by a formal-act
+// count, or by ballot sort order — and the wall is asserted, not just intended
+// (scripts/test-support-lane.mjs). Support attaches to a reform proposal, never
+// to a person's vote row: there is no endpoint here that upvotes a roll call.
+//
+// RATE LIMITS: both write routes go through netlify/lib/rate-limit.ts, keyed on
+// the participant key AND the client IP, because the participant key is minted
+// client-side and rotating it is otherwise a one-line bypass. A count of people
+// that a script can inflate is not a count of people.
+
 import type { Config } from "@netlify/functions";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { pdxProposals, pdxProposalVotes } from "../../db/schema.js";
+import { checkLimits, clientIp, tooManyRequests, type Limit } from "../lib/rate-limit.js";
 
 // ── Validation limits (defense in depth; the client validates too) ───────────
 const TITLE_MIN = 4;
@@ -53,6 +69,21 @@ const MAX_LINKS = 12;
 // A generous page size — the Mandate grid shows everything the community has
 // proposed, but we cap the payload so a huge table can't blow up a response.
 const LIST_LIMIT = 200;
+
+// ── Write-rate limits ────────────────────────────────────────────────────────
+// Two ceilings per route (see netlify/lib/rate-limit.ts). The per-key ceiling is
+// the tight one; the per-IP ceiling is deliberately loose because one address can
+// be a household, an office or a carrier NAT, and a limit tight enough to stop a
+// script would lock out a classroom.
+//
+// The numbers are sized against what a person plausibly does, not against what a
+// script can do: three reform proposals in ten minutes is already an unusually
+// productive session, and thirty support taps in five minutes is more of the
+// Mandate grid than fits on a screen.
+const CREATE_LIMIT_KEY: Limit = { max: 3, windowSeconds: 600 };
+const CREATE_LIMIT_IP: Limit = { max: 12, windowSeconds: 600 };
+const SUPPORT_LIMIT_KEY: Limit = { max: 30, windowSeconds: 300 };
+const SUPPORT_LIMIT_IP: Limit = { max: 120, windowSeconds: 300 };
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -155,13 +186,29 @@ async function listProposals(url: URL): Promise<Response> {
     linkedRaceIds: r.linkedRaceIds ?? [],
   }));
 
-  // Live headline stats: total proposals + total support votes cast across all of
-  // them (the sum of the denormalised counters, so it's a single cheap read).
-  const totalVotes = proposals.reduce((sum, p) => sum + p.supportCount, 0);
+  // Live headline stats: how many reforms have been proposed, and how many
+  // support taps they have collected between them (the sum of the denormalised
+  // counters, so it's a single cheap read).
+  //
+  // The field is `supportTotal`, not `totalVotes`. "Votes" is the word this site
+  // uses for a roll call — a formal act with a date, a chamber and a citation —
+  // and spending it on a click blurs the one distinction the whole archive rests
+  // on. `totalVotes` is still emitted as a deprecated alias so an older cached
+  // client keeps rendering; nothing new should read it.
+  const supportTotal = proposals.reduce((sum, p) => sum + p.supportCount, 0);
 
   return json({
     proposals,
-    stats: { proposalCount: proposals.length, totalVotes },
+    stats: {
+      proposalCount: proposals.length,
+      supportTotal,
+      // Deprecated alias — see above. Do not add new readers.
+      totalVotes: supportTotal,
+      // Says out loud what these counts are, so a consumer cannot mistake them
+      // for a measurement of anything about a politician.
+      kind: "momentum",
+      note: "Support counts are momentum — how many people asked for this to be tracked. They are not evidence and feed no score.",
+    },
     sort,
   });
 }
@@ -191,6 +238,17 @@ async function createProposal(req: Request): Promise<Response> {
   }
   if (description.length < DESC_MIN) {
     return json({ error: `Description must be at least ${DESC_MIN} characters.` }, 400);
+  }
+
+  // Rate limit AFTER validation so a malformed request does not spend a slot, and
+  // BEFORE the insert so a passing one cannot land without being counted.
+  const gate = await checkLimits("mandate:create", [
+    { cls: "key", id: submitterKey || "", limit: CREATE_LIMIT_KEY },
+    { cls: "ip", id: clientIp(req), limit: CREATE_LIMIT_IP },
+  ]);
+  if (!gate.ok) {
+    console.log(`mandate-proposals: create rate-limited (${gate.tripped})`);
+    return tooManyRequests(gate.retryAfter);
   }
 
   const [row] = await db
@@ -228,6 +286,17 @@ async function toggleSupport(id: number, req: Request): Promise<Response> {
   }
   const voterKey = clean(body?.voterKey, KEY_MAX);
   if (!voterKey) return json({ error: "Missing voterKey" }, 400);
+
+  // A toggle is cheap and idempotent, but it is also the endpoint that moves the
+  // number on screen, so it is the one worth metering.
+  const gate = await checkLimits("mandate:support", [
+    { cls: "key", id: voterKey, limit: SUPPORT_LIMIT_KEY },
+    { cls: "ip", id: clientIp(req), limit: SUPPORT_LIMIT_IP },
+  ]);
+  if (!gate.ok) {
+    console.log(`mandate-proposals: support rate-limited (${gate.tripped})`);
+    return tooManyRequests(gate.retryAfter);
+  }
 
   const [proposal] = await db
     .select({ id: pdxProposals.id })

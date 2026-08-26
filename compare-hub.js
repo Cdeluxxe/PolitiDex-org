@@ -951,7 +951,7 @@
       } else {
         if (desktop) {
           desktop.innerHTML = `
-            <button onclick="openAuthModal()" class="relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-lg shadow-lg transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95" style="white-space:nowrap;font-size:10px;letter-spacing:0.1em;padding:4.5px 10px;animation:navSignInGlow 2.2s ease-in-out infinite, navSignInAttention 6s ease-in-out infinite;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+            <button onclick="openAuthModal()" class="relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-lg shadow-lg transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95" style="white-space:nowrap;font-size:10px;letter-spacing:0.1em;padding:4.5px 10px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
               <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
               <span>JOIN THE PEOPLE</span>
               <span style="font-size:7.5px;background:rgba(255,255,255,0.22);padding:1px 5px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
@@ -960,7 +960,7 @@
         }
         if (mobile) {
           mobile.innerHTML = `
-            <button onclick="openAuthModal();document.getElementById('mobileMenu').classList.add('hidden');" class="w-full relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white rounded-xl text-center font-display tracking-widest uppercase flex items-center justify-center gap-2" style="font-size:15px;letter-spacing:0.11em;padding:14px 16px;animation:navSignInGlow 2.2s ease-in-out infinite;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+            <button onclick="openAuthModal();document.getElementById('mobileMenu').classList.add('hidden');" class="w-full relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white rounded-xl text-center font-display tracking-widest uppercase flex items-center justify-center gap-2" style="font-size:15px;letter-spacing:0.11em;padding:14px 16px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
               <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
               <span>JOIN THE PEOPLE</span>
               <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>

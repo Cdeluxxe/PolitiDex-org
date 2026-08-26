@@ -145,7 +145,7 @@
 
   // Funding integrity signal (higher = more small-donor, less special-interest
   // funded). FALLBACK SEED ONLY: for anyone with an itemized filing in FTM_FUNDING,
-  // the live, transparent Constituents-First signal (window._pdxFinanceSignal,
+  // the live composition read of the itemized filing (window._pdxFinanceSignal,
   // computed from real FEC / Utah-disclosure buckets with its reasons shown in the
   // UI) supersedes these numbers. This map still seeds the Transparency and
   // Constituents-over-special-interests mandate principles for officials who have
@@ -3233,29 +3233,50 @@
   // per-category lookup into the composite, the 0-100 colour ramp, the rows and
   // the averaged overall are all gone.
   //
-  // What renders is what was never a grade — the Constituents-First funding
-  // signal, computed live from itemized FEC and Utah disclosure filings, and
-  // deliberately framed as a money lens rather than a record score. Nothing shows
-  // when there is no filing. MANDATE_OVERRIDES and the curated FINANCE_INTEGRITY
-  // seed remain as data; no display path reads them any more.
-  // See scripts/test-acct-not-ranked.mjs.
+  // What renders is the money lane — the composition of the itemized filing, from
+  // finance-lane.js. It is not a grade and it no longer looks like one: the 0-100
+  // "Constituents-First signal" that used to headline this block, its three graded
+  // levels and its green/amber/red ramp are retired (see finance-lane.js for the
+  // reasoning and index.html for the deleted arithmetic).
+  //
+  // AND IT RENDERS IN BOTH STATES NOW. This used to return '' for everyone without
+  // a filing, which is 744 of the 757 people the site carries — so the overwhelming
+  // majority of profiles said nothing at all about money, and a reader could not
+  // tell "checked, nothing concentrated" from "never checked". The lane's entry row
+  // renders either way: on file it names the largest reported source and opens the
+  // door to the full breakdown, off file it says plainly that no filing is on file
+  // and that this is missing data rather than a finding.
+  // MANDATE_OVERRIDES and the curated FINANCE_INTEGRITY seed remain as data; no
+  // display path reads them any more.
+  // See scripts/test-acct-not-ranked.mjs and scripts/test-finance-lane.mjs.
   window._renderMandateAlignment = function(id, p) {
     p = p || {};
-    // Live, transparent Constituents-First finance signal (computed from itemized
-    // FEC / Utah-disclosure buckets, with its reasons shown below).
+    var L = window.PDXFinanceLane;
     var finSig = (typeof window._pdxFinanceSignal === 'function') ? window._pdxFinanceSignal(id) : null;
-    if (!finSig) return '';
+    var entry = (L && typeof L.entryHtml === 'function') ? L.entryHtml(id) : '';
+    if (!finSig) {
+      // No filing. One calm row, no chart of zeroes, and no section chrome that
+      // implies a finding is being withheld.
+      if (!entry) return '';
+      return '<div class="modal-section" id="alignment-modal-section">' +
+        '<div class="modal-section-title">💰 Follow the Money</div>' + entry +
+        '<p class="src-note">Campaign-finance disclosure lane (FEC + Utah state disclosures). ' +
+        'Separate from Your Match and from the ⚖️ Word vs Action record entirely, and never ' +
+        'an input to either.</p>' +
+      '</div>';
+    }
     return '<div class="modal-section" id="alignment-modal-section">' +
       '<div class="modal-section-title">💰 Follow the Money</div>' +
-      '<div style="background:rgba(10,15,30,0.4);border:1px solid rgba(74,222,128,0.18);border-radius:0.9rem;padding:0.9rem 1rem;">' +
+      '<div style="background:rgba(10,15,30,0.4);border:1px solid rgba(159,180,212,0.18);border-radius:0.9rem;padding:0.9rem 1rem;">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.6rem;">' +
-          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.05em;color:#dbe6f6;">🏛️ Constituents-First signal</div>' +
-          '<a href="#follow-the-money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#4ade80;text-decoration:none;white-space:nowrap;">Follow the Money →</a>' +
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.05em;color:#dbe6f6;">🏛️ Where the money came from</div>' +
+          '<a href="#follow-the-money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7cc4ff;text-decoration:none;white-space:nowrap;">Follow the Money →</a>' +
         '</div>' +
-        '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.65rem;">A separate <strong style="color:#c8d8ea;">funding lens</strong> — not one of the record scores. Computed live from itemized public filings, it shows how much of their money comes from small-dollar donors versus large-individual and PAC money.</p>' +
+        '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.65rem;">A separate <strong style="color:#c8d8ea;">disclosure lane</strong> — <strong style="color:#c8d8ea;">not a score</strong> and not one of the record reads. It reports the composition of their itemized public filing in dollars: how much came from small-dollar donors, from large individual contributions, from PACs, from self-funding and from party transfers. It infers no motive, and nothing in it is read by Direction Match, by the formal pattern tiers, or by any ranking.</p>' +
         window._pdxFinanceSignalHTML(finSig) +
+        ((L && typeof L.coverageHtml === 'function') ? L.coverageHtml() : '') +
       '</div>' +
-      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match and from the ⚖️ Word vs Action record entirely.</p>' +
+      '<p class="src-note">Campaign-finance composition as filed (FEC + Utah state disclosures). A disclosure lane, kept separate from Your Match and from the ⚖️ Word vs Action record entirely.</p>' +
     '</div>';
   };
 
@@ -5173,6 +5194,20 @@
            renderer for both. -->
       ${(window.PDXWordAction && typeof window.PDXWordAction.sectionHtml === 'function') ? window.PDXWordAction.sectionHtml(id, p) : ''}
 
+      <!-- ↩️ AGAINST THEIR OWN STATED POSITION — the section above's own contradiction
+           verdicts, gathered into a dated list with the receipt on each row. It mounts
+           HERE, directly under ⚖️ Word vs Action, because it is that section's rows
+           re-read rather than a second finding: a reader who has just met the verdict
+           should meet the list of what it rests on next, not three screens later.
+           Renders '' unless there is at least one issue where a real stated position
+           was tested against a citable formal act and lost — an empty frame under that
+           heading is an accusation with the evidence pending. It publishes no score, no
+           count of anyone else's items, and never compares this person with another.
+           See the walls at the top of self-defection.js. -->
+      ${(window.PDXSelfDefection && typeof window.PDXSelfDefection.personHtml === 'function')
+        ? (function(){ try { return window.PDXSelfDefection.personHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
       <!-- THE LIMITED-RECORD CARD USED TO MOUNT HERE, between ⚖️ Word vs Action
            and the tree. It is gated on _isThinProfile, which means it fires only
            on the profiles where 🌳 All Issues by Topic is the entire substance of
@@ -5523,15 +5558,18 @@
       <span id="pdxsec-impact" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._pdxMemberImpactsOverview === 'function') ? window._pdxMemberImpactsOverview(id) : ''}
 
-      <!-- Follow the Money — the campaign-finance Constituents-First lens. (The
-           four-tile People's Mandate scorecard this renderer used to emit is
-           retired: it re-presented the promise rate and the retired Accountability
-           composite as if they were separate findings.) -->
+      <!-- Follow the Money — the campaign-finance DISCLOSURE lane: composition of
+           the itemized filing, in dollars, and the coverage disclosure that travels
+           with it. Renders in both states (on file / no filing on file), which is
+           the point: a blank used to be indistinguishable from a clean bill of
+           health. (The four-tile People's Mandate scorecard this renderer used to
+           emit is retired, as is the 0-100 Constituents-First signal that headlined
+           it: both re-presented a grade about a person as a separate finding.) -->
       ${(typeof window._renderMandateAlignment === 'function') ? window._renderMandateAlignment(id, p) : ''}
 
-      <!-- Follow the Money — Side by Side. Pairs the Constituents-First finance
-           signal (who funds them) with a distributional summary of who their key
-           votes affect. Renders only when a finance signal exists; the distributional
+      <!-- Follow the Money — Side by Side. Pairs the money lane's composition read
+           (who funds them) with a distributional summary of who their key
+           votes affect. Renders only when a filing is on file; the distributional
            column fills async and the whole section hides itself when the official has
            no ledger-scored votes, so it never adds empty noise. -->
       ${(function(){

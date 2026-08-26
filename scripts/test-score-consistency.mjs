@@ -726,8 +726,17 @@ const [displayScore, promiseState] = (() => {
      /if \(!finSig\) return '';/.test(mandate),
     "the four-tile People's Mandate scorecard renders again — it re-presented the\n" +
     "    promise and accountability numbers as if they were separate findings");
-  ok(/A separate <strong[^>]*>funding lens|not one of the record scores/.test(mandate),
-    "the funding lens no longer states that it is not one of the record scores");
+  // Phase 2 renamed this block's self-description: it is now a "disclosure lane"
+  // and the sentence says "not a score and not one of the record reads", because
+  // the 0-100 Constituents-First signal it used to headline is retired outright
+  // (see FINANCE_INTEGRITY.md). The contract is the same one — the block has to
+  // say in words that it is not a record read — so it accepts either wording.
+  ok(/A separate <strong[^>]*>(funding lens|disclosure lane)/.test(mandate),
+    "the money block no longer introduces itself as a separate lane");
+  ok(/not one of the record (scores|reads)/.test(mandate),
+    "the money block no longer states that it is not one of the record reads");
+  ok(/not a score/.test(mandate),
+    "the money block no longer says, in words, that it is not a score");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,415 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// test-finance-lane.mjs — the money lane reports a composition, and the grade it
+// used to publish is gone
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign finance was already on the site, but not as a lane: it arrived as a
+// 0–100 "Constituents-First signal" with a coloured tile, three graded levels
+// (Constituents-First / Mixed Funding / Special-Interest Heavy) and a "Why this
+// score" list of ±point badges. Next to ⚖️ Word vs Action's percentage and Your
+// Match's percentage that was a third match % about a person — and unlike those
+// two it rested on no formal record and cleared no publication floor. Worse, the
+// coverage: itemized filings exist for 13 of the 757 people the site carries, so
+// a red badge was a verdict built from data the site does not have, and the 744
+// with no badge could not tell "checked and clear" from "never checked".
+//
+// The score is retired and finance-lane.js publishes composition instead. This
+// file is the fence around that decision:
+//
+//   1. NO SCORE, ANYWHERE, IN ANY SHAPE. The read carries no `score`, `level`,
+//      `label`, `color` or `reasons`; the rendered block has no /100, no tile and
+//      no "Why this score"; no threshold in the module reads a share.
+//   2. THE ARITHMETIC IS DELETED, NOT DORMANT. index.html no longer contains the
+//      50-base, the ±bonus table, the 3..97 clamp or the level cut-offs. A retired
+//      grade with a live accessor is how a retired grade comes back.
+//   3. THE PALETTE DOES NOT GRADE EITHER. This codebase's yes/no colours (#4ade80,
+//      #f87171) do not appear in the lane, in the recap, or in the Money Tree's
+//      bucket palette. Green-for-grassroots beside red-for-PAC delivers the verdict
+//      after the words stop.
+//   4. COVERAGE IS DISCLOSED, EVERY TIME, IN WORDS. Both counts, plus the explicit
+//      statement that a missing filing is missing DATA. Equal in honesty to the
+//      Direction Match floors.
+//   5. IT RENDERS IN BOTH STATES. The absent state is a sentence about the data. It
+//      is never a sentence about the person.
+//   6. NO MOTIVE LANGUAGE. A filing shows where money came from. It does not show
+//      why anyone voted for anything.
+//   7. THE WALL HOLDS. Statically: Direction Match, the publication floor and the
+//      record lane do not name the finance lane at all. At runtime: seeding a full
+//      filing changes no Direction Match figure, no formal pattern tier, no count
+//      and no floor.
+//
+//   node scripts/test-finance-lane.mjs
+//
+// Real shipped modules in a node:vm sandbox, and the REAL FTM_FUNDING seed lifted
+// out of index.html, so what is composed here is what a browser composes.
+
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { buildCorpus } from "./vr-record-corpus.mjs";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const R = (f) => readFileSync(join(ROOT, f), "utf8");
+const INDEX = R("index.html");
+const LANE_SRC = R("finance-lane.js");
+
+let passed = 0;
+const failures = [];
+const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
+const eq = (a, b, msg) =>
+  ok(a === b, `${msg} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
+const has = (hay, needle, msg) =>
+  ok(String(hay).indexOf(needle) >= 0, `${msg} — "${needle}" missing`);
+const lacks = (hay, needle, msg) =>
+  ok(String(hay).indexOf(needle) < 0, `${msg} — "${needle}" present and must not be`);
+const section = (t) => console.log(`\n   ── ${t}`);
+const visible = (html) => String(html).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+const must = (cond, msg) => {
+  if (cond) return;
+  console.error(`✗ finance-lane: ${msg}`);
+  process.exit(1);
+};
+
+// ── The real seed, lifted out of index.html ─────────────────────────────────
+// The funding buckets live in an inline script. Reading them here rather than
+// re-typing them is the whole point: a fixture would pass while the shipped data
+// broke. `new Function` over the literal only — no page script is executed.
+function liftSeed() {
+  const at = INDEX.indexOf("var FTM_FUNDING = {");
+  must(at > 0, "FTM_FUNDING is no longer in index.html");
+  const end = INDEX.indexOf("\n    };", at);
+  must(end > at, "could not find the end of the FTM_FUNDING literal");
+  const literal = INDEX.slice(at + "var FTM_FUNDING = ".length, end + "\n    }".length);
+  return new Function("return (" + literal + ");")();
+}
+const SEED = liftSeed();
+const SEED_IDS = Object.keys(SEED);
+must(SEED_IDS.length >= 10, `the funding seed is unexpectedly small (${SEED_IDS.length})`);
+const AS_OF = (INDEX.match(/var FTM_AS_OF = '([^']*)'/) || [])[1] || "";
+
+// A sandbox with the lane loaded and the real seed indexed the way index.html
+// indexes it, so read()/entryHtml() resolve exactly as they do in a browser.
+function laneBox(opts) {
+  opts = opts || {};
+  const win = makeSandbox();
+  const ctx = vm.createContext(win);
+  win._FTM_BY_ID = {};
+  if (!opts.empty) {
+    for (const id of SEED_IDS) win._FTM_BY_ID[id] = { id, name: id, funding: SEED[id] };
+  }
+  win.FTM_AS_OF = AS_OF;
+  vm.runInContext(LANE_SRC, ctx, { filename: "finance-lane.js" });
+  must(win.PDXFinanceLane, "finance-lane.js did not install PDXFinanceLane");
+  return win;
+}
+const L = laneBox().PDXFinanceLane;
+
+// ── 1 · the read carries no grade ───────────────────────────────────────────
+{
+  section("1 · no score, no level, no graded label, in any shape");
+
+  eq(L.scored, false, "the lane declares itself unscored");
+  const GONE = ["score", "level", "label", "color", "reasons", "grade", "rating", "rank"];
+  for (const id of SEED_IDS) {
+    const c = L.read(id);
+    ok(c, `${id}: composes from the shipped seed`);
+    if (!c) continue;
+    for (const k of GONE) {
+      ok(!(k in c), `${id}: the read carries no \`${k}\` field`);
+    }
+    eq(c.scored, false, `${id}: the read says so on itself`);
+  }
+
+  // No number in this module stands for the whole person.
+  const c = L.read(SEED_IDS[0]);
+  eq(typeof c.receipts, "number", "receipts is a dollar total, which is a fact about a filing");
+  const sum = c.rows.reduce((n, r) => n + r.amount, 0);
+  eq(sum, c.receipts, "the rows account for every dollar in the base");
+  const shareSum = c.rows.reduce((n, r) => n + r.share, 0);
+  ok(Math.abs(shareSum - 100) <= 2,
+    `the shares are shares OF that base (${shareSum}% across ${c.rows.length} rows)`);
+  ok(c.rows.every((r) => r.amount > 0), "a zero bucket is omitted, not drawn as an empty bar");
+  const desc = c.rows.every((r, i) => i === 0 || c.rows[i - 1].amount >= r.amount);
+  ok(desc, "rows are sorted by dollars, largest first");
+  eq(c.largest.key, c.rows[0].key, "`largest` is the head of that sorted list and nothing more");
+
+  // NO THRESHOLD READS A SHARE. The retired score's cut-offs (65 / 45) and its
+  // clamp (3 / 97) are the exact literals that must not be back. Comments are
+  // stripped first — the header explains the retirement and has to be able to
+  // quote what it retired.
+  const body = LANE_SRC.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, " ");
+  for (const lit of [">= 65", ">= 45", "< 45", "* 50", "* 30", "* 20",
+    "score =", ".score", "level =", "clamp"]) {
+    lacks(body, lit, `the lane's code carries no \`${lit}\``);
+  }
+}
+
+// ── 2 · the arithmetic is deleted from index.html, not dormant ───────────────
+{
+  section("2 · the retired score's arithmetic is gone from index.html");
+
+  // The exact lines the old _financeSignal was made of.
+  const DEAD = [
+    "var reasons = [], score = 50",
+    "if (score < 3) score = 3",
+    "if (score > 97) score = 97",
+    "label = 'Constituents-First'",
+    "label = 'Mixed Funding'",
+    "label = 'Special-Interest Heavy'",
+    "Why this score",
+    "'/100'",
+    "darkMap",
+    "_finPct",
+    "_finTitleCase",
+    "_finBar(",
+    "_finStack(",
+  ];
+  // Comments stripped: the block that replaced the arithmetic documents what it
+  // replaced, and has to be able to name it.
+  const CODE = INDEX.replace(/<!--[\s\S]*?-->/g, " ").replace(/^\s*\/\/[^\n]*$/gm, " ");
+  for (const d of DEAD) lacks(CODE, d, `index.html no longer contains ${d}`);
+
+  // …and the one accessor everything went through now delegates to the lane.
+  has(INDEX, "function _financeSignal(p) {", "the accessor is still there for its callers");
+  has(INDEX, "return L.compose(p, { asOf: FTM_AS_OF });",
+    "…and it delegates to the single composition read");
+  has(INDEX, '<script defer src="/finance-lane.js"></script>', "the lane is shipped");
+
+  // No user-visible string anywhere still grades anyone. Comments are exempt on
+  // purpose — they are how the retirement stays explained — so this strips them.
+  const noComments = INDEX
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/^\s*\/\/[^\n]*$/gm, " ");
+  for (const bad of ["Constituents-First signal is scored", "65–100 Constituents-First",
+    "45–64 Mixed Funding", "Below 45 Special-Interest Heavy"]) {
+    lacks(noComments, bad, `no shipped markup still says "${bad}"`);
+  }
+
+  // The consumers that used to read the removed fields.
+  for (const f of ["impact-ledger.js", "my-profile.js", "profiles-full.js"]) {
+    const src = R(f).replace(/\/\*[\s\S]*?\*\/|^\s*\/\/[^\n]*$/gm, " ");
+    lacks(src, "sig.score", `${f} does not read a finance score`);
+    lacks(src, "sig.level", `${f} does not read a finance level`);
+    ok(!/sig\.color/.test(src), `${f} does not read a finance verdict colour`);
+  }
+}
+
+// ── 3 · the palette does not grade either ───────────────────────────────────
+{
+  section("3 · no yes/no colours in the money lane");
+
+  // #4ade80 (this codebase's green) and #f87171 (its red) are the two colours that
+  // carry a verdict on sight. Neither may appear in the lane or its consumers'
+  // finance code.
+  const YES_NO = ["#4ade80", "#f87171", "#86efac", "#fca5a5"];
+  const LANE_CODE = LANE_SRC.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, " ");
+  for (const hex of YES_NO) lacks(LANE_CODE, hex, `finance-lane.js does not use ${hex}`);
+  for (const hex of Object.values(L.COLORS)) {
+    ok(YES_NO.indexOf(hex.toLowerCase()) < 0, `bucket colour ${hex} is not a verdict colour`);
+  }
+  const hexes = Object.values(L.COLORS).map((h) => h.toLowerCase());
+  eq(new Set(hexes).size, hexes.length, "every bucket is a distinguishable colour");
+
+  const MP = R("my-profile.js");
+  const mixBlock = MP.slice(MP.indexOf("var MIX = ["), MP.indexOf("function group3"));
+  for (const hex of YES_NO) lacks(mixBlock, hex, `the Money Tree palette does not use ${hex}`);
+  has(mixBlock, "LANE_COLORS", "…because it borrows the lane's palette instead");
+  const MPC = R("my-profile.css");
+  lacks(MPC, ".mp-lean.is-grass { color: #86efac",
+    "the funding-mix badge is no longer green for one answer and amber for another");
+  lacks(R("impact-ledger.js"), "background:#4ade80",
+    "the recap's small-dollar bar is no longer green");
+
+  // The retired label badge took its inline verdict colour with it.
+  lacks(MP, "esc(sig.label)", "my-profile no longer prints a graded finance label");
+  has(MP, "Largest reported source", "…it prints the largest reported source instead");
+}
+
+// ── 4 · coverage, disclosed in words, every time ─────────────────────────────
+{
+  section("4 · coverage disclosure as honest as the Direction Match floors");
+
+  const cov = L.coverage();
+  eq(cov.onFile, SEED_IDS.length, "the on-file count is read off the index, not hard-coded");
+  const box = laneBox();
+  box.CMP_DATA = {};
+  for (let i = 0; i < 757; i++) box.CMP_DATA["p" + i] = { name: "p" + i };
+  const cov2 = box.PDXFinanceLane.coverage();
+  eq(cov2.roster, 757, "the roster count is read off CMP_DATA, not hard-coded");
+  eq(cov2.thin, true, `13 of 757 is disclosed as thin coverage`);
+  has(cov2.sentence, String(cov2.onFile), "the sentence quotes the numerator");
+  has(cov2.sentence, "757", "…and the denominator");
+  has(cov2.sentence, "missing data", "…and says a blank is missing data");
+  ok(/not a finding about the person/.test(cov2.sentence),
+    "…and says explicitly that it is not a finding about the person");
+
+  // The disclosure is attached to the read, so a surface cannot render the
+  // composition and forget the coverage.
+  const c = box.PDXFinanceLane.read(SEED_IDS[0]);
+  ok(c.coverage && c.coverage.sentence === cov2.sentence,
+    "every composition read carries the disclosure with it");
+  has(visible(box.PDXFinanceLane.coverageHtml()), "missing data",
+    "the standalone disclosure renders the same sentence");
+
+  // A thin lane still discloses when the roster is unknown, rather than going quiet.
+  const blind = laneBox();
+  blind.CMP_DATA = null; blind.PROFILES = null;
+  const cb = blind.PDXFinanceLane.coverage();
+  eq(cb.thin, true, "an unknown roster is thin, not clear");
+  has(cb.sentence, "not a finding", "…and still says a blank is not a finding");
+}
+
+// ── 5 · both states render, and the absent one is about the data ────────────
+{
+  section("5 · on file and not on file both render");
+
+  const onFile = L.entryHtml(SEED_IDS[0]);
+  ok(onFile.length > 100, "the on-file entry row renders");
+  has(visible(onFile), "Campaign finance", "…labelled as the finance lane");
+  has(onFile, 'href="#follow-the-money"', "…and it is the door into the full breakdown");
+  has(visible(onFile), "Largest reported source", "…naming the largest reported source");
+  ok(/\$\d/.test(visible(onFile)), "…in dollars");
+
+  const off = L.entryHtml("nobody_has_this_id");
+  ok(off.length > 100, "the NOT-on-file entry row renders too — a blank is not an answer");
+  has(visible(off), "No itemized filing on file", "…and says so plainly");
+  has(visible(off), "missing data", "…and says that is missing data");
+  const offWords = visible(off).toLowerCase();
+  for (const bad of ["clean", "clear", "nothing to report", "no concerns", "good", "bad",
+    "special-interest", "constituents-first", "score", "grade"]) {
+    lacks(offWords, bad, `the absent state does not say "${bad}"`);
+  }
+
+  // The profile section that mounts it renders in both states now.
+  const PF = R("profiles-full.js");
+  has(PF, "L.entryHtml(id)", "the profile money section mounts the entry row");
+  has(PF, "if (!finSig) {", "…and has a branch for no filing at all");
+  ok(PF.indexOf("if (!entry) return ''") > PF.indexOf("if (!finSig) {"),
+    "…returning nothing only when even the row could not be built");
+}
+
+// ── 6 · no motive language ──────────────────────────────────────────────────
+{
+  section("6 · a filing says where money came from, not why anyone voted");
+
+  const MOTIVE = ["bought", "buying", "bribe", "bribed", "beholden", "in the pocket",
+    "owned by", "paid for by their", "corrupt", "kickback", "quid pro quo",
+    "because they were paid", "sold out", "captured by", "puppet", "bankrolled to vote"];
+  const surfaces = [
+    ["composition block", L.compositionHtml(L.read(SEED_IDS[0]))],
+    ["entry row, on file", L.entryHtml(SEED_IDS[0])],
+    ["entry row, absent", L.entryHtml("nobody")],
+    ["coverage note", L.coverageHtml()],
+  ];
+  for (const [name, html] of surfaces) {
+    const words = visible(html).toLowerCase();
+    for (const m of MOTIVE) lacks(words, m, `${name} carries no motive language ("${m}")`);
+    lacks(words, "/100", `${name} carries no out-of-100 figure`);
+    lacks(words, "why this score", `${name} carries no "why this score" list`);
+  }
+
+  const block = L.compositionHtml(L.read(SEED_IDS[0]));
+  has(visible(block), "Composition as filed", "the block says what it is");
+  has(visible(block), "not a score", "…and what it is not");
+  has(visible(block), "Verify at source", "…and where to check it");
+  has(visible(block), "Reported receipts, by source", "…and reports the buckets as filed");
+
+  // Outside spending: a level word and never an invented dollar figure.
+  const withOutside = SEED_IDS.map((id) => L.read(id)).find((c) => c && c.outside);
+  ok(withOutside, "the seed carries at least one filing with outside spending");
+  if (withOutside) {
+    const oh = visible(L.compositionHtml(withOutside)).toLowerCase();
+    has(oh, "outside spending", "outside spending is reported");
+    has(oh, "not itemized to the candidate", "…with the reason there is no dollar figure for it");
+    ok(!/outside[^.]{0,40}\$\d/.test(oh), "…and no dollar figure is invented for it");
+  }
+}
+
+// ── 7 · the wall ────────────────────────────────────────────────────────────
+{
+  section("7 · finance is not an input to Direction Match, a tier, a floor or a count");
+
+  for (const k of ["directionMatch", "wordVsAction", "formalPatternTier",
+    "publicationFloor", "formalActCounts", "ballotSort", "yourMatch"]) {
+    ok((L.NEVER_FEEDS || []).indexOf(k) >= 0, `NEVER_FEEDS names ${k}`);
+  }
+
+  // STATIC: the engines do not know the lane exists.
+  // Campaign-finance IDENTIFIERS only. Neither "funding" nor "campaign-finance"
+  // on its own qualifies: consistency.js's curated prose describes
+  // government-funding bills and the campaign-money titles inside H.R. 1, which
+  // is legislation being described, not a donation being read.
+  const FIN = /PDXFinanceLane|_pdxFinance|_financeSignal|smallDollar|selfFunded|largeIndividual/;
+  for (const f of ["word-action.js", "publication-floor.js", "voting-record.js",
+    "stance-helpers.js", "consistency.js"]) {
+    const src = R(f);
+    ok(!FIN.test(src), `${f} does not name the finance lane or any funding bucket`);
+  }
+
+  // RUNTIME: seed a full filing and every record figure is byte-identical.
+  const FILES = [
+    "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
+    "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
+    "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js", "exec-record.js",
+    "exec-record-ui.js", "consistency.js", "voting-record.js", "word-action.js",
+    "publication-floor.js", "profile-spine.js", "profiles-full.js",
+  ];
+  const SRC = FILES.map((f) => [f, R(f)]);
+  const { byMember } = buildCorpus(ROOT);
+  const ranked = [...byMember.entries()].sort((a, b) => b[1].length - a[1].length);
+  const [PID, items] = ranked[0];
+  must(items.length > 40, `the deepest corpus member is too thin (${PID}: ${items.length})`);
+
+  const snapshot = (withFinance) => {
+    const win = makeSandbox();
+    const ctx = vm.createContext(win);
+    win.PROFILES = win.CMP_DATA;
+    for (const [f, src] of SRC) vm.runInContext(src, ctx, { filename: f });
+    win.PROFILES = win.CMP_DATA;
+    if (withFinance) {
+      // Everything a browser has: the index, the lane, and the accessor every
+      // finance surface calls.
+      win._FTM_BY_ID = {};
+      for (const id of SEED_IDS) win._FTM_BY_ID[id] = { id, name: id, funding: SEED[id] };
+      // …including one for the member under test, which is the strongest form of
+      // the question: does a filing on THIS person move THIS person's record read?
+      win._FTM_BY_ID[PID] = { id: PID, name: PID, funding: SEED[SEED_IDS[0]] };
+      win.FTM_AS_OF = AS_OF;
+      vm.runInContext(LANE_SRC, ctx, { filename: "finance-lane.js" });
+      win._pdxFinanceSignal = (pid) => win.PDXFinanceLane.read(pid);
+      must(win._pdxFinanceSignal(PID), "the finance seed did not attach to the test member");
+    }
+    win.PDXVotingRecord.noteMember(PID, items);
+    const out = [];
+    const wa = win.PDXWordAction.read(PID, win.CMP_DATA[PID]);
+    out.push(["dm", wa && wa.pct, wa && wa.token, wa && wa.verdict, wa && wa.publishable,
+      JSON.stringify((wa && wa.counts) || null), JSON.stringify((wa && wa.tiers) || null),
+      JSON.stringify((wa && wa.floors) || null), JSON.stringify((wa && wa.coverage) || null)].join("|"));
+    const rows = (win.PDXConsistency.formalPatternIndex.rows(PID) || []).map((r) =>
+      [r.key, r.tier, r.token, r.n, r.adv, r.opp, r.confidence].join(":"));
+    out.push(["tiers", rows.length, rows.join(",")].join("|"));
+    const fl = win.PDXPublicationFloor.read(PID);
+    out.push(["floor", fl.publishable, fl.cited, fl.promises, (fl.reasons || []).join(";")].join("|"));
+    out.push(["mapped", JSON.stringify(win._pdxRecordMappedCounts(PID) || null)].join("|"));
+    return out.join("\n");
+  };
+  const without = snapshot(false);
+  const withF = snapshot(true);
+  ok(without.length > 300, `the record snapshot has something in it (${without.length} chars)`);
+  eq(withF, without,
+    "Direction Match, the tiers, the publication floor and the mapped counts are identical " +
+    "with a full filing on file and with none");
+}
+
+// ── Result ───────────────────────────────────────────────────────────────────
+console.log("");
+if (failures.length) {
+  failures.forEach((f) => console.error(`   ✗ ${f}`));
+  console.error(`\n✗ finance-lane: ${failures.length} failed, ${passed} passed`);
+  process.exit(1);
+}
+const cov = L.coverage();
+console.log(`✓ finance-lane: all ${passed} assertions passed`);
+console.log(`   ${cov.onFile} filings on file · composition only · no score, no level, no ramp`);

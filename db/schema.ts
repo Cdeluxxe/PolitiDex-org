@@ -596,6 +596,13 @@ export const pdxNotificationPrefs = pgTable(
     topicPromises: boolean("topic_promises").notNull().default(true), // promise status changes (client-detected)
     topicCommunity: boolean("topic_community").notNull().default(true), // discussion on watched issues/people
     topicTeam: boolean("topic_team").notNull().default(true), // changes to the saved team (client-detected)
+    // Material record events on saved people/issues: a new formal act, a newly
+    // sourced stated position, a mapping or citation correction, a coverage
+    // expansion. On by default because it is the archive doing its job — this is
+    // the only digest group whose every item carries a source URL, and it is
+    // deliberately NOT an outrage group: no aggregates, no rankings, no "worst
+    // of the week". See netlify/lib/digest.ts (buildRecordEvents).
+    topicRecord: boolean("topic_record").notNull().default(true),
     // Watermark the IN-APP digest compares against; advanced when the user opens it.
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
     // Watermark the SCHEDULED EMAIL job compares against; advanced when a mail is sent.
@@ -1021,5 +1028,48 @@ export const vrExecActionStatus = pgTable(
     // which runs once per action for every action in a count summary.
     positionIdx: index("vr_exec_action_status_position_idx").on(t.positionId, t.effectiveAt),
     statusIdx: index("vr_exec_action_status_status_idx").on(t.status),
+  })
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Write-rate limits — fixed-window counters for anonymous write endpoints
+// ─────────────────────────────────────────────────────────────────────────────
+// The People's Mandate write routes accept a client-minted participant key, which
+// means the only thing standing between the proposal list and a script is a
+// counter. This table is that counter.
+//
+// SHAPE: one row per (endpoint, actor, window). `bucket` is an opaque key the
+// Function builds and the database never has to interpret —
+//   sha256(endpoint + "|" + participantKey + "|" + clientIp + "|" + windowStart)
+// truncated to 40 hex chars. Because the window start is INSIDE the key, a new
+// window is a new row: the whole check is one upsert that increments `hits` and
+// returns the new value, with no read-modify-write race to lose.
+//
+// PRIVACY: the raw IP and the raw participant key are inputs to that hash and are
+// never stored, logged, or recoverable from it. A row says "some actor made N
+// requests to this endpoint in this minute" and nothing more. `windowStart` is
+// kept in the clear (outside the hash it is not identifying) purely so old rows
+// can be swept by age.
+//
+// NOT MODERATION: exceeding a limit delays a request. It does not flag a person,
+// score anyone, or write anything a reader ever sees. Nothing in this table is
+// evidence about anybody.
+export const pdxRateLimits = pgTable(
+  "pdx_rate_limits",
+  {
+    id: serial().primaryKey(),
+    // Opaque hash of endpoint + actor + window start. See the note above.
+    bucket: text().notNull(),
+    // Requests counted in this window so far.
+    hits: integer().notNull().default(0),
+    // Start of the fixed window this row counts, kept for age-based sweeping.
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    // The upsert target: one counter per (endpoint, actor, window).
+    bucketUniq: uniqueIndex("pdx_rate_limits_bucket_unique").on(t.bucket),
+    // Age sweep reads by window start only.
+    windowIdx: index("pdx_rate_limits_window_idx").on(t.windowStart),
   })
 );

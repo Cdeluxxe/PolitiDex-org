@@ -197,17 +197,20 @@
   font: 700 .62rem/1 "Barlow Condensed", sans-serif; letter-spacing: .08em;
   text-transform: uppercase; color: #7f93b3; margin-bottom: .6rem;
 }
-/* finance recap */
+/* finance recap. `-fnum` is gone with the retired 0-100 finance score it sized;
+   `-flead` replaces it and holds a DOLLAR figure, which is why it is set smaller
+   and in the body face rather than the display face a headline score wore. */
 .pdx-ilx-fscore { display: flex; align-items: baseline; gap: .5rem; border-left: 3px solid; padding-left: .55rem; margin-bottom: .6rem; }
-.pdx-ilx-fnum { font: 700 1.6rem/1 "Bebas Neue", sans-serif; }
-.pdx-ilx-flabel { font: 600 .8rem/1.1 "Barlow", sans-serif; color: #dbe6f6; }
+.pdx-ilx-flead { font: 700 1.05rem/1 "Barlow Condensed", sans-serif; color: #dbe6f6; flex-shrink: 0; }
+.pdx-ilx-flabel { font: 600 .74rem/1.2 "Barlow", sans-serif; color: #9fb4d4; }
 .pdx-ilx-fbar { display: flex; align-items: center; gap: .45rem; margin-bottom: .3rem; }
 .pdx-ilx-fbar-lab { width: 92px; flex-shrink: 0; text-align: right; font: 700 .56rem/1.1 "Barlow Condensed", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #7596c0; }
 .pdx-ilx-fbar-track { flex: 1; background: rgba(10, 15, 30, .6); border-radius: 4px; height: 11px; overflow: hidden; }
 .pdx-ilx-fbar-fill { display: block; height: 100%; border-radius: 4px; }
-.pdx-ilx-fbar-pct { width: 32px; flex-shrink: 0; text-align: right; font: 700 .62rem/1 "Barlow Condensed", sans-serif; }
+/* Holds a dollar figure now, not a percentage, so it needs the width for one. */
+.pdx-ilx-fbar-pct { width: 46px; flex-shrink: 0; text-align: right; font: 700 .62rem/1 "Barlow Condensed", sans-serif; color: #9fb4d4; }
 .pdx-ilx-fnote { font: 500 .64rem/1.4 "Barlow", sans-serif; color: #7f93b3; margin-top: .35rem; }
-.pdx-ilx-morelink { display: inline-block; margin-top: .5rem; font: 700 .66rem/1 "Barlow Condensed", sans-serif; letter-spacing: .05em; text-transform: uppercase; color: #4ade80; text-decoration: none; }
+.pdx-ilx-morelink { display: inline-block; margin-top: .5rem; font: 700 .66rem/1 "Barlow Condensed", sans-serif; letter-spacing: .05em; text-transform: uppercase; color: #7cc4ff; text-decoration: none; }
 .pdx-ilx-morelink:hover { text-decoration: underline; }
 /* distributional column */
 .pdx-ilx-empty { font: 500 .78rem/1.5 "Barlow", sans-serif; color: #8ea3c2; font-style: italic; margin: .2rem 0; }

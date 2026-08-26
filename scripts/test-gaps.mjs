@@ -613,14 +613,15 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260923000000_vr_hr1_citation_integrity',
+  eq(versions[versions.length - 1], '20260924000000_pdx_rate_limits_and_topic_record',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by the second identity densification
-  // wave, which wrote as-passed summaries for thirteen more 118th/119th measures and added
-  // strong_defense to H.Con.Res. 113 and H.R. 6126, veterans to H.R. 1041,
-  // permitting_reform and crypto_cbdc to H.R. 6644, privacy_rights to H.R. 7757, and
-  // health_mental and health_rural to H.R. 9237. What it guards does not move:
+  // whenever a later migration lands — updated here by the Phase 2 lanes work, which adds
+  // the pdx_rate_limits counter behind the momentum routes and the topic_record digest
+  // toggle. Note the version prefix is hand-set to sort after the applied seeds rather
+  // than left at drizzle's generated wall-clock stamp: the seed layer is version-dated
+  // ahead of today, so a freshly generated stamp lands in the middle of the tree and the
+  // platform rejects it. What it guards does not move:
   // whatever was added most recently has to sort after everything already applied, or
   // the deploy is rejected. The check below is the one that pins THIS test's migration, and it
   // stays put.

@@ -13,7 +13,9 @@
 //      digest ties into the existing saved team, watched issues and sync with no
 //      new client wiring: the data is already in pdx_snapshots.
 //   3. buildDigest() — given those interests + a "since" watermark, pull the
-//      RELEVANT recent activity from the community/forum/promoted tables.
+//      RELEVANT recent activity: material record events from the roll-call corpus
+//      (buildRecordEvents), plus new community evidence and discussion from the
+//      community/forum/promoted tables.
 //
 // Everything here is READ-ONLY against the app's data and deliberately capped so a
 // digest can never become a firehose — the product goal is calm and non-spammy.
@@ -27,11 +29,27 @@ import {
   ceeItemComments,
   pdxForumThreads,
   pdxSnapshots,
+  vrMeasureActions,
+  vrMeasureIssues,
+  vrMeasures,
+  vrMemberVotes,
+  vrPositions,
+  vrRollcalls,
 } from "../../db/schema.js";
+
+// Pure wording / addressing / ordering for record events — see the header of that
+// file for why it is separate and dependency-free.
+import {
+  ACTION_WORD, STAGE_WORD, VOTE_WORD,
+  clip, labelForPoliticianId, measureLabel, personPath, rollcallPath, sortRecordEvents,
+} from "./digest-record-core.mjs";
 
 // The site's Firebase project — the audience every valid ID token must carry.
 // Kept in sync with the other Functions and the client firebaseConfig.
 export const FIREBASE_PROJECT_ID = "politidex-979bd";
+
+// Re-exported so consumers keep importing it from this module.
+export { labelForPoliticianId };
 
 // ── Firebase ID token verification (mirrors pdx-sync / community) ─────────────
 const GOOGLE_CERTS_URL =
@@ -235,6 +253,11 @@ export async function deriveInterests(userId: string): Promise<Interests> {
 export interface DigestTopics {
   evidence: boolean;
   community: boolean;
+  // Material record events — see buildRecordEvents(). Optional so an older caller
+  // that only knows the two original topics keeps compiling; it defaults ON,
+  // because a digest whose whole justification is "the archive changed" should not
+  // need a flag flipped to say so.
+  record?: boolean;
 }
 
 export interface EvidenceItem {
@@ -257,12 +280,75 @@ export interface CommunityItem {
   createdAt: string;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MATERIAL RECORD EVENTS — what the digest is actually for
+// ─────────────────────────────────────────────────────────────────────────────
+// The other two groups are about the community. This one is about the archive:
+// the formal record on the people and issues a reader tracks CHANGED, and here is
+// the change with its citation.
+//
+// The four kinds, and what each one is:
+//
+//   "vote"     — a person the reader tracks has a newly recorded roll-call vote.
+//                A formal act: dated, attributed to a chamber, with a clerk or
+//                Congress.gov URL. Watermarked on when the row was INGESTED, so a
+//                back-filled historical vote does announce itself once — which is
+//                right, because for this reader it genuinely is new information.
+//   "position" — a new sponsorship, co-sponsorship, amicus filing or committee
+//                action by a tracked person. Watermarked on when the act HAPPENED
+//                (vr_positions carries no ingest timestamp), which is the
+//                conservative direction: a 2023 co-sponsorship loaded today is
+//                never announced as this week's news.
+//   "action"   — a new dated stage on a measure mapped to an issue the reader
+//                follows: reported from committee, passed a chamber, enacted,
+//                vetoed. The measure moved.
+//   "mapping"  — a measure on a followed issue was added to the archive, or its
+//                record was corrected (a citation repaired, a title
+//                disambiguated, an issue mapping changed). Coverage expansion and
+//                correction are the same event from a reader's side: what the site
+//                holds about this issue is not what it held last week.
+//
+// WHAT IS NOT IN HERE, ON PURPOSE:
+//   • No aggregate over people. No "worst of the week", no counts by party, no
+//     ranking of anybody against anybody. Every item is ONE act with ONE citation.
+//   • No verdict, no score, no percentage. This group reports that the record
+//     moved; whether that is good is not the digest's to say. Nothing in it reads
+//     Direction Match, and nothing in it feeds it.
+//   • No party field, anywhere.
+//   • Nothing without a source URL. Every table read here has a NOT NULL
+//     source_url, and any row that somehow lacks one is dropped rather than sent —
+//     an emailed claim a reader cannot check is the one thing worse than silence.
+export interface RecordEvent {
+  kind: "vote" | "position" | "action" | "mapping";
+  // Stable-ish id for de-duping in a client; scoped by kind.
+  id: number;
+  // One line naming the act. Descriptive, never prosecutorial.
+  headline: string;
+  // The act's own words where the data has them ("House passed, 218–214").
+  detail: string;
+  // ISO date of the ACT (not of the ingest), or null when the row carries none.
+  date: string | null;
+  // The citation. Always present — an item without one is never emitted.
+  sourceUrl: string;
+  sourceLabel: string;
+  // Where this lands on PolitiDex: a Phase-1 person file (/p/<pid>) for a
+  // person-anchored act, a roll-call address (/vote/<congress>/<chamber>/<roll>)
+  // for a measure-anchored one. Null only when neither address exists, in which
+  // case a consumer links the citation itself.
+  path: string | null;
+  // The tracked person this act belongs to, when it is person-anchored.
+  politicianId: string | null;
+  // The followed issue keys this act touches, when it is issue-anchored.
+  issueKeys: string[];
+}
+
 export interface Digest {
   since: number;
   now: number;
   evidence: EvidenceItem[];
   community: CommunityItem[];
-  counts: { evidence: number; community: number; total: number };
+  record: RecordEvent[];
+  counts: { evidence: number; community: number; record: number; total: number };
 }
 
 // Per-group ceiling. A digest is a nudge, not a feed: we surface the most recent
@@ -271,9 +357,251 @@ const GROUP_CAP = 8;
 // How far back to look when a caller has no watermark yet (first-ever digest).
 const DEFAULT_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
-function clip(s: unknown, n: number): string {
-  const str = String(s == null ? "" : s).trim();
-  return str.length > n ? str.slice(0, n - 1).trimEnd() + "…" : str;
+// ── Record events ────────────────────────────────────────────────────────────
+//
+// The wording, the addressing and the ordering of a record event are pure
+// transforms, and they live in ./digest-record-core.mjs so the test suite can RUN
+// them rather than read them as text. Everything below is the part that needs the
+// database: which rows to read, and how to narrow them to this reader.
+
+const IN_CAP = 200; // ceiling on an IN (…) list, so one huge team cannot blow up a query
+
+// Build the record-event group. Returns at most `cap` items, newest act first.
+//
+// Four independent reads, each already narrowed by the reader's interests and the
+// watermark, then merged and dated. Anything without a source URL is dropped on the
+// way out — see the note on RecordEvent.
+export async function buildRecordEvents(
+  interests: Interests,
+  sinceDate: Date,
+  cap: number
+): Promise<RecordEvent[]> {
+  const pids = interests.politicianIds.slice(0, IN_CAP);
+  const issues = interests.issueKeys.slice(0, IN_CAP);
+  const out: RecordEvent[] = [];
+
+  // 1 · New roll-call votes by a tracked person.
+  if (pids.length) {
+    const rows = await db
+      .select({
+        id: vrMemberVotes.id,
+        pid: vrMemberVotes.politicianId,
+        position: vrMemberVotes.position,
+        voteDate: vrRollcalls.voteDate,
+        question: vrRollcalls.question,
+        chamber: vrRollcalls.chamber,
+        congress: vrRollcalls.congress,
+        rollNumber: vrRollcalls.rollNumber,
+        srcUrl: vrRollcalls.sourceUrl,
+        srcLabel: vrRollcalls.sourceLabel,
+        number: vrMeasures.number,
+        shortTitle: vrMeasures.shortTitle,
+        title: vrMeasures.title,
+      })
+      .from(vrMemberVotes)
+      .innerJoin(vrRollcalls, eq(vrMemberVotes.rollcallId, vrRollcalls.id))
+      .innerJoin(vrMeasures, eq(vrRollcalls.measureId, vrMeasures.id))
+      .where(and(inArray(vrMemberVotes.politicianId, pids), gt(vrMemberVotes.createdAt, sinceDate)))
+      .orderBy(desc(vrMemberVotes.createdAt))
+      .limit(cap * 4);
+    for (const r of rows) {
+      if (!r.srcUrl) continue;
+      out.push({
+        kind: "vote",
+        id: r.id,
+        headline: `${labelForPoliticianId(r.pid)} ${VOTE_WORD[r.position] || "has a recorded vote"} on ` +
+          measureLabel(r.number, r.shortTitle, r.title),
+        detail: clip(r.question || "", 160),
+        date: r.voteDate ? (r.voteDate as Date).toISOString() : null,
+        sourceUrl: r.srcUrl,
+        sourceLabel: r.srcLabel || "Congress.gov",
+        // The person file is the spine: a vote is part of a person's record, and
+        // the record is what /p/<pid> publishes.
+        path: personPath(r.pid),
+        politicianId: r.pid,
+        issueKeys: [],
+      });
+    }
+  }
+
+  // 2 · New formal non-roll-call actions by a tracked person, dated after the
+  //     watermark. See the note on RecordEvent for why this one keys on the act's
+  //     own date rather than on ingest time.
+  if (pids.length) {
+    const rows = await db
+      .select({
+        id: vrPositions.id,
+        pid: vrPositions.politicianId,
+        actionType: vrPositions.actionType,
+        actedAt: vrPositions.actedAt,
+        note: vrPositions.note,
+        srcUrl: vrPositions.sourceUrl,
+        number: vrMeasures.number,
+        shortTitle: vrMeasures.shortTitle,
+        title: vrMeasures.title,
+        measureSrcLabel: vrMeasures.sourceLabel,
+      })
+      .from(vrPositions)
+      .innerJoin(vrMeasures, eq(vrPositions.measureId, vrMeasures.id))
+      .where(and(inArray(vrPositions.politicianId, pids), gt(vrPositions.actedAt, sinceDate)))
+      .orderBy(desc(vrPositions.actedAt))
+      .limit(cap * 4);
+    for (const r of rows) {
+      if (!r.srcUrl) continue;
+      out.push({
+        kind: "position",
+        id: r.id,
+        headline: `${labelForPoliticianId(r.pid)} ${ACTION_WORD[r.actionType] || "took a formal action on"} ` +
+          measureLabel(r.number, r.shortTitle, r.title),
+        detail: clip(r.note || "", 160),
+        date: r.actedAt ? (r.actedAt as Date).toISOString() : null,
+        sourceUrl: r.srcUrl,
+        sourceLabel: r.measureSrcLabel || "Congress.gov",
+        path: personPath(r.pid),
+        politicianId: r.pid,
+        issueKeys: [],
+      });
+    }
+  }
+
+  // 3 · A measure on a followed issue moved a stage.
+  if (issues.length) {
+    const rows = await db
+      .select({
+        id: vrMeasureActions.id,
+        stage: vrMeasureActions.stage,
+        text: vrMeasureActions.text,
+        actionDate: vrMeasureActions.actionDate,
+        srcUrl: vrMeasureActions.sourceUrl,
+        srcLabel: vrMeasureActions.sourceLabel,
+        measureId: vrMeasureActions.measureId,
+        number: vrMeasures.number,
+        shortTitle: vrMeasures.shortTitle,
+        title: vrMeasures.title,
+        issueKey: vrMeasureIssues.issueKey,
+      })
+      .from(vrMeasureActions)
+      .innerJoin(vrMeasures, eq(vrMeasureActions.measureId, vrMeasures.id))
+      .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrMeasures.id))
+      .where(and(inArray(vrMeasureIssues.issueKey, issues), gt(vrMeasureActions.createdAt, sinceDate)))
+      .orderBy(desc(vrMeasureActions.createdAt))
+      .limit(cap * 4);
+    // The issue join fans out one action into one row per mapped issue; fold them
+    // back so a multi-issue bill is ONE item that names its issues, not four items
+    // that look like four separate events.
+    const byAction = new Map<number, RecordEvent>();
+    for (const r of rows) {
+      if (!r.srcUrl) continue;
+      const seen = byAction.get(r.id);
+      if (seen) {
+        if (r.issueKey && seen.issueKeys.indexOf(r.issueKey) < 0) seen.issueKeys.push(r.issueKey);
+        continue;
+      }
+      byAction.set(r.id, {
+        kind: "action",
+        id: r.id,
+        headline: `${measureLabel(r.number, r.shortTitle, r.title)} ${STAGE_WORD[r.stage] || "moved"}`,
+        detail: clip(r.text || "", 160),
+        date: r.actionDate ? (r.actionDate as Date).toISOString() : null,
+        sourceUrl: r.srcUrl,
+        sourceLabel: r.srcLabel || "Congress.gov",
+        path: null,
+        politicianId: null,
+        issueKeys: r.issueKey ? [r.issueKey] : [],
+      });
+    }
+    for (const ev of byAction.values()) out.push(ev);
+  }
+
+  // 4 · A measure on a followed issue was added, or its record was corrected.
+  //     updated_at defaults to now() at insert, so this one read covers both — and
+  //     the two are distinguished by comparing created_at to the watermark.
+  if (issues.length) {
+    const rows = await db
+      .select({
+        id: vrMeasures.id,
+        number: vrMeasures.number,
+        shortTitle: vrMeasures.shortTitle,
+        title: vrMeasures.title,
+        srcUrl: vrMeasures.sourceUrl,
+        srcLabel: vrMeasures.sourceLabel,
+        createdAt: vrMeasures.createdAt,
+        updatedAt: vrMeasures.updatedAt,
+        congress: vrMeasures.congress,
+        chamber: vrMeasures.chamber,
+        issueKey: vrMeasureIssues.issueKey,
+      })
+      .from(vrMeasures)
+      .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrMeasures.id))
+      .where(and(inArray(vrMeasureIssues.issueKey, issues), gt(vrMeasures.updatedAt, sinceDate)))
+      .orderBy(desc(vrMeasures.updatedAt))
+      .limit(cap * 4);
+    const byMeasure = new Map<number, RecordEvent>();
+    for (const r of rows) {
+      if (!r.srcUrl) continue;
+      const seen = byMeasure.get(r.id);
+      if (seen) {
+        if (r.issueKey && seen.issueKeys.indexOf(r.issueKey) < 0) seen.issueKeys.push(r.issueKey);
+        continue;
+      }
+      const isNew = (r.createdAt as Date).getTime() > sinceDate.getTime();
+      byMeasure.set(r.id, {
+        kind: "mapping",
+        id: r.id,
+        headline: isNew
+          ? `${measureLabel(r.number, r.shortTitle, r.title)} was added to the record`
+          : `The record for ${measureLabel(r.number, r.shortTitle, r.title)} was updated`,
+        detail: isNew
+          ? "New coverage on an issue you follow."
+          : "A citation, title or issue mapping on this measure changed.",
+        date: (r.updatedAt as Date).toISOString(),
+        sourceUrl: r.srcUrl,
+        sourceLabel: r.srcLabel || "Congress.gov",
+        path: null,
+        politicianId: null,
+        issueKeys: r.issueKey ? [r.issueKey] : [],
+      });
+    }
+    for (const ev of byMeasure.values()) out.push(ev);
+  }
+
+  // One on-site address pass for the measure-anchored items: a roll call on the
+  // same measure gives them a /vote/<congress>/<chamber>/<roll> home. Done as a
+  // single extra read rather than one per item.
+  const needPath = out.filter((e) => !e.path && (e.kind === "action" || e.kind === "mapping"));
+  if (needPath.length) {
+    // The action rows carry their measure id in `id`-adjacent form only, so resolve
+    // by measure for the "mapping" kind (whose id IS the measure id) and leave the
+    // "action" kind to its citation when no roll call is on file.
+    const measureIds = [...new Set(needPath.filter((e) => e.kind === "mapping").map((e) => e.id))];
+    if (measureIds.length) {
+      const rcs = await db
+        .select({
+          measureId: vrRollcalls.measureId,
+          congress: vrRollcalls.congress,
+          chamber: vrRollcalls.chamber,
+          rollNumber: vrRollcalls.rollNumber,
+        })
+        .from(vrRollcalls)
+        .where(inArray(vrRollcalls.measureId, measureIds))
+        .orderBy(desc(vrRollcalls.voteDate))
+        .limit(IN_CAP);
+      const path = new Map<number, string>();
+      for (const rc of rcs) {
+        if (path.has(rc.measureId)) continue; // newest wins
+        const p = rollcallPath(rc.congress, rc.chamber, rc.rollNumber);
+        if (p) path.set(rc.measureId, p);
+      }
+      for (const e of needPath) {
+        if (e.kind === "mapping" && path.has(e.id)) e.path = path.get(e.id) || null;
+      }
+    }
+  }
+
+  // Newest act first; undated last. See sortRecordEvents() for why the tiebreak
+  // is kind-then-id and not anything that could read as importance.
+  sortRecordEvents(out);
+  return out.slice(0, cap);
 }
 
 // Build the "What Changed" digest for one set of interests since `sinceMs`.
@@ -284,7 +612,7 @@ function clip(s: unknown, n: number): string {
 export async function buildDigest(
   interests: Interests,
   sinceMs: number,
-  topics: DigestTopics = { evidence: true, community: true }
+  topics: DigestTopics = { evidence: true, community: true, record: true }
 ): Promise<Digest> {
   const now = Date.now();
   const since = Number.isFinite(sinceMs) && sinceMs > 0 ? sinceMs : now - DEFAULT_WINDOW_MS;
@@ -297,6 +625,7 @@ export async function buildDigest(
 
   const evidence: EvidenceItem[] = [];
   const community: CommunityItem[] = [];
+  let record: RecordEvent[] = [];
 
   // ── Evidence group: new community submissions + graduated evidence on the
   //    issues the user watches. (Community posts are issue-tagged, not
@@ -403,15 +732,24 @@ export async function buildDigest(
     }
   }
 
+  // ── Record group: the archive itself changed on something the reader tracks.
+  //    Defaults ON when a caller does not mention the topic at all — see the
+  //    `record?` field on DigestTopics. ─────────────────────────────────────────
+  if (topics.record !== false && (hasPols || hasIssues)) {
+    record = await buildRecordEvents(interests, sinceDate, GROUP_CAP);
+  }
+
   return {
     since,
     now,
     evidence,
     community,
+    record,
     counts: {
       evidence: evidence.length,
       community: community.length,
-      total: evidence.length + community.length,
+      record: record.length,
+      total: evidence.length + community.length + record.length,
     },
   };
 }
