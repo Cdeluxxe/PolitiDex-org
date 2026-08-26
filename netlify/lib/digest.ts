@@ -40,8 +40,9 @@ import {
 // Pure wording / addressing / ordering for record events — see the header of that
 // file for why it is separate and dependency-free.
 import {
-  ACTION_WORD, STAGE_WORD, VOTE_WORD,
-  clip, labelForPoliticianId, measureLabel, personPath, rollcallPath, sortRecordEvents,
+  ACTION_WORD, CATEGORY_ORDER, STAGE_WORD, VOTE_WORD,
+  categoryOf, clip, labelForPoliticianId, measureLabel, personPath, rollcallPath,
+  sortRecordEvents,
 } from "./digest-record-core.mjs";
 
 // The site's Firebase project — the audience every valid ID token must carry.
@@ -258,6 +259,35 @@ export interface DigestTopics {
   // because a digest whose whole justification is "the archive changed" should not
   // need a flag flipped to say so.
   record?: boolean;
+  // WHICH KINDS of record change this reader asked for, by category. Optional and
+  // defaults to all four ON, so `record: true` alone keeps meaning what it meant.
+  //
+  // This is a filter on MATERIAL CHANGE, not on volume. There is no "send me less"
+  // setting here and there will not be one: the honest lever is which kinds of
+  // change matter to you, and the dishonest lever is a cap that silently drops
+  // acts we told you we would send. Turning a category off means "that is not a
+  // change I need to hear about"; it never means "send me a sample of it".
+  follow?: RecordFollow;
+}
+
+// The four follow categories, as a preference. Keys match EVENT_CATEGORY's values
+// in digest-record-core.mjs, which is the one definition of which kind is which.
+export interface RecordFollow {
+  act?: boolean;
+  word?: boolean;
+  correction?: boolean;
+  coverage?: boolean;
+}
+
+// Absent or malformed → all four on. A reader who has never touched these has not
+// asked for silence, and defaulting a category OFF would quietly withhold acts
+// from someone who opted into record updates.
+export function followSet(follow?: RecordFollow): Set<string> {
+  const out = new Set<string>();
+  for (const cat of CATEGORY_ORDER) {
+    if (!follow || (follow as any)[cat] !== false) out.add(cat);
+  }
+  return out;
 }
 
 export interface EvidenceItem {
@@ -287,8 +317,11 @@ export interface CommunityItem {
 // the formal record on the people and issues a reader tracks CHANGED, and here is
 // the change with its citation.
 //
-// The four kinds, and what each one is:
+// The SIX kinds, in FOUR follow categories (EVENT_CATEGORY in
+// digest-record-core.mjs owns the mapping; see the note there for why the two
+// Phase-2 kinds that were doing double duty were split):
 //
+//   act · "what they did, in the formal record"
 //   "vote"     — a person the reader tracks has a newly recorded roll-call vote.
 //                A formal act: dated, attributed to a chamber, with a clerk or
 //                Congress.gov URL. Watermarked on when the row was INGESTED, so a
@@ -302,11 +335,26 @@ export interface CommunityItem {
 //   "action"   — a new dated stage on a measure mapped to an issue the reader
 //                follows: reported from committee, passed a chamber, enacted,
 //                vetoed. The measure moved.
-//   "mapping"  — a measure on a followed issue was added to the archive, or its
-//                record was corrected (a citation repaired, a title
-//                disambiguated, an issue mapping changed). Coverage expansion and
-//                correction are the same event from a reader's side: what the site
-//                holds about this issue is not what it held last week.
+//
+//   word · "what they said, sourced to where they said it"
+//   "stated"   — a tracked person entered an on-record STATEMENT on a measure.
+//                Same table as "position", split off by action_type, because a
+//                statement is word and a co-sponsorship is an act, and this whole
+//                product is the difference between the two. It is the only stated
+//                word the server holds: the stance corpus is static client data,
+//                and nothing here composes a position a person did not state.
+//
+//   correction · "something the archive had wrong or incomplete; now fixed"
+//   "mapping"  — a measure on a followed issue that we ALREADY HELD had its record
+//                corrected: a citation repaired, a title disambiguated, an issue
+//                mapping changed. A claim about our own past reliability, which is
+//                exactly why it is not filed under coverage.
+//
+//   coverage · "something the archive did not hold before; now it does"
+//   "coverage" — a measure on a followed issue was ADDED. What the site holds
+//                about this issue is more than it held last week. The honest
+//                counterpart of the coverage line on a person file: the archive
+//                announcing its own growth rather than implying it was complete.
 //
 // WHAT IS NOT IN HERE, ON PURPOSE:
 //   • No aggregate over people. No "worst of the week", no counts by party, no
@@ -319,7 +367,12 @@ export interface CommunityItem {
 //     source_url, and any row that somehow lacks one is dropped rather than sent —
 //     an emailed claim a reader cannot check is the one thing worse than silence.
 export interface RecordEvent {
-  kind: "vote" | "position" | "action" | "mapping";
+  kind: "vote" | "position" | "stated" | "action" | "mapping" | "coverage";
+  // Which of the four follow categories this kind belongs to. Carried on the event
+  // rather than re-derived by each consumer, so the in-app list, the email and the
+  // preference filter cannot disagree about what a "correction" is. Derived from
+  // EVENT_CATEGORY — never hand-set at a call site.
+  category: "act" | "word" | "correction" | "coverage";
   // Stable-ish id for de-duping in a client; scoped by kind.
   id: number;
   // One line naming the act. Descriptive, never prosecutorial.
@@ -371,17 +424,32 @@ const IN_CAP = 200; // ceiling on an IN (…) list, so one huge team cannot blow
 // Four independent reads, each already narrowed by the reader's interests and the
 // watermark, then merged and dated. Anything without a source URL is dropped on the
 // way out — see the note on RecordEvent.
+//
+// `follow` narrows by CATEGORY, and it narrows the QUERIES, not just the results.
+// A reader who follows acts and nothing else costs two reads instead of four; one
+// who follows only coverage costs one. That matters beyond cost: a category a
+// reader switched off should leave no trace of having been considered, and the
+// cheapest way to guarantee that is never to ask the database for it.
 export async function buildRecordEvents(
   interests: Interests,
   sinceDate: Date,
-  cap: number
+  cap: number,
+  follow?: RecordFollow
 ): Promise<RecordEvent[]> {
   const pids = interests.politicianIds.slice(0, IN_CAP);
   const issues = interests.issueKeys.slice(0, IN_CAP);
+  const want = followSet(follow);
   const out: RecordEvent[] = [];
 
-  // 1 · New roll-call votes by a tracked person.
-  if (pids.length) {
+  // `category` is stamped from EVENT_CATEGORY rather than typed at each push, so a
+  // new kind cannot be added without landing in a category, and no call site can
+  // file a vote under "coverage".
+  const push = (ev: Omit<RecordEvent, "category">) => {
+    out.push({ ...ev, category: categoryOf(ev.kind) as RecordEvent["category"] });
+  };
+
+  // 1 · New roll-call votes by a tracked person.  [category: act]
+  if (pids.length && want.has("act")) {
     const rows = await db
       .select({
         id: vrMemberVotes.id,
@@ -406,7 +474,7 @@ export async function buildRecordEvents(
       .limit(cap * 4);
     for (const r of rows) {
       if (!r.srcUrl) continue;
-      out.push({
+      push({
         kind: "vote",
         id: r.id,
         headline: `${labelForPoliticianId(r.pid)} ${VOTE_WORD[r.position] || "has a recorded vote"} on ` +
@@ -427,7 +495,20 @@ export async function buildRecordEvents(
   // 2 · New formal non-roll-call actions by a tracked person, dated after the
   //     watermark. See the note on RecordEvent for why this one keys on the act's
   //     own date rather than on ingest time.
-  if (pids.length) {
+  //
+  //     ONE READ, TWO KINDS.  [categories: act + word]
+  //     vr_positions holds sponsorships, co-sponsorships, amicus filings and
+  //     committee votes — all ACTS — alongside action_type = "statement", which is
+  //     a person putting WORD on the record. Phase 2 announced all of them under
+  //     "New formal action", which told a reader that someone had acted when what
+  //     they had done was speak. That is the exact conflation this site exists to
+  //     undo, so the row's action_type now decides the kind, and therefore the
+  //     category, the kicker and the email subhead a reader meets it under.
+  //
+  //     The read runs when EITHER category is followed and the rows are sorted by
+  //     kind afterwards, because the two live in one table and splitting the query
+  //     would cost a second round trip to save nothing.
+  if (pids.length && (want.has("act") || want.has("word"))) {
     const rows = await db
       .select({
         id: vrPositions.id,
@@ -448,8 +529,10 @@ export async function buildRecordEvents(
       .limit(cap * 4);
     for (const r of rows) {
       if (!r.srcUrl) continue;
-      out.push({
-        kind: "position",
+      const spoke = r.actionType === "statement";
+      if (!want.has(spoke ? "word" : "act")) continue;
+      push({
+        kind: spoke ? "stated" : "position",
         id: r.id,
         headline: `${labelForPoliticianId(r.pid)} ${ACTION_WORD[r.actionType] || "took a formal action on"} ` +
           measureLabel(r.number, r.shortTitle, r.title),
@@ -464,8 +547,8 @@ export async function buildRecordEvents(
     }
   }
 
-  // 3 · A measure on a followed issue moved a stage.
-  if (issues.length) {
+  // 3 · A measure on a followed issue moved a stage.  [category: act]
+  if (issues.length && want.has("act")) {
     const rows = await db
       .select({
         id: vrMeasureActions.id,
@@ -499,6 +582,7 @@ export async function buildRecordEvents(
       }
       byAction.set(r.id, {
         kind: "action",
+        category: "act",
         id: r.id,
         headline: `${measureLabel(r.number, r.shortTitle, r.title)} ${STAGE_WORD[r.stage] || "moved"}`,
         detail: clip(r.text || "", 160),
@@ -516,7 +600,16 @@ export async function buildRecordEvents(
   // 4 · A measure on a followed issue was added, or its record was corrected.
   //     updated_at defaults to now() at insert, so this one read covers both — and
   //     the two are distinguished by comparing created_at to the watermark.
-  if (issues.length) {
+  //
+  //     ONE READ, TWO KINDS.  [categories: coverage + correction]
+  //     Phase 2 emitted both as "mapping" and argued they were the same event from
+  //     a reader's side. They are not. "We did not hold this measure and now we do"
+  //     is the archive growing; "we held it and something in it was wrong" is the
+  //     archive admitting a defect. A reader is entitled to hear which one they are
+  //     being told, and to follow one without the other — the created_at
+  //     comparison that already existed here now sets the KIND rather than only the
+  //     wording.
+  if (issues.length && (want.has("coverage") || want.has("correction"))) {
     const rows = await db
       .select({
         id: vrMeasures.id,
@@ -545,8 +638,10 @@ export async function buildRecordEvents(
         continue;
       }
       const isNew = (r.createdAt as Date).getTime() > sinceDate.getTime();
+      if (!want.has(isNew ? "coverage" : "correction")) continue;
       byMeasure.set(r.id, {
-        kind: "mapping",
+        kind: isNew ? "coverage" : "mapping",
+        category: isNew ? "coverage" : "correction",
         id: r.id,
         headline: isNew
           ? `${measureLabel(r.number, r.shortTitle, r.title)} was added to the record`
@@ -568,12 +663,19 @@ export async function buildRecordEvents(
   // One on-site address pass for the measure-anchored items: a roll call on the
   // same measure gives them a /vote/<congress>/<chamber>/<roll> home. Done as a
   // single extra read rather than one per item.
-  const needPath = out.filter((e) => !e.path && (e.kind === "action" || e.kind === "mapping"));
+  const needPath = out.filter(
+    (e) => !e.path && (e.kind === "action" || e.kind === "mapping" || e.kind === "coverage")
+  );
   if (needPath.length) {
     // The action rows carry their measure id in `id`-adjacent form only, so resolve
     // by measure for the "mapping" kind (whose id IS the measure id) and leave the
     // "action" kind to its citation when no roll call is on file.
-    const measureIds = [...new Set(needPath.filter((e) => e.kind === "mapping").map((e) => e.id))];
+    // "mapping" and "coverage" both come out of read 4, whose id IS the measure id,
+    // so both can be addressed. "action" keeps its citation when no roll call is on
+    // file, because its id is an action id and would resolve to the wrong measure.
+    const measureIds = [
+      ...new Set(needPath.filter((e) => e.kind === "mapping" || e.kind === "coverage").map((e) => e.id)),
+    ];
     if (measureIds.length) {
       const rcs = await db
         .select({
@@ -593,7 +695,9 @@ export async function buildRecordEvents(
         if (p) path.set(rc.measureId, p);
       }
       for (const e of needPath) {
-        if (e.kind === "mapping" && path.has(e.id)) e.path = path.get(e.id) || null;
+        if ((e.kind === "mapping" || e.kind === "coverage") && path.has(e.id)) {
+          e.path = path.get(e.id) || null;
+        }
       }
     }
   }
@@ -736,7 +840,7 @@ export async function buildDigest(
   //    Defaults ON when a caller does not mention the topic at all — see the
   //    `record?` field on DigestTopics. ─────────────────────────────────────────
   if (topics.record !== false && (hasPols || hasIssues)) {
-    record = await buildRecordEvents(interests, sinceDate, GROUP_CAP);
+    record = await buildRecordEvents(interests, sinceDate, GROUP_CAP, topics.follow);
   }
 
   return {

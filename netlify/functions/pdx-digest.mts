@@ -61,6 +61,15 @@ function defaultPrefs(email: string | null = null) {
     // by default: this is the archive doing its job, and it is the one group in
     // the digest where every item carries a source URL.
     topicRecord: true,
+    // Which KINDS of record change, by category. All four on, and the default
+    // direction is deliberate: `topicRecord` above is consent to hear that the
+    // record changed, so defaulting a category off would narrow consent already
+    // given. See the migration note in
+    // netlify/database/migrations/20260927000000_pdx_notification_follow_categories.sql.
+    followActs: true,
+    followWord: true,
+    followCorrections: true,
+    followCoverage: true,
     lastSeenAt: null as string | null,
     lastDigestAt: null as string | null,
   };
@@ -79,6 +88,10 @@ function shapePrefs(row: typeof pdxNotificationPrefs.$inferSelect | null, email:
     topicCommunity: row.topicCommunity,
     topicTeam: row.topicTeam,
     topicRecord: row.topicRecord,
+    followActs: row.followActs,
+    followWord: row.followWord,
+    followCorrections: row.followCorrections,
+    followCoverage: row.followCoverage,
     lastSeenAt: row.lastSeenAt ? (row.lastSeenAt as Date).toISOString() : null,
     lastDigestAt: row.lastDigestAt ? (row.lastDigestAt as Date).toISOString() : null,
   };
@@ -127,6 +140,10 @@ async function putPrefs(userId: string, email: string | null, req: Request): Pro
     topicCommunity: bool(body?.topicCommunity, base.topicCommunity),
     topicTeam: bool(body?.topicTeam, base.topicTeam),
     topicRecord: bool(body?.topicRecord, base.topicRecord),
+    followActs: bool(body?.followActs, base.followActs),
+    followWord: bool(body?.followWord, base.followWord),
+    followCorrections: bool(body?.followCorrections, base.followCorrections),
+    followCoverage: bool(body?.followCoverage, base.followCoverage),
     updatedAt: new Date(),
   };
 
@@ -237,6 +254,16 @@ async function digest(userId: string | null, email: string | null, req: Request)
     evidence: prefs.topicEvidence,
     community: prefs.topicCommunity,
     record: prefs.topicRecord,
+    // The four follow categories. buildRecordEvents skips the READS for a category
+    // nobody asked for, so a reader who follows only acts costs two queries instead
+    // of four — and a category they switched off leaves no trace of having been
+    // considered.
+    follow: {
+      act: prefs.followActs,
+      word: prefs.followWord,
+      correction: prefs.followCorrections,
+      coverage: prefs.followCoverage,
+    },
   };
 
   const built = await buildDigest(interests, since, topics);

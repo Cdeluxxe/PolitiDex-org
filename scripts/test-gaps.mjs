@@ -613,8 +613,19 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260926000000_create_vr_vote_correction_overlays',
-    'the newest migration must sort last, after every applied migration');
+  // What this has to prove is that THIS migration is forward-only, not that it is
+  // the last one in the repo forever: pinning the tail made every later phase's
+  // migration a failure of this test, which would train someone to edit the pin
+  // rather than to check the ordering. So: unique version prefixes, and nothing
+  // that shipped before this one sorts after it.
+  const MINE = '20260926000000_create_vr_vote_correction_overlays';
+  ok(versions.includes(MINE), 'the vote-correction-overlays migration is missing');
+  const prefixes = versions.map((v) => v.slice(0, 14));
+  eq(new Set(prefixes).size, prefixes.length,
+    'two migrations share a version prefix — the platform cannot order them');
+  const mineAt = versions.indexOf(MINE);
+  ok(versions.slice(0, mineAt).every((v) => v < MINE),
+    'this migration sorts before one that was already applied when it shipped');
   // This literal is the tail of the tree, not this test's own subject, so it moves
   // whenever a later migration lands — moved here by the Phase 4 correction path, which
   // adds the moderator-gated vr_vote_correction_overlays table that overlays live

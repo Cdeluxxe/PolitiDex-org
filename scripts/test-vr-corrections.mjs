@@ -477,9 +477,23 @@ section("8 · migrations stay append-only, and the old one is untouched");
     ok(carrierStamp > mine,
       `${carrier} sorts before ${mine} — re-pick its version so it applies after ` +
       "the hand-written migration it follows");
-    ok(stamps.every((s) => s <= carrierStamp),
-      `${carrier} is not the newest migration in the tree — its snapshot is the one ` +
-      "the next generate will diff against");
+    // The invariant is that WHATEVER sorts last in this tree carries a snapshot,
+    // because that snapshot is what the next `generate` diffs against. Pinning it
+    // to this carrier meant every later phase's migration failed this test, which
+    // teaches the next person to move the pin instead of shipping the snapshot.
+    // So: this carrier is the newest of everything up to itself, and anything
+    // newer than it carries a snapshot of its own.
+    ok(stamps.filter((st) => st < carrierStamp).every((st) => st < carrierStamp),
+      `${carrier} does not sort after the migrations it follows`);
+    const newer = entries
+      .filter((f) => /^\d{14}/.test(f) && f.slice(0, 14) > carrierStamp)
+      .sort();
+    const last = newer[newer.length - 1];
+    if (last) {
+      ok(existsSync(join(ROOT, "netlify/database/migrations", last, "snapshot.json")),
+        `${last} sorts after ${carrier} and carries no snapshot.json — the next ` +
+        "generate will diff against a snapshot that predates it and re-emit its DDL");
+    }
 
     // It runs on a database where the hand-written migration already created the
     // table, its indexes and its foreign key. Generated SQL is unguarded, which

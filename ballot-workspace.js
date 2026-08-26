@@ -605,6 +605,42 @@
     } catch (e) {}
   }
 
+  // ── The official-ballot boundary ────────────────────────────────────────────
+  // Phase 5. This surface is a completion loop: a counter, a progress bar, a
+  // seat-by-seat rail, and a reader who works it to the last seat has been shown
+  // a filled bar and told they are done. That is exactly the moment the sentence
+  // "this is not your official ballot" has to be present, because it is the
+  // moment a reader is most likely to conclude the opposite — and it is the one
+  // surface in the loop that was not saying it. Door 1 (your-ballot.js) has
+  // carried the note since it shipped; the workspace inherited the mechanics and
+  // not the caveat.
+  //
+  // The sentence is BORROWED, never written here. your-ballot.js exports it as
+  // window._pdxOfficialBallotNote precisely so there is one of it: the link
+  // inside it resolves against PDX_ELECTION_DATA for the reader's current
+  // location, so a second copy would sooner or later name a different authority
+  // than Door 1 names to the same reader. And there is no local fallback string.
+  // If that module is absent this returns '' — the boundary is either the real
+  // sentence with the real state authority link in it, or it is nothing. A
+  // watered-down "coverage may vary" would let a reader believe the caveat had
+  // been made when it had not.
+  //
+  // The progress copy above was widened at the same time, for the same reason.
+  // "Every seat is below" is a coverage claim this product cannot make: what is
+  // below is every seat we hold candidate records for, and measures, judicial
+  // retention and many local seats are not in that set. The counter counts what
+  // we cover out of what we cover; the note says what that is not.
+  function officialNote() {
+    try {
+      var f = window._pdxOfficialBallotNote;
+      if (typeof f === 'function') {
+        var html = f();
+        if (html) return '<div class="bw-official">' + html + '</div>';
+      }
+    } catch (e) {}
+    return '';
+  }
+
   function sync() {
     var mount = document.getElementById(MOUNT_ID);
     if (!mount) return;
@@ -635,8 +671,10 @@
       '<div class="bw-hd">' +
         '<div class="bw-eyebrow">Your ballot workspace' + (area ? ' · ' + area : '') + '</div>' +
         '<h3 class="bw-title">Work your ballot, one seat at a time</h3>' +
-        '<p class="bw-sub">Every seat is below. Open one, read the field on <b>the formal record</b>, ' +
-        'pick who earns it, move on. Your picks save as you go.</p>' +
+        '<p class="bw-sub">Every seat PolitiDex has candidate records for is below. Open one, ' +
+        'read the field on <b>the formal record</b>, pick who earns it, move on. Your picks save ' +
+        'as you go.</p>' +
+        officialNote() +
         '<div class="bw-prog">' +
           '<span class="bw-prog-n">' + decided + '<small>/' + list.length + '</small></span>' +
           '<span class="bw-prog-bar"><i style="width:' + pct + '%;"></i></span>' +

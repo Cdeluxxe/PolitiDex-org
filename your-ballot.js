@@ -624,6 +624,26 @@
     if (hasLocation()) scheduleRetry();
     // Expose a small API for the consolidated handoffs / debugging.
     window.YourBallot = { render: render, enter: enter, sync: syncPickStates };
+    /* ── The boundary, exported ────────────────────────────────────────────
+       Phase 5. The sentence above — "Not an official ballot", plus the link to
+       the reader's own state authority — is the single most important thing
+       either ballot surface says, and until now it lived only here, private to
+       this module. Door 2 (ballot-workspace.js) is the surface that walks a
+       voter seat by seat to a finished set of picks, which is precisely where a
+       reader is most likely to conclude they have now seen their whole ballot,
+       and it was saying nothing.
+
+       Exported rather than copied. A second hand-written version of this
+       sentence in the workspace would be two sentences to keep true: the
+       state-authority link comes from PDX_ELECTION_DATA keyed on the reader's
+       CURRENT location, so a copy would drift the moment either the table or the
+       location logic changed, and the two surfaces would name different
+       authorities to the same reader on the same day. One voice, one function.
+       Door 2 renders whatever this returns and holds no fallback string of its
+       own — with this module absent it prints nothing rather than a weaker
+       claim, because a softened boundary is worse than a missing one. */
+    window._pdxOfficialBallotNote = officialNote;
+    window._pdxOfficialBallotLink = officialLink;
   }
 
   if (document.readyState === 'loading') {

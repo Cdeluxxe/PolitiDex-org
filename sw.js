@@ -188,7 +188,26 @@
 // entries. Both cache names carry CACHE_VERSION, so this rename empties the shell
 // AND the runtime cache on activate and neither half of the feature can arrive
 // alone on the load after it.
-const CACHE_VERSION = 'v77';
+// v78 — THE RECORD CARD, THE FOLLOW CATEGORIES AND THE BALLOT BOUNDARY. Phase 5
+// added record-card.js and record-card.css (the shareable person-issue card) and
+// moved four files that already shipped: share-links.js gained the personRecord()
+// address every share path now builds, self-defection.js mounts a per-item share
+// control that calls the new module, ballot-workspace.js renders the
+// official-ballot boundary sentence it borrows from your-ballot.js, and
+// index.html registers the card plus the four follow-category switches. Bumped
+// because a partial pickup is a broken share rather than a missing one: a phone
+// holding v77 that takes only self-defection.js paints share buttons whose
+// PDXRecordCard is not on the device, so the tap does nothing; one that takes
+// only record-card.js has a card builder and a share-links.js with no
+// personRecord(), so the card falls back to the origin and the link a reader
+// sends lands on the homepage instead of the person file. record-card.js,
+// record-card.css, share-links.js and ballot-workspace.js are precached below;
+// self-defection.js and your-ballot.js are stale-while-revalidate runtime
+// entries. Both cache names carry CACHE_VERSION, so this rename empties the
+// shell AND the runtime cache on activate and no half of the share path can
+// arrive alone. The follow-category half is database-side (four columns on
+// pdx_notification_prefs) and ships through the migration, not the shell.
+const CACHE_VERSION = 'v78';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -356,6 +375,16 @@ const SHELL_ASSETS = [
   // and a Direction Match card with no statement of how much is actually on file,
   // which reads as fuller coverage than we have.
   '/inventory.js',
+  // 🗂️ The record card — the share primitive. Cached for a reason the other
+  // entries do not have: this is the module a reader arrives THROUGH. Someone taps
+  // a shared /p/<pid> link on a train, the shell serves from cache, and if
+  // record-card.js is missing the card they were sent is the one thing on the page
+  // that does not render. Its stylesheet ships with it because an unstyled card
+  // still says every sentence but loses the visual equality of the five blocks —
+  // and a card where one block looks like the verdict is a card that reads as a
+  // grade.
+  '/record-card.js',
+  '/record-card.css',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'

@@ -1,0 +1,150 @@
+/* ============================================================================
+   record-card.css  ·  🗂️ The Record Card — the shareable record object
+   ----------------------------------------------------------------------------
+   Styles for what record-card.js renders: the five-block card (.pdxrec) and the
+   share control (.pdxrec-share) that can sit anywhere — a dossier tail, a
+   self-defection item, a person file header.
+
+   MOBILE FIRST, and for once that is not just a layout preference. This card is
+   the object most likely to be read by someone who has never been here before,
+   on a phone, having tapped a link in a group chat. So:
+
+     • THE BLOCK ORDER IS THE VISUAL ORDER. Stated position, formal acts, what
+       the record points to, coverage, sources. No block is visually promoted
+       over another by size or colour — a reader must not learn "the big one is
+       the verdict", because the formal record is the point and the stated
+       position is only context for it.
+     • THE SHORTFALL LINES ARE NOT ERROR STYLING. .pdxrec-thin is dimmer, not
+       red, not warning-coloured. "Record still being built" is a true and
+       ordinary state of an archive, not a fault, and styling it as a failure
+       teaches readers to treat thin files as suspicious files.
+     • THE COVERAGE WALL IS ALWAYS VISIBLE. .pdxrec-wall never collapses, never
+       becomes a tooltip, never sits behind a disclosure. It is the sentence
+       that stops the card from implying completeness, so it ships at readable
+       size in the flow of the card.
+     • NO PARTY COLOUR. There is no red and no blue in this file, at all. A card
+       that travels must not carry a team read, and a background tint is a team
+       read whatever the copy says.
+
+   Colour: the amber used for controls is the same --pdx family the receipt and
+   self-defection controls use, so a share control looks like a share control
+   wherever it lands. The tier states only change the left rule of one block
+   (.pdxrec-b.is-*), never the card's own frame.
+   ========================================================================== */
+
+.pdxrec {
+  border: 1px solid rgba(159, 180, 212, .22);
+  border-radius: 10px;
+  background: rgba(11, 18, 32, .5);
+  padding: .8rem .85rem .7rem;
+  margin: .6rem 0;
+}
+
+/* ── Header: name → office → issue, in that reading order ───────────────── */
+.pdxrec-hd { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .55rem; margin-bottom: .6rem; }
+.pdxrec-name {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-weight: 700; font-size: 1.05rem; letter-spacing: .01em;
+  color: #e8eef7; text-decoration: none;
+}
+.pdxrec-name:hover { text-decoration: underline; }
+.pdxrec-office { font-size: .74rem; color: #8b939c; }
+.pdxrec-issue {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: .72rem; letter-spacing: .04em; text-transform: uppercase;
+  color: #9fb4d4; border: 1px solid rgba(159, 180, 212, .3);
+  border-radius: 999px; padding: .05rem .45rem;
+}
+
+/* ── The five blocks ─────────────────────────────────────────────────────── */
+.pdxrec-b { border-left: 2px solid rgba(159, 180, 212, .2); padding-left: .6rem; margin: .55rem 0; }
+.pdxrec-k {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: .68rem; letter-spacing: .09em; text-transform: uppercase;
+  color: #8b939c; margin-bottom: .2rem;
+}
+/* The pattern block's left rule carries the tier, and nothing else does. These
+   are the same three readings the profile rows print — one way, both ways, too
+   thin — so a reader who has seen a person file recognises them here. */
+.pdxrec-b.is-speaks { border-left-color: rgba(217, 164, 65, .55); }
+.pdxrec-b.is-split { border-left-color: rgba(159, 180, 212, .45); }
+.pdxrec-b.is-thin,
+.pdxrec-b.is-none { border-left-color: rgba(139, 147, 156, .3); }
+
+.pdxrec-lines { list-style: none; margin: 0; padding: 0; }
+.pdxrec-lines li {
+  font-size: .82rem; line-height: 1.4; color: #cbd5e1;
+  margin: 0 0 .18rem; min-width: 0; overflow-wrap: anywhere;
+}
+.pdxrec-said {
+  margin: 0 0 .25rem; padding: 0; border: 0;
+  font-size: .84rem; line-height: 1.45; color: #e8eef7; font-style: italic;
+  overflow-wrap: anywhere;
+}
+.pdxrec-src, .pdxrec-srcs a { font-size: .74rem; color: #d9a441; text-decoration: none; overflow-wrap: anywhere; }
+.pdxrec-src:hover, .pdxrec-srcs a:hover { text-decoration: underline; }
+.pdxrec-srcs { list-style: none; margin: 0; padding: 0; }
+.pdxrec-srcs li { margin: 0 0 .15rem; }
+.pdxrec-note { margin: .2rem 0 0; font-size: .72rem; line-height: 1.35; color: #8b939c; }
+.pdxrec-gaps { margin: .25rem 0 0; font-size: .76rem; color: #cbd5e1; }
+.pdxrec-gaps a { color: #d9a441; text-decoration: none; }
+.pdxrec-gaps a:hover { text-decoration: underline; }
+
+/* Dim, not alarming. See the header note. */
+.pdxrec-thin { margin: 0; font-size: .8rem; line-height: 1.4; color: #8b939c; font-style: italic; }
+
+/* The one percentage, and it only renders on a person card that cleared the
+   publication floor. Given its own row so it can never be mistaken for a
+   per-issue or per-block figure. */
+.pdxrec-dm {
+  margin: .55rem 0 0;
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: .84rem; letter-spacing: .01em; color: #e8eef7;
+}
+
+/* Never collapsed, never hidden. */
+.pdxrec-wall {
+  margin: .7rem 0 0; padding-top: .5rem;
+  border-top: 1px dashed rgba(159, 180, 212, .22);
+  font-size: .71rem; line-height: 1.4; color: #8b939c;
+}
+
+/* ── The share control ───────────────────────────────────────────────────── */
+.pdxrec-share {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: .8rem; letter-spacing: .02em;
+  color: #d9a441; background: transparent;
+  border: 1px solid rgba(217, 164, 65, .35);
+  border-radius: 999px;
+  /* ≥44px tap target on the block form; the inline form sits inside a row of
+     equally sized controls and inherits their height. */
+  padding: .28rem .7rem; min-height: 32px;
+  cursor: pointer;
+}
+.pdxrec-share:hover { background: rgba(217, 164, 65, .1); }
+.pdxrec-share:focus-visible { outline: 2px solid #d9a441; outline-offset: 2px; }
+.pdxrec-share-block { margin-top: .65rem; width: 100%; justify-content: center; min-height: 44px; }
+.pdxrec-share.pdxrec-busy { opacity: .55; cursor: progress; }
+.pdxrec-share-ico { font-size: .9rem; line-height: 1; }
+
+@media (min-width: 620px) {
+  .pdxrec { padding: 1rem 1.05rem .85rem; }
+  .pdxrec-lines li, .pdxrec-said { font-size: .86rem; }
+  .pdxrec-share-block { width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdxrec-share { transition: none; }
+}
+
+/* Print: the card is a citable object, so it has to survive paper. Controls
+   drop out; every source URL is printed in full, because a printed card whose
+   citations are invisible is a claim without a receipt. */
+@media print {
+  .pdxrec { border-color: #999; background: transparent; }
+  .pdxrec-name, .pdxrec-lines li, .pdxrec-said, .pdxrec-dm { color: #000; }
+  .pdxrec-k, .pdxrec-office, .pdxrec-note, .pdxrec-wall, .pdxrec-thin { color: #444; }
+  .pdxrec-share { display: none; }
+  .pdxrec-srcs a::after, .pdxrec-src::after { content: ' (' attr(href) ')'; font-size: .65rem; }
+}
