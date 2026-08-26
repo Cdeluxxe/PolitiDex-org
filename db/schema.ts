@@ -1073,3 +1073,79 @@ export const pdxRateLimits = pgTable(
     windowIdx: index("pdx_rate_limits_window_idx").on(t.windowStart),
   })
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// vr_vote_correction_overlays — corrections to the formal record, without a deploy
+// ─────────────────────────────────────────────────────────────────────────────
+// The mirror of netlify/database/migrations/20260925000000_create_vr_vote_correction_overlays.sql,
+// which carries the full rationale. In short: every fix to a member-vote cell used
+// to be migration-bound, so a provable error waited for a release. This table holds
+// proposed and approved corrections; reads overlay APPROVED rows on top of the
+// stored value in netlify/lib/vr-corrections.ts. The stored cell is never mutated
+// by this path, and the applied migrations stay append-only and untouched.
+//
+// A CORRECTION IS A DISCLOSURE, NOT A REWRITE. reason, source_url, proposer,
+// reviewer and both timestamps are all required or recorded, and the read path
+// emits them beside the corrected value so a reader can see that a cell was
+// corrected, by whom and on what evidence. That is the whole point: a correction
+// nobody can audit is indistinguishable from a quiet edit.
+//
+// FAIL CLOSED. Only status='approved' is read. A correction applies only while the
+// cell still holds `storedValue` — the value the reviewer actually examined — so a
+// re-ingest that changes the cell makes the correction stale rather than
+// re-imposing it on data nobody reviewed. `proposedValue` must be in the shipped
+// vocabulary of its column (CHECK constraints in the migration restate this).
+//
+// WHAT IT CANNOT DO. It cannot create a vote: the FK means it can only point at a
+// roll call that already exists, and the overlay can only move a cell BETWEEN
+// recorded values. A missing vote stays missing and the archive keeps saying "no
+// formal read". It cannot touch issue mappings, support_meaning, weights, Direction
+// Match or any publication floor — a wrong DIRECTION is a curator judgement under
+// db/vr-ingest-runbook.md rule 22 and is still a migration, deliberately.
+export const vrVoteCorrectionOverlays = pgTable(
+  "vr_vote_correction_overlays",
+  {
+    id: serial().primaryKey(),
+    // rollcall_id + politician_id is vr_member_votes' unique key, so a correction
+    // names exactly one cell and cannot be vague about which.
+    rollcallId: integer("rollcall_id")
+      .notNull()
+      .references(() => vrRollcalls.id, { onDelete: "cascade" }),
+    politicianId: text("politician_id").notNull(),
+    // position | is_party — the only two correctable columns.
+    field: text().notNull(),
+    // THE MATCH GUARD: the value the reviewer examined. '' means the cell was NULL.
+    storedValue: text("stored_value").notNull(),
+    proposedValue: text("proposed_value").notNull(),
+    // Denormalised roll-call identity, so the audit row stays legible on its own.
+    chamber: text(),
+    congress: integer(),
+    session: integer(),
+    rollNumber: integer("roll_number"),
+    // Both required. A correction without a reason is an assertion; a correction
+    // without a citable source is an opinion.
+    reason: text().notNull(),
+    sourceUrl: text("source_url").notNull(),
+    sourceLabel: text("source_label").default(""),
+    // pending → approved | rejected | superseded. Only 'approved' is ever read.
+    status: text().notNull().default("pending"),
+    proposedBy: text("proposed_by").notNull(),
+    proposedByLabel: text("proposed_by_label").default(""),
+    proposedAt: timestamp("proposed_at", { withTimezone: true }).defaultNow().notNull(),
+    reviewedBy: text("reviewed_by"),
+    reviewedByLabel: text("reviewed_by_label").default(""),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewNote: text("review_note").default(""),
+  },
+  (t) => ({
+    // The read path's lookup: every approved correction for one politician.
+    politicianIdx: index("vr_vco_politician_idx").on(t.politicianId, t.status),
+    rollcallIdx: index("vr_vco_rollcall_idx").on(t.rollcallId),
+    // The moderation queue's lookup.
+    statusIdx: index("vr_vco_status_idx").on(t.status, t.proposedAt),
+    // NOTE: the migration also creates vr_vco_approved_unique, a UNIQUE index
+    // PARTIAL on status='approved' (one approved correction per cell per field,
+    // while the history of what was proposed and rejected stays unconstrained).
+    // Declared there rather than here because the partial predicate is the point.
+  })
+);

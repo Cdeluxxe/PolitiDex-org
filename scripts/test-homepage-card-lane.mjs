@@ -56,6 +56,11 @@ const FILES = [
   "consistency.js",
   "voting-record.js",
   "word-action.js",
+  // 📋 The coverage inventory line. Loaded because both surfaces under test now
+  // read their depth clause out of it — the profile's record strip prints it and
+  // the card asks the same composer for the same clause. Without it on the page
+  // both fall back, which would pass the mirror for the wrong reason.
+  "inventory.js",
   "profile-card.js",
 ];
 const SRC = FILES.map((f) => [f, R(f)]);
@@ -341,8 +346,19 @@ function sameStrip(lane, mine, oneSided, split) {
   // state one denominator two ways.
   const soHtml = CS.recordStandout.html(MEMBER);
   const xsHtml = CS.execRecordSummary.html(PREZ);
-  ok(String(soHtml).includes(mineM.depth),
+  // The member strip's depth clause is inside the coverage inventory line now, and
+  // that line bolds its counts (<b>18</b> formal acts across <b>6</b> issues), so
+  // the comparison is against the rendered TEXT rather than the raw markup. The
+  // rule being enforced is unchanged: the card must print the profile's own string,
+  // not a paraphrase of it.
+  const soText = String(soHtml).replace(/<[^>]*>/g, "");
+  ok(soText.includes(mineM.depth),
     `mirror: the member card's depth line ("${mineM.depth}") is not the one the profile's strip prints`);
+  // …and it must be the inventory's composition, not the retired .pdxso-depth
+  // wording. A card falling back to the old phrase while the profile prints the new
+  // one is exactly the two-wordings failure this section exists to catch.
+  ok(/^\d+ formal acts? across \d+ issues?$/.test(mineM.depth),
+    `mirror: the member card's depth line is not the inventory's formal clause — got "${mineM.depth}"`);
   ok(String(xsHtml).includes(mine.depth),
     `mirror: the executive card's volume clause ("${mine.depth}") is not the one the profile's strip prints`);
   ok(mine.inventory.length > 0, "mirror: the executive card carries no inventory");

@@ -177,6 +177,19 @@
   // No percentage travels through here. The one figure is Direction Match, it comes
   // off the same read() as everything else in brief(), and a second number sitting
   // beside it — even a true one — is the beginning of a second score.
+  // The formal half of the coverage inventory, as window.PDXInventory composes it
+  // for the profile's own record strip — "18 formal acts across 6 issues". Counts
+  // only, no percentage and no grade; the card publishes one figure and it is
+  // Direction Match. Returns '' when the module is absent or holds nothing, and the
+  // caller falls back rather than printing a blank clause.
+  function _invFormal(pid) {
+    try {
+      var I = window.PDXInventory;
+      if (!I || typeof I.text !== 'function') return '';
+      return I.text(pid, null, { omit: ['word', 'gaps', 'updated'] }) || '';
+    } catch (e) { return ''; }
+  }
+
   function formalStrip(pid, lane) {
     var cs = CS();
     if (!cs || !pid) return null;
@@ -228,16 +241,21 @@
     return {
       lane: 'record',
       head: cs.recordStandout.HEAD || null,
-      // The member strip's own depth line, in its own words — "6 issues read · 18
-      // acts behind them". Composed from the same two counts recordStandoutHtml
-      // puts in .pdxso-depth, in the same order, because a card and a profile
-      // stating the same denominator two different ways is the same failure as
+      // The member strip's own depth line, in its own words — "18 formal acts
+      // across 6 issues". It is not composed here: the profile's strip prints
+      // window.PDXInventory's formal clause now (it replaced the .pdxso-depth chip
+      // that used to say "6 issues read · 18 acts behind them"), so the card asks
+      // the SAME composer for the SAME clause rather than paraphrasing it. A card
+      // and a profile stating one denominator two ways is the same failure as
       // stating two different denominators. scripts/test-homepage-card-lane.mjs
       // pins this string against the profile's rendered strip.
-      depth: so.issues
+      //   The fallback is the old wording, for the case where inventory.js is not
+      // on the page at all: a card with no depth line is honest, but a card whose
+      // depth line disagrees with the profile is not.
+      depth: _invFormal(pid) || (so.issues
         ? (so.issues + ' issue' + (so.issues === 1 ? '' : 's') + ' read · ' +
            so.judged + ' act' + (so.judged === 1 ? '' : 's') + ' behind them')
-        : '',
+        : ''),
       inventory: [],
       thin: false,
       // x.noun is the row's own lane noun ("vote" / "votes"), carried through

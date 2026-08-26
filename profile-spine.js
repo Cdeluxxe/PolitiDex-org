@@ -236,6 +236,12 @@
     // `pdxsec-saydo` used to live here; the public record is an input to the issue
     // rows now rather than a section of its own.
     'pdxsec-evidence': 'receipts',
+    // 🕳 What the record can't test yet — the citable gaps surface, emitted by
+    // gaps.js. It is in `receipts` and not beside the score on purpose: it is a
+    // statement about the archive's own coverage, which belongs with the proof
+    // layer rather than in the stage where a finding is published. person-file.js
+    // maps the short hash `#gaps` to this id.
+    'pdxsec-gaps': 'receipts',
     // money — funding and who the record touches. Funding anchor lives in index.html.
     // A lens of its own, deliberately after the proof layer so it never reads as
     // part of the integrity argument.

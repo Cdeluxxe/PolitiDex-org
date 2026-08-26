@@ -613,18 +613,33 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     .filter((f) => /^\d{14}_/.test(f))
     .map((f) => f.replace(/\.sql$/, ''))
     .sort();
-  eq(versions[versions.length - 1], '20260924000000_pdx_rate_limits_and_topic_record',
+  eq(versions[versions.length - 1], '20260926000000_create_vr_vote_correction_overlays',
     'the newest migration must sort last, after every applied migration');
   // This literal is the tail of the tree, not this test's own subject, so it moves
-  // whenever a later migration lands — updated here by the Phase 2 lanes work, which adds
-  // the pdx_rate_limits counter behind the momentum routes and the topic_record digest
-  // toggle. Note the version prefix is hand-set to sort after the applied seeds rather
-  // than left at drizzle's generated wall-clock stamp: the seed layer is version-dated
-  // ahead of today, so a freshly generated stamp lands in the middle of the tree and the
-  // platform rejects it. What it guards does not move:
-  // whatever was added most recently has to sort after everything already applied, or
-  // the deploy is rejected. The check below is the one that pins THIS test's migration, and it
-  // stays put.
+  // whenever a later migration lands — moved here by the Phase 4 correction path, which
+  // adds the moderator-gated vr_vote_correction_overlays table that overlays live
+  // roll-call reads without rewriting an applied migration. Before that it was the
+  // Phase 2 lanes work (the pdx_rate_limits counter behind the momentum routes and the
+  // topic_record digest toggle).
+  //
+  // THAT TABLE ARRIVES IN TWO ENTRIES, and the tail is the second of them. The
+  // hand-written 20260925000000_create_vr_vote_correction_overlays.sql carries the
+  // CHECK constraints and the partial unique index that db/schema.ts cannot express;
+  // the 20260926000000_create_vr_vote_correction_overlays/ folder behind it carries
+  // the drizzle snapshot, because a table introduced by a bare .sql alone leaves the
+  // snapshot chain unaware of it and the next `generate` emits a second CREATE TABLE.
+  // Its statements are individually guarded so applying it after the hand-written
+  // file is a no-op rather than a duplicate-object error.
+  //
+  // Both version prefixes are hand-set to sort after the applied seeds rather than
+  // left at drizzle's generated wall-clock stamp: the seed layer is version-dated
+  // ahead of today, so a freshly generated stamp lands in the MIDDLE of the tree and
+  // the platform rejects the deploy. That is exactly what happened to the snapshot
+  // folder on its first pass — it generated as 20260826053355_handy_bastion, sorting
+  // behind migrations already applied — and re-picking the version is the fix. What
+  // this assertion guards does not move: whatever was added most recently has to sort
+  // after everything already applied, or the deploy is rejected. The check below is
+  // the one that pins THIS test's migration, and it stays put.
   const gapIdx = versions.findIndex((v) => /cee_posts_gap_and_politician_links/.test(v));
   ok(gapIdx >= 0 && versions.slice(0, gapIdx).every((v) => v < versions[gapIdx]),
     'the gap migration must still sort after everything that predates it');

@@ -16876,15 +16876,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //   largeIndividual large itemized individual contributions
     //   pac             PAC & committee money (incl. corporate / industry PACs)
     //   selfFunded      the candidate's own money / loans
-    //   party           party-committee transfers (treated as neutral)
+    //   party           party-committee transfers (counted in the base like any
+    //                   other bucket — there is no longer any math to be neutral in)
     //   outside         independent / "dark-money" spending FOR them — graded as a
     //                   level (high/moderate/low/none), never a fake exact dollar,
     //                   because outside spending is real but hard to pin precisely.
     //
     // Figures are representative most-recent-cycle totals; verify live at the
-    // linked FEC / OpenSecrets / Utah disclosure pages. Refreshed by
-    // scripts/finance-integrity-refresh.mjs. See FINANCE_INTEGRITY.md for the
-    // full scoring methodology.
+    // linked FEC / OpenSecrets / Utah disclosure pages.
+    //
+    // MAINTENANCE: scripts/finance-integrity-refresh.mjs is the refresh path. Run
+    // with no arguments (no key, no network needed) to audit every record below —
+    // buckets non-negative, base inside receipts, outside spending still a level
+    // and never a dollar figure, https source, review date parses — and to list
+    // which stamps have gone stale and which closed cycles are unread. With
+    // FEC_API_KEY set, --fetch diffs the federal records against current FEC
+    // totals and prints a draft. It never edits this file: a human reads the
+    // filing and hand-updates the map, so nothing unverified ships.
+    //
+    // There is no scoring methodology to see: the 0-100 "Constituents-First
+    // signal" was retired and its arithmetic deleted. finance-lane.js
+    // (PDXFinanceLane.compose) reads these buckets as composition and counts
+    // only, and FINANCE_INTEGRITY.md documents the wall that keeps this lane out
+    // of Direction Match and the formal tiers.
     // Freshness: the campaign-finance data below was last reviewed on this date.
     // Per-record `asOf` overrides it when a single filing is refreshed on its own.
     var FTM_AS_OF = 'July 2026';
@@ -21313,6 +21327,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        Action panel and the Suggest-a-lead entry point. Loads after coverage.js
        and before word-action.js's first paint; fully guarded either way. -->
   <script defer src="/gaps.js"></script>
+  <!-- 📋 Coverage inventory (window.PDXInventory) — one line of COUNTS beside the
+       headline findings: how much formal record we hold, how much of their word we
+       have tested against it, how many gaps are still open, and when the file last
+       grew. Every number is read off a surface that already computed it
+       (PDXConsistency.formalPatternIndex.shape, PDXWordAction.read().coverage,
+       PDXGaps.count, PDXVotingRecord.memberRecords) — it is not a second engine,
+       and it is deliberately not a grade: no percentage, no ratio over the issue
+       vocabulary, no "data quality" verdict. Loads after gaps.js and before
+       consistency.js / word-action.js paint; every consumer is guarded, so a
+       missing module costs the line and nothing else. -->
+  <script defer src="/inventory.js"></script>
   <!-- Spotlight Hub — the "browse every Issue Spotlight" directory
        (window.PDXSpotlightHub). Renders the full PDXSpotlight registry into the
        filterable/searchable grid in #all-spotlights, so newly added Spotlights

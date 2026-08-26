@@ -478,7 +478,14 @@
               session: (rc.session == null) ? null : rc.session,
               rollNumber: (rc.rollNumber == null) ? null : rc.rollNumber,
               issues: m.issues || [],
-              source: rc.source || null
+              source: rc.source || null,
+              // CORRECTION DISCLOSURE, carried when the payload has it. An approved
+              // correction to a vote cell is applied server-side (see
+              // netlify/lib/vr-corrections.ts) and travels with the row as
+              // {field, from, to, reason, sourceUrl}. Carried here so the value and
+              // its disclosure never separate; the reader-facing chrome for it is
+              // not in this phase, and nothing renders it yet.
+              corrections: (ref && ref.corrections) || null
             });
           } else {
             var pm = measures[ref.measureId];

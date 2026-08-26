@@ -28,6 +28,7 @@ import {
   vrRollcalls,
 } from "../../db/schema.js";
 import issueKeyData from "../../db/issue-keys.json" with { type: "json" };
+import { loadCorrections, applyCorrections } from "./vr-corrections.js";
 
 const ISSUE_KEYS = new Set<string>((issueKeyData as { keys: string[] }).keys);
 
@@ -96,7 +97,7 @@ async function loadIssuesByMeasure(measureIds: number[]): Promise<Map<number, Pa
 
 // Build the compact pack for one member, newest-first, capped to PACK_ITEM_CAP.
 export async function buildMemberPack(politicianId: string) {
-  const voteRows = await db
+  const rawVoteRows = await db
     .select({
       measureId: vrMeasures.id,
       measureType: vrMeasures.measureType,
@@ -129,6 +130,17 @@ export async function buildMemberPack(politicianId: string) {
     .where(eq(vrMemberVotes.politicianId, politicianId))
     .orderBy(desc(vrRollcalls.voteDate))
     .limit(FETCH_CAP);
+
+  // CORRECTIONS OVERLAY. The offline pack is the one read that OUTLIVES the request:
+  // it is cached in Blobs and served to a device that may not come back for days. A
+  // corrected cell that is right online and wrong in the pack is the worst version of
+  // this feature, so the overlay is applied here on exactly the same terms as the
+  // live read. If the overlay table is not there yet, this is a no-op.
+  const voteRows = applyCorrections(
+    rawVoteRows as any[],
+    await loadCorrections([politicianId]),
+    politicianId
+  );
 
   const posRows = await db
     .select({
@@ -183,6 +195,10 @@ export async function buildMemberPack(politicianId: string) {
       rollNumber: v.rollNumber ?? null,
       issues: issuesByMeasure.get(v.measureId) ?? [],
       source: { url: v.rcSourceUrl, label: v.rcSourceLabel },
+      // Disclosure travels with the row into the offline pack, so an offline reader
+      // sees the same "this cell was corrected, here is why" the live read shows.
+      ...(v.corrections ? { corrections: v.corrections } : {}),
+      ...(v.correctionsStale ? { correctionsStale: v.correctionsStale } : {}),
     });
   }
   for (const p of posRows) {

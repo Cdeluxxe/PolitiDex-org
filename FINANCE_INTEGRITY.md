@@ -161,12 +161,70 @@ page.
 
 ## Refreshing the data
 
-`scripts/finance-integrity-refresh.mjs` documents and (when a `FEC_API_KEY`
-environment variable is present) fetches current FEC totals into the
-`FTM_FUNDING` shape for review. State/local figures are pulled manually from
-`disclosures.utah.gov`. The script never writes to `index.html` automatically —
-a human reviews the numbers and updates `FTM_FUNDING` so nothing unverified
-ships. See the script header for details.
+A pure lane still rots: filings age, cycles close, and a hand-edited dollar
+figure inside a 2 MB `index.html` is exactly the number nobody notices going
+stale. `scripts/finance-integrity-refresh.mjs` is the maintenance path, and it
+has two halves on purpose — only one of them needs a key.
+
+**Audit — no key, no network, always available.**
+
+```
+node scripts/finance-integrity-refresh.mjs --audit
+node scripts/finance-integrity-refresh.mjs --json
+node scripts/finance-integrity-refresh.mjs --audit --today 2026-08   # pin "now"
+```
+
+It reads the shipped `FTM_FUNDING` straight out of `index.html` (brace-matched
+and evaluated, so the audit is against what actually ships) and checks every
+record against what this lane is allowed to say:
+
+- every bucket present, numeric and non-negative — a negative bucket would
+  render as a negative share, and a negative share is not a composition;
+- an itemized base above zero, and not exceeding reported `receipts` (a base
+  over receipts means one of the two figures was mis-transcribed);
+- `outside` still a **level** from the fixed vocabulary, with no `amount`, no
+  `dollars`, and no dollar figure smuggled into the note;
+- an `https` source on the record *and* on the outside note, because the UI
+  links both and an unverifiable figure is not publishable here;
+- a four-digit `cycle`, and a review date that parses as `Month YYYY`.
+
+Then it reports staleness: review stamps older than 18 months, and records a
+whole **closed** cycle behind the public record. Closed, not current — federal
+cycles end in even Novembers, so measuring against the cycle in progress would
+flag every record all year and a report that is always red is a report nobody
+reads. `--today YYYY-MM` pins "now" so the output is reproducible.
+
+The roster is **derived** from the shipped `FTM_FUNDING`, never kept as a second
+list in the script. A second list is how a filing gets added to the site and
+silently stops being refreshed. The only hand-kept table is `FEC_IDS`, which
+holds *identifiers* rather than figures; a shipped record with no FEC id and no
+manual source is printed under **BLOCKED** with what to add, rather than skipped
+quietly. (`bilzerian` and `gallrein` are in that state today.)
+
+**Fetch — needs `FEC_API_KEY`.**
+
+```
+FEC_API_KEY=… node scripts/finance-integrity-refresh.mjs --fetch
+```
+
+Pulls current FEC totals for the federal records and **diffs** them against what
+ships, printing the `FTM_FUNDING`-shaped draft with per-bucket deltas. Without a
+key it refuses and exits non-zero rather than falling back to `DEMO_KEY`, whose
+rate limit turns a refresh into a handful of silent 429s that read exactly like
+a clean run. Get a free key at <https://api.open.fec.gov/developers/>.
+
+**What it will not do.** It never writes to `index.html`. A fetched figure is a
+lead on a document, not a replacement for reading it — a human verifies against
+the filing and hand-updates the map, so nothing unverified ships. It touches no
+issue key, stated position, formal action, tier or publication floor: there is
+no finance → Direction Match path here either. And it cannot make the lane
+complete — refreshing the 13 filings we hold does not change the 13-of-757
+ratio, which the script prints, labelled incomplete, every run.
+
+**State and local.** `disclosures.utah.gov` publishes no open JSON API, so there
+is no live state refresh to wire. The script prints the committee-search URL for
+each state record and stops there; a curator reads the filing and fills the
+buckets by hand. That is a documented limitation, not a pending feature.
 
 ## Writing standard
 

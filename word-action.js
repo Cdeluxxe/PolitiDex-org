@@ -3337,6 +3337,18 @@
 
   // The primary accountability surface on a profile.
   var _seq = 0;
+  // One line of counts under the tally: what the formal lane holds, what is still
+  // open, when the file last grew. Read off window.PDXInventory, which takes them
+  // from the same read() this card is built on. Guarded — a missing module is a
+  // missing line, never a broken card.
+  function invLine(pid) {
+    try {
+      var I = window.PDXInventory;
+      if (!I || typeof I.lineHtml !== 'function') return '';
+      return I.lineHtml(pid, null, { omit: ['word'], cls: 'pdxwa-inv' }) || '';
+    } catch (e) { return ''; }
+  }
+
   function headlineHtml(pid, p) {
     try {
       if (!pid || !p) return '';
@@ -3421,6 +3433,16 @@
         // and each one a door into that bucket's list. Counts only: the profile
         // still has exactly one percentage on it, and it is the one above.
         tallyHtml(pid) +
+        // 📋 THE COVERAGE INVENTORY, MINUS THE CLAUSE THE TALLY ABOVE JUST GAVE.
+        // The tally is this card's own word ledger in its own words — held,
+        // scorable, tested, untested — so the inventory drops its word clause and
+        // contributes what this card cannot see: how much formal record the number
+        // was tested against, how many gaps are still open behind it, and when the
+        // file last grew. It is counts, in a card whose one number is the
+        // percentage above it: no second figure, no ratio, no grade. See the wall
+        // at the top of inventory.js, and note it renders '' on a record holding
+        // nothing — the no-word branch above never reaches this line.
+        invLine(pid) +
         // What the number means and what it does not claim, before anything else
         // has a chance to be read as a second finding.
         meansHtml(hasPct) +
