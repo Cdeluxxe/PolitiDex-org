@@ -39,6 +39,14 @@
  *   6. reduced motion is honoured
  *   7. no new destinations, no new pills, and the Phase 0 labels still stand
  *
+ * PHASE 3 amended two of the counts above rather than the rules behind them. The
+ * resting glow went from three controls to two, because the front step is a step
+ * into Door 2 and not a third door, and the three loose ballot text links went to
+ * zero, because they are views of the Door 2 workspace and now sit inside the
+ * Explore panel under a "Your Vote · Door 2" heading. Both demotions are asserted
+ * from BOTH sides — quieter, and still there — since the failure mode of "make it
+ * quieter" is "make it disappear".
+ *
  * No browser, no network. Exit code is non-zero on the first failure.
  */
 import fs from 'fs';
@@ -220,17 +228,40 @@ ok(/padding:14px 16px/.test(DRAWER), 'at its full drawer size');
    ─────────────────────────────────────────────────────────────────────────── */
 section('4 · one ladder: the primary path is the loudest thing at rest');
 
-/* Rung 1 — the three primary pills are the ONLY controls in the bar wearing a
-   coloured glow at rest, and they are the three the request names. */
+/* Rung 1 — THE TWO DOORS, and only the two doors, wear a coloured glow at rest.
+   This used to be three. The third was 🏛️ Who Represents Me, and it came down in
+   Phase 3 for a reason the rest of the copy already stated: the front step is a
+   step INTO Door 2, not a door of its own, so painting it at door weight made the
+   bar tell a stranger there were three top-level things to choose between when
+   there are two. It keeps its pill geometry and its place at the head of the row
+   — it is still the first thing read, and the assertion below pins that it is
+   still a full-size control — it just stopped claiming to be a destination.
+   See section 4a for the shape it kept. */
 const glowing = [...ROW.matchAll(/href="(#[^"]*)"[^>]*box-shadow:0 0 16px/g)].map(m => m[1]);
-eq(glowing.length, 3, `exactly three controls in the bar glow at rest (found ${JSON.stringify(glowing)})`);
-eq(glowing.slice().sort().join(','), '#my-politicians,#say-vs-do,#who-represents-me',
-  'and they are the front step and the two doors — nothing else');
+eq(glowing.length, 2, `exactly two controls in the bar glow at rest (found ${JSON.stringify(glowing)})`);
+eq(glowing.slice().sort().join(','), '#my-politicians,#say-vs-do',
+  'and they are the two doors — the front step is not a third one');
 
 /* Rung 1 vs rung 3 — Mandate used to be heavier than the pills it sat beside. */
 const PILL = 'font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg';
 eq((ROW.match(new RegExp(PILL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length, 3,
-  'the three pills share one signature, at font-weight 700');
+  'three controls share the pill signature, at font-weight 700 — two doors plus the front step');
+
+/* ── 4a · the front step is DEMOTED, not shrunk and not hidden ───────────────
+   The whole risk of "make it quieter" is that it becomes "make it disappear", and
+   a front step nobody can find is worse than one painted too loud. So the shape
+   is pinned from both sides: same geometry as the doors (nothing got smaller),
+   an outline a reader can see, and no fill and no resting glow (it is not a
+   door). */
+const frontStep = (ROW.match(/<a href="#who-represents-me"[\s\S]*?<\/a>/) || [])[0] || '';
+must(frontStep, 'the front step link is gone from the toolbar row entirely');
+ok(frontStep.includes(PILL), 'the front step keeps the full pill geometry — demoted, not shrunk');
+ok(!/box-shadow/.test(frontStep), 'it carries no resting glow');
+ok(!/linear-gradient|background:\s*rgba\(1|background:\s*#/.test(frontStep),
+  'and no fill — that is what separates a step from a door');
+ok(/border:1\.5px solid/.test(frontStep),
+  'but it does keep a visible outline, so quieter never became invisible');
+ok(/hover:scale-105/.test(frontStep), 'and it still answers a pointer');
 const mandateWeight = parseInt((restRule[1].match(/font-weight:\s*(\d+)/) || [])[1], 10);
 eq(mandateWeight, 700, 'Mandate is font-weight 700 — level with the pills, no longer above them at 800');
 ok(!/box-shadow/.test(restRule[1]), 'and it carries no resting glow of its own');
@@ -273,7 +304,34 @@ section('6 · no new destinations, no new pills, Phase 0 labels intact');
 /* Counts, not a pinned list of hrefs: the guard is "the bar did not grow", and a
    list would also fail on a dropdown item being reworded. */
 eq((ROW.match(new RegExp(PILL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length, 3, 'still three pills');
-eq((ROW.match(/class="nav-link clr-voter/g) || []).length, 3, 'still three ballot-related text links');
+/* The three ballot text links that used to sit in the row — 🏛️ Voter Hub,
+   🗳️ Your Ballot, 🔦 Local Issues — are gone from it. Not deleted: they are
+   VIEWS OF the Door 2 workspace (door2-spine.js paints "this is a view of that
+   workspace" onto each), and four top-level slots for one workspace is how a
+   two-door product reads as a ten-module one. They are now rows in the Explore &
+   Discover panel under a "Your Vote · Door 2" heading, which is the same
+   information at the right rank. Both halves are asserted, because "count went to
+   zero" on its own is indistinguishable from having dropped them. */
+eq((ROW.match(/class="nav-link clr-voter/g) || []).length, 0,
+  'no ballot-related text links left loose in the row');
+{
+  /* Anchored on the heading ELEMENT, not the phrase: the phrase also appears in
+     the two comments that record where these rows came from, and a slice starting
+     at a comment would look in the wrong place and report them missing. */
+  const HD = '<div class="pdx-navmenu__hd">Your Vote · Door 2</div>';
+  const panelAt = ROW.indexOf(HD);
+  ok(panelAt > 0, 'the demoted views got a "Your Vote · Door 2" heading to live under');
+  /* The group ends at its separator — the rows after that belong to Explore &
+     Discover proper, and reading past it would let a discovery row satisfy a
+     Door-2 assertion. */
+  const group = ROW.slice(panelAt, ROW.indexOf('pdx-navmenu__sep', panelAt));
+  for (const href of ['#your-ballot', '#voter-hub', '#local-issues']) {
+    const row = (group.match(new RegExp('<a href="' + href + '"[\\s\\S]*?</a>')) || [])[0] || '';
+    ok(!!row, `${href} is still reachable, as a row under that heading`);
+    ok(/pdx-navmenu__item/.test(row), `${href} is nested as a menu item, not promoted back to a pill`);
+    ok(!/box-shadow/.test(row), `${href} carries no glow at its new rank`);
+  }
+}
 eq((ROW.match(/class="pdx-navmenu"/g) || []).length, 3, 'still three gateway menus');
 eq((ROW.match(/nav-mandate-btn/g) || []).length, 1, 'still one Mandate button');
 eq((ROW.match(/id="wc-bell"/g) || []).length, 1, 'still one bell');
@@ -326,4 +384,4 @@ for (const c of colours) {
 
 if (fail) { console.error(`\n✗ top-nav weight: ${fail} of ${pass + fail} assertions failed\n`); process.exit(1); }
 console.log(`\n✓ top-nav weight: all ${pass} assertions passed — nothing in the toolbar animates at rest, ` +
-            `3 glows and they are the primary path, sign-in intact, motion on hover only\n`);
+            `2 glows and they are the two doors, sign-in intact, motion on hover only\n`);

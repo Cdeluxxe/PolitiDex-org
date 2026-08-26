@@ -809,6 +809,15 @@
   // phone stays dismissed on a laptop.
   defineCollection('learn', { keys: ['pdx_learn_prefs'], label: 'Explainer notes seen' });
 
+  // 'firstRun' — whether this visitor has completed one meaningful first task,
+  // and which one (see first-run.js). Two fields and nothing else: `done` and
+  // `via` ('record' | 'seat'). It is NOT an account flag and it is deliberately
+  // not settable by signing up — the brief for this surface is explicit that
+  // success means "has seen a sourced formal pattern OR completed one seat pick",
+  // not "account created". Synced so the homepage does not restart a stranger's
+  // onboarding on their second device.
+  defineCollection('firstRun', { keys: ['pdx_first_run'], label: 'First-run progress' });
+
   // ─── PDXTeam — one named facade over the whole My Team / ballot family ──────
   // The team data is written from several long-standing <script> closures
   // (ballot builder, Home Base, saved-teams, roster). Rather than reroute every
@@ -2772,6 +2781,100 @@ window.PDXLazy = (function () {
     #hero > .hero-stack-top { margin-top: auto; }
     #hero > .hero-stack-end { margin-bottom: auto; }
 
+    /* ── FIRST RUN · ranking the cold start ─────────────────────────────────
+       first-run.js writes ONE attribute on <html>:
+
+         data-pdx-firstrun="pending"   nobody has finished a real task yet
+         data-pdx-firstrun="done"      a sourced record was opened, or a seat picked
+
+       Everything below hangs off that attribute, and the rule is DEFERRAL,
+       never deletion: a surface that is quiet while pending comes back when
+       done. If the script never runs the attribute is simply absent and nothing
+       is hidden — failing OPEN is correct here, because the worst case of a
+       missing gate is the busy homepage we already had, while the worst case of
+       a gate that fails closed is a page with its tools missing.
+
+       These rules are INLINE rather than in a first-run.css because every one of
+       them lands above the fold in the first frame, and the render-blocking
+       stylesheet budget is full (six, enforced by scripts/test-index-scripts.mjs).
+       A seventh blocking request would cost the fold; the print-swap the budget
+       recommends is for below-the-fold sheets and would mean a stranger watching
+       the quick-jump bar and the disclosure marker pop in. So they live here, in
+       the block that already owns the hero's own chrome.
+
+       Nothing here changes what any surface SAYS. No completeness claim is
+       softened by a stylesheet, no floor is expressed in CSS, no number moves.
+       This decides what a stranger sees FIRST. */
+
+    /* The "How PolitiDex works" disclosure. Two long explainer paragraphs and
+       the values-match card that used to sit in the hero as equal peers now live
+       inside <details id="hero-how">: same copy, same card, one click away
+       instead of in the way. */
+    .hero-how-sum { list-style: none; position: relative;
+                    border-top: 1px solid rgba(148,163,184,0.14);
+                    padding-top: 1.1rem; margin-top: 0.25rem; }
+    .hero-how-sum::-webkit-details-marker { display: none; }  /* Safari's triangle */
+    .hero-how-sum::marker { content: ''; }
+    .hero-how-sum:focus-visible { outline: 2px solid rgba(245,200,66,0.7);
+                                  outline-offset: 3px; border-radius: 0.5rem; }
+    .hero-how-caret { display: inline-block; margin-left: 0.35rem;
+                      transition: transform 0.22s ease; }
+    #hero-how[open] .hero-how-caret { transform: rotate(180deg); }
+
+    /* The honest "no" from Path A — printed only when a location IS set, the
+       seats DID resolve, and not one of those officeholders clears the
+       publication floor. Styled as a plain status line, not an error and not a
+       warning: the seat list above it is a correct answer to "who has power over
+       me", and this sentence is only the boundary of what we will publish on top
+       of it. */
+    .pdx-first-run-note { max-width: 46rem; margin: 0.9rem auto 0;
+                          padding: 0.7rem 0.95rem;
+                          border-left: 2px solid rgba(148,163,184,0.38);
+                          background: rgba(148,163,184,0.06);
+                          border-radius: 0 0.4rem 0.4rem 0;
+                          color: #b8c6da; font-size: 0.8125rem;
+                          line-height: 1.55; text-align: left; }
+    .pdx-first-run-note[hidden] { display: none; }
+
+    /* Retired once done. #start-here is the NEW VOTER welcome band — an eyebrow
+       reading "new here?", a headline, a lead, and the six-word spine. It is
+       already dismissible and already relocated below both doors at runtime, so it
+       was never competing for the fold; what it should not do is keep pitching an
+       introduction to somebody who has already opened a sourced record or picked a
+       seat. Hidden on completion rather than on dismissal, because finishing the
+       task it was advertising is the strongest possible "got it". Note the
+       direction: this one hides when DONE, where everything else here hides while
+       PENDING. */
+    html[data-pdx-firstrun="done"] #start-here { display: none; }
+
+    /* Deferred while pending. The pulse bar is eight quick-jump chips with a
+       rotating glow — a second navigation bar, directly under the first one,
+       offering eight destinations to somebody who has not yet chosen between
+       two. It is genuinely useful to a returning visitor who knows what those
+       chips mean, so it WAITS for them rather than going away. */
+    html[data-pdx-firstrun="pending"] #pulse-bar { display: none; }
+
+    /* Ranking the two hero CTAs. Path A carries the fill; Path B keeps a real,
+       tappable outline that lifts on hover so it never reads as disabled. This
+       is rank, not exclusion: both are one click and both are above the fold. */
+    #hero-path-b { transition: background-color .18s ease, border-color .18s ease, color .18s ease; }
+    #hero-path-b:hover { background: rgba(255,255,255,0.09) !important;
+                         border-color: rgba(203,213,225,0.62) !important;
+                         color: #e7eefb !important; }
+    #hero-first-run:focus-visible,
+    #hero-path-b:focus-visible { outline: 2px solid rgba(245,200,66,0.8); outline-offset: 3px; }
+
+    /* Once the visitor has finished a task the primary stops shouting. The glow
+       existed to break a tie for somebody who had not made a first move; after
+       the first move there is no tie to break. */
+    html[data-pdx-firstrun="done"] #hero-first-run {
+      box-shadow: 0 10px 26px -12px rgba(0,0,0,0.6) !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-how-caret, #hero-path-b { transition: none; }
+    }
+
     /* ── Hero: fit the proof on a phone screen ──────────────────────────────
        The record card only counts as "above the fold" if it actually clears a
        phone viewport, and the hero's stacked chrome (padding + logo + brand
@@ -3005,76 +3108,78 @@ window.PDXLazy = (function () {
           <div class="w-8 h-8 rounded-lg bg-crimson-600 flex items-center justify-center text-sm shadow-lg shadow-crimson-600/20 transition-transform duration-200 group-hover:scale-110">🏠</div>
           <span class="font-display text-xl tracking-wider text-white">POLITI<span class="text-crimson-400">DEX</span></span>
         </a>
-        <!-- THREE PILLS, TWO DOORS. The bar carried exactly one emphasised
-             control for a long time — the gold ⭐ My Voting Team — which made the
-             seasonal door the only thing in the chrome with any weight. It gained
-             a matched blue peer (👁️ Find the Record, the way into Door 1), and
-             now a third that comes before either of them:
+        <!-- TWO DOORS, ONE FRONT STEP. (Landmark: this comment was headed
+             "THREE PILLS, TWO DOORS." through Phase 2.)
 
-               🏛️ WHO REPRESENTS ME · light-blue-filled, the front step. Scrolls to
-                                       the homepage front door and, when no location
-                                       is set yet, opens the same picker the rest of
-                                       the app uses.
-               👁️ FIND THE RECORD    · blue-filled, Door 1. Wakes the All-Seeing
+             The product has TWO doors and one search field, and after Phase 3 the
+             bar says exactly that. Three controls, ranked, and nothing else:
+
+               🏛️ WHO REPRESENTS ME · the FRONT STEP, and deliberately the quiet
+                                       one now — outlined, no fill, no resting
+                                       glow. Scrolls to the homepage front door
+                                       and, when no location is set yet, opens the
+                                       same picker the rest of the app uses.
+               👁️ FIND THE RECORD    · Door 1, blue-filled. Wakes the All-Seeing
                                        Eye sitting directly below this bar.
-               ⭐ MY VOTING TEAM     · gold-filled, unchanged, Door 2.
+               ⭐ MY VOTING TEAM     · Door 2, gold-filled. The ballot workspace.
 
-             Three pills, but not three doors — the product has two. Door 1 is The
-             Record (year-round) and Door 2 is Your Ballot (an election utility).
-             WHO REPRESENTS ME is the step in FRONT of both, which is why it leads
-             the row and why it is described here as the front step rather than as
-             a door of its own. Counting it as a third door would promise a third
-             destination that does not exist.
+             Door 1 is The Record (year-round) and Door 2 is Your Ballot (an
+             election utility). WHO REPRESENTS ME is the step in FRONT of both,
+             which is why it leads the row and why it is described here as the
+             front step rather than as a door of its own. Counting it as a third
+             door would promise a third destination that does not exist — and
+             through Phase 2 the bar half-made that promise anyway, because the
+             front step wore the same filled-and-glowing pill treatment as the two
+             doors. Three identical pills read as three products. Phase 3 keeps
+             the position and the order and takes away the fill, so the visual
+             rank now matches the doctrine: two doors, then the step before them.
 
-             Same geometry, same border weight, same glow budget; different hue, so
-             they read as peers rather than as a primary and its shadows. Voting lost
-             nothing: the pill, Voter Hub, Your Ballot and Local Issues are all still
-             here.
+             WHAT LEFT THE ROW IN PHASE 3. Voter Hub, 🗳️ Your Ballot and 🔦 Local
+             Issues were four top-level slots' worth of Door 2 VIEWS — door2-spine.js
+             is explicit that the workspace is the authority and the rest are views
+             of it — sitting at the same rank as the doors themselves. They are now
+             nested in the EXPLORE & DISCOVER panel on the right, under their own
+             "Your Vote · Door 2" heading. Nothing was deleted, no destination lost
+             a route, and no new top-level pill was added to pay for it: the row
+             went from six items to three.
 
-             The bar has not grown across either change. "🎯 My Stances" came out of
-             the DESKTOP row when the second pill landed; "👤 My Profile" came out
-             when the third did — both are still in the mobile menu, and still one
-             click away on desktop in the account chip — because a seven-item row
-             plus three dropdowns is how a nav stops being usable at 1280px.
+             The bar has not grown across any of these changes. "🎯 My Stances"
+             came out of the DESKTOP row when the second pill landed; "👤 My
+             Profile" came out when the third did — both are still in the mobile
+             menu, and still one click away on desktop in the account chip.
 
              The middle pill used to read "Check a Claim", which named a verdict
              the eye does not deliver — it does not rule a claim true or false. What
              it actually does is find the formal record behind the claim and show the
              receipts either way, so the label says that instead.
 
-             Order follows the flow, with the lookup now in front of all of it:
-             Who Represents Me (find) → Find the Record (Door 1) → Voter Hub (learn) →
-             My Voting Team (build) → Your Ballot (Door 2) → Mandate (act, on the
-             right cluster). -->
+             Order still follows the flow, now with nothing between the steps:
+             Who Represents Me (front step) → Find the Record (Door 1) →
+             My Voting Team (Door 2) → Mandate (act, on the right cluster). -->
         <div class="hidden lg:flex items-center gap-2.5 lg:gap-4 font-condensed font-600 text-xs lg:text-sm tracking-widest uppercase text-steel-300">
-          <!-- 🏛️ WHO REPRESENTS ME leads the row. Representative lookup is the
-               most useful thing this site does for someone arriving cold, and it
-               used to have no chrome of its own at all — the only way in was the
-               gold ballot pill, which asks a visitor to commit to building a team
-               before they know the site can even name their representatives. It
-               is a filled pill like the other two doors, and it leads because it
-               is the step that comes before both of them.
-               The row did not grow to fit it: 👤 My Profile came off the DESKTOP
-               row only. It is still in the mobile menu below and still one click
-               away in the account chip on the right, and it is a returning-visitor
-               destination — exactly the kind of item that should yield a slot to a
-               first-visit one. -->
-          <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#07101f;background:linear-gradient(135deg,#a8d4ff,#5ea2f5);border:1.5px solid rgba(167,212,255,0.9);box-shadow:0 0 16px rgba(96,165,250,0.4),inset 0 1px 0 rgba(255,255,255,0.3);text-shadow:0 1px 1px rgba(255,255,255,0.2);">🏛️ Who Represents Me</a>
+          <!-- 🏛️ WHO REPRESENTS ME still leads the row: representative lookup is
+               the most useful thing this site does for someone arriving cold, and
+               the first-run path (first-run.js, Path A) starts here. It is no
+               longer a filled pill. It keeps the pill GEOMETRY — same padding,
+               same radius, same nowrap, same 1.5px border — and gives up the
+               gradient and the 16px glow, which is the whole difference between
+               "third door" and "the step before the two doors". -->
+          <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#a8d4ff;border:1.5px solid rgba(167,212,255,0.42);">🏛️ Who Represents Me</a>
           <!-- href is a real destination, not a decoration: if the helper has not
                loaded yet the click is left alone and lands on the receipts band, so
                the control is never dead. When the helper is there it takes over and
                focuses the eye in place — no scroll, because the eye is already on
                screen at every scroll position. -->
           <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Find the Record</a>
-          <a href="#voter-hub" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">Voter Hub</a>
           <a href="#my-politicians" title="Your voting team — the slate of politicians you're building and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Voting Team</a>
-          <a href="#your-ballot" title="Enter your address and see the contests PolitiDex tracks for your districts" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🗳️ Your Ballot</a>
-          <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🔦 Local Issues</a>
-          <!-- The former research/reference links (Evidence Locker, Compare,
+          <!-- Voter Hub, 🗳️ Your Ballot and 🔦 Local Issues used to sit here, at
+               the same rank as the two doors. They are Door 2 VIEWS, so they moved
+               into the EXPLORE & DISCOVER panel below under "Your Vote · Door 2".
+               The former research/reference links (Evidence Locker, Compare,
                Spotlight, Library, Exchange, All Politicians and the admin tools)
-               were consolidated into the right-side POLITICIANS and LIBRARY
-               dropdowns so the bar stays clean with a clear left→right hierarchy.
-               The mobile menu below still lists every destination directly. -->
+               were consolidated into those same right-side dropdowns. The mobile
+               menu below still lists every destination directly, in the same
+               primary-then-secondary order this row uses. -->
         </div>
       </div>
 
@@ -3124,6 +3229,22 @@ window.PDXLazy = (function () {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
             </button>
             <div class="pdx-navmenu__panel" role="menu" aria-label="Explore & Discover menu">
+              <!-- YOUR VOTE · DOOR 2 (Phase 3). Voter Hub, Your Ballot and Local
+                   Issues were top-level items in the left group until Phase 3. They
+                   are views OF the ballot workspace (door2-spine.js: AUTHORITY is
+                   'ballot-workspace'), not doors of their own, so they sit here —
+                   one click from the bar, reachable from the mobile drawer, and no
+                   longer competing with the two doors for visual rank. The ⭐ My
+                   Voting Team pill in the bar is still the way IN to Door 2; this
+                   group is where its rooms are listed.
+                   Kept first in the panel, ahead of the discovery rows, because a
+                   visitor who came looking for their ballot should not have to read
+                   past the archive to find it. -->
+              <div class="pdx-navmenu__hd">Your Vote · Door 2</div>
+              <a href="#your-ballot" title="Enter your address and see the contests PolitiDex tracks for your districts" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🗳️</span><span class="pdx-navmenu__lb">Your Ballot</span></a>
+              <a href="#voter-hub" title="The Voter Hub — your seats, your races and what is on them" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Voter Hub</span></a>
+              <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🔦</span><span class="pdx-navmenu__lb">Local Issues</span></a>
+              <div class="pdx-navmenu__sep"></div>
               <div class="pdx-navmenu__hd">Explore &amp; Discover</div>
               <a href="#hot-topics" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🔥</span><span class="pdx-navmenu__lb">Hot Topics / Spotlights</span></a>
               <a href="#stance-library" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🎯</span><span class="pdx-navmenu__lb">Issues &amp; Stances</span></a>
@@ -3551,32 +3672,39 @@ window.PDXLazy = (function () {
           <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
         </button>
       </div>
-      <!-- Door 1 leads on mobile too, above "Your Vote", because the menu
-           is read top-down and whatever sits first is what the product looks like it
-           is for. One item, not a group: everything else behind this door already
-           has a home under "Track & Compare" below, and a menu that repeats itself
-           is a menu nobody finishes reading.
-           The eye lives in the bar this menu drops out of, so closing the menu and
-           focusing it puts the cursor exactly where the label promised. -->
-      <div class="mnav-group-label">The Record</div>
-      <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Find the Record</a>
-      <!-- Core voter tools — same onboarding flow as the desktop bar, and the same
-           reordering: Who Represents Me (find) → Voter Hub (learn) → My Voting Team
-           (build) → Your Ballot (decide). The lookup leads because this menu is read
-           top-down and it is the step that comes before the rest; on a phone that
-           position matters more than it does on the bar, since the mobile visitor
-           sees nothing else until they open this.
-           🎯 My Stances and 👤 My Profile stay listed here even though they came off
-           the desktop row — this menu has the vertical room the bar does not.
-           Local Issues follows, and only resolves once a location is confirmed. -->
-      <div class="mnav-group-label">Your Vote</div>
+      <!-- ── PRIMARY · the same hierarchy the bar shows ────────────────────
+           The drawer used to open with "The Record" (one item) and then "Your
+           Vote" (seven items), which meant Door 1 and Door 2 were three rows
+           apart with the front step and a returning-visitor destination in
+           between. On a phone this menu IS the navigation, so a reader could not
+           see the two-door shape at all.
+           Phase 3 gives the drawer the bar's own ranking. One primary group of
+           exactly three rows — front step, Door 1, Door 2, in that order — and
+           then every other Door 2 surface under a clearly secondary heading. No
+           destination was removed and no new one was added; the rows were
+           regrouped and relabelled.
+           Each row closes the menu behind it, or the visitor scrolls to a band
+           they cannot see under a full-screen overlay. The eye lives in the bar
+           this menu drops out of, so closing the menu and focusing it puts the
+           cursor exactly where the label promised. -->
+      <div class="mnav-group-label">Start Here · Two Doors</div>
       <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
-      <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
+      <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Find the Record</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Voting Team</a>
-      <a href="#my-stances" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎯 My Stances</a>
+      <!-- ── SECONDARY · rooms inside Door 2, plus the personal surfaces ──
+           These are views of the ballot workspace and the reader's own account
+           pages. They came off the DESKTOP row in Phase 3 (Voter Hub, Your
+           Ballot, Local Issues) or in earlier phases (My Stances, My Profile),
+           and they are all still here because this menu has the vertical room
+           the bar does not. Local Issues only resolves once a location is
+           confirmed, which is why it asks for one rather than scrolling to a
+           hidden band. -->
+      <div class="mnav-group-label">More of Your Vote</div>
+      <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
       <a href="#your-ballot" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗳️ Your Ballot</a>
-      <a href="#my-profile" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">👤 My Profile</a>
       <a href="#local-issues" onclick="document.getElementById('mobileMenu').classList.add('hidden');var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🔦 Local Issues</a>
+      <a href="#my-stances" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎯 My Stances</a>
+      <a href="#my-profile" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">👤 My Profile</a>
       <div class="mnav-group-label">Track &amp; Compare</div>
       <a href="#say-vs-do" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🧾 Say vs. Do</a>
       <a href="#evidence-locker" title="Open the Evidence Locker — every receipt in one place" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">📂 Evidence Locker</a>
@@ -4171,66 +4299,95 @@ window.PDXLazy = (function () {
          cannot ship. -->
     <div id="hero-showcase" class="mb-6 px-2 sm:px-0" hidden></div>
 
-    <!-- ── THE TWO DOORS ────────────────────────────────────────────────────
+    <!-- ── THE TWO DOORS, RANKED FOR A COLD START ──────────────────────────
          The hero had no call to action at all: the old START / BALLOT / TOUR
          cluster was deleted for being a five-button pile-up, and nothing replaced
          it, which left the purple "Find Your Matches" banner further down as the
          only primary-styled button in the hero — a third surface answering a
-         question neither door had asked yet.
+         question neither door had asked yet. Phase 2 replaced it with a ranked
+         pair, gold on the All-Seeing Eye and outlined on the hub.
 
-         Two buttons, ranked, and nothing else:
+         PHASE 3 CHANGES WHICH ONE IS FIRST, and why.
 
-           PRIMARY (gold, filled, the same gold as the headline climax and the
-           eye's iris) opens the All-Seeing Eye. The eye lives in the fixed nav
-           and is therefore already on screen, so this does not scroll anywhere —
-           it wakes the field the visitor was going to have to notice on their own.
+         The gold button opened the search field. Search is a router, not a task:
+         it answers a question the visitor already had, and a first-time visitor
+         does not have one yet. Typed into cold, the honest outcome is an empty
+         field and a blinking cursor. So the primary action is now the one task
+         this site can complete for a stranger who has told it nothing but a
+         location — PATH A: who holds power over me, then one of their formal
+         records, opened on the record section of their own person file.
 
-           SECONDARY (outlined, cool) is the Voting Hub door. Same destination the
-           gold "BUILD YOUR TEAM." headline used to promise, at the weight a
-           second door should carry.
+           PRIMARY (gold, filled) → PDXFirstRun.pathA(). Sets a location if there
+           isn't one, resolves the seats, and opens the top resolved officeholder
+           at /p/<pid> on 'pdxsec-standout'. It works in all 50 states because the
+           statewide seats (both US Senate seats and the Governor) resolve from the
+           state alone — voter-hub-location.js gates only the DISTRICT seats on
+           Utah, so nobody is ever shown a plausible stranger.
+
+           SECONDARY (outlined, cool) → PDXFirstRun.pathB(), the ballot workspace.
+           Same destination the "BUILD YOUR TEAM." headline used to promise, at the
+           weight a second door should carry. It is second rather than first because
+           picking a seat is only fully resolvable where the district lines are
+           drawn, and that is one state.
+
+         SEARCH IS STILL RIGHT THERE — the All-Seeing Eye is the nav's second row
+         and is on screen at every scroll position, and the line under the buttons
+         names it in words with a text-weight control. Two doors plus search, and
+         search is the one that does not need a button in the hero.
 
          Deliberately NOT restored: the tour button, the browse row, the "no
          account needed" reassurance line. Every one of those is still reachable
          from the nav and from the hub's own onboarding. -->
     <div class="w-full max-w-3xl mx-auto px-4 sm:px-0 mb-7 animate-fadeUp">
+      <!-- ONE PROMISE, above the buttons. The long version of this — two full
+           paragraphs — used to sit BELOW the buttons and above the alignment card,
+           which put roughly 90 words of explanation between a visitor and their
+           first task. It is now one sentence here and the rest is behind the
+           "How PolitiDex works" disclosure further down. The claim is unchanged
+           and still carries no completeness language: a record of what is on
+           file, not a record of everything. -->
+      <p class="hero-body max-w-2xl mx-auto mb-6 px-4 text-steel-100 text-base sm:text-xl leading-relaxed font-body filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+        <strong class="text-white font-extrabold">A free, nonpartisan record of what politicians say and how they actually vote.</strong>
+        Start with the people who already hold power over you.
+      </p>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
-        <button type="button" onclick="window.pdxOpenEye && window.pdxOpenEye()"
+        <!-- The fallback chain matters: this button is in the first frame, and
+             first-run.js is deferred. Until it loads, the click still does the
+             useful half of Path A (the shared lookup action), and if even that
+             has not loaded it scrolls to the band. Never a dead control. -->
+        <button type="button" id="hero-first-run" data-pdx-firstrun-cta="A"
+                onclick="if(window.PDXFirstRun&&window.PDXFirstRun.pathA){window.PDXFirstRun.pathA();}else if(window.pdxFindMyReps){window.pdxFindMyReps();}else{var _w=document.getElementById('who-represents-me');if(_w)_w.scrollIntoView({behavior:'smooth',block:'start'});}"
                 class="btn-tap inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 hover:from-gold-300 hover:via-gold-400 hover:to-gold-300 font-condensed font-900 text-base sm:text-lg tracking-widest uppercase px-8 py-4 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95"
                 style="color:#0a0f1e;border:1.5px solid rgba(255,255,255,0.35);box-shadow:0 0 34px rgba(245,200,66,0.45),inset 0 2px 0 rgba(255,255,255,0.4);text-shadow:0 1px 1px rgba(255,255,255,0.25);">
-          <span aria-hidden="true">👁️</span> Check a claim or look up anyone
+          <span aria-hidden="true">🏛️</span> See who has power over me
         </button>
-        <a href="#voter-hub"
+        <a href="#voter-hub" id="hero-path-b" data-pdx-firstrun-cta="B"
+           onclick="if(window.PDXFirstRun&&window.PDXFirstRun.pathB){event.preventDefault();window.PDXFirstRun.pathB();}"
            class="btn-tap inline-flex items-center justify-center gap-2.5 font-condensed font-700 text-sm sm:text-base tracking-widest uppercase px-7 py-4 rounded-2xl transition-all duration-300 hover:scale-105 no-underline"
            style="color:#cfe0f5;background:rgba(255,255,255,0.05);border:1.5px solid rgba(148,163,184,0.4);">
           <span aria-hidden="true">🗳️</span> Build my voting team
         </a>
       </div>
 
-      <!-- Claim → Receipt, said out loud. The adapter (claim-check.js) has shipped
-           and been tested for a while, and the only place the product admitted it
-           existed was the search field's placeholder text — which nobody reads
-           until they have already decided to type. The example is illustrative and
+      <!-- Claim → Receipt, said out loud, and now the third leg of the model:
+           two doors plus SEARCH. The adapter (claim-check.js) has shipped and been
+           tested for a while, and the only place the product admitted it existed
+           was the search field's placeholder text — which nobody reads until they
+           have already decided to type. The example is illustrative and
            deliberately NAMES NO ONE: a made-up quote attributed to a real person is
            exactly the thing this site exists to catch, and it is not clickable for
            the same reason — a claim with no person in it cannot resolve to a
-           receipt, and a demo that fails on purpose teaches the wrong lesson. -->
+           receipt, and a demo that fails on purpose teaches the wrong lesson.
+           The control is text-weight and a button element, not a third styled CTA
+           and not an anchor to #say-vs-do: search routes, it is not a door, and the
+           two labelled eye entries in the chrome are the ones the copy suite
+           counts. -->
       <p class="mt-4 px-2 text-steel-300 text-sm sm:text-base leading-relaxed font-body">
-        Paste something a politician said and PolitiDex looks for the vote behind it — the receipt, or the contradiction.
+        Or paste something a politician said and PolitiDex looks for the vote behind it — the receipt, or the contradiction.
+        <button type="button" onclick="if(window.pdxOpenEye){window.pdxOpenEye();}" class="underline decoration-dotted underline-offset-4 text-gold-300 hover:text-gold-200 font-700">Search the record →</button>
         <span class="block mt-1 text-steel-500 text-xs sm:text-sm italic">e.g. “They voted to protect Social Security.”</span>
       </p>
     </div>
-
-    <!-- Plain-language explainer: what PolitiDex is, in one clear sentence -->
-    <p class="hero-body max-w-3xl mx-auto mb-5 px-6 text-steel-100 text-lg sm:text-2xl md:text-[1.7rem] leading-relaxed font-body filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-      <strong class="text-white font-extrabold">PolitiDex is a free, nonpartisan record of what politicians say and how they actually vote.</strong>
-      Look up anyone, check a claim against the roll call behind it, and see the <span class="text-gold-300 font-extrabold">sourced receipts</span> either way.
-    </p>
-
-    <!-- Why it matters — short, empowering, not preachy. Ends on the second door,
-         which is where the election-season half of the product now lives. -->
-    <p class="hero-body max-w-2xl mx-auto mb-9 px-6 text-steel-300 text-base sm:text-lg leading-relaxed font-body">
-      Checking the receipts yourself takes hours, so most of us end up voting on party or gut feeling. PolitiDex does that homework year-round — and when an election comes, it turns the record into a <span class="text-white font-700">voting team</span> of the people who earned it.
-    </p>
 
     <!-- Historical note: the ORIGINAL hero CTA cluster — a new-voter "start with
          one small step" card, a START / SEE YOUR FULL BALLOT / 2-MIN TOUR button
@@ -4243,34 +4400,86 @@ window.PDXLazy = (function () {
          not "no call to action at all" — an empty hero simply handed the primary
          slot to whatever banner happened to be styled loudest. -->
 
-    <!-- ── Beyond-Party Alignment Banner ──────────────────────────────
-         Positions the Alignment Match % as PolitiDex's answer to party-line
-         voting: judge a politician by how their record matches your values,
-         not by the letter after their name. Purple "match" accent inside the
-         patriotic gold frame keeps it on-brand while standing apart from the
-         red/gold CTAs above. Taps straight into the live Alignment Tool.
+    <!-- ── HOW IT WORKS · deferred, not deleted ────────────────────────────────
+         Everything in here used to be unconditional hero content, in this order:
+         a 40-word explainer, a 55-word "why it matters" paragraph, and the purple
+         True North / Your Match % card with its own primary-styled button. Three
+         explanatory stacks between the headline and the fold, none of which a
+         first-time visitor needs before their first task — and the last of which
+         is a THIRD entry point wearing a filled button, i.e. exactly the "ten
+         product identities" problem in miniature.
+         So it collapses. A details element and not JavaScript, because a disclosure
+         that depends on a deferred module is a disclosure that is missing in the
+         first frame; this one works with scripting off and is keyboard-operable for
+         free. Closed by default for a first-time visitor, and first-run.js opens it
+         once the visitor has actually completed a first task — the brief's "after
+         first success, not before as equal peers", applied to the homepage copy.
+         NOTHING WAS CUT: both paragraphs and the whole alignment card are below,
+         verbatim.
+         The wrapper div exists for one reason: .hero-stack-end is what gives the
+         hero stack its bottom slack, via `#hero > .hero-stack-end`, and the True
+         North card that used to carry it is now two levels down. A <details> could
+         have taken the class directly, but the rule is a child combinator and the
+         hook is asserted to be a direct-child DIV of #hero
+         (scripts/test-index-scripts.mjs), so the honest fix is a real direct child
+         rather than a class parked where the selector cannot reach it. -->
+    <div class="hero-stack-end w-full">
+    <details id="hero-how" class="mt-8 w-full max-w-2xl mx-auto px-2 sm:px-0 text-left">
+      <summary class="hero-how-sum cursor-pointer list-none text-center font-condensed text-xs sm:text-sm tracking-[0.2em] uppercase text-steel-400 hover:text-steel-200 transition-colors py-2">
+        How PolitiDex works <span aria-hidden="true" class="hero-how-caret">▾</span>
+      </summary>
+      <div class="pt-4">
+        <!-- Plain-language explainer: what PolitiDex is, in one clear sentence -->
+        <p class="hero-body max-w-3xl mx-auto mb-5 px-6 text-steel-100 text-lg sm:text-2xl md:text-[1.7rem] leading-relaxed font-body filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+          <strong class="text-white font-extrabold">PolitiDex is a free, nonpartisan record of what politicians say and how they actually vote.</strong>
+          Look up anyone, check a claim against the roll call behind it, and see the <span class="text-gold-300 font-extrabold">sourced receipts</span> either way.
+        </p>
 
-         Its button is deliberately a size and weight BELOW the gold primary door
-         above, so the hero reads eye → hub → alignment rather than presenting
-         three peers. -->
-    <div class="mt-10 w-full max-w-2xl mx-auto px-2 sm:px-0 animate-fadeUp hero-stack-end">
-      <div class="relative overflow-hidden rounded-3xl border-2 border-gold-400/45 px-6 py-6 sm:px-8 backdrop-blur-lg" style="background:linear-gradient(135deg, rgba(76,29,149,0.42) 0%, rgba(10,15,30,0.6) 55%, rgba(192,21,42,0.18) 100%); box-shadow:0 0 38px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.05);">
-        <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] pointer-events-none" style="background:rgba(139,92,246,0.35);"></div>
-        <div class="relative flex flex-col items-center text-center gap-3">
-          <span class="font-condensed text-xs sm:text-sm tracking-[0.25em] uppercase text-purple-300 font-700 flex items-center gap-2">🧭 Let your values be your True North</span>
-          <p class="font-display text-2xl sm:text-3xl md:text-4xl tracking-wide text-white leading-tight uppercase">
-            Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/80">party</span>.<br class="hidden sm:block" />
-            Judge them by <span class="bg-gradient-to-r from-purple-300 to-purple-400 bg-clip-text text-transparent">your values</span>.
-          </p>
-          <p class="font-condensed text-sm sm:text-base text-steel-200 tracking-wide leading-relaxed max-w-xl">
-            Tell PolitiDex the positions you actually believe in — that's your <strong class="text-purple-200">True North</strong>. Every politician then gets a personal <strong class="text-purple-200">Your Match&nbsp;%</strong>: a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue. It is read off the same receipts as everything else here — their votes, against your positions.
-          </p>
-          <button type="button" onclick="if(window.openAlignBoard){window.openAlignBoard('all');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-xs sm:text-sm tracking-widest uppercase px-7 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 24px rgba(139,92,246,0.35), inset 0 2px 0 rgba(255,255,255,0.25);">
-            🎯 Find Your Matches
-          </button>
-          <p class="font-condensed text-[0.65rem] sm:text-xs tracking-[0.18em] uppercase text-steel-500">Free · Nonpartisan · Takes about a minute</p>
+        <!-- Why it matters — short, empowering, not preachy. Ends on the second door,
+             which is where the election-season half of the product now lives. -->
+        <p class="hero-body max-w-2xl mx-auto mb-9 px-6 text-steel-300 text-base sm:text-lg leading-relaxed font-body">
+          Checking the receipts yourself takes hours, so most of us end up voting on party or gut feeling. PolitiDex does that homework year-round — and when an election comes, it turns the record into a <span class="text-white font-700">voting team</span> of the people who earned it.
+        </p>
+
+        <!-- ── Beyond-Party Alignment Banner ──────────────────────────────
+             Positions the Alignment Match % as PolitiDex's answer to party-line
+             voting: judge a politician by how their record matches your values,
+             not by the letter after their name. Purple "match" accent inside the
+             patriotic gold frame keeps it on-brand while standing apart from the
+             red/gold CTAs above. Taps straight into the live Alignment Tool.
+             It is inside the "How PolitiDex works" disclosure as of Phase 3, not
+             because it stopped being a real tool but because it was a third entry
+             point wearing a filled button in the hero, above the fold, before the
+             visitor had done anything. It is still one tap from here, still in the
+             Track & Compare panel as "Alignment Tool", and unchanged otherwise.
+             ONE SENTENCE WAS WRONG AND IS NOW FIXED. The body copy read "Every
+             politician then gets a personal Your Match %". It does not: the match
+             is fail-closed like every other figure here, so below the tested floor
+             there is a record and no percentage. That is the same claim the
+             welcome overlay was corrected for (scripts/test-welcome-honesty.mjs),
+             and it had survived here because nothing was reading the hero for it.
+             Something is now: scripts/test-nav-hierarchy.mjs section 6. -->
+        <div class="mt-10 w-full max-w-2xl mx-auto px-2 sm:px-0 animate-fadeUp">
+          <div class="relative overflow-hidden rounded-3xl border-2 border-gold-400/45 px-6 py-6 sm:px-8 backdrop-blur-lg" style="background:linear-gradient(135deg, rgba(76,29,149,0.42) 0%, rgba(10,15,30,0.6) 55%, rgba(192,21,42,0.18) 100%); box-shadow:0 0 38px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.05);">
+            <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] pointer-events-none" style="background:rgba(139,92,246,0.35);"></div>
+            <div class="relative flex flex-col items-center text-center gap-3">
+              <span class="font-condensed text-xs sm:text-sm tracking-[0.25em] uppercase text-purple-300 font-700 flex items-center gap-2">🧭 Let your values be your True North</span>
+              <p class="font-display text-2xl sm:text-3xl md:text-4xl tracking-wide text-white leading-tight uppercase">
+                Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/80">party</span>.<br class="hidden sm:block" />
+                Judge them by <span class="bg-gradient-to-r from-purple-300 to-purple-400 bg-clip-text text-transparent">your values</span>.
+              </p>
+              <p class="font-condensed text-sm sm:text-base text-steel-200 tracking-wide leading-relaxed max-w-xl">
+                Tell PolitiDex the positions you actually believe in — that's your <strong class="text-purple-200">True North</strong>. Where a politician's record runs deep enough to test, you get a personal <strong class="text-purple-200">Your Match&nbsp;%</strong>: a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue. Where it doesn't, you get the record and no percentage — the same floor the rest of the site holds. It is read off the same receipts as everything else here — their votes, against your positions.
+              </p>
+              <button type="button" onclick="if(window.openAlignBoard){window.openAlignBoard('all');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-xs sm:text-sm tracking-widest uppercase px-7 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 24px rgba(139,92,246,0.35), inset 0 2px 0 rgba(255,255,255,0.25);">
+                🎯 Find Your Matches
+              </button>
+              <p class="font-condensed text-[0.65rem] sm:text-xs tracking-[0.18em] uppercase text-steel-500">Free · Nonpartisan · Takes about a minute</p>
+            </div>
+          </div>
         </div>
       </div>
+    </details>
     </div>
 
     <!-- Scroll indicator -->
@@ -5178,12 +5387,29 @@ window.PDXLazy = (function () {
         setTimeout(done, 500);
       };
 
-      // Primary CTA: drop the visitor straight into setting their location.
-      // Dismiss the banner (they're now in the flow, no need to see it again),
-      // flag the location→ballot handoff so closing the picker scrolls them to
-      // their personalized district cards, then open the location modal.
+      // Primary CTA. Its label is "📍 See who represents me", and Phase 3 made the
+      // button do what the label says: it runs FIRST-RUN PATH A, the same runner
+      // the hero's primary CTA uses — find the seats with power over you, then open
+      // the formal record of one of them that clears the publication floor.
+      //
+      // Before this, the two buttons wore the same words and did different things:
+      // this one opened the location picker and set _pdxWelcomeAwaitingBallot, so
+      // closing the picker scrolled to the Voter Hub. That is a fine flow — it is
+      // Path B, the ballot workspace — but a visitor reading "see who represents
+      // me" is asking Path A's question, and two identically-labelled buttons with
+      // different destinations is the hierarchy problem this phase exists to fix.
+      // One label, one runner.
+      //
+      // The old behaviour is kept EXACTLY as the fallback, flag and all, for the
+      // window before the deferred module lands. Note the flag is set only in that
+      // branch: with Path A running, a handoff that scrolls to the Voter Hub would
+      // be fighting the person file Path A is opening.
       window.pdxStartHereGo = function () {
         window.pdxDismissStartHere();
+        if (window.PDXFirstRun && typeof window.PDXFirstRun.pathA === 'function') {
+          setTimeout(function () { window.PDXFirstRun.pathA(); }, 240);
+          return;
+        }
         window._pdxWelcomeAwaitingBallot = true;
         setTimeout(function () {
           if (typeof window.openLocationModal === 'function') window.openLocationModal();
@@ -21195,6 +21421,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        scopes in the chrome of Door 2 and of the archive header. Loads after the
        location resolver it reads; re-paints on _updateTeamPositionsForLocation. -->
   <script defer src="/scope-chrome.js"></script>
+  <!-- First run. Owns the answer to "has this visitor finished one meaningful
+       task yet", runs the two ranked cold-start paths behind the hero CTAs, and
+       flips one attribute on <html> that defers the second tier until they have
+       (the rules that read it are inline in the hero-chrome <style> block near
+       the top of this document — search it for "FIRST RUN", which is where they
+       live because they are above-the-fold critical and the render-blocking
+       stylesheet budget is full).
+       Loads LAST of this group on purpose, because it calls into three engines
+       above it and holds none of their state: pdxRepsForMe() for the resolved
+       seats, PDXPerson.publishable() — which is publication-floor.js — to refuse
+       to open a record it cannot source, and PDXBallotWorkspace._decided() to
+       confirm a real seat pick. Every one of those calls is guarded and every
+       path degrades to the plain scroll it replaced.
+       It writes exactly one key, pdx_first_run, and that key is set by a finished
+       task and by nothing else: signing in does not set it, dismissing a banner
+       does not set it, and arriving does not set it. -->
+  <script defer src="/first-run.js"></script>
   <script>
   /* Evidence Locker density switch — additive, self-contained. Toggles a compact
      layout on the results grid (#el-results) and remembers the choice, so a

@@ -191,9 +191,15 @@ has(navEntries[1], "getElementById('mobileMenu').classList.add('hidden')",
 const navBlock = HTML.slice(HTML.indexOf('THREE PILLS'), HTML.indexOf('THREE PILLS') + 6000);
 must(HTML.indexOf('THREE PILLS') !== -1,
   'index.html no longer documents the nav pill structure — the ordering claim below is unanchored');
-ok(navBlock.indexOf('#who-represents-me') < navBlock.indexOf('#voter-hub'),
-  'chrome: the lookup pill is no longer first in the desktop bar — find comes before learn, and the\n' +
-  '    bar\'s own comment says so');
+// Phase 3 nested #voter-hub into the Explore panel on the other side of the bar,
+// so it is no longer the thing the lookup pill has to come before. The claim being
+// tested is unchanged — the lookup is the FIRST item in the left group — so it is
+// now read against the two doors that follow it, which are the only items left.
+ok(navBlock.indexOf('#who-represents-me') < navBlock.indexOf('#say-vs-do'),
+  'chrome: the lookup pill is no longer first in the desktop bar — the front step comes before Door 1,\n' +
+  '    and the bar\'s own comment says so');
+ok(navBlock.indexOf('#say-vs-do') < navBlock.indexOf('#my-politicians'),
+  'chrome: Door 1 no longer precedes Door 2 in the left group');
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 3 · Team Builder survived, and gained a step-① door back

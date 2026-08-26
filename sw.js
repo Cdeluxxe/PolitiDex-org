@@ -172,7 +172,7 @@
 // precached, so neither half arrives alone. The mapping half of this pass is
 // database-side (S. 2's border_security relation becomes primary) and ships
 // through the migration, not the shell.
-const CACHE_VERSION = 'v75';
+const CACHE_VERSION = 'v76';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -222,6 +222,15 @@ const SHELL_ASSETS = [
   // script in <body> and installs the shared scroll-lock seam that every modal
   // in the app now routes through — an offline boot must not skip it.
   '/pdx-stability.js',
+  // First run — the module that ranks the homepage for a stranger: it runs the
+  // two cold-start paths behind the hero CTAs and flips the one attribute that
+  // defers the second tier until a real task is finished. Precached rather than
+  // left to the runtime cache because an offline boot is exactly the slow, bad
+  // connection where a first-time visitor most needs the ranked homepage. Its
+  // CSS is not listed here — those rules are inline in index.html (above-the-fold
+  // critical, and the render-blocking sheet budget is full), so they ship with
+  // the '/' entry at the top of this list.
+  '/first-run.js',
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',
