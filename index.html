@@ -3174,7 +3174,7 @@ window.PDXLazy = (function () {
              Populated by updateNavAuth(); markup below is the static fallback
              shown until Firebase auth resolves. -->
         <div id="nav-auth-desktop" class="flex items-center gap-2 flex-shrink-0">
-          <button onclick="if(typeof openAuthModal==='function')openAuthModal()" class="relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-lg shadow-lg transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95" style="white-space:nowrap;font-size:10px;letter-spacing:0.1em;padding:4.5px 10px;animation:navSignInGlow 2.2s ease-in-out infinite, navSignInAttention 6s ease-in-out infinite;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+          <button onclick="if(typeof openAuthModal==='function')openAuthModal()" class="relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-lg shadow-lg transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95" style="white-space:nowrap;font-size:10px;letter-spacing:0.1em;padding:4.5px 10px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
             <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
             <span>JOIN THE PEOPLE</span>
             <span style="font-size:7.5px;background:rgba(255,255,255,0.22);padding:1px 5px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
@@ -3545,7 +3545,7 @@ window.PDXLazy = (function () {
            updateNavAuth(); the markup below is a static fallback shown until
            Firebase auth resolves. -->
       <div id="nav-auth-mobile" class="-mx-4 -mt-3 mb-2 px-4 pt-3.5 pb-4 border-b border-white/10 bg-gradient-to-b from-crimson-950/30 to-transparent">
-        <button onclick="if(typeof openAuthModal==='function')openAuthModal();document.getElementById('mobileMenu').classList.add('hidden');" class="w-full relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white rounded-xl text-center font-display tracking-widest uppercase flex items-center justify-center gap-2" style="font-size:15px;letter-spacing:0.11em;padding:14px 16px;animation:navSignInGlow 2.2s ease-in-out infinite;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+        <button onclick="if(typeof openAuthModal==='function')openAuthModal();document.getElementById('mobileMenu').classList.add('hidden');" class="w-full relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white rounded-xl text-center font-display tracking-widest uppercase flex items-center justify-center gap-2" style="font-size:15px;letter-spacing:0.11em;padding:14px 16px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
           <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
           <span>JOIN THE PEOPLE</span>
           <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
@@ -29590,7 +29590,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
            below takes over exactly as before. */
         width: fit-content;
         flex-wrap: wrap;
-        row-gap: 0.45rem;
+        /* THE WRAP SEAM IS THE BAR'S LARGEST DIVISION AND WAS ITS TIGHTEST GAP.
+           This was 0.45rem — the SIBLING step, the value that separates two
+           adjacent tool links inside one group — used to separate the two halves
+           of the bar when they fall onto different lines. And that is not a rare
+           state: the row needs about 1600px of window to fit on one line, so
+           every 1280, 1366, 1440 and 1512 desktop gets the two-tier bar, which is
+           most of them. Two tiers 7.2px apart do not read as two tiers; they read
+           as one pile that went wrong, which is the "clusters that don't read as
+           one bar" report.
+
+           A wrap is the biggest division the bar has, so it takes the biggest
+           step in the rhythm — the same 1.05rem the seam uses horizontally. The
+           two tiers now separate by exactly as much as the two halves do, and the
+           ordering below (sibling < group < seam) holds on both axes.
+
+           This makes the wrapped nav ~9.6px taller. That is safe because it is
+           MEASURED, not assumed: --pdx-chrome comes off the bottom of
+           .pdx-eye-row and a ResizeObserver on the nav republishes it, so the
+           hero's clearance follows on its own. Nothing here states a height. */
+        row-gap: 1.05rem;
         column-gap: 1.05rem;
         padding-left: 0.75rem;
         padding-right: 0.75rem;
@@ -29651,8 +29670,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     /* One step down on the screens that are genuinely short of width — 360px
        Androids and the 320-375px iPhones — and not on the 390-430px phones that
-       already have room to spare. */
-    @media (max-width: 370px) {
+       already have room to spare.
+
+       This boundary was 370px, which put the 375px iPhone (SE 2nd/3rd gen, and
+       every phone reporting 375 at a stepped-up font size) on the FULL-size
+       brand: a 2rem tile and a 1.25rem wordmark. The width model in
+       scripts/test-top-nav-layout.mjs costs that row at 3px of spare space —
+       tighter than the 320px screen, which gets the step-down and 5px. Three
+       pixels is not a margin, it is a coincidence: the row is costed from
+       advance-width estimates, and the thing that gives way when the estimate is
+       optimistic is the wordmark, because the floor in section 4 below makes it
+       the one shrinkable box in the bar. So POLITIDEX would ellipsize to
+       POLITID… on a very common phone — the brand clipped, which is the report.
+
+       380px moves the 375 phones onto the same one-step-down brand the 360px
+       Androids already wear (1.6rem tile, 1.05rem wordmark — smaller, entirely
+       legible, both words whole) and takes them from 3px of spare to ~21px. The
+       ellipsis stays as the floor it was always meant to be: reachable only by a
+       font stack this model cannot predict, never by a phone in the table. */
+    @media (max-width: 380px) {
       #pdx-topnav > div.max-w-7xl > div:first-child > a > div:first-child {
         width: 1.6rem;
         height: 1.6rem;
@@ -29760,6 +29796,90 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        screen now. Add and remove are untouched: this block contains no
        display, visibility, pointer-events or z-index declaration.
        ══════════════════════════════════════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════════════════════════════════════
+       TOP-NAV VISUAL WEIGHT — one ladder, and nothing moving at rest
+       ══════════════════════════════════════════════════════════════════════
+       pdx-topnav-layout above decides where the controls SIT. This block decides
+       how loudly they speak, and it is deliberately a second block: that one is
+       spacing and its own test asserts it declares no colour, transform, opacity
+       or order, which is a contract worth keeping intact.
+
+       THE PROBLEM, AS REPORTED: too many equal-loud controls. Read at rest, the
+       bar had five things competing — three filled pills, a filled ✊ Mandate and
+       a filled JOIN THE PEOPLE — and the two loudest were the two that are not
+       the product. Mandate carried three infinite animations (gradient sweep,
+       a crimson→gold→blue box-shadow flash, a periodic scale jump to 1.09) and
+       the account CTA carried two (a 36→50px crimson bloom with a 3px white ring,
+       plus its own scale jump). Motion is the first thing an eye resolves, so the
+       reliable reading order of the bar was: account chrome, momentum button,
+       then — if anything was left — the two doors.
+
+       THE LADDER, AS IT NOW STANDS. Nothing in the bar animates at rest, so the
+       ladder is made of weight and light alone, and it descends:
+
+         1. THE PRIMARY PATH — 🏛️ Who Represents Me, 👁️ Find the Record,
+            ⭐ My Voting Team. Filled, font-weight 700, and the only controls in
+            the bar carrying a coloured glow (a static 0 0 16px, declared inline
+            on each pill). These are the front step and the two doors.
+         2. BALLOT-RELATED TEXT — Voter Hub, 🗳️ Your Ballot, 🔦 Local Issues.
+            .clr-voter crimson with an 8px text-shadow, font-weight 600.
+         3. ✊ MANDATE — filled, but still, and stepped 800 → 700 (see app.css) so
+            it sits level with the pills instead of over them.
+         4. THE GATEWAYS — Track & Compare, Explore & Discover, Community. Plain
+            coloured text at font-weight 600, no fill, no glow. Their blue/gold
+            coding is meaning, not emphasis, and is left exactly as it was.
+         5. THE ACCOUNT CLUSTER — the bell, then JOIN THE PEOPLE: filled, but on
+            a neutral drop shadow rather than the bloom it used to wear.
+
+       NOTHING IS HIDDEN AND NOTHING IS MOVED. Every control keeps its label, its
+       colour, its handler and its place in the DOM. The glows and the motion were
+       not deleted either — they are on :hover and :focus-visible, where the
+       reader has already reached for the thing, which is the only moment a
+       control has a reason to answer.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <style id="pdx-topnav-weight">
+    /* ── THE ACCOUNT CTA: A BUTTON, NOT A BEACON ───────────────────────────
+       The record this bar sits on top of is public and needs no account to
+       read. A permanently pulsing JOIN THE PEOPLE says the opposite, in the
+       loudest register the chrome has, on every page view forever — so the
+       resting state is now an ordinary filled button on a neutral drop shadow.
+       The crimson glow it used to wear is kept verbatim (navSignInGlow, app.css)
+       and moved onto hover and keyboard focus. Sign-in is not removed, not
+       demoted in the DOM, and not smaller: same label, same FREE chip, same
+       gradient, same size, same handler. */
+    #nav-auth-desktop > button {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+    #nav-auth-desktop > button:hover,
+    #nav-auth-desktop > button:focus-visible {
+      animation: navSignInGlow 2.2s ease-in-out infinite;
+    }
+
+    /* The bell keeps its near-transparent resting fill, declared inline on the
+       element — it is the quietest filled thing in the bar and stays that way.
+       All it gains here is a hover answer, so the two members of the account
+       cluster respond to a pointer in the same register instead of one lighting
+       up and the other staying dead. */
+    #pdx-topnav #wc-bell:hover,
+    #pdx-topnav #wc-bell:focus-visible {
+      box-shadow: 0 0 12px rgba(207,224,245,0.22);
+    }
+
+    /* ── AND IF THE READER ASKED FOR LESS MOTION ───────────────────────────
+       Everything above is hover-triggered, so a reader who never hovers never
+       sees it. One who does, and who has asked the OS for reduced motion, gets
+       the resting state held: the two remaining nav animations are the only ones
+       the chrome has left, and both are ornament. */
+    @media (prefers-reduced-motion: reduce) {
+      #nav-auth-desktop > button:hover,
+      #nav-auth-desktop > button:focus-visible,
+      #pdx-topnav .nav-mandate-btn:hover,
+      #pdx-topnav .nav-mandate-btn:focus-visible {
+        animation: none;
+      }
+    }
+  </style>
+
   <style id="pdx-mobile-bottom-chrome">
     /* ── 1 · FULL PROFILE MODAL — the deck lands on the true bottom ───────
        The panel is already 100dvh (app.css, "Modal: full-screen on mobile").

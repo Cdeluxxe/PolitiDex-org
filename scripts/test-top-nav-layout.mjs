@@ -179,6 +179,28 @@ eq(group[0], group[1], 'brand-to-links and gateways-to-controls are spaced ident
 ok(sibling[0] < group[0], 'controls inside a group sit closer together than the groups do');
 ok(group[0] < seam, 'and the groups sit closer together than the two halves of the bar do');
 
+/* ── THE SAME RHYTHM VERTICALLY ─────────────────────────────────────────────
+   A wrap is the largest division the bar has — two tiers, not two groups — and
+   row-gap was 0.45rem, the SIBLING step: the value that separates two adjacent
+   tool links. The table below shows the wrapped bar is not an edge case either;
+   the row needs ~1600px to fit on one line, so 1280/1366/1440/1512 all wrap,
+   which is most desktops. Two tiers 7.2px apart read as one pile that went
+   wrong. The vertical division now takes the same step as the horizontal one. */
+const rowGap = parseFloat((R.match(/row-gap:\s*([\d.]+)rem/) || [])[1]);
+eq(rowGap, seam, 'the wrap seam takes the same step as the seam between the two halves');
+ok(rowGap > group[0], 'a tier boundary is spaced wider than a group boundary, never tighter');
+
+/* And no fourth value anywhere: every gap the desktop bar declares — column or
+   row, group or seam or gutter — is one of the three steps. A stray 0.55rem is
+   how a rhythm becomes a set of coincidences that happen to be close. */
+const STEPS = [sibling[0], group[0], seam];
+const declaredGaps = [...D.matchAll(/(?:column-gap|row-gap|gap|padding-left|padding-right):\s*([\d.]+)rem/g)]
+  .map(m => parseFloat(m[1]));
+ok(declaredGaps.length >= 7, `every gap in the desktop bar is accounted for (${declaredGaps.length} found)`);
+for (const g of declaredGaps) {
+  ok(STEPS.includes(g), `${g}rem is one of the three steps ${JSON.stringify(STEPS)} — not a fourth value`);
+}
+
 /* ───────────────────────────────────────────────────────────────────────────
    4 · NOTHING WAS ANSWERED BY REMOVING A CONTROL
    ─────────────────────────────────────────────────────────────────────────── */
@@ -192,6 +214,17 @@ eq(hidden[0], '#nav-auth-desktop > button > span:last-child',
 const freeMq = CSS.match(/@media \(max-width:\s*(\d+)px\)\s*\{\s*#nav-auth-desktop > button > span:last-child/);
 must(freeMq, 'the FREE chip is no longer hidden inside its own narrow query');
 ok(Number(freeMq[1]) <= 360, `the FREE chip only goes at ${freeMq[1]}px and below — not on any mainstream phone`);
+
+/* The narrow-phone brand step, READ FROM THE STYLESHEET rather than remembered.
+   This literal was 370 in the model below while the CSS said 380, and a model
+   holding last week's breakpoint reports on a bar that is not the shipped one —
+   it costed the 375px iPhone at the full-size brand and called 3px of spare a
+   pass. Derived, it cannot drift again. */
+const tinyMq = CSS.match(/@media \(max-width:\s*(\d+)px\)\s*\{\s*#pdx-topnav > div\.max-w-7xl > div:first-child > a > div:first-child/);
+must(tinyMq, 'the narrow-phone brand step is no longer its own max-width query');
+const TINY = Number(tinyMq[1]);
+ok(TINY >= 375, `the brand steps down at ${TINY}px and below, which includes the 375px iPhone`);
+ok(TINY < 390, `and not at ${TINY}px — the 390px-and-wider phones keep the full-size lockup`);
 ok(/<span>JOIN THE PEOPLE<\/span>/.test(NAV), 'the account button still says JOIN THE PEOPLE at every width');
 
 /* Every control the report names is still in the bar, with its handler intact. */
@@ -304,7 +337,7 @@ function desktopBar(after) {
   return { left, right, gOuter, need: left + gOuter + right, gutters: after ? 24 : 32, cap: after ? capRem * 16 : 1280 };
 }
 function phoneBar(w, after) {
-  const tiny = after && w <= 370, free = !(after && w <= Number(freeMq[1]));
+  const tiny = after && w <= TINY, free = !(after && w <= Number(freeMq[1]));
   const gOuter = after ? 8 : 12, gRight = after ? 6.4 : 8;
   const left = brand(tiny ? 25.6 : 32, tiny ? 16.8 : 20, after ? 8 : 10);
   const right = BELL + gRight + auth(tiny ? 7 : 10, tiny ? 0.05 : 0.1, free) + gRight + BURGER;
@@ -376,6 +409,53 @@ for (const [w, name] of PHONES) {
     + (ovB > 0 ? `${Math.round(ovB)}px off the edge` : 'fit, barely').padEnd(22)
     + `${Math.round(a.avail - a.need)}px to spare`);
 }
+/* ── THE BRAND IS NOT CLIPPED ON A PHONE ───────────────────────────────────
+   Section 4's floor makes the brand link the ONE shrinkable box in the bar, and
+   its wordmark ellipsizes when it shrinks — that is deliberate, and it is the
+   reason the bell, the account button and the hamburger are never the thing that
+   gives way. But an escape valve that engages in normal use is not a floor, it
+   is the shipped state, and "POLITID…" in the corner of a phone is the brand
+   clipped.
+
+   The valve engages only under compression, and the brand is compressed only
+   when the row overflows — flex-shrink does nothing to an item on a line with
+   room to spare. So "the row fits" and "both words of POLITIDEX are whole" are
+   the same claim, and every width up to 480px is checked for it below, costed
+   with the FULL wordmark (9 characters of Bebas at the size that breakpoint
+   actually serves) rather than an ellipsized stub. */
+console.log('  BRAND LOCKUP — the wordmark is whole, so the ellipsis floor never engages\n');
+const NO_CLIP = [320, 344, 360, 375, 390, 412, 430, 480];
+let tightest = Infinity, tightestAt = 0;
+for (const w of NO_CLIP) {
+  const a = phoneBar(w, true);
+  const spare = a.avail - a.need;
+  ok(spare >= 0,
+    `${w}px — the row fits, so POLITIDEX is never compressed and never ellipsized (${spare.toFixed(1)}px spare)`);
+  if (spare < tightest) { tightest = spare; tightestAt = w; }
+}
+console.log(`  every width 320–480px fits; tightest is ${tightestAt}px with ${tightest.toFixed(1)}px to spare\n`);
+/* The tightest screen in the wild is a 320px 1st-gen SE / folded cover display,
+   and it clears by a handful of pixels — narrow, but it is the width at which
+   the FREE chip has already been dropped and the brand already stepped down, so
+   there is no further step to take short of shortening the wordmark itself. */
+ok(tightest > 0, `no width in 320–480px is a tie — the tightest (${tightestAt}px) has real room`);
+ok(tightestAt <= 344, 'and the tightest screen is one of the sub-345px outliers, not a mainstream phone');
+
+/* ── NO ASSET IN THE BAR HAS A PATH TO GET WRONG ────────────────────────────
+   The nav is emoji glyphs and inline <svg>: no <img>, no url(), no href that is
+   not a same-page fragment. That is worth pinning now that Phase 1 publishes
+   real nested addresses — a relative `src="assets/logo.png"` in a bar that is
+   painted on /p/<pid> resolves to /p/assets/logo.png and 404s the brand on every
+   person file, while looking perfect on the homepage where it was written. */
+const navAssets = [...NAV.matchAll(/\ssrc="([^"]*)"/g)].map(m => m[1]);
+eq(navAssets.length, 0, `the bar loads no image assets at all (found ${JSON.stringify(navAssets)})`);
+eq((NAV.match(/url\(/g) || []).length, 0, 'and no stylesheet url() inside the markup either');
+for (const blk of [CSS, strip(HTML.slice(HTML.indexOf('<style id="pdx-topnav-weight">'), HTML.indexOf('</style>', HTML.indexOf('<style id="pdx-topnav-weight">'))))]) {
+  eq((blk.match(/url\(/g) || []).length, 0, 'neither nav style block references an external asset by path');
+}
+const navHrefs = [...NAV.matchAll(/\shref="([^"]*)"/g)].map(m => m[1]).filter(h => !h.startsWith('#'));
+eq(navHrefs.length, 0, `every link in the bar is a same-page fragment (found ${JSON.stringify(navHrefs)})`);
+
 const narrow = PHONES.filter(([w]) => w <= 375).map(([w]) => phoneBar(w, false));
 ok(narrow.every(b => b.need > b.avail), 'every phone at or below 375px overflowed its row before the fix');
 ok(phoneBar(375, false).need - phoneBar(375, false).avail > 0 && phoneBar(375, false).need - phoneBar(375, false).avail < 30,
