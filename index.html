@@ -1993,6 +1993,20 @@ window.PDXLazy = (function () {
        self-defection.css. -->
   <link rel="stylesheet" href="/self-defection.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/self-defection.css" /></noscript>
+  <!-- 🗂️ THE RECORD CARD — the shareable record object (record-card.js). Its own
+       sheet for one reason worth stating: this is the card most likely to be read
+       by someone who has never been here, on a phone, having tapped a link in a
+       group chat, and every rule in it is about what that stranger must not be
+       able to misread. The five blocks are visually equal (no block is styled as
+       "the verdict"), the "record still being built" line is dim rather than red
+       (a thin file is an ordinary state of an archive, not a fault), the coverage
+       wall never collapses behind a disclosure, there is no red and no blue in
+       the file at all, and the print rules expand every citation to its full URL
+       so a printed card still carries its receipts. Non-blocking like the rest of
+       the overlay CSS; with the sheet absent the card is unstyled but every
+       sentence in it still reads. -->
+  <link rel="stylesheet" href="/record-card.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/record-card.css" /></noscript>
   <!-- 👍 The support lane's momentum labelling. Two classes, one job: say next to
        every support count that it is momentum and not evidence. Its own sheet
        because the sentence has to be able to appear anywhere a count does —
@@ -8915,6 +8929,14 @@ window.PDXLazy = (function () {
         .wc-group-h{display:flex;align-items:center;gap:8px;font-size:0.72rem;letter-spacing:0.09em;text-transform:uppercase;color:#8ea3c4;font-weight:700;margin-bottom:9px}
         .wc-group-h .wc-count{margin-left:auto;font-size:0.66rem;color:#0a0f1e;background:#f5c842;border-radius:9999px;min-width:1.15rem;height:1.15rem;padding:0 .35rem;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
         .wc-list{display:grid;gap:9px}
+        /* The record group's four category subheads. Named, defined and visually
+           separated, because "activity" is the shape of an engagement feed: it tells
+           a reader something happened and makes them click to find out what kind.
+           No count is printed beside a category name — seven acts is not "more" than
+           two in any sense a reader should draw from a notification. */
+        .wc-cat{display:block;font-size:0.68rem;letter-spacing:0.07em;text-transform:uppercase;color:#9fb4d4;font-weight:700;margin:4px 0 1px}
+        .wc-cat:first-child{margin-top:0}
+        .wc-cat i{display:block;font-style:normal;text-transform:none;letter-spacing:0;font-size:0.7rem;font-weight:400;color:#7d879b;margin-top:1px}
         .wc-item{display:flex;gap:12px;align-items:flex-start;padding:12px 13px;border-radius:13px;background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all .16s;text-align:left;width:100%}
         .wc-item:hover{background:rgba(255,255,255,0.075);border-color:rgba(245,200,66,0.3);transform:translateX(2px)}
         .wc-item-ico{flex-shrink:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(255,255,255,0.06)}
@@ -9101,7 +9123,7 @@ window.PDXLazy = (function () {
           // topicRecord defaults ON — it is the archive doing its job, and it is
           // the only group where every row carries a citation. It is not an
           // outrage group: one act, one source, one link, never an aggregate.
-          return { inApp: true, emailEnabled: false, frequency: 'weekly', topicEvidence: true, topicPromises: true, topicCommunity: true, topicTeam: true, topicRecord: true, lastSeenAt: null };
+          return { inApp: true, emailEnabled: false, frequency: 'weekly', topicEvidence: true, topicPromises: true, topicCommunity: true, topicTeam: true, topicRecord: true, followActs: true, followWord: true, followCorrections: true, followCoverage: true, lastSeenAt: null };
         }
         function localPrefs() { var p = readJSON(LOCAL_PREFS_KEY, null); return (p && typeof p === 'object') ? Object.assign(defaultPrefs(), p) : defaultPrefs(); }
         function effectivePrefs() { return _prefs || (signedIn() ? defaultPrefs() : localPrefs()); }
@@ -9135,7 +9157,15 @@ window.PDXLazy = (function () {
           var tm = p.topicTeam ? _teamChanges.length : 0;
           // `!== false` rather than truthy: prefs stored before this group existed
           // have no topicRecord key, and the default for it is on.
-          var rc = (p.topicRecord !== false && _digest && _digest.record) ? _digest.record.length : 0;
+          // The badge counts only the categories this reader follows, so a badge of 3
+          // is three things they will actually be shown when they open the panel. A
+          // badge that counted suppressed categories would be an engagement number.
+          var rc = 0;
+          if (p.topicRecord !== false && _digest && _digest.record) {
+            rc = _digest.record.filter(function (r) {
+              return recordCatOn(p, r.category || RECORD_CAT[r.kind] || 'act');
+            }).length;
+          }
           return { evidence: ev, community: co, promises: pr, team: tm, record: rc, total: ev + co + pr + tm + rc };
         }
         function updateBadge() {
@@ -9170,8 +9200,34 @@ window.PDXLazy = (function () {
         // Kickers for record events. Descriptive labels for what happened, in the
         // archive's own vocabulary — no verdict words, no adjectives about the
         // person, and the same wording whatever the act was.
-        var RECORD_KICKER = { vote: 'New recorded vote', position: 'New formal action', action: 'Measure moved', mapping: 'Record updated' };
-        var RECORD_ICO = { vote: '🗳️', position: '📌', action: '📋', mapping: '✏️' };
+        // Six kinds in four categories. The two Phase-2 kinds that were doing double
+        // duty are split here exactly as the server splits them (EVENT_CATEGORY in
+        // netlify/lib/digest-record-core.mjs is the one definition): a sponsorship is
+        // an ACT and a statement is a WORD; adding a measure we did not hold is
+        // COVERAGE and fixing one we did hold is a CORRECTION. Same six keys, same
+        // four categories, same order as the email — a reader who gets both is not
+        // shown two different taxonomies of the same events.
+        var RECORD_KICKER = { vote: 'New recorded vote', position: 'New formal action', stated: 'New sourced statement', action: 'Measure moved', mapping: 'Record corrected', coverage: 'New coverage' };
+        var RECORD_ICO = { vote: '🗳️', position: '📌', stated: '💬', action: '📋', mapping: '✏️', coverage: '📚' };
+        var RECORD_CAT = { vote: 'act', position: 'act', action: 'act', stated: 'word', mapping: 'correction', coverage: 'coverage' };
+        var RECORD_CAT_ORDER = ['act', 'word', 'correction', 'coverage'];
+        var RECORD_CAT_LABEL = { act: 'Formal acts', word: 'Stated positions', correction: 'Corrections', coverage: 'New coverage' };
+        var RECORD_CAT_BLURB = {
+          act: 'What they did, in the formal record.',
+          word: 'What they said, sourced to where they said it.',
+          correction: 'Something the archive had wrong or incomplete. Now fixed.',
+          coverage: 'Something the archive did not hold before. Now it does.'
+        };
+        // A category the reader switched off is not rendered, and the server did not
+        // send it either — the same prefs row gates both, so the panel and the email
+        // can never disagree about what this reader asked to hear.
+        function recordCatOn(p, cat) {
+          if (cat === 'act') return p.followActs !== false;
+          if (cat === 'word') return p.followWord !== false;
+          if (cat === 'correction') return p.followCorrections !== false;
+          if (cat === 'coverage') return p.followCoverage !== false;
+          return true;
+        }
         function fmtRecordDate(iso) {
           var d = new Date(String(iso).slice(0, 10) + 'T00:00:00Z');
           if (isNaN(d.getTime())) return String(iso).slice(0, 10);
@@ -9222,7 +9278,7 @@ window.PDXLazy = (function () {
             // nothing here that compares one person to another — no counts by
             // party, no ranking, no score, no "worst of the week".
             if (p.topicRecord !== false && _digest && _digest.record && _digest.record.length) {
-              var rrows = _digest.record.map(function (r) {
+              function recordRow(r) {
                 var chips = (r.issueKeys || []).slice(0, 2).map(function (k) { return { cls: 'wc-chip--issue', label: issueLabelFor(k) }; });
                 // A person-anchored event opens the person file, the spine of the
                 // archive. A measure-anchored one navigates to its own on-site
@@ -9237,8 +9293,26 @@ window.PDXLazy = (function () {
                   k: (RECORD_KICKER[r.kind] || 'Record updated') + (r.date ? ' · ' + fmtRecordDate(r.date) : ''),
                   title: r.headline, sub: r.detail, chips: chips, data: data
                 });
-              }).join('');
-              groups += group('On The Record', '📜', _digest.record.length, rrows);
+              }
+              // Split by category, in the same order the email prints them: formal
+              // acts, then stated word, then corrections, then new coverage. Each
+              // subhead says what the category IS, so the panel's structure answers
+              // "what kind of change is this?" before a row is opened. An older
+              // server that sends no `category` falls back to the kind map, so a
+              // deploy skew degrades to correct grouping rather than an empty panel.
+              var rrows = '', rshown = 0;
+              RECORD_CAT_ORDER.forEach(function (cat) {
+                if (!recordCatOn(p, cat)) return;
+                var items = _digest.record.filter(function (r) {
+                  return (r.category || RECORD_CAT[r.kind] || 'act') === cat;
+                });
+                if (!items.length) return;
+                rshown += items.length;
+                rrows += '<span class="wc-cat">' + esc(RECORD_CAT_LABEL[cat]) +
+                  '<i>' + esc(RECORD_CAT_BLURB[cat]) + '</i></span>' +
+                  items.map(recordRow).join('');
+              });
+              if (rrows) groups += group('On The Record', '📜', rshown, rrows);
             }
             // Promise updates (client)
             if (p.topicPromises && _promiseChanges.length) {
@@ -9327,7 +9401,20 @@ window.PDXLazy = (function () {
             toggleRow('inApp', 'In-app digest', 'The "What\'s Changed" panel and the bell badge in the header.') +
             emailBlock +
             '<div class="wc-sect">Topics</div>' +
-            toggleRow('topicRecord', 'Record updates', 'New recorded votes, newly sourced formal actions, and citation or mapping corrections on the people and issues you follow.') +
+            toggleRow('topicRecord', 'Record updates', 'When the formal record on the people and issues you follow actually changes. Every item carries the source it came from.') +
+            // The four categories of material change, indented under the master
+            // switch. This is the only place in the product where a reader tunes
+            // WHICH KINDS of record change reach them — and deliberately the only
+            // lever offered: there is no volume cap and no "highlights only", because
+            // either one would mean us dropping real sourced acts we said we would
+            // send, chosen for interestingness. See the migration note in
+            // netlify/database/migrations/20260927000000_pdx_notification_follow_categories.sql.
+            '<div class="wc-sect">Which record changes</div>' +
+            toggleRow('followActs', 'Formal acts', 'Recorded votes, sponsorships and co-sponsorships, committee actions, and a measure moving a stage. What they did.') +
+            toggleRow('followWord', 'Stated positions', 'A newly sourced on-record statement. What they said, and where they said it.') +
+            toggleRow('followCorrections', 'Corrections', 'Something the archive had wrong or incomplete on a measure we already held — a citation, a title, an issue mapping — now fixed.') +
+            toggleRow('followCoverage', 'New coverage', 'A measure on an issue you follow was added to the archive. What the site holds is more than it held before.') +
+            '<div class="wc-sect">Other topics</div>' +
             toggleRow('topicEvidence', 'New evidence', 'Fresh community evidence on the issues you follow.') +
             toggleRow('topicPromises', 'Promise status changes', 'When a tracked politician keeps or breaks a promise.') +
             toggleRow('topicCommunity', 'Community discussion', 'New threads and comments about your people and issues.') +
@@ -21379,6 +21466,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        calls sectionHtml() and profile-connect.js calls dotsHtml(), and both only
        run when a visitor opens a profile, long after these defer scripts have. -->
   <script defer src="/word-action.js"></script>
+  <!-- 🗂️ THE RECORD CARD (window.PDXRecordCard) — the Phase 5 share primitive: one
+       person, or one person on one issue, as a single object honest enough to
+       survive leaving the site. Five fixed blocks in a fixed order — the stated
+       position (only where independent word exists), the formal acts, what the
+       record points to in the tier language the profile rows already print, what
+       is still missing as COUNTS plus the open-gaps door, and the sources.
+       It computes nothing. It is a READER over the public gates of the surfaces
+       above it (PDXReceiptCards.publicCardsFor / publicRecordDirectionCardsFor,
+       PDXConsistency.recordDirection.slot / formalPatternIndex.shape,
+       PDXWordAction.read, PDXInventory, PDXGaps), which is why it loads after
+       word-action.js and inventory.js — every one of those reads is guarded, so a
+       missing module costs a block, never a wrong claim. Two walls are in code
+       rather than in copy: the ONE percentage (Direction Match) renders only on a
+       person card and only when PDXWordAction says the read is publishable — an
+       issue card never carries one, so there is no floor to be tempted into
+       lowering — and every composed line is scrubbed for a stray percentage or
+       party framing before it ships, with audit() exposed so
+       scripts/test-record-card.mjs can assert what the tripwires CATCH. The share
+       path lands on /p/<pid> (plus ?record=<pid>~<issue> for an issue card, which
+       share-links.js turns back into the issue's record view on arrival), so a
+       shared card and the person file are the same object. Fenced by
+       scripts/test-record-card.mjs. -->
+  <script defer src="/record-card.js"></script>
   <!-- ↩️ THE SELF-DEFECTION LIST (window.PDXSelfDefection) — the plainest question in
        the product, published as a list: where did this person vote against something
        they had stated? It computes no verdict of its own. Every item is a

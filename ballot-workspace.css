@@ -65,6 +65,15 @@
 .bw-sub { font-size: 0.82rem; line-height: 1.5; color: #9fb0c8; margin: 0.35rem 0 0; }
 .bw-sub b { color: #e8eefb; font-weight: 700; }
 
+/* The official-ballot boundary, borrowed whole from Door 1 (your-ballot.js owns
+   the sentence and the state-authority link; this only positions it). It sits
+   ABOVE the progress figure deliberately: a reader meets "not an official
+   ballot" before they meet the counter that will eventually read 6/6, rather
+   than after. Quiet type, because it is standing context and not an alert —
+   but never smaller than the .yb-official it mirrors, and never collapsed
+   behind a disclosure. The inner span carries Door 1's own styling. */
+.bw-official { margin: 0.7rem 0 0; }
+
 /* The progress figure. One number, and it counts the same six slots the team
    builder's own meter counts — they read TEAM_POSITIONS through the same list,
    so the workspace cannot say "2 of 6" over a builder that says 3. */

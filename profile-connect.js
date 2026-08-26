@@ -187,7 +187,7 @@
         sync: null /* resolved by section presence */, badge: '' },
       { key: 'score', target: 'pdxsec-wordaction', accent: '#4ade80', icon: '⚖️',
         lead: '5 · So', label: 'Word vs Action',
-        desc: 'The one score on this profile, and everything that feeds it.',
+        desc: 'Whether their formal record pointed the same way as the positions they stated — and everything that feeds it.',
         sync: ctx.canJoin === true, badge: '' }
     ];
   }

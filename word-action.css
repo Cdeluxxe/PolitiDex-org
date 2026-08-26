@@ -1649,11 +1649,24 @@
    percentage anywhere near it — Direction Match, demoted to the foot — is drawn
    in a 52px ring against the old hero's 80px. That ordering is the entire point
    of the pass, so it is expressed in type scale and not only in DOM order. */
-.pdxwa-shape {
+.pdxwa-shape,
+/* ── 🏛 The record brief ─────────────────────────────────────────────────────
+   The same letterhead below the depth gate, in fewer lines. It shares every
+   inner class with the block above — depth, group headings, rows, the thin
+   line, the route-out, the demoted Direction Match — so there is exactly one
+   set of type scales for "what the formal record looks like" and the short form
+   cannot drift louder than the long one. The only thing this selector adds is
+   the wrapper, and the only thing the wrapper does is take the width. */
+.pdxwa-brief {
   width: 100%;
   min-width: 0;
   text-align: left;
 }
+/* Nothing on file, or nothing readable: one refused sentence and the demoted
+   match block under it. No border, no fill, no badge — an absence should not be
+   dressed as a finding. */
+.pdxwa-brief-empty .pdxwa-shape-none,
+.pdxwa-brief-thin .pdxwa-shape-none { margin-bottom: 0.55rem; }
 .pdxwa-shape-hd {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
@@ -1673,6 +1686,16 @@
   overflow-wrap: break-word;
 }
 .pdxwa-shape-depth b { color: #fff; font-weight: 700; }
+/* The exec lane's inventory line, under its volume clause: what is on file, in the
+   lane's own counted phrases. Quieter than the clause above it, because it is the
+   breakdown of that sentence rather than a second claim. */
+.pdxwa-shape-inv {
+  margin: -0.4rem 0 0.7rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #8fa6c4;
+  overflow-wrap: break-word;
+}
 .pdxwa-shape-grp { margin-bottom: 0.7rem; }
 .pdxwa-shape-grp-h {
   font-family: 'Barlow Condensed', sans-serif;

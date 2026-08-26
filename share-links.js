@@ -351,6 +351,27 @@
       } catch (e) {}
       return origin() + '/p/' + encodeURIComponent(pid);
     },
+    // ── The record card's address ──────────────────────────────────────────
+    // Phase 5. A record card travels off-site, so its link has to satisfy two
+    // things at once that used to pull apart: land on the PERSON FILE (the one
+    // canonical, crawlable, OG-previewed surface for a human being) and, when
+    // the card was about one issue, open THAT issue's record view rather than
+    // dumping the reader at the top of a long file to hunt for it.
+    //
+    // Composing the two existing builders does both, and needed no new server
+    // route: profile() gives /p/<pid>, record() gives the ?record= query, and
+    // resolve() below converts that query into #record=… on whatever path it
+    // arrives on. share-target.ts matches /p/<pid> before ?record=, so the
+    // crawler preview is the person card either way — one preview surface, not a
+    // second one to keep honest. This is the ONLY builder record-card.js calls,
+    // so the link, the copy text and the image payload cannot disagree about
+    // where a shared card points.
+    personRecord: function (pid, issueKey) {
+      if (!pid) return origin() + '/';
+      var base = API.profile(pid) || (origin() + '/p/' + encodeURIComponent(pid));
+      if (!issueKey) return base;
+      return base + '?record=' + encodeURIComponent(pid + '~' + issueKey);
+    },
     // ── The one answer to "what URL opens what this reader is looking at?" ─────
     // Share controls live on two kinds of surface and used to emit one kind of
     // link. A button inside an issue dossier — Scalise / Secure & Accessible

@@ -2973,11 +2973,11 @@
         // Terms live in this line, not inside the two cards below: each card is a
         // <button>, and a definition button nested inside it would be invalid
         // markup and would swallow the card's own tap.
-        '<div class="pdxc-gate-sub">Two views of the same question, feeding the one score above — kept apart so each keeps its own boundary. ' +
+        '<div class="pdxc-gate-sub">Two views of the same question, both feeding ⚖️ Word vs Action above — kept apart so each keeps its own boundary. ' +
           '<b>🏛️ ' + LT('officialrecord', 'Official Record') + '</b> is the formal test: ' +
           (execEligible(pid) ? 'the laws they signed or vetoed and the orders they issued.' : 'the votes and official acts.') + ' ' +
           '<b>🧾 ' + LT('saydo', 'Say-vs-Do') + '</b> is the broader public picture, held as context rather than counted. ' +
-          'Discrete promises are tracked on their own, as the top tier of that score.</div>' +
+          'Discrete promises are tracked on their own, as the top tier of that read.</div>' +
         '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
         '<div class="pdxc-gate-actions">' +
           '<button type="button" class="pdxc-gate-method" data-pdxc-method aria-label="How we score this — methodology">ⓘ How we score this</button>' +
@@ -4410,7 +4410,7 @@
       // section no longer prints a pooled percentage, and a lone "unweighted 71%"
       // beside a verdict chip reads as that missing headline. It stays in the tooltip,
       // where it is an audit note rather than a competing number.
-      var tip = 'The per-issue percentages here are pooled for the profile’s one score, weighted by how many ' +
+      var tip = 'The per-issue percentages here are pooled into ⚖️ Word vs Action, weighted by how many ' +
         'judged ' + n.many + ' sit behind each one — so an issue decided by a single ' + n.one + ' counts less ' +
         'than one decided by ten. ' + rated + ' issue' + (rated === 1 ? '' : 's') +
         ' had a percentage to average' +
@@ -10371,9 +10371,9 @@
         LHOWTO('say-vs-do', 'How to read this') +
         '<span class="pdxor-overall"><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
       '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>' +
-      '<div class="pdxor-method">Receipts, not a rating: each stance below shows what the public record — statements, coverage, filings, events — does and does not back up, with a per-stance percentage where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items. None of it is folded into the profile’s score, which is built from formal actions only. ' +
+      '<div class="pdxor-method">Receipts, not a rating: each stance below shows what the public record — statements, coverage, filings, events — does and does not back up, with a per-stance percentage where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items. None of it is folded into ⚖️ Word vs Action, which is built from formal actions only. ' +
         LT('norecord', 'Why some of these show “—”') + '</div>' +
-      _feedsPrimaryHtml('Supporting context for the one score, never counted inside it: the score is tested against formal actions, and these are the receipts around them.');
+      _feedsPrimaryHtml('Supporting context for ⚖️ Word vs Action, never counted inside it: that read is tested against formal actions, and these are the receipts around them.');
 
     if (!scored.length) {
       var msg = awaiting > 0
@@ -10595,7 +10595,7 @@
       '<div class="pdxdv-head"><span class="pdxdv-title"><span aria-hidden="true">⚖️</span> Record vs. Public Picture</span>' +
         '<span class="pdxdv-sum">' + sumInner + '</span></div>' +
       '<div class="pdxdv-q">Do their <b>🏛️ Official Record</b> (' + _dvSideNoun + ') and their <b>🧾 Say-vs-Do</b> (public record) tell the same story? This is a supporting read on the relationship between the two — it never blends them, and it publishes no score of its own.</div>' +
-      _feedsPrimaryHtml('A cross-check, not a score: where the ' + (_dvExec ? 'formal record' : 'votes') + ' and the public picture disagree, that is worth knowing before reading the one score above.');
+      _feedsPrimaryHtml('A cross-check, not a score: where the ' + (_dvExec ? 'formal record' : 'votes') + ' and the public picture disagree, that is worth knowing before reading ⚖️ Word vs Action above.');
 
     if (!d.both.length) {
       var msg = d.oneSide > 0
@@ -14600,7 +14600,7 @@
         LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
         ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
         (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Open the full glossary →</button>' : '')) +
-      '<div class="pdxgap-foot">One score. No formal action counted twice. Every item links to its source.</div>' +
+      '<div class="pdxgap-foot">One read — ⚖️ Word vs Action. No formal action counted twice. Every item links to its source.</div>' +
       '</div>';
   }
   // `pid` is optional and only decides which lane the sheet leads with — see

@@ -1032,7 +1032,7 @@
             (ex ? 'Where the standing of a supporting action is contested — blocked, struck down, overridden, rescinded or under an unresolved challenge — that issue’s row says so beside its verdict rather than in place of it, both in this score’s index and on 🌳 All Issues by Topic. '
                 : '') +
             'A record that reads as one long agreement is a fact about the record, not a grade for it: the ' +
-            'issue-by-issue composition under the score is there so the shape behind the average is visible.</p>' +
+            'issue-by-issue composition under this read is there so the shape behind the average is visible.</p>' +
           scopeP +
         '</div>' +
       '</div>';
@@ -3723,22 +3723,40 @@
   // and it says so. A naked "—" in this slot, under a block that just listed
   // twenty-four issues of record, would read as "no record" about the one thing
   // on the page that is demonstrably there.
-  function shapeMatchHtml(pid, p) {
+  // `opts.deep` — TRUE under the letterhead above the depth gate, FALSE under the
+  // brief below it. It changes nothing about the read, the figure or the floor.
+  // What it changes is the two sentences that assert something about the RECORD
+  // half: "the missing half is their word, not their record" and "the record is
+  // deep enough; the word ledger is not yet" are true beneath twenty-four issues
+  // of roll call and false beneath three, so below the gate this block names the
+  // word ledger's absence without making a claim about the record's depth.
+  function shapeMatchHtml(pid, p, opts) {
+    var deep = !(opts && opts.deep === false);
     var h = heroRead(pid, p);
-    var head = '<div class="pdxwa-shape-dm-hd">⚖️ Did their words match this record?</div>';
+    var head = '<div class="pdxwa-shape-dm-hd">' +
+      (deep ? '⚖️ Did their words match this record?'
+            : '⚖️ Word vs Action — did their words match their record?') + '</div>';
+    // "THE RECORD ABOVE IS THE HALF WE HOLD" IS A CLAIM, AND IT NEEDS A RECORD
+    // ABOVE IT. Under the letterhead there always is one. Under the brief there
+    // may not be — a file with nothing on the formal record prints an absence in
+    // that slot, and telling a reader the absence is the half we hold is worse
+    // than saying nothing. So the second half of the note is conditional on the
+    // caller having a record above to point at.
     var gap = function (msg) {
+      var hasRecord = deep || !!(opts && opts.recordAbove);
       return '<div class="pdxwa-shape-dm">' + head +
         '<p class="pdxwa-shape-dm-gap">' + esc(msg) + '</p>' +
         '<p class="pdxwa-shape-dm-note">' + esc(FRAME.label + ' tests documented positions against ' +
-          'the formal record. The record above is the half we hold.') + '</p>' +
+          'the formal record.' + (hasRecord ? ' The record above is the half we hold.' : '')) + '</p>' +
         '</div>';
     };
     if (!h) return gap('Direction Match is not available on this profile.');
     var c = h.read.coverage;
     if (c.warming) return gap('Still loading the roll-call record — the match cannot be read until it lands.');
     if (!c.word) {
-      return gap('Nothing they have said is on file yet, so there is nothing to test against this ' +
-        'record. The missing half is their word, not their record.');
+      return gap('Nothing they have said is on file yet, so there is nothing to test' +
+        (deep ? ' against this record. The missing half is their word, not their record.'
+              : '. The missing half is their word.'));
     }
     if (!c.scorable) {
       // WHY, NOT JUST THAT. "Nothing said independently on file" is the hero
@@ -3762,8 +3780,9 @@
         'but nothing in the record has been matched against ' + (c.scorable === 1 ? 'it' : 'them') + ' yet.');
     }
     if (h.pct === null) {
-      return gap(c.tested + ' of the ' + h.read.floors.items + ' tested issues needed for a reading. ' +
-        'The record is deep enough; the word ledger is not yet.');
+      return gap(c.tested + ' of the ' + h.read.floors.items + ' tested issues needed for a reading.' +
+        (deep ? ' The record is deep enough; the word ledger is not yet.'
+              : ' Not enough tested word yet — no figure is published below that floor.'));
     }
     // Publishable: the same figure, the same colour, the same denominator caption
     // the primary ring prints — drawn small.
@@ -3877,15 +3896,229 @@
   // `opts.pledge` is still accepted by heroInner so no caller has to change
   // shape — nothing reads it any more.
 
+  // ── 🏛 THE RECORD BRIEF — THE SHAPE HERO'S SHORT FORM, BELOW THE DEPTH GATE ──
+  // WHY THIS EXISTS. shapeHeroHtml() only fires above SHAPE_MIN / SHAPE_MIN_READ,
+  // and below that gate the hero used to be an 80px Direction Match ring and
+  // nothing else. On a state legislator with a handful of readable issues — or
+  // none — that meant the first thing on the file was a percentage about our word
+  // ledger, and the formal record did not appear until the standout strip, below
+  // the nav rail, the banners and the two-jobs note. A reader on a phone met a
+  // ring, scrolled, and never learned whether there was a record at all.
+  //
+  // The brief is the same read in fewer lines. Every figure is a count or a slice
+  // off PDXConsistency.formalPatternIndex.shape() — the identical accessor the
+  // letterhead above the gate reads — and every sentence is one the letterhead
+  // already prints. There is no threshold of its own, no new bucket, no
+  // percentage, and no ratio: at any depth it prints what is on file, and at zero
+  // depth it says so in the product's own refusal voice rather than filling the
+  // slot.
+  //
+  // THREE STATES, AND THE THIRD IS THE POINT.
+  //   patterns — tops / splits / thin, the letterhead's own groups and headings
+  //   thin     — inventory on file, nothing one-sided enough to characterise
+  //   empty    — nothing on the formal record yet, named as an absence
+  // Nothing is ever inferred from what they SAID to fill the record slot; a file
+  // with a stated position and no vote lands in `empty` and reads as empty.
+  //
+  // IT DECLINES FOR A PID WE DO NOT HOLD. An unresolvable pid has no absence to
+  // report — "no formal pattern on file" about a person who is not in the roster
+  // is a sentence about nothing — so the brief returns '' and heroInner falls back
+  // to the ring path exactly as before.
+  function briefPerson(pid, p) {
+    if (p) return p;
+    try {
+      var R = window.CMP_DATA || window.PROFILES;
+      return (R && pid && R[pid]) ? R[pid] : null;
+    } catch (e) { return null; }
+  }
+  function briefWarming(pid, p) {
+    try {
+      var h = heroRead(pid, p);
+      return !!(h && h.read && h.read.coverage && h.read.coverage.warming);
+    } catch (e) { return false; }
+  }
+  // Does the block at the top of the file NAME this person's formal patterns?
+  // Published because profiles-full.js has to keep exactly one record block on a
+  // profile: where the top names the patterns, the standout strip below stands
+  // down, which is the same coordination shapeApplies() already does above the
+  // gate. Counts-only and empty briefs do not claim the strip's job, so the strip
+  // is free to mount under them.
+  function heroNamesPatterns(pid) {
+    try {
+      if (shapeApplies(pid)) return true;
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (!FPI || typeof FPI.shape !== 'function') return false;
+      var sh = FPI.shape(pid);
+      return !!(sh && (sh.tops.length || sh.splits.length));
+    } catch (e) { return false; }
+  }
+  // 🏛 THE EXEC LANE'S OWN TOP-OF-FILE LINE. An executive has no roll-call ledger,
+  // so the brief above cannot describe their record — but leaving them out meant the
+  // one profile in the roster that still reached the ring was also the most visited
+  // one, and its first screen was an 80px percentage with the record nowhere in it.
+  //
+  // This is a POINTER, not a second record block. Every string in it belongs to the
+  // exec lane already: the volume clause it publishes as its denominator sentence,
+  // and the inventory lines it publishes as what is on file. Nothing is recounted
+  // here, nothing is characterised, and the standouts — the lane's actual findings —
+  // stay in the section this jumps to, one rung down, exactly where they are today.
+  var EXEC_JUMP = 'pdxsec-standout';
+  function execBriefHtml(pid, p, xp) {
+    try {
+      var head = '<div class="pdxwa-shape-hd">' +
+          '<span aria-hidden="true">🏛</span> The formal record' +
+        '</div>';
+      var vol = xp.volume
+        ? '<p class="pdxwa-shape-depth">' + esc(xp.volume) + '</p>'
+        : (xp.acts
+            ? '<p class="pdxwa-shape-depth"><b>' + xp.acts + '</b> formal action' +
+                (xp.acts === 1 ? '' : 's') + ' on file across <b>' + xp.issues + '</b> issue' +
+                (xp.issues === 1 ? '' : 's') + '</p>'
+            : '');
+      if (!xp.acts) {
+        return '<div class="pdxwa-brief pdxwa-brief-empty">' + head +
+            '<p class="pdxwa-shape-none">No formal action on file yet. Nothing we hold for them ' +
+              'is an act a direction can be read from, and nothing here is inferred from what ' +
+              'they said.</p>' +
+            shapeMatchHtml(pid, p, { deep: false, recordAbove: false }) +
+          '</div>';
+      }
+      var inv = (xp.inventory && xp.inventory.length)
+        ? '<p class="pdxwa-shape-inv">' + esc(xp.inventory.join(' · ')) + '</p>' : '';
+      return '<div class="pdxwa-brief pdxwa-brief-exec">' + head + vol + inv +
+          '<button type="button" class="pdxwa-shape-all"' + jumpAttr(EXEC_JUMP) +
+            ' aria-label="' + esc('See what this formal record holds, issue by issue') + '">' +
+            'See what this record holds <span aria-hidden="true">↓</span>' +
+          '</button>' +
+          shapeMatchHtml(pid, p, { deep: false, recordAbove: true }) +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
+  function briefHeroHtml(pid, p) {
+    try {
+      if (!pid) return '';
+      if (!briefPerson(pid, p)) return '';
+      // ✒️ THE EXEC LANE OWNS ITS OWN RECORD SLOT, AND THIS BLOCK MUST NOT SPEAK
+      // FOR IT. consistency.js's _stDirRaw() returns null for every exec row by
+      // design, so a president reaches formalPatternIndex.shape() as "37 issues on
+      // the formal record · 0 read · 0 deep enough to characterise" — three counts
+      // that are true about the roll-call engine and false about the person. The
+      // exec-native summary already answers this question in its own vocabulary,
+      // and it publishes whether it is the surface in play, so that is the question
+      // asked here rather than a guess from the office string.
+      var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+      if (XS && typeof XS.pick === 'function') {
+        var xp = null;
+        try { xp = XS.pick(pid); } catch (e) { xp = null; }
+        if (xp && xp.on) return execBriefHtml(pid, p, xp);
+      }
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (!FPI || typeof FPI.shape !== 'function') return '';
+      var sh = FPI.shape(pid);
+      if (!sh) return '';
+      var head = '<div class="pdxwa-shape-hd">' +
+          '<span aria-hidden="true">🏛</span> The formal record' +
+        '</div>';
+      var dmFor = function (recordAbove) {
+        return shapeMatchHtml(pid, p, { deep: false, recordAbove: recordAbove });
+      };
+      // ── empty ────────────────────────────────────────────────────────────
+      // Two different absences, and they are not interchangeable: a record that
+      // has not arrived is a fact about this page load, a record with nothing on
+      // it is a fact about the file. Both refuse to print a figure.
+      if (!sh.issues) {
+        return '<div class="pdxwa-brief pdxwa-brief-empty">' + head +
+            '<p class="pdxwa-shape-none">' +
+              (briefWarming(pid, p)
+                ? 'Still loading the roll-call record — no formal pattern can be read until it lands.'
+                : 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
+                  'a direction can be read from, and nothing here is inferred from what they said.') +
+            '</p>' +
+            dmFor(false) +
+          '</div>';
+      }
+      var total = (typeof FPI.count === 'function') ? (FPI.count(pid) || sh.issues) : sh.issues;
+      // The depth line, in the letterhead's own nouns and the letterhead's own
+      // order. Three counts, no rate.
+      var depth = '<p class="pdxwa-shape-depth">' +
+          '<b>' + sh.issues + '</b> issue' + (sh.issues === 1 ? '' : 's') + ' on the formal record' +
+          ' · <b>' + sh.judged + '</b> vote' + (sh.judged === 1 ? '' : 's') + ' and formal action' +
+            (sh.judged === 1 ? '' : 's') + ' read' +
+          ' · <b>' + sh.characterised + '</b> deep enough to characterise' +
+        '</p>';
+      var grp = function (label, rows, shown, of) {
+        if (!rows.length) return '';
+        return '<div class="pdxwa-shape-grp">' +
+            '<div class="pdxwa-shape-grp-h">' + label + '</div>' +
+            '<ul class="pdxwa-shape-list">' + rows.map(shapeRowHtml).join('') + '</ul>' +
+            (of > shown
+              ? '<p class="pdxwa-shape-more">' + (of - shown) + ' more in the topic tree below.</p>' : '') +
+          '</div>';
+      };
+      var tops = grp('Strongest patterns', sh.tops, sh.tops.length, sh.strongN);
+      var splits = grp('Ran both ways', sh.splits, sh.splits.length, sh.splitN);
+      // ── thin ─────────────────────────────────────────────────────────────
+      // Nothing one-sided, nothing split: the letterhead's own refusal, word for
+      // word, and then the count behind it.
+      //
+      // "MORE" ONLY WHERE SOMETHING CAME BEFORE. The letterhead's thin line always
+      // follows a list, so it can say "N MORE issues have formal items on file".
+      // Here nothing may have been listed, and "1 more issue" under "no issue yet
+      // has a record one-sided enough" is one sentence too many about one issue.
+      // Where no rows ran, the refusal and the count are the same sentence.
+      var listed = !!(tops || splits);
+      var none = '', thin = '';
+      if (listed) {
+        thin = sh.thinN
+          ? '<p class="pdxwa-shape-thin"><b>' + sh.thinN + '</b> more issue' + (sh.thinN === 1 ? '' : 's') +
+              ' ha' + (sh.thinN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
+              'characterise a pattern yet.</p>'
+          : '';
+      } else {
+        none = '<p class="pdxwa-shape-none">No issue yet has a record one-sided enough to ' +
+          'characterise' + (sh.thinN
+            ? ' — <b>' + sh.thinN + '</b> ' + (sh.thinN === 1 ? 'has' : 'have') +
+              ' formal items on file but not enough of them to characterise a pattern yet.'
+            : '.') + '</p>';
+      }
+      // The tier wall explains the CHIPS. Where no chip rendered it is a rule about
+      // nothing, so it stands down with them.
+      var wall = listed ? (window._PDX_RD_TIER_NOTE || '') : '';
+      return '<div class="pdxwa-brief' + (listed ? '' : ' pdxwa-brief-thin') + '">' + head +
+          depth + tops + splits + none + thin +
+          '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
+            ' aria-label="' + esc('Explore all ' + total + ' issues on the formal record, by topic') + '">' +
+            'Explore all ' + total + ' issue' + (total === 1 ? '' : 's') +
+            ' by topic <span aria-hidden="true">↓</span>' +
+          '</button>' +
+          dmFor(true) +
+          (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
   function heroInner(pid, p, opts) {
     opts = opts || {};
     // 🏛 SHAPE FIRST, WHERE THERE IS A SHAPE. Above the depth gate the lead is
     // what the formal record looks like and Direction Match rides inside it, one
-    // block down at secondary size. Below the gate — candidates, new members,
-    // thin inventory — nothing here changes: shapeHeroHtml() returns '' and the
-    // rest of this function is the function it has always been, byte for byte.
+    // block down at secondary size.
     var shaped = shapeHeroHtml(pid, p);
     if (shaped) return shaped;
+    // 🏛 …AND THE RECORD FIRST WHERE THERE IS NO SHAPE. Below the gate the brief
+    // does the same job in fewer lines, including on a file with nothing on the
+    // formal record at all, where it names the absence. Direction Match rides
+    // inside it, demoted, exactly as it does above the gate.
+    var brief = briefHeroHtml(pid, p);
+    if (brief) return brief;
+    // Fail closed to the hero this file has always drawn. Reachable when the
+    // formal-pattern index is unavailable or the pid resolves to nobody — never
+    // as the ordinary state of a profile.
+    return ringHtml(pid, p, opts);
+  }
+
+  function ringHtml(pid, p, opts) {
+    opts = opts || {};
     var h = heroRead(pid, p);
     // No word on file at all: there is nothing to test, so there is no primary
     // number — not a zero, and never the pledge rate standing in for one. The
@@ -3952,10 +4185,17 @@
   // letterhead off, and it is set from the rendered markup rather than by asking
   // the gate a second time — two independent answers to "is this the shape hero"
   // is how a wrapper ends up disagreeing with its contents.
+  // The brief is a letterhead too — narrower in content, identical in layout
+  // needs — so it carries the same modifier. One class, one stylesheet rule, and
+  // no second set of phone overrides to drift from the first.
+  function isLetterhead(inner) {
+    return inner.indexOf('class="pdxwa-shape"') !== -1 ||
+           inner.indexOf('class="pdxwa-brief') !== -1;
+  }
   function heroFlag(host, inner) {
     try {
       if (!host || !host.classList) return;
-      host.classList.toggle('is-shape', inner.indexOf('class="pdxwa-shape"') !== -1);
+      host.classList.toggle('is-shape', isLetterhead(inner));
     } catch (e) {}
   }
 
@@ -3969,7 +4209,7 @@
       var inner = heroInner(pid, p, opts);
       if (!inner) return '';
       try { setTimeout(function () { bindHero(uid, pid, p, opts); }, 0); } catch (e) {}
-      var mod = (inner.indexOf('class="pdxwa-shape"') !== -1) ? ' is-shape' : '';
+      var mod = isLetterhead(inner) ? ' is-shape' : '';
       return '<div class="profile-score-stack pdxwa-hero' + mod + '" data-pdxwa-hero="' + uid + '">' + inner + '</div>';
     } catch (e) { return ''; }
   }
@@ -4078,6 +4318,13 @@
     // its way.
     shapeApplies: shapeApplies,
     shapeHtml: shapeHeroHtml,
+    // 🏛 The short form of the same block, for every profile below the gate — and
+    // the accessor that tells the profile builder whether the top of the file has
+    // already NAMED this person's formal patterns, so the standout strip below can
+    // stand down instead of printing them twice. Same coordination shapeApplies()
+    // does above the gate, one rung wider.
+    briefHtml: briefHeroHtml,
+    heroNamesPatterns: heroNamesPatterns,
     // 📏 THE DENOMINATOR, IN ONE VOCABULARY. Every surface that publishes the
     // engine's percentage prints the tested count beside it, and they all print it
     // in these words — a caption that reads "32 issues tested" here and "over 32"

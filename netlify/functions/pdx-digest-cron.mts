@@ -181,12 +181,47 @@ async function sendEmail(
 }
 
 export default async (): Promise<Response> => {
-  const emailConfigured = !!(process.env.RESEND_API_KEY && process.env.DIGEST_FROM_EMAIL);
-  if (!emailConfigured) {
-    console.log(
-      "pdx-digest-cron: email delivery not configured (set RESEND_API_KEY + DIGEST_FROM_EMAIL to enable). Skipping."
+  // ── The blocked-on gate ────────────────────────────────────────────────────
+  // Live email delivery needs two environment variables. If either is unset this
+  // run does not "succeed quietly": it reports exactly what it is blocked on, by
+  // NAME, and states that nothing was sent.
+  //
+  // Three properties of this report are load-bearing:
+  //   · It names the missing VARIABLES, never their values. Neither key is read,
+  //     logged, echoed or interpolated anywhere in this function — a secret that
+  //     reaches a log line is a leaked secret regardless of intent, and the point
+  //     of the report is the configuration gap, which the name alone conveys.
+  //   · It never reports a send. sent/skippedEmpty/failed are absent from this
+  //     response entirely rather than returned as zeroes, because `sent: 0` in a
+  //     200 body reads as "there was nothing to send" — the opposite of the truth,
+  //     which is that sending was never attempted.
+  //   · It runs BEFORE any database read. Deriving interests and building digests
+  //     for recipients who cannot be mailed burns queries to produce nothing, and
+  //     it would let a misconfigured deploy advance no watermarks while looking
+  //     busy in the logs. Nothing is loaded until delivery is known to be possible.
+  const missingEnv: string[] = [];
+  if (!process.env.RESEND_API_KEY) missingEnv.push("RESEND_API_KEY");
+  if (!process.env.DIGEST_FROM_EMAIL) missingEnv.push("DIGEST_FROM_EMAIL");
+  if (missingEnv.length) {
+    console.warn(
+      "pdx-digest-cron: BLOCKED — email delivery is not configured. Nothing was sent and no " +
+        "watermark was advanced. Unset: " +
+        missingEnv.join(", ") +
+        ". Set both in the Netlify site environment (Site configuration → Environment variables) " +
+        "and the next scheduled run will deliver. DIGEST_FROM_EMAIL expects " +
+        '"Name <addr@domain>" or "addr@domain" on a domain verified with the ESP.'
     );
-    return new Response("email-not-configured", { status: 200 });
+    return new Response(
+      JSON.stringify({
+        blocked: "email-not-configured",
+        missingEnv,
+        delivered: false,
+        detail:
+          "Set the environment variables named above to enable live delivery. " +
+          "No digest was sent and no last_digest_at was advanced, so nothing is lost.",
+      }),
+      { status: 200, headers: { "content-type": "application/json" } }
+    );
   }
   // Fail loud, not silently: a From address Resend will reject (no "@") would 422
   // every send. Warn once up front so a misconfiguration is obvious in the logs.
@@ -220,6 +255,15 @@ export default async (): Promise<Response> => {
         evidence: row.topicEvidence,
         community: row.topicCommunity,
         record: row.topicRecord,
+        // The four follow categories, honoured identically in the email and in the
+        // in-app digest — the same prefs row feeds both, so a reader cannot be sent
+        // a category by mail that the app agreed not to show them.
+        follow: {
+          act: row.followActs,
+          word: row.followWord,
+          correction: row.followCorrections,
+          coverage: row.followCoverage,
+        },
       });
       if (built.counts.total === 0) {
         skippedEmpty++;

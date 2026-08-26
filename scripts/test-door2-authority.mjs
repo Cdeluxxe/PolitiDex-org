@@ -241,6 +241,144 @@ has(INDEX, "A VIEW of the Door 2 ballot workspace",
 has(INDEX, 'src="/door2-spine.js"', "index.html does not load door2-spine.js");
 has(INDEX, "door2-spine.css", "index.html does not load door2-spine.css");
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 8 · The official-ballot boundary, on the surface that finishes the loop
+// ─────────────────────────────────────────────────────────────────────────────
+// Section 4 checks that the VIEWS make no coverage claim. This one checks the
+// other half: that the claim they must not make is affirmatively DENIED on the
+// workspace itself, at the moment a reader is most likely to conclude the
+// opposite — a filled progress bar and a rail with every seat decided.
+//
+// The three failure modes, each asserted:
+//
+//   · A SECOND VOICE. The sentence carries a link that resolves against
+//     PDX_ELECTION_DATA for the reader's current state. A copy of the sentence
+//     living in ballot-workspace.js would eventually name a different authority
+//     than Door 1 names to the same reader on the same day. So the workspace
+//     borrows and never writes, and has no fallback string of its own.
+//   · A SOFTENED BOUNDARY. With your-ballot.js absent the workspace prints
+//     NOTHING. "Coverage may vary" would let a reader believe the caveat had been
+//     made when it had not, which is worse than its visible absence.
+//   · A BURIED BOUNDARY. The note shipping after the progress bar, or under a
+//     rule that hides it, is the same as not shipping it.
+//
+// Both halves are RUN, not grepped: officialNote/officialLink are lifted out of
+// the two shipped modules and executed against a stub location, so what is
+// asserted is the sentence a reader actually gets.
+section("8 · the official-ballot boundary is stated where the loop finishes");
+
+const YB = R("your-ballot.js");
+const BW = R("ballot-workspace.js");
+const BW_CODE = CODE("ballot-workspace.js");
+
+// ── Lift and run Door 1's sentence ───────────────────────────────────────────
+const lift = (src, name, from) => {
+  const i = src.indexOf(`function ${name}(`);
+  must(i > 0, `${from} no longer defines ${name}() — the boundary moved`);
+  let d = 0, j = src.indexOf("{", i);
+  for (let k = j; k < src.length; k++) {
+    if (src[k] === "{") d++;
+    else if (src[k] === "}" && --d === 0) return src.slice(i, k + 1);
+  }
+  must(false, `could not read ${name}() out of ${from}`);
+};
+
+const ybNote = (state) => {
+  const box = {};
+  const win = {
+    _currentVoterLocation: state ? { state } : {},
+    PDX_ELECTION_DATA: { links: { Utah: { label: "vote.utah.gov", url: "https://vote.utah.gov/" } } },
+  };
+  const ctx = vm.createContext({ window: win, out: box });
+  vm.runInContext(
+    "function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}\n" +
+    lift(YB, "officialLink", "your-ballot.js") + "\n" +
+    lift(YB, "officialNote", "your-ballot.js") + "\n" +
+    ";out.note=officialNote();out.link=officialLink();",
+    ctx, { filename: "your-ballot.js:officialNote" });
+  return box;
+};
+
+const utah = ybNote("Utah");
+const nowhere = ybNote("");
+has(utah.note, "Not an official ballot", "Door 1's sentence no longer denies the claim outright");
+has(utah.note, "vote.utah.gov", "the sentence does not name the reader's own state authority");
+has(utah.note, "https://vote.utah.gov/", "and does not link it");
+eq(nowhere.link.label, "vote.org", "with no location on file the national fallback is gone");
+has(nowhere.note, "vote.org", "so a located-nowhere reader still gets an authority to check");
+has(utah.note, "county clerk", "the sentence drops the county-clerk backstop Key Dates already uses");
+has(utah.note, 'rel="noopener noreferrer"', "the outbound authority link is not hardened");
+has(utah.note, 'target="_blank"', "the authority link navigates away from a half-worked ballot");
+// It says what is missing by NAME. "Coverage may vary" is not a caveat.
+for (const w of ["measures", "judicial retention", "local seats"]) {
+  has(utah.note, w, `the sentence does not name ${w} as absent from the corpus`);
+}
+ok(!/\d\s*%/.test(utah.note), "the boundary note carries a figure — it is a boundary, not a score");
+
+// ── The workspace borrows it, and holds no copy ──────────────────────────────
+const wsNote = (host) => {
+  const box = {};
+  const ctx = vm.createContext({ window: host, out: box });
+  vm.runInContext(lift(BW, "officialNote", "ballot-workspace.js") + "\n;out.html=officialNote();",
+    ctx, { filename: "ballot-workspace.js:officialNote" });
+  return box.html;
+};
+
+const wsOn = wsNote({ _pdxOfficialBallotNote: () => utah.note });
+has(wsOn, "Not an official ballot", "the workspace does not render Door 1's sentence");
+has(wsOn, "vote.utah.gov", "and drops the state authority link on the way through");
+has(wsOn, 'class="bw-official"', "the borrowed sentence is not wrapped for the workspace's own styling");
+// No module, no sentence — and no substitute for it.
+eq(wsNote({}), "", "with your-ballot.js absent the workspace invents a boundary of its own");
+eq(wsNote({ _pdxOfficialBallotNote: () => "" }), "", "an empty sentence is passed through as empty");
+eq(wsNote({ _pdxOfficialBallotNote: () => { throw new Error("x"); } }), "",
+   "a throwing exporter takes the whole workspace down with it");
+// The sentence exists once. The workspace must not contain its own wording.
+ok(!BW_CODE.includes("Not an official ballot"),
+   "ballot-workspace.js carries its own copy of the boundary sentence — two copies drift");
+for (const soft of ["coverage may vary", "may not be complete", "roughly", "approximate ballot"]) {
+  ok(!BW_CODE.toLowerCase().includes(soft),
+     `ballot-workspace.js softens the boundary with "${soft}"`);
+}
+has(BW_CODE, "_pdxOfficialBallotNote", "the workspace no longer reads the one exported sentence");
+has(YB, "window._pdxOfficialBallotNote = officialNote",
+    "your-ballot.js no longer exports the sentence it owns");
+has(YB, "window._pdxOfficialBallotLink = officialLink",
+    "your-ballot.js no longer exports the authority link it owns");
+
+// ── No completeness regress, anywhere in the loop ────────────────────────────
+// "official ballot" is exempted for these two files: they are the surfaces that
+// say "NOT an official ballot", and a blanket ban would forbid the caveat itself.
+for (const [f, src] of [["ballot-workspace.js", BW_CODE], ["your-ballot.js", CODE("your-ballot.js")]]) {
+  for (const pat of [/\bcomplete ballot\b/i, /\bfull ballot\b/i, /\bwhole ballot\b/i,
+                     /\byour entire ballot\b/i, /\bevery contest\b/i, /\bevery race on\b/i,
+                     /\ball the races\b/i]) {
+    ok(!pat.test(src), `${f} copy matches ${pat} — that is a coverage claim this product cannot make`);
+  }
+}
+// The counter counts what we cover out of what we cover, and says so.
+has(BW_CODE, "Every seat PolitiDex has candidate records for is below",
+    "the workspace's own sub-copy no longer bounds what the rail contains");
+ok(!/Every seat is below/.test(BW_CODE), "the unbounded 'every seat is below' claim came back");
+
+// ── Placement: above the completion mechanics, and not hidden ────────────────
+const iNote = BW.indexOf("officialNote() +");
+const iProg = BW.indexOf('bw-prog"');
+const iRail = BW.indexOf('\'<div class="bw-body">\' + railHtml(');
+ok(iNote > 0, "the workspace no longer renders the note in sync()");
+ok(iProg > iNote, "the progress bar prints before the boundary — the claim lands before the denial");
+ok(iRail > iNote, "the seat rail prints before the boundary");
+const BWCSS = R("ballot-workspace.css");
+const rule = BWCSS.slice(BWCSS.indexOf(".bw-official"), BWCSS.indexOf(".bw-official") + 400);
+ok(BWCSS.includes(".bw-official"), "the note ships with no styling of its own");
+for (const hide of ["display:none", "display: none", "visibility:hidden", "visibility: hidden",
+                    "font-size:0", "opacity:0", "opacity: 0"]) {
+  ok(!rule.includes(hide), `.bw-official is suppressed with ${hide}`);
+}
+// The workspace mounts in the document, so the note has somewhere to land.
+has(HTML, 'id="ballot-workspace"', "the workspace mount is gone from the document");
+has(INDEX, 'src="/your-ballot.js"', "index.html no longer loads the module that owns the sentence");
+
 console.log("");
 if (failures.length) {
   console.error(`✗ door 2 authority: ${failures.length} failure(s), ${passed} passed\n`);

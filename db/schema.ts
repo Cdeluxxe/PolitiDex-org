@@ -603,6 +603,35 @@ export const pdxNotificationPrefs = pgTable(
     // deliberately NOT an outrage group: no aggregates, no rankings, no "worst
     // of the week". See netlify/lib/digest.ts (buildRecordEvents).
     topicRecord: boolean("topic_record").notNull().default(true),
+    // ── Which KINDS of record change, by category ───────────────────────────
+    // topicRecord above is the master switch for the record group. These four are
+    // the grain a reader actually wants to choose at, and they map 1:1 onto
+    // EVENT_CATEGORY in netlify/lib/digest-record-core.mjs — which is the single
+    // definition of which event kind belongs to which category, so a checkbox
+    // here and a subhead in the email cannot come to mean different things.
+    //
+    //   followActs        roll-call votes, sponsorships, committee actions, and a
+    //                     measure moving a stage. What was DONE.
+    //   followWord        a newly sourced on-record statement. What was SAID.
+    //   followCorrections a measure we already held had a citation, title or issue
+    //                     mapping fixed. Us correcting ourselves.
+    //   followCoverage    a measure on a followed issue was added. The archive
+    //                     announcing that it grew.
+    //
+    // All four default ON, and that default is deliberate in a specific
+    // direction: someone who opted into record updates before these columns
+    // existed asked to hear when the record changed, and defaulting any category
+    // OFF would silently narrow what they already consented to. The columns can
+    // only ever REMOVE kinds from a digest, never add a kind nobody asked for.
+    //
+    // What is NOT here, and will not be: a volume cap, a "highlights only" mode,
+    // or a digest-worthiness threshold. Each of those would drop real, sourced
+    // acts we told the reader we would send, and an archive that quietly edits
+    // its own notifications for interestingness is running an engagement feed.
+    followActs: boolean("follow_acts").notNull().default(true),
+    followWord: boolean("follow_word").notNull().default(true),
+    followCorrections: boolean("follow_corrections").notNull().default(true),
+    followCoverage: boolean("follow_coverage").notNull().default(true),
     // Watermark the IN-APP digest compares against; advanced when the user opens it.
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
     // Watermark the SCHEDULED EMAIL job compares against; advanced when a mail is sent.

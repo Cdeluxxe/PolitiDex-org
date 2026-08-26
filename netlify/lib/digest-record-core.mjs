@@ -149,12 +149,112 @@ function escHtml(s) {
 
 // The kicker names the KIND of change and nothing else. No adjective, no verdict,
 // no "finally", no "again".
+//
+// SIX KINDS, and the reason there are six rather than four. Phase 2 shipped four,
+// and two of them were doing double duty in a way a reader could not see:
+//
+//   · "position" carried both a sponsorship (an ACT — the person moved a measure)
+//     and an on-record statement (a WORD — the person said something). Those are
+//     the two halves of this entire product's argument. Announcing them under one
+//     kicker asked a reader to hold "did" and "said" in the same bucket, which is
+//     the one confusion the site exists to undo. `stated` is now its own kind.
+//   · "mapping" carried both a correction (we had something wrong; it is fixed)
+//     and a coverage expansion (we did not hold this at all; now we do). Phase 2's
+//     note argued these were "the same event from a reader's side". That was
+//     wrong, and in a specific way: a correction is a claim about OUR past
+//     reliability, and a reader who is told the archive was corrected has learnt
+//     something different from a reader who is told the archive grew. `coverage`
+//     is now its own kind.
+//
+// The kinds group into FOUR follow categories — see EVENT_CATEGORY — because that
+// is the granularity a person actually wants to choose at: acts, word,
+// corrections, coverage.
 export const KIND_KICKER = {
   vote: "New recorded vote",
   position: "New formal action",
+  stated: "New sourced statement",
   action: "Measure moved",
-  mapping: "Record updated",
+  mapping: "Record corrected",
+  coverage: "New coverage",
 };
+
+// ── The four follow categories ───────────────────────────────────────────────
+//
+// A reader follows a person or an issue for MATERIAL CHANGE, and there are four
+// materially different things that can change. This map is the single definition
+// of which kind belongs to which, read by the email renderer, the in-app digest,
+// the preference writer and the query planner alike — so a category cannot mean
+// one thing in a checkbox and another in the send.
+//
+// The categories are deliberately NOT collapsible into one "activity" switch.
+// "Activity" is the shape of an engagement feed: it tells a reader that something
+// happened and leaves them to click to find out what, which is the mechanic this
+// digest was built to avoid. Naming the four means an email's own table of
+// contents is already the honest summary — and it means someone who only wants to
+// know when a tracked person CASTS A VOTE is not paid in coverage notices.
+export const EVENT_CATEGORY = {
+  vote: "act",
+  position: "act",
+  action: "act",
+  stated: "word",
+  mapping: "correction",
+  coverage: "coverage",
+};
+
+// Formal record first, word second. The same precedence the person file prints,
+// for the same reason: the acts are the record and the words are what the record
+// is tested against.
+export const CATEGORY_ORDER = ["act", "word", "correction", "coverage"];
+
+export const CATEGORY_LABEL = {
+  act: "Formal acts",
+  word: "Stated positions",
+  correction: "Corrections",
+  coverage: "New coverage",
+};
+
+// One sentence per category, printed as the group's own subhead. This is what
+// makes the four verbally distinct rather than four colours of the same thing.
+export const CATEGORY_BLURB = {
+  act: "What they did, in the formal record.",
+  word: "What they said, sourced to where they said it.",
+  correction: "Something the archive had wrong or incomplete. Now fixed.",
+  coverage: "Something the archive did not hold before. Now it does.",
+};
+
+// A muted rule colour per category, so the four are distinguishable at a glance
+// in an email client that honours inline styles and identical where one does not.
+// Greys and one amber: there is no red/green here, because a correction is not a
+// failure and an act is not a win.
+export const CATEGORY_RULE = {
+  act: "#8a94a6",
+  word: "#b08a3c",
+  correction: "#6b7686",
+  coverage: "#7c8aa0",
+};
+
+// Which kinds a category covers. Derived from EVENT_CATEGORY rather than written
+// twice, so the two can never disagree.
+export const CATEGORY_KINDS = CATEGORY_ORDER.reduce((acc, cat) => {
+  acc[cat] = Object.keys(EVENT_CATEGORY).filter((k) => EVENT_CATEGORY[k] === cat);
+  return acc;
+}, {});
+
+export function categoryOf(kind) {
+  return EVENT_CATEGORY[kind] || "act";
+}
+
+// Split a record group into the four categories, in CATEGORY_ORDER, dropping the
+// empty ones. Order WITHIN a category is preserved, so the newest-first sort the
+// caller applied survives.
+export function groupRecordByCategory(record) {
+  const out = [];
+  for (const cat of CATEGORY_ORDER) {
+    const items = (record || []).filter((r) => categoryOf(r.kind) === cat);
+    if (items.length) out.push({ category: cat, label: CATEGORY_LABEL[cat], blurb: CATEGORY_BLURB[cat], items });
+  }
+  return out;
+}
 
 // Where a record event lands. An on-site Phase-1 address when it has one — /p/<pid>
 // for a person's act, /vote/<congress>/<chamber>/<roll> for a measure's — and the
@@ -163,41 +263,78 @@ export function recordLink(ev, site) {
   return ev && ev.path ? `${site}${ev.path}` : (ev && ev.sourceUrl) || "";
 }
 
-// One HTML row per event. Returns "" for an empty group so the caller's section
-// helper omits the heading entirely.
+// One HTML row per event.
+function recordEmailRow(r, site) {
+  const when = r.date ? new Date(r.date).toISOString().slice(0, 10) : "";
+  const link = recordLink(r, site);
+  const rule = CATEGORY_RULE[categoryOf(r.kind)] || "#8a94a6";
+  return (
+    `<tr><td style="padding:10px 0 10px 10px;border-bottom:1px solid #e6e8ee;` +
+    `border-left:3px solid ${rule};">` +
+    `<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6;">` +
+    `${escHtml(KIND_KICKER[r.kind] || "Record updated")}${when ? " · " + escHtml(when) : ""}</div>` +
+    `<div style="font-size:15px;font-weight:700;color:#0a0f1e;margin:2px 0;">` +
+    `<a href="${escHtml(link)}" style="color:#0a0f1e;text-decoration:none;">${escHtml(r.headline)}</a></div>` +
+    (r.detail ? `<div style="font-size:13px;color:#48526a;">${escHtml(r.detail)}</div>` : "") +
+    `<div style="font-size:12px;margin-top:3px;">` +
+    `<a href="${escHtml(r.sourceUrl)}" style="color:#6b7686;">Source: ${escHtml(r.sourceLabel)}</a></div>` +
+    `</td></tr>`
+  );
+}
+
+// The record group, in HTML, SPLIT BY CATEGORY. Returns "" for an empty group so
+// the caller's section helper omits the heading entirely.
+//
+// The split is the point of this function. A single undifferentiated list of
+// events is an activity feed: the reader learns that six things happened and has
+// to open each to find out which of them was a vote and which was us fixing a
+// typo in a bill title. Printed under four named subheads with a one-line
+// definition each, the email's own structure answers "what kind of change is
+// this?" before a single link is clicked — and a reader who skims only the
+// "Formal acts" block has not missed anything they were told they would get.
+//
+// No count is printed beside a category name. "Formal acts (7)" invites the
+// comparison this product refuses: seven acts is not more than two acts in any
+// sense a reader should draw from an email, and the number would be a number
+// about a person derived from our coverage window.
 export function recordEmailRows(record, site) {
-  return (record || [])
-    .map((r) => {
-      const when = r.date ? new Date(r.date).toISOString().slice(0, 10) : "";
-      const link = recordLink(r, site);
-      return (
-        `<tr><td style="padding:10px 0;border-bottom:1px solid #e6e8ee;">` +
-        `<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6;">` +
-        `${escHtml(KIND_KICKER[r.kind] || "Record updated")}${when ? " · " + escHtml(when) : ""}</div>` +
-        `<div style="font-size:15px;font-weight:700;color:#0a0f1e;margin:2px 0;">` +
-        `<a href="${escHtml(link)}" style="color:#0a0f1e;text-decoration:none;">${escHtml(r.headline)}</a></div>` +
-        (r.detail ? `<div style="font-size:13px;color:#48526a;">${escHtml(r.detail)}</div>` : "") +
-        `<div style="font-size:12px;margin-top:3px;">` +
-        `<a href="${escHtml(r.sourceUrl)}" style="color:#6b7686;">Source: ${escHtml(r.sourceLabel)}</a></div>` +
-        `</td></tr>`
-      );
-    })
+  const groups = groupRecordByCategory(record);
+  if (!groups.length) return "";
+  return groups
+    .map(
+      (g) =>
+        `<tr><td style="padding:14px 0 4px;">` +
+        `<div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;` +
+        `color:#0a0f1e;letter-spacing:.02em;">${escHtml(g.label)}</div>` +
+        `<div style="font-size:12px;color:#6b7686;margin-top:1px;">${escHtml(g.blurb)}</div>` +
+        `</td></tr>` +
+        g.items.map((r) => recordEmailRow(r, site)).join("")
+    )
     .join("");
 }
 
-// The plain-text half. Same acts, same links, same citations — a text-only client
-// is not shown a different digest from an HTML one.
+// The plain-text half. Same acts, same categories, same order, same links, same
+// citations — a text-only client is not shown a different digest from an HTML one,
+// and in particular is not shown the flat list the HTML stopped being.
 export function recordTextBlock(record, site) {
-  if (!record || !record.length) return "";
+  const groups = groupRecordByCategory(record);
+  if (!groups.length) return "";
   return (
     "ON THE RECORD\n" +
-    record
+    groups
       .map(
-        (r) =>
-          `• ${r.headline}${r.date ? ` (${String(r.date).slice(0, 10)})` : ""}\n` +
-          `  ${recordLink(r, site)}\n  Source: ${r.sourceUrl}`
+        (g) =>
+          `${g.label.toUpperCase()} — ${g.blurb}\n` +
+          g.items
+            .map(
+              (r) =>
+                `• [${KIND_KICKER[r.kind] || "Record updated"}] ${r.headline}` +
+                `${r.date ? ` (${String(r.date).slice(0, 10)})` : ""}\n` +
+                `  ${recordLink(r, site)}\n  Source: ${r.sourceUrl}`
+            )
+            .join("\n")
       )
-      .join("\n") +
+      .join("\n\n") +
     "\n\n"
   );
 }

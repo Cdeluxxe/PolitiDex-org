@@ -303,6 +303,36 @@
     };
   }
 
+  // ── One item, shareable ──────────────────────────────────────────────────
+  // Phase 5. A self-defection item is already the narrowest true unit this site
+  // produces: ONE person, ONE issue, ONE stated position, ONE formal act that
+  // cut against it, with the citation attached. That is exactly the shape the
+  // record card takes, so sharing an item is just handing the record card its
+  // pid and issue key — no second artifact, no per-item image, no copy written
+  // here that the card would have to keep in sync.
+  //
+  // What the share is NOT allowed to become, and why the control is per-item
+  // and nowhere else: there is no "share this list", no count in any label, no
+  // "N times this month". A reader who receives one of these gets one act
+  // against one word and a link to the whole person file, where the acts that
+  // MATCHED their word are sitting in the same section. Ranked shares are how a
+  // record archive turns into a pillory, and the list has been unranked and
+  // unscored since it shipped — see the module footer's `ranked: false`.
+  //
+  // The control is omitted when record-card.js has not loaded, rather than
+  // falling back to some other share path: a link that opens a different object
+  // than the button promised is worse than no button.
+  function shareBtn(x) {
+    var R = window.PDXRecordCard;
+    if (!R || typeof R.buttonHtml !== 'function') return '';
+    return R.buttonHtml({
+      pid: x.pid,
+      issueKey: x.issueKey,
+      text: 'Share this record',
+      stopKeys: true
+    });
+  }
+
   // ── MARKUP ─────────────────────────────────────────────────────────────────
   function itemHtml(x, opts) {
     var o = opts || {};
@@ -339,6 +369,7 @@
           ' aria-label="' + esc('Open the issue dossier: ' + x.issue + ' — ' + x.name) + '">' +
           'The whole record on this issue →</button>' +
         (o.withName ? '' : '<a class="pdxown-pfile" href="' + esc(x.personPath) + '">Person file →</a>') +
+        shareBtn(x) +
       '</div>' +
     '</li>';
   }

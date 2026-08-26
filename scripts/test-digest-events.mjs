@@ -11,9 +11,13 @@
 // So the record group has a narrow job: tell a reader that something they track
 // changed, and hand them the receipt. This file is the fence around that job:
 //
-//   1. FOUR KINDS, PLAIN WORDS. A recorded vote, a sourced formal action, a measure
-//      that moved, a record that was corrected. Every wording map is a map from a
-//      code to a description — there is no map from a formal act to an adjective.
+//   1. SIX KINDS IN FOUR CATEGORIES, PLAIN WORDS. A recorded vote, a sourced
+//      formal action, a sourced statement, a measure that moved, a record that was
+//      corrected, coverage that grew — grouped as acts / word / corrections /
+//      coverage. Every wording map is a map from a code to a description; there is
+//      no map from a formal act to an adjective. And the group is PRINTED split by
+//      category in both surfaces, because one flat list is an activity feed: it
+//      says something happened and makes the reader click to find out what kind.
 //   2. NOTHING WITHOUT A CITATION. Every read drops rows with no source_url, and
 //      every rendered row carries the source as a link. An emailed claim a reader
 //      cannot check is worse than silence.
@@ -25,8 +29,13 @@
 //      calendar's, not importance's.
 //   5. OPT-IN, SUPPRESSED, UNSUBSCRIBABLE. Only email_enabled rows, empty digests
 //      never sent, RFC 8058 one-click headers on every send.
-//   6. topic_record THREADS END TO END. Schema → migration → prefs API → buildDigest
-//      → email → in-app panel, with the default ON and the old-prefs case handled.
+//   6. topic_record AND THE FOUR follow_* COLUMNS THREAD END TO END. Schema →
+//      migration → prefs API → buildDigest → email → in-app panel, with every
+//      default ON and the old-prefs case handled. A category switched off narrows
+//      the QUERIES, not just the output.
+//   8. THE BLOCKED-ON REPORT IS A REPORT. With RESEND_API_KEY or DIGEST_FROM_EMAIL
+//      unset the cron names the missing VARIABLES, never a value, never a send
+//      count, and returns before touching the database.
 //   7. THE EMAIL AND THE APP SAY THE SAME THING. The kickers are compared value by
 //      value, so the inbox cannot drift into a louder vocabulary than the site.
 //
@@ -41,9 +50,11 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import {
-  ACTION_WORD, KIND_KICKER, STAGE_WORD, VOTE_WORD,
-  clip, labelForPoliticianId, measureLabel, personPath, recordEmailRows,
-  recordLink, recordTextBlock, rollcallPath, sortRecordEvents,
+  ACTION_WORD, CATEGORY_BLURB, CATEGORY_KINDS, CATEGORY_LABEL, CATEGORY_ORDER,
+  EVENT_CATEGORY, KIND_KICKER, STAGE_WORD, VOTE_WORD,
+  categoryOf, clip, groupRecordByCategory, labelForPoliticianId, measureLabel,
+  personPath, recordEmailRows, recordLink, recordTextBlock, rollcallPath,
+  sortRecordEvents,
 } from "../netlify/lib/digest-record-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -97,7 +108,7 @@ const APP_HELPERS = (() => {
   return INDEX.slice(s, e);
 })();
 const app = {};
-vm.runInContext(APP_HELPERS + "\n;out.RECORD_KICKER=RECORD_KICKER;out.RECORD_ICO=RECORD_ICO;out.fmt=fmtRecordDate;",
+vm.runInContext(APP_HELPERS + "\n;out.RECORD_KICKER=RECORD_KICKER;out.RECORD_ICO=RECORD_ICO;out.fmt=fmtRecordDate;out.RECORD_CAT=RECORD_CAT;out.CAT_ORDER=RECORD_CAT_ORDER;out.CAT_LABEL=RECORD_CAT_LABEL;out.CAT_BLURB=RECORD_CAT_BLURB;out.catOn=recordCatOn;",
   vm.createContext({ out: app, console }), { filename: "index.html:record-helpers" });
 
 const SITE = "https://politidex.fyi";
@@ -144,20 +155,43 @@ const EVENTS = [
     sourceUrl: "https://example.gov/doc", sourceLabel: "Agency record",
     path: "/p/someone", politicianId: "someone", issueKeys: [],
   },
+  // The two Phase-5 kinds. `stated` is word, not act — it exists so a statement is
+  // never announced as a formal action. `coverage` is the archive growing, which is
+  // a different fact from `mapping`'s archive-was-wrong.
+  {
+    kind: "stated", id: 16,
+    headline: "Mike Lee entered an on-record statement on S. 99 — Another Act",
+    detail: "Floor statement at introduction", date: "2026-05-03T00:00:00.000Z",
+    sourceUrl: "https://www.congress.gov/congressional-record/2026/s99",
+    sourceLabel: "Congressional Record",
+    path: "/p/mike_lee", politicianId: "mike_lee", issueKeys: [],
+  },
+  {
+    kind: "coverage", id: 17,
+    headline: "H.R. 4400 — Housing Supply Act was added to the record",
+    detail: "New coverage on an issue you follow.", date: "2026-04-29T00:00:00.000Z",
+    sourceUrl: "https://www.congress.gov/bill/119th-congress/house-bill/4400",
+    sourceLabel: "Congress.gov",
+    path: null, politicianId: null, issueKeys: ["housing"],
+  },
 ];
 
 const HTML = recordEmailRows(EVENTS, SITE);
 const TEXT = recordTextBlock(EVENTS, SITE);
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · four kinds, and every wording map is a description");
+section("1 · six kinds in four categories, and every wording map is a description");
 
-eq(Object.keys(KIND_KICKER).sort().join(","), "action,mapping,position,vote",
-  "the group has exactly four kinds");
+eq(Object.keys(KIND_KICKER).sort().join(","), "action,coverage,mapping,position,stated,vote",
+  "the group has exactly six kinds");
 eq(KIND_KICKER.vote, "New recorded vote", "a roll call is announced as a recorded vote");
 eq(KIND_KICKER.position, "New formal action", "a non-roll-call act is announced as a formal action");
 eq(KIND_KICKER.action, "Measure moved", "a stage change is announced as the measure moving");
-eq(KIND_KICKER.mapping, "Record updated", "a correction is announced as the record updating");
+eq(KIND_KICKER.mapping, "Record corrected", "a correction is announced as the record being corrected");
+eq(KIND_KICKER.stated, "New sourced statement",
+  "a statement is announced as a statement — the reader is never told they said it by doing it");
+eq(KIND_KICKER.coverage, "New coverage",
+  "and coverage growing is announced as coverage, not as somebody's act");
 
 eq(Object.keys(VOTE_WORD).sort().join(","), "nay,not_voting,present,yea",
   "the four recordable positions, and no fifth");
@@ -190,15 +224,62 @@ eq(STAGE_WORD.failed, "failed", "a measure that failed is described with the sta
 eq(STAGE_WORD.enacted, "was enacted", "enactment is described, not celebrated");
 eq(ACTION_WORD.cosponsor, "co-sponsored", "co-sponsorship is described in the record's own word");
 
-// The four kinds emitted by the builder are exactly the four declared.
-const emitted = [...RECORD_CODE.matchAll(/kind:\s*"([a-z]+)"/g)].map((m) => m[1]);
-eq(emitted.length, 4, "the builder emits exactly four kinds of event");
-eq([...new Set(emitted)].sort().join(","), "action,mapping,position,vote",
-  "and they are the four declared on RecordEvent");
+// The kinds emitted by the builder are exactly the kinds declared. Two of the six
+// are emitted through a ternary — a statement and a formal act come off the same
+// read, as do new coverage and a correction — so the sweep has to see both arms.
+const emitted = [...RECORD_CODE.matchAll(/kind:\s*(?:"([a-z]+)"|[^,\n]*?\?\s*"([a-z]+)"\s*:\s*"([a-z]+)")/g)]
+  .flatMap((m) => [m[1], m[2], m[3]]).filter(Boolean);
+eq([...new Set(emitted)].sort().join(","), "action,coverage,mapping,position,stated,vote",
+  "the builder emits exactly the six kinds declared on RecordEvent");
+eq([...new Set(emitted)].sort().join(","), Object.keys(KIND_KICKER).sort().join(","),
+  "and every one of them has a plain-words kicker — none can print as a bare code");
 // Each read is narrowed by the watermark, or the first digest would send the archive.
 eq((RECORD_CODE.match(/gt\(/g) || []).length, 4, "all four reads are gated on the since-watermark");
 eq((RECORD_CODE.match(/inArray\(/g) || []).length, 5,
   "every read is narrowed to the reader's own people/issues (4 + the address lookup)");
+
+// ── the four follow categories ───────────────────────────────────────────────
+// Six kinds is a description of the record. Four categories is what the reader
+// chooses between. The mapping is one-way and total: every kind has a category,
+// and no kind is in two.
+eq(CATEGORY_ORDER.join(","), "act,word,correction,coverage",
+  "the reader's four categories are acts, word, corrections, coverage");
+for (const k of Object.keys(KIND_KICKER)) {
+  ok(CATEGORY_ORDER.indexOf(EVENT_CATEGORY[k]) >= 0,
+    `the "${k}" kind belongs to exactly one of the reader's categories`);
+  eq(categoryOf(k), EVENT_CATEGORY[k], `categoryOf("${k}") reads the same map the email does`);
+}
+eq(EVENT_CATEGORY.stated, "word", "a sourced statement is word — it is never filed as an act");
+eq(EVENT_CATEGORY.position, "act", "a sourced formal action is an act");
+eq(EVENT_CATEGORY.vote, "act", "a recorded vote is an act");
+eq(EVENT_CATEGORY.action, "act", "a measure that moved is an act");
+eq(EVENT_CATEGORY.mapping, "correction", "the archive being wrong is a correction, not an act");
+eq(EVENT_CATEGORY.coverage, "coverage", "the archive growing is coverage, not a correction");
+eq(Object.keys(EVENT_CATEGORY).sort().join(","), Object.keys(KIND_KICKER).sort().join(","),
+  "no kind can be emitted without a category — the two maps have the same keys");
+eq(CATEGORY_KINDS.act.slice().sort().join(","), "action,position,vote",
+  "the act category is derived from the map, not hand-listed a second time");
+eq(CATEGORY_KINDS.word.join(","), "stated", "word holds only the statement kind");
+eq(CATEGORY_KINDS.correction.join(","), "mapping", "correction holds only the correction kind");
+eq(CATEGORY_KINDS.coverage.join(","), "coverage", "coverage holds only the coverage kind");
+for (const c of CATEGORY_ORDER) {
+  ok(CATEGORY_LABEL[c] && CATEGORY_LABEL[c].length > 2, `the ${c} category has a reader-facing name`);
+  ok(CATEGORY_BLURB[c] && /[a-z]/.test(CATEGORY_BLURB[c]),
+    `and a sentence saying what it means, so the name is not the only explanation`);
+  ok(!/%|\bscore\b|\brank/i.test(CATEGORY_LABEL[c] + " " + CATEGORY_BLURB[c]),
+    `and neither is a measurement (${c})`);
+}
+// A category with nothing in it is not printed at all — an empty heading is a
+// promise the digest did not keep.
+const GROUPED = groupRecordByCategory(EVENTS);
+eq(GROUPED.map((g) => g.category).join(","), "act,word,correction,coverage",
+  "the grouper returns the categories in the reader's order");
+ok(GROUPED.every((g) => g.items.length > 0), "and never returns an empty category");
+eq(GROUPED.reduce((n, g) => n + g.items.length, 0), EVENTS.length,
+  "every event lands in exactly one category — none is dropped, none is doubled");
+eq(groupRecordByCategory([]).length, 0, "no events, no headings");
+eq(groupRecordByCategory([EVENTS[0]]).map((g) => g.category).join(","), "act",
+  "one act prints one heading, not four");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · nothing is sent without a citation");
@@ -279,8 +360,8 @@ const IFACE = (() => {
 })();
 const fields = [...strip(IFACE).matchAll(/^\s{2}(\w+)[?]?:/gm)].map((m) => m[1]);
 eq(fields.sort().join(","),
-  "date,detail,headline,id,issueKeys,kind,path,politicianId,sourceLabel,sourceUrl",
-  "a record event carries an act, a date, a citation and an address — nothing else");
+  "category,date,detail,headline,id,issueKeys,kind,path,politicianId,sourceLabel,sourceUrl",
+  "a record event carries an act, a date, a citation, an address and its category — nothing else");
 for (const f of fields) {
   ok(!/score|rank|pct|percent|rating|grade|weight|tier|total|count/i.test(f),
     `the field "${f}" is not named like a measurement`);
@@ -289,7 +370,7 @@ for (const f of fields) {
 // Order is the calendar's. Newest first, undated last, and the tiebreak is stable
 // rather than a judgement about which act matters more.
 const sorted = sortRecordEvents([...EVENTS]);
-eq(sorted.map((e) => e.id).join(","), "11,12,13,14,15", "newest act first, undated last");
+eq(sorted.map((e) => e.id).join(","), "11,16,12,13,17,14,15", "newest act first, undated last");
 const tie = sortRecordEvents([
   { kind: "vote", id: 2, date: "2026-01-01T00:00:00.000Z" },
   { kind: "action", id: 1, date: "2026-01-01T00:00:00.000Z" },
@@ -301,13 +382,34 @@ const withWeight = sortRecordEvents([
   { kind: "vote", id: 2, date: "2026-02-01T00:00:00.000Z", weight: 0 },
 ]);
 eq(withWeight.map((e) => e.id).join(","), "2,1", "the sort reads the date and the id, nothing else");
-// The rendered rows keep the order they were handed — no re-ranking in the email.
+// The rendered rows are split by category, in the reader's category order, and
+// WITHIN a category they keep the order they were handed — no re-ranking anywhere.
+const HEADS = CATEGORY_ORDER.map((c) => HTML.indexOf(CATEGORY_LABEL[c]));
+ok(HEADS.every((v) => v > 0), "every non-empty category prints its own heading in the email");
+ok(HEADS.every((v, i) => i === 0 || v > HEADS[i - 1]),
+  "and the headings run in the reader's category order, not by how many rows each holds");
+for (const c of CATEGORY_ORDER) {
+  ok(HTML.indexOf(CATEGORY_BLURB[c]) > HTML.indexOf(CATEGORY_LABEL[c]),
+    `the ${c} heading is followed by its plain-words blurb, so the reader is never guessing`);
+  ok(TEXT.indexOf(CATEGORY_LABEL[c].toUpperCase()) > 0 ||
+     TEXT.indexOf(CATEGORY_LABEL[c]) > 0, `and the text part names the ${c} category too`);
+}
+// A heading is never a count. "Formal acts (4)" is a scoreboard with one column.
+ok(!new RegExp(CATEGORY_LABEL.act + "\\s*[(:]?\\s*\\d").test(HTML),
+  "no category heading carries a tally beside it");
 const MARKERS = ["Celeste Maloy voted no", "Mike Lee co-sponsored",
-  "Example Act passed the House", "was updated", "An undated formal act"];
+  "Example Act passed the House", "An undated formal act"];
 const positions = MARKERS.map((m) => HTML.indexOf(m));
-ok(positions.every((v) => v > 0), "every event is present in the rendered html");
+ok(positions.every((v) => v > 0), "every act is present in the rendered html");
 ok(positions.every((v, i) => i === 0 || v > positions[i - 1]),
-  "the email renders the group in the order it was given");
+  "the email renders the acts in the order it was given");
+for (const m of ["entered an on-record statement", "was updated", "was added to the record"]) {
+  has(HTML, m, `and the other categories render their own rows too ("${m}")`);
+}
+// The statement row sits under word, and the act rows sit above it — the split is
+// real in the output, not just in the data.
+ok(HTML.indexOf("entered an on-record statement") > HTML.indexOf("An undated formal act"),
+  "a statement is printed under the word heading, below every formal act");
 // An empty group renders nothing at all, so the heading is omitted with it.
 eq(recordEmailRows([], SITE), "", "an empty record group renders no html");
 eq(recordTextBlock([], SITE), "", "an empty record group renders no text");
@@ -330,13 +432,33 @@ has(CRONC, '"List-Unsubscribe-Post": "List-Unsubscribe=One-Click"',
   "RFC 8058 one-click unsubscribe is still sent");
 has(CRONC, "unsubscribeUrl(row.userId)", "and the visible unsubscribe link is still built");
 has(CRONC, "unsubscribe from email digests", "the email body still says how to stop it");
-// The config gate runs before anything is read or sent.
-const iGate = CRONC.indexOf("if (!emailConfigured)");
+// ── the blocked-on report ────────────────────────────────────────────────────
+// With delivery unconfigured the cron must do three things, all of which a reader
+// of the function log depends on: name the variables that are missing, say plainly
+// that nothing went out, and leave the watermark where it was so the run can be
+// repeated once the variables are set. What it must NOT do is report a quiet
+// success — a "sent: 0" with no explanation is indistinguishable from a day with
+// no news, and the operator finds out weeks later.
+const iGate = CRONC.indexOf("if (missingEnv.length)");
 const iRead = CRONC.indexOf(".from(pdxNotificationPrefs)");
 ok(iGate > 0 && iRead > iGate, "an unconfigured environment returns before reading any row");
-has(CRONC, "RESEND_API_KEY && process.env.DIGEST_FROM_EMAIL",
-  "both required variables are checked together");
+has(CRONC, 'if (!process.env.RESEND_API_KEY) missingEnv.push("RESEND_API_KEY")',
+  "the api key is checked by name and collected rather than short-circuited");
+has(CRONC, 'if (!process.env.DIGEST_FROM_EMAIL) missingEnv.push("DIGEST_FROM_EMAIL")',
+  "and so is the from address, so a report can name BOTH when both are unset");
 has(CRONC, "email-not-configured", "and the no-op is reported plainly");
+has(CRONC, "delivered: false", "the blocked report says outright that nothing was delivered");
+has(CRONC, "missingEnv", "and hands back the names of what it is waiting on");
+// The blocked branch is a report, not a tally. Slice it and check.
+const BLOCKED = CRONC.slice(iGate, CRONC.indexOf("}", CRONC.indexOf("return new Response", iGate)));
+ok(BLOCKED.length > 40, "the blocked branch is really there to inspect");
+for (const bad of ["sent:", "skippedEmpty", "failed:", '"ok"']) {
+  lacks(BLOCKED, bad, `the blocked report carries no send tally ("${bad}")`);
+}
+lacks(BLOCKED, "lastDigestAt", "and advances no watermark, so the day is not silently consumed");
+ok(/BLOCKED/.test(BLOCKED), "the log line says BLOCKED in words, not just in a status code");
+ok(!/process\.env\.RESEND_API_KEY\s*\)/.test(BLOCKED.replace(/missingEnv[^\n]*/g, "")),
+  "and the branch itself never reads a value back out to print it");
 has(CRONC, "lastDigestAt: new Date()", "the watermark advances only after a send");
 // Nothing about a recipient, and nothing about a secret, is ever logged.
 ok(!/\$\{process\.env\./.test(CRONC), "no environment value is ever interpolated into output");
@@ -357,7 +479,7 @@ const iEv = CRON.indexOf('section("New Evidence"');
 ok(iRec > 0 && iEv > iRec, "the archive is placed above the conversation about it");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · topic_record threads schema → prefs → digest → email → app");
+section("6 · topic_record and the four follow_* columns thread end to end");
 
 has(SCHEMA, 'topicRecord: boolean("topic_record").notNull().default(true)',
   "the column exists and defaults on");
@@ -376,6 +498,124 @@ has(strip(DIGEST), "record: RecordEvent[]", "the Digest type carries the group")
 has(strip(DIGEST), "record: number;", "the counts block carries the group's own count");
 has(strip(DIGEST), "record: record.length,", "and it is the number actually sent");
 has(CRONC, "record: row.topicRecord", "the email respects the reader's toggle");
+
+// ── the four follow_* columns ────────────────────────────────────────────────
+// The reader's four switches have to survive the whole trip: schema, migration,
+// GET, PUT, buildDigest, the query planner, the cron and the panel. A switch that
+// only filters the OUTPUT is a lie about what was read, so the categories are
+// checked at the query as well.
+const FOLLOW = [
+  ["act", "followActs", "follow_acts", "followActs"],
+  ["word", "followWord", "follow_word", "followWord"],
+  ["correction", "followCorrections", "follow_corrections", "followCorrections"],
+  ["coverage", "followCoverage", "follow_coverage", "followCoverage"],
+];
+const FOLLOW_MIG = R("netlify/database/migrations/20260927000000_pdx_notification_follow_categories.sql");
+for (const [cat, prop, col] of FOLLOW) {
+  has(SCHEMA, `${prop}: boolean("${col}").notNull().default(true)`,
+    `the ${cat} column exists and defaults on — an existing reader loses nothing`);
+  has(FOLLOW_MIG, `ADD COLUMN IF NOT EXISTS "${col}" boolean DEFAULT true NOT NULL`,
+    `and the migration that adds ${col} is on disk`);
+  has(API, `${prop}: bool(body?.${prop}`, `the prefs API accepts ${prop} on PUT`);
+  has(API, `${prop}:`, `and hands ${prop} back on GET`);
+  has(CRONC, `${cat}: row.${prop}`, `the cron passes the reader's ${cat} switch into the build`);
+}
+// THE COLUMNS HAVE TO REACH THE DRIZZLE CHAIN, not just the database. The four
+// are introduced by hand-written .sql, and drizzle-kit builds its next migration
+// by diffing db/schema.ts against the newest snapshot.json in the tree. Without a
+// snapshot carrying them, the next `generate` would not find follow_acts in the
+// last snapshot and would emit a second, unguarded ALTER TABLE for four columns
+// that already exist — which aborts a deploy. The twin folder is that snapshot,
+// on the same pattern 20260926000000_create_vr_vote_correction_overlays uses.
+const TWIN = "netlify/database/migrations/20260928000000_pdx_notification_follow_categories";
+const TWIN_SQL = R(TWIN + "/migration.sql");
+const TWIN_SNAP = JSON.parse(R(TWIN + "/snapshot.json"));
+for (const [cat, prop, col] of FOLLOW) {
+  has(TWIN_SQL, `ADD COLUMN IF NOT EXISTS "${col}" boolean DEFAULT true NOT NULL`,
+    `the snapshot carrier restates ${col} idempotently, so it is a no-op where it ran`);
+  const e = (TWIN_SNAP.ddl || []).find(
+    (x) => x.entityType === "columns" && x.table === "pdx_notification_prefs" && x.name === col);
+  ok(!!e, `the snapshot describes ${col} — otherwise generate re-emits it`);
+  if (e) {
+    eq(e.type, "boolean", `${col} is boolean in the snapshot`);
+    eq(e.default, "true", `${col} defaults on in the snapshot, as it does in the schema`);
+    eq(e.notNull, true, `${col} is NOT NULL in the snapshot`);
+  }
+}
+// The chain is a chain: this snapshot must name the one before it as its parent.
+eq((TWIN_SNAP.prevIds || []).length, 1, "the snapshot names exactly one parent");
+eq((TWIN_SNAP.prevIds || [])[0],
+  JSON.parse(R("netlify/database/migrations/20260926000000_create_vr_vote_correction_overlays/snapshot.json")).id,
+  "and that parent is the snapshot immediately before it in the tree");
+ok(TWIN_SNAP.id && TWIN_SNAP.id !== (TWIN_SNAP.prevIds || [])[0],
+  "with an id of its own");
+// It is a twin, not a second source of truth: it says so, and it alters nothing.
+has(TWIN_SQL, "THIS IS THE TWIN, NOT THE CHANGE",
+  "the carrier does not say that the reasoning lives in the hand-written migration");
+const TWIN_STMTS = TWIN_SQL.split("\n").filter((l) => !/^\s*--/.test(l)).join("\n").toUpperCase();
+for (const verb of ["DROP", "RENAME", "ALTER COLUMN", "DELETE FROM", "UPDATE ", "TRUNCATE"]) {
+  ok(!TWIN_STMTS.includes(verb), `the carrier contains ${verb} — it must be additive`);
+}
+has(API, "follow: {", "the prefs API passes the four as one follow object, not four flags");
+const DIGESTC = strip(DIGEST);
+has(DIGESTC, "export function followSet", "buildDigest resolves the four into a set of wanted categories");
+has(DIGESTC, "const want = followSet(follow)", "and the event builder reads that set");
+has(DIGESTC, "follow?: RecordFollow", "the topics object carries the reader's choice");
+has(DIGESTC, "topics.follow", "and buildDigest actually forwards it");
+// Absent or malformed means everything, never nothing. A reader whose prefs row
+// predates Phase 5 must not go silent.
+const followSetSrc = DIGESTC.slice(DIGESTC.indexOf("export function followSet"),
+  DIGESTC.indexOf("export", DIGESTC.indexOf("export function followSet") + 10));
+has(followSetSrc, "CATEGORY_ORDER",
+  "followSet reads the shared category list rather than hard-coding the four names again");
+ok(/!follow/.test(followSetSrc),
+  "followSet handles a missing follow object rather than treating it as all-off");
+has(followSetSrc, "!== false",
+  "and an undefined switch counts as on, so a pre-Phase-5 prefs row does not go silent");
+// Behaviour, not just source. digest.ts is TypeScript and cannot be imported here,
+// so followSet is lifted out and run for real with its annotations stripped — the
+// logic under test is the shipped logic, not a restatement of it.
+const followSet = (() => {
+  const src = followSetSrc.replace(/export function/, "function")
+    .replace(/\(follow\?: RecordFollow\): Set<string>/, "(follow)")
+    .replace(/new Set<string>\(\)/, "new Set()")
+    .replace(/\(follow as any\)/, "follow");
+  const box = {};
+  vm.runInContext(src + "\n;out.f=followSet;",
+    vm.createContext({ out: box, CATEGORY_ORDER }), { filename: "digest.ts:followSet" });
+  return box.f;
+})();
+eq(typeof followSet, "function", "followSet was lifted out of digest.ts and runs");
+eq([...followSet()].sort().join(","), "act,correction,coverage,word",
+  "no follow object at all means the reader hears everything");
+eq([...followSet({})].sort().join(","), "act,correction,coverage,word",
+  "and so does an empty one");
+eq([...followSet({ word: false })].sort().join(","), "act,correction,coverage",
+  "switching word off removes exactly one category");
+eq([...followSet({ act: false, coverage: false })].sort().join(","), "correction,word",
+  "two off leaves the other two");
+eq([...followSet({ act: false, word: false, correction: false, coverage: false })].length, 0,
+  "and all four off means the reader asked for nothing — which is respected, not overridden");
+// The switch narrows the QUERY. Each read is guarded by what the reader wants.
+const RD = RECORD_CODE;
+has(RD, 'want.has("act")', "the vote read does not run when acts are switched off");
+has(RD, 'want.has("act") || want.has("word")', "the mixed act/word read runs only if one is wanted");
+has(RD, 'want.has(spoke ? "word" : "act")',
+  "and inside it each row is filed by whether it was said or done");
+has(RD, 'want.has("coverage") || want.has("correction")',
+  "the measure read runs only if coverage or corrections are wanted");
+has(RD, 'want.has(isNew ? "coverage" : "correction")',
+  "and inside it a new measure is coverage while a changed one is a correction");
+eq((RD.match(/want\.has\(/g) || []).length, 8,
+  "the switches are consulted eight times: four read gates plus the two per-row splits");
+eq((RD.match(/if \(pids\.length|if \(issues\.length/g) || []).length, 4,
+  "and there are still exactly four reads, each of them gated");
+// Every emitted event carries its category, assigned in one place.
+has(RD, "categoryOf(ev.kind)", "the category is derived from the kind, never passed in by hand");
+has(DOC, "follow_acts", "DIGEST.md documents the acts switch");
+has(DOC, "follow_word", "and the word switch");
+has(DOC, "follow_corrections", "and the corrections switch");
+has(DOC, "follow_coverage", "and the coverage switch");
 has(DOC, "RESEND_API_KEY", "DIGEST.md names the required api key variable");
 has(DOC, "DIGEST_FROM_EMAIL", "DIGEST.md names the required from-address variable");
 has(DOC, "DIGEST_UNSUB_SECRET", "DIGEST.md names the optional unsubscribe secret");
@@ -385,14 +625,43 @@ ok(!/re_[A-Za-z0-9]{8}/.test(DOC + CRON + DIGEST), "no key-shaped literal anywhe
 // ═════════════════════════════════════════════════════════════════════════════
 section("7 · the in-app panel says the same thing as the email");
 
-eq(Object.keys(app.RECORD_KICKER).sort().join(","), "action,mapping,position,vote",
-  "the panel knows the same four kinds");
+eq(Object.keys(app.RECORD_KICKER).sort().join(","), "action,coverage,mapping,position,stated,vote",
+  "the panel knows the same six kinds");
 for (const k of Object.keys(KIND_KICKER)) {
   eq(app.RECORD_KICKER[k], KIND_KICKER[k],
     `the panel and the email announce "${k}" with the same words`);
 }
-eq(Object.keys(app.RECORD_ICO).sort().join(","), "action,mapping,position,vote",
+eq(Object.keys(app.RECORD_ICO).sort().join(","), "action,coverage,mapping,position,stated,vote",
   "and gives each kind an icon");
+
+// ── the panel splits by the same four categories, with the same words ────────
+// Two copies of a category map is two chances to drift, so the test compares them
+// key by key and word for word rather than trusting that both were updated.
+eq(app.CAT_ORDER.join(","), CATEGORY_ORDER.join(","),
+  "the panel orders the categories exactly as the email does");
+eq(Object.keys(app.RECORD_CAT).sort().join(","), Object.keys(EVENT_CATEGORY).sort().join(","),
+  "and files every kind under a category, with no kind left over");
+for (const k of Object.keys(EVENT_CATEGORY)) {
+  eq(app.RECORD_CAT[k], EVENT_CATEGORY[k], `the panel files "${k}" where the email files it`);
+}
+for (const c of CATEGORY_ORDER) {
+  eq(app.CAT_LABEL[c], CATEGORY_LABEL[c], `the ${c} category is named identically in both surfaces`);
+  eq(app.CAT_BLURB[c], CATEGORY_BLURB[c], `and explained identically`);
+}
+// The reader's four switches are read one at a time. An absent pref means on, so
+// a prefs row saved before Phase 5 hears everything rather than nothing.
+eq(app.catOn({}, "act"), true, "an old prefs row still hears formal acts");
+eq(app.catOn({}, "word"), true, "and stated positions");
+eq(app.catOn({}, "correction"), true, "and corrections");
+eq(app.catOn({}, "coverage"), true, "and coverage");
+eq(app.catOn({ followWord: false }, "word"), false, "switching word off silences word");
+eq(app.catOn({ followWord: false }, "act"), true, "and leaves the acts alone");
+eq(app.catOn({ followActs: false }, "act"), false, "switching acts off silences acts");
+eq(app.catOn({ followCorrections: false }, "correction"), false, "corrections can be silenced alone");
+eq(app.catOn({ followCoverage: false }, "coverage"), false, "so can coverage");
+// There is no single switch that means "all record activity" — that is the blob
+// this phase exists to avoid.
+lacks(strip(APP_HELPERS), "followAll", "there is no one-switch activity toggle in the panel");
 // A date is formatted, never invented.
 ok(/2026/.test(app.fmt("2026-03-04T12:00:00.000Z")), "a real date renders its year");
 ok(/Mar/.test(app.fmt("2026-03-04T12:00:00.000Z")), "and its month");
@@ -460,5 +729,6 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`✓ digest-events: all ${passed} assertions passed`);
-console.log(`   4 event kinds · every item cited · links on /p/ and /vote/ · ` +
+console.log(`   6 event kinds in 4 named categories · every item cited · ` +
+  `links on /p/ and /vote/ · blocked-on reported, never faked · ` +
   `no aggregate, no ranking, no score`);
